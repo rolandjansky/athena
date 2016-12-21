@@ -73,7 +73,7 @@ namespace LVL1
       /** Returns a vector of LVL1::ModuleEnergy objects */
       virtual void moduleSums(const xAOD::JetElementContainer* jetelements,
                               DataVector<ModuleEnergy>* modules, int slice = -1) ;
-      virtual void moduleSums(const std::map<int, xAOD::JetElement*>* jemap,
+      virtual void moduleSums(const xAOD::JetElementMap_t* jemap,
                               DataVector<ModuleEnergy>* modules, int slice = -1) ;
       /** Returns a vector of LVL1::CrateEnergy objects */
       virtual void crateSums(const DataVector<ModuleEnergy>* modules,
@@ -83,19 +83,19 @@ namespace LVL1
       /** Directly obtain LVL1::CrateEnergy objects */
       virtual void crateSums(const xAOD::JetElementContainer* jetelements,
                              DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
-      virtual void crateSums(const std::map<int, xAOD::JetElement*>* jemap,
+      virtual void crateSums(const xAOD::JetElementMap_t* jemap,
                              DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
       /** Returns a LVL1::SystemEnergy object */
       virtual SystemEnergy systemSums(const DataVector<CrateEnergy>* crates) ;
       /** Directly obtain a LVL1::SystemEnergy object */
       virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
-      virtual SystemEnergy systemSums(const std::map<int, xAOD::JetElement*>* jemap, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
+      virtual SystemEnergy systemSums(const xAOD::JetElementMap_t* jemap, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
             
     private:
 
       /** Return a map of JetElements */
       void mapJetElements(const xAOD::JetElementContainer* jetelements,
-                          std::map<int, xAOD::JetElement*>* m_jeContainer);
+                          xAOD::JetElementMap_t* m_jeContainer);
       /** Fill masked out JetElements map */
       void fillMaskedOutMap();
       

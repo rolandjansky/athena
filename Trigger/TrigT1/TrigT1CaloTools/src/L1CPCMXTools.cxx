@@ -50,13 +50,13 @@ StatusCode L1CPCMXTools::initialize() {
   StatusCode sc = m_configSvc.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()
-                    << endreq;
+                    << endmsg;
     return sc;
   } else if (m_debug) {
-    msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endreq;
+    msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endmsg;
   }
 
-  msg(MSG::INFO) << "Initialization completed" << endreq;
+  msg(MSG::INFO) << "Initialization completed" << endmsg;
 
   return sc;
 }
@@ -579,7 +579,7 @@ unsigned int L1CPCMXTools::addHits(unsigned int hitMult, unsigned int hitVec,
                                    int multBits, int vecBits) const {
   if (m_debug)
     msg() << MSG::DEBUG << "addHits: Original hitMult = " << std::hex << hitMult
-          << ". Add hitWord = " << hitVec << std::dec << endreq;
+          << ". Add hitWord = " << hitVec << std::dec << endmsg;
 
   // Results transmitted in 2 words, each reporting half of the CP thresholds
   int nthresh = TrigT1CaloDefs::numOfCPThresholds / 2;
@@ -588,7 +588,7 @@ unsigned int L1CPCMXTools::addHits(unsigned int hitMult, unsigned int hitVec,
   int nbitsIn = vecBits / nthresh;
 
   if (m_debug)
-    msg() << MSG::DEBUG << " Bits per threshold = " << nbitsOut << endreq;
+    msg() << MSG::DEBUG << " Bits per threshold = " << nbitsOut << endmsg;
 
   int max = (1 << nbitsOut) - 1;
   unsigned int multMask = max;
@@ -609,7 +609,7 @@ unsigned int L1CPCMXTools::addHits(unsigned int hitMult, unsigned int hitVec,
 
   if (m_debug)
     msg() << MSG::DEBUG << "addHits returning hitMult = " << std::hex << hits
-          << std::dec << endreq;
+          << std::dec << endmsg;
 
   return hits;
 }

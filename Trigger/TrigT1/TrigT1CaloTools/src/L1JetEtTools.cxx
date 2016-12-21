@@ -13,6 +13,8 @@
 #include "TrigConfL1Data/L1DataDef.h"
 #include <cmath>
 
+using namespace TrigConf;
+
 
 namespace LVL1 {
 

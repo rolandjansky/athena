@@ -53,7 +53,7 @@ StatusCode L1CPMTools::finalize()
 
 /** Form results for a specified module*/
 
-void L1CPMTools::findCPMResults(const std::map<int, xAOD::CPMTower*>* towers, int crate, int module,
+void L1CPMTools::findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, int module,
                                 DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,
                                 std::vector<unsigned int>& tauCMXData, int slice) {
 
@@ -209,14 +209,14 @@ void L1CPMTools::findCPMResults(const std::map<int, xAOD::CPMTower*>* towers, in
 void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice) {
 
   /** Need a map of CPMTowers as input */
-  std::map<int, xAOD::CPMTower*>* towers = new std::map<int, xAOD::CPMTower*>;
+  xAOD::CPMTowerMap_t* towers = new xAOD::CPMTowerMap_t;
   mapTowers(cpmts, towers);
 
   /** Now find the RoIs in this map */
   findCPMTobRoIs(towers, rois, slice);  
 
   /** Clean up */
-  for (std::map<int, xAOD::CPMTower*>::iterator it = towers->begin(); it != towers->end(); ++it) {
+  for (xAOD::CPMTowerMap_t::iterator it = towers->begin(); it != towers->end(); ++it) {
     delete (*it).second;
   }
   delete towers;
@@ -225,7 +225,7 @@ void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::C
 
 /** Find all CPMTobRoIs in the event */
 
-void L1CPMTools::findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, xAOD::CPMTobRoIContainer* rois, int slice) {
+void L1CPMTools::findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice) {
 
   /** Clear results vector to be safe */
   rois->clear();
@@ -237,7 +237,7 @@ void L1CPMTools::findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, xA
 
   TriggerTowerKey testKey(0.0, 0.0);
   std::map<int, int> analysed;
-  std::map<int, xAOD::CPMTower*>::const_iterator cpmt = towers->begin();
+  xAOD::CPMTowerMap_t::const_iterator cpmt = towers->begin();
   for ( ; cpmt != towers->end(); ++cpmt) {
     double eta = (*cpmt).second->eta();
     double phi = (*cpmt).second->phi();
@@ -276,14 +276,14 @@ void L1CPMTools::findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, xA
 void L1CPMTools::findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice){
 
   /** Need a map of CPMTowers as input */
-  std::map<int, xAOD::CPMTower*>* towers = new std::map<int, xAOD::CPMTower*>;
+  xAOD::CPMTowerMap_t* towers = new xAOD::CPMTowerMap_t;
   mapTowers(cpmts, towers);
 
   /** Now find the RoIs in this map */
   findRoIs(towers, tobs, slice);  
 
   /** Clean up */
-  for (std::map<int, xAOD::CPMTower*>::iterator it = towers->begin(); it != towers->end(); ++it) {
+  for (xAOD::CPMTowerMap_t::iterator it = towers->begin(); it != towers->end(); ++it) {
     delete (*it).second;
   }
   delete towers;
@@ -291,7 +291,7 @@ void L1CPMTools::findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CP
  
 
 /** Find list of TOBs from user-supplied map of CPMTowers */
-void L1CPMTools::findRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVector<CPMTobAlgorithm>* tobs, int slice){
+void L1CPMTools::findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice){
 
   /** Clear results vector to be safe */
   tobs->clear();
@@ -303,7 +303,7 @@ void L1CPMTools::findRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVect
 
   TriggerTowerKey testKey(0.0, 0.0);
   std::map<int, int> analysed;
-  std::map<int, xAOD::CPMTower*>::const_iterator cpmt = towers->begin();
+  xAOD::CPMTowerMap_t::const_iterator cpmt = towers->begin();
   for ( ; cpmt != towers->end(); ++cpmt) {
     double eta = (*cpmt).second->eta();
     double phi = (*cpmt).second->phi();
@@ -327,7 +327,7 @@ void L1CPMTools::findRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVect
 }
 
 /** CPMTower map from user-supplied vector of CPMTowers */
-void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, std::map<int, xAOD::CPMTower*>* towers){
+void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTowerMap_t* towers){
 
   // Clear map before filling
   towers->clear();
@@ -341,7 +341,7 @@ void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, std::map<int
      if (fabs(TriggerTowerEta) < 2.5) {   // limit of em/tau coverage
        double TriggerTowerPhi=(*it)->phi();
        int key = testKey.ttKey(TriggerTowerPhi,TriggerTowerEta);
-       std::map<int, xAOD::CPMTower *>::iterator test=towers->find( key );
+       xAOD::CPMTowerMap_t::iterator test=towers->find( key );
        if (test != towers->end()){
          ATH_MSG_ERROR( "ERROR: tower already in map!" );
        }
@@ -353,7 +353,7 @@ void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, std::map<int
            if ((*it2) > 0) nonZero = true;
          for (std::vector<uint8_t>::iterator it2 = hadEt.begin(); it2 != hadEt.end(); ++it2)
            if ((*it2) > 0) nonZero = true;
-         if (nonZero) towers->insert(std::map<int, xAOD::CPMTower*>::value_type(key,(*it)));
+         if (nonZero) towers->insert(xAOD::CPMTowerMap_t::value_type(key,(*it)));
        }
      }
   }//endfor
@@ -363,7 +363,7 @@ void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, std::map<int
 
 /** Return RoI for given coordinates */
 
-CPMTobAlgorithm L1CPMTools::findRoI(double RoIeta, double RoIphi, const std::map<int, xAOD::CPMTower*>* towers, int slice) {
+CPMTobAlgorithm L1CPMTools::findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) {
 
   // Performs all processing for this location
   CPMTobAlgorithm roi(RoIeta, RoIphi, towers, m_configSvc, slice);
@@ -374,7 +374,7 @@ CPMTobAlgorithm L1CPMTools::findRoI(double RoIeta, double RoIphi, const std::map
 
 /** Form clusters for given coordinates */
 
-void L1CPMTools::formSums(double RoIeta, double RoIphi, const std::map<int, xAOD::CPMTower*>* towers, int slice) {
+void L1CPMTools::formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) {
 
   // Leak prevention
   if (m_RoI != 0) delete m_RoI;
@@ -386,7 +386,7 @@ void L1CPMTools::formSums(double RoIeta, double RoIphi, const std::map<int, xAOD
 
 /** Form sums for given RoI */
 
-void L1CPMTools::formSums(uint32_t roiWord, const std::map<int, xAOD::CPMTower*>* towers, int slice) {
+void L1CPMTools::formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice) {
 
   // Leak prevention
   if (m_RoI != 0) delete m_RoI;

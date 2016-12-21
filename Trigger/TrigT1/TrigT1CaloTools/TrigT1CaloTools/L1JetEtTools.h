@@ -21,7 +21,7 @@
 namespace LVL1 
 {
 
-using namespace TrigConf;
+  //using namespace TrigConf;
 
   /** @class L1JetEtTools
 

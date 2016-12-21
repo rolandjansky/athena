@@ -58,12 +58,12 @@ namespace LVL1
     virtual ~L1DynamicPedestalProviderTxt();
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     void handle(const Incident&) override;
 
     /** retrieve the bcidCorrection value */
-    virtual int dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu);
+    virtual int dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu) override;
 
     // forward declaration for a function that evaluates the correction as function of mu
     class ParamFunc;

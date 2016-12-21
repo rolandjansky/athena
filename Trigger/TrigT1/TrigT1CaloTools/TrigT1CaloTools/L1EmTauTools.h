@@ -61,24 +61,24 @@ namespace LVL1
       
       /** Tool-based EM/tau algorithm implementation */
       /** Find RoIs in user-supplied map of input towers */
-      virtual void findRoIs(const std::map<int, CPMTower*>* towers, DataVector<CPAlgorithm>* rois, int slice = -1);
-      virtual void findRoIs(const std::map<int, TriggerTower*>* tts, DataVector<CPAlgorithm>* rois, int slice = -1);
+      virtual void findRoIs(const CPMTowerMap_t* towers, DataVector<CPAlgorithm>* rois, int slice = -1);
+      virtual void findRoIs(const TriggerTowerMap_t* tts, DataVector<CPAlgorithm>* rois, int slice = -1);
       /** Find RoIs in user-supplied DataVector of input towers */
       virtual void findRoIs(const DataVector<CPMTower>* cpmts, DataVector<CPAlgorithm>* rois, int slice = -1);
       virtual void findRoIs(const DataVector<TriggerTower>* tts, DataVector<CPAlgorithm>* rois, int slice = -1);
       
       /** Map CPMTowers from user-supplied DataVector of inputs */
-      virtual void mapTowers(const DataVector<TriggerTower>* tts, std::map<int, CPMTower*>* towers);
-      virtual void mapTowers(const DataVector<CPMTower>* cpmts, std::map<int, CPMTower*>* towers);
+      virtual void mapTowers(const DataVector<TriggerTower>* tts, CPMTowerMap_t* towers);
+      virtual void mapTowers(const DataVector<CPMTower>* cpmts, CPMTowerMap_t* towers);
       /** Map of CPMTowers from user-supplied map of TriggerTowers */
-      virtual void mapTowers(const std::map<int, TriggerTower*>* tts, std::map<int, CPMTower*>* towers);
+      virtual void mapTowers(const TriggerTowerMap_t* tts, CPMTowerMap_t* towers);
       
       /** Return RoI object for a specified location */
-      virtual CPAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, CPMTower*>* towers, int slice = -1) ;
+      virtual CPAlgorithm findRoI(double RoIeta, double RoIphi, const CPMTowerMap_t* towers, int slice = -1) ;
       
       /** Form cluster/isolation sums for a given RoI location */
-      virtual void formSums(double RoIeta, double RoIphi, const std::map<int, CPMTower*>* towers, int slice = -1) ;
-      virtual void formSums(uint32_t roiWord, const std::map<int, CPMTower*>* towers, int slice = -1) ;
+      virtual void formSums(double RoIeta, double RoIphi, const CPMTowerMap_t* towers, int slice = -1) ;
+      virtual void formSums(uint32_t roiWord, const CPMTowerMap_t* towers, int slice = -1) ;
       /** Methods to return the cluster/isolation ET values */
       virtual int Core() const;
       virtual int EMClus() const;

@@ -37,18 +37,18 @@ public:
 
 class ParamFuncPol2 : public L1DynamicPedestalProviderTxt::ParamFunc {
 public:
-  ParamFuncPol2(double p0, double p1, double p2) : p_{p0, p1, p2} {}
-  virtual double operator()(double mu) { return p_[0] + p_[1]*mu + p_[2]*mu*mu; }
+  ParamFuncPol2(double p0, double p1, double p2) : m_p{{p0, p1, p2}} {}
+  virtual double operator()(double mu) { return m_p[0] + m_p[1]*mu + m_p[2]*mu*mu; }
 private:
-  std::array<double, 3> p_;
+  std::array<double, 3> m_p;
 };
 
 class ParamFuncExp : public L1DynamicPedestalProviderTxt::ParamFunc {
 public:
-  ParamFuncExp(double p0, double p1, double p2) : p_{p0, p1, p2} {}
-  virtual double operator()(double mu) { return p_[0]*(1-exp(-p_[1]*mu)) + p_[2]*mu; }
+  ParamFuncExp(double p0, double p1, double p2) : m_p{{p0, p1, p2}} {}
+  virtual double operator()(double mu) { return m_p[0]*(1-exp(-m_p[1]*mu)) + m_p[2]*mu; }
 private:
-  std::array<double, 3> p_;
+  std::array<double, 3> m_p;
 };
 
 //================ Constructor ================================================
@@ -175,15 +175,15 @@ void printPatternParsingInfo(Log& log, const Tool& tool, const ResultVector& res
 
     log << MSG::VERBOSE << "Filled      ";
     for(bcid_t j = bcid; j != std::min(MAX_BCID, bcid+20); ++j) log << std::setw(3) << tool->isFilled(j) << " ";
-    log << endreq;
+    log << endmsg;
 
     log << MSG::VERBOSE << "Distance    ";
     for(bcid_t j = bcid; j != std::min(MAX_BCID, bcid+20); ++j) log << std::setw(3) << result[j].second << " ";
-    log << endreq;
+    log << endmsg;
 
     log << MSG::VERBOSE << "LongGap?    ";
     for(bcid_t j = bcid; j != std::min(MAX_BCID, bcid+20); ++j) log <<  std::setw(3) << result[j].first << " ";
-    log << endreq;
+    log << endmsg;
   }
 }
 

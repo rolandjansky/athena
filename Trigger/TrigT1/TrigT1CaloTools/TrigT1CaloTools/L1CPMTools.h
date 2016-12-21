@@ -60,17 +60,17 @@ namespace LVL1
       /** Tool-based EM/tau algorithm implementation */
       
       /** Map CPMTowers from user-supplied DataVector of inputs */
-      virtual void mapTowers(const DataVector<xAOD::CPMTower>* cpmts, std::map<int, xAOD::CPMTower*>* towers);
+      virtual void mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTowerMap_t* towers);
        
       /** Find RoIs in user-supplied map of input towers */
-      virtual void findRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
+      virtual void findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
       
       /** Find RoIs in user-supplied DataVector of input towers */
       virtual void findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
      
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1);
+      virtual void findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1);
      
       /** Form CPM results for specified crate/module using user-supplied vector of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
@@ -78,16 +78,16 @@ namespace LVL1
       
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version adds to DataVector of CPMTobRoI and returns backplane data words*/
-      virtual void findCPMResults(const std::map<int, xAOD::CPMTower*>* towers, int crate, int module,
+      virtual void findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, int module,
                                   DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,
                                   std::vector<unsigned int>& tauCMXData, int slice = -1);
       
       /** Return RoI object for a specified location */
-      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1) ;
+      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) ;
       
       /** Form cluster/isolation sums for a given RoI location */
-      virtual void formSums(double RoIeta, double RoIphi, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1) ;
-      virtual void formSums(uint32_t roiWord, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1) ;
+      virtual void formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) ;
+      virtual void formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) ;
       /** Methods to return the cluster/isolation ET values */
       virtual int Core() const;
       virtual int EMCore() const;

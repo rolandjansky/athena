@@ -28,7 +28,7 @@
 
 namespace LVL1 
 {
-using namespace xAOD;
+  //using namespace xAOD;
 
 class CMMEtSums;
 class JEMEtSums;

@@ -152,8 +152,8 @@ void L1TriggerTowerTool::handle(const Incident& inc)
       return;
     }
     // determine whether this is Run-1 or Run-2 to get the correct conditions later on
-    EventID* pei = pevt->event_ID();
-    EventType* pet = pevt->event_type();
+    const EventID* pei = pevt->event_ID();
+    const EventType* pet = pevt->event_type();
     if(pei == 0 || pet == 0) {
       ATH_MSG_WARNING("Cannot determine run");
       return;
@@ -1142,8 +1142,8 @@ void L1TriggerTowerTool::bcidParams(const L1CaloCoolChannelId& channelId, int &e
   } else ATH_MSG_WARNING( "::bcid:Params No Conditions Container retrieved" );
 
   ATH_MSG_VERBOSE( "::bcidParams: satLevel: " << satLevel
-                   << " satLow: "  << satLow << " satHigh: " << satHigh << endreq
-                   << " energyLow: " << energyLow << " energyHigh: " << energyHigh << endreq
+                   << " satLow: "  << satLow << " satHigh: " << satHigh << endmsg
+                   << " energyLow: " << energyLow << " energyHigh: " << energyHigh << endmsg
                    << " decisionSource: " << decisionSource << " peakFinderStrategy: "
                    << peakFinderStrategy );
 
@@ -1309,15 +1309,15 @@ L1CaloCoolChannelId L1TriggerTowerTool::channelID(double eta, double phi, int la
   int index = 0;
   if (absEta < 2.5) {
     const int etaBin = 10.*absEta;
-    const int phiBin = phi/(M_PI/32.);
+    const int phiBin = phi*(32/M_PI);
     index = (etaBin<<6) + phiBin;
   } else if (absEta < 3.2) {
     const int etaBin = 5.*(absEta - 2.5);
-    const int phiBin = phi/(M_PI/16.);
+    const int phiBin = phi*(16./M_PI);
     index = 1600 + (etaBin<<5) + phiBin;
   } else {
-    const int etaBin = (absEta - 3.2)/0.425;
-    const int phiBin = phi/(M_PI/8.);
+    const int etaBin = (absEta - 3.2)*(1./0.425);
+    const int phiBin = phi*(8./M_PI);
     index = 1728 + (etaBin<<4) + phiBin;
   }
   if (eta < 0.)  index += 1792;
@@ -1512,7 +1512,7 @@ StatusCode L1TriggerTowerTool::loadFTRefs()
   
   if (m_l1CondSvc) {
     ATH_MSG_VERBOSE( "Retrieving FineTimeReferences Containers" );
-    bool verbose = outputLevel() <= MSG::VERBOSE;
+    bool verbose = msgLvl(MSG::VERBOSE);
 
 
     sc = m_l1CondSvc->retrieve(m_dbFineTimeRefsTowers);

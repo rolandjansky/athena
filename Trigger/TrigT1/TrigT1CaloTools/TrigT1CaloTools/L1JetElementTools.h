@@ -52,7 +52,7 @@ namespace LVL1
 
       /** Fill DataVector of JetElements from user-supplied TriggerTowers */
       virtual void makeJetElements(const xAOD::TriggerTowerContainer* tts, xAOD::JetElementContainer* jetElements);
-      virtual void mapJetElements(const xAOD::JetElementContainer* jetElements, std::map<int, xAOD::JetElement*>* map);
+      virtual void mapJetElements(const xAOD::JetElementContainer* jetElements, xAOD::JetElementMap_t* map);
 
       // @DEPRICATED(amazurov)
       virtual void makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements);

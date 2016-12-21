@@ -105,15 +105,14 @@ void L1JEPEtSumsTools::formJEMEtSums(
     }
   }
   // Process each slice
-  std::map<int, xAOD::JetElement*>* jeMap = new std::map<int, xAOD::JetElement*>;
-  m_jeTool->mapJetElements(jetElementVec, jeMap);
+  xAOD::JetElementMap_t jeMap;
+  m_jeTool->mapJetElements(jetElementVec, &jeMap);
   MultiSliceModuleEnergy modulesVec;
   for (unsigned int slice = 0; slice < nslices; ++slice) {
     DataVector<ModuleEnergy>* modules = new DataVector<ModuleEnergy>;
     modulesVec.push_back(modules);
-    m_etTool->moduleSums(jeMap, modules, slice);
+    m_etTool->moduleSums(&jeMap, modules, slice);
   }
-  delete jeMap;
   // Convert to JEMEtSums
   moduleEnergyToEtSums(modulesVec, jemEtSumsVec, peak);
   MultiSliceModuleEnergy::iterator miter  = modulesVec.begin();
@@ -373,7 +372,7 @@ void L1JEPEtSumsTools::moduleEnergyToEtSums(
     DataVector<ModuleEnergy>::const_iterator pos  = modules->begin();
     DataVector<ModuleEnergy>::const_iterator pose = modules->end();
     for (; pos != pose; ++pos) {
-      ModuleEnergy* energy = *pos;
+      const ModuleEnergy* energy = *pos;
       unsigned int ex = energy->ex();
       unsigned int ey = energy->ey();
       unsigned int et = energy->et();
@@ -416,7 +415,7 @@ void L1JEPEtSumsTools::crateEnergyToEtSums(
     DataVector<CrateEnergy>::const_iterator pos  = crates->begin();
     DataVector<CrateEnergy>::const_iterator pose = crates->end();
     for (; pos != pose; ++pos) {
-      CrateEnergy* energy = *pos;
+      const CrateEnergy* energy = *pos;
       unsigned int ex = energy->exTC();
       unsigned int ey = energy->eyTC();
       unsigned int et = energy->et();

@@ -14,6 +14,8 @@
 
 namespace LVL1 {
 
+typedef std::vector<TriggerTowerMap_t::mapped_type> TriggerTowerVector_t;
+
 /** Constructor */
 
 L1JetElementTools::L1JetElementTools(const std::string& t,
@@ -128,7 +130,7 @@ void L1JetElementTools::makeJetElements(const xAOD::TriggerTowerContainer* tts, 
 
 
 /** Fill map of JetElements from user-supplied vector of TriggerTowers */
-void L1JetElementTools::mapJetElements(const xAOD::JetElementContainer* jetElements, std::map<int, xAOD::JetElement*>* map){
+void L1JetElementTools::mapJetElements(const xAOD::JetElementContainer* jetElements, xAOD::JetElementMap_t* map){
 
   // Clear map before filling
   map->clear();
@@ -139,7 +141,7 @@ void L1JetElementTools::mapJetElements(const xAOD::JetElementContainer* jetEleme
        it != jetElements->end(); ++it) {
     // As long as JetElement contains the key value, lazy (& quick) option is to use it
     int key = (*it)->key();
-    map->insert(std::map<int, xAOD::JetElement*>::value_type(key,(*it)));
+    map->insert(std::make_pair(key,(*it)));
   }
        
   return;
@@ -155,7 +157,7 @@ void L1JetElementTools::makeJetElements(const DataVector<TriggerTower>* tts, Dat
       Store these in a vector for each JetElement                                <br>
       Keep vectors of pointers in a std::map so can easily locate and add more   <br>
       towers to correct element */
-  std::map< int, std::vector<TriggerTower*> > Sums;
+  std::map< int, TriggerTowerVector_t> Sums;
 
   // Step over all TriggerTowers, and put into map
   DataVector<TriggerTower>::const_iterator it ;
@@ -165,16 +167,16 @@ void L1JetElementTools::makeJetElements(const DataVector<TriggerTower>* tts, Dat
     // Find JetElementKey for this TriggerTower
     int key = testKey.jeKey((*it)->phi(),(*it)->eta());
     // Does the map already contain an entry for this JetElement?
-    std::map< int, std::vector<TriggerTower*> >::iterator mapIt=Sums.find(key);
+    std::map< int, TriggerTowerVector_t>::iterator mapIt=Sums.find(key);
     if (mapIt != Sums.end()) {
       // Add pointer to this tower to the list
       (mapIt->second).push_back((*it));
     }
     else {
       // New entry in map.
-      std::vector<TriggerTower*> vec;
+      TriggerTowerVector_t vec;
       vec.push_back((*it));
-      Sums.insert(std::map< int, std::vector<TriggerTower*> >::value_type(key,vec));
+      Sums.insert(std::map< int, TriggerTowerVector_t >::value_type(key,vec));
     }
   } // end of loop over towers
 
@@ -186,11 +188,11 @@ void L1JetElementTools::makeJetElements(const DataVector<TriggerTower>* tts, Dat
       the same lengths. In this case, we need to be careful how we combine <br>
       them. */
 
-    for (std::map< int, std::vector<TriggerTower*> >::iterator mapIt = Sums.begin();
+    for (std::map< int, TriggerTowerVector_t >::iterator mapIt = Sums.begin();
          mapIt != Sums.end(); ++mapIt) {
 
       // Get first TT for this JE
-      std::vector<TriggerTower*>::iterator it = (mapIt->second).begin();
+      TriggerTowerVector_t::iterator it = (mapIt->second).begin();
       if (it != (mapIt->second).end()) {
         // Get JE eta, phi using first tower in vector (any tower in JE should do)
         unsigned int key = testKey.jeKey((*it)->phi(),(*it)->eta());
