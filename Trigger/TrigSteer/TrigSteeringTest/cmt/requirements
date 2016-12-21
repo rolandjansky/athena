@@ -15,7 +15,7 @@ apply_pattern component_library
 private
 use xAODTrigger		xAODTrigger-*		     Event/xAOD
 use AthenaKernel 	AthenaKernel-* 		     Control
-use DataModel 		DataModel-* 		     Control
+use AthContainers       AthContainers-* 	     Control
 use TrigNavigation      TrigNavigation-*             Trigger/TrigEvent
 use TrigTimeAlgs	TrigTimeAlgs-*               Trigger/TrigTools
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1

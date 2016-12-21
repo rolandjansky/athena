@@ -19,12 +19,12 @@ newDummyAlgo2To1::newDummyAlgo2To1(const std::string& name, ISvcLocator* pSvcLoc
 HLT::ErrorCode newDummyAlgo2To1::hltExecute(std::vector<const HLT::TriggerElement*>& te_in,
 					    HLT::TriggerElement* te_out)
 {
-  msg() << MSG::INFO << "Executing this newDummyAlgo2To1 " << name() << endreq;
+  msg() << MSG::INFO << "Executing this newDummyAlgo2To1 " << name() << endmsg;
 
   for (std::vector<const HLT::TriggerElement*>::const_iterator it = te_in.begin();
        it != te_in.end(); ++it) {
     msg() << MSG::INFO << "Executing this newDummyAlgo2To1 " << name() << " for types "
-	  << (*it)->getId() << " -> " << te_out->getId() << endreq;
+	  << (*it)->getId() << " -> " << te_out->getId() << endmsg;
   }
   if ( m_rejectRate != 0 )  {
     m_rejectCounter ++;

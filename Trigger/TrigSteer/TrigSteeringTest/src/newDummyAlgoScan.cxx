@@ -26,7 +26,7 @@ HLT::ErrorCode newDummyAlgoScan::hltExecute(std::vector<std::vector<HLT::Trigger
   if ( msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Executing newDummyAlgoScan (" << name()
 	  << "). This is an unseeded algorithm that will produce exactly "
-	  << m_numberOfOutputTEs << " output TEs." << endreq;
+	  << m_numberOfOutputTEs << " output TEs." << endmsg;
   }
 
   // do the scan here

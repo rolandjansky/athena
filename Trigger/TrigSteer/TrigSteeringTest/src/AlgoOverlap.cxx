@@ -40,12 +40,12 @@ AlgoOverlap::AlgoOverlap(const std::string& name, ISvcLocator* pSvcLocator)
 HLT::ErrorCode AlgoOverlap::hltInitialize()
 {
   if (m_MinPhiDist>0 && m_MinEtaDist>0 && m_MinCentDist >0) {
-    msg() << MSG::ERROR << "Can only declare MinCentDist or both MinPhiDist and MinEtaDist for the check! Configuration is not correct" << endreq;
+    msg() << MSG::ERROR << "Can only declare MinCentDist or both MinPhiDist and MinEtaDist for the check! Configuration is not correct" << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP) ;
   }
 
   if ((m_MinPhiDist>0 && m_MinEtaDist <0) || (m_MinPhiDist<0 && m_MinEtaDist>0)) {
-    msg() << MSG::ERROR << "Both MinPhiDist and MinEtaDist must be specified! Configuration is not correct" << endreq;
+    msg() << MSG::ERROR << "Both MinPhiDist and MinEtaDist must be specified! Configuration is not correct" << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP) ;
   }
 
@@ -58,7 +58,7 @@ HLT::ErrorCode AlgoOverlap::hltInitialize()
 HLT::ErrorCode AlgoOverlap::acceptInputs(HLT::TEConstVec& tes_in, bool& pass)
 {
   if ( msgLvl() <= MSG::VERBOSE )
-    msg() << MSG::VERBOSE << "Executing this AlgoOverlap " << name() << endreq;
+    msg() << MSG::VERBOSE << "Executing this AlgoOverlap " << name() << endmsg;
 
   double phi0, phi1, eta0, eta1;
 
@@ -74,7 +74,7 @@ HLT::ErrorCode AlgoOverlap::acceptInputs(HLT::TEConstVec& tes_in, bool& pass)
       // some DEBUG output
       if ( msgLvl() <= MSG::DEBUG ) {
 	msg() << MSG::DEBUG << "Executing this AlgoOverlap " << name() << " for types "
-	      << tes_in[j]->getId() << " and " << tes_in[i]->getId() <<  endreq;
+	      << tes_in[j]->getId() << " and " << tes_in[i]->getId() <<  endmsg;
       }
 
       // the following line would prevent delta_R checks of TEs of the same type, let's say EM25i, EM25i !!
@@ -86,11 +86,11 @@ HLT::ErrorCode AlgoOverlap::acceptInputs(HLT::TEConstVec& tes_in, bool& pass)
 	HLT::TEVec rois0 = config()->getNavigation()->getRoINodes( tes_in[j] );
 	HLT::TEVec rois1 = config()->getNavigation()->getRoINodes( tes_in[i] );
 	if (rois0.empty()) {
-	  msg() << MSG::ERROR << tes_in[j]->getId() << " not seeded from any RoI!" << endreq;
+	  msg() << MSG::ERROR << tes_in[j]->getId() << " not seeded from any RoI!" << endmsg;
 	  return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::NAV_ERROR);
 	}
 	if (rois1.empty()) {
-	  msg() << MSG::ERROR << tes_in[i]->getId() << " not seeded from any RoI!" << endreq;
+	  msg() << MSG::ERROR << tes_in[i]->getId() << " not seeded from any RoI!" << endmsg;
 	  return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::NAV_ERROR);
 	}
 	// okay, but how does that work for topological triggers ?
@@ -108,7 +108,7 @@ HLT::ErrorCode AlgoOverlap::acceptInputs(HLT::TEConstVec& tes_in, bool& pass)
 
       // get eta,phi from first TE node:
       if (HLT::OK != getFeatures(te0, features0) ) {
-	msg() << MSG::ERROR << "TE/RoI with no TrigRoiDescriptor attached!" << endreq;
+	msg() << MSG::ERROR << "TE/RoI with no TrigRoiDescriptor attached!" << endmsg;
 	return HLT::ERROR;
       } else {
 	if (!features0.empty()) {
@@ -116,22 +116,22 @@ HLT::ErrorCode AlgoOverlap::acceptInputs(HLT::TEConstVec& tes_in, bool& pass)
 	  if (descr0 != 0) {
 	    if ( msgLvl() <= MSG::VERBOSE ) {
 	      msg() << MSG::VERBOSE << "TE/RoI node has TrigRoiDescriptor attached!: "  << features0.size()
-		    << *descr0 << endreq;
+		    << *descr0 << endmsg;
 	    }
 	    phi0 = descr0->phi();
 	    eta0 = descr0->eta();
 	  } else {
-	    msg() << MSG::ERROR << "the received TrigRoiDescriptor object is 0 ?!? " << endreq;
+	    msg() << MSG::ERROR << "the received TrigRoiDescriptor object is 0 ?!? " << endmsg;
 	    return HLT::ERROR;
 	  }
 	} else {
-	  msg() << MSG::ERROR << "TE/RoI node has no TrigRoiDescriptor attached!: "  << endreq;
+	  msg() << MSG::ERROR << "TE/RoI node has no TrigRoiDescriptor attached!: "  << endmsg;
 	  return HLT::ERROR;
 	}
       }
       // get eta,phi from second TE node:
       if (HLT::OK != getFeatures(te1, features1) ) {
-	msg() << MSG::ERROR << "  RoI with no TrigRoiDescriptor attached!" << endreq;
+	msg() << MSG::ERROR << "  RoI with no TrigRoiDescriptor attached!" << endmsg;
 	return HLT::ERROR;
       } else {
 	if (!features1.empty()) {
@@ -139,16 +139,16 @@ HLT::ErrorCode AlgoOverlap::acceptInputs(HLT::TEConstVec& tes_in, bool& pass)
 	  if ( descr1 != 0) {
 	    if ( msgLvl() <= MSG::VERBOSE ) {
 	      msg() << MSG::VERBOSE << "TE/RoI node has TrigRoiDescriptor attached!: "  << features1.size()
-		    << *descr1 << endreq;
+		    << *descr1 << endmsg;
 	    }
 	    phi1 = descr1->phi();
 	    eta1 = descr1->eta();
 	  } else {
-	    msg() << MSG::ERROR << "the received TrigRoiDescriptor object is 0 ?!? " << endreq;
+	    msg() << MSG::ERROR << "the received TrigRoiDescriptor object is 0 ?!? " << endmsg;
 	    return HLT::ERROR;
 	  }
 	} else {
-	  msg() << MSG::ERROR << "TE/RoI node has no TrigRoiDescriptor attached!: "  << endreq;
+	  msg() << MSG::ERROR << "TE/RoI node has no TrigRoiDescriptor attached!: "  << endmsg;
 	  return HLT::ERROR;
 	}
       }
@@ -170,36 +170,36 @@ HLT::ErrorCode AlgoOverlap::acceptInputs(HLT::TEConstVec& tes_in, bool& pass)
 	// than the widths of the RoI's so choose your inputs carefully!
 	if (deltaphi <= m_MinPhiDist || deltaeta<=m_MinEtaDist) {
 	  if ( msgLvl() <= MSG::DEBUG ) {
-	    msg() << MSG::DEBUG << "The two RoIs are overlapping: " << *descr0 << " --- " << *descr1  << "(actually this might be wrong as it ignores z)" << endreq;
+	    msg() << MSG::DEBUG << "The two RoIs are overlapping: " << *descr0 << " --- " << *descr1  << "(actually this might be wrong as it ignores z)" << endmsg;
 	    msg() << MSG::DEBUG << "Deltaphi between centers is: " << deltaphi  << " Deltaeta betwen centers is: "
 		  << deltaeta << ". MinimumDeltaPhi between centers is: " << m_MinPhiDist
-		  << " MinimumDeltaEta between centers is: " << m_MinEtaDist <<endreq;
+		  << " MinimumDeltaEta between centers is: " << m_MinEtaDist <<endmsg;
 	  }
 	  pass = false;
 	  return HLT::OK;
 	} else {
 	  if ( msgLvl() <= MSG::DEBUG ) {
-	    msg() << MSG::DEBUG <<"The two RoIs do not not overlap: " << *descr0 << " --- " << *descr1  << endreq;
+	    msg() << MSG::DEBUG <<"The two RoIs do not not overlap: " << *descr0 << " --- " << *descr1  << endmsg;
 	    msg() << MSG::DEBUG << "Deltaphi between centers is: " << deltaphi  << " Deltaeta betwen centers is: " << deltaeta
 		  << ". MinimumDeltaPhi between centers is: " << m_MinPhiDist << " MinimumDeltaEta between centers is: "
-		  << m_MinEtaDist <<endreq;
+		  << m_MinEtaDist <<endmsg;
 	  }
 	}
       } else {
 	//Compare Euclidean distance with the user-chosen minimum distance
 	if ( sqActCentDist <= m_sqMinCentDist ) {
 	  if ( msgLvl() <= MSG::DEBUG ) {
-	    msg() << MSG::DEBUG << "The two RoIs are overlapping: " << *descr0 << " --- " << *descr1  << endreq;
+	    msg() << MSG::DEBUG << "The two RoIs are overlapping: " << *descr0 << " --- " << *descr1  << endmsg;
 	    msg() << MSG::DEBUG << "SqDistance between centers is: " << sqActCentDist
-		  << ". sqMinimumDistance between centers is: " << m_sqMinCentDist << endreq;
+		  << ". sqMinimumDistance between centers is: " << m_sqMinCentDist << endmsg;
 	  }
 	  pass = false;
 	  return HLT::OK;
 	} else {
 	  if ( msgLvl() <= MSG::DEBUG ) {
-	    msg() << MSG::DEBUG <<"The two RoIs do not not overlap: " << *descr0 << " --- " << *descr1  << endreq;
+	    msg() << MSG::DEBUG <<"The two RoIs do not not overlap: " << *descr0 << " --- " << *descr1  << endmsg;
 	    msg() << MSG::DEBUG << "sqMinimumDistance between centers is: " << m_sqMinCentDist << ". sqActual Distance is: "
-		  << sqActCentDist << endreq;
+		  << sqActCentDist << endmsg;
 	  }
 	}
       }

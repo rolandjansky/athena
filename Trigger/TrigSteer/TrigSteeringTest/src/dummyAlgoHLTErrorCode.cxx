@@ -32,7 +32,7 @@ HLT::ErrorCode dummyAlgoHLTErrorCode::hltInitialize()
     m_error = static_cast<HLT::ErrorCode>(pos);
   else
     msg() << MSG::WARNING << "could not find HLT::ErrorCode:  " <<  m_paramSet
-	  << " .. will use default value = ERROR, please check your jobProperty!" << endreq;
+	  << " .. will use default value = ERROR, please check your jobProperty!" << endmsg;
 
   return HLT::OK;
 }
@@ -42,7 +42,7 @@ HLT::ErrorCode dummyAlgoHLTErrorCode::hltExecute(const HLT::TriggerElement* te_i
 				     HLT::TriggerElement* te_out)
 {
   msg() << MSG::INFO << "Executing this dummyAlgoHLTErrorCode " << name() << " for types "
-	<< te_in->getId() << " -> " << te_out->getId() << endreq;
+	<< te_in->getId() << " -> " << te_out->getId() << endmsg;
 
   if (m_burnTime>0) {
     long nSleep = static_cast<long>(m_burnTime/1e6);   // number of 1 ms sleeps
@@ -55,21 +55,21 @@ HLT::ErrorCode dummyAlgoHLTErrorCode::hltExecute(const HLT::TriggerElement* te_i
   }
   
   if (m_unknownException) {
-    msg() << MSG::INFO << " through an unknown exception ... " << endreq;
+    msg() << MSG::INFO << " through an unknown exception ... " << endmsg;
     throw PESA::dummyException();
 
   }
   if (m_gaudiException) {
-    msg() << MSG::INFO << " through a Gaudi exception ... " << endreq;
+    msg() << MSG::INFO << " through a Gaudi exception ... " << endmsg;
     throw GaudiException("this is a dummy GaudiException", "dummy Tag", StatusCode::FAILURE);
   }
   if (m_stdException) {
-    msg() << MSG::INFO << " through an std exception ... " << endreq;
+    msg() << MSG::INFO << " through an std exception ... " << endmsg;
     std::vector<int> a;
     a.at(2) = 5;
   }
 
 
-  msg() << MSG::INFO << "return value = " << HLT::strErrorCode(m_error) << endreq;
+  msg() << MSG::INFO << "return value = " << HLT::strErrorCode(m_error) << endmsg;
   return m_error;
 }

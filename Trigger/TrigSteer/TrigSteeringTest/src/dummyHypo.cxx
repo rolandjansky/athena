@@ -16,7 +16,7 @@ dummyHypo::dummyHypo(const std::string& name, ISvcLocator* pSvcLocator)
 }
 
 HLT::ErrorCode dummyHypo::hltInitialize() {
-  msg() << MSG::DEBUG << "prescale set to: " << m_prescale << endreq;
+  msg() << MSG::DEBUG << "prescale set to: " << m_prescale << endmsg;
   return HLT::OK;
 }
 
@@ -24,11 +24,11 @@ HLT::ErrorCode dummyHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
   m_counter++;
   if ( m_counter % m_prescale == 0 ) {
     pass = true;
-    msg() << MSG::DEBUG << "Accepting" << endreq;
+    msg() << MSG::DEBUG << "Accepting" << endmsg;
   }
   else {
     pass = false;
-    msg() << MSG::DEBUG << "Rejecting" << endreq;
+    msg() << MSG::DEBUG << "Rejecting" << endmsg;
   }
   
   TrigPassBits* old = new TrigPassBits(10);

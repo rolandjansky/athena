@@ -14,7 +14,7 @@ HLT::ErrorCode
 dummyFexWithRobReqPrep::hltExecute(const HLT::TriggerElement* /*input*/,
                                    HLT::TriggerElement* /*output*/)
 {
-  msg() << MSG::DEBUG << "calling hltExecute() for TE" << endreq;
+  msg() << MSG::DEBUG << "calling hltExecute() for TE" << endmsg;
   return HLT::OK;
 }
      
@@ -23,7 +23,7 @@ HLT::ErrorCode
 dummyFexWithRobReqPrep::prepareRobRequests(const HLT::TEConstVec& inputTEs )
 {
 
-  msg() << MSG::DEBUG << "executing prepareRobRequests() for " << inputTEs.size() << " input TEs of type " << (inputTEs.size()?inputTEs[0]->getId():0) << endreq;
+  msg() << MSG::DEBUG << "executing prepareRobRequests() for " << inputTEs.size() << " input TEs of type " << (inputTEs.size()?inputTEs[0]->getId():0) << endmsg;
     
   std::vector<uint32_t> ids_of_needed_robs;
   for(std::vector<const HLT::TriggerElement*>::const_iterator inputTE = inputTEs.begin();

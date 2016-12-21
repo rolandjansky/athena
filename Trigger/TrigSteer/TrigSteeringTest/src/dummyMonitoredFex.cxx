@@ -83,7 +83,7 @@ HLT::ErrorCode dummyMonitoredFex::hltExecute(const HLT::TriggerElement* te_in,
   m_vectorOfFixedSize1[1] = 3;
 
   msg() << MSG::INFO << "Executing this dummyMonitoredFex " << name() << " for types "
-	<< te_in->getId() << " -> " << te_out->getId() << endreq;
+	<< te_in->getId() << " -> " << te_out->getId() << endmsg;
   if (doTiming()) m_timer1->stop();
   // exercise the navigation
 
@@ -91,7 +91,7 @@ HLT::ErrorCode dummyMonitoredFex::hltExecute(const HLT::TriggerElement* te_in,
   std::vector<HLT::TriggerElement*> rois = config()->getNavigation()->getRoINodes(te_in);
   //std::cout << "1"<<std::endl;
   if ( rois.empty() ) {
-    msg() << MSG::ERROR <<te_in->getId() << " not seeded from any RoI!" << endreq;
+    msg() << MSG::ERROR <<te_in->getId() << " not seeded from any RoI!" << endmsg;
   }
   if (doTiming()) { m_timer2->stop(); m_timer2->propVal(rois.size()); }
   
@@ -106,7 +106,7 @@ HLT::ErrorCode dummyMonitoredFex::hltExecute(const HLT::TriggerElement* te_in,
   std::vector<const TrigRoiDescriptor*> features;
   if (doTiming() ) m_timer3->start();
   if (HLT::OK != getFeatures((*rois.begin()), features) ) {
-    msg() << MSG::ERROR << "  RoI with no TrigRoiDescriptor attached!" << endreq;
+    msg() << MSG::ERROR << "  RoI with no TrigRoiDescriptor attached!" << endmsg;
  //std::cout<<"3"<<std::endl;
   }
   else {
@@ -116,12 +116,12 @@ HLT::ErrorCode dummyMonitoredFex::hltExecute(const HLT::TriggerElement* te_in,
       if ( descr != 0) {
 	msg() << MSG::INFO << "  RoI node has TrigRoiDescriptor attached!: "  << features.size()
 	      << *descr
-	   << endreq;
+	   << endmsg;
       } else  {
-	msg() << MSG::ERROR << " the received TrigRoiDescriptor object is 0 ?!? " << endreq;
+	msg() << MSG::ERROR << " the received TrigRoiDescriptor object is 0 ?!? " << endmsg;
       }
     } else {
-      msg() << MSG::INFO << "  RoI node has no TrigRoiDescriptor attached!: "  << endreq;
+      msg() << MSG::INFO << "  RoI node has no TrigRoiDescriptor attached!: "  << endmsg;
     }
   }
   if (doTiming() ) {m_timer3->stop(); m_timer3->propVal(features.size());} 

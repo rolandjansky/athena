@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthContainers
                           Event/xAOD/xAODTrigger
                           Trigger/TrigEvent/TrigNavigation
                           Trigger/TrigT1/TrigT1Interfaces
@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrigSteeringTest
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel TrigSteeringEvent TrigInterfacesLib AthenaKernel DataModel xAODTrigger TrigNavigationLib TrigT1Interfaces TrigTimeAlgsLib )
+                     LINK_LIBRARIES GaudiKernel TrigSteeringEvent TrigInterfacesLib AthenaKernel AthContainers xAODTrigger TrigNavigationLib TrigT1Interfaces TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigSteeringTest )

@@ -22,16 +22,16 @@ HLT::ErrorCode DummyFexWithAcceptInput::acceptInput(const HLT::TriggerElement* i
   m_counter++;
   const TrigRoiDescriptor* l1(0);
   if ( getFeature( input, l1) == HLT::OK && l1 ) {
-    msg() << MSG::DEBUG << "Got L1 RoI: " << *l1 << endreq;
+    msg() << MSG::DEBUG << "Got L1 RoI: " << *l1 << endmsg;
   }
 
 
   if ( m_counter % m_prescale == 0 ) {
     pass = true;
     m_descriptor = new TrigRoiDescriptor();
-    msg() << MSG::DEBUG << "Accepting" << endreq;
+    msg() << MSG::DEBUG << "Accepting" << endmsg;
   } else {
-    msg() << MSG::DEBUG << "Rejecting" << endreq;
+    msg() << MSG::DEBUG << "Rejecting" << endmsg;
   }
   
   return HLT::OK;
