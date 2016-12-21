@@ -17,28 +17,28 @@ export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
 
 
-##get the right pattern to load Lvl1 xml file
+##get the right pattern to load LVl1 xml file
 if [ "$type" == "HLT_LS1V1" ]; then
   stump="LS1_v1"
 elif [ "$type" == "HLT_physicsV5" ]; then
   stump="Physics_pp_v5"
-elif [ "$type" == "HLT_physicsV5_rerunLvL1" ]; then
+elif [ "$type" == "HLT_physicsV5_rerunLVL1" ]; then
   stump="Physics_pp_v5"
 elif [ "$type" == "HLT_physicsV6" ]; then
   stump="Physics_pp_v6"
-elif [ "$type" == "HLT_physicsV6_rerunLvL1" ]; then
+elif [ "$type" == "HLT_physicsV6_rerunLVL1" ]; then
   stump="Physics_pp_v6"
 elif [ "$type" == "HLT_physicsV6" ]; then
   stump="Physics_pp_v6"
-elif [ "$type" == "HLT_physicsV6_rerunLvL1" ]; then
+elif [ "$type" == "HLT_physicsV6_rerunLVL1" ]; then
   stump="Physics_pp_v6"
 elif [ "$type" == "HLT_physicsV7" ]; then
   stump="Physics_pp_v7"
-elif [ "$type" == "HLT_physicsV7_rerunLvL1" ]; then
+elif [ "$type" == "HLT_physicsV7_rerunLVL1" ]; then
   stump="Physics_pp_v7"
 elif [ "$type" == "HLT_physicsV7" ]; then
   stump="Physics_pp_v7"
-elif [ "$type" == "HLT_physicsV7_rerunLvL1" ]; then
+elif [ "$type" == "HLT_physicsV7_rerunLVL1" ]; then
   stump="Physics_pp_v7"
 else 
   stump=""
