@@ -2999,7 +2999,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
             }
         }
         // Sergey S.: reset the secondary decay links to persistified container
-        for( xAOD::TrigBphysContainer::const_iterator BPobj = m_TrigBphysColl_b->begin(); BPobj != m_TrigBphysColl_b->end(); ++BPobj) {
+        for( xAOD::TrigBphysContainer::iterator BPobj = m_TrigBphysColl_b->begin(); BPobj != m_TrigBphysColl_b->end(); ++BPobj) {
             if ((*BPobj)->secondaryDecayLink().isValid() ) {
               ElementLink<xAOD::TrigBphysContainer> secEL;
 //               secEL.resetWithKeyAndIndex(KEY,(*BPobj)->secondaryDecayLink().index());
