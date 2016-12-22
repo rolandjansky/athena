@@ -40,7 +40,7 @@ namespace LVL1CTP {
    void MsgWriter::write( MSG::Level type, const std::string& line ) {
 
       if(m_stream->level() <= type){
-         *m_stream << type << line << endreq;
+         *m_stream << type << line << endmsg;
          return;
       }
       return;

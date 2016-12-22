@@ -152,7 +152,7 @@ namespace LVL1CTP {
       bool        m_doRNDM;                                    //!< property, see @link CTPSimulation::CTPSimulation @endlink
       bool        m_doPSCL;                                    //!< property, see @link CTPSimulation::CTPSimulation @endlink
       bool        m_IsData;                                   //!< property, see @link CTPSimulation::CTPSimulation @endlink
-      IntegerProperty m_prescaleMode;                         //!< property, see @link CTPSimulation::CTPSimulation @endlink
+     Gaudi::CheckedProperty<int> m_prescaleMode;                         //!< property, see @link CTPSimulation::CTPSimulation @endlink
       // Properties: StoreGate location of input
       std::string m_jetEnergyConfLoc;                         //!< property, see @link CTPSimulation::CTPSimulation @endlink
       std::string m_muonCTPLoc;                               //!< property, see @link CTPSimulation::CTPSimulation @endlink
