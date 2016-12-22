@@ -13,6 +13,8 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include <vector>
 
+#include "AthLinks/ElementLink.h"
+
 namespace xAOD {
 
   static const InterfaceID IID_ICaloClustersInConeTool("xAOD::ICaloClustersInConeTool", 1, 0);
@@ -34,7 +36,7 @@ namespace xAOD {
        @param[in] output    output vector to be filled
        @return true if the calculation was successfull
      */    
-    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output ) = 0;
+    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output ) const = 0;
 
     /**ICaloClustersInConeTool interface: 
        @param[in] eta       eta for matching
@@ -43,7 +45,7 @@ namespace xAOD {
        @param[in] output    output vector to be filled
        @return true if the calculation was successfull
      */    
-    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output ) = 0;
+    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output ) const = 0;
 
   };
 

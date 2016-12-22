@@ -8,16 +8,12 @@
 //  (c) ATLAS software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "TrackParticlesInConeTool.h"
 
 namespace xAOD {
  
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
   TrackParticlesInConeTool::TrackParticlesInConeTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-        m_incidentSvc("IncidentSvc",name)
+    :	AthAlgTool(type, name, parent)
   {
     declareInterface<ITrackParticlesInConeTool>(this);
     declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
@@ -26,26 +22,12 @@ namespace xAOD {
   TrackParticlesInConeTool::~TrackParticlesInConeTool()
   {}
 
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
-
   StatusCode TrackParticlesInConeTool::initialize() {
-     // call handle in case of EndEvent
-    ATH_CHECK(m_incidentSvc.retrieve());
-    m_incidentSvc->addListener( this, IncidentType::EndEvent );
-
     return StatusCode::SUCCESS;
   }
 
   StatusCode TrackParticlesInConeTool::finalize() {
     return StatusCode::SUCCESS;
-  }
-
-  void TrackParticlesInConeTool::handle(const Incident& inc) {
-    // Only clear cache for EndEvent incident
-    if (inc.type()  == IncidentType::EndEvent){
-      ATH_MSG_DEBUG(" clearing cache at end of event " );
-      m_lookUpTable.clear();
-    }  
   }
 
   const TrackParticleContainer* TrackParticlesInConeTool::retrieveTrackParticleContainer() const {
@@ -60,15 +42,26 @@ namespace xAOD {
     return indetTrackParticles;
   }
 
-  bool TrackParticlesInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) {
-    
+  const TrackParticlesInConeTool::LookUpTable*
+  TrackParticlesInConeTool::getTable() const
+  {
+    const std::string tableName = name() + "LookUpTable";
+    SG::ReadHandle<LookUpTable> rh (tableName);
+    if (rh.isValid())
+      return &*rh;
+
+    const TrackParticleContainer* indetTrackParticles = retrieveTrackParticleContainer();
+    if( !indetTrackParticles ) return nullptr;
+    auto lut = std::make_unique<LookUpTable>();
+    lut->init(*indetTrackParticles);
+    SG::WriteHandle<LookUpTable> wh (tableName);
+    return wh.put (std::move (lut), true);
+  }
+
+  bool TrackParticlesInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const {
+
     /// initialize if needed
-    if( !m_lookUpTable.isInitialized() ){
-      /// retrieve track particles
-      const TrackParticleContainer* indetTrackParticles = retrieveTrackParticleContainer();
-      if( !indetTrackParticles ) return false;
-      m_lookUpTable.init(*indetTrackParticles);
-    }
-    return m_lookUpTable.iParticlesInCone( eta, phi, dr, output );
+    const LookUpTable* lut = getTable();
+    return lut->iParticlesInCone( eta, phi, dr, output );
   }
 }	// end of namespace
