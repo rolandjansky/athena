@@ -6,15 +6,15 @@
 
 // $Id$
 /**
- * @file src/xAODTestReadCVec.h
+ * @file DataModelTestDataRead/src/xAODTestFilterCVec.h
  * @author scott snyder <snyder@bnl.gov>
- * @date Apr, 2016
- * @brief Algorithm to test reading xAOD data (CVec)
+ * @date Sep 2016
+ * @brief Algorithm to test filtering xAOD data.
  */
 
 
-#ifndef DATAMODELTESTDATAREAD_XAODTESTREADCVEC_H
-#define DATAMODELTESTDATAREAD_XAODTESTREADCVEC_H
+#ifndef DATAMODELTESTDATAREAD_XAODTESTFILTERCVEC_H
+#define DATAMODELTESTDATAREAD_XAODTESTFILTERCVEC_H
 
 
 #include "DataModelTestDataCommon/CVec.h"
@@ -27,9 +27,9 @@ namespace DMTest {
 
 
 /**
- * @brief Algorithm to test reading xAOD data (CVec).
+ * @brief Algorithm to test filtering xAOD data.
  */
-class xAODTestReadCVec
+class xAODTestFilterCVec
   : public AthReentrantAlgorithm
 {
 public:
@@ -38,7 +38,7 @@ public:
    * @param name The algorithm name.
    * @param svc The service locator.
    */
-  xAODTestReadCVec (const std::string &name, ISvcLocator *pSvcLocator);
+  xAODTestFilterCVec (const std::string &name, ISvcLocator *pSvcLocator);
   
 
   /**
@@ -68,4 +68,4 @@ private:
 } // namespace DMTest
 
 
-#endif // not DATAMODELTESTDATAREAD_XAODTESTREAD_H
+#endif // not DATAMODELTESTDATAREAD_XAODTESTFILTERCVEC_H

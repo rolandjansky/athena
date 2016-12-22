@@ -49,3 +49,9 @@ atlas_add_dictionary( DataModelTestDataReadDict
                       EXTRA_FILES src/dict/*.cxx
                       ELEMENT_LINKS DataVector<DMTest::B> )
 
+
+atlas_add_sercnv_library ( DataModelTestDataReadSerCnv
+  FILES DataModelTestDataRead/HVec.h DataModelTestDataRead/HView.h DataModelTestDataRead/HAuxContainer.h
+  TYPES_WITH_NAMESPACE DMTest::HVec DMTest::HView DMTest::HAuxContainer
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks TrigSerializeCnvSvcLib DataModelTestDataCommon DataModelTestDataReadLib )

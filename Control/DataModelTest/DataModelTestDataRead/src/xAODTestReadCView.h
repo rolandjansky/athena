@@ -6,18 +6,18 @@
 
 // $Id$
 /**
- * @file src/xAODTestReadCVec.h
+ * @file src/xAODTestReadCView.h
  * @author scott snyder <snyder@bnl.gov>
- * @date Apr, 2016
- * @brief Algorithm to test reading xAOD data (CVec)
+ * @date Oct, 2016
+ * @brief Algorithm to test reading xAOD data (CView)
  */
 
 
-#ifndef DATAMODELTESTDATAREAD_XAODTESTREADCVEC_H
-#define DATAMODELTESTDATAREAD_XAODTESTREADCVEC_H
+#ifndef DATAMODELTESTDATAREAD_XAODTESTREADCVIEW_H
+#define DATAMODELTESTDATAREAD_XAODTESTREADCVIEW_H
 
 
-#include "DataModelTestDataCommon/CVec.h"
+#include "DataModelTestDataCommon/CView.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -27,9 +27,9 @@ namespace DMTest {
 
 
 /**
- * @brief Algorithm to test reading xAOD data (CVec).
+ * @brief Algorithm to test reading xAOD data (CView).
  */
-class xAODTestReadCVec
+class xAODTestReadCView
   : public AthReentrantAlgorithm
 {
 public:
@@ -38,7 +38,7 @@ public:
    * @param name The algorithm name.
    * @param svc The service locator.
    */
-  xAODTestReadCVec (const std::string &name, ISvcLocator *pSvcLocator);
+  xAODTestReadCView (const std::string &name, ISvcLocator *pSvcLocator);
   
 
   /**
@@ -60,12 +60,12 @@ public:
 
 
 private:
-  SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
-  SG::WriteHandleKey<DMTest::CVec> m_writeKey;
+  SG::ReadHandleKey<DMTest::CView> m_cviewKey;
+  SG::WriteHandleKey<DMTest::CView> m_writeKey;
 };
 
 
 } // namespace DMTest
 
 
-#endif // not DATAMODELTESTDATAREAD_XAODTESTREAD_H
+#endif // not DATAMODELTESTDATAREAD_XAODTESTREADCVIEW_H

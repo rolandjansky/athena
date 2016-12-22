@@ -17,7 +17,7 @@
 #define DATAMODELTESTDATAREAD_HLTRESULTREADER_H
 
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -35,7 +35,7 @@ namespace DMTest {
  * @brief Test for serializing an xAOD object from bytestream.
  */
 class HLTResultReader
-  : public AthReentrantAlgorithm
+  : public AthAlgorithm
 {
 public:
   /**
@@ -55,7 +55,7 @@ public:
   /**
    * @brief Algorithm event processing.
    */
-  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode execute() override;
 
 
   /**
