@@ -13,12 +13,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/Navigation
                           Control/RootUtils
+                          Database/AthenaPOOL/AthenaPoolCnvSvc
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
                           Control/CLIDSvc
                           Control/SGTools
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/AthenaPOOL/RootConversions )
 

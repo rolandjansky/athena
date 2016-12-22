@@ -27,7 +27,12 @@ public:
   typedef	typename NavigableVector_t::value_type		Navigable_t;
   typedef 	typename GeneratePersNavVectorType_p2< Navigable_t, RPAR >::type	PersNavigableVector_t;
 
-  NavigableVectorCnv_p2() {}
+  NavigableVectorCnv_p2() :
+    m_pers(nullptr),
+    m_log(nullptr),
+    m_linkIterator(0),
+    m_navigableIterator(0)
+  {}
 
   // standard interface for TP converter
   // (takes the whole vector of navigables at once)
@@ -72,7 +77,12 @@ public:
   typedef	typename NavigableVector_t::value_type		Navigable_t;
   typedef 	typename GeneratePersNavVectorType_p2< Navigable_t >::type	PersNavigableVector_t;
 
-  NavigableVectorCnv_p2() {}
+  NavigableVectorCnv_p2() :
+    m_pers(nullptr),
+    m_log(nullptr),
+    m_linkIterator(0),
+    m_navigableIterator(0)
+  {}
 
   // standard interface for TP converter
   // (takes the whole vector of navigables at once)

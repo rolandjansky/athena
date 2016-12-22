@@ -34,7 +34,7 @@ NavigableCnv_p1<NAV, RPAR>::transToPers(const Navigable_t* trans,
     #ifdef NAV_P1_DEBUG
     msg << MSG::DEBUG << "NavigableCnv_p1::transToPers(): Weight["
 	<< pers->m_parameters.size()-1 <<"]="
-	<< pers->m_parameters[pers->m_parameters.size()-1] << endreq;
+	<< pers->m_parameters[pers->m_parameters.size()-1] << endmsg;
     #endif
     elv.push_back( iter.getElement() );
     pers->m_parameters.push_back( iter.getParameter() );
@@ -64,7 +64,7 @@ void NavigableCnv_p1<NAV, RPAR >::persToTrans(const PersNavigable_t* pers, Navig
      trans->insertElement (elv[i], pers->m_parameters[i], size);
       #ifdef NAV_P1_DEBUG
       msg << MSG::DEBUG << "NavigableCnv_p1::PersToTrans(): Weight[" <<i <<"]="
-	  <<  pers->m_parameters[i] << endreq;
+	  <<  pers->m_parameters[i] << endmsg;
       #endif
    }
 }
