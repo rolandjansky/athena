@@ -162,7 +162,7 @@ StatusCode PixelBarrelSurvey::execute() {
     }
     theStave++;
   }
-  delete disto;
+  delete[] disto;
   
   m_transforms->sortv();
 

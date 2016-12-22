@@ -15,6 +15,8 @@ namespace PixelCalib{
 
 class PixelClusterOnTrackErrorData;
 
+class PixelClusterOnTrackErrorPlot;
+
 class PixelClusterOnTrackErrorPlot{
 
 public :

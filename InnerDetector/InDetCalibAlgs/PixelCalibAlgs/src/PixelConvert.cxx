@@ -70,8 +70,6 @@ namespace PixelConvert {
 	case 2: // Layer2, first bistave corresponds to phi=51
 	  phi+=1;
 	  break;
-	default:
-	  return Error;
 	}
 	if (phi<0) phi+=2*BSMax[layer];
 	else if (phi>=2*BSMax[layer]) phi-=2*BSMax[layer];

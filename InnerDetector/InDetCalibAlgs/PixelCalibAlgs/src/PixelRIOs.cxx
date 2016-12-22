@@ -167,6 +167,8 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 	fChain = clusters_tree;
 	fCurrent = -1;
 
+  if (!fChain) { return; }
+
 	fChain->SetBranchAddress("PixelEventNumber", &PixelEventNumber, &b_event_number);
 	fChain->SetBranchAddress("PixelClusNum", &PixelClusNum, &b_number_cluster_per_event);
 	fChain->SetBranchAddress("LVL1TriggerType", &LVL1TriggerType, &b_type_of_trigger);

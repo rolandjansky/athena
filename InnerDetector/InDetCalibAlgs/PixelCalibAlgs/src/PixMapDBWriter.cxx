@@ -664,13 +664,13 @@ StatusCode PixMapDBWriter::finalize(){
 
     ATH_MSG_INFO( "Changes: -" << nModulesWithMaskedPixels2 - nCommonModulesWithMaskedPixels
         << " (-" << static_cast<double>(nModulesWithMaskedPixels2 - nCommonModulesWithMaskedPixels) /
-        static_cast<double>(nModulesWithMaskedPixels2) * 100. << "%), +"
+        static_cast<double>(nModulesWithMaskedPixels2 + 0.00001) * 100. << "%), +"
         << nModulesWithMaskedPixels1 - nCommonModulesWithMaskedPixels
         << " (+" << static_cast<double>(nModulesWithMaskedPixels1 - nCommonModulesWithMaskedPixels) /
-        static_cast<double>(nModulesWithMaskedPixels2) * 100. << "%), total difference " << std::showpos
+        static_cast<double>(nModulesWithMaskedPixels2 + 0.00001) * 100. << "%), total difference " << std::showpos
         << nModulesWithMaskedPixels1 - nModulesWithMaskedPixels2 << " ("
         << static_cast<double>(nModulesWithMaskedPixels1 - nModulesWithMaskedPixels2) /
-        static_cast<double>(nModulesWithMaskedPixels2) * 100. << "%)" << std::noshowpos );
+        static_cast<double>(nModulesWithMaskedPixels2 + 0.00001) * 100. << "%)" << std::noshowpos );
 
     ATH_MSG_INFO("");
     ATH_MSG_INFO( "Number of masked pixels (ganged pixels enter twice):" );
@@ -684,13 +684,13 @@ StatusCode PixMapDBWriter::finalize(){
 
     ATH_MSG_INFO( "Changes: -" << nMaskedPixels2 - nCommonMaskedPixels << " (-"
         << static_cast<double>(nMaskedPixels2 - nCommonMaskedPixels) /
-        static_cast<double>(nMaskedPixels2) * 100. << "%), +"
+        static_cast<double>(nMaskedPixels2 + 0.00001) * 100. << "%), +"
         << nMaskedPixels1 - nCommonMaskedPixels << " (+"
         << static_cast<double>(nMaskedPixels1 - nCommonMaskedPixels) /
-        static_cast<double>(nMaskedPixels2) * 100. << "%), total difference " << std::showpos
+        static_cast<double>(nMaskedPixels2 + 0.00001) * 100. << "%), total difference " << std::showpos
         << nMaskedPixels1 - nMaskedPixels2 << " ("
         << static_cast<double>(nMaskedPixels1 - nMaskedPixels2) /
-        static_cast<double>(nMaskedPixels2) * 100. << "%)" << std::noshowpos );
+        static_cast<double>(nMaskedPixels2 + 0.00001) * 100. << "%)" << std::noshowpos );
 
 
     ATH_MSG_INFO("");

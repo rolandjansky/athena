@@ -20,6 +20,7 @@ PixelChargeToTConversion::PixelChargeToTConversion(const std::string& name, ISvc
   m_calibsvc("PixelCalibSvc", name),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_overflowIBLToT(0),
+  m_Pixel_clcontainer(0),
   m_offlineCalibSvc("PixelOfflineCalibSvc", name)
 {
   declareProperty("PixelCalibSvc", m_calibsvc);
@@ -92,6 +93,7 @@ StatusCode PixelChargeToTConversion::execute(){
       const InDetDD::SiDetectorElement* element=theCluster->detectorElement();
       if (element==0) {
         ATH_MSG_ERROR("Could not get detector element");
+        return StatusCode::FAILURE; 
        }
       const AtlasDetectorID* aid = element->getIdHelper();
       if (aid==0){
@@ -119,11 +121,11 @@ StatusCode PixelChargeToTConversion::execute(){
           float A = m_calibsvc->getQ2TotA(pixid);
           float E = m_calibsvc->getQ2TotE(pixid);
           float C = m_calibsvc->getQ2TotC(pixid);
-	  float tot;
-          if ( A>0. && (Charge+C)!=0 ) {
+          float tot;
+          if (fabs(Charge+C)>0) {
             tot = A*(Charge+E)/(Charge+C);
           } else tot=0.;
-	  	  
+
 	  ATH_MSG_DEBUG( "A   E   C  tot " << A <<"  "<<E <<"  "<<C<<"  "<<tot);
        
           int totInt = (int) (tot + 0.1);

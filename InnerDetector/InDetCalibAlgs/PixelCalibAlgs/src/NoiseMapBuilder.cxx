@@ -1134,7 +1134,6 @@ StatusCode NoiseMapBuilder::finalize() {
 
     TH2F* nhitsPlot = 0; // kazuki
     TH2F* nhitsNoNoisePlot = 0; // kazuki
-    TH2F* disablePlot = 0;
     std::string component;
     double cut = 0.;
 
@@ -1143,7 +1142,6 @@ StatusCode NoiseMapBuilder::finalize() {
     if ( barrel != 0 ) { // if Disk (or DBM)
 
       nhitsPlot = nhitsPlotEC; // kazuki
-      disablePlot = disablePlotEC;
 
       //if (barrel == -2)
       if (barrel == 2) // kazuki
@@ -1162,13 +1160,11 @@ StatusCode NoiseMapBuilder::finalize() {
       else if (barrel ==  4) // kazuki
       {
         nhitsPlot = nhitsPlotDBM; // kazuki
-        disablePlot = disablePlotDBM;
         cut = m_dbmCut; component = "DBMA";
       }
       else if (barrel == -4) // kazuki
       {
         nhitsPlot = nhitsPlotDBM; // kazuki
-        disablePlot = disablePlotDBM;
         cut = m_dbmCut; component = "DBMC";
       }
     } else if ( barrel == 0 ) { // if barrel
@@ -1177,28 +1173,24 @@ StatusCode NoiseMapBuilder::finalize() {
           cut = m_iblCut;
           nhitsPlot = nhitsPlotBI;
           nhitsNoNoisePlot = nhitsNoNoisePlotBI;
-          disablePlot = disablePlotBI;
           component = "IBL";
         }
         else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
           cut = m_bLayerCut;
           nhitsPlot = nhitsPlotB0;
           nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
-          disablePlot = disablePlotB0;
           component = "B-layer";
         }
         else if(layer == 2) {
           cut = m_layer1Cut;
           nhitsPlot = nhitsPlotB1; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
-          disablePlot = disablePlotB1;
           component = "Layer1";
         }
         else if(layer == 3) {
           cut = m_layer2Cut;
           nhitsPlot = nhitsPlotB2; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
-          disablePlot = disablePlotB2;
           component = "Layer2";
         }
       } else { // only Pixel
@@ -1206,21 +1198,18 @@ StatusCode NoiseMapBuilder::finalize() {
           cut = m_bLayerCut;
           nhitsPlot = nhitsPlotB0; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
-          disablePlot = disablePlotB0;
           component = "B-layer";
         }
         else if(layer == 1) {
           cut = m_layer1Cut;
           nhitsPlot = nhitsPlotB1; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
-          disablePlot = disablePlotB1;
           component = "Layer1";
         }
         else if(layer == 2) {
           cut = m_layer2Cut;
           nhitsPlot = nhitsPlotB2; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
-          disablePlot = disablePlotB2;
           component = "Layer2";
         }
         else continue;
@@ -1247,13 +1236,37 @@ StatusCode NoiseMapBuilder::finalize() {
 
       //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 10: " << moduleHash << std::endl;
 
-      if ( barrel == 0) disablePlot->Fill(module_eta,module_phi,-1);
-      //else if ( barrel > 0 ) disablePlot->Fill(layer+1,module_phi,-1);
-      else if ( barrel == 2 ) disablePlot->Fill(layer+1,module_phi,-1);
-      //else disablePlot->Fill(-(layer+1),module_phi,-1);
-      else if ( barrel == -2) disablePlot->Fill(-(layer+1),module_phi,-1);
-      else if ( barrel == 4) disablePlot->Fill(layer+1,module_phi,-1);
-      else if ( barrel == -4) disablePlot->Fill(-(layer+1),module_phi,-1);
+      if      (barrel== 0) {
+        if (m_isIBL) { // ----- IBL ----- //
+          if(layer == 0){
+            disablePlotBI->Fill(module_eta,module_phi,-1);
+          }
+          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
+            disablePlotB0->Fill(module_eta,module_phi,-1);
+          }
+          else if(layer == 2) {
+            disablePlotB1->Fill(module_eta,module_phi,-1);
+          }
+          else if(layer == 3) {
+            disablePlotB2->Fill(module_eta,module_phi,-1);
+          }
+        }
+        else {
+          if(layer == 0){
+            disablePlotB0->Fill(module_eta,module_phi,-1);
+          }
+          else if(layer == 1) {
+            disablePlotB1->Fill(module_eta,module_phi,-1);
+          }
+          else if(layer == 2) {
+            disablePlotB2->Fill(module_eta,module_phi,-1);
+          }
+        }
+      }
+      else if (barrel== 2) { disablePlotEC->Fill(layer+1,module_phi,-1); }
+      else if (barrel==-2) { disablePlotEC->Fill(-(layer+1),module_phi,-1); }
+      else if (barrel== 4) { disablePlotDBM->Fill(layer+1,module_phi,-1); }
+      else if (barrel==-4) { disablePlotDBM->Fill(-(layer+1),module_phi,-1); }
       totalDisabledModules++;
 
       continue;
@@ -1401,11 +1414,39 @@ StatusCode NoiseMapBuilder::finalize() {
       totalDisabledPixels+=thisModuleCut;
       maskedPlot->Fill( static_cast<double>(thisModuleCut) );
       modulesWithDisabledPixels++;
-      if ( barrel == 0) disablePlot->Fill(module_eta,module_phi,thisModuleCut);
-      //else if ( barrel > 0 ) disablePlot->Fill(layer+1,module_phi,thisModuleCut);
-      else if ( barrel == 2 ) disablePlot->Fill(layer+1,module_phi,thisModuleCut);
-      //else disablePlot->Fill(-(layer+1),module_phi,thisModuleCut);
-      else if ( barrel == -2) disablePlot->Fill(-(layer+1),module_phi,thisModuleCut);
+   
+      if      (barrel== 0) {
+        if (m_isIBL) { // ----- IBL ----- //
+          if(layer == 0){
+            disablePlotBI->Fill(module_eta,module_phi,thisModuleCut);
+          }
+          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
+            disablePlotB0->Fill(module_eta,module_phi,thisModuleCut);
+          }
+          else if(layer == 2) {
+            disablePlotB1->Fill(module_eta,module_phi,thisModuleCut);
+          }
+          else if(layer == 3) {
+            disablePlotB2->Fill(module_eta,module_phi,thisModuleCut);
+          }
+        }
+        else {
+          if(layer == 0){
+            disablePlotB0->Fill(module_eta,module_phi,thisModuleCut);
+          }
+          else if(layer == 1) {
+            disablePlotB1->Fill(module_eta,module_phi,thisModuleCut);
+          }
+          else if(layer == 2) {
+            disablePlotB2->Fill(module_eta,module_phi,thisModuleCut);
+          }
+        }
+      }
+      else if (barrel== 2) { disablePlotEC->Fill(layer+1,module_phi,thisModuleCut); }
+      else if (barrel==-2) { disablePlotEC->Fill(-(layer+1),module_phi,thisModuleCut); }
+
+   
+   
     }
     //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 14: " << moduleHash << std::endl;
   } // end for loop on moduleHash

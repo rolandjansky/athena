@@ -408,11 +408,11 @@ void PixelChargeInterpolationPlot::DrawAxis(float y1, float y2, float x1, float 
 		axbins = m_etabins;
 		axtitle = "Track incident pseudorapidity (#eta_{i})";
 	}
+  if (!axbins) { return; }
 
 	//std::cout << naxbins << std::endl;
 
-	TGaxis *axis = new TGaxis(x1-1, y1, x2, y1,
-			axbins[firstbin], axbins[lastbin], naxbins);
+	TGaxis *axis = new TGaxis(x1-1, y1, x2, y1, axbins[firstbin], axbins[lastbin], naxbins);
 	axis->UseCurrentStyle();
 	axis->SetName(direction.c_str());
 	axis->SetTitle(axtitle.c_str());
