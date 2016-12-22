@@ -502,6 +502,24 @@ TrigConf::HLTJobOptionsSvc::getProperties( const std::string& client) const
   }
   return 0;
 }
+
+//----------------------------------------------------------------------------
+const Property* 
+TrigConf::HLTJobOptionsSvc::getClientProperty( const std::string& client,
+                                                 const std::string& name ) const
+//----------------------------------------------------------------------------
+{
+  auto props = getProperties(client);
+  for (auto p: *props) {
+    if (p->name() == name) {
+      return p;
+    }
+  }
+
+  return nullptr;
+
+}
+
 //----------------------------------------------------------------------------
 std::vector<std::string>
 TrigConf::HLTJobOptionsSvc::getClients() const

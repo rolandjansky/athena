@@ -70,6 +70,12 @@ namespace TrigConf {
       virtual const std::vector<Property*> & getProperties() const { return Service::getProperties(); }
 
 
+     /// Get a property for a client
+     virtual const Property* 
+     getClientProperty( const std::string& client,
+                        const std::string& name ) const;
+
+
       /// implementation of IJobOptionsSvc::getClients
       virtual std::vector<std::string> getClients() const;
     

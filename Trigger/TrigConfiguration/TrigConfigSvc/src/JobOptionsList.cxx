@@ -17,12 +17,12 @@ TrigConf::JobOptionsList::~JobOptionsList() {
 	}
 }
 
-TrigConf::JobOptionsList::JobOptionsList( const std::string myAlg, const Property* const& myOpt ){
+TrigConf::JobOptionsList::JobOptionsList( const std::string& myAlg, const Property* const& myOpt ){
 	m_algorithmName = myAlg;
 	this->addOption( myOpt );
 }
 
-std::string
+const std::string&
 TrigConf::JobOptionsList::algorithmName() const {
 	return m_algorithmName;
 }

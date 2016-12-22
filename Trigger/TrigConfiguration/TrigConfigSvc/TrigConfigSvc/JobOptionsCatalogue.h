@@ -10,11 +10,10 @@
 #include <vector>
 
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/Property.h"
 #include "TrigConfigSvc/JobOptionsList.h"
 
 class MsgStream;
-
-class Property;
 
 namespace TrigConf {
 
@@ -34,7 +33,7 @@ namespace TrigConf {
      *
      * @param[in] myOpt property to be added
      */
-    virtual void addOption( const std::string myAlg, const Property* const& myOpt );
+    virtual void addOption( const std::string& myAlg, const Property* const& myOpt );
 
     /**@brief retrieve all properties of an algorithm
      *
@@ -84,7 +83,7 @@ namespace TrigConf {
      *
      * @returns StatusCode about the success of the operation (success if it found the algorithm)
      */
-    StatusCode         findAlgorithm( const std::string myAlg, JobOptionsList*& myList ) const;
+    StatusCode         findAlgorithm( const std::string& myAlg, JobOptionsList*& myList ) const;
 
     // data members
     std::vector<JobOptionsList*>  m_algorithmoptions; ///< vector of JobOptionList 's, one for each algorithm
