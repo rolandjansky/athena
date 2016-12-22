@@ -50,11 +50,11 @@ def addStdEvgenArgs(parser):
 
     parser.add_argument("--inputEVNTFile", group="Evgen",
                         help="input EVNT file (for use with e.g. Rivet)",
-                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
+                        type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='input', runarg=True))
 
     parser.add_argument("--inputEVNT_PreFile", group="Evgen",
                         help="input evgen file for processing with afterburner, e.g. EvtGen",
-                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
+                        type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='input', runarg=True))
 
     parser.add_argument("--evgenJobOpts", "--EvgenJobOpts", group="Evgen",
                         help="download and install the EvgenJobOpts tarball with the given name",
@@ -63,14 +63,14 @@ def addStdEvgenArgs(parser):
     # TODO: make optional: by default auto-determine from the JO name. If NONE, don't write?
     parser.add_argument("--outputEVNTFile", "--OutputEVNTFile", group="Evgen",
                         help="POOL file into which generated events will be written",
-                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
+                        type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='output', runarg=True))
 
     parser.add_argument("--outputEVNT_PreFile", "--OutputEVNT_PreFile", group="Evgen",
                         help="POOL file into which pre-afterburner generated events will be written",
-                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
+                        type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='output', runarg=True))
 
     parser.add_argument('--outputNTUP_TRUTHFile',
-                        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, treeNames=['truth']),
+                        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, io='output', treeNames=['truth']),
                         help='Output NTUP_TRUTH file', group='Evgen')
 
     parser.add_argument("--outputYODAFile", group="Evgen",
@@ -84,3 +84,19 @@ def addStdEvgenArgs(parser):
     parser.add_argument("--outputTXTFile", group="Evgen",
                         help="optional output TXT file for LHEF events, default is None",
                         type=trfArgClasses.argFactory(trfArgClasses.argFile))
+    parser.add_argument("--generatorRunMode", group="Evgen",
+                        help="Run mode to pass on to the event generator",
+                        default=trfArgClasses.argString("run", runarg=True),
+                        choices=[trfArgClasses.argString("read", runarg=True),
+                                 trfArgClasses.argString("build", runarg=True),
+                                 trfArgClasses.argString("integrate", runarg=True),
+                                 trfArgClasses.argString("mergegrids", runarg=True),
+                                 trfArgClasses.argString("run", runarg=True)],
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
+
+    parser.add_argument("--generatorJobNumber", group="Evgen",
+                        help="Job number to pass on to the event generator",
+                        default=trfArgClasses.argInt(0, runarg=True),
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
+
+

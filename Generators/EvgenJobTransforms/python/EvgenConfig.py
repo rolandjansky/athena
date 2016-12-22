@@ -13,13 +13,13 @@ inputGenerators = lhefGenerators + ["Alpgen", "Protos"]
 
 ## "Main" generators which typically model QCD showers, hadronisation, decays, etc.
 ## Herwig family, including Herwig++
-mainGenerators = ["Herwig", "Herwigpp", "Jimmy", "Matchig", "Pomwig", "Herwigpp"]
+mainGenerators = ["Herwig", "Herwigpp", "Jimmy", "Herwig7", "Matchig", "Pomwig"]
 ## Pythia family, including Pythia8
 mainGenerators += ["Pythia", "PythiaB"]
 mainGenerators += ["PythiaRhad", "PythiaChL", "PythiaGS", "PythiaResMod", "PythiaTopMdiff"]
 mainGenerators += ["Pythia8", "Pythia8B"]
 ## Sherpa family
-mainGenerators += ["Sherpa"]
+mainGenerators += ["Sherpa", "Sherpa22"]
 ## Soft QCD generators
 mainGenerators += ["Exhume", "Phojet", "Epos", "QGSJet"]
 ## ATLAS-specific generators
@@ -33,7 +33,8 @@ mainGenerators += ["AcerMC", "TopRex", "LPair"]
 mainGenerators += ["HepMCAscii"]
 
 ## Special QED and decay afterburners
-afterburnerGenerators = ["Photos", "Photospp", "Tauola", "Tauolapp", "EvtGen", "ParticleDecayer"]
+afterburnerGenerators = ["Photos", "Photospp", "Tauola", "TauolaPP", "Tauolapp", "EvtGen", "ParticleDecayer"]
+# note: we have to use TauolaPP, because Tauolapp is used as a namespace in the external Tauolapp code
 
 ## Set up list of allowed generators. The evgenConfig.generators list will be used
 ## to set random seeds, determine input config and event files, and report used generators to AMI.
@@ -51,7 +52,7 @@ def gen_require_steering(gennames):
     "Return a boolean of whether this set of generators requires the steering command line flag"
     if not "EvtGen" in gennames: return False
     if any(("Pythia" in gen and not "Pythia8" in gen) for gen in gennames): return True
-    if any(("Herwig" in gen and not "Herwigpp" in gen) for gen in gennames): return True
+    if any(("Herwig" in gen and not "Herwigpp" in gen and not "Herwig7" in gen) for gen in gennames): return True
     return False
 
 def gen_known(genname):
