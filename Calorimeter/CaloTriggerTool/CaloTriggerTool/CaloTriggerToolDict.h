@@ -26,7 +26,6 @@
 #include "CaloTriggerTool/CaloTTPpmRxId.h"
 #include "CaloTriggerTool/CaloTTPpmRxIdMap.h"
 #include "CaloTriggerTool/CaloTTPpmRxId_P.h"
-#include "CaloTriggerTool/CaloTriggerToolDict.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 
 #endif // CALOTRIGGERTOOL_CALOTRIGGERTOOLDICT_H

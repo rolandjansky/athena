@@ -26,7 +26,6 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 # Component(s) in the package:
 atlas_add_library( CaloTriggerToolLib
                    src/*.cxx
-                   src/*
                    PUBLIC_HEADERS CaloTriggerTool
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel SGTools Identifier GaudiKernel TrigT1CaloCalibConditions StoreGateLib SGtests LArToolsLib
