@@ -40,24 +40,24 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltInitialize(){
   if(m_acceptAll) {
     msg() << MSG::INFO
 	  << "Accepting all the events with not cut!"
-	  << endreq;
+	  << endmsg;
   } else {
     m_bins = m_ptBins.size() - 1;
     if (m_bins != m_ptThresholds.size()) {
-      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
     for (std::vector<float>::size_type i=0; i<m_bins;++i) {
       msg() << MSG::INFO
 	    << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1]
 	    << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
-	    << " GeV" << endreq;
+	    << " GeV" << endmsg;
     }
   }
 
   msg() << MSG::INFO
 	<< "Initialization completed successfully"
-	<< endreq;
+	<< endmsg;
 
   return HLT::OK;
 }
@@ -65,7 +65,7 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltInitialize(){
 
 HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -74,7 +74,7 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltExecute(const HLT::TriggerElement*
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
 
   //resetting the monitoring variables
   m_fex_pt.clear();
@@ -86,7 +86,7 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltExecute(const HLT::TriggerElement*
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG
 	    << "Accept property is set: taking all the events"
-	    << endreq;
+	    << endmsg;
     }
     return HLT::OK;
   }
@@ -95,7 +95,7 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltExecute(const HLT::TriggerElement*
   bool debug = msgLvl() <= MSG::DEBUG;
 
   // Some debug output:
-  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
 
 
 
@@ -105,25 +105,25 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltExecute(const HLT::TriggerElement*
   // Get muonContainer linked to the outputTE
   const xAOD::MuonContainer*  muonContainer=0;
   if(getFeature(outputTE, muonContainer)!=HLT::OK) {
-    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endreq;
+    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endmsg;
     return HLT::MISSING_FEATURE;
   } else {
     if (!muonContainer) { 
-      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq; 
+      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endmsg; 
       return HLT::MISSING_FEATURE; 
     } 
-    if (debug) msg() << MSG::DEBUG << "xAOD::MuonContainer found with size " << muonContainer->size() << endreq;
+    if (debug) msg() << MSG::DEBUG << "xAOD::MuonContainer found with size " << muonContainer->size() << endmsg;
   } 
 
 
   // loop on the muons within the RoI
   for (unsigned int j=0; j<muonContainer->size(); j++ ) {
 
-    msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
+    msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endmsg;
 
     const xAOD::Muon* muon = muonContainer->at(j);
     if (!muon) {
-      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
+      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endmsg;
       continue;
     } else {
 
@@ -131,12 +131,12 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltExecute(const HLT::TriggerElement*
 
 	const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
 	if (!tr) {
-	  if (debug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
+	  if (debug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endmsg;
 	  continue;
 	} else {
 	  if (debug) msg() << MSG::DEBUG
 			   << "Retrieved spectrometer track with abs pt "
-			   << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
+			   << (*tr).pt()/CLHEP::GeV << " GeV " << endmsg;
 
 	  m_fex_pt.push_back(tr->pt()/CLHEP::GeV);
 	  float eta = tr->eta();
@@ -154,7 +154,7 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltExecute(const HLT::TriggerElement*
 	  if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
 			  << " with Charge " << tr->charge()
 			  << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
-			  << " so hypothesis is " << (result?"true":"false") << endreq;
+			  << " so hypothesis is " << (result?"true":"false") << endmsg;
 	}
 			  
       }

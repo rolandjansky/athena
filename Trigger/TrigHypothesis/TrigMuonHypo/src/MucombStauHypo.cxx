@@ -50,27 +50,27 @@ MucombStauHypo::~MucombStauHypo(){
 HLT::ErrorCode MucombStauHypo::hltInitialize(){
     
   msg() << MSG::INFO << "Initializing " << name() << " - package version " 
-	<< PACKAGE_VERSION << endreq;
+	<< PACKAGE_VERSION << endmsg;
 
   // ===================== GET THE BACK EXTRAPOLATOR =========================
   StatusCode sc = m_backExtrapolator.retrieve();
   if ( sc.isFailure() )
   {
-    msg() << MSG::ERROR << "Could not retrieve "<<m_backExtrapolator<< endreq;
+    msg() << MSG::ERROR << "Could not retrieve "<<m_backExtrapolator<< endmsg;
     return HLT::BAD_JOB_SETUP;;
   } else
   {
-    msg() << MSG::INFO << "Retrieved tool " << m_backExtrapolator << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_backExtrapolator << endmsg;
   }
   
   if(m_acceptAll) {
       msg() << MSG::INFO
             << "Accepting all the events with not cut!"
-	    << endreq;
+	    << endmsg;
   } else {      
       m_bins = m_ptBins.size() - 1;
       if (m_bins != m_ptThresholds.size()) {
-          msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+          msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
           return HLT::BAD_JOB_SETUP;
       }
       
@@ -79,20 +79,20 @@ HLT::ErrorCode MucombStauHypo::hltInitialize(){
           msg() << MSG::INFO
                 << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1]
 		<< " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV 
-		<< " CLHEP::GeV" << endreq;
+		<< " CLHEP::GeV" << endmsg;
       }
 
   }
   msg() << MSG::INFO 
         << "Initialization completed successfully" 
-        << endreq;
+        << endmsg;
   
   return HLT::OK;
 }
 
 
 HLT::ErrorCode MucombStauHypo::hltFinalize(){
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -103,21 +103,21 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_storeGate = store();
 
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
   
   if(m_acceptAll) {
       pass = true;
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG 
 	        << "Accept property is set: taking all the events"
-		<< endreq;
+		<< endmsg;
       }
       return HLT::OK;
   }
   
   if(msgLvl() <= MSG::DEBUG) {
        msg() << MSG::DEBUG << "Accept property not set: applying selection!"
-             << endreq;
+             << endmsg;
   }
 
 
@@ -127,7 +127,7 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // Some debug output: 
   if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId()
-            << endreq;
+            << endmsg;
   }
   
   
@@ -136,7 +136,7 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
                     CombinedMuonFeature>(outputTE, CombinedMuonFeatureEL) )            
   {                                                                     
     msg() << MSG::ERROR 
-          << " getFeatureLink fails to get the CombinedMuonFeature " << endreq;                                      
+          << " getFeatureLink fails to get the CombinedMuonFeature " << endmsg;                                      
   //  return HLT::ERROR;                                                  
   }                                                           
   
@@ -144,13 +144,13 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   std::vector<const CombinedMuonFeature*> vectorOfCombinedMuons; 
   HLT::ErrorCode status = getFeatures(outputTE,vectorOfCombinedMuons);
   if( status!=HLT::OK ) {
-      msg() << MSG::DEBUG << "no CombinedMuonFeatures found" << endreq;
+      msg() << MSG::DEBUG << "no CombinedMuonFeatures found" << endmsg;
       return status;
   }
   // Check that there is only one MuonFeature
   if (vectorOfCombinedMuons.size() != 1){
     msg() << MSG::ERROR << "Size of vector is " << vectorOfCombinedMuons.size()
-          << endreq;
+          << endmsg;
     return HLT::NAV_ERROR;
   }
   */
@@ -158,7 +158,7 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   { 
     msg() << MSG::ERROR
           << " getFeatureLink finds no CombinedMuonFeature (EL invalid)"
-	  << endreq;
+	  << endmsg;
     return HLT::NAV_ERROR;
   } 
   
@@ -166,7 +166,7 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   const CombinedMuonFeature* pMuon = *CombinedMuonFeatureEL; 
   if(!pMuon){
     msg() << MSG::DEBUG << "Retrieval of CombinedMuonFeature from vector failed"
-          << endreq;
+          << endmsg;
     return HLT::NAV_ERROR;
   }
 
@@ -178,7 +178,7 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   { 
     msg() << MSG::DEBUG 
           << " CombinedMuonFeature has no valid MuonFeature (EL invalid)" 
-	  << endreq;
+	  << endmsg;
     const MuonFeature* none = 0;
     pMuonFeature = none;
   } else {
@@ -194,7 +194,7 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   { 
     msg() << MSG::DEBUG 
           << " CombinedMuonFeature has no valid IDtracks (EL invalid)" 
-	  << endreq;
+	  << endmsg;
     track = 0;
     hasTrack= false;
   } else {
@@ -288,7 +288,7 @@ HLT::ErrorCode  MucombStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   //if (msgLvl() <= MSG::DEBUG) {
   msg() << MSG::DEBUG << " REGTEST muon pt is " << pMuon->ptq()/1000. 
 	<< " CLHEP::GeV and threshold cut is "<<m_ptThresholds[0]<<" CLHEP::GeV" 
-	<< " so hypothesis is " << (result?"true":"false") << endreq;
+	<< " so hypothesis is " << (result?"true":"false") << endmsg;
   //}
   //store the result
   pass = result;

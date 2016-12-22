@@ -60,15 +60,15 @@ MufastHypo::~MufastHypo(){
 HLT::ErrorCode MufastHypo::hltInitialize()
 {
    msg() << MSG::INFO << "Initializing " << name() << " - package version " 
-	 << PACKAGE_VERSION << endreq;
+	 << PACKAGE_VERSION << endmsg;
 
   if(m_acceptAll) {
-      msg() << MSG::INFO << "Accepting all the events with not cut!" << endreq;
+      msg() << MSG::INFO << "Accepting all the events with not cut!" << endmsg;
   }
   else {
      m_bins = m_ptBins.size() - 1;
      if (m_bins != m_ptThresholds.size()) {
-	msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+	msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
 	return HLT::BAD_JOB_SETUP;
      }
 
@@ -79,14 +79,14 @@ HLT::ErrorCode MufastHypo::hltInitialize()
 	 sprintf(buf2,"%f5.2",m_ptBins[i+1]);
 	 msg() << MSG::INFO << "EtaBin " << buf1 << " - " <<  buf2
 	       << ": with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV 
-	       << " GeV" << endreq;
+	       << " GeV" << endmsg;
       }
       
-      msg() << MSG::INFO << "Endcap WeakBField A: pT threshold of " << m_ptThresholdForECWeakBRegionA / CLHEP::GeV << " GeV" << endreq;
-      msg() << MSG::INFO << "Endcap WeakBField B: pT threshold of " << m_ptThresholdForECWeakBRegionB / CLHEP::GeV << " GeV" << endreq;
+      msg() << MSG::INFO << "Endcap WeakBField A: pT threshold of " << m_ptThresholdForECWeakBRegionA / CLHEP::GeV << " GeV" << endmsg;
+      msg() << MSG::INFO << "Endcap WeakBField B: pT threshold of " << m_ptThresholdForECWeakBRegionB / CLHEP::GeV << " GeV" << endmsg;
   }
  
-  msg() << MSG::INFO << "Initialization completed successfully" << endreq;
+  msg() << MSG::INFO << "Initialization completed successfully" << endmsg;
 
   return HLT::OK;
 }
@@ -96,7 +96,7 @@ HLT::ErrorCode MufastHypo::hltInitialize()
 
 HLT::ErrorCode MufastHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -109,40 +109,40 @@ HLT::ErrorCode MufastHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
 
    bool doDebug =  msgLvl() <= MSG::DEBUG;
    
-   if(doDebug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endreq;
+   if(doDebug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endmsg;
 
    // if accept All flag is on, just pass it
    if(m_acceptAll) {
       pass = true;
-      if(doDebug) msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endreq;
+      if(doDebug) msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endmsg;
       return HLT::OK;
    }
   
-   if(doDebug) msg() << MSG::DEBUG << "Accept property not set: applying selection!" << endreq;
+   if(doDebug) msg() << MSG::DEBUG << "Accept property not set: applying selection!" << endmsg;
   
    bool result = false;
   
    // Some debug output:
-   if(doDebug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+   if(doDebug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
   
    // Get vector of pointers to L2StandAloneMuon linked to the outputTE 
    const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
    HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
    if (status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
+      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endmsg;
       return status;
    }
 
    // Check that there is only one L2StandAloneMuon
    if (vectorOfMuons->size() != 1){
-      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
+      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endmsg;
       return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
    }
 
    // Get first (and only) RoI:
    const xAOD::L2StandAloneMuon* pMuon = vectorOfMuons->front();
    if(!pMuon){
-      msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endreq;
+      msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endmsg;
       return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
    }
 
@@ -181,15 +181,15 @@ HLT::ErrorCode MufastHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
    // if in the weak Bfield regions at endcap, set special threshold
    MufastHypoConsts::ECRegions ecRegion = whichECRegion( m_fex_eta, m_fex_phi );
    if( ecRegion == MufastHypoConsts::WeakBFieldA ) {
-      if(doDebug) msg() << MSG::DEBUG << "threshold is set for EC WeakBField A" << endreq;
+      if(doDebug) msg() << MSG::DEBUG << "threshold is set for EC WeakBField A" << endmsg;
       threshold = m_ptThresholdForECWeakBRegionA;
    }
    if( ecRegion == MufastHypoConsts::WeakBFieldB ) {
-      if(doDebug) msg() << MSG::DEBUG << "threshold is set for EC WeakBField B" << endreq;
+      if(doDebug) msg() << MSG::DEBUG << "threshold is set for EC WeakBField B" << endmsg;
       threshold = m_ptThresholdForECWeakBRegionB;
    }
 
-   if(doDebug) msg() << MSG::DEBUG << "threshold value is set as:" << threshold/CLHEP::GeV << " GeV" << endreq;
+   if(doDebug) msg() << MSG::DEBUG << "threshold value is set as:" << threshold/CLHEP::GeV << " GeV" << endmsg;
 
    // Check pt threshold for hypothesis, 
    // convert units since Muonfeature is in GeV
@@ -206,7 +206,7 @@ HLT::ErrorCode MufastHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
    if (doDebug) {
       msg() << MSG::DEBUG << " REGTEST muon pt is " << pMuon->pt() << " GeV" 
             << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" 
-            << " so hypothesis is " << (result?"true":"false") << endreq;
+            << " so hypothesis is " << (result?"true":"false") << endmsg;
    }
   
    //store the result

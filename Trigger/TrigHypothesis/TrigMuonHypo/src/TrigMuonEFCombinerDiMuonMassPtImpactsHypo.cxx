@@ -59,10 +59,10 @@ TrigMuonEFCombinerDiMuonMassPtImpactsHypo::~TrigMuonEFCombinerDiMuonMassPtImpact
 
 HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltInitialize()
 {
-  msg() << MSG::INFO << "in hltInitialize : " << name() << endreq;
+  msg() << MSG::INFO << "in hltInitialize : " << name() << endmsg;
    
   if( m_acceptAll ) {
-    msg() << MSG::INFO << "Accepting all the events without cut!" << endreq;
+    msg() << MSG::INFO << "Accepting all the events without cut!" << endmsg;
   }
 
   return HLT::OK;
@@ -73,7 +73,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltInitialize()
 
 HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in hltFinalize : " << name() << endreq;
+  msg() << MSG::INFO << "in hltFinalize : " << name() << endmsg;
   return HLT::OK;
 }
 
@@ -82,16 +82,16 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltFinalize()
 
 HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltBeginRun()
 {
-  msg() << MSG::INFO << "in hltBeginRun : " << name() << endreq;
+  msg() << MSG::INFO << "in hltBeginRun : " << name() << endmsg;
 
-  msg() << MSG::INFO << "AcceptAll : " << m_acceptAll << endreq;
-  msg() << MSG::INFO << "mass threshold low(GeV)    : " << m_massThresLow << endreq;
-  msg() << MSG::INFO << "mass threshold high(GeV)   : " << m_massThresHigh << endreq;
-  msg() << MSG::INFO << "pairpt threshold low(GeV)    : " << m_pairptThresLow << endreq;
-  msg() << MSG::INFO << "pairpt threshold high(GeV)   : " << m_pairptThresHigh << endreq;
-  msg() << MSG::INFO << "delta Z threshold(mm)   : " << m_deltaZThres << endreq;
-  msg() << MSG::INFO << "delta Phi threshold low(Rad)    : " << m_deltaPhiThresLow << endreq;
-  msg() << MSG::INFO << "delta Phi threshold high(Rad)   : " << m_deltaPhiThresHigh << endreq;
+  msg() << MSG::INFO << "AcceptAll : " << m_acceptAll << endmsg;
+  msg() << MSG::INFO << "mass threshold low(GeV)    : " << m_massThresLow << endmsg;
+  msg() << MSG::INFO << "mass threshold high(GeV)   : " << m_massThresHigh << endmsg;
+  msg() << MSG::INFO << "pairpt threshold low(GeV)    : " << m_pairptThresLow << endmsg;
+  msg() << MSG::INFO << "pairpt threshold high(GeV)   : " << m_pairptThresHigh << endmsg;
+  msg() << MSG::INFO << "delta Z threshold(mm)   : " << m_deltaZThres << endmsg;
+  msg() << MSG::INFO << "delta Phi threshold low(Rad)    : " << m_deltaPhiThresLow << endmsg;
+  msg() << MSG::INFO << "delta Phi threshold high(Rad)   : " << m_deltaPhiThresHigh << endmsg;
 
   return HLT::OK;
 }
@@ -105,7 +105,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 
   bool debug = msgLvl() <= MSG::DEBUG;
 
-  if(debug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endreq;
+  if(debug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endmsg;
 
   // reset monitoring variables
   bool doMonitor = true;
@@ -130,22 +130,22 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
   unsigned int i_te;
   unsigned int j_te;
   
-  if(debug) msg() << MSG::DEBUG << "tes_in size=" << tes_in_size << endreq;
+  if(debug) msg() << MSG::DEBUG << "tes_in size=" << tes_in_size << endmsg;
   for(unsigned int i_vec=0; i_vec<tes_in_size; i_vec++) {
     unsigned int n_te = tes_in[i_vec].size();
-    if(debug) msg() << MSG::DEBUG << "i_vec=" << i_vec << " : n TEs=" << n_te << endreq;
+    if(debug) msg() << MSG::DEBUG << "i_vec=" << i_vec << " : n TEs=" << n_te << endmsg;
     for(i_te=0; i_te<n_te; i_te++) {
       HLT::TriggerElement* te = tes_in[i_vec][i_te];
       if( debug ) {
 	std::string label;
 	TrigConf::HLTTriggerElement::getLabel (te->getId(), label );
-	if(debug) msg() << MSG::DEBUG << "input TE ID(): " << te->getId() << ", Label=" << label << endreq;
+	if(debug) msg() << MSG::DEBUG << "input TE ID(): " << te->getId() << ", Label=" << label << endmsg;
       }      
       bool alreadyThere = false;
       for(unsigned int j_te=0; j_te<vec_allTEs.size(); j_te++) {
 	if( vec_allTEs[j_te] == te ) {
 	  if(debug) msg() << MSG::DEBUG << "at i_vec=" << i_vec << ", i_te=" << i_te <<
-		      ": same TE already there at j_te=" << j_te << ", so, skip this TE." << endreq;
+		      ": same TE already there at j_te=" << j_te << ", so, skip this TE." << endmsg;
 	  alreadyThere = true;
 	  break;
 	}
@@ -155,7 +155,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
   }
   
   unsigned int n_allTEs = vec_allTEs.size(); 
-  if(debug) msg() << MSG::DEBUG << "size of vec_allTEs=" << n_allTEs << endreq;
+  if(debug) msg() << MSG::DEBUG << "size of vec_allTEs=" << n_allTEs << endmsg;
   for(i_te=0; i_te<n_allTEs; i_te++) {
     HLT::TEVec tes;
     tes.push_back(vec_allTEs[i_te]);
@@ -163,14 +163,14 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
     if(debug) {
       std::string label;
       TrigConf::HLTTriggerElement::getLabel (outputTE->getId(), label);
-      msg() << MSG::DEBUG << "creating outputTE ID(): " << outputTE->getId() << ", Label=" << label << endreq;
+      msg() << MSG::DEBUG << "creating outputTE ID(): " << outputTE->getId() << ", Label=" << label << endmsg;
     }
     outputTE->setActiveState(true);
     vec_outputTEs.push_back(outputTE);
   }
 
   if( n_allTEs <= 1 ) {
-    if(debug) msg() << MSG::DEBUG << "nr of TEs <= 1, exitting with all TEs active" << endreq;
+    if(debug) msg() << MSG::DEBUG << "nr of TEs <= 1, exitting with all TEs active" << endmsg;
     if(doMonitor)afterExecMonitors().ignore();
     return HLT::OK;
   }
@@ -183,20 +183,20 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
     HLT::ErrorCode isMuExtrOK = getFeatures(vec_allTEs[i_te], EFMuonEL);
     if( isMuExtrOK != HLT::OK ) {
       errorWhenGettingELs = true;
-      msg() << MSG::WARNING << "i_te=" << i_te << ": fails to find EL for: EFMuon" << endreq;
+      msg() << MSG::WARNING << "i_te=" << i_te << ": fails to find EL for: EFMuon" << endmsg;
       continue;
     }
     if( EFMuonEL.empty() ) {
       errorWhenGettingELs = true;
-      msg() << MSG::WARNING << "i_te=" << i_te << ": EL not valid for: EFMuon" << endreq;
+      msg() << MSG::WARNING << "i_te=" << i_te << ": EL not valid for: EFMuon" << endmsg;
       continue;
     }
-    if(debug) msg() << MSG::DEBUG << "EFMuonEL is OK for i_te=" << i_te << " size of EFMuonEL is " << EFMuonEL.size() << endreq;
+    if(debug) msg() << MSG::DEBUG << "EFMuonEL is OK for i_te=" << i_te << " size of EFMuonEL is " << EFMuonEL.size() << endmsg;
     EFMuonELvec.push_back(EFMuonEL);
   }
   
   if( errorWhenGettingELs ) {
-    msg() << MSG::WARNING << "error when getting ELs. exitting with all TEs active..." << endreq;
+    msg() << MSG::WARNING << "error when getting ELs. exitting with all TEs active..." << endmsg;
     if(doMonitor)afterExecMonitors().ignore();
     return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
   }
@@ -208,26 +208,26 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
   for(i_te=0; i_te<n_allTEs; i_te++) {
     std::vector<const xAOD::MuonContainer*> VecMuEFCont1 = EFMuonELvec[i_te];
     for (unsigned int ivmu1=0; ivmu1<VecMuEFCont1.size(); ivmu1++){
-      if (debug) msg() << MSG::DEBUG << "Element1 ivmu1=" << ivmu1 << " of vector of TrigMuonEFInfo containers" << endreq;
+      if (debug) msg() << MSG::DEBUG << "Element1 ivmu1=" << ivmu1 << " of vector of TrigMuonEFInfo containers" << endmsg;
       const xAOD::MuonContainer* trigMuon1 = VecMuEFCont1[ivmu1];
       if( !trigMuon1 ){
-	if (debug) msg() << MSG::DEBUG << "failed: trigMuon1 is empty" << endreq;
+	if (debug) msg() << MSG::DEBUG << "failed: trigMuon1 is empty" << endmsg;
 	continue;
       }
       for (unsigned int imu1 = 0 ; imu1 < trigMuon1->size() ; imu1++){
-	if (debug) msg() << MSG::DEBUG << "muon1 : imu1=" << imu1 << endreq;
+	if (debug) msg() << MSG::DEBUG << "muon1 : imu1=" << imu1 << endmsg;
 	const xAOD::Muon* muon1 = trigMuon1->at(imu1);
 	if( ! muon1 ){
-	  if (debug) msg() << MSG::DEBUG << "failed: muon1 is empty" << endreq;
+	  if (debug) msg() << MSG::DEBUG << "failed: muon1 is empty" << endmsg;
 	  continue;
 	}
 	if( ! muon1->primaryTrackParticle() ){
-	  if (debug) msg() << MSG::DEBUG << "failed: muon1->primaryTrackParticle() is empty" << endreq;
+	  if (debug) msg() << MSG::DEBUG << "failed: muon1->primaryTrackParticle() is empty" << endmsg;
 	  continue;
 	}
 	const xAOD::TrackParticle* track1 = muon1->trackParticle(xAOD::Muon::CombinedTrackParticle);
 	if( ! track1 ){
-	  if (debug) msg() << MSG::DEBUG << "failed: muon1->trackParticle(xAOD::Muon::CombinedTrackParticle) is empty" << endreq;
+	  if (debug) msg() << MSG::DEBUG << "failed: muon1->trackParticle(xAOD::Muon::CombinedTrackParticle) is empty" << endmsg;
 	  continue;
 	}
 	double trk1_pt = track1->pt() / CLHEP::GeV;
@@ -239,26 +239,26 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 	  if(i_te == j_te)continue;
 	  std::vector<const xAOD::MuonContainer*> VecMuEFCont2 = EFMuonELvec[j_te];
 	  for (unsigned int ivmu2=0; ivmu2<VecMuEFCont2.size(); ivmu2++){
-	    if (debug) msg() << MSG::DEBUG << "Element2 ivmu2=" << ivmu2 << " of vector of TrigMuonEFInfo containers" << endreq;
+	    if (debug) msg() << MSG::DEBUG << "Element2 ivmu2=" << ivmu2 << " of vector of TrigMuonEFInfo containers" << endmsg;
 	    const xAOD::MuonContainer* trigMuon2 = VecMuEFCont2[ivmu2];
 	    if( !trigMuon2 ){
-	      if (debug) msg() << MSG::DEBUG << "failed: trigMuon2 is empty" << endreq;
+	      if (debug) msg() << MSG::DEBUG << "failed: trigMuon2 is empty" << endmsg;
 	      continue;
 	    }
 	    for (unsigned int imu2 = 0 ; imu2 < trigMuon2->size() ; imu2++){
-	      if (debug) msg() << MSG::DEBUG << "muon2 : imu2=" << imu2 << endreq;
+	      if (debug) msg() << MSG::DEBUG << "muon2 : imu2=" << imu2 << endmsg;
 	      const xAOD::Muon* muon2 = trigMuon2->at(imu2);
 	      if( ! muon2 ){
-		if (debug) msg() << MSG::DEBUG << "failed: muon2 is empty" << endreq;
+		if (debug) msg() << MSG::DEBUG << "failed: muon2 is empty" << endmsg;
 		continue;
 	      }
 	      if( ! muon2->primaryTrackParticle() ){
-		if (debug) msg() << MSG::DEBUG << "failed: muon2->primaryTrackParticle() is empty" << endreq;
+		if (debug) msg() << MSG::DEBUG << "failed: muon2->primaryTrackParticle() is empty" << endmsg;
 		continue;
 	      }
 	      const xAOD::TrackParticle* track2 = muon2->trackParticle(xAOD::Muon::CombinedTrackParticle);
 	      if( ! track2 ){
-		if (debug) msg() << MSG::DEBUG << "failed: muon2->trackParticle(xAOD::Muon::CombinedTrackParticle) is empty" << endreq;
+		if (debug) msg() << MSG::DEBUG << "failed: muon2->trackParticle(xAOD::Muon::CombinedTrackParticle) is empty" << endmsg;
 		continue;
 	      }
 	      double trk2_pt = track2->pt() / CLHEP::GeV;
@@ -266,11 +266,11 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 	      double trk2_phi = track2->phi();
 	      double trk2_z0  = track2->z0();
 
-	      if(debug) msg() << MSG::DEBUG << "Dimuon candidate" << endreq;
-	      if(debug) msg() << MSG::DEBUG << "trk1_pt=" << trk1_pt <<   " trk2_pt=" << trk2_pt << endreq;
-	      if(debug) msg() << MSG::DEBUG << "trk1_eta=" << trk1_eta << " trk2_eta=" << trk2_eta << endreq;
-	      if(debug) msg() << MSG::DEBUG << "trk1_phi=" << trk1_phi << " trk2_phi=" << trk2_phi << endreq;
-	      if(debug) msg() << MSG::DEBUG << "trk1_z0=" << trk1_z0 <<   " trk2_z0=" << trk2_z0 << endreq;
+	      if(debug) msg() << MSG::DEBUG << "Dimuon candidate" << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "trk1_pt=" << trk1_pt <<   " trk2_pt=" << trk2_pt << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "trk1_eta=" << trk1_eta << " trk2_eta=" << trk2_eta << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "trk1_phi=" << trk1_phi << " trk2_phi=" << trk2_phi << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "trk1_z0=" << trk1_z0 <<   " trk2_z0=" << trk2_z0 << endmsg;
 
 
 	      double deltaPhi = trk1_phi - trk2_phi;
@@ -285,67 +285,67 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
 		  fabs(trk1_eta - trk2_eta)<0.001 &&
 		  deltaPhi<0.001 &&
 		  deltaZ0<0.001 ){
-		if (debug) msg() << MSG::DEBUG << "failed: muon1 = muon2" << endreq;
+		if (debug) msg() << MSG::DEBUG << "failed: muon1 = muon2" << endmsg;
 		continue;
 	      }
 	      	      
-	      if(debug) msg() << MSG::DEBUG << "      delta z0=" << deltaZ0 << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      delta phi=" << deltaPhi << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      dimuon pt=" << ptsum << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      dimuon mass=" << mass << endreq;
+	      if(debug) msg() << MSG::DEBUG << "      delta z0=" << deltaZ0 << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      delta phi=" << deltaPhi << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      dimuon pt=" << ptsum << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      dimuon mass=" << mass << endmsg;
 
-	      if(debug) msg() << MSG::DEBUG << "      delta Z threshold(mm)   : " << m_deltaZThres << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      delta Phi threshold low(Rad)    : " << m_deltaPhiThresLow << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      delta Phi threshold high(Rad)   : " << m_deltaPhiThresHigh << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      pairpt threshold low(GeV)    : " << m_pairptThresLow << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      pairpt threshold high(GeV)   : " << m_pairptThresHigh << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      mass threshold low(GeV)    : " << m_massThresLow << endreq;
-	      if(debug) msg() << MSG::DEBUG << "      mass threshold high(GeV)   : " << m_massThresHigh << endreq;
+	      if(debug) msg() << MSG::DEBUG << "      delta Z threshold(mm)   : " << m_deltaZThres << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      delta Phi threshold low(Rad)    : " << m_deltaPhiThresLow << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      delta Phi threshold high(Rad)   : " << m_deltaPhiThresHigh << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      pairpt threshold low(GeV)    : " << m_pairptThresLow << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      pairpt threshold high(GeV)   : " << m_pairptThresHigh << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      mass threshold low(GeV)    : " << m_massThresLow << endmsg;
+	      if(debug) msg() << MSG::DEBUG << "      mass threshold high(GeV)   : " << m_massThresHigh << endmsg;
 	      
 	      /////////////////////////////////////////////////////////////////
 	      if(doMonitor)m_mon_muonDeltaZ.push_back(deltaZ0);
 	      if( m_deltaZThres >= 0 && deltaZ0 > m_deltaZThres ) {
-		if(debug) msg() << MSG::DEBUG << "      -> delta z0 cut failed" << endreq;
+		if(debug) msg() << MSG::DEBUG << "      -> delta z0 cut failed" << endmsg;
 		continue;
 	      }
-	      if(debug) msg() << MSG::DEBUG << "      -> delta z0 cut passed" << endreq;
+	      if(debug) msg() << MSG::DEBUG << "      -> delta z0 cut passed" << endmsg;
 	      /////////////////////////////////////////////////////////////////	      
 	      if(doMonitor)m_mon_muonDeltaPhi.push_back(deltaPhi);
 	      if( m_deltaPhiThresLow >= 0 && deltaPhi < m_deltaPhiThresLow ) {
-		if(debug) msg() << MSG::DEBUG << "      -> delta phi Low  cut failed" << endreq;
+		if(debug) msg() << MSG::DEBUG << "      -> delta phi Low  cut failed" << endmsg;
 		continue;
 	      }
 	      if( m_deltaPhiThresHigh >= 0 && deltaPhi > m_deltaPhiThresHigh ) {
-		if(debug) msg() << MSG::DEBUG << "      -> delta phi High cut failed" << endreq;
+		if(debug) msg() << MSG::DEBUG << "      -> delta phi High cut failed" << endmsg;
 		continue;
 	      }
-	      if(debug) msg() << MSG::DEBUG << "      -> delta phi cut passed" << endreq;
+	      if(debug) msg() << MSG::DEBUG << "      -> delta phi cut passed" << endmsg;
 	      /////////////////////////////////////////////////////////////////	      
 	      if(doMonitor)m_mon_dimuonPt.push_back(ptsum);
 	      if( m_pairptThresLow >= 0 && ptsum < m_pairptThresLow ) {
-		if(debug) msg() << MSG::DEBUG << "      -> pair pt Low cut failed" << endreq;
+		if(debug) msg() << MSG::DEBUG << "      -> pair pt Low cut failed" << endmsg;
 		continue;
 	      }
 	      if( m_pairptThresHigh >= 0 && ptsum > m_pairptThresHigh ) {
-		if(debug) msg() << MSG::DEBUG << "      -> pair pT High cut failed" << endreq;
+		if(debug) msg() << MSG::DEBUG << "      -> pair pT High cut failed" << endmsg;
 		continue;
 	      }
-	      if(debug) msg() << MSG::DEBUG << "      -> pair pT cut passed" << endreq;
+	      if(debug) msg() << MSG::DEBUG << "      -> pair pT cut passed" << endmsg;
 	      /////////////////////////////////////////////////////////////////	      
 	      if(doMonitor)m_mon_invMass.push_back(mass);
 	      if( m_massThresLow >= 0 && mass < m_massThresLow ){
-		if(debug) msg() << MSG::DEBUG << "      -> dimuon mass Low cut failed" << endreq;
+		if(debug) msg() << MSG::DEBUG << "      -> dimuon mass Low cut failed" << endmsg;
 		continue;
 	      }
-	      if(debug) msg() << MSG::DEBUG << "      -> dimuon mass Low passed" << endreq;
+	      if(debug) msg() << MSG::DEBUG << "      -> dimuon mass Low passed" << endmsg;
 	      if( m_massThresHigh >= 0 && mass > m_massThresHigh ) {
-		if(debug) msg() << MSG::DEBUG << "      -> dimuon mass High cut failed" << endreq;
+		if(debug) msg() << MSG::DEBUG << "      -> dimuon mass High cut failed" << endmsg;
 		continue;
 	      }
-	      if(debug) msg() << MSG::DEBUG << "      -> dimuon mass High passed" << endreq;
+	      if(debug) msg() << MSG::DEBUG << "      -> dimuon mass High passed" << endmsg;
 	      /////////////////////////////////////////////////////////////////
 
-	      if(debug) msg() << MSG::DEBUG << "      -> passing dimuon selection" << endreq;
+	      if(debug) msg() << MSG::DEBUG << "      -> passing dimuon selection" << endmsg;
 	      
 	      n_pair_passed++;
 	      ok_TEs.insert(i_te);
@@ -361,15 +361,15 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltExecute(std::vector
   
   
   if( ok_TEs.size() == 1 ) {
-    msg() << MSG::WARNING << "Number of ok_TES = " << ok_TEs.size() << ". Should be 0 or >1" << endreq;
+    msg() << MSG::WARNING << "Number of ok_TES = " << ok_TEs.size() << ". Should be 0 or >1" << endmsg;
   }
 
   for(i_te=0; i_te<n_allTEs; i_te++) {
     if(ok_TEs.find(i_te) == ok_TEs.end()){
       vec_outputTEs[i_te]->setActiveState(false);
-      if(debug) msg() << MSG::DEBUG << "TE " << i_te << " is deactivated" << endreq;
+      if(debug) msg() << MSG::DEBUG << "TE " << i_te << " is deactivated" << endmsg;
     }else{
-      if(debug) msg() << MSG::DEBUG << "TE " << i_te << " is accepted" << endreq;
+      if(debug) msg() << MSG::DEBUG << "TE " << i_te << " is accepted" << endmsg;
     }
   }
 

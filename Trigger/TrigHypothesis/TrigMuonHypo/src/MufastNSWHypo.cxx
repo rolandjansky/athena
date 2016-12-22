@@ -50,13 +50,13 @@ MufastNSWHypo::~MufastNSWHypo(){
 HLT::ErrorCode MufastNSWHypo::hltInitialize()
 {
    msg() << MSG::INFO << "Initializing " << name() << " - package version " 
-	 << PACKAGE_VERSION << endreq;
+	 << PACKAGE_VERSION << endmsg;
 
    if(m_acceptAll) {
-      msg() << MSG::INFO << "Accepting all the events with not cut!" << endreq;
+      msg() << MSG::INFO << "Accepting all the events with not cut!" << endmsg;
    }
  
-   msg() << MSG::INFO << "Initialization completed successfully" << endreq;
+   msg() << MSG::INFO << "Initialization completed successfully" << endmsg;
 
    return HLT::OK;
 }
@@ -66,7 +66,7 @@ HLT::ErrorCode MufastNSWHypo::hltInitialize()
 
 HLT::ErrorCode MufastNSWHypo::hltFinalize()
 {
-   msg() << MSG::INFO << "in finalize()" << endreq;
+   msg() << MSG::INFO << "in finalize()" << endmsg;
    return HLT::OK;
 }
 
@@ -81,38 +81,38 @@ HLT::ErrorCode MufastNSWHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
 
    bool doDebug =  msgLvl() <= MSG::DEBUG;
    
-   if(doDebug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endreq;
+   if(doDebug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endmsg;
    
    // if accept All flag is on, just pass it
    if(m_acceptAll) {
       pass = true;
-      if(doDebug) msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endreq;
+      if(doDebug) msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endmsg;
       return HLT::OK;
    }
   
-   if(doDebug) msg() << MSG::DEBUG << "Accept property not set: applying selection!" << endreq;
+   if(doDebug) msg() << MSG::DEBUG << "Accept property not set: applying selection!" << endmsg;
   
    // Some debug output:
-   if(doDebug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+   if(doDebug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
   
    // Get L2StandAloneMuon
    const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
    HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
    if (status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
+      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endmsg;
       return status;
    }
 
    // Check that there is only one L2StandAloneMuon
    if (vectorOfMuons->size() != 1){
-      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
+      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endmsg;
       return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
    }
 
    // Get first (and only) RoI:
    const xAOD::L2StandAloneMuon* pMuon = vectorOfMuons->front();
    if(!pMuon){
-     msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endreq;
+     msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endmsg;
      return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
    }
 
@@ -136,7 +136,7 @@ HLT::ErrorCode MufastNSWHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
    if( fabs(eta_switch) < ETA_NSW || fabs(eta_switch) > ETA_MDT_INN ) {
       pass = true;
       if (doDebug)
-	 msg() << MSG::DEBUG << " REGTEST outside NSW: eta=" << eta_switch << " -> hypo=" << (pass?"true":"false") << endreq;
+	 msg() << MSG::DEBUG << " REGTEST outside NSW: eta=" << eta_switch << " -> hypo=" << (pass?"true":"false") << endmsg;
       return HLT::OK;
    }
 
@@ -144,7 +144,7 @@ HLT::ErrorCode MufastNSWHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
    if( fabs(pt_mf) < PT_ZERO_LIMIT ) {
       pass = false;
       if (doDebug)
-	 msg() << MSG::DEBUG << " REGTEST reconstruction failed: pt=" << pMuon->pt() << " -> hypo=" << (pass?"true":"false") << endreq;
+	 msg() << MSG::DEBUG << " REGTEST reconstruction failed: pt=" << pMuon->pt() << " -> hypo=" << (pass?"true":"false") << endmsg;
       return HLT::OK;
    }
 
@@ -205,7 +205,7 @@ HLT::ErrorCode MufastNSWHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
    if( ! hasInner && ! hasTgcInner ) {
       pass = false;
       if (doDebug)
-	 msg() << MSG::DEBUG << " REGTEST no Inner hit: pt/eta/sp_z[0/1]=" << pt_mf << "/" << eta_mf << "/" << sp_z[0] << "/" << sp_z[1] << " -> hypo=" << (pass?"true":"false") << endreq;
+	 msg() << MSG::DEBUG << " REGTEST no Inner hit: pt/eta/sp_z[0/1]=" << pt_mf << "/" << eta_mf << "/" << sp_z[0] << "/" << sp_z[1] << " -> hypo=" << (pass?"true":"false") << endmsg;
       return HLT::OK;
    }
 
@@ -218,7 +218,7 @@ HLT::ErrorCode MufastNSWHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
    if( ! dThetaCut(pMuon->etaMS(),dTheta) ) {
       pass = false;
       if (doDebug)
-	 msg() << MSG::DEBUG << " REGTEST failed dTheta cut: dTheta=" << dTheta << " -> hypo=" << (pass?"true":"false") << endreq;
+	 msg() << MSG::DEBUG << " REGTEST failed dTheta cut: dTheta=" << dTheta << " -> hypo=" << (pass?"true":"false") << endmsg;
       return HLT::OK;
    }
 
@@ -233,13 +233,13 @@ HLT::ErrorCode MufastNSWHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
    if( ! dLCut(pMuon->etaMS(),dLeta, dLphi) ) {
       pass = false;
       if (doDebug)
-	 msg() << MSG::DEBUG << " REGTEST failed dL cut: dLeta/phi=" << dLeta << "/" << dLphi << " -> hypo=" << (pass?"true":"false") << endreq;
+	 msg() << MSG::DEBUG << " REGTEST failed dL cut: dLeta/phi=" << dLeta << "/" << dLphi << " -> hypo=" << (pass?"true":"false") << endmsg;
       return HLT::OK;
    }
 
    // passed all
    pass = true;
-   if (doDebug) msg() << MSG::DEBUG << " REGTEST passed all NSW cuts" << endreq;
+   if (doDebug) msg() << MSG::DEBUG << " REGTEST passed all NSW cuts" << endmsg;
 
   
    return HLT::OK;

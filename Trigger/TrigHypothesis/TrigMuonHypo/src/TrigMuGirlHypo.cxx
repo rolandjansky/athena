@@ -38,24 +38,24 @@ HLT::ErrorCode TrigMuGirlHypo::hltInitialize(){
   if(m_acceptAll) {
     msg() << MSG::INFO
           << "Accepting all the events with not cut!"
-          << endreq;
+          << endmsg;
   } else {
     m_bins = m_ptBins.size() - 1;
     if (m_bins != m_ptThresholds.size()) {
-      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
     for (std::vector<float>::size_type i=0; i<m_bins;++i) {
       msg() << MSG::INFO
             << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1]
             << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
-            << " GeV" << endreq;
+            << " GeV" << endmsg;
     }
   }
 
   msg() << MSG::INFO 
         << "Initialization completed successfully" 
-        << endreq;
+        << endmsg;
 
   return HLT::OK;
 }
@@ -63,7 +63,7 @@ HLT::ErrorCode TrigMuGirlHypo::hltInitialize(){
 
 HLT::ErrorCode TrigMuGirlHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -72,7 +72,7 @@ HLT::ErrorCode TrigMuGirlHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 
   m_storeGate = store();
   
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
   
   //resetting the monitoring variables 
   //  m_fex_pt.clear();
@@ -84,7 +84,7 @@ HLT::ErrorCode TrigMuGirlHypo::hltExecute(const HLT::TriggerElement* outputTE, b
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG 
                 << "Accept property is set: taking all the events"
-                << endreq;
+                << endmsg;
       }
       return HLT::OK;
   }
@@ -93,7 +93,7 @@ HLT::ErrorCode TrigMuGirlHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   bool debug = msgLvl() <= MSG::DEBUG;
 
   // Some debug output:
-  //  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+  //  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
 
   const TrigMuonEFInfoContainer* trackCont = NULL;
   std::vector<const TrigMuonEFInfoContainer*> vectorOfTrigMuonEF;  
@@ -102,7 +102,7 @@ HLT::ErrorCode TrigMuGirlHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   status=getFeatures(outputTE, vectorOfTrigMuonEF);
 
   if (status != HLT::OK || vectorOfTrigMuonEF.size()==0) {
-      msg() << MSG::DEBUG << "Could not retieve vector of TrigMuonEFInfoConatiner "<< endreq;
+      msg() << MSG::DEBUG << "Could not retieve vector of TrigMuonEFInfoConatiner "<< endmsg;
       return HLT::MISSING_FEATURE;
 
   }
@@ -111,23 +111,23 @@ HLT::ErrorCode TrigMuGirlHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   
   for (unsigned int i=0; i<vectorOfTrigMuonEF.size(); i++)
     {
-      msg() << MSG::DEBUG << "Element "<<i<<" of vector of TrigMuonEFInfo containers  "<<endreq;
+      msg() << MSG::DEBUG << "Element "<<i<<" of vector of TrigMuonEFInfo containers  "<<endmsg;
       // Get first (and only) RoI:
       trackCont = vectorOfTrigMuonEF[i];
       if(!trackCont)
 	{
 	  msg() << MSG::ERROR
-		<< "Retrieval of TrigMuonEFInfo container from vector failed" << endreq;
+		<< "Retrieval of TrigMuonEFInfo container from vector failed" << endmsg;
 	  return  HLT::NAV_ERROR;
 	}  
-      else msg() << MSG::DEBUG << "container OK with size "<<trackCont->size()<< endreq;
+      else msg() << MSG::DEBUG << "container OK with size "<<trackCont->size()<< endmsg;
     }
   if(trackCont != NULL){
     for (TrigMuonEFInfoContainer::const_iterator tr = trackCont->begin();tr != trackCont->end(); tr++)
       {
 	const TrigMuonEFInfo* eInfo = (*tr);
 	const TrigMuonEFInfoTrackContainer* trI=eInfo->TrackContainer();
-	msg() << MSG::DEBUG << "Track container size: " <<  trI->size() << endreq;
+	msg() << MSG::DEBUG << "Track container size: " <<  trI->size() << endmsg;
 	for (TrigMuonEFInfoTrackContainer::const_iterator  Ir= trI->begin();Ir != trI->end(); Ir++)
 	  {
 	    const TrigMuonEFInfoTrack* muonInfo = (*Ir);
@@ -146,7 +146,7 @@ HLT::ErrorCode TrigMuGirlHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 	    if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << (trC)->pt()/CLHEP::GeV << " GeV "   
 			    << " with Charge " << (trC)->charge() 
 			    << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" 
-			    << " so hypothesis is " << (result?"true":"false") << endreq;
+			    << " so hypothesis is " << (result?"true":"false") << endmsg;
 	  }
       }
   }

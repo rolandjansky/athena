@@ -63,20 +63,20 @@ TrigMuTagIMOHypo::~TrigMuTagIMOHypo(){}
 HLT::ErrorCode TrigMuTagIMOHypo::hltInitialize() { 
 
   if(m_acceptAll)
-    msg() << MSG::INFO << "Accepting all the events" << endreq;
+    msg() << MSG::INFO << "Accepting all the events" << endmsg;
   else {
     m_bins = m_ptBins.size() - 1;
     if (m_bins != m_ptThresholds.size()) {
-      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
       return HLT::BAD_JOB_SETUP;   
     }
      
     for (std::vector<float>::size_type i=0; i<m_bins;++i)
-      msg() << MSG::INFO << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1] << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV << " GeV" << endreq;
+      msg() << MSG::INFO << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1] << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV << " GeV" << endmsg;
 
   }
 
-  msg() << MSG::INFO << "Initialization completed successfully" << endreq;
+  msg() << MSG::INFO << "Initialization completed successfully" << endmsg;
 
   return HLT::OK;
 }
@@ -88,7 +88,7 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltInitialize() {
 HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   
   if(msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Executing TrigMuTagIMOHypo" << endreq;
+    msg() << MSG::DEBUG << "Executing TrigMuTagIMOHypo" << endmsg;
   
   //* initialise monitoring variables *//
   m_cutCounter = -1;
@@ -96,12 +96,12 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
   //* AcceptAll declare property setting *//
   if (m_acceptAll) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events" << endreq;
+      msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events" << endmsg;
     m_cutCounter = 1;
     pass = true;
     return HLT::OK;
   } else 
-    msg() << MSG::DEBUG << "REGTEST: AcceptAll property not set: applying selection" << endreq;
+    msg() << MSG::DEBUG << "REGTEST: AcceptAll property not set: applying selection" << endmsg;
   
  //* Get RoI descriptor *//
   const TrigRoiDescriptor* roiDescriptor = 0;
@@ -112,11 +112,11 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
       msg() << MSG::DEBUG << "Using outputTE: " 
 	    << "RoI id " << roiDescriptor->roiId()
 	    << ", Phi = " <<  roiDescriptor->phi()
-	    << ", Eta = " << roiDescriptor->eta() << endreq;
+	    << ", Eta = " << roiDescriptor->eta() << endmsg;
     }
   } else {
     if (msgLvl() <= MSG::WARNING) 
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endreq;
+      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endmsg;
 
     return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::MISSING_FEATURE);
   }
@@ -128,27 +128,27 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
   if (getFeature(outputTE, trigMuonEFInfoColl, "MuTagIMO_EF") != HLT::OK) {
 
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Failed to get TrigMuTagIMO collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigMuTagIMO collection" << endmsg;
 
     return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::MISSING_FEATURE); 
 
   } else if (!trigMuonEFInfoColl) {
 
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Empty TrigMuTagIMO collection" << endreq;
+      msg() << MSG::WARNING << "Empty TrigMuTagIMO collection" << endmsg;
     
     return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::MISSING_FEATURE); 
 
   } else {
 
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Got collection with " << trigMuonEFInfoColl->size() << " TrigMuonEF" << endreq;
+      msg() << MSG::DEBUG << "Got collection with " << trigMuonEFInfoColl->size() << " TrigMuonEF" << endmsg;
   }
 
   if (!(trigMuonEFInfoColl->size())) {
 
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No TrigMuonEFInfo to analyse" << endreq;
+      msg() << MSG::DEBUG << "No TrigMuonEFInfo to analyse" << endmsg;
 
     return HLT::OK;
   }
@@ -168,7 +168,7 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
     if (!(trigMuonEFInfoTrackContainer->size())) {
 
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "No TrigMuonEFInfoTrack to analyse" << endreq;
+	msg() << MSG::DEBUG << "No TrigMuonEFInfoTrack to analyse" << endmsg;
 
       continue;
     }
@@ -195,7 +195,7 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
     if(msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << " REGTEST muon pt is " << combinedTrack->pt()/CLHEP::GeV << " GeV " << " with Charge " << combinedTrack->charge()
-	    << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" << " so hypothesis is " << (result?"true":"false") << endreq;
+	    << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" << " so hypothesis is " << (result?"true":"false") << endmsg;
 
   }
 
@@ -212,7 +212,7 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
 HLT::ErrorCode TrigMuTagIMOHypo::hltFinalize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Finalizing TrigMuTagIMOHypo" << endreq;
+    msg() << MSG::INFO << "Finalizing TrigMuTagIMOHypo" << endmsg;
 
   return HLT::OK;
 }

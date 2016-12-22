@@ -48,11 +48,11 @@ HLT::ErrorCode MufastStauHypo::hltInitialize(){
   if(m_acceptAll) {
       msg() << MSG::INFO
             << "Accepting all the events with not cut!"
-	    << endreq;
+	    << endmsg;
   } else {
      m_bins = m_ptBins.size() - 1;
      if (m_bins != m_ptThresholds.size()) {
-        msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+        msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
         return HLT::BAD_JOB_SETUP;
      } 
   }
@@ -64,25 +64,25 @@ HLT::ErrorCode MufastStauHypo::hltInitialize(){
       sprintf(buf2,"%f",m_ptBins[i+1]);
       msg() << MSG::INFO << "EtaBin " << buf1 << " - " <<  buf2
             << ": with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
-            << " GeV" << endreq;
+            << " GeV" << endmsg;
   }
       msg() << MSG::INFO
             << "Set BetaMax to " << m_betaMax << " GeV"
             << "Set MMin to " << m_mMin/CLHEP::GeV << " GeV"
-            << endreq;
+            << endmsg;
 
      
  
   msg() << MSG::INFO 
         << "Initialization completed successfully" 
-        << endreq;
+        << endmsg;
   
   return HLT::OK;
 }
 
 
 HLT::ErrorCode MufastStauHypo::hltFinalize(){
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -91,21 +91,21 @@ HLT::ErrorCode MufastStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
   
   if(m_acceptAll) {
       pass = true;
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG 
 	        << "Accept property is set: taking all the events"
-		<< endreq;
+		<< endmsg;
       }
       return HLT::OK;
   }
   
   if(msgLvl() <= MSG::DEBUG) {
        msg() << MSG::DEBUG << "Accept property not set: applying selection!"
-             << endreq;
+             << endmsg;
   }
   
   
@@ -114,27 +114,27 @@ HLT::ErrorCode MufastStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   // Some debug output:
   if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
   }
   
   // Get vector of pointers to L2StandAloneMuon linked to the outputTE 
   const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
   HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
   if (status!=HLT::OK) {
-     msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
+     msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endmsg;
      return status;
   }
 
   // Check that there is only one L2StandAloneMuon
   if (vectorOfMuons->size() != 1){
-     msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
+     msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endmsg;
      return HLT::NAV_ERROR;
   }
 
   // Get first (and only) RoI:
   const xAOD::L2StandAloneMuon* pMuon = vectorOfMuons->front();
   if(!pMuon){
-    msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endreq;
+    msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endmsg;
     return HLT::NAV_ERROR;
   }
 
@@ -172,7 +172,7 @@ HLT::ErrorCode MufastStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
         //if (msgLvl() <= MSG::DEBUG) {
             msg() << MSG::DEBUG << " REGTEST muon mass is " << mCand/CLHEP::GeV << " GeV" 
                   << " and threshold cut is " << m_mMin/CLHEP::GeV << " GeV" 
-                  << " so hypothesis is " << (result?"true":"false") << endreq;
+                  << " so hypothesis is " << (result?"true":"false") << endmsg;
         //}
   
  }
@@ -185,7 +185,7 @@ HLT::ErrorCode MufastStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
     }
     msg() << MSG::DEBUG << " REGTEST muon pt  is " << (fabs(pMuon->pt())) << " GeV" 
           << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" 
-          << " so hypothesis is " << (result?"true":"false") << endreq;
+          << " so hypothesis is " << (result?"true":"false") << endmsg;
  }  
         //store the result
         pass = result;

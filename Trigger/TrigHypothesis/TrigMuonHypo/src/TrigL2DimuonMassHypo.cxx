@@ -48,17 +48,17 @@ TrigL2DimuonMassHypo::~TrigL2DimuonMassHypo()
 HLT::ErrorCode TrigL2DimuonMassHypo::hltInitialize()
 {
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
+    msg() << MSG::DEBUG << "Initialization:" << endmsg;
   }
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
+    msg() << MSG::DEBUG << "Initialization completed successfully:" << endmsg;
     msg() << MSG::DEBUG << "AcceptAll            = " 
-	  << (m_acceptAll==true ? "True" : "False") << endreq; 
+	  << (m_acceptAll==true ? "True" : "False") << endmsg; 
     msg() << MSG::DEBUG << "OppositeCharge       = " 
-	  << (m_oppositeCharge==true ? "True" : "False") << endreq; 
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
+	  << (m_oppositeCharge==true ? "True" : "False") << endmsg; 
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
   }
   
   return HLT::OK;
@@ -67,7 +67,7 @@ HLT::ErrorCode TrigL2DimuonMassHypo::hltInitialize()
 
 HLT::ErrorCode TrigL2DimuonMassHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -78,10 +78,10 @@ HLT::ErrorCode TrigL2DimuonMassHypo::hltExecute(const HLT::TriggerElement* outpu
   if(msgLvl() <= MSG::DEBUG) {
     if (m_acceptAll) {
       msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	    << endreq;
+	    << endmsg;
     } else {
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	    << endreq;
+	    << endmsg;
     }
   }
   
@@ -91,7 +91,7 @@ HLT::ErrorCode TrigL2DimuonMassHypo::hltExecute(const HLT::TriggerElement* outpu
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG 
 	        << "Accept property is set: taking all the events"
-		<< endreq;
+		<< endmsg;
       }
       return HLT::OK;
   }
@@ -108,13 +108,13 @@ HLT::ErrorCode TrigL2DimuonMassHypo::hltExecute(const HLT::TriggerElement* outpu
   // dump and check number of input TEs
   // it must be fixed to two for the moment - this block of code must be removed when moving to the new steering
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Retrieved " << vectorOfInputTE.size() << " input trigger Elements" << endreq;
+    msg() << MSG::DEBUG << "Retrieved " << vectorOfInputTE.size() << " input trigger Elements" << endmsg;
   }
   
   if(vectorOfInputTE.size()!=2) {
     if(msgLvl() <= MSG::WARNING) {
       msg() << MSG::WARNING << "Retrieved the wrong number of input trigger elements: found "
-	    << vectorOfInputTE.size() << " and expected 2" << endreq;
+	    << vectorOfInputTE.size() << " and expected 2" << endmsg;
     }
     return HLT::NAV_ERROR;
   }
@@ -133,11 +133,11 @@ HLT::ErrorCode TrigL2DimuonMassHypo::hltExecute(const HLT::TriggerElement* outpu
 	msg() << MSG::DEBUG << "RoI id " << roiDescriptor->roiId()
 	      << " LVL1 id " << roiDescriptor->l1Id()
 	      << " located at   phi = " <<  roiDescriptor->phi()
-	      << ", eta = " << roiDescriptor->eta() << endreq;
+	      << ", eta = " << roiDescriptor->eta() << endmsg;
       }
     } else {
       if(msgLvl() <= MSG::WARNING) {
-	msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
+	msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endmsg;
       }
       return HLT::NAV_ERROR;
     }
@@ -147,13 +147,13 @@ HLT::ErrorCode TrigL2DimuonMassHypo::hltExecute(const HLT::TriggerElement* outpu
     status = getFeatures(*inputTE,vectorOfMuons);
     if(status != HLT::OK) {
       if(msgLvl() <= MSG::WARNING) {
-	msg() << MSG::WARNING << "Failed to get CombinedMuonFeature" << endreq;
+	msg() << MSG::WARNING << "Failed to get CombinedMuonFeature" << endmsg;
       }
       return HLT::NAV_ERROR;
     }
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Got vector with " << vectorOfMuons.size() 
-	    << " CombinedMuonFeature" << endreq;
+	    << " CombinedMuonFeature" << endmsg;
     }
 
     // add an entry to the muonCandidates map
@@ -174,15 +174,15 @@ HLT::ErrorCode TrigL2DimuonMassHypo::hltExecute(const HLT::TriggerElement* outpu
 	  if(msgLvl() <= MSG::DEBUG) {
 	    msg() << MSG::DEBUG << "1st CombinedMuonFeature: addr=" << (*muon1)
 		  << " pt=" << 1/(*muon1)->pt() << " trkAddr=" << (*muon1)->IDTrack() 
-		  << endreq;
+		  << endmsg;
 	    msg() << MSG::DEBUG << "2nd CombinedMuonFeature: addr=" << (*muon2)
 		  << " pt=" << 1/(*muon2)->pt() << " trkAddr=" << (*muon2)->IDTrack() 
-		  << endreq;
+		  << endmsg;
 	  }
 	  // check charge
 	  if(m_oppositeCharge && ((*muon1)->pt()*(*muon2)->pt())>0) {
 	    if(msgLvl() <= MSG::DEBUG) {
-	      msg() << MSG::DEBUG << "Combination discarded by opposite charge check" << endreq;
+	      msg() << MSG::DEBUG << "Combination discarded by opposite charge check" << endmsg;
 	    }
 	    continue;
 	  }
@@ -192,14 +192,14 @@ HLT::ErrorCode TrigL2DimuonMassHypo::hltExecute(const HLT::TriggerElement* outpu
 	  if(mass<m_lowerMassCut || mass>m_upperMassCut) {
 	    if(msgLvl() <= MSG::DEBUG) {
 	      msg() << MSG::DEBUG << "Combination discarded by mass cut: "
-		    << mass << " MeV" << endreq;
+		    << mass << " MeV" << endmsg;
 	    }
 	    continue;
 	  }
 	  // save combination
 	  if(msgLvl() <= MSG::DEBUG) {
 	    msg() << MSG::DEBUG << "Combination retained! Invariant mass value: "
-		  << mass/1000 << " GeV" << endreq;
+		  << mass/1000 << " GeV" << endmsg;
 	  }
 	}
       }

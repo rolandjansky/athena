@@ -65,42 +65,42 @@ TrigEFMuonOverlapRemover::TrigEFMuonOverlapRemover(const std::string& name, ISvc
 
 HLT::ErrorCode TrigEFMuonOverlapRemover::hltBeginRun()
 {
-   msg() << MSG::INFO << "in hltBeginRun : " << name() << endreq;
+   msg() << MSG::INFO << "in hltBeginRun : " << name() << endmsg;
 
    //
    m_doDebug   =  msgLvl() <= MSG::DEBUG;
-   msg() << MSG::INFO << "m_doDebug=" << m_doDebug << endreq;   
+   msg() << MSG::INFO << "m_doDebug=" << m_doDebug << endmsg;   
 
    //
    if( m_doMuExtrBasedRemoval ) {
-      msg() << MSG::INFO << "--- muExtr based overlap removal as: ---"     << endreq;
+      msg() << MSG::INFO << "--- muExtr based overlap removal as: ---"     << endmsg;
       if( m_muExtrRequireDR ) {
-	 msg() << MSG::INFO << "+ dR cut:" << endreq;
+	 msg() << MSG::INFO << "+ dR cut:" << endmsg;
 	 if( (m_muExtrEtaBins.size()-1) != m_muExtrDRThres.size() ) {
-	    msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+	    msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
 	    return HLT::BAD_JOB_SETUP;
 	 }
 	 for(unsigned int i=0; i<m_muExtrDRThres.size(); i++) {
 	    msg() << MSG::INFO << "     EtaBin " << m_muExtrEtaBins[i] << " - " << m_muExtrEtaBins[i+1]
-		  << " : dR < " << m_muExtrDRThres[i] << endreq;
+		  << " : dR < " << m_muExtrDRThres[i] << endmsg;
 	 }
       }
       if( m_muExtrRequireMass ) {
-	 msg() << MSG::INFO << "+ Mass cut:" << endreq;
+	 msg() << MSG::INFO << "+ Mass cut:" << endmsg;
 	 if( (m_muExtrEtaBins.size()-1) != m_muExtrMassThres.size() ) {
-	    msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+	    msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
 	    return HLT::BAD_JOB_SETUP;
 	 }
 	 for(unsigned int i=0; i<m_muExtrMassThres.size(); i++) {
 	    msg() << MSG::INFO << "     EtaBin " << m_muExtrEtaBins[i] << " - " << m_muExtrEtaBins[i+1]
-		  << " : Mass < " << m_muExtrMassThres[i] << endreq;
+		  << " : Mass < " << m_muExtrMassThres[i] << endmsg;
 	 }
       }
-      if( m_muExtrRequireSameSign ) msg() << MSG::INFO << "+ Same charge sign" << endreq;
+      if( m_muExtrRequireSameSign ) msg() << MSG::INFO << "+ Same charge sign" << endmsg;
    }
    
    //
-   msg() << MSG::INFO << "Initialization completed successfully"  << endreq; 
+   msg() << MSG::INFO << "Initialization completed successfully"  << endmsg; 
 
    return HLT::OK;
 }
@@ -117,40 +117,40 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
    std::vector<double> eta1; 
    std::vector<double> phi1; 
    std::vector<int> charge1; 
-   if (m_doDebug) msg() << MSG::DEBUG << "+++++++++++++ FIRST TE" << endreq;
+   if (m_doDebug) msg() << MSG::DEBUG << "+++++++++++++ FIRST TE" << endmsg;
    for (unsigned int i=0; i<extrMfLink1.size(); i++){
-     if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endreq;
+     if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endmsg;
      // Get first (and only) RoI:
      const xAOD::MuonContainer* trigMuon = extrMfLink1[i];
      if(!trigMuon){
        msg() << MSG::ERROR
              << "Retrieval of TrigMuonEFInfoContainer from vector failed"
-             << endreq;
+             << endmsg;
              return HLT::NAV_ERROR;
      } else {
-       if(m_doDebug) msg() << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endreq;
+       if(m_doDebug) msg() << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endmsg;
      }
      // loop on the muons within the RoI
      xAOD::MuonContainer::const_iterator MuonItr  = trigMuon->begin();
      xAOD::MuonContainer::const_iterator MuonItrE = trigMuon->end();
      for(int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
-        msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
+        msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endmsg;
 	const xAOD::Muon* muon = (*MuonItr);
         if (!muon) {
-          if (m_doDebug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
+          if (m_doDebug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endmsg;
           continue;
         }
 	else {
           if (muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle)) { 
 	      const xAOD::TrackParticle *tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle); 
 	      if (!tr) {
-                if (m_doDebug) msg() << MSG::DEBUG << "Extrapolated track not initialized." << endreq;
+                if (m_doDebug) msg() << MSG::DEBUG << "Extrapolated track not initialized." << endmsg;
                 continue;
 	      }
 	      else {
 		if (m_doDebug) msg() << MSG::DEBUG
 				     << "Retrieved extrapolated track with abs pt "
-				     << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
+				     << (*tr).pt()/CLHEP::GeV << " GeV " << endmsg;
                 pt1.push_back((*tr).pt());
                 eta1.push_back((*tr).eta());
                 phi1.push_back((*tr).phi());
@@ -170,40 +170,40 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
    std::vector<double> eta2;
    std::vector<double> phi2;
    std::vector<int> charge2; 
-   if (m_doDebug) msg() << MSG::DEBUG << "+++++++++++++ SECOND TE" << endreq;
+   if (m_doDebug) msg() << MSG::DEBUG << "+++++++++++++ SECOND TE" << endmsg;
    for (unsigned int i=0; i<extrMfLink2.size(); i++){
-     if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endreq;
+     if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endmsg;
      // Get first (and only) RoI:
      const xAOD::MuonContainer* trigMuon = extrMfLink2[i];
      if(!trigMuon){
        msg() << MSG::ERROR
              << "Retrieval of xAOD::MuonContainer from vector failed"
-             << endreq;
+             << endmsg;
              return HLT::NAV_ERROR;
      } else {
-       if(m_doDebug) msg() << MSG::DEBUG << "xAOD::MuonContainer OK with size " << trigMuon->size() << endreq;
+       if(m_doDebug) msg() << MSG::DEBUG << "xAOD::MuonContainer OK with size " << trigMuon->size() << endmsg;
      }
      // loop on the muons within the RoI
      xAOD::MuonContainer::const_iterator MuonItr  = trigMuon->begin();
      xAOD::MuonContainer::const_iterator MuonItrE = trigMuon->end();
      for(int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
-        msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
+        msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endmsg;
 	const xAOD::Muon* muon = (*MuonItr);
         if (!muon) {
-          if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFInfo found." << endreq;
+          if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFInfo found." << endmsg;
           continue;
         } 
 	else {
           if (muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle)) { // was there a muon in this RoI ?
 	    const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
 	    if (!tr) {
-	      if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
+	      if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endmsg;
 	      continue;
 	    } 
 	    else {
 	      if (m_doDebug) msg() << MSG::DEBUG
 				   << "Retrieved extrapolated track with abs pt "
-				   << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
+				   << (*tr).pt()/CLHEP::GeV << " GeV " << endmsg;
 	      pt2.push_back((*tr).pt());
 	      eta2.push_back((*tr).eta());
 	      phi2.push_back((*tr).phi());
@@ -217,20 +217,20 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
    //overlap check... just say that the extrapolated track collections are identical
    bool sametrackcollection = false;
    if(pt1.size()!=pt2.size() || pt1.size()==0 || pt2.size()==0 || pt1.size()>1 || pt2.size()>1) {
-     if(m_doDebug) msg() << MSG::DEBUG << "   not same size of extrapolated track collection or not tracks found or size > 1.... cannot judge overlap -> return with false" << endreq;
+     if(m_doDebug) msg() << MSG::DEBUG << "   not same size of extrapolated track collection or not tracks found or size > 1.... cannot judge overlap -> return with false" << endmsg;
    } else {
      for(uint i=0; i<pt1.size(); i++) { //to be closed
-       if(m_doDebug) msg() << MSG::DEBUG << "   ...extrM1: pt/eta/phi/charge=" << pt1[i]/CLHEP::GeV << " / " << eta1[i] << " / " << phi1[i] << " / " << charge1[i] << endreq;
-       if(m_doDebug) msg() << MSG::DEBUG << "   ...extrM2: pt/eta/phi/charge=" << pt2[i]/CLHEP::GeV << " / " << eta2[i] << " / " << phi2[i] << " / " << charge2[i] << endreq;
+       if(m_doDebug) msg() << MSG::DEBUG << "   ...extrM1: pt/eta/phi/charge=" << pt1[i]/CLHEP::GeV << " / " << eta1[i] << " / " << phi1[i] << " / " << charge1[i] << endmsg;
+       if(m_doDebug) msg() << MSG::DEBUG << "   ...extrM2: pt/eta/phi/charge=" << pt2[i]/CLHEP::GeV << " / " << eta2[i] << " / " << phi2[i] << " / " << charge2[i] << endmsg;
 
        // if dR or invMass is necessary but (eta,phi) info is not avaiable
        // (i.e. eta,phi=0,0; rec failed)
        const double ZERO_LIMIT_FOR_ETAPHI = 1e-4;
        if( (fabs(eta1[i]) <ZERO_LIMIT_FOR_ETAPHI && fabs(phi1[i]) < ZERO_LIMIT_FOR_ETAPHI) ||
        (fabs(eta2[i]) <ZERO_LIMIT_FOR_ETAPHI && fabs(phi2[i]) < ZERO_LIMIT_FOR_ETAPHI) ) {
-         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> (eta,phi) info not available (rec at (eta,phi)=(0,0))" << endreq;
+         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> (eta,phi) info not available (rec at (eta,phi)=(0,0))" << endmsg;
          if( m_muExtrRequireDR || m_muExtrRequireMass ) {
-	   if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but dR of invMass check is required. cannot judge overlap -> return with false" << endreq;
+	   if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but dR of invMass check is required. cannot judge overlap -> return with false" << endmsg;
 	   return false;
          }
        }
@@ -238,17 +238,17 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
        // if charge or invMass is necessary but charge(pT) info is not avaiable
        const double ZERO_LIMIT_FOR_PT = 1e-4;
        if( (fabs(pt1[i]) <ZERO_LIMIT_FOR_PT) || (fabs(pt2[i]) < ZERO_LIMIT_FOR_PT) ) {
-         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> pT info not available (rec at pT=0)" << endreq;
+         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> pT info not available (rec at pT=0)" << endmsg;
          if( m_muExtrRequireMass ) {
-	   if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but invMass check is required. cannot judge overlap -> return with false" << endreq;
+	   if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but invMass check is required. cannot judge overlap -> return with false" << endmsg;
 	   return false;
          }
        }
        const double ZERO_LIMIT_FOR_CHARGE = 1e-4;
        if( std::abs(charge1[i])<ZERO_LIMIT_FOR_CHARGE || std::abs(charge2[i])<ZERO_LIMIT_FOR_CHARGE ) {
-         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> charge info not available" << endreq;
+         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> charge info not available" << endmsg;
          if( m_muExtrRequireSameSign ) {
-           if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but same sign check is required. cannot judge overlap -> return with false" << endreq;
+           if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but same sign check is required. cannot judge overlap -> return with false" << endmsg;
            return false;
          }
        }
@@ -262,16 +262,16 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
        double dRThres     = m_muExtrDRThres[iThres];
        double massThres   = m_muExtrMassThres[iThres];
        if(m_doDebug)  {
-         msg() << MSG::DEBUG << "   ...iThres=" << iThres << endreq;
-         if(m_muExtrRequireDR)        msg() << MSG::DEBUG << "   ...dR       threshold=" << dRThres     << endreq;
-         if(m_muExtrRequireMass)      msg() << MSG::DEBUG << "   ...mass     threshold=" << massThres   << endreq;
+         msg() << MSG::DEBUG << "   ...iThres=" << iThres << endmsg;
+         if(m_muExtrRequireDR)        msg() << MSG::DEBUG << "   ...dR       threshold=" << dRThres     << endmsg;
+         if(m_muExtrRequireMass)      msg() << MSG::DEBUG << "   ...mass     threshold=" << massThres   << endmsg;
        }
 
         // same sign cut
         bool sameSign = false;
         if( m_muExtrRequireSameSign ) {
           sameSign = ((charge1[i])*(charge2[i]) > 0) ? true : false;
-          if(m_doDebug) msg() << MSG::DEBUG << "   ...-> sameSign=" << sameSign << endreq;
+          if(m_doDebug) msg() << MSG::DEBUG << "   ...-> sameSign=" << sameSign << endmsg;
         }
 
         // dR cut
@@ -285,7 +285,7 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
         }
         if( m_muExtrRequireDR ) {
          if( dr < dRThres ) dRisClose = true;
-         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> dR=" << dr << " : dRisClose=" << dRisClose << endreq;
+         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> dR=" << dr << " : dRisClose=" << dRisClose << endmsg;
        }
 
 
@@ -301,7 +301,7 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
        }
        if( m_muExtrRequireMass ) {
          if( mass < massThres ) massIsClose = true;
-         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> mass=" << mass << " : massIsClose=" << massIsClose << endreq;
+         if(m_doDebug) msg() << MSG::DEBUG << "   ...-> mass=" << mass << " : massIsClose=" << massIsClose << endmsg;
        }
 
        // total judge on extrapolated track
@@ -313,7 +313,7 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
          sametrackcollection = false; 
        }
 
-       if(m_doDebug) msg() << MSG::DEBUG << "   ...=> same estrapolated track = " << sametrackcollection << endreq;
+       if(m_doDebug) msg() << MSG::DEBUG << "   ...=> same estrapolated track = " << sametrackcollection << endmsg;
 
      }
    }
@@ -322,7 +322,7 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
    bool overlap = false;
    if( sametrackcollection) {
      overlap = true;
-     if(m_doDebug) msg() << MSG::DEBUG << "   ...=> isOverlap=" << overlap << endreq;
+     if(m_doDebug) msg() << MSG::DEBUG << "   ...=> isOverlap=" << overlap << endmsg;
    }
 
    return overlap;
@@ -382,7 +382,7 @@ double TrigEFMuonOverlapRemover::invMass(double m1, double pt1, double eta1, dou
 HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
 						    unsigned int type_out)
 {
-   if(m_doDebug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endreq;
+   if(m_doDebug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endmsg;
 
    m_doMonitor = (m_monitorChoice==TrigEFMuonOverlapRemoverConsts::monitorChoice_all) ? true : false; 
 
@@ -398,23 +398,23 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    unsigned int i_te;
    unsigned int j_te;
    
-   if(m_doDebug) msg() << MSG::DEBUG << "tes_in size=" << tes_in_size << endreq;
+   if(m_doDebug) msg() << MSG::DEBUG << "tes_in size=" << tes_in_size << endmsg;
    for(unsigned int i_vec=0; i_vec<tes_in_size; i_vec++) {
       unsigned int n_te = tes_in[i_vec].size();
-      if(m_doDebug) msg() << MSG::DEBUG << "i_vec=" << i_vec << " : n TEs=" << n_te << endreq;
+      if(m_doDebug) msg() << MSG::DEBUG << "i_vec=" << i_vec << " : n TEs=" << n_te << endmsg;
       for(i_te=0; i_te<n_te; i_te++) {
 	 HLT::TriggerElement* te = tes_in[i_vec][i_te];
 	 if( m_monitorChoice == TrigEFMuonOverlapRemoverConsts::monitorChoice_mu6_only || m_doDebug ) {
 	    std::string label;
 	    TrigConf::HLTTriggerElement::getLabel (te->getId(), label );
 	    if( m_monitorChoice == TrigEFMuonOverlapRemoverConsts::monitorChoice_mu6_only && label.find("mu6") != std::string::npos ) m_doMonitor = true;
-	    if(m_doDebug) msg() << MSG::DEBUG << "input TE ID(): " << te->getId() << ", Label=" << label << endreq;
+	    if(m_doDebug) msg() << MSG::DEBUG << "input TE ID(): " << te->getId() << ", Label=" << label << endmsg;
 	 }	
 	 bool alreadyThere = false;
 	 for(unsigned int j_te=0; j_te<vec_allTEs.size(); j_te++) {
 	    if( vec_allTEs[j_te] == te ) {
 	       if(m_doDebug) msg() << MSG::DEBUG << "at i_vec=" << i_vec << ", i_te=" << i_te <<
-		  ": same TE already there at j_te=" << j_te << ", so, skip this TE." << endreq;
+		  ": same TE already there at j_te=" << j_te << ", so, skip this TE." << endmsg;
 	       alreadyThere = true;
 	       break;
 	    }
@@ -424,7 +424,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    }
 
    unsigned int n_allTEs = vec_allTEs.size(); 
-   if(m_doDebug) msg() << MSG::DEBUG << "size of vec_allTEs=" << n_allTEs << endreq;
+   if(m_doDebug) msg() << MSG::DEBUG << "size of vec_allTEs=" << n_allTEs << endmsg;
 
    for(i_te=0; i_te<n_allTEs; i_te++) {
       HLT::TEVec tes;
@@ -433,7 +433,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
       if(m_doDebug) {
 	 std::string label;
 	 TrigConf::HLTTriggerElement::getLabel (outputTE->getId(), label);
-	 msg() << MSG::DEBUG << "creating outputTE ID(): " << outputTE->getId() << ", Label=" << label << endreq;
+	 msg() << MSG::DEBUG << "creating outputTE ID(): " << outputTE->getId() << ", Label=" << label << endmsg;
       }
       outputTE->setActiveState(true);
       vec_outputTEs.push_back(outputTE);
@@ -443,7 +443,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    // start monitoring
    // ---
 
-   if(m_doDebug) msg() << MSG::DEBUG << "m_doMonitor=" << m_doMonitor << endreq;   
+   if(m_doDebug) msg() << MSG::DEBUG << "m_doMonitor=" << m_doMonitor << endmsg;   
 
    if(m_doMonitor) {
       // reset
@@ -475,7 +475,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    // ---
 
    if( n_allTEs <= 1 ) {
-      if(m_doDebug) msg() << MSG::DEBUG << "nr of TEs <= 1, no overlap removal necessary. exitting with all TEs active" << endreq;
+      if(m_doDebug) msg() << MSG::DEBUG << "nr of TEs <= 1, no overlap removal necessary. exitting with all TEs active" << endmsg;
       if(m_doMonitor) afterExecMonitors().ignore();
       return HLT::OK;
    }
@@ -495,7 +495,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 	 errorWhenGettingELs = true;
 	 if( isMuExtrOK != HLT::OK ) {
 	    if(m_doMonitor) m_mnt_muextrError.push_back(TrigEFMuonOverlapRemoverConsts::errorCode_cannot_get_EL);
-	    msg() << MSG::WARNING << "i_te=" << i_te << ": fails to find EL for: EFMuon" << endreq;
+	    msg() << MSG::WARNING << "i_te=" << i_te << ": fails to find EL for: EFMuon" << endmsg;
 	 }
 	 continue;
       }
@@ -504,7 +504,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 	 errorWhenGettingELs = true;
 	 if( ! isMuExtrELOK ) {
 	    if(m_doMonitor) m_mnt_muextrError.push_back(TrigEFMuonOverlapRemoverConsts::errorCode_EL_not_valid);
-	    msg() << MSG::WARNING << "i_te=" << i_te << ": EL not valid for: EFMuon" << endreq;
+	    msg() << MSG::WARNING << "i_te=" << i_te << ": EL not valid for: EFMuon" << endmsg;
 	 }
 	 continue;
       }
@@ -512,7 +512,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    }
 
    if( errorWhenGettingELs ) {
-      msg() << MSG::WARNING << "error when getting ELs. exitting with all TEs active..." << endreq;
+      msg() << MSG::WARNING << "error when getting ELs. exitting with all TEs active..." << endmsg;
       if(m_doMonitor) afterExecMonitors().ignore();
       return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
    }
@@ -527,18 +527,18 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    bool errorWhenIdentifyingOverlap = false;
 
    if( m_doMuExtrBasedRemoval ) {
-      if(m_doDebug) msg() << MSG::DEBUG << "--- muExtr based overlap identification ---" << endreq;
+      if(m_doDebug) msg() << MSG::DEBUG << "--- muExtr based overlap identification ---" << endmsg;
       for(i_te=0; i_te<n_allTEs; i_te++) { muextrResult.push_back(i_te); }
       for(i_te=0; i_te<n_allTEs-1; i_te++) {
 	 for(j_te=i_te+1; j_te<n_allTEs; j_te++) {
-	    if(m_doDebug) msg() << MSG::DEBUG << "++ i_te=" << i_te << " vs j_te=" << j_te << endreq;
+	    if(m_doDebug) msg() << MSG::DEBUG << "++ i_te=" << i_te << " vs j_te=" << j_te << endmsg;
 	    bool overlapped = isOverlap(EFMuonELvec[i_te],EFMuonELvec[j_te]);
 	    if( ! overlapped ) { // judged as different
-	       if(m_doDebug) msg() << MSG::DEBUG << "   judged as: different objects" << endreq; 
+	       if(m_doDebug) msg() << MSG::DEBUG << "   judged as: different objects" << endmsg; 
 	       if( muextrResult[i_te] == muextrResult[j_te] ) { // but marked as same by someone
-		  msg() << MSG::INFO << "inconsistent in muExtr based overlap removal for more than two objects" << endreq;
-		  msg() << MSG::INFO << "judged as different objects but both are already marked as identical by someone else as: " << endreq;
-		  msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << muextrResult[i_te] << " / "  << muextrResult[j_te] << endreq;
+		  msg() << MSG::INFO << "inconsistent in muExtr based overlap removal for more than two objects" << endmsg;
+		  msg() << MSG::INFO << "judged as different objects but both are already marked as identical by someone else as: " << endmsg;
+		  msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << muextrResult[i_te] << " / "  << muextrResult[j_te] << endmsg;
 		  errorWhenIdentifyingOverlap = true;
 		  if(m_doMonitor) m_mnt_muextrError.push_back(TrigEFMuonOverlapRemoverConsts::errorCode_inconsistent_overlap1);
 	       }
@@ -546,25 +546,25 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 	    else { // judged as overlap
 	       if( (muextrResult[j_te] != j_te && muextrResult[i_te] != muextrResult[j_te]) ||
 		   (muextrResult[j_te] == j_te && muextrResult[i_te] != i_te) ) {
-		  msg() << MSG::INFO << "inconsistent in muExtr based overlap removal for more than two objects" << endreq;
-		  msg() << MSG::INFO << "judged as overlap but only either is already marked as overlap to someone else: " << endreq;
-		  msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << muextrResult[i_te] << " / "  << muextrResult[j_te] << endreq;
+		  msg() << MSG::INFO << "inconsistent in muExtr based overlap removal for more than two objects" << endmsg;
+		  msg() << MSG::INFO << "judged as overlap but only either is already marked as overlap to someone else: " << endmsg;
+		  msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << muextrResult[i_te] << " / "  << muextrResult[j_te] << endmsg;
 		  errorWhenIdentifyingOverlap = true;
 		  if(m_doMonitor) m_mnt_muextrError.push_back(TrigEFMuonOverlapRemoverConsts::errorCode_inconsistent_overlap2);
 	       }
 	       else {
-		  if(m_doDebug) msg() << MSG::DEBUG << "   judged as: overlapped objects" << endreq;
+		  if(m_doDebug) msg() << MSG::DEBUG << "   judged as: overlapped objects" << endmsg;
 		  if( muextrResult[i_te] == i_te ) {
 		     if(m_doDebug) {
-			msg() << MSG::DEBUG << "   i_te is not yet marked as overlap. so, it is a newly found overlap" << endreq;
-			msg() << MSG::DEBUG << "   -> marking muextrResult[j_te] as i_te..." << endreq;
+			msg() << MSG::DEBUG << "   i_te is not yet marked as overlap. so, it is a newly found overlap" << endmsg;
+			msg() << MSG::DEBUG << "   -> marking muextrResult[j_te] as i_te..." << endmsg;
 		     }
 		     muextrResult[j_te] = i_te;
 		  }
 		  else {
 		     if(m_doDebug) {
-			msg() << MSG::DEBUG << "   both i_te/j_te already marked as overlap by: muextrResult[i_te]=" << muextrResult[i_te] << endreq;
-			msg() << MSG::DEBUG << "   -> do nothing..." << endreq;
+			msg() << MSG::DEBUG << "   both i_te/j_te already marked as overlap by: muextrResult[i_te]=" << muextrResult[i_te] << endmsg;
+			msg() << MSG::DEBUG << "   -> do nothing..." << endmsg;
 		     }
 		  }
 	       }
@@ -574,7 +574,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    }
 
    if( errorWhenIdentifyingOverlap ) {
-      msg() << MSG::WARNING << "error when resolving overlap. exitting with all TEs active..." << endreq;
+      msg() << MSG::WARNING << "error when resolving overlap. exitting with all TEs active..." << endmsg;
       if(m_doMonitor) afterExecMonitors().ignore();
       return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::USERDEF_1);
    }
@@ -589,15 +589,15 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
       unsigned int n_uniqueTEs_muextr = 0;
       for(i_te=0; i_te<n_allTEs; i_te++) {
 	 if(m_doDebug) msg() << MSG::DEBUG << "muExtr based results: i_te=" << i_te << ": ";
-	 if( muextrResult[i_te] != i_te ) { msg() << MSG::DEBUG << "overlap to j_te=" << muextrResult[i_te] << endreq; }
-	 else { n_uniqueTEs_muextr++; msg() << MSG::DEBUG << "unique" << endreq; }
+	 if( muextrResult[i_te] != i_te ) { msg() << MSG::DEBUG << "overlap to j_te=" << muextrResult[i_te] << endmsg; }
+	 else { n_uniqueTEs_muextr++; msg() << MSG::DEBUG << "unique" << endmsg; }
       }
-      if(m_doDebug) msg() << MSG::DEBUG << "nr of unique TEs after muExtr-based removal=" << n_uniqueTEs_muextr << endreq;
+      if(m_doDebug) msg() << MSG::DEBUG << "nr of unique TEs after muExtr-based removal=" << n_uniqueTEs_muextr << endmsg;
       if( n_allTEs != n_uniqueTEs_muextr ) muextrNoOverlap = false;
    }
 
    if( muextrNoOverlap ) {
-      if(m_doDebug) msg() << MSG::DEBUG << "no overlap identified. exitting with all TEs active" << endreq;
+      if(m_doDebug) msg() << MSG::DEBUG << "no overlap identified. exitting with all TEs active" << endmsg;
       if(m_doMonitor) afterExecMonitors().ignore();
       return HLT::OK;
    }
@@ -609,11 +609,11 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 
    //
    if( m_doMuExtrBasedRemoval ) {
-     if(m_doDebug) msg() << MSG::DEBUG << "--- disable TEs of the identical object (muExtr based) ---" << endreq;
+     if(m_doDebug) msg() << MSG::DEBUG << "--- disable TEs of the identical object (muExtr based) ---" << endmsg;
      for(i_te=0; i_te<n_allTEs; i_te++) {
-       if(m_doDebug) msg() << MSG::DEBUG << "++ i_te=" << i_te << ": result=" << muextrResult[i_te] << endreq;
+       if(m_doDebug) msg() << MSG::DEBUG << "++ i_te=" << i_te << ": result=" << muextrResult[i_te] << endmsg;
        if( muextrResult[i_te] != i_te ) {
-	 if(m_doDebug) msg() << MSG::DEBUG << "   overlap to some one. skip." << endreq;
+	 if(m_doDebug) msg() << MSG::DEBUG << "   overlap to some one. skip." << endmsg;
 	 continue;
        }
        std::vector<unsigned int> others;
@@ -621,52 +621,52 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 	 if( muextrResult[j_te] == muextrResult[i_te] ) others.push_back(j_te);
        }
        if( others.size() == 1 ) {
-	 if(m_doDebug) msg() << MSG::DEBUG << "   unique object. keep it active." << endreq;
+	 if(m_doDebug) msg() << MSG::DEBUG << "   unique object. keep it active." << endmsg;
 	 continue;
        } else { // must choose one... the first as they are identical
-	 if(m_doDebug) msg() << MSG::DEBUG << "   overlap objects among: " << others << endreq;
+	 if(m_doDebug) msg() << MSG::DEBUG << "   overlap objects among: " << others << endmsg;
 	 for(unsigned int j=0; j<others.size(); j++) {
 	   j_te=others[j];
 	   if( j_te != i_te ) {
-	     if(m_doDebug) msg() << MSG::DEBUG << "      setting activeState=false for j_te=" << j_te << endreq;
+	     if(m_doDebug) msg() << MSG::DEBUG << "      setting activeState=false for j_te=" << j_te << endmsg;
 	     vec_outputTEs[j_te]->setActiveState(false);
              // monitoring
 	     if(m_doMonitor) {
-	       if(m_doDebug) msg() << MSG::DEBUG << "      monitoring of the deactivated j_te=" << j_te << endreq;
+	       if(m_doDebug) msg() << MSG::DEBUG << "      monitoring of the deactivated j_te=" << j_te << endmsg;
 	       m_mnt_muextrNrOverlapped++;
                for (unsigned int i=0; i<EFMuonELvec[j_te].size(); i++){
-                 if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endreq;
+                 if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endmsg;
                  // Get first (and only) RoI:
                  const xAOD::MuonContainer* trigMuon = EFMuonELvec[j_te].at(i);
                  if(!trigMuon){
                    msg() << MSG::ERROR
                          << "Retrieval of xAOD::MuonContainer from vector failed"
-                         << endreq;
+                         << endmsg;
                    return HLT::NAV_ERROR;
                  } else {
-                   if(m_doDebug) msg() << MSG::DEBUG << "xAOD::MuonContainer OK with size " << trigMuon->size() << endreq;
+                   if(m_doDebug) msg() << MSG::DEBUG << "xAOD::MuonContainer OK with size " << trigMuon->size() << endmsg;
                  }
                  // loop on the muons within the RoI
 		 xAOD::MuonContainer::const_iterator MuonItr  = trigMuon->begin();
 		 xAOD::MuonContainer::const_iterator MuonItrE = trigMuon->end();
                  for(int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
-                   if (m_doDebug) msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
+                   if (m_doDebug) msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endmsg;
 		   const xAOD::Muon* muon = (*MuonItr);
                    if (!muon) {
-                     if (m_doDebug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
+                     if (m_doDebug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endmsg;
                      continue;
                    } 
 		   else {
                      if (muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle)) { // was there a muon in this RoI ?
 		       const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
 		       if (!tr) {
-			 if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
+			 if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endmsg;
 			 continue;
 		       } 
 		       else {
 			 if (m_doDebug) msg() << MSG::DEBUG
 					      << "Retrieved extrapolated track with abs pt "
-					      << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
+					      << (*tr).pt()/CLHEP::GeV << " GeV " << endmsg;
 			 m_mnt_muextrOverlappedPt.push_back(((*tr).pt())/CLHEP::GeV);
 			 m_mnt_muextrOverlappedEta.push_back((*tr).eta());
 			 m_mnt_muextrOverlappedPhi.push_back((*tr).phi());

@@ -70,16 +70,16 @@ HLT::ErrorCode MucombHypo::hltInitialize()
 {
 
    msg() << MSG::INFO << "Initializing " << name() << " - package version "
-         << PACKAGE_VERSION << endreq;
+         << PACKAGE_VERSION << endmsg;
 
    if (m_acceptAll) {
       msg() << MSG::INFO
             << "Accepting all the events with not cut!"
-            << endreq;
+            << endmsg;
    } else {
       m_bins = m_ptBins.size() - 1;
       if (m_bins != m_ptThresholds.size()) {
-         msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+         msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
          return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
 
@@ -88,14 +88,14 @@ HLT::ErrorCode MucombHypo::hltInitialize()
          msg() << MSG::INFO
                << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i + 1]
                << " with Pt Threshold of " << (m_ptThresholds[i]) / CLHEP::GeV
-               << " GeV" << endreq;
+               << " GeV" << endmsg;
       }
 
    }
 
    msg() << MSG::INFO
          << "Initialization completed successfully"
-         << endreq;
+         << endmsg;
 
    return HLT::OK;
 }
@@ -103,7 +103,7 @@ HLT::ErrorCode MucombHypo::hltInitialize()
 
 HLT::ErrorCode MucombHypo::hltFinalize()
 {
-   msg() << MSG::INFO << "in finalize()" << endreq;
+   msg() << MSG::INFO << "in finalize()" << endmsg;
    return HLT::OK;
 }
 
@@ -113,44 +113,44 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 
    m_storeGate = store();
 
-   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
+   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
 
    if(m_acceptAll) {
      pass = true;
      if(msgLvl() <= MSG::DEBUG) {
-       msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endreq;
+       msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endmsg;
      }
      return HLT::OK;
    }
 
    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Accept property not set: applying selection!" << endreq;
+      msg() << MSG::DEBUG << "Accept property not set: applying selection!" << endmsg;
    }
 
    bool result = false;
 
    // Some debug output:
    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
 
    //Retrieve combined muon
    const xAOD::L2CombinedMuonContainer* vectorOfMuons;
    HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
    if (status != HLT::OK) {
-      msg() << MSG::ERROR << " getFeature fails to get the L2CombinedMuonContainer " << endreq;
+      msg() << MSG::ERROR << " getFeature fails to get the L2CombinedMuonContainer " << endmsg;
       return status;
    }
 
    // Check that there is only one L2CombinedMuon
    if (vectorOfMuons->size() != 1) {
-      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
+      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endmsg;
       return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::NAV_ERROR);
    }
 
    // Get first (and only) L2CombinedMuon
    const xAOD::L2CombinedMuon* pMuon = vectorOfMuons->front();
    if (!pMuon) {
-      msg() << MSG::ERROR << "Retrieval of xAOD::L2CombinedMuon from vector failed" << endreq;
+      msg() << MSG::ERROR << "Retrieval of xAOD::L2CombinedMuon from vector failed" << endmsg;
       return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::NAV_ERROR);
    }
 
@@ -163,12 +163,12 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
    m_Strategy  = usealgo;
 
    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " combined muon pt (GeV)/ sigma_pt (GeV)/ eta / phi / usedalgo: " << m_fex_pt << " / " << ptres_comb << " / " << m_id_eta << " / " << m_id_phi << " / " << usealgo << endreq;
+      msg() << MSG::DEBUG << " combined muon pt (GeV)/ sigma_pt (GeV)/ eta / phi / usedalgo: " << m_fex_pt << " / " << ptres_comb << " / " << m_id_eta << " / " << m_id_phi << " / " << usealgo << endmsg;
 
 
    if (pMuon->pt() == 0) {
       if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << " L2CombinedMuon pt == 0, empty container -> rejected" << endreq;
+         msg() << MSG::DEBUG << " L2CombinedMuon pt == 0, empty container -> rejected" << endmsg;
       pass = false;
       return HLT::OK;
    }
@@ -176,7 +176,7 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
    // check the pointers to the L2StandAloneMuon
    if (!pMuon->muSATrack()) {
       if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << " L2CombinedMuon has no valid xaOD::L2StandaloneMuon -> rejected" << endreq;
+         msg() << MSG::DEBUG << " L2CombinedMuon has no valid xaOD::L2StandaloneMuon -> rejected" << endmsg;
       pass = false;
       return HLT::OK;
    }
@@ -184,7 +184,7 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
    // check the pointer to the ID track
    if (!pMuon->idTrack()) {
       if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << " L2CombinedMuon has no valid xAOD:TrackParticle IDtrack -> rejected" << endreq;
+         msg() << MSG::DEBUG << " L2CombinedMuon has no valid xAOD:TrackParticle IDtrack -> rejected" << endmsg;
       pass = false;
       return HLT::OK;
    }
@@ -213,7 +213,7 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
    if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << " REGTEST muon pt is " << m_fex_pt
             << " GeV and threshold cut is " << threshold / CLHEP::GeV
-            << " GeV and pik_cut is " << (pik_cut ? "true" : "false") << endreq;
+            << " GeV and pik_cut is " << (pik_cut ? "true" : "false") << endmsg;
    }
 
    //Strategy dependent Pt cuts
@@ -226,11 +226,11 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
          if (msgLvl() <= MSG::DEBUG) {
             msg() << MSG::DEBUG << " REGTEST muon pt is " << m_fex_pt << " GeV"
                   << " and threshold for strategy dependent cut is " << tmpcut
-                  << " GeV and strategy dependent / std cuts are " << (sdp_cut ? "true" : "false") << " / " << (std_cut ? "true" : "false") << endreq;
+                  << " GeV and strategy dependent / std cuts are " << (sdp_cut ? "true" : "false") << " / " << (std_cut ? "true" : "false") << endmsg;
          }
       } else {
          if (msgLvl() <= MSG::DEBUG) {
-            msg() << MSG::DEBUG << "usealgo out of range, is: " << usealgo << " while should be in [1, 4]" << endreq;
+            msg() << MSG::DEBUG << "usealgo out of range, is: " << usealgo << " while should be in [1, 4]" << endmsg;
          }
       }
    }
@@ -243,7 +243,7 @@ HLT::ErrorCode  MucombHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
       msg() << MSG::DEBUG << " REGTEST muon passed pt threshold: " << (std_cut ? "true" : "false")
             << " and pik_cut is " << (pik_cut ? "true" : "false")
             << " and strategy dependent cuts is " << (sdp_cut ? "true" : "false")
-            << " so hypothesis is " << (result ? "true" : "false") << endreq;
+            << " so hypothesis is " << (result ? "true" : "false") << endmsg;
    }
 
    //store the result

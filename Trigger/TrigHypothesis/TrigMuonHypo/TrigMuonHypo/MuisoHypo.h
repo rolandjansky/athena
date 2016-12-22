@@ -59,7 +59,7 @@ class MuisoHypo: public HLT::HypoAlgo {
     FloatProperty   m_EtaRegion_3;
 
     /** Isolation cone sizes (1: DR=0.1, 2: DR=0.2, 3: DR=0.3: 4: DR=0.4)  */
-    IntegerProperty m_IDConeSize;
+    Gaudi::CheckedProperty<int> m_IDConeSize;
 
     // Other members:   
     StoreGateSvc*   m_storeGate;

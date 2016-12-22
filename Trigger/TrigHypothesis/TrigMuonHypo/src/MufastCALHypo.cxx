@@ -32,24 +32,24 @@ MufastCALHypo::~MufastCALHypo(){
 HLT::ErrorCode MufastCALHypo::hltInitialize(){
 
   msg() << MSG::INFO << "Initializing " << name() << " - package version " 
-	<< PACKAGE_VERSION << endreq;
+	<< PACKAGE_VERSION << endmsg;
 
   if(m_acceptAll) {
       msg() << MSG::INFO
             << "Accepting all the events with not cut!"
-	    << endreq;
+	    << endmsg;
   } 
  
   msg() << MSG::INFO 
         << "Initialization completed successfully" 
-        << endreq;
+        << endmsg;
   
   return HLT::OK;
 }
 
 
 HLT::ErrorCode MufastCALHypo::hltFinalize(){
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -58,21 +58,21 @@ HLT::ErrorCode MufastCALHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
   
   if(m_acceptAll) {
       pass = true;
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG 
 	        << "Accept property is set: taking all the events"
-		<< endreq;
+		<< endmsg;
       }
       return HLT::OK;
   }
   
   if(msgLvl() <= MSG::DEBUG) {
        msg() << MSG::DEBUG << "Accept property not set: applying selection!"
-             << endreq;
+             << endmsg;
   }
   
   
@@ -81,27 +81,27 @@ HLT::ErrorCode MufastCALHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   // Some debug output:
   if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
   }
   
    // Get vector of pointers to L2StandAloneMuon linked to the outputTE 
    const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
    HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
    if (status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
+      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endmsg;
       return status;
    }
 
    // Check that there is only one L2StandAloneMuon
    if (vectorOfMuons->size() != 1){
-      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
+      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endmsg;
       return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
    }
 
    // Get first (and only) RoI:
    const xAOD::L2StandAloneMuon* pMuon = vectorOfMuons->front();
    if(!pMuon){
-      msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endreq;
+      msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endmsg;
       return HLT::NAV_ERROR;
    }
 
@@ -114,7 +114,7 @@ HLT::ErrorCode MufastCALHypo::hltExecute(const HLT::TriggerElement* outputTE,
   /* warning in coverity report: result is always false
   if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << " Result of L2 Muon Calibration Hypothesis is " 
-            << (result?"true":"false") << endreq;
+            << (result?"true":"false") << endmsg;
   }
   */
   

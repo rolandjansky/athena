@@ -46,26 +46,26 @@ TrigMuonEFExtrapolatorNSWHypo::~TrigMuonEFExtrapolatorNSWHypo(){
 HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltInitialize()
 {
    if( m_acceptAll ) {
-      msg() << MSG::INFO << "Accepting all the events with not cut!" << endreq;
+      msg() << MSG::INFO << "Accepting all the events with not cut!" << endmsg;
    }
 
    StatusCode sc = m_edmhelperTool.retrieve();
    if ( sc.isSuccess() ) {
-      msg() << MSG::INFO << "Retrieved " << m_edmhelperTool << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_edmhelperTool << endmsg;
    } else {
-      msg() << MSG::ERROR << "Could not get " << m_edmhelperTool << endreq; 
+      msg() << MSG::ERROR << "Could not get " << m_edmhelperTool << endmsg; 
       return HLT::ERROR;
    }
 
    sc = m_idhelperTool.retrieve();
    if ( sc.isSuccess() ) {
-      msg() << MSG::INFO << "Retrieved " << m_idhelperTool << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_idhelperTool << endmsg;
    } else {
-      msg() << MSG::ERROR << "Could not get " << m_idhelperTool << endreq; 
+      msg() << MSG::ERROR << "Could not get " << m_idhelperTool << endmsg; 
       return HLT::ERROR;
    }
 
-   msg() << MSG::INFO << "Initialization completed successfully" << endreq;
+   msg() << MSG::INFO << "Initialization completed successfully" << endmsg;
 
    return HLT::OK;
 }
@@ -75,7 +75,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltInitialize()
 
 HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltFinalize()
 {
-   msg() << MSG::INFO << "in finalize()" << endreq;
+   msg() << MSG::INFO << "in finalize()" << endmsg;
    return HLT::OK;
 }
 
@@ -88,7 +88,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
 
    bool debug = msgLvl() <= MSG::DEBUG;
 
-   if(debug) msg() << MSG::DEBUG << "in execute()" << endreq;
+   if(debug) msg() << MSG::DEBUG << "in execute()" << endmsg;
    
    //resetting the monitoring variables
    m_fex_n_seg_passed   = -1;
@@ -102,11 +102,11 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
    // if acceptAll
    if( m_acceptAll ) {
       pass = true;
-      if(debug) msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endreq;
+      if(debug) msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endmsg;
       return HLT::OK;
    }
 
-   if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+   if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
 
    // get initial RoI info
    double roi_eta = 0;
@@ -118,42 +118,42 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
       roi_phi = vRecMuonRoI[0]->phi();
    }
    else {
-      if(debug) msg() << MSG::DEBUG << "Failure in retrieving RecMuonRoI. Trying forMS RoiDescriptor" << endreq;
+      if(debug) msg() << MSG::DEBUG << "Failure in retrieving RecMuonRoI. Trying forMS RoiDescriptor" << endmsg;
       const TrigRoiDescriptor* muonRoI = 0;
       hltStatus = getFeature(outputTE, muonRoI, "forMS");
       if (hltStatus != HLT::OK) {
-	 if (debug) msg() << MSG::DEBUG << "Failed to retrieve forMS RoiDescriptor" << endreq;
+	 if (debug) msg() << MSG::DEBUG << "Failed to retrieve forMS RoiDescriptor" << endmsg;
 	 return hltStatus;
       }
       else if (!muonRoI) {
 	 if (debug) msg() << MSG::DEBUG  << "Could not find RoIDescriptor <<forMS>>, "
-			  << "trying to recover the initial one." << endreq;
+			  << "trying to recover the initial one." << endmsg;
 	 hltStatus = getFeature(outputTE, muonRoI, "");
 	 if (hltStatus != HLT::OK) {
-	    if (debug) msg() << MSG::DEBUG << "Failed to retrieve muon RoI" << endreq;
+	    if (debug) msg() << MSG::DEBUG << "Failed to retrieve muon RoI" << endmsg;
 	    return hltStatus;
 	 } else if (!muonRoI) {
-	    if (debug) msg() << MSG::DEBUG << "Initial one not accessible, problem here!" << endreq;
+	    if (debug) msg() << MSG::DEBUG << "Initial one not accessible, problem here!" << endmsg;
 	    return HLT::NAV_ERROR;
 	 } else {
-	    if (debug) msg() << MSG::DEBUG << "Found RoIDescriptor" << endreq;
+	    if (debug) msg() << MSG::DEBUG << "Found RoIDescriptor" << endmsg;
 	 }
       } else {
-	 if (debug) msg() << MSG::DEBUG  << "Found RoIDescriptor <<forMS>>" << endreq;
+	 if (debug) msg() << MSG::DEBUG  << "Found RoIDescriptor <<forMS>>" << endmsg;
       }
       //
       roi_eta = muonRoI->eta();
       roi_phi = muonRoI->phi();
    }
    if(debug) {
-      msg() << MSG::DEBUG  << "RoI: eta/phi=" << roi_eta << "/" << roi_phi << endreq;
+      msg() << MSG::DEBUG  << "RoI: eta/phi=" << roi_eta << "/" << roi_phi << endmsg;
    }
 
    // if outside NSW no cut at all
    const double ETA_NSW = 1.3;
    if( fabs(roi_eta) < ETA_NSW ) {
       pass = true;
-      if (debug) msg() << MSG::DEBUG << "outside NSW -> pass" << endreq;
+      if (debug) msg() << MSG::DEBUG << "outside NSW -> pass" << endmsg;
       return HLT::OK;
    }
 
@@ -164,53 +164,53 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
    // get MuonSegmentCombinationCollection
    std::vector<const MuonSegmentCombinationCollection*> vectorOfSegmentCombination;
    if(getFeatures(outputTE, vectorOfSegmentCombination)!=HLT::OK) {
-      if (debug) msg() << MSG::DEBUG << "No MuonSegmentCombinationCollection found" << endreq;
+      if (debug) msg() << MSG::DEBUG << "No MuonSegmentCombinationCollection found" << endmsg;
       return HLT::MISSING_FEATURE;
    } 
    else {
-      if (debug) msg() << MSG::DEBUG << "vector of MuonSegmentCombinationCollection found with size=" << vectorOfSegmentCombination.size() << endreq;
+      if (debug) msg() << MSG::DEBUG << "vector of MuonSegmentCombinationCollection found with size=" << vectorOfSegmentCombination.size() << endmsg;
    } // this size should be 1.
 
    // loop on MuonSegmentCombination
    for (unsigned int i=0; i<vectorOfSegmentCombination.size(); i++) {
 
-      if (debug) msg() << MSG::DEBUG << "++ Element " << i << " of vector of MuonSegmentCombinationCollection ++" << endreq;
+      if (debug) msg() << MSG::DEBUG << "++ Element " << i << " of vector of MuonSegmentCombinationCollection ++" << endmsg;
 
       const MuonSegmentCombinationCollection* segCombiColl = vectorOfSegmentCombination[i];
       if(!segCombiColl){
-	 msg() << MSG::ERROR << "Retrieval of MuonSegmentCombinationCollection from vector failed" << endreq;
+	 msg() << MSG::ERROR << "Retrieval of MuonSegmentCombinationCollection from vector failed" << endmsg;
 	 return HLT::NAV_ERROR;
       }
       else {
-	 if (debug) msg() << MSG::DEBUG << "MuonSegmentCombinationCollection OK with size=" << segCombiColl->size() << endreq;
+	 if (debug) msg() << MSG::DEBUG << "MuonSegmentCombinationCollection OK with size=" << segCombiColl->size() << endmsg;
       }
 
       MuonSegmentCombinationCollection::const_iterator segCombiItr  = segCombiColl->begin();
       MuonSegmentCombinationCollection::const_iterator segCombiItrE = segCombiColl->end();
       for (int j=0; segCombiItr != segCombiItrE; ++segCombiItr, ++j ) {
 
-	 msg() << MSG::DEBUG << "-- MuonSegmentCombination:" << j << " --" << endreq;
+	 msg() << MSG::DEBUG << "-- MuonSegmentCombination:" << j << " --" << endmsg;
 
 	 const Muon::MuonSegmentCombination* segCombi = (*segCombiItr);
 	 if (!segCombi) {
-	    if (debug) msg() << MSG::DEBUG << "No MuonSegmentCombination found." << endreq;
+	    if (debug) msg() << MSG::DEBUG << "No MuonSegmentCombination found." << endmsg;
 	    continue;
 	 }
 
 	 unsigned int nstations = segCombi->numberOfStations();
-	 if (debug) msg() << MSG::DEBUG << "nr stations=" << nstations << endreq;
+	 if (debug) msg() << MSG::DEBUG << "nr stations=" << nstations << endmsg;
 
 	 for(unsigned int i_st=0; i_st<nstations; i_st++) {
 
 	    const Muon::MuonSegmentCombination::SegmentVec* stationSegs = segCombi->stationSegments(i_st) ;
 	    // check if not empty
 	    if( !stationSegs || stationSegs->empty() ) continue;
-	    if (debug) msg() << MSG::DEBUG << "i_st=" << i_st << " : n segments=" << stationSegs->size() << endreq;
+	    if (debug) msg() << MSG::DEBUG << "i_st=" << i_st << " : n segments=" << stationSegs->size() << endmsg;
 
 	    // get chamber identifier, chamber index and station index
 	    Identifier chid = m_edmhelperTool->chamberId( *stationSegs->front() );
 	    Muon::MuonStationIndex::ChIndex chIndex = m_idhelperTool->chamberIndex(chid);
-	    if (debug) msg() << MSG::DEBUG << "  chamber index=" << chIndex << endreq;
+	    if (debug) msg() << MSG::DEBUG << "  chamber index=" << chIndex << endmsg;
 
 	    // only in EI and CSC
 	    if( chIndex!=Muon::MuonStationIndex::EIS && chIndex!=Muon::MuonStationIndex::EIL &&
@@ -224,9 +224,9 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
 	       const Amg::Vector3D& dir = segment->globalDirection();
 	       const Amg::Vector3D& pos = segment->globalPosition();
 	       if (debug) {
-		  msg() << MSG::DEBUG << "  i_seg=" << i_seg << endreq;
-		  msg() << MSG::DEBUG << "    GlobalDirection eta/phi=" << dir.eta() << "/" << dir.phi() << endreq;
-		  msg() << MSG::DEBUG << "    GlobalPosition x/y/z=" << pos.x() << "/" << pos.y() << "/" << pos.z() << endreq;
+		  msg() << MSG::DEBUG << "  i_seg=" << i_seg << endmsg;
+		  msg() << MSG::DEBUG << "    GlobalDirection eta/phi=" << dir.eta() << "/" << dir.phi() << endmsg;
+		  msg() << MSG::DEBUG << "    GlobalPosition x/y/z=" << pos.x() << "/" << pos.y() << "/" << pos.z() << endmsg;
 	       }
 
 	       // same side segments only
@@ -250,8 +250,8 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
 	       m_fex_dLeta.push_back(dLeta);
 	       m_fex_dLphi.push_back(dLphi);
 	       if(debug) {
-		  msg() << MSG::DEBUG << "  dTheta=" << dTheta << ": isPassed=" << isPassed_dTheta << endreq;
-		  msg() << MSG::DEBUG << "  dLeta/phi=" << dLeta << "/" << dLphi << ": isPassed_dL=" << isPassed_dL << endreq;
+		  msg() << MSG::DEBUG << "  dTheta=" << dTheta << ": isPassed=" << isPassed_dTheta << endmsg;
+		  msg() << MSG::DEBUG << "  dLeta/phi=" << dLeta << "/" << dLphi << ": isPassed_dL=" << isPassed_dL << endmsg;
 	       }
 	     
 	       // this segment passes cut
@@ -268,7 +268,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
 
    // decision
    pass = (n_seg_passed>=1);
-   if(debug) msg() << MSG::DEBUG << " REGTEST pass=" << pass << endreq;
+   if(debug) msg() << MSG::DEBUG << " REGTEST pass=" << pass << endmsg;
    if( ! pass ) {
       m_fex_failed_eta = roi_eta;
       m_fex_failed_phi = roi_phi;

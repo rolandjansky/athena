@@ -46,12 +46,12 @@ TrigMuonEFCombinerMultiHypo::~TrigMuonEFCombinerMultiHypo(){
 
 HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltInitialize(){
 
-  msg() << MSG::DEBUG << "TrigMuonEFCombinerMultiHypo::hltInitialize()" << endreq; 
+  msg() << MSG::DEBUG << "TrigMuonEFCombinerMultiHypo::hltInitialize()" << endmsg; 
   
   if(m_acceptAll) {
     msg() << MSG::INFO
 	  << "Accepting all the events with not cut!"
-	  << endreq;
+	  << endmsg;
   } else {
     m_mult = m_ptMultiplicity.size();
     m_bins = m_ptBins.size();
@@ -59,7 +59,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltInitialize(){
       - *min_element(m_ptMultiplicity.begin(), m_ptMultiplicity.end()) + 1;  // determine muon multiplicity  
 
     // Print pt threshold info
-    msg() << MSG::INFO << "Pt threshold multiplicity = " << m_Nmult << endreq; 
+    msg() << MSG::INFO << "Pt threshold multiplicity = " << m_Nmult << endmsg; 
     unsigned int n_offset=0;
     unsigned int mult = m_ptMultiplicity[0];
     m_masks.push_back( 1 << mult );
@@ -74,26 +74,26 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltInitialize(){
       msg() << MSG::INFO
 	    << "bin " << m_ptBins[i+n_offset] << " - " <<  m_ptBins[i+n_offset+1]
 	    << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
-	    << " GeV and multiplity ID : " << m_ptMultiplicity[i] << endreq;
+	    << " GeV and multiplity ID : " << m_ptMultiplicity[i] << endmsg;
     }
 
     // check threshold vector sizes
     if (m_mult != m_ptThresholds.size() || m_mult != m_bins - m_Nmult ) {
-      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
       msg() << MSG::INFO << "m_mult: " << m_mult 
 	    << ", m_bins: " << m_bins 
-	    << ", m_Nmult: " << m_Nmult << endreq;
+	    << ", m_Nmult: " << m_Nmult << endmsg;
       
       return HLT::BAD_JOB_SETUP;
     }
 
-    msg() << MSG::INFO << "DoNscan: "<<m_nscan<<endreq;
+    msg() << MSG::INFO << "DoNscan: "<<m_nscan<<endmsg;
 
   }
 
   msg() << MSG::INFO
 	<< "Initialization completed successfully"
-	<< endreq;
+	<< endmsg;
 	
   return HLT::OK;
 }
@@ -101,7 +101,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltInitialize(){
 
 HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -110,7 +110,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
   ATH_MSG_DEBUG("rejectCB muons: "<<m_rejectCBmuons);
   //resetting the monitoring variables
   m_fex_pt.clear();
@@ -125,7 +125,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG
 	    << "Accept property is set: taking all the events"
-	    << endreq;
+	    << endmsg;
     }
     return HLT::OK;
   }
@@ -133,19 +133,19 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
   bool debug = msgLvl() <= MSG::DEBUG;
 
   // Some debug output:
-  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
 
   // Get muonContainer linked to the outputTE
   const xAOD::MuonContainer*  muonContainer=0;
   if(getFeature(outputTE, muonContainer)!=HLT::OK) {
-    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endreq;
+    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endmsg;
     return HLT::MISSING_FEATURE;
   } else {
     if (!muonContainer) {
-      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq;
+      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endmsg;
       return HLT::MISSING_FEATURE;
     }
-    if (debug) msg() << MSG::DEBUG << "xAOD::MuonContainer found with size " << muonContainer->size() << endreq;
+    if (debug) msg() << MSG::DEBUG << "xAOD::MuonContainer found with size " << muonContainer->size() << endmsg;
   } 
 
   // init result vector, muon counter
@@ -158,10 +158,10 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
   for (unsigned int j=0; j<muonContainer->size(); j++ ) {
     unsigned int ismuoncomb=0;
 
-    msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
+    msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endmsg;
     const xAOD::Muon* muon = muonContainer->at(j);
     if (!muon) {
-      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
+      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endmsg;
       continue;
     } else {
 
@@ -171,7 +171,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 
 	const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::CombinedTrackParticle);
 	if (!tr) {
-	  if (debug) msg() << MSG::DEBUG << "No CombinedTrackParticle found." << endreq;
+	  if (debug) msg() << MSG::DEBUG << "No CombinedTrackParticle found." << endmsg;
 	  if(m_rejectCBmuons){ 
 	    ismuoncomb=0;
 	    ismucomb.push_back(ismuoncomb);
@@ -180,7 +180,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 	} else {
 	  if (debug) msg() << MSG::DEBUG
 			   << "Retrieved combined track with abs pt "
-			   << (*tr).pt()/CLHEP::GeV << " GeV. Charge=" << tr->charge() << " and match chi2 = " << tr->chiSquared() << endreq;
+			   << (*tr).pt()/CLHEP::GeV << " GeV. Charge=" << tr->charge() << " and match chi2 = " << tr->chiSquared() << endmsg;
 
 	  m_fex_pt.push_back(tr->pt()/CLHEP::GeV*tr->charge());
 	  float eta = tr->eta();
@@ -217,7 +217,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 				<< " passed threshold, mult=" << mult
 				<< ", mask=" << tmp
 				<< ", mu_count=" << mu_count 
-				<< endreq;
+				<< endmsg;
 		ismuoncomb=1;
 
 	      }
@@ -235,7 +235,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 	  if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
 			  << " with Charge " << tr->charge()
 			  << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
-			  << " so hypothesis mask is " << (tmp) << " for muon #" << mu_count << endreq;
+			  << " so hypothesis mask is " << (tmp) << " for muon #" << mu_count << endmsg;
 	}
 	 
       }
@@ -261,7 +261,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 	      << ") with hypo_result: " << hypo_results[i]  << ", ";	 
       }
     }
-    msg () << endreq;
+    msg () << endmsg;
   }
   // calculate result, assumption is that different thresholds are inclusive.
   // find matching combination of muons to hypos
@@ -330,7 +330,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 	    msg() << MSG::DEBUG << " REGTEST ranked comparison of muon " 
 		  << i << ", hypoes satisfied are " <<  *(tmp_mu.end()-i-1) 
 		  << ", required are " << (m_Nmult-i) 
-		  << ", pass = " << pass << endreq  ;
+		  << ", pass = " << pass << endmsg  ;
 	  }
 	}
       }

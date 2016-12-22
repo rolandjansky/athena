@@ -43,7 +43,7 @@ private:
 
     BooleanProperty m_acceptAll; // Accept all events if true
 
-    FloatProperty m_CaloConeSize; // Calorimetric cone size (1: DR=0.1, 2: DR=0.2, 3: DR=0.3: 4: DR=0.4)
+    Gaudi::CheckedProperty<float> m_CaloConeSize; // Calorimetric cone size (1: DR=0.1, 2: DR=0.2, 3: DR=0.3: 4: DR=0.4)
 
     // Max Et within calo Eta
     FloatProperty m_MaxCaloIso_1;

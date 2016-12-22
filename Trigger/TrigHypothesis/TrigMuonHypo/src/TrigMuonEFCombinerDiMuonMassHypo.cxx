@@ -46,10 +46,10 @@ TrigMuonEFCombinerDiMuonMassHypo::~TrigMuonEFCombinerDiMuonMassHypo() {
 
 HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltInitialize()
 {
-  msg() << MSG::INFO << "in hltInitialize : " << name() << endreq;
+  msg() << MSG::INFO << "in hltInitialize : " << name() << endmsg;
    
   if( m_acceptAll ) {
-    msg() << MSG::INFO << "Accepting all the events without cut!" << endreq;
+    msg() << MSG::INFO << "Accepting all the events without cut!" << endmsg;
   }
 
   return HLT::OK;
@@ -60,7 +60,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltInitialize()
 
 HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in hltFinalize : " << name() << endreq;
+  msg() << MSG::INFO << "in hltFinalize : " << name() << endmsg;
   return HLT::OK;
 }
 
@@ -69,11 +69,11 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltFinalize()
 
 HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltBeginRun()
 {
-  msg() << MSG::INFO << "in hltBeginRun : " << name() << endreq;
+  msg() << MSG::INFO << "in hltBeginRun : " << name() << endmsg;
 
-  msg() << MSG::INFO << "sign requirement flag : " << m_signRequirement << endreq;
-  msg() << MSG::INFO << "mass threshold low    : " << m_massThresLow << endreq;
-  msg() << MSG::INFO << "mass threshold high   : " << m_massThresHigh << endreq;
+  msg() << MSG::INFO << "sign requirement flag : " << m_signRequirement << endmsg;
+  msg() << MSG::INFO << "mass threshold low    : " << m_massThresLow << endmsg;
+  msg() << MSG::INFO << "mass threshold high   : " << m_massThresHigh << endmsg;
 
   return HLT::OK;
 }
@@ -87,7 +87,7 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltExecute(const HLT::TriggerEl
 
   bool debug = msgLvl() <= MSG::DEBUG;
 
-  if(debug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endreq;
+  if(debug) msg() << MSG::DEBUG << "in hltExecute : " << name() << endmsg;
 
   // reset monitoring variables
   m_mon_nMuons.clear();
@@ -99,25 +99,25 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltExecute(const HLT::TriggerEl
   // if acceptAll
   if( m_acceptAll ) {
     pass = true;
-    if(debug) msg() << MSG::DEBUG << "AcceptAll property is set: taking all the events" << endreq;
+    if(debug) msg() << MSG::DEBUG << "AcceptAll property is set: taking all the events" << endmsg;
     return HLT::OK;
   }
 
-  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
 
   // get TrigMuonEFInfoContainer
   const xAOD::MuonContainer* muonContainer;
   if(getFeature(outputTE, muonContainer)!=HLT::OK) {
-    if (debug) msg() << MSG::DEBUG << "No xAOD::MuonContainer found." << endreq;
+    if (debug) msg() << MSG::DEBUG << "No xAOD::MuonContainer found." << endmsg;
     return HLT::MISSING_FEATURE;
   } 
   else{
     if (!muonContainer) { 
-      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq; 
+      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endmsg; 
       return HLT::MISSING_FEATURE; 
     } 
   }
-  if (debug) msg() << MSG::DEBUG << "xAOD::MuonContainer found with size " << muonContainer->size() << endreq;
+  if (debug) msg() << MSG::DEBUG << "xAOD::MuonContainer found with size " << muonContainer->size() << endmsg;
    
   // collect all CB muon
   std::vector<double> vCBPt;
@@ -129,14 +129,14 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltExecute(const HLT::TriggerEl
   // loop on the muons within the RoI
   for (unsigned int j=0; j<muonContainer->size(); j++ ) {
 
-    if (debug) msg() << MSG::DEBUG << "++ Looking at xAOD:Muon" << j << endreq;
+    if (debug) msg() << MSG::DEBUG << "++ Looking at xAOD:Muon" << j << endmsg;
     const xAOD::Muon* muon = muonContainer->at(j);
     if (!muon) {
-      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
+      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endmsg;
       continue;
     }
     if (! muon->primaryTrackParticle()) {
-      if (debug) msg() << MSG::DEBUG << "No track found." << endreq;
+      if (debug) msg() << MSG::DEBUG << "No track found." << endmsg;
       continue;
     }
 
@@ -144,10 +144,10 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltExecute(const HLT::TriggerEl
     const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::CombinedTrackParticle);
 
     if (!tr) {
-      if (debug) msg() << MSG::DEBUG << "No CombinedTrackParticle found." << endreq;
+      if (debug) msg() << MSG::DEBUG << "No CombinedTrackParticle found." << endmsg;
       continue;
     }
-    if (debug) msg() << MSG::DEBUG << "CB track: pt/Charge/chi2=" << (*tr).pt()/CLHEP::GeV << "/" << tr->charge() << "/" << tr->chiSquared() << endreq;
+    if (debug) msg() << MSG::DEBUG << "CB track: pt/Charge/chi2=" << (*tr).pt()/CLHEP::GeV << "/" << tr->charge() << "/" << tr->chiSquared() << endmsg;
 
     double pt    = tr->pt()/CLHEP::GeV;
     double eta   = tr->eta();
@@ -166,41 +166,41 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltExecute(const HLT::TriggerEl
   m_mon_nMuons.push_back(n_cb_muons); // monitoring
   if( n_cb_muons < 2 ) {
     pass = false;
-    if(debug) msg() << MSG::DEBUG << "Event rejected as: nr of muons less than two = " << n_cb_muons << endreq;
+    if(debug) msg() << MSG::DEBUG << "Event rejected as: nr of muons less than two = " << n_cb_muons << endmsg;
     return HLT::OK;
   }
 
   // make mass cut
-  if(debug) msg() << MSG::DEBUG << "mass cut on all combinations..." << endreq;
+  if(debug) msg() << MSG::DEBUG << "mass cut on all combinations..." << endmsg;
   int n_pair_passed = 0;
   for(int i=0; i<n_cb_muons-1; i++) {
     double pt1     = vCBPt[i];
     double eta1    = vCBEta[i];
     double phi1    = vCBPhi[i];
     double charge1 = vCBCharge[i];
-    if(debug) msg() << MSG::DEBUG << "pt1/eta1/phi1/charge1=" << pt1 << "/" << eta1 << "/" << phi1 << "/" << charge1 << endreq;
+    if(debug) msg() << MSG::DEBUG << "pt1/eta1/phi1/charge1=" << pt1 << "/" << eta1 << "/" << phi1 << "/" << charge1 << endmsg;
     for(int j=i+1; j<n_cb_muons; j++) {
       double pt2     = vCBPt[j];
       double eta2    = vCBEta[j];
       double phi2    = vCBPhi[j];
       double charge2 = vCBCharge[j];
-      if(debug) msg() << MSG::DEBUG << "   pt2/eta2/phi2/charge2=" << pt2 << "/" << eta2 << "/" << phi2 << "/" << charge2 << endreq;
+      if(debug) msg() << MSG::DEBUG << "   pt2/eta2/phi2/charge2=" << pt2 << "/" << eta2 << "/" << phi2 << "/" << charge2 << endmsg;
       m_mon_chargeMult.push_back(charge1*charge2); // monitoring
       if( (m_signRequirement== 1) && (charge1*charge2 < 0) ) { // same sign
-	if(debug) msg() << MSG::DEBUG << "   ... not same sign" << endreq;
+	if(debug) msg() << MSG::DEBUG << "   ... not same sign" << endmsg;
 	continue;
       }
       if( (m_signRequirement==-1) && (charge1*charge2 > 0) ) { // opposite sign
-	if(debug) msg() << MSG::DEBUG << "   ... not opposite sign" << endreq;
+	if(debug) msg() << MSG::DEBUG << "   ... not opposite sign" << endmsg;
 	continue;
       }
       const double MUON_MASS = 0.1057;
       double mass = invMass(MUON_MASS,pt1,eta1,phi1,MUON_MASS,pt2,eta2,phi2);
       m_mon_invMass.push_back(mass); // monitoring
-      if(debug) msg() << MSG::DEBUG << "      mass=" << mass << endreq;
+      if(debug) msg() << MSG::DEBUG << "      mass=" << mass << endmsg;
       if( m_massThresLow < mass && mass < m_massThresHigh ) {
 	n_pair_passed++;
-	if(debug) msg() << MSG::DEBUG << "      -> mass cut passed" << endreq;
+	if(debug) msg() << MSG::DEBUG << "      -> mass cut passed" << endmsg;
 	// monitoring
 	m_mon_muonPt.push_back(pt1);         m_mon_muonPt.push_back(pt2);
 	m_mon_muonEta.push_back(eta1);       m_mon_muonEta.push_back(eta2);
@@ -211,11 +211,11 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltExecute(const HLT::TriggerEl
   // decision: is Jpsi there?
   if( n_pair_passed > 0 ) {
     pass = true;
-    if(debug) msg() << MSG::DEBUG << "Event passed." << endreq;
+    if(debug) msg() << MSG::DEBUG << "Event passed." << endmsg;
   }
   else {
     pass = false;
-    if(debug) msg() << MSG::DEBUG << "Event rejected as: no di-muon pair passed mass cut." << endreq;
+    if(debug) msg() << MSG::DEBUG << "Event rejected as: no di-muon pair passed mass cut." << endmsg;
   }
 
   return HLT::OK;
