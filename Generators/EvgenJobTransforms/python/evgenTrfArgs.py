@@ -84,3 +84,19 @@ def addStdEvgenArgs(parser):
     parser.add_argument("--outputTXTFile", group="Evgen",
                         help="optional output TXT file for LHEF events, default is None",
                         type=trfArgClasses.argFactory(trfArgClasses.argFile))
+    parser.add_argument("--generatorRunMode", group="Evgen",
+                        help="Run mode to pass on to the event generator",
+                        default=trfArgClasses.argString("run", runarg=True),
+                        choices=[trfArgClasses.argString("read", runarg=True),
+                                 trfArgClasses.argString("build", runarg=True),
+                                 trfArgClasses.argString("integrate", runarg=True),
+                                 trfArgClasses.argString("mergegrids", runarg=True),
+                                 trfArgClasses.argString("run", runarg=True)],
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
+
+    parser.add_argument("--generatorJobNumber", group="Evgen",
+                        help="Job number to pass on to the event generator",
+                        default=trfArgClasses.argInt(0, runarg=True),
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
+
+

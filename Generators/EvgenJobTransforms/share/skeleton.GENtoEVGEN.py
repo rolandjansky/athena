@@ -319,12 +319,12 @@ if evgenConfig.keywords:
     if kwpath:
         kwf = open(kwpath, "r")
         for l in kwf:
-            allowed_keywords += l.strip().split()
+            allowed_keywords += l.strip().lower().split()
         #allowed_keywords.sort()
         ## Check the JO keywords against the allowed ones
         evil_keywords = []
         for k in evgenConfig.keywords:
-            if k not in allowed_keywords:
+            if k.lower() not in allowed_keywords:
                 evil_keywords.append(k)
         if evil_keywords:
             msg = "evgenConfig.keywords contains non-standard keywords: %s. " % ", ".join(evil_keywords)
