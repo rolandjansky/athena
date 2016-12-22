@@ -2749,9 +2749,9 @@ bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer 
 
   for(unsigned int i=0; i<v_ofjets.size(); ++i) {
     njets=njets+1;
-    if (jet->pt() >= v_ofjets[i] && fabs(jet->eta())>=EtaLow && fabs(jet->eta())<=EtaHigh && Jetn==1){ //Select leading if jetn=1
+    if (Jetn==1 && jet->pt() >= v_ofjets[i] && fabs(jet->eta())>=EtaLow && fabs(jet->eta())<=EtaHigh){ //Select leading if jetn=1
       nleading=nleading+1;
-    } else if (jet->pt()==v_ofjets[Jetn-1] && v_ofjets.size()>=static_cast<size_t>(Jetn) && Jetn>1){ // select nth Jet in case jetn != 1
+    } else if (Jetn>1 && jet->pt()==v_ofjets[Jetn-1] && v_ofjets.size()>=static_cast<size_t>(Jetn)){ // select nth Jet in case jetn != 1
       found_jetn=true;
     }
   }
