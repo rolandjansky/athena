@@ -98,14 +98,14 @@ class muComb : public HLT::FexAlgo
    *  0: auto select best option
    *  1: simplified R,(Pt) matching
    */
-  IntegerProperty m_AlgoStrategy;
+  Gaudi::CheckedProperty<int> m_AlgoStrategy;
 
   /** muComb charge assignment strategy:
    *  0: useMuFast
    *  1: use ID
    *  2: use resolution model
    */
-  IntegerProperty m_ChargeStrategy;
+  Gaudi::CheckedProperty<int> m_ChargeStrategy;
 
   /** ID Track collection used for matching */
   StringProperty m_ID_algo_to_use;

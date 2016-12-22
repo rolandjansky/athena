@@ -165,8 +165,8 @@ muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
 HLT::ErrorCode muComb::hltInitialize()
 {
    msg() << MSG::INFO << "Initializing " << name() << " - package version "
-         << PACKAGE_VERSION << endreq;
-   //   msg() << MSG::INFO << ">>>>>>> MB DEVEL - LOCAL COPY <<<<<<<" << PACKAGE_VERSION << endreq;
+         << PACKAGE_VERSION << endmsg;
+   //   msg() << MSG::INFO << ">>>>>>> MB DEVEL - LOCAL COPY <<<<<<<" << PACKAGE_VERSION << endmsg;
    m_pStoreGate = store();
 
    // Timer Service
@@ -176,26 +176,26 @@ HLT::ErrorCode muComb::hltInitialize()
    if (m_useBackExtrapolatorG4) {
       StatusCode sc = m_backExtrapolatorG4.retrieve();
       if (sc.isFailure()) {
-         msg() << MSG::ERROR << "Could not retrieve " << m_backExtrapolatorG4 << endreq;
+         msg() << MSG::ERROR << "Could not retrieve " << m_backExtrapolatorG4 << endmsg;
          return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       } else {
-         msg() << MSG::INFO << "Retrieved tool " << m_backExtrapolatorG4 << endreq;
+         msg() << MSG::INFO << "Retrieved tool " << m_backExtrapolatorG4 << endmsg;
       }
    }
 
    if (m_useAthenaFieldService) {
       if (!m_MagFieldSvc) service("AtlasFieldSvc", m_MagFieldSvc, /*createIf=*/ false).ignore();
       if (m_MagFieldSvc) {
-         msg() << MSG::INFO << "Retrieved AtlasFieldSvc " << endreq;
+         msg() << MSG::INFO << "Retrieved AtlasFieldSvc " << endmsg;
       } else {
-         msg() << MSG::ERROR << "Could not retrieve AtlasFieldSvc" << endreq;
+         msg() << MSG::ERROR << "Could not retrieve AtlasFieldSvc" << endmsg;
          return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
    }
 
    msg() << MSG::INFO
          << "Initialization completed successfully"
-         << endreq;
+         << endmsg;
 
    return HLT::OK;
 }
@@ -225,7 +225,7 @@ int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id
    // algo: 4 --> R match, infinite pt
    if (algo < 1 || algo > 4) {
       msg() << MSG::DEBUG << " muComb::drptMatch wrong algo parameter, it is: " << algo
-            << " while must be in the range [1,4], match failed!!!" << endreq;
+            << " while must be in the range [1,4], match failed!!!" << endmsg;
       return 0;
    }
 
@@ -262,7 +262,7 @@ int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id
          << " / " << tmp_dr
          << " / " << winDR
          << " / " << (passDR ? "true" : "false")
-         << endreq;
+         << endmsg;
 
    if (algo == 1 && winPt > 0) {
       double tmp_dpt = fabs(fabs(pt) - fabs(id_pt)) / CLHEP::GeV; //don't use charge info
@@ -272,7 +272,7 @@ int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id
             << " / " << tmp_dpt
             << " / " << winPt
             << " / " << (passPt ? "true" : "false")
-            << endreq;
+            << endmsg;
    }
 
    if (passDR && passPt) return 0;
@@ -414,7 +414,7 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
 
    //Masaki/Kunihiro treatment of TGC/RPC readout problems
    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Enlarge phi matching error in case TGC/RPC readout failed. : " << feature->isRpcFailure() << " / " << feature->isTgcFailure() << endreq;
+      msg() << MSG::DEBUG << " Enlarge phi matching error in case TGC/RPC readout failed. : " << feature->isRpcFailure() << " / " << feature->isTgcFailure() << endmsg;
 
    if (feature->isTgcFailure() || feature->isRpcFailure()) extr_ephi *= 2.0;
 
@@ -435,20 +435,20 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
          << " / " << std::setw(11) << id_eptinv / CLHEP::GeV
          << " / " << std::setw(11) << extr_eptinv / CLHEP::GeV
          << " / " << std::setw(11) << combPtRes / CLHEP::GeV
-         << endreq;
+         << endmsg;
 
    msg() << MSG::DEBUG << m_test_string
          << " REGTEST Momentum / IdPt / muFastPt  / CombPt :"
          << " / " << std::setw(11) << 1. / id_ptinv / CLHEP::GeV
          << " / " << std::setw(11) << 1. / extr_ptinv / CLHEP::GeV
-         << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV << endreq;
+         << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV << endmsg;
 
    msg() << MSG::DEBUG << m_test_string
          << " REGTEST Chi2 / ndof // Chi2OLD / ndofOLD :"
          << " / " << std::setw(11) << chi2
          << " / " << std::setw(11) << ndof
          << " // " << std::setw(11) << chi2_OLD
-         << " / " << std::setw(11) << ndof_OLD << endreq;
+         << " / " << std::setw(11) << ndof_OLD << endmsg;
 
    //Cuts
    double winEtaSigma = m_WinEta_g4;
@@ -466,7 +466,7 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
          << " / " << std::setw(11) << fabs(dphi)
          << " / " << std::setw(11) << m_WeightEta_g4*winEtaSigma*sqrt(extr_eeta * extr_eeta)
          << " / " << std::setw(11) << m_WeightPhi_g4*winPhiSigma*sqrt(extr_ephi * extr_ephi)
-         << endreq;
+         << endmsg;
 
    if (fabs(deta) > m_WeightEta_g4 * winEtaSigma * sqrt(extr_eeta * extr_eeta)) {
       return 4;
@@ -536,7 +536,7 @@ int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
    double extr_eptinv = eptinv;
 
    //Masaki/Kunihiro treatment of TGC/RPC readout problems
-   msg() << MSG::DEBUG << " Enlarge phi matching error in case TGC/RPC readout failed. : " << feature->isRpcFailure() << " / " << feature->isTgcFailure() << endreq;
+   msg() << MSG::DEBUG << " Enlarge phi matching error in case TGC/RPC readout failed. : " << feature->isRpcFailure() << " / " << feature->isTgcFailure() << endmsg;
 
    if (feature->isTgcFailure() || feature->isRpcFailure()) extr_ephi *= 2.0;
 
@@ -552,18 +552,18 @@ int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
          << " / " << std::setw(11) << id_eptinv / CLHEP::GeV
          << " / " << std::setw(11) << extr_eptinv / CLHEP::GeV
          << " / " << std::setw(11) << combPtRes / CLHEP::GeV
-         << endreq;
+         << endmsg;
 
    msg() << MSG::DEBUG << m_test_string
          << " REGTEST Momentum / IdPt / muFastPt  / CombPt :"
          << " / " << std::setw(11) << 1. / id_ptinv / CLHEP::GeV
          << " / " << std::setw(11) << 1. / ptinv / CLHEP::GeV
-         << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV << endreq;
+         << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV << endmsg;
 
    msg() << MSG::DEBUG << m_test_string
          << " REGTEST Chi2 / ndof :"
          << " / " << std::setw(11) << chi2
-         << " / " << std::setw(11) << ndof << endreq;
+         << " / " << std::setw(11) << ndof << endmsg;
 
    //Cuts
    double winEtaSigma = m_WinEta;
@@ -595,7 +595,7 @@ int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
          << " / " << std::setw(11) << fabs(dphi)
          << " / " << std::setw(11) << m_WeightEta*winEtaSigma*sqrt(extr_eeta * extr_eeta)
          << " / " << std::setw(11) << m_WeightPhi*winPhiSigma*sqrt(extr_ephi * extr_ephi)
-         << endreq;
+         << endmsg;
 
    if (fabs(deta) > m_WeightEta * winEtaSigma * sqrt(extr_eeta * extr_eeta)) {
       return 4;
@@ -652,12 +652,12 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
       }
    }
    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "=========== Magnetic Field Status ========== " << endreq;
-      msg() << MSG::DEBUG << " B Fields read from AthenaFieldService:   " << (m_useAthenaFieldService ? "TRUE" : "FALSE") << endreq;
-      msg() << MSG::DEBUG << " Assuming Toroid OFF is:                  " << (m_assumeToroidOff ? "TRUE" : "FALSE") << endreq;
-      msg() << MSG::DEBUG << " Assuming Solenoid OFF is:                " << (m_assumeSolenoidOff ? "TRUE" : "FALSE") << endreq;
-      msg() << MSG::DEBUG << " ---> Solenoid : " << ((solenoidOn) ? "ON" : "OFF") << endreq;
-      msg() << MSG::DEBUG << " ---> Toroid   : " << ((toroidOn) ?   "ON" : "OFF") << endreq;
+      msg() << MSG::DEBUG << "=========== Magnetic Field Status ========== " << endmsg;
+      msg() << MSG::DEBUG << " B Fields read from AthenaFieldService:   " << (m_useAthenaFieldService ? "TRUE" : "FALSE") << endmsg;
+      msg() << MSG::DEBUG << " Assuming Toroid OFF is:                  " << (m_assumeToroidOff ? "TRUE" : "FALSE") << endmsg;
+      msg() << MSG::DEBUG << " Assuming Solenoid OFF is:                " << (m_assumeSolenoidOff ? "TRUE" : "FALSE") << endmsg;
+      msg() << MSG::DEBUG << " ---> Solenoid : " << ((solenoidOn) ? "ON" : "OFF") << endmsg;
+      msg() << MSG::DEBUG << " ---> Toroid   : " << ((toroidOn) ?   "ON" : "OFF") << endmsg;
    }
 
    // Algorithm strategy
@@ -676,23 +676,23 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    }
 
    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "MuCombStrategy: " << usealgo << endreq;
+      msg() << MSG::DEBUG << "MuCombStrategy: " << usealgo << endmsg;
 
    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "=========== Matching windows g4 ========== " << endreq;
-      msg() << MSG::DEBUG << " WinEtaSigma g4: " << m_WinEta_g4 << endreq;
-      msg() << MSG::DEBUG << " WinPhiSigma g4: " << m_WinPhi_g4 << endreq;
-      msg() << MSG::DEBUG << " WinEtaSigma g4 EC: " << m_WinEta_EC_g4 << endreq;
-      msg() << MSG::DEBUG << " WinPhiSigma g4 EC: " << m_WinPhi_EC_g4 << endreq;
-      msg() << MSG::DEBUG << " WeightEta g4: " << m_WeightEta_g4 << endreq;
-      msg() << MSG::DEBUG << " WeightPhi g4: " << m_WeightPhi_g4 << endreq;
-      msg() << MSG::DEBUG << " " << endreq;
+      msg() << MSG::DEBUG << "=========== Matching windows g4 ========== " << endmsg;
+      msg() << MSG::DEBUG << " WinEtaSigma g4: " << m_WinEta_g4 << endmsg;
+      msg() << MSG::DEBUG << " WinPhiSigma g4: " << m_WinPhi_g4 << endmsg;
+      msg() << MSG::DEBUG << " WinEtaSigma g4 EC: " << m_WinEta_EC_g4 << endmsg;
+      msg() << MSG::DEBUG << " WinPhiSigma g4 EC: " << m_WinPhi_EC_g4 << endmsg;
+      msg() << MSG::DEBUG << " WeightEta g4: " << m_WeightEta_g4 << endmsg;
+      msg() << MSG::DEBUG << " WeightPhi g4: " << m_WeightPhi_g4 << endmsg;
+      msg() << MSG::DEBUG << " " << endmsg;
    }
 
    // Decode TE
    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endreq;
-      msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
+      msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endmsg;
+      msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endmsg;
    }
 
    // Get input for seeding
@@ -705,7 +705,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
       if (usealgo == 2) {
          useL1 = true;
       } else {
-         msg() << MSG::ERROR << " L2StandAloneMuonContainer not found --> ABORT" << endreq;
+         msg() << MSG::ERROR << " L2StandAloneMuonContainer not found --> ABORT" << endmsg;
          return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
       }
    }
@@ -728,10 +728,10 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    if (muonSA->pt() == 0.) {
       m_ErrorFlagMC = 1;
       if (usealgo == 2 || usealgo == 4) {
-         if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L2StandAloneMuon pt = 0 --> using angular match" << endreq;
+         if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L2StandAloneMuon pt = 0 --> using angular match" << endmsg;
          if (usealgo == 2) useL1 = true;
       } else {
-         if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L2StandAloneMuon pt = 0 --> stop processing RoI" << endreq;
+         if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L2StandAloneMuon pt = 0 --> stop processing RoI" << endmsg;
          muonCB->setErrorFlag(m_ErrorFlagMC);
          muonCBColl->push_back(muonCB);
          return muCombSeed(outputTE, muonCBColl);
@@ -750,8 +750,8 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    if (useL1) {
       const LVL1::RecMuonRoI* muonRoI;
       if (HLT::OK != getFeature(inputTE, muonRoI, "")) {
-         msg() << MSG::DEBUG << "Could not find the LVL1 roi" << endreq;
-         msg() << MSG::DEBUG << "L2StandAloneMuon pt == 0. && no L1 && torid=OFF --> no match" << endreq;
+         msg() << MSG::DEBUG << "Could not find the LVL1 roi" << endmsg;
+         msg() << MSG::DEBUG << "L2StandAloneMuon pt == 0. && no L1 && torid=OFF --> no match" << endmsg;
          m_ErrorFlagMC = 1;
          muonCB->setErrorFlag(m_ErrorFlagMC);
          return muCombSeed(outputTE, muonCBColl);
@@ -765,7 +765,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
                << "Input L1 muon pt (GeV) = " << ptL1
                << " / eta = "                 << etaL1
                << " / phi = "                 << phiL1
-               << endreq;
+               << endmsg;
    } else {
       // Save SA muon EL into CB muon
       ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(*muonColl, 0);
@@ -786,7 +786,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
                << " / etaMS = "                  << eta_ms
                << " / phiMS = "                  << phi_ms
                << " / zMS = "                    << zeta_ms
-               << endreq;
+               << endmsg;
    }
 
    // ID tracks Decoding
@@ -797,20 +797,20 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
 
    if (status != HLT::OK) {
       if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << " Failed to get " << algoId << " xAOD::TrackParticleContainer --> ABORT" << endreq;
+         msg() << MSG::DEBUG << " Failed to get " << algoId << " xAOD::TrackParticleContainer --> ABORT" << endmsg;
       m_ErrorFlagMC = 2;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
    }
    if (!idTrackParticles) {
       if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << "Pointer to xAOD::TrackParticleContainer[" << algoId << "] = 0 --> no match" << endreq;
+         msg() << MSG::DEBUG << "Pointer to xAOD::TrackParticleContainer[" << algoId << "] = 0 --> no match" << endmsg;
       m_ErrorFlagMC = 2;
       muonCB->setErrorFlag(m_ErrorFlagMC);
       muonCBColl->push_back(muonCB);
       return muCombSeed(outputTE, muonCBColl);
    }
 
-   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Got xAOD::TrackParticleContainer with size: " << idTrackParticles->size() << endreq;
+   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Got xAOD::TrackParticleContainer with size: " << idTrackParticles->size() << endmsg;
 
    // matching
    double ptinv_comb = 0.;
@@ -842,7 +842,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
       // Check if event timeout was reached
       if (Athena::Timeout::instance().reached()) {
          if (msgLvl() <= MSG::DEBUG)
-            msg() << MSG::DEBUG << "Timeout reached. Trk loop, Aborting sequence." << endreq;
+            msg() << MSG::DEBUG << "Timeout reached. Trk loop, Aborting sequence." << endmsg;
          return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
       }
 
@@ -876,14 +876,14 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
                << ", ip   = " << qoverp_id
                << ", eip  = " << e_qoverp_id
                << ", eipt = " << e_qoverpt_id
-               << endreq;
+               << endmsg;
 
       if (usealgo != 3) {
          if ((fabs(pt_id) / CLHEP::GeV) < m_PtMinTrk)       continue;
       }
       if (fabs(eta_id)  > m_EtaMaxTrk)      continue;
 
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Track selected " << endreq;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Track selected " << endmsg;
 
       if (usealgo > 0) {//DeltaR match
          if (useL1) {
@@ -898,7 +898,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
             if (imatch_tmp == 0) has_match_tmp = true;
             if (Athena::Timeout::instance().reached()) {
                if (msgLvl() <= MSG::DEBUG)
-                  msg() << MSG::DEBUG << "Timeout reached. mfMatch backextrapolation, Aborting sequence." << endreq;
+                  msg() << MSG::DEBUG << "Timeout reached. mfMatch backextrapolation, Aborting sequence." << endmsg;
                return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
             }
          } else { //G4 match
@@ -906,7 +906,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
             if (imatch_tmp == 0) has_match_tmp = true;
             if (Athena::Timeout::instance().reached()) {
                if (msgLvl() <= MSG::DEBUG)
-                  msg() << MSG::DEBUG << "Timeout reached. g4Match backextrapolation, Aborting sequence." << endreq;
+                  msg() << MSG::DEBUG << "Timeout reached. g4Match backextrapolation, Aborting sequence." << endmsg;
                return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
             }
          }
@@ -953,7 +953,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
       m_MatchFlagMC = imatch;
       if (usealgo == 0 && fabs(pt) >= 6.)  m_efficiency = 0; //monitor only efficiency for mu6 && standard matching
       if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << " No matched ID tracks --> no match" << endreq;
+         msg() << MSG::DEBUG << " No matched ID tracks --> no match" << endmsg;
       muonCB->setErrorFlag(m_ErrorFlagMC);
       muonCB->setMatchFlag(m_MatchFlagMC);
       muonCBColl->push_back(muonCB);
@@ -972,7 +972,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    double zPos_id      = muonCB->idTrack()->z0(); //idtrk_perigee.parameters()[Trk::z0];
 
    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " SA muon macthed to ID track ..." << endreq;
+      msg() << MSG::DEBUG << " SA muon macthed to ID track ..." << endmsg;
 
    //Update monitored vars
    m_MatchFlagMC = imatch;
@@ -1001,7 +1001,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    if (useL1) prt_pt = ptL1;
    msg() << MSG::DEBUG << m_test_string << " REGTEST Combination chosen: "
          << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: "
-         << " / " << usealgo << " / " << pt_id*q_id / CLHEP::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / CLHEP::GeV << " / " << chi2_comb << " / " << ndof_comb << endreq;
+         << " / " << usealgo << " / " << pt_id*q_id / CLHEP::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / CLHEP::GeV << " / " << chi2_comb << " / " << ndof_comb << endmsg;
 
    muonCB->setPt(fabs(1. / ptinv_comb));
    muonCB->setEta(eta_id);
@@ -1014,7 +1014,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
 
    float mcresu = fabs(ptres_comb / (ptinv_comb * ptinv_comb));
    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " SigmaPt (GeV) is: " << mcresu / CLHEP::GeV << endreq;
+      msg() << MSG::DEBUG << " SigmaPt (GeV) is: " << mcresu / CLHEP::GeV << endmsg;
    muonCB->setSigmaPt(mcresu);
 
    muonCB->setErrorFlag(m_ErrorFlagMC);
@@ -1035,13 +1035,13 @@ muComb::muCombSeed(HLT::TriggerElement* outputTE, xAOD::L2CombinedMuonContainer*
       delete muon_cont;
       msg() << MSG::ERROR
             << " Record of xAOD::L2CombinedMuonContainer in TriggerElement failed"
-            << endreq;
+            << endmsg;
       return status;
    } else {
       if (msgLvl() <= MSG::DEBUG)
          msg() << MSG::DEBUG
                << " xAOD::L2CombinedMuonContainer attached to the TriggerElement"
-               << endreq;
+               << endmsg;
    }
    // Temporary
    ElementLink<MuonFeatureContainer> pMuon(0, 0);
@@ -1051,12 +1051,12 @@ muComb::muCombSeed(HLT::TriggerElement* outputTE, xAOD::L2CombinedMuonContainer*
    if (status != HLT::OK) {
       msg() << MSG::ERROR
             << " Record of fake/empty CombinedMuonFeature in TriggerElement failed"
-            << endreq;
+            << endmsg;
    } else {
       if (msgLvl() <= MSG::DEBUG)
          msg() << MSG::DEBUG
                << " fake/empty CombinedMuonFeature attached to the TriggerElement"
-               << endreq;
+               << endmsg;
    }
    outputTE->setActiveState(true);
    return HLT::OK;
