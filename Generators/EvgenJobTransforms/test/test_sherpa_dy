@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+## Any arguments are considered overrides, and will be added at the end
+export TRF_ECHO=True;
+Generate_tf.py --ecmEnergy=13000 --runNumber=191919 --maxEvents=10 \
+    --jobConfig=$JODIR/share/tests/MC14.191919.Sherpa_NNPDF30NNLO_DrellYan.py  \
+    --outputEVNTFile=test_sherpa_dy_inelastic.EVNT.pool.root \
+    $@

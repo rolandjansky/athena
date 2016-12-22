@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+## Any arguments are considered overrides, and will be added at the end
+export TRF_ECHO=True;
+rm -f *.dat;
+Generate_tf.py --ecmEnergy=13000 --runNumber=410013 --maxEvents=10 \
+    --jobConfig=$JODIR15/share/DSID410xxx/MC15.410013.PowhegPythiaEvtGen_P2012_Wt_inclusive_top.py  --steering=afterburn \
+    --outputEVNTFile=test_powheg_wt_inelastic.EVNT.pool.root \
+    $@
