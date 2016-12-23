@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 757711 2016-06-26 13:59:12Z ssnyder $
+# $Id: CMakeLists.txt 764877 2016-07-28 01:48:11Z ssnyder $
 ################################################################################
 # Package: ControlTest
 ################################################################################
@@ -111,7 +111,7 @@ endif()
 atlas_add_test( StoreGateReentrant
    SCRIPT test/StoreGateReentrant.sh
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$${SGGoptignore}|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|Start StoreGateSvc" )
+   EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$${SGGoptignore}|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|Start StoreGateSvc|TExMapRemove" )
 
 atlas_add_test( StoreGateGen
    SCRIPT test/StoreGateGen.sh

@@ -85,7 +85,7 @@ use AthExStoreGateExample AthExStoreGateExample-*   Control/AthenaExamples -no_a
 apply_pattern athenarun_test name="StoreGateReentrant" \
 	      pre_script="../cmt/setup.sh"	\	      
 	      options="AthExStoreGateExample/StoreGateExample_Reentrant_jobOptions.py" \
-	      post_script="${TESTTOOLSROOT}/share/post.sh StoreGateReentrant $(q)^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$$(SGGoptignore)|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|Start StoreGateSvc$(q)"
+	      post_script="${TESTTOOLSROOT}/share/post.sh StoreGateReentrant $(q)^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$$(SGGoptignore)|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|Start StoreGateSvc|TExMap::Remove$(q)"
 
 apply_pattern athenarun_test name="StoreGateGen" \
 	      pre_script="../cmt/setup.sh"	\	      

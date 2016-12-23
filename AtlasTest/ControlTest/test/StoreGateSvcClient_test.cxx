@@ -110,7 +110,7 @@ struct Lockable
   : public ILockable
 {
   Lockable() : m_locked (false) {}
-  virtual void lock() { m_locked = true; }
+  void lock() override { m_locked = true; }
   bool m_locked;
 };
 CLASS_DEF(Lockable, 82734636, 1)
@@ -137,7 +137,7 @@ class XCopyConversion
   : public SG::CopyConversion<X, Y>
 {
 public:
-  void convert (const X& src, Y& dst) const
+  void convert (const X& src, Y& dst) const override
   {
     dst.a = src.a+10;
     dst.b = src.a+20;
@@ -162,15 +162,15 @@ void test_DVL_conversions1 (StoreGateSvc& sg)
 
   assert (sg.record (contd, "contd").isSuccess());
 
-  CONTC* contc = 0;
+  CONTC* contc = nullptr;
   assert (sg.retrieve (contc, "contd").isSuccess());
   assert (contc == contd);
 
-  CONTB* contb = 0;
+  CONTB* contb = nullptr;
   assert (sg.retrieve (contb, "contd").isSuccess());
   assert (contb == contd);
 
-  CONTA* conta = 0;
+  CONTA* conta = nullptr;
   assert (sg.symLink (contd, conta).isSuccess());
   assert (sg.retrieve (conta, "contd").isSuccess());
   assert (conta->size() == 10);
@@ -218,12 +218,12 @@ void test_const_DVL1 (StoreGateSvc& sg)
 
   // This should give an error.
   {
-    DVL* dvl0 = 0;
+    DVL* dvl0 = nullptr;
     assert (sg.retrieve (dvl0, "dvl").isFailure());
   }
 
   // But this shold work.
-  const DVL* dvl1 = 0;
+  const DVL* dvl1 = nullptr;
   assert (sg.retrieve (dvl1, "dvl").isSuccess());
 
   ConstContainer* cdvl2 = new ConstContainer (SG::VIEW_ELEMENTS);
@@ -237,7 +237,7 @@ void test_const_DVL1 (StoreGateSvc& sg)
     cdvl2->push_back (*it);
   }
 
-  const DVL* dvl2 = 0;
+  const DVL* dvl2 = nullptr;
   assert (sg.retrieve (dvl2, "dvl2").isSuccess());
   i = 0;
   for (typename DVL::const_iterator it = dvl2->begin();
@@ -264,18 +264,18 @@ void test_copy_conversions (StoreGateSvc& sg)
   x->a = 10;
   assert (sg.record (x, "x").isSuccess());
 
-  Athena_test::Y* y = 0;
+  Athena_test::Y* y = nullptr;
   assert (sg.retrieve (y, "x").isFailure());
 
   assert (sg.setConst (x).isSuccess());
 
-  const Athena_test::Y* cy = 0;
+  const Athena_test::Y* cy = nullptr;
   assert (sg.retrieve (cy, "x").isSuccess());
   assert ((char*)cy != (char*)x);
   assert (cy->a == 20);
   assert (cy->b == 30);
 
-  const Athena_test::A* ca = 0;
+  const Athena_test::A* ca = nullptr;
   assert (sg.retrieve (ca, "x").isFailure());
 }
 
@@ -304,7 +304,7 @@ int main() {
   }  
   assert(pSvcLoc);
 
-  StoreGateSvc* pStore(0);
+  StoreGateSvc* pStore(nullptr);
   static const bool CREATE(true);
   assert((pSvcLoc->service("StoreGateSvc", pStore, CREATE)).isSuccess());
   assert(pStore);
@@ -358,7 +358,7 @@ int main() {
 
   ///////
 
-  StoreGateSvc* detStore(0);
+  StoreGateSvc* detStore(nullptr);
   assert((pSvcLoc->service("DetectorStore", detStore, CREATE)).isSuccess());
   assert(detStore);
 

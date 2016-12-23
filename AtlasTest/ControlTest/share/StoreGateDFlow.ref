@@ -1,28 +1,21 @@
-Tue May  3 22:27:15 CEST 2016
+Fri Sep 23 20:16:22 CEST 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-1.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2016-05-03 22:07]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2016-09-23 13:38]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
-Warning in <TInterpreter::ReadRootmapFile>: class  L1CaloCoolChannelId found in libTrigT1CaloCalibConditionsDict.so  is already in libLArMonitoringDict.so 
-Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExStoreGateExample/dflow_jobo.py"
-Py:ConfigurableDb    INFO Read module info for 5023 configurables from 66 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 66 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -D3PD__TrigConfMetadataTool: TriggerD3PDMaker.TriggerD3PDMakerConf - ['TrigCostD3PDMaker.TrigCostD3PDMakerConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 5167 configurables from 57 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on lxplus018.cern.ch on Tue May  3 22:27:21 2016
+                                          running on lxplus003.cern.ch on Fri Sep 23 20:16:30 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -30,26 +23,21 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
-ClassIDSvc           INFO  getRegistryEntries: read 2109 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2297 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-08
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-30
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-ClassIDSvc           INFO  getRegistryEntries: read 492 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 512 CLIDRegistry entries for module ALL
 AthAlgSeq            INFO Member list: AthEx::DFlowAlg1/dflow_alg1, AthEx::DFlowAlg2/dflow_alg2, AthEx::DFlowAlg3/dflow_alg3
 dflow_alg1           INFO Initializing dflow_alg1...
 dflow_alg2           INFO Initializing dflow_alg2...
 dflow_alg3           INFO Initializing dflow_alg3...
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-40
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-40
 ApplicationMgr       INFO Application Manager Initialized successfully
-StoreGateSvc         INFO Start StoreGateSvc
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
@@ -58,7 +46,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 0
@@ -66,26 +54,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 0
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 20
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 20
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 20
 dflow_alg2           INFO val: 120
-dflow_alg2           INFO cptr: 0xffee950
+dflow_alg2           INFO cptr: 0x11ec58f8
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -95,20 +83,20 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffee950
+dflow_alg3           INFO ptr: 0x11ec58f8
 dflow_alg3           INFO val: 120
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x10667220
+dflow_alg3           INFO ptr: 0x12057760
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
 dflow_alg3           INFO val[1]= 120
 dflow_alg3           INFO val[2]= 10
 dflow_alg3           INFO val[3]= 120
-ClassIDSvc           INFO  getRegistryEntries: read 445 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 463 CLIDRegistry entries for module ALL
 dflow_alg3           INFO temporary r-handle[ints] - size: 4
 dflow_alg3           INFO compare pointers: ok=1
 dflow_alg3           INFO compare pointers: ok=1
@@ -121,9 +109,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -145,7 +131,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 1
@@ -153,26 +139,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 1
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 21
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 21
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 21
 dflow_alg2           INFO val: 121
-dflow_alg2           INFO cptr: 0xffeeaf0
+dflow_alg2           INFO cptr: 0x11ec5758
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -182,13 +168,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffeeaf0
+dflow_alg3           INFO ptr: 0x11ec5758
 dflow_alg3           INFO val: 121
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x10666300
+dflow_alg3           INFO ptr: 0x12057600
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -207,9 +193,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -231,7 +215,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 2
@@ -239,26 +223,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 2
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 22
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 22
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 22
 dflow_alg2           INFO val: 122
-dflow_alg2           INFO cptr: 0xffee950
+dflow_alg2           INFO cptr: 0x11ec58f8
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -268,13 +252,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffee950
+dflow_alg3           INFO ptr: 0x11ec58f8
 dflow_alg3           INFO val: 122
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x10667100
+dflow_alg3           INFO ptr: 0x12056840
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -293,9 +277,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -317,7 +299,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 3
@@ -325,26 +307,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 3
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 23
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 23
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 23
 dflow_alg2           INFO val: 123
-dflow_alg2           INFO cptr: 0xffeeaf0
+dflow_alg2           INFO cptr: 0x11ec5758
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -354,13 +336,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffeeaf0
+dflow_alg3           INFO ptr: 0x11ec5758
 dflow_alg3           INFO val: 123
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x106667e0
+dflow_alg3           INFO ptr: 0x12056fc0
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -379,9 +361,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -403,7 +383,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 4
@@ -411,26 +391,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 4
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 24
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 24
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 24
 dflow_alg2           INFO val: 124
-dflow_alg2           INFO cptr: 0xffee950
+dflow_alg2           INFO cptr: 0x11ec58f8
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -440,13 +420,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffee950
+dflow_alg3           INFO ptr: 0x11ec58f8
 dflow_alg3           INFO val: 124
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x106671c0
+dflow_alg3           INFO ptr: 0x12056800
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -465,9 +445,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -489,7 +467,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 5
@@ -497,26 +475,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 5
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 25
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 25
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 25
 dflow_alg2           INFO val: 125
-dflow_alg2           INFO cptr: 0xffeeaf0
+dflow_alg2           INFO cptr: 0x11ec5758
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -526,13 +504,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffeeaf0
+dflow_alg3           INFO ptr: 0x11ec5758
 dflow_alg3           INFO val: 125
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x106671a0
+dflow_alg3           INFO ptr: 0x120568c0
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -551,9 +529,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -575,7 +551,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 6
@@ -583,26 +559,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 6
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 26
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 26
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 26
 dflow_alg2           INFO val: 126
-dflow_alg2           INFO cptr: 0xffee950
+dflow_alg2           INFO cptr: 0x11ec58f8
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -612,13 +588,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffee950
+dflow_alg3           INFO ptr: 0x11ec58f8
 dflow_alg3           INFO val: 126
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x10666340
+dflow_alg3           INFO ptr: 0x12057500
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -637,9 +613,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -661,7 +635,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 7
@@ -669,26 +643,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 7
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 27
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 27
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 27
 dflow_alg2           INFO val: 127
-dflow_alg2           INFO cptr: 0xffeeaf0
+dflow_alg2           INFO cptr: 0x11ec5758
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -698,13 +672,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffeeaf0
+dflow_alg3           INFO ptr: 0x11ec5758
 dflow_alg3           INFO val: 127
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x10666f00
+dflow_alg3           INFO ptr: 0x12037f80
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -723,9 +697,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -747,7 +719,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 8
@@ -755,26 +727,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 8
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffee950
+dflow_alg1           INFO ptr: 0x11ec58f8
 dflow_alg1           INFO val: 28
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 28
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffee950
+dflow_alg2           INFO ptr: 0x11ec58f8
 dflow_alg2           INFO val: 28
 dflow_alg2           INFO val: 128
-dflow_alg2           INFO cptr: 0xffee950
+dflow_alg2           INFO cptr: 0x11ec58f8
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -784,13 +756,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffee950
+dflow_alg3           INFO ptr: 0x11ec58f8
 dflow_alg3           INFO val: 128
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x106670c0
+dflow_alg3           INFO ptr: 0x120571a0
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -809,9 +781,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -833,7 +803,7 @@ dflow_alg1           INFO evtinfo handle...
 dflow_alg1           INFO name: [McEventInfo]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [2101]
-dflow_alg1           INFO ei: 0x1068f040
+dflow_alg1           INFO ei: 0x12061a00
 dflow_alg1           INFO retrieving event-info...
 dflow_alg1           INFO evt-info.runnbr: 0
 dflow_alg1           INFO evt-info.evtnbr: 9
@@ -841,26 +811,26 @@ dflow_alg1           INFO myint handle...
 dflow_alg1           INFO name: [dflow_int]
 dflow_alg1           INFO store [StoreGateSvc]
 dflow_alg1           INFO clid: [244260744]
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 9
 dflow_alg1           INFO modify myint by value...
-dflow_alg1           INFO ptr: 0xffeeaf0
+dflow_alg1           INFO ptr: 0x11ec5758
 dflow_alg1           INFO val: 29
 dflow_alg2           INFO ================================
 dflow_alg2           INFO myint r-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 29
 dflow_alg2           INFO myint rw-handle...
 dflow_alg2           INFO name: [dflow_int]
 dflow_alg2           INFO store [StoreGateSvc]
 dflow_alg2           INFO clid: [244260744]
-dflow_alg2           INFO ptr: 0xffeeaf0
+dflow_alg2           INFO ptr: 0x11ec5758
 dflow_alg2           INFO val: 29
 dflow_alg2           INFO val: 129
-dflow_alg2           INFO cptr: 0xffeeaf0
+dflow_alg2           INFO cptr: 0x11ec5758
 dflow_alg2           INFO ints w-handle...
 dflow_alg2           INFO size:2
 dflow_alg2           INFO val[0]= 10
@@ -870,13 +840,13 @@ dflow_alg3           INFO myint r-handle...
 dflow_alg3           INFO name: [dflow_int]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [244260744]
-dflow_alg3           INFO ptr: 0xffeeaf0
+dflow_alg3           INFO ptr: 0x11ec5758
 dflow_alg3           INFO val: 129
 dflow_alg3           INFO ints r-handle...
 dflow_alg3           INFO name: [dflow_ints]
 dflow_alg3           INFO store [StoreGateSvc]
 dflow_alg3           INFO clid: [22592129]
-dflow_alg3           INFO ptr: 0x10666320
+dflow_alg3           INFO ptr: 0x12057660
 dflow_alg3           INFO ints rw-handle...
 dflow_alg3           INFO size:4
 dflow_alg3           INFO val[0]= 10
@@ -895,9 +865,7 @@ dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
 dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
 dflow_alg3           INFO -- testing inexistant proxies --
 dflow_alg3           INFO name: --r-not-there--
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO valid:0
-VarHandle(Store...WARNING /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/src/VarHandleBase.cxx:658 (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key --r-not-there--
 dflow_alg3           INFO name: --w-not-there--
 dflow_alg3           INFO valid:0
 dflow_alg3           INFO name: --rw-not-there--
@@ -914,8 +882,6 @@ dflow_alg3           INFO valid:0
 dflow_alg3           INFO good, caught: [SG::ExcConstObject: Tried to retrieve non-const pointer to const object via VarHandleKey: StoreGateSvc/dflow_int[244260744]]
 dflow_alg3           INFO valid:0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
-StoreGateSvc         INFO Stop StoreGateSvc
-StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
 ApplicationMgr       INFO Application Manager Stopped successfully
 dflow_alg1           INFO Finalizing dflow_alg1...
 dflow_alg2           INFO Finalizing dflow_alg2...
@@ -924,14 +890,13 @@ AthAlgSeq            INFO Finalizing AthAlgSeq...
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-40
 EventSelector        INFO finalize
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-ChronoStatSvc        INFO Time User   : Tot=  124 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=  204 [ms]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

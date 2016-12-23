@@ -90,7 +90,7 @@ namespace Athena_test
 
     cerr << "Now we expect to see an error message:" << endl \
               << "----Error Message Starts--->>" << endl;
-    DataLink<int> badI((int*)0);
+    DataLink<int> badI((int*)nullptr);
     cerr << "<<----Error Message Ends-----" << endl;
     assert(!badI.isValid());
 
