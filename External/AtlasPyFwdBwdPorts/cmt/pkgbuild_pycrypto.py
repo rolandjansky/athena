@@ -6,7 +6,7 @@ import os
 import sys
 
 pkg_name= "pycrypto"
-pkg_ver = "2.1.0"
+pkg_ver = "2.6.1"
 
 dist_configure = configure
 def configure(self):

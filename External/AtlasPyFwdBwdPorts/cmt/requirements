@@ -62,10 +62,10 @@ apply_pattern make_pkgbuild \
  file=pkgbuild_ordereddict.py
 macro_append make_pkgbuild_ordereddict_dependencies " make_pkgbuild_collections "
 
-apply_pattern make_pkgbuild \
- name=nested_dict \
- file=pkgbuild_nested_dict.py
-macro_append make_pkgbuild_ordereddict_dependencies " make_pkgbuild_collections "
+#apply_pattern make_pkgbuild \
+# name=nested_dict \
+# file=pkgbuild_nested_dict.py
+#macro_append make_pkgbuild_ordereddict_dependencies " make_pkgbuild_collections "
 
 apply_pattern make_pkgbuild \
  name=bunch \
@@ -186,7 +186,6 @@ apply_pattern make_pkgbuild \
  file=pkgbuild_paramiko.py
 macro_append make_pkgbuild_paramiko_dependencies " make_pkgbuild_pycrypto "
 
-
 apply_pattern make_pkgbuild \
  name=beaker \
  file=pkgbuild_beaker.py
@@ -225,3 +224,4 @@ private
 ## for ATN tests
 use TestPolicy TestPolicy-* 
 end_private
+
