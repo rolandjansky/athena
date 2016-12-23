@@ -8,10 +8,6 @@
 #include "TrigMuSuperEF.h"
 
 
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/System.h"
-
 #include "Particle/TrackParticleContainer.h"
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 #include "MuidEvent/MuidTrackContainer.h"
