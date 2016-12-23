@@ -93,7 +93,7 @@ StatusCode L1CaloPMTScoresMon:: initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
   
@@ -102,44 +102,44 @@ StatusCode L1CaloPMTScoresMon:: initialize()
 
   sc = m_cells2tt.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endreq;
+    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endmsg;
     return sc;
   }
 
   sc = m_ttIdTools.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloTTIdTools" << endreq;
+    msg(MSG::ERROR) << "Unable to locate tool L1CaloTTIdTools" << endmsg;
     return sc;
   }
 
   sc = m_ttTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endreq;
+    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endmsg;
     return sc;
   }
 
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = detStore()->retrieve(m_tileHWID);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve TileHWID helper from DetectorStore" << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve TileHWID helper from DetectorStore" << endmsg;
     return sc;
   }
   sc = m_tileBadChanTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not access tileBadChanTool" << endreq;
+    msg(MSG::ERROR) << "Could not access tileBadChanTool" << endmsg;
     return sc;
   }
 
@@ -159,7 +159,7 @@ StatusCode L1CaloPMTScoresMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
   
-  msg(MSG::DEBUG) << "in L1CaloPMTScoresMon::bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "in L1CaloPMTScoresMon::bookHistograms" << endmsg;
 
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -203,7 +203,7 @@ StatusCode L1CaloPMTScoresMon::bookHistogramsRecurrent()
 
     StatusCode sc = m_ttTool->retrieveConditions();
     if(!sc.isSuccess()) {
-      msg(MSG::WARNING) << "Conditions not retrieved " << endreq;
+      msg(MSG::WARNING) << "Conditions not retrieved " << endmsg;
     }
   }
 
@@ -218,17 +218,17 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
   if (m_events > 0) return StatusCode::SUCCESS;
 
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endreq;
+  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endmsg;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -239,7 +239,7 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
   const CaloCellContainer* caloCellContainer = 0;
   sc = evtStore()->retrieve(caloCellContainer, m_caloCellContainerName); 
   if(!sc.isSuccess() || !caloCellContainer) {
-    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endreq; 
+    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endmsg; 
     return StatusCode::SUCCESS;
   }
 
@@ -260,7 +260,7 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
     const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
     if (!caloDDE->is_tile()) continue;
 
-    const Identifier cellId(caloCell->ID());
+    //const Identifier cellId(caloCell->ID());
     const Identifier invalidId(0);
     Identifier ttId1(0);
     Identifier ttId2(0);
@@ -300,7 +300,7 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
   sc = evtStore()->retrieve(triggerTowerTES, m_xAODTriggerTowerContainerName); 
   if(sc==StatusCode::FAILURE || !triggerTowerTES) {
     msg(MSG::INFO) << "No xAODTriggerTower found in TES at "
-                   << m_xAODTriggerTowerContainerName << endreq ;
+                   << m_xAODTriggerTowerContainerName << endmsg ;
     return StatusCode::SUCCESS;
   }
       

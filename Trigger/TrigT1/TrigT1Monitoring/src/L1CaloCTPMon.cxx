@@ -48,6 +48,11 @@
 namespace LVL1 {
 // ============================================================================
 
+// Number of jet thresholds 
+const int max_JET_2bit_Threshold_Number = 15; 
+const int max_JET_3bit_Threshold_Number = 10; 
+
+
 // *********************************************************************
 // Public Methods
 // *********************************************************************
@@ -66,13 +71,13 @@ L1CaloCTPMon::L1CaloCTPMon( const std::string & type, const std::string & name,
     m_h_ctp_1d_TIPMatches(0),
     m_h_ctp_1d_HitNoTIPMismatch(0),
     m_h_ctp_1d_TIPNoHitMismatch(0),
-    m_h_ctp_2d_MismatchEvents(0),
-    m_h_ctp_1d_EM_HitNoTIPMismatch(0),
-    m_h_ctp_1d_TAU_HitNoTIPMismatch(0),
-    m_h_ctp_1d_JET_HitNoTIPMismatch(0),
-    m_h_ctp_1d_TE_HitNoTIPMismatch(0),
-    m_h_ctp_1d_XE_HitNoTIPMismatch(0),
-    m_h_ctp_1d_XS_HitNoTIPMismatch(0)
+    m_h_ctp_2d_MismatchEvents(0)
+    //m_h_ctp_1d_EM_HitNoTIPMismatch(0),
+    //m_h_ctp_1d_TAU_HitNoTIPMismatch(0),
+    //m_h_ctp_1d_JET_HitNoTIPMismatch(0),
+    //m_h_ctp_1d_TE_HitNoTIPMismatch(0),
+    //m_h_ctp_1d_XE_HitNoTIPMismatch(0),
+    //m_h_ctp_1d_XS_HitNoTIPMismatch(0)
 /*---------------------------------------------------------*/
 {
   // This is how you declare the parameters to Gaudi so that
@@ -105,7 +110,7 @@ StatusCode L1CaloCTPMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
   m_debug = msgLvl(MSG::DEBUG);
 
   StatusCode sc = ManagedMonitorToolBase::initialize();
@@ -116,23 +121,23 @@ StatusCode L1CaloCTPMon::initialize()
   sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()
-                    << endreq;
+                    << endmsg;
     return sc;
   } else {
-    msg(MSG::INFO) << "Connected to " << m_configSvc.typeAndName() << endreq;
+    msg(MSG::INFO) << "Connected to " << m_configSvc.typeAndName() << endmsg;
   }
 
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -143,7 +148,7 @@ StatusCode L1CaloCTPMon::initialize()
 StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in L1CaloCTPMon::bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "in L1CaloCTPMon::bookHistograms" << endmsg;
   
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -203,10 +208,10 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
  
     msg(MSG::DEBUG) << "Max threshold number = EM: " << def.max_EM_Threshold_Number() << " JET (3-bit): " <<  max_JET_3bit_Threshold_Number
                     << " JET (2-bit): " <<  max_JET_2bit_Threshold_Number << " TE: " << def.max_TE_Threshold_Number()
-                    << " XE: " <<  def.max_XE_Threshold_Number() << " XS: " << def.max_XS_Threshold_Number()   << endreq;
+                    << " XE: " <<  def.max_XE_Threshold_Number() << " XS: " << def.max_XS_Threshold_Number()   << endmsg;
 
     m_tipMap.clear(); 
-    msg(MSG::DEBUG) << "Number of l1calo bits: " << l1caloBits << endreq; 
+    msg(MSG::DEBUG) << "Number of l1calo bits: " << l1caloBits << endmsg; 
     m_tipMap.assign(l1caloBits, std::make_pair(" ", -1));
     
     if (m_configSvc->ctpConfig()) { 
@@ -214,7 +219,7 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
       const std::vector<TrigConf::TriggerThreshold*>&
             thresholds(m_configSvc->ctpConfig()->menu().thresholdVector());
       std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
-      msg(MSG::DEBUG) << "Size of thresholds vector: " << thresholds.size() << endreq; 
+      msg(MSG::DEBUG) << "Size of thresholds vector: " << thresholds.size() << endmsg; 
       
       for (it = thresholds.begin(); it != thresholds.end(); ++it) {
         int offset = 0;
@@ -278,14 +283,14 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
 	                 offset + fixedThreshNumber*nbits));
         msg(MSG::DEBUG) << "threshMap: name, offset, threshNumber, nbits  "
                           << (*it)->name() << " " << offset << " "
-			  << fixedThreshNumber << " " << nbits << endreq;
+			  << fixedThreshNumber << " " << nbits << endmsg;
       } // End loop over thresholds vector
-      msg(MSG::DEBUG) << "Size of threshMap = " << threshMap.size() << endreq;
-      msg(MSG::DEBUG) << "Size of tipMap    = " << m_tipMap.size() << endreq;
+      msg(MSG::DEBUG) << "Size of threshMap = " << threshMap.size() << endmsg;
+      msg(MSG::DEBUG) << "Size of tipMap    = " << m_tipMap.size() << endmsg;
 
       const std::vector<TrigConf::TIP*>&
                        tips(m_configSvc->ctpConfig()->menu().tipVector());
-      msg(MSG::DEBUG) << "Size of tipVector = " << tips.size() << endreq;
+      msg(MSG::DEBUG) << "Size of tipVector = " << tips.size() << endmsg;
       
       int count = 0;
       std::vector<TrigConf::TIP*>::const_iterator itp;
@@ -298,20 +303,20 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
           if (pos < l1caloBits) {
 	    m_tipMap[pos] = std::make_pair((*itp)->thresholdName(), (*itp)->tipNumber());
             count++;
-          } else msg(MSG::WARNING) << "Error setting up TIP map" << endreq;
+          } else msg(MSG::WARNING) << "Error setting up TIP map" << endmsg;
         } else msg(MSG::DEBUG) << "TIP name " << (*itp)->thresholdName()
-	                       << " not found in threshMap" << endreq;
+	                       << " not found in threshMap" << endmsg;
       } // End loop over tips 
-      msg(MSG::DEBUG) << "Entries in tipMap = " << count << endreq;
+      msg(MSG::DEBUG) << "Entries in tipMap = " << count << endmsg;
 
       if (m_debug) {
         int icount = 0;
         for ( auto it = m_tipMap.begin(); it != m_tipMap.end(); ++it) {
-          msg(MSG::DEBUG) << "tipmap[" << icount << "] " << (*it).first << " TIP number: " << (*it).second <<  endreq;
+          msg(MSG::DEBUG) << "tipmap[" << icount << "] " << (*it).first << " TIP number: " << (*it).second <<  endmsg;
           icount++;
         }
       }
-    } else msg(MSG::WARNING) << "No ctpConfig found" << endreq;  // End if ctpConfig
+    } else msg(MSG::WARNING) << "No ctpConfig found" << endmsg;  // End if ctpConfig
   }
   return StatusCode::SUCCESS;
 }
@@ -321,17 +326,17 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
 StatusCode L1CaloCTPMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
-  if (m_debug) msg(MSG::DEBUG) << "in L1CaloCTPMon::fillHistograms" << endreq;
+  if (m_debug) msg(MSG::DEBUG) << "in L1CaloCTPMon::fillHistograms" << endmsg;
 
   if (!m_histBooked) {
-    if (m_debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+    if (m_debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt or with ROB errors
 
   if (m_errorTool->corrupt() || m_errorTool->robOrUnpackingError()) {
-    if (m_debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+    if (m_debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -344,7 +349,7 @@ StatusCode L1CaloCTPMon::fillHistograms()
   StatusCode sc = evtStore()->retrieve(cmxCpHitsTES, m_cmxCpHitsLocation);        
   if (sc == StatusCode::FAILURE || !cmxCpHitsTES) {                              
     msg(MSG::INFO) << "No CMX CP Hits found in TES at " << m_cmxCpHitsLocation    
-                   << endreq;                                                     
+                   << endmsg;                                                     
     return StatusCode::SUCCESS;                                                  
   }                                                                             
 
@@ -386,7 +391,7 @@ StatusCode L1CaloCTPMon::fillHistograms()
   sc = evtStore()->retrieve(cmxJetHitsTES, m_cmxJetHitsLocation);                   
   if (sc == StatusCode::FAILURE || !cmxJetHitsTES) {                                
     msg(MSG::INFO) << "No CMX Jet Hits found in TES at " << m_cmxJetHitsLocation    
-                   << endreq;                                                       
+                   << endmsg;                                                       
     return StatusCode::SUCCESS;                                                     
   }                                                                                 
 
@@ -423,7 +428,7 @@ StatusCode L1CaloCTPMon::fillHistograms()
   sc = evtStore()->retrieve(cmxEtSumsTES, m_cmxEtSumsLocation);
   if (sc == StatusCode::FAILURE || !cmxEtSumsTES) {
     msg(MSG::INFO) << "No CMXEtSums found in TES at " << m_cmxEtSumsLocation
-                   << endreq;
+                   << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -474,7 +479,7 @@ StatusCode L1CaloCTPMon::fillHistograms()
   sc = evtStore()->retrieve(ctpRDO, m_CTPRDOLocation); 
   if (sc == StatusCode::FAILURE || !ctpRDO) {
     msg(MSG::INFO) << "No CTP_RDO found in TES at " << m_CTPRDOLocation
-                   << endreq;
+                   << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -483,11 +488,11 @@ StatusCode L1CaloCTPMon::fillHistograms()
 
   const uint16_t l1aPos = ctpRDO->getL1AcceptBunchPosition();
   if (l1aPos >= ctp.getBunchCrossings().size()) {
-    msg(MSG::WARNING) << "Invalid l1aPos" << endreq;
+    msg(MSG::WARNING) << "Invalid l1aPos" << endmsg;
     return StatusCode::SUCCESS;
   }
   if (m_debug) msg(MSG::DEBUG) << "l1aPos, size : " << l1aPos << ", "
-                               << ctp.getBunchCrossings().size() << endreq;
+                               << ctp.getBunchCrossings().size() << endmsg;
   const CTP_BC& bunch = ctp.getBunchCrossings().at(l1aPos);
 
   
@@ -501,7 +506,7 @@ StatusCode L1CaloCTPMon::fillHistograms()
   int offset = 0;
   int threshBits = 3;
   int totalBits = threshBits*def.max_EM_Threshold_Number()/2;  
-  msg(MSG::DEBUG) << "totalBits = " << totalBits << endreq;
+  msg(MSG::DEBUG) << "totalBits = " << totalBits << endmsg;
 
   compare(bunch, EMHits0, totalBits, offset, EM1Type); // Cable EM1
 
@@ -574,14 +579,14 @@ void L1CaloCTPMon::compare(const CTP_BC& bunch, int hits, int totalBits,
                            int offset, L1CaloCTPHitTypes type)
 {
   if (m_debug) {
-    msg(MSG::DEBUG) << "offset: " << offset << " totalBits: " << totalBits << endreq;  
+    msg(MSG::DEBUG) << "offset: " << offset << " totalBits: " << totalBits << endmsg;  
     std::string name(m_h_ctp_1d_L1CaloNeCTPSummary->GetXaxis()->GetBinLabel(1+type));
     std::string subdet((type == EM1Type  || type == EM2Type ||
                         type == Tau1Type || type == Tau2Type) ? " CP:  "
                                                               : " JEP: ");
     msg(MSG::DEBUG) << name << subdet
                     << m_histTool->thresholdString(hits, totalBits)
-		    << endreq;
+		    << endmsg;
     msg(MSG::DEBUG) << name << " CTP: ";
   }
   
@@ -607,7 +612,7 @@ void L1CaloCTPMon::compare(const CTP_BC& bunch, int hits, int totalBits,
       else        m_h_ctp_1d_TIPNoHitMismatch->Fill(TIPid);
     }
   }
-  if (m_debug) msg(MSG::DEBUG) << endreq;
+  if (m_debug) msg(MSG::DEBUG) << endmsg;
   
   if (tipHits != (hits&mask)) {
     m_h_ctp_1d_L1CaloNeCTPSummary->Fill(type);

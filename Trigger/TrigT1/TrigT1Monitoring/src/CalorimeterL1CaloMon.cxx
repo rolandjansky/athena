@@ -181,7 +181,7 @@ StatusCode CalorimeterL1CaloMon:: initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
   
@@ -190,28 +190,28 @@ StatusCode CalorimeterL1CaloMon:: initialize()
 
   sc = m_ttTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endreq;
+    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endmsg;
     return sc;
   }
 
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = m_caloTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool L1CaloMonitoringCaloTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -231,7 +231,7 @@ StatusCode CalorimeterL1CaloMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
   
-  msg(MSG::DEBUG) << "in CalorimeterL1CaloMon::bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "in CalorimeterL1CaloMon::bookHistograms" << endmsg;
 
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -628,7 +628,7 @@ StatusCode CalorimeterL1CaloMon::bookHistogramsRecurrent()
 
     StatusCode sc = m_ttTool->retrieveConditions();
     if(!sc.isSuccess()) {
-      msg(MSG::WARNING) << "Conditions not retrieved " << endreq;
+      msg(MSG::WARNING) << "Conditions not retrieved " << endmsg;
     }
 
   }
@@ -642,17 +642,17 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endreq;
+  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endmsg;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -663,12 +663,12 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
   const CaloCellContainer* caloCellContainer = 0;
   sc = evtStore()->retrieve(caloCellContainer, m_caloCellContainerName); 
   if(!sc.isSuccess() || !caloCellContainer) {
-    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endreq; 
+    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endmsg; 
     return StatusCode::SUCCESS;
   }
   sc = m_caloTool->loadCaloCells();
   if(!sc.isSuccess()) {
-    msg(MSG::WARNING) << "Could not load CaloCells" << endreq;
+    msg(MSG::WARNING) << "Could not load CaloCells" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -715,7 +715,7 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
   sc = evtStore()->retrieve(triggerTowerTES, m_xAODTriggerTowerContainerName); 
   if(sc==StatusCode::FAILURE || !triggerTowerTES) {           
     msg(MSG::INFO) << "No xAODTriggerTower found in TES at "
-                   << m_xAODTriggerTowerContainerName << endreq ; 
+                   << m_xAODTriggerTowerContainerName << endmsg ; 
     return StatusCode::SUCCESS;
   }                                                           
     

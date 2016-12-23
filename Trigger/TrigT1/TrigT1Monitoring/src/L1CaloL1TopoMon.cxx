@@ -143,7 +143,7 @@ StatusCode L1CaloL1TopoMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
   m_debug = msgLvl(MSG::DEBUG);
 
   StatusCode sc = ManagedMonitorToolBase::initialize();
@@ -152,23 +152,23 @@ StatusCode L1CaloL1TopoMon::initialize()
   sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()
-                    << endreq;
+                    << endmsg;
     return sc;
   } else {
-    msg(MSG::INFO) << "Connected to " << m_configSvc.typeAndName() << endreq;
+    msg(MSG::INFO) << "Connected to " << m_configSvc.typeAndName() << endmsg;
   }
 
   sc = m_errorTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                  << endreq;
+                  << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -181,7 +181,7 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
 {
 
 
-  msg(MSG::DEBUG) << "in L1CaloL1TopoMon::bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "in L1CaloL1TopoMon::bookHistograms" << endmsg;
 
   if ( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -405,10 +405,10 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 {
 
   if (m_debug) msg(MSG::DEBUG) << "in L1CaloL1TopoMon::fillHistograms"
-			       << endreq;
+			       << endmsg;
 
   if (!m_histBooked) {
-    if (m_debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+    if (m_debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -420,7 +420,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     
   // Validate properly unpacked input from L1Calo
   if (m_errorTool->corrupt() || m_errorTool->robOrUnpackingError()) {
-    if (m_debug) msg(MSG::DEBUG) << "Corrupt L1Calo event" << endreq;
+    if (m_debug) msg(MSG::DEBUG) << "Corrupt L1Calo event" << endmsg;
     m_h_l1topo_1d_Errors->Fill(CALO_CONV);
   }
 
@@ -482,7 +482,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }   
   else {
     ATH_MSG_DEBUG( "Found CMXCPTobCollection, looping on TOBs ..." );
-    for (auto & t : *cmxcptob) {
+    for (const xAOD::CMXCPTob* t : *cmxcptob) {
       if (t->energy()) {
 	for (int clone=0;clone<4;++clone) {
 	  if (t->cmx()==0)
@@ -499,7 +499,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     //m_h_l1topo_1d_CMXCPTobs->Fill(std::min((int)cmxtobs.size(),MAXTOBS-1));
   }
   
-  std::vector<xAOD::CMXJetTob*> cmxtobs;  
+  std::vector<const xAOD::CMXJetTob*> cmxtobs;  
   // Retrieve CMX jet tobs
   const DataHandle<xAOD::CMXJetTobContainer> cmxtob = 0;
   sc = evtStore()->retrieve(cmxtob);
@@ -509,7 +509,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }   
   else {
     ATH_MSG_DEBUG( "Found CMXJetTobCollection, looping on TOBs ..." );
-    for (auto & t : *cmxtob) {
+    for (const xAOD::CMXJetTob* t : *cmxtob) {
       if (t->energyLarge()) cmxtobs.push_back(t);
       for (int clone=0;clone<4;++clone) {
 	if (t->energyLarge())
@@ -599,11 +599,11 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     std::vector<uint32_t> vFibreSizes;
     std::vector<uint32_t> vFibreStatus;
     
-    for (auto & rdo : *rdos){
+    for (const L1TopoRDO* rdo : *rdos) {
       ATH_MSG_VERBOSE( *rdo );
       ATH_MSG_DEBUG( "Found DAQ RDO with source ID "
                      << L1Topo::formatHex8(rdo->getSourceID()) );
-      auto errors = rdo->getErrors();
+      std::vector<L1Topo::Error> errors = rdo->getErrors();
       if (! errors.empty()){
 	ATH_MSG_WARNING( "Converter errors reported: " << errors );
 	m_h_l1topo_1d_Errors->Fill(DAQ_CONV);

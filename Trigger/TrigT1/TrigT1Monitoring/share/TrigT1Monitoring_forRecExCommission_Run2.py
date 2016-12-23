@@ -106,7 +106,7 @@ if l1caloRawMon:
         ToolSvc += L1CaloPMTScoresMonTool
         L1Man.AthenaMonTools += [ L1CaloPMTScoresMonTool ]
 
-    if isData and DQMonFlags.doCTPMon(): # KW this is not set in online environment!  Investigate!
+    if isData: #and DQMonFlags.doCTPMon(): # KW this is not set in online environment!  Investigate! # GP doCTPMon() commented out for now
 
         ####################### L1Calo->CTP ################################
         from IOVDbSvc.CondDB import conddb
