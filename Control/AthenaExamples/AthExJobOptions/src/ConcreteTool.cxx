@@ -59,7 +59,7 @@ StatusCode ConcreteTool::performTask( double& result )
 
    msg(MSG::INFO) << "... concrete task is done";
    if ( msgLvl(MSG::DEBUG) ) { msg() << ", result: " << result; }
-   msg(MSG::INFO) << endreq;
+   msg(MSG::INFO) << endmsg;
 
    return StatusCode::SUCCESS;
 }

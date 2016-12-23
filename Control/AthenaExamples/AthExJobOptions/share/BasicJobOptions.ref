@@ -1,20 +1,14 @@
-Fri Apr 29 10:02:21 CEST 2016
+Fri Dec 23 18:07:07 CET 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasTrigger-20.99.0] [x86_64-slc6-gcc49-opt] [20.99.Y-VAL/rel_4] -- built on [2016-04-27 23:34]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2016-12-23 18:05]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libRootCnvDict.so  is already in StorageSvcDict.so 
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_BasicJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 3386 configurables from 7 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 7 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -D3PD__TrigConfMetadataTool: TrigCostD3PDMaker.TrigCostD3PDMakerConf - ['TriggerD3PDMaker.TriggerD3PDMakerConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 4875 configurables from 11 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO Can't set int to string property (this is correct)
 Py:Athena            INFO Can't set non-existing property (this is correct)
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
@@ -38,6 +32,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 |-ExtraInputs               = []  (default: [])
 |-ExtraOutputs              = []  (default: [])
 |-IsClonable                = False
+|-IsIOBound                 = False
 |-Members                   = ['TopAlgorithm/TopAlgorithm', 'TopAlgorithm/MyAlg']  (default: [])
 |-MonitorService            = 'MonitorSvc'
 |-NeededResources           = []  (default: [])
@@ -70,6 +65,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | |-ExtraOutputs              = []  (default: [])
 | |-InputKey                  = ''  (default: '')
 | |-IsClonable                = False
+| |-IsIOBound                 = False
 | |-MonitorService            = 'MonitorSvc'
 | |-NeededResources           = []  (default: [])
 | |-OutputKey                 = 'AAA'  (default: 'outkey')
@@ -85,97 +81,109 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | |-Timeline                  = True
 | |-UserStore                 = ServiceHandle('UserDataSvc/UserDataSvc')
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/TSTT ***************************************
-| | |-AuditFinalize   = False
-| | |-AuditInitialize = False
-| | |-AuditStart      = False
-| | |-AuditStop       = False
-| | |-AuditTools      = False
-| | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs     = []  (default: [])
-| | |-ExtraOutputs    = []  (default: [])
-| | |-Factor          = 1.0
-| | |-MonitorService  = 'MonitorSvc'
-| | |-OutputLevel     = 2  (default: 7)
-| | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 1.0
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/TSTT) ------------------------------
 | |=/***** Private AlgTool ConcreteTool/Tool1 **********************************************************
-| | |-AuditFinalize   = False
-| | |-AuditInitialize = False
-| | |-AuditStart      = False
-| | |-AuditStop       = False
-| | |-AuditTools      = False
-| | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs     = []  (default: [])
-| | |-ExtraOutputs    = []  (default: [])
-| | |-Factor          = 1.0
-| | |-MonitorService  = 'MonitorSvc'
-| | |-OutputLevel     = 2  (default: 7)
-| | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 1.0
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ConcreteTool/Tool1) -------------------------------------------------
 | |=/***** Private AlgTool ToolUsingTool/Tool2 *********************************************************
-| | |-AuditFinalize    = False
-| | |-AuditInitialize  = False
-| | |-AuditStart       = False
-| | |-AuditStop        = False
-| | |-AuditTools       = False
-| | |-DetStore         = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore         = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs      = []  (default: [])
-| | |-ExtraOutputs     = []  (default: [])
-| | |-Factor           = 1.0
-| | |-MonitorService   = 'MonitorSvc'
-| | |-OutputLevel      = 2  (default: 7)
-| | |-TheToolPubTool   = PublicToolHandle('ConcreteTool/PublicConcreteTool')
-| | |-TheToolTool      = PrivateToolHandle('ConcreteTool/ConcreteTool')  (default: 'ConcreteTool')
-| | |-TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
-| | |-UserStore        = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 1.0
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-TheToolPubTool    = PublicToolHandle('ConcreteTool/PublicConcreteTool')
+| | |-TheToolTool       = PrivateToolHandle('ConcreteTool/ConcreteTool')  (default: 'ConcreteTool')
+| | |-TheToolToolArray  = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | |=/***** Private AlgTool ConcreteTool/ConcreteTool ***************************************************
-| | | |-AuditFinalize   = False
-| | | |-AuditInitialize = False
-| | | |-AuditStart      = False
-| | | |-AuditStop       = False
-| | | |-AuditTools      = False
-| | | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs     = []  (default: [])
-| | | |-ExtraOutputs    = []  (default: [])
-| | | |-Factor          = 1.0
-| | | |-MonitorService  = 'MonitorSvc'
-| | | |-OutputLevel     = 2  (default: 7)
-| | | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-Factor            = 1.0
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 2  (default: 0)
+| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/ConcreteTool) ------------------------------------------
 | | |=/***** Private AlgTool ConcreteTool/CxxDefaultTool *************************************************
-| | | |-AuditFinalize   = False
-| | | |-AuditInitialize = False
-| | | |-AuditStart      = False
-| | | |-AuditStop       = False
-| | | |-AuditTools      = False
-| | | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs     = []  (default: [])
-| | | |-ExtraOutputs    = []  (default: [])
-| | | |-Factor          = 1.0
-| | | |-MonitorService  = 'MonitorSvc'
-| | | |-OutputLevel     = 2  (default: 7)
-| | | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-Factor            = 1.0
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 2  (default: 0)
+| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/CxxDefaultTool) ----------------------------------------
 | | \----- (End of Private AlgTool ToolUsingTool/Tool2) ------------------------------------------------
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/Tool3 **************************************
-| | |-AuditFinalize   = False
-| | |-AuditInitialize = False
-| | |-AuditStart      = False
-| | |-AuditStop       = False
-| | |-AuditTools      = False
-| | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs     = []  (default: [])
-| | |-ExtraOutputs    = []  (default: [])
-| | |-Factor          = 1.0
-| | |-MonitorService  = 'MonitorSvc'
-| | |-OutputLevel     = 2  (default: 7)
-| | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 1.0
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/Tool3) -----------------------------
 | \----- (End of Algorithm TopAlgorithm/TopAlgorithm) ------------------------------------------------
 |=/***** Algorithm TopAlgorithm/MyAlg ****************************************************************
@@ -201,6 +209,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | |-ExtraOutputs              = []  (default: [])
 | |-InputKey                  = 'AAA'  (default: '')
 | |-IsClonable                = False
+| |-IsIOBound                 = False
 | |-MonitorService            = 'MonitorSvc'
 | |-NeededResources           = []  (default: [])
 | |-OutputKey                 = 'BBB'  (default: 'outkey')
@@ -217,184 +226,205 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | |-Timeline                  = True
 | |-UserStore                 = ServiceHandle('UserDataSvc/UserDataSvc')
 | |=/***** Private AlgTool ConcreteTool/PyCT1 **********************************************************
-| | |-AuditFinalize   = False
-| | |-AuditInitialize = False
-| | |-AuditStart      = False
-| | |-AuditStop       = False
-| | |-AuditTools      = False
-| | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs     = []  (default: [])
-| | |-ExtraOutputs    = []  (default: [])
-| | |-Factor          = 1.0
-| | |-MonitorService  = 'MonitorSvc'
-| | |-OutputLevel     = 2  (default: 7)
-| | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 1.0
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ConcreteTool/PyCT1) -------------------------------------------------
 | |=/***** Private AlgTool ConcreteTool/PyCT2 **********************************************************
-| | |-AuditFinalize   = False
-| | |-AuditInitialize = False
-| | |-AuditStart      = False
-| | |-AuditStop       = False
-| | |-AuditTools      = False
-| | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs     = []  (default: [])
-| | |-ExtraOutputs    = []  (default: [])
-| | |-Factor          = 1.0
-| | |-MonitorService  = 'MonitorSvc'
-| | |-OutputLevel     = 2  (default: 7)
-| | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 1.0
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ConcreteTool/PyCT2) -------------------------------------------------
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTT3 ************************************
-| | |-AuditFinalize   = False
-| | |-AuditInitialize = False
-| | |-AuditStart      = False
-| | |-AuditStop       = False
-| | |-AuditTools      = False
-| | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs     = []  (default: [])
-| | |-ExtraOutputs    = []  (default: [])
-| | |-Factor          = 30  (default: 1.0)
-| | |-MonitorService  = 'MonitorSvc'
-| | |-OutputLevel     = 2  (default: 7)
-| | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 30  (default: 1.0)
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTT3) ---------------------------
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTT4 ************************************
-| | |-AuditFinalize   = False
-| | |-AuditInitialize = False
-| | |-AuditStart      = False
-| | |-AuditStop       = False
-| | |-AuditTools      = False
-| | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs     = []  (default: [])
-| | |-ExtraOutputs    = []  (default: [])
-| | |-Factor          = 40  (default: 1.0)
-| | |-MonitorService  = 'MonitorSvc'
-| | |-OutputLevel     = 2  (default: 7)
-| | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 40  (default: 1.0)
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTT4) ---------------------------
 | |=/***** Private AlgTool ToolUsingTool/Special *******************************************************
-| | |-AuditFinalize    = False
-| | |-AuditInitialize  = False
-| | |-AuditStart       = False
-| | |-AuditStop        = False
-| | |-AuditTools       = False
-| | |-DetStore         = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore         = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs      = []  (default: [])
-| | |-ExtraOutputs     = []  (default: [])
-| | |-Factor           = 37  (default: 1.0)
-| | |-MonitorService   = 'MonitorSvc'
-| | |-OutputLevel      = 2  (default: 7)
-| | |-TheToolPubTool   = PublicToolHandle('ConcreteTool/PublicConcreteTool')
-| | |-TheToolTool      = PrivateToolHandle('ToolSpace::TemplatedTool<double>/PyTSTTSp1')
-| | |                  (default: 'ConcreteTool')
-| | |-TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/PySpSubTool'])
-| | |                  (default: "['ConcreteTool/CxxDefaultTool']")
-| | |-UserStore        = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 37  (default: 1.0)
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-TheToolPubTool    = PublicToolHandle('ConcreteTool/PublicConcreteTool')
+| | |-TheToolTool       = PrivateToolHandle('ToolSpace::TemplatedTool<double>/PyTSTTSp1')
+| | |                   (default: 'ConcreteTool')
+| | |-TheToolToolArray  = PrivateToolHandleArray(['ConcreteTool/PySpSubTool'])
+| | |                   (default: "['ConcreteTool/CxxDefaultTool']")
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | |=/***** Private AlgTool ConcreteTool/PySpSubTool ****************************************************
-| | | |-AuditFinalize   = False
-| | | |-AuditInitialize = False
-| | | |-AuditStart      = False
-| | | |-AuditStop       = False
-| | | |-AuditTools      = False
-| | | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs     = []  (default: [])
-| | | |-ExtraOutputs    = []  (default: [])
-| | | |-Factor          = 3.1415  (default: 1.0)
-| | | |-MonitorService  = 'MonitorSvc'
-| | | |-OutputLevel     = 2  (default: 7)
-| | | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-Factor            = 3.1415  (default: 1.0)
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 2  (default: 0)
+| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/PySpSubTool) -------------------------------------------
 | | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTTSp1 **********************************
-| | | |-AuditFinalize   = False
-| | | |-AuditInitialize = False
-| | | |-AuditStart      = False
-| | | |-AuditStop       = False
-| | | |-AuditTools      = False
-| | | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs     = []  (default: [])
-| | | |-ExtraOutputs    = []  (default: [])
-| | | |-Factor          = 6.283  (default: 1.0)
-| | | |-MonitorService  = 'MonitorSvc'
-| | | |-OutputLevel     = 2  (default: 7)
-| | | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-Factor            = 6.283  (default: 1.0)
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 2  (default: 0)
+| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTTSp1) -------------------------
 | | \----- (End of Private AlgTool ToolUsingTool/Special) ----------------------------------------------
 | |=/***** Private AlgTool ToolUsingTool/ToolUsingTool *************************************************
-| | |-AuditFinalize    = False
-| | |-AuditInitialize  = False
-| | |-AuditStart       = False
-| | |-AuditStop        = False
-| | |-AuditTools       = False
-| | |-DetStore         = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore         = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs      = []  (default: [])
-| | |-ExtraOutputs     = []  (default: [])
-| | |-Factor           = 1.0
-| | |-MonitorService   = 'MonitorSvc'
-| | |-OutputLevel      = 2  (default: 7)
-| | |-TheToolPubTool   = PublicToolHandle('ConcreteTool/PublicConcreteTool')
-| | |-TheToolTool      = PrivateToolHandle('ConcreteTool/ConcreteTool')  (default: 'ConcreteTool')
-| | |-TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
-| | |-UserStore        = ServiceHandle('UserDataSvc/UserDataSvc')
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-Factor            = 1.0
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputLevel       = 2  (default: 0)
+| | |-TheToolPubTool    = PublicToolHandle('ConcreteTool/PublicConcreteTool')
+| | |-TheToolTool       = PrivateToolHandle('ConcreteTool/ConcreteTool')  (default: 'ConcreteTool')
+| | |-TheToolToolArray  = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
+| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | |=/***** Private AlgTool ConcreteTool/ConcreteTool ***************************************************
-| | | |-AuditFinalize   = False
-| | | |-AuditInitialize = False
-| | | |-AuditStart      = False
-| | | |-AuditStop       = False
-| | | |-AuditTools      = False
-| | | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs     = []  (default: [])
-| | | |-ExtraOutputs    = []  (default: [])
-| | | |-Factor          = 1.0
-| | | |-MonitorService  = 'MonitorSvc'
-| | | |-OutputLevel     = 2  (default: 7)
-| | | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-Factor            = 1.0
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 2  (default: 0)
+| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/ConcreteTool) ------------------------------------------
 | | |=/***** Private AlgTool ConcreteTool/CxxDefaultTool *************************************************
-| | | |-AuditFinalize   = False
-| | | |-AuditInitialize = False
-| | | |-AuditStart      = False
-| | | |-AuditStop       = False
-| | | |-AuditTools      = False
-| | | |-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore        = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs     = []  (default: [])
-| | | |-ExtraOutputs    = []  (default: [])
-| | | |-Factor          = 1.0
-| | | |-MonitorService  = 'MonitorSvc'
-| | | |-OutputLevel     = 2  (default: 7)
-| | | |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-Factor            = 1.0
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 2  (default: 0)
+| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/CxxDefaultTool) ----------------------------------------
 | | \----- (End of Private AlgTool ToolUsingTool/ToolUsingTool) ----------------------------------------
 | \----- (End of Algorithm TopAlgorithm/MyAlg) -------------------------------------------------------
 \----- (End of Algorithm AthSequencer/TopAlg) ------------------------------------------------------
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 16, which is not a valid value for type 'bool'
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on lxplus077.cern.ch on Fri Apr 29 10:02:27 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r0)
+                                          running on lxplus019.cern.ch on Fri Dec 23 18:07:21 2016
 ====================================================================================================================================
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 144, which is not a valid value for type 'bool'
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc                      INFO initialize
 AthDictLoaderSvc                   INFO in initialize...
 AthDictLoaderSvc                   INFO acquired Dso-registry
-ClassIDSvc                         INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
-ClassIDSvc                         INFO  getRegistryEntries: read 2109 CLIDRegistry entries for module ALL
+ClassIDSvc                         INFO  getRegistryEntries: read 2297 CLIDRegistry entries for module ALL
 ChronoStatSvc                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-08
+AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-45-01
 AthMasterSeq                       INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq                          INFO Member list: TopAlgorithm, TopAlgorithm/MyAlg
 TopAlgorithm                      DEBUG Property update for OutputLevel : new value = 2
@@ -407,14 +437,16 @@ TopAlgorithm.Tool2.ConcreteTool   DEBUG Property update for OutputLevel : new va
 TopAlgorithm.Tool2                 INFO Retrieved TheToolTool = PrivateToolHandle('ConcreteTool/ConcreteTool')
 TopAlgorithm.Tool2.CxxDefault...  DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm.Tool2                 INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
+TopAlgorithm.Tool2                DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
+TopAlgorithm.Tool2                DEBUG Adding private ToolHandle tool TopAlgorithm.Tool2.CxxDefaultTool (ConcreteTool) from ToolHandleArray TheToolToolArray
+TopAlgorithm.Tool2                DEBUG Adding Public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
+TopAlgorithm.Tool2                DEBUG Adding Private ToolHandle tool TopAlgorithm.Tool2.ConcreteTool (ConcreteTool)
 TopAlgorithm.Tool3                DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm                       INFO Retrieved PrivateToolList = PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3'])
 ToolSvc.Tool5                      INFO Retrieved TheToolPubTool = PublicToolHandle('ConcreteTool/PublicConcreteTool')
 ToolSvc.Tool5                      INFO Retrieved TheToolTool = PrivateToolHandle('ConcreteTool')
 ToolSvc.Tool5                      INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
 TopAlgorithm                       INFO Retrieved PublicToolList = PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6'])
-StoreGateSvc                       INFO Initializing StoreGateSvc - package version StoreGate-03-06-37
-ProxyProviderSvc                   INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
 ConcreteSvc                        INFO Initializing ConcreteSvc...
 ConcreteSvc                        INFO Quote of the day: [Your day will be somewhat dictated by authority]
 TopAlgorithm                       INFO Retrieved TheSvc = ServiceHandle('ConcreteSvc')
@@ -442,6 +474,10 @@ MyAlg.ToolUsingTool.ConcreteTool  DEBUG Property update for OutputLevel : new va
 MyAlg.ToolUsingTool                INFO Retrieved TheToolTool = PrivateToolHandle('ConcreteTool/ConcreteTool')
 MyAlg.ToolUsingTool.CxxDefaul...  DEBUG Property update for OutputLevel : new value = 2
 MyAlg.ToolUsingTool                INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
+MyAlg.ToolUsingTool               DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
+MyAlg.ToolUsingTool               DEBUG Adding private ToolHandle tool MyAlg.ToolUsingTool.CxxDefaultTool (ConcreteTool) from ToolHandleArray TheToolToolArray
+MyAlg.ToolUsingTool               DEBUG Adding Public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
+MyAlg.ToolUsingTool               DEBUG Adding Private ToolHandle tool MyAlg.ToolUsingTool.ConcreteTool (ConcreteTool)
 MyAlg                              INFO Retrieved TheTool = PrivateToolHandle('ToolUsingTool/ToolUsingTool')
 MyAlg.PyCT1                       DEBUG Property update for OutputLevel : new value = 2
 MyAlg.PyCT2                       DEBUG Property update for OutputLevel : new value = 2
@@ -453,6 +489,10 @@ MyAlg.Special.PyTSTTSp1           DEBUG Property update for OutputLevel : new va
 MyAlg.Special                      INFO Retrieved TheToolTool = PrivateToolHandle('ToolSpace::TemplatedTool<double>/PyTSTTSp1')
 MyAlg.Special.PySpSubTool         DEBUG Property update for OutputLevel : new value = 2
 MyAlg.Special                      INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/PySpSubTool'])
+MyAlg.Special                     DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
+MyAlg.Special                     DEBUG Adding private ToolHandle tool MyAlg.Special.PySpSubTool (ConcreteTool) from ToolHandleArray TheToolToolArray
+MyAlg.Special                     DEBUG Adding Public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
+MyAlg.Special                     DEBUG Adding Private ToolHandle tool MyAlg.Special.PyTSTTSp1 (ToolSpace::TemplatedTool<double>)
 MyAlg                              INFO Retrieved PrivateToolList = PrivateToolHandleArray(['ConcreteTool/PyCT1','ConcreteTool/PyCT2','ToolSpace::TemplatedTool<double>/PyTSTT3','ToolSpace::TemplatedTool<double>/PyTSTT4','ToolUsingTool/Special'])
 MyAlg                              INFO Retrieved PublicToolList = PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6','ConcreteTool/PyCT5','ToolSpace::TemplatedTool<double>/PyTSTT7'])
 QotdSvc                            INFO Initializing QotdSvc...
@@ -480,9 +520,7 @@ MyAlg                             DEBUG ToolHandle  not used
 MyAlg                             DEBUG ToolHandle  not used
 MyAlg                             DEBUG Data Deps for MyAlg
 HistogramPersistencySvc         WARNING Histograms saving not required.
-ActiveStoreSvc                     INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-37
 ApplicationMgr                     INFO Application Manager Initialized successfully
-StoreGateSvc                       INFO Start StoreGateSvc
 ApplicationMgr                     INFO Application Manager Started successfully
 AthenaEventLoopMgr                 INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr                 INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
@@ -662,8 +700,6 @@ ToolSvc.PyTSTT7                    INFO ... templated task is done
 MyAlg                              INFO ... my work is done! 
 MyAlg                             DEBUG wrote data: 1.00913e+59 for key: BBB
 AthenaEventLoopMgr                 INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
-StoreGateSvc                       INFO Stop StoreGateSvc
-StoreGateSvc                       INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
 ApplicationMgr                     INFO Application Manager Stopped successfully
 AthAlgSeq                          INFO Finalizing AthAlgSeq...
 TopAlgorithm                      DEBUG Calling destructor
@@ -671,7 +707,6 @@ MyAlg                             DEBUG Calling destructor
 AthOutSeq                          INFO Finalizing AthOutSeq...
 AthRegSeq                          INFO Finalizing AthRegSeq...
 AthMasterSeq                       INFO Finalizing AthMasterSeq...
-StoreGateSvc                       INFO Finalizing StoreGateSvc - package version StoreGate-03-06-37
 QotdSvc                            INFO Finalizing QotdSvc...
 ConcreteSvc                        INFO Finalizing ConcreteSvc...
 AthDictLoaderSvc                   INFO in finalize...
@@ -695,7 +730,7 @@ TopAlgorithm.TSTT                 DEBUG Calling destructor
 *****Chrono*****                   INFO ****************************************************************************************************
 *****Chrono*****                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                   INFO ****************************************************************************************************
-ChronoStatSvc                      INFO Time User   : Tot=  122 [ms]                                             #=  1
+ChronoStatSvc                      INFO Time User   : Tot=  400 [ms]                                             #=  1
 *****Chrono*****                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()           INFO  Service finalized successfully 
 ApplicationMgr                     INFO Application Manager Finalized successfully
