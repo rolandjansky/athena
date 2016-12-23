@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/PropertyMgr.h"
+#include "AraTool/AraToolBase.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,8 @@ AraAlgToolWrapper< T >::AraAlgToolWrapper( const std::string& type, const std::s
     m_log( msgSvc(), name ),
     m_factor(0)
 {
-  m_ptool=new T(getPropertyMgr());
+  AlgTool* a = this;
+  m_ptool=new T(a);
 }
 
 //___________________________________________________________________________

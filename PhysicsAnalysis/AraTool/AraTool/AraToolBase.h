@@ -6,18 +6,27 @@
 #define ARATOOLBASE_H
 
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/PropertyMgr.h"
+#include "GaudiKernel/PropertyHolder.h"
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/IDataHandleHolder.h"
+#include "GaudiKernel/CommonMessaging.h"
 #include <string>
 
 
 class AraToolBase
 {
- protected:
-  PropertyMgr *m_propertyMgr;
-  bool RunningARA;
+public:
+  typedef PropertyHolder<CommonMessaging<implements<IAlgTool, IDataHandleHolder, IProperty, IStateful> > > PropertyMgr;
 
- public:
+protected:
+  bool runningARA() const { return m_runningARA; }
+
+private:
+  PropertyMgr *m_propertyMgr;
+  bool m_runningARA;
+
+
+public:
 
 
   AraToolBase(PropertyMgr * pmgr=0);
@@ -45,7 +54,7 @@ AraToolBase::declareProperty
   const std::string& doc )
 {
 
-  if(RunningARA) {
+  if(m_runningARA) {
   } else {
     return m_propertyMgr->declareProperty(name, value, doc);
   }
