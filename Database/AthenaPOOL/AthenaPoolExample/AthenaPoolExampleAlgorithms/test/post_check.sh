@@ -36,8 +36,8 @@ else
 	sed -e 's/0x0\{7\}/0x!!!!/g' |\
 	sed -e 's/0x[0-9a-f]\{7\}/0x????/g' |\
 	# Rounding error etc
-	sed -e 's/\.\([0-9]\{2\}\)[0-9]*/.\1/g' |\
-	sed -e 's/ nan / inf /g' |\
+	#sed -e 's/\.\([0-9]\{2\}\)[0-9]*/.\1/g' |\
+	#sed -e 's/ nan / inf /g' |\
 	# POOL id
 	sed -e 's/0\{8\}-0\{4\}-0\{4\}-0\{4\}-0\{12\}/!!!!/g' |\
 	sed -e 's/[0-9A-F]\{8\}-[0-9A-F]\{4\}-[0-9A-F]\{4\}-[0-9A-F]\{4\}-[0-9A-F]\{12\}/????/g' |\
@@ -46,6 +46,21 @@ else
 	# 64 bit offsets
 	sed -e 's/fffffffff/f/g' |\
 	sed -e 's/000000000/0/g' |\
+        # package names e.g. Package-00-00-00
+        sed -e 's/-r[0-9]\{6\}/-r??????/g' |\
+        sed -e 's/-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}/-??-??-??/g' |\
+        # pool attributes values
+        sed -e 's/\[BYTES_READ\]: 0/\[BYTES_READ\]: !!!!/g' |\
+        sed -e 's/\[BYTES_READ\]: [1-9][0-9]*/\[BYTES_READ\]: ????/g' |\
+        # ignore UnixTimestamp printouts
+        egrep -a -v 'ReadData             INFO CollectionMetadata, key = UnixTimestamp, value = ' |\
+        # ignore cpu usage printouts
+        egrep -a -v 'ChronoStatSvc +INFO Time' |\
+        egrep -a -v 'Time left.+ Seconds' |\
+        egrep -a -v 'Timeleft.+ sec' |\
+        egrep -a -v 'INFO Time User' |\
+        # ignore date and release
+        egrep -a -v '[Mon|Tue|Wed|Thu|Fri|Sat|Sun] [[:alpha:]]{3} +[[:digit:]]+ [[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2}' |\
 	# Collection MetaData
 	sed -e 's/Metadata TTree 0/Metadata TTree !!!/g' |\
 	sed -e 's/Metadata TTree [0-9]\{3\}/Metadata TTree ???/g' |\

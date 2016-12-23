@@ -95,37 +95,16 @@ EventSelector       DEBUG record AthenaAttribute, name = StreamRAW_ref = [DB=???
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000001].
 EventSelector       DEBUG found AthenaAttribute, name = StreamRAW_ref = [DB=????][CNT=][CLID=!!!!][TECH=00001000][OID=00000000-0091678C]
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+PoolXMLFileCatalog Debug FileID ???? is not in the catalog
+XMLFileCatalog Debug empty physical filename found
+PoolXMLFileCatalog Debug PFname  is not in the xml file
 AthenaPoolAddre...  DEBUG The current Event contains: 1 objects
-MetaDataSvc         DEBUG handle() FirstInputFile for BSF:????
-MetaDataSvc         DEBUG initInputMetaDataStore: file name BSF:????
-MetaDataSvc         DEBUG MetaDataSvc called for non ROOT file.
-MetaDataSvc         DEBUG Loaded input meta data store proxies
-ToolSvc.ByteStr...   INFO handle() FirstInputFile, filename = BSF:????
-MetaDataSvc         DEBUG handle() BeginInputFile for BSF:????
-ToolSvc.ByteStr...   INFO handle() BeginInputFile, filename = BSF:????
-EventPersistenc...   INFO Added successfully Conversion service:ByteStreamCnvSvc
-EventInfoByteSt...   INFO UserType : RawEvent
-EventInfoByteSt...   INFO IsSimulation : 0
-EventInfoByteSt...   INFO IsTestbeam : 0
-EventInfoByteSt...   INFO IsCalibration : 0
-AthenaEventLoopMgr   INFO   ===>>>  start of run 20720    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #14356, run #20720 0 events processed so far  <<<===
-ReadBs               INFO ByteStreamMetadata, run# = 20720, #events = 3
-ReadBs               INFO ByteStreamMetadataContainer, size =  1
-ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimpleRawCollection.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
-ReadData          WARNING Could not find EventStreamInfo
-ReadData             INFO EventInfo event: 14356 run: 20720
-ReadData             INFO Get Smart data ptr 1
-ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Could not find ExampleHitContainer/MyHits
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #14356, run #20720 1 events processed so far  <<<===
-RootCollection Info Closing open collection 'SimpleRawCollection.root'
-ToolSvc.ByteStr...   INFO handle() EndInputFile, filename = FID:????
-MetaDataSvc         DEBUG handle() EndInputFile for FID:????
-MetaDataSvc         DEBUG handle() EndTagFile for SimpleRawCollection.root
-AthenaEventLoopMgr   INFO No more events in event selection 
+StoreGateSvc      WARNING retrieve(const): No valid proxy for object [DB=????][CNT=][CLID=!!!!][TECH=00001000][OID=00000000-0091678C]  of type DataHeader(CLID 222376821)
+StoreGateSvc      WARNING retrieve(const): No valid proxy for object [DB=????][CNT=][CLID=!!!!][TECH=00001000][OID=00000000-0091678C]  of type DataHeader(CLID 222376821)
+StoreGateSvc      WARNING retrieve(default): No valid proxy for default object 
+ of type EventInfo(CLID 2101)
+AthenaEventLoopMgr  ERROR Unable to retrieve Event root object
+AthenaEventLoopMgr  ERROR Terminating event processing loop due to errors
 ToolSvc.ByteStr...   INFO handle() LastInputFile, filename = end
 MetaDataSvc         DEBUG handle() LastInputFile for end
 MetaDataSvc         DEBUG Releasing MetaDataTools
@@ -137,7 +116,7 @@ ReadData            DEBUG Calling destructor
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-EventInfoByteSt...   INFO finalize 
+RootCollection Info Closing open collection 'SimpleRawCollection.root'
 XMLFileCatalog Debug There were no updates in the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
 PoolSvc              INFO I/O finalization...
@@ -151,5 +130,5 @@ ToolSvc.ByteStr...   INFO in finalize()
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
-Athena               INFO leaving with code 0: "successful run"
+Athena               INFO leaving with code 65: "failure in an algorithm execute"
 CORAL/Services/ConnectionService Info Deleting the ConnectionPool

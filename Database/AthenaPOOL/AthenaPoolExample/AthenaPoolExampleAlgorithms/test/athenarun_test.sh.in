@@ -21,6 +21,7 @@ set -e
 	grep -v "Welcome to ApplicationMgr " |\
 	grep -v "running on " |\
 	grep -v "Skipping" |\
+	grep -v "Debug endTransaction:" |\
 	# Py:Athena will be Athena
 	sed -e 's/^.*Py:Athena /Athena    /g' |\
 	# Pointer addresses (mark 0)
@@ -40,7 +41,7 @@ set -e
 	sed -e 's/fffffffff/f/g' |\
 	sed -e 's/000000000/0/g' |\
 	# package names e.g. Package-00-00-00
-	sed -e 's/-r[0-9]\{6\}/-r??????/g' |\
+	sed -e 's/-r[0-9]\{6\}/-??-??-??/g' |\
 	sed -e 's/-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}/-??-??-??/g' |\
 	# pool attributes values
 	sed -e 's/\[BYTES_READ\]: 0/\[BYTES_READ\]: !!!!/g' |\
@@ -91,7 +92,15 @@ set -e
 	grep -v "^ClassIDSvc" |\
 	grep -v "^ServiceManager" |\
 	grep -v "^CoreDumpSvc          INFO Handling signals" |\
+	grep -v "Initializing AddressRemappingSvc" |\
+	grep -v "SG::HiveMgrSvc" |\
 	# Strange Chars from ApplicationMgr
 	sed -e "s/^..*ApplicationMgr/ApplicationMgr/" |\
+        # Ordering sensitivities
+	egrep -v "Deaccess DbContainer|RootDatabase.close Debug I/O|Database being retired" |\
+        # Other
+        grep -v "Not a threaded app" |\
+        grep -v "package version" |\
+        grep -v "Fd:" |\
 	# Empty lines
 	grep -v '^$'
