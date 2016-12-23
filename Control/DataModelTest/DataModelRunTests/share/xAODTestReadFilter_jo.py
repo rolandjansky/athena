@@ -1,11 +1,10 @@
 #
 # $Id$
 #
-# File: share/xAODTestRead2_jo.py
+# File: DataModelRuntests/share/xAODTestReadFilter_jo.py
 # Author: snyder@bnl.gov
-# Date: May 2014
-# Purpose: Test reading xAOD objects.
-#          Read output of xAODTestRead_jo.py.
+# Date: Sep 2016
+# Purpose: Test reading xAOD objects data with renaming on input.
 #
 
 ## basic job configuration (for generator)
@@ -24,13 +23,17 @@ from AthenaCommon.AppMgr import theApp
 #--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------
-import AthenaPoolCnvSvc.WriteAthenaPool
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 #--------------------------------------------------------------
 # Define input
 #--------------------------------------------------------------
-svcMgr.EventSelector.InputCollections        = [ "xaoddata2.root" ]
+svcMgr.EventSelector.InputCollections        = [ "xaoddata.root" ]
+
+from SGComps import AddressRemappingSvc
+AddressRemappingSvc.addInputRename ('DMTest::CVec', 'cvec', 'cvec_renamed')
+AddressRemappingSvc.addInputRename ('DMTest::CAuxContainer',
+                                    'cvecAux.', 'cvec_renamedAux.')
 
 #--------------------------------------------------------------
 # Define output
@@ -38,7 +41,7 @@ svcMgr.EventSelector.InputCollections        = [ "xaoddata2.root" ]
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DMTest::CVec#cvec"]
-fullItemList+=["xAOD::AuxContainerBase#cvecAux."]
+fullItemList+=["xAOD::AuxContainerBase!#cvecAux."]
 
 from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
 fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
@@ -52,6 +55,7 @@ ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
 
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 
+
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
@@ -62,33 +66,14 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 
 from DataModelTestDataRead.DataModelTestDataReadConf import \
-     DMTest__xAODTestReadCVec, \
-     DMTest__xAODTestReadCView, \
-     DMTest__xAODTestReadHVec, \
-     DMTest__xAODTestRead
-topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec")
-topSequence += DMTest__xAODTestRead ("xAODTestRead")
-topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView')
-topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec")
-topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_copy",
-                                         CVecKey = "copy_cvec")
-topSequence += DMTest__xAODTestRead ("xAODTestRead_copy",
-                                     ReadPrefix = "copy_")
-topSequence += DMTest__xAODTestReadCView ("xAODTestReadCView_copy",
-                                          CViewKey = "copy_cview")
-topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_copy",
-                                         HVecKey = "copy_hvec",
-                                         HViewKey = "copy_hview")
-topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_scopy",
-                                         CVecKey = "scopy_cvec")
-topSequence += DMTest__xAODTestRead ("xAODTestRead_scopy",
-                                     ReadPrefix = "scopy_")
-topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_scopy",
-                                         HVecKey = "scopy_hvec",
-                                         HViewKey = "")
+     DMTest__xAODTestFilterCVec
+
+
+topSequence += DMTest__xAODTestFilterCVec ('xAODTestFilterCVec')
+
 
 # Stream's output file
-Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata2x.root',asAlg=True)
+Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata_filt.root',asAlg=True)
 Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
@@ -119,7 +104,3 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 
 #svcMgr.ExceptionSvc.Catch = "None"
 
-# Explicitly specify the output file catalog
-# to avoid races when running tests in parallel.
-PoolSvc = Service( "PoolSvc" )
-PoolSvc.WriteCatalog = "file:xAODTestRead2_catalog.xml"

@@ -12,7 +12,7 @@ ROOT.DMTest.setPluginLibrary ('_PERS_DMTest::HVec_v1',
                               'libDataModelTestDataReadCnvPoolCnv.so')
 ROOT.DMTest.setPluginLibrary ('_PERS_DMTest__HAuxContainer_v1',
                               'libDataModelTestDataReadCnvPoolCnv.so')
-ROOT.DMTest.setPluginLibrary ('_PERS_DMTest__HVec_v1',
+ROOT.DMTest.setPluginLibrary ('_PERS_DataVector<DMTest::H_v1>',
                               'libDataModelTestDataReadCnvPoolCnv.so')
 
 f = ROOT.TFile.Open ('xaoddata.root')

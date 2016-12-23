@@ -31,14 +31,31 @@ theApp.EvtMax = 20
 # Set up the algorithm.
 #--------------------------------------------------------------
 
-bswrite = ['DMTest::CVec#cvec']
+bswrite = ['DMTest::CVec#cvec.-dVar2',
+           'DMTest::CView#cview',
+           'DMTest::HVec#hvec',
+           'DMTest::HView#hview',
+           'DMTest::CVec#cvec2',
+           ]
 
 from TrigNavigation.TrigNavigationConf import HLT__Navigation
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
+     DMTest__xAODTestWriteHVec, \
+     DMTest__xAODTestWriteCView, \
      DMTest__HLTResultWriter
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec",
                                           CVecKey = 'HLT_DMTest__CVec_cvec')
+topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView",
+                                           CVecKey = 'HLT_DMTest__CVec_cvec',
+                                           CViewKey = 'HLT_DMTest__CView_cview')
+topSequence += DMTest__xAODTestWriteHVec ("xAODTestWriteHVec",
+                                          HVecKey = 'HLT_DMTest__HVec_hvec',
+                                          HViewKey = 'HLT_DMTest__HView_hview')
+
+# Making sure that no dyn vars are selected by default.
+topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec2",
+                                          CVecKey = 'HLT_DMTest__CVec_cvec2')
 topSequence += DMTest__HLTResultWriter \
                ("HLTResultWriter",
                 Nav = HLT__Navigation (ClassesToPayload = bswrite,
@@ -54,6 +71,7 @@ cppyy.loadDictionary("libDataModelTestDataCommonDict")
 cppyy.loadDictionary("libDataModelTestDataWriteDict")
 ROOT.DMTest.B
 ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
+ROOT.DMTest.setTrigConverterLibrary ('libDataModelTestDataWriteSerCnv.so')
 
 # ItemList:
 fullItemList = []
@@ -73,6 +91,8 @@ except OSError:
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.BSRDOOutput = 'test.bs'
 from ByteStreamCnvSvc import WriteByteStream
+from StoreGate.StoreGateConf import StoreGateSvc
+svcMgr += StoreGateSvc('InputMetaDataStore')
 StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
 # List of DO's to write out
 StreamBSFileOutput.ItemList   += fullItemList

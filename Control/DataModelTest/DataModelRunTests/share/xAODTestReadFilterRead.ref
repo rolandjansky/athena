@@ -1,0 +1,583 @@
+Tue Nov 22 15:45:54 CET 2016
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2016-11-22 15:33]
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "DataModelRunTests/xAODTestReadFilterRead_jo.py"
+Py:ConfigurableDb    INFO Read module info for 5177 configurables from 39 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 39 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -TrigEFRazorAllTE: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf', 'TrigJetHypo.TrigJetHypoConf', 'TrigJetHypo.TrigJetHypoConf']
+Py:ConfigurableDb WARNING   -TrigEFDPhiMetJetAllTE: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf', 'TrigJetHypo.TrigJetHypoConf', 'TrigJetHypo.TrigJetHypoConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+/afs/cern.ch/sw/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 160, which is not a valid value for type 'bool'
+/afs/cern.ch/sw/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 96, which is not a valid value for type 'bool'
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r2)
+                                          running on lxplus032 on Tue Nov 22 15:46:05 2016
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO  getRegistryEntries: read 8745 CLIDRegistry entries for module ALL
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-40
+AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
+ClassIDSvc           INFO  getRegistryEntries: read 361 CLIDRegistry entries for module ALL
+AthAlgSeq            INFO Member list: DMTest::xAODTestReadCVec/xAODTestReadCVec
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-40
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-30-11
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-05
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_2/InstallArea/x86_64-slc6-gcc49-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus032.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+PoolSvc              INFO Re-initializing PoolSvc
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-19-18
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query 
+RootCollection Info Opening Collection File xaoddata_filt.root in mode: READ
+RootCollection Info File xaoddata_filt.root opened
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 7D2A391C-F6B1-AA4E-A3F4-5E514CADBAF8
+Domain[ROOT_All] Info                           xaoddata_filt.root
+RootDatabase.open Info xaoddata_filt.root File version:60606
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata_filt.root"
+ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-19-18
+HistogramPersis...WARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+xaoddata_filt.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 7D2A391C-F6B1-AA4E-A3F4-5E514CADBAF8
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+RootCollection Info Opening Collection File xaoddata_filt.root in mode: READ
+RootCollection Info File xaoddata_filt.root opened
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 7D2A391C-F6B1-AA4E-A3F4-5E514CADBAF8
+Domain[ROOT_All] Info                           xaoddata_filt.root
+RootDatabase.open Info xaoddata_filt.root File version:60606
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata_filt.root"
+ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+ApplicationMgr       INFO Application Manager Started successfully
+PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
+AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=217 typename=f) has different type than the branch vector<int>
+ anInt1 101 aFloat: 200 pInt: 501 pFloat: 0.01 anInt2: 301 dInt1: 401 dVar1: 451 dpInt1: 51 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 103 aFloat: 200.2 pInt: 503 pFloat: 2.01 anInt2: 303 dInt1: 403 dVar1: 453 dpInt1: 53 cEL: cvec[7]
+  pvInt: [-380 -379 ]
+  pvFloat: [-0.479 -0.379 ]
+  dpvFloat: [0.210 0.211 ]
+ anInt1 105 aFloat: 200.4 pInt: 505 pFloat: 4.01 anInt2: 305 dInt1: 405 dVar1: 455 dpInt1: 55 cEL: cvec[5]
+  pvInt: [-360 -359 -358 -357 ]
+  pvFloat: [-0.459 -0.359 -0.259 -0.159 ]
+  dpvFloat: [0.410 0.411 0.412 0.413 ]
+ anInt1 107 aFloat: 200.6 pInt: 507 pFloat: 6.01 anInt2: 307 dInt1: 407 dVar1: 457 dpInt1: 57 cEL: cvec[3]
+  pvInt: [-340 -339 -338 -337 -336 -335 ]
+  pvFloat: [-0.439 -0.339 -0.239 -0.139 -0.039 0.061 ]
+  dpvFloat: [0.610 0.611 0.612 0.613 0.614 0.615 ]
+ anInt1 109 aFloat: 200.8 pInt: 509 pFloat: 8.01 anInt2: 309 dInt1: 409 dVar1: 459 dpInt1: 59 cEL: cvec[1]
+  pvInt: [-320 -319 -318 -317 -316 -315 -314 -313 ]
+  pvFloat: [-0.419 -0.319 -0.219 -0.119 -0.019 0.081 0.181 0.281 ]
+  dpvFloat: [0.810 0.811 0.812 0.813 0.814 0.815 0.816 0.817 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 201 aFloat: 400 pInt: 1001 pFloat: 0.02 anInt2: 601 dInt1: 801 dVar1: 901 dpInt1: 101 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 203 aFloat: 400.2 pInt: 1003 pFloat: 2.02 anInt2: 603 dInt1: 803 dVar1: 903 dpInt1: 103 cEL: cvec[7]
+  pvInt: [-280 -279 ]
+  pvFloat: [-0.478 -0.378 ]
+  dpvFloat: [0.220 0.221 ]
+ anInt1 205 aFloat: 400.4 pInt: 1005 pFloat: 4.02 anInt2: 605 dInt1: 805 dVar1: 905 dpInt1: 105 cEL: cvec[5]
+  pvInt: [-260 -259 -258 -257 ]
+  pvFloat: [-0.458 -0.358 -0.258 -0.158 ]
+  dpvFloat: [0.420 0.421 0.422 0.423 ]
+ anInt1 207 aFloat: 400.6 pInt: 1007 pFloat: 6.02 anInt2: 607 dInt1: 807 dVar1: 907 dpInt1: 107 cEL: cvec[3]
+  pvInt: [-240 -239 -238 -237 -236 -235 ]
+  pvFloat: [-0.438 -0.338 -0.238 -0.138 -0.038 0.062 ]
+  dpvFloat: [0.620 0.621 0.622 0.623 0.624 0.625 ]
+ anInt1 209 aFloat: 400.8 pInt: 1009 pFloat: 8.02 anInt2: 609 dInt1: 809 dVar1: 909 dpInt1: 109 cEL: cvec[1]
+  pvInt: [-220 -219 -218 -217 -216 -215 -214 -213 ]
+  pvFloat: [-0.418 -0.318 -0.218 -0.118 -0.018 0.082 0.182 0.282 ]
+  dpvFloat: [0.820 0.821 0.822 0.823 0.824 0.825 0.826 0.827 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 301 aFloat: 600 pInt: 1501 pFloat: 0.03 anInt2: 901 dInt1: 1201 dVar1: 1351 dpInt1: 151 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 303 aFloat: 600.2 pInt: 1503 pFloat: 2.03 anInt2: 903 dInt1: 1203 dVar1: 1353 dpInt1: 153 cEL: cvec[7]
+  pvInt: [-180 -179 ]
+  pvFloat: [-0.477 -0.377 ]
+  dpvFloat: [0.230 0.231 ]
+ anInt1 305 aFloat: 600.4 pInt: 1505 pFloat: 4.03 anInt2: 905 dInt1: 1205 dVar1: 1355 dpInt1: 155 cEL: cvec[5]
+  pvInt: [-160 -159 -158 -157 ]
+  pvFloat: [-0.457 -0.357 -0.257 -0.157 ]
+  dpvFloat: [0.430 0.431 0.432 0.433 ]
+ anInt1 307 aFloat: 600.6 pInt: 1507 pFloat: 6.03 anInt2: 907 dInt1: 1207 dVar1: 1357 dpInt1: 157 cEL: cvec[3]
+  pvInt: [-140 -139 -138 -137 -136 -135 ]
+  pvFloat: [-0.437 -0.337 -0.237 -0.137 -0.037 0.063 ]
+  dpvFloat: [0.630 0.631 0.632 0.633 0.634 0.635 ]
+ anInt1 309 aFloat: 600.8 pInt: 1509 pFloat: 8.03 anInt2: 909 dInt1: 1209 dVar1: 1359 dpInt1: 159 cEL: cvec[1]
+  pvInt: [-120 -119 -118 -117 -116 -115 -114 -113 ]
+  pvFloat: [-0.417 -0.317 -0.217 -0.117 -0.017 0.083 0.183 0.283 ]
+  dpvFloat: [0.830 0.831 0.832 0.833 0.834 0.835 0.836 0.837 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 401 aFloat: 800 pInt: 2001 pFloat: 0.04 anInt2: 1201 dInt1: 1601 dVar1: 1801 dpInt1: 201 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 403 aFloat: 800.2 pInt: 2003 pFloat: 2.04 anInt2: 1203 dInt1: 1603 dVar1: 1803 dpInt1: 203 cEL: cvec[7]
+  pvInt: [-80 -79 ]
+  pvFloat: [-0.476 -0.376 ]
+  dpvFloat: [0.240 0.241 ]
+ anInt1 405 aFloat: 800.4 pInt: 2005 pFloat: 4.04 anInt2: 1205 dInt1: 1605 dVar1: 1805 dpInt1: 205 cEL: cvec[5]
+  pvInt: [-60 -59 -58 -57 ]
+  pvFloat: [-0.456 -0.356 -0.256 -0.156 ]
+  dpvFloat: [0.440 0.441 0.442 0.443 ]
+ anInt1 407 aFloat: 800.6 pInt: 2007 pFloat: 6.04 anInt2: 1207 dInt1: 1607 dVar1: 1807 dpInt1: 207 cEL: cvec[3]
+  pvInt: [-40 -39 -38 -37 -36 -35 ]
+  pvFloat: [-0.436 -0.336 -0.236 -0.136 -0.036 0.064 ]
+  dpvFloat: [0.640 0.641 0.642 0.643 0.644 0.645 ]
+ anInt1 409 aFloat: 800.8 pInt: 2009 pFloat: 8.04 anInt2: 1209 dInt1: 1609 dVar1: 1809 dpInt1: 209 cEL: cvec[1]
+  pvInt: [-20 -19 -18 -17 -16 -15 -14 -13 ]
+  pvFloat: [-0.416 -0.316 -0.216 -0.116 -0.016 0.084 0.184 0.284 ]
+  dpvFloat: [0.840 0.841 0.842 0.843 0.844 0.845 0.846 0.847 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 501 aFloat: 1000 pInt: 2501 pFloat: 0.05 anInt2: 1501 dInt1: 2001 dVar1: 2251 dpInt1: 251 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 503 aFloat: 1000.2 pInt: 2503 pFloat: 2.05 anInt2: 1503 dInt1: 2003 dVar1: 2253 dpInt1: 253 cEL: cvec[7]
+  pvInt: [20 21 ]
+  pvFloat: [-0.475 -0.375 ]
+  dpvFloat: [0.250 0.251 ]
+ anInt1 505 aFloat: 1000.4 pInt: 2505 pFloat: 4.05 anInt2: 1505 dInt1: 2005 dVar1: 2255 dpInt1: 255 cEL: cvec[5]
+  pvInt: [40 41 42 43 ]
+  pvFloat: [-0.455 -0.355 -0.255 -0.155 ]
+  dpvFloat: [0.450 0.451 0.452 0.453 ]
+ anInt1 507 aFloat: 1000.6 pInt: 2507 pFloat: 6.05 anInt2: 1507 dInt1: 2007 dVar1: 2257 dpInt1: 257 cEL: cvec[3]
+  pvInt: [60 61 62 63 64 65 ]
+  pvFloat: [-0.435 -0.335 -0.235 -0.135 -0.035 0.065 ]
+  dpvFloat: [0.650 0.651 0.652 0.653 0.654 0.655 ]
+ anInt1 509 aFloat: 1000.8 pInt: 2509 pFloat: 8.05 anInt2: 1509 dInt1: 2009 dVar1: 2259 dpInt1: 259 cEL: cvec[1]
+  pvInt: [80 81 82 83 84 85 86 87 ]
+  pvFloat: [-0.415 -0.315 -0.215 -0.115 -0.015 0.085 0.185 0.285 ]
+  dpvFloat: [0.850 0.851 0.852 0.853 0.854 0.855 0.856 0.857 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 601 aFloat: 1200 pInt: 3001 pFloat: 0.06 anInt2: 1801 dInt1: 2401 dVar1: 2701 dpInt1: 301 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 603 aFloat: 1200.2 pInt: 3003 pFloat: 2.06 anInt2: 1803 dInt1: 2403 dVar1: 2703 dpInt1: 303 cEL: cvec[7]
+  pvInt: [120 121 ]
+  pvFloat: [-0.474 -0.374 ]
+  dpvFloat: [0.260 0.261 ]
+ anInt1 605 aFloat: 1200.4 pInt: 3005 pFloat: 4.06 anInt2: 1805 dInt1: 2405 dVar1: 2705 dpInt1: 305 cEL: cvec[5]
+  pvInt: [140 141 142 143 ]
+  pvFloat: [-0.454 -0.354 -0.254 -0.154 ]
+  dpvFloat: [0.460 0.461 0.462 0.463 ]
+ anInt1 607 aFloat: 1200.6 pInt: 3007 pFloat: 6.06 anInt2: 1807 dInt1: 2407 dVar1: 2707 dpInt1: 307 cEL: cvec[3]
+  pvInt: [160 161 162 163 164 165 ]
+  pvFloat: [-0.434 -0.334 -0.234 -0.134 -0.034 0.066 ]
+  dpvFloat: [0.660 0.661 0.662 0.663 0.664 0.665 ]
+ anInt1 609 aFloat: 1200.8 pInt: 3009 pFloat: 8.06 anInt2: 1809 dInt1: 2409 dVar1: 2709 dpInt1: 309 cEL: cvec[1]
+  pvInt: [180 181 182 183 184 185 186 187 ]
+  pvFloat: [-0.414 -0.314 -0.214 -0.114 -0.014 0.086 0.186 0.286 ]
+  dpvFloat: [0.860 0.861 0.862 0.863 0.864 0.865 0.866 0.867 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 701 aFloat: 1400 pInt: 3501 pFloat: 0.07 anInt2: 2101 dInt1: 2801 dVar1: 3151 dpInt1: 351 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 703 aFloat: 1400.2 pInt: 3503 pFloat: 2.07 anInt2: 2103 dInt1: 2803 dVar1: 3153 dpInt1: 353 cEL: cvec[7]
+  pvInt: [220 221 ]
+  pvFloat: [-0.473 -0.373 ]
+  dpvFloat: [0.270 0.271 ]
+ anInt1 705 aFloat: 1400.4 pInt: 3505 pFloat: 4.07 anInt2: 2105 dInt1: 2805 dVar1: 3155 dpInt1: 355 cEL: cvec[5]
+  pvInt: [240 241 242 243 ]
+  pvFloat: [-0.453 -0.353 -0.253 -0.153 ]
+  dpvFloat: [0.470 0.471 0.472 0.473 ]
+ anInt1 707 aFloat: 1400.6 pInt: 3507 pFloat: 6.07 anInt2: 2107 dInt1: 2807 dVar1: 3157 dpInt1: 357 cEL: cvec[3]
+  pvInt: [260 261 262 263 264 265 ]
+  pvFloat: [-0.433 -0.333 -0.233 -0.133 -0.033 0.067 ]
+  dpvFloat: [0.670 0.671 0.672 0.673 0.674 0.675 ]
+ anInt1 709 aFloat: 1400.8 pInt: 3509 pFloat: 8.07 anInt2: 2109 dInt1: 2809 dVar1: 3159 dpInt1: 359 cEL: cvec[1]
+  pvInt: [280 281 282 283 284 285 286 287 ]
+  pvFloat: [-0.413 -0.313 -0.213 -0.113 -0.013 0.087 0.187 0.287 ]
+  dpvFloat: [0.870 0.871 0.872 0.873 0.874 0.875 0.876 0.877 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 801 aFloat: 1600 pInt: 4001 pFloat: 0.08 anInt2: 2401 dInt1: 3201 dVar1: 3601 dpInt1: 401 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 803 aFloat: 1600.2 pInt: 4003 pFloat: 2.08 anInt2: 2403 dInt1: 3203 dVar1: 3603 dpInt1: 403 cEL: cvec[7]
+  pvInt: [320 321 ]
+  pvFloat: [-0.472 -0.372 ]
+  dpvFloat: [0.280 0.281 ]
+ anInt1 805 aFloat: 1600.4 pInt: 4005 pFloat: 4.08 anInt2: 2405 dInt1: 3205 dVar1: 3605 dpInt1: 405 cEL: cvec[5]
+  pvInt: [340 341 342 343 ]
+  pvFloat: [-0.452 -0.352 -0.252 -0.152 ]
+  dpvFloat: [0.480 0.481 0.482 0.483 ]
+ anInt1 807 aFloat: 1600.6 pInt: 4007 pFloat: 6.08 anInt2: 2407 dInt1: 3207 dVar1: 3607 dpInt1: 407 cEL: cvec[3]
+  pvInt: [360 361 362 363 364 365 ]
+  pvFloat: [-0.432 -0.332 -0.232 -0.132 -0.032 0.068 ]
+  dpvFloat: [0.680 0.681 0.682 0.683 0.684 0.685 ]
+ anInt1 809 aFloat: 1600.8 pInt: 4009 pFloat: 8.08 anInt2: 2409 dInt1: 3209 dVar1: 3609 dpInt1: 409 cEL: cvec[1]
+  pvInt: [380 381 382 383 384 385 386 387 ]
+  pvFloat: [-0.412 -0.312 -0.212 -0.112 -0.012 0.088 0.188 0.288 ]
+  dpvFloat: [0.880 0.881 0.882 0.883 0.884 0.885 0.886 0.887 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 901 aFloat: 1800 pInt: 4501 pFloat: 0.09 anInt2: 2701 dInt1: 3601 dVar1: 4051 dpInt1: 451 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 903 aFloat: 1800.2 pInt: 4503 pFloat: 2.09 anInt2: 2703 dInt1: 3603 dVar1: 4053 dpInt1: 453 cEL: cvec[7]
+  pvInt: [420 421 ]
+  pvFloat: [-0.471 -0.371 ]
+  dpvFloat: [0.290 0.291 ]
+ anInt1 905 aFloat: 1800.4 pInt: 4505 pFloat: 4.09 anInt2: 2705 dInt1: 3605 dVar1: 4055 dpInt1: 455 cEL: cvec[5]
+  pvInt: [440 441 442 443 ]
+  pvFloat: [-0.451 -0.351 -0.251 -0.151 ]
+  dpvFloat: [0.490 0.491 0.492 0.493 ]
+ anInt1 907 aFloat: 1800.6 pInt: 4507 pFloat: 6.09 anInt2: 2707 dInt1: 3607 dVar1: 4057 dpInt1: 457 cEL: cvec[3]
+  pvInt: [460 461 462 463 464 465 ]
+  pvFloat: [-0.431 -0.331 -0.231 -0.131 -0.031 0.069 ]
+  dpvFloat: [0.690 0.691 0.692 0.693 0.694 0.695 ]
+ anInt1 909 aFloat: 1800.8 pInt: 4509 pFloat: 8.09 anInt2: 2709 dInt1: 3609 dVar1: 4059 dpInt1: 459 cEL: cvec[1]
+  pvInt: [480 481 482 483 484 485 486 487 ]
+  pvFloat: [-0.411 -0.311 -0.211 -0.111 -0.011 0.089 0.189 0.289 ]
+  dpvFloat: [0.890 0.891 0.892 0.893 0.894 0.895 0.896 0.897 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1001 aFloat: 2000 pInt: 5001 pFloat: 0.10 anInt2: 3001 dInt1: 4001 dVar1: 4501 dpInt1: 501 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1003 aFloat: 2000.2 pInt: 5003 pFloat: 2.10 anInt2: 3003 dInt1: 4003 dVar1: 4503 dpInt1: 503 cEL: cvec[7]
+  pvInt: [520 521 ]
+  pvFloat: [-0.470 -0.370 ]
+  dpvFloat: [0.300 0.301 ]
+ anInt1 1005 aFloat: 2000.4 pInt: 5005 pFloat: 4.10 anInt2: 3005 dInt1: 4005 dVar1: 4505 dpInt1: 505 cEL: cvec[5]
+  pvInt: [540 541 542 543 ]
+  pvFloat: [-0.450 -0.350 -0.250 -0.150 ]
+  dpvFloat: [0.500 0.501 0.502 0.503 ]
+ anInt1 1007 aFloat: 2000.6 pInt: 5007 pFloat: 6.10 anInt2: 3007 dInt1: 4007 dVar1: 4507 dpInt1: 507 cEL: cvec[3]
+  pvInt: [560 561 562 563 564 565 ]
+  pvFloat: [-0.430 -0.330 -0.230 -0.130 -0.030 0.070 ]
+  dpvFloat: [0.700 0.701 0.702 0.703 0.704 0.705 ]
+ anInt1 1009 aFloat: 2000.8 pInt: 5009 pFloat: 8.10 anInt2: 3009 dInt1: 4009 dVar1: 4509 dpInt1: 509 cEL: cvec[1]
+  pvInt: [580 581 582 583 584 585 586 587 ]
+  pvFloat: [-0.410 -0.310 -0.210 -0.110 -0.010 0.090 0.190 0.290 ]
+  dpvFloat: [0.900 0.901 0.902 0.903 0.904 0.905 0.906 0.907 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1101 aFloat: 2200 pInt: 5501 pFloat: 0.11 anInt2: 3301 dInt1: 4401 dVar1: 4951 dpInt1: 551 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1103 aFloat: 2200.2 pInt: 5503 pFloat: 2.11 anInt2: 3303 dInt1: 4403 dVar1: 4953 dpInt1: 553 cEL: cvec[7]
+  pvInt: [620 621 ]
+  pvFloat: [-0.469 -0.369 ]
+  dpvFloat: [0.310 0.311 ]
+ anInt1 1105 aFloat: 2200.4 pInt: 5505 pFloat: 4.11 anInt2: 3305 dInt1: 4405 dVar1: 4955 dpInt1: 555 cEL: cvec[5]
+  pvInt: [640 641 642 643 ]
+  pvFloat: [-0.449 -0.349 -0.249 -0.149 ]
+  dpvFloat: [0.510 0.511 0.512 0.513 ]
+ anInt1 1107 aFloat: 2200.6 pInt: 5507 pFloat: 6.11 anInt2: 3307 dInt1: 4407 dVar1: 4957 dpInt1: 557 cEL: cvec[3]
+  pvInt: [660 661 662 663 664 665 ]
+  pvFloat: [-0.429 -0.329 -0.229 -0.129 -0.029 0.071 ]
+  dpvFloat: [0.710 0.711 0.712 0.713 0.714 0.715 ]
+ anInt1 1109 aFloat: 2200.8 pInt: 5509 pFloat: 8.11 anInt2: 3309 dInt1: 4409 dVar1: 4959 dpInt1: 559 cEL: cvec[1]
+  pvInt: [680 681 682 683 684 685 686 687 ]
+  pvFloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 ]
+  dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1201 aFloat: 2400 pInt: 6001 pFloat: 0.12 anInt2: 3601 dInt1: 4801 dVar1: 5401 dpInt1: 601 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1203 aFloat: 2400.2 pInt: 6003 pFloat: 2.12 anInt2: 3603 dInt1: 4803 dVar1: 5403 dpInt1: 603 cEL: cvec[7]
+  pvInt: [720 721 ]
+  pvFloat: [-0.468 -0.368 ]
+  dpvFloat: [0.320 0.321 ]
+ anInt1 1205 aFloat: 2400.4 pInt: 6005 pFloat: 4.12 anInt2: 3605 dInt1: 4805 dVar1: 5405 dpInt1: 605 cEL: cvec[5]
+  pvInt: [740 741 742 743 ]
+  pvFloat: [-0.448 -0.348 -0.248 -0.148 ]
+  dpvFloat: [0.520 0.521 0.522 0.523 ]
+ anInt1 1207 aFloat: 2400.6 pInt: 6007 pFloat: 6.12 anInt2: 3607 dInt1: 4807 dVar1: 5407 dpInt1: 607 cEL: cvec[3]
+  pvInt: [760 761 762 763 764 765 ]
+  pvFloat: [-0.428 -0.328 -0.228 -0.128 -0.028 0.072 ]
+  dpvFloat: [0.720 0.721 0.722 0.723 0.724 0.725 ]
+ anInt1 1209 aFloat: 2400.8 pInt: 6009 pFloat: 8.12 anInt2: 3609 dInt1: 4809 dVar1: 5409 dpInt1: 609 cEL: cvec[1]
+  pvInt: [780 781 782 783 784 785 786 787 ]
+  pvFloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 ]
+  dpvFloat: [0.920 0.921 0.922 0.923 0.924 0.925 0.926 0.927 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1301 aFloat: 2600 pInt: 6501 pFloat: 0.13 anInt2: 3901 dInt1: 5201 dVar1: 5851 dpInt1: 651 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1303 aFloat: 2600.2 pInt: 6503 pFloat: 2.13 anInt2: 3903 dInt1: 5203 dVar1: 5853 dpInt1: 653 cEL: cvec[7]
+  pvInt: [820 821 ]
+  pvFloat: [-0.467 -0.367 ]
+  dpvFloat: [0.330 0.331 ]
+ anInt1 1305 aFloat: 2600.4 pInt: 6505 pFloat: 4.13 anInt2: 3905 dInt1: 5205 dVar1: 5855 dpInt1: 655 cEL: cvec[5]
+  pvInt: [840 841 842 843 ]
+  pvFloat: [-0.447 -0.347 -0.247 -0.147 ]
+  dpvFloat: [0.530 0.531 0.532 0.533 ]
+ anInt1 1307 aFloat: 2600.6 pInt: 6507 pFloat: 6.13 anInt2: 3907 dInt1: 5207 dVar1: 5857 dpInt1: 657 cEL: cvec[3]
+  pvInt: [860 861 862 863 864 865 ]
+  pvFloat: [-0.427 -0.327 -0.227 -0.127 -0.027 0.073 ]
+  dpvFloat: [0.730 0.731 0.732 0.733 0.734 0.735 ]
+ anInt1 1309 aFloat: 2600.8 pInt: 6509 pFloat: 8.13 anInt2: 3909 dInt1: 5209 dVar1: 5859 dpInt1: 659 cEL: cvec[1]
+  pvInt: [880 881 882 883 884 885 886 887 ]
+  pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 ]
+  dpvFloat: [0.930 0.931 0.932 0.933 0.934 0.935 0.936 0.937 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1401 aFloat: 2800 pInt: 7001 pFloat: 0.14 anInt2: 4201 dInt1: 5601 dVar1: 6301 dpInt1: 701 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1403 aFloat: 2800.2 pInt: 7003 pFloat: 2.14 anInt2: 4203 dInt1: 5603 dVar1: 6303 dpInt1: 703 cEL: cvec[7]
+  pvInt: [920 921 ]
+  pvFloat: [-0.466 -0.366 ]
+  dpvFloat: [0.340 0.341 ]
+ anInt1 1405 aFloat: 2800.4 pInt: 7005 pFloat: 4.14 anInt2: 4205 dInt1: 5605 dVar1: 6305 dpInt1: 705 cEL: cvec[5]
+  pvInt: [940 941 942 943 ]
+  pvFloat: [-0.446 -0.346 -0.246 -0.146 ]
+  dpvFloat: [0.540 0.541 0.542 0.543 ]
+ anInt1 1407 aFloat: 2800.6 pInt: 7007 pFloat: 6.14 anInt2: 4207 dInt1: 5607 dVar1: 6307 dpInt1: 707 cEL: cvec[3]
+  pvInt: [960 961 962 963 964 965 ]
+  pvFloat: [-0.426 -0.326 -0.226 -0.126 -0.026 0.074 ]
+  dpvFloat: [0.740 0.741 0.742 0.743 0.744 0.745 ]
+ anInt1 1409 aFloat: 2800.8 pInt: 7009 pFloat: 8.14 anInt2: 4209 dInt1: 5609 dVar1: 6309 dpInt1: 709 cEL: cvec[1]
+  pvInt: [980 981 982 983 984 985 986 987 ]
+  pvFloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 ]
+  dpvFloat: [0.940 0.941 0.942 0.943 0.944 0.945 0.946 0.947 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1501 aFloat: 3000 pInt: 7501 pFloat: 0.15 anInt2: 4501 dInt1: 6001 dVar1: 6751 dpInt1: 751 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1503 aFloat: 3000.2 pInt: 7503 pFloat: 2.15 anInt2: 4503 dInt1: 6003 dVar1: 6753 dpInt1: 753 cEL: cvec[7]
+  pvInt: [1020 1021 ]
+  pvFloat: [-0.465 -0.365 ]
+  dpvFloat: [0.350 0.351 ]
+ anInt1 1505 aFloat: 3000.4 pInt: 7505 pFloat: 4.15 anInt2: 4505 dInt1: 6005 dVar1: 6755 dpInt1: 755 cEL: cvec[5]
+  pvInt: [1040 1041 1042 1043 ]
+  pvFloat: [-0.445 -0.345 -0.245 -0.145 ]
+  dpvFloat: [0.550 0.551 0.552 0.553 ]
+ anInt1 1507 aFloat: 3000.6 pInt: 7507 pFloat: 6.15 anInt2: 4507 dInt1: 6007 dVar1: 6757 dpInt1: 757 cEL: cvec[3]
+  pvInt: [1060 1061 1062 1063 1064 1065 ]
+  pvFloat: [-0.425 -0.325 -0.225 -0.125 -0.025 0.075 ]
+  dpvFloat: [0.750 0.751 0.752 0.753 0.754 0.755 ]
+ anInt1 1509 aFloat: 3000.8 pInt: 7509 pFloat: 8.15 anInt2: 4509 dInt1: 6009 dVar1: 6759 dpInt1: 759 cEL: cvec[1]
+  pvInt: [1080 1081 1082 1083 1084 1085 1086 1087 ]
+  pvFloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 ]
+  dpvFloat: [0.950 0.951 0.952 0.953 0.954 0.955 0.956 0.957 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1601 aFloat: 3200 pInt: 8001 pFloat: 0.16 anInt2: 4801 dInt1: 6401 dVar1: 7201 dpInt1: 801 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1603 aFloat: 3200.2 pInt: 8003 pFloat: 2.16 anInt2: 4803 dInt1: 6403 dVar1: 7203 dpInt1: 803 cEL: cvec[7]
+  pvInt: [1120 1121 ]
+  pvFloat: [-0.464 -0.364 ]
+  dpvFloat: [0.360 0.361 ]
+ anInt1 1605 aFloat: 3200.4 pInt: 8005 pFloat: 4.16 anInt2: 4805 dInt1: 6405 dVar1: 7205 dpInt1: 805 cEL: cvec[5]
+  pvInt: [1140 1141 1142 1143 ]
+  pvFloat: [-0.444 -0.344 -0.244 -0.144 ]
+  dpvFloat: [0.560 0.561 0.562 0.563 ]
+ anInt1 1607 aFloat: 3200.6 pInt: 8007 pFloat: 6.16 anInt2: 4807 dInt1: 6407 dVar1: 7207 dpInt1: 807 cEL: cvec[3]
+  pvInt: [1160 1161 1162 1163 1164 1165 ]
+  pvFloat: [-0.424 -0.324 -0.224 -0.124 -0.024 0.076 ]
+  dpvFloat: [0.760 0.761 0.762 0.763 0.764 0.765 ]
+ anInt1 1609 aFloat: 3200.8 pInt: 8009 pFloat: 8.16 anInt2: 4809 dInt1: 6409 dVar1: 7209 dpInt1: 809 cEL: cvec[1]
+  pvInt: [1180 1181 1182 1183 1184 1185 1186 1187 ]
+  pvFloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 ]
+  dpvFloat: [0.960 0.961 0.962 0.963 0.964 0.965 0.966 0.967 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1701 aFloat: 3400 pInt: 8501 pFloat: 0.17 anInt2: 5101 dInt1: 6801 dVar1: 7651 dpInt1: 851 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1703 aFloat: 3400.2 pInt: 8503 pFloat: 2.17 anInt2: 5103 dInt1: 6803 dVar1: 7653 dpInt1: 853 cEL: cvec[7]
+  pvInt: [1220 1221 ]
+  pvFloat: [-0.463 -0.363 ]
+  dpvFloat: [0.370 0.371 ]
+ anInt1 1705 aFloat: 3400.4 pInt: 8505 pFloat: 4.17 anInt2: 5105 dInt1: 6805 dVar1: 7655 dpInt1: 855 cEL: cvec[5]
+  pvInt: [1240 1241 1242 1243 ]
+  pvFloat: [-0.443 -0.343 -0.243 -0.143 ]
+  dpvFloat: [0.570 0.571 0.572 0.573 ]
+ anInt1 1707 aFloat: 3400.6 pInt: 8507 pFloat: 6.17 anInt2: 5107 dInt1: 6807 dVar1: 7657 dpInt1: 857 cEL: cvec[3]
+  pvInt: [1260 1261 1262 1263 1264 1265 ]
+  pvFloat: [-0.423 -0.323 -0.223 -0.123 -0.023 0.077 ]
+  dpvFloat: [0.770 0.771 0.772 0.773 0.774 0.775 ]
+ anInt1 1709 aFloat: 3400.8 pInt: 8509 pFloat: 8.17 anInt2: 5109 dInt1: 6809 dVar1: 7659 dpInt1: 859 cEL: cvec[1]
+  pvInt: [1280 1281 1282 1283 1284 1285 1286 1287 ]
+  pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 ]
+  dpvFloat: [0.970 0.971 0.972 0.973 0.974 0.975 0.976 0.977 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1801 aFloat: 3600 pInt: 9001 pFloat: 0.18 anInt2: 5401 dInt1: 7201 dVar1: 8101 dpInt1: 901 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1803 aFloat: 3600.2 pInt: 9003 pFloat: 2.18 anInt2: 5403 dInt1: 7203 dVar1: 8103 dpInt1: 903 cEL: cvec[7]
+  pvInt: [1320 1321 ]
+  pvFloat: [-0.462 -0.362 ]
+  dpvFloat: [0.380 0.381 ]
+ anInt1 1805 aFloat: 3600.4 pInt: 9005 pFloat: 4.18 anInt2: 5405 dInt1: 7205 dVar1: 8105 dpInt1: 905 cEL: cvec[5]
+  pvInt: [1340 1341 1342 1343 ]
+  pvFloat: [-0.442 -0.342 -0.242 -0.142 ]
+  dpvFloat: [0.580 0.581 0.582 0.583 ]
+ anInt1 1807 aFloat: 3600.6 pInt: 9007 pFloat: 6.18 anInt2: 5407 dInt1: 7207 dVar1: 8107 dpInt1: 907 cEL: cvec[3]
+  pvInt: [1360 1361 1362 1363 1364 1365 ]
+  pvFloat: [-0.422 -0.322 -0.222 -0.122 -0.022 0.078 ]
+  dpvFloat: [0.780 0.781 0.782 0.783 0.784 0.785 ]
+ anInt1 1809 aFloat: 3600.8 pInt: 9009 pFloat: 8.18 anInt2: 5409 dInt1: 7209 dVar1: 8109 dpInt1: 909 cEL: cvec[1]
+  pvInt: [1380 1381 1382 1383 1384 1385 1386 1387 ]
+  pvFloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 ]
+  dpvFloat: [0.980 0.981 0.982 0.983 0.984 0.985 0.986 0.987 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 1901 aFloat: 3800 pInt: 9501 pFloat: 0.19 anInt2: 5701 dInt1: 7601 dVar1: 8551 dpInt1: 951 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 1903 aFloat: 3800.2 pInt: 9503 pFloat: 2.19 anInt2: 5703 dInt1: 7603 dVar1: 8553 dpInt1: 953 cEL: cvec[7]
+  pvInt: [1420 1421 ]
+  pvFloat: [-0.461 -0.361 ]
+  dpvFloat: [0.390 0.391 ]
+ anInt1 1905 aFloat: 3800.4 pInt: 9505 pFloat: 4.19 anInt2: 5705 dInt1: 7605 dVar1: 8555 dpInt1: 955 cEL: cvec[5]
+  pvInt: [1440 1441 1442 1443 ]
+  pvFloat: [-0.441 -0.341 -0.241 -0.141 ]
+  dpvFloat: [0.590 0.591 0.592 0.593 ]
+ anInt1 1907 aFloat: 3800.6 pInt: 9507 pFloat: 6.19 anInt2: 5707 dInt1: 7607 dVar1: 8557 dpInt1: 957 cEL: cvec[3]
+  pvInt: [1460 1461 1462 1463 1464 1465 ]
+  pvFloat: [-0.421 -0.321 -0.221 -0.121 -0.021 0.079 ]
+  dpvFloat: [0.790 0.791 0.792 0.793 0.794 0.795 ]
+ anInt1 1909 aFloat: 3800.8 pInt: 9509 pFloat: 8.19 anInt2: 5709 dInt1: 7609 dVar1: 8559 dpInt1: 959 cEL: cvec[1]
+  pvInt: [1480 1481 1482 1483 1484 1485 1486 1487 ]
+  pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 ]
+  dpvFloat: [0.990 0.991 0.992 0.993 0.994 0.995 0.996 0.997 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
+cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
+Type of aux store: xAOD::AuxContainerBase
+ anInt1 2001 aFloat: 4000 pInt: 10001 pFloat: 0.20 anInt2: 6001 dInt1: 8001 dVar1: 9001 dpInt1: 1001 cEL: cvec[9]
+  pvInt: []
+  pvFloat: []
+  dpvFloat: []
+ anInt1 2003 aFloat: 4000.2 pInt: 10003 pFloat: 2.20 anInt2: 6003 dInt1: 8003 dVar1: 9003 dpInt1: 1003 cEL: cvec[7]
+  pvInt: [1520 1521 ]
+  pvFloat: [-0.460 -0.360 ]
+  dpvFloat: [0.400 0.401 ]
+ anInt1 2005 aFloat: 4000.4 pInt: 10005 pFloat: 4.20 anInt2: 6005 dInt1: 8005 dVar1: 9005 dpInt1: 1005 cEL: cvec[5]
+  pvInt: [1540 1541 1542 1543 ]
+  pvFloat: [-0.440 -0.340 -0.240 -0.140 ]
+  dpvFloat: [0.600 0.601 0.602 0.603 ]
+ anInt1 2007 aFloat: 4000.6 pInt: 10007 pFloat: 6.20 anInt2: 6007 dInt1: 8007 dVar1: 9007 dpInt1: 1007 cEL: cvec[3]
+  pvInt: [1560 1561 1562 1563 1564 1565 ]
+  pvFloat: [-0.420 -0.320 -0.220 -0.120 -0.020 0.080 ]
+  dpvFloat: [0.800 0.801 0.802 0.803 0.804 0.805 ]
+ anInt1 2009 aFloat: 4000.8 pInt: 10009 pFloat: 8.20 anInt2: 6009 dInt1: 8009 dVar1: 9009 dpInt1: 1009 cEL: cvec[1]
+  pvInt: [1580 1581 1582 1583 1584 1585 1586 1587 ]
+  pvFloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 ]
+  dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
+xaoddata_filt.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 7D2A391C-F6B1-AA4E-A3F4-5E514CADBAF8
+ApplicationMgr       INFO Application Manager Stopped successfully
+AthAlgSeq            INFO Finalizing AthAlgSeq...
+AthOutSeq            INFO Finalizing AthOutSeq...
+AthRegSeq            INFO Finalizing AthRegSeq...
+AthMasterSeq         INFO Finalizing AthMasterSeq...
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+PoolSvc              INFO I/O finalization...
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"
+CORAL/Services/ConnectionService Info Deleting the ConnectionPool

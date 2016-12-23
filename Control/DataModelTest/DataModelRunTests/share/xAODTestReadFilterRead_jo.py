@@ -1,11 +1,10 @@
 #
 # $Id$
 #
-# File: share/xAODTestRead2b_jo.py
+# File: DataModelRunTests/share/xAODTestReadRemap_jo.py
 # Author: snyder@bnl.gov
-# Date: May 2014
-# Purpose: Test reading objects with xAOD data.
-#          Read output of xAODTestRead_jo.py.
+# Date: Aug 2016
+# Purpose: Test reading xAOD objects data with remapping on input.
 #
 
 ## basic job configuration (for generator)
@@ -24,13 +23,12 @@ from AthenaCommon.AppMgr import theApp
 #--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------
-import AthenaPoolCnvSvc.WriteAthenaPool
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 #--------------------------------------------------------------
 # Define input
 #--------------------------------------------------------------
-svcMgr.EventSelector.InputCollections        = [ "xaoddata2b.root" ]
+svcMgr.EventSelector.InputCollections        = [ "xaoddata_filt.root" ]
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -42,22 +40,11 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 
 from DataModelTestDataRead.DataModelTestDataReadConf import \
-     DMTest__xAODTestReadCVec, \
-     DMTest__xAODTestReadCView, \
-     DMTest__xAODTestReadHVec, \
-     DMTest__xAODTestRead
+     DMTest__xAODTestReadCVec
 
-topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec")
-topSequence += DMTest__xAODTestRead ("xAODTestRead")
-topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView')
-topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec")
-topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_scopy",
-                                         CVecKey = 'scopy_cvec')
-topSequence += DMTest__xAODTestRead ("xAODTestRead_scopy",
-                                     ReadPrefix = 'scopy_')
-topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_scopy",
-                                         HVecKey = "scopy_hvec",
-                                         HViewKey = "")
+
+topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec')
+
 
 # Note: can't autoload these.
 import ROOT
@@ -83,7 +70,3 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 
 #svcMgr.ExceptionSvc.Catch = "None"
 
-# Explicitly specify the output file catalog
-# to avoid races when running tests in parallel.
-PoolSvc = Service( "PoolSvc" )
-PoolSvc.WriteCatalog = "file:xAODTestRead2b_catalog.xml"
