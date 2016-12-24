@@ -36,7 +36,7 @@ static std::string levelNames[MSG::NUM_LEVELS];
 
 using namespace std;
 
-char* AthenaSummarySvc::s_block = 0;
+char* AthenaSummarySvc::s_block = nullptr;
 bool  AthenaSummarySvc::s_badalloc = false;
 const char* II("\001");
 
@@ -137,8 +137,8 @@ inline void tolower(std::string &s)
 
 AthenaSummarySvc::AthenaSummarySvc( const std::string& name, ISvcLocator* svc )
   : AthService( name, svc ), m_log(msgSvc(), name), p_incSvc("IncidentSvc",name),
-    p_logMsg(0),
-    m_new(0),m_status(0),m_eventsRead(0),m_eventsWritten(0),
+    p_logMsg(nullptr),
+    m_new(nullptr),m_status(0),m_eventsRead(0),m_eventsWritten(0),
     m_eventsSkipped(0),m_runs(0)
 
 {
@@ -175,9 +175,9 @@ StatusCode AthenaSummarySvc::initialize() {
   m_log.setLevel( m_outputLevel.value() );
 
   m_log << MSG::DEBUG << "Initializing AthenaSummarySvc version " 
-	<< PACKAGE_VERSION << endreq;
+	<< PACKAGE_VERSION << endmsg;
 
-  m_log << MSG::DEBUG << "Service initialized" << endreq;
+  m_log << MSG::DEBUG << "Service initialized" << endmsg;
 
   int pri=100;
   p_incSvc->addListener( this, "BeginInputFile", pri, true);
@@ -207,7 +207,7 @@ StatusCode AthenaSummarySvc::initialize() {
 
   vector<string>::const_iterator itr;
   for (itr=m_extraInc.value().begin(); itr != m_extraInc.value().end(); ++itr) {
-    m_log << MSG::DEBUG << "Tracking incident \"" << *itr << "\"" << endreq;
+    m_log << MSG::DEBUG << "Tracking incident \"" << *itr << "\"" << endmsg;
     addListener(*itr);
   }
 
@@ -216,26 +216,26 @@ StatusCode AthenaSummarySvc::initialize() {
   #else
   p_logMsg = dynamic_cast< ILoggedMessageSvc* > ( msgSvc() );
   #endif
-  if (p_logMsg == 0) {
+  if (p_logMsg == nullptr) {
     m_log << MSG::INFO << "unable dcast IMessageSvc to ILoggedMessageSvc: "
 	  << "not scanning for keywords in logs, or printing logged messages"
-	  << endreq;
+	  << endmsg;
   } else {
 
     if (m_keywords.value().size() > 0) {
       IProperty *ip = dynamic_cast<IProperty*>( p_logMsg );
-      if (ip != 0) {
+      if (ip != nullptr) {
 	if (ip->setProperty(m_keywords).isFailure()) {
 	  m_log << MSG::ERROR
 		<< "could not set keywords property of LoggedMessageSvc" 
-		<< endreq;
+		<< endmsg;
 	} else {
 	  m_log << MSG::INFO << "Scanning log for keyword \"" << m_keywords 
-		<< "\". CAVEAT EMPTOR - THIS IS VERY SLOW!!" << endreq;
+		<< "\". CAVEAT EMPTOR - THIS IS VERY SLOW!!" << endmsg;
 	}
       } else {
 	m_log << MSG::ERROR << "could not dcast LoggedMessageSvc to IProperty" 
-	      << endreq;
+	      << endmsg;
       }
     }
 
@@ -246,7 +246,7 @@ StatusCode AthenaSummarySvc::initialize() {
   m_summaryFormat = fmt;
 
   // save some space for the summary output if we run out of memory
-  m_log << MSG::DEBUG << "allocating block of 100 pages" << endreq;
+  m_log << MSG::DEBUG << "allocating block of 100 pages" << endmsg;
   s_block = new char[ sysconf( _SC_PAGESIZE ) * 100 ];
 
 
@@ -258,7 +258,7 @@ StatusCode AthenaSummarySvc::initialize() {
 
 StatusCode AthenaSummarySvc::reinitialize() {
 
-  delete[] s_block; s_block = 0;
+  delete[] s_block; s_block = nullptr;
   s_block = new char[ sysconf( _SC_PAGESIZE ) * 100 ];
   return s_block ? StatusCode::SUCCESS : StatusCode::FAILURE;
 
@@ -271,14 +271,14 @@ StatusCode AthenaSummarySvc::finalize() {
   StatusCode status = createSummary();
 
   // cleanup
-  delete[] s_block; s_block = 0;
+  delete[] s_block; s_block = nullptr;
   std::set_new_handler( m_new );
 
 
   status = AthService::finalize();
 
   if ( status.isSuccess() )
-    m_log << MSG::DEBUG << "Service finalised successfully" << endreq;
+    m_log << MSG::DEBUG << "Service finalised successfully" << endmsg;
 
   return status;
 
@@ -306,13 +306,13 @@ AthenaSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 void
 AthenaSummarySvc::addListener( const std::string& inc ) {
 
-  m_log << MSG::DEBUG << "now listening to incident " << inc << endreq;
+  m_log << MSG::DEBUG << "now listening to incident " << inc << endmsg;
 
   if (m_extraIncidents.find( inc ) == m_extraIncidents.end()) {
     p_incSvc->addListener( this, inc, 100, true);
     m_extraIncidents[inc] = map<string,int>();
   } else {
-    m_log << MSG::INFO << "already listening to Incident " << inc << endreq;
+    m_log << MSG::INFO << "already listening to Incident " << inc << endmsg;
   }
 
 }
@@ -322,7 +322,7 @@ AthenaSummarySvc::addListener( const std::string& inc ) {
 void 
 AthenaSummarySvc::addSummary(const std::string& dict, const std::string& info) {
 
-  m_log << MSG::DEBUG << "adding extra info: " << dict << "/" << info << endreq;
+  m_log << MSG::DEBUG << "adding extra info: " << dict << "/" << info << endmsg;
 
   m_extraInfo.push_back( make_pair(dict,info) );
 
@@ -340,16 +340,16 @@ AthenaSummarySvc::newHandler() {
     throw std::bad_alloc();   // default behavior (no print-out)
 
   // release our block to create working space for finalize()
-  delete[] s_block; s_block = 0;
+  delete[] s_block; s_block = nullptr;
   
   // print onto std::cerr rather than MsgStream, as it's more innocuous
   std::cerr << "AthenaSummarySvc     FATAL out of memory: saving summary ..."
             << std::endl;
 
-  IAthenaSummarySvc *ipa(0);
+  IAthenaSummarySvc *ipa(nullptr);
   Gaudi::svcLocator()->service("AthenaSummarySvc",ipa).ignore();
 
-  if (ipa != 0) {    
+  if (ipa != nullptr) {    
     std::string btrace;
     if ( System::backTrace(btrace,5,3) ) {
       ipa->addSummary("badalloc backtrace",btrace);
@@ -376,14 +376,14 @@ void
 AthenaSummarySvc::handle(const Incident &inc) {
 
   m_log << MSG::DEBUG << "handle incident: " << inc.type() << " " 
-	<< inc.source() << endreq;
+	<< inc.source() << endmsg;
 
   string fileName;
 
   const FileIncident *fi = dynamic_cast<const FileIncident*>( &inc );
-  if (fi != 0) {
+  if (fi != nullptr) {
     // FIXME!!! waiting on AthenaPoolKernel-00-00-07
-    m_log << MSG::INFO << " -> file incident: " << fi->fileName() << " [GUID: " << fi->fileGuid() << "]" << endreq;
+    m_log << MSG::INFO << " -> file incident: " << fi->fileName() << " [GUID: " << fi->fileGuid() << "]" << endmsg;
     fileName = fi->fileName();
   } else {
     fileName = inc.source();
@@ -432,17 +432,17 @@ AthenaSummarySvc::handle(const Incident &inc) {
 StatusCode
 AthenaSummarySvc::createSummary() {
 
-  m_log << MSG::DEBUG << " createSummary " << endreq;
+  m_log << MSG::DEBUG << " createSummary " << endmsg;
 
   std::ofstream ofs;
   ofs.open(m_summaryFile.value().c_str());
   if (!ofs) {
     m_log << MSG::ERROR << "Unable to open output file \"" << m_summaryFile.value() << "\""
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE;
   }
 
-  m_log << MSG::DEBUG << "Writing to \"" << m_summaryFile.value() << "\"" << endreq;
+  m_log << MSG::DEBUG << "Writing to \"" << m_summaryFile.value() << "\"" << endmsg;
 
   if (m_summaryFormat.value() == "ascii" || m_summaryFormat.value() == "both") {
     createASCII(ofs);
@@ -464,7 +464,7 @@ AthenaSummarySvc::createSummary() {
 void
 AthenaSummarySvc::createASCII( std::ofstream& ofs ) {
   
-  m_log << MSG::DEBUG << " createASCII" << endreq;
+  m_log << MSG::DEBUG << " createASCII" << endmsg;
 
   list<string>::const_iterator itr;
   
@@ -511,19 +511,19 @@ AthenaSummarySvc::createASCII( std::ofstream& ofs ) {
   ofs << " WARNING: " << msgSvc()->messageCount( MSG::WARNING ) << endl;
   ofs << " INFO:    " << msgSvc()->messageCount( MSG::INFO ) << endl;
 
-  if (p_logMsg != 0) {
+  if (p_logMsg != nullptr) {
 
     IntegerProperty thresh("loggingLevel",MSG::VERBOSE);
     IProperty *ip = dynamic_cast<IProperty*>( p_logMsg );
-    if (ip != 0) {
+    if (ip != nullptr) {
       if (ip->getProperty(&thresh).isFailure()) {
 	m_log << MSG::ERROR
 	      << "could not get loggingLevel property of LoggedMessageSvc" 
-	      << endreq;
+	      << endmsg;
       }
     } else {
       m_log << MSG::ERROR << "could not dcast LoggedMessageSvc to IProperty" 
-	    << endreq;
+	    << endmsg;
     }
       
 	
@@ -579,7 +579,7 @@ AthenaSummarySvc::createASCII( std::ofstream& ofs ) {
   if (service("PerfMonSvc",ipms,false).isFailure()) {
     m_log << MSG::DEBUG 
 	  << "unable to get the PerfMonSvc: not printing perf summaries" 
-	  << endreq;
+	  << endmsg;
   } else {
 
     ofs << "Monitored Components:" << endl;
@@ -608,7 +608,7 @@ AthenaSummarySvc::createASCII( std::ofstream& ofs ) {
 void
 AthenaSummarySvc::createDict( std::ofstream& ofd) {
 
-  m_log << MSG::DEBUG << " createDict" << endreq;
+  m_log << MSG::DEBUG << " createDict" << endmsg;
 
   list<string>::const_iterator itr;
 
@@ -677,19 +677,19 @@ AthenaSummarySvc::createDict( std::ofstream& ofd) {
 
   p.add("message count",msg);
 
-  if (p_logMsg != 0) {
+  if (p_logMsg != nullptr) {
 
     IntegerProperty thresh("loggingLevel",MSG::VERBOSE);
     IProperty *ip = dynamic_cast<IProperty*>( p_logMsg );
-    if (ip != 0) {
+    if (ip != nullptr) {
       if (ip->getProperty(&thresh).isFailure()) {
 	m_log << MSG::ERROR
 	      << "could not get loggingLevel property of LoggedMessageSvc" 
-	      << endreq;
+	      << endmsg;
       }
     } else {
       m_log << MSG::ERROR << "could not dcast LoggedMessageSvc to IProperty" 
-	    << endreq;
+	    << endmsg;
     }
     
     PD mlog;
@@ -751,7 +751,7 @@ AthenaSummarySvc::createDict( std::ofstream& ofd) {
   if (service("PerfMonSvc",ipms,false).isFailure()) {
     m_log << MSG::DEBUG 
 	  << "unable to get the PerfMonSvc: not printing perf summaries" 
-	  << endreq;
+	  << endmsg;
   } else {
 
     PD mon,ini,exe,fin;

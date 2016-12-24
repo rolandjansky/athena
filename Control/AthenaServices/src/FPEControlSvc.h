@@ -82,6 +82,9 @@ private:
   /// The FP environment before we initialize.
   fenv_t m_env;
 
+  /// Flag that we've retrieved the environment.
+  bool m_haveEnv;
+
   /// Mask of enabled exceptions.
   int m_enabled;
 

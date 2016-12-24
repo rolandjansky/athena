@@ -73,6 +73,10 @@ apply_pattern UnitTest_run unit_test=AthenaEventLoopMgr \
   extrapatterns="^JobOptionsSvc +INFO|^//GP:="
 macro_append AthenaEventLoopMgr_testlinkopts " -L../$(CMTCONFIG) -lAthenaServices"
 
+apply_pattern UnitTest_run unit_test=RCUSvc \
+  extrapatterns="^JobOptionsSvc +INFO|^//GP:="
+macro_append AthenaEventLoopMgr_testlinkopts " -L../$(CMTCONFIG) -lAthenaServices"
+
 apply_pattern athenarun_test name="TestStopRun" \
 pre_script="../cmt/setup.sh"	\
 options="AthenaServices/TestStopRun.py" \

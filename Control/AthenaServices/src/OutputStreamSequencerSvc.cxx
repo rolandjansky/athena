@@ -82,7 +82,7 @@ void OutputStreamSequencerSvc::handle(const Incident& inc) {
    m_fileSequenceNumber++;
    m_fileSequenceLabel.clear();
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-   if (fileInc != 0) {
+   if (fileInc != nullptr) {
       m_fileSequenceLabel = fileInc->fileName();
    }
 }

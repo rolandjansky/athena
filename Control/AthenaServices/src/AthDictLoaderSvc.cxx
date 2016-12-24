@@ -29,7 +29,7 @@
 AthDictLoaderSvc::AthDictLoaderSvc (const std::string& name, 
                                     ISvcLocator* pSvcLocator) : 
   ::AthService( name, pSvcLocator ),
-  m_dsodb (NULL),
+  m_dsodb (nullptr),
   m_doRecursiveLoad (true),
   m_clidSvc ("ClassIDSvc", name)
 {

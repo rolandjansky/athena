@@ -100,6 +100,8 @@ class ThinningSvc( _ThinningSvc ):
             for item in itemlist:
                 clid_or_name, sg_key = item.split('#')
                 clid_or_name = clid_or_name.strip()
+                if clid_or_name.endswith('!'): # Strip exact flag.
+                    clid_or_name = clid_or_name[:-1]
                 sg_key = sg_key.strip()
                 clid_or_name = _clid_from_string(clid_or_name)
                 if clid_or_name is None:

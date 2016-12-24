@@ -12,13 +12,13 @@
 
 
 //- data ------------------------------------------------------------------
-char* MemoryRescueSvc::s_block = 0;
+char* MemoryRescueSvc::s_block = nullptr;
 
 //=========================================================================
 // Standard Constructor
 //=========================================================================
 MemoryRescueSvc::MemoryRescueSvc( const std::string& name, ISvcLocator* svc )
-  : AthService( name, svc ), m_new( 0 )
+  : AthService( name, svc ), m_new( nullptr )
 {
   declareProperty("NumberOfPages", m_pages=12800); // 50MB on 32, 100MB on 64
   m_new = std::set_new_handler( &MemoryRescueSvc::newHandler );
@@ -29,7 +29,7 @@ MemoryRescueSvc::MemoryRescueSvc( const std::string& name, ISvcLocator* svc )
 //=========================================================================
 MemoryRescueSvc::~MemoryRescueSvc()
 {
-  delete[] s_block; s_block = 0;
+  delete[] s_block; s_block = nullptr;
   std::set_new_handler( m_new );
 }
 
@@ -38,7 +38,7 @@ MemoryRescueSvc::~MemoryRescueSvc()
 //=========================================================================
 StatusCode MemoryRescueSvc::reinitialize()
 {
-  delete[] s_block; s_block = 0;
+  delete[] s_block; s_block = nullptr;
 
   if ( 0 < (int)m_pages ) {
     ATH_MSG_DEBUG ("allocating block of " << (int)m_pages << " pages");
@@ -72,7 +72,7 @@ StatusCode MemoryRescueSvc::initialize()
 //=========================================================================
 StatusCode MemoryRescueSvc::finalize()
 {
-  delete[] s_block; s_block = 0;
+  delete[] s_block; s_block = nullptr;
 
   return Service::finalize();
 }
@@ -86,7 +86,7 @@ void MemoryRescueSvc::newHandler()
     throw std::bad_alloc();   // default behavior (no print-out)
 
 // release our block to create working space for finalize()
-  delete[] s_block; s_block = 0;
+  delete[] s_block; s_block = nullptr;
 
 // print onto std::cerr rather than MsgStream, as it's more innocuous
   std::cerr << "MemoryRescueSvc     FATAL out of memory: taking the application down ..."

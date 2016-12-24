@@ -53,7 +53,7 @@ void AthenaServices::SetFatalHandler( int flags ) {
     Athena::Signal::handle( SIGINT, ExitOnInt );
   }
   else {
-    Athena::Signal::handleFatal(0, IOFD_INVALID, 0, 0, flags );
+    Athena::Signal::handleFatal(nullptr, IOFD_INVALID, nullptr, nullptr, flags );
     Athena::Signal::handle( SIGINT, ExitOnInt );
   }
 

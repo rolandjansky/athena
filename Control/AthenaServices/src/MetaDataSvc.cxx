@@ -106,7 +106,7 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
    } else {
       const std::vector<const Property*>* evtselProps = joSvc->getProperties("EventSelector");
-      if (evtselProps != 0) {
+      if (evtselProps != nullptr) {
          for (std::vector<const Property*>::const_iterator iter = evtselProps->begin(),
                          last = evtselProps->end(); iter != last; iter++) {
             if ((*iter)->name() == "InputCollections") {
@@ -148,13 +148,13 @@ StatusCode MetaDataSvc::stop() {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
    } else {
       const std::vector<const Property*>* evtselProps = joSvc->getProperties("EventSelector");
-      if (evtselProps != 0) {
+      if (evtselProps != nullptr) {
          for (std::vector<const Property*>::const_iterator iter = evtselProps->begin(),
                          last = evtselProps->end(); iter != last; iter++) {
             if ((*iter)->name() == "InputCollections") {
                // Get EventSelector to fire End...File incidents.
                ServiceHandle<IEvtSelector> evtsel("EventSelector", this->name());
-               IEvtSelector::Context* ctxt(0);
+               IEvtSelector::Context* ctxt(nullptr);
                if (!evtsel->releaseContext(ctxt).isSuccess()) {
                   ATH_MSG_WARNING("Cannot release context on EventSelector.");
                }
@@ -207,36 +207,19 @@ StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::t
       for (std::list<SG::ObjectWithVersion<DataHeader> >::const_iterator iter = allVersions.begin(),
 	      last = allVersions.end(); iter != last; iter++, verNumber++) {
          const DataHeader* dataHeader = iter->dataObject;
-         if (dataHeader == 0) {
+         if (dataHeader == nullptr) {
             ATH_MSG_ERROR("Could not get DataHeader, will not read Metadata");
             return(StatusCode::FAILURE);
          }
          for (std::vector<DataHeaderElement>::const_iterator dhIter = dataHeader->begin(),
 		         dhLast = dataHeader->end(); dhIter != dhLast; dhIter++) {
             const CLID clid = dhIter->getPrimaryClassID();
-            SG::VersionedKey myVersObjKey(dhIter->getKey(), verNumber);
-            IOpaqueAddress* opqAddr = 0;
-            if (dhIter->getToken() == 0
-	            || !m_addrCrtr->createAddress(m_storageType, clid, dhIter->getToken()->toString(), opqAddr).isSuccess()) {
-               ATH_MSG_ERROR("Could not create IOpaqueAddress, will not read Metadata object");
-               continue;
-            }
-            SG::TransientAddress* tadd = 0;
-            if (verNumber == 0 && clid != ClassID_traits<DataHeader>::ID()) {
-               tadd = new SG::TransientAddress(clid, dhIter->getKey(), opqAddr);
-            } else {
-               tadd = new SG::TransientAddress(clid, myVersObjKey, opqAddr);
-            }
-            if (tadd->clID() == ClassID_traits<DataHeader>::ID()) {
-               delete tadd; tadd = 0;
-            } else {
-               std::set<unsigned int> clids = dhIter->getClassIDs();
-               for (std::set<unsigned int>::const_iterator iter = clids.begin(), last = clids.end();
-		               iter != last; iter++) {
-                  tadd->setTransientID(*iter);
-               }
-               tadd->setAlias(dhIter->getAlias());
-               tads.push_back(tadd);
+            if (clid != ClassID_traits<DataHeader>::ID()) {
+              SG::VersionedKey myVersObjKey(dhIter->getKey(), verNumber);
+              std::string key = dhIter->getKey();
+              if (verNumber != 0)
+                key = myVersObjKey;
+              tads.push_back(dhIter->getAddress (key));
             }
          }
       }
@@ -250,7 +233,7 @@ StatusCode MetaDataSvc::updateAddress(StoreID::type, SG::TransientAddress*) {
 //__________________________________________________________________________
 void MetaDataSvc::handle(const Incident& inc) {
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-   if (fileInc == 0) {
+   if (fileInc == nullptr) {
       ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
       return;
    }
@@ -364,14 +347,14 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
             ATH_MSG_DEBUG("initInputMetaDataStore: MetaData Store already contains DataHeader, key = " << myVersKey);
          } else {
             const unsigned long ipar[2] = { (unsigned long)verNumber , 0 };
-            IOpaqueAddress* opqAddr = 0;
+            IOpaqueAddress* opqAddr = nullptr;
             if (!m_addrCrtr->createAddress(m_storageType, ClassID_traits<DataHeader>::ID(), par, ipar, opqAddr).isSuccess()) {
                if (!m_addrCrtr->createAddress(m_storageType, ClassID_traits<DataHeader>::ID(), parOld, ipar, opqAddr).isSuccess()) {
                   break;
                }
             }
             if (m_inputDataStore->recordAddress(myVersKey, opqAddr).isFailure()) {
-               delete opqAddr; opqAddr = 0;
+               delete opqAddr; opqAddr = nullptr;
                ATH_MSG_WARNING("initInputMetaDataStore: Cannot create proxy for DataHeader, key = " << myVersKey);
             }
          }
@@ -380,16 +363,25 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
       if (!loadAddresses(StoreID::METADATA_STORE, tList).isSuccess()) {
          ATH_MSG_WARNING("Unable to load MetaData Proxies");
       }
-      for (std::list<SG::TransientAddress*>::iterator iter = tList.begin(), last = tList.end();
-	      iter != last; iter++) {
-         if (m_inputDataStore->contains((*iter)->clID(), (*iter)->name())) {
-            ATH_MSG_DEBUG("initInputMetaDataStore: MetaData Store already contains clid = " << (*iter)->clID() << ", key = " << (*iter)->name());
+      for (SG::TransientAddress* tad : tList) {
+         CLID clid = tad->clID();
+         if (m_inputDataStore->contains(tad->clID(), tad->name())) {
+            ATH_MSG_DEBUG("initInputMetaDataStore: MetaData Store already contains clid = " << clid << ", key = " << tad->name());
          } else {
-            if (!m_inputDataStore->recordAddress((*iter)->name(), (*iter)->address())) {
-               ATH_MSG_ERROR("initInputMetaDataStore: Cannot create proxy for clid = " << (*iter)->clID() << ", key = " << (*iter)->name());
+            if (!m_inputDataStore->recordAddress(tad->name(), tad->address())) {
+               ATH_MSG_ERROR("initInputMetaDataStore: Cannot create proxy for clid = " << clid << ", key = " << tad->name());
             }
          }
-         delete (*iter); *iter = 0;
+
+         for (CLID tclid : tad->transientID()) {
+           if (tclid != clid) {
+             if (m_inputDataStore->symLink (clid, tad->name(), tclid).isFailure()) {
+               ATH_MSG_WARNING("Cannot make autosymlink from " <<
+                               clid << "/" << tad->name() << " to " << tclid);
+             }
+           }
+         }
+         delete tad;
       }
       tList.clear();
    }

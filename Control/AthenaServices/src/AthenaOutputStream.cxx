@@ -24,6 +24,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/TransientAddress.h"
 #include "SGTools/ProxyMap.h"
 #include "SGTools/SGIFolder.h"
 #include "SGTools/CLIDRegistry.h"
@@ -72,20 +73,23 @@ namespace {
     : public DataBucketBase
   {
   public:
-    AltDataBucket (void* ptr, CLID clid, const std::type_info& tinfo)
-      : m_ptr (ptr), m_clid (clid), m_tinfo (tinfo)
+    AltDataBucket (void* ptr, CLID clid, const std::type_info& tinfo,
+                   const SG::DataProxy& proxy)
+      : m_proxy(this, makeTransientAddress(clid, proxy).release()),
+        m_ptr (ptr), m_clid (clid), m_tinfo (tinfo)
     {
+      addRef();
     }
 
     virtual const CLID& clID() const override { return m_clid; }
     virtual void* object() override { return m_ptr; }
     virtual const std::type_info& tinfo() const override { return m_tinfo; }
     virtual void* cast (CLID /*clid*/,
-                        SG::IRegisterTransient* /*irt*/ = 0,
+                        SG::IRegisterTransient* /*irt*/ = nullptr,
                         bool /*isConst*/ = true) const override
     { std::abort(); }
     virtual void* cast (const std::type_info& tinfo,
-                        SG::IRegisterTransient* /*irt*/ = 0,
+                        SG::IRegisterTransient* /*irt*/ = nullptr,
                         bool /*isConst*/ = true) const override
     { if (tinfo == m_tinfo)
         return m_ptr;
@@ -97,11 +101,38 @@ namespace {
 
     
   private:
+    static
+    std::unique_ptr<SG::TransientAddress>
+    makeTransientAddress (CLID clid, const SG::DataProxy& oldProxy);
+
+    SG::DataProxy m_proxy;
     void* m_ptr;
     CLID  m_clid;
     const std::type_info& m_tinfo;
   };
-}
+
+
+  std::unique_ptr<SG::TransientAddress>
+  AltDataBucket::makeTransientAddress (CLID clid, const SG::DataProxy& oldProxy)
+  {
+    const SG::TransientAddress& oldTad = *oldProxy.transientAddress();
+    auto newTad = std::make_unique<SG::TransientAddress>
+      (clid, oldTad.name());
+    newTad->setAlias (oldTad.alias());
+    for (CLID tclid : oldTad.transientID()) {
+      // Note: this will include derived CLIDs.
+      // Strictly speaking, that's not right; however, filtering them
+      // out can break ElementLinks (for example those used by
+      // ShallowAuxContainer).  One will not actually be able to get
+      // a pointer of the derived type, as the conversions in StorableConversion
+      // only support derived->base, not the other way around.
+      newTad->setTransientID (tclid);
+    }
+    return newTad;
+  }
+
+
+} // anonymous namespace
 
 
 //****************************************************************************
@@ -221,9 +252,9 @@ StatusCode AthenaOutputStream::initialize() {
       ATH_MSG_FATAL("Cannot find " << m_helperTools);
       return(status);
    }
-   ATH_MSG_INFO("Found " << m_helperTools << endreq << "Data output: " << m_outputName);
+   ATH_MSG_INFO("Found " << m_helperTools << endmsg << "Data output: " << m_outputName);
 
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
+   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
            iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {
          status = StatusCode::FAILURE;
@@ -262,7 +293,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
    if (inc.type() == "MetaDataStop") {
       // Moved preFinalize of helper tools to stop - want to optimize the
       // output file in finalize RDS 12/2009
-      for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
+      for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
            iter != m_helperTools.end(); iter++) {
          if (!(*iter)->preFinalize().isSuccess()) {
              ATH_MSG_ERROR("Cannot finalize helper tool");
@@ -290,7 +321,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
             throw GaudiException("Cannot get JobOptionsSvc", name(), StatusCode::FAILURE);
          }
          const std::vector<const Property*>* fhProps = joSvc->getProperties(name() + "_FH");
-         if (fhProps != 0) {
+         if (fhProps != nullptr) {
             StringArrayProperty fhProperty("ItemList", std::vector<std::string>());
             for (std::vector<const Property*>::const_iterator iter = fhProps->begin(),
                             last = fhProps->end(); iter != last; iter++) {
@@ -309,9 +340,9 @@ void AthenaOutputStream::handle(const Incident& inc) {
             }
          }
          m_p2BWritten->clear();
-         IProperty *pAsIProp(0);
+         IProperty *pAsIProp(nullptr);
          if ((m_p2BWritten.retrieve()).isFailure() ||
-                        0 == (pAsIProp = dynamic_cast<IProperty*>(&*m_p2BWritten)) ||
+                        nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_p2BWritten)) ||
                         (pAsIProp->setProperty("ItemList", m_metadataItemList.toString())).isFailure()) {
             throw GaudiException("Folder property [metadataItemList] not found", name(), StatusCode::FAILURE);
          }
@@ -329,7 +360,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
             throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
          }
          ATH_MSG_INFO("Records written: " << m_events);
-         for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
+         for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
              iter != m_helperTools.end(); iter++) {
             if (!(*iter)->postInitialize().isSuccess()) {
                 ATH_MSG_ERROR("Cannot initialize helper tool");
@@ -367,7 +398,7 @@ StatusCode AthenaOutputStream::finalize() {
 
 StatusCode AthenaOutputStream::execute() {
    bool failed = false;
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
+   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
            iter != m_helperTools.end(); iter++) {
       if (!(*iter)->preExecute().isSuccess()) {
          failed = true;
@@ -379,7 +410,7 @@ StatusCode AthenaOutputStream::execute() {
          failed = true;
       }
    }
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
+   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
            iter != m_helperTools.end(); iter++) {
       if(!(*iter)->postExecute().isSuccess()) {
          failed = true;
@@ -521,7 +552,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
       this->tokenizeAtSep( keyTokens, item_key, wildCard );
       ATH_MSG_VERBOSE("Done calling tokenizeAtStep( " << keyTokens << ", " << item_key << ", " << wildCard << ")" );
       //std::pair<std::string, std::string> key = breakAtSep(item_key, wildCard);
-      SG::TransientAddress* tAddr = 0;
+      SG::TransientAddress* tAddr = nullptr;
       // Now loop over any found proxies
       for (; iter != end; ++iter) {
          SG::DataProxy* itemProxy(iter->second);
@@ -561,18 +592,18 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
          if (keyMatch && !xkeyMatch) {
             if (m_forceRead && itemProxy->isValid()) {
                if (!m_persToPers) {
-                  if (0 == itemProxy->accessData()) {
+                  if (nullptr == itemProxy->accessData()) {
                      ATH_MSG_ERROR(" Could not get data object for id "
                              << item.id() << ",\"" << itemProxy->name());
                   }
                } else if (true /*m_exemptPersToPers.find(item.id()) != m_exemptPersToPers.end()*/) {
-                  if (0 == itemProxy->accessData()) {
+                  if (nullptr == itemProxy->accessData()) {
                      ATH_MSG_ERROR(" Could not get data object for id "
                              << item.id() << ",\"" << itemProxy->name());
                   }
                }
             }
-            if (0 != itemProxy->object()) {
+            if (nullptr != itemProxy->object()) {
                if( std::find(m_objects.begin(), m_objects.end(), itemProxy->object()) == m_objects.end() &&
                    std::find(m_altObjects.begin(), m_altObjects.end(), itemProxy->object()) == m_altObjects.end() )
                {
@@ -580,6 +611,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                    // If the exact flag is set, make a new DataObject
                    // holding the object as the requested type.
                    DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (itemProxy->object());
+                   if (!dbb) std::abort();
                    void* ptr = dbb->cast (item.id());
                    if (!ptr) {
                      // Hard cast
@@ -588,8 +620,8 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                    auto altbucket =
                      CxxUtils::make_unique<AltDataBucket>
                        (ptr, item.id(),
-                        *CLIDRegistry::CLIDToTypeinfo (item.id()));
-                   altbucket->setRegistry (itemProxy);
+                        *CLIDRegistry::CLIDToTypeinfo (item.id()),
+                        *itemProxy);
                    m_objects.push_back(altbucket.get());
                    m_ownedObjects.push_back (std::move(altbucket));
                    m_altObjects.push_back (itemProxy->object());
@@ -617,14 +649,14 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                // reset an auxiliary store back to not being slimmed, after
                // a previous stream slimmed it.
                if (item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
-                  SG::IAuxStoreIO* auxio(0);
+                  SG::IAuxStoreIO* auxio(nullptr);
                   try {
                      SG::fromStorable(itemProxy->object(), auxio, true);
                   }catch( const std::exception& ) {
                      // exception from Control/StoreGateBindings/src/SgPyDataModel.cxx:71
                      ATH_MSG_DEBUG( "Error in casting object with CLID "
                                     << itemProxy->clID() << " to SG::IAuxStoreIO*" );
-                     auxio = 0;
+                     auxio = nullptr;
                   }
                   if( auxio ) {
                      // collect dynamic Aux selection (parse the line, attributes separated by dot)
@@ -679,7 +711,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
          }
       } // proxy loop
       if (!added && !removed) {
-         if (m_persToPers && tAddr != 0) {
+         if (m_persToPers && tAddr != nullptr) {
             ATH_MSG_DEBUG(" Going to attempt direct persistent copy for "
                     << item.id() << ",\"" << item_key  << "\"");
             DataObject* ics = new DataObject();
@@ -707,18 +739,18 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
 
 void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
    // Assuming concrete SG::Folder also has an itemList property
-   IProperty *pAsIProp(0);
+   IProperty *pAsIProp(nullptr);
    if ((m_p2BWritten.retrieve()).isFailure() ||
-           0 == (pAsIProp = dynamic_cast<IProperty*>(&*m_p2BWritten)) ||
+           nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_p2BWritten)) ||
            (pAsIProp->setProperty(m_itemList)).isFailure()) {
       throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
    }
 }
 
 void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
-   IProperty *pAsIProp(0);
+   IProperty *pAsIProp(nullptr);
    if ((m_decoder.retrieve()).isFailure() ||
-           0 == (pAsIProp = dynamic_cast<IProperty*>(&*m_decoder)) ||
+           nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_decoder)) ||
            (pAsIProp->setProperty("ItemList", m_excludeList.toString())).isFailure()) {
       throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
    }
@@ -811,7 +843,7 @@ StatusCode AthenaOutputStream::io_reinit() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "MetaDataStop", 50);
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
+   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
        iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {
           ATH_MSG_ERROR("Cannot initialize helper tool");
@@ -821,7 +853,7 @@ StatusCode AthenaOutputStream::io_reinit() {
 }
 StatusCode AthenaOutputStream::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-   for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
+   for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
        iter != m_helperTools.end(); iter++) {
       if (!(*iter)->preFinalize().isSuccess()) {
           ATH_MSG_ERROR("Cannot finalize helper tool");

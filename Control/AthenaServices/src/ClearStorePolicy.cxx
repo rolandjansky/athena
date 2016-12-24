@@ -13,7 +13,7 @@ ClearStorePolicy::Type clearStorePolicy( const std::string& policyName,
     msg << MSG::WARNING
     	<< "Unknown policy [" << policyName << "] for the 'clear-store' "
     	<< "policy !! We'll use 'BeginEvent' instead !!"
-    	<< endreq;
+    	<< endmsg;
     return ClearStorePolicy::BeginEvent;
   }
 }

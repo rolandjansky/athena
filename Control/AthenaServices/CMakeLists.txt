@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 753795 2016-06-08 23:37:56Z ssnyder $
+# $Id: CMakeLists.txt 771853 2016-09-05 19:26:14Z ssnyder $
 ################################################################################
 # Package: AthenaServices
 ################################################################################
@@ -64,6 +64,12 @@ atlas_add_test( FPEControlSvc_test
 
 atlas_add_test( AthenaEventLoopMgr_test
    SOURCES test/AthenaEventLoopMgr_test.cxx
+   LINK_LIBRARIES TestTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
+   EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( RCUSvc_test
+   SOURCES test/RCUSvc_test.cxx
    LINK_LIBRARIES TestTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

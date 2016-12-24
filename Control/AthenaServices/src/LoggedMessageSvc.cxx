@@ -113,7 +113,7 @@ LoggedMessageSvc::~LoggedMessageSvc()
   LoggedStreamsMap_t::iterator endStream = m_loggedStreams.end();
   for ( ; iStream != endStream; ++iStream ) {
     delete iStream->second;
-    iStream->second = 0;
+    iStream->second = nullptr;
   }
 }
 //#############################################################################
@@ -327,7 +327,7 @@ void LoggedMessageSvc::setupThreshold(Property& prop) {
     return;
   } else if (prop.name() == "keywords") {
     StringArrayProperty *sap = dynamic_cast<StringArrayProperty*>( &prop );
-    if (sap!= 0 && sap->value().size() > 0) {
+    if (sap!= nullptr && sap->value().size() > 0) {
       m_keysUsed = true;
     } else {
       m_keysUsed = false;
@@ -340,7 +340,7 @@ void LoggedMessageSvc::setupThreshold(Property& prop) {
   }
 
   StringArrayProperty *sap = dynamic_cast<StringArrayProperty*>( &prop);
-  if (sap == 0) {
+  if (sap == nullptr) {
     std::cerr << "could not dcast " << prop.name()
               << " to a StringArrayProperty (which it should be!)" << endl;
     return;
@@ -733,7 +733,7 @@ void LoggedMessageSvc::eraseStream( int message_type )
 //
 
 void LoggedMessageSvc::eraseStream( int key, std::ostream* stream )   {
-  if ( 0 != stream )    {
+  if ( nullptr != stream )    {
     bool changed = true;
     while( changed ) {
       changed = false;
@@ -758,7 +758,7 @@ void LoggedMessageSvc::eraseStream( int key, std::ostream* stream )   {
 //
 
 void LoggedMessageSvc::eraseStream( std::ostream* stream )    {
-  if ( 0 != stream )    {
+  if ( nullptr != stream )    {
     bool changed = true;
     while( changed ) {
       changed = false;
@@ -980,7 +980,7 @@ void LoggedMessageSvc::tee( const std::string& sourceName,
   LoggedStreamsMap_t::iterator iStream = m_loggedStreams.find( sourceName );
   if ( iStream != iEnd ) {
     delete iStream->second;
-    iStream->second = 0;
+    iStream->second = nullptr;
     m_loggedStreams.erase( iStream );
   }
 

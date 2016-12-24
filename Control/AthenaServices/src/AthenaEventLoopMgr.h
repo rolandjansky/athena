@@ -36,6 +36,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 #include "AthenaKernel/Timeout.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/IEventSeek.h"
@@ -176,6 +177,10 @@ protected:
 
   /// Initialize all algorithms and output streams
   StatusCode initializeAlgorithms();
+
+protected:
+  /// Reference to the Algorithm Execution State Svc
+  SmartIF<IAlgExecStateSvc>  m_aess;
 
 public:
   /// implementation of IAppMgrUI::initalize

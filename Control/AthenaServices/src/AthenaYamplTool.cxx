@@ -33,9 +33,9 @@ AthenaYamplTool::AthenaYamplTool(const std::string& type,
   ,  m_many2one(true)
   ,  m_chronoStatSvc("ChronoStatSvc", name)
   ,  m_incidentSvc("IncidentSvc", name)
-  ,  m_socketFactory(0)
-  ,  m_clientSocket(0)
-  ,  m_serverSocket(0)
+  ,  m_socketFactory(nullptr)
+  ,  m_clientSocket(nullptr)
+  ,  m_serverSocket(nullptr)
 {
   declareProperty("ChannelName", m_channel = name);
   declareProperty("Many2One", m_many2one);
@@ -136,11 +136,11 @@ StatusCode AthenaYamplTool::putEvent(long eventNumber, const void* source, std::
      ATH_MSG_ERROR("putEvent called when Tool is not a Server!");
      return StatusCode::FAILURE;
    }
-   if (source == 0 && nbytes == 0) {
+   if (source == nullptr && nbytes == 0) {
       ATH_MSG_DEBUG("putEvent got last Event marker");
       return(StatusCode::SUCCESS);
    }
-   if (source == 0) {
+   if (source == nullptr) {
       ATH_MSG_ERROR("putEvent got null source");
       return(StatusCode::FAILURE);
    }
@@ -160,7 +160,7 @@ StatusCode AthenaYamplTool::putEvent(long eventNumber, const void* source, std::
    memcpy((char*)message+sizeof(evtH),source,nbytes);
 
    // Wait for incoming request
-   char *ping = 0; // can be something else
+   char *ping = nullptr; // can be something else
    m_serverSocket->recv(ping);
    m_serverSocket->send(message,nbytes+sizeof(evtH));
    return(StatusCode::SUCCESS);

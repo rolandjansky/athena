@@ -123,6 +123,7 @@ public:
 StatusCode TestConverter::createObj(IOpaqueAddress* addr, DataObject *& pO)
 {
   TestAddress* taddr = dynamic_cast<TestAddress*> (addr);
+  if (!taddr) std::abort();
   pO = taddr->m_object;
   return StatusCode::SUCCESS;
 }
@@ -299,14 +300,17 @@ class swallowsemicolon;
 void testit (IService* mgr)
 {
   IEventProcessor* iep = dynamic_cast<IEventProcessor*> (mgr);
+  if (!iep) std::abort();
   assert (iep->nextEvent(1));
   assert (iep->nextEvent(3));
 
   ICollectionSize* isize = dynamic_cast<ICollectionSize*> (mgr);
+  if (!isize) std::abort();
   int sz = isize->size();
   std::cout << "size: " <<  sz << "\n";
 
   IEventSeek* iseek = dynamic_cast<IEventSeek*> (mgr);
+  if (!iseek) std::abort();
   StatusCode sc = iseek->seek (1);
   std::cout << "seek: " << sc.isSuccess() << "\n";
 
@@ -318,7 +322,7 @@ void test1 (ISvcLocator* svcloc)
 {
   std::cout << "test1\n";
 
-  IService *mgr = 0;
+  IService *mgr = nullptr;
   if (svcloc->service ("AthenaEventLoopMgr/AthenaEventLoopMgr1", mgr).isFailure()) std::abort();
 
   testit (mgr);
@@ -329,7 +333,7 @@ void test2 (ISvcLocator* svcloc)
 {
   std::cout << "test2\n";
 
-  IService *mgr = 0;
+  IService *mgr = nullptr;
     if (svcloc->service ("AthenaEventLoopMgr/AthenaEventLoopMgr2", mgr).isFailure()) std::abort();
 
   testit (mgr);
@@ -339,7 +343,7 @@ void test2 (ISvcLocator* svcloc)
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
-  ISvcLocator* svcloc = 0;
+  ISvcLocator* svcloc = nullptr;
   if (!Athena_test::initGaudi("AthenaEventLoopMgr_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;

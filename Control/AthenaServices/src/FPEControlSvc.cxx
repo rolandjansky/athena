@@ -25,6 +25,7 @@ FPEControlSvc::FPEControlSvc( const std::string& name, ISvcLocator* svc )
   : AthService( name, svc ),
     m_toolSvc ("ToolSvc", name),
     m_env(),
+    m_haveEnv(false),
     m_enabled (0),
     m_disabled (0),
     m_removeInFinalize(false),
@@ -49,9 +50,6 @@ FPEControlSvc::FPEControlSvc( const std::string& name, ISvcLocator* svc )
  */
 StatusCode FPEControlSvc::initialize()
 {
-  // Save the current FP environment.
-  fegetenv (&m_env);
-
   // And change the exception mask.
   prophand (m_exceptions);
 
@@ -98,9 +96,6 @@ StatusCode FPEControlSvc::finalize()
   // remove only if requested
   if (m_removeInFinalize)
     {
-      // Remove ourself as an observer.
-      m_toolSvc->unRegisterObserver (this);
-      
       // Restore the FP environment to what is was before we ran.
       fesetenv (&m_env);
     }
@@ -159,16 +154,15 @@ std::string mask_to_string (int mask)
  */
 void FPEControlSvc::prophand (Property& /*prop*/)
 {
-  // Don't do anything if we haven't initialized yet
-  // (m_env won't be set).
-  // vile hack to handle v19/v20 API diff without branching
-#ifdef GAUDIKERNEL_STATEMACHINE_H_
-  if (FSMState() == Gaudi::StateMachine::OFFLINE) return;
-#else
-  if (state() == IService::OFFLINE) return;
-#endif
-  // Reset to the FP environment before we started.
-  fesetenv (&m_env);
+  if (!m_haveEnv) {
+    // Save the current FP environment.
+    fegetenv (&m_env);
+    m_haveEnv = true;
+  }
+  else {
+    // Reset to the FP environment before we started.
+    fesetenv (&m_env);
+  }
 
   // Figure out which exceptions to enable/disable.
   m_enabled = 0;

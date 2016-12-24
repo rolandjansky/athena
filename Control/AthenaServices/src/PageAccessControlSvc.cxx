@@ -17,19 +17,19 @@ PageAccessControlSvc::PageAccessControlSvc( const std::string& name,
 }
 
 bool PageAccessControlSvc::startMonitoring () {
-  int rc = sigaction(SIGSEGV,NULL, &m_saveSEGVaction);
+  int rc = sigaction(SIGSEGV,nullptr, &m_saveSEGVaction);
   if (0==rc) {
     struct sigaction sa(m_saveSEGVaction);
     sa.sa_sigaction= cPtrAccessSEGVHandler; 
     sa.sa_flags=SA_SIGINFO;
     //off we go
-    rc=sigaction(SIGSEGV,&sa,NULL);
+    rc=sigaction(SIGSEGV,&sa,nullptr);
   }
   return (0==rc);
 }
 
 bool PageAccessControlSvc::stopMonitoring () {
-  return (0 == sigaction(SIGSEGV,&m_saveSEGVaction, NULL));
+  return (0 == sigaction(SIGSEGV,&m_saveSEGVaction, nullptr));
 }
 
 /// has this pointer been accessed (read/written)
@@ -40,7 +40,7 @@ bool PageAccessControlSvc::accessed(const void* address) const {
 StatusCode PageAccessControlSvc::initialize() {
   StatusCode sc(StatusCode::SUCCESS);
   msg(MSG::INFO) << "Initializing " << name() 
-		 << " - package version " << PACKAGE_VERSION << endreq ;
+		 << " - package version " << PACKAGE_VERSION << endmsg ;
   if (m_autoMonitor.value() && !this->startMonitoring()) sc = StatusCode::FAILURE;
   return sc;
 }
@@ -48,7 +48,7 @@ StatusCode PageAccessControlSvc::initialize() {
 StatusCode PageAccessControlSvc::finalize() {
   StatusCode sc(StatusCode::SUCCESS);
   msg(MSG::INFO) << "Finalizing " << name() 
-		 << " - package version " << PACKAGE_VERSION << endreq ;
+		 << " - package version " << PACKAGE_VERSION << endmsg ;
   if (m_autoMonitor.value()) {
     if (this->stopMonitoring()) this->report();
     else sc = StatusCode::FAILURE;
@@ -76,17 +76,17 @@ PageAccessControlSvc::queryInterface(const InterfaceID& riid, void** ppvInterfac
 
 
 void PageAccessControlSvc::report() const {
-  msg(MSG::INFO) << "Access monitoring report" << endreq;
+  msg(MSG::INFO) << "Access monitoring report" << endmsg;
   PtrAccessSEGVHandler::const_iterator i(m_SEGVHandler.beginAccessedPtrs()),
     e(m_SEGVHandler.endAccessedPtrs());
   while (i != e) {
-    msg(MSG::DEBUG) << "accessed pointer at @" << std::hex << *i++ << endreq; 
+    msg(MSG::DEBUG) << "accessed pointer at @" << std::hex << *i++ << endmsg; 
   }
   PageAccessControl::const_iterator ia(m_accessControl.beginProtectedPtrs()),
     ea(m_accessControl.endProtectedPtrs());
   while (ia != ea) {
     msg(MSG::DEBUG) << "protected page at @" << std::hex << ia->addr
-		    << " accessed "<< ia->restored << " times" << endreq; 
+		    << " accessed "<< ia->restored << " times" << endmsg; 
     ++ia;
   }
 }

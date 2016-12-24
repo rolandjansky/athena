@@ -2,7 +2,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/AthenaOutputStream_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/AthenaOutputStream_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3e/Control/AthenaServices/share/../share/AthenaOutputStream_test.txt
 JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (6,1): StoreGateSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (8,1): AthenaOutputStream.OutputLevel = 1
@@ -12,8 +12,8 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/AthenaO
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Mon May 16 14:33:25 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus013.cern.ch on Wed Oct 19 20:14:12 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ServiceManager      DEBUG Initializing service AppMgrRunable
@@ -25,6 +25,8 @@ EventLoopMgr        DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Property update for OutputLevel : new value = 2
 IncidentSvc         DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
+AlgExecStateSvc     DEBUG Property update for OutputLevel : new value = 2
+AlgExecStateSvc     DEBUG Service base class initialized successfully
 EventDataSvc        DEBUG Property update for OutputLevel : new value = 2
 EventDataSvc        DEBUG Service base class initialized successfully
 EventPersistenc...  DEBUG Property update for OutputLevel : new value = 2
@@ -39,21 +41,26 @@ HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ClassIDSvc          DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
 ClassIDSvc          DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [ModuleLoaded] listener 'ClassIDSvc' with priority 100
-ClassIDSvc           INFO  getRegistryEntries: read 2161 CLIDRegistry entries for module ALL
-ClassIDSvc          DEBUG processCLIDDB: read 412 entries from CLIDDB file: /home/sss/atlas/dvtest/build/share/clid.db
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 883 CLIDRegistry entries for module ALL
+ClassIDSvc          DEBUG processCLIDDB: read 1342 entries from CLIDDB file: /afs/cern.ch/user/s/ssnyder/atlas-work3e/build-x86_64-slc6-gcc49-dbg/x86_64-slc6-gcc49-dbg/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 13339 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasOffline/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 175372 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasSimulation/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 202983 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasAnalysis/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 202546 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasTrigger/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 390248 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasReconstruction/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 40139 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasEvent/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 11751 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 2716 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/clid.db
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 2
 StoreGateSvc        DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'StoreGateSvc' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'StoreGateSvc' with priority 100
 ProxyProviderSvc    DEBUG Property update for OutputLevel : new value = 2
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
 ToolSvc             DEBUG Property update for OutputLevel : new value = 2
 ToolSvc             DEBUG Service base class initialized successfully
-ClassIDSvc           INFO  getRegistryEntries: read 345 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1982 CLIDRegistry entries for module ALL
 AthenaOutputStream  DEBUG Property update for OutputLevel : new value = 1
 AthenaOutputStreamVERBOSE ServiceLocatorHelper::service: found service EventDataSvc
 TimelineSvc         DEBUG Property update for OutputLevel : new value = 2
@@ -75,26 +82,26 @@ AthenaOutputStream  DEBUG Found StoreGateSvc store.
 ItemListSvc         DEBUG Property update for OutputLevel : new value = 2
 ItemListSvc         DEBUG ItemListSvc initialize
 OutputStreamSeq...  DEBUG Property update for OutputLevel : new value = 2
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-60-32
 MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-32
 InputMetaDataStore  DEBUG Property update for OutputLevel : new value = 2
 InputMetaDataStore  DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'InputMetaDataStore' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'InputMetaDataStore' with priority 100
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-00-00-00
 MetaDataStore       DEBUG Property update for OutputLevel : new value = 2
 MetaDataStore       DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'MetaDataStore' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'MetaDataStore' with priority 100
 AthenaPoolCnvSvc    DEBUG Property update for OutputLevel : new value = 2
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-30-05
 DataModelCompatSvc  DEBUG Property update for OutputLevel : new value = 2
 DataModelCompatSvc  DEBUG FILE:LINE (StatusCode DataModelCompatSvc::initialize()): running
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'DataModelCompatSvc' with priority 0
+Warning in <TInterpreter::ReadRootmapFile>: class  CaloSampling found in libCaloEventDict.so  is already in libISF_FastCaloSimParametrizationLib.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  IntArray found in libISF_FastCaloSimEvent.so  is already in libISF_FastCaloSimParametrizationLib.so 
 PoolSvc             DEBUG Property update for OutputLevel : new value = 2
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-00-00
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-05
 AthenaSealSvc       DEBUG Property update for OutputLevel : new value = 2
 ChronoStatSvc       DEBUG Property update for OutputLevel : new value = 2
 ChronoStatSvc       DEBUG Service base class initialized successfully
@@ -116,18 +123,24 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc        DEBUG Property update for OutputLevel : new value = 2
-DBReplicaSvc        DEBUG HOSTNAME  has no domain - try hostname --fqdn
-DBReplicaSvc        DEBUG HOSTNAME from fqdn: karma
-DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc        DEBUG Candidate server atlas_dd (priority 5)
-DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/dbreplica.config
+DBReplicaSvc        DEBUG Candidate server ATLF (priority -2700)
+DBReplicaSvc        DEBUG Candidate server ATLAS_COOLPROD (priority -695)
+DBReplicaSvc        DEBUG Candidate server atlas_dd (priority -690)
+DBReplicaSvc        DEBUG Candidate server ATLAS_CONFIG (priority -685)
+DBReplicaSvc        DEBUG Candidate server INT8R (priority -680)
+DBReplicaSvc        DEBUG Candidate server INTR (priority -675)
+DBReplicaSvc        DEBUG Candidate server ATONR_COOL (priority -670)
+DBReplicaSvc        DEBUG Candidate server ATONR_CONF (priority -665)
+DBReplicaSvc        DEBUG Candidate server DEVDB11 (priority -660)
+DBReplicaSvc        DEBUG Candidate server ATLF (priority -2200)
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus013.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
-PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
-XMLFileCatalog Info Connecting to the catalog
-PoolXMLFileCatalog Info Xerces-c initialization Number 0
+PoolSvc              INFO Re-initializing PoolSvc
 FileMgr             DEBUG Property update for OutputLevel : new value = 2
 FileMgr             DEBUG Service base class initialized successfully
 FileMgr             DEBUG Successfully registered handler for tech "ROOT"
@@ -156,30 +169,32 @@ IoComponentMgr      DEBUG --> io_hasitem()
 AthenaOutputStream   INFO I/O reinitialization...
 IncidentSvc         DEBUG Adding [MetaDataStop] listener 'AthenaOutputStream' with priority 50
 AthenaOutputStream  DEBUG End initialize
+AthenaOutputStreamVERBOSE ServiceLocatorHelper::service: found service AlgExecStateSvc
+AlgExecStateSvc     DEBUG preInit: will add Alg AthenaOutputStream later
 AthenaOutputStream  DEBUG input handles: 0
 AthenaOutputStream  DEBUG output handles: 0
 AthenaOutputStream  DEBUG Registering all Tools in ToolHandleArray HelperTools
 AthenaOutputStream  DEBUG Adding private ToolHandle tool AthenaOutputStream.AthenaOutputStreamTool (AthenaOutputStreamTool)
 AthenaOutputStream  DEBUG Data Deps for AthenaOutputStream
-StoreGateSvc        DEBUG Recorded object @0xca19e0 with key uno of type Foo(CLID 8101)
- in DataObject @0x2da0f40
+StoreGateSvc        DEBUG Recorded object @0x4b507b0 with key uno of type Foo(CLID 8101)
+ in DataObject @0x4b490c0
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2da2280 with key due of type Foo(CLID 8101)
- in DataObject @0x2da2030
+StoreGateSvc        DEBUG Recorded object @0x4b50f10 with key due of type Foo(CLID 8101)
+ in DataObject @0x4b50760
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2da24e0 with key uno of type Bar(CLID 8107)
- in DataObject @0x2da2430
+StoreGateSvc        DEBUG Recorded object @0x4b51280 with key uno of type Bar(CLID 8107)
+ in DataObject @0x4b512a0
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2da2830 with key due of type Bar(CLID 8107)
- in DataObject @0x2da2780
+StoreGateSvc        DEBUG Recorded object @0x4b515a0 with key due of type Bar(CLID 8107)
+ in DataObject @0x4b515f0
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2da2b20 with key quattro of type Bar(CLID 8107)
- in DataObject @0x2da2a70
+StoreGateSvc        DEBUG Recorded object @0x4b51890 with key quattro of type Bar(CLID 8107)
+ in DataObject @0x4b518b0
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2da2e70 with key cinque of type Bar(CLID 8107)
- in DataObject @0x2da2dc0
+StoreGateSvc        DEBUG Recorded object @0x4b51b50 with key cinque of type Bar(CLID 8107)
+ in DataObject @0x4b51b70
  object modifiable when retrieved
-ClassIDSvc           INFO  getRegistryEntries: read 988 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 803 CLIDRegistry entries for module ALL
 AthenaOutputStr...WARNING add: can not find clid 13 in clid db
 AthenaOutputStream  DEBUG addItemObjects(13,"*") called
 AthenaOutputStream  DEBUG            Key:*
