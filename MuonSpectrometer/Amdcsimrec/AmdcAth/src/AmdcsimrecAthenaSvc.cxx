@@ -3,8 +3,6 @@
 */
 
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/SvcFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 //----------------------------------------------------------------//
 #include "StoreGate/DataHandle.h"
