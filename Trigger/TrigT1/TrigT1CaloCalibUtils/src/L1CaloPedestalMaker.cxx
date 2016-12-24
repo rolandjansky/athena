@@ -159,7 +159,7 @@ StatusCode L1CaloPedestalMaker::execute()
     TriggerTowerCollection::const_iterator pos_end = ttCollection->end();
 
     for(;pos!=pos_end;++pos) {
-        LVL1::TriggerTower* ptt = (*pos);
+        const LVL1::TriggerTower* ptt = (*pos);
 
         // Compute TowerTrigger Key out of its coordinates
         double eta = ptt->eta();

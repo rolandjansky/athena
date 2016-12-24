@@ -90,7 +90,7 @@ private:
    // These data members are our Athena tools.
    StoreGateSvc* m_storeGate;
    StoreGateSvc* m_detStore;
-   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+   ToolHandle<LVL1::TrigT1CaloLWHistogramTool> m_histTool;
 //    ToolHandle<TrigDec::TrigDecisionTool> m_trigger;
    
    StatusCode loadAthenaObjects();

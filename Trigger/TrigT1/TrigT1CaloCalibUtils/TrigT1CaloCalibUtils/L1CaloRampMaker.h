@@ -78,7 +78,7 @@ class L1CaloRampMaker : public AthAlgorithm
 
     std::unique_ptr<L1CaloRampDataContainer> m_rampDataContainer;
     L1CaloPprConditionsContainerRun2 *m_pprLutContainer;
-    L1CaloPprDisabledChannelContainer *m_pprDisabledChannelContainer;
+    //L1CaloPprDisabledChannelContainer *m_pprDisabledChannelContainer;
 
     // private functions
     void setupRampDataContainer(const xAOD::TriggerTowerContainer* triggerTowerContainer);

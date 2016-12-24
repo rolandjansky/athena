@@ -66,8 +66,8 @@ L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocat
     m_firstEvent(true),
     m_lvl1Helper(nullptr),
     m_rampDataContainer(nullptr),
-    m_pprLutContainer(nullptr),
-    m_pprDisabledChannelContainer(nullptr)
+    m_pprLutContainer(nullptr)
+    //m_pprDisabledChannelContainer(nullptr)
 {
     declareProperty("TriggerTowerCollectionName", m_triggerTowerContainerName);
     declareProperty("OutputFolderName", m_outputFolderName);
@@ -226,7 +226,7 @@ StatusCode L1CaloRampMaker::execute()
       m_firstEvent = false;
     }
 
-    auto m_specialChannelRangeEnd = m_specialChannelRange.end();
+    auto specialChannelRangeEnd = m_specialChannelRange.end();
     bool nextStep = (m_nEvent % m_nEventsPerStep == 0);
     for(auto *tt : *tts) {
         // skip saturated towers
@@ -250,13 +250,13 @@ StatusCode L1CaloRampMaker::execute()
             if(isTile && level1Energy > m_tileSaturationCut) continue;
 
             // see if we have a special channel and cut on level1 energy
-            auto m_specialChannelIt = m_specialChannelRange.find(tt->coolId());
-            if(m_specialChannelIt == m_specialChannelRangeEnd || level1Energy < m_specialChannelIt->second) {
+            auto specialChannelIt = m_specialChannelRange.find(tt->coolId());
+            if(specialChannelIt == specialChannelRangeEnd || level1Energy < specialChannelIt->second) {
               ATH_MSG_DEBUG("Adding Energy for " << tt->coolId() << ":" << caloEnergy << " vs. " << level1Energy);
               m_rampDataContainer->rampData(tt->coolId())->addData(caloEnergy, level1Energy);
             } else {
                 // make sure we don't accidently miss the threshold again
-                m_specialChannelIt->second = -1000;
+                specialChannelIt->second = -1000;
             }
             if(nextStep) m_rampDataContainer->rampData(tt->coolId())->nextStep();
         }
