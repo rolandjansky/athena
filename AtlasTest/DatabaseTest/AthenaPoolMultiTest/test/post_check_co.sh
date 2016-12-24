@@ -23,7 +23,7 @@ else
     if [ "$status" = 0 ]
 	then 
 	echo "[92;1m post_check_co.sh> OK: ${test} exited normally. Output is in $joblog [m"
-	reflog=../test/${test}.ref
+	reflog=../share/${test}.ref
         grep -e 'ReadData' \
              -e 'EventSelector' \
              -e 'rimary' \
@@ -92,7 +92,7 @@ else
 	    if [ $diffStatus = 0 ] 
 		then
 		echo "[97;101;1m post_check_co.sh> ERROR: $joblog and $reflog differ [m"
-#		exit 1
+		exit 1
 	    else
 		echo "[92;1m post_check_co.sh> OK: $joblog and $reflog identical [m"
 	    fi
@@ -105,6 +105,7 @@ else
 	tail $joblog
 	echo  "[97;101;1m post_check_co.sh> ERROR: Athena exited abnormally! Exit code: $status [m"
 	echo  " post_check_co.sh> Please check ${PWD}/$joblog"
+        exit 1
     fi
 fi
 

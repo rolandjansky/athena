@@ -19,7 +19,7 @@ else
     if [ "$status" = 0 ]
 	then 
 	echo "[92;1m post_check_bi.sh> OK: ${test} exited normally. Output is in $joblog [m"
-	reflog=../test/${test}.ref
+	reflog=../share/${test}.ref
         grep -e 'WriteData' \
              -e 'AddTrigMap' \
              -e 'Stream1' \
@@ -32,58 +32,66 @@ else
 	joblog=${joblog}.small
 	if [ -r $reflog ]
 	    then
-#	    echo " post_check_bi.sh> Now comparing output with reference"
-	    diff -a -b -B  $joblog $reflog |\
-                # ignore diff annotations
-	        egrep -a -v '^---|^[[:digit:]]+[acd,][[:digit:]]+' |\
-                # ignore hex addresses
-		egrep -a -v ' 0x\w{4,}' |\
-                # ignore package names e.g. Package-00-00-00
-		egrep -a -v '\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}' |\
-		# ignore history service
-		egrep -a -v 'HistorySvc          DEBUG' |\
-		# ignore cpu usage printouts
-		egrep -a -v 'ChronoStatSvc +INFO Time' |\
-		egrep -a -v 'Time left.+ Seconds' |\
-		egrep -a -v 'Timeleft.+ sec' |\
-		egrep -a -v 'INFO Time User' |\
-		# ignore clid db file name
-		grep -a -v 'from CLIDDB file'  |\
-		# ignore slug machine printout
-		egrep -a -v ' Machine: .* System and Processor Info'  |\
-		egrep -a -v ' Jobname = .* Machine =' |\
-		# ignore slug pid printout
-		grep -a -v 'Atlas Detector Simulation, Reconstruction and Analysis Running on'  |\
-		egrep -a -v 'Program:  Slug-Dice-Arecon .+ pid +[[:digit:]]+'  |\
-		#ignore DllClassManager DEBUG messages
-		egrep -a -v 'DllClassManager     DEBUG' |\
-		# ignore slug Library printout
-		egrep -a -v 'Library of +[[:digit:]]+ at +[[:digit:]]+'  |\
-		egrep -a -v 'Library compiled on +[[:digit:]]'  |\
-		# ignore ClassIDSvc "in memory db" printouts
-		egrep -a -v 'CLID: .* - type name:' |\
-		# ignore ClassIDSvc "already set" printouts
-		egrep -a -v 'ClassIDSvc .* setTypeNameForID: .* already set for' |\
-		# ignore ClassIDSvc finalize output
-		egrep -a -v 'ClassIDSvc * DEBUG finalize: wrote .*'   |\
-		# ignore rcs version comments
-		egrep -a -v 'Id: .+ Exp \$'  |\
-		# ignore listings
-		egrep -a -v 'athena.*listing'  |\
-		# ignore ptr values for LArCell
-		egrep -a -v 'Found elem'  |\
-                # ignore Dict issues
-		egrep -a -v 'Dict.so' |\
-		# ignore file names 
-		egrep -a -v 'Reading file'  |\
-		# ignore root collect key 
-		egrep -a -v 'NewEventCollection.root, recovered'
+	    echo " post_check_bi.sh> Now comparing output with reference"
+
+            # ignore diff annotations
+            PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
+            # ignore hex addresses
+            PP="$PP"'|0x\w{4,}'
+            # ignore package names e.g. Package-00-00-00
+            PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
+            # ignore trunk package names e.g. Package-r123456
+            PP="$PP"'|\w+-r[[:digit:]]+'
+            # ignore history service
+            PP="$PP"'|HistorySvc          DEBUG'
+            # ignore cpu usage printouts
+            PP="$PP"'|ChronoStatSvc +INFO Time'
+            PP="$PP"'|Time left.+ Seconds'
+            PP="$PP"'|Timeleft.+ sec'
+            PP="$PP"'|INFO Time User'
+            # ignore clid db file name
+            PP="$PP"'|from CLIDDB file'
+            # ignore slug machine printout
+            PP="$PP"'| Machine: .* System and Processor Info'
+            PP="$PP"'| Jobname = .* Machine ='
+            # ignore slug pid printout
+            PP="$PP"'|Atlas Detector Simulation, Reconstruction and Analysis Running on'
+            PP="$PP"'|Program:  Slug-Dice-Arecon .+ pid +[[:digit:]]+'
+            #ignore DllClassManager DEBUG messages
+            PP="$PP"'|DllClassManager     DEBUG'
+            # ignore slug Library printout
+            PP="$PP"'|Library of +[[:digit:]]+ at +[[:digit:]]+'
+            PP="$PP"'|Library compiled on +[[:digit:]]'
+            # ignore ClassIDSvc "in memory db" printouts
+            PP="$PP"'|CLID: .* - type name:'
+            # ignore ClassIDSvc "already set" printouts
+            PP="$PP"'|ClassIDSvc .* setTypeNameForID: .* already set for'
+            # ignore ClassIDSvc finalize output
+            PP="$PP"'|ClassIDSvc .* finalize: wrote .*'
+            # ignore rcs version comments
+            PP="$PP"'|Id: .+ Exp \$'
+	    # ignore listings
+            PP="$PP"'|athena.*listing'
+            # ignore ptr values for LArCell
+            PP="$PP"'|Found elem'
+            # ignore Dict issues
+            PP="$PP"'|Dict.so'
+            # ignore file names 
+            PP="$PP"'|Reading file'
+            # ignore root collect key 
+            PP="$PP"'|NewEventCollection.root, recovered'
+
+            jobdiff=`basename ${joblog}`-todiff
+            refdiff=`basename ${reflog}`-todiff
+            egrep -a -v "$PP" < $joblog > $jobdiff
+            egrep -a -v "$PP" < $reflog > $refdiff
+            diff -a -b -E -B -u $jobdiff $refdiff
 
 	    diffStatus=$?
-	    if [ $diffStatus = 0 ] 
+	    if [ $diffStatus != 0 ] 
 		then
 		echo "[97;101;1m post_check_bi.sh> ERROR: $joblog and $reflog differ [m"
-#		exit 1
+		exit 1
 	    else
 		echo "[92;1m post_check_bi.sh> OK: $joblog and $reflog identical [m"
 	    fi
@@ -91,6 +99,7 @@ else
 	    tail $joblog
 	    echo "[93;1m post_check_bi.sh> WARNING: reference output $reflog not available [m"
 	    echo  " post_check_bi.sh> Please check ${PWD}/$joblog"
+            exit 1
 	fi
     else
 	tail $joblog

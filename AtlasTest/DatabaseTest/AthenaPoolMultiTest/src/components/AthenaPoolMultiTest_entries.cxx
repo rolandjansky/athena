@@ -14,8 +14,6 @@
 #include "../RunEventTagWriter.h"
 #include "../RunEventMetaWriter.h"
 #include "../DummyLumirangeTool.h"
-#include "../UserMetadataExample.h"
-#include "../UserMetadataRestoreExample.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY(StoreDump)
@@ -29,8 +27,6 @@ DECLARE_ALGORITHM_FACTORY(TagEventTagWriter)
 DECLARE_ALGORITHM_FACTORY(RunEventTagWriter)
 DECLARE_ALGORITHM_FACTORY(RunEventMetaWriter)
 DECLARE_ALGORITHM_FACTORY(DummyLumirangeTool)
-DECLARE_ALGORITHM_FACTORY(UserMetadataExample)
-DECLARE_ALGORITHM_FACTORY(UserMetadataRestoreExample)
 
 DECLARE_FACTORY_ENTRIES(AthenaPoolMultiTest) {
    DECLARE_ALGORITHM(StoreDump)
@@ -44,6 +40,4 @@ DECLARE_FACTORY_ENTRIES(AthenaPoolMultiTest) {
    DECLARE_ALGORITHM(RunEventTagWriter)
    DECLARE_ALGORITHM(RunEventMetaWriter)
    DECLARE_ALGORITHM(DummyLumirangeTool)
-   DECLARE_ALGORITHM(UserMetadataExample)
-   DECLARE_ALGORITHM(UserMetadataRestoreExample)
 }

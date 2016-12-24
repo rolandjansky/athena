@@ -1,124 +1,108 @@
 AthAlgSeq            INFO Member list: PassAllFilter, PassNoneFilter, AddTrigMap, EventTagWriter, TagEventTagWriter, DummyLumirangeTool, RegistrationStreamDefMeta/default, AthPoolEx::WriteData/WriteData, AthenaOutputStream/DataStream, RegistrationStream/FullColl, RegistrationStream/NullColl
 AddTrigMap           INFO in initialize()
+WriteData           DEBUG Property update for OutputLevel : new value = 2
 WriteData            INFO in initialize()
+WriteData           DEBUG input handles: 0
+WriteData           DEBUG output handles: 0
+WriteData           DEBUG Data Deps for WriteData
 DecisionSvc          INFO Inserting stream: FullColl with no Algs
 DecisionSvc          INFO Inserting stream: NullColl with no Algs
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 0 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 0  run: 0
 WriteData            INFO registered all data
 FullColl.Regist...   INFO No Primary Key defined
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 1 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 1  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 2 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 2  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 3 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 3  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 4 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 4  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 5 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 5  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 6 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 6  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 7 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 7  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 8 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 8  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 9 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 9  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 10 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 10  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 11 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 11  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 12 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 12  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 13 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 13  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 14 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 14  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 15 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 15  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 16 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 16  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 17 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 17  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 18 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 18  run: 0
 WriteData            INFO registered all data
-AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 19 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
@@ -128,4 +112,3 @@ FullColl.Regist...   INFO Collection Events output: 20
 NullColl.Regist...   INFO Collection Events output: 0
 WriteData            INFO in finalize()
 WriteData           DEBUG Calling destructor
-DecisionSvc          INFO List of registered 3 Streams: DataStream FullColl NullColl 
