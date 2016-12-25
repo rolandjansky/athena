@@ -308,7 +308,10 @@ def loadJobOptionsCatalogue( cfg_fname ):
    import GaudiPython.Bindings as gaudi
    for client in jocat:
       for n,v in jocat[ client ].iteritems():
-         p = gaudi.StringProperty( n, v )
+         # In Gaudi v28, the second argument of the ctor is passed by move,
+         # which pyroot doesn't handle correctly.  Do this as a workaround.
+         p = gaudi.StringProperty( n, '' )
+         p.fromString(v).ignore()
 
          if not josvc.addPropertyToCatalogue( client, p ).isSuccess():
             raise RuntimeError( 'could not add property [%s.%s = %s]' % (client, n, v) )
@@ -317,7 +320,9 @@ def loadJobOptionsCatalogue( cfg_fname ):
    for client in jocfg:
       svc = PyAthena.py_svc( client, createIf = False, iface='IProperty' )
       for n,v in jocfg[ client ].iteritems():
-         p = gaudi.StringProperty( n, v )
+         # See comment above.
+         p = gaudi.StringProperty( n, '' )
+         p.fromString(v).ignore()
          svc.setProperty( p )
 
  # pycomps hack-around
