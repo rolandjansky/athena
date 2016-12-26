@@ -121,7 +121,7 @@ namespace CP {
     static SG::AuxElement::Decorator<float> decDDcor20("topoetcone20_DDcorr");
     static SG::AuxElement::Decorator<float> decDDcor40("topoetcone40_DDcorr");
 	
-    std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
+    static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
 								 xAOD::Iso::topoetcone30,
 								 xAOD::Iso::topoetcone40};
     for (auto type : topoisolation_types) {
@@ -131,20 +131,20 @@ namespace CP {
       bool gotIso   = eg.isolationValue(oldiso,type);
       if (!gotIso) continue;
       if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
+        ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
 		      << " old leak = " << oldleak << " new leak = " << newleak);
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
       if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30) {
-	ddcorr = this->GetDDCorrection(eg,type);
-	if (type == xAOD::Iso::topoetcone20)
-	  decDDcor20(eg) = ddcorr;
-	else if (type == xAOD::Iso::topoetcone40)
-	  decDDcor40(eg) = ddcorr;
-	iso += ddcorr;
+        ddcorr = this->GetDDCorrection(eg,type);
+        if (type == xAOD::Iso::topoetcone20)
+          decDDcor20(eg) = ddcorr;
+        else if (type == xAOD::Iso::topoetcone40)
+          decDDcor40(eg) = ddcorr;
+        iso += ddcorr;
       }
       if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
+        ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
       bool setIso = eg.setIsolationValue(iso,type);
       setIso = (setIso && eg.setIsolationCaloCorrection(newleak-ddcorr,type,xAOD::Iso::ptCorrection));
       if (!setIso) {
@@ -158,7 +158,7 @@ namespace CP {
   float IsolationCorrectionTool::GetPtCorrectedIsolation(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol){
     return m_isol_corr->GetPtCorrectedIsolation(input, isol);
   }
-  float IsolationCorrectionTool::GetPtCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol){
+  float IsolationCorrectionTool::GetPtCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol) const {
     return m_isol_corr->GetPtCorrection(input, isol);
   }
   

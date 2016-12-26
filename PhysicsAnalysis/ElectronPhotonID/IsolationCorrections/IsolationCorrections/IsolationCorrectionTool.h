@@ -19,35 +19,35 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
 
       public:
 	IsolationCorrectionTool( const std::string& name );
-        ~IsolationCorrectionTool();
+        virtual ~IsolationCorrectionTool();
 
-        StatusCode initialize();
-        StatusCode finalize();
+        virtual StatusCode initialize() override;
+        virtual StatusCode finalize() override;
 
         // Apply correction to a modifyable Egamma object
-        virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&);
+        virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&) override;
 
       	// This helps to correct for the (wrong) leakage at the analysis level
-      	virtual CP::CorrectionCode CorrectLeakage(xAOD::Egamma&);
+      	virtual CP::CorrectionCode CorrectLeakage(xAOD::Egamma&) override;
 
         // Create a corrected copy from a const Egamma object
-        virtual CP::CorrectionCode correctedCopy( const xAOD::Egamma&, xAOD::Egamma*&);
+        virtual CP::CorrectionCode correctedCopy( const xAOD::Egamma&, xAOD::Egamma*&) override;
 
         //systematics
         // Which systematics have an effect on the tool's behaviour?
-        virtual CP::SystematicSet affectingSystematics() const;
+        virtual CP::SystematicSet affectingSystematics() const override;
         // Is the tool affected by a specific systematic?
-        virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
+        virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const override;
         //Systematics to be used for physics analysis
-        virtual CP::SystematicSet recommendedSystematics() const;
+        virtual CP::SystematicSet recommendedSystematics() const override;
         //Use specific systematic
-        virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig );
+        virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig ) override;
 
         float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
 
-        float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType);
-	float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType);
-        float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType);
+        virtual float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
+	virtual float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) const override;
+        virtual float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
 
     private:
 
