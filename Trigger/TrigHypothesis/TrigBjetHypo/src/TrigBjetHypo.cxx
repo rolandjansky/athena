@@ -105,23 +105,23 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   // Retrieve beamspot information 
   if (m_useBeamSpotFlag) {
 
-    IBeamCondSvc* m_iBeamCondSvc; 
-    StatusCode sc = service("BeamCondSvc", m_iBeamCondSvc);
+    IBeamCondSvc* iBeamCondSvc; 
+    StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
     
-    if (sc.isFailure() || m_iBeamCondSvc == 0) {
+    if (sc.isFailure() || iBeamCondSvc == 0) {
       
       if (msgLvl() <= MSG::WARNING)
 	msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
       
     } else {
 
-      int m_beamSpotStatus = 0;
-      int m_beamSpotBitMap = m_iBeamCondSvc->beamStatus();    
+      int beamSpotStatus = 0;
+      int beamSpotBitMap = iBeamCondSvc->beamStatus();    
 
-      m_beamSpotStatus = ((m_beamSpotBitMap & 0x4) == 0x4);  
-      if (m_beamSpotStatus) m_beamSpotStatus = ((m_beamSpotBitMap & 0x3) == 0x3);
+      beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);  
+      if (beamSpotStatus) beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
       
-      if (!m_beamSpotStatus) {
+      if (!beamSpotStatus) {
 	
 	m_cutCounter=0;
 	pass = false;

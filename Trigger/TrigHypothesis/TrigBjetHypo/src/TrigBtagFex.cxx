@@ -406,7 +406,7 @@ const xAOD::Vertex* TrigBtagFex::getPrimaryVertex(const xAOD::VertexContainer* v
       if(vtx_itr->vertexType() != xAOD::VxType::VertexType::PriVtx) { continue; }
       return vtx_itr;
     }
-  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No primary vertex found." << endreq;
+  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No primary vertex found." << endmsg;
 
   return 0;
 }

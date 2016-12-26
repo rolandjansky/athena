@@ -91,7 +91,6 @@ class TrigBjetTrackInfo {
   float m_pT, m_eta, m_phi, m_d0, m_z0;
   float m_ed0, m_ez0;
   float m_d0Corr, m_z0Corr;
-  int m_dummyPix, m_dummySct;
   uint8_t m_pixHits, m_sctHits, m_siHits;
   float m_chi2;
   int m_Blayer;
