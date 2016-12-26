@@ -105,7 +105,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
   {
     TrigPrimaryVertexTrack* pT= new TrigPrimaryVertexTrack(*ptIt);
     if(pT!=NULL) {
-      pT->m_setIndex(idx++);
+      pT->setIndex(idx++);
       tracks.push_back(pT);
     }
   }
@@ -128,11 +128,11 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
 
       for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
 	{
-	  if(!(*it)->m_isActive()) 
-	    (*it)->m_activate();
+	  if(!(*it)->isActive()) 
+	    (*it)->activate();
 
 	  double dchi2=(*it)->m_getChi2Distance(pV);
-          ATH_MSG_VERBOSE("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
+          ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
 	  if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	    {
 	      fitFailed=true;
@@ -145,8 +145,8 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
 	    }
 	  else
 	    {
-	      (*it)->m_mask();
-              ATH_MSG_DEBUG("Skipping track "<<(*it)->m_getIndex()<<"due to large dchi2="<<dchi2 );
+	      (*it)->mask();
+              ATH_MSG_DEBUG("Skipping track "<<(*it)->getIndex()<<"due to large dchi2="<<dchi2 );
 	    }
 	}
       if(fitFailed) break;
@@ -166,8 +166,8 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
 
 	pTL = new TrackInVertexList;
 	for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it) {
-	    if ((*it)->m_isActive()) 
-	      pTL->push_back((*it)->m_getTrigTrack());
+	    if ((*it)->isActive()) 
+	      pTL->push_back((*it)->getTrigTrack());
 	  }
       }
       pVertex = new TrigVertex(pV->m_getParametersVector()[0],
@@ -202,7 +202,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
   {
     TrigPrimaryVertexTrack* pT= new TrigPrimaryVertexTrack(*ptIt);
     if(pT!=NULL) {
-      pT->m_setIndex(idx++);
+      pT->setIndex(idx++);
       tracks.push_back(pT);
     }
   }
@@ -225,11 +225,11 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
 
     for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
     {
-      if(!(*it)->m_isActive()) 
-        (*it)->m_activate();
+      if(!(*it)->isActive()) 
+        (*it)->activate();
 
       double dchi2=(*it)->m_getChi2Distance(pV);
-      ATH_MSG_VERBOSE("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
+      ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
       if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
       {
         fitFailed=true;
@@ -242,8 +242,8 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
       }
       else
       {
-        (*it)->m_mask();
-        ATH_MSG_DEBUG("Skipping track "<<(*it)->m_getIndex()<<"due to large dchi2="<<dchi2 );
+        (*it)->mask();
+        ATH_MSG_DEBUG("Skipping track "<<(*it)->getIndex()<<"due to large dchi2="<<dchi2 );
       }
     }
     if(fitFailed) break;
@@ -263,8 +263,8 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
       output_tc.reserve(tracks.size());
 
       for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it) {
-        if ((*it)->m_isActive()) 
-          output_tc.push_back(new Trk::Track(*(*it)->m_getTrkTrack()));
+        if ((*it)->isActive()) 
+          output_tc.push_back(new Trk::Track(*(*it)->getTrkTrack()));
       }
     }
     pVertex = new TrigVertex(pV->m_getParametersVector()[0],
@@ -285,7 +285,7 @@ struct TrigPrimaryTrackSortPredicate
 {
   bool operator()(TrigPrimaryVertexTrack* pA, TrigPrimaryVertexTrack* pB)
   {
-    return (pA->m_getChi2Contribution() < pB->m_getChi2Contribution());
+    return (pA->getChi2Contribution() < pB->getChi2Contribution());
   }
 };
 
@@ -316,7 +316,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
     TrigPrimaryVertexTrack* pT= new TrigPrimaryVertexTrack(*ptIt);
     if(pT!=NULL)
       {
-	pT->m_setIndex(idx++);
+	pT->setIndex(idx++);
 	tracks.push_back(pT);
 	Chi2V.push_back(-100.0);
       }
@@ -361,7 +361,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
   for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
     {
       double dchi2=(*it)->m_getChi2Distance(pV);
-      ATH_MSG_DEBUG("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
+      ATH_MSG_DEBUG("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
     }  
 
   // 3. sort tracks in accordance with their chi2s
@@ -387,8 +387,8 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
       for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
 	{
 	  double dchi2=(*it)->m_getChi2Distance(pV);
-	  Chi2V[(*it)->m_getIndex()-1]=dchi2;
-          ATH_MSG_VERBOSE("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
+	  Chi2V[(*it)->getIndex()-1]=dchi2;
+          ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
 	  if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	    {
 	      fitFailed=true;
@@ -401,7 +401,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
 	    }
 	  else
 	    {
-              ATH_MSG_DEBUG("Skipping track "<<(*it)->m_getIndex()<<"due to large dchi2="<<dchi2 );
+              ATH_MSG_DEBUG("Skipping track "<<(*it)->getIndex()<<"due to large dchi2="<<dchi2 );
 	    }
 	}
       if(fitFailed) break;
@@ -449,7 +449,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
     TrigPrimaryVertexTrack* pT= new TrigPrimaryVertexTrack(*ptIt);
     if(pT!=NULL)
       {
-	pT->m_setIndex(idx++);
+	pT->setIndex(idx++);
 	tracks.push_back(pT);
 	Chi2V.push_back(-100.0);
       }
@@ -494,7 +494,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
   for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
     {
       double dchi2=(*it)->m_getChi2Distance(pV);
-      ATH_MSG_DEBUG("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
+      ATH_MSG_DEBUG("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
     }  
 
   // 3. sort tracks in accordance with their chi2s
@@ -520,8 +520,8 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
       for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
 	{
 	  double dchi2=(*it)->m_getChi2Distance(pV);
-	  Chi2V[(*it)->m_getIndex()-1]=dchi2;
-          ATH_MSG_VERBOSE("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
+	  Chi2V[(*it)->getIndex()-1]=dchi2;
+          ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
 	  if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	    {
 	      fitFailed=true;
@@ -534,7 +534,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
 	    }
 	  else
 	    {
-              ATH_MSG_DEBUG("Skipping track "<<(*it)->m_getIndex()<<"due to large dchi2="<<dchi2 );
+              ATH_MSG_DEBUG("Skipping track "<<(*it)->getIndex()<<"due to large dchi2="<<dchi2 );
 	    }
 	}
       if(fitFailed) break;

@@ -79,7 +79,7 @@ class TrigVertexingTool: public AthAlgTool, virtual public ITrigVertexingTool
   */
 
  private:
-  double m_twoCircleClosestApproach(const double *, const double *, double*);
+  double twoCircleClosestApproach(const double *, const double *, double*);
 
 #define TRIGVERTEXTOOL_NTIMERS 5
   TrigTimer* m_timer[TRIGVERTEXTOOL_NTIMERS];

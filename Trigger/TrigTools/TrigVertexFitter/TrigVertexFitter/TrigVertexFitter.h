@@ -12,16 +12,16 @@ class TrigTimer;
 
 class matrixRow
 {
-  double v[2];
+  double m_v[2];
  public:
   matrixRow()
     {
-      for(int k=0;k<2;k++) v[k]=0.0;
+      for(int k=0;k<2;k++) m_v[k]=0.0;
     }
   ~matrixRow(){};
   double & operator[] (int i)
     {
-      return v[i];
+      return m_v[i];
     }
 };
 

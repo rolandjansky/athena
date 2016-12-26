@@ -76,11 +76,11 @@ TrigPrimaryVertexTrack::TrigPrimaryVertexTrack(const Trk::Track* pT)
     const double b=-sin(pP->parameters()[Trk::theta])/(pP->parameters()[Trk::qOverP]*ptC);
 
          
-    const double Ck[5][5] = {TC(0,0), TC(1,0), TC(2,0), TC(3,0), a*TC(3,0) + b*TC(4,0),
-                             TC(1,0), TC(1,1), TC(2,1), TC(3,1), a*TC(3,1) + b*TC(4,1),
-                             TC(2,0), TC(2,1), TC(2,2), TC(3,2), a*TC(3,2) + b*TC(4,2),
-                             TC(3,0), TC(3,1), TC(3,2), TC(3,3), a*TC(3,3) + b*TC(4,3),
-                             a*TC(3,0) + b*TC(4,0), a*TC(3,1) + b*TC(4,1), a*TC(3,2) + b*TC(4,2), a*TC(3,3) + b*TC(4,3), a*a*TC(3,3) + 2*a*b*TC(4,3) + b*b*TC(4,4)};
+    const double Ck[5][5] = {{TC(0,0), TC(1,0), TC(2,0), TC(3,0), a*TC(3,0) + b*TC(4,0)},
+                             {TC(1,0), TC(1,1), TC(2,1), TC(3,1), a*TC(3,1) + b*TC(4,1)},
+                             {TC(2,0), TC(2,1), TC(2,2), TC(3,2), a*TC(3,2) + b*TC(4,2)},
+                             {TC(3,0), TC(3,1), TC(3,2), TC(3,3), a*TC(3,3) + b*TC(4,3)},
+                             {a*TC(3,0) + b*TC(4,0), a*TC(3,1) + b*TC(4,1), a*TC(3,2) + b*TC(4,2), a*TC(3,3) + b*TC(4,3), a*a*TC(3,3) + 2*a*b*TC(4,3) + b*b*TC(4,4)}};
 
     for(int i=0;i<2;i++) for(int j=0;j<2;j++) m_Vuu[i][j]=Ck[i][j];
     for(int i=0;i<3;i++) for(int j=0;j<3;j++) m_Vqq[i][j]=Ck[i+2][j+2];
@@ -95,43 +95,43 @@ TrigPrimaryVertexTrack::~TrigPrimaryVertexTrack()
 
 }
 
-void TrigPrimaryVertexTrack::m_mask()
+void TrigPrimaryVertexTrack::mask()
 {
   m_active=false;
 }
 
-void TrigPrimaryVertexTrack::m_activate()
+void TrigPrimaryVertexTrack::activate()
 {
   m_active=true;
 }
 
-bool TrigPrimaryVertexTrack::m_isActive()
+bool TrigPrimaryVertexTrack::isActive()
 {
   return m_active;
 }
 
-int TrigPrimaryVertexTrack::m_getTrackType()
+int TrigPrimaryVertexTrack::getTrackType()
 {
   return m_nTrackType;
 }
 
 
-const TrigInDetTrack* TrigPrimaryVertexTrack::m_getTrigTrack()
+const TrigInDetTrack* TrigPrimaryVertexTrack::getTrigTrack()
 {
   return m_pTrigTrack;
 }
 
-const Trk::Track* TrigPrimaryVertexTrack::m_getTrkTrack()
+const Trk::Track* TrigPrimaryVertexTrack::getTrkTrack()
 {
 	return m_pTrkTrack;
 }
 
-void TrigPrimaryVertexTrack::m_setIndex(int i)
+void TrigPrimaryVertexTrack::setIndex(int i)
 {
   m_index=i;
 }
  
-int TrigPrimaryVertexTrack::m_getIndex() const
+int TrigPrimaryVertexTrack::getIndex() const
 {
   return m_index;
 }
@@ -240,7 +240,7 @@ double TrigPrimaryVertexTrack::m_getChi2Distance(class TrigL2Vertex* pV)
   return chi2;
 }
 
-double TrigPrimaryVertexTrack::m_getChi2Contribution()
+double TrigPrimaryVertexTrack::getChi2Contribution()
 {
   return m_dChi2;
 }
@@ -274,14 +274,14 @@ MsgStream& TrigPrimaryVertexTrack::m_report( MsgStream& out ) const
 {
   int i;
 
-  out<<"Primary track "<<m_index<<endreq;
+  out<<"Primary track "<<m_index<<endmsg;
   for(i=0;i<2;i++)
     {
-      out<<"  u"<<i<<" = "<<m_u[i]<<"      "<<m_Vuu[i][0]<<"   "<<m_Vuu[i][1]<<endreq;
+      out<<"  u"<<i<<" = "<<m_u[i]<<"      "<<m_Vuu[i][0]<<"   "<<m_Vuu[i][1]<<endmsg;
     }
   for(i=0;i<3;i++)
     {
-      out<<"  q"<<i<<" = "<<m_q[i]<<"      "<<m_Vqq[i][0]<<"   "<<m_Vqq[i][1]<<"   "<<m_Vqq[i][2]<<endreq;
+      out<<"  q"<<i<<" = "<<m_q[i]<<"      "<<m_Vqq[i][0]<<"   "<<m_Vqq[i][1]<<"   "<<m_Vqq[i][2]<<endmsg;
     }
   return out;
 }

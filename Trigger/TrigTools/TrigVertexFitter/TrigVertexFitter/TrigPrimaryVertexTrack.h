@@ -17,21 +17,21 @@ class TrigPrimaryVertexTrack : public TrigVertexFittingNode
   TrigPrimaryVertexTrack(const TrigInDetTrack*);//!< constructor for L2 tracks 
   TrigPrimaryVertexTrack(const Trk::Track*);//!< constructor for EF (offline) tracks
   ~TrigPrimaryVertexTrack();
-  const TrigInDetTrack* m_getTrigTrack();//!< getter for L2 tracks 
-  const Trk::Track* m_getTrkTrack();//!< getter for EF (offline) tracks
+  const TrigInDetTrack* getTrigTrack();//!< getter for L2 tracks 
+  const Trk::Track* getTrkTrack();//!< getter for EF (offline) tracks
 
   virtual double m_getChi2Distance(TrigL2Vertex*);//!< implementation of abstract method from the base class
   virtual void m_updateVertex(TrigL2Vertex*);//!< implementation of abstract method from the base class
   virtual MsgStream& m_report( MsgStream& ) const;
-  void m_setIndex(int);//!< to be used by TrigVertexingTool
-  int m_getIndex() const;//!< to be used by TrigVertexingTool
-  int m_getTrackType();//!< 0: L2 track, 1: EF(offline) track
-  bool m_isActive();//!< if true this track will be used in the vertex fit otherwise it will be masked
-  void m_activate();//!< sets m_isActive to true
-  void m_mask();//!< sets m_isActive to false
+  void setIndex(int);//!< to be used by TrigVertexingTool
+  int getIndex() const;//!< to be used by TrigVertexingTool
+  int getTrackType();//!< 0: L2 track, 1: EF(offline) track
+  bool isActive();//!< if true this track will be used in the vertex fit otherwise it will be masked
+  void activate();//!< sets m_isActive to true
+  void mask();//!< sets m_isActive to false
   const double* Perigee() const;//!< track parameters at the perigee
   double PerigeeCovariance(int,int) const;//!< covariance of track parameters at the perigee
-  double m_getChi2Contribution();//!< chi2-contribution to the vertex fit
+  double getChi2Contribution();//!< chi2-contribution to the vertex fit
  private:
   const TrigInDetTrack* m_pTrigTrack;
   const Trk::Track* m_pTrkTrack;

@@ -131,7 +131,7 @@ double TrigVertexingTool::FindClosestApproach(const TrigVertexFitInputTrack* pT1
 					      const TrigVertexFitInputTrack* pT2, 
 					      double V[3])
 {
-  return m_twoCircleClosestApproach(pT1->Perigee(),pT2->Perigee(),V);
+  return twoCircleClosestApproach(pT1->Perigee(),pT2->Perigee(),V);
 }
 
 
@@ -193,7 +193,8 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const TrigInDe
 
   pI1=pV->m_contains(pT1);pI2=pV->m_contains(pT2);
 
-  if(pI1!=NULL) nFound++;if(pI2!=NULL) nFound++;
+  if(pI1!=NULL) nFound++;
+  if(pI2!=NULL) nFound++;
   if(nFound!=2) 
     {
       ATH_MSG_WARNING( "Cannot setup mass constraint - no such tracks in vertex " );
@@ -223,7 +224,9 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const TrigInDe
 
   pI1=pV->m_contains(pT1);pI2=pV->m_contains(pT2);pI3=pV->m_contains(pT3);
 
-  if(pI1!=NULL) nFound++;if(pI2!=NULL) nFound++;if(pI3!=NULL) nFound++;
+  if(pI1!=NULL) nFound++;
+  if(pI2!=NULL) nFound++;
+  if(pI3!=NULL) nFound++;
   if(nFound!=3) 
     {
       ATH_MSG_WARNING( "Cannot setup mass constraint - no such tracks in vertex " );
@@ -275,7 +278,9 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const Trk::Tra
 
   pI1=pV->m_contains(pT1);pI2=pV->m_contains(pT2);pI3=pV->m_contains(pT3);
 
-  if(pI1!=NULL) nFound++;if(pI2!=NULL) nFound++;if(pI3!=NULL) nFound++;
+  if(pI1!=NULL) nFound++;
+  if(pI2!=NULL) nFound++;
+  if(pI3!=NULL) nFound++;
   if(nFound!=3) 
     {
       ATH_MSG_WARNING( "Cannot setup mass constraint - no such tracks in vertex " );
@@ -360,7 +365,7 @@ StatusCode TrigVertexingTool::addTrack(const Trk::Track* pT,  TrigL2Vertex* pV, 
   return StatusCode::SUCCESS;
 }
 
-double TrigVertexingTool::m_twoCircleClosestApproach(const double *P1, const double *P2, double *V)
+double TrigVertexingTool::twoCircleClosestApproach(const double *P1, const double *P2, double *V)
 {
   const double C=0.029997;
   const double B=20.84;

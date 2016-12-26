@@ -44,13 +44,13 @@ The list of vertex fitting tools is below:
 
 StatusCode sc = toolSvc()->retrieveTool("TrigL2VertexFitter","TrigL2VertexFitter",m_L2vertFitter);
 if ( sc.isFailure() ) {
-    log << MSG::FATAL << "Unable to locate TrigL2VertexFitter tool " << endreq;
+    log << MSG::FATAL << "Unable to locate TrigL2VertexFitter tool " << endmsg;
     return sc;
 }
 
 sc = toolSvc()->retrieveTool("TrigVertexingTool","TrigVertexingTool",m_vertexingTool);
 if ( sc.isFailure() ) {
-    log << MSG::FATAL << "Unable to locate TrigVertexingTool tool " << endreq;
+    log << MSG::FATAL << "Unable to locate TrigVertexingTool tool " << endmsg;
     return sc;
 } 
 
@@ -78,22 +78,22 @@ if(sc.isSuccess()) {
         // estimation of Ds meson perigee parameters 
         sc=m_vertexingTool->createMotherParticle(pL2Ds);
         if(sc.isSuccess()) {
-           log<<MSG::DEBUG<<"Ds created:"<<endreq;
-	   log << MSG::DEBUG << "Ds particle parameters"<<endreq;
+           log<<MSG::DEBUG<<"Ds created:"<<endmsg;
+	   log << MSG::DEBUG << "Ds particle parameters"<<endmsg;
 	   log << MSG::DEBUG << "d0="<<pL2Ds->m_getMotherTrack()->a0()<<
 		              "  z0="<<pL2Ds->m_getMotherTrack()->z0()<<
 			      "  phi0="<<pL2Ds->m_getMotherTrack()->phi0()<<
 			      "  eta="<<pL2Ds->m_getMotherTrack()->eta()<<
-			      "  pT="<<pL2Ds->m_getMotherTrack()->pT()<<endreq;
+			      "  pT="<<pL2Ds->m_getMotherTrack()->pT()<<endmsg;
            // now we can create TrigVertex ("simplified" vertex) from fitted 
            // TrigL2Vertex
            TrigVertex* p_DsV=m_vertexingTool->createTrigVertex(pL2Ds);
 	   if(p_DsV!=NULL){
 
-                                log << MSG::DEBUG << "Ds vertex Fit: x= y= z=" << p_DsV->x() << " " << p_DsV->y() << " " << p_DsV->z() << endreq;
-                                log << MSG::DEBUG << "Ds mass = " << p_DsV->mass() << endreq;
+                                log << MSG::DEBUG << "Ds vertex Fit: x= y= z=" << p_DsV->x() << " " << p_DsV->y() << " " << p_DsV->z() << endmsg;
+                                log << MSG::DEBUG << "Ds mass = " << p_DsV->mass() << endmsg;
                                 double chi2prob=1.0-Genfun::CumulativeChiSquare(p_DsV->ndof())(p_DsV->chi2());
-                                log << MSG::DEBUG << "Chi2 probability of the Ds fit = " << chi2prob << endreq;
+                                log << MSG::DEBUG << "Chi2 probability of the Ds fit = " << chi2prob << endmsg;
           }
 	}
     }
