@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "CxxUtils/unordered_map.h" // migrate to STL
+#include <unordered_map>
 
 #include "DataModelRoot/RootType.h"
 
@@ -33,7 +33,7 @@ class DsoDb
   /////////////////////////////////////////////////////////////////// 
 public: 
   typedef std::vector<std::string> Libs_t;
-  typedef SG::unordered_map<std::string, Libs_t> DsoMap_t;
+  typedef std::unordered_map<std::string, Libs_t> DsoMap_t;
   //typedef std::map<std::string, Libs_t> DsoMap_t;
 
   // helper functions for pythonizations

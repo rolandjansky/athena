@@ -28,9 +28,9 @@ public:
    /// Called at the end of initialize
    virtual StatusCode postInitialize() = 0;
    /// Called at the beginning of next
-   virtual StatusCode preNext() = 0;
+   virtual StatusCode preNext() const = 0;
    /// Called at the end of next
-   virtual StatusCode postNext() = 0;
+   virtual StatusCode postNext() const = 0;
    /// Called at the beginning of finalize
    virtual StatusCode preFinalize() = 0;
    /// Finalize AlgTool
