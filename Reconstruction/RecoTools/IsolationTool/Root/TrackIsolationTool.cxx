@@ -130,7 +130,7 @@ namespace xAOD {
                                            TrackCorrection corrbitset, 
 					   const Vertex* vertex, 
                                            const std::set<const TrackParticle*>* exclusionSet,
-                                           const TrackParticleContainer* indetTrackParticles ) 
+                                           const TrackParticleContainer* indetTrackParticles )  const
   {
     /// prepare input
     // If not vertex is given, use the ID best one. If one does not want to cut on z0sinT, use the TrackSelectionTool config
@@ -268,7 +268,7 @@ namespace xAOD {
   }
 
 
-  bool TrackIsolationTool::binnedIsolation( TrackIsolationInput& input, TrackIsolation& result ) 
+  bool TrackIsolationTool::binnedIsolation( TrackIsolationInput& input, TrackIsolation& result )  const
   {
     /// prepare look-up structure
     std::vector<const TrackParticle*> tps;
@@ -352,7 +352,7 @@ namespace xAOD {
 
   void TrackIsolationTool::initresult(TrackIsolation& result, 
 				      TrackCorrection corrlist, 
-				      unsigned int typesize){
+				      unsigned int typesize) const {
 
     result.corrlist = corrlist;
     result.coreCorrections.clear();
