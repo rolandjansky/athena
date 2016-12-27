@@ -40,7 +40,7 @@ namespace xAOD {
     virtual bool caloCellIsolation( CaloIsolation& result, const IParticle& tp, 
 				    const std::vector<Iso::IsolationType>& cones, 
 				    CaloCorrection corrections, 
-				    const CaloCellContainer* container = 0 ) = 0; 
+				    const CaloCellContainer* container = 0 ) const = 0; 
 
     /**ICaloCellIsolationTool interface for calculating the cell isolation variables and decorating the particle: 
        The tool expects the cones to be order in decreasing order (etcone40 -> etcone20)
