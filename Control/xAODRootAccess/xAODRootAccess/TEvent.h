@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEvent.h 746122 2016-05-11 10:11:31Z krasznaa $
+// $Id: TEvent.h 791122 2016-12-27 13:55:49Z ssnyder $
 #ifndef XAODROOTACCESS_TEVENT_H
 #define XAODROOTACCESS_TEVENT_H
 
@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 // ROOT include(s):
 #include <Rtypes.h>
@@ -27,6 +28,7 @@
 
 // Local include(s):
 #include "xAODRootAccess/tools/TReturnCode.h"
+#include "xAODRootAccess/tools/IProxyDict.h"
 
 // Forward declaration(s):
 class TFile;
@@ -37,6 +39,9 @@ namespace std {
 }
 namespace SG {
    class IAuxStore;
+}
+namespace xAODPrivate {
+   class THolderBucket;
 }
 
 namespace xAOD {
@@ -52,6 +57,7 @@ namespace xAOD {
    class TFileMerger;
    class TEvent;
    class TTreeMgr;
+   class THolder;
    ::TTree* MakeTransientTree( TEvent&, const char* );
 
    /// @short Tool for accessing xAOD files outside of Athena
@@ -66,10 +72,11 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 746122 $
-   /// $Date: 2016-05-11 12:11:31 +0200 (Wed, 11 May 2016) $
+   /// $Revision: 791122 $
+   /// $Date: 2016-12-27 14:55:49 +0100 (Tue, 27 Dec 2016) $
    ///
-   class TEvent : public TVirtualEvent {
+   class TEvent : public TVirtualEvent,
+                  public IProxyDict {
 
       // Declare the friend functions/classes:
       friend ::TTree* MakeTransientTree( TEvent&, const char* );
@@ -77,6 +84,7 @@ namespace xAOD {
       friend class xAOD::TMetaBranch;
       friend class xAOD::TFileMerger;
       friend class xAOD::TTreeMgr;
+      friend class xAODPrivate::THolderBucket;
 
    public:
       /// Auxiliary store "mode"
@@ -95,6 +103,11 @@ namespace xAOD {
       TEvent( ::TTree* tree, EAuxMode mode = kUndefinedAccess );
       /// Destructor
       ~TEvent();
+
+      /// Do not allow copy-constructing this object:
+      TEvent( const TEvent& parent ) = delete;
+      /// Do not allow copying this object
+      TEvent& operator=( const TEvent& rhs ) = delete;
 
       /// Get what auxiliary access mode the object was constructed with
       EAuxMode auxMode() const;
@@ -242,26 +255,84 @@ namespace xAOD {
 
       /// @}
 
-      /// @name Functions implementing the TVirtualEvent interface
+      /// @name Functions implementing the xAOD::TVirtualEvent interface
       /// @{
 
       /// Function returning the hash describing an object name
-      virtual uint32_t getHash( const std::string& key ) const;
+      uint32_t getHash( const std::string& key ) const override;
       /// Function returning the hash describing a known object
-      virtual uint32_t getKey( const void* obj ) const;
+      uint32_t getKey( const void* obj ) const override;
       /// Function returning the key describing a known object
-      virtual const std::string& getName( const void* obj ) const;
+      const std::string& getName( const void* obj ) const override;
       /// Function returning the key describing a known object
-      virtual const std::string& getName( uint32_t hash ) const;
+      const std::string& getName( uint32_t hash ) const override;
 
    protected:
       /// Function for retrieving an output object in a non-template way
-      virtual void* getOutputObject( uint32_t key,
-                                     const std::type_info& ti );
+      void* getOutputObject( uint32_t key,
+                             const std::type_info& ti ) override;
       /// Function for retrieving an input object in a non-template way
-      virtual const void* getInputObject( uint32_t key,
-                                          const std::type_info& ti,
-                                          bool silent = false );
+      const void* getInputObject( uint32_t key,
+                                  const std::type_info& ti,
+                                  bool silent = false ) override;
+
+      /// @}
+
+      /// @name Functions implementing the IProxyDict interface
+      /// @{
+
+      /// get proxy for a given data object address in memory
+      SG::DataProxy* proxy( const void* const pTransient ) const override;
+
+      /// get proxy with given id and key. Returns 0 to flag failure
+      SG::DataProxy* proxy( const CLID& id,
+                            const std::string& key ) const override;
+
+      /// Get proxy given a hashed key+clid.
+      SG::DataProxy* proxy_exact( SG::sgkey_t sgkey ) const override;
+
+      /// Add a new proxy to the store.
+      StatusCode addToStore( CLID id, SG::DataProxy* proxy ) override;
+
+      /// return the list of all current proxies in store
+      std::vector< const SG::DataProxy* > proxies() const override;
+
+      /// Find the string corresponding to a given key.
+      SG::sgkey_t stringToKey( const std::string& str, CLID clid ) override;
+
+      /// Find the string corresponding to a given key.
+      const std::string* keyToString( SG::sgkey_t key ) const override;
+
+      /// Find the string and CLID corresponding to a given key.
+      const std::string* keyToString( SG::sgkey_t key,
+                                      CLID& clid ) const override;
+
+      /// Remember an additional mapping from key to string/CLID.
+      void registerKey( SG::sgkey_t key, const std::string& str,
+                        CLID clid ) override;
+
+      /// Record an object in the store
+      SG::DataProxy*
+      recordObject( SG::DataObjectSharedPtr< DataObject > obj,
+                    const std::string& key,
+                    bool allowMods,
+                    bool returnExisting ) override;
+
+      /// Inform HIVE that an object has been updated
+      StatusCode updatedObject( CLID id, const std::string& key ) override;
+
+      /// Increment the reference count of Interface instance
+      unsigned long addRef() override;
+
+      /// Release Interface instance
+      long unsigned int release() override;
+
+      /// Get the name of the instance
+      const std::string& name() const override;
+
+      /// Set the void** to the pointer to the requested interface of the
+      /// instance
+      StatusCode queryInterface( const InterfaceID&, void** ) override;
 
       /// @}
 
@@ -382,6 +453,34 @@ namespace xAOD {
 
       /// Container name re-mapping rules
       std::map< std::string, std::string > m_nameRemapping;
+
+      /// @name Variable(s) used in the IProxyDict implementation
+      /// @{
+
+      /// Helper struct used by the IProxyDict code
+      struct BranchInfo {
+         /// Data proxy describing this branch/object
+         std::unique_ptr< SG::DataProxy > m_proxy;
+         /// Dictionary describing this branch/object
+         ::TClass* m_class = 0;
+      }; // struct BranchInfo
+
+      /// Map from hashed sgkey to BranchInfo.
+      mutable std::unordered_map< SG::sgkey_t, BranchInfo > m_branches;
+
+      /// @}
+
+      /// @name Helper functions for the IProxyDict interface
+      /// @{
+
+      /// Get the metadata object for a given "SG key"
+      const xAOD::EventFormatElement*
+      getEventFormatElement( SG::sgkey_t sgkey ) const;
+
+      /// Get the object describing one object/branch
+      BranchInfo* getBranchInfo( SG::sgkey_t sgkey ) const;
+
+      /// @}
 
    }; // class TEvent
 

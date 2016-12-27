@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TFileAccessTracer.cxx 687025 2015-08-03 10:14:38Z krasznaa $
+// $Id: TFileAccessTracer.cxx 781356 2016-10-31 14:03:28Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -13,7 +13,6 @@
 #include <TFile.h>
 #include <TError.h>
 #include <TUrl.h>
-#include <TSocket.h>
 #include <TTimeStamp.h>
 #include <TRandom.h>
 
@@ -24,6 +23,7 @@
 // Local include(s):
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
 #include "xAODRootAccess/tools/Message.h"
+#include "xAODRootAccess/tools/TSocket.h"
 
 namespace xAOD {
 
@@ -33,8 +33,14 @@ namespace xAOD {
    TFileAccessTracer::TFileAccessTracer()
    : m_accessedFiles(),
      m_serverAddress( "http://rucio-lb-prod.cern.ch:18762/traces/" ),
-     m_monitoredFraction( 1.0 ) {
+     //m_serverAddress( "http://rucio-lb-int.cern.ch:18762/traces/" ),
+     m_serverInetAddress(),
+     m_monitoredFraction( 1.0 ),
+     m_readStats( &( IOStats::instance().stats() ) ) {
 
+      // Construct the "technical address" of the host:
+      const ::TUrl url( m_serverAddress.c_str() );
+      m_serverInetAddress = gSystem->GetHostByName( url.GetHost() );
    }
 
    /// The destructor of the class is the one doing most of the heavy lifting.
@@ -72,9 +78,9 @@ namespace xAOD {
       }
 
       // Open a socket to the server:
-      ::TUrl url( m_serverAddress.c_str() );
-      ::TSocket socket( url.GetHost(), url.GetPort() );
-      if( ! socket.IsValid() ) {
+      const ::TUrl url( m_serverAddress.c_str() );
+      TSocket socket;
+      if( ! socket.connect( m_serverInetAddress, url.GetPort() ).isSuccess() ) {
          // Just exit silently. If we can't send the info, we can't send the
          // info. It's not a problem.
          return;
@@ -119,10 +125,9 @@ namespace xAOD {
       //
       // Collect the names of all the containers that were accessed:
       //
-      const xAOD::ReadStats& rs = xAOD::IOStats::instance().stats();
       pld += "\"accessedContainers\": [";
       first = true;
-      for( const auto& bs : rs.containers() ) {
+      for( const auto& bs : m_readStats->containers() ) {
          if( ! bs.second.readEntries() ) {
             continue;
          }
@@ -142,7 +147,7 @@ namespace xAOD {
       //
       pld += "\"accessedBranches\": [";
       first = true;
-      for( const auto& branch : rs.branches() ) {
+      for( const auto& branch : m_readStats->branches() ) {
          for( const xAOD::BranchStats* bs : branch.second ) {
             if( ( ! bs ) || ( ! bs->readEntries() ) ) {
                continue;
@@ -187,11 +192,12 @@ namespace xAOD {
       // Add some information about the file access pattern:
       //
       pld += ", \"ReadCalls\": ";
-      pld += rs.fileReads();
+      pld += m_readStats->fileReads();
       pld += ", \"ReadSize\": ";
-      pld += ( rs.fileReads() != 0 ? rs.bytesRead() / rs.fileReads() : 0 );
+      pld += ( m_readStats->fileReads() != 0 ?
+               m_readStats->bytesRead() / m_readStats->fileReads() : 0 );
       pld += ", \"CacheSize\": ";
-      pld += rs.cacheSize();
+      pld += m_readStats->cacheSize();
       pld += "}";
 
       // Now finish constructing the header, and merge the two into a single
@@ -207,8 +213,8 @@ namespace xAOD {
        */
 
       // Finally, send the message:
-      if( socket.SendRaw( msg.Data(), msg.Length() ) < 0 ) {
-         // Don't go vocal about the issue...
+      if( ! socket.send( msg ).isSuccess() ) {
+         // Don't be vocal about the issue...
          return;
       }
    }
@@ -236,7 +242,12 @@ namespace xAOD {
 
    void TFileAccessTracer::setServerAddress( const std::string& addr ) {
 
+      // Set the address itself:
       m_serverAddress = addr;
+
+      // Construct the "technical address" of the host:
+      ::TUrl url( m_serverAddress.c_str() );
+      m_serverInetAddress = gSystem->GetHostByName( url.GetHost() );
       return;
    }
 

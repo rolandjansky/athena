@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TFileMerger.cxx 696767 2015-09-25 07:42:19Z krasznaa $
+// $Id: TFileMerger.cxx 784654 2016-11-16 17:17:32Z krasznaa $
 
 // System include(s):
 #include <cstring>
@@ -266,12 +266,12 @@ namespace xAOD {
       }
 
       // Finish writing with the TEvent objects that are still open:
-      std::map< std::string, TEvent >::iterator ev_itr = m_events.begin();
-      std::map< std::string, TEvent >::iterator ev_end = m_events.end();
+      auto ev_itr = m_events.begin();
+      auto ev_end = m_events.end();
       for( ; ev_itr != ev_end; ++ev_itr ) {
-         if( ev_itr->second.m_outTree && m_output ) {
+         if( ev_itr->second->m_outTree && m_output ) {
             RETURN_CHECK( "xAOD::TFileMerger::closeFiles",
-                          ev_itr->second.finishWritingTo( m_output ) );
+                          ev_itr->second->finishWritingTo( m_output ) );
          }
       }
 
@@ -491,17 +491,17 @@ namespace xAOD {
             // take care of merging the metadata from the files.
             if( topLevelDir ) {
                // Instantiate the TEvent object:
-               TEvent& event = m_events[ key->GetName() ];
-               if( event.auxMode() != m_mode ) {
-                  event = TEvent( m_mode );
-                  event.setActive();
+               std::unique_ptr< TEvent >& event = m_events[ key->GetName() ];
+               if( ( ! event.get() ) || ( event->auxMode() != m_mode ) ) {
+                  event.reset( new TEvent( m_mode ) );
+                  event->setActive();
                }
                // And now create all the metadata tools:
                RETURN_CHECK( "xAOD::TFileMerger::mergeDirectory",
                              createMetaDataTools() );
                // And now connect it to the input file:
                RETURN_CHECK( "xAOD::TFileMerger::mergeDirectory",
-                             event.readFrom( itree ) );
+                             event->readFrom( itree ) );
                // Let the user know what's happening:
                Info( "mergeDirectory", "Copying xAOD tree \"%s\"",
                      key->GetName() );
@@ -517,8 +517,11 @@ namespace xAOD {
                // Connect the TEvent object to the output file in order to
                // handle metadata merging correctly:
                if( topLevelDir ) {
-                  TEvent& event = m_events[ key->GetName() ];
-                  if( ! event.m_outTree ) {
+                  std::unique_ptr< TEvent >& event = m_events[ key->GetName() ];
+                  if( ! event.get() ) {
+                     event.reset( new TEvent() );
+                  }
+                  if( ! event->m_outTree ) {
                      // Create an in-memory file, that's really only needed
                      // for technical reasons. Tricking the TEvent object into
                      // thinking that it's actually writing event data. While
@@ -529,13 +532,13 @@ namespace xAOD {
                                         "CREATE" );
                      m_helperFiles.push_back( ofile );
                      RETURN_CHECK( "xAOD::TFileMerger::mergeDirectory",
-                                   event.writeTo( ofile, 200,
-                                                  key->GetName() ) );
+                                   event->writeTo( ofile, 200,
+                                                   key->GetName() ) );
                   }
                   // Merge the input file's EventFormat object into the one
                   // created for the output file:
-                  const EventFormat* ief = event.inputEventFormat();
-                  EventFormat* oef = event.m_outputEventFormat;
+                  const EventFormat* ief = event->inputEventFormat();
+                  EventFormat* oef = event->m_outputEventFormat;
                   if( ( ! ief ) || ( ! oef ) ) {
                      Error( "mergeDirectory",
                             XAOD_MESSAGE( "Internal logic error detected" ) );
@@ -738,10 +741,13 @@ namespace xAOD {
                // Access the TEvent object made for this tree. Such a thing
                // needs to access, because we can only slow-merge top level
                // trees. Which are always assumed to be xAOD trees.
-               TEvent& event = m_events[ key->GetName() ];
+               std::unique_ptr< TEvent >& event = m_events[ key->GetName() ];
+               if( ! event.get() ) {
+                  event.reset( new TEvent() );
+               }
 
                // Check whether it's already writing to the output:
-               if( ! event.m_outTree ) {
+               if( ! event->m_outTree ) {
                   // Make a TFile pointer out of the TDirectory:
                   ::TFile* ofile = dynamic_cast< ::TFile* >( &output );
                   if( ! ofile ) {
@@ -750,7 +756,7 @@ namespace xAOD {
                      return TReturnCode::kFailure;
                   }
                   RETURN_CHECK( "xAOD::TFileMerger::mergeDirectory",
-                                event.writeTo( ofile, 200, key->GetName() ) );
+                                event->writeTo( ofile, 200, key->GetName() ) );
                }
 
                // Let the user know what's happening:
@@ -760,16 +766,16 @@ namespace xAOD {
                }
 
                // Loop over the events using the TEvent object:
-               const ::Long64_t entries = event.getEntries();
+               const ::Long64_t entries = event->getEntries();
                for( ::Long64_t entry = 0; entry < entries; ++entry ) {
 
                   // Check whether we're done already:
-                  if( event.m_outTree->GetEntries() >= m_entriesToMerge ) {
+                  if( event->m_outTree->GetEntries() >= m_entriesToMerge ) {
                      break;
                   }
 
                   // Load the entry:
-                  if( event.getEntry( entry ) < 0 ) {
+                  if( event->getEntry( entry ) < 0 ) {
                      Error( "mergeDirectory",
                             XAOD_MESSAGE( "Couldn't get entry %i from tree "
                                           "%s" ),
@@ -788,10 +794,10 @@ namespace xAOD {
 
                   // Copy the full event to the output:
                   RETURN_CHECK( "xAOD::TFileMerger::mergeDirectory",
-                                event.copy() );
+                                event->copy() );
 
                   // Write the event:
-                  const ::Int_t bytes = event.fill();
+                  const ::Int_t bytes = event->fill();
                   if( bytes < 0 ) {
                      Error( "mergeDirectory",
                             XAOD_MESSAGE( "There was an error in writing entry "

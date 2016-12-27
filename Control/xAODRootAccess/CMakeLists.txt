@@ -1,10 +1,18 @@
-# $Id: CMakeLists.txt 744419 2016-05-03 11:27:55Z krasznaa $
+# $Id: CMakeLists.txt 784654 2016-11-16 17:17:32Z krasznaa $
 #
 # Build configuration for the xAODRootAccess package.
 #
 
 # The name of the package:
 atlas_subdir( xAODRootAccess )
+
+# Extra dependencies, based on the build environment:
+set( extra_deps )
+set( extra_libs )
+if( NOT XAOD_STANDALONE )
+   set( extra_deps Control/SGTools )
+   set( extra_libs SGTools )
+endif()
 
 # The dependencies of the package:
 atlas_depends_on_subdirs(
@@ -16,7 +24,7 @@ atlas_depends_on_subdirs(
    Control/xAODRootAccessInterfaces )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree RIO Net )
+find_package( ROOT COMPONENTS Core Tree RIO Net MathCore )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( xAODRootAccess xAODRootAccessDictSource
@@ -37,7 +45,7 @@ atlas_add_library( xAODRootAccess
    PUBLIC_HEADERS xAODRootAccess
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODEventFormat
-   xAODRootAccessInterfaces )
+   xAODRootAccessInterfaces ${extra_libs} )
 
 # Build a (Reflex) dictionary library:
 atlas_add_dictionary( xAODRootAccessDict
@@ -49,20 +57,19 @@ atlas_add_dictionary( xAODRootAccessDict
 atlas_install_python_modules( python/*.py )
 
 # Build the executables of the package:
-atlas_add_executable( xAODChecker util/xAODChecker.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess )
-
-atlas_add_executable( xAODMerge util/xAODMerge.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess )
+foreach( exec xAODChecker xAODMerge xAODFileReadTest )
+   atlas_add_executable( ${exec} util/${exec}.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess )
+endforeach()
 
 # Helper macro setting up the compiled tests of the package:
 macro( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODRootAccess )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODRootAccess
+      PROPERTIES TIMEOUT 600 )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:

@@ -1,5 +1,5 @@
 package xAODRootAccess
-# $Id: requirements 744419 2016-05-03 11:27:55Z krasznaa $
+# $Id: requirements 784654 2016-11-16 17:17:32Z krasznaa $
 
 public
 
@@ -13,6 +13,7 @@ use AthContainersInterfaces  AthContainersInterfaces-*  Control
 use xAODCore                 xAODCore-*                 Event/xAOD
 use xAODEventFormat          xAODEventFormat-*          Event/xAOD
 use xAODRootAccessInterfaces xAODRootAccessInterfaces-* Control
+use SGTools                  SGTools-*                  Control
 
 apply_pattern installed_library
 library xAODRootAccess ../Root/*.cxx

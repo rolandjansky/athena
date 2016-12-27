@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEvent.cxx 759992 2016-07-06 12:42:40Z krasznaa $
+// $Id: TEvent.cxx 784654 2016-11-16 17:17:32Z krasznaa $
 
 // System include(s):
 #include <cassert>
@@ -29,6 +29,9 @@
 #undef private
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/normalizedTypeinfoName.h"
+#ifndef XAOD_STANDALONE
+#   include "SGTools/CurrentEventStore.h"
+#endif // not XAOD_STANDALONE
 
 // Interface include(s):
 #include "xAODRootAccessInterfaces/TActiveEvent.h"
@@ -78,6 +81,18 @@ namespace {
          name.erase( pos, 3 );
       }
       while( ( pos = name.find( "_v4" ) ) != name.npos ) {
+         name.erase( pos, 3 );
+      }
+      while( ( pos = name.find( "_v5" ) ) != name.npos ) {
+         name.erase( pos, 3 );
+      }
+      while( ( pos = name.find( "_v6" ) ) != name.npos ) {
+         name.erase( pos, 3 );
+      }
+      while( ( pos = name.find( "_v7" ) ) != name.npos ) {
+         name.erase( pos, 3 );
+      }
+      while( ( pos = name.find( "_v8" ) ) != name.npos ) {
          name.erase( pos, 3 );
       }
 
@@ -238,6 +253,11 @@ namespace xAOD {
       if( TActiveEvent::s_event == this ) {
          TActiveEvent::s_event = 0;
       }
+#ifndef XAOD_STANDALONE
+      if( SG::CurrentEventStore::store() == this ) {
+         SG::CurrentEventStore::setStore( nullptr );
+      }
+#endif // not XAOD_STANDALONE
    }
 
    /// @returns The auxiliary data access mode currently in use
@@ -341,6 +361,7 @@ namespace xAOD {
          delete itr->second;
       }
       m_inputObjects.clear();
+      m_branches.clear();
 
       // Clear the cached input meta-objects:
       itr = m_inputMetaObjects.begin();
@@ -355,6 +376,10 @@ namespace xAOD {
 
       // Make sure we return to the current directory:
       TDirectoryReset dr;
+
+      // Set up the file access tracer:
+      static TFileAccessTracer tracer;
+      tracer.add( *file );
 
       // Look for the metadata tree:
       m_inMetaTree =
@@ -386,10 +411,24 @@ namespace xAOD {
                     "Couldn't load the EventFormat dictionary" );
       }
 
+      // Check if the EventFormat branch is available:
+      static const char* EVENTFORMAT_BRANCH_NAME = "EventFormat";
+      if( ! m_inMetaTree->GetBranch( EVENTFORMAT_BRANCH_NAME ) ) {
+         // This can happen when the file was produced by an Athena job that
+         // didn't have any input events itself. This means that the file
+         // doesn't actually have any useful metadata.
+         ::Info( "xAOD::TEvent::readFrom", "Input file provides no event or "
+                 "metadata" );
+         m_inTree = 0;
+         m_inTreeMissing = kTRUE;
+         return TReturnCode::kSuccess;
+      }
+
       // Read in the event format object:
       EventFormat* format = 0; ::TBranch* br = 0;
-      const Int_t status = m_inMetaTree->SetBranchAddress( "EventFormat",
-                                                           &format, &br );
+      const Int_t status =
+         m_inMetaTree->SetBranchAddress( EVENTFORMAT_BRANCH_NAME,
+                                         &format, &br );
       if( status < 0 ) {
          ::Error( "xAOD::TEvent::readFrom",
                   XAOD_MESSAGE( "Failed to connect to EventFormat object" ) );
@@ -443,10 +482,6 @@ namespace xAOD {
       for( TVirtualIncidentListener* listener : m_listeners ) {
          listener->handle( endIncident );
       }
-
-      // Set up the file access tracer:
-      static TFileAccessTracer tracer;
-      tracer.add( *file );
 
       // The initialisation was successful:
       return TReturnCode::kSuccess;
@@ -719,6 +754,10 @@ namespace xAOD {
       // the same time, let's just do the "brutal" cast instead of writing
       // way too much for the same thing...
       TActiveEvent::s_event = ( TVirtualEvent* ) this;
+
+#ifndef XAOD_STANDALONE
+      SG::CurrentEventStore::setStore( const_cast< TEvent* >( this ) );
+#endif // not XAOD_STANDALONE
 
       // Return gracefully:
       return;
@@ -1806,7 +1845,8 @@ namespace xAOD {
                return 0;
             }
             // Let's return the object from the TStore:
-            return store->getObject( key, ti );
+            void* result = store->getObject( key, ti );
+            return result;
          } else {
             // For metadata we don't use external resources.
             return 0;
@@ -1873,7 +1913,8 @@ namespace xAOD {
       TStore* store = TActiveStore::store();
       if( store && store->contains( keyToUse, ti ) &&
           store->isConst( keyToUse, ti ) ) {
-         return store->getConstObject( keyToUse, ti );
+         const void* result = store->getConstObject( keyToUse, ti );
+         return result;
       }
 
       // A sanity check before checking for an object from the input file:
@@ -2308,7 +2349,7 @@ namespace xAOD {
       }
 
       // Make sure that the current object is the "active event":
-      TActiveEvent::s_event = this;
+      setActive();
 
       // The data type is always "other" for us:
       static const ::EDataType dataType = kOther_t;
