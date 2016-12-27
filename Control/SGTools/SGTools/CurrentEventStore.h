@@ -18,7 +18,6 @@
 
 
 class IProxyDict;
-#include "SGTools/IProxyDictWithPool.h"
 
 
 namespace SG {
