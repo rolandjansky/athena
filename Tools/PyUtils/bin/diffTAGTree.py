@@ -34,7 +34,7 @@ hdlr.setFormatter(frmt)
 msg.addHandler(hdlr)
 msg.setLevel(logging.INFO)
 
-setIgnoreLeaves=("Token","StreamESD_ref","StreamRDO_ref","StreamAOD_ref","RecoTimeRAWtoESD","RecoTimeESDtoAOD","RandomNumber")
+setIgnoreLeaves=("Token","StreamESD_ref","StreamRDO_ref","StreamAOD_ref","RecoTimeRAWtoESD","RecoTimeESDtoAOD","RecoTimeRAWtoALL","RandomNumber")
 
 def getEventDict(tagHandle, name):
     duplicates = False
