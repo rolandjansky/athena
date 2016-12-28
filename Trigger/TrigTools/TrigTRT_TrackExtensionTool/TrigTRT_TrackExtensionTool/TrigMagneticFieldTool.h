@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_MAGNETICFIELD_TOOL_H__
-#define __TRIG_MAGNETICFIELD_TOOL_H__
+#ifndef TRIGTRTTRACKEXTENSIONTOOL_TRIGMAGNETICFIELDTOOL_H
+#define TRIGTRTTRACKEXTENSIONTOOL_TRIGMAGNETICFIELDTOOL_H
 
 #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -29,7 +29,7 @@ class TrigMagneticFieldTool : public AthAlgTool
 
   virtual StatusCode finalize();
  
-  void m_getMagneticField(double[3],double*);
+  void getMagneticField(double[3],double*);
 
 private:
   ServiceHandle<MagField::IMagFieldSvc> m_MagFieldSvc;

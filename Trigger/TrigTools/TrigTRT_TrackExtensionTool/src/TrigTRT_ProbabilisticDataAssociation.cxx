@@ -40,7 +40,7 @@ double TrigTRT_BasePDAF::m_errorFunction(double x)
 }
 */
 
-double TrigTRT_BasePDAF::m_errorFunction(double x)
+double TrigTRT_BasePDAF::errorFunction(double x)
 {
   if(x>5.0) return 1.0;
 
@@ -55,7 +55,7 @@ double TrigTRT_BasePDAF::m_errorFunction(double x)
 }
 
 /*
-double TrigTRT_BasePDAF::m_errorFunction(double x)
+double TrigTRT_BasePDAF::errorFunction(double x)
 {
   const double sqrtpi=1.7724538;
   const double tol=1.0e-10;
@@ -85,32 +85,32 @@ double TrigTRT_BasePDAF::m_errorFunction(double x)
 }
 */
 
-double TrigTRT_BasePDAF::m_calculatePDetect(double y1,double y2)
+double TrigTRT_BasePDAF::calculatePDetect(double y1,double y2)
 {
   if(y1>0.0)
     {
-      return 0.5*(m_errorFunction(y2)-m_errorFunction(y1));
+      return 0.5*(errorFunction(y2)-errorFunction(y1));
     }
   else
     {
       if(y2>0.0)
 	{
-	  return 0.5*(m_errorFunction(y2)+m_errorFunction(fabs(y1)));
+	  return 0.5*(errorFunction(y2)+errorFunction(fabs(y1)));
 	}
       else
 	{
-	  return 0.5*(m_errorFunction(fabs(y1))-m_errorFunction(fabs(y2)));
+	  return 0.5*(errorFunction(fabs(y1))-errorFunction(fabs(y2)));
 	}
     }
 }
 
-void TrigTRT_BasePDAF::m_runKalmanFilter(Trk::TrkTrackState* pTS)
+void TrigTRT_BasePDAF::runKalmanFilter(Trk::TrkTrackState* pTS)
 {
   pTS->m_report();
 
 }
 
-void TrigTRT_BasePDAF::m_clear()
+void TrigTRT_BasePDAF::clear()
 {
   for(std::vector<TrigTRT_Straw*>::iterator psIt=m_VS.begin();psIt!=m_VS.end();++psIt)
     {
@@ -136,10 +136,10 @@ TrigTRT_BarrelPDAF::TrigTRT_BarrelPDAF(double eff,
 
 TrigTRT_BarrelPDAF::~TrigTRT_BarrelPDAF()
 {
-  m_clear();
+  clear();
 }
 
-void TrigTRT_BarrelPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk::TrkTrackState* pUS)
+void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk::TrkTrackState* pUS)
 {
   double PE=0.0,covRes,covWire,sQ,sQwire,norm,PD,
     weightedResW,weightedResD,squaredResW,squaredResD,
@@ -177,15 +177,15 @@ void TrigTRT_BarrelPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
       printf("Ys=%f\n",pS->m_localCoordinate());     
 #endif
 
-      x1=pS->m_localCoordinate()-m_strawRadius;
-      x2=pS->m_localCoordinate()+m_strawRadius;      
+      x1=pS->localCoordinate()-m_strawRadius;
+      x2=pS->localCoordinate()+m_strawRadius;      
       double y1,y2;
       y1=sqrt(2.0/pTS->m_getTrackCovariance(0,0))*(x1-pTS->m_getTrackState(0));
       y2=sqrt(2.0/pTS->m_getTrackCovariance(0,0))*(x2-pTS->m_getTrackState(0));
-      PD=m_calculatePDetect(y1,y2);
+      PD=calculatePDetect(y1,y2);
       if(fabs(PD)<1e-8) PD=0.0;
 
-      if(pTI!=NULL) pTI->m_addCrossedStraw(PD);
+      if(pTI!=NULL) pTI->addCrossedStraw(PD);
 
 #ifdef PDAF_DBG
       printf("x1=%f tp=%f x2=%f y1=%f y2=%f\n",
@@ -193,7 +193,7 @@ void TrigTRT_BarrelPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
 #endif
       //      PD=1.0/pVS->size();
 
-      const InDet::TRT_DriftCircle* pH=pS->m_getDC();
+      const InDet::TRT_DriftCircle* pH=pS->getDC();
       if(pH!=NULL) 
 	{
 	  pSW=new WeightedStraw;
@@ -202,20 +202,20 @@ void TrigTRT_BarrelPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
 	  if((pH->localPosition()[0]<0.001)||(m_makeWireHits && (fabs(pH->localPosition()[0]-2.0)<0.001)))
 	    {
 	      pSW->m_nComponents=1;
-	      pSW->m_Resid[0]=pS->m_localCoordinate()-pTS->m_getTrackState(0);
+	      pSW->m_Resid[0]=pS->localCoordinate()-pTS->m_getTrackState(0);
 	      pSW->m_Weight[0]=m_hitEfficiency*(1.0-m_noiseProbability)*pSW->m_PD*sQwire*
 		exp(-0.5*pSW->m_Resid[0]*pSW->m_Resid[0]/covWire);
 
 	      if(pUS!=NULL)
 		{
-		  pSW->m_Resid[0]=pS->m_localCoordinate()-pUS->m_getTrackState(0);
+		  pSW->m_Resid[0]=pS->localCoordinate()-pUS->m_getTrackState(0);
 		}
 	    }
 	  else
 	    {
 	      pSW->m_nComponents=2;
-	      pSW->m_Resid[0]=pS->m_localCoordinate()-pH->localPosition()[0]-pTS->m_getTrackState(0);
-	      pSW->m_Resid[1]=pS->m_localCoordinate()+pH->localPosition()[0]-pTS->m_getTrackState(0);
+	      pSW->m_Resid[0]=pS->localCoordinate()-pH->localPosition()[0]-pTS->m_getTrackState(0);
+	      pSW->m_Resid[1]=pS->localCoordinate()+pH->localPosition()[0]-pTS->m_getTrackState(0);
 	      for(i=0;i<2;i++)
 		{
 		  pSW->m_Weight[i]=m_hitEfficiency*(1.0-m_noiseProbability)*pSW->m_PD*sQ*
@@ -223,8 +223,8 @@ void TrigTRT_BarrelPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
 		}
 	      if(pUS!=NULL)
 		{
-		  pSW->m_Resid[0]=pS->m_localCoordinate()-pH->localPosition()[0]-pUS->m_getTrackState(0);
-		  pSW->m_Resid[1]=pS->m_localCoordinate()+pH->localPosition()[0]-pUS->m_getTrackState(0);
+		  pSW->m_Resid[0]=pS->localCoordinate()-pH->localPosition()[0]-pUS->m_getTrackState(0);
+		  pSW->m_Resid[1]=pS->localCoordinate()+pH->localPosition()[0]-pUS->m_getTrackState(0);
 		}
 	    }
 #ifdef PDAF_DBG
@@ -339,41 +339,41 @@ void TrigTRT_BarrelPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
   
   if(pTI!=NULL)
     {
-      pTI->m_addCrossedLayer();
-      pTI->m_addDetectionWeight(1.0-m_P0);
+      pTI->addCrossedLayer();
+      pTI->addDetectionWeight(1.0-m_P0);
       for(pswIt=m_vpSW.begin();pswIt!=m_vpSW.end();++pswIt)
 	{
-	  if((*pswIt)->m_pS->m_getDC()!=NULL)
+	  if((*pswIt)->m_pS->getDC()!=NULL)
 	    {
-	      bool isHigh=(*pswIt)->m_pS->m_getDC()->highLevel();
+	      bool isHigh=(*pswIt)->m_pS->getDC()->highLevel();
 	      if(isHigh) 
-		pTI->m_addTR_HitWeight((*pswIt)->m_P,((*pswIt)->m_nComponents==2));
-	      pTI->m_addTRT_HitWeight((*pswIt)->m_P,((*pswIt)->m_nComponents==2));
+		pTI->addTR_HitWeight((*pswIt)->m_P,((*pswIt)->m_nComponents==2));
+	      pTI->addTRT_HitWeight((*pswIt)->m_P,((*pswIt)->m_nComponents==2));
 	      if((*pswIt)->m_P>bestProb)
 		{
 		  bestProb=(*pswIt)->m_P;
-		  pBestHit=(*pswIt)->m_pS->m_getDC();
+		  pBestHit=(*pswIt)->m_pS->getDC();
 		}
 	    }
 	}
       if((bestProb>m_associationCut)&&(pBestHit!=NULL))
 	{
-	  pTI->m_addTRT_Hit(pBestHit);
+	  pTI->addTRT_Hit(pBestHit);
 	}
     }
 
-  m_clear();
+  clear();
 }
 
-bool TrigTRT_BarrelPDAF::m_validateTRT_Hit(Trk::TrkTrackState* pTS, 
-					   TrigTRT_Straw* pS)
+bool TrigTRT_BarrelPDAF::validateTRT_Hit(Trk::TrkTrackState* pTS, 
+                                         TrigTRT_Straw* pS)
 {
-  double res=pS->m_localCoordinate()-pTS->m_getTrackState(0); 
+  double res=pS->localCoordinate()-pTS->m_getTrackState(0); 
 
   if(fabs(res)<m_validationCut)
     {
       m_VS.push_back(new TrigTRT_Straw(pS));
-      if(pS->m_getDC()!=NULL) return true;
+      if(pS->getDC()!=NULL) return true;
       else return false;
     }
   return false;
@@ -393,10 +393,10 @@ TrigTRT_EndcapPDAF::TrigTRT_EndcapPDAF(double eff,
 
 TrigTRT_EndcapPDAF::~TrigTRT_EndcapPDAF()
 {
-  m_clear();
+  clear();
 }
 
-void TrigTRT_EndcapPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk::TrkTrackState* pUS)
+void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk::TrkTrackState* pUS)
 {
   double PE=0.0,covRes,covWire,sQ,sQwire,norm,PD,
     weightedResW,weightedResD,squaredResW,squaredResD,
@@ -432,25 +432,25 @@ void TrigTRT_EndcapPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
       TrigTRT_Straw* pS=(*psIt);
       double x1,x2;
 #ifdef PDAF_DBG
-      printf("Xs=%f\n",pS->m_localCoordinate());     
+      printf("Xs=%f\n",pS->localCoordinate());     
 #endif
       double q=m_strawRadius;
-      x1=pS->m_localCoordinate()-q;
-      x2=pS->m_localCoordinate()+q;      
+      x1=pS->localCoordinate()-q;
+      x2=pS->localCoordinate()+q;      
       double y1,y2,cov;
       cov=sqrt(2.0/(pTS->m_getTrackCovariance(1,1)));
       y1=cov*(x1-pTS->m_getTrackState(1));
       y2=cov*(x2-pTS->m_getTrackState(1));
-      PD=m_calculatePDetect(y1,y2);
+      PD=calculatePDetect(y1,y2);
       if(fabs(PD)<1e-8) PD=0.0;
-      if(pTI!=NULL) pTI->m_addCrossedStraw(PD);
+      if(pTI!=NULL) pTI->addCrossedStraw(PD);
 
 #ifdef PDAF_DBG
       printf("x1=%f tp=%f x2=%f y1=%f y2=%f\n",
 	     x1,pTS->m_getTrackState(1),x2,y1,y2);     
 #endif
 
-      const InDet::TRT_DriftCircle* pH=pS->m_getDC();
+      const InDet::TRT_DriftCircle* pH=pS->getDC();
       if(pH!=NULL) 
 	{
 	  pSW=new WeightedStraw;
@@ -460,21 +460,21 @@ void TrigTRT_EndcapPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
 	  if((pH->localPosition()[0]<0.001)||(m_makeWireHits && (fabs(pH->localPosition()[0]-2.0)<0.001)))
 	    {
 	      pSW->m_nComponents=1;
-	      pSW->m_Resid[0]=pS->m_localCoordinate()-pTS->m_getTrackState(1);
+	      pSW->m_Resid[0]=pS->localCoordinate()-pTS->m_getTrackState(1);
 	      pSW->m_Weight[0]=m_hitEfficiency*(1.0-m_noiseProbability)*pSW->m_PD*sQwire*
 		exp(-0.5*pSW->m_Resid[0]*pSW->m_Resid[0]/covWire);
 
 	      if(pUS!=NULL)
 		{
-		  pSW->m_Resid[0]=pS->m_localCoordinate()-pUS->m_getTrackState(1);
+		  pSW->m_Resid[0]=pS->localCoordinate()-pUS->m_getTrackState(1);
 		}
 	    }
 	  else
 	    {
 	      pSW->m_nComponents=2;
 	      q=pH->localPosition()[0];
-	      pSW->m_Resid[0]=pS->m_localCoordinate()-q-pTS->m_getTrackState(1);
-	      pSW->m_Resid[1]=pS->m_localCoordinate()+q-pTS->m_getTrackState(1);
+	      pSW->m_Resid[0]=pS->localCoordinate()-q-pTS->m_getTrackState(1);
+	      pSW->m_Resid[1]=pS->localCoordinate()+q-pTS->m_getTrackState(1);
 	      for(i=0;i<2;i++)
 		{
 		  pSW->m_Weight[i]=m_hitEfficiency*(1.0-m_noiseProbability)*pSW->m_PD*sQ*
@@ -483,8 +483,8 @@ void TrigTRT_EndcapPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
 	      
 	      if(pUS!=NULL)
 		{
-		  pSW->m_Resid[0]=pS->m_localCoordinate()-q-pUS->m_getTrackState(1);
-		  pSW->m_Resid[1]=pS->m_localCoordinate()+q-pUS->m_getTrackState(1);
+		  pSW->m_Resid[0]=pS->localCoordinate()-q-pUS->m_getTrackState(1);
+		  pSW->m_Resid[1]=pS->localCoordinate()+q-pUS->m_getTrackState(1);
 		}
 	    }
 #ifdef PDAF_DBG
@@ -603,39 +603,39 @@ void TrigTRT_EndcapPDAF::m_update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Tr
 
   if(pTI!=NULL)
     {
-      pTI->m_addCrossedLayer();
-      pTI->m_addDetectionWeight(1.0-m_P0);
+      pTI->addCrossedLayer();
+      pTI->addDetectionWeight(1.0-m_P0);
       for(pswIt=m_vpSW.begin();pswIt!=m_vpSW.end();++pswIt)
 	{
-	  if((*pswIt)->m_pS->m_getDC()!=NULL)
+	  if((*pswIt)->m_pS->getDC()!=NULL)
 	    {
-	      bool isHigh=(*pswIt)->m_pS->m_getDC()->highLevel();
-	      if(isHigh) pTI->m_addTR_HitWeight((*pswIt)->m_P,((*pswIt)->m_nComponents==2));
-	      pTI->m_addTRT_HitWeight((*pswIt)->m_P,((*pswIt)->m_nComponents==2));
+	      bool isHigh=(*pswIt)->m_pS->getDC()->highLevel();
+	      if(isHigh) pTI->addTR_HitWeight((*pswIt)->m_P,((*pswIt)->m_nComponents==2));
+	      pTI->addTRT_HitWeight((*pswIt)->m_P,((*pswIt)->m_nComponents==2));
 	      if((*pswIt)->m_P>bestProb)
 		{
 		  bestProb=(*pswIt)->m_P;
-		  pBestHit=(*pswIt)->m_pS->m_getDC();
+		  pBestHit=(*pswIt)->m_pS->getDC();
 		}
 	    }
 	}
       if((bestProb>m_associationCut)&&(pBestHit!=NULL))
 	{
-	  pTI->m_addTRT_Hit(pBestHit);
+	  pTI->addTRT_Hit(pBestHit);
 	}
     }
-  m_clear();
+  clear();
 }
 
-bool TrigTRT_EndcapPDAF::m_validateTRT_Hit(Trk::TrkTrackState* pTS, 
-					   TrigTRT_Straw* pS)
+bool TrigTRT_EndcapPDAF::validateTRT_Hit(Trk::TrkTrackState* pTS, 
+                                         TrigTRT_Straw* pS)
 {
   double res;
-  res=pS->m_localCoordinate()-pTS->m_getTrackState(1);
+  res=pS->localCoordinate()-pTS->m_getTrackState(1);
   if(fabs(res)<m_validationCut)
     {
       m_VS.push_back(new TrigTRT_Straw(pS));
-      if(pS->m_getDC()!=NULL) return true;
+      if(pS->getDC()!=NULL) return true;
       else return false;
     }
   return false;

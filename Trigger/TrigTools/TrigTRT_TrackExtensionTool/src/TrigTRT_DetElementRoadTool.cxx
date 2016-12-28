@@ -42,28 +42,28 @@ TrigTRT_DetElementRoadTool::TrigTRT_DetElementRoadTool( const std::string& type,
 StatusCode TrigTRT_DetElementRoadTool::initialize()  {
   MsgStream log(msgSvc(), name());
 
-  log << MSG::INFO << name() << " in initialize" << endreq;
+  log << MSG::INFO << name() << " in initialize" << endmsg;
 
   StatusCode sc=detStore()->retrieve(m_trtMgr,"TRT");
   if (sc.isFailure()) 
     {
-      log << MSG::ERROR << name() << "failed to get TRT Manager" << endreq;
+      log << MSG::ERROR << name() << "failed to get TRT Manager" << endmsg;
       return StatusCode::FAILURE;
     } 
   else 
     { 
-      log << MSG::DEBUG << name() << "Got TRT Manager" << endreq;
+      log << MSG::DEBUG << name() << "Got TRT Manager" << endmsg;
     }
 
   sc = AthAlgTool::initialize(); 
 
   if (detStore()->retrieve(m_trtHelper, "TRT_ID").isFailure()) {
-     log << MSG::FATAL << "Could not get TRT ID helper" << endreq;
+     log << MSG::FATAL << "Could not get TRT ID helper" << endmsg;
      return StatusCode::FAILURE;  
   }
   sc = m_trigFieldTool.retrieve();
   if(sc.isFailure())  {
-      log << MSG::FATAL << "Unable to locate TrigMagneticField Tool" <<m_trigFieldTool<<endreq;
+      log << MSG::FATAL << "Unable to locate TrigMagneticField Tool" <<m_trigFieldTool<<endmsg;
       return sc;
     } 
 
@@ -93,7 +93,7 @@ TrigTRT_DetElementRoadTool::~TrigTRT_DetElementRoadTool()
 
 }
 
-TrigTRT_DetElementRoad* TrigTRT_DetElementRoadTool::m_buildTRT_Road(Trk::TrkTrackState* pTS)
+TrigTRT_DetElementRoad* TrigTRT_DetElementRoadTool::buildTRT_Road(Trk::TrkTrackState* pTS)
 {
   TrigTRT_DetElementRoad* pR=NULL;
   double lP[3],gP[3],P[6];
@@ -114,7 +114,7 @@ TrigTRT_DetElementRoad* TrigTRT_DetElementRoadTool::m_buildTRT_Road(Trk::TrkTrac
       P[5]=pTS->m_getTrackState(4);
       //printf("Initial track params:\n");
       //pTS->m_report();
-      pR=m_trtGeo->m_buildTRT_Road(P);
+      pR=m_trtGeo->buildTRT_Road(P);
     }
   return pR;
 }

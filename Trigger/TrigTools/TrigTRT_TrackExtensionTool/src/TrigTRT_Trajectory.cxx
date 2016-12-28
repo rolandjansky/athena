@@ -51,42 +51,42 @@ TrigTRT_Trajectory::~TrigTRT_Trajectory()
   if(m_pTI!=NULL) delete m_pTI; 
 }
 
-void TrigTRT_Trajectory::m_setStartingTrackState(Trk::TrkTrackState* pTS)
+void TrigTRT_Trajectory::setStartingTrackState(Trk::TrkTrackState* pTS)
 {
   m_startingTS=pTS;
 }
 
-Trk::TrkTrackState* TrigTRT_Trajectory::m_getStartingTrackState()
+Trk::TrkTrackState* TrigTRT_Trajectory::getStartingTrackState()
 {
   return m_startingTS;
 }
 
-void TrigTRT_Trajectory::m_addSurface(Trk::TrkPlanarSurface* pS)
+void TrigTRT_Trajectory::addSurface(Trk::TrkPlanarSurface* pS)
 {
   m_vpTrkSurfaces.push_back(pS);
 }
 
-void TrigTRT_Trajectory::m_addTrackState(Trk::TrkTrackState* pTS)
+void TrigTRT_Trajectory::addTrackState(Trk::TrkTrackState* pTS)
 {
   m_vpTrackStates.push_back(pTS);
 }
 
-void TrigTRT_Trajectory::m_addFilteringNode(Trk::TrkBaseNode* pN)
+void TrigTRT_Trajectory::addFilteringNode(Trk::TrkBaseNode* pN)
 {
   m_vpNodes.push_back(pN);
 }
 
-void TrigTRT_Trajectory::m_addTRT_SummaryInfo(TrigTRT_Info* pTI)
+void TrigTRT_Trajectory::addTRT_SummaryInfo(TrigTRT_Info* pTI)
 {
   m_pTI=pTI;
 }
 
-TrigTRT_Info* TrigTRT_Trajectory::m_getTRT_SummaryInfo()
+TrigTRT_Info* TrigTRT_Trajectory::getTRT_SummaryInfo()
 {
   return m_pTI;
 }
 
-void TrigTRT_Trajectory::m_smoothTrajectory()
+void TrigTRT_Trajectory::smoothTrajectory()
 {
   std::vector<Trk::TrkTrackState*>::reverse_iterator ptsIt(m_vpTrackStates.rbegin()),
     ptsEnd(m_vpTrackStates.rend());
@@ -98,92 +98,92 @@ void TrigTRT_Trajectory::m_smoothTrajectory()
     }
 }
 
-std::vector<Trk::TrkTrackState*>* TrigTRT_Trajectory::m_getTrackStates()
+std::vector<Trk::TrkTrackState*>* TrigTRT_Trajectory::getTrackStates()
 {
   return (&m_vpTrackStates);
 }
 
-std::vector<Trk::TrkBaseNode*>* TrigTRT_Trajectory::m_getFilteringNodes()
+std::vector<Trk::TrkBaseNode*>* TrigTRT_Trajectory::getFilteringNodes()
 {
   return (&m_vpNodes);
 }
 
-int TrigTRT_Trajectory::m_getNumberOfTRT_Hits()
+int TrigTRT_Trajectory::getNumberOfTRT_Hits()
 {
   if(m_pTI==NULL) return 0;
   else
     {
-      return (int)(m_pTI->m_getTRT_DriftTime_Sum()+m_pTI->m_getTRT_NoDriftTime_Sum()+0.5);
+      return (int)(m_pTI->getTRT_DriftTime_Sum()+m_pTI->getTRT_NoDriftTime_Sum()+0.5);
     }
 }
 
-int TrigTRT_Trajectory::m_getNumberOfHighThresholdTRT_Hits()
+int TrigTRT_Trajectory::getNumberOfHighThresholdTRT_Hits()
 {
   if(m_pTI==NULL) return 0;
   else
     {
-      return (int)(m_pTI->m_getTR_DriftTime_Sum()+m_pTI->m_getTR_NoDriftTime_Sum()+0.5);
+      return (int)(m_pTI->getTR_DriftTime_Sum()+m_pTI->getTR_NoDriftTime_Sum()+0.5);
     }
 }
 
-int TrigTRT_Trajectory::m_getNumberOfCrossedTRT_Straws()
+int TrigTRT_Trajectory::getNumberOfCrossedTRT_Straws()
 {
   if(m_pTI==NULL) return 0;
   else
     {
-      return (int)(m_pTI->m_getCrossedStraws()+0.5);
+      return (int)(m_pTI->getCrossedStraws()+0.5);
     }
 }
 
-int TrigTRT_Trajectory::m_getNumberOfDriftTimeTRT_Hits()
+int TrigTRT_Trajectory::getNumberOfDriftTimeTRT_Hits()
 {
   if(m_pTI==NULL) return 0;
   else
     {
-      return (int)(m_pTI->m_getTRT_DriftTime_Sum()+0.5);
+      return (int)(m_pTI->getTRT_DriftTime_Sum()+0.5);
     }
 }
 
-int TrigTRT_Trajectory::m_getNumberOfMissedDetection()
+int TrigTRT_Trajectory::getNumberOfMissedDetection()
 {
   if(m_pTI==NULL) return 0;
   else
     {
-      return (int)(m_pTI->m_getCrossedLayers()-m_pTI->m_getDetectionWeight()+0.5);
+      return (int)(m_pTI->getCrossedLayers()-m_pTI->getDetectionWeight()+0.5);
     }
 }
 
-void TrigTRT_Trajectory::m_setStatus(bool s)
+void TrigTRT_Trajectory::setStatus(bool s)
 {
   m_status=s;
 }
 
-bool TrigTRT_Trajectory::m_isValid()
+bool TrigTRT_Trajectory::isValid()
 {
   return m_status;
 }
 
-bool TrigTRT_Trajectory::m_isFast()
+bool TrigTRT_Trajectory::isFast()
 {
   return m_highPt;
 }
 
-void TrigTRT_Trajectory::m_setFast(bool f)
+void TrigTRT_Trajectory::setFast(bool f)
 {
   m_highPt=f;
 }
 
-void TrigTRT_Trajectory::m_addRoad(TrigTRT_DetElementRoad* pR)
+void TrigTRT_Trajectory::addRoad(TrigTRT_DetElementRoad* pR)
 {
   m_pRoad=pR;
 }
 
-TrigTRT_DetElementRoad* TrigTRT_Trajectory::m_getRoad()
+TrigTRT_DetElementRoad* TrigTRT_Trajectory::getRoad()
 {
   return m_pRoad;
 }
 
-TrigInDetTrack* TrigTRT_Trajectory::m_getTrigInDetTrack()
+TrigInDetTrack* TrigTRT_Trajectory::getTrigInDetTrack()
 {
   return m_pTrack;
 }

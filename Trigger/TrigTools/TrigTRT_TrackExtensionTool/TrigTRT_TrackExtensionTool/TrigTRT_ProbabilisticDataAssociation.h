@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_TRT_PDAF_H__
-#define __TRIG_TRT_PDAF_H__
+#ifndef TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_PROBABILISTICDATAASSOCIATION_H
+#define TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_PROBABILISTICDATAASSOCIATION_H
 
 class TrigTRT_Straw;
 class TrigTRT_Info;
@@ -26,13 +26,13 @@ class TrigTRT_BasePDAF
  public:
   TrigTRT_BasePDAF(double,double,double,double,double,bool);
   virtual ~TrigTRT_BasePDAF();
-  virtual void m_update(Trk::TrkTrackState*, TrigTRT_Info*, Trk::TrkTrackState*)=0;
-  virtual bool m_validateTRT_Hit(Trk::TrkTrackState*,TrigTRT_Straw*)=0;
-  void m_clear();
+  virtual void update(Trk::TrkTrackState*, TrigTRT_Info*, Trk::TrkTrackState*)=0;
+  virtual bool validateTRT_Hit(Trk::TrkTrackState*,TrigTRT_Straw*)=0;
+  void clear();
  protected:
-  void m_runKalmanFilter(Trk::TrkTrackState*);
-  double m_errorFunction(double);
-  double m_calculatePDetect(double,double);
+  void runKalmanFilter(Trk::TrkTrackState*);
+  double errorFunction(double);
+  double calculatePDetect(double,double);
 
   //  double m_combinedResidual;
   // double m_combinedVariance;
@@ -54,8 +54,8 @@ class TrigTRT_BarrelPDAF : public TrigTRT_BasePDAF
  public:
   TrigTRT_BarrelPDAF(double,double,double,double,double,bool);
   ~TrigTRT_BarrelPDAF();
-  virtual void m_update(Trk::TrkTrackState*,TrigTRT_Info*,Trk::TrkTrackState* pTS=NULL);
-  virtual bool m_validateTRT_Hit(Trk::TrkTrackState*,TrigTRT_Straw*);
+  virtual void update(Trk::TrkTrackState*,TrigTRT_Info*,Trk::TrkTrackState* pTS=NULL);
+  virtual bool validateTRT_Hit(Trk::TrkTrackState*,TrigTRT_Straw*);
 };
 
 class TrigTRT_EndcapPDAF : public TrigTRT_BasePDAF
@@ -63,8 +63,8 @@ class TrigTRT_EndcapPDAF : public TrigTRT_BasePDAF
  public:
   TrigTRT_EndcapPDAF(double,double,double,double,double,bool);
   ~TrigTRT_EndcapPDAF();
-  virtual void m_update(Trk::TrkTrackState*,TrigTRT_Info*,Trk::TrkTrackState* pTS=NULL);
-  virtual bool m_validateTRT_Hit(Trk::TrkTrackState*,TrigTRT_Straw*);
+  virtual void update(Trk::TrkTrackState*,TrigTRT_Info*,Trk::TrkTrackState* pTS=NULL);
+  virtual bool validateTRT_Hit(Trk::TrkTrackState*,TrigTRT_Straw*);
 };
 
 #endif

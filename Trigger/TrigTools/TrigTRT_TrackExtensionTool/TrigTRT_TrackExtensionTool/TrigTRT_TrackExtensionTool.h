@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIGTRTTRACKEXTENSIONTOOL_H__
-#define __TRIGTRTTRACKEXTENSIONTOOL_H__
+#ifndef TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_TRACKEXTENSIONTOOL_H
+#define TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_TRACKEXTENSIONTOOL_H
 
 #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -52,19 +52,19 @@ class TrigTRT_TrackExtensionTool: public AthAlgTool, virtual public ITrigTRT_Tra
 
 private:
 
-  Trk::TrkTrackState* m_extrapolate(Trk::TrkTrackState*, 
+  Trk::TrkTrackState* extrapolate(Trk::TrkTrackState*, 
+                                  Trk::TrkPlanarSurface*,
 				    Trk::TrkPlanarSurface*,
-				    Trk::TrkPlanarSurface*,
-				    double[5][5],
-				    double&);
-  void m_matrixInversion5x5(double a[5][5]);
+                                  double[5][5],
+                                  double&);
+  void matrixInversion5x5(double a[5][5]);
 
-  void m_deleteTrajectories();
-  void m_deleteNodes();
+  void deleteTrajectories();
+  void deleteNodes();
 
-  int m_preloadROBs(TrigInDetTrackCollection*);
-  void m_getPhiRange(double, double, double&, double&);
-  void m_getEtaRange(double, double, double&, double&);
+  int preloadROBs(TrigInDetTrackCollection*);
+  void getPhiRange(double, double, double&, double&);
+  void getEtaRange(double, double, double&, double&);
   int  m_outputLevel;
   double m_DChi2;
   double m_minPt;

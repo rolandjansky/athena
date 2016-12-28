@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_TRT_COMBINED_EXTENSION_TOOL_H__
-#define __TRIG_TRT_COMBINED_EXTENSION_TOOL_H__
+#ifndef TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_COMBINEDEXTENSIONTOOL_H
+#define TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_COMBINEDEXTENSIONTOOL_H
 
 #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -63,21 +63,21 @@ class TrigTRT_CombinedExtensionTool: public AthAlgTool, virtual public ITrigTRT_
 
 private:
 
-  Trk::TrkTrackState* m_extrapolateOffline(Trk::TrkTrackState*,
+  Trk::TrkTrackState* extrapolateOffline(Trk::TrkTrackState*,
 	  Trk::TrkPlanarSurface*,Trk::TrkPlanarSurface*,int,bool createTargetSurface=false);
 
-  TrigTRT_Trajectory* m_createTRT_Trajectory(TrigInDetTrack*);
-  bool m_refitTRT_Trajectory(TrigTRT_Trajectory*);
-  bool m_runPDAF_Tracking(TrigTRT_Trajectory*);
-  bool m_runBackwardFilter(TrigTRT_Trajectory*);
-  bool m_updatePerigee(TrigTRT_Trajectory*);
+  TrigTRT_Trajectory* createTRT_Trajectory(TrigInDetTrack*);
+  bool refitTRT_Trajectory(TrigTRT_Trajectory*);
+  bool runPDAF_Tracking(TrigTRT_Trajectory*);
+  bool runBackwardFilter(TrigTRT_Trajectory*);
+  bool updatePerigee(TrigTRT_Trajectory*);
 
-  void m_updateFilteringNode(Trk::TrkBaseNode*, Trk::TrkTrackState*);
-  void m_deleteTrajectories();
+  void updateFilteringNode(Trk::TrkBaseNode*, Trk::TrkTrackState*);
+  void deleteTrajectories();
 
-  int m_preloadROBs(TrigInDetTrackCollection*);
-  void m_getPhiRange(double, double, double&, double&);
-  void m_getEtaRange(double, double, double&, double&);
+  int preloadROBs(TrigInDetTrackCollection*);
+  void getPhiRange(double, double, double&, double&);
+  void getEtaRange(double, double, double&, double&);
   int  m_outputLevel;
   double m_DChi2;
   double m_roiPhiSize,m_roiEtaSize;

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_TRT_TRAJECTORY_H__
-#define __TRIG_TRT_TRAJECTORY_H__
+#ifndef TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_TRAJECTORY_H
+#define TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_TRAJECTORY_H
 
 namespace Trk {	
 	class TrkBaseNode;
@@ -19,28 +19,28 @@ class TrigTRT_Trajectory
  public:
   TrigTRT_Trajectory(TrigInDetTrack*);
   ~TrigTRT_Trajectory();
-  void m_addSurface(Trk::TrkPlanarSurface*);
-  void m_addTrackState(Trk::TrkTrackState*);
-  void m_addFilteringNode(Trk::TrkBaseNode*);
-  void m_addTRT_SummaryInfo(TrigTRT_Info*);
-  TrigTRT_Info* m_getTRT_SummaryInfo();
-  void m_smoothTrajectory();
-  std::vector<Trk::TrkTrackState*>* m_getTrackStates();
-  std::vector<Trk::TrkBaseNode*>* m_getFilteringNodes();
-  void m_setStartingTrackState(Trk::TrkTrackState*);
-  Trk::TrkTrackState* m_getStartingTrackState();
-  int m_getNumberOfTRT_Hits();
-  int m_getNumberOfHighThresholdTRT_Hits();
-  int m_getNumberOfCrossedTRT_Straws();
-  int m_getNumberOfDriftTimeTRT_Hits();
-  int m_getNumberOfMissedDetection();
-  void m_setStatus(bool);
-  void m_addRoad(TrigTRT_DetElementRoad*);
-  TrigTRT_DetElementRoad* m_getRoad();
-  TrigInDetTrack* m_getTrigInDetTrack();
-  bool m_isValid();
-  bool m_isFast(); 
-  void m_setFast(bool);
+  void addSurface(Trk::TrkPlanarSurface*);
+  void addTrackState(Trk::TrkTrackState*);
+  void addFilteringNode(Trk::TrkBaseNode*);
+  void addTRT_SummaryInfo(TrigTRT_Info*);
+  TrigTRT_Info* getTRT_SummaryInfo();
+  void smoothTrajectory();
+  std::vector<Trk::TrkTrackState*>* getTrackStates();
+  std::vector<Trk::TrkBaseNode*>* getFilteringNodes();
+  void setStartingTrackState(Trk::TrkTrackState*);
+  Trk::TrkTrackState* getStartingTrackState();
+  int getNumberOfTRT_Hits();
+  int getNumberOfHighThresholdTRT_Hits();
+  int getNumberOfCrossedTRT_Straws();
+  int getNumberOfDriftTimeTRT_Hits();
+  int getNumberOfMissedDetection();
+  void setStatus(bool);
+  void addRoad(TrigTRT_DetElementRoad*);
+  TrigTRT_DetElementRoad* getRoad();
+  TrigInDetTrack* getTrigInDetTrack();
+  bool isValid();
+  bool isFast(); 
+  void setFast(bool);
   std::vector<Trk::TrkPlanarSurface*> m_vpTrkSurfaces;
  private:
   std::vector<Trk::TrkTrackState*> m_vpTrackStates;

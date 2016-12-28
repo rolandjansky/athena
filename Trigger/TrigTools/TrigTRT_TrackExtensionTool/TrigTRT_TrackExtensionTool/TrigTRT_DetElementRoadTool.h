@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_TRT_DETELROAD_TOOL_H__
-#define __TRIG_TRT_DETELROAD_TOOL_H__
+#ifndef TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_DETELEMENTROADTOOL_H
+#define TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_DETELEMENTROADTOOL_H
 
 #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -34,7 +34,7 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  TrigTRT_DetElementRoad* m_buildTRT_Road(Trk::TrkTrackState*);
+  TrigTRT_DetElementRoad* buildTRT_Road(Trk::TrkTrackState*);
 
 private:
   TrigTRT_TrackExtensionGeometry* m_trtGeo;

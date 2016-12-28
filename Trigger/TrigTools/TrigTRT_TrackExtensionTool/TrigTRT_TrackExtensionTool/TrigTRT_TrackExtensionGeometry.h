@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_TRT_GEOMETRY_H__
-#define __TRIG_TRT_GEOMETRY_H__
+#ifndef TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_TRACKEXTENSIONGEOMETRY_H
+#define TRIGTRTTRACKEXTENSIONTOOL_TRIGTRT_TRACKEXTENSIONGEOMETRY_H
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -37,20 +37,20 @@ class TrigTRT_Info
  public:
   TrigTRT_Info();
   ~TrigTRT_Info(){m_driftCircles.clear();}
-  void m_addTR_HitWeight(double,bool);
-  void m_addTRT_HitWeight(double,bool);
-  void m_addDetectionWeight(double);
-  void m_addCrossedLayer();
-  void m_addCrossedStraw(double);
-  double m_getTRT_DriftTime_Sum();
-  double m_getTR_DriftTime_Sum();
-  double m_getTRT_NoDriftTime_Sum();
-  double m_getTR_NoDriftTime_Sum();
-  double m_getCrossedStraws();
-  int m_getCrossedLayers();
-  double m_getDetectionWeight();
-  void m_addTRT_Hit(const InDet::TRT_DriftCircle*);
-  std::vector<const InDet::TRT_DriftCircle*>& m_getTRT_Hits();
+  void addTR_HitWeight(double,bool);
+  void addTRT_HitWeight(double,bool);
+  void addDetectionWeight(double);
+  void addCrossedLayer();
+  void addCrossedStraw(double);
+  double getTRT_DriftTime_Sum();
+  double getTR_DriftTime_Sum();
+  double getTRT_NoDriftTime_Sum();
+  double getTR_NoDriftTime_Sum();
+  double getCrossedStraws();
+  int getCrossedLayers();
+  double getDetectionWeight();
+  void addTRT_Hit(const InDet::TRT_DriftCircle*);
+  std::vector<const InDet::TRT_DriftCircle*>& getTRT_Hits();
  private:
   double m_trHitsDT,m_trtHitsDT;
   double m_trHitsNoDT,m_trtHitsNoDT;
@@ -66,10 +66,10 @@ class TrigTRT_Straw
   TrigTRT_Straw();
   TrigTRT_Straw(class TrigTRT_Straw*);
   ~TrigTRT_Straw(){};
-  void m_setLocalCoordinate(double);
-  double m_localCoordinate();
-  void m_setDC(const InDet::TRT_DriftCircle*);
-  const InDet::TRT_DriftCircle* m_getDC();
+  void setLocalCoordinate(double);
+  double localCoordinate();
+  void setDC(const InDet::TRT_DriftCircle*);
+  const InDet::TRT_DriftCircle* getDC();
  private:
   double m_loc;
   const InDet::TRT_DriftCircle* m_pDC;
@@ -80,14 +80,14 @@ class TrigTRT_TrackExtensionLayer
  public:
   TrigTRT_TrackExtensionLayer(int,double[10],int,ToolHandle<TrigMagneticFieldTool>,const TRT_ID*,TrigTRT_BasePDAF*);
   ~TrigTRT_TrackExtensionLayer();
-  void m_addElement(TrigTRT_DetElement*);
-  void m_dump(FILE*);
-  TrigTRT_DetElementPoint* m_findRoadPoint(double*);
-  std::vector<TrigTRT_Straw*>* m_getVectorOfStraws(int,const double[3],Trk::TrkTrackState*);
-  Trk::TrkPlanarSurface* m_createSurface(int);
-  bool m_isInAcceptance(Trk::TrkTrackState*);
-  const TRT_ID* m_getTRT_Helper();
-  TrigTRT_BasePDAF* m_getUpdator();
+  void addElement(TrigTRT_DetElement*);
+  void dump(FILE*);
+  TrigTRT_DetElementPoint* findRoadPoint(double*);
+  std::vector<TrigTRT_Straw*>* getVectorOfStraws(int,const double[3],Trk::TrkTrackState*);
+  Trk::TrkPlanarSurface* createSurface(int);
+  bool isInAcceptance(Trk::TrkTrackState*);
+  const TRT_ID* getTRT_Helper();
+  TrigTRT_BasePDAF* getUpdator();
  private:
   int m_type,m_nStraws;
   double m_minBound,m_maxBound,m_refCoord;
@@ -106,13 +106,13 @@ class TrigTRT_TrackExtensionRegion
  public:
   TrigTRT_TrackExtensionRegion(int);
   ~TrigTRT_TrackExtensionRegion();
-  void m_addLayer(TrigTRT_TrackExtensionLayer*);
-  void m_setType(int);
-  void m_dump(FILE*);
-  void m_report();
-  bool m_isInAcceptance(double[6]);
-  void m_setBoundaries(double,double,double,double);
-  void m_collectDetElements(TrigTRT_DetElementRoad*,double[6]);
+  void addLayer(TrigTRT_TrackExtensionLayer*);
+  void setType(int);
+  void dump(FILE*);
+  void report();
+  bool isInAcceptance(double[6]);
+  void setBoundaries(double,double,double,double);
+  void collectDetElements(TrigTRT_DetElementRoad*,double[6]);
  private:
   std::vector<TrigTRT_TrackExtensionLayer*> m_vpLayers;
   int m_type;
@@ -126,8 +126,8 @@ class TrigTRT_TrackExtensionGeometry
   TrigTRT_TrackExtensionGeometry(const InDetDD::TRT_DetectorManager*,
 				 ToolHandle<TrigMagneticFieldTool>,TrigTRT_BasePDAF*,TrigTRT_BasePDAF*,const TRT_ID*);
   ~TrigTRT_TrackExtensionGeometry();
-  TrigTRT_DetElementRoad* m_buildTRT_Road(double[6]);
-  void m_dump(char fileName[]);
+  TrigTRT_DetElementRoad* buildTRT_Road(double[6]);
+  void dump(char fileName[]);
  private:
   TrigTRT_TrackExtensionRegion* m_pRegions[4];
   TrigTRT_BasePDAF* m_barrelUpdator;

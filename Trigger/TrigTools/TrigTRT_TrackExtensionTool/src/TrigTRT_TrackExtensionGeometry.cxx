@@ -65,17 +65,17 @@ TrigTRT_TrackExtensionLayer::~TrigTRT_TrackExtensionLayer()
     }
 }
 
-const TRT_ID* TrigTRT_TrackExtensionLayer::m_getTRT_Helper()
+const TRT_ID* TrigTRT_TrackExtensionLayer::getTRT_Helper()
 {
   return m_trtHelper;
 }
 
-TrigTRT_BasePDAF* TrigTRT_TrackExtensionLayer::m_getUpdator()
+TrigTRT_BasePDAF* TrigTRT_TrackExtensionLayer::getUpdator()
 {
   return m_pdafUpdator;
 }
 
-void TrigTRT_TrackExtensionLayer::m_dump(FILE* pF)
+void TrigTRT_TrackExtensionLayer::dump(FILE* pF)
 {
   if(m_type==0)
     {
@@ -91,7 +91,7 @@ void TrigTRT_TrackExtensionLayer::m_dump(FILE* pF)
       for(std::vector<TrigTRT_DetElement*>::iterator peIt=m_vpElements.begin();
       peIt!=m_vpElements.end();++peIt)
 	{
-	  (*peIt)->m_dump(pF);
+	  (*peIt)->dump(pF);
 	}
     }
   else
@@ -108,17 +108,17 @@ void TrigTRT_TrackExtensionLayer::m_dump(FILE* pF)
       for(std::vector<TrigTRT_DetElement*>::iterator peIt=m_vpElements.begin();
       peIt!=m_vpElements.end();++peIt)
 	{
-	  (*peIt)->m_dump(pF);
+	  (*peIt)->dump(pF);
 	}
     }
 }
 
-void TrigTRT_TrackExtensionLayer::m_addElement(TrigTRT_DetElement* pE)
+void TrigTRT_TrackExtensionLayer::addElement(TrigTRT_DetElement* pE)
 {
   m_vpElements.push_back(pE); 
 }
 
-TrigTRT_DetElementPoint* TrigTRT_TrackExtensionLayer::m_findRoadPoint(double* pTS)
+TrigTRT_DetElementPoint* TrigTRT_TrackExtensionLayer::findRoadPoint(double* pTS)
 {
   const double C=0.0299997;
   double dPhi,Phi,sT,rt,Delta,DeltaPhi,sinf,cosf,Bz,PhiT,
@@ -145,7 +145,7 @@ TrigTRT_DetElementPoint* TrigTRT_TrackExtensionLayer::m_findRoadPoint(double* pT
 
   for(int i=0;i<3;i++) P[i]=pTS[i];
  // printf("Getting field at... %f %f %f\n",P[0],P[1],P[2]);
-  m_pMagTool->m_getMagneticField(P,&B[0]);
+  m_pMagTool->getMagneticField(P,&B[0]);
   Bz=B[2];
  // printf("Field is %f\n",Bz);
 
@@ -182,7 +182,7 @@ TrigTRT_DetElementPoint* TrigTRT_TrackExtensionLayer::m_findRoadPoint(double* pT
 	    {
 	      for(int i=0;i<3;i++) P[i]=pTS[i];
 	      pTP=new TrigTRT_DetElementPoint(P,m_type,this);
-	      pTP->m_addDetectorElement(m_vpElements[nSec1]);
+	      pTP->addDetectorElement(m_vpElements[nSec1]);
 	    }
 	}
     }
@@ -211,14 +211,14 @@ TrigTRT_DetElementPoint* TrigTRT_TrackExtensionLayer::m_findRoadPoint(double* pT
 	    {
 	      for(int i=0;i<3;i++) P[i]=pTS[i];
 	      pTP=new TrigTRT_DetElementPoint(P,m_type,this);
-	      pTP->m_addDetectorElement(m_vpElements[nSec1]);
+	      pTP->addDetectorElement(m_vpElements[nSec1]);
 	    }
 	}
     }
   return pTP;
 }
 
-Trk::TrkPlanarSurface* TrigTRT_TrackExtensionLayer::m_createSurface(int secId)
+Trk::TrkPlanarSurface* TrigTRT_TrackExtensionLayer::createSurface(int secId)
 {
   const double radLength=0.006;
 
@@ -229,7 +229,7 @@ Trk::TrkPlanarSurface* TrigTRT_TrackExtensionLayer::m_createSurface(int secId)
   if(m_type==0)
     {
       const InDetDD::TRT_BarrelElement* pBE=dynamic_cast<const InDetDD::TRT_BarrelElement*>
-	(m_vpElements[secId]->m_getDetectorElement());
+	(m_vpElements[secId]->getDetectorElement());
 
       if(pBE==NULL) return NULL;
 
@@ -252,7 +252,7 @@ Trk::TrkPlanarSurface* TrigTRT_TrackExtensionLayer::m_createSurface(int secId)
   else
     {
       const InDetDD::TRT_EndcapElement* pEE=dynamic_cast<const InDetDD::TRT_EndcapElement*>
-	(m_vpElements[secId]->m_getDetectorElement());
+	(m_vpElements[secId]->getDetectorElement());
 
       if(pEE==NULL) return NULL;
 
@@ -289,69 +289,69 @@ Trk::TrkPlanarSurface* TrigTRT_TrackExtensionLayer::m_createSurface(int secId)
 }
 
 
-std::vector<TrigTRT_Straw*>* TrigTRT_TrackExtensionLayer::m_getVectorOfStraws(int secId,
-									      const double C[3],
-									      Trk::TrkTrackState* pTS)
+std::vector<TrigTRT_Straw*>* TrigTRT_TrackExtensionLayer::getVectorOfStraws(int secId,
+                                                                            const double C[3],
+                                                                            Trk::TrkTrackState* pTS)
 {
   unsigned int i;
   double x[2],y[2],dx,dy,L0,dL,L,locPos;
 
   if(m_type==0)
-    {
-      const InDetDD::TRT_BarrelElement* pBE=dynamic_cast<const InDetDD::TRT_BarrelElement*>
-	(m_vpElements[secId]->m_getDetectorElement());
+  {
+    const InDetDD::TRT_BarrelElement* pBE=dynamic_cast<const InDetDD::TRT_BarrelElement*>
+      (m_vpElements[secId]->getDetectorElement());
 
-      if(pBE==NULL) return NULL;
+    if(pBE==NULL) return NULL;
 
-      x[0]=pBE->strawCenter(0).x();y[0]=pBE->strawCenter(0).y();
-      x[1]=pBE->strawCenter(pBE->nStraws()-1).x();y[1]=pBE->strawCenter(pBE->nStraws()-1).y();
+    x[0]=pBE->strawCenter(0).x();y[0]=pBE->strawCenter(0).y();
+    x[1]=pBE->strawCenter(pBE->nStraws()-1).x();y[1]=pBE->strawCenter(pBE->nStraws()-1).y();
       
-      dx=(x[1]-x[0]);dy=(y[1]-y[0]);
-      L=sqrt(dx*dx+dy*dy);
-      dL=L/(m_nStraws-1);
-      L0=((C[0]-x[0])*dx+(C[1]-y[0])*dy)/L;
-      for(i=0;i<pBE->nStraws();i++)
-	{
-	  m_vpStraws[i]->m_setLocalCoordinate(-L0+dL*i);
-	  m_vpStraws[i]->m_setDC(NULL);
-	}
-    }
-  else
+    dx=(x[1]-x[0]);dy=(y[1]-y[0]);
+    L=sqrt(dx*dx+dy*dy);
+    dL=L/(m_nStraws-1);
+    L0=((C[0]-x[0])*dx+(C[1]-y[0])*dy)/L;
+    for(i=0;i<pBE->nStraws();i++)
     {
-      const InDetDD::TRT_EndcapElement* pEE=dynamic_cast<const InDetDD::TRT_EndcapElement*>
-	(m_vpElements[secId]->m_getDetectorElement());
-
-      if(pEE==NULL) return NULL;
-
-      double phiPitch=pEE->getDescriptor()->strawPitch();
-      for(i=0;i<pEE->nStraws();i++)
-	{
-	  double deltaPhi=phiPitch*i-0.5*phiPitch*(pEE->nStraws()-1);
-	  //double deltaPhi=phiPitch*i-0.5*phiPitch*(pEE->nStraws());
-	  locPos=pTS->m_getTrackState(0)*sin(deltaPhi)/cos(deltaPhi);
-	  m_vpStraws[i]->m_setLocalCoordinate(locPos);
-	  m_vpStraws[i]->m_setDC(NULL);
-	  /*
-	  printf("Straw %d x=%f y=%f z=%f\n",i,pEE->strawCenter(i).x(),
-		 pEE->strawCenter(i).y(),pEE->strawCenter(i).z());
-	  */
-	}
+      m_vpStraws[i]->setLocalCoordinate(-L0+dL*i);
+      m_vpStraws[i]->setDC(NULL);
     }
+  }
+  else
+  {
+    const InDetDD::TRT_EndcapElement* pEE=dynamic_cast<const InDetDD::TRT_EndcapElement*>
+      (m_vpElements[secId]->getDetectorElement());
+
+    if(pEE==NULL) return NULL;
+
+    double phiPitch=pEE->getDescriptor()->strawPitch();
+    for(i=0;i<pEE->nStraws();i++)
+    {
+      double deltaPhi=phiPitch*i-0.5*phiPitch*(pEE->nStraws()-1);
+      //double deltaPhi=phiPitch*i-0.5*phiPitch*(pEE->nStraws());
+      locPos=pTS->m_getTrackState(0)*sin(deltaPhi)/cos(deltaPhi);
+      m_vpStraws[i]->setLocalCoordinate(locPos);
+      m_vpStraws[i]->setDC(NULL);
+      /*
+        printf("Straw %d x=%f y=%f z=%f\n",i,pEE->strawCenter(i).x(),
+        pEE->strawCenter(i).y(),pEE->strawCenter(i).z());
+      */
+    }
+  }
   return &m_vpStraws;
 }
 
-bool TrigTRT_TrackExtensionLayer::m_isInAcceptance(Trk::TrkTrackState* pTS)
+bool TrigTRT_TrackExtensionLayer::isInAcceptance(Trk::TrkTrackState* pTS)
 {
   double width;
   if(m_type==0)
-    {
-      width=0.5*(m_maxBound-m_minBound);
-      return (fabs(pTS->m_getTrackState(1))<width);
-    }
+  {
+    width=0.5*(m_maxBound-m_minBound);
+    return (fabs(pTS->m_getTrackState(1))<width);
+  }
   else
-    {
-      return ((pTS->m_getTrackState(0)>m_minBound)&&(pTS->m_getTrackState(0)<m_maxBound));
-    }
+  {
+    return ((pTS->m_getTrackState(0)>m_minBound)&&(pTS->m_getTrackState(0)<m_maxBound));
+  }
 }
 
 
@@ -365,47 +365,47 @@ TrigTRT_TrackExtensionRegion::~TrigTRT_TrackExtensionRegion()
 {
   for(std::vector<TrigTRT_TrackExtensionLayer*>::iterator plIt=m_vpLayers.begin();
       plIt!=m_vpLayers.end();++plIt)
-    {
-      delete(*plIt);
-    }
+  {
+    delete(*plIt);
+  }
   m_vpLayers.clear();
 }
 
-void TrigTRT_TrackExtensionRegion::m_addLayer(TrigTRT_TrackExtensionLayer* pL)
+void TrigTRT_TrackExtensionRegion::addLayer(TrigTRT_TrackExtensionLayer* pL)
 {
   m_vpLayers.push_back(pL);
 }
 
-void TrigTRT_TrackExtensionRegion::m_setType(int t)
+void TrigTRT_TrackExtensionRegion::setType(int t)
 {
   m_type=t;
 }
 
-void TrigTRT_TrackExtensionRegion::m_dump(FILE* pF)
+void TrigTRT_TrackExtensionRegion::dump(FILE* pF)
 {
   fprintf(pF,"%s region\n",(m_type==0)?"BARREL":"ENDCAP");
   fprintf(pF,"minZ=%f maxZ=%f minR=%f maxR=%f\n",m_minZ,m_maxZ,m_minR,m_maxR);
   for(std::vector<TrigTRT_TrackExtensionLayer*>::iterator plIt=m_vpLayers.begin();
       plIt!=m_vpLayers.end();++plIt)
-    {
-      (*plIt)->m_dump(pF);
-    }
+  {
+    (*plIt)->dump(pF);
+  }
 }
 
-void TrigTRT_TrackExtensionRegion::m_report()
+void TrigTRT_TrackExtensionRegion::report()
 {
   printf("%s region\n",(m_type==0)?"BARREL":"ENDCAP");
   printf("minZ=%f maxZ=%f minR=%f maxR=%f\n",m_minZ,m_maxZ,m_minR,m_maxR);
 }
 
 
-void TrigTRT_TrackExtensionRegion::m_setBoundaries(double minZ, double maxZ, 
-						   double minR, double maxR)
+void TrigTRT_TrackExtensionRegion::setBoundaries(double minZ, double maxZ, 
+                                                 double minR, double maxR)
 {
   m_minZ=minZ;m_maxZ=maxZ;m_minR=minR;m_maxR=maxR;
 }
 
-bool TrigTRT_TrackExtensionRegion::m_isInAcceptance(double P[6])
+bool TrigTRT_TrackExtensionRegion::isInAcceptance(double P[6])
 {
   double rt,zt,zc[2],rc[2],sint,cost;
   int sig=0;
@@ -422,20 +422,20 @@ bool TrigTRT_TrackExtensionRegion::m_isInAcceptance(double P[6])
 
   for(i=0;i<2;i++)
     for(j=0;j<2;j++)
-      {
-	sig+=(rc[i]*cost>zc[j]*sint)?1:-1;
-      }
+    {
+      sig+=(rc[i]*cost>zc[j]*sint)?1:-1;
+    }
   return (abs(sig)!=4);
 }
 
-void TrigTRT_TrackExtensionRegion::m_collectDetElements(TrigTRT_DetElementRoad* pR,double P[6])
+void TrigTRT_TrackExtensionRegion::collectDetElements(TrigTRT_DetElementRoad* pR,double P[6])
 {
   for(std::vector<TrigTRT_TrackExtensionLayer*>::iterator plIt=m_vpLayers.begin();
       plIt!=m_vpLayers.end();++plIt)
-    {
-      TrigTRT_DetElementPoint* pRP=(*plIt)->m_findRoadPoint(&P[0]);
-      if(pRP!=NULL) pR->m_addPoint(pRP);
-    }
+  {
+    TrigTRT_DetElementPoint* pRP=(*plIt)->findRoadPoint(&P[0]);
+    if(pRP!=NULL) pR->addPoint(pRP);
+  }
 }
 
 
@@ -449,127 +449,127 @@ TrigTRT_TrackExtensionGeometry::TrigTRT_TrackExtensionGeometry(const InDetDD::TR
   TrigTRT_TrackExtensionRegion* pReg;
 
   for(RegId=0;RegId<4;RegId++)
+  {
+    m_pRegions[RegId]=new TrigTRT_TrackExtensionRegion(0);
+    pReg=m_pRegions[RegId];
+    if(RegId<2)
     {
-      m_pRegions[RegId]=new TrigTRT_TrackExtensionRegion(0);
-      pReg=m_pRegions[RegId];
-      if(RegId<2)
-	{
-	  pReg->m_setType(0);
-	  iSide=RegId;
-	  double minR=100000.0;
-	  double maxR=-100000.0;
-	  double minZ=1000000.0;
-	  double maxZ=-1000000.0;
-	  for(iLayer=0;iLayer<3;iLayer++) 
-	    {
-	      nBarrLays=pMgr->getNumerology()->getNBarrelLayers(iLayer);
-	      for(iStraw=0;iStraw<nBarrLays;iStraw++) 
-		{
-		  const InDetDD::TRT_BarrelElement* pBE0=pMgr->getBarrelElement(iSide,iLayer,0,iStraw);
-		  const InDetDD::TRT_BarrelElement* pBE1=pMgr->getBarrelElement(iSide,iLayer,1,iStraw);
+      pReg->setType(0);
+      iSide=RegId;
+      double minR=100000.0;
+      double maxR=-100000.0;
+      double minZ=1000000.0;
+      double maxZ=-1000000.0;
+      for(iLayer=0;iLayer<3;iLayer++) 
+      {
+        nBarrLays=pMgr->getNumerology()->getNBarrelLayers(iLayer);
+        for(iStraw=0;iStraw<nBarrLays;iStraw++) 
+        {
+          const InDetDD::TRT_BarrelElement* pBE0=pMgr->getBarrelElement(iSide,iLayer,0,iStraw);
+          const InDetDD::TRT_BarrelElement* pBE1=pMgr->getBarrelElement(iSide,iLayer,1,iStraw);
 
-		  double xf1,xf2,yf1,yf2,z,param[10],xl1,yl1,xm,ym;
-		  int nStraws=pBE0->nStraws();
-		  double strawLen=pBE0->strawLength();
-		  Amg::Vector3D center=pBE0->transform()*Amg::Vector3D(0.0,0.0,0.0);
-		  z=center.z();
-		  param[0]=z-0.5*strawLen;
-		  param[1]=z+0.5*strawLen;
+          double xf1,xf2,yf1,yf2,z,param[10],xl1,yl1,xm,ym;
+          int nStraws=pBE0->nStraws();
+          double strawLen=pBE0->strawLength();
+          Amg::Vector3D center=pBE0->transform()*Amg::Vector3D(0.0,0.0,0.0);
+          z=center.z();
+          param[0]=z-0.5*strawLen;
+          param[1]=z+0.5*strawLen;
 
-		  if(minZ>param[0]) minZ=param[0];
-		  if(maxZ<param[1]) maxZ=param[1];
+          if(minZ>param[0]) minZ=param[0];
+          if(maxZ<param[1]) maxZ=param[1];
 
-		  xf1=pBE0->strawCenter(0).x();yf1=pBE0->strawCenter(0).y();
-		  xf2=pBE1->strawCenter(0).x();yf2=pBE1->strawCenter(0).y();
-		  xl1=pBE0->strawCenter(nStraws-1).x();
-		  yl1=pBE0->strawCenter(nStraws-1).y();
+          xf1=pBE0->strawCenter(0).x();yf1=pBE0->strawCenter(0).y();
+          xf2=pBE1->strawCenter(0).x();yf2=pBE1->strawCenter(0).y();
+          xl1=pBE0->strawCenter(nStraws-1).x();
+          yl1=pBE0->strawCenter(nStraws-1).y();
 		  
-		  xm=0.5*(xf1+xl1);ym=0.5*(yf1+yl1);
-		  param[2]=sqrt(xm*xm+ym*ym);
+          xm=0.5*(xf1+xl1);ym=0.5*(yf1+yl1);
+          param[2]=sqrt(xm*xm+ym*ym);
 
-		  if(param[2]>maxR) maxR=param[2];
-		  if(param[2]<minR) minR=param[2];
+          if(param[2]>maxR) maxR=param[2];
+          if(param[2]<minR) minR=param[2];
 
-		  param[3]=xf1;param[4]=xl1;param[5]=yf1;param[6]=yl1;
+          param[3]=xf1;param[4]=xl1;param[5]=yf1;param[6]=yl1;
 		  
-		  param[7]=atan2(yf1,xf1);
-		  param[9]=atan2(yf2,xf2)-param[7];
-		  param[8]=atan2(yl1,xl1)-param[7];
+          param[7]=atan2(yf1,xf1);
+          param[9]=atan2(yf2,xf2)-param[7];
+          param[8]=atan2(yl1,xl1)-param[7];
 		  
-		  TrigTRT_TrackExtensionLayer* pL=new TrigTRT_TrackExtensionLayer(0,param,nStraws,
-										  pMagTool,trtHelper,
-										  pBarrelPDAF);
-		  int nPhiMod=pMgr->getNumerology()->getNBarrelPhi();
-		  for(iPhiModule=0;iPhiModule<nPhiMod;iPhiModule++) 
-		    {
-		      const InDetDD::TRT_BarrelElement*
-			pBE=pMgr->getBarrelElement(iSide,iLayer,iPhiModule,iStraw);
-		      IdentifierHash hashId=pBE->identifyHash();
+          TrigTRT_TrackExtensionLayer* pL=new TrigTRT_TrackExtensionLayer(0,param,nStraws,
+                                                                          pMagTool,trtHelper,
+                                                                          pBarrelPDAF);
+          int nPhiMod=pMgr->getNumerology()->getNBarrelPhi();
+          for(iPhiModule=0;iPhiModule<nPhiMod;iPhiModule++) 
+          {
+            const InDetDD::TRT_BarrelElement*
+              pBE=pMgr->getBarrelElement(iSide,iLayer,iPhiModule,iStraw);
+            IdentifierHash hashId=pBE->identifyHash();
 
-		      TrigTRT_DetElement* pTDE=new TrigTRT_DetElement(hashId,iPhiModule,pBE);
-		      pL->m_addElement(pTDE);
-		    }
-		  pReg->m_addLayer(pL);
-		}
-	      pReg->m_setBoundaries(minZ,maxZ,minR,maxR);
-	    }
-	}
-      else
-	{
-	  pReg->m_setType(1);
-	  iSide=(RegId==2)?0:1;
-	  int nWheels=pMgr->getNumerology()->getNEndcapWheels();
-	  double minR=100000.0;
-	  double maxR=-100000.0;
-	  double minZ=100000.0;
-	  double maxZ=-100000.0;
-	  for(iWheel=0;iWheel<nWheels;iWheel++) 
-	    {
-	      nEcLays=pMgr->getNumerology()->getNEndcapLayers(iWheel);
-	      for(iStraw=0;iStraw<nEcLays;iStraw++)
-		{ 
-		  const InDetDD::TRT_EndcapElement* pEE0=pMgr->getEndcapElement(iSide,iWheel,iStraw,0);
-		  const InDetDD::TRT_EndcapElement* pEE1=pMgr->getEndcapElement(iSide,iWheel,iStraw,1);
-
-		  double param[10];
-		  int nStraws=pEE0->nStraws();
-		  double strawLen=pEE0->getDescriptor()->strawLength();
-		  Amg::Vector3D center=pEE0->transform()*Amg::Vector3D(0.0,0.0,0.0);
-		  param[2]=center.z();
-
-		  if(minZ>param[2]) minZ=param[2];
-		  if(maxZ<param[2]) maxZ=param[2];
-
-		  param[0]=pEE0->getDescriptor()->innerRadius();
-		  param[1]=param[0]+strawLen;
-
-		  if(param[0]<minR) minR=param[0];
-		  if(param[1]>maxR) maxR=param[1];
-
-		  param[3]=pEE0->getDescriptor()->strawPitch();
-		  param[7]=pEE0->getDescriptor()->startPhi();
-		  param[8]=nStraws*param[3];
-		  param[9]=pEE1->getDescriptor()->startPhi()-param[7];
-		  
-		  TrigTRT_TrackExtensionLayer* pL=new TrigTRT_TrackExtensionLayer(1,param,nStraws,
-										  pMagTool,trtHelper,
-										  pEndcapPDAF);
-		  int nPhiMod=pMgr->getNumerology()->getNEndcapPhi();
-		  for(iPhiModule=0;iPhiModule<nPhiMod;iPhiModule++) 
-		    {
-		      const InDetDD::TRT_EndcapElement*
-			pEE=pMgr->getEndcapElement(iSide,iWheel,iStraw,iPhiModule);
-		      IdentifierHash hashId=pEE->identifyHash();
-
-		      TrigTRT_DetElement* pTDE=new TrigTRT_DetElement(hashId,iPhiModule,pEE);
-		      pL->m_addElement(pTDE);
-		    }
-		  pReg->m_addLayer(pL);
-		}
-	      pReg->m_setBoundaries(minZ,maxZ,minR,maxR);
-	    }
-	}
+            TrigTRT_DetElement* pTDE=new TrigTRT_DetElement(hashId,iPhiModule,pBE);
+            pL->addElement(pTDE);
+          }
+          pReg->addLayer(pL);
+        }
+        pReg->setBoundaries(minZ,maxZ,minR,maxR);
+      }
     }
+    else
+    {
+      pReg->setType(1);
+      iSide=(RegId==2)?0:1;
+      int nWheels=pMgr->getNumerology()->getNEndcapWheels();
+      double minR=100000.0;
+      double maxR=-100000.0;
+      double minZ=100000.0;
+      double maxZ=-100000.0;
+      for(iWheel=0;iWheel<nWheels;iWheel++) 
+      {
+        nEcLays=pMgr->getNumerology()->getNEndcapLayers(iWheel);
+        for(iStraw=0;iStraw<nEcLays;iStraw++)
+        { 
+          const InDetDD::TRT_EndcapElement* pEE0=pMgr->getEndcapElement(iSide,iWheel,iStraw,0);
+          const InDetDD::TRT_EndcapElement* pEE1=pMgr->getEndcapElement(iSide,iWheel,iStraw,1);
+
+          double param[10];
+          int nStraws=pEE0->nStraws();
+          double strawLen=pEE0->getDescriptor()->strawLength();
+          Amg::Vector3D center=pEE0->transform()*Amg::Vector3D(0.0,0.0,0.0);
+          param[2]=center.z();
+
+          if(minZ>param[2]) minZ=param[2];
+          if(maxZ<param[2]) maxZ=param[2];
+
+          param[0]=pEE0->getDescriptor()->innerRadius();
+          param[1]=param[0]+strawLen;
+
+          if(param[0]<minR) minR=param[0];
+          if(param[1]>maxR) maxR=param[1];
+
+          param[3]=pEE0->getDescriptor()->strawPitch();
+          param[7]=pEE0->getDescriptor()->startPhi();
+          param[8]=nStraws*param[3];
+          param[9]=pEE1->getDescriptor()->startPhi()-param[7];
+		  
+          TrigTRT_TrackExtensionLayer* pL=new TrigTRT_TrackExtensionLayer(1,param,nStraws,
+                                                                          pMagTool,trtHelper,
+                                                                          pEndcapPDAF);
+          int nPhiMod=pMgr->getNumerology()->getNEndcapPhi();
+          for(iPhiModule=0;iPhiModule<nPhiMod;iPhiModule++) 
+          {
+            const InDetDD::TRT_EndcapElement*
+              pEE=pMgr->getEndcapElement(iSide,iWheel,iStraw,iPhiModule);
+            IdentifierHash hashId=pEE->identifyHash();
+
+            TrigTRT_DetElement* pTDE=new TrigTRT_DetElement(hashId,iPhiModule,pEE);
+            pL->addElement(pTDE);
+          }
+          pReg->addLayer(pL);
+        }
+        pReg->setBoundaries(minZ,maxZ,minR,maxR);
+      }
+    }
+  }
 }
 
 TrigTRT_TrackExtensionGeometry::~TrigTRT_TrackExtensionGeometry()
@@ -580,31 +580,31 @@ TrigTRT_TrackExtensionGeometry::~TrigTRT_TrackExtensionGeometry()
   delete m_endcapUpdator;
 }
 
-TrigTRT_DetElementRoad* TrigTRT_TrackExtensionGeometry::m_buildTRT_Road(double P[6])
+TrigTRT_DetElementRoad* TrigTRT_TrackExtensionGeometry::buildTRT_Road(double P[6])
 {
   TrigTRT_DetElementRoad* pR=NULL;
   int i;
   /*  
-  printf("Road builder: IniParams X=%f Y=%f Z=%f phi=%f theta=%f pT=%f\n",
-	 P[0],P[1],P[2],P[3],P[4],sin(P[4])/P[5]);
+      printf("Road builder: IniParams X=%f Y=%f Z=%f phi=%f theta=%f pT=%f\n",
+      P[0],P[1],P[2],P[3],P[4],sin(P[4])/P[5]);
   */
   pR=new TrigTRT_DetElementRoad();
 
   for(i=0;i<4;i++)
+  {
+    if(m_pRegions[i]->isInAcceptance(P))
     {
-      if(m_pRegions[i]->m_isInAcceptance(P))
-	{
-	  //  m_pRegions[i]->m_report();
-	  //printf("Region %d - OK\n",i);
-	  m_pRegions[i]->m_collectDetElements(pR,P);
-	}
-      //else printf("Region %d - not in acceptance\n",i);
+      //  m_pRegions[i]->m_report();
+      //printf("Region %d - OK\n",i);
+      m_pRegions[i]->collectDetElements(pR,P);
     }
-  if(pR->m_roadPoints()->size()==0) 
-    {
-      delete pR;
-      pR=NULL;
-    }
+    //else printf("Region %d - not in acceptance\n",i);
+  }
+  if(pR->roadPoints()->size()==0) 
+  {
+    delete pR;
+    pR=NULL;
+  }
   return pR;
 }
 
@@ -615,43 +615,43 @@ TrigTRT_DetElement::TrigTRT_DetElement(IdentifierHash id, int sec, const InDetDD
   m_pDC=NULL;
 }
 
-const InDetDD::TRT_BaseElement* TrigTRT_DetElement::m_getDetectorElement()
+const InDetDD::TRT_BaseElement* TrigTRT_DetElement::getDetectorElement()
 {
   return m_pDE;
 }
 
-void TrigTRT_DetElement::m_addDC_Collection(const InDet::TRT_DriftCircleCollection* pDC)
+void TrigTRT_DetElement::addDC_Collection(const InDet::TRT_DriftCircleCollection* pDC)
 {
   m_pDC=pDC;
 }
 
-const InDet::TRT_DriftCircleCollection* TrigTRT_DetElement::m_getDC_Collection()
+const InDet::TRT_DriftCircleCollection* TrigTRT_DetElement::getDC_Collection()
 {
   return m_pDC;
 }
 
-IdentifierHash TrigTRT_DetElement::m_getHashId()
+IdentifierHash TrigTRT_DetElement::getHashId()
 {
   return m_hashId;
 }
 
-int TrigTRT_DetElement::m_getSectorId()
+int TrigTRT_DetElement::getSectorId()
 {
   return m_sectorId;
 }
 
-void TrigTRT_DetElement::m_dump(FILE* pF)
+void TrigTRT_DetElement::dump(FILE* pF)
 {
-  fprintf(pF,"DE %d S%d\n",(int)(m_getHashId()),m_sectorId);
+  fprintf(pF,"DE %d S%d\n",(int)(getHashId()),m_sectorId);
 }
 
-void TrigTRT_DetElement::m_report()
+void TrigTRT_DetElement::report()
 {
-  printf("DE %d PhiSector=%d\n",(int)(m_getHashId()),m_sectorId);
-  if(m_getDC_Collection()!=NULL)
-    {
-      printf("  with %d TRT hits\n",(int) m_getDC_Collection()->size());
-    }
+  printf("DE %d PhiSector=%d\n",(int)(getHashId()),m_sectorId);
+  if(getDC_Collection()!=NULL)
+  {
+    printf("  with %d TRT hits\n",(int) getDC_Collection()->size());
+  }
 }
 
 
@@ -660,61 +660,61 @@ TrigTRT_DetElementPoint::TrigTRT_DetElementPoint(double C[3],int t, TrigTRT_Trac
 {
   m_distance=0.0;
   for(int i=0;i<3;i++) 
-    {
-      m_Coordinates[i]=C[i];
-      m_distance+=C[i]*C[i];
-    }
+  {
+    m_Coordinates[i]=C[i];
+    m_distance+=C[i]*C[i];
+  }
   m_distance=sqrt(m_distance);
   m_pElement=NULL;
 }
 
-int TrigTRT_DetElementPoint::m_getType()
+int TrigTRT_DetElementPoint::getType()
 {
   return m_type;
 }
 
-void TrigTRT_DetElementPoint::m_addDetectorElement(TrigTRT_DetElement* pDE)
+void TrigTRT_DetElementPoint::addDetectorElement(TrigTRT_DetElement* pDE)
 {
   m_pElement=pDE;
-  pDE->m_addDC_Collection(NULL);
+  pDE->addDC_Collection(NULL);
 }
 
-TrigTRT_DetElement* TrigTRT_DetElementPoint::m_detectorElement()
+TrigTRT_DetElement* TrigTRT_DetElementPoint::detectorElement()
 {
   return m_pElement;
 }
 
-void TrigTRT_DetElementPoint::m_report()
+void TrigTRT_DetElementPoint::report()
 {
   printf("at X=%f Y=%f Z=%f\n",m_Coordinates[0],m_Coordinates[1],m_Coordinates[2]);
-  m_detectorElement()->m_report();
+  detectorElement()->report();
 }
 
-bool TrigTRT_DetElementPoint::m_hasHits()
+bool TrigTRT_DetElementPoint::hasHits()
 {
-  return (m_detectorElement()->m_getDC_Collection()!=NULL);
+  return (detectorElement()->getDC_Collection()!=NULL);
 }
 
-Trk::TrkPlanarSurface*  TrigTRT_DetElementPoint::m_createSurface()
+Trk::TrkPlanarSurface*  TrigTRT_DetElementPoint::createSurface()
 {
-  int secId=m_detectorElement()->m_getSectorId();
+  int secId=detectorElement()->getSectorId();
   
-  return (m_pTRT_Layer->m_createSurface(secId));
+  return (m_pTRT_Layer->createSurface(secId));
 }
 
-void TrigTRT_DetElementPoint::m_updateTrackState(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk::TrkTrackState* pUS)
+void TrigTRT_DetElementPoint::updateTrackState(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk::TrkTrackState* pUS)
 {
   std::vector<TrigTRT_Straw*> VS;
   int nHits=0;
-  //  pTS->m_report();
+  //  pTS->report();
 
-  if(!m_pTRT_Layer->m_isInAcceptance(pTS)) return;
+  if(!m_pTRT_Layer->isInAcceptance(pTS)) return;
 
-  const InDet::TRT_DriftCircleCollection* pColl=m_detectorElement()->m_getDC_Collection();
+  const InDet::TRT_DriftCircleCollection* pColl=detectorElement()->getDC_Collection();
       
-  // printf("pColl=%x sector=%d\n",pColl,(*deIt)->m_getSectorId());
+  // printf("pColl=%x sector=%d\n",pColl,(*deIt)->getSectorId());
       
-  std::vector<TrigTRT_Straw*>* pVS=m_pTRT_Layer->m_getVectorOfStraws(m_detectorElement()->m_getSectorId(),
+  std::vector<TrigTRT_Straw*>* pVS=m_pTRT_Layer->getVectorOfStraws(detectorElement()->getSectorId(),
 								     pTS->m_getSurface()->m_getCenter(),pTS);
   if(pColl!=NULL)
     {
@@ -723,16 +723,16 @@ void TrigTRT_DetElementPoint::m_updateTrackState(Trk::TrkTrackState* pTS, TrigTR
 	{
 	  const InDet::TRT_DriftCircle* pDC=(*dcIt);
 	  Identifier dcID=pDC->identify();
-	  int nStraw=m_pTRT_Layer->m_getTRT_Helper()->straw(dcID);
-	  (*pVS)[nStraw]->m_setDC(pDC);
+	  int nStraw=m_pTRT_Layer->getTRT_Helper()->straw(dcID);
+	  (*pVS)[nStraw]->setDC(pDC);
 	}
       for(std::vector<TrigTRT_Straw*>::iterator psIt=pVS->begin();psIt!=pVS->end();++psIt)
 	{
-	  if(m_pTRT_Layer->m_getUpdator()->m_validateTRT_Hit(pTS,(*psIt))) nHits++;
+	  if(m_pTRT_Layer->getUpdator()->validateTRT_Hit(pTS,(*psIt))) nHits++;
 	}
     }
-  if(nHits!=0) m_pTRT_Layer->m_getUpdator()->m_update(pTS,pTI,pUS);
-  else m_pTRT_Layer->m_getUpdator()->m_clear();
+  if(nHits!=0) m_pTRT_Layer->getUpdator()->update(pTS,pTI,pUS);
+  else m_pTRT_Layer->getUpdator()->clear();
 }
 
 
@@ -752,37 +752,37 @@ TrigTRT_DetElementRoad::~TrigTRT_DetElementRoad()
   m_vpPoints.clear();
 }
 
-void TrigTRT_DetElementRoad::m_addPoint(TrigTRT_DetElementPoint* pDP)
+void TrigTRT_DetElementRoad::addPoint(TrigTRT_DetElementPoint* pDP)
 {
   m_vpPoints.push_back(pDP);
 }
 
-std::vector<TrigTRT_DetElementPoint*>* TrigTRT_DetElementRoad::m_roadPoints()
+std::vector<TrigTRT_DetElementPoint*>* TrigTRT_DetElementRoad::roadPoints()
 {
   return (&m_vpPoints);
 }
 
-void TrigTRT_DetElementRoad::m_collectDetectorElements(std::list<TrigTRT_DetElement*>* pL)
+void TrigTRT_DetElementRoad::collectDetectorElements(std::list<TrigTRT_DetElement*>* pL)
 {
   for(std::vector<TrigTRT_DetElementPoint*>::iterator ppIt=m_vpPoints.begin();
       ppIt!=m_vpPoints.end();++ppIt)
     {
-      pL->push_back((*ppIt)->m_detectorElement());
+      pL->push_back((*ppIt)->detectorElement());
     }
 }
 
-void TrigTRT_DetElementRoad::m_report()
+void TrigTRT_DetElementRoad::report()
 {
   printf("--- TRT track road contains %d points ----\n",
 	 (int) m_vpPoints.size());
   for(std::vector<TrigTRT_DetElementPoint*>::iterator ppIt=m_vpPoints.begin();
       ppIt!=m_vpPoints.end();++ppIt)
     {
-      (*ppIt)->m_report();
+      (*ppIt)->report();
     }
 }
 
-void TrigTRT_TrackExtensionGeometry::m_dump(char fileName[])
+void TrigTRT_TrackExtensionGeometry::dump(char fileName[])
 {
   FILE* pF;
   int RegId;
@@ -792,7 +792,7 @@ void TrigTRT_TrackExtensionGeometry::m_dump(char fileName[])
   for(RegId=0;RegId<4;RegId++)
     {
       fprintf(pF,"------ Region %d -------\n",RegId);
-      m_pRegions[RegId]->m_dump(pF);
+      m_pRegions[RegId]->dump(pF);
     }
   fclose(pF);
 }
@@ -804,26 +804,26 @@ TrigTRT_Straw::TrigTRT_Straw()
 
 TrigTRT_Straw::TrigTRT_Straw(TrigTRT_Straw* pS)
 {
-  m_setLocalCoordinate(pS->m_localCoordinate());
-  m_setDC(pS->m_getDC());
+  setLocalCoordinate(pS->localCoordinate());
+  setDC(pS->getDC());
 }
 
-void TrigTRT_Straw::m_setLocalCoordinate(double l)
+void TrigTRT_Straw::setLocalCoordinate(double l)
 {
   m_loc=l;
 }
 
-void TrigTRT_Straw::m_setDC(const InDet::TRT_DriftCircle* pDC)
+void TrigTRT_Straw::setDC(const InDet::TRT_DriftCircle* pDC)
 {
   m_pDC=pDC;
 }
 
-double TrigTRT_Straw::m_localCoordinate()
+double TrigTRT_Straw::localCoordinate()
 {
   return m_loc;
 }
 
-const InDet::TRT_DriftCircle* TrigTRT_Straw::m_getDC()
+const InDet::TRT_DriftCircle* TrigTRT_Straw::getDC()
 {
   return m_pDC;
 }
@@ -840,73 +840,73 @@ TrigTRT_Info::TrigTRT_Info()
   m_driftCircles.clear();
 }
 
-void TrigTRT_Info::m_addTR_HitWeight(double w, bool dt)
+void TrigTRT_Info::addTR_HitWeight(double w, bool dt)
 {
   if(dt) m_trHitsDT+=w;
   else m_trHitsNoDT+=w;
 }
 
-void TrigTRT_Info::m_addTRT_HitWeight(double w, bool dt)
+void TrigTRT_Info::addTRT_HitWeight(double w, bool dt)
 {
   if(dt) m_trtHitsDT+=w;
   else m_trtHitsNoDT+=w;
 }
 
-double TrigTRT_Info::m_getTR_DriftTime_Sum()
+double TrigTRT_Info::getTR_DriftTime_Sum()
 {
   return m_trHitsDT;
 }
 
-double TrigTRT_Info::m_getTRT_DriftTime_Sum()
+double TrigTRT_Info::getTRT_DriftTime_Sum()
 {
   return m_trtHitsDT;
 }
 
-double TrigTRT_Info::m_getTR_NoDriftTime_Sum()
+double TrigTRT_Info::getTR_NoDriftTime_Sum()
 {
   return m_trHitsNoDT;
 }
 
-double TrigTRT_Info::m_getTRT_NoDriftTime_Sum()
+double TrigTRT_Info::getTRT_NoDriftTime_Sum()
 {
   return m_trtHitsNoDT;
 }
 
-int TrigTRT_Info::m_getCrossedLayers()
+int TrigTRT_Info::getCrossedLayers()
 {
   return m_nCrossedLayers;
 }
 
-double TrigTRT_Info::m_getDetectionWeight()
+double TrigTRT_Info::getDetectionWeight()
 {
   return m_detectionSum;
 }
 
-double TrigTRT_Info::m_getCrossedStraws()
+double TrigTRT_Info::getCrossedStraws()
 {
   return m_crossedStraws;
 }
 
-void TrigTRT_Info::m_addCrossedStraw(double w)
+void TrigTRT_Info::addCrossedStraw(double w)
 {
   m_crossedStraws+=w;
 }
 
-void TrigTRT_Info::m_addCrossedLayer()
+void TrigTRT_Info::addCrossedLayer()
 {
   m_nCrossedLayers++;
 }
 
-void TrigTRT_Info::m_addDetectionWeight(double w)
+void TrigTRT_Info::addDetectionWeight(double w)
 {
   m_detectionSum+=w;
 }
-void TrigTRT_Info::m_addTRT_Hit(const InDet::TRT_DriftCircle* pH)
+void TrigTRT_Info::addTRT_Hit(const InDet::TRT_DriftCircle* pH)
 {
   m_driftCircles.push_back(pH);
 }
 
-std::vector<const InDet::TRT_DriftCircle*>& TrigTRT_Info::m_getTRT_Hits()
+std::vector<const InDet::TRT_DriftCircle*>& TrigTRT_Info::getTRT_Hits()
 {
   return m_driftCircles;
 }
