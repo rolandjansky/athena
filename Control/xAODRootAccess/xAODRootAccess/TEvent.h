@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEvent.h 791122 2016-12-27 13:55:49Z ssnyder $
+// $Id: TEvent.h 791156 2016-12-28 19:24:45Z ssnyder $
 #ifndef XAODROOTACCESS_TEVENT_H
 #define XAODROOTACCESS_TEVENT_H
 
@@ -42,6 +42,7 @@ namespace SG {
 }
 namespace xAODPrivate {
    class THolderBucket;
+   class TLoader;
 }
 
 namespace xAOD {
@@ -72,8 +73,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 791122 $
-   /// $Date: 2016-12-27 14:55:49 +0100 (Tue, 27 Dec 2016) $
+   /// $Revision: 791156 $
+   /// $Date: 2016-12-28 20:24:45 +0100 (Wed, 28 Dec 2016) $
    ///
    class TEvent : public TVirtualEvent,
                   public IProxyDict {
@@ -85,6 +86,7 @@ namespace xAOD {
       friend class xAOD::TFileMerger;
       friend class xAOD::TTreeMgr;
       friend class xAODPrivate::THolderBucket;
+      friend class xAODPrivate::TLoader;
 
    public:
       /// Auxiliary store "mode"
