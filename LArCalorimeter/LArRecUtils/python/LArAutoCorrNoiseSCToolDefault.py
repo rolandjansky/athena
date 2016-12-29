@@ -25,9 +25,10 @@ def LArAutoCorrNoiseSCToolDefault (name="LArAutoCorrNoiseSCToolDefault", **kw):
     from LArROD.LArRODFlags import larRODFlags
     tool.NSamples = larRODFlags.nSamples()
     from IOVDbSvc.CondDB import conddb
-    if ( conddb.isMC and not conddb.folderRequested('/LAR/IdentifierOfl/OnOffIdMap_SC') ) :
-        conddb.addFolder("LAR_OFL","<tag>LARIdentifierOflOnOffIdMap_SC-000</tag>/LAR/IdentifierOfl/OnOffIdMap_SC")
     if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/AutoCorr') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCAutoCorr-000</tag>/LAR/ElecCalibMCSC/AutoCorr")
+            #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCAutoCorr-000</tag>/LAR/ElecCalibMCSC/AutoCorr")
+            conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/AutoCorr")
+    from AthenaCommon.Include import include
+    include("LArROD/LArConfigureCablingSCFolder.py")
 
     return tool
