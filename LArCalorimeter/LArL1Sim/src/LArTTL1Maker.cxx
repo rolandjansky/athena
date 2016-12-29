@@ -654,7 +654,7 @@ StatusCode LArTTL1Maker::execute()
 		sumEnergy2[ttHash] = ttSumE;
 	      }
 	      //	      msglog << MSG::VERBOSE << "applied relative layer gain " << relGain 
-	      //		     << " to a hit of cell " << m_emHelper->show_to_string(cellId) << endreq; 
+	      //		     << " to a hit of cell " << m_emHelper->show_to_string(cellId) << endmsg; 
 	      inTimeE+=hitEnergy;
 	      nInTime++;
 	    } // only hits in timing window
