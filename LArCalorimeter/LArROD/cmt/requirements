@@ -17,7 +17,7 @@ use LArRawEvent      LArRawEvent-*         LArCalorimeter
 #use LArRawUtils     LArRawUtils-*         LArCalorimeter
 use LArRawConditions LArRawConditions-*    LArCalorimeter
 use LArRecUtils      LArRecUtils-*         LArCalorimeter
-use LArTools         LArTools-*            LArCalorimeter
+use LArCabling       LArCabling-*          LArCalorimeter
 
 use LArRecConditions LArRecConditions-*    LArCalorimeter
 
@@ -35,6 +35,7 @@ apply_pattern declare_joboptions files="*.txt *.py"
 apply_pattern declare_python_modules files="*.py"
 
 private
+use CxxUtils        CxxUtils-*          Control
 use AthContainers   AthContainers-*     Control
 use CaloDetDescr    CaloDetDescr-*      Calorimeter
 use CommissionEvent CommissionEvent-*   Commission
@@ -42,10 +43,8 @@ use CaloEvent	    CaloEvent-*		Calorimeter
 use LArCOOLConditions           LArCOOLConditions-*             LArCalorimeter
 use AthenaPoolUtilities         AthenaPoolUtilities-*           Database/AthenaPOOL
 
-use  CaloTriggerTool            CaloTriggerTool-*               Calorimeter
-
 use AtlasROOT AtlasROOT-* External
-
+use EventInfo EventInfo-* Event
 end_private
 
 #use GaudiPython v*

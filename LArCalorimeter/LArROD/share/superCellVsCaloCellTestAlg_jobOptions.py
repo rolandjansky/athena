@@ -1,6 +1,6 @@
 from glob import glob
 
-filelist = ['/var/clus/usera/will/testareas/ValidateDPS/DigiJobOptions/out.FixedELSB_middle64_nopileup_RDO.pool.root']
+filelist = ['/var/clus/usera/will/testareas/ValidateDPS/DigiJobOptions/out.allConstantsSV_mV_LSB_RDO.pool.root']
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = filelist
@@ -35,4 +35,7 @@ include("RecExCond/AllDet_detDescr.py")
 job = CfgMgr.AthSequencer("AthAlgSeq")
 job += CfgMgr.SuperCellVsCaloCellTestAlg("MyAlg")
 
-svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=500)
+#svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=500)
+
+if not hasattr(svcMgr,"THistSvc"): svcMgr += CfgMgr.THistSvc()
+svcMgr.THistSvc.Output +=  ["SUPERCELLTEST DATAFILE='hist.root' OPT='RECREATE' "]
