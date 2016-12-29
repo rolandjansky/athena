@@ -77,28 +77,28 @@ StatusCode LArRawChannelSimpleBuilder::initialize(){
   MsgStream log(msgSvc(), name());
   StatusCode sc;
   
-  log << MSG::DEBUG << "In Initialize." << endreq;
+  log << MSG::DEBUG << "In Initialize." << endmsg;
 
   /*  
   if (m_roiMap.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to find tool LArRoI_Map" << endreq;
+    log << MSG::ERROR << "Unable to find tool LArRoI_Map" << endmsg;
     return StatusCode::FAILURE; 
   }
   */
 
   if (m_useRampDB) {
     if (m_adc2mevTool.retrieve().isFailure()) {
-      log << MSG::ERROR << "Unable to find tool for LArADC2MeV" << endreq;
+      log << MSG::ERROR << "Unable to find tool for LArADC2MeV" << endmsg;
       return StatusCode::FAILURE;
     }
   }
   
   if ( m_mode == "PARABOLA"){
     if (m_peakParabolaTool.retrieve().isFailure())
-      {log << MSG::ERROR << "Can't get LArParabolaPeakRecoTool" << endreq;
+      {log << MSG::ERROR << "Can't get LArParabolaPeakRecoTool" << endmsg;
       return StatusCode::SUCCESS;
       }
-    log << MSG::DEBUG << "LArParabolaPeakRecoTool retrieved with success!" << endreq ;
+    log << MSG::DEBUG << "LArParabolaPeakRecoTool retrieved with success!" << endmsg ;
   }
 
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
@@ -107,13 +107,13 @@ StatusCode LArRawChannelSimpleBuilder::initialize(){
   m_hecId=caloIdMgr->getHEC_ID();
 
   if (m_larCablingSvc.retrieve().isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
+      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
       return StatusCode::FAILURE;
     }
 
   sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
+    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -126,23 +126,23 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
   StatusCode sc;
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "In execute" << endreq;
+  log << MSG::DEBUG << "In execute" << endmsg;
   
   //Pointer to input data container
   const LArDigitContainer* digitContainer;//Pointer to LArDigitContainer
 
   //Retrieve Digit Container
-  log << MSG::DEBUG << "About to retrieve LArDigitContainer with key " << m_DataLocation << endreq;
+  log << MSG::DEBUG << "About to retrieve LArDigitContainer with key " << m_DataLocation << endmsg;
   sc=evtStore()->retrieve(digitContainer,m_DataLocation);
-  log << MSG::DEBUG << "1) LArDigitContainer container size = " <<  digitContainer->size() << endreq;
+  log << MSG::DEBUG << "1) LArDigitContainer container size = " <<  digitContainer->size() << endmsg;
   if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " <<m_DataLocation << "from StoreGate." << endreq;
+    log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " <<m_DataLocation << "from StoreGate." << endmsg;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::DEBUG << "2) LArDigitContainer container size = " <<  digitContainer->size() << endreq;
+  log << MSG::DEBUG << "2) LArDigitContainer container size = " <<  digitContainer->size() << endmsg;
   if( digitContainer->size() < 1 ) {
-    log << MSG::INFO << "Empty LArDigitContainer container." << endreq;
+    log << MSG::INFO << "Empty LArDigitContainer container." << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -156,7 +156,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
   // Put this LArRawChannel container in the transient store
   sc = evtStore()->record(m_larRawChannelContainer, m_ChannelContainerName);
   if(sc.isFailure()) {
-    log << MSG::INFO << "Can't record LArRawChannelContainer in StoreGate" << endreq;
+    log << MSG::INFO << "Can't record LArRawChannelContainer in StoreGate" << endmsg;
   }
   
   //Pointer to conditions data objects 
@@ -165,7 +165,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
     sc=detStore()->retrieve(larPedestal);
     if (sc.isFailure()) {
       larPedestal=NULL;
-      log << MSG::DEBUG << "No pedestal found in database. Use default values." << endreq;
+      log << MSG::DEBUG << "No pedestal found in database. Use default values." << endmsg;
     }
   }
 
@@ -186,7 +186,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
   for(int iloop=0;iloop<2;iloop++) {
    
     //Now all data is available, start loop over Digit Container
-    log << MSG::DEBUG << "Loop over Digit Container " << endreq;
+    log << MSG::DEBUG << "Loop over Digit Container " << endmsg;
     
     LArDigitContainer::const_iterator cont_it=digitContainer->begin();
     LArDigitContainer::const_iterator cont_it_e=digitContainer->end();
@@ -207,7 +207,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
       }
       if (thePedestal<0) {
 	thePedestal = (float)samples[m_iPedestal];
-	log << MSG::DEBUG << "No pedestal found for this cell. Use default value " << thePedestal << endreq;
+	log << MSG::DEBUG << "No pedestal found for this cell. Use default value " << thePedestal << endmsg;
       }
       //>>>> PL June 20, 2004: subtract pedestal first, assume first sample ->JO?
       std::vector<float> mySamples;
@@ -215,7 +215,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
       // FIXME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! only for 5 leading noise samples!
       
       //    log << MSG::INFO
-      //  << "pedestal " << thePedestal << endreq;
+      //  << "pedestal " << thePedestal << endmsg;
       for ( unsigned int i=0; i<samples.size(); i++ )
 	{
 	  mySamples[i] = ((float)samples[i]) - thePedestal;
@@ -231,14 +231,14 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	GainFactor = 1.0;
       } else {
 	GainFactor = 1.0;
-	log << MSG::ERROR << "Channel " << chid << "unknown gain: " << gain << endreq;
+	log << MSG::ERROR << "Channel " << chid << "unknown gain: " << gain << endmsg;
       }
       
       // Get hardware identifier for later use.
       HWIdentifier FebID = m_onlineHelper->feb_Id(chid);
       unsigned int channel  = m_onlineHelper->channel(chid);
       MSG::hex(log) << MSG::DEBUG
-		    << " FebID / chid / channel = " << FebID << " / " << chid << " / " << channel << endreq;
+		    << " FebID / chid / channel = " << FebID << " / " << chid << " / " << channel << endmsg;
       
       // And note if this is an FCAL channel with fast pulses (cubic fails)
       // EM and HEC are also tested to adjust the signal range for averaging
@@ -274,7 +274,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
       }
       //catch( LArOnlID_Exception & except) 
       catch (LArID_Exception & execpt) {
-	MSG::hex(log) << MSG::DEBUG << " is disconnected." << endreq;
+	MSG::hex(log) << MSG::DEBUG << " is disconnected." << endmsg;
         // The question now being:  do we want to skip this channel???
         // Probably yes, so do so.  RMcP 9 June 2006
         continue;
@@ -289,7 +289,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
       if ( nAverage > nSamples ) {
 	log << MSG::WARNING << " Number of samples to average (" 
 	    << nAverage << ") is larger than total number of samples (" 
-	    << nSamples << ")! adjusting nAverage ... " << endreq; 
+	    << nSamples << ")! adjusting nAverage ... " << endmsg; 
 	nAverage = nSamples;
       }
 
@@ -297,7 +297,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
       if ( iloop == 0 ) {
 
         if (pSum == 0) {
-          MSG::hex(log) << MSG::ERROR << " don't have pSum pointer." << endreq;
+          MSG::hex(log) << MSG::ERROR << " don't have pSum pointer." << endmsg;
           continue;
         }
   
@@ -346,7 +346,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	  if(isFCAL &&   m_mode == "CUBIC" &&
 	     ! ( CubicFailed = maxADCPeak <= m_cubicAdcCut ) ) {
 	  
-	    log << MSG::DEBUG << " Special reconstruction for FCAL." << endreq;
+	    log << MSG::DEBUG << " Special reconstruction for FCAL." << endmsg;
           
 	    unsigned int it0;
 	  
@@ -408,14 +408,14 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 		int layer = 0;
 		try {
 		  const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
-		  MSG::hex(log) << MSG::DEBUG << "     id = " << id << endreq;
+		  MSG::hex(log) << MSG::DEBUG << "     id = " << id << endmsg;
 		  if (m_emId->is_em_barrel(id)) {
 		    layer= m_emId->sampling(id);
 		  }
 		}
 		catch (LArID_Exception & execpt){
 		  MSG::hex(log) << MSG::DEBUG
-				<< " Cannot get offline identifier from online ID = " << chid << endreq;
+				<< " Cannot get offline identifier from online ID = " << chid << endmsg;
 		}
 	      
 		std::vector<float> peak =m_peakParabolaTool->peak(samples,layer,thePedestal); 
@@ -424,12 +424,12 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 		  if (peak.size()==2)time = peak[1];
 		  else time = peak[2];
 		}else{
-		  log << MSG::DEBUG << "No pic is computed from Parabola. Use scaled average of selected samples" << endreq;
+		  log << MSG::DEBUG << "No pic is computed from Parabola. Use scaled average of selected samples" << endmsg;
 		  ADCPeak = averagedADC;
 		  time    = -99.;
 		}
 	      }else{
-		log << MSG::FATAL << "No parabola tool available ! Choose another mode" << endreq;
+		log << MSG::FATAL << "No parabola tool available ! Choose another mode" << endmsg;
 	      }
 	    }
 	  
@@ -467,7 +467,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	      // fit parameters
 	      disc = A[2]*A[2] - 3*A[1]*A[3];
 	      if ( ! ( CubicFailed = ( disc < 0 || A[3] == 0 ) ) )   {
-		dtmax = (-A[2]-sqrt(disc))/3/A[3];
+		dtmax = (-A[2]-sqrt(disc))/(A[3]*3);
 		if ( ! ( CubicFailed = ( dtmax < 0 || dtmax > 3 ) ) ) {
 		  time = (float(it0) + dtmax) * 25.0 * nanosecond; // nsec
 		  for(int ia = 0; ia < 4; ia++)
@@ -497,7 +497,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	    << maxADCPeak
 	    << " PeakSample: "
 	    << iPeakSamp
-	    << endreq;
+	    << endmsg;
       
 	float energy=-9999;
 	if (m_useRampDB) {
@@ -515,7 +515,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	  }
 	}
 	if (energy==-9999) {
-	  log << MSG::DEBUG << "No Ramp found for this cell. Use default values" << endreq;
+	  log << MSG::DEBUG << "No Ramp found for this cell. Use default values" << endmsg;
 	  //Apply default values
 	  // Now must get subdetector ID and feed in here ...
 	  float ADCtoMeV      = 10.0;
@@ -523,12 +523,12 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	  //     HWIdentifier FebID = m_onlineHelper->feb_Id(chid);
 	  //     unsigned int channel  = m_onlineHelper->channel(chid);
 	  //     MSG::hex(log) << MSG::DEBUG
-	  //                   << " FebID / chid / channel = " << FebID << " / " << chid << " / " << channel << endreq;
+	  //                   << " FebID / chid / channel = " << FebID << " / " << chid << " / " << channel << endmsg;
 	
 	  try {
 	    const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
 	  
-	    MSG::hex(log) << MSG::DEBUG << "     id = " << id << endreq;
+	    MSG::hex(log) << MSG::DEBUG << "     id = " << id << endmsg;
 	  
 	    if (m_emId->is_em_barrel(id)) {
 	      const int layer= m_emId->sampling(id);
@@ -536,30 +536,30 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	      ADCtoMeV = m_ADCtoMeVEMB[layer];
 	      if (layer==2 && eta<32)
 		ADCtoMeV=ADCtoMeV*(12./18.); //Correct for lead thickness
-	      log << MSG::DEBUG << " in EMB s="<< layer <<", using ADCtoMeV = " << ADCtoMeV << endreq;
+	      log << MSG::DEBUG << " in EMB s="<< layer <<", using ADCtoMeV = " << ADCtoMeV << endmsg;
 	    } else if (m_emId->is_em_endcap_inner(id)) {
 	      // m_emId->sampling(id);
 	      ADCtoMeV = m_ADCtoMeVEMECInner[m_emId->sampling(id)-1];
-	      log << MSG::DEBUG << " in EMEC inner s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+	      log << MSG::DEBUG << " in EMEC inner s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endmsg;
 	    } else if (m_emId->is_em_endcap_outer(id)) {
 	      // m_emId->sampling(id);
 	      // ADCtoMeV = m_ADCtoMeVEMECOuter[m_emId->sampling(id)-1];
               ADCtoMeV = m_ADCtoMeVEMECOuter[m_emId->sampling(id)];
-	      log << MSG::DEBUG << " in EMEC outer s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+	      log << MSG::DEBUG << " in EMEC outer s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endmsg;
 	    } else if (m_fcalId->is_lar_fcal(id)) {
 	      // m_fcalId->module(chid);
 	      ADCtoMeV = m_ADCtoMeVFCAL[m_fcalId->module(id)-1];
-	      log << MSG::DEBUG << " in FCAL m=" << m_fcalId->module(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+	      log << MSG::DEBUG << " in FCAL m=" << m_fcalId->module(id)<<", using ADCtoMeV = " << ADCtoMeV << endmsg;
 	    } else if (m_hecId->is_lar_hec(id)) {
 	      // m_layer[m_cellIndex]=m_hecId->sampling(id);
 	      ADCtoMeV = m_ADCtoMeVHEC[0];
-	      log << MSG::DEBUG << " in HEC s="<<m_hecId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+	      log << MSG::DEBUG << " in HEC s="<<m_hecId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endmsg;
 	    }
 	  }
 	  //catch( LArOnlID_Exception & except) 
 	  catch (LArID_Exception & execpt)
 	    {MSG::hex(log) << MSG::DEBUG
-			   << " is disconnected. Set ADCtoMeV to 1" << endreq;
+			   << " is disconnected. Set ADCtoMeV to 1" << endmsg;
 	    ADCtoMeV=1;
 	    }
 	  energy  = ADCPeak * ADCtoMeV * GainFactor;
@@ -585,7 +585,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	}
       }
       if ( fSumEM.size() > 0 ) {
-	log << MSG::DEBUG << "Found best EM window starting at sample <" << nMinEM << ">" << endreq;
+	log << MSG::DEBUG << "Found best EM window starting at sample <" << nMinEM << ">" << endmsg;
       }
 
       for(i=0;i<fSumHEC.size();i++) {
@@ -595,7 +595,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	}
       }
       if ( fSumHEC.size() > 0 ) {
-	log << MSG::DEBUG << "Found best HEC window starting at sample <" << nMinHEC << ">" << endreq;
+	log << MSG::DEBUG << "Found best HEC window starting at sample <" << nMinHEC << ">" << endmsg;
       }
 
       for(i=0;i<fSumFCAL.size();i++) {
@@ -605,18 +605,18 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	}
       }
       if ( fSumFCAL.size() > 0 ) {
-	log << MSG::DEBUG << "Found best FCAL window starting at sample <" << nMinFCAL << ">" << endreq;
+	log << MSG::DEBUG << "Found best FCAL window starting at sample <" << nMinFCAL << ">" << endmsg;
       }
 
     }
   }// End of double loop over Digit containers
 
-  log << MSG::DEBUG << "Finished loop over Digit Container " << endreq;
+  log << MSG::DEBUG << "Finished loop over Digit Container " << endmsg;
 
   // lock raw channel container
   sc = evtStore()->setConst(m_larRawChannelContainer);
   if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot lock RawChannel Container " << endreq;
+    log << MSG::ERROR << " Cannot lock RawChannel Container " << endmsg;
     return(StatusCode::FAILURE);
   }
 
@@ -627,7 +627,7 @@ StatusCode LArRawChannelSimpleBuilder::finalize()
 {//Error and Warning Summary for this job:
   MsgStream log(msgSvc(), name());
   
-  log << MSG::INFO << "LArRawChannelSimpleBuilder finished." << endreq;
+  log << MSG::INFO << "LArRawChannelSimpleBuilder finished." << endmsg;
 
   return StatusCode::SUCCESS;
 }

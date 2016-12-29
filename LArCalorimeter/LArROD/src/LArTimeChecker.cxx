@@ -43,19 +43,19 @@ StatusCode LArTimeChecker::execute() {
   
   sc=evtStore()->retrieve(larDigitContainer,m_DataLocation);
   if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " <<m_DataLocation << " from StoreGate." << endreq;
+    log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " <<m_DataLocation << " from StoreGate." << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc=detStore()->retrieve(larPedestal);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArPedestal from Conditions Store" << endreq;
+    log << MSG::ERROR << "Can't retrieve LArPedestal from Conditions Store" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc=detStore()->retrieve(larOFC);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArOFC from Conditions Store" << endreq;
+    log << MSG::ERROR << "Can't retrieve LArOFC from Conditions Store" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -88,7 +88,7 @@ StatusCode LArTimeChecker::execute() {
   int phase=-1;
   float pedestal=larPedestal->pedestal(seed_cell,gain2);
   if (pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
-     log << MSG::WARNING << "invalid pedestal for cell " << seed_cell << endreq;       
+     log << MSG::WARNING << "invalid pedestal for cell " << seed_cell << endmsg;       
      pedestal = seed_samples[0];
   }
 
@@ -102,7 +102,7 @@ StatusCode LArTimeChecker::execute() {
     
     if(ofc_a.size()==0||ofc_b.size()==0)
       {
-	log<<MSG::INFO<<"OFC not found for this channel with phase "<<tbin<<endreq;
+	log<<MSG::INFO<<"OFC not found for this channel with phase "<<tbin<<endmsg;
 	continue;
       } 
 
@@ -127,7 +127,7 @@ StatusCode LArTimeChecker::execute() {
   
   sc = evtStore()->record(theTBPhase, "TBPhase");
   if (sc.isFailure( )) {
-    log << MSG::FATAL << "Cannot record TBPhase" << endreq;
+    log << MSG::FATAL << "Cannot record TBPhase" << endmsg;
     return StatusCode::FAILURE ;
   }
   std::cout << "Found phase=" << phase << " tmin=" << tmin << " at cell 0x" << std::hex << seed_cell.get_compact() 

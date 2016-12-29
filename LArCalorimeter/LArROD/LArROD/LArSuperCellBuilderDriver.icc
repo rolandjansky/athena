@@ -12,7 +12,7 @@ LArSuperCellBuilderDriver::retrieveStoreGate(const T*& object,
     if(service("StoreGateSvc",m_storeGateSvc).isFailure())
       {
         MsgStream log(msgSvc(), name());
-	log << MSG::ERROR << "StoreGate service not found" << endreq;
+	log << MSG::ERROR << "StoreGate service not found" << endmsg;
 	return StatusCode::FAILURE;
       }
   if( m_storeGateSvc->retrieve(object, key).isSuccess() )
@@ -29,7 +29,7 @@ LArSuperCellBuilderDriver::retrieveDetectorStore(const T*& object,
     if(service("DetectorStore",m_detStore).isFailure())
       {
         MsgStream log(msgSvc(), name());
-	log << MSG::ERROR << "DetectorStore service not found" << endreq;
+	log << MSG::ERROR << "DetectorStore service not found" << endmsg;
 	return StatusCode::FAILURE;
       }
   if( m_detStore->retrieve(object, key).isSuccess() )
@@ -46,7 +46,7 @@ LArSuperCellBuilderDriver::regHandleDetectorStore(const T& object,
     if(service("DetectorStore",m_detStore).isFailure())
       {
 	MsgStream log(msgSvc(), name());
-	log << MSG::ERROR << "DetectorStore service not found" << endreq;
+	log << MSG::ERROR << "DetectorStore service not found" << endmsg;
 	return StatusCode::FAILURE;
       }
   if( m_detStore->regHandle(object, key).isSuccess() )

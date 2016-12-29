@@ -40,19 +40,19 @@ StatusCode LArDigitThinner::initialize() {
   
   StatusCode sc = m_larCablingSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc = detStore()->retrieve(m_onlineID, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
     return sc;
   } 
   
   sc = detStore()->retrieve(m_caloCellId,"CaloCell_ID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get CaloCell_ID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get CaloCell_ID helper !" << endmsg;
     return sc;
   } 
    
@@ -60,33 +60,33 @@ StatusCode LArDigitThinner::initialize() {
                            &LArDigitThinner::iovCallBack,
                            this,true) ;
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not register callback to cabling service." << endreq;
+    msg(MSG::ERROR) << "Could not register callback to cabling service." << endmsg;
     return sc;
   }
     
   //Fix up jobOptions if needed:
-  int m_defaultCuts_barrel[] = { 1000, 1000, 1000, 1000 };
-  int m_defaultCuts_endcap[] = { 2000, 2000, 2000, 2000 };
+  int defaultCuts_barrel[] = { 1000, 1000, 1000, 1000 };
+  int defaultCuts_endcap[] = { 2000, 2000, 2000, 2000 };
 
   if (m_energyCuts_barrel.size() != 4) {
     msg(MSG::WARNING) << "Only " << m_energyCuts_barrel.size() 
-		      << " energy cut values provided for the endcap : reverting to default" << endreq;
-    for (size_t i=0;i<4;++i) m_energyCuts_barrel.push_back(m_defaultCuts_barrel[i]);
+		      << " energy cut values provided for the endcap : reverting to default" << endmsg;
+    for (size_t i=0;i<4;++i) m_energyCuts_barrel.push_back(defaultCuts_barrel[i]);
   }
 
   if (m_energyCuts_endcap.size() != 4) {
     msg(MSG::WARNING) << "Only " << m_energyCuts_endcap.size() 
-		      << " energy cut values provided for the endcap : reverting to default" << endreq;
-    for (size_t i=0;i<4;++i) m_energyCuts_endcap.push_back(m_defaultCuts_endcap[i]);
+		      << " energy cut values provided for the endcap : reverting to default" << endmsg;
+    for (size_t i=0;i<4;++i) m_energyCuts_endcap.push_back(defaultCuts_endcap[i]);
   }
   
   msg(MSG::INFO) << "Energy cuts (Barrel) : ";
   for (unsigned int i = 0; i < 4; i++) msg() <<  m_energyCuts_barrel[i] << " ";
-  msg(MSG::INFO) << "GeV" << endreq;
+  msg(MSG::INFO) << "GeV" << endmsg;
   
   msg() << MSG::INFO << "Energy cuts (Endcap) : ";
   for (unsigned int i = 0; i < 4; i++) msg() <<  m_energyCuts_endcap[i] << " ";
-  msg() << MSG::INFO << "GeV" << endreq;
+  msg() << MSG::INFO << "GeV" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -94,7 +94,7 @@ StatusCode LArDigitThinner::initialize() {
 
 StatusCode LArDigitThinner::iovCallBack(IOVSVC_CALLBACK_ARGS) 
 {
-  msg() << MSG::INFO << " iovCallBack " << endreq;
+  msg() << MSG::INFO << " iovCallBack " << endmsg;
   initCutValues();
   return StatusCode::SUCCESS;
 }
@@ -109,11 +109,13 @@ void LArDigitThinner::initCutValues() {
     const Identifier id=(*it);
     HWIdentifier chid=m_larCablingSvc->createSignalChannelID(id);
     IdentifierHash onlHash=m_onlineID->channel_Hash(chid);
+    int sampling = m_caloCellId->sampling(id);
+    if (sampling < 0) continue;
     if (m_caloCellId->is_em_barrel(id)) {
-      m_energyCuts[onlHash]=m_energyCuts_barrel[m_caloCellId->sampling(id)];
+      m_energyCuts[onlHash]=m_energyCuts_barrel[sampling];
     }
     else { //endcap
-      m_energyCuts[onlHash]=m_energyCuts_endcap[m_caloCellId->sampling(id)];
+      m_energyCuts[onlHash]=m_energyCuts_endcap[sampling];
       continue;
     }
   }//end loop over EM cells;
@@ -142,8 +144,8 @@ void LArDigitThinner::initCutValues() {
 
 StatusCode LArDigitThinner::finalize()
 {
-  msg(MSG::INFO) << "LArDigitThinner Finalize" << endreq;  
-  msg(MSG::INFO) << "Sampling    0        1          2         3         Total" << endreq;
+  msg(MSG::INFO) << "LArDigitThinner Finalize" << endmsg;  
+  msg(MSG::INFO) << "Sampling    0        1          2         3         Total" << endmsg;
   msg(MSG::INFO) << "Barrel   ";
   
   int nPassTot = 0;//, nSeenTot = 0;
@@ -152,7 +154,7 @@ StatusCode LArDigitThinner::finalize()
     msg() << m_digitsPerRegion[i] << " ";
     nPassTot +=  m_digitsPerRegion[i];
   }
-  msg() << MSG::INFO << nPassTot  << endreq;
+  msg() << MSG::INFO << nPassTot  << endmsg;
   
   msg() << MSG::INFO << "Endcap   ";
   nPassTot = 0;
@@ -161,10 +163,10 @@ StatusCode LArDigitThinner::finalize()
     msg(MSG::INFO) <<  m_digitsPerRegion[i] << " ";
     nPassTot +=  m_digitsPerRegion[i];
   }
-  msg() << nPassTot << endreq;
+  msg() << nPassTot << endmsg;
   
-  msg(MSG::INFO) << "HEC      " <<  m_digitsPerRegion[HEC] << endreq;
-  msg(MSG::INFO) << "FCAL     " <<  m_digitsPerRegion[FCAL] << endreq;
+  msg(MSG::INFO) << "HEC      " <<  m_digitsPerRegion[HEC] << endmsg;
+  msg(MSG::INFO) << "FCAL     " <<  m_digitsPerRegion[FCAL] << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -175,14 +177,14 @@ StatusCode LArDigitThinner::execute()
   // Create the new digit container
   ConstDataVector<LArDigitContainer>* outputContainer = new ConstDataVector<LArDigitContainer>(SG::VIEW_ELEMENTS);
   if (!outputContainer){
-    msg(MSG::ERROR) << "Could not allocate a new LArDigitContainer" << endreq;
+    msg(MSG::ERROR) << "Could not allocate a new LArDigitContainer" << endmsg;
     return StatusCode::FAILURE;	  
   }
   
   StatusCode sc = evtStore()->record(outputContainer , m_outputContainerName);
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Could not record output LArDigitContainer with key " 
-		    << m_outputContainerName << endreq;
+		    << m_outputContainerName << endmsg;
     return sc;
   }
 
@@ -191,7 +193,7 @@ StatusCode LArDigitThinner::execute()
   
   if (sc.isFailure()) { 
     msg(MSG::WARNING) << "Input LArDigitContainer not found with key"
-		      << m_inputContainerName << endreq;
+		      << m_inputContainerName << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -200,7 +202,7 @@ StatusCode LArDigitThinner::execute()
     
   if (sc.isFailure()) {
     msg(MSG::WARNING) << "LArRawChannelContainer not found with key"
-		      << m_rawChannelContainerName << endreq;
+		      << m_rawChannelContainerName << endmsg;
     return StatusCode::SUCCESS;
   }
 

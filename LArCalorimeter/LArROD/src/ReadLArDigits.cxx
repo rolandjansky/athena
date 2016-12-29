@@ -34,19 +34,19 @@ ReadLArDigits::~ReadLArDigits()
 
 StatusCode ReadLArDigits::initialize()
 { MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initialize" << endreq;
+  log << MSG::INFO << "Initialize" << endmsg;
 
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
 
   if (m_larCablingSvc.retrieve().isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
+      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
       return StatusCode::FAILURE;
     }
 
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
+    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -57,7 +57,7 @@ StatusCode ReadLArDigits::initialize()
 
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
   if (!file1)
-    {log << MSG::ERROR << "Booking of NTuple failed" << endreq;
+    {log << MSG::ERROR << "Booking of NTuple failed" << endmsg;
     return StatusCode::FAILURE;
    }
   NTuplePtr nt(ntupleSvc(),"/NTUPLES/FILE1/LARDIGITS");
@@ -65,88 +65,88 @@ StatusCode ReadLArDigits::initialize()
     nt=ntupleSvc()->book("/NTUPLES/FILE1/LARDIGITS",CLID_ColumnWiseTuple,"LArDigits");
   }
   if (!nt)
-    {log << MSG::ERROR << "Booking of NTuple failed" << endreq;
+    {log << MSG::ERROR << "Booking of NTuple failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("icell",m_cellIndex,0,3600);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Cell Index' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'Cell Index' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   //sc=nt->addItem("layer",m_layer,0,4);
   sc=nt->addItem("layer",m_cellIndex,m_layer);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Layer' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'Layer' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   //sc=nt->addItem("ieta",m_eta,0,510);
   sc=nt->addItem("ieta",m_cellIndex,m_eta);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Eta' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'Eta' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("iphi",m_cellIndex,m_phi);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Phi' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'Phi' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("barrel_ec",m_cellIndex,m_barrel_ec);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'barrel_ec' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'barrel_ec' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("pos_neg",m_cellIndex,m_pos_neg);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'pos_neg' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'pos_neg' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("FT",m_cellIndex,m_FT);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'FT' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'FT' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("slot",m_cellIndex,m_slot);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'slot' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'slot' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("channel",m_cellIndex,m_channel);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'channel' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'channel' failed" << endmsg;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("gain",m_cellIndex,m_gain);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Gain' failed" << endreq;
+    {log << MSG::ERROR << "addItem 'Gain' failed" << endmsg;
      return StatusCode::FAILURE;
     }  
   
   sc=nt->addItem("NSamples",m_Nsamples,0,32);
   if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem 'sampleIndex' failed" << endreq;
+    log << MSG::ERROR << "addItem 'sampleIndex' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc=nt->addItem("Samples",m_cellIndex,m_samples,32);
   //sc=nt->addItem("Samples",m_cellIndex,m_samples,m_Nsamples);
   if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem failed" << endreq;
+    log << MSG::ERROR << "addItem failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
   m_ntuplePtr=nt;
   m_count=0;
-  log << MSG::INFO << "======== ReadLArDigits initialize successfully ========" << endreq;
+  log << MSG::INFO << "======== ReadLArDigits initialize successfully ========" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -155,7 +155,7 @@ StatusCode ReadLArDigits::execute()
 {MsgStream log(msgSvc(), name());
  m_count++; 
  StatusCode sc; 
- log << MSG::VERBOSE << "======== executing event "<< m_count << " ========" << endreq;
+ log << MSG::VERBOSE << "======== executing event "<< m_count << " ========" << endmsg;
  log << MSG::VERBOSE << "Retrieving LArDigitContainer. Key= " << m_containerKey << std::endl; 
  LArDigitContainer* larDigitCont;
  if (m_containerKey.size())
@@ -163,7 +163,7 @@ StatusCode ReadLArDigits::execute()
  else
    sc = evtStore()->retrieve(larDigitCont);
  if (sc.isFailure()) 
-   {log << MSG::FATAL << " Cannot read LArDigitContainer from StoreGate! key=" << m_containerKey << endreq;
+   {log << MSG::FATAL << " Cannot read LArDigitContainer from StoreGate! key=" << m_containerKey << endmsg;
     return StatusCode::FAILURE;
    }
  
@@ -233,7 +233,7 @@ StatusCode ReadLArDigits::execute()
    }
  sc=ntupleSvc()->writeRecord(m_ntuplePtr);
  if (sc!=StatusCode::SUCCESS) {
-   log << MSG::ERROR << "writeRecord failed" << endreq;
+   log << MSG::ERROR << "writeRecord failed" << endmsg;
    return StatusCode::FAILURE;
  }
  
@@ -246,6 +246,6 @@ StatusCode ReadLArDigits::finalize()
 { MsgStream log(msgSvc(), name());
   if (m_outfile.is_open()) 
     m_outfile.close();
-  log << MSG::INFO << "finalize ReadLarDigits" << endreq;
+  log << MSG::INFO << "finalize ReadLarDigits" << endmsg;
   return StatusCode::SUCCESS;
 }
