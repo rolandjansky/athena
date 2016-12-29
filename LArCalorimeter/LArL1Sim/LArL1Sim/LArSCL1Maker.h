@@ -220,6 +220,8 @@ class LArSCL1Maker : public AthAlgorithm,
    std::string m_saveHitsContainer;
 
    const CaloSuperCellDetDescrManager* m_sem_mgr;
+  /** Global Time Shift for testing performance */
+  float m_timeShift;
 
 };
 
