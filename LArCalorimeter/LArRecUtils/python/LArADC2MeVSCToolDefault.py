@@ -34,9 +34,12 @@ def LArADC2MeVSCToolDefault (name="LArADC2MeVSCToolDefault", **kw):
         tool.keyuA2MeV='LAruA2MeVSC'
         from IOVDbSvc.CondDB import conddb
         if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/DAC2uA') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCDAC2uA-000</tag>/LAR/ElecCalibMCSC/DAC2uA")
+           #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCDAC2uA-000</tag>/LAR/ElecCalibMCSC/DAC2uA")
+           conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/DAC2uA")
         if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/uA2MeV') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCuA2MeV-000</tag>/LAR/ElecCalibMCSC/uA2MeV")
+           #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCuA2MeV-000</tag>/LAR/ElecCalibMCSC/uA2MeV")
+           conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/uA2MeV")
         if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Ramp') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCRamp-000</tag>/LAR/ElecCalibMCSC/Ramp")
+           #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCRamp-000</tag>/LAR/ElecCalibMCSC/Ramp")
+           conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Ramp")
     return tool
