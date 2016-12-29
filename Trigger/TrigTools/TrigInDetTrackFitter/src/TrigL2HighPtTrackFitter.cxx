@@ -77,7 +77,7 @@ StatusCode TrigL2HighPtTrackFitter::finalize()
   return sc;
 }
 
-void TrigL2HighPtTrackFitter::m_recalibrateFilteringNode(Trk::TrkBaseNode* pN, Trk::TrkTrackState* pTS)
+void TrigL2HighPtTrackFitter::recalibrateFilteringNode(Trk::TrkBaseNode* pN, Trk::TrkTrackState* pTS)
 {
   if(pTS->m_getSurface()==NULL) return;
   AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
@@ -124,7 +124,7 @@ Trk::TrkTrackState* TrigL2HighPtTrackFitter::fit(Trk::TrkTrackState* pTS, std::v
 
 	  if(m_recalibrate)
 	    {
-	      m_recalibrateFilteringNode((*pnIt), pNS);
+	      recalibrateFilteringNode((*pnIt), pNS);
 	    }
 	  
 	  (*pnIt)->m_validateMeasurement(pNS);

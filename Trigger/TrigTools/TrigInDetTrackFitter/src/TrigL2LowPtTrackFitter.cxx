@@ -85,7 +85,7 @@ StatusCode TrigL2LowPtTrackFitter::finalize()
   return sc;
 }
 
-void TrigL2LowPtTrackFitter::m_recalibrateFilteringNode(Trk::TrkBaseNode* pN, Trk::TrkTrackState* pTS)
+void TrigL2LowPtTrackFitter::recalibrateFilteringNode(Trk::TrkBaseNode* pN, Trk::TrkTrackState* pTS)
 {
   if(pTS->m_getSurface()==NULL) return;
 
@@ -108,10 +108,10 @@ void TrigL2LowPtTrackFitter::m_recalibrateFilteringNode(Trk::TrkBaseNode* pN, Tr
   delete pRIO;
 }
 
-Trk::TrkTrackState* TrigL2LowPtTrackFitter::m_extrapolateOffline(Trk::TrkTrackState* pTS, 
-								 Trk::TrkPlanarSurface* pSB,
-								 Trk::TrkPlanarSurface* pSE,
-								 int dir)
+Trk::TrkTrackState* TrigL2LowPtTrackFitter::extrapolateOffline(Trk::TrkTrackState* pTS, 
+                                                               Trk::TrkPlanarSurface* pSB,
+                                                               Trk::TrkPlanarSurface* pSE,
+                                                               int dir)
 {
   //1. create starting parameters
   Trk::TrackParameters* pTP=NULL;
@@ -236,7 +236,7 @@ Trk::TrkTrackState* TrigL2LowPtTrackFitter::fit(Trk::TrkTrackState* pTS, std::ve
       pSB=pSE;
       if(pNS!=NULL)
 	{
-	  // m_recalibrateFilteringNode((*pnIt),pNS);
+	  // recalibrateFilteringNode((*pnIt),pNS);
 
 	  (*pnIt)->m_validateMeasurement(pNS);
 		ATH_MSG_DEBUG("dChi2="<<(*pnIt)->m_getChi2());
@@ -281,7 +281,7 @@ Trk::TrkTrackState* TrigL2LowPtTrackFitter::fit(Trk::TrkTrackState* pTS, std::ve
 	    }
 	  dist=sqrt(dist);
 	  if(dist>100.0)
-	    pNS=m_extrapolateOffline(pTS,pSB,pSE,-1);
+	    pNS=extrapolateOffline(pTS,pSB,pSE,-1);
 	  else
 	    pNS=m_fastExtrapolator->extrapolate(pTS,pSB,pSE,false);
 	}
@@ -293,7 +293,7 @@ Trk::TrkTrackState* TrigL2LowPtTrackFitter::fit(Trk::TrkTrackState* pTS, std::ve
 	{
 	  if(m_recalibrate)
 	    {
-	      m_recalibrateFilteringNode((*pnrIt),pNS);
+	      recalibrateFilteringNode((*pnrIt),pNS);
 	    }
 	  (*pnrIt)->m_validateMeasurement(pNS);
     ATH_MSG_DEBUG("dChi2="<<(*pnrIt)->m_getChi2());
@@ -316,7 +316,7 @@ Trk::TrkTrackState* TrigL2LowPtTrackFitter::fit(Trk::TrkTrackState* pTS, std::ve
   if(!OK) return NULL;
 
   // 3. Extrapolating back to perigee
-  Trk::TrkTrackState* pNS=m_extrapolateOffline(pTS,pSB,NULL,-1);
+  Trk::TrkTrackState* pNS=extrapolateOffline(pTS,pSB,NULL,-1);
   delete pTS;pTS=pNS;
 
   return pTS;

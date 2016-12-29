@@ -18,11 +18,11 @@
 class LSMSolution  
 {
 public:
-  void m_report();
-  void m_fixVariable(int);
-  bool m_isOnConstraint(int);
-  double& m_Significance();
-  double& m_Cov(int,int);
+  void report();
+  void fixVariable(int);
+  bool isOnConstraint(int);
+  double& Significance();
+  double& Cov(int,int);
   LSMSolution(int);
   LSMSolution();
   virtual ~LSMSolution();
@@ -54,17 +54,17 @@ class TrigInDetBremDetectionTool : virtual public ITrigInDetBremDetectionTool, p
     
   private:
 
-    void m_mixSolutions(LSMSolution*, LSMSolution*);
-    bool m_checkFeasibility(LSMSolution*);
-    int m_findBestDirection(double*);
-    bool m_goodGradient(double*);
-    bool m_isZempty();
-    double m_getCriterionValue(LSMSolution*);
-    LSMSolution* m_solveLSM();
-    void m_fixVariables(const int *);
-    void m_precomputeGain();
-    void m_report();
-    void m_getGradient(LSMSolution*,double[]);
+    void mixSolutions(LSMSolution*, LSMSolution*);
+    bool checkFeasibility(LSMSolution*);
+    int findBestDirection(double*);
+    bool goodGradient(double*);
+    bool isZempty();
+    double getCriterionValue(LSMSolution*);
+    LSMSolution* solveLSM();
+    void fixVariables(const int *);
+    void precomputeGain();
+    void report();
+    void getGradient(LSMSolution*,double[]);
     bool CholeskyDecompositionNxN(double*,int);
     bool invertMatrixNxN(double*, int);
     double m_K[MAX_INP_SIZE][MAX_RES_SIZE];

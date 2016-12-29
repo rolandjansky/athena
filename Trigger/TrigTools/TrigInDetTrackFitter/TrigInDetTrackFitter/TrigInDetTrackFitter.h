@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIGINDETTRACKFITTER_H__
-#define __TRIGINDETTRACKFITTER_H__
+#ifndef TRIGINDETTRACKFITTER_TRIGINDETTRACKFITTER_H
+#define TRIGINDETTRACKFITTER_TRIGINDETTRACKFITTER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -51,11 +51,11 @@ class TrigInDetTrackFitter: public AthAlgTool, virtual public ITrigInDetTrackFit
   TrackCollection* fit(const TrackCollection&, const Trk::ParticleHypothesis& matEffects = Trk::pion);
 private:
 
-  Trk::TrkTrackState* m_extrapolate(Trk::TrkTrackState*, 
-				    Trk::TrkPlanarSurface*,
-				    Trk::TrkPlanarSurface*);
-  void m_matrixInversion5x5(double a[5][5]);
-  void m_getMagneticField(double[3],double*);
+  Trk::TrkTrackState* extrapolate(Trk::TrkTrackState*, 
+                                  Trk::TrkPlanarSurface*,
+                                  Trk::TrkPlanarSurface*);
+  void matrixInversion5x5(double a[5][5]);
+  void getMagneticField(double[3],double*);
 
   void correctScale(Trk::TrkTrackState*);
 

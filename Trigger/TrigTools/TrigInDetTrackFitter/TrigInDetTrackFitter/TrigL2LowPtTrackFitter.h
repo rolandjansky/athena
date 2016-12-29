@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_L2_LOW_PT_TRACK_FITTER_H__
-#define __TRIG_L2_LOW_PT_TRACK_FITTER_H__ 
+#ifndef TRIGINDETTRACKFITTER_TRIG_L2_LOW_PT_TRACK_FITTER_H
+#define TRIGINDETTRACKFITTER_TRIG_L2_LOW_PT_TRACK_FITTER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
@@ -38,11 +38,11 @@ class TrigL2LowPtTrackFitter : virtual public ITrigL2TrackFittingTool, public At
 
  private:
 
-  Trk::TrkTrackState* m_extrapolateOffline(Trk::TrkTrackState*, 
-					   Trk::TrkPlanarSurface*,
-					   Trk::TrkPlanarSurface*,int);
+  Trk::TrkTrackState* extrapolateOffline(Trk::TrkTrackState*, 
+                                         Trk::TrkPlanarSurface*,
+                                         Trk::TrkPlanarSurface*,int);
 
-  void m_recalibrateFilteringNode(Trk::TrkBaseNode*, Trk::TrkTrackState*);
+  void recalibrateFilteringNode(Trk::TrkBaseNode*, Trk::TrkTrackState*);
 
   bool m_recalibrate;
 

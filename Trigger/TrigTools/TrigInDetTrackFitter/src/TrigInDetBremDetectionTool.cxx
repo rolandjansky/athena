@@ -48,12 +48,12 @@ StatusCode TrigInDetBremDetectionTool::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
 
-  m_log.setLevel(outputLevel());            // individual outputlevel not known before initialise
+  m_log.setLevel(msgLevel());            // individual outputlevel not known before initialise
   m_outputLevel=msgSvc()->outputLevel( name() );
   m_Threshold=2.0*log(m_P0/(1.0-m_P0));
 
-  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
-  m_log << MSG::INFO << "Input detection threshold is set to " << m_Threshold << endreq;
+  m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
+  m_log << MSG::INFO << "Input detection threshold is set to " << m_Threshold << endmsg;
 
   return sc;
 }
@@ -63,7 +63,7 @@ StatusCode TrigInDetBremDetectionTool::finalize()
 {
   if(m_pLS!=NULL) delete m_pLS;
 
-  m_log << MSG::INFO << "finalize() successful in " << name() << endreq;
+  m_log << MSG::INFO << "finalize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -74,7 +74,8 @@ void TrigInDetBremDetectionTool::reset()
   memset(&m_A[0][0],0,sizeof(m_A));
   memset(&m_MG[0][0],0,sizeof(m_MG));
   memset(&m_S[0][0],0,sizeof(m_S));
-  if(m_pLS!=NULL) delete m_pLS;m_pLS=NULL;
+  if(m_pLS!=NULL) delete m_pLS;
+  m_pLS=NULL;
 }
 
 bool TrigInDetBremDetectionTool::addNewPoint(Trk::TrkTrackState* pTS,
@@ -101,8 +102,8 @@ bool TrigInDetBremDetectionTool::addNewPoint(Trk::TrkTrackState* pTS,
 
 #ifdef IDE_DEBUG
 
-  m_log<<MSG::INFO<<"new measurement, size="<<dim<< endreq;
-  m_log<< MSG::INFO << " Accumulated path = "<< m_totalPath  << endreq;
+  m_log<<MSG::INFO<<"new measurement, size="<<dim<< endmsg;
+  m_log<< MSG::INFO << " Accumulated path = "<< m_totalPath  << endmsg;
 
   printf("Jacobian:\n");
   for(i=0;i<5;i++)
@@ -200,7 +201,7 @@ bool TrigInDetBremDetectionTool::addNewPoint(Trk::TrkTrackState* pTS,
   pS->m_transformPointToGlobal(lP,gP);
   m_jX[m_lsmSize-1]=gP[0];m_jY[m_lsmSize-1]=gP[1];m_jZ[m_lsmSize-1]=gP[2]; 
 #ifdef IDE_DEBUG 
-  m_log << MSG::INFO << " Added new jump at "<<gP[0]<<" "<<gP[1]<<" "<<gP[2]<<endreq;
+  m_log << MSG::INFO << " Added new jump at "<<gP[0]<<" "<<gP[1]<<" "<<gP[2]<<endmsg;
 #endif
   return true;
 }
@@ -217,13 +218,14 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
 
   m_sign=Sign;
   m_size=m_lsmSize-1;
-  m_precomputeGain();
-  if(m_pLS!=NULL) delete m_pLS;m_pLS=NULL;
+  precomputeGain();
+  if(m_pLS!=NULL) delete m_pLS;
+  m_pLS=NULL;
 
   m_pLS=new LSMSolution(size);
   for(i=0;i<m_size;i++)
     {
-      m_pLS->m_fixVariable(i);
+      m_pLS->fixVariable(i);
     }
   for(i=0;i<MAX_INP_SIZE;i++)
     {
@@ -232,7 +234,7 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
   nIter=0;
   while(!isSolved)
     {
-      m_getGradient(m_pLS,g);
+      getGradient(m_pLS,g);
 #ifdef IDE_DEBUG
       printf("++++ Gradient: ++++ Sign %d\n",Sign);
       for(i=0;i<size;i++)
@@ -241,16 +243,16 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
 	}
       printf("\n");
 #endif
-      Chi2Opt=m_getCriterionValue(m_pLS);
+      Chi2Opt=getCriterionValue(m_pLS);
 #ifdef IDE_DEBUG
       printf("***** Criterion = %f ******\n",Chi2Opt);
 #endif
       if(nIter>100) break;
-      if(m_isZempty()) 
+      if(isZempty()) 
 	{
 	  isSolved=true;break;
 	}
-      if(m_goodGradient(g))
+      if(goodGradient(g))
 	{
 #ifdef IDE_DEBUG
 	  printf("Good gradient - solved\n");
@@ -260,7 +262,7 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
 #ifdef IDE_DEBUG
       else printf("Not good gradient - searching ...\n");
 #endif
-      int bestI=m_findBestDirection(g);
+      int bestI=findBestDirection(g);
 #ifdef IDE_DEBUG
       printf("Selected %d grad = %f\n",bestI,g[bestI]);
 #endif
@@ -275,17 +277,17 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
      
       while(!isFeasible)
 	{
-	  LSMSolution* pST=m_solveLSM();
+	  LSMSolution* pST=solveLSM();
 #ifdef IDE_DEBUG
 	  pST->m_report();
 #endif
-	  isFeasible=m_checkFeasibility(pST);
+	  isFeasible=checkFeasibility(pST);
 	  if(!isFeasible)
 	    {
 #ifdef IDE_DEBUG
 	      printf("Non-feasible solution");
 #endif
-	      m_mixSolutions(pST,m_pLS);
+	      mixSolutions(pST,m_pLS);
 	      delete pST;
 	    }
 	  else
@@ -305,15 +307,15 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
   for(i=0;i<m_size;i++)
     {
       m_Zarray[i]=1;
-      if(!m_pLS->m_isOnConstraint(i))
+      if(!m_pLS->isOnConstraint(i))
 	{
 	  m_Zarray[i]=0;
 	  double utmp=(*m_pLS)[i];
 	  (*m_pLS)[i]=0.0;
-	  double Chi2Zero=m_getCriterionValue(m_pLS);
+	  double Chi2Zero=getCriterionValue(m_pLS);
 	  if(m_outputLevel<=MSG::DEBUG)
 	    {
-	      m_log<<MSG::DEBUG<<i+1<<" Chi2* = "<<Chi2Opt<<" Chi20 = "<<Chi2Zero<<" Th="<<m_Threshold<<endreq;
+	      m_log<<MSG::DEBUG<<i+1<<" Chi2* = "<<Chi2Opt<<" Chi20 = "<<Chi2Zero<<" Th="<<m_Threshold<<endmsg;
 	    }
 	  (*m_pLS)[i]=utmp;
 	  double deltaChi2=Chi2Zero-Chi2Opt;
@@ -328,13 +330,13 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
     }
   if((nChanges!=0)&&nonZero)
     {
-      LSMSolution* pUS=m_solveLSM();
+      LSMSolution* pUS=solveLSM();
       if(m_outputLevel<=MSG::DEBUG)
 	{
-	  m_log<<MSG::DEBUG<<"LSM Solution"<<endreq;
-	  pUS->m_report();
-	  Chi2Opt=m_getCriterionValue(pUS);
-	  m_log<<MSG::DEBUG<<"Criterion = "<<Chi2Opt<<endreq;
+	  m_log<<MSG::DEBUG<<"LSM Solution"<<endmsg;
+	  pUS->report();
+	  Chi2Opt=getCriterionValue(pUS);
+	  m_log<<MSG::DEBUG<<"Criterion = "<<Chi2Opt<<endmsg;
 	}
       delete m_pLS;
       m_pLS=pUS;
@@ -345,20 +347,20 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
       m_pLS=new LSMSolution(size);
       for(i=0;i<m_size;i++)
 	{
-	  m_pLS->m_fixVariable(i);
+	  m_pLS->fixVariable(i);
 	}
       if(m_outputLevel<=MSG::DEBUG)
 	{
-	  m_log<<MSG::DEBUG<<"LSM Solution"<<endreq;
-	  m_pLS->m_report();
-	  Chi2Opt=m_getCriterionValue(m_pLS);
-	  m_log<<MSG::DEBUG<<"Criterion = "<<Chi2Opt<<endreq;
+	  m_log<<MSG::DEBUG<<"LSM Solution"<<endmsg;
+	  m_pLS->report();
+	  Chi2Opt=getCriterionValue(m_pLS);
+	  m_log<<MSG::DEBUG<<"Criterion = "<<Chi2Opt<<endmsg;
 	}
     }
   return isSolved;
 }
 
-void TrigInDetBremDetectionTool::m_precomputeGain()
+void TrigInDetBremDetectionTool::precomputeGain()
 {
   int i,j,k;
   memset(&m_K[0][0],0,sizeof(m_K));
@@ -394,7 +396,7 @@ void TrigInDetBremDetectionTool::m_precomputeGain()
 }
 
 
-void TrigInDetBremDetectionTool::m_getGradient(LSMSolution* pLS, double g[])
+void TrigInDetBremDetectionTool::getGradient(LSMSolution* pLS, double g[])
 {
   int i,j;
 
@@ -409,7 +411,7 @@ void TrigInDetBremDetectionTool::m_getGradient(LSMSolution* pLS, double g[])
     }
 }
 
-bool TrigInDetBremDetectionTool::m_goodGradient(double* g)
+bool TrigInDetBremDetectionTool::goodGradient(double* g)
 {
   int i,np=0;
   for(i=0;i<m_lsmSize-1;i++)
@@ -420,7 +422,7 @@ bool TrigInDetBremDetectionTool::m_goodGradient(double* g)
   return (np==0);
 }
 
-int TrigInDetBremDetectionTool::m_findBestDirection(double* g)
+int TrigInDetBremDetectionTool::findBestDirection(double* g)
 {
   int i,bestI=0;
   double maxGrad=-1.0;
@@ -435,7 +437,7 @@ int TrigInDetBremDetectionTool::m_findBestDirection(double* g)
   return bestI;
 }
 
-bool TrigInDetBremDetectionTool::m_isZempty()
+bool TrigInDetBremDetectionTool::isZempty()
 {
   int i;
   
@@ -559,7 +561,7 @@ bool TrigInDetBremDetectionTool::invertMatrixNxN(double* a, int size)
 }
 
 
-LSMSolution* TrigInDetBremDetectionTool::m_solveLSM()
+LSMSolution* TrigInDetBremDetectionTool::solveLSM()
 {
   LSMSolution* pLS=NULL;
 
@@ -638,14 +640,14 @@ LSMSolution* TrigInDetBremDetectionTool::m_solveLSM()
     for(j=0;j<newSize;j++) chi2+=E[i]*W[i][j]*E[j];
   // printf("Significance: %f\n",chi2);
   pLS = new LSMSolution(m_size);
-  pLS->m_Significance()=chi2;
+  pLS->Significance()=chi2;
 
   idxI=-1;
   for(i=0;i<m_size;i++)
     {
       if(m_Zarray[i]==1)
 	{
-	  (*pLS)[i]=0.0;pLS->m_fixVariable(i);
+	  (*pLS)[i]=0.0;pLS->fixVariable(i);
 	  continue;
 	}
       idxI++;
@@ -654,7 +656,7 @@ LSMSolution* TrigInDetBremDetectionTool::m_solveLSM()
 	{
 	  if(m_Zarray[j]==1) continue;
 	  idxJ++;
-	  pLS->m_Cov(i,j)=P[idxI][idxJ];
+	  pLS->Cov(i,j)=P[idxI][idxJ];
 	}
     }
   delete[] a;
@@ -662,7 +664,7 @@ LSMSolution* TrigInDetBremDetectionTool::m_solveLSM()
 }
 
 
-double TrigInDetBremDetectionTool::m_getCriterionValue(LSMSolution* pLS)
+double TrigInDetBremDetectionTool::getCriterionValue(LSMSolution* pLS)
 {
   double R[MAX_RES_SIZE];
   int i,j,k;
@@ -685,7 +687,7 @@ double TrigInDetBremDetectionTool::m_getCriterionValue(LSMSolution* pLS)
   return crit;
 }
 
-bool TrigInDetBremDetectionTool::m_checkFeasibility(LSMSolution * pS)
+bool TrigInDetBremDetectionTool::checkFeasibility(LSMSolution * pS)
 {
   int i;
   bool rc=true;
@@ -700,7 +702,7 @@ bool TrigInDetBremDetectionTool::m_checkFeasibility(LSMSolution * pS)
   return rc;
 }
 
-void TrigInDetBremDetectionTool::m_mixSolutions(LSMSolution* pST, LSMSolution* pLS)
+void TrigInDetBremDetectionTool::mixSolutions(LSMSolution* pST, LSMSolution* pLS)
 {
   int i,iMin=-1;
   double aMin=1000000.0,a;
@@ -733,24 +735,24 @@ void TrigInDetBremDetectionTool::modifySurfaces(int flag)
     {
       if(m_pLS!=NULL)
 	{
-	  if(m_pLS->m_Significance()>m_SignificanceCut)
+	  if(m_pLS->Significance()>m_SignificanceCut)
 	    {
 	      for(i=0;i<m_size;i++)
 		{
-		  if(!m_pLS->m_isOnConstraint(i))
+		  if(!m_pLS->isOnConstraint(i))
 		    {
 		      m_surfArray[i]->m_setBreakPoint((*m_pLS)[i]);
 		      if(m_outputLevel<=MSG::DEBUG)
 			{
 			  m_log<<MSG::DEBUG<<i<<"  Breakpoint is set, u="<<(*m_pLS)[i]<<
-			    " X="<<m_jX[i]<<" Y="<<m_jY[i]<<" Z="<<m_jZ[i]<<endreq;
+			    " X="<<m_jX[i]<<" Y="<<m_jY[i]<<" Z="<<m_jZ[i]<<endmsg;
 			}
 		    }
 		  else 
 		    if(m_outputLevel<=MSG::DEBUG)
 			{
 			  m_log<<MSG::DEBUG<<i<<"  Not a Breakpoint X="<<m_jX[i]<<" Y="<<m_jY[i]<<
-			    " Z="<<m_jZ[i]<<endreq;
+			    " Z="<<m_jZ[i]<<endmsg;
 			}
 		}
 	    }
@@ -773,13 +775,13 @@ void TrigInDetBremDetectionTool::report(int flag)
 
   if(flag==1) //Residuals
     {
-      m_log << MSG::DEBUG << "IDE Residuals : "<< endreq;
+      m_log << MSG::DEBUG << "IDE Residuals : "<< endmsg;
       i=0;
       for(std::vector<int>::iterator iIt=m_resSizes.begin();iIt!=m_resSizes.end();++iIt)
 	{
 	  for(j=0;j<(*iIt);j++)
 	    {
-	      m_log << MSG::DEBUG << "   "<<m_R[i]<< endreq;
+	      m_log << MSG::DEBUG << "   "<<m_R[i]<< endmsg;
 	      i++;
 	    }
 	}
@@ -787,7 +789,7 @@ void TrigInDetBremDetectionTool::report(int flag)
   if(flag==2) //LSM
   {
     i=0;
-    m_log << MSG::DEBUG << "LSM Problem : nU="<<m_lsmSize-1<<" nR="<<m_resSize<< endreq;
+    m_log << MSG::DEBUG << "LSM Problem : nU="<<m_lsmSize-1<<" nR="<<m_resSize<< endmsg;
     for(std::vector<int>::iterator iIt=m_resSizes.begin();iIt!=m_resSizes.end();++iIt)
       {
 	for(j=0;j<(*iIt);j++)
@@ -797,26 +799,26 @@ void TrigInDetBremDetectionTool::report(int flag)
 	    m_log << MSG::DEBUG <<"]  ";
 	    for(k=0;k<m_lsmSize-1;k++)
 	      m_log << MSG::DEBUG <<m_A[i][k]<<" ";
-	    m_log << MSG::DEBUG << endreq;
+	    m_log << MSG::DEBUG << endmsg;
 	    i++;
 	  } 
       }
-    m_log << MSG::DEBUG << "LSM Gain Matrix "<< endreq;
+    m_log << MSG::DEBUG << "LSM Gain Matrix "<< endmsg;
     for(i=0;i<m_lsmSize-1;i++)
       {
 	for(j=0;j<m_resSize;j++)
 	  m_log << MSG::DEBUG <<m_K[i][j]<<"  ";
-	m_log << MSG::DEBUG << endreq;
+	m_log << MSG::DEBUG << endmsg;
       }
-    m_log << MSG::DEBUG << "LSM Weight Matrix "<< endreq;
+    m_log << MSG::DEBUG << "LSM Weight Matrix "<< endmsg;
     for(i=0;i<m_lsmSize-1;i++)
       {
 	for(j=0;j<m_lsmSize-1;j++)
 	  m_log << MSG::DEBUG <<m_W[i][j]<<"  ";
-	m_log << MSG::DEBUG << endreq;
+	m_log << MSG::DEBUG << endmsg;
       }
 
-    m_log << MSG::DEBUG << "-----------------------"<< endreq;
+    m_log << MSG::DEBUG << "-----------------------"<< endmsg;
   }
 }
 
@@ -858,29 +860,29 @@ double& LSMSolution::operator[] (int i)
   else return m_u[i];
 }
 
-double& LSMSolution::m_Cov(int i, int j)
+double& LSMSolution::Cov(int i, int j)
 {
   if((i<0)||(i>=m_size)) return m_C[0][0];
   if((j<0)||(j>=m_size)) return m_C[0][0];
   return m_C[i][j];
 }
 
-double& LSMSolution::m_Significance()
+double& LSMSolution::Significance()
 {
   return m_Chi2;
 }
 
-bool LSMSolution::m_isOnConstraint(int i)
+bool LSMSolution::isOnConstraint(int i)
 {
   return (m_fixedVariables[i]==1);
 }
 
-void LSMSolution::m_fixVariable(int i)
+void LSMSolution::fixVariable(int i)
 {
   m_fixedVariables[i]=1;
 }
 
-void LSMSolution::m_report()
+void LSMSolution::report()
 {
   int i,j;
 
@@ -888,7 +890,7 @@ void LSMSolution::m_report()
   for(i=0;i<m_size;i++)
     {
       printf("%E  ",m_u[i]);
-      if(m_isOnConstraint(i)) printf("constr.  ");
+      if(isOnConstraint(i)) printf("constr.  ");
       else printf("free    ");
       for(j=0;j<m_size;j++) printf("%E ",m_C[i][j]);
       printf("\n");

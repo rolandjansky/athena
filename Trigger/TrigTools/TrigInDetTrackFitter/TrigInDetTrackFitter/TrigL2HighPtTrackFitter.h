@@ -34,7 +34,7 @@ class TrigL2HighPtTrackFitter : virtual public ITrigL2TrackFittingTool, public A
 
  private:
 
-  void m_recalibrateFilteringNode(Trk::TrkBaseNode*, Trk::TrkTrackState*);
+  void recalibrateFilteringNode(Trk::TrkBaseNode*, Trk::TrkTrackState*);
 
   bool m_recalibrate;
 

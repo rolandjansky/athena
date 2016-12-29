@@ -101,7 +101,7 @@ StatusCode TrigL2ResidualCalculator::finalize()
 }
 
 
-void TrigL2ResidualCalculator::m_getMagneticField(double r[3],double* B)
+void TrigL2ResidualCalculator::getMagneticField(double r[3],double* B)
 {
   B[0]=0.0;B[1]=0.0;B[2]=0.0;
 	double field[3];
@@ -109,9 +109,9 @@ void TrigL2ResidualCalculator::m_getMagneticField(double r[3],double* B)
 	for(int i=0;i<3;i++) B[i]=field[i]/CLHEP::kilogauss;//convert to kG
 }
 
-Trk::TrkTrackState* TrigL2ResidualCalculator::m_extrapolate(Trk::TrkTrackState* pTS, 
-							Trk::TrkPlanarSurface* pSB,
-							Trk::TrkPlanarSurface* pSE)
+Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pTS, 
+                                                          Trk::TrkPlanarSurface* pSB,
+                                                          Trk::TrkPlanarSurface* pSE)
 {
   const double C=0.02999975/1000.0;//using GeV internally 
   const double minStep=30.0;
@@ -178,7 +178,7 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::m_extrapolate(Trk::TrkTrackState* 
     for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
   
-    m_getMagneticField(gP,gB);
+    getMagneticField(gP,gB);
 
     for(i=0;i<3;i++) gBi[i]=gB[i];
     
@@ -233,7 +233,7 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::m_extrapolate(Trk::TrkTrackState* 
     V[1]=gV[1]+Av*DVy;
     V[2]=gV[2]+Av*DVz;
     
-    m_getMagneticField(P,gB);
+    getMagneticField(P,gB);
   
     for(i=0;i<3;i++) gBf[i]=gB[i];
     for(i=0;i<3;i++)
@@ -535,7 +535,7 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::m_extrapolate(Trk::TrkTrackState* 
   return pTE;
 }
 
-void TrigL2ResidualCalculator::m_matrixInversion5x5(double a[5][5])
+void TrigL2ResidualCalculator::matrixInversion5x5(double a[5][5])
 {
   /**** 5x5 matrix inversion by Gaussian elimination ****/
 
@@ -656,7 +656,7 @@ StatusCode TrigL2ResidualCalculator::getResiduals(const TrigInDetTrack* pT, std:
   for(;pnIt!=pnEnd;++pnIt)
     {
       pSE=(*pnIt)->m_getSurface();
-      Trk::TrkTrackState* pNS=m_extrapolate(pTS,pSB,pSE);
+      Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
       
       pSB=pSE;
       if(pNS!=NULL)
@@ -838,7 +838,7 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const TrigInDetTrack*
       for(pnIt=vpTrkNodes.begin();pnIt!=pnEnd;++pnIt)
 	{
 	  pSE=(*pnIt)->m_getSurface();
-	  Trk::TrkTrackState* pNS=m_extrapolate(pTS,pSB,pSE);
+	  Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
       
 	  pSB=pSE;
 	  if(pNS!=NULL)
@@ -1021,7 +1021,7 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const Trk::Track& pT,
     for(pnIt=vpTrkNodes.begin();pnIt!=pnEnd;++pnIt)
     {
       pSE=(*pnIt)->m_getSurface();
-      Trk::TrkTrackState* pNS=m_extrapolate(pTS,pSB,pSE);
+      Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
 
       pSB=pSE;
       if(pNS!=NULL)

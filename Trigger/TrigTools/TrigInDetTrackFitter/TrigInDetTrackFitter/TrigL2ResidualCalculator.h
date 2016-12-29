@@ -43,11 +43,11 @@ class TrigL2ResidualCalculator: public AthAlgTool, virtual public ITrigL2Residua
 
 private:
 
-  Trk::TrkTrackState* m_extrapolate(Trk::TrkTrackState*, 
-				    Trk::TrkPlanarSurface*,
-				    Trk::TrkPlanarSurface*);
-  void m_matrixInversion5x5(double a[5][5]);
-  void m_getMagneticField(double[3],double*);
+  Trk::TrkTrackState* extrapolate(Trk::TrkTrackState*, 
+                                  Trk::TrkPlanarSurface*,
+                                  Trk::TrkPlanarSurface*);
+  void matrixInversion5x5(double a[5][5]);
+  void getMagneticField(double[3],double*);
 
   double m_DChi2;
   bool m_doMultScatt;

@@ -57,7 +57,7 @@ StatusCode TrigL2FastExtrapolationTool::finalize()
 }
 
 
-void TrigL2FastExtrapolationTool::m_getMagneticField(double r[3],double* B)
+void TrigL2FastExtrapolationTool::getMagneticField(double r[3],double* B)
 {
   B[0]=0.0;B[1]=0.0;B[2]=0.0;
 	double field[3];
@@ -135,7 +135,7 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
     for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
     
-    m_getMagneticField(gP,gB);
+    getMagneticField(gP,gB);
     
     for(i=0;i<3;i++) gBi[i]=gB[i];
     
@@ -190,7 +190,7 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
     V[1]=gV[1]+Av*DVy;
     V[2]=gV[2]+Av*DVz;
   
-    m_getMagneticField(P,gB);
+    getMagneticField(P,gB);
     
     for(i=0;i<3;i++) gBf[i]=gB[i];
     for(i=0;i<3;i++)
@@ -462,7 +462,7 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
 	{
 	  Gi[i][j]=pTE->m_getTrackCovariance(i,j);
 	}
-      m_matrixInversion5x5(Gi);
+      matrixInversion5x5(Gi);
       for(i=0;i<5;i++) for(j=0;j<5;j++)
 	{
 	  A[i][j]=0.0;
@@ -475,7 +475,7 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
   return pTE;
 }
 
-void TrigL2FastExtrapolationTool::m_matrixInversion5x5(double a[5][5])
+void TrigL2FastExtrapolationTool::matrixInversion5x5(double a[5][5])
 {
   /**** 5x5 matrix inversion by Gaussian elimination ****/
   int i,j,k,l;

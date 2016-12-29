@@ -30,8 +30,8 @@ class TrigL2FastExtrapolationTool: public AthAlgTool, virtual public ITrigL2Fast
 				  Trk::TrkPlanarSurface*,
 				  Trk::TrkPlanarSurface*, bool smooth=false);
 private:
-  void m_matrixInversion5x5(double a[5][5]);
-  void m_getMagneticField(double[3],double*);
+  void matrixInversion5x5(double a[5][5]);
+  void getMagneticField(double[3],double*);
   ServiceHandle<MagField::IMagFieldSvc> m_MagFieldSvc;
 };
 

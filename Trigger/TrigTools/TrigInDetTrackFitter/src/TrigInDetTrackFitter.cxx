@@ -139,7 +139,7 @@ StatusCode TrigInDetTrackFitter::finalize()
   return sc;
 }
 
-void TrigInDetTrackFitter::m_getMagneticField(double r[3],double* B)
+void TrigInDetTrackFitter::getMagneticField(double r[3],double* B)
 {
   B[0]=0.0;B[1]=0.0;B[2]=0.0;
 	double field[3];
@@ -169,9 +169,9 @@ void TrigInDetTrackFitter::correctScale(Trk::TrkTrackState* pTS) {
   pTS->m_setTrackCovariance(Gf);
 }
 
-Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS, 
-							Trk::TrkPlanarSurface* pSB,
-							Trk::TrkPlanarSurface* pSE)
+Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS, 
+                                                      Trk::TrkPlanarSurface* pSB,
+                                                      Trk::TrkPlanarSurface* pSE)
 {
   const double C=0.02999975/1000.0;//using GeV internally 
   const double minStep=30.0;
@@ -239,7 +239,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS,
     for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
   
-    m_getMagneticField(gP,gB);
+    getMagneticField(gP,gB);
 
     for(i=0;i<3;i++) gBi[i]=gB[i];
     
@@ -294,7 +294,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS,
     V[1]=gV[1]+Av*DVy;
     V[2]=gV[2]+Av*DVz;
     
-    m_getMagneticField(P,gB);
+    getMagneticField(P,gB);
   
     for(i=0;i<3;i++) gBf[i]=gB[i];
     for(i=0;i<3;i++)
@@ -596,7 +596,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS,
   return pTE;
 }
 
-void TrigInDetTrackFitter::m_matrixInversion5x5(double a[5][5])
+void TrigInDetTrackFitter::matrixInversion5x5(double a[5][5])
 {
   /**** 5x5 matrix inversion by Gaussian elimination ****/
   int i,j,k,l;
@@ -788,7 +788,7 @@ void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
 	for(;pnIt!=pnEnd;++pnIt)
 	{
 		pSE=(*pnIt)->m_getSurface();
-		Trk::TrkTrackState* pNS=m_extrapolate(pTS,pSB,pSE);
+		Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
 
 		pSB=pSE;
 		if(pNS!=nullptr)
@@ -1012,7 +1012,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 	Trk::TrkPlanarSurface* pSE=nullptr;
 	for(auto pnIt = vpTrkNodes.begin(); pnIt!=vpTrkNodes.end(); ++pnIt) {
 		pSE=(*pnIt)->m_getSurface();
-		Trk::TrkTrackState* pNS=m_extrapolate(pTS,pSB,pSE);
+		Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
 
 		pSB=pSE;
 		if(pNS!=nullptr) {
