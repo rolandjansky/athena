@@ -19,7 +19,6 @@ use AthenaBaseComps	AthenaBaseComps-*	Control
 
 ## private uses
 private
-use CxxUtils		CxxUtils-*		Control
 use SGTools 	   	SGTools-*           	Control
 use AtlasPython 	AtlasPython-*  		External
 use DataModelRoot       DataModelRoot-*         Control

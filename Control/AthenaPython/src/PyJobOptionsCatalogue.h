@@ -14,9 +14,7 @@
 // STL includes
 #include <vector>
 #include <string>
-
-// CxxUtils includes
-#include "CxxUtils/unordered_map.h" // move to STL-impl when available
+#include <unordered_map>
 
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
@@ -34,7 +32,7 @@ public:
   
   typedef Gaudi::Details::PropertyBase Property_t;
   typedef std::vector<const Property_t*> Properties_t;
-  typedef SG::unordered_map<std::string, Properties_t> Objects_t;
+  typedef std::unordered_map<std::string, Properties_t> Objects_t;
   
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
