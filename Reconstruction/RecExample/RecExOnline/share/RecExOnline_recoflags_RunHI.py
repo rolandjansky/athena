@@ -46,9 +46,6 @@ if ( not 'abortonuncheckedstatuscode' in dir()):
 if (not 'doHIRec' in dir()):
   doHIRec = False
 
-if (not 'doHIPRec' in dir()):
-  doHIPRec = False
-
 ## ------------------------------------------------------------------- Reco flags
 
 rec.doInDet.set_Value_and_Lock(doInDet)
@@ -65,7 +62,8 @@ from RecExConfig.RecAlgsFlags import recAlgs
 #recAlgs.doTrigger.set_Value_and_Lock(doTrigger)                                
 
 rec.doHeavyIon.set_Value_and_Lock(doHIRec)
-rec.doHIP.set_Value_and_Lock(doHIPRec)
+
+#rec.doHIP.set_Value_and_Lock(True)
 
 ## --------------------- Added by S. Sun to disable Muon Girl algorithm -----------------------------##
 

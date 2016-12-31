@@ -191,8 +191,6 @@ doJiveXML   = False
 doEgammaTau = doAllReco
 ### doEgammaTau = False
 
-doHIPRec     = False
-
 doHIRec     = False
 
 #set to True in the JO
@@ -224,8 +222,7 @@ doHIMon   = False # doAllMon
 
 if isHI_2016:
    #doTrigger   = False
-   doHIPRec    = doAllReco
-   doZdc       = doAllReco
+   doHIRec     = doAllReco
    #doTrigMon = False
    doHIMon   = doAllMon
 ### doHIMon   = False # doAllMon
@@ -267,6 +264,8 @@ DQMonFlags.doMuonTrkPhysMon.set_Value_and_Lock(True) #xx
 
 from RecExConfig.RecFlags import rec
 rec.doBTagging.set_Value_and_Lock(True)
+if isHI_2016:
+   rec.doHIP.set_Value_and_Lock(True)
 
 from JetRec.JetRecFlags import jetFlags
 jetFlags.useBTagging.set_Value_and_Lock(True)
