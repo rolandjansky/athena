@@ -59,8 +59,6 @@ class ParticleToJetAssociator : public asg::AsgTool {
 
         /** AlgTool initialize method */
         virtual StatusCode initialize() override;
-        /** AlgTool finalize method */
-        virtual StatusCode finalize() override;
 
         // template<typename ConstituentType, typename coll> void associateParticlesToJets(
         //                       JetCollection* SGParticleJetContainer,

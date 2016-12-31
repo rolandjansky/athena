@@ -46,9 +46,5 @@ StatusCode ParticleToJetAssociator::initialize() {
    return StatusCode::SUCCESS;
 }
 
-StatusCode ParticleToJetAssociator::finalize() {
-   return StatusCode::SUCCESS;
-}
-
 }
 
