@@ -76,6 +76,8 @@
     std::vector <unsigned int> m_Hits1;
     
     };
+
+    typedef std::map<int, const CPMHits*> CPMHitsMap_t;
   } // end of namespace
 
 #ifndef CPMHits_ClassDEF_H

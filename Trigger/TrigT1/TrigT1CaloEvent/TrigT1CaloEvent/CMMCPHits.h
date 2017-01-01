@@ -83,6 +83,8 @@
     std::vector<int> m_error1;
     
     };
+
+    typedef std::map<int, const CMMCPHits*> CMMCPHitsMap_t;
   } // end of namespace
 
 #ifndef CMMCPHits_ClassDEF_H

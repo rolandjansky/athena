@@ -2,6 +2,7 @@
 #define TRIGT1CALO_CPMROI_H
 
 #include <stdint.h>
+#include <map>
 
 namespace LVL1 {
 
@@ -118,6 +119,9 @@ inline int CPMRoI::saturation() const
 {
   return (m_roiWord >> s_saturationBit) & s_saturationMask;
 }
+
+
+typedef std::map<int, const CPMRoI*> CPMRoIMap_t;
 
 } // end namespace
 
