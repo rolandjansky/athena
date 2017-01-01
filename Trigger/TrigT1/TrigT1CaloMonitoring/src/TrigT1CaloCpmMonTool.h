@@ -175,10 +175,10 @@ private:
   typedef DataVector<LVL1::CPMRoI>       CpmRoiCollection;
   typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;
 
-  typedef std::map<unsigned int, LVL1::TriggerTower*> TriggerTowerMap;
-  typedef std::map<unsigned int, LVL1::CPMTower*>     CpmTowerMap;
-  typedef std::map<unsigned int, LVL1::CPMHits*>      CpmHitsMap;
-  typedef std::map<unsigned int, LVL1::CMMCPHits*>    CmmCpHitsMap;
+  typedef LVL1::TriggerTowerMap_t TriggerTowerMap;
+  typedef LVL1::CPMTowerMap_t     CpmTowerMap;
+  typedef LVL1::CPMHitsMap_t      CpmHitsMap;
+  typedef LVL1::CMMCPHitsMap_t    CmmCpHitsMap;
   
   static const int s_crates     = 4;   ///< Number of CPM crates
   static const int s_modules    = 14;  ///< Number of modules per crate (modules numbered 1-14)

@@ -21,7 +21,12 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "DataModel/DataVector.h"
+#include "TrigT1CaloEvent/TriggerTower.h"
+#include "TrigT1CaloEvent/CPMTower.h"
+#include "TrigT1CaloEvent/CPMRoI.h"
+#include "TrigT1CaloEvent/CPMHits.h"
+#include "TrigT1CaloEvent/CMMCPHits.h"
+#include "AthContainers/DataVector.h"
 
 class LWHist;
 class TH1F_LW;
@@ -195,11 +200,11 @@ private:
   
   typedef std::vector<int> ErrorVector;
 
-  typedef std::map<int, LVL1::TriggerTower*> TriggerTowerMap;
-  typedef std::map<int, LVL1::CPMTower*>     CpmTowerMap;
-  typedef std::map<int, LVL1::CPMRoI*>       CpmRoiMap;
-  typedef std::map<int, LVL1::CPMHits*>      CpmHitsMap;
-  typedef std::map<int, LVL1::CMMCPHits*>    CmmCpHitsMap;
+  typedef LVL1::TriggerTowerMap_t TriggerTowerMap;
+  typedef LVL1::CPMTowerMap_t     CpmTowerMap;
+  typedef LVL1::CPMRoIMap_t       CpmRoiMap;
+  typedef LVL1::CPMHitsMap_t      CpmHitsMap;
+  typedef LVL1::CMMCPHitsMap_t    CmmCpHitsMap;
   
   /// Compare Trigger Towers and CPM Towers
   bool  compare(const TriggerTowerMap& ttMap, const CpmTowerMap& cpMap,
@@ -241,7 +246,7 @@ private:
   /// Return EM FPGA for given crate/phi
   int   fpga(int crate, double phi);
   /// Return a tower with zero energy if parity bit is set
-  LVL1::CPMTower* ttCheck(LVL1::CPMTower* tt, CpmTowerCollection* coll);
+  CpmTowerMap::mapped_type ttCheck(CpmTowerMap::mapped_type tt, CpmTowerCollection* coll);
   /// Check if LimitedRoISet bit is set
   bool  limitedRoiSet(int crate);
 

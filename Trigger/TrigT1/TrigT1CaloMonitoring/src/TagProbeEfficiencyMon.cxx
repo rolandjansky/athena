@@ -116,19 +116,19 @@ StatusCode TagProbeEfficiencyMon::initialize()
     return sc;
   }
   //Setting some values necessary for later use and keeping graphs consistent
-  lowcutTag = 20000.;
-  lowcutProbe = 2500.;
-  inv_m_range = 20000.;
-  m_z = 91188.;
-  probe_et_bins = 20;
-  probe_eta_bins = 25;
-  probe_phi_bins = 32;
-  probe_et_min = 0;
-  probe_et_max = 100;
-  probe_eta_min = -2.50;
-  probe_eta_max = 2.5;
-  probe_phi_min = -3.2;
-  probe_phi_max = 3.2;
+  m_lowcutTag = 20000.;
+  m_lowcutProbe = 2500.;
+  m_inv_m_range = 20000.;
+  m_m_z = 91188.;
+  m_probe_et_bins = 20;
+  m_probe_eta_bins = 25;
+  m_probe_phi_bins = 32;
+  m_probe_et_min = 0;
+  m_probe_et_max = 100;
+  m_probe_eta_min = -2.50;
+  m_probe_eta_max = 2.5;
+  m_probe_phi_min = -3.2;
+  m_probe_phi_max = 3.2;
 
   return StatusCode::SUCCESS;
 }
@@ -183,10 +183,13 @@ StatusCode TagProbeEfficiencyMon::bookHistogramsRecurrent()
 
     // etc...
 	m_histTool->setMonGroup(&monAllProbe);
-    m_h_probe_eta_tot = m_histTool->book1F("probe_eta_tot", "All Probes Eta;Probe Electron #eta; Entries",probe_eta_bins,probe_eta_min,probe_eta_max);
-    m_h_probe_phi_tot = m_histTool->book1F("probe_phi_tot", "All Probes Phi;Probe Electron #phi; Entries", probe_phi_bins,probe_phi_min,probe_phi_max);
-    m_h_probe_Et_tot = m_histTool->book1F("probe_Et_tot","All Probes Et; Probe Electron E_{T} [GeV]; Entries/5GeV",probe_et_bins,probe_et_min,probe_et_max);
-    
+    m_h_probe_eta_tot = m_histTool->book1F("probe_eta_tot", "All Probes Eta;Probe Electron #eta; Entries",m_probe_eta_bins,m_probe_eta_min,m_probe_eta_max);
+    m_h_probe_phi_tot = m_histTool->book1F("probe_phi_tot", "All Probes Phi;Probe Electron #phi; Entries", m_probe_phi_bins,m_probe_phi_min,m_probe_phi_max);
+    m_h_probe_Et_tot = m_histTool->book1F("probe_Et_tot","All Probes Et; Probe Electron E_{T} [GeV]; Entries/5GeV",m_probe_et_bins,m_probe_et_min,m_probe_et_max);
+    m_h_lumib_int_eta_tot = m_histTool->book1F("LumiB_Int_probe_eta_tot", "LumiB_Int_All Probes Eta;Probe Electron #eta; Entries",m_probe_eta_bins,m_probe_eta_min,m_probe_eta_max);
+    m_h_lumib_int_phi_tot = m_histTool->book1F("LumiB_Int_probe_phi_tot", "LumiB_Int_All Probes Phi;Probe Electron #phi; Entries", m_probe_phi_bins,m_probe_phi_min,m_probe_phi_max);
+    m_h_lumib_int_Et_tot = m_histTool->book1F("LumiB_Int_probe_Et_tot","LumiB_Int_All Probes Et; Probe Electron E_{T} [GeV]; Entries/5GeV",m_probe_et_bins,m_probe_et_min,m_probe_et_max);
+
 
 
     TrigConf::L1DataDef def;
@@ -199,15 +202,19 @@ StatusCode TagProbeEfficiencyMon::bookHistogramsRecurrent()
 	  std::string threshName   = (*it)->name();
 	  int threshNumber = (*it)->thresholdNumber();
 	  m_histTool->setMonGroup(&monPassProbe);
-	  m_h_probe_eta_pass[threshNumber]=m_histTool->book1F("eta_"+threshName,"Passing Probes Eta: "+threshName+";Probe Electron #eta ;Entries", probe_eta_bins,probe_eta_min,probe_eta_max);
-	  m_h_probe_phi_pass[threshNumber]=m_histTool->book1F("phi_"+threshName,"Passing Probes Phi: "+ threshName+";Probe Electron #phi ;Entries", probe_phi_bins,probe_phi_min,probe_phi_max);
-	  m_h_probe_Et_pass[threshNumber]=m_histTool->book1F("Et_"+threshName,"Passing Probes Et: "+threshName+";Probe Electron E_{T} [GeV];Entries/5GeV", probe_et_bins,probe_et_min,probe_et_max);
+	  m_h_probe_eta_pass[threshNumber]=m_histTool->book1F("eta_"+threshName,"Passing Probes Eta: "+threshName+";Probe Electron #eta ;Entries", m_probe_eta_bins,m_probe_eta_min,m_probe_eta_max);
+	  m_h_probe_phi_pass[threshNumber]=m_histTool->book1F("phi_"+threshName,"Passing Probes Phi: "+ threshName+";Probe Electron #phi ;Entries", m_probe_phi_bins,m_probe_phi_min,m_probe_phi_max);
+	  m_h_probe_Et_pass[threshNumber]=m_histTool->book1F("Et_"+threshName,"Passing Probes Et: "+threshName+";Probe Electron E_{T} [GeV];Entries/5GeV", m_probe_et_bins,m_probe_et_min,m_probe_et_max);
+	  m_h_lumib_int_eta_pass[threshNumber]=m_histTool->book1F("LumiB_Int_eta_"+threshName,"LumiB_Int_Passing Probes Eta: "+threshName+";Probe Electron #eta ;Entries", m_probe_eta_bins,m_probe_eta_min,m_probe_eta_max);
+	  m_h_lumib_int_phi_pass[threshNumber]=m_histTool->book1F("LumiB_Int_phi_"+threshName,"LumiB_Int_Passing Probes Phi: "+ threshName+";Probe Electron #phi ;Entries", m_probe_phi_bins,m_probe_phi_min,m_probe_phi_max);
+	  m_h_lumib_int_Et_pass[threshNumber]=m_histTool->book1F("LumiB_Int_Et_"+threshName,"LumiB_Int_Passing Probes Et: "+threshName+";Probe Electron E_{T} [GeV];Entries/5GeV", m_probe_et_bins,m_probe_et_min,m_probe_et_max);
+
 	  m_histTool->setMonGroup(&monEtaEff);
-	  m_h_eta_eff[threshNumber]=m_histTool->book1F("eff_eta_"+threshName,"Eta Eff: "+threshName+";Probe Electron #eta ;Efficiency",probe_eta_bins,probe_eta_min,probe_eta_max);
+	  m_h_eta_eff[threshNumber]=m_histTool->book1F("eff_eta_"+threshName,"Eta Eff: "+threshName+";Probe Electron #eta ;Efficiency",m_probe_eta_bins,m_probe_eta_min,m_probe_eta_max);
 	  m_histTool->setMonGroup(&monPhiEff);
-	  m_h_phi_eff[threshNumber]=m_histTool->book1F("eff_phi_"+threshName,"Phi Eff: "+threshName+";Probe Electron #phi ;Efficiency",probe_phi_bins,probe_phi_min,probe_phi_max);
+	  m_h_phi_eff[threshNumber]=m_histTool->book1F("eff_phi_"+threshName,"Phi Eff: "+threshName+";Probe Electron #phi ;Efficiency",m_probe_phi_bins,m_probe_phi_min,m_probe_phi_max);
 	  m_histTool->setMonGroup(&monEtEff);
-	  m_h_Et_eff[threshNumber]=m_histTool->book1F("eff_et_"+threshName,"Et Eff: "+threshName+";Probe Electron E_{T} [GeV];Efficiency",probe_et_bins,probe_et_min,probe_et_max);
+	  m_h_Et_eff[threshNumber]=m_histTool->book1F("eff_et_"+threshName,"Et Eff: "+threshName+";Probe Electron E_{T} [GeV];Efficiency",m_probe_et_bins,m_probe_et_min,m_probe_et_max);
 	}       
       } 
     }
@@ -272,48 +279,48 @@ StatusCode TagProbeEfficiencyMon::fillHistograms()
       if ((*ele_itr)->passSelection("LHMedium")==0) continue; 
       if (abs((*ele_itr)->eta()) > 2.47) continue;
       if (abs((*ele_itr)->eta())>1.37 and (abs((*ele_itr)->eta())<1.52)) continue;
-      if ((*ele_itr)->pt() > lowcutTag and (*ele_itr)->pt()>tag_pt_max){ //set tag
+      if ((*ele_itr)->pt() > m_lowcutTag and (*ele_itr)->pt()>tag_pt_max){ //set tag
         tag_pt_max=((*ele_itr)->pt());
         tagLV.SetPtEtaPhiM((*ele_itr)->pt(),(*ele_itr)->eta(),(*ele_itr)->phi(),(*ele_itr)->m());
         tag_itr = tag_index;
-        tag_charge = (*ele_itr)->charge();
+        m_tag_charge = (*ele_itr)->charge();
       }//Otherwise tag_itr = -1 so we can skip the event!
     } 
 
 //// ...........
 /// PROBE
 //// ...........
-    probelist.clear();
+    m_probelist.clear();
     int probe_itr = -1;
     ele_itr = eles->begin();
     for( ; ele_itr != ele_end; ++ele_itr) {
       probe_itr +=1;
       if (tag_itr == -1) break; //no tag, no reason to check for probes
       if (probe_itr == tag_itr) continue; // if same electron, probe cannot be same as tag
-      if ((*ele_itr)->charge()==tag_charge) continue; //cant have same charge
-      if ((*ele_itr)->pt() < lowcutProbe) continue;
+      if ((*ele_itr)->charge()==m_tag_charge) continue; //cant have same charge
+      if ((*ele_itr)->pt() < m_lowcutProbe) continue;
       if (abs((*ele_itr)->eta()) > 2.47) continue;  //Eta forward
       if (abs((*ele_itr)->eta())>1.37 and (abs((*ele_itr)->eta())<1.52)) continue; //Eta Crack
-      probeLV.SetPtEtaPhiM((*ele_itr)->pt(),(*ele_itr)->eta(),(*ele_itr)->phi(),(*ele_itr)->m());
-      combLV = tagLV+probeLV;
-      if (abs(m_z - combLV.M())>inv_m_range) continue;  //Outside of invariant mass range around the Z, passes all checks
-      probelist.push_back (probe_itr);
+      m_probeLV.SetPtEtaPhiM((*ele_itr)->pt(),(*ele_itr)->eta(),(*ele_itr)->phi(),(*ele_itr)->m());
+      m_combLV = tagLV+m_probeLV;
+      if (abs(m_m_z - m_combLV.M())>m_inv_m_range) continue;  //Outside of invariant mass range around the Z, passes all checks
+      m_probelist.push_back (probe_itr);
     }
 
 //// ...........
 /// Analysis using Tags and Probes
 //// ...........
-    probe_check = -1;
+    m_probe_check = -1;
     float tmpM =10000000.;
     ele_itr = eles->begin();
     for(; ele_itr != ele_end; ++ele_itr) { //Probe selection (for >1probe)
-      probe_check +=1; 
-      for(uint i=0; i<probelist.size();i++){ 
-        if (probelist[i]==probe_check){
-          tmpProbe.SetPtEtaPhiM((*ele_itr)->pt(),(*ele_itr)->eta(),(*ele_itr)->phi(),(*ele_itr)->m());
-          combLV1 = tagLV+tmpProbe;
-          if ((abs(m_z - combLV1.M())) <tmpM){
-            tmpM =(abs(m_z - combLV1.M()));// Want smallest (closest to Zmass) 
+      m_probe_check +=1; 
+      for(uint i=0; i<m_probelist.size();i++){ 
+        if (m_probelist[i]==m_probe_check){
+          m_tmpProbe.SetPtEtaPhiM((*ele_itr)->pt(),(*ele_itr)->eta(),(*ele_itr)->phi(),(*ele_itr)->m());
+          m_combLV1 = tagLV+m_tmpProbe;
+          if ((abs(m_m_z - m_combLV1.M())) <tmpM){
+            tmpM =(abs(m_m_z - m_combLV1.M()));// Want smallest (closest to Zmass) 
             probeLV1.SetPtEtaPhiM((*ele_itr)->pt(),(*ele_itr)->eta(),(*ele_itr)->phi(),(*ele_itr)->m());
           }
         }   
@@ -365,11 +372,11 @@ StatusCode TagProbeEfficiencyMon::fillHistograms()
     } // End of loop over CPM TOB RoI container 
 
     if ( CPMProbeValues[0] > 0) {  
-      combLV1 = tagLV + probeLV1;
+      m_combLV1 = tagLV + probeLV1;
       m_h_probe_eta_tot->Fill(probeLV1.Eta());
       m_h_probe_phi_tot->Fill(probeLV1.Phi());
       m_h_probe_Et_tot->Fill(probeLV1.Et()*0.001);
-      m_h_z_inv_mass->Fill(combLV1.M()*0.001);
+      m_h_z_inv_mass->Fill(m_combLV1.M()*0.001);
       //This Fills the all probe catagories, now we will fill each passing threshold hist:
       TrigConf::L1DataDef def;
       if (m_configSvc->ctpConfig()) {
@@ -423,6 +430,60 @@ StatusCode TagProbeEfficiencyMon::procHistograms()
   msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
   if (endOfLumiBlock) {
+	// At the end of each lumiblock add all the information to *_lumib_int* histograms, for use at end of run
+	// Currently brute forcing this, however this is mostly what is done underneath TH1::Add
+    TrigConf::L1DataDef def;
+    if (m_configSvc->ctpConfig()) {
+      const std::vector<TrigConf::TriggerThreshold*>& end_thresholds(m_configSvc->ctpConfig()->menu().thresholdVector());  
+      std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
+      for (it = end_thresholds.begin(); it!= end_thresholds.end(); ++it) {
+		if ( (*it)->type() == def.emType() ) {
+		  int threshNumber = (*it)->thresholdNumber();
+		  int nbins = m_probe_et_bins +2;
+		  for (int bin = 0; bin < nbins; ++bin) {
+			  double prevVal = m_h_lumib_int_Et_pass[threshNumber]->GetBinContent(bin);
+			  double newVal = m_h_probe_Et_pass[threshNumber]->GetBinContent(bin);
+			  m_h_lumib_int_Et_pass[threshNumber]->SetBinContent(bin, prevVal + newVal);
+			  m_h_probe_Et_pass[threshNumber]->SetBinContent(bin,0);
+		  }
+		  nbins = m_probe_eta_bins +2;
+		  for (int bin = 0; bin < nbins; ++bin) {
+			  double prevVal = m_h_lumib_int_eta_pass[threshNumber]->GetBinContent(bin);
+			  double newVal = m_h_probe_eta_pass[threshNumber]->GetBinContent(bin);
+			  m_h_lumib_int_eta_pass[threshNumber]->SetBinContent(bin, prevVal+newVal);
+			  m_h_probe_eta_pass[threshNumber]->SetBinContent(bin,0);
+		  }
+		  nbins = m_probe_phi_bins +2;
+		  for (int bin = 0; bin < nbins; ++bin) {
+			  double prevVal = m_h_lumib_int_phi_pass[threshNumber]->GetBinContent(bin);
+			  double newVal = m_h_probe_phi_pass[threshNumber]->GetBinContent(bin);
+			  m_h_lumib_int_phi_pass[threshNumber]->SetBinContent(bin, prevVal+newVal);
+			  m_h_probe_phi_pass[threshNumber]->SetBinContent(bin,0);
+		  }
+      }
+    }
+	int nbins = m_probe_et_bins +2;
+	for (int bin = 0; bin < nbins; ++bin) {
+			double prevVal = m_h_lumib_int_Et_tot->GetBinContent(bin);
+			double newVal = m_h_probe_Et_tot->GetBinContent(bin);
+			m_h_lumib_int_Et_tot->SetBinContent(bin,prevVal + newVal);
+			m_h_probe_Et_tot->SetBinContent(bin,0);
+	}
+	nbins = m_probe_eta_bins +2;
+	for (int bin = 0; bin < nbins; ++bin) {
+			double prevVal = m_h_lumib_int_eta_tot->GetBinContent(bin);
+			double newVal = m_h_probe_eta_tot->GetBinContent(bin);
+			m_h_lumib_int_eta_tot->SetBinContent(bin,prevVal+newVal);
+			m_h_probe_eta_tot->SetBinContent(bin,0);
+	}
+	nbins = m_probe_phi_bins +2;
+	for (int bin = 0; bin < nbins; ++bin) {
+			double prevVal = m_h_lumib_int_phi_tot->GetBinContent(bin);
+			double newVal = m_h_probe_phi_tot->GetBinContent(bin);
+			m_h_lumib_int_phi_tot->SetBinContent(bin,prevVal+newVal);
+			m_h_probe_phi_tot->SetBinContent(bin,0);
+	}
+  }
   }
   if (endOfRun){
     TrigConf::L1DataDef def;
@@ -433,9 +494,9 @@ StatusCode TagProbeEfficiencyMon::procHistograms()
       for (it = end_thresholds.begin(); it!= end_thresholds.end(); ++it) {
 	if ( (*it)->type() == def.emType() ) {
 	  threshNumber = (*it)->thresholdNumber();
-	  m_histTool->efficienciesForMerge(m_h_probe_eta_tot,m_h_probe_eta_pass[threshNumber],m_h_eta_eff[threshNumber]);
-	  m_histTool->efficienciesForMerge(m_h_probe_phi_tot,m_h_probe_phi_pass[threshNumber],m_h_phi_eff[threshNumber]);
-	  m_histTool->efficienciesForMerge(m_h_probe_Et_tot,m_h_probe_Et_pass[threshNumber],m_h_Et_eff[threshNumber]);
+	  m_histTool->efficienciesForMerge(m_h_lumib_int_eta_tot,m_h_lumib_int_eta_pass[threshNumber],m_h_eta_eff[threshNumber]);
+	  m_histTool->efficienciesForMerge(m_h_lumib_int_phi_tot,m_h_lumib_int_phi_pass[threshNumber],m_h_phi_eff[threshNumber]);
+	  m_histTool->efficienciesForMerge(m_h_lumib_int_Et_tot,m_h_lumib_int_Et_pass[threshNumber],m_h_Et_eff[threshNumber]);
 	}
       }
     }

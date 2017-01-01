@@ -229,12 +229,12 @@ private:
   typedef std::vector<int> ErrorVector;
   typedef DataVector<LVL1::JEMJetAlgorithm> InternalRoiCollection;
 
-  typedef std::map<int, xAOD::JetElement*>   JetElementMap;
-  typedef std::map<int, xAOD::JEMTobRoI*>    JEMTobRoIMap;
-  typedef std::map<int, xAOD::CMXJetTob*>    CmxJetTobMap;
-  typedef std::map<int, xAOD::CMXJetHits*>   CmxJetHitsMap;
-  typedef std::map<int, xAOD::JEMEtSums*>    JemEtSumsMap;
-  typedef std::map<int, xAOD::CMXEtSums*>    CmxEtSumsMap;
+  typedef xAOD::JetElementMap_t   JetElementMap;
+  typedef xAOD::JEMTobRoIMap_t    JEMTobRoIMap;
+  typedef xAOD::CMXJetTobMap_t    CmxJetTobMap;
+  typedef xAOD::CMXJetHitsMap_t   CmxJetHitsMap;
+  typedef xAOD::JEMEtSumsMap_t    JemEtSumsMap;
+  typedef xAOD::CMXEtSumsMap_t    CmxEtSumsMap;
 
   static const int s_crates    = 2;
   static const int s_modules   = 16;

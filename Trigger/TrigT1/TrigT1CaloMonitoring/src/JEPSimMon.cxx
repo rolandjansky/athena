@@ -51,6 +51,8 @@
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
 #include "JEPSimMon.h"
+#include "AthContainers/ConstDataVector.h"
+
 namespace{
 std::string sourceComponent(uint8_t source)
 {
@@ -3415,10 +3417,9 @@ void JEPSimMon::simulate(const xAOD::TriggerTowerContainer *towers,
 
     // Make zero-suppressed collection to speed up simulation
 
-    xAOD::TriggerTowerContainer *towersZ = new xAOD::TriggerTowerContainer;
-    xAOD::TriggerTowerAuxContainer *towersZAux =
-        new xAOD::TriggerTowerAuxContainer;
-    towersZ->setStore(towersZAux);
+    xAOD::TriggerTowerContainer towersZ;
+    xAOD::TriggerTowerAuxContainer towersZAux;
+    towersZ.setStore(&towersZAux);
 
     xAOD::TriggerTowerContainer::const_iterator pos = towers->begin();
     xAOD::TriggerTowerContainer::const_iterator posE = towers->end();
@@ -3428,12 +3429,10 @@ void JEPSimMon::simulate(const xAOD::TriggerTowerContainer *towers,
         {
             xAOD::TriggerTower *tt = new xAOD::TriggerTower;
             *tt = **pos;
-            towersZ->push_back(tt);
+            towersZ.push_back(tt);
         }
     }
-    m_jetElementTool->makeJetElements(towersZ, elements);
-    delete towersZ;
-    delete towersZAux;
+    m_jetElementTool->makeJetElements(&towersZ, elements);
 }
 
 void JEPSimMon::simulate(const xAOD::JetElementContainer *elements,
@@ -3444,12 +3443,9 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer *elements,
 
     // Process a crate at a time to use overlap data
     const int ncrates = 2;
-    std::vector<xAOD::JetElementContainer *> crateColl;
-
+    ConstDataVector<xAOD::JetElementContainer> crateColl[ncrates];
     for (int crate = 0; crate < ncrates; ++crate)
-    {
-        crateColl.push_back(new xAOD::JetElementContainer(SG::VIEW_ELEMENTS));
-    }
+      crateColl[crate].clear (SG::VIEW_ELEMENTS);
 
     LVL1::CoordToHardware converter;
     xAOD::JetElementContainer::const_iterator iter;
@@ -3460,11 +3456,11 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer *elements,
         iterE = elements->end();
         for (; iter != iterE; ++iter)
         {
-            xAOD::JetElementContainer::value_type je = *iter;
+            const xAOD::JetElementContainer::const_value_type je = *iter;
             const LVL1::Coordinate coord(je->phi(), je->eta());
             const int crate = converter.jepCrate(coord);
             if (crate < ncrates)
-                crateColl[crate]->push_back(je);
+                crateColl[crate].push_back(je);
         }
     }
     if (elementsOv)
@@ -3473,11 +3469,11 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer *elements,
         iterE = elementsOv->end();
         for (; iter != iterE; ++iter)
         {
-            xAOD::JetElementContainer::value_type je = *iter;
+            const xAOD::JetElementContainer::const_value_type je = *iter;
             const LVL1::Coordinate coord(je->phi(), je->eta());
             const int crate = converter.jepCrateOverlap(coord);
             if (crate < ncrates)
-                crateColl[crate]->push_back(je);
+                crateColl[crate].push_back(je);
         }
     }
     else if (elements)
@@ -3486,19 +3482,19 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer *elements,
         iterE = elements->end();
         for (; iter != iterE; ++iter)
         {
-            xAOD::JetElementContainer::value_type je = *iter;
+            const xAOD::JetElementContainer::const_value_type je = *iter;
             const LVL1::Coordinate coord(je->phi(), je->eta());
             const int crate = converter.jepCrateOverlap(coord);
             if (crate < ncrates)
-                crateColl[crate]->push_back(je);
+                crateColl[crate].push_back(je);
         }
     }
     for (int crate = 0; crate < ncrates; ++crate)
     {
-        InternalRoiCollection *intRois = new InternalRoiCollection;
-        m_jetTool->findRoIs(crateColl[crate], intRois);
+        InternalRoiCollection intRois;
+        m_jetTool->findRoIs(crateColl[crate].asDataVector(), &intRois);
 
-        for (auto it = intRois->begin(); it != intRois->end(); ++it)
+        for (auto it = intRois.begin(); it != intRois.end(); ++it)
         {
             xAOD::JEMTobRoI *roi = (*it)->jemTobRoI();
             if (roi->crate() == crate)
@@ -3510,20 +3506,6 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer *elements,
                 delete roi;
             }
         }
-
-        // xAOD::JEMTobRoIContainer* roiTemp = new xAOD::JEMTobRoIContainer;
-
-        // m_jetCmxTool->formJEMTobRoI(intRois, roiTemp);
-        // xAOD::JEMTobRoIContainer::iterator roiIter  = roiTemp->begin();
-        // xAOD::JEMTobRoIContainer::iterator roiIterE = roiTemp->end();
-        // for (; roiIter != roiIterE; ++roiIter) {
-        //   if ((*roiIter)->crate() == crate) {
-        //     rois->push_back(*roiIter);
-        //   }
-        // }
-        delete intRois;
-        // delete roiTemp;
-        delete crateColl[crate];
     }
 }
 

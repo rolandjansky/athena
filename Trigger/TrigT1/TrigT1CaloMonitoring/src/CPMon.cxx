@@ -624,7 +624,7 @@ StatusCode CPMon::fillHistograms()
       xAOD::CPMTowerContainer::const_iterator ctIteratorEnd = cpmTwrTES->end();
 
       for (; ctIterator != ctIteratorEnd; ++ctIterator) {
-        xAOD::CPMTower* ct = *ctIterator;
+        const xAOD::CPMTower* ct = *ctIterator;
         const uint8_t    em  = ct->emEnergy();
         const uint8_t    had = ct->hadEnergy();
         const double eta = ct->eta();

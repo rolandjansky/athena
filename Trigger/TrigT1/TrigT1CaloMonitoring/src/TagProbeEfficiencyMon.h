@@ -90,41 +90,47 @@ namespace LVL1 {
   int m_maxEnergyRange;
   /// Histograms booked flag
   bool m_histBooked;
-  float lowcutTag;
-  float lowcutProbe;
-  float inv_m_range;
-  float m_z;
-  int probe_et_bins;
-  int probe_eta_bins;
-  int probe_phi_bins;
-  double probe_et_min;
-  double probe_et_max;
-  double probe_eta_min;
-  double probe_eta_max;
-  double probe_phi_min;
-  double probe_phi_max;
-  int tag_charge;
-  std::vector<int> probelist;
-  int probe_check;
-  TLorentzVector tagLV; 
-  TLorentzVector probeLV;
-  TLorentzVector combLV; 
-  TLorentzVector probeLV1;
-  TLorentzVector combLV1; 
-  TLorentzVector tmpProbe; 
+  float m_lowcutTag;
+  float m_lowcutProbe;
+  float m_inv_m_range;
+  float m_m_z;
+  int m_probe_et_bins;
+  int m_probe_eta_bins;
+  int m_probe_phi_bins;
+  double m_probe_et_min;
+  double m_probe_et_max;
+  double m_probe_eta_min;
+  double m_probe_eta_max;
+  double m_probe_phi_min;
+  double m_probe_phi_max;
+  int m_tag_charge;
+  std::vector<int> m_probelist;
+  int m_probe_check;
+  //TLorentzVector tagLV; 
+  TLorentzVector m_probeLV;
+  TLorentzVector m_combLV; 
+  //TLorentzVector probeLV1;
+  TLorentzVector m_combLV1; 
+  TLorentzVector m_tmpProbe; 
 
   //===========================================
   // Histograms
   // ==========================================
   
   // Histograms used to make efficiency plots
-  static const int thresh_num=16; //16 EM Thresholds
-  TH1F_LW* m_h_probe_eta_pass[thresh_num];
-  TH1F_LW* m_h_probe_phi_pass[thresh_num];
-  TH1F_LW* m_h_probe_Et_pass[thresh_num];
-  TH1F_LW* m_h_eta_eff[thresh_num];
-  TH1F_LW* m_h_phi_eff[thresh_num];
-  TH1F_LW* m_h_Et_eff[thresh_num];
+  static const int s_thresh_num=16; //16 EM Thresholds
+  TH1F_LW* m_h_probe_eta_pass[s_thresh_num];
+  TH1F_LW* m_h_probe_phi_pass[s_thresh_num];
+  TH1F_LW* m_h_probe_Et_pass[s_thresh_num];
+  TH1F_LW* m_h_lumib_int_Et_pass[s_thresh_num];
+  TH1F_LW* m_h_lumib_int_phi_pass[s_thresh_num];
+  TH1F_LW* m_h_lumib_int_eta_pass[s_thresh_num];
+  TH1F_LW* m_h_lumib_int_Et_tot;
+  TH1F_LW* m_h_lumib_int_phi_tot;
+  TH1F_LW* m_h_lumib_int_eta_tot;
+  TH1F_LW* m_h_eta_eff[s_thresh_num];
+  TH1F_LW* m_h_phi_eff[s_thresh_num];
+  TH1F_LW* m_h_Et_eff[s_thresh_num];
   TH1F_LW* m_h_probe_eta_tot;
   TH1F_LW* m_h_probe_phi_tot;
   TH1F_LW* m_h_probe_Et_tot;

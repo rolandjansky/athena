@@ -1548,7 +1548,7 @@ void CPMSimBSMon::simulate(const CpmTowerMap towers, const CpmTowerMap towersOv,
   CpmTowerMap::const_iterator iter  = towers.begin();
   CpmTowerMap::const_iterator iterE = towers.end();
   for (; iter != iterE; ++iter) {
-    LVL1::CPMTower* tt = ttCheck(iter->second, tempColl);
+    CpmTowerMap::mapped_type tt = ttCheck(iter->second, tempColl);
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrate(coord);
     if (crate >= ncrates) continue;
@@ -1558,7 +1558,7 @@ void CPMSimBSMon::simulate(const CpmTowerMap towers, const CpmTowerMap towersOv,
   iter  = (m_overlapPresent) ? towersOv.begin() : towers.begin();
   iterE = (m_overlapPresent) ? towersOv.end()   : towers.end();
   for (; iter != iterE; ++iter) {
-    LVL1::CPMTower* tt = ttCheck(iter->second, tempColl);
+    CpmTowerMap::mapped_type tt = ttCheck(iter->second, tempColl);
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrateOverlap(coord);
     if (crate >= ncrates) continue;
@@ -1629,8 +1629,9 @@ int CPMSimBSMon::fpga(int crate, double phi)
 
 // Return a tower with zero energy if parity bit is set
 
-LVL1::CPMTower* CPMSimBSMon::ttCheck(LVL1::CPMTower* tt,
-                                     CpmTowerCollection* coll)
+CPMSimBSMon::CpmTowerMap::mapped_type
+CPMSimBSMon::ttCheck(CpmTowerMap::mapped_type tt,
+                     CpmTowerCollection* coll)
 {
   const LVL1::DataError emError(tt->emError());
   const LVL1::DataError hadError(tt->hadError());

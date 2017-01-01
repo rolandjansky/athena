@@ -214,11 +214,11 @@ private:
   //typedef std::map<int, LVL1::TriggerTower*> TriggerTowerMap;
   typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapEm;
   typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapHad;
-  typedef std::map<int, xAOD::CPMTower*>     CpmTowerMap;
+  typedef xAOD::CPMTowerMap_t                      CpmTowerMap;
   //  typedef std::map<int, const xAOD::CPMTower*>*    CpmTowerMapP;
   typedef std::map<int, const xAOD::CMXCPTob*>     CmxCpTobMap;
   typedef std::map<int, const xAOD::CMXCPHits*>    CmxCpHitsMap;
-  typedef std::map<int, xAOD::CPMTobRoI*>    CpmTobRoiMap;
+  typedef xAOD::CPMTobRoIMap_t                     CpmTobRoiMap;
 
   static const int s_crates  = 4;
   static const int s_modules = 14;
@@ -271,7 +271,7 @@ private:
   /// Return EM FPGA for given crate/phi
   int   fpga(int crate, double phi);
   /// Return a tower with zero energy if parity bit is set
-  xAOD::CPMTower* ttCheck( xAOD::CPMTower* tt, xAOD::CPMTowerContainer* coll);
+  CpmTowerMap::mapped_type ttCheck( CpmTowerMap::mapped_type tt, xAOD::CPMTowerContainer* coll);
   /// Check if LimitedRoISet bit is set
   bool  limitedRoiSet(int crate);
 

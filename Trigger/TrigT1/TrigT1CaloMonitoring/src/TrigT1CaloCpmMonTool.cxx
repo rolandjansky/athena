@@ -482,7 +482,7 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
     TriggerTowerCollection::const_iterator ttIteratorEnd =
                                                       triggerTowerTES->end(); 
     for (; ttIterator != ttIteratorEnd; ++ttIterator) {
-      LVL1::TriggerTower* tt = *ttIterator;
+      TriggerTowerMap::mapped_type tt = *ttIterator;
       const double eta = tt->eta();
       if (eta < -2.5 || eta > 2.5) continue;
       const std::vector<int>& emLut(tt->emLUT());
@@ -509,7 +509,7 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
       CpmTowerCollection::const_iterator ctIteratorEnd = cpmTwrTES->end(); 
 
       for (; ctIterator != ctIteratorEnd; ++ctIterator) {
-	LVL1::CPMTower* ct = *ctIterator;
+        CpmTowerMap::mapped_type ct = *ctIterator;
         const int    em  = ct->emEnergy();
         const int    had = ct->hadEnergy();
         const double eta = ct->eta();
@@ -606,7 +606,7 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
       const int sliceHadLut = hadLut.size();
       const int sliceEmVec = emVec.size();
       const int sliceHadVec = hadVec.size();
-      const int crate = static_cast<int>(tt->phi()/(M_PI/2.));
+      const int crate = static_cast<int>(tt->phi()*2*M_1_PI/2.);
       for (int slice = 0; slice < sliceEmLut; ++slice) {
         if (emLut[slice] > 0) {
 	  for (int slice2 = 0; slice2 < sliceEmVec; ++slice2) {

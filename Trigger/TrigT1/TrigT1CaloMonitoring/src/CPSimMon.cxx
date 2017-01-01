@@ -1848,7 +1848,7 @@ void CPSimMon::setupMap(const xAOD::CPMTowerContainer *coll, CpmTowerMap &map) {
     xAOD::CPMTowerContainer::const_iterator pos = coll->begin();
     xAOD::CPMTowerContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
-      xAOD::CPMTower *cp = (*pos);
+      CpmTowerMap::mapped_type cp = (*pos);
       const double eta = (*pos)->eta();
       const double phi = (*pos)->phi();
       const int key = towerKey.ttKey(phi, eta);
@@ -1943,7 +1943,7 @@ void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
   // CpmTowerMap::iterator iterE = towers->end();
   // for (; iter != iterE; ++iter) {
   for (const auto iter : *towers) {
-    xAOD::CPMTower *tt = ttCheck(iter.second, tempColl);
+    CpmTowerMap::mapped_type tt = ttCheck(iter.second, tempColl);
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrate(coord);
     if (crate >= s_crates)
@@ -1954,8 +1954,8 @@ void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
   // iter  = (m_overlapPresent) ? towersOv.begin() : towers->begin();
   // iterE = (m_overlapPresent) ? towersOv.end()   : towers->end();
   for (const auto iter : ((m_overlapPresent) ? *towersOv : *towers)) {
-    // for (; iter != iterE; ++iter) {
-    xAOD::CPMTower *tt = ttCheck(iter.second, tempColl);
+    //for (; iter != iterE; ++iter) {
+    CpmTowerMap::mapped_type tt = ttCheck(iter.second, tempColl);
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrateOverlap(coord);
     if (crate >= s_crates)
@@ -2046,8 +2046,9 @@ int CPSimMon::fpga(int crate, double phi) {
 
 // Return a tower with zero energy if parity bit is set
 
-xAOD::CPMTower *CPSimMon::ttCheck(xAOD::CPMTower *tt,
-                                  xAOD::CPMTowerContainer *coll) {
+CPSimMon::CpmTowerMap::mapped_type
+CPSimMon::ttCheck( CpmTowerMap::mapped_type tt, xAOD::CPMTowerContainer* coll)
+{
   const LVL1::DataError emError(tt->emError());
   const LVL1::DataError hadError(tt->hadError());
   const int emParity = emError.get(LVL1::DataError::Parity);
