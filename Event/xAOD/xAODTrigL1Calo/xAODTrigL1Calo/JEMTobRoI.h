@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMTobRoI.h 652818 2015-03-09 22:54:24Z morrisj $
+// $Id: JEMTobRoI.h 791220 2017-01-01 04:52:41Z ssnyder $
 #ifndef XAODTRIGL1CALO_JEMTOBROI_H
 #define XAODTRIGL1CALO_JEMTOBROI_H
 
@@ -15,6 +15,8 @@
 namespace xAOD{
   /// Define the latest version of the JEMTobRoI class
   typedef JEMTobRoI_v1 JEMTobRoI;
+
+  typedef std::map<int, const JEMTobRoI*> JEMTobRoIMap_t;
 }
 
 #include "xAODCore/CLASS_DEF.h"

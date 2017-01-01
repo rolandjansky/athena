@@ -13,6 +13,8 @@
 namespace xAOD {
    /// Define the latest version of the JEMEtSums class
    typedef JEMEtSums_v2 JEMEtSums;
+
+   typedef std::map<int, const JEMEtSums*> JEMEtSumsMap_t;
 }
 
 #include "xAODCore/CLASS_DEF.h"
