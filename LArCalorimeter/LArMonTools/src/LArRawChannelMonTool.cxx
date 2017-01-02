@@ -42,6 +42,7 @@
 //#include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "StoreGate/DataHandle.h"
+#include "AthenaKernel/Units.h"
 
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"
@@ -52,9 +53,10 @@
 #include "LWHistFactory.h"
 
 
-using CLHEP::nanosecond;
-using CLHEP::picosecond;
-using CLHEP::MeV;
+namespace Units = Athena::Units;
+using Units::nanosecond;
+using Units::picosecond;
+using Units::MeV;
 
 
 using namespace LArMonTools;

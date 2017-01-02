@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecConditions
                           LArCalorimeter/LArRecUtils
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           Tools/LWHists
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
@@ -44,7 +44,7 @@ atlas_add_component( LArMonTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArRecUtilsLib LArToolsLib LWHists TrigDecisionToolLib CaloConditions AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions LArRawConditions LArRecEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArRecUtilsLib LArCablingLib LWHists TrigDecisionToolLib CaloConditions AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions LArRawConditions LArRecEvent )
 
 # Install files from the package:
 atlas_install_headers( LArMonTools )

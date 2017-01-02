@@ -20,7 +20,7 @@
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArRecConditions/ILArBadChannelMasker.h"
@@ -47,7 +47,7 @@ class LArDigit;
 
 class CaloDetDescrManager;
 
-using namespace std;
+//using namespace std;
 
 class LArRODMonTool: public ManagedMonitorToolBase
 {
@@ -88,8 +88,8 @@ class LArRODMonTool: public ManagedMonitorToolBase
 		     int E_off,                            // Energy calculated offline (i.e. fromDigits)
 		     int E_on,                             // Energy calculated online (i.e. fromBytestream)
 		     FILE* ofcfile,                        // output file containing ofc's
-		     ofstream& digitsfile,                 // output file containing digits
-		     ofstream& energyfile,                 // output file containing energies
+		     std::ofstream& digitsfile,                 // output file containing digits
+		     std::ofstream& energyfile,                 // output file containing energies
 		     const HWIdentifier chid,                   // FEB HW ID
 		     int event);                           // Event #
   
@@ -223,7 +223,7 @@ private:
   std::string m_DumpCellsFileName;
 
   // Ofstream / files for test outputs
-  ofstream m_fdig, m_fen; // ,ai
+  std::ofstream m_fdig, m_fen; // ,ai
   FILE* m_fdump;
   FILE* m_fai;
 

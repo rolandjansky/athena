@@ -15,7 +15,7 @@ use StoreGate           StoreGate-*         Control
 
 use LArIdentifier       LArIdentifier-*     LArCalorimeter
 use LArRawEvent         LArRawEvent-*       LArCalorimeter
-use LArTools            LArTools-*          LArCalorimeter
+use LArCabling          LArCabling-*        LArCalorimeter
 use LArElecCalib        LArElecCalib-*      LArCalorimeter
 use LArRecConditions	LArRecConditions-*  LArCalorimeter
 use LArRecUtils         LArRecUtils-*       LArCalorimeter

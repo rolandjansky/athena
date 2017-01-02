@@ -24,7 +24,7 @@
 //#include "AthenaMonitoring/IDQFilterTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloInterface/ICaloNoiseTool.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArMonTools/LArRawChannelMonTools.h"
 

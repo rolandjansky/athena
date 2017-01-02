@@ -29,7 +29,7 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 

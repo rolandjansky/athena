@@ -37,6 +37,7 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 #include "AthenaKernel/errorcheck.h"
+#include <cmath>
 
 const int max_dump=100;
 int ndump=0;
@@ -959,8 +960,8 @@ void LArRODMonTool::DumpCellEvent(int count,                            // count
 				  int E_off,                            // Energy calculated offline (i.e. fromDigits)
 				  int E_on,                             // Energy calculated online (i.e. fromBytestream)
 				  FILE* ofcfile,                    // output file containing ofc's
-				  ofstream& digitsfile,                 // output file containing digits
-				  ofstream& energyfile,                 // output file containing energies
+				  std::ofstream& digitsfile,                 // output file containing digits
+				  std::ofstream& energyfile,                 // output file containing energies
 				  HWIdentifier chid,                    // Channel HW ID
 				  int event)                            // Event #
 {
@@ -976,13 +977,14 @@ void LArRODMonTool::DumpCellEvent(int count,                            // count
   float pedplusoffset;
   if (Escale*sumai != 0) pedplusoffset = pedestal - Ramp0/(Escale*sumai);
   else pedplusoffset = 0;
+  const float inv_Escale = 1. / Escale;
 
   fprintf(ofcfile,"\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
 	  channel,  pedestal, pedplusoffset,  
 	  ofc.at(0)*Escale,  ofc.at(1)*Escale,  ofc.at(2)*Escale,  ofc.at(3)*Escale,  ofc.at(4)*Escale,
 	  ofcb.at(0)*Escale,  ofcb.at(1)*Escale,  ofcb.at(2)*Escale,  ofcb.at(3)*Escale,  ofcb.at(4)*Escale,
-	  ofch.at(0)/Escale,  ofch.at(1)/Escale,  ofch.at(2)/Escale,  ofch.at(3)/Escale,  ofch.at(4)/Escale,
-	  ofcd.at(0)/Escale,  ofcd.at(1)/Escale,  ofcd.at(2)/Escale,  ofcd.at(3)/Escale,  ofcd.at(4)/Escale);
+	  ofch.at(0)*inv_Escale,  ofch.at(1)*inv_Escale,  ofch.at(2)*inv_Escale,  ofch.at(3)*inv_Escale,  ofch.at(4)*inv_Escale,
+	  ofcd.at(0)*inv_Escale,  ofcd.at(1)*inv_Escale,  ofcd.at(2)*inv_Escale,  ofcd.at(3)*inv_Escale,  ofcd.at(4)*inv_Escale);
   //	  0.0, 0.0, 0.0, 0.0, 0.0);
 
   // Dumping file with offline energy and online energ
@@ -1107,7 +1109,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
   } // not sure of this value ... seems the max, though ...
 
   const float& t_fB=rcBS.time();
-  const float abs_t_fB=abs(t_fB);
+  const float abs_t_fB=std::abs(t_fB);
   if (abs_t_fB < m_range_T_0) DTCut = m_precision_T_0;
   else if (abs_t_fB < m_range_T_1) 
     DTCut = m_precision_T_1;
@@ -1118,7 +1120,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
   else DTCut = m_precision_T_max; // not sure of this value ... seems the max, though ...
 
   const float q_fB=rcBS.quality();
-  const float abs_q_fB=abs(q_fB);
+  const float abs_q_fB=std::abs(q_fB);
   const float q_fD=rcDig.quality();
 
 
@@ -1255,7 +1257,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
          const float ped = m_larpedestal->pedestal(chid,rcDig.gain());
          msg(MSG::INFO) << "Escale: "<<escale<<" intercept: "<<ramp0<<" pedestal: "<<ped<<" gain: "<<rcDig.gain() <<endmsg;
          const Identifier cellid=m_cable_service_tool->cnvToIdentifier(chid);
-         CaloDetDescrElement* cellDDE = m_calo_description_mgr->get_element(cellid); 
+         const CaloDetDescrElement* cellDDE = m_calo_description_mgr->get_element(cellid); 
          const float noise=m_calo_noise_tool->totalNoiseRMS(cellDDE,rcDig.gain(),20.);
          msg(MSG::INFO) << "Noise for mu=20: "<<noise<<endmsg;
          msg(MSG::INFO) << "HVScaleCorr: "<<hvscale<<endmsg;

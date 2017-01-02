@@ -25,7 +25,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
