@@ -84,7 +84,7 @@ private:
 
   /// Flag that we've retrieved the environment.
   bool m_haveEnv;
-
+  
   /// Mask of enabled exceptions.
   int m_enabled;
 

@@ -125,6 +125,7 @@ MixingEventSelector::finalize() {
 
 void
 MixingEventSelector::setUpTriggerList(Property&) {
+  m_trigList = TriggerList();
   for_each(m_triggerListProp.value().begin(), m_triggerListProp.value().end(),  
 	   bind1st(mem_fun(&MixingEventSelector::decodeTrigger), this));
   setCurrentTrigger();

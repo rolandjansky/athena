@@ -30,8 +30,6 @@
 #include "../TestRandomSeqAlg.h"
 #include "../MetaDataSvc.h"
 #include "../OutputStreamSequencerSvc.h"
-#include "../AthenaSharedMemoryTool.h"
-#include "../AthenaYamplTool.h"
 #include "../AthenaStopperAlg.h"
 #ifdef ATHENAHIVE
 #include "../AthenaHiveEventLoopMgr.h"
@@ -70,6 +68,4 @@ DECLARE_SERVICE_FACTORY( MetaDataSvc )
 DECLARE_SERVICE_FACTORY( OutputStreamSequencerSvc )
 DECLARE_TOOL_FACTORY( AthenaOutputStreamTool )
 DECLARE_TOOL_FACTORY( ThinningOutputTool )
-DECLARE_TOOL_FACTORY( AthenaSharedMemoryTool )
-DECLARE_TOOL_FACTORY( AthenaYamplTool )
 DECLARE_ALGORITHM_FACTORY( AthenaStopperAlg )
