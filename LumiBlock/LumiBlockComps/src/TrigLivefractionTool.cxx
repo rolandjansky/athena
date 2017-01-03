@@ -215,7 +215,7 @@ TrigLivefractionTool::updateLivefraction( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys
     for (unsigned int i = 0; i < m_livefractionHigh.size(); i++) {
       msg(MSG::DEBUG) << m_livefractionHigh[i] << " "; 
     }
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
   }
 
   return StatusCode::SUCCESS;

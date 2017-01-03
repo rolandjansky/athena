@@ -630,7 +630,7 @@ LuminosityTool::recalculatePerBCIDLumi()
       
       // Calibrate
       if (!m_onlineLumiCalibrationTool->calibrateLumi(m_preferredChannel, rawLumiVec[bcid], calLumiVec[bcid])) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " -> Calibration failed!" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " -> Calibration failed!" << endmsg;
 	ATH_MSG_WARNING( "Per-BCID calibration failed for bcid " << bcid << " with raw lumi = " << rawLumiVec[bcid] );
 	continue;
       }

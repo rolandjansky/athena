@@ -35,7 +35,7 @@ end_private
 
 # Create a dual_use library since the lcgdict pattern doesn't work with component libraries using cmake.
 # This pollutes the linkopts for clients, but is otherwise harmless.
-macro LumiBlockComps_filesToCompile "*.cxx ../Root/*.cxx" AthAnalysisBase "CreateLumiBlockCollectionFromFile.cxx ILumiCalcSvc.cxx ../Root/*.cxx"
+macro LumiBlockComps_filesToCompile "*.cxx ../Root/*.cxx" AthAnalysisBase "xAOD2NtupLumiSvc.cxx CreateLumiBlockCollectionFromFile.cxx ILumiCalcSvc.cxx ../Root/*.cxx"
 apply_pattern dual_use_library files=$(LumiBlockComps_filesToCompile)
 
 apply_pattern declare_python_modules files="*.py"

@@ -163,7 +163,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endreq;
+	  << endmsg;
     }
   }
 
@@ -178,7 +178,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endreq;
+	  << endmsg;
     }
   }
 
@@ -193,7 +193,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endreq;
+	  << endmsg;
     }
   }
   

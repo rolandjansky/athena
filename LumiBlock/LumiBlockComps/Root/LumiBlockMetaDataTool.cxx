@@ -5,7 +5,7 @@
 /** Modified from @file ReadMeta.cxx
  *  @brief The LumiBlockMetaDataTool reads luminosity metadata from input files and transfers it to output files
  *  @author Marjorie Shapiro <mdshapiro@lbl.gov> based on work from Peter van Gemmeren <gemmeren@anl.gov> 
- *  $Id: LumiBlockMetaDataTool.cxx 725529 2016-02-22 16:07:11Z will $
+ *  $Id: LumiBlockMetaDataTool.cxx 783129 2016-11-09 03:47:26Z ssnyder $
  **/
 
 #include "LumiBlockComps/LumiBlockMetaDataTool.h"
@@ -163,7 +163,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
       // ===========================================================================
 
       if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_LBColl_name)) {
-	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_LBColl_name << endreq;
+	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_LBColl_name << endmsg;
 	const xAOD::LumiBlockRangeContainer* lbrange =0;
 	StatusCode sc = m_pInputStore->retrieve(lbrange,m_LBColl_name);
          if (!sc.isSuccess()) {
@@ -177,7 +177,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
 	 }
       }
       if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_unfinishedLBColl_name)) {
-	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_unfinishedLBColl_name << endreq;
+	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_unfinishedLBColl_name << endmsg;
 	const xAOD::LumiBlockRangeContainer* lbrange =0;
 	StatusCode sc = m_pInputStore->retrieve(lbrange,m_unfinishedLBColl_name);
          if (!sc.isSuccess()) {
@@ -191,7 +191,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
 	}
       }
       if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_suspectLBColl_name)) {
-	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_suspectLBColl_name << endreq;
+	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_suspectLBColl_name << endmsg;
 	const xAOD::LumiBlockRangeContainer* lbrange =0;
 	StatusCode sc = m_pInputStore->retrieve(lbrange,m_suspectLBColl_name);
          if (!sc.isSuccess()) {
@@ -343,7 +343,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endreq;
+	  << endmsg;
     }
   }
 
@@ -358,7 +358,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endreq;
+	  << endmsg;
     }
   }
   if(piovSuspect->size()>0) {
@@ -372,7 +372,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endreq;
+	  << endmsg;
     }
   }
 
