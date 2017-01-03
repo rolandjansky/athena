@@ -54,6 +54,7 @@ private :
 	TTree* m_l1;
 	TTree* m_offelectron;
 	TTree* m_cell_infront;
+	TTree* m_allcell_infront;
 	/** event counter */
 	int m_counter;
 	/** some keys */
@@ -110,6 +111,13 @@ private :
 	std::vector< std::vector<float> > m_cell_infront_time;
 	std::vector< std::vector<float> > m_cell_infront_quality;
 
+	std::vector< std::vector<float> > m_allcell_infront_idx;
+	std::vector< std::vector<float> > m_allcell_infront_e;
+	std::vector< std::vector<float> > m_allcell_infront_eta;
+	std::vector< std::vector<float> > m_allcell_infront_phi;
+	std::vector< std::vector<float> > m_allcell_infront_layer;
+	std::vector< std::vector<float> > m_allcell_infront_time;
+	std::vector< std::vector<float> > m_allcell_infront_quality;
 };
 
 

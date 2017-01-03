@@ -16,6 +16,7 @@
 #include "TrigT1CaloTauFex.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include <math.h>
+#include <numeric>
 #include <string>
 #include "TFile.h"
 #include "TH1F.h"
