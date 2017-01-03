@@ -152,7 +152,7 @@ private:
 	// Keeps as 1 until we understand it
 	static const int   s_GAIN_RATIO = 1;
 
-	ZdcDigitsCollection* m_pedestalData;
+	//ZdcDigitsCollection* m_pedestalData;
 
         const ZdcID* m_zdcId;
 
