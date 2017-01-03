@@ -78,8 +78,15 @@ class JobOptionsSvc
   virtual StatusCode removePropertyFromCatalogue( const std::string& client, 
                                                   const std::string& name );
   /// Get the properties associated to a given client
-  virtual const std::vector<const Property*>* 
+
+  virtual const std::vector<const Gaudi::Details::PropertyBase*>*
   getProperties( const std::string& client) const; 
+
+  /// Get a property for a client
+  virtual const Gaudi::Details::PropertyBase*
+  getClientProperty( const std::string& client,
+		     const std::string& name ) const;
+
 
   /// Get the list of clients
   virtual std::vector<std::string> getClients() const;

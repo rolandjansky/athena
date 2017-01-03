@@ -1,5 +1,4 @@
-# $Id: CMakeLists.txt 753795 2016-06-08 23:37:56Z ssnyder $
-################################################################################
+###############################################################################
 # Package: AthenaServices
 ################################################################################
 
@@ -30,13 +29,12 @@ atlas_depends_on_subdirs(
 find_package( Boost COMPONENTS thread )
 find_package( CLHEP )
 find_package( PythonLibs )
-find_package( yampl )
 
 # Component(s) in the package:
 atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
-   ${YAMPL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${YAMPL_LIBRARIES}
+   ${CLHEP_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} 
    ${CLHEP_LIBRARIES} z TestTools AthenaBaseComps AthenaKernel CxxUtils
    DataModel DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
    StoreGateLib SGtests PersistentDataModel EventInfo GaudiKernel )
