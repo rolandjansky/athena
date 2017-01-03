@@ -160,7 +160,7 @@ int JetInputElRemovalTool::fillSelectedClusters(std::vector<const xAOD::Electron
   
   //Initialiaze variables
   
-  int m_countRemoved_clusters=0;
+  int countRemoved_clusters=0;
   double propEM=0;
   
   //Get the Topo clusters of the event
@@ -220,14 +220,14 @@ int JetInputElRemovalTool::fillSelectedClusters(std::vector<const xAOD::Electron
       selected_cl.push_back(dynamic_cast<const xAOD::CaloCluster*> (cluster_itr));
     }
     else{ //else it is removed
-      m_countRemoved_clusters+=1;
+      countRemoved_clusters+=1;
     }
   }//End loop over clusters
   
   
   //ANA_CHECK(evtStore()->record( filtered_clusters , "CaloCalTopoClustersNoElec" ));
   
-  return  m_countRemoved_clusters;
+  return  countRemoved_clusters;
 }//End of SelectClusters()
 
 
@@ -240,7 +240,7 @@ int JetInputElRemovalTool::fillSelectedClusters(std::vector<const xAOD::Electron
 
 int JetInputElRemovalTool::fillSelectedClustersInJets(std::vector<const xAOD::Electron*>&selected_el,ConstDataVector<xAOD::CaloClusterContainer> & selected_cl)const{
   
-  int m_countRemoved_clusters=0;
+  int countRemoved_clusters=0;
   double propEM=0;
   
   const xAOD::JetContainer* jetsContainer;
@@ -296,7 +296,7 @@ int JetInputElRemovalTool::fillSelectedClustersInJets(std::vector<const xAOD::El
 	selected_cl.push_back(dynamic_cast<const xAOD::CaloCluster*> (cluster_itr));
       }
       else{
-	m_countRemoved_clusters+=1;
+	countRemoved_clusters+=1;
       }
     }//End loop over clusters
     
@@ -304,13 +304,13 @@ int JetInputElRemovalTool::fillSelectedClustersInJets(std::vector<const xAOD::El
   
   //ANA_CHECK(evtStore()->record( filtered_clusters , "CaloCalTopoClustersNoElec" ));
   
-  return  m_countRemoved_clusters;
+  return  countRemoved_clusters;
 }
 
 
 int JetInputElRemovalTool::fillSelectedTracks(std::vector<const xAOD::Electron*>&selected_el,ConstDataVector<xAOD::TrackParticleContainer> & selected_cl)const{
   
-  int m_countRemoved_trk=0;
+  int countRemoved_trk=0;
   
   const xAOD::TrackParticleContainer* tkPrtclContainer;
   StatusCode sc=evtStore()->retrieve( tkPrtclContainer, m_trkInputContainer );
@@ -344,12 +344,12 @@ int JetInputElRemovalTool::fillSelectedTracks(std::vector<const xAOD::Electron*>
       selected_cl.push_back(dynamic_cast<const xAOD::TrackParticle*> (trk_itr));
     }
     else{ //else it is removed
-      m_countRemoved_trk+=1;
+      countRemoved_trk+=1;
     }
   }//End loop over tracks
   
   
-  return  m_countRemoved_trk;
+  return  countRemoved_trk;
 }
 
 
