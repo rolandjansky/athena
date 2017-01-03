@@ -16,6 +16,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/AttribStringParser.h"
 
+#include "AthContainersInterfaces/AuxTypes.h"
 #include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
@@ -28,6 +29,8 @@
 #include "StoreGate/StoreGate.h"
 
 #include "StorageSvc/DbReflex.h"
+
+#include "AuxDiscoverySvc.h"
 
 //______________________________________________________________________________
 // Initialize the service.
@@ -388,7 +391,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             } else if (classDesc.IsFundamental()) {
                obj = buffer; buffer = 0;
             } else {
-               obj = m_serializeSvc->deserialize(buffer, nbytes, classDesc);
+               obj = m_serializeSvc->deserialize(buffer, nbytes, classDesc); buffer = 0;
             }
             // Write object
             Placement placement;
@@ -610,6 +613,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          usleep(100);
          sc = m_outputStreamingTool->putObject(buffer, nbytes);
       }
+      delete [] (char*)buffer; buffer = 0;
       if (!sc.isSuccess() || !m_outputStreamingTool->putObject(0, 0).isSuccess()) {
          ATH_MSG_ERROR("Failed to put Data for " << placementStr);
          return(0);
@@ -657,10 +661,41 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
             sc = m_inputStreamingTool->getObject(&buffer, nbytes);
          }
          if (!sc.isSuccess()) {
+            delete [] (char*)buffer; buffer = 0;
             ATH_MSG_WARNING("Failed to get Data for " << token->toString());
             obj = 0;
          } else {
-            obj = m_serializeSvc->deserialize(buffer, nbytes, token->classID());
+            obj = m_serializeSvc->deserialize(buffer, nbytes, token->classID()); buffer = 0;
+         }
+
+         sc = m_inputStreamingTool->getObject(&buffer, nbytes);
+         if (sc.isSuccess() && nbytes > 0) {
+            const_cast<Token*>(token)->setCont(std::string((char*)buffer));
+         }
+         delete [] (char*)buffer; buffer = 0;
+         AuxDiscoverySvc auxDiscover;
+         if (auxDiscover.getAuxStore(obj, *token)) {
+            while (m_inputStreamingTool->getObject(&buffer, nbytes).isSuccess() && nbytes > 0) {
+               const std::string attrName((char*)buffer);
+               const std::string typeName((char*)buffer + attrName.size() + 1);
+               const std::string elemName((char*)buffer + attrName.size() + typeName.size() + 2);
+               delete [] (char*)buffer; buffer = 0;
+               sc = m_inputStreamingTool->getObject(&buffer, nbytes);
+               if (!sc.isSuccess()) {
+                  ATH_MSG_WARNING("Failed to get dynamic attribute for " << attrName);
+               } else {
+                  const RootType type(typeName);
+                  void* dynAttr = 0;
+                  if (type.IsFundamental()) {
+                     dynAttr = buffer; buffer = 0;
+                  } else {
+                     dynAttr = m_serializeSvc->deserialize(buffer, nbytes, type); buffer = 0;
+                  }
+                  SG::auxid_t auxid = auxDiscover.getAuxID(attrName, elemName, typeName);
+                  auxDiscover.setData(auxid, dynAttr, type);
+               }
+            }
+            auxDiscover.setAuxStore();
          }
       }
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isServer()) {
@@ -710,6 +745,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
       } else {
          token = new Token();
          token->fromString((char*)buffer);
+         delete [] (char*)buffer; buffer = 0;
          if (token->classID() == Guid::null()) {
             delete token; token = 0;
          }
@@ -829,15 +865,57 @@ StatusCode AthenaPoolCnvSvc::readData() const {
       void* buffer = 0;
       size_t nbytes = 0;
       buffer = m_serializeSvc->serialize(instance, cltype, nbytes);
-      cltype.Destruct(instance); instance = 0;
-      // Share object (if not store object)
-      if (buffer != 0) {
-         sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
-         delete [] (char*)buffer; buffer = 0;
-         if (!sc.isSuccess() || !m_inputStreamingTool->putObject(0, 0, num).isSuccess()) {
-            ATH_MSG_ERROR("Could not share object for: " << token.toString());
+      sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
+      delete [] (char*)buffer; buffer = 0;
+      if (!sc.isSuccess()) {
+         ATH_MSG_ERROR("Could not share object for: " << token.toString());
+         return(StatusCode::FAILURE);
+      }
+      AuxDiscoverySvc auxDiscover;
+      const SG::auxid_set_t& auxIDs = auxDiscover.getAuxIDs(instance, token);
+      if (!auxIDs.empty()) {
+         const std::string contId = token.contID();
+         if (!m_inputStreamingTool->putObject(contId.c_str(), contId.size() + 1, num).isSuccess()) {
+            ATH_MSG_ERROR("Could not share container ID for: " << token.toString());
             return(StatusCode::FAILURE);
          }
+      }
+      for (SG::auxid_set_t::const_iterator iter = auxIDs.begin(), last = auxIDs.end(); iter != last; iter++) {
+         const std::string& attrName = auxDiscover.getAttrName(*iter);
+         const std::string& typeName = auxDiscover.getTypeName(*iter);
+         const std::string& elemName = auxDiscover.getElemName(*iter);
+         buffer = new char[attrName.size() + typeName.size() + elemName.size() + 3];
+         memcpy((char*)buffer, attrName.c_str(), attrName.size() + 1);
+         memcpy((char*)buffer + attrName.size() + 1, typeName.c_str(), typeName.size() + 1);
+         memcpy((char*)buffer + attrName.size() + typeName.size() + 2, elemName.c_str(), elemName.size() + 1);
+         sc = m_inputStreamingTool->putObject(buffer, attrName.size() + typeName.size() + elemName.size() + 3, num);
+         delete [] (char*)buffer; buffer = 0;
+         if (!sc.isSuccess()) {
+            ATH_MSG_ERROR("Could not share object header for: " << token.toString());
+             return(StatusCode::FAILURE);
+         }
+         const std::type_info* tip = auxDiscover.getType(*iter);
+         if (tip == nullptr) {
+            ATH_MSG_ERROR("Could not get type_info for: " << token.toString());
+            return(StatusCode::FAILURE);
+         }
+         RootType type(*tip);
+         if (type.IsFundamental()) {
+            sc = m_inputStreamingTool->putObject(auxDiscover.getData(*iter), type.SizeOf(), num);
+         } else {
+            buffer = m_serializeSvc->serialize(auxDiscover.getData(*iter), type, nbytes);
+            sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
+            delete [] (char*)buffer; buffer = 0;
+         }
+         if (!sc.isSuccess()) {
+            ATH_MSG_ERROR("Could not share object decoration for: " << token.toString());
+            return(StatusCode::FAILURE);
+         }
+      }
+      cltype.Destruct(instance); instance = 0;
+      if (!m_inputStreamingTool->putObject(0, 0, num).isSuccess()) {
+         ATH_MSG_ERROR("Could not share object for: " << token.toString());
+         return(StatusCode::FAILURE);
       }
    } else if (token.dbID() != Guid::null()) {
       std::string returnToken;

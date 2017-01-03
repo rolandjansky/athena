@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 733899 2016-04-05 07:43:22Z krasznaa $
+# $Id: CMakeLists.txt 790790 2016-12-21 22:31:42Z gemmeren $
 ################################################################################
 # Package: AthenaPoolCnvSvc
 ################################################################################
@@ -17,10 +17,6 @@ atlas_depends_on_subdirs(
    Control/CxxUtils
    Control/DataModelRoot
    Control/SGTools
-   Database/APR/CollectionBase
-   Database/APR/CollectionUtilities
-   Database/APR/POOLCore
-   Database/APR/PersistencySvc
    Database/APR/StorageSvc
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/AthenaPOOL/PoolSvc
@@ -29,6 +25,9 @@ atlas_depends_on_subdirs(
    GaudiKernel
    PRIVATE
    AtlasTest/TestTools
+   Control/AthContainersInterfaces
+   Control/AthContainersRoot
+   Control/RootUtils
    Control/StoreGate )
 
 # External dependencies:
@@ -41,8 +40,8 @@ atlas_add_library( AthenaPoolCnvSvcLib
    PUBLIC_HEADERS AthenaPoolCnvSvc
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthLinks AthenaBaseComps
-   AthenaKernel CxxUtils DataModelRoot SGTools CollectionBase
+   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthContainersRoot AthLinks AthenaBaseComps
+   AthenaKernel CxxUtils DataModelRoot RootUtils SGTools CollectionBase
    CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaPoolUtilities
    PersistentDataModel TPTools GaudiKernel StoreGateLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )

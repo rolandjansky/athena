@@ -7,17 +7,17 @@ use AtlasPOOL             AtlasPOOL-*           External
 use AtlasROOT             AtlasROOT-*           External 
 use GaudiInterface        GaudiInterface-*      External
 use AtlasBoost            AtlasBoost-*          External
-use CxxUtils              CxxUtils-*            Control
+use AthContainers         AthContainers-*       Control
+use AthLinks              AthLinks-*            Control
 use AthenaBaseComps       AthenaBaseComps-*     Control
 use AthenaKernel          AthenaKernel-*        Control
 use CLIDSvc               CLIDSvc-*             Control
+use CxxUtils              CxxUtils-*            Control
 use DataModelRoot         DataModelRoot-*       Control
 use SGTools               SGTools-*             Control
-use AthContainers         AthContainers-*       Control
-use AthLinks              AthLinks-*            Control
-use PersistentDataModel   PersistentDataModel-* Database
 use AthenaPoolUtilities   AthenaPoolUtilities-* Database/AthenaPOOL
 use PoolSvc               PoolSvc-*             Database/AthenaPOOL
+use PersistentDataModel   PersistentDataModel-* Database
 use TPTools               TPTools-*             Database
 
 macro AthenaPoolCnvSvc_shlibflags " $(AtlasPOOL_Service) "
@@ -32,6 +32,9 @@ apply_pattern declare_python_modules files="*.py"
 set POOL_AUTH_PATH "${AthenaPoolCnvSvc_root}/share"
 
 private
+use AthContainersInterfaces AthContainersInterfaces-* Control
+use AthContainersRoot     AthContainersRoot-*   Control
+use RootUtils             RootUtils-*           Control
 use StoreGate             StoreGate-*           Control
 
 private
