@@ -18,12 +18,12 @@ public:
    virtual StatusCode makeClient(int num) = 0;
    virtual bool isClient() const = 0;
 
-   virtual StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status) = 0;
-   virtual StatusCode getLockedEvent(void** target, unsigned int& status) = 0;
+   virtual StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status) const = 0;
+   virtual StatusCode getLockedEvent(void** target, unsigned int& status) const = 0;
    virtual StatusCode lockEvent(long eventNumber) = 0;
 
-   virtual StatusCode putObject(const void* source, size_t nbytes, int num = 0) = 0;
-   virtual StatusCode getObject(void** target, size_t& nbytes, int num = 0) = 0;
+   virtual StatusCode putObject(const void* source, size_t nbytes, int num = 0) const = 0;
+   virtual StatusCode getObject(void** target, size_t& nbytes, int num = 0) const = 0;
    virtual StatusCode clearObject(char** tokenString, int& num) = 0;
    virtual StatusCode lockObject(const char* tokenString, int num = 0) = 0;
 };
