@@ -49,19 +49,19 @@ public:
 
    StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status) const;
    StatusCode getLockedEvent(void** target, unsigned int& status) const;
-   StatusCode lockEvent(long eventNumber);
+   StatusCode lockEvent(long eventNumber) const;
 
    StatusCode putObject(const void* source, size_t nbytes, int num = 0) const;
    StatusCode getObject(void** target, size_t& nbytes, int num = 0) const;
-   StatusCode clearObject(char** tokenString, int& num);
-   StatusCode lockObject(const char* tokenString, int num = 0);
+   StatusCode clearObject(char** tokenString, int& num) const;
+   StatusCode lockObject(const char* tokenString, int num = 0) const;
 
 private:
    StringProperty m_sharedMemory;
    const size_t m_maxSize;
    const int m_maxDataClients;
    int m_num;
-   std::set<int> m_dataClients;
+   mutable std::set<int> m_dataClients;
    boost::interprocess::mapped_region* m_payload;
    boost::interprocess::mapped_region* m_status;
    long m_fileSeqNumber;

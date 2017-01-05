@@ -229,7 +229,7 @@ StatusCode AthenaSharedMemoryTool::getLockedEvent(void** target, unsigned int& s
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::lockEvent(long eventNumber) {
+StatusCode AthenaSharedMemoryTool::lockEvent(long eventNumber) const {
    ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
    if (evtH->evtSeqNumber > eventNumber) {
       ATH_MSG_ERROR("eventNumber = " << eventNumber << ", already processed");
@@ -246,7 +246,7 @@ StatusCode AthenaSharedMemoryTool::lockEvent(long eventNumber) {
    if (evtH->fileSeqNumber != m_fileSeqNumber && m_fileSeqNumber > 0) {
       FileIncident endFileIncident(name(), "EndInputFile", "SHM");
       m_incidentSvc->fireIncident(endFileIncident);
-      m_fileSeqNumber = evtH->fileSeqNumber;
+      const_cast<AthenaSharedMemoryTool*>(this)->m_fileSeqNumber = evtH->fileSeqNumber;
       FileIncident beginFileIncident(name(), "BeginInputFile", "SHM");
       m_incidentSvc->fireIncident(beginFileIncident);
    }
@@ -314,7 +314,7 @@ StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int 
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) {
+StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) const {
    if (m_isClient) {
       ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
       if (evtH->evtProcessStatus != ShareEventHeader::CLEARED) {
@@ -383,7 +383,7 @@ StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::lockObject(const char* tokenString, int num) {
+StatusCode AthenaSharedMemoryTool::lockObject(const char* tokenString, int num) const {
    if (strlen(tokenString) >= maxTokenLength) {
       ATH_MSG_ERROR("Token = " << tokenString << ", too long for AthenaSharedMemoryTool");
       return(StatusCode::FAILURE);

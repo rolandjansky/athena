@@ -220,7 +220,7 @@ StatusCode AthenaYamplTool::getLockedEvent(void** target, unsigned int& status) 
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::lockEvent(long) {
+StatusCode AthenaYamplTool::lockEvent(long) const {
   return StatusCode::SUCCESS;
 }
 
@@ -235,11 +235,11 @@ StatusCode AthenaYamplTool::getObject(void**, size_t&, int) const {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::clearObject(char**, int&) {
+StatusCode AthenaYamplTool::clearObject(char**, int&) const {
   return(StatusCode::FAILURE);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::lockObject(const char*, int) {
+StatusCode AthenaYamplTool::lockObject(const char*, int) const {
    return(StatusCode::SUCCESS);
 }
