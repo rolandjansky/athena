@@ -116,7 +116,7 @@ class calibMVAVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str', 'None']
-    StoredValue="egammaMVACalib/offline/v3_E4crack_bis"
+    StoredValue="egammaMVACalib/offline/v5.0_rel21pre"
 
 # Defines a sub-container holding the jobProperties for egamma
 class egammaRecFlags(JobPropertyContainer):
