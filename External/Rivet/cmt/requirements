@@ -18,7 +18,7 @@ macro myLCG_config_version ""
 
 #macro Rivet_home "$(LCG_external)/MCGenerators_lcgcmt$(myLCG_config_version)/rivet"
 macro Rivet_home "$(LCG_external)/MCGenerators/rivet"
-macro Rivet_version "2.4.3"
+macro Rivet_version "2.5.3"
 macro Rivet_native_version "$(Rivet_version)_lcgcmt$(LCG_config_version)"
 macro Rivet_dir "$(Rivet_home)/$(Rivet_version)/$(LCG_ext_system)"
 macro Rivet_lib "$(Rivet_dir)/lib"
