@@ -13,7 +13,7 @@ use AtlasExternalArea          AtlasExternalArea-*     External
 
 #macro YODA_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(myLCG_config_version)/yoda"
 macro YODA_home "$(LCG_external)/MCGenerators/yoda"
-macro YODA_version "1.6.1"
+macro YODA_version "1.6.6"
 macro YODA_native_version "$(YODA_version)_lcgcmt$(LCG_config_version)"
 macro YODA_dir "$(YODA_home)/$(YODA_version)/$(LCG_ext_system)"
 macro YODA_lib "$(YODA_dir)/lib"
