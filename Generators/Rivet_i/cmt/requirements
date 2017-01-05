@@ -7,7 +7,7 @@ use AtlasPolicy       AtlasPolicy-*
 use GaudiInterface    GaudiInterface-*    External
 use AthenaBaseComps   AthenaBaseComps-*   Control
 use Rivet             Rivet-*             External
-
+   
 private
 use GeneratorObjects  GeneratorObjects-*  Generators
 use AthenaKernel      AthenaKernel-*      Control

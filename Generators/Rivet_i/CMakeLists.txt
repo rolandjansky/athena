@@ -15,11 +15,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Tools/PathResolver )
 
 # Set the version of Rivet to use:
-set( RIVET_VERSION 2.5.2 )
+set( RIVET_VERSION 2.5.3 )
 set( RIVET_ROOT
    ${LCG_RELEASE_DIR}/MCGenerators/rivet/${RIVET_VERSION}/${ATLAS_PLATFORM} )
 
-set( YODA_VERSION 1.6.5 )
+set( YODA_VERSION 1.6.6 )
 set( YODA_ROOT
    ${LCG_RELEASE_DIR}/MCGenerators/yoda/${YODA_VERSION}/${ATLAS_PLATFORM} )
 
