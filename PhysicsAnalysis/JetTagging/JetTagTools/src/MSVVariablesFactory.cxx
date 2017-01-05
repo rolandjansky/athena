@@ -85,6 +85,15 @@ StatusCode MSVVariablesFactory::finalize() {
       BTag->setVariable<float>(basename, "normdist", distnrm);
       BTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", MSVVertexLinks);
       BTag->setDynVxELName(basename, "vertices");
+      xAOD::Vertex* Vertex = new xAOD::Vertex();
+      VertexContainer->push_back(Vertex);
+      xAOD::SecVtxHelper::setVertexMass(Vertex, -9.);
+      xAOD::SecVtxHelper::setEnergyFraction(Vertex, -9.);
+      xAOD::SecVtxHelper::setVtxNtrk(Vertex, -9);
+      xAOD::SecVtxHelper::setVtxpt(Vertex, -9.);
+      xAOD::SecVtxHelper::setVtxeta(Vertex, -9.);
+      xAOD::SecVtxHelper::setVtxphi(Vertex, -9.);
+      xAOD::SecVtxHelper::setVtxnormDist(Vertex, -9.);      
       return StatusCode::SUCCESS;
 
     }
