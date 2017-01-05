@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrackParticleAuxContainerCnv.cxx 789663 2016-12-14 14:48:57Z krasznaa $
+// $Id: xAODTrackParticleAuxContainerCnv.cxx 791368 2017-01-05 08:55:07Z krasznaa $
 
 // System include(s):
 #include <exception>
@@ -36,6 +36,9 @@ StatusCode xAODTrackParticleAuxContainerCnv::initialize() {
 
    // Retrieve the compression tool:
    CHECK( m_compressorTool.retrieve() );
+
+   // Call the base class's initialize:
+   CHECK( xAODTrackParticleAuxContainerCnvBase::initialize() );
 
    // Return gracefully:
    return StatusCode::SUCCESS;
