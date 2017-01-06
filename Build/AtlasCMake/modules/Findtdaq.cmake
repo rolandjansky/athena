@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Findtdaq.cmake 786558 2016-11-25 19:11:45Z fwinkl $
+# $Id: Findtdaq.cmake 790478 2016-12-19 13:20:23Z krasznaa $
 #
 # Try to find TDAQ
 # Defines:
@@ -24,7 +24,8 @@ include( AtlasInternals )
 # Declare the module:
 atlas_external_module( NAME tdaq
    INCLUDE_SUFFIXES installed/include INCLUDE_NAMES RunControl/RunControl.h
-   LIBRARY_SUFFIXES installed/${ATLAS_PLATFORM}/lib
+   LIBRARY_SUFFIXES installed/$ENV{CMTCONFIG}/lib
+   installed/${ATLAS_PLATFORM}/lib
    COMPULSORY_COMPONENTS ipc )
 
 # Add the platform specific header directory, if the platform agnostic directory
@@ -45,8 +46,13 @@ mark_as_advanced( TDAQ_FOUND TDAQ_INCLUDE_DIR TDAQ_INCLUDE_DIRS TDAQ_LIBRARIES
 if( TDAQ_FOUND )
    set( TDAQ_PYTHON_PATH ${TDAQ_ROOT}/installed/share/lib/python
       ${TDAQ_LIBRARY_DIRS} )
-   set( TDAQ_BINARY_PATH ${TDAQ_ROOT}/installed/${ATLAS_PLATFORM}/bin
-      ${TDAQ_ROOT}/installed/share/bin )
+   if( "$ENV{CMTCONFIG}" STREQUAL "" )
+      set( TDAQ_BINARY_PATH ${TDAQ_ROOT}/installed/${ATLAS_PLATFORM}/bin
+         ${TDAQ_ROOT}/installed/share/bin )
+   else()
+      set( TDAQ_BINARY_PATH ${TDAQ_ROOT}/installed/$ENV{CMTCONFIG}/bin
+         ${TDAQ_ROOT}/installed/share/bin )
+   endif()
    set( TDAQ_ENVIRONMENT
       SET    TDAQ_DB_PATH ${TDAQ_ROOT}/installed/share/data
       APPEND TDAQ_DB_PATH ${TDAQ_ROOT}/installed/databases

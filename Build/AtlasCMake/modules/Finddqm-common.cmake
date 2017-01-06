@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Finddqm-common.cmake 778185 2016-10-13 08:34:54Z alibrari $
+# $Id: Finddqm-common.cmake 790478 2016-12-19 13:20:23Z krasznaa $
 #
 # Try to find DQM-COMMON
 # Defines:
@@ -23,7 +23,8 @@ include( AtlasInternals )
 # Declare the module:
 atlas_external_module( NAME dqm-common
    INCLUDE_SUFFIXES installed/include INCLUDE_NAMES dqm_core/Algorithm.h
-   LIBRARY_SUFFIXES installed/${ATLAS_PLATFORM}/lib
+   LIBRARY_SUFFIXES installed/$ENV{CMTCONFIG}/lib
+   installed/${ATLAS_PLATFORM}/lib
    COMPULSORY_COMPONENTS dqm_core_io dqm_core dqm_dummy_io dqm_dummy )
 
 # Handle the standard find_package arguments:
@@ -37,9 +38,15 @@ mark_as_advanced( DQM-COMMON_FOUND DQM-COMMON_INCLUDE_DIR
 if( DQM-COMMON_FOUND )
    set( DQM-COMMON_PYTHON_PATH ${DQM-COMMON_ROOT}/installed/share/lib/python
       ${DQM-COMMON_LIBRARY_DIRS} )
-   set( DQM-COMMON_BINARY_PATH
-      ${DQM-COMMON_ROOT}/installed/${ATLAS_PLATFORM}/bin
-      ${DQM-COMMON_ROOT}/installed/share/bin )
+   if( "$ENV{CMTCONFIG}" STREQUAL "" )
+      set( DQM-COMMON_BINARY_PATH
+         ${DQM-COMMON_ROOT}/installed/${ATLAS_PLATFORM}/bin
+         ${DQM-COMMON_ROOT}/installed/share/bin )
+   else()
+      set( DQM-COMMON_BINARY_PATH
+         ${DQM-COMMON_ROOT}/installed/$ENV{CMTCONFIG}/bin
+         ${DQM-COMMON_ROOT}/installed/share/bin )
+   endif()
 endif()
 
 # Add the RPM dependencies:
