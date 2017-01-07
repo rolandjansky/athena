@@ -139,6 +139,9 @@ from IOVDbSvc.CondDB import conddb
 if len(globalflags.ConditionsTag())!=0:
     conddb.setGlobalTag(globalflags.ConditionsTag())
 
+# Conditions Service for reading conditions data in serial and MT Athena
+from IOVSvc.IOVSvcConf import CondSvc
+svcMgr += CondSvc()
 
 
 
@@ -485,6 +488,13 @@ if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     topSequence+=xAODMaker__EventInfoCnvAlg()
     pass
+
+# Conditions data access infrastructure for serial and MT Athena
+from IOVSvc.IOVSvcConf import CondInputLoader
+topSequence += CondInputLoader( "CondInputLoader")
+
+import StoreGate.StoreGateConf as StoreGateConf
+svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
 # bytestream reading need to shedule some algorithm
 
