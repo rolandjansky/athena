@@ -85,7 +85,7 @@ EMTrackMatchBuilder::EMTrackMatchBuilder(const std::string& type,
   declareProperty("narrowDeltaPhiRescaleBrem", m_narrowDeltaPhiRescaleBrem =0.1,
 		  "Value of the narrow cut for delta phi Rescale Brem");
 
-  declareProperty("MaxDeltaPhiRescale", m_MaxDeltaPhiRescale=0.2,
+  declareProperty("MaxDeltaPhiRescale", m_MaxDeltaPhiRescale=0.25,
 		  "Maximum Value of the deltaPhi rescale");
 
   // Boolean to use candidate matching

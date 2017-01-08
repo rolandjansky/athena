@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "electronSuperClusterBuilder.h"
 //
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -131,9 +132,6 @@ StatusCode electronSuperClusterBuilder::execute(){
     if (!egRec->caloCluster()->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
       ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
     }
-    if (emFrac < m_emFracCut) {
-      continue;
-    }
     //Require minimum energy for supercluster seeding.
     if (egRec->caloCluster()->et()*emFrac < m_EtThresholdCut){
       continue;
@@ -142,14 +140,25 @@ StatusCode electronSuperClusterBuilder::execute(){
     if (egRec->getNumberOfTrackParticles()==0) {
       continue;
     }
+    //
     uint8_t trkPixelHits(0);
-    egRec->trackParticle(0)->summaryValue(trkPixelHits,xAOD::numberOfPixelHits);
+    uint8_t uint8_value(0);
+    //
+    //use both Pixel and Dead Pixel ala the EMTrackMatchBuilder + offline cuts
+    if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelDeadSensors)){
+      trkPixelHits+=uint8_value;
+    }
+    if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
+      trkPixelHits+=uint8_value;
+    }    
     if (!trkPixelHits){
       continue;
     }
+    //Check if it is TRT standalone
     if (xAOD::EgammaHelpers::numberOfSiHits(egRec->trackParticle(0)) < m_numberOfSiHits){
       continue;
     }
+    //
     //Counters to keep tracks why we added the clusters
     m_nWindowClusters=0;
     m_nExtraClusters=0;
@@ -236,15 +245,6 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
     //if not retrieve it
     const auto egRec = egammaRecs->at(i);
     const xAOD::CaloCluster *clus = egRec->caloCluster();
-    //Basic cuts 
-    double emFrac(0.);
-    if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-      ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
-    }
-
-    if (emFrac < m_emFracCut){
-      continue;
-    }
 
     //Now the actual checks
     //Check if clusters are nearby enough to form the "topo-seeded window.'
@@ -332,12 +332,12 @@ bool electronSuperClusterBuilder::PassesSimpleBremSearch(const xAOD::CaloCluster
 							 float perigeeExtrapPhi,
 							 float seedEOverP) const
 {
-  if (seedEOverP > m_secEOverPCut)
+  if (seedEOverP > m_secEOverPCut){
     return false;
+  }
 
   float perigeeExtrapClusDelEta = fabs(seed->eta() - perigeeExtrapEta);
   float perigeeExtrapClusDelPhi = fabs(P4Helpers::deltaPhi(seed->phi(), perigeeExtrapPhi));
-
   float perigeeExtrapSecClusDelEta = fabs(sec->eta() - perigeeExtrapEta);
   float perigeeExtrapSecClusDelPhi = fabs(P4Helpers::deltaPhi(sec->phi(), perigeeExtrapPhi));
 

@@ -18,9 +18,9 @@
 #include "xAODTracking/TrackParticle.h"
 //
 #include "FourMomUtils/P4Helpers.h"
-
+//
 #include "egammaInterfaces/IegammaSwTool.h"
-
+//
 #include <vector>
 
 using CLHEP::GeV;
@@ -125,9 +125,6 @@ StatusCode photonSuperClusterBuilder::execute(){
     if (!egClus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
       ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
     }
-    if (emFrac < m_emFracCut){
-      continue;
-    }
     if (egClus->et()*emFrac < m_EtThresholdCut){
       continue;
     }
@@ -159,7 +156,6 @@ StatusCode photonSuperClusterBuilder::execute(){
       accumulatedClusters.push_back(secRec->caloCluster());
       // no need to add vertices
     }
-    //
     //
     //End of core Logic 
 
@@ -263,15 +259,6 @@ photonSuperClusterBuilder::SearchForSecondaryClusters(std::size_t photonInd,
       ATH_MSG_WARNING("The potentially secondary egammaRec does not have a cluster");
       continue;
     } 
-
-    double emFrac(0.);
-    if (!caloClus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-      ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
-    }
-    if (emFrac < m_emFracCut){
-      continue;
-    }
-
     // Now perform a number of tests to see if the cluster should be added
     bool addCluster = false;
     if (m_addClustersInWindow && 
@@ -283,7 +270,7 @@ photonSuperClusterBuilder::SearchForSecondaryClusters(std::size_t photonInd,
 
     // should do "else if" if we want nWindowCluster and nExtraCluster to not both increment
     if (m_addClustersMatchingVtx && 
-	       MatchesVtx(seedVertices, seedVertexType, egRec)) {
+	MatchesVtx(seedVertices, seedVertexType, egRec)) {
       ATH_MSG_DEBUG("conversion vertices match");
       addCluster = true;
       nExtraClusters++;

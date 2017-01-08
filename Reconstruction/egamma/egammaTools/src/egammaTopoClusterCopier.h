@@ -29,16 +29,15 @@ class egammaTopoClusterCopier : public egammaBaseTool, virtual public IegammaTop
   virtual StatusCode finalize();
   
   private:
-  StatusCode  copyEMTopo() const;
-  StatusCode  copyCaloTopo() const;
-  float GetEMFraction (const xAOD::CaloCluster *clus) const;
+
+  StatusCode  copyCaloTopo()const;
+  StatusCode  checkEMFraction (const xAOD::CaloCluster *clus) const;
   std::string m_inputTopoCollection;
   std::string m_outputTopoCollection;
-  bool m_isHadronic;
   float m_etaCut;
   float m_ECut;
   float m_EMFracCut;
-
+  
 };
 
 #endif // EGAMMATOOLS_EMCLUSTERTOOL_H
