@@ -225,92 +225,93 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
     return nullptr;
   }
 
-   newCluster->setClusterSize(xAOD::CaloCluster::SuperCluster);
+  newCluster->setClusterSize(xAOD::CaloCluster::SuperCluster);
 
-   //A vector to keep track of cells we have added (filled by AddEMCellsToCluster)
-   std::vector<const CaloCell*> cellsInWindow;
+  //A vector to keep track of cells we have added (filled by AddEMCellsToCluster)
+  std::vector<const CaloCell*> cellsInWindow;
 
-   //Need a vector of element Links to the constituent Cluster
-   std::vector< ElementLink< xAOD::CaloClusterContainer > > constituentLinks;
-   static const SG::AuxElement::Accessor < ElementLink < xAOD::CaloClusterContainer > > sisterCluster("SisterCluster");
-   //
-   //Start with the seed 
-   //Add the EM cells of the seed cluster
-   if (AddEMCellsToCluster(newCluster,clusters[0], cellsInWindow).isFailure()) {
-     ATH_MSG_WARNING("There was problem adding the cells to the the cluster");
-     delete newCluster;
-     return nullptr;
-   }  
-   //Set the element Link to the relevant constitent
-   if (sisterCluster.isAvailable(*clusters[0])) {
-     constituentLinks.push_back(sisterCluster(*clusters[0]));
-   } else{
-     ATH_MSG_WARNING("No sister Link available");
-   }
-   //
-   // calculate the seed cluster kinematics.
-   CaloClusterKineHelper::calculateKine(newCluster, true, true);
-   //
-   //Check to see if cluster doesn't have EMB2 OR EME2. If not, kill it.
-   if (!newCluster->hasSampling(CaloSampling::EMB2) &&  !newCluster->hasSampling(CaloSampling::EME2)) {
-     ATH_MSG_WARNING("Supercluster doesn't have energy in layer 2. Skipping...");
-       delete newCluster;
-       return nullptr;     
-   }
-   //Set the eta0/phi0 based on the 2nd layer of the seed cluster above 
-   newCluster->setEta0(newCluster->eta());
-   newCluster->setPhi0(newCluster->phi());
-   ATH_MSG_DEBUG("========== Seed  ==== ");
-   ATH_MSG_DEBUG("Seed eta : "<<newCluster->eta0());
-   ATH_MSG_DEBUG("Seed phi : "<<newCluster->phi0());
-   //
-   //
-   // Now continue with the remaining clusters
-   for (size_t i = 1; i < acSize; i++) {
-     //Add te EM cells of the accumulated to the cluster
-     if (AddEMCellsToCluster(newCluster,clusters[i], cellsInWindow).isFailure()) {
-       ATH_MSG_WARNING("There was problem adding the topocluster cells to the the cluster");
-       delete newCluster;
-       return nullptr;
-     }  
-     //
-     //Set the element Link to the constitents
-     if (sisterCluster.isAvailable(*clusters[i])) {
-       constituentLinks.push_back(sisterCluster(*clusters[i]));
-     }else{
-       ATH_MSG_WARNING("No sister Link available");
-     }
-   }
-   //
-   //Set the link from the super cluster to the constituents (accumulated) clusters used. 
-   static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
-   caloClusterLinks(*newCluster) = constituentLinks;
-   //
-   //Add all the remaining (not used) cells in a window (Around eta0,phi0) 
-   if (m_sumRemainingCellsInWindow) {
-     if (AddRemainingCellsToCluster(newCluster,cellsInWindow).isFailure()) {
-       ATH_MSG_WARNING("There was problem adding the cells outside of the topoclusters");
-       delete newCluster;
-       return nullptr;
-     }        
-   }
-   ///Calculate the kinematics of the new cluster, after all cells are added
-   CaloClusterKineHelper::calculateKine(newCluster, true, true);
-   //
-   //If adding all EM cells I am somehow below the seed threshold then remove 
-   //this one
-   if(newCluster->et()<m_EtThresholdCut ){
-     delete newCluster;
-     return nullptr;
-   }
-   // Apply correction  calibration
-   if (CalibrateCluster(newCluster, egType).isFailure()) {
-     ATH_MSG_WARNING("There was problem calibrating the object");
-     delete newCluster;
-     return nullptr;
-   }
-   // return the new cluster
-   return newCluster;  
+  //Need a vector of element Links to the constituent Cluster
+  std::vector< ElementLink< xAOD::CaloClusterContainer > > constituentLinks;
+  static const SG::AuxElement::Accessor < ElementLink < xAOD::CaloClusterContainer > > sisterCluster("SisterCluster");
+  //
+  //Start with the seed 
+  //Add the EM cells of the seed cluster
+  if (AddEMCellsToCluster(newCluster,clusters[0], cellsInWindow).isFailure()) {
+    ATH_MSG_WARNING("There was problem adding the cells to the the cluster");
+    delete newCluster;
+    return nullptr;
+  }  
+  //Set the element Link to the relevant constitent
+  if (sisterCluster.isAvailable(*clusters[0])) {
+    constituentLinks.push_back(sisterCluster(*clusters[0]));
+  } else{
+    ATH_MSG_WARNING("No sister Link available");
+  }
+  // calculate the seed cluster kinematics.
+  CaloClusterKineHelper::calculateKine(newCluster, true, true);
+  //
+  //Set the eta0/phi0 based on the eta/phi of the seed 
+  newCluster->setEta0(newCluster->eta());
+  newCluster->setPhi0(newCluster->phi());
+  ATH_MSG_DEBUG("========== Seed  ==== ");
+  ATH_MSG_DEBUG("Seed eta : "<<newCluster->eta0());
+  ATH_MSG_DEBUG("Seed phi : "<<newCluster->phi0());
+  //
+  //
+  // Now continue with the remaining clusters
+  for (size_t i = 1; i < acSize; i++) {
+    //Add te EM cells of the accumulated to the cluster
+    if (AddEMCellsToCluster(newCluster,clusters[i], cellsInWindow).isFailure()) {
+      ATH_MSG_WARNING("There was problem adding the topocluster cells to the the cluster");
+      delete newCluster;
+      return nullptr;
+    }
+    //
+    //Set the element Link to the constitents
+    if (sisterCluster.isAvailable(*clusters[i])) {
+      constituentLinks.push_back(sisterCluster(*clusters[i]));
+    }else{
+      ATH_MSG_WARNING("No sister Link available");
+    }
+  }
+  //
+  //Set the link from the super cluster to the constituents (accumulated) clusters used. 
+  static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
+  caloClusterLinks(*newCluster) = constituentLinks;
+  //
+  //Add all the remaining (not used) cells in a window (Around eta0,phi0) 
+  if (m_sumRemainingCellsInWindow) {
+    if (AddRemainingCellsToCluster(newCluster,cellsInWindow).isFailure()) {
+      ATH_MSG_WARNING("There was problem adding the cells outside of the topoclusters");
+      delete newCluster;
+      return nullptr;
+    }        
+  }
+  //
+  ///Calculate the kinematics of the new cluster, after all cells are added
+  CaloClusterKineHelper::calculateKine(newCluster, true, true);
+  //
+  //Check to see if cluster doesn't have EMB2 OR EME2. If not, kill it.
+  if (!newCluster->hasSampling(CaloSampling::EMB2) &&  !newCluster->hasSampling(CaloSampling::EME2)) {
+    ATH_MSG_WARNING("Supercluster doesn't have energy in layer 2. Skipping...");
+    delete newCluster;
+    return nullptr;     
+  }
+  //
+  //If adding all EM cells I am somehow below the seed threshold then remove 
+  //this one
+  if(newCluster->et()<m_EtThresholdCut ){
+    delete newCluster;
+    return nullptr;
+  }
+  // Apply correction  calibration
+  if (CalibrateCluster(newCluster, egType).isFailure()) {
+    ATH_MSG_WARNING("There was problem calibrating the object");
+    delete newCluster;
+    return nullptr;
+  }
+  // return the new cluster
+  return newCluster;  
 }
 
 StatusCode egammaSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster       *newCluster,
@@ -324,14 +325,29 @@ StatusCode egammaSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster     
   //
   xAOD::CaloCluster::const_cell_iterator cell_itr = ref->begin();
   xAOD::CaloCluster::const_cell_iterator cell_end = ref->end();
-  //Need to check that the cell belongs to the EM calorimeter,
-  //Need to check that the cell belongs to the EM calorimeter,
-    for (; cell_itr != cell_end; ++cell_itr) { 
-      const CaloCell* cell = *cell_itr; 
-      if (!cell){
-	continue;
-      }    
 
+  //Need to check that the cell belongs to the EM calorimeter.
+  for (; cell_itr != cell_end; ++cell_itr) { 
+    const CaloCell* cell = *cell_itr; 
+    if (!cell){
+      continue;
+    }    
+
+    //Add all LAR EM
+    const CaloDetDescrElement *dde = cell->caloDDE();
+    if(!dde){
+      continue;
+    }
+
+    //Add TileGap3 (consider only E4 cell).
+    //Don't apply any eta/phi restrictions to TileGap3 cells,
+    //analogous to sliding window.
+    if (CaloCell_ID::TileGap3 == dde->getSampling()) {
+      if( fabs(cell->eta()) >1.4 && fabs(cell->eta()) < 1.6 ) {
+	newCluster->addCell(cell_itr.index(), cell_itr.weight());
+	cellsInWindow.push_back(cell);
+      }
+    } else {
       if (isBarrel) {
 	if (fabs(ref->eta()-cell->eta()) > m_addCellsWindowEtaBarrel){
 	  continue;
@@ -347,11 +363,6 @@ StatusCode egammaSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster     
 	  continue;
 	}
       }   
-      //Add all LAR EM
-      const CaloDetDescrElement *dde = cell->caloDDE();
-      if(!dde){
-	continue;
-      }
 
       if (dde->getSubCalo() == CaloCell_ID::LAREM) {
 	//Avoid summing inner wheel Endcap cells 
@@ -361,20 +372,13 @@ StatusCode egammaSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster     
 	  cellsInWindow.push_back(cell);
 	}
       }
-
-      //Add TileGap3. Consider only E4 cell
-      if (CaloCell_ID::TileGap3 == dde->getSampling()) {
-	if( fabs(cell->eta()) >1.4 && fabs(cell->eta()) < 1.6 ){
-	  newCluster->addCell(cell_itr.index(), cell_itr.weight());
-	  cellsInWindow.push_back(cell);
-	}
-      }//TileGap
-    }//Loop over cells
-
-    if (newCluster->size()==0){
-      return StatusCode::FAILURE;
     }
-    return StatusCode::SUCCESS;
+  }//Loop over cells
+
+  if (newCluster->size()==0){
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
 }
 
 StatusCode egammaSuperClusterBuilder::AddRemainingCellsToCluster(xAOD::CaloCluster *myCluster,
@@ -579,4 +583,16 @@ StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster
     }
   }
   return StatusCode::SUCCESS;
+}
+
+
+bool egammaSuperClusterBuilder::getTileGapCorrectedEMFrac(const xAOD::CaloCluster* cluster, double& emfrac ) const{
+  emfrac=0;
+  static const SG::AuxElement::Accessor<float> acc("EMFraction");
+  if(!acc.isAvailable(*cluster)) {
+    return false;
+  }
+  emfrac= acc(*cluster); 
+  ATH_MSG_DEBUG("EM fraction from egamma decoration: " << emfrac);
+  return true;
 }

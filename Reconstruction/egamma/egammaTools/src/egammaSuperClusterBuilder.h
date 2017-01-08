@@ -40,9 +40,11 @@ protected:
 		       const xAOD::CaloCluster *clus) const;
 
   /** Creates a new supercluster out of the input cluster */
+  // not const because it calls CalibrateCluster
   xAOD::CaloCluster* CreateNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
 				      xAOD::EgammaParameters::EgammaType egType);
-  // not const because it calls CalibrateCluster
+
+  bool getTileGapCorrectedEMFrac(const xAOD::CaloCluster* cluster, double& emfrac ) const;
 
   // some constants to use
   static constexpr float s_cellEtaSize = 0.025;

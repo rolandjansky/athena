@@ -6,17 +6,29 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "AthContainers/ConstDataVector.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
+#include "xAODCore/ShallowCopy.h"
 
 class greater{
 public:
   bool operator()(xAOD::CaloCluster const *a, xAOD::CaloCluster const *b) const { 
 
+    static const SG::AuxElement::Accessor<bool> acc("isE4TileGap3Recovered");
+
+    if(acc.isAvailable(*a) && acc.isAvailable(*b)) {
+    //TieGap Recovered (true 1) should after (ascending) the no recovered (false 0) 
+      if(acc(*a)!=acc(*b)){
+	return acc(*a) < acc(*b);
+      }
+    }
+    //
+    //Order with EM Pt (descending)
     double emfrac_a = 0;
     double emfrac_b = 0;
     if(a->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac_a)&&
        b->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac_b)){
       return (a->pt()*emfrac_a) > (b->pt()*emfrac_b); 
     }
+    //Generic catch all case
     return a->pt() > b->pt();   
   }
 };
@@ -27,8 +39,7 @@ egammaTopoClusterCopier::egammaTopoClusterCopier(const std::string& type, const 
 {
   declareProperty("InputTopoCollection", m_inputTopoCollection = "CaloTopoCluster");
   declareProperty("OutputTopoCollection", m_outputTopoCollection = "egammaTopoCluster");
-  declareProperty("IsHadronic", m_isHadronic  = true);
-  declareProperty("EtaCut", m_etaCut = 2.5);
+  declareProperty("EtaCut", m_etaCut = 2.6);
   declareProperty("ECut", m_ECut = 400);
   declareProperty("EMFracCut", m_EMFracCut = 0.5);
   declareInterface<IegammaTopoClusterCopier>(this);
@@ -51,58 +62,7 @@ StatusCode egammaTopoClusterCopier::finalize() {
 
 // =========================================================================
 StatusCode egammaTopoClusterCopier::contExecute() {
-  if(m_isHadronic){
-    return copyCaloTopo();
-  }
-  //The default should be hadronic.
-  //Now job option to avoid hardcoding names.
-  //Remove this method when not furhter EMTopo tests are needed
-  return copyEMTopo();
-}
-
-// =========================================================================
-StatusCode egammaTopoClusterCopier::copyEMTopo() const {
-
-  //Remove this method when not furhter EMTopo tests are needed
-  //This code adds the "SisterLink" also in the EM case.
-  ATH_MSG_DEBUG("Making clone of EM input clusters");
-  const xAOD::CaloClusterContainer* input_topoclusters(0);
-  if (evtStore()->retrieve(input_topoclusters,m_inputTopoCollection).isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve cluster container " <<m_inputTopoCollection);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Retrieved input cluster container " << m_inputTopoCollection);
-  }
-  //Register container in StoreGate
-  xAOD::CaloClusterContainer *clusters  =   CaloClusterStoreHelper::makeContainer(&*evtStore(),
-										  m_outputTopoCollection,
-										  msg());
-  //Do the actual coping 
-  xAOD::CaloClusterContainer::const_iterator cciter = input_topoclusters->begin();
-  xAOD::CaloClusterContainer::const_iterator ccend  = input_topoclusters->end();
-  int index(0);
-  for (; cciter != ccend; ++cciter,++index) {
-    //Make a few basic quality cuts to ensure we're only carrying over the most needed
-    if( fabs((*cciter)->eta()) > m_etaCut || (*cciter)->e() < m_ECut){	
-      continue;
-    }
-    //Clone the cluster 
-    xAOD::CaloCluster *clone_clus = new xAOD::CaloCluster(*(*cciter));
-
-    //Set the FRAC_EM to 1 if not there
-    double emfrac(0);
-    if(!clone_clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
-      ATH_MSG_INFO("Setting the ENG_FRAC_EM moment to 1 ");
-      clone_clus->insertMoment(xAOD::CaloCluster::ENG_FRAC_EM,1.0);
-    }
-    //Add element link to the original.
-    ElementLink< xAOD::CaloClusterContainer > clusLink(*input_topoclusters, index);
-    static const SG::AuxElement::Accessor < ElementLink < xAOD::CaloClusterContainer > > caloCalClusterLink("SisterCluster");
-    caloCalClusterLink(*clone_clus)= clusLink;
-    clusters->push_back(clone_clus);
-  } 
-  ATH_MSG_DEBUG("Cloned container has size: " << clusters->size()<<  " selected out of : " <<input_topoclusters->size());
-  return StatusCode::SUCCESS;
+  return copyCaloTopo();
 }
 
 // =========================================================================
@@ -110,7 +70,7 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
 
   ATH_MSG_DEBUG("Create " << m_outputTopoCollection << " from " << m_inputTopoCollection);
 
-  //First read the Topo Clusters before calibration
+  //First read in the Topo Clusters before calibration
   const xAOD::CaloClusterContainer* input_topoclusters(0);
   if (evtStore()->retrieve(input_topoclusters,m_inputTopoCollection).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve cluster container " <<m_inputTopoCollection);
@@ -119,28 +79,35 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
     ATH_MSG_DEBUG("Retrieved input cluster -container " << m_inputTopoCollection);
   }
 
-  //Here it just needs to be a view copy, as all info is provided
+  //Create a shallow copy, the elements of this can be modified , 
+  //but no need to recreate the cluster
+  std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer(*input_topoclusters );
+  CHECK(evtStore()->overwrite(inputShallowcopy.first, "tmp_"+m_outputTopoCollection));
+  CHECK(evtStore()->overwrite(inputShallowcopy.second,"tmp_"+m_outputTopoCollection+"Aux."));
+
+  //Here it just needs to be a view copy , 
+  //i.e the collection we create does not really 
+  //own its elements
   ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
   CHECK(evtStore()->record(viewCopy, m_outputTopoCollection));
 
-  xAOD::CaloClusterContainer::const_iterator cciter = input_topoclusters->begin();
-  xAOD::CaloClusterContainer::const_iterator ccend  = input_topoclusters->end();
+  //Loop over the shallow copy
+  xAOD::CaloClusterContainer::iterator cciter = inputShallowcopy.first->begin();
+  xAOD::CaloClusterContainer::iterator ccend  = inputShallowcopy.first->end();
   for (; cciter != ccend; ++cciter) {
-    double emfrac(0);
-    if(!(*cciter)->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
-      ATH_MSG_ERROR("No EM fraction momement stored");
-      return StatusCode::FAILURE;
+
+    ATH_MSG_DEBUG("->CHECKING Cluster at eta,phi,et " << (*cciter)->eta() << " , "<< (*cciter)->phi() << " , " << (*cciter)->et());
+    if( fabs((*cciter)->eta()) > m_etaCut  // if it falls outside eta region
+	|| (*cciter)->e() < m_ECut      //Total energy below threshold
+	) {            
+      continue;
     }
     //Check if it passes the cuts
-    if(
-       fabs((*cciter)->eta()) > m_etaCut  // if it falls outside eta region
-       || emfrac<m_EMFracCut                  // EMFrac not high enough
-       || ((*cciter)->e()*emfrac) < m_ECut     //EM energy below threshold
-       || (*cciter)->e() < m_ECut              //Total energy below threshold
-       ){
+    if( !checkEMFraction(*cciter)){
       continue;
     }
     //Clone the cluster 
+    ATH_MSG_DEBUG("-->SELECTED Cluster at eta,phi,et " << (*cciter)->eta() << " , "<< (*cciter)->phi() << " , " << (*cciter)->et());
     viewCopy->push_back((*cciter));
   }
   //sort in descenting em energy
@@ -148,3 +115,58 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
   ATH_MSG_DEBUG("Cloned container has size: " << viewCopy->size()<<  " selected out of : " <<input_topoclusters->size());
   return StatusCode::SUCCESS;
 }
+
+StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *clus) const{
+  
+  double emfrac(0);
+  if(!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
+    ATH_MSG_ERROR("No EM fraction momement stored");
+    return StatusCode::FAILURE;
+  } 
+  ///
+  double clusterE= clus->e();
+  const bool pass_no_correction= ( (emfrac>m_EMFracCut) &&  ( (clusterE*emfrac) > m_ECut) );
+  ATH_MSG_DEBUG("Initial emfrac: " <<emfrac);
+  //
+  double aeta= fabs(clus->eta());
+  // if the cluster is in the crack or so, add the TileGap cells to its EM energy 
+  if(aeta>1.35 && aeta<1.55 && clusterE>0){
+    double EMEnergy= clusterE*emfrac;
+
+    xAOD::CaloCluster::const_cell_iterator cell_itr = clus->begin();
+    xAOD::CaloCluster::const_cell_iterator cell_end = clus->end();   
+
+    for (; cell_itr != cell_end; ++cell_itr) { 
+      const CaloCell* cell = *cell_itr; 
+      if (!cell){
+	continue;
+      }    
+
+      const CaloDetDescrElement *dde = cell->caloDDE();
+      if(!dde){
+	continue;
+      }
+      //Add TileGap3. Consider only E4 cell
+      if (CaloCell_ID::TileGap3 == dde->getSampling()) {
+	if( fabs(cell->eta()) >1.4 && fabs(cell->eta()) < 1.6 ){	  
+	  EMEnergy += cell->e()*cell_itr.weight();
+	}
+      }
+      emfrac = EMEnergy/clusterE;
+    }
+    ATH_MSG_DEBUG("Corrected emfrac for E4 in TileGap3: " <<emfrac);
+  }
+  //
+  static const  SG::AuxElement::Decorator<float> acc("EMFraction");
+  acc(*clus)=emfrac;
+  const bool pass_after_correction= ((emfrac>m_EMFracCut) &&  ( (clusterE*emfrac) > m_ECut));
+
+  static const SG::AuxElement::Decorator<bool> acc1("isE4TileGap3Recovered");
+  acc1(*clus)= (pass_no_correction!=pass_after_correction);
+  ATH_MSG_DEBUG("Cluster need to be recovered " << (pass_no_correction!=pass_after_correction));
+
+  return pass_after_correction ;
+}
+  
+
+

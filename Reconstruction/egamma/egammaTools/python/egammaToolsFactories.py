@@ -95,11 +95,10 @@ EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)
 #Tools for doing superclustering.
 
 egammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
-                                     name = 'egammaTopoClusterCopier' ,
-                                     InputTopoCollection=jobproperties.egammaRecFlags.inputTopoClusterCollection(),
-                                     OutputTopoCollection=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
-                                     IsHadronic = True
-                                     )
+                                       name = 'egammaTopoClusterCopier' ,
+                                       InputTopoCollection=jobproperties.egammaRecFlags.inputTopoClusterCollection(),
+                                       OutputTopoCollection=jobproperties.egammaRecFlags.egammaTopoClusterCollection()
+                                       )
 
 electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
                                            name = 'electronSuperClusterBuilder',
