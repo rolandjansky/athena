@@ -155,9 +155,11 @@ namespace Muon {
        ( )( )(3)( )     ( )(3)( )( )     ( )( )( )( )     ( )( )(3)( )     ( )(2)(3)( )   
       ( )(2)( )( )     ( )(2)( )( )     ( )(2)(3)( )     ( )(1)(2)( )     ( )(1)( )( )    
        (1)( )( )( )     (1)( )( )( )     (1)( )( )( )     ( )( )( )( )     ( )( )( )( )   
-     Barrel selection criteria: |z_mdt1 - z_mdt2| < 100 mm, |z_mdt1 - z_mdt3| < 160 mm
-     Endcap selection criteria: |r_mdt1 - r_mdt2| < 100 mm, |r_mdt1 - r_mdt3| < 160 mm
+     Barrel selection criteria: |z_mdt1 - z_mdt2| < 50 mm, |z_mdt1 - z_mdt3| < 80 mm
+     Endcap selection criteria: |r_mdt1 - r_mdt2| < 50 mm, |r_mdt1 - r_mdt3| < 80 mm
     */
+    double d12_max = 50.; double d13_max = 80.;
+
     static double errorCutOff = 0.001;
     std::vector<TrackletSegment> segs[6][2][16];//single ML segment array (indicies [station type][ML][sector])
     std::vector<std::vector<Muon::MdtPrepData*> >::const_iterator ChamberItr = SortedMdt.begin();
@@ -170,7 +172,7 @@ namespace Muon {
       int stEta = m_mdtIdHelper->stationEta((*mdt1)->identify());
       if(stName == 6 || stName == 14 || stName == 15) continue; //ignore hits from BEE, EEL and EES
       if(stName == 1 && fabs(stEta) >= 7) continue; //ignore hits from BIS7/8
-      if(stName == 53) continue; //ignore hits from BME
+      if(stName == 53 || stName == 54) continue; //ignore hits from BME and BMG
 
       //convert to the hardware sector [1-16]
       int sector = 2*(m_mdtIdHelper->stationPhi((*mdt1)->identify()));
@@ -198,12 +200,12 @@ namespace Muon {
 	  //select the correct combinations
 	  int tl2 = m_mdtIdHelper->tubeLayer((*mdt2)->identify());	  
 	  if(mdt1 == mdt2 || (tl2 - tl1) > 1 || (tl2 - tl1) < 0 ) continue; 
-	  if(fabs((*mdt2)->globalPosition().z() - (*mdt1)->globalPosition().z()) > 100 && (stName <= 11 || stName == 52)) continue;
+	  if(fabs((*mdt2)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d12_max && (stName <= 11 || stName == 52)) continue;
 	  //if chamber is endcap, use distance in r
 	  if( (stName > 11 && stName <=21) || stName == 49 ) {
 	    float mdt1R = (*mdt1)->globalPosition().perp();
 	    float mdt2R = (*mdt2)->globalPosition().perp();
-	    if(fabs(mdt1R-mdt2R) > 100) continue;
+	    if(fabs(mdt1R-mdt2R) > d12_max) continue;
 	  }
 	  if( (tl2-tl1) == 0 && (m_mdtIdHelper->tube((*mdt2)->identify()) - m_mdtIdHelper->tube((*mdt1)->identify())) < 0) continue;	
 	  //find the third hit
@@ -221,12 +223,12 @@ namespace Muon {
 	    if(mdt1 == mdt3 || mdt2 == mdt3) continue;
 	    if( (tl3-tl2) > 1 || (tl3-tl2) < 0 || (tl3-tl1) <= 0) continue;
 	    if( (tl3-tl2) == 0 && (m_mdtIdHelper->tube((*mdt3)->identify()) - m_mdtIdHelper->tube((*mdt2)->identify())) < 0) continue;
-	    if( fabs((*mdt3)->globalPosition().z() - (*mdt1)->globalPosition().z()) > 160 && (stName <= 11 || stName == 52) ) continue;
+	    if( fabs((*mdt3)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d13_max && (stName <= 11 || stName == 52) ) continue;
 	    //if chamber is endcap, use distance in r
 	    if( (stName > 11 && stName <=21) || stName == 49 ) {
 	      float mdt1R = (*mdt1)->globalPosition().perp();
 	      float mdt3R = (*mdt3)->globalPosition().perp();
-	      if(fabs(mdt1R-mdt3R) > 160) continue;
+	      if(fabs(mdt1R-mdt3R) > d13_max) continue;
 	    }
 	    //store and fit the good combinations
 	    std::vector<Muon::MdtPrepData*> mdts;
@@ -244,7 +246,7 @@ namespace Muon {
       // 0 == BI  1 == BM  2 == BO
       // 3 == EI  4 == EM  5 == EO
       if(stName == 0 || stName == 1 || stName == 7 || stName == 52) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[0][ML-1][sector-1].push_back(mlsegments.at(k));
-      else if(stName == 2 || stName == 3 || stName == 8 || stName == 54) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[1][ML-1][sector-1].push_back(mlsegments.at(k));
+      else if(stName == 2 || stName == 3 || stName == 8) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[1][ML-1][sector-1].push_back(mlsegments.at(k));
       else if(stName == 4 || stName == 5 || stName == 9 || stName == 10) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[2][ML-1][sector-1].push_back(mlsegments.at(k));
       else if(stName == 13 || stName == 49) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[3][ML-1][sector-1].push_back(mlsegments.at(k));
       else if(stName == 17 || stName == 18) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[4][ML-1][sector-1].push_back(mlsegments.at(k));
@@ -276,7 +278,6 @@ namespace Muon {
 	  if( stName == 0) m_DeltaAlphaCut = m_BIL/750.0;
 	  else if(stName == 2) m_DeltaAlphaCut = m_BML/750.0;
 	  else if(stName == 3) m_DeltaAlphaCut = m_BMS/750.0;
-          else if(stName == 54) m_DeltaAlphaCut = m_BMS/750.0;
 	  else if(stName == 4) m_DeltaAlphaCut = m_BOL/750.0;
 	  else if(stName == 7) m_DeltaAlphaCut = m_BIL/750.0;
 	  else if(stName == 8) m_DeltaAlphaCut = m_BML/750.0;
@@ -476,8 +477,8 @@ namespace Muon {
       // Doesn't consider hits belonging to chambers BIS7 and BIS8
       if(stName == 1 && fabs(m_mdtIdHelper->stationEta((*mpdc)->identify())) >= 7) continue;
 
-      // Doesn't consider hits belonging to BME chamber
-      if(stName == 53) continue;
+      // Doesn't consider hits belonging to BME or BMG chambers
+      if(stName == 53 || stName == 54) continue;
 
       // sort per multi layer
       std::vector<Muon::MdtPrepData*> hitsML1;
