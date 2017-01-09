@@ -1,3 +1,11 @@
+2017-01-04 Sharka Todorova <sarka.todorova@cern.ch>
+	* Fixing Phi limits in binning
+	* Tag as InDetTrackingGeometryXML-00-00-53
+
+2016-11-23 Noemi Calace <Noemi.Calace@cern.ch>
+	* Fixing Phi binning in the BinUtility in the mis-alignment case
+	* Tag as InDetTrackingGeometryXML-00-00-52
+
 2016-10-27 Thorsten Kuhl <thorsten.kuhl@cern.ch>
 	* cleaning up log file output (first iteration)
 	* Tag as InDetTrackingGeometryXML-00-00-51

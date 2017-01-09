@@ -171,8 +171,9 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
   std::vector<const Trk::TrkDetElementBase*> allElements;  
   // prepare bin utility in Phi - steering BinUtility vs Phi
   double halfPhiStep =  TMath::Pi()/nstaves;
-  float phiLowBound = 99999;
-  float phiHighBound = -99999;
+  double minphi =  99999.;
+  double maxphi = -99999.;
+  
   int stave_idx = 0;
   std::vector< Trk::BinUtility*>* subBinUtilitiesZ = new std::vector<Trk::BinUtility*>;
   for(int istave=0;istave<int(nstaves/nStaveTmp);istave++) {
@@ -203,11 +204,11 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
       // filling z boundaries
       std::vector<float> z_boundaries;
       z_boundaries.push_back(-support_halfLength);
-      for (unsigned int el = 0; el<(currentElements.size()-1); el++) {
-	float centerphi =  currentElements.at(el)->center().phi();
-	if( centerphi < phiLowBound ) phiLowBound = centerphi;
-	if( centerphi > phiHighBound ) phiHighBound = centerphi;
-	z_boundaries.push_back(0.5*(currentElements.at(el)->center().z() + currentElements.at(el+1)->center().z()));
+      for (unsigned int el = 0; el<currentElements.size(); el++) {
+	minphi = std::min(allElements.at(el)->center().phi(), minphi);
+	maxphi = std::max(allElements.at(el)->center().phi(), maxphi);
+	if (el<(currentElements.size()-1))
+	  z_boundaries.push_back(0.5*(currentElements.at(el)->center().z() + currentElements.at(el+1)->center().z()));
       }
       z_boundaries.push_back(support_halfLength);
       
@@ -220,12 +221,31 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
       //ATH_MSG_INFO("Creating z BinUtility :" << *tmpBinUtilityZ);
     }
   }  
-  phiLowBound  -= halfPhiStep;
-  phiHighBound += halfPhiStep;
+  
+  if (fabs(minphi+maxphi)< halfPhiStep && fabs(TMath::Pi()+minphi) < 0.5*halfPhiStep ){
+    ATH_MSG_DEBUG("Detected module fluctuation around +/- M_PI, correcting for it.");
+    ATH_MSG_DEBUG("    min phi / max phi detected  : "  << minphi << " / " << maxphi );
+    minphi += 2*halfPhiStep;
+  }
+  
+  // now prepare the phi values
+  ATH_MSG_DEBUG("Preparing the Phi-binning for   : " << nstaves << " sectors.");
+  ATH_MSG_DEBUG("    min phi / max phi detected  : " << minphi << " / " << maxphi );
+  double minPhiCorrected = minphi-halfPhiStep;
+  //double maxPhiCorrected = maxphi+halfPhiStep;   // ST limit correction
+  double maxPhiCorrected = minPhiCorrected + 2*TMath::Pi();
+  
+  // catch if the minPhi falls below M_PI
+  if (minPhiCorrected < -TMath::Pi()){
+    minPhiCorrected += 2*halfPhiStep;
+    maxPhiCorrected += 2*halfPhiStep;
+  }
+  
+  ATH_MSG_VERBOSE("    min phi / max phi corrected : " << minPhiCorrected << " / " << maxPhiCorrected );
   
   Trk::BinUtility* BinUtilityPhi = new Trk::BinUtility(nstaves,
-						       phiLowBound,
-						       phiHighBound,
+						       minPhiCorrected,
+						       maxPhiCorrected,
 						       Trk::closed,
 						       Trk::binPhi);
 
@@ -397,24 +417,42 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
   
   // prepare bin utility in Phi - steering BinUtility vs Phi
   double halfPhiStep =  TMath::Pi()/nstaves;
-  float phiLowBound = 99999;
-  float phiHighBound = -99999;
-  for (unsigned int allEl = 0 ; allEl<allElements.size(); allEl++) {
-    float centerphi =  allElements.at(allEl)->center().phi();
-    if( centerphi < phiLowBound ) phiLowBound = centerphi;
-    if( centerphi > phiHighBound ) phiHighBound = centerphi;
-  }
-  phiLowBound  -= halfPhiStep;
-  phiHighBound += halfPhiStep;
-
-  ATH_MSG_DEBUG("Creating phi BinUtility with these parameters:");
-  ATH_MSG_DEBUG("halfPhiStep = " << halfPhiStep << "    phiHighBound = " << phiHighBound << "   phiLowBound = " << phiLowBound);
+    
+  double minphi =  99999.;
+  double maxphi = -99999.;
   
-  Trk::BinUtility* BinUtilityPhi = new Trk::BinUtility(nstaves,
- 						       phiLowBound,
- 						       phiHighBound,
- 						       Trk::closed,
- 						       Trk::binPhi);
+  for (unsigned int allEl = 0 ; allEl<allElements.size(); allEl++) {
+     minphi = std::min(allElements.at(allEl)->center().phi(), minphi);
+     maxphi = std::max(allElements.at(allEl)->center().phi(), maxphi);
+  }
+  
+  if (fabs(minphi+maxphi)< halfPhiStep && fabs(TMath::Pi()+minphi) < 0.5*halfPhiStep ){
+    ATH_MSG_DEBUG("Detected module fluctuation around +/- M_PI, correcting for it.");
+    ATH_MSG_DEBUG("    min phi / max phi detected  : "  << minphi << " / " << maxphi );
+    minphi += 2*halfPhiStep;
+  }
+  
+  // now prepare the phi values
+  ATH_MSG_DEBUG("Preparing the Phi-binning for   : " << nstaves << " sectors.");
+  ATH_MSG_DEBUG("    min phi / max phi detected  : " << minphi << " / " << maxphi );
+  double minPhiCorrected = minphi-halfPhiStep;
+  //double maxPhiCorrected = maxphi+halfPhiStep;   // ST limit correction
+  double maxPhiCorrected = minPhiCorrected + 2*TMath::Pi();
+  
+  // catch if the minPhi falls below M_PI
+  if (minPhiCorrected < -TMath::Pi()){
+    minPhiCorrected += 2*halfPhiStep;
+    maxPhiCorrected += 2*halfPhiStep;
+  }
+  
+  ATH_MSG_VERBOSE("    min phi / max phi corrected : " << minPhiCorrected << " / " << maxPhiCorrected );
+
+  Trk::BinUtility* BinUtilityPhi       =  new Trk::BinUtility(nstaves,
+							      minPhiCorrected,
+							      maxPhiCorrected,
+							      Trk::closed, 
+							      Trk::binPhi);
+  
   
   // generic solution: each stave can have a different number of modules: we need 1D1D BinnedArray
   Trk::BinnedArray<Trk::Surface>* binnedArray = getBinnedArray1D1D(*BinUtilityPhi,*subBinUtilitiesZ,allElements);

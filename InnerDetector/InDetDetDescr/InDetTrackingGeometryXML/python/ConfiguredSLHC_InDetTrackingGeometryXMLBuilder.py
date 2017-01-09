@@ -79,10 +79,10 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__StaveBuilderXML
         from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__SiModuleProvider
 
-        InDetModuleProvider = InDet__SiModuleProvider(name=namePrefix+'SiModuleProvider')
-        InDetEndcapBuilder = InDet__EndcapBuilderXML(name=namePrefix+'PixelEndcapBuilder')
-        InDetBarrelBuilder = InDet__BarrelBuilderXML(name=namePrefix+'PixelBarrelBuilder')
-        InDetStaveBuilder = InDet__StaveBuilderXML(name=namePrefix+'StaveBuilderXML')
+        InDetModuleProvider = InDet__SiModuleProvider(name=namePrefix+'SiModuleProvider'  )
+        InDetEndcapBuilder  = InDet__EndcapBuilderXML(name=namePrefix+'PixelEndcapBuilder')
+        InDetBarrelBuilder  = InDet__BarrelBuilderXML(name=namePrefix+'PixelBarrelBuilder')
+        InDetStaveBuilder   = InDet__StaveBuilderXML (name=namePrefix+'StaveBuilderXML'   )
 
         ToolSvc += InDetModuleProvider
         ToolSvc += InDetStaveBuilder
@@ -94,10 +94,13 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         InDetBarrelBuilder.StaveBuilder         = InDetStaveBuilder
         InDetBarrelBuilder.BarrelLayerBinsZ     = TrkDetFlags.PixelBarrelLayerMaterialBinsZ()
         InDetBarrelBuilder.BarrelLayerBinsPhi   = TrkDetFlags.PixelBarrelLayerMaterialBinsPhi()
+#       InDetBarrelBuilder.OutputLevel          = 2
+        
         InDetEndcapBuilder.ModuleProvider       = InDetModuleProvider
         InDetEndcapBuilder.ModuleProvider       = InDetModuleProvider
         InDetEndcapBuilder.EndcapLayerBinR      = TrkDetFlags.PixelEndcapLayerMaterialBinsR()
         InDetEndcapBuilder.EndcapLayerBinPhi    = TrkDetFlags.PixelEndcapLayerMaterialBinsPhi()
+        
 	
 ##         if doSCT :
 ##             InDetBarrelSCTLayerBuilder = InDet__BarrelBuilderXML(name='SCTBarrelBuilder')
