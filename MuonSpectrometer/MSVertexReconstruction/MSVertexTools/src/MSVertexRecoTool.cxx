@@ -507,8 +507,8 @@ namespace Muon {
     float Rpos[MAXPLANES];
     float RadialDist = m_VertexMaxRadialPlane - m_VertexMinRadialPlane;
     float LoFdist = fabs(RadialDist/sin(LoF));
-    int nplanes = LoFdist/m_VxPlaneDist;
-    float PlaneSpacing = 3500/(nplanes-1.0);
+    int nplanes = LoFdist/m_VxPlaneDist + 1;
+    float PlaneSpacing = fabs(200./cos(LoF));
     for(int k=0; k<nplanes; ++k) Rpos[k] = m_VertexMinRadialPlane + PlaneSpacing*k;
 
     //loop on tracklets and create two types of track parameters -- nominal and phi shifted tracklets
@@ -1155,6 +1155,11 @@ namespace Muon {
       sxy += (TrkSlope*TrkInter)/sq(sigma);
     }
     d = s*sxx - sq(sx);
+    if(d == 0. ){
+        Amg::Vector3D MyVx(0.,0.,0.); //return 0, no vertex was found.
+        return MyVx;	
+    }
+
     float Rpos = (sxx*sy - sx*sxy)/d;
     float Zpos = (sx*sy - s*sxy)/d;
       
