@@ -92,6 +92,29 @@
         </sequential>
       </chain>
 
+      <!-- LONG RECONSTRUCTION CHAIN with fct_trf.py -->
+      <chain>
+        <chainName>digirecoAFSjob</chainName>
+        <sequential>
+          <!-- Run Digitisation and reconstruction with fct_trf -->
+          <chainElement>
+            <jobTransform userJobId="DigiReco_via_fct_trf_MC15c">
+              <doc>digireco</doc>
+              <jobTransformJobName>MinBias_digi_Reco_trf</jobTransformJobName>
+              <jobTransformCmd>
+                fct_trf.py --config=$(echo $CMAKE_PREFIX_PATH | tr ":" "\n" | grep AtlasOffline)/src/Tools/FullChainTests/test/digireco_MC15c.cfg --runDigi --runReco
+              </jobTransformCmd>
+              <group>FCTTransform</group>
+              <queue>long</queue>
+              <batchWallTime>600</batchWallTime>
+            </jobTransform>
+            <chainfileout>
+              digirecoAfs_mc15c.AOD.pool.root
+            </chainfileout>
+          </chainElement>
+        </sequential>
+      </chain>
+
       <!-- Pile up CHAIN -->
       <chain>
         <chainName>ChainJobwthPileUp</chainName>
@@ -153,7 +176,7 @@
                   <doc>digi</doc>
                   <jobTransformJobName>ZtautauDigi_trf</jobTransformJobName>
                   <jobTransformCmd>
-                    Digi_tf.py --inputHITSFile 'MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.8TeV.HITS.pool.root' --outputRDOFile 'MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.8TeV.RDO.pool.root' --maxEvents 10 --skipEvents 0 --geometryVersion 'ATLAS-R2-2015-03-01-00' --digiSeedOffset1 123456 --digiSeedOffset2 2345678 --conditionsTag 'OFLCOND-RUN12-SDR-21' --postInclude 'PyJobTransforms/UseFrontier.py'
+                    Digi_tf.py --inputHITSFile 'MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.8TeV.HITS.pool.root' --outputRDOFile 'MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.8TeV.RDO.pool.root' --maxEvents 10 --skipEvents 0 --geometryVersion 'ATLAS-R2-2015-03-01-00' --digiSeedOffset1 123456 --digiSeedOffset2 2345678 --conditionsTag 'OFLCOND-RUN12-SDR-31' --postInclude 'PyJobTransforms/UseFrontier.py'
                   </jobTransformCmd>
                   <group>FCTTransform</group>
                   <chaindataset_info>
@@ -261,7 +284,7 @@
                   <doc>reco</doc>
                   <jobTransformJobName>8TeVMinbiasDigi_trf</jobTransformJobName>
                   <jobTransformCmd>
-                    Digi_tf.py --inputHITSFile 'MC14.108351.pythia_minbias.8TeV.HITS.pool.root' --outputRDOFile 'MC14.108351.pythia_minbias.8TeV.RDO.pool.root' --maxEvents '10' --skipEvents '0' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag=OFLCOND-RUN12-SDR-21 --digiSeedOffset1 123456 --digiSeedOffset2 2345678 --postInclude 'PyJobTransforms/UseFrontier.py'
+                    Digi_tf.py --inputHITSFile 'MC14.108351.pythia_minbias.8TeV.HITS.pool.root' --outputRDOFile 'MC14.108351.pythia_minbias.8TeV.RDO.pool.root' --maxEvents '10' --skipEvents '0' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag=OFLCOND-RUN12-SDR-31 --digiSeedOffset1 123456 --digiSeedOffset2 2345678 --postInclude 'PyJobTransforms/UseFrontier.py'
                   </jobTransformCmd>
                   <group>FCTTransform</group>
                   <chaindataset_info>
@@ -455,6 +478,92 @@
             </chainfileout>
           </chainElement>
         </sequential>
+      </chain>
+
+      <!-- MC15c CHAIN -->
+      <chain>
+        <chainName>ChainJobwthMC15c</chainName>
+        <!-- Only letters allowed, no white space or punctuation in Name -->
+        <sequential>
+          <parallel>
+            <sequential>
+              <!-- Run Event Generation -->
+              <chainElement>
+                <!-- <jobTransform> -->
+                <jobTransform userJobId="ZhadEvgen_MC15c">
+                  <doc>evgen</doc>
+                  <jobTransformJobName>Zhad_Generate_tf_e4581</jobTransformJobName>
+                  <jobTransformCmd>
+				  export JODIR=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest;export JOBOPTSEARCHPATH=$JODIR/share/DSID304xxx:$JOBOPTSEARCHPATH; Generate_tf.py --ecmEnergy 13000. --runNumber 304628 --firstEvent 1 --maxEvents 10 --randomSeed 54298752 --jobConfig MC15JobOptions/MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.py --outputEVNTFile MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root --postExec 'TestHepMC.EffFailThreshold=0.50'
+                  </jobTransformCmd>
+                  <group>FCTTransform</group>
+                  <queue>short</queue>
+                  <batchWallTime>300</batchWallTime>
+                  <keepFilePattern>log.*</keepFilePattern>
+                </jobTransform>
+                <chainfileout>
+                  MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root
+                </chainfileout>
+              </chainElement>
+              <!-- Run Simulation -->
+              <chainElement>
+                <jobTransform userJobId="ZhadSimul_MC15c">
+                  <doc>simul</doc>
+                  <jobTransformJobName>ZhadSimul_Sim_tf_s2726</jobTransformJobName>
+                  <jobTransformCmd>
+				  Sim_tf.py --conditionsTag "default:OFLCOND-RUN12-SDR-19" --DataRunNumber 222525 --DBRelease "default:current" --geometryVersion "default:ATLAS-R2-2015-03-01-00_VALIDATION" --physicsList FTFP_BERT --postInclude "default:PyJobTransforms/UseFrontier.py" --preInclude "EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py" --runNumber=304628 --simulator MC12G4 --truthStrategy MC15aPlus --inputEVNTFile MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root --outputHITSFile MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.HITS.pool.root --maxEvents 10
+                  </jobTransformCmd>
+                  <group>FCTTransform</group>
+                  <chaindataset_info>
+                    <jobTransformData />
+                    <chaindatasetName>
+                      MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root
+                    </chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData />
+                      <datasetName>
+                        /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC15/MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root
+                      </datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>long</queue>
+                  <batchWallTime>
+                    300
+                  </batchWallTime>
+                </jobTransform>
+                <chainfileout>
+                  MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.HITS.pool.root
+                </chainfileout>
+              </chainElement>
+              <!-- Run Digitisation and Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ZhadDigiReco_MC15c">
+                  <doc>digireco</doc>
+                  <jobTransformJobName>ZhadDigiReco_Reco_tf_r7772</jobTransformJobName>
+                  <jobTransformCmd>
+				  Reco_tf.py --autoConfiguration everything --conditionsTag "default:OFLCOND-MC15c-SDR-09" --digiSteeringConf='StandardSignalOnlyTruth' --geometryVersion "default:ATLAS-R2-2015-03-01-00" --ignorePatterns Py:TrigConf2COOLLib.py --numberOfCavernBkg 0 --numberOfHighPtMinBias 0.12268057 --numberOfLowPtMinBias 39.8773194 --pileupFinalBunch 6 --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "ESDtoAOD:fixedAttrib=[s if \"CONTAINER_SPLITLEVEL = \'99\'\" not in s else \"\" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODSLIM\"" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v2.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber 304628 --steering "doRDO_TRIG" --triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2046,20,56" --inputHighPtMinbiasHitsFile /afs/cern.ch/atlas/project/rig/referencefiles/mc15_minBias/mc15_13TeV.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2195/HITS.05608152._002335.pool.root.1 --inputLowPtMinbiasHitsFile /afs/cern.ch/atlas/project/rig/referencefiles/mc15_minBias/mc15_13TeV.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2195/HITS.05608147._000125.pool.root.1 --digiSeedOffset1 1 --digiSeedOffset2 2 --inputHITSFile MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.HITS.pool.root --outputAODFile MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.AOD.pool.root --jobNumber 1 --maxEvents 10
+                  </jobTransformCmd>
+                  <group>FCTTransform</group>
+                  <chaindataset_info>
+                    <jobTransformData />
+                    <chaindatasetName>
+                      MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.HITS.pool.root
+                    </chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData />
+                      <datasetName>
+                        /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC15/MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.HITS.pool.root
+                      </datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>long</queue>
+                  <batchWallTime>300</batchWallTime>
+                </jobTransform>
+                <chainfileout>
+                  MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.AOD.pool.root
+                </chainfileout>
+              </chainElement>
+            </sequential>
       </chain>
     </jobList>
     <jobGroups>
