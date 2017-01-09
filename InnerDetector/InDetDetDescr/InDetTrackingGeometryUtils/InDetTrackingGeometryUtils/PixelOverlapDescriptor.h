@@ -52,7 +52,7 @@ namespace InDet {
        public:
          
          /** Constructor (area restriction, LC check) */
-         PixelOverlapDescriptor();
+         PixelOverlapDescriptor(bool addMoreSurfaces = true, int slices = 3);
 
          /** Destructor */
          virtual ~PixelOverlapDescriptor(){}
@@ -74,6 +74,8 @@ namespace InDet {
 	 void dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
 
 	 bool m_robustMode;
+	 bool m_addMoreSurfaces;
+	 int  m_slices;
      };
 
      
