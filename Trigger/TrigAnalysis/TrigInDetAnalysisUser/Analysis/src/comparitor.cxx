@@ -375,7 +375,9 @@ int main(int argc, char** argv) {
       if ( _ftest==0 ) { 
 	if ( exists(arg) ) { 
 	  ftestname = arg;
-	  _ftest = new TFile( ftestname.c_str() );
+	  // _ftest = new TFile( ftestname.c_str() );
+	  _ftest = TFile::Open( ftestname.c_str() );
+
 	}
 	else { 
 	  std::cerr << "main(): test file " << arg << " does not exist" << std::endl;
@@ -385,7 +387,8 @@ int main(int argc, char** argv) {
       else if ( _fref==0 ) { 
 	if ( exists(arg) ) {
 	  frefname = arg;
-	  _fref = new TFile( frefname.c_str() );
+	  // _fref = new TFile( frefname.c_str() );
+	  _fref = TFile::Open( frefname.c_str() );
 	}
 	else { 
 	  if ( _ftest ) delete _ftest;
@@ -1082,6 +1085,13 @@ int main(int argc, char** argv) {
 	  if ( href && href->GetNbinsX()>500 ) href->Rebin(10);
 	}
 
+
+	if ( histos[i].find("zed_eff")!=std::string::npos ) { 
+	  if (        htest->GetNbinsX()>100 ) htest->Rebin(5);
+	  if ( href && href->GetNbinsX()>100 ) href->Rebin(5);
+	}
+
+
         if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
 	if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
@@ -1662,6 +1672,7 @@ int main(int argc, char** argv) {
       
       std::cout << "main() cleaning up reference file" << std::endl;
 
+      //      TFile* newout = new TFile(".newout.root","recreate"); 
       TFile* newout = new TFile(".newout.root","recreate"); 
       newout->cd();
       
