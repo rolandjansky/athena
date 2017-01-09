@@ -69,6 +69,7 @@ StatusCode SUSYObjDef_xAOD::GetTaus(xAOD::TauJetContainer*& copy, xAOD::ShallowA
 }
 
 
+// Can't be const due to applyCorrection on the smearing tool
 StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
 
   ATH_MSG_VERBOSE( "Starting FillTau on tau with pT = " << input.pt()/1000 << " GeV" );
@@ -99,7 +100,7 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
 }
 
 
-bool SUSYObjDef_xAOD::IsSignalTau(const xAOD::TauJet& input, float ptcut, float etacut) {
+bool SUSYObjDef_xAOD::IsSignalTau(const xAOD::TauJet& input, float ptcut, float etacut) const {
 
   if ( !dec_baseline(input) ) return false;
 
@@ -240,7 +241,7 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
 }
 
 
-double SUSYObjDef_xAOD::GetTotalTauSF(const xAOD::TauJetContainer& taus, const bool idSF, const bool triggerSF, const std::string& trigExpr){
+double SUSYObjDef_xAOD::GetTotalTauSF(const xAOD::TauJetContainer& taus, const bool idSF, const bool triggerSF, const std::string& trigExpr) {
 
   double sf(1.);
 

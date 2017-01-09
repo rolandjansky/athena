@@ -23,7 +23,7 @@
 namespace ST {
 
 
-bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber){
+bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber) {
 
   //Returns MET trigger decision for recommended lowest unprescaled evolution described in 
   //https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LowestUnprescaled#Jets_MET_Jet_MET_HT
@@ -46,6 +46,7 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber){
   return false; 
 }
 
+// Can't be const because of the lazy init of the map
 bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName) {
   // First, check if we've already tried using this trigger
   auto funcItr = m_metTriggerFuncs.find(triggerName);
@@ -158,7 +159,7 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName) {
 
 
 
-bool SUSYObjDef_xAOD::IsTrigPassed(const std::string& tr_item, unsigned int condition) {
+bool SUSYObjDef_xAOD::IsTrigPassed(const std::string& tr_item, unsigned int condition) const {
   return m_trigDecTool->isPassed(tr_item, condition);
 }
 
@@ -253,18 +254,17 @@ void SUSYObjDef_xAOD::TrigMatch(const std::initializer_list<const xAOD::IParticl
 }
 
 
-float SUSYObjDef_xAOD::GetTrigPrescale(const std::string & tr_item) {
+float SUSYObjDef_xAOD::GetTrigPrescale(const std::string & tr_item) const {
   return m_trigDecTool->getPrescale(tr_item);
 }
 
 
-const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr_item) {
+const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr_item) const {
   return m_trigDecTool->getChainGroup(tr_item);
 }
 
 
-
-  std::vector<std::string> SUSYObjDef_xAOD::GetTriggerOR(std::string trigExpr){
+  std::vector<std::string> SUSYObjDef_xAOD::GetTriggerOR(std::string trigExpr) const {
 
     static std::string delOR = "_OR_";
     std::vector<std::string> trigchains = {};
@@ -280,7 +280,7 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     return trigchains;
   }
 
-  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache){
+  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache) const {
 
     static std::string del15 = "_2015_";
     static std::string del16 = "_2016_";

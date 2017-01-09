@@ -48,20 +48,23 @@ class TestSUSYTools(unittest.TestCase):
         self.assertTrue(st.setProperty('PRWConfigFiles', self.vec_str(self.PRW_files)).isSuccess())
         self.assertTrue(st.setProperty('PRWLumiCalcFiles', self.vec_str(self.PRW_ilcs)).isSuccess())
         self.assertTrue(st.initialize().isSuccess())
-        
+        del st
+
     def test_initialization_mc_full(self):
         st = ROOT.ST.SUSYObjDef_xAOD('ST_full')
         st.setDataSource(1)        
         self.assertTrue(st.setProperty('PRWConfigFiles', self.vec_str(self.PRW_files)).isSuccess())
         self.assertTrue(st.setProperty('PRWLumiCalcFiles', self.vec_str(self.PRW_ilcs)).isSuccess())
         self.assertTrue(st.initialize().isSuccess())
-            
+        del st
+
     def test_initialization_mc_fast(self):
         st = ROOT.ST.SUSYObjDef_xAOD('ST_fast')
         st.setDataSource(2)        
         self.assertTrue(st.setProperty('PRWConfigFiles', self.vec_str(self.PRW_files)).isSuccess())
         self.assertTrue(st.setProperty('PRWLumiCalcFiles', self.vec_str(self.PRW_ilcs)).isSuccess())
         self.assertTrue(st.initialize().isSuccess())
+        del st
 
 
 if __name__ == '__main__':
@@ -72,4 +75,7 @@ if __name__ == '__main__':
     ## Call the tests
     #    unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSUSYTools)
-    unittest.TextTestRunner(verbosity=0).run(suite)
+    result = unittest.TextTestRunner(verbosity=0).run(suite).wasSuccessful()
+    sys.exit( not result ) #convert True -> 0 
+
+

@@ -23,7 +23,7 @@
 namespace ST {
 
 
-bool SUSYObjDef_xAOD :: isPrompt(const xAOD::IParticle* part){
+bool SUSYObjDef_xAOD :: isPrompt(const xAOD::IParticle* part) const {
 
   const int type  = acc_truthType(*part);
   int origin      = acc_truthOrigin(*part);
@@ -76,7 +76,7 @@ bool SUSYObjDef_xAOD :: isPrompt(const xAOD::IParticle* part){
 }
 
 
-StatusCode SUSYObjDef_xAOD::FindSusyHP(int& pdgid1, int& pdgid2) {
+StatusCode SUSYObjDef_xAOD::FindSusyHP(int& pdgid1, int& pdgid2) const {
 
   const xAOD::TruthParticleContainer    *truthP = 0;
   bool isTruth3=false;
@@ -96,7 +96,7 @@ StatusCode SUSYObjDef_xAOD::FindSusyHP(int& pdgid1, int& pdgid2) {
 }
 
 
-StatusCode SUSYObjDef_xAOD::FindSusyHP(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3) {
+StatusCode SUSYObjDef_xAOD::FindSusyHP(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3) const {
   if (!truthP) {
     ATH_MSG_ERROR("Null TruthParticleContainer pointer!!");
     return StatusCode::FAILURE;
@@ -116,8 +116,8 @@ StatusCode SUSYObjDef_xAOD::FindSusyHP(const xAOD::TruthParticleContainer *truth
 }
 
 
-bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3)
-{
+bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3) {
+
   pdgid1 = 0;
   pdgid2 = 0;
 
@@ -205,7 +205,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
 }
 
 
-StatusCode SUSYObjDef_xAOD::FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) {
+StatusCode SUSYObjDef_xAOD::FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) const {
 
   if (!truthE) {
     ATH_MSG_ERROR("Null TruthEvent pointer!!");
@@ -222,8 +222,8 @@ StatusCode SUSYObjDef_xAOD::FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgi
 }
 
 
-bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2)
-{
+bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) {
+
   pdgid1 = 0;
   pdgid2 = 0;
 
@@ -300,8 +300,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgi
 }
 
 
-bool SUSYObjDef_xAOD::IsTruthBJet(const xAOD::Jet& input)
-{
+bool SUSYObjDef_xAOD::IsTruthBJet(const xAOD::Jet& input) const {
   //Method to set correctly the IsBjet decoration needed by the JetUncertainties tool
 
   if (dec_signal(input)) {

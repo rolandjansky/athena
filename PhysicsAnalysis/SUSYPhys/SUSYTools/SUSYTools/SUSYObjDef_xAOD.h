@@ -115,35 +115,38 @@ namespace ST {
     ~SUSYObjDef_xAOD();
 
     // Function initialising the tool
-    StatusCode initialize();
+    StatusCode initialize() override final;
+    // NB that there is no function for finalising the tool.
+    //  An IAsgTool does not have a finalize method, so we can 
+    //  only override finalize in athena.  To clean up, delete me.
 
-    bool isData() {return m_dataSource == Data;}
-    bool isAtlfast() {return m_dataSource == AtlfastII;}
+    bool isData() const {return m_dataSource == Data;}
+    bool isAtlfast() const {return m_dataSource == AtlfastII;}
 
-    int getMCShowerType(std::string sample_name="");
+    int getMCShowerType(const std::string& sample_name="") const override final;
 
-    StatusCode setBoolProperty(const std::string& name, const bool& property);
+    StatusCode setBoolProperty(const std::string& name, const bool& property) override final;
 
     // Hack to make thisx configurable from python
     // 0 = data, 1 = full sim, 2 = AF-II
     void setDataSource(int source);
 
     // Apply the correction on a modifyable object
-    StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false);
-    StatusCode FillTau(xAOD::TauJet& input);
-    StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut);
-    StatusCode FillElectron(xAOD::Electron& input, const float etcut, const float etacut);
-    StatusCode FillPhoton(xAOD::Photon& input, const float ptcut, const float etacut);
+    StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false) override final;
+    StatusCode FillTau(xAOD::TauJet& input) override final;
+    StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) override final;
+    StatusCode FillElectron(xAOD::Electron& input, const float etcut, const float etacut) override final;
+    StatusCode FillPhoton(xAOD::Photon& input, const float ptcut, const float etacut) override final;
 
-    const xAOD::Vertex* GetPrimVtx();
+    const xAOD::Vertex* GetPrimVtx() const override final;
 
-    StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0);
-    StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets, xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "");
-    StatusCode GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = false, const std::string& jetkey = "", const bool doLargeRdecorations = false, const xAOD::JetContainer* containerToBeCopied = 0);
-    StatusCode GetTaus(xAOD::TauJetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& taukey = "TauJets", const xAOD::TauJetContainer* containerToBeCopied = 0);
-    StatusCode GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& muonkey = "Muons", const xAOD::MuonContainer* containerToBeCopied = 0);
-    StatusCode GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& elekey = "Electrons", const xAOD::ElectronContainer* containerToBeCopied = 0);
-    StatusCode GetPhotons(xAOD::PhotonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& photonkey = "Photons", const xAOD::PhotonContainer* containerToBeCopied = 0);
+    StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
+    StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets, xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "") override final;
+    StatusCode GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = false, const std::string& jetkey = "", const bool doLargeRdecorations = false, const xAOD::JetContainer* containerToBeCopied = 0) override final;
+    StatusCode GetTaus(xAOD::TauJetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& taukey = "TauJets", const xAOD::TauJetContainer* containerToBeCopied = 0) override final;
+    StatusCode GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& muonkey = "Muons", const xAOD::MuonContainer* containerToBeCopied = 0) override final;
+    StatusCode GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& elekey = "Electrons", const xAOD::ElectronContainer* containerToBeCopied = 0) override final;
+    StatusCode GetPhotons(xAOD::PhotonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& photonkey = "Photons", const xAOD::PhotonContainer* containerToBeCopied = 0) override final;
     StatusCode GetMET(xAOD::MissingETContainer& met,
                       const xAOD::JetContainer* jet,
                       const xAOD::ElectronContainer* elec = 0,
@@ -151,7 +154,7 @@ namespace ST {
                       const xAOD::PhotonContainer* gamma = 0,
                       const xAOD::TauJetContainer* taujet = 0,
                       bool doTST = true, bool doJVTCut = true,
-                      const xAOD::IParticleContainer* invis = 0);
+                      const xAOD::IParticleContainer* invis = 0) override final;
 
     StatusCode GetTrackMET(xAOD::MissingETContainer& met,
                            const xAOD::JetContainer* jet,
@@ -159,197 +162,198 @@ namespace ST {
                            const xAOD::MuonContainer* muon = 0
 			   // const xAOD::PhotonContainer* gamma = 0,
 			   // const xAOD::TauJetContainer* taujet = 0,
-			   );
+			   ) override final;
 
-    StatusCode setRunNumber(const int run_number);
+    StatusCode setRunNumber(const int run_number) override final;
 
     //bool passTSTCleaning(xAOD::MissingETContainer& met);
 
     //static bool passTSTCleaning(float MET, float TST, float MET_phi, float TST_phi);
 
-    bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut);
+    bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
-    bool IsBadJet(const xAOD::Jet& input);
+    bool IsBadJet(const xAOD::Jet& input) const override final;
 
-    bool IsBJetLoose(const xAOD::Jet& input); 
-    bool JetPassJVT(xAOD::Jet& input, bool update_jvt);
+    bool IsBJetLoose(const xAOD::Jet& input) const override final; 
+    bool JetPassJVT(xAOD::Jet& input, bool update_jvt) override final;
 
 
-    bool IsSignalMuon(const xAOD::Muon& input, const float ptcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF);
+    bool IsSignalMuon(const xAOD::Muon& input, const float ptcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF) const override final;
 
-    bool IsSignalElectron(const xAOD::Electron& input, const float etcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF);
+    bool IsSignalElectron(const xAOD::Electron& input, const float etcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF) const override final;
 
-    bool IsCosmicMuon(const xAOD::Muon& input, const float z0cut, const float d0cut);
+    bool IsCosmicMuon(const xAOD::Muon& input, const float z0cut, const float d0cut) const override final;
 
-    bool IsHighPtMuon(const xAOD::Muon& input); // See https://indico.cern.ch/event/371499/contribution/1/material/slides/0.pdf and https://indico.cern.ch/event/397325/contribution/19/material/slides/0.pdf and https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
+    bool IsHighPtMuon(const xAOD::Muon& input) const override final;
+    // See https://indico.cern.ch/event/371499/contribution/1/material/slides/0.pdf and https://indico.cern.ch/event/397325/contribution/19/material/slides/0.pdf and https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
 
-    bool IsSignalTau(const xAOD::TauJet& input, const float ptcut, const float etacut);
+    bool IsSignalTau(const xAOD::TauJet& input, const float ptcut, const float etacut) const override final;
 
-    bool IsBadMuon(const xAOD::Muon& input, const float qopcut);
+    bool IsBadMuon(const xAOD::Muon& input, const float qopcut) const override final;
 
-    bool IsSignalPhoton(const xAOD::Photon& input, const float ptcut, const float etacut = DUMMYDEF);
+    bool IsSignalPhoton(const xAOD::Photon& input, const float ptcut, const float etacut = DUMMYDEF) const override final;
 
     //rel20 0.77 eff value (22/6/15) from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTaggingBenchmarks#MV2c20_tagger_AntiKt4EMTopoJets
     //assumes JVT>0.64 working point
-    bool IsBJet(const xAOD::Jet& input);
+    bool IsBJet(const xAOD::Jet& input) const override final;
 
-    bool IsTruthBJet(const xAOD::Jet& input);
+    bool IsTruthBJet(const xAOD::Jet& input) const override final;
 
-    int IsBJetContinuous(const xAOD::Jet& input);
+    int IsBJetContinuous(const xAOD::Jet& input) const override final;
 
-    float BtagSF(const xAOD::JetContainer* jets);
+    float BtagSF(const xAOD::JetContainer* jets) const override final;
 
-    float BtagSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig);
+    float BtagSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) override final;
 
-    double JVT_SF(const xAOD::JetContainer* jets);
+    double JVT_SF(const xAOD::JetContainer* jets) override final;
 
-    double JVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig);
+    double JVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) override final;
 
     //SF helpers
     //muons
-    float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true);
+    float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true) override final;
 
-    double GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr, const bool isdata = false );
+    double GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr, const bool isdata = false ) override final;
     //    double GetMuonTriggerEfficiencySF(const xAOD::Muon& mu, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
-    double GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr);
+    double GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) override final;
 
-    double GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr="HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
+    double GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr="HLT_mu20_iloose_L1MU15_OR_HLT_mu50") override final;
 
-    double GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
+    double GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50") override final;
 
     //electrons
-    float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose");
+    float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") override final;
 
-    double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose"); 
-    double GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose");
+    double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const override final; 
+    double GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const override final;
 
-    float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton"); // singleLepton == Ele.TriggerSFStringSingle value
+    float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton") override final; // singleLepton == Ele.TriggerSFStringSingle value
 
-    float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton"); // singleLepton == Ele.TriggerSFStringSingle value
+    float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton") override final; // singleLepton == Ele.TriggerSFStringSingle value
 
     //taus
-    double GetSignalTauSF(const xAOD::TauJet& tau, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo");
+    double GetSignalTauSF(const xAOD::TauJet& tau, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
   
-    double GetSignalTauSFsys(const xAOD::TauJet& tau, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo");
+    double GetSignalTauSFsys(const xAOD::TauJet& tau, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
-    double GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const std::string& trigExpr = "tau25_medium1_tracktwo");
+    double GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
-    double GetTotalTauSF(const xAOD::TauJetContainer& taus, const bool idSF = true, const bool triggerSF = true,  const std::string& trigExpr = "tau25_medium1_tracktwo");
+    double GetTotalTauSF(const xAOD::TauJetContainer& taus, const bool idSF = true, const bool triggerSF = true,  const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
-    double GetTotalTauSFsys(const xAOD::TauJetContainer& taus, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo");
+    double GetTotalTauSFsys(const xAOD::TauJetContainer& taus, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
   
     //photons
-    double GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF = true, const bool isoSF = true);
+    double GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF = true, const bool isoSF = true) const override final;
 
-    double GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true);
+    double GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) override final;
 
-    double GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF = true, const bool isoSF = true);
+    double GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF = true, const bool isoSF = true) const override final;
 
-    double GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true);
+    double GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) override final;
 
     //jets
-    double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true);
+    double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true) override final;
 
-    double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true);
+    double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true) override final;
 
     //Trigger
-    bool IsMETTrigPassed(unsigned int runnumber = 0);
-    bool IsMETTrigPassed(const std::string& triggerName);
+    bool IsMETTrigPassed(unsigned int runnumber = 0) override final;
+    bool IsMETTrigPassed(const std::string& triggerName) override final;
 
-    bool IsTrigPassed(const std::string&, unsigned int condition=TrigDefs::Physics);
+    bool IsTrigPassed(const std::string&, unsigned int condition=TrigDefs::Physics) const override final;
 
-    bool IsTrigMatched(const xAOD::IParticle *part, const std::string& tr_item);
-    bool IsTrigMatched(const xAOD::IParticle *part1, const xAOD::IParticle *part2, const std::string& tr_item);
-    bool IsTrigMatched(const std::vector<const xAOD::IParticle*>& v, const std::string& tr_item);
-    bool IsTrigMatched(const std::initializer_list<const xAOD::IParticle*> &v, const std::string& tr_item);
+    bool IsTrigMatched(const xAOD::IParticle *part, const std::string& tr_item) override final;
+    bool IsTrigMatched(const xAOD::IParticle *part1, const xAOD::IParticle *part2, const std::string& tr_item) override final;
+    bool IsTrigMatched(const std::vector<const xAOD::IParticle*>& v, const std::string& tr_item) override final;
+    bool IsTrigMatched(const std::initializer_list<const xAOD::IParticle*> &v, const std::string& tr_item) override final;
   
-    void TrigMatch(const xAOD::IParticle* p, std::initializer_list<std::string>::iterator, std::initializer_list<std::string>::iterator);
-    void TrigMatch(const xAOD::IParticle* p, const std::vector<std::string>& items);
-    void TrigMatch(const xAOD::IParticle* p, const std::initializer_list<std::string>& items);
-    void TrigMatch(const xAOD::IParticleContainer* v, const std::vector<std::string>& items);
-    void TrigMatch(const xAOD::IParticleContainer* v, const std::initializer_list<std::string>& items);
-    void TrigMatch(const std::initializer_list<const xAOD::IParticle*>& v, const std::vector<std::string>& items);
-    void TrigMatch(const std::initializer_list<const xAOD::IParticle*>& v, const std::initializer_list<std::string>& items);
-    void TrigMatch(const xAOD::IParticle* p, const std::string& item);
-    void TrigMatch(const xAOD::IParticleContainer* v,  const std::string& item);
-    void TrigMatch(const std::initializer_list<const xAOD::IParticle*> &v, const std::string& item);
+    void TrigMatch(const xAOD::IParticle* p, std::initializer_list<std::string>::iterator, std::initializer_list<std::string>::iterator) override final;
+    void TrigMatch(const xAOD::IParticle* p, const std::vector<std::string>& items) override final;
+    void TrigMatch(const xAOD::IParticle* p, const std::initializer_list<std::string>& items) override final;
+    void TrigMatch(const xAOD::IParticleContainer* v, const std::vector<std::string>& items) override final;
+    void TrigMatch(const xAOD::IParticleContainer* v, const std::initializer_list<std::string>& items) override final;
+    void TrigMatch(const std::initializer_list<const xAOD::IParticle*>& v, const std::vector<std::string>& items) override final;
+    void TrigMatch(const std::initializer_list<const xAOD::IParticle*>& v, const std::initializer_list<std::string>& items) override final;
+    void TrigMatch(const xAOD::IParticle* p, const std::string& item) override final;
+    void TrigMatch(const xAOD::IParticleContainer* v,  const std::string& item) override final;
+    void TrigMatch(const std::initializer_list<const xAOD::IParticle*> &v, const std::string& item) override final;
+
+    float GetTrigPrescale(const std::string&) const override final;
+
+    const Trig::ChainGroup* GetTrigChainGroup(const std::string&) const override final;
+
+    std::vector<std::string> GetTriggerOR(std::string trigExpr) const;
+
+    void GetTriggerTokens(std::string, std::vector<std::string>& , std::vector<std::string>& ) const;
 
 
-    float GetTrigPrescale(const std::string&);
+    float GetPileupWeight() override final;
 
-    const Trig::ChainGroup* GetTrigChainGroup(const std::string&);
+    ULong64_t GetPileupWeightHash() override final;
 
-    std::vector<std::string> GetTriggerOR(std::string trigExpr);
+    float GetDataWeight(const std::string&) override final;
 
-    void GetTriggerTokens(std::string, std::vector<std::string>& , std::vector<std::string>& );
+    float GetCorrectedAverageInteractionsPerCrossing() override final;
 
+    double GetSumOfWeights(int channel) override final;
 
-    float GetPileupWeight();
+    unsigned int GetRandomRunNumber(bool muDependentRRN = true) override final;
 
-    ULong64_t GetPileupWeightHash();
+    StatusCode ApplyPRWTool(bool muDependentRRN = true) override final;
 
-    float GetDataWeight(const std::string&);
+    unsigned int GetRunNumber() const override final;
 
-    float GetCorrectedAverageInteractionsPerCrossing();
-
-    double GetSumOfWeights(int channel);
-
-    unsigned int GetRandomRunNumber(bool muDependentRRN = true);
-
-    StatusCode ApplyPRWTool(bool muDependentRRN = true);
-
-    unsigned int GetRunNumber();
-
-    int treatAsYear();
+    int treatAsYear() const override final;
 
     StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
-                              const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0);
+                              const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) override final;
 
-    StatusCode IsoOverlapRemoval(const xAOD::IParticleContainer *parts);
+// ZM - not implemented?
+//    StatusCode IsoOverlapRemoval(const xAOD::IParticleContainer *parts);
 
-    CP::SystematicCode resetSystematics();
+    CP::SystematicCode resetSystematics() override final;
 
-    const CP::SystematicSet& currentSystematic();
+    const CP::SystematicSet& currentSystematic() const;
 
-    CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
+    CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig ) override final;
 
 
     //truth helpers
-    bool isPrompt(const xAOD::IParticle* part);
+    bool isPrompt(const xAOD::IParticle* part) const override final;
 
-    StatusCode FindSusyHP(int& pdgid1, int& pdgid2);
+    StatusCode FindSusyHP(int& pdgid1, int& pdgid2) const;
 
-    StatusCode FindSusyHP(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false);
+    StatusCode FindSusyHP(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false) const override final;
 
     static bool FindSusyHardProc(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false);
 
-    StatusCode FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2);
+    StatusCode FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) const override final;
 
     static bool FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2);
 
     //trigger helpers
-    std::string TrigSingleLep();
-    std::string TrigDiLep();
-    std::string TrigMixLep();
+    std::string TrigSingleLep() const override final;
+    std::string TrigDiLep() const override final;
+    std::string TrigMixLep() const override final;
 
 
     //systematics helpers
-    bool isNominal(const CP::SystematicSet& syst);
-    bool isWeight(const CP::SystematicSet& systSet);
-    bool isVariation(const CP::SystematicSet& syst);
-    bool currentSystematicIsNominal();
-    bool currentSystematicIsVariation();
-    bool currentSystematicIsWeight();
+    bool isNominal(const CP::SystematicSet& syst) const;
+    bool isWeight(const CP::SystematicSet& systSet) const;
+    bool isVariation(const CP::SystematicSet& syst) const;
+    bool currentSystematicIsNominal() const;
+    bool currentSystematicIsVariation() const;
+    bool currentSystematicIsWeight() const;
 
-    ST::SystInfo getSystInfo(const CP::SystematicVariation& sys);
+    ST::SystInfo getSystInfo(const CP::SystematicVariation& sys) const;
 
-    std::vector<ST::SystInfo> getSystInfoList();
+    std::vector<ST::SystInfo> getSystInfoList() const override final;
 
     // Temporary function for Sherpa 2.2 V+jets n-jets reweighting 
     // (see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/CentralMC15ProductionList#NEW_Sherpa_v2_2_V_jets_NJet_rewe)
-    float getSherpaVjetsNjetsWeight();
-    float getSherpaVjetsNjetsWeight(const std::string& jetContainer);
+    float getSherpaVjetsNjetsWeight() const override final;
+    float getSherpaVjetsNjetsWeight(const std::string& jetContainer) const override final;
 
   private:
 
@@ -373,12 +377,12 @@ namespace ST {
 
   protected:
 
-    StatusCode readConfig(); 
-    StatusCode validConfig(bool strict = false); 
+    StatusCode readConfig() override final; 
+    StatusCode validConfig(bool strict = false) const;
 
-    const std::vector<std::string> split(const std::string& s, const std::string& delim);
+    const std::vector<std::string> split(const std::string& s, const std::string& delim) const;
 
-    void getTauConfig(const std::string tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR);
+    void getTauConfig(const std::string tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const;
 
     void configFromFile(bool& property, const std::string& propname, TEnv& rEnv,
                         bool defaultValue);
@@ -390,12 +394,12 @@ namespace ST {
                         const std::string& defaultValue);
 
     //little helpers for WP configurations / handling
-    bool check_isOption(std::string wp, std::vector<std::string>& list);
-    bool check_isTighter(std::string wp1, std::string wp, std::vector<std::string>& list);
+    bool check_isOption(const std::string& wp, const std::vector<std::string>& list) const;
+    bool check_isTighter(const std::string& wp1, const std::string& wp, const std::vector<std::string>& list) const;
   
-    std::string EG_WP(std::string wp); //translate our WPs to make egamma selectors happy
+    std::string EG_WP(const std::string& wp) const; //translate our WPs to make egamma selectors happy
 
-    std::vector<std::string> getElSFkeys(std::string mapFile);
+    std::vector<std::string> getElSFkeys(const std::string& mapFile) const;
 
 #ifdef XAOD_STANDALONE // more convenient for property setting
     DataSource m_dataSource;
@@ -565,6 +569,7 @@ namespace ST {
     //std::string m_currentSyst;
 
     std::string m_EG_corrModel;
+    bool m_applyJVTCut;
 
     std::string m_bTaggingCalibrationFilePath;
     

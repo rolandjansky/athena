@@ -185,7 +185,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 }
 
 
-bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut, float d0sigcut, float z0cut, float etacut)
+bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut, float d0sigcut, float z0cut, float etacut) const
 {
   dec_passSignalID(input) = false;
   
@@ -307,7 +307,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     
     if(el.auxdata<int>("trigger_matched")==0){
       ATH_MSG_DEBUG( "Electron was not matched to trigger " << theExpr << " - scale factor does not apply (year " << this->treatAsYear() << ")  Returning 1." );
-      return 1.;
     }
     else{ //is trig-matched electron, go for it!
       double trig_sf = GetEleTriggerEfficiencySF( el , theExpr );
@@ -338,7 +337,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 }
 
 
-double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr) {
+double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr) const {
 
   double trig_sf(1.);
 
@@ -367,7 +366,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, cons
 }
 
 
-double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr) {
+double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr) const {
 
   double trig_eff(1.);
 

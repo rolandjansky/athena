@@ -229,7 +229,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
 }
   
 
-bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float d0sigcut, float z0cut, float etacut)
+bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float d0sigcut, float z0cut, float etacut) const
 {
 
   if (!dec_baseline(input)) return false;
@@ -271,7 +271,7 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
 }
 
 
-bool SUSYObjDef_xAOD::IsHighPtMuon(const xAOD::Muon& input) 
+bool SUSYObjDef_xAOD::IsHighPtMuon(const xAOD::Muon& input) const
 // See https://indico.cern.ch/event/371499/contribution/1/material/slides/0.pdf and 
 //     https://indico.cern.ch/event/397325/contribution/19/material/slides/0.pdf and 
 //     https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
@@ -289,7 +289,7 @@ bool SUSYObjDef_xAOD::IsHighPtMuon(const xAOD::Muon& input)
 }
 
 
-bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) 
+bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
 {
   dec_bad(input) = false;
 
@@ -317,7 +317,7 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut)
   return dec_bad(input);
 }
 
-bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d0cut)
+bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d0cut) const
 {
   dec_cosmic(input) = false;
 

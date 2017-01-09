@@ -32,7 +32,7 @@
 namespace ST {
 
 
-  StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied)
+  StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
   {
     if (!m_tool_init) {
       ATH_MSG_ERROR("SUSYTools was not initialized!!");
@@ -67,9 +67,15 @@ namespace ST {
 
     // ghost associate the muons to the jets (needed by MET muon-jet OR later)
     ATH_MSG_VERBOSE("Run muon-to-jet ghost association");
-    const xAOD::MuonContainer* muons(0);
+    const xAOD::MuonContainer* muons(nullptr);
     ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
     met::addGhostMuonsToJets(*muons, *copy);
+
+    // ghost associate the electrons to the jets (needed by MET el-jet OR later)
+    ATH_MSG_VERBOSE("Run muon-to-jet ghost association");
+    const xAOD::ElectronContainer* elecs(nullptr);
+    ATH_CHECK( evtStore()->retrieve(elecs, "Electrons") );
+    met::addGhostElecsToJets(*elecs, *copy);
 
     //central jets 
     if(!m_doFwdJVT){
@@ -246,7 +252,7 @@ namespace ST {
 
     dec_passOR(input) = true;
     dec_bjet_jetunc(input) = false;
-    dec_passJvt(input) = m_jetJvtEfficiencyTool->passesJvtCut(input);
+    dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
 
     if (m_useBtagging) {
       if (m_BtagWP != "Continuous") this->IsBJet(input);
@@ -305,26 +311,23 @@ namespace ST {
   }
 
 
-  bool SUSYObjDef_xAOD::IsBJetLoose(const xAOD::Jet& input) 
-  {
+  bool SUSYObjDef_xAOD::IsBJetLoose(const xAOD::Jet& input) const {
     bool isbjet_loose = m_btagSelTool_OR->accept(input); 
     dec_bjet_loose(input) = isbjet_loose; 
     return isbjet_loose; 
   }
   
-  bool SUSYObjDef_xAOD::JetPassJVT(xAOD::Jet& input, bool update_jvt)
-  {
+  bool SUSYObjDef_xAOD::JetPassJVT(xAOD::Jet& input, bool update_jvt) {
     if(update_jvt){ 
       acc_jvt(input) = m_jetJvtUpdateTool->updateJvt(input);  
     }
 
-    char pass_jvt = m_jetJvtEfficiencyTool->passesJvtCut(input);
+    char pass_jvt = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
     dec_passJvt(input) = pass_jvt;
     return pass_jvt;
   }
 
-  bool SUSYObjDef_xAOD::IsSignalJet(const xAOD::Jet& input, float ptcut, float etacut)
-  {
+  bool SUSYObjDef_xAOD::IsSignalJet(const xAOD::Jet& input, float ptcut, float etacut) const {
     if ( !dec_baseline(input)  || !dec_passOR(input) ) return false;
 
     if ( input.pt() <= ptcut || fabs(input.eta()) >= etacut) return false;
@@ -370,8 +373,7 @@ namespace ST {
   }
 
 
-  bool SUSYObjDef_xAOD::IsBadJet(const xAOD::Jet& input)
-  {
+  bool SUSYObjDef_xAOD::IsBadJet(const xAOD::Jet& input) const {
 
     if ( !dec_passOR(input) ) return false;
 
@@ -388,8 +390,7 @@ namespace ST {
   }
 
 
-  bool SUSYObjDef_xAOD::IsBJet(const xAOD::Jet& input)
-  {
+  bool SUSYObjDef_xAOD::IsBJet(const xAOD::Jet& input) const {
 
     bool isbjet = m_btagSelTool->accept(input);
     dec_bjet(input) = isbjet;
@@ -398,8 +399,7 @@ namespace ST {
   }
 
 
-  int SUSYObjDef_xAOD::IsBJetContinuous(const xAOD::Jet& input)
-  {
+  int SUSYObjDef_xAOD::IsBJetContinuous(const xAOD::Jet& input) const {
     //////////////////////
     // Cheatsheet:
     // returns 5 if between 60% and 0%
@@ -418,8 +418,7 @@ namespace ST {
   }
 
 
-  float SUSYObjDef_xAOD::BtagSF(const xAOD::JetContainer* jets)
-  {
+  float SUSYObjDef_xAOD::BtagSF(const xAOD::JetContainer* jets) const {
 
     float totalSF = 1.;
     for ( const auto& jet : *jets ) {
@@ -507,6 +506,7 @@ namespace ST {
   double SUSYObjDef_xAOD::JVT_SF(const xAOD::JetContainer* jets) {
 
     double totalSF = 1.;
+    if (!m_applyJVTCut) return totalSF;
 
     for ( const auto& jet : *jets ) {
 
@@ -539,6 +539,7 @@ namespace ST {
   double SUSYObjDef_xAOD::JVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) {
 
     float totalSF = 1.;
+    if (!m_applyJVTCut) return totalSF;
 
     //Set the new systematic variation
     CP::SystematicCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
@@ -549,9 +550,11 @@ namespace ST {
     // Delegate
     totalSF = SUSYObjDef_xAOD::JVT_SF( jets );
 
-    ret = m_jetJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure JVTEfficiencyTool for systematic var. " << systConfig.name() );
+    if (m_applyJVTCut) {
+      ret = m_jetJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
+      if ( ret != CP::SystematicCode::Ok) {
+        ATH_MSG_ERROR("Cannot configure JVTEfficiencyTool for systematic var. " << systConfig.name() );
+      }
     }
 
     return totalSF;
@@ -564,7 +567,7 @@ namespace ST {
     double totalSF = 1.;
     if (btagSF) totalSF *= BtagSF(jets);
 
-    if (jvtSF) totalSF *= JVT_SF(jets);
+    if (jvtSF && m_applyJVTCut) totalSF *= JVT_SF(jets);
 
     return totalSF;
   }
@@ -575,7 +578,7 @@ namespace ST {
     double totalSF = 1.;
     if (btagSF) totalSF *= BtagSFsys(jets, systConfig);
 
-    if (jvtSF) totalSF *= JVT_SFsys(jets, systConfig);
+    if (jvtSF && m_applyJVTCut) totalSF *= JVT_SFsys(jets, systConfig);
 
     return totalSF;
   }

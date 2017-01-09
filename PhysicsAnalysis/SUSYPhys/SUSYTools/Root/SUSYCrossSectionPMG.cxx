@@ -4,8 +4,6 @@
 
 #include "SUSYTools/SUSYCrossSectionPMG.h"
 
-using namespace std;
-
 SUSY::CrossSectionDBPMG::CrossSectionDBPMG(const std::string& txtfilenameOrDir)
 {
   pmgxs.readInfosFromDir(txtfilenameOrDir);

@@ -16,7 +16,7 @@ SUSYTools
 Recommended tags
 ------------------------------------
 
-**Rel 20.7 Samples :**   Base,2.4.23 + SUSYTools-00-08-33
+**Rel 20.7 Samples :**   Base,2.4.24 + SUSYTools-00-08-34
 
 **Rel 20.1 Samples :**   Base,2.3.8 + SUSYTools-00-07-58
 
@@ -29,7 +29,7 @@ RootCore Setup
 Check the latest recommended AnalysisBase release::
 
    setupATLAS
-   rcSetup Base,2.4.23
+   rcSetup Base,2.4.24
 
 SUSYTools is now shipped with it, but you can also check a specific tag::
 
@@ -82,7 +82,7 @@ CMT Setup
 Check the latest recommended AthAnalysisBase release::
 
    setupATLAS
-   asetup AthAnalysisBase,2.4.23
+   asetup AthAnalysisBase,2.4.24
 
 SUSYTools is now shipped with it, but you can also check a specific tag::
 	  

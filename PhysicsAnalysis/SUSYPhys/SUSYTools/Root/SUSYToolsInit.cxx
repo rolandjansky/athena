@@ -160,9 +160,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL( m_jetCalibTool, JetCalibrationTool, toolName ); 
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC15cRecommendation_May2016.config");
+    std::string JES_config_file("JES_data2016_data2015_Recommendation_Dec2016.config"); //JES_MC15cRecommendation_May2016.config");
     if (isAtlfast()) {
-      if (m_jetInputType == xAOD::JetInput::EMTopo) { // only supported one for AF-II
+      if (m_jetInputType == xAOD::JetInput::EMTopo || m_jetInputType == xAOD::JetInput::LCTopo) { // only supported ones for AF-II
         JES_config_file = "JES_MC15Prerecommendation_AFII_June2015.config";
       }
       else {
@@ -173,7 +173,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     
     // form the string describing the calibration sequence to use
     std::string calibseq("JetArea_Residual_Origin_EtaJES_GSC");
-    if (isData() && (m_jetInputType == xAOD::JetInput::EMTopo)) { // no in-situ recs exist for LCTopo
+    if (isData()) { 
       calibseq += "_Insitu";
     }
     
@@ -187,7 +187,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     
     //check isData parameter (no in-situ calibration for LCTopo yet) //MT : revise when it becomes available!
-    bool data_par = (( m_jetInputType == xAOD::JetInput::LCTopo) ? false : isData());
+    //    bool data_par = (( m_jetInputType == xAOD::JetInput::LCTopo) ? false : isData());
+    bool data_par = isData(); 
     
     // now instantiate the tool
     ATH_CHECK( m_jetCalibTool.setProperty("JetCollection", jetname) );
@@ -207,7 +208,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL(m_jetFatCalibTool, JetCalibrationTool, "JetCalibrationTool/"+toolName);
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC15recommendation_FatJet_June2015.config");
+    //std::string JES_config_file("JES_MC15recommendation_FatJet_June2015.config");   //Supported as a standard jet definition, but less performant at high pT<\sub>
+    std::string JES_config_file("JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config"); //Supported/recommended if you are performing an analysis intending to tag W/Z/H/top jets 
     
     // form the string describing the calibration sequence to use
     std::string calibseq("EtaJES_JMS");
@@ -257,6 +259,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet uncertainty tool
+  ATH_MSG_INFO("Set up Jet Uncertainty tool...");
 
   if (!m_jetUncertaintiesTool.isUserConfigured()) {
     std::string jetdef("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
@@ -284,6 +287,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC15") );    
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", configfile) );
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
+
     CP::SystematicSet defaultSet;
     CP::SystematicCode ret = m_jetUncertaintiesTool->applySystematicVariation(defaultSet);
     if (ret != CP::SystematicCode::Ok) {
@@ -334,7 +338,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet JVT efficiency tool
 
-  if (!m_jetJvtEfficiencyTool.isUserConfigured()) {
+  m_applyJVTCut = m_JVT_WP!="";
+  if (!m_jetJvtEfficiencyTool.isUserConfigured() && m_applyJVTCut) {
     toolName = "JVTEfficiencyTool";
     SET_DUAL_TOOL(m_jetJvtEfficiencyTool, CP::JetJvtEfficiency, "CP::JetJvtEfficiency/"+toolName);
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("WorkingPoint",m_JVT_WP) );
@@ -426,6 +431,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL(m_muonEfficiencySFTool, CP::MuonEfficiencyScaleFactors, toolName);
     ATH_CHECK( m_muonEfficiencySFTool.setProperty("WorkingPoint", muQual) );
     ATH_CHECK( m_muonEfficiencySFTool.retrieve() );
+  }
+
+  if (m_doTTVAsf && m_mud0sig<0 && m_muz0<0){
+    ATH_MSG_WARNING("Requested TTVA SFs without d0sig and z0 cuts. Disabling scale factors as they will not make sense.");
+    m_doTTVAsf=false;
   }
 
   if (!m_muonTTVAEfficiencySFTool.isUserConfigured()) {

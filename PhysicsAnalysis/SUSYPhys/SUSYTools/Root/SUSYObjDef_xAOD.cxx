@@ -202,6 +202,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_currentSyst(),
     m_EG_corrModel(""),
+    m_applyJVTCut(true),
     //
     // set toolhandles empty by default
     m_jetCalibTool(""),
@@ -667,29 +668,29 @@ void SUSYObjDef_xAOD::setDataSource(int source) {
 }
 
 
-bool SUSYObjDef_xAOD::check_isOption(std::string wp, std::vector<std::string>& list){
+bool SUSYObjDef_xAOD::check_isOption(const std::string& wp, const std::vector<std::string>& list) const {
   //check if the selected WP is supported
   return (std::find(list.begin(), list.end(),wp)  != list.end());
 }
 
-bool SUSYObjDef_xAOD::check_isTighter(std::string wp1, std::string wp2, std::vector<std::string>& list){
+bool SUSYObjDef_xAOD::check_isTighter(const std::string& wp1, const std::string& wp2, const std::vector<std::string>& list) const {
   //check if WP1 is tighter than WP2
   //it is assumed that both WPs are supported
   return (std::find(list.begin(),list.end(),wp1) > std::find(list.begin(), list.end(),wp2)); 
 }
 
 
-std::string SUSYObjDef_xAOD::EG_WP(std::string wp){
+std::string SUSYObjDef_xAOD::EG_WP(const std::string& wp) const {
   //translate our electron wps to EGamma internal jargon
   //@ElectronPhotonSelectorTools/EGSelectorConfigurationMapping.h
   return TString(wp).Copy().ReplaceAll("AndBLayer","BL").ReplaceAll("LLH","LHElectron").Data();
 }
 
 
-int SUSYObjDef_xAOD::getMCShowerType(std::string sample_name){
+int SUSYObjDef_xAOD::getMCShowerType(const std::string& sample_name) const {
   /** Get MC generator index for the b-tagging efficiency maps*/
 
-  std::vector<TString> m_gen_mc_generator_keys = {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"}; //don't change this order! //MT
+  const static std::vector<TString> m_gen_mc_generator_keys = {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"}; //don't change this order! //MT
 
   //pre-process sample name
   TString tmp_name(sample_name);
@@ -712,7 +713,7 @@ int SUSYObjDef_xAOD::getMCShowerType(std::string sample_name){
 }
 
 
-std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(std::string mapFile){
+std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile) const {
   
   if( mapFile.empty() )
     return {};
@@ -787,7 +788,7 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
   property = TString(tmp_prop).ReplaceAll(" ","").Data();
 
   // Interpret None as an empty string
-  if (property=="None" || property=="NONE") {
+  if (property=="None" || property=="NONE" || property=="none") {
     ATH_MSG_VERBOSE( "Property \"" << propname << "\" being set to empty string due to specification of \"" << property << "\"" );
     property = "";
   }
@@ -1010,7 +1011,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
 }
 
 
-const std::vector<std::string> SUSYObjDef_xAOD::split(const std::string& s, const std::string& delim) {
+const std::vector<std::string> SUSYObjDef_xAOD::split(const std::string& s, const std::string& delim) const {
   assert(delim.length() == 1);
   std::vector<std::string> retval;
   retval.reserve(std::count(s.begin(), s.end(), delim[0]) + 1);
@@ -1028,7 +1029,7 @@ const std::vector<std::string> SUSYObjDef_xAOD::split(const std::string& s, cons
   return retval;
 }
 
-void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR){
+void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const {
 
   if(tauConfigPath == "") return;
   
@@ -1132,7 +1133,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
   }  
 }  
   
-StatusCode SUSYObjDef_xAOD::validConfig(bool strict){
+StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
   // Validate configuration (i.e. that signal settings are tighter than baseline, etc)
   // :: Throw SC::FAILURE if strict mode is enabled, just a WARNING if not
   
@@ -1213,7 +1214,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict){
   if(m_tauConfigPathBaseline != "") { //baseline taus
 
     std::string theConfig = m_tauConfigPathBaseline; 
-    if( m_tauConfigPath=="default" ){
+    if( m_tauConfigPathBaseline=="default" ){
       if (m_tauId == "Loose") theConfig = "SUSYTools/tau_selection_loose.conf";
       if (m_tauId == "Medium") theConfig = "SUSYTools/tau_selection_medium.conf";
       else if (m_tauId == "Tight") theConfig = "SUSYTools/tau_selection_tight.conf";
@@ -1278,23 +1279,23 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict){
 
   
 
-std::string SUSYObjDef_xAOD::TrigSingleLep(){ return m_electronTriggerSFStringSingle; }
-std::string SUSYObjDef_xAOD::TrigDiLep()    { return m_electronTriggerSFStringDiLepton; }
-std::string SUSYObjDef_xAOD::TrigMixLep()   { return m_electronTriggerSFStringMixedLepton; }
+std::string SUSYObjDef_xAOD::TrigSingleLep() const { return m_electronTriggerSFStringSingle; }
+std::string SUSYObjDef_xAOD::TrigDiLep()     const { return m_electronTriggerSFStringDiLepton; }
+std::string SUSYObjDef_xAOD::TrigMixLep()    const { return m_electronTriggerSFStringMixedLepton; }
 
 CP::SystematicCode SUSYObjDef_xAOD::resetSystematics() {   
   return this->applySystematicVariation(m_defaultSyst);
 }
 
-const CP::SystematicSet& SUSYObjDef_xAOD::currentSystematic() {
+const CP::SystematicSet& SUSYObjDef_xAOD::currentSystematic() const {
   return m_currentSyst;
 }
 
-bool SUSYObjDef_xAOD::isNominal(const CP::SystematicSet& syst) {
+bool SUSYObjDef_xAOD::isNominal(const CP::SystematicSet& syst) const {
   return syst.name().empty();
 }
 
-bool SUSYObjDef_xAOD::isWeight(const CP::SystematicSet& systSet) {
+bool SUSYObjDef_xAOD::isWeight(const CP::SystematicSet& systSet) const {
   // returns true if all systematics do _not_ affect kinematics and _any_ of them affects the weight
   bool affectsWeights = false;
   for (const auto& sys : systSet) {
@@ -1305,7 +1306,7 @@ bool SUSYObjDef_xAOD::isWeight(const CP::SystematicSet& systSet) {
   return affectsWeights;
 }
 
-bool SUSYObjDef_xAOD::isVariation(const CP::SystematicSet& systSet) {
+bool SUSYObjDef_xAOD::isVariation(const CP::SystematicSet& systSet) const {
   // returns true if _any_ of the systematics affect kinematics. ignores effect on weights.
   for (const auto& sys : systSet) {
     auto info = getSystInfo(sys);
@@ -1314,15 +1315,15 @@ bool SUSYObjDef_xAOD::isVariation(const CP::SystematicSet& systSet) {
   return false;
 }
 
-bool SUSYObjDef_xAOD::currentSystematicIsNominal() {
+bool SUSYObjDef_xAOD::currentSystematicIsNominal() const {
   return isNominal(m_currentSyst);
 }
 
-bool SUSYObjDef_xAOD::currentSystematicIsVariation() {
+bool SUSYObjDef_xAOD::currentSystematicIsVariation() const {
   return isVariation(m_currentSyst);
 }
 
-bool SUSYObjDef_xAOD::currentSystematicIsWeight() {
+bool SUSYObjDef_xAOD::currentSystematicIsWeight() const {
   return isWeight(m_currentSyst);
 }
 
@@ -1638,8 +1639,7 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   return CP::SystematicCode::Ok;
 }
 
-std::vector<ST::SystInfo> SUSYObjDef_xAOD::getSystInfoList()
-{
+std::vector<ST::SystInfo> SUSYObjDef_xAOD::getSystInfoList() const {
   if (!m_tool_init) {
     ATH_MSG_ERROR("SUSYTools was not initialized!!");
     return vector<ST::SystInfo>();
@@ -1674,7 +1674,7 @@ std::vector<ST::SystInfo> SUSYObjDef_xAOD::getSystInfoList()
   return sysInfoList;
 }
 
-ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) {
+ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) const {
 
   SystInfo sysInfo;
   sysInfo.affectsKinematics = false;
@@ -1949,7 +1949,7 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) {
 
 // Temporary function for Sherpa 2.2 V+jets n-jets reweighting 
 // (see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/CentralMC15ProductionList#NEW_Sherpa_v2_2_V_jets_NJet_rewe)
-float SUSYObjDef_xAOD::getSherpaVjetsNjetsWeight() {
+float SUSYObjDef_xAOD::getSherpaVjetsNjetsWeight() const {
 
   //Retrieve the truth jets
   if( evtStore()->contains<xAOD::JetContainer>("AntiKt4TruthWZJets") ){
@@ -1964,7 +1964,7 @@ float SUSYObjDef_xAOD::getSherpaVjetsNjetsWeight() {
   return 0.;
 }
 
-float SUSYObjDef_xAOD::getSherpaVjetsNjetsWeight(const std::string& jetContainer) {
+float SUSYObjDef_xAOD::getSherpaVjetsNjetsWeight(const std::string& jetContainer) const {
 
   if(jetContainer=="AntiKt4TruthWZJets"){
     return m_pmgSHnjetWeighterWZ->getWeight();
@@ -1980,8 +1980,7 @@ float SUSYObjDef_xAOD::getSherpaVjetsNjetsWeight(const std::string& jetContainer
 }
 
 
-const xAOD::Vertex* SUSYObjDef_xAOD::GetPrimVtx()
-{
+const xAOD::Vertex* SUSYObjDef_xAOD::GetPrimVtx() const {
   const xAOD::VertexContainer* vertices(0);
   if ( evtStore()->retrieve( vertices, "PrimaryVertices" ).isSuccess() ) {
     for ( const auto& vx : *vertices ) {
@@ -2069,7 +2068,6 @@ float SUSYObjDef_xAOD::GetCorrectedAverageInteractionsPerCrossing() {
 }
 
 double SUSYObjDef_xAOD::GetSumOfWeights(int channel) {
-
   return m_prwTool->GetSumOfEventWeights(channel);
 }
 
@@ -2095,7 +2093,7 @@ StatusCode SUSYObjDef_xAOD::ApplyPRWTool(bool muDependentRRN) {
   return StatusCode::SUCCESS;
 }
 
-unsigned int SUSYObjDef_xAOD::GetRunNumber(){
+unsigned int SUSYObjDef_xAOD::GetRunNumber() const {
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
@@ -2111,7 +2109,7 @@ unsigned int SUSYObjDef_xAOD::GetRunNumber(){
 
 }
 
-int SUSYObjDef_xAOD::treatAsYear(){
+int SUSYObjDef_xAOD::treatAsYear() const {
 
   if( GetRunNumber() < 290000 ) //split between 2015 and 2016 runNumbers
         return 2015;
@@ -2169,6 +2167,9 @@ SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
   if(m_ZTaggerTool){
     delete m_ZTaggerTool;
     m_ZTaggerTool=0;
+  }
+  if (!m_trigDecTool.empty()){
+    m_trigDecTool->finalize().ignore();
   }
 #endif
 }

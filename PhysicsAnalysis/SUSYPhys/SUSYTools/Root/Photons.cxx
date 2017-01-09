@@ -153,7 +153,7 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
 }
 
 
-bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, float etacut)
+bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, float etacut) const
 {
 
   dec_signal(input) = false;
@@ -187,7 +187,7 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 }
 
 
-double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF, const bool isoSF)
+double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF, const bool isoSF) const
 {
   double sf(1.);
 
@@ -271,7 +271,7 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
 }
 
 
-double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF, const bool isoSF)
+double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF, const bool isoSF) const
 {
 
   double sf(1.);

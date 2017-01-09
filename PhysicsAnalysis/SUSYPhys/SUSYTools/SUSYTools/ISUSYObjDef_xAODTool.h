@@ -152,7 +152,7 @@ namespace ST {
     public:
     virtual StatusCode readConfig() = 0;
 
-    virtual int getMCShowerType(std::string sample_name="") = 0;
+    virtual int getMCShowerType(const std::string& sample_name="") const = 0;
 
     // override the AsgTool setProperty function for booleans
     virtual StatusCode setBoolProperty(const std::string& name, const bool& property) = 0;
@@ -164,7 +164,7 @@ namespace ST {
     virtual StatusCode FillElectron(xAOD::Electron& input, const float etcut, const float etacut) = 0;
     virtual StatusCode FillPhoton(xAOD::Photon& input, const float ptcut, const float etacut) = 0;
 
-    virtual const xAOD::Vertex* GetPrimVtx() = 0;
+    virtual const xAOD::Vertex* GetPrimVtx() const = 0;
 		
     virtual StatusCode GetJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=false, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets,xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, const bool recordSG=false, const std::string& jetkey="") = 0;
@@ -194,40 +194,40 @@ namespace ST {
 
     //virtual bool passTSTCleaning(xAOD::MissingETContainer& met) = 0;
 
-    virtual bool IsSignalJet(const xAOD::Jet& input,  const float ptcut, const float etacut) = 0;
+    virtual bool IsSignalJet(const xAOD::Jet& input,  const float ptcut, const float etacut) const = 0;
 
-    virtual bool IsBadJet(const xAOD::Jet& input) = 0;
+    virtual bool IsBadJet(const xAOD::Jet& input) const = 0;
 
-    virtual bool IsBJetLoose(const xAOD::Jet& input) = 0; 
+    virtual bool IsBJetLoose(const xAOD::Jet& input) const = 0; 
     virtual bool JetPassJVT(xAOD::Jet& input, bool update_jvt) = 0;
 
-    virtual bool IsHighPtMuon(const xAOD::Muon& input) = 0;
+    virtual bool IsHighPtMuon(const xAOD::Muon& input) const = 0;
 
-    virtual bool IsSignalMuon(const xAOD::Muon& input, const float ptcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF) = 0;
+    virtual bool IsSignalMuon(const xAOD::Muon& input, const float ptcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF) const = 0;
 
-    virtual bool IsSignalElectron(const xAOD::Electron& input, const float etcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF) = 0;
+    virtual bool IsSignalElectron(const xAOD::Electron& input, const float etcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF) const = 0;
  
-    virtual bool IsCosmicMuon(const xAOD::Muon& input,const float z0cut, const float d0cut) = 0;
+    virtual bool IsCosmicMuon(const xAOD::Muon& input,const float z0cut, const float d0cut) const = 0;
 
-    virtual bool IsSignalTau(const xAOD::TauJet& input, const float ptcut, const float etacut) = 0;
+    virtual bool IsSignalTau(const xAOD::TauJet& input, const float ptcut, const float etacut) const = 0;
 
-    virtual bool IsBadMuon(const xAOD::Muon& input, const float qopcut) = 0;
+    virtual bool IsBadMuon(const xAOD::Muon& input, const float qopcut) const = 0;
 
-    virtual bool IsSignalPhoton(const xAOD::Photon& input, const float ptcut, const float etacut = DUMMYDEF) = 0;
+    virtual bool IsSignalPhoton(const xAOD::Photon& input, const float ptcut, const float etacut = DUMMYDEF) const = 0;
 
     //rel20 0.77 eff value (22/6/15) from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTaggingBenchmarks#MV2c20_tagger_AntiKt4EMTopoJets    
     //assumes JVT>0.64 working point
-    virtual bool IsBJet(const xAOD::Jet& input) = 0;
+    virtual bool IsBJet(const xAOD::Jet& input) const = 0;
 
-    virtual bool IsTruthBJet(const xAOD::Jet& input) = 0;
+    virtual bool IsTruthBJet(const xAOD::Jet& input) const = 0;
 
-    virtual int IsBJetContinuous(const xAOD::Jet& input) = 0;
+    virtual int IsBJetContinuous(const xAOD::Jet& input) const = 0;
 
     virtual double JVT_SF(const xAOD::JetContainer* jets) = 0;
 
     virtual double JVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) = 0;
 
-    virtual float BtagSF(const xAOD::JetContainer* jets) = 0;
+    virtual float BtagSF(const xAOD::JetContainer* jets) const = 0;
 
     virtual float BtagSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) = 0;
 
@@ -235,9 +235,9 @@ namespace ST {
 
     virtual float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") = 0;
 
-    virtual double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") = 0; 
+    virtual double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const = 0; 
 
-    virtual double GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") = 0; 
+    virtual double GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const = 0; 
 
 
     virtual double GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool isdata = false) = 0; 
@@ -264,11 +264,11 @@ namespace ST {
 
     virtual double GetTotalTauSFsys(const xAOD::TauJetContainer& taus, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") = 0;
 
-    virtual double GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF = true, const bool isoSF = true) = 0;
+    virtual double GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF = true, const bool isoSF = true) const = 0;
 
     virtual double GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) = 0;
 
-    virtual double GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF = true, const bool isoSF = true) = 0;
+    virtual double GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF = true, const bool isoSF = true) const = 0;
 
     virtual double GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) = 0;
 
@@ -279,7 +279,7 @@ namespace ST {
     virtual bool IsMETTrigPassed(unsigned int runnumber = 0) = 0;
     virtual bool IsMETTrigPassed(const std::string& triggerName) = 0;
 
-    virtual bool IsTrigPassed(const std::string&, unsigned int condition=TrigDefs::Physics) = 0;
+    virtual bool IsTrigPassed(const std::string&, unsigned int condition=TrigDefs::Physics) const = 0;
 
     virtual bool IsTrigMatched(const xAOD::IParticle *part, const std::string& tr_item) = 0;
     virtual bool IsTrigMatched(const xAOD::IParticle *part1, const xAOD::IParticle *part2, const std::string& tr_item) = 0;
@@ -298,9 +298,9 @@ namespace ST {
     virtual void TrigMatch(const std::initializer_list<const xAOD::IParticle*> &v, const std::string& item) = 0;
 
 
-    virtual float GetTrigPrescale(const std::string&) = 0;
+    virtual float GetTrigPrescale(const std::string&) const = 0;
 
-    virtual const Trig::ChainGroup* GetTrigChainGroup(const std::string&) = 0;
+    virtual const Trig::ChainGroup* GetTrigChainGroup(const std::string&) const = 0;
 
     virtual float GetPileupWeight() = 0;
     
@@ -316,9 +316,9 @@ namespace ST {
     
     virtual StatusCode ApplyPRWTool(bool muDependentRRN = true) = 0;
     
-    virtual unsigned int GetRunNumber() = 0;
+    virtual unsigned int GetRunNumber() const = 0;
 
-    virtual int treatAsYear() = 0;
+    virtual int treatAsYear() const = 0;
      
     virtual StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
 				      const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) = 0;
@@ -327,23 +327,23 @@ namespace ST {
 
     virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig ) = 0;
 
-    virtual bool isPrompt(const xAOD::IParticle* part) = 0;
+    virtual bool isPrompt(const xAOD::IParticle* part) const = 0;
 
-    virtual StatusCode FindSusyHP(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3 = false) = 0;
+    virtual StatusCode FindSusyHP(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3 = false) const = 0;
 
-    virtual StatusCode FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) = 0;
+    virtual StatusCode FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) const = 0;
 
-    virtual std::vector<ST::SystInfo> getSystInfoList() = 0;
+    virtual std::vector<ST::SystInfo> getSystInfoList() const = 0;
 
-    virtual std::string TrigSingleLep() = 0;
-    virtual std::string TrigDiLep() = 0;
-    virtual std::string TrigMixLep() = 0;
+    virtual std::string TrigSingleLep() const = 0;
+    virtual std::string TrigDiLep() const = 0;
+    virtual std::string TrigMixLep() const = 0;
 
 
     // Temporary function for Sherpa 2.2 V+jets n-jets reweighting 
     // (see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/CentralMC15ProductionList#NEW_Sherpa_v2_2_V_jets_NJet_rewe)
-    virtual float getSherpaVjetsNjetsWeight() = 0;
-    virtual float getSherpaVjetsNjetsWeight(const std::string& jetContainer) = 0;
+    virtual float getSherpaVjetsNjetsWeight() const = 0;
+    virtual float getSherpaVjetsNjetsWeight(const std::string& jetContainer) const = 0;
 
     enum DataSource {
       Undefined = -1,

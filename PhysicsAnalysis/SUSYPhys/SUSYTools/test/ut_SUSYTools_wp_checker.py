@@ -309,6 +309,7 @@ if __name__ == '__main__':
 
 
     ## Call the tests
-    unittest.main()
-    #suite = unittest.TestLoader().loadTestsFromTestCase(TestSUSYTools)
-    #unittest.TextTestRunner(verbosity=2).run(suite)
+    #unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestSUSYTools)
+    result = unittest.TextTestRunner(verbosity=0).run(suite).wasSuccessful()
+    sys.exit( not result ) #convert True -> 0 

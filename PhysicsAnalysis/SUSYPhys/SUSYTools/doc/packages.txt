@@ -1,6 +1,10 @@
-#for running on Base,2.4.23
+#for running on Base,2.4.24
 #
-atlasoff/PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections/tags/MuonEfficiencyCorrections-04-00-05
+# New JES recommendations
+atlasoff/Reconstruction/Jet/JetUncertainties/tags/JetUncertainties-00-09-53
+# 2.4.24 has the newest JetCalibTools tag for these recommendations
+# New MET uncertainty recommendations
+atlasoff/Reconstruction/MET/METUtilities/tags/METUtilities-00-02-45
 #
 # No packages!  Packages listed here should be listed like:
 #atlasoff/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-00-02-22
