@@ -30,4 +30,8 @@ class TFCS1DFunctionRegressionTF:public TFCS1DFunctionRegression
   
 };
 
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCS1DFunctionRegressionTF+;
+#endif
+
 #endif

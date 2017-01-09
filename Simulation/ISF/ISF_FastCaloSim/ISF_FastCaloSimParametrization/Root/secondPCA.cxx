@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-using namespace std;
 #include "TMatrixF.h"
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
@@ -24,11 +23,12 @@ using namespace std;
 #include "ISF_FastCaloSimParametrization/TreeReader.h"
 #include "ISF_FastCaloSimParametrization/TFCSFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
-//#include "ISF_FastCaloSimParametrization/TFCS1DFunction.h"
-#include "ISF_FastCaloSimParametrization/IntArray.h"
+#include "ISF_FastCaloSimEvent/IntArray.h"
 
 #include <iostream>
 #include <sstream>
+
+using namespace std;
 
 secondPCA::secondPCA(string firstpcafilename, string outfilename)
 {
@@ -227,6 +227,8 @@ void secondPCA::do_pca(vector<string> layer, int bin, TreeReader* read_inputTree
  
  cout<<"--- Application to get Mean and RMS of the PCA transformed data"<<endl;
  TreeReader* reader_treeGauss = new TreeReader();
+
+ cout<<"check1"<<endl;
  reader_treeGauss->SetTree(T_Gauss);
  
  vector<double> data_PCA_min; vector<double> data_PCA_max;
@@ -341,7 +343,9 @@ void secondPCA::do_pca(vector<string> layer, int bin, TreeReader* read_inputTree
  //call the TFCS1DFunction to decide whether or not to use regression:
  for(unsigned int l=0;l<layer.size();l++)
  {
- 	cout<<"Now create the fct object for "<<layer[l]<<endl;
+ 	cout<<endl;
+ 	cout<<"====> Now create the fct object for "<<layer[l]<<" <===="<<endl;
+  cout<<endl;
   stringstream ss;
   ss << bin;
   string binstring = ss.str();

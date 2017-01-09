@@ -2,21 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-using namespace std;
-#include "ISF_FastCaloSimParametrization/TFCSFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
-//#include "ISF_FastCaloSimParametrization/TFCS1DFunction.h"
+#include "ISF_FastCaloSimParametrization/TFCSFunction.h"
 #include "ISF_FastCaloSimParametrization/TFCS1DFunctionRegression.h"
 #include "ISF_FastCaloSimParametrization/TFCS1DFunctionRegressionTF.h"
 #include "ISF_FastCaloSimParametrization/TFCS1DFunctionHistogram.h"
+
+#include "TMVA/Config.h"
+#include "TMVA/Tools.h"
+#include "TMVA/Reader.h"
+#include "TMVA/Factory.h"
+#include "TMVA/DataLoader.h"
+#include "TFile.h"
+
 #include "TRandom1.h"
-#include <sstream>  
-#include <iostream>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <ftw.h>
-#include <stdexcept>
 
 //=============================================
 //======= TFCSFunction =========
@@ -47,20 +46,12 @@ TFCS1DFunction* TFCSFunction::Create(TH1* hist,int skip_regression,int neurons_s
  string outfilename="TMVAReg"+myrandstr+".root";
  float rangeval, startval;
  TFCS1DFunction* fct=new TFCS1DFunction(hist);
- TFCS1DFunctionRegression* freg;
- TFCS1DFunctionRegressionTF* fregTF;
- TFCS1DFunctionHistogram* fhis;
- int status;
- //try
- //{
-  status=fct->testHisto(hist,xmlweightfilename,rangeval,startval,outfilename,skip_regression,neurons_start,neurons_end,maxdev_regression,ntoys);
- //}
- //catch(std::runtime_error &e)
- //{
- // cout<<"An exception occured: "<<e.what()<<endl;
- // cout<<"Continuing anyway :P"<<endl;
- // status=3;
- //}
+ TFCS1DFunctionRegression* freg=0;
+ TFCS1DFunctionRegressionTF* fregTF=0;
+ TFCS1DFunctionHistogram* fhis=0;
+ int status=3;
+ 
+ status=fct->testHisto(hist,xmlweightfilename,rangeval,startval,outfilename,skip_regression,neurons_start,neurons_end,maxdev_regression,ntoys);
  
  if(verbose_level==1) cout<<"--- testHisto status="<<status<<endl;
  if(status==1)
@@ -68,19 +59,9 @@ TFCS1DFunction* TFCSFunction::Create(TH1* hist,int skip_regression,int neurons_s
  	if(verbose_level==1) cout<<"Regression"<<endl;
   freg=new TFCS1DFunctionRegression();
   freg->storeRegression(xmlweightfilename);
-  cout<<"xmlweightfilename: "<<xmlweightfilename<<endl;
-  if (remove(outfilename.c_str()) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << outfilename.c_str() << "; exiting" << endl;
-    return 0;
-  }
-  if (remove(Form("%s/TMVARegression_MLP.weights.xml",xmlweightfilename.c_str())) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << xmlweightfilename.c_str() << "/TMVARegression_MLP.weights.xml; exiting" << endl;
-    return 0;
-  }
-  if (remove(Form("%s",xmlweightfilename.c_str())) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << xmlweightfilename.c_str() << "; exiting" << endl;
-    return 0;
-  }
+  remove(outfilename.c_str());
+  remove(Form("dl/%s/TMVARegression_MLP.weights.xml",xmlweightfilename.c_str()));
+  remove(Form("dl/%s",xmlweightfilename.c_str()));
   return freg;
  }
  if(status==2)
@@ -88,36 +69,17 @@ TFCS1DFunction* TFCSFunction::Create(TH1* hist,int skip_regression,int neurons_s
  	if(verbose_level==1) cout<<"Regression and Transformation"<<endl;
   fregTF=new TFCS1DFunctionRegressionTF();
   fregTF->storeRegression(xmlweightfilename,rangeval,startval);
-  cout<<"xmlweightfilename: "<<xmlweightfilename<<endl;
-  if (remove(outfilename.c_str()) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << outfilename.c_str() << "; exiting" << endl;
-    return 0;
-  }
-  if (remove(Form("%s/TMVARegression_MLP.weights.xml",xmlweightfilename.c_str())) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << xmlweightfilename.c_str() << "/TMVARegression_MLP.weights.xml; exiting" << endl;
-    return 0;
-  }
-  if (remove(Form("%s",xmlweightfilename.c_str())) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << xmlweightfilename.c_str() << "; exiting" << endl;
-    return 0;
-  }
+  remove(outfilename.c_str());
+  remove(Form("dl/%s/TMVARegression_MLP.weights.xml",xmlweightfilename.c_str()));
+  remove(Form("dl/%s",xmlweightfilename.c_str()));
   return fregTF;
  }
  if(status==3)
  {
   cout<<"xmlweightfilename: "<<xmlweightfilename<<endl;
-  if (remove(outfilename.c_str()) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << outfilename.c_str() << "; exiting" << endl;
-    return 0;
-  }
-  if (remove(Form("%s/TMVARegression_MLP.weights.xml",xmlweightfilename.c_str())) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << xmlweightfilename.c_str() << "/TMVARegression_MLP.weights.xml; exiting" << endl;
-    return 0;
-  }
-  if (remove(Form("%s",xmlweightfilename.c_str())) != 0) {
-    cout << "Error in TFCSFunction: unable to remove " << xmlweightfilename.c_str() << "; exiting" << endl;
-    return 0;
-  }
+  remove(outfilename.c_str());
+  remove(Form("dl/%s/TMVARegression_MLP.weights.xml",xmlweightfilename.c_str()));
+  remove(Form("dl/%s",xmlweightfilename.c_str()));
  	if(verbose_level==1) cout<<"Histogram"<<endl;
   fhis=new TFCS1DFunctionHistogram(hist, verbose_level,maxdev_smartrebin);
   return fhis;
@@ -128,16 +90,13 @@ TFCS1DFunction* TFCSFunction::Create(TH1* hist,int skip_regression,int neurons_s
   return 0;	
  }
  
- //delete the weight file folder:
- 
- return 0; 
+ return 0;
  
 }
-
 
 //=============================================
 //========== ROOT persistency stuff ===========
 //=============================================
 
-ClassImp(TFCSFunction)
+//ClassImp(TFCSFunction)
 

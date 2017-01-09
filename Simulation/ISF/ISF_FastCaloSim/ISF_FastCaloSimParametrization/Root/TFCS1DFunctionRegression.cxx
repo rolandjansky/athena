@@ -61,16 +61,17 @@ void TFCS1DFunctionRegression::validate(int Ntoys,string weightfilename)
  for(int i=0;i<Ntoys;i++)
  {
   double random=myRandom->Uniform(1);
-  cout<<"myvalue "<<regression_value(random)<<" TMVA value "<<tmvaregression_application(random,weightfilename)<<endl;
+  double myval=regression_value(random);
+  double tmvaval=tmvaregression_application(random,weightfilename);
+  cout<<"myvalue "<<myval<<" TMVA value "<<tmvaval<<endl;
  }
  
 }
 
 
-void TFCS1DFunctionRegression::get_weights(string /*weightfile*/)
+void TFCS1DFunctionRegression::get_weights(string weightfile)
 {
 
-/*
 
  using namespace TMVA;
  int debug=1;
@@ -112,7 +113,7 @@ void TFCS1DFunctionRegression::get_weights(string /*weightfile*/)
  Float_t y=0.5; //just a dummy
  reader->AddVariable( "y", &y );
  
- TString dir   = Form("%s/",weightfile.c_str());
+ TString dir   = Form("dl/%s/",weightfile.c_str());
  TString prefix = "TMVARegression";
  
  for (std::map<std::string,int>::iterator it = Use.begin(); it != Use.end(); it++)
@@ -120,8 +121,8 @@ void TFCS1DFunctionRegression::get_weights(string /*weightfile*/)
   if (it->second)
   {
    TString methodName = it->first + " method";
-   TString weightfile = dir + prefix + "_" + TString(it->first) + ".weights.xml";
-   reader->BookMVA( methodName, weightfile ); 
+   TString weightfilename = dir + prefix + "_" + TString(it->first) + ".weights.xml";
+   reader->BookMVA( methodName, weightfilename ); 
   }
  }
  
@@ -180,62 +181,66 @@ void TFCS1DFunctionRegression::get_weights(string /*weightfile*/)
  }
  
  delete reader;
-
-*/
  
 }
 
 double TFCS1DFunctionRegression::regression_value(double uniform)
 {
+ 
  double myresult=-1;
  
  int n_neurons=m_fWeightMatrix0to1.size()-1;
  
- int fLayers=3;
- vector<int> fLayerSize;
- fLayerSize.push_back(2);
- fLayerSize.push_back(n_neurons+1);
- fLayerSize.push_back(1);
- 
- vector<vector<double> > fWeights;
- for(int l=0;l<fLayers;l++)
+ if(n_neurons>0)
  {
-  vector<double> thisvector;
-  for(int i=0;i<fLayerSize[l];i++)
-   thisvector.push_back(0); //placeholder
-  fWeights.push_back(thisvector);
- }
- 
- for (int l=0; l<fLayers; l++)
-  for (int i=0; i<fLayerSize[l]; i++)
-   fWeights[l][i]=0;
-
- for (int l=0; l<fLayers-1; l++)
-  fWeights[l][fLayerSize[l]-1]=1;
-
- for (int i=0; i<fLayerSize[0]-1; i++)
-  fWeights[0][i]=uniform;
-
- // layer 0 to 1
- for (int o=0; o<fLayerSize[1]-1; o++)
- {
-  for (int i=0; i<fLayerSize[0]; i++)
+  
+  int fLayers=3;
+  vector<int> fLayerSize;
+  fLayerSize.push_back(2);
+  fLayerSize.push_back(n_neurons+1);
+  fLayerSize.push_back(1);
+  
+  vector<vector<double> > fWeights;
+  for(int l=0;l<fLayers;l++)
   {
-   fWeights[1][o] += m_fWeightMatrix0to1[o][i] * fWeights[0][i];
+   vector<double> thisvector;
+   for(int i=0;i<fLayerSize[l];i++)
+    thisvector.push_back(0); //placeholder
+   fWeights.push_back(thisvector);
   }
-  fWeights[1][o] = tanh(fWeights[1][o]);
- }
- 
- // layer 1 to 2
- for (int o=0; o<fLayerSize[2]; o++)
- {
-  for (int i=0; i<fLayerSize[1]; i++)
+  
+  for (int l=0; l<fLayers; l++)
+   for (int i=0; i<fLayerSize[l]; i++)
+    fWeights[l][i]=0;
+  
+  for (int l=0; l<fLayers-1; l++)
+   fWeights[l][fLayerSize[l]-1]=1;
+  
+  for (int i=0; i<fLayerSize[0]-1; i++)
+   fWeights[0][i]=uniform;
+  
+  // layer 0 to 1
+  for (int o=0; o<fLayerSize[1]-1; o++)
   {
-   fWeights[2][o] += m_fWeightMatrix1to2[o][i] * fWeights[1][i];
+   for (int i=0; i<fLayerSize[0]; i++)
+   {
+    fWeights[1][o] += m_fWeightMatrix0to1[o][i] * fWeights[0][i];
+   }
+   fWeights[1][o] = tanh(fWeights[1][o]);
   }
+  
+  // layer 1 to 2
+  for (int o=0; o<fLayerSize[2]; o++)
+  {
+   for (int i=0; i<fLayerSize[1]; i++)
+   {
+    fWeights[2][o] += m_fWeightMatrix1to2[o][i] * fWeights[1][i];
+   }
+  }
+  
+  myresult=fWeights[2][0];
+  
  }
- 
- myresult=fWeights[2][0];
  
  return myresult;
  
@@ -255,5 +260,5 @@ double TFCS1DFunctionRegression::rnd_to_fct(double rnd)
 //========== ROOT persistency stuff ===========
 //=============================================
 
-ClassImp(TFCS1DFunctionRegression)
+//ClassImp(TFCS1DFunctionRegression)
 

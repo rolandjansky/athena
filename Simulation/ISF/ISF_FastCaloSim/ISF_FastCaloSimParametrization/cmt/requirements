@@ -24,7 +24,7 @@ use HepPDT                      v*                              LCG_Interfaces
 ######################
 
 use CaloInterface               CaloInterface-*                 Calorimeter
-use BarcodeInterfaces                BarcodeInterfaces-*                  Simulation/Barcode
+use BarcodeEvent                BarcodeEvent-*                  Simulation/Barcode
 use ISF_Interfaces              ISF_Interfaces-*                Simulation/ISF/ISF_Core
 use ISF_FastCaloSimEvent        ISF_FastCaloSimEvent-*          Simulation/ISF/ISF_FastCaloSim
 

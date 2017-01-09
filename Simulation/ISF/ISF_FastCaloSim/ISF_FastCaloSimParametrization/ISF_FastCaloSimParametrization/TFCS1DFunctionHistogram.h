@@ -38,4 +38,8 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
 
 };
 
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCS1DFunctionHistogram+;
+#endif
+
 #endif

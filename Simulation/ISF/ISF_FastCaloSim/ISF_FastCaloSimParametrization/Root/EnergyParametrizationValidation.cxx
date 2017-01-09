@@ -16,22 +16,12 @@
 
 using namespace std;
 
-void EnergyParametrizationValidation::autozoom(TH1D* h1, TH1D* /*h2*/, double &min, double &max, double &rmin, double &rmax)
+void EnergyParametrizationValidation::autozoom(TH1D* h1, double &min, double &max, double &rmin, double &rmax)
 {
- 
- //int checksim=0;
  
  double min1,min2,max1,max2;
  min1=min2=h1->GetXaxis()->GetXmin();
  max1=max2=h1->GetXaxis()->GetXmax();
- 
- //double eps1=0.001;
- //double eps2=0.001;
- 
- //double ave1,ave2;
- 
- //double int1=h1->Integral();
- //double int2=h2->Integral();
  
  for(int b=1;b<=h1->GetNbinsX();b++)
  {
@@ -52,31 +42,6 @@ void EnergyParametrizationValidation::autozoom(TH1D* h1, TH1D* /*h2*/, double &m
  
  min=min1;max=max1;
 
- /*if(checksim)
- {
-  for(int b=1;b<=h2->GetNbinsX();b++)
-  {
-   if(h2->GetBinContent(b)>int2*eps2)
-   {
-    min2=h2->GetBinCenter(b);
-    break;
-   }
-  }
-  for(int b=h2->GetNbinsX();b>=1;b--)
-  {
-   if(h2->GetBinContent(b)>int2*eps2)
-   {
-    max2=h2->GetBinCenter(b);
-    break;
-   }
-  }
-  
-  min=min1;
-  if(min2<min1) min=min2;
-  max=max1;
-  if(max2>max1) max=max2;
-  
- }*/
  
  rmin=min-0.5*h1->GetBinWidth(1);
  rmax=max+0.5*h1->GetBinWidth(1);

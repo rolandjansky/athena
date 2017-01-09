@@ -52,5 +52,5 @@ double TFCS1DFunctionRegressionTF::rnd_to_fct(double rnd)
 //========== ROOT persistency stuff ===========
 //=============================================
 
-ClassImp(TFCS1DFunctionRegressionTF)
+//ClassImp(TFCS1DFunctionRegressionTF)
 

@@ -48,22 +48,19 @@ void TFCS1DFunctionHistogram::Initialize(TH1* hist, int verbose,double cut_maxde
 
 double* TFCS1DFunctionHistogram::histo_to_array(TH1* hist)
 {
-
-  TH1D* h_clone=(TH1D*)hist->Clone("h_clone");
-  h_clone->Scale(1.0/h_clone->Integral());
-
-  double *histoVals=new double[h_clone->GetNbinsX()];
-  histoVals[0]=h_clone->GetBinContent(1);
-  for (int i=1; i<h_clone->GetNbinsX(); i++)
-  {
-    histoVals[i]=histoVals[i-1] + h_clone->GetBinContent(i+1);
-  }
-
-  // cleanup
-  //delete[] histoVals;
-
-  return histoVals;
-
+ 
+ TH1D* h_clone=(TH1D*)hist->Clone("h_clone");
+ h_clone->Scale(1.0/h_clone->Integral());
+ 
+ double *histoVals=new double[h_clone->GetNbinsX()];
+ histoVals[0]=h_clone->GetBinContent(1);
+ for (int i=1; i<h_clone->GetNbinsX(); i++)
+ {
+  histoVals[i]=histoVals[i-1] + h_clone->GetBinContent(i+1);
+ }
+ 
+ return histoVals;
+ 
 }
 
 double TFCS1DFunctionHistogram::sample_from_histo(TH1* hist, double random)
@@ -118,7 +115,7 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, int verbose, double cu
 
   double maxdev=-1;
   double change=0.0001; double step=0.00005;
-  TH1D* h_input; TH1D* h_output;
+  TH1D* h_input=0; TH1D* h_output;
   int i=0;
   while(1)
   {
@@ -362,5 +359,5 @@ double TFCS1DFunctionHistogram::InverseCumulant(double y)
 //========== ROOT persistency stuff ===========
 //=============================================
 
-ClassImp(TFCS1DFunctionHistogram)
+//ClassImp(TFCS1DFunctionHistogram)
 

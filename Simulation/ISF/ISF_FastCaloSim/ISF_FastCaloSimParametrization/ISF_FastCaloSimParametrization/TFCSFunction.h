@@ -6,7 +6,6 @@
 #define TFCSFunction_h
 
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
-//#include "ISF_FastCaloSimParametrization/TFCS1DFunction.h"
 
 class TFCSFunction
 {
@@ -17,6 +16,11 @@ class TFCSFunction
   private:
 
   ClassDef(TFCSFunction,1)
+ 
 };
+
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSFunction+;
+#endif
 
 #endif

@@ -40,9 +40,10 @@ class TreeReader //: public TTreeFormulaManager
  public:
 
   TreeReader();               // Default ctor
-  TreeReader(TTree* n);       // ctor with ntuple
   virtual ~TreeReader();      // dtor
 
+  TreeReader(TTree* n);       // ctor with ntuple
+ 
   void   SetTree(TTree* n);       //
   double GetVariable(const char* c, int entry=-2); // return variable s for a given entry (<0 -> current entry)
   int    GetEntry(int entry=-1);     // Read a given entry in the buffer (-1 -> next entry);
@@ -50,7 +51,12 @@ class TreeReader //: public TTreeFormulaManager
   TTree* GetTree()                { return m_tree    ; }
   void   Restart()                    {m_currentEntry = -1;}
 
-  ClassDef(TreeReader,0);  // Integrate this class into ROOT (must be the last member)
+  ClassDef(TreeReader,1)  // Integrate this class into ROOT (must be the last member)
+  
 };
+
+#if defined(__MAKECINT__)
+#pragma link C++ class TreeReader+;
+#endif
 
 #endif
