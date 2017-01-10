@@ -160,6 +160,7 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doTrackCurves;
   bool m_doTopoValidation;
   bool m_bootstrap;
+  bool m_isData;
 
   std::vector<TLorentzVector> m_true_taus;
   std::vector<int> m_true_taus_nprong;

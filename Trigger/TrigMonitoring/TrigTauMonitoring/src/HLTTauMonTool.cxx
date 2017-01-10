@@ -143,6 +143,7 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("AbsPhiMax",		m_selection_absPhiMax=-1.);
     declareProperty("AbsPhiMin",		m_selection_absPhiMin=-1.);
     declareProperty("BDTMedium",                m_selection_BDT=true);
+    declareProperty("isData",                   m_isData=true);
 
     m_L1TriggerCondition = 0;
     m_HLTTriggerCondition = 0;
@@ -157,7 +158,9 @@ HLTTauMonTool::~HLTTauMonTool() {
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 StatusCode HLTTauMonTool::init() {
-   
+ 
+  if(m_isData) m_truth=false;
+  
   if (m_emulation) {
     ATH_MSG_INFO("Initializing " << m_l1emulationTool->name());
     ATH_CHECK(m_l1emulationTool.retrieve());
@@ -165,13 +168,13 @@ StatusCode HLTTauMonTool::init() {
     //ATH_CHECK(m_hltemulationTool.retrieve());
   }
 
-  if (m_luminosityToolOnline.retrieve().isFailure()) {
+  if (m_luminosityToolOnline.retrieve().isSuccess()) {
     ATH_MSG_WARNING("Unable to retrieve LuminosityToolOnline");
   } else {
     ATH_MSG_INFO("Successfully retrieved LuminosityToolOnline");
   }
 
-  if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
+  if (m_lumiBlockMuTool.retrieve().isSuccess()) {                                     
 	msg() << MSG::WARNING << "Unable to retrieve LumiBlockMuTool" << endmsg;     
   } else {                                                                     
 	msg() << MSG::DEBUG << "Successfully retrieved LumiBlockMuTool" << endmsg;
@@ -199,14 +202,13 @@ StatusCode HLTTauMonTool::init() {
       m_trigItemsZtt.push_back(*it);
     }
 
-
-//   ATH_MSG_WARNING("Retrieving HLT tau chains");
-//   const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup(".*");
-//   std::vector<std::string> TauItems = m_allHLTTauItems->getListOfTriggers();
-//   ATH_MSG_WARNING("Retrieved "<< TauItems.size() << " chains");
-//   for(int i=0;i<TauItems.size();i++){
-//	ATH_MSG_WARNING("ChainGroup "<< TauItems.at(i).c_str());
-//   }
+// 	HERE DOESN'T WORK SINCE TDT NOT YET INITIALISED
+//	const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup("HLT_.*");
+//	std::vector<std::string> TauItems = m_allHLTTauItems->getListOfTriggers();
+//	ATH_MSG_WARNING("Retrieved "<< TauItems.size() << " chains");
+//	for(unsigned int i=0;i<TauItems.size();i++){
+// 		ATH_MSG_WARNING("ChainGroup "<< TauItems.at(i).c_str());
+//	}
 
     m_L1TriggerCondition=TrigDefs::Physics;
     m_HLTTriggerCondition=TrigDefs::Physics; 
@@ -225,7 +227,21 @@ StatusCode HLTTauMonTool::book()
 //StatusCode HLTTauMonTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun)
 //#endif
 {
-    
+ 
+	ATH_MSG_DEBUG("Checking configured HLT tau chains");
+	for(unsigned int i=0; i<m_trigItems.size(); i++){	
+		std::string chain = "HLT_"+m_trigItems.at(i);
+		std::vector<std::string> configured_chain = getTDT()->getListOfTriggers(chain);
+		if(configured_chain.size()==0){
+			ATH_MSG_INFO("HLTTauMon  Chain " << chain << " not configured, skipping");
+			m_trigItems.erase(m_trigItems.begin()+i);
+		    i--;
+		}
+		if(configured_chain.size()){
+			ATH_MSG_DEBUG("HLTTauMon  Chain " << m_trigItems.at(i) << " configured!");
+		}
+	}
+
     for(unsigned int i=0;i<m_trigItems.size(); ++i) addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+m_trigItems[i],run));
     
     ATH_MSG_DEBUG("initialize being called");
@@ -243,7 +259,7 @@ StatusCode HLTTauMonTool::book()
 StatusCode HLTTauMonTool::fill() {
     
     ATH_MSG_DEBUG(" ====== Begin fillHists() ====== ");
-    StatusCode sc;
+    StatusCode sc = StatusCode::SUCCESS;
 
 
     // skip HLTResult truncated events
@@ -281,65 +297,73 @@ StatusCode HLTTauMonTool::fill() {
      }
 
     // fill true taus vectors
-    m_true_taus.clear(); m_true_taus_nprong.clear();
+    m_true_taus.clear(); 
+	m_true_taus_nprong.clear();
     if(m_truth){
     	const xAOD::TruthParticleContainer* truth_cont = 0;
-       	if( evtStore()->retrieve(truth_cont, "TruthParticles" ).isFailure() ){
+       	sc = evtStore()->retrieve(truth_cont, "TruthParticles" );
+		if( !sc.isSuccess() ){
        		ATH_MSG_WARNING("Failed to retrieve TruthParticle container. Exiting.");
-		return StatusCode::FAILURE;
+			//return StatusCode::FAILURE;			
        	}
-	xAOD::TruthParticleContainer::const_iterator truthItr,truth_cont_end = truth_cont->end();
-	for (truthItr=truth_cont->begin(); truthItr != truth_cont_end; ++truthItr){
-		if(abs((*truthItr)->pdgId()) == 15) ATH_MSG_DEBUG("Tau with status " << (*truthItr)->status() << " and charge " << (*truthItr)->charge());
-		if(abs((*truthItr)->pdgId()) == 15  && (*truthItr)->status() == 2) // || (*truthItr)->status() == 10902))
-			{
-				examineTruthTau(**truthItr);
-				float pt  = (*truthItr)->auxdata<float>("pt_vis");
-				float eta = (*truthItr)->auxdata<float>("eta_vis");
-				float phi = (*truthItr)->auxdata<float>("phi_vis");
-				float m   = (*truthItr)->auxdata<float>("m_vis");
-				bool lep = (*truthItr)->auxdata<bool>("IsLeptonicTau");
-				int ntracks = (*truthItr)->auxdata<int>("nTracks");
-				if(pt < m_effOffTauPtCut || lep || fabs(eta) > 2.47 ) continue;
-				if(m_selection_nTrkMax>-1 && ntracks>m_selection_nTrkMax) continue;
-				if(m_selection_nTrkMin>-1 && ntracks<m_selection_nTrkMin) continue;
-				if(m_selection_ptMax>-1 && pt>m_selection_ptMax) continue;
-				if(m_selection_ptMin>-1 && pt<m_selection_ptMin) continue;
-				if(m_selection_absEtaMax>-1 && fabs(eta)>m_selection_absEtaMax) continue;
-				if(m_selection_absEtaMin>-1 && fabs(eta)<m_selection_absEtaMin) continue;
-				if(m_selection_absPhiMax>-1 && fabs(phi)>m_selection_absPhiMax) continue;
-				if(m_selection_absPhiMin>-1 && fabs(phi)<m_selection_absPhiMin) continue;
-				TLorentzVector TruthTauTLV;
-				TruthTauTLV.SetPtEtaPhiM(pt,eta,phi,m);
-				m_true_taus.push_back(TruthTauTLV);
-				m_true_taus_nprong.push_back(ntracks);
-			}
-	}// truth loop
-    }
+		else{
+			xAOD::TruthParticleContainer::const_iterator truthItr,truth_cont_end = truth_cont->end();
+			for (truthItr=truth_cont->begin(); truthItr != truth_cont_end; ++truthItr){
+				if(abs((*truthItr)->pdgId()) == 15) ATH_MSG_DEBUG("Tau with status " << (*truthItr)->status() << " and charge " << (*truthItr)->charge());
+				if(abs((*truthItr)->pdgId()) == 15  && (*truthItr)->status() == 2) // || (*truthItr)->status() == 10902))
+				{
+						examineTruthTau(**truthItr);
+						float pt  = (*truthItr)->auxdata<float>("pt_vis");
+						float eta = (*truthItr)->auxdata<float>("eta_vis");
+						float phi = (*truthItr)->auxdata<float>("phi_vis");
+						float m   = (*truthItr)->auxdata<float>("m_vis");
+						bool lep = (*truthItr)->auxdata<bool>("IsLeptonicTau");
+						int ntracks = (*truthItr)->auxdata<int>("nTracks");
+						if(pt < m_effOffTauPtCut || lep || fabs(eta) > 2.47 ) continue;
+						if(m_selection_nTrkMax>-1 && ntracks>m_selection_nTrkMax) continue;
+						if(m_selection_nTrkMin>-1 && ntracks<m_selection_nTrkMin) continue;
+						if(m_selection_ptMax>-1 && pt>m_selection_ptMax) continue;
+						if(m_selection_ptMin>-1 && pt<m_selection_ptMin) continue;
+						if(m_selection_absEtaMax>-1 && fabs(eta)>m_selection_absEtaMax) continue;
+						if(m_selection_absEtaMin>-1 && fabs(eta)<m_selection_absEtaMin) continue;
+						if(m_selection_absPhiMax>-1 && fabs(phi)>m_selection_absPhiMax) continue;
+						if(m_selection_absPhiMin>-1 && fabs(phi)<m_selection_absPhiMin) continue;
+						TLorentzVector TruthTauTLV;
+						TruthTauTLV.SetPtEtaPhiM(pt,eta,phi,m);
+						m_true_taus.push_back(TruthTauTLV);
+						m_true_taus_nprong.push_back(ntracks);
+				}
+			}// end if_else sc.isSuccess
+		}//end if(truth_cont)
+	}// end if(m_truth)
 
     // good reco taus
     m_taus.clear();
     m_tauCont = 0;
-    if( m_storeGate->retrieve(m_tauCont, "TauJets").isFailure()  ){
-	ATH_MSG_WARNING("Failed to retrieve TauJets container. Exiting!");
-	return StatusCode::FAILURE;
-    }	
-    xAOD::TauJetContainer::const_iterator offlinetau,offlinetau_end = m_tauCont->end();
-    for(offlinetau=m_tauCont->begin();offlinetau!=offlinetau_end; ++offlinetau){
-	if((*offlinetau)){
-		TLorentzVector TauTLV = (*offlinetau)->p4();
-		double eta_Tau = TauTLV.Eta();
-		if(fabs(eta_Tau) > 2.47) continue;
-		double pt_Tau = TauTLV.Pt();
-		if(pt_Tau<m_effOffTauPtCut) continue;
-		int ntrack_TAU = (*offlinetau)->nTracks();
-		if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
-		bool good_tau = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-		if(m_selection_BDT && !good_tau) continue;		
-		if(!Selection(*offlinetau)) continue;
-		m_taus.push_back( *offlinetau );
-	}
+	sc = m_storeGate->retrieve(m_tauCont, "TauJets");
+    if( !sc.isSuccess()  ){
+		ATH_MSG_WARNING("Failed to retrieve TauJets container. Exiting!");
+		//return StatusCode::FAILURE;
+		//return sc;
     }
+	else{
+		xAOD::TauJetContainer::const_iterator offlinetau,offlinetau_end = m_tauCont->end();
+	    for(offlinetau=m_tauCont->begin();offlinetau!=offlinetau_end; ++offlinetau){
+			if((*offlinetau)){
+				TLorentzVector TauTLV = (*offlinetau)->p4();
+				double eta_Tau = TauTLV.Eta();
+				if(fabs(eta_Tau) > 2.47) continue;
+				double pt_Tau = TauTLV.Pt();
+				if(pt_Tau<m_effOffTauPtCut) continue;
+				int ntrack_TAU = (*offlinetau)->nTracks();
+				if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
+				bool good_tau = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
+				if(m_selection_BDT && !good_tau) continue;		
+				if(!Selection(*offlinetau)) continue;
+				m_taus.push_back( *offlinetau );
+			}
+	    }
+	} //end if_else !sc.isSuccess() 
 
     for(unsigned int j=0;j<m_trigItems.size();++j)
     {
@@ -362,10 +386,10 @@ StatusCode HLTTauMonTool::fill() {
 		//testL1TopoNavigation(m_trigItems[j]);
 		//testPrescaleRetrieval(m_trigItems[j]);
 	sc = fillHistogramsForItem(m_trigItems[j]);
-	if(sc.isFailure()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem. Exiting!"); return StatusCode::FAILURE;} 
+	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem"); } //return sc;}  
 	if(m_doTrackCurves){
 		sc = trackCurves (m_trigItems[j]);
-		if(sc.isFailure()){ ATH_MSG_WARNING("Failed trackCurves(). Exiting!"); return StatusCode::FAILURE;}
+		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed trackCurves()"); } //return sc;}
 	}
 
     }
@@ -382,12 +406,12 @@ StatusCode HLTTauMonTool::fill() {
                         
                 }
                 std::vector<float> v_eta, v_phi, v_pt;
-                for(;comb!=combEnd;++comb){
+				for(;comb!=combEnd;++comb){
                         const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
                         std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator topoTau = vec_HLTtau.begin(), topoTau_e = vec_HLTtau.end();
                         if(topoTau==topoTau_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
                         ATH_MSG_DEBUG("Item "<< chain << ": " << vec_HLTtau.size() << " " << topoTau->label() << " containers");
-                        for(; topoTau != topoTau_e; ++topoTau){
+						for(; topoTau != topoTau_e; ++topoTau){
                                 if(topoTau->cptr()){
                                         if(topoTau->cptr()->size()==0) ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << topoTau->cptr()->size() << " TauJets");
                                         ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << topoTau->cptr()->size() << " TauJets");
@@ -424,25 +448,25 @@ StatusCode HLTTauMonTool::fill() {
 	if(m_topo_chains.size()!=m_topo_support_chains.size()) ATH_MSG_WARNING("List of topo and support chains are different. Skipping!");
         else for(unsigned int topo=0;topo<m_topo_chains.size();topo++){
 		sc = fillTopoValidation(m_topo_chains.at(topo), m_topo_support_chains.at(topo));
-        	if(sc.isFailure()){ ATH_MSG_WARNING("Failed TopoValidation. Exiting!"); return StatusCode::FAILURE;}
+        	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed TopoValidation");} //return sc;}
 	}
     }
 
     if(m_emulation) {
         sc = Emulation();
-        if(sc.isFailure()){ ATH_MSG_WARNING("Failed emulation. Exiting!"); return StatusCode::FAILURE;}
+        if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed emulation"); } //return sc;}
     }
 
     if(m_RealZtautauEff)
       {
         sc = RealZTauTauEfficiency();
-        if(sc.isFailure()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency(). Exiting!"); return StatusCode::FAILURE;}
+        if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency()");} //return sc;}
       }
 
     if(m_dijetFakeTausEff)
       {
         sc = dijetFakeTausEfficiency();
-        if(sc.isFailure()){ ATH_MSG_WARNING("Failed dijetFakeTausEfficiency(). Exiting!"); return StatusCode::FAILURE;}
+        if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed dijetFakeTausEfficiency()"); } //return sc;}
       }
   
     //if(m_doTestTracking){ sc = test2StepTracking();
@@ -497,7 +521,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 
 	const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
 
-        if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){ // retrieve arguments: container type, container key
+        if ( !m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
           ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
           return StatusCode::FAILURE;
         } else{
@@ -514,13 +538,13 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
           sc = fillL1TauVsOffline(*itEMTau);
 
-	  if(sc.isFailure()){ ATH_MSG_WARNING("Failed to retrieve L1 tau. Exiting!"); return StatusCode::FAILURE;}
+	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to retrieve L1 tau. Exiting!"); return sc;}
 	}
        
       
         const xAOD::TauJetContainer * tauJetCont = 0;
         
-        if( evtStore()->retrieve(tauJetCont, "HLT_xAOD__TauJetContainer_TrigTauRecMerged").isFailure() ){
+        if( !evtStore()->retrieve(tauJetCont, "HLT_xAOD__TauJetContainer_TrigTauRecMerged").isSuccess() ){
             ATH_MSG_WARNING("Failed to retrieve HLT_xAOD__TauJetContainer_TrigTauRecMerged container. Exiting!");
             return StatusCode::FAILURE;
         }
@@ -534,11 +558,11 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 	  sc = fillEFTau(*CI, trigItem, "mp_NonCorr");
 	  sc = fillEFTau(*CI, trigItem, "1p_muCorr");
 	  sc = fillEFTau(*CI, trigItem, "mp_muCorr");
-	  if(sc.isFailure()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return StatusCode::FAILURE;}
+	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
 	  sc = fillEFTauVsOffline(*CI, trigItem, "basicVars");
 	  sc = fillEFTauVsOffline(*CI, trigItem, "1p_NonCorr");
 	  sc = fillEFTauVsOffline(*CI, trigItem, "mp_NonCorr");
-	  if(sc.isFailure()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return StatusCode::FAILURE;}
+	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return sc;}
 	}
         
     } else {
@@ -568,7 +592,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
        std::vector< float > jet_roi_phi;
 
        const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-       if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){ // retrieve arguments: container type, container key
+       if ( !m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
            ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
        } else {
            ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
@@ -599,10 +623,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
           	 ATH_MSG_DEBUG("Found RoI in (" << (*itEMTau)->eta() << "," << (*itEMTau)->phi() <<")");
                  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
                  sc = fillL1Tau(*itEMTau);
-                 if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1RoI histo. Exiting!"); return StatusCode::FAILURE;}
+                 if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill L1RoI histo. Exiting!"); return sc;}
                  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
                  sc = fillL1TauVsOffline(*itEMTau);
-                 if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1VsOffline histo. Exiting!"); return StatusCode::FAILURE;}
+                 if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill L1VsOffline histo. Exiting!"); return sc;}
 		 break;
                }
              }
@@ -667,12 +691,12 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
         // look at triggers seeded by L1_TAU20IM_2TAU12IM to get the jet turn-on
         if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM" && getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition)){
 
-                const xAOD::JetContainer * jet_cont = 0;
-                if(evtStore()->retrieve(jet_cont, "AntiKt4LCTopoJets").isFailure())
+            const xAOD::JetContainer * jet_cont = 0;
+            if(!evtStore()->retrieve(jet_cont, "AntiKt4LCTopoJets").isSuccess())
                 {
-                        ATH_MSG_WARNING("Failed to retrieve AntiKt4EMTopoJets container. Exiting.");
-                        return StatusCode::FAILURE;
-                }
+                        ATH_MSG_WARNING("Failed to retrieve AntiKt4EMTopoJets container");
+                        //return StatusCode::FAILURE;
+            } else {
                 float maxPt=0;
                 xAOD::JetContainer::const_iterator jetItr, jet_cont_end = jet_cont->end();
                 for(jetItr=jet_cont->begin(); jetItr!=jet_cont_end; ++jetItr){
@@ -687,6 +711,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
                 setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
                 if(getTDT()->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo",m_HLTTriggerCondition)) profile("TProfRecoL1_J25PtEfficiency")->Fill(maxPt/GeV,1);
                 else  profile("TProfRecoL1_J25PtEfficiency")->Fill(maxPt/GeV,0);
+            }
         } 
 
         // end L1 histos
@@ -711,10 +736,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
      	          if(!Selection(*tauItr)) continue;
       	  	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/PreselectionTau");
                   if(*tauItr) sc = fillPreselTau(*tauItr);
-      	          if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill PreselTau histo. Exiting!"); return StatusCode::FAILURE;}	
+      	          if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill PreselTau histo. Exiting!"); return sc;}	
       		  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/PreselectionVsOffline");
      	          if(*tauItr) sc = fillPreselTauVsOffline(*tauItr);
-                  if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill PreselectionVsOffline histo. Exiting!"); return StatusCode::FAILURE;}
+                  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill PreselectionVsOffline histo. Exiting!"); return sc;}
                  }
 
                }
@@ -738,12 +763,12 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_NonCorr");
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_muCorr");
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
-     		if(sc.isFailure()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return StatusCode::FAILURE;}
+     		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
      		if(m_truth) if(*tauItr) sc = fillEFTauVsTruth(*tauItr, trigItem);
      		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "basicVars");
      		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "1p_NonCorr");
      		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "mp_NonCorr");
-     		if(sc.isFailure()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return StatusCode::FAILURE;}
+     		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return sc;}
              }
             }
           }
@@ -798,13 +823,13 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
     if( m_turnOnCurves) {
       if(m_truth){ 
 	sc = TruthTauEfficiency(trigItem, "Truth");
-      	if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill Truth eff curves. Exiting!"); return StatusCode::FAILURE;}
+      	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill Truth eff curves");} //return StatusCode::FAILURE;}
 	sc = TruthTauEfficiency(trigItem, "Truth+Reco");
-      	if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill Truth+Reco eff curves. Exiting!"); return StatusCode::FAILURE;}
+      	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill Truth+Reco eff curves");} //return StatusCode::FAILURE;}
       }
 
       sc = TauEfficiency(trigItem,m_turnOnCurvesDenom);
-      if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill Reco eff curves. Exiting!"); return StatusCode::FAILURE;}
+      if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill Reco eff curves"); } //return StatusCode::FAILURE;}
 //      if(m_truth) sc = TauEfficiencyCombo(trigItem);
 //      if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill combo eff curves. Exiting!"); return StatusCode::FAILURE;}
     }  
@@ -851,7 +876,7 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
   hist2("hL1EtVsEta")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->eta());
 
   const xAOD::JetRoIContainer *l1jets = 0;
-  if ( m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
+  if ( !m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isSuccess() ){
     ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
     return StatusCode::FAILURE;
   } else{
@@ -1733,15 +1758,15 @@ void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
                 }
 
                 const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-                if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){
+                if ( !m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){
                                 ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container");
-                } else{
+                } else {
                                 ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
-                        }
-                xAOD::EmTauRoIContainer::const_iterator itEMTau;
-                xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1Tau_cont->end();
+                        
+                   xAOD::EmTauRoIContainer::const_iterator itEMTau;
+                   xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1Tau_cont->end();
 
-		for(;comb!=combEnd;++comb){
+		   for(;comb!=combEnd;++comb){
 		
 			const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1TriggerCondition);
 			std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi_e = vec_roi.end();
@@ -1760,7 +1785,8 @@ void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
 					}
 				}
 			}
-		}
+		   }
+                }
 //		Trig::FeatureContainer f_comp = ( getTDT()->features(trig_item_EF,TrigDefs::TrigComposite) );
 //                Trig::FeatureContainer::combination_const_iterator comb_comp(f_comp.getCombinations().begin()), combEnd_comp(f_comp.getCombinations().end());
 //                if(comb_comp==combEnd_comp){
@@ -1806,7 +1832,7 @@ void  HLTTauMonTool::testClusterNavigation(const xAOD::TauJet *aEFTau){
 const xAOD::EmTauRoI * HLTTauMonTool::findLVL1_ROI(const TrigRoiDescriptor * roiDesc){
     
     const xAOD::EmTauRoIContainer*  l1Tau_cont = 0;
-    if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){ // retrieve arguments: container type, container key
+    if ( !m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
         ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
         return 0;
     } else{
@@ -2117,7 +2143,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
                 if( (TauDenom.find("Truth")==std::string::npos || !m_truth) && TauDenom.find("Reco")==std::string::npos) addToDenom = true;
 		
 		const xAOD::TauJetContainer * hlt_cont = 0;
-		if( evtStore()->retrieve(hlt_cont, "HLT_xAOD__TauJetContainer_TrigTauRecPreselection").isFailure() ){
+		if( !evtStore()->retrieve(hlt_cont, "HLT_xAOD__TauJetContainer_TrigTauRecPreselection").isSuccess() ){
     			ATH_MSG_WARNING("Failed to retrieve  HLT_xAOD__TauJetContainer_TrigTauRecPreselection container. Exiting.");
     			return StatusCode::FAILURE;
   		}
@@ -3043,7 +3069,7 @@ bool HLTTauMonTool::L1TauMatching(const std::string & trigItem, const TLorentzVe
 int HLTTauMonTool::PrimaryVertices(){
   int nGoodVtx(0);
   const xAOD::VertexContainer* primary = 0;
-  if( evtStore()->retrieve(primary, "PrimaryVertices" ).isFailure() ){
+  if( !evtStore()->retrieve(primary, "PrimaryVertices" ).isSuccess() ){
     ATH_MSG_DEBUG("Failed to retrieve PrimaryVertices container, returning -1!");
     return -1;
     }
@@ -3061,7 +3087,7 @@ int HLTTauMonTool::PrimaryVertices(){
 float HLTTauMonTool::Pileup(){
   float Pileup(0.);
   const xAOD::EventInfo* evtInfo = 0;
-  if( evtStore()->retrieve(evtInfo, "EventInfo" ).isFailure() ){
+  if( !evtStore()->retrieve(evtInfo, "EventInfo" ).isSuccess() ){
     ATH_MSG_DEBUG("Failed to retrieve EventInfo container, returning -1!");
     return -1;
     }

@@ -684,20 +684,6 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
    	addHistogram(new TH1F("hpstau_trk_d0","Preselection tau matched to reco+truth; track d0[mm]",20,-5.,5.));
    	addHistogram(new TH1F("hpstau_trk_z0","Preselection tau matched to reco+truth; track z0[mm]",15,-200.,200.));
    	addHistogram(new TH2F("hpstau_trk_etaphi","Preselection tau matched to reco+truth; #eta ; #phi",26,-2.6,2.6,32,-3.2,3.2));
-
-	addHistogram(new TH1F("hrecotau_trk_pt","Reco tau matched to truth; reco track p_{T} [GeV]; Nevents",20,0.,100.));
-    	addHistogram(new TH1F("hrecotau_trk_eta","Reco tau matched to truth; reco track #eta; Nevents",26,-2.6,2.6));
-   	addHistogram(new TH1F("hrecotau_trk_phi","Reco tau matched to truth; reco track #phi; Nevents",32,-3.2,3.2));
-   	addHistogram(new TH1F("hrecotau_trk_d0","Reco tau matched to truth; reco track d0[mm]",20,-5.,5.));
-   	addHistogram(new TH1F("hrecotau_trk_z0","Reco tau matched to truth; reco track z0[mm]",15,-200.,200.));
-   	addHistogram(new TH2F("hrecotau_trk_etaphi","Reco tau matched to truth; #eta ; #phi",26,-2.6,2.6,32,-3.2,3.2));
-
-	addHistogram(new TH1F("hrecotauNum_trk_pt","Reco+Truth tau matched to preselection; p_{T} [GeV]; Nevents",20,0.,100.));
-    	addHistogram(new TH1F("hrecotauNum_trk_eta","Reco+Truth tau matched to preselection; #eta; Nevents",26,-2.6,2.6));
-   	addHistogram(new TH1F("hrecotauNum_trk_phi","Reco+Truth tau matched to preselection; #phi; Nevents",32,-3.2,3.2));
-   	addHistogram(new TH1F("hrecotauNum_trk_d0","Reco+Truth tau matched to preselection; d0[mm]",20,-5.,5.));
-   	addHistogram(new TH1F("hrecotauNum_trk_z0","Reco+Truth tau matched to preselection; z0[mm]",15,-200.,200.));
-   	addHistogram(new TH2F("hrecotauNum_trk_etaphi","Reco+Truth tau matched to preselection; #eta ; #phi",26,-2.6,2.6,32,-3.2,3.2));
 	
 	addHistogram(new TH1F("hpstau_trkres_pt","Preselection track Resolution wrt reco;track pt resolution;Nevents",40,-0.4,0.4));
         addHistogram(new TH1F("hpstau_trkres_eta","Preselection track Resolution wrt reco;track #eta resolution;Nevents",40,-0.4,0.4));
@@ -710,12 +696,6 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
    	addHistogram(new TH2F("hpstautrk_vs_recotrk_phi","Preselection Vs Reco tracks; Preselection track  #phi; Reco track #phi",32,-3.2,3.2,26,-2.6,2.6));
    	addHistogram(new TH2F("hpstautrk_vs_recotrk_d0","Preselection Vs Reco tracks; Preselection track d0[mm]; Reco track",20,-5.,5.,20,-5.,5.));
    	addHistogram(new TH2F("hpstautrk_vs_recotrk_z0","Preselection Vs Reco tracks; Preselection track z0[mm]; Reco track",15,-200.,200.,15,-200.,200.));
-
-	addHistogram(new TH1F("hpstau_trkeff_pt","Preselection Vs Reco Track Efficiency; Reco track p_{T} [GeV]; Efficiency",20,0.,100.));
-    	addHistogram(new TH1F("hpstau_trkeff_eta","Preselection Vs Reco Track Efficiency; Reco track #eta; Efficiency",26,-2.6,2.6));
-   	addHistogram(new TH1F("hpstau_trkeff_phi","Preselection Vs Reco Track Efficiency; Reco track #phi; Efficiency",32,-3.2,3.2));
-   	addHistogram(new TH1F("hpstau_trkeff_d0","Preselection Vs Reco Track Efficiency; Reco track d0[mm]; Efficiency",20,-5.,5.));
-   	addHistogram(new TH1F("hpstau_trkeff_z0","Preselection Vs Reco Track Efficiency; Reco track z0[mm]; Efficiency",15,-200.,200.));
 
    	addProfile(new TProfile("TProfPresVsRecoPtEfficiency","Preselection Vs Reco Track Efficiency; Reco track p_{T} [GeV]; Efficiency",20,0.,100.));
 	addProfile(new TProfile("TProfPresVsRecoEtaEfficiency","Preselection Vs Reco Track Efficiency; Reco track #eta; Efficiency",26,-2.6,2.6));
