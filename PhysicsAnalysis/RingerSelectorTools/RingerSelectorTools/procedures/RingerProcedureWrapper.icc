@@ -2,12 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerProcedureWrapper.icc 689837 2015-08-17 17:22:12Z wsfreund $
+// $Id: RingerProcedureWrapper.icc 791627 2017-01-10 04:45:53Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERPROCEDUREWRAPPER_ICC
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERPROCEDUREWRAPPER_ICC
 
 #undef NDEBUG
 
+#include<iostream>
 // STL includes:
 #include <vector>
 #include <stdexcept>

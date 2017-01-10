@@ -2,7 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerDiscriminatorWrapper.icc 770807 2016-08-30 14:10:50Z ssnyder $
+#include<iostream>
+#include<string>
+// $Id: RingerDiscriminatorWrapper.icc 791627 2017-01-10 04:45:53Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERDISCRIMINATIONWRAPPER_ICC
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERDISCRIMINATIONWRAPPER_ICC
 
@@ -170,6 +172,7 @@ void RingerProcedureWrapper<
   switch(segType){
     case SegmentationType::NoSegmentation:
     {
+      
 #ifndef NDEBUG
       ATH_MSG_VERBOSE("Applying NonSegmented" 
           " discriminator at etaIdx (" << etaIdx << ") and etIdx (" 
@@ -177,7 +180,7 @@ void RingerProcedureWrapper<
 #endif
       input = transformVec;
       // Apply discrimination to all transformed space:
-      m_discrCol[cDiscr++][etaIdx][etIdx]->execute(input,output);
+      m_discrCol[cDiscr++][etIdx][etaIdx]->execute(input,output);
       break;
     }
     case SegmentationType::TrackCalSegmentation:
@@ -195,7 +198,7 @@ void RingerProcedureWrapper<
 
         executeSegmentedDiscr(
             input, 
-            m_discrCol[cDiscr++][etaIdx][etIdx], 
+            m_discrCol[cDiscr++][etIdx][etaIdx], 
             output);
       } else {
         cDiscr += 1;
@@ -211,7 +214,7 @@ void RingerProcedureWrapper<
 
         executeSegmentedDiscr(
             input, 
-            m_discrCol[cDiscr++][etaIdx][etIdx], 
+            m_discrCol[cDiscr++][etIdx][etaIdx], 
             output);
       } else {
         cDiscr += 1;
@@ -244,7 +247,7 @@ void RingerProcedureWrapper<
 
           executeSegmentedDiscr(
               input, 
-              m_discrCol[cDiscr++][etaIdx][etIdx], 
+              m_discrCol[cDiscr++][etIdx][etaIdx], 
               output);
         }
       } else {
@@ -259,7 +262,7 @@ void RingerProcedureWrapper<
 
         executeSegmentedDiscr(
             input, 
-            m_discrCol[cDiscr++][etaIdx][etIdx], 
+            m_discrCol[cDiscr++][etIdx][etaIdx], 
             output);
       } else {
         cDiscr += 1;
@@ -286,7 +289,7 @@ void RingerProcedureWrapper<
 
           executeSegmentedDiscr(
               input, 
-              m_discrCol[cDiscr++][etaIdx][etIdx], 
+              m_discrCol[cDiscr++][etIdx][etaIdx], 
               output);
         }
       } else {
@@ -301,7 +304,7 @@ void RingerProcedureWrapper<
 
         executeSegmentedDiscr(
             input, 
-            m_discrCol[cDiscr++][etaIdx][etIdx], 
+            m_discrCol[cDiscr++][etIdx][etaIdx], 
             output);
       } else {
         cDiscr += 1;
@@ -363,7 +366,7 @@ void RingerProcedureWrapper<
   }
 
   // Apply it:
-  m_discrCol[0][etaIdx][etIdx]->execute(inputCopy,output);
+  m_discrCol[0][etIdx][etaIdx]->execute(inputCopy,output);
 }
 
 // =============================================================================

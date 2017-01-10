@@ -11,7 +11,7 @@ PACKAGE          = RingerSelectorTools
 PACKAGE_PRELOAD  = 
 # This will be set automatically, do not add anything in this field. If it is
 # needed, change precompile.RootCore line that writes this place:
-PACKAGE_CXXFLAGS = -DASGTOOL_STANDALONE -DPACKAGE_VERSION=\"RingerSelectorTools-00-00-01\"
+PACKAGE_CXXFLAGS = -DASGTOOL_STANDALONE -DPACKAGE_VERSION=\"RingerSelectorTools-00-00-14\"
 PACKAGE_OBJFLAGS = 
 PACKAGE_LDFLAGS  = 
 PACKAGE_BINFLAGS = 

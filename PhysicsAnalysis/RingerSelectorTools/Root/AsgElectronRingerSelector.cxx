@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AsgElectronRingerSelector.cxx 785801 2016-11-22 17:06:49Z wsfreund $
+// $Id: AsgElectronRingerSelector.cxx 791627 2017-01-10 04:45:53Z wsfreund $
 // STL includes:
 #include <string>
 #include <stdexcept>
@@ -428,8 +428,7 @@ StatusCode AsgElectronRingerSelector::execute(
   // Put cluster calibrated eta/et into DepVarStruct:
   const xAOD::CaloCluster *cluster = el->caloCluster();
   const DepVarStruct depVar( cluster->eta(), 
-      cluster->et() );
-
+      cluster->et() * .001 );
   // We head now into the RingerChain execution:
   try {
     // Execute Ringer Selector Common:
@@ -540,8 +539,6 @@ void AsgElectronRingerSelector::fillTAccept() const
 //==============================================================================
 StatusCode AsgElectronRingerSelector::beginInputFile()
 {
-  ATH_MSG_VERBOSE( "inputMetaStore: \n " << inputMetaStore()->dump() );
-  ATH_MSG_VERBOSE( "outputMetaStore: \n " << outputMetaStore()->dump() );
 
   // Tell the user what's happening:
   ATH_MSG_DEBUG( "Entered new file, checking if it is needed to " 
@@ -650,42 +647,40 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
     for ( auto &discrWrapper : m_discrWrapperCol ) {
       discrWrapper->setRawConfCol( &m_rawConfCol );
     }
-
     xAOD::RingSetConf::print( m_rawConfCol, msg() );
     m_metaDataCached = true;
-
   } else {
     // Flag that meta is on outputMeta rather than the input 
     if ( failedToRetrieveInInput ){
       m_metaIsOnOutput = true;
       ATH_MSG_DEBUG("Retrieved meta from outputMetaStore.");
     }
-    // A little sanity check:
-    if( !m_rsConfCont || m_rsConfCont->empty() ) {
-       ATH_MSG_ERROR( "Metadata " << m_rsMetaName << " is not available on file." );
-       return StatusCode::FAILURE;
-    }
-
-    ATH_MSG_DEBUG("Successfully retrieved store, "
-        "trying to get RawConfiguration Collection.");
-
-    // Retrieve the raw configuration:
-    xAOD::RingSetConf::getRawConfCol( m_rawConfCol, m_rsConfCont );
-
-    // Sign that it can be cached, if we want to cache it for the whole run:
-    m_metaDataCached = true;
-
-    // Pass its pointer into each wrapper in the discrimination chain:
-    for ( auto &discrWrapper : m_discrWrapperCol ) {
-      discrWrapper->setRawConfCol( &m_rawConfCol );
-    }
-    xAOD::RingSetConf::print( m_rawConfCol, msg() );
-
-    ATH_MSG_DEBUG( "Successfully retrieve configuration info.");
   }
 
-  return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("Successfully retrieved store, "
+      "trying to get RawConfiguration Collection.");
 
+  // A little sanity check:
+  if( !m_rsConfCont || m_rsConfCont->empty() ) {
+     ATH_MSG_ERROR( "Metadata " << m_rsMetaName << " is not available on file." );
+     return StatusCode::FAILURE;
+  }
+
+  // Retrieve the raw configuration:
+  xAOD::RingSetConf::getRawConfCol( m_rawConfCol, m_rsConfCont );
+
+  // Sign that it can be cached, if we want to cache it for the whole run:
+  m_metaDataCached = true;
+
+  // Pass its pointer into each wrapper in the discrimination chain:
+  for ( auto &discrWrapper : m_discrWrapperCol ) {
+    discrWrapper->setRawConfCol( &m_rawConfCol );
+  }
+  xAOD::RingSetConf::print( m_rawConfCol, msg() );
+
+  ATH_MSG_DEBUG( "Successfully retrieve configuration info.");
+
+  return StatusCode::SUCCESS;
 }
 
 //==============================================================================

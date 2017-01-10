@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerPreProcessorWrapper.icc 770807 2016-08-30 14:10:50Z ssnyder $
+// $Id: RingerPreProcessorWrapper.icc 791627 2017-01-10 04:45:53Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
 
@@ -221,7 +221,7 @@ void RingerProcedureWrapper<
         trackPat->exportPatternsTo(transformVec);
       }
       // Apply pre-processing to all transformVec:
-      m_ppCol[cPreProc++][etaIdx][etIdx]->execute(transformVec);
+      m_ppCol[cPreProc++][etIdx][etaIdx]->execute(transformVec);
       break;
     }
     case SegmentationType::TrackCalSegmentation:
@@ -236,7 +236,7 @@ void RingerProcedureWrapper<
         clrings->exportRingsTo(transformVec);
         executeSegmentedPP(
             transformVec,
-            m_ppCol[cPreProc++][etaIdx][etIdx], 
+            m_ppCol[cPreProc++][etIdx][etaIdx], 
             transformVec);
       } else {
         cPreProc += 1;
@@ -247,7 +247,7 @@ void RingerProcedureWrapper<
         trackPat->exportPatternsTo(transformVec);
         executeSegmentedPP(
             transformVec,
-            m_ppCol[cPreProc++][etaIdx][etIdx], 
+            m_ppCol[cPreProc++][etIdx][etaIdx], 
             transformVec);
       } else {
         cPreProc += 1;
@@ -279,7 +279,7 @@ void RingerProcedureWrapper<
 
           executeSegmentedPP(
               transformVec,
-              m_ppCol[cPreProc++][etaIdx][etIdx], 
+              m_ppCol[cPreProc++][etIdx][etaIdx], 
               transformVec);
         }
       } else {
@@ -291,7 +291,7 @@ void RingerProcedureWrapper<
         trackPat->exportPatternsTo(transformVec);
         executeSegmentedPP(
             transformVec,
-            m_ppCol[cPreProc++][etaIdx][etIdx], 
+            m_ppCol[cPreProc++][etIdx][etaIdx], 
             transformVec);
       } else {
         cPreProc += 1;
@@ -318,7 +318,7 @@ void RingerProcedureWrapper<
 
           executeSegmentedPP(
               transformVec,
-              m_ppCol[cPreProc++][etaIdx][etIdx], 
+              m_ppCol[cPreProc++][etIdx][etaIdx], 
               transformVec);
         }
       } else {
@@ -330,7 +330,7 @@ void RingerProcedureWrapper<
         trackPat->exportPatternsTo(transformVec);
         executeSegmentedPP(
             transformVec,
-            m_ppCol[cPreProc++][etaIdx][etIdx], 
+            m_ppCol[cPreProc++][etIdx][etaIdx], 
             transformVec);
       } else {
         cPreProc += 1;

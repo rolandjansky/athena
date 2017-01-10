@@ -15,6 +15,10 @@ ROOTCORE_REDIRECT_BASE=MoreFilesForYou-RootCore-
 #  ROOT_GE_6_00= 
 #fi
 
+if ! test -f $VERSIONFILE; then
+  echo "$(git branch -a | grep --color=never "remotes/tags/RingerSelectorTools-.*" | tail -n 1)" >> $VERSIONFILE
+fi
+
 # Change our Makefile to add dependent information:
 if ! test -f $VERSIONFILE; then
   echo "$(git branch -a | grep --color=never "remotes/tags/RingerSelectorTools-.*" | tail -n 1)" >> $VERSIONFILE
