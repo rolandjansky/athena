@@ -13,6 +13,8 @@ elif [[ $ATLAS_RELEASE_BASE == *"20.3"* ]]; then
     DigitizationTestsVersion="20.3"
 elif [[ $ATLAS_RELEASE_BASE == *"20.1"* ]]; then
     DigitizationTestsVersion="20.1.X"
+elif [[ $ATLAS_RELEASE_BASE == *"21.0"* ]]; then
+    DigitizationTestsVersion="21.0.X"
 fi
 
 
