@@ -150,16 +150,6 @@ StatusCode HLTTauMonTool::proc()
               plotUnderOverFlow(hist("hpstau_trk_phi"));
               plotUnderOverFlow(hist("hpstau_trk_d0"));
               plotUnderOverFlow(hist("hpstau_trk_z0"));
-	      plotUnderOverFlow(hist("hrecotau_trk_pt"));
-              plotUnderOverFlow(hist("hrecotau_trk_eta"));
-              plotUnderOverFlow(hist("hrecotau_trk_phi"));
-              plotUnderOverFlow(hist("hrecotau_trk_d0"));
-              plotUnderOverFlow(hist("hrecotau_trk_z0"));
-	      plotUnderOverFlow(hist("hrecotauNum_trk_pt"));
-              plotUnderOverFlow(hist("hrecotauNum_trk_eta"));
-              plotUnderOverFlow(hist("hrecotauNum_trk_phi"));
-              plotUnderOverFlow(hist("hrecotauNum_trk_d0"));
-              plotUnderOverFlow(hist("hrecotauNum_trk_z0"));
 	      plotUnderOverFlow(hist("hpstau_trkres_pt"));
               plotUnderOverFlow(hist("hpstau_trkres_eta"));
               plotUnderOverFlow(hist("hpstau_trkres_phi"));
@@ -379,14 +369,6 @@ StatusCode HLTTauMonTool::proc()
                 
             }
  
-	    if (m_doTrackCurves)
-	    { divide("hrecotauNum_trk_pt","hrecotau_trk_pt","hpstau_trkeff_pt","HLT/TauMon/Expert/"+m_trigItems[i]+"/trackCurves");
-	      divide("hrecotauNum_trk_eta","hrecotau_trk_eta","hpstau_trkeff_eta","HLT/TauMon/Expert/"+m_trigItems[i]+"/trackCurves");
-	      divide("hrecotauNum_trk_phi","hrecotau_trk_phi","hpstau_trkeff_phi","HLT/TauMon/Expert/"+m_trigItems[i]+"/trackCurves");
-	      divide("hrecotauNum_trk_d0","hrecotau_trk_d0","hpstau_trkeff_d0","HLT/TauMon/Expert/"+m_trigItems[i]+"/trackCurves");
-              divide("hrecotauNum_trk_z0","hrecotau_trk_z0","hpstau_trkeff_z0","HLT/TauMon/Expert/"+m_trigItems[i]+"/trackCurves");
-	    }
-
 	   
         }//End of trigItem loop
 

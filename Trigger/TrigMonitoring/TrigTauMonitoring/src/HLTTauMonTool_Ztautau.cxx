@@ -36,24 +36,29 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	|| getTDT()->isPassed("HLT_mu50")
 	) ) return StatusCode::SUCCESS;
  
-  const xAOD::TauJetContainer    * reco_cont      = 0;
+  StatusCode sc = StatusCode::SUCCESS;
+
+//  const xAOD::TauJetContainer    * reco_cont      = 0;
   const xAOD::MuonContainer      * muon_cont      = 0;
   const xAOD::MissingETContainer * off_met_cont = 0;
     
-  if( evtStore()->retrieve(reco_cont, "TauJets").isFailure() )
-    {
-      ATH_MSG_WARNING("Failed to retrieve  TauJets container. Exiting.");
-      return StatusCode::FAILURE;
-    } 
-  if(evtStore()->retrieve(muon_cont, "Muons").isFailure())
+//  if( evtStore()->retrieve(reco_cont, "TauJets").isFailure() )
+//    {
+//      ATH_MSG_WARNING("Failed to retrieve  TauJets container. Exiting.");
+//      return StatusCode::FAILURE;
+//    } 
+//
+  sc = evtStore()->retrieve(muon_cont, "Muons");
+  if(!sc.isSuccess())
     {
       ATH_MSG_WARNING("Failed to retrieve Muons container. Exiting.");
-      return StatusCode::FAILURE;
+      return sc;
     }
-  StatusCode sc = m_storeGate->retrieve(off_met_cont, "MET_Reference_AntiKt4LCTopo");
-  if (sc.isFailure() || !off_met_cont) 
+  sc = m_storeGate->retrieve(off_met_cont, "MET_Reference_AntiKt4LCTopo");
+  if (!sc.isSuccess() || !off_met_cont) 
     {
-      ATH_MSG_WARNING("Could not retrieve Reconstructed MET term with Key MET_Reference_AntiKt4LCTopo : off_met_cont = 0");
+      ATH_MSG_WARNING("Could not retrieve Reconstructed MET term with Key MET_Reference_AntiKt4LCTopo");
+      return sc;
     }
   
   TLorentzVector Tau_TLV (0.,0.,0.,0.);
@@ -116,15 +121,14 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
     }
 
   //Tau Selection
-  xAOD::TauJetContainer::const_iterator recoItr, reco_cont_end = reco_cont->end();
-  for(recoItr=reco_cont->begin(); recoItr!=reco_cont_end; ++recoItr)
+  for(auto recoTau : m_taus)
     {
-    TLorentzVector TauTLV = (*recoItr)->p4();
+    TLorentzVector TauTLV = recoTau->p4();
     double pt_Tau     = TauTLV.Pt();
     double eta_Tau    = TauTLV.Eta();
-    int    ntrack_Tau = (*recoItr)->nTracks();
-    bool   good_Tau   = (*recoItr)->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
-    float  charge_Tau = (*recoItr)->charge();
+    int    ntrack_Tau = recoTau->nTracks();
+    bool   good_Tau   = recoTau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
+    float  charge_Tau = recoTau->charge();
         
     if(pt_Tau<20000.)                  continue;
     if(fabs(eta_Tau) > 2.47)           continue;

@@ -39,20 +39,21 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
   const std::string	offlineTauIDCut = "";//"loose" "medium" "tight"
   const std::vector<unsigned int>	offlineTauTrackCut = {1,2,3};
 
-  
+  StatusCode sc = StatusCode::SUCCESS;
   const xAOD::JetContainer* jet_cont = 0;
-  if(evtStore()->retrieve(jet_cont, offlineJetContainer.c_str() ).isFailure())
+  sc = evtStore()->retrieve(jet_cont, offlineJetContainer.c_str() );
+  if(!sc.isSuccess())
     {
       ATH_MSG_WARNING("Failed to retrieve offline Jet container. Exiting.");
-      return StatusCode::FAILURE;
+      return sc;
     }
 
-  const xAOD::TauJetContainer* tau_reco_cont = 0;
-  if( evtStore()->retrieve(tau_reco_cont, "TauJets").isFailure() )
-    {
-      ATH_MSG_WARNING("Failed to retrieve  TauJets container. Exiting.");
-      return StatusCode::FAILURE;
-    }
+//  const xAOD::TauJetContainer* tau_reco_cont = 0;
+//  if( evtStore()->retrieve(tau_reco_cont, "TauJets").isFailure() )
+//    {
+//      ATH_MSG_WARNING("Failed to retrieve  TauJets container. Exiting.");
+//      return StatusCode::FAILURE;
+//    }
 
 
   /* select events that pass the required trigger */
@@ -101,8 +102,9 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
 
   /* match offline tau to subleading jet */
   float dR = 666;
-  for(auto aTau : *tau_reco_cont)
+  for(auto aTau : m_taus)
     {
+      //const xAOD::TauJet *aTau = m_taus.at(t);
       /* check offline tau quality */
       if( aTau->pt() < offlineTauPtCut ) continue;
       if( TMath::Abs(aTau->eta()) > offlineTauEtaCut ) continue;
