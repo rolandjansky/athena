@@ -469,12 +469,11 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
 
     redundant = false;
     uint32_t newROBId = v_idHash[i];
-    for (int rob_iter=0; rob_iter<(int)v_robIds.size(); rob_iter++){
-      if(newROBId == v_robIds[rob_iter]) redundant=true;
-    }
-    if(!redundant){
-      v_robIds.push_back(newROBId);
-    }else{
+    if(std::find(v_robIds.begin(), v_robIds.end(), newROBId) != v_robIds.end())
+      redundant = true;
+    if(!redundant)
+      v_robIds.push_back(newROBId); 
+    else if(processingDetEl != 2){
       ++i;
       continue;
     }
