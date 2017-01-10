@@ -111,7 +111,7 @@ namespace ClusterMatching {
       ATH_MSG_VERBOSE("Reference cluster and target cluster share " << nSharedCells << " cells, " << sharedE << " / " << totalE << " MeV");
       ATH_MSG_VERBOSE("DeltaR = " << refCluster.p4().DeltaR(testCluster.p4()));
     }
-    return sharedE/totalE;
+    return totalE<1e-9 ? 0. : sharedE/totalE;
   }
 
   // return true if clusters share a given fraction of their cell energy
