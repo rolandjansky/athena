@@ -234,6 +234,28 @@ TrackStateOnSurface::isSane() const {
   return true;
 }
 
+
+  void TrackStateOnSurface::setHint( const TrackStateOnSurfaceType& type ) const {
+    if (type>=PartialPersistification && type<=PersistifySlimCaloDeposit) {
+      // allowed to modify persistification flags although this is const
+      m_typeFlags.set(type);
+    }
+    else {
+      throw std::logic_error("Can only use TrackStateOnSurface::mark to set persistification flags");
+    }
+  }
+
+  void TrackStateOnSurface::resetHint( const TrackStateOnSurfaceType& type ) const {
+    if (type>=PartialPersistification && type<=PersistifySlimCaloDeposit) {
+      // allowed to modify persistification flags although this is const
+      m_typeFlags.reset(type);
+    }
+    else {
+      throw std::logic_error("Can only use TrackStateOnSurface::mark to set persistification flags");
+    }
+  }
+
+
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& operator << ( MsgStream& sl, const TrackStateOnSurface& tsos)
 { 
