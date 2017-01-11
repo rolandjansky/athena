@@ -183,6 +183,7 @@ def setupMenu():
             ['mu24_idperf_FTKRefit',       'L1_MU20',           [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1], 
             ['mu6_idperf_FTKRefit',        'L1_MU6',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
             ['mu18_mu8noL1_ftkFS',         'L1_MU15', ['L1_MU15',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu18','mu8noL1_ftkFS']]],
+            ['mu26_ivarmedium_ftk',      'L1_MU20',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
             ]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
@@ -2499,7 +2500,7 @@ def setupMenu():
             ['beamspot_trkFS_FTK',           'L1_4J15', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
             ['beamspot_trkFS_FTKRefit', 'L1_4J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
             ['beamspot_idperf_FTKRefit', 'L1_4J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],       
-        ]
+            ]
 
     ## The following slices are only needed for Physics runnings and LS1 menus
     ## To be commented out for DC14
@@ -3385,6 +3386,8 @@ if TriggerFlags.doFTK():
     ps_ftk_list = [
         'beamspot_idperf_FTK',
         'beamspot_trkFS_FTK',
+        'beamspot_trkFS_FTKRefit', 
+        'beamspot_idperf_FTKRefit',
         'mu6_idperf_FTK',
         'mu24_idperf_FTK',
         'mu6_idperf_FTKRefit',

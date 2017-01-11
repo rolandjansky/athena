@@ -136,8 +136,14 @@ def defineMenu():
 #        TopoOutput( algoname='4INVM8-2CMU4ab',                              module=1, fpga=0, clock=1, firstbit=1 ),
 #        TopoOutput( algoname='2INVM8-2CMU4ab',                              module=1, fpga=0, clock=1, firstbit=1 ),#v6
 #        TopoOutput( algoname='4INVM8-CMU6ab-CMU4ab',                        module=1, fpga=0, clock=1, firstbit=2 ),
-        TopoOutput( algoname='0DETA04-0DPHI03-EM8abi-MU10ab',               module=1, fpga=0, clock=1, firstbit=3 ),
-        TopoOutput( algoname='0DETA04-0DPHI03-EM15abi-MUab',                module=1, fpga=0, clock=1, firstbit=4 ),
+#        TopoOutput( algoname='0DETA04-0DPHI03-EM8abi-MU10ab',               module=1, fpga=0, clock=1, firstbit=3 ),
+         TopoOutput( algoname='0DETA04-EM8abi-MU10ab',                       module=1, fpga=0, clock=1, firstbit=3 ), #ATR-14282
+         TopoOutput( algoname='0DPHI03-EM8abi-MU10ab',                       module=1, fpga=0, clock=1, firstbit=6 ),
+
+#        TopoOutput( algoname='0DETA04-0DPHI03-EM15abi-MUab',                module=1, fpga=0, clock=1, firstbit=4 ),
+         TopoOutput( algoname='0DETA04-EM15abi-MUab',                       module=1, fpga=0, clock=1, firstbit=4 ), #ATR-14282
+         TopoOutput( algoname='0DPHI03-EM15abi-MUab',                       module=1, fpga=0, clock=1, firstbit=8 ),
+
 #        TopoOutput( algoname='2DR15-CMU4ab-MU4ab',                          module=1, fpga=0, clock=1, firstbit=5 ),
         TopoOutput( algoname='0DR24-CMU4ab-MU4ab',                          module=1, fpga=0, clock=1, firstbit=5 ),#v6
 #        TopoOutput( algoname='2INVM999-CMU4ab-MU4ab',                       module=1, fpga=0, clock=1, firstbit=6 ), 

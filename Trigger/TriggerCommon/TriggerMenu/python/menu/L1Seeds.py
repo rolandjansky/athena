@@ -106,11 +106,11 @@ def getL1_ALFA_Jet_Phys_Seeds (menul1items):
 
 ##############################
 def getL1StandbySeed(l1items):        
-    standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x and "-" not in x and "CMU" not in x and "ALFA" not in x  and "RD" not in x and "BCM" not in x and "BGRP12" not in x])
+    standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x and "-" not in x and "CMU" not in x and "ALFA" not in x  and "RD" not in x and "BCM" not in x and "BGRP12" not in x and "FTK" not in x])
     return standby_seeds
 ##############################
 def getL1TopoSeed(l1items):
-    l1topo_seeds = ",".join([ x for x in l1items if "-" in x or "CMU" in x ])
+    l1topo_seeds = ",".join([ x for x in l1items if  "FTK" not in x and ("-" in x or "CMU" in x) ])
     return l1topo_seeds
 
 ##############################
@@ -130,7 +130,7 @@ def getL1CaloSeed(l1seed, l1object):
 ##############################
 def getL1TauSeed(l1items):
 
-    tau_seeds    = ",".join([ x for x in l1items if "TAU" in x and "-" not in x and  "EMPTY" not in x  and "ISO" not in x])
+    tau_seeds    = ",".join([ x for x in l1items if "TAU" in x and "-" not in x and  "EMPTY" not in x  and "ISO" not in x and "FTK" not in x])
     return tau_seeds
 
 ##############################

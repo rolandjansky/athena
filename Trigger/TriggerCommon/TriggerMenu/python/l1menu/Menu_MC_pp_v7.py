@@ -264,8 +264,12 @@ def defineMenu():
         '5DETA99-5DPHI99-2MU6ab',
         '0DR10-MU10ab-MU6ab',
         '0DR15-2MU6ab',
-        '0DETA04-0DPHI03-EM8abi-MU10ab',
-        '0DETA04-0DPHI03-EM15abi-MUab',
+#        '0DETA04-0DPHI03-EM8abi-MU10ab',
+        '0DETA04-EM8abi-MU10ab',
+        '0DPHI03-EM8abi-MU10ab',
+#        '0DETA04-0DPHI03-EM15abi-MUab',
+        '0DETA04-EM15abi-MUab',
+        '0DPHI03-EM15abi-MUab',
         '10MINDPHI-AJ20s2-XE50',
         '10MINDPHI-J20s2-XE50',
         '10MINDPHI-J20ab-XE50',
@@ -405,6 +409,7 @@ def defineMenu():
         "L1_MU10_TAU20IM",
         "L1_MU11_TAU20IM",
         "L1_MU10_TAU20IM_J25_2J20",	
+        'L1_MU20_TAU12IM',
 
         # combined tau - jet
 #        "L1_TAU25IT_2TAU12IT_2J25_3J12", 
@@ -845,14 +850,15 @@ def defineMenu():
          'L1_AFP_C_ALFA_A',
          'L1_AFP_C_ANY_MBTS_A',
          'L1_AFP_C_MU4',
-
         ]
     
+
     # the CTP ID mapping still has to be defined, currently it is taken from the order of the items
     #Free slot [ATR-14858], 16-08-16
     #[82,143,377,378,379,406,409,416,480]
 
     
+
     Lvl1Flags.CtpIdMap = {
         'L1_EM3' : 0,
         'L1_EM7' : 1,
@@ -929,8 +935,7 @@ def defineMenu():
         'L1_MU10_TAU12IM_J25_2J12' : 64,
         'L1_EM7_MU10':65,
         'L1_TAU30_EMPTY':341,
-        #        'L1_MU10_TAU12_J25_2J12' : 65,
-#        'L1_MU10_TAU20' : 66,
+        'L1_MU20_TAU12IM' : 86,
         'L1_MU10_TAU20IM' : 67,
         'L1_MU11_TAU20IM' : 430,
         'L1_MU10_TAU20IM_J25_2J20' : 377,
@@ -1481,6 +1486,8 @@ def defineMenu():
          'L1_ALFA_A7R1L' : 494,
          'L1_ALFA_B7R1U' : 495,
          'L1_ALFA_B7R1L' : 496,
+
+## Following used for FTK items in the Physcs menu only        
 #        'L1_ALFA_B7L1U_OD' : 497,
 #        'L1_ALFA_B7L1L_OD' : 498,
 #        'L1_ALFA_A7L1U_OD' : 499,
@@ -1495,6 +1502,7 @@ def defineMenu():
 #        'L1_ALFA_A7R1_OD'  : 508,
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
 }
-    
+
+
     Lvl1Flags.prescales = {}
 
