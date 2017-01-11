@@ -147,6 +147,13 @@ void compare (const Trk::Surface& s1,
   }
 }
 
+template <class T>
+T check_ptr(T ptr_in) {
+  if (!ptr_in) {
+    throw std::runtime_error("dynamic cast failed.");
+  }
+  return ptr_in;
+}
 
 template <class CNV>
 void testit (const Trk::Surface& trans1)
@@ -155,7 +162,7 @@ void testit (const Trk::Surface& trans1)
   CNV cnv;
   cnv.setCnvToolName ("TestCnvTool");
   Trk::Surface_p2 pers;
-  cnv.transToPers (dynamic_cast<const typename CNV::Trans_t*>(&trans1), &pers, log);
+  cnv.transToPers (check_ptr(dynamic_cast<const typename CNV::Trans_t*>(&trans1)), &pers, log);
   std::unique_ptr<Trk::Surface> trans2 (cnv.createTransient (&pers, log));
   compare (trans1, *trans2);
 }
@@ -187,7 +194,7 @@ void add_det_surface (unsigned int val)
   auto surf = make_surf<SURF>() (*detel.release());
   
   ToolHandle<Trk::IEventCnvSuperTool> h ("TestCnvTool");
-  TestCnvTool* tool = dynamic_cast<TestCnvTool*> (&*h);
+  TestCnvTool* tool = check_ptr(dynamic_cast<TestCnvTool*> (&*h));
   tool->addSurface (std::move (surf));
 }
 

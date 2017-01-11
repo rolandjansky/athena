@@ -15,10 +15,10 @@ void TrackSummaryCnv_p2::dbgPrint( const Trk::TrackSummary *t){
     std::cout << "m_nhitsdedx   :\t" << t->m_nhitsdedx << std::endl;
     
     std::cout << " std::vector m_information size: "<< t->m_information.size() <<std::endl;
-    for (std::vector<int>::const_iterator i=t->m_information.begin();i!=t->m_information.end();i++) std::cout<<"\t "<<(*i);std::cout<<std::endl;
+    for (std::vector<int>::const_iterator i=t->m_information.begin();i!=t->m_information.end();i++) { std::cout<<"\t "<<(*i);} std::cout<<std::endl;
     
     std::cout << " std::vector m_eProbability size: "<< t->m_eProbability.size() <<std::endl;
-    for (std::vector<float>::const_iterator i=t->m_eProbability.begin();i!=t->m_eProbability.end();i++) std::cout<<"\t "<<(*i);std::cout<<std::endl;
+    for (std::vector<float>::const_iterator i=t->m_eProbability.begin();i!=t->m_eProbability.end();i++) { std::cout<<"\t "<<(*i); } std::cout<<std::endl;
     
     if(t->m_indetTrackSummary){
         std::cout << " m_indetTrackSummary->m_massdedx: "<< t->m_indetTrackSummary->massPixeldEdx();
