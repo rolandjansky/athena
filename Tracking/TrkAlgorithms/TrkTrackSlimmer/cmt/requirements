@@ -3,15 +3,14 @@ package TrkTrackSlimmer
 author Edward Moyse <Edward.Moyse@cern.ch>
 
 public
-
 use AtlasPolicy          AtlasPolicy-*             
 use GaudiInterface       GaudiInterface-*          External
 use AthenaBaseComps      AthenaBaseComps-*         Control
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
 
 private
-
 use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
-use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+
 
 library TrkTrackSlimmer *.cxx components/*.cxx
 apply_pattern component_library
