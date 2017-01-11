@@ -30,7 +30,9 @@ Trk::TrackSlimmingTool::TrackSlimmingTool(const std::string& t,
 AthAlgTool(t,n,p),
   m_keepCaloDeposit(true),
   m_keepOutliers(false),
-  m_keepParameters(false)     
+  m_keepParameters(false),
+  m_setPersistificationHints(false),
+  m_detID{} 
 {
   declareInterface<ITrackSlimmingTool>(this);
 
@@ -39,6 +41,7 @@ AthAlgTool(t,n,p),
     "If this is set to true, any CaloDeposit with its adjacent MEOT's will be kept on the slimmed track (combined muon property)");
   declareProperty("KeepOutliers",   m_keepOutliers,   "If this is set to true, Outliers will be kept on the slimmed track");
   declareProperty("KeepParameters", m_keepParameters, "If this is set to true, the first and last parameters will be kept on the slimmed track");
+  declareProperty("OnlySetPersistificationHints", m_setPersistificationHints, "Only set persistification hints in each track state on surface");
 }
 
   //================ Destructor =================================================
@@ -63,7 +66,7 @@ StatusCode Trk::TrackSlimmingTool::initialize()
     ATH_MSG_DEBUG ("Found AtlasDetectorID");
   }
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -82,11 +85,11 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
   const DataVector<const TrackStateOnSurface>* oldTrackStates = track.trackStateOnSurfaces();
   if (oldTrackStates == 0)
   {
-    msg(MSG::WARNING) << "Track has no TSOS vector! Skipping track, returning 0." << endreq;
+    msg(MSG::WARNING) << "Track has no TSOS vector! Skipping track, returning 0." << endmsg;
     return 0;
   }
   // create vector for new TSOS (the ones which are kept)
-  DataVector<const TrackStateOnSurface>* trackStates = new DataVector<const TrackStateOnSurface>;
+  DataVector<const TrackStateOnSurface>* trackStates = (!m_setPersistificationHints ? new DataVector<const TrackStateOnSurface> : nullptr); 
 
   // These variables are filled with pointers
   const TrackStateOnSurface* firstValidIDTSOS(0),* lastValidIDTSOS(0),* firstValidMSTSOS(0),* lastValidMSTSOS(0)/**,* lastIDMeasTSOS(0)**/;
@@ -126,6 +129,9 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
   DataVector<const TrackStateOnSurface>::const_iterator itTSoS = oldTrackStates->begin();
   for (   ; itTSoS!=oldTrackStates->end(); ++itTSoS)
   {
+    if (m_setPersistificationHints) {
+      (**itTSoS).setHint(Trk::TrackStateOnSurface::PartialPersistification);
+    }
     parameters=0; 
     rot=0;
     //std::cout<<"Looking at TSOS#"<<tsosNum++<<" of type: "<<(**itTSoS).dumpType()<<std::endl;
@@ -138,7 +144,12 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
         --itTSoS;
         if ((**itTSoS).type(TrackStateOnSurface::Scatterer))
         {
-          trackStates->push_back((**itTSoS).clone());
+          if (m_setPersistificationHints) {
+            (**itTSoS).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
+          }
+          else {
+            trackStates->push_back((**itTSoS).clone());
+          }
           //std::cout<<"Keeping prior scatterer from TSOS "<<tsosNum-1<<std::endl;
         }
         ++itTSoS;
@@ -152,7 +163,13 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
       {
         const EnergyLoss* energyLoss  = new EnergyLoss(*meot->energyLoss());
         //std::cout<<"Keeping EnergyLoss "<<std::endl;
-        
+
+        if (m_setPersistificationHints) {
+          // (**itTSoS).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
+          (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifySlimCaloDeposit);
+          (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
+        }
+        else {
         trackStates->push_back(
           new TrackStateOnSurface(0,
           (**itTSoS).trackParameters()->clone(),
@@ -162,13 +179,19 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
           energyLoss,
           meot->associatedSurface()),
           (**itTSoS).types()));
+        }
       }
 
         // following TSOS (if Scatterer)
       ++itTSoS;
       if (itTSoS != oldTrackStates->end() && (**itTSoS).type(TrackStateOnSurface::Scatterer))
       {
-        trackStates->push_back((**itTSoS).clone());
+        if (m_setPersistificationHints) {
+          (**itTSoS).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
+        }
+        else {
+          trackStates->push_back((**itTSoS).clone());
+        }
         //std::cout<<"Keeping post scatterer from TSOS "<<tsosNum+1<<std::endl;
         
       }
@@ -211,7 +234,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
              new (copiedIDtsosWithMeas) Trk::TrackStateOnSurface(copiedIDtsosWithMeas->measurementOnTrack(), lastIDMeasTSOS->trackParameters()->clone(),0, 0,copiedIDtsosWithMeas->types());
         } else {
           ATH_MSG_DEBUG("Last ID measurement didn't have a track parameter!");
-          msg(MSG::DEBUG)<<*lastIDMeasTSOS<<endreq;
+          msg(MSG::DEBUG)<<*lastIDMeasTSOS<<endmsg;
         }        
       }
     **/
@@ -232,7 +255,9 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
     }
 
     if (keepParameter) {
-      parameters=(*itTSoS)->trackParameters()->clone(); // make sure we add a new parameter by cloning
+      parameters=(m_setPersistificationHints
+                  ? (*itTSoS)->trackParameters()
+                  : (*itTSoS)->trackParameters()->clone()); // make sure we add a new parameter by cloning
       if ((*itTSoS)->type(TrackStateOnSurface::Perigee))  typePattern.set(TrackStateOnSurface::Perigee);
     }
 
@@ -245,13 +270,26 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
     { 
       if ((*itTSoS)->type(TrackStateOnSurface::Measurement))  typePattern.set(TrackStateOnSurface::Measurement);
       if ((*itTSoS)->type(TrackStateOnSurface::Outlier))      typePattern.set(TrackStateOnSurface::Outlier);
-      rot=(*itTSoS)->measurementOnTrack()->clone();
+      rot=( m_setPersistificationHints
+            ?(*itTSoS)->measurementOnTrack()
+            :(*itTSoS)->measurementOnTrack()->clone() );
+
     } 
     
     Trk::TrackStateOnSurface* newTSOS = 0;
     if (rot!=0 || parameters!=0) {
-      newTSOS = new Trk::TrackStateOnSurface(rot, parameters, 0, 0, typePattern);
-      trackStates->push_back( newTSOS );
+      if (m_setPersistificationHints) {
+        if (rot) {
+          (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifyMeasurement);
+        }
+        if (parameters) {
+          (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
+        }
+      }
+      else {
+        newTSOS = new Trk::TrackStateOnSurface(rot, parameters, 0, 0, typePattern);
+        trackStates->push_back( newTSOS );
+      }
     } 
     /** coverity 13544
     if (isIDmeas && copiedIDtsosWithMeas) {
@@ -261,6 +299,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
      **/
   }       
 
+  if (!m_setPersistificationHints) {
   Trk::Track* newTrack = new Trk::Track(Trk::TrackInfo(track.info()),
     trackStates,
     track.fitQuality()->clone()
@@ -274,10 +313,13 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
   {
     newTrack->m_trackSummary = new Trk::TrackSummary(*(track.trackSummary()));
   }
-  
   //std::cout<<"_______________ Slimmed track is: "<<*newTrack<<std::endl;
   
   return newTrack;
+  }
+  else {
+    return nullptr;
+  }
 }
 
 void Trk::TrackSlimmingTool::checkForValidMeas(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas, bool& isMSmeas){
