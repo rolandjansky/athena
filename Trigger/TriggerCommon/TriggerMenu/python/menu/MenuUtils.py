@@ -156,12 +156,12 @@ def _replicateMissingSignatures(listOfChainDefs,unevenSigs,level):
 
 
 
-def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True,chainDicts='',noTEreplication=False):
+def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True,chainDicts='',noTEreplication=False, noMergeBJet=False):
 
     log.debug("Combine using %s  merging", strategy)
 
     if strategy=="parallel":
-        return _mergeChainDefsParallel(listOfChainDefs,offset,removeDuplicateTEs)
+        return _mergeChainDefsParallel(listOfChainDefs,offset,removeDuplicateTEs,noMergeBJet=noMergeBJet)
     elif strategy=="serial":
         return _mergeChainDefsSerial(chainDicts,listOfChainDefs,offset,preserveL2EFOrder=preserveL2EFOrder,doTopo=doTopo,noTEreplication=noTEreplication)
     else:
@@ -287,7 +287,7 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
         
 
 
-def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False):
+def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False, noMergeBJet=False):
 
     """
     merge chain def objects for combined chains
@@ -402,9 +402,17 @@ def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False):
 
     if removeDuplicateTEs:
         for signature in mergedChainDef.signatureList:
-            signature['listOfTriggerElements'] = list(set(signature['listOfTriggerElements']))
 
-        
+            if noMergeBJet: 
+                hasBJetTE = False
+                for TE in set(signature['listOfTriggerElements']):
+                    if not (TE.find("bjet") == -1): hasBJetTE = True
+
+                if not hasBJetTE:
+                    signature['listOfTriggerElements'] = list(set(signature['listOfTriggerElements']))
+            else:
+                signature['listOfTriggerElements'] = list(set(signature['listOfTriggerElements']))
+
     return mergedChainDef
         
 

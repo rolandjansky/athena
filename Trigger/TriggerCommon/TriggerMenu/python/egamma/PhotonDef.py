@@ -13,33 +13,18 @@ log = logging.getLogger("TriggerMenu.egamma.PhotonDef")
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.TriggerPythonConfig import *
 from TriggerMenu.menu.HltConfig import *
-from TriggerMenu.egamma.EgammaCleanMonitoring import *
-from TriggerMenu.menu.CleanMonitoring import *
 
+from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
-
-from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma
-from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo, TrigCaloClusterMaker_topo
-from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
-from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Photon
-from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_All, TrigEFCaloHypo_EtCut, TrigEFCaloHypo_g_ID
-from TrigEgammaHypo.TrigEFPhotonHypoConfig import EFPhotonHypo_g_EtCut, EFPhotonHypo_g_ID_CaloOnly, EFPhotonHypo_g_NoCut, EFPhotonHypo_g_ID_CaloOnly_Iso
-from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_g7, L2CaloHypo_g_nocut
-from TrigEgammaHypo.TrigL2PhotonFexConfig import L2PhotonFex_1
-from TrigEgammaHypo.TrigL2PhotonHypoConfig import L2PhotonHypo_g_EtCut, L2PhotonHypo_g_ID, L2PhotonHypo_g_NoCut
 
 from TrigGenericAlgs.TrigGenericAlgsConf import (PESA__DummyCombineAlgo,
                                                  PESA__DummyUnseededAllTEAlgo as DummyAlgo)
 
-from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import (TrigL2CaloRingerFexHypo_g_EtCut,
-                                                         TrigL2CaloRingerFexHypo_g_ID,
-                                                         TrigL2CaloRingerFexHypo_g_NoCut)
-
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_eGamma, T2CaloEgamma_Ringer
-
-from TriggerMenu.commonUtils.makeCaloSequences import fullScanTopoClusterSequence, EgammaSlwClusterSequence, EnergyDensitySequence, getFullScanTopoClusterEDSequences
-
+from TriggerMenu.commonUtils.makeCaloSequences import (fullScanTopoClusterSequence, 
+        EgammaSlwClusterSequence, 
+        EnergyDensitySequence, 
+        getFullScanTopoClusterEDSequences)
+from TrigTRTHighTHitCounter.TrigTRTHighTHitCounterConf import TrigTRTHTHCounter, TrigTRTHTHhypo
 ##################
 #
 # L2 & EF Chain configuration
@@ -51,23 +36,12 @@ from TriggerMenu.commonUtils.makeCaloSequences import fullScanTopoClusterSequenc
 class L2EFChain_g(L2EFChainDef):
     
     # Define frequently used instances here as class variables
-    theTrigEgammaRec_NoIDEF_eGamma = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",
-                                                        doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
-    theTrigEgammaRec_Iso_eGamma    = TrigEgammaRec.copy(name = "TrigEgammaRec_Iso_eGamma",PhotonContainerName="egamma_Iso_Photons",
-                                                        doTrackMatching = False,doTrackIsolation = False,
-                                                        doCaloTopoIsolation=True,doPrint=False)()
-    theTrigEgammaRec_Conv_eGamma   = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma",
-                                                        doTrackMatching = False,doConversions = True,doPrint=False)()
-
-    theTrigCaloCellMaker_eGamma    = TrigCaloCellMaker_eGamma()
-    theTrigCaloTowerMaker_eGamma   = TrigCaloTowerMaker_eGamma()
-    theTrigCaloClusterMaker_slw    = TrigCaloClusterMaker_slw()
-    theL2PhotonFex                 = L2PhotonFex_1()
-    theT2CaloEgamma_eGamma         = T2CaloEgamma_eGamma()    
-    theT2CaloEgamma_Ringer         = T2CaloEgamma_Ringer()
-    theTrigEFCaloCalibFex          = TrigEFCaloCalibFex_Photon()
-        
-    def __init__(self, chainDict):
+    [theTRTDataPrep] = TrigInDetSequence("Electron","electron","TRTdata").getSequence()
+    #theTrigTRTHTHCounter = TrigTRTHTHCounter()
+    #theTrigTRTHTHhypo = TrigTRTHTHhypo()
+    hip_trt_seq = theTRTDataPrep+[TrigTRTHTHCounter(), TrigTRTHTHhypo()]
+    DummyMergerAlgo = PESA__DummyCombineAlgo("DummyMergerAlgo")
+    def __init__(self, chainDict, photon_seq):
 
         self.L2sequenceList   = []
         self.EFsequenceList   = []
@@ -76,6 +50,8 @@ class L2EFChain_g(L2EFChainDef):
         self.TErenamingDict   = []
 
         self.chainPart = chainDict['chainParts']
+        self.seqObj = photon_seq
+        self.sequences = photon_seq.get_sequences()
 
         self.chainL1Item = chainDict['L1item']  
         self.chainPartL1Item = self.chainPart['L1item']
@@ -98,7 +74,7 @@ class L2EFChain_g(L2EFChainDef):
         self.L2InputTE = self.L2InputTE.split("_")[0]
         self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 
-
+        log.debug('Sequences %s ' % (self.sequences))
                 
         # gXX_ID type chains:
         #if True: #not self.chainPart['extra'] \
@@ -159,75 +135,42 @@ class L2EFChain_g(L2EFChainDef):
         threshold = self.chainPart['threshold']
         IDinfo = self.chainPart['IDinfo']
         algoSuffix = "g%s_%s()" % (str(threshold),IDinfo)
-       
-        disableMon = not KeepMonitoring(self.chainName,EgammaChainsToKeepMonitoring)
 
-        if 'etcut' in self.chainPart['addInfo']:
-            theL2CaloHypo      = L2CaloHypo_g_nocut()
-            theL2PhotonHypo  = L2PhotonHypo_g_EtCut("L2PhotonHypo_g"+str(threshold)+"_EtCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_g"+str(threshold)+"_EtCut",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_EtCut("TrigEFPhotonHypo_g"+str(threshold)+"_EtCut",threshold)
-        elif 'perf' in self.chainPart['addInfo']:
-            theL2CaloHypo      = L2CaloHypo_g_nocut()
-            theL2PhotonHypo  = L2PhotonHypo_g_NoCut("L2PhotonHypo_g"+str(threshold)+"_NoCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g"+str(threshold)+"_NoCut",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g"+str(threshold)+"_NoCut",threshold)
-        elif self.chainPart['IDinfo']:
-            # L2 Calo
-            theL2CaloHypo = L2CaloHypo_g7()
-            #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
-            theL2PhotonHypo  = L2PhotonHypo_g_ID("L2PhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-            # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_g_ID("TrigEFCaloHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
-            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-        else:
-            log.error('Chain %s could not be assembled' % (self.chainPartName))
-            return False
-            # these can be made more configurable later 
-            #theL2CaloHypo   = L2CaloHypo_g7()
-            #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
-            #theEFPhotonHypo = eval("EFPhotonHypo_"+algoSuffix) 
+        # list of required key values for sequences
+        required_seq = ['fastcalo','fastrec','precisecalo','precisecalocalib','preciserec']
+
+        # Check for required sequences
+        for item in required_seq:
+            if item not in self.sequences:
+                log.error('%s sequence not defined', item)
+            else:
+                log.info('%s',self.sequences[item])
+                log.info('%s', self.seqObj.print_sequence(item))
         
-        if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = self.theTrigEgammaRec_Conv_eGamma
-        else :
-            theTrigEgammaFex = self.theTrigEgammaRec_NoIDEF_eGamma
-
-        caloseq = EgammaSlwClusterSequence('L2_g_step2','EF_g_step1')
+        # caloseq = EgammaSlwClusterSequence('L2_g_step2','EF_g_step1')
         ########### Sequences ###########
-        if ( disableMon ) : theL2CaloHypo.AthenaMonTools=DisableMonitoringButValAndTime(theL2CaloHypo.AthenaMonTools)
-        
-        if 'perf' in self.chainPart['addInfo'] or 'etcut' in self.chainPart['addInfo']:
-            self.L2sequenceList += [[self.L2InputTE, 
-                                     [self.theT2CaloEgamma_Ringer, theL2CaloHypo], 
-                                     'L2_g_step1']]
-        else:
-            self.L2sequenceList += [[self.L2InputTE, 
-                                     [self.theT2CaloEgamma_eGamma, theL2CaloHypo], 
-                                     'L2_g_step1']]
-        
+        self.L2sequenceList += [[self.L2InputTE, 
+                                 self.sequences['fastcalo'],
+                                 'L2_g_step1']]
+
         self.L2sequenceList += [[['L2_g_step1'],    
-                                 [self.theL2PhotonFex, theL2PhotonHypo], 
+                                 self.sequences['fastrec'],
                                  'L2_g_step2']]
         
-        #self.EFsequenceList += [[['L2_g_step2'], 
-        #                         [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw], 
-        #                         'EF_g_step1']]
+        self.EFsequenceList += [[['L2_g_step2'], 
+                                self.sequences['precisecalo'],
+                                'EF_g_step1']]
         
-        self.EFsequenceList += [caloseq]
+        #self.EFsequenceList += [caloseq]
         
-        #if ( disableMon ) : self.theTrigEFCaloCalibFex.AthenaMonTools=DisableMonitoringButValAndTime(self.theTrigEFCaloCalibFex.AthenaMonTools)
-        if ( disableMon ) : theTrigEFCaloHypo.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEFCaloHypo.AthenaMonTools)
 
         self.EFsequenceList += [[['EF_g_step1'], 
-                                 [self.theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
+                                 self.sequences['precisecalocalib'],
                                  'EF_g_step2']]
         
-        #if ( disableMon ) : theTrigEgammaFex.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEgammaFex.AthenaMonTools)
-        if ( disableMon ) : theEFPhotonHypo.AthenaMonTools=DisableMonitoringButValAndTime(theEFPhotonHypo.AthenaMonTools)
         
         self.EFsequenceList += [[['EF_g_step2'], 
-                                 [theTrigEgammaFex, theEFPhotonHypo],
+                                 self.sequences['preciserec'],
                                  'EF_g_step3']]
 
         if 'larpeb' in self.chainPart['addInfo']:
@@ -260,93 +203,43 @@ class L2EFChain_g(L2EFChainDef):
         if 'larpeb' in self.chainPart['addInfo']:
             self.TErenamingDict ['EF_g_step4']=  mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_larpeb')
 
-
     def setup_gXX_ID_iso(self):
         threshold = self.chainPart['threshold']
         IDinfo = self.chainPart['IDinfo']
         isoInfo = self.chainPart['isoInfo']
         algoSuffix = "g%s_%s()" % (str(threshold),IDinfo)
        
-        disableMon = not KeepMonitoring(self.chainName,EgammaChainsToKeepMonitoring)
-
-        if 'etcut' in self.chainPart['addInfo']:
-            theL2CaloHypo      = L2CaloHypo_g_nocut()
-            theL2PhotonHypo  = L2PhotonHypo_g_EtCut("L2PhotonHypo_g"+str(threshold)+"_EtCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_g"+str(threshold)+"_EtCut",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_EtCut("TrigEFPhotonHypo_g"+str(threshold)+"_EtCut",threshold)
-        elif 'perf' in self.chainPart['addInfo']:
-            theL2CaloHypo      = L2CaloHypo_g_nocut()
-            theL2PhotonHypo  = L2PhotonHypo_g_NoCut("L2PhotonHypo_g"+str(threshold)+"_NoCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g"+str(threshold)+"_NoCut",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g"+str(threshold)+"_NoCut",threshold)
-        elif self.chainPart['IDinfo']:
-            # L2 Calo
-            theL2CaloHypo = L2CaloHypo_g7()
-            #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
-            theL2PhotonHypo  = L2PhotonHypo_g_ID("L2PhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-            # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_g_ID("TrigEFCaloHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
+        # list of required key values for sequences
+        required_seq = ['fastcalo','fastrec','precisecalo','precisecalocalib','preciserec']
         
-            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly_Iso("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo)+"_"+str(isoInfo),threshold,IDinfo,isoInfo)
-        else:
-            log.error('Chain %s could not be assembled' % (self.chainPartName))
-            return False
-            # these can be made more configurable later 
-            #theL2CaloHypo   = L2CaloHypo_g7()
-            #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
-            #theEFPhotonHypo = eval("EFPhotonHypo_"+algoSuffix) 
-        
-        theTrigEgammaFex = self.theTrigEgammaRec_Iso_eGamma
-
-        cell_maker_fullcalo_topo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo_egamma",doNoise=0, AbsE=True, doPers=True)
-        fullClusterMaker = TrigCaloClusterMaker_topo('TrigCaloClusterMaker_topo')
-        DummyMergerAlgo = PESA__DummyCombineAlgo("DummyMergerAlgo")
-        theDummyRoiCreator = DummyAlgo('RoiCreatorEl')
-
         fullScanTopoEDSequences =  getFullScanTopoClusterEDSequences()
 
-
         ########### Sequences ###########
-        if ( disableMon ) : theL2CaloHypo.AthenaMonTools=DisableMonitoringButValAndTime(theL2CaloHypo.AthenaMonTools)
-        
-        if 'perf' in self.chainPart['addInfo'] or 'etcut' in self.chainPart['addInfo']:
-            self.L2sequenceList += [[self.L2InputTE, 
-                                     [self.theT2CaloEgamma_Ringer, theL2CaloHypo], 
-                                     'L2_g_step1']]
-        else:
-            self.L2sequenceList += [[self.L2InputTE, 
-                                     [self.theT2CaloEgamma_eGamma, theL2CaloHypo], 
-                                     'L2_g_step1']]
+        self.L2sequenceList += [[self.L2InputTE, 
+                                 self.sequences['fastcalo'], 
+                                 'L2_g_step1']]
         
         self.L2sequenceList += [[['L2_g_step1'],    
-                                 [self.theL2PhotonFex, theL2PhotonHypo], 
+                                 self.sequences['fastrec'],
                                  'L2_g_step2']]
         
         self.EFsequenceList += [[['L2_g_step2'], 
-                                 [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw], 
+                                 self.sequences['precisecalo'], 
                                  'EF_g_step1']]
         
-        #if ( disableMon ) : self.theTrigEFCaloCalibFex.AthenaMonTools=DisableMonitoringButValAndTime(self.theTrigEFCaloCalibFex.AthenaMonTools)
-        if ( disableMon ) : theTrigEFCaloHypo.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEFCaloHypo.AthenaMonTools)
-
         self.EFsequenceList += [[['EF_g_step1'], 
-                                 [self.theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
+                                 self.sequences['precisecalocalib'], 
                                  'EF_g_step2']]
         
-        #if ( disableMon ) : theTrigEgammaFex.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEgammaFex.AthenaMonTools)
-        if ( disableMon ) : theEFPhotonHypo.AthenaMonTools=DisableMonitoringButValAndTime(theEFPhotonHypo.AthenaMonTools)
-        
-        #self.EFsequenceList += [[ '',[theDummyRoiCreator],'EF_InputRoI']]
-        #self.EFsequenceList += [[ ['EF_InputRoI'], [cell_maker_fullcalo_topo, fullClusterMaker], 'EF_TopoClustersFromFullCalo' ]]
         self.EFsequenceList += [fullScanTopoEDSequences[0]]
         self.EFsequenceList += [fullScanTopoEDSequences[1]]
 
         self.EFsequenceList += [[ ['EF_g_step2',fullScanTopoEDSequences[1][-1]],
-                                     [DummyMergerAlgo],
+                                     [self.DummyMergerAlgo],
                                       'EF_gCache_step2']]
 
         self.EFsequenceList += [[['EF_gCache_step2'],
-                                     [theTrigEgammaFex, theEFPhotonHypo],
+                                    self.sequences['preciserec'], 
                                  'EF_g_step3']]
 
         if 'larpeb' in self.chainPart['addInfo']:
@@ -386,55 +279,18 @@ class L2EFChain_g(L2EFChainDef):
         IDinfo = self.chainPart['IDinfo']
         algoSuffix = "g%s_%s()" % (str(threshold),IDinfo)
        
-        from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma as theTrigCaloCellMaker_eGammaHI
-
-        #theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
-        theTrigCaloTowerMaker_eGammaHI    = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
-    
-        if 'etcut' in self.chainPart['addInfo']:
-            theL2CaloHypo      = L2CaloHypo_g_nocut()
-            theL2PhotonHypo  = L2PhotonHypo_g_EtCut("L2PhotonHypo_g"+str(threshold)+"_EtCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_g"+str(threshold)+"_EtCut_heavyIon",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_EtCut("TrigEFPhotonHypo_g"+str(threshold)+"_EtCut_heavyIon",threshold)
-        elif 'perf' in self.chainPart['addInfo']:
-            theL2CaloHypo      = L2CaloHypo_g_nocut()
-            theL2PhotonHypo  = L2PhotonHypo_g_NoCut("L2PhotonHypo_g"+str(threshold)+"_NoCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g"+str(threshold)+"_NoCut_heavyIon",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g"+str(threshold)+"_NoCut_heavyIon",threshold)
-        elif self.chainPart['IDinfo']:
-            # L2 Calo
-            theL2CaloHypo = L2CaloHypo_g_nocut()
-            #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
-            theL2PhotonHypo  = L2PhotonHypo_g_EtCut("L2PhotonHypo_g"+str(threshold)+"_EtCut",threshold )
-            # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_g"+str(threshold)+"_EtCut_heavyIon",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo)
-        else:
-            log.error('Chain %s could not be assembled' % (self.chainPartName))
-            return False
-            # these can be made more configurable later 
-            #theL2CaloHypo   = L2CaloHypo_g7()
-            #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
-            #theEFPhotonHypo = eval("EFPhotonHypo_"+algoSuffix) 
+        # list of required key values for sequences
+        required_seq = ['fastcalo','fastrec','precisecalo','precisecalocalib','preciserec']
         
-        if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = self.theTrigEgammaRec_Conv_eGamma
-        else :
-            theTrigEgammaFex = self.theTrigEgammaRec_NoIDEF_eGamma
 
         ########### Sequences ###########
         
-        if 'perf' in self.chainPart['addInfo'] or 'etcut' in self.chainPart['addInfo']:
-            self.L2sequenceList += [[self.L2InputTE, 
-                                     [self.theT2CaloEgamma_Ringer, theL2CaloHypo], 
-                                     'L2_g_step1']]
-        else:
-            self.L2sequenceList += [[self.L2InputTE, 
-                                     [self.theT2CaloEgamma_eGamma, theL2CaloHypo], 
-                                     'L2_g_step1']]
+        self.L2sequenceList += [[self.L2InputTE, 
+                                 self.sequences['fastcalo'], 
+                                 'L2_g_step1']]
         
         self.L2sequenceList += [[['L2_g_step1'],    
-                                 [self.theL2PhotonFex, theL2PhotonHypo], 
+                                 self.sequences['fastrec'], 
                                  'L2_g_step2']]
 
         self.EFsequenceList += [[['L2_g_step2'], 
@@ -444,15 +300,15 @@ class L2EFChain_g(L2EFChainDef):
                                  [theUEMaker], 'EF_g_step1_ue']]
 
         self.EFsequenceList += [[['L2_g_step2'], 
-                                 [theTrigCaloCellMaker_eGammaHI, theTrigCaloTowerMaker_eGammaHI, self.theTrigCaloClusterMaker_slw], 
+                                 self.sequences['precisecalo'], 
                                  'EF_g_step1']]
         
         self.EFsequenceList += [[['EF_g_step1'], 
-                                 [self.theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
+                                 self.sequences['precisecalocalib'], 
                                  'EF_g_step2']]
         
         self.EFsequenceList += [[['EF_g_step2'], 
-                                 [theTrigEgammaFex, theEFPhotonHypo],
+                                 self.sequences['preciserec'], 
                                  'EF_g_step3']]
 
         ########### Signatures ###########
@@ -477,44 +333,36 @@ class L2EFChain_g(L2EFChainDef):
             'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
             }
 
-
-
     def setup_gnocut_hiptrt(self):
-        
+        # list of required key values for sequences
+        required_seq = ['precisecalo','precisecalocalib','preciserec']
+        # Check for required sequences
+        for item in required_seq:
+            if item not in self.sequences:
+                log.error('%s sequence not defined', item)
+            else:
+                log.info('%s', self.seqObj.print_sequence(item))
         # EF Calo
-        theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g_hiptrt_NoCut",0);
-    
-        theL2CaloHypo      = L2CaloHypo_g_nocut()
-        theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g_hiptrt_NoCut",0)
-        [theTRTDataPrep] = TrigInDetSequence("Electron","electron","TRTdata").getSequence()
-
-        from TrigTRTHighTHitCounter.TrigTRTHighTHitCounterConf import TrigTRTHTHCounter, TrigTRTHTHhypo
-        theTrigTRTHTHCounter = TrigTRTHTHCounter()
-        theTrigTRTHTHhypo = TrigTRTHTHhypo()
+        # Reminder that names change for this chain
+        #theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g_hiptrt_NoCut",0);
+        #theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g_hiptrt_NoCut",0)
             
-        if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = self.theTrigEgammaRec_Conv_eGamma
-        else :
-            theTrigEgammaFex = self.theTrigEgammaRec_NoIDEF_eGamma
-
-
         ########### Sequences ###########
       
         self.L2sequenceList += [[self.L2InputTE, 
-                                  theTRTDataPrep+[theTrigTRTHTHCounter, theTrigTRTHTHhypo],
+                                  self.hip_trt_seq,
                                   'L2_g_step1']]
 
         self.EFsequenceList += [[['L2_g_step1'], 
-                                 [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw], 
+                                    self.sequences['precisecalo'],                      
                                  'EF_g_step1']]
         
         self.EFsequenceList += [[['EF_g_step1'], 
-#                                 [theTrigEgammaRec_NoIDEF_eGamma, theEFPhotonHypo],
-                                 [self.theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
+                                 self.sequences['precisecalocalib'],                      
                                  'EF_g_step2']]
 
         self.EFsequenceList += [[['EF_g_step2'],
-                                 [theTrigEgammaFex, theEFPhotonHypo],
+                                 self.sequences['preciserec'],                      
                                  'EF_g_step3']]
 
 
@@ -534,51 +382,31 @@ class L2EFChain_g(L2EFChainDef):
             'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
             }
 
-
     def setup_gXX_ID_ringer(self):
 
         threshold = self.chainPart['threshold']
         IDinfo = self.chainPart['IDinfo']
         algoSuffix = "g%s_%s()" % (str(threshold),IDinfo)
        
-        if 'etcut' in self.chainPart['addInfo']:
-            [theL2CaloRingerFex,theL2CaloRingerHypo]  = TrigL2CaloRingerFexHypo_g_EtCut( threshold  )
-            theEFPhotonHypo      = EFPhotonHypo_g_EtCut("TrigEFPhotonHypo_g"+str(threshold)+"_EtCut",threshold)
-
-        elif 'perf' in self.chainPart['addInfo']:
-            [theL2CaloRingerFex,theL2CaloRingerHypo]   = TrigL2CaloRingerFexHypo_g_NoCut( threshold  )
-            theEFPhotonHypo       = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g"+str(threshold)+"_NoCut",threshold)
- 
-        elif self.chainPart['IDinfo']:
-            [theL2CaloRingerFex,theL2CaloRingerHypo]= TrigL2CaloRingerFexHypo_g_ID( threshold, IDinfo, self.chainName  )
-
-            # EF Calo
-            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-        else:
-            log.error('Chain %s could not be assembled' % (self.chainPartName))
-            return False
-        
-        if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = self.theTrigEgammaRec_Conv_eGamma
-        else :
-            theTrigEgammaFex = self.theTrigEgammaRec_NoIDEF_eGamma
+        # list of required key values for sequences
+        required_seq = ['fastringer','precisecalo','precisecalocalib','preciserec']
 
         ########### Sequences ###########
        
         self.L2sequenceList += [[self.L2InputTE, 
-                                [self.theT2CaloEgamma_Ringer,theL2CaloRingerFex,theL2CaloRingerHypo], 
+                                self.sequences['fastringer'], 
                                 'L2_g_step1']] 
 
         self.EFsequenceList += [[['L2_g_step1'], 
-                                 [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw], 
+                                 self.sequences['preciserec'], 
                                  'EF_g_step1']]
         
         self.EFsequenceList += [[['EF_g_step1'], 
-                                 [self.theTrigEFCaloCalibFex], 
+                                 [ self.sequences['precisecalocalib'][0] ], 
                                  'EF_g_step2']]
         
         self.EFsequenceList += [[['EF_g_step2'], 
-                                 [theTrigEgammaFex, theEFPhotonHypo],
+                                 self.sequences['preciserec'], 
                                  'EF_g_step3']]
 
         ########### Signatures ###########

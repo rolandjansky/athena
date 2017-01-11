@@ -330,6 +330,29 @@ class L2EFChain_mu(L2EFChainDef):
                                [theL2CombinedAlg,
                                 theL2CombinedHypo],
                                'L2_mu_step2']]
+
+
+      # Run also FTK tracking
+      if self.chainPart['trkInfo'] == "ftk":
+        print 'Configuring FTK tracking for isolation'
+        from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+                
+        [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muon",sequenceFlavour=["PT"]).getSequence()    
+ 
+        self.L2sequenceList += [[['L2_mu_step2'],
+                                 ftktrkfast+ftktrkprec,
+                                 'L2_mu_step3']]
+        from TrigMuonHypo.TrigMuonHypoConfig import MuisoHypoConfig
+ 
+        theMuonFTKIsolationAlgo = TrigMuonEFTrackIsolationVarConfig("TrigMuonFTKTrackIsolationVar")
+       
+        theMuonFTKIsolationHypo = MuisoHypoConfig("TrigMuonFTKIsolationHypo")
+ 
+        self.L2sequenceList += [[['L2_mu_step3'],
+                                 [theMuonFTKIsolationAlgo, theMuonFTKIsolationHypo],
+                                 'L2_mu_step4']] 
+      #we dont need the info from the FTK iso, just the rejection
+      #-> so we can still pass step2 every time
       EFinputTE = 'L2_mu_step2'
 
 
@@ -419,7 +442,11 @@ class L2EFChain_mu(L2EFChainDef):
         self.L2signatureList += [ [['L2_step2_wOvlpRm']*self.mult] ]
     else:
       self.L2signatureList += [ [['L2_mu_step2']*self.mult] ]
-      
+     
+    if self.chainPart['trkInfo'] == 'ftk':
+      self.L2signatureList += [ [['L2_mu_step3']*self.mult] ]
+      self.L2signatureList += [ [['L2_mu_step4']*self.mult] ] 
+
     self.EFsignatureList += [ [['EF_mu_step1']*self.mult] ]
     self.EFsignatureList += [ [['EF_mu_step2']*self.mult] ]
 

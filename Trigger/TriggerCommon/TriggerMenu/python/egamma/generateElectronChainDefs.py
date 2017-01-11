@@ -22,6 +22,7 @@ except:
 from TriggerMenu.menu.MenuUtils import *
 Electrons = []
 
+from TriggerMenu.egamma.EgammaDef import EgammaSequence
 ##########################################################################################
 ##########################################################################################
 
@@ -31,11 +32,14 @@ def generateChainDefs(chainDict):
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 
+
     for subChainDict in listOfChainDicts:
+        electron_seq = EgammaSequence(subChainDict)
+        log.info('Egamma Sequence: %s', electron_seq)
         if "IdTest" in subChainDict["chainParts"]["addInfo"]:
             Electron = L2EFChain_e_IdTest(subChainDict)
         else:
-            Electron = L2EFChain_e(subChainDict)
+            Electron = L2EFChain_e(subChainDict,electron_seq)
             
         listOfChainDefs += [Electron.generateHLTChainDef()]
     

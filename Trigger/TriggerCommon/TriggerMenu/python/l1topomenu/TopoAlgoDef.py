@@ -22,10 +22,13 @@ class TopoAlgoDef:
         _etamax = 49
         _minet = 0
         usev6 = False
+        usev7 = False
         doPhysics = False
 
         if '_v6' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
             usev6 = True
+        if '_v7' in TriggerFlags.triggerMenuSetup():
+            usev7 = True
         if 'Physics' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
             doPhysics = True
         
@@ -835,12 +838,18 @@ class TopoAlgoDef:
 
 
         # deta-dphi with ab+ab
-        for x in [     
-            {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
-            {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
-            {"minDeta": 0, "maxDeta": 20, "minDphi": 0, "maxDphi": 20, "mult": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
-            ]:
-            
+        if usev7:
+            algoList = [
+               {"minDeta": 0, "maxDeta": 20, "minDphi": 0, "maxDphi": 20, "mult": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
+            ]
+        else:
+            algoList = [
+               {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+               {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+               {"minDeta": 0, "maxDeta": 20, "minDphi": 0, "maxDphi": 20, "mult": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
+            ]
+
+        for x in algoList:                 
             for k in x:
                 exec("%s = x[k]" % k)
 
@@ -878,6 +887,71 @@ class TopoAlgoDef:
                 alg.addvariable('DeltaPhiMax', maxDphi, 0)
 
             
+            tm.registerAlgo(alg)
+
+        # LFV DETA ATR-14282
+        if usev7:
+            algoList = [
+                {"minDeta": 0, "maxDeta": "04", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+                {"minDeta": 0, "maxDeta": "04", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+                ]
+        else:
+            algoList = []
+
+        for x in algoList:
+
+            for k in x:
+                exec("%s = x[k]" % k)
+
+            toponame = "%sDETA%s-%s%s%s-%s%s%s"  % (minDeta, maxDeta, otype1, str(ocut1), olist1, otype2, str(ocut2) if ocut2>0 else "", olist2)
+ 
+            log.info("Define %s" % toponame)
+
+            inputList = [otype1 + olist1, otype2 + olist2]
+            alg = AlgConf.DeltaEtaIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
+            alg.addgeneric('NumResultBits', 1)
+
+            alg.addgeneric('InputWidth1', nleading1)
+            alg.addgeneric('InputWidth2', nleading2)
+            alg.addgeneric('MaxTob1', nleading1)
+            alg.addgeneric('MaxTob2', nleading2)
+            alg.addvariable('MinET1', ocut1, 0)
+            alg.addvariable('MinET2', ocut2, 0)
+            alg.addvariable('MinDeltaEta', minDeta, 0)
+            alg.addvariable('MaxDeltaEta', maxDeta, 0)
+
+            tm.registerAlgo(alg)
+
+        if usev7:
+            algoList = [
+                {"minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+                {"minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+                ]
+        else:
+            algoList = []
+
+        for x in algoList:
+
+            for k in x:
+                exec("%s = x[k]" % k)
+            
+            toponame = "%sDPHI%s-%s%s%s-%s%s%s"  % (minDphi, maxDphi, otype1, str(ocut1), olist1, otype2, str(ocut2) if ocut2>0 else "", olist2)
+ 
+            log.info("Define %s" % toponame)
+
+            inputList = [otype1 + olist1, otype2 + olist2]
+            alg = AlgConf.DeltaPhiIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
+            alg.addgeneric('NumResultBits', 1)
+            
+            alg.addgeneric('InputWidth1', nleading1)
+            alg.addgeneric('InputWidth2', nleading2)
+            alg.addgeneric('MaxTob1', nleading1)
+            alg.addgeneric('MaxTob2', nleading2)
+            alg.addvariable('MinET1', ocut1, 0)
+            alg.addvariable('MinET2', ocut2, 0)
+            alg.addvariable('MinDeltaPhi', minDphi, 0)
+            alg.addvariable('MaxDeltaPhi', maxDphi, 0)
+
             tm.registerAlgo(alg)
 
             
