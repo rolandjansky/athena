@@ -9,8 +9,8 @@ atlas_subdir( TrkTrackSlimmer )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          PRIVATE
                           Tracking/TrkEvent/TrkTrack
+                          PRIVATE
                           Tracking/TrkTools/TrkToolInterfaces )
 
 # Component(s) in the package:
