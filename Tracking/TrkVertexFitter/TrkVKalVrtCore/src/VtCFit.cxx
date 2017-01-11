@@ -718,7 +718,7 @@ extern DerivT derivt_;
   long int NTRK=vk->TrackList.size();
   double dScale=1.e10, dScaleMax=1.e12;
   double alfLowLim=0.1;
-  double alfUppLim=1.5;
+  double alfUppLim=1.1;  //Should be compatible with vkalAllowedPtChange - not causing 1/p shift up to zero.
   double xyzt[3],xyztmp[3],chi2t[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
   double alf=1.,bet=0.;
   long int ii,j, icadd=0;
@@ -757,6 +757,8 @@ extern DerivT derivt_;
 	    t_trk->part[0]=trk->cnstP[0]= trk->iniP[0] + (alf+bet)*(trk->fitP[0] - trk->iniP[0]) + bet*dCoefNorm * t_trk->parf0[0];
 	    t_trk->part[1]=trk->cnstP[1]= trk->iniP[1] + (alf+bet)*(trk->fitP[1] - trk->iniP[1]) + bet*dCoefNorm * t_trk->parf0[1];
 	    t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2] - trk->iniP[2]) + bet*dCoefNorm * t_trk->parf0[2];
+	    //Limit momentum change if too big
+	    if(bet!=0. && fabs(t_trk->part[2])<1.e-7)t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2]-trk->iniP[2]);
 	    trk->Chi2 = cfchi2(xyzt, t_trk->part, trk );
 	    chi2t[jm1] += trk->Chi2 ;
 	}
@@ -831,7 +833,7 @@ extern DerivT derivt_;
 
     dCoefNorm *= alf;   // Rescale normalisation according to found results
     ValForChk=vk->Chi2;  if (NCNST)ValForChk += ContribC[PostFitIteration-1];
-    } while ( ( ValForChk>chi2t[0]*1.000001 || ValForChk>chi2t[1]*1.000001 || alf==alfLowLim)  && (++icadd<=2) );   // 2 additional iterations now
+    } while ( ( ValForChk>chi2t[0]*1.000001 || ValForChk>chi2t[1]*1.000001 || alf==alfLowLim)  && (++icadd<=1) );   // 1 additional iterations now
 
 
 
