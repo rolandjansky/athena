@@ -318,7 +318,7 @@ namespace xAOD {
       bool m_addCaloDeco;
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
-      bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts );
+      bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts ) const;
       bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& clusts );
 #endif // XAOD_ANALYSIS
       float Phi_mpi_pi(float x) const { 

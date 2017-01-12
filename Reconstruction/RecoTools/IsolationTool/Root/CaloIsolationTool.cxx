@@ -19,6 +19,7 @@
 #include "TrkCaloExtension/CaloExtension.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellList.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #endif // XAOD_ANALYSIS
 
 // #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -34,12 +35,20 @@
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODMuon/Muon.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "boost/foreach.hpp"
 #include "boost/format.hpp"
 #include <cmath> 
 #include <map> 
+
+
+namespace {
+#if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+size_t cluster_size (const xAOD::CaloCluster* ) { return 0; }
+#else
+size_t cluster_size (const xAOD::CaloCluster* cl) { return cl->size(); }
+#endif
+}
 
 
 namespace xAOD {
@@ -153,7 +162,7 @@ namespace xAOD {
             const CaloCellContainer* container) const {
 #ifdef XAOD_ANALYSIS
     return false;
-#endif // XAOD_ANALYSIS
+#else // XAOD_ANALYSIS
     derefMap_t derefMap;
     /// get track particle
     const IParticle* ip = getReferenceParticle(particle);
@@ -178,6 +187,7 @@ namespace xAOD {
     ATH_MSG_WARNING("CaloCellIsolation only supported for TrackParticles and Egamma");
     
     return true;
+#endif // not XAOD_ANALYSIS
   }
   
   // IParticle interface for cluster-based isolation (topoetcone)
@@ -1090,7 +1100,8 @@ namespace xAOD {
 		      << " eta,phi = " << cl->eta() << " " << cl->phi()
 		      << " uncal eta,phi = " << cl->p4(CaloCluster::State::UNCALIBRATED).Eta()
 		      << " " << cl->p4(CaloCluster::State::UNCALIBRATED).Phi()
-		      << " nCells = " << cl->size());
+		      << " nCells = " << cluster_size(cl)
+                      );
 	
 	/// remove TileGap3
 	double ettg3 = cl->eSample(CaloSampling::TileGap3)/cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
@@ -1112,7 +1123,8 @@ namespace xAOD {
 		    << assocClus.size() << " clusters with corresponding pT = " << egObj->pt()
 		    << " cluster pT = " << egObj->caloCluster()->pt() << " cluster un cal pT = "
 		    << egObj->caloCluster()->p4(CaloCluster::State::UNCALIBRATED).Et()
-		    << " nCells = " << egObj->caloCluster()->size());
+		    << " nCells = " << cluster_size(egObj->caloCluster())
+                    );
       //auto itc = egObj->caloCluster()->begin();
       //for (; itc != egObj->caloCluster()->end(); itc++)
       //std::cout << "A cell in the SC " << (*itc) << " eta = " << (*itc)->eta() << std::endl;
@@ -1520,7 +1532,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 #endif
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
-  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& output ){
+  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& output ) const {
     /// retrieve container
     const CaloClusterContainer* caloClusters = 0;
     std::string m_caloClusterLocation = "CaloCalTopoClusters";

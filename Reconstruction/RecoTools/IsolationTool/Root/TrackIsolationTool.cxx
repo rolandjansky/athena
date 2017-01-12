@@ -66,11 +66,6 @@ namespace xAOD {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TrackIsolationTool::finalize() 
-  {
-    return StatusCode::SUCCESS;
-  }
-
   const TrackParticleContainer* TrackIsolationTool::retrieveTrackParticleContainer() const 
   {
     const TrackParticleContainer* indetTrackParticles = 0;
@@ -368,7 +363,7 @@ namespace xAOD {
   }
 
 #ifdef XAOD_ANALYSIS
-  bool TrackIsolationTool::getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) {
+  bool TrackIsolationTool::getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const {
 
     /// retrieve container
     const TrackParticleContainer* trks = retrieveTrackParticleContainer();

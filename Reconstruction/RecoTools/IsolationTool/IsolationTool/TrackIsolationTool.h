@@ -70,9 +70,6 @@ namespace xAOD {
       /** initialize */
       virtual StatusCode initialize() override;
       
-      /** finalize */
-      virtual StatusCode finalize() override;
-      
       /**ITrackIsolationTool interface: */  
       virtual 
       bool trackIsolation( TrackIsolation& result, const IParticle& tp, 
@@ -121,7 +118,7 @@ namespace xAOD {
     void initresult(TrackIsolation& result, TrackCorrection corrlist, unsigned int typesize) const;
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
-    bool getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output );
+    bool getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const;
 #endif // XAOD_STANDALONE
 
     std::string m_indetTrackParticleLocation; /// track particle location
