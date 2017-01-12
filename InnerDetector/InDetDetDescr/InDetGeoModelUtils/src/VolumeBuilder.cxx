@@ -263,15 +263,14 @@ GeoVPhysVol*  VolumeBuilder::build(int iElement)
 
   //std::cout << "volume (CLHEP::cm3) " << logName << " : " << volume/CLHEP::cm3 << std::endl;
   if (msgLvl(MSG::DEBUG)) {
-    std::cout << "Volume/material: " << logName << "/";
-    std::cout << materialName << std::endl;
-    if (!param.shapeType().empty()) std::cout << " shape: " << param.shapeType() << std::endl;
-    std::cout << " volume (CLHEP::cm3): " << volume/CLHEP::cm3 << std::endl;
-    std::cout << " rmin,rmax,zmin,zmax: "
+    msg(MSG::DEBUG)  << "Volume/material: " << logName << "/" << materialName << endmsg;
+    if (!param.shapeType().empty())  msg(MSG::DEBUG)  << " shape: " << param.shapeType() << endmsg;
+    msg(MSG::DEBUG) << " volume (CLHEP::cm3): " << volume/CLHEP::cm3 << endmsg;
+    msg(MSG::DEBUG) << " rmin,rmax,zmin,zmax: "
 	      << param.rmin() << ", "
 	      << param.rmax() << ", "
 	      << param.zmin() << ", "
-	      << param.zmax() << std::endl;
+	      << param.zmax() << endmsg;
   }
   
   // Or use volume of original volume in param.
