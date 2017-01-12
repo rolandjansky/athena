@@ -118,8 +118,8 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       ## testing algorithm sequence
       from AthenaCommon.AlgSequence import AlgSequence
       job = AlgSequence()
-      job += CfgMgr.THistWrite('MyTHistWriteAlg')
-      job += CfgMgr.THistRead ('MyTHistReadAlg')
+      job += CfgMgr.AthenaOutputStream('MyOutputStream')
+      job += CfgMgr.AthenaConditionStream ('MyConditionStream')
 
       ## service manager
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -172,10 +172,10 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
 
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
-      self.failUnless(hasattr(topSequence, 'MyTHistWriteAlg'),
-                      "topSequence is missing 'MyTHistWriteAlg' !")
-      self.failUnless(hasattr(topSequence, 'MyTHistReadAlg' ),
-                      "topSequence is missing 'MyTHistReadAlg' !")
+      self.failUnless(hasattr(topSequence, 'MyOutputStream'),
+                      "topSequence is missing 'MyOutputStream' !")
+      self.failUnless(hasattr(topSequence, 'MyConditionStream' ),
+                      "topSequence is missing 'MyConditionStream' !")
 
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
       self.failUnless(hasattr(svcMgr, 'MyTHistSvc'),
@@ -190,10 +190,10 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       ## test algorithm sequence
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
-      assert(hasattr(topSequence, 'MyTHistWriteAlg'),
-             'topSequence is missing MyTHistWriteAlg !')
-      assert(hasattr(topSequence, 'MyTHistReadAlg' ),
-             'topSequence is missing MyTHistReadAlg !')
+      assert(hasattr(topSequence, 'MyOutputStream'),
+             'topSequence is missing MyOutputStream !')
+      assert(hasattr(topSequence, 'MyConditionStream' ),
+             'topSequence is missing MyConditionStream !')
       
       ## test service manager
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -257,8 +257,8 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       from AthenaCommon.AppMgr import theApp
       from AthenaCommon.AlgSequence import AlgSequence
       job = AlgSequence()
-      job += CfgMgr.THistWrite('MyTHistWriteAlg')
-      job += CfgMgr.THistRead ('MyTHistReadAlg')
+      job += CfgMgr.AthenaOutputStream('MyOutputStream')
+      job += CfgMgr.AthenaConditionStream ('MyConditionStream')
 
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
       svcMgr += CfgMgr.THistSvc( 'MyTHistSvc' )
@@ -269,7 +269,7 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       saveToPickle('%(OutputPickleFileName)s', cfgName='wholeCfg')
 
       ## remove one alg
-      del job.MyTHistWriteAlg
+      del job.MyOutputStream
 
       ## change MyTHistSvc output
       svcMgr.MyTHistSvc.Output = %(THistSvcOutput2)s
@@ -318,11 +318,11 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
 
       from AthenaCommon.AlgSequence import AlgSequence
       job = AlgSequence()
-      assert(     hasattr(job, 'MyTHistReadAlg'),
-              'topSequence is missing MyTHistReadAlg !')
+      assert(     hasattr(job, 'MyConditionStream'),
+              'topSequence is missing MyConditionStream !')
 
-      assert( not hasattr(job, 'MyTHistWriteAlg'),
-              'topSequence has MyTHistWriteAlg (and it should NOT) !')
+      assert( not hasattr(job, 'MyOutputStream'),
+              'topSequence has MyOutputStream (and it should NOT) !')
       """ % {
          'THistSvcOutput' : thistSvcOutput2,
          'PickleFileName' : pickleName,
@@ -349,11 +349,11 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
 
       from AthenaCommon.AlgSequence import AlgSequence
       job = AlgSequence()
-      assert(hasattr(job, 'MyTHistReadAlg'),
-             'topSequence is missing MyTHistReadAlg !')
+      assert(hasattr(job, 'MyOutputStream'),
+             'topSequence is missing MyOutputStream !')
 
-      assert(hasattr(job, 'MyTHistWriteAlg'),
-             'topSequence is missing MyTHistReadAlg !')
+      assert(hasattr(job, 'MyConditionStream'),
+             'topSequence is missing MyConditionStream !')
       """ % {
          'THistSvcOutput' : thistSvcOutput1,
          'PickleFileName' : pickleName,
