@@ -183,7 +183,7 @@ PhotonD3PDObject.defineBlock (
 PhotonD3PDObject.defineBlock (
     1, 'Layer0Shape',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['E033 = e033'])
+    Vars = ['E033 = e033 < float : 0'])
 PhotonD3PDObject.defineBlock (
     1, 'Layer1Shape',
     D3PDMakerCoreComps.AuxDataFillerTool,
