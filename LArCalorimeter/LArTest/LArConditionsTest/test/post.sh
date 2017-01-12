@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares 
 # its output with a reference (if available).
@@ -11,6 +11,7 @@
 # **/
 test=$1
 select=$2
+#verbose="1"
 if [ "$select" = "" ]; then
   select="LArConditionsTe"
 fi
@@ -23,15 +24,19 @@ fi
     joblog=${test}.log
 #    if [ "$status" = 0 ]
 #	then 
-	echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
-	reflog=../test/${test}.ref
+          if [ "$verbose" != "" ]; then
+	      echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
+          fi
+	reflog=../share/${test}.ref
 	if [ -r $reflog ]
 	    then
             # If select string is non-zero, use it for the comparison,
             # otherwise do standard diff with exclusions
 	    if [ -n "${select}" ]
 		then
-		echo "Selecting on: ${select}"
+                if [ "$verbose" != "" ]; then
+		      echo "Selecting on: ${select}"
+                fi
 		diff  -a -b -B  $joblog $reflog |\
 		    # select only the differing lines
 	        egrep -a '^[<>] ' |\
@@ -104,14 +109,16 @@ fi
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 
 		then
-		echo "[97;101;1m post.sh> ERROR: $joblog and $reflog differ [m"
-#		exit 1
+		echo "post.sh> ERROR: $joblog and $reflog differ [m"
+		exit 1
 	    else
-		echo "[92;1m post.sh> OK: $joblog and $reflog identical [m"
+                if [ "$verbose" != "" ]; then
+		    echo "post.sh> OK: $joblog and $reflog identical [m"
+                fi
 	    fi
 	else
 	    tail $joblog
-	    echo "[93;1m post.sh> WARNING: reference output $reflog not available [m"
+	    echo "post.sh> WARNING: reference output $reflog not available [m"
 	    echo  " post.sh> Please check ${PWD}/$joblog"
 	fi
 #    else
@@ -123,7 +130,6 @@ fi
 
 # Check output for ERROR/FATAL
 joblog=${test}.log
-echo 
 
 exit $status
 
