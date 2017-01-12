@@ -14,6 +14,7 @@
 #ifndef GEOPRIMITIVESCOMPARE_H_
 #define GEOPRIMITIVESCOMPARE_H_
 
+#include <vector>
 #include "GeoPrimitives/GeoPrimitives.h"
 
 namespace Amg {

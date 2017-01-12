@@ -176,8 +176,8 @@ inline Amg::Vector3D transform( Amg::Vector3D& v, Amg::Transform3D& tr ) {
 inline Amg::Transform3D getTransformFromRotTransl(Amg::RotationMatrix3D rot, Amg::Vector3D transl_vec )
 {
 	Amg::Transform3D trans = Amg::Transform3D::Identity();
-    trans = trans * rot;
-    trans.translation() = transl_vec;
+	trans = trans * rot;
+	trans.translation() = transl_vec;
 	return trans;
 }
 

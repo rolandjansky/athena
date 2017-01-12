@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 744450 2016-05-03 12:38:18Z krasznaa $
 ################################################################################
 # Package: GeoPrimitives
 ################################################################################
@@ -6,25 +7,35 @@
 atlas_subdir( GeoPrimitives )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/CxxUtils
-                          Event/EventPrimitives )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/CxxUtils
+   Event/EventPrimitives )
 
 # External dependencies:
-find_package( CLHEP )
+find_package( CLHEP QUIET )
 find_package( Eigen )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
-# Component(s) in the package:
+# Decide whether to use CLHEP:
+if( CLHEP_FOUND )
+   set( clhep_includes ${CLHEP_INCLUDE_DIRS} )
+   set( clhep_libs ${CLHEP_LIBRARIES} )
+   set( clhep_defs DEFINITIONS ${CLHEP_DEFINITIONS} )
+endif()
+
+# The main interface library of the package:
 atlas_add_library( GeoPrimitives
-                   PUBLIC_HEADERS GeoPrimitives
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CxxUtils EventPrimitives )
+   GeoPrimitives/*.h
+   INTERFACE
+   PUBLIC_HEADERS GeoPrimitives
+   INCLUDE_DIRS ${clhep_includes} ${EIGEN_INCLUDE_DIRS}
+   ${clhep_defs}
+   LINK_LIBRARIES ${clhep_libs} ${EIGEN_LIBRARIES} CxxUtils EventPrimitives )
 
-atlas_add_dictionary( GeoPrimitivesDict
-                      GeoPrimitives/GeoPrimitivesDict.h
-                      GeoPrimitives/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CxxUtils EventPrimitives GeoPrimitives )
-
+# The dictionary can only be built if CLHEP is available:
+if( CLHEP_FOUND )
+   atlas_add_dictionary( GeoPrimitivesDict
+      GeoPrimitives/GeoPrimitivesDict.h
+      GeoPrimitives/selection.xml
+      LINK_LIBRARIES GeoPrimitives )
+endif()
