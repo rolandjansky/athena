@@ -9,8 +9,8 @@
 #ifndef GEOPRIMITIVES_GEOPRIMITIVES_H
 #define GEOPRIMITIVES_GEOPRIMITIVES_H
 
-#define EIGEN_MATRIXBASE_PLUGIN "EventPrimitives/AmgMatrixPlugin.h"
-#define EIGEN_MATRIX_PLUGIN "EventPrimitives/SymmetricMatrixHelpers.h"
+#define EIGEN_MATRIXBASE_PLUGIN "EventPrimitives/AmgMatrixBasePlugin.h"
+#define EIGEN_MATRIX_PLUGIN "EventPrimitives/AmgMatrixPlugin.h"
 #define EIGEN_TRANSFORM_PLUGIN "EventPrimitives/AmgTransformPlugin.h"
 
 #include <unistd.h>
