@@ -1,0 +1,115 @@
+#!/bin/bash
+#
+# Wrapper to provide asetup environemnt to any command
+#
+
+if [ $# -lt 1 -o "$1" == "-h" ]; then
+    echo 'Syntax: asetup_wrapper CMD [ARGS]'
+    echo 'Required environment: '
+    echo '   AtlasSetup     : location of AtlasSetup installation'
+    echo '   ASETUP_ARGS    : arguments passed to asetup'
+    echo 'Optional environment: '
+    echo '   ASETUP_PRELOAD : Value to set for LD_PRELOAD after asetup has been run'
+    exit 1
+fi
+
+cmd=$1
+shift
+args="$*"
+
+# Not provided by default in partition
+export PATH=${PATH}:/bin:/usr/bin
+
+if [ ! -z "${HLT_VERBOSE}" ]; then
+    echo "================================================================================"
+    echo "Environment delivered to asetup_wrapper script:"
+    printenv | sort
+    echo "================================================================================"
+fi
+
+set_coredump()
+{
+    # Set core dump limits if required and allowed
+    if [ ! -z "${HLT_COREDUMPSIZE}" ]
+	then
+	echo "Setting core dump limits to: ${HLT_COREDUMPSIZE}"
+	ulimit -c ${HLT_COREDUMPSIZE}
+	ulimit -a
+    fi
+}
+
+
+reverse_paths()
+{
+    result=""
+    for p in `echo ${1} | tr ':' ' '`
+    do
+      result="${p} ${result}"
+    done
+    echo $result
+}
+
+update_paths()
+{
+    if [ ! -z "${HLT_EXTRA_SW_PATH}" ]
+	then
+	for dir in `reverse_paths ${HLT_EXTRA_SW_PATH}`
+	  do
+	  if [ -d ${dir} ]
+	      then 
+	      export PATH=${dir}/InstallArea/share/bin:${dir}/InstallArea/${CMTCONFIG}/bin:${PATH}
+	      export LD_LIBRARY_PATH=${dir}/InstallArea/${CMTCONFIG}/lib:${LD_LIBRARY_PATH}
+	      export PYTHONPATH=${dir}/InstallArea/python:${PYTHONPATH}
+	      export JOBOPTSEARCHPATH=${dir}/InstallArea/jobOptions:${JOBOPTSEARCHPATH}
+	      export DATAPATH=${dir}/InstallArea/share:${DATAPATH}
+          export CALIBPATH=${dir}/InstallArea/share:${CALIBPATH}
+	      export XMLPATH=${dir}/InstallArea/XML:${XMLPATH}
+	  else
+	      echo "WARNING: directory ${dir} does not exist !"
+	  fi
+	done 
+	echo "PATH=`echo ${PATH} | tr ':' '\n'`"
+	echo "LD_LIBRARY_PATH=`echo ${LD_LIBRARY_PATH} | tr ':' '\n'`"
+	echo "PYTHONPATH=`echo ${PYTHONPATH} | tr ':' '\n'`"
+	echo "JOBOPTSEARCHPATH=`echo ${JOBOPTSEARCHPATH} | tr ':' '\n'`"
+	echo "DATAPATH=`echo ${DATAPATH} | tr ':' '\n'`"
+	echo "CALIBPATH=`echo ${CALIBPATH} | tr ':' '\n'`"
+	echo "XMLPATH=`echo ${XMLPATH} | tr ':' '\n'`"
+    fi
+}
+
+update_paths
+set_coredump
+
+if [ ! -e ${AtlasSetup}/scripts/asetup.sh ]; then
+    echo 'Cannot find asetup. Make sure $AtlasSetup is set correctly.'
+    exit 1
+fi
+
+if [ -z "${ASETUP_ARGS}" ]; then
+    echo 'No asetup tags given. Please set $ASETUP_ARGS.'
+    exit 1
+fi
+
+echo "asetup environment with tags: ${ASETUP_ARGS}"
+source ${AtlasSetup}/scripts/asetup.sh --input=None ${ASETUP_ARGS}
+
+if [ $? -ne 0 ]; then
+    exit $?
+fi
+    
+if [ ! -z "${ASETUP_PRELOAD}" ]; then    
+    export LD_PRELOAD=${ASETUP_PRELOAD}
+    echo "Setting LD_PRELOAD=${LD_PRELOAD}"
+fi
+
+if [ ! -z "${HLT_VERBOSE}" ]; then    
+    echo "================================================================================"
+    echo "Environment before calling 'exec $cmd $args'"
+    printenv | sort
+    echo "================================================================================"
+fi
+
+echo "exec $cmd $args"
+exec $cmd $args
+
