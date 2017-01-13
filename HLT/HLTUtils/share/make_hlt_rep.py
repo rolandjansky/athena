@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import os
-import sys
 import optparse
 
 import pm.project
@@ -23,10 +21,10 @@ parser.add_option("-m", "--modifier", action="store",
 
 (opt, args) = parser.parse_args()
 
-if opt.prefix!=None:
+if opt.prefix is not None:
     prefix = opt.prefix
     
-if opt.modifier!=None and len(opt.modifier)>0:
+if opt.modifier is not None and len(opt.modifier)>0:
     modifier = '_' + opt.modifier
 
 rep = pm.project.Project('daq/sw/repository.data.xml')
@@ -34,11 +32,9 @@ onlineRep  = rep.getObject('SW_Repository', 'Online')
 hlt_env = pm.project.Project('daq/segments/%s-Environment.data.xml' % prefix)
 
 apps = [
-    dal.Script('athena_wrapper%s' % modifier,
-               BinaryName='athena_wrapper',
-               Description='athena.py wrapper',
-               ProcessEnvironment=[hlt_env.getObject('VariableSet', '%s-Environment' % prefix)],
-               Authors=['Reiner.Hauser@cern.ch']
+    dal.Script('asetup_wrapper%s' % modifier,
+               BinaryName='asetup_wrapper',
+               Description='Provide asetup environment to any command'
                )    
     ]
 
@@ -58,7 +54,7 @@ vars = [
     dal.SW_PackageVariable('PYTHONPATH%s' % modifier,
                            Name='PYTHONPATH',
                            Suffix="python")
-    ]
+]
 
 
 try:

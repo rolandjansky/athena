@@ -31,7 +31,8 @@ opt = None
 
 class Config:
    # Possible locations for AtlasSetup
-   atlasSetupHome = ['/afs/cern.ch/atlas/software/dist/AtlasSetup',
+   atlasSetupHome = ['/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/current/AtlasSetup',
+                     '/afs/cern.ch/atlas/software/dist/AtlasSetup',
                      '/sw/atlas/AtlasSetup',  # Point1
                      os.environ.get('AtlasSetup',None)
                      ]
