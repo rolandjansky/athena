@@ -14,3 +14,7 @@
 -HLT
 -Trigger/TrigConfiguration/TrigDb
 -Trigger/TrigConfiguration/TriggerTool
+
+# Offload service has build problems
+-External/APEGlue
+-Offloading
