@@ -22,7 +22,11 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         virtual ~IsolationCorrectionTool();
 
         virtual StatusCode initialize() override;
-        virtual StatusCode finalize() override;
+        virtual StatusCode finalize()
+#ifndef XAOD_STANDALONE
+          override
+#endif
+          ;
 
         // Apply correction to a modifyable Egamma object
         virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&) override;
