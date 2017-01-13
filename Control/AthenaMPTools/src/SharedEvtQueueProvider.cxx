@@ -218,19 +218,20 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::boots
   ATH_MSG_DEBUG( "Added self as listener to EndInputFile" );
 
   // _______________________ event sharing ________________________________
-  // Use EventSelector as SharedReader
-  if (m_useSharedReader) {
-    m_evtShare  = dynamic_cast<IEventShare*>(m_evtSelector);
-    if(!m_evtShare) {
-      ATH_MSG_ERROR( "Failed to dyncast event selector to IEventShare" );
-      return outwork;
-    } else {
-      if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
-        ATH_MSG_ERROR("Failed to make the event selector a share server");
+  // Use EventSelector as SharedReader (if configured) and enable output streaming
+  m_evtShare  = dynamic_cast<IEventShare*>(m_evtSelector);
+  if(m_useSharedReader && !m_evtShare) {
+    ATH_MSG_ERROR( "Failed to dyncast event selector to IEventShare" );
+    return outwork;
+  } else {
+    if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
+      if(m_useSharedReader) {
+        ATH_MSG_ERROR( "Failed to make the event selector a share server" );
         return outwork;
-      } else {
-        ATH_MSG_DEBUG("Successfully made the event selector a share server");
       }
+      ATH_MSG_INFO( "Could not make the event selector a share server" );
+    } else {
+      ATH_MSG_DEBUG( "Successfully made the event selector a share server" );
     }
   }
 
@@ -314,7 +315,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
     ATH_MSG_INFO("Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) 
 		 << ", Event Chunk size in the queue is " << m_nChunkSize);
 
-    if (m_evtShare) {
+    if(m_useSharedReader && m_evtShare) {
       if(m_evtShare->readEvent(0).isFailure()) {
         ATH_MSG_ERROR("Failed to read " << m_nEvtRequested << " events");
         all_ok=false;

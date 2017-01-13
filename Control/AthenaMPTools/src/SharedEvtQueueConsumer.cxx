@@ -97,12 +97,13 @@ StatusCode SharedEvtQueueConsumer::initialize()
     }
   }
 
-  if(m_useSharedReader) {
-    sc = serviceLocator()->service(m_evtSelName,m_evtShare);
-    if(sc.isFailure() || m_evtShare==0) {
+  sc = serviceLocator()->service(m_evtSelName,m_evtShare);
+  if(sc.isFailure() || m_evtShare==0) {
+    if(m_useSharedReader) {
       msg(MSG::ERROR) << "Error retrieving IEventShare" << endmsg;
       return StatusCode::FAILURE;
     }
+    msg(MSG::INFO) << "Could not retrieve IEventShare" << endmsg;
   }
 
   sc = m_chronoStatSvc.retrieve();
@@ -347,13 +348,15 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP event worker PID=" << getpid() << endmsg;
 
   
-  // ________________________ Make Shared RAW Reader Client ________________________
-  if(m_useSharedReader) {
+  // ________________________ Make Shared Reader/Writer Client ________________________
+  if(m_evtShare) {
     if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
-      msg(MSG::ERROR) << "Failed to make the event selector a share client" << endmsg;
-      return outwork;
-    }
-    else {
+      if(m_useSharedReader) {
+        msg(MSG::ERROR) << "Failed to make the event selector a share client" << endmsg;
+        return outwork;
+      }
+      msg(MSG::INFO) << "Could not make the event selector a share client" << endmsg;
+    } else {
       msg(MSG::DEBUG) << "Successfully made the event selector a share client" << endmsg;
     }
   }
