@@ -54,7 +54,7 @@ class L2PhotonHypo_g_ID (TrigL2PhotonHypoBase):
     __slots__ = []
     def __init__(self, name, threshold, IDinfo):
         super( L2PhotonHypo_g_ID, self ).__init__( name ) 
-        PhotonCuts = L2CaloPhotonCutMaps()
+        PhotonCuts = L2CaloPhotonCutMaps(threshold)
         self.AcceptAll = False
         self.EtCutOnly = False
         self.ETthr          = [(float(threshold)-3.)*GeV]*9
