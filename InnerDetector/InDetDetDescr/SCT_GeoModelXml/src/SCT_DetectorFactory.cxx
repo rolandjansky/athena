@@ -5,7 +5,6 @@
 #include "SCT_GeoModelXml/SCT_DetectorFactory.h"
 
 #include <string>
-#include <iostream>
 
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -27,8 +26,6 @@
 #include "GeoModelXml/GmxInterface.h"
 
 #include "PathResolver/PathResolver.h"
-
-//#include <cerrno>
 
 using namespace std;
 
@@ -74,9 +71,9 @@ SCT_DetectorFactory::~SCT_DetectorFactory() {
 }
 
 void SCT_DetectorFactory::create(GeoPhysVol *world) {
-    msg(MSG::INFO) << "C R E A T E   W O R L D" << endreq; 
+    msg(MSG::INFO) << "C R E A T E   W O R L D" << endmsg; 
    
-    msg(MSG::INFO) << m_detectorManager->getVersion().fullDescription() << endreq;
+    msg(MSG::INFO) << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     SCT_GmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_waferTree);
 //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
@@ -87,11 +84,11 @@ void SCT_DetectorFactory::create(GeoPhysVol *world) {
     string gmxInput;
 
     if (m_options->gmxFilename() == "") {
-        msg(MSG::INFO) << "gmxFilename not set; getting .gmx from Geometry database Blob" << endreq;
+        msg(MSG::INFO) << "gmxFilename not set; getting .gmx from Geometry database Blob" << endmsg;
         flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
         gmxInput = getBlob();
         string dtdFile = '"' + PathResolver::find_file("geomodel.dtd", "DATAPATH") + '"';
-        cout << "dtdFile = " << dtdFile << endl;
+        msg(MSG::INFO) << "dtdFile = " << dtdFile << endmsg;
         size_t index = gmxInput.find("\"geomodel.dtd\"");
         if (index != string::npos) {
             gmxInput.replace(index, 14, dtdFile);
@@ -133,16 +130,16 @@ void SCT_DetectorFactory::create(GeoPhysVol *world) {
 }
 
 string SCT_DetectorFactory::getBlob() {
-
     DecodeVersionKey versionKey(geoModelSvc(), "SCT");
     std::string versionTag  = versionKey.tag();
     std::string versionNode = versionKey.node();
-    cout << "getBlob: versionTag = " << versionTag << endl;
-    cout << "getBlob: versionNode = " << versionNode << endl;
+    msg(MSG::INFO) << "getBlob: versionTag = " << versionTag << endmsg;
+    msg(MSG::INFO) << "getBlob: versionNode = " << versionNode << endmsg;
 
     IRDBAccessSvc *accessSvc = m_athenaComps->rdbAccessSvc();
     const IRDBRecordset *recordSetSct = accessSvc->getRecordset("ITKXDD", versionTag, versionNode);
     if (!recordSetSct || recordSetSct->size() == 0) {
+        msg(MSG::FATAL) << "getBlob: Unable to obtain SCT recordSet" << endmsg;
         throw runtime_error("getBlob: Unable to obtain SCT recordSet");
     }
     const IRDBRecord *recordSct =  (*recordSetSct)[0];
@@ -203,7 +200,23 @@ void SCT_DetectorFactory::doNumerology() {
             }
         }
     }
+    msg(MSG::INFO) << endmsg;
 
+    int totalWafers = 0;
+    for (BarrelEndcap::iterator bec = m_waferTree.begin(); bec != m_waferTree.end(); ++bec) {
+        for (LayerDisk::iterator ld = bec->second.begin(); ld != bec->second.end(); ++ld) {
+            for (EtaModule::iterator eta = ld->second.begin(); eta != ld->second.end(); ++eta) {
+                for (PhiModule::iterator phi = eta->second.begin(); phi != eta->second.end(); ++phi) {
+                    for (Side::iterator side =phi->second.begin(); side != phi->second.end(); ++side) {
+                        totalWafers++;
+                    }
+                }
+            }
+        }
+    }
+    msg(MSG::INFO) << "Total number of wafers added is " << totalWafers << endmsg;
+    const SCT_ID *sctIdHelper = dynamic_cast<const SCT_ID *> (m_commonItems->getIdHelper());
+    msg(MSG::INFO) << "Total number of wafer identifiers is " << sctIdHelper->wafer_hash_max() << endmsg;
 //
 //    Used in digitization to create one vector big enough to hold all strips, whichever detector is in consideration.
 //    Anyway they are common to pixels and strips! Pixels dominate the EtaCell count (which traditionally the SCT does not set)
@@ -218,7 +231,7 @@ void SCT_DetectorFactory::doNumerology() {
 
     m_detectorManager->numerology() = n;
 
-    msg(MSG::INFO) << "End of numerology\n" << endreq;
+    msg(MSG::INFO) << "End of numerology\n" << endmsg;
 
     return;
 }

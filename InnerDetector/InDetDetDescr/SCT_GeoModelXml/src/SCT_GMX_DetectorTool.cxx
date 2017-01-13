@@ -40,7 +40,7 @@ SCT_GMX_DetectorTool::SCT_GMX_DetectorTool(const std::string &type,
     m_rdbAccessSvc("RDBAccessSvc", name),
     m_geometryDBSvc("InDetGeometryDBSvc", name),
     m_lorentzAngleSvc("SCTLorentzAngleSvc", name),
-    m_serviceBuilderTool("") {
+    m_serviceBuilderTool("", this) {
 //
 // Get parameter values from jobOptions file
 //
@@ -56,9 +56,6 @@ SCT_GMX_DetectorTool::SCT_GMX_DetectorTool(const std::string &type,
 
 SCT_GMX_DetectorTool::~SCT_GMX_DetectorTool() {
     delete m_athenaComps;
-std::cerr << "To fix: Delete m_commonItems at " << m_commonItems << ". But commented out because it causes a crash\n";
-//    delete m_commonItems;
-//std::cerr << "OK! managed to delete it.\n";
 }
 
 StatusCode SCT_GMX_DetectorTool::create(StoreGateSvc *detStore) {
@@ -68,28 +65,28 @@ StatusCode SCT_GMX_DetectorTool::create(StoreGateSvc *detStore) {
     StatusCode sc;
     sc = m_geoModelSvc.retrieve();
     if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+        msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
         return (StatusCode::FAILURE);
     }
     sc = m_rdbAccessSvc.retrieve();
     if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
+        msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
         return StatusCode::FAILURE;
     }
     sc = m_geometryDBSvc.retrieve();
     if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endreq;
+        msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
         return (StatusCode::FAILURE);
     }
     GeoModelExperiment *theExpt;
     sc = detStore->retrieve(theExpt, "ATLAS");
     if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not find GeoModelExperiment ATLAS" << endreq;
+        msg(MSG::FATAL) << "Could not find GeoModelExperiment ATLAS" << endmsg;
         return (StatusCode::FAILURE);
     }
     const SCT_ID *idHelper;
     if (detStore->retrieve(idHelper, "SCT_ID").isFailure()) {
-        msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+        msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
         return StatusCode::FAILURE;
     }
 //
@@ -102,7 +99,6 @@ StatusCode SCT_GMX_DetectorTool::create(StoreGateSvc *detStore) {
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
 
     m_commonItems = new InDetDD::SiCommonItems(idHelper);
-std::cerr << "commonItems created with address " << m_commonItems << "\n";
     m_commonItems->setLorentzAngleSvc(m_lorentzAngleSvc);
 //
 //    Get options from python
@@ -115,25 +111,25 @@ std::cerr << "commonItems created with address " << m_commonItems << "\n";
 //
     DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
     if (versionKey.tag() == "AUTO"){
-        msg(MSG::ERROR) << "Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00." << endreq;
+        msg(MSG::ERROR) << "Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00." << endmsg;
         return StatusCode::FAILURE;
     }
     if (versionKey.custom()) 
         msg(MSG::INFO) << "Building custom ";
     else
         msg(MSG::INFO) << "Building ";
-    msg(MSG::INFO) << "SCT SLHC with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endreq;
+    msg(MSG::INFO) << "SCT SLHC with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
 //
 //    Get the Database Access Service and from there the SCT version tag
 //
     std::string sctVersionTag = m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node(), false);
-    msg(MSG::INFO) << "SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endmsg;
 //
 //   Check if SCT version tag is empty. If so, then the SCT cannot be built.
 //   This may or may not be intentional. We just issue an INFO message.
 //
     if (sctVersionTag.empty()) {
-        msg(MSG::INFO) <<  "No SCT Version. SCT_SLHC will not be built." << endreq;
+        msg(MSG::INFO) <<  "No SCT Version. SCT_SLHC will not be built." << endmsg;
         return StatusCode::SUCCESS;
     }
 //
@@ -149,13 +145,13 @@ std::cerr << "commonItems created with address " << m_commonItems << "\n";
 //
     m_manager = theSCT.getDetectorManager();
     if (!m_manager) {
-        msg(MSG::ERROR) << "SCT_DetectorManager not found; not created in SCT_DetectorFactory?" << endreq;
+        msg(MSG::ERROR) << "SCT_DetectorManager not found; not created in SCT_DetectorFactory?" << endmsg;
         return(StatusCode::FAILURE);
     }
-    msg(MSG::DEBUG) << "Registering SCT_DetectorManager. " << endreq;
+
     sc = detStore->record(m_manager, m_manager->getName());
     if (sc.isFailure() ) {
-        msg(MSG::ERROR) << "Could not register SCT_DetectorManager" << endreq;
+        msg(MSG::ERROR) << "Could not register SCT_DetectorManager" << endmsg;
         return StatusCode::FAILURE;
     }
     theExpt->addManager(m_manager);
@@ -165,7 +161,7 @@ std::cerr << "commonItems created with address " << m_commonItems << "\n";
     const SiDetectorManager *siDetManager = m_manager;
     sc = detStore->symLink(m_manager, siDetManager);
     if(sc.isFailure()){
-        msg(MSG::ERROR) << "Could not make link between SCT_DetectorManager and SiDetectorManager" << endreq;
+        msg(MSG::ERROR) << "Could not make link between SCT_DetectorManager and SiDetectorManager" << endmsg;
         return StatusCode::FAILURE;
     }
 //
@@ -173,15 +169,15 @@ std::cerr << "commonItems created with address " << m_commonItems << "\n";
 //    which has to be after the manager is made by the DetectorFactory.
 //
     if (m_lorentzAngleSvc.empty()) {
-        msg(MSG::INFO) << "Lorentz angle service not requested." << endreq;
+        msg(MSG::INFO) << "Lorentz angle service not requested." << endmsg;
     }
     else {
         sc = m_lorentzAngleSvc.retrieve();
         if (sc.isFailure()) {
-            msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endreq;
+            msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endmsg;
         }
         else {
-            msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endreq;
+            msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endmsg;
         }
     }
 
