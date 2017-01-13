@@ -822,8 +822,9 @@ def getTauTrackClassifier():
     # =========================================================================
     _BDT_TTCT_ITFT_0 = TrackMVABDT(name = _name + "_0",
                                    #InputWeightsPath = "TMVAClassification_BDT.weights.root",
-                                   InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[0],
-                                   Threshold      = -0.005,
+                                   #Threshold      = -0.005,
+                                   InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[0][0],
+                                   Threshold = tauFlags.tauRecMVATrackClassificationConfig()[0][1],
                                    ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, 
                                    SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged, 
                                    BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation  
@@ -833,8 +834,9 @@ def getTauTrackClassifier():
     
     _BDT_TTCT_ITFT_0_0 = TrackMVABDT(name = _name + "_0_0",
                                      #InputWeightsPath = "TMVAClassification_BDT_0.weights.root",
-                                     InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[1],
-                                     Threshold      = -0.0074,
+                                     #Threshold      = -0.0074,
+                                     InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[1][0],
+                                     Threshold = tauFlags.tauRecMVATrackClassificationConfig()[1][1],
                                      ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedCharged,
                                      SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged,
                                      BackgroundType = ROOT.xAOD.TauJetParameters.classifiedConversion
@@ -844,8 +846,9 @@ def getTauTrackClassifier():
     
     _BDT_TTCT_ITFT_0_1 = TrackMVABDT(name = _name + "_0_1",
                                      #InputWeightsPath = "TMVAClassification_BDT_1.weights.root",
-                                     InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[2], 
-                                     Threshold      = 0.0005,
+                                     #Threshold      = 0.0005,
+                                     InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[2][0],
+                                     Threshold = tauFlags.tauRecMVATrackClassificationConfig()[2][1],
                                      ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
                                      SignalType     = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
                                      BackgroundType = ROOT.xAOD.TauJetParameters.classifiedFake 

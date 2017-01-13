@@ -52,12 +52,14 @@ class tauRecMVATrackClassification(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+#can set from the command line via:
+# --preExec 'RAWtoESD:from tauRec.tauRecFlags import tauFlags;tauFlags.tauRecMVATrackClassificationConfig()[0]=["file", somenumber]'
 class tauRecMVATrackClassificationConfig(JobProperty):
     """Config file for MVATrackClassification
     """
     statusOn=True
-    allowedTypes=[[]]
-    StoredValue=[ "TMVAClassification_BDT.weights.root", "TMVAClassification_BDT_0.weights.root", "TMVAClassification_BDT_1.weights.root" ]
+    allowedTypes=[[[]]]
+    StoredValue=[ ["TMVAClassification_BDT.weights.root", -0.005], ["TMVAClassification_BDT_0.weights.root", -0.0074], ["TMVAClassification_BDT_1.weights.root", 0.0005] ]
 
 class tauRecSeedMaxEta(JobProperty):
     """ max allowed abs_eta of jet seed
