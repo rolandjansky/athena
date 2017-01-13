@@ -3,7 +3,9 @@
 */
 
 #include <cstdlib>
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <vector>
 #include <string>
 #include "CLHEP/Evaluator/Evaluator.h"
@@ -88,24 +90,24 @@ void PositionIndex::indices(map<string, int> &index, HepTool::Evaluator &eval) {
 //
 //    Evaluate each index in turn
 //
-// cout << "Formulae: "; 
-    //
-    //   We loop over the vector of names to make sure we evaluate the CNL_n values in the order they
-    //   are given in the <positionindex> element. Thus the user can select the order of evaluation, which is 
-    //   important when CNL_n are used in the formulae. Looping directly over a map<>::iterator would process them
-    //   in alphabetical order.
-    //
+//
+//   We loop over the vector of names to make sure we evaluate the CNL_n values in the order they
+//   are given in the <positionindex> element. Thus the user can select the order of evaluation, which is 
+//   important when CNL_n are used in the formulae. Looping directly over a map<>::iterator would process them
+//   in alphabetical order.
+//
     for (vector <string>::iterator n = m_name.begin(); n < m_name.end(); ++n) {
         string name = *n;
-// cout << name << " = " << m_formula[name] << "; ";
         index[name] = (int) eval.evaluate(m_formula[name].c_str());
         if (eval.status() != HepTool::Evaluator::OK) {
-            cerr << "GeoModelXml Error processing CLHEP Evaluator expression for PositionIndex. Error name " <<
-             eval.error_name() << endl << "Message: ";
+            ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+            MsgStream log(&(*msgh), "GeoModelXml");
+            log << MSG::FATAL <<
+                   "GeoModelXml Error processing CLHEP Evaluator expression for PositionIndex. Error name " <<
+                    eval.error_name() << endl << "Message: ";
             eval.print_error();
-            cerr << m_formula[name] << endl;
-            cerr << string(eval.error_position(), '-') << '^' << '\n';
-            cerr << "Exiting program.\n";
+            log << m_formula[name] << endl << string(eval.error_position(), '-') << '^' << '\n' << "Exiting program." << 
+                   endmsg;
             exit(999); // Should do better...
         }
 //
@@ -113,5 +115,4 @@ void PositionIndex::indices(map<string, int> &index, HepTool::Evaluator &eval) {
 //
         eval.setVariable(name.c_str(), (double) index[name]);
     }
-// cout << endl;
 }

@@ -16,7 +16,9 @@
 //
 #include "GeoModelXml/ElementProcessor.h"
 
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelXml/translate.h"
@@ -29,14 +31,13 @@ using namespace xercesc;
 
 ElementProcessor::ElementProcessor() {}
 
-void ElementProcessor::process(const DOMElement *element, GmxUtil & /*gmxUtil*/, GeoNodeList &toAdd) {
+void ElementProcessor::process(const DOMElement *element, GmxUtil & /* gmxUtil*/, GeoNodeList & /* toAdd */) {
 
     char *name2release = translate(element->getNodeName());
     std::string name(name2release);
     XMLString::release(&name2release);
 
-    std::cerr << "Error!!! Default element processor called for tag-name " << name << std::endl;
-// Just to get rid of annoying g++ warning:
-    if (element == 0) std::cerr << "DOMelement was uninitialised\n";
-    if (toAdd.size() == 999999) std::cerr << "GeoNodeList was 999999 long\n";
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
+    log << MSG::FATAL << "Error!!! Default element processor called for tag-name " << name << endmsg;
 }

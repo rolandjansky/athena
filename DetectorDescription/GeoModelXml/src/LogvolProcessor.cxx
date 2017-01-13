@@ -11,8 +11,10 @@
 //   Add them to the physvol.
 //
 #include "GeoModelXml/LogvolProcessor.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 
-#include <iostream>
 #include <map>
 
 #include <xercesc/dom/DOM.hpp>
@@ -34,6 +36,9 @@ using namespace xercesc;
 void LogvolProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
 GeoLogVol *lv;
 GeoNameTag *physVolName;
+
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
 
     gmxUtil.positionIndex.incrementLevel();
 
@@ -62,9 +67,9 @@ GeoNameTag *physVolName;
         // Check it is a shape... its parent should be a <shapes>. DTD cannot do this for us.
         DOMNode *parent = refShape->getParentNode();
         if (XMLString::compareIString(parent->getNodeName(), translate("shapes")) != 0) {
-            cerr << "Processing logvol " << name << 
+            log << MSG::FATAL << "Processing logvol " << name << 
                     ". Error in gmx file. An IDREF for a logvol shape did not refer to a shape.\n" <<
-                    "Shape ref was " << shape << "; exiting\n";
+                    "Shape ref was " << shape << "; exiting" << endmsg;
             exit (1); // Need to improve...
         }
 //
@@ -83,9 +88,9 @@ GeoNameTag *physVolName;
         // Check it is a material... its parent should be a <materials>. DTD cannot do this for us.
         parent = refMaterial->getParentNode();
         if (XMLString::compareIString(parent->getNodeName(), translate("materials")) != 0) {
-            cerr << "Processing logvol " << name << 
+            log << MSG::FATAL << "Processing logvol " << name << 
                     ". Error in gmx file. An IDREF for a logvol material did not refer to a material.\n" <<
-                    "Material ref was " << material << "; exiting\n";
+                    "Material ref was " << material << "; exiting" << endmsg;
             exit (1); // Need to improve...
         }
 
@@ -178,10 +183,5 @@ void LogvolProcessor::zeroId(const xercesc_3_1::DOMElement *element) {
     if ((entry = m_map.find(name)) != m_map.end()) {
         entry->second.id = 0;
     }
-/* Not an error: it is usually just about to be made with id = 0; no action needed.
-    else {
-         cerr << "LogvolProcessor::zeroId called with element name " << name <<
-                " but element doesn't exist. Ignoring request.\n";
-    }
-*/
+/* else: Not an error: it is usually just about to be made with id = 0; no action needed. */
 }

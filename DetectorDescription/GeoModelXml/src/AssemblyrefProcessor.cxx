@@ -5,8 +5,10 @@
 //
 //    Process assemblyref items: basically, just find the referenced assembly and call its processor.
 //
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include "GeoModelXml/AssemblyrefProcessor.h"
-#include <iostream>
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelXml/GmxUtil.h"
@@ -33,7 +35,10 @@ char *toRelease;
     string nodeName(toRelease);
     XMLString::release(&toRelease);
     if (nodeName != string("assembly")) {
-        cerr << "Error in xml/gmx file: assemblyref " << translate(idref) << " referenced a " << nodeName << " instead of an assembly.\n";
+        ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+        MsgStream log(&(*msgh), "GeoModelXml");
+        log << MSG::FATAL << "Error in xml/gmx file: assemblyref " << translate(idref) << " referenced a " << 
+                              nodeName << " instead of an assembly.\n";
         exit(999); // Should do better...
     }
 //

@@ -4,7 +4,6 @@
 
 #include "GeoModelXml/shape/AddPlane.h"
 #include <string>
-#include <iostream>
 #include <sstream>
 
 #include <xercesc/dom/DOM.hpp>
