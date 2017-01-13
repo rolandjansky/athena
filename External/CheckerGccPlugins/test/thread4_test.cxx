@@ -1,6 +1,9 @@
-// testing const_cast check from check_assign_address_of_static
+// testing check_discarded_const
 
-#pragma ATLAS thread_safe
+#pragma ATLAS check_thread_safety
+
+const int* xx();
+
 
 int* f1(const int* y)
 {
@@ -41,4 +44,48 @@ int* f6(const int* y)
   int* yy [[gnu::thread_safe]] = (int*)y;
   return yy;
 }
+
+
+int* f7(const int* y)
+{
+  const int* yy = y;
+  const int* yyy = yy;
+  return const_cast<int*>(yyy);
+}
+
+int* f8 [[gnu::argument_not_const_thread_safe]] (const int* y)
+{
+  const int* yy = y;
+  const int* yyy = yy;
+  return const_cast<int*>(yyy);
+}
+
+
+int* f8a [[gnu::not_const_thread_safe]] (const int* y)
+{
+  const int* yy = y;
+  const int* yyy = yy;
+  return const_cast<int*>(yyy);
+}
+
+
+int* f9  [[gnu::not_const_thread_safe]] ()
+{
+  const int* y = xx();
+  return const_cast<int*>(y);
+}
+
+
+int* f9a  [[gnu::argument_not_const_thread_safe]] ()
+{
+  const int* y = xx();
+  return const_cast<int*>(y);
+}
+
+
+int* f10 [[gnu::not_thread_safe]] (const int* y)
+{
+  return const_cast<int*>(y);
+}
+
 

@@ -7,4 +7,4 @@ const BaseInfoBase& BaseInfo<T>::baseinfo()
 
 
 template <class T>
-typename BaseInfo<T>::instance_holder BaseInfo<T>::s_instance [[gnu::thread_safe]];
+typename BaseInfo<T>::instance_holder BaseInfo<T>::s_instance;

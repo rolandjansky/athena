@@ -1,1 +1,1 @@
-void p1b [[gnu::thread_safe_debug]] () {}
+void p1b [[gnu::check_thread_safety_debug]] () {}

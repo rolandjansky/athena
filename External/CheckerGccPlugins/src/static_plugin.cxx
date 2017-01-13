@@ -70,8 +70,8 @@ void static_finishdecl_callback (void* gcc_data, void* /*user_data*/)
     tree ctxdecl = ctx;
     if (TYPE_P (ctxdecl))
       ctxdecl = TYPE_NAME (ctxdecl);
-    if (!is_thread_safe (decl) &&
-        !is_thread_safe_location (DECL_SOURCE_LOCATION (decl)))
+    if (!check_thread_safety_p (decl) &&
+        !check_thread_safety_location_p (DECL_SOURCE_LOCATION (decl)))
     {
       return;
     }

@@ -1,6 +1,6 @@
 // testing check for static/mutable members
 
-#pragma ATLAS thread_safe
+#pragma ATLAS check_thread_safety
 
 
 struct S

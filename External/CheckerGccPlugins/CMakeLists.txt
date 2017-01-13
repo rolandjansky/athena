@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 756969 2016-06-22 14:03:26Z krasznaa $
+# $Id: CMakeLists.txt 781116 2016-10-28 23:16:43Z ssnyder $
 
 # The name of the package:
 atlas_subdir( CheckerGccPlugins )
@@ -57,7 +57,7 @@ endfunction( CheckerGccPlugins_test )
 CheckerGccPlugins_test( gaudi_inheritance )
 CheckerGccPlugins_test( divcheck )
 CheckerGccPlugins_test( naming )
-CheckerGccPlugins_test( ists1 )
+CheckerGccPlugins_test( check_ts1 )
 CheckerGccPlugins_test( thread1 )
 CheckerGccPlugins_test( thread2 )
 CheckerGccPlugins_test( thread3 )
@@ -65,6 +65,7 @@ CheckerGccPlugins_test( thread4 )
 CheckerGccPlugins_test( thread5 )
 CheckerGccPlugins_test( thread6 )
 CheckerGccPlugins_test( thread7 )
+CheckerGccPlugins_test( thread8 )
 #CheckerGccPlugins_test( usingns1 )
 #CheckerGccPlugins_test( usingns2 )
 #CheckerGccPlugins_test( usingns3 )

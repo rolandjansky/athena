@@ -1,6 +1,6 @@
 // testing check_direct_static_use
 
-#pragma ATLAS thread_safe
+#pragma ATLAS check_thread_safety
 
 
 int f1(int xx)
@@ -32,6 +32,20 @@ int f4()
 {
   static const int x = 10;
   return x;
+}
+
+
+int f5 [[gnu::not_thread_safe]] (int xx)
+{
+  static int x;
+  return xx + x;
+}
+
+
+int f6 [[gnu::not_reentrant]] (int xx)
+{
+  static int x;
+  return xx + x;
 }
 
 

@@ -1,4 +1,4 @@
-namespace std { int qq [[gnu::thread_safe]]; }
+namespace std { int qq; }
 using namespace std;
 using std::qq;
 #include "usingns1_test.h"

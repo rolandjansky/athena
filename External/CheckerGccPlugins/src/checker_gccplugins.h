@@ -33,11 +33,11 @@ namespace CheckerGccPlugins {
 
 
 /// Has DECL been declared thread-safe?
-bool is_thread_safe (tree decl);
+bool check_thread_safety_p (tree decl);
 
-bool is_thread_safe_location (location_t loc);
+bool check_thread_safety_location_p (location_t loc);
 
-void handle_thread_safe_pragma (cpp_reader*);
+void handle_check_thread_safety_pragma (cpp_reader*);
 
 void inform_url (location_t loc, const char* url);
 

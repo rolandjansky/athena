@@ -1,11 +1,13 @@
 // testing check_assign_address_of_static
 
-#pragma ATLAS thread_safe
+#pragma ATLAS check_thread_safety
 
 
 static int y1;
 static const int y2 = 0;
 //static int y3[10];
+static thread_local int y4;
+static int y5 [[gnu::thread_safe]];
 
 
 int* f1()
@@ -62,4 +64,29 @@ struct Y
   int y2;
   void foo();
 };
+
+
+int* f8 [[gnu::not_reentrant]] ()
+{
+  return &y1;
+}
+
+
+int* f9()
+{
+  return &y4;
+}
+
+
+int* f10()
+{
+  return &y5;
+}
+
+
+int* f11 [[gnu::not_thread_safe]] ()
+{
+  return &y1;
+}
+
 

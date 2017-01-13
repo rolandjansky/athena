@@ -167,7 +167,12 @@ checker_plugin_info = {
 static struct
 attribute_spec attribs[] =
   { {"thread_safe", 0, 0, false, false, false, NULL, false},
-    {"thread_safe_debug", 0, 0, false, false, false, NULL, false},
+    {"not_thread_safe", 0, 0, false, false, false, NULL, false},
+    {"not_reentrant", 0, 0, false, false, false, NULL, false},
+    {"not_const_thread_safe", 0, 0, false, false, false, NULL, false},
+    {"argument_not_const_thread_safe", 0, 0, false, false, false, NULL, false},
+    {"check_thread_safety", 0, 0, false, false, false, NULL, false},
+    {"check_thread_safety_debug", 0, 0, false, false, false, NULL, false},
     {NULL, 0, 0, false, false, false, NULL, false},
   };
 
@@ -185,8 +190,8 @@ static
 void
 register_checker_pragmas (void* /*event_data*/, void* /*data*/)
 {
-  c_register_pragma ("ATLAS", "thread_safe",
-                     CheckerGccPlugins::handle_thread_safe_pragma);
+  c_register_pragma ("ATLAS", "check_thread_safety",
+                     CheckerGccPlugins::handle_check_thread_safety_pragma);
 }
 
 

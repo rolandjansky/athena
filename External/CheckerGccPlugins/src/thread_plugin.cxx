@@ -241,15 +241,31 @@ tree get_inner (tree expr)
 #if GCC_VERSION >= 6000
                                 &preversep,
 #endif
-                                &pvolatilep, false);
+                                &pvolatilep
+#if GCC_VERSION < 7000                                
+                                , false
+#endif
+                                );
   }
   return expr;
 }
 
 
+bool has_attrib (tree decl, const char* attrname)
+{
+  return lookup_attribute (attrname, DECL_ATTRIBUTES (decl));
+}
+
+
+bool has_attrib (function* fun, const char* attrname)
+{
+  return lookup_attribute (attrname, DECL_ATTRIBUTES (fun->decl));
+}
+
+
 bool has_thread_safe_attrib (tree decl)
 {
-  return lookup_attribute ("thread_safe", DECL_ATTRIBUTES (decl));
+  return has_attrib (decl, "thread_safe");
 }
 
 
@@ -307,15 +323,17 @@ void check_mutable (tree expr, gimplePtr stmt, function* fun, const char* what)
 // Check for direct use of a static value.
 void check_direct_static_use (gimplePtr stmt, function* fun)
 {
+  if (has_attrib (fun, "not_reentrant"))
+    return;
+
   size_t nop = gimple_num_ops (stmt);
   for (size_t i = 0; i < nop; i++) {
     tree op = gimple_op (stmt, i);
-    //debug_tree (op);
 
     tree optest = get_inner (op);
     if (static_p (optest)) {
         warning_at (gimple_location (stmt), 0,
-                    "Use of static expression %<%E%> within thread-safe function %<%D%> may not be thread-safe.",
+                    "Use of static expression %<%E%> within function %<%D%> may not be thread-safe.",
                     op, fun->decl);
         if (DECL_P (optest)) {
           inform (DECL_SOURCE_LOCATION (optest),
@@ -329,7 +347,122 @@ void check_direct_static_use (gimplePtr stmt, function* fun)
 
 // Check for assigning from an address of a static object
 // into a pointer/reference, or for discarding const.
-void check_assign_address_of_static (gimplePtr stmt, function* fun)
+//   OP: operand to check
+//   STMT: gimple statement being checked
+//   FUN: function being checked
+void check_assign_address_of_static (tree op, gimplePtr stmt, function* fun)
+{
+  if (op && TREE_CODE (op) == ADDR_EXPR) {
+    while (op && TREE_CODE (op) == ADDR_EXPR)
+      op = TREE_OPERAND (op, 0);
+  }
+
+  tree optest = get_inner (op);
+  if (static_p (optest) && !has_attrib (fun, "not_reentrant")) {
+    warning_at (gimple_location (stmt), 0,
+                "Pointer or reference bound to static expression %<%E%> within function %<%D%>; may not be thread-safe.",
+                op, fun->decl);
+    if (DECL_P (optest)) {
+      inform (DECL_SOURCE_LOCATION (optest),
+              "Declared here:");
+    }
+    CheckerGccPlugins::inform_url (gimple_location (stmt), url);
+  }
+}
+
+
+// Test to see if a pointer value comes directly or indirectly from
+// a const pointer function argument.
+tree pointer_is_const_arg (tree val)
+{
+  //fprintf (stderr, "pointer_is_const_arg_p\n");
+  //debug_tree(val);
+  tree valtest = get_inner (val);
+  tree valtype = TREE_TYPE (valtest);
+  if (!POINTER_TYPE_P(valtype) || !TYPE_READONLY (TREE_TYPE (valtype)))
+    return NULL_TREE;
+
+  if (TREE_CODE (val) == ADDR_EXPR)
+    val = TREE_OPERAND (val, 0);
+  if (TREE_CODE (val) == COMPONENT_REF)
+    val = get_inner (val);
+  if (TREE_CODE (val) == MEM_REF)
+    val = TREE_OPERAND (val, 0);
+
+  if (TREE_CODE (val) != SSA_NAME) return NULL_TREE;
+  if (SSA_NAME_VAR (val) && TREE_CODE (SSA_NAME_VAR (val)) == PARM_DECL) return val;
+
+  gimplePtr stmt = SSA_NAME_DEF_STMT (val);
+  if (!stmt) return NULL_TREE;
+  //debug_gimple_stmt (stmt);
+  //fprintf (stderr, "code %s\n", get_tree_code_name(gimple_expr_code(stmt)));
+  
+  if (is_gimple_assign (stmt) && (gimple_expr_code(stmt) == VAR_DECL ||
+                                  gimple_expr_code(stmt) == PARM_DECL ||
+                                  gimple_expr_code(stmt) == POINTER_PLUS_EXPR ||
+                                  gimple_expr_code(stmt) == ADDR_EXPR))
+  {
+    //fprintf (stderr, "recurse\n");
+    return pointer_is_const_arg (gimple_op(stmt, 1));
+  }
+  else if (gimple_code (stmt) == GIMPLE_PHI) {
+    size_t nop = gimple_num_ops (stmt);
+    for (size_t i = 0; i < nop; i++) {
+      tree op = gimple_op (stmt, i);
+      tree ret = pointer_is_const_arg (op);
+      if (ret) return ret;
+    }
+  }
+  return NULL_TREE;
+}
+
+
+void warn_about_discarded_const (tree expr, gimplePtr stmt, function* fun)
+{
+  tree parm = pointer_is_const_arg (expr);
+  if (parm) {
+    if (has_attrib (fun, "argument_not_const_thread_safe")) return;
+    if (expr == parm) {
+      warning_at (gimple_location (stmt), 0,
+                  "Const discarded from expression %<%E%> within function %<%D%>; may not be thread-safe.",
+                  expr, fun->decl);
+    }
+    else {
+      warning_at (gimple_location (stmt), 0,
+                  "Const discarded from expression %<%E%> (deriving from parameter %<%E%>) within function %<%D%>; may not be thread-safe.",
+                  expr, parm, fun->decl);
+    }
+  }
+  else {
+    if (has_attrib (fun, "not_const_thread_safe")) return;
+    warning_at (gimple_location (stmt), 0,
+                "Const discarded from expression %<%E%> within function %<%D%>; may not be thread-safe.",
+                expr, fun->decl);
+  }
+  CheckerGccPlugins::inform_url (gimple_location (stmt), url);
+}
+
+
+// Called when LHS does not have const type.
+void check_discarded_const (tree op, tree lhs, gimplePtr stmt, function* fun)
+{
+  tree optest = get_inner (op);
+  tree optype = TREE_TYPE (optest);
+  if (POINTER_TYPE_P(optype) && TYPE_READONLY (TREE_TYPE (optype))) {
+    if (TREE_CODE (lhs) == SSA_NAME &&
+        SSA_NAME_VAR (lhs) &&
+        has_thread_safe_attrib (SSA_NAME_VAR (lhs)))
+    {
+      // Allow const_cast if LHS is explicitly marked thread_safe.
+    }
+    else {
+      warn_about_discarded_const (op, stmt, fun);
+    }
+  }
+}
+
+
+void check_assignments (gimplePtr stmt, function* fun)
 {
   if (gimple_code (stmt) != GIMPLE_ASSIGN) return;
   size_t nop = gimple_num_ops (stmt);
@@ -351,25 +484,10 @@ void check_assign_address_of_static (gimplePtr stmt, function* fun)
 
     // Check for discarding const if LHS is non-const.
     if (!lhs_const)
-    {
-      tree optest = get_inner (op);
-      tree optype = TREE_TYPE (optest);
-      if (POINTER_TYPE_P(optype) && TYPE_READONLY (TREE_TYPE (optype))) {
-        if (TREE_CODE (lhs) == SSA_NAME &&
-            SSA_NAME_VAR (lhs) &&
-            has_thread_safe_attrib (SSA_NAME_VAR (lhs)))
-        {
-          // Allow const_cast if LHS is explicitly marked thread_safe.
-        }
-        else {
-          warning_at (gimple_location (stmt), 0,
-                      "Const discarded from expression %<%E%> within thread-safe function %<%D%>; may not be thread-safe.",
-                      op, fun->decl);
-          CheckerGccPlugins::inform_url (gimple_location (stmt), url);
-        }
-      }
-    }
+      check_discarded_const (op, lhs, stmt, fun);
     
+    check_assign_address_of_static (op, stmt, fun);
+
     if (op && TREE_CODE (op) == ADDR_EXPR) {
       while (op && TREE_CODE (op) == ADDR_EXPR)
         op = TREE_OPERAND (op, 0);
@@ -377,27 +495,13 @@ void check_assign_address_of_static (gimplePtr stmt, function* fun)
 
     if (!lhs_const)
       check_mutable (op, stmt, fun, "Taking non-const reference to mutable field");
-
-    {
-      tree optest = get_inner (op);
-      if (static_p (optest)) {
-        warning_at (gimple_location (stmt), 0,
-                    "Pointer or reference bound to static expression %<%E%> within thread-safe function %<%D%>; may not be thread-safe.",
-                    op, fun->decl);
-        if (DECL_P (optest)) {
-          inform (DECL_SOURCE_LOCATION (optest),
-                  "Declared here:");
-        }
-        CheckerGccPlugins::inform_url (gimple_location (stmt), url);
-      }
-    }
   }
 }
 
 
 void check_thread_safe_call (tree fndecl, gimplePtr stmt, function* fun)
 {
-  if (is_thread_safe (fndecl)) return;
+  if (check_thread_safety_p (fndecl)) return;
   std::string fnname = decl_as_string (fndecl, TFF_SCOPE + TFF_NO_FUNCTION_ARGUMENTS);
 
   location_t loc = DECL_SOURCE_LOCATION (fndecl);
@@ -420,9 +524,88 @@ void check_thread_safe_call (tree fndecl, gimplePtr stmt, function* fun)
 
 // Check passing an address of a static object to a called function
 // by non-const pointer/ref.
-void check_pass_static_by_call (gimplePtr stmt, function* fun)
+//   ARG_TYPE: type of argument
+//   ARG: argument to test
+//   STMT: gimple statement being checked
+//   FUN: function being checked
+void check_pass_static_by_call (tree arg_type, tree arg, gimplePtr stmt, function* fun)
+{
+  if (!POINTER_TYPE_P (arg_type)) return;
+
+  if (arg && TREE_CODE (arg) == ADDR_EXPR) {
+    while (arg && TREE_CODE (arg) == ADDR_EXPR)
+      arg = TREE_OPERAND (arg, 0);
+  }
+  tree argtest = get_inner (arg);
+
+  if (static_p (argtest) && !has_attrib (fun, "not_reentrant")) {
+    warning_at (gimple_location (stmt), 0,
+                "Static expression %<%E%> passed to pointer or reference function argument within function %<%D%>; may not be thread-safe.",
+                arg, fun->decl);
+    if (DECL_P (argtest)) {
+      inform (DECL_SOURCE_LOCATION (argtest),
+              "Declared here:");
+    }
+    CheckerGccPlugins::inform_url (gimple_location (stmt), url);
+  }
+}
+
+
+// Check for discarding const from a pointer/ref in a function call.
+//   ARG_TYPE: type of argument
+//   ARG: argument to test
+//   STMT: gimple statement being checked
+//   FUN: function being checked
+void check_discarded_const_in_funcall (tree arg_type, tree arg, gimplePtr stmt, function* fun)
+{
+  bool lhs_const = TYPE_READONLY (TREE_TYPE (arg_type));
+
+  tree argtest = get_inner (arg);
+
+  tree ctest = TREE_TYPE (argtest);
+  if (POINTER_TYPE_P (ctest))
+    ctest = TREE_TYPE (ctest);
+
+  if (!lhs_const && ctest && TYPE_READONLY (ctest))
+  {
+    warn_about_discarded_const (arg, stmt, fun);
+  }
+}
+
+
+// Check for discarding const from the return value of a function.
+//   STMT: gimple statement being checked
+//   FUN: function being checked
+void check_discarded_const_from_return (gimplePtr stmt, function* fun)
+{
+  tree lhs = gimple_call_lhs (stmt);
+  if (!lhs) return;
+  tree lhs_type = TREE_TYPE (lhs);
+  if (!POINTER_TYPE_P (lhs_type)) return;
+  bool lhs_const = TYPE_READONLY (TREE_TYPE (lhs_type));
+  if (lhs_const) return;
+
+  if (TREE_CODE (lhs) == SSA_NAME &&
+      SSA_NAME_VAR (lhs) &&
+      has_thread_safe_attrib (SSA_NAME_VAR (lhs)))
+    return;
+
+  tree rhs_type = gimple_expr_type (stmt);
+  if (POINTER_TYPE_P (rhs_type))
+    rhs_type = TREE_TYPE (rhs_type);
+
+  if (rhs_type && TYPE_READONLY (rhs_type))
+  {
+    warn_about_discarded_const (gimple_call_fn(stmt), stmt, fun);
+  }
+}
+
+
+void check_calls (gimplePtr stmt, function* fun)
 {
   if (gimple_code (stmt) != GIMPLE_CALL) return;
+
+  check_discarded_const_from_return (stmt, fun);
 
   tree fndecl = gimple_call_fndecl (stmt);
   if (fndecl)
@@ -440,44 +623,21 @@ void check_pass_static_by_call (gimplePtr stmt, function* fun)
     tree arg = gimple_call_arg (stmt, i);
 
     if (!POINTER_TYPE_P (arg_type)) continue;
-    bool lhs_const = TYPE_READONLY (TREE_TYPE (arg_type));
 
     if (arg && TREE_CODE (arg) == ADDR_EXPR) {
       while (arg && TREE_CODE (arg) == ADDR_EXPR)
         arg = TREE_OPERAND (arg, 0);
     }
 
-    tree argtest = get_inner (arg);
-
-    tree ctest = TREE_TYPE (argtest);
-    if (POINTER_TYPE_P (ctest))
-      ctest = TREE_TYPE (ctest);
-
-    if (!lhs_const && ctest && TYPE_READONLY (ctest))
-    {
-      warning_at (gimple_location (stmt), 0,
-                  "Const discarded from expression %<%E%> in call from thread-safe function %<%D%>; may not be thread-safe.",
-                  arg, fun->decl);
-      CheckerGccPlugins::inform_url (gimple_location (stmt), url);
-    }
-    
-    if (static_p (argtest)) {
-      warning_at (gimple_location (stmt), 0,
-                  "Static expression %<%E%> passed to pointer or reference function argument within thread-safe function %<%D%>; may not be thread-safe.",
-                  arg, fun->decl);
-      if (DECL_P (argtest)) {
-        inform (DECL_SOURCE_LOCATION (argtest),
-                "Declared here:");
-      }
-      CheckerGccPlugins::inform_url (gimple_location (stmt), url);
-    }
+    check_discarded_const_in_funcall (arg_type, arg, stmt, fun);
+    check_pass_static_by_call (arg_type, arg, stmt, fun);
   }
 }
 
 
 unsigned int thread_pass::thread_execute (function* fun)
 {
-  if (!is_thread_safe (fun->decl))
+  if (!check_thread_safety_p (fun->decl))
     return 0;
 
   basic_block bb;
@@ -490,8 +650,8 @@ unsigned int thread_pass::thread_execute (function* fun)
       //debug_gimple_stmt (stmt);
 
       check_direct_static_use (stmt, fun);
-      check_assign_address_of_static (stmt, fun);
-      check_pass_static_by_call (stmt, fun);
+      check_assignments (stmt, fun);
+      check_calls (stmt, fun);
     }
   }
   
@@ -507,7 +667,7 @@ void thread_finishtype_callback (void* gcc_data, void* /*user_data*/)
   if (TREE_CODE (type) == RECORD_TYPE) {
     if (CP_AGGREGATE_TYPE_P (type)) return;
     tree decl = TYPE_NAME (type);
-    if (!is_thread_safe(decl)) return;
+    if (!check_thread_safety_p(decl)) return;
     for (tree f = TYPE_FIELDS (type); f; f = DECL_CHAIN (f)) {
       if (TREE_CODE (f) == FIELD_DECL)
       {

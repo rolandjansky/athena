@@ -1,6 +1,6 @@
 // testing mutable checks
 
-#pragma ATLAS thread_safe
+#pragma ATLAS check_thread_safety
 
 
 struct B

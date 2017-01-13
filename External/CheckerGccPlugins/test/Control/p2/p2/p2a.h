@@ -1,1 +1,1 @@
-void p2a [[gnu::thread_safe_debug]] () {}
+void p2a [[gnu::check_thread_safety_debug]] () {}

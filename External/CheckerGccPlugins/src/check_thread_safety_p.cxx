@@ -1,9 +1,21 @@
 // $Id$
 /**
- * @file CheckerGccPlugins/src/is_thread_safe.cxx
+ * @file CheckerGccPlugins/src/check_thread_safety_p.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Sep, 2015
- * @brief Test to see if something has been declared as thread-safe.
+ * @brief Test to see if something should be checked for thread-safety.
+ *
+ * check_thread_safety_p(decl) returns false if DECL has a not_thread_safe
+ * attribute.  Otherwise, it returns true in the following cases:
+ *
+ *  - DECL directly has a check_thread_safety attribute.
+ *  - DECL is a function or type and a containing context has thread-safety
+ *    checking on.
+ *  - The file contains #pragma ATLAS check_thread_safety.
+ *  - The package contains a file ATLAS_CHECK_THREAD_SAFETY.
+ *
+ * If a decl has the attribute check_thread_safety_debug, then a diagnostic
+ * will be printed saying if that decl has thread-safety checking enabled.
  */
 
 
@@ -28,10 +40,10 @@ void thread_safe_debug_finishdecl_callback (void* gcc_data, void* /*user_data*/)
   if (!loc) return;
   if (!seen_loc.insert (loc).second)
     return;
-  if (lookup_attribute ("thread_safe_debug", DECL_ATTRIBUTES (decl)))
+  if (lookup_attribute ("check_thread_safety_debug", DECL_ATTRIBUTES (decl)))
   {
     const char* flag = " not";
-    if (CheckerGccPlugins::is_thread_safe (decl))
+    if (CheckerGccPlugins::check_thread_safety_p (decl))
       flag = "";
     warning_at (DECL_SOURCE_LOCATION (decl), 0,
                 "%<%D%> is%s marked thread-safe.", decl, flag);
@@ -108,7 +120,7 @@ namespace CheckerGccPlugins {
 bool is_thread_safe_dir (const std::string& dir, int nwalk = 5);
 bool is_thread_safe_dir1 (const std::string& dir, int nwalk = 5)
 {
-  std::string flagfile = dir + "/ATLAS_THREAD_SAFE";
+  std::string flagfile = dir + "/ATLAS_CHECK_THREAD_SAFETY";
   if (access (flagfile.c_str(), R_OK) == 0)
     return true;
 
@@ -140,7 +152,7 @@ bool is_thread_safe_dir (const std::string& dir, int nwalk /*= 5*/)
 }
 
 
-bool is_thread_safe_location (location_t loc)
+bool check_thread_safety_location_p (location_t loc)
 {
   std::string file = LOCATION_FILE(loc);
   thread_safe_files_t::iterator it = thread_safe_files.find (file);
@@ -157,11 +169,13 @@ bool is_thread_safe_location (location_t loc)
 }
 
 
-/// Has DECL been declared thread-safe?
-bool is_thread_safe (tree decl)
+/// Has DECL been declared for thread-safety checking?
+bool check_thread_safety_p (tree decl)
 {
-  // Check if the attribute is present directly.
-  if (lookup_attribute ("thread_safe", DECL_ATTRIBUTES (decl)))
+  // Check if attributes are present directly.
+  if (lookup_attribute ("not_thread_safe", DECL_ATTRIBUTES (decl)))
+    return false;
+  if (lookup_attribute ("check_thread_safety", DECL_ATTRIBUTES (decl)))
     return true;
 
   // If it's a function or class, check the containing function or class.
@@ -171,17 +185,17 @@ bool is_thread_safe (tree decl)
     tree ctx = DECL_CONTEXT (decl);
     while (ctx && !SCOPE_FILE_SCOPE_P (ctx)) {
       if (TREE_CODE (ctx) == RECORD_TYPE) {
-        if (lookup_attribute ("thread_safe", TYPE_ATTRIBUTES (ctx)))
+        if (lookup_attribute ("check_thread_safety", TYPE_ATTRIBUTES (ctx)))
           return true;
-        if (is_thread_safe_location (DECL_SOURCE_LOCATION (TYPE_NAME (ctx))))
+        if (check_thread_safety_location_p (DECL_SOURCE_LOCATION (TYPE_NAME (ctx))))
           return true;
         ctx = TYPE_CONTEXT (ctx);
       }
 
       else if (TREE_CODE (ctx) == FUNCTION_DECL) {
-        if (lookup_attribute ("thread_safe", DECL_ATTRIBUTES (ctx)))
+        if (lookup_attribute ("check_thread_safety", DECL_ATTRIBUTES (ctx)))
           return true;
-        if (is_thread_safe_location (DECL_SOURCE_LOCATION (ctx)))
+        if (check_thread_safety_location_p (DECL_SOURCE_LOCATION (ctx)))
           return true;
         ctx = DECL_CONTEXT (ctx);
       }
@@ -192,14 +206,14 @@ bool is_thread_safe (tree decl)
   }
 
   // Check the file in which it was declared.
-  if (is_thread_safe_location (DECL_SOURCE_LOCATION (decl)))
+  if (check_thread_safety_location_p (DECL_SOURCE_LOCATION (decl)))
     return true;
 
   return false;
 }
 
 
-void handle_thread_safe_pragma (cpp_reader*)
+void handle_check_thread_safety_pragma (cpp_reader*)
 {
   thread_safe_files[LOCATION_FILE (input_location)] = true;
 }

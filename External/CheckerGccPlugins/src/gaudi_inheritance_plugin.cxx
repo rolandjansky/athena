@@ -59,7 +59,11 @@ void type_callback (void* gcc_data, void* /*user_data*/)
   tree t = (tree)gcc_data;
   tree tt = t;//TYPE_MAIN_VARIANT(t);
   if (TREE_CODE(tt) != RECORD_TYPE ||
+#if defined(GCC_VERSION) && (GCC_VERSION >= 7000)
+      TYPE_UNNAMED_P(tt) ||
+#else
       TYPE_ANONYMOUS_P(tt) ||
+#endif
       !COMPLETE_TYPE_P(tt))
   {
     return;

@@ -126,7 +126,7 @@ apply_pattern checker_test name=divcheck
 #apply_pattern checker_test name=usingns6
 #apply_pattern checker_test name=usingns7
 apply_pattern checker_test name=naming
-apply_pattern checker_test name=ists1
+apply_pattern checker_test name=check_ts1
 apply_pattern checker_test name=thread1
 apply_pattern checker_test name=thread2
 apply_pattern checker_test name=thread3
@@ -134,4 +134,5 @@ apply_pattern checker_test name=thread4
 apply_pattern checker_test name=thread5
 apply_pattern checker_test name=thread6
 apply_pattern checker_test name=thread7
+apply_pattern checker_test name=thread8
 

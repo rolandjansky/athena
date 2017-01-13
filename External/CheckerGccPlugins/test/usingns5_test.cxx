@@ -17,7 +17,7 @@ public:
 
 #include "usingns5_test.h"
 
-const BaseInfoBase* pp [[gnu::thread_safe]] = &BaseInfo<int>::baseinfo();
+const BaseInfoBase* pp = &BaseInfo<int>::baseinfo();
 
 namespace CLHEP {class RandGauss; }
 using CLHEP::RandGauss;

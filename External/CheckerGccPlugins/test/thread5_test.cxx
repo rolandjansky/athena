@@ -1,7 +1,8 @@
-// testing const_cast check from check_pass_static_by_call
+// testing check_discarded_const_in_funcall
 
-#pragma ATLAS thread_safe
+#pragma ATLAS check_thread_safety
 
+const int* xx();
 void f1(int* y);
 void f2(const int* y)
 {
@@ -35,4 +36,32 @@ void f5(const int* y)
 void f6(const S& s)
 {
   const_cast<S&>(s).foo();
+}
+
+void f7 [[gnu::argument_not_const_thread_safe]] (const int* y)
+{
+  f1(const_cast<int*>(y));
+}
+
+void f7a [[gnu::not_const_thread_safe]] (const int* y)
+{
+  f1(const_cast<int*>(y));
+}
+
+void f8 [[gnu::not_const_thread_safe]] ()
+{
+  const int* y = xx();
+  f1(const_cast<int*>(y));
+}
+
+void f8a [[gnu::argument_not_const_thread_safe]] ()
+{
+  const int* y = xx();
+  f1(const_cast<int*>(y));
+}
+
+void f9 [[gnu::not_thread_safe]] ()
+{
+  const int* y = xx();
+  f1(const_cast<int*>(y));
 }
