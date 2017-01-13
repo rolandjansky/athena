@@ -5,7 +5,6 @@
 //
 //   Processor for index elements
 //
-#include <iostream>
 #include <map>
 
 #include <xercesc/dom/DOM.hpp>

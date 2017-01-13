@@ -8,7 +8,6 @@
 //   Process children and get list of things to be added to the tree.
 //
 #include "GeoModelXml/AddbranchProcessor.h"
-#include <iostream>
 #include <map>
 
 #include <xercesc/dom/DOM.hpp>

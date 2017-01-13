@@ -8,7 +8,9 @@
 //    Use: create an instance of this, and pass a reference to it in the Gmx2Geo constructor.
 //
 #include "GeoModelXml/GmxInterface.h"
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelKernel/Query.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -21,20 +23,26 @@ int GmxInterface::sensorId(map<string, int> &/*index*/) {
 }
 
 void GmxInterface::addSensorType(string clas, string type, map<string, string> params) {
-    cout << "GmxInterface::addSensorType called for class " << clas << "; type " << type << endl;
-    cout << "    Parameter names and values:" << endl;
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
+
+    log << MSG::DEBUG << "GmxInterface::addSensorType called for class " << clas << "; type " << type << 
+                         "\n    Parameter names and values:\n";
     for (map<string, string>::iterator p = params.begin(); p != params.end(); ++p) {
-        cout << "        " << p->first << " = " << p->second << endl;
+        log << "        " << p->first << " = " << p->second << endmsg;
     }
 }
 
 void GmxInterface::addSensor(string name, map<string, int> &index, int sequentialId, GeoVFullPhysVol *fpv) {
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
 
-    cout << "GmxInterface::addSensor called for " << fpv->getLogVol()->getName() << ", type " << name << ". Indices:   ";
+    log << MSG::DEBUG << "GmxInterface::addSensor called for " << fpv->getLogVol()->getName() << ", type " << name << 
+                         ". Indices:   ";
     for (map<string, int>::iterator i = index.begin(); i != index.end(); ++i) {
-        cout << i->second << "   ";
+        log << i->second << "   ";
     }
-    cout << "\nSequential ID = " << sequentialId << endl;
+    log << "\nSequential ID = " << sequentialId << endmsg;
 }
 
 void GmxInterface::addAlignable(int level, map<std::string, int> &index, GeoVFullPhysVol *fpv, 
@@ -42,6 +50,8 @@ void GmxInterface::addAlignable(int level, map<std::string, int> &index, GeoVFul
 //
 //    Logvol name is not very useful (usually == AssemblyLV). Get PhysVol name (seems surprisingly awkward way needed)
 //
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
 /* Cannot get this to work.
     string name("New name");
     GeoPVConstLink parent = fpv->getParent();
@@ -52,13 +62,13 @@ void GmxInterface::addAlignable(int level, map<std::string, int> &index, GeoVFul
     else {
         name = string("Something Wrong, fullPV not found in parent in GmxInterface::addAlignable");
     }
-    cout << "GmxInterface::addAlignable called for physvol name " << name << ".  Level = " << level << ". Indices:   ";
+    log << MSG::DEBUG << "GmxInterface::addAlignable called for physvol name " << name << ".  Level = " << level << ". Indices:   ";
 */
 
-    cout << "GmxInterface::addAlignable called for a physvol. Logvol name " << fpv->getLogVol()->getName() << 
+    log << MSG::DEBUG << "GmxInterface::addAlignable called for a physvol. Logvol name " << fpv->getLogVol()->getName() << 
             ". Level = " << level << ". Indices:   ";
     for (map<string, int>::iterator i = index.begin(); i != index.end(); ++i) {
-        cout << i->second << "   ";
+        log << i->second << "   ";
     }
-    cout << endl;
+    log << endmsg;
 }

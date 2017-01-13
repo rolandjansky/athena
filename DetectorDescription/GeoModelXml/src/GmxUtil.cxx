@@ -16,7 +16,6 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelXml/GmxInterface.h"
 
-#include <iostream>
 #include <cstdlib>
 #include <sstream>
 
@@ -87,13 +86,15 @@ double GmxUtil::evaluate(char const *expression) {
 //
     double result = eval.evaluate(noBrackets.c_str());
     if (eval.status() != HepTool::Evaluator::OK) {
-        cerr << "GeoModelXml Error processing CLHEP Evaluator expression. Error name " <<
+        ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+        MsgStream log(&(*msgh), "GeoModelXml");
+        log << MSG::FATAL << "GeoModelXml Error processing CLHEP Evaluator expression. Error name " <<
          eval.error_name() << endl << "Message: ";
         eval.print_error();
-        cerr << "original expression" << expression << "; Expression after de-bracketing:\n";
-        cerr << noBrackets << endl;
-        cerr << string(eval.error_position(), '-') << '^' << '\n';
-        cerr << "Exiting program.\n";
+        log << "original expression" << expression << "; Expression after de-bracketing:\n";
+        log << noBrackets << endl;
+        log << string(eval.error_position(), '-') << '^' << '\n';
+        log << "Exiting program.\n" << endmsg;
         exit(999); // Should do better...
     }
     return result;
@@ -109,7 +110,9 @@ std::string GmxUtil::debracket(std::string expression) {
     }
     size_t nextClose = expression.find_first_of(']', lastOpen);
     if (nextClose == string::npos) {
-        cerr << "debracket: unpaired opening [; expression was:\n    " << expression << endl; 
+        ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+        MsgStream log(&(*msgh), "GeoModelXml");
+        log << MSG::ERROR << "debracket: unpaired opening [; expression was:\n    " << expression << endmsg; 
         return expression;
     }
     string toEvaluate = expression.substr(lastOpen + 1, nextClose - lastOpen - 1);
@@ -130,42 +133,36 @@ std::string GmxUtil::debracket(std::string expression) {
 GeoLogVol * GmxUtil::makeAssemblyLV() {
 #ifndef STANDALONE_GMX
     StoreGateSvc *pDetStore = 0;
-    IMessageSvc *msgSvc = 0;
     ISvcLocator *svcLocator = Gaudi::svcLocator();
 
-    StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
 
-    if(sc.isFailure()) {
-        std::cerr << "GmxUtil::makeAssemblyLV(): unable to access Message Service\n";
+    StatusCode sc = svcLocator->service("DetectorStore", pDetStore);
+    if (sc.isFailure()) {
+            log << MSG::ERROR << "GmxUtil::makeAssemblyLV: Unable to access Detector Store" << endmsg;
     }
     else {
-        MsgStream log(msgSvc,"EPVolumeBuilder");
-        sc=svcLocator->service("DetectorStore", pDetStore);
+        DataHandle<StoredMaterialManager> theMaterialManager;
+        sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
         if(sc.isFailure()) {
-            log << MSG::ERROR << "GmxUtil::makeAssemblyLV: Unable to access Detector Store" << endreq;
+                log << MSG::ERROR << "GmxUtil::makeAssemblyLV: Unable to access Material Manager" << endmsg;
         }
         else {
-            DataHandle<StoredMaterialManager> theMaterialManager;
-            sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
-            if(sc.isFailure()) {
-                log << MSG::ERROR << "GmxUtil::makeAssemblyLV: Unable to access Material Manager" << endreq;
-            }
-            else {
-                GeoMaterial *assembly_material = theMaterialManager->getMaterial("special::HyperUranium");
-                GeoBox *box = new GeoBox(1., 1., 1.); // Simplest shape; it is irrelevant
-                GeoLogVol *lv = new GeoLogVol(string("AssemblyLV"), box, assembly_material);
-                return lv;
-            }
+            GeoMaterial *assembly_material = theMaterialManager->getMaterial("special::HyperUranium");
+            GeoBox *box = new GeoBox(1., 1., 1.); // Simplest shape; it is irrelevant
+            GeoLogVol *lv = new GeoLogVol(string("AssemblyLV"), box, assembly_material);
+            return lv;
         }
     }
     return 0;
 #else
-                GeoMaterial *assembly_material = new GeoMaterial("special::HyperUranium", 1.e-20);
-                GeoElement *vacuum = new GeoElement("vacuum", "Mt", 1, 1);
-                ether->add(vacuum, 1.0);
-                ether->lock();
-                GeoBox *box = new GeoBox(1., 1., 1.); // Simplest shape; it is irrelevant
-                GeoLogVol *lv = new GeoLogVol(string("AssemblyLV"), box, assembly_material);
-                return lv;
+    GeoMaterial *assembly_material = new GeoMaterial("special::HyperUranium", 1.e-20);
+    GeoElement *vacuum = new GeoElement("vacuum", "Mt", 1, 1);
+    ether->add(vacuum, 1.0);
+    ether->lock();
+    GeoBox *box = new GeoBox(1., 1., 1.); // Simplest shape; it is irrelevant
+    GeoLogVol *lv = new GeoLogVol(string("AssemblyLV"), box, assembly_material);
+    return lv;
 #endif
 }

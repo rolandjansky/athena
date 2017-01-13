@@ -3,8 +3,11 @@
 */
 
 #include "GeoModelXml/Gmx2Geo.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+
 #include <string>
-#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <stdlib.h>
@@ -31,11 +34,17 @@ Gmx2Geo::Gmx2Geo(const string xmlFile, GeoPhysVol *addHere, GmxInterface &gmxInt
 //
 //    Create the xml tree (DOMDocument)
 //
+
+// Logging: ref https://wiki.bnl.gov/dayabay/index.php?title=Logging
+// Turn on logging in job-options with: MessageSvc.setDebug += {"GeoModelXml"}
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
+
     DOMLSParser *parser = 0;
     DOMDocument *doc = createDOMDocument(xmlFile, parser, flags);
     if (!doc) {// Parsed badly
         XMLPlatformUtils::Terminate();
-        cerr << "\n\nError in xml file " << xmlFile << ". Exiting athena.\n\n";
+        log << MSG::FATAL << "Error in xml file " << xmlFile << ". Exiting athena." << endmsg;
         exit(0);
     }
 //
@@ -50,14 +59,14 @@ Gmx2Geo::Gmx2Geo(const string xmlFile, GeoPhysVol *addHere, GmxInterface &gmxInt
 //    info message: name of detector
 //
     if (flags & 0x1) {
-        cout << "\n\nGmx2Geo: Set up detector geometry from db-string which adds sub-detector ";
+        log << MSG::INFO << "Set up detector geometry from db-string \nwhich adds sub-detector ";
     }
     else {
-        cout << "\n\nGmx2Geo: Set up detector geometry from file " << xmlFile << " which adds sub-detector ";
+        log << MSG::INFO << "Set up detector geometry from file " << xmlFile << " which adds sub-detector ";
     }
     const DOMElement *element = dynamic_cast<const DOMElement*>(root);
     const XMLCh *attribute = element->getAttribute(translate("name"));
-    cout << translate(attribute) << "\n\n";
+    log << translate(attribute) << endmsg;
 //
 //    Add all constant definitions to the evaluator, so they are ready if needed.
 //
@@ -104,7 +113,11 @@ const DOMElement *element;
 //
 //-------------------------------------------------------------------------------------------
 //
-    cout << "\n\nDefined constants\n=================\n\n";
+// Turn var printout on and off with 
+    ServiceHandle<IMessageSvc> msgh("MessageSvc","GmxUtil");
+    MsgStream log(&(*msgh), "GmxUtil");
+    log << MSG::DEBUG << "\n\nGmx2Geo GmxUtil matrix, vector and var values:\n";
+    log << MSG::DEBUG <<     "==============================================\n\n";
 
     DOMNodeList *defines = doc->getElementsByTagName(translate("defines"));
     int nDefines = defines->getLength();
@@ -116,7 +129,7 @@ const DOMElement *element;
 //
 //   Vectors: a list of variables. Names subscripted by _k; values white-space separated numbers.
 //
-        cout << "\n\n    Vectors\n    =======\n\n";
+        log << "\n\n    Vectors\n    =======\n\n";
 
         vars = element->getElementsByTagName(translate("vector"));
         nVars = vars->getLength();
@@ -131,7 +144,7 @@ const DOMElement *element;
             int k = 0;
             do  {
                 list >> dble;
-                cout << fullname + to_string(k) << " = " << dble << endl; 
+                log << fullname + to_string(k) << " = " << dble << endl; 
                 eval.setVariable((fullname + to_string(k++)).c_str(), dble);
             } while(list.good());
             XMLString::release(&name);
@@ -140,7 +153,7 @@ const DOMElement *element;
 //
 //   Matrices: a matrix of variables. Names subscripted by _j_k; values: white-space separated numbers.
 //
-        cout << "\n\n    Matrices\n    ========\n\n";
+        log << "\n\n    Matrices\n    ========\n\n";
 
         vars = element->getElementsByTagName(translate("matrix"));
         nVars = vars->getLength();
@@ -158,7 +171,7 @@ const DOMElement *element;
             do  {
                 for (int col = 0; col < coldim; ++col) {
                         list >> dble;
-                        cout << fullname + to_string(k) + '_' + to_string(col) << " = " << dble << endl; 
+                        log << fullname + to_string(k) + '_' + to_string(col) << " = " << dble << endl; 
                         eval.setVariable((fullname + to_string(k) + '_' + to_string(col)).c_str(), dble);
                         if (!list.good()) break;
                 }
@@ -170,7 +183,7 @@ const DOMElement *element;
 //
 //    Vars: single variable
 //
-        cout << "\n\n    Single variables\n    ================\n\n";
+        log << "\n\n    Single variables\n    ================\n\n";
 
         vars = element->getElementsByTagName(translate("var"));
         nVars = vars->getLength();
@@ -180,22 +193,21 @@ const DOMElement *element;
             char *val = translate(var->getAttribute(translate("value")));
             double evaluated = eval.evaluate(val);
             if (eval.status() != HepTool::Evaluator::OK) {
-                cerr << "GeoModelXml Error processing CLHEP Evaluator expression. Error name " <<
+                log << MSG::FATAL << "GeoModelXml Error processing CLHEP Evaluator expression. Error name " <<
                 eval.error_name() << endl << "Message: ";
                 eval.print_error();
-                cerr << val << endl;
-                cerr << string(eval.error_position(), '-') << '^' << '\n';
-                cerr << "Exiting program.\n";
+                log << val << endl;
+                log << string(eval.error_position(), '-') << '^' << '\n';
+                log << "Exiting program." << endmsg;
                 exit(999); // Should do better...
             }
             eval.setVariable(name, evaluated);
-//            eval.setVariable(name, val); // If ever you want to go back to storing expressions, 
-                                           // uncomment this line and comment out the above few
-            cout << name << "\t\t" << val << " = " << setprecision(10) << evaluated << endl;
+            log << name << "\t\t" << val << " = " << setprecision(10) << evaluated << endl;
             XMLString::release(&name);
             XMLString::release(&val);
         }
     }
+    log << endmsg;
     return 1;
 }
 
@@ -206,7 +218,6 @@ int Gmx2Geo::doPositionIndex(xercesc_3_1::DOMDocument *doc, GmxUtil &gmxUtil) {
         const DOMElement *element = dynamic_cast<DOMElement *>(posIndex->item(i));
         DOMNodeList *addindexs = element->getElementsByTagName(translate("addindex"));
         int nIndexs = addindexs->getLength();
-cout << "IndexProcessor: number of addindexs is " << nIndexs << endl;
         for (int j = 0; j < nIndexs; ++j) {
             DOMElement *addindex = dynamic_cast<DOMElement*>(addindexs->item(j));
             string name = string(translate(addindex->getAttribute(translate("name"))));
