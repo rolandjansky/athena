@@ -171,8 +171,16 @@ public:
     {
         return m_pCscRdoToPrepDataTool;
     }
+    ToolHandle<Muon::IMuonRdoToPrepDataTool>& cscRdoToPrepDataTool()
+    {
+        return m_pCscRdoToPrepDataTool;
+    }
 
     const ToolHandle<ICscClusterBuilder>& cscClusterProviderTool() const
+    {
+        return m_pCscClusterProviderTool;
+    }
+    ToolHandle<ICscClusterBuilder>& cscClusterProviderTool()
     {
         return m_pCscClusterProviderTool;
     }
@@ -180,11 +188,23 @@ public:
     {
         return m_pMdtRdoToPrepDataTool;
     }
+    ToolHandle<Muon::IMuonRdoToPrepDataTool>& mdtRdoToPrepDataTool()
+    {
+        return m_pMdtRdoToPrepDataTool;
+    }
     const ToolHandle<Muon::IMuonRdoToPrepDataTool>& rpcRdoToPrepDataTool() const
     {
         return m_pRpcRdoToPrepDataTool;
     }
+    ToolHandle<Muon::IMuonRdoToPrepDataTool>& rpcRdoToPrepDataTool()
+    {
+        return m_pRpcRdoToPrepDataTool;
+    }
     const ToolHandle<Muon::IMuonRdoToPrepDataTool>& tgcRdoToPrepDataTool() const
+    {
+        return m_pTgcRdoToPrepDataTool;
+    }
+    ToolHandle<Muon::IMuonRdoToPrepDataTool>& tgcRdoToPrepDataTool()
     {
         return m_pTgcRdoToPrepDataTool;
     }
@@ -201,6 +221,10 @@ public:
         return m_pCscClusterCreator;
     }
     const ToolHandle<Trk::IIntersector>& Intersector() const
+    {
+        return m_pIntersector;
+    }
+    ToolHandle<Trk::IIntersector>& Intersector()
     {
         return m_pIntersector;
     }
