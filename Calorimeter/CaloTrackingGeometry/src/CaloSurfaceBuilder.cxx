@@ -1120,6 +1120,7 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     delete surf;  
   }
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB3].second);
+  if (!cyl) std::abort();
   m_layerEntries[CaloCell_ID::EMB3].second = new Trk::SlidingCylinderSurface(*cyl,
 						      new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
 						      new std::vector<float> (offset));
@@ -1137,6 +1138,7 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     delete surf;  
   }
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB3].first);
+  if (!cyl) std::abort();
   m_layerEntries[CaloCell_ID::EMB3].first = new Trk::SlidingCylinderSurface(*cyl,
 						      new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
 						     new std::vector<float> (offset));
@@ -1188,6 +1190,7 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     delete surf;  
   }
   disc = dynamic_cast<const Trk::DiscSurface*> (m_layerEntries[CaloCell_ID::EME3].second);
+  if (!disc) std::abort();
   m_layerEntries[CaloCell_ID::EME3].second = new Trk::SlidingDiscSurface(*disc,
 									 new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
 									 new std::vector<float> (offset));
@@ -1205,6 +1208,7 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     delete surf;  
   }
   disc = dynamic_cast<const Trk::DiscSurface*> (m_layerEntries[CaloCell_ID::EME3].first);
+  if (!disc) std::abort();
   m_layerEntries[CaloCell_ID::EME3].first = new Trk::SlidingDiscSurface(*disc,
 									new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
 									new std::vector<float> (offset));
