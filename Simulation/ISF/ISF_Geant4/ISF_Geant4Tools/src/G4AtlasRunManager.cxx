@@ -247,7 +247,8 @@ void iGeant4::G4AtlasRunManager::InitializePhysics()
   } // Do flux recording
 
   //  kernel->RunInitialization();
-  RunInitialization();
+  // the following line has been commented to solve an early initialization issue. see ATLASSIM-3078
+  //RunInitialization();
   //std::cout<<"*AS* run init <<< "<<std::endl;
   return;
 }
