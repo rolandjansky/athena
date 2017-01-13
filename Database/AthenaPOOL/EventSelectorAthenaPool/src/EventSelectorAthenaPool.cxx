@@ -704,7 +704,7 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
                while (m_athenaPoolCnvSvc->readData().isSuccess()) {
                   ATH_MSG_VERBOSE("Called last readData, while putting next event in next()");
                }
-               usleep(100);
+// Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
                sc = m_eventStreamingTool->putEvent(m_evtCount - 1, token.c_str(), token.length() + 1, 0);
             }
             if (!sc.isSuccess()) {
@@ -944,26 +944,26 @@ int EventSelectorAthenaPool::findEvent(int evtNum) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::makeServer(int num) {
-   m_processMetadata = false;
-   if (m_eventStreamingTool.empty()) {
-      return(StatusCode::FAILURE);
-   }
    if (m_athenaPoolCnvSvc->makeServer(num + 1).isFailure()) {
-      ATH_MSG_DEBUG("Failed to switch AthenaPoolCnvSvc to DataStreaming server");
+      ATH_MSG_ERROR("Failed to switch AthenaPoolCnvSvc to DataStreaming server");
       //return(StatusCode::FAILURE);
    }
+   if (m_eventStreamingTool.empty()) {
+      return(StatusCode::SUCCESS);
+   }
+   m_processMetadata = false;
    ATH_MSG_DEBUG("makeServer: " << m_eventStreamingTool << " = " << num);
    return(m_eventStreamingTool->makeServer(1));
 }
 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::makeClient(int num) {
-   if (m_eventStreamingTool.empty()) {
-      return(StatusCode::FAILURE);
-   }
    if (m_athenaPoolCnvSvc->makeClient(num + 1).isFailure()) {
-      ATH_MSG_DEBUG("Failed to switch AthenaPoolCnvSvc to DataStreaming client");
+      ATH_MSG_ERROR("Failed to switch AthenaPoolCnvSvc to DataStreaming client");
       //return(StatusCode::FAILURE);
+   }
+   if (m_eventStreamingTool.empty()) {
+      return(StatusCode::SUCCESS);
    }
    ATH_MSG_DEBUG("makeClient: " << m_eventStreamingTool << " = " << num);
    return(m_eventStreamingTool->makeClient(0));
@@ -1021,7 +1021,7 @@ StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
       while (m_athenaPoolCnvSvc->readData().isSuccess()) {
          ATH_MSG_VERBOSE("Called last readData, while marking last event in readEvent()");
       }
-      usleep(100);
+// Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
       sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
    }
    if (!sc.isSuccess()) {
@@ -1030,7 +1030,6 @@ StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
       sc = m_athenaPoolCnvSvc->readData();
       while (sc.isSuccess() || sc.isRecoverable()) {
          sc = m_athenaPoolCnvSvc->readData();
-         usleep(100);
       }
       ATH_MSG_DEBUG("Failed last readData -> Clients are stopped, after marking last event in readEvent()");
    }
