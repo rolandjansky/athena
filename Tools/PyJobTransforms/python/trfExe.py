@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 785618 2016-11-21 22:03:04Z uworlika $
+# @version $Id: trfExe.py 792052 2017-01-13 13:36:51Z mavogel $
 
 import copy
 import json
@@ -826,7 +826,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 785618 2016-11-21 22:03:04Z uworlika $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 792052 2017-01-13 13:36:51Z mavogel $')
         else:
             self._jobOptionsTemplate = None
 
@@ -950,8 +950,9 @@ class athenaExecutor(scriptExecutor):
             # as soft linking can lead to problems in the PoolFileCatalog (see ATLASJT-317)
             for dataType in output:
                 self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
-                self.conf._dataDictionary[dataType].value[0] += "_000"
-                msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
+                if 'eventService' not in self.conf.argdict or 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value==False:
+                    self.conf._dataDictionary[dataType].value[0] += "_000"
+                    msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
         else:
             self._athenaMPWorkerTopDir = self._athenaMPFileReport = None
 
@@ -1499,7 +1500,7 @@ class hybridPOOLMergeExecutor(athenaExecutor):
         fastEventMerge1._cmd = ['mergePOOL.exe', '-o', self._hybridMergeTmpFile]
         for fname in self.conf.dataDictionary[list(self._input)[0]].value:
             fastEventMerge1._cmd.extend(['-i', fname])
-        fastEventMerge1._cmd.extend(['-e', 'MetaData', '-e', 'MetaDataHdrDataHeaderForm', '-e', 'MetaDataHdrDataHeader', '-e', 'MetaDataHdr'])
+        fastEventMerge1._cmd.extend(['-e', 'MetaData', '-e', 'MetaDataHdrDataHeaderForm', '-e', 'MetaDataHdrDataHeader', '-e', 'MetaDataHdr', '-e', 'MetaDataHdrForm'])
 
         msg.debug('Constructed this command line for fast event merge step 1: {0}'.format(fastEventMerge1._cmd))
         fastEventMerge1.doAll()
