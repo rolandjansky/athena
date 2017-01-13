@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.cxx 786167 2016-11-23 21:52:33Z ssnyder $
+// $Id: TriggerAnalysisTutorial.cxx 792124 2017-01-13 17:55:55Z ssnyder $
 
 // System include(s):
 #include <iomanip>
@@ -35,6 +35,7 @@ TriggerAnalysisTutorial::TriggerAnalysisTutorial( const std::string &name,
                                                   ISvcLocator *pSvcLocator)
    : AthAlgorithm( name, pSvcLocator ),
      m_eventNr( 0 ),
+     m_h_triggerAccepts( nullptr ),
      //m_eventsPrinted( 0 ),
      m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
      m_matchTool( "Trig::MatchingTool/MatchingTool", this ),
