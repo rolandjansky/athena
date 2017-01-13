@@ -32,7 +32,7 @@ atlas_add_library( IsolationSelectionLib
   PUBLIC_HEADERS IsolationSelection
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon
-  xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionTool
+  xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
 
