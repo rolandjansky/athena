@@ -1225,7 +1225,7 @@ bool
       // /(beta*beta*p*p*p*p) transforms Var(E) to Var(q/p)
       mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
       double bp2 = beta*mom*mom;
-      m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*fabs(distanceStepped);  // keep trace of sign
+      m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*distanceStepped;  
     }
     if (m_matstates || errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
 					    m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
@@ -1435,7 +1435,7 @@ bool
 	double sigTot2 = m_sigmaIoni*m_sigmaIoni + m_sigmaRad*m_sigmaRad;
 	// /(beta*beta*p*p*p*p) transforms Var(E) to Var(q/p)
 	double bp2 = beta*mom*mom;
-	m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*fabs(distanceStepped);  // keep trace of sign
+	m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*distanceStepped;  
       }
       if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
 					      m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
@@ -1460,7 +1460,7 @@ bool
       double sigTot2 = m_sigmaIoni*m_sigmaIoni + m_sigmaRad*m_sigmaRad;
       // /(beta*beta*p*p*p*p) transforms Var(E) to Var(q/p)
       double bp2 = beta*mom*mom;
-      m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*fabs(distanceStepped);  // keep trace of sign
+      m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*distanceStepped;  
     }
     if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
 					    m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
