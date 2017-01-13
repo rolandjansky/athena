@@ -33,7 +33,7 @@ class JetParticleAssociationAlg : public AthAlgorithm {
                 return StatusCode::FAILURE;
             }
 
-            for (const ToolHandle<JetParticleAssociation>& jpa : m_tools) {
+            for (ToolHandle<JetParticleAssociation>& jpa : m_tools) {
                 if ( jpa->initialize().isFailure() ) {
                     ATH_MSG_FATAL(jpa->name() + " tool initialization failed.");
                     return StatusCode::FAILURE;
@@ -44,7 +44,7 @@ class JetParticleAssociationAlg : public AthAlgorithm {
         }
 
         StatusCode execute() {
-            for (const ToolHandle<JetParticleAssociation>& jpa : m_tools) {
+            for (ToolHandle<JetParticleAssociation>& jpa : m_tools) {
                 if ( jpa->execute().isFailure() ) {
                     ATH_MSG_FATAL(jpa->name() + " tool execution failed.");
                     return StatusCode::FAILURE;
@@ -55,7 +55,7 @@ class JetParticleAssociationAlg : public AthAlgorithm {
         }
 
         StatusCode finalize() {
-            for (const ToolHandle<JetParticleAssociation>& jpa : m_tools) {
+            for (ToolHandle<JetParticleAssociation>& jpa : m_tools) {
                 if ( jpa->finalize().isFailure() ) {
                     ATH_MSG_FATAL(jpa->name() + " tool finalization failed.");
                     return StatusCode::FAILURE;

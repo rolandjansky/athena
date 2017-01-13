@@ -15,6 +15,11 @@
 #include <vector>
 #include <map>
 
+#include <mutex>          // std::call_once, std::once_flag
+
+std::once_flag metaDataFlag;
+
+
 class CopyTruthJetParticles : public CopyTruthParticles {
 ASG_TOOL_CLASS2(CopyTruthJetParticles, CopyTruthParticles, IJetExecuteTool)
 public:
@@ -30,6 +35,8 @@ public:
                         std::vector<const xAOD::TruthParticle*>& promptLeptons,
 			std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
 
+  // metadata check
+  int setBarCodeFromMetaDataCheck() const ;
 
   /// The base classify() is not used 
   bool classify(const xAOD::TruthParticle* ) const {return false;}
@@ -55,12 +62,13 @@ private:
 
   float m_maxAbsEta;
 
-  int m_barcodeOffset;
-  
+  // this is set to mutable so that it changes if the metadata information is available
+  //http://stackoverflow.com/questions/12247970/error-in-assignment-of-member-in-read-only-object
+  mutable int m_barcodeOffset;
+
   /// Determine how the barcode offset is set from metadata
   ///  0 -> no metdata access, use BarCodeOffset property
-  ///  1 -> from metadata. Fails if not found
-  ///  2 -> from metadata, use BarCodeOffset property if not found (default)
+  ///  >0 from metadata. If it is not found it will keep the BarCodeOffset property
   int m_barcodeFromMetadata;
 
   float m_photonCone;

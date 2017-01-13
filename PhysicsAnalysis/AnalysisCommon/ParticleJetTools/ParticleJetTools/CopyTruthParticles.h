@@ -9,7 +9,6 @@
 #include "JetInterface/IJetExecuteTool.h"
 #include "xAODTruth/TruthParticle.h"
 
-
 // Do I need IAsgTool? I need AsgTool for the eventStore()
 class CopyTruthParticles : public IJetExecuteTool, public asg::AsgTool {
 ASG_TOOL_INTERFACE(CopyTruthParticles)
@@ -23,6 +22,10 @@ public:
   //@{
   virtual int execute() const;
   //@}
+
+
+
+
 
   /// Classifier function(s)
   virtual bool classify(const xAOD::TruthParticle* tp) const = 0;

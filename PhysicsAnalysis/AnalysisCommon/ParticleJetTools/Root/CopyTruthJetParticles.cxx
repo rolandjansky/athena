@@ -163,49 +163,77 @@ MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const
   return originMap[tp];
 }
 
+
+
+
+int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() const{ 
+
+    ATH_MSG_DEBUG(" in call once barcode offset is"<<m_barcodeOffset);
+
+  // if  m_barcodeFromMetadata  is  set to  zero,  no search for barcode offset is performed in metadata 
+  if(m_barcodeFromMetadata  == 0 )  ATH_MSG_INFO( "No barcode offset is searched for in metadata, its value is set to:  "<<m_barcodeOffset);
+
+  // if  m_barcodeFromMetadata  is  set to  1, the check is performed  and a warning is set out
+  // explicitly set out when nothing is foun
+ if(m_barcodeFromMetadata>0){
+    bool found = false;
+    // retrieve the value for the current sample from metadata
+#ifndef XAOD_STANDALONE
+    // Usage of metadata is only possible in Athena (not supported by dual-use tools yet)...
+    
+    int barcodeOffset_tmp(0);
+    ATH_MSG_INFO("Look for barcode offset in  metadata ... ");
+    try {
+      StatusCode sc= AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters","SimBarcodeOffset",barcodeOffset_tmp) ;
+      found = sc.isSuccess();
+    } catch(std::exception &e) {
+      //      ATH_MSG_DEBUG(" Could not retrieve barcode offset in metadata  : "<< e.what());
+      ATH_MSG_DEBUG(" Could not retrieve barcode offset in metadata  : "<< e.what());
+    }
+    
+    if(found){
+      // barcode offset is found in the metadata  and it is set
+      m_barcodeOffset = barcodeOffset_tmp;
+      ATH_MSG_INFO(" Barcode offset retrieved from metadata. Its value is :  "<< m_barcodeOffset);
+    } else {    
+      ATH_MSG_WARNING( "Could not retrieve barcode offset from metadata under the name SimBarcodeOffset from /Simulation/Parameters, so barcode is set to "<<m_barcodeOffset);
+      return 1;
+    }
+#else // standalone :
+    ATH_MSG_WARNING(" Can't automatically retrieve the truth barcode offset outside Athena. Please set the CopyTruthJetParticles::BarCodeOffset for this specific sample");
+    return 1;
+#endif
+  }  
+  return 0;
+}
+
 int CopyTruthJetParticles::execute() const {
 
-  //*******************************
   // retrieve barcode Offset for this event from metadata.
   // We'd need a cleaner solution where this offset is set only at 
   // each new file, but this requires some tool interface which does 
   // not exist in RootCore yet. 
   // So we use the less disruptive solution in Athena for now...
-  int barcodeOffset = m_barcodeOffset;
-  if(m_barcodeFromMetadata>0){
-    bool found = false;
-    // retrieve the value for the current sample from metadata
-#ifndef XAOD_STANDALONE
-    // Usage of metadata is only possible in Athena (not supported by dual-use tools yet)...
-    int barcodeOffset_tmp(0);
-    ATH_MSG_DEBUG(" Look for barcode offset in  metadata ... ");
-    try {
-      StatusCode sc= AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters","SimBarcodeOffset",barcodeOffset_tmp) ;
-      found = sc.isSuccess();
-    } catch(std::exception &e) {
-      ATH_MSG_DEBUG(" Could not retrieve barcode offset in metadata  : "<< e.what());
-    }
 
-    if(found){
-      barcodeOffset = barcodeOffset_tmp;
-      ATH_MSG_DEBUG(" Retrieved from metadata :  "<< barcodeOffset);
-    } else {
-      if(m_barcodeFromMetadata==1) {
-        ATH_MSG_ERROR( "Can not retrieve metadata info  /Simulation/Parameters SimBarcodeOffset ");
-        return 1;
-      }
-      // m_barcodeFromMetadata == 2
-      ATH_MSG_DEBUG(" NOT Retrieved from metadata, use default   "<< barcodeOffset << " _ "<< m_barcodeOffset);
-    }
-#else // standalone :
-    ATH_MSG_ERROR(" Can't retrieve automatically the truth barcode offset outside Athena. Please set the CopyTruthJetParticles::BarCodeOffset for this specific sample");
-    return 1;
-#endif
-  }
+  // the function used below is 
+   // std::call_once(metaDataFlag,basicMetaDataCheck(), this);
+  //  std::call_once(metaDataFlag,this->basicMetaDataCheck());
+  // the syntax is explained in http://stackoverflow.com/questions/23197333/why-is-this-pointer-needed-when-calling-stdcall-once
+  // this syntax requires the call_once function to receive the object the function is called upon
+  //": these are all non-static member functions , they act on objects 
+  // they need the "this" pointer which always point to the object the function is working on
+  //http://www.learncpp.com/cpp-tutorial/812-static-member-functions/ 
+
+  //  m_barcodeOffset = m_barcodeOffset;
+    ATH_MSG_DEBUG(" barcode offset before the check  is"<<m_barcodeOffset);
+
+  //  std::call_once(metaDataFlag,&CopyTruthJetParticles::basicMetaDataCheck,this,barcodeOffset);
+  // this call happens only once and it modifies m_barcodeOffset
+  std::call_once(metaDataFlag,&CopyTruthJetParticles::setBarCodeFromMetaDataCheck, this);
 
   std::vector<const xAOD::TruthParticle*> promptLeptons;
   promptLeptons.reserve(10);
-
+  
   /// we recopy the CopyTruthParticles::execute() below, passing the barcodeOffset to the classify function.
   //  we can not change m_barcodeOffset param since this is a const method.
 
@@ -232,7 +260,8 @@ int CopyTruthJetParticles::execute() const {
     if (tp->pt() < m_ptmin)
         continue;
 
-    if (classifyJetInput(tp, barcodeOffset, promptLeptons, originMap)) { // Modification w.r.t CopyTruthParticles : pass the barcodeoffset argument
+      // Modification: The barcode offset is updated by the call to setBarCodeFromMetaDataCheck
+    if (classifyJetInput(tp, m_barcodeOffset, promptLeptons, originMap)) { 
       ipc->push_back(tp);
       numCopied += 1;
     }
