@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 790559 2016-12-20 01:39:56Z tsulaia $
+# $Id: CMakeLists.txt 792174 2017-01-14 00:07:51Z ssnyder $
 ################################################################################
 # Package: AthenaServices
 ################################################################################
@@ -14,7 +14,7 @@ atlas_depends_on_subdirs(
    Control/AthenaBaseComps
    Control/AthenaKernel
    Control/CxxUtils
-   Control/DataModel
+   Control/AthContainers
    Control/DataModelRoot
    Control/Navigation
    Control/PerformanceMonitoring/PerfMonEvent
@@ -37,7 +37,7 @@ atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
    ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} 
    ${CLHEP_LIBRARIES} z TestTools AthenaBaseComps AthenaKernel CxxUtils
-   DataModel DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
+   AthContainers DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
    StoreGateLib SGtests PersistentDataModel EventInfo GaudiKernel )
 
 # Test library checking the ability to build T/P converters:

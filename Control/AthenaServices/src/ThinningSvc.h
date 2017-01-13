@@ -36,7 +36,6 @@
 #include "AthenaKernel/ISlimmingHdlr.h"
 #include "AthenaKernel/IThinningSvc.h"
 
-// DataModel includes
 #include <unordered_map>
 #include <unordered_set>
 

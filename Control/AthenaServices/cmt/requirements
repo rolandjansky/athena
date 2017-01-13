@@ -52,7 +52,7 @@ use yampl            yampl-*              External
 use EventInfo        EventInfo-*       	  Event
 use CxxUtils	     CxxUtils-*		  Control
 use SGTools          SGTools-*         	  Control
-use DataModel        DataModel-*          Control
+use AthContainers    AthContainers-*      Control
 use PersistentDataModel   PersistentDataModel-*      Database
 
 use PerfMonKernel    PerfMonKernel-*      Control/PerformanceMonitoring

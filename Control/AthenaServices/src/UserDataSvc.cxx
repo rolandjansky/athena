@@ -3,7 +3,7 @@
 */
 
 #include "UserDataSvc.h" 
-#include "DataModel/UserDataStore.h"
+#include "AthContainers/UserDataStore.h"
 #include "AthenaKernel/errorcheck.h"
 #include "Navigation/AthenaBarCodeBase.h"
 #include "GaudiKernel/IIncidentSvc.h"
