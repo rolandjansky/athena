@@ -1418,6 +1418,10 @@ if rec.doWriteAOD():
         if AODFlags.TauTrackSlimmer:
             protectedInclude("tauRec/tauMerged_trackslim_jobOptions.py")
 
+        if rec.doTruth() and AODFlags.ThinGeantTruth:
+            from ThinningUtils.ThinGeantTruth import ThinGeantTruth
+            ThinGeantTruth()     
+
        # Doens't exist in xAOD world:
        # if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
        #     from PrimaryDPDMaker.PrimaryDPDMakerConf import SlimTrackInfo
