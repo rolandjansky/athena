@@ -80,3 +80,4 @@ if rec.OutputFileNameForRecoStep() == 'ESDtoDPD':
     InDetDxAODFlags.ThinHitsOnTrack = False
     InDetDxAODFlags.ThinTrackSelection = "InDetTrackParticles.pt > 0.0*GeV"
     InDetDxAODFlags.DumpTriggerInfo = False
+    InDetDxAODFlags.DumpLArCollisionTime = False
