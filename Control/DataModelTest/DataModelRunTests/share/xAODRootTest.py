@@ -15,6 +15,9 @@ def CHECK(sc):
 
 reg=ROOT.SG.AuxTypeRegistry.instance()
 
+def _typename(t):
+    return getattr (t, '__cppname__', t.__name__)
+
 def xAODInit():
     ROOT.xAOD.TEvent
     CHECK(ROOT.xAOD.Init())
@@ -22,7 +25,9 @@ def xAODInit():
     # Monkey-patch...
     ROOT.xAOD.TEvent.record_impl = ROOT.xAOD.TEvent.record
     def record (event, obj, key, basketSize=32000, splitLevel = 1):
-        return event.record_impl (obj, obj.__class__.__name__, key,
+        return event.record_impl (obj,
+                                  _typename (obj.__class__),
+                                  key,
                                   basketSize, splitLevel)
     ROOT.xAOD.TEvent.record = record
     return
@@ -111,7 +116,7 @@ def copy_vec (event, obj, key):
     copy.setNonConstStore (copy_aux)
     for i in range(obj.size()):
         elt_orig = obj[i]
-        if elt_orig.__class__.__name__.startswith ('DataModel_detail::ElementProxy<'):
+        if _typename (elt_orig.__class__).startswith ('DataModel_detail::ElementProxy<'):
             elt_orig = elt_orig.__follow__()
         elt = elt_orig.__class__()
         copy.push_back(elt)
