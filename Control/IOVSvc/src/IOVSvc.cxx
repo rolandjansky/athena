@@ -864,7 +864,8 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     return StatusCode::FAILURE;
   }
      
-  ATH_MSG_DEBUG( " new range for ID " << id << " : " << range );
+  ATH_MSG_DEBUG( " new range for ID " << id << " : " << range 
+                 << " IOA: " << ioa);
 
   if (ccb->proxy() == nullptr) { 
     // SG::DataProxy *dp = p_condSvc->getProxy( id );
@@ -876,10 +877,9 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
       ATH_MSG_ERROR ( "Could not get DataProxy from ProxyProviderSvc for "
                       << id );
       return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG( " found DataProxy " << dp << " for " << id );
     }
 
+    ATH_MSG_DEBUG( " found DataProxy " << dp << " for " << id );
     ccb->setProxy(dp);
     
   }
@@ -899,19 +899,19 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     v = SG::Storable_cast(dobj, id.clid());
   }
 
-  // v = SG::DataProxy_cast(ccb->proxy(), id.clid());
-  DataObject *d2 = static_cast<DataObject*>(v);
+  // DataObject *d2 = static_cast<DataObject*>(v);
   
-  ATH_MSG_DEBUG( " SG::Storable_cast to obj: " << d2 );
+  ATH_MSG_DEBUG( " SG::Storable_cast to obj: " << v );
   
   EventIDRange r2(EventIDBase(range.start().run(), range.start().event()),
                   EventIDBase(range.stop().run(),  range.stop().event()));
   
-  ccb->insert( r2, d2);
-  
-  //  p_sgs->addedNewTransObject(id.clid(), id.key());
-  //  ATH_MSG_DEBUG ("addedNewTransObj");
-
+  if (!ccb->insert( r2, v)) {
+    ATH_MSG_ERROR("unable to insert Object at " << v << " into CondCont " 
+                  << ccb->id() << " for range " << r2 );
+    return StatusCode::FAILURE;
+  }
+ 
   return StatusCode::SUCCESS;
 
 }

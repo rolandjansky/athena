@@ -140,27 +140,50 @@ CondSvc::readDbFile(const std::string& fname) {
 void
 CondSvc::dump() const {
 
+  std::ostringstream ost;
+  dump(ost);
+
+  info() << ost.str() << endmsg;
+
+}
+
+
+//---------------------------------------------------------------------------
+
+void
+CondSvc::dump(std::ostringstream& ost) const {
+
   std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-  info() << "CondSvc::dump()";
+  ost << "CondSvc::dump()";
 
-  info() << "\ndumping id->alg map\n";
+  ost << "\ndumping id->alg map\n";
   for (auto ent : m_idMap) {
-    info() << std::endl << " + " << ent.first << " : ";
+    ost << std::endl << " + " << ent.first << " : ";
     for (auto a : ent.second) {
-      info() << " " << a->name();
+      ost << " " << a->name();
     }
   }
 
-  info() << "\n\ndumping alg->id map\n";
+  ost << "\n\ndumping alg->id map\n";
   for (auto ent : m_algMap) {
-    info() << std::endl << " + " << ent.first->name() << " : ";
+    ost << std::endl << " + " << ent.first->name() << " : ";
     for (auto a : ent.second) {
-      info() << " " << a;
+      ost << " " << a;
+    }
+  }
+  ost << "\n\ndumping ConditionStore:\n\n";
+
+  SG::ConstIterator<CondContBase> cib,cie;
+  if (m_sgs->retrieve(cib,cie).isSuccess()) {
+    while (cib != cie) {
+      ost << " + ";
+      cib->list(ost);
+      ++cib;
     }
   }
 
-  info() << std::endl <<  endmsg;
+  ost << "\n";
     
 }
 
@@ -171,12 +194,20 @@ CondSvc::finalize() {
 
   ATH_MSG_DEBUG( "CondSvc::finalize()" );
 
+  if (msgLvl(MSG::DEBUG)) {
+    std::ostringstream ost;
+    dump(ost);
+    
+    ATH_MSG_DEBUG( ost.str() );
+  }
+
   for ( auto e : m_registry ) {
     for ( auto ie : e.second ) {
       delete ie.objPtr();
       ie.setPtr(0);
     }
   }
+
 
   return StatusCode::SUCCESS;
 

@@ -45,6 +45,7 @@ public:
   virtual const std::set<IAlgorithm*>& condAlgs() const { return m_condAlgs; }
 
   virtual void dump() const;
+  virtual void dump(std::ostringstream&) const;
 
 private:
 

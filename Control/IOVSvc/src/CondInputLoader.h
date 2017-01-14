@@ -22,6 +22,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include <string>
+#include <map>
 
 
 class CondInputLoader
@@ -65,20 +67,19 @@ class CondInputLoader
   /// Default constructor: 
   //  CondInputLoader();
 
-  void loader(Property&);
+  //  void loader(Property&);
 
   /// Containers
   DataObjIDColl m_load;
 
   bool m_dump;
-#ifdef ATHENAHIVE
   bool m_first { true };
-#endif
 
   ServiceHandle<StoreGateSvc> m_condStore;
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<IIOVSvc> m_IOVSvc;
   
+  std::map<std::string,std::string> m_keyFolderMap;
   
 
 }; 

@@ -14,7 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
-                          Event/EventInfo )
+                          Event/EventInfo 
+			  Event/xAOD/xAODEventInfo )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
