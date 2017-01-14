@@ -67,7 +67,7 @@ atlas_add_library( JetMomentToolsLib
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES}
    AsgTools xAODCaloEvent xAODJet xAODMissingET xAODTracking JetEDM JetInterface
-   JetRecLib JetUtils
+   JetRecLib JetUtils PFlowUtilsLib
    PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -87,7 +87,7 @@ endif()
 atlas_add_dictionary( JetMomentToolsDict
 	Root/JetMomentToolsDict.h
 	Root/selection.xml
-	LINK_LIBRARIES JetMomentToolsLib )
+	LINK_LIBRARIES JetMomentToolsLib PFlowUtilsLib )
 #endif()
 
 # Install files from the package:

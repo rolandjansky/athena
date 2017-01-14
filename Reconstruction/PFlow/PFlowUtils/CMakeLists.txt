@@ -21,6 +21,11 @@ atlas_add_component( PFlowUtils
   PFlowUtils/*.h src/*.cxx Root/*.cxx src/components/*.cxx
   LINK_LIBRARIES AsgTools AthenaBaseComps xAODPFlow xAODJet GaudiKernel )
 
+atlas_add_library( PFlowUtilsLib
+  PFlowUtils/*.h Root/*.cxx
+  PUBLIC_HEADERS PFlowUtils
+  LINK_LIBRARIES AsgTools xAODPFlow )
+
 # Install files from the package:
 atlas_install_headers( PFlowUtils )
 atlas_install_python_modules( python/*.py )
