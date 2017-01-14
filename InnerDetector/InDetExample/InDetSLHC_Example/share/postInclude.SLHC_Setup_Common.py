@@ -23,6 +23,12 @@ if hasattr(ServiceMgr, 'SCT_SiliconConditionsSvc'):
     print "Forcing the SCT_SiliconConditionsSvc to use GeoModel" 
     ServiceMgr.SCT_SiliconConditionsSvc.ForceUseGeoModel = True
 
+# fixing the EtaPtFilterTool settings for HL-LHC
+from McParticleTools.McParticleToolsConf import EtaPtFilterTool
+EtaPtFilterTool.InnerEtaRegionCuts = [0.0,4.2,300]
+EtaPtFilterTool.OuterEtaRegionCuts = [4.2,5.5,1000]
+
+
 if rec.OutputFileNameForRecoStep():
     xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD",WriteInTimePileUpTruth=True)
 
