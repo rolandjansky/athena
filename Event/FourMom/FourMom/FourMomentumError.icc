@@ -112,10 +112,10 @@ FourMomentumError< FourMom> &FourMomentumError<FourMom>::operator=( const FourMo
 {
   if (this!=&other){
     m_p4( other.m_p4);
-    m_PxPyPzE(0);
-    m_EEtaPhiM(0);
-    m_PtEtaPhiM(0);
-    m_PtCotThPhiM(0);
+    m_PxPyPzE = DeepCopyPointer<ErrorMatrixPxPyPzE>();
+    m_EEtaPhiM = DeepCopyPointer<ErrorMatrixEEtaPhiM>();
+    m_PtEtaPhiM = DeepCopyPointer<ErrorMatrixPtEtaPhiM>();
+    m_PtCotThPhiM = DeepCopyPointer<ErrorMatrixPtCotThPhiM>();
     m_originalType( other.originalType());
 
     if (other.originalType() == PxPyPzE) {
