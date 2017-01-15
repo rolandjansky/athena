@@ -691,7 +691,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime) {
   // Begin run - set state and save time for later use
   m_state=IOVDbSvc::BEGIN_RUN;
   m_iovTime=beginRunTime;
-  if (m_log->level()<<MSG::DEBUG) 
+  if (m_log->level()<MSG::DEBUG) 
     *m_log << MSG::DEBUG << "signalBeginRun> begin run time " << m_iovTime 
            << endmsg;
   if(!m_par_onlineMode) return StatusCode::SUCCESS;
