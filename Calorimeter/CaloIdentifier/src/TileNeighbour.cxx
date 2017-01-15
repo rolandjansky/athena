@@ -667,7 +667,7 @@ void TileNeighbour::get_name(Identifier & id, std::string & strSection,
             break;
     }
       
-    char name[5];
+    char name[15];
     if (s1>0) snprintf(name,sizeof(name),"%c%c%c%d",sm,s1,sd,tw);
     else      snprintf(name,sizeof(name),"%c%c%d",  sm,sd,tw);
     strCell = name;
