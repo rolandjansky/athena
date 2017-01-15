@@ -44,8 +44,8 @@ namespace xAOD {
                                   cl->rawEta(),
                                   cl->rawPhi(),
                                   cl->rawM() );
-          return;
         } 
+        return;
       }
 #ifndef SIMULATIONBASE
       case Type::ParticleFlow: {
