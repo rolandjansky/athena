@@ -7,7 +7,7 @@
  *
  * @author Paolo Calafiura <pcalafiura@lbl.gov>, Borut Kersevan <borut.kersevan@cern.ch>
  *
- * $Id: AtlasMcWeight.cxx 764382 2016-07-26 15:37:04Z ssnyder $
+ * $Id: AtlasMcWeight.cxx 792215 2017-01-15 02:20:57Z ssnyder $
  */
 #include <iostream>
 #include <limits>
@@ -74,8 +74,8 @@ AtlasMcWeight::encode(double weight) {
     int e_sign = ( exponent > 0. ? 0 : 1 );
     number_type wt_pref = d_sign+2*e_sign;
 
-    char senc[12];
-    snprintf(senc,12,"%d%d%d",wt_pref, wt_exp, wt_prec);
+    char senc[13];
+    snprintf(senc,13,"%d%d%d",wt_pref, wt_exp, wt_prec);
     number_type wt_encode=atoll(senc);
 
 #ifdef AMC_DEBUG
