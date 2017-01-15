@@ -142,6 +142,17 @@ def sortTrigData(orderedData,diskTotal):
         print( " %s Total size/evt %12.3f  AOD fraction %12.3f" % (k,diskSize/poolFile.dataHeader.nEntries,diskSize/diskTotal)  )
         print( "=" * 100 )
 
+def printAuxDynVars(dynvars):
+
+    for key,items in dynvars.items():
+        print( "=" * 80 )
+        print key
+        print( "=" * 80 )
+        for var in items:
+            print('%s'%var)
+
+
+        
 if __name__ == "__main__":
 
     parser = OptionParser( usage = "usage: %prog [-f] my.xAOD.file.pool.root" )
@@ -154,6 +165,13 @@ if __name__ == "__main__":
        "--csv",
        dest = "csvFileName",
        help = "Output CSV file name, to use with spreadsheets" )
+    p( "-v",
+        "--vars",
+        action="store_true",
+        dest = "printVars",
+        default = True,
+        help = "print dynamic variables")
+
     ( options, args ) = parser.parse_args()
 
     # Set up categorization matching strings:
@@ -191,7 +209,6 @@ if __name__ == "__main__":
         pass
 
     fileNames = set( fileNames )
-
     # Check the consistency with the CSV output:
     if len( fileNames ) > 1 and options.csvFileName:
         print( "WARNING  CSV output is only available when processing a single "
@@ -210,6 +227,7 @@ if __name__ == "__main__":
         summedData = {}
         categData  = {}
         categTrigData = {}
+        categTrigDynVars = {}
         for d in poolFile.data:
             # Skip metadata/TAG/etc. branches:
             # if d.dirType != "B": continue
@@ -227,6 +245,11 @@ if __name__ == "__main__":
                 # Oh yes, it is. Let's construct the name of the main
                 # object/container:
                 brName = m.group( 1 )
+                if getCategory(d.name) != 'NOTFOUND':
+                    if brName in categTrigDynVars:
+                        categTrigDynVars[brName].append(d.name)
+                    else:
+                        categTrigDynVars[brName]=[d.name]
                 pass
             # Check if we already know this container:
             if brName in summedData.keys():
@@ -240,6 +263,7 @@ if __name__ == "__main__":
                                    d.memSizeNoZip,
                                    d.nEntries,
                                    d.dirType )
+                        
                 pass
             pass
 
@@ -256,7 +280,6 @@ if __name__ == "__main__":
         import ROOT
         tfile = ROOT.TFile.Open( fileName )
         ttree = tfile.Get( "CollectionTree" )
-
 
         # Now, let's print the event-wise info that we gathered:
         memSize = 0.0
@@ -412,6 +435,8 @@ if __name__ == "__main__":
                ( memSize, diskSize, "Total" ) )
         print( "=" * 80 )
         print( "=" * 80 )
+        if options.printVars: printAuxDynVars(categTrigDynVars)
+        
         # Write out a CSV file if one was requested:
         if options.csvFileName and ( len( fileNames ) == 1 ):
             # Open the output file:
