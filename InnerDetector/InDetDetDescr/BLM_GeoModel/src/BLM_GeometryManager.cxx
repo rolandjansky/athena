@@ -25,7 +25,7 @@ void BLM_GeometryManager::ModuleOn(unsigned int module_number)
 
 void BLM_GeometryManager::ModuleOff(unsigned int module_number)
 {
-  m_on = m_on & (!(1 << module_number));
+  m_on = m_on & (~(1 << module_number));
 }
 
 unsigned int BLM_GeometryManager::IsModuleOn(unsigned int module_number) const
