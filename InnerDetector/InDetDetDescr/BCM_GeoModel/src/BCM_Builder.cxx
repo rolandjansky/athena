@@ -147,18 +147,18 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
      	}
       
       accessSvc->connect();
-      IRDBRecordset_ptr m_DBmodul = accessSvc->getRecordsetPtr("BCMModule", versionKey.tag(), versionKey.node());
-      //m_DBmodul = accessSvc->getRecordset("BCMModule", "InnerDetector-DC3-Dev", "InnerDetector");
+      IRDBRecordset_ptr DBmodul = accessSvc->getRecordsetPtr("BCMModule", versionKey.tag(), versionKey.node());
+      //DBmodul = accessSvc->getRecordset("BCMModule", "InnerDetector-DC3-Dev", "InnerDetector");
       accessSvc->disconnect();
       
-      ATH_MSG_DEBUG(" --> Number of records fetched = " << m_DBmodul->size());
+      ATH_MSG_DEBUG(" --> Number of records fetched = " << DBmodul->size());
       
       unsigned int ind;
       long moduleNo;
       //std::vector<double>* module_property = NULL;
-      for(ind = 0; ind < m_DBmodul->size(); ind++)
+      for(ind = 0; ind < DBmodul->size(); ind++)
 	{
-	  const IRDBRecord* rec = (*m_DBmodul)[ind];
+	  const IRDBRecord* rec = (*DBmodul)[ind];
 	  
 	  moduleNo = rec->getLong("MODULE_ID");
 	  //check if this module is suposed to be builded

@@ -25,7 +25,7 @@ void BCM_GeometryManager::ModuleOn(int module_number)
 
 void BCM_GeometryManager::ModuleOff(int module_number)
 {
-  m_on = m_on & (!(1 << module_number));
+  m_on = m_on & (~(1 << module_number));
 }
 
 int BCM_GeometryManager::IsModuleOn(int module_number) const
