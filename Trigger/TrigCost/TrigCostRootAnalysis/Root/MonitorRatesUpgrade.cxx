@@ -59,7 +59,8 @@ namespace TrigCostRootAnalysis {
       m_R3(0),
       m_statsEventMu(0.),
       m_statsEventMu2(0.),
-      m_statsEventMuN(0)
+      m_statsEventMuN(0),
+      m_thisEventPtr(nullptr)
   {
     m_dummyCounter = static_cast<CounterBase*>(new CounterRatesChain(_costData, Config::config().getStr(kDummyString), 10));
     m_globalRateL1Counter = nullptr;

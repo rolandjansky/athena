@@ -60,7 +60,10 @@ namespace TrigCostRootAnalysis {
       m_parsedRunXML(kFALSE),
       m_minLB(INT_MAX),
       m_maxLB(INT_MIN),
-      m_computerUnknownID(0) {
+      m_computerUnknownID(0),
+      m_loadedDeadtime(0),
+      m_loadedPairedBunches(0)
+  {
   }
 
   /**
@@ -79,8 +82,9 @@ namespace TrigCostRootAnalysis {
     for (Int_t _mr : _multiRun) {
       if (_mr == Config::config().getInt(kRunNumber)) {
         Fatal("TrigXMLService::TrigXMLService", "If doing MultiRun, provide the 'primary' run's inputs first, followed by the additional runs whose run numbers were speificed to --multiRun");
-        Bool_t _primaryRunOpenedFirstBeforeMultiRunInputFiles = kFALSE;
-        assert(_primaryRunOpenedFirstBeforeMultiRunInputFiles);
+        //Bool_t _primaryRunOpenedFirstBeforeMultiRunInputFiles = kFALSE;
+        //assert(_primaryRunOpenedFirstBeforeMultiRunInputFiles);
+        std::abort();
       }
       parseRunXML(_mr, kFALSE);
     }
@@ -775,8 +779,7 @@ namespace TrigCostRootAnalysis {
           if (_lb > m_maxLB) m_maxLB = _lb;
 
           // We can only deal with one LB per processing, a current limitation of MultiRun
-          Int_t _multipleRunsWhichIncludeTheSameLB = m_totalEventsPerLB.count(_lb);
-          assert(_multipleRunsWhichIncludeTheSameLB == 0);
+          assert(m_totalEventsPerLB.count(_lb) == 0);
 
           m_totalEventsPerLB[_lb] = _nEvents;
           m_lumiPerLB[_lb] = _lumi;
