@@ -247,7 +247,7 @@
                 <doc>Reco_tf runs on mc12</doc>
                 <jobTransformJobName>RecoTf_mc12</jobTransformJobName>
                 <jobTransformCmd>
-                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents 300 --autoConfiguration everything --conditionsTag="OFLCOND-RUN12-SDR-22" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.root
+                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents 300 --autoConfiguration everything --conditionsTag='OFLCOND-RUN12-SDR-31' --geometryVersion='ATLAS-R2-2015-03-01-00' --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.root
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
@@ -257,7 +257,7 @@
                 <doc>Reco_tf with split trigger runs on mc12</doc>
                 <jobTransformJobName>RecoTf_trigsplit_mc12</jobTransformJobName>
                 <jobTransformCmd>
-                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents 300 --autoConfiguration everything --conditionsTag="OFLCOND-RUN12-SDR-22" --steering RAWtoESD:in-RDO RAWtoESD:in-BS RAWtoESD:in+RDO_TRIG --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.root
+                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents 300 --autoConfiguration everything --conditionsTag='OFLCOND-RUN12-SDR-31' --geometryVersion='ATLAS-R2-2015-03-01-00' --steering RAWtoESD:in-RDO RAWtoESD:in-BS RAWtoESD:in+RDO_TRIG --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.root
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
@@ -269,7 +269,7 @@
                 <doc>Reco_tf runs on mc12 with Hephaestos for memory leak checking</doc>
                 <jobTransformJobName>RecoTf_mc12</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc48-opt/lib/libunwind.so; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5787_tid01572821_00/RDO.01572821._000019.pool.root.1 --maxEvents 10 --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute'
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc48-opt/lib/libunwind.so; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5787_tid01572821_00/RDO.01572821._000019.pool.root.1 --conditionsTag='OFLCOND-RUN12-SDR-31' --geometryVersion='ATLAS-R2-2015-03-01-00' --maxEvents 10 --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
@@ -381,7 +381,7 @@
                 <doc>RDO to BS on MC tt MC12 </doc>
                 <jobTransformJobName>RecoTf_RDOtoBS</jobTransformJobName>
                 <jobTransformCmd>
-                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --outputBSFile mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.data --autoConfiguration everything --maxEvents -1
+                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --outputBSFile mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.data --autoConfiguration everything --maxEvents -1 --conditionsTag='OFLCOND-RUN12-SDR-31' --geometryVersion='ATLAS-R2-2015-03-01-00'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>medium</queue>
@@ -452,46 +452,6 @@
                 <queue>long</queue>
             </jobTransform>
       
-            <jobTransform userJobId="data12_8TeV_nocalo">
-                <doc>Reco_tf runs on 8TeV collision data without calo</doc>
-                <jobTransformJobName>RecoTf_8TeV_data_nocalo</jobTransformJobName>
-                <jobTransformCmd>
-                    Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 300 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec 'rec.doCalo=False;rec.doTrigger=False;' --postExec 'from AthenaCommon.DetFlags import DetFlags' 'DetFlags.detdescr.Calo_setOn()'
-                </jobTransformCmd>
-                <group>RecTrf</group>
-                <queue>long</queue>
-            </jobTransform>
-      
-            <jobTransform userJobId="data12_8TeV_noid">
-                <doc>Reco_tf runs 8TeV collision data without id</doc>
-                <jobTransformJobName>RecoTf_8TeV_data_noid</jobTransformJobName>
-                <jobTransformCmd>
-                    Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 300 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec 'rec.doInDet=False;rec.doTrigger=False;' --postExec 'from AthenaCommon.DetFlags import DetFlags' 'DetFlags.detdescr.ID_setOn()'
-                </jobTransformCmd>
-                <group>RecTrf</group>
-                <queue>long</queue>
-            </jobTransform>
-      
-            <jobTransform userJobId="data12_8TeV_nomuon">
-                <doc>Reco_tf runs on 8TeV collision data without muon</doc>
-                <jobTransformJobName>RecoTf_8TeV_data_nomuon</jobTransformJobName>
-                <jobTransformCmd>
-                    Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 300 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec 'rec.doMuon=False;rec.doTrigger=False;'
-                </jobTransformCmd>
-                <group>RecTrf</group>
-                <queue>long</queue>
-            </jobTransform>
-      
-            <jobTransform userJobId="data12_8TeV_notrig">
-                <doc>Reco_tf runs 8TeV collision data without trigger</doc>
-                <jobTransformJobName>RecoTf_8TeV_data_notrigger</jobTransformJobName>
-                <jobTransformCmd>
-                    Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 300 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec 'rec.doTrigger=False'
-                </jobTransformCmd>
-                <group>RecTrf</group>
-                <queue>long</queue>
-            </jobTransform>
-      
             <!-- Test runs on cosmic data -->
       
             <jobTransform userJobId="cosmis_allstream">
@@ -549,11 +509,21 @@
                 <queue>long</queue>
             </jobTransform>
 
+            <jobTransform userJobId="DigiMReco_tf_FCT_MC15c">
+                <doc>Test of DigiMReco from HITS to AOD/TAG</doc>
+                <jobTransformJobName>DigiMReco_FCT_MC15c_r7725</jobTransformJobName>
+                <jobTransformCmd>
+				Reco_tf.py --maxEvents=10 --outputRDOFile=mc15c.RDO.pool.root --outputESDFile=mc15c.ESD.pool.root --outputAODFile=mc15c.AOD.pool.root --digiSeedOffset1=1 --digiSeedOffset2=2 --inputHitsFile=/afs/cern.ch/atlas/project/rig/referencefiles/mc15/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s2887_tid08170896_00/HITS.08170896._001944.pool.root.1 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 --jobNumber=1 --conditionsTag=default:OFLCOND-MC15c-SDR-09 --skipEvents=0 --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v2.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODSLIM\"" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "ESDtoAOD:fixedAttrib=[s if \"CONTAINER_SPLITLEVEL = \'99\'\" not in s else \"\" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib"  --LowPtMinbiasHitsFile /afs/cern.ch/atlas/project/rig/referencefiles/mc15_minBias/mc15_13TeV.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2195/HITS.05608147._000125.pool.root.1 --HighPtMinbiasHitsFile /afs/cern.ch/atlas/project/rig/referencefiles/mc15_minBias/mc15_13TeV.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2195/HITS.05608152._002335.pool.root.1 --geometryVersion=ATLAS-R2-2015-03-01-00 --autoConfiguration=everything --triggerConfig=RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2046,20,48
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>long</queue>
+            </jobTransform>
+
             <jobTransform userJobId="amitag_q122">
                 <doc> Reco_tf runs with AMI configTag q122</doc>
                 <jobTransformJobName>RecoTrf_AMI_q122</jobTransformJobName>
                 <jobTransformCmd>
-                    echo 'Reco_tf.py --AMI=q122 --DataRunNumber 00191920 --conditionsTag=all:OFLCOND-MC16-SDR-07 --outputESDFile=myESD.pool.root --outputAODFile=myAOD.pool.root --outputTAGFile=myTAG.pool.root &amp;&amp; mv myESD.pool.root myESD_$AtlasVersion.pool.root &amp;&amp; mv myAOD.pool.root myAOD_$AtlasVersion.pool.root &amp;&amp; mv myTAG.pool.root myTAG_$AtlasVersion.pool.root &amp;&amp; ln -s myESD_$AtlasVersion.pool.root myESD_current.pool.root &amp;&amp; ln -s myAOD_$AtlasVersion.pool.root myAOD_current.pool.root &amp;&amp; ln -s myTAG_$AtlasVersion.pool.root myTAG_current.pool.root' > doall.sh &amp;&amp; source doall.sh
+                    echo 'Reco_tf.py --AMI=q122 --DataRunNumber 00191920 --outputESDFile=myESD.pool.root --outputAODFile=myAOD.pool.root --outputTAGFile=myTAG.pool.root &amp;&amp; mv myESD.pool.root myESD_$AtlasVersion.pool.root &amp;&amp; mv myAOD.pool.root myAOD_$AtlasVersion.pool.root &amp;&amp; mv myTAG.pool.root myTAG_$AtlasVersion.pool.root &amp;&amp; ln -s myESD_$AtlasVersion.pool.root myESD_current.pool.root &amp;&amp; ln -s myAOD_$AtlasVersion.pool.root myAOD_current.pool.root &amp;&amp; ln -s myTAG_$AtlasVersion.pool.root myTAG_current.pool.root' > doall.sh &amp;&amp; source doall.sh
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>medium</queue>
