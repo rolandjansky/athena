@@ -2,6 +2,11 @@
 
 set dir = .
 
+if ( -x /usr/local/bin/sed ) then 
+  set SED = /usr/local/bin/sed
+else
+  set SED = `which sed`
+endif
 
 if ( $#argv > 0 ) then 
    set dir = $1
@@ -44,7 +49,7 @@ foreach arg ( $argv )
 end
 
 echo "files:  $files"
-echo "outdir: $outdir"
+# echo "outdir: $outdir"
 
 
 foreach xmlfile ( $files ) 
@@ -68,19 +73,19 @@ foreach xmlfile ( $files )
 
       set gpath = ${xmlfile:h}
 
-      cpp -traditional-cpp -I$gpath $xmlfile  -DSTAR="*" | grep -v "\# " | grep -v "emacs:" > /tmp/$_file.xml
+      cpp -traditional-cpp -I$gpath $xmlfile  | $SED 's|STAR|/*|g' | grep -v "\# " | grep -v "emacs:" > /tmp/$_file.xml
 
      set duff = `grep dataset /tmp/$_file.xml`
 
 
      if ( "$duff" != "" ) then 
-
-      set file = `echo $_file | sed 's/\.xml//g'`
+ 
+      set file = `echo $_file | $SED 's/\.xml//g'`
 
       echo "#\!/bin/sh" > $outfile
       chmod u+x $outfile
 
-      grep "<argvalue>" /tmp/$_file.xml |  sed 's|<argvalue>||g' | sed 's|</argvalue>||g' > /tmp/_args
+      grep "<argvalue>" /tmp/$_file.xml |  $SED 's|<argvalue>||g' | $SED 's|</argvalue>||g' > /tmp/_args
 
 
 #     grep "<commandLineFlags>" $xmlfile |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g'
@@ -133,8 +138,10 @@ foreach xmlfile ( $files )
             else 
 
 	      if ( "$command" == "TIDAcpucost.exe" ) then 
-                 set auxfile = `grep auxFile /tmp/$_file.xml | grep expert | sed 's|.*<auxFilePattern>||g' | sed 's|</auxFilePattern>||g'`
-                 set arg = `echo "$arg" | sed "s| \S*\*\S* | $auxfile |g"`
+                 set auxfile = `grep auxFile /tmp/$_file.xml | grep expert | $SED 's|.*<auxFilePattern>||g' | $SED 's|</auxFilePattern>||g'`
+
+                 set arg = `echo "$arg" | $SED "s| \S*\*\S* | $auxfile |g"`
+
               endif
 
 	      foreach ffile ( $arg )

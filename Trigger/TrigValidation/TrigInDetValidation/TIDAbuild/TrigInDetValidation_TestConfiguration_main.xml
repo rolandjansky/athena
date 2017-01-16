@@ -38,8 +38,8 @@
 
 <!-- #     include   "TrigInDetValidation_el_single_e_7-80_pu40.xml" -->
 
-<!-- #     include   "TrigInDetValidation_el_single_e_7-80_IBL.xml" -->
-<!-- #     include   "TrigInDetValidation_el_single_e_7-80_IBL_pu40.xml" -->
+#     include   "TrigInDetValidation_el_single_e_7-80_IBL.xml" 
+#     include   "TrigInDetValidation_el_single_e_7-80_IBL_pu40.xml" 
 
 <!-- #     include   "TrigInDetValidation_el_Zee_pu46.xml"  -->
 #     include   "TrigInDetValidation_el_Zee_IBL_pu40.xml"
@@ -58,6 +58,7 @@
 <!-- #     include   "TrigInDetValidation_bjet.xml"  -->
 <!-- #     include   "TrigInDetValidation_bjet_pu46.xml"  -->
 #     include   "TrigInDetValidation_bjet_IBL_pu40.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_test.xml"
 #     include   "TrigInDetValidation_bjet_IBL_pu40_offline.xml"
 
 <!-- #     include   "TrigInDetValidation_tau_pu46.xml"  -->

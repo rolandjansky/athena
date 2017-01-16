@@ -32,6 +32,7 @@ JOBS =  \
         TrigInDetValidation_bjet.xml                                    \
         TrigInDetValidation_bjet_pu46.xml                               \
         TrigInDetValidation_bjet_IBL_pu40.xml                           \
+        TrigInDetValidation_bjet_IBL_pu40_test.xml                      \
         TrigInDetValidation_bjet_IBL_pu40_offline.xml                   \
                                                                         \
         TrigInDetValidation_tau_pu46.xml                                \
