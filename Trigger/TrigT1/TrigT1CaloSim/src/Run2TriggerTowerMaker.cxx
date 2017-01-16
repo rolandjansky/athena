@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+
 // ================================================
 // Run2TriggerTowerMaker class Implementation
 // ================================================
@@ -215,20 +217,32 @@ void Run2TriggerTowerMaker::handle(const Incident& inc)
   ATH_MSG_DEBUG("Tile TTL1 calibration scale = " << tileInfo->TTL1Calib({}));
   m_TileTTL1Ped = tileInfo->TTL1Ped({});
   ATH_MSG_DEBUG("Tile TTL1 pedestal value = " << m_TileTTL1Ped);
-
+  
   // try to determine wheter we run on data or on simulation
   auto ei = dynamic_cast<const EventIncident*>(&inc);
-  if(!ei) {
+  const EventType *eventType=nullptr;
+  if(ei) {
+    if (ei->eventInfo().event_type()){
+      eventType=ei->eventInfo().event_type();
+    }
+  }
+  if (eventType==nullptr){
+    const EventInfo* eventInfo = nullptr;
+    if (evtStore()->retrieve(eventInfo).isSuccess() ) {
+      eventType=eventInfo->event_type();
+    }
+  }
+  if (eventType==nullptr) {
     ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
   } else {
-    bool isData = !(ei->eventInfo().event_type()->test(EventType::IS_SIMULATION));
-    m_isDataReprocessing = isData;
+    m_isDataReprocessing = !eventType->test(EventType::IS_SIMULATION);
     if(m_isDataReprocessing) {
       ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");
     } else {
       ATH_MSG_VERBOSE("No data reprocessing - running normal simulation.");
     }
   }
+
 }
 
 StatusCode Run2TriggerTowerMaker::finalize() {
