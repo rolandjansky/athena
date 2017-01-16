@@ -45,16 +45,60 @@ Trk::BasicVtxValidationNtupleTool::BasicVtxValidationNtupleTool(
         m_ntupleDirName("VtxFitterValidation"),
         m_ntupleTreeName("EventInfo"),
         m_ntupleVtxTreeName("VxCandidate"),
-        m_ntupleTrkAtVxTreeName("TrueTracksAtVertex")
+        m_ntupleTrkAtVxTreeName("TrueTracksAtVertex"),
+        // see: http://atlas-computing.web.cern.ch/atlas-computing/projects/qa/draft_guidelines-0.2.html
+        tree(nullptr),           //should be m_tree
+        vtx_tree(nullptr),       //should be m_vtxTree
+        trk_at_vxtree(nullptr),  //should be m_trkAtVxTree
+        m_lastEventNumber{},
+        m_runNumber{},
+        m_eventNumber{},
+        m_numVertices{},
+        m_x{},
+        m_y{},
+        m_z{},
+        m_err_x{},
+        m_err_y{},
+        m_err_z{},
+        m_chi2{},
+        m_chi2prob{},
+        m_numTracksPerVertex{},
+        m_numTracks{},
+        m_d0(nullptr),
+        m_z0(nullptr),
+        m_phi0(nullptr),
+        m_theta(nullptr),
+        m_qOverP(nullptr),
+        m_err_d0(nullptr),
+        m_err_z0(nullptr),
+        m_err_phi0(nullptr),
+        m_err_theta(nullptr),
+        m_err_qOverP(nullptr),
+        m_chi2_per_track(nullptr),
+        m_initial_d0(nullptr),
+        m_initial_z0(nullptr),
+        m_initial_phi0(nullptr),
+        m_initial_theta(nullptr),
+        m_initial_qOverP(nullptr),
+        m_err_initial_d0(nullptr),
+        m_err_initial_z0(nullptr),
+        m_err_initial_phi0(nullptr),
+        m_err_initial_theta(nullptr),
+        m_err_initial_qOverP(nullptr),
+        m_vxprod_x(nullptr),
+        m_vxprod_y(nullptr),
+        m_vxprod_z(nullptr),
+        m_vxparticle_id(nullptr),
+        m_vxparent_id(nullptr),
+        m_vxnum_trks{}
 {
-
     declareInterface<IVtxValidationNtupleTool>(this);
     // Declare the properties
     declareProperty("NtupleFileName",		      m_ntupleFileName,	       "Ntuple file handle");
-    declareProperty("NtupleDirectoryName",	      m_ntupleDirName,	       "Directory name for ntuple tree");
+    declareProperty("NtupleDirectoryName",	  m_ntupleDirName,	       "Directory name for ntuple tree");
     declareProperty("NtupleTreeName",		      m_ntupleTreeName,	       "Name of the event info ntuple tree");
-    declareProperty("NtupleVtxTreeName",	      m_ntupleVtxTreeName,     "Name of the vtx ntuple tree");
-    declareProperty("NtupleTrkAtVxTreeName",	      m_ntupleTrkAtVxTreeName, "Name of the tracks at vertex ntuple tree");
+    declareProperty("NtupleVtxTreeName",	    m_ntupleVtxTreeName,     "Name of the vtx ntuple tree");
+    declareProperty("NtupleTrkAtVxTreeName",	m_ntupleTrkAtVxTreeName, "Name of the tracks at vertex ntuple tree");
 }
 
 // destructor

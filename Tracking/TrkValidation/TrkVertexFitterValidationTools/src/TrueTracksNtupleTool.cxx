@@ -35,14 +35,20 @@ Trk::TrueTracksNtupleTool::TrueTracksNtupleTool(
         AthAlgTool(t,n,p),
         m_ntupleFileName("/NTUPLES"),
         m_ntupleDirName("VtxFitterValidation"),
-        m_ntupleTreeName("TrueTracks")
+        m_ntupleTreeName("TrueTracks"),
+        tree(nullptr),
+        m_prod_x(nullptr),
+        m_prod_y(nullptr),
+        m_prod_z(nullptr),
+        m_particle_id(nullptr),
+        m_parent_id(nullptr),
+        m_num_trks{}
 {
-
     declareInterface<ITrueTracksValidationNtupleTool>(this);
     // Declare the properties
-    declareProperty("NtupleFileName",			m_ntupleFileName,	"Ntuple file handle");
-    declareProperty("NtupleDirectoryName",		m_ntupleDirName,	"directory name for ntuple tree");
-    declareProperty("NtupleTreeName",			m_ntupleTreeName,	"Name of the track ntuple tree");
+    declareProperty("NtupleFileName",			 m_ntupleFileName,	"Ntuple file handle");
+    declareProperty("NtupleDirectoryName", m_ntupleDirName,	"directory name for ntuple tree");
+    declareProperty("NtupleTreeName",			 m_ntupleTreeName,	"Name of the track ntuple tree");
 }
 
 // destructor

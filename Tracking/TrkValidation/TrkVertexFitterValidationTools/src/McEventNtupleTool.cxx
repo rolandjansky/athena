@@ -39,7 +39,16 @@ Trk::McEventNtupleTool::McEventNtupleTool(
         m_radiusCut(50.5),
         m_zPosCut(150.),
         m_radiusRes(0.044),
-        m_zPosRes(0.221)
+        m_zPosRes(0.221),
+        vtx_tree(nullptr),
+        quark_tree(nullptr),
+        m_numTrueVertices{},
+        m_true_pri_x{},
+        m_true_pri_y{},
+        m_true_pri_z{},
+        m_true_sec_x(nullptr),
+        m_true_sec_y(nullptr),
+        m_true_sec_z(nullptr)
 {
 
     declareInterface<IMcEventNtupleTool>(this);
