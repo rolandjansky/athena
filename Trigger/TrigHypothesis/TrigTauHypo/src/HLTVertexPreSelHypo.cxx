@@ -113,7 +113,16 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 	//use last one added
 	const xAOD::TauJet* tauJet2 = tauJetContainer->back();
         m_cutCounter++;	
-	
+
+        // ifat least one of the taus has no tracks, pass this hypo
+        size_t numberOfTracks1 = tauJet1->nTracks();
+	size_t numberOfTracks2 = tauJet2->nTracks();
+        if(numberOfTracks1==0 || numberOfTracks2==0){
+            ATH_MSG_DEBUG("One of the taus has no core tracks. Will not apply selection");
+            pass = true;
+            return HLT::OK;
+        }
+
 	//if using vertices try and use their information
 	const xAOD::Vertex* vertex1(NULL);
 	const xAOD::Vertex* vertex2(NULL);

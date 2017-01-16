@@ -39,16 +39,17 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
 {
 // set unreasonable values to make sure that initialization is performed from outside
 // however we assume if one parameter is set from outside then they all set ok.
-  declareProperty("NTrackMin", m_numTrackMin = -999);
-  declareProperty("NTrackMax", m_numTrackMax = 0);
-  declareProperty("NWideTrackMax", m_numWideTrackMax = 999);
-  declareProperty("EtCalibMin",m_EtCalibMin  = -10000.);
-  declareProperty("Level",     m_level       = -1);
-  declareProperty("Method",    m_method      = 0);
-  declareProperty("Highpt",    m_highpt      = true);
-  declareProperty("HighptTrkThr", m_highpttrkthr      = 200000.);
-  declareProperty("HighptIDThr", m_highptidthr      = 330000.);
-  declareProperty("HighptJetThr", m_highptjetthr      = 410000.); 
+  declareProperty("NTrackMin",     m_numTrackMin       = -999);
+  declareProperty("NTrackMax",     m_numTrackMax       = 0);
+  declareProperty("NWideTrackMax", m_numWideTrackMax   = 999);
+  declareProperty("EtCalibMin",    m_EtCalibMin        = -10000.);
+  declareProperty("Level",         m_level             = -1);
+  declareProperty("Method",        m_method            = 0);
+  declareProperty("Highpt",        m_highpt            = true);
+  declareProperty("HighptTrkThr",  m_highpttrkthr      = 200000.);
+  declareProperty("HighptIDThr",   m_highptidthr       = 330000.);
+  declareProperty("HighptJetThr",  m_highptjetthr      = 410000.); 
+  declareProperty("ApplyIDon0p",   m_applyIDon0p       = true);
 
   declareMonitoredVariable("CutCounter",m_cutCounter=0);
   declareMonitoredVariable("NTrack",m_mon_nTrackAccepted=0);
@@ -94,6 +95,7 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: param Level " << m_level <<endmsg;
   msg() << MSG::INFO << " REGTEST: param Method " << m_method <<endmsg;
   msg() << MSG::INFO << " REGTEST: param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param ApplyIDon0p " << m_applyIDon0p <<endmsg;
   msg() << MSG::INFO << " REGTEST: ------ "<<endmsg;
   
   if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr))
@@ -284,6 +286,7 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     //loosen and turn off ID cut at highpt
     if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; //works only for BDT, not llh
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) local_level = -1111;
+    if(!m_applyIDon0p && m_numTrack==0) local_level = -1111;
  
     if(m_method == 1 || m_method == 0)
       {

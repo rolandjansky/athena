@@ -59,7 +59,7 @@ class EFTauMVHypo : public HLT::HypoAlgo {
   double m_highpttrkthr;
   double m_highptidthr;
   double m_highptjetthr;
-
+  bool   m_applyIDon0p;
   /** min BDTScore cut **/
   //double m_BDTScoreMin;
 
