@@ -19,14 +19,13 @@
 <!ENTITY bcl_defines      SYSTEM "BCL_Defines.gmx">
 <!ENTITY bcl_supports     SYSTEM "BCL_Supports.gmx">
 <!ENTITY bcl_core         SYSTEM "BCL_Core.gmx">
-<!ENTITY bcl_hybrid       SYSTEM "BCL_Hybrid.gmx">
 <!ENTITY endcaps          SYSTEM "Endcaps.gmx">
 <!ENTITY endcapdefines    SYSTEM "EndcapDefines.gmx">
 <!ENTITY endcapsupports   SYSTEM "EndcapSupports.gmx">
 <!ENTITY services         SYSTEM "LTFStripServices.gmx">
 ]>
 
-<geomodel name="ATLAS Upgrade Inner Tracker LTF Strip layout" version="1.1"
+<geomodel name="ATLAS Upgrade Inner Tracker LTF Strip layout with BCL" version="1.0"
   xmlns="http://www.nikhef.nl/%7Er29/gmx">
 
 &materials;
@@ -74,7 +73,7 @@
 
 </shapes>
 
-<logvol name="SCT_ForwardPlus" shape="ShStripEC_Envelope" material="N2" alignable="true">
+<logvol name="SCT_ForwardPlus" shape="ShStripEC_Envelope" material="N2">
   <transform>
     <transformation name="MoveEC1ToEnvelope">
       <translation z="-(StripEC_Z_Start + StripEC_HalfLength)"/>
@@ -84,7 +83,7 @@
 </logvol>
 
 <!-- We make an identical logvol differing only in name for the other endcap, to fit with SCT_GeoModel convention -->
-<logvol name="SCT_ForwardMinus" shape="ShStripEC_Envelope" material="N2" alignable="true">
+<logvol name="SCT_ForwardMinus" shape="ShStripEC_Envelope" material="N2">
   <transform>
     <transformation name="MoveEC2ToEnvelope">
       <translation z="-(StripEC_Z_Start + StripEC_HalfLength)"/>
@@ -156,26 +155,23 @@
     </transform>
 
     <index ref="barrel_endcap" value="0"/>
-    <transform alignable="3">
-      <transformation name="NoneButNeededForAlignable" alignable="true">
-        <translation />
-      </transformation>
-      <logvol name="SCT_Barrel" shape="ShStripB_Envelope" material="N2" alignable="true">
-        <assemblyref ref="StripB"/>
-      </logvol>
-    </transform>
+    <logvol name="SCT_Barrel" shape="ShStripB_Envelope" material="N2">
+      <assemblyref ref="StripB"/>
+    </logvol>
 
     <index ref="barrel_endcap" value="2"/>
-    <transform alignable="3">
-      <transformation name="PlaceEC_Plus" alignable="true">
+
+    <transform>
+      <transformation name="PlaceEC_Plus">
         <translation z="StripEC_Z_Start + StripEC_HalfLength"/>
       </transformation>
       <logvolref ref="SCT_ForwardPlus"/>
     </transform>
 
     <index ref="barrel_endcap" value="-2"/>
-    <transform alignable="3">
-      <transformation name="TurnE_A_ToE_C" alignable="true">
+
+    <transform>
+      <transformation name="TurnE_A_ToE_C">
         <rotation ycos="1." angle="PI"/>
         <translation z="StripEC_Z_Start + StripEC_HalfLength"/>
       </transformation>
