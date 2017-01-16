@@ -15,8 +15,8 @@ apply_pattern declare_runtime files="-s=../data/ *.dtd"
 # Awaiting a better solution.
 # Choose one of the following:
 #apply_pattern declare_runtime files="-s=../data/ITk/Strip/LoI/ *.gmx"
-apply_pattern declare_runtime files="-s=../data/ITk/Strip/LTF_LongStrip/ *.gmx"
-#apply_pattern declare_runtime files="-s=../data/ITk/Strip/LTFwithBCL/ *.gmx"
+#apply_pattern declare_runtime files="-s=../data/ITk/Strip/LTF_LongStrip/ *.gmx"
+apply_pattern declare_runtime files="-s=../data/ITk/Strip/LTFwithBCL/ *.gmx"
 #apply_pattern declare_runtime files="-s=../data/ITk/Strip/LTF/ *.gmx"
 #apply_pattern declare_runtime files="-s=../data/ITk/Strip/Sandbox/ *.gmx"
 
