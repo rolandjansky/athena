@@ -17,6 +17,7 @@ simFlags.load_atlas_flags()
 ## Set simulation geometry tag
 if hasattr(runArgs, 'geometryVersion'):
     simFlags.SimLayout.set_Value_and_Lock(runArgs.geometryVersion)
+    globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
     atlasG4log.debug('SimLayout set to %s' % simFlags.SimLayout)
 else:
     raise RuntimeError("No geometryVersion provided.")
