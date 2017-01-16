@@ -3,19 +3,18 @@
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 monitoring_tau_FTK = [
-	'tau0_idperf_FTK',
-	'tau0_idperf_FTKRefit',
-	'tau0_idperf_FTKNoPrec',
-	'tau0_perf_FTK',
-	'tau0_perf_FTKRefit',
-	'tau0_perf_FTKNoPrec',
-	'tau0_medium1_FTKNoPrec',
-	'tau25_idperf_FTK',
-	'tau25_idperf_FTKRefit',
-	'tau25_perf_FTK',
-	'tau25_perf_FTKRefit',
-	'tau25_medium1_FTK',
-	'tau25_medium1_FTKRefit'
+        'tau12_idperf_FTK',
+        'tau12_perf_FTK',
+        'tau12_perf0_FTK',
+        'tau12_perf_FTKNoPrec',
+        'tau12_perf0_FTKNoPrec',
+        'tau12_medium0_FTK',
+        'tau12_medium1_FTK',
+        'tau12_medium0_FTKNoPrec',
+        'tau12_medium1_FTKNoPrec',
+        'tau25_idperf_tracktwo_L1TAU12IM_FTK',
+        'tau25_perf_tracktwo_L1TAU12IM_FTK',
+        'tau25_medium1_tracktwo_L1TAU12IM_FTK'
 ] 
 
 monitoring_singleTau = 'tau25_medium1_tracktwo'
@@ -54,12 +53,18 @@ monitoring_tau_pp = [
 	'tau160_idperf_tracktwo',
 	'tau160_perf_tracktwo',
 	'tau160_medium1_tracktwo',
-	'tau25_idperf_FTK',
-	'tau25_idperf_FTKRefit',
-	'tau25_perf_FTK',
-	'tau25_perf_FTKRefit',
-	'tau25_medium1_FTK',
-	'tau25_medium1_FTKRefit'	
+        'tau12_idperf_FTK',
+        'tau12_perf_FTK',
+        'tau12_perf0_FTK',
+        'tau12_perf_FTKNoPrec',
+        'tau12_perf0_FTKNoPrec',
+        'tau12_medium0_FTK',
+        'tau12_medium1_FTK',
+        'tau12_medium0_FTKNoPrec',
+        'tau12_medium1_FTKNoPrec',
+        'tau25_idperf_tracktwo_L1TAU12IM_FTK',
+        'tau25_perf_tracktwo_L1TAU12IM_FTK',
+        'tau25_medium1_tracktwo_L1TAU12IM_FTK'
 ]
 
 monitoring_tau_validation = [
@@ -94,19 +99,18 @@ monitoring_tau_validation = [
 	'tau160_medium1HighptL_tracktwo',
 	'tau160_medium1HighptM_tracktwo',
 	'tau160_medium1HighptH_tracktwo',
-	'tau0_idperf_FTK',
-	'tau0_idperf_FTKRefit',
-	'tau0_idperf_FTKNoPrec',
-	'tau0_perf_FTK',
-	'tau0_perf_FTKRefit',
-	'tau0_perf_FTKNoPrec',
-	'tau0_medium1_FTKNoPrec',
-	'tau25_idperf_FTK',
-	'tau25_idperf_FTKRefit',
-	'tau25_perf_FTK',
-	'tau25_perf_FTKRefit',
-	'tau25_medium1_FTK',
-	'tau25_medium1_FTKRefit'
+	'tau12_idperf_FTK',
+	'tau12_perf_FTK',
+	'tau12_perf0_FTK',
+	'tau12_perf_FTKNoPrec',
+        'tau12_perf0_FTKNoPrec',
+        'tau12_medium0_FTK',
+        'tau12_medium1_FTK',
+        'tau12_medium0_FTKNoPrec',
+	'tau12_medium1_FTKNoPrec',
+        'tau25_idperf_tracktwo_L1TAU12IM_FTK',
+        'tau25_perf_tracktwo_L1TAU12IM_FTK',
+        'tau25_medium1_tracktwo_L1TAU12IM_FTK'
 ]
 
 monitoring_tau_cosmic = [
