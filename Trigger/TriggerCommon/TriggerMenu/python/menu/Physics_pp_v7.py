@@ -1484,19 +1484,19 @@ def setupMenu():
 
     if TriggerFlags.doFTK():
             TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
-                ['tau0_idperf_FTK_L1TAU12IM_FTK',              'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau0_idperf_FTKRefit_L1TAU12IM_FTK',         'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau0_idperf_FTKNoPrec_L1TAU12IM_FTK',        'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau0_perf_FTK_L1TAU12IM_FTK',                'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau0_perf_FTKRefit_L1TAU12IM_FTK',           'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau0_perf_FTKNoPrec_L1TAU12IM_FTK',          'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau0_medium1_FTKNoPrec_L1TAU12IM_FTK',       'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau25_perf_FTK_L1TAU12IM_FTK',               'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau25_perf_FTKRefit_L1TAU12IM_FTK',          'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau25_idperf_FTK_L1TAU12IM_FTK',             'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau25_idperf_FTKRefit_L1TAU12IM_FTK',        'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau25_medium1_FTK_L1TAU12IM_FTK',            'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-                ['tau25_medium1_FTKRefit_L1TAU12IM_FTK',       'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],                
+                #['tau0_idperf_FTK_L1TAU12IM_FTK',              'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau0_idperf_FTKRefit_L1TAU12IM_FTK',         'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau0_idperf_FTKNoPrec_L1TAU12IM_FTK',        'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau0_perf_FTK_L1TAU12IM_FTK',                'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau0_perf_FTKRefit_L1TAU12IM_FTK',           'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau0_perf_FTKNoPrec_L1TAU12IM_FTK',          'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau0_medium1_FTKNoPrec_L1TAU12IM_FTK',       'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau25_perf_FTK_L1TAU12IM_FTK',               'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau25_perf_FTKRefit_L1TAU12IM_FTK',          'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau25_idperf_FTK_L1TAU12IM_FTK',             'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau25_idperf_FTKRefit_L1TAU12IM_FTK',        'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau25_medium1_FTK_L1TAU12IM_FTK',            'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                #['tau25_medium1_FTKRefit_L1TAU12IM_FTK',       'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],                
                 ]
 
 

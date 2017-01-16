@@ -64,7 +64,7 @@ class TauHypoProvider:
                 currentHypoKey = 'ef'+part+'_tau'+threshold+'_'+criteria+'_r1'
 
                 if part == '':
-                    if criteria== 'perf' or criteria== 'cosmic': 
+                    if criteria== 'perf' or criteria== 'perf0' or criteria== 'cosmic': 
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_tauNoCut
                         currentHypo = EFTauMVHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
 
@@ -92,6 +92,12 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         theThresh.extend(self.thresholdsHighpt[(criteria)])
                         currentHypo = EFTauMVHypo_highpt(currentHypoKey, theVars, theThresh)
+
+                    elif criteria=='medium0':
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
+                        theVars = ['NTrackMin','NTrackMax', 'EtCalibMin', 'Level','ApplyIDon0p']
+                        theThresh = self.thresholdsEF_FTK[(criteria, int(threshold))]
+                        currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
                     else:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
@@ -139,7 +145,16 @@ class TauHypoProvider:
                 from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                 from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_highpt
                 # Important Note: the pT cut here is an unused dummy
-                if criteria != 'cosmic':
+                if criteria == 'cosmic':
+                    theVars = ['LowerPtCut', 'TracksInCoreCut', 'TracksInIsoCut', 'DeltaZ0Cut']
+                    theThresh = [int(threshold)*self.GeV, 9999, 9999, 9999.]
+                    currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
+                # accept 0p taus in FTK chains
+                elif criteria == 'perf0' and (strategy == 'FTK' or strategy == 'FTKNoPrec'):
+                    theVars = ['NTrackMin','NTrackMax','NWideTrackMax','EtCalibMin', 'Level','Method']
+                    theThresh = [0,3,1,0.*self.GeV,-1111,0]
+                    currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
+                else:
                     if strategy != 'tracktwo' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec':
                         theVars = ['LowerPtCut','LowerTrackPtCut']
                         theThresh = [int(threshold)*self.GeV,1.*self.GeV]
@@ -153,10 +168,6 @@ class TauHypoProvider:
                             currentHypo = EFTauMVHypo_highpt(currentHypoKey, theVars, theThresh)
                         else:
                             currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
-                else:
-                    theVars = ['LowerPtCut', 'TracksInCoreCut', 'TracksInIsoCut', 'DeltaZ0Cut']
-                    theThresh = [int(threshold)*self.GeV, 9999, 9999, 9999.]
-                    currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
 
         assert currentHypo, 'unable to find hypothesis algorithm: '+currentHypoKey
             
@@ -241,6 +252,7 @@ class TauHypoProvider:
         ('loose1', 160): [3, 160.0*GeV, 1],
         ('loose1', 200): [3, 200.0*GeV, 1],
         ('medium1', 0): [3,  0.0*GeV, 2], 
+        ('medium1', 12): [3,  12.0*GeV, 2],
         ('medium1', 20): [3,  20.0*GeV, 2],
         ('medium1', 25): [3,  25.0*GeV, 2],
         ('medium1', 29): [3,  29.0*GeV, 2],
@@ -301,6 +313,22 @@ class TauHypoProvider:
         ('medium1HighptH', 200): [3, 200.0*GeV, 2]
         }
 
+    thresholdsEF_FTK = {
+        ('medium0', 0):  [0,3,  0.0*GeV, 2, False],
+        ('medium0', 12): [0,3,  12.0*GeV, 2, False],
+        ('medium0', 20): [0,3,  20.0*GeV, 2, False],
+        ('medium0', 25): [0,3,  25.0*GeV, 2, False],
+        ('medium0', 29): [0,3,  29.0*GeV, 2, False],
+        ('medium0', 35): [0,3,  35.0*GeV, 2, False],
+        ('medium0', 38): [0,3,  38.0*GeV, 2, False],
+        ('medium0', 50): [0,3,  50.0*GeV, 2, False],
+        ('medium0', 60): [0,3,  60.0*GeV, 2, False],
+        ('medium0', 80): [0,3,  80.0*GeV, 2, False],
+        ('medium0', 115): [0,3, 115.0*GeV, 2, False],
+        ('medium0', 125): [0,3, 125.0*GeV, 2, False],
+        ('medium0', 160): [0,3, 160.0*GeV, 2, False],
+        ('medium0', 200): [0,3, 200.0*GeV, 2, False],
+        }
     thresholdsHighpt = {
         ('medium1HighptL'):[250.0*GeV,330.0*GeV,410.0*GeV], 
         ('medium1HighptM'):[200.0*GeV,330.0*GeV,410.0*GeV],
