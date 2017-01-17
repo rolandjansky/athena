@@ -485,8 +485,6 @@
         <chainName>ChainJobwthMC15c</chainName>
         <!-- Only letters allowed, no white space or punctuation in Name -->
         <sequential>
-          <parallel>
-            <sequential>
               <!-- Run Event Generation -->
               <chainElement>
                 <!-- <jobTransform> -->
@@ -563,7 +561,7 @@
                   MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.AOD.pool.root
                 </chainfileout>
               </chainElement>
-            </sequential>
+        </sequential>
       </chain>
     </jobList>
     <jobGroups>
