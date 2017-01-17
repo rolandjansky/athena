@@ -94,7 +94,8 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("isPP",             m_isPP,         "collision mode flag" );
   declareProperty("isHI",             m_isHI,         "collision mode flag" );
   declareProperty("isCosmic",         m_isCosmic,     "collision mode flag" );
-  declareProperty("isPPb",            m_isPPb,        "collision mode flag" );
+  declareProperty("isMC",             m_isMC,         "collision mode flag" );
+  //declareProperty("isPPb",            m_isPPb,        "collision mode flag" );
 
   // Jet Multiplicity bins
   declareProperty("NJetNBins",        m_njnbins );
@@ -1553,7 +1554,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
 	double  emfrac  =1;
 	double  hecfrac =1;
-	if (m_isPP || m_isCosmic){
+	if (m_isPP || m_isCosmic || m_isMC){
 	  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	}
@@ -1644,7 +1645,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
             double  phi     = thisjet->phi();
 	    double  emfrac  =1;
 	    double  hecfrac =1;
-	    if (m_isPP || m_isCosmic){
+	    if (m_isPP || m_isCosmic || m_isMC){
 	      emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	      hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
@@ -1749,7 +1750,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   double phi     = j->phi();
 	   double  emfrac  =1;
 	   double  hecfrac =1;
-	   if (m_isPP || m_isCosmic){
+	   if (m_isPP || m_isCosmic || m_isMC){
 	      emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
