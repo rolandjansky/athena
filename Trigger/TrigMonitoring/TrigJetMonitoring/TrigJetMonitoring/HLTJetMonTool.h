@@ -142,7 +142,7 @@ class HLTJetMonTool : public IHLTMonTool {
     bool m_doselOFJets, m_doselOFBasicHists, m_reqMinPtCut, m_reqEtaCut, m_reqMaxNJetCut;
     bool m_reqP4State, /*m_reqEMFracCut, m_reqN90Cut, m_reqTimeCut,*/ m_reqBadQCut;
 
-    bool m_isPP, m_isHI, m_isCosmic, m_isPPb; // collsion mode flags
+    bool m_isPP, m_isHI, m_isCosmic, m_isMC/*m_isPPb*/; // collsion mode flags
 
     float m_deltaRCut, m_emfracCut;
     //std::vector<float> m_ofemfracCut;
