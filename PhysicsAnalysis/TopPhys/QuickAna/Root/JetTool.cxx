@@ -43,13 +43,19 @@ namespace
   const char* btagAlgDefault = "MV2c20";
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2016-Winter-13TeV-MC15-CDI-March10_v1.root";
-  const char *jesFile = "JES_2015dataset_recommendation_Feb2016.config";
+  const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
   const std::string uncertConfigFile = "JES_2015/Moriond2016/JES2015_SR_Scenario1.config";
+#elif ROOTCORE_RELEASE_SERIES <= 25
+  const char* btagAlgDefault = "MV2c10";
+  const std::string bTagCalibFile =
+    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2016-11-25_v1.root";
+  const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
+  const std::string uncertConfigFile = "JES_2015/ICHEP2016/JES2015_SR_Scenario1.config";
 #else
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-July12_v1.root";
-  const char *jesFile = "JES_MC15cRecommendation_May2016.config";
+    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2016-11-25_v1.root";
+  const char *jesFile = "JES_MC15cRecommendation_May2016_rel21.config";
   const std::string uncertConfigFile = "JES_2015/ICHEP2016/JES2015_SR_Scenario1.config";
 #endif
 }
@@ -224,6 +230,12 @@ namespace ana
     // jet calibration
     QA_CHECK_CUT( cut_calibration_tool, m_calibration_tool->applyCorrection(jet) );
 
+    // jet energy scale uncertainties
+    QA_CHECK_CUT( cut_uncertainties_tool, m_uncertainties_tool->applyCorrection(jet) );
+
+    // jet resolution smearing
+    QA_CHECK_CUT( cut_smearing_tool, m_smearing_tool->applyCorrection(jet) );
+
     // JVT Recalculation after calibration
     float jvt = m_jvt_tool->updateJvt(jet);
     // Update "Jvt" of the jet - required by the MET tool
@@ -255,12 +267,6 @@ namespace ana
       // - Why can't we just adopt this as our convention, then??
       jet.auxdecor<char>("IsBjet") = isbjet;
     }
-
-    // jet energy scale uncertainties
-    QA_CHECK_CUT( cut_uncertainties_tool, m_uncertainties_tool->applyCorrection(jet) );
-
-    // jet resolution smearing
-    QA_CHECK_CUT( cut_smearing_tool, m_smearing_tool->applyCorrection(jet) );
 
     // We only clean, by default, jets that might've passed our JVT selection.
     // This is too hard-coded, ugly.
