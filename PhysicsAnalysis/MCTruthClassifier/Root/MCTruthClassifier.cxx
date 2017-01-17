@@ -1936,9 +1936,10 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
 
   }  
   
-  //-- to find initial and final state raiation and underline photons
+  //-- to find initial and final state radiation and underline photons
   //-- SUSY
-  if(m_NumOfParents==1&&(abs(m_MotherPDG)<7||m_MotherPDG==21)){
+  if(m_NumOfParents==1&&(abs(m_MotherPDG)<7||m_MotherPDG==21)&&
+     !(m_NumOfDaug==NumOfPht+NumOfPartons&&(m_MotherStatus==62||m_MotherStatus==52||m_MotherStatus==21||m_MotherStatus==22))){
     for(unsigned int ipOut=0;ipOut<partOriVert->nOutgoingParticles();ipOut++){
       if(!partOriVert->outgoingParticle(ipOut)) continue;
       if(m_MotherPDG!=partOriVert->outgoingParticle(ipOut)->pdgId()) continue;
@@ -1948,6 +1949,7 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
       if(!Vrtx->outgoingParticle(0)) continue;
       if(Vrtx->outgoingParticle(0)->pdgId()==91) foundISR=true;
     }
+
     if( foundISR ) return ISRPhot; 
     else           return UndrPhot;
 
@@ -2100,7 +2102,7 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
   // Pythia8 gamma+jet samples
   if ((m_MotherStatus==62||m_MotherStatus==52||m_MotherStatus==21||m_MotherStatus==22) &&
       thePriPart->status()==1 && NumOfPht==1 && m_NumOfDaug==(NumOfPht+NumOfPartons) ){
-    return UndrPhot;
+    return PromptPhot;
   }
  
   ParticleType pType = defTypeOfHadron(m_MotherPDG);
