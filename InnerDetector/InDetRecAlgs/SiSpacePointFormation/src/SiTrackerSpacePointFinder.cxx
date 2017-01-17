@@ -33,7 +33,6 @@ ATLAS Collaboration
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 
 #include "CxxUtils/make_unique.h"
