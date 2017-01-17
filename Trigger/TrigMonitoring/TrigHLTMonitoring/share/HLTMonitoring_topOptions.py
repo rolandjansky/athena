@@ -1,5 +1,5 @@
-print "hello from TrigHLTMonitoringJobOptions_forRecExCommission.py"
-
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TrigHLTMonitoring/HLTMonitoring_topOptions' )
 ######## flags ###########
 
 if not 'HLTMonFlags' in dir():
@@ -8,12 +8,12 @@ if not 'HLTMonFlags' in dir():
 if not 'DQMonFlags' in dir():
   from AthenaMonitoring.DQMonFlags import DQMonFlags
 
-    ########## control step assignment #########
+########## control step assignment #########
 
 if DQMonFlags.monManEnvironment == 'tier0Raw':
   # we are in RAW->ESD step
   # run all tools *except* the following (these are run in ESD->AOD)
-  print 'HLTMonitoring_topOptions.py: environment is tier0Raw'
+  log.info('Environment is tier0Raw')
   HLTMonFlags.doGeneral  = False
   HLTMonFlags.doBjet     = False
   HLTMonFlags.doBphys    = False
@@ -28,26 +28,25 @@ if DQMonFlags.monManEnvironment == 'tier0Raw':
   HLTMonFlags.doOfflineTauTTP = False
   HLTMonFlags.doIDJpsiMon  = False
 elif DQMonFlags.monManEnvironment == 'tier0ESD':
+  log.info('Environment is tier0ESD')
   # we are in ESD->AOD step
   # run all tools *except* the following (these are run in RAW->ESD)
-  print 'HLTMonitoring_topOptions.py: environment is tier0ESD'
-  # HLTMonFlags.doCalo     = False 
+  # HLTMonFlags.doCalo     = False
+  # HLTMonFlags.doMaM      = True
+  # HLTMonFlags.doMaM_ApplyMCK = True
 elif DQMonFlags.monManEnvironment == 'tier0':
   # we are in RAW -> ALL, run everything
-  print 'HLTMonitoring_topOptions.py: environment is tier0'
+  log.info('Environment is tier0')
 else :
-  print 'HLTMonitoring_topOptions.py: environment is neither tier0Raw nor tier0ESD'
-  print 'HLTMonitoring_topOptions.py: switching all tools off...'
+  log.info('Environment is neither tier0Raw nor tier0ESD')
+  log.info('Switching all tools off...')
   HLTMonFlags.doGeneral = False
   HLTMonFlags.doMonTier0 = False
 
-### Menu-aware monitoring flags ###
-#HLTMonFlags.doMaM                       = True # default is False
-#HLTMonFlags.doMaM_ExtractAndDumpConfigs = True # default is False
-#HLTMonFlags.MaM_OutputJSON              = "mam_configs.json" # default is "mam_configs.json"
-#HLTMonFlags.doMaM_ApplyMCK              = True # default is False
-#HLTMonFlags.MCK                         = -1 # default is -1 
-
 # temporarily disabling IDJpsiMon to deal with ATR-12037
 HLTMonFlags.doIDJpsiMon = False
+
+log.info("HLTMonFlags are:")
+print HLTMonFlags
+
 include( "TrigHLTMonitoring/addMonTools.py" )

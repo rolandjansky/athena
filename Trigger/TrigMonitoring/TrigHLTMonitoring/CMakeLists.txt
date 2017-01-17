@@ -14,11 +14,9 @@ atlas_depends_on_subdirs( PUBLIC
                           LumiBlock/LumiCalc
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigConfiguration/TrigConfigSvc
-                          Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
                           Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolUtilities
                           Event/EventInfo
                           Event/xAOD/xAODTrigger )
 
@@ -33,14 +31,17 @@ atlas_add_library( TrigHLTMonitoringLib
                    PUBLIC_HEADERS TrigHLTMonitoring
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES xAODLuminosity GaudiKernel TrigSteeringEvent AthenaMonitoringLib StoreGateLib SGtests LumiBlockCoolQuery TrigDecisionToolLib TrigConfigSvcLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel AthenaPoolUtilities EventInfo xAODTrigger )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel EventInfo xAODTrigger )
 
 atlas_add_component( TrigHLTMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests xAODLuminosity GaudiKernel LumiBlockCoolQuery TrigDecisionToolLib TrigConfigSvcLib TrigSteeringEvent AthenaKernel AthenaPoolUtilities EventInfo xAODTrigger TrigHLTMonitoringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests xAODLuminosity GaudiKernel LumiBlockCoolQuery TrigDecisionToolLib TrigConfigSvcLib TrigSteeringEvent AthenaKernel EventInfo xAODTrigger TrigHLTMonitoringLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-
+atlas_install_scripts( python/scripts/*.py python/scripts/*.sh java/TrigMaMGUI_TRIGGERDBREPR.sh )
+atlas_install_generic( java/GUI/TrigMaMGUI.java
+                       DESTINATION java/
+                       TYPEANAME JavaGUI )

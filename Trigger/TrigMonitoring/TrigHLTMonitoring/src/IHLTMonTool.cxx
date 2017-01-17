@@ -93,8 +93,13 @@ StatusCode IHLTMonTool::initialize() {
       ATH_MSG_INFO("No TrigConfigTool provided, using TrigConfigSvc (default)");
       sc = m_configsvc.retrieve();
       if ( sc.isFailure() ) {
-          ATH_MSG_ERROR("Could not retrieve Trigger Config Svc");
-          return sc;
+          ATH_MSG_WARNING("Could not retrieve TrigConfigSvc - trying TrigConf::xAODConfigTool");
+          m_configTool = ToolHandle<TrigConf::ITrigConfigTool>("TrigConf::xAODConfigTool");
+          sc = m_configTool.retrieve();
+          if ( sc.isFailure() ) {
+            ATH_MSG_ERROR("Could not retrieve TrigConfigTool");
+            return sc;
+          }
       }
   }
   else {
