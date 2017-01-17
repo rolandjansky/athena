@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
                           Control/CxxUtils
                           Control/SGTools
+			  Control/AthenaKernel
                           DetectorDescription/Identifier
                           GaudiKernel
                           PRIVATE
