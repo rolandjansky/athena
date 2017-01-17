@@ -935,7 +935,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
       const double t_out = m_SoA.m_t[iter2];
 
-      const double dt2 = std::pow((t_inn - t_out), 2)/9.0;
+      const double dt2 = std::pow((t_inn - t_out), 2)*(1.0/9.0);
 
       double covdt = (t_inn*t_out*covR + covZ);
       covdt       *= 2*r_inn*m_SoA.m_r[iter2];
@@ -949,7 +949,8 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
       if(du==0.0) continue;
 
       const double A = (m_SoA.m_v[iter2] - v_inn)/du;
-      const double B = (type1==0) ? v_inn - A*u_inn : m_SoA.m_v[iter2] - A*m_SoA.m_u[iter2];
+      //Branchless version of (type1==0) ? v_inn - A*u_inn : m_SoA.m_v[iter2] - A*m_SoA.m_u[iter2];
+      const double B = (1-type1)*(v_inn - A*u_inn) + type1*(m_SoA.m_v[iter2] - A*m_SoA.m_u[iter2]);
       const double R_squ = (1 + A*A)/(B*B);
 
       if(R_squ < m_minR_squ) continue;
@@ -961,11 +962,13 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
       //4. d0 cut
 
-      const double fabs_d0 = std::fabs(pS_r*(B*pS_r - A));
+      const double d0_partial = B*pS_r - A;//Pre-calculate for use in phi check
+      const double fabs_d0 = std::fabs(pS_r*(d0_partial));
 
       if(fabs_d0 > m_settings.m_tripletD0Max) continue;
 
-      bool isSCT = (type1 == 1) ? m_SoA.m_sorted_sp[iter1]->isSCT() : m_SoA.m_sorted_sp[iter2]->isSCT();
+      //Branchless version of (type1 == 1) ? m_SoA.m_sorted_sp[iter1]->isSCT() : m_SoA.m_sorted_sp[iter2]->isSCT();
+      bool isSCT =  (1-type1)*m_SoA.m_sorted_sp[iter1]->isSCT() + type1*m_SoA.m_sorted_sp[iter2]->isSCT();
       
       if (isSCT && isPixel) {
         if(fabs_d0 > m_settings.m_tripletD0_PPS_Max) continue;
@@ -975,11 +978,10 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
       if (!m_settings.roiDescriptor->isFullscan()) {
 
-        const double uc = 2*B*pS_r - A;
+        const double uc = 2*d0_partial;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
-        // if(!m_settings.roiDescriptor->containsPhi(phi0)) {
-	if ( !RoiUtil::containsPhi( *(m_settings.roiDescriptor), phi0 ) ) {
+        if ( !RoiUtil::containsPhi( *(m_settings.roiDescriptor), phi0 ) ) {
           continue;
         }
       }
