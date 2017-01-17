@@ -6,6 +6,8 @@ def _setupCaloClusterTopoCoolFolder():
     from CaloRec.CaloTopoClusterFlags import jobproperties
     from IOVDbSvc.CondDB import conddb
 
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
 
     doOverride=False
     TagSuffix=""
@@ -35,12 +37,16 @@ def _setupCaloClusterTopoCoolFolder():
         conddb.addFolder("CALO","/CALO/HadCalibration2/CaloOutOfCluster")
         conddb.addFolder("CALO","/CALO/HadCalibration2/CaloOutOfClusterPi0")
         conddb.addFolder("CALO","/CALO/HadCalibration2/CaloDMCorr2")
+
+        topSequence.CondInputLoader.Load += [ ('CaloLocalHadCoeff', '/CALO/HadCalibration2/CaloEMFrac') ]
     else:    
         conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloEMFrac")
         conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/H1ClusterCellWeights")
         conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloOutOfCluster")
         conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloOutOfClusterPi0")
         conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloDMCorr2")
+
+        topSequence.CondInputLoader.Load += [ ('CaloLocalHadCoeff', '/CALO/Ofl/HadCalibration2/CaloEMFrac') ]
 
 
     if doOverride:
