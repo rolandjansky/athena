@@ -22,6 +22,7 @@
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 
@@ -53,7 +54,7 @@ class CaloLCClassificationTool : public AthAlgTool, virtual public IClusterClass
    *
    * This object contains the actual data used for classification. */
 
-  const DataHandle<CaloLocalHadCoeff> m_data;
+  SG::ReadCondHandleKey<CaloLocalHadCoeff> m_rchk;
 
   /**
    * @brief if set to true the spread of EM probabilities in each bin is
