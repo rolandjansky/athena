@@ -23,10 +23,10 @@
 
 namespace { // utility functions used here
   // get truth particle associated with a track particle
-  const xAOD::TruthParticle *
-  getTruthPtr(const xAOD::TrackParticle &trackParticle) {
+  const xAOD::TruthParticle*
+  getTruthPtr(const xAOD::TrackParticle& trackParticle) {
     typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
-    const xAOD::TruthParticle *result(nullptr);
+    const xAOD::TruthParticle* result(nullptr);
     // 0. is there any truth?
     if (trackParticle.isAvailable<ElementTruthLink_t>("truthParticleLink")) {
       // 1. ..then get link
@@ -40,7 +40,7 @@ namespace { // utility functions used here
 }
 
 
-InDetPhysValDecoratorAlg::InDetPhysValDecoratorAlg(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(
+InDetPhysValDecoratorAlg::InDetPhysValDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(
     name, pSvcLocator),
   m_truthDecoratorTool("InDetPhysValTruthDecoratorTool"),
   m_hitDecoratorTool("InDetPhysHitDecoratorTool"),
@@ -86,8 +86,8 @@ InDetPhysValDecoratorAlg::execute() {
   // const unsigned int nTruth(ptruth->size());
   //
   unsigned int num_truthmatch_match(0);
-  for (const auto &thisTrack: *ptracks) {
-    const xAOD::TruthParticle *associatedTruth = getTruthPtr(*thisTrack); // get the associated truth
+  for (const auto& thisTrack: *ptracks) {
+    const xAOD::TruthParticle* associatedTruth = getTruthPtr(*thisTrack); // get the associated truth
     // decorate the track here, if necessary <insert code>
     // running hit decorator on slimmed tracks crashes
     bool successfulTrackDecoration = m_hitDecoratorTool->decorateTrack(*thisTrack, "");
@@ -108,17 +108,15 @@ InDetPhysValDecoratorAlg::execute() {
       // if (not successfulDecoration) ATH_MSG_WARNING ("The truth particle could not be assigned a type");
     }
   }
-  const xAOD::TruthParticleContainer *truthParticles =
+  const xAOD::TruthParticleContainer* truthParticles =
     (!m_truthParticleName.empty() ? getContainer<xAOD::TruthParticleContainer>(m_truthParticleName) : nullptr);
   if (truthParticles) {
-  
-    for (const auto &thisTruth: *truthParticles) {
+    for (const auto& thisTruth: *truthParticles) {
       bool successfulDecoration = m_truthDecoratorTool->decorateTruth(*thisTruth, "");
       if (not successfulDecoration) {
         ATH_MSG_DEBUG("Could not retrieve some information for the truth particle.");
       }
     }
-    
   }
 
   ATH_MSG_VERBOSE(nTracks << " tracks were retrieved; " << num_truthmatch_match << " had associated truth.");

@@ -49,53 +49,55 @@
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
 class InDetRttLargeD0Plots: public InDetPlotBase {
 public:
-  InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::string &dirName);
+  InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::string& dirName);
   ///fill for things needing truth and track only
   // void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle); // not used. SC
   ///fill for things needing track only
-  void fill(const xAOD::TrackParticle &particle);
-  void fill(const xAOD::TrackParticle &particle, const int barcode, const xAOD::EventInfo& ei, const xAOD::VertexContainer& pv);
+  void fill(const xAOD::TrackParticle& particle);
+  void fill(const xAOD::TrackParticle& particle, const int barcode, const xAOD::EventInfo& ei,
+            const xAOD::VertexContainer& pv);
   ///fill for things needing truth only
-  void fill(const xAOD::TruthParticle &particle);
+  void fill(const xAOD::TruthParticle& particle);
   ///fill for things needing all truth - not just the ones from the reco tracks
-  void fillTruth(const xAOD::TruthParticle &particle);
+  void fillTruth(const xAOD::TruthParticle& particle);
 
-  void pro_fill(const xAOD::TruthParticle &truth, float weight);
+  void pro_fill(const xAOD::TruthParticle& truth, float weight);
 
-  void fillEfficiency(const xAOD::TruthParticle &particle,      \
+  void fillEfficiency(const xAOD::TruthParticle& particle,      \
                       const bool isReconstructed,               \
                       const bool isLargeD0Track = false,        \
-                      const bool hasTRTHit = false,		\
-		      const bool hasTRTOut = false,		\
-		      const int  nTrtHits = 0,			\
-		      const int  nTrtTubeHits = 0,		\
+                      const bool hasTRTHit = false,     \
+                      const bool hasTRTOut = false,     \
+                      const int nTrtHits = 0,          \
+                      const int nTrtTubeHits = 0,      \
                       const bool isSignal = false);
 
 
   // fill the fake and bad match rate plots
-  void fillBMR(const xAOD::TrackParticle &track, float weight);
-  void fillRF(const xAOD::TrackParticle &track, float weight);
+  void fillBMR(const xAOD::TrackParticle& track, float weight);
+  void fillRF(const xAOD::TrackParticle& track, float weight);
 
   ///fill reco-vertex related plots
-  void fill(const xAOD::VertexContainer &vertexContainer);
+  void fill(const xAOD::VertexContainer& vertexContainer);
   ///fill reco-vertex related plots that need EventInfo
-  void fill(const xAOD::VertexContainer &vertexContainer, const xAOD::EventInfo &ei);
+  void fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei);
 
   virtual ~InDetRttLargeD0Plots() {/**nop**/
   };
   ///fill for Counters
   void fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory counter);
   ///fill for fakes
-  void fillFakeRate(const xAOD::TrackParticle &particle,		\
-		    const bool isFake,					\
-		    const int barcode = -1,				\
-		    const bool trtHit = false,				\
-		    const bool trtOut = false,				\
-		    const int nTRTHit = 0,				\
-		    const int nTRTTube = 0);
+  void fillFakeRate(const xAOD::TrackParticle& particle,        \
+                    const bool isFake,                  \
+                    const int barcode = -1,             \
+                    const bool trtHit = false,              \
+                    const bool trtOut = false,              \
+                    const int nTRTHit = 0,              \
+                    const int nTRTTube = 0);
 
   ///fill for fakes (Siinn)
-  void fillFake(const xAOD::TrackParticle &particle, const int barcode, const xAOD::EventInfo &ei, const xAOD::VertexContainer &pv);
+  void fillFake(const xAOD::TrackParticle& particle, const int barcode, const xAOD::EventInfo& ei,
+                const xAOD::VertexContainer& pv);
 private:
   // ============================================
   // Plots used for LargeD0 performance study
@@ -148,7 +150,7 @@ private:
   InDetBasicPlot m_basicPlot_st_fake_primary;
   InDetBasicPlot m_basicPlot_st_fake_secondary;
   InDetBasicPlot m_basicPlot_st_fake_noTruthLink;
-  
+
   InDetBasicPlot m_basicPlot_ld0_matched;
   InDetBasicPlot m_basicPlot_ld0_matched_primary;
   InDetBasicPlot m_basicPlot_ld0_matched_secondary;

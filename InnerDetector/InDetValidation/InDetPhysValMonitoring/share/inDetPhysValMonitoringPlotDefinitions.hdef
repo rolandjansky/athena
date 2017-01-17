@@ -131,6 +131,16 @@ TProfile BadMatchRate_vs_logpt "Fraction of Tracks with < 50.1% TMP vs Log(Pt)" 
 TProfile ReallyFakeRate "Fraction of Tracks with < 50.0% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Really Fake Rate" default
 #
 
+# Dummy Plots
+TH2 primary_photon_eta_vs_conversion_radius "Primary Photon #eta vs Conversion Radius" 100 0 1500 20 -2.5 2.5 "Conversion Radius [mm]" "#eta" default
+TH2 primary_photon_pt_vs_decay_radius "Primary Photon p_{T} vs Decay Radius" 100 0 1500 100 0 500 "Decay Radius [mm]" "p_{T} (GeV)" default
+TH1F primary_photon_pt "Primary Photon p_{T}" 100 0 500 "p_{T} (GeV)" "Entries" default
+TH2 brem_photon_eta_vs_radius_of_conversion "Brem Photon #eta vs Radius of Conversion" 100 0 1500 20 -2.5 2.5 "Radius of Conversion [mm]" "#eta" default
+TH2 brem_photon_pt_vs_radius_of_origin_of_conversion "Brem Photon p_{T} vs Radius of Origin of Conversion" 100 0 1500 100 0 500 "Radius of Origin of Conversion [mm]" "p_{T} (GeV)" default
+TH1F lepton_disappearance_radius "Radius at which electrons and positrons from the primary disappear" 100 0 1500 "Radius of Disappearance [mm]" "Entries" default
+TH1F nOut_of_lepdeath "Number of Particles out of the electron/positron endpoint" 6 0 5 "Number of Particles" "Entries" default
+TH2 brem_spectrum "log of the Energy of Brem Photons vs Radius of Emission" 100 0 1500 100 -0.5 3 "Radius of Emission [mm]" "log(Energy (GeV))" default
+
 # Track Parameter Resolution Plots
 #Track Parameter TH2s vs eta
 TH2 res_d0_vs_eta "d_{0}: deviation vs #eta" 20 -2.5 2.5 2000 -1.0 1.0 "#eta" "d_{0}^{rec} - d_{0}^{tru}" default

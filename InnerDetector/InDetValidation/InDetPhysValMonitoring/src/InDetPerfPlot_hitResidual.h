@@ -31,9 +31,9 @@ class IExtrapolator;
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
 class InDetPerfPlot_hitResidual: public InDetPlotBase {
 public:
-  InDetPerfPlot_hitResidual(InDetPlotBase *pParent, const std::string &dirName);
+  InDetPerfPlot_hitResidual(InDetPlotBase* pParent, const std::string& dirName);
 
-  void fill(const xAOD::TrackParticle &trkprt);
+  void fill(const xAOD::TrackParticle& trkprt);
   ~InDetPerfPlot_hitResidual() {/** nop **/
   }
 
@@ -48,18 +48,18 @@ private:
 
   void initializePlots();
 
-  TH1 *m_residualx_1hit[TRT][N_REGIONS]; // excludes TRT, DBM
-  TH1 *m_residualx_2ormorehits[TRT][N_REGIONS]; // excludes TRT, DBM
-  TH1 *m_residualx[N_SUBDETECTORS][N_REGIONS];
+  TH1* m_residualx_1hit[TRT][N_REGIONS]; // excludes TRT, DBM
+  TH1* m_residualx_2ormorehits[TRT][N_REGIONS]; // excludes TRT, DBM
+  TH1* m_residualx[N_SUBDETECTORS][N_REGIONS];
   //
-  TH1 *m_residualy_1hit[TRT][N_REGIONS]; // excludes TRT, DBM
-  TH1 *m_residualy_2ormorehits[TRT][N_REGIONS]; // excludes TRT, DBM
-  TH1 *m_residualy[N_SUBDETECTORS][N_REGIONS];
+  TH1* m_residualy_1hit[TRT][N_REGIONS]; // excludes TRT, DBM
+  TH1* m_residualy_2ormorehits[TRT][N_REGIONS]; // excludes TRT, DBM
+  TH1* m_residualy[N_SUBDETECTORS][N_REGIONS];
   //
-  TH1 *m_residualpullx[N_SUBDETECTORS][N_REGIONS];
-  TH1 *m_residualpully[N_SUBDETECTORS][N_REGIONS];
-  TH1 *m_phiWidth[N_SUBDETECTORS][N_REGIONS];
-  TH1 *m_etaWidth[N_SUBDETECTORS][N_REGIONS];
+  TH1* m_residualpullx[N_SUBDETECTORS][N_REGIONS];
+  TH1* m_residualpully[N_SUBDETECTORS][N_REGIONS];
+  TH1* m_phiWidth[N_SUBDETECTORS][N_REGIONS];
+  TH1* m_etaWidth[N_SUBDETECTORS][N_REGIONS];
 };
 
 

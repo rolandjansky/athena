@@ -1,13 +1,24 @@
 <!--  -->
-<!-- basic plots -->
-<h id="basicd0" type="TH1F" title="d_{0} of selected tracks (in mm)">
+<!-- same definition in test1 and test2 -->
+<h id="sameTest1Test2" type="TH1F" title="Same">
   <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
   <y title="Entries"/>
 </h>
-<!--
-long comment
--->
-<h id="basicz0" type="TH1F" title="z_{0} of selected tracks (in mm)">
+  <!-- definition with range diff in test1 and test2
+long comment with offset and spaces
+for a histogram with offsets and spaces
+  -->  
+<h id="rangediffTest1Test2" type="TH1F" title="Range difference">
+  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
+  <y title="Entries"/>
+  </h>
+<!-- definition with text diff in test1 and test2 -->
+<h id="textdiffTest1Test2" type="TH1F" title="Text difference">
+  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
+  <y title="ytit1"/>
+</h>
+<!-- definition only in test1 -->
+<h id="only1" type="TH1F" title="Only test1">
   <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
   <y title="Entries"/>
 </h>

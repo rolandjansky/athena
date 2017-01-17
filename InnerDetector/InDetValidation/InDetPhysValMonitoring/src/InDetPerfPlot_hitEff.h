@@ -30,9 +30,9 @@ class TEfficiency;
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
 class InDetPerfPlot_hitEff: public InDetPlotBase {
 public:
-  InDetPerfPlot_hitEff(InDetPlotBase *pParent, const std::string &dirName);
+  InDetPerfPlot_hitEff(InDetPlotBase* pParent, const std::string& dirName);
 
-  void fill(const xAOD::TrackParticle &trkprt);
+  void fill(const xAOD::TrackParticle& trkprt);
   ~InDetPerfPlot_hitEff() {/** nop **/
   }
 
@@ -47,8 +47,8 @@ private:
 private:
   void initializePlots();
 
-  TProfile *m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
-  TEfficiency * m_testEff;
+  TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
+  TEfficiency* m_testEff;
   bool m_debug;
 };
 

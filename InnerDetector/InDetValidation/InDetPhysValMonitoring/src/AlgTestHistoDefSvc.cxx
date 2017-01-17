@@ -24,7 +24,7 @@
 
 using namespace std;
 
-AlgTestHistoDefSvc::AlgTestHistoDefSvc (const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name,
+AlgTestHistoDefSvc::AlgTestHistoDefSvc (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name,
                                                                                                           pSvcLocator),
   m_histoDefSvc("HistogramDefinitionSvc", name) { // nop
 }
@@ -65,7 +65,7 @@ AlgTestHistoDefSvc::initialize() {
   ATH_MSG_INFO("Printing histogram definition for non-existent definition");
   definition = m_histoDefSvc->definition("utterRubbish", "").str();
   ATH_MSG_INFO(definition);
-  
+
   return StatusCode::SUCCESS;
 }
 

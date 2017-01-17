@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 788969 2016-12-09 15:03:08Z sroe $
+# $Id: PhysVal_jobOptions.py 790860 2016-12-22 16:57:06Z mbaugh $
 
 # Set up the reading of the input xAOD:
 import getpass
@@ -28,7 +28,7 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPhysValMonitoringPlotDefinitions.xml"
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPVMPlotDefRun2.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
@@ -120,4 +120,4 @@ ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
 theApp.EvtMax = -1
 if (getpass.getuser())=="sroe":
-  theApp.EvtMax = 10
+  theApp.EvtMax = -1

@@ -3,13 +3,14 @@
 */
 
 #include "InDetPerfPlot_Eff.h"
-//#include "TrkValHistUtils/EfficiencyPurityCalculator.h"
+// #include "TrkValHistUtils/EfficiencyPurityCalculator.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
+#include "InDetPhysValMonitoringUtilities.h"
+#include <cmath>
+using namespace IDPVM;
 
-using namespace TMath;
-
-InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase *pParent, const std::string &sDir) :
+InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase* pParent, const std::string& sDir) :
   InDetPlotBase(pParent, sDir),
   m_trackeff_vs_eta{},
   m_trackeff_vs_pt{},
@@ -20,7 +21,6 @@ InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase *pParent, const std::string &
   m_trackeff_vs_Z{},
   m_trackeff_vs_prodR{},
   m_trackeff_vs_prodZ{},
-  m_low_Pt_lepton_frac{},
   m_eff_vs_eta_of_daughters{},
   m_eff_vs_theta_of_daughters{},
   m_eff_vs_theta_tan_of_daughters{},
@@ -51,8 +51,6 @@ InDetPerfPlot_Eff::initializePlots() {
   book(m_trackeff_vs_prodR, "trackeff_vs_prodR");
   book(m_trackeff_vs_prodZ, "trackeff_vs_prodZ");
 
-  book(m_low_Pt_lepton_frac, "low_Pt_lepton_frac");
-
   book(m_eff_vs_eta_of_daughters, "eff_vs_eta_of_daughters");
   book(m_eff_vs_theta_of_daughters, "eff_vs_theta_of_daughters");
   book(m_eff_vs_theta_tan_of_daughters, "eff_vs_theta_tan_of_daughters");
@@ -71,78 +69,73 @@ InDetPerfPlot_Eff::initializePlots() {
 }
 
 void
-InDetPerfPlot_Eff::pro_fill(const xAOD::TruthParticle &truth, float weight) {
+InDetPerfPlot_Eff::pro_fill(const xAOD::TruthParticle& truth, float weight) {
   double eta = truth.eta();
-  double pt = truth.pt() *0.001; // convert MeV to GeV
+  double pt = truth.pt() * 1_GeV; // convert MeV to GeV
   double phi = truth.phi();
+
+  fillHisto(m_trackeff_vs_eta, eta, weight);
+  fillHisto(m_trackeff_vs_pt, pt, weight);
+  fillHisto(m_trackeff_vs_phi, phi, weight);
+
   double d0 = truth.auxdata<float>("d0");
   double z0 = truth.auxdata<float>("z0");
   double R = truth.auxdata<float>("prodR");
   double Z = truth.auxdata<float>("prodZ");
-
-  fillHisto(m_trackeff_vs_eta,eta, weight);
-  fillHisto(m_trackeff_vs_pt,pt, weight);
-  fillHisto(m_trackeff_vs_phi,phi, weight);
-  fillHisto(m_trackeff_vs_d0,d0, weight);
-  fillHisto(m_trackeff_vs_z0,z0, weight);
-  fillHisto(m_trackeff_vs_R,R, weight);
-  fillHisto(m_trackeff_vs_Z,Z, weight);
+  fillHisto(m_trackeff_vs_d0, d0, weight);
+  fillHisto(m_trackeff_vs_z0, z0, weight);
+  fillHisto(m_trackeff_vs_R, R, weight);
+  fillHisto(m_trackeff_vs_Z, Z, weight);
 
   if (truth.hasProdVtx()) {
-    const xAOD::TruthVertex *vtx = truth.prodVtx();
+    const xAOD::TruthVertex* vtx = truth.prodVtx();
     double prod_rad = vtx->perp();
     double prod_z = vtx->z();
-    fillHisto(m_trackeff_vs_prodR,prod_rad, weight);
-    fillHisto(m_trackeff_vs_prodZ,prod_z, weight);
+    fillHisto(m_trackeff_vs_prodR, prod_rad, weight);
+    fillHisto(m_trackeff_vs_prodZ, prod_z, weight);
   }
 }
 
 void
-InDetPerfPlot_Eff::lepton_fill(const xAOD::TruthParticle &truth, float weight){
-  double R = truth.auxdata<float>("prodR");
-  fillHisto(m_low_Pt_lepton_frac, R, weight);
-}
-
-void
-InDetPerfPlot_Eff::BT_fill(const xAOD::TruthParticle &truth, float weight) {
-  double eta = truth.eta();
+InDetPerfPlot_Eff::BT_fill(const xAOD::TruthParticle& truth, float weight) {
+  double eta = safelyGetEta(truth);
   double theta = truth.auxdata< float >("theta");
   double phi = truth.phi();
 
   double tan_theta = std::tan(theta);
-  double cot_theta = (std::cos(theta) / std::sin(theta));
+  double cot_theta = (1.0 / tan_theta);
   double sin_phi = std::sin(phi);
   double cos_phi = std::cos(phi);
 
-  fillHisto(m_eff_vs_eta_of_daughters,eta, weight);
-  fillHisto(m_eff_vs_theta_of_daughters,theta, weight);
-  fillHisto(m_eff_vs_theta_tan_of_daughters,tan_theta, weight);
-  fillHisto(m_eff_vs_theta_cotan_of_daughters,cot_theta, weight);
-  fillHisto(m_eff_vs_phi_of_daughters,phi, weight);
-  fillHisto(m_eff_vs_phi_sin_of_daughters,sin_phi, weight);
-  fillHisto(m_eff_vs_phi_cos_of_daughters,cos_phi, weight);
+  fillHisto(m_eff_vs_eta_of_daughters, eta, weight);
+  fillHisto(m_eff_vs_theta_of_daughters, theta, weight);
+  fillHisto(m_eff_vs_theta_tan_of_daughters, tan_theta, weight);
+  fillHisto(m_eff_vs_theta_cotan_of_daughters, cot_theta, weight);
+  fillHisto(m_eff_vs_phi_of_daughters, phi, weight);
+  fillHisto(m_eff_vs_phi_sin_of_daughters, sin_phi, weight);
+  fillHisto(m_eff_vs_phi_cos_of_daughters, cos_phi, weight);
 }
 
 void
-InDetPerfPlot_Eff::jet_fill(const xAOD::TrackParticle &track, const xAOD::Jet &jet, float weight) {
+InDetPerfPlot_Eff::jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight) {
   double trketa = track.eta();
   double trkphi = track.phi();
-  double trkpt = track.pt() / 1000.;
+  double trkpt = track.pt() * 1_GeV;
   double dR = jet.p4().DeltaR(track.p4());
-  double jetet = jet.pt() / 1000.;
+  double jetet = jet.pt() * 1_GeV;
 
-  fillHisto(m_trackinjeteff_vs_eta,trketa, weight);
-  fillHisto(m_trackinjeteff_vs_phi,trkphi, weight);
-  fillHisto(m_trackinjeteff_vs_pt,trkpt, weight);
-  fillHisto(m_trackinjeteff_vs_dr,dR, weight);
+  fillHisto(m_trackinjeteff_vs_eta, trketa, weight);
+  fillHisto(m_trackinjeteff_vs_phi, trkphi, weight);
+  fillHisto(m_trackinjeteff_vs_pt, trkpt, weight);
+  fillHisto(m_trackinjeteff_vs_dr, dR, weight);
 
   if (jetet < 50) {
-    fillHisto(m_trackinjeteff_vs_dr_lt_j50,dR, weight);
-  }else if (jetet > 100) {
-    fillHisto(m_trackinjeteff_vs_dr_gr_j100,dR, weight);
+    fillHisto(m_trackinjeteff_vs_dr_lt_j50, dR, weight);
+  } else if (jetet > 100) {
+    fillHisto(m_trackinjeteff_vs_dr_gr_j100, dR, weight);
   }
 
-  fillHisto(m_trackinjeteff_vs_jetet,jetet, weight);
+  fillHisto(m_trackinjeteff_vs_jetet, jetet, weight);
 }
 
 void

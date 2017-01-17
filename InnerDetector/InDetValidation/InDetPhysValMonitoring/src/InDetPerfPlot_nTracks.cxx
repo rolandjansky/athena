@@ -10,7 +10,7 @@
 #include "InDetPerfPlot_nTracks.h"
 
 
-InDetPerfPlot_nTracks::InDetPerfPlot_nTracks(InDetPlotBase *pParent, const std::string &sDir) : InDetPlotBase(pParent,
+InDetPerfPlot_nTracks::InDetPerfPlot_nTracks(InDetPlotBase* pParent, const std::string& sDir) : InDetPlotBase(pParent,
                                                                                                               sDir),
   m_counters{0} {
   // nop
@@ -34,6 +34,6 @@ InDetPerfPlot_nTracks::initializePlots() {
 void
 InDetPerfPlot_nTracks::fill(const unsigned int freq, const CounterCategory counter) {
   if (counter < N_COUNTERS) {
-    fillHisto((m_counters[counter]),freq);
+    fillHisto((m_counters[counter]), freq);
   }
 }

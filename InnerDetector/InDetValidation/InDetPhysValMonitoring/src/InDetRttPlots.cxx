@@ -20,7 +20,7 @@ namespace { // utility functions used in this area - stolen from InDetPhysValMon
             // nice as should be in a common header somewhere
   // get truth/track matching probability
   float
-  getMatchingProbability(const xAOD::TrackParticle &trackParticle) {
+  getMatchingProbability(const xAOD::TrackParticle& trackParticle) {
     float result(std::numeric_limits<float>::quiet_NaN());
 
     if (trackParticle.isAvailable<float>("truthMatchProbability")) {
@@ -31,12 +31,10 @@ namespace { // utility functions used in this area - stolen from InDetPhysValMon
 }// namespace
 
 
-InDetRttPlots::InDetRttPlots(InDetPlotBase *pParent, const std::string &sDir) : InDetPlotBase(pParent, sDir),
+InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : InDetPlotBase(pParent, sDir),
 
   m_ptPlot(this, "Tracks/SelectedGoodTracks"),
   m_basicPlot(this, "Tracks/SelectedGoodTracks"),
-  m_PtEtaPlots(this, "Tracks/SelectedGoodTracks", "TrackParticle"),
-  m_IPPlots(this, "Tracks/SelectedGoodTracks"),
   m_TrackRecoInfoPlots(this, "Tracks/SelectedGoodTracks"),
   m_TrackTruthInfoPlots(this, "Truth"),
   m_nTracks(this, "Tracks/SelectedGoodTracks"),
@@ -46,11 +44,10 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase *pParent, const std::string &sDir) : 
   m_fakePlots(this, "Tracks/SelectedFakeTracks"),
   m_ITkResolutionPlotPrim(nullptr),
   m_ITkResolutionPlotSecd(nullptr),
-  m_hitsPlots(this, "Tracks/SelectedGoodTracks"),
   m_hitsMatchedTracksPlots(this, "Tracks/SelectedMatchedTracks"),
-  m_hitsFakeTracksPlots(this, "Tracks/SelectedFakeTracks"),
   m_hitsDetailedPlots(this, "Tracks/SelectedGoodTracks"),
   m_effPlots(this, "Tracks/SelectedGoodTracks"),
+  m_dumPlots(this, "Tracks/SelectedGoodTracks"),
   m_BadMatchRate(this, "Tracks/SelectedBadMatchTracks"),
   m_verticesPlots(this, "Vertices/AllPrimaryVertices"),
   m_vertexPlots(this, "Vertices/AllPrimaryVertices"),
@@ -59,10 +56,8 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase *pParent, const std::string &sDir) : 
   m_trkInJetPlot(this, "Tracks/SelectedGoodJetTracks"),
   m_trkInJetPlot_highPt(this, "Tracks/SelectedGoodHighPtJetTracks"),
   m_trkInJetPtPlot(this, "Tracks/SelectedGoodJetTracks"),
-  m_trkInJetPtEtaPlots(this, "Tracks/SelectedGoodJetTracks", "TrackParticle"),
-  m_trkInJetIPPlots(this, "Tracks/SelectedGoodJetTracks"),
+  m_trkInJetBasicPlot(this, "Tracks/SelectedGoodJetTracks"),
   m_trkInJetTrackRecoInfoPlots(this, "Tracks/SelectedGoodJetTracks"),
-  m_trkInJetHitsPlots(this, "Tracks/SelectedGoodJetTracks"),
   m_trkInJetHitsDetailedPlots(this, "Tracks/SelectedGoodJetTracks"),
   m_trkInJetFakePlots(this, "Tracks/SelectedFakeJetTracks"),
   m_trkInJetResPlots(this, "Tracks/SelectedGoodJetTracks"),
@@ -95,7 +90,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase *pParent, const std::string &sDir) : 
 }
 
 void
-InDetRttPlots::fill(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle) {
+InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle) {
   // fill measurement bias, resolution, and pull plots
   m_resPlots.fill(particle, truthParticle);
   m_basicPlot.fill(truthParticle);
@@ -107,7 +102,7 @@ InDetRttPlots::fill(const xAOD::TrackParticle &particle, const xAOD::TruthPartic
       float barcode = truthParticle.barcode();
       if (barcode < 200000 && barcode != 0 && prob > 0.5) {
         m_ITkResolutionPlotPrim->fill(particle, truthParticle);
-      }else if (barcode >= 200000 && prob > 0.7) {
+      } else if (barcode >= 200000 && prob > 0.7) {
         m_ITkResolutionPlotSecd->fill(particle, truthParticle);
       }
     }
@@ -120,108 +115,119 @@ InDetRttPlots::fill(const xAOD::TrackParticle &particle, const xAOD::TruthPartic
 }
 
 void
-InDetRttPlots::fillSpectrum(const xAOD::TrackParticle &trackParticle) {
+InDetRttPlots::fillSpectrum(const xAOD::TrackParticle& trackParticle) {
   float prob = getMatchingProbability(trackParticle);
+
   m_specPlots.fillSpectrum(trackParticle, prob);
 }
 
 void
-InDetRttPlots::fillSpectrum(const xAOD::TruthParticle &particle) {
+InDetRttPlots::fillSpectrum(const xAOD::TruthParticle& particle) {
   m_specPlots.fillSpectrum(particle);
 }
 
 void
-InDetRttPlots::fillSpectrum(const xAOD::TrackParticle &trkprt, const xAOD::TruthVertex &truthVrt) {
+InDetRttPlots::fillSpectrum(const xAOD::TrackParticle& trkprt, const xAOD::TruthVertex& truthVrt) {
   m_specPlots.fillSpectrum(trkprt, truthVrt);
 }
 
 void
-InDetRttPlots::fillSpectrum(const xAOD::TrackParticle &trkprt, const xAOD::Vertex &vertex, bool fill) {
+InDetRttPlots::fillSpectrum(const xAOD::TrackParticle& trkprt, const xAOD::Vertex& vertex, bool fill) {
   m_specPlots.fillSpectrum(trkprt, vertex, fill);
 }
 
 void
-InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle, float /*weight*/) {
+InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle,
+                                  float /*weight*/) {
   double prob = getMatchingProbability(particle);
+
   m_specPlots.fillSpectrumLinked(particle, truthParticle, prob);
 }
 
 void
-InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle &particle, float Prim_w, float Sec_w, float Unlinked_w) {
+InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w) {
   m_fakePlots.fillLinkedandUnlinked(particle, Prim_w, Sec_w, Unlinked_w);
 }
 
 void
-InDetRttPlots::fillSpectrumUnlinked2(const xAOD::TrackParticle &particle) {
+InDetRttPlots::fillSpectrumUnlinked2(const xAOD::TrackParticle& particle) {
   double prob = getMatchingProbability(particle);
+
   m_specPlots.fillSpectrumUnlinked2(particle, prob);
 }
 
 void
-InDetRttPlots::fillSingleMatch(const xAOD::TrackParticle &trackParticle) {
+InDetRttPlots::fillSingleMatch(const xAOD::TrackParticle& trackParticle) {
   m_duplicatePlots.fillSingleMatch(trackParticle);
 }
 
 void
-InDetRttPlots::fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle &trackParticle,
-                                     const xAOD::TrackParticle &particle, const xAOD::TruthParticle &tp) {
+InDetRttPlots::fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle& trackParticle,
+                                     const xAOD::TrackParticle& particle, const xAOD::TruthParticle& tp) {
   m_duplicatePlots.fillTwoMatchDuplicate(prob1, prob2, trackParticle, particle, tp);
 }
 
 void
-InDetRttPlots::fill(const xAOD::TrackParticle &particle) {
+InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
   m_hitResidualPlot.fill(particle);
   m_hitEffPlot.fill(particle);
   // fill pt plots
-  m_ptPlot.fill(particle); //to maintain correspondence with old InDetPerformanceRTT
+  m_ptPlot.fill(particle); // to maintain correspondence with old InDetPerformanceRTT
   m_basicPlot.fill(particle);
-  //m_PtEtaPlots.fill(particle);
-  //m_IPPlots.fill(particle);
   m_TrackRecoInfoPlots.fill(particle);
-  m_hitsPlots.fill(particle);
   m_hitsDetailedPlots.fill(particle);
 }
 
 void
-InDetRttPlots::pro_fill(const xAOD::TruthParticle &truth, float weight) {
+InDetRttPlots::pro_fill(const xAOD::TruthParticle& truth, float weight) {
   m_effPlots.pro_fill(truth, weight);
   m_fakePlots.fillIncFakeDenom(truth);
 }
 
 void
-InDetRttPlots::lepton_fill(const xAOD::TruthParticle &truth, float weight){
-  m_effPlots.lepton_fill(truth, weight);
+InDetRttPlots::lepton_fill(const xAOD::TruthParticle& truth, float weight) {
+  m_dumPlots.lepton_fill(truth, weight);
 }
 
 void
-InDetRttPlots::BT_fill(const xAOD::TruthParticle &truth, float weight) {
+InDetRttPlots::prim_photon_fill(const xAOD::TruthParticle& truth) {
+  m_dumPlots.prim_photon_fill(truth);
+}
+
+void
+InDetRttPlots::brem_photon_fill(const xAOD::TruthParticle& truth) {
+  m_dumPlots.brem_photon_fill(truth);
+}
+
+void
+InDetRttPlots::BT_fill(const xAOD::TruthParticle& truth, float weight) {
   m_effPlots.BT_fill(truth, weight);
 }
 
 void
-InDetRttPlots::fill(const xAOD::TruthParticle &truthParticle) {
+InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle) {
   // fill truth plots
   m_TrackTruthInfoPlots.fill(truthParticle);
 }
 
 void
-InDetRttPlots::fillBMR(const xAOD::TrackParticle &track, float weight) {
+InDetRttPlots::fillBMR(const xAOD::TrackParticle& track, float weight) {
   // fill the plot requiring truth matching probability less than the upper limit (50.1% right now)
   m_BadMatchRate.fillBMR(track, weight);
 }
 
 void
-InDetRttPlots::fillRF(const xAOD::TrackParticle &track, float weight) {
+InDetRttPlots::fillRF(const xAOD::TrackParticle& track, float weight) {
   // fill the plot requiring truth matching probability less than the lower limit (50.0% right now)
   m_BadMatchRate.fillRF(track, weight);
 }
 
 void
-InDetRttPlots::fill(const xAOD::VertexContainer &vertexContainer) {
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer) {
   // fill vertex container general properties
   // m_verticesPlots.fill(vertexContainer); //if ever needed
   // fill vertex-specific properties, for all vertices and for hard-scattering vertex
-  for (const auto &vtx : vertexContainer.stdcont()) {
+  for (const auto& vtx : vertexContainer.stdcont()) {
     if (vtx->vertexType() == xAOD::VxType::NoVtx) {
       continue; // skip dummy vertex
     }
@@ -233,7 +239,7 @@ InDetRttPlots::fill(const xAOD::VertexContainer &vertexContainer) {
 }
 
 void
-InDetRttPlots::fill(const xAOD::VertexContainer &vertexContainer, const xAOD::EventInfo &ei) {
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei) {
   m_verticesPlots.fill(vertexContainer, ei);
 }
 
@@ -243,13 +249,13 @@ InDetRttPlots::fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks:
 }
 
 void
-InDetRttPlots::fillFakeRate(const xAOD::TrackParticle &particle, const bool match,
+InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& particle, const bool match,
                             const InDetPerfPlot_fakes::Category c) {
   m_fakePlots.fill(particle, match, c);
 }
 
 bool
-InDetRttPlots::filltrkInJetPlot(const xAOD::TrackParticle &particle, const xAOD::Jet &jet) {
+InDetRttPlots::filltrkInJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet) {
   ATH_MSG_VERBOSE("Filling trk in jet");
   bool pass = m_trkInJetPlot.fill(particle, jet);
   ATH_MSG_VERBOSE("Filling trk in jet hi pt");
@@ -258,13 +264,11 @@ InDetRttPlots::filltrkInJetPlot(const xAOD::TrackParticle &particle, const xAOD:
 }
 
 void
-InDetRttPlots::fillSimpleJetPlots(const xAOD::TrackParticle &particle, float prob) {
+InDetRttPlots::fillSimpleJetPlots(const xAOD::TrackParticle& particle, float prob) {
   // the full suit of track plots
   m_trkInJetPtPlot.fill(particle);
-  m_trkInJetPtEtaPlots.fill(particle);
-  m_trkInJetIPPlots.fill(particle);
+  m_trkInJetBasicPlot.fill(particle);
   m_trkInJetTrackRecoInfoPlots.fill(particle);
-  m_trkInJetHitsPlots.fill(particle);
   m_trkInJetHitsDetailedPlots.fill(particle);
 
   if (std::isnan(prob)) {
@@ -275,17 +279,17 @@ InDetRttPlots::fillSimpleJetPlots(const xAOD::TrackParticle &particle, float pro
 }
 
 void
-InDetRttPlots::fillJetHitsPlots(const xAOD::TrackParticle &particle, float prob, int barcode) {
+InDetRttPlots::fillJetHitsPlots(const xAOD::TrackParticle& particle, float prob, int barcode) {
   if (prob < m_truthProbLowThreshold) {
     m_trkInJetHitsFakeTracksPlots.fill(particle);
-  }else if (barcode < 100000 && barcode != 0) {
+  } else if (barcode < 100000 && barcode != 0) {
     m_trkInJetHitsMatchedTracksPlots.fill(particle);
   }
 }
 
 void
-InDetRttPlots::fillJetResPlots(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truth,
-                               const xAOD::Jet &jet) {
+InDetRttPlots::fillJetResPlots(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truth,
+                               const xAOD::Jet& jet) {
   // fill pull and resolution plots
   m_trkInJetResPlots.fill(particle, truth);
   if (particle.pt() > 10e3) { // 10 GeV
@@ -304,43 +308,40 @@ InDetRttPlots::fillJetResPlots(const xAOD::TrackParticle &particle, const xAOD::
 }
 
 void
-InDetRttPlots::fillJetEffPlots(const xAOD::TruthParticle &truth, const xAOD::Jet &jet) {
+InDetRttPlots::fillJetEffPlots(const xAOD::TruthParticle& truth, const xAOD::Jet& jet) {
   m_trkInJetPlot.BookEffReco(truth, jet);         // fill hists with truth info!
   m_trkInJetPlot_highPt.BookEffReco(truth, jet);  // fill hists with truth info!
 }
 
 void
-InDetRttPlots::jet_fill(const xAOD::TrackParticle &track, const xAOD::Jet &jet, float weight) {
+InDetRttPlots::jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight) {
   m_trkInJetEffPlots.jet_fill(track, jet, weight);
 }
 
 void
-InDetRttPlots::jetBMR(const xAOD::TrackParticle &track, const xAOD::Jet &jet, float weight) {
+InDetRttPlots::jetBMR(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight) {
   m_BadMatchRate.jetBMR(track, jet, weight);
 }
 
 void
-InDetRttPlots::fillJetTrkTruth(const xAOD::TruthParticle &truth, const xAOD::Jet &jet) {
+InDetRttPlots::fillJetTrkTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet) {
   m_trkInJetPlot.BookEffTruth(truth, jet);
   m_trkInJetPlot_highPt.BookEffTruth(truth, jet);
 }
 
 void
-InDetRttPlots::fillJetPlotCounter(const xAOD::Jet &jet) {
+InDetRttPlots::fillJetPlotCounter(const xAOD::Jet& jet) {
   m_trkInJetPlot.fillCounter(jet);
   m_trkInJetPlot_highPt.fillCounter(jet);
 }
 
 void
-InDetRttPlots::fillJetTrkTruthCounter(const xAOD::Jet &jet) {
+InDetRttPlots::fillJetTrkTruthCounter(const xAOD::Jet& jet) {
   m_trkInJetPlot.fillEff(jet);
   m_trkInJetPlot_highPt.fillEff(jet);
 }
 
 void
-InDetRttPlots::fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom)
-{
-  m_fakePlots.fillIncTrkRate(nMuEvents,incTrkNum,incTrkDenom);
-
+InDetRttPlots::fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom) {
+  m_fakePlots.fillIncTrkRate(nMuEvents, incTrkNum, incTrkDenom);
 }
-

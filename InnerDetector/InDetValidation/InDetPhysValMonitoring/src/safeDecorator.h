@@ -35,7 +35,7 @@ namespace IDPVM {
   /// Safe decorator for TrackParticles
   template <class T>
   void
-  safeDecorator(const xAOD::TrackParticle &particle, const std::string &decorName, const T &value,
+  safeDecorator(const xAOD::TrackParticle& particle, const std::string& decorName, const T& value,
                 const DuplicateBehaviour duplicate = REJECT_WITH_WARNING) {
     switch (duplicate) {
     //
@@ -77,7 +77,7 @@ namespace IDPVM {
   /// Safe decorator for TruthParticles
   template <class T>
   void
-  safeDecorator(const xAOD::TruthParticle &particle, const std::string &decorName, const T &value,
+  safeDecorator(const xAOD::TruthParticle& particle, const std::string& decorName, const T& value,
                 const DuplicateBehaviour duplicate = REJECT_WITH_WARNING) {
     switch (duplicate) {
     //

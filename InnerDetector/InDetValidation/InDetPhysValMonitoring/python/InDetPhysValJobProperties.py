@@ -52,6 +52,15 @@ class doValidateGSFTracks(InDetPhysValFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doValidateTightPrimaryTracks(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doValidateTracksInJets(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 from InDetRecExample.InDetJobProperties import Enabled
 
@@ -108,7 +117,9 @@ jobproperties.add_Container(InDetPhysValJobProperties)
 _list_InDetPhysValJobProperties = [
     Enabled,
     doValidateDBMTracks,
-    doValidateGSFTracks
+    doValidateGSFTracks,
+    doValidateTightPrimaryTracks,
+    doValidateTracksInJets
 ]
 
 for j in _list_InDetPhysValJobProperties:
