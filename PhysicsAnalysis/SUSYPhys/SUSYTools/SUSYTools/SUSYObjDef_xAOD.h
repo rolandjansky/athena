@@ -84,6 +84,7 @@ namespace TauAnalysisTools {
   class ITauSmearingTool;
   class ITauEfficiencyCorrectionsTool;
   class ITauOverlappingElectronLLHDecorator;
+  class ITauTruthMatchingTool;
 }
 
 namespace ORUtils {
@@ -514,6 +515,7 @@ namespace ST {
     double m_tauEta;
     std::string m_tauConfigPath;
     std::string m_tauConfigPathBaseline;
+    bool m_tauDoTTM;
 
     double m_jetPt;
     double m_jetEta;
@@ -524,6 +526,8 @@ namespace ST {
     double m_fwdjetEtaMin;
     double m_fwdjetPtMax;
     bool   m_fwdjetTightOp;
+
+    bool m_JMScalib;
 
     bool m_orDoTau;
     bool m_orDoPhoton;
@@ -546,6 +550,7 @@ namespace ST {
     bool m_orRemoveCaloMuons;
     bool m_orApplyJVT;
     std::string m_orBtagWP;
+    std::string m_orInputLabel;
 
     bool m_orDoFatjets;
     double m_EleFatJetDR;
@@ -624,6 +629,7 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelToolBaseline;
     asg::AnaToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
+    asg::AnaToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_tauTruthMatch;                                                                                             
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool0;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool1;

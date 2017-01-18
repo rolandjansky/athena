@@ -35,6 +35,7 @@ using namespace ST;
 #include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/TauSmearingTool.h"
+#include "TauAnalysisTools/TauTruthMatchingTool.h" 
 #include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 //
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
@@ -160,8 +161,20 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL( m_jetCalibTool, JetCalibrationTool, toolName ); 
 
     // pick the right config file for the JES tool
+    //#ifdef ASGSeries24
+#if ROOTCORE_RELEASE_SERIES==24
     std::string JES_config_file("JES_data2016_data2015_Recommendation_Dec2016.config"); //JES_MC15cRecommendation_May2016.config");
+    
+    if(m_JMScalib){ //with JMS calibration (if requested)
+      JES_config_file = "JES_MC15cRecommendation_May2016_JMS.config";
+    }
+    
+#else
+    std::string JES_config_file("JES_MC15cRecommendation_May2016_rel21.config");
+#endif
+    
     if (isAtlfast()) {
+
       if (m_jetInputType == xAOD::JetInput::EMTopo || m_jetInputType == xAOD::JetInput::LCTopo) { // only supported ones for AF-II
         JES_config_file = "JES_MC15Prerecommendation_AFII_June2015.config";
       }
@@ -169,10 +182,19 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         ATH_MSG_ERROR("JES recommendations only exist for EMTopo jets in AF-II samples (m_jetInputType = " << m_jetInputType << ")");
         return StatusCode::FAILURE;
       }
+
+      if(m_JMScalib){
+        ATH_MSG_ERROR("JMS calibration is not supported for AF-II samples. Please modify your settings.");
+        return StatusCode::FAILURE;
+      }
+
     }
     
     // form the string describing the calibration sequence to use
     std::string calibseq("JetArea_Residual_Origin_EtaJES_GSC");
+    if(m_JMScalib){
+      calibseq += "_JMS";
+    }
     if (isData()) { 
       calibseq += "_Insitu";
     }
@@ -182,8 +204,18 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       //Following : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibration2016#Calibration_of_PFlow_jets_in_20
       //Note! : There is no GSC available in this calibration yet, left out for the moment
       //
+      
+#if ROOTCORE_RELEASE_SERIES==24                                                                                                                                              
       JES_config_file = "JES_MC15cRecommendation_PFlow_Aug2016.config"; //JES_MC15Prerecommendation_PFlow_July2015.config";
-      calibseq = "JetArea_Residual_EtaJES"; //_GSC";
+#else
+      JES_config_file = "JES_MC15cRecommendation_PFlow_Aug2016.config"; //JES_MC15Prerecommendation_PFlow_July2015.config";
+#endif
+      calibseq = "JetArea_Residual_EtaJES_GSC";
+
+      if(m_JMScalib){
+        ATH_MSG_ERROR("JMS calibration is not supported for EMPFlow jets. Please modify your settings.");
+        return StatusCode::FAILURE;
+      }
     }
     
     //check isData parameter (no in-situ calibration for LCTopo yet) //MT : revise when it becomes available!
@@ -857,6 +889,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+// Initialise tau truth matching tool
+  
+  if (!m_tauTruthMatch.isUserConfigured() && m_tauDoTTM) {
+    toolName = "TauTruthMatch";
+    SET_DUAL_TOOL(m_tauTruthMatch, TauAnalysisTools::TauTruthMatchingTool, toolName);
+    ATH_CHECK( m_tauTruthMatch.setProperty("WriteTruthTaus", true) );
+    ATH_CHECK( m_tauTruthMatch.retrieve() );
+  }
+  
+///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise TauOverlappingElectronLLHDecorator tool
 
   if (!m_tauElORdecorator.isUserConfigured()) {
@@ -960,7 +1002,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_metMaker.setProperty("CustomJetJvtCut", -1.) );
     }
 
-#ifdef ASGSeries24
+//#ifdef ASGSeries24
+#if ROOTCORE_RELEASE_SERIES == 24
     ATH_CHECK( m_metMaker.setProperty("GreedyPhotons", m_metGreedyPhotons) );
 #endif
 
@@ -1070,7 +1113,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     auto toolName = "ORTool" + suffix;
 
-    ORUtils::ORFlags orFlags(toolName, "baseline", "passOR");
+    ORUtils::ORFlags orFlags(toolName, m_orInputLabel, "passOR");
     orFlags.bJetLabel      = bJetLabel;
     orFlags.boostedLeptons = (m_orDoBoostedElectron || m_orDoBoostedMuon);
     orFlags.outputPassValue = true;
@@ -1218,7 +1261,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   // use these props for all the subtools
-  StringProperty inputLabelProp("InputLabel", "baseline");
+  StringProperty inputLabelProp("InputLabel", m_orInputLabel); //"baseline" by default
   StringProperty outputLabelProp("OutputLabel", "passOR");
   BooleanProperty outputPassValueProp("OutputPassValue", true);
 

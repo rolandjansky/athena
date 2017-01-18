@@ -71,12 +71,6 @@ namespace ST {
     ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
     met::addGhostMuonsToJets(*muons, *copy);
 
-    // ghost associate the electrons to the jets (needed by MET el-jet OR later)
-    ATH_MSG_VERBOSE("Run muon-to-jet ghost association");
-    const xAOD::ElectronContainer* elecs(nullptr);
-    ATH_CHECK( evtStore()->retrieve(elecs, "Electrons") );
-    met::addGhostElecsToJets(*elecs, *copy);
-
     //central jets 
     if(!m_doFwdJVT){
       for (const auto& jet : *copy) {

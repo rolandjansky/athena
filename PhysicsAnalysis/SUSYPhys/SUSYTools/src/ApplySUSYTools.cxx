@@ -463,7 +463,7 @@ StatusCode ApplySUSYTools::execute()
     // setShallowIO writes output as shallow copy
     xAOD::JetContainer* fatjets_nominal(0);
     xAOD::ShallowAuxContainer* fatjets_nominal_aux(0);
-    std::string fatjetcoll = m_FatJetsName.substr(0, m_FatJetsName.size()-4);
+    std::string fatjetcoll = m_FatJetsName; //.substr(0, m_FatJetsName.size()-4);
     CHECK( m_objTool->GetFatJets(fatjets_nominal, fatjets_nominal_aux, true, fatjetcoll, true));
     
     if( doPrint ){

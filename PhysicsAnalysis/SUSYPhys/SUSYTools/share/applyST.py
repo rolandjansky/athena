@@ -140,10 +140,10 @@ ToolSvc += AST99tauTruthTool
 # Set up trigger tools to avoid multiple instances
 # Both SUSYObjDef and CutTool for skimming need TrigDecisionTool
 
-configTool = CfgMgr.TrigConf__xAODConfigTool("xAODConfigTool");
+configTool = CfgMgr.TrigConf__xAODConfigTool()
 ToolSvc += configTool
 
-trigDecTool = CfgMgr.Trig__TrigDecisionTool("TrigDecTool",
+trigDecTool = CfgMgr.Trig__TrigDecisionTool("TrigDecisionTool",
                                             ConfigTool = configTool,
                                             TrigDecisionKey = "xTrigDecision")
 ToolSvc += trigDecTool
@@ -161,7 +161,8 @@ applyST = CfgMgr.ST__ApplySUSYTools(
                 MuonSpecTracksName = "MuonSpectrometerTrackParticles",
                      ElectronsName = "Electrons",
                           JetsName = "AntiKt4EMTopoJets",
-                       FatJetsName = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+# No fat jets unless they are set in the config file
+                       FatJetsName = "NONE", #"AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                       BTaggingName = "BTagging_AntiKt4EMTopo",
                      TruthJetsName = "AntiKt4TruthJets",
                           METsName = "MET_Reference_AntiKt4EMTopo",

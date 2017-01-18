@@ -43,6 +43,7 @@
 
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"  
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 
@@ -160,6 +161,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauEta(-99.),
     m_tauConfigPath(""),
     m_tauConfigPathBaseline(""),
+    m_tauDoTTM(false),
     //
     m_jetPt(-99.),
     m_jetEta(-99.),
@@ -168,6 +170,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_fwdjetEtaMin(-99.),
     m_fwdjetPtMax(-99.),
     m_fwdjetTightOp(false),
+    m_JMScalib(false),
     //
     m_orDoTau(false),
     m_orDoPhoton(false),
@@ -190,6 +193,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orRemoveCaloMuons(true),
     m_orApplyJVT(true),
     m_orBtagWP(""),
+    m_orInputLabel(""),
     m_orDoFatjets(false),
     m_EleFatJetDR(-999.),
     m_JetFatJetDR(-999.),
@@ -252,6 +256,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauSelTool(""),
     m_tauSelToolBaseline(""),
     m_tauSmearingTool(""),
+    m_tauTruthMatch(""),
     m_tauEffTool(""),
     m_tauTrigEffTool0(""),
     m_tauTrigEffTool1(""),
@@ -338,6 +343,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
   declareProperty( "ORApplyJVT", m_orApplyJVT);
+  declareProperty( "ORInputLabel", m_orInputLabel);
 
   declareProperty( "DoFatJetOR", m_orDoFatjets);
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
@@ -364,6 +370,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //JETS
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
   declareProperty( "FwdJetUseTightOP",  m_fwdjetTightOp );
+
+  declareProperty( "JetDoJMSCalib",  m_JMScalib );
 
   //BTAGGING
   declareProperty( "BtagTagger", m_BtagTagger); 
@@ -417,6 +425,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "TauIdConfigPathBaseline", m_tauConfigPathBaseline);
   declareProperty( "TauIdConfigPath", m_tauConfigPath);
   declareProperty( "TauMVACalibration", m_tauMVACalib);
+  declareProperty( "TauDoTruthMatching", m_tauDoTTM);
 
   //Leptons
   declareProperty( "SigLepRequireIso", m_doIsoSignal ); //leave here for back-compatibility
@@ -490,6 +499,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_tauSelTool.declarePropertyFor( this, "TauSelectionTool", "The TauSelectionTool for signal taus" );
   m_tauSelToolBaseline.declarePropertyFor( this, "TauSelectionToolBaseline", "The TauSelectionTool for baseline taus" );
   m_tauSmearingTool.declarePropertyFor( this, "TauSmearingTool", "The TauSmearingTool" );
+  m_tauTruthMatch.declarePropertyFor( this, "TauTruthMatch", "The TTMT" );
   m_tauEffTool.declarePropertyFor( this, "TauEfficiencyCorrectionsTool", "The TauEfficiencyCorrectionsTool" );
   m_tauTrigEffTool0.declarePropertyFor( this, "TauTrigEfficiencyCorrectionsTool0", "The TauEfficiencyCorrectionsTool for trigger 0" );
   m_tauTrigEffTool1.declarePropertyFor( this, "TauTrigEfficiencyCorrectionsTool1", "The TauEfficiencyCorrectionsTool for trigger 1" );
@@ -844,6 +854,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["FwdJet.doJVT"] = "FwdJetDoJVT";
   m_conf_to_prop["FwdJet.JvtUseTightOP"] = "FwdJetUseTightOP";
 
+  m_conf_to_prop["Jet.DoJMSCalib"] = "JetDoJMSCalib";
+
   m_conf_to_prop["OR.DoBoostedElectron"] = "DoBoostedElectronOR";
   m_conf_to_prop["OR.DoBoostedMuon"] = "DoBoostedMuonOR";
   m_conf_to_prop["OR.DoMuonJetGhostAssociation"] = "ORDoMuonJetGhostAssociation";
@@ -856,6 +868,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoFatJets"] = "DoFatJetOR";
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
   m_conf_to_prop["OR.ApplyJVT"] = "ORApplyJVT";
+  m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
  
   m_conf_to_prop["SigLep.RequireIso"] = "SigLepRequireIso";
   m_conf_to_prop["SigEl.RequireIso"] = "SigElRequireIso";
@@ -869,6 +882,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["MET.GreedyPhotons"] = "METGreedyPhotons";
 
   m_conf_to_prop["Tau.MVACalibration"] = "TauMVACalibration";
+  m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
   //
 
   //
@@ -927,6 +941,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauIdBaseline, "TauBaseline.Id", rEnv, "Medium");
   configFromFile(m_tauConfigPathBaseline, "TauBaseline.ConfigPath", rEnv, "default");
   configFromFile(m_tauMVACalib, "Tau.MVACalibration", rEnv, false);
+  configFromFile(m_tauDoTTM, "Tau.DoTruthMatching", rEnv, false);
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);
@@ -943,6 +958,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
   configFromFile(m_fwdjetTightOp, "FwdJet.JvtUseTightOP", rEnv, false);
+  configFromFile(m_JMScalib, "Jet.DoJMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
@@ -971,6 +987,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orApplyJVT, "OR.ApplyJVT", rEnv, true);
   configFromFile(m_orMuJetInnerDR, "OR.MuJetInnerDR", rEnv, -999.);
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
+  configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "baseline");
   //
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
@@ -2169,7 +2186,11 @@ SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
     m_ZTaggerTool=0;
   }
   if (!m_trigDecTool.empty()){
-    m_trigDecTool->finalize().ignore();
+    if (asg::ToolStore::contains<Trig::TrigDecisionTool>("ToolSvc.TrigDecisionTool") ){
+      // Ignore both of these so that we are safe if others have cleaned up
+      m_trigDecTool->finalize().ignore();
+      asg::ToolStore::remove("ToolSvc.TrigDecisionTool").ignore();
+    }
   }
 #endif
 }

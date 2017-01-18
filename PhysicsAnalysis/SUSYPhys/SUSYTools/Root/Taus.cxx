@@ -20,6 +20,7 @@
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
@@ -77,10 +78,13 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
 
   // If the MVA calibration is being used, be sure to apply the calibration to data as well
   if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0 && (!isData() || m_tauMVACalib)) {
+
+    if(m_tauDoTTM) m_tauTruthMatch->getTruth(input);  // do truth matching first if required (e.g. for running on primary xAOD)
+                                                                        
     if (m_tauSmearingTool->applyCorrection(input) != CP::CorrectionCode::Ok)
       ATH_MSG_ERROR(" Tau smearing failed " );
   }
-
+  
   ATH_MSG_VERBOSE( "TAU pt after smearing " << input.pt() );
 
   // decorate tau with electron llh score
