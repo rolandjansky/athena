@@ -789,7 +789,7 @@ def getMvaTESEvaluator():
     _name = sPrefix + 'MvaTESEvaluator'
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = 'LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.root')
+                                      WeightFileName = 'MvaTES_20161015_pi0fix_BDTG.weights.root')
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator
 
@@ -799,7 +799,7 @@ def getCombinedP4FromRecoTaus():
     _name = sPrefix + 'CombinedP4FromRecoTaus'
     from tauRecTools.tauRecToolsConf import CombinedP4FromRecoTaus
     CombinedP4FromRecoTaus = CombinedP4FromRecoTaus(name = _name,
-                                                    WeightFileName = 'CombinedP4CalibWeightsFile.root')
+                                                    WeightFileName = 'CalibLoopResult.root')
     cached_instances[_name] = CombinedP4FromRecoTaus
     return CombinedP4FromRecoTaus
     
@@ -864,7 +864,85 @@ def getTauTrackClassifier():
 
     return myTauTrackClassifier
 
-#end
+########################################################################                                                                                                             
+#                                                                                                                                                                                  
+def getTauWPDecorator():
+    _name = sPrefix + 'TauWPDecorator'
+    from tauRecTools.tauRecToolsConf import TauWPDecorator
+    myTauWPDecorator = TauWPDecorator( name=_name,
+                                       flatteningFile1Prong = "flat1SmoothAODfix.root",
+                                       flatteningFile3Prong = "flat3SmoothAODfix.root",
+                                       DefineWPs = True,
+                                       SigEffWPVeryLoose1P = 0.95,
+                                       SigEffWPLoose1P = 0.85,
+                                       SigEffWPMedium1P = 0.75,
+                                       SigEffWPTight1P = 0.60,
+                                       SigEffWPVeryLoose3P = 0.95,
+                                       SigEffWPLoose3P = 0.75,
+                                       SigEffWPMedium3P = 0.60,
+                                       SigEffWPTight3P = 0.45)
+    cached_instances[_name] = myTauWPDecorator
+    return myTauWPDecorator
+
+
+# 
+def getTauWPDecoratorEleBDT():
+    _name = sPrefix + 'TauWPDecoratorEleBDT'
+    from tauRecTools.tauRecToolsConf import TauWPDecorator
+    TauScoreFlatteningTool = TauWPDecorator( name=_name,
+                                             flatteningFile1Prong = "TauDiscriminant/02-00-09/tune_eVeto_BDT_1P.root",
+                                             flatteningFile3Prong = "TauDiscriminant/02-00-09/tune_eVeto_BDT_3P.root",
+                                             DefineWPs = False, 
+                                             UseEleBDT = True ) 
+    cached_instances[_name] = TauScoreFlatteningTool
+    return TauScoreFlatteningTool
+
+#end tauRecTools
+
+########################################################################                                                                                                            
+#TauDiscriminant
+########################################################################                                                                                                            
+
+def getTauIDVarCalculator():
+    _name = sPrefix + 'TauIDVarCalculator'
+    from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator            
+    myTauIDVarCalculator = TauIDVarCalculator(name=_name,
+                                              )
+    cached_instances[_name] = myTauIDVarCalculator
+    return myTauIDVarCalculator
+
+def getTauJetBDT():
+    _name = sPrefix + 'TauJetBDT'
+    from TauDiscriminant.TauDiscriminantConf import TauJetBDT
+    myTauJetBDT = TauJetBDT(name=_name,
+                            jetBDT="uncorrBDTAODfix.bin",
+                            jetSigTrans="",
+                            jetSigBits="TauJetBDT2016FinalCuts_v1.txt")
+    cached_instances[_name] = myTauJetBDT
+    return myTauJetBDT
+
+
+def getTauEleBDT(_n='TauEleBDT', eBDT='ele.BDT.bin', only_decorate=False, eBits="", eBitsRoot="cuts.eBDT.root"):
+    _name = sPrefix + _n 
+    from TauDiscriminant.TauDiscriminantConf import TauEleBDT
+    myTauEleBDT = TauEleBDT(name=_name, 
+                            eleBDT=eBDT,
+                            eleBits=eBits, 
+                            eleBitsRoot=eBitsRoot,
+                            onlyDecorateScore=only_decorate)
+    cached_instances[_name] = myTauEleBDT
+    return myTauEleBDT
+
+def getTauEleOLRDecorator():
+    _name = sPrefix + 'TauEleOLRDecorator'
+    from TauDiscriminant.TauDiscriminantConf import TauEleOLRDecorator
+    myTauEleOLRDecorator = TauEleOLRDecorator(name=_name,
+                                              ElectronContainerName="Electrons",
+                                              EleOLRFile="eVetoAODfix.root")
+    cached_instances[_name] = myTauEleOLRDecorator
+    return myTauEleOLRDecorator
+
+
 
 
 """ obsolete methods
