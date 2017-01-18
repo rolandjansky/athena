@@ -52,7 +52,7 @@ See _gensequence in both classes:
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.egamma.EgammaDef")
-log.info('Egamma imports')
+log.debug('Egamma imports')
 # Imports for HLT ID
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma as TrigFastTrackFinder_Electron
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
@@ -164,7 +164,7 @@ from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamm
 
 from TriggerMenu.egamma.EgammaCleanMonitoring import *
 from TriggerMenu.menu.CleanMonitoring import *
-log.info("Imports complete")
+log.debug("Imports complete")
 
 # Helper utilities
 def print_attributes(obj):
@@ -242,7 +242,7 @@ class EgammaFexBuilder(object):
         if(EgammaFexBuilder.inst_count > 1):
             self.logger.error('EgammaFexBuilder multiple instances %s' % EgammaFexBuilder.inst_count)
 
-        self.logger.info('EgammaFexBuilder init complete')
+        self.logger.debug('EgammaFexBuilder init complete')
     
     def __str__(self):
         descr = ''
@@ -347,7 +347,7 @@ class EgammaFexBuilder(object):
         chain_part = chainDict['chainParts']
         do_conv = False
         do_iso = False
-        self.logger.info('Photon preciserec') 
+        self.logger.debug('Photon preciserec') 
         if 'addInfo' in chain_part:
             if 'conv' in chain_part['addInfo']:
                 do_conv = True
@@ -356,13 +356,13 @@ class EgammaFexBuilder(object):
                 do_iso = True
         
         if do_iso:
-            self.logger.info('Photon isolation')
+            self.logger.debug('Photon isolation')
             return self._egamma_rec_iso
         elif do_conv:
-            self.logger.info('Photon conversions')
+            self.logger.debug('Photon conversions')
             return self._egamma_rec_conv
         else:
-            self.logger.info('Photon default rec')
+            self.logger.debug('Photon default rec')
             return self._egamma_rec_noid
 
 class EgammaHypoBuilder(object):
@@ -421,10 +421,10 @@ class EgammaHypoBuilder(object):
         self._set_properties()
         self._set_base_name()
         self._set_algo_suffix()
-        self.logger.info('chainPart %s',self._chain_part)
-        self.logger.info('properties %s',self._properties)
-        self.logger.info('Name %s, suffix %s' % (self._base_name,self._algo_suffix))
-        self.logger.info('init complete')
+        self.logger.debug('chainPart %s',self._chain_part)
+        self.logger.debug('properties %s',self._properties)
+        self.logger.debug('Name %s, suffix %s' % (self._base_name,self._algo_suffix))
+        self.logger.debug('init complete')
 
     def __str__(self):
         descr=''
@@ -457,7 +457,7 @@ class EgammaHypoBuilder(object):
             if item:
                 suffix = suffix + "_" + item
 
-        self.logger.info('Chain Suffix %s' % suffix)
+        self.logger.debug('Chain Suffix %s' % suffix)
         self._algo_suffix = suffix
     
     def _set_properties(self):
@@ -480,9 +480,9 @@ class EgammaHypoBuilder(object):
             elif val in self._properties:
                 self._properties[val] = True
             else:
-                self.logger.info("Property not required")
+                self.logger.debug("Property not required")
 
-        self.logger.info("Chain Properties Gotcha %s", self._properties) 
+        self.logger.debug("Chain Properties Gotcha %s", self._properties) 
 
     def _get_fastcalo(self):
         seq = []
@@ -493,7 +493,7 @@ class EgammaHypoBuilder(object):
         else:
             self.logger.error("Cannot configure fastcalo_hypo")
             
-        self.logger.info('fastcalo %s',seq) 
+        self.logger.debug('fastcalo %s',seq) 
         return seq
 
     def _get_fastcalo_electron(self):
@@ -568,7 +568,7 @@ class EgammaHypoBuilder(object):
         else:
             self.logger.error('Cannot configure ringer')
         seq = [fex,hypo]
-        self.logger.info('fastringer %s',seq) 
+        self.logger.debug('fastringer %s',seq) 
         return seq 
 
     def _get_fasttrack(self):
@@ -593,7 +593,7 @@ class EgammaHypoBuilder(object):
         else:
             self.logger.error("Cannot configure fastcalo_photon")
         seq = [algo]
-        self.logger.info('precisetrack %s',seq) 
+        self.logger.debug('precisetrack %s',seq) 
         return seq
 
     def _get_trackrec(self):
@@ -722,7 +722,7 @@ class EgammaHypoBuilder(object):
         return seq    
 
     def _get_photon_hypo(self):
-        self.logger.info('photon chain')
+        self.logger.debug('photon chain')
         algo=None
         name = self._base_name
         thr = self._properties['threshold']
@@ -757,7 +757,7 @@ class EgammaHypoBuilder(object):
         return algo   
 
     def _get_electron_hypo(self):     
-        self.logger.info('electron chain')
+        self.logger.debug('electron chain')
         algo = None
         name = self._base_name
         thr = self._properties['threshold']
@@ -845,9 +845,9 @@ class EgammaSequence(object):
         self._fex = EgammaSequence.fex_obj.get_sequences(chainDict)
         self._hypoObj = EgammaHypoBuilder(chainDict)
         self.sequences = {}
-        self.logger.info('Fex: %s',EgammaSequence.fex_obj)
-        self.logger.info('Hypos: %s',self._hypoObj)
-        self.logger.info('init complete')
+        self.logger.debug('Fex: %s',EgammaSequence.fex_obj)
+        self.logger.debug('Hypos: %s',self._hypoObj)
+        self.logger.debug('init complete')
      
     def _config_monitoring(self,seq):
         ''' Disables monitoring for hypos '''
@@ -860,13 +860,13 @@ class EgammaSequence(object):
         seq = self._fex 
         hypo = self._hypoObj.get_sequences()
         for step in seq:
-            self.logger.info('Creating sequence for step %s', step)
+            self.logger.debug('Creating sequence for step %s', step)
             if seq[step]:
                 if step in hypo:
-                    self.logger.info('Merging %s %s', seq[step],hypo[step])
+                    self.logger.debug('Merging %s %s', seq[step],hypo[step])
                     seq[step].extend(hypo[step])
                 else:
-                    self.logger.info('No hypo for step %s ', step)
+                    self.logger.debug('No hypo for step %s ', step)
             else:
                 self.logger.error('Step %s found, sequence empty for fex ', step)
         if ( self._disable_mon ):
@@ -889,7 +889,7 @@ class EgammaSequence(object):
     def print_sequence(self,step):
         for algo in self.sequences[step]:
             if algo:
-                self.logger.info('%s, %s, ' % (step,algo.name()))
+                self.logger.debug('%s, %s, ' % (step,algo.name()))
             else:
                 self.logger.debug('no algo added for sequence %s ' % step)
 
@@ -912,7 +912,7 @@ def test_sequence():
     Use a dummy chainParts to test classes
     '''
     electron_seq = EgammaSequence(test_chainDict)
-    log.info('Sequences: %s',electron_seq)
+    log.debug('Sequences: %s',electron_seq)
     print_attributes(electron_seq)
     required_seq = ['fastcalo','fastrec','precisecalo','preciserec']
     # Check for required sequences

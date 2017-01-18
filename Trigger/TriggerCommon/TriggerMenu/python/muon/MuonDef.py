@@ -1007,8 +1007,11 @@ class L2EFChain_mu(L2EFChainDef):
       elif len(self.allMuThrs) == 3:
     	  theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV','0GeV')
     	  hypocut = '0GeV_0GeV_0GeV'
+      elif len(self.allMuThrs) == 4:
+         theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV','0GeV','0GeV')
+         hypocut = '0GeV_0GeV_0GeV_0GeV'
       else:
-        log.error("No MuonEFExtrapolatorHypo config yet for events with more than 3 muons")
+        log.error("No MuonEFExtrapolatorHypo config yet for events with more than 4 muons")
 
     [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
 
@@ -1028,9 +1031,10 @@ class L2EFChain_mu(L2EFChainDef):
                                                                                
       elif len(self.allMuThrs) == 3:
         theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
-                                                                                                                                                            
+      elif len(self.allMuThrs) == 4:
+        theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2],self.allMuThrs[3])                                                                                                           
       else:
-        log.error("No TrigMuonEFCombinerHypo config yet for events with more than 3 muons")
+        log.error("No TrigMuonEFCombinerHypo config yet for events with more than 4 muons")
  
       hypocutEF="MultiComb"     
       for i in range(0,len(self.allMuThrs)):        

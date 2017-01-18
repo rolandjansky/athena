@@ -220,6 +220,7 @@ class ItemDef:
         LVL1MenuItem('L1_MU11_2MU6').setLogic( MU11 & MU6.x(2) & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU10_2MU4').setLogic( MU10 & MU4.x(2) & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_3MU4'     ).setLogic( MU4.x(3)        & physcond).setTriggerType(TT.muon)
+        LVL1MenuItem('L1_4MU4'     ).setLogic( MU4.x(4)        & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU6_2MU4' ).setLogic( MU6 & MU4.x(2)  & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU6_3MU4' ).setLogic( MU6 & MU4.x(3)  & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_2MU6_3MU4' ).setLogic( MU6.x(2) & MU4.x(3)  & physcond).setTriggerType(TT.muon)

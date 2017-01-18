@@ -59,6 +59,12 @@ def setupMenu():
         ['3mu4_noMuCombOvlpRm',    'L1_3MU4',           [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
         ['2mu14_noMuCombOvlpRm',   'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
 
+        #low-pt multi-muon analyses. ATR-15704
+        ['3mu4_mu4noL1', 'L1_3MU4', ['L1_3MU4',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['3mu4','mu4noL1']]],
+        ['3mu4_mu2noL1', 'L1_3MU4', ['L1_3MU4',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['3mu4','mu2noL1']]],
+        ['4mu4', 'L1_4MU4', ['L1_4MU4',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['4mu4','']]],
+        ['4mu4_nomucomb', 'L1_4MU4', ['L1_4MU4',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['4mu4_nomucomb','']]],
+
 #				#ATR-15246
         ['mu22_mu8noL1_mu6noL1',   'L1_MU20',          ['L1_MU20','',''], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'],  -1,['serial',-1,['mu22','mu8noL1','mu6noL1']]],
 

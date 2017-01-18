@@ -6,10 +6,11 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
 
-__author__  = 'T. Bold, P.Urquijo'
+__author__  = 'T. Bold, P.Urquijo, R. White'
 __version__="$Revision: 1.42 $"
 __doc__="Egamma slice specific flags  "
 
+log = logging.getLogger( 'TriggerMenu.EgammaSliceFlags' )
 _flags = [] 
 class doSiTrack(JobProperty):
     """ do or not to do SiTrack algo """ 
@@ -44,6 +45,44 @@ class signatures(JobProperty):
 
 _flags.append(signatures)
 
+class ringerVersion (JobProperty):
+    """ Version ringer tunes """
+    statusOn=False
+    allowedTypes=['str','None']
+    StoreValues=None
+
+_flags.append(ringerVersion)
+
+class pidVersion (JobProperty):
+    """ Version of PID tunes
+    """
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20161021/'
+
+_flags.append(pidVersion)
+
+class clusterCorrectionVersion (JobProperty):
+    """
+    Cluster correction version for HLT Calo
+    """
+    statusOn=True
+    allowedTypes=['str','None']
+    allowedValues=['v12phiflip_noecorrnogap','None']
+    StoredValue=None
+
+_flags.append(clusterCorrectionVersion)
+
+class calibMVAVersion (JobProperty):
+    """
+    MVA calibration version
+    """
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue='egammaMVACalib/online/v3'
+
+_flags.append(calibMVAVersion)
+
 # create container
 class EgammaSlice(JobPropertyContainer, CommonSliceHelper):
     """ Egamma Slice Flags """
@@ -61,3 +100,14 @@ del _flags
 # make an alias
 EgammaSliceFlags = TriggerFlags.EgammaSlice
 
+# set properties based on top level trigger flag
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+run2Flag = TriggerFlags.run2Config
+if run2Flag is '2016':
+    log.info('EgammaSliceFlags set for %s'%run2Flag)
+    EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20161021/'
+    EgammaSliceFlags.clusterCorrectionVersion = None
+    EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v3'
+
+EgammaSliceFlags.print_JobProperties()
