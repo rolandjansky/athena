@@ -37,67 +37,67 @@ InDetRegionSelectorLUT::InDetRegionSelectorLUT(const std::string& name, ISvcLoca
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode InDetRegionSelectorLUT::initialize(){
-  msg(MSG::INFO) << "initialize()" << endreq;  
+  msg(MSG::INFO) << "initialize()" << endmsg;  
 
   //
   // get tools
   //
 
-  msg(MSG::INFO) << "InDetRegionSelectorLUT::initialize() " << name() << "\t" << m_lutCreatorToolPixel << endreq;
+  msg(MSG::INFO) << "InDetRegionSelectorLUT::initialize() " << name() << "\t" << m_lutCreatorToolPixel << endmsg;
   
   // Pixel
   if (!m_lutCreatorToolPixel) {  
-    msg(MSG::INFO) << "Pixel LUT Creator not configured " << m_lutCreatorToolPixel << endreq;
+    msg(MSG::INFO) << "Pixel LUT Creator not configured " << m_lutCreatorToolPixel << endmsg;
   } else {
     if ( m_lutCreatorToolPixel.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_lutCreatorToolPixel << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_lutCreatorToolPixel << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_lutCreatorToolPixel << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_lutCreatorToolPixel << endmsg;
       // compute LUT
       const RegSelSiLUT* pixellut = m_lutCreatorToolPixel->getLUT();
       if (!pixellut) { 
-		msg(MSG::ERROR) << "Pixel table missing" << endreq;
+		msg(MSG::ERROR) << "Pixel table missing" << endmsg;
       } else if (m_doTests) {
-	msg(MSG::DEBUG) << "Test Pixel" << endreq;
+	msg(MSG::DEBUG) << "Test Pixel" << endmsg;
 	printTable(pixellut);
       }
     }
   }
   // SCT
   if (!m_lutCreatorToolSCT) {  
-    msg(MSG::INFO) << "SCT LUT Creator not configured " << m_lutCreatorToolSCT << endreq;
+    msg(MSG::INFO) << "SCT LUT Creator not configured " << m_lutCreatorToolSCT << endmsg;
   } else {
     if ( m_lutCreatorToolSCT.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_lutCreatorToolSCT << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_lutCreatorToolSCT << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_lutCreatorToolSCT << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_lutCreatorToolSCT << endmsg;
       // compute LUT
       const RegSelSiLUT* sctlut = m_lutCreatorToolSCT->getLUT();
       if (!sctlut) { 
-	msg(MSG::ERROR) << "SCT table missing" << endreq;
+	msg(MSG::ERROR) << "SCT table missing" << endmsg;
       } else if (m_doTests) {
-	msg(MSG::DEBUG) << "Test SCT" << endreq;
+	msg(MSG::DEBUG) << "Test SCT" << endmsg;
 	printTable(sctlut);
       }
     }
   }
   // Pixel
   if (!m_lutCreatorToolTRT) {  
-    msg(MSG::INFO) << "TRT LUT Creator not configured " << m_lutCreatorToolTRT << endreq;
+    msg(MSG::INFO) << "TRT LUT Creator not configured " << m_lutCreatorToolTRT << endmsg;
   } else {
     if ( m_lutCreatorToolTRT.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_lutCreatorToolSCT << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_lutCreatorToolSCT << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_lutCreatorToolSCT << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_lutCreatorToolSCT << endmsg;
       // compute LUT
       const RegSelSiLUT* trtlut = m_lutCreatorToolTRT->getLUT();
       if (!trtlut) { 
-	msg(MSG::ERROR) << "TRT table missing" << endreq;
+	msg(MSG::ERROR) << "TRT table missing" << endmsg;
       } else if (m_doTests) {
-	msg(MSG::DEBUG) << "Test TRT" << endreq;
+	msg(MSG::DEBUG) << "Test TRT" << endmsg;
 	printTable(trtlut);
       }
     }

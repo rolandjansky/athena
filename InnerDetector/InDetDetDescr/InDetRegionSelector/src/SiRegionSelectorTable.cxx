@@ -67,20 +67,20 @@ StatusCode
 SiRegionSelectorTable::initialize(){
 
   //  MsgStream log(msgSvc(), name());
-  //  log << MSG::INFO << "initialize()" << endreq;
-  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endreq;
+  //  log << MSG::INFO << "initialize()" << endmsg;
+  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endmsg;
 
-  msg(MSG::INFO)  << "Tool Properties" << endreq;
-  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endreq;
-  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endreq;
+  msg(MSG::INFO)  << "Tool Properties" << endmsg;
+  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
+  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endmsg;
   if( msgLvl(MSG::DEBUG) ) {
-    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endreq;
-    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endreq;
-    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endreq;
+    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endmsg;
+    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endmsg;
+    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endmsg;
   }    
 
   if (m_managerName.empty()) {
-    msg(MSG::WARNING) << "Tool disabled." << endreq;
+    msg(MSG::WARNING) << "Tool disabled." << endmsg;
     return StatusCode::FAILURE;
   } 
  
@@ -113,7 +113,7 @@ StatusCode
 SiRegionSelectorTable::createTable()
 {
 
-  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endreq;
+  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endmsg;
 
   StatusCode sc;
 
@@ -123,20 +123,20 @@ SiRegionSelectorTable::createTable()
 
   if (sc.isFailure()) {
     msg(MSG::FATAL) << "Could not find the Manager: "
-	<< m_managerName << " !" << endreq;
+	<< m_managerName << " !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endreq;
+    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
   }
 
   if (manager->isPixel()) {
     if (m_pixIdMapping.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the Pixel Mapping tool." << endreq;
+      msg(MSG::ERROR) << "Can't get the Pixel Mapping tool." << endmsg;
       return StatusCode::FAILURE;
     }
   } else { // SCT
     if (m_sctCablingSvc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT cabling service." << endreq;
+      msg(MSG::ERROR) << "Can't get the SCT cabling service." << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -159,7 +159,7 @@ SiRegionSelectorTable::createTable()
 
       IdentifierHash hashId = element->identifyHash();    
       
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "Found element with HashId = " << hashId << endreq;
+      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "Found element with HashId = " << hashId << endmsg;
    
       ////   double etaMin,etaMax,phiMin,phiMax,rz;
       ////   element->getEtaPhiRegion(m_deltaZ,etaMin,etaMax,phiMin,phiMax,rz);
@@ -191,7 +191,7 @@ SiRegionSelectorTable::createTable()
 	  robId=m_pixIdMapping->getRobID(element->identify());
 	}
 	else { 
-	  msg(MSG::ERROR) << " could not get PixelID for " << element->getIdHelper() << endreq;
+	  msg(MSG::ERROR) << " could not get PixelID for " << element->getIdHelper() << endmsg;
 	}
       } else { // Its an SCT.
 
@@ -202,7 +202,7 @@ SiRegionSelectorTable::createTable()
 	  robId=m_sctCablingSvc->getRobIdFromOfflineId(element->identify());       
 	}
 	else { 
-	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endreq;
+	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endmsg;
 	}
       }
 
@@ -215,10 +215,10 @@ SiRegionSelectorTable::createTable()
 	rd->addModule(smod);
       }
       else { 
-	msg(MSG::WARNING) << "module with RobID=0x0 - not added to look up table " << smod << endreq;
+	msg(MSG::WARNING) << "module with RobID=0x0 - not added to look up table " << smod << endmsg;
       }
       
-      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << smod << endreq;
+      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << smod << endmsg;
 	
       if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "      " 
 						    << " deltaZ = " << m_deltaZ/CLHEP::mm << " mm, " 
@@ -227,7 +227,7 @@ SiRegionSelectorTable::createTable()
 						    << ", layerDisk = " << layerDisk 
 						    << ", phiMin, phiMax = " << phiMin/CLHEP::degree << " " << phiMax/CLHEP::degree
 						    << ", rMin = " << rMin/CLHEP::mm << " mm, rMax = " << rMax/CLHEP::mm << " mm"  
-						    << endreq;
+						    << endmsg;
 
 
       //      if   ( manager->isPixel() ) std::cout << "SUTT-DBM " << smod << std::endl;
@@ -235,7 +235,7 @@ SiRegionSelectorTable::createTable()
     }
   }
 
-  msg(MSG::INFO) << " initialising new map " << endreq;
+  msg(MSG::INFO) << " initialising new map " << endmsg;
 
   rd->initialise();
 
@@ -267,17 +267,17 @@ SiRegionSelectorTable::createTable()
   // save new map in StoreGate RegSelSiLUT
   sc = detStore()->contains< RegSelSiLUT >(newkey);
   if (sc == StatusCode::SUCCESS ) {
-    msg(MSG::FATAL) << " RegSelSiLUT " << newkey << " already exists " << endreq;
+    msg(MSG::FATAL) << " RegSelSiLUT " << newkey << " already exists " << endmsg;
   } else {
     // create and store LUT
     // needs to be modifiable so we can enable/disable modules 
     // from the RegSelSvc
     sc = detStore()->record(rd, newkey, true);
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << " could not register " << detName << " RegSelSiLUT" << endreq;
+      msg(MSG::ERROR) << " could not register " << detName << " RegSelSiLUT" << endmsg;
       return( StatusCode::FAILURE );
     } else {
-      msg(MSG::INFO) << detName << " RegSelSiLUT successfully saved in detector Store" << endreq;
+      msg(MSG::INFO) << detName << " RegSelSiLUT successfully saved in detector Store" << endmsg;
     }
   }
 #endif
@@ -288,7 +288,7 @@ SiRegionSelectorTable::createTable()
 
 
 StatusCode SiRegionSelectorTable::finalize() {
-  msg(MSG::INFO) << "finalize()" << endreq;
+  msg(MSG::INFO) << "finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
