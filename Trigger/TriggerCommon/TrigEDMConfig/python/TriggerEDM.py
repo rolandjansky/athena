@@ -50,7 +50,7 @@ identifier = ".-"
 # ID Triggers
 # ID Variables to be slimmed away
 UnusedIDVariables = ["trackParameterCovarianceMatrices", "parameterX", "parameterY", "parameterZ", "parameterPX",
-                     "parameterPY", "parameterPZ", "parameterPosition", "caloExtension"]
+                     "parameterPY", "parameterPZ", "parameterPosition", "caloExtension","trackLink"]
 UnusedVtxVariables = ["vxTrackAtVertex"]
 
 # Combine them into a string
@@ -97,7 +97,39 @@ UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAx
 UnusedTauVariables = PanTauVars + PFOs + EFlow + Samplings + UnusedOldTau + UnusedProperties + UnusedFourMom
 RemoveTauVariables = ".-"+identifier.join(UnusedTauVariables)
 
+UnusedCaloVariables = ["N_BAD_CELLS","BADLARQ_FRAC","ENG_BAD_CELLS","N_BAD_HV_CELLS",
+                        "BAD_CELLS_CORR_E","BadChannelList","CELL_SIG_SAMPLING",
+                        "AVG_TILE_Q","AVG_LAR_Q","ENG_FRAC_EM","ISOLATION",
+                        "etasize_sampl","phisize_sampl","EM_PROBABILITY","ENG_POS",
+                        "CELL_SIGNIFICANCE","DM_WEIGHT","HAD_WEIGHT","LATERAL",
+                        "SECOND_R","CENTER_MAG","FIRST_PHI","CENTER_Z","OOC_WEIGHT",
+                        "LONGITUDINAL","DELTA_ALPHA","CENTER_Y","CENTER_X","FIRST_ETA",
+                        "DELTA_PHI","ENG_FRAC_MAX","SECOND_LAMBDA","ENG_FRAC_CORE",
+                        "SIGNIFICANCE","CENTER_LAMBDA","DELTA_THETA","FIRST_ENG_DENS",
+                        "SECOND_ENG_DENS","emax_sampl","CellLink","phimax_sampl","etamax_sampl"]
+RemoveCaloVariables = ".-"+identifier.join(UnusedCaloVariables)
 
+UnusedMuonVariables = ["ET_Core","ET_EMCore","d0_staco","z0_staco","CT_ET_Core","ET_HECCore",
+                        "ET_TileCore","CT_EL_Type","phi0_staco","theta_staco","isEndcapGoodLayers",
+                        "isSmallGoodSectors","qOverP_staco","segmentsOnTrack","qOverPErr_staco",
+                        "nUnspoiledCscHits","innerClosePrecisionHits","outerClosePrecisionHits",
+                        "FSR_CandidateEnergy","middleClosePrecisionHits","CT_ET_LRLikelihood",
+                        "extendedClosePrecisionHits","numEnergyLossPerTrack","numberOfGoodPrecisionLayers",
+                        "innerOutBoundsPrecisionHits","outerOutBoundsPrecisionHits","middleOutBoundsPrecisionHits",
+                        "extendedOutBoundsPrecisionHits","CT_ET_FSRCandidateEnergy","combinedTrackOutBoundsPrecisionHits"]
+RemoveMuonVariables = ".-"+identifier.join(UnusedMuonVariables)
+
+UnusedMuonIDVariables = UnusedIDVariables + ["alignEffectChId","alignEffectDeltaTrans","alignEffectDeltaAngle","alignEffectSigmaDeltaTrans","alignEffectSigmaDeltaAngle"]
+                        
+                        
+RemoveMuonIDVariables = ".-"+identifier.join(UnusedMuonIDVariables)                       
+
+UnusedBTaggingVariables = ["SV1_deltaR","SV1_Lxy","SV1_L3d","SV0_dstToMatLay","SV1_dstToMatLay","JetFitter_dRFlightDir"]
+RemoveBTaggingVariables = ".-"+identifier.join(UnusedBTaggingVariables)                      
+
+UnusedEgammaIsoVariables = ["etcone40ptCorrection","etcone30ptCorrection","etcone20ptCorrection","etconeCorrBitset",
+                            "topoetcone30ptCorrection","topoetcone20ptCorrection","topoetcone40ptCorrection","topoetconeCorrBitset"]
+RemoveEgammaIsoVariables = ".-"+identifier.join(UnusedEgammaIsoVariables)                      
 # Done Slimming
 #####################
 #####################
@@ -141,21 +173,21 @@ TriggerHLTList = [
 
     #calo
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker', 'BS ESD AODFULL', 'Calo'), 
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux.', 'BS ESD AODFULL', 'Calo'), 
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux'+RemoveCaloVariables, 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker_slw', 'BS ESD AODFULL', 'Calo'), 
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMaker_slwAux.', 'BS ESD AODFULL', 'Calo'), 
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMaker_slwAux'+RemoveCaloVariables, 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker_topo', 'BS ESD', 'Calo'), 
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMaker_topoAux.','BS ESD', 'Calo'), 
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMaker_topoAux'+RemoveCaloVariables,'BS ESD', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigEFCaloCalibFex', 'BS ESD AODFULL AODSLIM', 'Egamma'),
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEFCaloCalibFexAux.', 'BS ESD AODFULL AODSLIM', 'Egamma'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEFCaloCalibFexAux'+RemoveCaloVariables, 'BS ESD AODFULL AODSLIM', 'Egamma'),
 
     #egamma
     ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
-    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux.',  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux'+RemoveEgammaIsoVariables,  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_PhotonsAux.',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
     ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
-    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux.',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
+    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux'+RemoveEgammaIsoVariables,        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
 
     ('xAOD::TrigElectronContainer#HLT_L2ElectronFex',            'BS ESD AODFULL AODSLIM', 'Egamma'),
     ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronFexAux.',     'BS ESD AODFULL AODSLIM', 'Egamma'), 
@@ -173,8 +205,8 @@ TriggerHLTList = [
     ('xAOD::TrigRNNOutput#HLT_TrigTRTHTCounts', 		    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
 
-    ('xAOD::TrigCompositeContainer#HLT_TrigEFDielectronMassFex',                   'BS ESD AODFULL',  'Egamma'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_TrigEFDielectronMassFexAux.',            'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrigCompositeContainer#HLT_TrigEFDielectronMassFex',                   'BS ESD AODFULL AODSLIM',  'Egamma'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrigEFDielectronMassFexAux.',            'BS ESD AODFULL AODSLIM',  'Egamma'),
     
     #bphys
     ('xAOD::TrigBphysContainer#HLT_EFBMuMuFex',                               'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
@@ -273,18 +305,18 @@ TriggerHLTList = [
     #eMuonEFInfo
     ('xAOD::MuonContainer#HLT_eMuonEFInfo',                                        'BS ESD AODFULL',                'Muon'),
     ('xAOD::MuonAuxContainer#HLT_eMuonEFInfoAux.',                                 'BS ESD AODFULL',                'Muon'),
-    ('xAOD::TrackParticleContainer#HLT_eMuonEFInfo_CombTrackParticles',            'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_eMuonEFInfo_CombTrackParticlesAux'+RemoveIDVariables,   'BS ESD AODFULL AODSLIM', 'Muon'),#fp
-    ('xAOD::TrackParticleContainer#HLT_eMuonEFInfo_ExtrapTrackParticles',          'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_eMuonEFInfo_ExtrapTrackParticlesAux'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
+    ('xAOD::TrackParticleContainer#HLT_eMuonEFInfo_CombTrackParticles',            'BS ESD AODFULL',                'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_eMuonEFInfo_CombTrackParticlesAux'+RemoveIDVariables,   'BS ESD AODFULL', 'Muon'),#fp
+    ('xAOD::TrackParticleContainer#HLT_eMuonEFInfo_ExtrapTrackParticles',          'BS ESD AODFULL',                'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_eMuonEFInfo_ExtrapTrackParticlesAux'+RemoveIDVariables, 'BS ESD AODFULL', 'Muon'),#fp
     
     #MuTagIMO_EF
     ('xAOD::MuonContainer#HLT_MuTagIMO_EF',                                        'BS ESD AODFULL',                'Muon'),
     ('xAOD::MuonAuxContainer#HLT_MuTagIMO_EFAux.',                                 'BS ESD AODFULL',                'Muon'),
-    ('xAOD::TrackParticleContainer#HLT_MuTagIMO_EF_CombTrackParticles',            'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_CombTrackParticlesAux'+RemoveIDVariables,   'BS ESD AODFULL AODSLIM', 'Muon'),#fp
-    ('xAOD::TrackParticleContainer#HLT_MuTagIMO_EF_ExtrapTrackParticles',          'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_ExtrapTrackParticlesAux'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
+    ('xAOD::TrackParticleContainer#HLT_MuTagIMO_EF_CombTrackParticles',            'BS ESD AODFULL',                'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_CombTrackParticlesAux'+RemoveIDVariables,   'BS ESD AODFULL', 'Muon'),#fp
+    ('xAOD::TrackParticleContainer#HLT_MuTagIMO_EF_ExtrapTrackParticles',          'BS ESD AODFULL',                'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_ExtrapTrackParticlesAux'+RemoveIDVariables, 'BS ESD AODFULL', 'Muon'),#fp
 
     #MET
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET',                                 'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
@@ -1572,12 +1604,7 @@ def getTriggerEDMList(key, runVersion):
     run can be: '1 (Run1)', '2 (Run2)'
     """
     if runVersion == 2:
-        if 'NODYN' in key:
-            return getTriggerEDMSlimList(key.replace('NODYN',''))
-        elif 'SLIM' in key:
-            return getTriggerEDMSlimList(key)
-        else:
-            return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
+        return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
     else:
         return getTriggerObjList(key,[TriggerL2List,TriggerEFList, TriggerResultsRun1List])
 
