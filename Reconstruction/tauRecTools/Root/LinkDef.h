@@ -15,6 +15,7 @@
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 #include "tauRecTools/TauChargedPFOCreator.h"
+#include "tauRecTools/TauWPDecorator.h"
 
 #ifdef __CINT__
 
@@ -42,5 +43,6 @@
 #pragma link C++ class tauRecTools::TrackMVABDT+;
 #pragma link C++ class CombinedP4FromRecoTaus+;
 #pragma link C++ class TauChargedPFOCreator+;
+#pragma link C++ class TauWPDecorator+;
 
 #endif

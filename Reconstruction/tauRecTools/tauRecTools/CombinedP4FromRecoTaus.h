@@ -12,6 +12,8 @@
 //Root include(s)
 #include "TH1F.h"
 #include "TFile.h"
+#include "TF1.h"
+#include "TGraph.h"
 
 //tauRecTools include(s)
 #include "tauRecTools/TauRecToolBase.h"
@@ -67,14 +69,20 @@ class CombinedP4FromRecoTaus
 
   // Get the enum-value for eta corresponding to the eta value
   int GetIndex_Eta(float eta);
+  float GetNsigma_Compatibility(float et_TauRec);  
 
   StatusCode execute(xAOD::TauJet& xTau); 
 
  private:
-  std::vector< std::vector<TH1F*> >  m_resHists_tauRec;
+  /*std::vector< std::vector<TH1F*> >  m_resHists_tauRec;
   std::vector< std::vector<TH1F*> >  m_resHists_CellBased2PanTau;
   std::vector< std::vector<TH1F*> >  m_meanHists_CellBased2PanTau;
-  std::vector< std::vector<TH1F*> >  m_meanHists_tauRec;
+  std::vector< std::vector<TH1F*> >  m_meanHists_tauRec;*/
+  std::vector< std::vector<TGraph*> >  m_resTGraph_tauRec;
+  std::vector< std::vector<TGraph*> >  m_resTGraph_CellBased2PanTau;
+  std::vector< std::vector<TGraph*> >  m_meanTGraph_CellBased2PanTau;
+  std::vector< std::vector<TGraph*> >  m_meanTGraph_tauRec;
+
   std::vector<TH1F*> m_correlationHists;
 
   std::vector<TString> m_modeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"};
@@ -87,7 +95,7 @@ class CombinedP4FromRecoTaus
   double m_weight, m_combined_res, m_sigma_tauRec, m_sigma_constituent, m_corrcoeff;
 
   std::string m_sWeightFileName;
-
+  TF1 m_Nsigma_compatibility;
 };
 
 
