@@ -52,6 +52,7 @@ class TrigTauDiscriGetter(TrigTauDiscriBuilder):
     def BDTtoolset(self):
         from TauDiscriminant.TauDiscriminantConf import TauJetBDT
         return TauJetBDT(inTrigger = True,
+                         calibFolder = 'TrigTauRec/00-11-01/',
                          jetBDT = "trigger.jet.BDT.bin",
                          jetSigBits = "trigger.sig.bits.jet.BDT.txt")
 
@@ -59,6 +60,7 @@ class TrigTauDiscriGetter(TrigTauDiscriBuilder):
         from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
         tauVarCalc = TauIDVarCalculator()
         tauVarCalc.inTrigger = True
+        tauVarCalc.calibFolder = 'TrigTauRec/00-11-01/'
         return tauVarCalc
 
 
@@ -83,6 +85,7 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
     def BDTtoolset(self):
         from TauDiscriminant.TauDiscriminantConf import TauJetBDT
         return TauJetBDT(inTrigger=True,
+                         calibFolder = 'TrigTauRec/00-11-01/',
                         # jetBDT = "offline.jet.BDT.MC15.bin",
                         # jetBDT = "online.jet.BDT.MC15c.bin",
                          jetBDT = "bdt.2016.bin",
@@ -93,4 +96,5 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
         from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
         tauVarCalc = TauIDVarCalculator()
         tauVarCalc.inTrigger = True
+        tauVarCalc.calibFolder = 'TrigTauRec/00-11-01/'
         return tauVarCalc
