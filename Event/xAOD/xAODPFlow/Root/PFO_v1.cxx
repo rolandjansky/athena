@@ -281,8 +281,8 @@ namespace xAOD {
       float dummy = anAttribute*m_floatCompressionFactor;
       int maxIntSize = 1000000000;
       int internalAttribute = maxIntSize;
+      if (dummy < 0) internalAttribute *= -1;//if we had a large -ve energy, then we should set the max size to a -ve value         
       if (dummy < maxIntSize && dummy > -maxIntSize) internalAttribute = static_cast<int>(dummy);
-      if (dummy < 0) internalAttribute *= -1;//if we had a large -ve energy, then we should set the max size to a -ve value
       setAttribute<int>(AttributeType, internalAttribute);
     }
     else {
