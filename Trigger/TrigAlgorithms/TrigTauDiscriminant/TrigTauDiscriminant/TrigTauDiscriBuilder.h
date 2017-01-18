@@ -19,7 +19,8 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TauDiscriminant/TauDiscriToolBase.h"
+//#include "TauDiscriminant/TauDiscriToolBase.h"
+#include "tauRecTools/ITauToolBase.h"
 #include <vector>
 
 namespace HLT {
@@ -49,7 +50,7 @@ class TrigTauDiscriBuilder: public HLT::FexAlgo {
 
  private:
   /** internal tool store */
-  ToolHandleArray<TauDiscriToolBase>  tools;
+  ToolHandleArray<ITauToolBase>  tools;
 
   /** vector of Timers */
   std::vector<TrigTimer* > m_mytimers;

@@ -8,7 +8,7 @@ atlas_subdir( TrigTauDiscriminant )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
-                          PhysicsAnalysis/TauID/TauDiscriminant
+			  Reconstruction/tauRecTools
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
@@ -21,12 +21,12 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigTauDiscriminantLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigTauDiscriminant
-                   LINK_LIBRARIES GaudiKernel TauDiscriminantLib TrigInterfacesLib TrigTimeAlgsLib
+                   LINK_LIBRARIES GaudiKernel tauRecToolsLib TrigInterfacesLib TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES xAODTau TrigParticle TrigSteeringEvent TrigT1Interfaces )
 
 atlas_add_component( TrigTauDiscriminant
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel TauDiscriminantLib TrigInterfacesLib TrigTimeAlgsLib xAODTau TrigParticle TrigSteeringEvent TrigT1Interfaces TrigTauDiscriminantLib )
+                     LINK_LIBRARIES GaudiKernel tauRecToolsLib TrigInterfacesLib TrigTimeAlgsLib xAODTau TrigParticle TrigSteeringEvent TrigT1Interfaces TrigTauDiscriminantLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -17,8 +17,9 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauDefs.h"
-#include "TauDiscriminant/TauDiscriToolBase.h"
+//#include "TauDiscriminant/TauDiscriToolBase.h"
 #include "TrigTauDiscriminant/TrigTauDiscriBuilder.h"
+#include "tauRecTools/ITauToolBase.h"
 
 using namespace std;
 
@@ -56,8 +57,8 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltInitialize()
 
 	// find tools
 	//-------------------------------------------------------------------------
-	ToolHandleArray<TauDiscriToolBase> ::iterator p_itT = tools.begin();
-	ToolHandleArray<TauDiscriToolBase> ::iterator p_itTE = tools.end();
+	ToolHandleArray<ITauToolBase> ::iterator p_itT = tools.begin();
+	ToolHandleArray<ITauToolBase> ::iterator p_itTE = tools.end();
 	msg() << MSG::INFO << "List of tools in execution sequence:" << endreq;
 	msg() << MSG::INFO << "------------------------------------" << endreq;
 
@@ -130,8 +131,8 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltExecute(const HLT::TriggerElement* /*inp
 		//-----------------------------------------------------------------
 		// Process the candidate
 		//-----------------------------------------------------------------
-		ToolHandleArray<TauDiscriToolBase>::iterator tool_it(this->tools.begin());
-		ToolHandleArray<TauDiscriToolBase>::iterator tool_end(this->tools.end());
+		ToolHandleArray<ITauToolBase>::iterator tool_it(this->tools.begin());
+		ToolHandleArray<ITauToolBase>::iterator tool_end(this->tools.end());
 
 		//-----------------------------------------------------------------
 		// Loop stops when Failure indicated by one of the tools
