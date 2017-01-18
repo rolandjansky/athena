@@ -36,7 +36,7 @@ TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::TauJetContainer#TauJets" ]
 #TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-ABS_ETA_LEAD_TRACK.-CORRCENTFRAC.-CORRFTRK.-EMFRACTIONATEMSCALE_MOVEE3.-HADLEAKET.-NUMTRACK.-TAU_ABSDELTAETA.-TAU_ABSDELTAPHI.-TAU_SEEDTRK_SECMAXSTRIPETOVERPT.-TAU_TRT_NHT_OVER_NLT.-NUMVERTICES" ]
-TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux." ]
+TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-mu.-nVtx.-NUMTRACK.-NUMVERTICES.-nVtxPU.-MU" ]
 
 #------------------------------------------------------------------------------
 # TauRec tauTrack xAOD containers

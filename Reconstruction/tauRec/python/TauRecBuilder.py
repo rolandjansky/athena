@@ -297,21 +297,16 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
             tools.append(taualgs.getMvaTESEvaluator())
             tools.append(taualgs.getCombinedP4FromRecoTaus())
 
-            # TauDiscriminant:
-            if tauFlags.doRunTauDiscriminant() :
-                import TauDiscriminant.TauDiscriGetter as tauDisc
-                tauDiscTools=tauDisc.getTauDiscriminantTools(mlog)
-                if len(tauDiscTools)==0:
-                    try: import DOESNOTEXIST
-                    except Exception:
-                        mlog.error("No TauDiscriminantTools appended")
-                        print traceback.format_exc()
-                        return False
-                    pass                
-                tools+=tauDiscTools
+            if tauFlags.doRunTauDiscriminant():
+                tools.append(taualgs.getTauIDVarCalculator())
+                tools.append(taualgs.getTauJetBDT())
+                tools.append(taualgs.getTauEleBDT())
+                tools.append(taualgs.getTauEleBDT(_n="TauEleBDT_run2", eBDT="TauDiscriminant/02-00-09/TauEleBDT_run2_test.bin", only_decorate=True, eBitsRoot="", eBits=""))
+                tools.append(taualgs.getTauEleOLRDecorator())
+                tools.append(taualgs.getTauWPDecorator())
+                tools.append(taualgs.getTauWPDecoratorEleBDT())
                 pass
 
-            
             tools+=tauFlags.tauRecToolsDevToolListProcessor()
             ## lock tau containers -> must be the last tau tool!!
             #tools.append(taualgs.getContainerLock())

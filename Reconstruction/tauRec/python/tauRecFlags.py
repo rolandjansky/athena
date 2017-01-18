@@ -38,6 +38,7 @@ class tauRecToolsCVMFSPath(JobProperty):
     allowedTypes=['string']
     StoredValue="tauRecTools/00-00-10/"
 
+#deprecated
 class TauDiscriminantCVMFSPath(JobProperty):
     """ path to cvmfs file location
     """
