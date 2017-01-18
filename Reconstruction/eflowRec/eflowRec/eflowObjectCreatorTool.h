@@ -88,7 +88,9 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
 
   /* String to specify name of VertexContainer to retrieve */
   std::string m_vertexContainerName;
-  
+
+  /* Bool to toggle AOD reduction task force cluster moment list */
+  bool m_useAODReductionMomentList;
   
 };
 

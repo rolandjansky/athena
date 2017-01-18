@@ -52,7 +52,8 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_debug(0),
     m_LCMode(false),
     m_trackVertexAssociationTool(""),
-    m_vertexContainerName("PrimaryVertices")
+    m_vertexContainerName("PrimaryVertices"),
+    m_useAODReductionMomentList(false)
 {
   declareInterface<eflowObjectCreatorTool>(this);
   /* Name of  eflow Container to be created */
@@ -61,6 +62,7 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
   declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
   declareProperty("LCMode", m_LCMode, "Whether we are in LC or EM mode");
   declareProperty("TrackVertexAssociationTool", m_trackVertexAssociationTool);
+  declareProperty("UseAODReductionMomentList",m_useAODReductionMomentList);
 }
 
 StatusCode eflowObjectCreatorTool::initialize(){
@@ -314,20 +316,28 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
 
     //now set the moments for touchable clusters (i.e. ones we modify) in LC mode or all clusters in EM mode
     if ( (m_LCMode && thisEfRecCluster->isTouchable()) || !m_LCMode) {
-      this->addMoment(xAOD::CaloCluster::LATERAL,xAOD::PFODetails::PFOAttributes::eflowRec_LATERAL,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::LONGITUDINAL,xAOD::PFODetails::PFOAttributes::eflowRec_LONGITUDINAL,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::SECOND_R,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_R,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::CENTER_LAMBDA,xAOD::PFODetails::PFOAttributes::eflowRec_CENTER_LAMBDA,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::FIRST_ENG_DENS,xAOD::PFODetails::PFOAttributes::eflowRec_FIRST_ENG_DENS,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::ENG_FRAC_MAX,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_FRAC_MAX,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::ISOLATION,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::ENG_BAD_CELLS,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_BAD_CELLS,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::N_BAD_CELLS,xAOD::PFODetails::PFOAttributes::eflowRec_N_BAD_CELLS,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::BADLARQ_FRAC,xAOD::PFODetails::PFOAttributes::eflowRec_BADLARQ_FRAC,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::ENG_POS,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_POS,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::SIGNIFICANCE,xAOD::PFODetails::PFOAttributes::eflowRec_SIGNIFICANCE,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::AVG_LAR_Q,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::AVG_TILE_Q,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::ISOLATION,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION,cluster, thisEflowObject);
+
+      if (false == m_useAODReductionMomentList){
+	 this->addMoment(xAOD::CaloCluster::LATERAL,xAOD::PFODetails::PFOAttributes::eflowRec_LATERAL,cluster, thisEflowObject);
+	 this->addMoment(xAOD::CaloCluster::LONGITUDINAL,xAOD::PFODetails::PFOAttributes::eflowRec_LONGITUDINAL,cluster, thisEflowObject);
+	 this->addMoment(xAOD::CaloCluster::FIRST_ENG_DENS,xAOD::PFODetails::PFOAttributes::eflowRec_FIRST_ENG_DENS,cluster, thisEflowObject);
+	 this->addMoment(xAOD::CaloCluster::ENG_FRAC_MAX,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_FRAC_MAX,cluster, thisEflowObject);
+	 this->addMoment(xAOD::CaloCluster::SIGNIFICANCE,xAOD::PFODetails::PFOAttributes::eflowRec_SIGNIFICANCE,cluster, thisEflowObject);
+      }
+      if (true == m_useAODReductionMomentList){
+	this->addMoment(xAOD::CaloCluster::SECOND_LAMBDA,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_LAMBDA,cluster, thisEflowObject);
+	this->addMoment(xAOD::CaloCluster::EM_PROBABILITY,xAOD::PFODetails::PFOAttributes::eflowRec_EM_PROBABILITY,cluster, thisEflowObject);
+      }
+      
     }
 
     //First set all the layer energies
