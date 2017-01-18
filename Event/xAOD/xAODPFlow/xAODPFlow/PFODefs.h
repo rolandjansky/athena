@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFODefs.h 784235 2016-11-15 10:51:31Z mhodgkin $
+// $Id: PFODefs.h 792675 2017-01-18 10:39:20Z mhodgkin $
 #ifndef XAODPFLOW_PFODEFS_H
 #define XAODPFLOW_PFODEFS_H
 
@@ -86,6 +86,7 @@ namespace PFODetails
     eflowRec_LAYERENERGY_MINIFCAL1,
     eflowRec_LAYERENERGY_MINIFCAL2,
     eflowRec_LAYERENERGY_MINIFCAL3,
+    eflowRec_EM_PROBABILITY,
     /** These variables belong to the cell-based particle flow algorithm */
     cellBased_FIRST_ETA = 400, 
     cellBased_SECOND_R, 
