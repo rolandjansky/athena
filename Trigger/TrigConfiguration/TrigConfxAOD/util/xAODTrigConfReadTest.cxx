@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigConfReadTest.cxx 718020 2016-01-15 15:52:44Z tbold $
+// $Id: xAODTrigConfReadTest.cxx 718019 2016-01-15 15:52:18Z tbold $
 
 // System include(s):
 #include <memory>
