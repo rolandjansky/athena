@@ -40,9 +40,9 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 
 mlog = logging.getLogger ('TrigEgammaPidTools')
 # Path for versioned configuration
-from TrigEgammaRec.TrigEgammaFlags import jobproperties
-mlog.info("TrigEgammaPidTools version %s"%jobproperties.TrigEgammaFlags.pidVersion())
-ConfigFilePath = jobproperties.TrigEgammaFlags.pidVersion() 
+from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+mlog.info("TrigEgammaPidTools version %s"%EgammaSliceFlags.pidVersion())
+ConfigFilePath = EgammaSliceFlags.pidVersion() 
 
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
