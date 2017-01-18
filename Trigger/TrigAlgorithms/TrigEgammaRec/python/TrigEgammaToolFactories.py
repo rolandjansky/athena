@@ -132,12 +132,12 @@ TrigEMShowerBuilder = EMShowerBuilder.copy(
   Print = True,
 )
 
-from TrigEgammaRec.TrigEgammaFlags import jobproperties
+from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
 from egammaMVACalib import egammaMVACalibConf 
-mlog.info("MVA version version %s"%jobproperties.TrigEgammaFlags.calibMVAVersion() )
-mlog.info("Cluster Correction version %s"%jobproperties.TrigEgammaFlags.clusterCorrectionVersion() )
+mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
+mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
 TrigEgammaMVACalibTool = ToolFactory(egammaMVACalibConf.egammaMVATool,name="TrigEgammaMVACalibTool",
-        folder=jobproperties.TrigEgammaFlags.calibMVAVersion(),use_layer_corrected = False)
+        folder=EgammaSliceFlags.calibMVAVersion(),use_layer_corrected = False)
 
 from TrigCaloRec.TrigCaloRecConf import TrigCaloClusterMaker
 
@@ -178,7 +178,7 @@ def configureClusterCorrections(slwAlg):
         clName = "CaloRunClusterCorrections"+cl
         if hasattr(slwAlg,clName):
             continue
-        for tool in make_CaloSwCorrections (cl,version=jobproperties.TrigEgammaFlags.clusterCorrectionVersion()):
+        for tool in make_CaloSwCorrections (cl,version=EgammaSliceFlags.clusterCorrectionVersion()):
             #mlog.info("Correction tool %s"%tool.getFullName())
             slwAlg += tool
             slwAlg.ClusterCorrectionTools += [tool.getFullName()]
