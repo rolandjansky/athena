@@ -640,9 +640,10 @@ def getTauVertexFinder(doUseTJVA=False):
     
     if _name in cached_instances:
         return cached_instances[_name]
-    
-    if doUseTJVA:
-        setupTauJVFTool()
+
+    # ATR-15665: commented out, track-vertex association done directly in TauVertexFinder    
+    #if doUseTJVA:
+    #    setupTauJVFTool()
     
     # Algorithm that overwrites numTrack() and charge() of all tauJets in the container
     from tauRecTools.tauRecToolsConf import TauVertexFinder
@@ -651,8 +652,11 @@ def getTauVertexFinder(doUseTJVA=False):
                                       PrimaryVertexContainer  = _DefaultVertexContainer,
                                       AssociatedTracks="GhostTrack", # OK??
                                       TrackVertexAssociation=sPrefix+"JetTrackVtxAssoc_forTaus",
-                                      InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA()
-                                      )
+                                      InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
+                                      OnlineMaxTransverseDistance = 2.5*mm,   # ATR-15665
+                                      #OnlineMaxLongitudinalDistance = 2 *mm,
+                                      OnlineMaxZ0SinTheta = 3.0 *mm    
+                                  )
     
     cached_instances[_name] = TauVertexFinder         
     return TauVertexFinder 

@@ -55,6 +55,7 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
 	    
             for tool in tools:
                 tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-01/'
                 pass
 	    
 	    
@@ -109,6 +110,7 @@ class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
             
             for tool in tools:
                 tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-01/'
                 pass
 
             self.Tools = tools
@@ -171,6 +173,7 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
 
             for tool in tools:
                 tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-01/'
                 pass
 
             self.Tools = tools
@@ -213,7 +216,7 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
             # Set seedcalo energy scale (Full RoI)
             tools.append(taualgs.getJetSeedBuilder())
             #use FTK vertices
-            tools.append(taualgs.getTauVertexFinder(doUseTJVA=False))
+            tools.append(taualgs.getTauVertexFinder(doUseTJVA=True))
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
             tools.append(taualgs.getTauAxis())
             # Count tracks with deltaZ0 cut of 2mm -> Need to remove quality criteria for fast-tracks here
@@ -234,6 +237,7 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
 
             for tool in tools:
                 tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-01/'
                 pass
 
             self.Tools = tools
@@ -282,6 +286,7 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
 
             for tool in tools:
                 tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-01/'
                 pass
 
             self.Tools = tools
@@ -340,6 +345,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             
             for tool in tools:
                 tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-01/'
                 pass
 
             self.Tools = tools
