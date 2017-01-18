@@ -33,6 +33,7 @@ namespace xAOD {
       checkTPAndDefiningParamCov(tp);
       double d0 = tp->d0();
       // elements in definingParametersCovMatrixVec should be : sigma_d0^2, sigma_d0_z0, sigma_z0^2
+      if (!tp->definingParametersCovMatrixVec().size()) throw std::runtime_error("definingParametersCovMatrixVec is empty!");
       double sigma_d0 = tp->definingParametersCovMatrixVec().at(0);
       if (sigma_d0<=0.) {
         throw std::runtime_error("TrackParticle with zero or negative d0 uncertainty.");

@@ -20,6 +20,7 @@
 
 #include "MuonTPTools/MuonTPTreeTool.h"
 #include "MuonTPTools/DiMuonTPTreeTool.h"
+#include "MuonTPTools/MuonTPVertexHelper.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -29,6 +30,7 @@ DECLARE_TOOL_FACTORY(IDTrackIsolationDecoratorTool)
 DECLARE_TOOL_FACTORY(IDTrackCaloDepositsDecoratorTool)
 DECLARE_TOOL_FACTORY(BadMuonVetoHelperTool)
 DECLARE_TOOL_FACTORY(MuonTPTrigUtils)
+DECLARE_TOOL_FACTORY(MuonTPVertexHelper)
 
 // DECLARE_TOOL_FACTORY(MuonTPSelectionTool)
 DECLARE_TOOL_FACTORY(DiMuonTPSelectionTool)
@@ -48,6 +50,7 @@ DECLARE_TOOL_FACTORY(DiMuonTPTreeTool)
 
 DECLARE_FACTORY_ENTRIES(MuonTPTools) {
   DECLARE_TOOL(MuonTPTool)
+  DECLARE_TOOL(MuonTPVertexHelper)
   DECLARE_TOOL(MuonTPExtrapolationTool)
   DECLARE_TOOL(IDTrackIsolationDecoratorTool)
   DECLARE_TOOL(IDTrackCaloDepositsDecoratorTool)

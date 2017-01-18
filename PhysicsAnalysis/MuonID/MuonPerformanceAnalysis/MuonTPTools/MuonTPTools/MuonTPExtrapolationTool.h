@@ -34,6 +34,9 @@ class MuonTPExtrapolationTool
   /// see interface class for full description
   double dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe);
 
+  // this method is intended for use in the DAOD production. It takes only one particle as argument, and handles the decoration. 
+  virtual StatusCode decoratePivotPlaneCoords(const xAOD::IParticle* particle);
+
 #ifndef XAOD_ANALYSIS
   /// run the extrapolation - only available in full athena
   const Trk::TrackParameters* extrapolateToTriggerPivotPlane(const xAOD::TrackParticle& track);
@@ -53,6 +56,10 @@ class MuonTPExtrapolationTool
 #ifndef XAOD_ANALYSIS
   ToolHandle<Trk::IExtrapolator> m_extrapolator;
 #endif
+
+  // utility method: Obtains the track particle which we want to extrapolate into the MS. 
+  // Works for all kinds of probes. 
+  const xAOD::TrackParticle* getPreferredTrackParticle (const xAOD::IParticle* probe);
 
   // these define the surfaces that we extrapolate to. 
   // We approximate the pivot plane in the form of a cylinder surface and two disks

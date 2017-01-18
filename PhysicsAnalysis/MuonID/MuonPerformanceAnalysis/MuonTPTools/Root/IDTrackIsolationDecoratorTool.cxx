@@ -23,21 +23,24 @@ IDTrackIsolationDecoratorTool::IDTrackIsolationDecoratorTool(
         m_dec_topoetcone20("topoetcone20"),
         m_dec_etcore("etcore_correction"),
 
-        m_ptcone40_acc("MUON1_ptcone40"),
-        m_ptcone30_acc("MUON1_ptcone40"),
-        m_ptvarcone40_acc("MUON1_ptvarcone40"),
-        m_ptvarcone30_acc("MUON1_ptvarcone30"),
-        m_topoetcone40_acc("MUON1_topoetcone40"),
-        m_topoetcone20_acc("MUON1_topoetcone20")
+        m_ptcone40_acc("MUON_ptcone40"),
+        m_ptcone30_acc("MUON_ptcone30"),
+        m_ptvarcone40_acc("MUON_ptvarcone40"),
+        m_ptvarcone30_acc("MUON_ptvarcone30"),
+        m_topoetcone40_acc("MUON_topoetcone40"),
+        m_topoetcone20_acc("MUON_topoetcone20")
         {
+#ifndef XAOD_ANALYSIS
     declareProperty("TrackIsolationTool",      m_track_iso_tool);
     declareProperty("CaloIsolationTool",      m_calo_iso_tool);
-
+#endif
 
 }
 
 StatusCode IDTrackIsolationDecoratorTool::initialize() {
 
+
+#ifndef XAOD_ANALYSIS
     // setup the corrections to apply (taken from MUON1 derivation)
     m_trk_corr.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::coreTrackPtr));
     m_calo_corr.calobitset.set(static_cast<unsigned int>(xAOD::Iso::coreCone));
@@ -50,6 +53,7 @@ StatusCode IDTrackIsolationDecoratorTool::initialize() {
     // and retrieve the tools
     ATH_CHECK(m_track_iso_tool.retrieve());
     ATH_CHECK(m_calo_iso_tool.retrieve());
+#endif
     return StatusCode::SUCCESS;
 
 }
@@ -114,6 +118,8 @@ StatusCode IDTrackIsolationDecoratorTool::recompute_and_decorate(const xAOD::IPa
         }
     }
     else{
+
+#ifndef XAOD_ANALYSIS
 		ATH_MSG_DEBUG("Recomputing isolation by hand");
 		xAOD::TrackIsolation result;
 		xAOD::CaloIsolation resultCalo;
@@ -136,6 +142,20 @@ StatusCode IDTrackIsolationDecoratorTool::recompute_and_decorate(const xAOD::IPa
 		m_dec_topoetcone20(*part) =resultCalo.etcones[2];
 
 		m_dec_etcore(*part) = resultCalo.coreCorrections[xAOD::Iso::coreCone][xAOD::Iso::coreEnergy];
+#else
+		ATH_MSG_WARNING("Iso decoration can not be recomputed in AthAnalysisBase! Filling a zero dummy value");
+		appliedDec(*part) = true;
+		m_dec_ptcone40(*part) = 0;
+		m_dec_ptcone30(*part) = 0;
+
+		m_dec_ptvarcone40(*part) = 0;
+		m_dec_ptvarcone30(*part) = 0;
+
+		m_dec_topoetcone40(*part) = 0;
+		m_dec_topoetcone20(*part) = 0;
+
+		m_dec_etcore(*part) = 0;
+#endif
     }
     return StatusCode::SUCCESS;
 }
