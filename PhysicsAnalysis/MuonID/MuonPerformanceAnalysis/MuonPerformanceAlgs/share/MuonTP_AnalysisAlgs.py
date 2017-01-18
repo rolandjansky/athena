@@ -89,8 +89,12 @@ if jobproperties.MuonTPFlags.GRL() != '':
 #GRL_to_use  = ["data15_13TeV.periodA_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"]
 #GRL_to_use  = ["/afs/cern.ch/user/a/atlasdqm/grlgen/All_Good/data15_13TeV.periodA_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"]
 CommonMuonTPConfig.AddMuonTPMetaAlg()
-CommonMuonTPConfig.AddPromptLeptonDecorators()
+if not (is_MUON1 or is_MUON23):
+    CommonMuonTPConfig.AddPromptLeptonDecorators()
 CommonMuonTPConfig.AddCalibratedMuonsProvider()
+if not (is_MUON1 or is_MUON23):
+    from MuonPerformanceAlgs import  JPsiVertexFitSetup
+    JPsiVertexFitSetup.AddJPsiVertexingAlgs(prefix='MUON1')
 #CommonMuonTPConfig.AddTrackIsolationDecorAlg()
 CommonMuonTPConfig.AddGoodRunsListSelectionTool(GRL_to_use)
 
@@ -114,7 +118,7 @@ if do_DYmumu_RecoEff_TagProbe and not is_MUON23:
                                                DoProbeMatchPlots = jobproperties.MuonTPFlags.doPlots(),
                                                ProduceEfficiencies=jobproperties.MuonTPFlags.doPlots() and jobproperties.MuonTPFlags.doEff(),
                                                IsRunOnDAOD=IsRunOnDAOD)
-if do_JPsi_RecoEff_TagProbe and not is_MUON1:
+if do_JPsi_RecoEff_TagProbe: # and not is_MUON1:
     JPsiTPRecoAnalysis.AddJPsiTPRecoAnalysis(writeNtuple=True,
                                              doValid=False,
                                              doDRSys=True,
@@ -126,7 +130,7 @@ if do_JPsi_RecoEff_TagProbe and not is_MUON1:
 if (do_Zmumu_TriggerEff_TagProbe or do_Zmumu_IsolationEff_TagProbe or do_Zmumu_RecoEff_HighEta) and not is_MUON23:
     ZmumuTPMuonAnalysis.AddZmumuTPMuonAnalysis( doIso = do_Zmumu_IsolationEff_TagProbe,
                             doTrig = do_Zmumu_TriggerEff_TagProbe,
-                            doTrigEtaSlices    = True,
+                            doTrigEtaSlices    = False,
                             doIsolEtaSlices    = False,
                             doIsolPlots      = False,
                             doTriggerPlots      = True,
@@ -150,7 +154,7 @@ if (do_Zmumu_TriggerEff_TagProbe or do_Zmumu_IsolationEff_TagProbe or do_Zmumu_R
 if (do_DYmumu_TriggerEff_TagProbe or do_DYmumu_IsolationEff_TagProbe) and not is_MUON23:
     DYmumuTPMuonAnalysis.AddDYmumuTPMuonAnalysis( doIso = do_DYmumu_IsolationEff_TagProbe,
                             doTrig = do_DYmumu_TriggerEff_TagProbe,
-                            doTrigEtaSlices    = True,
+                            doTrigEtaSlices    = False,
                             doIsolEtaSlices    = False,
                             doIsolPlots      = False,
                             doTriggerPlots      = True,
@@ -170,10 +174,10 @@ if (do_DYmumu_TriggerEff_TagProbe or do_DYmumu_IsolationEff_TagProbe) and not is
                             ProduceEfficiencies=jobproperties.MuonTPFlags.doPlots() and jobproperties.MuonTPFlags.doEff(),
                             IsRunOnDAOD=IsRunOnDAOD)
 
-if (do_JPsi_TriggerEff_TagProbe or do_JPsi_IsolationEff_TagProbe) and not is_MUON1:
+if (do_JPsi_TriggerEff_TagProbe or do_JPsi_IsolationEff_TagProbe): # and not is_MUON1:
     JPsiTPMuonAnalysis.AddJPsiTPMuonAnalysis( doIso = do_JPsi_IsolationEff_TagProbe,
                             doTrig = do_JPsi_TriggerEff_TagProbe,
-                            doTrigEtaSlices    = True,
+                            doTrigEtaSlices    = False,
                             doIsolEtaSlices    = False,
                             doIsolPlots      = False,
                             doTriggerPlots      = True,
@@ -202,13 +206,18 @@ ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["MUONTP DATAFILE='{}' OPT='RECREATE'".format(jobproperties.MuonTPFlags.outputFilename())]
 
 # Finally, extend the space for the tool names in the log messages a bit
-ServiceMgr.MessageSvc.Format = "% F%54W%S%7W%R%T %0W%M"
+ServiceMgr.MessageSvc.Format = "% F%67W%S%7W%R%T %0W%M"
 
 # I don't like spam!
 from AthenaCommon.AppMgr import ToolSvc
 if hasattr(ToolSvc, "JetVertexCharge_AODFix"):
     from AthenaCommon.Constants import WARNING
     ToolSvc.JetVertexCharge_AODFix.OutputLevel=WARNING
+# Looking for FAs failed, I know... 
+if hasattr(ToolSvc, "TrigDecisionTool"):
+    if hasattr(ToolSvc.TrigDecisionTool, "Navigation"):
+        from AthenaCommon.Constants import WARNING
+        ToolSvc.TrigDecisionTool.Navigation.OutputLevel = WARNING
 
 ## Uncomment this for running valgrind
 #     from AthenaCommon.Constants import DEBUG

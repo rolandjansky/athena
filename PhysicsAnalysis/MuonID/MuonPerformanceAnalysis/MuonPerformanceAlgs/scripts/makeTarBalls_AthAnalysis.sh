@@ -6,9 +6,10 @@ if  [ "niko" = $USER ]; then
 else NAME=$USER
 fi
 
-pathena --trf "Reco_tf.py --inputAODFile=%IN --outputNTUP_MCPTPFile=%OUT.NTUP_MCPTP.root --outputNTUP_MCPScaleFile=%OUT.NTUP_MCScale.root" \
+pathena --trf "athena -c \"FNAME='%IN'\" MuonPerformanceAlgs/CombinedRun_topOptions.py" \
       --noSubmit \
       --inDS $1 \
+      --extOutFile='muontp.root,muonscale.root' \
       --outDS='group.perf-muons.'$NAME'.dummy.1' \
       --outTarBall=otb.tar\
       --outRunConfig=runconf.datatp \

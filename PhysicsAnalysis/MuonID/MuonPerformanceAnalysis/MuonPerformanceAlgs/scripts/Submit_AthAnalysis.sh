@@ -70,15 +70,15 @@ while read sample
   outname="group.perf-muons.$dsorig.$SUFFIX"
 
   # Submit using pathena.
-  pathena MuonPerformanceAlgs/MuonTP_topOptions.py \
+  pathena MuonPerformanceAlgs/CombinedRun_topOptions.py \
       -c "GRL='$GRL'" \
       --inDS $ds \
       --outDS $outname \
       --express \
       --mergeOutput \
       --useShortLivedReplicas \
-      --site=AUTO \
-      --nFilesPerJob=2 \
+      --extOutFile='muontp.root,muonscale.root' \
+      --destSE=MPPMU_PERF-MUONS \
       --official --voms=atlas:/atlas/perf-muons/Role=production \
       --inTarBall=otb.tar \
       --inRunConfig=runconf.datatp

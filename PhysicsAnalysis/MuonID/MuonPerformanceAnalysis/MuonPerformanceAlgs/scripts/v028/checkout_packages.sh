@@ -1,19 +1,17 @@
 
-# e.g. use: svn cat svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs/trunk/scripts/v029/checkout_packages.sh > checkout_packages.sh
+# e.g. use: svn cat svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs/trunk/scripts/v028/checkout_packages.sh > checkout_packages.sh
 
 # check for AtlasDerivation vs. AthAnalysis
 if [ "AtlasDerivation" = $AtlasProject ]; then
-    pkgco.py MuonPerformanceAlgs-00-00-65
+    pkgco.py MuonPerformanceAlgs-00-00-62
     pkgco.py MuonPerformanceHistUtils-00-00-26
-    pkgco.py MuonTPTools-00-00-47
+    pkgco.py MuonTPTools-00-00-44
     pkgco.py MuonPtCalibNtupleMaker-00-00-15
-    pkgco.py MuonSelectorTools-00-05-39
 elif [ "AthAnalysisBase" = $AtlasProject ]; then 
-    cmt co -r MuonPerformanceAlgs-00-00-65 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs
+    cmt co -r MuonPerformanceAlgs-00-00-62 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs
     cmt co -r MuonPerformanceHistUtils-00-00-26 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceHistUtils
-    cmt co -r MuonTPTools-00-00-47 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonTPTools
+    cmt co -r MuonTPTools-00-00-44 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonTPTools
     cmt co -r MuonPtCalibNtupleMaker-00-00-15 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPtCalibNtupleMaker
-    cmt co -r MuonSelectorTools-00-05-39 PhysicsAnalysis/MuonID/MuonSelectorTools
 
     # stuff not there in AthAnalysisBase,2.4.21
     cmt co -r TrkValHistUtils-00-01-15 Tracking/TrkValidation/TrkValHistUtils

@@ -1,18 +1,4 @@
-# MuonTP_topOptions.py
-#
-# Massimiliano Bellomo
-# July 2014
-#
-# Example job option for running tag-and-probe tools in Athena from xAOD
-#
-
-
-#Specify input file.
-
-#InputAODList = []
-#if not "pandaJob" in globals() and not  "FNAME" in globals():
-
-
+# runs both the Tag&Probe and the pt calibration ntuple generation.
 
 from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
@@ -115,9 +101,14 @@ if "DOEFF" in  globals():
 IncludeMinCuts=False
 if "MINCUTS" in  globals():
     IncludeMinCuts = MINCUTS
-outfilename = "muontp.root"
-if "OUTPUTFILE" in globals():
-    outfilename = OUTPUTFILE
+
+outfilename_TP = "muontp.root"
+if "OUTPUTFILE_TP" in globals():
+    outfilename_TP = OUTPUTFILE_TP
+
+outfilename_SCALE = "muonscale.root"
+if "OUTPUTFILE_SCALE" in globals():
+    outfilename_SCALE = OUTPUTFILE_SCALE
 # optional override for local testing
 grl=''
 if "GRL" in  globals():
@@ -138,14 +129,21 @@ from MuonPerformanceAlgs import MuonTPFlags
 from MuonPerformanceAlgs.MuonTPFlags import MuonTPFlags
 from AthenaCommon.JobProperties import jobproperties
 mtf = jobproperties.MuonTPFlags
-mtf.outputFilename = outfilename
+mtf.outputFilename = outfilename_TP
 mtf.doPlots = doPlots
 mtf.doEff = doEff
 mtf.GRL = grl
 mtf.IncludeMinimalCutTree = IncludeMinCuts
 
 include("MuonPerformanceAlgs/MuonTP_AnalysisAlgs.py")
-# 
+
+from MuonPtCalibNtupleMaker import MuonPtCalibNtupleMaker_Flags
+from MuonPtCalibNtupleMaker.MuonPtCalibNtupleMaker_Flags import MuonPtCalibNtupleMaker_Flags
+
+ptcalibflags = jobproperties.MuonPtCalibNtupleMaker_Flags
+ptcalibflags.outputFilename = outfilename_SCALE
+
+include("MuonPtCalibNtupleMaker/MuonPtCalibNtupleMaker_AnalysisAlgs.py")
 
 
 

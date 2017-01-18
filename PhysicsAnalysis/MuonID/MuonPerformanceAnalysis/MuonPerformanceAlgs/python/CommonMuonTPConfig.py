@@ -19,7 +19,7 @@ def AddMuonTPMetaAlg():
     return getattr(job, "MuonTPMetaDataAlg")
     
 # add an instance of the TP Algorithm
-def AddTagProbeAlg(name, ProbeCont, MatchCont):
+def AddTagProbeAlg(name, ProbeCont):
     AddMuonTPMetaAlg()
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.AppMgr import ToolSvc
@@ -30,7 +30,6 @@ def AddTagProbeAlg(name, ProbeCont, MatchCont):
     thisAlg = MuonTPAlg(name)
     thisAlg.TagContainerName   = MuonContainerToUse
     thisAlg.ProbeContainerName = ProbeCont
-    thisAlg.MatchContainerName = MatchCont
     job += thisAlg
     return thisAlg
 
@@ -51,6 +50,18 @@ def GetBadMuonEventVetoHelper():
         tool.MuonContainer = GetRightMuonContainer()
         ToolSvc += tool
     return getattr(ToolSvc, "BadMuonVetoHelperTool")
+
+def GetVertexHelper():
+    from MuonTPTools.MuonTPToolsConf import MuonTPVertexHelper
+    from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon import CfgMgr
+    if not hasattr(ToolSvc, "MuonTPVertexHelper"):
+        tool = CfgMgr.MuonTPVertexHelper("MuonTPVertexHelper")
+        tool.VertexContainer = "MUON1JpsiCandidates"
+        from AthenaCommon.Constants import INFO
+        tool.OutputLevel=INFO
+        ToolSvc += tool
+    return getattr(ToolSvc, "MuonTPVertexHelper")
 
 def GetJetCleaningTool(WorkingPoint):
     from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
@@ -95,6 +106,10 @@ def GetMuonSelectionTool(specialoptions=[]):
         tool = CP__MuonSelectionTool("TagProbeMuonSelectionTool"+"_".join(specialoptions))
         for option in specialoptions:
             setattr(tool,option,True)
+        tool.OutputLevel=INFO
+        # get rid of spam if we turn off certain ID cuts
+        if len(specialoptions) > 0:
+            tool.OutputLevel = ERROR
         tool.MaxEta = 99.  # don't cut on eta in this tool
         tool.ExpertDevelopMode=True  # Make the tool slightly less hysterical if we turn off cuts
         tool.OutputLevel=INFO
@@ -115,7 +130,7 @@ def GetFSRTool():
     if not hasattr(ToolSvc,"FSRTool"):
         from FsrUtils.FsrUtilsConf  import FSR__FsrPhotonTool
         FSRTool = FSR__FsrPhotonTool("FSRTool")
-        FSRTool.IsolationSelectionTool = AddIsolationSelectionTool("Loose", "Cone20")
+        FSRTool.IsolationSelectionTool = AddIsolationSelectionTool("Loose", "FixedCutTightCaloOnly")
         ToolSvc += FSRTool
     return ToolSvc.FSRTool
 
@@ -141,7 +156,6 @@ def GetTrackIsolationTool():
         TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
         ToolSvc += TrackIsoTool
     return ToolSvc.TrackIsoTool
-
 def GetCaloIsolationTool():
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc,"CaloIsoTool"):
@@ -178,7 +192,8 @@ def GetIDTrackCaloDepositsDecorator():
     if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
         from MuonTPTools.MuonTPToolsConf import IDTrackCaloDepositsDecoratorTool
         DecoTool = IDTrackCaloDepositsDecoratorTool("IDTrackCaloDepositsDecoratorTool")
-        DecoTool.TrackDepositInCaloTool = GetTrackDepositInCaloTool()
+        if hasattr(DecoTool, "TrackDepositInCaloTool"):
+            DecoTool.TrackDepositInCaloTool = GetTrackDepositInCaloTool()
         ToolSvc += DecoTool
     return ToolSvc.IDTrackCaloDepositsDecoratorTool
 
@@ -187,8 +202,9 @@ def GetIDTrackIsolationDecoratorTool():
     if not hasattr(ToolSvc,"IDTrackIsolationDecoratorTool"):
         from MuonTPTools.MuonTPToolsConf import IDTrackIsolationDecoratorTool
         DecoTool = IDTrackIsolationDecoratorTool("IDTrackIsolationDecoratorTool")
-        DecoTool.TrackIsolationTool = GetTrackIsolationTool()
-        DecoTool.CaloIsolationTool = GetCaloIsolationTool()
+        if hasattr(DecoTool,"TrackIsolationTool") and hasattr(DecoTool,"CaloIsolationTool"):
+            DecoTool.TrackIsolationTool = GetTrackIsolationTool()
+            DecoTool.CaloIsolationTool = GetCaloIsolationTool()
 #         from AthenaCommon.Constants import WARNING
 #         DecoTool.OutputLevel = DEBUG
         ToolSvc += DecoTool
@@ -273,7 +289,7 @@ def AddPlottingTool(name, EffiFlag, applySF=False, DoProbeMatchPlots=False, Prod
     return thetool
 
 # Add a tree filling tool
-def AddTreeTool (name, EffiFlag,WriteSFInfo=False,IsRunOnDAOD=False):
+def AddTreeTool (name, EffiFlag,WriteSFInfo=False,IsRunOnDAOD=False,DoJpsiVertexInfo=False):
     from AthenaCommon.AppMgr import ToolSvc
     from MuonTPTools.MuonTPToolsConf import DiMuonTPTreeTool
     thetool = DiMuonTPTreeTool(name)
@@ -284,7 +300,9 @@ def AddTreeTool (name, EffiFlag,WriteSFInfo=False,IsRunOnDAOD=False):
     thetool.TriggerUtils = GetTrigUtils()
     thetool.FSRPhotonTool = GetFSRTool()
     thetool.IsRunOnDAOD = IsRunOnDAOD
+    thetool.DoJpsiVertexInfo = DoJpsiVertexInfo
     thetool.BadMuonVetoHelper = GetBadMuonEventVetoHelper()
+    thetool.VertexHelper =  GetVertexHelper()
 
     from AthenaCommon.GlobalFlags import globalflags
     thetool.AddTruthMatching = not globalflags.DataSource()=='data'
@@ -487,7 +505,7 @@ def AddJPsiTPSelectionTool (name, EffiFlag, ProbeType, SameSign=False, AntiIso=F
     from MuonTPTools.MuonTPToolsConf import DiMuonTPSelectionTool
     thetool = DiMuonTPSelectionTool(name)
     thetool.IsNotIncludedInNominal = False
-    thetool.IsRunOnDAOD=IsRunOnDAOD
+    thetool.IsRunOnDAOD = IsRunOnDAOD
     thetool.DecorateProbeWithCaloDeposits = DecorateProbeWithCaloDeposits
 
     # Try to add the isolation updater tools (only works in full athena!)
@@ -656,12 +674,13 @@ def AddHighPtSingleMuonSelectionTool (name, EffiFlag, ProbeType,IsRunOnDAOD=Fals
 
 
 # Add a reco efficiency tool
-def AddMuonRecoTPEfficiencyTool (name, EffiFlag,doClosure=False, IsNominal = True):
+def AddMuonRecoTPEfficiencyTool (name, EffiFlag, MatchCont, doClosure=False, IsNominal = True):
     from AthenaCommon.AppMgr import ToolSvc
     from MuonTPTools.MuonTPToolsConf import MuonRecoTPEfficiencyTool
     thetool = MuonRecoTPEfficiencyTool(name)
     thetool.IsNominal = IsNominal
     thetool.MuonAuthor = 21
+    thetool.MatchContainerName = MatchCont
     thetool.MatchToAnyMS = False
     thetool.MatchToCB = False
     thetool.MatchToLoose = False

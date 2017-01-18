@@ -3,17 +3,17 @@
 
 # check for AtlasDerivation vs. AthAnalysis
 if [ "AtlasDerivation" = $AtlasProject ]; then
-    pkgco.py MuonPerformanceAlgs-00-00-65
+    pkgco.py MuonPerformanceAlgs-00-00-63
     pkgco.py MuonPerformanceHistUtils-00-00-26
-    pkgco.py MuonTPTools-00-00-47
+    pkgco.py MuonTPTools-00-00-45
     pkgco.py MuonPtCalibNtupleMaker-00-00-15
-    pkgco.py MuonSelectorTools-00-05-39
+    pkgco.py MuonSelectorTools-00-05-38
 elif [ "AthAnalysisBase" = $AtlasProject ]; then 
-    cmt co -r MuonPerformanceAlgs-00-00-65 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs
+    cmt co -r MuonPerformanceAlgs-00-00-63 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs
     cmt co -r MuonPerformanceHistUtils-00-00-26 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceHistUtils
-    cmt co -r MuonTPTools-00-00-47 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonTPTools
+    cmt co -r MuonTPTools-00-00-45 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonTPTools
     cmt co -r MuonPtCalibNtupleMaker-00-00-15 PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPtCalibNtupleMaker
-    cmt co -r MuonSelectorTools-00-05-39 PhysicsAnalysis/MuonID/MuonSelectorTools
+    cmt co -r MuonSelectorTools-00-05-38 PhysicsAnalysis/MuonID/MuonSelectorTools
 
     # stuff not there in AthAnalysisBase,2.4.21
     cmt co -r TrkValHistUtils-00-01-15 Tracking/TrkValidation/TrkValHistUtils
