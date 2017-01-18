@@ -29,8 +29,8 @@ class MvaTESVariableDecorator
   const xAOD::EventInfo* m_xEventInfo;  //!
   const xAOD::VertexContainer* m_xVertexContainer; //!
   int m_mu; //!
-  int m_nVtx; //!
-  
+  int m_nVtxPU; //!
+  bool m_emitVertexWarning=true; //!
   
 };
 

@@ -10,10 +10,12 @@
 // local include(s)
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 
+
 //Root includes(s)
 #include "TH1F.h"
 #include "TH1.h"
 #include "TFile.h"
+#include "TGraph.h"
 
 //C++ includes
 #include <math.h>
@@ -37,19 +39,31 @@ CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) :
 //_____________________________________________________________________________
 StatusCode CombinedP4FromRecoTaus::initialize() {
 
-  m_resHists_tauRec = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );
+  /*m_resHists_tauRec = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );
   m_resHists_CellBased2PanTau = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );   
   m_meanHists_CellBased2PanTau = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );
-  m_meanHists_tauRec = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );
-  //m_correlationHists = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );
+  m_meanHists_tauRec = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );*/
+
+  m_resTGraph_tauRec = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );
+  m_resTGraph_CellBased2PanTau = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );   
+  m_meanTGraph_CellBased2PanTau = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );
+  m_meanTGraph_tauRec = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );
+
   m_correlationHists = std::vector<TH1F*>(0);
 
   
   std::string calibFilePath = find_file(m_sWeightFileName);
   TFile * file = TFile::Open(calibFilePath.c_str(), "READ");
 
+  //m_Nsigma_compatibility=5;
+  m_Nsigma_compatibility=TF1("Nsigma_compatibility", "pol1", 0, 500000); // needs to go beyond ~420 where it crosses y=0
+  m_Nsigma_compatibility.SetParameter(0, 3.809); // derived from fit
+  m_Nsigma_compatibility.SetParameter(1, -9.58/1000000.); // derived from fit
+
   TH1F* histogram(0);
   std::string histname="";
+  TGraph* Graph(0);
+  std::string Graphname="";
 
 
   //loop over decay modes
@@ -68,7 +82,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
     }
   }
 
-      
+
   //loop over eta bins
   for(int ietaBin=0;ietaBin < abs(m_etaBinNames.size()); ietaBin++){
   
@@ -78,50 +92,75 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
       ATH_MSG_DEBUG("eta bin = " << ietaBin << " / mode = " << imode );
       
       //Get m_resHists_tauRec
-      histname = "tauRec/ResolutionEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
+      /*histname = "tauRec/ResolutionEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
       if(histogram){
 	m_resHists_tauRec[ietaBin].push_back(histogram);
-	ATH_MSG_DEBUG("Adding hist: ");
-	//histogram->Print("all");
+	ATH_MSG_DEBUG("Adding hist: ");*/
+      Graphname = "tauRec/Graph_from_ResolutionEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
+      Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
+      if(Graph){
+	m_resTGraph_tauRec[ietaBin].push_back(Graph);
+	ATH_MSG_DEBUG("Adding graph: ");
+	  //histogram->Print("all");
       } else {
-       	ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
+       	//ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
+       	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
 	return StatusCode::FAILURE;
       }
 
       //Get m_meanHists_tauRec
-      histname = "tauRec/MeanEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
+      /*histname = "tauRec/MeanEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
       if(histogram) {
 	m_meanHists_tauRec[ietaBin].push_back(histogram);
-	ATH_MSG_DEBUG("Adding hist: ");
-	//histogram->Print("all"); 
+	ATH_MSG_DEBUG("Adding hist: ");*/
+
+      Graphname = "tauRec/Graph_from_MeanEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
+      Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
+      if(Graph) {
+	m_meanTGraph_tauRec[ietaBin].push_back(Graph);
+	ATH_MSG_DEBUG("Adding graph: ");
+	  //histogram->Print("all"); 
       } else {
-       	ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
+       	//ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
+       	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
       
       //Get m_resHists_CellBased2PanTau
-      histname = "ConstituentEt/ResolutionEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
+      /*histname = "ConstituentEt/ResolutionEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
       if(histogram){
 	m_resHists_CellBased2PanTau[ietaBin].push_back(histogram);
-	ATH_MSG_DEBUG("Adding hist: ");
+	ATH_MSG_DEBUG("Adding hist: ");*/
+      Graphname = "ConstituentEt/Graph_from_ResolutionEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
+      Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
+      if(Graph){
+	m_resTGraph_CellBased2PanTau[ietaBin].push_back(Graph);
+	ATH_MSG_DEBUG("Adding graph: ");
 	//histogram->Print("all"); 
       } else {
-	ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
+	//ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
+	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
       
       //Get m_meanHists_CellBased2PanTau
-      histname = "ConstituentEt/MeanEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
+      /*histname = "ConstituentEt/MeanEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
       if(histogram){
 	m_meanHists_CellBased2PanTau[ietaBin].push_back(histogram);
-	ATH_MSG_DEBUG("Adding hist: ");
+	ATH_MSG_DEBUG("Adding hist: ");*/
+      Graphname = "ConstituentEt/Graph_from_MeanEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
+      Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
+      if(Graph){
+	m_meanTGraph_CellBased2PanTau[ietaBin].push_back(Graph);
+	ATH_MSG_DEBUG("Adding graph: ");
 	//histogram->Print("all"); 
       } else {
-       	ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
+       	//ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
+       	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
       
@@ -137,37 +176,24 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 //_____________________________________________________________________________
 StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   xAOD::TauJet* Tau = &xTau;
-  int tmpDecayMode;
-  static SG::AuxElement::Accessor<float> decPtCombined("pt_combined");
-  static SG::AuxElement::Accessor<float> decEtaCombined("eta_combined");
-  static SG::AuxElement::Accessor<float> decPhiCombined("phi_combined");
-  static SG::AuxElement::Accessor<float> decMCombined("m_combined");
+  static SG::AuxElement::Decorator<float> decPtCombined("pt_combined");
+  static SG::AuxElement::Decorator<float> decEtaCombined("eta_combined");
+  static SG::AuxElement::Decorator<float> decPhiCombined("phi_combined");
+  static SG::AuxElement::Decorator<float> decMCombined("m_combined");
 
   decPtCombined(xTau) = 0;
   decEtaCombined(xTau) = 0;
   decPhiCombined(xTau) = 0;
   decMCombined(xTau) = 0;
   
-  xTau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode);
-  if(tmpDecayMode>xAOD::TauJetParameters::Mode_3pXn){
-    return StatusCode::SUCCESS;
-  }
-
-  if (xTau.ptPanTauCellBased() < 0)
-  {
-    ATH_MSG_DEBUG("ptPanTauCellBased is less than 0!");
-    return StatusCode::SUCCESS;
-  }
-
-  TLorentzVector substructureP4 = getCombinedP4(Tau);
-
-  //  ATH_MSG_INFO("combinedP4: " << substructureP4.Pt() );
+  TLorentzVector CombinedP4 = getCombinedP4(Tau);
 
   // create xAOD variables and fill:
-  decPtCombined(xTau) = substructureP4.Pt();
-  decEtaCombined(xTau) = substructureP4.Eta();
-  decPhiCombined(xTau) = substructureP4.Phi();
-  decMCombined(xTau) = substructureP4.M();  
+  decPtCombined(xTau) = CombinedP4.Pt();
+  decEtaCombined(xTau) = CombinedP4.Eta();
+  decPhiCombined(xTau) = CombinedP4.Phi();
+  decMCombined(xTau) = CombinedP4.M();  
+
 
   // move these to another file? :
   m_weight = -1111.;
@@ -176,42 +202,45 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   m_sigma_constituent = -1111.;
   m_corrcoeff = -1111.;
 
+  TLorentzVector substructureP4;
+
   if (m_addCalibrationResultVariables){
+
     substructureP4 = getCalibratedConstituentP4(Tau);
-    static SG::AuxElement::Accessor<float> decPtConstituent("pt_constituent");
-    static SG::AuxElement::Accessor<float> decEtaConstituent("eta_constituent");
-    static SG::AuxElement::Accessor<float> decPhiConstituent("phi_constituent");
-    static SG::AuxElement::Accessor<float> decMConstituent("m_constituent");
+    static SG::AuxElement::Decorator<float> decPtConstituent("pt_constituent");
+    static SG::AuxElement::Decorator<float> decEtaConstituent("eta_constituent");
+    static SG::AuxElement::Decorator<float> decPhiConstituent("phi_constituent");
+    static SG::AuxElement::Decorator<float> decMConstituent("m_constituent");
     decPtConstituent(xTau)  = substructureP4.Pt(); 
     decEtaConstituent(xTau) = substructureP4.Eta();
     decPhiConstituent(xTau) = substructureP4.Phi();
     decMConstituent(xTau)   = substructureP4.M();  
 
     substructureP4 = getCalibratedTauRecP4(Tau);
-    static SG::AuxElement::Accessor<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
-    static SG::AuxElement::Accessor<float> decEtaTauRecCalibrated("eta_tauRecCalibrated");
-    static SG::AuxElement::Accessor<float> decPhiTauRecCalibrated("phi_tauRecCalibrated");
-    static SG::AuxElement::Accessor<float> decMTauRecCalibrated("m_tauRecCalibrated");
+    static SG::AuxElement::Decorator<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
+    static SG::AuxElement::Decorator<float> decEtaTauRecCalibrated("eta_tauRecCalibrated");
+    static SG::AuxElement::Decorator<float> decPhiTauRecCalibrated("phi_tauRecCalibrated");
+    static SG::AuxElement::Decorator<float> decMTauRecCalibrated("m_tauRecCalibrated");
     decPtTauRecCalibrated(xTau)  = substructureP4.Pt(); 
     decEtaTauRecCalibrated(xTau) = substructureP4.Eta();
     decPhiTauRecCalibrated(xTau) = substructureP4.Phi();
     decMTauRecCalibrated(xTau)   = substructureP4.M();  
 
     substructureP4 = getWeightedP4(Tau);
-    static SG::AuxElement::Accessor<float> decPtWeighted("pt_weighted");
-    static SG::AuxElement::Accessor<float> decEtaWeighted("eta_weighted");
-    static SG::AuxElement::Accessor<float> decPhiWeighted("phi_weighted");
-    static SG::AuxElement::Accessor<float> decMWeighted("m_weighted");
+    static SG::AuxElement::Decorator<float> decPtWeighted("pt_weighted");
+    static SG::AuxElement::Decorator<float> decEtaWeighted("eta_weighted");
+    static SG::AuxElement::Decorator<float> decPhiWeighted("phi_weighted");
+    static SG::AuxElement::Decorator<float> decMWeighted("m_weighted");
     decPtWeighted(xTau)  = substructureP4.Pt(); 
     decEtaWeighted(xTau) = substructureP4.Eta();
     decPhiWeighted(xTau) = substructureP4.Phi();
     decMWeighted(xTau)   = substructureP4.M();  
 
-    static SG::AuxElement::Accessor<float> decWeightWeighted("weight_weighted");
-    static SG::AuxElement::Accessor<float> decSigmaCombined("sigma_combined");
-    static SG::AuxElement::Accessor<float> decSigmaTaurec("sigma_tauRec");
-    static SG::AuxElement::Accessor<float> decSigmaConstituent("sigma_constituent");    
-    static SG::AuxElement::Accessor<float> decCorrelationCoefficient("correlation_coefficient");    
+    static SG::AuxElement::Decorator<float> decWeightWeighted("weight_weighted");
+    static SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
+    static SG::AuxElement::Decorator<float> decSigmaTaurec("sigma_tauRec");
+    static SG::AuxElement::Decorator<float> decSigmaConstituent("sigma_constituent");    
+    static SG::AuxElement::Decorator<float> decCorrelationCoefficient("correlation_coefficient");    
     decWeightWeighted(xTau)         = m_weight; 
     decSigmaCombined(xTau)          = m_combined_res;
     decSigmaTaurec(xTau)            = m_sigma_tauRec;
@@ -336,10 +365,10 @@ double CombinedP4FromRecoTaus::GetWeightedEt(double et_tauRec,
     ATH_MSG_WARNING( "bin_taurec = " << et_tauRec );
     ATH_MSG_WARNING( "bin_substruct = " << et_cb2PT );
     //int mode=GetIndex_Mode(mode);                                                                                                                                                                                                                                           
-    //    m_ResHists_tauRec[mode].Print("all");                                                                                                                                                                                                                               
-    m_resHists_tauRec[etaIndex][mode]->Print("all");
-    //    m_ResHists_CellBased2PanTau[mode].Print("all");                                                                                                                                                                                                                     
-    m_resHists_CellBased2PanTau[etaIndex][mode]->Print("all");
+    //m_resHists_tauRec[etaIndex][mode]->Print("all");
+    m_resTGraph_tauRec[etaIndex][mode]->Print("all");
+    //m_resHists_CellBased2PanTau[etaIndex][mode]->Print("all");
+    m_resTGraph_CellBased2PanTau[etaIndex][mode]->Print("all");
     return 0.;
   }
 
@@ -369,12 +398,27 @@ double CombinedP4FromRecoTaus::GetResolution_taurec( double et, int etaIndex, xA
     return 0.;
   }
   
-  int bin_taurec = m_resHists_tauRec[etaIndex][mode]->FindBin( et );
+  //Load file
+
+  /*int bin_taurec = m_resHists_tauRec[etaIndex][mode]->FindBin( et );
   if( bin_taurec > m_resHists_tauRec[etaIndex][mode]->GetNbinsX() ) bin_taurec=m_resHists_tauRec[etaIndex][mode]->GetNbinsX();
   if( bin_taurec < 1 ) bin_taurec=1; 
   ATH_MSG_DEBUG("GetResolution_taurec: " << m_resHists_tauRec[etaIndex][mode]->GetBinContent( bin_taurec ) );
-  return m_resHists_tauRec[etaIndex][mode]->GetBinContent( bin_taurec ) * et;
+  return m_resHists_tauRec[etaIndex][mode]->GetBinContent( bin_taurec ) * et;*/
+  
+  /*TGraph* m_resTGraph_tauRec;
+  m_resTGraph_tauRec = TGraph(m_resHists_tauRec[etaIndex][mode]);
+  double MaxEt = TMath::MaxElement(m_resTGraph_tauRec->GetN(),m_resTGraph_tauRec->GetX());
+  if (et > MaxEt){
+    return m_resTGraph_tauRec->Eval(MaxEt) * et;;
+  }
+  return m_resTGraph_tauRec->Eval(et) * et;*/
 
+  double MaxEt = TMath::MaxElement(m_resTGraph_tauRec[etaIndex][mode]->GetN(),m_resTGraph_tauRec[etaIndex][mode]->GetX()); 
+  if (et > MaxEt){
+    return m_resTGraph_tauRec[etaIndex][mode]->Eval(MaxEt) * et;;
+  }
+  return m_resTGraph_tauRec[etaIndex][mode]->Eval(et) * et;
 }
  
 
@@ -389,15 +433,20 @@ double CombinedP4FromRecoTaus::GetResolution_CellBased2PanTau( double et, int et
     return 0.;
   }
   
-  int bin_substruct = m_resHists_CellBased2PanTau[etaIndex][mode]->FindBin( et );
+  /*int bin_substruct = m_resHists_CellBased2PanTau[etaIndex][mode]->FindBin( et );
   if( bin_substruct > m_resHists_CellBased2PanTau[etaIndex][mode]->GetNbinsX() ) bin_substruct=m_resHists_CellBased2PanTau[etaIndex][mode]->GetNbinsX();
   if( bin_substruct < 1 ) {
     bin_substruct=1;
     ATH_MSG_DEBUG("bin_substruct < 1 . Set to 1!");
   }
   ATH_MSG_DEBUG( "GetResolution_CellBased2PanTau: " << m_resHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ));
-  return m_resHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ) * et;
-
+  return m_resHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ) * et;*/
+  
+  double MaxEt = TMath::MaxElement(m_resTGraph_CellBased2PanTau[etaIndex][mode]->GetN(),m_resTGraph_CellBased2PanTau[etaIndex][mode]->GetX()); 
+  if (et > MaxEt){
+    return m_resTGraph_CellBased2PanTau[etaIndex][mode]->Eval(MaxEt) * et;;
+  }
+  return m_resTGraph_CellBased2PanTau[etaIndex][mode]->Eval(et) * et;
 }
  
  
@@ -412,18 +461,17 @@ double CombinedP4FromRecoTaus::GetMean_CellBased2PanTau( double et, int etaIndex
     return 0.;
   }
 
-  int bin_substruct = m_meanHists_CellBased2PanTau[etaIndex][mode]->FindBin( et );
+  /*int bin_substruct = m_meanHists_CellBased2PanTau[etaIndex][mode]->FindBin( et );
   if( bin_substruct > m_meanHists_CellBased2PanTau[etaIndex][mode]->GetNbinsX() ) return 0.; // bin_substruct=m_meanHists_CellBased2PanTau[etaIndex][mode]->GetNbinsX();
   if( bin_substruct < 1 ) return 0.; //bin_substruct=1;
   ATH_MSG_DEBUG( "MeanHists_CellBased2PanTau: " << m_meanHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ));
+  return m_meanHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ) * et;*/
 
-  // return the uncalibrated ET for the track-only modes:
-  if( mode == xAOD::TauJetParameters::Mode_1p0n || mode == xAOD::TauJetParameters::Mode_3p0n ){
-    return 0.;
+  double MaxEt = TMath::MaxElement(m_meanTGraph_CellBased2PanTau[etaIndex][mode]->GetN(),m_meanTGraph_CellBased2PanTau[etaIndex][mode]->GetX()); 
+  if (et > MaxEt){
+    return 0;
   }
-
-  return m_meanHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ) * et;
-
+  return m_meanTGraph_CellBased2PanTau[etaIndex][mode]->Eval(et) * et;
 }
  
  
@@ -438,11 +486,17 @@ double CombinedP4FromRecoTaus::GetMean_TauRec( double et, int etaIndex, xAOD::Ta
     return 0.;
   }
     
-  int bin_tauRec = m_meanHists_tauRec[etaIndex][mode]->FindBin( et );
+  /*int bin_tauRec = m_meanHists_tauRec[etaIndex][mode]->FindBin( et );
   if( bin_tauRec > m_meanHists_tauRec[etaIndex][mode]->GetNbinsX() ) return 0.; //bin_tauRec=m_meanHists_tauRec[etaIndex][mode]->GetNbinsX();
   if( bin_tauRec < 1 ) return 0.; //bin_tauRec=1;
   ATH_MSG_DEBUG("MeanHists_tauRec: " << m_meanHists_tauRec[etaIndex][mode]->GetBinContent( bin_tauRec ) );
-  return m_meanHists_tauRec[etaIndex][mode]->GetBinContent( bin_tauRec ) * et;
+  return m_meanHists_tauRec[etaIndex][mode]->GetBinContent( bin_tauRec ) * et;*/
+
+  double MaxEt = TMath::MaxElement(m_meanTGraph_tauRec[etaIndex][mode]->GetN(),m_meanTGraph_tauRec[etaIndex][mode]->GetX()); 
+  if (et > MaxEt){
+    return 0;
+  }
+  return m_meanTGraph_tauRec[etaIndex][mode]->Eval(et) * et;
 }
  
  
@@ -509,7 +563,7 @@ double CombinedP4FromRecoTaus::getCombinedEt(double et_tauRec,
   int etaIndex = GetIndex_Eta(eta);
   ATH_MSG_DEBUG("Eta = " << eta << " , eta bin = " << etaIndex );
   if(etaIndex == 99){
-    ATH_MSG_DEBUG( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//is this a warning?
+    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//is this a warning?
     return et_substructure;
   }
 
@@ -517,12 +571,13 @@ double CombinedP4FromRecoTaus::getCombinedEt(double et_tauRec,
   ATH_MSG_DEBUG( "GetWeightedEt: " << et_reco );
   double combined_res = GetCombinedResolution( et_tauRec, et_substructure, etaIndex, mode );
   ATH_MSG_DEBUG( "Combined_resolution: " << combined_res );
+  ATH_MSG_DEBUG( GetNsigma_Compatibility(et_tauRec) << "*Combined_resolution: " << GetNsigma_Compatibility(et_tauRec)*combined_res);
   double et_diff = GetTauRecEt( et_tauRec, etaIndex, mode) - GetCellbased2PantauEt( et_substructure, etaIndex, mode );
   ATH_MSG_DEBUG( "et_diff (GetTauRecEt - GetCellb2PEt): " << et_diff );
 
   m_combined_res = combined_res;
 
-  if( fabs( et_diff ) > 5*combined_res ) {
+  if( fabs( et_diff ) > GetNsigma_Compatibility(et_tauRec)*combined_res) {
     /*    
 	  if( mode == RecoTypes::t_3p0n){
 	  // *fillOK = false;
@@ -534,7 +589,6 @@ double CombinedP4FromRecoTaus::getCombinedEt(double et_tauRec,
     et_reco = et_tauRec;
     m_tauRecEt_takenAs_combinedEt = true;
     ATH_MSG_DEBUG( "(Boolean)m_tauRecEt_takenAs_combinedEt is set to:"  <<  m_tauRecEt_takenAs_combinedEt );
-    ATH_MSG_DEBUG( "fabs( et_diff ) > 5*combined_resolution !" );
     //    }
   }
   return et_reco;
@@ -576,17 +630,38 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
   //const TLorentzVector& tauRecP4 = tau->p4();
   TLorentzVector tauRecP4;
   tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
-  //  TLorentzVector substructureP4 = getConstituentsP4(tau);
-  TLorentzVector substructureP4;
-  substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
-  ATH_MSG_DEBUG( "ConstituentET: " << substructureP4.Et() );
-  ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
+
   xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
   int tmpDecayMode;
   if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
+
   ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
+  int numTracks = tau->nTracks();
+  ATH_MSG_DEBUG( "Number of tracks: " << numTracks );
+
+
+  //Return tauRec P4 if tau is no pantau candidate
+  int isPanTauCandidate;  
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
+  ATH_MSG_DEBUG( "is tau PanTau candidate = " << isPanTauCandidate );
+  if (isPanTauCandidate == 0) {
+    return tauRecP4;
+  }
+
+  //Return tauRec P4 if pantau decay mode is unequal 1P or 3P
+  int DecayMode;
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, DecayMode);
+  if(DecayMode>xAOD::TauJetParameters::Mode_3pXn){
+    return tauRecP4;
+  }
+
+  //  TLorentzVector substructureP4 = getConstituentsP4(tau);
+  TLorentzVector substructureP4;
+  substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
+  ATH_MSG_DEBUG( "ConstituentET: " << substructureP4.Et() );
+  ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
 
   //double combinedEt = getCombinedEt(tauRecP4.Et(), substructureP4.Et(), tau->Eta(), decayMode);
   double combinedEt = getCombinedEt(tauRecP4.Et(), substructureP4.Et(), tauRecP4.Eta(), decayMode);
@@ -607,6 +682,10 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
   ATH_MSG_DEBUG( "combinedPt: " << combinedPt );
 
   combinedP4.SetPtEtaPhiM(combinedPt, substructureP4.Eta(), substructureP4.Phi(), combinedM);
+  if (combinedPt < 15){
+    std::cout << "ERROR pt is zero" << std::endl;
+  }
+
   return combinedP4;
 }
 
@@ -614,16 +693,13 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
 TLorentzVector CombinedP4FromRecoTaus::getCalibratedConstituentP4(const xAOD::TauJet* tau) {
 
   ATH_MSG_DEBUG( "In CombinedP4FromRecoTaus::getCalibratedConstituentP4..." );
-
-  //const TLorentzVector& tauRecP4 = tau->p4();
   TLorentzVector tauRecP4;
   tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
-  //  TLorentzVector substructureP4 = getConstituentsP4(tau);
+
   TLorentzVector substructureP4;
   substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
 
   ATH_MSG_DEBUG( "ConstituentET: " << substructureP4.Et() );
-  ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
 
   xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
   int tmpDecayMode;
@@ -631,13 +707,26 @@ TLorentzVector CombinedP4FromRecoTaus::getCalibratedConstituentP4(const xAOD::Ta
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
   ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
+  int numTracks = tau->nTracks();
+  ATH_MSG_DEBUG( "Number of tracks: " << numTracks );
+
+  int DecayMode;
+  int isPanTauCandidate;  
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
+  ATH_MSG_DEBUG( "is tau PanTau candidate = " << isPanTauCandidate );
+  if (isPanTauCandidate == 0) {
+    return substructureP4;
+  }
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, DecayMode);
+  if(DecayMode>xAOD::TauJetParameters::Mode_3pXn){
+    return substructureP4;
+  }
 
   float eta = tauRecP4.Eta();
-
   int etaIndex = GetIndex_Eta(eta);
   ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
   if(etaIndex == 99){
-    ATH_MSG_DEBUG( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//warning?
+    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//warning?
     return substructureP4;
   }
 
@@ -652,14 +741,12 @@ TLorentzVector CombinedP4FromRecoTaus::getCalibratedConstituentP4(const xAOD::Ta
   p4.SetPtEtaPhiM(pt, substructureP4.Eta(), substructureP4.Phi(), substructureP4.M());
 
   return p4;
-
 }
 
 TLorentzVector CombinedP4FromRecoTaus::getCalibratedTauRecP4(const xAOD::TauJet* tau) {
 
   ATH_MSG_DEBUG( "In CombinedP4FromRecoTaus::getCalibratedTauRecP4..." );
 
-  //const TLorentzVector& tauRecP4 = tau->p4();
   TLorentzVector tauRecP4;
   tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
   //  TLorentzVector substructureP4 = getConstituentsP4(tau);
@@ -671,14 +758,27 @@ TLorentzVector CombinedP4FromRecoTaus::getCalibratedTauRecP4(const xAOD::TauJet*
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
   ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
+  int numTracks = tau->nTracks();
+  ATH_MSG_DEBUG( "Number of tracks: " << numTracks );
+
+  int DecayMode;
+  int isPanTauCandidate;  
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
+  ATH_MSG_DEBUG( "is tau PanTau candidate = " << isPanTauCandidate );
+  if (isPanTauCandidate == 0) {
+    return tauRecP4;
+  }
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, DecayMode);
+  if(DecayMode>xAOD::TauJetParameters::Mode_3pXn){
+    return tauRecP4;
+  }
 
   float eta = tauRecP4.Eta();
-
   int etaIndex = GetIndex_Eta(eta);
   ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
 
   if(etaIndex == 99){
-    ATH_MSG_DEBUG( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
+    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
     return tauRecP4;
   }
 
@@ -691,7 +791,6 @@ TLorentzVector CombinedP4FromRecoTaus::getCalibratedTauRecP4(const xAOD::TauJet*
   p4.SetPtEtaPhiM(pt, tauRecP4.Eta(), tauRecP4.Phi(), tauRecP4.M());
 
   return p4;
-
 }
 
 TLorentzVector CombinedP4FromRecoTaus::getWeightedP4(const xAOD::TauJet* tau) {
@@ -712,14 +811,28 @@ TLorentzVector CombinedP4FromRecoTaus::getWeightedP4(const xAOD::TauJet* tau) {
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
   ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
+  int numTracks = tau->nTracks();
+  ATH_MSG_DEBUG( "Number of tracks: " << numTracks );
+
+  int DecayMode;
+  int isPanTauCandidate;  
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
+  ATH_MSG_DEBUG( "is tau PanTau candidate = " << isPanTauCandidate );
+  if (isPanTauCandidate == 0) {
+    return tauRecP4;
+  }
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, DecayMode);
+  if(DecayMode>xAOD::TauJetParameters::Mode_3pXn){
+    return tauRecP4;
+  }
+
 
   float eta = tauRecP4.Eta();
-
   int etaIndex = GetIndex_Eta(eta);
   ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
 
   if(etaIndex == 99){
-    ATH_MSG_DEBUG( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
+    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
     return substructureP4;
   }
 
@@ -731,6 +844,15 @@ TLorentzVector CombinedP4FromRecoTaus::getWeightedP4(const xAOD::TauJet* tau) {
   p4.SetPtEtaPhiM(pt, substructureP4.Eta(), substructureP4.Phi(), substructureP4.M());
 
   return p4;
-
 }
 
+
+//_____________________________________________________________________________
+float CombinedP4FromRecoTaus::GetNsigma_Compatibility(float et_TauRec){
+
+    float nsigma=m_Nsigma_compatibility.Eval(et_TauRec);
+
+    if(nsigma<0) return 0.;
+    return nsigma;
+
+  }

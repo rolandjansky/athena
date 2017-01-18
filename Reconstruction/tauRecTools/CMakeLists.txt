@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 779210 2016-10-19 12:38:55Z krasznaa $ 
+# $Id: CMakeLists.txt 791623 2017-01-10 02:38:48Z griffith $ 
 ################################################################################
 # Package: tauRecTools
 ################################################################################
@@ -124,4 +124,5 @@ endif()
 
 # Install files from the package:
 atlas_install_runtime( share/*.xml )
+atlas_install_runtime( share/*.root )
 atlas_install_data( share/* )

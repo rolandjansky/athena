@@ -14,7 +14,7 @@ MvaTESVariableDecorator::MvaTESVariableDecorator(const std::string& name)
   , m_xEventInfo(0)
   , m_xVertexContainer(0) 
   , m_mu(0)
-  , m_nVtx(0)
+  , m_nVtxPU(0)
 {
 }
 
@@ -29,13 +29,19 @@ StatusCode MvaTESVariableDecorator::eventInitialize()
   ATH_CHECK(evtStore()->retrieve(m_xEventInfo,"EventInfo"));
   m_mu = m_xEventInfo->averageInteractionsPerCrossing();
 
+  m_nVtxPU = 0;
   if(evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices")){
     ATH_CHECK(evtStore()->retrieve(m_xVertexContainer, "PrimaryVertices"));  
-    m_nVtx = (int)m_xVertexContainer->size();
+    for (auto xVertex : *m_xVertexContainer)
+    if (xVertex->vertexType() == xAOD::VxType::PileUp)
+      m_nVtxPU++;
   }
   else {
-    ATH_MSG_WARNING("No xAOD::VertexContainer, setting nVtx to 0");
-    m_nVtx=0;
+    if(m_emitVertexWarning) {
+      ATH_MSG_WARNING("No xAOD::VertexContainer, setting nVtxPU to 0");
+      m_emitVertexWarning=false;
+    }
+    m_nVtxPU=0;
   }
 
   return StatusCode::SUCCESS;
@@ -47,10 +53,10 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   // Decorate event info
   
   static SG::AuxElement::Accessor<double> acc_mu("mu");
-  static SG::AuxElement::Accessor<int> acc_nVtx("nVtx");
-    
+  static SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
+  
   acc_mu(xTau) = m_mu;
-  acc_nVtx(xTau) = m_nVtx;
+  acc_nVtxPU(xTau) = m_nVtxPU;
 
   // Decorate jet seed variables
   const xAOD::Jet* jet_seed = xTau.jet();
@@ -126,7 +132,10 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   
   //This should be available in EDM as of TauJet_v3
   //  TauAnalysisTools::createPi0Vectors(&xTau,Pi0PFOs);
-  for( size_t i=0; i !=  xTau.nPi0s(); ++i ) Pi0_totalP4+= xTau.pi0(i)->p4();
+  //for( size_t i=0; i !=  xTau.nPi0s(); ++i ) Pi0_totalP4+= xTau.pi0(i)->p4();
+  for(size_t i=0; i<xTau.nPi0PFOs(); i++){
+    Pi0_totalP4 += (TLorentzVector)xTau.pi0PFO(i)->p4();
+  };
   
   double Pi0_totalE = Pi0_totalP4.E();
   

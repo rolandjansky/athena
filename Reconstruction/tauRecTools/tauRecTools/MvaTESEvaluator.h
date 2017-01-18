@@ -36,7 +36,7 @@ class MvaTESEvaluator
     
   // MVA input variables (provide all variables in float)
   float mu; //!
-  float nVtx; //!
+  float nVtxPU; //!
     
   float center_lambda; //!
   float first_eng_dens; //!
@@ -47,16 +47,18 @@ class MvaTESEvaluator
   float interpolPt; //!
   float LC_D_interpolPt; //!
   float pantau_D_interpolPt;//!
-  float seedCalo_eta; //!
+  float etaPanTauCellBased; //!
     
   float nTracks; //!
-  float nPi0PFOs; //!
+  float nPi0s; //!
   float PFOEngRelDiff; //!
     
   float nMuSeg; //!
     
   // Spectators
   float truthPtVis; //!
+  float ptTauEtaCalib; //!
+  float ptPanTauCellBased; //!
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

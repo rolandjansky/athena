@@ -19,12 +19,18 @@
 #include "TClass.h"
 #include "TROOT.h"
 
+// NOTE: for some reason the code crashes when asking evtStore() whether it
+// contains the aux container, it does not crash when asking it about the
+// non-aux container first
 // precompiler macro for 
 #define DEEPCOPY(CONTAINER,NAME)                                        \
   {                                                                     \
   xAOD::CONTAINER##Container* pContainer(0);                            \
   xAOD::CONTAINER* v(0);                                                \
-  if (evtStore()->contains<xAOD::CONTAINER##AuxContainer>(#NAME)){      \
+  std::string sAuxContName=#NAME;                                       \
+  sAuxContName+="Aux.";                                                 \
+  if (evtStore()->contains<xAOD::CONTAINER##Container>(#NAME)           \
+      && evtStore()->contains<xAOD::CONTAINER##AuxContainer>(sAuxContName)){ \
     xAOD::CONTAINER##AuxContainer* pAuxContainer(0);                    \
     ATH_CHECK(deepCopy(pContainer, pAuxContainer, v, #NAME));           \
   } else {                                                              \

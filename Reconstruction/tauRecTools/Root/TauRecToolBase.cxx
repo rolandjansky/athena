@@ -17,7 +17,7 @@ std::string TauRecToolBase::find_file(const std::string& fname) const {
   std::string full_path;
   //offline calib files are in GroupData
   //online calib files are in release
-  if(inTrigger()==false) full_path = PathResolverFindCalibFile(m_tauRecToolsTag+"/"+fname);
+  full_path = PathResolverFindCalibFile(m_tauRecToolsTag+"/"+fname);
   if(full_path=="") full_path = PathResolverFindCalibFile(fname);
   return full_path;
 }

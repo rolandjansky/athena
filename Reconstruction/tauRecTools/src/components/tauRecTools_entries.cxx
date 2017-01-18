@@ -33,6 +33,7 @@
 #include "tauRecTools/TauPi0ClusterScaler.h"
 #include "tauRecTools/TauPi0ScoreCalculator.h"
 #include "tauRecTools/TauPi0Selector.h"
+#include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/DiTauDiscriminantTool.h"
 #include "tauRecTools/DiTauIDVarCalculator.h"
 
@@ -75,5 +76,6 @@ DECLARE_TOOL_FACTORY( TauCommonCalcVars          )
 DECLARE_TOOL_FACTORY( TauPi0ClusterScaler  )
 DECLARE_TOOL_FACTORY( TauPi0ScoreCalculator  )
 DECLARE_TOOL_FACTORY( TauPi0Selector        )
+DECLARE_TOOL_FACTORY( TauWPDecorator )
 DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, DiTauDiscriminantTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, DiTauIDVarCalculator )

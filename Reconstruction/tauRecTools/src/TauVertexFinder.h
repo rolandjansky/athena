@@ -49,7 +49,8 @@ public:
 
 private:
   float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const;
-        
+  // for online ATR-15665
+  float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks) const;      
   //-------------------------------------------------------------
   //! Convenience functions to handle storegate objects
   //-------------------------------------------------------------
@@ -64,6 +65,8 @@ private:
   float m_maxJVF;
   ToolHandle< InDet::IInDetTrackSelectionTool > m_TrackSelectionToolForTJVA;
 
+  // for online
+  std::vector<const xAOD::Vertex*> m_matchedVertexOnline;
   //-------------------------------------------------------------
   //! Configureables
   //-------------------------------------------------------------
@@ -71,6 +74,10 @@ private:
   std::string m_inputPrimaryVertexContainerName;
   std::string m_assocTracksName;
   std::string m_trackVertexAssocName;    
+  // for online ATR-15665
+  float m_transDistMax;
+  float m_longDistMax;
+  float m_maxZ0SinTheta;
 };
 
 #endif // not TAUREC_TAUVERTEXFINDER_H
