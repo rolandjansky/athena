@@ -106,10 +106,10 @@ void eflowLCCalibTool::apply(ToolHandle<CaloClusterCollectionProcessor>& calibTo
   if (myCalibProcessor) {
     if (myCalibProcessor->execute(cluster).isFailure()) {
       if (msgLvl(MSG::WARNING))
-        msg(MSG::WARNING) << "Could not execute " << calibTool.name() << endreq;
+        msg(MSG::WARNING) << "Could not execute " << calibTool.name() << endmsg;
     }
   } else if (msgLvl(MSG::WARNING))
-    msg(MSG::WARNING) << " dynamic_cast provided NULL pointer to CaloClusterProcessor " << endreq;
+    msg(MSG::WARNING) << " dynamic_cast provided NULL pointer to CaloClusterProcessor " << endmsg;
 }
 
 void eflowLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {

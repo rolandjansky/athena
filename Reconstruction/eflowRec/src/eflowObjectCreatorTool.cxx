@@ -52,7 +52,8 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_debug(0),
     m_LCMode(false),
     m_trackVertexAssociationTool(""),
-    m_vertexContainerName("PrimaryVertices")
+    m_vertexContainerName("PrimaryVertices"),
+    m_useAODReductionMomentList(false)
 {
   declareInterface<eflowObjectCreatorTool>(this);
   /* Name of  eflow Container to be created */
@@ -61,6 +62,7 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
   declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
   declareProperty("LCMode", m_LCMode, "Whether we are in LC or EM mode");
   declareProperty("TrackVertexAssociationTool", m_trackVertexAssociationTool);
+  declareProperty("UseAODReductionMomentList",m_useAODReductionMomentList);
 }
 
 StatusCode eflowObjectCreatorTool::initialize(){
@@ -68,7 +70,7 @@ StatusCode eflowObjectCreatorTool::initialize(){
   /* tool service */
   IToolSvc* myToolSvc;
   if ( service("ToolSvc",myToolSvc).isFailure() ) {
-    msg(MSG::WARNING) << " Tool Service Not Found" << endreq;
+    msg(MSG::WARNING) << " Tool Service Not Found" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -82,7 +84,7 @@ StatusCode eflowObjectCreatorTool::initialize(){
 
 StatusCode eflowObjectCreatorTool::execute(eflowCaloObject *energyFlowCaloObject){
 
-  msg(MSG::DEBUG) << "Executing eflowObjectCreatorTool " << endreq;
+  msg(MSG::DEBUG) << "Executing eflowObjectCreatorTool " << endmsg;
 
   if (m_eOverPMode){
     /* Loop over charged efos (in practice nClusters currently is either 0 or 1) */
@@ -107,11 +109,11 @@ StatusCode eflowObjectCreatorTool::execute(eflowCaloObject *energyFlowCaloObject
 }
 
 void eflowObjectCreatorTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer) {
-  msg(MSG::DEBUG) << "Running eflowObjectCreatorTool on the eflowCaloObjectContainer " << endreq;
+  msg(MSG::DEBUG) << "Running eflowObjectCreatorTool on the eflowCaloObjectContainer " << endmsg;
 
   /* Create PFO containers and register them */
   if( setupPFOContainers().isFailure() ){
-    msg(MSG::WARNING) << "Couldn't setup PFO containers. " << endreq;
+    msg(MSG::WARNING) << "Couldn't setup PFO containers. " << endmsg;
     return;
   }
 
@@ -120,7 +122,7 @@ void eflowObjectCreatorTool::execute(eflowCaloObjectContainer* theEflowCaloObjec
   for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb){
     eflowCaloObject* thisEflowCaloObject = theEflowCaloObjectContainer->at(iEFCalOb);
     if (execute(thisEflowCaloObject).isFailure()){
-      msg(MSG::WARNING) << "Execute failed for one eflowCaloObject. " << endreq;
+      msg(MSG::WARNING) << "Execute failed for one eflowCaloObject. " << endmsg;
       continue;
     }
   }
@@ -185,7 +187,7 @@ void eflowObjectCreatorTool::addVertexLinksToChargedEflowObjects(const xAOD::Ver
       if (theTrack){
 	ElementLink< xAOD::VertexContainer> theVertexLink = m_trackVertexAssociationTool->getUniqueMatchVertexLink(*theTrack,*theVertexContainer);
   	bool haveSetLink = theChargedPFO->setVertexLink(theVertexLink);
-	if (!haveSetLink) msg(MSG::WARNING) << " Could not set vertex link on charged PFO " << endreq;
+	if (!haveSetLink) msg(MSG::WARNING) << " Could not set vertex link on charged PFO " << endmsg;
       }//if valid pointer to xAOD::TrackParticle
     }
   }
@@ -212,7 +214,7 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     /* Get the track elementLink and add it to the xAOD:PFO  */
     ElementLink<xAOD::TrackParticleContainer> theTrackLink = efRecTrack->getTrackElemLink();
     bool isSet = myEflowObject->setTrackLink(theTrackLink);
-    if (!isSet) { msg(MSG::WARNING) << "Could not set Track B in PFO " << endreq; }
+    if (!isSet) { msg(MSG::WARNING) << "Could not set Track B in PFO " << endmsg; }
     myEflowObject->setCharge(efRecTrack->getTrack()->charge());
     
     std::pair<double,double> etaPhi(0.0,0.0);
@@ -241,11 +243,12 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (true == addClusters){
        unsigned int nClusters = energyFlowCaloObject->nClusters();
+       std::cout << " nClusters is " << nClusters << std::endl;
        for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
 	 eflowRecCluster* thisEfRecCluster = energyFlowCaloObject->efRecCluster(iCluster);
 	 ElementLink<xAOD::CaloClusterContainer> theClusLink = thisEfRecCluster->getClusElementLink();
-	 bool isSet = myEflowObject->setClusterLink(theClusLink);
-	 if (!isSet) msg(MSG::WARNING) << "Could not set Cluster in PFO " << endreq;
+	 bool isSet = myEflowObject->addClusterLink(theClusLink);
+	 if (!isSet) msg(MSG::WARNING) << "Could not set Cluster in PFO " << endmsg;
        }//cluster loop
     }//addClusters is set to true - so we added the clusters to the xAOD::PFO   
 
@@ -283,7 +286,7 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
 
     ElementLink<xAOD::CaloClusterContainer> theClusterLink = thisEfRecCluster->getClusElementLink();
     bool isSet = thisEflowObject->setClusterLink(theClusterLink);
-    if (!isSet) { msg(MSG::WARNING) << "Could not set Cluster in PFO " << endreq; }
+    if (!isSet) { msg(MSG::WARNING) << "Could not set Cluster in PFO " << endmsg; }
 
     const xAOD::CaloCluster* cluster = thisEfRecCluster->getCluster();
     //be careful here - cluster p4 methods do not store sign. Thus -ve energy clusters have +ve pt and hence +ve energy
@@ -313,20 +316,28 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
 
     //now set the moments for touchable clusters (i.e. ones we modify) in LC mode or all clusters in EM mode
     if ( (m_LCMode && thisEfRecCluster->isTouchable()) || !m_LCMode) {
-      this->addMoment(xAOD::CaloCluster::LATERAL,xAOD::PFODetails::PFOAttributes::eflowRec_LATERAL,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::LONGITUDINAL,xAOD::PFODetails::PFOAttributes::eflowRec_LONGITUDINAL,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::SECOND_R,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_R,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::CENTER_LAMBDA,xAOD::PFODetails::PFOAttributes::eflowRec_CENTER_LAMBDA,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::FIRST_ENG_DENS,xAOD::PFODetails::PFOAttributes::eflowRec_FIRST_ENG_DENS,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::ENG_FRAC_MAX,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_FRAC_MAX,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::ISOLATION,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::ENG_BAD_CELLS,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_BAD_CELLS,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::N_BAD_CELLS,xAOD::PFODetails::PFOAttributes::eflowRec_N_BAD_CELLS,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::BADLARQ_FRAC,xAOD::PFODetails::PFOAttributes::eflowRec_BADLARQ_FRAC,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::ENG_POS,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_POS,cluster, thisEflowObject);
-      this->addMoment(xAOD::CaloCluster::SIGNIFICANCE,xAOD::PFODetails::PFOAttributes::eflowRec_SIGNIFICANCE,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::AVG_LAR_Q,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::AVG_TILE_Q,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::ISOLATION,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION,cluster, thisEflowObject);
+
+      if (false == m_useAODReductionMomentList){
+	 this->addMoment(xAOD::CaloCluster::LATERAL,xAOD::PFODetails::PFOAttributes::eflowRec_LATERAL,cluster, thisEflowObject);
+	 this->addMoment(xAOD::CaloCluster::LONGITUDINAL,xAOD::PFODetails::PFOAttributes::eflowRec_LONGITUDINAL,cluster, thisEflowObject);
+	 this->addMoment(xAOD::CaloCluster::FIRST_ENG_DENS,xAOD::PFODetails::PFOAttributes::eflowRec_FIRST_ENG_DENS,cluster, thisEflowObject);
+	 this->addMoment(xAOD::CaloCluster::ENG_FRAC_MAX,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_FRAC_MAX,cluster, thisEflowObject);
+	 this->addMoment(xAOD::CaloCluster::SIGNIFICANCE,xAOD::PFODetails::PFOAttributes::eflowRec_SIGNIFICANCE,cluster, thisEflowObject);
+      }
+      if (true == m_useAODReductionMomentList){
+	this->addMoment(xAOD::CaloCluster::SECOND_LAMBDA,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_LAMBDA,cluster, thisEflowObject);
+	this->addMoment(xAOD::CaloCluster::EM_PROBABILITY,xAOD::PFODetails::PFOAttributes::eflowRec_EM_PROBABILITY,cluster, thisEflowObject);
+      }
+      
     }
 
     //First set all the layer energies
@@ -472,6 +483,6 @@ void eflowObjectCreatorTool::addMoment(xAOD::CaloCluster::MomentType momentType,
     float float_moment = static_cast<float>(moment);    
     thePFO->setAttribute(myAttribute, float_moment);
   }
-  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retrieve moment from the CaloCluster " << endreq;
+  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retrieve moment from the CaloCluster " << endmsg;
   
 }

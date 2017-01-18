@@ -23,7 +23,7 @@ StatusCode eflowVertexInformationSetter::initialize(){
     {
       msg(MSG::WARNING )
 	  << "Unable to retrieve pointer to StoreGateSvc"
-	  << endreq;
+	  << endmsg;
       return StatusCode::SUCCESS;
     }
 
@@ -39,7 +39,7 @@ StatusCode eflowVertexInformationSetter::execute(){
     {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
 				  <<" no PFO container"
-				  <<endreq;
+				  <<endmsg;
       return StatusCode::SUCCESS;
     }
 
@@ -62,9 +62,9 @@ StatusCode eflowVertexInformationSetter::execute(){
 	  xAOD::PFO* nonConstPFO = const_cast<xAOD::PFO*>(thisPFO);
 	  nonConstPFO->setCenterMag(center_mag);
 	}
-	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retrieved ENG_FRAC_CORE from the CaloCluster " << endreq;
+	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retrieved ENG_FRAC_CORE from the CaloCluster " << endmsg;
       }
-      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Got neutral PFO with invalid cluster pointer " << endreq;
+      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Got neutral PFO with invalid cluster pointer " << endmsg;
     }//neutral
   }//PFO loop
 

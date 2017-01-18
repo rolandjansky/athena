@@ -39,19 +39,19 @@ public:
 
   static const InterfaceID& interfaceID();
 
-  StatusCode initialize();
-  eflowTrackCaloPoints* execute(const xAOD::TrackParticle* track);
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual eflowTrackCaloPoints* execute(const xAOD::TrackParticle* track) const override;
+  virtual StatusCode finalize() override;
 
 private:
-  eflowCalo::LAYER getLayer(const Trk::CurvilinearParameters* clParameters);
+  eflowCalo::LAYER getLayer(const Trk::CurvilinearParameters* clParameters) const;
 
   ToolHandle<Trk::IParticleCaloExtensionTool> m_theTrackExtrapolatorTool;
 
   Trk::TrackParametersIdHelper* m_trackParametersIdHelper;
 
   /* Count number of tracks seen for summary report in finalize */
-  int m_tracksProcessed;
+  //int m_tracksProcessed;
 };
 
 inline const InterfaceID& eflowTrackCaloExtensionTool::interfaceID() {

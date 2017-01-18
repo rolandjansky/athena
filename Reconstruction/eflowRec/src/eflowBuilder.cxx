@@ -63,7 +63,6 @@ StatusCode eflowBuilder::initialize()
 
   Algorithm* pAlg;
   StatusCode sc;
-  MsgStream log( messageService(), name() );  
 
   // Get pointer to StoreGateSvc and cache:
 
@@ -78,9 +77,7 @@ StatusCode eflowBuilder::initialize()
 
   if( sc.isFailure() ) 
   {
-    log << MSG::DEBUG
-	<< "Unable to create " << m_eflowPreparationAlgName
-	<< endreq;
+    ATH_MSG_DEBUG( "Unable to create " << m_eflowPreparationAlgName );
     m_eflowPreparationAlg = 0;
   } 
   else
@@ -96,9 +93,7 @@ StatusCode eflowBuilder::initialize()
 			  objectBuilderAlg.name(), pAlg);
   if( sc.isFailure() ) 
   {
-    log << MSG::DEBUG
-	<< "Unable to create " << m_eflowObjectBuilderAlgName
-	<< endreq;
+    ATH_MSG_DEBUG( "Unable to create " << m_eflowObjectBuilderAlgName );
     m_eflowObjectBuilderAlg = 0;
   } 
   else
@@ -113,9 +108,7 @@ StatusCode eflowBuilder::initialize()
   sc = createSubAlgorithm(quantAlg.type(), quantAlg.name(), pAlg);
   if( sc.isFailure() ) 
   {
-    log << MSG::DEBUG
-	<< "Unable to create " << m_eflowQuantitiesAlgName
-	<< endreq;
+    ATH_MSG_DEBUG( "Unable to create " << m_eflowQuantitiesAlgName );
     m_eflowQuantitiesAlg = 0;
   } 
   else
@@ -125,10 +118,10 @@ StatusCode eflowBuilder::initialize()
 
 /////////////////////////////////////////////////////////////////
 
-    log << MSG::INFO << "Using the Algorithms:" << endreq;
-    log << MSG::INFO <<  m_eflowPreparationAlgName << endreq;
-    log << MSG::INFO << m_eflowObjectBuilderAlgName << endreq;
-    log << MSG::INFO << m_eflowQuantitiesAlgName << endreq;
+  ATH_MSG_INFO( "Using the Algorithms:"  );
+  ATH_MSG_INFO(  m_eflowPreparationAlgName  );
+  ATH_MSG_INFO( m_eflowObjectBuilderAlgName  );
+  ATH_MSG_INFO( m_eflowQuantitiesAlgName  );
 
 
   return sc;
@@ -151,10 +144,7 @@ StatusCode eflowBuilder::execute()
 
   StatusCode sc;
 
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG 
-      << "Executing eflowBuilder" 
-      << endreq;
+  ATH_MSG_DEBUG( "Executing eflowBuilder"  );
 
   // Build Calorimeter Objects
 

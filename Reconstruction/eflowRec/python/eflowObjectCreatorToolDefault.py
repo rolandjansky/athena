@@ -43,3 +43,6 @@ class eflowObjectCreatorToolDefault(eflowObjectCreatorTool) :
         gmFlag=""# default set to "golden1" for goldenMode. In the end this should come from this flag jobproperties.eflowRecFlags.goldenModeString()
         self.goldenModeString=gmFlag
         print "Configuring eflowObjectCreatorTool with goldenModeString: ",gmFlag
+
+        if jobproperties.eflowRecFlags.useAODReductionClusterMomentList == True:
+            self.UseAODReductionMomentList = True

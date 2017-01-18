@@ -94,12 +94,19 @@ class useLCInput(JobProperty):
     StoredValue = False
 
 class useUpdated2015ChargedShowerSubtraction(JobProperty):
-    """ Flat to toggle use of 2015 charged shower subtraction - this disables the subtraction for tracks found to be in dense environments
+    """ Flag to toggle use of 2015 charged shower subtraction - this disables the subtraction for tracks found to be in dense environments
     """
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = True
 
+class useAODReductionClusterMomentList(JobProperty):
+    """ Flag to toggle use of AOD reduction Task force reduced moment list
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    
 # Defines the container for the eflowRec flags
 
 class eflowRecFlags(JobPropertyContainer):
@@ -110,7 +117,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

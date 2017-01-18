@@ -27,7 +27,7 @@ StatusCode eflowMomentCalculatorTool::initialize(){
 
   /* Retrieve the cluster moments maker */
   if ( m_clusterMomentsMaker.retrieve().isFailure() ) {
-    msg(MSG::WARNING) << "Cannot find CaloClusterMomentsMaker Tool "<< endreq;
+    msg(MSG::WARNING) << "Cannot find CaloClusterMomentsMaker Tool "<< endmsg;
     return StatusCode::SUCCESS;
   }
   return StatusCode::SUCCESS;
@@ -47,7 +47,7 @@ void eflowMomentCalculatorTool::execute(eflowCaloObjectContainer* theEflowCaloOb
   /* Remake the cluster moments */
 
   if (m_clusterMomentsMaker->execute(tempClusterContainer).isFailure()) {
-    msg(MSG::WARNING) << "Could not execute ClusterMomentsMaker " << endreq;
+    msg(MSG::WARNING) << "Could not execute ClusterMomentsMaker " << endmsg;
   }
 
   delete tempClusterContainer;
