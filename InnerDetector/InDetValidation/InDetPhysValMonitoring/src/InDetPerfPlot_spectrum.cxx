@@ -305,6 +305,7 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TruthParticle& particle) {
 
 void
 InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle& trkprt, const xAOD::TruthVertex& truthVrt) {
+//ATH_MSG_INFO("filling with truth vtx");
   double d0(trkprt.d0());
   double z0(trkprt.z0());
   double sinth = std::sin(trkprt.theta());
@@ -319,13 +320,14 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle& trkprt, const xA
   fillHisto(m_recoz0_TruthVtxZ, z0 - vtxZ);
   fillHisto(m_recoz0_TruthVtxZsin, (z0 - vtxZ) * sinth);
   //
+  
   fillHisto(m_TruthVtxX, vtxX);
   fillHisto(m_TruthVtxY, vtxY);
   fillHisto(m_TruthVtxZ, vtxZ);
   fillHisto(m_TruthVtxR, vtxR);
 
   fillHisto(m_TVR_vs_Z, vtxZ, vtxR);
-
+  
   if (vtxR > 0.1) {
     /*
        std::cout<<" "<<std::endl;

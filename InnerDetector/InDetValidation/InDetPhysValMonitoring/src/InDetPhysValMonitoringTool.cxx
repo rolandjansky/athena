@@ -147,6 +147,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   ManagedMonitorToolBase(type, name, parent),
   m_useTrackSelection(false),
   m_onlyInsideOutTracks(false),
+  m_TrkSelectPV(false),
   m_trackSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool"),
   m_truthSelectionTool("AthTruthSelectionTool", this),
   m_prospectsMatched(6, 0),
@@ -265,6 +266,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   } else {
     ATH_MSG_WARNING("Cannot open " << m_truthVertexContainerName << " truth vertex container");
   }
+  if (not truthVertex) ATH_MSG_INFO ("Truth vertex did not pass cuts");
   unsigned int num_truth_selected(0), nSelectedTracks(0), num_truthmatch_match(0);
   // the truth matching probability must not be <= 0., otherwise the tool will seg fault in case of missing truth (e.g.
   // data):
