@@ -51,6 +51,7 @@ class TrigCaloCluster {
 public:
   TrigCaloCluster(int arg=0){a = arg;}
   ~TrigCaloCluster() { std::cerr << " deleting Cluster: "<< a << std::endl; }
+  TrigCaloCluster& operator=(const TrigCaloCluster&) = default;
   int a;
 };
 
@@ -67,6 +68,7 @@ void  nevercalled() {
 
 
 using namespace Trig;
+#if 0
 void testFeatureGroup() {
   TrigDecisionTool* tdt(0);
   FeatureContainer f = tdt->features("EF_mu6");
@@ -99,6 +101,7 @@ void testFeatureGroup() {
     sameObject(a, b);
   }
 }
+#endif
 
 #if 0
 void testFeatureLink() {

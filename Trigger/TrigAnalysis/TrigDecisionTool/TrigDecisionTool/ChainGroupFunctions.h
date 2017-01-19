@@ -32,8 +32,8 @@ namespace Trig {
       ChainGroupFunctions();
       virtual ~ChainGroupFunctions();
       
-      const Trig::ChainGroup* getChainGroup(const std::vector< std::string >& patterns); //!< @see CacheGlobalMemory
-      const Trig::ChainGroup* getChainGroup(const std::string& pattern);                 //!< @see CacheGlobalMemory
+      const Trig::ChainGroup* getChainGroup(const std::vector< std::string >& patterns) const; //!< @see CacheGlobalMemory
+      const Trig::ChainGroup* getChainGroup(const std::string& pattern) const;                 //!< @see CacheGlobalMemory
 
     protected:
 

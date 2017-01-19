@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 750388 2016-05-27 15:57:30Z krasznaa $
+# $Id: CMakeLists.txt 786880 2016-11-28 13:00:09Z krasznaa $
 ################################################################################
 # Package: TrigDecisionTool
 ################################################################################
@@ -17,9 +17,28 @@ if( XAOD_STANDALONE )
       Trigger/TrigConfiguration/TrigConfInterfaces
       Trigger/TrigConfiguration/TrigConfL1Data
       Trigger/TrigEvent/TrigDecisionInterface
-	   Trigger/TrigEvent/TrigRoiConversion
+      Trigger/TrigEvent/TrigRoiConversion
       Trigger/TrigEvent/TrigNavStructure
       PRIVATE
+      Trigger/TrigEvent/TrigSteeringEvent )
+elseif( XAOD_ANALYSIS )
+   atlas_depends_on_subdirs(
+      PUBLIC
+      Control/AthToolSupport/AsgTools
+      Control/StoreGate
+      Event/EventInfo
+      Event/xAOD/xAODBase
+      Event/xAOD/xAODTrigger
+      GaudiKernel
+      Trigger/TrigConfiguration/TrigConfHLTData
+      Trigger/TrigConfiguration/TrigConfInterfaces
+      Trigger/TrigConfiguration/TrigConfL1Data
+      Trigger/TrigEvent/TrigDecisionInterface
+      Trigger/TrigEvent/TrigRoiConversion
+      Trigger/TrigEvent/TrigNavStructure
+      PRIVATE
+      Control/AthenaBaseComps
+      Control/AthenaKernel
       Trigger/TrigEvent/TrigSteeringEvent )
 else()
    atlas_depends_on_subdirs(
@@ -37,7 +56,7 @@ else()
       Trigger/TrigEvent/TrigDecisionEvent
       Trigger/TrigEvent/TrigDecisionInterface
       Trigger/TrigEvent/TrigMuonEvent
-	   Trigger/TrigEvent/TrigRoiConversion
+      Trigger/TrigEvent/TrigRoiConversion
       Trigger/TrigEvent/TrigNavStructure
       Trigger/TrigEvent/TrigNavigation
       Trigger/TrigEvent/TrigStorageDefinitions
@@ -62,17 +81,31 @@ if( XAOD_STANDALONE )
       TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent )
 else()
-   atlas_add_library( TrigDecisionToolLib
-      TrigDecisionTool/*.h Root/*.cxx src/*.cxx
-      PUBLIC_HEADERS TrigDecisionTool
-      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase xAODTrigger
-      GaudiKernel AnalysisTriggerEvent TrigConfHLTData TrigConfL1Data
-      TrigDecisionEvent TrigMuonEvent TrigNavStructure TrigStorageDefinitions
-      StoreGateLib TrigNavigationLib TrigRoiConversionLib
-      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps TrigSteeringEvent
-      AthenaKernel )
+   if( XAOD_ANALYSIS )
+      atlas_add_library( TrigDecisionToolLib
+         TrigDecisionTool/*.h Root/*.cxx src/*.cxx
+         PUBLIC_HEADERS TrigDecisionTool
+         INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+         PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
+         xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
+         TrigNavStructure StoreGateLib TrigRoiConversionLib
+         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
+         TrigSteeringEvent AthenaKernel )
+   else()
+      atlas_add_library( TrigDecisionToolLib
+         TrigDecisionTool/*.h Root/*.cxx src/*.cxx
+         PUBLIC_HEADERS TrigDecisionTool
+         INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+         PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
+         xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
+         TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
+         TrigStorageDefinitions StoreGateLib TrigNavigationLib
+         TrigRoiConversionLib
+         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
+         TrigSteeringEvent AthenaKernel )
+   endif()
 
    atlas_add_component( TrigDecisionTool
       src/components/*.cxx
