@@ -146,7 +146,7 @@ namespace InDet {
       ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0CorrectionVsEtaPhi") );
       ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistogram, rootfileName, "LambdaCorrectionVsEtaPhi_reweightedToEP") );
     } else if (runNumber <= 300908) {
-      ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (287730 to 300908)." ); // pre-TSI: 287730 - 300908
+      ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (297730 to 300908)." ); // pre-TSI: 297730 - 300908
       rootfileName = "CorrectionsResult_PreTSI.root";
       ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0/theNominal_d0") );
       ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0/theNominal_z0") );
