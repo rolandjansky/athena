@@ -140,16 +140,20 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
   ATH_MSG_DEBUG( "Updating configuration, done with L1" );  
   
   //clear cache completely becuase underlying config objects might have changed
+  for(auto& c : m_l2chainsCache){delete c.second;}
   m_l2chainsCache.clear(); 
+  for(auto& c : m_efchainsCache){delete c.second;}
   m_efchainsCache.clear(); 
   m_mConfChains.clear();
   if ( ! confChains ) {
     ATH_MSG_WARNING( "No chains in configuration, probably run w/o HLT" );
   } else {
 
+    ATH_MSG_DEBUG("Updating Configuration chains. Number of conf chains: " << m_confChains->size()); 
+
     // updating internal map of conf chains (this map is only used for fast lookup)
     for(auto ch : *m_confChains) {
-      m_mConfChains[ch->chain_name().c_str()] = ch;
+      m_mConfChains[ch->chain_name()] = ch;
     }
 
     // updating internal cache of HLT::Chains
@@ -266,9 +270,10 @@ const HLT::Chain* Trig::CacheGlobalMemory::chain(const TrigConf::HLTChain& ch) c
 }
 
 const TrigConf::HLTChain* Trig::CacheGlobalMemory::config_chain(const std::string& name) const {
-  ChainHashMap_t::const_iterator f = m_mConfChains.find(name.c_str());
-  if ( f == m_mConfChains.end() )
+  ChainHashMap_t::const_iterator f = m_mConfChains.find(name);
+  if ( f == m_mConfChains.end() ){
     return 0;
+  }
   return f->second;
 }
 

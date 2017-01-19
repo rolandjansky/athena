@@ -229,6 +229,16 @@ StatusCode
 Trig::TrigDecisionTool::finalize() {
    // release all chaingroups
    m_navigation->reset();
+
+   auto it = std::find(s_instances.begin(), s_instances.end(), name());
+   if(it != s_instances.end()){
+     s_instances.erase(it);
+   }
+   else{
+      ATH_MSG_ERROR("could not find instance name in instance list, but must have been added in ::initialize(). Name: " << name());
+      return StatusCode::FAILURE;
+   }
+   ATH_MSG_INFO("TDT finalized and removed from instance list");
    return StatusCode::SUCCESS;
 }
 
