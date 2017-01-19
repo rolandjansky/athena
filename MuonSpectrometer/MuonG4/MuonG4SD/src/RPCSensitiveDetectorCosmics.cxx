@@ -341,17 +341,11 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   (((m_vertex.mag()) < 100) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
 
   m_myRPCHitColl->Emplace(RPCid_eta, m_globalTime,
-                          localPosition, barcode, localPostPosition, 
-                          aStep->GetTotalEnergyDeposit(), 
-                          aStep->GetStepLength(), 
-                          currentTrack->GetDefinition()->GetPDGEncoding(), 
+                          localPosition, barcode, localPostPosition,
+                          aStep->GetTotalEnergyDeposit(),
+                          aStep->GetStepLength(),
+                          currentTrack->GetDefinition()->GetPDGEncoding(),
                           aStep->GetPreStepPoint()->GetKineticEnergy());
-  m_myRPCHitColl->Emplace(RPCid_phi, m_globalTime,
-                        localPosition, barcode, localPostPosition,
-                        aStep->GetTotalEnergyDeposit(),
-                        aStep->GetStepLength(),
-                        currentTrack->GetDefinition()->GetPDGEncoding(),
-                        aStep->GetPreStepPoint()->GetKineticEnergy());
   m_myRPCHitColl->Emplace(RPCid_phi, m_globalTime,
                         localPosition, barcode, localPostPosition,
                         aStep->GetTotalEnergyDeposit(),
@@ -361,4 +355,3 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
   return true;
 }
-
