@@ -36,7 +36,7 @@ namespace xAODMaker {
 			       xAOD::TrackParticleContainer* xaod ) const override;
     
     /// allow other algorithms to pass the tool in order to preserve initialisation
-    virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool);
+    virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool) override;
 
   private:
     ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator;
