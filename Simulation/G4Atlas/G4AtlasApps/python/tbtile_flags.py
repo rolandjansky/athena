@@ -12,7 +12,7 @@ during the years 2000-2003.
 """
 
 __author__= 'M. Gallas'
-__version__ = "$Revision: 787225 $"
+__version__ = "$Revision: 793038 $"
 
 
 from AthenaCommon.JobProperties import JobProperty
@@ -59,7 +59,7 @@ class Eta(JobProperty):
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
                 import math
-                if abs(n_value) >= 1.1:
+                if abs(n_value) > 1.1:
                     raise ValueError,('THE ETA VALUE MUST BE IN [-1.1,1.1]!!! The selected value %s is not in the range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 
@@ -84,7 +84,7 @@ class Theta(JobProperty):
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
                 import math
-                if abs(n_value) >= 60. and not (abs(abs(n_value)-90.0) < 0.01) :
+                if abs(n_value) > 60. and not (abs(abs(n_value)-90.0) < 0.01) :
                     raise ValueError,('THETA MUST BE IN [-60,60] or +/-90 !!! The selected value %s is not in the range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 
@@ -122,7 +122,7 @@ class Phi(JobProperty):
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
                 import math
-                if math.fabs(n_value) > 0.15:
+                if math.fabs(n_value) > 8.5:
                     raise ValueError,('THE PHI VALUE MUST BE IN [-8.5,8.5]!!! The selected value %s not in range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 

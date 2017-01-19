@@ -670,6 +670,9 @@ class Tile2000_2003(TBSimSkeleton):
         if (simFlags.SimLayout.get_Value()=='tb_Tile2000_2003_2B2EB'):
             # 2 Barrels + 2 Extended Barrels
             GeoModelSvc.TileVersionOverride='TileTB-2B2EB-00'
+        elif (simFlags.SimLayout.get_Value()=='tb_Tile2000_2003_2B1EB'):
+            # 2 Barrels + 1 Extended Barrel
+            GeoModelSvc.TileVersionOverride='TileTB-2B1EB-00'
         elif (simFlags.SimLayout.get_Value()=='tb_Tile2000_2003_3B'):
             # 3 Barrels
             GeoModelSvc.TileVersionOverride='TileTB-3B-00'
