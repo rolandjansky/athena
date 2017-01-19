@@ -11,10 +11,12 @@ import HSG2DPDUtils.HSG2DPDFlags
 e_etCut =  jobproperties.HSG2.llqqElectronEtCut() 
 mu_ptCut =  jobproperties.HSG2.llqqMuonPtCut() 
 jet_ptCut = jobproperties.HSG2.llqqJetPtCut() 
+mergedJet_ptCut = jobproperties.HSG2.llqqMergedJetPtCut() 
 e_qual = jobproperties.HSG2.llqqElectronQual()
 mu_qual = jobproperties.HSG2.llqqMuonQual()
 calo_qual = jobproperties.HSG2.llqqCaloMuonQual()
 jet_qual = jobproperties.HSG2.llqqJetQual()
+mergedJet_qual = jobproperties.HSG2.llqqMergedJetQual()
 e_coll = jobproperties.HSG2.llqqElectronCollection()
 staco_coll = jobproperties.HSG2.llqqStacoMuonCollection()
 muons_coll = jobproperties.HSG2.llqqMuonsCollection()
@@ -25,6 +27,38 @@ electronJetDRCut = jobproperties.HSG2.llqqElectronJetDRCut()
 
 from AthenaCommon.Logging import logging
 msg = logging.getLogger( "NTUP_2L2QHSG2_Filter" )
+
+# AthElectronLikelihoodTool with PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools/data/ElectronLikelihoodPdfs.root
+# and LikeEnum::Loose by following https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HiggsZZllllSummer2013#More_information
+import ROOT
+import PyCintex
+PyCintex.loadDict('libElectronPhotonSelectorToolsDict')
+from AthenaCommon.AppMgr import ToolSvc
+if not hasattr(ToolSvc, "AthElectronLikelihoodTool_VeryLoose"):
+    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AthElectronLikelihoodTool
+    ToolSvc += AthElectronLikelihoodTool( "AthElectronLikelihoodTool_VeryLoose",
+                                          inputPDFFileName  = "ElectronPhotonSelectorTools/ElectronLikelihoodPdfs.root",
+                                          cutLikelihoodEnum = ROOT.LikeEnum.VeryLoose,
+                                          useUserData = False ,
+                                          forceRecalculateImpactParameter = True)
+    msg.info("AthElectronLikelihoodTool/AthElectronLikelihoodTool_VeryLoose is added")
+if not hasattr(ToolSvc, "AthElectronLikelihoodTool_Loose"):
+    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AthElectronLikelihoodTool
+    ToolSvc += AthElectronLikelihoodTool( "AthElectronLikelihoodTool_Loose",
+                                          inputPDFFileName  = "ElectronPhotonSelectorTools/ElectronLikelihoodPdfs.root",
+                                          cutLikelihoodEnum = ROOT.LikeEnum.Loose,
+                                          useUserData = False ,
+                                          forceRecalculateImpactParameter = True)
+    msg.info("AthElectronLikelihoodTool/AthElectronLikelihoodTool_Loose is added")
+if not hasattr(ToolSvc, "AthElectronLikelihoodTool_Medium"):
+    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AthElectronLikelihoodTool
+    ToolSvc += AthElectronLikelihoodTool( "AthElectronLikelihoodTool_Medium",
+                                          inputPDFFileName  = "ElectronPhotonSelectorTools/ElectronLikelihoodPdfs.root",
+                                          cutLikelihoodEnum = ROOT.LikeEnum.Medium,
+                                          useUserData = False ,
+                                          forceRecalculateImpactParameter = True)
+    msg.info("AthElectronLikelihoodTool/AthElectronLikelihoodTool_Medium is added")
+
 
 algsList=[]
 
@@ -90,6 +124,67 @@ theJob += HSG2_2L2QDPDMaker.HSG2_2L2QDPDFilter("NTUP_2MU2QHSG2_MuonsCalo_Filter"
                                                diLeptonMassCut=diLeptonMassCut)
 algsList.append(theJob.NTUP_2MU2QHSG2_MuonsCalo_Filter.name())
 msg.info("Added mumuqq (muons/calo) filter")
+
+# eeq
+theJob += HSG2_2L2QDPDMaker.HSG2_2L2QDPDFilter("NTUP_2E1QHSG2_Filter",
+                                               types=["e", "e", "jet"],\
+                                               pTCuts=[e_etCut, e_etCut, mergedJet_ptCut],\
+                                               qualityCuts=[e_qual, e_qual, mergedJet_qual],\
+                                               collections=[e_coll, e_coll, jet_coll],\
+                                               diLeptonMassCut=diLeptonMassCut,\
+                                               electronJetDRCut=electronJetDRCut)
+algsList.append(theJob.NTUP_2E1QHSG2_Filter.name())
+msg.info("Added eeq filter")
+
+# ssq
+theJob += HSG2_2L2QDPDMaker.HSG2_2L2QDPDFilter("NTUP_2MU1QHSG2_Staco_Filter",
+                                               types=["mu", "mu", "jet"],\
+                                               pTCuts=[mu_ptCut, mu_ptCut, mergedJet_ptCut],\
+                                               qualityCuts=[mu_qual, mu_qual, mergedJet_qual],\
+                                               collections=[staco_coll, staco_coll, jet_coll],\
+                                               diLeptonMassCut=diLeptonMassCut)
+algsList.append(theJob.NTUP_2MU1QHSG2_Staco_Filter.name())
+msg.info("Added mumuq (staco) filter")
+
+# uuq
+theJob += HSG2_2L2QDPDMaker.HSG2_2L2QDPDFilter("NTUP_2MU1QHSG2_Muons_Filter",
+                                               types=["mu", "mu", "jet"],\
+                                               pTCuts=[mu_ptCut, mu_ptCut, mergedJet_ptCut],\
+                                               qualityCuts=[mu_qual, mu_qual, mergedJet_qual],\
+                                               collections=[muons_coll, muons_coll, jet_coll],\
+                                               diLeptonMassCut=diLeptonMassCut)
+algsList.append(theJob.NTUP_2MU1QHSG2_Muons_Filter.name())
+msg.info("Added mumuq (muons) filter")
+
+# ccq
+theJob += HSG2_2L2QDPDMaker.HSG2_2L2QDPDFilter("NTUP_2MU1QHSG2_Calo_Filter",
+                                               types=["mu", "mu", "jet"],\
+                                               pTCuts=[mu_ptCut, mu_ptCut, mergedJet_ptCut],\
+                                               qualityCuts=[calo_qual, calo_qual, mergedJet_qual],\
+                                               collections=[calo_coll, calo_coll, jet_coll],\
+                                               diLeptonMassCut=diLeptonMassCut)
+algsList.append(theJob.NTUP_2MU1QHSG2_Calo_Filter.name())
+msg.info("Added mumuq (calo) filter")
+
+# scq
+theJob += HSG2_2L2QDPDMaker.HSG2_2L2QDPDFilter("NTUP_2MU1QHSG2_StacoCalo_Filter",
+                                               types=["mu", "mu", "jet"],\
+                                               pTCuts=[mu_ptCut, mu_ptCut, mergedJet_ptCut],\
+                                               qualityCuts=[mu_qual, calo_qual, mergedJet_qual],\
+                                               collections=[staco_coll, calo_coll, jet_coll],\
+                                               diLeptonMassCut=diLeptonMassCut)
+algsList.append(theJob.NTUP_2MU1QHSG2_StacoCalo_Filter.name())
+msg.info("Added mumuq (staco/calo) filter")
+
+# ucq
+theJob += HSG2_2L2QDPDMaker.HSG2_2L2QDPDFilter("NTUP_2MU1QHSG2_MuonsCalo_Filter",
+                                               types=["mu", "mu", "jet"],\
+                                               pTCuts=[mu_ptCut, mu_ptCut, mergedJet_ptCut],\
+                                               qualityCuts=[mu_qual, calo_qual, mergedJet_qual],\
+                                               collections=[muons_coll, calo_coll, jet_coll],\
+                                               diLeptonMassCut=diLeptonMassCut)
+algsList.append(theJob.NTUP_2MU1QHSG2_MuonsCalo_Filter.name())
+msg.info("Added mumuq (muons/calo) filter")
 
 combination=""
 for iAlg in range(len(algsList)):

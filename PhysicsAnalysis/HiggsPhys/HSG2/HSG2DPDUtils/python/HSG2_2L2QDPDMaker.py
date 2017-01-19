@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import AthenaPython.PyAthena as PyAthena
+import AthenaCommon.SystemOfUnits as Units
 from AthenaPython.PyAthena import StatusCode
 import PyCintex
 import ROOT
@@ -12,88 +13,6 @@ PyCintex.loadDict("libTrkTrackSummaryDict")
 PyCintex.loadDict('libegammaAnalysisUtilsDict')
 from ROOT import TLorentzVector
 
-def isLoosePP(electron):
-    # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/IsEMIdentification
-    # 1.1 2012 data analyses with release 17.2 
-    # 1. Standard Method
-    # everything is OK for all the 2012 reprocessed data since the AODFix was used by default.
-    return electron.passID(egammaPID.ElectronIDLoosePP) 
-
-def isMediumPP(electron):
-    # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/IsEMIdentification
-    if not electron.trackParticle():
-        return False
-    if not electron.trackParticle().trackSummary():
-        return False
-
-    eta = electron.cluster().etaBE(2)
-    if abs(eta) > 300.:
-        return False
-    eT = electron.cluster().e()/math.cosh(eta)
-    f3 = electron.detailValue(egammaParameters.f3)
-    rHad = 0.
-    rHad1 = 0. 
-    if abs(eT) != 0.:
-        rHad = electron.detailValue(egammaParameters.ethad)/eT
-        rHad1 = electron.detailValue(egammaParameters.ethad1)/eT
-    e277 = electron.detailValue(egammaParameters.e277)
-    Reta = 0.
-    if e277 != 0.:
-        e237 = electron.detailValue(egammaParameters.e237)
-        Reta = e237/e277
-    w2 = electron.detailValue(egammaParameters.weta2)
-    f1 = electron.detailValue(egammaParameters.f1)
-    wstot = electron.detailValue(egammaParameters.wtots1)
-    DEmaxs1 = 0.
-    emaxs1 = electron.detailValue(egammaParameters.emaxs1)
-    Emax2 = electron.detailValue(egammaParameters.e2tsts1)
-    if abs(emaxs1+Emax2) > 0.:
-        DEmaxs1 = (emaxs1-Emax2)/(emaxs1+Emax2)
-    deltaEta = electron.detailValue(egammaParameters.deltaEta1)
-    d0 = electron.detailValue(egammaParameters.trackd0_physics)
-    nTRT = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfTRTHits)
-    nTRTOutliers = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfTRTOutliers)
-    TRratio = 0.
-    if (nTRT+nTRTOutliers)>0:
-        nTRThigh = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfTRTHighThresholdHits)
-        nTRThighOutliers = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfTRTHighThresholdOutliers) 
-        TRratio = float(nTRThigh+nTRThighOutliers)/float(nTRT+nTRTOutliers)
-    nPix = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfPixelHits)
-    nSi = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfSCTHits)+nPix
-    nPixOutliers = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfPixelOutliers)
-    nSiOutliers = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfSCTOutliers)+nPixOutliers
-    nBlayer = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfBLayerHits)
-    nBlayerOutliers = electron.trackParticle().trackSummary().get(ROOT.Trk.numberOfBLayerOutliers)
-    expectBlayer = (electron.detailValue(egammaParameters.expectHitInBLayer) != 0.)
-
-    return ROOT.isMediumPlusPlus(eta, eT, f3,\
-                                 rHad, rHad1, Reta, w2,\
-                                 f1, wstot, DEmaxs1, deltaEta, d0,\
-                                 TRratio, nTRT, nTRTOutliers,\
-                                 nSi, nSiOutliers, nPix, nPixOutliers,\
-                                 nBlayer, nBlayerOutliers, expectBlayer) 
-
-def checkElectronQuality(qual, electron):
-    if qual=='MediumPP':
-        return isMediumPP(electron) 
-    if qual=='LoosePP':
-        return isLoosePP(electron) 
-    return True
-
-def checkMuonQuality(qual, muon):
-    if qual=='combined+lowpt':
-        return muon.isCombinedMuon() or muon.isSegmentTaggedMuon()
-    if qual=='combined+lowpt+standalone':
-        return muon.isCombinedMuon() or muon.isSegmentTaggedMuon() or (muon.isStandAloneMuon() and abs(muon.eta())>2.5 and abs(muon.eta())<2.7)
-    if qual=='calo':
-        return abs(muon.eta())<0.1 
-    return True
-
-def checkJetQuality(qual, jet):
-    if qual=='barrel':
-        return abs(jet.eta())<2.5 # |eta|<2.5
-    return True
-
 class HSG2_2L2QDPDFilter(PyAthena.AthFilterAlgorithm):
 
     def __init__(self, name="HSG2_2L2QDPDFilter",**kw):
@@ -104,12 +23,12 @@ class HSG2_2L2QDPDFilter(PyAthena.AthFilterAlgorithm):
         self.cutDict["types"] = kw.get("types", [])
         # pT cuts for muons and jets, ET cut for electrons 
         self.cutDict["pTCuts"] = kw.get("pTCuts", [])
-        # quality cuts are MediumPP for electrons, combined+lowpt for muons, barrel for jets
+        # quality cuts are LoosePP or ORLH for electrons, combined+lowpt for muons, barrel for jets
         self.cutDict["qualityCuts"] = kw.get("qualityCuts", [])
         # Container names in AOD 
         self.cutDict["collections"] = kw.get("collections", [])
         # Di-lepton mass cut
-        self.cutDict["diLeptonMassCut"] = kw.get("diLeptonMassCut", 5000.)
+        self.cutDict["diLeptonMassCut"] = kw.get("diLeptonMassCut", 5.*Units.GeV)
         # Electron-jet dR cut
         self.cutDict["electronJetDRCut"] = kw.get("electronJetDRCut", 0.05) # Negative value means no overlap removal
         # qualified stores the pointers of objects which pass the selections  
@@ -144,8 +63,73 @@ class HSG2_2L2QDPDFilter(PyAthena.AthFilterAlgorithm):
         if self.storeGateSvc is None:
             self.msg.fatal("Problem retrieving StoreGateSvc pointer !!")
             return StatusCode.Failure
+
+        # AthElectronLikelihoodTool_VeryLoose
+        self.electronLikelihoodTool_VeryLoose = PyAthena.py_tool('AthElectronLikelihoodTool/AthElectronLikelihoodTool_VeryLoose')
+        if self.electronLikelihoodTool_VeryLoose is None:
+            self.msg.error("Problem retrieving AthElectronLikelihoodTool/AthElectronLikelihoodTool_VeryLoose pointer !!")
+            return StatusCode.Recoverable
+        self.msg.info("AthElectronLikelihoodTool/AthElectronLikelihoodTool_VeryLoose retrieved.")
+        # AthElectronLikelihoodTool_Loose
+        self.electronLikelihoodTool_Loose = PyAthena.py_tool('AthElectronLikelihoodTool/AthElectronLikelihoodTool_Loose')
+        if self.electronLikelihoodTool_Loose is None:
+            self.msg.error("Problem retrieving AthElectronLikelihoodTool/AthElectronLikelihoodTool_Loose pointer !!")
+            return StatusCode.Recoverable
+        self.msg.info("AthElectronLikelihoodTool/AthElectronLikelihoodTool_Loose retrieved.")
+        # AthElectronLikelihoodTool_Medium
+        self.electronLikelihoodTool_Medium = PyAthena.py_tool('AthElectronLikelihoodTool/AthElectronLikelihoodTool_Medium')
+        if self.electronLikelihoodTool_Medium is None:
+            self.msg.error("Problem retrieving AthElectronLikelihoodTool/AthElectronLikelihoodTool_Medium pointer !!")
+            return StatusCode.Recoverable
+        self.msg.info("AthElectronLikelihoodTool/AthElectronLikelihoodTool_Medium retrieved.")
+
         return StatusCode.Success
 
+    def isLoosePP(self, electron):
+        # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/IsEMIdentification
+        # 1.1 2012 data analyses with release 17.2 
+        # 1. Standard Method
+        # everything is OK for all the 2012 reprocessed data since the AODFix was used by default.
+        return electron.passID(egammaPID.ElectronIDLoosePP) 
+    
+    def isVeryLooseLH(self, electron):
+        return bool(self.electronLikelihoodTool_VeryLoose.accept(electron))
+
+    def isLooseLH(self, electron):
+        return bool(self.electronLikelihoodTool_Loose.accept(electron))
+
+    def isMediumLH(self, electron):
+        return bool(self.electronLikelihoodTool_Medium.accept(electron))
+
+    def checkElectronQuality(self, qual, electron):
+        if qual=='LoosePP or ORLH':
+            if self.isLoosePP(electron):
+                return True
+            if self.isVeryLooseLH(electron):
+                return True
+            if self.isLooseLH(electron):
+                return True
+            if self.isMediumLH(electron):
+                return True
+            return False
+        if qual=='LoosePP':
+            return self.isLoosePP(electron) 
+        return True
+
+    def checkMuonQuality(self, qual, muon):
+        if qual=='combined+lowpt':
+            return muon.isCombinedMuon() or muon.isSegmentTaggedMuon()
+        if qual=='combined+lowpt+standalone':
+            return muon.isCombinedMuon() or muon.isSegmentTaggedMuon() or (muon.isStandAloneMuon() and abs(muon.eta())>2.5 and abs(muon.eta())<2.7)
+        if qual=='calo':
+            return abs(muon.eta())<0.1 
+        return True
+    
+    def checkJetQuality(self, qual, jet):
+        if qual=='barrel':
+            return abs(jet.eta())<2.5 # |eta|<2.5
+        return True
+    
     def getFourMomentum(self,obj,number):
         fourMomentum = TLorentzVector(0,0,0,0)
         # Electron: calculate 4-momentum based on cluster energy and track direction
@@ -169,11 +153,11 @@ class HSG2_2L2QDPDFilter(PyAthena.AthFilterAlgorithm):
 
     def checkQuality(self,obj,number):
         if self.cutDict["types"][number]=="e":
-            return checkElectronQuality(self.cutDict["qualityCuts"][number], obj)
+            return self.checkElectronQuality(self.cutDict["qualityCuts"][number], obj)
         if self.cutDict["types"][number]=="mu":
-            return checkMuonQuality(self.cutDict["qualityCuts"][number], obj)
+            return self.checkMuonQuality(self.cutDict["qualityCuts"][number], obj)
         if self.cutDict["types"][number]=="jet":
-            return checkJetQuality(self.cutDict["qualityCuts"][number], obj)
+            return self.checkJetQuality(self.cutDict["qualityCuts"][number], obj)
         self.msg.warning("specified type is strange", self.cutDict["types"][number])
         return False
 
@@ -262,7 +246,7 @@ class HSG2_2L2QDPDFilter(PyAthena.AthFilterAlgorithm):
         for j in range(len(self.qualified[i])):
             obj = self.qualified[i][j]
             fourMomentum = self.qualifiedFourMomenta[i][j]
-            # Chech if this object is already used in the current combination or not. 
+            # Check if this object is already used in the current combination or not. 
             isNew = True
             for k in range(i):
                 if self.cutDict["types"][i]==self.cutDict["types"][k] and obj==self.combination[k]:

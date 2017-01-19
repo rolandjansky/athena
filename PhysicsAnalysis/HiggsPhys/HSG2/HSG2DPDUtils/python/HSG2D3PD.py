@@ -22,11 +22,12 @@ if jobproperties.HSG2.doMV3BTagInD3PD():
     BTaggingFlags.Jets=[ "AntiKt4TopoEM", "AntiKt4LCTopo" ] # Follow PhysicsAnalysis/D3PDMaker/JetTagD3PDMaker/trunk/share/JetTagD3PD_prodFragmentCore.py 
     BTaggingFlags.Active=True
     BTaggingFlags.JetFitterCharm=True
-    BTaggingFlags.MV3_bVSu=True
-    BTaggingFlags.MV3_bVSc=True
-    BTaggingFlags.MV3_cVSu=True
+    BTaggingFlags.MV3_bVSu=True # MV3 is not usable in its current state. (Susumu 2013-02-26)
+    BTaggingFlags.MV3_bVSc=True # MV3 is not usable in its current state. (Susumu 2013-02-26)
+    BTaggingFlags.MV3_cVSu=True # MV3 is not usable in its current state. (Susumu 2013-02-26)
     from JetTagD3PDMaker.JetTagD3PDMakerFlags import JetTagD3PDFlags
-    JetTagD3PDFlags.Taggers+=["JetFitterCharm","MV3_bVSu","MV3_bVSc","MV3_cVSu"]
+    JetTagD3PDFlags.Taggers+=["JetFitterCharm","MV3_bVSu","MV3_bVSc","MV3_cVSu"] # MV3 is not usable in its current state. (Susumu 2013-02-26)
+    # JetTagD3PDFlags.Taggers+=["JetFitterCharm"]
     JetTagD3PDFlags.JetFitterCharmTagInfo=True
     JetTagD3PD_CollectionPostfix="ReTagged"
 
@@ -261,6 +262,7 @@ def HSG2physicsD3PD (name,file,
                                                  include = [JetTagD3PDKeys.BTagWeightsBlockName(),
                                                             JetTagD3PDKeys.JetFitterCharmTagInfoBlockName(),
                                                             JetTagD3PDKeys.JetFitterCharmInfoBaseBlockName(), 
+                                                            JetTagD3PDKeys.JetFitterCombInfoBaseBlockName(),
                                                             JetTagD3PDKeys.TruthInfoBlockName(),
                                                             "Constituents",
                                                             'TracksMoments', 'Samplings', # For GSC corrections
@@ -272,6 +274,7 @@ def HSG2physicsD3PD (name,file,
                                                  include = [JetTagD3PDKeys.BTagWeightsBlockName(),
                                                             JetTagD3PDKeys.JetFitterCharmTagInfoBlockName(),
                                                             JetTagD3PDKeys.JetFitterCharmInfoBaseBlockName(), 
+                                                            JetTagD3PDKeys.JetFitterCombInfoBaseBlockName(),
                                                             JetTagD3PDKeys.TruthInfoBlockName(),                      
                                                             "Constituents",
                                                             "ConstituentScale", # For ZH(->inv) analysis
@@ -308,7 +311,88 @@ def HSG2physicsD3PD (name,file,
 
     # Pileup-subtracted MET RefFinal for ZH(->inv) analysis 
     alg += MissingETCompositionD3PDObject ( level=4, sgkey = 'MET_RefComposition_STVF', suffix='STVF_', allowMissing =True,
-                                            jetSGKey='AntiKt4LCTopoJets', jetPrefix='jet_AntiKt4LCTopo_MET_') 
+                                            jetSGKey='AntiKt4LCTopoJets'+JetTagD3PD_CollectionPostfix, jetPrefix='jet_AntiKt4LCTopo_MET_') 
+
+    # For H->ZZ->llqq analysis
+    # PhysicsAnalysis/D3PDMaker/PhysicsD3PDMaker/python/SMWZD3PD.py
+    if jobproperties.HSG2.doHSG5METInD3PD():
+        from MissingET.METRefGetter_plup import *
+        METRefAlg_HSG5 = make_METRefAlg(_suffix='_HSG5')
+        METRefAlg_HSG5.sequence                    = AlgSequence( D3PDMakerFlags.PreD3PDAlgSeqName() )
+        METRefAlg_HSG5.jet_JetInputCollectionKey   = "AntiKt4TopoEMJets"+JetTagD3PD_CollectionPostfix
+        METRefAlg_HSG5.jet_JetPtCut                = 20.0*GeV
+        METRefAlg_HSG5.jet_ApplyJetScale           = "No"
+        METRefAlg_HSG5.jet_UseJetMomentForScale    = True
+        METRefAlg_HSG5.jet_JetMomentForScale       = "EMJES"
+        METRefAlg_HSG5.jet_RunSoftJetsTool         = False
+        METRefAlg_HSG5.jet_SoftJetsPtCut           = 7.0*GeV
+        METRefAlg_HSG5.jet_SoftJetsMaxPtCut        = 20.0*GeV
+        METRefAlg_HSG5.photon_doPhotonTool         = False
+        METRefAlg_HSG5.tau_doTauTool               = False
+        METRefAlg_HSG5.jet_SoftJetsCalibType       = "EmScale"
+        METRefAlg_HSG5.jet_ApplySoftJetsScale      = "No"
+        METRefAlg_HSG5.jet_calibType               = "ExclRefCalib"
+        METRefAlg_HSG5.ele_calibType               = "RefCalib"
+        METRefAlg_HSG5.gamma_calibType             = "EmScale"
+        METRefAlg_HSG5.cellout_calibType           = "Eflow"
+        METRefAlg_HSG5.tau_calibType               = "EmScale"
+        METRefAlg_HSG5.cryo_ApplyCorrection        = "Off"
+        METRefAlg_HSG5.muon_container              = "StacoMuonCollection"
+        METRefAlg_HSG5.muon_algorithm              = "Staco"
+        METRefAlg_HSG5.muon_isolationAlg           = "dRJet"
+        #    METRefAlg_HSG5.jet_ApplyJetJVF             = "Yes"
+        #    METRefAlg_HSG5.plupSuppCorr                ='STVF'
+        #    METRefAlg_HSG5.celloutCorrection           ='STVF'
+        # print METRefAlg_HSG5
+        METRefAlg_HSG5()
+
+        customMETs = ['MET_RefFinal', 'MET_RefGamma', 'MET_RefEle', 'MET_RefTau', 'MET_RefJet',
+                      'MET_CellOut', 'MET_Cryo', 'MET_SoftJets',
+                      'MET_RefJet_JVF', 'MET_RefJet_JVFCut',
+                      'MET_CellOut_Eflow_STVF', 'MET_CellOut_Eflow_JetArea',
+                      'MET_RefFinal_STVF' ]
+        for custom in customMETs:
+            alg += MissingETD3PDObject (level=0, sgkey = custom+'_HSG5',prefix='MET_HSG5_'+custom[4:],
+                                        exclude=['MET_Base', 'MET_Base0', 'MET_Truth_Int',
+                                                 'MET_RefFinal_Comps','MET_Calib_Comps','MET_CellOut_Comps',
+                                                 'MET_CorrTopo_Comps','MET_Cryo_Comps','MET_CryoCone_Comps',
+                                                 'MET_Final_Comps','MET_LocHadTopo_Comps',
+                                                 'MET_LocHadTopoObj_Comps','MET_Muid_Comps',
+                                                 'MET_Muid_Spectro_Comps','MET_Muid_Track_Comps',
+                                                 'MET_MuonBoy_Comps','MET_MuonBoy_Spectro_Comps',
+                                                 'MET_MuonBoy_Track_Comps','MET_MuonMuid_Comps',
+                                                 'MET_Muon_Comps','MET_Muon_Isol_Muid_Comps',
+                                                 'MET_Muon_Isol_Staco_Comps','MET_Muon_NonIsol_Muid_Comps',
+                                                 'MET_Muon_NonIsol_Staco_Comps','MET_Muon_Total_Muid_Comps',
+                                                 'MET_Muon_Total_Staco_Comps','MET_RefEle_Comps',
+                                                 'MET_RefEle_em_Comps','MET_RefGamma_Comps',
+                                                 'MET_RefGamma_em_Comps','MET_RefJet_Comps',
+                                                 'MET_RefJet_em_Comps','MET_RefMuon_Comps',
+                                                 'MET_RefMuon_Muid_Comps','MET_RefMuon_Staco_Comps',
+                                                 'MET_RefMuon_Track_Muid_Comps','MET_RefMuon_Track_Staco_Comps',
+                                                 'MET_RefMuon_Track_em_Comps','MET_RefMuon_Track_Comps',
+                                                 'MET_RefMuon_em_Comps','MET_RefTau_Comps',
+                                                 'MET_RefTau_em_Comps','MET_SoftJets_Comps',
+                                                 'MET_SoftJets_em_Comps','MET_Topo_Comps',
+                                                 'MET_TopoObj_Comps','MET_Track_Comps'],
+                                        allowMissing=True)
+            alg += MissingETCompositionD3PDObject ( level=4, sgkey = 'MET_RefComposition_HSG5', suffix='HSG5_', allowMissing =True,
+                                                    jetSGKey='AntiKt4TopoEMJets'+JetTagD3PD_CollectionPostfix, jetPrefix='jet_AntiKt4TopoEM_MET_')
+    
+    ### large-R jets
+    ### Copied from D3PDMaker/QcdD3PDMaker/share/JetMetD3PD_prodJobOFragment.py
+    if jobproperties.HSG2.doLargeRJetsInD3PD():
+        from RecExConfig.ObjKeyStore import objKeyStore
+        if objKeyStore.isInInput("CaloClusterContainer","CaloCalTopoCluster"):
+            preseqLRJ = AlgSequence (D3PDMakerFlags.PreD3PDAlgSeqName())
+            from QcdD3PDMaker.JSjets import createJSJets
+            from QcdD3PDMaker.JSD3PD import JSD3PD
+            from HSG2DPDUtils.GroomedJetsConfig import getGroomedJetsConfig
+            dictsConfig = getGroomedJetsConfig()
+            for dC in dictsConfig:
+                xx = createJSJets(dC[0], dC[1], preseqLRJ)
+                if xx[0] != None and xx[1] != None:
+                    JSD3PD(xx, alg)
 
     # ... good tracks only (nSCT>3; no pt cut)
     alg += TrackParticleD3PDObject    (**_args ( 3, 'Tracks1', kw,

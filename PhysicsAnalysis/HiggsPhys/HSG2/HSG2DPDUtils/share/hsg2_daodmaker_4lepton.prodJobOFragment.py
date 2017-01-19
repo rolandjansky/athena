@@ -16,19 +16,24 @@ etCut_electron_daod_4l=jobproperties.HSG2.fourLeptonElectronEtCut()
 ptCut_muon_daod_4l=jobproperties.HSG2.fourLeptonMuonPtCut()
 massCut_daod_4l=jobproperties.HSG2.fourLeptonMassCut()
 
-# AthElectronLikelihoodSelector
-from AthenaCommon.AppMgr import ToolSvc
-if not hasattr(ToolSvc, "AthElectronLikelihoodTool_Loose_BL_Pix"):
-    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AthElectronLikelihoodTool
-    ToolSvc += AthElectronLikelihoodTool( "AthElectronLikelihoodTool_Loose_BL_Pix",
-                                          inputPDFFileName  = "ElectronPhotonSelectorTools/ElectronLikelihoodPdfs.root",
-                                          cutLikelihoodEnum = 100 ) #FIXME: The enums need to be standardised
-print "AthElectronLikelihoodTool/AthElectronLikelihoodTool_Loose_BL_Pix is added."
-
-
 from AthenaCommon.Logging import logging
+msg = logging.getLogger( "HSG2DAODFilters" )
 
-msg = logging.getLogger( "HSG2DODFilters" )
+
+# AthElectronLikelihoodTool with PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools/data/ElectronLikelihoodPdfs.root
+# and LikeEnum::Loose by following https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HiggsZZllllSummer2013#More_information
+import ROOT
+import PyCintex
+PyCintex.loadDict('libElectronPhotonSelectorToolsDict')
+from AthenaCommon.AppMgr import ToolSvc
+if not hasattr(ToolSvc, "AthElectronLikelihoodTool_Loose"):
+    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AthElectronLikelihoodTool
+    ToolSvc += AthElectronLikelihoodTool( "AthElectronLikelihoodTool_Loose",
+                                          inputPDFFileName  = "ElectronPhotonSelectorTools/ElectronLikelihoodPdfs.root",
+                                          cutLikelihoodEnum = ROOT.LikeEnum.Loose,
+                                          useUserData = False ,
+                                          forceRecalculateImpactParameter = True)
+    msg.info("AthElectronLikelihoodTool/AthElectronLikelihoodTool_Loose is added")
 
 algsList=[]
 

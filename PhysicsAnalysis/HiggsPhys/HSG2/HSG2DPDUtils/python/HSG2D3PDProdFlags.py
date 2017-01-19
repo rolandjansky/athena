@@ -62,3 +62,14 @@ class WriteTPHSG2D3PD (JobProperty):
     TreeNames = ['physics']
     SubSteps = ['a2d', 'e2d']
 
+class WriteJPSIHSG2D3PD (JobProperty):
+    """Produce the Higgs SG2 D3PD for the Jpsi filter dedicated to the Jpsi tag-and-probe. """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamNTUP_JPSIHSG2'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "HSG2DPDUtils/hsg2_d3pdmaker_Jpsi.prodJobOFragment.py" 
+    TreeNames = ['physics']
+    SubSteps = ['a2d', 'e2d']

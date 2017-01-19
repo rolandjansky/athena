@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
 import AthenaCommon.SystemOfUnits as Units
@@ -113,7 +112,7 @@ class fourLeptonElectronEtCut(JobProperty):
     """
     statusOn=True
     allowedTypes=['float']
-    StoredValue=6*Units.GeV
+    StoredValue=5*Units.GeV
 
 jobproperties.HSG2.add_JobProperty(fourLeptonElectronEtCut)
 
@@ -261,13 +260,22 @@ class llqqJetPtCut(JobProperty):
 
 jobproperties.HSG2.add_JobProperty(llqqJetPtCut)
 
+class llqqMergedJetPtCut(JobProperty):
+    """ Specify merged jet pT cut for 2L2Q filter
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=100*Units.GeV
+
+jobproperties.HSG2.add_JobProperty(llqqMergedJetPtCut)
+
 class llqqElectronQual(JobProperty):
     """ Specify electron quality for 2L2Q filter
     """
     statusOn=True
     allowedTypes=['str']
-    allowedValues=['any','MediumPP','LoosePP']
-    StoredValue='LoosePP'
+    allowedValues=['any','LoosePP or ORLH','LoosePP']
+    StoredValue='LoosePP or ORLH'
 
 jobproperties.HSG2.add_JobProperty(llqqElectronQual)
 
@@ -300,6 +308,16 @@ class llqqJetQual(JobProperty):
     StoredValue='barrel'
 
 jobproperties.HSG2.add_JobProperty(llqqJetQual)
+
+class llqqMergedJetQual(JobProperty):
+    """ Specify merged jet quality for 2L2Q filter
+    """
+    statusOn=True
+    allowedTypes=['str']
+    allowedValues=['any','barrel']
+    StoredValue='barrel'
+
+jobproperties.HSG2.add_JobProperty(llqqMergedJetQual)
 
 class llqqElectronCollection(JobProperty):
     """ Specify electron collection for 2L2Q filter
@@ -373,6 +391,24 @@ class doMV3BTagInD3PD(JobProperty):
 
 jobproperties.HSG2.add_JobProperty(doMV3BTagInD3PD)
 
+class doLargeRJetsInD3PD(JobProperty):
+    """ Perform large-R jet creation when creating D3PD  
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+jobproperties.HSG2.add_JobProperty(doLargeRJetsInD3PD)
+
+class doHSG5METInD3PD(JobProperty):
+    """ Create Missing ET wih AntiKt4TopoEMJets when creating D3PD 
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+jobproperties.HSG2.add_JobProperty(doHSG5METInD3PD)
+
 class tagAndProbeEQual(JobProperty):
     """ Specify electron quality for the Tag and Probe filter
     """ 
@@ -390,6 +426,15 @@ class tagAndProbeMuQual(JobProperty):
     StoredValue=['any','any']
 
 jobproperties.HSG2.add_JobProperty(tagAndProbeMuQual)
+
+class JpsiMuQual(JobProperty):
+    """ Specify muon quality for the Jpsi filter
+    """ 
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=['any','any']
+
+jobproperties.HSG2.add_JobProperty(JpsiMuQual)
 
 class tagAndProbeMixQual(JobProperty):
     """ Specify lepton quality for the Tag and Probe filter
@@ -418,6 +463,15 @@ class tagAndProbeMuPtCuts(JobProperty):
 
 jobproperties.HSG2.add_JobProperty(tagAndProbeMuPtCuts)
 
+class JpsiMuPtCuts(JobProperty):
+    """ Specify di-muon pt cut for the Tag and Probe filter
+    """ 
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[15*Units.GeV,2.5*Units.GeV]
+
+jobproperties.HSG2.add_JobProperty(JpsiMuPtCuts)
+
 class tagAndProbeMixPtCuts(JobProperty):
     """ Specify di-lepton Et/pt cut for the Tag and Probe filter
     """ 
@@ -435,6 +489,42 @@ class tagAndProbeMassCut(JobProperty):
     StoredValue=50*Units.GeV
 
 jobproperties.HSG2.add_JobProperty(tagAndProbeMassCut)
+
+class JpsiMassCutUp(JobProperty):
+    """ Specify di-lepton mass cut for the Jpsi filter
+    """ 
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=4.3*Units.GeV
+
+jobproperties.HSG2.add_JobProperty(JpsiMassCutUp)
+
+class JpsiMassCutDo(JobProperty):
+    """ Specify di-lepton mass cut for the Jpsi filter
+    """ 
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=2.0*Units.GeV
+
+jobproperties.HSG2.add_JobProperty(JpsiMassCutDo)
+
+class UpsilonMassCutUp(JobProperty):
+    """ Specify di-lepton mass cut for the Upsilon filter
+    """ 
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=12.0*Units.GeV
+
+jobproperties.HSG2.add_JobProperty(UpsilonMassCutUp)
+
+class UpsilonMassCutDo(JobProperty):
+    """ Specify di-lepton mass cut for the Upsilon filter
+    """ 
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=8.0*Units.GeV
+
+jobproperties.HSG2.add_JobProperty(UpsilonMassCutDo)
 
 class tagAndProbeAcceptFrwdE(JobProperty):
     """ Accepts frwd electron in the Tag and Probe filter
@@ -454,6 +544,51 @@ class tagAndProbeCheckLArError(JobProperty):
     
 jobproperties.HSG2.add_JobProperty(tagAndProbeCheckLArError)
 
+class JpsiCheckLArError(JobProperty):
+    """ Check LAr Error in the Jpsi filter
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+    
+jobproperties.HSG2.add_JobProperty(JpsiCheckLArError)
+
+class JpsidoOS(JobProperty):
+    """ Specify Jpsi doOS
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+jobproperties.HSG2.add_JobProperty(JpsidoOS)
+
+class JpsidoPhoton(JobProperty): 
+    """ Specify Jpsi doPhoton 
+    """ 
+    statusOn=True 
+    allowedTypes=['bool'] 
+    StoredValue=True 
+
+jobproperties.HSG2.add_JobProperty(JpsidoPhoton) 
+
+class JpsiPhotonPtCut(JobProperty):
+    """ Specify Jpsi photon pt cut
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=15*Units.GeV
+
+jobproperties.HSG2.add_JobProperty(JpsiPhotonPtCut)
+
+class JpsiPhotonEtaCut(JobProperty):
+    """ Specify Jpsi photon eta cut
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=2.5
+
+jobproperties.HSG2.add_JobProperty(JpsiPhotonEtaCut)
+
 class tagAndProbeElectronTriggers(JobProperty):
     """ Specify electron triggers for the Tag and Probe filter
     """ 
@@ -471,4 +606,13 @@ class tagAndProbeMuonTriggers(JobProperty):
     StoredValue=['EF_mu24i_tight','EF_mu36_tight']
 
 jobproperties.HSG2.add_JobProperty(tagAndProbeMuonTriggers)
+
+class JpsiMuonTriggers(JobProperty):
+    """ Specify muon triggers for the Jpsi filter
+    """ 
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=['EF_mu24i_tight','EF_mu36_tight','EF_2mu13','EF_mu18_tight_mu8_EFFS','EF_mu18_tight_Jpsi_EFFS']
+
+jobproperties.HSG2.add_JobProperty(JpsiMuonTriggers)
 
