@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
- ////////////////////////////////////
+////////////////////////////////////
 //                                  //
 //  Class: TRT_SimDriftTimeTool     //
 //                                  //
@@ -10,7 +10,7 @@
 //                                  //
 //  First Version: January 2006     //
 //                                  //
- ////////////////////////////////////
+////////////////////////////////////
 
 #ifndef TRT_SIMDRIFTTIMETOOL_H
 #define TRT_SIMDRIFTTIMETOOL_H
@@ -23,18 +23,18 @@
 
 class IAtRndmGenSvc;
 
-class TRT_SimDriftTimeTool : public AthAlgTool,  virtual public ITRT_SimDriftTimeTool {
-
+class TRT_SimDriftTimeTool : public AthAlgTool,  virtual public ITRT_SimDriftTimeTool
+{
  public:
 
   // Standard Constructor:
   TRT_SimDriftTimeTool(const std::string& type,
-		       const std::string& name,
-		       const IInterface* parent);
+                       const std::string& name,
+                       const IInterface* parent);
 
   // ITRT_SimDriftTimeTool interface implementation:
   virtual double getAverageDriftTime( const double& distIndex,
-				      const double& effectivefield_squared,
+                                      const double& effectivefield_squared,
                                       int strawGasType) const;
 
   // override intialize() method:
