@@ -100,7 +100,7 @@ const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* Trk::DAF_WeightC
         if (doNormalization) {
             // normalize assignment probabilities
             ATH_MSG_VERBOSE("call normalize()");
-            normalize( assgnProbVec, ROTs, beta, cutValue);
+            normalize( *assgnProbVec, ROTs, beta, cutValue);
         }
         return assgnProbVec;
     }
@@ -129,9 +129,9 @@ Trk::CompetingRIOsOnTrack::AssignmentProb Trk::DAF_WeightCalculator::calculateWe
         const int ROTdim = ROT.localParameters().dimension();
         ATH_MSG_VERBOSE("dimension of the measurements: " << ROTdim );
         //sroe: see comment at line 199
-        double ROTdimFactor =   pow(M_PI_MULT_2, (ROTdim*0.5)) ;     //  (2 \pi)^(n/2)
+        double ROTdimFactor =   std::pow(M_PI_MULT_2, (ROTdim*0.5)) ;     //  (2 \pi)^(n/2)
         // 1 / ( (2 \pi)^(n/2) * \sqrt(\beta \det(V_i)) )
-        double factor =  1./( ROTdimFactor * sqrt( beta * ROT.localCovariance().inverse().eval().determinant() ) );
+        double factor =  1./( ROTdimFactor * std::sqrt( beta * ROT.localCovariance().inverse().eval().determinant() ) );
         ATH_MSG_VERBOSE("scale factor of prob: " << factor );
         // -----------------------------------------
         // calculate exponential in the multivariate Gaussian:
@@ -152,7 +152,7 @@ Trk::CompetingRIOsOnTrack::AssignmentProb Trk::DAF_WeightCalculator::calculateWe
             msg(MSG::VERBOSE)<<"ROT weight(locX): " << weight(Trk::locX,Trk::locX) <<endmsg;
             msg(MSG::VERBOSE)<<"exponent of prob: " << exponential <<endmsg;
         }
-        return ( factor * exp(-exponential) );
+        return ( factor * std::exp(-exponential) );
     } // end if (equal surfaces)
 }
 
@@ -211,14 +211,14 @@ void Trk::DAF_WeightCalculator::normalize (
             * is correct, and in fact a floating point exponent was intended.
             * ref.:http://cds.cern.ch/record/1014533/files/thesis-2007-011.pdf, p. 26
             **/
-            const double ROTdimFactor =  pow(2.0*M_PI, (ROTdim*0.5)) ;     //  (2 \pi)^(n/2)
-            const double cutFactor = exp(-cutValue/(beta*2.));
+            const double ROTdimFactor =  std::pow(2.0*M_PI, (ROTdim*0.5)) ;     //  (2 \pi)^(n/2)
+            const double cutFactor = std::exp(-cutValue/(beta*2.));
             ATH_MSG_VERBOSE("   cut factor: " << cutFactor );
             double cutProbSum = 0;
             //std::vector< const Trk::RIO_OnTrack*>::const_iterator rotIter = ROTs->begin();
             for (const auto & thisROT: *ROTs) {
                 // exp(-1/2 * c/\beta) / ( (2 \pi)^(n/2) * \sqrt(\det(V_i)) )
-                cutProbSum +=  cutFactor/( ROTdimFactor * sqrt( beta * thisROT->localCovariance().determinant() ) );
+                cutProbSum +=  cutFactor/( ROTdimFactor * std::sqrt( beta * thisROT->localCovariance().determinant() ) );
             }
             ATH_MSG_VERBOSE("   sum of non-normalized assgn-probs: " << assgnProbSum );
             ATH_MSG_VERBOSE("   sum of values for probabilty cuts: " << cutProbSum );
