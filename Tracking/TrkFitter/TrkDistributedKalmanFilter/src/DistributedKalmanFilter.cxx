@@ -51,9 +51,10 @@
 
 #include "TrkTrack/TrackInfo.h"
 
-
 #include <vector>
 #include <ext/algorithm>
+
+
 
 // constructor
 
@@ -61,7 +62,8 @@ Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,const
 						      const IInterface* p) :
   AthAlgTool(t,n,p),
   m_ROTcreator("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"),
-  m_extrapolator("Trk::Extrapolator/Extrapolator"), 
+  m_extrapolator("Trk::Extrapolator/Extrapolator"),
+  m_idHelper(nullptr),
   m_MagFieldSvc("AtlasFieldSvc",this->name())
 {
   // AlgTool stuff
@@ -88,35 +90,17 @@ Trk::DistributedKalmanFilter::~DistributedKalmanFilter()
 // initialize
 StatusCode Trk::DistributedKalmanFilter::initialize()
 {
-  StatusCode s = AthAlgTool::finalize();  
+  //StatusCode s = AthAlgTool::finalize();  
 
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg; 
-    return StatusCode::FAILURE;
-  }  
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
-  s = m_MagFieldSvc.retrieve();
-  if(s.isFailure()) {
-    msg(MSG::FATAL)<<"Could not find Athena MagFieldService "<<endmsg;
-    return s; 
-  }
-
-  s=m_ROTcreator.retrieve();
-  if (s.isFailure()) 
-    {
-      msg(MSG::FATAL)<<"Could not get ROTcreator "<<m_ROTcreator<<endmsg;
-      return s;
-    }
-
-  s=m_extrapolator.retrieve();
-  if (s.isFailure()) 
-    {
-      msg(MSG::FATAL)<<"Could not get extrapolator tool:"<<m_extrapolator<<endmsg;
-      return s;
-    }
-
-  msg(MSG::INFO) << "initialize() successful in Trk::DistributedKalmanFilter"
-      << endmsg;
+  ATH_CHECK( m_MagFieldSvc.retrieve());
+  
+  ATH_CHECK(m_ROTcreator.retrieve());
+  
+  ATH_CHECK(m_extrapolator.retrieve());
+  
+  ATH_MSG_VERBOSE( "initialize() successful in Trk::DistributedKalmanFilter");
   return StatusCode::SUCCESS;
 }
 
@@ -125,9 +109,9 @@ StatusCode Trk::DistributedKalmanFilter::initialize()
 StatusCode Trk::DistributedKalmanFilter::finalize()
 {
   // init message stream
-  StatusCode sc = AthAlgTool::finalize();
-  msg(MSG::INFO) << " finalize() successful in Trk::DistributedKalmanFilter" << endmsg;	
-  return sc;
+  //StatusCode sc = AthAlgTool::finalize();
+  ATH_MSG_VERBOSE(" finalize() successful in Trk::DistributedKalmanFilter" );	
+  return StatusCode::SUCCESS;
 }
 
 
@@ -147,15 +131,13 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&       inputTrack
   
   // protection against track not having any parameters
   if (inputTrack.trackParameters()->empty()) {
-    msg(MSG::ERROR) << "need estimated track parameters near "
-	<< "origin, reject fit" << endmsg;
-    return 0;
+    ATH_MSG_ERROR( "need estimated track parameters near "<< "origin, reject fit" );
+    return nullptr;
   }
   // protection against not having RIO_OnTracks
   if (inputTrack.measurementsOnTrack()->empty()) {
-    msg(MSG::ERROR) << "try to refit track with empty "
-	<< "vec<RIO_OnTrack>, reject fit" << endmsg;
-    return 0;
+    ATH_MSG_ERROR( "try to refit track with empty "<< "vec<RIO_OnTrack>, reject fit" );
+    return nullptr;
   }
 	
   // create PrepRawData subset
@@ -168,8 +150,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&       inputTrack
   for ( ; it!=itEnd; ++it) {
     if (!(*it)) 
       {
-	msg(MSG::WARNING) << "This track contains empty MeasurementBase "
-	    << "objects! Skipped this MB.." << endmsg;  
+	      ATH_MSG_WARNING( "This track contains empty MeasurementBase "<< "objects! Skipped this MB.." );  
       } 
     else 
       {
