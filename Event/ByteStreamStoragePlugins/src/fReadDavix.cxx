@@ -34,6 +34,7 @@ fReadDavix::fReadDavix()
 {
   m_pfd = 0;
   fOffset = 0;
+  fd = nullptr;
 
   davixParam = new Davix::RequestParams();
   err = NULL;
