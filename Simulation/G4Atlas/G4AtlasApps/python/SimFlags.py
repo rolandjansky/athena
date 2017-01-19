@@ -295,6 +295,7 @@ class SimLayout(JobProperty):
     standalone test beams these are the possible tb
     configurations:
 
+    tb_Tile2000_2003_2B1EB --> 2 barrels and 1 extended barrel
     tb_Tile2000_2003_2B2EB --> 2 barrels and 2 extended barrels
     tb_Tile2000_2003_3B    --> 3 barrels
     tb_Tile2000_2003_5B    --> 5 barrels
@@ -326,6 +327,7 @@ class SimLayout(JobProperty):
                      'ctbh8_photon',
                      'ctbh8_lar-material',
                      'ctbh8_calodata',
+                     'tb_Tile2000_2003_2B1EB',
                      'tb_Tile2000_2003_2B2EB',
                      'tb_Tile2000_2003_3B',
                      'tb_Tile2000_2003_5B',
