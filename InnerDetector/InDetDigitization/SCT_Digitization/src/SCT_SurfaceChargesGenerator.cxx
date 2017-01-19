@@ -87,7 +87,7 @@ parent)
     m_h_mobility_trap(nullptr),
     m_h_trap_pos(nullptr),
     m_hashId(0),
-    m_distortionsTool("SCT_DistortionsTool"),
+    m_distortionsTool("SCT_DistortionsTool", this),
     m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
     m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
     m_radDamageSvc("SCT_RadDamageSummarySvc", name),

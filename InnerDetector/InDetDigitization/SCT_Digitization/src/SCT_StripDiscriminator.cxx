@@ -24,7 +24,7 @@ using namespace InDetDD;
 SCT_StripDiscriminator::SCT_StripDiscriminator(const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent),
     m_rndmEngine(nullptr),
-    m_sct_TimeWalkGen("SCT_TimeWalkGenerator")
+    m_sct_TimeWalkGen("SCT_TimeWalkGenerator", this)
 {
   declareInterface< ISCT_StripDiscriminator >( this );
   declareProperty("DiscrThresh",        m_discrThresh=4100,       "Discriminator threshold");
