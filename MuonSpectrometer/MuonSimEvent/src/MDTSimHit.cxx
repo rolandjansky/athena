@@ -75,6 +75,26 @@ MDTSimHit::MDTSimHit(HitID id,
 {
 }
 
+MDTSimHit::MDTSimHit(HitID id,
+		     double time,
+		     double radius, 
+		     const Amg::Vector3D& position, 
+		     const HepMcParticleLink hmpl,
+		     const double stepLength,
+		     const double energyDeposit,
+		     const int particleEncoding, 
+                      const double kineticEnergy)
+    : m_MDTid(id), m_globalTime(time)
+    , m_driftRadius(radius)
+    , m_localPosition(position)
+    , m_partLink(hmpl)
+    , m_stepLength(static_cast<float>(stepLength))
+    , m_energyDeposit(static_cast<float>(energyDeposit))
+    , m_particleEncoding(particleEncoding)
+    , m_kineticEnergy(static_cast<float>(kineticEnergy))
+{
+}
+
 
 // Implementation of member functions
 std::string MDTSimHit::print() const {

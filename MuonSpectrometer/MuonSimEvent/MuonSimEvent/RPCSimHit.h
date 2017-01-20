@@ -37,6 +37,14 @@ public:
 	      const double stepLength, 
 	      const int particleEncoding, 
 	      const double kineticEnergy);
+    RPCSimHit(int id, double time, 
+	      const Amg::Vector3D& prePosition,  
+	      const HepMcParticleLink hmpl, 	
+	      const Amg::Vector3D& postPosition,
+	      const double energyDeposit, 
+	      const double stepLength, 
+	      const int particleEncoding, 
+	      const double kineticEnergy);
     
    
 
