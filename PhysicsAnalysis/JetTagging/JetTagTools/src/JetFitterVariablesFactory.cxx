@@ -78,7 +78,10 @@ StatusCode JetFitterVariablesFactory::finalize() {
 
   StatusCode JetFitterVariablesFactory::fillJetFitterVariables(const xAOD::Jet &myJet, xAOD::BTagging* BTag, const Trk::VxJetFitterVertexInfo* myJetFitterInfo, std::string basename) const{
 
-
+    //VALERIO NASTY HACK!!!!
+    if ( basename.find("Flip")!=std::string::npos) m_revertFromPositiveToNegativeTags=true;
+    else m_revertFromPositiveToNegativeTags=false;
+    
     int nVTX(0);
     int nTracksAtVtx(0);
     int nSingleTracks(0);
