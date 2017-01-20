@@ -141,7 +141,7 @@ public:
   virtual const SG::auxid_set_t& getAuxIDs() const { return m_set; }
   virtual void* getData (auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) { return 0; }
   virtual const SG::auxid_set_t& getWritableAuxIDs() const { return m_set; }
-  virtual void resize (size_t /*sz*/) {}
+  virtual bool resize (size_t /*sz*/) { return false; }
   virtual void reserve (size_t /*sz*/) {}
   virtual void shift (size_t /*pos*/, ptrdiff_t /*offs*/) {}
   virtual void* getDecoration (auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) { std::abort(); }
