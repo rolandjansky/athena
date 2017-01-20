@@ -103,7 +103,7 @@ private:
     Amg::Vector3D              m_localPosition;
     
     /** radius assigned to radius if radius is invalid */
-    double DEFAULT_TUBE_RADIUS;
+    double m_DEFAULT_TUBE_RADIUS;
 
 };
 

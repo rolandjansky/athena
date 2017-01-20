@@ -21,7 +21,7 @@ MicromegasSensitiveDetector::MicromegasSensitiveDetector(const std::string& name
   , m_GenericMuonHitCollection( hitCollectionName )
 {
   m_muonHelper = MicromegasHitIdHelper::GetHelper();
-  m_muonHelper->PrintFields();
+  //m_muonHelper->PrintFields();
 }
 
 // Implemenation of memebr functions
@@ -96,9 +96,8 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
   int MmId = m_muonHelper->BuildMicromegasHitId(subType, iPhi, iRing, mLayer,nLayer, iSide);
  
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
 
-  m_GenericMuonHitCollection->Emplace(MmId, globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
+  m_GenericMuonHitCollection->Emplace(MmId, globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,trHelp.GetParticleLink());
 
   //    G4cout << "MMs "<<m_muonHelper->GetStationName(MmId)
   // 	            << " "<<m_muonHelper->GetFieldValue("PhiSector")

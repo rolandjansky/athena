@@ -70,8 +70,8 @@ public:
     
 private:
     /** member data */
-    SG::WriteHandle<CSCSimHitCollection>  myCSCHitColl;
-    CscHitIdHelper* muonHelper;
+    SG::WriteHandle<CSCSimHitCollection>  m_myCSCHitColl;
+    CscHitIdHelper* m_muonHelper;
 };
 
 #endif
