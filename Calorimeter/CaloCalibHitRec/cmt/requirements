@@ -13,7 +13,7 @@ use xAODCaloEvent     xAODCaloEvent-*      Event/xAOD
 use CaloRec           CaloRec-*            Calorimeter
 use Identifier        Identifier-*         DetectorDescription
 use CaloGeoHelpers    CaloGeoHelpers-*     Calorimeter
-#use CaloInterface     CaloInterface-*      Calorimeter
+use AtlasROOT         AtlasROOT-*          External
 
 private
 use CaloEvent         CaloEvent-*          Calorimeter
@@ -21,16 +21,19 @@ use AthenaKernel      AthenaKernel-*       Control
 use AtlasCLHEP        AtlasCLHEP-*         External
 use PathResolver      PathResolver-*       Tools
 use CaloDetDescr      CaloDetDescr-*       Calorimeter
+use CaloInterface     CaloInterface-*      Calorimeter
 use AtlasDetDescr     AtlasDetDescr-*      DetectorDescription
 use LArRecEvent       LArRecEvent-*        LArCalorimeter
 use McParticleEvent   McParticleEvent-*    PhysicsAnalysis/TruthParticleID
 use TileEvent         TileEvent-*          TileCalorimeter
+use xAODEgamma        xAODEgamma-*         Event/xAOD
+use xAODTruth         xAODTruth-*          Event/xAOD
 end_private
 
 library CaloCalibHitRec *.cxx -s=components *.cxx
-apply_pattern component_library
+#apply_pattern component_library
 #apply_pattern dual_use_library files=*.cxx
-
+apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.py"
 
 # apply_pattern ctest
