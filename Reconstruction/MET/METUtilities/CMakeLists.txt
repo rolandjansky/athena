@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 786364 2016-11-24 18:23:50Z khoo $
+# $Id: CMakeLists.txt 788236 2016-12-06 14:03:54Z khoo $
 ################################################################################
 # Package: METUtilities
 ################################################################################
@@ -102,3 +102,4 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
 atlas_install_data( data/* )
+
