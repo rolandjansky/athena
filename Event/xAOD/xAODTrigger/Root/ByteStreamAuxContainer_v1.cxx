@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.cxx 658394 2015-04-01 12:48:35Z krasznaa $
+// $Id: ByteStreamAuxContainer_v1.cxx 793282 2017-01-20 20:00:48Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -261,25 +261,29 @@ namespace xAOD {
       return m_tsAuxids->m_set;
    }
 
-   void ByteStreamAuxContainer_v1::resize( size_t size ) {
+   bool ByteStreamAuxContainer_v1::resize( size_t size ) {
 
       guard_t guard (m_mutex);
 
       if (m_locked)
         throw SG::ExcStoreLocked ("resize");
 
-      std::vector< SG::IAuxTypeVector* >::iterator itr = m_dynamicVecs.begin();
-      std::vector< SG::IAuxTypeVector* >::iterator end = m_dynamicVecs.end();
-      for( ; itr != end; ++itr ) {
-         if( *itr ) ( *itr )->resize( size );
-      }
-      itr = m_staticVecs.begin();
-      end = m_staticVecs.end();
-      for( ; itr != end; ++itr ) {
-         if( *itr ) ( *itr )->resize( size );
+      bool nomoves = true;
+      for (SG::IAuxTypeVector* v : m_dynamicVecs) {
+         if(v) {
+           if (!v->resize( size ))
+             nomoves = false;
+         }
       }
 
-      return;
+      for (SG::IAuxTypeVector* v : m_staticVecs) {
+         if(v) {
+           if (!v->resize( size ))
+             nomoves = false;
+         }
+      }
+
+      return nomoves;
    }
 
    void ByteStreamAuxContainer_v1::reserve( size_t size ) {

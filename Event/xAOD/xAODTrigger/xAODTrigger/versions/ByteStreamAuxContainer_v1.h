@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.h 645967 2015-02-11 12:29:36Z krasznaa $
+// $Id: ByteStreamAuxContainer_v1.h 793282 2017-01-20 20:00:48Z ssnyder $
 #ifndef XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 
@@ -38,8 +38,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 645967 $
-   /// $Date: 2015-02-11 13:29:36 +0100 (Wed, 11 Feb 2015) $
+   /// $Revision: 793282 $
+   /// $Date: 2017-01-20 21:00:48 +0100 (Fri, 20 Jan 2017) $
    ///
    class ByteStreamAuxContainer_v1
      : public SG::IAuxStore
@@ -99,7 +99,7 @@ namespace xAOD {
       virtual const auxid_set_t& getWritableAuxIDs() const;
 
       /// Resize the arrays to a given size
-      virtual void resize( size_t size );
+      virtual bool resize( size_t size );
       /// Reserve a given size for the arrays
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays
