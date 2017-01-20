@@ -845,7 +845,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   const TrigRoiDescriptor* roiDescriptor = 0;
 
-  if (getFeature(outputTE, roiDescriptor, m_jetKey) == HLT::OK) {
+  if ((getFeature(outputTE, roiDescriptor, m_jetKey) == HLT::OK) && roiDescriptor) {
     if (msgLvl() <= MSG::DEBUG && roiDescriptor != 0) {
       msg() << MSG::DEBUG << "Using TE: " << "RoI id " << roiDescriptor->roiId()
 	    << ", Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endmsg;
