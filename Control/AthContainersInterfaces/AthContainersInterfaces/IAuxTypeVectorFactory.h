@@ -80,10 +80,9 @@ public:
    * Returns a newly-allocated object.
    * FIXME: Should return a unique_ptr.
    */
-  virtual IAuxTypeVector* createFromData (void* /*data*/,
-                                          bool /*isPacked*/,
-                                          bool /*ownFlag*/) const
-  { std::abort(); }
+  virtual IAuxTypeVector* createFromData (void* data,
+                                          bool isPacked,
+                                          bool ownFlag) const = 0;
 
 
   /**

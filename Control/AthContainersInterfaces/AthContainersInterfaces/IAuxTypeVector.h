@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IAuxTypeVector.h 633937 2014-12-05 09:36:07Z krasznaa $
+// $Id: IAuxTypeVector.h 793235 2017-01-20 16:57:37Z ssnyder $
 /**
  * @file AthContainersInterfaces/IAuxTypeVector.h
  * @author scott snyder <snyder@bnl.gov>
@@ -70,8 +70,10 @@ public:
   /**
    * @brief Change the size of the vector.
    * @param sz The new vector size.
+   * Returns true if it is known that iterators have not been invalidated;
+   * false otherwise.
    */
-  virtual void resize (size_t sz) = 0;
+  virtual bool resize (size_t sz) = 0;
 
 
   /**

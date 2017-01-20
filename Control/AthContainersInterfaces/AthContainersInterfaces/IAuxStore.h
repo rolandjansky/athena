@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IAuxStore.h 626146 2014-11-04 19:59:30Z ssnyder $
+// $Id: IAuxStore.h 793235 2017-01-20 16:57:37Z ssnyder $
 /**
  * @file AthContainersInterfaces/IAuxStore.h
  * @author scott snyder <snyder@bnl.gov>
@@ -94,8 +94,12 @@ public:
    * If the size of the container grows, the new elements should
    * be default-initialized; if it shrinks, destructors should
    * be run as appropriate.
+   *
+   * Should return @c true if it is known that none of the data pointers
+   * changed (and thus the cache does not need to be cleared), false
+   * otherwise.
    */
-  virtual void resize (size_t sz) = 0;
+  virtual bool resize (size_t sz) = 0;
 
 
   /**
