@@ -205,7 +205,8 @@ namespace Trk {
     declareProperty("PRDTruthCollectionCSC", m_multiTruthCollectionCSCName = "CSC_TruthMap");
     m_barcode = 0;
 #endif
-
+    m_hitcount = 0;
+    m_energybalance=0;
     declareProperty("FixBrem", m_fixbrem = -1);
 
     declareInterface<IGlobalTrackFitter>(this);
@@ -5933,28 +5934,18 @@ public:
           newerror[0] = sqrt(covmat(0, 0));
           if (state_maxsipull->sinStereo() != 0) {
             double v0 = 0.5 *
-                        (covmat(0,
-                                0) +
-                         covmat(1,
-                                1) -
-                         sqrt((covmat(0,
-                                      0) +
-                               covmat(1,
-                                      1)) *
-                              (covmat(0,
-                                      0) +
+                        (covmat(0, 0) +
+                         covmat(1, 1) -
+                         sqrt((covmat(0, 0) +
+                               covmat(1, 1)) *
+                              (covmat(0, 0) +
             covmat(1, 1)) - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))));
             double v1 = 0.5 *
-                        (covmat(0,
-                                0) +
-                         covmat(1,
-                                1) +
-                         sqrt((covmat(0,
-                                      0) +
-                               covmat(1,
-                                      1)) *
-                              (covmat(0,
-                                      0) +
+                        (covmat(0, 0) +
+                         covmat(1, 1) +
+                         sqrt((covmat(0, 0) +
+                               covmat(1, 1)) *
+                              (covmat(0, 0) +
             covmat(1, 1)) - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))));
             newsinstereo = sin(0.5 * asin(2 * covmat(0, 1) / (v0 - v1)));
             newerror[0] = sqrt(v0);
@@ -5980,6 +5971,9 @@ public:
 
         if (broadrot && newpull < m_outlcut &&
             (newerror[0] > 1.5 * olderror[0] || newerror[1] > 1.5 * std::abs(olderror[1]))) {
+          if ((measno_maxsipull < 0)or(measno_maxsipull >= (int) res.size())) {
+            throw std::runtime_error("'res' array index out of range in TrkGlobalChi2Fitter/src/GlobalChi2Fitter.cxx:" + std::to_string(__LINE__));
+          }
           trackok = false;
           newtrajectory = oldtrajectory;
           double *myarray = a.GetMatrixArray();
