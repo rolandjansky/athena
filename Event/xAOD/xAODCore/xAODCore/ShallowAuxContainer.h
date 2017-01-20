@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.h 785968 2016-11-23 12:34:36Z krasznaa $
+// $Id: ShallowAuxContainer.h 793264 2017-01-20 18:52:30Z ssnyder $
 #ifndef XAODCORE_SHALLOWAUXCONTAINER_H
 #define XAODCORE_SHALLOWAUXCONTAINER_H
 
@@ -41,8 +41,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 785968 $
-   /// $Date: 2016-11-23 13:34:36 +0100 (Wed, 23 Nov 2016) $
+   /// $Revision: 793264 $
+   /// $Date: 2017-01-20 19:52:30 +0100 (Fri, 20 Jan 2017) $
    ///
    class ShallowAuxContainer : public SG::IAuxStore,
                                public SG::IAuxStoreIO,
@@ -123,7 +123,7 @@ namespace xAOD {
       virtual const auxid_set_t& getWritableAuxIDs() const;
 
       /// Resize the arrays to a given size
-      virtual void resize( size_t size );
+      virtual bool resize( size_t size );
       /// Reserve a given size for the arrays
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays

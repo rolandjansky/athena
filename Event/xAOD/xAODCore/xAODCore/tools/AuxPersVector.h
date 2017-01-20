@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxPersVector.h 785202 2016-11-18 18:42:53Z ssnyder $
+// $Id: AuxPersVector.h 793264 2017-01-20 18:52:30Z ssnyder $
 #ifndef XAODCORE_AUXPERSVECTOR_H
 #define XAODCORE_AUXPERSVECTOR_H
 
@@ -23,8 +23,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 785202 $
-   /// $Date: 2016-11-18 19:42:53 +0100 (Fri, 18 Nov 2016) $
+   /// $Revision: 793264 $
+   /// $Date: 2017-01-20 19:52:30 +0100 (Fri, 20 Jan 2017) $
    ///
    template< class T, class VEC=std::vector< T > >
    class AuxPersVector : public SG::IAuxTypeVector {
@@ -43,7 +43,7 @@ namespace xAOD {
       virtual void* toPtr() {
          if (m_vec.empty())
            return 0;
-         return &*m_vec.begin();
+         return m_vec.data();
       }
       virtual void* toVector() {
          return &m_vec;
@@ -51,8 +51,10 @@ namespace xAOD {
       virtual size_t size() const {
          return m_vec.size();
       }
-      virtual void resize( size_t sz ) {
+      virtual bool resize( size_t sz ) {
+         const void* orig = toPtr();
          m_vec.resize( sz );
+         return toPtr() == orig;
       }
       virtual void reserve( size_t sz ) {
          m_vec.reserve( sz );

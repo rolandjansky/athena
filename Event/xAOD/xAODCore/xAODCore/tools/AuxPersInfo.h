@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxPersInfo.h 634134 2014-12-05 19:27:41Z ssnyder $
+// $Id: AuxPersInfo.h 793264 2017-01-20 18:52:30Z ssnyder $
 #ifndef XAODCORE_TOOLS_AUXPERSINFO_H
 #define XAODCORE_TOOLS_AUXPERSINFO_H
 
@@ -24,8 +24,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 634134 $
-   /// $Date: 2014-12-05 20:27:41 +0100 (Fri, 05 Dec 2014) $
+   /// $Revision: 793264 $
+   /// $Date: 2017-01-20 19:52:30 +0100 (Fri, 20 Jan 2017) $
    ///
    template< class T >
    class AuxPersInfo : public SG::IAuxTypeVector {
@@ -50,11 +50,12 @@ namespace xAOD {
       virtual size_t size() const {
          return 1;
       }
-      virtual void resize( size_t sz ) {
+      virtual bool resize( size_t sz ) {
          if( sz != 1 ) {
             throw std::runtime_error( "Calling resize with != 1 on a "
                                       "non-vector" );
          }
+         return true;
       }
       virtual void reserve( size_t sz ) {
          if( sz != 1 ) {
