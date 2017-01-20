@@ -35,7 +35,7 @@ void test1()
   int* ptr = reinterpret_cast<int*> (vec->toPtr());
   for (int i=0; i < 10; i++)
     ptr[i] = i+1;
-  vec->resize (100);
+  assert (vec->resize (100) == false);
   vec->reserve (100);
   ptr = reinterpret_cast<int*> (vec->toPtr());
   for (int i=0; i < 10; i++)
@@ -47,7 +47,7 @@ void test1()
 
   // 1 2 3 4 5 6 7 8 9 10
 
-  vec->resize (10);
+  assert (vec->resize (10) == true);
   vec->shift (7, -3);
   assert (vec->size() == 7);
   // 1 2 3 4 8 9 10
@@ -88,7 +88,7 @@ void test1()
   assert (ptr2[8] == 10);
   
 
-  vec->resize (0);
+  assert (vec->resize (0) == false);
   assert (vec->toPtr() == 0);
 
   delete vec;

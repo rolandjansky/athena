@@ -178,11 +178,15 @@ size_t RootAuxVector::size() const
 /**
  * @brief Change the size of the vector.
  * @param sz The new vector size.
+ * Returns true if it is known that iterators have not been invalidated;
+ * false otherwise.
  */
-void RootAuxVector::resize (size_t sz)
+bool RootAuxVector::resize (size_t sz)
 {
   TVirtualCollectionProxy::TPushPop bind (m_proxy, m_vec);
+  const void* orig = this->toPtr();
   m_proxy->Allocate(sz, false);
+  return this->toPtr() == orig;
 }
 
 
