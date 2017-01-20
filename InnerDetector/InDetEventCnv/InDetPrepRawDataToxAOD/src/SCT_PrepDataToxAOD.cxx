@@ -541,6 +541,7 @@ void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xpr
 
 
   std::vector<int> strip;
+  std::vector<int> eta_strip_index;
   std::vector<int> timebin;
   std::vector<int> groupsize;
   
@@ -558,14 +559,17 @@ void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xpr
       timebin.push_back( tbin);
       groupsize.push_back( gs);
       strip.push_back(m_SCTHelper->strip(sctRdo->identify())); 
+      eta_strip_index.push_back(m_SCTHelper->row(sctRdo->identify())); 
     } else {
       timebin.push_back( -1 );
-      strip.push_back( -1 );
       groupsize.push_back( -1 );     
+      strip.push_back( -1 );
+      eta_strip_index.push_back( -1 );
     }
   }
   
   xprd->auxdata< std::vector<int> >("rdo_strip") = strip;
+  xprd->auxdata< std::vector<int> >("rdo_eta_strip_index") = eta_strip_index;
   xprd->auxdata< std::vector<int> >("rdo_timebin") = timebin;
   xprd->auxdata< std::vector<int> >("rdo_groupsize") = groupsize;
   
