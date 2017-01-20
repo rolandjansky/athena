@@ -306,7 +306,7 @@ StatusCode RpcDigitizationTool::initialize() {
 	      m_ClusterSize_fromCOOL  = true;
 	      m_RPCInfoFromDb         = true;
 	      m_kill_deadstrips       = false;
-	      m_applyEffThreshold     = true;
+	      m_applyEffThreshold     = false; //for MC16 [2015-2016]IoV will use measurements, [2017]IoV will use measurements with threshold at 50% already applied in the condition data ////// it was true (with threshold 50%) for MC15c;
 	      m_CutProjectedTracks    = 100;
 	    }
 	}
@@ -2094,19 +2094,19 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       }
       
       
-      if (m_applyEffThreshold) { 
-	//gabriele Set efficiency from dead strip fraction instead of nominal value
-	float effgap = PhiAndEtaEff+OnlyEtaEff+OnlyPhiEff;
-	float s_EtaPanelEfficiency=1.-FracDeadStripEta;
-	float s_PhiPanelEfficiency=1.-FracDeadStripPhi;
-	float s_PhiAndEtaEff      =  s_EtaPanelEfficiency        *   s_PhiPanelEfficiency  /effgap;
-	if(s_PhiAndEtaEff<PhiAndEtaEff)PhiAndEtaEff=s_PhiAndEtaEff;
-	float s_OnlyEtaEff        =  s_EtaPanelEfficiency        -   PhiAndEtaEff        ;
-	float s_OnlyPhiEff        =  s_PhiPanelEfficiency        -   PhiAndEtaEff        ;  
+      //if (m_applyEffThreshold) { 
+      //gabriele Set efficiency from dead strip fraction instead of nominal value
+      float effgap = PhiAndEtaEff+OnlyEtaEff+OnlyPhiEff;
+      float s_EtaPanelEfficiency=1.-FracDeadStripEta;
+      float s_PhiPanelEfficiency=1.-FracDeadStripPhi;
+      float s_PhiAndEtaEff      =  s_EtaPanelEfficiency        *   s_PhiPanelEfficiency  /effgap;
+      if(s_PhiAndEtaEff<PhiAndEtaEff)PhiAndEtaEff=s_PhiAndEtaEff;
+      float s_OnlyEtaEff        =  s_EtaPanelEfficiency        -   PhiAndEtaEff        ;
+      float s_OnlyPhiEff        =  s_PhiPanelEfficiency        -   PhiAndEtaEff        ;  
       
-	if(s_OnlyEtaEff  <OnlyEtaEff  )OnlyEtaEff  =s_OnlyEtaEff  ;
-	if(s_OnlyPhiEff  <OnlyPhiEff  )OnlyPhiEff  =s_OnlyPhiEff  ;
-      }
+      if(s_OnlyEtaEff  <OnlyEtaEff  )OnlyEtaEff  =s_OnlyEtaEff  ;
+      if(s_OnlyPhiEff  <OnlyPhiEff  )OnlyPhiEff  =s_OnlyPhiEff  ;
+      //      }
      
     }
     /* 
