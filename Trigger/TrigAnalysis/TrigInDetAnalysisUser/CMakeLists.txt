@@ -119,3 +119,4 @@ atlas_add_executable( TIDAruntool
 # Install files from the package:
 atlas_install_runtime( share/TIDA*.dat share/Test_bin.dat share/TIDA*.py )
 
+atlas_install_scripts( scripts/TIDA*.sh )
