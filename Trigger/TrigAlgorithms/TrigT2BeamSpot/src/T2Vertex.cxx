@@ -3,7 +3,7 @@
 */
 
 //
-// $Id: T2Vertex.cxx 702277 2015-10-22 10:33:51Z smh $
+// $Id: T2Vertex.cxx 793162 2017-01-20 03:48:25Z ssnyder $
 //
 
 // This class
@@ -15,10 +15,11 @@
 #include "TrkTrack/Track.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TMath.h"
-using Gaudi::Units::GeV;
 
 #include <functional>
 #include <numeric>
+#include <cmath>
+using Gaudi::Units::GeV;
 using std::unary_function;
 using std::binary_function;
 using std::accumulate;
@@ -50,7 +51,7 @@ namespace PESA
 
   struct TrackPt : public unary_function< TrigInDetTrack, double >
   {
-    double operator()( const TrigInDetTrack* track ) { return abs(track->param()->pT())/GeV; }
+    double operator()( const TrigInDetTrack* track ) { return std::abs(track->param()->pT())/GeV; }
   };
 
 

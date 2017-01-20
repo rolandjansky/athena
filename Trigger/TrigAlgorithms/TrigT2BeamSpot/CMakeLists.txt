@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
-                          Control/DataModel
+                          Control/AthContainers
                           Event/EventInfo
                           Event/EventPrimitives
                           GaudiKernel
@@ -31,7 +31,7 @@ atlas_add_component( TrigT2BeamSpot
                      src/*.cxx
                      src/components/TrigT2*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent TrigInterfacesLib DataModel EventInfo EventPrimitives GaudiKernel TrkParameters TrkTrack TrkTrackSummary TrigInDetEvent TrigNavigationLib TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent TrigInterfacesLib AthContainers EventInfo EventPrimitives GaudiKernel TrkParameters TrkTrack TrkTrackSummary TrigInDetEvent TrigNavigationLib TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigT2BeamSpot )

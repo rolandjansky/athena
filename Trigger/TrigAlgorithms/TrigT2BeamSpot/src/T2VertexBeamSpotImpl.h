@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2VertexBeamSpotImpl.h 760210 2016-07-07 09:33:44Z hartj $
+/// $Id: T2VertexBeamSpotImpl.h 793164 2017-01-20 03:59:26Z ssnyder $
 ///
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
 ///
@@ -29,7 +29,7 @@
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
  * File and Version Information:
- * $Id: T2VertexBeamSpotImpl.h 760210 2016-07-07 09:33:44Z hartj $
+ * $Id: T2VertexBeamSpotImpl.h 793164 2017-01-20 03:59:26Z ssnyder $
  **********************************************************************************/
 
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOTIMPL_H
@@ -46,7 +46,8 @@
 #include "TrigT2BeamSpot/T2VertexBeamSpot.h"  // Need this only for forwarding methods msg() and msgLvl()
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "TrkTrack/TrackCollection.h"
 
@@ -153,35 +154,35 @@ namespace PESA {
     /// Methods
 
     void processTEs( const std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
-                     TrigInDetTrackCollection& mySelectedTrackCollection );
+                     ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection );
 
     void processTEs( const std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
-                     TrackCollection& mySelectedTrackCollection );
+                      ConstDataVector<TrackCollection>& mySelectedTrackCollection );
 
     void processROIs( const HLT::TEVec& myTEVec,
-                      TrigInDetTrackCollection& mySelectedTrackCollection );
+                      ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection );
 
     void processROIs( const HLT::TEVec& myTEVec,
-                      TrackCollection& mySelectedTrackCollection );
+                      ConstDataVector<TrackCollection>& mySelectedTrackCollection );
 
     void selectTracks( const std::vector< const TrigInDetTrackCollection* >& vectorOfTrackCollections,
-                       TrigInDetTrackCollection& mySelectedTrackCollection );
+                       ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection );
 
     void selectTracks( const std::vector< const TrackCollection* >& vectorOfTrackCollections,
-                       TrackCollection& mySelectedTrackCollection );
+                       ConstDataVector<TrackCollection>& mySelectedTrackCollection );
 
-    void reconstructVertices( TrigInDetTrackCollection& mySelectedTrackCollection,
+    void reconstructVertices( ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection,
                               TrigVertexCollection& myVertexCollection,
                               DataVector< TrigVertexCollection >& mySplitVertexCollections );
 
-    void reconstructVertices( TrackCollection& mySelectedTrackCollection,
+    void reconstructVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
                               TrigVertexCollection& myVertexCollection,
                               DataVector< TrigVertexCollection >& mySplitVertexCollections );
 
-    void reconstructSplitVertices( TrigInDetTrackCollection& mySelectedTrackCollection,
+    void reconstructSplitVertices( ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection,
                                    DataVector< TrigVertexCollection >& mySplitVertexCollections );
 
-    void reconstructSplitVertices( TrackCollection& mySelectedTrackCollection,
+    void reconstructSplitVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
                                    DataVector< TrigVertexCollection >& mySplitVertexCollections );
 
     void createOutputTEs( TrigVertexCollection& myVertexCollection,

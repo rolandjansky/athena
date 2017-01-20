@@ -3,7 +3,7 @@
 */
 
 //
-// $Id: T2TrackClusterer.cxx 702277 2015-10-22 10:33:51Z smh $
+// $Id: T2TrackClusterer.cxx 793164 2017-01-20 03:59:26Z ssnyder $
 //
 
 #include "T2TrackClusterer.h"
@@ -48,16 +48,16 @@ T2TrackClusterer::cluster( const TrigInDetTrackCollection& tracks )
   if ( tracks.empty() )
     {
       // FIXME: unusedTracks = tracks;
-      return m_cluster_TIDT;
+      return *m_cluster_TIDT.asDataVector();
     }
 
-  TrigInDetTrack* seedTrack = *tracks.begin();
+  const TrigInDetTrack* seedTrack = *tracks.begin();
   const double seedPT = abs( seedTrack->param()->pT() );
 
   if ( seedPT < m_minPT )
     {
-      m_unusedTracks_TIDT = tracks;
-      return m_cluster_TIDT;
+      m_unusedTracks_TIDT.assign (tracks.begin(), tracks.end());
+      return *m_cluster_TIDT.asDataVector();
     }
 
   double sumWeight = trackWeight( *seedTrack );
@@ -87,7 +87,7 @@ T2TrackClusterer::cluster( const TrigInDetTrackCollection& tracks )
 
   m_totalZ0Err = sqrt( 1. / sumWeight );
 
-  return m_cluster_TIDT;
+  return *m_cluster_TIDT.asDataVector();
 }
 
 const TrackCollection&
@@ -101,18 +101,18 @@ T2TrackClusterer::cluster( const TrackCollection& tracks )
   if ( tracks.empty() )
     {
       // FIXME: unusedTracks = tracks;
-      return m_cluster;
+      return *m_cluster.asDataVector();;
     }
 
-  Trk::Track* seedTrack = *tracks.begin();
+  const Trk::Track* seedTrack = *tracks.begin();
   
   const Trk::TrackParameters* seedTrackPars = seedTrack->perigeeParameters();
   const double seedPT = std::abs(sin(seedTrackPars->parameters()[Trk::theta])/seedTrackPars->parameters()[Trk::qOverP]);
 
   if ( seedPT < m_minPT )
     {
-      m_unusedTracks = tracks;
-      return m_cluster;
+      m_unusedTracks.assign (tracks.begin(), tracks.end());
+      return *m_cluster.asDataVector();
     }
 
   double sumWeight = trackWeight( *seedTrack );
@@ -143,5 +143,5 @@ T2TrackClusterer::cluster( const TrackCollection& tracks )
 
   m_totalZ0Err = sqrt( 1. / sumWeight );
 
-  return m_cluster;
+  return *m_cluster.asDataVector();
 }

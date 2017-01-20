@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpotImpl.cxx 761239 2016-07-12 09:01:27Z hartj $
+// $Id: T2VertexBeamSpotImpl.cxx 793164 2017-01-20 03:59:26Z ssnyder $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -143,7 +143,7 @@ namespace
 
 void
 T2VertexBeamSpotImpl::processTEs( const vector<vector<HLT::TriggerElement*> >& tes_in,
-                                  TrigInDetTrackCollection& mySelectedTrackCollection )
+                                  ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection )
 {
   T2Timer t( m_timer[allTE] );
   //
@@ -182,12 +182,12 @@ T2VertexBeamSpotImpl::processTEs( const vector<vector<HLT::TriggerElement*> >& t
                                   << " Total Tracks              : " << m_TotalTracks << '\n'
                                   << " Tracks passing selection  : " << m_TotalTracksPass << '\n'
                                   << " Tracks in my container    : " << mySelectedTrackCollection.size() << '\n'
-                                  << " Number passed seed Tracks : " << m_TotalHiPTTracks << endreq;
+                                  << " Number passed seed Tracks : " << m_TotalHiPTTracks << endmsg;
 }
 
 void
 T2VertexBeamSpotImpl::processTEs( const vector<vector<HLT::TriggerElement*> >& tes_in,
-                                  TrackCollection& mySelectedTrackCollection )
+                                  ConstDataVector<TrackCollection>& mySelectedTrackCollection )
 {
   T2Timer t( m_timer[allTE] );
   //
@@ -226,13 +226,13 @@ T2VertexBeamSpotImpl::processTEs( const vector<vector<HLT::TriggerElement*> >& t
                                   << " Total Tracks              : " << m_TotalTracks << '\n'
                                   << " Tracks passing selection  : " << m_TotalTracksPass << '\n'
                                   << " Tracks in my container    : " << mySelectedTrackCollection.size() << '\n'
-                                  << " Number passed seed Tracks : " << m_TotalHiPTTracks << endreq;
+                                  << " Number passed seed Tracks : " << m_TotalHiPTTracks << endmsg;
 }
 
 
 void
 T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
-                                   TrigInDetTrackCollection& mySelectedTrackCollection )
+                                   ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection )
 
 {
   T2Timer t( m_timer[allROI] );
@@ -249,16 +249,16 @@ T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
 
   for ( HLT::TEVec::const_iterator TEiterator = firstTE; TEiterator != lastTE; ++TEiterator )
     {
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "TE iterator count = " << TEiterator - firstTE << endreq;
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "TE iterator count = " << TEiterator - firstTE << endmsg;
 
       // Get the ROI descriptor
       const TrigRoiDescriptor* roiDescriptor = 0;
       HLT::ErrorCode status = getFeature( *TEiterator, roiDescriptor );
 
       if ( status != HLT::OK )
-        msg() << MSG::WARNING << "No RoIDescriptors for this Trigger Element! " << endreq;
+        msg() << MSG::WARNING << "No RoIDescriptors for this Trigger Element! " << endmsg;
       else
-        if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptor" << endreq;
+        if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptor" << endmsg;
         
       // Print out ROI descriptor info
       if ( roiDescriptor )
@@ -273,7 +273,7 @@ T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
             msg() << MSG::DEBUG 
                   << "Using inputTE(" << TEiterator - firstTE << ")->getId(): " << (*TEiterator)->getId()
                   << "; RoI ID = " << roiDescriptor->roiId() << ": Eta = " << roiDescriptor->eta()
-                  << ", Phi = "    << roiDescriptor->phi()  << endreq;
+                  << ", Phi = "    << roiDescriptor->phi()  << endmsg;
         } 
 
       //  Get all track collections attached to this ROI
@@ -282,10 +282,10 @@ T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
 
       if ( status != HLT::OK )
         {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Failed to get InDetTrackCollections " << endreq;
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Failed to get InDetTrackCollections " << endmsg;
         }
       else
-        if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " InDetTrackCollections" << endreq;
+        if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " InDetTrackCollections" << endmsg;
         
       // Select tracks from this ROI's collections
       selectTracks( vectorOfTrackCollections, mySelectedTrackCollection );
@@ -303,7 +303,7 @@ T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
 
 void
 T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
-                                   TrackCollection& mySelectedTrackCollection )
+                                   ConstDataVector<TrackCollection>& mySelectedTrackCollection )
 
 {
   T2Timer t( m_timer[allROI] );
@@ -320,16 +320,16 @@ T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
 
   for ( HLT::TEVec::const_iterator TEiterator = firstTE; TEiterator != lastTE; ++TEiterator )
     {
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "TE iterator count = " << TEiterator - firstTE << endreq;
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "TE iterator count = " << TEiterator - firstTE << endmsg;
 
       // Get the ROI descriptor
       const TrigRoiDescriptor* roiDescriptor = 0;
       HLT::ErrorCode status = getFeature( *TEiterator, roiDescriptor );
 
       if ( status != HLT::OK )
-        msg() << MSG::WARNING << "No RoIDescriptors for this Trigger Element! " << endreq;
+        msg() << MSG::WARNING << "No RoIDescriptors for this Trigger Element! " << endmsg;
       else
-        if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptor" << endreq;
+        if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptor" << endmsg;
         
       // Print out ROI descriptor info
       if ( roiDescriptor )
@@ -344,7 +344,7 @@ T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
             msg() << MSG::DEBUG 
                   << "Using inputTE(" << TEiterator - firstTE << ")->getId(): " << (*TEiterator)->getId()
                   << "; RoI ID = " << roiDescriptor->roiId() << ": Eta = " << roiDescriptor->eta()
-                  << ", Phi = "    << roiDescriptor->phi()  << endreq;
+                  << ", Phi = "    << roiDescriptor->phi()  << endmsg;
         } 
 
       //  Get all track collections attached to this ROI
@@ -353,10 +353,10 @@ T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
 
       if ( status != HLT::OK )
         {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Failed to get InDetTrackCollections " << endreq;
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Failed to get InDetTrackCollections " << endmsg;
         }
       else
-        if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " InDetTrackCollections" << endreq;
+        if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " InDetTrackCollections" << endmsg;
         
       // Select tracks from this ROI's collections
       selectTracks( vectorOfTrackCollections, mySelectedTrackCollection );
@@ -375,7 +375,7 @@ T2VertexBeamSpotImpl::processROIs( const HLT::TEVec& myTEVec,
 
 void
 T2VertexBeamSpotImpl::selectTracks( const vector<const TrigInDetTrackCollection*>& vectorOfTrackCollections,
-                                    TrigInDetTrackCollection& mySelectedTrackCollection )
+                                    ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection )
 {
   T2Timer t( m_timer[allTrack] );
   //
@@ -430,7 +430,7 @@ T2VertexBeamSpotImpl::selectTracks( const vector<const TrigInDetTrackCollection*
                         
                 }
               else
-                if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Track failed selection: " << track << endreq;
+                if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Track failed selection: " << track << endmsg;
             } 
         }
     }
@@ -443,7 +443,7 @@ T2VertexBeamSpotImpl::selectTracks( const vector<const TrigInDetTrackCollection*
 
 void
 T2VertexBeamSpotImpl::selectTracks( const vector<const TrackCollection*>& vectorOfTrackCollections,
-                                    TrackCollection& mySelectedTrackCollection )
+                                    ConstDataVector<TrackCollection>& mySelectedTrackCollection )
 {
   T2Timer t( m_timer[allTrack] );
   //
@@ -495,7 +495,7 @@ T2VertexBeamSpotImpl::selectTracks( const vector<const TrackCollection*>& vector
 
           }
           else {
-            //if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Track failed selection: " << myTrack << endreq;
+            //if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Track failed selection: " << myTrack << endmsg;
             if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Track failed selection: d0: " << myTrack.D0() <<
                                                                                     " z0: " << myTrack.Z0() <<
                                                                                     " phi0: " << myTrack.Phi() <<
@@ -504,8 +504,8 @@ T2VertexBeamSpotImpl::selectTracks( const vector<const TrackCollection*>& vector
                                                                                     " chi2: " << myTrack.Qual() <<
                                                                                     " NpixSPs: " << myTrack.PIXHits() <<
                                                                                     " NsctSPs: " << myTrack.SCTHits() <<
-                                                                                    " NstrawHits: " << myTrack.TRTHits() << endreq;
-            //if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Trk::Track failed selection: " << track << endreq;
+                                                                                    " NstrawHits: " << myTrack.TRTHits() << endmsg;
+            //if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Trk::Track failed selection: " << track << endmsg;
 
           }
         }
@@ -518,14 +518,14 @@ T2VertexBeamSpotImpl::selectTracks( const vector<const TrackCollection*>& vector
 }
 
 void
-T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedTrackCollection,
+T2VertexBeamSpotImpl::reconstructVertices( ConstDataVector<TrigInDetTrackCollection>& mySelectedTrackCollection,
                                            TrigVertexCollection& myVertexCollection,
                                            DataVector< TrigVertexCollection >& mySplitVertexCollections )
 {
   T2Timer t( m_timer[allVertex] );
      
   // Make collections for vertex splitting (unsorted)
-  TrigInDetTrackCollection mySplitTrackCollection( mySelectedTrackCollection );
+  ConstDataVector<TrigInDetTrackCollection> mySplitTrackCollection( mySelectedTrackCollection );
 
   // Sort tracks by track pT
   {
@@ -542,16 +542,16 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
       // Report
       if (msgLvl()<=MSG::DEBUG)
         {
-          msg() << MSG::DEBUG << "Number of tracks remaining = " << mySelectedTrackCollection.size() << endreq;
+          msg() << MSG::DEBUG << "Number of tracks remaining = " << mySelectedTrackCollection.size() << endmsg;
           msg() << MSG::DEBUG << "pT of first (seed) track (GeV) = "
-                << abs( (*mySelectedTrackCollection.begin())->param()->pT() )/GeV << endreq;
+                << abs( (*mySelectedTrackCollection.begin())->param()->pT() )/GeV << endmsg;
         }
       
       // Cluster tracks in z around the first (highest-pT track) in the collection, which is taken
       // as the seed.
       {
         T2Timer t( m_timer[zCluster] );
-        m_trackClusterer->cluster( mySelectedTrackCollection );
+        m_trackClusterer->cluster( *mySelectedTrackCollection.asDataVector() );
       }
 
       // Sanity check:
@@ -562,18 +562,20 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
                 << "cluster().size()=" << m_trackClusterer->cluster_TIDT().size()
                 << " + unusedTracks().size()=" << m_trackClusterer->unusedTracks_TIDT().size()
                 << " != mySelectedTrackCollection.size()=" << mySelectedTrackCollection.size()
-                << endreq;
+                << endmsg;
         }
 
       // Continue with the remaining tracks - still pT-sorted
-      mySelectedTrackCollection = m_trackClusterer->unusedTracks_TIDT();
+      mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+      mySelectedTrackCollection.assign (m_trackClusterer->unusedTracks_TIDT().begin(),
+                                        m_trackClusterer->unusedTracks_TIDT().end());
       // This always uses at least one track (the seed), so we are sure to reduce the track
       // selection and terminate the loop
 
       // Make sure we have enough tracks in the cluster
       if ( m_trackClusterer->cluster_TIDT().size() < m_totalNTrkMin )
         {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Not enough tracks in cluster!" << endreq;
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Not enough tracks in cluster!" << endmsg;
           continue;
         }
       
@@ -599,13 +601,13 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
         }
  
       if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Number of tracks remaining after cluster #(" << m_NClusters << ") = "
-                                      << mySelectedTrackCollection.size() << endreq;
+                                      << mySelectedTrackCollection.size() << endmsg;
       
       if (msgLvl()<=MSG::DEBUG)
         {
-          msg() << MSG::DEBUG << "Total number of tracks to fit    = " << m_trackClusterer->cluster_TIDT().size() << endreq;
-          msg() << MSG::DEBUG << "Average Z position (from trk Z0) = " << m_trackClusterer->seedZ0() << endreq;
-          msg() << MSG::DEBUG << "Fitting tracks" << endreq;
+          msg() << MSG::DEBUG << "Total number of tracks to fit    = " << m_trackClusterer->cluster_TIDT().size() << endmsg;
+          msg() << MSG::DEBUG << "Average Z position (from trk Z0) = " << m_trackClusterer->seedZ0() << endmsg;
+          msg() << MSG::DEBUG << "Fitting tracks" << endmsg;
         }
       
       // Fit a primary vertex to this cluster around its seed track
@@ -618,11 +620,11 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
       // Check to see if the fit succeeded / converged
       if ( ! primaryVertex )
         { 
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex fit failed" << endreq; 
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex fit failed" << endmsg; 
           continue; 
         }
       
-      if ( msgLvl()<=MSG::DEBUG ) msg() << MSG::DEBUG << "Successful vertex fit" << endreq;
+      if ( msgLvl()<=MSG::DEBUG ) msg() << MSG::DEBUG << "Successful vertex fit" << endmsg;
 
       // Event has a vertex!
       eventStage( hasVertex );
@@ -633,7 +635,7 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
       // Extract beam spot parameters
       const T2BeamSpot beamSpot( m_beamCondSvc );
 
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Beamspot from BeamCondSvc: " << beamSpot << endreq;
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Beamspot from BeamCondSvc: " << beamSpot << endmsg;
 
       // Compute vertex parameters with respect to beam spot position
       // Measure ctor time which includes calculating cumulative chi 2 probability
@@ -643,14 +645,14 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
       // Fill vertex histograms
       m_vertex.push_back( myVertex );
 
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::VERBOSE << "Vertex fit: " << '\n' << myVertex << endreq;
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::VERBOSE << "Vertex fit: " << '\n' << myVertex << endmsg;
       
       // Query for vertex selection
       const bool passVertex = isGoodVertex( myVertex );
 
       if ( ! passVertex )
         { 
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex failed selection" << endreq; 
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex failed selection" << endmsg; 
 
           // Release the owned vertex
           delete primaryVertex;
@@ -684,7 +686,9 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
           if ( m_splitWholeCluster )
             {
               // Alternative 1: Split the entire cluster of track into two
-              mySplitTrackCollection = m_trackClusterer->cluster_TIDT();
+              mySplitTrackCollection.clear( SG::VIEW_ELEMENTS );
+              mySplitTrackCollection.assign (m_trackClusterer->cluster_TIDT().begin(),
+                                             m_trackClusterer->cluster_TIDT().end());
             }
           else
             {
@@ -711,7 +715,7 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
           //          mySplitTrackCollection = mySelectedTrackCollection;
         }
 
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex passed" << endreq;
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex passed" << endmsg;
 
       // Now check if this vertex passed the higher multiplicity cut to be used for per-BCID measurements
       const bool passVertexBCID = isGoodVertexBCID( myVertex );
@@ -728,14 +732,14 @@ T2VertexBeamSpotImpl::reconstructVertices( TrigInDetTrackCollection& mySelectedT
 }
 
 void
-T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackCollection,
+T2VertexBeamSpotImpl::reconstructVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
                                            TrigVertexCollection& myVertexCollection,
                                            DataVector< TrigVertexCollection >&  mySplitVertexCollections)
 {
   T2Timer t( m_timer[allVertex] );
      
   // Make collections for vertex splitting (unsorted)
-  TrackCollection mySplitTrackCollection( mySelectedTrackCollection );
+  ConstDataVector<TrackCollection> mySplitTrackCollection( mySelectedTrackCollection );
 
   // Sort tracks by track pT
   {
@@ -754,16 +758,16 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
         {
           const Trk::TrackParameters* params = (*mySelectedTrackCollection.begin())->perigeeParameters();
           float pT = std::abs(sin(params->parameters()[Trk::theta])/params->parameters()[Trk::qOverP]);
-          msg() << MSG::DEBUG << "Number of tracks remaining = " << mySelectedTrackCollection.size() << endreq;
+          msg() << MSG::DEBUG << "Number of tracks remaining = " << mySelectedTrackCollection.size() << endmsg;
           msg() << MSG::DEBUG << "pT of first (seed) track (GeV) = "
-                << pT/GeV << endreq;
+                << pT/GeV << endmsg;
         }
       
       // Cluster tracks in z around the first (highest-pT track) in the collection, which is taken
       // as the seed.
       {
         T2Timer t( m_timer[zCluster] );
-        m_trackClusterer->cluster( mySelectedTrackCollection );
+        m_trackClusterer->cluster( *mySelectedTrackCollection.asDataVector() );
       }
 
       // Sanity check:
@@ -774,18 +778,20 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
                 << "cluster().size()=" << m_trackClusterer->cluster().size()
                 << " + unusedTracks().size()=" << m_trackClusterer->unusedTracks().size()
                 << " != mySelectedTrackCollection.size()=" << mySelectedTrackCollection.size()
-                << endreq;
+                << endmsg;
         }
 
       // Continue with the remaining tracks - still pT-sorted
-      mySelectedTrackCollection = m_trackClusterer->unusedTracks();
+      mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+      mySelectedTrackCollection.assign (m_trackClusterer->unusedTracks().begin(),
+                                        m_trackClusterer->unusedTracks().end());
       // This always uses at least one track (the seed), so we are sure to reduce the track
       // selection and terminate the loop
 
       // Make sure we have enough tracks in the cluster
       if ( m_trackClusterer->cluster().size() < m_totalNTrkMin )
         {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Not enough tracks in cluster!" << endreq;
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Not enough tracks in cluster!" << endmsg;
           continue;
         }
       
@@ -812,13 +818,13 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
         }
  
       if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Number of tracks remaining after cluster #(" << m_NClusters << ") = "
-                                      << mySelectedTrackCollection.size() << endreq;
+                                      << mySelectedTrackCollection.size() << endmsg;
       
       if (msgLvl()<=MSG::DEBUG)
         {
-          msg() << MSG::DEBUG << "Total number of tracks to fit    = " << m_trackClusterer->cluster().size() << endreq;
-          msg() << MSG::DEBUG << "Average Z position (from trk Z0) = " << m_trackClusterer->seedZ0() << endreq;
-          msg() << MSG::DEBUG << "Fitting tracks" << endreq;
+          msg() << MSG::DEBUG << "Total number of tracks to fit    = " << m_trackClusterer->cluster().size() << endmsg;
+          msg() << MSG::DEBUG << "Average Z position (from trk Z0) = " << m_trackClusterer->seedZ0() << endmsg;
+          msg() << MSG::DEBUG << "Fitting tracks" << endmsg;
         }
       
       // Fit a primary vertex to this cluster around its seed track
@@ -832,13 +838,13 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
       // Check to see if the fit succeeded / converged
       if ( ! primaryVertex )
         { 
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex fit failed" << endreq; 
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex fit failed" << endmsg; 
           delete vertexTracks;
           vertexTracks = nullptr;
           continue; 
         }
       
-      if ( msgLvl()<=MSG::DEBUG ) msg() << MSG::DEBUG << "Successful vertex fit" << endreq;
+      if ( msgLvl()<=MSG::DEBUG ) msg() << MSG::DEBUG << "Successful vertex fit" << endmsg;
 
       // Event has a vertex!
       eventStage( hasVertex );
@@ -849,7 +855,7 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
       // Extract beam spot parameters
       const T2BeamSpot beamSpot( m_beamCondSvc );
 
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Beamspot from BeamCondSvc: " << beamSpot << endreq;
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Beamspot from BeamCondSvc: " << beamSpot << endmsg;
 
       // Compute vertex parameters with respect to beam spot position
       // Measure ctor time which includes calculating cumulative chi 2 probability
@@ -859,14 +865,14 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
       // Fill vertex histograms
       m_vertex.push_back( myVertex );
 
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::VERBOSE << "Vertex fit: " << '\n' << myVertex << endreq;
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::VERBOSE << "Vertex fit: " << '\n' << myVertex << endmsg;
       
       // Query for vertex selection
       const bool passVertex = isGoodVertex( myVertex );
 
       if ( ! passVertex )
         { 
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex failed selection" << endreq; 
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex failed selection" << endmsg; 
 
           // Release the owned vertex
           delete primaryVertex;
@@ -905,12 +911,16 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
         if ( m_splitWholeCluster )
         {
           // Alternative 1: Split the entire cluster of track into two
-          mySplitTrackCollection = m_trackClusterer->cluster();
+          mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+          mySplitTrackCollection.assign (m_trackClusterer->cluster().begin(),
+                                         m_trackClusterer->cluster().end());
         }
         else
         {
           // Alternative 2: Split only the tracks that were successfully fit to a vertex
-          mySplitTrackCollection = *vertexTracks;
+          mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+          mySplitTrackCollection.assign (vertexTracks->begin(),
+                                         vertexTracks->end());
         }
 
         if ( mySplitTrackCollection.size() >= m_nSplitVertices * m_totalNTrkMin )
@@ -921,7 +931,7 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
         // Alternative 3: Split all the tracks and iterate with the remaining tracks
         //          mySplitTrackCollection = mySelectedTrackCollection;
       }
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex passed" << endreq;
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex passed" << endmsg;
 
       // Now check if this vertex passed the higher multiplicity cut to be used for per-BCID measurements
       const bool passVertexBCID = isGoodVertexBCID( myVertex );
@@ -939,7 +949,7 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
 }
 
 void
-T2VertexBeamSpotImpl::reconstructSplitVertices( TrigInDetTrackCollection& myFullTrackCollection,
+T2VertexBeamSpotImpl::reconstructSplitVertices( ConstDataVector<TrigInDetTrackCollection>& myFullTrackCollection,
                                                 DataVector< TrigVertexCollection >& mySplitVertexCollections )
 {
   T2Timer t( m_timer[allVertexSplit] );
@@ -953,7 +963,7 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrigInDetTrackCollection& myFull
   // Split the track collection (typically into halves)
   // This returns m_nSplitVertices (ideally) or fewer (if clustering fails) track collections
   m_trackManager.ResetKey( m_EventID % 2 - 1 );
-  vector< TrigInDetTrackCollection > splitTrackCollections = m_trackManager.split( myFullTrackCollection );
+  vector< ConstDataVector<TrigInDetTrackCollection> > splitTrackCollections = m_trackManager.split( *myFullTrackCollection.asDataVector() );
 
   // Add a new track collection for the split vertices corresponding to this primary vertex
   // There can be anywhere between zero and m_nSplitVertices entries in the collection
@@ -962,8 +972,8 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrigInDetTrackCollection& myFull
 
   // Loop over the split track collections to perform clustering and vertex fitting
 
-  for ( vector< TrigInDetTrackCollection >::iterator tracks = splitTrackCollections.begin(); 
-        tracks != splitTrackCollections.end(); ++tracks )
+  int icollection = 0;
+  for (ConstDataVector<TrigInDetTrackCollection>& tracks : splitTrackCollections)
     {
       TrigVertex* splitVertex = 0;
 
@@ -972,13 +982,13 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrigInDetTrackCollection& myFull
           // Sort the tracks in pT for clustering around the highest-pT seed
           {
             T2Timer t( m_timer[trackSortSplit] );
-            tracks->sort( Beamspot::TrackPTSort() );
+            tracks.sort( Beamspot::TrackPTSort() );
           }
 
           // Cluster in z
           {
             T2Timer t( m_timer[zClusterSplit] );
-            m_trackClusterer->cluster( *tracks );
+            m_trackClusterer->cluster( *tracks.asDataVector() );
           }
 
           // Check for a good cluster
@@ -987,8 +997,8 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrigInDetTrackCollection& myFull
               continue;
             }
 
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Checking splitCluster[" << tracks - splitTrackCollections.begin() << "]"
-                                          << " which has " << m_trackClusterer->cluster().size() << " tracks" << endreq;
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Checking splitCluster[" << icollection << "]"
+                                          << " which has " << m_trackClusterer->cluster().size() << " tracks" << endmsg;
 
           // Fit a vertex to this split track cluster
           {
@@ -1002,27 +1012,29 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrigInDetTrackCollection& myFull
           // collection, using the seed Z0 from the primary vertex
           {
             T2Timer t( m_timer[vertexFitSplit] );
-            splitVertex = m_primaryVertexFitter->fit( &(*tracks)                  , m_trackClusterer->seedZ0() );
+            splitVertex = m_primaryVertexFitter->fit(tracks.asDataVector(), m_trackClusterer->seedZ0() );
           }
         }
 
       if ( splitVertex )
         {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Reconstructed a split vertex" << endreq;
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Reconstructed a split vertex" << endmsg;
 
           // Tag vertex according to our first track's algorithm id
-          splitVertex->algorithmId( getSplitAlgoId( *tracks->front() ) );
+          splitVertex->algorithmId( getSplitAlgoId( *tracks.front() ) );
 
           // Add split vertex to collection
           splitVertices->push_back( splitVertex );  // passes ownership to split vertex collection
         }
+
+      ++icollection;
     }
 
   // Monitor split vertex distributions (if we found all of them)
   if ( m_nSplitVertices > 1 && splitVertices->size() == m_nSplitVertices )
     {
       if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Split vertexing is ON."
-                                      << "Attempting to split N = " << m_nSplitVertices << " vertices. " << endreq;
+                                      << "Attempting to split N = " << m_nSplitVertices << " vertices. " << endmsg;
          
       // Store information on the first two vertices
       // There shouldn't be more, unless it's for systematic studies anyway
@@ -1035,7 +1047,7 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrigInDetTrackCollection& myFull
 
 
 void
-T2VertexBeamSpotImpl::reconstructSplitVertices( TrackCollection& myFullTrackCollection,
+T2VertexBeamSpotImpl::reconstructSplitVertices( ConstDataVector<TrackCollection>& myFullTrackCollection,
                                                 DataVector< TrigVertexCollection >& mySplitVertexCollections )
 {
   T2Timer t( m_timer[allVertexSplit] );
@@ -1049,7 +1061,7 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrackCollection& myFullTrackColl
   // Split the track collection (typically into halves)
   // This returns m_nSplitVertices (ideally) or fewer (if clustering fails) track collections
   m_trackManager.ResetKey( m_EventID % 2 - 1 );
-  vector< TrackCollection > splitTrackCollections = m_trackManager.split( myFullTrackCollection );
+  vector< ConstDataVector<TrackCollection> > splitTrackCollections = m_trackManager.split( *myFullTrackCollection.asDataVector() );
 
   // Add a new track collection for the split vertices corresponding to this primary vertex
   // There can be anywhere between zero and m_nSplitVertices entries in the collection
@@ -1058,7 +1070,7 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrackCollection& myFullTrackColl
 
   // Loop over the split track collections to perform clustering and vertex fitting
 
-  for ( vector< TrackCollection >::iterator tracks = splitTrackCollections.begin(); 
+  for ( vector< ConstDataVector<TrackCollection> >::iterator tracks = splitTrackCollections.begin(); 
         tracks != splitTrackCollections.end(); ++tracks )
     {
       TrigVertex* splitVertex = 0;
@@ -1074,7 +1086,7 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrackCollection& myFullTrackColl
           // Cluster in z
           {
             T2Timer t( m_timer[zClusterSplit] );
-            m_trackClusterer->cluster( *tracks );
+            m_trackClusterer->cluster( *tracks->asDataVector() );
           }
 
           // Check for a good cluster
@@ -1084,7 +1096,7 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrackCollection& myFullTrackColl
             }
 
           if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Checking splitCluster[" << tracks - splitTrackCollections.begin() << "]"
-                                          << " which has " << m_trackClusterer->cluster().size() << " tracks" << endreq;
+                                          << " which has " << m_trackClusterer->cluster().size() << " tracks" << endmsg;
 
           // Fit a vertex to this split track cluster
           {
@@ -1100,13 +1112,13 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrackCollection& myFullTrackColl
           {
             T2Timer t( m_timer[vertexFitSplit] );
             TrackCollection vertexTracks;
-            splitVertex = m_primaryVertexFitter->fit( &(*tracks), vertexTracks, m_trackClusterer->seedZ0() );
+            splitVertex = m_primaryVertexFitter->fit( tracks->asDataVector(), vertexTracks, m_trackClusterer->seedZ0() );
           }
         }
 
       if ( splitVertex )
         {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Reconstructed a split vertex" << endreq;
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Reconstructed a split vertex" << endmsg;
 
           // Tag vertex according to our first track's algorithm id
           splitVertex->algorithmId( getSplitAlgoId( *tracks->front() ) );
@@ -1120,7 +1132,7 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrackCollection& myFullTrackColl
   if ( m_nSplitVertices > 1 && splitVertices->size() == m_nSplitVertices )
     {
       if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Split vertexing is ON."
-                                      << "Attempting to split N = " << m_nSplitVertices << " vertices. " << endreq;
+                                      << "Attempting to split N = " << m_nSplitVertices << " vertices. " << endmsg;
          
       // Store information on the first two vertices
       // There shouldn't be more, unless it's for systematic studies anyway
@@ -1146,7 +1158,7 @@ T2VertexBeamSpotImpl::createOutputTEs( TrigVertexCollection& myVertexCollection,
   // HLT::TEVec allTEs;
 
       if (tes_in.size() != 1 ) {
-	msg() << MSG::ERROR << "Number of input TE vectors expected to be 1, is  " << tes_in.size() << endreq;
+	msg() << MSG::ERROR << "Number of input TE vectors expected to be 1, is  " << tes_in.size() << endmsg;
 	return;
       }
 
@@ -1197,7 +1209,7 @@ T2VertexBeamSpotImpl::createOutputTEs( TrigVertexCollection& myVertexCollection,
   //  if ( m_attachVertices && m_NvtxPass > 0 )
   if ( m_attachVertices )
     {
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Saving primary vertex collection" << endreq; 
+      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Saving primary vertex collection" << endmsg; 
 
       // Save primary vertex collection
       HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
@@ -1209,12 +1221,12 @@ T2VertexBeamSpotImpl::createOutputTEs( TrigVertexCollection& myVertexCollection,
       const HLT::ErrorCode status = attachFeature( outputTE, newColl, m_vertexCollName );
       if ( status != HLT::OK )
         {
-          msg() << MSG::ERROR << "Failed to attach primary vertex collection to output trigger element" << endreq;
+          msg() << MSG::ERROR << "Failed to attach primary vertex collection to output trigger element" << endmsg;
         }
 
       if ( m_attachSplitVertices )
         {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Saving split vertex collections" << endreq; 
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Saving split vertex collections" << endmsg; 
 
           // For each primary vertex we find, we save a group of
           // (typically two) split vertices in a separate collection
@@ -1239,7 +1251,7 @@ T2VertexBeamSpotImpl::createOutputTEs( TrigVertexCollection& myVertexCollection,
           //          const HLT::ErrorCode status = attachFeature( outputTE, newCollVec, m_vertexCollName );
           //          if ( status != HLT::OK )
           //            {
-          //              msg() << MSG::WARNING << "Write of Beamspot feature into outputTE failed" << endreq;
+          //              msg() << MSG::WARNING << "Write of Beamspot feature into outputTE failed" << endmsg;
           //            }
           // FIXME: The above needs a new (container) object to be registered.
           // FIXME: For the time being we store the individual collections one by one.
@@ -1258,7 +1270,7 @@ T2VertexBeamSpotImpl::createOutputTEs( TrigVertexCollection& myVertexCollection,
               if ( status != HLT::OK )
                 {
                   msg() << MSG::ERROR << "Failed to attach split vertex collection " << i
-                        << " of " << mySplitVertexCollections.size() << " to output trigger element" << endreq;
+                        << " of " << mySplitVertexCollections.size() << " to output trigger element" << endmsg;
                 }
             }
         }

@@ -1,5 +1,5 @@
 #
-# $Id: requirements 723137 2016-02-10 15:52:24Z fwinkl $
+# $Id: requirements 793164 2017-01-20 03:59:26Z ssnyder $
 #
 
 package TrigT2BeamSpot
@@ -35,7 +35,7 @@ use EventInfo               EventInfo-*               Event
 use InDetBeamSpotService    InDetBeamSpotService-*    InnerDetector/InDetConditions
 use TrigNavigation          TrigNavigation-*          Trigger/TrigEvent
 use TrigTimeAlgs            TrigTimeAlgs-*            Trigger/TrigTools
-use DataModel               DataModel-*               Control
+use AthContainers           AthContainers-*           Control
 use TrigInDetToolInterfaces     TrigInDetToolInterfaces-* Trigger/TrigTools
 use TrkTrackSummary            TrkTrackSummary-*          Tracking/TrkEvent
 #------------------------------------------------------------------

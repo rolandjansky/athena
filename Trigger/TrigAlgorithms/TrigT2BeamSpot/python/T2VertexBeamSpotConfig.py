@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotConfig.py 775663 2016-09-28 15:46:56Z masik $
+# $Id: T2VertexBeamSpotConfig.py 775662 2016-09-28 15:46:38Z masik $
 #
 
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot

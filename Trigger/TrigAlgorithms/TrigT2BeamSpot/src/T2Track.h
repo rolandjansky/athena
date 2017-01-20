@@ -4,7 +4,7 @@
 
 /**********************************************************************************
  *
- * @version: $Id: T2Track.h 708673 2015-11-18 12:31:05Z baines $
+ * @version: $Id: T2Track.h 793162 2017-01-20 03:48:25Z ssnyder $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -27,7 +27,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "GaudiKernel/SystemOfUnits.h"
-using Gaudi::Units::GeV;
+//using Gaudi::Units::GeV;
 
 // Amg::error
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -51,7 +51,7 @@ namespace PESA {
 
     // Constructor
     T2Track( const TrigInDetTrack& track )
-      : m_Pt      ( abs(track.param()->pT())/GeV  )
+      : m_Pt      ( std::abs(track.param()->pT())/Gaudi::Units::GeV  )
       , m_Eta     ( track.param()->eta()          )
       , m_Phi     ( track.param()->phi0()         )
       , m_Z0      ( track.param()->z0()           )
@@ -83,7 +83,7 @@ namespace PESA {
           float theta = trackPars->parameters()[Trk::theta]; 
           m_Eta = -log(tan(0.5*theta)); 
           float qOverP = trackPars->parameters()[Trk::qOverP]; 
-          m_Pt = std::abs(std::sin(theta)/qOverP)/GeV;
+          m_Pt = std::abs(std::sin(theta)/qOverP)/Gaudi::Units::GeV;
 
           const Trk::FitQuality* fq = track.fitQuality();
           m_Qual = 1e8;

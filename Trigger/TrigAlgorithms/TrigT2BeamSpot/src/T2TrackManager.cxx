@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2TrackManager.cxx 702277 2015-10-22 10:33:51Z smh $
+/// $Id: T2TrackManager.cxx 793164 2017-01-20 03:59:26Z ssnyder $
 ///
 /// T2TrackManager.h, (c) ATLAS Detector software
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -35,7 +35,7 @@ T2TrackManager::T2TrackManager( int nSplit, Algorithm alg )
   : m_nSplit      ( nSplit )
   , m_alg         ( alg    )
   , m_altKey      ( -1     )
-  , m_ordKey      ( 0      )
+  //, m_ordKey      ( 0      )
 {
 }
 
@@ -47,7 +47,7 @@ T2TrackManager::~T2TrackManager()
 
 
 // The meat of the class, return a vector of split clusters
-std::vector< TrigInDetTrackCollection >
+std::vector<ConstDataVector<TrigInDetTrackCollection> >
 T2TrackManager::split( const TrigInDetTrackCollection& cluster )
 {
   const int nEntries = cluster.size();
@@ -55,10 +55,9 @@ T2TrackManager::split( const TrigInDetTrackCollection& cluster )
   //std::cout << "Reserve space" << std::endl;
 
   // Set up the output, reserve space, init collections
-  TrigInDetTrackCollection splitColl;
-  splitColl.clear( SG::VIEW_ELEMENTS );
+  ConstDataVector<TrigInDetTrackCollection> splitColl (SG::VIEW_ELEMENTS);
   splitColl.reserve( nEntries / m_nSplit );
-  std::vector< TrigInDetTrackCollection > trackCollections( m_nSplit, splitColl );
+  std::vector<ConstDataVector<TrigInDetTrackCollection> > trackCollections( m_nSplit, splitColl );
 
   //if (m_alg == Pt)
   //sort(holder.begin(), holder.end(), ptSort);
@@ -83,7 +82,7 @@ T2TrackManager::split( const TrigInDetTrackCollection& cluster )
 }
 
 // The meat of the class, return a vector of split clusters
-std::vector< TrackCollection >
+std::vector< ConstDataVector<TrackCollection> >
 T2TrackManager::split( const TrackCollection& cluster )
 {
   const int nEntries = cluster.size();
@@ -91,10 +90,10 @@ T2TrackManager::split( const TrackCollection& cluster )
   //std::cout << "Reserve space" << std::endl;
 
   // Set up the output, reserve space, init collections
-  TrackCollection splitColl;
+  ConstDataVector<TrackCollection> splitColl;
   splitColl.clear( SG::VIEW_ELEMENTS );
   splitColl.reserve( nEntries / m_nSplit );
-  std::vector< TrackCollection > trackCollections( m_nSplit, splitColl );
+  std::vector< ConstDataVector<TrackCollection> > trackCollections( m_nSplit, splitColl );
 
   //if (m_alg == Pt)
   //sort(holder.begin(), holder.end(), ptSort);

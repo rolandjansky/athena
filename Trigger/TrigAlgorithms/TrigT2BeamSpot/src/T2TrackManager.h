@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2TrackManager.h 702277 2015-10-22 10:33:51Z smh $
+/// $Id: T2TrackManager.h 793164 2017-01-20 03:59:26Z ssnyder $
 ///
 /// T2TrackManager.h, (c) ATLAS Detector software
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -23,6 +23,7 @@
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrkTrack/TrackCollection.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include <vector>
 #include <cmath>
@@ -46,9 +47,9 @@ namespace PESA
     // unwanted, poor quality, tracks:
     // TrigInDetTrackCollection * cleanTracks(TrigInDetTrackCollection * cluster);
     
-    // Retrun a vector of sub-clusters
-    std::vector< TrigInDetTrackCollection > split( const TrigInDetTrackCollection& cluster);
-    std::vector< TrackCollection >          split( const TrackCollection& cluster);
+    // Return a vector of sub-clusters
+    std::vector< ConstDataVector<TrigInDetTrackCollection> > split( const TrigInDetTrackCollection& cluster);
+    std::vector< ConstDataVector<TrackCollection> >          split( const TrackCollection& cluster);
 
     // Get and Set parameters
     //    int GetNSplit() {return m_nSplit;}
@@ -69,7 +70,7 @@ namespace PESA
     
     /// Algorithm helper objects
     int m_altKey;     // Alternating split key
-    int m_ordKey;     // Ordered split key
+    //int m_ordKey;     // Ordered split key
   };
 
 } //PESA
