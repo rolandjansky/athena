@@ -130,6 +130,7 @@ StatusCode TBDetDescrLoader::execute() {
     case 1: // write once
       m_writeAction = 0; // don't do anything anymore
                          // but without break proceed to next case
+      /* FALLTHROUGH */
 
     case 2: // write always
 
@@ -156,6 +157,7 @@ StatusCode TBDetDescrLoader::execute() {
   case 1: // read once
     m_readAction = 0; // don't do anything anymore
                       // but without break proceed to next case
+    /* FALLTHROUGH */
 
   case 2: // read always
 
