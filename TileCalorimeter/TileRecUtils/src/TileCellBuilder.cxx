@@ -40,19 +40,6 @@
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "Identifier/IdentifierHash.h"
 
-
-
-#ifndef ATHENAHIVE
-#define USE_TILECELLS_DATAPOOL
-#endif
-
-#ifdef USE_TILECELLS_DATAPOOL
-#define NEWTILECELL tileCellsP.nextElementPtr
-#else
-#define NEWTILECELL new TileCell
-#endif
-
-
 //using xAOD::EventInfo;
 using CLHEP::MeV;
  
@@ -1065,9 +1052,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
   float eE4prTot = 0.0;
   bool EBdrawerPresent[128];
   memset(EBdrawerPresent, 0, sizeof(EBdrawerPresent));
-#ifdef USE_TILECELLS_DATAPOOL
   DataPool<TileCell> tileCellsP(5217);
-#endif
   //**
   //* Iterate over raw channels, creating new TileCells (or incrementing
   //* existing ones). Add each new TileCell to the output collection
@@ -1186,7 +1171,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
                                    ? CaloGain::TILEONEHIGH
                                    : CaloGain::TILEONELOW;
 
-        TileCell* pCell = NEWTILECELL();
+        TileCell* pCell = tileCellsP.nextElementPtr();
         // no CaloDDE
         // Cell ID is set explicitly
         pCell->set(NULL, cell_id);
@@ -1239,7 +1224,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
                                    ? CaloGain::TILEONEHIGH
                                    : CaloGain::TILEONELOW;
 
-        TileCell* pCell = NEWTILECELL();
+        TileCell* pCell = tileCellsP.nextElementPtr();
         // MBTS CaloDDE
         // Cell ID is set explicitly
         pCell->set((m_mbtsMgr) ? m_mbtsMgr->get_element(cell_id) : NULL, cell_id);
@@ -1294,7 +1279,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
          int side = (ros == 3) ? 1 : -1;
          Identifier cell_id2 = m_tileID->cell_id(TileID::GAPDET, side, drawer2, E1_TOWER, TileID::SAMP_E);
          int index2 = m_tileID->cell_hash(cell_id2);
-         TileCell* pCell2 = NEWTILECELL();
+         TileCell* pCell2 = tileCellsP.nextElementPtr();
          ++nCell;
          m_allCells[index2] = pCell2;
          const CaloDetDescrElement* dde2 = m_tileMgr->get_cell_element(index2);
@@ -1318,7 +1303,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
         correctCell(pCell, 2, pmt, gain, ener, time, iqual, qbit, 0); // correct & merge 2 PMTs in one cell
       } else {
         ++nCell;
-        m_allCells[index] = pCell = NEWTILECELL();
+        m_allCells[index] = pCell = tileCellsP.nextElementPtr();
         const CaloDetDescrElement* dde = m_tileMgr->get_cell_element(index);
         pCell->set(dde, cell_id);
         pCell->setEnergy_nonvirt(0, 0, CaloGain::INVALIDGAIN, CaloGain::INVALIDGAIN);
@@ -1409,7 +1394,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
       m_allCells[index] = 0;             // clear pointer for next event
     } else if (m_fakeCrackCells) { // can be true only for full-size container
 
-      pCell = NEWTILECELL();
+      pCell = tileCellsP.nextElementPtr();
       const CaloDetDescrElement* dde = m_tileMgr->get_cell_element(index);
       pCell->set(dde, dde->identify());
 
@@ -1462,5 +1447,3 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
   m_tileTBID->set_do_checks(do_checks_tb);
 
 }
-
-#undef NEWTILECELL
