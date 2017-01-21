@@ -224,6 +224,7 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
             resType);
         }
         // do not break here, but also fill the first coordinate...
+        /* FALLTHROUGH */
         case Trk::TrackState::TRT:
         case Trk::TrackState::MDT:
         case Trk::TrackState::CSC:
