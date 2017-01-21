@@ -67,10 +67,10 @@ class PyJobOptionsSvc
 
   /// Gaudi Service Implementation
   //@{
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
+                                     void** ppvInterface ) override;
   //@}
 
   /// @c IJobOptionsSvc interface
@@ -80,22 +80,22 @@ class PyJobOptionsSvc
       @param me Address of the interface IProperty of the client
   */
   virtual 
-  StatusCode setMyProperties (const std::string& client, IProperty* me);
+  StatusCode setMyProperties (const std::string& client, IProperty* me) override;
   
   /// Add a property into the JobOptions catalog
   virtual 
   StatusCode addPropertyToCatalogue (const std::string& client, 
-				     const Property& property );
+				     const Property& property ) override;
   /// Remove a property from the JobOptions catalog
   virtual 
   StatusCode removePropertyFromCatalogue (const std::string& client, 
-					  const std::string& name );
+					  const std::string& name ) override;
 
   /// Get the properties associated to a given client
   virtual 
   //  const std::vector<const Property*>* 
   const std::vector<const Gaudi::Details::PropertyBase*>* 
-  getProperties (const std::string& client) const;
+  getProperties (const std::string& client) const override;
 
   /// Get a property for a client
   const Gaudi::Details::PropertyBase* 
@@ -104,7 +104,7 @@ class PyJobOptionsSvc
 
   /// Get the list of clients
   virtual 
-  std::vector<std::string> getClients() const;
+  std::vector<std::string> getClients() const override;
   
   /** look for file 'File' into search path 'Path' 
    *  and read it to update existing JobOptionsCatalogue 
@@ -114,7 +114,7 @@ class PyJobOptionsSvc
    */
   virtual 
   StatusCode readOptions (const std::string& file,
-			  const std::string& path);
+			  const std::string& path) override;
 
   ///@}
 
