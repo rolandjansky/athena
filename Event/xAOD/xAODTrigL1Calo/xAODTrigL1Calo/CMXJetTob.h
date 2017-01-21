@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXJetTob.h 652810 2015-03-09 22:33:00Z morrisj $
+// $Id: CMXJetTob.h 791220 2017-01-01 04:52:41Z ssnyder $
 #ifndef XAODTRIGL1CALO_CMXJETTOB_H
 #define XAODTRIGL1CALO_CMXJETTOB_H
 
@@ -15,6 +15,8 @@
 namespace xAOD{
   /// Define the latest version of the CMXJetTob class
   typedef CMXJetTob_v1 CMXJetTob;
+
+  typedef std::map<int, const CMXJetTob*> CMXJetTobMap_t;
 }
 
 #include "xAODCore/CLASS_DEF.h"

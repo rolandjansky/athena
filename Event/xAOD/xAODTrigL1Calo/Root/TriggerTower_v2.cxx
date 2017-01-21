@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTower_v2.cxx 700709 2015-10-15 10:45:46Z morrisj $
+// $Id: TriggerTower_v2.cxx 793305 2017-01-21 04:50:50Z ssnyder $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -41,13 +41,21 @@ namespace xAOD{
     
   
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , lut_cp , setLut_cp )
+  AUXSTORE_OBJECT_MOVE( TriggerTower_v2 , std::vector<uint8_t> , lut_cp , setLut_cp )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , lut_jep , setLut_jep )
+  AUXSTORE_OBJECT_MOVE( TriggerTower_v2 , std::vector<uint8_t> , lut_jep , setLut_jep )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<int16_t> , correction , setCorrection )
+  AUXSTORE_OBJECT_MOVE( TriggerTower_v2 , std::vector<int16_t> , correction , setCorrection )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , correctionEnabled , setCorrectionEnabled )
+  AUXSTORE_OBJECT_MOVE( TriggerTower_v2 , std::vector<uint8_t> , correctionEnabled , setCorrectionEnabled )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , bcidVec , setBcidVec )
+  AUXSTORE_OBJECT_MOVE( TriggerTower_v2 , std::vector<uint8_t> , bcidVec , setBcidVec )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint16_t> , adc , setAdc )
+  AUXSTORE_OBJECT_MOVE( TriggerTower_v2 , std::vector<uint16_t> , adc , setAdc )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , bcidExt , setBcidExt )  
+  AUXSTORE_OBJECT_MOVE( TriggerTower_v2 , std::vector<uint8_t> , bcidExt , setBcidExt )  
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , sat80Vec , setSat80Vec )
+  AUXSTORE_OBJECT_MOVE( TriggerTower_v2 , std::vector<uint8_t> , sat80Vec , setSat80Vec )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint32_t , coolId , setCoolId )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint32_t , errorWord , setErrorWord )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint8_t , peak , setPeak )
@@ -82,6 +90,35 @@ namespace xAOD{
     setAdc( Adc );
     setBcidExt( BcidExt );
     setSat80Vec( Sat80Vec );
+    setErrorWord( ErrorWord );
+    setPeak( Peak );
+    setAdcPeak( AdcPeak );
+  }
+  
+  void TriggerTower_v2::initialize(const uint32_t CoolId,const float Eta,const float Phi,
+                                   std::vector<uint8_t>&& Lut_cp,
+                                   std::vector<uint8_t>&& Lut_jep,
+                                   std::vector<int16_t>&& Correction,
+                                   std::vector<uint8_t>&& CorrectionEnabled,
+                                   std::vector<uint8_t>&& BcidVec,
+                                   std::vector<uint16_t>&& Adc,
+                                   std::vector<uint8_t>&& BcidExt,
+                                   std::vector<uint8_t>&& Sat80Vec,
+                                   const uint32_t ErrorWord,
+                                   const uint8_t Peak,
+                                   const uint8_t AdcPeak)
+  {
+    setCoolId( CoolId );
+    setEta( Eta );
+    setPhi( Phi );
+    setLut_cp( std::move(Lut_cp) );
+    setLut_jep( std::move(Lut_jep) );
+    setCorrection( std::move(Correction) );
+    setCorrectionEnabled( std::move(CorrectionEnabled) );
+    setBcidVec( std::move(BcidVec) );
+    setAdc( std::move(Adc) );
+    setBcidExt( std::move(BcidExt) );
+    setSat80Vec( std::move(Sat80Vec) );
     setErrorWord( ErrorWord );
     setPeak( Peak );
     setAdcPeak( AdcPeak );
@@ -182,25 +219,25 @@ namespace xAOD{
 
   double TriggerTower_v2::eta() const
   {
-    static Accessor< float > acc( "eta" );
+    static const Accessor< float > acc( "eta" );
     return acc( *this );      
   }
   
   void TriggerTower_v2::setEta(float eta)
   {
-    static Accessor< float > acc( "eta" );
+    static const Accessor< float > acc( "eta" );
     acc( *this ) = eta;    
   }
 
   double TriggerTower_v2::phi() const
   {
-    static Accessor< float > acc( "phi" );
+    static const Accessor< float > acc( "phi" );
     return acc( *this );      
   }
   
   void TriggerTower_v2::setPhi(float phi)
   {
-    static Accessor< float > acc( "phi" );
+    static const Accessor< float > acc( "phi" );
     acc( *this ) = phi;    
   } 
   

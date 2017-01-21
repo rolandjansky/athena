@@ -12,6 +12,8 @@
 namespace xAOD {
    /// Define the latest version of the CMMCPHits class
    typedef CMMCPHits_v1 CMMCPHits;
+
+   typedef std::map<int, const CMMCPHits*> CMMCPHitsMap_t;
 }
 
 #include "xAODCore/CLASS_DEF.h"
