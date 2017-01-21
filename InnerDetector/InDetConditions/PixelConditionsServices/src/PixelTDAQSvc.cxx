@@ -21,11 +21,11 @@ PixelTDAQSvc::PixelTDAQSvc(const std::string& name, ISvcLocator* sl):
   AthService(name, sl),
   m_detStore("DetectorStore", name),
   m_pc("PixelCablingSvc", name),
+  m_pixelID(0),
   m_calback_calls(0),
   m_print(0),
   m_modulelistkey("/TDAQ/EnabledResources/ATLAS/PIXEL/Modules"),
   m_atrlistcol(0),
-  m_pixelID(0),
   m_first_lumiblock_filled(false),
   m_print_disabled(true),
   m_always_disabled_module_name("L2_B11_S1_A6_M4A")

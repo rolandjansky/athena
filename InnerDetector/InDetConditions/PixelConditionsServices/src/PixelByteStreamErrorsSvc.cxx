@@ -31,11 +31,11 @@ PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name,
   m_event_read(0),
   m_FE_errors(0),
   m_module_isread(0),
-  m_ServiceRecords(),
-  m_readESD(false),
   m_ibl_is_present(true),
   m_dbm_is_present(true),
-  m_max_hashes(0)
+  m_ServiceRecords(),
+  m_max_hashes(0),
+  m_readESD(false)
 { 
   declareProperty("ReadingESD",m_readESD,"Get summary of BS errors from StoreGate, if available"); 
   resetCounts();
