@@ -1454,6 +1454,7 @@ CaloNoiseTool::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
     // overwrite iGain with highest gain for that detector and
     // continue into normal code (NO break !!)
     igain=m_highestGain[caloDDE->getSubCalo()];
+    /* FALLTHROUGH */
   case ICalorimeterNoiseTool::ELECTRONICNOISE:
     return elecNoiseRMS(caloDDE,igain,Nminbias,
 			ICaloNoiseToolStep::CELLS);
@@ -1464,6 +1465,7 @@ CaloNoiseTool::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
     // continue into normal code (NO break !!)
     igain=m_highestGain[caloDDE->getSubCalo()];
     //  NOTE: igain is not used at the moment for pileupnoise
+    /* FALLTHROUGH */
   case ICalorimeterNoiseTool::PILEUPNOISE:
     return pileupNoiseRMS(caloDDE,igain,Nminbias,
 			  ICaloNoiseToolStep::CELLS);
@@ -1474,6 +1476,7 @@ CaloNoiseTool::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
     // continue into normal code (NO break !!)
     igain=m_highestGain[caloDDE->getSubCalo()];
     //  NOTE: igain is only used for the electronics noise at the moment
+    /* FALLTHROUGH */
   case ICalorimeterNoiseTool::TOTALNOISE:
     return totalNoiseRMS(caloDDE,igain,Nminbias,
 			 ICaloNoiseToolStep::CELLS);
