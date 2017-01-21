@@ -88,7 +88,7 @@ CondInputLoader::initialize()
   bool retrieved;
   unsigned long long br;
   float rt;
-  DataObjIDColl m_loadCopy;
+  DataObjIDColl loadCopy;
 
   std::map<std::string,std::string> folderKeyMap;
   for (auto key : keys) {
@@ -110,7 +110,7 @@ CondInputLoader::initialize()
     // } else {
     //   ATH_MSG_DEBUG(" not remapping folder " << id.key());
     }
-    m_loadCopy.insert(id);
+    loadCopy.insert(id);
   }
 
   // for (auto key : keys) {
@@ -120,7 +120,7 @@ CondInputLoader::initialize()
   //       if (id.key() == folderName) {
   //         ATH_MSG_DEBUG("  mapping folder " << folderName << "  to SGkey " << key );
   //         id.updateKey( key );
-  //         m_loadCopy.insert(id);
+  //         loadCopy.insert(id);
   //         m_keyFolderMap[key] = folderName;
   //         break;
   //       }
@@ -130,7 +130,7 @@ CondInputLoader::initialize()
   //   }
   // }
 
-  m_load = m_loadCopy;
+  m_load = loadCopy;
 
   // Update the properties, set the ExtraOutputs for Alg deps
   const Property &p = getProperty("Load");
