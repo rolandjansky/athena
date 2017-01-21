@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorBase.h 602407 2014-06-18 14:17:46Z ssnyder $
+// $Id: AuxVectorBase.h 793298 2017-01-21 01:30:06Z ssnyder $
 /**
  * @file AthContainers/AuxVectorBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -313,12 +313,19 @@ protected:
    * @param p The new element being added.
    * @param clear If true, then any auxiliary data initially associated
    *              with @c p are cleared after being copied.
+   * @param skipDestClear Normally, if @c p does not have auxiliary data,
+   *                      then the variables of the destination are cleared.
+   *                      If this flag is true, then this clear is skipped.
+   *                      This can be appropriate as part of a push_back,
+   *                      where the destiniation is already known to be clear.
    *
    * Element @c p is being added to the container at @c index.
    * If @c p has associated auxiliary data, copy it to the container
    * at @c index.  Then set the container / index on @c p.
    */
-  void moveAux (size_t index, SG::AuxElement* p, bool clear = false);
+  void moveAux (size_t index, SG::AuxElement* p,
+                bool clear = false,
+                bool skipDestClear = false);
 
 
   /**
@@ -327,10 +334,16 @@ protected:
    * @param p The new element being added.
    * @param clear If true, then any auxiliary data initially associated
    *              with @c p are cleared after being copied.
+   * @param skipDestClear Normally, if @c p does not have auxiliary data,
+   *                      then the variables of the destination are cleared.
+   *                      If this flag is true, then this clear is skipped.
+   *                      This can be appropriate as part of a push_back,
+   *                      where the destiniation is already known to be clear.
    *
    * Overload for the no-auxdata case.
    */
-  void moveAux (size_t index, const void* p, bool clear = false);
+  void moveAux (size_t index, const void* p, bool clear = false,
+                bool skipDestClear = false);
 
 
   /**

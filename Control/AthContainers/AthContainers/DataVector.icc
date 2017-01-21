@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.icc 635856 2014-12-14 05:09:23Z ssnyder $
+// $Id: DataVector.icc 793303 2017-01-21 04:48:16Z ssnyder $
 /**
  * @file  AthContainers/DataVector.icc
  * @author scott snyder, Paolo Calafiura, etc
@@ -1098,7 +1098,7 @@ void DataVector<T, BASE>::push_back(value_type pElem)
   this->m_pCont.push_back(static_cast<typename PtrVector::value_type>(pElem));
   SG::AuxVectorBase::resize<DataVector> (this->size());
   if (pElem)
-    this->moveAux (this->size()-1, pElem);
+    this->moveAux (this->size()-1, pElem, false, true);
 }
 
 
@@ -1127,7 +1127,7 @@ void DataVector<T, BASE>::push_back(std::unique_ptr<base_value_type> pElem)
   this->m_pCont.push_back(ptr);
   SG::AuxVectorBase::resize<DataVector> (this->size());
   if (ptr)
-    this->moveAux (this->size()-1, ptr);
+    this->moveAux (this->size()-1, ptr, false, true);
 }
 #endif
 #endif
@@ -1373,7 +1373,9 @@ template <class T, class BASE>
 inline
 void DataVector<T, BASE>::clear()
 {
-  this->erase (this->begin(), this->end());
+  if (this->m_ownPolicy != SG::OWN_ELEMENTS)
+    this->clearIndices (begin(), end());
+  this->erase_base (this->m_pCont.begin(), this->m_pCont.end());
   SG::AuxVectorBase::resize<DataVector> (0);
 }
 
@@ -2760,7 +2762,7 @@ void DATAVECTOR::push_back(value_type pElem)
   m_pCont.push_back(pElem);
   SG::AuxVectorBase::resize<DataVector> (this->size());
   if (pElem)
-    this->moveAux (this->size()-1, pElem);
+    this->moveAux (this->size()-1, pElem, false, true);
 }
 
 
@@ -2789,7 +2791,7 @@ void DATAVECTOR::push_back(std::unique_ptr<base_value_type> pElem)
   m_pCont.push_back(ptr);
   SG::AuxVectorBase::resize<DataVector> (this->size());
   if (ptr)
-    this->moveAux (this->size()-1, ptr);
+    this->moveAux (this->size()-1, ptr, false, true);
 }
 #endif
 #endif
@@ -3028,7 +3030,9 @@ template <class T>
 inline
 void DATAVECTOR::clear()
 {
-  erase (begin(), end());
+  if (this->m_ownPolicy != SG::OWN_ELEMENTS)
+    this->clearIndices (begin(), end());
+  this->erase_base (m_pCont.begin(), m_pCont.end());
   SG::AuxVectorBase::resize<DataVector> (0);
 }
 

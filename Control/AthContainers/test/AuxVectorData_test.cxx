@@ -379,7 +379,7 @@ public:
   virtual size_t size() const { std::abort(); }
   virtual void* getData (SG::auxid_t, size_t, size_t) { std::abort(); }
   virtual const SG::auxid_set_t& getWritableAuxIDs() const { std::abort(); }
-  virtual void resize (size_t) { std::abort(); }
+  virtual bool resize (size_t) { std::abort(); }
   virtual void reserve (size_t) { std::abort(); }
   virtual void shift (size_t, ptrdiff_t) { std::abort(); }
 

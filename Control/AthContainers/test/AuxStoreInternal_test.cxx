@@ -89,7 +89,7 @@ void test1()
   assert (s.size() == 10);
   i2c = reinterpret_cast<const int*> (s.getData(ityp2));
   f1c = reinterpret_cast<const float*> (s.getData(ftyp1));
-  s.resize(40);
+  assert (s.resize(40) == true);
   assert (s.size() == 40);
   assert (i2c == reinterpret_cast<const int*> (s.getData(ityp2)));
   assert (f1c == reinterpret_cast<const float*> (s.getData(ftyp1)));
@@ -168,6 +168,10 @@ void test1()
   assert (i1c[0] == 1);
   assert (i1c[1] == 0);
   assert (i1c[2] == 2);
+
+  assert (s.resize(1000) == false);
+  assert (s.resize(500) == true);
+  assert (s.resize(1000) == true);
 }
 
 

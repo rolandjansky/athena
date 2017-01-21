@@ -765,7 +765,7 @@ public:
   virtual size_t size() const { return 0; }
   virtual void* getData (SG::auxid_t, size_t, size_t) { return 0; }
   virtual const SG::auxid_set_t& getWritableAuxIDs() const { return m_auxids; }
-  virtual void resize (size_t) { }
+  virtual bool resize (size_t) { return false; }
   virtual void reserve (size_t) { }
   virtual void shift (size_t, ptrdiff_t) { }
 

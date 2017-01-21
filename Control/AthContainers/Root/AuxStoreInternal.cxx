@@ -212,16 +212,24 @@ AuxStoreInternal::getDecoration (auxid_t auxid, size_t size, size_t capacity)
  * If the size of the container grows, the new elements should
  * be default-initialized; if it shrinks, destructors should
  * be run as appropriate.
+ *
+ * Should return @c true if it is known that none of the data pointers
+ * changed (and thus the cache does not need to be cleared), false
+ * otherwise.
  */
-void AuxStoreInternal::resize (size_t sz)
+bool AuxStoreInternal::resize (size_t sz)
 {
   guard_t guard (m_mutex);
   if (m_locked)
     throw ExcStoreLocked ("resize");
+  bool nomoves = true;
   for (IAuxTypeVector* v : m_vecs) {
-    if (v)
-      v->resize (sz);
+    if (v) {
+      if (!v->resize (sz))
+        nomoves = false;
+    }
   }
+  return nomoves;
 }
 
 

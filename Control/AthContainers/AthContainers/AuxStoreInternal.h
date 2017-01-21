@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreInternal.h 785199 2016-11-18 18:41:18Z ssnyder $
+// $Id: AuxStoreInternal.h 793253 2017-01-20 18:17:19Z ssnyder $
 /**
  * @file AthContainers/AuxStoreInternal.h
  * @author scott snyder <snyder@bnl.gov>
@@ -87,7 +87,7 @@ public:
    *
    * This should return 0 if the item doesn't exist.
    */
-  virtual const void* getData (SG::auxid_t auxid) const ATH_OVERRIDE;
+  virtual const void* getData (SG::auxid_t auxid) const override;
 
 
   /**
@@ -107,7 +107,7 @@ public:
    * new aux data item vector.
    */
   virtual void* getData (SG::auxid_t auxid, size_t size, size_t capacity)
-    ATH_OVERRIDE;
+    override;
 
 
   /**
@@ -132,7 +132,7 @@ public:
    * Otherwise we throw an exception.
    */
   virtual void* getDecoration (auxid_t auxid, size_t size, size_t capacity)
-    ATH_OVERRIDE;
+    override;
 
 
   /**
@@ -145,8 +145,12 @@ public:
    * If the size of the container grows, the new elements should
    * be default-initialized; if it shrinks, destructors should
    * be run as appropriate.
+   *
+   * Should return @c true if it is known that none of the data pointers
+   * changed (and thus the cache does not need to be cleared), false
+   * otherwise.
    */
-  virtual void resize (size_t sz) ATH_OVERRIDE;
+  virtual bool resize (size_t sz) override;
 
 
   /**
@@ -157,7 +161,7 @@ public:
    * (by @c reserve).  This should change the capacity for the vectors
    * for all aux data items.
    */
-  virtual void reserve (size_t sz) ATH_OVERRIDE;
+  virtual void reserve (size_t sz) override;
 
 
   /**
@@ -182,7 +186,7 @@ public:
    * The container should then be shrunk by @c -offs elements
    * (running destructors as appropriate).
    */
-  virtual void shift (size_t pos, ptrdiff_t offs) ATH_OVERRIDE;
+  virtual void shift (size_t pos, ptrdiff_t offs) override;
 
 
   /**
@@ -192,7 +196,7 @@ public:
    *        This should include identifiers for all items,
    *        const and non-const.
    */
-  virtual const SG::auxid_set_t& getAuxIDs() const ATH_OVERRIDE;
+  virtual const SG::auxid_set_t& getAuxIDs() const override;
 
 
   /**
@@ -201,7 +205,7 @@ public:
    *
    *        This should include only non-const identifiers.
    */
-  virtual const SG::auxid_set_t& getWritableAuxIDs() const ATH_OVERRIDE;
+  virtual const SG::auxid_set_t& getWritableAuxIDs() const override;
 
 
   /**
@@ -214,7 +218,7 @@ public:
    * Returns 0 and reports an error if the requested aux data item
    * does not exist.
    */
-  virtual const void* getIOData (SG::auxid_t auxid) const ATH_OVERRIDE;
+  virtual const void* getIOData (SG::auxid_t auxid) const override;
 
 
   /**
@@ -228,13 +232,13 @@ public:
    *
    * Returns 0 if the requested aux data item does not exist.
    */
-  virtual const std::type_info* getIOType (SG::auxid_t auxid) const ATH_OVERRIDE;
+  virtual const std::type_info* getIOType (SG::auxid_t auxid) const override;
 
 
   /**
    * @brief Get the list of all variables that need to be handled.
    */
-  virtual const SG::auxid_set_t& getDynamicAuxIDs() const ATH_OVERRIDE;
+  virtual const SG::auxid_set_t& getDynamicAuxIDs() const override;
 
 
   /**
@@ -243,7 +247,7 @@ public:
    * After this, only decorations can be changed/modified.
    * If the container is already locked, this is a no-op.
    */
-  virtual void lock() ATH_OVERRIDE;
+  virtual void lock() override;
 
 
   /**
@@ -253,7 +257,7 @@ public:
    * @c lock was called.  Be sure to clear the cache of the referencing
    * container!
    */
-  virtual void clearDecorations() ATH_OVERRIDE;
+  virtual void clearDecorations() override;
 
 
   /**
@@ -261,7 +265,7 @@ public:
    *
    * May return 0 for a store with no aux data.
    */
-  virtual size_t size() const ATH_OVERRIDE;
+  virtual size_t size() const override;
 
 
   /**
@@ -273,7 +277,7 @@ public:
    * See PackedParameters.h for option settings for writing packed data.
    * Returns @c true on success, @c false otherwise.
    */
-  virtual bool setOption (auxid_t id, const AuxDataOption& option) ATH_OVERRIDE;
+  virtual bool setOption (auxid_t id, const AuxDataOption& option) override;
 
 
 protected:

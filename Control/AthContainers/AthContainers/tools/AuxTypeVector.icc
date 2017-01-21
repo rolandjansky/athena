@@ -187,12 +187,16 @@ size_t AuxTypeVectorHolder<T, CONT>::size () const
 /**
  * @brief Change the size of the vector.
  * @param sz The new vector size.
+ * Returns true if it is known that iterators have not been invalidated;
+ * false otherwise.
  */
 template <class T, class CONT>
 inline
-void AuxTypeVectorHolder<T, CONT>::resize (size_t sz)
+bool AuxTypeVectorHolder<T, CONT>::resize (size_t sz)
 {
+  const void* orig = m_vecPtr->data();
   m_vecPtr->resize (sz * SCALE);
+  return m_vecPtr->data() == orig;
 }
 
 

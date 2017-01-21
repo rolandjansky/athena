@@ -153,8 +153,10 @@ public:
   /**
    * @brief Change the size of the vector.
    * @param sz The new vector size.
+   * Returns true if it is known that iterators have not been invalidated;
+   * false otherwise.
    */
-  virtual void resize (size_t sz) override;
+  virtual bool resize (size_t sz) override;
 
 
   /**

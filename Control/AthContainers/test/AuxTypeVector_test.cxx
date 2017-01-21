@@ -42,7 +42,7 @@ void test_vector1()
 
   v->reserve (50);
   ptr = reinterpret_cast<T*> (v->toPtr());
-  v->resize (40);
+  assert (v->resize (40) == true);
   T* ptr2 = reinterpret_cast<T*> (v->toPtr());
   assert (ptr == ptr2);
   assert (ptr[0] == makeT(1));
@@ -85,13 +85,17 @@ void test_vector1()
   for (size_t i = 0; i < v->size(); i++)
     assert (ptr[i] == ptr3[i]);
 
-  v->resize (0);
+  assert (v->resize (0) == true);
   assert (v->toPtr() == 0);
 
   if (typeid(T) == typeid(bool))
     assert (v->objType() == &typeid(std::vector<char>));
   else
     assert (v->objType() == &typeid(std::vector<T>));
+
+  assert (v->resize (1000) == false);
+  assert (v->resize (500) == true);
+  assert (v->resize (1000) == true);
 
   delete v;
   delete v2;

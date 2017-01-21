@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorData.h 718910 2016-01-20 22:30:05Z ssnyder $
+// $Id: AuxVectorData.h 793052 2017-01-19 15:05:28Z ssnyder $
 /**
  * @file AthContainers/AuxVectorData.h
  * @author scott snyder <snyder@bnl.gov>
@@ -736,7 +736,7 @@ private:
 
 
     /**
-     * @brief Clear the cache (and free allocated memory).
+     * @brief Clear the cache (and free any old cache vectors).
      */
     void clear();
 
