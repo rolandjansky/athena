@@ -128,7 +128,8 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
                   unsigned int index = (unsigned int)(idHash);
                   if (index<m_hasPathologyEM.size()) {
                      if(m_hasPathologyEM[index].size()) {
-                        if(m_hasPathologyEM[index].size()<abs(electPath.electInd+1)) m_hasPathologyEM[index].resize(electPath.electInd+1);
+                       if(m_hasPathologyEM[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+                         m_hasPathologyEM[index].resize(electPath.electInd+1);
                         m_hasPathologyEM[index][electPath.electInd]=electPath.pathologyType;
                      } else {
                         std::vector<unsigned short> svec;
@@ -143,7 +144,8 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
                   unsigned int index = (unsigned int)(idHash);
                   if (index<m_hasPathologyHEC.size()) {
                      if(m_hasPathologyHEC[index].size()) {
-                        if(m_hasPathologyHEC[index].size()<abs(electPath.electInd+1)) m_hasPathologyHEC[index].resize(electPath.electInd+1);
+                       if(m_hasPathologyHEC[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+                         m_hasPathologyHEC[index].resize(electPath.electInd+1);
                         m_hasPathologyHEC[index][electPath.electInd]=electPath.pathologyType;
                      } else {
                         std::vector<unsigned short> svec;
@@ -158,8 +160,9 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
                   unsigned int index = (unsigned int)(idHash);
                   if (index<m_hasPathologyFCAL.size()) {
                      if(m_hasPathologyFCAL[index].size()) {
-                        if(m_hasPathologyFCAL[index].size()<abs(electPath.electInd+1)) m_hasPathologyFCAL[index].resize(electPath.electInd+1);
-                        m_hasPathologyFCAL[index][electPath.electInd]=electPath.pathologyType;
+                       if(m_hasPathologyFCAL[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+                         m_hasPathologyFCAL[index].resize(electPath.electInd+1);
+                       m_hasPathologyFCAL[index][electPath.electInd]=electPath.pathologyType;
                      } else {
                         std::vector<unsigned short> svec;
                         svec.resize(electPath.electInd+1);
