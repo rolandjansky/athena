@@ -33,8 +33,6 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist)"
 apply_pattern installed_library
               library egammaLayerRecalibTool "../Root/*.cxx ../src/*.cxx"
 
-apply_pattern declare_runtime files="-s=../share *.root "
-
 private
 use  PathResolver               PathResolver-*                  Tools
 # macro_append rootBasicLibs " -lPyROOT "  

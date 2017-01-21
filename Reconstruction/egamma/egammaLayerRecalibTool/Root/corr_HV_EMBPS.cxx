@@ -25,8 +25,8 @@ corr_HV_EMBPS::corr_HV_EMBPS(){
   else {
     for (int iperiod=0;iperiod<6;iperiod++) {
       for (int igap=0;igap<2;igap++) {
-	char name[4];
-	snprintf(name,4,"h%d%d",iperiod+1,igap);
+	char name[12];
+	snprintf(name,sizeof(name),"h%d%d",iperiod+1,igap);
 	m_hHV[iperiod][igap]=(TProfile2D*) (m_file->Get(name));
 	if (not m_hHV[iperiod][igap]) {
 	  std::cerr << "FATAL: cannot find " << name << std::endl;
