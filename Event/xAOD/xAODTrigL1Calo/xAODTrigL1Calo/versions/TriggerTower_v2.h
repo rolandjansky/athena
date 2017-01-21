@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTower_v2.h 652807 2015-03-09 21:52:07Z morrisj $
+// $Id: TriggerTower_v2.h 793305 2017-01-21 04:50:50Z ssnyder $
 #ifndef XAODTRIGL1CALO_VERSIONS_TRIGGERTOWER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_TRIGGERTOWER_V2_H
 
@@ -26,8 +26,8 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 652807 $
-  /// $Date: 2015-03-09 22:52:07 +0100 (Mon, 09 Mar 2015) $  
+  /// $Revision: 793305 $
+  /// $Date: 2017-01-21 05:50:50 +0100 (Sat, 21 Jan 2017) $  
   ///  
   /// Trigger towers are the inputs to all other parts of the calorimeter trigger.
   /// They are formed by analogue summation of cells (represented in simulation
@@ -107,6 +107,19 @@ namespace xAOD {
                               const uint8_t Peak,
                               const uint8_t AdcPeak);
 
+      virtual void initialize(const uint32_t CoolId,const float Eta,const float Phi,
+                              std::vector<uint8_t>&& Lut_cp,
+                              std::vector<uint8_t>&& Lut_jep,
+                              std::vector<int16_t>&& Correction,
+                              std::vector<uint8_t>&& CorrectionEnabled,
+                              std::vector<uint8_t>&& BcidVec,
+                              std::vector<uint16_t>&& Adc,
+                              std::vector<uint8_t>&& BcidExt,
+                              std::vector<uint8_t>&& Sat80Vec,
+                              const uint32_t ErrorWord,
+                              const uint8_t Peak,
+                              const uint8_t AdcPeak);
+
       /// Tower identifiers
   
       /// get coolId
@@ -125,26 +138,31 @@ namespace xAOD {
       const std::vector<uint8_t>& lut_cp() const;
       /// set lut_cp
       void setLut_cp(const std::vector<uint8_t>&);
+      void setLut_cp(std::vector<uint8_t>&&);
       
       /// get lut_jep
       const std::vector<uint8_t>& lut_jep() const;
       /// set lut_jep
       void setLut_jep(const std::vector<uint8_t>&);      
+      void setLut_jep(std::vector<uint8_t>&&);      
       
       /// get correction
       const std::vector<int16_t>& correction() const;
       /// set correction
       void setCorrection(const std::vector<int16_t>&);  
+      void setCorrection(std::vector<int16_t>&&);
       
        /// get correctionEnabled
       const std::vector<uint8_t>& correctionEnabled() const;
       /// set correctionEnabled
       void setCorrectionEnabled(const std::vector<uint8_t>&);      
+      void setCorrectionEnabled(std::vector<uint8_t>&&);
       
       /// get bcidVec
       const std::vector<uint8_t>& bcidVec() const;
       /// set bcidVec
       void setBcidVec(const std::vector<uint8_t>&);      
+      void setBcidVec(std::vector<uint8_t>&&);
       
 
       // Quantities with same number of slices as ADC data
@@ -153,16 +171,19 @@ namespace xAOD {
       const std::vector<uint16_t>& adc() const;
       /// set adc
       void setAdc(const std::vector<uint16_t>&);    
+      void setAdc(std::vector<uint16_t>&&);
       
       /// get bcidExt
       const std::vector<uint8_t>& bcidExt() const;
       /// set bcidExt
-      void setBcidExt(const std::vector<uint8_t>&);   
+      void setBcidExt(const std::vector<uint8_t>&);
+      void setBcidExt(std::vector<uint8_t>&&);
       
       /// get sat80Vec
       const std::vector<uint8_t>& sat80Vec() const;
       /// set sat80Vec
       void setSat80Vec(const std::vector<uint8_t>&);
+      void setSat80Vec(std::vector<uint8_t>&&);
       
 
       // One error word/tower/event
