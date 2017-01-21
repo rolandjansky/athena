@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxVector.h 611582 2014-08-13 12:37:37Z krasznaa $
+// $Id: TAuxVector.h 793319 2017-01-21 16:21:46Z ssnyder $
 #ifndef XAODROOTACCESS_TOOLS_TAUXVECTOR_H
 #define XAODROOTACCESS_TOOLS_TAUXVECTOR_H
 
@@ -31,8 +31,8 @@ namespace xAOD {
    /// @author Scott Snyder <Scott.Snyder@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 611582 $
-   /// $Date: 2014-08-13 14:37:37 +0200 (Wed, 13 Aug 2014) $
+   /// $Revision: 793319 $
+   /// $Date: 2017-01-21 17:21:46 +0100 (Sat, 21 Jan 2017) $
    ///
    class TAuxVector : public SG::IAuxTypeVector {
 
@@ -63,7 +63,7 @@ namespace xAOD {
       virtual size_t size() const;
 
       /// Change the size of the vector
-      virtual void resize( size_t sz );
+      virtual bool resize( size_t sz );
       /// Change the capacity of the vector
       virtual void reserve( size_t sz );
       /// Shift the elements of the vector

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 784654 2016-11-16 17:17:32Z krasznaa $
+# $Id: CMakeLists.txt 793319 2017-01-21 16:21:46Z ssnyder $
 #
 # Build configuration for the xAODRootAccess package.
 #
@@ -87,8 +87,8 @@ _add_test( ut_xaodrootaccess_tstore_test )
 
 # Run the scripted tests for the package:
 atlas_add_test( ut_xaodrootaccess_tpyevent_test
-   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py )
+   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600 )
 atlas_add_test( ut_xaodrootaccess_tpystore_test
-   SCRIPT test/ut_xaodrootaccess_tpystore_test.py )
+   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
 atlas_add_test( ut_xaodrootaccess_transtree2_test
-   SCRIPT test/ut_xaodrootaccess_transtree2_test.py )
+   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )

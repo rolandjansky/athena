@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxStore.cxx 783066 2016-11-08 19:39:32Z ssnyder $
+// $Id: TAuxStore.cxx 793319 2017-01-21 16:21:46Z ssnyder $
 
 // System include(s):
 #include <string.h>
@@ -548,7 +548,7 @@ namespace xAOD {
       return getAuxIDs();
    }
 
-   void TAuxStore::resize( size_t size ) {
+   bool TAuxStore::resize( size_t size ) {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex1 );
@@ -558,22 +558,25 @@ namespace xAOD {
          ::Error( "xAOD::TAuxStore::resize",
                   XAOD_MESSAGE( "size = %i for single-object store" ),
                   static_cast< int >( size ) );
-         return;
+         return false;
       }
 
       // Remember the new size:
       m_size = size;
 
-      std::vector< SG::IAuxTypeVector* >::iterator itr = m_vecs.begin();
-      std::vector< SG::IAuxTypeVector* >::iterator end = m_vecs.end();
-      for( ; itr != end; ++itr ) {
-         if( *itr ) ( *itr )->resize( size );
+      bool nomoves = true;
+      for (SG::IAuxTypeVector* v : m_vecs) {
+         if(v) {
+           if (!v->resize( size ))
+             nomoves = false;
+         }
       }
       if( m_transientStore ) {
-         m_transientStore->resize( size );
+        if (!m_transientStore->resize( size ))
+          nomoves = false;
       }
 
-      return;
+      return nomoves;
    }
 
    void TAuxStore::reserve( size_t size ) {

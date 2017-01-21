@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxStore.h 718392 2016-01-19 10:41:32Z krasznaa $
+// $Id: TAuxStore.h 793319 2017-01-21 16:21:46Z ssnyder $
 #ifndef XAODROOTACCESS_TAUXSTORE_H
 #define XAODROOTACCESS_TAUXSTORE_H
 
@@ -43,8 +43,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 718392 $
-   /// $Date: 2016-01-19 11:41:32 +0100 (Tue, 19 Jan 2016) $
+   /// $Revision: 793319 $
+   /// $Date: 2017-01-21 17:21:46 +0100 (Sat, 21 Jan 2017) $
    ///
    class TAuxStore : public SG::IAuxStore,
                      public SG::IAuxStoreIO {
@@ -142,7 +142,7 @@ namespace xAOD {
       virtual const auxid_set_t& getWritableAuxIDs() const;
 
       /// Resize the arrays to a given size
-      virtual void resize( size_t size );
+      virtual bool resize( size_t size );
       /// Reserve a given size for the arrays
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays

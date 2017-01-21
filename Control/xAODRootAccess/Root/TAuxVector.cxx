@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxVector.cxx 611582 2014-08-13 12:37:37Z krasznaa $
+// $Id: TAuxVector.cxx 793319 2017-01-21 16:21:46Z ssnyder $
 
 // ROOT include(s):
 #include <TClass.h>
@@ -124,11 +124,12 @@ namespace xAOD {
       return m_proxy->Size();
    }
 
-   void TAuxVector::resize( size_t sz ) {
+   bool TAuxVector::resize( size_t sz ) {
 
       TVirtualCollectionProxy::TPushPop bind( m_proxy, m_vec );
+      const void* orig = toPtr();
       m_proxy->Allocate( sz, false );
-      return;
+      return toPtr() == orig;
    }
 
    void TAuxVector::reserve( size_t ) {
