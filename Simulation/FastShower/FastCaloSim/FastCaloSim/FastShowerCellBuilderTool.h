@@ -216,58 +216,58 @@ private:
   t_map_PSP_ID m_map_ParticleShapeParametrizationMap;
 
 
-  std::map< int , double> simul_map_energy;
-  std::map< int , double> simul_map_energyEM;
-  std::map< int , double> simul_map_energyHAD;
+  std::map< int , double> m_simul_map_energy;
+  std::map< int , double> m_simul_map_energyEM;
+  std::map< int , double> m_simul_map_energyHAD;
 
-  std::map< int , double> simul_sum_energy;
-  std::map< int , double> simul_sum_energyEM;
-  std::map< int , double> simul_sum_energyHAD;
+  std::map< int , double> m_simul_sum_energy;
+  std::map< int , double> m_simul_sum_energyEM;
+  std::map< int , double> m_simul_sum_energyHAD;
   
 // Variables used during single event generation
 private:
-  double E_tot_em;
-  double E_tot_had;
-  double Et_tot_em;
-  double Et_tot_had;
+  double m_E_tot_em;
+  double m_E_tot_had;
+  double m_Et_tot_em;
+  double m_Et_tot_had;
   
-  double E_tot_sample[CaloCell_ID_FCS::MaxSample];
-  double E_lost_sample[CaloCell_ID_FCS::MaxSample];
-  double Et_tot_sample[CaloCell_ID_FCS::MaxSample];
-  double Et_lost_sample[CaloCell_ID_FCS::MaxSample];
+  double m_E_tot_sample[CaloCell_ID_FCS::MaxSample];
+  double m_E_lost_sample[CaloCell_ID_FCS::MaxSample];
+  double m_Et_tot_sample[CaloCell_ID_FCS::MaxSample];
+  double m_Et_lost_sample[CaloCell_ID_FCS::MaxSample];
 
 private:
-  double ptruth_eta;
-  double ptruth_phi;
-  double ptruth_e;
+  double m_ptruth_eta;
+  double m_ptruth_phi;
+  double m_ptruth_e;
   //double ptruth_et;
-  double ptruth_pt;
-  double ptruth_p;
+  double m_ptruth_pt;
+  double m_ptruth_p;
   //int pdgid;
-  int refid;
+  int m_refid;
 
-  double eta_calo_surf;
-  double phi_calo_surf;
-  double d_calo_surf;
+  double m_eta_calo_surf;
+  double m_phi_calo_surf;
+  double m_d_calo_surf;
 
-  bool   layerCaloOK[CaloCell_ID_FCS::MaxSample];
-  double letaCalo[CaloCell_ID_FCS::MaxSample];
-  double lphiCalo[CaloCell_ID_FCS::MaxSample];
-  double dCalo[CaloCell_ID_FCS::MaxSample];
-  double distetaCaloBorder[CaloCell_ID_FCS::MaxSample];
+  bool   m_layerCaloOK[CaloCell_ID_FCS::MaxSample];
+  double m_letaCalo[CaloCell_ID_FCS::MaxSample];
+  double m_lphiCalo[CaloCell_ID_FCS::MaxSample];
+  double m_dCalo[CaloCell_ID_FCS::MaxSample];
+  double m_distetaCaloBorder[CaloCell_ID_FCS::MaxSample];
 
-  CaloCell_ID_FCS::CaloSample sample_calo_surf;
+  CaloCell_ID_FCS::CaloSample m_sample_calo_surf;
 public:
   bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
   bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector);
 
-  CaloCell_ID_FCS::CaloSample get_sample_calo_surf() const {return sample_calo_surf;};
-  double get_eta_calo_surf() const {return eta_calo_surf;};
-  double get_phi_calo_surf() const {return phi_calo_surf;};
-  double get_d_calo_surf() const {return d_calo_surf;};
-  double get_eta_calo_surf(int layer) const {return letaCalo[layer];};
-  double get_phi_calo_surf(int layer) const {return lphiCalo[layer];};
-  double get_d_calo_surf(int layer) const {return dCalo[layer];};
+  CaloCell_ID_FCS::CaloSample get_sample_calo_surf() const {return m_sample_calo_surf;};
+  double get_eta_calo_surf() const {return m_eta_calo_surf;};
+  double get_phi_calo_surf() const {return m_phi_calo_surf;};
+  double get_d_calo_surf() const {return m_d_calo_surf;};
+  double get_eta_calo_surf(int layer) const {return m_letaCalo[layer];};
+  double get_phi_calo_surf(int layer) const {return m_lphiCalo[layer];};
+  double get_d_calo_surf(int layer) const {return m_dCalo[layer];};
   
 private:
   std::string 	           m_FastShowerInfoContainerKey;

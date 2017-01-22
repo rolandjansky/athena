@@ -161,7 +161,7 @@ public:
   virtual StatusCode initialize() override;
 
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
 
 protected: 
   void init_all_maps(); 
@@ -180,18 +180,18 @@ protected:
   double m_phi0_em;
   double m_phi0_had;
 
-  cellinfo_map celllist_maps[CaloCell_ID_FCS::MaxSample];
-  cellinfo_map em_celllist_map;
-  cellinfo_map em_map;
-  cellinfo_map em_fine_map;
-  cellinfo_map had_map;
+  cellinfo_map m_celllist_maps[CaloCell_ID_FCS::MaxSample];
+  cellinfo_map m_em_celllist_map;
+  cellinfo_map m_em_map;
+  cellinfo_map m_em_fine_map;
+  cellinfo_map m_had_map;
   
-  double                   min_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  double                   max_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  FSmap< double , double > rmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  FSmap< double , double > zmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  FSmap< double , double > rent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  FSmap< double , double > zent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  double                   m_min_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  double                   m_max_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  FSmap< double , double > m_rmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  FSmap< double , double > m_zmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  FSmap< double , double > m_rent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  FSmap< double , double > m_zent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
   
 
   double deta(CaloCell_ID_FCS::CaloSample sample,double eta) const;

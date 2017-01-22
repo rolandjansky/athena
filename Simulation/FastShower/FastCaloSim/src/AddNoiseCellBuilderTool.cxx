@@ -52,7 +52,7 @@ AddNoiseCellBuilderTool::~AddNoiseCellBuilderTool()
 StatusCode AddNoiseCellBuilderTool::initialize()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO <<  "Initialisating started" << endreq ;
+  log << MSG::INFO <<  "Initialisating started" << endmsg ;
 
   StatusCode sc=BasicCellBuilderTool::initialize();
   
@@ -61,7 +61,7 @@ StatusCode AddNoiseCellBuilderTool::initialize()
   if (sc.isFailure()) {
     log << MSG::FATAL
 	<< " Tool Service not found "
-	<< endreq;
+	<< endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -71,28 +71,28 @@ StatusCode AddNoiseCellBuilderTool::initialize()
   if (sc.isFailure()) {
     log << MSG::INFO
 	<< "Unable to find tool for " << m_noiseToolName
-	<< endreq;
+	<< endmsg;
     return StatusCode::FAILURE;
   } else {
     log << MSG::INFO << "Noise Tool "
-	<< m_noiseToolName << " is selected!" << endreq;
+	<< m_noiseToolName << " is selected!" << endmsg;
   }
   m_noiseTool=dynamic_cast<ICaloNoiseTool*>(algtool); 
 
   // Random number service
   if ( m_rndmSvc.retrieve().isFailure() ) {
-    log<<MSG::ERROR<< "Could not retrieve " << m_rndmSvc << endreq;
+    log<<MSG::ERROR<< "Could not retrieve " << m_rndmSvc << endmsg;
     return StatusCode::FAILURE;
   }
 
   //Get own engine with own seeds:
   m_randomEngine = m_rndmSvc->GetEngine(m_randomEngineName);
   if (!m_randomEngine) {
-    log<<MSG::ERROR << "Could not get random engine '" << m_randomEngineName << "'" << endreq;
+    log<<MSG::ERROR << "Could not get random engine '" << m_randomEngineName << "'" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::INFO <<  "Initialisating finished" << endreq ;
+  log << MSG::INFO <<  "Initialisating finished" << endmsg ;
   return sc;
 }
 
@@ -110,7 +110,7 @@ StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer
 
   log << MSG::INFO << "Executing start calo size=" <<theCellContainer->size()<<" Event="<<m_nEvent;//<<" rseed="<<rseed;
   //if(m_rand)  log<<" seed(m_rand="<<m_rand->ClassName()<<")="<<m_rand->GetSeed();
-  log<< endreq;
+  log<< endmsg;
 
   ++m_nEvent;
   
@@ -147,7 +147,7 @@ StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer
     
 /*
     if(cell->energy()>1000) {
-      log<<MSG::DEBUG<<"sample="<<cell->caloDDE()->getSampling()<<" eta="<<cell->eta()<<" phi="<<cell->phi()<<" gain="<<gain<<" e="<<cell->energy()<<" sigma="<<sigma<<" enoise="<<enoise<<endreq;
+      log<<MSG::DEBUG<<"sample="<<cell->caloDDE()->getSampling()<<" eta="<<cell->eta()<<" phi="<<cell->phi()<<" gain="<<gain<<" e="<<cell->energy()<<" sigma="<<sigma<<" enoise="<<enoise<<endmsg;
     }
 */    
       cell->setEnergy(cell->energy()+enoise);
@@ -156,6 +156,6 @@ StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer
     Et_tot+=cell->energy()/cosh(cell->eta());
   }  
 
-  log << MSG::INFO << "Executing finished calo size=" <<theCellContainer->size()<<" ; e="<<E_tot<<" ; et="<<Et_tot<< endreq;
+  log << MSG::INFO << "Executing finished calo size=" <<theCellContainer->size()<<" ; e="<<E_tot<<" ; et="<<Et_tot<< endmsg;
   return StatusCode::SUCCESS;
 }

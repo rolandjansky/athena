@@ -131,7 +131,7 @@ StatusCode BasicCellBuilderTool::initialize()
 // retrive onlineID helper from detStore
   StoreGateSvc* detStore;
   if (service("DetectorStore", detStore).isFailure()) {
-    log << MSG::ERROR   << "Unable to access DetectoreStore" << endreq ;
+    log << MSG::ERROR   << "Unable to access DetectoreStore" << endmsg ;
     return StatusCode::FAILURE;
   }
 */  
@@ -166,8 +166,8 @@ double BasicCellBuilderTool::deta(CaloCell_ID_FCS::CaloSample sample,double eta)
   int side=0;
   if(eta>0) side=1;
   
-  double mineta=min_eta_sample[side][sample];
-  double maxeta=max_eta_sample[side][sample];
+  double mineta=m_min_eta_sample[side][sample];
+  double maxeta=m_max_eta_sample[side][sample];
   
   if(eta<mineta) {
     return fabs(eta-mineta);
@@ -186,8 +186,8 @@ void BasicCellBuilderTool::minmaxeta(CaloCell_ID_FCS::CaloSample sample,double e
   int side=0;
   if(eta>0) side=1;
   
-  mineta=min_eta_sample[side][sample];
-  maxeta=max_eta_sample[side][sample];
+  mineta=m_min_eta_sample[side][sample];
+  maxeta=m_max_eta_sample[side][sample];
 }
 
 double BasicCellBuilderTool::rmid(CaloCell_ID_FCS::CaloSample sample,double eta) const 
@@ -195,7 +195,7 @@ double BasicCellBuilderTool::rmid(CaloCell_ID_FCS::CaloSample sample,double eta)
   int side=0;
   if(eta>0) side=1;
 
-  return rmid_map[side][sample].find_closest(eta)->second;
+  return m_rmid_map[side][sample].find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::zmid(CaloCell_ID_FCS::CaloSample sample,double eta) const 
@@ -203,7 +203,7 @@ double BasicCellBuilderTool::zmid(CaloCell_ID_FCS::CaloSample sample,double eta)
   int side=0;
   if(eta>0) side=1;
 
-  return zmid_map[side][sample].find_closest(eta)->second;
+  return m_zmid_map[side][sample].find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::rzmid(CaloCell_ID_FCS::CaloSample sample,double eta) const 
@@ -211,8 +211,8 @@ double BasicCellBuilderTool::rzmid(CaloCell_ID_FCS::CaloSample sample,double eta
   int side=0;
   if(eta>0) side=1;
 
-  if(isCaloBarrel(sample)) return rmid_map[side][sample].find_closest(eta)->second;
-   else                    return zmid_map[side][sample].find_closest(eta)->second;
+  if(isCaloBarrel(sample)) return m_rmid_map[side][sample].find_closest(eta)->second;
+   else                    return m_zmid_map[side][sample].find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::rent(CaloCell_ID_FCS::CaloSample sample,double eta) const 
@@ -220,7 +220,7 @@ double BasicCellBuilderTool::rent(CaloCell_ID_FCS::CaloSample sample,double eta)
   int side=0;
   if(eta>0) side=1;
 
-  return rent_map[side][sample].find_closest(eta)->second;
+  return m_rent_map[side][sample].find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::zent(CaloCell_ID_FCS::CaloSample sample,double eta) const 
@@ -228,7 +228,7 @@ double BasicCellBuilderTool::zent(CaloCell_ID_FCS::CaloSample sample,double eta)
   int side=0;
   if(eta>0) side=1;
 
-  return zent_map[side][sample].find_closest(eta)->second;
+  return m_zent_map[side][sample].find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::rzent(CaloCell_ID_FCS::CaloSample sample,double eta) const
@@ -236,8 +236,8 @@ double BasicCellBuilderTool::rzent(CaloCell_ID_FCS::CaloSample sample,double eta
   int side=0;
   if(eta>0) side=1;
 
-  if(isCaloBarrel(sample)) return rent_map[side][sample].find_closest(eta)->second;
-   else                    return zent_map[side][sample].find_closest(eta)->second;
+  if(isCaloBarrel(sample)) return m_rent_map[side][sample].find_closest(eta)->second;
+   else                    return m_zent_map[side][sample].find_closest(eta)->second;
 }
 
 
@@ -256,25 +256,25 @@ void BasicCellBuilderTool::init_all_maps()
 
 /*
   int nokfcal=0;
-  log << MSG::INFO <<  "Loop only fcal" << endreq ;
+  log << MSG::INFO <<  "Loop only fcal" << endmsg ;
   for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_caloDDM->element_begin(CaloCell_ID::LARFCAL);calo_iter<m_caloDDM->element_end(CaloCell_ID::LARFCAL);++calo_iter) {
     const CaloDetDescrElement* theDDE=*calo_iter;
     if(theDDE) {
       ++nokfcal;
-      if(fabs(theDDE->eta()+4.95)<0.1) log << MSG::DEBUG <<  "init cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo()<< endreq ;
+      if(fabs(theDDE->eta()+4.95)<0.1) log << MSG::DEBUG <<  "init cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo()<< endmsg ;
     }  
   }
-  log << MSG::INFO <<  "Loop only fcal finished nok="<<nokfcal << endreq ;
+  log << MSG::INFO <<  "Loop only fcal finished nok="<<nokfcal << endmsg ;
 */
   int nok=0;
   int nvolOK=0;
   int naccept=0;
   bool doem_celllist_map=false;
   bool do_celllist_map=false;
-  int emcl_neta=em_celllist_map.leta()-1;
-  int emcl_nphi=em_celllist_map.lphi()-1;
-  if(em_celllist_map.leta()>1 && em_celllist_map.lphi()>1) doem_celllist_map=true;
-  if(celllist_maps[0].leta()>1 && celllist_maps[0].lphi()>1) do_celllist_map=true;
+  int emcl_neta=m_em_celllist_map.leta()-1;
+  int emcl_nphi=m_em_celllist_map.lphi()-1;
+  if(m_em_celllist_map.leta()>1 && m_em_celllist_map.lphi()>1) doem_celllist_map=true;
+  if(m_celllist_maps[0].leta()>1 && m_celllist_maps[0].lphi()>1) do_celllist_map=true;
 
   FSmap< double , double > rz_map_eta [2][CaloCell_ID_FCS::MaxSample];
   FSmap< double , double > rz_map_rmid[2][CaloCell_ID_FCS::MaxSample];
@@ -285,8 +285,8 @@ void BasicCellBuilderTool::init_all_maps()
 
 
   for(int side=0;side<=1;++side) for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
-    min_eta_sample[side][sample]=+1000;
-    max_eta_sample[side][sample]=-1000;
+    m_min_eta_sample[side][sample]=+1000;
+    m_max_eta_sample[side][sample]=-1000;
   }  
 
 
@@ -299,7 +299,7 @@ void BasicCellBuilderTool::init_all_maps()
       if( calo==CaloCell_ID::LARFCAL ) {
         log << MSG::DEBUG <<  "init cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo();
         log<<" deta="<<theDDE->deta()<<" dphi="<<theDDE->dphi()<<" dr="<<theDDE->dr()<<" vol="<<theDDE->volume() ;
-        log<<" dx="<<theDDE->dx()<<" dy="<<theDDE->dy()<<" dz="<<theDDE->dz()<< endreq ;
+        log<<" dx="<<theDDE->dx()<<" dy="<<theDDE->dy()<<" dz="<<theDDE->dz()<< endmsg ;
       }  
 */      
       CaloCell_ID::SUBCALO calo=theDDE->getSubCalo();
@@ -314,8 +314,8 @@ void BasicCellBuilderTool::init_all_maps()
       }
       double min_eta=theDDE->eta()-theDDE->deta()/2;
       double max_eta=theDDE->eta()+theDDE->deta()/2;
-      if(min_eta<min_eta_sample[side][sample]) min_eta_sample[side][sample]=min_eta;
-      if(max_eta>max_eta_sample[side][sample]) max_eta_sample[side][sample]=max_eta;
+      if(min_eta<m_min_eta_sample[side][sample]) m_min_eta_sample[side][sample]=min_eta;
+      if(max_eta>m_max_eta_sample[side][sample]) m_max_eta_sample[side][sample]=max_eta;
       
       if(rz_map_eta[side][sample].find(eta_raw)==rz_map_eta[side][sample].end()) {
         rz_map_eta [side][sample][eta_raw]=0;
@@ -333,28 +333,28 @@ void BasicCellBuilderTool::init_all_maps()
       rz_map_n   [side][sample][eta_raw]++;
       
       if(do_celllist_map) {
-        int cl_neta=celllist_maps[sample].leta()-1;
-        int cl_nphi=celllist_maps[sample].lphi()-1;
-        double ceta_min=theDDE->eta()-celllist_maps[sample].deta()*cl_neta;
-        double ceta_max=theDDE->eta()+celllist_maps[sample].deta()*cl_neta;
-        double cphi_min=theDDE->phi()-celllist_maps[sample].dphi()*cl_nphi;
-        double cphi_max=theDDE->phi()+celllist_maps[sample].dphi()*cl_nphi;
+        int cl_neta=m_celllist_maps[sample].leta()-1;
+        int cl_nphi=m_celllist_maps[sample].lphi()-1;
+        double ceta_min=theDDE->eta()-m_celllist_maps[sample].deta()*cl_neta;
+        double ceta_max=theDDE->eta()+m_celllist_maps[sample].deta()*cl_neta;
+        double cphi_min=theDDE->phi()-m_celllist_maps[sample].dphi()*cl_nphi;
+        double cphi_max=theDDE->phi()+m_celllist_maps[sample].dphi()*cl_nphi;
 
-        int iphi1=celllist_maps[sample].phi_to_index_cont(cphi_min);
-        int iphi2=celllist_maps[sample].phi_to_index_cont(cphi_max);
-        int ieta1=celllist_maps[sample].eta_to_index(ceta_min);
-        int ieta2=celllist_maps[sample].eta_to_index(ceta_max);
+        int iphi1=m_celllist_maps[sample].phi_to_index_cont(cphi_min);
+        int iphi2=m_celllist_maps[sample].phi_to_index_cont(cphi_max);
+        int ieta1=m_celllist_maps[sample].eta_to_index(ceta_min);
+        int ieta2=m_celllist_maps[sample].eta_to_index(ceta_max);
 
         for(int ieta=ieta1;ieta<=ieta2;++ieta) {
           if(ieta<0)          continue;
-          if((unsigned int)ieta>=celllist_maps[sample].neta()) continue;
+          if((unsigned int)ieta>=m_celllist_maps[sample].neta()) continue;
 
           for(int s_iphi=iphi1;s_iphi<=iphi2;++s_iphi) {
             int iphi=s_iphi;
-            if(iphi<0)           iphi+=celllist_maps[sample].nphi();
-            if((unsigned int)iphi>=celllist_maps[sample].nphi()) iphi-=celllist_maps[sample].nphi(); 
+            if(iphi<0)           iphi+=m_celllist_maps[sample].nphi();
+            if((unsigned int)iphi>=m_celllist_maps[sample].nphi()) iphi-=m_celllist_maps[sample].nphi(); 
 
-            celllist_maps[sample].vec(ieta,iphi).push_back( cellinfo( theDDE,1),2);
+            m_celllist_maps[sample].vec(ieta,iphi).push_back( cellinfo( theDDE,1),2);
           }
         }    
 
@@ -373,26 +373,26 @@ void BasicCellBuilderTool::init_all_maps()
         ++naccept;
         
         if(doem_celllist_map && calo==CaloCell_ID::LAREM) {
-          double ceta_min=theDDE->eta()-em_celllist_map.deta()*emcl_neta;
-          double ceta_max=theDDE->eta()+em_celllist_map.deta()*emcl_neta;
-          double cphi_min=theDDE->phi()-em_celllist_map.dphi()*emcl_nphi;
-          double cphi_max=theDDE->phi()+em_celllist_map.dphi()*emcl_nphi;
+          double ceta_min=theDDE->eta()-m_em_celllist_map.deta()*emcl_neta;
+          double ceta_max=theDDE->eta()+m_em_celllist_map.deta()*emcl_neta;
+          double cphi_min=theDDE->phi()-m_em_celllist_map.dphi()*emcl_nphi;
+          double cphi_max=theDDE->phi()+m_em_celllist_map.dphi()*emcl_nphi;
           
-          int iphi1=em_celllist_map.phi_to_index_cont(cphi_min);
-          int iphi2=em_celllist_map.phi_to_index_cont(cphi_max);
-          int ieta1=em_celllist_map.eta_to_index(ceta_min);
-          int ieta2=em_celllist_map.eta_to_index(ceta_max);
+          int iphi1=m_em_celllist_map.phi_to_index_cont(cphi_min);
+          int iphi2=m_em_celllist_map.phi_to_index_cont(cphi_max);
+          int ieta1=m_em_celllist_map.eta_to_index(ceta_min);
+          int ieta2=m_em_celllist_map.eta_to_index(ceta_max);
 
           for(int ieta=ieta1;ieta<=ieta2;++ieta) {
             if(ieta<0)          continue;
-            if((unsigned int)ieta>=em_celllist_map.neta()) continue;
+            if((unsigned int)ieta>=m_em_celllist_map.neta()) continue;
 
             for(int s_iphi=iphi1;s_iphi<=iphi2;++s_iphi) {
               int iphi=s_iphi;
-              if(iphi<0)           iphi+=em_celllist_map.nphi();
-              if((unsigned int)iphi>=em_celllist_map.nphi()) iphi-=em_celllist_map.nphi(); 
+              if(iphi<0)           iphi+=m_em_celllist_map.nphi();
+              if((unsigned int)iphi>=m_em_celllist_map.nphi()) iphi-=m_em_celllist_map.nphi(); 
 
-              em_celllist_map.vec(ieta,iphi).push_back( cellinfo( theDDE,1),2);
+              m_em_celllist_map.vec(ieta,iphi).push_back( cellinfo( theDDE,1),2);
             }
           }    
           
@@ -401,22 +401,22 @@ void BasicCellBuilderTool::init_all_maps()
         curmap=0;
         curmap2=0;
         if(calo==CaloCell_ID::LAREM)   {
-          curmap=&em_map;
-          if(fabs(theDDE->eta())<2.9 && em_fine_map.neta()>0) curmap2=&em_fine_map;
+          curmap=&m_em_map;
+          if(fabs(theDDE->eta())<2.9 && m_em_fine_map.neta()>0) curmap2=&m_em_fine_map;
 /*          
           if(log.level()<=MSG::DEBUG) {
             if(theDDE->phi()>0.0 && theDDE->phi()<0.1 && theDDE->eta()>0) {
               log<<"init cell eta="<<theDDE->eta()<<" phi="<<theDDE->phi()<<" r="<<theDDE->r()<<" z="<<theDDE->z()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo();
-              log<<endreq;
+              log<<endmsg;
             }
           }  
 */          
         }  
-        if(sample==CaloCell_ID_FCS::FCAL0) curmap=&em_map;
+        if(sample==CaloCell_ID_FCS::FCAL0) curmap=&m_em_map;
 
-        if(calo==CaloCell_ID::LARHEC)  curmap=&had_map;
-        if(calo==CaloCell_ID::TILE)    curmap=&had_map;
-        if(sample==CaloCell_ID_FCS::FCAL1 || sample==CaloCell_ID_FCS::FCAL2) curmap=&had_map;
+        if(calo==CaloCell_ID::LARHEC)  curmap=&m_had_map;
+        if(calo==CaloCell_ID::TILE)    curmap=&m_had_map;
+        if(sample==CaloCell_ID_FCS::FCAL1 || sample==CaloCell_ID_FCS::FCAL2) curmap=&m_had_map;
 
         if(curmap2) {
           init_cell(*curmap2,theDDE);
@@ -425,10 +425,10 @@ void BasicCellBuilderTool::init_all_maps()
           if(sample!=CaloCell_ID_FCS::EMB1 && sample!=CaloCell_ID_FCS::EME1) init_cell(*curmap,theDDE);
         }
       } else {
-//        log << MSG::WARNING <<  "volume=0 cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo()<< endreq ;
+//        log << MSG::WARNING <<  "volume=0 cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo()<< endmsg ;
       }
     } else {
-//      log << MSG::ERROR <<  "empty caloDDM element"<< endreq ;
+//      log << MSG::ERROR <<  "empty caloDDM element"<< endmsg ;
     }  
   }
   for(int side=0;side<=1;++side) for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
@@ -444,13 +444,13 @@ void BasicCellBuilderTool::init_all_maps()
           double rent=rz_map_rent[side][sample][eta_raw]/iter->second;
           double zent=rz_map_zent[side][sample][eta_raw]/iter->second;
           
-          rmid_map[side][sample][eta]=rmid;
-          zmid_map[side][sample][eta]=zmid;
-          rent_map[side][sample][eta]=rent;
-          zent_map[side][sample][eta]=zent;
+          m_rmid_map[side][sample][eta]=rmid;
+          m_zmid_map[side][sample][eta]=zmid;
+          m_rent_map[side][sample][eta]=rent;
+          m_zent_map[side][sample][eta]=zent;
         }
       }
-      ATH_MSG_DEBUG("rz-map for side="<<side<<" sample="<<sample<<" #etas="<<rmid_map[side][sample].size());
+      ATH_MSG_DEBUG("rz-map for side="<<side<<" sample="<<sample<<" #etas="<<m_rmid_map[side][sample].size());
     } else {
       ATH_MSG_WARNING("rz-map for side="<<side<<" sample="<<sample<<" is empty!!!");
     }
@@ -485,7 +485,7 @@ void BasicCellBuilderTool::init_volume(cellinfo_map& map)
 
 void BasicCellBuilderTool::init_cell(cellinfo_map& map,const CaloDetDescrElement* theDDE)
 {
-//  log << MSG::VERBOSE <<  "init cell "<<map.name()<<" eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() << endreq ;
+//  log << MSG::VERBOSE <<  "init cell "<<map.name()<<" eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() << endmsg ;
 
   double c_phi_min_org=theDDE->phi()-theDDE->dphi()/2;
   double c_phi_max_org=theDDE->phi()+theDDE->dphi()/2;
@@ -510,7 +510,7 @@ void BasicCellBuilderTool::init_cell(cellinfo_map& map,const CaloDetDescrElement
       if(eta>c_eta_max) c_eta_max=eta;
   
 //      log << MSG::DEBUG<<"corner "<<i<<" eta="<<eta<<" phi="<<phi;
-//      log<<" ndeta="<<c_eta_max-c_eta_min<<" ndphi="<<c_phi_max_org-c_phi_min_org<< endreq ;
+//      log<<" ndeta="<<c_eta_max-c_eta_min<<" ndphi="<<c_phi_max_org-c_phi_min_org<< endmsg ;
     }
 /*    
     if( (fabs(c_eta_max)>4.9 || fabs(c_eta_min)>4.9) && fabs(theDDE->phi())<0.5 ) log<<MSG::DEBUG;
@@ -518,7 +518,7 @@ void BasicCellBuilderTool::init_cell(cellinfo_map& map,const CaloDetDescrElement
     log<<  "init FCAL cell "<<map.name()<<" eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo();
     log<<" deta="<<theDDE->deta()<<" dphi="<<theDDE->dphi()<<" dr="<<theDDE->dr()<<" vol="<<theDDE->volume() ;
     log<<" dx="<<theDDE->dx()<<" dy="<<theDDE->dy()<<" dz="<<theDDE->dz();
-    log<<" ndeta="<<c_eta_max-c_eta_min<<" ndphi="<<c_phi_max_org-c_phi_min_org<< endreq ;
+    log<<" ndeta="<<c_eta_max-c_eta_min<<" ndphi="<<c_phi_max_org-c_phi_min_org<< endmsg ;
 */    
   }  
 
@@ -621,7 +621,7 @@ void BasicCellBuilderTool::init_cell(cellinfo_map& map,const CaloDetDescrElement
       }
 
 //      log << MSG::VERBOSE << "eta_min=" <<eta_min<<" eta_max=" <<eta_max<<" c_eta_min=" <<c_eta_min<<" c_eta_max=" <<c_eta_max<<std::endl;
-//      log << MSG::VERBOSE << "phi_min=" <<phi_min<<" phi_max=" <<phi_max<<" c_phi_min=" <<c_phi_min<<" c_phi_max=" <<c_phi_max<< endreq;
+//      log << MSG::VERBOSE << "phi_min=" <<phi_min<<" phi_max=" <<phi_max<<" c_phi_min=" <<c_phi_min<<" c_phi_max=" <<c_phi_max<< endmsg;
 
       // First test if cell is completely in volume, most likely after cellsInZone
       if(eta_min<=c_eta_min && eta_max>=c_eta_max && phi_min<=c_phi_min && phi_max>=c_phi_max) {
@@ -682,14 +682,14 @@ void BasicCellBuilderTool::init_cell(cellinfo_map& map,const CaloDetDescrElement
 
       if(overlapvol>0) {
         map.vec(ieta,iphi).push_back( cellinfo(theDDE,overlapvol),layernr );
-//        log << MSG::VERBOSE << " -> cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling()<<" overlap="<<overlap<<endreq;
+//        log << MSG::VERBOSE << " -> cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling()<<" overlap="<<overlap<<endmsg;
         continue;
       }  
 
     }
   }
 
-//  log << MSG::VERBOSE <<  "init cell finished" <<std::endl<< endreq ;
+//  log << MSG::VERBOSE <<  "init cell finished" <<std::endl<< endmsg ;
 }
 
 
@@ -784,7 +784,7 @@ void BasicCellBuilderTool::findCells(cellinfo_vec & cell_vec, double eta_min, do
 
   //      log << MSG::DEBUG << "fill cell boundary eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling()<<std::endl;
   //      log << MSG::DEBUG << "eta_min=" <<eta_min<<" eta_max=" <<eta_max<<" c_eta_min=" <<c_eta_min<<" c_eta_max=" <<c_eta_max<<std::endl;
-  //      log << MSG::DEBUG << "phi_min=" <<phi_min<<" phi_max=" <<phi_max<<" c_phi_min=" <<c_phi_min<<" c_phi_max=" <<c_phi_max<< endreq;
+  //      log << MSG::DEBUG << "phi_min=" <<phi_min<<" phi_max=" <<phi_max<<" c_phi_min=" <<c_phi_min<<" c_phi_max=" <<c_phi_max<< endmsg;
 
         // First test if cell is completely in volume, most likely after cellsInZone
         if(eta_min<=c_eta_min && eta_max>=c_eta_max && phi_min<=c_phi_min && phi_max>=c_phi_max) {
@@ -858,7 +858,7 @@ void BasicCellBuilderTool::findCells(cellinfo_vec & cell_vec, double eta_min, do
   ATH_MSG_VERBOSE("caloDDE_list.size()=" <<caloDDE_list.size() << " ; vol_list.size()=" <<vol_list.size() );
   
 
-//  log << MSG::DEBUG << "REGION : eta_min=" <<eta_min<<" eta_max=" << " phi_min=" <<phi_min<<" phi_max=" <<phi_max<< endreq;
+//  log << MSG::DEBUG << "REGION : eta_min=" <<eta_min<<" eta_max=" << " phi_min=" <<phi_min<<" phi_max=" <<phi_max<< endmsg;
   for(unsigned int i=0;i<caloDDE_list.size();++i) {
     theDDE=caloDDE_list[i];
     ATH_MSG_VERBOSE( i <<" : cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling()<<" deta="<<theDDE->deta()<<" dphi="<<theDDE->dphi()<<" overlap="<<vol_list[i]/theDDE->volume() );
@@ -894,12 +894,12 @@ StatusCode BasicCellBuilderTool::process(CaloCellContainer * theCellContainer)
   ATH_MSG_INFO("Executing start size=" <<theCellContainer->size());
   ++m_nEvent;
   
-//  addCell0101(theCellContainer,48,10,300000,em_map);
-//  addCell0101(theCellContainer,52,10,100000,em_map);
-//  addCell0101(theCellContainer,52,20,300000,had_map);
+//  addCell0101(theCellContainer,48,10,300000,m_em_map);
+//  addCell0101(theCellContainer,52,10,100000,m_em_map);
+//  addCell0101(theCellContainer,52,20,300000,m_had_map);
 
-//  addCell0101(theCellContainer,54,30,300000,em_map);
-//  addCell0101(theCellContainer,54,30,300000,had_map);
+//  addCell0101(theCellContainer,54,30,300000,m_em_map);
+//  addCell0101(theCellContainer,54,30,300000,m_had_map);
 
 
   ATH_MSG_INFO("Executing finished : end size=" <<theCellContainer->size());
@@ -910,10 +910,10 @@ StatusCode BasicCellBuilderTool::process(CaloCellContainer * theCellContainer)
 
 void BasicCellBuilderTool::addCell(CaloCellContainer * theCellContainer, int etabin, int phibin, double energy, cellinfo_map& map )
 {
-//  log << MSG::DEBUG << "theCellContainer->hasTotalSize()="<<theCellContainer->hasTotalSize()<< endreq;
-//  log << MSG::DEBUG << "theCellContainer->isOrderedAndComplete()="<<theCellContainer->isOrderedAndComplete()<< endreq;
-//  log << MSG::DEBUG << "theCellContainer->isOrdered()="<<theCellContainer->isOrdered()<< endreq;
-//  log << MSG::DEBUG << "theCellContainer->hasTotalSize()="<<theCellContainer->hasTotalSize()<< endreq;
+//  log << MSG::DEBUG << "theCellContainer->hasTotalSize()="<<theCellContainer->hasTotalSize()<< endmsg;
+//  log << MSG::DEBUG << "theCellContainer->isOrderedAndComplete()="<<theCellContainer->isOrderedAndComplete()<< endmsg;
+//  log << MSG::DEBUG << "theCellContainer->isOrdered()="<<theCellContainer->isOrdered()<< endmsg;
+//  log << MSG::DEBUG << "theCellContainer->hasTotalSize()="<<theCellContainer->hasTotalSize()<< endmsg;
 
   if(etabin<0 || etabin>=(int)map.neta()) {
     ATH_MSG_WARNING("wrong etabin or phibin in BasicCellBuilderTool::addCell etabin="<<etabin<<" phibin="<<phibin<<" neta="<<map.neta()<<" nphi="<<map.nphi());
@@ -949,7 +949,7 @@ void BasicCellBuilderTool::addCell(CaloCellContainer * theCellContainer, int eta
         theCaloCell->setEnergy(theCaloCell->energy()+energy*iter->second);
 /*
         if(fabs(towereta-theCaloCell->caloDDE()->eta())>0.1 || fabs(towerphi-theCaloCell->caloDDE()->phi())>0.1) {
-          log<<MSG::WARNING<<"    -> teta="<<towereta<<" tphi="<<towerphi <<" ceta="<<theCaloCell->caloDDE()->eta()<<" cphi="<<theCaloCell->caloDDE()->phi()<<endreq;
+          log<<MSG::WARNING<<"    -> teta="<<towereta<<" tphi="<<towerphi <<" ceta="<<theCaloCell->caloDDE()->eta()<<" cphi="<<theCaloCell->caloDDE()->phi()<<endmsg;
         }  
 */
       } else {

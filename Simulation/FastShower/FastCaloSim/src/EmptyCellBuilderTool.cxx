@@ -35,11 +35,11 @@ EmptyCellBuilderTool::~EmptyCellBuilderTool()
 StatusCode EmptyCellBuilderTool::initialize()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO <<  "Initialisating started" << endreq ;
+  log << MSG::INFO <<  "Initialisating started" << endmsg ;
 
   StatusCode sc=BasicCellBuilderTool::initialize();
 
-  log << MSG::INFO <<  "Initialisating finished" << endreq ;
+  log << MSG::INFO <<  "Initialisating finished" << endmsg ;
   return sc;
 }
 
@@ -50,7 +50,7 @@ StatusCode EmptyCellBuilderTool::process(CaloCellContainer * theCellContainer)
   create_empty_calo(theCellContainer);
 
   ++m_nEvent;
-//  log << MSG::INFO << "Executing finished calo size=" <<theCellContainer->size()<< endreq;
+//  log << MSG::INFO << "Executing finished calo size=" <<theCellContainer->size()<< endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -74,15 +74,15 @@ void EmptyCellBuilderTool::create_empty_calo(CaloCellContainer * theCellContaine
   #else  
     DataPool<FastSimTileCell> CellsPTile(10000);
     DataPool<FastSimCaloCell> CellsPCalo(190000);
-    log << MSG::DEBUG << "before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated()<<endreq;
-    log << MSG::DEBUG << "before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated()<<endreq;
+    log << MSG::DEBUG << "before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated()<<endmsg;
+    log << MSG::DEBUG << "before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated()<<endmsg;
   #endif  
 
   for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_caloDDM->element_begin();calo_iter<m_caloDDM->element_end();++calo_iter) {
     const CaloDetDescrElement* theDDE=*calo_iter;
     if(theDDE) {
 //      if(n%10000==0) {
-//        log << MSG::DEBUG <<"  "<<n<<" : det_elm eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" hash="<<theDDE->calo_hash()<< endreq;
+//        log << MSG::DEBUG <<"  "<<n<<" : det_elm eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" hash="<<theDDE->calo_hash()<< endmsg;
 //      }
       CaloCell* theCaloCell=0;
       
@@ -123,17 +123,17 @@ void EmptyCellBuilderTool::create_empty_calo(CaloCellContainer * theCellContaine
     }  
   }
 
-  log << MSG::DEBUG << ncreate<<" cells created, "<<nfound<<" cells already found: size="<<theCellContainer->size()<<" e="<<E_tot<<" ; et="<<Et_tot<<". Now initialize and order calo..." << endreq;
+  log << MSG::DEBUG << ncreate<<" cells created, "<<nfound<<" cells already found: size="<<theCellContainer->size()<<" e="<<E_tot<<" ; et="<<Et_tot<<". Now initialize and order calo..." << endmsg;
   theCellContainer->order();
 
   #if FastCaloSim_project_release_v1 == 12
   #else  
-    log << MSG::DEBUG << "before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated()<<endreq;
-    log << MSG::DEBUG << "before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated()<<endreq;
+    log << MSG::DEBUG << "before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated()<<endmsg;
+    log << MSG::DEBUG << "before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated()<<endmsg;
   #endif  
 
-//  log << MSG::INFO << "theCellContainer->hasTotalSize()="<<theCellContainer->hasTotalSize()<< endreq;
-//  log << MSG::INFO << "theCellContainer->isOrderedAndComplete()="<<theCellContainer->isOrderedAndComplete()<< endreq;
-//  log << MSG::INFO << "theCellContainer->isOrdered()="<<theCellContainer->isOrdered()<< endreq;
+//  log << MSG::INFO << "theCellContainer->hasTotalSize()="<<theCellContainer->hasTotalSize()<< endmsg;
+//  log << MSG::INFO << "theCellContainer->isOrderedAndComplete()="<<theCellContainer->isOrderedAndComplete()<< endmsg;
+//  log << MSG::INFO << "theCellContainer->isOrdered()="<<theCellContainer->isOrdered()<< endmsg;
 }
 

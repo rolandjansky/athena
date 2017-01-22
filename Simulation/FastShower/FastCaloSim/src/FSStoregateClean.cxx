@@ -40,23 +40,23 @@ namespace FastCaloSim {
     StatusCode sc;
     
     for(unsigned int i=0;i<m_SG_keys.size();++i) {
-      msg(MSG::INFO) << "deleting : "<<m_SG_keys[i]<<" ..."<<endreq;
+      msg(MSG::INFO) << "deleting : "<<m_SG_keys[i]<<" ..."<<endmsg;
       
       const INavigable4MomentumCollection* p = 0;
       sc = evtStore()->retrieve(p,m_SG_keys[i]);
 
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Unable to retrieve pointer to Object "<<m_SG_keys[i]<< endreq;
+	msg(MSG::ERROR) << "Unable to retrieve pointer to Object "<<m_SG_keys[i]<< endmsg;
       } else {
-        msg(MSG::INFO) <<m_SG_keys[i]<<" at "<<p<<endreq;
+        msg(MSG::INFO) <<m_SG_keys[i]<<" at "<<p<<endmsg;
         sc = evtStore()->remove(p);
         if (sc.isFailure()) {
-	  msg(MSG::ERROR) << "Unable to delete pointer to Object "<<m_SG_keys[i]<< endreq;
+	  msg(MSG::ERROR) << "Unable to delete pointer to Object "<<m_SG_keys[i]<< endmsg;
         } else {
           p=0;
           sc = evtStore()->retrieve(p,m_SG_keys[i]);
 	  sc.ignore();
-          msg(MSG::INFO) << "deleting "<<m_SG_keys[i]<<" done, test p*="<<p<<endreq;
+          msg(MSG::INFO) << "deleting "<<m_SG_keys[i]<<" done, test p*="<<p<<endmsg;
         }
       }
     }
