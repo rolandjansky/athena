@@ -49,6 +49,12 @@ atlas_add_test( Type_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} TestTools RootUtils RootUtilsPyROOT )
 
+atlas_add_test( TSMethodCall_test
+                SOURCES
+                test/TSMethodCall_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} TestTools RootUtils RootUtilsPyROOT )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 

@@ -38,7 +38,6 @@ Type::Type ()
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
-    m_assignInitialized(false),
     m_defElt(0)
 {
 }
@@ -53,7 +52,6 @@ Type::Type (TClass* cls)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
-    m_assignInitialized(false),
     m_defElt(0)
 {
   init (cls);
@@ -69,7 +67,6 @@ Type::Type (EDataType type)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
-    m_assignInitialized(false),
     m_defElt(0)
 {
   init (type);
@@ -89,7 +86,6 @@ Type::Type (const std::string& typname)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
-    m_assignInitialized(false),
     m_defElt(0)
 {
   init (typname);
@@ -106,11 +102,8 @@ Type::Type (const Type& other)
     m_ti (other.m_ti),
     m_size (other.m_size),
     m_assign (other.m_assign),
-    m_assignInitialized (false),
     m_defElt (0)
 {
-  // Don't copy m_tsAssign.
-
   if (m_cls)
     m_defElt = create();
 }
@@ -128,17 +121,12 @@ Type& Type::operator= (const Type& other)
     m_ti = other.m_ti;
     m_size = other.m_size;
     m_assign = other.m_assign;
-    m_assignInitialized = false;
     if (m_defElt)
       destroy (m_defElt);
     if (m_cls)
       m_defElt = create();
     else
       m_defElt = 0;
-
-    // Don't copy m_tsAssign.
-    // Before we call using it, we'll check that the function still matches
-    // m_assign.
   }
   return *this;
 }
@@ -249,6 +237,14 @@ void Type::init (TClass* cls)
   m_size = cls->Size();
   m_defElt = create();
   m_ti = cls->GetTypeInfo();
+
+  std::string fname = "operator=";
+
+  std::string assignProto = "const ";
+  assignProto += m_cls->GetName();
+  assignProto += "&";
+
+  m_assign.setProto (m_cls, fname, assignProto);
 }
 
 
@@ -374,7 +370,7 @@ size_t Type::getSize() const
  * @brief Copy a range of objects.
  * @param dst Pointer to the start of the first object for the destination.
  * @param src Pointer to the start of the first object for the copy source.
- * @param n Numer of objects to copy.
+ * @param n Number of objects to copy.
  *
  * This function properly handles overlapping ranges.
  */
@@ -467,17 +463,17 @@ void Type::assign (void* dst,        size_t dst_index,
  * @param dst Destination for the copy.
  * @param src Source for the copy.
  *
- * The copy will be done using either @c m_tsAssign or @c memcpy,
+ * The copy will be done using either @c m_assign or @c memcpy,
  * depending on whether or not the object has class type.
  * If the payload does not have class type and @c src is null,
  * then the destination element will be filled with 0's.
  */
 void Type::assign (void* dst, const void* src) const
 {
-  if (m_cls && checkAssign()) {
-    m_tsAssign->ResetParam();
-    m_tsAssign->SetParam (reinterpret_cast<Long_t>(src));
-    m_tsAssign->Execute (dst);
+  if (TMethodCall* meth = m_assign.call()) {
+    meth->ResetParam();
+    meth->SetParam (reinterpret_cast<Long_t>(src));
+    meth->Execute (dst);
   }
   else {
     if (src)
@@ -513,7 +509,7 @@ void Type::swap (void* a, size_t a_index,
  */
 void Type::swap (void* a, void* b) const
 {
-  if (m_cls && m_assign.IsValid()) {
+  if (m_assign.call() != nullptr) {
     void* tmp = create();
     assign (tmp, a);
     assign (a, b);
@@ -554,42 +550,6 @@ void Type::fromString (void* p, const std::string& s) const
   throw std::runtime_error
     (std::string ("RootUtils::Type::fromString: Can't convert objects of type `" +
                   getTypeName() + "'."));
-}
-
-
-/**
- * @brief See if @c m_assign is initialized.
- * If not, try to initialize it now,  and copy to the thread-specific variable.
- * Returns true on success.
- */
-bool Type::checkAssign() const
-{
-  // Fail if this isn't a class type.
-  if (m_cls == 0) return false;
-
-  if (!m_assignInitialized) {
-    // Not initialized ... try to do so now.  First take the lock.
-    std::lock_guard<std::mutex> lock (m_assignMutex);
-    if (!m_assignInitialized) {
-      std::string proto = "const ";
-      proto += m_cls->GetName();
-      proto += "&";
-      m_assign.InitWithPrototype (m_cls, "operator=", proto.c_str());
-      if (!m_assign.IsValid()) {
-        ::Warning ("RootUtils::Type",
-                   "Can't get assignent op for type `%s'.",
-                   m_cls->GetName());
-      }
-      m_assignInitialized = true;
-    }
-  }
-
-  if (!m_assign.IsValid()) return false;
-
-  if (m_tsAssign.get() == 0 || m_tsAssign->GetMethod() != m_assign.GetMethod())
-    m_tsAssign.reset (new TMethodCall (m_assign));
-
-  return true;
 }
 
 

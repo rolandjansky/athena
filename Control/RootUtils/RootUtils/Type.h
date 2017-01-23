@@ -17,13 +17,10 @@
 #define ROOTUTILS_TYPE_H
 
 
+#include "RootUtils/TSMethodCall.h"
 #include "TClass.h"
 #include "TDataType.h"
-#include "TMethodCall.h"
-#include "boost/thread/tss.hpp"
 #include <typeinfo>
-#include <atomic>
-#include <mutex>
 
 
 namespace RootUtils {
@@ -182,7 +179,7 @@ public:
    * @brief Copy a range of objects.
    * @param dst Pointer to the start of the first object for the destination.
    * @param src Pointer to the start of the first object for the copy source.
-   * @param n Numer of objects to copy.
+   * @param n Number of objects to copy.
    *
    * This function properly handles overlapping ranges.
    */
@@ -234,7 +231,7 @@ public:
    * @param dst Destination for the copy.
    * @param src Source for the copy.
    *
-   * The copy will be done using either @c m_tsAssign or @c memcpy,
+   * The copy will be done using either @c m_assign or @c memcpy,
    * depending on whether or not the object has class type.
    * If the payload does not have class type and @c src is null,
    * then the destination element will be filled with 0's.
@@ -319,11 +316,6 @@ public:
 
 
 private:
-  /// See if @c m_assign is initialized.  If not, try to initialize it now,
-  /// and copy to the thread-specific variable.
-  /// Returns true on success.
-  bool checkAssign() const;
-
   /// The class of the derived type, or 0 if it's not a class type.
   TClass* m_cls;
 
@@ -336,28 +328,8 @@ private:
   /// The size in bytes of an instance of the described type.
   size_t m_size;
 
-  /// Object to call the assignment operator on the payload type.
-  /// This will be left invalid if the payload is not a class type.
-  /// This instance is not actually used for calls --- since we have
-  /// to change the object state to make a call (registering the
-  /// arguments), this is not thread-safe.  Instead, we use the
-  /// thread-specific instances accessed through @c m_tsAssign.
-  /// Mutable, to allow calls to GetMethod().
-  mutable TMethodCall m_assign;
-
-  /// Flag whether or not m_assign has been initialized.
-  /// We don't want to do that before we actually need it,
-  /// to prevent needless parses with root6.
-  mutable std::atomic<bool> m_assignInitialized;
-
-  /// Control access to m_assign for initialization.
-  mutable std::mutex m_assignMutex;
-
-  /// Objects used to call assignment on the payload object.
-  /// Left invalid if the payload does not have class type.
-  /// Copied from @c m_assign the first time it's used in
-  /// a particular thread.
-  mutable boost::thread_specific_ptr<TMethodCall> m_tsAssign;
+  // Method call for assignment.
+  mutable TSMethodCall m_assign;
 
   /// Pointer to a default-constructed instance of the payload object.
   /// Null if the payload does not have class type.
