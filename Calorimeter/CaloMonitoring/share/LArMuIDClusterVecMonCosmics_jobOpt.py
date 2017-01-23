@@ -60,7 +60,7 @@ LArCosmicsClusterMon = CaloClusterVecMon(
   lowEthresh = 0.0,  
   lowmedEthresh = 1.0,
   medEthresh = 1.5,
-  medhiEthresh = 4.0,
+#  medhiEthresh = 4.0,
   hiEthresh = 5.0,
 )
 

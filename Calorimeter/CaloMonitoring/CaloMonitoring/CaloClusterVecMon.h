@@ -70,16 +70,16 @@ class CaloClusterVecMon : public CaloMonToolBase {
    void fillClusterEMvar(const xAOD::CaloCluster* clus);
    void fillClusterStat(const xAOD::CaloCluster* clus);
    void fillClusterHist(const xAOD::CaloCluster* clus); 
-   void fillClusterStatHist(const xAOD::CaloClusterContainer* clusterCont); 
+   void fillClusterStatHist(){m_nClusters->Fill(m_cluscount);} 
    void fillTileHist(const xAOD::CaloClusterContainer* clusterCont);
 
    enum EthreshLvl {		// energy threshold levels for histos
       LOW_E = 0,
       LOWMED_E = 1,
       MED_E = 2,
-      MEDHIGH_E = 3,
-      HIGH_E = 4,
-      MAX_E = 5
+      //      MEDHIGH_E = 3,
+      HIGH_E = 3,
+      MAX_E = 4
    };
 
    enum DetRegion {
@@ -111,6 +111,11 @@ class CaloClusterVecMon : public CaloMonToolBase {
    // Services
    const CaloIdManager* m_caloMgr;
    const CaloCell_ID*   m_caloCellHelper;
+
+   // Property to switch on/off
+   bool m_doTotalEnergyMap;
+   bool m_doMonitNegEnergy;
+   bool m_doOnlyEtPlot;
 
    // cluster stat variables
    int m_eventsCounter; // add
@@ -174,9 +179,6 @@ class CaloClusterVecMon : public CaloMonToolBase {
    // cluster stat hists
 
    TH1I*       m_nClusters;
-   TH2I*       m_nClustersBottomVsTop;
-   TProfile2D* m_averageEnergy_etaphi_maxEclusters; 
-   TH2F*       m_dEtaVsdPhi_maxEclustersTopVsBottom; // only for cosmics
 
    // tile hists 
    TProfile*   m_clustersCellsRatioEta;
