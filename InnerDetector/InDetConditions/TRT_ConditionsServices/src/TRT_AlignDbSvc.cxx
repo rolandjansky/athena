@@ -770,20 +770,20 @@ StatusCode TRT_AlignDbSvc::setAlignTransform(Identifier ident, Amg::Transform3D 
     if(setAlignTransformL1(ident,trans).isFailure()){
       msg(MSG::FATAL)<<"Failed to set align Transform L1" << endmsg;
       return StatusCode::FAILURE;
-      break;
     }
+    break;
   case 2:
     if(setAlignTransformL2(ident,trans).isFailure()){
       msg(MSG::FATAL)<<"Failed to set align Transform L2" << endmsg;
       return StatusCode::FAILURE;
-      break;
     }
+    break;
   case 3:
     if(setAlignTransformL3(ident,trans).isFailure()){
-      msg(MSG::FATAL)<<"Failed to set align Transform L2" << endmsg;
+      msg(MSG::FATAL)<<"Failed to set align Transform L3" << endmsg;
       return StatusCode::FAILURE;
-      break;
     }
+    break;
   }
 
   return StatusCode::SUCCESS;
@@ -1618,6 +1618,8 @@ StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
 
 
 
+
+
 StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D trans ) {
 
   // find transform key, then set appropriate transform
@@ -1625,8 +1627,9 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
   CondAttrListCollection* atrlistcol2=0;
   bool result = false;
   std::string key="/TRT/AlignL1/TRT";
+  msg(MSG::DEBUG) << " Identifier is valid: "<< ident.is_valid() << endmsg;
   int bec=m_trtid->barrel_ec(ident);
-  const unsigned int DBident=bec*1000;
+  const unsigned int DBident=1000+bec*100;
   // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
 
   if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol1,key)) {
@@ -1638,7 +1641,10 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
         const coral::AttributeList& atrlist=citr->second;
 	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
 
-        if(citr->first!=DBident) continue;
+        if(citr->first!=DBident){
+          msg(MSG::DEBUG) << "tweakGlobalFolder fails due to identifier mismatch" << endmsg;
+          continue;
+	}
         else {
           msg(MSG::DEBUG) << "Tweak Old global DB -- channel: " << citr->first
 			  << " ,bec: "    << atrlist2["bec"].data<int>()
@@ -1659,19 +1665,23 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
 	  HepGeom::Transform3D oldtransform(oldrotation, oldtranslation);
 	  	  
           // get the new transform
-	  //HepGeom::Transform3D newtrans = Amg::EigenTransformToCLHEP(trans)*oldtrans;
-	  Amg::Transform3D newtrans = trans*Amg::CLHEPTransformToEigen(oldtransform);
+	  HepGeom::Transform3D newtrans = Amg::EigenTransformToCLHEP(trans)*oldtransform;
+	  Amg::Transform3D newtransAMG = trans*Amg::CLHEPTransformToEigen(oldtransform);
 
           // Extract the values we need to write to DB
-	  Amg::Vector3D shift=newtrans.translation();
-	  Amg::Vector3D eulerangles = newtrans.rotation().eulerAngles(2,0,2) ;                     
-	  //CLHEP::HepRotation rot=newtrans.getRotation();                                                                                           
+	  Amg::Vector3D shift=newtransAMG.translation();
+	  CLHEP::HepRotation rot=newtrans.getRotation();
+	  Amg::Vector3D eulerangles;
+          eulerangles[0] = rot.getPhi();
+          eulerangles[1] = rot.getTheta();
+          eulerangles[2] = rot.getPsi();	  
+
           atrlist2["Tx"].data<float>() = shift.x();
           atrlist2["Ty"].data<float>() = shift.y();
           atrlist2["Tz"].data<float>() = shift.z();
-          atrlist2["phi"].data<float>()   = eulerangles[0]/CLHEP::mrad ;
-          atrlist2["theta"].data<float>() = eulerangles[1]/CLHEP::mrad ;
-          atrlist2["psi"].data<float>()   = eulerangles[2]/CLHEP::mrad ;
+          atrlist2["phi"].data<float>()   = eulerangles[0] ;
+          atrlist2["theta"].data<float>() = eulerangles[1] ;
+          atrlist2["psi"].data<float>()   = eulerangles[2] ;
 
 	  result = true;
 	  msg(MSG::DEBUG) << "Tweak New global DB -- channel: " << citr->first
