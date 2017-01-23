@@ -33,7 +33,8 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   declareProperty( "BadChanPerPA", m_BadChanPerPA=2 );
   declareProperty( "CellQualityCut", m_CellQualityCut=4000 );
   declareProperty( "IgnoreMaskedCells", m_ignore_masked_cells=false );
-  declareProperty( "BadFEBCut", m_MinBadFEB=5 );
+  declareProperty( "IgnoreFrontInnerWheelCells", m_ignore_front_innerwheel_cells=true );
+  declareProperty( "BadFEBCut", m_MinBadFEB=3 );
   declareProperty( "KnownBADFEBs", m_knownBadFEBsVec={0x3a188000, 0x3a480000, 0x3a490000, 0x3a498000, 0x3a790000, 0x3aa90000, 0x3aa98000, 0x3b108000, 0x3b110000, 0x3b118000, 0x3ba80000, 0x3ba88000, 0x3ba90000, 0x3ba98000, 0x3bb08000, 0x3bc00000});
   // list agreed on LAr weekly meeting : https://indico.cern.ch/event/321653/
   // 3a188000   EndcapCFT06LEMInner2        ECC06LEMI2       EndcapCFT03Slot02     [4.4.1.0.3.2]   
@@ -139,8 +140,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     // they should not matter for physics so don't consider them
     if ( m_ignore_masked_cells && std::abs(cell->e()) < 0.1 ) continue; //Fixme: use provenance
 
-
     Identifier id = cell->ID();
+    if (m_ignore_front_innerwheel_cells && m_calo_id->is_em_endcap_inner(id) && m_calo_id->sampling(id) == 1) continue; // Front inner wheel cells are ignored
 
     // saturated Qfactor ? Tight cuts.
     if ( cell->quality()>=m_SaturatedCellQualityCut && 
@@ -183,13 +184,14 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   }
 
   // exclude FCAL for now
+  // And also HEC (since 08/2015 - B.Trocme)
   uint8_t SatTightPartitions = 0;
   if ( NsaturatedTightCutBarrelA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBAMask;
   if ( NsaturatedTightCutBarrelC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBCMask;
   if ( NsaturatedTightCutEMECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECAMask;
   if ( NsaturatedTightCutEMECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECCMask;
-  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
-  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
+//  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
+//  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
   bool badSaturatedTightCut = (SatTightPartitions != 0);
   if ( badSaturatedTightCut ) noisyRO-> SetSatTightFlaggedPartitions(SatTightPartitions);
 

@@ -25,6 +25,21 @@ class BadFEBCut(JobProperty):
     StoredValue=5
     pass
 
+class KnownMNBFEBs(JobProperty):
+    #Number of bad febs per partition 
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[951255040, # EMBC FT 22 Slot 7
+                 953810944, # EMBC FT 27 Slot 5
+                 954105856, # EMBC FT 27 Slot 14
+                 961052672, # EMBA FT 9 Slot 2
+                 961839104, # EMBA FT 10 Slot 10
+                 961970176, # EMBA FT 10 Slot 14
+                 972980224, # EMBA FT 31 Slot 14
+                 961445888  # EMBA FT 9 Slot 14
+                 ]
+    pass
+
 
 class LArNoisyROFlags(JobPropertyContainer):
     pass
@@ -35,5 +50,6 @@ jobproperties.add_Container(LArNoisyROFlags)
 jobproperties.LArNoisyROFlags.add_JobProperty(CellQualityCut)
 jobproperties.LArNoisyROFlags.add_JobProperty(BadChanPerFEB)
 jobproperties.LArNoisyROFlags.add_JobProperty(BadFEBCut)
+jobproperties.LArNoisyROFlags.add_JobProperty(KnownMNBFEBs)
 
 larNoisyROFlags = jobproperties.LArNoisyROFlags

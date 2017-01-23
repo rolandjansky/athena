@@ -125,6 +125,9 @@ class LArNoisyROTool:
   //** ignore masked cells ? */
   bool m_ignore_masked_cells;
 
+  //** ignore front inner wheel cells ? */
+  bool m_ignore_front_innerwheel_cells;
+
   //** number of bad channels to declare a preamp noisy */
   unsigned int m_BadChanPerPA;
 
