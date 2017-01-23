@@ -104,7 +104,8 @@ namespace Trk
 
   TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const std::string& n, const IInterface*  p )
   : AthAlgTool(t,n,p),
-    m_detID(0),
+    m_detID(nullptr),
+    m_pixelID(nullptr),
     m_trackSummaryTool    ("Trk::TrackSummaryTool/AtlasTrackSummaryTool"),
     m_extrapolator        ("Trk::Extrapolator/AtlasExtrapolator"),
     m_trackToVertex       ("Reco::TrackToVertex/TrackToVertex"),
@@ -113,6 +114,11 @@ namespace Trk
     m_beamConditionsService("BeamCondSvc", n),
     m_IBLParameterSvc("IBLParameterSvc",n),
     m_copyExtraSummaryName {"eProbabilityComb","eProbabilityHT","TRTTrackOccupancy","TRTdEdx","TRTdEdxUsedHits"},
+    m_copyEProbabilities{},
+    m_decorateEProbabilities{},
+    m_decorateSummaryTypes{},
+    m_minTRThitsForTRTdEdx{},
+    m_doIBL(false),
     m_useTrackSummaryTool (true),
     m_useMuonSummaryTool  (false),
     m_forceTrackSummaryUpdate (false),
