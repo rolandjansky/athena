@@ -189,7 +189,7 @@ void add_det_surface (unsigned int val)
   
   ToolHandle<Trk::IEventCnvSuperTool> h ("TestCnvTool");
   TestCnvTool* tool = dynamic_cast<TestCnvTool*> (&*h);
-  tool->addSurface (std::move (surf));
+  if (tool) tool->addSurface (std::move (surf));
 }
 
 
