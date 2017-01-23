@@ -58,11 +58,11 @@ namespace InDet {
     {TRK_EFF_LOOSE_GLOBAL,       CP::SystematicVariation("TRK_EFF_LOOSE_GLOBAL")},
     {TRK_EFF_LOOSE_IBL,          CP::SystematicVariation("TRK_EFF_LOOSE_IBL")},
     {TRK_EFF_LOOSE_PP0,          CP::SystematicVariation("TRK_EFF_LOOSE_PP0")},
-    {TRK_EFF_LOOSE_PP0,          CP::SystematicVariation("TRK_EFF_LOOSE_PHYSMODEL")},
+    {TRK_EFF_LOOSE_PHYSMODEL,    CP::SystematicVariation("TRK_EFF_LOOSE_PHYSMODEL")},
     {TRK_EFF_TIGHT_GLOBAL,       CP::SystematicVariation("TRK_EFF_TIGHT_GLOBAL")},
     {TRK_EFF_TIGHT_IBL,          CP::SystematicVariation("TRK_EFF_TIGHT_IBL")},
     {TRK_EFF_TIGHT_PP0,          CP::SystematicVariation("TRK_EFF_TIGHT_PP0")},
-    {TRK_EFF_TIGHT_PP0,          CP::SystematicVariation("TRK_EFF_TIGHT_PHYSMODEL")},
+    {TRK_EFF_TIGHT_PHYSMODEL,    CP::SystematicVariation("TRK_EFF_TIGHT_PHYSMODEL")},
     {TRK_EFF_LOOSE_TIDE,         CP::SystematicVariation("TRK_EFF_LOOSE_TIDE")}    
   };
 
