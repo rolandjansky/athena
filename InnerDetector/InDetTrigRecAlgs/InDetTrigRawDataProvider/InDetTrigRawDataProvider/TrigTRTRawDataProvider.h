@@ -67,7 +67,6 @@ namespace InDet {
     //! the RDO container
     TRT_RDO_Container*                  m_container;
     std::string                         m_RDO_Key;
-    bool                                m_first_event;
 
     //
   };

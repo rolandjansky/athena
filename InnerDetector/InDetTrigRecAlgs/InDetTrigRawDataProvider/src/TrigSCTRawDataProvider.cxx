@@ -34,7 +34,8 @@ namespace InDet {
     m_storeGate       ("StoreGateSvc",name),
     m_detStore        ("DetectorStore",name),
     m_cablingSvc      ("SCT_CablingSvc",name),
-    m_container(0)
+    m_container(0),
+    m_id(0)
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "SCT_RDOs_EFID");
