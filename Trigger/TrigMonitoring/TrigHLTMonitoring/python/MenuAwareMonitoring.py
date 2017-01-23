@@ -1,28 +1,27 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# Authors: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch) 
+# Authors: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch)
 #
 
-import sys,os
-# import Athena-less MaM
+import sys,os,shutil,re
 from TrigHLTMonitoring.MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone
-# import oracle interaction class
 from TrigHLTMonitoring.OracleInterface import OracleInterface
-# import tool interrogator
 from TrigHLTMonitoring.ToolInterrogator import ToolInterrogator
 # needed to access the tools in ToolSvc
 from AthenaCommon.AppMgr import ToolSvc
 # use rec to find out if we are making ESDs and/or AODs
 from RecExConfig.RecFlags import rec
-# import subprocess. Required to get Athena version (there must be a better way!)
-import subprocess
+# import subprocess and uuid, used to get default configurations
+import subprocess,uuid
 # import hash library for generating smck config hashes
 import hashlib
 # import json for converting configuration dictionaries into strings for hashing
 import json
 # for getting connection details
 from xml.dom import minidom
+# for monitoring mode setup
+from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 # all Menu-Aware Monitoring stuff in one class
 # it uses OracleInterface to talk to the Oracle database
@@ -44,38 +43,29 @@ class MenuAwareMonitoring:
 
         # flag so that diff instruction are only printed once
         self.firstdiff = True
-                
-        # create MaMStandalone interaction object (includes connecting to oracle)    
+
+        # create MaMStandalone interaction object (includes connecting to oracle)
         self.ms = MenuAwareMonitoringStandalone(alias,database_username,database_password,database_name,database_directory)
-    
+
         # get athena version
         self.__get_athena_version__()
-        
+
         # holder for stream (bulk or express)
         self.stream = ""
         self.__get_stream__()
 
         # print guide for user if this is an interactive session
         if self.ms.__is_session_interactive__():
-            
+
             print "Running in Athena release",self.ms.current_athena_version
             print "Stream detected:",self.stream
-            print ""
 
         # create tool interrogator object
         self.ti = ToolInterrogator()
 
-        # need to grab ms.local_global_info and make all methods act on that
-
-        # pointer to local tool info
-        self.local = self.ms.local_global_info['MONITORING_TOOL_DICT']
-
-        # automatically fill current local tool info
-        self.get_current_local_info()
-
-        # fill default global info (if available)
-        #if self.ms.connected_to_oracle == True:
-            #self.ms.get_default_from_db(self.ms.current_athena_version)
+        # flag to prevent multiple calls to setup_all_local_tools, as it doesn't seem like the current config is picked up is this is tried
+        self.tools_setup = False
+        self.setup_mode = ""
 
 
     def __quiet_output__(self):
@@ -99,15 +89,76 @@ class MenuAwareMonitoring:
         The local variable <ThisVariable>.stream is set to the result."""
 
         # set self.stream to the output of rec.triggerStream()
-        # this will equal 'EXPRESS' in the case of express stream, and 'BULK' in the case of the bulk stream. 
+        # this will equal 'EXPRESS' in the case of express stream, and 'BULK' in the case of the bulk stream.
         # rec.triggerStream() seems to be able to take on many other values.
-        # 
-        # if extra options are desired as valid user input to match this variable, 
+        #
+        # if extra options are desired as valid user input to match this variable,
         # then thy just need to be added to the list of valid inputs in the function
         # ms.__ask_for_processing_stream__()
         # in the list valid_input
         #
         self.stream = str(rec.triggerStream()).upper()
+
+
+    def __get_athena_version__(self):
+        "Get the current Athena version."
+
+        self.ms.current_athena_version = self.get_release_setup().replace(",","-")
+
+
+    def get_release_setup(self):
+        """Get the full current release setup in a form that can be passed to asetup.
+        Taken/modified from RunTier0Tests.py"""
+
+        # rel20 version
+        if 'AtlasPatch' in os.environ:
+            project = os.environ['AtlasPatch'] # need this to pick up AtlasProd1 in cmt builds
+
+            if 'AtlasPatchVersion' in os.environ:
+                current_nightly = os.environ['AtlasPatchVersion']
+            elif 'AtlasArea' in os.environ:
+                current_nightly = os.environ['AtlasArea'].split('/')[-1]
+            elif 'AtlasVersion' in os.environ:
+                current_nightly = os.environ['AtlasVersion']
+
+            if "rel" not in current_nightly:
+                setup = "%s,%s"%(project,current_nightly)
+                # 'AtlasProduction,20.7.9.8'
+            else:
+
+                if 'AtlasBuildBranch' in os.environ:
+                    release  = os.environ['AtlasBuildBranch']
+                else:
+                    release  = os.environ['ATLAS_RELEASE_BASE']
+                    if 'afs' in release.split('/'):
+                        release = release.split('/')[-1]
+                    elif 'cvmfs' in release.split('/'):
+                        release = release.split('/')[-2]
+
+                setup="%s,%s,%s"%(project,release,current_nightly)
+                # 'AtlasProduction,20.7.X.Y-VAL,rel_3'
+
+        # rel21 version
+        else:
+            if 'AtlasProject' in os.environ:
+                project = os.environ['AtlasProject'] # no patches in rel21
+
+            release = ""
+            if 'AtlasVersion' in os.environ:
+                release = os.environ['AtlasVersion']
+
+            if "rel" in release:
+                current_nightly = release
+                release = os.environ['AtlasBuildBranch']
+                setup="%s,%s,%s"%(project,release,current_nightly)
+            elif 'AtlasBuildStamp' in os.environ:
+                release = os.environ['AtlasBuildBranch']
+                current_nightly = os.environ['AtlasBuildStamp'] # denotes a cmakegit nightly
+                setup="%s,%s,%s"%(project,release,current_nightly)
+            else:
+                setup="%s,%s"%(project,release)
+
+        return setup
 
 
     def __get_tag__(self,package=""):
@@ -118,41 +169,79 @@ class MenuAwareMonitoring:
         if package == "":
             return ""
 
-        # if the package is checked out locally, then find it
-        bash_command = "echo $(if [ -e $TestArea/InstallArea/include/"+package+"/"+package+"/ ] ; then cat $(cat $TestArea/InstallArea/include/"+package+"/"+package+".cmtref )/../.svn/entries | grep -m 1 -B 1 \"svn+ssh\"; fi) | sed \"s@ @ URL: @\" "
-        local_version = subprocess.check_output( bash_command , shell=True).replace("\n","")
+        if 'CMTPATH' in os.environ:
+            # for cmt releases
+            cmd = ['cmt', 'show', 'packages']
+            cmtProc = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
+            cmtOut = cmtProc.communicate()[0]
+            for line in cmtOut.split('\n'):
+                try:
+                    # could make this faster using re
+                    if line.strip() == '':
+                        continue
+                    (packageName, packageVersion, packagePath) = line.split()
+                    if packageName == package:
+                        return packageVersion
+                except ValueError:
+                    print "Warning, unusual output from cmt: %s\n" % line
+        elif 'CMAKE_PREFIX_PATH' in os.environ:
+            # for cmake releases
+            cpath = os.getenv("CMAKE_PREFIX_PATH")
+            for cdir in cpath.split( ":" ):
+                # Look for packages.txt
+                cfilename = os.path.join( cdir, "packages.txt" )
+                try:
+                    cfile = open( cfilename, "r" )
+                except:
+                    #print "Could not open file: %s" % ( cfile )
+                    continue
+                # look for the package
+                m = re.search( "[^\n]*/%s [^\n]+" % package, cfile.read() )
+                if m:
+                    #print "Release directory: %s" % (cdir)
+                    packageVersion = m.group( 0 ).split()[1]
+                    return packageVersion
 
-        # get the tag (only valid if a non-local package is being used!)
-        bash_command = "for d in $(echo $JOBOPTSEARCHPATH | sed \"s@:@ @g\"); do if [ -e $d/../include/"+package+"/"+package+"/ ]; then cat $d/../../Trigger/TrigMonitoring/"+package+"/cmt/version.cmt; fi; done | grep -m 1 \""+package+"\" "
-        package_tag = subprocess.check_output( bash_command , shell=True).replace("\n","")
+        # if we get this far, the packageVersion hasn't been found
+        return ""
 
-        # if something local has been found and it is the trunk, then return that, otherwise return the package_tag
-        if local_version != "":
-            if local_version.__contains__("trunk"):
-                # string to return
-                return_str = "Revision: "+local_version
-                return return_str
-        if package_tag != "":
-            return package_tag
+
+    def find_and_list_patch_packages(self):
+        """Find the patch packages the user has set up.
+        Taken/modified from RunTier0Tests.py"""
+
+        npackages = 0
+        if 'CMTPATH' in os.environ:
+            if 'TestArea' in os.environ and os.access(os.environ['TestArea'], os.R_OK):
+                print "Patch packages in your InstallArea are:\n"
+                cmd = ['cmt', 'show', 'packages', os.environ['TestArea']]
+                cmtProc = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
+                cmtOut = cmtProc.communicate()[0]
+                for line in cmtOut.split('\n'):
+                    try:
+                        if line.strip() == '':
+                            continue
+                        (package, packageVersion, packagePath) = line.split()
+                        print '\t%s\n' % (packageVersion)
+                        npackages = npackages+1
+                    except ValueError:
+                        print "Warning, unusual output from cmt: %s\n" % line
+        elif 'WorkDir_DIR' in os.environ :
+            # does this work for git packages?
+            print "Patch packages in your build are:\n"
+            myfilepath = os.environ['WorkDir_DIR']
+            fname = str(myfilepath) + '/packages.txt'
+            npackages = 0
+            with open(fname) as fp:
+                for line in fp:
+                    if '#' not in line:
+                        print line
+                        npackages=npackages+1
         else:
-            return ""
-
-
-    def __get_athena_version__(self):
-        "Get the current Athena version."
-
-        # Probably only want to store the first 4 digits?
-        # get the current local Athena version (there must be a better way!)
-        AtlasVersion = subprocess.check_output("echo $AtlasVersion", shell=True).replace("\n","")
-        AtlasProject = subprocess.check_output("echo $AtlasProject", shell=True).replace("\n","")
-        self.ms.current_athena_version = AtlasProject+"-"+AtlasVersion
-
-    def __update_local_pointer__(self):
-        """update self.local to point to self.ms.local_global_info['MONITORING_TOOL_DICT']
-        Needed if self.ms.local_global_info has been overwritten."""
-        
-        self.ms.__update_local_pointer__()
-        self.local = self.ms.local
+            print "A release area with locally installed packages has not been setup."
+        if npackages == 0:
+            print "No patches found"
+        return npackages
 
 
     def list_local_tools_read_in(self):
@@ -230,7 +319,7 @@ class MenuAwareMonitoring:
 
     def get_current_local_info(self,print_output_here=""):
         """Use the Tool Interrogator to find locally running trigger-monitoring tools.
-        These tool configurations are made available in the <ThisVariable>.local dictionary."""
+        These tool configurations are made available in the <ThisVariable>.ms.local dictionary."""
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -264,7 +353,7 @@ class MenuAwareMonitoring:
 
             # construct smck_info for this tool
             smck_info = {}
-            smck_info['SMCK_CONFIG'] = smck_config 
+            smck_info['SMCK_CONFIG'] = smck_config
             smck_info['SMCK_CONFIG_HASH'] = self.ms.__get_config_hash__(smck_config)
             smck_info['SMCK_SLICE_TYPE'] = smck_config['SliceType']
             smck_info['SMCK_TOOL_TYPE'] = tool
@@ -281,169 +370,60 @@ class MenuAwareMonitoring:
                 print "This can be passed to MaM methods with the string '"+tool+"'"
                 print ""
 
-
-        # update self.local
-        self.__update_local_pointer__()
+        self.ms.__update_local_pointer__()
 
         # add nice spacing if we have been printing tool info
         if len(mon_tools) > 0:
             if print_output_here:
-                print "The extracted data of all local trigger-monitoring tools is stored in <ThisVariable>.local"
+                print "The extracted data of all local trigger-monitoring tools is stored in <ThisVariable>.ms.local"
                 print "All local trigger-monitoring tools can be passed together as an 'MCK' to MaM diff and search methods with the string 'LOCAL'"
                 print ""
 
 
-    def setup_all_local_tools(self):
+    def setup_all_local_tools(self,mode=""):
         "Setup all local trigger-monitoring tools and runs get_current_local_info() to read them in using the Tool Interrogator."
+
+        if self.tools_setup == True:
+            # this is a precautionary measure because it is not clear from testing that tools are resetup correctly if setup is attempted multiple times (probably because tools has protections against this implemented)
+            print "Tools already set up."
+            print "Quit and restart to setup again."
+            return
+
+        # enabling setting of monitoring mode
+        if mode.lower() == "hi":
+            mode = "HI"
+        else:
+            mode = mode.lower()
+
+        if mode not in [ "pp", "HI", "cosmic", "mc", "" ]:
+            print "Unrecognised setup mode: using default"
+            mode = ""
+        else:
+            print "Using mode",mode
+
+        if mode == "pp":
+            DQMonFlags.monManDataType = 'collisions'
+        elif mode == "mc":
+            DQMonFlags.monManDataType = 'monteCarlo'
+        elif mode == "HI":
+            DQMonFlags.monManDataType = 'heavyioncollisions'
+        elif mode == "cosmic":
+            DQMonFlags.monManDataType = 'cosmics'
+        print "DQMonFlags.monManDataType() =",DQMonFlags.monManDataType()
 
         # setup all local packages listed in PackagesToInterrogate via ToolInterrogator
         self.ti.load_all_tools()
 
-        # we probably want to read in these tools with the Tool Interrogator
+        # read in these tools with the Tool Interrogator
         self.get_current_local_info()
-                    
 
-    def upload_smck(self,input1="",processing_step="",comment="",print_output_here=""):
-        """Upload local configuration for tool 'input1' as an SMCK.
-        If input1=='local', then all local configuration changes wrt the default will be uploaded.
-        Optional processing step and comment can be provided."""
+        self.tools_setup = True
+        self.setup_mode = mode
 
-        if self.ms.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
-            return
-
-        if self.replica_db_connection == True:
-            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
-            return
-        
-        # check for empty print_output_here
-        # if it is found, use self.print_output
-        if print_output_here == "":
-            print_output_here = self.print_output
-
-        # search for default mck
-        default_mck = self.ms.get_default_mck_id_from_db()
-
-        # if the default does not exist
-        if default_mck < 0:
-
-            # info for user
-            if print_output_here:
-                print "No default for this Athena version ("+self.ms.current_athena_version+") has been uploaded"
-                print "If you are not running with any local changes to the default, then consider running the command \"<ThisVariable>.ms.upload_default()\""
-            return
-
-        # if input is local, then run ms.upload_all_local_changes_as_smck()
-        if input1 == 'local':
-
-            if print_output_here:
-                print "You have provided the input 'local'. All local changes wrt the default will be uploaded."
-            self.ms.upload_all_local_changes_as_smck(processing_step,comment)
-
-        # get all local tool info 
-        #self.get_current_local_info()
-
-        # check if input1 is running (has been read in by the above line)
-        if not self.ms.local_global_info['MONITORING_TOOL_DICT'].__contains__(input1):
-
-            # this tool has not been loaded
-            # exit and suggest to the user how to start the tool, if they so wish
-            if print_output_here:
-                print "Tool",input1,"is not currently set up locally, so can not have its local configuration uploaded as an SMCK."
-                print "To list all local tools currently set up and read in, please run \"<ThisVariable>.list_local_tools_read_in()\""
-                print "To set up and read in all trigger monitoring tools locally, please run \"<ThisVariable>.setup_all_local_tools()\""
-            return
-
-        # get local smck_info for tool input1
-        local_smck_info = self.ms.local_global_info['MONITORING_TOOL_DICT'][input1]
-
-        # get default from database
-        # (should already have been done during __init__, 
-        # but in case the default has only been uploaded in this session then we check again)
-        self.ms.get_default_from_db()
-
-        # get default smck_info
-        default_smck_info = self.ms.default_global_info['MONITORING_TOOL_DICT'][input1]
-        
-        # create diff of smck_info
-        # we want diffed_smck_info2, 
-        # which is the 'patch' to apply to the default to get the current local configuration
-        diffed_smck_info1, diffed_smck_info2 = self.ms.__calculate_diff__(default_smck_info,local_smck_info,False)
-
-        # if there are no local differences wrt the default, then we upload nothing and exit
-        if diffed_smck_info2 == {}:
-            
-            # info for user
-            if print_output_here:
-                print "No local differences have been found with respect to the default SMCK (SMCK_ID="+str(default_smck_info['SMCK_ID'])+") for this tool ("+str(input1)+"), for this Athena version ("+self.ms.current_athena_version+")."
-                print "Nothing shall be uploaded to the Oracle database as a result."
-            return
-
-        # check if this SMCK already exists
-
-        # if no processing_step is provided, then ask for one
-        if processing_step=="":
-            processing_step = self.ms.__ask_for_processing_step__()
-
-        # if no processing_stream is provided, then ask for one
-        if processing_stream=="":
-            processing_stream = self.ms.__ask_for_processing_stream__()
-
-        # if no comment is provided, then ask for one
-        if comment=="":
-            comment = self.ms.__ask_for_comment__()
-
-        # fill extra smck_info
-        diffed_smck_info2['SMCK_PROCESSING_STEP'] = processing_step
-        diffed_smck_info2['SMCK_PROCESSING_STREAM'] = processing_stream
-        if not diffed_smck_info2.__contains__('SMCK_CONFIG'):
-            diffed_smck_info2['SMCK_CONFIG'] = {}
-        diffed_smck_info2['SMCK_CONFIG']['PackageName'] = local_smck_info['SMCK_CONFIG']['PackageName']
-        diffed_smck_info2['SMCK_CONFIG']['ToolName'] = local_smck_info['SMCK_CONFIG']['ToolName']
-        diffed_smck_info2['SMCK_CONFIG']['ToolSvcName'] = local_smck_info['SMCK_CONFIG']['ToolSvcName']
-        if not diffed_smck_info2['SMCK_CONFIG'].__contains__('ToolInfo'):
-            diffed_smck_info2['SMCK_CONFIG']['ToolInfo'] = {}
-        diffed_smck_info2['SMCK_CONFIG']['SliceType'] = local_smck_info['SMCK_CONFIG']['SliceType']
-        diffed_smck_info2['SMCK_CONFIG']['MonitCategoryName'] = local_smck_info['SMCK_CONFIG']['MonitCategoryName']
-        if not diffed_smck_info2['SMCK_CONFIG'].__contains__('MonitCategoryInfo'):
-            diffed_smck_info2['SMCK_CONFIG']['MonitCategoryInfo'] = {}
-        diffed_smck_info2['SMCK_CONFIG_HASH'] = self.ms.__get_config_hash__(diffed_smck_info2['SMCK_CONFIG'])
-        diffed_smck_info2['SMCK_TOOL_TYPE'] = input1
-        diffed_smck_info2['SMCK_SLICE_TYPE'] = local_smck_info['SMCK_SLICE_TYPE']
-        diffed_smck_info2['SMCK_DEFAULT'] = 0
-        diffed_smck_info2['SMCK_ATHENA_VERSION'] = self.ms.current_athena_version
-        diffed_smck_info2['SMCK_SVN_TAG'] = local_smck_info['SMCK_SVN_TAG']
-        diffed_smck_info2['SMCK_CREATOR'] = self.ms.current_user
-        diffed_smck_info2['SMCK_COMMENT'] = comment
-
-        # if tool_value['SMCK_CONFIG']['ToolInfo'] and tool_value['SMCK_CONFIG']['MonitCategoryInfo'] are both empty, then we don't want to include this as a new SMCK
-        if diffed_smck_info2['SMCK_CONFIG']['ToolInfo'] == {} and diffed_smck_info2['SMCK_CONFIG']['MonitCategoryInfo'] == {}:
-
-            # info for user
-            if print_output_here:
-                print "No local differences have been found with respect to the default SMCK (SMCK_ID="+str(default_smck_info['SMCK_ID'])+") for this tool ("+str(input1)+"), for this Athena version ("+self.ms.current_athena_version+")."
-                print "Nothing shall be uploaded to the Oracle database as a result."
-            return
-
-        # upload smck_info (diffed_smck_info2)
-        new_smck_id = self.ms.oi.upload_smck(diffed_smck_info2)
-
-        # info for user
-        if print_output_here:
-
-            # print new smck_id and smck_tool_patch_version
-            print "This is SMCK (SMCK_ID)",new_smck_id
-            print "with SMCK_TOOL_PATCH_VERSION",diffed_smck_info2['SMCK_TOOL_PATCH_VERSION']
-
-        # if we are running silently, still return the smck_id and smck_tool_patch_version 
-        # (ie. in case this function has been called by another function, which might like to know the smck_id and smck_tool_patch_version)
-        else:
-            return new_smck_id, diffed_smck_info2['SMCK_TOOL_PATCH_VERSION']
-                
 
     def __ask_for_default__(self):
         """If running interactively, ask user whether this upload is to be a default for an Athena release, or a patch."""
-        
+
         # is this session interactive? If not, return "ALL"
         if self.ms.__is_session_interactive__():
 
@@ -628,7 +608,7 @@ class MenuAwareMonitoring:
         # if mck_info == -1 then we've not found an mck, so return False
         if mck_info == -1:
             return False
-        
+
         # else this is a valid mck
         else:
             return True
@@ -656,10 +636,21 @@ class MenuAwareMonitoring:
         # if smck_id == -1 then we've not found an smck, so return False
         if smck_id == -1:
             return False
-        
+
         # else this is a valid smck
         else:
             return True
+
+
+    def __refresh_HLTMonTriggerList__(self):
+        """If a slice MonitCategory has been updated,
+        then this function can be used to update HLTMonTriggerList."""
+
+        # import HLTMonTriggerList
+        from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
+
+        # now we rerun hltmonList.config() to update it with all the latest info from all slices
+        hltmonList.config()
 
 
     def diff(self,input1="",flag1="",input2="",flag2="",diff_all=False,print_output_here=""):
@@ -997,16 +988,23 @@ class MenuAwareMonitoring:
             # nice spacing for user
             print ""
 
+
     def does_mck_athena_version_match_current_athena_version(self, mck_id):
-        "Compares the current Athena version to the one of the requested MCK"
-        
+        "Compares the current Athena version to the MCK athena version"
+
         mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
         mck_athena_version = mck_info['MCK_ATHENA_VERSION']
-        
-        # change this to compare first 4 digits
+
         return self.ms.check_compatibility_of_two_release_versions(mck_athena_version,self.ms.current_athena_version)
 
-        #return mck_athena_version == self.ms.current_athena_version            
+
+    def does_smck_athena_version_match_current_athena_version(self, smck_id):
+        "Compares the current Athena version to the SMCK athena version"
+
+        smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
+        smck_athena_version = smck_info['SMCK_ATHENA_VERSION']
+
+        return self.ms.check_compatibility_of_two_release_versions(smck_athena_version,self.ms.current_athena_version)
 
 
     def apply_mck(self,input1="",print_output_here=""):
@@ -1016,17 +1014,18 @@ class MenuAwareMonitoring:
             print "You are not connected to the database, so this function is not available."
             return
 
-        # check for empty print_output_here
-        # if it is found, use self.print_output
         if print_output_here == "":
             print_output_here = self.print_output
 
-        # is the input a valid mck?
         if not self.__is_input_an_mck__(input1):
-
-            # info for user
             if print_output_here:
                 print "MCK",input1,"has not been recognised as a valid MCK."
+            return
+
+        # check the athena version
+        mck_athena_version = self.ms.oi.read_mck_info_from_db(input1)['MCK_ATHENA_VERSION']
+        if not self.does_mck_athena_version_match_current_athena_version(input1):
+            print "MCK",input1,"is for Athena version",mck_athena_version,"but MAM is running in",self.ms.current_athena_version,"-> this MCK will not be applied."
             return
 
         # get list of smck_id that this mck links to
@@ -1053,7 +1052,7 @@ class MenuAwareMonitoring:
 
         # make sure we have the smck_id
         smck_id = self.ms.__get_smck_id_from_smck_identifier__(input1)
-        
+
         # if we don't
         if smck_id == -1:
 
@@ -1068,9 +1067,8 @@ class MenuAwareMonitoring:
         # get the release this SMCK was created for
         smck_athena_version = smck_info['SMCK_ATHENA_VERSION']
         # compare to our release
-        if smck_athena_version != self.ms.current_athena_version: 
-            print "SMCK",input1,"is for athena version",smck_athena_version,", but MAM is running in ",self.ms.current_athena_version,". This SMCK will not be applied."
-            return
+        if not self.does_smck_athena_version_match_current_athena_version(input1):
+            print "SMCK",input1,"is for Athena version",smck_athena_version,"but MAM is running in",self.ms.current_athena_version,"-> this SMCK will still be applied."
 
         # get the processing step this smck should be used for
         processing_step = smck_info['SMCK_PROCESSING_STEP']
@@ -1079,7 +1077,7 @@ class MenuAwareMonitoring:
 
             # info for user
             if print_output_here:
-                print "SMCK",input1,"is for the Athena processing stage '"+processing_step+"', which we are not currently in. This SMCK will not be applied."
+                print "SMCK",input1,"is for the Athena processing stage '"+processing_step+"' which we are not currently in -> this SMCK will not be applied."
             return
 
         # get the processing stream this smck should be used for
@@ -1089,7 +1087,7 @@ class MenuAwareMonitoring:
 
             # info for user
             if print_output_here:
-                print "SMCK",input1,"is for the Athena processing stream '"+processing_stream+"', which we are not currently using. This SMCK will not be applied."
+                print "SMCK",input1,"is for the Athena processing stream '"+processing_stream+"', which we are not currently using -> this SMCK will not be applied."
             return
 
         # get the ToolSvc_tool_name
@@ -1103,7 +1101,7 @@ class MenuAwareMonitoring:
 
             # info for user
             if print_output_here:
-                print "SMCK",input1," corresponds to the tool",ToolSvc_tool_name,"which is not running locally, so can not be configured with this SMCK."
+                print "SMCK",input1,"corresponds to the tool",ToolSvc_tool_name,"which is not running locally, so can not be configured with this SMCK."
             return
 
         # get the patch config
@@ -1117,7 +1115,7 @@ class MenuAwareMonitoring:
             # test if the tool has this variable
             tool_contains_variable = False
             exec "tool_contains_variable = hasattr(ToolSvc.%s,tool_key)" % (ToolSvc_tool_name)
-            
+
             # if the tool has this variable
             if tool_contains_variable:
 
@@ -1162,7 +1160,7 @@ class MenuAwareMonitoring:
 
                         # check that the values are equal
                         if new_value == tool_value:
-                            
+
                             # apply the config for this variable
                             exec "ToolSvc.%s.%s = new_value" % (ToolSvc_tool_name,tool_key)
 
@@ -1205,9 +1203,9 @@ class MenuAwareMonitoring:
                 # test if the monitCategory_object has this variable
                 monitCategory_object_contains_variable = False
                 monitCategory_object_contains_variable = hasattr(monitCategory_object,key)
-            
+
                 # if the monitCategory_object has this variable
-                if monitCategory_object_contains_variable:            
+                if monitCategory_object_contains_variable:
 
                     # get the type of the value
                     type_to_set_to = type
@@ -1250,7 +1248,7 @@ class MenuAwareMonitoring:
 
                             # check that the values are equal
                             if new_value == tool_value:
-                            
+
                                 # apply the config for this variable
                                 exec "ToolSvc.%s.%s = new_value" % (ToolSvc_tool_name,tool_key)
 
@@ -1281,70 +1279,67 @@ class MenuAwareMonitoring:
             print "SMCK",input1,"has been applied as a config patch to tool",ToolSvc_tool_name
 
 
-    def __refresh_HLTMonTriggerList__(self):
-        """If a slice MonitCategory has been updated,
-        then this function can be used to update HLTMonTriggerList."""
-
-        # import HLTMonTriggerList
-        from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
-
-        # now we rerun hltmonList.config() to update it with all the latest info from all slices
-        hltmonList.config()
-
     def get_mck_id_from_smk(self,input_smk):
         """Input an SMK, and get an MCK_ID back.
         If no MCK is found, -1 is returned.
-        If an MCK of 0 is returned, this is intended to signify 
+        If an MCK of 0 is returned, this is intended to signify
         that the default tool configurations should be used."""
-        
+
         if self.ms.connected_to_oracle == False:
             print "You are not connected to the database, so this function is not available."
             return
-        
+
         # returns an empty list if no MCK or a list of the MCK details
-        mck_info = self.ms.oi.find_active_smk_to_mck_link(input_smk) 
+        mck_info = self.ms.oi.find_active_smk_to_mck_link(input_smk)
 
         if len(mck_info) > 0:
             return mck_info[0][0]
-        
+
         # if we've made it this far, then an mck has not been found, so return 0 (no link)
         return 0
 
-    def get_mck_id_from_smk_old(self,input_smk):
-        """Input an SMK, and get an MCK_ID back.
-        If no MCK is found, -1 is returned.
-        If an MCK of 0 is returned, this is intended to signify 
-        that the default tool configurations should be used.
-        This is the old version which returns the MCK linked to the next highest 
-        SMK in the case where the SMK is not linked."""
 
-        if self.ms.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+    def dump_mck_to_json(self,mck_id,output_json_filename=""):
+        "Dump the contents of an MCK to a json file, including the contents of linked SMCKs"
+
+        if not self.__is_input_an_mck__(mck_id):
+            print "MCK",mck_id,"has not been recognised as a valid MCK."
             return
 
-        # get list of all mck_to_smk links
-        mck_to_smk_links = []
-        mck_to_smk_links = self.ms.oi.get_all_mck_to_smk_links()
+        if output_json_filename == "":
+            output_json_filename = "MCK_"+str(mck_id)+".json"
 
-        # loop over the list
-        for link in mck_to_smk_links:
+        output_file = open( output_json_filename, "w" )
 
-            # only consider active links
-            if link['ACTIVE'] == '1':
+        mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
+        smck_ids = self.ms.oi.read_mck_links_from_db(mck_id)
 
-                # the list should be ordered in smk, from largest to smallest
-                # check if this link's smk is equal to or less than the input_smk
-                if link['SMK'] <= input_smk:
-            
-                    # then this is the link we want, so return the mck
-                    return link['MCK']
+        mck_dump_info = {}
+        # datetime.datetime objects are not JSON serializable
+        # seeing as this info is not used later, we replace with the ctime
+        mck_info['MCK_CREATION_DATE'] = mck_info['MCK_CREATION_DATE'].ctime()
+        mck_dump_info['MCK'] = mck_info
 
-        # if we've made it this far, then an mck has not been found, so return -1
-        return -1
+        # need to add rest of MCK info
 
-    def dump_local_config_to_json(self,output_json_filename="mam_configs.json",processing_step="",processing_stream="",comment="",default="",print_output_here=""):
-        "All locally read-in trigger monitoring tool configurations are output to a json file."
-        
+        #combine the info in the MONITORING_TOOL_DICT
+        mck_dump_info['MONITORING_TOOL_DICT'] = {}
+        for smck_id in smck_ids:
+            smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
+            smck_info['SMCK_CREATION_DATE'] = smck_info['SMCK_CREATION_DATE'].ctime()
+            tool_type = smck_info['SMCK_TOOL_TYPE']
+            mck_dump_info['MONITORING_TOOL_DICT'][tool_type] = smck_info
+
+        json.dump(mck_dump_info, output_file, ensure_ascii=True, sort_keys=True)
+        output_file.close()
+
+
+    def dump_local_config_to_json(self,output_json_filename="mam_configs.json",processing_step="",processing_stream="",comment="",default=""):
+        "All locally read-in trigger monitoring tool configurations are output to a file."
+
+        if output_json_filename == "":
+            output_json_filename="mam_configs.json"
+
         # create a file-like-object to write the json to
         output_file = open( output_json_filename , "w" )
 
@@ -1393,28 +1388,48 @@ class MenuAwareMonitoring:
             tool_value['SMCK_COMMENT'] = comment
 
         # json encode the local global info, and dump it to the output file
-        json.dump(self.ms.local_global_info, output_file, ensure_ascii=True, sort_keys=True) 
+        json.dump(self.ms.local_global_info, output_file, ensure_ascii=True, sort_keys=True)
 
         # close the output file
         output_file.close()
 
 
-    def diff_json_files(self,input_default_config_file="mam_default_configs.json",input_config_file="mam_configs.json",output_json_filename="mam_patch_configs.json"):
-        """Input a default config, and an alternative config. A diff will be performed. 
-        The parts of the alternative config that are different to the default config 
+    def make_default_json(self,output_json_filename="",comment=""):
+        "All locally read-in trigger monitoring tool configurations are output to a file, marked as a default."
+
+        if output_json_filename == "":
+            output_json_filename = "mam_defaults.json"
+
+        filename = output_json_filename
+        tempcomment = comment
+
+        self.dump_local_config_to_json(output_json_filename=filename,comment=tempcomment,default=1)
+
+
+    def diff_json_files(self,input_default_config_file="",input_config_file="",output_json_filename="mam_diff_configs.json"):
+        """Input a default config, and an alternative config. A diff will be performed.
+        The parts of the alternative config that are different to the default config
         will be returned as a new json file."""
 
+        if input_default_config_file == "" or input_config_file == "":
+            print "Please specify the input_default_file and input_config_file names."
+            return
+
         # open all file-like-objects
-        input_default_file = open( input_default_config_file , "r" )
-        input_alt_file = open( input_config_file , "r" )
-        output_file = open( output_json_filename , "w" )
+        try:
+            input_default_file = open( input_default_config_file , "r" )
+            input_alt_file = open( input_config_file , "r" )
+            output_file = open( output_json_filename , "w" )
+        except:
+            print "Unable to open one or more config files."
+            return
 
         # get the input dictionaries
         input_default_dict = self.ms.oi.__unicode_to_str__( json.load(input_default_file) )
         input_alt_dict = self.ms.oi.__unicode_to_str__( json.load(input_alt_file) )
 
         # perform a diff of these dicts
-        # we want diffed_info2, 
+        # we want diffed_info2,
         # which is the 'patch' to apply to the default to get the current local configuration
         diffed_info1, diffed_info2 = self.ms.__calculate_diff__(input_default_dict,input_alt_dict,False)
 
@@ -1425,3 +1440,132 @@ class MenuAwareMonitoring:
         input_default_file.close()
         input_alt_file.close()
         output_file.close()
+
+
+    def make_patch_json(self,output_json_filename="",processing_step="",processing_stream="",comment="",CleanRunHeadDir='/tmp/'):
+
+        if not self.find_and_list_patch_packages():
+            print "Have not been able to detect you have set up any packages"
+            print "Continuing anyway..."
+
+        if self.tools_setup == False:
+            print "Please run mam.setup_all_local_tools(monitoring_mode) first (where monitoring_mode is pp, HI, cosmic or mc)"
+            return
+
+        # if no processing_step is provided, then ask for one
+        if processing_step=="":
+            processing_step = self.ms.__ask_for_processing_step__()
+        # if no processing_step is provided, then ask for one
+        if processing_stream=="":
+            processing_stream = self.ms.__ask_for_processing_stream__()
+        # if no comment is provided, then ask for one
+        if comment=="":
+            comment = self.ms.__ask_for_comment__()
+
+        # need to get release accurately and in a form the command can run - use get_release_setup
+        release = self.get_release_setup()
+
+        # this is not a default, so we need to get the default and perform the diff before dumping
+        print "Will get default in clean directory for release",release #release
+
+        if str(CleanRunHeadDir) == "/tmp/":
+            myUser = os.environ['USER']
+            CleanRunHeadDir = "/tmp/"+str(myUser)
+
+        if os.path.exists(CleanRunHeadDir):
+            print "The head directory used to obtain the default for release",release,"will be",CleanRunHeadDir
+        else:
+            print "Please specify a directory that exists for the argument CleanRunHeadDir"
+            return
+
+        UniqID = str(uuid.uuid4())
+        CleanDirName="default_"+UniqID
+        # print CleanDirName
+
+        default_json_filename = self.ms.current_athena_version+'_default.json'
+
+        # do the getting of the default via a shell here
+        cmd = ["RunProcessWithMonitor.py","DumpDefaultMonConfig.sh",CleanRunHeadDir,CleanDirName,release,default_json_filename,self.setup_mode]
+        subprocess.Popen(cmd).communicate()
+
+        cwd = os.getcwd()
+        try:
+            shutil.copy2(CleanRunHeadDir+'/'+CleanDirName+'/'+default_json_filename, cwd)
+        except:
+            print "Getting default configuration json for",release,"failed"
+            return
+
+        self.ms.get_default_from_json(default_json_filename)
+
+        # create diff of global_info
+        # we want diffed_global_info2, which is the 'patch' to apply to the default to get the current local configuration
+        diffed_global_info1, diffed_global_info2 = self.ms.__calculate_diff__(self.ms.default_global_info,self.ms.local_global_info,False)
+
+        # if there are no local differences wrt the default, then we dump nothing and exit
+        if diffed_global_info2 == {}:
+            print "No local differences have been found with respect to the default configuration for Athena version "+athena_version+"."
+            print "Nothing shall be dumped to json as a result."
+            return
+
+        # fill extra mck_info
+        diffed_global_info2['MCK'] = {}
+        diffed_global_info2['MCK']['MCK_DEFAULT'] = 0
+        diffed_global_info2['MCK']['MCK_ATHENA_VERSION'] = self.ms.current_athena_version
+        diffed_global_info2['MCK']['MCK_CREATOR'] = self.ms.current_user
+        diffed_global_info2['MCK']['MCK_COMMENT'] = comment
+
+        # in case we want to remove any diffed_global_info2['MONITORING_TOOL_DICT'] items, we must make a list of the keys,
+        # and then delete these keys after we have finished iterating over diffed_global_info2['MONITORING_TOOL_DICT']
+        # It is not possible to delete elements while iterating over a list or dict
+        keys_to_delete = []
+
+        # fill extra smck_info for all tools
+        for tool_key, tool_value in diffed_global_info2['MONITORING_TOOL_DICT'].iteritems():
+
+            # fill extra smck_info
+            tool_value['SMCK_PROCESSING_STEP'] = processing_step
+            tool_value['SMCK_PROCESSING_STREAM'] = processing_stream
+            if not tool_value.__contains__('SMCK_CONFIG'):
+                tool_value['SMCK_CONFIG'] = {}
+            tool_value['SMCK_CONFIG']['PackageName'] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['PackageName']
+            tool_value['SMCK_CONFIG']['ToolName'] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['ToolName']
+            tool_value['SMCK_CONFIG']['ToolSvcName'] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['ToolSvcName']
+            if not tool_value['SMCK_CONFIG'].__contains__('ToolInfo'):
+                tool_value['SMCK_CONFIG']['ToolInfo'] = {}
+            tool_value['SMCK_CONFIG']['SliceType'] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['SliceType']
+            tool_value['SMCK_CONFIG']['MonitCategoryName'] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['MonitCategoryName']
+            if not tool_value['SMCK_CONFIG'].__contains__('MonitCategoryInfo'):
+                tool_value['SMCK_CONFIG']['MonitCategoryInfo'] = {}
+            tool_value['SMCK_CONFIG_HASH'] = self.ms.__get_config_hash__(tool_value['SMCK_CONFIG'])
+            tool_value['SMCK_TOOL_TYPE'] = tool_key
+            tool_value['SMCK_SLICE_TYPE'] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_SLICE_TYPE']
+            tool_value['SMCK_DEFAULT'] = 0
+            tool_value['SMCK_ATHENA_VERSION'] = self.ms.current_athena_version
+            tool_value['SMCK_SVN_TAG'] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_SVN_TAG']
+            tool_value['SMCK_CREATOR'] = self.ms.current_user
+            tool_value['SMCK_COMMENT'] = comment
+
+            # if tool_value['SMCK_CONFIG']['ToolInfo'] and tool_value['SMCK_CONFIG']['MonitCategoryInfo'] are both empty, then we don't want to include this as a new SMCK
+            if tool_value['SMCK_CONFIG']['ToolInfo'] == {} and tool_value['SMCK_CONFIG']['MonitCategoryInfo'] == {}:
+                keys_to_delete.append(tool_key)
+
+        # if there are any items in keys_to_delete to be deleted from diffed_global_info2['MONITORING_TOOL_DICT'] then delete them now
+        for tool_key in keys_to_delete:
+            diffed_global_info2['MONITORING_TOOL_DICT'].__delitem__(tool_key)
+
+        # if there are no items in diffed_global_info2['MONITORING_TOOL_DICT'] then we do not want to upload anything
+        if len(diffed_global_info2['MONITORING_TOOL_DICT']) == 0:
+            print "No local differences have been found with respect to the default for Athena version "+self.ms.current_athena_version+"."
+            print "Nothing shall be dumped to json as a result."
+            return
+
+        if output_json_filename=="":
+            output_json_filename = str(self.ms.current_athena_version)
+            output_json_filename = output_json_filename + "_patch.json"
+
+        # json encode the remaining diffed info, and dump it to the output file
+        output_file = open( output_json_filename , "w" )
+        json.dump(diffed_global_info2, output_file, ensure_ascii=True, sort_keys=True)
+        output_file.close()
+
+        print "Dumped patch json as",output_json_filename

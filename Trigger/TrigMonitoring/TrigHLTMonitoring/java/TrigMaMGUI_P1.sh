@@ -1,16 +1,13 @@
 # TO RUN THE GUI, PLEASE RUN THE COMMAND:
-# source start_TrigMaMGUI.sh
-# This script assumes the following file locations, relative to the location of the script: 
-# MenuAwareMonitoringStandalone.py and OracleInterface.py are in ../python
-# and ./GUI/TrigMaMGUI.java
+# source TrigMaMGUI_P1.sh
 echo
 echo "     Trigger Menu Aware Monitoring Graphical User Interface"
 echo "     by Xanthe Hoad xanthe.hoad@cern.ch"
-echo "     For more info about Menu Aware Monitoring see" 
+echo "     For more info about Menu Aware Monitoring see"
 echo "     https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM"
 echo
 
-source /sw/atlas/AtlasSetup/scripts/asetup.sh p1hlt,20.2.3.2,gcc48
+source /sw/atlas/AtlasSetup/scripts/asetup.sh p1hlt,20.11.0.23,here
 
 export MAM_CORAL_DBLOOKUP_PATH=/det/tdaq/hlt/mam/authentication/
 export MAM_CORAL_AUTH_PATH=$MAM_CORAL_DBLOOKUP_PATH
@@ -26,4 +23,8 @@ else
     export PYTHONPATH=$MaMPythonFilesPath:$PYTHONPATH
 fi
 
-java -cp $SCRIPTDIR/GUI: TrigMaMGUI
+#Uncomment the following line to recompile the GUI
+#WARNING: If compiling, please call the script from an empty directory
+#The java compiler at P1 scrambles files when run in a non-empty directory
+#javac $SCRIPTDIR/GUI/TrigMaMGUI.java
+java -cp $SCRIPTDIR/GUI: TrigMaMGUI TRIGGERDBR2MAM
