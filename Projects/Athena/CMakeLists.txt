@@ -22,7 +22,7 @@ endif()
 message( STATUS "Using default project configuration" )
 set( PROJECT_NAME "Athena" )
 set( PROJECT_DEPS "AtlasExternals" "0.0.1" )
-set( PROJECT_VERSION "21.0.14" )
+set( PROJECT_VERSION "21.0.15" )
 
 set( TDAQ-COMMON_VERSION "02-01-00" )
 set( TDAQ-COMMON_ROOT
