@@ -9,6 +9,7 @@
 
 #          include "samples/TrigInDetValidation_FTK_ttbar_sample2.xml"
 	   
+
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -22,6 +23,7 @@
                 </arg>
             </action>
 
+
            <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
@@ -31,7 +33,21 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_allTE_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTK -d HLTL2-plots-beamspot  </argvalue>
+                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_allTE_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTK -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+
+           <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_allTE_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTK -d HLTL2-test-plots </argvalue>
               </arg>
             </action>
 
@@ -59,4 +75,5 @@
    
          <athenaCommonFlags /> 
          </athena>
+
 

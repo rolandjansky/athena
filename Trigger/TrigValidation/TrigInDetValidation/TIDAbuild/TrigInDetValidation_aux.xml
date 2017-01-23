@@ -1,6 +1,6 @@
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
-            <auxFilePattern>Test_bin.dat</auxFilePattern>
+            <auxFilePattern>Test_bin*.dat</auxFilePattern>
  
             <auxFilePattern>TIDAWeb/STAR</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/STAR</auxFilePattern>

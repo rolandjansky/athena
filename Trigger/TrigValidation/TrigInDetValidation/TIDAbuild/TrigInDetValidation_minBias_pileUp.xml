@@ -10,6 +10,7 @@
            
 #          include "samples/TrigInDetValidation_minBias_sample1.xml"
            
+
      <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -22,6 +23,7 @@
                     <argvalue>TIDAdata11-rtt.dat -f data-monitor-pileup.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
+
 	    	    
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
@@ -34,5 +36,6 @@
 
           <athenaCommonFlags /> 
 	  </athena>
+
 
 

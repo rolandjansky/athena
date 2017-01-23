@@ -15,8 +15,9 @@
   <kv/>
 
    <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-      <mailto>D.Emeliyanov@rl.ac.uk,jiri.masik@cern.ch</mailto>
+      <mailto>sutt@cern.ch,jiri.masik@cern.ch</mailto>
       <refRelease>14.5.0</refRelease>
+
 
 
       <jobList>
@@ -111,6 +112,8 @@
             <keepFilePattern displayColor="red">TIDA*.htm</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.php</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.css</keepFilePattern>
+            <keepFilePattern displayColor="red">*.php</keepFilePattern>
+            <keepFilePattern displayColor="red">*.css</keepFilePattern>
             <keepFilePattern>TIDAWeb/STAR</keepFilePattern>
             <keepFilePattern>TIDAWeb/build/STAR</keepFilePattern>
             <keepFilePattern>times/STAR</keepFilePattern>
@@ -121,6 +124,9 @@
             <keepFilePattern>*.pool.root.2</keepFilePattern>
             <keepFilePattern>*.pdf</keepFilePattern>
             <keepFilePattern>*.jpg</keepFilePattern>
+
+
+            <keepFilePattern>HLT*-plots*/STAR.p*</keepFilePattern>
 
             <keepFilePattern>EF-plots/STAR.p*</keepFilePattern>
             <keepFilePattern>EF-plots-lowpt/STAR.p*</keepFilePattern>
