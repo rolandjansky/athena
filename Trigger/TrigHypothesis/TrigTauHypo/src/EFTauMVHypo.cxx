@@ -104,8 +104,7 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
       return HLT::BAD_JOB_SETUP;
     }
   
-  std::string s_llh_cuts_file = PathResolver::find_file("LMTCutsLLHTrigger.root", "DATAPATH");
-  
+  std::string s_llh_cuts_file = PathResolverFindCalibFile("TrigTauRec/00-11-01/LMTCutsLLHTrigger.root");  
   msg() << MSG::DEBUG << "Try to open root file containing cuts: " << s_llh_cuts_file << endmsg;
  
   TFile* llhcuts = TFile::Open(s_llh_cuts_file.c_str());
