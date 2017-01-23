@@ -95,16 +95,16 @@ StatusCode IDAlignMonNtuple::initialize()
 {
   
   //initialize tools and services
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endmsg;
   StatusCode sc = setupTools();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to initialize tools/services!" << endreq;
+    msg(MSG::FATAL) << "Failed to initialize tools/services!" << endmsg;
     return StatusCode::FAILURE;
   } 
-  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endreq;
+  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endmsg;
 
-  if(m_unbiasedSCT) msg(MSG::INFO) << "Using Truly unbiased SCT residuals" << endreq;
-  if(m_usePRD) msg(MSG::INFO) << "Using PrepRawData for hits information" << endreq;   
+  if(m_unbiasedSCT) msg(MSG::INFO) << "Using Truly unbiased SCT residuals" << endmsg;
+  if(m_usePRD) msg(MSG::INFO) << "Using PrepRawData for hits information" << endmsg;   
      
   return StatusCode::SUCCESS;
 }
@@ -133,7 +133,7 @@ StatusCode IDAlignMonNtuple::bookHistograms()
     if(nt) {
       
       ntuple=nt;
-      msg(MSG::INFO) << "Alignment monitoring ntuple booked." << endreq;
+      msg(MSG::INFO) << "Alignment monitoring ntuple booked." << endmsg;
       
       //information per event
       sc = ntuple->addItem("event_ntracks",m_nt_ntrks,0,s_n_maxTracks);		
@@ -200,7 +200,7 @@ StatusCode IDAlignMonNtuple::bookHistograms()
       sc = ntuple->addItem("hit_incidangle",m_nt_ntrks,m_nt_hitincidangle,s_n_maxHits);
 
     } else { 
-      msg(MSG::ERROR) << "Failed to book Alignment monitoring ntuple." << endreq;
+      msg(MSG::ERROR) << "Failed to book Alignment monitoring ntuple." << endmsg;
     }
   }
 
@@ -226,10 +226,10 @@ StatusCode IDAlignMonNtuple::fillHistograms()
   if (evtStore()->contains<VxContainer>(m_VxPrimContainerName)) {
     StatusCode scv = evtStore()->retrieve (vertices,m_VxPrimContainerName);
     if (scv.isFailure()) {
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name  "<<m_VxPrimContainerName<<" found in StoreGate" << endreq;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name  "<<m_VxPrimContainerName<<" found in StoreGate" << endmsg;
       return StatusCode::SUCCESS;
     } else {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name  "<<m_VxPrimContainerName<< " with size " << vertices->size() <<" found  in StoreGate" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name  "<<m_VxPrimContainerName<< " with size " << vertices->size() <<" found  in StoreGate" << endmsg;
   
       VxContainer::const_iterator vxItr  = vertices->begin();
       VxContainer::const_iterator vxItrE = vertices->end();    
@@ -244,15 +244,15 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	}
       }
     }
-  } else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "StoreGate does not contain VxPrimaryCandidate Container" << endreq;
+  } else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "StoreGate does not contain VxPrimaryCandidate Container" << endmsg;
   
 
   if (xv==-999 || yv==-999 || zv==-999) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertex found => setting it to 0"<<endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertex found => setting it to 0"<<endmsg;
     xv=0;yv=0;zv=0;
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Best vertex (" << ntrkMax << " Tracks) x, y, z = " << xv << ", " <<  yv << ", " << zv << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Best vertex (" << ntrkMax << " Tracks) x, y, z = " << xv << ", " <<  yv << ", " << zv << endmsg;
 
   m_nt_nvtx = nVtx;
   m_nt_vtxntrks = ntrkMax;
@@ -269,29 +269,29 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
   //-------------------------------------------------------------
 
-  if (m_tracksName.empty()) msg(MSG::ERROR) << " no track collection given"<<endreq;
+  if (m_tracksName.empty()) msg(MSG::ERROR) << " no track collection given"<<endmsg;
 
   //const Rec::TrackParticleContainer* tracks        = new Rec::TrackParticleContainer;
   const TrackCollection* tracks;//        = new TrackCollection;
   
   StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "No TrackCollection with name "<<m_tracksName<<" found in StoreGate" << endreq;
+    msg(MSG::ERROR) << "No TrackCollection with name "<<m_tracksName<<" found in StoreGate" << endmsg;
     return sc;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_tracksName<<" found in StoreGate" << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_tracksName<<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
   }
 
   const TrackTruthCollection  * truthMap  = NULL;
 
   sc = evtStore()->retrieve(truthMap, m_tracksTruthName);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackTruthCollection with name "<< m_tracksTruthName <<" found in StoreGate" << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Truth information will not be filled in the AlignMonNtuple" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackTruthCollection with name "<< m_tracksTruthName <<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Truth information will not be filled in the AlignMonNtuple" << endmsg;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name "<< m_tracksTruthName <<" found in StoreGate" << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< truthMap->size() <<" truth tracks from StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name "<< m_tracksTruthName <<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< truthMap->size() <<" truth tracks from StoreGate" << endmsg;
   }
     
 
@@ -311,7 +311,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
     //const Trk::Track* track = (*trackItr)->originalTrack();
     const Trk::Track* track = *trackItr;
     if(track == NULL){
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracks << endreq;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracks << endmsg;
       continue;
     }
 
@@ -321,8 +321,8 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
     //trackStateOnSurfaces is a vector of Trk::TrackStateOnSurface objects which contain information 
     //on track at each (inner)detector surface it crosses eg hit used to fit track
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track = " << nTracks << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found " << track->trackStateOnSurfaces()->size() << " TrkSurfaces " << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track = " << nTracks << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found " << track->trackStateOnSurfaces()->size() << " TrkSurfaces " << endmsg;
 
     int nHits = 0;
 
@@ -340,55 +340,55 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       int phiWidth = s_n_ERRORVALUE; int zWidth = s_n_ERRORVALUE;
       int olegWidth = s_n_ERRORVALUE; float trkIncidAngle = s_n_ERRORVALUE;
 
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TSOS (hit) = " << nHits << endreq;       
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TSOS (hit) = " << nHits << endmsg;       
 
       if ((*iter_tsos) == NULL) continue;
 
       //determining type of TSOS object - can represent many different track elements
       if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Measurement)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Measurement" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Measurement" << endmsg;
 	hitType = 0;
       }
       else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::InertMaterial)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::InertMaterial" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::InertMaterial" << endmsg;
 	hitType = 1;
       }
       else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::BremPoint)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::BremPoint" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::BremPoint" << endmsg;
 	hitType = 2;
       }
       else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Scatterer)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Scatterer" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Scatterer" << endmsg;
 	hitType = 3;
       }
       else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Perigee)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Perigee" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Perigee" << endmsg;
 	hitType = 4;
       }
       else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Outlier)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Outlier" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Outlier" << endmsg;
 	hitType = 5;
       }
       else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Hole)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Hole" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Hole" << endmsg;
 	hitType = 6;
       }
       else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Unknown)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Unknown" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Unknown" << endmsg;
 	hitType = 7;
       }
-      else if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unrecognised Trk::TrackStateOnSurface Type" << endreq;
+      else if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unrecognised Trk::TrackStateOnSurface Type" << endmsg;
 
 
       const Trk::MeasurementBase* mesh =(*iter_tsos)->measurementOnTrack();
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined  hit MeasurementBase " << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined  hit MeasurementBase " << endmsg;
          
       //Trk::RIO_OnTrack object contains information on the hit used to fit the track at this surface
       const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
 
       if (hit== NULL) { 
 	//for some reason the first tsos has no associated hit - maybe because this contains the defining parameters?
-	if (nHits > 0) if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No hit associated with TrkSurface - probably a hole"<< nHits << endreq; 
+	if (nHits > 0) if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No hit associated with TrkSurface - probably a hole"<< nHits << endmsg; 
 	continue;
       }
       
@@ -399,18 +399,18 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       } else {hitPRD = NULL;}
  
       const Identifier & hitId = hit->identify();
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined  hit Identifier " << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined  hit Identifier " << endmsg;
       if (m_idHelper->is_pixel(hitId)) {
 	detType = 0;
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "This is a Pixel Hit" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "This is a Pixel Hit" << endmsg;
       }
       if (m_idHelper->is_sct(hitId)) {
 	detType = 1;
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "This is an SCT Hit" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "This is an SCT Hit" << endmsg;
       }
       if (m_idHelper->is_trt(hitId)) {
 	detType = 2;
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "This is a TRT Hit" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "This is a TRT Hit" << endmsg;
       }
       
       //finding local error on hit
@@ -425,7 +425,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       
       if (detType==0) {//getting pixel hit information
 
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " This is a PIXEL hit " << hitId << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " This is a PIXEL hit " << hitId << endmsg;
 	const Identifier& id = m_pixelID->wafer_id(hitId);
 
 	barrelEC = m_pixelID->barrel_ec(id);
@@ -438,15 +438,15 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	  InDet::SiWidth width = pCluster->width();
 	  phiWidth = int(width.colRow().x());
 	  zWidth = int(width.colRow().y());
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel hit phi cluster width = " << phiWidth << endreq;
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel hit z cluster width = " << zWidth << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel hit phi cluster width = " << phiWidth << endmsg;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel hit z cluster width = " << zWidth << endmsg;
 	}
       }
       
       
       if (detType==1) {//getting SCT hit information 
 
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " This is an SCT hit " << hitId << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " This is an SCT hit " << hitId << endmsg;
 	const Identifier& id = m_sctID->wafer_id(hitId);
 
 	barrelEC = m_sctID->barrel_ec(id);
@@ -458,25 +458,25 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	if ( pCluster != NULL ){
 	  InDet::SiWidth width = pCluster->width();
 	  phiWidth = int(width.colRow().x());
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT hit phi cluster width = " << phiWidth << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT hit phi cluster width = " << phiWidth << endmsg;
 	}
       }
       
       if (detType==0 || detType==1) {//have identified pixel or SCT hit
 	
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit is pixel or SCT, finding residuals... " << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit is pixel or SCT, finding residuals... " << endmsg;
 
 	const Trk::TrackParameters* trackParameter = (*iter_tsos)->trackParameters();
 
 	//alternative method used by Oleg in his HitQualitySelection tool to get cluster width
 	const std::vector<Identifier> idVec = (hit->prepRawData())->rdoList() ;
 	olegWidth = idVec.size() ;
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Oleg Si clusterSize = " << olegWidth << endreq ;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Oleg Si clusterSize = " << olegWidth << endmsg ;
 
 	//finding residuals
 	if(trackParameter){
 
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found Trk::TrackParameters" << endreq;	 
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found Trk::TrackParameters" << endmsg;	 
 
 	  //finding track incidence angle (taken from InDetAlignTools/InDetAlignHitQualSelectTool)
 	  const InDetDD::SiDetectorElement *detEle = dynamic_cast<const InDetDD::SiDetectorElement*>( hit->detectorElement() ) ;
@@ -505,11 +505,11 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	  StatusCode sc;
 	  sc = getSiResiduals(track,*iter_tsos,true,unbiasedResXY);
 	  if (sc.isFailure()) {
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem in determining unbiased residuals! Hit is skipped." << endreq;
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem in determining unbiased residuals! Hit is skipped." << endmsg;
 	    //return StatusCode::SUCCESS;
 	    continue;
 	  }
-	  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "unbiased residuals found ok" << endreq;
+	  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "unbiased residuals found ok" << endmsg;
 	  residualX = (float)unbiasedResXY[0];
 	  residualY = (float)unbiasedResXY[1];
 // 	  float pullX = (float)unbiasedResXY[2];
@@ -519,16 +519,16 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	  //finding biased single residuals (for interest)
 	  sc = getSiResiduals(track,*iter_tsos,false,biasedResXY);
 	  if (sc.isFailure()) {
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem in determining biased residuals! Hit is skipped." << endreq;
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem in determining biased residuals! Hit is skipped." << endmsg;
 	    //return StatusCode::SUCCESS;
 	    continue;
 	  }
-	  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "biased residuals found ok" << endreq;
+	  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "biased residuals found ok" << endmsg;
 	  biasedResidualX = biasedResXY[0];
 	  biasedResidualY = biasedResXY[1];
 	  	  
 	}
-	else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackParameters associated with TrkSurface "<< nHits << ", hit type = " << hitType << endreq; 
+	else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackParameters associated with TrkSurface "<< nHits << ", hit type = " << hitType << endmsg; 
       }
 
       //filling ntuple
@@ -558,8 +558,8 @@ StatusCode IDAlignMonNtuple::fillHistograms()
     
     //bounds checking
     if (nHits >= s_n_maxHits) {
-      msg(MSG::ERROR) << "WATCH OUT: There are more HITS in this events than fit in the ntuples hits matrix!" << endreq;
-      msg(MSG::ERROR) << "Set max hits per track = " <<  s_n_maxHits << ", current track has " << nHits << " or more hits!" << endreq;
+      msg(MSG::ERROR) << "WATCH OUT: There are more HITS in this events than fit in the ntuples hits matrix!" << endmsg;
+      msg(MSG::ERROR) << "Set max hits per track = " <<  s_n_maxHits << ", current track has " << nHits << " or more hits!" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -615,7 +615,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	if ( HMPL.isValid()) {
 	  const HepMC::GenParticle *genParticle = HMPL.cptr(); 
 	  
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Particle with PDG "<< genParticle->pdg_id() << " Status "<< genParticle->status()<<" mass "<< genParticle->momentum().m() <<" pt "<<genParticle->momentum().perp()<<" eta "<<genParticle->momentum().eta()<<" phi "<<genParticle->momentum().phi()<<endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Particle with PDG "<< genParticle->pdg_id() << " Status "<< genParticle->status()<<" mass "<< genParticle->momentum().m() <<" pt "<<genParticle->momentum().perp()<<" eta "<<genParticle->momentum().eta()<<" phi "<<genParticle->momentum().phi()<<endmsg;
 
 	  m_nt_trkistruth[nTracks] = 1;
 	  m_nt_trktruthpdg[nTracks] = genParticle->pdg_id();
@@ -627,14 +627,14 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	  m_nt_trktruthphi[nTracks] = genParticle->momentum().phi();
 
 
-	  if(genParticle->pdg_id()==0) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Particle with PDG 0!" << endreq;}
-	  else if(!genParticle->production_vertex()) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No GenVertex (generator level) production vertex found!" << endreq;}
+	  if(genParticle->pdg_id()==0) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Particle with PDG 0!" << endmsg;}
+	  else if(!genParticle->production_vertex()) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No GenVertex (generator level) production vertex found!" << endmsg;}
 	  else{
 	    //currently cannot configure the TruthToTrack tool properly
 	    
 	    const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genParticle);
 
-	    if (!generatedTrackPerigee)   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<  "Unable to extrapolate genParticle to perigee!" << endreq;
+	    if (!generatedTrackPerigee)   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<  "Unable to extrapolate genParticle to perigee!" << endmsg;
 	    
 	    if ( generatedTrackPerigee) {
 	    
@@ -647,7 +647,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	      float qoverpt = generatedTrackPerigee->parameters()[Trk::qOverP]/(sin(theta));
 	      float pt = (1/qoverpt)*(charge);
 	    
-	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolated genParticle perigee parameters: q/Pt = " << qoverpt << " d0 = " << d0 << " z0 = " << z0 << " phi0 = " << phi0 << " pt = " << pt << endreq;
+	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolated genParticle perigee parameters: q/Pt = " << qoverpt << " d0 = " << d0 << " z0 = " << z0 << " phi0 = " << phi0 << " pt = " << pt << endmsg;
 
 	      m_nt_trktruthphi0[nTracks] = phi0;
 	      m_nt_trktruthd0[nTracks] = d0;
@@ -674,25 +674,25 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
   //bounds checking
   if (nTracks >= s_n_maxTracks) {
-    msg(MSG::ERROR) << "WATCH OUT: There are more TRACKS in this events than fit in the ntuple tracks matrix!" << endreq;
-    msg(MSG::ERROR) << "Set max tracks per event = " <<  s_n_maxTracks << ", current event has " << nTracks << " or more tracks!" << endreq;
+    msg(MSG::ERROR) << "WATCH OUT: There are more TRACKS in this events than fit in the ntuple tracks matrix!" << endmsg;
+    msg(MSG::ERROR) << "Set max tracks per event = " <<  s_n_maxTracks << ", current event has " << nTracks << " or more tracks!" << endmsg;
     return StatusCode::FAILURE;
   }
   else m_nt_ntrks = nTracks;
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of tracks : "<< nTracks << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of tracks : "<< nTracks << endmsg;
   
   //bounds checking
   if (nHitsEvent >= s_n_maxEventHits) {
-    msg(MSG::ERROR) << "WATCH OUT: There are more EVENTHITS in this event than fit in the ntuples eventhits!" << endreq;
-    msg(MSG::ERROR) << "Set max hits per event = " <<  s_n_maxEventHits << ", current event has " << nHitsEvent << " or more hits!" << endreq;
+    msg(MSG::ERROR) << "WATCH OUT: There are more EVENTHITS in this event than fit in the ntuples eventhits!" << endmsg;
+    msg(MSG::ERROR) << "Set max hits per event = " <<  s_n_maxEventHits << ", current event has " << nHitsEvent << " or more hits!" << endmsg;
     return StatusCode::FAILURE;
   }
   else m_nt_nhits = nHitsEvent;
   
   //write the ntuple record 
   if (!(m_ntupleSvc->writeRecord(ntuple)).isSuccess()) {
-    msg(MSG::ERROR) << "problems writing ntuple record" << endreq;
+    msg(MSG::ERROR) << "problems writing ntuple record" << endmsg;
   }
 
 
@@ -745,33 +745,33 @@ StatusCode  IDAlignMonNtuple::getSiResiduals(const Trk::Track* track, const Trk:
     
     if (hit && trackParameterForResiduals) {
       
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" got hit and track parameters " << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" got hit and track parameters " << endmsg;
 
       //const Trk::ResidualPull* residualPull = m_residualPullCalculator->residualPull(hit, trackParameterForResiduals, unBias);
       const Trk::ResidualPull* residualPull = NULL;
       if(unBias) residualPull = m_residualPullCalculator->residualPull(mesh, trackParameterForResiduals, Trk::ResidualPull::Unbiased);
       else residualPull = m_residualPullCalculator->residualPull(mesh, trackParameterForResiduals, Trk::ResidualPull::Biased);
 
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" got hit and track parameters...done " << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" got hit and track parameters...done " << endmsg;
       if (residualPull) {
 
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " got residual pull " << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " got residual pull " << endmsg;
 	residualX = residualPull->residual()[Trk::loc1];
 	if(residualPull->isPullValid()) pullX = residualPull->pull()[Trk::loc1];
 	else {
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ResidualPullCalculator finds invalid X Pull!!!" << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ResidualPullCalculator finds invalid X Pull!!!" << endmsg;
 	  sc = StatusCode::FAILURE;
 	}
 
 	if (residualPull->dimension() >= 2){
 
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " residualPull dim >= 2" << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " residualPull dim >= 2" << endmsg;
 	  residualY = residualPull->residual()[Trk::loc2];
 
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " residual Y = " << residualY << endreq; 
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " residual Y = " << residualY << endmsg; 
 	  if(residualPull->isPullValid()) pullY = residualPull->pull()[Trk::loc2];
 	  else {
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ResidualPullCalculator finds invalid Y Pull!!!" << endreq;
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ResidualPullCalculator finds invalid Y Pull!!!" << endmsg;
 	    sc = StatusCode::FAILURE;
 	  }
 	}
@@ -780,7 +780,7 @@ StatusCode  IDAlignMonNtuple::getSiResiduals(const Trk::Track* track, const Trk:
 
       }
       else {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ResidualPullCalculator failed!" << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ResidualPullCalculator failed!" << endmsg;
 	sc = StatusCode::FAILURE;
       }
     }
@@ -796,7 +796,7 @@ StatusCode  IDAlignMonNtuple::getSiResiduals(const Trk::Track* track, const Trk:
   results[3] = pullY;
 
   if(pullX!=pullX || pullY!=pullY){
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ResidualPullCalculator finds Pull=NAN!!!" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ResidualPullCalculator finds Pull=NAN!!!" << endmsg;
     sc = StatusCode::FAILURE;
   }
   
@@ -823,10 +823,10 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
   Identifier surfaceID;
   
 
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "original track parameters: " << *(tsos->trackParameters()) <<endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "original track parameters: " << *(tsos->trackParameters()) <<endmsg;
 
   
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Trying to unbias track parameters." << endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Trying to unbias track parameters." << endmsg;
 
   const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
   
@@ -837,7 +837,7 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
   surfaceID = hitOnTrack->identify();
   // if SCT Hit and TrueUnbiased then remove other side hit first
   if (trueUnbiased && m_idHelper->is_sct(surfaceID)) {  //there's no TrueUnbiased for non-SCT (pixel) hits)
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Entering True Unbiased loop." << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Entering True Unbiased loop." << endmsg;
     // check if other module side was also hit and try to remove other hit as well
     const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
     const Identifier& OtherModuleSideID = m_SCT_Mgr->getDetectorElement(surfaceID)->otherSide()->identify();
@@ -848,7 +848,7 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
       if (hitOnTrack != 0) {
 	const Identifier& trkID = hitOnTrack->identify();
 	if (m_sctID->wafer_id(trkID) == OtherModuleSideID) {
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,0,'/') << endreq;
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,0,'/') << endmsg;
 	  OtherModuleSideHit = *TempTsos;
 	}
       }
@@ -864,13 +864,13 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
       if (covariance) {
       
 
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "OtherSideTrackParameters: " << *(OtherModuleSideHit->trackParameters()) << endreq;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "OtherSideTrackParameters: " << *(OtherModuleSideHit->trackParameters()) << endmsg;
 	OtherSideUnbiasedTrackParams = m_iUpdator->removeFromState(*(OtherModuleSideHit->trackParameters()),
 								   OtherModuleSideHit->measurementOnTrack()->localParameters(),
 								   OtherModuleSideHit->measurementOnTrack()->localCovariance());
 
 	if (OtherSideUnbiasedTrackParams) {
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased OtherSideTrackParameters: " << *OtherSideUnbiasedTrackParams << endreq;
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased OtherSideTrackParameters: " << *OtherSideUnbiasedTrackParams << endmsg;
 
 
 	  const Trk::Surface& TempSurface = OtherModuleSideHit->measurementOnTrack()->associatedSurface();
@@ -878,22 +878,22 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 	  const Trk::MagneticFieldProperties* TempField = 0;
 	  
           
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After OtherSide surface call. Surface exists" << endreq;
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After OtherSide surface call. Surface exists" << endmsg;
 	  if (TempSurface.associatedLayer())
 	    {
-	      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer() exists" << endreq;
+	      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer() exists" << endmsg;
 	      if(TempSurface.associatedLayer()->enclosingTrackingVolume())
 		{
-		  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer()->enclosingTrackingVolume exists" << endreq;
+		  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer()->enclosingTrackingVolume exists" << endmsg;
 		  
 		  TempField = dynamic_cast <const Trk::MagneticFieldProperties*>(TempSurface.associatedLayer()->enclosingTrackingVolume());
-		  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After MagneticFieldProperties cast" << endreq;
+		  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After MagneticFieldProperties cast" << endmsg;
 		  
 		} else {
-		if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer()->enclosingTrackingVolume does not exist" << endreq;
+		if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer()->enclosingTrackingVolume does not exist" << endmsg;
 	      }
 	    } else {
-	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer() does not exist" << endreq;
+	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer() does not exist" << endmsg;
 	  }
 	  
 	  
@@ -901,28 +901,28 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 	  
 	  
 	  
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before other side unbiased propagation" << endreq;
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before other side unbiased propagation" << endmsg;
 	  if (TempSurface.associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(*OtherSideUnbiasedTrackParams,
 													  tsos->measurementOnTrack()->associatedSurface(),
 													  Trk::anyDirection, false,
 													  *TempField,
 													  Trk::nonInteracting);
 	  
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After other side unbiased propagation" << endreq;
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After other side unbiased propagation" << endmsg;
 	  delete OtherSideUnbiasedTrackParams;
 	  if (PropagatedTrackParams) {
-	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Propagated Track Parameters: " << *PropagatedTrackParams << endreq;
+	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Propagated Track Parameters: " << *PropagatedTrackParams << endmsg;
 	  } else {
-	    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Propagation of unbiased OtherSideParameters failed" << endreq;
+	    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Propagation of unbiased OtherSideParameters failed" << endmsg;
 	  }
 	} else {
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "RemoveFromState did not work for OtherSideParameters" << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "RemoveFromState did not work for OtherSideParameters" << endmsg;
 	}
       } else {
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No OtherModuleSideHit Measured Track Parameters found. Covariance Null" << endreq;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No OtherModuleSideHit Measured Track Parameters found. Covariance Null" << endmsg;
       }
     } else {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No OtherModuleSideHit found" << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No OtherModuleSideHit found" << endmsg;
     }
   }
 
@@ -937,13 +937,13 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
   delete PropagatedTrackParams;
 
   if (UnbiasedTrackParams) {
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID,0,'/') << endreq;
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased Trackparameters: " << *UnbiasedTrackParams << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID,0,'/') << endmsg;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased Trackparameters: " << *UnbiasedTrackParams << endmsg;
 
     TrackParams = UnbiasedTrackParams->clone();
 
   } else { // Unbiasing went awry.
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "RemoveFromState did not work, using original TrackParameters" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "RemoveFromState did not work, using original TrackParameters" << endmsg;
     TrackParams = tsos->trackParameters()->clone();
   }
   
@@ -960,89 +960,89 @@ StatusCode IDAlignMonNtuple::setupTools()
 {
   //initializing tools
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In initialize()" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In initialize()" << endmsg;
 
   StatusCode sc;
 
   sc = service( "NTupleSvc", m_ntupleSvc );
   if ( sc.isFailure() ){
-    msg(MSG::FATAL) << "Cannot retrieve the NTuple service... Exiting" << endreq;
+    msg(MSG::FATAL) << "Cannot retrieve the NTuple service... Exiting" << endmsg;
     return StatusCode::FAILURE;
   }  
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined detector service" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined detector service" << endmsg;
 
   sc = detStore()->retrieve(m_pixelID, "PixelID");
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Pixel ID helper !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Pixel ID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelIDHelper" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelIDHelper" << endmsg;
 
   sc = detStore()->retrieve(m_sctID, "SCT_ID");
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT ID helper !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT ID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endmsg;
 
   // Get the SCT manager from the detector store
   sc = detStore()->retrieve(m_SCT_Mgr, "SCT");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get SCT_Manager !" << endreq;
+    msg(MSG::ERROR) << "Could not get SCT_Manager !" << endmsg;
     return sc;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTManager" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTManager" << endmsg;
 
   //ID Helper
   sc = detStore()->retrieve(m_idHelper, "AtlasID" );
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get AtlasDetectorID !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get AtlasDetectorID !" << endmsg;
     return StatusCode::SUCCESS;
   }else{
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found AtlasDetectorID" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found AtlasDetectorID" << endmsg;
   }
   
 
   if (m_iUpdator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_iUpdator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_iUpdator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_iUpdator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_iUpdator << endmsg;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved IUpdator" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved IUpdator" << endmsg;
 
 
   if (m_propagator.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Can not retrieve Propagator tool of type "
-	<< m_propagator.typeAndName() << endreq;
+	<< m_propagator.typeAndName() << endmsg;
     return StatusCode::FAILURE;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_propagator.typeAndName() << endreq;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_propagator.typeAndName() << endmsg;
 
   if (m_truthToTrack.retrieve().isFailure() ) {
-     msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endreq;
+     msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endmsg;
      return StatusCode::FAILURE;
    } else {
-     msg(MSG::INFO) << "Retrieved tool " << m_truthToTrack << endreq;
+     msg(MSG::INFO) << "Retrieved tool " << m_truthToTrack << endmsg;
    }
 
   if (m_residualPullCalculator.empty()) {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << 
       "No residual/pull calculator for general hit residuals configured."
-	<< endreq;
+	<< endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << 
       "It is recommended to give R/P calculators to the det-specific tool"
-	<< " handle lists then." << endreq;
+	<< " handle lists then." << endmsg;
     m_doPulls = false;
   } else if (m_residualPullCalculator.retrieve().isFailure()) {
     if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve "<< m_residualPullCalculator 
-	<<" (to calculate residuals and pulls) "<< endreq;
+	<<" (to calculate residuals and pulls) "<< endmsg;
     m_doPulls = false;
     
    } else {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
 	<< "Generic hit residuals&pulls will be calculated in one or both "
-	<< "available local coordinates" << endreq;
+	<< "available local coordinates" << endmsg;
     m_doPulls = true;
   }
 

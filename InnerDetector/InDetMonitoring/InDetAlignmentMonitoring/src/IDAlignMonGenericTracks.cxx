@@ -437,53 +437,53 @@ StatusCode IDAlignMonGenericTracks::initialize()
   //ID Helper
   sc = detStore()->retrieve(m_idHelper, "AtlasID" );
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get AtlasDetectorID !" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get AtlasDetectorID !" << endmsg;
     return StatusCode::SUCCESS;
   }else{
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found AtlasDetectorID" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found AtlasDetectorID" << endmsg;
   }
   
   sc = detStore()->retrieve(m_pixelID, "PixelID");
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Pixel ID helper !" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Pixel ID helper !" << endmsg;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelIDHelper" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelIDHelper" << endmsg;
 
   sc = detStore()->retrieve(m_sctID, "SCT_ID");
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT ID helper !" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT ID helper !" << endmsg;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endmsg;
 
   sc = detStore()->retrieve(m_trtID, "TRT_ID");
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get TRT ID helper !" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get TRT ID helper !" << endmsg;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized TRTIDHelper" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized TRTIDHelper" << endmsg;
 
   if ( m_trackSelection.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelection << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelection << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelection << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelection << endmsg;
   }
 
   if (m_hitQualityTool.empty()) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << 
       "No hit quality tool configured - not hit quality cuts will be imposed"
-  << endreq;
+  << endmsg;
     m_doHitQuality = false;
   } else if (m_hitQualityTool.retrieve().isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve "<< m_hitQualityTool 
-  <<" (to apply hit quality cuts to Si hits) "<< endreq;
+  <<" (to apply hit quality cuts to Si hits) "<< endmsg;
     m_doHitQuality = false;
    } else {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
   << "Hit quality tool setup "
-  << "- hit quality cuts will be applied to Si hits" << endreq;
+  << "- hit quality cuts will be applied to Si hits" << endmsg;
     m_doHitQuality = true;
   }
   
@@ -500,7 +500,7 @@ StatusCode IDAlignMonGenericTracks::initialize()
   }
   
   if ( m_beamCondSvc.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endmsg;
     m_hasBeamCondSvc = false;
   } 
   else {
@@ -1566,7 +1566,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
 
 
     
-    // msg(MSG::INFO) << "lumiblock histos done " <<endreq;
+    // msg(MSG::INFO) << "lumiblock histos done " <<endmsg;
 
  
 
@@ -1610,7 +1610,7 @@ void IDAlignMonGenericTracks::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
   //histo->SetOption("e");
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1F_LW Histogram:" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1F_LW Histogram:" << endmsg;
   }
 }
 
@@ -1621,7 +1621,7 @@ void IDAlignMonGenericTracks::RegisterHisto(MonGroup& mon, TH1* histo) {
   histo->SetOption("e");
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endmsg;
   }
 }
 
@@ -1629,7 +1629,7 @@ void IDAlignMonGenericTracks::RegisterHisto(MonGroup& mon, TProfile* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile Histogram:" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile Histogram:" << endmsg;
   }
 }
 
@@ -1638,7 +1638,7 @@ void IDAlignMonGenericTracks::RegisterHisto(MonGroup& mon, TH2* histo) {
   //histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH2 Histogram:" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH2 Histogram:" << endmsg;
   }
 }
 
@@ -1649,8 +1649,8 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
  
   //if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
   if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
-    if(m_events == 1) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;}
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;
+    if(m_events == 1) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endmsg;}
+    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -1669,10 +1669,10 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   if (evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)) {
     StatusCode scv = evtStore()->retrieve(m_vertices,m_VxPrimContainerName);
     if (scv.isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name  "<<m_VxPrimContainerName<<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name  "<<m_VxPrimContainerName<<" found in StoreGate" << endmsg;
       return StatusCode::SUCCESS;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name  "<<m_VxPrimContainerName<< " with size " << m_vertices->size() <<" found  in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name  "<<m_VxPrimContainerName<< " with size " << m_vertices->size() <<" found  in StoreGate" << endmsg;
   
       xAOD::VertexContainer::const_iterator vxItr  = m_vertices->begin();
       xAOD::VertexContainer::const_iterator vxItrE = m_vertices->end();    
@@ -1692,10 +1692,10 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       }
     }
     //std::cout << "xv, yv, zv: " << xv << ", " << yv << ", " << zv << std::endl;
-  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "StoreGate does not contain VxPrimaryCandidate Container" << endreq;
+  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "StoreGate does not contain VxPrimaryCandidate Container" << endmsg;
 
   if (xv==-999 || yv==-999 || zv==-999) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertex found => setting it to 0"<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertex found => setting it to 0"<<endmsg;
     xv=0;yv=0;zv=0;
   }
 
@@ -1720,7 +1720,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     beamTiltY = m_beamCondSvc->beamTilt(1);
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beamspot from " << m_beamCondSvc << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
           << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
-          << ", tiltY = " << beamTiltY <<endreq;
+          << ", tiltY = " << beamTiltY <<endmsg;
 
 
     
@@ -1729,14 +1729,14 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   // Get EventInfo
   const DataHandle<xAOD::EventInfo> eventInfo;
   if (StatusCode::SUCCESS != evtStore()->retrieve( eventInfo ) ){
-    msg(MSG::ERROR) << "Cannot get event info." << endreq;
+    msg(MSG::ERROR) << "Cannot get event info." << endmsg;
     delete trks;
     return StatusCode::FAILURE;
   }
   //EventID* eventID = eventInfo->event_ID();
   unsigned int LumiBlock = eventInfo->lumiBlock();
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LumiBlock = " <<  LumiBlock << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LumiBlock = " <<  LumiBlock << endmsg;
   m_LumiBlock->Fill(float(LumiBlock), hweight);
   
   if (m_extendedPlots)
@@ -1852,7 +1852,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     } 
     
     if (covariance == NULL) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
     }
     else{  
       AmgVector(5) perigeeParams = measPer->parameters(); 
@@ -1895,7 +1895,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     }    
 
     if (fitQual==0) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No fit quality assigned to the track" << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No fit quality assigned to the track" << endmsg; 
       chi2Prob = -1e12; // return big value
     }
     else {
@@ -1912,7 +1912,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     if (trkphi<0) trkphi+=2*m_Pi;
     
     ngTracks++;    
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << nTracks << " is a good track!" << endreq;  
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << nTracks << " is a good track!" << endmsg;  
 
    
 
@@ -1923,13 +1923,13 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr  = TSOS->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItrE = TSOS->end();
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"starting to loop over TSOS"<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"starting to loop over TSOS"<<endmsg;
  
     for (; TSOSItr != TSOSItrE; ++TSOSItr) {
      
       //check that we have track parameters defined for the surface (pointer is not null)
       if(!((*TSOSItr)->trackParameters())) {
-        if (msgLvl(MSG::DEBUG)) msg() << "hit skipped because no associated track parameters" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "hit skipped because no associated track parameters" << endmsg;
         continue;
       }
       
@@ -1948,16 +1948,16 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
         if (m_idHelper->is_pixel(surfaceID) ||  m_idHelper->is_sct(surfaceID)){
           
           if(m_doHitQuality) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
             
             const Trk::RIO_OnTrack* hit = m_hitQualityTool->getGoodHit(*TSOSItr);
             if(hit==NULL) {
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endreq;
+              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endmsg;
               continue;
             }
-            else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit passed quality cuts" << endreq;
+            else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit passed quality cuts" << endmsg;
           }
-          else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to Silicon hit." << endreq;
+          else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to Silicon hit." << endmsg;
         }
       
         const Trk::Surface& hitSurface  = mesb->associatedSurface();
@@ -2376,7 +2376,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
   } // end of loop on trks
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of good tracks from TrackCollection: "<< ngTracks<< endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of good tracks from TrackCollection: "<< ngTracks<< endmsg;
 
   m_nhits_per_event -> Fill(nHits   , hweight);
   m_ntrk            -> Fill(nTracks , hweight);
@@ -2403,7 +2403,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
     
     if (covariance == 0) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track or no covariance matrix associated to the perigee" << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track or no covariance matrix associated to the perigee" << endmsg; 
     }
     else{  
       AmgVector(5)  perigeeParams = measPer->parameters(); 
@@ -2518,7 +2518,7 @@ void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F* m_neg, TH1F* m_pos, TH
                               << "  npos=" << npos
                               << "  nneg=" << nneg
                               << "  asym=" << asym
-                              << endreq;
+                              << endmsg;
     }
   }
 
@@ -2540,7 +2540,7 @@ void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F_LW* m_neg, TH1F_LW* m_p
                               << "  npos=" << npos
                               << "  nneg=" << nneg
                               << "  asym=" << asym
-                              << endreq;
+                              << endmsg;
     }
   }
 

@@ -340,92 +340,92 @@ StatusCode IDAlignMonEfficiencies::initialize()
   //ID Helper
   sc = detStore()->retrieve(m_idHelper, "AtlasID" );
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get AtlasDetectorID !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get AtlasDetectorID !" << endmsg;
     return StatusCode::SUCCESS;
   }else{
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found AtlasDetectorID" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found AtlasDetectorID" << endmsg;
   }
 
   sc = detStore()->retrieve(m_pixelID, "PixelID");
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Pixel ID helper !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Pixel ID helper !" << endmsg;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelIDHelper" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelIDHelper" << endmsg;
 
   sc = detStore()->retrieve(m_sctID, "SCT_ID");
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT ID helper !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT ID helper !" << endmsg;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endmsg;
 
   sc = detStore()->retrieve(m_trtID, "TRT_ID");
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get TRT ID helper !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get TRT ID helper !" << endmsg;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized TRTIDHelper" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized TRTIDHelper" << endmsg;
 
   //Pixel Manager
   sc = detStore()->retrieve(m_PIX_Mgr,m_Pixel_Manager);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get PIX_Manager !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get PIX_Manager !" << endmsg;
     return StatusCode::FAILURE;
    }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelManager" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelManager" << endmsg;
   //SCT Manager 
   
   sc = detStore()->retrieve(m_SCT_Mgr, m_SCT_Manager);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT_Manager !" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT_Manager !" << endmsg;
     return StatusCode::FAILURE;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTManager" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTManager" << endmsg;
 
 
   if ( m_holeSearchTool.retrieve().isFailure() ) {
-    msg(MSG::WARNING) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
+    msg(MSG::WARNING) << "Failed to retrieve tool " << m_holeSearchTool << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endmsg;
   }
 
   if ( m_trackSelection.retrieve().isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelection << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelection << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trackSelection << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_trackSelection << endmsg;
   }                                  
  
   sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to initialize ManagedMonitorToolBase!" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to initialize ManagedMonitorToolBase!" << endmsg;
     return StatusCode::SUCCESS;
   } 
 
   if (m_hitQualityTool.empty()) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << 
       "No hit quality tool configured - not hit quality cuts will be imposed"
-	<< endreq;
+	<< endmsg;
     m_doHitQuality = false;
   } else if (m_hitQualityTool.retrieve().isFailure()) {
     if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve "<< m_hitQualityTool 
-	<<" (to apply hit quality cuts to Si hits) "<< endreq;
+	<<" (to apply hit quality cuts to Si hits) "<< endmsg;
     m_doHitQuality = false;
    } else {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
 	<< "Hit quality tool setup "
-	<< "- hit quality cuts will be applied to Si hits" << endreq;
+	<< "- hit quality cuts will be applied to Si hits" << endmsg;
     m_doHitQuality = true;
   }
 
   // get TrackSummaryTool
   if ( m_trackSumTool.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -728,7 +728,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH1* histo) {
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endmsg;
   }
   histo->GetYaxis()->SetTitle("Number of Hits on Tracks"); 
   const char* HistName = histo->GetName();
@@ -746,7 +746,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endmsg;
   }
   histo->GetYaxis()->SetTitle("Number of Hits on Tracks"); 
   const char* HistName = histo->GetName();
@@ -764,7 +764,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile* histo, const
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile Histogram:" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile Histogram:" << endmsg;
   }
 
   if(yAxisName != ""){
@@ -788,7 +788,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH2* histo) {
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH2 Histogram:" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH2 Histogram:" << endmsg;
   }
   histo->GetXaxis()->SetTitle("Module Eta Identifier"); 
   histo->GetYaxis()->SetTitle("Module Phi Identifier"); 
@@ -799,7 +799,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile2D* histo) {
   //histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile2D Histogram:" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile2D Histogram:" << endmsg;
   }
   histo->GetXaxis()->SetTitle("Module Eta Identifier"); 
   histo->GetYaxis()->SetTitle("Module Phi Identifier");     
@@ -820,14 +820,14 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 
   const DataHandle<xAOD::EventInfo> eventInfo;
   if (StatusCode::SUCCESS != evtStore()->retrieve( eventInfo ) ){
-    msg(MSG::ERROR) << "Cannot get event info." << endreq;
+    msg(MSG::ERROR) << "Cannot get event info." << endmsg;
     return StatusCode::FAILURE;
   }
   unsigned int LumiBlock = eventInfo->lumiBlock();
   
   if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
-    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;}
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;
+    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get " << m_tracksName << " TrackCollection" << endmsg;}
+    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -853,7 +853,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
     
     //if (measPer==0) {
-    //  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq; 
+    //  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
     //}
     //else{  
     //  CLHEP::HepVector perigeeParams = measPer->parameters();    
@@ -888,7 +888,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     }
     else
       {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq; 
+	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
       }
     //if (trkphi<0) trkphi+=2*m_Pi;
     
@@ -910,13 +910,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr  = TSOS->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItrE = TSOS->end();
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to loop over TSOS"<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to loop over TSOS"<<endmsg;
      
     for (; TSOSItr != TSOSItrE; ++TSOSItr) {
 
       //check that we have track parameters defined for the surface (pointer is not null)
       if(!((*TSOSItr)->trackParameters())) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit skipped because no associated track parameters" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit skipped because no associated track parameters" << endmsg;
 	continue;
       }
       
@@ -934,7 +934,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       if(!rio) isPseudoMeasurement = true;
       
       if(isPseudoMeasurement){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "found a pseudomeasurement skipping it!" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "found a pseudomeasurement skipping it!" << endmsg;
 	continue;
       }
 
@@ -969,16 +969,16 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 
 
 	if(m_doHitQuality) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
 	  
 	  const Trk::RIO_OnTrack* hit = m_hitQualityTool->getGoodHit(*TSOSItr);
 	  if(hit==NULL) {
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endreq;
+	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endmsg;
 	    continue;
 	  }
-	    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit passed quality cuts" << endreq;
+	    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit passed quality cuts" << endmsg;
 	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to Silicon hit." << endreq;
+	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to Silicon hit." << endmsg;
       }
 
       /** Get information for the TRT hits */
@@ -999,7 +999,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       // fill histograms with all posible hit types: measurements, outliers & holes
       if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) || (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) || (*TSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
 	
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"have a measurement/outlier/hole"<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"have a measurement/outlier/hole"<<endmsg;
 
 	// all possible hits
 	// dealing with PIXEL tsos
@@ -1061,7 +1061,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       // now, let's fill histograms only for hits on track = measurements
       if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
 	
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to find overlaps"<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to find overlaps"<<endmsg;
 	
 	bool foundXOverlap = false;
 	bool foundYOverlap = false;
@@ -1070,11 +1070,11 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	//for SCT module overlaps there will be two overlaps corresponding to the two different sides
 	//this shouldn't effect the overlap efficiency since an SCT module has two hits, one for each side
 	if (detType==0 || detType==1){
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is pixel or SCT - looking for overlaps" << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is pixel or SCT - looking for overlaps" << endmsg;
 	  //const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(mesb);
 	  //std::pair<const Trk::TrackStateOnSurface*,const Trk::TrackStateOnSurface*> overlap = findOverlapHit(*trksItr,hitOnTrack);
 	  std::pair<const Trk::TrackStateOnSurface*,const Trk::TrackStateOnSurface*> overlap = findOverlapHit(*trksItr,mesb);
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap search complete" << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap search complete" << endmsg;
 	  //these will be NULL if no overlap is found
 	  if(overlap.first) foundXOverlap = true;
 	  if(overlap.second) foundYOverlap = true;
@@ -1091,9 +1091,9 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    
 	    
 	    
-	    //msg(MSG::WARNING) <<"Pix barrel, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
+	    //msg(MSG::WARNING) <<"Pix barrel, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endmsg;
 	    
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel barrel hit"<<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel barrel hit"<<endmsg;
 	    m_measurements_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
 	    m_measurements_vs_LB_pix_b[layerDisk]      -> Fill(float(LumiBlock));
 	    m_measurements_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
@@ -1116,8 +1116,8 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  } // end of PIX barrel 
 	  
 	  else if (barrelEC == 2){	    
-	    //msg(MSG::WARNING) <<"Pix eca, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel eca hit"<<endreq;
+	    //msg(MSG::WARNING) <<"Pix eca, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endmsg;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel eca hit"<<endmsg;
 	    m_measurements_vs_layer_eca -> Fill(layerDisk);
 	    m_noholes_vs_layer_eca -> Fill(layerDisk);
 	    m_measurements_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
@@ -1137,8 +1137,8 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  } // ECA
 	  else if (barrelEC == -2){ 
 	    
-	    //msg(MSG::WARNING) <<"Pix ecc, layer_disk=" << layerDisk << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel ecc hit"<<endreq;
+	    //msg(MSG::WARNING) <<"Pix ecc, layer_disk=" << layerDisk << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endmsg;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel ecc hit"<<endmsg;
 	    m_measurements_vs_layer_ecc -> Fill(layerDisk);
 	    m_noholes_vs_layer_ecc -> Fill(layerDisk);
 	    m_measurements_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
@@ -1161,8 +1161,8 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	else if (detType==1){
 	  if(barrelEC == 0){ 
 	    
-	    //msg(MSG::WARNING) <<"SCT barrel, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endreq;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit"<<endreq;
+	    //msg(MSG::WARNING) <<"SCT barrel, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endmsg;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit"<<endmsg;
 	    m_measurements_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	    m_measurements_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
@@ -1176,13 +1176,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    if (m_extendedPlots) {
 	      if(foundXOverlap){
 		m_overlapX_vs_layer_barrel-> Fill(m_NPixLayers + 2*layerDisk + sctSide);
-		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit 1"<<endreq;
+		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit 1"<<endmsg;
 		m_overlapX_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
 		m_overlapX_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
 	      }
 	      if(foundYOverlap){
 		m_overlapY_vs_layer_barrel-> Fill(m_NPixLayers + 2*layerDisk + sctSide); 
-		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit 2"<<endreq;
+		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit 2"<<endmsg;
 		m_overlapY_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
 		m_overlapY_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
 	      }
@@ -1190,8 +1190,8 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  }//barrel
 	  else if (barrelEC == 2){ 
 	    
-	    //msg(MSG::WARNING) <<"SCT eca, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endreq;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct eca hit"<<endreq;
+	    //msg(MSG::WARNING) <<"SCT eca, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endmsg;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct eca hit"<<endmsg;
 	    m_measurements_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
 	    m_measurements_vs_Phi_sct_eca[layerDisk] -> Fill(modPhi);
@@ -1215,8 +1215,8 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  }//ECA
 	  else if (barrelEC == -2){
 	    
-	    //msg(MSG::WARNING) <<"SCT ecc, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endreq;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct ecc hit"<<endreq;
+	    //msg(MSG::WARNING) <<"SCT ecc, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endmsg;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct ecc hit"<<endmsg;
 	    m_measurements_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
 	    m_measurements_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);
@@ -1252,7 +1252,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	// --- pixel
 	if (detType==0){
 	  if (barrelEC == 0){ 	    
-	    // msg(MSG::WARNING) << " ** OULIER FOUND ** Pix barrel layer_disk=" << layerDisk << ", eta=" << modEta << ", phi=" << modPhi <<endreq;   
+	    // msg(MSG::WARNING) << " ** OULIER FOUND ** Pix barrel layer_disk=" << layerDisk << ", eta=" << modEta << ", phi=" << modPhi <<endmsg;   
 	    m_outliers_vs_layer_barrel -> Fill(layerDisk);
 	    m_noholes_vs_layer_barrel -> Fill(layerDisk);
 	    m_outliers_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
@@ -1281,7 +1281,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	// --- sct -- outliers in SCT
 	else if (detType==1){
 	  if (barrelEC == 0){ 
-	    //msg(MSG::WARNING) <<"SCT barrel outlier, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endreq;
+	    //msg(MSG::WARNING) <<"SCT barrel outlier, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endmsg;
 	    
 	    m_outliers_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
@@ -1313,7 +1313,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     
     const Trk::TrackSummary* summary = m_trackSumTool->createSummary(**trksItr);
     if( !summary->get(Trk::numberOfPixelHits) && !summary->get(Trk::numberOfSCTHits) && (summary->get(Trk::numberOfPixelHoles)==0) && (summary->get(Trk::numberOfSCTHoles)==0) && (m_doHoleSearch)){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Pixel or SCT hits skip hole search" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Pixel or SCT hits skip hole search" << endmsg;
       continue;
     }
     delete summary;
@@ -1358,15 +1358,15 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  sctSide   = m_sctID->side(surfaceID);
 	}
 	if(m_doHitQuality) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hole quality cuts to Silicon hole..." << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hole quality cuts to Silicon hole..." << endmsg;
 	  
 	  if(!m_hitQualityTool->getGoodHole(*HTSOSItr)) {
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole failed quality cuts and is rejected." << endreq;
+	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole failed quality cuts and is rejected." << endmsg;
 	    continue;
 	  }
-	  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole passed quality cuts" << endreq;
+	  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole passed quality cuts" << endmsg;
 	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole quality cuts NOT APPLIED to Silicon hole." << endreq;
+	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole quality cuts NOT APPLIED to Silicon hole." << endmsg;
       }
       
       
@@ -1376,7 +1376,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	// --- pixel
 	if (detType==0){
 	  if (barrelEC == 0){
-	    // msg(MSG::WARNING) << " ** HOLE FOUND ** Pixel barrel ** layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endreq;
+	    // msg(MSG::WARNING) << " ** HOLE FOUND ** Pixel barrel ** layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endmsg;
 	  
 	   
 	    bool knownType = false;
@@ -1423,7 +1423,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	else if (detType==1){
 	  if (barrelEC == 0)
 	    { 
-	      //msg(MSG::WARNING) <<"SCT barrel hole, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << modPhi << ", side=" << m_sctID->side(surfaceID) << endreq;
+	      //msg(MSG::WARNING) <<"SCT barrel hole, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << modPhi << ", side=" << m_sctID->side(surfaceID) << endmsg;
 
 	      m_hits_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	      
@@ -1639,34 +1639,34 @@ void IDAlignMonEfficiencies::makeEffHisto(TH1F_LW* h_num, TH1F_LW* h_denom, TPro
       h_eff->Reset("ICE");
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in makeEffHisto  " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in makeEffHisto  " << endmsg;
   int Nbins;
   Nbins = h_num->GetNbinsX();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nbins is  " << Nbins << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nbins is  " << Nbins << endmsg;
   for (int bin=0; bin!=Nbins; ++bin) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "bin is  " << bin << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "bin is  " << bin << endmsg;
     int Npass = int(h_num->GetBinContent(bin+1));
     int Nfail = int(h_denom->GetBinContent(bin+1)) - Npass;
     
     float binSize = (h_denom->getXMax() - h_denom->getXMin())/h_denom->GetNbinsX();
     //double x = h_denom->GetBinCenter(bin+1);
     double x = h_denom->getXMin() + binSize * bin + binSize/2;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Npass is  " << Npass << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Npass is  " << Npass << endmsg;
     for (int pass=0; pass<Npass; ++pass) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pass is  " << pass << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pass is  " << pass << endmsg;
       h_eff->Fill(x,1.);
     }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nfail is  " << Nfail << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nfail is  " << Nfail << endmsg;
     for (int fail=0; fail<Nfail; ++fail) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fail is  " << fail << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fail is  " << fail << endmsg;
       h_eff->Fill(x,0.);
     }
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Out of loop  " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Out of loop  " << endmsg;
   SetMinWindow(h_eff, m_minSiliconEffWindow, m_maxSiliconEffWindow); 
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving makeEffHisto  " << Nbins << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving makeEffHisto  " << Nbins << endmsg;
   return;
 }
 
@@ -1799,7 +1799,7 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
 
 StatusCode IDAlignMonEfficiencies::procHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endmsg;
   if( endOfLowStat ) {
   }
   if( endOfLumiBlock ) {
@@ -1812,7 +1812,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     
     for (int iLayer=0; iLayer < m_PIX_Mgr->numerology().numLayers();++iLayer) {
       if (!m_PIX_Mgr->numerology().useLayer(iLayer)){
-	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endreq;
+	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endmsg;
 	continue;}
       makeEffHisto(m_measurements_vs_Eta_Phi_pix_b[iLayer], m_hits_vs_Eta_Phi_pix_b[iLayer], m_measurements_eff_vs_Eta_Phi_pix_b[iLayer]);
       makeEffHisto(m_measurements_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_measurements_eff_vs_Eta_pix_b[iLayer]);
@@ -1850,7 +1850,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
       for (int iDisk=0; iDisk < m_PIX_Mgr->numerology().numDisks();++iDisk)
 	{
 	  if (!m_PIX_Mgr->numerology().useDisk(iDisk)){//To check if the Disk is in use.
-	    msg(MSG::WARNING) << "Disk "<<iDisk<<" Not in Use"<<endreq;
+	    msg(MSG::WARNING) << "Disk "<<iDisk<<" Not in Use"<<endmsg;
 	    continue;}
 	  
 	  if (iSide>0)
@@ -1884,7 +1884,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     for (int iLayer=0; iLayer < m_SCT_Mgr->numerology().numLayers();++iLayer) 
       {
 	if (!m_SCT_Mgr->numerology().useLayer(iLayer)){
-	  msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endreq;
+	  msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endmsg;
 	  continue;}
 	makeEffHisto(m_measurements_vs_Eta_Phi_sct_b[iLayer], m_hits_vs_Eta_Phi_sct_b[iLayer], m_measurements_eff_vs_Eta_Phi_sct_b[iLayer]);	 
 	makeEffHisto(m_measurements_vs_Eta_sct_b[iLayer],m_hits_vs_Eta_sct_b[iLayer],m_measurements_eff_vs_Eta_sct_b[iLayer]);
@@ -1919,7 +1919,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 	for (int iWheel=0; iWheel < m_SCT_Mgr->numerology().numDisks();++iWheel)
 	  {
 	    if (!m_SCT_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
-	      msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
+	      msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endmsg;
 	      continue;}
 	    
 	    if (iSide>0)
@@ -1968,11 +1968,11 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
       }
 
     /**  TRT Processing */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Doint the TRT pocessing" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Doint the TRT pocessing" << endmsg;
     /** TRT Barrel */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Barrel" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Barrel" << endmsg;
     for(int i=0; i<3;i++) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "layer is " << i << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "layer is " << i << endmsg;
       makeEffHisto(m_trt_b_hist->outliers_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->outliers_eff_vs_phiSector[i]);
       makeEffHisto(m_trt_b_hist->hits_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->hits_eff_vs_phiSector[i]);
       makeEffHisto(m_trt_b_hist->tubeHits_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->tubeHits_eff_vs_phiSector[i]);
@@ -1981,10 +1981,10 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     makeEffHisto(m_trt_b_hist->hits_vs_StrawLay, m_trt_b_hist->totHits_vs_StrawLay, m_trt_b_hist->hits_eff_vs_StrawLay);
     makeEffHisto(m_trt_b_hist->tubeHits_vs_StrawLay, m_trt_b_hist->totHits_vs_StrawLay, m_trt_b_hist->tubeHits_eff_vs_StrawLay);
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Endcap" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Endcap" << endmsg;
     /**  TRT Endcap */
     for(unsigned int endcap = 0; endcap<2; ++endcap){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "endcap is " << endcap << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "endcap is " << endcap << endmsg;
       makeEffHisto(m_trt_ec_hist->outliers_vs_ring[endcap], 
 		   m_trt_ec_hist->totHits_vs_ring[endcap], 
 		   m_trt_ec_hist->outliers_eff_vs_ring[endcap]);
@@ -2009,7 +2009,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 		   m_trt_ec_hist->totHits_vs_phiSector[endcap],
 		   m_trt_ec_hist->tubeHits_eff_vs_phiSector[endcap]);
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done TRT Processing" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done TRT Processing" << endmsg;
     //========================
   
     
@@ -2186,13 +2186,13 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   // returns two Trk::TrackStateOnSurface, one for a potential x overlaps and one for a potential y overlap
   // if no overlap is found the corresponding Trk::TrackStateOnSurface will be null
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in  IDAlignMonEfficiencies::findOverlapHit()"<< endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in  IDAlignMonEfficiencies::findOverlapHit()"<< endmsg;
 
   const Trk::TrackStateOnSurface* xOverlap = NULL;
   const Trk::TrackStateOnSurface* yOverlap = NULL;
 
   if(!hit) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is NULL; abandoning overlap search"<< endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is NULL; abandoning overlap search"<< endmsg;
     std::pair <const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> result(xOverlap, yOverlap);
     return result;
   }
@@ -2200,12 +2200,12 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   Identifier hitId;
   if (hit->associatedSurface().associatedDetectorElement()!=NULL) hitId = hit->associatedSurface().associatedDetectorElement()->identify();
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit doesn't have an associated detector element; abandoning overlap search"<< endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit doesn't have an associated detector element; abandoning overlap search"<< endmsg;
     std::pair <const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> result(xOverlap, yOverlap);
     return result;
   }
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "obtained hit identifier"<< endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "obtained hit identifier"<< endmsg;
   int detType = 99; 
   int barrelEC = 99;
   int layerDisk = 99;
@@ -2215,7 +2215,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   if (m_idHelper->is_sct(hitId)) detType = 1;
   if (m_idHelper->is_trt(hitId)) detType = 2;
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "determined hit detector type = "<< detType << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "determined hit detector type = "<< detType << endmsg;
 
   //determining Si module physical position
   if (detType==0){//pixel
@@ -2234,7 +2234,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   }
 
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "**************looking for overlaps for new hit detType = " << detType 
-	    << ", modEta = " << modEta << ", modPhi = " << modPhi << endreq;
+	    << ", modEta = " << modEta << ", modPhi = " << modPhi << endmsg;
 
 
   int nHits = 0;
@@ -2252,7 +2252,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     Identifier hitId2;
     if (hit2->associatedSurface().associatedDetectorElement()!=NULL) hitId2 = hit2->associatedSurface().associatedDetectorElement()->identify();
     else {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "hit tested for overlap doesn't have an associated detector element"<< endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "hit tested for overlap doesn't have an associated detector element"<< endmsg;
       continue;
     }
 
@@ -2277,28 +2277,28 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     }
 
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "testing hit " << nHits << " for overlap, detType2 = " << detType2 
-	       << ", modEta2 = " << modEta2 << ", modPhi2 = " << modPhi2 << endreq;
+	       << ", modEta2 = " << modEta2 << ", modPhi2 = " << modPhi2 << endmsg;
 
     if(!(*tsos2)->type(Trk::TrackStateOnSurface::Measurement)) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an outlier" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an outlier" << endmsg;
       continue;
     }
 
     if(detType!=detType2) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same detector" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same detector" << endmsg;
       continue;
     }
     if(barrelEC!=barrelEC2) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same barrel/endcap" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same barrel/endcap" << endmsg;
       continue;
     }
     if(layerDisk!=layerDisk2) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same layer/disk" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same layer/disk" << endmsg;
       continue;
     }
 
     if(modEta==modEta2 && modPhi==modPhi2){
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because this is the original hit (or the opposite side for SCT)" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because this is the original hit (or the opposite side for SCT)" << endmsg;
       continue;
     }
 
@@ -2309,7 +2309,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
       const InDetDD::SiDetectorElement *siDet2 = dynamic_cast<const InDetDD::SiDetectorElement*>(hit2->associatedSurface().associatedDetectorElement());
       bool stereo2 = siDet2->isStereo();
       if(stereo!=stereo2){
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "SCT overlap rejected because the modules are not both stereo/radial modules" << endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "SCT overlap rejected because the modules are not both stereo/radial modules" << endmsg;
 	continue;
       }
     }
@@ -2325,23 +2325,23 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     
     if(covariance==NULL) {
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because overlap hit does not have associated measuredTrackParameters" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because overlap hit does not have associated measuredTrackParameters" << endmsg;
       continue;
     }
 
     if((modEta==modEta2 && modPhi!=modPhi2) || (modEta-modEta2 == 1 && modPhi==modPhi2)){
       //potentially an overlap hit - apply hit quality cuts if tool configured
       if((detType2==0 || detType2==1) && m_doHitQuality) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to overlap hit..." << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to overlap hit..." << endmsg;
 	
 	hit2 = m_hitQualityTool->getGoodHit(*tsos2);
 	if(hit2==NULL) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because failed hit quality cuts." << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because failed hit quality cuts." << endmsg;
 	  continue;
 	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap hit passed quality cuts" << endreq;
+	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap hit passed quality cuts" << endmsg;
       }
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to overlap hit." << endreq;
+      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to overlap hit." << endmsg;
     }
 
 
@@ -2380,24 +2380,24 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	close = true;
       }
       if(close){  //end add by TG
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local X overlap" << endreq;
-	//	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endreq;
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module phi, eta  = " << modEta <<", "<<modPhi<< endreq;
-	//if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endreq;
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "second module phi, eta  = " << modEta2 <<", "<<modPhi2<< endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local X overlap" << endmsg;
+	//	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module phi, eta  = " << modEta <<", "<<modPhi<< endmsg;
+	//if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "second module phi, eta  = " << modEta2 <<", "<<modPhi2<< endmsg;
 	xOverlap = (*tsos2);
       } //added by LT
       
     }
     if(modEta-modEta2 == 1 && modPhi==modPhi2){
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local Y overlap" << endreq;
-      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endreq;
-      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local Y overlap" << endmsg;
+      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endmsg;
+      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
       yOverlap = (*tsos2);
     }
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modEta2 = " << modEta2 << endreq;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modPhi2 = " << modPhi2 << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modEta2 = " << modEta2 << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modPhi2 = " << modPhi2 << endmsg;
   }
 
 
@@ -2423,7 +2423,7 @@ void IDAlignMonEfficiencies::makePIXBarrelHistograms(MonGroup& al_mon){
   for (int iLayer=0; iLayer < m_PIX_Mgr->numerology().numLayers();++iLayer) 
     {
       if (!m_PIX_Mgr->numerology().useLayer(iLayer)){
-	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use"<<endreq;
+	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use"<<endmsg;
 	continue;}    
       float EtaModules= m_PIX_Mgr->numerology().endEtaModuleForLayer(iLayer) - m_PIX_Mgr->numerology().beginEtaModuleForLayer(iLayer); //(i put float in order to divide by 2)
       float EtaModulesMin;// = -EtaModules/2-0.5;
@@ -2597,7 +2597,7 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
 	{
 	  int rings=0;
 	  if (!m_PIX_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
-	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
+	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endmsg;
 	    continue;}
 	  else
 	    {
@@ -2737,7 +2737,7 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
     {
       //ATH_MSG_INFO("iLayer= " << iLayer); 
       if (!m_SCT_Mgr->numerology().useLayer(iLayer)){
-	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not Present"<<endreq;
+	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not Present"<<endmsg;
 	continue;}
       float maxPhiModulesPerLayer = m_SCT_Mgr->numerology().numPhiModulesForLayer(iLayer);
       //just for checking purposes. Not useful. I will cancel it soon. Peo
@@ -2767,7 +2767,7 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
       m_measurements_vs_LB_sct_b.push_back(new TH1F(("measurements_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
       RegisterHisto(al_mon,m_measurements_vs_LB_sct_b[iLayer]); 
       
-      m_measurements_eff_vs_LB_sct_b.push_back(new TProfile(("measurements_eff_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.5,1.));  
+      m_measurements_eff_vs_LB_sct_b.push_back(new TProfile(("measurements_eff_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
       RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_b[iLayer]); 
       
 
@@ -2907,7 +2907,7 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
 	{
 	  int rings=0;
 	  if (!m_SCT_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
-	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
+	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endmsg;
 	    continue;}
 	  else
 	    {
@@ -2977,7 +2977,7 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
   RegisterHisto(al_mon,m_hits_vs_LB_sct_eca); 	    
   m_measurements_vs_LB_sct_eca = new TH1F("measurements_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB);  
   RegisterHisto(al_mon,m_measurements_vs_LB_sct_eca); 
-  m_measurements_eff_vs_LB_sct_eca = new TProfile("measurements_eff_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
+  m_measurements_eff_vs_LB_sct_eca = new TProfile("measurements_eff_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB, 0.,1.);  
   RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_eca);
 
   //vs LB
@@ -2987,7 +2987,7 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
   RegisterHisto(al_mon,m_hits_vs_LB_sct_ecc); 
   m_measurements_vs_LB_sct_ecc = new TH1F("measurements_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB);  
   RegisterHisto(al_mon,m_measurements_vs_LB_sct_ecc); 
-  m_measurements_eff_vs_LB_sct_ecc =new TProfile("measurements_eff_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
+  m_measurements_eff_vs_LB_sct_ecc =new TProfile("measurements_eff_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB, 0.,1.);  
   RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_ecc); 
 }
 

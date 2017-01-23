@@ -171,13 +171,13 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
   m_events=0;
   
   //initialize tools and services
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endmsg;
   StatusCode sc = setupTools();
   if (sc.isFailure()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to initialize tools/services!" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to initialize tools/services!" << endmsg;
     return StatusCode::SUCCESS;
   } 
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endreq;
+  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endmsg;
 
   
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
@@ -564,7 +564,7 @@ void IDAlignMonTrackSegments::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
   //histo->Sumw2();//TK: fixme
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH1F_LW Histogram:" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH1F_LW Histogram:" << endmsg;
   }
 }
 
@@ -573,7 +573,7 @@ void IDAlignMonTrackSegments::RegisterHisto(MonGroup& mon, TH2F_LW* histo) {
   //histo->Sumw2();//TK: fixme
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH2F_LW Histogram:" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH2F_LW Histogram:" << endmsg;
   }
 }
 
@@ -599,26 +599,26 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     
     if(!evtStore()->contains<TrackCollection>(m_upperTracksName)){
       if(m_events == 1) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endreq;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endmsg;
+      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endmsg;
       return StatusCode::SUCCESS;
     }
     
     if (!evtStore()->contains<TrackCollection>(m_lowerTracksName)){
       if(m_events == 1) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endreq;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endmsg;
+      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endmsg;
       return StatusCode::SUCCESS;
     }
     
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endmsg;
     }
 
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endmsg;
     }
     
   }else{
@@ -626,8 +626,8 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     //We only need the inputTracks if we're splitting them ourselves
     if (!evtStore()->contains<TrackCollection>(m_inputTracksName)){
       if(m_events == 1){ 
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endreq;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endmsg;
+      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endmsg;
       return StatusCode::SUCCESS;
     }
     
@@ -635,10 +635,10 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     const DataVector<Trk::Track>* tracksIn; 
     StatusCode sc = evtStore()->retrieve(tracksIn, m_inputTracksName);
     if (sc.isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << endmsg;
       
     }else{
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << endmsg;
       
     }
     //if (false) {
@@ -656,14 +656,14 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     //Get the Upper Tracks
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endmsg;
       
     }
 
     //Get the Lower Tracks
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endmsg;
       
     }
 
@@ -676,8 +676,8 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   //	      << std::endl;
   //}
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksUpper->size() <<" Upper Tracks." << endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksLower->size() <<" Lower Tracks from Track from StoreGate" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksUpper->size() <<" Upper Tracks." << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksLower->size() <<" Lower Tracks from Track from StoreGate" << endmsg;
   
   //===============================================================
   // Filling the upper and lower tracks and their differences
@@ -691,10 +691,10 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   for (; trackItrUpper != trackItrUpperE; ++trackItrUpper) { 
     const Trk::Track* trackUpper = *trackItrUpper;
     if(trackUpper == NULL){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksUpper << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksUpper << endmsg;
       continue;
     }else
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Got the "<< nTracksUpper << " Upper Track" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Got the "<< nTracksUpper << " Upper Track" << endmsg;
 
     const Trk::TrackSummary* summary = NULL;       
     summary = m_trackSumTool->createSummary(*trackUpper);
@@ -757,7 +757,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     }
     else
       {
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Upper Perigee not retrieved" << endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Upper Perigee not retrieved" << endmsg;
       }
 
     //if (false) {
@@ -767,7 +767,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     //		<< "  FILLING " 
     //		<< std::endl;
     //}
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Filling Upper info" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Filling Upper info" << endmsg;
     m_upper_hist->nhitstrt->Fill(nHitsTRTUp);
     m_upper_hist->nhitsSi->Fill(nHitsSCTUp + nHitsPixUp);
     m_upper_hist->nhitsPix->Fill(nHitsPixUp);
@@ -781,9 +781,9 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     
     //trackStateOnSurfaces is a vector of Trk::TrackStateOnSurface objects which contain information 
     //on track at each (inner)detector surface it crosses eg hit used to fit track
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track Upper = " << nTracksUpper << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Track Eta = " << eta0Up << ", phi = " << phi0Up << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Track Pix = " << nHitsPixUp << ", SCT = " << nHitsSCTUp << ", TRT = " << nHitsTRTUp << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track Upper = " << nTracksUpper << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Track Eta = " << eta0Up << ", phi = " << phi0Up << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Track Pix = " << nHitsPixUp << ", SCT = " << nHitsSCTUp << ", TRT = " << nHitsTRTUp << endmsg;
 
     float mindR = 10000; 
     float Matched_Low_d0 = -99;
@@ -808,7 +808,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
       
       const Trk::Track* trackLower = *trackItrLower;
       if(trackLower == NULL){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksLower << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksLower << endmsg;
 	continue;
       }
 
@@ -864,12 +864,12 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
       }
       else
 	{
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Lower Perigee not retrieved" << endreq;
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Lower Perigee not retrieved" << endmsg;
 	}
 
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Track = " << nTracksLower << endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Track Eta = " << eta0Low << ", phi = " << phi0Low << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Track = " << nTracksLower << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Track Eta = " << eta0Low << ", phi = " << phi0Low << endmsg;
       
       if(nTracksUpper ==0 ){//only fill the lower tracks once
 	
@@ -923,7 +923,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     
     if(matchFound){
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "there was a match found " <<endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "there was a match found " <<endmsg;
       
       for(unsigned int charge=0; charge<3; ++charge){
 
@@ -1035,36 +1035,36 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
 //---------------------------------------------------------------------------------------
 StatusCode IDAlignMonTrackSegments::setupTools()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setupTools()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setupTools()" << endmsg;
   
   if (m_trackSplitter.empty()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No track splitter tool configured"<< endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No track splitter tool configured"<< endmsg;
   } else if (m_trackSplitter.retrieve().isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve "<< m_trackSplitter.typeAndName() << endreq; 
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve "<< m_trackSplitter.typeAndName() << endmsg; 
   } else 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Retrieved tool " << m_trackSplitter.typeAndName() << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Retrieved tool " << m_trackSplitter.typeAndName() << endmsg;
       
   // get TrackSummaryTool
   if ( m_trackSumTool.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
   }
   
   //Get TrackSelectionTools
   
   if (m_trackSelectionUpper.retrieve().isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Can not retrieve TrackSelection tool of type "
-	<< m_trackSelectionUpper.typeAndName() << endreq;
+	<< m_trackSelectionUpper.typeAndName() << endmsg;
     return StatusCode::SUCCESS;
-  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectionUpper.typeAndName() << endreq;
+  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectionUpper.typeAndName() << endmsg;
   
   if (m_trackSelectionLower.retrieve().isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Can not retrieve TrackSelection tool of type "
-	<< m_trackSelectionLower.typeAndName() << endreq;
+	<< m_trackSelectionLower.typeAndName() << endmsg;
     return StatusCode::SUCCESS;
-  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectionLower.typeAndName() << endreq;
+  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectionLower.typeAndName() << endmsg;
 
   
   return StatusCode::SUCCESS;

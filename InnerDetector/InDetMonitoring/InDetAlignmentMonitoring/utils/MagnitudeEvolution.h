@@ -44,14 +44,14 @@
 #define MINENTRIES 36
 #define MINENTRIESINBIN 12
 #define MINGOODPOINTS 8
-#define FITTYPE 3
+#define FITTYPE 6
 #define RUNNUMBEREXTRACTIONMODE 0
 #define RMSFACTOR 1.5  // factor used in the residuals Gaussian fit to limit the range (in units of RMS)
 
 const bool FULLOUTPUT= false;
 const bool USEPLANARONLY = true;
 const bool LUMIBLOCKANALYSIS = false;
-const bool ITER3ANALYSIS = false;
+const bool ITER3ANALYSIS = true;
 const int  REBINFACTOR = 2; // 100; // LumiBlock rebinning factor for the residuals vs LumiBlock histograms
 const bool WRITETEXTOUTPUT = true;
 const bool REGENERATEAFTERALIGMENTMONITORINGFILE = false;
@@ -61,6 +61,7 @@ const bool REGENERATEAFTERALIGMENTMONITORINGFILE = false;
 //const TString me_trackCollection("ExtendedTracks_alignSelection");
 const TString me_trackCollection("ExtendedTracks_all");
 TString me_outputFolder;
+TString me_beforeAlignmentHistosFolder;
 TString me_afterAlignmentHistosFolder;
 TString me_HOSTNAME;
 
@@ -68,7 +69,7 @@ const double z_fix = 366.5; // Stave fixing screw position [mm]
 float xmax = 0.3;
 float xmin = -xmax;
 
-const double me_bowingRangeInPlots = 12.; //12.; 30. //in microns
+const double me_bowingRangeInPlots = 18.; //12.; 30. //in microns
 
 const float me_systUncertaintyBowing = 0.255; // systematic uncertainty on the bowing measurements (in microns)
 
@@ -77,6 +78,7 @@ const int me_colorForStaves = kOrange+5;
 
 //// variables ////
 std::ofstream me_outputTextFile;
+std::ofstream me_outputTextFileTimeFormat;
 std::vector<TString> me_iter0MonitoringFileList;
 std::vector<TString> me_iter3MonitoringFileList;
 std::vector<int> me_runNumber;
@@ -128,6 +130,7 @@ float         ME_getBowingMagFor2015SpecialRuns (int);
 TH1F*         ME_getHistoResidualsVsEtaAtLB (TH3F*, int, int, int, int);
 TH1F*         ME_getIBLMeanResPerRing (TH3F*, int, int);
 TH3F*         ME_getIBLResiduals3DHisto (int); 
+TString       ME_getIter0MonitoringFilesChain (TString, int);
 void          ME_getIter3MonitoringFiles (TString, int);
 int           ME_getLatestTier0ProcessingID(TString, TString);
 void          ME_getMonitoringFileList ();
@@ -142,6 +145,7 @@ void          ME_performIter3Analysis (int);
 void          ME_plotDeltaBx ();
 void          ME_plotEvolutionHistos ();
 void          ME_plotHistosPerStave ();
+void          ME_prepareBeforeAlignmentHistosFolder ();
 void          ME_prepareAfterAlignmentHistosFolder ();
 void          ME_prepareEvolutionHistos ();
 void          ME_prepareHistosPerStave ();

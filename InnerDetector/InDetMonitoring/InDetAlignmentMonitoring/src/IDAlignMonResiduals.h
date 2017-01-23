@@ -83,8 +83,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void MakeSCTEndcapsHistograms (MonGroup& al_mon);
   void MakeSCTBarrelHistograms (MonGroup& al_mon);
 
-  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1D* projection);
-  TGraphErrors* ConvertHistoInGraph(TH1D*);
+  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1F* projection);
+  TGraphErrors* ConvertHistoInGraph(TH1F*);
 
   void MakeTRTHistograms(MonGroup& al_mon);
   void MakeTRTBarrelHistograms(MonGroup& al_mon);
@@ -457,11 +457,11 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   //IBL fit magnitude and baseline as a function of LumiBlock
   
-  TH1D* m_mag_vs_LB;
-  TH1D* m_base_vs_LB;
+  TH1F* m_mag_vs_LB;
+  TH1F* m_base_vs_LB;
 
-  TH1D* m_mag_vs_LB_planars;
-  TH1D* m_base_vs_LB_planars;
+  TH1F* m_mag_vs_LB_planars;
+  TH1F* m_base_vs_LB_planars;
 
 
   

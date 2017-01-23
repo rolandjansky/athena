@@ -95,10 +95,10 @@ StatusCode InDetAlignMonBeamSpot::initialize() {
   }
 
   if ( m_beamCondSvc.retrieve().isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endmsg;
   } else {
     m_hasBeamCondSvc = true;
-    msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endreq;
+    msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -201,7 +201,7 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
     m_hBsTiltY->Fill(1e6*beamTiltY);
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beamspot from " << m_beamCondSvc << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
 				  << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
-				  << ", tiltY = " << beamTiltY <<endreq;
+				  << ", tiltY = " << beamTiltY <<endmsg;
   }
 
   const xAOD::TrackParticleContainer* trackCollection = evtStore()->tryConstRetrieve<xAOD::TrackParticleContainer>(m_trackContainerName);
@@ -220,12 +220,12 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
 
     const xAOD::TrackParticle* tpb = *trkItr;
     if (!tpb) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Null pointer to TrackParticleBase" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Null pointer to TrackParticleBase" << endmsg;
       continue;
     }
     const Trk::Perigee* perigee = &(tpb->perigeeParameters());
     if (!perigee) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Null pointer to track perigee" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Null pointer to track perigee" << endmsg;
       continue;
     }
 

@@ -123,13 +123,13 @@ StatusCode IDAlignMonSivsTRT::initialize()
   if(!sc.isSuccess()) return sc;
   
   //initialize tools and services
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endmsg;
   sc = setupTools();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to initialize tools/services!" << endreq;
+    msg(MSG::FATAL) << "Failed to initialize tools/services!" << endmsg;
     return StatusCode::FAILURE;
   } 
-  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endreq;
+  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endmsg;
   return sc;
 }
 
@@ -259,7 +259,7 @@ void IDAlignMonSivsTRT::RegisterHisto(MonGroup& mon, TH1* histo) {
   histo->SetOption("e");
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH1 Histogram:" << endreq;
+    msg(MSG::ERROR) << "Cannot book TH1 Histogram:" << endmsg;
   }
 }
 
@@ -267,7 +267,7 @@ void IDAlignMonSivsTRT::RegisterHisto(MonGroup& mon, TProfile* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endreq;
+    msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endmsg;
   }
 }
 
@@ -276,7 +276,7 @@ void IDAlignMonSivsTRT::RegisterHisto(MonGroup& mon, TH2* histo) {
   //histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH2 Histogram:" << endreq;
+    msg(MSG::ERROR) << "Cannot book TH2 Histogram:" << endmsg;
   }
 }
 
@@ -291,13 +291,13 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
   //checking that we can retrieve the required track collections from SG
   //if not print out warning but only for first event
   if (!evtStore()->contains<TrackCollection>("ResolvedTracks")) {
-    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get ResolvedTracks TrackCollection" << endreq;}
-    else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get ResolvedTracks TrackCollection - histograms will not be filled" << endreq;
+    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get ResolvedTracks TrackCollection" << endmsg;}
+    else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get ResolvedTracks TrackCollection - histograms will not be filled" << endmsg;
     return StatusCode::SUCCESS;
   }
   if (!evtStore()->contains<TrackCollection>("ExtendedTracks")) {
-    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get ExtendedTracks TrackCollection" << endreq;}
-    else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get ExtendedTracks TrackCollection - histograms will not be filled" << endreq;
+    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get ExtendedTracks TrackCollection" << endmsg;}
+    else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get ExtendedTracks TrackCollection - histograms will not be filled" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -305,23 +305,23 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
   //tracks that are fitted to Si hits only, before extension to TRT
   DataVector<Trk::Track>* tracksSi = m_trackSelection->selectTracks("ResolvedTracks");
   if(!tracksSi) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Histograms not filled because TrackSelectionTool returned NULL track collection"<< endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Histograms not filled because TrackSelectionTool returned NULL track collection"<< endmsg;
     return StatusCode::SUCCESS;
   }
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Retrieved "<< tracksSi->size() <<" ResolvedTracks tracks from StoreGate" << endreq;
-    if(tracksSi->size()==0) msg(MSG::DEBUG) << "Histograms will not be filled because 0 tracks in ResolvedTracks (track collection probably doesn't exist)" << endreq;
+    msg(MSG::DEBUG) << "Retrieved "<< tracksSi->size() <<" ResolvedTracks tracks from StoreGate" << endmsg;
+    if(tracksSi->size()==0) msg(MSG::DEBUG) << "Histograms will not be filled because 0 tracks in ResolvedTracks (track collection probably doesn't exist)" << endmsg;
   } 
   
   //tracks that are fitted with Si and TRT hits
   DataVector<Trk::Track>* tracksTRT = m_trackSelection->selectTracks("ExtendedTracks");
   if(!tracksTRT) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Histograms not filled because TrackSelectionTool returned NULL track collection"<< endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Histograms not filled because TrackSelectionTool returned NULL track collection"<< endmsg;
     return StatusCode::SUCCESS;
   }
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Retrieved "<< tracksTRT->size() <<" ExtendedTracks tracks from StoreGate" << endreq;
-    if(tracksTRT->size()==0) msg(MSG::DEBUG) << "Histograms will not be filled because 0 tracks in ExtendedTracks (track collection probably doesn't exist)" << endreq;
+    msg(MSG::DEBUG) << "Retrieved "<< tracksTRT->size() <<" ExtendedTracks tracks from StoreGate" << endmsg;
+    if(tracksTRT->size()==0) msg(MSG::DEBUG) << "Histograms will not be filled because 0 tracks in ExtendedTracks (track collection probably doesn't exist)" << endmsg;
   } 
 
   int nTracksTRT = 0;
@@ -333,7 +333,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
     
     const Trk::Track* trackTRT = *trackItr;
     if(trackTRT == NULL){
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracksTRT << endreq;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracksTRT << endmsg;
       continue;
     }
 
@@ -352,13 +352,13 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
     const Trk::Perigee* TRTPerigee =  trackTRT->perigeeParameters();
 
     if (!TRTPerigee)
-      msg(MSG::WARNING) << "TRTPerigee is NULL. Track Information may be missing"<<endreq;
+      msg(MSG::WARNING) << "TRTPerigee is NULL. Track Information may be missing"<<endmsg;
     
 
     const AmgSymMatrix(5)* TRTPerCovariance = TRTPerigee ? TRTPerigee->covariance() : NULL;
     
     if ( TRTPerCovariance == 0 )  
-      msg(MSG::WARNING) << " failed dynamic_cast TRT track perigee to measured perigee, some parameters may be missing" << endreq; 
+      msg(MSG::WARNING) << " failed dynamic_cast TRT track perigee to measured perigee, some parameters may be missing" << endmsg; 
 
     double d0 = -999;
     double phi0 = -999;
@@ -383,9 +383,9 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 
     //trackStateOnSurfaces is a vector of Trk::TrackStateOnSurface objects which contain information 
     //on track at each (inner)detector surface it crosses eg hit used to fit track
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT Track = " << nTracksTRT << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT Track Eta = " << eta0 << ", phi = " << phi0 << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT Track nhitspix = " << nhpix << ", sct = " << nhsct << ", trt = " << nhtrt << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT Track = " << nTracksTRT << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT Track Eta = " << eta0 << ", phi = " << phi0 << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT Track nhitspix = " << nhpix << ", sct = " << nhsct << ", trt = " << nhtrt << endmsg;
 
 
     m_nhitstrt->Fill(nhtrt);
@@ -393,7 +393,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
     //tracks with eta > 2.1 do not intersect TRT and 
     //thus aren't considered for TRT-Si matching efficiency plots
     if(fabs(eta0) > 2.1) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ExtendedTracks track is outside eta < 2.1 - skipped" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ExtendedTracks track is outside eta < 2.1 - skipped" << endmsg;
       continue;
     }
 
@@ -409,7 +409,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
     // i.e. all tracks that are in ResolvedTracks are in ExtendedTracks too, most
     // without TRT hits
     if(nhtrt==0) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ExtendedTracks track has zero TRT hits" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ExtendedTracks track has zero TRT hits" << endmsg;
       //filling histos for tracks which do not have TRT hits (fitted with Si only) 
       m_si_phi0->Fill(phi0);
       m_si_eta0->Fill(eta0);
@@ -441,7 +441,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 
       const Trk::Track* trackSi = *trackItr2;
       if(trackSi == NULL){
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracksSi << endreq;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracksSi << endmsg;
       continue;
     }
 
@@ -449,12 +449,12 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
       const Trk::Perigee* SiPerigee = trackSi->perigeeParameters();
       
       if (!SiPerigee)
-	msg(MSG::WARNING) << " SiPerigee is NULL. Track information may be missing"<<endreq;
+	msg(MSG::WARNING) << " SiPerigee is NULL. Track information may be missing"<<endmsg;
       
       const AmgSymMatrix(5)* SiPerCovariance = SiPerigee ? SiPerigee->covariance() : NULL;
 
       if ( SiPerCovariance == 0 )  
-	msg(MSG::WARNING) << " failed dynamic_cast Si track perigee to measured perigee, some parameters may be missing" << endreq; 
+	msg(MSG::WARNING) << " failed dynamic_cast Si track perigee to measured perigee, some parameters may be missing" << endmsg; 
       
       double Siphi0 = -9999;
       double Sieta0 = -9999;
@@ -467,8 +467,8 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 	{
 	  Siphi0 = SiPerigee->parameters()[Trk::phi0];
 	  Sieta0 = SiPerigee->eta();
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Track = " << nTracksSi << endreq;
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Track Eta = " << Sieta0 << ", phi = " << Siphi0 << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Track = " << nTracksSi << endmsg;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Track Eta = " << Sieta0 << ", phi = " << Siphi0 << endmsg;
 	  //selecting Sionly track that is closest to TRT in eta-phi
 	  dphi2 = (phi0 - Siphi0)*(phi0 - Siphi0);
 	  deta2 = (eta0 - Sieta0)*(eta0 - Sieta0);
@@ -612,7 +612,7 @@ StatusCode IDAlignMonSivsTRT::fillEfficiencyProfileHisto(TH1* h_num, TH1* h_deno
 StatusCode IDAlignMonSivsTRT::fillEfficiencyHisto(TH1* num, TH1* den, TH1* eff){
 
   if(num->GetNbinsX()!=den->GetNbinsX() || num->GetNbinsX()!=eff->GetNbinsX()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of bins mismatch" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of bins mismatch" << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -634,26 +634,26 @@ StatusCode IDAlignMonSivsTRT::setupTools()
 {
   //initializing tools
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setupTools()" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setupTools()" << endmsg;
 
   if ( evtStore().retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << evtStore() << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve service " << evtStore() << endmsg;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::INFO) << "Retrieved service " << evtStore() << endreq;
+    msg(MSG::INFO) << "Retrieved service " << evtStore() << endmsg;
 
   if (m_trackSelection.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Can not retrieve TrackSelection tool of type "
-	<< m_trackSelection.typeAndName() << endreq;
+	<< m_trackSelection.typeAndName() << endmsg;
     return StatusCode::FAILURE;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_trackSelection.typeAndName() << endreq;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_trackSelection.typeAndName() << endmsg;
   
   // get TrackSummaryTool
   if ( m_trackSumTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSumTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSumTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
   }
   
 
