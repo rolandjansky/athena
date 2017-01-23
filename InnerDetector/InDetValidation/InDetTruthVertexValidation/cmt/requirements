@@ -1,0 +1,25 @@
+package InDetTruthVertexValidation
+
+public
+
+use AtlasPolicy			AtlasPolicy-* 
+use AsgTools                    AsgTools-*                      Control/AthToolSupport
+use xAODTracking                xAODTracking-*                  Event/xAOD
+use xAODTruth                   xAODTruth-*                     Event/xAOD
+
+private
+
+use AtlasROOT			AtlasROOT-*			External
+use GaudiInterface		GaudiInterface-*		External
+use AthenaBaseComps		AthenaBaseComps-*		Control
+use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
+
+end_private
+
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
+
+#library InDetTruthVertexValidation "../Root/*.cxx *.cxx -s=components *.cxx"
+#apply_pattern component_library
+
+apply_pattern declare_joboptions files = "*.py"
+
