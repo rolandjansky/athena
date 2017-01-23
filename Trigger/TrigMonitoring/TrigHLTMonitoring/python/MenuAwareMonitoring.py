@@ -1400,7 +1400,10 @@ class MenuAwareMonitoring:
         if output_json_filename == "":
             output_json_filename = "mam_defaults.json"
 
-        self.dump_local_config_to_json(output_json_filename,comment,default=1)
+        filename = output_json_filename
+        tempcomment = comment
+
+        self.dump_local_config_to_json(output_json_filename=filename,comment=tempcomment,default=1)
 
 
     def diff_json_files(self,input_default_config_file="",input_config_file="",output_json_filename="mam_diff_configs.json"):
@@ -1500,7 +1503,7 @@ class MenuAwareMonitoring:
 
         # if there are no local differences wrt the default, then we dump nothing and exit
         if diffed_global_info2 == {}:
-            print "No local differences have been found with respect to the default MCK ("+str(default_mck)+") for Athena version "+athena_version+"."
+            print "No local differences have been found with respect to the default configuration for Athena version "+athena_version+"."
             print "Nothing shall be dumped to json as a result."
             return
 

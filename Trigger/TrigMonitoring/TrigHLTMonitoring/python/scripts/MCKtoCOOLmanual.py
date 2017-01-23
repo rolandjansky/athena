@@ -9,7 +9,7 @@ from PyCool import cool
 import os
 os.environ['MAM_CORAL_DBLOOKUP_PATH']='/det/tdaq/hlt/mam/authentication/'
 os.environ['MAM_CORAL_AUTH_PATH']=os.environ['MAM_CORAL_DBLOOKUP_PATH']
-from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone
+from TrigHLTMonitoring.MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
 parser = argparse.ArgumentParser(description="Store an MCK in COOL for a run or run range. If MCK = 0, the offline project and version to store as the tag can be specifed, otherwise, the tag is taken from the MCK info stored in the TriggerDB")
