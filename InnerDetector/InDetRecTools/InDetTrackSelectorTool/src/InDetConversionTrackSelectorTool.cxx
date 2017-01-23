@@ -59,7 +59,6 @@ namespace InDet
    declareProperty("significanceZ0_Trt",   m_sZ0_Trt);
    declareProperty("IsConversion",         m_isConv);
    declareProperty("BeamPositionSvc",      m_iBeamCondSvc);
-   declareProperty("BeamPositionSvc",      m_iBeamCondSvc);
    declareProperty("PIDonlyForXe",         m_PIDonlyForXe = false,
      "Only check TRT PID if all hits are Xe hits");
  }
