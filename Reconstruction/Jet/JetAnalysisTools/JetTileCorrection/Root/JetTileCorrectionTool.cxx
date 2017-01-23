@@ -10,6 +10,10 @@
 // Local include(s):
 #include "JetTileCorrection/JetTileCorrectionTool.h"
 
+#ifndef XAOD_STANDALONE // For now metadata is Athena-only
+#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+#endif
+
 #include "PATInterfaces/CorrectionTool.h"
 #include "PATInterfaces/SystematicCode.h"     
 #include "PATInterfaces/SystematicRegistry.h"
@@ -41,7 +45,7 @@ namespace CP {
   
 
   JetTileCorrectionTool :: JetTileCorrectionTool( const std::string& name )
-    : asg::AsgTool( name ),
+    : asg::AsgMetadataTool( name ),
       m_appliedSystematics(0)
   {
     declareProperty("CorrectionFileName", m_rootFileName="JetTileCorrection/JetTile_pFile_010216.root", "Parametrization file");
@@ -62,11 +66,21 @@ namespace CP {
     // Greet the user:
     ATH_MSG_INFO( "Initialising..." );
 
+#ifdef XAOD_STANDALONE
     // Retrieve the event information (check if MC or data)
     const xAOD::EventInfo* ei(0);
     ATH_CHECK( evtStore()->retrieve( ei, "EventInfo" ) );
 
     m_isMC = ei->eventType( xAOD::EventInfo::IS_SIMULATION );
+#else
+    // Retrieve the metadata (check if MC or data)
+    std::string projectName = "";
+    ATH_CHECK( AthAnalysisHelper::retrieveMetadata("/TagInfo", "project_name", projectName, inputMetaStore() ) );
+    if ( projectName == "IS_SIMULATION" ) m_isMC = true;
+    else if (projectName.compare(0, 4, "data") == 0 ) m_isMC = false;
+    ATH_MSG_INFO("Set up JetTileCorrectionTool -- this is MC? " << m_isMC);
+#endif
+
 
     //set RJET
     setRJET( (float) RJET );
@@ -150,7 +164,7 @@ namespace CP {
     dec_status(jet) = (unsigned int) status; //save status decoration
 
     // Nothing to do, return gracefully:
-    if(status == TS::GOOD) return CorrectionCode::Ok;    
+    if(status == TS::GOOD) return CorrectionCode::Ok;
 
     //get relative-pt factor to correct for
     std::vector<float> cfactors = getCorrections(jet);
@@ -391,7 +405,8 @@ namespace CP {
       }
       
       dbh++;
-      ATH_MSG_INFO("Adding DB dead module at (eta1,phi1)=(" << h.eta1 << "," << h.phi1 << ")");
+
+      //      ATH_MSG_INFO("Adding DB dead module at (eta1,phi1)=(" << h.eta1 << "," << h.phi1 << ")");
       ATH_MSG_DEBUG("Adding DB dead module at (eta1,phi1)=(" << h.eta1 << "," << h.phi1 << ")");
     }
   }

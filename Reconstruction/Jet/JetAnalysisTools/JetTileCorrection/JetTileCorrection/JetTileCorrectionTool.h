@@ -9,7 +9,7 @@
 #define JETTILECORRECTION_JETTILECORRECTIONTOOL_H
 
 // Framework include(s):
-#include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
 
 // Tool dependencies
 
@@ -42,7 +42,7 @@
 namespace CP {
   
   class JetTileCorrectionTool : public virtual IJetTileCorrectionTool,
-                                public asg::AsgTool
+                                public asg::AsgMetadataTool
   {
     /// Create a proper constructor for Athena
     ASG_TOOL_CLASS2( JetTileCorrectionTool, CP::IJetTileCorrectionTool, CP::ISystematicsTool )
