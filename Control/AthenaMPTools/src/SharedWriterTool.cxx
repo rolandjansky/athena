@@ -154,7 +154,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP Shared Writer PID=" << getpid());
 
   // FIXME: IEventShare ...
-  if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
+  if(!m_evtShare->makeServer(-m_nprocs).isSuccess()) {
     ATH_MSG_ERROR("Failed to make the event selector a share server");
     return outwork;
   }
