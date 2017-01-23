@@ -50,25 +50,25 @@ StatusCode PixelRawContByteStreamTool::initialize() {
 
   IToolSvc* toolSvc;
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)) {
-    m_log << MSG::ERROR << "Can't get ToolSvc" << endreq;
+    m_log << MSG::ERROR << "Can't get ToolSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   
   std::string toolType ; 
 
   if (m_pixelCabling.retrieve().isFailure()) {
-    m_log << MSG::ERROR << "Can't get PixelCablingSvc" << endreq;
+    m_log << MSG::ERROR << "Can't get PixelCablingSvc" << endmsg;
     return StatusCode::FAILURE;
   }
    
   // Get PixelID
   if (detStore()->retrieve(m_PixelID, "PixelID").isFailure()) {
-   msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+   msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
    return StatusCode::FAILURE;
   }
 
   if (detStore()->retrieve(m_pixelManager, "Pixel").isFailure()) {
-    msg(MSG::FATAL) << "Failed to get Pixel Manager" << endreq;
+    msg(MSG::FATAL) << "Failed to get Pixel Manager" << endmsg;
     return StatusCode::FAILURE;
   }
    
@@ -93,7 +93,7 @@ StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont,RawEvent
   // set ROD Minor version
   m_fea.setRodMinorVersion(m_RodBlockVersion);
 #ifdef _DEBUG
-  m_log << MSG::DEBUG << "Setting ROD Minor Version Number to: " << m_RodBlockVersion << endreq;
+  m_log << MSG::DEBUG << "Setting ROD Minor Version Number to: " << m_RodBlockVersion << endmsg;
 #endif
 
   // a map for ROD ID onto Encoder
@@ -103,7 +103,7 @@ StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont,RawEvent
   PixelRDO_Container::const_iterator it_coll = cont->begin(); 
   PixelRDO_Container::const_iterator it_coll_end = cont->end();
 #ifdef _DEBUG
-  m_log << MSG::DEBUG << "Found " << cont->size() << " Pixel modules" << endreq ;
+  m_log << MSG::DEBUG << "Found " << cont->size() << " Pixel modules" << endmsg ;
 #endif
 
 
@@ -115,7 +115,7 @@ StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont,RawEvent
       Identifier offlineId = coll->identify();
       uint32_t rodId = m_pixelCabling->getRobId(offlineId);  //FIXME
       if (  rodId < 1) {
-	m_log << MSG::ERROR << "Didn't found ROBID for OfflineID: 0x" << std::hex << offlineId << std::dec << endreq;
+	m_log << MSG::ERROR << "Didn't found ROBID for OfflineID: 0x" << std::hex << offlineId << std::dec << endmsg;
       } 
 
       //=======================================================================================================================//
@@ -136,7 +136,7 @@ StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont,RawEvent
       }
     }
     else
-      m_log << MSG::WARNING << "IDC contains NULLpointer to collection, skipping collection" << endreq;
+      m_log << MSG::WARNING << "IDC contains NULLpointer to collection, skipping collection" << endmsg;
   }
 
   //=======================================================================================================================//

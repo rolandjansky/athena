@@ -49,8 +49,8 @@ PixelRodEncoder::~PixelRodEncoder()
 void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int BCs_per_LVL1ID) 
 {
 #ifdef PIXEL_DEBUG
-  log << MSG::VERBOSE << " #####################################################################################" << endreq;
-  log << MSG::DEBUG << "Entering PixelRodEncoder" << endreq;
+  log << MSG::VERBOSE << " #####################################################################################" << endmsg;
+  log << MSG::DEBUG << "Entering PixelRodEncoder" << endmsg;
 #endif
 
   // Loop over the Hits in a ROD
@@ -62,15 +62,15 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
   const InDetDD::SiNumerology& pixSiNum = m_PixelDetectorManager->numerology(); 
   m_is_ibl_present = (pixSiNum.numLayers() == 4);
 #ifdef PIXEL_DEBUG
-  log << MSG::VERBOSE << "m_is_ibl_present = " << m_is_ibl_present << endreq;
-  log << MSG::DEBUG << "pixSiNum.numLayers() =  " << pixSiNum.numLayers() << endreq;
+  log << MSG::VERBOSE << "m_is_ibl_present = " << m_is_ibl_present << endmsg;
+  log << MSG::DEBUG << "pixSiNum.numLayers() =  " << pixSiNum.numLayers() << endmsg;
 #endif
   
   m_is_ibl_module = false;
   m_is_dbm_module = false;
 #ifdef PIXEL_DEBUG
-  log << MSG::VERBOSE << "in fillROD with " << BCs_per_LVL1ID << " LVL1As" << endreq;
-  log << MSG::VERBOSE << "Dimension of the RDO vector: " << m_RDOs.size() << endreq;
+  log << MSG::VERBOSE << "in fillROD with " << BCs_per_LVL1ID << " LVL1As" << endmsg;
+  log << MSG::VERBOSE << "Dimension of the RDO vector: " << m_RDOs.size() << endmsg;
 #endif
 
   int hitDiscCnfg = 2;
@@ -90,7 +90,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	offlineId_last = m_PixelID->wafer_id((*rdo_it)->identify());
       }
       if (m_PixelID->wafer_id((*rdo_it)->identify()) != offlineId_last) {
-	log << MSG::VERBOSE << endreq;
+	log << MSG::VERBOSE << endmsg;
       }
       ++i;
       if ( (m_pixelCabling->isIBL((*rdo_it)->identify())) || 
@@ -102,9 +102,9 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	  fe = m_pixelCabling->getFE(&((*rdo_it)->identify()), m_PixelID->wafer_id((*rdo_it)->identify()) );
 	  log << MSG::VERBOSE << "Pixels  \t";
 	}
-      log << MSG::VERBOSE << "offlineId: " << std::hex << m_PixelID->wafer_id((*rdo_it)->identify()) << "\t FE n.: " << fe << endreq;
+      log << MSG::VERBOSE << "offlineId: " << std::hex << m_PixelID->wafer_id((*rdo_it)->identify()) << "\t FE n.: " << fe << endmsg;
       offlineId_last = m_PixelID->wafer_id((*rdo_it)->identify());
-      //log << MSG::VERBOSE << "offlineId: " << std::hex << m_PixelID->wafer_id((*rdo_it)->identify()) << "\t FE n.: " << fe << endreq;
+      //log << MSG::VERBOSE << "offlineId: " << std::hex << m_PixelID->wafer_id((*rdo_it)->identify()) << "\t FE n.: " << fe << endmsg;
     }
 #endif
 */
@@ -132,7 +132,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
     int last_BCID = 0;  // needed for encoding of timing information
     while (rdo_it != rdo_it_end) {
 #ifdef PIXEL_DEBUG
-      log << MSG::VERBOSE << "Inside cycle on the rdo_it" << endreq;
+      log << MSG::VERBOSE << "Inside cycle on the rdo_it" << endmsg;
  #endif
       rawdata = (*rdo_it);
       pixelId = rawdata->identify();
@@ -152,11 +152,11 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
       m_is_dbm_module = m_pixelCabling->isDBM(robId);
 
 #ifdef PIXEL_DEBUG
-      log << MSG::DEBUG << " ********************* robId retrieved: 0x" << std::hex << robId << std::dec << endreq;
-      log << MSG::DEBUG << "offlineId retrieved: " << offlineId << endreq;
+      log << MSG::DEBUG << " ********************* robId retrieved: 0x" << std::hex << robId << std::dec << endmsg;
+      log << MSG::DEBUG << "offlineId retrieved: " << offlineId << endmsg;
       log << MSG::DEBUG << "onlineId retrieved: 0x" << std::hex << onlineId << ", linknumber retrieved: 0x" << linknumber << std::dec
-	  << ", ToT: " << TOT << ", BCID: " << BCID << ", LVL1ID: " << LVL1ID << ", LVL1A: " << LVL1A << endreq;
-      log << MSG::DEBUG << "Is IBL = " << m_is_ibl_module << "  or is DBM = " << m_is_dbm_module << endreq;
+	  << ", ToT: " << TOT << ", BCID: " << BCID << ", LVL1ID: " << LVL1ID << ", LVL1A: " << LVL1A << endmsg;
+      log << MSG::DEBUG << "Is IBL = " << m_is_ibl_module << "  or is DBM = " << m_is_dbm_module << endmsg;
 #endif      
 
 
@@ -166,7 +166,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
       if (!(m_is_ibl_module || m_is_dbm_module)) {
 
 #ifdef PIXEL_DEBUG
-      log << MSG::DEBUG << "This is the PixelCase of the PixelRodEncoder" << endreq;
+      log << MSG::DEBUG << "This is the PixelCase of the PixelRodEncoder" << endmsg;
 #endif
 
 //----------------------------------------------------------------------------------------------
@@ -177,15 +177,15 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	  timing_error = false;
 	  if (BCs_per_LVL1ID < LVL1A) { // That must not happen, if LVL1A > BCs_per_LVL1ID, BCs_perLVL1ID is wrongly set in the joboptions
 #ifdef PIXEL_DEBUG
-	    log << MSG::DEBUG << "LVL1A > BCs_per_LVL1ID, timing corrupt, ignoring timing." << " Set BCs per LVL1ID: " << BCs_per_LVL1ID << endreq;
+	    log << MSG::DEBUG << "LVL1A > BCs_per_LVL1ID, timing corrupt, ignoring timing." << " Set BCs per LVL1ID: " << BCs_per_LVL1ID << endmsg;
 #endif
 	    timing_error = true;
 	  }
 	  if (prev_offlineId != 0x0) {
 	    v32rod.push_back(packLinkTrailer(0x0));
 #ifdef PIXEL_DEBUG
-	    log << MSG::DEBUG << "Pixel module trailer" << endreq;
-	    log << MSG::VERBOSE << " ------------------------------------------------------------------------------------------" << endreq;
+	    log << MSG::DEBUG << "Pixel module trailer" << endmsg;
+	    log << MSG::VERBOSE << " ------------------------------------------------------------------------------------------" << endmsg;
 #endif
 	  //------------------------------------------------------------------------------------
 	  //- Write empty Header/Trailer pairs after the level1 accept
@@ -198,7 +198,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	      v32rod.push_back(packLinkHeader(linknumber, fake_BCID, LVL1ID, (LVL1ID >> 4), 0x0));
 	      v32rod.push_back(packLinkTrailer(0x0));
 #ifdef PIXEL_DEBUG
-	      log << MSG::DEBUG << "(after) empty Pixel Module header/trailer pair written for BCID " << fake_BCID << endreq;
+	      log << MSG::DEBUG << "(after) empty Pixel Module header/trailer pair written for BCID " << fake_BCID << endmsg;
 #endif
 	    } // end while cycle "while ((fake_BCID < max_BCID) && !timing_error)"
 	  } // end if "if (prev_offlineId != 0x0) "
@@ -212,7 +212,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	    v32rod.push_back(packLinkHeader(linknumber, fake_BCID, LVL1ID, (LVL1ID >> 4), 0x0));
 	    v32rod.push_back(packLinkTrailer(0x0));
 #ifdef PIXEL_DEBUG
-	    log << MSG::DEBUG << "(before) empty Pixel Module header/trailer pair written for BCID " << fake_BCID << endreq;
+	    log << MSG::DEBUG << "(before) empty Pixel Module header/trailer pair written for BCID " << fake_BCID << endmsg;
 #endif
 	    last_BCID = fake_BCID;  
 	    fake_BCID++;
@@ -220,7 +220,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 
 	  v32rod.push_back(packLinkHeader(linknumber, BCID, LVL1ID, (LVL1ID >> 4), 0x0));
 #ifdef PIXEL_DEBUG
-	  log << MSG::DEBUG << "Pixel module header" << endreq;
+	  log << MSG::DEBUG << "Pixel module header" << endmsg;
 #endif
 	} // end if "if (prev_offlineId != offlineId) "
 
@@ -250,11 +250,11 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
         last_BCID = BCID;  
 
 #ifdef PIXEL_DEBUG
-        log << MSG::DEBUG << "Found hit in PIXEL with PixelID: 0x" << std::hex << pixelId << std::dec << " FE: " << FE << " Row: " << row << " Column: " << column << " TOT: " << TOT << " BCID: " << BCID << " LVL1ID: " << LVL1ID << " LVL1A: " << LVL1A << endreq;
+        log << MSG::DEBUG << "Found hit in PIXEL with PixelID: 0x" << std::hex << pixelId << std::dec << " FE: " << FE << " Row: " << row << " Column: " << column << " TOT: " << TOT << " BCID: " << BCID << " LVL1ID: " << LVL1ID << " LVL1A: " << LVL1A << endmsg;
 #endif
 
 #ifdef PIXEL_DEBUG
-        log << MSG::DEBUG << "Encoded Pixel OfflineID: 0x" << std::hex << offlineId << " OnlineID: 0x" << onlineId << " -> Linknumber: 0x" << linknumber << std::dec << endreq;
+        log << MSG::DEBUG << "Encoded Pixel OfflineID: 0x" << std::hex << offlineId << " OnlineID: 0x" << onlineId << " -> Linknumber: 0x" << linknumber << std::dec << endmsg;
 #endif
         prev_offlineId = offlineId;
       } // end Pixel Case  
@@ -268,18 +268,18 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
       else {
 
 #ifdef PIXEL_DEBUG
-	log << MSG::DEBUG << "Inside the IBL/DBM case of the PixelRodEncoder" << endreq;
+	log << MSG::DEBUG << "Inside the IBL/DBM case of the PixelRodEncoder" << endmsg;
 #endif
 
 	FE = m_pixelCabling->getFEwrtSlink(&pixelId); 
 	sLink = onlineId & 0xF; // extract the LSB 4 bits from the onlineId
 	if (sLink > 0x3) {
-	  log << MSG::WARNING << "The SLink is not in the correct range [0,3]. This is due to the non-correct onlineId/ROBID definition. Skipping this RDO" << endreq;
+	  log << MSG::WARNING << "The SLink is not in the correct range [0,3]. This is due to the non-correct onlineId/ROBID definition. Skipping this RDO" << endmsg;
 	  continue; // skipping this rdo, because it gives wrong onlineID (and, possibly, other pieces of information are wrong too)
 	}
 	n5 = ((sLink & 0x3) << 3) | (FE & 0x7); // this variable contains the 5 "nnnnn" bits, the 2 MSB ones representing the copy of the S-Link number (0 to 3) and the 2 LSBs representing the FE number over the S-Link
 #ifdef PIXEL_DEBUG
-	log << MSG::VERBOSE << "FE (w.r.t. SLink) = 0x" << std::hex << FE << " sLink: 0x" << sLink << " => n5: 0x" << n5 << std::dec << endreq;
+	log << MSG::VERBOSE << "FE (w.r.t. SLink) = 0x" << std::hex << FE << " sLink: 0x" << sLink << " => n5: 0x" << n5 << std::dec << endmsg;
 #endif
 
         hitDiscCnfg = m_pixelCabling->getHitDiscCnfg(robId, FE);
@@ -288,15 +288,15 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 //- Fill the data
 //----------------------------------------------------------------------------------------------
 #ifdef PIXEL_DEBUG
-	log << MSG::VERBOSE << "(prev_offlineId != offlineId) = " << (prev_offlineId != offlineId) << "   (prev_n5 != n5) = " <<  (prev_n5 != n5) << "  " << endreq;
-	log << MSG::VERBOSE << "prev_offlineId = " <<  prev_offlineId << endreq;
+	log << MSG::VERBOSE << "(prev_offlineId != offlineId) = " << (prev_offlineId != offlineId) << "   (prev_n5 != n5) = " <<  (prev_n5 != n5) << "  " << endmsg;
+	log << MSG::VERBOSE << "prev_offlineId = " <<  prev_offlineId << endmsg;
 #endif
         if ((prev_offlineId != offlineId) || (prev_n5 != n5)) {
 	  int fake_BCID;
 	  timing_error = false;
 	  if (BCs_per_LVL1ID < LVL1A) { // That must not happen, if LVL1A > BCs_per_LVL1ID, BCs_perLVL1ID is wrongly set in the joboptions
 #ifdef PIXEL_DEBUG
-	    log << MSG::DEBUG << "LVL1A > BCs_per_LVL1ID, timing corrupt, ignoring timing." << " Set BCs per LVL1ID: " << BCs_per_LVL1ID << endreq;
+	    log << MSG::DEBUG << "LVL1A > BCs_per_LVL1ID, timing corrupt, ignoring timing." << " Set BCs per LVL1ID: " << BCs_per_LVL1ID << endmsg;
 #endif
 	    timing_error = true;
 	  }
@@ -305,7 +305,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	    v32rod.push_back(packLinkTrailer_IBL(prev_n5, timing_error, condensedMode, linkMasked)); // Trailer for IBL
 	    condensedMode = false;
 #ifdef PIXEL_DEBUG
-	    log << MSG::DEBUG << "IBL Module trailer (because prev_offlineId != 0x0)" << endreq;
+	    log << MSG::DEBUG << "IBL Module trailer (because prev_offlineId != 0x0)" << endmsg;
 #endif
 
 	  //------------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	      v32rod.push_back(packLinkTrailer_IBL(n5, timing_error, condensedMode, linkMasked)); // Trailer for IBL
 
 #ifdef PIXEL_DEBUG
-	      log << MSG::DEBUG << "(after) empty IBL Module header/trailer pair written for BCID " << fake_BCID << endreq;
+	      log << MSG::DEBUG << "(after) empty IBL Module header/trailer pair written for BCID " << fake_BCID << endmsg;
 #endif
 	    } // end while cycle "while ((fake_BCID < max_BCID) && !timing_error)"
 	  } // end if "if (prev_offlineId != 0x0) "
@@ -334,7 +334,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	    v32rod.push_back(packLinkHeader_IBL(n5, fake_BCID, LVL1ID, 0x0)); // Header for IBL
 	    v32rod.push_back(packLinkTrailer_IBL(n5, timing_error, condensedMode, linkMasked)); // Trailer for IBL
 #ifdef PIXEL_DEBUG
-	    log << MSG::DEBUG << "(before) empty IBL Module header/trailer pair written for BCID " << fake_BCID << endreq;
+	    log << MSG::DEBUG << "(before) empty IBL Module header/trailer pair written for BCID " << fake_BCID << endmsg;
 #endif
 	    last_BCID = fake_BCID;  
 	    fake_BCID++;
@@ -342,7 +342,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 
 	  v32rod.push_back(packLinkHeader_IBL(n5, BCID, LVL1ID, 0x0)); // Header for IBL
 #ifdef PIXEL_DEBUG
-	  log << MSG::DEBUG << "IBL Module header" << endreq;
+	  log << MSG::DEBUG << "IBL Module header" << endmsg;
 #endif
 	} // end if "if (prev_offlineId != offlineId) "
 
@@ -358,18 +358,18 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	  uint32_t fe_probe = m_pixelCabling->getFEwrtSlink(&pixelId_probe);
 
 #ifdef PIXEL_DEBUG
-	  log << MSG::VERBOSE << "offlineId: " << offlineId << "    offlineId_probe: " << offlineId_probe << ",    fe: " << FE << "     fe_probe: " << fe_probe << endreq;
+	  log << MSG::VERBOSE << "offlineId: " << offlineId << "    offlineId_probe: " << offlineId_probe << ",    fe: " << FE << "     fe_probe: " << fe_probe << endmsg;
 #endif
 
       if ((offlineId_probe == offlineId) && (FE == fe_probe)) {
 #ifdef PIXEL_DEBUG
-        log << MSG::VERBOSE << "=======> IN " << endreq;
+        log << MSG::VERBOSE << "=======> IN " << endmsg;
 #endif
 	    rdos_sameIBL_offlineId.push_back((*rdo_it));
 	  }
 	  else {
 #ifdef PIXEL_DEBUG
-	    log << MSG::VERBOSE << "=======> OUT." << endreq; // It has been checked that no RDO is being missed when running inside the following loop.
+	    log << MSG::VERBOSE << "=======> OUT." << endmsg; // It has been checked that no RDO is being missed when running inside the following loop.
 #endif
 	    break;
 	  }
@@ -386,7 +386,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	  uint32_t col = m_pixelCabling->getColumn(&pixelId_probe, offlineId); // offlineId of rdos in rdos_sameIBL_offlineId vector are, of course, all equal
 	  uint32_t row = m_pixelCabling->getRow(&pixelId_probe, offlineId);
 	  int tot = (*rdo_same_it)->getToT();
-	  log << MSG::VERBOSE << "col: " << col << " (0x" << std::hex << col << std::dec << ")\trow: "<< row << " (0x" << std::hex << row << std::dec << ")\ttot: " << tot << "(0x" <<std::hex << tot << std::dec << ")" << endreq;
+	  log << MSG::VERBOSE << "col: " << col << " (0x" << std::hex << col << std::dec << ")\trow: "<< row << " (0x" << std::hex << row << std::dec << ")\ttot: " << tot << "(0x" <<std::hex << tot << std::dec << ")" << endmsg;
 	}
 
 	rdo_same_it = rdos_sameIBL_offlineId.begin(); 
@@ -402,7 +402,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	rdo_same_it = rdos_sameIBL_offlineId.begin();
       	rdo_same_it_end = rdos_sameIBL_offlineId.end();
 
-	log << MSG::DEBUG << "Re-ordered RDOs with Same offlineId:" << endreq;
+	log << MSG::DEBUG << "Re-ordered RDOs with Same offlineId:" << endmsg;
 	for (; rdo_same_it != rdo_same_it_end; ++rdo_same_it) {
 	  Identifier pixelId_probe = (*rdo_same_it)->identify();
 	  uint32_t col = m_pixelCabling->getColumn(&pixelId_probe, offlineId);
@@ -412,10 +412,10 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	  int phi_i = m_PixelID->phi_index(pixelId_probe);
 	  int eta_m = m_PixelID->eta_module(pixelId_probe);
 	  int phi_m = m_PixelID->phi_module(pixelId_probe);
-	  log << MSG::VERBOSE << "pixelId: " << pixelId_probe << ",  eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m << endreq;
-	  log << MSG::VERBOSE << "col: 0x" << std::hex << col << std::dec << ",  row: 0x" <<std::hex << row << std::dec << ",  tot = 0x" << std::hex << tot << std::dec << endreq;
+	  log << MSG::VERBOSE << "pixelId: " << pixelId_probe << ",  eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m << endmsg;
+	  log << MSG::VERBOSE << "col: 0x" << std::hex << col << std::dec << ",  row: 0x" <<std::hex << row << std::dec << ",  tot = 0x" << std::hex << tot << std::dec << endmsg;
 	}
-	log << MSG::DEBUG << "rdos_sameIBL_offlineId.size() = " << rdos_sameIBL_offlineId.size() << endreq;
+	log << MSG::DEBUG << "rdos_sameIBL_offlineId.size() = " << rdos_sameIBL_offlineId.size() << endmsg;
 #endif
 #ifdef PLOTS
 	rdo_same_it = rdos_sameIBL_offlineId.begin();
@@ -453,7 +453,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	VRDO::iterator rdo_test_it = rdos_sameIBL_offlineId.begin();
 	VRDO::iterator rdo_test_it_end = rdos_sameIBL_offlineId.end();
 #ifdef PIXEL_DEBUG
-	log << MSG::VERBOSE << "Looking for adjacent pixels and saving col, row and tot information." << endreq;
+	log << MSG::VERBOSE << "Looking for adjacent pixels and saving col, row and tot information." << endmsg;
 #endif
 
 	for (; rdo_same_it != rdo_same_it_end; ++rdo_same_it) {
@@ -470,7 +470,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 
 	  if (row0 == rowsPerFE) {
 #ifdef PIXEL_DEBUG
-	    log << MSG::VERBOSE << "Hit in the last row (== 336) of the IBL FE." << endreq;
+	    log << MSG::VERBOSE << "Hit in the last row (== 336) of the IBL FE." << endmsg;
 #endif
 	  }
 	  else {
@@ -486,14 +486,14 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 #endif
 
 #ifdef PIXEL_DEBUG
-	      log << MSG::VERBOSE << "Comparing rdo[i] = " << (*rdo_same_it) << "   with rdo[i+1] = " << (*rdo_test_it) << endreq;
-	      log << MSG::VERBOSE << "   col0 = 0x" << std::hex << col0 << "   col1 = 0x" << col1 << "   row0 = 0x" << row0 << "\t row1 = 0x" << row1 << std::dec << endreq;
+	      log << MSG::VERBOSE << "Comparing rdo[i] = " << (*rdo_same_it) << "   with rdo[i+1] = " << (*rdo_test_it) << endmsg;
+	      log << MSG::VERBOSE << "   col0 = 0x" << std::hex << col0 << "   col1 = 0x" << col1 << "   row0 = 0x" << row0 << "\t row1 = 0x" << row1 << std::dec << endmsg;
 #endif	    
 
 	      if ((col1 == col0) && (row1 == (row0 + 1))) {
 		doubleHit = true;
 #ifdef PIXEL_DEBUG
-		log << MSG::VERBOSE << "Two adjacent hits found" << endreq;
+		log << MSG::VERBOSE << "Two adjacent hits found" << endmsg;
 #endif
 		int tot0 = (*rdo_same_it)->getToT();
 		int tot1 = (*rdo_test_it)->getToT();
@@ -512,7 +512,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
                 totInHitWord = (tot0 << 4) | tot1;
 
 #ifdef PIXEL_DEBUG
-		log << MSG::VERBOSE << "doubleHit = " << std::boolalpha << doubleHit << std::noboolalpha << " ===> (col0 == col1) : 0x" << std::hex << col0 << " = 0x" << col1 << ";    (row0 = row1 - 1) : 0x" << row0 << " => 0x" << row1 <<";     (tot0) : 0x" << tot0 << ", (tot1) : 0x" << tot1 << " => totInHitWord: 0x" << totInHitWord << std::dec << endreq;
+		log << MSG::VERBOSE << "doubleHit = " << std::boolalpha << doubleHit << std::noboolalpha << " ===> (col0 == col1) : 0x" << std::hex << col0 << " = 0x" << col1 << ";    (row0 = row1 - 1) : 0x" << row0 << " => 0x" << row1 <<";     (tot0) : 0x" << tot0 << ", (tot1) : 0x" << tot1 << " => totInHitWord: 0x" << totInHitWord << std::dec << endmsg;
 #endif
 		rdo_same_it++;
 	      } // end if "(col1==col0) && (row1 ==  (row0+1))"
@@ -520,7 +520,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	    
 	    else { 
 #ifdef PIXEL_DEBUG
-	      log << MSG::VERBOSE << "last rdo with same Offline Id" << endreq;
+	      log << MSG::VERBOSE << "last rdo with same Offline Id" << endmsg;
 #endif
 	    } // end if it's the last rdo with same offlineId 
 	  } // end if "row0 == rowsPerFE" (== 336)
@@ -540,7 +540,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
               totInHitWord = (tot0 << 4) | 0x0;
 
 #ifdef PIXEL_DEBUG
-	    log << MSG::VERBOSE << "doubleHit = " << std::boolalpha << doubleHit << std::noboolalpha << " ===> col0: 0x" << std::hex << col0 << std::dec << ";   row0: 0x" << std::hex << row0 << std::dec << "   totInHitWord: 0x" << std::hex << totInHitWord << std::dec << endreq;
+	    log << MSG::VERBOSE << "doubleHit = " << std::boolalpha << doubleHit << std::noboolalpha << " ===> col0: 0x" << std::hex << col0 << std::dec << ";   row0: 0x" << std::hex << row0 << std::dec << "   totInHitWord: 0x" << std::hex << totInHitWord << std::dec << endmsg;
 #endif
 	  }
 	  vCols.push_back(col0);
@@ -550,35 +550,35 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 
 	//check:
 #ifdef PIXEL_DEBUG
-	log << MSG::DEBUG << "CHECKs over the vectors storing columns, rows, ToTs of IBL/DBM hits:" << endreq;
-	log << MSG::VERBOSE << " vCols: " << endreq;
+	log << MSG::DEBUG << "CHECKs over the vectors storing columns, rows, ToTs of IBL/DBM hits:" << endmsg;
+	log << MSG::VERBOSE << " vCols: " << endmsg;
 	std::vector<uint32_t>::iterator vCols_it = vCols.begin();
 	std::vector<uint32_t>::iterator vCols_it_end = vCols.end();
 	for (; vCols_it != vCols_it_end; ++vCols_it) {
 	  log << MSG::VERBOSE << "0x" << std::hex << *vCols_it << std::dec << "   ";
 	}
-	log << MSG::VERBOSE << endreq;
-	log << MSG::VERBOSE << "vRows: " << endreq;
+	log << MSG::VERBOSE << endmsg;
+	log << MSG::VERBOSE << "vRows: " << endmsg;
 	std::vector<uint32_t>::iterator vRows_it = vRows.begin();
 	std::vector<uint32_t>::iterator vRows_it_end = vRows.end();
 	for (; vRows_it != vRows_it_end; ++vRows_it) {
 	  log << MSG::VERBOSE << "0x" << std::hex << *vRows_it << std::dec <<"   ";
 	}
-	log << MSG::VERBOSE << endreq;
-	log << MSG::VERBOSE << "vTots: " << endreq;
+	log << MSG::VERBOSE << endmsg;
+	log << MSG::VERBOSE << "vTots: " << endmsg;
 	std::vector<int>::iterator vTots_it = vTots.begin();
 	std::vector<int>::iterator vTots_it_end = vTots.end();
 	for (; vTots_it != vTots_it_end; ++vTots_it) {
 	  log << MSG::VERBOSE << "0x" << std::hex << *vTots_it << std::dec << "   ";
 	}
-	log << MSG::VERBOSE << endreq;
-	log << MSG::DEBUG << "rdos_sameIBL_offlineId.size() = " << rdos_sameIBL_offlineId.size() << "    vRows.size() = " << vRows.size() << "    vCols.size() = " << vCols.size() << "    vTots.size() = " << vTots.size() << endreq;
+	log << MSG::VERBOSE << endmsg;
+	log << MSG::DEBUG << "rdos_sameIBL_offlineId.size() = " << rdos_sameIBL_offlineId.size() << "    vRows.size() = " << vRows.size() << "    vCols.size() = " << vCols.size() << "    vTots.size() = " << vTots.size() << endmsg;
 #endif
 
 	//Packing of the IBL hits 
 	if (vRows.size() >= 5) { 
 #ifdef PIXEL_DEBUG
-	  log << MSG::DEBUG << "5 (or more) IBL hits have been consequently found. They can be written as condensed hits" << endreq;
+	  log << MSG::DEBUG << "5 (or more) IBL hits have been consequently found. They can be written as condensed hits" << endmsg;
 #endif
 	  while (vRows.size() >= 5) {
 	    packIBLcondensed(v32rod, vRows, vCols, vTots);
@@ -600,7 +600,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
         last_BCID = BCID;  
 
 #ifdef PIXEL_DEBUG
-        log << MSG::DEBUG << "Encoded IBL OfflineID: " << std::hex << offlineId << " OnlineID: 0x" << onlineId << std::dec << endreq;
+        log << MSG::DEBUG << "Encoded IBL OfflineID: " << std::hex << offlineId << " OnlineID: 0x" << onlineId << std::dec << endmsg;
 #endif
 
         prev_offlineId = offlineId;
@@ -613,19 +613,19 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
       v32rod.push_back(packLinkTrailer_IBL(n5, timing_error, condensedMode, linkMasked));
       condensedMode = false;
 #ifdef PIXEL_DEBUG
-      log << MSG::DEBUG << "Module IBL/DBM trailer (at end of the loop)" << endreq;
+      log << MSG::DEBUG << "Module IBL/DBM trailer (at end of the loop)" << endmsg;
 #endif
     }
     else {
       v32rod.push_back(packLinkTrailer(0x0));
 #ifdef PIXEL_DEBUG
-      log << MSG::DEBUG << "Pixel module trailer" << endreq;
+      log << MSG::DEBUG << "Pixel module trailer" << endmsg;
 #endif
     }
   } // end if "if (rdo_it != rdo_it_end)"
 #ifdef PIXEL_DEBUG  
   else {
-    log << MSG::DEBUG << "rdo_it == rdo_it_end" << endreq;
+    log << MSG::DEBUG << "rdo_it == rdo_it_end" << endmsg;
   }
 #endif
   return; 

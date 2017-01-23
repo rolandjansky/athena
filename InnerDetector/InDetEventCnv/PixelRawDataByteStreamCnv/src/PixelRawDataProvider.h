@@ -13,6 +13,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "InDetRawData/PixelRDO_Container.h"
 
 #include <string>
 
@@ -45,7 +47,7 @@ private:
   ServiceHandle<IROBDataProviderSvc>   m_robDataProvider;
   ToolHandle<IPixelRawDataProviderTool> m_rawDataTool;
   const PixelID*                       m_pixel_id; 
-  std::string                          m_RDO_Key;
+  SG::WriteHandleKey<PixelRDO_Container> m_rdoContainerKey;
 };
 
 #endif

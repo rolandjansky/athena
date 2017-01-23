@@ -63,7 +63,7 @@ PixelRodDecoder::~PixelRodDecoder() {
 
 
 StatusCode PixelRodDecoder::initialize() {
-    msg(MSG::INFO) << " initialize " <<endreq;
+    msg(MSG::INFO) << " initialize " <<endmsg;
     StatusCode sc;
     sc = AthAlgTool::initialize();
     if (sc.isFailure()) return sc;
@@ -71,20 +71,20 @@ StatusCode PixelRodDecoder::initialize() {
 
     // Retrieve id mapping
     if (m_pixelCabling.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Failed to retrieve service " << m_pixelCabling << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve service " << m_pixelCabling << endmsg;
         return StatusCode::FAILURE;
     } else
-        msg(MSG::INFO) << "Retrieved service " << m_pixelCabling << endreq;
+        msg(MSG::INFO) << "Retrieved service " << m_pixelCabling << endmsg;
 
     if (detStore()->retrieve(m_pixel_id, "PixelID").isFailure()) {
-        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
         return StatusCode::FAILURE;
     }
 
     const InDetDD::PixelDetectorManager* pixelManager;
 
     if (detStore()->retrieve(pixelManager, "Pixel").isFailure()) {
-        msg(MSG::FATAL) << "failed to get Pixel Manager" << endreq;
+        msg(MSG::FATAL) << "failed to get Pixel Manager" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -92,21 +92,21 @@ StatusCode PixelRodDecoder::initialize() {
     m_is_ibl_present = false;
     const InDetDD::SiNumerology& pixSiNum = pixelManager->numerology();
     m_is_ibl_present = (pixSiNum.numLayers() == 4);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_is_ibl_present = " << m_is_ibl_present << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_is_ibl_present = " << m_is_ibl_present << endmsg;
 
     // Retrieve Pixel Conditions Summary
     if (m_condsummary.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_condsummary << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve tool " << m_condsummary << endmsg;
         return StatusCode::FAILURE;
     } else
-        msg(MSG::INFO) << "Retrieved tool " << m_condsummary << endreq;
+        msg(MSG::INFO) << "Retrieved tool " << m_condsummary << endmsg;
 
     // Retrieve Pixel Errors Service
     if (m_errors.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Failed to retrieve ByteStream Errors tool " << m_errors << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve ByteStream Errors tool " << m_errors << endmsg;
         return StatusCode::FAILURE;
     } else
-        msg(MSG::INFO) << "Retrieved ByteStream Errors tool " << m_errors << endreq;
+        msg(MSG::INFO) << "Retrieved ByteStream Errors tool " << m_errors << endmsg;
 
     masked_errors = 0;
 
@@ -123,8 +123,8 @@ StatusCode PixelRodDecoder::initialize() {
 StatusCode PixelRodDecoder::finalize() {
 
 #ifdef PIXEL_DEBUG
-    msg(MSG::VERBOSE) << "in PixelRodDecoder::finalize" << endreq;
-    msg(MSG::DEBUG) << masked_errors << " times BCID and LVL1ID error masked" << endreq;
+    msg(MSG::VERBOSE) << "in PixelRodDecoder::finalize" << endmsg;
+    msg(MSG::DEBUG) << masked_errors << " times BCID and LVL1ID error masked" << endmsg;
 #endif
 
     ATH_MSG_INFO("Total number of warnings (output limit)");
@@ -140,8 +140,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                             std::vector<IdentifierHash>* vecHash)
 {
 #ifdef PIXEL_DEBUG
-    msg(MSG::VERBOSE) << "-------------------------------------------------------------------------------------------------------------" << endreq;
-    msg(MSG::DEBUG) << "Entering PixelRodDecoder" << endreq;
+    msg(MSG::VERBOSE) << "-------------------------------------------------------------------------------------------------------------" << endmsg;
+    msg(MSG::DEBUG) << "Entering PixelRodDecoder" << endmsg;
 #endif
 
     Identifier invalidPixelId = Identifier(); // used by Cabling for an invalid entry
@@ -167,15 +167,15 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             addRODError(robId,*rob_status);
 
             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ROB status word for robid 0x"<< std::hex << robId << " is non-zero 0x"
-                                                    << (*rob_status) << std::dec<< endreq;
+                                                    << (*rob_status) << std::dec<< endmsg;
 
             if (((*rob_status) >> 27) & 0x1) {
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation."<< endreq;
+                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation."<< endmsg;
                 return StatusCode::RECOVERABLE;
             }
 
             if (((*rob_status) >> 31) & 0x1) {
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off."<< endreq;
+                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off."<< endmsg;
                 return StatusCode::RECOVERABLE;
             }
         }
@@ -296,7 +296,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
         //-------------------------------------------------------------------------------------------- HEADER WORD FOUND
         case PRB_LINKHEADER:   // link (module) header found
 
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Header word found" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Header word found" << endmsg;
 
             if (link_start) {    // if header found before last header was closed by a trailer -> error
                 generalwarning("In ROB 0x" << std::hex << robId << ": Unexpected link header found: 0x" << std::hex << rawDataWord
@@ -304,7 +304,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 m_errors->addDecodingError();
             }
             else {
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Header decoding starts" << endreq;
+                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Header decoding starts" << endmsg;
 
             }
             link_start = true;   // setting link (module) header found flag
@@ -329,7 +329,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
             if (m_is_ibl_module || m_is_dbm_module) { // decode IBL/DBM header word.
 #ifdef PIXEL_DEBUG
-                msg(MSG::VERBOSE) << "Decoding the IBL/DBM header word: 0x" << std::hex << rawDataWord << std::dec << endreq;
+                msg(MSG::VERBOSE) << "Decoding the IBL/DBM header word: 0x" << std::hex << rawDataWord << std::dec << endmsg;
 #endif
 
 
@@ -396,7 +396,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
             else { // decode Pixel header word. Data format: 001PtlbxdnnnnnnnMMMMLLLLBBBBBBBB
 
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Decoding Pixel header word: 0x" << std::hex << rawDataWord << std::dec << endreq;
+                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Decoding Pixel header word: 0x" << std::hex << rawDataWord << std::dec << endmsg;
 
                 mBCID = decodeBCID(rawDataWord);   // decode Pixel BCID: B
                 mLVL1ID = decodeL1ID(rawDataWord);   // decode Pixel LVL1ID: L
@@ -457,7 +457,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             }
 
 #ifdef PIXEL_DEBUG
-            msg(MSG::VERBOSE) << "In decoder: got onlineId 0x" << std::hex << onlineId << endreq;
+            msg(MSG::VERBOSE) << "In decoder: got onlineId 0x" << std::hex << onlineId << endmsg;
 #endif
 
             offlineIdHash = m_pixelCabling->getOfflineIdHash(onlineId);
@@ -473,8 +473,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             }
 
 #ifdef PIXEL_DEBUG
-            msg(MSG::VERBOSE) << "link header with BCID: " << mBCID << " LVL1ID: " << mLVL1ID << " LVL1A: " << mLVL1A << " link: " << mLink << " found" << endreq;
-            msg(MSG::VERBOSE) << "got OfflineIDHash: 0x" << std::hex << offlineIdHash << " from OnlineID: 0x" <<  onlineId << std::dec << " link: " << mLink << endreq;
+            msg(MSG::VERBOSE) << "link header with BCID: " << mBCID << " LVL1ID: " << mLVL1ID << " LVL1A: " << mLVL1A << " link: " << mLink << " found" << endmsg;
+            msg(MSG::VERBOSE) << "got OfflineIDHash: 0x" << std::hex << offlineIdHash << " from OnlineID: 0x" <<  onlineId << std::dec << " link: " << mLink << endmsg;
 #endif
 
             if (offlineIdHash == 0xffffffff) {   // if link (module) online identifier (ROBID and link number) not found by mapping
@@ -491,7 +491,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
             if (link_start) {   // if header found before hit -> expected
 
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit word found" << endreq;
+                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit word found" << endmsg;
 
                 unsigned int mFE = 0;
                 unsigned int mRow = 0;
@@ -502,7 +502,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                 if (m_is_ibl_module || m_is_dbm_module) { // check all the different types of IBL/DBM hit words (condensed and not condensed)
 #ifdef PIXEL_DEBUG
-                    msg(MSG::DEBUG) << "Decoding IBL/DBM hit word: 0x" << std::hex << rawDataWord << std::dec << endreq;
+                    msg(MSG::DEBUG) << "Decoding IBL/DBM hit word: 0x" << std::hex << rawDataWord << std::dec << endmsg;
 #endif
 
                     if (((rawDataWord & PRB_DATAMASK) == PRB_FIRSTHITCONDENSEDWORD) && (countHitCondensedWords == 0)) { // it is the first of the 4 hit condensed words (IBL/DBM)
@@ -550,13 +550,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                         // fifth hitword: simply shift 5 right to eliminate the "TTTTT" and mask24
                         hitwords[4] = (condensedWords[3] >> skip5) & mask24;
 #ifdef PIXEL_DEBUG
-                        msg(MSG::VERBOSE) << "4 consecutive IBL hit words found. Condensed hits are being decoded" << endreq;
+                        msg(MSG::VERBOSE) << "4 consecutive IBL hit words found. Condensed hits are being decoded" << endmsg;
 #endif
                         for (unsigned int i(0); i < nHits; ++i) {
                             row[i] = divideHits (hitwords[i], 0, 8);
                             col[i] = divideHits (hitwords[i], 9, 15);
                             tot[i] = divideHits (hitwords[i], 16, 23);
-                            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "hitword[" << i << "] = 0x" << std::hex << hitwords[i] << ",  row: 0x" << row[i] << ",  col: 0x" << col[i] << ",  8-bit ToT: 0x" << tot[i] << std::dec << endreq;
+                            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "hitword[" << i << "] = 0x" << std::hex << hitwords[i] << ",  row: 0x" << row[i] << ",  col: 0x" << col[i] << ",  8-bit ToT: 0x" << tot[i] << std::dec << endmsg;
                         }
                         countHitCondensedWords = 0;
                         linkNum_IBLword = linkNum_IBLheader;
@@ -590,7 +590,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
 #ifdef PIXEL_DEBUG
                         msg(MSG::DEBUG) << "hit dataword found for module offlineIDHash: " << offlineIdHash << " Row: 0x"
-                                        << std::hex << mRow << " Col: 0x" <<  mColumn  << " Tot: 0x" << mToT << std::dec << endreq;
+                                        << std::hex << mRow << " Col: 0x" <<  mColumn  << " Tot: 0x" << mToT << std::dec << endmsg;
 #endif
                     }
                     else { // it is an IBL/DBM hit word, but it hasn't been recognised
@@ -608,7 +608,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 else { // Pixel Hit Case
 
 #ifdef PIXEL_DEBUG
-		  msg(MSG::VERBOSE) << "Decoding Pixel hit word: 0x" << std::hex << rawDataWord << std::dec << endreq;
+		  msg(MSG::VERBOSE) << "Decoding Pixel hit word: 0x" << std::hex << rawDataWord << std::dec << endmsg;
 #endif
 
 		  if (countHitCondensedWords != 0)
@@ -626,7 +626,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 		  mColumn = decodeColumn(rawDataWord);
 		  mToT = decodeToT(rawDataWord);
 #ifdef PIXEL_DEBUG
-		  msg(MSG::DEBUG) << "hit dataword found for module offlineIDHash: " << offlineIdHash << " FE: " << mFE << " Row: " << mRow << " Col: " <<  mColumn << endreq;   // hit found debug message
+		  msg(MSG::DEBUG) << "hit dataword found for module offlineIDHash: " << offlineIdHash << " FE: " << mFE << " Row: " << mRow << " Col: " <<  mColumn << endmsg;   // hit found debug message
 #endif
 
                 } // end of the condition "!m_is_ibl_module"
@@ -639,7 +639,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 // Disabled for now.
                 if (vecHash != NULL) { // important for HLT
 #ifdef PIXEL_DEBUG
-                    msg(MSG::DEBUG) << "vecHash != NULL" << endreq;
+                    msg(MSG::DEBUG) << "vecHash != NULL" << endmsg;
 #endif
                     // is the vector to be skipped (known from before)?
                     if (offlineIdHash == skipHash) continue;
@@ -648,13 +648,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                         lastHash = offlineIdHash;
                         std::vector<IdentifierHash>::iterator p = find(vecHash->begin(),vecHash->end(),offlineIdHash);
                         // #ifdef PIXEL_DEBUG
-                        // 	    msg(MSG::DEBUG) << "(m_condsummary->isActive(offlineIdHash)) = " << (m_condsummary->isActive(offlineIdHash)) << endreq;
+                        // 	    msg(MSG::DEBUG) << "(m_condsummary->isActive(offlineIdHash)) = " << (m_condsummary->isActive(offlineIdHash)) << endmsg;
                         // #endif
 			//                        if (p == vecHash->end() || !(m_condsummary->isActive(offlineIdHash))){ // is the Hash to be skipped (not in the request list)? or is the module not active?
                         if (p == vecHash->end()){ // is the Hash to be skipped (not in the request list)?
                             skipHash = offlineIdHash;
                         // #ifdef PIXEL_DEBUG
-                        // 	      msg(MSG::DEBUG) << "setting skipHash = offlineIdHash" << endreq;
+                        // 	      msg(MSG::DEBUG) << "setting skipHash = offlineIdHash" << endmsg;
                         // #endif
                             continue;
                         }
@@ -675,7 +675,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 // add collection into IDC
                                 StatusCode sc = rdoIdc->addCollection(m_coll, offlineIdHash);
                                 if (sc.isFailure()){
-                                    msg(MSG::ERROR) << "failed to add Pixel RDO collection to container" << endreq;
+                                    msg(MSG::ERROR) << "failed to add Pixel RDO collection to container" << endmsg;
                                 return sc;
                                 }
                             }
@@ -686,9 +686,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                 else {
 #ifdef PIXEL_DEBUG
-                    msg(MSG::DEBUG) << "vecHash == NULL" << endreq;
+                    msg(MSG::DEBUG) << "vecHash == NULL" << endmsg;
 #endif
-                    //	  msg(MSG::DEBUG) << "(m_condsummary->isActive(offlineIdHash)) = " << (m_condsummary->isActive(offlineIdHash)) << endreq;
+                    //	  msg(MSG::DEBUG) << "(m_condsummary->isActive(offlineIdHash)) = " << (m_condsummary->isActive(offlineIdHash)) << endmsg;
 		    //                    	  if (!(m_condsummary->isActive(offlineIdHash))) // is the module active?
                     // reactivated // DE 28.03.2013 removed isActive() check temporarily pending update IBL conditions
 		    //                    	    continue;
@@ -701,12 +701,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                         if (m_cont_it != rdoIdc->end()) {
                             m_coll = const_cast<PixelRawCollection*>(&**m_cont_it);
-                            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection ID = " << offlineIdHash << " already exists" << endreq;
+                            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection ID = " << offlineIdHash << " already exists" << endmsg;
 
                         }
                         else { 	   //if the Collection does not exist, create it
 
-                            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection ID = " << offlineIdHash << " does not exist, create it " << endreq;
+                            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection ID = " << offlineIdHash << " does not exist, create it " << endmsg;
 
                             m_coll = new PixelRawCollection (offlineIdHash);
                             // get identifier from the hash, this is not nice
@@ -716,7 +716,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                             // add collection into IDC
                             StatusCode sc = rdoIdc->addCollection(m_coll, offlineIdHash);
                             if (sc.isFailure()) {
-                                msg(MSG::ERROR) << "failed to add Pixel RDO collection to container" << endreq;
+                                msg(MSG::ERROR) << "failed to add Pixel RDO collection to container" << endmsg;
                                 return sc;
                             }
                         }
@@ -743,7 +743,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     for (unsigned int i(0); i < num_cycles_toFillCollection; ++i) {
 #ifdef PIXEL_DEBUG
                         msg(MSG::VERBOSE) << "ROW[" << i << "] = 0x"  << std::hex << row[i] << std::dec << ",  COL[" << i << "] = 0x"
-                                          << std::hex << col[i] << std::dec << ",  8-bit TOT[" << i << "] = 0x" << std::hex << tot[i] << std::dec << endreq;
+                                          << std::hex << col[i] << std::dec << ",  8-bit TOT[" << i << "] = 0x" << std::hex << tot[i] << std::dec << endmsg;
 #endif
 
                         // ToT1 equal 0 means no hit, regardless of HitDiscCnfg
@@ -761,12 +761,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 pixelId = m_pixelCabling ->getPixelIdfromHash (offlineIdHash, mFE, row[i], col[i]);
 
 #ifdef PIXEL_DEBUG
-                                msg(MSG::VERBOSE) << "PixelId: " << pixelId << endreq;
+                                msg(MSG::VERBOSE) << "PixelId: " << pixelId << endmsg;
                                 int eta_i = m_pixel_id->eta_index(pixelId);
                                 int phi_i = m_pixel_id->phi_index(pixelId);
                                 int eta_m = m_pixel_id->eta_module(pixelId);
                                 int phi_m = m_pixel_id->phi_module(pixelId);
-                                msg(MSG::VERBOSE) << "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m << endreq;
+                                msg(MSG::VERBOSE) << "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m << endmsg;
 #endif
                                 if (pixelId == invalidPixelId) {
                                     generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
@@ -779,7 +779,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 IBLtot[0] = divideHits(tot[i], 4, 7); // corresponds to (col, row)
                                 IBLtot[1] = divideHits(tot[i], 0, 3); // corresponds to (col, row+1)
 #ifdef PIXEL_DEBUG
-                                msg(MSG::VERBOSE) << "Starting from tot = 0x" << std::hex << tot[i] << " IBLtot[0] = 0x" << std::hex << IBLtot[0] << "   IBLtot[1] = 0x" << IBLtot[1] << std::dec << endreq;
+                                msg(MSG::VERBOSE) << "Starting from tot = 0x" << std::hex << tot[i] << " IBLtot[0] = 0x" << std::hex << IBLtot[0] << "   IBLtot[1] = 0x" << IBLtot[1] << std::dec << endmsg;
 #endif
 
                                 // Now do some interpreting of the ToT values
@@ -791,7 +791,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
 
 #ifdef PIXEL_DEBUG
-                                msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[0] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endreq;
+                                msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[0] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endmsg;
 #endif
 
                                 // Second ToT field:
@@ -821,8 +821,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                         int phi_i_max = m_pixel_id->phi_index_max(pixelId);
                                         int eta_i_max = m_pixel_id->eta_index_max(pixelId);
 
-                                        msg(MSG::VERBOSE) << "PixelId = " << pixelId << endreq;
-                                        msg(MSG::VERBOSE) << "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m  << ", eta_i_max: " << eta_i_max << ", phi_i_max: " << phi_i_max << endreq;
+                                        msg(MSG::VERBOSE) << "PixelId = " << pixelId << endmsg;
+                                        msg(MSG::VERBOSE) << "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m  << ", eta_i_max: " << eta_i_max << ", phi_i_max: " << phi_i_max << endmsg;
 #endif
                                         if (pixelId == invalidPixelId) {
                                             generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
@@ -836,7 +836,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                         m_coll->push_back(new RDO(pixelId, IBLtot[1], mBCID, mLVL1ID, mLVL1A));
 
 #ifdef PIXEL_DEBUG
-                                        msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[1] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endreq;
+                                        msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[1] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endmsg;
 #endif
                                     }
                                 }
@@ -867,7 +867,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                     m_coll->push_back(new RDO(pixelId, mToT, mBCID,mLVL1ID,mLVL1A));
 #ifdef PIXEL_DEBUG
-                    msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << mToT << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endreq;
+                    msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << mToT << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endmsg;
 #endif
                 } // end Pixel words pushed into Collection
             } // end of the if (link_start)
@@ -885,7 +885,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             //-------------------------------------------------------------------------------------------- TRAILER WORD FOUND
         case PRB_LINKTRAILER:  // link (module) trailer found
             if (link_start) {   // if header found before trailer -> expected
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "link trailer found" << endreq;   // trailer found debug message
+                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "link trailer found" << endmsg;   // trailer found debug message
             }
             else {   // no header found before trailer -> error
                 generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
@@ -900,7 +900,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             // Trailer decoding and error handling
             if (m_is_ibl_module || m_is_dbm_module) { // decode IBL/DBM Trailer word: 010nnnnnECPplbzhvMMMMMMMMMMxxxxx
 
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Decoding IBL/DBM trailer word: 0x" << std::hex << rawDataWord << std::dec << endreq;
+                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Decoding IBL/DBM trailer word: 0x" << std::hex << rawDataWord << std::dec << endmsg;
 
 //                mSkippedTrigTrailer = decodeSkippedTrigTrailer_IBL(rawDataWord); // decode skipped trigger counter bits => M  -- temporarily removed
 
@@ -945,7 +945,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 linkNum_IBLword = decodeLinkNumTrailer_IBL(rawDataWord); // => n
                 //	mBitFlips = decodeTrailerBitflips_IBL(rawDataWord);
                 //	if (mBitFlips != 0)
-                //	  msg(MSG::WARNING) << "The IBL trailer word has bitflips" << endreq;
+                //	  msg(MSG::WARNING) << "The IBL trailer word has bitflips" << endmsg;
 
                 // Do checks on info in trailer vs header
                 if (linkNum_IBLword != linkNum_IBLheader) {
@@ -964,7 +964,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
             else { // decode Pixel trailer word
 
-                if (msgLvl(MSG::DEBUG)) msg(MSG::VERBOSE) << "Decoding Pixel trailer word: 0x" << std::hex << rawDataWord << std::dec << endreq;
+                if (msgLvl(MSG::DEBUG)) msg(MSG::VERBOSE) << "Decoding Pixel trailer word: 0x" << std::hex << rawDataWord << std::dec << endmsg;
 
                 trailererror = decodeTrailerErrors(rawDataWord);   // creating link (module) trailer error variable
                 //mBitFlips = decodeTrailerBitflips(rawDataWord);   -- temporarily removed
@@ -995,7 +995,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             are_4condensed_words = false;
             if (m_is_ibl_module || m_is_dbm_module) { // IBL flag found
 
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Decoding IBL/DBM FEflag word: 0x" << std::hex << rawDataWord << std::dec << endreq;
+                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Decoding IBL/DBM FEflag word: 0x" << std::hex << rawDataWord << std::dec << endmsg;
 
 
                 linkNum_IBLword = decodeLinkNumFEFlag_IBL(rawDataWord);
@@ -1032,13 +1032,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 // Temporarily removed, as the data format is not clear yet (Franconi, 08.07.2014)
                 //	  mBitFlips = decodeFEFlagBitFlips_IBL(rawDataWord);
                 //	  if (mBitFlips != 0)
-                //	    msg(MSG::WARNING) << "IBL Fe Flag error word has some bitflips: the word is 0x" << std::hex << rawDataWord << std::dec  << endreq;
+                //	    msg(MSG::WARNING) << "IBL Fe Flag error word has some bitflips: the word is 0x" << std::hex << rawDataWord << std::dec  << endmsg;
 
 
             }
             else { // Pixel type2 flag found
 
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Decoding Pixel FEflag word: 0x" << std::hex << rawDataWord << std::dec << endreq;
+                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Decoding Pixel FEflag word: 0x" << std::hex << rawDataWord << std::dec << endmsg;
 
                 FEFlags = decodeFEFlags2(rawDataWord);   // get FE flags
                 MCCFlags = decodeMCCFlags(rawDataWord);   // get MCC flags
@@ -1085,7 +1085,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     m_errors->addDisabledFEError();
                     m_errors->addBadFE(offlineIdHash,(rawDataWord & 0x0F000000) >> 24);
 
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Disabled Pixel chip " << ((rawDataWord & 0x0F000000) >> 24) << endreq;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Disabled Pixel chip " << ((rawDataWord & 0x0F000000) >> 24) << endmsg;
 
                 }
             }
@@ -1112,10 +1112,10 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
       ATH_CHECK(evtStore()->retrieve(ei_cst));
       xAOD::EventInfo* eventInfo=const_cast< xAOD::EventInfo* >(ei_cst);
       if (!eventInfo->setErrorState(xAOD::EventInfo::Pixel,xAOD::EventInfo::Error)) {
-	msg(MSG::WARNING) << " cannot set EventInfo error state for Pixel " << endreq;
+	msg(MSG::WARNING) << " cannot set EventInfo error state for Pixel " << endmsg;
       }
       if (!eventInfo->setEventFlagBit(xAOD::EventInfo::Pixel,0x1)) { //FIXME an enum at some appropriate place to indicating 0x1 as 
-	msg(MSG::WARNING) << " cannot set flag bit for Pixel " << endreq;
+	msg(MSG::WARNING) << " cannot set flag bit for Pixel " << endmsg;
       }
     } // end if corruption error 
 
@@ -1155,7 +1155,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             return StatusCode::SUCCESS;
         }
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recoverable errors found in PixelRodDecoder, errorcode: " << errorcode << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recoverable errors found in PixelRodDecoder, errorcode: " << errorcode << endmsg;
 
         char error[100];
         if (errorcode == (1 << 20) ){  // only BCID error found
