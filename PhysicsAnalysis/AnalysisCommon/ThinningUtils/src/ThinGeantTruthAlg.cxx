@@ -62,7 +62,7 @@ m_nVerticesThinned(0)
     declareProperty("ThinningSvc",          m_thinningSvc,
                     "The ThinningSvc instance for a particular output stream" );
     
-    declareProperty("GeantTruthThinning", m_doThinning,
+    declareProperty("ThinGeantTruth", m_doThinning,
                     "Should the Geant truth thinning be run?");
    
     declareProperty("GeantBarcodeOffset", m_geantOffset,

@@ -12,7 +12,7 @@ class ThinGeantTruth(Configured):
             from ThinningUtils.ThinningUtilsConf import ThinGeantTruthAlg
             theGeantTruthThinner = ThinGeantTruthAlg(
                 "ThinGeantTruthAlg",
-                GeantTruthThinning = True
+                ThinGeantTruth = True
             )
             print theGeantTruthThinner
         except Exception:
