@@ -9,6 +9,7 @@
  
 #          include "samples/TrigInDetValidation_minBias_sample0.xml"
 	    
+
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -22,6 +23,7 @@
                 </arg>
             </action>
 
+
             <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
@@ -32,6 +34,20 @@
               <arg> 
                 <argname>exeParamString</argname>
                 <argvalue>data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+
+            <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-test-plots </argvalue>
               </arg>
             </action>
 
@@ -55,4 +71,5 @@
           <athenaCommonFlags /> 
 	  <alwaysRunPostProc />
 	  </athena>
+
 
