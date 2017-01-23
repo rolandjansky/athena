@@ -84,19 +84,16 @@ namespace ana
   StatusCode PhotonToolCorrect ::
   correctObject (xAOD::Photon& photon)
   {
+    if ((photon.author() & xAOD::EgammaParameters::AuthorPhoton) || (photon.author() & xAOD::EgammaParameters::AuthorAmbiguous)){
+      QA_CHECK_CUT (cut_calibration_tool, m_calibration->applyCorrection(photon));
+    }
 
     // Do *not* apply smearing to AF2:
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2
     if (m_isAF2 || m_isData){
       cut_fudge_tool.setPassedIf(true);
     } else {
-      // Extra catch for 2.5.X -- do not fail out if there is no cluster
-      if (!photon.caloCluster()) cut_fudge_tool.setPassedIf(false);
-      else QA_CHECK_CUT (cut_fudge_tool, m_fudgeMCTool->applyCorrection(photon));
-    }
-
-    if (photon.author() != 128) {
-      QA_CHECK_CUT (cut_calibration_tool, m_calibration->applyCorrection(photon));
+      QA_CHECK_CUT (cut_fudge_tool, m_fudgeMCTool->applyCorrection(photon));
     }
 
     // Correct the isolation

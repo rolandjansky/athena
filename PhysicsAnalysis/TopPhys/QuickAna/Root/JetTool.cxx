@@ -45,7 +45,7 @@ namespace
     "xAODBTaggingEfficiency/13TeV/2016-Winter-13TeV-MC15-CDI-March10_v1.root";
   const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
   const std::string uncertConfigFile = "JES_2015/Moriond2016/JES2015_SR_Scenario1.config";
-#elif ROOTCORE_RELEASE_SERIES <= 25
+#elif ROOTCORE_RELEASE_SERIES == 24
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2016-11-25_v1.root";

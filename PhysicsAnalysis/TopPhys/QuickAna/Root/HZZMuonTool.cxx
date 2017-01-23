@@ -197,18 +197,20 @@ namespace ana
     using namespace msgObjectDefinition;
 
     std::string my_idStr = "Loose";
-    if (WP == WPType::_ZHinv) my_idStr = "Medium";
+    if      (quality==xAOD::Muon::Loose)  my_idStr = "Loose";
+    else if (quality==xAOD::Muon::Medium) my_idStr = "Medium";
+    else if (quality==xAOD::Muon::Tight)  my_idStr = "Tight";
 
-//    std::string my_isoStr = "FixedCutLoose";
-//    if(WP != WPType::_HZZ4l) my_isoStr = "Loose";
 
- 
     if (args.firstWP())
     {
-      args.configuration()->setMuonWP (my_idStr);
       args.configuration()->setMuonIsolationWP (my_isoStr);
+      if(WP == WPType::_ZHinv) {
+        args.configuration()->setMuonWP ("Medium");
+      }else {
+        args.configuration()->setMuonWP (my_idStr);
+      }
     }
-
 
     std::unique_ptr<IAnaTool> retrieveTool
       (new AnaToolRetrieve (args.prefix() + "_retrieve", "Muons"));
@@ -231,13 +233,13 @@ namespace ana
         (new MuonToolWeight (args.prefix() + "_weight"));
       weightTool->m_quality = quality;
 
-      const auto& lumiCalcFiles = args.configuration()->muDataFiles();
-      if(lumiCalcFiles.empty()) {
-        ANA_MSG_ERROR("Muon SFs now require ilumicalc files. Please set " <<
-                      "the muDataFiles in your QuickAna configuration");
-        return StatusCode::FAILURE;
-      }
-      ANA_CHECK( weightTool->setProperty("LumiCalcFiles", lumiCalcFiles) );
+      //const auto& lumiCalcFiles = args.configuration()->muDataFiles();
+      //if(lumiCalcFiles.empty()) {
+      //  ANA_MSG_ERROR("Muon SFs now require ilumicalc files. Please set " <<
+      //                "the muDataFiles in your QuickAna configuration");
+      //  return StatusCode::FAILURE;
+      //}
+      //ANA_CHECK( weightTool->setProperty("LumiCalcFiles", lumiCalcFiles) );
 
       ANA_CHECK( weightTool->setProperty("IsolationWP", my_isoStr) );
       args.add (std::move (weightTool));

@@ -82,10 +82,14 @@ use  METInterface               METInterface-*                  Reconstruction/M
 use  TriggerMatchingTool        TriggerMatchingTool-*           Trigger/TrigAnalysis
 use  EventPrimitives            EventPrimitives-*               Event
 
+# To get the ASGSeries defined
+use  Asg_Test           Asg_Test-*     AsgExternal
 end_private
 
-macro_append pp_cppflags "" ASGSeries23 " -DROOTCORE_RELEASE_SERIES=23 "
 macro_append pp_cppflags "" ASGSeries21 " -DROOTCORE_RELEASE_SERIES=21 "
+macro_append pp_cppflags "" ASGSeries23 " -DROOTCORE_RELEASE_SERIES=23 "
+macro_append pp_cppflags "" ASGSeries24 " -DROOTCORE_RELEASE_SERIES=24 "
+macro_append pp_cppflags "" ASGSeries25 " -DROOTCORE_RELEASE_SERIES=25 "
 
 branches Root src
 
