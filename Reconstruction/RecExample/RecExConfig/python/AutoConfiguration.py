@@ -23,6 +23,7 @@ KnownCosmicsProjects=frozenset(["data08_calocomm","data08_muoncomm","data08_cos"
                                 "data14_calib","data14_calocomm","data14_cos","data14_idcomm","data14_larcomm","data14_muoncomm","data14_tilecomm",
                                 "data15_calib","data15_calocomm","data15_cos","data15_idcomm","data15_larcomm","data15_muoncomm","data15_tilecomm",
                                 "data16_calib","data16_calocomm","data16_cos","data16_idcomm","data16_larcomm","data16_muoncomm","data16_tilecomm"
+                                "data17_calib","data17_calocomm","data17_cos","data17_idcomm","data17_larcomm","data17_muoncomm","data17_tilecomm"
                                 ])
 
 # Abandon the single-beam reconstruction all together, 26 February 2011 
@@ -38,6 +39,7 @@ KnownCollisionsProjects=frozenset(["data08","data08_coll900","data09","data09_co
                                    "data13_8TeV","data13_comm","data13_2p76TeV","data13_1beam",
                                    "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV","data15_5TeV",
                                    "data16_comm","data16_13TeV","data16_900GeV","data16_1beam"
+                                   "data17_comm","data17_13TeV","data17_900GeV","data17_1beam"
                                    ])
 
 KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi"])
