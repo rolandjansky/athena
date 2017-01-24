@@ -32,7 +32,7 @@ namespace Muon {
     m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
     m_clusterSegmentFinder("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
-    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool")
+    m_recoValidationTool("") // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool")
 
  {
     declareInterface<IMuonLayerSegmentFinderTool>(this);
