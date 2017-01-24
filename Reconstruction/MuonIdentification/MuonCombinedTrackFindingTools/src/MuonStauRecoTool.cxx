@@ -65,7 +65,7 @@ namespace MuonCombined {
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
-    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
+    m_recoValidationTool(""), // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
     m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
     m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
@@ -133,7 +133,7 @@ namespace MuonCombined {
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_segmentMakerT0Fit.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
-    ATH_CHECK(m_recoValidationTool.retrieve());
+    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackAmbibuityResolver.retrieve());
     ATH_CHECK(m_hitTimingTool.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
