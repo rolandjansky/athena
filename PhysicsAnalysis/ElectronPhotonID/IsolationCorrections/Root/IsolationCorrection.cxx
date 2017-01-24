@@ -38,7 +38,6 @@ namespace CP {
       m_is_mc(false),
       m_AFII_corr(false),
       m_set_mc(false),
-      m_apply_dd(true),
       m_correct_etcone(false),
       m_trouble_categories(false),
       m_shower(nullptr),
@@ -63,11 +62,6 @@ namespace CP {
     setIsolCorr();
     m_shower = new CP::ShowerDepthTool();
     m_shower->initialize();
-
-    if(!m_set_mc){
-      m_is_mc = true;
-      ATH_MSG_WARNING("Data or MC not specified, assuming MC ...\n");
-    }
 
     return StatusCode::SUCCESS;
   }
@@ -199,18 +193,6 @@ namespace CP {
 						 part_type);
     }
 
-
-    // JBdV : I hope nobody will call this... run I analysis : WARNING !!!!!!!!!!
-    if(m_apply_dd && isol==xAOD::Iso::topoetcone40 && is_mc && m_tool_ver == REL17_2)
-    {
-      //std::cout<<"PT correction: "<<isolation_ptcorrection<<"\n";
-      float dd_correction = IsolationCorrection::GetDDCorrection(input);
-      //std::cout<<"APPLYING DD CORRECTIONS: "<<dd_correction<<"\n";
-      if(dd_correction > 0.) isolation_ptcorrection -= dd_correction;
-      //else std::cout<<"negative, not applied\n";
-      //std::cout<<"AFTER PT correction: "<<isolation_ptcorrection<<"\n";
-    }
-
     return isolation_ptcorrection;
   }
 
@@ -320,10 +302,9 @@ namespace CP {
     float isolation_ddcorrection = 0;
 
     bool is_mc = m_is_mc;
-    bool is_apply_dd = m_apply_dd;
 
     // corrections only for MC
-    if(!is_mc || !is_apply_dd) return 0;
+    if(!is_mc) return 0;
 
     float energy = 0;
     //energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3); //input.e()
@@ -375,9 +356,12 @@ namespace CP {
     m_AFII_corr = AFII_corr;
   }
 
+  // obsolete
+  /*
   void IsolationCorrection::SetDD(bool apply_dd){
-    m_apply_dd = apply_dd;
+    ATH_MSG_WARNING("The method SetDD is obsolete and not doing anything"); 
   }
+  */
 
   void IsolationCorrection::SetCorrectEtcone(bool correct_etcone){
     m_correct_etcone = correct_etcone;
@@ -546,7 +530,9 @@ namespace CP {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bin (unconv, 20)");
     }
-    
+
+    file_ptleakagecorr->Close();
+
   }
 
   void IsolationCorrection::set2012Corr() {
@@ -663,6 +649,7 @@ namespace CP {
       m_graph_cone20_electron.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone20_electron_etabin8_extrap") );
       m_graph_cone20_electron.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone20_electron_etabin9_extrap") );
     }
+    file_ptleakagecorr->Close();
   }
 
   void IsolationCorrection::set2015Corr() {
@@ -951,6 +938,9 @@ namespace CP {
 
       }
     }
+    
+    file_ptleakagecorr->Close();
+    
   }
 
 
@@ -1043,6 +1033,10 @@ namespace CP {
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(13)->GetFunction("f_3") );
 
     }
+    
+    file_ddshiftcorr->Close();
+    file_ddsmearingcorr->Close();
+
   }
 
 

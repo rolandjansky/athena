@@ -12,6 +12,9 @@
 #include "PATInterfaces/CorrectionCode.h"
 #include "PATInterfaces/ISystematicsTool.h"
 
+// PAT includes
+#include "PATCore/PATCoreEnums.h"
+
 #include "xAODPrimitives/IsolationType.h"
 
 namespace CP {

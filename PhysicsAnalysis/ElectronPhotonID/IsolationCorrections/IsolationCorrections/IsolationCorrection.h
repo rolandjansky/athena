@@ -47,7 +47,7 @@ class IsolationCorrection : public asg::AsgMessaging{
     void SetDataMC(bool is_mc);
     void SetDataMC(const xAOD::EventInfo*);
     void SetAFII(bool AFII_corr);
-    void SetDD(bool apply_dd);
+    //void SetDD(bool apply_dd);
     void SetCorrectEtcone(bool correct_etcone);
     void SetTroubleCategories(bool trouble_categories);
 
@@ -75,7 +75,6 @@ class IsolationCorrection : public asg::AsgMessaging{
     bool m_is_mc;
     bool m_AFII_corr;
     bool m_set_mc;
-    bool m_apply_dd;
     bool m_correct_etcone;
     bool m_trouble_categories;
 

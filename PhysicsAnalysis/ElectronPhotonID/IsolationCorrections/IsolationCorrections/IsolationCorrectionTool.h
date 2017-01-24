@@ -6,6 +6,8 @@
 #define ISOLATIONCORRECTION_ISOLATIONCORRECTIONTOOL_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
+#include "AsgTools/AsgMessaging.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationCorrections/IsolationCorrection.h"
 
@@ -13,7 +15,7 @@ namespace CP {
 
 class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
                                  virtual public CP::ISystematicsTool,
-                                 public asg::AsgTool {
+                                 public asg::AsgMetadataTool {
     // Create a proper constructor for Athena
     ASG_TOOL_CLASS2( IsolationCorrectionTool, IIsolationCorrectionTool, CP::ISystematicsTool)
 
@@ -27,6 +29,10 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
           override
 #endif
           ;
+
+        virtual StatusCode beginInputFile() override;
+	virtual StatusCode beginEvent() override;
+	virtual StatusCode endInputFile() override;
 
         // Apply correction to a modifyable Egamma object
         virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&) override;
@@ -47,13 +53,13 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         //Use specific systematic
         virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig ) override;
 
-        float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
-
         virtual float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
 	virtual float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) const override;
         virtual float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
 
     private:
+	StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) ;
+        float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
 
         std::string m_corr_file;
         std::string m_corr_ddshift_2015_file;
@@ -61,12 +67,14 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         std::string m_corr_ddsmearing_file;
         IsolationCorrection* m_isol_corr;
         std::string m_tool_ver_str;
-        bool m_is_mc;
+        bool m_usemetadata;
+	bool m_is_mc;
         bool m_AFII_corr;
 	std::string m_ddVersion;
-        bool m_apply_dd;
+        bool m_apply_dd, m_apply_ddDefault;
         bool m_correct_etcone;
         bool m_trouble_categories;
+        bool m_metadata_retrieved;
 
 	// For systematcis
 	CP::SystematicVariation m_systDDonoff;
