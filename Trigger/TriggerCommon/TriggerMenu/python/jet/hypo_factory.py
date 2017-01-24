@@ -6,26 +6,18 @@ from eta_string_conversions import eta_string_to_floats
 
 def hypo_factory(key, args):
 
-    if key == 'run1hypo':
-        return JetStandardHypo(args)
-    if key == 'HLTSRhypo':
-        return JetSingleEtaRegionHypo(args)
-    if key == 'HLThypo':
-        return JetMaximumBipartiteHypo(args)
-    if key == 'HLThypo2_etaet':
-        return HLThypo2_etaet(args)
-    if key == 'ht':
-        return HTHypo(args)
-    if key == 'HLThypo2_ht':
-        return HLThypo2_ht(args)
-    if key == 'tla':
-        return TLAHypo(args)
-    if key == 'HLThypo2_tla':
-        return HLThypo2_tla(args)
-    if key == 'HLThypo2_dimass_deta':
-        return HLThypo2_dimass_deta(args)
+    klass = {
+        'HLThypo2_etaet': HLThypo2_etaet,
+        'HLThypo2_singlemass': HLThypo2_singlemass,
+        'HLThypo2_ht': HLThypo2_ht,
+        'HLThypo2_tla': HLThypo2_tla,
+        'HLThypo2_dimass_deta': HLThypo2_dimass_deta,
+         }.get(key)
 
-    raise RuntimeError('hypo_factory: unknown key %s' % key)
+    if key == None:
+        raise RuntimeError('hypo_factory: unknown key %s' % key)
+    else:
+        return klass(args)
 
 class HypoAlg(object):
     """ Argument checking class that holds the  parameters for an
@@ -122,10 +114,10 @@ class JetHypo(HypoAlg):
 
 
 class JetStandardHypo(JetHypo):
-    hypo_type = 'run1hypo'
 
     def __init__(self, ddict):
         JetHypo.__init__(self, ddict)
+        self.hypo_type = 'run1hypo'
         
     def _check_args(self, ddict):
         JetHypo._check_args(self, ddict)
@@ -143,33 +135,40 @@ class JetStandardHypo(JetHypo):
 
 
 class JetSingleEtaRegionHypo(JetStandardHypo):
-    hypo_type = 'HLTSRhypo'
 
     def __init__(self, ddict):
         JetStandardHypo.__init__(self, ddict)
+        self.hypo_type = 'HLTSRhypo'
 
 
 class JetMaximumBipartiteHypo(JetHypo):
-    hypo_type = 'HLThypo'
 
     def __init__(self, ddict):
         JetHypo.__init__(self, ddict)
+        self.hypo_type = 'HLThypo'
 
 
 class HLThypo2_etaet(JetHypo):
-    hypo_type = 'HLThypo2_etaet'
 
     def __init__(self, ddict):
         JetHypo.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_etaet'
+
+
+class HLThypo2_singlemass(JetHypo):
+
+    def __init__(self, ddict):
+        JetHypo.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_singlemass'
 
 
 class HTHypoBase(HypoAlg):
     """ Store paramters for the HT hypoAlg"""
 
-    hypo_type = 'HT'
     
     def __init__(self, ddict):
         HypoAlg.__init__(self, ddict)
+        self.hypo_type = 'HT'
 
 
     def _check_args(self, ddict):
@@ -191,19 +190,17 @@ class HTHypoBase(HypoAlg):
 class HTHypo(HTHypoBase):
     """ Store paramters for the HT hypoAlg"""
 
-    hypo_type = 'HT'
-    
     def __init__(self, ddict):
         HTHypoBase.__init__(self, ddict)
+        self.hypo_type = 'HT'
 
 
 class HLThypo2_ht(HTHypoBase):
     """ Store paramters for the HT hypoAlg"""
 
-    hypo_type = 'HLThypo2_ht'
-    
     def __init__(self, ddict):
         HTHypoBase.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_ht'
 
 
 
@@ -236,28 +233,25 @@ class TLABase(HypoAlg):
 class TLAHypo(TLABase):
     """ Store paramters for the HT hypoAlg"""
 
-    hypo_type = 'tla'
-    
     def __init__(self, ddict):
         TLABase.__init__(self, ddict)
+        hypo_type = 'tla'
         
 
 class HLThypo2_tla(TLABase):
     """ Store paramters for the HT hypoAlg"""
 
-    hypo_type = 'HLThypo2_tla'
-    
     def __init__(self, ddict):
         TLABase.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_tla'
 
 
 class HLThypo2_dimass_deta(HypoAlg):
     """ Store paramters for the dijet mass DEta hypoAlg"""
 
-    hypo_type = 'HLThypo2_dimass_deta'
-    
     def __init__(self, ddict):
         HypoAlg.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_dimass_deta'
 
     def _check_args(self, ddict):
         """check the constructor args"""

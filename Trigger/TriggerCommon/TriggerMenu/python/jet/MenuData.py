@@ -3,27 +3,35 @@
 
 class MenuData(object):
     """Container for menu data organized in a manner useful for jet chain
-    configuration."""
+    configuration.
 
-    def __init__(self,
-                 scan_type,
-                 data_type,
-                 fex_params,
-                 hypo_params,
-                 cluster_params,
-                 recluster_params,
-                 trim_params,
-                 last_fex_params  # parameters of the last fex rn (eg a10r?)
-             ):
 
-        self.scan_type = scan_type
-        self.data_type = data_type
-        self.fex_params = fex_params
-        self.hypo_params = hypo_params
-        self.cluster_params = cluster_params
-        self.recluster_params = recluster_params
-        self.trim_params = trim_params
-        self.last_fex_params = last_fex_params
+    scan_type: used in Algorithm instance names
+    data_type: used in Algorithm instance names
+    fex_params: parameters used to configure the fex.
+    hypo_params: parameters used to configure the hypo
+    cluster_params: used to label Algorithms. Since moving to the common
+                    sequence for cluster building, this is used only by heavy
+                    ion Algorithms.
+    second_fex_params: parameters for a second fex if the chain requires
+                       such a fex. This is the case for jet reclustering
+                       chains where the first fex creates jets, which are
+                       the inputs if the second fex.
+
+    The types of the _params objects vary according to the typ of the fex
+    or hypo they are configuring. A type label is held inside the
+    _params object.
+
+    """
+
+    def __init__(self):
+
+        self.scan_type = None
+        self.data_type = None
+        self.fex_params = None
+        self.hypo_params = None
+        self.cluster_params = None
+        self.second_fex_params = None
 
     def __str__(self):
         s = ['%s\n%s\n' % (k, str(v)) for k, v in self.__dict__.items()]

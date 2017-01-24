@@ -116,9 +116,7 @@ class AlgFactory(object):
         # are strings in this set.
 
         self.fex_params = self.menu_data.fex_params
-        self.last_fex_params = self.menu_data.last_fex_params
-        self.recluster_params = self.menu_data.recluster_params
-        self.trim_params = self.menu_data.trim_params
+        self.second_fex_params = self.menu_data.second_fex_params
         self.hypo_params = self.menu_data.hypo_params
 
         # remove '.' characters from strings used to be Algorithm names
@@ -182,6 +180,7 @@ class AlgFactory(object):
             'cluster_calib': '"%s"' % self.fex_params.cluster_calib_fex,
             'output_collection_label': "'%s'" % (self.fex_params.fex_label)
         }
+
         return [Alg(factory, (), kwds)]
 
 
@@ -189,22 +188,22 @@ class AlgFactory(object):
         """Instantiate a python object for TrigHLTJetRec that will
         use xAOD::Jet s as input."""
 
-        merge_param_str = str(self.recluster_params.merge_param).zfill(2)
+        merge_param_str = str(self.second_fex_params.merge_param).zfill(2)
     
         factory = 'TrigHLTJetRecFromJet'
         # add factory to instance label to facilitate log file searches
-        name = '"%s_%s"' %(factory, self.recluster_params.fex_label)
+        name = '"%s_%s"' %(factory, self.second_fex_params.fex_label)
 
         kwds = {
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
-            'jet_calib': "'%s'" % self.recluster_params.jet_calib,
+            'jet_calib': "'%s'" % self.second_fex_params.jet_calib,
             'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
-            'output_collection_label': "'%s'" % (self.recluster_params.fex_label),
+            'output_collection_label': "'%s'" % (self.second_fex_params.fex_label),
             # ptMinCut and etaMaxCut are cuts applied to the
             # input jets before the reclustering jet finding is done.
-            'ptMinCut': self.recluster_params.ptMinCut * GeV,
-            'etaMaxCut': self.recluster_params.etaMaxCut,
+            'ptMinCut': self.second_fex_params.ptMinCut * GeV,
+            'etaMaxCut': self.second_fex_params.etaMaxCut,
         }
 
         return [Alg(factory, (), kwds)]
@@ -213,25 +212,25 @@ class AlgFactory(object):
     def jetrec_trimming(self):
         """Instantiate a python object for TrigHLTJetRec that will
         build xAOD Jets from clusters and then trim them."""
-
+    
         merge_param_str = str(self.fex_params.merge_param).zfill(2)
         
         factory = 'TrigHLTJetRecGroomer'
-        # add factory to instance label to facilitate log file searches                                                                                                                                    
-        name = '"%s_%s"' %(factory, self.trim_params.fex_label)
+        # add factory to instance label to facilitate log file searches                      
+        name = '"%s_%s"' %(factory, self.fex_params.fex_label)
         print 'after name' #Nima!
         kwds = {
             'name': name,  # instance label                                     
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
             'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
-            'output_collection_label': "'%s'" % (self.trim_params.fex_label),
-            'rclus': self.trim_params.rclus,
-            'ptfrac': self.trim_params.ptfrac,
+            'output_collection_label': "'%s'" % (self.fex_params.fex_label),
+            'rclus': self.fex_params.rclus,
+            'ptfrac': self.fex_params.ptfrac,
         }
         print 'after kwds' #Nima!
         return [Alg(factory, (), kwds)]
-    
+   
     #HI
     def hijetrec_hic(self):
         """Instantiate a python object for TrigHLTHIJetRec that will
@@ -263,18 +262,18 @@ class AlgFactory(object):
 
         # last jet fex run.
         cleaningAlg = self.hypo_params.cleaner
-        matchingAlg = self.hypo_params.matcher
+        # matchingAlg = self.hypo_params.matcher
 
         name_extension = '_'.join([str(e) for  e in
                                    (strategy,
                                     ja,
-                                    self.last_fex_params.fex_alg_name,
-                                    self.last_fex_params.data_type,
+                                    self.fex_params.fex_alg_name,
+                                    self.fex_params.data_type,
                                     self.fex_params.cluster_calib,
-                                    self.last_fex_params.jet_calib,
+                                    self.fex_params.jet_calib,
                                     self.menu_data.scan_type,
                                     cleaningAlg,
-                                    matchingAlg
+                                    # matchingAlg
                                 )])
         
         name = '"%s_%s"' % (algType, name_extension)
@@ -306,6 +305,17 @@ class AlgFactory(object):
         algType = 'TrigHLTJetHypo2'
         kargs = self.etaet_kargs(algType, 'etaet')
         kargs['hypoStrategy'] = '"EtaEt"'
+        return [Alg(algType, (), kargs)]
+
+
+    def hlthypo2_singleMass(self):
+        """ run TrigHLTJetHypo2 with hypoStrategy EtaEt """
+
+        
+        # assert len(self.hypo_params.jet_attributes) > 1
+        algType = 'TrigHLTJetHypo2'
+        kargs = self.etaet_kargs(algType, 'singlemass')
+        kargs['hypoStrategy'] = '"SingleMass"'
         return [Alg(algType, (), kargs)]
 
 
@@ -385,10 +395,10 @@ class AlgFactory(object):
         eta_range = self.hypo_params.eta_range
         name_extension = '_'.join([str(e) for  e in (
             self.hypo_params.attributes_toString(),
-            self.last_fex_params.fex_alg_name,
-            self.last_fex_params.data_type,
+            self.fex_params.fex_alg_name,
+            self.fex_params.data_type,
             self.fex_params.cluster_calib_fex,
-            self.last_fex_params.jet_calib,
+            self.fex_params.jet_calib,
             self.menu_data.scan_type)])
 
         name = '"%s_ht_%s"' % (algType, name_extension)

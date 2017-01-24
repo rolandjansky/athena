@@ -6,12 +6,14 @@ TriggerMenu/trunk/python/menu/SignatureDicts.py#L144
 """
 
 import re
+from eta_string_conversions import eta_string_to_floats
+from clusterparams_factory import clusterparams_factory
 from fexparams_factory import fexparams_factory
 from hypo_factory import hypo_factory
-from clusterparams_factory import clusterparams_factory
-from MenuData import MenuData
+
+# from lxml import etree as et
 from ChainConfig import ChainConfig
-from eta_string_conversions import eta_string_to_floats
+from MenuData import MenuData
 
 class JetAttributes(object):
     """Per jet attributes. Used by  hypo algorithms."""
@@ -24,14 +26,574 @@ class JetAttributes(object):
 
         self.asymmetricEta = 1 if (eta_range.startswith('n') or
                                    eta_range.startswith('p')) else 0
-                                      
+
     def __str__(self):
         return 'thresh: %s eta_min: %s eta_max: %s' % (str(self.threshold),
                                                        str(self.eta_min),
                                                        str(self.eta_max))
 
+err_hdr = 'ChainConfigXML error: '
 
-class ChainConfigMaker(object):
+hypo_type_dict = {('j', '', False, False): 'HLThypo2_etaet',
+                  ('j', 'test1', False, False): 'HLThypo2_singlemass',
+                  ('j', '', False, True): 'HLThypo2_dimass_deta',
+                  ('ht', '', False, False):'HLThypo2_ht',
+                  ('j', '', True, False): 'HLThypo2_tla',}
+
+    
+cleaner_names = {
+    'cleanL': 'looseCleaning',
+    'cleanLA': 'antiLooseCleaning',
+    'cleanT': 'tightCleaning',
+    'cleanTA': 'antiTightCleaning',
+    'cleanLLP': 'llpCleaning',
+    'cleanLLPA':'antLlpCleaning',
+    'noCleaning': 'noCleaning',
+}
+
+fex_alg_re = re.compile(r'^a(?P<merge_param>\d+)(r|t)?$')
+recluster_alg_re = re.compile(r'^a\d+r$')
+fex_alg_trim_re = re.compile(r'^a\d+t$')
+invm_re = re.compile(r'^invm(?P<mass_min>\d+)$')
+deta_re = re.compile(r'^deta(?P<dEta_min>\d+)$')
+tla_re = \
+         re.compile(r'^(?P<indexlo>\d+)i(?P<indexhi>\d+)c(?P<mass_min>\d+)m(?P<mass_max>\d+)TLA$')
+
+cache = {}
+
+def _update_cache(k, v):
+    global cache
+    cache[k] = v
+
+
+def _reset_cache():
+    global cache
+    cache = {}
+
+
+def _get_test_flag(parts):
+
+    flag = cache.get('test_flag')
+    if flag: return flag
+    
+    vals = set([])
+    for part in parts:
+        extra = part['extra']
+        if extra.startswith('test'):
+            vals.add(extra)
+
+    if not vals:
+        _update_cache('test_flag', '')
+        return ''
+    if len(vals) == 1:
+        flag = vals.pop()
+        _update_cache('test_flag', flag)
+        return flag
+
+    msg = '%s: multiple test flags set' % err_hdr
+    raise RuntimeError(msg)
+        
+
+def _get_tla_string(parts):
+
+    x = cache.get('tla_string')
+    if x: return x
+
+    vals = set([part['TLA'] for part in parts])
+    if len(vals) == 1:
+        s = vals.pop()
+        _update_cache('tla_string', s)
+        return s
+
+    msg = '%s: multiple TLA string set' % err_hdr
+    raise RuntimeError(msg)
+
+
+def _get_cluster_calib(parts):
+
+    x = cache.get('cluster_calib')
+    if x: return x
+
+    vals = set([part['calib'] for part in parts])
+    if len(vals) == 1:
+        s = vals.pop()
+        _update_cache('cluster_calib', s)
+        return s
+
+    msg = '%s: multiple cluster_calib values' % err_hdr
+    raise RuntimeError(msg)
+
+
+def _get_topo(parts, target):
+
+    targets = set([])
+    for part in parts:
+        p_set = set([x for x in part['topo'] if x.startswith(target)])
+        targets = targets.union(p_set)
+
+        
+    if not targets: return ''
+    if len(targets) == 1: return targets.pop()
+        
+    msg = '%s %s mass specied more than once' % (err_hdr, target)
+    raise RuntimeError(msg)
+
+def _get_invm_string(parts):
+    
+    x = cache.get('invm')
+    if x: return x
+
+    invm = _get_topo(parts, 'invm')
+    _update_cache('invm', invm)
+    return invm
+
+def _get_deta_string(parts):
+
+    x = cache.get('deta')
+    if x: return x
+
+    deta =  _get_topo(parts, 'deta')           
+    _update_cache('deta', deta)
+    return deta
+
+
+def _get_data_scouting(parts):
+
+    x = cache.get('data_scouting')
+    if x: return x
+
+    vals = set([])
+    for part in parts:
+        ds = part.get('dataScouting', '')
+        ds1 = 'ds1' if 'ds1' in ds  else ''
+        ds2 = 'ds2' if 'ds2' in ds  else ''
+
+        if ds1 and ds2:
+            msg = '%s both "ds1" and "ds2" present in data scouting' \
+                  'string: %s' % (err_hdr, ds)
+            raise RuntimeError(msg)
+
+        vals.add(ds1 + ds2)
+
+    if len(vals) != 1:
+        msg = '%s error setting data scouting flag ' % (err_hdr)
+        
+    data_scouting = vals.pop()
+    _update_cache('data_souting', data_scouting)
+    return data_scouting
+
+
+def _get_hypo_type(parts):
+
+    test_flag = _get_test_flag(parts)
+    tla_flag = bool(_get_tla_string(parts))
+
+    invm_string = _get_invm_string(parts)
+    deta_string = _get_deta_string(parts)
+    dimass_deta_flag = bool(invm_string) or bool(deta_string)
+
+    htypes =  [hypo_type_dict.get((part['trigType'],
+                                   test_flag,
+                                   tla_flag,
+                                   dimass_deta_flag), None) for part in parts]
+    
+    if not htypes or None in htypes:
+        part = parts[htypes.index(None)]
+        msg = '%s: cannot determine hypo type '\
+              'from trigger type: %s test flag: %s ' \
+              'TLA: %s dimass_eta %s' %  (
+                err_hdr, part['trigType'],
+                test_flag,
+                tla_flag,
+                  dimass_deta_flag)
+        raise RuntimeError(msg)
+
+    htypes = set(htypes)
+    if len(htypes) == 1: return htypes.pop()
+    if len(htypes) == 2:
+        if 'HLThypo2_etaet' in htypes and 'HLThypo2_dimass_deta' in htypes:
+            return 'HLThypo2_dimass_deta'
+
+    msg = '%s: cannot determine hypo type, %s' %  (err_hdr, str(htypes))
+    raise RuntimeError(msg)
+
+
+def _get_data_type(parts):
+    """ return the data type from which jets are made -
+    topo cliusters, jets, towers..
+    """
+    x = cache.get('data_type')
+    if x: return x
+
+    vals = set([part['dataType']for part in parts])
+
+    if len(vals) != 1:
+        msg = '%s: cannot determine data_type ' %  err_hdr
+        raise RuntimeError(msg)
+        
+    data_type = vals.pop()
+    _update_cache('data_type', data_type)
+
+    return data_type
+
+def _get_run_hypo(parts):
+
+    x = cache.get('run_hypo')
+    if x: return x
+
+    vals = set(['perf' not in p['addInfo'] for p in parts])
+    if len(vals) != 1:
+        msg = '%s: cannot determine run_hypo ' %  err_hdr
+        raise RuntimeError(msg)
+        
+    data_scouting_flag = bool(_get_data_scouting(parts))
+    run_hypo =  vals.pop() and not data_scouting_flag
+    _update_cache('run_hypo', run_hypo)
+
+    return run_hypo
+
+def _get_cluster_label(parts):
+
+    data_type = _get_data_type(parts)
+    scan = _get_scan_type(parts)
+    # the cluster algorithm is always run with local calibration on
+    cluster_label = reduce(lambda x, y: x + y, (data_type, 'lcw', scan))
+
+    return cluster_label
+  
+
+def _get_cluster_params(parts):
+
+    args = {}
+    args['label'] = _get_cluster_label(parts)
+
+    return clusterparams_factory(args)
+    
+def _get_jet_calib(parts):
+
+    x = cache.get('jet_calib')
+    if x: return x
+
+    vals = set([part['jetCalib'] for part in parts])
+    if len(vals) != 1:
+        msg = '%s: cannot determine jet_calib ' %  err_hdr
+        raise RuntimeError(msg)
+
+    jet_calib =  vals.pop()
+    _update_cache('jet_calib', jet_calib)
+
+    return jet_calib
+
+
+def _get_scan_type(parts):
+
+    x = cache.get('scan_type')
+    if x: return x
+
+
+    vals = set([part['scan'] for part in parts])
+    if len(vals) != 1:
+        msg = '%s: cannot determine scan ' %  err_hdr
+        raise RuntimeError(msg)
+
+    
+    scan_type = vals.pop()
+    scan_types = ('', 'PS', 'FS')
+
+    if scan_type not in scan_types:
+        msg = '%s unknown scanType %s allowed: %s' % (err_hdr,
+                                                      scan_type,
+                                                      str(scan_types))
+
+    if scan_type != 'FS':
+        data_type = _get_data_type(parts)
+        if data_type == 'TT':
+            msg = '%s: scanType %s set for Trigger tower scan' % (
+                err_hdr, scan_type)
+            raise RuntimeError(msg)
+
+    _update_cache('scan_type', scan_type)
+    
+    return scan_type
+
+
+def _get_fex_alg_name(parts):
+
+    x = cache.get('reco_alg_name')
+    if x: return x
+
+    vals = set([part['recoAlg'] for part in parts])
+    if len(vals) != 1:
+        msg = '%s: cannot determine reco alg ' %  err_hdr
+        raise RuntimeError(msg)
+
+    fex_alg_name = vals.pop()
+    m = fex_alg_re.search(fex_alg_name)
+    if not m:
+        msg = '%s unknown reco alg: %s' % (err_hdr, fex_alg_name)
+        raise RuntimeError(msg)
+    _update_cache('reco_alg_name', fex_alg_name)
+
+    return fex_alg_name
+
+
+def _get_fex_params(parts):
+    """provide the fex paramters. The set of of paramters depends
+    on the fex type."""
+
+    args = {}
+
+    fex_alg_name = _get_fex_alg_name(parts)
+
+    m = fex_alg_re.search(fex_alg_name)
+    merge_param = m.group('merge_param')
+    
+    fex_type = 'antikt'  # used for fexparams_factory key
+    if fex_alg_trim_re.search(fex_alg_name) is not None:
+        fex_type = 'jetrec_trimming'
+
+    # For reclustering, the values of the fex given in the chain name are
+    # overriden. This fex will provide the inputts to a second fex
+    # which will use the chain name values
+
+    if _do_recl(parts):
+        args['fex_type'] = 'antikt'
+        args['merge_param'] = 4
+        args['fex_alg_name'] = 'a4'
+    else:
+        args['merge_param'] = int(merge_param)
+        args['fex_alg_name'] = fex_alg_name
+        args['fex_type'] = fex_type
+
+    cluster_calib = _get_cluster_calib(parts)  #  ignored: in common sequence
+    args['cluster_calib'] = cluster_calib
+    args['cluster_calib_fex'] = cluster_calib.upper()
+    args['data_type'] = _get_data_type(parts)
+    args['jet_calib'] = _get_jet_calib(parts)
+
+
+    scan = _get_scan_type(parts)
+    fex_label = reduce(lambda x, y: x + y,
+                       (args['fex_alg_name'],
+                        _get_data_type(parts),
+                        cluster_calib,
+                        _get_jet_calib(parts),
+                        scan))
+   
+    args['fex_label'] = fex_label 
+
+    # the trimming fex needs some further parameters
+    if fex_type == 'jetrec_trimming':
+        args['ptfrac'] = 0.05
+        args['rclus'] = 0.2
+
+        
+    return fexparams_factory(fex_type, args)
+
+
+def _do_recl(parts):
+    fex_alg_name = _get_fex_alg_name(parts)
+    return recluster_alg_re.search(fex_alg_name)
+
+
+def _get_recl_params(parts):
+
+    fex_alg_name = _get_fex_alg_name(parts)
+    
+    fex_label = reduce(lambda x, y: x + y,
+                       (fex_alg_name,
+                        '_',
+                        _get_data_type(parts),
+                        _get_cluster_calib(parts),
+                        _get_jet_calib(parts),
+                        _get_scan_type(parts)))
+
+    fex_params = _get_fex_params(parts)
+    fex_params.ptMinCut = 15.
+    fex_params.etaMaxCut = 10.0  # no effect, to be removed
+    fex_params.fex_label  =fex_label
+
+    m = fex_alg_re.search(fex_alg_name)
+    fex_params.merge_param  = m.group('merge_param')
+
+    fex_params.jet_calib = 'nojcalib'
+    fex_params.fex_alg_name  = fex_alg_name
+
+    return fex_params
+
+
+def _get_cleaner(parts):
+
+    vals = set([part['cleaning'] for part in parts])
+
+    if len(vals) != 1:
+        msg = '%s: cannot determine cleaner ' %  err_hdr
+        raise RuntimeError(msg)
+
+    cleaner = vals.pop()
+
+    _cleaner = cleaner_names.get(cleaner, None)
+    if _cleaner is None:
+        msg = '%s: unknown cleaner %s' %  (err_hdr, cleaner)
+        raise RuntimeError(msg)
+
+    return cleaner_names[cleaner]
+
+
+def _setup_jet_vars(parts):
+    "provide the attributes for each jet in a hypo"
+
+    j_attrs = []
+    for part in parts:
+        mult = int(part['multiplicity'])
+        for i in range(mult):
+            j_attrs.append(JetAttributes(int(part['threshold']),
+                                         part['etaRange']))
+
+    return j_attrs
+
+def _setup_etaet_vars(parts):
+    """Delegate setting up the hypo parameters"""
+
+    args = {}
+    args['jet_attributes'] = _setup_jet_vars(parts)
+    args['chain_name'] = cache['chain_name']
+    args['cleaner'] = _get_cleaner(parts)
+    args['isCaloFullScan'] = _get_scan_type(parts) == 'FS'
+    args['triggertower'] = _get_data_type(parts) == 'TT'
+
+    return hypo_factory('HLThypo2_etaet', args)
+
+
+def _setup_singlemass_vars(parts):
+    """Delegate setting up the hypo parameters
+    16/01/2017 INCOMPLETE - work in prgress FIXME !!
+    """
+
+    args = {}
+    args['jet_attributes'] = _setup_jet_vars(parts)
+    args['chain_name'] = cache['chain_name']
+    args['cleaner'] = _get_cleaner(parts)
+    args['isCaloFullScan'] = _get_scan_type(parts) == 'FS'
+    args['triggertower'] = _get_data_type(parts) == 'TT'
+
+    return hypo_factory('HLThypo2_singlemass', args)
+
+
+def _setup_dimass_deta_vars(parts):
+
+    invm_string = _get_topo(parts, 'invm')
+
+    args = {}
+
+    m = invm_re.search(invm_string)
+    if m:
+        args['mass_min'] = float(m.groupdict()['mass_min'])
+    else:
+        args['mass_min'] = None
+
+    deta_string = _get_topo(parts, 'deta')
+    m = deta_re.search(deta_string)
+    if m:
+        args['dEta_min'] = float(m.groupdict()['dEta_min'])/10.
+    else:
+        args['dEta_min'] = None
+
+    args['jet_attributes'] = _setup_jet_vars(parts)
+    args['chain_name'] = cache['chain_name']
+    args['cleaner'] = _get_cleaner(parts)
+
+    return hypo_factory('HLThypo2_dimass_deta', args)
+
+
+def _setup_ht_vars(parts):
+    """make the HT hypo paramters attributes of this instance to 
+    allow consistency checking with check_and_set"""
+
+    ht_parts = [p for p in parts if p['trigType'] == 'ht']
+    n_ht_parts = len(ht_parts)
+    if n_ht_parts != 1:
+        msg = '%s: _setup_ht_bars: expected 1 ht chainPart, found %d' % (
+        err_hdr, n_ht_parts)
+
+    ht_part = ht_parts[0]
+    vals = set([part['etaRange'] for part in parts])
+    if len(vals) > 1:
+        msg = '%s: _setup_ht_bars: multiple eta ranges' % err_hdr
+        raise RuntimeError(msg)
+
+    args = {}
+    args['eta_range'] = ht_part.get('etaRange', '')
+    args['ht_threshold'] = int(ht_part['threshold'])
+    args['chain_name'] = cache['chain_name']
+    # set the default cuts on the jets contributing to the Et
+    # sum to be 30 if not specified. Otherwise the expected form is
+    #j\d+
+
+    args['jet_et_threshold'] = 30.
+
+    extra = ht_part['extra']
+    if (not (extra == '' or extra.startswith('test'))):
+        try:
+            args['jet_et_threshold'] = float(part['extra'][1:])
+        except:
+            m = '%s unrecognized value for HT jet cut %s' % (
+                err_hdr,
+                str(part['extra'][1:]))
+            
+            raise RuntimeError(m)
+
+    args['cleaner'] = ht_part.get('cleaning', 'noCleaning')
+
+    return hypo_factory('HLThypo2_ht', args)
+
+            
+def _setup_tla_vars(parts):
+
+    tla_string = _get_tla_string(parts)
+
+    m = tla_re.search(tla_string)
+    if m == None:
+        m = '%s _setup_tla_vars unmatched ' \
+            'tla string: %s regex: %s'  % (err_hdr,
+                                           tla_string, 
+                                           tla_re.pattern)
+        raise RuntimeError(m)
+
+    args = {}
+    args.update(m.groupdict())
+    args['chain_name'] = cache['chain_name']
+    args['tla_string'] = tla_string
+    args['indexhi'] = int(args['indexhi'])
+    args['indexlo'] = int(args['indexlo'])
+    args['mass_min'] = float(args['mass_min'])
+    args['mass_max'] = float(args['mass_max'])
+
+
+    return hypo_factory('HLThypo2_tla', args)
+
+
+def _get_hypo_params(parts):
+
+    hypo_type = _get_hypo_type(parts)
+
+    hypo_setup_fn = {
+        'HLThypo2_etaet': _setup_etaet_vars,
+        'HLThypo2_dimass_deta': _setup_dimass_deta_vars,
+        'HLThypo2_singlemass': _setup_singlemass_vars,
+        'HLThypo2_tla': _setup_tla_vars,
+        'HLThypo2_ht': _setup_ht_vars,}.get(hypo_type, None)
+    
+    if hypo_setup_fn is None:
+        msg = '%s: unknown hypo type (JetDef bug) %s' % (
+            err_hdr,
+            str(hypo_type))
+        raise RuntimeError(msg)
+
+    return hypo_setup_fn(parts)
+
+    
+def chainConfigMaker(d):
     """Process input dictionary to create a ChainConfig object.
     A Chainfig obeject carries "algorithm-ready"" arguments (derived
     from the incoming dictionary) arranged by algorithm type.
@@ -49,657 +611,89 @@ class ChainConfigMaker(object):
     When the  function method (__call__) is invoked, these atrributes
     are transferred to a lighter weight ChainConfig object."""
 
-    reco_alg_re = re.compile(r'^a\d+$')
-    recluster_alg_re = re.compile(r'^a\d+r$')
-    trimming_alg_re = re.compile(r'^a\d+t$')
-    tla_re = \
-        re.compile(r'^(?P<indexlo>\d+)i(?P<indexhi>\d+)c(?P<mass_min>\d+)m(?P<mass_max>\d+)TLA$')
-    invm_re = re.compile(r'^invm(?P<mass_min>\d+)$')
-    deta_re = re.compile(r'^deta(?P<dEta_min>\d+)$')
+    _reset_cache()
 
     # conerverter for cleaner names used in chain anmes, and those
     # used to instantiate the C++ converters (cleanerFactory keys)
+
+
+    cc = ChainConfig()
+    chain_name = d['chainName']
+    _update_cache('chain_name', chain_name)
+    cc.chain_name = chain_name
+
+    parts = d['chainParts']
+    _get_fex_alg_name(parts)
+
+    do_recl =  _do_recl(parts)
+        
+    cc.run_hypo = _get_run_hypo(parts)
+    cc.seed = d['L1item']
+    cc.data_scouting = _get_data_scouting(parts)
+    cc.run_rtt_diags = d['run_rtt_diags']
+
+    md = MenuData()
+    cc.menu_data = md
     
-    cleaner_names = {
-        'cleanL': 'looseCleaning',
-        'cleanLA': 'antiLooseCleaning',
-        'cleanT': 'tightCleaning',
-        'cleanTA': 'antiTightCleaning',
-        'cleanLLP': 'llpCleaning',
-        'cleanLLPA':'antLlpCleaning',
-        'noCleaning': 'noCleaning',
-        }
+    md.cluster_params = _get_cluster_params(parts)
+    md.data_type = _get_data_type(parts)
+    md.fex_params = _get_fex_params(parts)
+    md.scan_type = _get_scan_type(parts)
 
-    def __init__(self, d):
-            
-        self.err_hdr = '%s._process_part: ' % self.__class__.__name__
-        self.n_parts = 0
+    if do_recl:
+        md.second_fex_params = _get_recl_params(parts)
 
-        self.data_type = ''
-        self.scan_type = ''
-        self.multi_eta = len(set([cp['etaRange'] for cp in d['chainParts']])) > 1
-        self.jet_attributes = []
-        self.run_rtt_diags = d['run_rtt_diags']
-        self.chain_name = d['chainName']
-        self.seed = d['L1item']
-        self.deta = None
-        self.invm = None
-        # error check: count the number of hypos requested. Should
-        # only be one.
-        self.hypo_types = []
-        [self._process_part(p) for p in d['chainParts']]
+    md.hypo_params = _get_hypo_params(parts)
+    
+    return cc
 
-        # self._ensure_single_hypo()
-        
-    # def _ensure_single_hypo(self):
-    #     """hypo specification is spread over > 1 chain parts
-    #     (multi Et levels for the Eta-pt hypo) or specified
-    #     in a single chainpart (eg TLA hypo). Make sure that
-    #     not more than one hypo has been specied."""
 
-    #      htypes = set(self.hypo_types)
-    #     counter = {}
-    #     for ht in htypes: counter[ht] = 0
-    #     for ht in self.hypo_types:
-    #         if ht in ('HLThypo',
-    #                   'HLThypo2_etaet',
-    #                   'HLThypo2_dimass_deta',
-    #                   'HLThypo2_ht'
-    #                   'HLThypo2_tla'
-    #                   'HLTSRhypo', 'run1hypo'):
-    #             counter[ht] = 1
-    #         else:
-    #             counter[ht] += 1
+if __name__ == '__main__':
+    j85 = {'run_rtt_diags':False, 'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'etaRange': '0eta320', 'threshold': '85', 'chainPartName': 'j85', 'recoAlg': 'a4', 'bTag': '', 'extra': '', 'calib': 'em', 'jetCalib': 'subjes', 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'bMatching': [], 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'topo': [], 'groups': ['RATE:SingleJet', 'BW:Jet'], 'topoThreshold': None, 'topoStartFrom': False, 'chainCounter': 475, 'signature': 'Jet', 'L1item': 'L1_J20', 'chainName': 'j85'}
 
-    #      nhypos = sum(counter.values())
+    j460_a10r = {'run_rtt_diags':False, 'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTracking': '', 'bTag': '', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '460', 'chainPartName': 'j460_a10r', 'recoAlg': 'a10r', 'trigType': 'j', 'bConfig': [], 'multiplicity': '1', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'L1item': ''}], 'topo': [], 'chainCounter': 864, 'groups': ['RATE:SingleJet', 'BW:Jet'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_HT150-J20s5.ETA31', 'chainName': 'j460_a10r'}
 
-    #      if nhypos > 1:
-    #         raise RuntimeError('%s  %d hypo types calculated: %s' % (
-    #             self.err_hdr, nhypos, str(counter)))
-            
-    def _process_part(self, part):
-        """Process chain parts. If there is more than one chain part,
-        the fex data must always be the same: multiple chain parts
-        convey information about different thresholds in for the
-        jet hypo"""
+    _3j30 = {'run_rtt_diags':False, 'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTracking': '', 'bTag': '', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '30', 'chainPartName': '3j30', 'recoAlg': 'a4', 'trigType': 'j', 'bConfig': [], 'multiplicity': '3', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'L1item': ''}], 'topo': [], 'chainCounter': 783, 'groups': ['RATE:MultiJet', 'BW:Jet'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_TE10', 'chainName': '3j30'}
 
-        self._check_part(part)
+    j150_2j55_boffperf_split = {'run_rtt_diags':False, 'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTracking': '', 'bTag': '', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '150', 'chainPartName': 'j150', 'recoAlg': 'a4', 'trigType': 'j', 'bConfig': [], 'multiplicity': '1', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'L1item': ''}, {'bTracking': '', 'bTag': 'boffperf', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '55', 'chainPartName': '2j55_boffperf_split', 'recoAlg': 'a4', 'trigType': 'j', 'bConfig': ['split'], 'multiplicity': '2', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'L1item': ''}], 'topo': [], 'chainCounter': 1170, 'groups': ['RATE:MultiBJet', 'BW:BJet'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_J75_3J20', 'chainName': 'j150_2j55_boffperf_split'}
 
-        # ----- test chain parameter - if present, sill be  be in the 'extra' field
-        extra = part['extra']
-        if extra.startswith('test'):
-            self.check_and_set('test_flag', extra)
-        else:
-            self.check_and_set('test_flag', '')
+    j0_0i1c200m400TLA = {'run_rtt_diags':False, 'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTracking': '', 'bTag': '', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '0i1c200m400TLA', 'cleaning': 'noCleaning', 'threshold': '0', 'chainPartName': 'j0_0i1c200m400TLA', 'recoAlg': 'a4', 'trigType': 'j', 'bConfig': [], 'multiplicity': '1', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'L1item': ''}], 'topo': [], 'chainCounter': 732, 'groups': ['RATE:MultiJet', 'BW:Jet'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_J100', 'chainName': 'j0_0i1c200m400TLA'}
 
-        # -------------- cluster parameters -------------
+    _2j10_deta20_L1J12 = {'run_rtt_diags':False, 'EBstep': -1, 'signatures': '', 'stream': ['MinBias'], 'chainParts': [{'bTracking': '', 'bTag': '', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': ['deta20'], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '10', 'chainPartName': '2j10_deta20_L1J12', 'recoAlg': 'a4', 'trigType': 'j', 'bConfig': [], 'multiplicity': '2', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'L1item': ''}], 'topo': [], 'chainCounter': 721, 'groups': ['BW:MinBias', 'RATE:MinBias'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_J12', 'chainName': '2j10_deta20_L1J12'}
 
-        # the following dictionary translates the incoming value of
-        # the calibration string to arguments relevant for
-        # python class instantiation. The first is used by TrigCaloClusterMaker
-        # while the second affects how JetRecTool is set up by
-        # TrigHLTJetRec.
+    _2j55_bmedium_ht300_L14J20 = {'run_rtt_diags':False, 'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'mergingOffset': -1, 'chainParts': [{'bTracking': '', 'bTag': '', 'extra': '', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '300', 'chainPartName': 'ht300_L14J20', 'recoAlg': 'a4', 'trigType': 'ht', 'bConfig': [], 'multiplicity': '1', 'scan': 'FS', 'L1item': '', 'signature': 'HT', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'dataScouting': ''}], 'signature': 'HT', 'mergingPreserveL2EFOrder': True, 'topo': [], 'chainCounter': 4032, 'L1item': 'L1_4J20', 'groups': ['RATE:MultiBJet', 'BW:BJet', 'BW:Jet'], 'mergingOrder': ['2j55_bmedium', 'ht300_L14J20'], 'topoThreshold': None, 'topoStartFrom': False, 'mergingStrategy': 'serial', 'chainName': '2j55_bmedium_ht300_L14J20'}
 
-        # calib = {
-        #    'em': {'cluster_dolc': False, 'do_jes': False},
-        #    'lcw': {'cluster_dolc': True, 'do_jes': False},
-        #    'had': {'cluster_dolc': False, 'do_jes': True}
-        # }
+    j460_a10t_lcw_nojcalib_L1J100 = {'run_rtt_diags':False, 'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTracking': '', 'bTag': '', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '460', 'chainPartName': 'j460_a10t_lcw_nojcalib_L1J100', 'recoAlg': 'a10t', 'trigType': 'j', 'bConfig': [], 'multiplicity': '1', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'lcw', 'addInfo': [], 'jetCalib': 'nojcalib', 'L1item': ''}], 'topo': [], 'chainCounter': 757, 'groups': ['Rate:SingleJet', 'BW:Jet'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_J100', 'chainName': 'j460_a10t_lcw_nojcalib_L1J100'}
 
-        cluster_calib = part['calib']
-        assert cluster_calib in ('em', 'lcw')
-        
-        # 25/02/2016 cluster will aways be made with local calibration on.
-        # cluster_calib will be used only by the TrigJetReco to
-        # decide if the the clusters should be switched to uncalibrated
-        self.check_and_set('cluster_calib', cluster_calib)
+    j440_a10r_L1J100 = {'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTracking': '', 'bTag': '', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '440', 'chainPartName': 'j440_a10r_L1J100', 'recoAlg': 'a10r', 'trigType': 'j', 'bConfig': [], 'multiplicity': '1', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'L1item': ''}], 'topo': [], 'chainCounter': 663, 'groups': ['RATE:SingleJet', 'BW:Jet'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_J100', 'chainName': 'j440_a10r_L1J100'}
 
-        # the cluster algorithm is always run with local calibration on
-        cluster_label = reduce(lambda x, y: x + y,
-                               (part['dataType'],
-                                'lcw',
-                                part["scan"]))
-        self.check_and_set('cluster_label', cluster_label)
+    # ChainConfigMaker(j460_a10r)
+    # ChainConfigMaker(j85)
+    # ChainConfigMaker(_3j30)
+    # ChainConfigMaker(j150_2j55_boffperf_split)
+    # ChainConfigMaker(j0_0i1c200m400TLA)
+    # ChainConfigMaker(_2j10_deta20_L1J12)
+    # ChainConfigMaker(_2j55_bmedium_ht300_L14J20)
+    # ChainConfigMaker(_2j55_bmedium_ht300_L14J20)
+    # cc = chainConfigMaker(j460_a10t_lcw_nojcalib_L1J100)
+    cc = chainConfigMaker(j460_a10t_lcw_nojcalib_L1J100)
 
+    print cc
+    
+    def do_all():
+        import sys
+        sys.path.append('/tmp/sherwood')
+        from triggerMenuXML_dicts import MC_pp_V5_dicts
 
-        # the input data changes meaning depending on the chain,
-        # all in the interest of having chain names that are alledgedly
-        # easy for analysts to understand...
-        # 13/01/2015... jet reclustering changes the meaning ofthe
-        # dictionary contents. Straighten this out here to allow
-        # systematic use of the dictionary.
-        
-        match = self.recluster_alg_re.search(part['recoAlg'])
-        if match:
-            # reclustering has been requested - fix dict:
-            self.check_and_set('do_recluster', True)
-
-            # ------- recluster parameters ----------
-            # - the Et cut on input jets is hardwired.
-            # - the eta cut on input jets is hardwired.
-            # - the algo is calculated from the input dictionary value
-
-            self.check_and_set('recl_fex_name', 'antikt')
-            self.check_and_set('recl_ptMinCut', 15.)
-            self.check_and_set('recl_etaMaxCut', 10.0)  # no effect, to be removed
-            self.check_and_set('recl_merge_param', part['recoAlg'][1:-1])
-            self.check_and_set('recl_jet_calib', 'nojcalib')
-            self.check_and_set('recl_fex_alg_name', part["recoAlg"])
-
-            fex_label = reduce(lambda x, y: x + y,
-                           (part["recoAlg"],
-                            '_',
-                            part["dataType"],
-                            self.cluster_calib,
-                            part["jetCalib"],
-                            part["scan"]))
-
-            self.check_and_set('recl_fex_label', fex_label)
-            # - input jets are made from akt4
-            part['recoAlg'] = 'a4'
-        else:
-            self.check_and_set('do_recluster', False)
-
-
-	# Check for trimming regular expression match
-        match = self.trimming_alg_re.search(part['recoAlg'])
-        if match:
-            self.check_and_set('do_trim',True)
-            print 'doTrimming is True' #Nima!
-            # ----- trimming parameters -----
-            #self.check_and_set('trim_fex_name', 'antikt')
-            self.check_and_set('trim_rclus',0.2)
-            self.check_and_set('trim_ptfrac',0.05)
-            #self.check_and_set('trim_merge_param', part['recoAlg'][1:-1])
-            #self.check_and_set('trim_jet_calib', part['jetCalib'])
-            #self.check_and_set('trim_fex_alg_name', part["recoAlg"])
-
-            fex_label = reduce(lambda x, y: x + y,
-                               (part["recoAlg"],
-                                '_',
-                                part["dataType"],
-                                self.cluster_calib,
-                                part["jetCalib"],
-                                part["scan"]))
-            self.check_and_set('trim_fex_label', fex_label)
-            # Input jets are aktX ungroomed (change from 'aXt' to 'aX', typically X=10)
-            part['recoAlg'] = part['recoAlg'][0:-1]
-        else:
-            self.check_and_set('do_trim',False)
-            print 'doTrimming is false' #Nima!
-
-        jet_calib = part['jetCalib']
-        self.check_and_set('jet_calib', jet_calib)
-        
-        # find the type of data the clustering will act on: topoclusters
-        # or trigger towers are the possibilities for now.
-        data_type = part['dataType']
-        self.check_and_set('data_type', data_type)
-
-        # -------------- fex parameters ----------------
-
-        reco_alg = part['recoAlg']
-        m = self.reco_alg_re.search(reco_alg)
-        if not m:
-            msg = '%s unknown reco alg: %s' % (self.err_hdr, reco_alg)
-            raise RuntimeError(msg)
-
-        merge_param = int(reco_alg[1:])
-        self.check_and_set('fex_name', 'antikt')
-        self.check_and_set('merge_param', merge_param)
-        self.check_and_set('dataType', part['dataType'])
-        self.check_and_set('fex_alg_name', part["recoAlg"])
-        # generate a string that will be used to label the fex
-        # instance and associated entities.
-        fex_label = reduce(lambda x, y: x + y,
-                           (self.fex_alg_name,
-                            self.data_type,
-                            self.cluster_calib,
-                            part["jetCalib"],
-                            part["scan"]))
-
-        self.check_and_set('fex_label', fex_label)
-
-
-        # ------- data scouting parameters ----------
-        
-        ds = part.get('dataScouting', '')
-        ds1 = 'ds1' if 'ds1' in ds  else ''
-        ds2 = 'ds2' if 'ds2' in ds  else ''
-
-        if ds1 and ds2:
-            msg = '%s both "ds1" and "ds2" present in data scouting' \
-            'string: %s' % (self.err_hdr, ds)
-            raise RuntimeError(msg)
-
-        self.check_and_set('data_scouting', ds1 + ds2)
-
-        # --------  check scan type consistency ----------------
-        scan_type = part['scan']
-        scan_types = ('', 'PS', 'FS')
-        if scan_type not in scan_types:
-            msg = '%s unknown scanType %s allowed: %s' % (self.err_hdr,
-                                                          scan_type,
-                                                          str(scan_types))
-            raise RuntimeError(msg)
-        
-        # -----------------------------------------
-
-        if scan_type != 'FS' and self.data_type == 'TT':
-            msg = '%s: scanType %s set for Trigger tower scan' % (
-                self.err_hdr, scan_type)
-            raise RuntimeError(msg)
-
-        self.check_and_set('scan_type', scan_type)
-
-        # check whether to run the hypo
-        run_hypo =  'perf' not in part['addInfo'] and not self.data_scouting
-        self.check_and_set('run_hypo', run_hypo)
-
-        # --------  hypo parameters ----------------
-        self.check_and_set('tla_string',  part['TLA'])
-
-        def getTopo(topos, target):
-            targets = [x for x in part['topo'] if x.startswith(target)]
-            if len(targets) > 1:
-                msg = '%s %s mass specied more than once %s' % (
-                    self.err_hdr, target, str(topos))
-                raise RuntimeError(msg)
-
-            result = ''
-            if targets: result = targets[0]
-            return result
-
-        # do not use check_and_set for invm_string or deta_Str
-        # as these values cab be different in different chainParts
-        self.invm_string =  getTopo(part['topo'], 'invm')
-        self.deta_string = getTopo(part['topo'], 'deta')
-
-        self.dimass_deta = bool(self.invm_string) or bool(self.deta_string)
-
-        # 16/04/10 switch to using TrigHLTJetHypo2 for non-test4 chains
-        # and TrigHLTJetHypo for test4 chains (reverses previous order)
-        hypo_type = {('j', '', False, False): 'HLThypo2_etaet',
-                     ('j', 'test1', False, False): 'HLThypo2_etaet',
-                     ('j', 'test2', False, False): 'HLTSRhypo',
-                     ('j', 'test4', False, False): 'HLThypo',
-                     # set up jets normally, dijet hypo appended:
-                     # requires corresponding change to generateJetChainDefs.py
-                     ('j', 'test4', False, True): 'HLThypo', 
-                     ('j', '', False, True): 'HLThypo2_dimass_deta',
-                     ('ht','', False, False): 'ht',
-                     ('ht', 'test4', False, False):'HLThypo2_ht',
-                     ('j', 'test4', True, False): 'tla',
-                     ('j', '', True, False): 'HLThypo2_tla',}.get(
-                         (part['trigType'],
-                          self.test_flag,
-                          bool(self.tla_string),
-                          self.dimass_deta), None)
-       
-        # hypo_type = {('j', '', False, False): 'HLThypo',
-        #              ('j', 'test1', False, False): 'run1hypo',
-        #              ('j', 'test2', False, False): 'HLTSRhypo',
-        #              ('j', 'test4', False, False): 'HLThypo2_etaet',
-        #              ('j', 'test4', False, True): 'HLThypo2_dimass_deta',
-        #              ('j', '', False, True): 'HLThypo',
-        #              ('ht','test4', False, False): 'HLThypo2_ht',
-        #              ('j', 'test4', True, False): 'HLThypo2_tla',
-        #              ('ht', '', False, False):'ht',
-        #              ('j', '', True, False): 'tla'}.get(
-        #                  (part['trigType'],
-        #                   self.test_flag,
-        #                   bool(self.tla_string),
-        #                   self.dimass_deta), None)
-
-        if self.multi_eta and not hypo_type.startswith('HLThypo'):
-            hypo_type = 'HLThypo'
-
-        # maximum  bipartite is now "standard"
-        # if self.multi_eta: hypo_type = 'maximum_bipartite'
-                     
-        if not hypo_type:
-            msg = '%s: cannot determine hypo type '\
-                  'from trigger type: %s test flag: %s' \
-                  'TLA: %s dimass_eta %s' %  (
-                      self.err_hdr, part['trigType'],
-                      self.test_flag,
-                      str(bool(self.tla_string)),
-                      str(self.dimass_deta))
-            raise RuntimeError(msg)
-
-        self.hypo_types.append(hypo_type)
-        print self.hypo_types
-        self.check_and_set('hypo_type', hypo_type)
-
-        # convert the cleaner names obtained from the chain name to 
-        # the one which will be used to key the C++ cleaner factory
-        cleaner = part['cleaning']
-        cleaner = self.cleaner_names.get(cleaner, None)
-        if cleaner is None:
-            m = 'Cannot convert chain name  cleaner name "%s" to C++ cleaner '\
-                'name ' % part['cleaning']
-            raise RuntimeError(m)
-
-        self.check_and_set('cleaner', cleaner) 
-
-        hypo_setup_fn = {
-            'HLThypo': self._setup_etaet_vars,
-            'HLThypo2_etaet': self._setup_etaet_vars,
-            'HLThypo2_dimass_deta': self._setup_dimass_deta_vars,
-            'HLThypo2_tla': self._setup_tla_vars,
-            'HLThypo2_ht': self._setup_ht_vars,
-            'run1hypo': self._setup_run1_vars,
-            'HLTSRhypo': self._setup_etaet_vars,
-            'tla': self._setup_tla_vars,
-            'ht': self._setup_ht_vars}.get(hypo_type, None)
-
-        if hypo_setup_fn is None:
-            msg = '%s: unknown hypo type (JetDef bug) %s' % (
-                self.err_hdr,
-                str(self.hypo_type))
-            raise RuntimeError(msg)
-
-        hypo_setup_fn(part)
-
-        self.n_parts += 1
-
-
-    def check_and_set(self, attr, val):
-        """Set the value of attribute attr to val if the first chain part
-        is being processed. For subsequent chain parts, ensure their
-        attribute values are the same (chain parts have much redundant
-        information)."""
-
-        if self.n_parts == 0:
-            setattr(self, attr, val)
-            return
-
-        
-            
-        # handle special cases, where chainParts differ for understood
-        # reasons.
-        #
-        # - hypo_type. if
-        # old == HLThypo2_dimass_deta, new == HLThypo2_etaet, keep old
-        # new == HLThypo2_dimass_deta, old == HLThypo2_etaet, use new
-
-        my_val = None
-        try:
-            my_val = getattr(self, attr)
-        except AttributeError:
-            # second chain parts include new inforamtion
-            # of the dijet hypo
-            if self.hypo_type == 'HLThypo2_dimass_deta':
-                if attr in  ('mass_min','dEta_min'):
-                    setattr(self, attr, val)
-                    my_val = getattr(self, attr)
-                    
-        if attr == 'hypo_type':
-            if my_val == 'HLThypo2_etaet' and val == 'HLThypo2_dimass_deta':
-                setattr(self, attr, val)
-                my_val = getattr(self, attr)
-
-            if val == 'HLThypo2_etaet' and my_val == 'HLThypo2_dimass_deta':
-                val = my_val
-
-        if my_val != val:
-            msg = '%s attribute clash %s %s %s' % (self.err_hdr,
-                                                   attr,
-                                                   my_val,
-                                                   val)
-            raise RuntimeError(msg)
-
-    def __call__(self):
-
-        # obtain objects which state which the
-        # algorithm to use, and the corresponding algorithm dependent
-        # parameters
-
-        cluster_args = {'label': self.cluster_label}
-        
-        cluster_params = clusterparams_factory(cluster_args)
-
-        fex_args = {'merge_param': self.merge_param,
-                    'jet_calib': self.jet_calib,
-                    'cluster_calib': self.cluster_calib,
-                    'fex_label': self.fex_label,
-                    'data_type': self.data_type,
-                    'fex_alg_name': self.fex_alg_name,  # for labelling
-                    }
-
-        fex_params = fexparams_factory(self.fex_name, fex_args)
-
-        # various fexes maybe present in the same chain (a4, a10r eg)
-        # the last set of fex parameters is used to name the hypo instance
-        last_fex_params = fex_params  
-
-        recluster_params = None
-        if self.do_recluster:
-            recl_args = dict(fex_args)
-            recl_args.update({'ptMinCut': self.recl_ptMinCut,
-                              'etaMaxCut': self.recl_etaMaxCut,
-                              'fex_label': self.recl_fex_label,
-                              'merge_param': self.recl_merge_param,
-                              'jet_calib': self.recl_jet_calib,
-                              'fex_alg_name': self.recl_fex_alg_name,
-                          })
-
-            recluster_params = fexparams_factory(
-                'jetrec_recluster', recl_args)
-
-            # overwrite last_fex_params
-            # this is used to name the hypo instance
-            last_fex_params = recluster_params  
-
-        trim_params = None
-        if self.do_trim:
-            trim_args = dict(fex_args)
-            trim_args.update({'rclus': self.trim_rclus,
-                              'ptfrac': self.trim_ptfrac,
-                              'fex_label': self.trim_fex_label,
-                              })
-            trim_params = fexparams_factory('jetrec_trimming',trim_args)
-	    
-  	    # overwrite last_fex_params
-	    # this is used to name the hypo instance
-            last_fex_params = trim_params
-          
-            
-        if self.hypo_type in ('HLThypo', 'HLThypo2_etaet'):
-            hypo_args = {
-                'chain_name': self.chain_name,
-                'jet_attributes': self.jet_attributes,
-                'cleaner': self.cleaner,
-                'matcher': 'maximumBipartite', 
-                'isCaloFullScan': self.scan_type == 'FS',
-                'triggertower': self.data_type == 'TT',
-            }
-
-
-        elif self.hypo_type == 'HLTSRhypo':
-            hypo_args = {
-                'chain_name': self.chain_name,
-                'jet_attributes': self.jet_attributes,
-                'cleaner': self.cleaner,
-                'matcher': 'orderedCollections', 
-                'isCaloFullScan': self.scan_type == 'FS',
-                'triggertower': self.data_type == 'TT',
-            }
-
-        elif self.hypo_type == 'run1hypo':
-            hypo_args = {
-                'chain_name': self.chain_name,
-                'jet_attributes': self.jet_attributes,
-                'isCaloFullScan': self.scan_type == 'FS',
-                'triggertower': self.data_type == 'TT',
-                'cleaner': 'noClean',
-            }
-
-        elif self.hypo_type in ('ht', 'HLThypo2_ht'):
-            hypo_args = {
-                'chain_name': self.chain_name,
-                'eta_range': self.eta_range,
-                'ht_threshold': self.ht_threshold,
-                'jet_et_threshold': self.jet_et_threshold,
-                'matcher': 'maximumBipartite', 
-                }
-            if self.hypo_type == 'ht': hypo_args['matcher'] = None
-
-        elif self.hypo_type in ('tla', 'HLThypo2_tla'):
-            hypo_args = {
-                'chain_name': self.chain_name,
-                'indexlo': int(self.indexlo),
-                'indexhi': int(self.indexhi),
-                'mass_min': float(self.mass_min),
-                'mass_max': float(self.mass_max),
-                'matcher': 'maximumBipartite', 
-                'tla_string': self.tla_string}
-
-        elif self.hypo_type in ('HLThypo2_dimass_deta',):
-
+        bad = []
+        ngood = 0
+        for d in MC_pp_V5_dicts: 
+            d['run_rtt_diags'] = False
+            print d['chainName']
             try:
-                mass_min = float(self.mass_min)
-            except TypeError:
-                mass_min = None
+                ChainConfigMaker(d)
+            except Exception, e:
                 
-            try:
-                dEta_min = float(self.dEta_min)/10.
-            except TypeError:
-                dEta_min = None
+                bad.append(d['chainName'])
 
-            hypo_args = {
-            'chain_name': self.chain_name,
-                'jet_attributes': self.jet_attributes,
-                'cleaner': self.cleaner,
-                'matcher': 'maximumBipartite', 
-                'dEta_min': dEta_min,
-                'mass_min': mass_min}
-            
-        else:
-            msg = '%s unknown hypo_type %s' % (self.err_hdr, self.hypo_type)
-            raise RuntimeError(msg)
-
-        hypo_params = hypo_factory(self.hypo_type, hypo_args)
-
-        menu_data = MenuData(self.scan_type,
-                             self.data_type,
-                             fex_params=fex_params,
-                             hypo_params=hypo_params,
-                             cluster_params=cluster_params,
-                             recluster_params=recluster_params,
-			     trim_params=trim_params,
-                             last_fex_params= last_fex_params
-                         )
-
-
-        return ChainConfig(chain_name=self.chain_name,
-                           seed=self.seed,
-                           run_hypo=self.run_hypo,
-                           run_rtt_diags=self.run_rtt_diags,
-                           data_scouting=self.data_scouting,
-                           menu_data=menu_data,)
-
-    def _check_part(self, part):
-        """Check chain part for errors"""
-
-        # Attempting to do partial scan with pileup subtraction
-        # produces nonsense results
-        if part['scan'] == 'PS' and 'sub' in part['jetCalib']:
-            msg = '%s partial scan is incompatible with pileup subtraction' %(
-                self.err_hdr, )
-            raise RuntimeError(msg)
-
-
-            hypo_setup_fn = {'standard': self.setup_standard_hypo,
-                             'ht': self.setup_ht_hypo}.get(hypo_type, None)
-
-    def _setup_jet_vars(self, part):
-        """make hypo parameteters an attribute of this instance so 
-        they can be checked with check_and_set. This method handles
-        common standard jet hypo paramters"""
-
-        mult = int(part['multiplicity'])
-        threshold = int(part['threshold'])
-        eta_range = part['etaRange']
-
-        self.jet_attributes.extend(
-            [(JetAttributes(threshold, eta_range)) for i in range(mult)])
-
-    def _setup_run1_vars(self, part):
-        """Ensure the Run1 hypo is not being asked to do things it cannot do"""
-
-        if self.cleaner != 'noCleaning':
-            m ='Jet cleaning requested %s, '\
-                'but is incomaptable with the standard hypo' % self.cleaner
-            raise RuntimeError(m)
-        
-        if self.multi_eta:
-            m ='Hypo with > 1 eta refions requested , '\
-                'but is incomaptable with the standard hypo'
-            raise RuntimeError(m)
-
-        self._setup_jet_vars(part)
-
-    def _setup_etaet_vars(self, part):
-        """Delegate setting up the hypo parameters"""
-        self._setup_jet_vars(part)
-
-    def _setup_dimass_deta_vars(self, part):
-        self._setup_jet_vars(part)
-
-        m = self.invm_re.search(self.invm_string)
-        if m:
-            # set dimass min limit obtained from regex matching
-            for k, v in m.groupdict().items():
-                self.check_and_set(k, v)
-        else:
-            self.check_and_set('mass_min', None)
-
-        m = self.deta_re.search(self.deta_string)
-        if m:
-            # set ystar min limit obtained from regex matching
-            for k, v in m.groupdict().items():
-                self.check_and_set(k, v)
-        else:
-            self.check_and_set('dEta_min', None)
-        
-    def _setup_ht_vars(self, part):
-        """make the HT hypo paramters attributes of this instance to 
-        allow consistency checking with check_and_set"""
-
-        eta_range = part['etaRange']
-        self.check_and_set('eta_range', eta_range)
-        ht_threshold = int(part['threshold'])
-        self.check_and_set('ht_threshold',  ht_threshold)
-
-        # set the default cuts on the jets contributing to the Et
-        # sum to be 30 if not specified. Otherwise the expected form is
-        #j\d+
-
-        jet_et_threshold = 30.
-        extra = part['extra']
-        if (not (extra == '' or extra.startswith('test'))):
-            try:
-                jet_et_threshold = float(part['extra'][1:])
-            except:
-                m = '%s unrecognized value for HT jet cut %s' % (
-                    self.err_hdr,
-                    str(part['extra'][1:]))
-            
-                raise RuntimeError(m)
-            
-        self.check_and_set('jet_et_threshold', jet_et_threshold)
-            
-    def _setup_tla_vars(self, part):
-
-        m = self.tla_re.search(self.tla_string)
-        if m == None:
-            m = 'ChainConfigMaker:_setup_tla_vars unmatched ' \
-                'tla string: %s regex: %s'  % (tla_string, 
-                                               self.tla_re.pattern)
-            raise RuntimeError(m)
-
-        # set indices and mass limits obtained from regex matching
-        for k, v in m.groupdict().items():
-            self.check_and_set(k, v)
- 
+            print 'bad', str(bad)
