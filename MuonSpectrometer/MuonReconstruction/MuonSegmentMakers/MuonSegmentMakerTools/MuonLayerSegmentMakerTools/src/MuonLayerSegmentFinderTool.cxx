@@ -32,7 +32,7 @@ namespace Muon {
     m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
     m_clusterSegmentFinder("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
-    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool")
+    m_recoValidationTool("") // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool")
 
  {
     declareInterface<IMuonLayerSegmentFinderTool>(this);
@@ -98,7 +98,7 @@ namespace Muon {
   }
 
   void MuonLayerSegmentFinderTool::findMdtSegmentsFromHough( const MuonSystemExtension::Intersection& intersection,
-                                                             const MuonLayerPrepRawData& layerPrepRawData,
+                                                             const MuonLayerPrepRawData& /*layerPrepRawData*/,
                                                              std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
     unsigned int nprevSegments = segments.size(); // keep track of what is already there
@@ -287,7 +287,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerSegmentFinderTool::findClusterSegments( const MuonSystemExtension::Intersection& intersection,
+  void MuonLayerSegmentFinderTool::findClusterSegments( const MuonSystemExtension::Intersection& /*intersection*/,
                                                         const MuonLayerPrepRawData& layerPrepRawData,
                                                         std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
