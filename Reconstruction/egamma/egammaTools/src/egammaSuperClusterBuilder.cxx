@@ -237,7 +237,7 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
   //Start with the seed 
   //Add the EM cells of the seed cluster
   if (AddEMCellsToCluster(newCluster,clusters[0], cellsInWindow).isFailure()) {
-    ATH_MSG_WARNING("There was problem adding the cells to the the cluster");
+    ATH_MSG_DEBUG("There was problem adding the cells to cluster with : " << newCluster->eta());
     delete newCluster;
     return nullptr;
   }  

@@ -42,6 +42,7 @@ egammaTopoClusterCopier::egammaTopoClusterCopier(const std::string& type, const 
   declareProperty("EtaCut", m_etaCut = 2.6);
   declareProperty("ECut", m_ECut = 400);
   declareProperty("EMFracCut", m_EMFracCut = 0.5);
+  declareProperty("EMCrackEtCut", m_EMCrackEtCut = 1.0E3);
   declareInterface<IegammaTopoClusterCopier>(this);
 }
 
@@ -102,10 +103,19 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
 	) {            
       continue;
     }
+
     //Check if it passes the cuts
-    if( !checkEMFraction(*cciter)){
+    float emfrac(0.);
+    bool  passesCuts(checkEMFraction(*cciter, emfrac));
+
+    //Special condition for crack on EM fraction OR EM Et due to observed
+    //fragmentation of showers.
+    bool isCrack(fabs((*cciter)->eta()) > 1.37 && fabs((*cciter)->eta()) < 1.52);
+    if (isCrack)
+      passesCuts = (passesCuts || (emfrac*(*cciter)->et()) > m_EMCrackEtCut);
+    if (!passesCuts)
       continue;
-    }
+
     //Clone the cluster 
     ATH_MSG_DEBUG("-->SELECTED Cluster at eta,phi,et " << (*cciter)->eta() << " , "<< (*cciter)->phi() << " , " << (*cciter)->et());
     viewCopy->push_back((*cciter));
@@ -116,7 +126,7 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *clus) const{
+StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *clus, float &emFrac) const{
   
   double emfrac(0);
   if(!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
@@ -164,6 +174,8 @@ StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *cl
   static const SG::AuxElement::Decorator<bool> acc1("isE4TileGap3Recovered");
   acc1(*clus)= (pass_no_correction!=pass_after_correction);
   ATH_MSG_DEBUG("Cluster need to be recovered " << (pass_no_correction!=pass_after_correction));
+
+  emFrac = emfrac;
 
   return pass_after_correction ;
 }
