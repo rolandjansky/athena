@@ -19,7 +19,7 @@ namespace Muon {
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
+    m_recoValidationTool(""), // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
     // m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),    
     m_distanceToTubeCut(1000.),
     m_secondCoordinateCut(1500.)
