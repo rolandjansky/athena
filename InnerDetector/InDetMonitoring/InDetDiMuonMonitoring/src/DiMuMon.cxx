@@ -301,7 +301,7 @@ StatusCode DiMuMon::fillHistograms()
   if(sc.isFailure()){
     ATH_MSG_WARNING("Could not retrieve muon container");
     return sc;
-  } else ATH_MSG_INFO("Muon container successfully retrieved.");
+  } else ATH_MSG_DEBUG("Muon container successfully retrieved.");
 
   //make a new container
   xAOD::MuonContainer* goodMuons = new xAOD::MuonContainer( SG::VIEW_ELEMENTS );
