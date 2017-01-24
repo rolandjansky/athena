@@ -36,6 +36,66 @@
   #include "GeneratorObjects/McEventCollection.h"
 #endif
 
+namespace {
+	  std::ostream &operator<<(std::ostream &out, const AmgSymMatrix(5) &matrix) {
+	    out << std::endl;
+	    const unsigned int N=5;
+	     for (unsigned int i = 0; i < N; ++i) {
+	         for (unsigned int j = 0; j < N; ++j) {
+	           if (j==0) {
+	             if (i==0) {
+	               out << "/ ";
+	             }
+	             else if (i+1==N) {
+	               out << "\\ ";
+	             }
+	             else {
+	               out << "| ";
+	             }
+	
+	           }
+	           out << std::setw(14) << matrix(i,j) << " ";
+	           if (j+1==N) {
+	             if (i==0) {
+	               out << " \\ ";
+	             }
+	             else if (i+1==N) {
+	               out << " /";
+	             }
+	             else {
+	               out << " |";
+	             }
+	
+	           }
+	         }
+	         out << std::endl;
+	     }
+	     out << std::endl;
+	     return out;
+	  }
+}
+	
+bool Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack( const Trk::Track *track) const {
+	  if (!track )return true;
+	
+	  bool error=false;
+	  if (track->trackParameters()){
+	    int counter=0;
+	    for (const  Trk::TrackParameters *param: *(track->trackParameters())) {
+	      if (param && param->covariance() && param->covariance()->determinant() < 0) {
+	        ATH_MSG_DEBUG( " negative determinant for track param " << counter << " "
+	                       << *(param)  << " cov=" << *(param->covariance())
+	                       << std::endl
+	                       << " det=" << param->covariance()->determinant() );
+	        error=true;
+	      }
+	      ++counter;
+	      if (counter>=2) break;
+	    }
+	  }
+	  return !error;
+}
+
 
 //==================================================================================================
 Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcessorTool(const std::string& t, 
@@ -46,29 +106,32 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   m_incidentSvc("IncidentSvc", n),
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
-  m_fitterTool ("Trk::KalmanFitter/InDetTrackFitter"), 
   m_extrapolatorTool("Trk::Extrapolator/AtlasExtrapolator"),
   m_selectionTool("InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),
   m_splitProbTool("InDet::NnPixelClusterSplitProbTool/NnPixelClusterSplitProbTool"),  
   m_assoTool("Trk::PRD_AssociationTool/DEAmbi_PRD_AssociationTool"),
   m_finalTracks(0),
   m_Nevents(0),
-  m_Ncandidates(4), m_NcandScoreZero(4), m_NcandDouble(4),
-  m_NscoreOk(4),m_NscoreZeroBremRefit(4),m_NscoreZeroBremRefitFailed(4),
-  m_NscoreZeroBremRefitScoreZero(4),m_NscoreZero(4),
-  m_Naccepted(4),m_NsubTrack(4),m_NnoSubTrack(4),m_NacceptedBrem(4),
-  m_NbremFits(4),m_Nfits(4),m_NrecoveryBremFits(4),m_NgoodFits(4),m_NfailedFits(4),
+  m_Ncandidates(5), m_NcandScoreZero(5), m_NcandDouble(5),
+  m_NscoreOk(5),m_NscoreZeroBremRefit(5),m_NscoreZeroBremRefitFailed(5),
+  m_NscoreZeroBremRefitScoreZero(5),m_NscoreZero(5),
+  m_Naccepted(5),m_NsubTrack(5),m_NnoSubTrack(5),m_NacceptedBrem(5),
+  m_NbremFits(5),m_Nfits(5),m_NrecoveryBremFits(5),m_NgoodFits(5),m_NfailedFits(5),
   m_monitorTracks(false),
   m_splitClusterMap(0),
   m_splitClusterMapName("SplitClusterAmbiguityMap")
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   ,m_truthToTrack(0)//the comma in front of m_truthToTrack is necessary  
 #endif
+  ,m_rejectInvalidTracks(false)
 {
   // statitics stuff
   m_etabounds.push_back(0.8);
   m_etabounds.push_back(1.6);
   m_etabounds.push_back(2.5);
+  m_etabounds.push_back(4.0);
+
+  m_fitterTool.push_back("Trk::KalmanFitter/InDetTrackFitter");
 
   declareInterface<ITrackAmbiguityProcessorTool>(this);
   declareProperty("DropDouble"           , m_dropDouble         = true);
@@ -109,7 +172,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   m_truth_locationPixel    = "PRD_MultiTruthPixel"    ;
   m_truth_locationSCT      = "PRD_MultiTruthSCT"      ;
 #endif
-  
+  declareProperty("RejectTracksWithInvalidCov"     ,m_rejectInvalidTracks   );
   
 }
 //==================================================================================================
@@ -170,7 +233,8 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
     ATH_MSG_INFO( "Retrieved tool " << m_selectionTool );
   
   sc = m_fitterTool.retrieve();
-  if (sc.isFailure()) 
+  if (sc.isFailure() || m_fitterTool.empty())
+
   {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_fitterTool );
     return sc;
@@ -225,7 +289,7 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
     ATH_MSG_INFO( "Try brem fit and recovery for electron like tracks." );
 
   // statistics
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<5; i++) {
     m_Ncandidates[i]      = 0;
     m_NcandScoreZero[i]   = 0;
     m_NcandDouble[i]      = 0;
@@ -286,113 +350,130 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics()
   std::streamsize ss = std::cout.precision();
   if (msgLvl(MSG::INFO)) {
     int iw=9;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
     std::cout << "  Number of events processed      :   "<< m_Nevents << std::endl;
-    std::cout << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- " << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+    std::cout << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- Forwrd-- " << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
     std::cout << "  Number of candidates at input   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Ncandidates[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Ncandidates[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Ncandidates[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_Ncandidates[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+              << m_Ncandidates[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_Ncandidates[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     std::cout << "  - candidates rejected score 0   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NcandScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NcandScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NcandScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NcandScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+              << m_NcandScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NcandScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     std::cout << "  - candidates rejected as double :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NcandDouble[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NcandDouble[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NcandDouble[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NcandDouble[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+              << m_NcandDouble[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NcandDouble[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
     std::cout << "  candidates with good score      :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NscoreOk[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NscoreOk[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NscoreOk[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NscoreOk[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+              << m_NscoreOk[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NscoreOk[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     if (m_tryBremFit) {
       std::cout << "  + recovered after brem refit    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefit[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefit[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefit[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NscoreZeroBremRefit[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+                << m_NscoreZeroBremRefit[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NscoreZeroBremRefit[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     }
     std::cout << "  candidates rejected score 0     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NscoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NscoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NscoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NscoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+              << m_NscoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NscoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     if (m_tryBremFit) {
       std::cout << "  + rejected failed brem refit    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefitFailed[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefitFailed[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefitFailed[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NscoreZeroBremRefitFailed[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+                << m_NscoreZeroBremRefitFailed[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+                << m_NscoreZeroBremRefitFailed[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
       std::cout << "  + rejected brem refit score 0   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefitScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefitScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefitScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NscoreZeroBremRefitScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+                << m_NscoreZeroBremRefitScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+                << m_NscoreZeroBremRefitScoreZero[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     }
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
     std::cout << "  number of normal fits           :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_Nfits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+              << m_Nfits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
+              << m_Nfits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     if (m_tryBremFit) {
       std::cout << "  + 2nd brem fit for failed fit   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NrecoveryBremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NrecoveryBremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NrecoveryBremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NrecoveryBremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+                << m_NrecoveryBremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+                << m_NrecoveryBremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
       std::cout << "  normal brem fits for electrons  :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NbremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NbremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NbremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NbremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+                << m_NbremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+                << m_NbremFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     }
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
     std::cout << "  sum of succesful fits           :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NgoodFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NgoodFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NgoodFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NgoodFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+              << m_NgoodFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NgoodFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     std::cout << "  sum of failed fits              :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NfailedFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NfailedFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NfailedFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NfailedFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+              << m_NfailedFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NfailedFits[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
     std::cout << "  Number of subtracks created     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NsubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NsubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NsubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NsubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+              << m_NsubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NsubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     std::cout << "  Number of candidates excluded   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NnoSubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NnoSubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NnoSubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NnoSubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+              << m_NnoSubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_NnoSubTrack[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
     std::cout << "  Number of tracks accepted       :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Naccepted[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Naccepted[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Naccepted[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_Naccepted[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+              << m_Naccepted[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+              << m_Naccepted[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     if (m_tryBremFit) {
       std::cout << "  including number of brem fits   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NacceptedBrem[Trk::DenseEnvironmentsAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NacceptedBrem[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NacceptedBrem[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NacceptedBrem[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::endl;
+                << m_NacceptedBrem[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)        
+                << m_NacceptedBrem[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd] << std::endl;
     }
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
     std::cout << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
               << "    definition: ( 0.0 < Barrel < " << m_etabounds[iBarrel-1] << " < Transition < " << m_etabounds[iTransi-1]
-              << " < Endcap < " << m_etabounds[iEndcap-1] << " )" << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+              << " < Endcap < " << m_etabounds[iEndcap-1] << " < Forward < " << m_etabounds[iForwrd-1] << " )" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------" << std::endl;
   }
   std::cout.precision (ss);
   return;
@@ -424,6 +505,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::increment_by_eta(std::vector<
     if (fabs(eta) < m_etabounds[0]) ++Ntracks[Trk::DenseEnvironmentsAmbiguityProcessorTool::iBarrel];
     else if (fabs(eta) < m_etabounds[1]) ++Ntracks[Trk::DenseEnvironmentsAmbiguityProcessorTool::iTransi];
     else if (fabs(eta) < m_etabounds[2]) ++Ntracks[Trk::DenseEnvironmentsAmbiguityProcessorTool::iEndcap];
+    else if (fabs(eta) < m_etabounds[3]) ++Ntracks[Trk::DenseEnvironmentsAmbiguityProcessorTool::iForwrd];
   }
 }
 
@@ -706,7 +788,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
 
     ATH_MSG_DEBUG ("Track score is zero, try to recover it via brem fit");
     // run track fit using electron hypothesis
-    const Trk::Track* bremTrack = m_fitterTool->fit(*track,true,Trk::electron);
+    const Trk::Track* bremTrack = fit(*track,true,Trk::electron);
+
 
     if (!bremTrack)
     {
@@ -1349,7 +1432,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
     increment_by_eta(m_NbremFits,track);
 
     ATH_MSG_VERBOSE ("Brem track, refit with electron brem fit");
-    newTrack = m_fitterTool->fit(prds, *par, true, Trk::electron);
+    newTrack = fit(prds, *par, true, Trk::electron);
 
   }
   else
@@ -1358,7 +1441,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
     increment_by_eta(m_Nfits,track);
 
     ATH_MSG_VERBOSE ("Normal track, refit");
-    newTrack = m_fitterTool->fit(prds, *par, true, m_particleHypothesis);
+    newTrack = fit(prds, *par, true, m_particleHypothesis);
 
     if (!newTrack && m_tryBremFit && par->pT() > m_pTminBrem &&
   (!m_caloSeededBrem || track->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI)))
@@ -1367,7 +1450,8 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
       increment_by_eta(m_NrecoveryBremFits,track);
 
       ATH_MSG_VERBOSE ("Normal fit failed, try brem recovery");
-      newTrack = m_fitterTool->fit(prds, *par, true, Trk::electron);
+      newTrack = fit(prds, *par, true, Trk::electron);
+
     }
   }
   
@@ -1405,7 +1489,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots( const
     increment_by_eta(m_NbremFits,track);
 
     ATH_MSG_VERBOSE ("Brem track, refit with electron brem fit");
-    newTrack = m_fitterTool->fit(*track, true, Trk::electron);
+    newTrack = fit(*track, true, Trk::electron);
   }
   else
   {
@@ -1413,7 +1497,8 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots( const
     increment_by_eta(m_Nfits,track);
 
     ATH_MSG_VERBOSE ("Normal track, refit");
-    newTrack = m_fitterTool->fit(*track, true, m_particleHypothesis);
+    newTrack = fit(*track, true, m_particleHypothesis);
+
 
     if (!newTrack && m_tryBremFit &&
         track->trackParameters()->front()->pT() > m_pTminBrem &&
@@ -1423,7 +1508,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots( const
       increment_by_eta(m_NrecoveryBremFits,track);
 
       ATH_MSG_VERBOSE ("Normal fit failed, try brem recovery");
-      newTrack = m_fitterTool->fit(*track, true, Trk::electron);
+      newTrack = fit(*track, true, Trk::electron);
     }
   }
 
