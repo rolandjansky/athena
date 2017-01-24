@@ -25,7 +25,7 @@ def run_unit_tests(args):
     ctest_cmd = "ctest "
     for p in affected_packages:
         # label is package name and not full package path
-        ctest_cmd += "-L " + os.path.basename(p) + " "
+        ctest_cmd += "-L ^" + os.path.basename(p) + " "
 
     # execute
     logging.debug("ctest command = '%s'" % ctest_cmd)
