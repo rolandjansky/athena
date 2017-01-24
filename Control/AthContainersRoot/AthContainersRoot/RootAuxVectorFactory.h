@@ -165,6 +165,29 @@ public:
 
 
   /**
+   * @brief Insert elements into the vector via move semantics.
+   * @param pos The starting index of the insertion.
+   * @param beg Start of the range of elements to insert.
+   * @param end End of the range of elements to insert.
+   *
+   * @c beg and @c end define a range of container elements, with length
+   * @c len defined by the difference of the pointers divided by the
+   * element size.
+   *
+   * The size of the container will be increased by @c len, with the elements
+   * starting at @c pos copied to @c pos+len.
+   *
+   * The contents of the @c beg:end range will then be moved to our vector
+   * starting at @c pos.  This will be done via move semantics if possible;
+   * otherwise, it will be done with a copy.
+   *
+   * Returns true if it is known that the vector's memory did not move,
+   * false otherwise.
+   */
+  virtual bool insertMove (size_t pos, void* beg, void* end) override;
+
+
+  /**
    * @brief Return the type of the complete object to be saved.
    *
    * For example, if the object is a @c std::vector, then we return

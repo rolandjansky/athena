@@ -240,11 +240,53 @@ void RootAuxVector::shift (size_t pos, ptrdiff_t offs)
     size_t oldsz = m_proxy->Size();
     m_proxy->Allocate (oldsz + offs, false);
     char* beg = reinterpret_cast<char*>(m_proxy->At(0));
-    rootType.copyRange (beg + eltsz*(pos+offs),
-                        beg + eltsz*pos,
-                        m_proxy->Size() - pos - offs);
+    if (pos < oldsz)
+      rootType.copyRange (beg + eltsz*(pos+offs),
+                          beg + eltsz*pos,
+                          oldsz - pos);
     rootType.clearRange (beg + eltsz*pos, offs);
   }
+}
+
+
+/**
+ * @brief Insert elements into the vector via move semantics.
+ * @param pos The starting index of the insertion.
+ * @param beg Start of the range of elements to insert.
+ * @param end End of the range of elements to insert.
+ *
+ * @c beg and @c end define a range of container elements, with length
+ * @c len defined by the difference of the pointers divided by the
+ * element size.
+ *
+ * The size of the container will be increased by @c len, with the elements
+ * starting at @c pos copied to @c pos+len.
+ *
+ * The contents of the @c beg:end range will then be moved to our vector
+ * starting at @c pos.  This will be done via move semantics if possible;
+ * otherwise, it will be done with a copy.
+ *
+ * Returns true if it is known that the vector's memory did not move,
+ * false otherwise.
+ */
+bool RootAuxVector::insertMove (size_t pos, void* beg, void* end)
+{
+  TVirtualCollectionProxy::TPushPop bind (m_proxy, m_vec);
+  size_t eltsz = m_proxy->GetIncrement();
+  const void* orig = this->toPtr();
+  const RootUtils::Type& rootType = m_factory->rootType();
+
+  char* begp = reinterpret_cast<char*> (beg);
+  char* endp = reinterpret_cast<char*> (end);
+  size_t nelt = (endp-begp) / eltsz;
+
+  shift (pos, nelt);
+  // FIXME: want move, not copy.
+  // But i don't seem to be able to call move operations through cling,
+  // so just use copy for now.
+  rootType.copyRange (reinterpret_cast<char*>(this->toPtr()) + pos*eltsz,
+                      beg, nelt);
+  return this->toPtr() == orig;
 }
 
 

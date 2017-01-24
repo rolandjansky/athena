@@ -30,7 +30,7 @@ void test1()
   std::cout << "test1\n";
   TClass* cl = TClass::GetClass ("vector<int>");
   SG::RootAuxVectorFactory fac (cl);
-  SG::IAuxTypeVector* vec = new SG::RootAuxVector (&fac, 10, 10);
+  SG::IAuxTypeVector* vec = new SG::RootAuxVector (&fac, 10, 20);
   assert (vec->size() == 10);
   int* ptr = reinterpret_cast<int*> (vec->toPtr());
   for (int i=0; i < 10; i++)
@@ -86,7 +86,47 @@ void test1()
   assert (ptr2[6] == 8);
   assert (ptr2[7] == 9);
   assert (ptr2[8] == 10);
-  
+
+  std::vector<int> vec3 { 20, 21, 22, 23, 24 };
+  assert (vec->insertMove (3, vec3.data(), vec3.data() + 5));
+  assert (vec->size() == 14);
+  assert (ptr[0] == 1);
+  assert (ptr[1] == 2);
+  assert (ptr[2] == 3);
+  assert (ptr[3] == 20);
+  assert (ptr[4] == 21);
+  assert (ptr[5] == 22);
+  assert (ptr[6] == 23);
+  assert (ptr[7] == 24);
+  assert (ptr[8] == 0);
+  assert (ptr[9] == 0);
+  assert (ptr[10] == 4);
+  assert (ptr[11] == 8);
+  assert (ptr[12] == 9);
+  assert (ptr[13] == 10);
+
+  std::vector<int> vec4 { 30, 31, 32, 33, 34 };
+  assert (vec->insertMove (14, vec4.data(), vec4.data() + 5));
+  assert (vec->size() == 19);
+  assert (ptr[0] == 1);
+  assert (ptr[1] == 2);
+  assert (ptr[2] == 3);
+  assert (ptr[3] == 20);
+  assert (ptr[4] == 21);
+  assert (ptr[5] == 22);
+  assert (ptr[6] == 23);
+  assert (ptr[7] == 24);
+  assert (ptr[8] == 0);
+  assert (ptr[9] == 0);
+  assert (ptr[10] == 4);
+  assert (ptr[11] == 8);
+  assert (ptr[12] == 9);
+  assert (ptr[13] == 10);
+  assert (ptr[14] == 30);
+  assert (ptr[15] == 31);
+  assert (ptr[16] == 32);
+  assert (ptr[17] == 33);
+  assert (ptr[18] == 34);
 
   assert (vec->resize (0) == false);
   assert (vec->toPtr() == 0);
@@ -143,6 +183,47 @@ void test2()
   assert (ptr[6] == str(8));
   assert (ptr[7] == str(9));
   assert (ptr[8] == str(10));
+
+  std::vector<std::string> vec3 { str(20), str(21), str(22), str(23), str(24) };
+  assert (vec->insertMove (3, vec3.data(), vec3.data() + 5));
+  assert (vec->size() == 14);
+  assert (ptr[0] == str(1));
+  assert (ptr[1] == str(2));
+  assert (ptr[2] == str(3));
+  assert (ptr[3] == str(20));
+  assert (ptr[4] == str(21));
+  assert (ptr[5] == str(22));
+  assert (ptr[6] == str(23));
+  assert (ptr[7] == str(24));
+  assert (ptr[8] == "");
+  assert (ptr[9] == "");
+  assert (ptr[10] == str(4));
+  assert (ptr[11] == str(8));
+  assert (ptr[12] == str(9));
+  assert (ptr[13] == str(10));
+
+  std::vector<std::string> vec4 { str(30), str(31), str(32), str(33), str(34) };
+  assert (vec->insertMove (14, vec4.data(), vec4.data() + 5));
+  assert (vec->size() == 19);
+  assert (ptr[0] == str(1));
+  assert (ptr[1] == str(2));
+  assert (ptr[2] == str(3));
+  assert (ptr[3] == str(20));
+  assert (ptr[4] == str(21));
+  assert (ptr[5] == str(22));
+  assert (ptr[6] == str(23));
+  assert (ptr[7] == str(24));
+  assert (ptr[8] == "");
+  assert (ptr[9] == "");
+  assert (ptr[10] == str(4));
+  assert (ptr[11] == str(8));
+  assert (ptr[12] == str(9));
+  assert (ptr[13] == str(10));
+  assert (ptr[14] == str(30));
+  assert (ptr[15] == str(31));
+  assert (ptr[16] == str(32));
+  assert (ptr[17] == str(33));
+  assert (ptr[18] == str(34));
 
   delete vec;
 }
