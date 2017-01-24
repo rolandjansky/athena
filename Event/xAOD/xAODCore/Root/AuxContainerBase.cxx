@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxContainerBase.cxx 793264 2017-01-20 18:52:30Z ssnyder $
+// $Id: AuxContainerBase.cxx 793746 2017-01-24 21:23:52Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -479,6 +479,57 @@ namespace xAOD {
       }
 
       return;
+   }
+
+
+   bool AuxContainerBase::insertMove( size_t pos,
+                                      IAuxStore& other,
+                                      const SG::auxid_set_t& ignore_in ) {
+      // Guard against multi-threaded execution:
+      guard_t guard( m_mutex );
+
+      // This operation is not allowed on a locked container:
+      if( m_locked ) {
+         throw SG::ExcStoreLocked( "insertMove" );
+      }
+
+      const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+      bool nomove = true;
+      size_t other_size = other.size();
+
+      SG::auxid_set_t ignore = ignore_in;
+      
+      // Do the operation on the static variables:
+      for (SG::auxid_t id : m_auxids) {
+        SG::IAuxTypeVector* v_dst = nullptr;
+        if (id < m_vecs.size())
+          v_dst = m_vecs[id];
+        if (v_dst) {
+          ignore.insert (id);
+          if (other.getData (id)) {
+            void* src_ptr = other.getData (id, other_size, other_size);
+            if (src_ptr) {
+              if (!v_dst->insertMove (pos, src_ptr,
+                                      reinterpret_cast<char*>(src_ptr) + other_size*r.getEltSize(id)))
+                nomove = false;
+            }
+          }
+          else {
+            const void* orig = v_dst->toPtr();
+            v_dst->shift (pos, other_size);
+            if (orig != v_dst->toPtr())
+              nomove = false;
+          }
+        }
+      }
+
+      // Do the operation on the dynamic variables:
+      if( m_store ) {
+        if (!m_store->insertMove( pos, other, ignore ))
+          nomove = false;
+      }
+
+      return nomove;
    }
 
 

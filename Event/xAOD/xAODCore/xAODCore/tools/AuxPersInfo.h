@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxPersInfo.h 793264 2017-01-20 18:52:30Z ssnyder $
+// $Id: AuxPersInfo.h 793737 2017-01-24 20:11:10Z ssnyder $
 #ifndef XAODCORE_TOOLS_AUXPERSINFO_H
 #define XAODCORE_TOOLS_AUXPERSINFO_H
 
@@ -24,8 +24,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793264 $
-   /// $Date: 2017-01-20 19:52:30 +0100 (Fri, 20 Jan 2017) $
+   /// $Revision: 793737 $
+   /// $Date: 2017-01-24 21:11:10 +0100 (Tue, 24 Jan 2017) $
    ///
    template< class T >
    class AuxPersInfo : public SG::IAuxTypeVector {
@@ -67,6 +67,11 @@ namespace xAOD {
          throw std::runtime_error( "Calling shift on a non-vector" );
       }
 
+      virtual bool insertMove (size_t /*pos*/, void* /*beg*/, void* /*end*/)
+      {
+        throw std::runtime_error( "Calling insertMove on a non-vector" );
+      }
+     
       virtual const std::type_info* objType() const {
          return &typeid(T);
       }

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.cxx 793264 2017-01-20 18:52:30Z ssnyder $
+// $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -373,6 +373,15 @@ namespace xAOD {
 
       // Nope, not allowed...
       throw std::runtime_error( "Trying to call shift on a shallow copy "
+                                "container" );
+   }
+
+   bool ShallowAuxContainer::insertMove( size_t /*pos*/,
+                                         IAuxStore& /*other*/,
+                                         const SG::auxid_set_t& /*ignore*/) {
+
+      // Nope, not allowed...
+      throw std::runtime_error( "Trying to call insertMove on a shallow copy "
                                 "container" );
    }
 

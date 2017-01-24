@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxContainerBase.h 793264 2017-01-20 18:52:30Z ssnyder $
+// $Id: AuxContainerBase.h 793737 2017-01-24 20:11:10Z ssnyder $
 #ifndef XAODCORE_AUXCONTAINERBASE_H
 #define XAODCORE_AUXCONTAINERBASE_H
 
@@ -42,8 +42,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793264 $
-   /// $Date: 2017-01-20 19:52:30 +0100 (Fri, 20 Jan 2017) $
+   /// $Revision: 793737 $
+   /// $Date: 2017-01-24 21:11:10 +0100 (Tue, 24 Jan 2017) $
    ///
    class AuxContainerBase : public SG::IAuxStore,
                             public SG::IAuxStoreIO,
@@ -123,6 +123,10 @@ namespace xAOD {
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays
       virtual void shift( size_t pos, ptrdiff_t offs );
+      /// Insert contents of another store via move.
+      virtual bool insertMove (size_t pos,
+                               IAuxStore& other,
+                               const SG::auxid_set_t& ignore);
       /// Make an option setting on an aux variable.
       virtual bool setOption( auxid_t id, const SG::AuxDataOption& option );
 

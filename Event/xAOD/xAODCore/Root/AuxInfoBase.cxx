@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxInfoBase.cxx 793264 2017-01-20 18:52:30Z ssnyder $
+// $Id: AuxInfoBase.cxx 793737 2017-01-24 20:11:10Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -480,6 +480,24 @@ namespace xAOD {
       throw std::runtime_error( "Calling shift on a non-vector" );
 
       return;
+   }
+
+
+   bool AuxInfoBase::insertMove( size_t /*pos*/, IAuxStore& /*other*/,
+                                 const SG::auxid_set_t& /*ignore*/ ) {
+
+      // Guard against multi-threaded execution:
+      guard_t guard( m_mutex );
+
+      // Check if the container is locked:
+      if( m_locked ) {
+         throw SG::ExcStoreLocked( "insertMove" );
+      }
+
+      // We are just not allowed to do this...
+      throw std::runtime_error( "Calling insertMove on a non-vector" );
+
+      return false;
    }
 
 
