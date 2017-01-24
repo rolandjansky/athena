@@ -48,6 +48,7 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
             const std::string& n,
             const IInterface* p)
   :  AthAlgTool(t,n,p),
+     m_pixelID(nullptr),
      m_do_pix(false),
      m_do_sct(false),
      m_do_trt(false),
@@ -289,16 +290,16 @@ const std::string Trk::RIO_OnTrackErrorScalingTool::makeInfoString
   if (errscaler.size() < 2 && do_detSystem)
     s1.append("WARNING, scaling active but empty vector of a,c values!");
   if (errscaler.size() > 1) {
-    char s2[7];
-    snprintf(s2,7,"%6.3g ",errscaler[0]);s1.append(s2);
+    char s2[11];
+    snprintf(s2,sizeof(s2),"%6.3g ",errscaler[0]);s1.append(s2);
     s1.append("* err (+) ");
-    snprintf(s2,7,"%6.3g ",errscaler[1]);s1.append(s2);
+    snprintf(s2,sizeof(s2),"%6.3g ",errscaler[1]);s1.append(s2);
   }
 
   if (errscaler.size() > 2){
     s1.append(" * (1 + mu *");
-    char s2[7];
-    snprintf(s2,7,"%6.3g ",errscaler[2]);s1.append(s2);
+    char s2[13];
+    snprintf(s2,sizeof(s2),"%6.3g ",errscaler[2]);s1.append(s2);
     s1.append(")");
   }
 
@@ -386,6 +387,7 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledPixelCovariance
     message << "ERROR " << name() << " createScaledPixelCovariance : No error scaling factors for  "  << s_pix_names[idx] 
             << " or " << s_pix_names[idx+1]
             << ".";
+    delete newCov;
     throw std::runtime_error( message.str() );
   }
 

@@ -27,6 +27,7 @@ Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
 			      const std::string& n,
 			      const IInterface* p)
   :  AthAlgTool(t,n,p),
+     m_idHelper(nullptr),
      m_PixClusCor        ("InDet::PixelClusterOnTrackTool/PixelClusterOnTrackTool"),
      m_SctClusCor        ("InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool"),
      m_TRT_Cor           ("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"),
