@@ -25,52 +25,6 @@ def defineMenu():
         'L1_RD2_BGRP14', 'L1_RD3_BGRP15',
         ]
 
-    if TriggerFlags.doFTK():
-        #adding FTK duplicated L1 items
-        Lvl1Flags.items += [           
-            'L1_MU6_FTK',
-            'L1_MU15_FTK',
-            'L1_MU20_FTK',
-            'L1_TAU12IM_FTK', 
-            'L1_MU20_TAU12IM_FTK', 
-            'L1_TAU20IL_2TAU12IL_J25_2J20_3J12_FTK',
-            'L1_DR-TAU20ITAU12I-J25_FTK',
-            'L1_4J15_FTK',
-            'L1_4J15.0ETA25_FTK',
-            'L1_J15_FTK',
-            'L1_J40_FTK',
-            'L1_J100_FTK'
-            ]
-
-        ##When adding an item here, make sure to use a free CTPId 
-        ftk_list= {
-                'L1_MU6_FTK'                           : 499,
-                'L1_MU15_FTK'                          : 497,
-                'L1_MU20_FTK'                          : 500,
-                'L1_TAU12IM_FTK'                       : 501,
-                'L1_TAU20IL_2TAU12IL_J25_2J20_3J12_FTK': 502,
-                'L1_DR-TAU20ITAU12I-J25_FTK'           : 503,
-                'L1_4J15_FTK'                          : 504,
-                'L1_4J15.0ETA25_FTK'                   : 505,
-                'L1_J15_FTK'                           : 506,
-                'L1_J40_FTK'                           : 507,
-                'L1_J100_FTK'                          : 508,           
-                'L1_MU20_TAU12IM_FTK'                  : 498,
-                }
-
-        #----------------------------------------------
-        def AddItems(new_items):
-            for key, value in new_items.items():
-                if key not in Lvl1Flags.CtpIdMap():
-                    if value in Lvl1Flags.CtpIdMap().values():
-                        log.error("Item %s overwriting CtpId %d " %(key, value))
-                    else:
-                        Lvl1Flags.CtpIdMap()[key]=value
-        #----------------------------------------------                
-
-        AddItems(ftk_list)
-
-
 
     #---------------------------------
     # L1menu in MCppV5 is basis 

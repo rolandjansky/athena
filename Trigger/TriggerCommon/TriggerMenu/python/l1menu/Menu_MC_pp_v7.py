@@ -385,7 +385,7 @@ def defineMenu():
         "L1_2EM3", "L1_2EM7", "L1_2EM10VH", "L1_2EM13VH", "L1_2EM15", "L1_2EM15VH", "L1_EM7_2EM3", "L1_EM12_2EM3", "L1_EM15VH_3EM7", "L1_EM15VH_3EM8VH", "L1_EM15VH_2EM10VH_3EM7",
 				"L1_2EM18VH", "L1_2EM20VH", "L1_EM15VH_3EM10VH", "L1_EM18VH_3EM8VH", "L1_EM18VH_2EM10VH_3EM7", "L1_EM20VH_3EM10VH", "L1_EM20VH_2EM10VH_3EM8VH",
         "L1_EM7_MU10",
-        "L1_2MU4", "L1_2MU6", "L1_2MU10", "L1_2MU20_OVERLAY", "L1_MU10_2MU6", "L1_MU11_2MU6", "L1_3MU4", "L1_MU6_2MU4", "L1_3MU6", "L1_MU6_3MU4", "L1_2MU6_3MU4",
+        "L1_2MU4", "L1_2MU6", "L1_2MU10", "L1_2MU20_OVERLAY", "L1_MU10_2MU6", "L1_MU11_2MU6", "L1_3MU4", "L1_MU6_2MU4", "L1_3MU6",  "L1_4MU4", "L1_MU6_3MU4", "L1_2MU6_3MU4",
 
         "L1_EM8I_MU10", "L1_EM15I_MU4", "L1_2EM8VH_MU10", "L1_EM15VH_MU10", 
 
@@ -409,7 +409,6 @@ def defineMenu():
         "L1_MU10_TAU20IM",
         "L1_MU11_TAU20IM",
         "L1_MU10_TAU20IM_J25_2J20",	
-        'L1_MU20_TAU12IM',
 
         # combined tau - jet
 #        "L1_TAU25IT_2TAU12IT_2J25_3J12", 
@@ -710,6 +709,7 @@ def defineMenu():
         'L1_LFV-EM8I',
         'L1_LFV-EM15I',
         'L1_EM7_MU15',
+        'L1_EM8VH_MU15',
         'L1_DPHI-J20s2XE50',
         'L1_J40_XE50_DPHI-J20s2XE50',
         'L1_DPHI-J20XE50',
@@ -850,6 +850,23 @@ def defineMenu():
          'L1_AFP_C_ALFA_A',
          'L1_AFP_C_ANY_MBTS_A',
          'L1_AFP_C_MU4',
+
+
+        #item with FTK trigger type, for FTK commissioning
+        'L1_MU6_FTK',
+        'L1_MU15_FTK',
+        'L1_MU20_FTK',
+        'L1_TAU12IM_FTK', 
+        'L1_TAU20IM_FTK',
+        'L1_MU20_TAU12IM_FTK', 
+        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK',
+        'L1_DR-TAU20ITAU12I-J25_FTK',
+        'L1_4J15_FTK',
+        'L1_4J15.0ETA25_FTK',
+        'L1_J15_FTK',
+        'L1_J40_FTK',
+        'L1_J100_FTK'
+                
         ]
     
 
@@ -910,6 +927,7 @@ def defineMenu():
         'L1_3MU4' : 38,
         'L1_MU6_2MU4' : 39,
         'L1_3MU6' : 40,
+        'L1_4MU4' : 46,
         'L1_4J15.0ETA25' : 41,
         'L1_EM15I_MU4' : 42,
         'L1_2EM8VH_MU10' : 43,
@@ -935,7 +953,6 @@ def defineMenu():
         'L1_MU10_TAU12IM_J25_2J12' : 64,
         'L1_EM7_MU10':65,
         'L1_TAU30_EMPTY':341,
-        'L1_MU20_TAU12IM' : 86,
         'L1_MU10_TAU20IM' : 67,
         'L1_MU11_TAU20IM' : 430,
         'L1_MU10_TAU20IM_J25_2J20' : 377,
@@ -1292,6 +1309,7 @@ def defineMenu():
         'L1_LFV-EM8I' : 320,
         'L1_LFV-EM15I' : 321,
         'L1_EM7_MU15' : 322,
+        'L1_EM8VH_MU15' : 48,
         'L1_DPHI-J20s2XE50' : 323,
         'L1_DPHI-J20XE50' : 324,
         'L1_DPHI-CJ20XE50' : 325,
@@ -1487,7 +1505,20 @@ def defineMenu():
          'L1_ALFA_B7R1U' : 495,
          'L1_ALFA_B7R1L' : 496,
 
-## Following used for FTK items in the Physcs menu only        
+        
+        'L1_MU6_FTK'                           : 499,
+        'L1_MU15_FTK'                          : 497,
+        'L1_MU20_FTK'                          : 500,
+        'L1_TAU12IM_FTK'                       : 501,
+        'L1_TAU20IM_FTK'                       : 86,
+        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK': 502,
+        'L1_DR-TAU20ITAU12I-J25_FTK'           : 503,
+        'L1_4J15_FTK'                          : 504,
+        'L1_4J15.0ETA25_FTK'                   : 505,
+        'L1_J15_FTK'                           : 506,
+        'L1_J40_FTK'                           : 507,
+        'L1_J100_FTK'                          : 508,           
+        'L1_MU20_TAU12IM_FTK'                  : 498,
 #        'L1_ALFA_B7L1U_OD' : 497,
 #        'L1_ALFA_B7L1L_OD' : 498,
 #        'L1_ALFA_A7L1U_OD' : 499,

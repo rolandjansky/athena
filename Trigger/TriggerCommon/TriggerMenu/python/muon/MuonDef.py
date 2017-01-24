@@ -337,7 +337,7 @@ class L2EFChain_mu(L2EFChainDef):
         print 'Configuring FTK tracking for isolation'
         from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
                 
-        [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muon",sequenceFlavour=["PT"]).getSequence()    
+        [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muonIso",sequenceFlavour=["PT"]).getSequence()    
  
         self.L2sequenceList += [[['L2_mu_step2'],
                                  ftktrkfast+ftktrkprec,
@@ -470,11 +470,15 @@ class L2EFChain_mu(L2EFChainDef):
     #--- renaming TEs ---
     self.TErenamingDict = {
       'L2_mu_step1': mergeRemovingOverlap('L2_mu_SA_', L2AlgName+muFastThresh+'_'+self.L2InputTE),
-      'L2_mu_step2': mergeRemovingOverlap('L2_mucomb_',   self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'], '').replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE),
+      'L2_mu_step2': mergeRemovingOverlap('L2_mucomb_',  self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'], '').replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE),
       'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult+'_'+self.L2InputTE),
       'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult+'_'+self.L2InputTE),
       }    
-
+    if self.chainPart['trkInfo'] == "ftk":
+      self.TErenamingDict.update({'L2_mu_step3': mergeRemovingOverlap('EF_ftkfex_',self.chainPartNameNoMult+'_'+self.L2InputTE),
+                                  'L2_mu_step4': mergeRemovingOverlap('EF_ftkhypo_',self.chainPartNameNoMult+'_'+self.L2InputTE),
+                                  })
+      
     if (("ds1" in self.chainPart['addInfo'])):
       chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds1', '')
     elif (("ds2" in self.chainPart['addInfo'])):
@@ -1003,8 +1007,11 @@ class L2EFChain_mu(L2EFChainDef):
       elif len(self.allMuThrs) == 3:
     	  theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV','0GeV')
     	  hypocut = '0GeV_0GeV_0GeV'
+      elif len(self.allMuThrs) == 4:
+         theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV','0GeV','0GeV')
+         hypocut = '0GeV_0GeV_0GeV_0GeV'
       else:
-        log.error("No MuonEFExtrapolatorHypo config yet for events with more than 3 muons")
+        log.error("No MuonEFExtrapolatorHypo config yet for events with more than 4 muons")
 
     [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
 
@@ -1024,9 +1031,10 @@ class L2EFChain_mu(L2EFChainDef):
                                                                                
       elif len(self.allMuThrs) == 3:
         theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
-                                                                                                                                                            
+      elif len(self.allMuThrs) == 4:
+        theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2],self.allMuThrs[3])                                                                                                           
       else:
-        log.error("No TrigMuonEFCombinerHypo config yet for events with more than 3 muons")
+        log.error("No TrigMuonEFCombinerHypo config yet for events with more than 4 muons")
  
       hypocutEF="MultiComb"     
       for i in range(0,len(self.allMuThrs)):        

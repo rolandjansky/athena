@@ -12,11 +12,15 @@ def to_dict(o):
         if hasattr(v, '__dict__'):
             d[k] = to_dict(v)
         elif isinstance(v, tuple):
-            d[k] = tuple([to_dict(e) for e in v])
+            for e in v:
+                if hasattr(e, '__dict__'):
+                    d[k] = to_dict(e)
+                else:
+                    d[k] = str(e)
         elif isinstance(v, list):
             d[k] = [to_dict(e) for e in v]
         else:
-            d[k] = str(v)
+            d[k] = v
 
     return d
 
@@ -27,27 +31,24 @@ class ChainConfig(object):
     functionality. For eacample Trigger Toweer Scan, Fex extraction,
     JetFinding and hypothesis."""
 
-    def __init__(self,
-                 chain_name,
-                 seed,
-                 run_hypo,
-                 data_scouting,
-                 menu_data,
-                 run_rtt_diags,
-    ):
+    def __init__(self):
 
-        self.chain_name = chain_name
-        self.seed = seed
-        self.run_hypo = run_hypo
-        self.data_scouting = data_scouting
-        self.run_rtt_diags = run_rtt_diags  # flag to run RTT the diagonistics.
+        self.chain_name = None
+        self.seed = None
+        self.run_hypo = None
+        self.data_scouting = None
+        self.run_rtt_diags = None  # flag to run RTT the diagonistics.
 
         # menu_data: data acquired from chainParts of menu dict
-        self.menu_data = menu_data  
+        self.menu_data = None
 
     def __str__(self):
         d = to_dict(self)
+        # return str(self.__dict__)
 
         pp = pprint.PrettyPrinter(indent=4, depth=8)
         return pp.pformat(d)
 
+if __name__ == '__main__':
+    cc = ChainConfig()
+    print cc
