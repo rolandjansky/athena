@@ -42,7 +42,7 @@ namespace Muon {
   }
 
   bool MuonPrepRawDataCollectionProviderTool::getLayerData( int sector, MuonStationIndex::DetectorRegionIndex regionIndex, 
-                                                            MuonStationIndex::LayerIndex layerIndex, MuonLayerPrepRawData& layerPrepRawData ) {
+                                                            MuonStationIndex::LayerIndex layerIndex, MuonLayerPrepRawData& layerPrepRawData ) const {
     
     // get technologies in the given layer
     MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex( regionIndex, layerIndex );
