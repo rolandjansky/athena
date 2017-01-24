@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IAuxStore.h 793235 2017-01-20 16:57:37Z ssnyder $
+// $Id: IAuxStore.h 793731 2017-01-24 19:41:13Z ssnyder $
 /**
  * @file AthContainersInterfaces/IAuxStore.h
  * @author scott snyder <snyder@bnl.gov>
@@ -138,6 +138,31 @@ public:
   virtual void shift (size_t pos, ptrdiff_t offs) = 0;
 
 
+  /**
+   * @brief Move all elements from @c other to this store.
+   * @param pos The starting index of the insertion.
+   * @param other Store from which to do the move.
+   * @param ignore Set of variables that should not be added to the store.
+   *
+   * Let @c len be the size of @c other.  The store will be increased
+   * in size by @c len elements, with the elements at @c pos being
+   * copied to @c pos+len.  Then, for each auxiliary variable, the
+   * entire contents of that variable for @c other will be moved to
+   * this store at index @c pos.  This will be done via move semantics
+   * if possible; otherwise, it will be done with a copy.  Variables
+   * present in this store but not in @c other will have the corresponding
+   * elements default-initialized.  Variables in @c other but not in this
+   * store will be added unless they are in @c ignore.
+   *
+   * Returns true if it is known that none of the vectors' memory moved,
+   * false otherwise.
+   */
+  virtual bool insertMove (size_t pos,
+                           IAuxStore& other,
+                           const SG::auxid_set_t& ignore = SG::auxid_set_t())
+    = 0;
+
+  
   /**
    * @brief Set an option for a given auxiliary variable.
    * @param auxid The identifier of the desired aux data item.
