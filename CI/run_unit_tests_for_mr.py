@@ -1,10 +1,22 @@
-import argparse, logging, requests, sys
+import argparse, gitlab, logging, sys
+from gitlab.exceptions import GitlabGetError
 from gitlab_mr_helpers import *
 
 def run_unit_tests(args):
-    # work around to get change set as long as we can't use the python API wrapper
-    r = requests.get("https://gitlab.cern.ch/api/v3/projects/13363/merge_requests/%d/changes" % (args.mr_id),headers={"PRIVATE-TOKEN" : args.token})
-    changes = r.json()['changes']
+    # get GitLab API handler
+    gl = gitlab.Gitlab(args.url,args.token)
+    try:
+        # get Gitlab project object
+        project = gl.projects.get(args.project_name)
+        logging.debug("retrieved Gitlab project handle")
+        # get Gitlab merge request object
+        mr = project.mergerequests.get(args.mr_id)
+        logging.debug("retrieved Gitlab merge request handle")
+    except GitlabGetError as e:
+        logging.critical("error communication with Gitlab API '%s'" % (e.error_message))
+        sys.exit(1)
+
+    changes = mr.changes()['changes']
     changed_files = set([c[p] for c in changes for p in ['old_path','new_path']])
     logging.debug("changed files:\n" + print_collection(changed_files))
     affected_packages = sorted(set([map_filename_to_package(f) for f in changed_files]))
