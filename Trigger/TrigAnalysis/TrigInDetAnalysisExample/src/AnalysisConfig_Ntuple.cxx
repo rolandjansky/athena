@@ -63,6 +63,7 @@
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
 
+#define endreq endmsg
 
 
 bool tida_first = true;
@@ -419,9 +420,11 @@ void AnalysisConfig_Ntuple::loop() {
 
 	    std::string chainName = configuredChains[i];
 
+#if 0
 	    std::cout << "[91;1m" << "Chain " << configuredChains[i]
 		      << "\tpassed:     " <<   (*m_tdt)->isPassed(configuredChains[i], _decisiontype)  << " ( type " << _decisiontype << ") : "  
 		      << "\trequiredec: " <<   (*m_tdt)->isPassed(configuredChains[i], TrigDefs::requireDecision)  << "   (ACN)[m" << std::endl;
+#endif
 	    if ( (*m_tdt)->isPassed(configuredChains[i], _decisiontype) ) { 
 	      npassed++;
 	      passed.push_back(configuredChains[i]);
@@ -801,7 +804,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 	//	std::vector<TIDA::Vertex> vertices;
 	
-	m_provider->msg(MSG::INFO) << "fetching AOD Primary vertex container" << endreq;
+	m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endreq;
 
 	const xAOD::VertexContainer* xaodVtxCollection = 0;
 
@@ -974,19 +977,58 @@ void AnalysisConfig_Ntuple::loop() {
 
 
 	std::string ElectronRef[7] =  { 
-	  "Electrons", 
-	  "Electrons_TightCB", "Electrons_MediumCB", "Electrons_LooseCB",
-	  "Electrons_TightLH", "Electrons_MediumLH", "Electrons_LooseLH" };
+	  "", 
+	  "TightCB", "MediumCB", "LooseCB",
+	  "TightLH", "MediumLH", "LooseLH" };
  
 	bool ElectronTypes[7] = { 
 	  m_doElectrons, 
 	  m_doElectrons_tightCB,   m_doElectrons_mediumCB,   m_doElectrons_looseCB,  
 	  m_doElectrons_tightLH,   m_doElectrons_mediumLH,   m_doElectrons_looseLH };
 
+
+	/// new electron selection 
+
+	for ( size_t ielec=0 ; ielec<m_electronType.size() ; ielec++ ) {
+	  /// hmm, if we stored the types as a map it would be more 
+	  /// straightforward than having to stick all this in a loop
+
+	  int itype = -1;
+	  for ( int it=0 ; it<7 ; it++ ) if ( m_electronType[ielec]==ElectronRef[it] ) itype = it; 
+	  if ( itype<0 ) continue;
+
+	  //	  std::cout << "\tElectrons selection " << ielec << " " << m_electronType[ielec] 
+	  //		    << "\t" << itype << " " << ElectronRef[itype] << "\t" << m_rawElectrons[ielec] << std::endl;
+	  
+	  Nel += processElectrons( selectorRef, itype, ( m_rawElectrons[ielec]=="raw" ? true : false ) );
+	
+	  std::string echain = std::string("Electrons_") + m_electronType[ielec];
+	  if ( m_rawElectrons[ielec]=="raw" ) echain += "_raw";
+	  
+	  m_event->addChain( echain );
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
+	  m_event->back().back().addTracks(selectorRef.tracks());
+	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
+	    std::vector<double> _beamline;
+	    _beamline.push_back( selectorRef.getBeamX() );
+	    _beamline.push_back( selectorRef.getBeamY() );
+	    _beamline.push_back( selectorRef.getBeamZ() );
+	    m_event->back().back().addUserData(_beamline);
+	  }
+	  else { 	  
+	    m_event->back().back().addUserData(beamline);
+	  }
+	}
+	
+       
+
+	/// old electron selection 
+	
 	for ( int ielec=0 ; ielec<7 ; ielec++ ) {
 	  if ( ElectronTypes[ielec] ) {   
-	    Nel = processElectrons( selectorRef, ielec ); ///
-	    m_event->addChain( ElectronRef[ielec] );
+	    Nel += processElectrons( selectorRef, ielec, false ); ///
+	    if ( ElectronRef[ielec]=="" ) m_event->addChain( "Electrons" );
+	    else                          m_event->addChain( std::string("oldElectrons0_")+ ElectronRef[ielec] );
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
 	    m_event->back().back().addTracks(selectorRef.tracks());
 	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
@@ -1002,14 +1044,14 @@ void AnalysisConfig_Ntuple::loop() {
 	  }
 	}	  
 
-	//	std::cout << "SUTT doMuons " << m_doMuons << std::endl;
+	//	std::cout << "doMuons " << m_doMuons << std::endl;
 
 	/// get muons 
 	if ( m_doMuons ) { 
 	  
 	  m_provider->msg(MSG::INFO) << "fetching offline muons " << endreq; 
 
-	  Nmu   = processMuons( selectorRef );
+	  Nmu += processMuons( selectorRef );
 
 	  m_provider->msg(MSG::INFO) << "found " << Nmu << " offline muons " << endreq; 
 
@@ -1039,7 +1081,7 @@ void AnalysisConfig_Ntuple::loop() {
 	  
 	  m_provider->msg(MSG::INFO) << "fetching offline muons " << endreq; 
 
-	  Nmu   = processMuons( selectorRef );
+	  Nmu += processMuons( selectorRef );
 
 	  m_provider->msg(MSG::INFO) << "found " << Nmu << " offline muons " << endreq; 
 
@@ -1361,8 +1403,8 @@ void AnalysisConfig_Ntuple::loop() {
 			  else if ( selectTracks<TrigInDetTrackCollection>( &selectorTest, comb, truthMap, collectionName, collectionName_index ) );
 #ifdef XAODTRACKING_TRACKPARTICLE_H
 			  else {
-			    m_provider->msg(MSG::INFO) << "\tsearch for xAOD::TrackParticle " << collectionName << endreq;  
-			    if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) ) m_provider->msg(MSG::WARNING) << "\tFound xAOD collection " << collectionName << " (Ntple)"  << endreq;  
+			    // m_provider->msg(MSG::INFO) << "\tsearch for xAOD::TrackParticle " << collectionName << endreq;  
+			    if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) ); //m_provider->msg(MSG::INFO) << "\tFound xAOD collection " << collectionName << " (Ntple)"  << endreq;  
 			    else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endreq;  
 			  }
 #else
