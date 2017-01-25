@@ -1230,7 +1230,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>Reprocessing_with_Derived_Outputs</jobTransformJobName>
                                 <jobTransformCmd>
-				  tct_recotrf.py --jobnum=0 --trigStream=Main --nfiles=1 --maxEvents=500  --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00304008/physics_Main/ --lumiblock=838 --AMI=r8966  --dropNTUPs --athenaopts='--nprocs=4' --runnum=00304008 --conditionsTag=CONDBR2-BLKPA-2016-25                                  
+				  tct_recotrf.py --jobnum=0 --trigStream=Main --nfiles=1 --maxEvents=500  --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00304008/physics_Main/ --lumiblock=838 --AMI=r9050  --dropNTUPs --athenaopts='--nprocs=4' --runnum=00304008 --conditionsTag=CONDBR2-BLKPA-2016-25                                  
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>long</queue>

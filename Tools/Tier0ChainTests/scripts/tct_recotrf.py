@@ -306,7 +306,7 @@ def generateRecoTrfCmd(config):
     desdlist = ['DESDM_IDALIGN','DESDM_SGLEL','DESDM_SLTTMU',
                 'DESDM_EGAMMA','DESDM_MCP','DESDM_CALJET',
                 'DESDM_PHOJET','DESDM_TILEMU','DESDM_EXOTHIP']
-    drawlist = ['DRAW_EGZ','DRAW_TAUMUH','DRAW_ZMUMU','DRAW_RPVLL']
+    drawlist = ['DRAW_EGZ','DRAW_TAUMUH','DRAW_ZMUMU','DRAW_RPVLL', 'DRAW_TOPSLMU']
     ### DAOD still missing some outputs due to ATLASRECTS-3427
     #daodlist = ['DAOD_IDTIDE','DAOD_IDTRKVALID','DAOD_SCTVALID','DAOD_IDNCB']
     daodlist = ['DAOD_IDTIDE','DAOD_IDTRKVALID']
