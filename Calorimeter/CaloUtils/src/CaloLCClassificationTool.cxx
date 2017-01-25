@@ -31,8 +31,7 @@ CaloLCClassificationTool::CaloLCClassificationTool(const std::string& type,
 						   const std::string& name,
 						   const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    m_key("EMFrac"),
-    m_rchk("EMFracClassify"),
+    m_key("EMFracClassify"),
     m_useSpread(false),
     m_useNormalizedEnergyDensity(true),
     m_maxProbability(0.5),
@@ -63,20 +62,13 @@ CaloLCClassificationTool::CaloLCClassificationTool(const std::string& type,
   m_interpolateDimensionNames[1] = "DIMC_EDENS";
   m_interpolateDimensionNames[2] = "DIMC_LAMBDA";
   declareProperty("InterpolateDimensionNames", m_interpolateDimensionNames);
-  declareProperty("CondhandleKey",m_rchk);
 }
 
 StatusCode CaloLCClassificationTool::initialize()
 {
   ATH_MSG_INFO( "Initializing " << name()  );
 
-  if (m_rchk.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize ReadCondHandleKey" << m_rchk.fullKey());
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG("Initialized ReadCondHandleKey " << m_rchk.fullKey()); 
-  }
+  ATH_CHECK( m_key.initialize() );
 
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
@@ -100,7 +92,7 @@ StatusCode CaloLCClassificationTool::initialize()
 CaloRecoStatus::StatusIndicator CaloLCClassificationTool::classify(CaloCluster* thisCluster) const
 {
   const CaloLocalHadCoeff* condObject(0);
-  SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_rchk);
+  SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key);
   condObject = *rch;
   if(condObject==0) {
     ATH_MSG_ERROR("Unable to access conditions object");
@@ -207,10 +199,3 @@ CaloLCClassificationTool::~CaloLCClassificationTool()
 {
 }
 
-
-StatusCode CaloLCClassificationTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys)) 
-{
-  ATH_MSG_DEBUG("Callback invoked for " << keys.size() << " keys");
-  ATH_MSG_INFO("Dummy Callback. Should never be called!");
-  return StatusCode::SUCCESS;
-}

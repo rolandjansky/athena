@@ -127,10 +127,7 @@ StatusCode CaloLCOutOfClusterTool::initialize()
   }
 
   // callback for conditions data
-  ATH_CHECK(  detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData,
-                                 dynamic_cast<IClusterCellWeightTool*>(this),
-                                 m_data,m_key) );
-  ATH_MSG_INFO( "Registered callback for key: " << m_key  );
+  ATH_CHECK(  m_key.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -198,8 +195,15 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
     }
     
     double log10cluse = log10(eEM);
-    
-    const CaloLocalHadCoeff::LocalHadDimension *logeDim = m_data->getArea(0)->getDimension(2);
+
+    SG::ReadCondHandle<CaloLocalHadCoeff> h (m_key);
+    const CaloLocalHadCoeff* data = *h;
+    if (!data) {
+      ATH_MSG_ERROR("Unable to access conditions object");
+      return CaloRecoStatus::TAGGEDUNKNOWN;
+    }
+
+    const CaloLocalHadCoeff::LocalHadDimension *logeDim = data->getArea(0)->getDimension(2);
     double lemax = logeDim->getXmax()-0.5*logeDim->getDx();
     double lemin = logeDim->getXmin()+0.5*logeDim->getDx();
     if ( log10cluse > lemax ) 
@@ -225,9 +229,9 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
           double oocData(0);
 
           // accessing coefficients (non-interpolated)
-          int iBin = m_data->getBin(0,vars);
+          int iBin = data->getBin(0,vars);
           if ( iBin >= 0 ) {
-            const CaloLocalHadCoeff::LocalHadCoeff * pData = m_data->getCoeff(iBin);
+            const CaloLocalHadCoeff::LocalHadCoeff * pData = data->getCoeff(iBin);
             if ( pData && (*pData)[CaloLocalHadDefs::BIN_ENTRIES] > 0 ) {
               isDataOK = true;
               oocData = (*pData)[CaloLocalHadDefs::BIN_WEIGHT];
@@ -235,7 +239,7 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
             if(m_interpolate) {
               // accesing interpolated coefficients
               CaloLocalHadCoeff::LocalHadCoeff parint;
-              bool isa = hp.Interpolate(m_data, 0,vars,parint, m_interpolateDimensions);
+              bool isa = hp.Interpolate(data, 0,vars,parint, m_interpolateDimensions);
               if(isa && parint[CaloLocalHadDefs::BIN_ENTRIES] > 0) {
                 isDataOK = true;
                 oocData = parint[CaloLocalHadDefs::BIN_WEIGHT];
@@ -294,24 +298,5 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
 CaloLCOutOfClusterTool::~CaloLCOutOfClusterTool()
 {
 }
-
-
-StatusCode CaloLCOutOfClusterTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys)) 
-{
-  ATH_MSG_DEBUG("Callback invoked for "<< keys.size() << " keys");
-  
-  for (std::list<std::string>::const_iterator itr=keys.begin(); 
-       itr!=keys.end(); ++itr) {
-    std::string key = *itr;
-    ATH_MSG_DEBUG("key = " << key);
-    if(key==m_key) {
-      ATH_MSG_DEBUG("retrieve CaloLocalHadCoeff");
-      ATH_CHECK( detStore()->retrieve(m_data,m_key) );
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-
 
 

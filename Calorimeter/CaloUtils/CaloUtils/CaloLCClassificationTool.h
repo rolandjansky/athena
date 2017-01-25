@@ -37,8 +37,6 @@ class CaloLCClassificationTool : public AthAlgTool, virtual public IClusterClass
     const override;
   virtual StatusCode initialize() override;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override;
-
   CaloLCClassificationTool(const std::string& type, 
 			   const std::string& name,
 			   const IInterface* parent);
@@ -47,14 +45,7 @@ class CaloLCClassificationTool : public AthAlgTool, virtual public IClusterClass
   
   /**
    * @brief name of the key for em fraction data */
-  std::string m_key;
-
-  /**
-   * @brief data object containing the em probabilities
-   *
-   * This object contains the actual data used for classification. */
-
-  SG::ReadCondHandleKey<CaloLocalHadCoeff> m_rchk;
+  SG::ReadCondHandleKey<CaloLocalHadCoeff> m_key;
 
   /**
    * @brief if set to true the spread of EM probabilities in each bin is

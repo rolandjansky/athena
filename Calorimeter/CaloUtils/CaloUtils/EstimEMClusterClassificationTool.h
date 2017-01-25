@@ -37,9 +37,6 @@ class EstimEMClusterClassificationTool : public AthAlgTool, virtual public IClus
     const override;
   virtual StatusCode initialize() override;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override
-    { return StatusCode::SUCCESS;}
-
   EstimEMClusterClassificationTool(const std::string& type, 
 				  const std::string& name,
 				  const IInterface* parent);
