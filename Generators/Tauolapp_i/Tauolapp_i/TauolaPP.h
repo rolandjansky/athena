@@ -2,8 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUOLAALG_H
-#define TAUOLAALG_H
+
+#ifndef TAUOLAPP_H
+#define TAUOLAPP_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -21,15 +22,17 @@
 
 class StoreGateSvc;
 
+class IAtRndmGenSvc;
+
 
 /// @brief This Algorithm provides an easy interface to Tauola C++ interface
 /// @author Nadia Davidson, Marcin Wolter
 /// @todo Convert to use standard GenModule base class
-class TauolaAlg : public AthAlgorithm {
+class TauolaPP : public AthAlgorithm {
 public:
 
   /// Constructor
-  TauolaAlg (const std::string& name, ISvcLocator* pSvcLocator);
+  TauolaPP (const std::string& name, ISvcLocator* pSvcLocator);
 
   /// Initialization of Tauola++ and setting of JO configurables
   StatusCode initialize();
@@ -54,6 +57,21 @@ private:
 
   /// TAUOLA decay mode of particles with opposite charge as "decay_particle"
   int m_decay_mode_opp;
+
+  /// tau mass to be taken by TAUOLA
+  double m_tau_mass;
+
+  // TAUOLA switch for spin effects 
+  bool m_spin_correlation;
+
+  // TAUOLA switch for radiative corrections for leptonic tau decays 
+  bool m_setRadiation;
+
+  // TAUOLA cut-off for radiative corrections
+  double m_setRadiationCutOff;
+
+  static IAtRndmGenSvc* &atRndmGenSvc();
+  static std::string &tauolapp_stream();
 
 };
 
