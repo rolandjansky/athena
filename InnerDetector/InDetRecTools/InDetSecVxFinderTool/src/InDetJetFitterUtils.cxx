@@ -23,6 +23,7 @@
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/ExtendedVxCandidate.h"
 #include "VxVertex/LinearizedTrack.h"
+#include "VxJetVertex/VxVertexOnJetAxis.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkEventPrimitives/JacobianPxyzToPhiThetaQoverPspherical.h"
 #include "TrkEventPrimitives/ParamDefs.h"
@@ -518,7 +519,47 @@ namespace InDet
     return std::pair<double,double>(IPd0,IPz0);
   }
     
+
+  std::pair<double,double> InDetJetFitterUtils::getD0andZ0IPSig(const Trk::TrackParameters & trackPerigee,
+								const Trk::RecVertex & vertex) const
+  {
     
+    if (m_linearizedTrackFactoryIsAvailable==false)
+    {
+      msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endreq;
+      return std::pair<double,double>(0,0);
+    }
+    
+    Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(&trackPerigee,vertex.position());
+    Amg::Vector3D vertexPosition;
+    vertexPosition[0]=vertex.position()[0];
+    vertexPosition[1]=vertex.position()[1];
+    vertexPosition[2]=vertex.position()[2];
+    
+    const AmgSymMatrix(5) & ExpectedCovariance=myLinearizedTrack->expectedCovarianceAtPCA();
+    AmgSymMatrix(2) weightReduced=ExpectedCovariance.block<2,2>(0,0);
+    //AmgSymMatrix(2) errorVertexReduced=vertex.covariancePosition().similarity(myLinearizedTrack->positionJacobian()).block<2,2>(0,0);
+    //weightReduced+=errorVertexReduced;
+
+    double IPd0Sig=(myLinearizedTrack->expectedParametersAtPCA())[0]/sqrt( weightReduced(0,0) );
+    double IPz0Sig=(myLinearizedTrack->expectedParametersAtPCA())[1]/sqrt( weightReduced(1,1) );
+   
+    /*
+    std::cout << " " << std::endl;
+    std::cout << " --> ExpectedCovariance : " << sqrt( weightReduced(0,0)) << " , " << sqrt( weightReduced(1,1)) << std::endl;
+    std::cout << " --> Covarianceposition : " << sqrt(vertex.covariancePosition()(0,0)) << " , " << sqrt(vertex.covariancePosition()(1,1)) << std::endl;
+    std::cout << " --> d0/z0              : " << myLinearizedTrack->expectedParametersAtPCA()[0] << " , " << myLinearizedTrack->expectedParametersAtPCA()[1] << std::endl;
+    std::cout << " --> d0Sig/z0Sig        : " << IPd0Sig << " , " << IPz0Sig << std::endl;
+    */    
+
+    delete myLinearizedTrack;
+    myLinearizedTrack=0;
+        
+    return std::pair<double,double>(IPd0Sig,IPz0Sig);
+  }
+    
+
+
   const Trk::LinkToTrackParticleBase* InDetJetFitterUtils::findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> & /*neutralTracks*/,
                                                                                         const xAOD::Vertex & /*myVxCandidate*/) const 
   {
@@ -675,4 +716,34 @@ namespace InDet
     
   }
   
-}//end namespace InDet
+  CLHEP::HepLorentzVector  InDetJetFitterUtils::fourMomentumAtVertex(const Trk::VxVertexOnJetAxis & myVxVertexOnJetAxis) const
+  {
+    
+ 
+    const double s_pion=139.57018;
+    //hard coded pion mass
+ 
+    CLHEP::HepLorentzVector massVector(0,0,0,0);
+ 
+    const std::vector<Trk::VxTrackAtVertex*> & tracksOfVertex=myVxVertexOnJetAxis.getTracksAtVertex();
+    std::vector<Trk::VxTrackAtVertex*>::const_iterator clustersOfTrackBegin=tracksOfVertex.begin();
+    std::vector<Trk::VxTrackAtVertex*>::const_iterator clustersOfTrackEnd=tracksOfVertex.end();
+    for (std::vector<Trk::VxTrackAtVertex*>::const_iterator clustersOfTrackIter=clustersOfTrackBegin;
+         clustersOfTrackIter!=clustersOfTrackEnd;
+         ++clustersOfTrackIter)
+    {
+      if (dynamic_cast<const Trk::Perigee*>((*clustersOfTrackIter)->perigeeAtVertex())!=0)
+      {
+        
+        const Trk::TrackParameters* aMeasPer=(*clustersOfTrackIter)->perigeeAtVertex();
+        Amg::Vector3D mytrack(aMeasPer->momentum());
+        massVector+=CLHEP::HepLorentzVector(mytrack.x(),mytrack.y(),mytrack.z(),TMath::Sqrt(s_pion*s_pion+mytrack.mag()*mytrack.mag()));
+      }
+    }
+   
+    return massVector;
+  }
+  
+ 
+}
+//end namespace InDet

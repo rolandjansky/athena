@@ -26,6 +26,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
+#include "CLHEP/Vector/LorentzVector.h"
 //#include "TrkParticleBase/LinkToTrackParticleBase.h"
 //#include "TrkParticleBase/TrackParticleBaseCollection.h"
 //#include "TrkParticleBase/TrackParticleBase.h"
@@ -43,6 +44,7 @@ namespace Trk {
   class LinkToTrackParticleBase;
   class ITrackLink;
   class TrackParticleBase;
+  class VxVertexOnJetAxis;
 }
 
 namespace InDet {
@@ -97,6 +99,9 @@ namespace InDet {
     
     std::pair<double,double> getD0andZ0IP(const Trk::TrackParameters & trackPerigee,
                                           const Trk::Vertex & vertexToExtrapolateTo) const;
+
+    std::pair<double,double> getD0andZ0IPSig(const Trk::TrackParameters & trackPerigee,
+					     const Trk::RecVertex & vertex) const;
     
     const Trk::LinkToTrackParticleBase* findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> &,
                                                                      const Trk::VxCandidate &) const;
@@ -119,7 +124,8 @@ namespace InDet {
     bool checkIfVxCandidateIsInVector(const xAOD::Vertex * vertexToCheck,
                                       const std::vector<const xAOD::Vertex*> & vectorOfCandidates) const;
 
-   
+    CLHEP::HepLorentzVector fourMomentumAtVertex(const Trk::VxVertexOnJetAxis &) const;
+    
     
 
   private:
