@@ -23,6 +23,7 @@
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/ExtendedVxCandidate.h"
 #include "VxVertex/LinearizedTrack.h"
+#include "VxJetVertex/VxVertexOnJetAxis.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkEventPrimitives/JacobianPxyzToPhiThetaQoverPspherical.h"
 #include "TrkEventPrimitives/ParamDefs.h"
@@ -36,6 +37,7 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 
 
+#if 0
 namespace
 {
     CLHEP::HepMatrix getPhiThetaQOverPToPxPyPzJacobian(double qOverP,double theta,double phi) {
@@ -59,6 +61,7 @@ namespace
     }
 
 }
+#endif
 
 namespace InDet
 {
@@ -88,7 +91,7 @@ namespace InDet
     StatusCode sc = AlgTool::initialize();
     if(sc.isFailure())
       {
-	msg(MSG::ERROR) <<" Unable to initialize the AlgTool"<<endreq;
+	msg(MSG::ERROR) <<" Unable to initialize the AlgTool"<<endmsg;
 	return sc;
       }
 
@@ -96,7 +99,7 @@ namespace InDet
     {
       sc=m_LinearizedTrackFactory.retrieve();
       if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not find TrackLinearizer tool." << endreq;
+        msg(MSG::FATAL) << "Could not find TrackLinearizer tool." << endmsg;
         return StatusCode::FAILURE;
       }
       else
@@ -110,7 +113,7 @@ namespace InDet
     {
       sc=m_extrapolator.retrieve();
       if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not find Extrapolator tool." << endreq;
+        msg(MSG::FATAL) << "Could not find Extrapolator tool." << endmsg;
         return StatusCode::FAILURE;
       }
       else
@@ -119,14 +122,14 @@ namespace InDet
       }
     }
     
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
 
   StatusCode InDetJetFitterUtils::finalize() {
     
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
     
   } 
@@ -143,8 +146,8 @@ namespace InDet
     //using determinant as protection - better solution to come...
     Sm = Sm.inverse().eval();   
     if(Sm.determinant()==0){
-      msg(MSG::WARNING) << "Inversion of S matrix fails in track refit" << endreq; 
-      msg(MSG::WARNING) << " This track is returned not refitted" << endreq; 
+      msg(MSG::WARNING) << "Inversion of S matrix fails in track refit" << endmsg; 
+      msg(MSG::WARNING) << " This track is returned not refitted" << endmsg; 
       throw std::string("Inversion of S matrix fails in track parameters refit"); 
     }
     AmgMatrix(3,3) posMomentumCovariance = -vrt_cov * A.transpose() * trkParametersWeight * B *Sm;
@@ -161,7 +164,7 @@ namespace InDet
     
     if (m_linearizedTrackFactoryIsAvailable==false)
     {
-      msg(MSG::ERROR) << " No LinearizedTrackFactory defined. Cannot calculate compatibility. 0 compatibility returned" << endreq;
+      msg(MSG::ERROR) << " No LinearizedTrackFactory defined. Cannot calculate compatibility. 0 compatibility returned" << endmsg;
       return std::pair<double,double>(0,0);
     }
     
@@ -190,7 +193,7 @@ namespace InDet
     //using determinant as protection - better solution to come...
     if(weightReduced.determinant()==0)
     {
-      msg(MSG::WARNING) <<  " Problem inverting cov matrix in compatibility method" << endreq; 
+      msg(MSG::WARNING) <<  " Problem inverting cov matrix in compatibility method" << endmsg; 
     }
     //double returnv2=weightReduced.similarity(myLinearizedTrack->expectedParametersAtPCA().block<2,2>(0,0));
 
@@ -210,7 +213,7 @@ namespace InDet
 
     if (m_linearizedTrackFactoryIsAvailable==false)
     {
-      msg(MSG::ERROR) << " No LinearizedTrackFactory defined. Cannot calculate compatibility. 0 compatibility returned" << endreq;
+      msg(MSG::ERROR) << " No LinearizedTrackFactory defined. Cannot calculate compatibility. 0 compatibility returned" << endmsg;
       return std::pair<double,double>(0,0);
     }
 
@@ -236,7 +239,7 @@ namespace InDet
      //using determinant as protection - better solution to come...
      if(weightReduced.determinant()==0)
        {
-	 msg(MSG::WARNING) <<  " Problem inverting cov matrix in compatibility method" << endreq; 
+	 msg(MSG::WARNING) <<  " Problem inverting cov matrix in compatibility method" << endmsg; 
        }
      Amg::Vector2D paramsReduced((myLinearizedTrack->expectedParametersAtPCA())[0],(myLinearizedTrack->expectedParametersAtPCA())[1]);
      
@@ -287,7 +290,7 @@ namespace InDet
     
     if (firstTrackPerigee==0 ||secondTrackPerigee==0)
     {
-      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible charge returned." << endreq;
+      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible charge returned." << endmsg;
       return -100;
     }
     
@@ -322,7 +325,7 @@ namespace InDet
     
     if (firstTrackPerigee==0 ||secondTrackPerigee==0)
     {
-      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible charge returned." << endreq;
+      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible charge returned." << endmsg;
       return -100;
     }
     
@@ -360,7 +363,7 @@ namespace InDet
     
     if (firstTrackPerigee==0 ||secondTrackPerigee==0)
     {
-      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endreq;
+      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endmsg;
       return -100;
     }
     
@@ -412,7 +415,7 @@ namespace InDet
     
     if (firstTrackPerigee==0 ||secondTrackPerigee==0)
     {
-      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endreq;
+      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endmsg;
       return -100;
     }
     
@@ -467,19 +470,19 @@ namespace InDet
       }
       else
       {
-        msg(MSG::WARNING) << " The significance of the distance to the PV is negative or zero definite: " << endreq;
-	//MU	msg(MSG::WARNING) << std::scientific << temp << " two-trk vertex : " << first << " PV " << second << std::fixed << endreq;
+        msg(MSG::WARNING) << " The significance of the distance to the PV is negative or zero definite: " << endmsg;
+	//MU	msg(MSG::WARNING) << std::scientific << temp << " two-trk vertex : " << first << " PV " << second << std::fixed << endmsg;
       }
     }
     else
     {
       if (sumErrorsThenInverted.determinant()<=0)
       {
-        msg(MSG::WARNING) <<  " Sum of cov matrices of PV + single vertex fit is zero or negative. Error on distance is returned as 1000mm." << endreq; 
+        msg(MSG::WARNING) <<  " Sum of cov matrices of PV + single vertex fit is zero or negative. Error on distance is returned as 1000mm." << endmsg; 
       }
       else
       {
-        msg(MSG::DEBUG) << "The distance between the vertices is: " << endreq;
+        msg(MSG::DEBUG) << "The distance between the vertices is: " << endmsg;
       }
     }
     return std::pair<double,double>(distance,error);
@@ -491,7 +494,7 @@ namespace InDet
     
     if (m_linearizedTrackFactoryIsAvailable==false)
     {
-      msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endreq;
+      msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endmsg;
       return std::pair<double,double>(0,0);
     }
     
@@ -500,7 +503,7 @@ namespace InDet
     const Trk::TrackParameters* newMeasPerigee= m_extrapolator->extrapolateDirectly(trackPerigee,mySurface);
     if (newMeasPerigee==0)
     {
-      msg(MSG::WARNING) <<  " Extrapolation failed. Wrong d0 and z0 returned " << endreq;
+      msg(MSG::WARNING) <<  " Extrapolation failed. Wrong d0 and z0 returned " << endmsg;
       return std::pair<double,double>
           (trackPerigee.parameters()[Trk::d0],
            trackPerigee.parameters()[Trk::z0]*sin(trackPerigee.parameters()[Trk::theta]));
@@ -516,7 +519,47 @@ namespace InDet
     return std::pair<double,double>(IPd0,IPz0);
   }
     
+
+  std::pair<double,double> InDetJetFitterUtils::getD0andZ0IPSig(const Trk::TrackParameters & trackPerigee,
+								const Trk::RecVertex & vertex) const
+  {
     
+    if (m_linearizedTrackFactoryIsAvailable==false)
+    {
+      msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endreq;
+      return std::pair<double,double>(0,0);
+    }
+    
+    Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(&trackPerigee,vertex.position());
+    Amg::Vector3D vertexPosition;
+    vertexPosition[0]=vertex.position()[0];
+    vertexPosition[1]=vertex.position()[1];
+    vertexPosition[2]=vertex.position()[2];
+    
+    const AmgSymMatrix(5) & ExpectedCovariance=myLinearizedTrack->expectedCovarianceAtPCA();
+    AmgSymMatrix(2) weightReduced=ExpectedCovariance.block<2,2>(0,0);
+    //AmgSymMatrix(2) errorVertexReduced=vertex.covariancePosition().similarity(myLinearizedTrack->positionJacobian()).block<2,2>(0,0);
+    //weightReduced+=errorVertexReduced;
+
+    double IPd0Sig=(myLinearizedTrack->expectedParametersAtPCA())[0]/sqrt( weightReduced(0,0) );
+    double IPz0Sig=(myLinearizedTrack->expectedParametersAtPCA())[1]/sqrt( weightReduced(1,1) );
+   
+    /*
+    std::cout << " " << std::endl;
+    std::cout << " --> ExpectedCovariance : " << sqrt( weightReduced(0,0)) << " , " << sqrt( weightReduced(1,1)) << std::endl;
+    std::cout << " --> Covarianceposition : " << sqrt(vertex.covariancePosition()(0,0)) << " , " << sqrt(vertex.covariancePosition()(1,1)) << std::endl;
+    std::cout << " --> d0/z0              : " << myLinearizedTrack->expectedParametersAtPCA()[0] << " , " << myLinearizedTrack->expectedParametersAtPCA()[1] << std::endl;
+    std::cout << " --> d0Sig/z0Sig        : " << IPd0Sig << " , " << IPz0Sig << std::endl;
+    */    
+
+    delete myLinearizedTrack;
+    myLinearizedTrack=0;
+        
+    return std::pair<double,double>(IPd0Sig,IPz0Sig);
+  }
+    
+
+
   const Trk::LinkToTrackParticleBase* InDetJetFitterUtils::findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> & /*neutralTracks*/,
                                                                                         const xAOD::Vertex & /*myVxCandidate*/) const 
   {
@@ -590,7 +633,7 @@ namespace InDet
 
       if (myTPBlink==0)
       {
-        msg(MSG::WARNING) <<  " null pointer (TPBlink). Skipping neutral candidate... " << endreq;
+        msg(MSG::WARNING) <<  " null pointer (TPBlink). Skipping neutral candidate... " << endmsg;
         continue;
       }
 
@@ -598,7 +641,7 @@ namespace InDet
       
       if (myTPB==0)
       {
-        msg(MSG::WARNING) <<  " null pointer (TPB). Skipping neutral candidate... " << endreq;
+        msg(MSG::WARNING) <<  " null pointer (TPB). Skipping neutral candidate... " << endmsg;
         continue;
       }
       
@@ -606,7 +649,7 @@ namespace InDet
       
       if (myV0Candidate==0) 
       {
-        msg(MSG::WARNING) << " neutral TP Base has no original Vx Candidate " << endreq;
+        msg(MSG::WARNING) << " neutral TP Base has no original Vx Candidate " << endmsg;
         continue;
       }
       
@@ -673,4 +716,34 @@ namespace InDet
     
   }
   
-}//end namespace InDet
+  CLHEP::HepLorentzVector  InDetJetFitterUtils::fourMomentumAtVertex(const Trk::VxVertexOnJetAxis & myVxVertexOnJetAxis) const
+  {
+    
+ 
+    const double s_pion=139.57018;
+    //hard coded pion mass
+ 
+    CLHEP::HepLorentzVector massVector(0,0,0,0);
+ 
+    const std::vector<Trk::VxTrackAtVertex*> & tracksOfVertex=myVxVertexOnJetAxis.getTracksAtVertex();
+    std::vector<Trk::VxTrackAtVertex*>::const_iterator clustersOfTrackBegin=tracksOfVertex.begin();
+    std::vector<Trk::VxTrackAtVertex*>::const_iterator clustersOfTrackEnd=tracksOfVertex.end();
+    for (std::vector<Trk::VxTrackAtVertex*>::const_iterator clustersOfTrackIter=clustersOfTrackBegin;
+         clustersOfTrackIter!=clustersOfTrackEnd;
+         ++clustersOfTrackIter)
+    {
+      if (dynamic_cast<const Trk::Perigee*>((*clustersOfTrackIter)->perigeeAtVertex())!=0)
+      {
+        
+        const Trk::TrackParameters* aMeasPer=(*clustersOfTrackIter)->perigeeAtVertex();
+        Amg::Vector3D mytrack(aMeasPer->momentum());
+        massVector+=CLHEP::HepLorentzVector(mytrack.x(),mytrack.y(),mytrack.z(),TMath::Sqrt(s_pion*s_pion+mytrack.mag()*mytrack.mag()));
+      }
+    }
+   
+    return massVector;
+  }
+  
+ 
+}
+//end namespace InDet
