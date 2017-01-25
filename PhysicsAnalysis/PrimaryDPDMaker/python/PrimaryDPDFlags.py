@@ -352,6 +352,50 @@ class WriteDRAW_EMU(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_EMU)
 listRAWtoDPD.append(WriteDRAW_EMU.StreamName)
 
+class WriteDRAW_BCID1(JobProperty):
+    """ Produce the BCID-filtered DRAW, based on the AcceptBCIDs list (Byte Stream format)."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_BCID1"
+    FileName       = ""
+    Prescale       = 1
+    AcceptBCIDs    = [11, 1247, 2430]
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_BCID1.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_BCID1)
+listRAWtoDPD.append(WriteDRAW_BCID1.StreamName)
+
+class WriteDRAW_BCID2(JobProperty):
+    """ Produce the BCID-filtered DRAW, based on the RejectBCIDs list (Byte Stream format)."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_BCID2"
+    FileName       = ""
+    Prescale       = 1
+    RejectBCIDs    = [11, 1247, 2430]
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_BCID2.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_BCID2)
+listRAWtoDPD.append(WriteDRAW_BCID2.StreamName)
+
+class WriteDRAW_TOPSLMU(JobProperty):
+    """ Produce DRAW_TOPSLMU, a top-like single-muon selection for tau embedding used by H+ searches."""
+    statusOn       = True    
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_TOPSLMU"
+    FileName       = ""
+    Prescale       = 1
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_TOPSLMU.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_TOPSLMU)
+listRAWtoDPD.append(WriteDRAW_TOPSLMU.StreamName)
+
 ##--------------------------------------------
 ## Skimmed ESD
 ##--------------------------------------------
