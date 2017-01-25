@@ -68,10 +68,9 @@ except Exception:
     print "WARNING could not load muonCnvFlags"
 
 try:
-    from MuonCalibAlgs.MuonCalibFlags import muonCalibFlags
+    from MuonCnvExample.MuonCalibFlags import muonCalibFlags
 except Exception:
     print "WARNING could not load muonCalibFlags"
-
 
 try:
     from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
