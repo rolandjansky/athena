@@ -28,4 +28,5 @@ DOMAIN_MAP['TestBeam'] = set(['TestBeam/'])
 DOMAIN_MAP['Tile'] = set(['TileCalorimeter/'])
 DOMAIN_MAP['Tools'] = set(['Tools/'])
 DOMAIN_MAP['Tracking'] = set(['Tracking/'])
-DOMAIN_MAP['Trigger'] = set(['Trigger/','HLT/'])
+DOMAIN_MAP['Trigger'] = set(['Trigger/','HLT/','Trig','DetectorDescription/.?Reg','DetectorDescription/RoiDescriptor','RegionSelector'])
+
