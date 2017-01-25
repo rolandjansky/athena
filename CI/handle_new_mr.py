@@ -79,7 +79,7 @@ def add_labels(mr,domains):
     for d in domains:
         labels.add(d)
     # remove possible complete review labels
-    for l in ["review-approved","review-rejected","2nd-level-pending","expert-pending"]:
+    for l in ["review-approved","review-postponed","2nd-level-pending","expert-pending"]:
         labels.discard(l)
     # add review-pending flag
     labels.add("review-pending")
