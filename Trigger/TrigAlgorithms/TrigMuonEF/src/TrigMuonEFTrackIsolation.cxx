@@ -248,6 +248,19 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 	  }
 	  continue;
 	}//requireCombined
+	else{
+	  if( muontype == xAOD::Muon::MuonType::MuonStandAlone ){
+	    if(m_debug) {
+	      msg() << MSG::DEBUG << "EF muon has standalone muon" << endmsg;
+	    }
+	  }
+	  else{
+	    if(m_debug) {
+	      msg() << MSG::DEBUG << "EF muon has neither combined, segment tagged, nor standalone muon" << endmsg;
+	    }
+	    continue;
+	  }
+	}
       }//no combined muon
     
       std::vector<double> isoResults;
