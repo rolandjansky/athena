@@ -31,18 +31,14 @@
 #include "../MetaDataSvc.h"
 #include "../OutputStreamSequencerSvc.h"
 #include "../AthenaStopperAlg.h"
-#ifdef ATHENAHIVE
 #include "../AthenaHiveEventLoopMgr.h"
-#endif
 
 DECLARE_ALGORITHM_FACTORY( AthenaOutputStream )
 DECLARE_ALGORITHM_FACTORY( AthenaConditionStream )
 DECLARE_ALGORITHM_FACTORY( TestRandomSeqAlg )
 DECLARE_SERVICE_FACTORY( MultipleEventLoopMgr )
 DECLARE_SERVICE_FACTORY( AthenaEventLoopMgr )
-#ifdef ATHENAHIVE
 DECLARE_SERVICE_FACTORY( AthenaHiveEventLoopMgr )
-#endif
 DECLARE_SERVICE_FACTORY( PyAthenaEventLoopMgr )
 DECLARE_SERVICE_FACTORY( SimplePOSIXTimeKeeperSvc )
 DECLARE_SERVICE_FACTORY( MixingEventSelector )
