@@ -135,8 +135,9 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
     //
     bool found_id = 0;
     uint32_t alg_id = 0;
-    
-    for(unsigned int i = 0; i < m_config->size<TrigConfSeq>(); ++i) {
+
+    if (m_algNameToIDMap.size() == 0) {
+for(unsigned int i = 0; i < m_config->size<TrigConfSeq>(); ++i) {
       const TrigConfSeq &seq = m_config->at<TrigConfSeq>(i);
       const std::vector<TrigConfAlg> &avec = seq.getAlg();
       
@@ -144,13 +145,19 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
       for(unsigned int j = 0; j < avec.size(); ++j) {
         const TrigConfAlg &alg = avec[j];
         
-        if(alg.getName() == rob->requestor_name) { 
-          alg_id   = alg.getNameId();
-          found_id = true;
-          break;
+          m_algNameToIDMap[alg.getName()] = alg.getNameId();
+          
         }
       }
+}
+    std::map<std::string, uint32_t>::const_iterator algFinder = m_algNameToIDMap.find(rob->requestor_name);
+
+    if (algFinder != m_algNameToIDMap.end() ){
+      alg_id = algFinder->second;
+      found_id = true;
     }
+    
+    
 
     if(!found_id) {
       alg_id = TrigConf::HLTUtils::string2hash(rob->requestor_name, "ALG");
