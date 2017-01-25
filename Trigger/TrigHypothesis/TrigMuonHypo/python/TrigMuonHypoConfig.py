@@ -1250,6 +1250,8 @@ trigMuonEFTrkIsoThresholds = {
     'EFOnlyLooseWide'         : [ -1.0,   4200.0],
     'EFOnlyMediumWide'        : [ -1.0,   2100.0],
     'EFOnlyTightWide'         : [ -1.0,   1500.0],
+
+    'MSEFOnlyLooseWide'         : [ -1.0,   3000.0],
     
     'RelEFOnlyLooseWide'      : [-1.0 ,  0.2  ],
     'RelEFOnlyMediumWide'     : [-1.0 ,  0.12 ],
@@ -1302,6 +1304,11 @@ class TrigMuonEFTrackIsolationHypoConfig(TrigMuonEFTrackIsolationHypo) :
             self.PtCone02Cut = ptcone02
             self.PtCone03Cut = ptcone03
             self.AcceptAll = False
+
+            if 'MS' in args[1]:
+                self.RequireCombinedMuon = False
+            else:
+                self.RequireCombinedMuon = True
 
             if 'Rel' in args[1] :
                 self.DoAbsCut = False

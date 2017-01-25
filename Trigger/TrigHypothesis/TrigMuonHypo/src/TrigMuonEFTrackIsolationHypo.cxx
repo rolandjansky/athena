@@ -21,6 +21,7 @@ TrigMuonEFTrackIsolationHypo::TrigMuonEFTrackIsolationHypo(const std::string & n
 	declareProperty("AcceptAll", m_acceptAll=true);
 	declareProperty("DoAbsCut", m_abscut=true); //true for absolute cuts, false for sumpt/pt
 	declareProperty("useVarIso", m_useVarIso=false); //true for offline isolation variables, false for online
+	declareProperty("RequireCombinedMuon", m_requireCombined=true); // true unless doing ms-only iso
 	declareProperty("PtCone02Cut",m_ptcone02_cut=-1.0); //convention is < 0 means don't cut
 	declareProperty("PtCone03Cut",m_ptcone03_cut=-1.0); //convention is < 0 means don't cut
 	
@@ -44,29 +45,29 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltInitialize(){
   if(m_acceptAll) {
     msg() << MSG::INFO
 	  << "Accepting all the events with not cut!"
-	  << endreq;
+	  << endmsg;
   } else {
     if(m_ptcone02_cut < 0.0 && m_ptcone03_cut < 0.0) {
       msg() << MSG::FATAL
-	    << "Configured to apply cuts, but not cut was specified" << endreq;	
+	    << "Configured to apply cuts, but not cut was specified" << endmsg;	
       return HLT::BAD_JOB_SETUP;	 
     }
     if(m_ptcone02_cut > 0.0) {
       if(m_abscut) {
 	msg() << MSG::INFO
-	      << "Requiring sum pT in 0.2 cone < " << m_ptcone02_cut.value() << " MeV" << endreq;
+	      << "Requiring sum pT in 0.2 cone < " << m_ptcone02_cut.value() << " MeV" << endmsg;
       } else {
 	msg() << MSG::INFO
-	      << "Requiring sum pT in 0.2 cone / muon pT < " << m_ptcone02_cut.value() << endreq;
+	      << "Requiring sum pT in 0.2 cone / muon pT < " << m_ptcone02_cut.value() << endmsg;
       }//relative cut
     }
     if(m_ptcone03_cut > 0.0) {
       if(m_abscut) {
 	msg() << MSG::INFO
-	      << "Requiring sum pT in 0.3 cone < " << m_ptcone03_cut.value() << " MeV" << endreq;
+	      << "Requiring sum pT in 0.3 cone < " << m_ptcone03_cut.value() << " MeV" << endmsg;
       } else {
 	  msg() << MSG::INFO
-		<< "Requiring sum pT in 0.3 cone / muon pT < " << m_ptcone03_cut.value() << endreq;
+		<< "Requiring sum pT in 0.3 cone / muon pT < " << m_ptcone03_cut.value() << endmsg;
       }//relative cut
     }//cut on 0.3 cone
   }
@@ -90,7 +91,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltFinalize()
  */
 HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
 
   pass = false; // fail by default
 
@@ -98,7 +99,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
     pass = true;
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG
-	    << "Accept property is set: taking all the events" << endreq;	    
+	    << "Accept property is set: taking all the events" << endmsg;	    
     }
     return HLT::OK;
   }//acceptAll
@@ -106,12 +107,12 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   const bool debug = msgLvl() <= MSG::DEBUG;
 
   // Some debug output:
-  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
 
   // Get the muon container from the outputTE
   const xAOD::MuonContainer* muonContainer(0);
   if(getFeature(outputTE, muonContainer)!=HLT::OK || muonContainer==0) {
-    if (debug) msg() << MSG::DEBUG << "no MuonContainer Feature found" << endreq;
+    if (debug) msg() << MSG::DEBUG << "no MuonContainer Feature found" << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
@@ -125,7 +126,8 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   for(auto muon : *muonContainer) {
     
     const xAOD::Muon::MuonType muontype = muon->muonType();
-    if(muontype != xAOD::Muon::MuonType::Combined ) continue;
+    if(m_requireCombined && muontype != xAOD::Muon::MuonType::Combined ) continue;
+    else if(muontype != xAOD::Muon::MuonType::MuonStandAlone && muontype != xAOD::Muon::MuonType::Combined) continue;
 
     float ptcone20(-1), ptcone30(-1);
     bool res = false; 
@@ -168,7 +170,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
       if(debug) {
 	msg(MSG::DEBUG) << "Muon with pT cone 0.2 = " << ptcone20
 			<< ", pT cone 0.3 = " << ptcone30
-			<< " so result for this muon is " << (goodmu?"true":"false") << endreq;
+			<< " so result for this muon is " << (goodmu?"true":"false") << endmsg;
       } 
     }//absolute cut      
     else { //relative cut
@@ -187,7 +189,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
       if(debug) {
 	msg(MSG::DEBUG) << "Muon with pT cone 0.2 / pt = " << ptcone20/mupt
 			<< ", pT cone 0.3 / pt = " << ptcone30/mupt
-			<< " so result for this muon is " << (goodmu?"true":"false") << endreq;
+			<< " so result for this muon is " << (goodmu?"true":"false") << endmsg;
       } 
       
     }//relative cut
@@ -200,14 +202,14 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   }//loop over isolation objects
 
   if(debug) {
-    msg(MSG::DEBUG) << "Algo result = " << (result?"true":"false") << endreq;
+    msg(MSG::DEBUG) << "Algo result = " << (result?"true":"false") << endmsg;
   }
 
   pass = result;
 
   // store TrigPassBits result
   if ( attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK ) {
-    msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
+    msg() << MSG::ERROR << "Could not store TrigPassBits! " << endmsg;
   }
 
   return HLT::OK;

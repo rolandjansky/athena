@@ -56,6 +56,9 @@ class TrigMuonEFTrackIsolationHypo: public HLT::HypoAlgo {
   /// use offline or online isolation variables?
   BooleanProperty m_useVarIso;
 
+  /// only consider combined muons for isolation?
+  BooleanProperty m_requireCombined;
+
   /// monitor the variables we cut on
   std::vector<float> m_fex_ptcone02;
   std::vector<float> m_fex_ptcone03;
