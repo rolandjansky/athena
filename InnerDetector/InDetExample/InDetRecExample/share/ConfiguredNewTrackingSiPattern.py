@@ -94,7 +94,10 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.maxRadius2         = NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius3         = NewTrackingCuts.radMax()
          if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
-            InDetSiSpacePointsSeedMaker.pTmax              = NewTrackingCuts.maxPT()
+            try :
+               InDetSiSpacePointsSeedMaker.pTmax              = NewTrackingCuts.maxPT()
+            except:
+               pass 
             InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
          if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCConversionFinding":
             InDetSiSpacePointsSeedMaker.minRadius1         = 0
@@ -431,9 +434,26 @@ class  ConfiguredNewTrackingSiPattern:
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityProcessorTool as ProcessorTool
+           use_low_pt_fitter =  True if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) else False
+           fitter_list=[( InDetTrackFitter if not use_low_pt_fitter else InDetTrackFitterLowPt )]
+           if InDetFlags.doRefitInvalidCov() :
+              from AthenaCommon import CfgGetter
+              fitter_list.append(CfgGetter.getPublicTool('KalmanFitter'))
+              fitter_list.append(CfgGetter.getPublicTool('ReferenceKalmanFitter'))
+
+           InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),
+	                                                 Fitter             = fitter_list ,
+	                                                 ScoringTool        = InDetAmbiScoringTool,
+	                                                 SelectionTool      = InDetAmbiTrackSelectionTool,
+	                                                 SuppressHoleSearch = False,
+	                                                 tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
+	                                                 caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
+	                                                 pTminBrem          = NewTrackingCuts.minPTBrem(),
+	                                                 RefitPrds          = True, 
+	                                                 RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
          else:
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
-         InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),
+           InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),
                                                  Fitter             = InDetTrackFitter,
                                                  ScoringTool        = InDetAmbiScoringTool,
                                                  SelectionTool      = InDetAmbiTrackSelectionTool,
@@ -442,6 +462,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                  caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                  pTminBrem          = NewTrackingCuts.minPTBrem(),
                                                  RefitPrds          = True)
+	
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            InDetAmbiguityProcessor.SplitProbTool             = NnPixelClusterSplitProbTool
            InDetAmbiguityProcessor.sharedProbCut             = prob1
@@ -453,7 +474,10 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "Pixel" or NewTrackingCuts.mode() == "DBM":
             InDetAmbiguityProcessor.SuppressHoleSearch = True
          if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
-            InDetAmbiguityProcessor.Fitter = InDetTrackFitterLowPt
+            if InDetAmbiguityProcessor.getName().find('Dense') :
+               pass
+            else :
+               InDetAmbiguityProcessor.Fitter = InDetTrackFitterLowPt
              
          if InDetFlags.materialInteractions():
             InDetAmbiguityProcessor.MatEffects = InDetFlags.materialInteractionsType()

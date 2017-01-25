@@ -138,8 +138,8 @@ class ConfiguredTRTSegmentFinding:
      else:
       InDetTRT_TrackSegmentsFinder = InDet__TRT_TrackSegmentsFinder(name              = 'InDetTRT_TrackSegmentsFinder'+extension,
                                                                     SegmentsMakerTool   = InDetTRT_TrackSegmentsMaker,
-                                                                    SegmentsLocation    = BarrelSegments) 
-
+                                                                    SegmentsLocation    = BarrelSegments, 
+                                                                    InputClusterContainerName = "")
 
      topSequence += InDetTRT_TrackSegmentsFinder
      if (InDetFlags.doPrintConfigurables()):

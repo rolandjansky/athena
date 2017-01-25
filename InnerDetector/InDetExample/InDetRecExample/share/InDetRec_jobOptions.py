@@ -1086,15 +1086,30 @@ else:
     # --- slimm the tracks down before writing them ?
     #
     # ---------------------------------------------------------------- 
-    if InDetFlags.doSlimming(): # not an "elif" as we may want to slim or alias even if refit, in case pattern runs 
+    from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool
+    InDetTrkSlimmingTool = ConfigurableTrackSlimmingTool(name           = "InDetTrackSlimmingTool",
+                                                         KeepParameters = InDetFlags.KeepParameters(),
+                                                         KeepOutliers   = True,
+                                                         OnlySetPersistificationHints = False)
+    ToolSvc += InDetTrkSlimmingTool
+
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if InDetFlags.doSlimming() and (not IsInInputFile('TrackCollection',InDetKeys.Tracks()) or InDetFlags.doSlimPoolTrack() ) :
+      # not an "elif" as we may want to slim or alias even if refit, in case pattern runs
+      # do not run slimming if the destination collection already exists unless the TPconverter level slimming is enabled.
+
       #
       # --- do track slimming
       #
-      from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool
-      InDetTrkSlimmingTool = ConfigurableTrackSlimmingTool(name           = "InDetTrackSlimmingTool",
-                                                           KeepParameters = InDetFlags.KeepParameters(),
-                                                           KeepOutliers   = True )
-      ToolSvc += InDetTrkSlimmingTool
+      if InDetFlags.doSlimPoolTrack() :
+        InDetTrkSlimmingToolTracks = ConfigurableTrackSlimmingTool(name           = "InDetTrackSlimmingToolTPCnv",
+                                                                   KeepParameters = InDetFlags.KeepParameters(),
+                                                                   KeepOutliers   = True,
+                                                                   OnlySetPersistificationHints = InDetFlags.doSlimPoolTrack() )
+        ToolSvc += InDetTrkSlimmingToolTracks
+      else :
+        InDetTrkSlimmingToolTracks=InDetTrkSlimmingTool
+
       if (InDetFlags.doPrintConfigurables()):
         print InDetTrkSlimmingTool
             
@@ -1102,7 +1117,8 @@ else:
       InDetTrkSlimmer = ConfigurableTrackSlimmer(name                 = "InDetTrackSlimmer",
                                                  TrackLocation        = [ InputTrackCollection ],
                                                  SlimmedTrackLocation = [ InDetKeys.Tracks() ],
-                                                 TrackSlimmingTool    = InDetTrkSlimmingTool)
+                                                 TrackSlimmingTool    = InDetTrkSlimmingToolTracks,
+                                                 OnlySetPersistificationHints = InDetFlags.doSlimPoolTrack() )
       topSequence += InDetTrkSlimmer
       if (InDetFlags.doPrintConfigurables()):
         print InDetTrkSlimmer
@@ -1112,34 +1128,36 @@ else:
               (InDetFlags.doMonitoringPixel() and not InDetFlags.doTrackSegmentsPixel()) or 
               (InDetFlags.doMonitoringSCT()   and not InDetFlags.doTrackSegmentsSCT()  ) or 
               (InDetFlags.doMonitoringTRT()   and not InDetFlags.doTrackSegmentsTRT()  )):
-        # --- Delete unslimmed tracks
-        from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
-        InDetSGDeletionAlg(key = InputTrackCollection)
+        if not InDetFlags.doSlimPoolTrack() :
+          # --- Delete unslimmed tracks
+          from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
+          InDetSGDeletionAlg(key = InputTrackCollection)
       
-      # --- for output
-      InDetKeys.AliasToTracks = 'none'
-      # --- input for next algorithm
-      InputTrackCollection    = InDetKeys.Tracks()
-      if InDetFlags.doTruth():
-        InputDetailedTrackTruth   = InDetKeys.DetailedTracksTruth()
-        InputTrackCollectionTruth = InDetKeys.TracksTruth()       
-      # --- [FIXME JDC: PROVISIONAL PATCH. The final collection 
-      #      should be the one pointed by InDetKeys.Tracks()? Trying to 
-      #      find a solution...
-      if InDetFlags.useExistingTracksAsInput():
-        InDetTrkSlimmer.SlimmedTrackLocation = [ "MergedTracks" ]
-        InputTrackCollection = "MergedTracks"
-        if InDetFlags.doTruth():
-            InputDetailedTrackTruth   = "MergedTracksDetailedTruth"
-            InputTrackCollectionTruth = "MergedTracksTruth"
-      # --- [FIXME JDC: END PROVISIONAL PATCH
+      if not InDetFlags.doSlimPoolTrack() :
+         # --- for output
+         InDetKeys.AliasToTracks = 'none'
+         # --- input for next algorithm
+         InputTrackCollection    = InDetKeys.Tracks()
+         if InDetFlags.doTruth():
+            InputDetailedTrackTruth   = InDetKeys.DetailedTracksTruth()
+            InputTrackCollectionTruth = InDetKeys.TracksTruth()       
+         # --- [FIXME JDC: PROVISIONAL PATCH. The final collection 
+         #      should be the one pointed by InDetKeys.Tracks()? Trying to 
+         #      find a solution...
+         if InDetFlags.useExistingTracksAsInput():
+            InDetTrkSlimmer.SlimmedTrackLocation = [ "MergedTracks" ]
+            InputTrackCollection = "MergedTracks"
+            if InDetFlags.doTruth():
+                InputDetailedTrackTruth   = "MergedTracksDetailedTruth"
+                InputTrackCollectionTruth = "MergedTracksTruth"
+         # --- [FIXME JDC: END PROVISIONAL PATCH
 
     # ---------------------------------------------------------------- 
     #
     # --- or just make an alias ?
     #
     # ---------------------------------------------------------------- 
-    elif InDetFlags.doPattern() :
+    if InDetFlags.doPattern() and (not InDetFlags.doSlimming() or InDetFlags.doSlimPoolTrack()):
       if not InDetFlags.doDBMstandalone(): 
       #
       # --- configure Algorithm to create output alias
@@ -1147,14 +1165,14 @@ else:
         from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
         InDetCopyAlg = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlg",
                                                    CollectionName   = InputTrackCollection,
-                                                   AliasName        = InDetKeys.Tracks()) 
+                                                   AliasName        = InDetKeys.Tracks())
         topSequence += InDetCopyAlg
-        if (InDetFlags.doPrintConfigurables()):
+        if (InDetFlags.doPrintConfigurables()) or True:
           print InDetCopyAlg
       # --- for output
-          InDetKeys.AliasToTracks = InputTrackCollection
+        InDetKeys.AliasToTracks = InputTrackCollection
       # --- input for next algorithm
-          InputTrackCollection    = InDetKeys.Tracks()
+        InputTrackCollection    = InDetKeys.Tracks()
 
       if InDetFlags.doTruth():
         if InDetFlags.doDBMstandalone(): 

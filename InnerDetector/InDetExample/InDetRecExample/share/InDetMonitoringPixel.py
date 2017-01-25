@@ -1,8 +1,10 @@
 # configure the pixel main monitoring tool
 doAllHits          = True
 # online: only run pixel tracks, offline: only combined tracks available
-doHitsOnPixelTrack = True if athenaCommonFlags.isOnline() else False
-doHitsOnTrack      = False if athenaCommonFlags.isOnline() else True
+#doHitsOnPixelTrack = True if athenaCommonFlags.isOnline() else False
+#doHitsOnTrack      = False if athenaCommonFlags.isOnline() else True
+doHitsOnPixelTrack = False
+doHitsOnTrack      = True
 
 # switch on all modules histograms for all hits if pixel online monitoring
 if (not 'doPixelOnlyMon' in dir()):

@@ -549,14 +549,19 @@ class doSlimming(InDetFlagsJobProperty):
     """ turn track slimming on/off """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False 
+    StoredValue  = True
+
+class doSlimPoolTrack(InDetFlagsJobProperty):
+    """ Slimming at converter level rather than creating a slim track collections; requires slimming to be on. """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
 
 class doWriteTracksToESD(InDetFlagsJobProperty):
     """ turn track slimming on/off """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
-
+    StoredValue  = True
 
 class doVertexFinding(InDetFlagsJobProperty):        
     """ Turn on the primary vertex reconstruction """
@@ -1051,6 +1056,18 @@ class doTIDE_RescalePixelCovariances(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doRefitInvalidCov(InDetFlagsJobProperty):
+  """ Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices."""
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doRejectInvalidCov(InDetFlagsJobProperty):
+  """ Reject all tracks which have a non positive definite covariance matrix after the refit."""
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 class doSSSfilter(InDetFlagsJobProperty):
   """ Switch for running SSS filter"""
   statusOn     = True
@@ -1123,6 +1140,12 @@ class doParticleConversion(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doHIP300(InDetFlagsJobProperty):
+   """ Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)"""
+   statusOn     = True
+   allowedTypes = ['bool']
+   StoredValue  = False
+
 class doStoreTrackSeeds(InDetFlagsJobProperty): 
   """Turn on to save the Track Seeds in a xAOD track collecting for development studies""" 
   statusOn     = True 
@@ -1167,6 +1190,9 @@ class InDetJobProperties(JobPropertyContainer):
 
     if ( jobproperties.Beam.beamType()=="collisions" and jobproperties.Beam.bunchSpacing() <= 25): 
        self.checkThenSet(self.InDet25nsec            , True)     
+
+    if self.doHIP300 :
+       self.checkThenSet(self.doRejectInvalidCov      ,True)
 
     if self.doSLHCVeryForward():
        self.checkThenSet(self.doSLHC            , True)
@@ -1262,6 +1288,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.priVtxCutLevel         , 1    )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
+       self.checkThenSet(self.doRefitInvalidCov      ,True)
 
     # --- special case SLHC
     elif (self.doSLHC()):
@@ -1476,7 +1503,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.useExistingTracksAsInput, True              )
        self.checkThenSet(self.preProcessing           , True              )
        self.checkThenSet(self.doSpacePointFormation   , True              )
-       self.checkThenSet(self.postProcessing          , True              )
+       self.checkThenSet(self.postProcessing          , False             )
        # --- enable prim/sec vertexing ?? Probably yes, but a DV-vertexing
        # --- instead primary vertex setup 
        self.checkThenSet(self.doVertexFinding         , False             )
@@ -1489,8 +1516,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doV0Finder              , False             )
        self.checkThenSet(self.doSimpleV0Finder        , False             )
        self.checkThenSet(self.doConversions           , False             )
-       self.checkThenSet(self.doParticleCreation      , True              )
-       self.checkThenSet(self.doStatistics            , True              )
+       self.checkThenSet(self.doParticleCreation      , False             )
+       self.checkThenSet(self.doStatistics            , False             )
        self.checkThenSet(self.doTrackSegmentsPixel    , False             )
        self.checkThenSet(self.doTrackSegmentsSCT      , False             )
        self.checkThenSet(self.doTrackSegmentsTRT      , False             )
@@ -1649,6 +1676,8 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------
       # ---- Large-d0 re-tracking setup
       # --------------------------------------------------------------------      
+      # no Large radius tracking if pixel or sct off (new tracking = inside out only)
+      self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       if self.doDVRetracking():
           self.setDVRetracking()
       
@@ -1681,6 +1710,8 @@ class InDetJobProperties(JobPropertyContainer):
       # new forward tracklets
       self.doForwardTracks = self.doForwardTracks() and self.doNewTracking()
       #
+      # no Large radius tracking if pixel or sct off (new tracking = inside out only)
+      self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       # no BeamGas tracking if no new tracking before (but only if beamtype is not single beam!)      
       if (jobproperties.Beam.beamType()!="singlebeam"):
         self.doBeamGas     = self.doBeamGas() and self.doNewTracking()
@@ -2316,7 +2347,10 @@ class InDetJobProperties(JobPropertyContainer):
        print '* do a refit of all tracks'
     if self.doSlimming() :
        print '*'
-       print '* slim down the tracks for output on ESD'
+       if not self.doSlimPoolTrack() :
+          print '* slim down the tracks for output on ESD'
+       else :
+          print '* persistify slim tracks '
     # -----------------------------------------
     print '*'
     print '* PostProcessing:'
@@ -2626,6 +2660,7 @@ _list_InDetJobProperties = [Enabled,
                             doTRTStandalone,
                             refitROT,
                             doSlimming,
+                            doSlimPoolTrack,
                             doWriteTracksToESD,
                             doVertexFinding,
                             primaryVertexSetup,
@@ -2705,6 +2740,8 @@ _list_InDetJobProperties = [Enabled,
                             doCaloSeededTRTSegments,
                             doInnerDetectorCommissioning,
                             doTIDE_Ambi,
+                            doRefitInvalidCov,
+                            doRejectInvalidCov,
                             doTIDE_RescalePixelCovariances,
                             doSSSfilter,
                             pT_SSScut,
@@ -2719,7 +2756,8 @@ _list_InDetJobProperties = [Enabled,
                             doDBMstandalone,
                             doDBM,
                             doParticleConversion,
-                            doStoreTrackSeeds 
+                            doStoreTrackSeeds,
+                            doHIP300
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

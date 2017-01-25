@@ -44,6 +44,9 @@ if InDetFlags.doCosmics():
 
 if InDetFlags.doStoreTrackSeeds() and ( InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() ) :
    InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()]
+   #if InDetFlags.doTruth():
+   #   InDetESDList += ["TrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'TruthCollection']
+   #   InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'DetailedTruth']
 
 if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD() :
    if InDetKeys.AliasToTracks() == 'none':
