@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.h 793282 2017-01-20 20:00:48Z ssnyder $
+// $Id: ByteStreamAuxContainer_v1.h 793760 2017-01-25 02:02:33Z ssnyder $
 #ifndef XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 
@@ -38,8 +38,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793282 $
-   /// $Date: 2017-01-20 21:00:48 +0100 (Fri, 20 Jan 2017) $
+   /// $Revision: 793760 $
+   /// $Date: 2017-01-25 03:02:33 +0100 (Wed, 25 Jan 2017) $
    ///
    class ByteStreamAuxContainer_v1
      : public SG::IAuxStore
@@ -104,7 +104,11 @@ namespace xAOD {
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays
       virtual void shift( size_t pos, ptrdiff_t offs );
-
+      /// Insert contents of another store via move.
+      virtual bool insertMove (size_t pos,
+                               IAuxStore& other,
+                               const SG::auxid_set_t& ignore);
+ 
       /// @}
 
       /// Function resetting the internal (cached) state of the object
@@ -127,7 +131,10 @@ namespace xAOD {
                       std::vector< T >& vec );
 
    private:
-      /// Function retrieving a simple dynamic variable.
+      /// Internal method: return size without taking out the lock.
+      size_t size_noLock() const;
+
+     /// Function retrieving a simple dynamic variable.
       /// If capacity > 0, a new verable will be created if necessary.
       template< typename T >
       void* getData1( auxid_t auxid,
