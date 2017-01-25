@@ -258,6 +258,7 @@ def parseCmdLine(args):
     parser.add_option("--triggerConfig", dest="triggerConfig", help="Trigger configuration", default='')
     parser.add_option("--RunNumber", dest="RunNumber", help="Run number", default='')
     parser.add_option("--steering", dest="steering", help="transform steering", default='')
+    parser.add_option("--athenaopts", dest="athenaopts", help="athena options", default='')
     parser.add_option("--HI", dest="doHI_", help="Run with Heavy ions settings",
                       action='store_true', default=False)
     parser.add_option("--HIP", dest="doHIP_", help="Run with proton-lead settings",
@@ -271,6 +272,8 @@ def parseCmdLine(args):
     parser.add_option("--dropDRAWs", dest="dropDRAWs_", help="Drop DRAW files from outputs",
                       action='store_true', default=False)
     parser.add_option("--dropNTUPs", dest="dropNTUPs_", help="Drop NTUP files from outputs",
+                      action='store_true', default=False)
+    parser.add_option("--dropDAODs", dest="dropDAODs_", help="Drop DAOD files from outputs",
                       action='store_true', default=False)
     #parser.add_option("--uploadtoami", dest="uploadtoami", help="Upload performance data to AMI", type='float', default=0.0)
     (config, args) = parser.parse_args(args)
@@ -299,10 +302,15 @@ def generateRecoTrfCmd(config):
     config.outputESDFile = "myESD_%s_%d.pool.root" % (config.trigStream_,config.jobnum_)
     if not config.dropHIST_:
         config.outputHISTFile = "myMergedMonitoring_%s_%d.root" % (config.trigStream_,config.jobnum_)
-    desdlist = ['DESD_PHOJET','DESD_SGLMU','DESDM_TRACK',
-                'DESDM_MET','DESD_MBIAS','DESDM_EGAMMA','DESD_CALJET','DESD_SGLEL','DESDM_RPVLL']
-    drawlist = ['DRAW_ZEE','DRAW_ZMUMU']
-    ntuplist = [] 
+    ### Updated 27.11.2016
+    desdlist = ['DESDM_IDALIGN','DESDM_SGLEL','DESDM_SLTTMU',
+                'DESDM_EGAMMA','DESDM_MCP','DESDM_CALJET',
+                'DESDM_PHOJET','DESDM_TILEMU','DESDM_EXOTHIP']
+    drawlist = ['DRAW_EGZ','DRAW_TAUMUH','DRAW_ZMUMU','DRAW_RPVLL', 'DRAW_TOPSLMU']
+    ### DAOD still missing some outputs due to ATLASRECTS-3427
+    #daodlist = ['DAOD_IDTIDE','DAOD_IDTRKVALID','DAOD_SCTVALID','DAOD_IDNCB']
+    daodlist = ['DAOD_IDTIDE','DAOD_IDTRKVALID']
+    ntuplist = []  # Obsolete
     if config.doHI_:
         desdlist = []
         #desdlist = ['DESD_HIRARE']
@@ -321,6 +329,10 @@ def generateRecoTrfCmd(config):
     else:
         config.outputAODFile = "myAOD_%s_%d.AOD.pool.root" % (config.trigStream_,config.jobnum_)
         config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
+    if not config.dropDAODs_:
+        for dtype in daodlist:
+            setattr(config,'output%sFile' % dtype,
+                    "%s_%s_%d.AOD.pool.root" % (dtype.split('_')[1],config.trigStream_,config.jobnum_))
     #if config.beamType == 'cosmics':
     #    desdlist = ['DESD_PIXELCOMM','DESD_IDCOMM','DESD_CALOCOMM','DESD_MUONCOMM','DESD_TILECOMM']
     #    pass

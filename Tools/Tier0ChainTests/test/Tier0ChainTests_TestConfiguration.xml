@@ -26,7 +26,7 @@
                                 <doc>RecoTrf on 2015 PbPb express stream (Run287281 LB124)</doc>
                                 <jobTransformJobName>Run00287281_express_HICollisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00287281 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00287281/express_express --lumiblock=124
+                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00287281 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00287281/express_express --lumiblock=124 --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -61,7 +61,7 @@
                                 <doc>RecoTrf noHIST on 2015 PbPb express stream (Run287281 LB124)</doc>
                                 <jobTransformJobName>Run00287281_express_HICollisions_noHIST</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00287281 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00287281/express_express --lumiblock=124 --dropHIST
+                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00287281 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00287281/express_express --lumiblock=124 --dropHIST --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -96,7 +96,7 @@
                                 <doc>HIP RecoTrf on 2013 pPb 5 TeV data, HardProbes stream (Run218048 LB1102)</doc>
                                 <jobTransformJobName>Run00218048_HardProbes_Collisions_HIPReco</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=100 --trigStream=HardProbes --runnum=00218048 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00218048/physics_HardProbes --lumiblock=1102 --conditionsTag "all:COMCOND-BLKPA-RUN1-09" --geometryVersion "all:ATLAS-R1-2012-02-00-00" --preExec "all:rec.doHIP.set_Value_and_Lock\(True\)\;DQMonFlags.doLVL1CaloMon=False\;DQMonFlags.doCTPMon=False" --steering=doRAWtoALL
+                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=100 --trigStream=HardProbes --runnum=00218048 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00218048/physics_HardProbes --lumiblock=1102 --conditionsTag "all:COMCOND-BLKPA-RUN1-09" --geometryVersion "all:ATLAS-R1-2012-02-00-00" --preExec "all:rec.doHIP.set_Value_and_Lock\(True\)\;DQMonFlags.doLVL1CaloMon=False\;DQMonFlags.doCTPMon=False" --steering=doRAWtoALL --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -132,7 +132,7 @@
                                 <doc>HIP RecoTrf on 2015 pp 5 TeV data, MinBias stream (Run286411 LB660)</doc>
                                 <jobTransformJobName>Run00286411_MinBias_Collisions_HIPReco</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=25 --trigStream=MinBias --runnum=00286411 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00286411/physics_MinBias --lumiblock=660
+                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=25 --trigStream=MinBias --runnum=00286411 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00286411/physics_MinBias --lumiblock=660 --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -168,7 +168,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>Run00183904_CosmicCalo_noField</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=CosmicCalo --runnum=00183904 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183904/physics_CosmicCalo --lumiblock=6,8 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=CosmicCalo --runnum=00183904 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183904/physics_CosmicCalo --lumiblock=6,8 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -203,7 +203,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>Run00184074_IDCosmic0</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=IDCosmic --runnum=00184074 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184074/physics_IDCosmic --lumiblock=100,102 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=IDCosmic --runnum=00184074 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184074/physics_IDCosmic --lumiblock=100,102 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -238,7 +238,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00183021_MinBias0_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=MinBias --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_MinBias --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=MinBias --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_MinBias --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -273,7 +273,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00183021_JetTauEtmiss0_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=JetTauEtmiss --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_JetTauEtmiss --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=JetTauEtmiss --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_JetTauEtmiss --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -308,7 +308,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00183021_Muons_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Muons --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_Muons --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Muons --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_Muons --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -344,7 +344,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00184169_Egamma_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -386,7 +386,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>EgammaStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Egamma/ --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
+                                    tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Egamma/ --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -421,7 +421,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>MuonsStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=Muons --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --trigStream=Muons --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -456,7 +456,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>JetTauEtmissStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -491,7 +491,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>MinBiasStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=MinBias --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --trigStream=MinBias --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -531,7 +531,7 @@
                                         <doc>RecoTrf</doc>
                                         <jobTransformJobName>MainStream_Run276689_Collisions</jobTransformJobName>
                                         <jobTransformCmd>
-                                            tct_recotrf.py --jobnum=0 --trigStream=Main --nfiles=2 --maxEvents=375 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/physics_Main/ --AMI=f628 --lumiblock=220,221 --dropDESDs --dropDRAWs --dropNTUPs
+                                            tct_recotrf.py --jobnum=0 --trigStream=Main --nfiles=2 --maxEvents=375 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/physics_Main/ --AMI=f628 --lumiblock=220,221 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                         </jobTransformCmd>
                                         <group>TCTTransform</group>
                                         <queue>medium</queue>
@@ -574,7 +574,7 @@
                                             <doc>RecoTrf with beamType=collisions</doc>
                                             <jobTransformJobName>MainStream_Run276689_Collisions_withoutHIST</jobTransformJobName>
                                             <jobTransformCmd>
-                                                tct_recotrf.py --jobnum=2 --trigStream=Main --nfiles=2 --maxEvents=375 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/physics_Main/ --AMI=f628 --lumiblock=220,221 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs
+                                                tct_recotrf.py --jobnum=2 --trigStream=Main --nfiles=2 --maxEvents=375 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/physics_Main/ --AMI=f628 --lumiblock=220,221 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                             </jobTransformCmd>
                                             <group>TCTTransform</group>
                                             <queue>medium</queue>
@@ -772,7 +772,7 @@
                                             <doc>RecoTrf</doc>
                                             <jobTransformJobName>ExpressStream_1_Run276689_Collisions</jobTransformJobName>
                                             <jobTransformCmd>   
-                                                tct_recotrf.py --jobnum=0 --trigStream=express --nfiles=2 --maxEvents=25 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=220,221 --dropDESDs --dropDRAWs --dropNTUPs
+                                                tct_recotrf.py --jobnum=0 --trigStream=express --nfiles=2 --maxEvents=25 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=220,221 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                             </jobTransformCmd>
                                             <group>TCTTransform</group>
                                             <queue>medium</queue>
@@ -857,7 +857,7 @@
                                             <doc>RecoTrf</doc>
                                             <jobTransformJobName>ExpressStream_2_Run276689_Collisions</jobTransformJobName>
                                             <jobTransformCmd>   
-                                                tct_recotrf.py --jobnum=1 --trigStream=express --nfiles=2 --maxEvents=25 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=222,223 --dropDESDs --dropDRAWs --dropNTUPs 
+                                                tct_recotrf.py --jobnum=1 --trigStream=express --nfiles=2 --maxEvents=25 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=222,223 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                             </jobTransformCmd>
                                             <group>TCTTransform</group>
                                             <queue>medium</queue>
@@ -1057,7 +1057,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>ExpressStream_3_Run276689_Collisions</jobTransformJobName>
                                 <jobTransformCmd>   
-                                    tct_recotrf.py --jobnum=2 --trigStream=express --nfiles=2 --maxEvents=300 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=224,225 --dropDESDs --dropDRAWs --dropNTUPs 
+                                    tct_recotrf.py --jobnum=2 --trigStream=express --nfiles=2 --maxEvents=300 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=224,225 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1091,7 +1091,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>ExpressStream_4_Run276689_Collisions</jobTransformJobName>
                                 <jobTransformCmd>   
-                                    tct_recotrf.py --jobnum=3 --trigStream=express --nfiles=2 --maxEvents=30 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=226,227 --dropDESDs --dropDRAWs --dropNTUPs 
+                                    tct_recotrf.py --jobnum=3 --trigStream=express --nfiles=2 --maxEvents=30 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=226,227 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1127,7 +1127,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>ExpressStream_4_Run276689_Collisions</jobTransformJobName>
                                 <jobTransformCmd>   
-                                    tct_recotrf.py --jobnum=3 --trigStream=express --nfiles=2 --maxEvents=30 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=226,227 --dropDESDs --dropDRAWs --dropNTUPs --steering=doRAWtoALL
+                                    tct_recotrf.py --jobnum=3 --trigStream=express --nfiles=2 --maxEvents=30 --runnum=00276689 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00276689/express_express/ --AMI=f628 --lumiblock=226,227 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --steering=doRAWtoALL
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1164,7 +1164,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>LatestRun_Main1</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=1 --trigStream=Main --nfiles=1 --maxEvents=250 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data16_13TeV --AMI=f694 --dropDESDs --dropDRAWs --dropNTUPs
+                                    tct_recotrf.py --jobnum=1 --trigStream=Main --nfiles=1 --maxEvents=250 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data16_13TeV --AMI=f694 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1190,6 +1190,70 @@
                                 
                             </jobTransform>
                             
+                        </chainElement>
+
+                        <!-- Reconstruction job with derived outputs -->
+                        <chainElement>
+                            <jobTransform userJobId="Reco_with_Derived_Outputs_2">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>Reco_with_Derived_Outputs_2</jobTransformJobName>
+                                <jobTransformCmd>
+                                    tct_recotrf.py --jobnum=0 --trigStream=Main --nfiles=1 --maxEvents=500  --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00304008/physics_Main/ --lumiblock=838 --AMI=f739  --dropNTUPs  --runnum=00304008 --conditionsTag=CONDBR2-BLKPA-2016-25
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>long</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Reco_with_Derived_outputs_2.summary.txt</argvalue> 
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
+                        </chainElement>
+
+                        <!-- Reprocessing job with derived outputs -->
+                        <chainElement>
+                            <jobTransform userJobId="Reprocessing_with_Derived_Outputs">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>Reprocessing_with_Derived_Outputs</jobTransformJobName>
+                                <jobTransformCmd>
+				  tct_recotrf.py --jobnum=0 --trigStream=Main --nfiles=1 --maxEvents=500  --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00304008/physics_Main/ --lumiblock=838 --AMI=r9050  --dropNTUPs --athenaopts='--nprocs=4' --runnum=00304008 --conditionsTag=CONDBR2-BLKPA-2016-25                                  
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>long</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Reprocessing_with_Derived_outputs.summary.txt</argvalue> 
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
                         </chainElement>
 
                         <!-- Standard reco test job with derived outputs  (from f739 for now DAOD_SCTVALID and DAOD_IDNCB are excluded due tothe issue at ATLASRECTS-3427) -->
@@ -1231,7 +1295,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>2012_reco_wTrigger</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=Single_Stream --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_Stream --lumiblock=291 --autoConfiguration=everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --geometryVersion=ATLAS-R1-2012-03-00-00 --dropDESDs --dropDRAWs --dropNTUPs
+                                    tct_recotrf.py --jobnum=0 --trigStream=Single_Stream --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_Stream --lumiblock=291 --autoConfiguration=everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --geometryVersion=ATLAS-R1-2012-03-00-00 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1264,7 +1328,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>2012_reco_wReprocessedTrigger</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=Single_StreamRepro --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_StreamRepro --lumiblock=291 --autoConfiguration=everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --geometryVersion=ATLAS-R1-2012-03-00-00 --dropDESDs --dropDRAWs --dropNTUPs
+                                    tct_recotrf.py --jobnum=0 --trigStream=Single_StreamRepro --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_StreamRepro --lumiblock=291 --autoConfiguration=everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --geometryVersion=ATLAS-R1-2012-03-00-00 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1299,7 +1363,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>M11_cosmics</jobTransformJobName>
                                 <jobTransformCmd>
-				  tct_recotrf.py --jobnum=0 --AMI=x383 --nfiles=1 --maxEvents=50 --trigStream=Main --runnum=00289954 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00289954/physics_Main --lumiblock=844 --dropDESDs --dropDRAWs --dropNTUPs --geometryVersion=ATLAS-R2-2015-04-00-00
+				  tct_recotrf.py --jobnum=0 --AMI=x383 --nfiles=1 --maxEvents=50 --trigStream=Main --runnum=00289954 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00289954/physics_Main --lumiblock=844 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --geometryVersion=ATLAS-R2-2015-04-00-00
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
