@@ -19,8 +19,14 @@
 #   conddb.addFolderWithTag('INDET','/Indet/Align','my_explicit_tag',True)
 # add markup (additional XML) to existing folder specifications
 #   conddb.addMarkup('/Indet/Align','<channelSelection>1:3</channelSelection>')
+#
+# If the className argument is provided to addFolder, then also register
+# with CondInputLoader.
 
 import os
+
+from IOVSvc.IOVSvcConf import CondInputLoader
+condInputLoader = CondInputLoader( "CondInputLoader")
 
 class CondDB:
     "Class to hold configuration information for Athena conditions DB access"
@@ -179,7 +185,8 @@ class CondDB:
             raise RuntimeError('Not enough configuration information to setup ConditionsDB access (are GlobalFlags being used?)')
         self.msg.debug("Loading basic services for CondDBSetup... [DONE]")
 
-    def addFolder(self,ident,folder,force=False,forceMC=False,forceData=False):
+    def addFolder(self,ident,folder,force=False,forceMC=False,forceData=False,
+                  className=None):
         "Add access to the given folder, in the identified subdetector schema"
         # first check if access to this folder was blocked, unless forcing
         for block in self.blocklist:
@@ -196,6 +203,9 @@ class CondDB:
         else:
             raise RuntimeError("Conditions database identifier %s is not defined" % ident)
         self.iovdbsvc.Folders+=[folderadd]
+
+        if className:
+            condInputLoader.Load += [ (className, folder) ]
 
     def addFolderWithTag(self,ident,folder,tag,force=False,forceMC=False,forceData=False):
         "Add access to the given folder/schema, using a specified tag"
