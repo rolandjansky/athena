@@ -23,9 +23,9 @@ echo Executing root -l -b -q $ROOTCOREDIR/scripts/load_packages.C $MACRO\(\"$1\"
 date
 
 root -l -b -q $ROOTCOREDIR/scripts/load_packages.C $MACRO\(\"$1\"\)
+exitcode=$?
 
 echo Finished executing root
 date
 
-exit $?
-
+exit $exitcode
