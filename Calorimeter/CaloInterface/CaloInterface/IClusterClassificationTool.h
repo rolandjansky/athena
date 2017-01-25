@@ -40,8 +40,6 @@ class IClusterClassificationTool : virtual public IAlgTool
    * to implement it.  */
   virtual CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster) const = 0;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) =0;
-
 };
 #endif
 

@@ -38,7 +38,9 @@ class IClusterCellWeightTool : virtual public IAlgTool
    * to implement it.  */
   virtual StatusCode weight(xAOD::CaloCluster* thisCluster) const = 0;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) =0;
+  // Now obsolete.
+  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS)
+  { return StatusCode::SUCCESS; }
 
 };
 #endif
