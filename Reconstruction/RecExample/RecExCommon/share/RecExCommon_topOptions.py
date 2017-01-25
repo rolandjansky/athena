@@ -153,14 +153,6 @@ if rec.LoadGeometry():
 protectedInclude( "PartPropSvc/PartPropSvc.py" )
 include.block( "PartPropSvc/PartPropSvc.py" )
 
-# Detector Status
-if rec.doDetStatus() and not athenaCommonFlags.isOnline():
-    try:
-        include("DetectorStatus/DetStatusSvc_CondDB.py")
-    except Exception:
-        treatException("Could not load DetStatusSvc_CondDb !")
-        rec.doFileMetaData=False
-
 if rec.doFileMetaData():
     ## compute ESD item list (in CILMergedESD )
     protectedInclude ( "RecExPers/RecoOutputMetadataList_jobOptions.py" )
@@ -1427,6 +1419,14 @@ if rec.doWriteAOD():
 
         if AODFlags.TauTrackSlimmer:
             protectedInclude("tauRec/tauMerged_trackslim_jobOptions.py")
+
+        if rec.doTruth() and AODFlags.ThinGeantTruth:
+            from ThinningUtils.ThinGeantTruth import ThinGeantTruth
+            ThinGeantTruth()
+
+        if AODFlags.ThinNegativeEnergyCaloClusters:
+            from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
+            ThinNegativeEnergyCaloClusters()            
 
        # Doens't exist in xAOD world:
        # if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
