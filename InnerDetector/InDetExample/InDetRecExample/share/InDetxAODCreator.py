@@ -181,9 +181,9 @@ if InDetFlags.doTrackSegmentsTRT() and InDetFlags.doParticleCreation():
 
 if InDetFlags.doStoreTrackSeeds() and InDetFlags.doParticleCreation():
  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
- xAODSeedsTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(   InDetKeys.SiSPSeedSegments() )
- xAODSeedsTrackParticleCnvAlg.xAODContainerName =  InDetKeys.SiSPSeedSegments()+"TrackParticle"
- xAODSeedsTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.SiSPSeedSegments()
+ xAODSeedsTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( InDetKeys.SiSPSeedSegments()+"TrackParticle" )
+ xAODSeedsTrackParticleCnvAlg.xAODContainerName = InDetKeys.SiSPSeedSegments()+"TrackParticle"
+ xAODSeedsTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.SiSPSeedSegments()+"TrackParticle"
  xAODSeedsTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
  xAODSeedsTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSPSeedSegments()
  xAODSeedsTrackParticleCnvAlg.ConvertTrackParticles = False
