@@ -42,6 +42,7 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkMaterialOnTrack/ScatteringAngles.h"
 
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
@@ -304,6 +305,15 @@ namespace MuonCombined {
 	    if(nBadSmall==nBadLarge) countHits=true;
 	  }
 	}
+	//check for CSC unspoiled clusters: if none, and this is an endcap track that includes the CSC, reduce nGoodPrec by one
+        //as we arbitrarily declare this to be a barrel track if there are equal numbers of good barrel and endcap chambers, we need not worry about that situation
+        if(isEnd && (chamberQual.count(Muon::MuonStationIndex::CSS)>0 || chamberQual.count(Muon::MuonStationIndex::CSL)>0)){
+          if(mu->auxdata<int>("nUnspoiledCscHits")==0){
+            ATH_MSG_DEBUG("found no unspoiled csc hits, reduce # of good precision layers");
+            nGoodPrec--;
+          }
+          else ATH_MSG_DEBUG("found "<<mu->auxdata<int>("nUnspoiledCscHits")<<" unspoiled csc hits, don't change nGoodPrecisionLayers");
+        }
 	if(countHits){ //decide large-small by counting hits
 	  uint8_t sumval=0;
 	  int nSmallHits=0,nLargeHits=0;
@@ -847,7 +857,9 @@ namespace MuonCombined {
   void MuonCreatorTool::addSegmentTag( xAOD::Muon& muon, const SegmentTag* tag ) const {
     if (!tag){
       // init variables if necessary.
-      
+      muon.setParameter(static_cast<float>(-1.0),xAOD::Muon::segmentDeltaEta);
+      muon.setParameter(static_cast<float>(-1.0),xAOD::Muon::segmentDeltaPhi);
+      muon.setParameter(static_cast<float>(-1.0),xAOD::Muon::segmentChi2OverDoF);
       return;
     }
     
@@ -858,6 +870,11 @@ namespace MuonCombined {
     for( const auto& info : tag->segmentsInfo() ){
       if( info.link.isValid() ){
         segments.push_back(info.link);
+	if(segments.size()==1){ //add parameters for the first segment
+	  muon.setParameter(static_cast<float>(info.dtheta),xAOD::Muon::segmentDeltaEta);
+	  muon.setParameter(static_cast<float>(info.dphi),xAOD::Muon::segmentDeltaPhi);
+	  muon.setParameter(static_cast<float>(info.segment->fitQuality()->chiSquared()/info.segment->fitQuality()->numberDoF()),xAOD::Muon::segmentChi2OverDoF);
+	}
       }
     }
     muon.setMuonSegmentLinks(segments) ;
@@ -984,9 +1001,9 @@ namespace MuonCombined {
     if (! extrapolatedTrack || !extrapolatedTrack->perigeeParameters()) {
       ATH_MSG_DEBUG("Something is wrong with this track.");
       if (!extrapolatedTrack) 
-        ATH_MSG_WARNING("Track doesn't have extrapolated track. Skipping");
+        ATH_MSG_DEBUG("Track doesn't have extrapolated track. Skipping");
       if (extrapolatedTrack && !extrapolatedTrack->perigeeParameters()) 
-        ATH_MSG_WARNING("Track doesn't have perigee parameters on extrapolated track. Skipping");
+        ATH_MSG_DEBUG("Track doesn't have perigee parameters on extrapolated track. Skipping");
       //ATH_MSG_DEBUG("Set values to -999.0.");
       //muon.setParameter( (float)-999.0, xAOD::Muon::d0_sa);
       //muon.setParameter( (float)-999.0, xAOD::Muon::z0_sa);
@@ -1435,6 +1452,8 @@ namespace MuonCombined {
     
     if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
 
+    addMSIDScatteringAngles(muon);
+
     if(!muon.isAvailable<int>("nUnspoiledCscHits")){
       muon.auxdata<int>("nUnspoiledCscHits")=-999;
     }
@@ -1767,6 +1786,47 @@ namespace MuonCombined {
       tp->auxdecor< std::vector<float> >("alignEffectSigmaDeltaTrans")  = sigmaDeltaTrans;
       tp->auxdecor< std::vector<float> >("alignEffectDeltaAngle")       = deltaAngle;
       tp->auxdecor< std::vector<float> >("alignEffectSigmaDeltaAngle")  = sigmaDeltaAngle;
+    }
+  }
+
+  void MuonCreatorTool::addMSIDScatteringAngles(xAOD::Muon& muon) const {
+    const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
+    int nscatter=0;
+    if( tp && tp->track() && tp->track()->trackStateOnSurfaces() && tp != muon.trackParticle( xAOD::Muon::InnerDetectorTrackParticle) ){
+      for(auto tsos : *(tp->track()->trackStateOnSurfaces())) {
+	if(tsos->materialEffectsOnTrack()){
+	  const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack () );
+	  if(!meot->energyLoss() || !meot->scatteringAngles()) continue;
+	  if(meot->energyLoss()->deltaE()==0){ //artificial scatterer found
+	    if(nscatter==0){
+	      muon.auxdata<float>("deltaphi_0")=meot->scatteringAngles()->deltaPhi();
+	      muon.auxdata<float>("deltatheta_0")=meot->scatteringAngles()->deltaTheta();
+	      muon.auxdata<float>("sigmadeltaphi_0")=meot->scatteringAngles()->sigmaDeltaPhi();
+	      muon.auxdata<float>("sigmadeltatheta_0")=meot->scatteringAngles()->sigmaDeltaTheta();
+	    }
+	    else if(nscatter==1){
+              muon.auxdata<float>("deltaphi_1")=meot->scatteringAngles()->deltaPhi();
+	      muon.auxdata<float>("deltatheta_1")=meot->scatteringAngles()->deltaTheta();
+              muon.auxdata<float>("sigmadeltaphi_1")=meot->scatteringAngles()->sigmaDeltaPhi();
+              muon.auxdata<float>("sigmadeltatheta_1")=meot->scatteringAngles()->sigmaDeltaTheta();
+            }
+	    nscatter++;
+	  }
+	}
+	if(nscatter>1) break;
+      }
+    }
+    if(nscatter<=1){
+      muon.auxdata<float>("deltaphi_1")=-999;
+      muon.auxdata<float>("deltatheta_1")=-999;
+      muon.auxdata<float>("sigmadeltaphi_1")=-999;
+      muon.auxdata<float>("sigmadeltatheta_1")=-999;
+    }
+    if(nscatter==0){
+      muon.auxdata<float>("deltaphi_0")=-999;
+      muon.auxdata<float>("deltatheta_0")=-999;
+      muon.auxdata<float>("sigmadeltaphi_0")=-999;
+      muon.auxdata<float>("sigmadeltatheta_0")=-999;
     }
   }
 
