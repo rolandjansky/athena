@@ -23,8 +23,9 @@ if svcMgr.MessageSvc.OutputLevel <= DEBUG :
   print larCondFlags
 
 # POOL Converters
-include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
+#include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 #include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
+
 
 # Access to IOVSvc and IOVDbSvc
 # Must list the folders to be used for reading
@@ -54,13 +55,16 @@ if larCondFlags.hasMphys() :
 
 # HV Scale Corr
 if larCondFlags.hasHVCorr() :
-  larCondDBFolders += ["/LAR/ElecCalibMC/HVScaleCorr"]
+  larCondDBFolders += [ ('LArHVScaleCorrComplete', '/LAR/ElecCalibMC/HVScaleCorr') ]
 
 
 ## fill them all 
 for i in larCondDBFolders :
-  conddb.addFolder(LArDB,i+LArDBConnection)
-  ## allow onverride
+  className = None
+  if type(i) == type(()):
+    className, i = i
+  conddb.addFolder(LArDB,i+LArDBConnection, className=className)
+  ## allow override
   larCondFlags.addTag(i,conddb)  
 
 ## apply hierarchical tag                    
