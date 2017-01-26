@@ -29,7 +29,7 @@
 class EMECPresamplerHVManager::Clockwork {
 public:
   CellBinning *phiBinning;
-  EMECPresamplerHVModuleConstLink linkArray[2][32]; // not dense
+  EMECPresamplerHVModuleConstLink linkArray[2][64]; // not dense
   bool                  init;
   std::vector<EMECPresamplerHVPayload> payloadArray;
 };
@@ -41,7 +41,7 @@ EMECPresamplerHVManager::EMECPresamplerHVManager():
 {
   m_c->init=false;
 
-  m_c->phiBinning = new CellBinning(0.0, 2*M_PI, 32);
+  m_c->phiBinning = new CellBinning(0.0, 2*M_PI, 64);
 }
 
 
@@ -98,7 +98,7 @@ void EMECPresamplerHVManager::update() const {
   if (!m_c->init) {
     m_c->init=true;
     {
-        m_c->payloadArray.reserve(2*32);
+        m_c->payloadArray.reserve(2*64);
         for (unsigned int i=0;i<64;i++) {
           m_c->payloadArray[i].voltage[0]=-99999;
           m_c->payloadArray[i].voltage[1]=-99999;
@@ -168,11 +168,19 @@ void EMECPresamplerHVManager::update() const {
                   if (phiIndex<16) phiIndex=15-phiIndex;
                   else phiIndex=47-phiIndex;
               }
-	  
-	      unsigned int index = 32*sideIndex+phiIndex;
 
+// GU  January 2017  -   fix for HV EMEC PS distribution
+// 0-31 in phi module
+// each module has 2 cell in phi, in the mapping database this is referred by "gapIndex" 
+//   0 is on the low phi side (in the ATLAS frame)
+//   1 in on the  high phi side
+// so in total 64 sectors in phi given by 2*phiIndex+gapIndex
+// the two gap of these sectors are powered by the same line and have the same HV
+    
+            unsigned int gapIndex=elecId->gap(elecHWID);
+ 
+            unsigned int index = 64*sideIndex+2*phiIndex+gapIndex;
 
-	      unsigned int gapIndex=elecId->gap(elecHWID);
 	      
             float voltage = -99999.;
             if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
@@ -182,10 +190,12 @@ void EMECPresamplerHVManager::update() const {
             if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>(); 
 
 
-	      m_c->payloadArray[index].voltage[gapIndex]=voltage;
-	      m_c->payloadArray[index].current[gapIndex]=current;
-	      m_c->payloadArray[index].status[gapIndex]=status;
-	      m_c->payloadArray[index].hvLineNo[gapIndex]=chanID;
+              for (unsigned int gap=0;gap<2;gap++) {
+	        m_c->payloadArray[index].voltage[gap]=voltage;
+	        m_c->payloadArray[index].current[gap]=current;
+	        m_c->payloadArray[index].status[gap]=status;
+	        m_c->payloadArray[index].hvLineNo[gap]=chanID;
+              }
 	  } // for (electrodeIdVec)
         } // is EMECPresampler
       } // for (atrlistcol)
@@ -201,7 +211,7 @@ EMECPresamplerHVPayload *EMECPresamplerHVManager::getPayload(const EMECPresample
   unsigned int phiIndex          = module.getPhiIndex();
   unsigned int sideIndex         = module.getSideIndex();
 
-  unsigned int index = 32*sideIndex+phiIndex;
+  unsigned int index = 64*sideIndex+phiIndex;
 
   return &m_c->payloadArray[index];
 }
