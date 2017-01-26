@@ -288,6 +288,79 @@ void AuxStoreInternal::shift (size_t pos, ptrdiff_t offs)
 
 
 /**
+ * @brief Move all elements from @c other to this store.
+ * @param pos The starting index of the insertion.
+ * @param other Store from which to do the move.
+ * @param ignore Set of variables that should not be added to the store.
+ *
+ * Let @c len be the size of @c other.  The store will be increased
+ * in size by @c len elements, with the elements at @c pos being
+ * copied to @c pos+len.  Then, for each auxiliary variable, the
+ * entire contents of that variable for @c other will be moved to
+ * this store at index @c pos.  This will be done via move semantics
+ * if possible; otherwise, it will be done with a copy.  Variables
+ * present in this store but not in @c other will have the corresponding
+ * elements default-initialized.  Variables in @c other but not in this
+ * store will be added unless they are in @c ignore.
+ *
+ * Returns true if it is known that none of the vectors' memory moved,
+ * false otherwise.
+ */
+bool AuxStoreInternal::insertMove (size_t pos,
+                                   IAuxStore& other,
+                                   const SG::auxid_set_t& ignore)
+{
+  guard_t guard (m_mutex);
+  const AuxTypeRegistry& r = AuxTypeRegistry::instance();
+
+  if (m_locked)
+    throw ExcStoreLocked ("insertMove");
+  bool nomove = true;
+  size_t other_size = other.size();
+  for (SG::auxid_t id : m_auxids) {
+    SG::IAuxTypeVector* v_dst = nullptr;
+    if (id < m_vecs.size())
+      v_dst = m_vecs[id];
+    if (v_dst) {
+      if (other.getData (id)) {
+        void* src_ptr = other.getData (id, other_size, other_size);
+        if (src_ptr) {
+          if (!v_dst->insertMove (pos, src_ptr, reinterpret_cast<char*>(src_ptr) + other_size*r.getEltSize(id)))
+            nomove = false;
+        }
+      }
+      else {
+        const void* orig = v_dst->toPtr();
+        v_dst->shift (pos, other_size);
+        if (orig != v_dst->toPtr())
+          nomove = false;
+      }
+    }
+  }
+
+  // Add any new variables not present in the original container.
+  for (SG::auxid_t id : other.getAuxIDs()) {
+    if (m_auxids.find(id) == m_auxids.end() &&
+        ignore.find(id) == ignore.end())
+    {
+      if (other.getData (id)) {
+        void* src_ptr = other.getData (id, other_size, other_size);
+        if (src_ptr) {
+          size_t sz = size_noLock();
+          (void)getDataInternal_noLock (id, sz, sz, false);
+          m_vecs[id]->resize (sz - other_size);
+          m_vecs[id]->insertMove (pos, src_ptr, reinterpret_cast<char*>(src_ptr) + other_size*r.getEltSize(id));
+          nomove = false;
+        }
+      }
+    }
+  }
+  
+  return nomove;
+}
+
+
+/**
  * @brief Return a set of identifiers for existing data items
  *        in this store.
  *
@@ -522,6 +595,35 @@ void AuxStoreInternal::addAuxID (auxid_t auxid)
 }
 
 
+/// Implementation of getDataInternal; no locking.
+void* AuxStoreInternal::getDataInternal_noLock (auxid_t auxid,
+                                                size_t size,
+                                                size_t capacity,
+                                                bool no_lock_check)
+{
+  if (m_vecs.size() <= auxid) {
+    m_vecs.resize (auxid+1);
+    m_isDecoration.resize (auxid+1);
+  }
+  if (m_vecs[auxid] == 0) {
+    if (m_locked && !no_lock_check)
+      throw ExcStoreLocked (auxid);
+    m_vecs[auxid] = AuxTypeRegistry::instance().makeVector (auxid, size, capacity);
+    addAuxID (auxid);
+  }
+  else {
+    // Make sure the vector has at least the requested size.
+    // One way in which it could be short: setOption was called and created
+    // a variable in a store that had no other variables.
+    if (m_vecs[auxid]->size() < size) {
+      m_vecs[auxid]->resize (size);
+      m_vecs[auxid]->reserve (capacity);
+    }
+  }
+  return m_vecs[auxid]->toPtr();
+}
+
+
 /**
  * @brief Return the data vector for one aux data item
  * @param auxid The identifier of the desired aux data item.
@@ -545,26 +647,7 @@ void* AuxStoreInternal::getDataInternal (auxid_t auxid,
                                          bool no_lock_check)
 {
   guard_t guard (m_mutex);
-  if (m_vecs.size() <= auxid) {
-    m_vecs.resize (auxid+1);
-    m_isDecoration.resize (auxid+1);
-  }
-  if (m_vecs[auxid] == 0) {
-    if (m_locked && !no_lock_check)
-      throw ExcStoreLocked (auxid);
-    m_vecs[auxid] = AuxTypeRegistry::instance().makeVector (auxid, size, capacity);
-    addAuxID (auxid);
-  }
-  else {
-    // Make sure the vector has at least the requested size.
-    // One way in which it could be short: setOption was called and created
-    // a variable in a store that had no other variables.
-    if (m_vecs[auxid]->size() < size) {
-      m_vecs[auxid]->resize (size);
-      m_vecs[auxid]->reserve (capacity);
-    }
-  }
-  return m_vecs[auxid]->toPtr();
+  return getDataInternal_noLock (auxid, size, capacity, no_lock_check);
 }
 
 

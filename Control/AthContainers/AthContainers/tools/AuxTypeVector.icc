@@ -180,7 +180,7 @@ template <class T, class CONT>
 inline
 size_t AuxTypeVectorHolder<T, CONT>::size () const
 {
-  return m_vecPtr->size();
+  return m_vecPtr->size() / SCALE;
 }
 
 
@@ -306,6 +306,79 @@ void AuxTypeVectorHolder<T, CONT>::shift (size_t pos, ptrdiff_t offs)
                vec.begin() + (pos+offs)*SCALE,
                typename AuxDataTraits<T>::element_type());
   }
+}
+
+
+/**
+ * @brief Helper for @c insertMove.
+ * @param pos The starting index of the insertion.
+ * @param beg Start of the range of elements to insert.
+ * @param end End of the range of elements to insert.
+ *
+ * This does the actual move for POD types.
+ */
+template <class T, class CONT>
+void AuxTypeVectorHolder<T, CONT>::insertMove1
+  (typename CONT::iterator pos,
+   element_type* beg,
+   element_type* end,
+   std::true_type)
+{
+  m_vecPtr->insert (pos, beg, end);
+}
+
+
+/**
+ * @brief Helper for @c insertMove.
+ * @param pos The starting index of the insertion.
+ * @param beg Start of the range of elements to insert.
+ * @param end End of the range of elements to insert.
+ *
+ * This does the actual move for non-POD types.
+ */
+template <class T, class CONT>
+void AuxTypeVectorHolder<T, CONT>::insertMove1
+  (typename CONT::iterator pos,
+   element_type* beg,
+   element_type* end,
+   std::false_type)
+{
+  // std::vector doesn't provide a way to insert a range via move.
+  // So first make space, then move.
+  typename CONT::iterator pos2= m_vecPtr->insert (pos, end-beg, element_type());
+  std::move (beg, end, pos2);
+}
+
+
+/**
+ * @brief Insert elements into the vector via move semantics.
+ * @param pos The starting index of the insertion.
+ * @param beg Start of the range of elements to insert.
+ * @param end End of the range of elements to insert.
+ *
+ * @c beg and @c end define a range of container elements, with length
+ * @c len defined by the difference of the pointers divided by the
+ * element size.
+ *
+ * The size of the container will be increased by @c len, with the elements
+ * starting at @c pos copied to @c pos+len.
+ *
+ * The contents of the @c beg:end range will then be moved to our vector
+ * starting at @c pos.  This will be done via move semantics if possible;
+ * otherwise, it will be done with a copy.
+ *
+ * Returns true if it is known that the vector's memory did not move,
+ * false otherwise.
+ */
+template <class T, class CONT>
+bool AuxTypeVectorHolder<T, CONT>::insertMove (size_t pos, void* beg, void* end)
+{
+  const void* orig = m_vecPtr->data();
+  insertMove1 (m_vecPtr->begin() + pos*SCALE,
+               reinterpret_cast<element_type*> (beg),
+               reinterpret_cast<element_type*> (end),
+               typename std::is_pod<element_type>::type());
+  return m_vecPtr->data() == orig;
 }
 
 

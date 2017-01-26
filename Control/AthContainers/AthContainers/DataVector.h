@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 783592 2016-11-11 04:35:43Z ssnyder $
+// $Id: DataVector.h 794114 2017-01-26 22:01:53Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h
@@ -906,9 +906,8 @@ public:
    * @param trackIndices The index tracking policy.
    * @param store An associated auxiliary data store.
    *
-   * By default, a @c DataVector will own its elements (and take ownership
-   * of the pointers passed to this constructor).
-   * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+   * A @c DataVector constructed this way will *not* own its elements
+   * by default.  To change this, pass @c SG::OWN_ELEMENTS for @a ownPolicy.
    */
   DataVector(std::initializer_list<value_type> l,
 	     SG::OwnershipPolicy ownPolicy = SG::VIEW_ELEMENTS,
@@ -1433,6 +1432,34 @@ public:
    */
   void insert(iterator position, std::initializer_list<value_type> l);
 #endif
+
+
+  /**
+   * @brief Insert the contents of another @c DataVector,
+   *        with auxiliary data copied via move semantics.
+   * @param position Iterator before which the new elements will be added.
+   * @param other The vector to add.
+   *
+   * The ownership mode of this vector must be the same as @c other;
+   * otherwise, an exception will be thrown.
+   *
+   * If both vectors are view vectors, then this is the same
+   * as <code> insert (position, other.begin(), other.end()) </code>.
+   *
+   * Otherwise, the elements from @c other will be inserted into this vector.
+   * This vector will take ownership of the elements, and the ownership
+   * mode of @c other will be changed to @c VIEW_ELEMENTS.
+   * Auxiliary data for these elements will be transferred,
+   * using move semantics if possible.  (Thus, the auxiliary store
+   * for @c other may be modified and must not be locked.)
+   * Finally, the auxiliary store pointer for @c other will be cleared
+   * (but the store itself will not be deleted since it's not owned
+   * by the vector).
+   *
+   * Note: this method may only be called using the most derived
+   * @c DataVector in the hierarchy.
+   */
+  void insertMove (iterator position, DataVector& other);
 
 
   //@}
@@ -2103,9 +2130,8 @@ public:
    * @param trackIndices The index tracking policy.
    * @param store An associated auxiliary data store.
    *
-   * By default, a @c DataVector will own its elements (and take ownership
-   * of the pointers passed to this constructor).
-   * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+   * A @c DataVector constructed this way will *not* own its elements
+   * by default.  To change this, pass @c SG::OWN_ELEMENTS for @a ownPolicy.
    */
   DataVector(std::initializer_list<value_type> l,
 	     SG::OwnershipPolicy ownPolicy = SG::VIEW_ELEMENTS,
@@ -2650,6 +2676,34 @@ public:
    */
   void insert(iterator position, std::initializer_list<value_type> l);
 #endif
+
+
+  /**
+   * @brief Insert the contents of another @c DataVector,
+   *        with auxiliary data copied via move semantics.
+   * @param position Iterator before which the new elements will be added.
+   * @param other The vector to add.
+   *
+   * The ownership mode of this vector must be the same as @c other;
+   * otherwise, an exception will be thrown.
+   *
+   * If both vectors are view vectors, then this is the same
+   * as <code> insert (position, other.begin(), other.end()) </code>.
+   *
+   * Otherwise, the elements from @c other will be inserted into this vector.
+   * This vector will take ownership of the elements, and the ownership
+   * mode of @c other will be changed to @c VIEW_ELEMENTS.
+   * Auxiliary data for these elements will be transferred,
+   * using move semantics if possible.  (Thus, the auxiliary store
+   * for @c other may be modified and must not be locked.)
+   * Finally, the auxiliary store pointer for @c other will be cleared
+   * (but the store itself will not be deleted since it's not owned
+   * by the vector).
+   *
+   * Note: this method may only be called using the most derived
+   * @c DataVector in the hierarchy.
+   */
+  void insertMove (iterator position, DataVector& other);
 
 
   //@}

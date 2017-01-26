@@ -3397,6 +3397,107 @@ void test2_insert_range()
 }
 
 
+// Test insertMove
+template <class DV>
+void test2_insertMove1()
+{
+  typedef typename DV::base_value_type T;
+  clear_dtor_log();
+  {
+    DV v;
+    v.push_back (new T(3));
+    v.push_back (new T(4));
+    DV v2 ({new T(1), new T(2)}, SG::OWN_ELEMENTS);
+    v.insertMove (v.begin()+1, v2);
+    myassert (v.size() == 4);
+    myassert (v[0]->x == 3);
+    myassert (v[1]->x == 1);
+    myassert (v[2]->x == 2);
+    myassert (v[3]->x == 4);
+    CHECK_INDICES(v);
+
+    myassert (v2.size() == 2);
+    myassert (v2.ownPolicy() == SG::VIEW_ELEMENTS);
+    myassert (v2[0]->x == 1);
+    myassert (v2[1]->x == 2);
+  }
+  check_dtor_log (3, 1, 2, 4);
+
+  {
+    DV v (SG::VIEW_ELEMENTS);
+    v.push_back (new T(3));
+    v.push_back (new T(4));
+    DV v2 ({new T(1), new T(2)}, SG::VIEW_ELEMENTS);
+    v.insertMove (v.end(), v2);
+    myassert (v.size() == 4);
+    myassert (v[0]->x == 3);
+    myassert (v[1]->x == 4);
+    myassert (v[2]->x == 1);
+    myassert (v[3]->x == 2);
+    CHECK_INDICES(v);
+
+    myassert (v2.size() == 2);
+    myassert (v2.ownPolicy() == SG::VIEW_ELEMENTS);
+    myassert (v2[0]->x == 1);
+    myassert (v2[1]->x == 2);
+  }
+  check_dtor_log();
+
+  {
+    DV v;
+    v.push_back (new T(3));
+    v.push_back (new T(4));
+    DV v2 ({new T(1), new T(2)}, SG::VIEW_ELEMENTS);
+    EXPECT_EXCEPTION (SG::ExcInsertMoveOwnershipMismatch,
+                      v.insertMove (v.begin()+1, v2));
+  }
+
+  clear_dtor_log();
+}
+template <class B, class D>
+void test2_insertMove()
+{
+  test2_insertMove1<DataVector<B> > ();
+  test2_insertMove1<DataVector<D> > ();
+  test2_insertMove1<DataVector<typename test2_maybeconst<D>::type> > ();
+  //test2_insertMove1<ConstDataVector<DataVector<D> > > ();
+
+  DataVector<D> vd;
+  SG::AuxStoreInternal store;
+  setaux (vd, store);
+  vd.push_back (make_comp<D>(3));
+  vd.push_back (make_comp<D>(4));
+  DataVector<B>& vb = vd;
+
+  DataVector<D> vd2;
+  SG::AuxStoreInternal store2;
+  setaux (vd2, store2);
+  vd2.push_back (make_comp<D>(1));
+  vd2.push_back (make_comp<D>(2));
+  EXPECT_EXCEPTION (SG::ExcInsertionInBaseClass,
+                    vb.insertMove (vb.begin()+1, vd2));
+
+  vd.insertMove (vd.begin()+1, vd2);
+  checkaux(vd);
+
+  DataVector<D> vd3;
+  SG::AuxStoreInternal store3;
+  setaux (vd3, store3);
+  vd3.push_back (make_comp<D>(5));
+  vd3.push_back (make_comp<D>(6));
+
+  vd.setStore (vd.getConstStore());
+  bool caught = false;
+  try {
+    vd.insertMove (vd.begin(), vd3);
+  }
+  catch (SG::ExcConstAuxData&) {
+    caught = true;
+  }
+  myassert (caught || !typename SG::AuxStore_traits<D>::flag());
+}
+
+
 // Test clear()
 template <class DV>
 void test2_clear1()
@@ -5994,6 +6095,7 @@ void do_test2()
   test2_operator_assign<B,D> ();
   test2_insert_value<B,D> ();
   test2_insert_range<B,D> ();
+  test2_insertMove<B,D> ();
   test2_clear<B,D> ();
   test2_swap<B,D> ();
   test2_assign<B,D> ();

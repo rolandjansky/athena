@@ -20,3 +20,4 @@ SG::ExcUnknownAuxItem: Unknown aux data item bar::foo (of type int)
 SG::ExcDVToELV: Can't convert DataVector to vector of ElementLinks: why
 ViewVector not in view mode.
 ViewVector intwas used in a context that requires a CLID, but no CLID was available.  Make sure a VIEWVECTOR_CLASS_DEF declaration exists for the class in a library that has been loaded.
+Ownership mismatch for insertMove.

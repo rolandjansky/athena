@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreInternal.h 793253 2017-01-20 18:17:19Z ssnyder $
+// $Id: AuxStoreInternal.h 793732 2017-01-24 19:42:30Z ssnyder $
 /**
  * @file AthContainers/AuxStoreInternal.h
  * @author scott snyder <snyder@bnl.gov>
@@ -190,6 +190,30 @@ public:
 
 
   /**
+   * @brief Move all elements from @c other to this store.
+   * @param pos The starting index of the insertion.
+   * @param other Store from which to do the move.
+   * @param ignore Set of variables that should not be added to the store.
+   *
+   * Let @c len be the size of @c other.  The store will be increased
+   * in size by @c len elements, with the elements at @c pos being
+   * copied to @c pos+len.  Then, for each auxiliary variable, the
+   * entire contents of that variable for @c other will be moved to
+   * this store at index @c pos.  This will be done via move semantics
+   * if possible; otherwise, it will be done with a copy.  Variables
+   * present in this store but not in @c other will have the corresponding
+   * elements default-initialized.  Variables in @c other but not in this
+   * store will be added unless they are in @c ignore.
+   *
+   * Returns true if it is known that none of the vectors' memory moved,
+   * false otherwise.
+   */
+  virtual bool insertMove (size_t pos,
+                           IAuxStore& other,
+                           const SG::auxid_set_t& ignore = SG::auxid_set_t()) override;
+
+
+  /**
    * @brief Return a set of identifiers for existing data items
    *        in this store.
    *
@@ -339,6 +363,12 @@ protected:
 
 
 private:
+  /// Implementation of getDataInternal; no locking.
+  virtual void* getDataInternal_noLock (SG::auxid_t auxid,
+                                        size_t size,
+                                        size_t capacity,
+                                        bool no_lock_check);
+
   /// Return the number of elements in the store; no locking.
   size_t size_noLock() const;
 

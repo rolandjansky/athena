@@ -382,6 +382,7 @@ public:
   virtual bool resize (size_t) { std::abort(); }
   virtual void reserve (size_t) { std::abort(); }
   virtual void shift (size_t, ptrdiff_t) { std::abort(); }
+  virtual bool insertMove (size_t, IAuxStore&, const SG::auxid_set_t&) { std::abort(); }
 
   virtual bool setOption (SG::auxid_t auxid, const SG::AuxDataOption&  option)
   {
