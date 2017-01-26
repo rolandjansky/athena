@@ -29,15 +29,9 @@
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
-
 #include "StoreGate/StoreGateSvc.h" 
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/ListItem.h"
 
 
 using CLHEP::HepRandomEngine;
@@ -452,7 +446,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 
       //FIXME
       //log << MSG::DEBUG << " Hit : " << m_atlas_id->show_to_string(id)
-      //	  << " energy " << e << endreq ;
+      //	  << " energy " << e << endmsg ;
       
       // WITH MAP
       if( m_WithMap )
@@ -485,7 +479,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 	  e/= m_dd_fSampl->FSAMPL(id);	  
 
 	  //FIXME
-	  //  log << MSG::DEBUG << " .. new e " << e << endreq ;
+	  //  log << MSG::DEBUG << " .. new e " << e << endmsg ;
 
 	  const double t  = hit->time(); 
 	  const double q  = 1. ;	  
@@ -533,7 +527,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
       ++index;
       if (*it==0) {	
 	//log << MSG::WARNING << " hole in permanent collection " 
-	//    << index << endreq ;
+	//    << index << endmsg ;
 	continue;
       }
       
@@ -719,7 +713,7 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
     //check if no hole
     if (caloDDE==0) {
       //      log << MSG::WARNING << "hole detected calo num " 
-      // 	  << m_caloType << " index " << index << endreq ;
+      // 	  << m_caloType << " index " << index << endmsg ;
       ++nHole;
       continue;
     }
@@ -775,7 +769,7 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
   for (unsigned int i=0;i<m_cellPermanentCollection.size();++i){
     if (m_cellPermanentCollection[i]==0) {
       //log << MSG::WARNING 
-      //<< " one element missing in m_cellPermanentCollection " << i << endreq;
+      //<< " one element missing in m_cellPermanentCollection " << i << endmsg;
       ++nFailed;      
     }
   }
@@ -871,10 +865,10 @@ StatusCode LArCellBuilderFromLArHitTool::defineWindow()
   if (msgSvc()->outputLevel() <= MSG::DEBUG) {
     for(unsigned int iPart=0;iPart<m_etaPart.size();++iPart)
     {      
-      log << MSG::DEBUG << " Selected window" 
-	  << m_etaPart[iPart] << " phi=" << m_phiPart[iPart] 
-	  << " deta=" << m_WindowsEtaSize << " dphi="<< m_WindowsPhiSize 
-	  << endreq ;
+      ATH_MSG_DEBUG( " Selected window" 
+                     << m_etaPart[iPart] << " phi=" << m_phiPart[iPart] 
+                     << " deta=" << m_WindowsEtaSize << " dphi="<< m_WindowsPhiSize 
+                     );
     }
   }
   

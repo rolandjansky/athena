@@ -22,6 +22,8 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "StoreGate/ReadHandle.h"
+
 
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "LArRecConditions/LArBadFeb.h"
@@ -33,7 +35,7 @@ LArCellBuilderFromLArRawChannelTool::LArCellBuilderFromLArRawChannelTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_rawChannelsName("LArRawChannels"),
+   m_rawChannelsKey("LArRawChannels"),
    m_addDeadOTX(true),
    m_initialDataPoolSize(-1),
    m_nTotalCells(0),
@@ -46,7 +48,7 @@ LArCellBuilderFromLArRawChannelTool::LArCellBuilderFromLArRawChannelTool(
 { 
   declareInterface<ICaloCellMakerTool>(this); 
   //key of input raw channel
-  declareProperty("RawChannelsName",m_rawChannelsName,"Name of input container");
+  declareProperty("RawChannelsName",m_rawChannelsKey,"Name of input container");
   // bad channel tool
   declareProperty("badChannelTool",m_badChannelTool,"Bad Channel Tool to provide list of missing FEBs");
   // activate creation of cells from missing Febs
@@ -63,11 +65,9 @@ LArCellBuilderFromLArRawChannelTool::~LArCellBuilderFromLArRawChannelTool() {
 StatusCode LArCellBuilderFromLArRawChannelTool::initialize() {
 
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
+
+  ATH_CHECK(m_rawChannelsKey.initialize());
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -77,14 +77,10 @@ StatusCode LArCellBuilderFromLArRawChannelTool::initialize() {
     return geoInit(dummyInt,dummyList);
   }
   else{
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
-			    &LArCellBuilderFromLArRawChannelTool::geoInit,this);
-    if(sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
+                                  &LArCellBuilderFromLArRawChannelTool::geoInit,this) );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
@@ -95,50 +91,27 @@ LArCellBuilderFromLArRawChannelTool::geoInit(IOVSVC_CALLBACK_ARGS) {
   ATH_MSG_DEBUG("Accesssing CaloCellID");
   m_caloCID = m_caloDDM->getCaloCell_ID();
 
-  // get LArCablingService
-  StatusCode sc=m_cablingSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve LArCablingService" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // retrieve OnlineID helper from detStore
-  sc = detStore()->retrieve(m_onlineID, "LArOnlineID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) <<  "ould not get LArOnlineID helper !" << endreq ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
 
   if (!m_badChannelTool.empty()) {
-    sc = m_badChannelTool.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve bad channel tool " << endreq;
-     return sc;
-    }
+    ATH_CHECK( m_badChannelTool.retrieve() );
   }
   else {
     if (m_addDeadOTX) {
-      msg(MSG::ERROR) << "Configuration problem: 'addDeadOTX' set, but no bad-channel tool given." << endreq;
+      ATH_MSG_ERROR( "Configuration problem: 'addDeadOTX' set, but no bad-channel tool given."  );
       return StatusCode::FAILURE;
     }
   }
 
-  sc = detStore()->regFcn(&LArCablingService::iovCallBack,&(*m_cablingSvc),
-			  &LArCellBuilderFromLArRawChannelTool::cablingSvc_CB,
-			  this,true) ;
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) <<  "could not register callback on LArCablingSvc!" << endreq ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->regFcn(&LArCablingService::iovCallBack,&(*m_cablingSvc),
+                                &LArCellBuilderFromLArRawChannelTool::cablingSvc_CB,
+                                this,true) );
 
   if (m_addDeadOTX) {
-    sc = detStore()->regFcn(&ILArBadChanTool::updateBadFebsFromDB,&(*m_badChannelTool),
-			    &LArCellBuilderFromLArRawChannelTool::missingFEB_CB,
-			    this,true);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) <<  "could not register callback on ILArBadChan Tool" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&ILArBadChanTool::updateBadFebsFromDB,&(*m_badChannelTool),
+                                  &LArCellBuilderFromLArRawChannelTool::missingFEB_CB,
+                                  this,true) );
   }
 
   //Compute total number of cells
@@ -158,7 +131,7 @@ LArCellBuilderFromLArRawChannelTool::geoInit(IOVSVC_CALLBACK_ARGS) {
   ATH_MSG_DEBUG("Initial size of DataPool<LArCell>: " << m_initialDataPoolSize);
   
   ATH_MSG_DEBUG("Initialisating finished");
-  return sc; 
+  return StatusCode::SUCCESS;
 }
 
 
@@ -166,34 +139,27 @@ LArCellBuilderFromLArRawChannelTool::geoInit(IOVSVC_CALLBACK_ARGS) {
 // ========================================================================================== //
 StatusCode LArCellBuilderFromLArRawChannelTool::process(CaloCellContainer * theCellContainer) {
  
-#ifndef ATHENAHIVE
   if (theCellContainer->ownPolicy() == SG::OWN_ELEMENTS) {
-    msg(MSG::ERROR) << "Called with a CaloCellContainer with wrong ownership policy! Need a VIEW container!" << endreq;
-#else
-  if (theCellContainer->ownPolicy() != SG::OWN_ELEMENTS) {
-    msg(MSG::ERROR) << "Called with a CaloCellContainer with wrong ownership policy! Need a OWN container!" << endreq;
-#endif
+    ATH_MSG_ERROR( "Called with a CaloCellContainer with wrong ownership policy! Need a VIEW container!"  );
     return StatusCode::FAILURE;
   }
 
-  // Get the raw Channel Container  
-  const LArRawChannelContainer* rawColl;
-  StatusCode sc = evtStore()->retrieve(rawColl, m_rawChannelsName ) ;
-   if(sc.isFailure() || !rawColl) { 
-    msg(MSG::ERROR) << " Can not retrieve LArRawChannelContainer: "
-		    << m_rawChannelsName<<endreq;
+  SG::ReadHandle<LArRawChannelContainer> rawColl(m_rawChannelsKey);
+  if(!rawColl.isValid()) { 
+    ATH_MSG_ERROR( " Can not retrieve LArRawChannelContainer: "
+                   << m_rawChannelsKey.key()  );
     return StatusCode::FAILURE;      
    }  
 
    const size_t nRawChannels=rawColl->size();
    if (nRawChannels==0) {
-     msg(MSG::WARNING) << "Got empty LArRawChannel container. Do nothing" << endreq;
+     ATH_MSG_WARNING( "Got empty LArRawChannel container. Do nothing"  );
      return StatusCode::SUCCESS;
    }
    else
      ATH_MSG_DEBUG("Got " << nRawChannels << " LArRawChannels");
    
-   return fillCompleteCellCont(rawColl,theCellContainer);
+   return fillCompleteCellCont(rawColl.ptr(),theCellContainer);
 }
 
 // ========================================================================================== //
@@ -203,7 +169,7 @@ StatusCode LArCellBuilderFromLArRawChannelTool::fillCompleteCellCont(const LArRa
   std::bitset<CaloCell_ID::NSUBCALO> includedSubcalos;
   // resize calo cell container to correct size
   if (theCellContainer->size()) {
-    msg(MSG::ERROR) << "filleCellCont: container should be empty! Clear now."  << endreq;
+    ATH_MSG_ERROR( "filleCellCont: container should be empty! Clear now."   );
     theCellContainer->clear();
   }
 
@@ -217,9 +183,9 @@ StatusCode LArCellBuilderFromLArRawChannelTool::fillCompleteCellCont(const LArRa
     LArCell* larcell=getCell(*itrRawChannel,hashid,pool);
     if (larcell) {
       if ((*theCellContainer)[hashid]) {
-	msg(MSG::WARNING) << "Channel added twice! Data corruption? hash=" << hashid  
-			<< " online ID=0x" << std::hex << itrRawChannel->channelID().get_compact() 
-			<< "  " << m_onlineID->channel_name(itrRawChannel->channelID()) << endreq;
+	ATH_MSG_WARNING( "Channel added twice! Data corruption? hash=" << hashid  
+                         << " online ID=0x" << std::hex << itrRawChannel->channelID().get_compact() 
+                         << "  " << m_onlineID->channel_name(itrRawChannel->channelID())  );
       }
       else {
 	(*theCellContainer)[hashid]=larcell;
@@ -257,8 +223,8 @@ StatusCode LArCellBuilderFromLArRawChannelTool::fillCompleteCellCont(const LArRa
   }
 
   if (nMissingButPresent) 
-    msg(MSG::WARNING) << "A total of " << nMissingButPresent 
-		      << " supposedly missing channels where present in the LArRawChannelContainer" << endreq;
+    ATH_MSG_WARNING( "A total of " << nMissingButPresent 
+                     << " supposedly missing channels where present in the LArRawChannelContainer"  );
 
   if (nCellsAdded!=m_nTotalCells) {
     ATH_MSG_DEBUG("Filled only  " << nCellsAdded << " out of " << m_nTotalCells << " cells. Now search for holes..");
@@ -303,11 +269,7 @@ LArCellBuilderFromLArRawChannelTool::getCell(const LArRawChannel& theRawChannel,
     const uint16_t provenance = (theRawChannel.provenance() & 0x3FFF);   // to be sure not to set by error "dead" bit
     const CaloGain::CaloGain gain = theRawChannel.gain();
 
-#ifndef ATHENAHIVE
     LArCell *pCell   = pool.nextElementPtr();
-#else
-    LArCell *pCell   = new LArCell();
-#endif
     *pCell = LArCell (theDDE,
                       theDDE->identify(),
                       energy,
@@ -336,7 +298,7 @@ StatusCode LArCellBuilderFromLArRawChannelTool::caloDDEsInitialize()
 	
     const CaloDetDescriptor * caloDDD = caloDDE->descriptor();
     if (caloDDD==0) {
-      msg(MSG::ERROR) << " caloDDE does not have a descriptor " << endreq;
+      ATH_MSG_ERROR( " caloDDE does not have a descriptor "  );
       continue ;
 
     }
@@ -351,14 +313,14 @@ StatusCode LArCellBuilderFromLArRawChannelTool::caloDDEsInitialize()
 
 
 StatusCode LArCellBuilderFromLArRawChannelTool::cablingSvc_CB(IOVSVC_CALLBACK_ARGS) {
-  msg(MSG::INFO) << "Callback on LArCablingSvc. Now initialize CaloDDE" << endreq;
+  ATH_MSG_INFO( "Callback on LArCablingSvc. Now initialize CaloDDE"  );
   return caloDDEsInitialize() ;
 
 }
 
 
 StatusCode LArCellBuilderFromLArRawChannelTool::missingFEB_CB(IOVSVC_CALLBACK_ARGS) {
-  msg(MSG::INFO) << "Callback from ILArBadChanTool. " << endreq;
+  ATH_MSG_INFO( "Callback from ILArBadChanTool. "  );
 
   m_deadFEBChannels.clear(); 
   const uint16_t provenance = 0x0A00;   // 0x0800 (dead) + 0x0200  (to indicate missing readout)
@@ -384,7 +346,7 @@ StatusCode LArCellBuilderFromLArRawChannelTool::missingFEB_CB(IOVSVC_CALLBACK_AR
       }//end loop over feb-channels
     }//end if febStatus
   }//end loop over bad febs
-  msg(MSG::INFO) << "Set up " << m_deadFEBChannels.size() << " dummy LArRawChannels for " << m_nDeadFEBs << " dead FEBs" << endreq;
+  ATH_MSG_INFO( "Set up " << m_deadFEBChannels.size() << " dummy LArRawChannels for " << m_nDeadFEBs << " dead FEBs"  );
   return StatusCode::SUCCESS;
 }
 

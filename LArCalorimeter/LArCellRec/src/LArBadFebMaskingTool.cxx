@@ -50,7 +50,7 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
    m_badChannelTool(""),m_maskParity(true),m_maskSampleHeader(true),m_maskEVTID(true),m_maskScacStatus(true),
    m_maskScaOutOfRange(true),m_maskGainMismatch(true),m_maskTypeMismatch(true),m_maskNumOfSamples(true),
    m_maskEmptyDataBlock(true),m_maskDspBlockSize(true),m_maskCheckSum(true),m_maskMissingHeader(true),
-   m_maskBadGain(true),
+   m_maskBadGain(true),m_minFebsInError(1),
    m_larFebErrorSummaryKey("LArFebErrorSummary"),
    m_errorToMask(0),
    m_calo_id(nullptr),
@@ -74,6 +74,7 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
   declareProperty("maskCheckSum",m_maskCheckSum);
   declareProperty("maskMissingHeader",m_maskMissingHeader);
   declareProperty("maskBadGain",m_maskBadGain);
+  declareProperty("minFebInError",m_minFebsInError); // Minimum number of FEBs in error to trigger EventInfo::LArError (1 by default/bulk, 4 in online/express).
   declareProperty("larFebErrorSummaryKey",m_larFebErrorSummaryKey);
 }
 
@@ -113,6 +114,9 @@ StatusCode LArBadFebMaskingTool::initialize()
     ATH_MSG_ERROR ("Could not locate GeoModelSvc");
     return sc;
   }
+
+  // initialize read handle key
+  ATH_CHECK(m_larFebErrorSummaryKey.initialize());
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -172,9 +176,10 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 
 
   ATH_MSG_DEBUG (" in  LArBadFebMaskingTool::process ");
-  const LArFebErrorSummary* larFebErrorSummary;
-  StatusCode sc = evtStore()->retrieve(larFebErrorSummary,m_larFebErrorSummaryKey);
-  if (sc.isFailure()) {
+  //const LArFebErrorSummary* larFebErrorSummary;
+  //StatusCode sc = evtStore()->retrieve(larFebErrorSummary,m_larFebErrorSummaryKey);
+  SG::ReadHandle<LArFebErrorSummary>larFebErrorSummary(m_larFebErrorSummaryKey);
+  if (!larFebErrorSummary.isValid()) {
     ATH_MSG_WARNING (" cannot retrieve Feb error summary.  Skip  LArBadFebMaskingTool::process ");
     return StatusCode::SUCCESS;
   }
@@ -186,7 +191,7 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 
   // retrieve EventInfo
   const EventInfo* eventInfo_c=0;
-  sc = evtStore()->retrieve(eventInfo_c);
+  StatusCode sc = evtStore()->retrieve(eventInfo_c);
   if (sc.isFailure()) {
     ATH_MSG_WARNING (" cannot retrieve EventInfo, will not set LAr bit information ");
   }
@@ -196,6 +201,7 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
   }
   
   bool flagBadEvent = false;   // flag bad event = Feb error not known in database
+  int nbOfFebsInError = 0;
 
   // catch cases of empty LAR container  => severe problem in decoding => flag event as in ERROR
   unsigned int nLar = theCont->nCellsCalo(CaloCell_ID::LAREM)+theCont->nCellsCalo(CaloCell_ID::LARHEC)+theCont->nCellsCalo(CaloCell_ID::LARFCAL);
@@ -235,7 +241,7 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
          ATH_MSG_DEBUG (" inError, isDead "  << inError << " " << isDead);
       }
 
-      if (toMask1 && !inError && !isDead) flagBadEvent=true;
+      if (toMask1 && !inError && !isDead) nbOfFebsInError = nbOfFebsInError + 1;
 
       if (toMask1 || inError) {
          m_mask++;
@@ -268,6 +274,7 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 
   }       // loop over Febs in error
 
+  if (nbOfFebsInError >= m_minFebsInError) flagBadEvent=true;
 
   if (eventInfo && flagBadEvent) {
     ATH_MSG_DEBUG (" set error bit for LAr for this event ");

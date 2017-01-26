@@ -22,12 +22,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class LArCablingService;
 class StoreGateSvc;
 class CaloCell_ID;
 class LArOnlineID;
 class ILArBadChanTool;
+class LArFebErrorSummary;
 
 class LArBadFebMaskingTool: public AthAlgTool,
 	             virtual public ICaloCellMakerTool 
@@ -82,10 +84,15 @@ public:
   bool m_maskCheckSum;
   bool m_maskMissingHeader;
   bool m_maskBadGain;
- 
+
+  /**  Minimum number of FEBs in error to trigger EventInfo::LArError 
+       Defined as 1 by default/bulk, 4 in online/express in CaloCellGetter (CaloRec package)
+  */
+  int m_minFebsInError; 
   /** key of larFebErrorSummary in storegate
   */
-  std::string m_larFebErrorSummaryKey;
+  //std::string m_larFebErrorSummaryKey;
+  SG::ReadHandleKey<LArFebErrorSummary> m_larFebErrorSummaryKey;
 
   /** compute bit mask of errors to mask
   */

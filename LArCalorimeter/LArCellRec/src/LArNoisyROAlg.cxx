@@ -43,7 +43,7 @@ StatusCode LArNoisyROAlg::execute()
   const CaloCellContainer* cellContainer(0);
   StatusCode sc = evtStore()->retrieve(cellContainer, m_CaloCellContainerName);
   if (sc.isFailure() || !cellContainer ) {
-    msg(MSG::WARNING) << " Could not retreive the CaloCellContainer with name " << m_CaloCellContainerName << endreq;
+    ATH_MSG_WARNING( " Could not retreive the CaloCellContainer with name " << m_CaloCellContainerName  );
     return StatusCode::RECOVERABLE;
   }
 
@@ -56,8 +56,6 @@ StatusCode LArNoisyROAlg::execute()
   bool MNBLooseCut=noisyRO->MNBLooseFlaggedPartitions();
   bool MNBTightCut=noisyRO->MNBTightFlaggedPartitions();
   
-
-
   if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut) 
   {
     // retrieve EventInfo
@@ -65,7 +63,7 @@ StatusCode LArNoisyROAlg::execute()
     sc = evtStore()->retrieve(eventInfo_c);
     if (sc.isFailure()) 
     {
-      msg(MSG::WARNING) << " cannot retrieve EventInfo, will not set LAr bit information " << endreq;
+      ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set LAr bit information "  );
     }
     xAOD::EventInfo* eventInfo=0;
     if (eventInfo_c)
@@ -105,8 +103,8 @@ StatusCode LArNoisyROAlg::execute()
       failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTLOOSE));
     }
 
-    if (failSetWARN) msg(MSG::WARNING) << "Failure during EventInfo::setEventErrorState(EventInfo::LAR,EventInfo::WARNING)" << endreq;
-    if (failSetWARNREASON) msg(MSG::WARNING) << "Failure during setEventFlagBit(EventInfo::LAr,...)" << endreq;
+    if (failSetWARN) ATH_MSG_WARNING( "Failure during EventInfo::setEventErrorState(EventInfo::LAR,EventInfo::WARNING)"  );
+    if (failSetWARNREASON) ATH_MSG_WARNING( "Failure during setEventFlagBit(EventInfo::LAr,...)"  );
   
   }
 

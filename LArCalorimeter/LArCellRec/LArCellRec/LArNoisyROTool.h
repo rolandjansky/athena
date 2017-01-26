@@ -15,12 +15,11 @@
 #include <string>
 #include <set>
 #include <array>
+#include <unordered_map>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#include "CxxUtils/unordered_map.h"
 
 #include "CaloInterface/ILArNoisyROTool.h"
 
@@ -107,9 +106,9 @@ class LArNoisyROTool:
   size_t partitionNumber(const HWIdentifier);
 
 
-  typedef SG::unordered_map<unsigned int, FEBEvtStat> FEBEvtStatMap;
-  typedef SG::unordered_map<unsigned int, FEBEvtStat>::iterator FEBEvtStatMapIt;
-  typedef SG::unordered_map<unsigned int, FEBEvtStat>::const_iterator FEBEvtStatMapCstIt;
+  typedef std::unordered_map<unsigned int, FEBEvtStat> FEBEvtStatMap;
+  typedef std::unordered_map<unsigned int, FEBEvtStat>::iterator FEBEvtStatMapIt;
+  typedef std::unordered_map<unsigned int, FEBEvtStat>::const_iterator FEBEvtStatMapCstIt;
 
  private: 
   std::string m_CaloCellContainerName;
@@ -125,6 +124,9 @@ class LArNoisyROTool:
 
   //** ignore masked cells ? */
   bool m_ignore_masked_cells;
+
+  //** ignore front inner wheel cells ? */
+  bool m_ignore_front_innerwheel_cells;
 
   //** number of bad channels to declare a preamp noisy */
   unsigned int m_BadChanPerPA;
@@ -152,7 +154,7 @@ class LArNoisyROTool:
   std::set<HWIdentifier> m_knownMNBFEBs;
 
   //** count bad FEB for job */
-  SG::unordered_map<unsigned int, unsigned int> m_badFEB_counters;
+  std::unordered_map<unsigned int, unsigned int> m_badFEB_counters;
 
   //** count bad PA for job */
   std::map<uint64_t, unsigned int> m_badPA_counters;

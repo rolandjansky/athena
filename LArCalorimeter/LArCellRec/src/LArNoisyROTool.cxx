@@ -33,7 +33,8 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   declareProperty( "BadChanPerPA", m_BadChanPerPA=2 );
   declareProperty( "CellQualityCut", m_CellQualityCut=4000 );
   declareProperty( "IgnoreMaskedCells", m_ignore_masked_cells=false );
-  declareProperty( "BadFEBCut", m_MinBadFEB=5 );
+  declareProperty( "IgnoreFrontInnerWheelCells", m_ignore_front_innerwheel_cells=true );
+  declareProperty( "BadFEBCut", m_MinBadFEB=3 );
   declareProperty( "KnownBADFEBs", m_knownBadFEBsVec={0x3a188000, 0x3a480000, 0x3a490000, 0x3a498000, 0x3a790000, 0x3aa90000, 0x3aa98000, 0x3b108000, 0x3b110000, 0x3b118000, 0x3ba80000, 0x3ba88000, 0x3ba90000, 0x3ba98000, 0x3bb08000, 0x3bc00000});
   // list agreed on LAr weekly meeting : https://indico.cern.ch/event/321653/
   // 3a188000   EndcapCFT06LEMInner2        ECC06LEMI2       EndcapCFT03Slot02     [4.4.1.0.3.2]   
@@ -84,12 +85,12 @@ LArNoisyROTool::~LArNoisyROTool()
 StatusCode LArNoisyROTool::initialize() {
 
   if ( m_CellQualityCut > m_SaturatedCellQualityCut ) {
-    msg(MSG::FATAL) << "Configuration problem: LArNoisyROTool assumes that the QFactor cut to declare a channel noisy is softer than the QFactor cut to declare the quality saturated !" << endreq;
+    ATH_MSG_FATAL( "Configuration problem: LArNoisyROTool assumes that the QFactor cut to declare a channel noisy is softer than the QFactor cut to declare the quality saturated !"  );
     return StatusCode::FAILURE;
   }
 
   if ( m_MNBLooseCut > m_MNBTightCut) {
-    msg(MSG::FATAL) << "Configuration problem: LArNoisyROTool assumes that MNBLooseCut is smaller than MNBTightCut" << endreq;
+    ATH_MSG_FATAL( "Configuration problem: LArNoisyROTool assumes that MNBLooseCut is smaller than MNBTightCut"  );
     return StatusCode::FAILURE;
   }
 
@@ -139,8 +140,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     // they should not matter for physics so don't consider them
     if ( m_ignore_masked_cells && std::abs(cell->e()) < 0.1 ) continue; //Fixme: use provenance
 
-
     Identifier id = cell->ID();
+    if (m_ignore_front_innerwheel_cells && m_calo_id->is_em_endcap_inner(id) && m_calo_id->sampling(id) == 1) continue; // Front inner wheel cells are ignored
 
     // saturated Qfactor ? Tight cuts.
     if ( cell->quality()>=m_SaturatedCellQualityCut && 
@@ -183,19 +184,20 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   }
 
   // exclude FCAL for now
+  // And also HEC (since 08/2015 - B.Trocme)
   uint8_t SatTightPartitions = 0;
   if ( NsaturatedTightCutBarrelA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBAMask;
   if ( NsaturatedTightCutBarrelC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBCMask;
   if ( NsaturatedTightCutEMECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECAMask;
   if ( NsaturatedTightCutEMECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECCMask;
-  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
-  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
+//  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
+//  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
   bool badSaturatedTightCut = (SatTightPartitions != 0);
   if ( badSaturatedTightCut ) noisyRO-> SetSatTightFlaggedPartitions(SatTightPartitions);
 
   // Too many saturated cells ?
   if ( badSaturatedTightCut ) {
-    //msg(MSG::INFO) << "Too many saturated cells " << endreq;
+    //ATH_MSG_INFO( "Too many saturated cells "  );
     m_SaturatedCellTightCutEvents++;
   }
 
@@ -317,10 +319,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
 
 
   for (unsigned iP=0;iP<4;++iP) {
-    if (msgLvl(MSG::DEBUG)) {      
-      msg(MSG::DEBUG) << "Partition " << iP << ": Found " << nLooseMNBFEBSperPartition[iP] << " MNB FEBs with more than " <<  m_MNBLooseCut << " bad-Q channels" << endreq;
-      msg(MSG::DEBUG) << "Partition " << iP << ": Found " << nTightMNBFEBSperPartition[iP] << " MNB FEBs with more than " <<  m_MNBTightCut << " bad-Q channels" << endreq;
-    }
+    ATH_MSG_DEBUG( "Partition " << iP << ": Found " << nLooseMNBFEBSperPartition[iP] << " MNB FEBs with more than " <<  m_MNBLooseCut << " bad-Q channels"  );
+    ATH_MSG_DEBUG( "Partition " << iP << ": Found " << nTightMNBFEBSperPartition[iP] << " MNB FEBs with more than " <<  m_MNBTightCut << " bad-Q channels"  );
     if (nLooseMNBFEBSperPartition[iP]>0) MNBLoosePartition |= m_partitionMask[iP];
     if (nTightMNBFEBSperPartition[iP]>0) MNBTightPartition |= m_partitionMask[iP];
   }// end loop over partitions      
@@ -336,21 +336,22 @@ StatusCode LArNoisyROTool::finalize() {
 
   if (m_printSummary) {
 
-    msg(MSG::INFO) << "List of bad FEBs found in all events " << endreq;
-    for ( SG::unordered_map<unsigned int, unsigned int>::const_iterator it = m_badFEB_counters.begin(); it != m_badFEB_counters.end(); it++ ) {
-      msg(MSG::INFO) << "FEB " << it->first << " declared noisy in " << it->second << " events " << endreq; 
+    ATH_MSG_INFO( "List of bad FEBs found in all events "  );
+    for ( std::unordered_map<unsigned int, unsigned int>::const_iterator it = m_badFEB_counters.begin(); it != m_badFEB_counters.end(); it++ ) {
+      ATH_MSG_INFO( "FEB " << it->first << " declared noisy in " << it->second << " events "  );
     }
 
-    msg(MSG::INFO) << "List of bad preamps found in at least max(2,0.1%) events" << endreq;
+    ATH_MSG_INFO( "List of bad preamps found in at least max(2,0.1%) events"  );
     unsigned int cut = static_cast<unsigned int>(0.001*static_cast<float>(m_invocation_counter));
     if ( cut < 2 ) cut = 2;
     uint64_t PAfactor = 1000000000L;
     for ( std::map<uint64_t, unsigned int>::const_iterator it = m_badPA_counters.begin(); it != m_badPA_counters.end(); it++ )
       {
-	if ( it->second > cut ) msg(MSG::INFO) << "Preamplifier " << (it->first)/PAfactor << " of FEB " << (it->first)%PAfactor << " declared noisy in " << it->second << " events " << endreq; 
+	if ( it->second > cut )
+          ATH_MSG_INFO( "Preamplifier " << (it->first)/PAfactor << " of FEB " << (it->first)%PAfactor << " declared noisy in " << it->second << " events "  );
       }
     
-    msg(MSG::INFO) << "Number of events with too many saturated QFactor cells (Tight cuts): " << m_SaturatedCellTightCutEvents << endreq;
+    ATH_MSG_INFO( "Number of events with too many saturated QFactor cells (Tight cuts): " << m_SaturatedCellTightCutEvents  );
   }
 
   return StatusCode::SUCCESS;
