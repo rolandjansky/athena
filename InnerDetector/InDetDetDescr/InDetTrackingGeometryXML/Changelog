@@ -1,3 +1,13 @@
+2017-01-26 Noemi Calace <noemi.calace@cern.ch>
+	* Same as InDetTrackingGeometryXML-00-00-51-02
+	* Only needed for 20.20.7.7
+	* Tag as InDetTrackingGeometryXML-00-00-51-01
+
+2017-01-18 Noemi Calace <noemi.calace@cern.ch>
+	* Adding lines to add BCL identifiers in the dictionary
+	* Only needed for 20.20.7.7
+	* Tag as InDetTrackingGeometryXML-00-00-51-01
+
 2016-10-27 Thorsten Kuhl <thorsten.kuhl@cern.ch>
 	* cleaning up log file output (first iteration)
 	* Tag as InDetTrackingGeometryXML-00-00-51

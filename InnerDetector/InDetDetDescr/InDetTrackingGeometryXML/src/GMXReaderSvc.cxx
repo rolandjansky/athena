@@ -156,7 +156,22 @@ void InDet::GMXReaderSvc::writeGMXDictionary(std::ofstream& file) {
       file << std::endl;
     }
   }
-   
+
+  bool m_addBCL = true;
+  if (m_addBCL) {
+    file << "  <region group=\"sct\" >" << std::endl;
+    file << "    <range field=\"part\" value=\"SCT\" />" << std::endl;
+    file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
+    file << "    <range field=\"layer\" value=\"4\" />" << std::endl;
+    file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"59\" wraparound=\"TRUE\" />" << std::endl;
+    file << "    <range field=\"eta_module\" values=\"-14 -13 13 14\" />" << std::endl;
+    file << "    <range field=\"side\" minvalue=\"0\" maxvalue=\"1\" />" << std::endl;
+    file << "    <range field=\"rows\" minvalue=\"0\" maxvalue=\"1\" />" << std::endl;
+    file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1279\" />" << std::endl;
+    file << "  </region>" << std::endl;
+    file << std::endl;
+  }
+
   for ( auto& end : m_tmp_EndcapDiscs) {
     for ( unsigned int row = 0; row< end->sensor.rows; row++) {
       file << "  <region group=\"sct\" >" << std::endl;
