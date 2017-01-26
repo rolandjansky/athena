@@ -23,7 +23,6 @@
 #include "TrigHLTJetRec/TriggerJetBuildTool.h"
 #include "TrigHLTJetRec/TriggerJetGroomerTool.h"
 
-
 #include "TrigHLTJetRec/IParticleNullRejectionTool.h"
 #include "TrigHLTJetRec/IParticlePtEtaRejectionTool.h"
 #include "TrigHLTJetRec/EMTopoRejectionTool.h"

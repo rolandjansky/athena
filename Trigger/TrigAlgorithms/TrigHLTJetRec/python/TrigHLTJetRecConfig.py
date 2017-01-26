@@ -1528,6 +1528,9 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
                        vcSGkey=primVtxSGkey,
                        )
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
+=======
+                                                     
+>>>>>>> 72e6b7d9ee... Fixed memory leak in trimmed jet triggers (TrigHLTJetRec-00-00-56)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):
