@@ -10,6 +10,7 @@
 // of:  we DO want it to execute it's end-
 
 #include "IFastSimDedicatedSD.h"
+#include "LArG4Code/LArG4Identifier.h"
 
 class EnergySpot;
 class G4HCofThisEvent;
@@ -18,6 +19,7 @@ class EMECDetectorManager;
 class LArWheelCalculator;
 class StoreGateSvc;
 
+/// NEEDS DOCUMENTATION
 class EndcapFastSimDedicatedSD : public IFastSimDedicatedSD
 {
 
@@ -40,6 +42,8 @@ private:
   LArWheelCalculator  * m_outerWheelCalculatorPos;
   LArWheelCalculator  * m_outerWheelCalculatorNeg;
 
+  /// My LAr identifier
+  LArG4Identifier m_larID;
 };
 
 #endif //LARG4FASTSIMULATION_ENDCAPFASTSIMDEDICATEDSD_H

@@ -30,16 +30,18 @@
 #undef _INFO_FSM_
 
 
-LArFastShower::LArFastShower(const std::string& name, const FastShowerConfigStruct& config, IFastSimDedicatedSD* fastSimDedicatedSD):
+LArFastShower::LArFastShower(const std::string& name, const FastShowerConfigStruct& config,
+                             IFastSimDedicatedSD* fastSimDedicatedSD):
   G4VFastSimulationModel(name),
   m_configuration(config),
-  m_FastSimDedicatedSD(fastSimDedicatedSD),
+  m_fastSimDedicatedSD(fastSimDedicatedSD),
   m_showerLibSvc(nullptr),
   m_generate_starting_points(false),
   m_starting_points_file(),
   m_eventNum(0)
 {
-  enum DETECTOR {EMB=100000,EMEC=200000,FCAL1=300000,FCAL2=400000,FCAL3=500000,HECLOC=600000,HEC=700000};
+  enum DETECTOR { EMB=100000, EMEC=200000, FCAL1=300000, FCAL2=400000,
+                  FCAL3=500000, HECLOC=600000, HEC=700000 };
 
   m_detmap["EMB"]=EMB;
   m_detmap["EMEC"]=EMEC;
@@ -52,10 +54,10 @@ LArFastShower::LArFastShower(const std::string& name, const FastShowerConfigStru
 
 IFastSimDedicatedSD* LArFastShower::fastShowerSD()
 {
-  if ( !m_FastSimDedicatedSD ) {
+  if ( !m_fastSimDedicatedSD ) {
     throw std::runtime_error("LArFastShower: no pointer to IFastSimDedicatedSD!");
   }
-  return m_FastSimDedicatedSD;
+  return m_fastSimDedicatedSD;
 }
 
 
@@ -86,8 +88,10 @@ G4bool LArFastShower::IsApplicable(const G4ParticleDefinition& particleType)
     return m_applicableMap.find(particleType.GetPDGEncoding())->second;
   }
   bool rez = false;
-  if (( flagToShowerLib(particleType) )
-      && ( m_generate_starting_points || showerLibSvc()->checkLibrary( particleType.GetPDGEncoding() , m_configuration.m_detector_tag ) ))
+  if ( flagToShowerLib(particleType) &&
+       ( m_generate_starting_points ||
+         showerLibSvc()->checkLibrary( particleType.GetPDGEncoding(),
+                                       m_configuration.m_detector_tag ) ))
     rez = true;
   m_applicableMap[particleType.GetPDGEncoding()] = rez;
   return rez;
@@ -95,12 +99,12 @@ G4bool LArFastShower::IsApplicable(const G4ParticleDefinition& particleType)
 
 G4bool LArFastShower::ModelTrigger(const G4FastTrack& fastTrack)
 {
-  /* ============================================================================================================
+  /* ==========================================================================
      Determine if the particle is to be returned to full Geant4 simulation.
-     In the event where the particle is EITHER killed and parameterised OR simply killed, this must be done
-     in the appropriate LArFastShower DoIt method.
+     In the event where the particle is EITHER killed and parameterised OR
+     simply killed, this must be done in the appropriate LArFastShower DoIt method.
      This method Checks: 1) Geometry; 2) Energy; 3) (for e+/e-) Containment
-     ============================================================================================================ */
+     ========================================================================== */
 
 #ifdef _TRACE_FSM_
   G4cout << "LArFastShower::commonTrigger" << G4endl;
@@ -109,20 +113,20 @@ G4bool LArFastShower::ModelTrigger(const G4FastTrack& fastTrack)
   // We are in a parameterized volume
 
   // Check if the particle is within energy bounds
-  G4double  ParticleEnergy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-  G4ParticleDefinition& ParticleType = *(fastTrack.GetPrimaryTrack()->GetDefinition());
+  G4double particleEnergy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  const G4ParticleDefinition& particleType = *(fastTrack.GetPrimaryTrack()->GetDefinition());
 
-  if ( flagToShowerLib(ParticleType) == true &&
-       ParticleEnergy > minEneToShowerLib(ParticleType) &&
-       ParticleEnergy < maxEneToShowerLib(ParticleType) ) {
+  if ( flagToShowerLib(particleType) == true &&
+       particleEnergy > minEneToShowerLib(particleType) &&
+       particleEnergy < maxEneToShowerLib(particleType) ) {
 
 #ifdef _TRACE_FSM_
-    G4cout << "Particle has energy (" << ParticleEnergy << ") for shower lib and shower lib is on! Accept particle!" << G4endl;
+    G4cout << "Particle has energy (" << particleEnergy << ") for shower lib and shower lib is on! Accept particle!" << G4endl;
 #endif
   }  else {
 
 #ifdef _TRACE_FSM_
-    G4cout << "Particle has energy (" << ParticleEnergy << ") outside killing, shower lib and parametrisation "
+    G4cout << "Particle has energy (" << particleEnergy << ") outside killing, shower lib and parametrisation "
            << "or some features are switched off ... returning it to Geant  " << G4endl;
 #endif
 
@@ -132,7 +136,7 @@ G4bool LArFastShower::ModelTrigger(const G4FastTrack& fastTrack)
   if (ForcedAccept(fastTrack)) return true;
   if (ForcedDeny(fastTrack)) return false;
 
-  if( CheckContainment(fastTrack)==false) {
+  if (CheckContainment(fastTrack)==false) {
 #ifdef _TRACE_FSM_
     G4cout << "LArFastShower::ModelTrigger() particle failed CheckContainment()... will not be parameterised: " << G4endl;
 #endif
@@ -202,17 +206,19 @@ void LArFastShower::UseShowerLib(const G4FastTrack& fastTrack, G4FastStep& fastS
     // -----------------------------
     // Get Shower from ShowerLibSvc
     // -----------------------------
-    const std::vector<EnergySpot> shower = showerLibSvc()->getShower(fastTrack, m_configuration.m_detector_tag);
+    const std::vector<EnergySpot> shower =
+      showerLibSvc()->getShower(fastTrack, m_configuration.m_detector_tag);
 
 #ifdef _TRACE_DOIT_
     G4cout << "Got shower (" << shower.size() << ") from shower lib" << G4endl;
 #endif
 
     // loop over hits in shower
-    for (auto a_spot : shower) {
+    for (const auto& a_spot : shower) {
 
 #ifdef _TRACE_DOIT_
-      G4cout << "Make Spot: " << a_spot.GetPosition().x() << " " << a_spot.GetPosition().y() << " " << a_spot.GetPosition().z()
+      G4cout << "Make Spot: " << a_spot.GetPosition().x() << " "
+             << a_spot.GetPosition().y() << " " << a_spot.GetPosition().z()
              << " " << a_spot.GetEnergy() << " " << a_spot.GetTime() << G4endl;
 #endif
       fastShowerSD()->ProcessSpot(a_spot);
@@ -229,6 +235,8 @@ void LArFastShower::UseShowerLib(const G4FastTrack& fastTrack, G4FastStep& fastS
 
     return;
   }
+
+  // FIXME: Catching all exceptions and suppressing them? That's awful!!
   catch (const std::exception & e) {
     G4cout << "FastShower::UseShowerLib ERROR Handling an exception in LArFastShower::" << e.what() << G4endl;
     return;
@@ -239,14 +247,14 @@ void LArFastShower::UseShowerLib(const G4FastTrack& fastTrack, G4FastStep& fastS
 G4bool LArFastShower::CheckContainment(const G4FastTrack &fastTrack)
 {
 
-  G4ThreeVector DirectionShower = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
-  G4ThreeVector InitialPositionShower = fastTrack.GetPrimaryTrack()->GetPosition();
-  G4ThreeVector OrthoShower = DirectionShower.orthogonal();
-  G4ThreeVector CrossShower = DirectionShower.cross(OrthoShower);
+  G4ThreeVector showerDirection = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
+  G4ThreeVector initialShowerPosition = fastTrack.GetPrimaryTrack()->GetPosition();
+  G4ThreeVector orthoShower = showerDirection.orthogonal();
+  G4ThreeVector crossShower = showerDirection.cross(orthoShower);
 
 #ifdef _TRACE_FSM_
-  G4cout << "LArFastShower::CheckContainment() OrthoShower: " << OrthoShower << G4endl;
-  G4cout << "LArFastShower::CheckContainment() CrossShower: " << CrossShower << G4endl;
+  G4cout << "LArFastShower::CheckContainment() orthoShower: " << orthoShower << G4endl;
+  G4cout << "LArFastShower::CheckContainment() crossShower: " << crossShower << G4endl;
 #endif
 
   //Build 5 points at the shower max. edges and far end
@@ -267,42 +275,46 @@ G4bool LArFastShower::CheckContainment(const G4FastTrack &fastTrack)
   G4double R = showerLibSvc()->getContainmentR(fastTrack,m_configuration.m_detector_tag);
 
   if (Z == 0.0 && R == 0.0) {
-    //no containment check
+    // no containment check
     return true;
   }
-  G4double Zmx = Z / 3; //<-here is OUR magic number. looking on the hit distribution plot, it seems that that way most of hits will be inside
 
-  G4int CosPhi[4] = {1,0,-1,0};
-  G4int SinPhi[4] = {0,1,0,-1};
+  // Here is OUR magic number. Looking on the hit distribution plot,
+  // it seems that that way most of hits will be inside
+  G4double Zmx = Z / 3;
+
+  G4int cosPhi[4] = {1,0,-1,0};
+  G4int sinPhi[4] = {0,1,0,-1};
 
 #ifdef _TRACE_FSM_
   G4cout << "LArFastShower::CheckContainment() R =          " << R   << G4endl;
   G4cout << "LArFastShower::CheckContainment() Z =          " << Z   << G4endl;
 #endif
 
-  G4ThreeVector Position;
+  G4ThreeVector position;
 
-  G4VSolid* SolidCalo = fastTrack.GetEnvelopeSolid();
-  const G4AffineTransform* AffineTransformation = fastTrack.GetAffineTransformation();
+  G4VSolid* caloSolid = fastTrack.GetEnvelopeSolid();
+  const G4AffineTransform* affineTransformation = fastTrack.GetAffineTransformation();
 
   //Startpoint
-  Position = InitialPositionShower;
-  AffineTransformation->ApplyPointTransform(Position);
-  if(SolidCalo->Inside(Position) == kOutside)
+  position = initialShowerPosition;
+  affineTransformation->ApplyPointTransform(position);
+  if(caloSolid->Inside(position) == kOutside)
     return false;
 
   //Longitudinal Endpoint
-  Position = InitialPositionShower + Z*DirectionShower;
-  AffineTransformation->ApplyPointTransform(Position);
-  if(SolidCalo->Inside(Position) == kOutside)
+  position = initialShowerPosition + Z*showerDirection;
+  affineTransformation->ApplyPointTransform(position);
+  if(caloSolid->Inside(position) == kOutside)
     return false;
 
   //Lateral Spread
   for(int i=0; i<4 ;i++)
     {
-      Position = InitialPositionShower + Zmx*DirectionShower + R*CosPhi[i]*OrthoShower + R*SinPhi[i]*CrossShower;
-      AffineTransformation->ApplyPointTransform(Position);
-      if(SolidCalo->Inside(Position) == kOutside)
+      position = initialShowerPosition + Zmx*showerDirection +
+                 R*cosPhi[i]*orthoShower + R*sinPhi[i]*crossShower;
+      affineTransformation->ApplyPointTransform(position);
+      if(caloSolid->Inside(position) == kOutside)
         return false;
     }
 
@@ -316,8 +328,8 @@ G4bool LArFastShower::CheckContainment(const G4FastTrack &fastTrack)
 
 HepMC::GenEvent * LArFastShower::GetGenEvent(const G4FastTrack &fastTrack)
 {
-  G4ThreeVector PositionShower = fastTrack.GetPrimaryTrack()->GetPosition();
-  G4ThreeVector MomentumShower = fastTrack.GetPrimaryTrack()->GetMomentum();
+  G4ThreeVector showerPos = fastTrack.GetPrimaryTrack()->GetPosition();
+  G4ThreeVector showerMom = fastTrack.GetPrimaryTrack()->GetMomentum();
 
   G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
 
@@ -325,12 +337,15 @@ HepMC::GenEvent * LArFastShower::GetGenEvent(const G4FastTrack &fastTrack)
   if (pdgcode < 0) pdgcode = -pdgcode; // hack for positrons. let it be electrons.
 
   // new event. Signal processing = 0, event number "next"
-  HepMC::GenEvent * ge = new HepMC::GenEvent( 0, ++m_eventNum);
+  HepMC::GenEvent* ge = new HepMC::GenEvent( 0, ++m_eventNum);
   // vertex. Position of the shower, time = 0
-  HepMC::GenVertex * gv = new HepMC::GenVertex(HepMC::FourVector(PositionShower.x(),PositionShower.y(),PositionShower.z(),0));
+  HepMC::GenVertex* gv = new HepMC::GenVertex(
+      HepMC::FourVector(showerPos.x(), showerPos.y(), showerPos.z(), 0) );
   ge->add_vertex(gv);
   // particle. FourVector of the shower, pdgcode, status = 1
-  HepMC::GenParticle * gp = new HepMC::GenParticle(HepMC::FourVector(MomentumShower.x(),MomentumShower.y(),MomentumShower.z(),energy), pdgcode,1);
+  HepMC::GenParticle* gp = new HepMC::GenParticle(
+      HepMC::FourVector(showerMom.x(), showerMom.y(), showerMom.z(), energy),
+      pdgcode, 1 );
   gv->add_particle_out(gp);
 
   // return auto_pointer. will be deleted automatically
@@ -393,25 +408,25 @@ bool LArFastShower::generateFSStartingPoint( const HepMC::GenEvent * ge ) const
 }
 G4bool LArFastShower::ForcedAccept(const G4FastTrack & fastTrack)
 {
-  G4ThreeVector InitialPositionShower = fastTrack.GetPrimaryTrack()->GetPosition();
+  G4ThreeVector initialShowerPosition = fastTrack.GetPrimaryTrack()->GetPosition();
 
   // if ( !m_configuration.m_containHigh &&
-  //     ( InitialPositionShower.eta()>=m_configuration.m_absHighEta ||
-  //       InitialPositionShower.eta()<=-m_configuration.m_absHighEta ) ) return true;
+  //     ( initialShowerPosition.eta()>=m_configuration.m_absHighEta ||
+  //       initialShowerPosition.eta()<=-m_configuration.m_absHighEta ) ) return true;
 
   if ( !m_configuration.m_containHigh &&
-      ( InitialPositionShower.eta()>m_configuration.m_absHighEta ||
-        InitialPositionShower.eta()<-m_configuration.m_absHighEta ) ) return true;
+      ( initialShowerPosition.eta()>m_configuration.m_absHighEta ||
+        initialShowerPosition.eta()<-m_configuration.m_absHighEta ) ) return true;
 
   if ( !m_configuration.m_containCrack &&
-      ( ( InitialPositionShower.eta()>m_configuration.m_absCrackEta1 &&
-          InitialPositionShower.eta()<m_configuration.m_absCrackEta2 ) ||
-        ( InitialPositionShower.eta()<-m_configuration.m_absCrackEta1 &&
-          InitialPositionShower.eta()>-m_configuration.m_absCrackEta2 ) ) ) return true;
+      ( ( initialShowerPosition.eta()>m_configuration.m_absCrackEta1 &&
+          initialShowerPosition.eta()<m_configuration.m_absCrackEta2 ) ||
+        ( initialShowerPosition.eta()<-m_configuration.m_absCrackEta1 &&
+          initialShowerPosition.eta()>-m_configuration.m_absCrackEta2 ) ) ) return true;
 
   if ( !m_configuration.m_containLow &&
-      ( InitialPositionShower.eta()<m_configuration.m_absLowEta ||
-        InitialPositionShower.eta()>-m_configuration.m_absLowEta ) ) return true;
+      ( initialShowerPosition.eta()<m_configuration.m_absLowEta ||
+        initialShowerPosition.eta()>-m_configuration.m_absLowEta ) ) return true;
   return false;
 }
 

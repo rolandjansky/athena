@@ -18,6 +18,7 @@
 
 class G4FastSimulationModel;
 
+/// NEEDS DOCUMENTATION
 class LArFastShowerTool: public FastSimulationBase
 {
 public:
@@ -37,7 +38,7 @@ protected:
   virtual G4VFastSimulationModel* makeFastSimModel() override final;
 
 private:
-  std::string                       m_FastSimDedicatedSD; //!< Shower library sensitive detector for this shower
+  std::string                       m_fastSimDedicatedSD; //!< Shower library sensitive detector for this shower
   ServiceHandle<ILArG4ShowerLibSvc> m_showerLibSvc;       //!< Pointer to the shower library service
   FastShowerConfigStruct            m_configuration;
 };
