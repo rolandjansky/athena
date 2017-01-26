@@ -36,6 +36,67 @@
   #include "GeneratorObjects/McEventCollection.h"
 #endif
 
+namespace {
+	  std::ostream &operator<<(std::ostream &out, const AmgSymMatrix(5) &matrix) {
+	    out << std::endl;
+	    const unsigned int N=5;
+	     for (unsigned int i = 0; i < N; ++i) {
+	         for (unsigned int j = 0; j < N; ++j) {
+	           if (j==0) {
+	             if (i==0) {
+	               out << "/ ";
+	             }
+	             else if (i+1==N) {
+	               out << "\\ ";
+	             }
+	             else {
+	               out << "| ";
+	             }
+	
+	           }
+	           out << std::setw(14) << matrix(i,j) << " ";
+	           if (j+1==N) {
+	             if (i==0) {
+	               out << " \\ ";
+	             }
+	             else if (i+1==N) {
+	               out << " /";
+	             }
+	             else {
+	               out << " |";
+	             }
+	
+	           }
+	         }
+	         out << std::endl;
+	     }
+	     out << std::endl;
+	     return out;
+	  }
+}
+	
+bool Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack( const Trk::Track *track) const {
+	  if (!track )return true;
+	
+	  bool error=false;
+	  if (track->trackParameters()){
+	    int counter=0;
+	    for (const  Trk::TrackParameters *param: *(track->trackParameters())) {
+	      if (param && param->covariance() && param->covariance()->determinant() < 0) {
+	        ATH_MSG_DEBUG( " negative determinant for track param " << counter << " "
+	                       << *(param)  << " cov=" << *(param->covariance())
+	                       << std::endl
+	                       << " det=" << param->covariance()->determinant() );
+	        error=true;
+	      }
+	      ++counter;
+	      if (counter>=2) break;
+	    }
+	  }
+	  return !error;
+}
+
+
 
 //==================================================================================================
 Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcessorTool(const std::string& t, 
@@ -46,7 +107,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   m_particleHypothesis{undefined},
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
-  m_fitterTool ("Trk::KalmanFitter/InDetTrackFitter"), 
   m_extrapolatorTool("Trk::Extrapolator/AtlasExtrapolator"),
   m_selectionTool("InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),
   m_splitProbTool("InDet::NnPixelClusterSplitProbTool/NnPixelClusterSplitProbTool"),  
@@ -63,11 +123,13 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   ,m_truthToTrack(0)//the comma in front of m_truthToTrack is necessary  
 #endif
+  ,m_rejectInvalidTracks(false)
 {
   // statitics stuff
   m_etabounds.push_back(0.8);
   m_etabounds.push_back(1.6);
   m_etabounds.push_back(2.5);
+  m_fitterTool.push_back("Trk::KalmanFitter/InDetTrackFitter");
 
   declareInterface<ITrackAmbiguityProcessorTool>(this);
   declareProperty("DropDouble"           , m_dropDouble         = true);
@@ -106,7 +168,8 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   m_truth_locationPixel    = "PRD_MultiTruthPixel"    ;
   m_truth_locationSCT      = "PRD_MultiTruthSCT"      ;
 #endif
-  
+  declareProperty("RejectTracksWithInvalidCov"     ,m_rejectInvalidTracks   );
+
   
 }
 //==================================================================================================
@@ -136,6 +199,12 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   
   ATH_CHECK( m_selectionTool.retrieve());
   ATH_CHECK( m_fitterTool.retrieve());
+  if (m_fitterTool.empty()){
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_fitterTool );
+    sc = StatusCode::FAILURE;
+    return sc;
+   }
+
   ATH_CHECK( m_extrapolatorTool.retrieve());
   
   if (!m_splitProbTool.empty() && m_splitProbTool.retrieve().isFailure()) {
@@ -652,7 +721,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
 
     ATH_MSG_DEBUG ("Track score is zero, try to recover it via brem fit");
     // run track fit using electron hypothesis
-    const Trk::Track* bremTrack = m_fitterTool->fit(*track,true,Trk::electron);
+    const Trk::Track* bremTrack = fit(*track,true,Trk::electron);
+
 
     if (!bremTrack)
     {
@@ -1262,7 +1332,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
     increment_by_eta(m_NbremFits,track);
 
     ATH_MSG_VERBOSE ("Brem track, refit with electron brem fit");
-    newTrack = m_fitterTool->fit(prds, *par, true, Trk::electron);
+    newTrack = fit(prds, *par, true, Trk::electron);
 
   }
   else
@@ -1271,7 +1341,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
     increment_by_eta(m_Nfits,track);
 
     ATH_MSG_VERBOSE ("Normal track, refit");
-    newTrack = m_fitterTool->fit(prds, *par, true, m_particleHypothesis);
+    newTrack = fit(prds, *par, true, m_particleHypothesis);
 
     if (!newTrack && m_tryBremFit && par->pT() > m_pTminBrem &&
   (!m_caloSeededBrem || track->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI)))
@@ -1280,7 +1350,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
       increment_by_eta(m_NrecoveryBremFits,track);
 
       ATH_MSG_VERBOSE ("Normal fit failed, try brem recovery");
-      newTrack = m_fitterTool->fit(prds, *par, true, Trk::electron);
+      newTrack = fit(prds, *par, true, Trk::electron);
     }
   }
   
@@ -1318,7 +1388,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots( const
     increment_by_eta(m_NbremFits,track);
 
     ATH_MSG_VERBOSE ("Brem track, refit with electron brem fit");
-    newTrack = m_fitterTool->fit(*track, true, Trk::electron);
+    newTrack = fit(*track, true, Trk::electron);
   }
   else
   {
@@ -1326,7 +1396,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots( const
     increment_by_eta(m_Nfits,track);
 
     ATH_MSG_VERBOSE ("Normal track, refit");
-    newTrack = m_fitterTool->fit(*track, true, m_particleHypothesis);
+    newTrack = fit(*track, true, m_particleHypothesis);
 
     if (!newTrack && m_tryBremFit &&
         track->trackParameters()->front()->pT() > m_pTminBrem &&
@@ -1336,7 +1406,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots( const
       increment_by_eta(m_NrecoveryBremFits,track);
 
       ATH_MSG_VERBOSE ("Normal fit failed, try brem recovery");
-      newTrack = m_fitterTool->fit(*track, true, Trk::electron);
+      newTrack = fit(*track, true, Trk::electron);
     }
   }
 
