@@ -15,6 +15,7 @@
 #include "TrigHLTJetRec/TrigHLTHypoDiagnostics.h"
 #include "TrigHLTJetRec/TrigHLTPSvsFSDiagnostics.h"
 #include "TrigHLTJetRec/TrigHLTEnergyDensity.h"
+#include "TrigHLTJetRec/TrigHLTSoftKiller.h"
 #include "TrigHLTJetRec/TrigHLTJetDSSelector.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigHLTJetRec/TrigHLTJetRecGroomer.h"
@@ -32,6 +33,7 @@ DECLARE_ALGORITHM_FACTORY( TrigHLTRoIDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTHypoDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTPSvsFSDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTEnergyDensity)
+DECLARE_ALGORITHM_FACTORY( TrigHLTSoftKiller)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetDSSelector)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecGroomer)
 
@@ -55,6 +57,7 @@ DECLARE_FACTORY_ENTRIES(TrigHLTJetRec) {
     DECLARE_ALGORITHM( TrigHLTHypoDiagnostics);
     DECLARE_ALGORITHM( TrigHLTPSvsFSDiagnostics);
     DECLARE_ALGORITHM( TrigHLTEnergyDensity);
+    DECLARE_ALGORITHM( TrigHLTSoftKiller);
     DECLARE_ALGORITHM( TrigHLTJetDSSelector);
     DECLARE_ALGORITHM( TrigHLTJetRecGroomer);
     DECLARE_TOOL(TriggerPseudoJetGetter);

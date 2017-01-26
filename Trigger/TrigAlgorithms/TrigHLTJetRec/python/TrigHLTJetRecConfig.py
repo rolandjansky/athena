@@ -848,6 +848,27 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
 
         self.energyDensity = 0
 
+class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
+    """Supply a specific grid configuration for SoftKiller"""
+
+    def __init__(self,
+                 name,
+                 cluster_calib="LC",
+                 sk_grid_param_eta=0.4,
+                 sk_grid_param_phi=0.4,
+                 output_collection_label='SKclusters',  # do not use this
+                ):
+
+        TrigHLTJetRecConf.TrigHLTSoftKiller.__init__(self,name=name)
+        self.output_collection_label = output_collection_label
+
+        # TODO create and configure offline SoftKiller tool here, pass it to our tool
+        # Use cluster_calib, sk_grid_param_eta, and sk_grid_param_phi to configure the offline tool
+        print "SK: %s, %f, %f"%(cluster_calib,sk_grid_param_eta,sk_grid_param_phi)
+
+        print "SK clusters from clusters"
+                                                     
+
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):
     def __init__(self, name,
