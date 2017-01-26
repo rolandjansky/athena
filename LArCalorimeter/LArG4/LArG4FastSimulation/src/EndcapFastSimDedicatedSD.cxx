@@ -9,7 +9,6 @@
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
 #include "LArG4Code/EnergySpot.h"
 #include "LArSimEvent/LArHitContainer.h"
-#include "LArG4Code/LArG4Identifier.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -113,9 +112,9 @@ void EndcapFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
 
         //std::cout << didIt <<  "Compare phi gap: " << nGaps << ' ' << nBins << ' ' << gapsPerBin << ':' << phiBin <<  '/' << phiIndex << std::endl;
 
-        static LArG4Identifier id;
-        id.clear();
-        id             << 4          // LArCalorimeter
+        //static LArG4Identifier id;
+        m_larID.clear();
+        m_larID        << 4          // LArCalorimeter
                        << 1          // LArEM
                        << sWheel
                        << samplingIndex
@@ -123,7 +122,7 @@ void EndcapFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
                        << etaIndex
                        << phiBin;
         // call process to add this to the collection 
-        SimpleHit(id, spot.GetTime(), spot.GetEnergy());
+        SimpleHit(m_larID, spot.GetTime(), spot.GetEnergy());
         return;
       }
     }

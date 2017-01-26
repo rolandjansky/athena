@@ -10,7 +10,9 @@
 // of:  we DO want it to execute it's end-
 
 #include "IFastSimDedicatedSD.h"
+#include "LArG4Code/LArG4Identifier.h"
 
+// Forward declarations
 class EnergySpot;
 class G4HCofThisEvent;
 class LArVHitMerger;
@@ -19,6 +21,7 @@ class EMBAccordionDetails;
 class GeoStraightAccSection;
 class StoreGateSvc;
 
+/// NEEDS DOCUMENTATION
 class BarrelFastSimDedicatedSD : public IFastSimDedicatedSD
 {
 
@@ -39,6 +42,8 @@ private:
   const EMBAccordionDetails *m_accordionDetails;
   const GeoStraightAccSection *m_absorberSections;
 
+  /// My LAr identifier
+  LArG4Identifier m_larID;
 };
 
 #endif //LARG4FASTSIMULATION_BARRELFASTSIMDEDICATEDSD_H

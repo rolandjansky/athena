@@ -10,12 +10,14 @@
 // of:  we DO want it to execute it's end-
 
 #include "IFastSimDedicatedSD.h"
+#include "LArG4Code/LArG4Identifier.h"
 
 class EnergySpot;
 class LArVHitMerger;
 class FCALDetectorManager;
 class StoreGateSvc;
 
+/// NEEDS DOCUMENTATION
 class FCALFastSimDedicatedSD : public IFastSimDedicatedSD
 {
 public:
@@ -32,6 +34,9 @@ public:
 private:
 
   FCALDetectorManager * m_fcalManager;
+
+  /// My LAr identifier
+  LArG4Identifier m_larID;
 };
 
 #endif //LARG4FASTSIMULATION_FCALFASTSIMDEDICATEDSD_H
