@@ -134,12 +134,12 @@ namespace ShowerLib {
 
 	  newlib->m_detector = det;
 	  newlib->m_particle = part;
-	  newlib->mineta = mineta;
-	  newlib->maxeta = maxeta;
+	  newlib->m_mineta = mineta;
+	  newlib->m_maxeta = maxeta;
 
 	  newlib->m_filled = false;
-	  if (mineta < 0) newlib->onlyPositive = false;
-	  else newlib->onlyPositive = true;
+	  if (mineta < 0) newlib->m_onlyPositive = false;
+	  else newlib->m_onlyPositive = true;
 
 	  std::getline(filestr,instr);
 	  newlib->m_comment = instr;
@@ -153,13 +153,13 @@ namespace ShowerLib {
 	  
 	  double eta = track->GetPosition().eta();
 
-	  if ((onlyPositive) && (eta < 0.0)) eta = -eta;
+	  if ((m_onlyPositive) && (eta < 0.0)) eta = -eta;
 
-	  library::const_iterator libit = libData.upper_bound(eta);
+	  library::const_iterator libit = m_libData.upper_bound(eta);
 	  
-	  if (libit == libData.begin()) {
+	  if (libit == m_libData.begin()) {
 		  //this is really weird
-		  std::cout << "Something is wrong with eta: mineta=" << mineta << " eta=" << eta << std::endl;
+		  std::cout << "Something is wrong with eta: mineta=" << m_mineta << " eta=" << eta << std::endl;
 	  } else {
 		  --libit;
 	  }
@@ -233,13 +233,13 @@ namespace ShowerLib {
 
 	  double eta = track->GetPosition().eta();
 
-	  if ((onlyPositive) && (eta < 0.0)) eta = -eta;
+	  if ((m_onlyPositive) && (eta < 0.0)) eta = -eta;
 
-	  library::const_iterator libit = libData.upper_bound(eta);
+	  library::const_iterator libit = m_libData.upper_bound(eta);
 
-	  if (libit == libData.begin()) {
+	  if (libit == m_libData.begin()) {
 		  //this is really weird
-		  std::cout << "Something is wrong with eta: mineta=" << mineta << " eta=" << eta << std::endl;
+		  std::cout << "Something is wrong with eta: mineta=" << m_mineta << " eta=" << eta << std::endl;
 	  } else {
 		  --libit;
 	  }
@@ -297,13 +297,13 @@ namespace ShowerLib {
 
 	  double eta = track->GetPosition().eta();
 
-	  if ((onlyPositive) && (eta < 0.0)) eta = -eta;
+	  if ((m_onlyPositive) && (eta < 0.0)) eta = -eta;
 
-	  library::const_iterator libit = libData.upper_bound(eta);
+	  library::const_iterator libit = m_libData.upper_bound(eta);
 
-	  if (libit == libData.begin()) {
+	  if (libit == m_libData.begin()) {
 		  //this is really weird
-		  std::cout << "Something is wrong with eta: mineta=" << mineta << " eta=" << eta << std::endl;
+		  std::cout << "Something is wrong with eta: mineta=" << m_mineta << " eta=" << eta << std::endl;
 	  } else {
 		  --libit;
 	  }
@@ -364,10 +364,10 @@ namespace ShowerLib {
 
 	  double eta = genParticle->production_vertex()->position().eta();//momentum().eta();
 
-	  if ((onlyPositive) && (eta < 0.0)) eta = -eta;
+	  if ((m_onlyPositive) && (eta < 0.0)) eta = -eta;
 
-	  if ( (eta < mineta) || (eta > maxeta) ) {
-		  std::cout << "ERROR: eta is outside: " << mineta << " << " << maxeta << " : " << eta << std::endl;
+	  if ( (eta < m_mineta) || (eta > m_maxeta) ) {
+		  std::cout << "ERROR: eta is outside: " << m_mineta << " << " << m_maxeta << " : " << eta << std::endl;
 		  return false;
 	  }
 	  if ( genParticle->pdg_id() != m_particle ) {
@@ -375,10 +375,10 @@ namespace ShowerLib {
 		  return false;
 	  }
 
-	  library::iterator libit = libData.upper_bound(eta);
-	  if (libit == libData.begin()) {
+	  library::iterator libit = m_libData.upper_bound(eta);
+	  if (libit == m_libData.begin()) {
 		  //this is really weird
-		  std::cout << "Something is wrong with eta: mineta=" << mineta << " eta=" << eta << std::endl;
+		  std::cout << "Something is wrong with eta: mineta=" << m_mineta << " eta=" << eta << std::endl;
 	  } else {
 		  --libit;
 	  }
@@ -388,7 +388,7 @@ namespace ShowerLib {
 
   bool EtaEnergyShowerLib::writeToROOT(TFile* dest)
   {
-	  if (libData.empty()) return false;
+	  if (m_libData.empty()) return false;
 	  TParameter<int> ver("version",LIB_VERSION);
 
       dest->WriteObject(&ver,"version");
@@ -435,9 +435,9 @@ namespace ShowerLib {
 		  source->GetEntry(entr++); //x - nshowers, y - min eta in the current eta bin
 		  int nsh = (int)(x+0.1); // +0.1 just in case - c++ has low round
 		  float curEta = y;
-		  etabin * curbin = &(libData[curEta]); //creating a new eta bin
-		  mineta = z;
-		  maxeta = e;
+		  etabin * curbin = &(m_libData[curEta]); //creating a new eta bin
+		  m_mineta = z;
+		  m_maxeta = e;
 		  for(int i = 0; i < nsh; i++) {
 			  //read shower header
 			  source->GetEntry(entr++); //x - nhits, y - r size, z - z size, e - gen energy
@@ -458,8 +458,8 @@ namespace ShowerLib {
 	  }
 
 	  m_filled = true;
-	  if (mineta < 0) onlyPositive = false;
-	  else onlyPositive = true;
+	  if (m_mineta < 0) m_onlyPositive = false;
+	  else m_onlyPositive = true;
 	  return true;
   }
 
@@ -484,11 +484,11 @@ namespace ShowerLib {
 	  dest->Branch("e",&e);
 	  dest->Branch("time",&time);
 	  library::const_iterator libit;
-	  for (libit = libData.begin(); libit != libData.end(); libit ++) {
+	  for (libit = m_libData.begin(); libit != m_libData.end(); libit ++) {
 		  x = (*libit).second.size();
 		  y = (*libit).first;
-		  z = mineta;
-		  e = maxeta;
+		  z = m_mineta;
+		  e = m_maxeta;
 		  dest->Fill(); //eta bin header
 		  etabin::const_iterator etait;
 		  for (etait = (*libit).second.begin(); etait != (*libit).second.end(); etait++) {
@@ -517,7 +517,7 @@ namespace ShowerLib {
 	  std::vector<float>::const_iterator iter;
 
 	  for (iter = structure.begin(); iter != structure.end(); iter++) {
-		  libData[(*iter)];
+		  m_libData[(*iter)];
 	  }
 
 	  return true;
@@ -527,14 +527,14 @@ namespace ShowerLib {
   {
 	  std::map<int, std::string> names;
 	  std::map<int, int> sizes;
-	  for(library::const_iterator it = libData.begin(); it != libData.end(); ++it) {
+	  for(library::const_iterator it = m_libData.begin(); it != m_libData.end(); ++it) {
 	    sizes[calcKey(it->first)]=it->second.size();
 	    float etalow = it->first;
 	    float etahigh;
 	    library::const_iterator it_copy = it;
 	    ++it_copy;
-	    if (it_copy == libData.end()) {
-	      etahigh = maxeta;
+	    if (it_copy == m_libData.end()) {
+	      etahigh = m_maxeta;
 	    } else {
 	      etahigh = it_copy->first;
 	    }
@@ -555,10 +555,10 @@ namespace ShowerLib {
 
 	  double eta = track->GetPosition().eta();
 
-	  if ((onlyPositive) && (eta < 0.0)) eta = -eta;
+	  if ((m_onlyPositive) && (eta < 0.0)) eta = -eta;
 
-	  if ( (eta < mineta) || (eta > maxeta)) {
-		  std::cout << "eta is outside library eta range: mineta=" << mineta << " maxeta: " << maxeta <<" eta=" << eta << std::endl;
+	  if ( (eta < m_mineta) || (eta > m_maxeta)) {
+		  std::cout << "eta is outside library eta range: mineta=" << m_mineta << " maxeta: " << m_maxeta <<" eta=" << eta << std::endl;
 		  return false;
 	  }
 

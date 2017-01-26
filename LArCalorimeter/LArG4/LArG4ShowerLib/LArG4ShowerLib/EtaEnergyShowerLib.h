@@ -28,7 +28,7 @@ namespace ShowerLib {
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: EtaEnergyShowerLib.h 576158 2013-12-18 16:58:58Z gsedov $
+   * @version \$Id: EtaEnergyShowerLib.h 769594 2016-08-23 13:48:34Z ssnyder $
    *
    */
 
@@ -66,7 +66,7 @@ namespace ShowerLib {
 
   private:
 
-    EtaEnergyShowerLib(): mineta(0), maxeta(0), onlyPositive(false) {}
+    EtaEnergyShowerLib(): m_mineta(0), m_maxeta(0), m_onlyPositive(false) {}
 
     //! read library from given TTree
     bool read(TTree* source);
@@ -77,13 +77,13 @@ namespace ShowerLib {
 
     bool checkEtaAndStuff(const G4Track* track) const;
 
-    float mineta, maxeta;
+    float m_mineta, m_maxeta;
 
     typedef std::map<float,Shower> etabin;
     typedef std::map<float,etabin> library;
 
-    library libData;
-    bool onlyPositive;
+    library m_libData;
+    bool m_onlyPositive;
 
   };
 

@@ -36,7 +36,7 @@ namespace ShowerLib {
   TestShowerLib::~TestShowerLib()
   {
 	  library::const_iterator libit;
-	  for (libit = libData.begin(); libit != libData.end(); libit ++) {
+	  for (libit = m_libData.begin(); libit != m_libData.end(); libit ++) {
 		  delete (*libit).first.vertex;
 		  delete (*libit).first.momentum;
 	  }
@@ -167,14 +167,14 @@ bool TestShowerLib::storeShower(const HepMC::GenParticle* genParticle, const Sho
 	  storedshower.first = theinfo;
 	  storedshower.second = *shower;
 
-	  libData.push_back(storedshower);
+	  m_libData.push_back(storedshower);
 
 	  return true;
   }
 
   bool TestShowerLib::writeToROOT(TFile* dest)
   {
-	  if (libData.empty()) return false;
+	  if (m_libData.empty()) return false;
 	  TParameter<int> ver("version",LIB_VERSION);
 
       dest->WriteObject(&ver,"version");
@@ -231,7 +231,7 @@ bool TestShowerLib::storeShower(const HepMC::GenParticle* genParticle, const Sho
 			  source->GetEntry(entr++); //variables mean what the name suggests
 			  shower.push_back(new EnergySpot(G4ThreeVector(x,y,z),e,time));
 		  }
-		  libData.push_back(storedShower(theinfo,shower));
+		  m_libData.push_back(storedShower(theinfo,shower));
 	  } while (entr < nentr);
 
 	  m_filled = true;
@@ -259,7 +259,7 @@ bool TestShowerLib::storeShower(const HepMC::GenParticle* genParticle, const Sho
 	  dest->Branch("e",&e);
 	  dest->Branch("time",&time);
 	  library::const_iterator libit;
-	  for (libit = libData.begin(); libit != libData.end(); libit ++) {
+	  for (libit = m_libData.begin(); libit != m_libData.end(); libit ++) {
 		  HepMC::FourVector vertex = *((*libit).first.vertex);
 		  HepMC::FourVector momentum = *((*libit).first.momentum);
 		  x = vertex.x();

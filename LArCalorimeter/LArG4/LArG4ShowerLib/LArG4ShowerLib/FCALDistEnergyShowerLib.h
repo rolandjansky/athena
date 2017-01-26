@@ -29,7 +29,7 @@ namespace ShowerLib {
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: FCALDistEnergyShowerLib.h 628375 2014-11-14 11:40:53Z jchapman $
+   * @version \$Id: FCALDistEnergyShowerLib.h 769594 2016-08-23 13:48:34Z ssnyder $
    *
    */
 
@@ -81,7 +81,7 @@ namespace ShowerLib {
     typedef std::map<float,Shower> distbin;
     typedef std::map<float,distbin> library;
 
-    library libData;
+    library m_libData;
 
     //distance calculator parameters
     double m_xrodcent;

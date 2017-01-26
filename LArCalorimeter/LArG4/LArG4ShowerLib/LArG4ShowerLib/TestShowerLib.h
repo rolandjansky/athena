@@ -30,7 +30,7 @@ namespace ShowerLib {
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: TestShowerLib.h 576158 2013-12-18 16:58:58Z gsedov $
+   * @version \$Id: TestShowerLib.h 769594 2016-08-23 13:48:34Z ssnyder $
    *
    */
 
@@ -83,7 +83,7 @@ namespace ShowerLib {
     //! write library to given TTree
     bool write(TTree* dest) const;
 
-    library libData;
+    library m_libData;
   };
 
 } // namespace ShowerLib
