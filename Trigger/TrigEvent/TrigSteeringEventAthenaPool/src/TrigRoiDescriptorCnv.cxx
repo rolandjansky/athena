@@ -32,8 +32,8 @@ TrigRoiDescriptorCnv::~TrigRoiDescriptorCnv()
 //create persistent
 TrigRoiDescriptor_PERS* TrigRoiDescriptorCnv::createPersistent(TrigRoiDescriptor* transObj) 
 {
-  MsgStream mlog(messageService(), "TrigRoiDescriptorConverter" );
-  mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigRoiDescriptorConverter" );
+  mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::createPersistent" << endmsg;
 
   TrigRoiDescriptor_PERS *persObj = m_TPConverters->p3.createPersistent( transObj, mlog );
   
@@ -43,8 +43,8 @@ TrigRoiDescriptor_PERS* TrigRoiDescriptorCnv::createPersistent(TrigRoiDescriptor
 //createTransient
 TrigRoiDescriptor* TrigRoiDescriptorCnv::createTransient() 
 {
-  MsgStream mlog(messageService(), "TrigRoiDescriptorConverter" );
-  mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigRoiDescriptorConverter" );
+  mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::createTransient " << endmsg;
   
   static pool::Guid p3_guid("28F5BCC8-1F3D-47B1-8286-087F1B298F0A");
   static pool::Guid p2_guid("D53CE59B-99A8-4B25-87D5-C08D1AF4BA8A");
@@ -55,28 +55,28 @@ TrigRoiDescriptor* TrigRoiDescriptorCnv::createTransient()
   
   if( compareClassGuid(p3_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p3 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p3 persistent object" << endmsg;
     std::auto_ptr< TrigRoiDescriptor_p3 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p3 >() );
     trans_obj = m_TPConverters->p3.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p2_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p2 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p2 persistent object" << endmsg;
     std::auto_ptr< TrigRoiDescriptor_p2 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p2 >() );
     trans_obj = m_TPConverters->p2.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p1 persistent object" << endmsg;
     std::auto_ptr< TrigRoiDescriptor_p1 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p1 >() );
     trans_obj = m_TPConverters->p1.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p0_guid) ) {
 
-    mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p0 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p0 persistent object" << endmsg;
     // old version from before TP separation, just return it
     trans_obj = this->poolReadObject<TrigRoiDescriptor>();
 

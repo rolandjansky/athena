@@ -11,9 +11,9 @@ static TrigPassBitsCollectionCnv_p1   TPconverter1;
 //createPersistent 
 TrigPassBitsCollection_PERS * TrigPassBitsCollectionCnv::createPersistent( TrigPassBitsCollection *transObj)
 {
-  MsgStream mlog(messageService(), "TrigPassBitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigPassBitsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigPassBitsCollectionCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigPassBitsCollectionCnv::createPersistent called" << endmsg;
   
   TrigPassBitsCollection_PERS * p_cont = TPconverter1.createPersistent( transObj, mlog );
   
@@ -25,9 +25,9 @@ TrigPassBitsCollection_PERS * TrigPassBitsCollectionCnv::createPersistent( TrigP
 //createTransient
 TrigPassBitsCollection * TrigPassBitsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigPassBitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigPassBitsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigPassBitsCollectionCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigPassBitsCollectionCnv::createTransient called" << endmsg;
   
   static pool::Guid p1_guid( "E6E4F396-D696-4C1C-A0C4-7766E0AF9BB5" );
 

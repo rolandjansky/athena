@@ -25,8 +25,8 @@ TrigOperationalInfoCollectionCnv::~TrigOperationalInfoCollectionCnv()
 //create persistent
 TrigOperationalInfoCollection_PERS* TrigOperationalInfoCollectionCnv::createPersistent(TrigOperationalInfoCollection* transObj) 
 {
-  MsgStream mlog(messageService(), "TrigOperationalInfoCollectionConverter" );
-  mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigOperationalInfoCollectionConverter" );
+  mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::createPersistent" << endmsg;
 
   TrigOperationalInfoCollection_PERS *persObj = m_impl->m_TPConverter_tlp1.createPersistent( transObj, mlog );
   
@@ -36,8 +36,8 @@ TrigOperationalInfoCollection_PERS* TrigOperationalInfoCollectionCnv::createPers
 //createTransient
 TrigOperationalInfoCollection* TrigOperationalInfoCollectionCnv::createTransient() 
 {
-  MsgStream mlog(messageService(), "TrigOperationalInfoCollectionConverter" );
-  mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigOperationalInfoCollectionConverter" );
+  mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::createTransient " << endmsg;
   
   static pool::Guid tlp1_guid("7D5A0227-E28B-4228-83C5-22F8BBB90BBF");
   static pool::Guid p1_guid("B6C95F89-C1B9-4B9D-A533-F6F4B57BD277");
@@ -46,17 +46,17 @@ TrigOperationalInfoCollection* TrigOperationalInfoCollectionCnv::createTransient
   
   if( compareClassGuid(tlp1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading tlp1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading tlp1 persistent object" << endmsg;
     std::auto_ptr< TrigOperationalInfoCollection_tlp1 >   col_vect( this->poolReadObject< TrigOperationalInfoCollection_tlp1 >() );
-    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading tlp1 persistent object pointer" <<  col_vect.get() << endreq;
+    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading tlp1 persistent object pointer" <<  col_vect.get() << endmsg;
     trans_obj = m_impl->m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading p1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading p1 persistent object" << endmsg;
     std::auto_ptr< TrigOperationalInfoCollection_p1 >   col_vect( this->poolReadObject< TrigOperationalInfoCollection_p1 >() );
-    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading p1 persistent object pointer" <<  col_vect.get() << endreq;
+    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading p1 persistent object pointer" <<  col_vect.get() << endmsg;
     trans_obj = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
     
   }

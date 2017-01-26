@@ -11,10 +11,10 @@ TrigPassFlagsCnv::~TrigPassFlagsCnv(){}
 
 //createPersistent
 TrigPassFlags_PERS* TrigPassFlagsCnv::createPersistent(TrigPassFlags* transObj) {
-    MsgStream mlog(messageService(), "TrigPassFlagsConverter" );
+    MsgStream mlog(msgSvc(), "TrigPassFlagsConverter" );
 
     if(mlog.level()<=MSG::DEBUG)
-       mlog << MSG::DEBUG << "TrigPassFlagsCnv::createPersistent" << endreq;
+       mlog << MSG::DEBUG << "TrigPassFlagsCnv::createPersistent" << endmsg;
 
     TrigPassFlagsCnv_p1   converter;
     TrigPassFlags_PERS *persObj = converter.createPersistent( transObj, mlog );
@@ -24,10 +24,10 @@ TrigPassFlags_PERS* TrigPassFlagsCnv::createPersistent(TrigPassFlags* transObj) 
 
 //createTransient
 TrigPassFlags* TrigPassFlagsCnv::createTransient() {
-    MsgStream mlog(messageService(), "TrigPassFlagsConverter" );
+    MsgStream mlog(msgSvc(), "TrigPassFlagsConverter" );
 
     if(mlog.level()<=MSG::DEBUG)
-       mlog << MSG::DEBUG << "TrigPassFlagsCnv::createTransient " << endreq;
+       mlog << MSG::DEBUG << "TrigPassFlagsCnv::createTransient " << endmsg;
 
     static pool::Guid p1_guid("1FA7E531-B1F9-4EC5-9BD1-FD19CE7368B6");
 
