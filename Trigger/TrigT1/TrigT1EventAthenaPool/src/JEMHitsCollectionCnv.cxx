@@ -14,7 +14,7 @@
 JEMHitsCollection_PERS * JEMHitsCollectionCnv::createPersistent( JEMHitsCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "JEMHitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "JEMHitsCollectionConverter" );
 
   //mlog << MSG::DEBUG << "JEMHitsCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ JEMHitsCollection_PERS * JEMHitsCollectionCnv::createPersistent( JEMHitsCollecti
 //createTransient
 JEMHitsCollection * JEMHitsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "JEMHitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "JEMHitsCollectionConverter" );
   
   //mlog << MSG::DEBUG << "JEMHitsCollectionCnv::createTransient called" << endreq;
 

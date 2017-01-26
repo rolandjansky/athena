@@ -14,7 +14,7 @@
 CMXCPTobCollection_PERS * CMXCPTobCollectionCnv::createPersistent( CMXCPTobCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "CMXCPTobCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CMXCPTobCollectionConverter" );
 
   //mlog << MSG::DEBUG << "CMXCPTobCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ CMXCPTobCollection_PERS * CMXCPTobCollectionCnv::createPersistent( CMXCPTobColle
 //createTransient
 CMXCPTobCollection * CMXCPTobCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CMXCPTobCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CMXCPTobCollectionConverter" );
   
   //mlog << MSG::DEBUG << "CMXCPTobCollectionCnv::createTransient called" << endreq;
 

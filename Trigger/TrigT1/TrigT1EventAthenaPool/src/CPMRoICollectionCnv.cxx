@@ -14,7 +14,7 @@
 CPMRoICollection_PERS * CPMRoICollectionCnv::createPersistent( CPMRoICollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "CPMRoICollectionConverter" );
+  MsgStream mlog(msgSvc(), "CPMRoICollectionConverter" );
 
   //mlog << MSG::DEBUG << "CPMRoICollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ CPMRoICollection_PERS * CPMRoICollectionCnv::createPersistent( CPMRoICollection 
 //createTransient
 CPMRoICollection * CPMRoICollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CPMRoICollectionConverter" );
+  MsgStream mlog(msgSvc(), "CPMRoICollectionConverter" );
   
   //mlog << MSG::DEBUG << "CPMRoICollectionCnv::createTransient called" << endreq;
 

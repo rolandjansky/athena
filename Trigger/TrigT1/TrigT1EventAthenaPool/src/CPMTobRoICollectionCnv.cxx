@@ -14,7 +14,7 @@
 CPMTobRoICollection_PERS * CPMTobRoICollectionCnv::createPersistent( CPMTobRoICollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "CPMTobRoICollectionConverter" );
+  MsgStream mlog(msgSvc(), "CPMTobRoICollectionConverter" );
 
   //mlog << MSG::DEBUG << "CPMTobRoICollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ CPMTobRoICollection_PERS * CPMTobRoICollectionCnv::createPersistent( CPMTobRoICo
 //createTransient
 CPMTobRoICollection * CPMTobRoICollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CPMTobRoICollectionConverter" );
+  MsgStream mlog(msgSvc(), "CPMTobRoICollectionConverter" );
   
   //mlog << MSG::DEBUG << "CPMTobRoICollectionCnv::createTransient called" << endreq;
 

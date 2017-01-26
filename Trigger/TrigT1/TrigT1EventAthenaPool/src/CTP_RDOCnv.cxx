@@ -24,7 +24,7 @@ static CTP_RDOCnv_p1 TPConverter_p1;
  */
 CTP_RDO_PERS* CTP_RDOCnv::createPersistent( CTP_RDO* transObj ) {
 
-   MsgStream log( this->messageService(), "CTP_RDOCnv" );
+   MsgStream log( this->msgSvc(), "CTP_RDOCnv" );
    return TPConverter.createPersistent( transObj, log );
 
 }
@@ -42,13 +42,13 @@ CTP_RDO* CTP_RDOCnv::createTransient() {
    if( this->compareClassGuid( p2_guid ) ) {
 
       std::auto_ptr< CTP_RDO_p2 > pers_ref( this->poolReadObject< CTP_RDO_p2 >() );
-      MsgStream log( this->messageService(), "CTP_RDOCnv" );
+      MsgStream log( this->msgSvc(), "CTP_RDOCnv" );
       return TPConverter.createTransient( pers_ref.get(), log );
 
    } else if( this->compareClassGuid( p1_guid ) ) {
 
       std::auto_ptr< CTP_RDO_p1 > pers_ref( this->poolReadObject< CTP_RDO_p1 >() );
-      MsgStream log( this->messageService(), "CTP_RDOCnv" );
+      MsgStream log( this->msgSvc(), "CTP_RDOCnv" );
       return TPConverter_p1.createTransient( pers_ref.get(), log );
 
    } else if( this->compareClassGuid( p0_guid ) ) {

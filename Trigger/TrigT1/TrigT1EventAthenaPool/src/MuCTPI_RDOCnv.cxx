@@ -22,7 +22,7 @@ static MuCTPI_RDOCnv_p1 TPConverter;
  */
 MuCTPI_RDO_PERS* MuCTPI_RDOCnv::createPersistent( MuCTPI_RDO* transObj ) {
 
-   MsgStream log( this->messageService(), "MuCTPI_RDOCnv" );
+   MsgStream log( this->msgSvc(), "MuCTPI_RDOCnv" );
    return TPConverter.createPersistent( transObj, log );
 
 }
@@ -39,7 +39,7 @@ MuCTPI_RDO* MuCTPI_RDOCnv::createTransient() {
    if( this->compareClassGuid( p1_guid ) ) {
 
       std::auto_ptr< MuCTPI_RDO_p1 > pers_ref( this->poolReadObject< MuCTPI_RDO_p1 >() );
-      MsgStream log( this->messageService(), "MuCTPI_RDOCnv" );
+      MsgStream log( this->msgSvc(), "MuCTPI_RDOCnv" );
       return TPConverter.createTransient( pers_ref.get(), log );
 
    } else if( this->compareClassGuid( p0_guid ) ) {

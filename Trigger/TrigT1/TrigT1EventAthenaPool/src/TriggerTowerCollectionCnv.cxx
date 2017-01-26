@@ -14,7 +14,7 @@
 TriggerTowerCollection_PERS * TriggerTowerCollectionCnv::createPersistent( TriggerTowerCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "TriggerTowerCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TriggerTowerCollectionConverter" );
 
   //mlog << MSG::DEBUG << "TriggerTowerCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ TriggerTowerCollection_PERS * TriggerTowerCollectionCnv::createPersistent( Trigg
 //createTransient
 TriggerTowerCollection * TriggerTowerCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TriggerTowerCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TriggerTowerCollectionConverter" );
   
   //mlog << MSG::DEBUG << "TriggerTowerCollectionCnv::createTransient called" << endreq;
 

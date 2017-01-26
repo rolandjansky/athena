@@ -14,7 +14,7 @@
 CMMJetHitsCollection_PERS * CMMJetHitsCollectionCnv::createPersistent( CMMJetHitsCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "CMMJetHitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CMMJetHitsCollectionConverter" );
 
   //mlog << MSG::DEBUG << "CMMJetHitsCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ CMMJetHitsCollection_PERS * CMMJetHitsCollectionCnv::createPersistent( CMMJetHit
 //createTransient
 CMMJetHitsCollection * CMMJetHitsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CMMJetHitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CMMJetHitsCollectionConverter" );
   
   //mlog << MSG::DEBUG << "CMMJetHitsCollectionCnv::createTransient called" << endreq;
 

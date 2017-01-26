@@ -22,7 +22,7 @@ static RoIBResultCnv_p1 TPConverter;
  */
 RoIBResult_PERS* RoIBResultCnv::createPersistent( ROIB::RoIBResult* transObj ) {
 
-   MsgStream log( this->messageService(), "RoIBResultCnv" );
+   MsgStream log( this->msgSvc(), "RoIBResultCnv" );
    return TPConverter.createPersistent( transObj, log );
 
 }
@@ -39,7 +39,7 @@ ROIB::RoIBResult* RoIBResultCnv::createTransient() {
    if( this->compareClassGuid( p1_guid ) ) {
 
       std::auto_ptr< RoIBResult_p1 > pers_ref( this->poolReadObject< RoIBResult_p1 >() );
-      MsgStream log( this->messageService(), "RoIBResultCnv" );
+      MsgStream log( this->msgSvc(), "RoIBResultCnv" );
       return TPConverter.createTransient( pers_ref.get(), log );
 
    } else if( this->compareClassGuid( p0_guid ) ) {

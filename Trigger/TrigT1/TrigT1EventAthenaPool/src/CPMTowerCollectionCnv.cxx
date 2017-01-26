@@ -14,7 +14,7 @@
 CPMTowerCollection_PERS * CPMTowerCollectionCnv::createPersistent( CPMTowerCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "CPMTowerCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CPMTowerCollectionConverter" );
 
   //mlog << MSG::DEBUG << "CPMTowerCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ CPMTowerCollection_PERS * CPMTowerCollectionCnv::createPersistent( CPMTowerColle
 //createTransient
 CPMTowerCollection * CPMTowerCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CPMTowerCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CPMTowerCollectionConverter" );
   
   //mlog << MSG::DEBUG << "CPMTowerCollectionCnv::createTransient called" << endreq;
 

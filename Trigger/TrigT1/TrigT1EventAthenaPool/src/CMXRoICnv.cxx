@@ -18,7 +18,7 @@ using namespace LVL1;
 CMXRoI_PERS * CMXRoICnv::createPersistent( CMXRoI *transObj)
 {
   
-  MsgStream mlog(messageService(), "CMXRoIConverter" );
+  MsgStream mlog(msgSvc(), "CMXRoIConverter" );
 
   //mlog << MSG::DEBUG << "CMXRoICnv::createPersistent called" << endreq;
 
@@ -32,7 +32,7 @@ CMXRoI_PERS * CMXRoICnv::createPersistent( CMXRoI *transObj)
 //createTransient
 CMXRoI * CMXRoICnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CMXRoIConverter" );
+  MsgStream mlog(msgSvc(), "CMXRoIConverter" );
   
   //mlog << MSG::DEBUG << "CMXRoICnv::createTransient called" << endreq;
 
