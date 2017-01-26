@@ -82,6 +82,11 @@ const xAOD::JetContainer* TrigHLTJetRecGroomer::build() const
         ATH_MSG_DEBUG("Ungroomed/groomed jet number " << iJet << " has constituents of " << ungroomedJets->at(iJet)->numConstituents() << "/" << trimmedJets->at(iJet)->numConstituents() << ", pT ratio is " << orig_pt << "/" << trim_pt << " = " << ratio << " , constscale ratio is " << orig_const_pt << "/" << trim_const_pt << " = " << ratio_const << " , emscale ratio is " << orig_em_pt << "/" << trim_em_pt << " = " << ratio_em);
     }
     */
+
+    // Get rid of the intermediate (ungroomed) jets
+    auto ungroomedStore = ungroomedJets->getStore();
+    delete ungroomedStore;
+    delete ungroomedJets;
     
     // Done, return the trimmed jets
     return trimmedJets;
