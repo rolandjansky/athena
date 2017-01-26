@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxStore.h 793319 2017-01-21 16:21:46Z ssnyder $
+// $Id: TAuxStore.h 793778 2017-01-25 04:06:29Z ssnyder $
 #ifndef XAODROOTACCESS_TAUXSTORE_H
 #define XAODROOTACCESS_TAUXSTORE_H
 
@@ -20,6 +20,8 @@
 
 // Local include(s):
 #include "xAODRootAccess/tools/TReturnCode.h"
+
+#include "Rtypes.h"
 
 // Forward declaration(s):
 class TTree;
@@ -43,8 +45,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793319 $
-   /// $Date: 2017-01-21 17:21:46 +0100 (Sat, 21 Jan 2017) $
+   /// $Revision: 793778 $
+   /// $Date: 2017-01-25 05:06:29 +0100 (Wed, 25 Jan 2017) $
    ///
    class TAuxStore : public SG::IAuxStore,
                      public SG::IAuxStoreIO {
@@ -147,6 +149,10 @@ namespace xAOD {
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays
       virtual void shift( size_t pos, ptrdiff_t offs );
+      /// Insert contents of another store via move.
+      virtual bool insertMove (size_t pos,
+                               IAuxStore& other,
+                               const SG::auxid_set_t& ignore);
 
       /// @}
 

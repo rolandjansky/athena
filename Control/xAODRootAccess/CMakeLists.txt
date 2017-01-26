@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 793319 2017-01-21 16:21:46Z ssnyder $
+# $Id: CMakeLists.txt 793778 2017-01-25 04:06:29Z ssnyder $
 #
 # Build configuration for the xAODRootAccess package.
 #
@@ -17,6 +17,7 @@ endif()
 # The dependencies of the package:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/CxxUtils
    Control/AthContainersInterfaces
    Control/AthContainers
    Event/xAOD/xAODCore
@@ -68,7 +69,7 @@ macro( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore xAODRootAccess
       PROPERTIES TIMEOUT 600 )
 endmacro( _add_test )
 
@@ -77,7 +78,9 @@ _add_test( ut_xaodrootaccess_metadata_test )
 _add_test( ut_xaodrootaccess_remap_test )
 _add_test( ut_xaodrootaccess_slimming_test )
 _add_test( ut_xaodrootaccess_stats_test )
+_add_test( ut_xaodrootaccess_tauxvector_test )
 _add_test( ut_xaodrootaccess_tauxstore_test )
+_add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
 _add_test( ut_xaodrootaccess_tchain_test )
 _add_test( ut_xaodrootaccess_tevent_test )
 _add_test( ut_xaodrootaccess_tfileaccesstracer_test )
