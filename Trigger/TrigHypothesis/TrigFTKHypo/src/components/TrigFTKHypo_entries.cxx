@@ -1,5 +1,5 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "TrigFTKAvailableHypo.h"
+#include "src/TrigFTKAvailableHypo.h"
 
 DECLARE_ALGORITHM_FACTORY(TrigFTKAvailableHypo)
 

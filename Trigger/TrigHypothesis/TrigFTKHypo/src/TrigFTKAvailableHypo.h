@@ -47,7 +47,7 @@ class TrigFTKAvailableHypo: public HLT::HypoAlgo  {
  private:
 
   bool m_acceptAll;            //!<  true will accept all events
-  m_ftk_in;                    //!<  FTK availability in the data / from DetMask 
+  bool m_ftk_in;               //!<  FTK availability in the data / from DetMask 
 
 };
 

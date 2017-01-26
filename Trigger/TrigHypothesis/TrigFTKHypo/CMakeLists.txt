@@ -26,6 +26,7 @@ atlas_add_library( TrigFTKHypoLib
                    PRIVATE_LINK_LIBRARIES IRegionSelector  )
 
 atlas_add_component( TrigFTKHypo
+                     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel xAODEventInfo TrigInterfacesLib IRegionSelector TrigTimeAlgsLib TrigFTKHypoLib )

@@ -51,8 +51,8 @@ HLT::ErrorCode TrigFTKAvailableHypo::checkDetMask() {
 
   const xAOD::EventInfo* evinfo = 0;
   if (store()->retrieve(evinfo).isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve xAOD::EventInfo")
-      return HLT::SG_ERROR;
+    ATH_MSG_ERROR("Cannot retrieve xAOD::EventInfo");
+    return HLT::SG_ERROR;
   }
   else {
     ATH_MSG_DEBUG(evinfo->runNumber()
@@ -68,11 +68,10 @@ HLT::ErrorCode TrigFTKAvailableHypo::checkDetMask() {
       m_ftk_in=true;
     } else {
       m_ftk_in = decoder.is_set(eformat::TDAQ_FTK);
+      ATH_MSG_DEBUG("FTK in DetMask " << m_ftk_in);
     }
 
-    if( msgLvl() <= MSG::INFO ){
-      m_log << MSG::INFO << "sct_barrel_a_side is " << (m_sct_barrel_a_side==true? "present" : "OFF! ") << endreq;
-    }
+
   }
   return HLT::OK;
 }
