@@ -46,7 +46,7 @@ def main():
     # configure log output
     logging.basicConfig(format='%(asctime)s %(levelname)-10s %(message)s',
                         datefmt='%H:%M:%S',
-                        level=eval("logging." + args.verbose))
+                        level=args.verbose)
 
     # delegate
     run_unit_tests(args)
