@@ -1,4 +1,4 @@
-import argparse, gitlab, logging, sys
+import argparse, gitlab, logging, os, sys
 from gitlab.exceptions import GitlabGetError
 from gitlab_mr_helpers import print_collection, map_filename_to_package
 
