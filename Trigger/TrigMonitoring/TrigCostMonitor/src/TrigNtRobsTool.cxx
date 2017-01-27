@@ -150,7 +150,7 @@ for(unsigned int i = 0; i < m_config->size<TrigConfSeq>(); ++i) {
         }
       }
 }
-    std::map<std::string, uint32_t>::const_iterator algFinder = m_algNameToIDMap.find(rob->requestor_name);
+    auto algFinder = m_algNameToIDMap.find(rob->requestor_name);
 
     if (algFinder != m_algNameToIDMap.end() ){
       alg_id = algFinder->second;
