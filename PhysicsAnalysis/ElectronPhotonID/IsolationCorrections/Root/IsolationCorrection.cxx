@@ -667,7 +667,7 @@ namespace CP {
       ATH_MSG_WARNING("Correction file for 2015 data/mc not found, "<<m_corr_file<<". tool not initialized for 2015 corrections\n");
       m_corr_file = "";
     }else{
-      if(!file_ptleakagecorr->Get("mean_f_topoetcone40_eta_1.15_1.37_converted_ok")){
+      if(!file_ptleakagecorr->GetListOfKeys()->Contains("mean_f_topoetcone40_eta_1.15_1.37_converted_ok")){
         ATH_MSG_ERROR("Correction file for 2015 data/mc is not right, "<<m_corr_file<<". Tool not initialized for 2015 corrections\n");
         m_corr_file = "";
       }else{
@@ -969,21 +969,21 @@ namespace CP {
   	  // **********************************
 
 	  // Photon shift corrections
-	  std::vector<TGraphAsymmErrors*> graph_shift;
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_0") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_1") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_2") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_3") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_4") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_5") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_6") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_7") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_8") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_9") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_10") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_11") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_12") );
-          graph_shift.push_back( (TGraphAsymmErrors*) file_ddshiftcorr->Get("graph_13") );
+	  std::vector< std::shared_ptr<TGraphAsymmErrors> > graph_shift;
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_0"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_1"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_2"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_3"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_4"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_5"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_6"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_7"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_8"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_9"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_10"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_11"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_12"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_13"))) );
 
           m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(0)->GetFunction("f") );
           m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(1)->GetFunction("f") );
@@ -1001,21 +1001,21 @@ namespace CP {
           m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(13)->GetFunction("f_2") );
 
 	  // Photon smearing corrections (to be applied in end caps only)
-	  std::vector<TGraphAsymmErrors*> graph_smearing;
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_0") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_1") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_2") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_3") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_4") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_5") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_6") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_7") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_8") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_9") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_10") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_11") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_12") );
-          graph_smearing.push_back( (TGraphAsymmErrors*) file_ddsmearingcorr->Get("graph_13") );
+      std::vector< std::shared_ptr<TGraphAsymmErrors> > graph_smearing;
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_0"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_1"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_2"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_3"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_4"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_5"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_6"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_7"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_8"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_9"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_10"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_11"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_12"))) );
+          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_13"))) );
 
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(0)->GetFunction("f_3") );
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(1)->GetFunction("f_3") );
