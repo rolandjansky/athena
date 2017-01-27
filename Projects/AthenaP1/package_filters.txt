@@ -1,0 +1,16 @@
+# Package filtering rules for the Athena project build.
+#
+# Only pick up a few packages from the External directory:
++External/AtlasDataArea
++External/pyAMI
++External/FWDet/TwissFiles
++External/Herwigpp
++External/AtlasMKL
+-External
+# Only pick up the RunTime packages from Projects:
++Projects/.*RunTime
+-Projects
+
+# Offload service has build problems
+-External/APEGlue
+-Offloading
