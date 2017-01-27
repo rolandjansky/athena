@@ -220,7 +220,9 @@ def dump_Fourvec (v, f, parens=1):
     return
 
 def dump_Threevec (v, f):
-    print >> f, "(%f %f %f)" % (v.x(), v.y(), fix_neg0(v.z(), thresh=1e-8)),
+    print >> f, "(%f %f %f)" % (fix_neg0(v.x(), thresh=1e-8),
+                                fix_neg0(v.y(), thresh=1e-8),
+                                fix_neg0(v.z(), thresh=1e-8)),
     return
 
 def dump_Twovec (v, f):
@@ -1461,11 +1463,6 @@ def dump_surface (p, f):
 def dump_ParametersBase (info, f):
     dump_AmgVector (info.parameters(), f)
     dump_Threevec (info.momentum(), f)
-    print >> f, info.pT(),
-    if info.pT() > 0:
-        print >> f, info.eta(),
-    else:
-        print >> f, '[eta undef]',
     dump_Threevec (info.position(), f)
     dump_Twovec (info.localPosition(), f)
     print >> f, "%f" % (info.charge(),),
