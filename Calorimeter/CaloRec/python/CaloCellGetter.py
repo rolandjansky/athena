@@ -519,7 +519,7 @@ class CaloCellGetter (Configured)  :
                mlog.info("Apply cell level pedestal shift correction")
 
         import os
-        if doPedestalCorr and os.getenv("LD_LIBRARY_PATH") and "AtlasTrigger" in os.getenv("LD_LIBRARY_PATH"):
+        if doPedestalCorr:
             try:
                 from CaloCellCorrection.CaloCellPedestalCorrDefault import CaloCellPedestalCorrDefault
                 theCaloCellPedestalCorr = CaloCellPedestalCorrDefault()
