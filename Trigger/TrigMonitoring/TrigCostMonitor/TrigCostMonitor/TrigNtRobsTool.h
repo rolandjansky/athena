@@ -60,7 +60,7 @@ namespace Trig
 
     // Tool variables
     TrigMonConfig               *m_config;
-    std::map<std::string, uint32_t> m_algNameToIDMap; //Algorithm Name to ID caching
+    std::unordered_map<std::string, uint32_t> m_algNameToIDMap; //Algorithm Name to ID caching
     std::set<uint32_t>           m_algIds;  
   };
 }
