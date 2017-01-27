@@ -6,6 +6,7 @@ author  smazza
 use  AtlasPolicy                AtlasPolicy-*
 use  AtlasROOT                  AtlasROOT-*             External
 use  PATInterfaces              PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
+use  PATCore                    PATCore-*               PhysicsAnalysis/AnalysisCommon
 use  AsgTools                   AsgTools-*              Control/AthToolSupport
 use  xAODEgamma                 xAODEgamma-*            Event/xAOD
 use  xAODPrimitives             xAODPrimitives-*        Event/xAOD
@@ -15,6 +16,9 @@ use  xAODTracking               xAODTracking-*          Event/xAOD
 private
 use PathResolver               PathResolver-*           Tools
 use GaudiInterface             GaudiInterface-*         External
+use AthAnalysisBaseComps       AthAnalysisBaseComps-*   Control
+use xAODMetaData               xAODMetaData-*           Event/xAOD
+use AtlasBoost                 AtlasBoost-*             External  
 end_private
 
 branches IsolationCorrections src src/components Root python share

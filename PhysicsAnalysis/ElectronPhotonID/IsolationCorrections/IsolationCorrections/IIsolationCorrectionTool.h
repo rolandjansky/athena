@@ -12,6 +12,9 @@
 #include "PATInterfaces/CorrectionCode.h"
 #include "PATInterfaces/ISystematicsTool.h"
 
+// PAT includes
+#include "PATCore/PATCoreEnums.h"
+
 #include "xAODPrimitives/IsolationType.h"
 
 namespace CP {
@@ -46,7 +49,7 @@ namespace CP {
         virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig ) = 0;
 
         virtual float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType) = 0;
-        virtual float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) = 0;
+        virtual float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) const = 0;
 	virtual float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) = 0;
 
   };
