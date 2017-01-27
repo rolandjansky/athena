@@ -23,8 +23,6 @@
 #include "SCT_Monitoring/SCTHitsNoiseMonTool.h"
 #include "SCT_Monitoring/SCT_ClusterStruct.h"
 
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/PropertyMgr.h"
 #include "TMath.h"
 #include "TH1F.h"
 #include "TH2I.h"

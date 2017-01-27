@@ -12,7 +12,6 @@
 #include "SCT_NameFormatter.h"
 #include <cmath>
 
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "TH1F.h"
@@ -27,9 +26,7 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "AthenaKernel/errorcheck.h"
 #include "SCT_Monitoring/SCT_ClusterStruct.h"
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 // conditions stuff
 #include "InDetConditionsSummaryService/InDetHierarchy.h"

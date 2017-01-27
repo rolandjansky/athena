@@ -430,7 +430,7 @@ SCTTracksMonTool::fillHistograms() {
                 } else {
                   float local_residual(residualPull->residual()[Trk::locX]);
                   float local_pull(residualPull->pull()[Trk::locX]);
-                  bool bigPull(local_pull < 10. and local_pull > -10.);
+                  bool bigPull((local_pull < 10.) and (local_pull > -10.));
                   if (doThisDetector) {
                     residualsSummaryHistogram = (*residualsSummaryHistogramArray[subsystemIndex])[element];
                     pullsSummaryHistogram = (*pullsSummaryHistogramArray[subsystemIndex])[element];
