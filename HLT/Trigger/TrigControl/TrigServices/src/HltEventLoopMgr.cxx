@@ -312,7 +312,9 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("Lvl1CTPROBcheck",          m_lvl1CTPROBcheck=true);
   declareProperty("WriteTruncatedHLTtoDebug", m_writeHltTruncationToDebug=true);
   declareProperty("HltTruncationDebugStreamName",  m_HltTruncationDebugStreamName ="TruncatedHLTResult");
-  declareProperty("ExcludeFromHltTruncationDebugStream",  m_excludeFromHltTruncationDebugStream ={"CostMonitoring"});
+  declareProperty("ExcludeFromHltTruncationDebugStream",  m_excludeFromHltTruncationDebugStream );
+
+  m_excludeFromHltTruncationDebugStream.value().push_back("CostMonitoring");
 }
 
 //=========================================================================
