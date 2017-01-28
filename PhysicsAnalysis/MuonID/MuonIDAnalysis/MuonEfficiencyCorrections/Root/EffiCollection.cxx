@@ -19,23 +19,22 @@ namespace CP {
                 m_forward_eff(0),
                 m_lowpt_central_eff(0),
                 m_lowpt_calo_eff(0),
-                m_effType("EFF"),
-                m_lowpt_transition(20000.) {
+                m_lowpt_transition(20000.),
+                m_Type(CP::MuonEfficiencyType::Undefined) {
     }
 
-    EffiCollection::EffiCollection(const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, SystematicSet sys, const std::string &effType, double lowPtTransition) :
+    EffiCollection::EffiCollection(const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, SystematicSet sys, CP::MuonEfficiencyType effType, double lowPtTransition) :
                 EffiCollection() {
-        m_effType = effType;
         m_lowpt_transition = lowPtTransition;
-        bool isRecoEff = (effType == "EFF");
-        m_central_eff = new CollectionContainer(file_central, sys, m_effType, false, isRecoEff);
-        m_calo_eff = new CollectionContainer(file_calo, sys, m_effType, false, isRecoEff);
-        m_forward_eff = new CollectionContainer(file_forward, sys, m_effType);
+        m_Type = effType;
+        m_central_eff = new CollectionContainer(file_central, sys, m_Type, false, effType == CP::MuonEfficiencyType::Reco);
+        m_calo_eff = new CollectionContainer(file_calo, sys, m_Type, false, effType == CP::MuonEfficiencyType::Reco);
+        m_forward_eff = new CollectionContainer(file_forward, sys, m_Type);
 
         // last argument tells this to respond to dedicated low pt systematic variations
         if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = new CollectionContainer(file_lowpt_central, sys, m_effType, true);
-            m_lowpt_calo_eff = new CollectionContainer(file_lowpt_calo, sys, m_effType, true);
+            m_lowpt_central_eff = new CollectionContainer(file_lowpt_central, sys, m_Type, true);
+            m_lowpt_calo_eff = new CollectionContainer(file_lowpt_calo, sys, m_Type, true);
         }
     }
 
@@ -49,8 +48,8 @@ namespace CP {
         m_central_eff = new CP::EffiCollection::CollectionContainer(*(other.m_central_eff));
         m_calo_eff = new CP::EffiCollection::CollectionContainer(*(other.m_calo_eff));
         m_forward_eff = new CP::EffiCollection::CollectionContainer(*(other.m_forward_eff));
-        m_effType = other.m_effType;
         m_lowpt_transition = other.m_lowpt_transition;
+        m_Type = other.m_Type;
         if (m_lowpt_transition > 0) {
             m_lowpt_central_eff = new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_central_eff));
             m_lowpt_calo_eff = new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_calo_eff));
@@ -64,9 +63,8 @@ namespace CP {
         if (this == &other) {
             return *this;
         }
-        m_effType = other.m_effType;
         m_lowpt_transition = other.m_lowpt_transition;
-
+        m_Type = other.m_Type;
         if (m_central_eff) delete m_central_eff;
         if (m_calo_eff) delete m_calo_eff;
         if (m_forward_eff) delete m_forward_eff;
@@ -115,7 +113,7 @@ namespace CP {
         if (m_lowpt_central_eff) delete m_lowpt_central_eff;
         if (m_lowpt_calo_eff) delete m_lowpt_calo_eff;
     }
-    EffiCollection::CollectionContainer::CollectionContainer(const std::string &FileName, SystematicSet sys, std::string effType, bool isLowPt, bool hasPtDepSys) :
+    EffiCollection::CollectionContainer::CollectionContainer(const std::string &FileName, SystematicSet sys, CP::MuonEfficiencyType effType, bool isLowPt, bool hasPtDepSys) :
                 m_SF(),
                 m_currentSF(m_SF.end()) {
         TFile* fin = TFile::Open(FileName.c_str());

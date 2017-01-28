@@ -30,11 +30,8 @@ namespace CP {
                 m_custom_file_HighEta(),
                 m_custom_file_LowPt(),
                 m_custom_file_LowPtCalo(),
-                m_doAudit(false),
-                m_audit_processed(),
                 m_version_string(),
                 m_sys_string(),
-                m_audit_last_evt(-1),
                 m_filtered_sys_sets(),
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
@@ -52,10 +49,10 @@ namespace CP {
                 m_effrDec(0),
                 m_MCeffrDec(0),
                 m_affectingSys(),
-                m_init(false) {
+                m_init(false),
+                m_Type(CP::MuonEfficiencyType::Undefined) {
 
         declareProperty("WorkingPoint", m_wp);
-        declareProperty("doAudit", m_doAudit);
 
         // these are for debugging / testing, *not* for general use!
         declareProperty("CustomInputFolder", m_custom_dir);
@@ -74,6 +71,7 @@ namespace CP {
 
         declareProperty("CalibrationRelease", m_calibration_version);
         declareProperty("EfficiencyType", m_effType);
+//        declareProperty("EfficiencyWP", m_Type);
         declareProperty("LowPtThreshold", m_lowpt_threshold);
     }
 
@@ -101,7 +99,7 @@ namespace CP {
 
         /// so the decoration will work with other Efficiency types
 
-        if (m_effType == "") {
+        if (m_effType.empty() && m_Type == CP::MuonEfficiencyType::Undefined) {
             if (m_wp.find("Iso") != std::string::npos) {
                 m_effType = "ISO";
             } else if (m_wp.find("TTVA") != std::string::npos) {
@@ -109,8 +107,9 @@ namespace CP {
             } else {
                 m_effType = "EFF";
             }
-        }
-        ATH_MSG_INFO("Efficiency type is = " << m_effType);
+            m_Type = EfficiencyType(m_effType);
+        } else if (m_Type == CP::MuonEfficiencyType::Undefined) m_Type = EfficiencyType(m_effType);
+        ATH_MSG_INFO("Efficiency type is = " << EfficiencyTypeName(m_Type));
 
         /// for isolation efficiencies, we don't use a low pt component for now - set the low pt threshold to -1
         /// same holds for TTVA SF, and for the HighPt WP
@@ -156,7 +155,6 @@ namespace CP {
                 return StatusCode::FAILURE;
             }
             ATH_MSG_INFO("Successfully initialized! ");
-            if (m_doAudit) ATH_MSG_INFO("Note: Running with Audit trail active. If not needed, turn off to save CPU time");
 
         }
         m_init = true;
@@ -184,16 +182,22 @@ namespace CP {
 
     StatusCode MuonEfficiencyScaleFactors::IsDecoratorNameUnique(std::string &name) {
         if (name.empty()) return StatusCode::SUCCESS;
-        if (&name != &m_efficiency_decoration_name_data && name == m_efficiency_decoration_name_data) ATH_MSG_ERROR("Decorator " << name << " corresponds to the name of the data efficiencies");
-        else if (&name != &m_efficiency_decoration_name_mc && name == m_efficiency_decoration_name_mc) ATH_MSG_ERROR("Decorator " << name << " corresponds to the name of the MC efficiencies");
-        else if (&name != &m_sf_decoration_name && name == m_sf_decoration_name) ATH_MSG_ERROR("Decorator " << name << " corresponds to the name of the SF themselves");
-        else if (&name != &m_sf_replica_decoration_name && name == m_sf_replica_decoration_name) ATH_MSG_ERROR("Decorator " << name << " corresponds to name of the SF replicas");
-        else if (&name != &m_eff_replica_decoration_name && name == m_eff_replica_decoration_name) ATH_MSG_ERROR("Decorator " << name << " corresponds to name of the data efficiency replicas");
-        else if (&name != &m_mc_eff_replica_decoration_name && name == m_mc_eff_replica_decoration_name) ATH_MSG_ERROR("Decorator " << name << " corresponds to name of the MC efficiency replicas");
+        if (&name != &m_efficiency_decoration_name_data && name == m_efficiency_decoration_name_data)
+            ATH_MSG_ERROR("Decorator " << name << " corresponds to the name of the data efficiencies");
+        else if (&name != &m_efficiency_decoration_name_mc && name == m_efficiency_decoration_name_mc)
+            ATH_MSG_ERROR("Decorator " << name << " corresponds to the name of the MC efficiencies");
+        else if (&name != &m_sf_decoration_name && name == m_sf_decoration_name)
+            ATH_MSG_ERROR("Decorator " << name << " corresponds to the name of the SF themselves");
+        else if (&name != &m_sf_replica_decoration_name && name == m_sf_replica_decoration_name)
+            ATH_MSG_ERROR("Decorator " << name << " corresponds to name of the SF replicas");
+        else if (&name != &m_eff_replica_decoration_name && name == m_eff_replica_decoration_name)
+            ATH_MSG_ERROR("Decorator " << name << " corresponds to name of the data efficiency replicas");
+        else if (&name != &m_mc_eff_replica_decoration_name && name == m_mc_eff_replica_decoration_name)
+            ATH_MSG_ERROR("Decorator " << name << " corresponds to name of the MC efficiency replicas");
         else return StatusCode::SUCCESS;
         return StatusCode::FAILURE;
     }
-    unsigned int MuonEfficiencyScaleFactors::getRandomRunNumber(const xAOD::EventInfo* info) {
+    unsigned int MuonEfficiencyScaleFactors::getRandomRunNumber(const xAOD::EventInfo* info) const {
         if (!info && !evtStore()->retrieve(info, "EventInfo")) {
             ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 999999");
             return 999999;
@@ -208,8 +212,7 @@ namespace CP {
         }
         return dec_rnd(*info);
     }
-    CorrectionCode MuonEfficiencyScaleFactors::getEfficiencyScaleFactor(const xAOD::Muon& mu, float& sf, const xAOD::EventInfo* info) {
-        if (m_doAudit) ApplyAuditInfo(mu);
+    CorrectionCode MuonEfficiencyScaleFactors::getEfficiencyScaleFactor(const xAOD::Muon& mu, float& sf, const xAOD::EventInfo* info) const {
         if (!m_init) {
             ATH_MSG_ERROR("The tool has not been initialized yet.");
             return CorrectionCode::Error;
@@ -217,7 +220,7 @@ namespace CP {
         unsigned int RunNumber = getRandomRunNumber(info);
         return m_current_sf->retrieveSF(mu, RunNumber)->ScaleFactor(mu, sf);
     }
-    CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactor(const xAOD::Muon& mu, const xAOD::EventInfo* info) {
+    CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactor(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
         float sf = 0;
         CorrectionCode result = getEfficiencyScaleFactor(mu, sf, info);
         // Decorate the muon
@@ -225,8 +228,7 @@ namespace CP {
         return result;
     }
 
-    CorrectionCode MuonEfficiencyScaleFactors::getEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & sfs, const xAOD::EventInfo* info) {
-        if (m_doAudit) ApplyAuditInfo(mu);
+    CorrectionCode MuonEfficiencyScaleFactors::getEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & sfs, const xAOD::EventInfo* info) const {
         if (!m_init) {
             ATH_MSG_ERROR("The tool has not been initialized yet");
             return CorrectionCode::Error;
@@ -234,31 +236,29 @@ namespace CP {
         unsigned int RunNumber = getRandomRunNumber(info);
         return m_current_sf->retrieveSF(mu, RunNumber)->ScaleFactorReplicas(mu, sfs);
     }
-    CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) {
+    CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
         std::vector<float> replicas(nreplicas);
         CorrectionCode result = getEfficiencyScaleFactorReplicas(mu, replicas, info);
         // Decorate the muon
         if (m_sfrDec) (*m_sfrDec)(mu) = replicas;
         return result;
     }
-    CorrectionCode MuonEfficiencyScaleFactors::getDataEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info) {
+    CorrectionCode MuonEfficiencyScaleFactors::getDataEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info) const {
         if (!m_init) {
             ATH_MSG_ERROR("The tool has not been initialized yet");
             return CorrectionCode::Error;
         }
-        if (m_doAudit) ApplyAuditInfo(mu);
         unsigned int RunNumber = getRandomRunNumber(info);
         return m_current_sf->retrieveSF(mu, RunNumber)->DataEfficiency(mu, eff);
     }
-    CorrectionCode MuonEfficiencyScaleFactors::applyDataEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info) {
+    CorrectionCode MuonEfficiencyScaleFactors::applyDataEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
         float eff = 0;
         CorrectionCode result = getDataEfficiency(mu, eff, info);
         // Decorate the muon
         if (m_effDec) (*m_effDec)(mu) = eff;
         return result;
     }
-    CorrectionCode MuonEfficiencyScaleFactors::getDataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info) {
-        if (m_doAudit) ApplyAuditInfo(mu);
+    CorrectionCode MuonEfficiencyScaleFactors::getDataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info) const {
         if (!m_init) {
             ATH_MSG_ERROR("The tool has not been initialized yet");
             return CorrectionCode::Error;
@@ -266,31 +266,29 @@ namespace CP {
         unsigned int RunNumber = getRandomRunNumber(info);
         return m_current_sf->retrieveSF(mu, RunNumber)->DataEfficiencyReplicas(mu, sf_err);
     }
-    CorrectionCode MuonEfficiencyScaleFactors::applyDataEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) {
+    CorrectionCode MuonEfficiencyScaleFactors::applyDataEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
         std::vector<float> replicas(nreplicas);
         CorrectionCode result = getDataEfficiencyReplicas(mu, replicas, info);
         // Decorate the muon
         if (m_effrDec) (*m_effrDec)(mu) = replicas;
         return result;
     }
-    CorrectionCode MuonEfficiencyScaleFactors::getMCEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info) {
+    CorrectionCode MuonEfficiencyScaleFactors::getMCEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info) const {
         if (!m_init) {
             ATH_MSG_ERROR("The tool has not been initialized yet");
             return CorrectionCode::Error;
         }
-        if (m_doAudit) ApplyAuditInfo(mu);
         unsigned int RunNumber = getRandomRunNumber(info);
         return m_current_sf->retrieveSF(mu, RunNumber)->MCEfficiency(mu, eff);
     }
-    CorrectionCode MuonEfficiencyScaleFactors::applyMCEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info) {
+    CorrectionCode MuonEfficiencyScaleFactors::applyMCEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
         float eff = 0;
         CorrectionCode result = getMCEfficiency(mu, eff, info);
         // Decorate the muon
         if (m_MCeffDec) (*m_MCeffDec)(mu) = eff;
         return result;
     }
-    CorrectionCode MuonEfficiencyScaleFactors::getMCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info) {
-        if (m_doAudit) ApplyAuditInfo(mu);
+    CorrectionCode MuonEfficiencyScaleFactors::getMCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info) const {
         if (!m_init) {
             ATH_MSG_ERROR("The tool has not been initialized yet");
             return CorrectionCode::Error;
@@ -298,7 +296,7 @@ namespace CP {
         unsigned int RunNumber = getRandomRunNumber(info);
         return m_current_sf->retrieveSF(mu, RunNumber)->MCEfficiencyReplicas(mu, sf_err);
     }
-    CorrectionCode MuonEfficiencyScaleFactors::applyMCEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) {
+    CorrectionCode MuonEfficiencyScaleFactors::applyMCEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
         std::vector<float> replicas(nreplicas);
         CorrectionCode result = getMCEfficiencyReplicas(mu, replicas, info);
         // Decorate the muon
@@ -319,7 +317,8 @@ namespace CP {
 
     std::string MuonEfficiencyScaleFactors::filename_Central() {
 
-        if (m_custom_file_Combined != "") return (resolve_file_location(m_custom_file_Combined));
+        if (m_custom_file_Combined != "")
+            return (resolve_file_location(m_custom_file_Combined));
         else if (m_wp.find("Iso") != std::string::npos) {
             return resolve_file_location(Form("Iso_%s_Z.root", m_wp.c_str()));
         } else if (m_wp.find("TTVA") != std::string::npos) {
@@ -328,7 +327,8 @@ namespace CP {
     }
     std::string MuonEfficiencyScaleFactors::filename_Calo() {
 
-        if (m_custom_file_Calo != "") return resolve_file_location(m_custom_file_Calo);
+        if (m_custom_file_Calo != "")
+            return resolve_file_location(m_custom_file_Calo);
         else if (m_wp.find("Iso") != std::string::npos || m_wp.find("TTVA") != std::string::npos) {
             return filename_Central();
         } else return resolve_file_location("Reco_CaloTag_Z.root");
@@ -336,7 +336,8 @@ namespace CP {
 
     std::string MuonEfficiencyScaleFactors::filename_HighEta() {
 
-        if (m_custom_file_HighEta != "") return resolve_file_location(m_custom_file_HighEta);
+        if (m_custom_file_HighEta != "")
+            return resolve_file_location(m_custom_file_HighEta);
         else if (m_wp.find("Iso") != std::string::npos || m_wp.find("TTVA") != std::string::npos) {
             return filename_Central();
         } else return resolve_file_location("Reco_HighEta_Z.root");
@@ -344,7 +345,8 @@ namespace CP {
 
     std::string MuonEfficiencyScaleFactors::filename_LowPt() {
 
-        if (m_custom_file_LowPt != "") return resolve_file_location(m_custom_file_LowPt);
+        if (m_custom_file_LowPt != "")
+            return resolve_file_location(m_custom_file_LowPt);
         // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
         else if (m_wp.find("Iso") != std::string::npos || m_wp.find("TTVA") != std::string::npos) {
             return filename_Central();
@@ -355,7 +357,8 @@ namespace CP {
 
     std::string MuonEfficiencyScaleFactors::filename_LowPtCalo() {
 
-        if (m_custom_file_LowPtCalo != "") return resolve_file_location(m_custom_file_LowPtCalo);
+        if (m_custom_file_LowPtCalo != "")
+            return resolve_file_location(m_custom_file_LowPtCalo);
         // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
         else if (m_wp.find("Iso") != std::string::npos || m_wp.find("TTVA") != std::string::npos) {
             return filename_Central();
@@ -382,7 +385,7 @@ namespace CP {
         if (m_sf_sets.find(sys) != m_sf_sets.end()) {
             delete m_sf_sets[sys];
         }
-        EffiCollection* ec = new EffiCollection(filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sys, m_effType, m_lowpt_threshold);
+        EffiCollection* ec = new EffiCollection(filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sys, m_Type, m_lowpt_threshold);
         m_sf_sets.insert(std::make_pair(sys, ec));
 
         return ec->CheckConsistency();
@@ -431,9 +434,6 @@ namespace CP {
         boost::unordered_map<SystematicSet, EffiCollection*>::iterator SFiter = m_sf_sets.find(mySysConf);
         if (SFiter != m_sf_sets.end()) {
             m_current_sf = SFiter->second;
-            if (m_doAudit) {
-                m_sys_string = m_current_sf->sysname();
-            }
             return SystematicCode::Ok;
         } else {
             ATH_MSG_ERROR("Illegal combination of systematics passed to the tool! Did you maybe request multiple variations at the same time? ");
@@ -444,43 +444,6 @@ namespace CP {
             return SystematicCode::Unsupported;
         }
     }
-
-    bool MuonEfficiencyScaleFactors::AlreadyApplied(const xAOD::Muon & mu) {
-        if (m_doAudit) CheckAuditEvent();
-        return (m_audit_processed.find(std::make_pair(m_current_sf, const_cast<xAOD::Muon*>(&mu))) != m_audit_processed.end());
-    }
-    bool MuonEfficiencyScaleFactors::AlreadyApplied(xAOD::Muon & mu) {
-        if (m_doAudit) CheckAuditEvent();
-        return (m_audit_processed.find(std::make_pair(m_current_sf, &mu)) != m_audit_processed.end());
-    }
-
-    void MuonEfficiencyScaleFactors::ApplyAuditInfo(const xAOD::Muon& mu) {
-        if (m_doAudit) CheckAuditEvent();
-        if (m_audit_processed.find(std::make_pair(m_current_sf, const_cast<xAOD::Muon*>(&mu))) == m_audit_processed.end()) {
-            m_audit_processed.insert(std::make_pair(m_current_sf, const_cast<xAOD::Muon*>(&mu)));
-        }
-        static SG::AuxElement::Decorator<bool> effboolDec("MuonEfficiencyCorrections");
-        effboolDec(mu) = true;
-        static SG::AuxElement::Decorator<std::string> versionDec("MuonEfficiencyCorrectionsVersion");
-        versionDec(mu) = m_version_string + "_" + m_sys_string;
-        static SG::AuxElement::Decorator<std::string> appliedDec("AppliedCorrections");
-        appliedDec(mu) += " MuonEfficiencyCorrections";
-        if (m_effType != "EFF") appliedDec(mu) += m_effType;
-    }
-
-    void MuonEfficiencyScaleFactors::CheckAuditEvent() {
-        const xAOD::EventInfo* ei = 0;
-        if (evtStore()->retrieve(ei, "EventInfo").isFailure()) {
-            ATH_MSG_WARNING("No EventInfo object could be retrieved");
-            ATH_MSG_WARNING("Random number generation not configured correctly");
-        }
-        const unsigned long long eventNumber = ei ? ei->eventNumber() : 0;
-        if (m_audit_last_evt != eventNumber) {
-            m_audit_processed.clear();
-            m_audit_last_evt = eventNumber;
-        }
-    }
-
     MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors(const MuonEfficiencyScaleFactors& toCopy) :
                 MuonEfficiencyScaleFactors(toCopy.name() + "_copy") {
         CopyInformation(toCopy);
@@ -496,7 +459,6 @@ namespace CP {
         m_custom_file_HighEta = toCopy.m_custom_file_HighEta;
         m_custom_file_LowPt = toCopy.m_custom_file_LowPt;
         m_custom_file_LowPtCalo = toCopy.m_custom_file_LowPtCalo;
-        m_doAudit = toCopy.m_doAudit;
         m_version_string = toCopy.m_version_string;
         m_sys_string = toCopy.m_sys_string;
         m_efficiency_decoration_name_data = toCopy.m_efficiency_decoration_name_data;
@@ -510,6 +472,7 @@ namespace CP {
         m_effType = toCopy.m_effType;
         m_lowpt_threshold = toCopy.m_lowpt_threshold;
         m_init = false;
+        m_Type = toCopy.m_Type;
 
     }
 

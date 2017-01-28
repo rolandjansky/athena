@@ -16,12 +16,11 @@ theJob = AlgSequence()
 
 #the ToolHandle constructor should be given "CP::PileupReweightingTool/myTool" as its string argument
 PRWTool = CfgMgr.CP__PileupReweightingTool("MyPRWTool",
-                DefaultChannel=410000,
-                DataScaleFactor=1./1.16,
+                DataScaleFactor=1.0/1.09,
                 DataScaleFactorUP=1., 
-                DataScaleFactorDOWN=1./1.23,
+                DataScaleFactorDOWN=1.0/1.18,
                 ConfigFiles=["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"],
-                LumiCalcFiles=["/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v82-pro20-13_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root"])
+                LumiCalcFiles=["/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v83-pro20-15_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root"])
 ToolSvc += PRWTool
 
 # Add the MCP tool

@@ -35,7 +35,7 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AnaToolHandle.h"
-#include "PileupReweighting/IPileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #define CHECK_CPCorr(Arg) \
     if (Arg.code() == CP::CorrectionCode::Error){    \
@@ -103,10 +103,9 @@ int main(int argc, char* argv[]) {
     // The application's name:
     const char* APP_NAME = argv[0];
 
-    std::string CustomInputFolder = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonEfficiencyCorrections/160928_PostICHEP/";
-
     std::string OutputFilename = "Applied_SFs.root";
     std::string InDir = "";
+    std::string DefaultCalibRelease = "";
     std::string SFComparisonFolder = "";
     long long int nmax = -1;
     // read the config provided by the user
@@ -114,7 +113,10 @@ int main(int argc, char* argv[]) {
         if (std::string(argv[k]).find("-i") == 0) {
             InDir = argv[k + 1];
         }
-        if (std::string(argv[k]).find("-c") == 0) {
+        if (std::string(argv[k]).find("-c1") == 0) {
+            DefaultCalibRelease = argv[k + 1];
+        }
+        if (std::string(argv[k]).find("-c2") == 0) {
             SFComparisonFolder = argv[k + 1];
         }
         if (std::string(argv[k]).find("-n") == 0) {
@@ -124,7 +126,7 @@ int main(int argc, char* argv[]) {
             OutputFilename = argv[k + 1];
         }
     }
-    bool doComparison = (SFComparisonFolder != "");
+    bool doComparison = !SFComparisonFolder.empty();
 
     // check( if we received a file name:
     if (argc < 3) {
@@ -162,19 +164,18 @@ int main(int argc, char* argv[]) {
 
     asg::AnaToolHandle<CP::IPileupReweightingTool> m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DefaultChannel", 410000));
     std::vector<std::string> m_ConfigFiles { "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root" };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
-    std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v82-pro20-13_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
+    std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v83-pro20-15_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("LumiCalcFiles", m_LumiCalcFiles));
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactor", 1. / 1.16));
+    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactor", 1.0/1.09));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorUP", 1.));
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorDOWN", 1. / 1.23));
+    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorDOWN", 1.0/1.18));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.initialize());
 
     CP::MuonEfficiencyScaleFactors m_effi_corr("Medium");
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "WorkingPoint", "Medium"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr, "CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "LowPtThreshold", -1.));
     ASG_CHECK_SA(APP_NAME, m_effi_corr.initialize());
     CP::SystematicSet statup;
@@ -189,22 +190,22 @@ int main(int argc, char* argv[]) {
     
     CP::MuonEfficiencyScaleFactors m_effi_corr_loose("TestLooseSFs");
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_loose, "WorkingPoint", "Loose"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_loose, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr_loose, "CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, m_effi_corr_loose.initialize());
 
     CP::MuonEfficiencyScaleFactors m_effi_corr_HighPt("TestHighPtSFs");
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_HighPt, "WorkingPoint", "HighPt"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_HighPt, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr_HighPt, "CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, m_effi_corr_HighPt.initialize());
 
     CP::MuonEfficiencyScaleFactors m_effi_corr_Tight("TestTightSFs");
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_Tight, "WorkingPoint", "Tight"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_Tight, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr_Tight, "CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, m_effi_corr_Tight.initialize());
 
     CP::MuonEfficiencyScaleFactors m_ttva_corr("TestTTVASFs");
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "WorkingPoint", "TTVA"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_ttva_corr, "CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, m_ttva_corr.initialize());
 
     CP::SystematicSet statupTTVA;
@@ -243,7 +244,7 @@ int main(int argc, char* argv[]) {
 
     CP::MuonEfficiencyScaleFactors m_iso_effi_corr("TestIsolationSF");
     ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.setProperty("WorkingPoint", "GradientIso"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_iso_effi_corr, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_iso_effi_corr, "CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.initialize());
 
     CP::SystematicSet isosysup;
@@ -610,10 +611,10 @@ int main(int argc, char* argv[]) {
             float TTVAupSF = sf;
             CHECK_CPSys(m_ttva_corr.applySystematicVariation(CP::SystematicSet()));
 
-            if (((*mu_itr)->pt() > 15000.) && (fabs((*mu_itr)->eta()) < 2.5)) {
+            if ((*mu_itr)->pt() > 10000.) {
                 histSF_TTVA->Fill(TTVAcentralSF);
                 if (fabs(TTVAstatupSF - TTVAcentralSF) > 1) std::cout << "WARNING: TTVAWP: Statistical error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-                histSF_TTVA_stat->Fill(fabs(TTVAstatupSF - TTVAcentralSF));
+                 histSF_TTVA_stat->Fill(fabs(TTVAstatupSF - TTVAcentralSF));
                 if (fabs(TTVAupSF - TTVAcentralSF) > 1) std::cout << "WARNING: TTVAWP: Systematic error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
                 histSF_TTVA_sys->Fill(fabs(TTVAupSF - TTVAcentralSF));
                 if (doComparison) {

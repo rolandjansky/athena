@@ -13,6 +13,7 @@
 #define MUONEFFICIENCYSCALEFACTORS_H_
 
 #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonEfficiencyCorrections/MuonEfficiencyType.h"
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
 #include "MuonEfficiencyCorrections/EffiCollection.h"
 
@@ -36,11 +37,11 @@ namespace CP {
             virtual StatusCode initialize();
 
             /// Retrieve the Scale factor and decorate the muon
-            virtual CorrectionCode getEfficiencyScaleFactor(const xAOD::Muon& mu, float& sf, const xAOD::EventInfo* info = 0);
-            virtual CorrectionCode applyEfficiencyScaleFactor(const xAOD::Muon& mu, const xAOD::EventInfo* info = 0);
+            virtual CorrectionCode getEfficiencyScaleFactor(const xAOD::Muon& mu, float& sf, const xAOD::EventInfo* info = 0) const;
+            virtual CorrectionCode applyEfficiencyScaleFactor(const xAOD::Muon& mu, const xAOD::EventInfo* info = 0) const;
             /// replica generation
-            virtual CorrectionCode getEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info = 0);
-            virtual CorrectionCode applyEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, int nreplicas = 50, const xAOD::EventInfo* info = 0);
+            virtual CorrectionCode getEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info = 0) const;
+            virtual CorrectionCode applyEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, int nreplicas = 50, const xAOD::EventInfo* info = 0) const;
 
             /// returns: whether this tool is affected by the given systematis
             virtual bool isAffectedBySystematic(const SystematicVariation& systematic) const;
@@ -54,22 +55,18 @@ namespace CP {
             virtual SystematicCode applySystematicVariation(const SystematicSet& systConfig);
 
             /// Obtain the muon efficiency measured using the data
-            virtual CorrectionCode getDataEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info = 0);
-            virtual CorrectionCode applyDataEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info = 0);
+            virtual CorrectionCode getDataEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info = 0) const;
+            virtual CorrectionCode applyDataEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info = 0) const;
 
-            virtual CorrectionCode getDataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info = 0);
-            virtual CorrectionCode applyDataEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas = 50, const xAOD::EventInfo* info = 0);
+            virtual CorrectionCode getDataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info = 0) const;
+            virtual CorrectionCode applyDataEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas = 50, const xAOD::EventInfo* info = 0) const;
 
             /// Obtain the muon efficiency measured using the MC
-            virtual CorrectionCode getMCEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info = 0);
-            virtual CorrectionCode applyMCEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info = 0);
+            virtual CorrectionCode getMCEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info = 0) const;
+            virtual CorrectionCode applyMCEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info = 0) const;
 
-            virtual CorrectionCode getMCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info = 0);
-            virtual CorrectionCode applyMCEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas = 50, const xAOD::EventInfo* info = 0);
-
-            // audit trail functionality
-            bool AlreadyApplied(const xAOD::Muon & mu);
-            bool AlreadyApplied(xAOD::Muon & mu);
+            virtual CorrectionCode getMCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info = 0) const;
+            virtual CorrectionCode applyMCEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas = 50, const xAOD::EventInfo* info = 0) const;
 
             // copy constructor, to make reflex happy...
             MuonEfficiencyScaleFactors(const MuonEfficiencyScaleFactors& tocopy);
@@ -79,7 +76,7 @@ namespace CP {
 
         private:
 
-            unsigned int getRandomRunNumber(const xAOD::EventInfo* info);
+            unsigned int getRandomRunNumber(const xAOD::EventInfo* info) const;
             /// load the SF histos
             bool LoadEffiSet(SystematicSet sys);
             bool LoadInputs();
@@ -93,20 +90,14 @@ namespace CP {
             std::string filename_LowPt();
             std::string filename_LowPtCalo();
 
-            // apply info to muons and log that we processed them
-            void ApplyAuditInfo(const xAOD::Muon& mu);
-
-            // reset the audit log at every event
-            void CheckAuditEvent();
-
             // utility method to 'dress' a filename using the path resolver
             std::string resolve_file_location(std::string filename);
 
             //Some util functions
             void CopyInformation(const MuonEfficiencyScaleFactors & tocopy);
+            //These are functions needed during initialization
             StatusCode CreateDecorator(SG::AuxElement::Decorator<float>* &Dec, std::string &DecName, const std::string& defaultName);
             StatusCode CreateVecDecorator(SG::AuxElement::Decorator<std::vector<float>>* &Dec, std::string &DecName, const std::string& defaultName);
-
             StatusCode IsDecoratorNameUnique(std::string &name);
 
             /// the working point to operate on
@@ -123,17 +114,9 @@ namespace CP {
             std::string m_custom_file_LowPt;
             std::string m_custom_file_LowPtCalo;
 
-            // audit mode
-            bool m_doAudit;
-
-            // remember what we already looked at
-            std::set<std::pair<EffiCollection*, xAOD::Muon*> > m_audit_processed;
-
             // info to apply to the muon when in audit mode
             std::string m_version_string;
             std::string m_sys_string;
-            // the current event
-            unsigned long long m_audit_last_evt;
 
             std::map<CP::SystematicSet, CP::SystematicSet> m_filtered_sys_sets;
 
@@ -163,6 +146,7 @@ namespace CP {
             CP::SystematicSet m_affectingSys;
 
             bool m_init;
+            CP::MuonEfficiencyType m_Type;
     };
 
 } /* namespace CP */

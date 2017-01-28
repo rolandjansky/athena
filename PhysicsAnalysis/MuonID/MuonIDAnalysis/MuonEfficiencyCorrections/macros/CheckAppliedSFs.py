@@ -32,7 +32,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='This script checks applied scale factors written to a file by MuonEfficiencyCorrections/MuonEfficiencyCorrectionsSFFilesTest. For more help type \"python CheckAppliedSFs.py -h\"', prog='CheckAppliedSFs', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--InputFile', help='Specify an input root file', default="Applied_SFs.root")
-    parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="341505.PowhegPythia8EvtGen_ggH125_ZZ4lep_noTau")
+    parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu")
     parser.add_argument('-t', '--SFType', help='Specify a scale factor type', nargs='+', default=["Medium","Loose","Tight","HighPt","TTVA"])
     parser.add_argument('-c', '--SFConstituent', help='Specify if you want to plot nominal value, sys or stat error', nargs='+', default=["SF","Sys","Stat"])
     parser.add_argument('-b', '--bonusname', help='Specify a bonusname if you want a special histogram', default="")
@@ -115,13 +115,14 @@ if __name__ == "__main__":
                 else:
                     hist.GetXaxis().SetRangeUser(0.5,1.5)
                 
-            kinematicslabel = "p_{T}>5GeV, |#eta|<2.7"
+            kinematicslabel = "p_{T}>5 GeV, |#eta|<2.7"
+            if type == 'TTVA': kinematicslabel = "p_{T}>10 GeV, |#eta|<2.7"
             if bonusstr == "_pt15":
-                kinematicslabel = "p_{T}>15GeV, |#eta|<2.7"
+                kinematicslabel = "p_{T}>15 GeV, |#eta|<2.7"
             elif bonusstr == "_NoHighEta":
-                kinematicslabel = "p_{T}>5GeV, |#eta|<2.5"
+                kinematicslabel = "p_{T}>5 GeV, |#eta|<2.5"
             elif bonusstr == "_HighEta":
-                kinematicslabel = "p_{T}>5GeV, |#eta|>2.5"
+                kinematicslabel = "p_{T}>5 GeV, |#eta|>2.5"
                 
             pu.DrawTLatex(0.58, 0.7, kinematicslabel)
             pu.DrawTarget(match, 0.58, 0.75)
