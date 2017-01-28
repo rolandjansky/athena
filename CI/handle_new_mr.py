@@ -155,7 +155,7 @@ def main():
     # configure log output
     logging.basicConfig(format='%(asctime)s %(levelname)-10s %(message)s',
                         datefmt='%H:%M:%S',
-                        level=args.verbose)
+                        level=logging.getLevelName(args.verbose))
 
     logging.debug("parsed arguments:\n" + repr(args))
 

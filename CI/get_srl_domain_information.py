@@ -6,20 +6,20 @@ def get_srl_package_mapping(directory):
     srl_files = glob.glob(os.path.join(directory,"atlas-srl-*"))
     for f in srl_files:
         logging.debug("reading file '%s'" % f)
-        m =re.match("atlas-srl-(\w+)",os.path.basename(f))
-        d = m.group(1)
-        logging.info("extracted domain '%s' from filename '%s'" % (d,os.path.basename(f)))
+        m = re.match("atlas-srl-(\w+)",os.path.basename(f))
+        domain = m.group(1)
+        logging.info("extracted domain '%s' from filename '%s'" % (domain,os.path.basename(f)))
         fh = open(f)
-        pkgs = [p.strip() for p in fh.readlines() if p.strip()]
+        pkgs = [package.strip() for package in fh.readlines() if package.strip()]
         fh.close()
         logging.debug("found packages %s in file '%s'" % (str(pkgs),f))
-        if not d in domains:
-            domains[d] = set(pkgs)
+        if not domain in domains:
+            domains[domain] = set(pkgs)
         else:
-            domains[d].update(pkgs)
+            domains[domain].update(pkgs)
 
-    for d,p in domains.items():
-        logging.debug("domain '%s': packages = %s" % (d,str(p)))
+    for domain,packages in domains.items():
+        logging.debug("domain '%s': packages = %s" % (domain,str(packages)))
 
     return domains
 
@@ -32,25 +32,26 @@ def get_srl_group_members(group_def_file):
     for g in groups:
         m = re.match("atlas-srl-(\w+).*=([\w ,]+)",g)
         domain = m.group(1)
-        members = set([e.strip() for e in m.group(2).split(',')])
+        expert_list = m.group(2).split(',')
+        members = set([e.strip() for e in expert_list])
         logging.info("group '%s' consists of members %s" % (domain,members))
         if not domain in experts:
             experts[domain] = members
         else:
             experts[domain].update(members)
 
-    for d,e in experts.items():
-        logging.debug("domain '%s': experts = %s" % (d,str(e)))
+    for domain,expert_list in experts.items():
+        logging.debug("domain '%s': experts = %s" % (domain,str(expert_list)))
 
     return experts
 
 def merge_srl_packages_experts(pkg_map,expert_map):
     domains = {}
-    for d,pkgs in pkg_map.items():
-        if d in expert_map:
-            domains[d] = {"packages": pkgs, "experts": expert_map[d]}
+    for domain,pkgs in pkg_map.items():
+        if domain in expert_map:
+            domains[domain] = {"packages": pkgs, "experts": expert_map[domain]}
         else:
-            logging.error("found package mapping for domain '%s' but no experts" % d)
+            logging.error("found package mapping for domain '%s' but no experts" % domain)
 
     missing = set(expert_map.keys()) - set(domains.keys())
     if len(missing) > 0:
@@ -72,7 +73,7 @@ def main():
     # configure log output
     logging.basicConfig(format='%(asctime)s %(levelname)-10s %(message)s',
                         datefmt='%H:%M:%S',
-                        level=args.verbose)
+                        level=logging.getLevelName(args.verbose))
 
     # delegate
     packages = get_srl_package_mapping(os.path.join(args.indir,"done"))
