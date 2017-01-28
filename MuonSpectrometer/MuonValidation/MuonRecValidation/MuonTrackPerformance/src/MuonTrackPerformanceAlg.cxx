@@ -144,7 +144,7 @@ bool MuonTrackPerformanceAlg::handleSegmentCombinations() {
   StatusCode sc = evtStore()->retrieve(combiCol,m_segmentCombiLocation);
   if (sc.isFailure() ) {
     *m_log << MSG::WARNING << " Could not find MuonSegmentCombinationCollection at " << m_segmentCombiLocation <<endmsg;
-    return StatusCode::RECOVERABLE;
+    return true;
   }else{
     if( m_debug ) *m_log << MSG::DEBUG << " Retrieved MuonSegmentCombinationCollection "  << combiCol->size() << endmsg;
   }

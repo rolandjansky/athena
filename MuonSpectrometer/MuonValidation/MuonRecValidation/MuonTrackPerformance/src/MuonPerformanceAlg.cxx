@@ -34,7 +34,7 @@ MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSv
   m_writeToFile (false),
   m_nevents(0),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  m_storeGate(NULL),
+  //m_storeGate(NULL),
   m_eventInfo(NULL), 
   m_runNumber(0),
   m_eventNumber(0)
