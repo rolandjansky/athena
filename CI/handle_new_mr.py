@@ -1,7 +1,7 @@
 import argparse, gitlab, logging, re, sys
 from gitlab.exceptions import GitlabGetError
 from gitlab_mr_helpers import print_collection, list_changed_packages, list_affected_domains
-from WatchList import WATCH_LIST
+from watch_list import WATCH_LIST
 
 def comment_affected_packages(packages):
     """

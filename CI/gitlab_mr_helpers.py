@@ -1,5 +1,5 @@
 import logging, os, re
-from DomainMap import DOMAIN_MAP
+from domain_map import DOMAIN_MAP
 
 DOMAINS = DOMAIN_MAP.keys()
 
