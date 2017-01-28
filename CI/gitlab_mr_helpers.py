@@ -21,9 +21,11 @@ def map_filename_to_package(fname):
     while os.path.basename(pkg_name) in package_sub_dirs:
         pkg_name = os.path.dirname(pkg_name)
 
-    # treat include directory
+    # treat include directories which have the format:
+    # A/B/C/PackageName/PackageName
     levels = pkg_name.split('/')
-    if len(levels) > 1 and levels[-1] == levels[-2]:
+    is_include_dir = len(levels) > 1 and levels[-1] == levels[-2]
+    if is_include_dir:
         pkg_name = os.path.dirname(pkg_name)
 
     logging.debug("mapped file '%s' to package '%s'" % (fname,pkg_name))
