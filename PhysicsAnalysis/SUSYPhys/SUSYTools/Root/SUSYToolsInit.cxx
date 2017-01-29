@@ -166,7 +166,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     std::string JES_config_file("JES_data2016_data2015_Recommendation_Dec2016.config"); //JES_MC15cRecommendation_May2016.config");
     
     if(m_JMScalib){ //with JMS calibration (if requested)
-      JES_config_file = "JES_MC15cRecommendation_May2016_JMS.config";
+      JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS.config";
     }
     
 #else

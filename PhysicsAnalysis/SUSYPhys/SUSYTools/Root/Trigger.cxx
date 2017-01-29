@@ -11,6 +11,7 @@
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/MatchingTool.h"
+#include "TrigDecisionTool/FeatureContainer.h"
 
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 
@@ -22,6 +23,7 @@
 
 namespace ST {
 
+  const static SG::AuxElement::Decorator<int> dec_trigmatched("trigmatched");
 
 bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber) {
 
@@ -319,6 +321,11 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     // for(auto& chain : trigs16)
     //   std::cout << "    " << chain << std::endl;
 
+  }
+
+  Trig::FeatureContainer SUSYObjDef_xAOD::GetTriggerFeatures(const std::string& chainName, unsigned int condition) const
+  {
+    return m_trigDecTool->features(chainName,condition);
   }
 
 

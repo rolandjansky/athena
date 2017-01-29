@@ -16,7 +16,7 @@ SUSYTools
 Recommended tags
 ------------------------------------
 
-**Rel 20.7 Samples :**   Base,2.4.25 + SUSYTools-00-08-40
+**Rel 20.7 Samples :**   Base,2.4.25 + SUSYTools-00-08-41
 
 **Rel 20.1 Samples :**   Base,2.3.8 + SUSYTools-00-07-58
 

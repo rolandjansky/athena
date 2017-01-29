@@ -3,6 +3,9 @@
 # update : 13/01/2017 by Serhan (added new Stop2L MadSpin samples including branching fractions under k-factor column)
 DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
 
+390850   61   21.5949             1.0          1.0         0.140595
+390851   61   21.5949             1.0          1.0         0.140595
+390852   61   21.5949             1.0          1.0         0.140595
 390853   61   8.51615             1.0          1.0         0.139223
 390854   61   8.51615             1.0          1.0         0.139223
 390855   61   8.51615             1.0          1.0         0.139223

@@ -31,6 +31,19 @@
 
 namespace ST {
 
+  const static SG::AuxElement::Decorator<char>     dec_bad("bad");
+  const static SG::AuxElement::ConstAccessor<char> acc_bad("bad");
+  
+  const static SG::AuxElement::Decorator<char>      dec_passJvt("passJvt");
+  const static SG::AuxElement::ConstAccessor<char>  acc_passJvt("passJvt");
+  const static SG::AuxElement::ConstAccessor<char>  acc_passFJvt("passFJvt");
+  const static SG::AuxElement::Decorator<double>    dec_jvtscalefact("jvtscalefact");    
+  
+  const static SG::AuxElement::Accessor<float> acc_jvt("jvt");
+  
+  const static SG::AuxElement::Decorator<char> dec_bjet("bjet");
+  const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
+  const static SG::AuxElement::Decorator<char> dec_bjet_loose("bjet_loose");
 
   StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
   {
@@ -142,6 +155,8 @@ namespace ST {
     for (const auto& jet : *copy) {
       ATH_CHECK( this->FillJet(*jet, true, true) );
       //...
+      const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
+      const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
       if ( doLargeRdecorations ){
 #ifdef XAOD_STANDALONE 
         dec_wtagged(*jet) = m_WTaggerTool->result(*jet);
@@ -270,7 +285,7 @@ namespace ST {
     dec_bjet_loose(input) = false;
     dec_effscalefact(input) = 1.;
 
-    if (!dec_passJvt(input)) {
+    if (!acc_passJvt(input)) {
       dec_baseline(input) = false;
       return StatusCode::SUCCESS;
     }
@@ -322,11 +337,11 @@ namespace ST {
   }
 
   bool SUSYObjDef_xAOD::IsSignalJet(const xAOD::Jet& input, float ptcut, float etacut) const {
-    if ( !dec_baseline(input)  || !dec_passOR(input) ) return false;
+    if ( !acc_baseline(input)  || !acc_passOR(input) ) return false;
 
     if ( input.pt() <= ptcut || fabs(input.eta()) >= etacut) return false;
 
-    bool isgoodjet = !dec_bad(input) && dec_passJvt(input);
+    bool isgoodjet = !acc_bad(input) && acc_passJvt(input);
 
     if (m_debug) {
       float emfrac, hecf, LArQuality, HECQuality, Timing,  fracSamplingMax, NegativeE, AverageLArQF;
@@ -361,7 +376,7 @@ namespace ST {
       ATH_MSG_INFO( "JET AverageLArQF: " << AverageLArQF );
     }
     dec_signal(input) = isgoodjet;
-    ATH_MSG_VERBOSE( "JET isbad?: " << (int) dec_bad(input) );
+    ATH_MSG_VERBOSE( "JET isbad?: " << (int) acc_bad(input) );
 
     return isgoodjet;
   }
@@ -369,18 +384,18 @@ namespace ST {
 
   bool SUSYObjDef_xAOD::IsBadJet(const xAOD::Jet& input) const {
 
-    if ( !dec_passOR(input) ) return false;
+    if ( !acc_passOR(input) ) return false;
 
     float ptcut = 20e3;
-    bool  isPileup = !dec_passJvt(input);
+    bool  isPileup = !acc_passJvt(input);
 
     if ( input.pt() <= ptcut || isPileup ) return false;
 
     dec_bad(input) = !m_jetCleaningTool->keep(input);
 
-    ATH_MSG_VERBOSE( "JET isbad?: " << (int) dec_bad(input) );
+    ATH_MSG_VERBOSE( "JET isbad?: " << (int) acc_bad(input) );
 
-    return dec_bad(input);
+    return acc_bad(input);
   }
 
 
@@ -430,10 +445,11 @@ namespace ST {
         if (!jet->getAttribute("HadronConeExclTruthLabelID", truthlabel)) {
           ATH_MSG_ERROR("Failed to get jet truth label!");
         }
-        ATH_MSG_VERBOSE("This jet is " << (dec_bjet(*jet) ? "" : "not ") << "b-tagged.");
+	const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
+        ATH_MSG_VERBOSE("This jet is " << (acc_bjet(*jet) ? "" : "not ") << "b-tagged.");
         ATH_MSG_VERBOSE("This jet's truth label is " << truthlabel);
 
-        if ( dec_bjet(*jet) ) {
+        if ( acc_bjet(*jet) ) {
           result = m_btagEffTool->getScaleFactor(*jet, sf);
 
           switch (result) {
@@ -465,7 +481,7 @@ namespace ST {
 
       dec_effscalefact(*jet) = sf;
 
-      if( dec_signal(*jet) && dec_passOR(*jet) ) totalSF *= sf; //consider goodjets only 
+      if( acc_signal(*jet) && acc_passOR(*jet) ) totalSF *= sf; //consider goodjets only 
 
     }
 
@@ -521,7 +537,7 @@ namespace ST {
         ATH_MSG_VERBOSE( " Retrieve SF for jet in SUSYTools_xAOD::JVT_SF with value " << sf );
       }
 
-      if( dec_signal(*jet) && dec_passOR(*jet) ) totalSF *= sf; //consider goodjets only 
+      if( acc_signal(*jet) && acc_passOR(*jet) ) totalSF *= sf; //consider goodjets only 
 
     }
 

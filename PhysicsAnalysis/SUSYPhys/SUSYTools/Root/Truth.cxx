@@ -302,18 +302,20 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgi
 
 bool SUSYObjDef_xAOD::IsTruthBJet(const xAOD::Jet& input) const {
   //Method to set correctly the IsBjet decoration needed by the JetUncertainties tool
-
-  if (dec_signal(input)) {
+  bool isBjet = false;
+  if (acc_signal(input)) {
 
     int truthlabel(-1);
     if (!input.getAttribute("HadronConeExclTruthLabelID", truthlabel)) {
       ATH_MSG_ERROR("Failed to get jet truth label!");
     }
 
-    if (std::abs(truthlabel) == 5) dec_bjet_jetunc(input) = true;
+    isBjet = std::abs(truthlabel) == 5;
+    const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
+    dec_bjet_jetunc(input) = isBjet;
 
   }
-  return dec_bjet_jetunc(input);
+  return isBjet;
 }
 
 }

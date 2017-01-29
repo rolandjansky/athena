@@ -29,6 +29,13 @@
 
 namespace ST {
 
+  const static SG::AuxElement::Decorator<char>      dec_passSignalID("passSignalID");
+  const static SG::AuxElement::ConstAccessor<char>  acc_passSignalID("passSignalID");
+
+  const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
+  const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
+  const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
+  const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
 
 StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& elekey, const xAOD::ElectronContainer* containerToBeCopied)
 {
@@ -79,7 +86,7 @@ StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::S
     //correct isolation and propagate to signal deco
     for (const auto& electron : *copy) {
       dec_isol(*electron) = m_isoCloseByTool->acceptCorrected(*electron, pVec);
-      if(m_doElIsoSignal) dec_signal(*electron) &= dec_isol(*electron); //add isolation to signal deco if requested
+      if(m_doElIsoSignal) dec_signal(*electron) &= acc_isol(*electron); //add isolation to signal deco if requested
     }
   }
 
@@ -194,9 +201,9 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
   //overwrite ID selection if forced by user
   if(m_force_noElId) dec_passSignalID(input) = true;
 
-  if (!dec_passSignalID(input)) return false;
+  if (!acc_passSignalID(input)) return false;
 
-  if (!dec_baseline(input)) return false;
+  if (!acc_baseline(input)) return false;
   if (input.p4().Perp2() <= etcut * etcut || input.p4().Perp2() == 0) return false; // eT cut (might be necessary for leading electron to pass trigger)
   if ( etacut==DUMMYDEF ){
     if(fabs(input.eta()) > m_eleEta ) return false;
@@ -209,16 +216,16 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
     }
   }
 
-  if (dec_d0sig(input) != 0) {
-    if (d0sigcut > 0.0 && fabs(dec_d0sig(input)) > d0sigcut) return false; // transverse IP cut
+  if (acc_d0sig(input) != 0) {
+    if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 
-  if (z0cut > 0.0 && fabs(dec_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
+  if (z0cut > 0.0 && fabs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
 
 
-  ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << dec_passSignalID(input) << " d0sig " << dec_d0sig(input) << " z0 sin(theta) " << dec_z0sinTheta(input) );
+  ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
 
-  if (dec_isol(input) || !m_doElIsoSignal) {
+  if (acc_isol(input) || !m_doElIsoSignal) {
     ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
   } else return false; //isolation selection with IsoTool
 
@@ -399,7 +406,7 @@ float SUSYObjDef_xAOD::GetTotalElectronSF(const xAOD::ElectronContainer& electro
   float sf(1.);
 
   for (const auto& electron : electrons) {
-    if (dec_signal(*electron) && dec_passOR(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr); }
+    if (acc_signal(*electron) && acc_passOR(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr); }
   }
 
   return sf;

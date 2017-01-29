@@ -37,6 +37,16 @@
 
 namespace ST {
 
+  const static SG::AuxElement::Decorator<char>      dec_passedHighPtCuts("passedHighPtCuts");
+  const static SG::AuxElement::ConstAccessor<char>  acc_passedHighPtCuts("passedHighPtCuts");
+
+  const static SG::AuxElement::Decorator<char>      dec_passSignalID("passSignalID");
+
+  const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
+  const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
+  const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
+  const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
+
 StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& muonkey, const xAOD::MuonContainer* containerToBeCopied)
 {
   if (!m_tool_init) {
@@ -106,7 +116,7 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
     //correct isolation and propagate to signal deco
     for (const auto& muon : *copy) {
       dec_isol(*muon) = m_isoCloseByTool->acceptCorrected(*muon, pVec);
-      if(m_doMuIsoSignal) dec_signal(*muon) &= dec_isol(*muon); //add isolation to signal deco if requested
+      if(m_doMuIsoSignal) dec_signal(*muon) &= acc_isol(*muon); //add isolation to signal deco if requested
     }
   }
 
@@ -232,7 +242,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
 bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float d0sigcut, float z0cut, float etacut) const
 {
 
-  if (!dec_baseline(input)) return false;
+  if (!acc_baseline(input)) return false;
 
   if (input.pt() <= ptcut || input.pt() == 0) return false; // pT cut (might be necessary for leading muon to pass trigger)
   if ( etacut==DUMMYDEF ){
@@ -240,12 +250,12 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
   }
   else if ( fabs(input.eta()) > etacut ) return false;
 
-  if (z0cut > 0.0 && fabs(dec_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
+  if (z0cut > 0.0 && fabs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
   if (dec_d0sig(input) != 0) {
-    if (d0sigcut > 0.0 && fabs(dec_d0sig(input)) > d0sigcut) return false; // transverse IP cut
+    if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 
-  if (dec_isol(input) || !m_doMuIsoSignal) {
+  if (acc_isol(input) || !m_doMuIsoSignal) {
     ATH_MSG_VERBOSE( "IsSignalMuon: passed isolation");
   } else return false; //isolation selection with IsoTool
 
@@ -257,17 +267,17 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
 
   if (m_muId == 4) { //i.e. HighPt muons
     ATH_MSG_VERBOSE( "IsSignalMuon: mu pt " << input.pt()
-                     << " signal? " << (int) dec_signal(input)
-                     << " isolation? " << (int) dec_isol(input)
-                     << " passedHighPtCuts? " << (int) dec_passedHighPtCuts(input));
+                     << " signal? " << (int) acc_signal(input)
+                     << " isolation? " << (int) acc_isol(input)
+                     << " passedHighPtCuts? " << (int) acc_passedHighPtCuts(input));
   } else {
     ATH_MSG_VERBOSE( "IsSignalMuon: mu pt " << input.pt()
-                     << " signal? " << (int) dec_signal(input)
-                     << " isolation? " << (int) dec_isol(input));
+                     << " signal? " << (int) acc_signal(input)
+                     << " isolation? " << (int) acc_isol(input));
     // Don't show HighPtFlag ... we didn't set it!
   }
 
-  return dec_signal(input);
+  return acc_signal(input);
 }
 
 
@@ -282,15 +292,16 @@ bool SUSYObjDef_xAOD::IsHighPtMuon(const xAOD::Muon& input) const
     return false;
   }
   
-  if (m_muonSelectionTool->passedHighPtCuts(input)) {
-    dec_passedHighPtCuts(input) = true;
-  }
-  return dec_passedHighPtCuts(input);
+  bool isHighPt = m_muonSelectionTool->passedHighPtCuts(input);
+  dec_passedHighPtCuts(input) = isHighPt;
+  return isHighPt;
+  
 }
 
 
 bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
 {
+  const static SG::AuxElement::Decorator<char> dec_bad("bad");
   dec_bad(input) = false;
 
   //const xAOD::TrackParticle* track = input.primaryTrackParticle();   //no need for SAF muon special treatment anymore!
@@ -313,12 +324,13 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
 
   dec_bad(input) = isbad;
 
-  ATH_MSG_VERBOSE( "MUON isbad?: " << (int) dec_bad(input) );
-  return dec_bad(input);
+  ATH_MSG_VERBOSE( "MUON isbad?: " << isbad );
+  return isbad;
 }
 
 bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d0cut) const
 {
+  const static SG::AuxElement::Decorator<char> dec_cosmic("cosmic");
   dec_cosmic(input) = false;
 
   const xAOD::TrackParticle* track;
@@ -493,7 +505,7 @@ double SUSYObjDef_xAOD::GetTotalMuonSF(const xAOD::MuonContainer& muons, const b
 
   ConstDataVector<xAOD::MuonContainer> sfmuons(SG::VIEW_ELEMENTS);
   for (const auto& muon : muons) {
-    if (dec_signal(*muon) && dec_passOR(*muon)) {
+    if (acc_signal(*muon) && acc_passOR(*muon)) {
       sfmuons.push_back(muon);
       if (recoSF || isoSF) { sf *= this->GetSignalMuonSF(*muon, recoSF, isoSF); }
     }

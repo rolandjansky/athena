@@ -19,6 +19,7 @@
 
 namespace ST {
 
+  const static SG::AuxElement::ConstAccessor<char> cacc_baseline("baseline");
 
 StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
                                    const xAOD::JetContainer* jet,
@@ -62,7 +63,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build electron MET");
     ConstDataVector<xAOD::ElectronContainer> metelectron(SG::VIEW_ELEMENTS);
     for (const auto& el : *elec) {
-      if (dec_baseline(*el)) {
+      if (cacc_baseline(*el)) {
         bool veto(false);
         if (invis) {
           for (const auto& ipart : *invis) {
@@ -79,7 +80,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build photon MET");
     ConstDataVector<xAOD::PhotonContainer> metgamma(SG::VIEW_ELEMENTS);
     for (const auto& ph : *gamma) {
-      if (dec_baseline(*ph)) {
+      if (cacc_baseline(*ph)) {
         bool veto(false);
         if (invis) {
           for (const auto& ipart : *invis) {
@@ -96,7 +97,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build tau MET");
     ConstDataVector<xAOD::TauJetContainer> mettau(SG::VIEW_ELEMENTS);
     for (const auto& tau : *taujet) {
-      if (dec_baseline(*tau)) {
+      if (cacc_baseline(*tau)) {
         bool veto(false);
         if (invis) {
           for (const auto& ipart : *invis) {
@@ -114,7 +115,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ConstDataVector<xAOD::MuonContainer> metmuon(SG::VIEW_ELEMENTS);
     for (const auto& mu : *muon) {
       bool veto(false);
-      if (dec_baseline(*mu)) {
+      if (cacc_baseline(*mu)) {
         if (invis) {
           for (const auto& ipart : *invis) {
             if (ipart == mu) {veto = true; break;}
@@ -179,7 +180,7 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build electron MET");
     ConstDataVector<xAOD::ElectronContainer> metelectron(SG::VIEW_ELEMENTS);
     for (const auto& el : *elec) {
-      if (dec_baseline(*el)) metelectron.push_back(el);
+      if (cacc_baseline(*el)) metelectron.push_back(el);
     }
     ATH_CHECK( m_metMaker->rebuildMET(m_eleTerm, xAOD::Type::Electron, &met, metelectron.asDataVector(), metMap) );
   }
@@ -188,7 +189,7 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build muon MET");
     ConstDataVector<xAOD::MuonContainer> metmuon(SG::VIEW_ELEMENTS);
     for (const auto& mu : *muon) {
-      if (dec_baseline(*mu)) metmuon.push_back(mu);
+      if (cacc_baseline(*mu)) metmuon.push_back(mu);
     }
     ATH_CHECK( m_metMaker->rebuildMET(m_muonTerm, xAOD::Type::Muon, &met, metmuon.asDataVector(), metMap) );
   }

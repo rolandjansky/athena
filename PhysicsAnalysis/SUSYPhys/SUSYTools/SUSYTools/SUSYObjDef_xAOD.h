@@ -97,6 +97,7 @@ namespace TrigConf {
 namespace Trig {
   class TrigDecisionTool;
   class IMatchingTool;
+  class FeatureContainer;
 }
 
 class IWeightTool;
@@ -280,14 +281,12 @@ namespace ST {
     void TrigMatch(const xAOD::IParticleContainer* v,  const std::string& item) override final;
     void TrigMatch(const std::initializer_list<const xAOD::IParticle*> &v, const std::string& item) override final;
 
+    // Trigger helpers
     float GetTrigPrescale(const std::string&) const override final;
-
     const Trig::ChainGroup* GetTrigChainGroup(const std::string&) const override final;
-
     std::vector<std::string> GetTriggerOR(std::string trigExpr) const;
-
     void GetTriggerTokens(std::string, std::vector<std::string>& , std::vector<std::string>& ) const;
-
+    Trig::FeatureContainer GetTriggerFeatures(const std::string& chainName = "EF_.*", unsigned int condition = TrigDefs::Physics) const;
 
     float GetPileupWeight() override final;
 
@@ -668,39 +667,28 @@ namespace ST {
     asg::AnaToolHandle<IWeightTool> m_pmgSHnjetWeighterWZ;
     //
 
-
-    // accessors and decorations
-    SG::AuxElement::Decorator<char> dec_baseline;
-    SG::AuxElement::Decorator<char> dec_signal;
-    SG::AuxElement::Decorator<char> dec_isol;
-    SG::AuxElement::Decorator<char> dec_passJvt;
-    SG::AuxElement::Decorator<char> dec_passOR;
-    //    SG::AuxElement::Decorator<char> dec_passBaseID;
-    SG::AuxElement::Decorator<char> dec_passSignalID;
-    SG::AuxElement::Decorator<char> dec_bad;
-    SG::AuxElement::Decorator<char> dec_bjet;
-    SG::AuxElement::Decorator<char> dec_bjet_jetunc; //added for JetUncertainties usage
-    SG::AuxElement::Decorator<char> dec_bjet_loose;
-    SG::AuxElement::Decorator<char> dec_cosmic;
-    SG::AuxElement::Decorator<char> dec_passedHighPtCuts;
-    SG::AuxElement::Decorator<int> dec_wtagged;
-    SG::AuxElement::Decorator<int> dec_ztagged;
-    SG::AuxElement::Decorator<int> dec_trigmatched;
-    SG::AuxElement::Decorator<double> dec_effscalefact;
-    SG::AuxElement::Decorator<double> dec_trigscalefact;
-    SG::AuxElement::Decorator<double> dec_jvtscalefact;    
-    SG::AuxElement::Decorator<float> dec_z0sinTheta;
-    SG::AuxElement::Decorator<float> dec_d0sig;
-    
-    SG::AuxElement::Accessor<unsigned int> acc_OQ;
-    SG::AuxElement::Accessor<float>  acc_jvt;
-    SG::AuxElement::Accessor<char>   acc_passFJvt;
-    SG::AuxElement::Accessor<int> acc_truthType;
-    SG::AuxElement::Accessor<int> acc_truthOrigin;
-    SG::AuxElement::Accessor<int> acc_bkgTruthOrigin;
-    SG::AuxElement::Accessor<unsigned int> randomrunnumber;
-
   }; // Class SUSYObjDef_xAOD
+
+  // decorators
+  const static SG::AuxElement::Decorator<char> dec_baseline("baseline");
+  const static SG::AuxElement::Decorator<char> dec_signal("signal");
+  const static SG::AuxElement::Decorator<char> dec_isol("isol");
+  const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
+  //    const static SG::AuxElement::Decorator<char> dec_passBaseID("passBaseID");
+  const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
+  // const static SG::AuxElement::Decorator<double> dec_trigscalefact("trigscalefact");
+
+  // const accessors for reading decorations that we set
+  const static SG::AuxElement::ConstAccessor<char> acc_baseline("baseline");
+  const static SG::AuxElement::ConstAccessor<char> acc_signal("signal");
+  const static SG::AuxElement::ConstAccessor<char> acc_isol("isol");
+  const static SG::AuxElement::ConstAccessor<char> acc_passOR("passOR");
+  // more decorations that are set externally
+  const static SG::AuxElement::ConstAccessor<unsigned int> acc_OQ("OQ");
+  const static SG::AuxElement::ConstAccessor<int> acc_truthType("truthType");
+  const static SG::AuxElement::ConstAccessor<int> acc_truthOrigin("truthOrigin");
+  const static SG::AuxElement::ConstAccessor<int> acc_bkgTruthOrigin("bkgTruthOrigin");
+  const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
 
 } // namespace ST
 

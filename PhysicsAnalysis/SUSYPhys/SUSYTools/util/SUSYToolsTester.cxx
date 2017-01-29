@@ -253,7 +253,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
     std::vector<std::string> myGRLs;
     myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.xml"));
-    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.xml"));
+    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20161101/physics_25ns_20.7.xml"));
+
     ANA_CHECK( m_grl->setProperty("GoodRunsListVec", myGRLs) );
     ANA_CHECK( m_grl->setProperty("PassThrough", false) );
     ANA_CHECK( m_grl->initialize() );
@@ -287,7 +288,6 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
   ANA_CHECK( objTool.setBoolProperty("METDoTrkSyst", true) );
   ANA_CHECK( objTool.setBoolProperty("METDoCaloSyst", false) );
-
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////                                            

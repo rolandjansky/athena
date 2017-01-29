@@ -286,36 +286,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 #endif
     //
     m_pmgSHnjetWeighter(""),
-    m_pmgSHnjetWeighterWZ(""),
-    // accessors and decorations
-    dec_baseline("baseline"),
-    dec_signal("signal"),
-    dec_isol("isol"),
-    dec_passJvt("passJvt"),
-    dec_passOR("passOR"),
-    //dec_passBaseID("passBaseID"),
-    dec_passSignalID("passSignalID"),
-    dec_bad("bad"),
-    dec_bjet("bjet"),
-    dec_bjet_jetunc("IsBjet"), //added for JetUncertainties usage
-    dec_bjet_loose("bjet_loose"),
-    dec_cosmic("cosmic"),
-    dec_passedHighPtCuts("passedHighPtCuts"),
-    dec_wtagged("Wtag"),
-    dec_ztagged("Ztag"),
-    dec_trigmatched("trigger_matched"),
-    dec_effscalefact("effscalefact"),
-    dec_trigscalefact("trigscalefact"),
-    dec_jvtscalefact("jvtscalefact"),    
-    dec_z0sinTheta("z0sinTheta"),
-    dec_d0sig("d0sig"),
-    acc_OQ("OQ"),
-    acc_jvt("Jvt"),
-    acc_passFJvt("passFJVT"),
-    acc_truthType("truthType"),
-    acc_truthOrigin("truthOrigin"),
-    acc_bkgTruthOrigin("bkgTruthOrigin"),
-    randomrunnumber("RandomRunNumber")
+    m_pmgSHnjetWeighterWZ("")
 {
   //General settings
   declareProperty( "DataSource", m_dataSource = Undefined );

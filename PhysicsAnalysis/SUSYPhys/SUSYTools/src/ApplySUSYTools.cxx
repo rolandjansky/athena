@@ -365,8 +365,9 @@ StatusCode ApplySUSYTools::execute()
 
   const xAOD::VertexContainer* p_Vertices = 0;
   CHECK( evtStore()->retrieve(p_Vertices, "PrimaryVertices") );
+  const xAOD::Vertex* p_PrimVtx = m_objTool->GetPrimVtx();
   float z0PV = -666;
-  if( p_Vertices->size() > 0 ) z0PV = (*p_Vertices)[0]->z();
+  if( p_PrimVtx ) z0PV = p_PrimVtx->z();
   if( doPrint ) ATH_MSG_DEBUG("Got p_Vertices size,z0 = " 
                               <<p_Vertices->size() <<" " <<z0PV);
 
@@ -379,6 +380,18 @@ StatusCode ApplySUSYTools::execute()
   if( doPrint ) ATH_MSG_DEBUG("Got p_Photons size =  " <<p_Photons->size());
 
   if( doPrint ) ATH_MSG_DEBUG("Retrieved all object containers for event " <<m_evtCount);
+
+  // FIXME: Make empty TruthTaus if p_TauJets is empty and not data
+  // Tau code fails in this case!
+  if( !evtStore()->contains<xAOD::TruthParticleContainer>("TruthTaus") &&
+  p_TauJets->size() == 0 && !m_isData ){
+    ATH_MSG_DEBUG("FIXME: TruthTaus hack for empty TauJets.");
+    xAOD::TruthParticleContainer* noTT = new xAOD::TruthParticleContainer;
+    xAOD::TruthParticleAuxContainer* noTTAux = new xAOD::TruthParticleAuxContainer;
+    noTT->setStore( noTTAux );
+    CHECK( evtStore()->record(noTT, "TruthTaus") );
+    CHECK( evtStore()->record(noTTAux, "TruthTausAux.") );
+  }
 
 
   /////////////////////////////////////////////////////////
@@ -463,7 +476,7 @@ StatusCode ApplySUSYTools::execute()
     // setShallowIO writes output as shallow copy
     xAOD::JetContainer* fatjets_nominal(0);
     xAOD::ShallowAuxContainer* fatjets_nominal_aux(0);
-    std::string fatjetcoll = m_FatJetsName; //.substr(0, m_FatJetsName.size()-4);
+    std::string fatjetcoll = m_FatJetsName.substr(0, m_FatJetsName.size()-4);
     CHECK( m_objTool->GetFatJets(fatjets_nominal, fatjets_nominal_aux, true, fatjetcoll, true));
     
     if( doPrint ){
@@ -524,11 +537,12 @@ StatusCode ApplySUSYTools::execute()
       bool issig = m_objTool->IsSignalMuon(*p, m_muPt, m_mud0sig, m_muz0);
       bool iscosmic = m_objTool->IsCosmicMuon(*p, m_muCosmicz0, m_muCosmicd0);
       bool ishi = false;
+      bool isbase = (bool)p->auxdata<char>("baseline");
       if( p->pt() > 4.e3 ) ishi = m_objTool->IsHighPtMuon(*p);
       if( doPrint ) ATH_MSG_DEBUG("Systematic muon pt " <<sysname <<" "
-                                  <<p->pt() <<" " <<iscosmic <<" " 
-                                  <<issig <<" " <<ishi);
-      if( p->auxdata<char>("baseline") ) (*muCutMask)[pIndex] = true;
+                                  <<p->pt() <<"  " <<iscosmic <<" " 
+                                  <<isbase <<" " <<issig <<" " <<ishi);
+      if( isbase ) (*muCutMask)[pIndex] = true;
       ++pIndex;
 
       const xAOD::TrackParticle* trk = 
@@ -539,17 +553,17 @@ StatusCode ApplySUSYTools::execute()
     }
   }
 
+
   // Muons thinning
+  int muonsSize = p_Muons->size();
   CHECK( m_thinningSvc->filter(*p_Muons, *muCutMask, 
                                IThinningSvc::Operator::Or) );
   CHECK( m_thinningSvc->filter(*p_MuonSpecTP, *muSpecCutMask,
                                IThinningSvc::Operator::Or) );
-  for(auto si : m_systInfoMUON){
-    const CP::SystematicSet& sys = si->systset;
-    std::string sysname = sys.name();
-    if( sysname == "" ) sysname = "Nominal";
-    const xAOD::MuonContainer* mus = 0;
-    CHECK( evtStore()->retrieve(mus, m_MuonsName+sysname) );
+  for(auto si : m_systInfoMUON){ const CP::SystematicSet& sys =
+    si->systset; std::string sysname = sys.name(); if( sysname == "" )
+    sysname = "Nominal"; const xAOD::MuonContainer* mus = 0; CHECK(
+    evtStore()->retrieve(mus, m_MuonsName+sysname) );
     CHECK( m_thinningSvc->filter(*mus, *muCutMask,
                                  IThinningSvc::Operator::Or) );
   }
@@ -661,11 +675,15 @@ StatusCode ApplySUSYTools::execute()
     CHECK( evtStore()->record(metaux, METsName+sysname+"Aux.") );
     if( doPrint ) ATH_MSG_DEBUG("Recorded " <<METsName+sysname <<" "
                                 <<METsName+sysname+"Aux.");
-
-    CHECK( m_objTool->GetMET(*met, p_JetsSys, p_ElectronsN, p_MuonsN, 
-                             0, 0, m_doTST, m_doTST).isSuccess() );
-    if( doPrint ) ATH_MSG_DEBUG("MET et " 
-                  <<(*met)["Final"]->met() <<" " <<sysname);
+    // Only redo MET if primary vertex exists
+    if( p_PrimVtx ){
+      CHECK( m_objTool->GetMET(*met, p_JetsSys, p_ElectronsN, p_MuonsN, 
+                               0, 0, m_doTST, m_doTST).isSuccess() );
+      if( doPrint ) ATH_MSG_DEBUG("MET et " 
+                    <<(*met)["Final"]->met() <<" " <<sysname);
+    } else {
+      ATH_MSG_DEBUG("No primary vertex, skipping GetMET");
+    }
   }
 
   // Soft term systematics
@@ -686,11 +704,12 @@ StatusCode ApplySUSYTools::execute()
       CHECK( evtStore()->record(metaux, METsName+sysname+"Aux.") );
       if( doPrint ) ATH_MSG_DEBUG("Recorded " <<METsName+sysname <<" "
                                   <<METsName+sysname+"Aux.");
-
-      CHECK( m_objTool->GetMET(*met, p_JetsN, p_ElectronsN, p_MuonsN, 
-                               0, 0, m_doTST, m_doTST).isSuccess() );
-      if( doPrint ) ATH_MSG_DEBUG("MET et " 
-                    <<(*met)["Final"]->met() <<" " <<sysname);
+      if( p_PrimVtx ){
+        CHECK( m_objTool->GetMET(*met, p_JetsN, p_ElectronsN, p_MuonsN, 
+                                 0, 0, m_doTST, m_doTST).isSuccess() );
+        if( doPrint ) ATH_MSG_DEBUG("MET et " 
+                      <<(*met)["Final"]->met() <<" " <<sysname);
+      }
     }
   } else {
     if( doPrint ) ATH_MSG_DEBUG("Start MET CST systematics");
@@ -707,11 +726,12 @@ StatusCode ApplySUSYTools::execute()
       CHECK( evtStore()->record(metaux, METsName+sysname+"Aux.") );
       if( doPrint ) ATH_MSG_DEBUG("Recorded " <<METsName+sysname <<" "
                                   <<METsName+sysname+"Aux.");
-
-      CHECK( m_objTool->GetMET(*met, p_JetsN, p_ElectronsN, p_MuonsN, 
-                               0, 0, m_doTST, m_doTST).isSuccess() );
-      if( doPrint ) ATH_MSG_DEBUG("MET et " 
-                    <<(*met)["Final"]->met() <<" " <<sysname);
+      if( p_PrimVtx > 0 ){
+        CHECK( m_objTool->GetMET(*met, p_JetsN, p_ElectronsN, p_MuonsN, 
+                                 0, 0, m_doTST, m_doTST).isSuccess() );
+        if( doPrint ) ATH_MSG_DEBUG("MET et " 
+                      <<(*met)["Final"]->met() <<" " <<sysname);
+      }
     }
   }
 
@@ -854,10 +874,11 @@ StatusCode ApplySUSYTools::execute()
     for(const auto& p : *cpPhotons){
       float ptorig = (*p_Photons)[pIndex]->pt();
       CHECK( m_objTool->FillPhoton(*p, m_photonBaselinePt, m_photonEta) );
-      //bool issig = m_objTool->IsSignalPhoton(*p, m_photonPt);
+      bool issig = m_objTool->IsSignalPhoton(*p, m_photonPt);
       if( doPrint ) ATH_MSG_DEBUG("Systematic photon pt " <<sysname <<" "
                                   <<p->pt() <<" " <<ptorig <<" "
-                                  <<(int)p->auxdata<char>("baseline"));
+                                  <<(int)p->auxdata<char>("baseline") <<" "
+                                  <<issig);
       if( p->auxdata<char>("baseline") ){
         if( doPrint && sysname == "Nominal" ){
           ATH_MSG_DEBUG("Accepted Nominal photon pt " <<p->pt());

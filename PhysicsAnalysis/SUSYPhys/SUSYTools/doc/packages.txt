@@ -1,6 +1,6 @@
 #for running on Base,2.4.25
 #
-# No packages!  Packages listed here should be listed like:
-#atlasoff/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-00-02-22
+# Tau MVA bugfix; see https://its.cern.ch/jira/browse/ATLTAU-1211
+atlasoff/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-00-02-37
 #
 #
