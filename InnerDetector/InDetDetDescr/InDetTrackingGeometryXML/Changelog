@@ -1,3 +1,11 @@
+2017-01-29 Noemi Calace <Noemi.Calace@cern.ch>
+	* Checking Optimised ring system for Inclined layout
+	* Tag as InDetTrackingGeometryXML-00-00-55
+
+2017-01-12 Noemi Calace <Noemi.Calace@cern.ch>
+	* Fixing CMakeLists.txt
+	* Tag as InDetTrackingGeometryXML-00-00-54
+
 2017-01-04 Sharka Todorova <sarka.todorova@cern.ch>
 	* Fixing Phi limits in binning
 	* Tag as InDetTrackingGeometryXML-00-00-53

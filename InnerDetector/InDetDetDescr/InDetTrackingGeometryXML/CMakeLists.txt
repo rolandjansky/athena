@@ -33,14 +33,16 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( XercesC )
 
 # Component(s) in the package:
+atlas_add_library( InDetTrackingGeometryXMLLib
+		   src/*.cxx
+		   PUBLIC_HEADERS InDetTrackingGeometryXML
+		   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+		   LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AtlasDetDescr GeoPrimitives StoreGateLib SGtests
+		   PRIVATE_LINK_LIBRARIES GaudiKernel InDetIdentifier TrkDetDescrInterfaces TrkDetDescrUtils TrkSurfaces InDetReadoutGeometry InDetTrackingGeometryUtils PathResolver GeoModelXml TrkDetElementBase TrkGeometry TrkGeometryAlpine )
+
 atlas_add_component( InDetTrackingGeometryXML
-                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}
-		     AthenaBaseComps AthenaKernel AtlasDetDescr GeoPrimitives StoreGateLib SGtests
-		     PRIVATE_LINK_LIBRARIES GaudiKernel InDetIdentifier TrkDetDescrInterfaces TrkDetDescrUtils TrkSurfaces 
-		     InDetReadoutGeometry InDetTrackingGeometryUtils PathResolver GeoModelXml TrkDetElementBase TrkGeometry TrkGeometryAlpine )
+                     LINK_LIBRARIES InDetTrackingGeometryXMLLib )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackingGeometryXML )

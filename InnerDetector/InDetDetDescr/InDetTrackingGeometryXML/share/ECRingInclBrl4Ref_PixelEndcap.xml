@@ -16,7 +16,7 @@
   <Name> PixelEndcapRing1 </Name>
   <LayerNumber> 1 </LayerNumber>
   <LayerPosition> 2 </LayerPosition>
-  <RingPositions> 822.0 974.3 1100.7 1246.5 1334.2 1428.9 1531.3 1641.8 1761.1 1890.0 2203.2 2572.8 3000.0 </RingPositions>
+  <RingPositions> 823.0 974.3 1100.7 1246.5 1334.2 1428.9 1531.3 1641.8 1761.1 1890.0 2203.2 2572.8 3000.0 </RingPositions>
   <Radius> 150. </Radius>
   <RadiusType> Inner </RadiusType>
   <NumberOfSectors> 36 </NumberOfSectors>
@@ -28,7 +28,7 @@
   <Name> PixelEndcapRing2 </Name>
   <LayerNumber> 2 </LayerNumber>
   <LayerPosition> 3 </LayerPosition>
-  <RingPositions> 822.0 939.0 1076.4 1237.8 1427.2 1649.6 1910.7 2217.3 2577.3 3000.0 </RingPositions>
+  <RingPositions> 823.0 939.0 1076.4 1237.8 1427.2 1649.6 1910.7 2217.3 2577.3 3000.0 </RingPositions>
   <Radius> 212.5 </Radius>
   <RadiusType> Inner </RadiusType>
   <NumberOfSectors> 48 </NumberOfSectors>
@@ -40,7 +40,7 @@
   <Name> PixelEndcapRing3 </Name>
   <LayerNumber> 3 </LayerNumber>
   <LayerPosition> 4 </LayerPosition>
-  <RingPositions> 822.0 916.3 1023.9 1146.6 1286.4 1445.9 1627.8 1835.3 2071.8 2341.6 2649.2 3000.0 </RingPositions>
+  <RingPositions> 823.0 916.3 1023.9 1146.6 1286.4 1445.9 1627.8 1835.3 2071.8 2341.6 2649.2 3000.0 </RingPositions>
   <RadiusType> Inner </RadiusType>
   <Radius> 275.0 </Radius>
   <NumberOfSectors> 60 </NumberOfSectors>
