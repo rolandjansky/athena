@@ -16,6 +16,7 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/Property.h"
 
 #include <string>
 #include <vector>
@@ -39,12 +40,6 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
 
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
-
-/// for muon tests
-class Property;
-
-
-
 
 class DetectorTimingAlgo : public HLT::AllTEAlgo {
 public:

@@ -66,7 +66,8 @@ namespace PESA
       int priority = 100;
       pIncsvc->addListener( this, "BeginEvent", priority);
     } else {
-      msg(MSG::ERROR) << "No connection to incidentSvc used for cleanup" << endreq;
+      msg(MSG::ERROR) << "No connection to incidentSvc used for cleanup" 
+                      << endmsg;
       return StatusCode::FAILURE;
     }
 
