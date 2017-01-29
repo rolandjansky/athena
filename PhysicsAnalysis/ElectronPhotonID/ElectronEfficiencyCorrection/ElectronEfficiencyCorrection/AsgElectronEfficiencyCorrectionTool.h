@@ -27,6 +27,8 @@
 #include "AthContainers/AuxElement.h"
 //xAOD includes
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
+
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/CorrectionCode.h"
@@ -35,8 +37,7 @@
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
-  : virtual public IAsgElectronEfficiencyCorrectionTool,
-    public asg::AsgTool
+  : virtual public IAsgElectronEfficiencyCorrectionTool, public asg::AsgMetadataTool
 {
   ASG_TOOL_CLASS(AsgElectronEfficiencyCorrectionTool, IAsgElectronEfficiencyCorrectionTool)
 
@@ -55,6 +56,11 @@ public:
   /// Gaudi Service Interface method implementations
   virtual StatusCode finalize();
 
+  // Introducing to check if  METADATA working
+  virtual StatusCode beginInputFile();    
+  virtual StatusCode beginEvent();
+  virtual StatusCode endInputFile();    
+ 
   // Main methods from IUserDataCalcTool
 public:
 
@@ -96,6 +102,12 @@ public:
 
   // Private member variables
 private:
+  // To check if the metadat can be retrieved 
+  bool m_metadata_retrieved = false;
+
+  // Get the simulation type from metadata
+  StatusCode get_simType_from_metadata(PATCore::ParticleDataType::DataType& result) const;
+
 
   /// The main calculate method: the actual correction factors are determined here
   const Root::TResult& calculate( const xAOD::Electron& egam, const unsigned int runnumber, int &currentElectronSimplifiedUncorrSystRegion, int& currentElectronUncorrSystRegion ) const ;

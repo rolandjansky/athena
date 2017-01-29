@@ -111,76 +111,45 @@ namespace Root {
       /// Load all histograms from the input file(s)
       int getHistograms();
       int getHistogramInDirectory( TKey *key );
-      int setupHistogramsInFolder( TObjArray* dirNameArray, int lastIdx );
+      int setupHistogramsInFolder( const TObjArray& dirNameArray, int lastIdx );
 
       void calcDetailLevels(TH1D *eig) ;
 
-      std::vector<TObjArray*> *buildToyMCTable(TObjArray *sf, TObjArray *eig, TObjArray* stat, TObjArray* uncorr, std::vector<TObjArray*> *corr);
-      std::vector<TH2D*> *buildSingleToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, TObjArray *corr);
-      TH2D *buildSingleCombToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, TObjArray *corr);
+      std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, const TObjArray &eig, 
+					      const TObjArray& stat, const TObjArray& uncorr, const std::vector<TObjArray> &corr);
+
+      std::vector<TH2D*> buildSingleToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
+
+      TH2D* buildSingleCombToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
 
       /// Fill and interpret the setup, depending on which histograms are found in the input file(s)
-      int setup( TObjArray* hist,
-		 std::vector< TObjArray* >& histList,
+      int setup( const TObjArray& hist,
+		 std::vector< TObjArray >& histList,
 		 std::vector< unsigned int >& beginRunNumberList,
 		 std::vector< unsigned int >& endRunNumberList );
     
-      int setupSys( std::vector<TObjArray*> *hist,
-		    std::vector< std::vector< TObjArray* > *> & histList);
+      int setupSys( std::vector<TObjArray> & hist,
+		    std::vector< std::vector< TObjArray>> & histList);
 
       void printDefaultReturnMessage(TString reason, int line);
 
-      /// A debug flag: if true, print out more statements
-      TRandom3 *m_Rndm;
+      TRandom3 m_Rndm;
       int m_randomCounter;
-    
       bool m_isInitialized;
-
       /// The detail level
       int m_detailLevel;
-
       int m_toyMCSF;
-
+      //
       /// The seed
       int m_seed;
       bool m_doToyMC;
       bool m_doCombToyMC;
       int m_nToyMC;
-      //These are pointers to vectors  of vector pointers to TobjectArray pointers ...
-      //Nighmare to delete 
-      std::vector< std::vector<TObjArray*> *> *m_uncorrToyMCSystFull, *m_uncorrToyMCSystFast;
-
       int m_sLevel[3];
       int m_nSys;
       int m_nSysMax;
-
-
-      /// The list of file name(s)
-      std::vector< std::string > m_corrFileNameList;
-    
-      /// List of run numbers where histgrams become valid for full simulation
-      std::vector< unsigned int > m_begRunNumberList;
-    
-      /// List of run numbers where histgrams stop being valid for full simulation
-      std::vector< unsigned int > m_endRunNumberList;
-    
-
-      int m_runNumBegin, m_runNumEnd;
-      /// List of run numbers where histgrams become valid for fast simulation
-      std::vector< unsigned int > m_begRunNumberListFastSim;
-    
-      /// List of run numbers where histgrams stop being valid for fast simulation
-      std::vector< unsigned int > m_endRunNumberListFastSim;
-    
-    
-      /// List of histograms for full Geant4 simulation
-      std::map<int, std::vector< TObjArray* > > m_histList;
-      std::vector< std::vector< TObjArray* > > m_sysList;
-
-      /// List of histograms for fast simulation
-      std::map<int, std::vector< TObjArray* > > m_fastHistList;
-      std::vector< std::vector< TObjArray* > > m_fastSysList;
-
+      int m_runNumBegin;
+      int m_runNumEnd;
 
       /// The prefix string for the result
       std::string m_resultPrefix;
@@ -208,15 +177,34 @@ namespace Root {
 
       int m_nSimpleUncorrSyst;
 
-      /// The positions of the efficiency scale factor correlated sustematic uncertainties in the result
-      std::vector<int> m_position_corrSys; 
-
-      /// The positions of the toy MC scale factors
-      std::vector<int> m_position_uncorrToyMCSF; 
-
       /// The position of the efficiency scale factor uncorrelated systematic uncertainty in the result
       int m_position_globalBinNumber; 
 
+
+      //description here ?
+      std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
+      std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
+      /// The list of file name(s)
+      std::vector< std::string > m_corrFileNameList;
+      /// List of run numbers where histgrams become valid for full simulation
+      std::vector< unsigned int > m_begRunNumberList;
+      /// List of run numbers where histgrams stop being valid for full simulation
+      std::vector< unsigned int > m_endRunNumberList;
+      /// List of run numbers where histgrams become valid for fast simulation
+      std::vector< unsigned int > m_begRunNumberListFastSim;
+      /// List of run numbers where histgrams stop being valid for fast simulation
+      std::vector< unsigned int > m_endRunNumberListFastSim;    
+      /// List of histograms for full Geant4 simulation
+      std::map<int, std::vector< TObjArray > > m_histList;
+      std::vector< std::vector< TObjArray > > m_sysList;
+      /// List of histograms for fast simulation
+      std::map<int, std::vector< TObjArray > > m_fastHistList;
+      std::vector< std::vector< TObjArray > > m_fastSysList;
+      /// The positions of the efficiency scale factor correlated sustematic uncertainties in the result
+      std::vector<int> m_position_corrSys; 
+      /// The positions of the toy MC scale factors
+      std::vector<int> m_position_uncorrToyMCSF; 
+      ///The vector holding the keys
       std::vector<int> m_keys;
     
     }; // End: class definition
