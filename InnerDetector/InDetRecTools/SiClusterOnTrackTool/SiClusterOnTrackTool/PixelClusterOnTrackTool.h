@@ -96,7 +96,7 @@ public:
       of the intersecting track.
   */
   virtual const InDet::PixelClusterOnTrack* correct(const Trk::PrepRawData&,
-                                                    const Trk::TrackParameters&) const;
+                                                    const Trk::TrackParameters&) const override;
 
   virtual const InDet::PixelClusterOnTrack* correctDefault(const Trk::PrepRawData&, 
                                                            const Trk::TrackParameters&) const;
@@ -196,14 +196,14 @@ public:
   mutable std::vector< std::vector<float> > m_fX, m_fY, m_fB, m_fC, m_fD;
   
   //moved from static to member variable
-  static constexpr int nbinphi=9;
-  static constexpr int nbineta=6;
-  double calphi[nbinphi];
-  double caleta[nbineta][3];
-  double calerrphi[nbinphi][3];
-  double calerreta[nbineta][3];
-  double phix[nbinphi+1];
-  double etax[nbineta+1];
+  static constexpr int s_nbinphi=9;
+  static constexpr int s_nbineta=6;
+  double m_calphi[s_nbinphi];
+  double m_caleta[s_nbineta][3];
+  double m_calerrphi[s_nbinphi][3];
+  double m_calerreta[s_nbineta][3];
+  double m_phix[s_nbinphi+1];
+  double m_etax[s_nbineta+1];
 };
 
 } // end of namespace InDet
