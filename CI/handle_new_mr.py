@@ -13,7 +13,7 @@ def comment_affected_packages(packages):
     """
     if len(packages) > 0:
         comment = "This merge request affects %d package%s:  \n- " % (len(packages),'' if len(packages) == 1 else 's')
-        comment += "  \n- ".join(packages)
+        comment += "  \n- ".join(sorted(packages))
     else:
         comment = "This merge request affects no known packages. Consult an expert!"
 
