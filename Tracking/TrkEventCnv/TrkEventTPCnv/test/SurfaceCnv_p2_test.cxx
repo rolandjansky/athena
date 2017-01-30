@@ -156,7 +156,8 @@ void testit (const Trk::Surface& trans1)
   CNV cnv;
   cnv.setCnvToolName ("TestCnvTool");
   Trk::Surface_p2 pers;
-  cnv.transToPers (dynamic_cast<const typename CNV::Trans_t*>(&trans1), &pers, log);
+  const auto & p=dynamic_cast<const typename CNV::Trans_t*>(&trans1);
+  cnv.transToPers (p, &pers, log);
   std::unique_ptr<Trk::Surface> trans2 (cnv.createTransient (&pers, log));
   compare (trans1, *trans2);
 }

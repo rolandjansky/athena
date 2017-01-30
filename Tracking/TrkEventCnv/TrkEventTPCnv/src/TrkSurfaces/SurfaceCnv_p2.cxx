@@ -54,6 +54,7 @@ void SurfaceCnv_p2<SURFACE>::transToPers( const SURFACE         * transObj,
   // std::cout<<"SurfaceCnv_p2<SURFACE>::transToPers - surf="<<transObj<<std::endl;
   if (not transObj){
     log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - null pointer for transient object."<<endmsg;
+    return;
   }
   persObj->m_associatedDetElementId = transObj->associatedDetectorElementIdentifier().get_identifier32().get_compact();
   if (transObj->isFree() ) { 
