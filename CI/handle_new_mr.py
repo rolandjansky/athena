@@ -84,7 +84,9 @@ def add_labels(mr,domains):
     # add review-pending flag
     labels.add("review-pending")
     labels.add("1st-level-pending")
-    logging.debug("labels after adding review and domain flags:\n" + print_collection(labels))
+    # add label for target branch
+    labels.add(mr.target_branch)
+    logging.debug("updated labels:\n" + print_collection(labels))
     mr.labels = ",".join(labels)
     mr.save()
 
