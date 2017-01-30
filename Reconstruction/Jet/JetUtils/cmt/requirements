@@ -16,7 +16,9 @@ use AthLinks            AthLinks-*              Control
 
 #use PathResolver        PathResolver-*          Tools
 
-use TileEvent		TileEvent-*		TileCalorimeter
+
+use_ifndef pplist="XAOD_ANALYSIS" pkg="TileCalorimeter/TileEvent"
+#use TileEvent		TileEvent-*		TileCalorimeter
 use CaloGeoHelpers  CaloGeoHelpers-*  Calorimeter
 use xAODPFlow           xAODPFlow-*             Event/xAOD
 
@@ -28,7 +30,8 @@ use xAODTracking        xAODTracking-*         Event/xAOD
 use AtlasPolicy		AtlasPolicy-*
 
 use xAODJet             xAODJet-*               Event/xAOD
-use CaloEvent           CaloEvent-*             Calorimeter
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloEvent"
+#use CaloEvent           CaloEvent-*             Calorimeter
 
 #use GaudiInterface      GaudiInterface-*        External
 
