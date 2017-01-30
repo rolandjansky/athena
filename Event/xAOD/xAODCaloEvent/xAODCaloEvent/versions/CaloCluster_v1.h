@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 783594 2016-11-11 05:03:25Z ssnyder $
+// $Id: CaloCluster_v1.h 794609 2017-01-30 15:51:25Z menke $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -47,8 +47,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 783594 $
-   /// $Date: 2016-11-11 06:03:25 +0100 (Fri, 11 Nov 2016) $
+   /// $Revision: 794609 $
+   /// $Date: 2017-01-30 16:51:25 +0100 (Mon, 30 Jan 2017) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -144,6 +144,8 @@ namespace xAOD {
          N_BAD_HV_CELLS    = 829, ///< number of cells with bad HV
 	 /// relative spread of pT of constiuent cells = sqrt(n)*RMS/Mean
 	 PTD               = 830,
+ 	 /// cell based mass i.e. the mass of the 4-vector sum of all massless positive energetic cells
+	 MASS              = 831,
          EM_PROBABILITY    = 900, ///< Classification probability to be em-like
          HAD_WEIGHT        = 901, ///< Hadronic weight (E_w/E_em)
          OOC_WEIGHT        = 902, ///< Out-of-cluster weight (E_ooc/E_w)
