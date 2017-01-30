@@ -135,7 +135,7 @@ StatusCode ReadRpcDigit::finalize()
 StatusCode ReadRpcDigit::accessNtuple() 
 {
   //try to access it  
-  NTuplePtr nt(ntupleService(),"/NTUPLES"+m_NtupleLocID);
+  NTuplePtr nt(ntupleSvc(),"/NTUPLES"+m_NtupleLocID);
   
   if (nt) 
     {
