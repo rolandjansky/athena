@@ -34,8 +34,9 @@ try:
 except:
   pass
 try:
-  from TrigInDetConf.HypoAlgCnfgble import TrigFTKAvailable
+  from TrigInDetConf.HypoAlgCfgble import TrigFTKAvailable
 except:
+  log.info("Could not import TrigFTKAvailable")
   pass
 
 
@@ -149,7 +150,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
       from sys import exc_info
       (a,reason,c) = exc_info()
       print reason
-      log.error("Cannot create EFID sequence %s, leaving empty" % alglist)
+      log.error("Cannot create ID tracking sequence %s, leaving empty" % alglist)
       import traceback
       print traceback.format_exc()
 
