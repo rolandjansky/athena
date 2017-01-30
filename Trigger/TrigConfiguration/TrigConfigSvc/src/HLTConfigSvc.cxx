@@ -406,7 +406,7 @@ namespace {
    inline void fillPrescaleHist(TH2I* h, uint lb, int psk) {
       if (h==0) return;
       // Use alpha-numeric bin labels to ensure correct gathering
-      char buf_psk[6], buf_lb[6];
+      char buf_psk[12], buf_lb[12];
       snprintf(buf_psk, sizeof(buf_psk), "%d", psk);  // faster than stringstream
       snprintf(buf_lb, sizeof(buf_lb), "%03d", lb);
       // Save number of bins and perform a locked Fill
