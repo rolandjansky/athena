@@ -30,5 +30,5 @@ atlas_add_executable( TrigConfReadWriteMuCTPiGeometry
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( scripts/*.py )
-atlas_install_xmls( data/*.dtd data/*.xml )
+atlas_install_xmls( data/*.dtd )
 
