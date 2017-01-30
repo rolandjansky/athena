@@ -450,7 +450,7 @@ protected:
     }
 
     if ( !this->m_keepAllEvents && !analyse ) {
-      m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event" << endreq;
+      //     m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endreq;
       if(m_provider->msg().level() <= MSG::VERBOSE)
         m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endreq;
       return;
@@ -522,7 +522,7 @@ protected:
 
     //std::vector<TIDA::Vertex> vertices;
     
-    m_provider->msg(MSG::INFO) << "fetching AOD Primary vertex container" << endreq;
+    m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endreq;
 
     const xAOD::VertexContainer* xaodVtxCollection = 0;
 
@@ -532,7 +532,7 @@ protected:
     
     if ( xaodVtxCollection!=0 ) { 
         
-      m_provider->msg(MSG::INFO) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endreq;
+      m_provider->msg(MSG::VERBOSE) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endreq;
 
       xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
       for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
