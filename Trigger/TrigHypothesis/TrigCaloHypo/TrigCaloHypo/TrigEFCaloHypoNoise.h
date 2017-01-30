@@ -45,8 +45,8 @@ class TrigEFCaloHypoNoise : public HLT::HypoAlgo {
   // Cuts to be applied:
 
   double     m_EtCut;
-  double     m_etaMinCut;
-  double     m_etaMaxCut;
+  //double     m_etaMinCut;
+  //double     m_etaMaxCut;
 
   int m_accepted;
   int m_rejected;
@@ -60,7 +60,7 @@ class TrigEFCaloHypoNoise : public HLT::HypoAlgo {
   
   bool m_doMonitoring;
 
-  StoreGateSvc*                           m_storeGate;
+  //StoreGateSvc*                           m_storeGate;
 
   // Timing:
 
