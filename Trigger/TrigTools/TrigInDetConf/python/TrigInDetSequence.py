@@ -33,6 +33,11 @@ try:
   from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
 except:
   pass
+try:
+  from TrigInDetConf.HypoAlgCnfgble import TrigFTKAvailable
+except:
+  pass
+
 
 from TrigInDetConf.RoiManipulators import IDTrigRoiUpdater
 from TrigInDetConf.TrackingAlgCfgble import TrigFastTrackFinder
