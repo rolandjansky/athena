@@ -311,16 +311,14 @@ namespace jet {
   // ****************************************************************
   bool JetCalcNegativeEnergy::setupJet(const Jet* ){
     m_totE =0;
-    m_totSig = 0;
     return true;
   }
 
 
   double JetCalcNegativeEnergy::jetCalculation() const {  
 
-    if( m_totSig != 0) return m_totE / m_totSig;
+    return m_totE;
 
-    return 0.;
   }
 
   bool JetCalcNegativeEnergy::processConstituent(xAOD::JetConstituentVector::iterator& iter){
@@ -328,11 +326,7 @@ namespace jet {
    double e = iter->e() ;  // using iter since it is set at the expected scale by the JetCaloCalculations instance
      
     double epos= m_constitExtractor->moment(iter, xAOD::CaloCluster::ENG_POS);
-    double sig = m_constitExtractor->moment(iter, xAOD::CaloCluster::SIGNIFICANCE);
-
-
-    m_totE += (e - epos ) * fabs( sig  );
-    m_totSig += sig;
+    m_totE += (e - epos );
 
     return true;
   }

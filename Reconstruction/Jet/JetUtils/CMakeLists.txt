@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 781548 2016-11-01 09:48:16Z elmsheus $
+# $Id: CMakeLists.txt 782306 2016-11-04 09:42:24Z krasznaa $
 ################################################################################
 # Package: JetUtils
 ################################################################################
@@ -7,7 +7,7 @@
 atlas_subdir( JetUtils )
 
 # Declare the package's dependencies:
-if( XAOD_STANDALONE )
+if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_depends_on_subdirs(
       PUBLIC
       Event/xAOD/xAODCaloEvent
@@ -36,7 +36,7 @@ endif()
 find_package( ROOT COMPONENTS Core Tree RIO )
 
 # Component(s) in the package:
-if( XAOD_STANDALONE )
+if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_library( JetUtils
       JetUtils/*.h JetUtils/*.icc Root/*.cxx
       PUBLIC_HEADERS JetUtils
