@@ -11,11 +11,16 @@ def comment_affected_packages(packages):
 
     return: comment text
     """
-    if len(packages) > 0:
-        comment = "This merge request affects %d package%s:  \n- " % (len(packages),'' if len(packages) == 1 else 's')
+    n_packages = len(packages)
+    if n_packages == 0:
+        comment = "This merge request affects no known packages. Consult an expert!"
+    elif n_packages == 1:
+        comment = "This merge request affects 1 package:  \n- " + packages.pop()
+    elif n_packages <= 20:
+        comment = "This merge request affects %d packages:  \n- " % n_packages
         comment += "  \n- ".join(sorted(packages))
     else:
-        comment = "This merge request affects no known packages. Consult an expert!"
+        comment = "This merge request affects %d packages. Since this is a long list, I will not print it here." % n_packages
 
     return comment
 
