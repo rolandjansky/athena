@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 773817 2016-09-19 09:17:19Z krasznaa $
+# $Id: CMakeLists.txt 793768 2017-01-25 03:44:30Z ssnyder $
 ################################################################################
 # Package: CaloRec
 ################################################################################
@@ -73,7 +73,7 @@ atlas_add_test( CaloCellFastCopyTool_test
    SOURCES test/CaloCellFastCopyTool_test.cxx
    LINK_LIBRARIES CaloRecLib CaloEvent CaloDetDescrLib CaloIdentifier
    IdDictParser AthenaBaseComps StoreGateLib CxxUtils GaudiKernel
-   EXTRA_PATTERNS "Retrieved const handle|Service base class initialized|DEBUG Property update for OutputLevel" )
+   EXTRA_PATTERNS "Retrieved const handle|Service base class initialized|DEBUG Property update for OutputLevel|object not modifiable" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

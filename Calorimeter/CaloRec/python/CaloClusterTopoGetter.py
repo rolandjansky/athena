@@ -240,6 +240,7 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ,"AVG_LAR_Q"
                                     ,"AVG_TILE_Q"
                                     ,"PTD"
+                                    ,"MASS"
                                     ]
 
 

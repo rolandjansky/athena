@@ -87,6 +87,7 @@ MomentName moment_names[] = {
   { "ISOLATION",         xAOD::CaloCluster::ISOLATION },
   { "LATERAL",           xAOD::CaloCluster::LATERAL },
   { "LONGITUDINAL",      xAOD::CaloCluster::LONGITUDINAL },
+  { "MASS",              xAOD::CaloCluster::MASS },
   { "N_BAD_CELLS",       xAOD::CaloCluster::N_BAD_CELLS },
   { "N_BAD_HV_CELLS",    xAOD::CaloCluster::N_BAD_HV_CELLS },
   { "N_BAD_CELLS_CORR",  xAOD::CaloCluster::N_BAD_CELLS_CORR },
@@ -413,7 +414,7 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
   for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
     xAOD::CaloCluster * theCluster = *clusIter;
 
-    double w(0),xc(0),yc(0),zc(0);
+    double w(0),xc(0),yc(0),zc(0),mx(0),my(0),mz(0),mass(0);
     double eBad(0),ebad_dac(0),ePos(0),eBadLArQ(0),sumSig2(0),maxAbsSig(0);
     double eLAr2(0),eLAr2Q(0);
     double eTile2(0),eTile2Q(0);
@@ -571,6 +572,17 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	  xc += ci.energy*ci.x;
 	  yc += ci.energy*ci.y;
 	  zc += ci.energy*ci.z;
+
+	  double dir = ci.x*ci.x+ci.y*ci.y+ci.z*ci.z;
+
+          if ( dir > 0) {
+	    dir = sqrt(dir);
+	    dir = 1./dir;
+	  }
+	  mx += ci.energy*ci.x*dir;
+	  my += ci.energy*ci.y*dir;
+	  mz += ci.energy*ci.z*dir;
+
 	  w  += ci.energy;
 	 
 	  ncell++;
@@ -578,6 +590,15 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
       } //end of loop over all cells
 
       if ( w > 0 ) {
+	mass = w*w - mx*mx - my*my - mz*mz;
+	if ( mass > 0) {
+	  mass = sqrt(mass);
+	}
+	else {
+	  // make mass negative if m^2 was negative
+	  mass = -sqrt(-mass);
+	}
+
 	xc/=w;
 	yc/=w;
 	zc/=w;
@@ -953,6 +974,9 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	  case xAOD::CaloCluster::PTD:
 	    myMoments[iMoment] = sqrt(myMoments[iMoment]);
             break;
+	  case xAOD::CaloCluster::MASS:
+	    myMoments[iMoment] = mass;
+	    break;
 	  default:
 	    // nothing to be done for other moments
 	    break;

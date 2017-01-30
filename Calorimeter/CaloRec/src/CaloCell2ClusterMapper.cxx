@@ -109,13 +109,8 @@ StatusCode CaloCell2ClusterMapper::execute_r(const EventContext& ctx) const {
   ATH_MSG_DEBUG(" Recording Cell2Cluster Map " << m_mapOutputKey.key());
 
   SG::WriteHandle<CaloCell2ClusterMap> cell2ClusterMap ( m_mapOutputKey, ctx );
-#ifndef ATHENAHIVE
   ATH_CHECK( cell2ClusterMap.record(std::make_unique<CaloCell2ClusterMap>
                                     (SG::VIEW_ELEMENTS)) );
-#else
-  ATH_CHECK( cell2ClusterMap.record(std::make_unique<CaloCell2ClusterMap>
-                                    (SG::OWN_ELEMENTS)) );
-#endif
 
   // resize it to total range of IdentifierHash for all calos
   Identifier::size_type maxRange = m_calo_id->calo_cell_hash_max();
@@ -133,9 +128,7 @@ StatusCode CaloCell2ClusterMapper::execute_r(const EventContext& ctx) const {
   std::vector<int> numberOfCells;
   numberOfCells.resize(clusColl->size());
 
-#ifndef ATHENAHIVE
   DataPool<Navigable<CaloClusterContainer> > navPool(maxRange);
-#endif
 
   // loop over cluster collection and add each cluster to the map for 
   // each member cell
@@ -151,11 +144,7 @@ StatusCode CaloCell2ClusterMapper::execute_r(const EventContext& ctx) const {
       Navigable<CaloClusterContainer> *theNav = (*cell2ClusterMap)[myHashId];
       if (!theNav) {
         // create a new Navigable if it doesn't exist
-#ifndef ATHENAHIVE	
         theNav = navPool.nextElementPtr();
-#else
-        theNav = new Navigable<CaloClusterContainer>();
-#endif
         theNav->removeAll();
         // and store it in the vector
         (*cell2ClusterMap)[myHashId] = theNav;
