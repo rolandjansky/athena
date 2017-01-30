@@ -198,7 +198,7 @@ namespace Trk
   // Move constructor
   template<int DIM,class T,class S>
   ParametersT<DIM,T,S>::ParametersT(ParametersT<DIM,T,S>&& rhs):
-    ParametersBase<DIM,T>(std::move(rhs)),
+    ParametersBase<DIM,T>(std::forward<ParametersBase<DIM,T> >(rhs)),
     m_parameters(std::move(rhs.m_parameters)),
     m_covariance(rhs.m_covariance),
     m_position(std::move(rhs.position())),
@@ -219,12 +219,10 @@ namespace Trk
       ParametersBase<DIM,T>::operator=(rhs);
       
       // delete surface
-      if(m_surface && m_surface->isFree())
-	delete m_surface;
+      if(m_surface && m_surface->isFree()) delete m_surface;
       
       // delete the covariance if there
-      if(m_covariance)
-	delete m_covariance;
+      if(m_covariance) delete m_covariance;
     
       // now assign
       m_parameters = rhs.m_parameters;
@@ -246,11 +244,9 @@ namespace Trk
     {
       ParametersBase<DIM,T>::operator=(std::move(rhs));
 
-      if(m_surface && m_surface->isFree())
-	delete m_surface;
+      if(m_surface && m_surface->isFree()) delete m_surface;
       
-      if(m_covariance)
-	delete m_covariance;
+      if(m_covariance) delete m_covariance;
 
       m_parameters = std::move(rhs.m_parameters);
       m_covariance = rhs.m_covariance;
@@ -350,8 +346,8 @@ namespace Trk
     
     // compare covariance 
     if(((covariance() != 0) &&
-	(pCasted->covariance() != 0) &&
-	!covariance()->isApprox(*pCasted->covariance(),tolerance))
+	     (pCasted->covariance() != 0) &&
+	     !covariance()->isApprox(*pCasted->covariance(),tolerance))
        || (!covariance() != !pCasted->covariance()))  // <-- this is: covariance() XOR pCast->covariance()
       return false;
 

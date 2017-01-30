@@ -122,7 +122,7 @@ namespace Trk
     mutable std::unique_ptr<CurvilinearUVT>  m_curvilinearFrame;  
 
     /** the curvilinear parameters identifier */
-    unsigned int m_cIdentifier;
+    unsigned int m_cIdentifier=0;
   };
 }//end of namespace Trk
 
