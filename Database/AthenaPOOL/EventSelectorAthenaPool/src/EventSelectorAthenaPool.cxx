@@ -157,27 +157,27 @@ StatusCode EventSelectorAthenaPool::initialize() {
 
    // Retrieve ClassIDSvc
    if (!m_clidSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ClassIDSvc.");
+      ATH_MSG_FATAL("Cannot get " << m_clidSvc.typeAndName() << ".");
       return(StatusCode::FAILURE);
    }
    // Retrieve ChronoStatSvc
    if (!m_chronoStatSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ChronoStatSvc.");
+      ATH_MSG_FATAL("Cannot get " << m_chronoStatSvc.typeAndName() << ".");
       return(StatusCode::FAILURE);
    }
    // Get IncidentSvc
    if (!m_incidentSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get IncidentSvc.");
+      ATH_MSG_FATAL("Cannot get " << m_incidentSvc.typeAndName() << ".");
       return(StatusCode::FAILURE);
    }
    // Get AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get AthenaPoolCnvSvc");
+      ATH_MSG_FATAL("Cannot get " << m_athenaPoolCnvSvc.typeAndName() << ".");
       return(StatusCode::FAILURE);
    }
    // Get TagMetaDataStore
    if (!m_tagDataStore.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get TagMetaDataStore.");
+      ATH_MSG_FATAL("Cannot get " << m_tagDataStore.typeAndName() << ".");
       return(StatusCode::FAILURE);
    }
    // Get CounterTool (if configured)
@@ -192,8 +192,27 @@ StatusCode EventSelectorAthenaPool::initialize() {
    }
    // Get SharedMemoryTool (if configured)
    if (!m_eventStreamingTool.empty() && !m_eventStreamingTool.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get AthenaSharedMemoryTool");
+      ATH_MSG_FATAL("Cannot get " << m_eventStreamingTool.typeAndName() << "");
       return(StatusCode::FAILURE);
+   }
+
+   // Ensure the xAODCnvSvc is listed in the EventPersistencySvc
+   ServiceHandle<IProperty> epSvc("EventPersistencySvc", name());
+   std::vector<std::string> propVal;
+   if (!Gaudi::Parsers::parse(propVal , epSvc->getProperty("CnvServices").toString()).isSuccess()) {
+      ATH_MSG_FATAL("Cannot get EventPersistencySvc Property for CnvServices");
+      return(StatusCode::FAILURE);
+   }
+   bool foundCnvSvc = false;
+   for (std::vector<std::string>::const_iterator iter = propVal.begin(), last = propVal.end(); iter != last; iter++) {
+      if (*iter == m_athenaPoolCnvSvc.type()) { foundCnvSvc = true; }
+   }
+   if (!foundCnvSvc) {
+      propVal.push_back(m_athenaPoolCnvSvc.type());
+      if (!epSvc->setProperty("CnvServices", Gaudi::Utils::toString(propVal)).isSuccess()) {
+         ATH_MSG_FATAL("Cannot set EventPersistencySvc Property for CnvServices");
+         return(StatusCode::FAILURE);
+      }
    }
 
    // Register this service for 'I/O' events
@@ -376,7 +395,7 @@ StatusCode EventSelectorAthenaPool::start() {
       ATH_MSG_INFO("No Events found in any Input Collections");
       m_inputCollectionsIterator = m_inputCollectionsProp.value().end();
       if(m_inputCollectionsProp.value().size()>0) {
-        m_inputCollectionsIterator--; //leave iterator in state of last input file 
+        m_inputCollectionsIterator--; //leave iterator in state of last input file
         if (m_processMetadata.value()) {
           // Fire first BeginTagFile incident
           FileIncident beginTagFileIncident(name(), "BeginTagFile", *m_inputCollectionsIterator);
@@ -487,23 +506,23 @@ StatusCode EventSelectorAthenaPool::finalize() {
    }
    // Release TagMetaDataStore
    if (!m_tagDataStore.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release TagMetaDataStore.");
+      ATH_MSG_WARNING("Cannot release " << m_tagDataStore.typeAndName() << ".");
    }
    // Release AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release AthenaPoolCnvSvc.");
+      ATH_MSG_WARNING("Cannot release " << m_athenaPoolCnvSvc.typeAndName() << ".");
    }
    // Release IncidentSvc
    if (!m_incidentSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release IncidentSvc.");
+      ATH_MSG_WARNING("Cannot release " << m_incidentSvc.typeAndName() << ".");
    }
    // Release ChronoStatSvc
    if (!m_chronoStatSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release ChronoStatSvc.");
+      ATH_MSG_WARNING("Cannot release " << m_chronoStatSvc.typeAndName() << ".");
    }
    // Release ClassIDSvc
    if (!m_clidSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release ClassIDSvc.");
+      ATH_MSG_WARNING("Cannot release " << m_clidSvc.typeAndName() << ".");
    }
    // Finalize the Service base class.
    return(::AthService::finalize());
@@ -944,9 +963,15 @@ int EventSelectorAthenaPool::findEvent(int evtNum) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::makeServer(int num) {
+   if (num < 0) {
+      if (m_athenaPoolCnvSvc->makeServer(num - 1).isFailure()) {
+         ATH_MSG_ERROR("Failed to switch AthenaPoolCnvSvc to output DataStreaming server");
+      }
+      return(StatusCode::SUCCESS);
+   }
    if (m_athenaPoolCnvSvc->makeServer(num + 1).isFailure()) {
-      ATH_MSG_ERROR("Failed to switch AthenaPoolCnvSvc to DataStreaming server");
-      //return(StatusCode::FAILURE);
+      ATH_MSG_ERROR("Failed to switch AthenaPoolCnvSvc to input DataStreaming server");
+      return(StatusCode::FAILURE);
    }
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::SUCCESS);
