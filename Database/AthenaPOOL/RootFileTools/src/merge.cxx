@@ -274,20 +274,11 @@ bool DbDatabaseMerger::empty(const std::string& fid, const std::set<std::string>
 /// Check if a database exists
 bool DbDatabaseMerger::exists(const std::string& fid, bool dbg) const {
   Bool_t result = gSystem->AccessPathName(fid.c_str(), kFileExists);
-  if ( result == kFALSE ) {
-    if ( s_dbg ) cout << "file " << fid << " EXISTS!" << endl;
-  } else if ( dbg ) {
-    cout << "file " << fid << " DOES NOT EXIST!" << endl;
-  }
   return result == kFALSE;
 }
 
 /// Attach to existing output file for further merging
 DbStatus DbDatabaseMerger::attach(const string& fid) {
-  if ( !exists(fid) ) {
-    cout << "+++ Cannot attach output file " << fid << " --- file does not exist." << endl;
-    return ERROR;
-  }
   if ( !m_output ) {
     m_output = TFile::Open(fid.c_str(),"UPDATE");
     if ( !m_output ) {
@@ -342,9 +333,6 @@ DbStatus DbDatabaseMerger::attach(const string& fid) {
 DbStatus DbDatabaseMerger::create(const string& fid) {
   if ( m_output ) {
     cout << "+++ Another output file " << m_output->GetName() << " is already open. Request denied." << endl;
-    return ERROR;
-  } else if ( exists(fid) ) {
-    cout << "+++ Cannot create output file " << fid << " --- file already exists." << endl;
     return ERROR;
   }
   m_output = TFile::Open(fid.c_str(),"RECREATE");
