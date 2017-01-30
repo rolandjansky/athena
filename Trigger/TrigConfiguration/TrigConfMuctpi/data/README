@@ -1,0 +1,10 @@
+Muctpi configuration files have been moved to the GroupData area:
+ * CVMFS: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TrigConfMucpti
+ * P1:    /sw/DbData/GroupData
+
+For details on how to access/uppdate them see:
+ - https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PathResolver
+ - https://its.cern.ch/jira/browse/ATR-15657
+
+The last version of the files in SVN are in TrigConfMuctpi-00-00-22:
+https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigConfiguration/TrigConfMuctpi/tags/TrigConfMuctpi-00-00-22/data

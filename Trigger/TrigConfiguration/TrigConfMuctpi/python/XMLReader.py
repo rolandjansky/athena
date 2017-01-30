@@ -70,4 +70,6 @@ class MioctGeometryXMLReader(TrigXMLDocumentReader):
 
 
 if __name__ == "__main__":
-    l1menu = L1MenuXMLReader("TrigConfMuctpi/TestMioctGeometry.xml")
+    from PathResolver import PathResolver
+    xmlfile = PathResolver.FindCalibFile("TrigConfMuctpi/TestMioctGeometry_2016_05_30_CS_2600573263.xml")
+    l1menu = L1MenuXMLReader(xmlfile)
