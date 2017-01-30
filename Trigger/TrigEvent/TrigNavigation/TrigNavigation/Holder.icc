@@ -292,16 +292,8 @@ struct transferBetweenContainers;
 // case when the containers can be transfered
 template <class CONTAINER> 
 struct transferBetweenContainers<CONTAINER, true> {
-  static void do_it(CONTAINER *source, CONTAINER* dest, MsgStream* log) {
-    const size_t orig_size = dest->size();
-    dest->resize( orig_size + source->size() );
-    std::swap_ranges( source->begin(), source->end(), dest->begin() + orig_size );
-    HOLDERLOG(log, VERBOSE ) << "insert::do_it objects moved, converting to a view container now"    << endmsg;
-    source->setStore((SG::IAuxStore*)0);
-    source->clear(SG::VIEW_ELEMENTS);
-    HOLDERLOG(log, VERBOSE ) << "insert::do_it refilling the feature container"    << endmsg;
-    source->insert(source->begin(), std::next(dest->begin(), orig_size), dest->end());
-
+  static void do_it(CONTAINER *source, CONTAINER* dest, MsgStream* /*log*/) {
+    dest->insertMove (dest->end(), *source);
   }
 };
 
@@ -475,7 +467,12 @@ struct destinationOwnPolicy<STORED, CONTAINER, true> {
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
-HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::add( const STORED* f, bool inSG, const std::string& sgKey ) {
+HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::add( const STORED* f_in, bool inSG, const std::string& sgKey ) {
+  // FIXME:
+  // If insertMove is used, then the pointer being recorded cannot be const.
+  // Taking this object by const is anyway wrong because it will be modified
+  // (unless it's a view container).
+  STORED* f = const_cast<STORED*>(f_in);
   typedef Holder<STORED> H;
   
   if ( ! syncWithSG( destinationOwnPolicy<STORED, CONTAINER, std::is_same<STORED, CONTAINER>::value>::get(f) ) )
@@ -483,6 +480,7 @@ HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::ad
 
   uint32_t bidx = m_containerProxy.data()->size();
 
+  bool wasRecorded = false;
   std::string thiskey(sgKey);
   if ( !inSG && std::is_same<STORED, CONTAINER>::value ) { // conditions to place partial containers in SG 
     thiskey  = this->getUniqueKey();
@@ -490,17 +488,18 @@ HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::ad
       HMLOG(WARNING) << "HolderImp::add object " <<  f << "and sgKey:" << thiskey << " intended for holder" << *this << " can't be placed directly in SG" << endmsg;
     } else {
       inSG = true;
+      wasRecorded = true;
       HMLOG(VERBOSE) << "HolderImp::add feature SG direct registration succesful with the key:" << thiskey << endmsg;
     }
   }
 
   if ( inSG ) { //conditions to add remapping
     remap<STORED, CONTAINER,  
-      std::is_same<STORED, CONTAINER>::value>::do_it (thiskey, key(), const_cast<STORED*>(f), m_containerProxy.data(), H::m_storeGate, H::m_log);
+      std::is_same<STORED, CONTAINER>::value>::do_it (thiskey, key(), f, m_containerProxy.data(), H::m_storeGate, H::m_log);
   }
 
   bool insertStatus = insert<STORED, CONTAINER, std::is_same<STORED, CONTAINER>::value>
-    ::do_it (const_cast<STORED*>(f), m_containerProxy.data(), H::m_aux != 0, H::m_log);
+    ::do_it (f, m_containerProxy.data(), H::m_aux != 0, H::m_log);
   if ( insertStatus == false ) {
     HMLOG(WARNING) << "HolderImp::add  insert failed "  << endmsg;
     return  HLT::TriggerElement::ObjectIndex();
@@ -510,13 +509,16 @@ HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::ad
   HMLOG(VERBOSE) << "HolderImp::add added object(s) to the container, size increase from : " << bidx << " to: " << eidx << endmsg;
   HLT::TriggerElement::ObjectIndex objIdx (H::subTypeIndex(), bidx, eidx );
 
-  m_memMgr.insert(std::make_pair(objIdx, MemoryMgr(const_cast<STORED*>(f), inSG||m_containerProxy.data()->ownPolicy() == SG::OWN_ELEMENTS)));
+  m_memMgr.insert(std::make_pair(objIdx, MemoryMgr(f, inSG||m_containerProxy.data()->ownPolicy() == SG::OWN_ELEMENTS)));
+
+  if ( wasRecorded ) {
+    if ( H::m_storeGate->setConst(f).isFailure()  ) {
+      HMLOG(WARNING) << "HolderImp::add  setConst failed "  << endmsg; 
+    }
+  }
   
   return objIdx;
 }
-
-
-
 
 
 /////////////////////////////////////////////////////////////////////////////
