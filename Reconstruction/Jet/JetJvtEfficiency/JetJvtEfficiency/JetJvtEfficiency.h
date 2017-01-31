@@ -36,7 +36,7 @@ public:
     virtual CorrectionCode getInefficiencyScaleFactor(const xAOD::Jet& jet,float& sf);
     virtual CorrectionCode applyEfficiencyScaleFactor(const xAOD::Jet& jet);
     virtual CorrectionCode applyInefficiencyScaleFactor(const xAOD::Jet& jet);
-    virtual CorrectionCode applyAllEfficiencyScaleFactor(const xAOD::IParticleContainer *jets,float& sf,bool doJvtSelection=false);
+    virtual CorrectionCode applyAllEfficiencyScaleFactor(const xAOD::IParticleContainer *jets,float& sf);
     virtual CorrectionCode applyRandomDropping( const xAOD::Jet& jet );
     virtual CorrectionCode applyAllRandomDropping( const xAOD::IParticleContainer *jets);
 
@@ -52,6 +52,7 @@ public:
     float getJvtThresh() const {return m_jvtCut;}
     float getUserPtMax() const {return m_maxPtForJvt;}
     void setRandomSeed(int seed);
+    StatusCode tagTruth(const xAOD::IParticleContainer *jets,const xAOD::IParticleContainer *truthJets);
 
 private:
 
@@ -69,11 +70,15 @@ private:
     std::string m_drop_decoration_name;
     float m_jvtCut;
     std::string m_jetJvtMomentName;
+    std::string m_jetfJvtMomentName;
     std::string m_jetEtaName;
     float m_maxPtForJvt;
     TRandom3 m_rand;
     std::string m_truthLabel;
+    bool m_dofJVT;
     bool m_doTruthRequirement;
+    std::string m_ORdec;
+    bool m_doOR;
 };
 
 } /* namespace CP */
