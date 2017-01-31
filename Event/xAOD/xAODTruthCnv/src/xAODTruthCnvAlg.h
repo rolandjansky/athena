@@ -83,6 +83,9 @@ namespace xAODMaker {
     /// a flag to force rerunning (useful for rerunning on ESDs)
     bool m_forceRerun;
 
+    /// option to disable writing of metadata (e.g. if running a filter on xAOD in generators)
+    bool m_writeMetaData;
+
   }; // class xAODTruthCnvAlg
 
 
