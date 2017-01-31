@@ -71,6 +71,8 @@ class CombinedP4FromRecoTaus
   int GetIndex_Eta(float eta);
   float GetNsigma_Compatibility(float et_TauRec);  
 
+  double GetCaloResolution(const xAOD::TauJet* tau);
+  bool GetUseCaloPtFlag(const xAOD::TauJet* tau);
   StatusCode execute(xAOD::TauJet& xTau); 
 
  private:
@@ -91,6 +93,7 @@ class CombinedP4FromRecoTaus
   std::string m_calibFilePath;
 
   bool m_addCalibrationResultVariables;
+  bool m_addUseCaloPtFlag;
   bool m_tauRecEt_takenAs_combinedEt;
   double m_weight, m_combined_res, m_sigma_tauRec, m_sigma_constituent, m_corrcoeff;
 
