@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ATHENAHIVE 
 #define SLOW_NEWDATAOBJECTS 1
-#endif
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -316,13 +314,6 @@ StatusCode SGImplSvc::loadEventProxies() {
   //FIXME this should probably be dealt with by the providers
   if (0 != m_pPPS && !m_storeLoaded) {
     m_storeLoaded = true;
-#ifndef ATHENAHIVE
-    //this (probably) can't be done in initialize (circular init!)
-    ActiveStoreSvc* pActive(0);
-    const bool CREATEIF(true);
-    if (!(serviceLocator()->service("ActiveStoreSvc", pActive, CREATEIF)).isSuccess()) return StatusCode::FAILURE;
-    pActive->setStore(this);
-#endif
     sc=m_pPPS->loadProxies(*m_pStore);
   } 
   return sc;
@@ -353,13 +344,6 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
   m_storeLoaded=false;  //FIXME hack needed by loadEventProxies
   m_remap_impl->m_remaps.clear();
   m_arena.reset();
-
-#ifndef ATHENAHIVE
-  // Send a notification that the store was cleared.
-  // FIXME test forceRemove to avoid calling during finalize. A better solution would be to test m_pIncSvc.m_pObject
-  if (!forceRemove && m_pIncSvc)
-    m_pIncSvc->fireIncident (StoreClearedIncident (this, name()));
-#endif
 
   return StatusCode::SUCCESS;
 }

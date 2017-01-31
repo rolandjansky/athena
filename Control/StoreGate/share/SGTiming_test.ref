@@ -1,0 +1,123 @@
+**** SGTimingTest BEGINS ****
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/SGTiming_test.txt
+JobOptionsSvc        INFO # =======> /build1/leggett/work/sgtest/dv3/bld/../share/SGTiming_test.txt
+JobOptionsSvc        INFO # (1,1): StoreGateSvc.OutputLevel = 4
+JobOptionsSvc        INFO Job options successfully read in from ../share/SGTiming_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r0)
+                                          running on p05614910w96644.cern.ch on Tue Jan 31 23:20:06 2017
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+ClassIDSvc           INFO  getRegistryEntries: read 188 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 867 CLIDRegistry entries for module ALL
+rec:     1772  ret:       83  clr:      112
+rec:      147  ret:       36  clr:       19
+rec:      141  ret:       35  clr:       17
+rec:      146  ret:       35  clr:       17
+rec:      139  ret:       35  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      146  ret:       35  clr:       17
+rec:      140  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      139  ret:       35  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       16
+rec:      138  ret:       34  clr:       17
+rec:      154  ret:       35  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      171  ret:       36  clr:       18
+rec:      139  ret:       34  clr:       17
+rec:      144  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      139  ret:       39  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      135  ret:       34  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      146  ret:       34  clr:       17
+rec:      136  ret:       35  clr:       17
+rec:      137  ret:       34  clr:       17
+rec:      136  ret:       33  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      142  ret:       34  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      137  ret:       34  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      136  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       39  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       33  clr:       17
+rec:      147  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       33  clr:       17
+rec:      144  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       38  clr:       17
+rec:      139  ret:       33  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      152  ret:       35  clr:       17
+rec:      146  ret:       34  clr:       17
+rec:      146  ret:       34  clr:       17
+rec:      169  ret:       35  clr:       18
+rec:      138  ret:       39  clr:       18
+rec:      139  ret:       35  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      144  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       16
+rec:      144  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      139  ret:       35  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      140  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      143  ret:       34  clr:       17
+rec:      140  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      145  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      137  ret:       34  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      138  ret:       34  clr:       17
+rec:      139  ret:       35  clr:       17
+rec:      139  ret:       34  clr:       17
+rec:      137  ret:       34  clr:       17
+===== averages  TYPES: 20  KEYS: 5  iter: 100 ===============
+20/5 rec:   1.40  ret:   0.34  clr:   0.17
+**** SGTimingTest ENDS ****

@@ -8,21 +8,22 @@
  *  @brief A structure created by HiveMgrSvc and used by SGHiveStoreSvc
  *  to forward the StoreGateSvc method to a thread-specific SGImplSvc
  *
- *  $Id: SGHiveEventSlot.h 637398 2014-12-23 20:45:22Z calaf $
+ *  $Id: SGHiveEventSlot.h 794854 2017-01-31 23:34:36Z leggett $
  **/
-#include "tbb/recursive_mutex.h"
+#include <mutex>
+#include <memory>
 
 class SGImplSvc;
 
 namespace SG {
   struct HiveEventSlot {
-    typedef tbb::recursive_mutex mutex_t;
+    typedef std::recursive_mutex mutex_t;
     friend class TestSGHiveMgrSvc;
     HiveEventSlot(SGImplSvc* pSG=0, int evt=-1) : 
-      pEvtStore(pSG), eventNumber(evt) {}
+      pEvtStore(pSG), eventNumber(evt), storeMutex(new mutex_t) {}
     SGImplSvc* pEvtStore;
     int eventNumber;
-    mutex_t storeMutex;
+    std::unique_ptr<mutex_t> storeMutex;
   };
 }
 #endif // STOREGATE_SGHIVEEVENTSLOT

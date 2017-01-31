@@ -112,7 +112,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
  * @author ATLAS Collaboration
- * $Id: SGImplSvc.h 785927 2016-11-23 03:58:33Z ssnyder $
+ * $Id: SGImplSvc.h 794854 2017-01-31 23:34:36Z leggett $
  **/
 class SGImplSvc :
   public Service, 
@@ -982,9 +982,7 @@ private:
   friend class EventDumperSvc;
   friend class MemoryMonitorSvc;
   friend void testHLTAutoKeyReset(SGImplSvc&, IProxyProviderSvc&);
-#ifdef ATHENAHIVE
   friend class StoreGateSvc;
-#endif
   ///access typeless_record
   friend class ThinningSvc;
   friend class SG::VarHandleBase;                                                      
@@ -1167,6 +1165,7 @@ public:
 private:
   SGImplSvc (const SGImplSvc&);
   SGImplSvc& operator= (const SGImplSvc&);
+
 };
 
 
@@ -1176,27 +1175,28 @@ void SG_dump (SGImplSvc* sg);
 
 #include "StoreGate/tools/SGImplSvc.icc"
 
-#ifndef ATHENAHIVE
-//- PyGate: StoreGate access from python -------------------------------------
-template< class T >
-struct PyGate {
-  // default object retrieval
-  static const T* retrieve( SGImplSvc* psg ) {
-    const T* obj = 0;
-    if ( StatusCode::SUCCESS == psg->retrieve( obj ) )
-      return obj;
-    return 0;
-  }
+// FIXME!!!
+// #ifndef ATHENAHIVE
+// //- PyGate: StoreGate access from python -------------------------------------
+// template< class T >
+// struct PyGate {
+//   // default object retrieval
+//   static const T* retrieve( SGImplSvc* psg ) {
+//     const T* obj = 0;
+//     if ( StatusCode::SUCCESS == psg->retrieve( obj ) )
+//       return obj;
+//     return 0;
+//   }
 
-  // object retrieval with string key
-  static const T* retrieve( SGImplSvc* psg, const std::string& key ) {
-    const T* obj = 0;
-    if ( StatusCode::SUCCESS == psg->retrieve( obj, key ) )
-      return obj;
-    return 0;
-  }
-};
-#endif
+//   // object retrieval with string key
+//   static const T* retrieve( SGImplSvc* psg, const std::string& key ) {
+//     const T* obj = 0;
+//     if ( StatusCode::SUCCESS == psg->retrieve( obj, key ) )
+//       return obj;
+//     return 0;
+//   }
+// };
+// #endif
 
 // inline methods
 inline
