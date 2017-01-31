@@ -15,7 +15,7 @@ def comment_affected_packages(packages):
     if n_packages == 0:
         comment = "This merge request affects no known packages. Consult an expert!"
     elif n_packages == 1:
-        comment = "This merge request affects 1 package:  \n- " + packages.pop()
+        comment = "This merge request affects 1 package:  \n- " + list(packages)[0]
     elif n_packages <= 20:
         comment = "This merge request affects %d packages:  \n- " % n_packages
         comment += "  \n- ".join(sorted(packages))
