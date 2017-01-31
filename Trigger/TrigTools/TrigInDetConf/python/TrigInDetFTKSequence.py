@@ -68,6 +68,7 @@ class TrigInDetFTKSequence(TrigInDetSequence):
 
     #always run FTF
     algos = [("IDTrigRoiUpdater", roiupdater)]
+    algos += [("FTK_TrackMaker", "")]
     algos += [("TrigFTKAvailable", "")]
     algos += [("TrigFastTrackFinder",ftfname),
               ("InDetTrigTrackingxAODCnv",cnvname),

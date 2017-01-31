@@ -149,6 +149,8 @@ namespace InDet{
     //    scdec = 
     //m_ftkdatasvc->
     TrackCollection* ftkTracks = m_ftkdatasvc->getTracksInRoi(*roi, false /* =ftkrefit */ );
+    if (ftkTracks)
+      ATH_MSG_DEBUG( "REGTEST: decoded " << ftkTracks->size() << " tracks "); 
 
     if(doTiming()) m_timerDPS->stop();
 

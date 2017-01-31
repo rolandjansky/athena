@@ -33,10 +33,17 @@ try:
   from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
 except:
   pass
+
 try:
   from TrigInDetConf.HypoAlgCfgble import TrigFTKAvailable
 except:
   log.info("Could not import TrigFTKAvailable")
+  pass
+
+try:
+  from TrigInDetConf.TrackingAlgCfgble import FTK_TrackMaker
+except:
+  log.info("Could not import FTK_TrackMaker")
   pass
 
 
