@@ -44,7 +44,7 @@ def map_package_domain(pkg):
         for pattern in pattern_list:
             if re.search(pattern,pkg,re.I):
                 domains.add(domain)
-                continue
+                break
 
     return domains
 
