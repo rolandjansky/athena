@@ -61,6 +61,7 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
   int* l_currentBoundary = new int[l_nSample];    //Current boundary for each sample
   int samp, per;
   bool passed = false;
+  int mergedBC = 0;
 
   m_DMToCell.clear();
 
@@ -79,9 +80,10 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
 
         l_indCurrentCell[samp] = 0;
         l_currentBoundary[samp] = ( (samples[samp - 1])->cells[0])->nrOfPeriodsInCell[1];   // C-Barrel
+        mergedBC = 1;                                                                // B and C is the one merged cell, remember that
       } else {
         l_indCurrentCell[samp] = 0;
-        l_currentBoundary[samp] = ( (samples[samp - 1])->cells[0])->nrOfPeriodsInCell[0];  // D-Barrel
+        l_currentBoundary[samp] = ( (samples[samp - mergedBC])->cells[0])->nrOfPeriodsInCell[0];  // D-Barrel and also C when B and C are separate
       }
     }
 
@@ -105,8 +107,8 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
             }  // C subsample == 2 sample
           } else {                                                                              // D-cells of Barrel
 
-            if (++l_indCurrentCell[samp] < static_cast<int>( (samples[samp - 1])->cells.size())) {
-              l_currentBoundary[samp] += ( (samples[samp - 1])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[0];
+            if (++l_indCurrentCell[samp] < static_cast<int>( (samples[samp - mergedBC])->cells.size())) {
+              l_currentBoundary[samp] += ( (samples[samp - mergedBC])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[0];
             }    // D sample == 3 sample   Barrel
           }
         }
@@ -118,8 +120,8 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
           m_DMToCell.push_back( (tile_section->samples[samp])->cells[l_indCurrentCell[samp]]);
         }     // A,B - Barrel or A,B,C,D - Ext. Barrel or ITC
       } else {                                     	                                                 // passed==true
-        if (l_indCurrentCell[samp] < static_cast<int>( (samples[samp - 1])->cells.size())) {
-          m_DMToCell.push_back( (tile_section->samples[samp - 1])->cells[l_indCurrentCell[samp]]);
+        if (l_indCurrentCell[samp] < static_cast<int>( (samples[samp - mergedBC])->cells.size())) {
+          m_DMToCell.push_back( (tile_section->samples[samp - mergedBC])->cells[l_indCurrentCell[samp]]);
         }    // C,D - Barrel
       }
 
