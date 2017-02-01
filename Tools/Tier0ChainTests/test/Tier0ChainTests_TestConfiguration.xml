@@ -1365,7 +1365,7 @@
           		            <doc>RecoTrf</doc>
           		            <jobTransformJobName>q221</jobTransformJobName>
           		            <jobTransformCmd>
-          		                Reco_tf.py --AMI=q221
+          		                Reco_tf.py --AMI=q221 --conditionsTag all:OFLCOND-RUN12-SDR-25
           		            </jobTransformCmd>
           		            <group>TCTTransform</group>
           		            <queue>medium</queue>
@@ -1500,7 +1500,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>q431</jobTransformJobName>
                                 <jobTransformCmd>
-                                    Reco_tf.py --AMI=q431
+                                    Reco_tf.py --AMI=q431 --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1562,7 +1562,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>q221_MP</jobTransformJobName>
                                 <jobTransformCmd>
-                                    Reco_tf.py --AMI=q221 --athenaopts='--nprocs=2' --maxEvents=100
+                                    Reco_tf.py --AMI=q221 --athenaopts='--nprocs=2' --maxEvents=100 --conditionsTag all:OFLCOND-RUN12-SDR-25
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1655,7 +1655,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>q431_MP</jobTransformJobName>
                                 <jobTransformCmd>
-                                    Reco_tf.py --AMI=q431 --athenaopts='--nprocs=2' --maxEvents=100
+                                    Reco_tf.py --AMI=q431 --athenaopts='--nprocs=2' --maxEvents=100 --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
