@@ -272,7 +272,7 @@ bool DbDatabaseMerger::empty(const std::string& fid, const std::set<std::string>
 }
 
 /// Check if a database exists
-bool DbDatabaseMerger::exists(const std::string& fid, bool dbg) const {
+bool DbDatabaseMerger::exists(const std::string& fid, bool /*dbg*/) const {
   Bool_t result = gSystem->AccessPathName(fid.c_str(), kFileExists);
   return result == kFALSE;
 }
