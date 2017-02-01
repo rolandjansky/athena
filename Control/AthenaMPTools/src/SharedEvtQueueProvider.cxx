@@ -219,19 +219,18 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::boots
 
   // _______________________ event sharing ________________________________
   // Use EventSelector as SharedReader (if configured) and enable output streaming
-  m_evtShare  = dynamic_cast<IEventShare*>(m_evtSelector);
-  if(m_useSharedReader && !m_evtShare) {
-    ATH_MSG_ERROR( "Failed to dyncast event selector to IEventShare" );
-    return outwork;
-  } else {
-    if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
-      if(m_useSharedReader) {
-        ATH_MSG_ERROR( "Failed to make the event selector a share server" );
-        return outwork;
-      }
-      ATH_MSG_INFO( "Could not make the event selector a share server" );
+  if (m_useSharedReader) {
+    m_evtShare  = dynamic_cast<IEventShare*>(m_evtSelector);
+    if(!m_evtShare) {
+      ATH_MSG_ERROR( "Failed to dyncast event selector to IEventShare" );
+      return outwork;
     } else {
-      ATH_MSG_DEBUG( "Successfully made the event selector a share server" );
+      if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
+        ATH_MSG_ERROR("Failed to make the event selector a share server");
+        return outwork;
+      } else {
+        ATH_MSG_DEBUG("Successfully made the event selector a share server");
+      }
     }
   }
 
