@@ -1,3 +1,0 @@
-# switch on Atlfast-I corrections with AtlfastCorrectors
-from FastSimulationConfig.FastSimulationFlags import jobproperties
-jobproperties.FastSimulation.doAtlfastICorrection=True
