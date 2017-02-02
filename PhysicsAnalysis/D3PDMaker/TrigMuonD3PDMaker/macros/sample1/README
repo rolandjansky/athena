@@ -1,9 +1,0 @@
-PhysicsAnalysis/D3PDMaker/TrigMuonD3PDMaker/macros/sample0/
-
-How to use:
-	Copy this directory to your working directory
-        on your cern afs machine. Then with ROOT environment, run
-	$ root -l -b -q run.cc
-	This will create `output.root' which contains histograms
-	which are muid CB muon pt distribution of events
-	passing EF_mu10, EF_mu20.
