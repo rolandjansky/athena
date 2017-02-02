@@ -1,8 +1,0 @@
-
-  <!-- Add in Navigable for ${class} -->
-  <class name="Navigable< ${class} ,double,std::vector<std::pair<ElementLink< ${class} >,double> > >" >
-  </class> 
-  <class name="std::pair<ElementLink< ${class} >, double >" >
-  </class> 
-  <class name="std::vector<std::pair<ElementLink< ${class} >,double> >" >
-  </class> 
