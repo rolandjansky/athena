@@ -1,3 +1,0 @@
-mail -s”The Subject” nicolas.berger@cern.ch < TextToSend.txt 
-
-

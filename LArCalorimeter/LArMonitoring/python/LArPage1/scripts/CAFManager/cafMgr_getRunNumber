@@ -1,6 +1,0 @@
-#! /usr/bin/env python_sqlite
-
-import sys
-import Tools
-
-print Tools.getRunNumber(sys.argv[1])

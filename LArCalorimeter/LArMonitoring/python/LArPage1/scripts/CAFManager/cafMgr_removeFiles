@@ -1,1 +1,0 @@
-awk 'BEGIN { str = "cafMgr_remove -f --files --id "; } { str = str $1 "," } END { print str }' $1

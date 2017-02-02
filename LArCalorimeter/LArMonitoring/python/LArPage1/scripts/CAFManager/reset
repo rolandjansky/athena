@@ -1,9 +1,0 @@
-#rm -f config.db operations.db
-#rm -rf /afs/cern.ch/user/l/larcomm/w0/digitMon/output/*
-mkdir /afs/cern.ch/user/l/larcomm/w0/digitMon/output/tmp
-mkdir /afs/cern.ch/user/l/larcomm/w0/digitMon/output/logs
-mkdir /afs/cern.ch/user/l/larcomm/w0/digitMon/output/Francesco
-rm -rf /tmp/larcomm/*
-cafMgr_addConfig /afs/cern.ch/user/l/larcomm/w0/digitMon/14.2.20 LSF atlaslar /afs/cern.ch/user/l/larcomm/w0/digitMon/output/tmp
-cafMgr_addJobTypeFromFile ../JobTypes/job_calonoise.py
-cafMgr_runFullChain

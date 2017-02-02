@@ -1,8 +1,0 @@
-<lcgdict>
-
-<class name="LArHVMapTool"/>
-<class name="LArHVCablingTool"/>
-<class name="L1CaloCoolChannelId" />
-
-</lcgdict>
-
