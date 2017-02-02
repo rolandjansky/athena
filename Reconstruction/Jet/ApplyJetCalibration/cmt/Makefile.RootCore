@@ -1,7 +1,0 @@
-PACKAGE          = ApplyJetCalibration
-PACKAGE_PRELOAD  = Physics
-PACKAGE_CXXFLAGS = -DAPPLYJETCALIB_STANDALONE
-PACKAGE_LDFLAGS  = 
-PACKAGE_DEP      =
-
-include $(ROOTCOREDIR)/Makefile-common
