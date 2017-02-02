@@ -1,8 +1,0 @@
-package FastSimulationJobTransforms
-
-use AtlasPolicy AtlasPolicy-*
-use PyJobTransformsCore PyJobTransformsCore-* Tools
-
-apply_pattern declare_python_modules files="*.py"
-apply_pattern declare_joboptions files="*.py"
-apply_pattern declare_runtime files="*.db *.root"
