@@ -1,6 +1,0 @@
-
-
-#install = { '*' : [
-#'echo "Configuring AtlasPolicy"', 
-#'(export CMTPATH=$PACMAN_INSTALLATION/dist/$ATLAS_RELEASE; cd $PACMAN_INSTALLATION/dist/$ATLAS_RELEASE/AtlasPolicy/AtlasPolicy-*/cmt; cmt -no_cleanup config)'] }
-

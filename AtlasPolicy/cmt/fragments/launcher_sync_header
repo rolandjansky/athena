@@ -1,8 +1,0 @@
-
-${CONSTITUENT} ::
-	for h in ${remote_sites}; do \
-	  here=`pwd`; \
-	  ${remote_launcher} $${h} " ( ${remote_action}; date >$${here}/$${h}.$$$$.end ) 1>$${here}/$${h}.$$$$.log 2>&1 "; \
-	done
-
-
