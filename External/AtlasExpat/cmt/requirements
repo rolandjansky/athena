@@ -1,4 +1,0 @@
-package AtlasExpat
-
-use ExternalPolicy ExternalPolicy-00-* External
-use Expat v* LCG_Interfaces
