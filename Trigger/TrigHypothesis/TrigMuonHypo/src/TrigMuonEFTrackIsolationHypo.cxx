@@ -21,6 +21,7 @@ TrigMuonEFTrackIsolationHypo::TrigMuonEFTrackIsolationHypo(const std::string & n
 	declareProperty("AcceptAll", m_acceptAll=true);
 	declareProperty("DoAbsCut", m_abscut=true); //true for absolute cuts, false for sumpt/pt
 	declareProperty("useVarIso", m_useVarIso=false); //true for offline isolation variables, false for online
+	declareProperty("RequireCombinedMuon", m_requireCombined=true); // true unless doing ms-only iso
 	declareProperty("PtCone02Cut",m_ptcone02_cut=-1.0); //convention is < 0 means don't cut
 	declareProperty("PtCone03Cut",m_ptcone03_cut=-1.0); //convention is < 0 means don't cut
 	
@@ -125,7 +126,8 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   for(auto muon : *muonContainer) {
     
     const xAOD::Muon::MuonType muontype = muon->muonType();
-    if(muontype != xAOD::Muon::MuonType::Combined ) continue;
+    if(m_requireCombined && muontype != xAOD::Muon::MuonType::Combined ) continue;
+    else if(muontype != xAOD::Muon::MuonType::MuonStandAlone && muontype != xAOD::Muon::MuonType::Combined) continue;
 
     float ptcone20(-1), ptcone30(-1);
     bool res = false; 
