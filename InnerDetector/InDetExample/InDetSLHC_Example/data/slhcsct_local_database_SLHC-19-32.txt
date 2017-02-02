@@ -1,9 +1,0 @@
-//
-// axial layers:  outermost SS, inner LS
-//
-Section SCT
-SSctBrlLayer#2:STEREOINNER 0
-SSctBrlLayer#2:STEREOOUTER 0
-SSctBrlLayer#3:STEREOINNER 0
-SSctBrlLayer#3:STEREOOUTER 0
-EndSection SCT
