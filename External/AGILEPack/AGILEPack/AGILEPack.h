@@ -1,6 +1,0 @@
-#ifndef AGILEPACK__HH__ALL
-#define AGILEPACK__HH__ALL 
-
-#include "Base.h"
-
-#endif
