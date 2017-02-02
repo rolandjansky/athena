@@ -1,7 +1,0 @@
-package AtlasAIDA
-
-author pcalafiura@lbl.gov
-
-use ExternalPolicy ExternalPolicy-00-* External
-use AIDA           v*                  LCG_Interfaces
-
