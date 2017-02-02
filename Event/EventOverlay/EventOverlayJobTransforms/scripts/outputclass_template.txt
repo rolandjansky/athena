@@ -1,8 +1,0 @@
-class OutputBSFilterFileArgXYZ(StringArg):
-        """The output file prefixXYZ"""
-        def __init__(self,help='default',name='OutputBSFilterFileXYZ'):
-            StringArg.__init__(self,help,name)
-        
-        def isFullArgument(self):
-            return True
-
