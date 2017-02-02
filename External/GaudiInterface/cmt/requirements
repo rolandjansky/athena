@@ -1,8 +1,0 @@
-package GaudiInterface
-
-author 		Paolo Calafiura <Paolo.Calafiura@cern.ch>
-author 		David Quarrie <David.Quarrie@cern.ch>
-author 		RD Schaffer <R.D.Schaffer@cern.ch>
-
-use ExternalPolicy ExternalPolicy-00-* External
-use GaudiKernel v*
