@@ -1,2 +1,0 @@
-include('FastSimulationJobTransforms/FastCaloSimJetCalibration.py')
-include('FastSimulationJobTransforms/FastCaloSimEGammaCalibration.py')
