@@ -1,5 +1,0 @@
-#include "GaudiKernel/LoadFactoryEntries.h"
-
-LOAD_FACTORY_ENTRIES(TrackInCaloTools)
-LOAD_FACTORY_ENTRIES(TrackExtrapolatorToCalo)
-LOAD_FACTORY_ENTRIES(TrackDirectionTool)
