@@ -1,6 +1,0 @@
-package AtlasCppUnit
-
-use ExternalPolicy ExternalPolicy-00-* External
-use CppUnit v* LCG_Interfaces
-
-macro CppUnit_linkopts "-L$(CppUnit_home)/lib -lcppunit -ldl"
