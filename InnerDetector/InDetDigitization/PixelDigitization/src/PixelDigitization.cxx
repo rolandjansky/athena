@@ -22,33 +22,24 @@ PixelDigitization::PixelDigitization(const std::string &name,
   declareProperty("DigitizationTool",        m_pixelDigitizationTool, "PixelDigitizationTool Name");
 }
 
-PixelDigitization::~PixelDigitization()
-{
-
-}
+PixelDigitization::~PixelDigitization() { }
 
 // Initialize method:
-StatusCode PixelDigitization::initialize()
-{
-  ATH_MSG_DEBUG ( "initialize()" );
-  if (m_pixelDigitizationTool.retrieve().isFailure())
-    {
-      ATH_MSG_FATAL ( "Could not retrieve IPixelDigitizationTool");
-      return StatusCode::FAILURE;
-    }
+StatusCode PixelDigitization::initialize() {
+
+  ATH_MSG_DEBUG("initialize()");
+  CHECK(m_pixelDigitizationTool.retrieve());
   ATH_MSG_DEBUG ( "Successfully retreived IPixelDigitizaitonTool." );
   return StatusCode::SUCCESS;
 }
 	
 // Execute method:
-StatusCode PixelDigitization::execute()
-{
+StatusCode PixelDigitization::execute() {
   ATH_MSG_DEBUG ( "execute()" );
   return m_pixelDigitizationTool->processAllSubEvents();
 }
 
-StatusCode PixelDigitization::finalize()
-{
+StatusCode PixelDigitization::finalize() {
   ATH_MSG_DEBUG ( "finalize()" );
   return StatusCode::SUCCESS;
 }

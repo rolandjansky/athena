@@ -28,21 +28,6 @@ def Pixel_LastXing():
 def ChargeCollProbSvc(name="ChargeCollProbSvc", **kwargs):
     return CfgMgr.ChargeCollProbSvc(name, **kwargs)
 
-def SurfaceChargesTool(name="SurfaceChargesTool", **kwargs):
-    if hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation():
-        kwargs.setdefault("PixelBarrelChargeTool","PixelBarrelBichselChargeTool")
-        kwargs.setdefault("PixelECChargeTool","PixelECBichselChargeTool")
-        kwargs.setdefault("IblPlanarChargeTool","IblPlanarBichselChargeTool")
-        kwargs.setdefault("Ibl3DChargeTool","Ibl3DBichselChargeTool")
-    else:
-        kwargs.setdefault("PixelBarrelChargeTool","PixelBarrelChargeTool")
-        kwargs.setdefault("PixelECChargeTool","PixelECChargeTool")
-        kwargs.setdefault("IblPlanarChargeTool","IblPlanarChargeTool")
-        kwargs.setdefault("Ibl3DChargeTool","Ibl3DChargeTool")
-    kwargs.setdefault("DBMChargeTool","DBMChargeTool") # No separate implementation when using Bichsel model
-    kwargs.setdefault("doITk", GeometryFlags.isSLHC())
-    return CfgMgr.SurfaceChargesTool(name, **kwargs)
-
 def DBMChargeTool(name="DBMChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
@@ -140,20 +125,6 @@ def PixelNoisyCellGenerator(name="PixelNoisyCellGenerator", **kwargs):
          kwargs.setdefault("RndNoiseProb", 1.e-10)
     return CfgMgr.PixelNoisyCellGenerator(name, **kwargs)
 
-def SpecialPixelGenerator(name="SpecialPixelGenerator", **kwargs):
-    from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType == "cosmics" :
-        # random noise probability
-        kwargs.setdefault("SpmNoiseProb", 1e-5)
-        kwargs.setdefault("SpmNoBumpProb", 5e-4)
-        kwargs.setdefault("SpmDisableProb", 2e-5)
-        #kwargs.setdefault("SpmBadTOTProb", 5e-4)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.SpecialPixelGenerator(name, **kwargs)
-
-
-
 def PixelGangedMerger(name="PixelGangedMerger", **kwargs):
     return CfgMgr.PixelGangedMerger(name, **kwargs)
 
@@ -176,6 +147,7 @@ def TimeSvc(name="TimeSvc", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
         ## Timing for cosmics run
+        kwargs.setdefault("UseComTime", True)
         kwargs.setdefault("TimeJitter", 25.)
         kwargs.setdefault("TimeZero", 100.)
         timeBCN = 8
@@ -206,6 +178,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.Resilience import protectedInclude
     from AthenaCommon.Include import include
     from AthenaCommon.AppMgr import ServiceMgr
+    from AthenaCommon.CfgGetter import getService
     protectedInclude( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
     include.block( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
     protectedInclude( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
@@ -213,25 +186,33 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     protectedInclude("PixelConditionsServices/PixelCalibSvc_jobOptions.py")
     from IOVDbSvc.CondDB import conddb
     conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed")
-    kwargs.setdefault("PixelCablingSvc","PixelCablingSvc")
+    PixelCablingSvc = getService("PixelCablingSvc")
+    ServiceMgr += PixelCablingSvc
+    print  PixelCablingSvc
     if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
-        from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
-        pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
-        ServiceMgr += pixelSiPropertiesSvc
+      from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
+      from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+      pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
+      ServiceMgr += pixelSiPropertiesSvc
     kwargs.setdefault("InputObjectName", "PixelHits")
     pixTools = []
     pixTools += ['PixelDiodeCrossTalkGenerator']
     pixTools += ['PixelChargeSmearer']
     pixTools += ['PixelNoisyCellGenerator']
     pixTools += ['PixelGangedMerger']
-    pixTools += ['SpecialPixelGenerator']
     pixTools += ['PixelRandomDisabledCellGenerator']
     pixTools += ['PixelCellDiscriminator']
     kwargs.setdefault("PixelTools", pixTools)
-    # Start of special cosmics tuning:
-    if jobproperties.Beam.beamType == "cosmics" :
-        kwargs.setdefault("UseComTime", True)
+    chargeTools = []
+    if GeometryFlags.isSLHC():
+      chargeTools += ['IblPlanarBichselChargeTool']
+    else:
+      chargeTools += ['DBMChargeTool']
+      chargeTools += ['PixelECBichselChargeTool']
+      chargeTools += ['PixelBarrelBichselChargeTool']
+      chargeTools += ['IblPlanarBichselChargeTool']
+      chargeTools += ['Ibl3DBichselChargeTool']
+    kwargs.setdefault("ChargeTools", chargeTools)
     if GeometryFlags.isSLHC():
         LVL1Latency = [255, 255, 255, 255, 255, 16, 255]
         ToTMinCut = [0, 0, 0, 0, 0, 0, 0]

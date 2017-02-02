@@ -79,6 +79,11 @@ StatusCode PixelBarrelChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  SiChargedDiodeCollection& chargedDiodes,
 		  const InDetDD::SiDetectorElement &Module)
 {
+
+  if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
+  const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
+  if (p_design->getReadoutTechnology()!=InDetDD::PixelModuleDesign::FEI3) { return StatusCode::SUCCESS; }
+
   ATH_MSG_DEBUG("Applying PixelBarrel charge processor");
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
   const HepMC::GenParticle* genPart= McLink.cptr(); 
