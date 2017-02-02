@@ -1,7 +1,0 @@
-package MboyCL
-
-author  Marc Virchaux <virchaux@hep.saclay.cea.fr>
-
-use AtlasPolicy AtlasPolicy-*
-
-
