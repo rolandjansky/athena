@@ -559,7 +559,7 @@ namespace Muon {
 		
 		// collect the material going in opposite direction
 		const std::vector<const Trk::TrackStateOnSurface*>* matvec = m_muonExtrapolator->extrapolateM(*perigee,meas->associatedSurface(),
-													      Trk::oppositeMomentum,false,Trk::muon);
+													      Trk::oppositeMomentum,false,particleHypo);
 		if (matvec && !matvec->empty()){
 		  ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 		  
@@ -592,7 +592,7 @@ namespace Muon {
 	      
 	      ATH_MSG_VERBOSE(" trying to add material layers extrapolating to next measurement  ");
 	      const std::vector<const Trk::TrackStateOnSurface*>* matvec = m_muonExtrapolator->extrapolateM(*perigee,meas->associatedSurface(),
-													    Trk::alongMomentum,false,Trk::muon);
+													    Trk::alongMomentum,false,particleHypo);
 	      if (matvec && !matvec->empty()){
 		ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 		
@@ -635,7 +635,7 @@ namespace Muon {
 		
 		// collect the material going in opposite direction
 		const std::vector<const Trk::TrackStateOnSurface*>* matvec = m_muonExtrapolator->extrapolateM(*secondPerigee,meas->associatedSurface(),
-													      Trk::oppositeMomentum,false,Trk::muon);
+													      Trk::oppositeMomentum,false,particleHypo);
 		if (matvec && !matvec->empty()){
 		  ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 		  
@@ -663,7 +663,7 @@ namespace Muon {
 	    if( meas ){
 	      ATH_MSG_VERBOSE(" trying to add material layers extrapolating to next measurement  ");
 	      const std::vector<const Trk::TrackStateOnSurface*>* matvec = m_muonExtrapolator->extrapolateM(*secondPerigee,meas->associatedSurface(),
-													    Trk::alongMomentum,false,Trk::muon);
+													    Trk::alongMomentum,false,particleHypo);
 	      if (matvec && !matvec->empty()){
 		ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 		
@@ -702,7 +702,7 @@ namespace Muon {
 		
 	  // collect the material going in opposite direction
 	  const std::vector<const Trk::TrackStateOnSurface*>* matvec = m_muonExtrapolator->extrapolateM(*perigee,meas->associatedSurface(),
-													Trk::oppositeMomentum,false,Trk::muon);
+													Trk::oppositeMomentum,false,particleHypo);
 	  if (matvec && !matvec->empty()){
 	    ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 	    
@@ -726,7 +726,7 @@ namespace Muon {
 		
 	  // collect the material going in opposite direction
 	  const std::vector<const Trk::TrackStateOnSurface*>* matvec = m_muonExtrapolator->extrapolateM(*secondPerigee,meas->associatedSurface(),
-													Trk::oppositeMomentum,false,Trk::muon);
+													Trk::oppositeMomentum,false,particleHypo);
 	  if (matvec && !matvec->empty()){
 	    ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 	    
