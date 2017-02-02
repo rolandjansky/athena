@@ -1,2 +1,0 @@
-from MuonTrackThroughCalo.ConfMuonTrackThroughCalo import ConfMuonTrackThroughCalo
-MuonTrackThroughCalo = ConfMuonTrackThroughCalo()
