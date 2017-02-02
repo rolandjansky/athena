@@ -1,7 +1,0 @@
-
-
-
-${CONSTITUENT} ::
-	@echo ${CONSTITUENT} ok
-
-
