@@ -1,6 +1,0 @@
-
-  <!-- Add in ElementLink for ${class} -->
-  <class name="ElementLink< ${class} >" >
-  </class> 
-  <class name="SG::AuxTypeVectorFactory<ElementLink< ${class} > >" >
-  </class>

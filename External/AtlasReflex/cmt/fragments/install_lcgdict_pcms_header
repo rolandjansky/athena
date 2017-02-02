@@ -1,9 +1,0 @@
-
-installDir := "${CMTINSTALLAREA}/$(tag)/lib/"
-
-${installDir} :: 
-	mkdir -p ${installDir}
-
-# Basic dependency 
-${CONSTITUENT} :: ${installDir} $(OBJS)
-	@echo "------> ${CONSTITUENT} Done"

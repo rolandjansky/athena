@@ -1,4 +1,0 @@
-
-  <!-- Add in DataLink for ${class} -->
-  <class name="DataLink< ${class} >" >
-  </class>
