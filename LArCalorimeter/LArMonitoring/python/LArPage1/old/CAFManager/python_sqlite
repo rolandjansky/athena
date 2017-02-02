@@ -1,9 +1,0 @@
-#! /bin/zsh
-
-# This script starts a python session in a version that was compiled 
-# with sqlite support (not the case for CERN standard python 2.5!)
-
-PYSQLITEPATH=/afs/cern.ch/sw/lcg/external/Python/2.5/slc4_ia32_gcc34_sqlite
-
-export LD_LIBRARY_PATH=$PYSQLITEPATH/lib:$LD_LIBRARY_PATH
-$PYSQLITEPATH/bin/python $@

@@ -1,6 +1,0 @@
-#! /usr/bin/env python_sqlite
-
-import sys
-import CAFInterface
-
-CAFInterface.check(sys.argv)
