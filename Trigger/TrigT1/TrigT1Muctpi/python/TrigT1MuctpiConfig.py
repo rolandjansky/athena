@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigT1MuctpiConfig.py 726107 2016-02-25 11:04:42Z wengler $
+# $Id: TrigT1MuctpiConfig.py 794528 2017-01-30 12:36:33Z fwinkl $
 
 # Local (generated) configurable(s):
 from TrigT1Muctpi.TrigT1MuctpiConf import LVL1MUCTPI__L1Muctpi
@@ -54,7 +54,7 @@ class DefaultL1Muctpi( LVL1MUCTPI__L1Muctpi ):
       pass
 
     # Set properties for NIM outputs ot L1Topo conversion from RoI to eta/phi
-    self.GeometryXMLFile = "TrigConfMuctpi/TestMioctGeometry.xml"
+    self.GeometryXMLFile = "TrigConfMuctpi/TestMioctGeometry_2016_05_30_CS_2600573263.xml"
 
     # Turn on the NIM output creation by default:
     self.DoNIMOutput = True
@@ -200,7 +200,7 @@ class DefaultL1MuctpiTool( LVL1MUCTPI__L1MuctpiTool ):
       pass
 
     # Set properties for NIM outputs ot L1Topo conversion from RoI to eta/phi
-    self.GeometryXMLFile = "TrigConfMuctpi/TestMioctGeometry.xml"
+    self.GeometryXMLFile = "TrigConfMuctpi/TestMioctGeometry_2016_05_30_CS_2600573263.xml"
 
     # Turn on the NIM output creation by default:
     self.DoNIMOutput = True
