@@ -1,7 +1,0 @@
-ALL, CoreDumpSvc.*, INFO .*
-ALL, ToolSvc.SCT.*, ERROR .*
-ALL, MuonCalib::CscCoolStrSvc, ERROR .*
-ALL   ,MuonMDT_CablingSvc,  ERROR .*
-ALL   ,Py:inputFilePeeker,  ERROR .*
-ALL   ,Py:AutoConfiguration,ERROR .*
-
