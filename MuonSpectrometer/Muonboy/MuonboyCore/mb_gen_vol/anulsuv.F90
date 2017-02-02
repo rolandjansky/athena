@@ -1,9 +1,0 @@
-!
- SUBROUTINE ANULSUV
- USE M_MB_General_Volumes, ONLY : Nsuvo
- IMPLICIT NONE
-!
-   Nsuvo = Nsuvo - 1
-!
- END SUBROUTINE ANULSUV
-!
