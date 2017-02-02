@@ -1,5 +1,0 @@
-package InDetWebDisplay
-
-author Shaun Roe <Shaun.Roe@cern.ch>
-
-use AtlasPolicy AtlasPolicy-01-*
