@@ -1,6 +1,0 @@
-package AtlasXercesC
-
-author arnault@lal.in2p3.fr
-
-use ExternalPolicy ExternalPolicy-00-* External
-use XercesC v* LCG_Interfaces
