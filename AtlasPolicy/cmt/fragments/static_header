@@ -1,2 +1,0 @@
-${CONSTITUENT} ::
-	$(MAKE) --no-print-directory $${MAKEFLAGS} CMTEXTRATAGS=static static

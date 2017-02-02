@@ -1,7 +1,0 @@
-${CONSTITUENT} :: ${FILEPATH}${NAME}.html
-
-${FILEPATH}${NAME}.html : ${FULLNAME}
-	cd ${FILEPATH}; latex2html ${NAME}; mv -f ${NAME} ${NAME}.html
-
-${CONSTITUENT}clean ::
-	cd ${FILEPATH}; /bin/rm -f ${NAME}.html
