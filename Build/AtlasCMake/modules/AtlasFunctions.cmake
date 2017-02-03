@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 1995-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasFunctions.cmake 760944 2016-07-11 09:03:46Z krasznaa $
-#
 # This is the main file that needs to be included in order to get access to the
 # ATLAS CMake functions.
 #
@@ -55,7 +53,8 @@ include( AtlasCompilerSettings )
 function( atlas_project name version )
 
    # Parse all options:
-   cmake_parse_arguments( ARG "RELEASE_RECOMPILE;FORTRAN" "" "USE" ${ARGN} )
+   cmake_parse_arguments( ARG "RELEASE_RECOMPILE;FORTRAN" "PROJECT_ROOT" "USE"
+      ${ARGN} )
 
    # Tell the user what's happening:
    message( STATUS "Configuring ATLAS project with name "
@@ -92,8 +91,8 @@ function( atlas_project name version )
 
    # Do not consider header files that are outside of the project's source
    # and binary directory in the dependency tree of the source files.
-   set( CMAKE_DEPENDS_IN_PROJECT_ONLY ON )
-   set( CMAKE_DEPENDS_IN_PROJECT_ONLY ON PARENT_SCOPE )
+   #set( CMAKE_DEPENDS_IN_PROJECT_ONLY ON )
+   #set( CMAKE_DEPENDS_IN_PROJECT_ONLY ON PARENT_SCOPE )
 
    # Decide about the languages used in the project:
    set( _languages CXX C )
@@ -288,12 +287,32 @@ function( atlas_project name version )
    unset( _thisFile )
    unset( _thisDir )
 
+   # Set up the "atlas_tests" target. One that all of the unit test builds
+   # will depend on. This target will either be built by default or not based
+   # on the value of the ATLAS_ALWAYS_BUILD_TESTS configuration option.
+   option( ATLAS_ALWAYS_BUILD_TESTS
+      "Make unit test building part of the default build target" ON )
+   if( ATLAS_ALWAYS_BUILD_TESTS )
+      message( STATUS "Unit tests will be built by default" )
+      add_custom_target( atlas_tests ALL )
+   else()
+      message( STATUS "Unit tests will *NOT* be built by default" )
+      message( STATUS "Use the 'atlas_tests' build target to build the tests" )
+      add_custom_target( atlas_tests )
+   endif()
+   set_property( TARGET atlas_tests PROPERTY FOLDER ${name} )
+
    # Find the packages in the current working directory:
    set( _packageDirs )
-   file( GLOB_RECURSE cmakelist_files RELATIVE ${CMAKE_SOURCE_DIR}
-      CMakeLists.txt )
+   if( ARG_PROJECT_ROOT )
+      file( GLOB_RECURSE cmakelist_files RELATIVE ${CMAKE_SOURCE_DIR}
+         ${ARG_PROJECT_ROOT}/CMakeLists.txt )
+   else()
+      file( GLOB_RECURSE cmakelist_files RELATIVE ${CMAKE_SOURCE_DIR}
+         CMakeLists.txt )
+   endif()
    foreach( file ${cmakelist_files} )
-      # Ignore the top level file itself:
+      # Ignore the CMakeLists.txt file calling this function:
       if( NOT file STREQUAL CMakeLists.txt )
          get_filename_component( package ${file} PATH )
          list( APPEND _packageDirs ${package} )
@@ -358,16 +377,36 @@ function( atlas_project name version )
 
    # Include the packages:
    set( _counter 0 )
+   set( _selectedPackages 0 )
+   set( _selectedPackageNames )
    foreach( _pkgDir ${_packageDirs} )
+      # Construct a binary directory name:
+      set( _binDir ${_pkgDir} )
+      if( ARG_PROJECT_ROOT )
+         file( RELATIVE_PATH _binDir ${ARG_PROJECT_ROOT}
+            ${CMAKE_CURRENT_SOURCE_DIR}/${_pkgDir} )
+      endif()
+      # Update the counter:
       math( EXPR _doNotPrint "${_counter} % 10" )
       math( EXPR _counter "${_counter} + 1" )
       if( NOT _doNotPrint )
-         message( STATUS "Configuring package ${_counter} / ${_nPackageDirs}" )
+         message( STATUS "Considering package ${_counter} / ${_nPackageDirs}" )
       endif()
-      add_subdirectory( ${_pkgDir} )
+      # Check if this package should be set up:
+      atlas_is_package_selected( ${_binDir} _isSelected )
+      if( NOT "${_isSelected}" )
+         continue()
+      endif()
+      add_subdirectory( ${_pkgDir} ${_binDir} )
+      list( APPEND _selectedPackageNames ${_binDir} )
+      math( EXPR _selectedPackages "${_selectedPackages} + 1" )
+      unset( _binDir )
    endforeach()
+   message( STATUS "Number of packages configured: ${_selectedPackages}" )
    unset( _counter )
    unset( _doNotPrint )
+   unset( _isSelected )
+   unset( _selectedPackages )
 
    # Find the releases' packages again, this time setting each of them up:
    if( ARG_USE )
@@ -471,22 +510,13 @@ function( atlas_project name version )
    file( WRITE ${_packagesFileName}
       "# Regular package(s) built in ${CMAKE_PROJECT_NAME} - "
       "${CMAKE_PROJECT_VERSION}\n" )
-   foreach( _pkgDir ${_packageDirs} )
-      # Get the version of the package:
+   foreach( _pkgDir ${_selectedPackageNames} )
+      # The package version is no longer defined...
       set( _version "<unknown>" )
-      if( EXISTS "${CMAKE_SOURCE_DIR}/${_pkgDir}/version.cmake" )
-         file( READ "${CMAKE_SOURCE_DIR}/${_pkgDir}/version.cmake"
-            _version LIMIT 10000 )
-         string( STRIP ${_version} _version )
-      elseif( EXISTS "${CMAKE_SOURCE_DIR}/${_pkgDir}/cmt/version.cmt" )
-         # For backwards compatibility:
-         file( READ "${CMAKE_SOURCE_DIR}/${_pkgDir}/cmt/version.cmt"
-            _version LIMIT 10000 )
-         string( STRIP ${_version} _version )
-      endif()
       # Add a line into the file:
       file( APPEND ${_packagesFileName} "${_pkgDir} ${_version}\n" )
    endforeach()
+   unset( _selectedPackageNames )
    # Add some possible special packages to the file:
    get_property( _specialPackagesSet GLOBAL PROPERTY ATLAS_SPECIAL_PACKAGES
       SET )
@@ -670,6 +700,28 @@ function( atlas_project name version )
       ${CMAKE_BINARY_DIR}/CTestCustom.cmake @ONLY )
    mark_as_advanced( _ctestCustom )
    unset( _ctestCustom )
+
+   # On MacOS X copy the system's default BASH executable into the build
+   # directory, and use it from there. To get around the issue with Apple's
+   # system protection against passing some environment variables to certain
+   # applications.
+
+   # Find bash:
+   find_program( _bash_executable bash )
+   if( NOT _bash_executable )
+      message( WARNING "BASH not found. The build will fail." )
+   endif()
+
+   if( APPLE )
+      # Copy bash into the build directory:
+      file( COPY "${_bash_executable}"
+         DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
+      # And now set BASH_EXECUTABLE to point at this private copy:
+      set( BASH_EXECUTABLE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bash" )
+   else()
+      # Just take bash from its normal location:
+      set( BASH_EXECUTABLE "${_bash_executable}" )
+   endif()
 
    # Set up a script that can be used during the build to run executables
    # in a "full runtime environment":
@@ -909,7 +961,7 @@ macro( atlas_subdir name )
 
       # Check if a package with this name was already declared:
       if( TARGET ${name}Pkg OR TARGET ${name}PkgPrivate OR
-            TARGET Package_${name} )
+            TARGET Package_${name} OR TARGET Package_${name}_tests )
          message( WARNING "Package ${name} is already declared." )
       else()
 
@@ -964,6 +1016,13 @@ macro( atlas_subdir name )
          # Put the package targets into the package's folder:
          atlas_get_package_dir( pkgDir )
          set_property( TARGET Package_${name} PROPERTY FOLDER ${pkgDir} )
+
+         # Create a "tests target" for the package:
+         add_custom_target( Package_${name}_tests
+            COMMAND ${CMAKE_COMMAND} -E echo
+            "${name}: Package build succeeded" )
+         add_dependencies( atlas_tests Package_${name}_tests )
+         set_property( TARGET Package_${name}_tests PROPERTY FOLDER ${pkgDir} )
 
          # Set up the installation of the source files from the package:
          install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
@@ -1283,6 +1342,7 @@ function( atlas_add_executable exeName )
       if( NOT TARGET ${exeName}ExeAttribSet )
          add_custom_target( ${exeName}ExeAttribSet ALL
             COMMAND chmod 755 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${exeName}.exe )
+         add_dependencies( Package_${pkgName} ${exeName}ExeAttribSet )
          set_property( TARGET ${exeName}ExeAttribSet PROPERTY LABELS
             ${pkgName} )
          set_property( TARGET ${exeName}ExeAttribSet PROPERTY FOLDER
@@ -1392,11 +1452,11 @@ function( atlas_add_test testName )
       endif()
 
       # Declare the executable:
-      add_executable( ${pkgName}_${testName} ${_sources} )
+      add_executable( ${pkgName}_${testName} EXCLUDE_FROM_ALL ${_sources} )
 
       # Set it's properties:
       add_dependencies( ${pkgName}_${testName} ${pkgName}Pkg )
-      add_dependencies( Package_${pkgName} ${pkgName}_${testName} )
+      add_dependencies( Package_${pkgName}_tests ${pkgName}_${testName} )
       set_property( TARGET ${pkgName}_${testName} PROPERTY LABELS ${pkgName} )
       set_property( TARGET ${pkgName}_${testName} PROPERTY FOLDER ${pkgDir} )
       set_property( TARGET ${pkgName}_${testName} PROPERTY
@@ -1421,9 +1481,10 @@ function( atlas_add_test testName )
       # Create the test script installation target of the package if it
       # doesn't exist yet:
       if( NOT TARGET ${pkgName}TestScriptInstall )
-         add_custom_target( ${pkgName}TestScriptInstall ALL SOURCES
+         add_custom_target( ${pkgName}TestScriptInstall SOURCES
             $<TARGET_PROPERTY:${pkgName}TestScriptInstall,TEST_SCRIPTS> )
-         add_dependencies( Package_${pkgName} ${pkgName}TestScriptInstall )
+         add_dependencies( Package_${pkgName}_tests
+            ${pkgName}TestScriptInstall )
          set_property( TARGET ${pkgName}TestScriptInstall
             PROPERTY LABELS ${pkgName} )
          set_property( TARGET ${pkgName}TestScriptInstall
@@ -1470,6 +1531,15 @@ function( atlas_add_test testName )
       set( POST_EXEC_SCRIPT "if type post.sh >/dev/null 2>&1; then
     post.sh ${testName} \"${ARG_EXTRA_PATTERNS}\"
 fi" )
+   endif()
+
+   # Decide where to take bash from:
+   if( APPLE )
+      # atlas_project(...) should take care of putting it here:
+      set( BASH_EXECUTABLE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bash" )
+   else()
+      # Just take it from its default location:
+      find_program( BASH_EXECUTABLE bash )
    endif()
 
    # Generate a test script that will run this unit test in the
