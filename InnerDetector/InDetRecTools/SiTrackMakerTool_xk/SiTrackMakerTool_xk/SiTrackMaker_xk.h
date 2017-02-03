@@ -142,7 +142,7 @@ namespace InDet{
       bool                           m_useSSSfilter  ;
       bool                           m_useHClusSeed  ; // Hadronic Calorimeter Seeds 
       bool                           m_sss           ; // True if SSS seed without filter 
-      bool                           m_ITKGeomtry    ; // ITK geometry
+      bool                           m_ITKGeometry   ; // ITK geometry
       bool                        m_seedsegmentsWrite; // Call seed to track conversion
       bool                           m_heavyion      ; // Is it heavy ion events
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties

@@ -53,7 +53,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_useCaloSeeds = false              ;
   m_useHClusSeed = false              ;
   m_useSSSfilter = true               ;
-  m_ITKGeomtry   = false              ;
+  m_ITKGeometry  = false              ;
   m_heavyion     = false              ;
   m_xi2max       = 15.                ;
   m_xi2maxNoAdd  = 35.                ;
@@ -72,9 +72,12 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_phiWidth     = .3                 ;
   m_etaWidth     = .3                 ;
   m_seedsegmentsWrite = false;
-//  m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
-//  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
-  m_beamconditions               = "BeamCondSvc"            ;
+  m_beamconditions               = "BeamCondSvc";
+  m_fieldService = 0                  ;
+  m_beam         = 0                  ;
+  m_nprint       = 0                  ;
+  m_dbm          = false              ;
+  m_sss          = false              ;
 
   m_useITKclusterSizeCuts = false; // ITK (long barrel): switch to turn on cluster size cuts 
   m_Nsigma_clSizeZcut = 5.0; // ITK (long barrel): size of the cut on the cluster sizeZ
@@ -114,7 +117,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("MagFieldSvc"             , m_fieldServiceHandle);
   declareProperty("useSCT"                  , m_useSct);
   declareProperty("usePixel"                , m_usePix);
-  declareProperty("ITKGeometry"             , m_ITKGeomtry);
+  declareProperty("ITKGeometry"             , m_ITKGeometry);
   declareProperty("SeedSegmentsWrite"       , m_seedsegmentsWrite);
 
   declareProperty("ITKclusterSizeCuts"   ,m_useITKclusterSizeCuts); // ITK stuff (extended barrel)
@@ -1072,8 +1075,6 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
   }
   if(trackseed.empty()) return true;
 
-  if(m_ITKGeomtry && n!=3 && n!=6) return false;
- 
   std::multiset<const Trk::Track*>::iterator t = trackseed.begin(), te = trackseed.end();
 
   const Trk::Track* tr  = (*t)                             ;
@@ -1093,7 +1094,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
 
   if(m_heavyion) {if(n==3 || t3 <=0) return true; return false;}
 
-  if( (m_ITKGeomtry && t3 > 0) || nsm3 > 13 || t3 > 2) return false;
+  if( (m_ITKGeometry && t3 > 0) || nsm3 > 13 || t3 > 2) return false;
 
   if( !m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43. ) return true;
   if(t3 > 0) return false;
@@ -1217,6 +1218,8 @@ bool InDet::SiTrackMaker_xk::globalPosition
   double a0[3] = {e0.second.x()-e0.first.x(), e0.second.y()-e0.first.y(), e0.second.z()-e0.first.z()};
   double a1[3] = {e1.second.x()-e1.first.x(), e1.second.y()-e1.first.y(), e1.second.z()-e1.first.z()};
   double dr[3] = {e1.first .x()-e0.first.x(), e1.first .y()-e0.first.y(), e1.first .z()-e0.first.z()};
+
+  double d0    = m_distmax/sqrt(a0[0]*a0[0]+a0[1]*a0[1]+a0[2]*a0[2]);
   
   // u = a1 x dir and  v = a0 x dir
   //
@@ -1229,6 +1232,9 @@ bool InDet::SiTrackMaker_xk::globalPosition
   if(du==0. || dv==0.) return false;
 
   double s0 = (dr[0]*u[0]+dr[1]*u[1]+dr[2]*u[2])/du;
+  double s1 =-(dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/dv;
+
+  if(s0 < -d0 || s0 > 1.+d0 ||  s1 < -d0 || s1 > 1.+d0) return false;
 
   p[0] = e0.first.x()+s0*a0[0]; 
   p[1] = e0.first.y()+s0*a0[1]; 
