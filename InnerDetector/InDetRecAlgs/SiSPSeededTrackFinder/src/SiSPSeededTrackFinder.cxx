@@ -3,13 +3,13 @@
 */
 
 #include <set>
-#include "TrkTrack/TrackCollection.h"
+
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "TrkSpacePoint/SpacePointContainer.h" 
+#include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
-
+#include "CxxUtils/make_unique.h"
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -20,6 +20,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_useMBTS(false)                                                     ,
   m_useNewStrategy(false)                                              ,
   m_useZBoundaryFinding(false)                                         ,
+  m_ITKGeometry(false)                                                 ,
   m_outputlevel(0)                                                     ,
   m_nprint(0)                                                          ,
   m_nseeds(0)                                                          ,
@@ -28,16 +29,15 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_maxPIXsp(150000)                                                   ,
   m_maxSCTsp(500000) 						       ,
   m_nfreeCut(1)                                                        ,
-  m_tracklocationOutput("SiSPSeededTracks")                            ,
-  m_tracklocationInput (" ")                                           ,
+  m_SpacePointsSCT("SCT_SpacePoints"),
+  m_SpacePointsPixel("PixelSpacePoints"),
+  m_outputTracks("SiSPSeededTracks"),
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
   m_zvertexmaker("InDet::SiZvertexMaker_xk/InDetSiZvertexMaker")       ,
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
   m_fieldmode("MapSolenoid")                                           ,
   m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  )         
 {
-  m_spacepointsSCTname     = "SCT_SpacePoints" ;
-  m_spacepointsPixelname   = "PixelSpacePoints";
   m_beamconditions         = "BeamCondSvc"     ;
   m_beam                   = 0                 ;
   m_histsize               = 1400              ;
@@ -61,15 +61,14 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("SeedsTool"           ,m_seedsmaker          );
   declareProperty("ZvertexTool"         ,m_zvertexmaker        );
   declareProperty("TrackTool"           ,m_trackmaker          );
-  declareProperty("TracksLocation"      ,m_tracklocationOutput );
-  declareProperty("InputTracksLocation" ,m_tracklocationInput  );
+  declareProperty("TracksLocation"      ,m_outputTracks        );
   declareProperty("useZvertexTool"      ,m_useZvertexTool      );
   declareProperty("maxNumberSeeds"      ,m_maxNumberSeeds      );
   declareProperty("useMBTSTimeDiff"     ,m_useMBTS             );
   declareProperty("maxNumberPIXsp"      ,m_maxPIXsp            );
   declareProperty("maxNumberSCTsp"      ,m_maxSCTsp            );
-  declareProperty("SpacePointsSCTName"  ,m_spacepointsSCTname  );
-  declareProperty("SpacePointsPixelName",m_spacepointsPixelname);
+  declareProperty("SpacePointsSCTName"  ,m_SpacePointsSCT      );
+  declareProperty("SpacePointsPixelName",m_SpacePointsPixel    );
   declareProperty("FreeClustersCut"     ,m_nfreeCut            );
   declareProperty("useNewStrategy"      ,m_useNewStrategy      );
   declareProperty("useZBoundFinding"    ,m_useZBoundaryFinding );
@@ -79,6 +78,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("HistSize"            ,m_histsize            );
   declareProperty("Zcut"                ,m_zcut                );
   declareProperty("MagneticFieldMode"   ,m_fieldmode           );
+  declareProperty("ITKGeometry"         ,m_ITKGeometry         );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -91,10 +91,10 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   // Get tool for space points seed maker
   //
   if ( m_seedsmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsmaker << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsmaker << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_seedsmaker << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_seedsmaker << endmsg;
   }
 
   if(m_useZvertexTool) {
@@ -102,25 +102,25 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     // Get tool for z-coordinates ptimary vertices search
     //
     if ( m_zvertexmaker.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_zvertexmaker << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_zvertexmaker << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_zvertexmaker << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_zvertexmaker << endmsg;
     }
   }
 
   // Get track-finding tool
   //
   if ( m_trackmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackmaker << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackmaker << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trackmaker << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_trackmaker << endmsg;
   }
 
   if(m_useNewStrategy && m_beamconditions=="") {m_useNewStrategy = false; m_useZBoundaryFinding = false;}
 
-  if(m_useNewStrategy || m_useZBoundaryFinding) {
+  if(m_useNewStrategy || m_useZBoundaryFinding || m_ITKGeometry) {
 
     // Get beam condition service 
     // 
@@ -131,10 +131,10 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
       // Get RungeKutta propagator tool
       //
       if ( m_proptool.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endreq;
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
 	return StatusCode::FAILURE;
       } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_proptool << endreq;
+	msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
       }
       
       // Setup for magnetic field
@@ -156,7 +156,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   m_nseedsTotal    = 0;
   m_ntracksTotal   = 0;
@@ -183,15 +183,10 @@ StatusCode InDet::SiSPSeededTrackFinder::execute()
 
 StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 { 
-  TrackCollection* foundTracks = new TrackCollection;
-
+  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
   // For HI events we can use MBTS information from calorimeter
   //
   if(!isGoodEvent()) {
-    StatusCode s = evtStore()->record(foundTracks,m_tracklocationOutput,false);
-    if (s.isFailure() ) {
-      msg(MSG::ERROR)<<"Could not save converted SiSPSeeded tracks" <<endreq;
-    }
     return StatusCode::SUCCESS;
   }
 
@@ -246,47 +241,24 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   std::multimap<double,Trk::Track*>::iterator 
     q = qualityTrack.begin(), qe =qualityTrack.end(); 
 
-  for(; q!=qe; ++q) {++m_ntracks; foundTracks->push_back((*q).second);}
+  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q).second);}
 
   m_nseedsTotal += m_nseeds ;
 
   ZVE == true ? ++m_neventsTotalV : ++m_neventsTotal;
 
-  if(ERR) {delete foundTracks; foundTracks = new TrackCollection;}
-  else    {m_ntracksTotal+=m_ntracks;                            }
+  if(ERR) { m_outputTracks->clear(); }
+  else    {m_ntracksTotal+=m_ntracks;}
 
-  // Copy tracks found before from input to output collection
-  //
-  if(m_tracklocationInput != " ") {
 
-    const TrackCollection*  inputTracks = 0;
-
-    StatusCode s = evtStore()->retrieve(inputTracks, m_tracklocationInput);
-    if (s.isFailure() || !inputTracks) {
-      if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
-    }
-    else {
-
-       TrackCollection::const_iterator t,te = inputTracks->end();
-
-       for (t=inputTracks->begin(); t!=te; ++t) {
-
-	 foundTracks->push_back( new Trk::Track(*(*t)) ); 
-       }
-    }
-  }
 
   // Save reconstructed tracks
   //
-  StatusCode s = evtStore()->record(foundTracks,m_tracklocationOutput,false);
-  if (s.isFailure() ) {
-    msg(MSG::ERROR)<<"Could not save converted SiSPSeeded tracks" <<endreq;
-  }
 
   // Print common event information
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -297,15 +269,11 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 
 StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 { 
-  TrackCollection* foundTracks = new TrackCollection;
+  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
 
   // For HI events we can use MBTS information from calorimeter
   //
   if(!isGoodEvent()) {
-    StatusCode s = evtStore()->record(foundTracks,m_tracklocationOutput,false);
-    if (s.isFailure() ) {
-      msg(MSG::ERROR)<<"Could not save converted SiSPSeeded tracks" <<endreq;
-    }
     return StatusCode::SUCCESS;
   }
 
@@ -348,7 +316,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
       qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
 
-      if(t==T.begin()) fillZHistogram(*t,per);
+      if(t==T.begin() && !m_ITKGeometry) fillZHistogram(*t,per);
 
     }
     if( m_nseeds >= m_maxNumberSeeds) {
@@ -358,7 +326,8 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 
   m_seedsmaker->newEvent(1); 
 
-  findZvertex(VZ,ZB); m_seedsmaker->find3Sp(VZ,ZB);
+  if(!m_ITKGeometry) {findZvertex(VZ,ZB); m_seedsmaker->find3Sp(VZ,ZB);}
+  else               {                    m_seedsmaker->find3Sp(VZ   );}
 
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
@@ -384,47 +353,23 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   std::multimap<double,Trk::Track*>::iterator 
     q = qualityTrack.begin(), qe =qualityTrack.end(); 
 
-  for(; q!=qe; ++q) {++m_ntracks; foundTracks->push_back((*q).second);}
+  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q).second);}
 
   m_nseedsTotal += m_nseeds ;
 
   ++m_neventsTotal;
 
-  if(ERR) {delete foundTracks; foundTracks = new TrackCollection;}
+  if(ERR) {m_outputTracks->clear();}
   else    {m_ntracksTotal+=m_ntracks;                            }
 
-  // Copy tracks found before from input to output collection
-  //
-  if(m_tracklocationInput != " ") {
-
-    const TrackCollection*  inputTracks = 0;
-
-    StatusCode s = evtStore()->retrieve(inputTracks, m_tracklocationInput);
-    if (s.isFailure() || !inputTracks) {
-      if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
-    }
-    else {
-
-       TrackCollection::const_iterator t,te = inputTracks->end();
-
-       for (t=inputTracks->begin(); t!=te; ++t) {
-
-	 foundTracks->push_back( new Trk::Track(*(*t)) ); 
-       }
-    }
-  }
 
   // Save reconstructed tracks
   //
-  StatusCode s = evtStore()->record(foundTracks,m_tracklocationOutput,false);
-  if (s.isFailure() ) {
-    msg(MSG::ERROR)<<"Could not save converted SiSPSeeded tracks" <<endreq;
-  }
 
   // Print common event information
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -439,7 +384,7 @@ StatusCode InDet::SiSPSeededTrackFinder::finalize()
   if(m_zhistogram) delete [] m_zhistogram;
   if(m_phistogram) delete [] m_phistogram;
 
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endreq;
+  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -470,7 +415,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::SiSPSeededTrackFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -485,10 +431,8 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out ) const
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
   n     = 65-m_trackmaker.type().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_tracklocationOutput.size();
+  n     = 65-m_outputTracks.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 65-m_tracklocationInput.size();
-  std::string s6; for(int i=0; i<n; ++i) s6.append(" "); s6.append("|");
 
   std::string s5; 
   if(m_useZvertexTool) s5= "Yes"; else s5 = "No";
@@ -507,9 +451,7 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out ) const
      <<std::endl;
   out<<"| Tool for space points seeded track      finding | "<<m_trackmaker.type()<<s3
      <<std::endl;
-  out<<"| Location of output tracks                       | "<<m_tracklocationOutput<<s4
-     <<std::endl;
-  out<<"| Location of input  tracks                       | "<<m_tracklocationInput<<s6
+  out<<"| Location of output tracks                       | "<<m_outputTracks.name()<<s4
      <<std::endl;
   out<<"|----------------------------------------------------------------"
      <<"----------------------------------------------------|"
@@ -528,16 +470,17 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumpevent( MsgStream& out ) const
   if(m_nprint > 1) {ns = m_nseedsTotal; nt = m_ntracksTotal;}
 
   out<<"|-------------------------------------------------------------------";
-  out<<"-----------------------------|"
+  out<<"---------------------------------|"
      <<std::endl;
   out<<"|  Investigated "
-     <<std::setw(7)<<ns<<" space points seeds and found ";
-  if     (m_useNewStrategy     ) out<<std::setw(7)<<nt<<" tracks using new strategy ("<<std::setw(2)<<  m_nvertex <<")      |"<<std::endl;
-  else if(m_useZBoundaryFinding) out<<std::setw(7)<<nt<<" tracks using old strategy with Zb   |"<<std::endl;
-  else                           out<<std::setw(7)<<nt<<" tracks using old strategy           |"<<std::endl;
+     <<std::setw(9)<<ns<<" space points seeds and found ";
+  if     (m_ITKGeometry        ) out<<std::setw(9)<<nt<<" tracks using new strategy for ITK   |"<<std::endl; 
+  else if(m_useNewStrategy     ) out<<std::setw(9)<<nt<<" tracks using new strategy ("<<std::setw(2)<<  m_nvertex <<")      |"<<std::endl;
+  else if(m_useZBoundaryFinding) out<<std::setw(9)<<nt<<" tracks using old strategy with Zb   |"<<std::endl;
+  else                           out<<std::setw(9)<<nt<<" tracks using old strategy           |"<<std::endl;
 
   out<<"|-------------------------------------------------------------------";
-  out<<"-----------------------------|"
+  out<<"---------------------------------|"
      <<std::endl;
   if(m_problemsTotal || m_problemsTotalV ) {
     out<<"|  Events       "
@@ -574,18 +517,15 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() {
   // Test total number pixels space points
   //
   unsigned int               nsp = 0;
-  const SpacePointContainer* con = 0;
 
-  sc  = evtStore()->retrieve(con,m_spacepointsPixelname);
-  if(!sc.isFailure() && con) {
-    
-    SpacePointContainer::const_iterator spc  =  con->begin();
-    SpacePointContainer::const_iterator spce =  con->end  ();
+   if(!m_SpacePointsPixel.isValid()){
+    SpacePointContainer::const_iterator spc  =  m_SpacePointsPixel->begin();
+    SpacePointContainer::const_iterator spce =  m_SpacePointsPixel->end  ();
     
     for(; spc!=spce; ++spc) nsp+=(*spc)->size();
 
     if(int(nsp) > m_maxPIXsp) {
-      msg(MSG::WARNING)<<"Found more than "<<m_maxPIXsp<<" pixels space points in background event. Skip track finding"<<endreq;
+      msg(MSG::WARNING)<<"Found more than "<<m_maxPIXsp<<" pixels space points in background event. Skip track finding"<<endmsg;
       return false;
     }
   }
@@ -593,18 +533,16 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() {
   // Test total number sct space points
   //
   nsp = 0;
-  con = 0;
-
-  sc  = evtStore()->retrieve(con,m_spacepointsSCTname);
-  if(!sc.isFailure() && con) {
+  
+  if(!m_SpacePointsSCT.isValid()) {
     
-    SpacePointContainer::const_iterator spc  =  con->begin();
-    SpacePointContainer::const_iterator spce =  con->end  ();
+    SpacePointContainer::const_iterator spc  =  m_SpacePointsSCT->begin();
+    SpacePointContainer::const_iterator spce =  m_SpacePointsSCT->end  ();
     
     for(; spc!=spce; ++spc) nsp+=(*spc)->size();
 
     if(int(nsp) > m_maxSCTsp) {
-      msg(MSG::WARNING)<<"Found more than "<<m_maxSCTsp<<" sct space points in background event. Skip track finding"<<endreq;
+      msg(MSG::WARNING)<<"Found more than "<<m_maxSCTsp<<" sct space points in background event. Skip track finding"<<endmsg;
       return false;
     }
   }
@@ -634,7 +572,8 @@ double InDet::SiSPSeededTrackFinder::trackQuality(const Trk::Track* Tr)
    double q;
    if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
    else                     q =      (W-x2    );
-   if(q < 0.) q = 0.; quality+=q;
+   if(q < 0.) q = 0.;
+   quality+=q;
  }
  if( Tr->info().trackProperties(Trk::TrackInfo::BremFit) ) quality*=.7;
  return quality;
@@ -671,7 +610,8 @@ void InDet::SiSPSeededTrackFinder::filterSharedTracks
     }
 
     if(nf >= m_nfreeCut || nf==nc) {
-      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]); ++q;
+      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]);
+      ++q;
     } 
     else  {
       delete (*q).second; QT.erase(q++);
