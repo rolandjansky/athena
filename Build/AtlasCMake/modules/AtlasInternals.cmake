@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 1995-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasInternals.cmake 755445 2016-06-16 15:09:56Z krasznaa $
-#
 # Functions used internally by functions declared in AtlasFunctions.
 # Which are for general use inside the package descriptions.
 
@@ -50,10 +48,10 @@ endfunction( atlas_get_package_name )
 #
 function( atlas_get_package_dir dir )
 
-   # Just remove the prefix of the source directory of the current
-   # package's source directory, and that's it...
-   string( REPLACE "${CMAKE_SOURCE_DIR}/" "" _packageDir
-      ${CMAKE_CURRENT_SOURCE_DIR} )
+   # Just remove the prefix of the binary directory of the current
+   # package's binary directory, and that's it...
+   string( REPLACE "${CMAKE_BINARY_DIR}/" "" _packageDir
+      ${CMAKE_CURRENT_BINARY_DIR} )
 
    # Return the string:
    set( ${dir} ${_packageDir} PARENT_SCOPE )
@@ -440,6 +438,17 @@ macro( atlas_ctest_setup )
    set_property( GLOBAL PROPERTY ATLAS_CTEST_CONFIGURED TRUE )
    if( NOT _ctestConfigured )
 
+      # Decide where to take bash from:
+      if( APPLE )
+         # atlas_project(...) should take care of putting it here:
+         atlas_platform_id( _platform )
+         set( BASH_EXECUTABLE "${CMAKE_BINARY_DIR}/${_platform}/bin/bash" )
+         unset( _platform )
+      else()
+         # Just take it from its default location:
+         find_program( BASH_EXECUTABLE bash )
+      endif()
+
       # Only do anything fancy if we are in CTEST_USE_LAUNCHERS mode:
       if( CTEST_USE_LAUNCHERS )
          # Find the atlas_ctest.sh.in script skeleton:
@@ -504,6 +513,15 @@ macro( atlas_cpack_setup )
 
    # Taken from ROOT. Not clear whether we need it...
    #include( InstallRequiredSystemLibraries )
+
+   # Decide where to take bash from:
+   if( APPLE )
+      # atlas_project(...) should take care of putting it here:
+      set( BASH_EXECUTABLE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bash" )
+   else()
+      # Just take it from its default location:
+      find_program( BASH_EXECUTABLE bash )
+   endif()
 
    # Set some variables, constructed from variables set originally for CMake
    # itself:
@@ -947,3 +965,88 @@ endfunction( atlas_merge_project_files )
 
 # Delete the private macro:
 unset( _merge_files )
+
+# Function filtering which packages from the repository should be used in a
+# particular build setup.
+#
+# Usage: atlas_is_package_selected( ${pkgDir} isSelected )
+#
+function( atlas_is_package_selected dirName returnName )
+
+   # Check if the configuration file was already read in:
+   if( NOT DEFINED ATLAS_PACKAGE_FILTERS )
+      # The default location of the filter:
+      set( ATLAS_PACKAGE_FILTER_FILE "${CMAKE_SOURCE_DIR}/package_filters.txt"
+         CACHE FILEPATH "File describing the package filtering rules" )
+      # Check if the file exists:
+      if( EXISTS "${ATLAS_PACKAGE_FILTER_FILE}" )
+         # Intermediate list with the rules read:
+         set( _filters )
+         # Read in the file:
+         file( STRINGS ${ATLAS_PACKAGE_FILTER_FILE} _fileContents )
+         # Process all lines:
+         foreach( _line ${_fileContents} )
+            # Strip the line:
+            string( STRIP "${_line}" _line )
+            # Skip empty or comment lines:
+            if( "${_line}" STREQUAL "" OR
+                  "${_line}" MATCHES " *#.*" )
+               continue()
+            endif()
+            # Now interpret this line:
+            if( "${_line}" MATCHES "^([\+-]) *([^ ]*)" )
+               list( APPEND _filters ${CMAKE_MATCH_1} ${CMAKE_MATCH_2} )
+            else()
+               message( WARNING "Line \"${_line}\" not understood" )
+            endif()
+         endforeach()
+         # Remember the selection rules:
+         set( ATLAS_PACKAGE_FILTERS "${_filters}"
+            CACHE INTERNAL "Package filtering rules" FORCE )
+         # Print the rules that were read:
+         message( STATUS "Package filtering rules read:" )
+         while( _filters )
+            list( GET _filters 0 _ruleCommand )
+            list( GET _filters 1 _rulePath )
+            list( REMOVE_AT _filters 0 1 )
+            message( STATUS "  ${_ruleCommand} ${_rulePath}" )
+            unset( _ruleCommand )
+            unset( _rulePath )
+         endwhile()
+         # Clean up:
+         unset( _filters )
+         unset( _fileContents )
+      else()
+         # Set an empty ruleset:
+         set( ATLAS_PACKAGE_FILTERS ""
+            CACHE INTERNAL "Package filtering rules" FORCE )
+         message( STATUS "No package filtering rules read" )
+      endif()
+   endif()
+
+   # Loop over the rules:
+   set( _rulesCopy ${ATLAS_PACKAGE_FILTERS} )
+   while( _rulesCopy )
+      # Extract the rule from the list:
+      list( GET _rulesCopy 0 _ruleCommand )
+      list( GET _rulesCopy 1 _rulePath )
+      list( REMOVE_AT _rulesCopy 0 1 )
+      # Check if the rule applies to the directory passed to the function:
+      if( "${dirName}" MATCHES "^${_rulePath}.*" )
+         # Now decide what to do:
+         if( "${_ruleCommand}" STREQUAL "+" )
+            set( ${returnName} TRUE PARENT_SCOPE )
+            return()
+         elseif( "${_ruleCommand}" STREQUAL "-" )
+            set( ${returnName} FALSE PARENT_SCOPE )
+            return()
+         else()
+            message( SEND_ERROR "Internal coding error detected" )
+         endif()
+      endif()
+   endwhile()
+
+   # If no rule was found for the package, then it is selected:
+   set( ${returnName} TRUE PARENT_SCOPE )
+
+endfunction( atlas_is_package_selected )
