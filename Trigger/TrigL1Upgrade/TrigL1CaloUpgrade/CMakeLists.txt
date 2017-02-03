@@ -32,7 +32,7 @@ atlas_add_component( TrigL1CaloUpgrade
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps xAODEgamma xAODTracking xAODTrigCalo xAODTrigL1Calo xAODTrigger xAODTruth LArRawEvent LArTools LArCabling )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps xAODEgamma xAODTracking xAODTrigCalo xAODTrigL1Calo xAODTrigger xAODTruth LArRawEvent LArToolsLib LArCablingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

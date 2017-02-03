@@ -33,7 +33,7 @@ atlas_add_component( MuonPerformanceAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} RecoToolInterfaces AthenaBaseComps AthAnalysisBaseComps xAODCutFlow xAODBase xAODCore xAODEventInfo xAODMuon xAODPrimitives xAODTracking EventBookkeeperMetaData GaudiKernel MuonPerformanceHistUtils MuonResonanceToolsLib  )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} RecoToolInterfaces AthenaBaseComps AthAnalysisBaseCompsLib xAODCutFlow xAODBase xAODCore xAODEventInfo xAODMuon xAODPrimitives xAODTracking EventBookkeeperMetaData GaudiKernel MuonPerformanceHistUtils MuonResonanceToolsLib  )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
