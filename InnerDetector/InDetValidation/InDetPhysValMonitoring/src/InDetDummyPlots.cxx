@@ -14,6 +14,11 @@ InDetDummyPlots::InDetDummyPlots(InDetPlotBase* pParent, const std::string& sDir
   m_low_Pt_lepton_frac{},
   m_nOut_of_lepdeath{},
   m_brem_spectrum{},
+  m_energy_remaining{},
+  m_energy_remaining_vs_eta{},
+  m_energy_remaining_vs_prodR_low_eta{},
+  m_energy_remaining_vs_prodR_medium_eta{},
+  m_energy_remaining_vs_prodR_high_eta{},
   m_primary_photon_eta_vs_conversion_radius{},
   m_primary_photon_pt_vs_decay_radius{},
   m_primary_photon_pt{},
@@ -28,6 +33,11 @@ InDetDummyPlots::initializePlots() {
   book(m_low_Pt_lepton_frac, "low_Pt_lepton_frac");
   book(m_nOut_of_lepdeath, "nOut_of_lepdeath");
   book(m_brem_spectrum, "brem_spectrum");
+  book(m_energy_remaining, "energy_remaining");
+  book(m_energy_remaining_vs_eta, "energy_remaining_vs_eta");
+  book(m_energy_remaining_vs_prodR_low_eta, "energy_remaining_vs_prodR_low_eta");
+  book(m_energy_remaining_vs_prodR_medium_eta, "energy_remaining_vs_prodR_medium_eta");
+  book(m_energy_remaining_vs_prodR_high_eta, "energy_remaining_vs_prodR_high_eta");
   book(m_primary_photon_eta_vs_conversion_radius, "primary_photon_eta_vs_conversion_radius");
   book(m_primary_photon_pt_vs_decay_radius, "primary_photon_pt_vs_decay_radius");
   book(m_primary_photon_pt, "primary_photon_pt");
@@ -38,6 +48,8 @@ InDetDummyPlots::initializePlots() {
 void
 InDetDummyPlots::lepton_fill(const xAOD::TruthParticle& truth, float weight) {
   double R = truth.auxdata<float>("prodR");
+  double eta = truth.eta();
+  double abseta = fabs(eta);
 
   fillHisto(m_low_Pt_lepton_frac, R, weight);
   if (truth.hasProdVtx()) {
@@ -61,6 +73,59 @@ InDetDummyPlots::lepton_fill(const xAOD::TruthParticle& truth, float weight) {
         }
       }
     }
+    double ECal(1000);            //Inner radius of the ECal, not sure this is correct
+    double e_init = truth.e();    //initial electron/positron total energy
+    double e_lost(0);             //energy the electron/positron has lost so far
+    
+    std::vector<const xAOD::TruthParticle*> pers_truth; //Not sure if this is right
+    pers_truth.push_back(&truth);
+   
+    std::vector<double> decays;
+
+    std::cout<<"Tarkin: You may fire when ready \n";
+    if(prod_rad < ECal){
+      do {
+	if(pers_truth.back()->hasDecayVtx()){
+	  const xAOD::TruthVertex * decay = pers_truth.back()->decayVtx();
+	  double dec_rad = decay->perp();
+	  decays.push_back(dec_rad);
+	  int temp_nOut = decay->nOutgoingParticles();
+	  std::vector<const xAOD::TruthParticle*> outs;
+	  for(int i=0; i<temp_nOut; i++){
+	    const xAOD::TruthParticle * temp_out = decay->outgoingParticle(i);
+	    outs.push_back(temp_out);
+	  }
+	  if(temp_nOut == 2){
+	    if(outs[0]->pdgId() == 22){
+	      e_lost += outs[0]->e();
+	      pers_truth.push_back(outs[1]);  //Adding electron/positron to pers_truth vector
+	    }else if(outs[1]->pdgId() == 22){
+	      e_lost += outs[1]->e();
+	      pers_truth.push_back(outs[0]);
+	    }else{
+	      break;
+	    }
+	  }else{
+	    break;
+	  }
+	  outs.clear();
+	}else{
+	  break;
+	}
+      }while(decays.back() < ECal);  
+    }
+    double e_left = ((e_init - e_lost)/e_init);  //fraction of origina electron/positron energy left when it reaches the ECal
+    std::cout<<"Fraction of electron/positron energy remaining: "<<e_left<<"\n";
+    fillHisto(m_energy_remaining, prod_rad, e_left);
+    fillHisto(m_energy_remaining_vs_eta, eta, e_left);
+    if(abseta < 1.0){
+      fillHisto(m_energy_remaining_vs_prodR_low_eta, prod_rad, e_left);
+    }else if(abseta < 1.8){
+      fillHisto(m_energy_remaining_vs_prodR_medium_eta, prod_rad, e_left);
+    }else{
+      fillHisto(m_energy_remaining_vs_prodR_high_eta, prod_rad, e_left);
+    }
+
   }
 }
 

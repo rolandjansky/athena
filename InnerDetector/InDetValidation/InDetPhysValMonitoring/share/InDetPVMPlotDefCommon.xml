@@ -1168,9 +1168,28 @@
 </h>
 <h id="brem_spectrum" type="TH2" title="log of the Energy of Brem Photons vs Radius of Emission">
   <x title="Radius of Emission [mm]" n="100" lo="0" hi="1500"/>
-  <y title="log (Energy (GeV))" n="100" lo="-0.5" hi="3"/>
+  <y title="log (Energy (GeV))" n="100" lo="-3" hi="3"/>
 </h>
-
+<h id="energy_remaining" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs Initial #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_prodR_low_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (low #eta)">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_prodR_medium_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (medium #eta)">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_prodR_high_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (high #eta)">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
 
 <!-- -->
 <!-- Track Parameter Resolution Plots -->

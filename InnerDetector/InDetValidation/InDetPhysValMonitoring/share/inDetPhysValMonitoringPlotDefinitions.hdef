@@ -139,7 +139,12 @@ TH2 brem_photon_eta_vs_radius_of_conversion "Brem Photon #eta vs Radius of Conve
 TH2 brem_photon_pt_vs_radius_of_origin_of_conversion "Brem Photon p_{T} vs Radius of Origin of Conversion" 100 0 1500 100 0 500 "Radius of Origin of Conversion [mm]" "p_{T} (GeV)" default
 TH1F lepton_disappearance_radius "Radius at which electrons and positrons from the primary disappear" 100 0 1500 "Radius of Disappearance [mm]" "Entries" default
 TH1F nOut_of_lepdeath "Number of Particles out of the electron/positron endpoint" 6 0 5 "Number of Particles" "Entries" default
-TH2 brem_spectrum "log of the Energy of Brem Photons vs Radius of Emission" 100 0 1500 100 -0.5 3 "Radius of Emission [mm]" "log(Energy (GeV))" default
+TH2 brem_spectrum "log of the Energy of Brem Photons vs Radius of Emission" 100 0 1500 100 -3 3 "Radius of Emission [mm]" "log(Energy (GeV))" default
+TH2 energy_remaining "Fraction of electron/positron energy left at ECal vs production radius" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_eta "Fraction of electron/positron energy left at ECal vs Initial #eta" 20 -2.5 2.5 100 0 1.25 "#eta" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_prodR_low_eta "Fraction of electron/positron energy left at ECal vs production radius (low #eta)" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_prodR_medium_eta "Fraction of electron/positron energy left at ECal vs production radius (medium #eta)" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_prodR_high_eta "Fraction of electron/positron energy left at ECal vs production radius (high #eta)" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
 
 # Track Parameter Resolution Plots
 #Track Parameter TH2s vs eta
