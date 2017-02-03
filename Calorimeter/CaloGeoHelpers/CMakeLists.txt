@@ -11,8 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           AtlasTest/TestTools )
 
-athena_install_nonstandard_headers(CaloGeoHelpers/CaloSampling.def)
-
 # Component(s) in the package:
 atlas_add_library( CaloGeoHelpers
                    Root/*.cxx

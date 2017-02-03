@@ -17,8 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
-athena_install_nonstandard_headers(xAODCaloRings/versions)
-
 # Component(s) in the package:
 atlas_add_library( xAODCaloRings
                    Root/*.cxx
