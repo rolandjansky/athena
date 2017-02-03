@@ -1,20 +1,29 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 1995-2017 CERN for the benefit of the ATLAS collaboration
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+      http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 */
 
 #include "JetSubStructureUtils/ShowerDeconstruction.h"
 
-#if defined(ROOTCORE)
-#include <RootCore/Packages.h>
-#endif
-#if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+#ifndef NO_SHOWERDECONSTRUCTION
 #include <Deconstruct.h>
 #include <AnalysisParameters.h>
 #include <TopGluonModel.h>
 #include <WDecayModel.h>
 #include <BackgroundModel.h>
 #include <ISRModel.h>
-#endif
+#endif // NOT NO_SHOWERDECONSTRUCTION
 
 #include <fastjet/ClusterSequence.hh>
 #include "xAODJet/Jet.h"
@@ -33,7 +42,7 @@ ShowerDeconstruction::ShowerDeconstruction(SignalModel signalModel)
   m_isrModel = 0;
   m_deconstruct = 0;
 
-#if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+#ifndef NO_SHOWEDECONSTRUCTION
   m_param = new AnalysisParameters();
   (*m_param)["R"] = 1.0;
   (*m_param)["lambda_mu_ext"] = 1.0;
@@ -68,19 +77,19 @@ ShowerDeconstruction::ShowerDeconstruction(SignalModel signalModel)
   }
 
   m_deconstruct = new Deconstruction::Deconstruct(*m_param, *sigModelPtr, *m_bkgModel, *m_isrModel);
-#endif
+#endif // NOT NO_SHOWERDECONSTRUCTION
 }
 
 ShowerDeconstruction::~ShowerDeconstruction()
 {
-#if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+#ifndef NO_SHOWERDECONSTRUCTION
   if (m_param) delete m_param;
   if (m_topModel) delete m_topModel;
   if (m_WModel) delete m_WModel;
   if (m_bkgModel) delete m_bkgModel;
   if (m_isrModel) delete m_isrModel;
   if (m_deconstruct) delete m_deconstruct;
-#endif
+#endif // NOT NO_SHOWERDECONSTRUCTION
 }
 
 double ShowerDeconstruction::result(const xAOD::Jet &jet)
@@ -92,7 +101,7 @@ double ShowerDeconstruction::result(const xAOD::Jet &jet)
 
 double ShowerDeconstruction::result(const fastjet::PseudoJet &jet, const float R)
 {
-#if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+#ifndef NO_SHOWERDECONSTRUCTION
   if(jet.constituents().size() == 0) return -999;
 
   (*m_param)["R"] = R;
@@ -124,6 +133,5 @@ double ShowerDeconstruction::result(const fastjet::PseudoJet &jet, const float R
   return lchi;
 #else
   return -999;
-#endif
+#endif // NOT NO_SHOWERDECONSTRUCTION
 }
-
