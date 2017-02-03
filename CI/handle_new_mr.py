@@ -120,7 +120,7 @@ def handle_new_merge_request(args):
         logging.critical("error communication with Gitlab API '%s'" % (e.error_message))
         sys.exit(1)
 
-    if not mr.state in ["opened","reopened"]:
+    if not mr.state in ["opened","reopened","merged"]:
         logging.debug("ignore merge request in '%s' state" % mr.state)
         sys.exit(0)
 
