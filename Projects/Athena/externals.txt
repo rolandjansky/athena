@@ -1,0 +1,5 @@
+# Versions of the various externals to build before starting the build of
+# this project, when doing a full stack nightly build.
+
+AthenaExternalsVersion = master
+GaudiVersion = v28r0.004

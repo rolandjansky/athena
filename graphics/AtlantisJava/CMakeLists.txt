@@ -6,7 +6,7 @@
 atlas_subdir( AtlantisJava )
 
 # External dependencies:
-find_package( JavaSDK )
+find_package( Java )
 
 # Install files from the package:
 atlas_install_joboptions( share/InteractiveServer.py )
@@ -29,6 +29,3 @@ atlas_install_generic( geometry/*.xml
 atlas_install_generic( help/help.jar help/online.xml help/*.png
                        DESTINATION "share/AtlantisJava/help"
                        EXECUTABLE )
-
-athena_env( SET ANT_OPTS "-Xms64m -Xmx64m" )
-
