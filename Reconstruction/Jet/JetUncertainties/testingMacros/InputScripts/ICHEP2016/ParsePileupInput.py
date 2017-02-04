@@ -10,7 +10,7 @@ import ProviderHistoHelpers
 
 SystematicNames = ['Pileup_OffsetNPV','Pileup_OffsetMu']#,'Pileup_PtTerm_NPV','Pileup_PtTerm_Mu','Pileup_RhoTopology']
 
-jetDefs = {'AntiKt4EMTopo':'AntiKt4Topo_EMJES'}#,'AntiKt6Topo_EMJES','AntiKt4Topo_LCJES','AntiKt6Topo_LCJES']
+jetDefs = {'AntiKt4EMTopo':'AntiKt4Topo_EMJES','AntiKt4LCTopo':'AntiKt4Topo_LCJES'}#,'AntiKt6Topo_EMJES','AntiKt4Topo_LCJES','AntiKt6Topo_LCJES']
 
 def ReadPileupHistograms(dirName):
     if not dirName.endswith("/"):
@@ -45,9 +45,10 @@ def ReadPileupHistograms(dirName):
             # Done reading, close the file
             rootFile.Close()
 
-        # one extra file: rho topology and pt terms come from current prerecs
-        # THIS IS A GIANT FIXME
-        rootFile = TFile("/cluster/warehouse/kpachal/JetCalibration/JetUncertainties/JetUncertainties/share/JES_2015/Prerec/JESUncertainty_2015.root","READ")
+        # one extra file: rho topology terms are from 2012
+        # and pt terms have been calculated once for 2015 by Steve A.
+        # Inputs for both collections were collated in a single file
+        rootFile = TFile("/cluster/warehouse/kpachal/JetCalibration/JetUncertainties/JetUncertainties/inputs/Moriond2016/Pileup/compileVariousPileupTerms_KateJuly31.root","READ")
         for term in ['Pileup_PtTerm_NPV','Pileup_PtTerm_Mu','Pileup_RhoTopology'] :
           histo = rootFile.Get(term+"_"+aJetDef)
           histo.SetDirectory(0)

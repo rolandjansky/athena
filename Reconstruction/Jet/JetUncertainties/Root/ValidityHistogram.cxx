@@ -115,7 +115,7 @@ class InfoHelperPtMassAbsEta : public InfoHelper
 
 double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 {
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> scale(CompMassDef::getJetScaleString(m_massDef).Data());
+    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
     static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
 
     // UNKNOWN is just use the assigned scale

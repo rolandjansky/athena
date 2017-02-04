@@ -16,6 +16,11 @@
 #include "PATInterfaces/SystematicVariation.h" 
 #include "PATInterfaces/SystematicsUtil.h"
 
+#ifdef ROOTCORE
+#   include "xAODRootAccess/TEvent.h"
+#   include "xAODRootAccess/TStore.h"
+#endif // ROOTCORE
+
 int main (int argc, char* argv[])
 {
     bool isLargeR = false;

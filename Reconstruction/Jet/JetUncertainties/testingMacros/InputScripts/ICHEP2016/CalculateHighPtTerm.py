@@ -17,7 +17,7 @@ SingleParticleFile = TFile("/cluster/warehouse/kpachal/JetCalibration/JetUncerta
 jetDefDict =    {
                     'EMJES_R4'  : 'AntiKt4Topo_EMJES',
 #                    'EMJES_R6'  : 'AntiKt6Topo_EMJES',
-#                    'LCJES_R4'  : 'AntiKt4Topo_LCJES',
+                    'LCJES_R4'  : 'AntiKt4Topo_LCJES',
 #                    'LCJES_R6'  : 'AntiKt6Topo_LCJES'
                 }
 
