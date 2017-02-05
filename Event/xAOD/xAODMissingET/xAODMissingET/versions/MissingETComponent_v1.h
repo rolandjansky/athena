@@ -192,14 +192,14 @@ namespace xAOD
 
     /*! @name List management and information */
     /*!@{*/
-    /*! @brief Update all internally used ElementLink instances 
+    /*! @brief [Deprecated] Update all internally used ElementLink instances 
      * 
      *  @note This method scans the full list of contributing objects. It invokes
      *        MissingETComponent_v1::updateMETLink internally.
      */
-    void updateLinks();
-    /*! @brief Update link MissingET object only */
-    void updateMETLink();
+    // void updateLinks();
+    /*! @brief [Deprecated] Update link MissingET object only */
+    // void updateMETLink();
     size_t size() const;
     /*! @brief Empty list of contributing objects indicator */
     bool empty() const;

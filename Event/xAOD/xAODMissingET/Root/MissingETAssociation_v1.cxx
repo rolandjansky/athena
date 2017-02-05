@@ -182,27 +182,27 @@ namespace xAOD {
       }
   }
 
-  void MissingETAssociation_v1::updateLinks()
-  {
-    this->updateJetLink();
-    static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks");
-    if(acc.isAvailableWritable(*this)) {
-      for ( auto& link : this->f_objectLinks() ) { 
-	link.toPersistent();
-      } 
-    }
-  }
+  // void MissingETAssociation_v1::updateLinks()
+  // {
+  //   this->updateJetLink();
+  //   static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks");
+  //   if(acc.isAvailableWritable(*this)) {
+  //     for ( auto& link : this->f_objectLinks() ) { 
+  // 	link.toPersistent();
+  //     } 
+  //   }
+  // }
 
-  void MissingETAssociation_v1::updateJetLink() {
-    if(!this->isMisc()) {
-      static SG::AuxElement::Accessor<MissingETBase::Types::jetlink_t> acc("jetLink");
-      if(acc.isAvailableWritable(*this)) {
-	if(f_setLink<MissingETBase::Types::jetlink_t>(this->f_jetLink())) {
-	  this->f_jetLink().toPersistent();
-	}
-      }
-    }
-  }
+  // void MissingETAssociation_v1::updateJetLink() {
+  //   if(!this->isMisc()) {
+  //     static SG::AuxElement::Accessor<MissingETBase::Types::jetlink_t> acc("jetLink");
+  //     if(acc.isAvailableWritable(*this)) {
+  // 	if(f_setLink<MissingETBase::Types::jetlink_t>(this->f_jetLink())) {
+  // 	  this->f_jetLink().toPersistent();
+  // 	}
+  //     }
+  //   }
+  // }
 
   bool MissingETAssociation_v1::removeContrib()
   {
