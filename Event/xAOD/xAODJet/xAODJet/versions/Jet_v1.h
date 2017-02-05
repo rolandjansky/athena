@@ -52,8 +52,8 @@ namespace xAOD {
   /// @author Pierre-Antoine Delsart <delsart@in2p3.fr>
   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
   ///
-  /// $Revision: 675972 $
-  /// $Date: 2015-06-17 15:07:55 +0200 (Wed, 17 Jun 2015) $
+  /// $Revision: 795692 $
+  /// $Date: 2017-02-06 00:08:21 +0100 (Mon, 06 Feb 2017) $
   ///
   class Jet_v1 : public IParticle {
 
@@ -334,7 +334,7 @@ namespace xAOD {
     
     
     /// Function making sure that the object is ready for persistification
-    void toPersistent();
+    // void toPersistent();
 
     /// workaround some I/O limitations
     void reset();
