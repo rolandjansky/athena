@@ -2,13 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMissingETAuxContainerCnv.cxx 586838 2014-03-08 15:10:34Z khoo $
+// $Id: xAODMissingETAuxContainerCnv.cxx 795622 2017-02-05 10:36:00Z khoo $
 
 // System include(s):
 #include <exception>
 
 // Local include(s):
 #include "xAODMissingETAuxContainerCnv.h"
+
+// Correct ElementLink treatment
+#include "AthenaKernel/IThinningSvc.h"
+#include "AthContainers/tools/copyAuxStoreThinned.h"
 
 xAODMissingETAuxContainerCnv::xAODMissingETAuxContainerCnv( ISvcLocator* svcLoc )
    : xAODMissingETAuxContainerCnvBase( svcLoc ) {
@@ -20,8 +24,8 @@ xAODMissingETAuxContainerCnv::
 createPersistent( xAOD::MissingETAuxContainer* trans ) {
 
    // Create a copy of the container:
-   xAOD::MissingETAuxContainer* result =
-      new xAOD::MissingETAuxContainer( *trans );
+  xAOD::MissingETAuxContainer* result = new xAOD::MissingETAuxContainer;
+  SG::copyAuxStoreThinned( *trans, *result, IThinningSvc::instance() );
 
    return result;
 }
