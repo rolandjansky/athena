@@ -17,7 +17,6 @@ public:
   TrigPartialEBFilter(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
   
 private:
   bool randomAccept(double rate);
