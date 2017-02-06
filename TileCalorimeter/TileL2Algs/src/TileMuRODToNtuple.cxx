@@ -54,15 +54,15 @@ StatusCode TileMuRODToNtuple::initialize() {
 
   m_ntupleLoc = "/NTUPLES/FILE1/TileMuRODTag";
 
-  SmartDataPtr<NTuple::Directory> DirPtr(ntupleService(), m_ntupleLoc);
-  if (!DirPtr) DirPtr = ntupleService()->createDirectory(m_ntupleLoc);
+  SmartDataPtr<NTuple::Directory> DirPtr(ntupleSvc(), m_ntupleLoc);
+  if (!DirPtr) DirPtr = ntupleSvc()->createDirectory(m_ntupleLoc);
 
   if (!DirPtr) {
     ATH_MSG_ERROR( "Invalid Ntuple Directory: " << m_ntupleLoc );
     return StatusCode::FAILURE;
   }
 
-  m_ntuplePtr = ntupleService()->book(DirPtr.ptr(), m_ntupleID, CLID_ColumnWiseTuple
+  m_ntuplePtr = ntupleSvc()->book(DirPtr.ptr(), m_ntupleID, CLID_ColumnWiseTuple
                                       , "TileMuRODTag-Ntuple");
 
   if (!m_ntuplePtr) {
@@ -100,7 +100,7 @@ StatusCode TileMuRODToNtuple::execute() {
   }
 
   if (m_close == 1) {
-    CHECK( ntupleService()->writeRecord(m_ntuplePtr) );
+    CHECK( ntupleSvc()->writeRecord(m_ntuplePtr) );
   }
 
   ATH_MSG_DEBUG( "execute() completed successfully" );

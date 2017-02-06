@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /***************************************************************************
                           InDetImprovedJetFitterVxFinder.cxx  -  Description
                              -------------------
@@ -128,6 +129,18 @@ namespace InDet {
     double m_vertexProbCut;
     int m_maxClusteringIterations;
     double m_vertexClusteringProbabilityCut;
+    double m_vertexClusteringProbabilityCutWithMass;
+    double m_vertexClusteringProbabilityCutWithMass0010;
+    double m_vertexClusteringProbabilityCutWithMass1015;
+    double m_vertexClusteringProbabilityCutWithMass1520;
+    double m_vertexClusteringProbabilityCutWithMass2025;
+    double m_vertexClusteringProbabilityCutWithMass2530;
+    double m_vertexClusteringProbabilityCutWithMass3040;
+    double m_vertexClusteringProbabilityCutWithMass4050;
+    double m_vertexClusteringProbabilityCutWithMass5060;
+    double m_vertexClusteringProbabilityCutWithMass6070;
+    double m_vertexClusteringTwoVtxMassForProbCut;
+
     bool m_useFastClustering;
 
     double m_cutCompatibilityPrimaryVertexForPositiveLifetimeTracks;
@@ -173,6 +186,8 @@ namespace InDet {
     double m_cutIPD0SingleTrackForBSecondSelection;
     double m_cutIPZ0SingleTrackForBSecondSelection;
     double m_cutPtSingleTrackForBSecondSelection;
+    double m_cutIPD0SigBoxSingleTrackForBSecondSelection; //box cut for PU rejection in 1-t vtx
+    double m_cutIPZ0SigBoxSingleTrackForBSecondSelection; //box cut for PU rejection in 1-t vtx
     double m_cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection;
     double m_cutCompatibilityPrimaryVertexSingleNegativeLifetimeTrackForBSecondSelection;
 //don't use the primary vertex finder information to estimate the compatibility! 

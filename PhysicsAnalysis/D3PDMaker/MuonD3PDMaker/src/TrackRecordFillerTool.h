@@ -49,7 +49,7 @@ namespace D3PD {
       // Property: fill info for only muons or all particles entering Muon Spectrometer?
       bool m_OnlyMuon;
       // Property: minimum particle energy
-      bool m_EnergyThreshold;
+      float m_EnergyThreshold;
    }; // class TrackRecordFillerTool
 
 } // namespace D3PD

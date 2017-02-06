@@ -40,12 +40,12 @@ namespace Trk {
   }
   
   MsgStream& VxClusteringTable::dump(MsgStream& sl) const {
-    sl << "Trk::VxClusteringTable:" << endreq;
+    sl << "Trk::VxClusteringTable:" << endmsg;
     if (m_compatibilityPairOfVertices.size()==0) {
-      sl << "No couple of vertices contained in the table " << endreq;
+      sl << "No couple of vertices contained in the table " << endmsg;
     } else {
-      sl << "Numbers of compatibilities store: " << m_compatibilityPairOfVertices.size() << endreq;;
-      sl << "Highest probability: " << m_compatibilityPairOfVertices.rbegin()->first << endreq;;
+      sl << "Numbers of compatibilities store: " << m_compatibilityPairOfVertices.size() << endmsg;;
+      sl << "Highest probability: " << m_compatibilityPairOfVertices.rbegin()->first << endmsg;;
       
       std::map<float,PairOfVxVertexOnJetAxis>::const_iterator CompBegin=m_compatibilityPairOfVertices.begin();
       std::map<float,PairOfVxVertexOnJetAxis>::const_iterator CompEnd=m_compatibilityPairOfVertices.end();
@@ -55,7 +55,7 @@ namespace Trk {
 	
 	sl << " Compatibility between track n " << (*CompIter).second.first->getNumVertex() << 
 	  " and " << (*CompIter).second.second->getNumVertex() << " is " << (*CompIter).first << 
-	  endreq;
+	  endmsg;
 	
       }   
       
@@ -127,4 +127,40 @@ namespace Trk {
     
   }
 
+  PairOfVxVertexOnJetAxis VxClusteringTable::getMostCompatibleVerticesExcludingPrimary(float & probability) const 
+  {
+    
+    std::map<float,PairOfVxVertexOnJetAxis>::const_reverse_iterator revIteratorEnd=m_compatibilityPairOfVertices.rbegin();
+    std::map<float,PairOfVxVertexOnJetAxis>::const_reverse_iterator revIterator=revIteratorEnd;
+    std::map<float,PairOfVxVertexOnJetAxis>::const_reverse_iterator pairHighest=revIteratorEnd;
+    
+    bool found(false);
+    for ( ; revIterator!=m_compatibilityPairOfVertices.rend() ; revIterator++)
+    {
+      
+      const PairOfVxVertexOnJetAxis & myVxVertex=(*revIterator).second;
+      VxVertexOnJetAxis* firstVertex=myVxVertex.first;
+      VxVertexOnJetAxis* secondVertex=myVxVertex.second;
+      
+      if (firstVertex->getNumVertex()==-10 || secondVertex->getNumVertex()==-10)
+      {
+        continue;
+      }
+      
+      found=true;
+      pairHighest=revIterator;
+      break;
+    }
+    
+ 
+    if (!found)
+    {
+      probability=0;
+      return PairOfVxVertexOnJetAxis();
+    }
+ 
+    probability=(*pairHighest).first;
+    return (*pairHighest).second;
+  }
+ 
 }//end namespace

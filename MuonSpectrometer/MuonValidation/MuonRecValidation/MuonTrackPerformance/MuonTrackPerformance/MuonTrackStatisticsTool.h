@@ -126,8 +126,8 @@ private:
 	
 	bool                m_doTruth;
 	MsgStream*          m_log;
-	bool                m_debug;
-	bool                m_verbose;
+	//bool                m_debug;
+	//bool                m_verbose;
 	
 	mutable std::vector<MuonTrackStatisticsTool::TrackCounters* > m_allCounters;
 	mutable std::vector<MuonTrackStatisticsTool::TruthTrackCounters* > m_allTruthCounters;

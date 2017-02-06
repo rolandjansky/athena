@@ -28,7 +28,7 @@ class MenuAwareMonitoringStandalone:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.4.5'
+        self.version = '1.4.6'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True

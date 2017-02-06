@@ -413,14 +413,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
     if (thisTruth->pdgId() == 22) {
       if (thisTruth->nParents() == 0) {
-        if (debugBacktracking) {
-          std::cout << "Han: about to fill primary photon \n";
-        }
         m_monPlots->prim_photon_fill(*thisTruth);
       } else {
-        if (debugBacktracking) {
-          std::cout << "Han: about to fill brem photon \n";
-        }
         m_monPlots->brem_photon_fill(*thisTruth);
       }
     }
@@ -441,7 +435,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
       double lepton_w(0);
       if (debugBacktracking) {
-        // std::cout<<"Rey: these are the numbers for this truthParticle \n";
         std::cout << "Barcode: " << thisTruth->barcode() << "\n";
         std::cout << "PDGId: " << thisTruth->pdgId() << "\n";
         std::cout << "Number of Parents: " << thisTruth->nParents() << "\n";

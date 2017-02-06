@@ -14,7 +14,7 @@
 CPMHitsCollection_PERS * CPMHitsCollectionCnv::createPersistent( CPMHitsCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "CPMHitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CPMHitsCollectionConverter" );
 
   //mlog << MSG::DEBUG << "CPMHitsCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ CPMHitsCollection_PERS * CPMHitsCollectionCnv::createPersistent( CPMHitsCollecti
 //createTransient
 CPMHitsCollection * CPMHitsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CPMHitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CPMHitsCollectionConverter" );
   
   //mlog << MSG::DEBUG << "CPMHitsCollectionCnv::createTransient called" << endreq;
 

@@ -51,7 +51,7 @@ namespace PESA
     double m_MinEtaDist;  //!< User must take care not to set this distance smaller than the width of the RoI
     bool m_RoICheck;      //!< use eta,phi from the RoI nodes ? otherwise, eta,phi is used from the current TE's TrigRoIDescriptors
 
-    bool m_sqMinCentDist; //!< this is delta_R**2 to speed up the execute
+    double m_sqMinCentDist; //!< this is delta_R**2 to speed up the execute
 
   };
 } // end namespace

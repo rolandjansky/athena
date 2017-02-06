@@ -8,9 +8,12 @@
 #ifndef REWEIGHTUTILS_H
 #define REWEIGHTUTILS_H 1
 
+#include "ReweightUtils/ParticleScaleFactorTool.h"
+
+
 // Include all tool headers here
-#include "../ReweightUtils/McEventWeight.h"
-#include "../ReweightUtils/PDFWeight.h"
-#include "../ReweightUtils/WeightsAgregator.h"
+#include "ReweightUtils/McEventWeight.h"
+#include "ReweightUtils/PDFWeight.h"
+#include "ReweightUtils/WeightsAgregator.h"
 
 #endif //> !REWEIGHTUTILS_H

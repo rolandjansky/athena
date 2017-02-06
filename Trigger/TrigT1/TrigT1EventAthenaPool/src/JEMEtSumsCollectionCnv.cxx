@@ -14,7 +14,7 @@
 JEMEtSumsCollection_PERS * JEMEtSumsCollectionCnv::createPersistent( JEMEtSumsCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "JEMEtSumsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "JEMEtSumsCollectionConverter" );
 
   //mlog << MSG::DEBUG << "JEMEtSumsCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ JEMEtSumsCollection_PERS * JEMEtSumsCollectionCnv::createPersistent( JEMEtSumsCo
 //createTransient
 JEMEtSumsCollection * JEMEtSumsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "JEMEtSumsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "JEMEtSumsCollectionConverter" );
   
   //mlog << MSG::DEBUG << "JEMEtSumsCollectionCnv::createTransient called" << endreq;
 

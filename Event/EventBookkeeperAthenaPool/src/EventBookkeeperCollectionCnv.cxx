@@ -12,13 +12,13 @@
 
 
 EventBookkeeperCollection_PERS* EventBookkeeperCollectionCnv::createPersistent(EventBookkeeperCollection* transCont) {
-  MsgStream log(messageService(), "EventBookkeeperCollectionConverter" );
+  MsgStream log(msgSvc(), "EventBookkeeperCollectionConverter" );
   EventBookkeeperCollection_PERS * persObj = m_TPConverter.createPersistent( transCont,   log );
   return persObj; 
 }
     
 EventBookkeeperCollection* EventBookkeeperCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "EventBookkeeperCollectionConverter" );
+  MsgStream log(msgSvc(), "EventBookkeeperCollectionConverter" );
   //p1_guid matches the number in EventBookkeeperTPCnv/selection.xtml and is generated with uuidgen | tr "[:lower:]" "[:upper:]"
   static pool::Guid   p1_guid("461506EA-7376-448C-A4AF-640654D313C3");
   static pool::Guid   p2_guid("4CB34AE0-ECE5-404B-8CB7-B2E20F509DBE");

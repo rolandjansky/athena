@@ -185,10 +185,10 @@ InDet::PixelClusterOnTrackTool::initialize() {
   //Moved to initialize to remove statics and prevent repitition
   
   constexpr double phimin=-0.27, phimax=0.27;
-  for (int i=0; i<=nbinphi; i++) phix[i]=phimin+i*(phimax-phimin)/nbinphi;
-  constexpr double etacen[nbineta]={-0.,1.,1.55,1.9,2.15,2.35};
-  etax[0]=0.; etax[nbineta]=2.7;
-  for (int i=0; i<nbineta-1; i++) etax[i+1]=(etacen[i]+etacen[i+1])/2.;
+  for (int i=0; i<=s_nbinphi; i++) m_phix[i]=phimin+i*(phimax-phimin)/s_nbinphi;
+  constexpr double etacen[s_nbineta]={-0.,1.,1.55,1.9,2.15,2.35};
+  m_etax[0]=0.; m_etax[s_nbineta]=2.7;
+  for (int i=0; i<s_nbineta-1; i++) m_etax[i+1]=(etacen[i]+etacen[i+1])/2.;
 
   ///UGLY!
 #include "IBL_calibration.h"
@@ -451,15 +451,15 @@ InDet::PixelClusterOnTrackTool::correctDefault
         if (m_IBLAbsent || !blayer) {
           delta = m_calibSvc->getBarrelDeltaX(nrows, ang);
         } else {             // special calibration for IBL
-          if (angle < phix[0] || angle > phix[nbinphi] || nrows != 2) {
+          if (angle < m_phix[0] || angle > m_phix[s_nbinphi] || nrows != 2) {
             delta = 0.;
           }else {
             int bin = -1;
-            while (angle > phix[bin + 1]) {
+            while (angle > m_phix[bin + 1]) {
               bin++;
             }
-            if ((bin >= 0)and(bin < nbinphi)) {
-              delta = calphi[bin];
+            if ((bin >= 0)and(bin < s_nbinphi)) {
+              delta = m_calphi[bin];
             } else {
               ATH_MSG_ERROR("bin out of range in line " << __LINE__ << " of PixelClusterOnTrackTool.cxx.");
             }
@@ -483,20 +483,20 @@ InDet::PixelClusterOnTrackTool::correctDefault
           delta = m_calibSvc->getBarrelDeltaY(ncol, etaloc);
         } else {     // special calibration for IBL
           etaloc = std::fabs(etaloc);
-          if (etaloc < etax[0] || etaloc > etax[nbineta]) {
+          if (etaloc < m_etax[0] || etaloc > m_etax[s_nbineta]) {
             delta = 0.;
           } else {
             int bin = -1;
-            while (etaloc > etax[bin + 1]) {
+            while (etaloc > m_etax[bin + 1]) {
               bin++;
             }
-            if ((bin >= 0)and(bin < nbineta)) {
+            if ((bin >= 0)and(bin < s_nbineta)) {
               if (ncol == bin) {
-                delta = caleta[bin][0];
+                delta = m_caleta[bin][0];
               } else if (ncol == bin + 1) {
-                delta = caleta[bin][1];
+                delta = m_caleta[bin][1];
               } else if (ncol == bin + 2) {
-                delta = caleta[bin][2];
+                delta = m_caleta[bin][2];
               } else {
                 delta = 0.;
               }
@@ -561,20 +561,20 @@ InDet::PixelClusterOnTrackTool::correctDefault
         if (m_IBLAbsent || !blayer) {
           errphi = m_calibSvc->getBarrelNewErrorPhi(ang, nrows);
         } else {       // special calibration for IBL
-          if (angle < phix[0] || angle > phix[nbinphi]) {
+          if (angle < m_phix[0] || angle > m_phix[s_nbinphi]) {
             errphi = width.phiR() * TOPHAT_SIGMA;
           } else {
-            int bin = -1;// cannot be used as array index, which will happen if angle<phix[bin+1]
-            while (angle > phix[bin + 1]) {
+            int bin = -1;// cannot be used as array index, which will happen if angle<m_phix[bin+1]
+            while (angle > m_phix[bin + 1]) {
               bin++;
             }
-            if ((bin >= 0)and(bin < nbinphi)) {
+            if ((bin >= 0)and(bin < s_nbinphi)) {
               if (nrows == 1) {
-                errphi = calerrphi[bin][0];
+                errphi = m_calerrphi[bin][0];
               } else if (nrows == 2) {
-                errphi = calerrphi[bin][1];
+                errphi = m_calerrphi[bin][1];
               } else {
-                errphi = calerrphi[bin][2];
+                errphi = m_calerrphi[bin][2];
               }
             } else {
               ATH_MSG_ERROR("bin out of range in line " << __LINE__ << " of PixelClusterOnTrackTool.cxx.");
@@ -588,22 +588,22 @@ InDet::PixelClusterOnTrackTool::correctDefault
           erreta = m_calibSvc->getBarrelNewErrorEta(std::fabs(etatrack), nrows, ncol);
         } else {    // special calibration for IBL
           double etaloc = std::fabs(etatrack);
-          if (etaloc < etax[0] || etaloc > etax[nbineta]) {
+          if (etaloc < m_etax[0] || etaloc > m_etax[s_nbineta]) {
             erreta = width.z() * TOPHAT_SIGMA;
           } else {
             int bin = 0;
-            while (etaloc > etax[bin + 1]) {
+            while (etaloc > m_etax[bin + 1]) {
               ++bin;
             }
-            if (bin >= nbineta) {
+            if (bin >= s_nbineta) {
               ATH_MSG_ERROR("bin out of range in line " << __LINE__ << " of PixelClusterOnTrackTool.cxx.");
             } else {
               if (ncol == bin) {
-                erreta = calerreta[bin][0];
+                erreta = m_calerreta[bin][0];
               } else if (ncol == bin + 1) {
-                erreta = calerreta[bin][1];
+                erreta = m_calerreta[bin][1];
               } else if (ncol == bin + 2) {
-                erreta = calerreta[bin][2];
+                erreta = m_calerreta[bin][2];
               } else {
                 erreta = width.z() * TOPHAT_SIGMA;
               }
@@ -1029,7 +1029,7 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
 
   bool correctdR = false;
   
-  std::array<float, 3> correctiondR = {0., 0., 0.};
+  std::array<float, 3> correctiondR = {{0., 0., 0.}};
   
   if(m_applydRcorrection){
     SG::ReadHandle<InDet::DRMap> mapHandle(m_dRMap);

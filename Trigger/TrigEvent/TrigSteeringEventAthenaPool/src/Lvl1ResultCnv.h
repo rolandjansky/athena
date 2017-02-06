@@ -14,7 +14,7 @@
  * @author Francesca Bucci <f.bucci@cern.ch>         - U. of Geneva, Switzerland
  *
  * File and Version Information:
- * $Id: Lvl1ResultCnv.h 725210 2016-02-19 21:22:18Z ssnyder $
+ * $Id: Lvl1ResultCnv.h 782328 2016-11-04 10:56:17Z krasznaa $
  **********************************************************************************/
 
 #ifndef TrigEventAthenaPool_Lvl1ResultCnv_H

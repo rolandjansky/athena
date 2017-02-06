@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 793030 2017-01-19 13:57:06Z sroe $
+# $Id: PhysVal_jobOptions.py 793586 2017-01-24 01:06:17Z mbaugh $
 
 # Set up the reading of the input xAOD:
 import getpass
@@ -78,7 +78,6 @@ ToolSvc += InDetTrackSelectorTool
 InDetTrackSelectorTool.CutLevel = "TightPrimary"
 
 #This section should control TTST  7-12-16                                                        
-
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import AthTruthSelectionTool
 AthTruthSelectionTool = AthTruthSelectionTool()
 

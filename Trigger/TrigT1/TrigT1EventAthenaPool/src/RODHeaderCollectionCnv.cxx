@@ -14,7 +14,7 @@
 RODHeaderCollection_PERS * RODHeaderCollectionCnv::createPersistent( RODHeaderCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "RODHeaderCollectionConverter" );
+  MsgStream mlog(msgSvc(), "RODHeaderCollectionConverter" );
 
   //mlog << MSG::DEBUG << "RODHeaderCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ RODHeaderCollection_PERS * RODHeaderCollectionCnv::createPersistent( RODHeaderCo
 //createTransient
 RODHeaderCollection * RODHeaderCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "RODHeaderCollectionConverter" );
+  MsgStream mlog(msgSvc(), "RODHeaderCollectionConverter" );
   
   //mlog << MSG::DEBUG << "RODHeaderCollectionCnv::createTransient called" << endreq;
 

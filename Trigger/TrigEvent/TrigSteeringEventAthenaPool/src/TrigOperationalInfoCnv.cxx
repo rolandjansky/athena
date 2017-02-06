@@ -18,8 +18,8 @@ TrigOperationalInfoCnv::~TrigOperationalInfoCnv()
 //create persistent
 TrigOperationalInfo_PERS* TrigOperationalInfoCnv::createPersistent(TrigOperationalInfo* transObj) 
 {
-  MsgStream mlog(messageService(), "TrigOperationalInfoConverter" );
-  mlog << MSG::DEBUG << "TrigOperationalInfoCnv_p1::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigOperationalInfoConverter" );
+  mlog << MSG::DEBUG << "TrigOperationalInfoCnv_p1::createPersistent" << endmsg;
 
   TrigOperationalInfo_PERS *persObj = m_TPConverter->createPersistent( transObj, mlog );
   
@@ -29,8 +29,8 @@ TrigOperationalInfo_PERS* TrigOperationalInfoCnv::createPersistent(TrigOperation
 //createTransient
 TrigOperationalInfo* TrigOperationalInfoCnv::createTransient() 
 {
-  MsgStream mlog(messageService(), "TrigOperationalInfoConverter" );
-  mlog << MSG::DEBUG << "TrigOperationalInfoCnv_p1::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigOperationalInfoConverter" );
+  mlog << MSG::DEBUG << "TrigOperationalInfoCnv_p1::createTransient " << endmsg;
   
   static pool::Guid p1_guid("765F0281-801B-4F5C-8C4C-5BE7E7DB5E42");
 
@@ -39,7 +39,7 @@ TrigOperationalInfo* TrigOperationalInfoCnv::createTransient()
   
   if( compareClassGuid(p1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigOperationalInfoCnv::reading p1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigOperationalInfoCnv::reading p1 persistent object" << endmsg;
     std::auto_ptr< TrigOperationalInfo_p1 >   col_vect( this->poolReadObject< TrigOperationalInfo_p1 >() );
     trans_obj = m_TPConverter->createTransient( col_vect.get(), mlog );    
   } else {

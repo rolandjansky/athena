@@ -12,10 +12,6 @@
 //include below in your header file!
 #include "SGTools/CLASS_DEF.h"
 
-#ifndef ATHENAHIVE
-#define SGImplSvc StoreGateSvc
-#include "StoreGate/tools/SGImplSvc.h"
-#else
 //HIVE wrapper implementation
 //base classes
 #include "GaudiKernel/Service.h"
@@ -1085,5 +1081,4 @@ struct PyGate {
   }
 };
 
-#endif //ATHENAHIVE
 #endif // STOREGATE_STOREGATESVC_H

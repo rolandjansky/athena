@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 743842 2016-04-29 08:16:42Z ssnyder $
+# $Id: CMakeLists.txt 794854 2017-01-31 23:34:36Z leggett $
 ################################################################################
 # Package: StoreGate
 ################################################################################
@@ -45,11 +45,13 @@ atlas_add_test( ActiveStore_test
    EXTRA_PATTERNS "JobOptionsSvc +INFO"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
-if( ATHENAHIVE )
    set( _hivePatterns "JobOptionsSvc +INFO|StoreGateSvc.*DEBUG|HiveMgrSvc +DEBUG" )
-else()
-   set( _hivePatterns ".*" )
-endif()
+
+atlas_add_test( SGTiming_test
+   SOURCES test/SGTiming_test.cxx
+   LINK_LIBRARIES SGtests
+   EXTRA_PATTERNS "${_hivePatterns}|rec:|averages" )
+
 atlas_add_test( SGHive_test
    SOURCES test/SGHive_test.cxx
    LINK_LIBRARIES SGtests
@@ -134,5 +136,6 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGate_jobOptions.txt
    share/StoreGate_jobOptions.py
    share/SGHive_test.txt
+   share/SGTiming_test.txt
    share/ActiveStore_test.txt )
 

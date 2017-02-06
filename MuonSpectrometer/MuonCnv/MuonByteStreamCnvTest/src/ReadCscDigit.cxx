@@ -117,7 +117,7 @@ StatusCode ReadCscDigit::accessNtuple()
   m_NtupleLocID = "/NTUPLES" + m_NtupleLocID ;
 
   //try to access it  
-  NTuplePtr nt(ntupleService(), m_NtupleLocID );
+  NTuplePtr nt(ntupleSvc(), m_NtupleLocID );
 
   if (static_cast<int>(nt))
     {

@@ -1,0 +1,22 @@
+   for (int i=0; i<5; ++i) {
+     if (CVEC_ATNGGE[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_ATNGGE key " << Keys[i] << endl; }
+     if (CVEC_BJBLBR[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_BJBLBR key " << Keys[i] << endl; }
+     if (CVEC_BKTYOQ[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_BKTYOQ key " << Keys[i] << endl; }
+     if (CVEC_DPGYLG[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_DPGYLG key " << Keys[i] << endl; }
+     if (CVEC_EYDAJG[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_EYDAJG key " << Keys[i] << endl; }
+     if (CVEC_EYMPLC[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_EYMPLC key " << Keys[i] << endl; }
+     if (CVEC_FXFSTX[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_FXFSTX key " << Keys[i] << endl; }
+     if (CVEC_HARVAQ[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_HARVAQ key " << Keys[i] << endl; }
+     if (CVEC_HCVLPV[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_HCVLPV key " << Keys[i] << endl; }
+     if (CVEC_JWKFRN[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_JWKFRN key " << Keys[i] << endl; }
+     if (CVEC_NLDRUX[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_NLDRUX key " << Keys[i] << endl; }
+     if (CVEC_OBMCVK[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_OBMCVK key " << Keys[i] << endl; }
+     if (CVEC_PVVIGB[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_PVVIGB key " << Keys[i] << endl; }
+     if (CVEC_QKXILL[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_QKXILL key " << Keys[i] << endl; }
+     if (CVEC_RBLMAX[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_RBLMAX key " << Keys[i] << endl; }
+     if (CVEC_RKACSQ[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_RKACSQ key " << Keys[i] << endl; }
+     if (CVEC_RNPHXT[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_RNPHXT key " << Keys[i] << endl; }
+     if (CVEC_ROZIAH[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_ROZIAH key " << Keys[i] << endl; }
+     if (CVEC_SDRAZA[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_SDRAZA key " << Keys[i] << endl; }
+     if (CVEC_ZLDXKA[i]->val() != i) { cerr <<  "ERROR with val check obj SGTObj_ZLDXKA key " << Keys[i] << endl; }
+   }

@@ -9,7 +9,6 @@
 #include "LArReadoutGeometry/FCALModule.h"
 #include "LArG4Code/EnergySpot.h"
 #include "LArSimEvent/LArHitContainer.h"
-#include "LArG4Code/LArG4Identifier.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -83,20 +82,20 @@ void FCALFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
 
   // zSide is negative if z<0.
   int zSide = iAmPositive ? 2:-2;
-  static LArG4Identifier id;
-  id.clear();
+  //static LArG4Identifier id;
+  m_larID.clear();
   if (ok){
-    id << 4          // LArCalorimeter
-       << 3          // LArFCAL
-       << zSide      // EndCap
-       << sampling   // FCal Module #
-       << etaIndex
-       << phiIndex;
+    m_larID << 4          // LArCalorimeter
+            << 3          // LArFCAL
+            << zSide      // EndCap
+            << sampling   // FCal Module #
+            << etaIndex
+            << phiIndex;
   } else {
     return;
   }
 
   // call process to add this to the collection 
-  SimpleHit(id, spot.GetTime(), spot.GetEnergy());
+  SimpleHit(m_larID, spot.GetTime(), spot.GetEnergy());
   return;
 }

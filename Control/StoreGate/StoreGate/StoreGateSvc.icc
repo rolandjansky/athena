@@ -17,7 +17,7 @@
 #define _SGXCALL(FUN,ARGS,ONERR)                                        \
   if (isHiveStore()) {                                                  \
     SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              \
-    SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(pSlot->storeMutex); \
+    std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(pSlot->storeMutex) ); \
     return (0 != pSlot->pEvtStore) ?                                    \
       pSlot->pEvtStore->FUN ARGS : ONERR;                               \
   } else {                                                              \
@@ -28,7 +28,7 @@
 #define _SGVOIDCALL(FUN,ARGS)                                           \
   if (isHiveStore()) {                                                  \
     SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              \
-    SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(pSlot->storeMutex); \
+    std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(pSlot->storeMutex) ); \
     if (0 != pSlot->pEvtStore) pSlot->pEvtStore->FUN ARGS;              \
   } else {                                                              \
     std::lock_guard<std::recursive_mutex> lock (m_recMutex);            \
@@ -470,7 +470,7 @@ std::unique_ptr<T>
 StoreGateSvc::readUniquePrivateCopy (const std::string& key) {
   if (isHiveStore()) {                                                  
     SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              
-    SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(pSlot->storeMutex); 
+    std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(pSlot->storeMutex) );
     return (0 != pSlot->pEvtStore) ?                                    
       pSlot->pEvtStore->readUniquePrivateCopy<T>(key) :
       std::unique_ptr<T>{};                     
@@ -486,7 +486,7 @@ std::unique_ptr<T>
 StoreGateSvc::retrieveUniquePrivateCopy (const std::string& key) {
   if (isHiveStore()) {                                                  
     SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              
-    SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(pSlot->storeMutex); 
+    std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(pSlot->storeMutex) );
     return (0 != pSlot->pEvtStore) ?                                    
       pSlot->pEvtStore->retrieveUniquePrivateCopy<T>(key) :
       std::unique_ptr<T>{};                     

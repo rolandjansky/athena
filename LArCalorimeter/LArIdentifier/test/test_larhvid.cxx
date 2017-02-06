@@ -204,11 +204,11 @@ static void check_larElectrode_decoding(IdDictMgr& idd)
   else{
     std::cout << "[TEST_LARELECTRODE] Got LArElectrode dictionary" << std::endl;
   }
-  const LArElectrodeID* m_electrodeHelper = &larElectrode;
+  const LArElectrodeID* electrodeHelper = &larElectrode;
   
   // Test OF Electrode HWIdentifiers 
-  std::vector<HWIdentifier>::const_iterator itFT = m_electrodeHelper->electrode_begin();
-  std::vector<HWIdentifier>::const_iterator itFTEnd = m_electrodeHelper->electrode_end();    
+  std::vector<HWIdentifier>::const_iterator itFT = electrodeHelper->electrode_begin();
+  std::vector<HWIdentifier>::const_iterator itFTEnd = electrodeHelper->electrode_end();    
   std::cout << "[TEST_LARELECTRODE] HV Line Loop : " << itFTEnd-itFT << std::endl;
   int nEMB   = 0;
   int nEMBPS = 0;
@@ -234,29 +234,29 @@ static void check_larElectrode_decoding(IdDictMgr& idd)
     {// Start loop over electrodes
       HWIdentifier elecId = *itFT;      
       n_electrode++;
-      if( m_electrodeHelper->isHEC( elecId ) ){ 
+      if( electrodeHelper->isHEC( elecId ) ){ 
 	nHEC++;
 	//	std::cout << "HV line # " << nHEC << " =[" << cannode << "," << line << "]" << std::endl;
-	//std::cout << "HV line " << m_electrodeHelper->show_to_string(elecId) << std::endl;
+	//std::cout << "HV line " << electrodeHelper->show_to_string(elecId) << std::endl;
       }
-      if( m_electrodeHelper->isFCAL( elecId ) ){ nFCAL++;}
-      if( m_electrodeHelper->isFCAL1( elecId ) ){ nFCAL1++;}
-      if( m_electrodeHelper->isFCAL2( elecId ) ){ nFCAL2++;}
-      if( m_electrodeHelper->isFCAL3( elecId ) ){ nFCAL3++;}
-      if( m_electrodeHelper->isEMEC( elecId ) ){ nEMEC++;}
-      if( m_electrodeHelper->isEMECinWHEEL( elecId ) ){ nEMECin++;}
-      if( m_electrodeHelper->isEMECoutWHEEL( elecId ) ){ nEMECout++;}
-      if( m_electrodeHelper->isEMB( elecId ) ){ nEMB++;}
-      if( m_electrodeHelper->isEMBPS( elecId ) ){ nEMBPS++;}
-      if( m_electrodeHelper->isEMECPS( elecId ) ){ nEMECPS++;}
-      //if( m_electrodeHelper->isEMBPUR( elecId ) ){ nEMBPUR++;}
-      //if( m_electrodeHelper->isECPUR( elecId ) ){ nECPUR++;}
-      IdentifierHash hashId = m_electrodeHelper->electrodeHash( elecId );
-      HWIdentifier   elecId2  = m_electrodeHelper->ElectrodeId( hashId );
+      if( electrodeHelper->isFCAL( elecId ) ){ nFCAL++;}
+      if( electrodeHelper->isFCAL1( elecId ) ){ nFCAL1++;}
+      if( electrodeHelper->isFCAL2( elecId ) ){ nFCAL2++;}
+      if( electrodeHelper->isFCAL3( elecId ) ){ nFCAL3++;}
+      if( electrodeHelper->isEMEC( elecId ) ){ nEMEC++;}
+      if( electrodeHelper->isEMECinWHEEL( elecId ) ){ nEMECin++;}
+      if( electrodeHelper->isEMECoutWHEEL( elecId ) ){ nEMECout++;}
+      if( electrodeHelper->isEMB( elecId ) ){ nEMB++;}
+      if( electrodeHelper->isEMBPS( elecId ) ){ nEMBPS++;}
+      if( electrodeHelper->isEMECPS( elecId ) ){ nEMECPS++;}
+      //if( electrodeHelper->isEMBPUR( elecId ) ){ nEMBPUR++;}
+      //if( electrodeHelper->isECPUR( elecId ) ){ nECPUR++;}
+      IdentifierHash hashId = electrodeHelper->electrodeHash( elecId );
+      HWIdentifier   elecId2  = electrodeHelper->ElectrodeId( hashId );
       if ( elecId2 != elecId ) {
 	std::cout
-	  << " HvId2 incorrect: " <<  m_electrodeHelper->show_to_string(elecId2) 
-	  << " should be: " <<  m_electrodeHelper->show_to_string(elecId) 
+	  << " HvId2 incorrect: " <<  electrodeHelper->show_to_string(elecId2) 
+	  << " should be: " <<  electrodeHelper->show_to_string(elecId) 
 	  << " hashId: " << hashId
 	  << std::endl;
 	//error = true;
@@ -265,7 +265,7 @@ static void check_larElectrode_decoding(IdDictMgr& idd)
   int nDET = nFCAL+nHEC+nEMB+nEMEC+nEMBPS+nEMECPS;
   std::cout << "============================================================================ " << std::endl;
   std::cout << "  total number Electrode " << n_electrode << ", electrode_hash_max= " 
-	    << m_electrodeHelper->electrodeHashMax() << std::endl;
+	    << electrodeHelper->electrodeHashMax() << std::endl;
   std::cout << "  -- EMB      : " << nEMB  << " (ref: 28672 for 1008 HV lines)" << std::endl;
   std::cout << "  -- EMEC     : " << nEMEC << " (ref: 23552 for 1493 HV lines)" << std::endl; 
   std::cout << "    - inWheel :  " << nEMECin << " (ref:  2048)" << std::endl; 

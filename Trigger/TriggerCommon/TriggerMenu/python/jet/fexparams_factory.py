@@ -79,47 +79,44 @@ class _AntiKtParams(_JetFexParams):
     """ Argument checking class that holds the  parameters for a
     AntiKt python alg"""
 
-    fex_type = 'antikt'
-
     def __init__(self, kargs):
         _JetFexParams.__init__(self, **kargs)
+        self.fex_type = 'antikt'
+
 
 
 class _ConeParams(_JetFexParams):
     """ Argument checking class that holds the  parameters for a
     Cone python alg"""
 
-    fex_type = 'cone'
-
     def __init__(self, kargs):
         _JetFexParams.__init__(self, **kargs)
+        self.fex_type = 'cone'
 
 
 class _JetRecParams(_JetFexParams):
     """ Argument checking class that holds the  parameters for JetRec"""
 
-    fex_type = 'jetrec'
-
     def __init__(self, kargs):
         _JetFexParams.__init__(self, **kargs)
+        self.fex_type = 'jetrec'
 
 
 class _JetRecReclusterParams(_JetFexParams):
     """ Argument checking class that holds the  parameters for JetRec"""
 
-    fex_type = 'jetrec_recluster'
-
     def __init__(self, ptMinCut, etaMaxCut, **kargs):
         _JetFexParams.__init__(self, **kargs)
+        self.fex_type = 'jetrec_recluster'
         self.ptMinCut = ptMinCut
         self.etaMaxCut = etaMaxCut
 
 class _JetRecTrimmingParams(_JetFexParams):
     """ Argument checking class that holds the parameters for JetRec"""
-    fex_type = 'jetrec_trimming'
 
-    def __init__(self,rclus,ptfrac,**kargs):
-       _JetFexParams.__init__(self,**kargs)
+    def __init__(self, rclus, ptfrac, **kargs):
+       _JetFexParams.__init__(self, **kargs)
+       self.fex_type = 'jetrec_trimming'
        self.rclus = rclus
        self.ptfrac = ptfrac
       

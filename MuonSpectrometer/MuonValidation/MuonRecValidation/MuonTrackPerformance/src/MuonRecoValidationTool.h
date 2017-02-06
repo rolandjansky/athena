@@ -41,7 +41,7 @@ namespace Muon {
   class IMuonHitTimingTool;
   class MuonSegment;
   class MuonClusterOnTrack;
-  class MuonCandidate;
+  struct MuonCandidate;
 
   class MuonRecoValidationTool : public IMuonRecoValidationTool, virtual public IIncidentListener, public AthAlgTool  {
   public:

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IEventInfoCnvTool.h 727528 2016-03-03 17:41:08Z krasznaa $
+// $Id: IEventInfoCnvTool.h 793563 2017-01-23 21:59:34Z leggett $
 #ifndef XAODCNVINTERFACES_IEVENTINFOCNVTOOL_H
 #define XAODCNVINTERFACES_IEVENTINFOCNVTOOL_H
 
@@ -33,8 +33,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 727528 $
-    * $Date: 2016-03-03 18:41:08 +0100 (Thu, 03 Mar 2016) $
+    * $Revision: 793563 $
+    * $Date: 2017-01-23 22:59:34 +0100 (Mon, 23 Jan 2017) $
     */
    class IEventInfoCnvTool : public virtual IAlgTool {
 
@@ -43,7 +43,7 @@ namespace xAODMaker {
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
-                                  bool copyPileUpLinks = true ) = 0;
+                                  bool copyPileUpLinks = true ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

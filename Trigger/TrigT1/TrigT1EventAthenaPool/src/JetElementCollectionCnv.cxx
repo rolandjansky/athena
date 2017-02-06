@@ -14,7 +14,7 @@
 JetElementCollection_PERS * JetElementCollectionCnv::createPersistent( JetElementCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "JetElementCollectionConverter" );
+  MsgStream mlog(msgSvc(), "JetElementCollectionConverter" );
 
   //mlog << MSG::DEBUG << "JetElementCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ JetElementCollection_PERS * JetElementCollectionCnv::createPersistent( JetElemen
 //createTransient
 JetElementCollection * JetElementCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "JetElementCollectionConverter" );
+  MsgStream mlog(msgSvc(), "JetElementCollectionConverter" );
   
   //mlog << MSG::DEBUG << "JetElementCollectionCnv::createTransient called" << endreq;
 

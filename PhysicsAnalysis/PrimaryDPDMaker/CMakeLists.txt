@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/DataModel
                           Control/StoreGate
+			  PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           DetectorDescription/IRegionSelector
                           DetectorDescription/Identifier
                           Event/EventKernel

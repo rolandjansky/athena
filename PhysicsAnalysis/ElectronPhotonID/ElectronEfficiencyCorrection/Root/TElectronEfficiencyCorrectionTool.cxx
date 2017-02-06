@@ -71,7 +71,7 @@ namespace mapkey{
 Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const char *name) :
   Root::TCalculatorToolBase(name),
   asg::AsgMessaging(std::string(name)),
-  m_Rndm(0),
+  m_Rndm(),
   m_randomCounter(0),
   m_isInitialized(false),
   m_detailLevel(2),
@@ -80,8 +80,6 @@ Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const
   m_doToyMC(false),
   m_doCombToyMC(false),
   m_nToyMC(0),
-  m_uncorrToyMCSystFull(0),
-  m_uncorrToyMCSystFast(0),
   m_nSys(0),
   m_nSysMax(0),
   m_runNumBegin(0),
@@ -97,6 +95,12 @@ Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const
   m_nSimpleUncorrSyst(0),
   m_position_globalBinNumber(0)
 {
+  //Setup the keys
+  m_keys.push_back(mapkey::sf);
+  m_keys.push_back(mapkey::stat);
+  m_keys.push_back(mapkey::eig);
+  m_keys.push_back(mapkey::uncorr);
+  //
 }
 
 // =============================================================================
@@ -105,95 +109,63 @@ Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const
 
 Root::TElectronEfficiencyCorrectionTool::~TElectronEfficiencyCorrectionTool() {
 
-  for (auto const &tempit : m_histList) {
+  //Need some gymnastic to make sure that the TObjArray elements are owned
+  //and deleted ... 
+  for (auto  &tempit : m_histList) {
     for (unsigned int i = 0; i < tempit.second.size(); ++i) {
-      if (tempit.second.at(i)) {
-        tempit.second.at(i)->SetOwner(kTRUE);
-        delete tempit.second.at(i);
-      }
+        tempit.second.at(i).SetOwner(kTRUE);
     }
   }
-
-  for (auto const &tempit : m_fastHistList) {
+  for (auto  &tempit : m_fastHistList) {
     for (unsigned int i = 0; i < tempit.second.size(); ++i) {
-      if (tempit.second.at(i)) {
-        tempit.second.at(i)->SetOwner(kTRUE);
-        delete tempit.second.at(i);
-      }
+        tempit.second.at(i).SetOwner(kTRUE);
     }
   }
-
-  for (auto const &tempit : m_sysList) {
-    for (auto const &i : tempit) {
-      i->SetOwner(kTRUE);
-      delete i;
+  for (auto  &tempit : m_sysList) {
+    for (auto  &i : tempit) {
+      i.SetOwner(kTRUE);
     }
   }
-  for (auto const &tempit :  m_fastSysList) {
-    for (auto const &i : tempit) {
-      i->SetOwner(kTRUE);
-      delete i;
+  for (auto  &tempit :  m_fastSysList) {
+    for (auto  &i : tempit) {
+      i.SetOwner(kTRUE);
     }
   }
-
-  if (m_Rndm) {
-    delete m_Rndm;
-  }
-  //These are pointers to vectors  of vector pointers to TobjectArray pointers ...                                                                                                                         
-  //Nighmare to delete. They are not always allocated only under certain conditions
-  if(m_uncorrToyMCSystFull){
-    for (auto const &tempit : *m_uncorrToyMCSystFull) {
-
-      for (auto const& i : *tempit) {
-        i->SetOwner(kTRUE);
-        delete i;
-      }
-      delete tempit;
+  for (auto  &tempit : m_uncorrToyMCSystFull) {
+    for (auto & i : tempit) {
+      i.SetOwner(kTRUE);
     }
-    delete  m_uncorrToyMCSystFull;
-  }
-  
-  if(m_uncorrToyMCSystFast){
-    for (auto const &tempit :  *m_uncorrToyMCSystFast) {
-      for (auto const& i : *tempit) {
-        i->SetOwner(kTRUE);
-        delete i;
-      }
-      delete tempit;
+  }  
+  for (auto  &tempit : m_uncorrToyMCSystFast) {
+    for (auto & i : tempit) {
+      i.SetOwner(kTRUE);
     }
-    delete m_uncorrToyMCSystFast;
   }
 }
-
-
 
 // =============================================================================
 // Initialize this correction tool
 // =============================================================================
-int
-Root::TElectronEfficiencyCorrectionTool::initialize() {
+int Root::TElectronEfficiencyCorrectionTool::initialize() {
   // use an int as a StatusCode
   int sc(1);
-
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: "
 		<< __LINE__ << ") " << "Debug flag set. Printing verbose output!");
 
+  //Avoid double init
   if (m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "tool initialized twice!");
     return 0;
   }
-
+  //Check if files are present
   if (m_corrFileNameList.size() == 0) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << " No file added!");
     return 0;
   }
-
   ATH_MSG_INFO("Initializing tool with " << m_corrFileNameList.size() << " configuration file(s)");
-
-  ///////////////////////////////////////////////////
+  //
   // Check if the first file can be opened (needed for auto-setting of the seed based on the md5-sum of the file)
   const std::unique_ptr<char> fname(gSystem->ExpandPathName(m_corrFileNameList[0].c_str()));
-
   std::unique_ptr<TFile> rootFile_tmp = CxxUtils::make_unique<TFile> (fname.get(), "READ");
   if (!rootFile_tmp) {
     ATH_MSG_ERROR(
@@ -202,35 +174,29 @@ Root::TElectronEfficiencyCorrectionTool::initialize() {
   }
   rootFile_tmp->Close();
   // close it back again
-  ///////////////////////////////////////////////////
-
+  //
+  //invalid input requested
   if (m_doToyMC && m_doCombToyMC) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << " Both regular and combined toy MCs booked!"
 		  << " Only use one!");
     return 0;
   }
-  m_keys.push_back(mapkey::sf);
-  m_keys.push_back(mapkey::stat);
-  m_keys.push_back(mapkey::eig);
-  m_keys.push_back(mapkey::uncorr);
-  //
-  // initialize the random number generated if toyMC propagation booked
+
+  // initialize the random number generator if toyMC propagation booked
   if (m_doToyMC || m_doCombToyMC) {
     if (m_seed == 0) {
       std::unique_ptr<TMD5> tmd=CxxUtils::make_unique<TMD5>();
-      m_seed = *reinterpret_cast<const int *>(tmd->FileChecksum(fname.get())->AsString());
+      const char* tmd_as_string=tmd->FileChecksum(fname.get())->AsString();
+      m_seed = *reinterpret_cast<const int*>(tmd_as_string);
       ATH_MSG_INFO("Seed (automatically) set to " << m_seed);
     }else {
       ATH_MSG_INFO("Seed set to " << m_seed);
     }
-    m_Rndm = new TRandom3(m_seed);
-
-    m_uncorrToyMCSystFull = new std::vector< std::vector<TObjArray *> * >;
-    m_uncorrToyMCSystFast = new std::vector< std::vector<TObjArray *> *>;
+    m_Rndm= TRandom3(m_seed);
   }
   //
   // Load the needed histograms
-  if (0 == this->getHistograms()) {
+  if (0 == getHistograms()) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Problem when calling getHistograms()");
     return 0;
   }
@@ -244,10 +210,10 @@ Root::TElectronEfficiencyCorrectionTool::initialize() {
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") "
 		<< "Found " << nRunNumbersFull << " run number ranges for full sim with a total of " <<
                 m_histList[mapkey::sf].size() << " scale factor histograms.");
-
+  //
   // --------------------------------------------------------------------------
-  // Register the cuts and check that the registration worked:
-  // NOTE: THE ORDER IS IMPORTANT!!! Cut0 corresponds to bit 0, Cut1 to bit 1,...
+  // Register the output / results
+  // NOTE: THE ORDER IS IMPORTANT!!! 
   m_position_eff = m_result.addResult((m_resultPrefix + m_resultName).c_str(), "efficiency scale factor");
   if (m_position_eff < 0) {
     sc = 0; // Exceeded the number of allowed results
@@ -305,7 +271,7 @@ Root::TElectronEfficiencyCorrectionTool::initialize() {
   m_result.setResult(m_position_nSys, 0);
   m_result.setResult(m_position_uncorrSys, 0);
   m_isInitialized = kTRUE;
-
+  // --------------------------------------------------------------------------
   ATH_MSG_INFO("Tool succesfully initialized!");
   return sc;
 }
@@ -334,8 +300,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
 		  " Tool not correctly initialized or no scale factor file given. ");
     return m_result;
   }
-  ATH_MSG_DEBUG(
-		" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << this->getName() << " n Systematics: " << m_nSysMax);
+  ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") " << this->getName() << " n Systematics: " << m_nSysMax);
   // Reset the results to default values
   m_result.setResult(m_position_eff, -999.0);
   m_result.setResult(m_position_err, 1.0);
@@ -388,8 +353,8 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   //The vector has as many entries as supported run period
   //The TobjArray has 2D histos for  high, low et, or forward
   //The 2D Histo has the number we want.
-  const std::map<int, std::vector< TObjArray* > >& currentmap = (isFastSim)? m_fastHistList : m_histList;
-  std::map<int, std::vector< TObjArray* > >::const_iterator currentVector_itr = currentmap.find(mapkey::sf); //find the vector
+  const std::map<int, std::vector< TObjArray > >& currentmap = (isFastSim)? m_fastHistList : m_histList;
+  std::map<int, std::vector< TObjArray > >::const_iterator currentVector_itr = currentmap.find(mapkey::sf); //find the vector
   //See if we can find a SF vector in the map and the corresponding TobjArray for this run period 
   if (currentVector_itr == currentmap.end()) {
     if (this->msgLvl(MSG::DEBUG)){	
@@ -401,7 +366,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     return m_result;
   }
   //Get a reference (synonym) to this vector 
-  const std::vector<TObjArray*>& currentVector=currentVector_itr->second;
+  const std::vector<TObjArray>& currentVector=currentVector_itr->second;
   if (currentVector.size()<=0 || runnumberIndex>= static_cast <signed> (currentVector.size())) {
     if (this->msgLvl(MSG::DEBUG)){
       printDefaultReturnMessage(TString::Format(
@@ -411,15 +376,13 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     }
     return m_result;
   }
-
   //
   //
   //Now we can get the corresponding Object array 
-  const TObjArray* currentObjectArray = currentVector.at(runnumberIndex);
-  //
+  const TObjArray& currentObjectArray = currentVector.at(runnumberIndex);
   //
   //This is the number of entries in the TObjArray  
-  const int entries = currentObjectArray->GetEntries();
+  const int entries = currentObjectArray.GetEntries();
   //Find the correct histogram in the TObjArray (Low, high Et or forward)
   double xValue, yValue;
   xValue = et;
@@ -431,7 +394,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   TH2 *tmpHist(0);
   for (int i = 0; i < entries ; ++i) {
     block = kFALSE;
-    tmpHist = (TH2 *) (currentObjectArray->At(i));
+    tmpHist = (TH2 *) (currentObjectArray.At(i));
 
     //block if we are below minimum et 
     if (et < tmpHist->GetXaxis()->GetXmin()) {
@@ -489,7 +452,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   //Now we have the index of the histogram for this region in the TObjectarray 
   TH2* currentHist(0);
   if (index >= 0) {
-    currentHist = static_cast<TH2*> (currentObjectArray->At(index));
+    currentHist = static_cast<TH2*> (currentObjectArray.At(index));
   }
   else {
     if (this->msgLvl(MSG::DEBUG)){
@@ -526,7 +489,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   if (currentVector_itr != currentmap.end()) {
     //itr at the location of the vector, .second get the vector, at(runnumberIndex is the TObjectArray 
     // for the period , finaly get the hist at index (from above).
-    TH1 *stat = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex)->At(index));
+    TH1 *stat = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
     statErr = stat->GetBinContent(globalBinNumber);
     m_result.setResult(m_position_statErr, statErr);
   }
@@ -536,10 +499,10 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   currentVector_itr = currentmap.find(mapkey::eig); //find the vector
   if (currentVector_itr != currentmap.end()) {
     //Check on the ObjArray
-    if (currentVector_itr->second.at(runnumberIndex) != 0) {
+    if (currentVector_itr->second.at(runnumberIndex).GetEntriesFast()> 0) {
       //itr at the location of the vector, .second get the vector, at(runnumberIndex is the TObjectArray 
       // for the period , finaly get the hist at index (from above).
-      TH1 *eig = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex)->At(index));
+      TH1 *eig = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
       m_sLevel[Root::TElectronEfficiencyCorrectionTool::simple] = 0;
       m_sLevel[Root::TElectronEfficiencyCorrectionTool::medium] = 0;
       m_sLevel[Root::TElectronEfficiencyCorrectionTool::detailed] = 0;
@@ -568,29 +531,25 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   //And the obj array for high low etc
   //We need to see if we can do something better here ...
   //
-  std::vector< std::vector< TObjArray * > > &sysList = (isFastSim) ? m_fastSysList : m_sysList;
+  std::vector< std::vector< TObjArray > > &sysList = (isFastSim) ? m_fastSysList : m_sysList;
   static std::vector<double> corrSys(10); // Avoid some re-allocations of  memory
   corrSys.clear();
   if (sysList.size() > (unsigned int) index) {
     if (sysList.at(index).size() > (unsigned int) runnumberIndex) {
-      const int sys_entries = sysList.at(index).at( runnumberIndex)->GetEntries();
+      const int sys_entries = sysList.at(index).at( runnumberIndex).GetEntries();
     
       for (int sys = 0; sys < sys_entries; ++sys) {
-	tmpHist = (TH2 *) sysList.at(index).at(runnumberIndex)->At(sys_entries - 1 - sys);
+	tmpHist = (TH2 *) sysList.at(index).at(runnumberIndex).At(sys_entries - 1 - sys);
 	corrSys.push_back(tmpHist->GetBinContent(globalBinNumber));
 	m_result.setResult(m_position_corrSys[(sys_entries - 1 - sys)], corrSys[sys]);
       }
-      
       if (m_position_corrSys.size() > 0 && sys_entries<=1) {
 	if (m_result.getResult(m_position_corrSys[0]) == 0) {
 	  m_result.setResult(m_position_corrSys[0], scaleFactorErr);
 	}
       }
-    
     }
   }
-
-  //
   //
   //Do the uncorr error using the available info from above i.e index etc
   //////////////////////////////////////////////////////////////////
@@ -599,8 +558,8 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   currentVector_itr = currentmap.find(mapkey::uncorr); //find the vector
   if (currentVector_itr != currentmap.end()) {
     //Check on the ObjArray
-    if (currentVector_itr->second.at(runnumberIndex) != 0) {
-      TH1 *uncorr = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex)->At(index));
+    if (currentVector_itr->second.at(runnumberIndex).GetEntriesFast()>0) {
+      TH1 *uncorr = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
       double valAdd = uncorr->GetBinContent(globalBinNumber);
       val = sqrt(val * val + valAdd * valAdd);
       for (int i = 0; i < m_sLevel[m_detailLevel]; ++i) {
@@ -617,23 +576,15 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   //Here are the toys 
   ////////////////////////// 
   if (m_doToyMC || m_doCombToyMC) {
-    std::vector< std::vector<TObjArray *> *> *toyMCList;
-    if (isFastSim) {
-      toyMCList = m_uncorrToyMCSystFast;
-    } else {
-      toyMCList = m_uncorrToyMCSystFull;
-    }
-    if (toyMCList != 0) {
-      if (toyMCList->size() > (unsigned int) runnumberIndex) {
+    std::vector<std::vector<TObjArray > >& toyMCList = ((isFastSim) ? m_uncorrToyMCSystFast : m_uncorrToyMCSystFull);
+      if (toyMCList.size() > (unsigned int) runnumberIndex) {
         for (int toy = 0; toy < m_nToyMC; toy++) {
-          if (toyMCList->at(runnumberIndex)->at(toy)->GetLast() >= index) {
+          if (toyMCList.at(runnumberIndex).at(toy).GetLast() >= index) {
             m_result.setResult(m_position_uncorrToyMCSF.at(toy),
-                               ((TH2 *) toyMCList->at(runnumberIndex)->at(toy)->At(index))->GetBinContent(
-													  globalBinNumber));
+                               ((TH2 *) toyMCList.at(runnumberIndex).at(toy).At(index))->GetBinContent(globalBinNumber));
           }
         }
       }
-    }
   }
   m_result.setResult(m_position_globalBinNumber, globalBinNumber);
   return m_result;
@@ -644,9 +595,11 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
 // =============================================================================
 void
 Root::TElectronEfficiencyCorrectionTool::calcDetailLevels(TH1D *eig) {
+ 
   m_sLevel[Root::TElectronEfficiencyCorrectionTool::simple] = 0;
   m_sLevel[Root::TElectronEfficiencyCorrectionTool::medium] = 0;
   m_sLevel[Root::TElectronEfficiencyCorrectionTool::detailed] = 0;
+  
   int nSys = eig->GetNbinsX() - 1;
   double sign = 0;
   // Calculate detail level
@@ -665,14 +618,14 @@ Root::TElectronEfficiencyCorrectionTool::calcDetailLevels(TH1D *eig) {
 // =============================================================================
 // Build the toyMC tables from inputs
 // =============================================================================
-std::vector<TH2D *> *
-Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(TH2D *sf, TH2D *stat, TH2D *uncorr, TObjArray *corr) {
+std::vector<TH2D *>
+Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(TH2D *sf, TH2D *stat, TH2D *uncorr, const TObjArray& corr) {
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ")! " << "entering function buildSingleToyMC");
 
-  std::vector<TH2D*>* tmpHists = new std::vector<TH2D*>;
+  std::vector<TH2D*> tmpHists;
   int nBins = (stat->GetNbinsX() + 2) * (stat->GetNbinsY() + 2);
   for (int toy = 0; toy < m_nToyMC; toy++) {
-    tmpHists->push_back((TH2D *) corr->At(0)->Clone());
+    tmpHists.push_back((TH2D *) corr.At(0)->Clone());
   }
   // Loop over all bins
   for (int bin = 0; bin < nBins; bin++) {
@@ -686,15 +639,15 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(TH2D *sf, TH2D *stat, 
 
     // Add smaller correlated systematics as uncorrelated
     for (int i = 0; i < m_sLevel[m_detailLevel]; ++i) {
-      if (corr->At(i) != 0) {
-        double valAdd = ((TH2D *) corr->At(i))->GetBinContent(bin);
+      if (corr.At(i) != 0) {
+        double valAdd = ((TH2D *) corr.At(i))->GetBinContent(bin);
         val = sqrt(val * val + valAdd * valAdd);
       }
     }
     for (int toy = 0; toy < m_nToyMC; toy++) {
-      tmpHists->at(toy)->SetBinContent(bin, (val * m_Rndm->Gaus(0, 1)) + sf->GetBinContent(bin));
+      tmpHists.at(toy)->SetBinContent(bin, (val * m_Rndm.Gaus(0, 1)) + sf->GetBinContent(bin));
       m_randomCounter++;
-      tmpHists->at(toy)->SetDirectory(0);
+      tmpHists.at(toy)->SetDirectory(0);
     }
   }
   return tmpHists;
@@ -703,18 +656,18 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(TH2D *sf, TH2D *stat, 
 // =============================================================================
 // Build the combined toyMC tables from inputs
 // =============================================================================
-TH2D *
-Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(TH2D *sf, TH2D *stat, TH2D *uncorr, TObjArray *corr) {
+TH2D*
+Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(TH2D *sf, TH2D *stat, TH2D *uncorr, const TObjArray& corr) {
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "entering function buildSingleCombToyMC");
 
   TH2D *tmpHist;
   int nBins = (stat->GetNbinsX() + 2) * (stat->GetNbinsY() + 2);
-  tmpHist = (TH2D *) corr->At(0)->Clone();
+  tmpHist = (TH2D *) corr.At(0)->Clone();
 
   // Create random numbers for the corr. uncertainties
   std::vector<double> rnd (m_nSys,0);
   for (int s = 0; s < m_nSys; s++) {
-    rnd[s] = m_Rndm->Gaus(0, 1);
+    rnd[s] = m_Rndm.Gaus(0, 1);
     m_randomCounter++;
   }
 
@@ -730,19 +683,19 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(TH2D *sf, TH2D *st
     // Add smaller correlated systematics as uncorrelated
 
     for (int s = 0; s < m_sLevel[m_detailLevel]; s++) {
-      if (corr->At(s) != 0) {
-        double valAdd = ((TH2D *) corr->At(s))->GetBinContent(bin);
+      if (corr.At(s) != 0) {
+        double valAdd = ((TH2D *) corr.At(s))->GetBinContent(bin);
         val = sqrt(val * val + valAdd * valAdd);
       }
     }
 
-    val = val * m_Rndm->Gaus(0, 1);
+    val = val * m_Rndm.Gaus(0, 1);
     m_randomCounter++;
 
     // Add larger correlated systematics
     for (int s = m_sLevel[m_detailLevel]; s < m_nSys; s++) {
-      if (corr->At(s) != 0) {
-        val += ((TH2D *) corr->At(s))->GetBinContent(bin) * rnd[s];
+      if (corr.At(s) != 0) {
+        val += ((TH2D *) corr.At(s))->GetBinContent(bin) * rnd[s];
       }
     }
     tmpHist->SetBinContent(bin, val + sf->GetBinContent(bin));
@@ -755,48 +708,44 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(TH2D *sf, TH2D *st
 // =============================================================================
 // Build the toyMC tables from inputs
 // =============================================================================
-std::vector<TObjArray *> *
-Root::TElectronEfficiencyCorrectionTool::buildToyMCTable(TObjArray *sf, TObjArray *eig, TObjArray *stat,
-                                                         TObjArray *uncorr, std::vector<TObjArray *> *corr) {
-  ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "entering function buildToyMCTable");
+std::vector<TObjArray>
+Root::TElectronEfficiencyCorrectionTool::buildToyMCTable(const TObjArray& sf, const TObjArray& eig, const TObjArray& stat,
+                                                         const TObjArray& uncorr, const std::vector<TObjArray>& corr) {
 
-  const int stat_entries = stat->GetEntries();
-  std::vector<TObjArray *>* tmpVec= new std::vector<TObjArray*>;
-  TObjArray *tmpArray;
+  ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "entering function buildToyMCTable");
+  std::vector<TObjArray> tmpVec;
+  const int stat_entries = stat.GetEntries();
+
   if (m_doCombToyMC) {
     for (int toyMC = 0; toyMC < m_nToyMC; toyMC++) {
-      tmpArray = new TObjArray();
+      TObjArray tmpArray;
       for (int i = 0; i < stat_entries; ++i) {
-        if (eig != 0 && uncorr != 0) {
-          calcDetailLevels((TH1D *) eig->At(i));
-          tmpArray->Add(buildSingleCombToyMC((TH2D *) sf->At(i), (TH2D *) stat->At(i), (TH2D *) uncorr->At(i),
-                                             corr->at(i)));
+        if (eig.GetEntriesFast()>0 && uncorr.GetEntriesFast()>0) {
+          calcDetailLevels((TH1D *) eig.At(i));
+          tmpArray.Add(buildSingleCombToyMC((TH2D *) sf.At(i), (TH2D *) stat.At(i), (TH2D *) uncorr.At(i), corr.at(i)));
         }else {
-          tmpArray->Add(buildSingleCombToyMC((TH2D *) sf->At(i), (TH2D *) stat->At(i), 0, corr->at(i)));
+          tmpArray.Add(buildSingleCombToyMC((TH2D *) sf.At(i), (TH2D *) stat.At(i), 0, corr.at(i)));
         }
       }
-      tmpVec->push_back(tmpArray);
+      tmpVec.push_back(tmpArray);
     }
   }else {
-    std::vector< std::vector<TH2D *> *> *tmpVec2 = new  std::vector< std::vector<TH2D *> *>;
+    std::vector< std::vector<TH2D*> > tmpVec2 ;
     for (int i = 0; i < stat_entries; ++i) {
-      calcDetailLevels((TH1D *) eig->At(i));
-      tmpVec2->push_back(buildSingleToyMC((TH2D *) sf->At(i), (TH2D *) stat->At(i), (TH2D *) uncorr->At(i),
-                                          corr->at(i)));
+      calcDetailLevels((TH1D *) eig.At(i));
+      tmpVec2.push_back(buildSingleToyMC((TH2D *) sf.At(i), (TH2D *) stat.At(i), 
+					 (TH2D *) uncorr.At(i),corr.at(i)));
     }
     for (int toy = 0; toy < m_nToyMC; toy++) {
-      tmpArray = new TObjArray();
-      for (unsigned int i = 0; i < tmpVec2->size(); ++i) {
-        tmpArray->Add(tmpVec2->at(i)->at(toy));
+      TObjArray tmpArray;
+      for (unsigned int i = 0; i < tmpVec2.size(); ++i) {
+        tmpArray.Add(tmpVec2.at(i).at(toy));
       }
-      tmpVec->push_back(tmpArray);
+      tmpVec.push_back(tmpArray);
     }
-    delete tmpVec2;
   }
-
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "m_Rndm->Uniform(0, 1) after throwing " << m_randomCounter
-		<< " random numbers: " << m_Rndm->Uniform(0,
-                                                          1));
+		<< " random numbers: " << m_Rndm.Uniform(0,1));
   return tmpVec;
 }
 
@@ -805,8 +754,7 @@ Root::TElectronEfficiencyCorrectionTool::buildToyMCTable(TObjArray *sf, TObjArra
 // =============================================================================
 int
 Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<float> > &pt_eta1) {
-  std::vector<TObjArray *> tmpVec;
-
+  std::vector<TObjArray > tmpVec;
   tmpVec = m_histList[mapkey::sf];
   int nbinsTotal = 0;
   pt_eta1.clear();
@@ -814,45 +762,41 @@ Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<fl
   eta1.clear();
 
   for (unsigned int ikey = 0; ikey < tmpVec.size(); ++ikey) {
-    for (int entries = 0; entries < (tmpVec.at(ikey))->GetEntries(); entries++) {
+    for (int entries = 0; entries < (tmpVec.at(ikey)).GetEntries(); entries++) {
       eta1.clear();
 
-      TH2D *h_tmp = ((TH2D * ) (tmpVec.at(ikey))->At(entries));
+      TH2D *h_tmp = ((TH2D * ) (tmpVec.at(ikey)).At(entries));
       int nbinsX = h_tmp->GetNbinsX();
       int nbinsY = h_tmp->GetNbinsY();
 
       for (int biny = 1; biny <= nbinsY + 1; biny++) {
         eta1.push_back(h_tmp->GetYaxis()->GetBinLowEdge(biny));
-        if (entries == (tmpVec.at(ikey))->GetEntries() - 1) {
+        if (entries == (tmpVec.at(ikey)).GetEntries() - 1) {
           eta1.push_back(h_tmp->GetYaxis()->GetBinLowEdge(biny + 1));
         }
       }
       for (int binx = 1; binx <= nbinsX; binx++) {
         pt_eta1[h_tmp->GetXaxis()->GetBinLowEdge(binx)] = eta1;
-        if (entries == (tmpVec.at(ikey))->GetEntries() - 1) {
+        if (entries == (tmpVec.at(ikey)).GetEntries() - 1) {
           pt_eta1[h_tmp->GetXaxis()->GetBinLowEdge(binx + 1)] = eta1;
         }
       }
     }
   }
-
   for (auto &i : pt_eta1) {
     nbinsTotal += i.second.size();
   }
-
   return nbinsTotal;
 }
 
 // =============================================================================
 // Helper function to retrieve the position of the first toy MC scale factor
 // =============================================================================
-int
-Root::TElectronEfficiencyCorrectionTool::getFirstToyMCPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getFirstToyMCPosition() {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
   }
-
   if (m_nToyMC > 0) {
     return m_position_uncorrToyMCSF.at(0);
   }else {
@@ -862,13 +806,11 @@ Root::TElectronEfficiencyCorrectionTool::getFirstToyMCPosition() {
   }
 }
 
-int
-Root::TElectronEfficiencyCorrectionTool::getLastToyMCPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getLastToyMCPosition() {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
   }
-
   if (m_nToyMC > 0) {
     return m_position_uncorrToyMCSF.at(m_nToyMC - 1);
   } else {
@@ -877,14 +819,13 @@ Root::TElectronEfficiencyCorrectionTool::getLastToyMCPosition() {
     return 0;
   }
 }
-
-int
-Root::TElectronEfficiencyCorrectionTool::getFirstCorrSysPosition() {
+//================================================================================
+/// Helpers
+int Root::TElectronEfficiencyCorrectionTool::getFirstCorrSysPosition() {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
   }
-
   if (m_position_corrSys.size() > 0) {
     return m_position_corrSys.at(0);
   }else {
@@ -894,8 +835,7 @@ Root::TElectronEfficiencyCorrectionTool::getFirstCorrSysPosition() {
   }
 }
 
-int
-Root::TElectronEfficiencyCorrectionTool::getLastCorrSysPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getLastCorrSysPosition() {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
@@ -913,9 +853,7 @@ Root::TElectronEfficiencyCorrectionTool::getLastCorrSysPosition() {
     return 0;
   }
 }
-
-int
-Root::TElectronEfficiencyCorrectionTool::getGlobalBinNumberPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getGlobalBinNumberPosition() {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
@@ -923,8 +861,7 @@ Root::TElectronEfficiencyCorrectionTool::getGlobalBinNumberPosition() {
   return m_position_globalBinNumber;
 }
 
-void
-Root::TElectronEfficiencyCorrectionTool::printResultMap() {
+void Root::TElectronEfficiencyCorrectionTool::printResultMap() {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return;
@@ -934,17 +871,16 @@ Root::TElectronEfficiencyCorrectionTool::printResultMap() {
     ATH_MSG_INFO(pos << " \t \t - \t " << m_result.getResultDescription(pos));
   }
 }
+//================================================================================
 
 // =============================================================================
 // Get the input histograms from the input files
 // =============================================================================
-int
-Root::TElectronEfficiencyCorrectionTool::getHistograms() {
-  ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "entering function getHistograms");
+int Root::TElectronEfficiencyCorrectionTool::getHistograms() {
 
+  ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "entering function getHistograms");
   // Cache the current directory in the root file
   TDirectory *origDir = gDirectory;
-
   // -------------------------------------------------------
   // Get the name of the first input ROOT file and
   // interpret from that what we have:
@@ -974,11 +910,9 @@ Root::TElectronEfficiencyCorrectionTool::getHistograms() {
 		 << " and resultName: " << m_resultName);
 
   }
-
   // -------------------------------------------------------
   // Get all ROOT files and histograms
   // -------------------------------------------------------
-
   for (unsigned int i = 0; i < m_corrFileNameList.size(); ++i) {
     // Load the ROOT file
     const std::unique_ptr<char> fname (gSystem->ExpandPathName(m_corrFileNameList[i].c_str()));
@@ -989,7 +923,6 @@ Root::TElectronEfficiencyCorrectionTool::getHistograms() {
 		    m_corrFileNameList[i]);
       return 0;
     }
-
     // Loop over all directories inside the root file (correspond to the run number ranges
     TIter nextdir(rootFile->GetListOfKeys());
     TKey *dir;
@@ -998,16 +931,17 @@ Root::TElectronEfficiencyCorrectionTool::getHistograms() {
       obj = dir->ReadObj();
       if (obj->IsA()->InheritsFrom("TDirectory")) {
         // splits string by delimiter --> e.g RunNumber1_RunNumber2
-        std::unique_ptr<TObjArray> dirNameArray(TString(obj->GetName()).Tokenize("_"));
+	//std::unique_ptr<TObjArray> dirNameArray(TString(obj->GetName()).Tokenize("_"));
+        TObjArray dirNameArray = *(TString(obj->GetName()).Tokenize("_"));
         //// returns index of last string --> if one, the directory name does not contain any run numbers
-        int lastIdx = dirNameArray->GetLast();
+        int lastIdx = dirNameArray.GetLast();
         if (lastIdx != 1) {
           ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "The folder name seems to have the wrong format! Directory name:"
 			<< obj->GetName());
           return 0;
         }
         rootFile->cd(obj->GetName());
-        if (0 == this->setupHistogramsInFolder(dirNameArray.get(), lastIdx)) {
+        if (0 == this->setupHistogramsInFolder(dirNameArray, lastIdx)) {
           ATH_MSG_ERROR(
 			" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "unable to setup the histograms in directory " << dir->GetName()
 			<< "in file " << m_corrFileNameList[i]);
@@ -1023,25 +957,23 @@ Root::TElectronEfficiencyCorrectionTool::getHistograms() {
       gDirectory = origDir;
     } // End: directory loop
   } // End: file loop
-
   return 1;
 }
 
 // =============================================================================
 // Get the input histograms from a given folder/run number range
 // =============================================================================
-int
-Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(TObjArray *dirNameArray, int lastIdx) {
+int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjArray& dirNameArray, int lastIdx) {
 
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "entering funtion setupHistogramsInFolder");
 
   m_runNumBegin = -1;
-  TString myBegRunNumString = ((TObjString *) dirNameArray->At(lastIdx - 1))->GetString();
+  TString myBegRunNumString = ((TObjString *) dirNameArray.At(lastIdx - 1))->GetString();
   if (myBegRunNumString.IsDigit()) {
     m_runNumBegin = myBegRunNumString.Atoi();
   }
   m_runNumEnd = -1;
-  TString myEndRunNumString = ((TObjString *) dirNameArray->At(lastIdx))->GetString();
+  TString myEndRunNumString = ((TObjString *) dirNameArray.At(lastIdx))->GetString();
   if (myEndRunNumString.IsDigit()) {
     m_runNumEnd = myEndRunNumString.Atoi();
   }
@@ -1052,26 +984,30 @@ Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(TObjArray *dirN
   }
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << m_runNumBegin << "  " << m_runNumEnd);
   //
-  std::unique_ptr<std::map<int, TObjArray *> > objsFull = CxxUtils::make_unique< std::map<int, TObjArray *> >();
-  std::unique_ptr<std::map<int, TObjArray *> > objsFast = CxxUtils::make_unique< std::map<int, TObjArray *> >();;
   /// setup pairs of obj arrays and keys --> e.g. "sf", new Array to take all SF Histos
+  std::map<int, TObjArray> objsFull;
+  std::map<int, TObjArray > objsFast;
   for (unsigned int ikey = 0; ikey < m_keys.size(); ++ikey) {
-    objsFull->insert(std::make_pair(m_keys.at(ikey), new TObjArray()));
-    objsFast->insert(std::make_pair(m_keys.at(ikey), new TObjArray()));
-  }
-  objsFull->insert(std::make_pair(mapkey::sys, new TObjArray()));
-  objsFast->insert(std::make_pair(mapkey::sys, new TObjArray()));
+    TObjArray dummyFull;
+    objsFull.insert(std::make_pair(m_keys.at(ikey),dummyFull));
+    TObjArray dummyFast;
+    objsFast.insert(std::make_pair(m_keys.at(ikey),dummyFast));
+  }  
+  TObjArray dummyFull;    
+  objsFull.insert(std::make_pair(mapkey::sys, dummyFull));
+  TObjArray dummyFast;
+  objsFast.insert(std::make_pair(mapkey::sys, dummyFast));
+  //---------------------------------------------------------
   //
-  std::unique_ptr<std::vector<TObjArray *> > sysObjsFull(new std::vector<TObjArray *>);
-  std::unique_ptr<std::vector<TObjArray *> > sysObjsFast(new std::vector<TObjArray *>);
+  std::vector<TObjArray > sysObjsFull;
+  std::vector<TObjArray > sysObjsFast;
   //
   TIter nextkey(gDirectory->GetListOfKeys());
   TKey *key;
   TObject *obj(0);
   TString tmpName = "";
-  TObjArray* tmpArrayFull(0);
-  TObjArray* tmpArrayFast(0);
   int tmpCounter = 0;
+
   //
   //Loop of the keys 
   while ((key = (TKey *) nextkey())) {
@@ -1083,39 +1019,38 @@ Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(TObjArray *dirN
 	//Add all except the correlated 
 	for (unsigned int ikey = 0; ikey < m_keys.size(); ++ikey) {
 	  if (TString(obj->GetName()).EndsWith("_" +  TString(mapkey::keytostring(m_keys.at(ikey))))) {
-	    objsFull->find(m_keys.at(ikey))->second->Add(obj);
+	    objsFull.find(m_keys.at(ikey))->second.Add(obj);
 	  }
 	}
 	//
 	tmpName = TString(obj->GetName());
-	//Special treatment is for photons
+	//Special treatment , this is only for photons 
 	if (tmpName.EndsWith("_sys")) {
-	  objsFull->find(mapkey::sys)->second->Add(obj);
+	  objsFull.find(mapkey::sys)->second.Add(obj);
+	  TObjArray tmpArrayFull;
+	  tmpArrayFull.Add(obj);
+	  sysObjsFull.push_back(tmpArrayFull);
 	  tmpCounter++;
-	  if (tmpArrayFull == 0 && (objsFull->find(mapkey::sys)->second)) {
-	    tmpArrayFull = new TObjArray();
-	    tmpArrayFull->Add(obj);
-	  }else if (tmpArrayFull != 0) {
-	    tmpArrayFull->Add(obj);
-	  }
 	}
+	//
 	//See if we are dealing with correlated
 	if (tmpName.Contains("_corr")) {
-	  //The 1st correlated one  corr0
-	  if (tmpName.EndsWith("corr0")) {
-	    tmpCounter = 0;
-	    if (tmpArrayFull != 0) {
-	      sysObjsFull->push_back(tmpArrayFull);
-	    }
-	    tmpArrayFull = new TObjArray();
-	  }//corr0
-	  if (tmpArrayFull != 0) {
-	    tmpArrayFull->Add(obj);
-	  }else {
-	    ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tried to read systematic uncertainties for full sim scale factor,"
-			  << " but could NOT find a histogram with name ending in \"corr0\". Please check input file! ");
-	    return 0;
+ 	  if (tmpName.EndsWith("corr0")) {
+	    //This is the worse part ...
+	    //corr0 triggers a few thing
+	    //
+	    //1st create a TObjectArray
+	    //For high or low Pt (one for each ...)
+	    TObjArray tmpArrayFull;
+	    //Resgister it to the vector (so the vector has size 1 or 2)
+	    sysObjsFull.push_back(tmpArrayFull);
+            //Reset the counter
+	    tmpCounter=0;
 	  }
+	  //Add to the current last element of the sysObject full
+	  //This will be Low Pt once and high Pt the other time
+	  sysObjsFull.back().Add(obj);
+	  //Now increase the counter
 	  tmpCounter++;
 	}
 	if (tmpCounter > m_nSysMax) {
@@ -1125,27 +1060,36 @@ Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(TObjArray *dirN
       else if (TString(obj->GetName()).Contains("AtlFast2")) {
 	for (unsigned int ikey = 0; ikey < m_keys.size(); ++ikey) {
 	  if (TString(obj->GetName()).EndsWith("_" +  TString(mapkey::keytostring(m_keys.at(ikey))))) {
-	    objsFast->find(m_keys.at(ikey))->second->Add(obj);
+	    objsFast.find(m_keys.at(ikey))->second.Add(obj);
 	  }
 	}
 	//See if we are dealing with correlated
 	tmpName = TString(obj->GetName());
+	//Special treatment , this is only for photons 
+	if (tmpName.EndsWith("_sys")) {
+	  objsFast.find(mapkey::sys)->second.Add(obj);
+	  TObjArray tmpArrayFast;
+	  tmpArrayFast.Add(obj);
+	  sysObjsFast.push_back(tmpArrayFast);
+	  tmpCounter++;
+	}
+	//
+	//See if we are dealing with correlated
 	if (tmpName.Contains("_corr")) {
-	  //The 1st correlated one  corr0
-	  if (tmpName.EndsWith("corr0")) {
-	    tmpCounter = 0;
-	    if (tmpArrayFast != 0) {
-	      sysObjsFast->push_back(tmpArrayFast);
-	    }
-	    tmpArrayFast = new TObjArray();
-	  }//corr0
-	  if (tmpArrayFast != 0) {
-	    tmpArrayFast->Add(obj);
-	  }else {
-	    ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Tried to read systematic uncertainties for fast sim scale factor, "
-			  << "but could NOT find a histogram with name ending in \"corr0\". Please check input file! ");
-	    return 0;
+ 	  if (tmpName.EndsWith("corr0")) {
+	    //This is the worse part ...
+	    //corr0 triggers a few thing
+	    //1st create a TObjectArray
+	    TObjArray tmpArrayFast;
+	    //Resgister it
+	    sysObjsFast.push_back(tmpArrayFast);
+            //Reset the counter
+	    tmpCounter=0;
 	  }
+	  //Add to the current last element of the sysObject full
+	  //This will be Low Pt once and high Pt the other time
+	  sysObjsFast.back().Add(obj);
+	  //Now increase the counter
 	  tmpCounter++;
 	}
 	if (tmpCounter > m_nSysMax) {
@@ -1159,61 +1103,49 @@ Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(TObjArray *dirN
       }
     }
   }
-  if (tmpArrayFull != 0) {
-    sysObjsFull->push_back(tmpArrayFull);
-  }
-  if (tmpArrayFast != 0) {
-    sysObjsFast->push_back(tmpArrayFast);
-  }
 
-  ATH_MSG_DEBUG(
-		" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "setting up histograms for run ranges  " <<
+  ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "setting up histograms for run ranges  " <<
 		m_runNumEnd);
   //
-  //The setup here copies from the tmp in this function , to the class member variables.
+  //The setup here copies from the temporaties created in this function , 
+  //to the actual class member variables.
   for (unsigned int ikey = 0; ikey < m_keys.size(); ++ikey) {
-    if (objsFull->find(m_keys.at(ikey))->second->GetEntries() != 0) {
+    if (objsFull.find(m_keys.at(ikey))->second.GetEntries() != 0) {
       if (0 ==
-	  this->setup(objsFull->find(m_keys.at(ikey))->second, m_histList[m_keys.at(ikey)], m_begRunNumberList,
-		      m_endRunNumberList)) {
-	ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Could NOT setup histogram " << m_keys.at(
-															      ikey)
-		      << " for full sim!");
+	  setup(objsFull.find(m_keys.at(ikey))->second, m_histList[m_keys.at(ikey)], 
+		m_begRunNumberList,m_endRunNumberList)) {
+	ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Could NOT setup histogram " 
+		      << m_keys.at(ikey)<< " for full sim!");
 	return 0;
       }
     }
-    if (objsFast->find(m_keys.at(ikey))->second->GetEntries() != 0) {
+    if (objsFast.find(m_keys.at(ikey))->second.GetEntries() != 0) {
       if (0 ==
-	  this->setup(objsFast->find(m_keys.at(ikey))->second, m_fastHistList[m_keys.at(ikey)],
-		      m_begRunNumberListFastSim, m_endRunNumberListFastSim)) {
-	ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Could NOT setup histogram " << m_keys.at(
-															      ikey)
+	  setup(objsFast.find(m_keys.at(ikey))->second, m_fastHistList[m_keys.at(ikey)],
+		m_begRunNumberListFastSim, m_endRunNumberListFastSim)) {
+	ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Could NOT setup histogram " << m_keys.at(ikey)
 		      << " for fast sim");
 	return 0;
       }
     }
   }
-  for (unsigned int sys = 0; sys < sysObjsFast->size(); sys++) {
-    m_fastSysList.resize(sysObjsFast->size());
-    if (0 ==
-	this->setup(sysObjsFast->at(sys), m_fastSysList[sys], m_begRunNumberListFastSim, m_endRunNumberListFastSim)) {
+  for (unsigned int sys = 0; sys < sysObjsFast.size(); sys++) {
+    m_fastSysList.resize(sysObjsFast.size());
+    if (0 == setup(sysObjsFast.at(sys), m_fastSysList[sys], m_begRunNumberListFastSim, m_endRunNumberListFastSim)) {
+      ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " <<
+		    "! Could NOT setup systematic histograms for fast sim");
+      return 0;
+    }
+  }
+  for (unsigned int sys = 0; sys < sysObjsFull.size(); sys++) {
+    m_sysList.resize(sysObjsFull.size());
+    if (0 == setup(sysObjsFull.at(sys), m_sysList[sys], m_begRunNumberList, m_endRunNumberList)) {
       ATH_MSG_ERROR(
 		    " (file: " << __FILE__ << ", line: " << __LINE__ << ") " <<
 		    "! Could NOT setup systematic histograms for fast sim");
       return 0;
     }
   }
-  for (unsigned int sys = 0; sys < sysObjsFull->size(); sys++) {
-    m_sysList.resize(sysObjsFull->size());
-    if (0 == this->setup(sysObjsFull->at(sys), m_sysList[sys], m_begRunNumberList, m_endRunNumberList)) {
-      ATH_MSG_ERROR(
-		    " (file: " << __FILE__ << ", line: " << __LINE__ << ") " <<
-		    "! Could NOT setup systematic histograms for fast sim");
-      return 0;
-    }
-  }
-  //
-  //
   //
   //Toys
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << this->getName()
@@ -1222,43 +1154,44 @@ Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(TObjArray *dirN
   if (m_doToyMC || m_doCombToyMC) {
     bool fullToysBooked = kFALSE;
     bool fastToysBooked = kFALSE;
+    TObjArray dummy;
 
     if (m_histList[mapkey::sf].size() > 0) {
-      if (objsFull->find(mapkey::eig)->second->GetEntries() < 1 || objsFull->find(mapkey::stat)->second->GetEntries() < 1 ||
-	  objsFull->find(mapkey::uncorr)->second->GetEntries() < 1) {
-	if (objsFull->find(mapkey::stat)->second->GetEntries() > 1 || objsFull->find(mapkey::sys)->second->GetEntries() > 1) {
-	  m_uncorrToyMCSystFull->push_back(buildToyMCTable(objsFull->find(mapkey::sf)->second, 0,
-							   objsFull->find(mapkey::stat)->second,
-							   0, sysObjsFull.get()));
+      if (objsFull.find(mapkey::eig)->second.GetEntries() < 1 || objsFull.find(mapkey::stat)->second.GetEntries() < 1 ||
+	  objsFull.find(mapkey::uncorr)->second.GetEntries() < 1) {
+	if (objsFull.find(mapkey::stat)->second.GetEntries() > 1 || objsFull.find(mapkey::sys)->second.GetEntries() > 1) {
+	  m_uncorrToyMCSystFull.push_back(buildToyMCTable(objsFull.find(mapkey::sf)->second, dummy,
+							   objsFull.find(mapkey::stat)->second,
+							   dummy, sysObjsFull));
 	  fullToysBooked = kTRUE;
 	}else {
 	  ATH_MSG_INFO(
 		       "! Toy MC error propagation booked, but not all needed histograms found in the output (For full sim). Skipping toy creation!");
 	}
       }else {
-	m_uncorrToyMCSystFull->push_back(buildToyMCTable(objsFull->find(mapkey::sf)->second, objsFull->find(mapkey::eig)->second,
-							 objsFull->find(mapkey::stat)->second,
-							 objsFull->find(mapkey::uncorr)->second, sysObjsFull.get()));
+	m_uncorrToyMCSystFull.push_back(buildToyMCTable(objsFull.find(mapkey::sf)->second, objsFull.find(mapkey::eig)->second,
+							 objsFull.find(mapkey::stat)->second,
+							 objsFull.find(mapkey::uncorr)->second, sysObjsFull));
 	fullToysBooked = kTRUE;
       }
     }
     ///// AF2
     if (m_fastHistList[mapkey::sf].size() > 0) {
-      if (objsFast->find(mapkey::eig)->second->GetEntries() < 1 || objsFast->find(mapkey::stat)->second->GetEntries() < 1 ||
-	  objsFast->find(mapkey::uncorr)->second->GetEntries() < 1) {
-	if (objsFast->find(mapkey::stat)->second->GetEntries() > 1 || objsFast->find(mapkey::sys)->second->GetEntries() > 1) {
-	  m_uncorrToyMCSystFast->push_back(buildToyMCTable(objsFast->find(mapkey::sf)->second, 0,
-							   objsFast->find(mapkey::stat)->second,
-							   0, sysObjsFast.get()));
+      if (objsFast.find(mapkey::eig)->second.GetEntries() < 1 || objsFast.find(mapkey::stat)->second.GetEntries() < 1 ||
+	  objsFast.find(mapkey::uncorr)->second.GetEntries() < 1) {
+	if (objsFast.find(mapkey::stat)->second.GetEntries() > 1 || objsFast.find(mapkey::sys)->second.GetEntries() > 1) {
+	  m_uncorrToyMCSystFast.push_back(buildToyMCTable(objsFast.find(mapkey::sf)->second, dummy,
+							   objsFast.find(mapkey::stat)->second,
+							   dummy, sysObjsFast));
 	  fastToysBooked = kTRUE;
 	}else {
 	  ATH_MSG_INFO(
 		       "! Toy MC error propagation booked, but not all needed histograms found in the output (For fast sim). Skipping toy creation!");
 	}
       }else {
-	m_uncorrToyMCSystFast->push_back(buildToyMCTable(objsFast->find(mapkey::sf)->second, objsFast->find(mapkey::eig)->second,
-							 objsFast->find(mapkey::stat)->second,
-							 objsFast->find(mapkey::uncorr)->second, sysObjsFast.get()));
+	m_uncorrToyMCSystFast.push_back(buildToyMCTable(objsFast.find(mapkey::sf)->second, objsFast.find(mapkey::eig)->second,
+							 objsFast.find(mapkey::stat)->second,
+							 objsFast.find(mapkey::uncorr)->second, sysObjsFast));
 	fastToysBooked = kTRUE;
       }
     }
@@ -1279,18 +1212,18 @@ Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(TObjArray *dirN
 // Fill and interpret the setup, depending on which histograms are found in the input file(s)
 // =============================================================================
 int
-Root::TElectronEfficiencyCorrectionTool::setup(TObjArray *hists,
-                                               std::vector< TObjArray * > &histList,
+Root::TElectronEfficiencyCorrectionTool::setup(const TObjArray& hists,
+                                               std::vector< TObjArray> &histList,
                                                std::vector< unsigned int > &beginRunNumberList,
                                                std::vector< unsigned int > &endRunNumberList) {
-  if (!hists) {
+  if (hists.GetEntriesFast()==0) {
     ATH_MSG_ERROR(
 		  "(file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Could NOT find histogram with name *_sf in folder");
     return 0;
   }
   TH2 *tmpHist(0);
-  for (int i = 0; i < hists->GetEntries(); ++i) {
-    tmpHist = (TH2 *) hists->At(i);
+  for (int i = 0; i < hists.GetEntries(); ++i) {
+    tmpHist = (TH2 *) hists.At(i);
     tmpHist->SetDirectory(0);
   }
   // Now, we have all the needed info. Fill the vectors accordingly
@@ -1309,10 +1242,8 @@ Root::TElectronEfficiencyCorrectionTool::setup(TObjArray *hists,
   }else {
     endRunNumberList.push_back(m_runNumEnd);
   }
-
   return 1;
 }
-
 // =============================================================================
 // print a message that the default scale factor is returned
 // =============================================================================

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ATHENAHIVE
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/StoreClearedIncident.h"
@@ -68,8 +67,7 @@ StoreGateSvc::setSlot(SG::HiveEventSlot* pSlot) {
   s_pSlot=pSlot;
   if ( 0 != s_pSlot) {
     //probably overkill since Hive should not call setSlot concurrently     
-    SG::HiveEventSlot::mutex_t::scoped_lock lock;
-    lock.acquire(s_pSlot->storeMutex);
+    std::lock_guard<SG::HiveEventSlot::mutex_t> lock(*(s_pSlot->storeMutex));
     s_pSlot->pEvtStore->makeCurrent();
   }
 }
@@ -485,7 +483,7 @@ StoreGateSvc::clearStore(bool forceRemove)
 {
   StatusCode sc;
   if (isHiveStore()) { 
-    SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(s_pSlot->storeMutex); 
+    std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(s_pSlot->storeMutex) );
     if (0 != s_pSlot->pEvtStore) {
       sc = s_pSlot->pEvtStore->clearStore(forceRemove);
     }
@@ -543,6 +541,3 @@ StatusCode StoreGateSvc::removeProxy(SG::DataProxy* proxy, const void* pTrans,
                                      bool forceRemove) {
   _SGXCALL(removeProxy, (proxy, pTrans, forceRemove), StatusCode::FAILURE);
 }
-
-
-#endif //ATLASHIVE

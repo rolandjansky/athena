@@ -28,17 +28,11 @@ HiveMgrSvc::HiveMgrSvc(const std::string& name,
  * @param  slot     [IN]     Slot number (event slot)   *
  * @return Status code indicating failure or success.
  */
-#ifdef ATHENAHIVE
 StatusCode HiveMgrSvc::selectStore(size_t slotIndex) {
   s_current = &m_slots[slotIndex];
   StoreGateSvc::setSlot(s_current);
   return StatusCode::SUCCESS;
 }
-#else
-StatusCode HiveMgrSvc::selectStore(size_t /*slotIndex*/) {
-  return StatusCode::SUCCESS;
-}
-#endif
 
 /** Clear a given 'slot'.
  *
@@ -48,11 +42,7 @@ StatusCode HiveMgrSvc::selectStore(size_t /*slotIndex*/) {
 StatusCode HiveMgrSvc::clearStore(size_t slotIndex) {
   StatusCode rc(StatusCode::FAILURE);
   if (slotIndex < m_nSlots) {
-#ifdef ATHENAHIVE
     rc=m_slots[slotIndex].pEvtStore->clearStore();
-#else
-    rc = m_hiveStore->clearStore();
-#endif
     if (rc.isSuccess()) debug() << "cleared store " << slotIndex << endmsg;
   }    
   if (!rc.isSuccess()) error() << "could not clear store " << slotIndex << endmsg;
@@ -70,12 +60,8 @@ StatusCode HiveMgrSvc::setNumberOfStores(size_t slots) {
     fatal() << "Too late to change the number of slots!" << endmsg;
     return StatusCode::FAILURE;
   } else {
-#ifdef ATHENAHIVE
     m_slots.resize(slots);
     m_nSlots = slots;
-#else
-    if (slots != 1) return StatusCode::FAILURE;
-#endif
     return StatusCode::SUCCESS;
   }
 }
@@ -92,7 +78,6 @@ size_t HiveMgrSvc::getNumberOfStores() const {
  * @param     slot     [OUT]    Returned slot or slot number
  * @return Slot number (npos to indicate an error).
  */
-#ifdef ATHENAHIVE
 size_t HiveMgrSvc::allocateStore( int evtNumber ) {
   for (size_t index=0; index<m_nSlots; ++index) {
     if( m_slots[index].eventNumber == evtNumber) {
@@ -108,12 +93,6 @@ size_t HiveMgrSvc::allocateStore( int evtNumber ) {
   error() << "No slots available for event number " << evtNumber << endmsg;
   return std::string::npos;
 }
-#else
-size_t HiveMgrSvc::allocateStore( int /*evtNumber*/ )
-{
-  return 0;
-}
-#endif
   
 /** Free a store slot
  *
@@ -122,9 +101,7 @@ size_t HiveMgrSvc::allocateStore( int /*evtNumber*/ )
  */
 StatusCode HiveMgrSvc::freeStore( size_t slotIndex ) {
   if (slotIndex < m_nSlots) {
-#ifdef ATHENAHIVE
     m_slots[slotIndex].eventNumber = -1;
-#endif
     debug() << "Freed slot " << slotIndex << endmsg;
     return StatusCode::SUCCESS;
   } else {
@@ -139,18 +116,12 @@ StatusCode HiveMgrSvc::freeStore( size_t slotIndex ) {
  * @param     evtNumber     [IN]     Event number
  * @return    slot number (npos to indicate an error).
  */
-#ifdef ATHENAHIVE
 size_t HiveMgrSvc::getPartitionNumber(int evtNumber) const {
   for (size_t index=0; index<m_nSlots; ++index) {
     if( m_slots[index].eventNumber == evtNumber) return index;
   }
   return std::string::npos;
 }
-#else
-size_t HiveMgrSvc::getPartitionNumber(int /*evtNumber*/) const {
-  return 0;
-}
-#endif
 
 
 StatusCode HiveMgrSvc::getNewDataObjects(DataObjIDColl& products) {
@@ -175,7 +146,6 @@ StatusCode HiveMgrSvc::initialize() {
     return StatusCode::FAILURE;
   }
 
-#ifdef ATHENAHIVE
   //use hiveStore default impl store as prototype
   Service* child(0);
   SGImplSvc* pSG(0);
@@ -194,26 +164,18 @@ StatusCode HiveMgrSvc::initialize() {
       return StatusCode::FAILURE;
     }
   }
-#else
-  if (m_nSlots != 1) {
-    fatal() << "Bad value of NSlots for serial build: " << m_nSlots << endmsg;
-    return StatusCode::FAILURE;
-  }
-#endif
   return selectStore(0);
 }
 StatusCode HiveMgrSvc::finalize() {
   info() <<  "Finalizing " << name() 
          << " - package version " << PACKAGE_VERSION << endmsg ;
 
-#ifdef ATHENAHIVE
   for (SG::HiveEventSlot& s : m_slots) {
     // The impl services are not set to active, so ServiceMananger
     // won't finalize them.
     CHECK( s.pEvtStore->finalize() );
     s.pEvtStore->release();
   }
-#endif
 
   return StatusCode::SUCCESS;
 }

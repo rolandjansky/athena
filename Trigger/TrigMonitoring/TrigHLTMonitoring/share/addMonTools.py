@@ -294,10 +294,10 @@ if HLTMonFlags.doMaM == True:
 
         # if dumping the tool configurations (as a .json file) has been requested, then do that here
         if HLTMonFlags.doMaM_ExtractAndDumpConfigs == True:
-            log.info("Will not attempt to doMaM_ExtractAndDumpConfigs, this function is yet to be debugged")
+            log.info("Will attempt to extract final trigger monitoring tool configurations and dump them to %s" % (HLTMonFlags.MaM_OutputJSON.StoredValue))
             # get updated configs for all tools, and dump them to HLTMonFlags.MaM_OutputJSON.StoredValue
-            # mam.get_current_local_info()
-            # mam.make_default_json(HLTMonFlags.MaM_OutputJSON.StoredValue,comment="Final job config")
+            mam.get_current_local_info()
+            mam.make_default_json(HLTMonFlags.MaM_OutputJSON.StoredValue,comment="Final job config")
 
 ############################################
 

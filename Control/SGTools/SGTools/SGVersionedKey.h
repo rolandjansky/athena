@@ -30,9 +30,7 @@ namespace SG {
    **/
   class VersionedKey {
     friend class ::StoreGateSvc; //call copyVK
-#ifdef ATHENAHIVE
     friend class ::SGImplSvc; //call copyVK
-#endif
   public:
     ///quickly determine whether a string has the right format to be a VK
     static bool isVersionedKey(const char *);

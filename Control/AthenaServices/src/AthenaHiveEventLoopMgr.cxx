@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ATHENAHIVE
 #define  ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_CPP
 
 #include <cassert>
@@ -1324,7 +1323,6 @@ StatusCode AthenaHiveEventLoopMgr::clearWBSlot(int evtSlot)  {
 //---------------------------------------------------------------------------
 
 
-#endif /*ATHENAHIVE*/
 
 
 

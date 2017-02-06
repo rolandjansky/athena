@@ -101,7 +101,18 @@ namespace InDet
     m_maxNumDeleteIterations(30),
     m_vertexProbCut(0.001),
     m_maxClusteringIterations(30),
-    m_vertexClusteringProbabilityCut(0.002),
+    m_vertexClusteringProbabilityCut(0.005),//GP 11/6/16: changed to default in job option file
+    m_vertexClusteringProbabilityCutWithMass(0.05),//GP 11/7/16: keep default to not active
+    m_vertexClusteringProbabilityCutWithMass0010(0.002),//MB Mass dependent cut
+    m_vertexClusteringProbabilityCutWithMass1015(0.002),//MB Mass dependent cut
+    m_vertexClusteringProbabilityCutWithMass1520(0.050),//MB Mass dependent cut
+    m_vertexClusteringProbabilityCutWithMass2025(0.100),//MB Mass dependent cut
+    m_vertexClusteringProbabilityCutWithMass2530(0.200),//MB Mass dependent cut
+    m_vertexClusteringProbabilityCutWithMass3040(0.500),//MB Mass dependent cut
+    m_vertexClusteringProbabilityCutWithMass4050(0.700),//MB Mass dependent cut
+    m_vertexClusteringProbabilityCutWithMass5060(0.900),//MB Mass dependent cut
+    m_vertexClusteringProbabilityCutWithMass6070(0.900),//MB Mass dependent cut
+    m_vertexClusteringTwoVtxMassForProbCut(2000),
     m_useFastClustering(false),
     m_cutCompatibilityPrimaryVertexForPositiveLifetimeTracks(1e-1),
     m_cutCompatibilityPrimaryVertexForNegativeLifetimeTracks(5e-2),
@@ -128,19 +139,21 @@ namespace InDet
     m_cutTwoTrkVtxVertexProbForBFirstSelectionFirstCriterium(0.05),
     m_cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionSecondCriterium(1.5),
     m_cutTwoTrkVtxVertexProbForBFirstSelectionSecondCriterium(0.034),
-    m_firstBeam_min(29.35-1.5*0.68),
-    m_firstBeam_max(29.35+1.5*0.68),
-    m_secondBeam_min(34.18-1.5*0.65),
-    m_secondBeam_max(34.18+1.5*0.65),
-    m_firstLayer_min(57.5),
-    m_firstLayer_max(46.5),
-    m_secondLayer_min(70.5-1.5*2.1),
-    m_secondLayer_max(70.5+1.5*2.1),
+    m_firstBeam_min(23), //29.35-1.5*0.68),
+    m_firstBeam_max(25), //35+1.5*0.68),
+    m_secondBeam_min(23), //34.18-1.5*0.65),
+    m_secondBeam_max(25), //34.18+1.5*0.65),
+    m_firstLayer_min(34.0-2.5), //57.5)
+    m_firstLayer_max(34.0+2.5), //46.5),
+    m_secondLayer_min(51.5-3), //70.5-1.5*2.1),
+    m_secondLayer_max(51.5+3), //70.5+1.5*2.1),
     m_cutCompatibilityToPrimarySingleTrackForMatInteractions(1e-4),
     m_cutCompatibilityToPrimaryBothTracksForMatInteractions(1e-6),
-    m_cutIPD0SingleTrackForBSecondSelection(1.5),
-    m_cutIPZ0SingleTrackForBSecondSelection(3.),
+    m_cutIPD0SingleTrackForBSecondSelection(1.5), 
+    m_cutIPZ0SingleTrackForBSecondSelection(3.),  
     m_cutPtSingleTrackForBSecondSelection(750.),
+    m_cutIPD0SigBoxSingleTrackForBSecondSelection(2.), //0 effectively disables the cut
+    m_cutIPZ0SigBoxSingleTrackForBSecondSelection(5.),
     m_cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection(5e-2),
     m_cutCompatibilityPrimaryVertexSingleNegativeLifetimeTrackForBSecondSelection(1e-2),
     m_doNotUsePrimaryVertexCombatibilityInfo(false),
@@ -179,7 +192,19 @@ namespace InDet
     declareProperty("VertexProbCut",m_vertexProbCut);
     declareProperty("MaxClusteringIterations",m_maxClusteringIterations);
     declareProperty("VertexClusteringProbabilityCut",m_vertexClusteringProbabilityCut);
+    declareProperty("VertexClusteringProbabilityCutWithMass",m_vertexClusteringProbabilityCutWithMass);
+    declareProperty("vertexClusteringTwoVtxMassForProbCut",m_vertexClusteringTwoVtxMassForProbCut);
     declareProperty("UseFastClustering",m_useFastClustering);
+    
+    declareProperty("VertexClusteringProbabilityCutWithMass0010",m_vertexClusteringProbabilityCutWithMass0010);
+    declareProperty("VertexClusteringProbabilityCutWithMass1015",m_vertexClusteringProbabilityCutWithMass1015);
+    declareProperty("VertexClusteringProbabilityCutWithMass1520",m_vertexClusteringProbabilityCutWithMass1520);
+    declareProperty("VertexClusteringProbabilityCutWithMass2025",m_vertexClusteringProbabilityCutWithMass2025);
+    declareProperty("VertexClusteringProbabilityCutWithMass2530",m_vertexClusteringProbabilityCutWithMass2530);
+    declareProperty("VertexClusteringProbabilityCutWithMass3040",m_vertexClusteringProbabilityCutWithMass3040);
+    declareProperty("VertexClusteringProbabilityCutWithMass4050",m_vertexClusteringProbabilityCutWithMass4050);
+    declareProperty("VertexClusteringProbabilityCutWithMass5060",m_vertexClusteringProbabilityCutWithMass5060);
+    declareProperty("VertexClusteringProbabilityCutWithMass6070",m_vertexClusteringProbabilityCutWithMass6070);
 
     //Cuts which steer the finding in the seeding phase before JetFitter (yes, so many!!!)
     declareProperty("cutCompPrimaryVertexForPosLifetimeTracks",m_cutCompatibilityPrimaryVertexForPositiveLifetimeTracks);
@@ -203,6 +228,8 @@ namespace InDet
     declareProperty("cutIPD0BothTracksForBFirstSelection",m_cutIPD0BothTracksForBFirstSelection);
     declareProperty("cutIPZ0BothTracksForBFirstSelection",m_cutIPZ0BothTracksForBFirstSelection);
     declareProperty("cutPtBothTracksForBFirstSelection",m_cutPtBothTracksForBFirstSelection);
+    declareProperty("cutIPD0SigBoxSingleTrackForBSecondSelection",m_cutIPD0SigBoxSingleTrackForBSecondSelection);
+    declareProperty("cutIPZ0SigBoxSingleTrackForBSecondSelection",m_cutIPZ0SigBoxSingleTrackForBSecondSelection);
     declareProperty("cutTwoTrkVtxLifeSignForBFirstSelectCriteriumA",m_cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionFirstCriterium);
     declareProperty("cutTwoTrkVtxVtxProbForBFirstSelectCriteriumA",m_cutTwoTrkVtxVertexProbForBFirstSelectionFirstCriterium);
     declareProperty("cutTwoTrkVtxLifeSignForBFirstSelectCriteriumB",m_cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionSecondCriterium);
@@ -1843,10 +1870,13 @@ namespace InDet
        
        std::pair<double,double> track_IPd0z0=m_jetFitterUtils->getD0andZ0IP(*perigee,
                                                                             primaryVertexRecVertex);
+       std::pair<double,double> track_IPd0z0Sig=m_jetFitterUtils->getD0andZ0IPSig(*perigee,
+										  primaryVertexRecVertex);
 
        const double & IPd0=track_IPd0z0.first;
        const double & IPz0=track_IPd0z0.second;
-
+       const double & IPd0Sig=track_IPd0z0Sig.first;
+       const double & IPz0Sig=track_IPd0z0Sig.second;
        const double pT=perigee->momentum().perp();
        
        double cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection=m_cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection;
@@ -1858,12 +1888,13 @@ namespace InDet
          cutCompatibilityPrimaryVertexSingleNegativeLifetimeTrackForBSecondSelection=m_cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection;
        }
        
+       bool passBoxCut=( fabs(IPd0Sig)<m_cutIPD0SigBoxSingleTrackForBSecondSelection && fabs(IPz0Sig)>m_cutIPZ0SigBoxSingleTrackForBSecondSelection);
 
        if (fabs(IPd0)>m_cutIPD0SingleTrackForBSecondSelection||
            fabs(IPz0)>m_cutIPZ0SingleTrackForBSecondSelection||
            ( compatibilityOfActualTrack>=0 && TMath::Prob(fabs(compatibilityOfActualTrack),2)>cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection) ||
            ( compatibilityOfActualTrack<0 && TMath::Prob(fabs(compatibilityOfActualTrack),2)>cutCompatibilityPrimaryVertexSingleNegativeLifetimeTrackForBSecondSelection) ||
-           pT< m_cutPtSingleTrackForBSecondSelection) 
+           pT< m_cutPtSingleTrackForBSecondSelection || passBoxCut) 
        {
          if (msgLvl(MSG::DEBUG)) msg() << " Candidate didn't pass one of the selection cuts " << endmsg;
          continue;
@@ -2249,19 +2280,84 @@ namespace InDet
 	Trk::PairOfVxVertexOnJetAxis pairOfVxVertexOnJetAxis=clusteringTablePtr->getMostCompatibleVertices(probVertex);
 	//a PairOfVxVertexOnJetAxis is a std::pair<VxVertexOnJetAxis*,VxVertexOnJetAxis*>
 	
-	if (probVertex>0.&&probVertex>m_vertexClusteringProbabilityCut) {
+	float probVertexExcludingPrimary(0.);
+	Trk::PairOfVxVertexOnJetAxis pairOfVxVertexOnJetAxisExcludingPrimary=clusteringTablePtr->getMostCompatibleVerticesExcludingPrimary(probVertexExcludingPrimary);
+
+	bool firstProbIsWithPrimary= ( fabs(probVertex-probVertexExcludingPrimary)>1e-6 );
+
+	if (probVertex>0.&&probVertex>m_vertexClusteringProbabilityCut&&firstProbIsWithPrimary) {
 	  if (msgLvl(MSG::VERBOSE)) msg() <<" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() << 
-	    " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << endmsg;
+                                        " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " (should be PV)." << endmsg;
           //	  const Trk::VxVertexOnJetAxis & mergedVertex=
           m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxis.first,
                                                 *pairOfVxVertexOnJetAxis.second,
                                                 *myJetCandidate);
 	  //now you need to update the numbering scheme
 	  m_initializationHelper->updateTrackNumbering(myJetCandidate);//maybe this should be moved to a lower level...
-
-	} else {
-	  noMoreVerticesToCluster=true;
+          continue;
 	}
+
+        if (probVertexExcludingPrimary>0.)
+	{
+
+	  //GP suggested by Marco Battaglia, use vertex mass in order to decide wether to split or not, so derive vertex masses first
+	  const Trk::VxVertexOnJetAxis* firstVertex=pairOfVxVertexOnJetAxisExcludingPrimary.first;
+	  const Trk::VxVertexOnJetAxis* secondVertex=pairOfVxVertexOnJetAxisExcludingPrimary.second;
+          
+	  CLHEP::HepLorentzVector massVector1=m_jetFitterUtils->fourMomentumAtVertex(*firstVertex);//MeV
+	  CLHEP::HepLorentzVector massVector2=m_jetFitterUtils->fourMomentumAtVertex(*secondVertex);//MeV
+
+	  CLHEP::HepLorentzVector sumMassVector=massVector1+massVector2;
+
+	  double massTwoVertex=sumMassVector.mag();//MeV
+	  
+	  bool doMerge(false);
+
+	  double vertexClusteringProbabilityCutWithMass;
+
+	  if(massTwoVertex< 1000.){
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass0010;
+	  }else if(massTwoVertex< 1500.){
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass1015;
+	  }else if(massTwoVertex< 2000.){
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass1520;
+	  }else if(massTwoVertex< 2500.){
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass2025;
+	  }else if(massTwoVertex< 3000.){
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass2530;
+	  }else if(massTwoVertex< 4000.){
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass3040;
+	  }else if(massTwoVertex< 5000.){
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass4050;
+	  }else if(massTwoVertex< 6000.){
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass5060;
+	  }else{
+	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass6070;
+	  }
+
+	  if (probVertexExcludingPrimary>vertexClusteringProbabilityCutWithMass)
+          {
+            doMerge=true;
+          }
+
+	  if (doMerge)
+	  {
+
+	    if (msgLvl(MSG::VERBOSE)) msg() <<" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() <<
+					" and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " mass merged vertex: " << massTwoVertex << endmsg;
+	    
+	    m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxisExcludingPrimary.first,
+						  *pairOfVxVertexOnJetAxisExcludingPrimary.second,
+						  *myJetCandidate);
+	    
+	    m_initializationHelper->updateTrackNumbering(myJetCandidate);//maybe this should be moved to a lower level...                                                                   
+	    continue;//go to next cycle, after a succesful merging
+	  }
+	}
+	  
+	noMoreVerticesToCluster=true;
+
+
       }
       numClusteringLoops+=1;
     } while (numClusteringLoops<m_maxClusteringIterations&&!(noMoreVerticesToCluster));

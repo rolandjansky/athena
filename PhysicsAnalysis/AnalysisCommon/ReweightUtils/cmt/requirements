@@ -1,33 +1,38 @@
 package ReweightUtils
 
 author Olivier Arnaez (olivier.arnaez@cern.ch)
+author Will Buttinger (will@cern.ch)
 
 
 use AtlasPolicy                 AtlasPolicy-*
-
 use AtlasROOT			AtlasROOT-*			External
 
 public
-use  AthAnalysisBaseComps       AthAnalysisBaseComps-*          Control
+
 use  AsgTools                   AsgTools-*                      Control/AthToolSupport
 use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
+use  AsgAnalysisInterfaces              AsgAnalysisInterfaces-*                 PhysicsAnalysis/Interfaces
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
-use  xAODCutFlow		xAODCutFlow-*			Event/xAOD
-
 use  Lhapdf                     Lhapdf-*                        External
 
+use AsgTools AsgTools-* Control/AthToolSupport
+use xAODBase xAODBase-* Event/xAOD
+
 private
+use  AthenaBaseComps       AthenaBaseComps-*          Control
+use  xAODCutFlow		xAODCutFlow-*			Event/xAOD
 use  GaudiInterface             GaudiInterface-*                External
 use  xAODParticleEvent          xAODParticleEvent-*             Event/xAOD
-use  xAODTruth                  xAODTruth-*                 Event/xAOD
+use  xAODTruth                  xAODTruth-*                     Event/xAOD
+use  PathResolver               PathResolver-*                  Tools
+
+#this is used in the tests only
+use xAODEgamma xAODEgamma-* Event/xAOD
 
 public
 branches python src src/components Root share
 
-## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
-#library ReweightUtils *.cxx components/*.cxx
-#apply_pattern component_library
-apply_pattern dual_use_library files="*.cxx Root/*.cxx src/*.cxx components/*.cxx"
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx src/*.cxx components/*.cxx"
 
 #this pattern will allow the 'include' function of joboptions to find the *.py files in the share directory
 apply_pattern declare_joboptions files="*.py"
@@ -41,10 +46,14 @@ end_private
 
 
 
-#apply_tag  ROOTBasicLibs
-#apply_tag  ROOTMathLibs
-#apply_tag  ROOTGraphicsLibs
-
-#apply_pattern have_root_headers  root_headers="APReweightBase.h APReweight.h APReweight2D.h APReweight3D.h APReweightND.h APWeightEntry.h APWeightHist.h APEvtWeight.h APWeightSum.h APWeightSumEnsemble.h ../Root/LinkDef.h"          headers_lib=ReweightUtils
 
 
+apply_pattern have_root_headers  root_headers="APReweightBase.h APReweight.h APReweight2D.h APReweight3D.h APReweightND.h APWeightEntry.h APWeightHist.h APEvtWeight.h APWeightSum.h APWeightSumEnsemble.h ../Root/LinkDef.h"          headers_lib=ReweightUtilsLib
+
+
+#test for ParticleScaleFactorTool ... compile and execute it with 'make check' 
+private
+use TestTools      TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=ut_ParticleScaleFactorTool
+macro_append ut_ParticleScaleFactorTool_test_dependencies " ReweightUtils ReweightUtilsMergeComponentsList "
+end_private

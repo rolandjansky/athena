@@ -142,7 +142,7 @@ private:
   TH1* m_resITk_Resolution_vs_pt_neg[NPARAMS][m_nResHist];
 
 
-  TH3* m_resITk_resHelperetapt[NPARAMS];
+//  TH3* m_resITk_resHelperetapt[NPARAMS];
 
   TH2* m_resITk_pullHelperpt[NPARAMS]; // pull width as a function of pT
   TH2* m_resITk_pullHelpereta[NPARAMS]; // pull width as a function of pT

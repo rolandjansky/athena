@@ -18,7 +18,7 @@ from TriggerMenu.menu.ChainDef import (ChainDef,
 from exc2string import exc2string2
 from InstantiatorFactory import instantiatorFactory
 from SequenceTree import SequenceLinear
-from ChainConfigMaker import ChainConfigMaker
+from ChainConfigMaker import chainConfigMaker
 from AlgFactory import AlgFactory
 
 
@@ -155,8 +155,7 @@ def _make_chaindef(from_central, instantiator):
     _check_input(from_central)
 
     # rearrange the input data to produce chain_config
-    ccm = ChainConfigMaker(from_central)
-    chain_config = ccm()
+    chain_config = chainConfigMaker(from_central)
 
     chain_name = chain_config.chain_name
 

@@ -23,8 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArCellRec
                           LArCalorimeter/LArRecEvent
-                          Reconstruction/Jet/JetUtils
-                          TDAQCPolicy )
+                          Reconstruction/Jet/JetUtils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -33,7 +32,7 @@ find_package( tdaq-common COMPONENTS hltinterface )
 # Component(s) in the package:
 atlas_add_library( TrigCaloHypoLib
                    src/*.cxx
-                   PUBLIC_HEADERS TrigJetHypo
+                   PUBLIC_HEADERS TrigCaloHypo
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}

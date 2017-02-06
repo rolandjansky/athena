@@ -54,7 +54,7 @@ namespace Analysis {
     bool m_addNegativeTracksToPrimaryVertex;
     bool m_usePtCorrectedEnergy;
     bool m_useSingleTracksAlsoForMass;
-    bool m_revertFromPositiveToNegativeTags;
+    mutable bool m_revertFromPositiveToNegativeTags;
     
     void fill(xAOD::BTagging* BTag, const std::string& basename, float mass_uncorr,
               int nVTX, int nSingleTracks, int nTracksAtVtx, float mass, float energyFraction,

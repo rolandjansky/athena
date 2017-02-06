@@ -60,7 +60,7 @@ class tauRecMVATrackClassificationConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=[[[]]]
-    StoredValue=[ ["TMVAClassification_BDT.weights.root", -0.005], ["TMVAClassification_BDT_0.weights.root", -0.0074], ["TMVAClassification_BDT_1.weights.root", 0.0005] ]
+    StoredValue=[ ["TMVAClassification_BDT_l1.weights.root", 0.0002], ["TMVAClassification_BDT_l2.weights.root", -0.0080], ["TMVAClassification_BDT_l3.weights.root", -0.2034] ]
 
 class tauRecSeedMaxEta(JobProperty):
     """ max allowed abs_eta of jet seed

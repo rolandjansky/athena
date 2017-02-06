@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.h 727531 2016-03-03 17:44:38Z krasznaa $
+// $Id: EventInfoCnvTool.h 793565 2017-01-23 22:00:14Z leggett $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 
@@ -34,8 +34,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 727531 $
-    * $Date: 2016-03-03 18:44:38 +0100 (Thu, 03 Mar 2016) $
+    * $Revision: 793565 $
+    * $Date: 2017-01-23 23:00:14 +0100 (Mon, 23 Jan 2017) $
     */
    class EventInfoCnvTool : public AthAlgTool,
                             public virtual IEventInfoCnvTool {
@@ -52,7 +52,7 @@ namespace xAODMaker {
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
-                                  bool copyPileUpLinks = true );
+                                  bool copyPileUpLinks = true ) const;
 
    private:
 #ifndef XAOD_ANALYSIS

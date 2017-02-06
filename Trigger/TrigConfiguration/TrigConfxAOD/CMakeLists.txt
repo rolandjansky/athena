@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 792850 2017-01-18 18:58:03Z ssnyder $
+# $Id: CMakeLists.txt 794799 2017-01-31 17:07:29Z ssnyder $
 ################################################################################
 # Package: TrigConfxAOD
 ################################################################################
@@ -33,7 +33,8 @@ find_package( ROOT COMPONENTS Core RIO )
 atlas_add_library( TrigConfxAODLib
    TrigConfxAOD/*.h Root/*.cxx
    PUBLIC_HEADERS TrigConfxAOD
-   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData )
+   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData
+   TrigConfInterfaces )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrigConfxAOD

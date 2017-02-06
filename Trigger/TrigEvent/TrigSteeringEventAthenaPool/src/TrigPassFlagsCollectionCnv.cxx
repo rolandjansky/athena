@@ -11,9 +11,9 @@ static TrigPassFlagsCollectionCnv_p1   TPconverter1;
 //createPersistent 
 TrigPassFlagsCollection_PERS * TrigPassFlagsCollectionCnv::createPersistent( TrigPassFlagsCollection *transObj)
 {
-  MsgStream mlog(messageService(), "TrigPassFlagsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigPassFlagsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigPassFlagsCollectionCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigPassFlagsCollectionCnv::createPersistent called" << endmsg;
   
   TrigPassFlagsCollection_PERS * p_cont = TPconverter1.createPersistent( transObj, mlog );
   
@@ -25,9 +25,9 @@ TrigPassFlagsCollection_PERS * TrigPassFlagsCollectionCnv::createPersistent( Tri
 //createTransient
 TrigPassFlagsCollection * TrigPassFlagsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigPassFlagsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigPassFlagsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigPassFlagsCollectionCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigPassFlagsCollectionCnv::createTransient called" << endmsg;
   
   static pool::Guid p1_guid( "7DE670AF-A256-4E8E-BC44-1CA30810F294" );
 

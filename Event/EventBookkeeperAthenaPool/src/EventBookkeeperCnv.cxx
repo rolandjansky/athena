@@ -11,13 +11,13 @@
 #include "EventBookkeeperTPCnv/EventBookkeeper_p1.h"
 
 EventBookkeeper_PERS* EventBookkeeperCnv::createPersistent(EventBookkeeper* transCont) {
-  MsgStream log(messageService(), "EventBookkeeperConverter" );
+  MsgStream log(msgSvc(), "EventBookkeeperConverter" );
   EventBookkeeper_PERS * persObj = m_TPConverter.createPersistent( transCont,   log );
   return persObj; 
 }
     
 EventBookkeeper* EventBookkeeperCnv::createTransient() {
-  MsgStream log(messageService(), "EventBookkeeperConverter" );
+  MsgStream log(msgSvc(), "EventBookkeeperConverter" );
   //p1_guid matches the number in EventBookkeeperTPCnv/selection.xtml and is generated with uuidgen | tr "[:lower:]" "[:upper:]"
   static pool::Guid   p1_guid("A1550FE9-B52A-451D-A2B8-3B09E046A481");
   static pool::Guid   p2_guid("EACBE9F1-84F1-4A51-9303-A39619FE965A");

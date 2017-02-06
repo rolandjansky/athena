@@ -64,7 +64,7 @@ class MuonPerformanceAlg : public AthAlgorithm {
   std::vector<int>                m_nreco10;
 
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
-  StoreGateSvc*       m_storeGate;
+  //StoreGateSvc*       m_storeGate;
   const xAOD::EventInfo*    m_eventInfo; 
 
   int m_runNumber;

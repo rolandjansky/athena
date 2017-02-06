@@ -2,14 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ATHENAHIVE
 /***************************************************************************
   test SGHiveMgrSvc functionality
  ------------------------------
  ATLAS Collaboration
  ***************************************************************************/
 
-// $Id: SGHive_test.cxx 704712 2015-10-29 21:48:11Z leggett $
+// $Id: SGHive_test.cxx 794854 2017-01-31 23:34:36Z leggett $
 
 
 #include <string>
@@ -175,6 +174,3 @@ int main() {
 
   return 0;
 }
-#else
-int main() { return 0; }
-#endif //ATHENAHIVE

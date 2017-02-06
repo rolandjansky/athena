@@ -14,7 +14,7 @@
 CMXEtSumsCollection_PERS * CMXEtSumsCollectionCnv::createPersistent( CMXEtSumsCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "CMXEtSumsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CMXEtSumsCollectionConverter" );
 
   //mlog << MSG::DEBUG << "CMXEtSumsCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ CMXEtSumsCollection_PERS * CMXEtSumsCollectionCnv::createPersistent( CMXEtSumsCo
 //createTransient
 CMXEtSumsCollection * CMXEtSumsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CMXEtSumsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CMXEtSumsCollectionConverter" );
   
   //mlog << MSG::DEBUG << "CMXEtSumsCollectionCnv::createTransient called" << endreq;
 

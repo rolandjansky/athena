@@ -162,8 +162,9 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
   // only allow two axes, but could be ordered x-y or y-x
   std::string axisName0 = toNative(axisDef0->getTagName());
   std::string axisName1 = toNative(axisDef1->getTagName());
-  if (validAxisName(axisName0, allowedAxisNames) and validAxisName(axisName1,
-                                                                   allowedAxisNames) and(axisName1 != axisName0)) {
+  if (validAxisName(axisName0, allowedAxisNames) 
+   and validAxisName(axisName1,allowedAxisNames) 
+   and (axisName1 != axisName0)) {
     // default order
     unsigned int xIndex = 0, yIndex = 1;
     if (axisName0 == allowedAxisNames[1]) {
@@ -187,7 +188,7 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
       return toNative(s);
     });
     // numerical values are required for some quantities
-    constexpr float NaN = std::nanf(""); // default 'invalid' float is not-a-number (NaN)
+    const float NaN = std::nanf(""); // default 'invalid' float is not-a-number (NaN)
     const unsigned int nx = stringValues[NX].empty() ? 0 : (unsigned int) (std::stoul(stringValues[NX]));
     const unsigned int ny = stringValues[NY].empty() ? 0 : (unsigned int) (std::stoul(stringValues[NY]));
     const float xlo = stringValues[XLO].empty() ? NaN : std::stof(stringValues[XLO]);

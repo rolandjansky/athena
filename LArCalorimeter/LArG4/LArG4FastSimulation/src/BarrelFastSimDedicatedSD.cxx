@@ -10,7 +10,6 @@
 #include "LArReadoutGeometry/EMBAccordionDetails.h"
 #include "LArReadoutGeometry/GeoStraightAccSection.h"
 #include "LArG4Code/EnergySpot.h"
-#include "LArG4Code/LArG4Identifier.h"
 #include "StoreGate/StoreGateSvc.h"
 
 using HepGeom::Point3D;
@@ -138,17 +137,17 @@ void BarrelFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
           }
         }
 
-        static LArG4Identifier id;
-        id.clear();
-        id     << 4          // LArCalorimeter
-               << 1          // LArEM
-               << ((zIndex==0) ? -1:1)
-               << samplingIndex
-               << regionIndex
-               << etaIndex
-               << phiIndex;
+        //static LArG4Identifier id;
+        m_larID.clear();
+        m_larID << 4          // LArCalorimeter
+                << 1          // LArEM
+                << ((zIndex==0) ? -1:1)
+                << samplingIndex
+                << regionIndex
+                << etaIndex
+                << phiIndex;
         // call process to add this to the collection 
-        SimpleHit(id, spot.GetTime(), spot.GetEnergy());
+        SimpleHit(m_larID, spot.GetTime(), spot.GetEnergy());
 
         return;
       }

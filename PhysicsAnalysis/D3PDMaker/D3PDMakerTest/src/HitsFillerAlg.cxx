@@ -100,7 +100,7 @@ StatusCode HitsFillerAlg::fillTrackRecordCollection()
     CLHEP::Hep3Vector p(j+11,j+12,j+13);
     CLHEP::Hep3Vector x(j+14,j+15,j+16);
     c->Emplace(j, // PDG
-               j+10, // energy
+               (j+10)*1000, // energy
                p, //position
                x, //momentum
                j+17, // time

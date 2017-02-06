@@ -199,15 +199,7 @@ namespace Trig {
     const TrigConf::HLTChainList*  m_confChains;            //!< all chains configuration
     mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer;
 
-    struct eqstr
-    {
-      bool operator()(const char* s1, const char* s2) const
-      {
-        return strcmp(s1, s2) == 0;
-      }
-    };
-    
-    typedef std::unordered_map<const char*, const TrigConf::HLTChain*, std::hash<const char*>, eqstr> ChainHashMap_t;
+    typedef std::unordered_map<std::string, const TrigConf::HLTChain*> ChainHashMap_t;
     ChainHashMap_t     m_mConfChains;            //!< map of conf chains
   
     char     m_bgCode; //!< the encoded bunchgroup information

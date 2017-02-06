@@ -14,7 +14,7 @@
 JEMTobRoICollection_PERS * JEMTobRoICollectionCnv::createPersistent( JEMTobRoICollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "JEMTobRoICollectionConverter" );
+  MsgStream mlog(msgSvc(), "JEMTobRoICollectionConverter" );
 
   //mlog << MSG::DEBUG << "JEMTobRoICollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ JEMTobRoICollection_PERS * JEMTobRoICollectionCnv::createPersistent( JEMTobRoICo
 //createTransient
 JEMTobRoICollection * JEMTobRoICollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "JEMTobRoICollectionConverter" );
+  MsgStream mlog(msgSvc(), "JEMTobRoICollectionConverter" );
   
   //mlog << MSG::DEBUG << "JEMTobRoICollectionCnv::createTransient called" << endreq;
 

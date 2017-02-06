@@ -40,7 +40,11 @@ private:
   TH1* m_nOut_of_lepdeath;
 
   TH2* m_brem_spectrum;
-
+  TH2* m_energy_remaining;
+  TH2* m_energy_remaining_vs_eta;
+  TH2* m_energy_remaining_vs_prodR_low_eta;
+  TH2* m_energy_remaining_vs_prodR_medium_eta;
+  TH2* m_energy_remaining_vs_prodR_high_eta;
   TH2* m_primary_photon_eta_vs_conversion_radius;
   TH2* m_primary_photon_pt_vs_decay_radius;
   TH1* m_primary_photon_pt;

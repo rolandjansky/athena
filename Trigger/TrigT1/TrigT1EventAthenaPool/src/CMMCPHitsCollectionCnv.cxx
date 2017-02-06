@@ -14,7 +14,7 @@
 CMMCPHitsCollection_PERS * CMMCPHitsCollectionCnv::createPersistent( CMMCPHitsCollection *transObj)
 {
   
-  MsgStream mlog(messageService(), "CMMCPHitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CMMCPHitsCollectionConverter" );
 
   //mlog << MSG::DEBUG << "CMMCPHitsCollectionCnv::createPersistent called" << endreq;
 
@@ -28,7 +28,7 @@ CMMCPHitsCollection_PERS * CMMCPHitsCollectionCnv::createPersistent( CMMCPHitsCo
 //createTransient
 CMMCPHitsCollection * CMMCPHitsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "CMMCPHitsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "CMMCPHitsCollectionConverter" );
   
   //mlog << MSG::DEBUG << "CMMCPHitsCollectionCnv::createTransient called" << endreq;
 

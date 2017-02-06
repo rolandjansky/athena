@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRingSetConfWriter.cxx 787810 2016-12-02 05:39:13Z ssnyder $
+// $Id: xAODRingSetConfWriter.cxx 789607 2016-12-14 04:40:50Z ssnyder $
 
 // STL include(s)
 #include <algorithm>
@@ -195,7 +195,7 @@ StatusCode xAODRingSetConfWriter::copyKeyToStore( const std::string &key )
   contCopy->reserve( cont->size() );
   contAuxCopy->reserve( cont->size() );
   ATH_MSG_DEBUG("Copying object with key: " << key);
-  for ( value_type obj : *cont ) {
+  for ( const base_value_type* obj : *cont ) {
     ATH_MSG_VERBOSE("Original object:");
     // Print-out object:
     obj->print( msg(), MSG::VERBOSE ); 

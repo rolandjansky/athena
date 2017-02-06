@@ -16,9 +16,10 @@
 
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
-
 #include "TTree.h"
 #include "TFile.h"
+
+#define endreq endmsg
 
 class AnalysisConfig_Ntuple : public T_AnalysisConfig<IHLTMonTool> { 
     
@@ -32,6 +33,7 @@ public:
     // - roiInfo: in case the test chain is a real chain, this is used to specify RoI widths; in case the test chain is a fake chain, this is used 
     //   for RoI position too
     // - all standard operations are performed in loops over 0=test 1=reference 2=selection
+
   AnalysisConfig_Ntuple(TIDARoiDescriptor* roiInfo, 
 			const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
 			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false) : 
@@ -57,6 +59,8 @@ public:
     m_doElectrons_tightLH(false),
     m_doElectrons_mediumLH(false),
     m_doElectrons_looseLH(false),
+    m_electronType(),
+    m_rawElectrons(),
     m_doTaus_1Prong(false),
     m_doTaus_tight_1Prong(false),
     m_doTaus_medium_1Prong(false),
@@ -78,7 +82,7 @@ public:
 
     for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
       if ( chainNames[i] != "Offline"     &&
-	   chainNames[i] != "Electrons"   &&
+	   chainNames[i].find("Electrons")!=0 &&
 	   chainNames[i] != "Muons"       &&
 	   chainNames[i] != "Taus_1Prong" &&
 	   chainNames[i] != "Taus_3Prong" &&
@@ -87,13 +91,33 @@ public:
 	//	std::cout << "AnalysisConfig_Ntuple: chain[" << i << "] " << chainNames[i] << std::endl;
 	
 	m_chainNames.push_back( ChainString(chainNames[i]) );
-
 	
       }
 
+      ChainString chain(chainNames[i]);
+
+      //      std::cout << "\tchain " << i << "\t" << chainNames[i] << std::endl;
+      //      std::cout << "\t\t\t"                << chain         << std::endl;
+
       if ( chainNames[i]=="Offline" )     m_doOffline     = true;
       if ( chainNames[i]=="Vertex" )      m_doVertices    = true;
-      if ( chainNames[i]=="Electrons" )   m_doElectrons   = true;
+
+
+      if ( chain.head()=="Electrons" ) { 
+
+	// m_doElectrons = true;
+	
+	if ( chain.tail()!="" || chain.extra()!="" ) { 
+	  //  std::cout << "\telectrons.head  " << chain.head() << std::endl;
+	  //  std::cout << "\telectrons.tail  " << chain.tail() << std::endl;
+	  //  std::cout << "\telectrons.extra " << chain.extra() << std::endl;
+	  
+	  m_electronType.push_back(chain.tail());
+	  m_rawElectrons.push_back(chain.extra());
+	}
+      }
+      
+      if ( chainNames[i]=="Electrons" )          m_doElectrons   = true;
       if ( chainNames[i]=="Electrons_TightCB" )  m_doElectrons_tightCB  = true;
       if ( chainNames[i]=="Electrons_MediumCB" ) m_doElectrons_mediumCB = true;
       if ( chainNames[i]=="Electrons_LooseCB" )  m_doElectrons_looseCB  = true;
@@ -115,6 +139,7 @@ public:
     m_event = new TIDA::Event();
     m_outputFileName=outputFileName;
   }
+  
   
 
   virtual ~AnalysisConfig_Ntuple() {
@@ -147,6 +172,7 @@ protected:
   bool m_doVertices;
   bool m_doMuons;
   bool m_doMuonsSP;
+
   bool m_doElectrons;
   bool m_doElectrons_tightCB;
   bool m_doElectrons_mediumCB;
@@ -154,6 +180,10 @@ protected:
   bool m_doElectrons_tightLH;
   bool m_doElectrons_mediumLH;
   bool m_doElectrons_looseLH;
+
+  std::vector<std::string>  m_electronType;
+  std::vector<std::string>  m_rawElectrons;
+
   bool m_doTaus_1Prong;
   bool m_doTaus_tight_1Prong;
   bool m_doTaus_medium_1Prong;

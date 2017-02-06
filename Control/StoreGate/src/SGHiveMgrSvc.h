@@ -26,7 +26,7 @@ template <class TYPE> class SvcFactory;
  *  @brief A service that manages a multi-event collection of StoreGateSvc
  *  It implements the IHiveWhiteBoard interface
  *
- *  $Id: SGHiveMgrSvc.h 783783 2016-11-11 18:25:23Z leggett $
+ *  $Id: SGHiveMgrSvc.h 794854 2017-01-31 23:34:36Z leggett $
  **/
 namespace SG {
 class HiveMgrSvc : virtual public IHiveWhiteBoard, public Service {
@@ -108,9 +108,7 @@ public:
 private:
   ServiceHandle<StoreGateSvc> m_hiveStore;
   size_t m_nSlots; //property settable also by setNumberOfStores
-#ifdef ATHENAHIVE
   std::vector<SG::HiveEventSlot> m_slots;
-#endif
   //maybe  ServiceHandle<ActiveStoreSvc> m_active;
 
 protected:

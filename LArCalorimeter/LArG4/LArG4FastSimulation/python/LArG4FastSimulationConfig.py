@@ -20,6 +20,7 @@ def getEMBFastShower(name="EMBFastShower", **kwargs):
     kwargs.setdefault("AbsCrackEta2",       1.1)
     kwargs.setdefault("DetectorTag",        100000)
     kwargs.setdefault("SensitiveDetector",  "BarrelFastSimDedicatedSD")
+    kwargs.setdefault("EMinEneShowerLib",   0.51)
     return CfgMgr.LArFastShowerTool(name, **kwargs)
 
 def getEMECFastShower(name="EMECFastShower", **kwargs):
@@ -37,6 +38,7 @@ def getEMECFastShower(name="EMECFastShower", **kwargs):
     kwargs.setdefault("AbsCrackEta2",       2.8)
     kwargs.setdefault("DetectorTag",        200000)
     kwargs.setdefault("SensitiveDetector", "EndcapFastSimDedicatedSD")
+    kwargs.setdefault("EMinEneShowerLib",   0.51)
     return CfgMgr.LArFastShowerTool(name, **kwargs)
 
 def getFCALFastShower(name="FCALFastShower", **kwargs):
@@ -51,6 +53,7 @@ def getFCALFastShower(name="FCALFastShower", **kwargs):
     kwargs.setdefault("AbsHighEta",         4.4)
     kwargs.setdefault("DetectorTag",        300000)
     kwargs.setdefault("SensitiveDetector", "FCALFastSimDedicatedSD")
+    kwargs.setdefault("EMinEneShowerLib",   3.0)
     return CfgMgr.LArFastShowerTool(name, **kwargs)
 
 def getFCAL2FastShower(name="FCAL2FastShower", **kwargs):
@@ -65,4 +68,5 @@ def getFCAL2FastShower(name="FCAL2FastShower", **kwargs):
     kwargs.setdefault("AbsHighEta",         4.4)
     kwargs.setdefault("DetectorTag",        400000)
     kwargs.setdefault("SensitiveDetector", "FCALFastSimDedicatedSD")
+    kwargs.setdefault("EMinEneShowerLib",   1.0)
     return CfgMgr.LArFastShowerTool(name, **kwargs)

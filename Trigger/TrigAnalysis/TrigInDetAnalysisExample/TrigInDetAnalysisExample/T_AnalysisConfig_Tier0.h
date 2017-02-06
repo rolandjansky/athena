@@ -86,6 +86,7 @@
 // the xAOD::TrackParticle header if it exists
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
+#define endreq endmsg
 
 
 template<typename T>
@@ -636,8 +637,8 @@ protected:
         m_provider->msg(MSG::VERBOSE) << "fetching features for chain " << chainname << endreq;
       }
 
-      if(m_provider->msg().level() <= MSG::INFO){
-        m_provider->msg(MSG::INFO) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << endreq;
+      if(m_provider->msg().level() <= MSG::VERBOSE){
+        m_provider->msg(MSG::VERBOSE) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << endreq;
       }
 
       //      std::cout << "\tstatus for chain " << chainname
@@ -826,7 +827,7 @@ protected:
 
 	if ( vtx_name!="" ) { 
 
-	  m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer for chain " << chainConfig << " with key " << vtx_name << endreq;
+	  m_provider->msg(MSG::VERBOSE) << "\tFetch xAOD::VertexContainer for chain " << chainConfig << " with key " << vtx_name << endreq;
 
 	  std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = c->get<xAOD::VertexContainer>(vtx_name);
 	  
@@ -835,13 +836,13 @@ protected:
 	  }
 	  else {
 	    
-	    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endreq;
+	    m_provider->msg(MSG::VERBOSE) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endreq;
 	    
 	    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
 	      
 	      const xAOD::VertexContainer* vert = xaodtrigvertices[iv].cptr();
 	      
-	      m_provider->msg(MSG::INFO) << "\t" << iv << "  xAOD VxContainer for " << chainConfig << " " << vert << " key " << vtx_name << endreq;
+	      m_provider->msg(MSG::VERBOSE) << "\t" << iv << "  xAOD VxContainer for " << chainConfig << " " << vert << " key " << vtx_name << endreq;
 	      
 	      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 	      

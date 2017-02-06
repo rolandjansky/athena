@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.cxx 727101 2016-03-01 15:56:08Z krasznaa $
+// $Id: EventInfoCnvTool.cxx 793565 2017-01-23 22:00:14Z leggett $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -22,6 +22,27 @@
 #include "EventInfoCnvTool.h"
 
 namespace xAODMaker {
+
+  // maps to copy the flags
+  static const std::map< xAOD::EventInfo::EventFlagSubDet,
+                         EventInfo::EventFlagSubDet > subDetMap = 
+    { {xAOD::EventInfo::Pixel,      EventInfo::Pixel},
+      {xAOD::EventInfo::SCT,        EventInfo::SCT},
+      {xAOD::EventInfo::TRT,        EventInfo::TRT},
+      {xAOD::EventInfo::LAr,        EventInfo::LAr},
+      {xAOD::EventInfo::Tile,       EventInfo::Tile},
+      {xAOD::EventInfo::Muon,       EventInfo::Muon},
+      {xAOD::EventInfo::ForwardDet, EventInfo::ForwardDet},
+      {xAOD::EventInfo::Core,       EventInfo::Core},
+      {xAOD::EventInfo::Background, EventInfo::Background},
+      {xAOD::EventInfo::Lumi,       EventInfo::Lumi} };
+
+  static const std::map< EventInfo::EventFlagErrorState,
+                         xAOD::EventInfo::EventFlagErrorState > errorStateMap =
+    { { EventInfo::NotSet,  xAOD::EventInfo::NotSet },
+      { EventInfo::Warning, xAOD::EventInfo::Warning },
+      { EventInfo::Error,   xAOD::EventInfo::Error}
+    };
 
    /// Hard-coded location of the beam position information
    static const std::string INDET_BEAMPOS = "/Indet/Beampos";
@@ -113,7 +134,7 @@ namespace xAODMaker {
    StatusCode EventInfoCnvTool::convert( const EventInfo* aod,
                                          xAOD::EventInfo* xaod,
                                          bool pileUpInfo,
-                                         bool copyPileUpLinks ) {
+                                         bool copyPileUpLinks ) const {
 
       if( ! aod ) {
          ATH_MSG_WARNING( "Null pointer received for input!" );
@@ -202,29 +223,6 @@ namespace xAODMaker {
             xaod->setAverageInteractionsPerCrossing(
                aod->averageInteractionsPerCrossing() );
          }
-      }
-
-      // Construct the maps for the flag copying:
-      static std::map< xAOD::EventInfo::EventFlagSubDet,
-                       EventInfo::EventFlagSubDet > subDetMap;
-      if( ! subDetMap.size() ) {
-         subDetMap[ xAOD::EventInfo::Pixel ]      = EventInfo::Pixel;
-         subDetMap[ xAOD::EventInfo::SCT ]        = EventInfo::SCT;
-         subDetMap[ xAOD::EventInfo::TRT ]        = EventInfo::TRT;
-         subDetMap[ xAOD::EventInfo::LAr ]        = EventInfo::LAr;
-         subDetMap[ xAOD::EventInfo::Tile ]       = EventInfo::Tile;
-         subDetMap[ xAOD::EventInfo::Muon ]       = EventInfo::Muon;
-         subDetMap[ xAOD::EventInfo::ForwardDet ] = EventInfo::ForwardDet;
-         subDetMap[ xAOD::EventInfo::Core ]       = EventInfo::Core;
-         subDetMap[ xAOD::EventInfo::Background ] = EventInfo::Background;
-         subDetMap[ xAOD::EventInfo::Lumi ]       = EventInfo::Lumi;
-      }
-      static std::map< EventInfo::EventFlagErrorState,
-                       xAOD::EventInfo::EventFlagErrorState > errorStateMap;
-      if( ! errorStateMap.size() ) {
-         errorStateMap[ EventInfo::NotSet ]  = xAOD::EventInfo::NotSet;
-         errorStateMap[ EventInfo::Warning ] = xAOD::EventInfo::Warning;
-         errorStateMap[ EventInfo::Error ]   = xAOD::EventInfo::Error;
       }
 
       // Copy the sub-detector flags:

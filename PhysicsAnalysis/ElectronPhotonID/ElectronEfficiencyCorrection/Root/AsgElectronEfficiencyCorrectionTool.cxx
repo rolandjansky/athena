@@ -32,6 +32,11 @@
 // xAOD includes
 #include "xAODEgamma/Electron.h"
 #include "xAODEventInfo/EventInfo.h"
+#ifndef ROOTCORE
+#include <boost/algorithm/string.hpp>
+#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+#endif
+#include "xAODMetaData/FileMetaData.h"
 #include "PathResolver/PathResolver.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
 
@@ -41,11 +46,11 @@
 
 namespace correlationModel{
   enum model { COMBMCTOYS =0,
-	       MCTOYS=1,
-	       FULL=2,
-	       SIMPLIFIED=3,
-	       TOTAL=4,
-	       SYST=5
+         MCTOYS=1,
+         FULL=2,
+         SIMPLIFIED=3,
+         TOTAL=4,
+         SYST=5
   };
 }
 
@@ -53,7 +58,7 @@ namespace correlationModel{
 // Standard constructor
 // =============================================================================
 AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::string myname) :
-  AsgTool(myname),
+  asg::AsgMetadataTool(myname),
   m_rootTool(0),
   m_affectedSys(),
   m_appliedSystematics(0),
@@ -87,7 +92,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
   declareProperty("ResultName", m_resultName = "", "The string for the result");
 
   declareProperty("CorrelationModel", m_correlation_model_name = "SIMPLIFIED",
-		  "Uncertainty correlation model. At the moment TOTAL, FULL, SIMPLIFIED, SYST, MCTOYS and COMBMCTOYS are implemented. SIMPLIFIED is the default option.");
+      "Uncertainty correlation model. At the moment TOTAL, FULL, SIMPLIFIED, SYST, MCTOYS and COMBMCTOYS are implemented. SIMPLIFIED is the default option.");
   declareProperty("NumberOfToys", m_number_of_toys = 100,"Number of ToyMC replica, affecting MCTOYS and COMBMCTOYS correlation models only.");
   declareProperty("MCToySeed", m_seed_toys = 0,"Seed for ToyMC replica, affecting MCTOYS and COMBMCTOYS correlation models only." );
   declareProperty("MCToyScale", m_scale_toys = 1,"Scales Toy systematics up by this factor, affecting MCTOYS and COMBMCTOYS correlation models only." );
@@ -125,7 +130,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
   // The user wants to overwrite the m_dataType
   // Otherwise it will be full
   // When we will use metadata  m_dataType will be whatever the metadata says i.e Full or Fast
-  // We will need to check for the existence of overwrite 
+  // We will need to check for the existence of overwrite
   // and if overwrite is not set we will set the m_dataType based on metadata
   if (m_dataTypeOverwrite != -1) {
     if (m_dataTypeOverwrite != static_cast<int> (PATCore::ParticleDataType::Full)
@@ -136,7 +141,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     m_dataType = static_cast<PATCore::ParticleDataType::DataType>(m_dataTypeOverwrite);
   }
 
-  //Find the relevant input files 
+  //Find the relevant input files
   //Fill the vector with filename using keys if the user
   //has not passed the full filename as a property
   if (m_corrFileNameList.size() == 0) {
@@ -148,7 +153,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
   // Resolve the paths to the input files for the full Geant4 simualtion corrections
   for (size_t i = 0; i < m_corrFileNameList.size(); ++i) {
 
-    std::string filename = PathResolverFindCalibFile(m_corrFileNameList.at(i));    
+    std::string filename = PathResolverFindCalibFile(m_corrFileNameList.at(i));
     if (filename.empty()) {
       ATH_MSG_ERROR("Could NOT resolve file name " << m_corrFileNameList.at(i));
       return StatusCode::FAILURE;
@@ -176,7 +181,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
       ATH_MSG_ERROR("Could NOT find systematics Substring file name " << m_sysSubstring);
       return StatusCode::FAILURE;
     }
-  }  
+  }
   //
   m_rootTool->setResultPrefix(m_resultPrefix);
   m_rootTool->setResultName(m_resultName);
@@ -287,7 +292,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
 // =============================================================================
 // Athena finalize method
 // =============================================================================
-StatusCode 
+StatusCode
 AsgElectronEfficiencyCorrectionTool::finalize() {
   if (!(m_rootTool->finalize())) {
     ATH_MSG_ERROR("Something went wrong at finalize!");
@@ -316,7 +321,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     if (!randomrunnumber.isAvailable(*eventInfo)) {
       efficiencyScaleFactor = 1;
       ATH_MSG_WARNING(
-		      "Pileup tool not run before using ElectronEfficiencyTool! SFs do not reflect PU distribution in data");
+          "Pileup tool not run before using ElectronEfficiencyTool! SFs do not reflect PU distribution in data");
       return CP::CorrectionCode::Error;
     }
     runnumber = randomrunnumber(*(eventInfo));
@@ -324,7 +329,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
   //
   //Get the result
   const Root::TResult& result = calculate(inputObject, runnumber, currentSimplifiedUncorrSystRegion,
-					 currentUncorrSystRegion);
+           currentUncorrSystRegion);
   efficiencyScaleFactor = result.getScaleFactor();
   //
   // The default of the underlying tool is -999 , if we are in a valid range
@@ -337,7 +342,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     return CP::CorrectionCode::Ok;
   }
   // ==============================================================================//
-  //Systematic Variations 
+  //Systematic Variations
   //We pass only one variation per time
   // The applied systemetic is always one
   // Either is relevant and acquires a values
@@ -374,15 +379,15 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
   if (m_nCorrSyst == 0) {
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty",1))) {
 
-      sys = sqrt(result.getTotalUncertainty() * result.getTotalUncertainty() 
-		   - result.getResult(4) * result.getResult(4)); // total -stat
-      func(efficiencyScaleFactor, sys);         
+      sys = sqrt(result.getTotalUncertainty() * result.getTotalUncertainty()
+       - result.getResult(4) * result.getResult(4)); // total -stat
+      func(efficiencyScaleFactor, sys);
     }
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty" ,-1))) {
-    
-      sys = -1* sqrt(result.getTotalUncertainty() * result.getTotalUncertainty() 
-		     - result.getResult(4) * result.getResult(4)); // total -stat
-      func(efficiencyScaleFactor, sys);   
+
+      sys = -1* sqrt(result.getTotalUncertainty() * result.getTotalUncertainty()
+         - result.getResult(4) * result.getResult(4)); // total -stat
+      func(efficiencyScaleFactor, sys);
     }
   }else if (m_correlation_model == correlationModel::TOTAL) { // one "TOTAL" uncertainty
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
@@ -396,8 +401,8 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
                                                                      "1NPCOR_PLUS_UNCOR" ,-1))) {
       sys =  -1*result.getTotalUncertainty();
       func(efficiencyScaleFactor, sys);
-    }	
-  } 
+    }
+  }
   // =======================================================================
   // Then the uncorrelated, we just need to see if the applied matches the current electron pt and eta
   if (m_correlation_model == correlationModel::FULL) {// The Full Model
@@ -433,16 +438,16 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
       func(efficiencyScaleFactor, sys);
     }
   }
- 
+
   //If it has not returned so far , it means we wants to do the correlated for the full models
-  for (int i = 0; i < m_nCorrSyst; ++i) {/// number of correlated sources   
+  for (int i = 0; i < m_nCorrSyst; ++i) {/// number of correlated sources
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-								     Form("CorrUncertaintyNP%d", i),1))) {
+                     Form("CorrUncertaintyNP%d", i),1))) {
       sys = result.getResult(5 + i);
       func(efficiencyScaleFactor, sys);
     }
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-								     Form("CorrUncertaintyNP%d", i),-1))) {
+                     Form("CorrUncertaintyNP%d", i),-1))) {
       sys = -1* result.getResult(5 + i);
       func(efficiencyScaleFactor, sys);
     }
@@ -472,10 +477,10 @@ AsgElectronEfficiencyCorrectionTool::isAffectedBySystematic(const CP::Systematic
   }
 
   CP::SystematicSet sys = affectingSystematics();
-  
-  if (m_correlation_model == correlationModel::MCTOYS 
+
+  if (m_correlation_model == correlationModel::MCTOYS
      || m_correlation_model == correlationModel::COMBMCTOYS ){
-    return(sys.begin()->ensembleContains(systematic)) ;    
+    return(sys.begin()->ensembleContains(systematic)) ;
   }
   else{
     return (sys.find(systematic) != sys.end());
@@ -489,7 +494,7 @@ AsgElectronEfficiencyCorrectionTool::affectingSystematics() const {
 }
 
 // Register the systematics with the registry and add them to the recommended list
-CP::SystematicCode 
+CP::SystematicCode
 AsgElectronEfficiencyCorrectionTool::registerSystematics() {
   CP::SystematicRegistry &registry = CP::SystematicRegistry::getInstance();
 
@@ -554,8 +559,8 @@ AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::Systemat
 // TRANSFER RESULT OF UNDERLYING TOOL TO xAOD TOOL
 // =============================================================================
 const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate(const xAOD::Electron &egam, const unsigned int runnumber,
-								   int &currentSimplifiedUncorrSystRegion, int &currentUncorrSystRegion
-								   ) const {
+                   int &currentSimplifiedUncorrSystRegion, int &currentUncorrSystRegion
+                   ) const {
   double cluster_eta(-9999.9);
   double et(0.0);
 
@@ -668,16 +673,116 @@ AsgElectronEfficiencyCorrectionTool::InitSystematics() {
 }
 
 //===============================================================================
+// begin input file
+//===============================================================================
+StatusCode AsgElectronEfficiencyCorrectionTool::beginInputFile(){
+
+ // User preference of dataType, already done in initialize
+  if (m_dataTypeOverwrite != -1) return StatusCode::SUCCESS;
+
+ PATCore::ParticleDataType::DataType dataType_metadata;
+ const StatusCode status = get_simType_from_metadata(dataType_metadata);
+
+ if (status == StatusCode::SUCCESS) {
+    //m_metadata_retrieved isn't useful (might remove it later)
+    m_metadata_retrieved = true;
+    ATH_MSG_DEBUG("metadata from new file: " << (dataType_metadata == PATCore::ParticleDataType::Data ? "data" : (dataType_metadata == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
+
+    if (dataType_metadata != PATCore::ParticleDataType::Data) {
+
+       if (m_dataTypeOverwrite == -1) { m_dataType = dataType_metadata; }
+       else {ATH_MSG_DEBUG("Use should set the dataType, otherwise it will take FullSim Type");}
+    }
+ }
+
+  else { // not able to retrieve metadata
+    m_metadata_retrieved = false;
+    ATH_MSG_DEBUG("not able to retrieve metadata, please set the dataType");
+  }
+
+return StatusCode::SUCCESS;
+}
+//===============================================================================
+// end input file
+//===============================================================================
+StatusCode AsgElectronEfficiencyCorrectionTool::endInputFile(){
+  m_metadata_retrieved = false;
+  return StatusCode::SUCCESS;
+
+}
+//===============================================================================
+// end input file
+//===============================================================================
+StatusCode AsgElectronEfficiencyCorrectionTool::beginEvent(){
+
+return StatusCode::SUCCESS;
+}
+
+//===============================================================================
+// Get Simulation flavor (FastSim or FullSim) from METADATA
+//===============================================================================
+StatusCode
+AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::ParticleDataType::DataType& result) const
+{
+  // adapted from https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples/trunk/Root/MetadataToolExample.cxx
+#ifndef ROOTCORE
+  //Determine MC/Data
+  std::string dataType("");
+  if ( (AthAnalysisHelper::retrieveMetadata("/TagInfo", "project_name", dataType, inputMetaStore())).isFailure() ){
+    ATH_MSG_DEBUG("Failure to retrieve the project_name, Either running on data or something is wrong?");
+  }
+  if (!(dataType == "IS_SIMULATION")) {
+    result = PATCore::ParticleDataType::Data;
+    ATH_MSG_DEBUG("Running on simulation");
+    return StatusCode::SUCCESS;
+  }
+
+  // Determine Fast/FullSim
+  if (dataType == "IS_SIMULATION") {
+    std::string simType("");
+    ATH_CHECK(AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters", "SimulationFlavour", simType, inputMetaStore()));
+    boost::to_upper(simType);
+    result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
+    return StatusCode::SUCCESS;
+  }
+#endif
+
+  //here's how things will work dual use, when file metadata is available in files
+  if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
+    const xAOD::FileMetaData* fmd = 0;
+    ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
+
+    std::string simType("");
+    const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simType);
+
+    if (!s) {
+      ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
+      result = PATCore::ParticleDataType::Data;
+      return StatusCode::SUCCESS;
+    }
+    else {
+      ATH_MSG_DEBUG("sim type = " + simType);
+      result = simType == "FullSim" ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
+      return StatusCode::SUCCESS;
+    }
+  }
+  else {  // no metadata in the file
+    ATH_MSG_DEBUG("no metadata found in the file");
+    return StatusCode::FAILURE;
+  }
+}
+
+//===============================================================================
 // Map Key Feature
 //===============================================================================
-// Gets the correction filename from map  
+// Gets the correction filename from map
 StatusCode
 AsgElectronEfficiencyCorrectionTool::getFile(const std::string& recokey, const std::string& idkey, const std::string& isokey, const std::string& trigkey) {
 
   std::string key = convertToOneKey(recokey, idkey, isokey, trigkey);
   std::string mapFileName = PathResolverFindCalibFile(m_mapFile);
   std::string value = getValueByKey(mapFileName, key);
-     
+
   if (value != "") {
     m_corrFileNameList.push_back(value);
   } else {
@@ -689,51 +794,51 @@ AsgElectronEfficiencyCorrectionTool::getFile(const std::string& recokey, const s
     }
     return StatusCode::FAILURE;
   }
-  
+
   ATH_MSG_DEBUG("Full File Name is " + value);
   return StatusCode::SUCCESS;
 }
 
-// Convert reco, ID, iso and trigger key values into a 
+// Convert reco, ID, iso and trigger key values into a
 // single key according to the map file key format
-std::string 
-AsgElectronEfficiencyCorrectionTool::convertToOneKey(const std::string& recokey, const std::string& idkey, const std::string& isokey, const std::string& trigkey) const {  
+std::string
+AsgElectronEfficiencyCorrectionTool::convertToOneKey(const std::string& recokey, const std::string& idkey, const std::string& isokey, const std::string& trigkey) const {
 
-  std::string key; 
-  
+  std::string key;
+
   // Reconstruction Key
   if (recokey != ""){ key = recokey; }
-  
+
   // Identification Key
-  if (idkey != "" && (recokey == "" && isokey == "" && trigkey == "")){ key = idkey; } 
-  
+  if (idkey != "" && (recokey == "" && isokey == "" && trigkey == "")){ key = idkey; }
+
   // Isolation Key
-  if ((idkey != "" && isokey != "") && recokey == "" && trigkey == ""){ key = std::string(idkey + "_" + isokey); } 
-  
+  if ((idkey != "" && isokey != "") && recokey == "" && trigkey == ""){ key = std::string(idkey + "_" + isokey); }
+
   // Trigger Key
   if (trigkey != "" && idkey != "") {
-    
-    // Trigger SF file with isolation           
+
+    // Trigger SF file with isolation
     if (isokey != "") {
-          key = std::string (trigkey + "_" + idkey + "_" + isokey); 
+          key = std::string (trigkey + "_" + idkey + "_" + isokey);
       } else {
-          // Trigger SF file without isolation           
-	key = std::string(trigkey + "_" + idkey);
+          // Trigger SF file without isolation
+  key = std::string(trigkey + "_" + idkey);
       }
   }
   ATH_MSG_DEBUG("Full Key is " + key);
   return key;
 }
 
-// Retrieves the value from the provided map file as 
+// Retrieves the value from the provided map file as
 // associated with the provided key
-std::string 
+std::string
 AsgElectronEfficiencyCorrectionTool::getValueByKey(const std::string& mapFile, const std::string& key) {
 
   std::string value;
   if (read(mapFile).isFailure()) {
       ATH_MSG_ERROR("Couldn't read Map File" + mapFile);
-      return "" ; 
+      return "" ;
   }
   if (getValue(key, value) == "") {
       ATH_MSG_DEBUG("Error(" + key + ") not found ");
@@ -758,7 +863,7 @@ AsgElectronEfficiencyCorrectionTool::read(const std::string& strFile) {
       getline(is,strLine);
 
       int nPos = strLine.find('=');
-            
+
       if ((signed int)std::string::npos == nPos) continue; // no '=', invalid line;
       std::string strKey = strLine.substr(0,nPos);
       std::string strVal = strLine.substr(nPos + 1, strLine.length() - nPos + 1);
@@ -766,11 +871,11 @@ AsgElectronEfficiencyCorrectionTool::read(const std::string& strFile) {
   }
   return StatusCode::SUCCESS;
 }
-// Retrieves the value from the map file if 
-// the provided key is found. If the key has an 
+// Retrieves the value from the map file if
+// the provided key is found. If the key has an
 // association then, the actual retrieved value would
-// be assigned to the 2nd argument of this method 
-std::string 
+// be assigned to the 2nd argument of this method
+std::string
 AsgElectronEfficiencyCorrectionTool::getValue(const std::string& strKey, std::string& strValue) {
 
   std::map<std::string,std::string>::const_iterator i;
@@ -778,8 +883,7 @@ AsgElectronEfficiencyCorrectionTool::getValue(const std::string& strKey, std::st
 
   if (i != m_map.end()) {
       strValue = i->second;
-      return strValue; 
+      return strValue;
   }
   return "";
 }
-

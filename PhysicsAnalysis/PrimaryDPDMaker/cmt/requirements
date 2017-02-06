@@ -41,6 +41,8 @@ use TrkTrack                    TrkTrack-*              Tracking/TrkEvent
 #Needed for RegSelSvc
 use IRegionSelector             IRegionSelector-*       DetectorDescription
 
+use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
+
 private
 use NavFourMom                  NavFourMom-*            Event
 use  AtlasROOT                  AtlasROOT-*                     External

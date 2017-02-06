@@ -16,7 +16,7 @@
  * @author Tomasz Bold     <Tomasz.Bold@cern.ch>     - U. of California
  *
  * File and Version Information:
- * $Id: HLTResultCnv.h 719129 2016-01-21 17:02:55Z will $
+ * $Id: HLTResultCnv.h 782328 2016-11-04 10:56:17Z krasznaa $
  **********************************************************************************/
 
 #ifndef HLTResultCnv_H
