@@ -75,7 +75,7 @@ class TrigEFCaloHypo_g_ID (TrigEFCaloHypoBase):
     def __init__(self, name, threshold, IDinfo):
         super( TrigEFCaloHypo_g_ID, self ).__init__( name )
         self.emEt = float(threshold)*GeV
-        self.AcceptAll = True
+        self.AcceptAll = False
         self.ApplyPhotonIsEM = True
         self.IsEMrequiredBits =  PhotonIsEMBits[IDinfo]
         self.PhotonSelectorToolName =  'AsgPhotonIsEMSelector/'+PhotonToolName[IDinfo] 

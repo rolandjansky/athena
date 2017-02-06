@@ -63,7 +63,7 @@ class L2ElectronHypo_e_NoCut_TrkAlgo(L2ElectronHypoBase):
 
 # Configurable L2 Electron class via menu
 # Using cuts based on Et threshold
-# Need to be fixed for ID
+# Only depends on threshold 
 class L2ElectronHypo_e_ID (L2ElectronHypoBase):
     __slots__ = []
     def __init__(self, name, threshold, IDinfo):
