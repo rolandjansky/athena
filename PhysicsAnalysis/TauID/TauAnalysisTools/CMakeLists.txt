@@ -34,6 +34,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/MCTruthClassifier
    Reconstruction/tauRecTools
+   Tracking/TrkExtrapolation/TrkExUtils
    PRIVATE
    Control/AthLinks
    Event/xAOD/xAODCore
@@ -50,7 +51,7 @@ atlas_add_library( TauAnalysisToolsLib
 	PUBLIC_HEADERS TauAnalysisTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODMuon xAODJet
-   xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces
+   xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces TrkExUtils
    ElectronPhotonSelectorToolsLib tauRecToolsLib 
    InDetTrackSelectionToolLib MCTruthClassifierLib
    PRIVATE_LINK_LIBRARIES AthLinks xAODEventInfo PathResolver )
