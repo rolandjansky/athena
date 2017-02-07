@@ -38,13 +38,13 @@ class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluste
   virtual StatusCode initialize();
   virtual StatusCode finalize();  
   
-  virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::Egamma* eg, int charge=0 ) const;
-  virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::CaloCluster* cl, int charge=0 ) const;
+  virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::Egamma* eg, int charge=0) ;
+  virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::CaloCluster* cl, int charge=0) ;
 
 
  private:
  
-  const Trk::Surface*           getCaloSurface( const xAOD::CaloCluster* cluster ) const;
+  const Trk::Surface*           getCaloSurface( const xAOD::CaloCluster* cluster ) ;
   const Trk::LocalParameters*   getClusterLocalParameters( const xAOD::CaloCluster* cluster, 
                                                            const Trk::Surface* surf,
                                                            int   charge) const;
