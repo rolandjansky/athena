@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+# Any arguments are considered options and are added at the beginning of the argument list to the transform
+# take default file for $TESTDATA area
+if [[ x$TESTDATA == x ]]; then
+  echo "ERROR: TESTDATA not defined"
+  exit 1
+fi
+
+INPUTFILE=$TESTDATA/mu_E50_eta0-25.evgen.pool.root
+JOBCONFIG=SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py
+FILENAME=`basename ${INPUTFILE}`
+FILEBASE=${FILENAME%.*.pool.root}
+if [[ "$JOBCONFIG" != "NONE" ]]; then
+  JCBASE=`basename ${JOBCONFIG}`
+  FILEBASE=${JCBASE%.py}_$FILEBASE
+fi
+HITSFILE=${FILEBASE}.hits.pool.root
+PHYSICSLIST=QGSP_BERT
+DIGIOFFSET1=10
+DIGIOFFSET2=20
+
+TRF=AtlasG4_tf.py
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF --inputEVNTFile=$INPUTFILE --outputHITSFile=$HITSFILE --maxEvents=5 --skipEvents=0 --randomSeed=5332532 --geometryVersion=$GEOMETRY$SIMVALIDATION --physicsList=$PHYSICSLIST --preInclude=$JOBCONFIG --conditionsTag=$IOVDBGLOBALTAG --DataRunNumber $DATARUNNUMBER $@"
+echo $cmd
+$cmd
