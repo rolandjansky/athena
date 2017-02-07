@@ -42,7 +42,7 @@ atlas_add_component( TrigAnalysisExamples
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthAnalysisBaseCompsLib AsgTools SGtests EventInfo GaudiKernel xAODEventInfo xAODTrigger xAODEgamma xAODTau xAODTrigEgamma xAODTrigCalo xAODJet TrigConfHLTData TrigDecisionToolLib TriggerMatchingTool TrigSteeringEvent TrigT1Interfaces FourMomUtils)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthAnalysisBaseCompsLib AsgTools SGtests EventInfo GaudiKernel xAODEventInfo xAODTrigger xAODEgamma xAODTau xAODTrigEgamma xAODTrigCalo xAODJet TrigConfHLTData TrigDecisionToolLib TriggerMatchingTool TrigSteeringEvent TrigT1Interfaces FourMomUtils POOLRootAccess)
 
 atlas_add_executable( TrigAnalysisExApp
                       src/TrigAnalysisExApp.cxx
