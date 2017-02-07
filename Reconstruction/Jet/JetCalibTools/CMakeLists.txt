@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    Reconstruction/Jet/JetInterface
+   Reconstruction/Jet/JetCalibTools
    PRIVATE
    Event/xAOD/xAODMuon
    Tools/PathResolver
@@ -38,7 +39,7 @@ atlas_add_library( JetCalibToolsLib
    PUBLIC_HEADERS JetCalibTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODEventShape
-   xAODJet xAODTracking PATInterfaces JetInterface
+   xAODJet xAODTracking PATInterfaces JetInterface JetCalibToolsLib
    PRIVATE_LINK_LIBRARIES xAODMuon PathResolver )
 
 if( NOT XAOD_STANDALONE )
