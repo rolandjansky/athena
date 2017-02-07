@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 794854 2017-01-31 23:34:36Z leggett $
+# $Id: CMakeLists.txt 795192 2017-02-02 17:18:15Z ssnyder $
 ################################################################################
 # Package: StoreGate
 ################################################################################
@@ -50,12 +50,14 @@ atlas_add_test( ActiveStore_test
 atlas_add_test( SGTiming_test
    SOURCES test/SGTiming_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "${_hivePatterns}|rec:|averages" )
+   EXTRA_PATTERNS "${_hivePatterns}|rec:|averages"
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( SGHive_test
    SOURCES test/SGHive_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "${_hivePatterns}" )
+   EXTRA_PATTERNS "${_hivePatterns}"
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( DataHandle_test
    SOURCES test/DataHandle_test.cxx

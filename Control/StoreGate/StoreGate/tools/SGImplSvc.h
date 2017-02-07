@@ -112,7 +112,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
  * @author ATLAS Collaboration
- * $Id: SGImplSvc.h 794854 2017-01-31 23:34:36Z leggett $
+ * $Id: SGImplSvc.h 796084 2017-02-07 22:58:58Z leggett $
  **/
 class SGImplSvc :
   public Service, 
@@ -1062,7 +1062,6 @@ private:
   SG::DataStore* m_pStore;             
   std::list<DataObject*> m_trash;    ///< The Recycle Bin
 
-  std::string m_defaultStoreName; ///< property
   ServiceHandle<IIncidentSvc> m_pIncSvc; ///< property
   bool m_DumpStore; ///< Dump Property flag: triggers dump() at EndEvent 
   bool m_ActivateHistory; ///< Activate the history service
@@ -1169,8 +1168,9 @@ private:
 };
 
 
-/// Here's one that's easy to call from the debugger.
+/// These are intended to be easy to call from the debugger.
 void SG_dump (SGImplSvc* sg);
+void SG_dump (SGImplSvc* sg, const char* fname);
 
 
 #include "StoreGate/tools/SGImplSvc.icc"

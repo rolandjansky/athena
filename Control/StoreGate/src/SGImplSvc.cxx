@@ -11,6 +11,7 @@
 #include <unordered_map>
 
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 
 #include "AthenaKernel/IClassIDSvc.h"
@@ -139,7 +140,6 @@ SGImplSvc::SGImplSvc(const string& name,ISvcLocator* svc)
     m_pPPSHandle("ProxyProviderSvc", name),
     m_pPPS(nullptr),
     m_pHistorySvc(0), m_pStore(new DataStore(*this)), 
-    m_defaultStoreName(""), 
     m_pIncSvc("IncidentSvc", name),
     m_DumpStore(false), 
     m_ActivateHistory(false),
@@ -156,7 +156,6 @@ SGImplSvc::SGImplSvc(const string& name,ISvcLocator* svc)
   declareProperty("Dump", m_DumpStore);
   declareProperty("ActivateHistory", m_ActivateHistory);
   //StoreGateSvc properties
-  declareProperty("defaultStoreName", m_defaultStoreName, "NOT USED");
   declareProperty("IncidentSvc", m_pIncSvc);
   //add handler for Service base class property
   m_outputLevel.declareUpdateHandler(&SGImplSvc::msg_update_handler, this);
@@ -1600,6 +1599,12 @@ void SGImplSvc::makeCurrent()
 void SG_dump (SGImplSvc* sg)
 {
   std::cout << sg->dump() << "\n";
+}
+void SG_dump (SGImplSvc* sg, const char* fname)
+{
+  std::ofstream f (fname);
+  f << sg->dump() << "\n";
+  f.close();
 }
 
 
