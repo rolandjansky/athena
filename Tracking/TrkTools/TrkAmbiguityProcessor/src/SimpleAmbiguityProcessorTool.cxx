@@ -44,6 +44,7 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
 								const IInterface*  p )
   :
   AthAlgTool(t,n,p),
+  m_particleHypothesis{undefined},
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
   m_fitterTool ("Trk::KalmanFitter/InDetTrackFitter"), 
   m_selectionTool("InDet::InDetAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),
@@ -125,49 +126,49 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
   StatusCode sc = AthAlgTool::initialize();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "AlgTool::initialise failed" << endreq;
+      msg(MSG::FATAL) << "AlgTool::initialise failed" << endmsg;
       return StatusCode::FAILURE;
     }
   
   sc = m_scoringTool.retrieve();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_scoringTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_scoringTool << endmsg;
       return StatusCode::FAILURE;
     } 
   else 
-    msg(MSG::INFO) << "Retrieved tool " << m_scoringTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_scoringTool << endmsg;
   
   sc = m_selectionTool.retrieve();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_selectionTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_selectionTool << endmsg;
       return StatusCode::FAILURE;
     } 
   else 
-    msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endmsg;
   
   sc = m_fitterTool.retrieve();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_fitterTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_fitterTool << endmsg;
       return sc;
     } 
   else 
-    msg(MSG::INFO) << "Retrieved tool " << m_fitterTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_fitterTool << endmsg;
   
   // suppress refit overwrites force refit
   if (m_forceRefit && m_suppressTrackFit ) 
     {
-      msg(MSG::WARNING) << "Inconsistent parameter settings, forced refit is true, but fitting suppressed, resetingt force refit !" << endreq;
+      msg(MSG::WARNING) << "Inconsistent parameter settings, forced refit is true, but fitting suppressed, resetingt force refit !" << endmsg;
       m_forceRefit = false;
     }
 
   // Print out memo that tracks have to be fitted
   if (!m_forceRefit) 
     {
-        msg(MSG::INFO) << "The forced refit of Tracks is switched off." << endreq;
-        msg(MSG::INFO) << "Ensure, that the tracks are fitted after the ambiguity processing!" << endreq;
+        msg(MSG::INFO) << "The forced refit of Tracks is switched off." << endmsg;
+        msg(MSG::INFO) << "Ensure, that the tracks are fitted after the ambiguity processing!" << endmsg;
     }
 
   // Configuration of the material effects
@@ -176,7 +177,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
 
   // brem fitting enabled ?
   if (m_tryBremFit)
-    msg(MSG::INFO) << "Try brem fit and recovery for electron like tracks." << endreq;
+    msg(MSG::INFO) << "Try brem fit and recovery for electron like tracks." << endmsg;
 
   // statistics
   for (int i=0; i<5; i++) {
@@ -259,20 +260,20 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
   // to get the brem truth
   IToolSvc* toolSvc;
   if ((sc=service("ToolSvc", toolSvc)).isFailure())  {
-    msg(MSG::FATAL) << "Toll service not found !" << endreq;
+    msg(MSG::FATAL) << "Toll service not found !" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc = toolSvc->retrieveTool("Trk::TruthToTrack", m_truthToTrack);
   if(sc.isFailure()) {
-     msg(MSG::FATAL) << "Cannot retrieve the TruthToTrack tool... Exiting" << endreq;
+     msg(MSG::FATAL) << "Cannot retrieve the TruthToTrack tool... Exiting" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc = detStore()->retrieve(m_pixelId, "PixelID");
   if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+      msg(MSG::ERROR) << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
     }
 #endif
@@ -463,7 +464,7 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
   const xAOD::EventInfo* eventInfo;
   if (evtStore()->retrieve(eventInfo).isFailure()) 
-    msg(MSG::WARNING)<<"Could not get EventInfo object" << endreq;  
+    msg(MSG::WARNING)<<"Could not get EventInfo object" << endmsg;  
   else {
     m_event = (int)eventInfo->eventNumber();
   }
@@ -472,10 +473,10 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
   m_truthSCT = 0;
   // retrieve the multi-truth maps
   if (evtStore()->contains<PRD_MultiTruthCollection>(m_truth_locationPixel) && evtStore()->retrieve(m_truthPIX,m_truth_locationPixel).isFailure())
-    msg(MSG::WARNING)<<"Could not find TruthPixel" << endreq;  
+    msg(MSG::WARNING)<<"Could not find TruthPixel" << endmsg;  
   
   if (evtStore()->contains<PRD_MultiTruthCollection>(m_truth_locationSCT) && evtStore()->retrieve(m_truthSCT,m_truth_locationSCT).isFailure())
-    msg(MSG::WARNING)<<"Could not find TruthSCT" << endreq;
+    msg(MSG::WARNING)<<"Could not find TruthSCT" << endmsg;
   
   
   m_trackBarcodeMap.clear();
@@ -600,15 +601,15 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
   
   sc1 = evtStore()->retrieve(m_truthPIX,m_truth_locationPixel);
   if (sc1.isFailure()) 
-    msg(MSG::WARNING)<<"Could not find TruthPixel"<<endreq;  
+    msg(MSG::WARNING)<<"Could not find TruthPixel"<<endmsg;  
   
   sc1 = evtStore()->retrieve(m_truthSCT,m_truth_locationSCT);
   if (sc1.isFailure()) 
-    msg(MSG::WARNING)<<"Could not find TruthSCT"<<endreq;
+    msg(MSG::WARNING)<<"Could not find TruthSCT"<<endmsg;
 
   sc1 = evtStore()->retrieve(m_truthTRT,m_truth_locationTRT);
   if (sc1.isFailure()) 
-    msg(MSG::FATAL)<<"Could not find TruthTRT"<<endreq;
+    msg(MSG::FATAL)<<"Could not find TruthTRT"<<endmsg;
 #endif
   
   ++m_Nevents; // statistics
@@ -678,13 +679,13 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const TrackCollection* trac
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE          
   if (!evtStore()->contains<TrackSeedMap>(m_trackSeedMapLocation)){
-    msg(MSG::DEBUG)<<"Could not find TrackSeedMap, Seed validation needs to be run as well to have full output!" << endreq;
+    msg(MSG::DEBUG)<<"Could not find TrackSeedMap, Seed validation needs to be run as well to have full output!" << endmsg;
     m_trackSeedMap = 0;	
   } else if (evtStore()->retrieve(m_trackSeedMap,m_trackSeedMapLocation).isFailure()){
-    msg(MSG::WARNING)<<"Could not retrieve TrackSeedMap" << endreq;		
+    msg(MSG::WARNING)<<"Could not retrieve TrackSeedMap" << endmsg;		
     m_trackSeedMap = 0;	
   } else{
-    msg(MSG::DEBUG)<<"Retrieved TrackSeedMap" << endreq;	
+    msg(MSG::DEBUG)<<"Retrieved TrackSeedMap" << endmsg;	
   }
   if (m_trackTrackMap) delete m_trackTrackMap;
   m_trackTrackMap = new  std::map<const Trk::Track* , Trk::Track*> ;
@@ -768,12 +769,12 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const TrackCollection* trac
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
 	if( isTrueTrack(*trackIt)){
-	  msg(MSG::INFO)<< "the # of Outliers before is: " << numOutliersBefore << " and after is: " << numOutliersAfter<<endreq;
+	  msg(MSG::INFO)<< "the # of Outliers before is: " << numOutliersBefore << " and after is: " << numOutliersAfter<<endmsg;
 	  if(numOutliersBefore != numOutliersAfter){
-	    msg(MSG::INFO)<<"Rejecting True Track:"<< origTrack(*trackIt) << " Because of Outlier change" <<endreq; 
+	    msg(MSG::INFO)<<"Rejecting True Track:"<< origTrack(*trackIt) << " Because of Outlier change" <<endmsg; 
 	    numOutliersDiff++;
 	  } else {
-	    msg(MSG::INFO)<<"Rejecting True Track:"<< origTrack(*trackIt) << " Because of Zero Score" <<endreq; 
+	    msg(MSG::INFO)<<"Rejecting True Track:"<< origTrack(*trackIt) << " Because of Zero Score" <<endmsg; 
 	  }
 	  prdTruth(*trackIt);
 	  tsosTruth(*trackIt);
@@ -842,7 +843,7 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const TrackCollection* trac
     if(isTrueTrack(itnext->second.first))
       numTrueMap++;
   }
-  msg(MSG::INFO)<<"Number of TRUE tracks in map:"<< numTrueMap <<endreq;
+  msg(MSG::INFO)<<"Number of TRUE tracks in map:"<< numTrueMap <<endmsg;
 #endif
   
   return;
@@ -942,12 +943,12 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(const Trk::Track* track, const 
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
       if(isTrueTrack(track)){
-	msg(MSG::INFO)<< "the # of Outliers before is: " << numOutliersBefore << " and after is: " << numOutliersAfter<<endreq;
+	msg(MSG::INFO)<< "the # of Outliers before is: " << numOutliersBefore << " and after is: " << numOutliersAfter<<endmsg;
 	if(numOutliersBefore != numOutliersAfter){
-	  msg(MSG::INFO)<<"Rejecting True Track:"<< origTrack(track) << " Because of Outlier change" <<endreq; 
+	  msg(MSG::INFO)<<"Rejecting True Track:"<< origTrack(track) << " Because of Outlier change" <<endmsg; 
 	  numOutliersDiff++;
 	}else {
-	  msg(MSG::INFO)<<"Rejecting True Track:"<< origTrack(track) << " Because of Zero Score" <<endreq; 
+	  msg(MSG::INFO)<<"Rejecting True Track:"<< origTrack(track) << " Because of Zero Score" <<endmsg; 
 	}
 	prdTruth(track);
 	tsosTruth(track);
@@ -1027,7 +1028,7 @@ void Trk::SimpleAmbiguityProcessorTool::solveTracks()
 
 	  // add track to PRD_AssociationTool
 	  StatusCode sc = m_selectionTool->registerPRDs(itnext->second.first);
-	  if (sc.isFailure()) msg(MSG::ERROR) << "addPRDs() failed" << endreq;
+	  if (sc.isFailure()) msg(MSG::ERROR) << "addPRDs() failed" << endmsg;
 	  // add to output list 
 	  m_finalTracks->push_back( const_cast<Track*>(itnext->second.first) );
 
@@ -1110,17 +1111,17 @@ void Trk::SimpleAmbiguityProcessorTool::solveTracks()
     if ( isTrueTrack(*m_itFinal) )
       truthAfter++;
   }
-  msg(MSG::INFO)<<"Where, the number of true track on output is: "<<truthAfter <<endreq;
-  msg(MSG::INFO)<<"And the number of TRUE track failed fits is:  "<< n_trueFitFails <<endreq;
-  msg(MSG::INFO)<<"And the number of TRUE tracks rejected due to outliers is: "<< numOutliersDiff <<endreq;
-  msg(MSG::INFO)<<"And the number of TRUE tracks rejected after the first fit is: "<< numFirstFitLost <<endreq;
-  msg(MSG::INFO)<<"And the number of TRUE tracks rejected after the second fit is: "<< numSecondFitLost <<endreq;
+  msg(MSG::INFO)<<"Where, the number of true track on output is: "<<truthAfter <<endmsg;
+  msg(MSG::INFO)<<"And the number of TRUE track failed fits is:  "<< n_trueFitFails <<endmsg;
+  msg(MSG::INFO)<<"And the number of TRUE tracks rejected due to outliers is: "<< numOutliersDiff <<endmsg;
+  msg(MSG::INFO)<<"And the number of TRUE tracks rejected after the first fit is: "<< numFirstFitLost <<endmsg;
+  msg(MSG::INFO)<<"And the number of TRUE tracks rejected after the second fit is: "<< numSecondFitLost <<endmsg;
   
   if(truthBefore != truthAfter)
-    msg(MSG::INFO)<<"The number of tracks lost this events is:  "<< truthBefore-truthAfter << endreq;
+    msg(MSG::INFO)<<"The number of tracks lost this events is:  "<< truthBefore-truthAfter << endmsg;
   
   if (n_trueFitFails >0 && m_isBackTracking){
-    msg(MSG::INFO) << "DOING THE BREM TRUTH" << endreq;
+    msg(MSG::INFO) << "DOING THE BREM TRUTH" << endmsg;
     getBremTruth();//problem with statuscode
   }
   
@@ -1201,12 +1202,12 @@ void Trk::SimpleAmbiguityProcessorTool::refitTrack( const Trk::Track* track)
 #endif
 	
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
-    msg(MSG::INFO) << "The Track: " << origTrack(track) << " failed to fit" << endreq;
+    msg(MSG::INFO) << "The Track: " << origTrack(track) << " failed to fit" << endmsg;
     n_fitFails++;
-    msg(MSG::INFO) << "The total number of failed fits is now" << n_fitFails <<endreq;
+    msg(MSG::INFO) << "The total number of failed fits is now" << n_fitFails <<endmsg;
     if ( isTrueTrack(track)) {
       n_trueFitFails++;
-      msg(MSG::INFO)<< "The total number of TRUE failed fits is now" << n_trueFitFails <<endreq;
+      msg(MSG::INFO)<< "The total number of TRUE failed fits is now" << n_trueFitFails <<endmsg;
       prdTruth(track);
       tsosTruth(track);
     }
@@ -1227,7 +1228,7 @@ const Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track
   std::vector<const Trk::PrepRawData*> prds = m_selectionTool->getPrdsOnTrack(track);
 
   if ( 0==prds.size() ) {
-    msg(MSG::WARNING) << "No PRDs on track"<<endreq;
+    msg(MSG::WARNING) << "No PRDs on track"<<endmsg;
     return 0;
   }
      
@@ -1411,10 +1412,10 @@ void Trk::SimpleAmbiguityProcessorTool::findTrueTracks(const TrackCollection* re
   m_trackHistory.clear();
   m_tracksShared.clear();
 
-  msg(MSG::DEBUG) << "Acessing TrackTruthCollection " << endreq;
+  msg(MSG::DEBUG) << "Acessing TrackTruthCollection " << endmsg;
   const TrackTruthCollection* truthMap  = 0;
   if (evtStore()->retrieve(truthMap , m_truthCollection).isFailure()) 
-    msg(MSG::WARNING) << "No truth map present, abort TrueTrack search" << endreq;
+    msg(MSG::WARNING) << "No truth map present, abort TrueTrack search" << endmsg;
 
 
   
@@ -1425,7 +1426,7 @@ void Trk::SimpleAmbiguityProcessorTool::findTrueTracks(const TrackCollection* re
 
   for (;trackIt!=trackItEnd;++trackIt)
     {
-      msg(MSG::DEBUG) << "The Track is now " << *trackIt << endreq;
+      msg(MSG::DEBUG) << "The Track is now " << *trackIt << endmsg;
 	
       // initialise history tracing
       m_trackHistory.insert(std::make_pair(*trackIt,*trackIt));
@@ -1444,7 +1445,7 @@ void Trk::SimpleAmbiguityProcessorTool::findTrueTracks(const TrackCollection* re
 	  if (!isSharedTrack(*trackIt)) addTrackToMap(*trackIt);//add track and pdrs to map
 	  else numSharedTruth++;
 	  int barcode=found->second.particleLink().barcode();
-	  msg(MSG::DEBUG) << "The Barcode is: " << barcode << endreq;
+	  msg(MSG::DEBUG) << "The Barcode is: " << barcode << endmsg;
 	  std::pair<int , std::pair<float , const Trk::Track*> >
 	    insertion = std::make_pair(barcode,std::make_pair(found->second.probability(),*trackIt));
 	  std::pair<std::map<int,std::pair<float,const Trk::Track*> >::iterator, bool > barcodeMapInsert =
@@ -1452,12 +1453,12 @@ void Trk::SimpleAmbiguityProcessorTool::findTrueTracks(const TrackCollection* re
 	  if (!(barcodeMapInsert.second) && insertion.second.first > barcodeMapInsert.first->second.first)
 	    {
 	      // if the barcode is already known and the new entry would be better, erase old and insert new
-	      msg(MSG::DEBUG) << "Erasing Track:" << origTrack(barcodeMapInsert.first->second.second) <<endreq; 		
+	      msg(MSG::DEBUG) << "Erasing Track:" << origTrack(barcodeMapInsert.first->second.second) <<endmsg; 		
 	      barcodeMap.erase(barcodeMapInsert.first);
-	      msg(MSG::DEBUG) << "Inserting Track:"<<  origTrack(insertion.second.second)<< endreq;
+	      msg(MSG::DEBUG) << "Inserting Track:"<<  origTrack(insertion.second.second)<< endmsg;
 	      barcodeMap.insert(insertion);
 	    }
-	  msg(MSG::DEBUG) << "The probability of " << origTrack(barcodeMapInsert.first->second.second) << "is "<< barcodeMapInsert.first->second.first <<endreq; 
+	  msg(MSG::DEBUG) << "The probability of " << origTrack(barcodeMapInsert.first->second.second) << "is "<< barcodeMapInsert.first->second.first <<endmsg; 
 	}
     }
   
@@ -1466,8 +1467,8 @@ void Trk::SimpleAmbiguityProcessorTool::findTrueTracks(const TrackCollection* re
   std::map<int,std::pair<float,const Trk::Track*> >::const_iterator end = barcodeMap.end();
   for (; it!=end; ++it) m_trueTracks.insert(it->second.second);
   truthBefore = m_trueTracks.size();
-  msg(MSG::INFO) << "True Track set up with " << truthBefore << " true tracks." << endreq;
-  msg(MSG::INFO)<< "OF THE TRUE TRACKS " << numSharedTruth << " ARE SHARED" << endreq;
+  msg(MSG::INFO) << "True Track set up with " << truthBefore << " true tracks." << endmsg;
+  msg(MSG::INFO)<< "OF THE TRUE TRACKS " << numSharedTruth << " ARE SHARED" << endmsg;
   
   
 }
@@ -1500,7 +1501,7 @@ void Trk::SimpleAmbiguityProcessorTool::produceInputOutputConnection()
 	    pos = m_trackHistory.find(pos->second);
 	  
 	  if (pos == m_trackHistory.end())
-	    msg(MSG::ERROR) << "Track not found in history" << endreq;
+	    msg(MSG::ERROR) << "Track not found in history" << endmsg;
 	  else
 	    siSP_ResolvedConnection->insert(std::make_pair(pos->second,*itFinal));
 	  
@@ -1509,9 +1510,9 @@ void Trk::SimpleAmbiguityProcessorTool::produceInputOutputConnection()
       StatusCode sc = evtStore()->record(siSP_ResolvedConnection, m_resolvedTrackConnection,false);
       
       if (sc.isFailure())
-	msg(MSG::ERROR) << "Could not record trackCollectionConnecton" << endreq;
+	msg(MSG::ERROR) << "Could not record trackCollectionConnecton" << endmsg;
       else
-	msg(MSG::VERBOSE) << "Saved "<<siSP_ResolvedConnection->size()<<" track collection connections"<<endreq; 
+	msg(MSG::VERBOSE) << "Saved "<<siSP_ResolvedConnection->size()<<" track collection connections"<<endmsg; 
     }
 }
 //============================================================================================
@@ -1576,7 +1577,7 @@ void Trk::SimpleAmbiguityProcessorTool::prdTruth(const Trk::Track* track){
   std::vector<const Trk::PrepRawData*>::const_iterator prdit = prds.begin();
   std::vector<const Trk::PrepRawData*>::const_iterator prdite = prds.end();
   double m_eta = (*(track)->trackParameters()->begin())->eta();
-  msg(MSG::INFO)<< "The eta of this track is " << m_eta << endreq;   
+  msg(MSG::INFO)<< "The eta of this track is " << m_eta << endmsg;   
   
   for( ; prdit != prdite; ++prdit){
     const InDet::SiCluster      * si = dynamic_cast<const InDet::SiCluster*>      (*prdit);
@@ -1588,28 +1589,28 @@ void Trk::SimpleAmbiguityProcessorTool::prdTruth(const Trk::Track* track){
       mc=m_truthPIX->find((*prdit)->identify()); 
       mce=m_truthPIX->end();
       if(mc==mce) {
-	msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was pixel noise" << endreq;
+	msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was pixel noise" << endmsg;
 	continue;
       }
-      msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was a pixel hit" << endreq;
+      msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was a pixel hit" << endmsg;
     }
     else if(si) {
       mc=m_truthSCT->find((*prdit)->identify()); 
       mce=m_truthSCT->end();
       if(mc==mce) {
-	msg(MSG::INFO)<< "the hit " << *prdit << "On the track " <<origTrack(track) << "was si noise" << endreq;	
+	msg(MSG::INFO)<< "the hit " << *prdit << "On the track " <<origTrack(track) << "was si noise" << endmsg;	
 	continue;
       }	
-      msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was a si hit" << endreq;
+      msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was a si hit" << endmsg;
     }
     else if(tr) {
       mc=m_truthTRT->find((*prdit)->identify()); 
       mce=m_truthTRT->end();
       if(mc==mce) {
-	msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was trt noise" << endreq;	
+	msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was trt noise" << endmsg;	
 	continue;
       }
-      msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was a trt hit" << endreq;
+      msg(MSG::INFO)<< "the hit " << *prdit << "On the track " << origTrack(track) << "was a trt hit" << endmsg;
     }
     else {
       continue;
@@ -1621,8 +1622,8 @@ void Trk::SimpleAmbiguityProcessorTool::prdTruth(const Trk::Track* track){
     
     //HepLorentzVector m  = pa->momentum();
     double m_theta = pa->momentum().theta();
-    msg(MSG::INFO)<< "the theta of the hit was " << m_theta << endreq;
-    msg(MSG::INFO)<< "The hit " << *prdit << "came from " << partid << " With a barcode of " << partBc << endreq;
+    msg(MSG::INFO)<< "the theta of the hit was " << m_theta << endmsg;
+    msg(MSG::INFO)<< "The hit " << *prdit << "came from " << partid << " With a barcode of " << partBc << endmsg;
     
     
     
@@ -1638,14 +1639,14 @@ void Trk::SimpleAmbiguityProcessorTool::tsosTruth(const Trk::Track* track){
   DataVector<const TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
   DataVector<const TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();   
   for(; iTsos != iTsosEnd; ++iTsos){
-    msg(MSG::INFO)<< "the type of " << *iTsos << " is "<< (*iTsos)->type() << endreq;
+    msg(MSG::INFO)<< "the type of " << *iTsos << " is "<< (*iTsos)->type() << endmsg;
     const FitQualityOnSurface* fq = (*iTsos)->fitQualityOnSurface();
     if (fq)
-      msg(MSG::INFO)<< "the chi2 of " << *iTsos << " is "<< fq->chiSquared() << endreq;
+      msg(MSG::INFO)<< "the chi2 of " << *iTsos << " is "<< fq->chiSquared() << endmsg;
     const MeasurementBase* mb = (*iTsos)->measurementOnTrack();
     if (mb){
       Identifier Id =  mb->associatedSurface().associatedDetectorElementIdentifier();
-      msg(MSG::INFO)<< "the global r of the hit is " << mb->associatedSurface().center().perp() << endreq;
+      msg(MSG::INFO)<< "the global r of the hit is " << mb->associatedSurface().center().perp() << endmsg;
       std::string detType = " unknown ";
       if (m_pixelId->is_pixel(Id))
 	detType = " Pixel ";
@@ -1653,7 +1654,7 @@ void Trk::SimpleAmbiguityProcessorTool::tsosTruth(const Trk::Track* track){
 	detType = " SCT ";
       else if (m_pixelId->is_trt(Id))
 	detType = " TRT ";
-      msg(MSG::INFO)<< "the surface is " << detType << endreq; 
+      msg(MSG::INFO)<< "the surface is " << detType << endmsg; 
     }
   } 
 }
@@ -1679,17 +1680,17 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::getBremTruth(){
     
     // Synchronise event number with reconstruction event number
     int eventNumber = (*event)->event_number();    
-    msg(MSG::INFO) << "Event number: " << eventNumber - 1 << endreq;
+    msg(MSG::INFO) << "Event number: " << eventNumber - 1 << endmsg;
 
     // Determine the momentum of the original particle
     const double initialMomentum = originalMomentum( *event );
-    msg(MSG::INFO) << "Initial momentum: " << initialMomentum << endreq;
+    msg(MSG::INFO) << "Initial momentum: " << initialMomentum << endmsg;
 
    
 
     // Calculate the total momentum loss as a result of brem
     double pLostByBrem = momentumLostByBrem( *event );
-    msg(MSG::INFO) << "Total momentum lost by original particle due to Brem: " << pLostByBrem << " MeV" << endreq;
+    msg(MSG::INFO) << "Total momentum lost by original particle due to Brem: " << pLostByBrem << " MeV" << endmsg;
    
     
     // Calculate the fraction of incident energy lost per vertex on track
@@ -1697,7 +1698,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::getBremTruth(){
     int countBrem = 0; //Si brem counter
     std::vector<double>::const_iterator fractionLostInLayer = fractionOfIncidentEnergyLost.begin();
     for ( ; fractionLostInLayer != fractionOfIncidentEnergyLost.end(); ++fractionLostInLayer ){
-      msg(MSG::INFO) << "Fraction of incident energy lost at vertex: " << (*fractionLostInLayer) << endreq;
+      msg(MSG::INFO) << "Fraction of incident energy lost at vertex: " << (*fractionLostInLayer) << endmsg;
       countBrem++;
     }
     
@@ -1706,7 +1707,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::getBremTruth(){
     countBrem = 0; //Reinitialize brem counter
     std::vector<HepPoint3D>::const_iterator positionOfVertex = positionsOfVertices.begin();
     for ( ; positionOfVertex != positionsOfVertices.end(); ++positionOfVertex ){
-      msg(MSG::INFO) << "(x, y, z) of vertex: " << positionOfVertex->perp() << endreq;
+      msg(MSG::INFO) << "(x, y, z) of vertex: " << positionOfVertex->perp() << endmsg;
       countBrem++;
     }
     
@@ -1726,7 +1727,7 @@ const double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::G
 
   // Double check - should come from vertex barcode = -1 & have id 10001. Particle must also be defined
   //if ( !initialParticle || initialParticle->production_vertex()->barcode() != -1 || initialParticle->barcode() != 10001 )
-  //  msg(MSG::WARNING) << "Inconsistency between initial particle and initial vertex" << endreq;
+  //  msg(MSG::WARNING) << "Inconsistency between initial particle and initial vertex" << endmsg;
 
   //Hep3Vector& initial3Momentum = initialParticle->momentum();
  

@@ -103,6 +103,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
                                 const IInterface*  p )
   :
   AthAlgTool(t,n,p),
+  m_particleHypothesis{undefined},
   m_incidentSvc("IncidentSvc", n),
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
@@ -157,7 +158,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("sharedProbCut2"       , m_sharedProbCut2          = 0.3);
   declareProperty("SplitClusterAmbiguityMap" , m_splitClusterMapName);
   declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
-  declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   declareProperty("TruthLocationTRT"       , m_truth_locationTRT     );  
@@ -184,13 +184,9 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::~DenseEnvironmentsAmbiguityProcess
 
 StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
 {
+  StatusCode sc = StatusCode::SUCCESS;
 
-  StatusCode sc = AthAlgTool::initialize();
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_FATAL( "AlgTool::initialise failed" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_scoringTool.retrieve());
 
 
   if (m_incidentSvc.retrieve().isFailure()){
@@ -215,41 +211,18 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   if (m_monitorTracks) {
     sc = m_observerTool.retrieve(); //Dot, not asterik! This is a method of the observerTool, not of the tool it holds.
     if (sc.isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_observerTool);
+      ATH_MSG_WARNING("Failed to retrieve AlgTool " << m_observerTool);
       m_monitorTracks = false;
+      sc=StatusCode::RECOVERABLE;
       //return sc;		// continue without observer tool
     }
     else 
       ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
   }
   
-  sc = m_selectionTool.retrieve();
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_selectionTool );
-    return StatusCode::FAILURE;
-  } 
-  else 
-    ATH_MSG_INFO( "Retrieved tool " << m_selectionTool );
-  
-  sc = m_fitterTool.retrieve();
-  if (sc.isFailure() || m_fitterTool.empty())
-
-  {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_fitterTool );
-    return sc;
-  } 
-  else 
-    ATH_MSG_INFO( "Retrieved tool " << m_fitterTool );
-
-  sc = m_extrapolatorTool.retrieve();
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolatorTool );
-    return sc;
-  } 
-  else 
-    ATH_MSG_INFO( "Retrieved tool " << m_extrapolatorTool );
+  ATH_CHECK( m_selectionTool.retrieve());
+  ATH_CHECK( m_fitterTool.retrieve());
+  ATH_CHECK( m_extrapolatorTool.retrieve());
   
   if (!m_splitProbTool.empty() && m_splitProbTool.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Could not retrieve the split probability tool " << m_splitProbTool << "'.");
@@ -258,13 +231,7 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
     ATH_MSG_INFO( "Retrieved tool " << m_splitProbTool );  
   }   
   
-  if (m_assoTool.retrieve().isFailure()) 
-  {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_assoTool );
-    return StatusCode::FAILURE;
-  } 
-  else
-    ATH_MSG_INFO( "Retrieved tool " << m_assoTool );
+  ATH_CHECK(m_assoTool.retrieve()) ;
    
   // suppress refit overwrites force refit
   if (m_forceRefit && m_suppressTrackFit ) 
@@ -575,7 +542,7 @@ TrackCollection*  Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tr
   
   if(m_applydRcorrection)
   {
-      TrackCollection refit_tracks;
+      std::vector<const Trk::Track*> refit_tracks;
       // create map of track dRs
       storeTrkDistanceMapdR(*m_finalTracks,refit_tracks);
       for(const Trk::Track* track : refit_tracks)
@@ -803,6 +770,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
 
       // clean up
       delete(track);
+      track=nullptr;
 
     }
     else
@@ -814,7 +782,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
       }
 
       // clean up
-      delete(track);
+      //delete(track); <- too early; still want to use track further down...
 
       // statistic
       increment_by_eta(m_NgoodFits,bremTrack);
@@ -826,6 +794,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
         // Update observed track score
         m_observerTool->updateScore(*track, static_cast<double>(score));	
       }
+      delete(track);
+      track=nullptr;
 
       // do we accept the track ?
       if (score!=0)
@@ -1552,7 +1522,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::dumpTracks( const TrackCollec
 
 //==================================================================================================
 
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const TrackCollection& tracks, TrackCollection &refit_tracks_out )
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const TrackCollection& tracks, std::vector<const Trk::Track*> &refit_tracks_out )
 {
   ATH_MSG_VERBOSE ("Creating track Distance dR map");
   m_dRMap = new InDet::DRMap;

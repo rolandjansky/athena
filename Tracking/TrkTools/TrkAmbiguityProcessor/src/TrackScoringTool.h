@@ -29,10 +29,10 @@ class TrackSummary;
 	virtual StatusCode initialize();
 	virtual StatusCode finalize  ();
 	/** create a score based on how good the passed track is*/
-	TrackScore score( const Track& track, const bool suppressHoleSearch );
+	TrackScore score( const Track& track, const bool suppressHoleSearch ) override;
 
 	/** create a score based on how good the passed TrackSummary is*/
-	TrackScore simpleScore( const Track& track, const TrackSummary& trackSummary );
+	TrackScore simpleScore( const Track& track, const TrackSummary& trackSummary ) override;
 
    private:
 
