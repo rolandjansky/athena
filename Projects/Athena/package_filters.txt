@@ -18,3 +18,52 @@
 # Offload service has build problems
 -External/APEGlue
 -Offloading
+
+# Temporarily don't build generators (except for a key infrastructure packages)
+# Lack of generators also disables fast simulation
++Generators/GenAnalysisTools
++Generators/GeneratorObjects
++Generators/GeneratorObjectsTPCnv
++Generators/TruthUtils
++Generators/HepMCWeightSvc
++Generators/HforTool
++Generators/GenzModuleEvent
+-Generators
+-Simulation/FastSimulation
+-Simulation/ISF/ISF_Fatras
+-Simulation/ISF/ISF_FastCaloSim
+-Simulation/G4Extensions/G4ExternalDecay
+-Simulation/G4Extensions/RHadrons
+-Simulation/FastShower
+-InnerDetector/InDetDigitization/FastSiDigitization
+
+# Temporary VP1 compilation issues
+-graphics/VP1
+
+# Some analysis packages that are not part of Athena
++PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+
+-AsgExternal/Asg_Test
+-PhysicsAnalysis/D3PDTools/EventLoop
+-PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
+-PhysicsAnalysis/AnalysisCommon/PMGTools
+-PhysicsAnalysis/D3PDTools/EventLoop
+-PhysicsAnalysis/D3PDTools/EventLoopAlgs
+-PhysicsAnalysis/D3PDTools/EventLoopGrid
+-PhysicsAnalysis/D3PDTools/MultiDraw
+-PhysicsAnalysis/D3PDTools/SampleHandler
+-PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
+-PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
+-PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
+-PhysicsAnalysis/JetPhys/SemileptonicCorr
+-PhysicsAnalysis/SUSYPhys/SUSYTools
+-PhysicsAnalysis/TauID/DiTauMassTools
+-PhysicsAnalysis/TauID/TauCorrUncert
+-PhysicsAnalysis/TopPhys/QuickAna
+-PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
+-Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
+-Reconstruction/Jet/JetJvtEfficiency
+-Reconstruction/Jet/JetReclustering
+-Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
+-Trigger/TrigAnalysis/TrigMuonEfficiency
+-Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
