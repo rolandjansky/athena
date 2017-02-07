@@ -39,22 +39,22 @@ namespace ana
   namespace
   {
     double make_weight (const InternalConfiguration& configuration,
-			xAOD::IParticleContainer *container)
+                        xAOD::IParticleContainer *container)
     {
       SG::AuxElement::Accessor<SelectType> accessor
-	(configuration.selectionName (SelectionStep::ANALYSIS));
+        (configuration.selectionName (SelectionStep::ANALYSIS));
 
       double result = 1;
       if (container)
       {
-	for (auto object : *container)
-	{
-	  if (accessor (*object) &&
-	      object->isAvailable<float> ("ana_weight"))
-	  {
-	    result *= object->auxdata<float> ("ana_weight");
-	  }
-	}
+        for (auto object : *container)
+        {
+          if (accessor (*object) &&
+              object->isAvailable<float> ("ana_weight"))
+          {
+            result *= object->auxdata<float> ("ana_weight");
+          }
+        }
       }
       return result;
     }
@@ -128,12 +128,12 @@ namespace ana
          ATH_CHECK(AthAnalysisHelper::retrieveMetadata ("/Simulation/Parameters",
                                                         "SimulationFlavour",
                                                         simulation_flavour));
-	 ATH_MSG_INFO ("simulation_flavour: \"" << simulation_flavour << "\"");
+         ATH_MSG_INFO ("simulation_flavour: \"" << simulation_flavour << "\"");
 
          boost::to_upper(simulation_flavour);
          isAFIIFlag = simulation_flavour.find("ATLFASTII") != std::string::npos;
          //isAFIIFlag = (!simulation_flavour.empty() && simulation_flavour != "default");
-	 ATH_MSG_INFO ("isAFIIFlag: " << isAFIIFlag);
+         ATH_MSG_INFO ("isAFIIFlag: " << isAFIIFlag);
       }
       else isAFIIFlag = false;
     }
@@ -218,17 +218,32 @@ namespace ana
 
       auto select = pimpl->objects->eventSelect();
       if (select &&
-	  select->auxdata<ana::SelectType> ("ana_select") == false)
+          select->auxdata<ana::SelectType> ("ana_select") == false)
       {
-	weight = 0;
+        weight = 0;
       } else
       {
-	weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->muons());
-	weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->taus());
-	weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->electrons());
-	weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->photons());
-	weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->jets());
+        weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->muons());
+        weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->taus());
+        weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->electrons());
+        weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->photons());
+        weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->jets());
       }
+      // Add the JVT scale factor
+      if (pimpl->objects->eventinfo()->auxdata<float>("JVT_SF"))
+      {
+        weight *= pimpl->objects->eventinfo()->auxdata<float>("JVT_SF");
+      }
+      // Add the pileup weight if we had a random run number (PRW was enabled)
+      if (pimpl->objects->eventinfo()->auxdata<unsigned int>( "RandomRunNumber" ))
+      {
+        weight *= pimpl->objects->eventinfo()->auxdata<float>("PileupWeight");
+      }
+      // In the case of MC, add the MC weight
+      if(pimpl->objects->eventinfo()->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
+        weight *= pimpl->objects->eventinfo()->mcEventWeight();
+      }
+
       pimpl->weight = weight;
     }
     return pimpl->weight;
