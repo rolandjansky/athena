@@ -63,7 +63,7 @@ if [ "$HASHFILE" != "" ]; then
 fi
 
 # Clone the repository:
-git clone ssh://git@gitlab.cern.ch:7999/atlas/atlasexternals.git \
+git clone https://:@gitlab.cern.ch:8443/atlas/atlasexternals.git \
     ${SOURCEDIR}
 
 # Get the appropriate tag of it:
