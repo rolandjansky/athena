@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetCalibTools
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
+			  AnalysisCommon/PATInterfaces
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODEventInfo
                           GaudiKernel )
@@ -27,12 +28,12 @@ atlas_add_library( DerivationFrameworkExoticsLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps xAODJet TrigDecisionToolLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODCore xAODEventInfo GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODCore xAODEventInfo GaudiKernel PATInterfaces )
 
 atlas_add_component( DerivationFrameworkExotics
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps xAODJet TrigDecisionToolLib xAODCore xAODEventInfo GaudiKernel DerivationFrameworkExoticsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps xAODJet TrigDecisionToolLib xAODCore xAODEventInfo GaudiKernel DerivationFrameworkExoticsLib PATInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
