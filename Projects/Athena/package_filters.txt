@@ -10,10 +10,9 @@
 # Only pick up the RunTime packages from Projects:
 +Projects/.*RunTime
 -Projects
-# Remove HLT and Java requiring packages:
+# Remove HLT packages
 -HLT
--Trigger/TrigConfiguration/TrigDb
--Trigger/TrigConfiguration/TriggerTool
+-Trigger/TrigValidation/TrigP1Test
 
 # Offload service has build problems
 -External/APEGlue
