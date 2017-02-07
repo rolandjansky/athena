@@ -57,9 +57,6 @@ EMExtrapolationTools::EMExtrapolationTools(const std::string& type,
   declareProperty( "TRTendcapDeltaEta",     m_TRTendcapDeltaEta  = 0.2);
   
   declareProperty("useCaching", m_useCaching = true, "Use the cache for track Particle extrapolation");
-  declareProperty("useTrkTrackForTRT", m_useTrkTrackForTRT = true, "Use Trk::Track instead of TrackParticle to determine TRT section");
-  declareProperty("guessTRTsection", m_guessTRTsection = false, "Guess TRT section from eta, instead of using track parameters");
-
   declareInterface<IEMExtrapolationTools>(this);
 }
 
@@ -144,18 +141,13 @@ EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster*      cluster,
 
   // Decide matching for TRT standalone
   // In case of standalone TRT tracks get an idea where the last measurement is
-  int isTRTB = 0; // barrel or endcap TRT
+  int isTRTB = 0 ;
   if(isTRT){
     if (!m_trtId) {
       ATH_MSG_WARNING("Should have m_trtId defined for isTRT");
       return false;
     }
-    // Get last measurement for TRT check
-    Trk::CurvilinearParameters temp = getLastMeasurement(trkPB);
-    const Trk::TrackParameters*  trkParTRT = &temp;     
-    const Trk::Surface& sf = trkParTRT->associatedSurface();
-    const Identifier tid = sf.associatedDetectorElementIdentifier();
-    isTRTB = m_trtId->barrel_ec(tid);
+    isTRTB = getTRTsection(trkPB);
     // First pass on TRT tracks, skip barrel tracks matching endcap clusters and vice-versa
     if((isTRTB==2 && (cluster->eta()<=0.6  || cluster->eta()>=2.4)   ) ||
        (isTRTB==-2 && (cluster->eta()>=-0.6 || cluster->eta()<=-2.4)  ) ||
@@ -171,6 +163,7 @@ EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster*      cluster,
     ATH_MSG_WARNING("getMatchAtCalo failed");
     return false;
   }  
+  
   // Selection in the narrow eta/phi window
   if((isTRT && ((abs(isTRTB)==1 && deltaPhi[iSampling] < m_narrowDeltaPhiTRTbarrel && 
 		 deltaPhi[iSampling] > -m_narrowDeltaPhiBremTRTbarrel) || 
@@ -578,7 +571,7 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
   }
   return momentum;	
 }
-// =================================================================
+// ============================================================================
 
 // ======================= HELPERS==============================================
 const Trk::TrackParameters* 
@@ -610,44 +603,24 @@ EMExtrapolationTools::getRescaledPerigee(const xAOD::TrackParticle* trkPB, const
 }
 
 // =================================================================
-Trk::CurvilinearParameters EMExtrapolationTools::getLastMeasurement(const xAOD::TrackParticle* trkPB) const{
-  // Get last measurement for TRT check
-  //For TRT it is always the last
-  unsigned int  index(0);
-  Trk::CurvilinearParameters temp;
-  if(trkPB->indexOfParameterAtPosition(index,xAOD::LastMeasurement)){
-    temp= trkPB->curvilinearParameters(index);
-  } else {
-    ATH_MSG_WARNING("Track Particle does not contain Last Measurement track parameters");
-  }
-  return temp;
-}
-
-// =================================================================
 int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
   if (!trkPB){
     ATH_MSG_DEBUG("Null pointer to TrackParticle");
     return 0;
-  }
-  
-  if (!m_trtId || m_guessTRTsection){
-    ATH_MSG_DEBUG("Guessing TRT section based on eta: " << trkPB->eta());
+  } 
+  if (!m_trtId){
+    ATH_MSG_DEBUG("No trt ID guessing TRT section based on eta: " << trkPB->eta());
     return (trkPB->eta() > 0 ? 1 : -1) * (fabs(trkPB->eta()) < 0.6 ? 1 : 2);
   }
-  
   const Trk::TrackParameters* trkPar =0;
   Trk::CurvilinearParameters temp;
-  if (!m_useTrkTrackForTRT){
-    temp= getLastMeasurement(trkPB);
-    trkPar = &temp;
-  }
-  else if( trkPB->trackLink().isValid() && trkPB->track() != 0 ) {
+  if( trkPB->trackLink().isValid() && trkPB->track() != 0 ) {
     ATH_MSG_DEBUG("Will get TrackParameters from Trk::Track");
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = trkPB->track()->trackStateOnSurfaces();
     if (!trackStates) {
       ATH_MSG_WARNING("NULL pointer to trackStateOnSurfaces");
       return 0;
-    }    
+    }   
     //Loop over the TrkStateOnSurfaces
     // search last valid TSOS first
     for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS)
@@ -662,7 +635,9 @@ int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
   else {
     ATH_MSG_WARNING("Track particle without Trk::Track");
   }
-  if (!trkPar) return 0;
+  if (!trkPar) {
+    return 0;
+  }
   const Trk::Surface& sf = trkPar->associatedSurface();
   const Identifier tid = sf.associatedDetectorElementIdentifier();
   return m_trtId->barrel_ec(tid);
