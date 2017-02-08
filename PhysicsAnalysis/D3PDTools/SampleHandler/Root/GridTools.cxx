@@ -301,7 +301,7 @@ namespace SH
       RCU_THROW_MSG ("couldn't find separator in: " + output);
 
     std::istringstream str (output.substr (split + separator.size() + 1));
-    boost::regex pattern ("^\\| ([^ ]+) +\\| ([^ ]+) +\\| ([^ ]+ [^ ]+) +\\| ([^ ]+) +\\| ([^: ]+): ([^ ]+) +\\| *$");
+    boost::regex pattern ("^\\| +([^ ]+) +\\| +([^ ]+) +\\| +([^ ]+ [^ ]+) +\\| +([^ ]+) +\\| +([^: ]+): ([^ ]+) +\\| *$");
     std::string line;
     while (std::getline (str, line))
     {

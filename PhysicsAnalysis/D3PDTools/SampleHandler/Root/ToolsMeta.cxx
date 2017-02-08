@@ -63,7 +63,9 @@ namespace SH
 	{
 	  if ((*sample)->name().find (mydsid) != std::string::npos)
 	  {
-	    (*sample)->meta()->setDouble (MetaFields::crossSection, crossSection);
+            double oldCrossSection
+              = (*sample)->meta()->castDouble (MetaFields::crossSection);
+	    (*sample)->meta()->setDouble (MetaFields::crossSection, oldCrossSection + crossSection);
 	    (*sample)->meta()->setDouble (MetaFields::kfactor, kFactor);
 	    (*sample)->meta()->setDouble (MetaFields::filterEfficiency, filterEfficiency);
 	    (*sample)->meta()->setDouble (MetaFields::crossSectionRelUncertainty, xsUncertainty);
