@@ -26,12 +26,13 @@ using std::pair;
 using std::make_pair;
 using std::cout;
 using std::endl;
+class TGraph;
 
 
 
 ///Parametrized constructor
-ToolTestMonitoringPlots::ToolTestMonitoringPlots(const std::string &type, const std::string &name,
-                                                 const IInterface *parent) :
+ToolTestMonitoringPlots::ToolTestMonitoringPlots(const std::string& type, const std::string& name,
+                                                 const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent) {
   // declareProperty("TrackParticleContainerName", m_trkParticleName="InDetTrackParticles");
   // declareProperty("TruthParticleContainerName", m_truthParticleName="TruthParticles");
@@ -80,8 +81,12 @@ ToolTestMonitoringPlots::bookHistograms() {
   m_monPlots->setDetailLevel(100); // DEBUG, enable expert histograms
   m_monPlots->initialize();
   std::vector<HistData> hists = m_monPlots->retrieveBookedHistograms();
-  for (auto hist : hists) {
+  for (auto& hist : hists) {
     ATH_CHECK(regHist(hist.first, hist.second, all)); // ??
+  }
+  std::vector<EfficiencyData> effs = m_monPlots->retrieveBookedEfficiencies();
+  for (auto& eff : effs) {
+    ATH_CHECK(regGraph(reinterpret_cast<TGraph*>(eff.first), eff.second, all)); // ??
   }
   return StatusCode::SUCCESS;
 }

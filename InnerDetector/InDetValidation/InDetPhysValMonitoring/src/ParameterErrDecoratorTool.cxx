@@ -13,8 +13,8 @@
 
 
 
-ParameterErrDecoratorTool::ParameterErrDecoratorTool(const std::string &type, const std::string &name,
-                                                     const IInterface *parent) :
+ParameterErrDecoratorTool::ParameterErrDecoratorTool(const std::string& type, const std::string& name,
+                                                     const IInterface* parent) :
   AthAlgTool(type, name, parent) {
   declareInterface<IInDetPhysValDecoratorTool>(this);
 }
@@ -40,7 +40,7 @@ ParameterErrDecoratorTool::finalize() {
 }
 
 bool
-ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, const std::string &prefix) {
+ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, const std::string& prefix) {
   ATH_MSG_VERBOSE("Decorate track with errors ");
   bool success(true);
   const AmgSymMatrix(5)  errorMat = particle.definingParametersCovMatrix();

@@ -4,9 +4,9 @@
 
 // InDetPhysValMonitoring includes
 #include "TrackSelectionTool.h"
-#include <cmath> //std::fabs
+#include <cmath> // std::fabs
 
-TrackSelectionTool::TrackSelectionTool(const std::string &name) :
+TrackSelectionTool::TrackSelectionTool(const std::string& name) :
   asg::AsgTool(name),
   m_accept("TrackSelection"),
   m_numProcessed(0),
@@ -162,7 +162,7 @@ TrackSelectionTool::initialize() {
   // if (m_maxEta>-1) m_cuts.push_back(std::make_pair("eta", "Cut on (absolute) particle eta"));
 
   // Add cuts to the TAccept.
-  for (const auto &cut : m_cuts) {
+  for (const auto& cut : m_cuts) {
     if (m_accept.addCut(cut.first, cut.second) < 0) {
       ATH_MSG_ERROR("Failed to add cut " << cut.first << " because the TAccept object is full.");
       return StatusCode::FAILURE;
@@ -177,13 +177,13 @@ TrackSelectionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-const Root::TAccept &
+const Root::TAccept&
 TrackSelectionTool::getTAccept( ) const {
   return m_accept;
 }
 
-const Root::TAccept &
-TrackSelectionTool::accept(const xAOD::IParticle *p) const {
+const Root::TAccept&
+TrackSelectionTool::accept(const xAOD::IParticle* p) const {
   /*Is this perhaps supposed to be xAOD::TrackParticle? */
 
   // Reset the result.
@@ -200,14 +200,14 @@ TrackSelectionTool::accept(const xAOD::IParticle *p) const {
   }
 
   // Cast it to a track (we have already checked its type so we do not have to dynamic_cast).
-  const xAOD::TrackParticle *track = static_cast< const xAOD::TrackParticle * >(p);
+  const xAOD::TrackParticle* track = static_cast< const xAOD::TrackParticle* >(p);
 
   // Let the specific function do the work.
   return accept(track);
 }
 
-const Root::TAccept &
-TrackSelectionTool::accept(const xAOD::TrackParticle *p) const {
+const Root::TAccept&
+TrackSelectionTool::accept(const xAOD::TrackParticle* p) const {
   // Reset the TAccept.
   m_accept.clear();
 
@@ -382,7 +382,7 @@ TrackSelectionTool::accept(const xAOD::TrackParticle *p) const {
   // if (m_maxEta>-1) m_accept.setCutResult("eta", (p->pt()>1e-7 ? (fabs(p->eta()) < m_maxEta) : false) );
 
   // Book keep cuts
-  for (const auto &cut : m_cuts) {
+  for (const auto& cut : m_cuts) {
     unsigned int pos = m_accept.getCutPosition(cut.first);
     if (m_accept.getCutResult(pos)) {
       m_numPassedCuts[pos]++;
@@ -407,7 +407,7 @@ TrackSelectionTool::finalize() {
   }
   ATH_MSG_INFO(m_numPassed << " / " << m_numProcessed << " = "
                            << m_numPassed * 100. / m_numProcessed << "% passed all cuts.");
-  for (const auto &cut : m_cuts) {
+  for (const auto& cut : m_cuts) {
     ULong64_t numPassed = m_numPassedCuts.at(m_accept.getCutPosition(cut.first));
     ATH_MSG_INFO(numPassed << " = " << numPassed * 100. / m_numProcessed << "% passed "
                            << cut.first << " cut.");

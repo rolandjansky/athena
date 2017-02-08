@@ -13,17 +13,17 @@
 class XmlErrorHandler: public xercesc::DefaultHandler {
 public:
   void
-  warning(const xercesc::SAXParseException &e) {
+  warning(const xercesc::SAXParseException& e) {
     std::cout << "warning: " << toNative(e.getMessage()) << std::endl;
   }
 
   void
-  error(const xercesc::SAXParseException &e) {
+  error(const xercesc::SAXParseException& e) {
     throw std::runtime_error(toNative(e.getMessage()));
   }
 
   void
-  fatalError(const xercesc::SAXParseException &e) {
+  fatalError(const xercesc::SAXParseException& e) {
     error(e);
   }
 };

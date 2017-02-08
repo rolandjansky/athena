@@ -8,23 +8,26 @@
  * @file InDetPerfPlot_ExtendedFakes.h
  * @author shaun roe
  **/
+// local includes
+#include "InDetPerfPlot_fakes.h"
 
 // std includes
 #include <string>
 #include <map>
+#include <vector>
 
-// local includes
-#include "InDetPerfPlot_fakes.h"
+class TProfile;
+
 
 ///class holding fake plots for Inner Detector RTT Validation and implementing fill methods
 class InDetPerfPlot_ExtendedFakes: public InDetPerfPlot_fakes {
 public:
-  InDetPerfPlot_ExtendedFakes (InDetPlotBase *pParent, const std::string &dirName);
-  void fill(const xAOD::TrackParticle &trkprt, const bool isFake, const InDetPerfPlot_fakes::Category &f = ALL);
+  InDetPerfPlot_ExtendedFakes (InDetPlotBase* pParent, const std::string& dirName);
+  void fill(const xAOD::TrackParticle& trkprt, const bool isFake, const InDetPerfPlot_fakes::Category& f = ALL);
 private:
   // fake rates as TProfiles
-  std::map< std::string, TProfile * > m_HitInfoFakerates;
-  std::map< std::string, TProfile * > m_KinematicFakerates;
+  std::map< std::string, TProfile* > m_HitInfoFakerates;
+  std::map< std::string, TProfile* > m_KinematicFakerates;
 
   // Variables (for easy access).
   std::vector< std::string > m_variables = {

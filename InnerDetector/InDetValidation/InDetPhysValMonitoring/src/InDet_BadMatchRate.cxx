@@ -10,12 +10,12 @@
  */
 
 #include "InDet_BadMatchRate.h"
-#include <utility>
-#include "TProfile.h"
+#include "InDetPhysValMonitoringUtilities.h"
 
-using namespace TMath;
+using namespace IDPVM;
 
-InDet_BadMatchRate::InDet_BadMatchRate(InDetPlotBase *pParent, std::string sDir) :
+
+InDet_BadMatchRate::InDet_BadMatchRate(InDetPlotBase* pParent, std::string sDir) :
   InDetPlotBase(pParent, sDir),
   m_BadMatchRate{nullptr},
   m_BMR_vs_logpt{nullptr},
@@ -38,27 +38,28 @@ InDet_BadMatchRate::initializePlots() {
 }
 
 void
-InDet_BadMatchRate::fillBMR(const xAOD::TrackParticle &particle, float weight) {
+InDet_BadMatchRate::fillBMR(const xAOD::TrackParticle& particle, float weight) {
   float trketa = particle.eta();
   float trkpt = particle.pt();
-  float logpt = Log10(trkpt) - 3.0; // -3 converts from MeV to GeV
+  float logpt = std::log10(trkpt) - 3.0; // -3 converts from MeV to GeV
 
-  fillHisto(m_BadMatchRate,trketa, weight);
-  fillHisto(m_BMR_vs_logpt,logpt, weight);
+  fillHisto(m_BadMatchRate, trketa, weight);
+  fillHisto(m_BMR_vs_logpt, logpt, weight);
 }
 
 void
-InDet_BadMatchRate::fillRF(const xAOD::TrackParticle &particle, float weight) {
+InDet_BadMatchRate::fillRF(const xAOD::TrackParticle& particle, float weight) {
   float trketa = particle.eta();
-  fillHisto(m_ReallyFakeRate,trketa, weight);
+
+  fillHisto(m_ReallyFakeRate, trketa, weight);
 }
 
 void
-InDet_BadMatchRate::jetBMR(const xAOD::TrackParticle &track, const xAOD::Jet &jet, float weight) {
-  float jet_et = jet.pt() * 0.001; // divide by 1000 to convert to GeV
+InDet_BadMatchRate::jetBMR(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight) {
+  float jet_et = jet.pt() * 1_GeV; // divide by 1000 to convert to GeV
   float dR = jet.p4().DeltaR(track.p4());
 
   if (jet_et > 100) {
-    fillHisto(m_trackinjet_badmatchrate_vs_dr_gr_j100,dR, weight);
+    fillHisto(m_trackinjet_badmatchrate_vs_dr_gr_j100, dR, weight);
   }
 }
