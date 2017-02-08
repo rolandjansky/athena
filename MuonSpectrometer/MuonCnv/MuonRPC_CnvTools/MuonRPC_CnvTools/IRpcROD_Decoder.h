@@ -14,7 +14,7 @@
 
 
 class RpcPadContainer;
-
+class RpcSectorLogicContainer;
 //using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 namespace Muon
@@ -33,7 +33,7 @@ public:
     // enter declaration of your interface-defining member functions here
     virtual StatusCode fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
                          RpcPadContainer& rdoIdc,
-			 std::vector<IdentifierHash>collections) const = 0;
+			 const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer*) const = 0;
 
     virtual void setSLdecodingRequest() = 0;
 };

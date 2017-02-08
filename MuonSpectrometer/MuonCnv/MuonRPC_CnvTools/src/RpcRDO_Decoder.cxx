@@ -105,7 +105,7 @@ std::vector<RpcDigit*>* Muon::RpcRDO_Decoder::getDigit(const RpcFiredChannel * f
 							     cmaId, ijk, channel);
  
   std::list<Identifier>::const_iterator it_list;
-  
+  rpcDigitVec->reserve(idList.size());
   for (it_list=idList.begin() ; it_list != idList.end() ; ++it_list) {
     
     // and add the digit to the collection
@@ -163,30 +163,10 @@ std::vector<Identifier>* Muon::RpcRDO_Decoder::getOfflineData(const RpcFiredChan
   std::list<Identifier> idList = m_cablingSvc->give_strip_id(side, slogic, padId, 
 							     cmaId, ijk, channel);
  
-  std::list<Identifier>::const_iterator it_list;
-  
-  for (it_list=idList.begin() ; it_list != idList.end() ; ++it_list) {
-    
-    // and add the digit to the collection
-    Identifier stripOfflineId = *it_list;
-
-// this method is used only in data (real & MC) decoding ... don't shift the time from the RDO
-//
-//     // recalculate the time of flight in case it was not in the RDOs
-//     if (time==0.0) {
-//       // get the digit position
-//       const MuonGM::RpcReadoutElement* descriptor = 
-// 	m_muonMgr->getRpcReadoutElement(stripOfflineId);
-//       const HepGeom::Point3D<double> stripPos = descriptor->stripPos(stripOfflineId);
-//       // TEMP : set the time of flight from the digit position
-//       // temporary solution
-//       time = stripPos.distance()/(299.7925*CLHEP::mm/CLHEP::ns);    
-//     }
-
-    rpcIdVec->push_back(stripOfflineId);
-
-  }
+  rpcIdVec->assign(idList.begin(), idList.end());
 
 
   return rpcIdVec;
 }
+
+
