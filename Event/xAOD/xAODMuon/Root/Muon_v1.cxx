@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.cxx 745098 2016-05-05 15:47:04Z wleight $
+// $Id: Muon_v1.cxx 792230 2017-01-15 06:03:39Z ssnyder $
 // Misc includes
 #include <vector>
 
@@ -479,6 +479,8 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
             const ElementLink< TrackParticleContainer >& link = acc3( *this );
             if ( link.isValid() ) return *link;
           }
+
+          return 0;
         }
       default:
         {

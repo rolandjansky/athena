@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonTrackSummaryAccessors_v1.cxx 784489 2016-11-16 06:48:48Z jomeyer $
+// $Id: MuonTrackSummaryAccessors_v1.cxx 796148 2017-02-08 10:18:43Z wleight $
 
 // System include(s):
 #include <iostream>
@@ -68,18 +68,22 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, phiLayer1RPCHits );
         DEFINE_ACCESSOR( uint8_t, phiLayer2RPCHits );
         DEFINE_ACCESSOR( uint8_t, phiLayer3RPCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer4RPCHits );
 
         DEFINE_ACCESSOR( uint8_t, etaLayer1RPCHits );
         DEFINE_ACCESSOR( uint8_t, etaLayer2RPCHits );
         DEFINE_ACCESSOR( uint8_t, etaLayer3RPCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer4RPCHits );
 
         DEFINE_ACCESSOR( uint8_t, phiLayer1RPCHoles );
         DEFINE_ACCESSOR( uint8_t, phiLayer2RPCHoles );
         DEFINE_ACCESSOR( uint8_t, phiLayer3RPCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer4RPCHoles );
 
         DEFINE_ACCESSOR( uint8_t, etaLayer1RPCHoles );
         DEFINE_ACCESSOR( uint8_t, etaLayer2RPCHoles );
         DEFINE_ACCESSOR( uint8_t, etaLayer3RPCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer4RPCHoles );
 
         DEFINE_ACCESSOR( uint8_t, phiLayer1TGCHits );
         DEFINE_ACCESSOR( uint8_t, phiLayer2TGCHits );
@@ -115,6 +119,9 @@ namespace xAOD {
 
 	DEFINE_ACCESSOR( uint8_t, isEndcapGoodLayers );
 	DEFINE_ACCESSOR( uint8_t, isSmallGoodSectors );
+
+	DEFINE_ACCESSOR( uint8_t, cscEtaHits );
+	DEFINE_ACCESSOR( uint8_t, cscUnspoiledEtaHits );
 
       default:                  
          std::cerr << "xAOD::MuonTrackParticle_v1 ERROR Unknown MuonSummaryType ("
