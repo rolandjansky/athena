@@ -19,30 +19,10 @@
 -External/APEGlue
 -Offloading
 
-# Temporarily don't build generators (except for a key infrastructure packages)
-# Lack of generators also disables fast simulation
-+Generators/GenAnalysisTools
-+Generators/GeneratorObjects
-+Generators/GeneratorObjectsTPCnv
-+Generators/TruthUtils
-+Generators/HepMCWeightSvc
-+Generators/HforTool
-+Generators/GenzModuleEvent
--Generators
--Simulation/FastSimulation
--Simulation/ISF/ISF_Fatras
--Simulation/ISF/ISF_FastCaloSim
--Simulation/G4Extensions/G4ExternalDecay
--Simulation/G4Extensions/RHadrons
--Simulation/FastShower
--InnerDetector/InDetDigitization/FastSiDigitization
-
 # Temporary VP1 compilation issues
 -graphics/VP1
 
 # Some analysis packages that are not part of Athena
-+PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-
 -AsgExternal/Asg_Test
 -PhysicsAnalysis/D3PDTools/EventLoop
 -PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
