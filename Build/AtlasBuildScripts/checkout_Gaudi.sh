@@ -62,12 +62,17 @@ if [ "$HASHFILE" != "" ]; then
     echo "Writing the commit hash into file: $HASHFILE"
 fi
 
-# Clone the repository:
-git clone https://gitlab.cern.ch/atlas/Gaudi.git \
+if [ ! -d "${SOURCEDIR}" ]; then
+    # Clone the repository:
+    git clone https://gitlab.cern.ch/atlas/Gaudi.git \
     ${SOURCEDIR}
+else
+    echo "${SOURCEDIR} already exists -> assume previous checkout"
+fi
 
 # Get the appropriate tag of it:
 cd ${SOURCEDIR}
+git fetch origin
 git checkout ${TAGBRANCH}
 
 # If an output file was not specified, stop here:
