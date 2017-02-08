@@ -54,6 +54,7 @@ public:
 
  
 private:
+
     /// Pointer to IThinningSvc
     ServiceHandle<IThinningSvc> m_thinningSvc;
     
@@ -63,6 +64,9 @@ private:
     /// Geant barcode
     int m_geantOffset; 
  
+    /// Geant-decayed longer lived particles
+    std::vector<int> m_longlived;
+
     /// Names of the containers to thin
     std::string m_truthParticlesKey;
     std::string m_truthVerticesKey;

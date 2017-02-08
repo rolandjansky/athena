@@ -47,6 +47,7 @@ ThinGeantTruthAlg::ThinGeantTruthAlg( const std::string& name,
 m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
 m_doThinning(true),
 m_geantOffset(200000),
+m_longlived{310,3122,3222,3112,3322,3312},
 m_truthParticlesKey("TruthParticles"),
 m_truthVerticesKey("TruthVertices"),
 m_muonsKey("Muons"),
@@ -58,7 +59,7 @@ m_nVerticesProcessed(0),
 m_nParticlesThinned(0),
 m_nVerticesThinned(0)
 {
-    
+   
     declareProperty("ThinningSvc",          m_thinningSvc,
                     "The ThinningSvc instance for a particular output stream" );
     
@@ -68,6 +69,9 @@ m_nVerticesThinned(0)
     declareProperty("GeantBarcodeOffset", m_geantOffset,
                     "Barcode offset for Geant particles");
  
+    declareProperty("LongLivedParticleList", m_longlived,
+                    "List of long lifetime particles which are likely to be decayed by Geant but whose children must be kept");
+
     declareProperty("TruthParticlesKey", m_truthParticlesKey,
                     "StoreGate key for TruthParticle container");
     
@@ -106,7 +110,6 @@ StatusCode ThinGeantTruthAlg::initialize()
         ATH_MSG_INFO("Geant truth will be thinned");
     }
 
-    
     // Initialize the counters to zero
     m_nEventsProcessed = 0;
     m_nParticlesProcessed = 0;
@@ -140,7 +143,7 @@ StatusCode ThinGeantTruthAlg::execute()
     if (!m_doThinning) {
         return StatusCode::SUCCESS;
     } 
-    
+   
     // Retrieve truth and vertex containers
     const xAOD::TruthParticleContainer* truthParticles(0);
     const xAOD::TruthVertexContainer* truthVertices(0);
@@ -225,6 +228,19 @@ StatusCode ThinGeantTruthAlg::execute()
             descendants(particle,particleMask,encounteredBarcodes);
             encounteredBarcodes.clear();
         }
+        // Retain children of longer-lived generator particles
+        if (particle->status()==1) { 
+            int pdgId = abs(particle->pdgId());
+            if ( std::find(m_longlived.begin(), m_longlived.end(), pdgId) != m_longlived.end() ) {
+                const xAOD::TruthVertex* decayVtx(0);
+                if (particle->hasDecayVtx()) {decayVtx = particle->decayVtx();}
+                int nChildren = 0;
+                if (decayVtx) nChildren = decayVtx->nOutgoingParticles();
+                for (int i=0; i<nChildren; ++i) {
+                    particleMask[decayVtx->outgoingParticle(i)->index()] = true;    
+                }        
+            }
+        }  
         // Retain particles and their descendants/ancestors associated with the reconstructed objects
         if ( std::find(recoParticleTruthIndices.begin(), recoParticleTruthIndices.end(), i) != recoParticleTruthIndices.end() ) { 
             if (abs(particle->barcode()) > m_geantOffset) { // only need to do this for Geant particles since non-Geant are kept anyway 
