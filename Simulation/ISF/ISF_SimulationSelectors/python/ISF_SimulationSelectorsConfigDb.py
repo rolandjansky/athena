@@ -33,6 +33,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getSubDetStickyGe
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getGlobalStickyGeant4SimSelector"        , "ISF_GlobalStickyGeant4SimSelector"       )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFastCaloSimSelector"           , "ISF_DefaultFastCaloSimSelector"          )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastCaloSimPileupSelector"            , "ISF_FastCaloSimPileupSelector"           )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastCaloSimPileupOTSelector"                , "ISF_FastCaloSimPileupOTSelector"     )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgFastCaloSimSelector"    , "ISF_FastHitConvAlgFastCaloSimSelector"   )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultLegacyAFIIFastCaloSimSelector" , "ISF_DefaultLegacyAFIIFastCaloSimSelector")
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFastCaloSimV2Selector"         , "ISF_DefaultFastCaloSimV2Selector"        )

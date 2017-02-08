@@ -63,10 +63,10 @@ bool  ISF::KinematicPileupSimSelector::passSelectorCuts(const ISFParticle& parti
 
   // test to see if BCID is in list to accept
   bool isPileup = std::find(begin(m_pileupbcid), end(m_pileupbcid), bcid) != end(m_pileupbcid);
-
+  
   if (isPileup)
-    {
       return ISF::KinematicParticleCuts::pass(particle);
-    }
+
   return false;
 }
+
