@@ -113,8 +113,12 @@ ISF::InputConverter::convert(const McEventCollection& inputGenEvents,
 
     // @FIXME: set the bunch-crossing identifier for pileup dynamically
     // rather than a constant '1' (e.g. could use GenEvent index for that?)
-    int bcid = isPileup ? 1 : 0;
-
+    
+    //-> PU development:
+    int bcid = isPileup ? eventPtr->signal_process_id()/10000 : 0;
+    //<-
+    ATH_MSG_INFO("signal_process_id=" << eventPtr->signal_process_id()<<" bcid " << bcid<<" isPileup "<< isPileup);
+    
     ATH_MSG_DEBUG("Starting conversion of GenEvent with"
                   " signal_process_id=" << eventPtr->signal_process_id() <<
                   " and event_number=" << eventPtr->event_number() );
