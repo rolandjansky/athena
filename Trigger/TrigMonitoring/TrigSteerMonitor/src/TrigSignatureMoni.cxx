@@ -192,7 +192,8 @@ TrigSignatureMoni::~TrigSignatureMoni()
   BinBlock::PrepareToBook();
 }
 
-void findChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::vector<const HLT::SteeringChain*>& config, const std::string& level) 
+void findChainsInStreams(std::map<std::string, TH1I*>& histograms, 
+                         const std::vector<const HLT::SteeringChain*>& config, const std::string& level) 
 {
   std::map<std::string, std::vector<std::string> > stream_to_chains; 
 
@@ -201,12 +202,12 @@ void findChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::ve
       stream_to_chains[stream.getStream()].push_back(chain->getChainName());
     }
   }  
-  std::map<std::string, std::vector<std::string> >::const_iterator p;
-  for (  p = stream_to_chains.begin();   p != stream_to_chains.end(); ++p ) {
+  for ( auto& p : stream_to_chains ) {
 
-    TH1I* h = histograms[p->first] = new TH1I(("ChainsInStream_"+p->first).c_str(), ("Chains in " +level + "stream "+p->first).c_str(), p->second.size(), 0, p->second.size());
+    TH1I* h = histograms[p.first] = new TH1I(("ChainsInStream_"+p.first).c_str(), ("Chains in " +level + "stream "+p.first).c_str(), p.second.size(), 0, p.second.size());
     int bin = 1;
-    for ( const std::string& label : p->second) {
+    std::sort(p.second.begin(), p.second.end());   // sort alphabetically
+    for ( const std::string& label : p.second) {
       h->GetXaxis()->SetBinLabel(bin, label.c_str());
       ++bin;
     }
@@ -403,7 +404,6 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
   
   findChainsInStreams(m_chainsInStream, configuredChains, m_trigLvl);
   for ( const auto& s : m_chainsInStream ) { // (string,TH1I*)
-    s.second->GetXaxis()->LabelsOption("a");
     if ( expertHistograms.regHist(s.second).isFailure()) {
       ATH_MSG_WARNING("Failed to book stream histogram");
     }

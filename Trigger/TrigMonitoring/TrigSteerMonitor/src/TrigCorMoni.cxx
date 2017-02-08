@@ -154,9 +154,9 @@ StatusCode TrigCorMoni::bookHists()
 
   //
   //default binning
-  char ctpid[11];
+  char ctpid[20];
   for (int ibin=1;ibin<=m_rejectL1->GetXaxis()->GetNbins(); ibin++) {
-    sprintf(ctpid,"CTPID-%d",ibin);
+    snprintf(ctpid,sizeof(ctpid),"CTPID-%d",ibin);
     m_rejectL1->GetXaxis()->SetBinLabel(ibin, ctpid);
     m_streamL1->GetXaxis()->SetBinLabel(ibin, ctpid);
     m_acceptL1->GetXaxis()->SetBinLabel(ibin, ctpid);
