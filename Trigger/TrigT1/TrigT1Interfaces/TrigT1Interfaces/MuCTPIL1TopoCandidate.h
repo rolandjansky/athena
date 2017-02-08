@@ -48,6 +48,9 @@ namespace LVL1 {
      // set the RoI word (done at a differnt stage of the simulation, hence the separate function
      void setRoiWord( unsigned int roi);
 
+     //setter to set second candidate in Mioct pt to 3 (i.e. 11) in case of > 2 candidates (OverFlow)
+     void setptL1TopoCodeToOvFl() { m_ptL1TopoCode=3; }
+
      // getter functions
      std::string  getSectorName() const { return m_sectorName; }
      unsigned int getRoiID() const { return  m_roiID; }
