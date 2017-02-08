@@ -39,7 +39,7 @@ atlas_add_library( JetCalibToolsLib
    PUBLIC_HEADERS JetCalibTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODEventShape
-   xAODJet xAODTracking PATInterfaces JetInterface JetCalibToolsLib
+   xAODJet xAODTracking PATInterfaces JetInterface
    PRIVATE_LINK_LIBRARIES xAODMuon PathResolver )
 
 if( NOT XAOD_STANDALONE )
