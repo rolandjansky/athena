@@ -4,6 +4,10 @@
 
 // $Id: NeutralParticleAuxContainer_v1.cxx 573493 2013-12-03 13:05:51Z emoyse $
 
+// System include(s):
+#include <iostream>
+#include <iterator>
+
 // Local include(s):
 #include "xAODTracking/versions/NeutralParticleAuxContainer_v1.h"
  

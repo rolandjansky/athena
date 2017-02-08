@@ -195,7 +195,7 @@ void test_d0significance() {
   float ref_d0_uncert=.05;
   float ref_z0_uncert=.5;
   float ref_qoverp = 1/30e3;
-  float ref_theta=60/180*M_PI;
+  float ref_theta=60.0/180.0*M_PI; //coverity 111358
   std::vector<bool>::const_iterator valid_iter = valid.begin();
   for (const Cov_t &beamspot_sigma: beamspot_sigma_list) {
     for( const float &phi: phi_list) {
