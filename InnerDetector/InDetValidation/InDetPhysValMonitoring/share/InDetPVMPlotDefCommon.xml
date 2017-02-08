@@ -564,24 +564,24 @@
    ========================================================
   -->
 <!-- Pixel innermost barrel -->
-<h id="eff_hit_vs_eta_l0pix_barrel" type="TProfile" title="Cluster Efficiency: Pix Barrel Innermost">
+<h id="eff_hit_vs_eta_l0pix_barrel" type="TEfficiency" title="Cluster Efficiency: Pix Barrel Innermost">
   <x title="#eta" n="10" lo="0" hi="&ETA;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
 <!-- Pixel barrel: all appart from inner-most barrel region -->
-<h id="eff_hit_vs_eta_pix_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel">
+<h id="eff_hit_vs_eta_pix_barrel" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel">
   <x title="#eta" n="20" lo="0" hi="&ETA;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
-<h id="eff_hit_vs_eta_pix_endcap" type="TProfile" title="Cluster Efficiency: Pixel Endcaps">
+<h id="eff_hit_vs_eta_pix_endcap" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps">
   <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
-<h id="eff_hit_vs_eta_sct_barrel" type="TProfile" title="Cluster Efficiency: SCT Barrel">
+<h id="eff_hit_vs_eta_sct_barrel" type="TEfficiency" title="Cluster Efficiency: SCT Barrel">
   <x title="#eta" n="20" lo="0" hi="&ETASct;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
-<h id="eff_hit_vs_eta_sct_endcap" type="TProfile" title="Cluster Efficiency: SCT Endcaps">
+<h id="eff_hit_vs_eta_sct_endcap" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps">
   <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETASct;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
@@ -1178,18 +1178,56 @@
   <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
   <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
 </h>
-<h id="energy_remaining_vs_prodR_low_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (low #eta)">
+<h id="energy_remaining_vs_prodR_TRT_barrel" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (0 &lt; |#eta| &lt; 0.625)">
   <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
   <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
 </h>
-<h id="energy_remaining_vs_prodR_medium_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (medium #eta)">
+<h id="energy_remaining_vs_prodR_type_A_endcap" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.070 &lt; |#eta| &lt; 1.304)">
   <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
   <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
 </h>
-<h id="energy_remaining_vs_prodR_high_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (high #eta)">
+<h id="energy_remaining_vs_prodR_type_A_and_B" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.304 &lt; |#eta| &lt; 1.752)">
   <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
   <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
 </h>
+<h id="energy_remaining_vs_prodR_type_B_endcap" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.752 &lt; |#eta| &lt; 2.0)">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="truthMatchProbability_vs_delta_R" type="TH2" title="Truth Matching Probability of electron/positron vs #DeltaR">
+  <x title="#DeltaR" n="50" lo="0" hi="1.0"/>
+  <y title="Truth Matching Probability" n="100" lo="0" hi="1.0"/>
+</h>
+<h id="minimum_delta_R" type="TH1" title="Minimum #DeltaR for primary conversions within 100 mm of the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_2" type="TH1" title="Minimum #DeltaR for primary conversions between 100 and 200 mm from the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_3" type="TH1" title="Minimum #DeltaR for primary conversions between 200 and 300 mm from the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_not_found" type="TH1" title="Minimum #DeltaR for primary conversions within 100 mm of the origin with no good match">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_2_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 100 and 200 mm from the origin with no good match">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_3_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 200 and 300 mm from the origin with no good match">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="delta_inverse_pt" type="TH1" title="Difference between inverse pt for track and truth particles">
+  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="0" hi="2"/>
+  <y title="Entries"/>
+</h>
+
+
 
 <!-- -->
 <!-- Track Parameter Resolution Plots -->
