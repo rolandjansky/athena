@@ -19,20 +19,12 @@
 #include "EventTPCnv/MergedEventInfo_p2.h"
 #include "EventTPCnv/MergedEventInfoCnv_p2.h"
 
-// the latest persistent representation type of MergedEventInfo
-typedef  MergedEventInfo_p2  MergedEventInfo_PERS;
+typedef T_AthenaPoolTPCnvCnv<MergedEventInfo,
+                             MergedEventInfoCnv_p2,
+                             MergedEventInfoCnv_p1,
+                             T_TPCnvNull<MergedEventInfo> >
+  MergedEventInfoCnv;
 
-typedef  T_AthenaPoolCustomCnv<MergedEventInfo, MergedEventInfo_PERS >   MergedEventInfoCnvBase;
-
-class MergedEventInfoCnv : public MergedEventInfoCnvBase {
-friend class CnvFactory<MergedEventInfoCnv >;
-protected:
-public:
-  MergedEventInfoCnv (ISvcLocator* svcloc) : MergedEventInfoCnvBase(svcloc) {}
-protected:
-  virtual MergedEventInfo_PERS*   createPersistent (MergedEventInfo* transObj);
-  virtual MergedEventInfo*        createTransient ();
-};
 
 #endif
 
