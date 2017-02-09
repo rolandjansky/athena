@@ -31,18 +31,19 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
   declareProperty("flatteningFile1Prong", m_file1P = "fitted.pileup_1prong_hlt.root");
   declareProperty("flatteningFile3Prong", m_file3P = "fitted.pileup_multiprongs_hlt.root");
 
+  declareProperty("ScoreName", m_scoreName = "BDTJetScore");
+  declareProperty("NewScoreName", m_newScoreName = "BDTJetScoreSigTrans");
+
   declareProperty("DefineWPs", m_defineWP);
   declareProperty("UseEleBDT", m_electronMode=false);
   
-  declareProperty("SigEffWPVeryLoose1P", m_effVeryLoose1P);
-  declareProperty("SigEffWPLoose1P", m_effLoose1P);
-  declareProperty("SigEffWPMedium1P", m_effMedium1P);
-  declareProperty("SigEffWPTight1P", m_effTight1P);
+  declareProperty("CutEnumVals", m_cut_bits);
+  declareProperty("SigEff1P", m_cut_effs_1p);
+  declareProperty("SigEff3P", m_cut_effs_3p);
 
-  declareProperty("SigEffWPVeryLoose3P", m_effVeryLoose3P);
-  declareProperty("SigEffWPLoose3P", m_effLoose3P);
-  declareProperty("SigEffWPMedium3P", m_effMedium3P);
-  declareProperty("SigEffWPTight3P", m_effTight3P);
+  declareProperty("DecorWPNames", m_decoration_names);
+  declareProperty("DecorWPCutEffs1P", m_cut_effs_decoration_1p);
+  declareProperty("DecorWPCutEffs3P", m_cut_effs_decoration_3p);
 
 }
 
@@ -133,13 +134,8 @@ StatusCode TauWPDecorator::initialize() {
   ATH_CHECK( storeLimits(1) );
   ATH_CHECK( storeLimits(3) );
   
-
-  std::string scoreName = "BDTJetScore";
-  std::string newScoreName = "BDTJetScoreSigTrans";
-  if(m_electronMode) {
-    scoreName = "BDTEleScore_run2";
-    newScoreName = "BDTEleScoreTrans_run2";
-  }
+  std::string scoreName = m_scoreName;
+  std::string newScoreName = m_newScoreName;
 
   acc_score = new SG::AuxElement::ConstAccessor<float>(scoreName);
   acc_newScore = new SG::AuxElement::Accessor<float>(newScoreName);
@@ -236,33 +232,45 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
   // Upper & Lower Boundaries
   if(!gotHigh) {
-    cuts[1] = 1.0;
+    cuts[1] = 1.01;
     effs[1] = 0.0;
   }
   if(!gotLow) {
-    cuts[0] = 0.0;
+    cuts[0] = -1.01;
     effs[0] = 1.0;
   }
-  
+
   // Evaluate and decorate new score
-  double newscore = transformScore(score, cuts[0], effs[0], cuts[1], effs[1]);
+  double newscore = -1111.;
+  // Score higher than default upper boundary (rare)
+  if( score > cuts[1] )      newscore = cuts[0];
+  // Score lower than default lower boundary (rare)            
+  else if( score < cuts[0] ) newscore = cuts[1];
+  // Score inside boundaries            
+  else {
+    newscore = transformScore(score, cuts[0], effs[0], cuts[1], effs[1]);
+  }
   (*acc_newScore)(pTau) = newscore;
   
-  // Define working points
   if(m_defineWP) {
-    if(acc_numTrack(pTau) == 1) {
-      pTau.setIsTau(xAOD::TauJetParameters::JetBDTSigLoose, newscore > (1-m_effLoose1P));
-      pTau.setIsTau(xAOD::TauJetParameters::JetBDTSigMedium, newscore > (1-m_effMedium1P));
-      pTau.setIsTau(xAOD::TauJetParameters::JetBDTSigTight, newscore > (1-m_effTight1P));
-      pTau.auxdecor<char>("IsVeryLoose")  = newscore > (1-m_effVeryLoose1P);
-    } else {
-      pTau.setIsTau(xAOD::TauJetParameters::JetBDTSigLoose, newscore > (1-m_effLoose3P));
-      pTau.setIsTau(xAOD::TauJetParameters::JetBDTSigMedium, newscore > (1-m_effMedium3P));
-      pTau.setIsTau(xAOD::TauJetParameters::JetBDTSigTight,  newscore > (1-m_effTight3P));
-      pTau.auxdecor<char>("IsVeryLoose")  =  newscore > (1-m_effVeryLoose3P);
+    for (u_int Nwp=0; Nwp < m_cut_bits.size(); Nwp++){
+      if(acc_numTrack(pTau) == 1) {
+	pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_cut_bits[Nwp], newscore > (1-m_cut_effs_1p[Nwp]));
+      }
+      else{
+	pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_cut_bits[Nwp], newscore > (1-m_cut_effs_3p[Nwp]));
+      }
+    }
+    // Decorate other WPs
+    for (u_int Nwp=0; Nwp < m_decoration_names.size(); Nwp++){
+      if(acc_numTrack(pTau) == 1) {
+	pTau.auxdecor<char>(m_decoration_names[Nwp]) = newscore > (1-m_cut_effs_decoration_1p[Nwp]);    
+      }
+      else {
+	pTau.auxdecor<char>(m_decoration_names[Nwp]) = newscore > (1-m_cut_effs_decoration_3p[Nwp]);    
+      }      
     }
   }
-
   
   return StatusCode::SUCCESS;
 }
