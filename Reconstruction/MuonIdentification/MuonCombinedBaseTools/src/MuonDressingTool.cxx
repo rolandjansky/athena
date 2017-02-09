@@ -92,18 +92,22 @@ namespace MuonCombined {
     uint8_t phiLayer1RPCHits = 0;
     uint8_t phiLayer2RPCHits = 0;
     uint8_t phiLayer3RPCHits = 0;
+    uint8_t phiLayer4RPCHits = 0;
 
     uint8_t etaLayer1RPCHits = 0;
     uint8_t etaLayer2RPCHits = 0;
     uint8_t etaLayer3RPCHits = 0;
+    uint8_t etaLayer4RPCHits = 0;
 
     uint8_t phiLayer1RPCHoles = 0;
     uint8_t phiLayer2RPCHoles = 0;
     uint8_t phiLayer3RPCHoles = 0;
+    uint8_t phiLayer4RPCHoles = 0;
 
     uint8_t etaLayer1RPCHoles = 0;
     uint8_t etaLayer2RPCHoles = 0;
     uint8_t etaLayer3RPCHoles = 0;
+    uint8_t etaLayer4RPCHoles = 0;
 
     uint8_t phiLayer1TGCHits = 0;
     uint8_t phiLayer2TGCHits = 0;
@@ -147,6 +151,9 @@ namespace MuonCombined {
 
     uint8_t isEndcap = 0;
     uint8_t isSmall = 0;
+
+    uint8_t cscEtaHits = 0;
+    uint8_t cscUnspoiledEtaHits = 0;
 
     const Trk::TrackSummary* mstpTrackSummary=0;
 
@@ -297,6 +304,10 @@ namespace MuonCombined {
 	      }
 	    }
 	  }
+	  if(isCsc){
+	    cscEtaHits+=chit->etaProjection().nhits;
+	    cscUnspoiledEtaHits+=chit->etaProjection().ngoodHits;
+	  }
 	  if( !isMdt && !isMM ){
 
 	    uint8_t* phiHits = 0;
@@ -347,6 +358,12 @@ namespace MuonCombined {
               etaLayer3RPCHits  += chit->netaHits();
               phiLayer3RPCHoles += chit->phiProjection().nholes;
               etaLayer3RPCHoles += chit->etaProjection().nholes;
+            }
+            else if (index == Muon::MuonStationIndex::BO2){
+              phiLayer4RPCHits  += chit->nphiHits();
+              etaLayer4RPCHits  += chit->netaHits();
+              phiLayer4RPCHoles += chit->phiProjection().nholes;
+              etaLayer4RPCHoles += chit->etaProjection().nholes;
             }
             else if (index == Muon::MuonStationIndex::T4){
               phiLayer1TGCHits  += chit->nphiHits();
@@ -436,18 +453,22 @@ namespace MuonCombined {
     muon.setSummaryValue(phiLayer1RPCHits,  xAOD::phiLayer1RPCHits);
     muon.setSummaryValue(phiLayer2RPCHits,  xAOD::phiLayer2RPCHits);
     muon.setSummaryValue(phiLayer3RPCHits,  xAOD::phiLayer3RPCHits);
+    muon.setSummaryValue(phiLayer4RPCHits,  xAOD::phiLayer4RPCHits);
 
     muon.setSummaryValue(etaLayer1RPCHits,  xAOD::etaLayer1RPCHits);
     muon.setSummaryValue(etaLayer2RPCHits,  xAOD::etaLayer2RPCHits);
     muon.setSummaryValue(etaLayer3RPCHits,  xAOD::etaLayer3RPCHits);
+    muon.setSummaryValue(etaLayer4RPCHits,  xAOD::etaLayer4RPCHits);
 
     muon.setSummaryValue(phiLayer1RPCHoles, xAOD::phiLayer1RPCHoles);
     muon.setSummaryValue(phiLayer2RPCHoles, xAOD::phiLayer2RPCHoles);
     muon.setSummaryValue(phiLayer3RPCHoles, xAOD::phiLayer3RPCHoles);
+    muon.setSummaryValue(phiLayer4RPCHoles, xAOD::phiLayer4RPCHoles);
 
     muon.setSummaryValue(etaLayer1RPCHoles, xAOD::etaLayer1RPCHoles);
     muon.setSummaryValue(etaLayer2RPCHoles, xAOD::etaLayer2RPCHoles);
     muon.setSummaryValue(etaLayer3RPCHoles, xAOD::etaLayer3RPCHoles);
+    muon.setSummaryValue(etaLayer4RPCHoles, xAOD::etaLayer4RPCHoles);
 
     muon.setSummaryValue(phiLayer1TGCHits,  xAOD::phiLayer1TGCHits);
     muon.setSummaryValue(phiLayer2TGCHits,  xAOD::phiLayer2TGCHits);
@@ -483,6 +504,9 @@ namespace MuonCombined {
 
     muon.setSummaryValue(isEndcap,xAOD::isEndcapGoodLayers);
     muon.setSummaryValue(isSmall,xAOD::isSmallGoodSectors);
+
+    muon.setSummaryValue(cscEtaHits,xAOD::cscEtaHits);
+    muon.setSummaryValue(cscUnspoiledEtaHits,xAOD::cscUnspoiledEtaHits);
 
   }
 
