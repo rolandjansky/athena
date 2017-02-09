@@ -41,6 +41,8 @@ public:
   /// for the jet with the highest such fraction.
   int modifyJet(xAOD::Jet& jet) const;
 
+private:  // data
+
   /// Return the matched pT sum for each jet in a collection.
   /// The matching is done with match().
   ///   aps - input AP vector
@@ -53,9 +55,8 @@ public:
   ///   aps - input AP vector
   ///   jet - Jet to be matched
   ///   apvs - output vector of matched AP indices
-  int match(const APVector& aps, const xAOD::Jet& jet, APVector& apvs) const;
-
-private:  // data
+  ///   ptsum - sum of jet constituent pts
+  int match(const APVector& aps, const xAOD::Jet& jet, APVector& apvs, double& ptsum_constituents) const;
 
   /// Properties.
   std::string m_aname;
