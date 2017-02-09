@@ -50,10 +50,11 @@ class TauRecConfigured ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
         from tauRec.tauRecFlags import tauFlags
         for tool in tools :
-            if tool.__slots__['calibFolder'].count('TauDiscriminant'):
-                tool.calibFolder = tauFlags.TauDiscriminantCVMFSPath()
-            else :
-                tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+            # if tool.__slots__['calibFolder'].count('TauDiscriminant'):
+            #     tool.calibFolder = tauFlags.TauDiscriminantCVMFSPath()
+            # else :
+            #     tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+            tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             if tool not in ToolSvc : ToolSvc += tool            
             pass
 
