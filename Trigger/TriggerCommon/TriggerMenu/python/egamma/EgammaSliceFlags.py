@@ -3,8 +3,8 @@
 """ Egamma slice specific flags  """
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 __author__  = 'T. Bold, P.Urquijo, R. White'
 __version__="$Revision: 1.42 $"
@@ -110,4 +110,3 @@ if run2Flag is '2016':
     EgammaSliceFlags.clusterCorrectionVersion = None
     EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v3'
 
-EgammaSliceFlags.print_JobProperties()

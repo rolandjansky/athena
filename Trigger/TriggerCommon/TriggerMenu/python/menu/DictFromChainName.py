@@ -459,9 +459,9 @@ class DictFromChainName(object):
                             chainProperties[prop] = part
                         matchedparts.append(part)
                         
-            logDict.info("matched parts %s", matchedparts)
+            logDict.debug("matched parts %s", matchedparts)
             leftoverparts = set(parts)-set(matchedparts)
-            logDict.info('leftoverparts %s', leftoverparts)
+            logDict.debug('leftoverparts %s', leftoverparts)
             for pindex, part in enumerate(leftoverparts):
                 for prop, allowedValues in allowedSignaturePropertiesAndValues.items():
                     if prop in chainProperties.keys():  continue

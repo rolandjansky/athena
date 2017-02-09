@@ -52,16 +52,9 @@ See _gensequence in both classes:
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.egamma.EgammaDef")
-log.debug('Egamma imports')
+
 # Imports for HLT ID
-from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma as TrigFastTrackFinder_Electron
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
-from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_Electron
-# Following is Run1 -- can be omitted
-from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import (TrigL2SiTrackFinder_eGammaA,
-                                                            TrigL2SiTrackFinder_eGammaB,
-                                                            TrigL2SiTrackFinder_eGammaC)
 
 # Imports for HLT Calo
 # Note that Egamma now configures slw algorithm (TrigEgammaRec)
@@ -69,29 +62,12 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import (T2CaloEgamma_eGamma,
                                                      T2CaloEgamma_Ringer)
 
 from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
-                                           TrigCaloTowerMaker_eGamma,
-                                           TrigCaloCellMaker_eGamma_cells,
-                                           TrigCaloCellMaker_jet_fullcalo, 
-                                           TrigCaloClusterMaker_topo 
-                                           )
+                                           TrigCaloTowerMaker_eGamma)
+
 from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
 
-from TriggerMenu.commonUtils.makeCaloSequences import (fullScanTopoClusterSequence, 
-        EgammaSlwClusterSequence, 
-        EnergyDensitySequence, 
-        getFullScanTopoClusterEDSequences
-        )
-
-from TrigGenericAlgs.TrigGenericAlgsConf import (PESA__DummyCombineAlgo,
-                                                 PESA__DummyUnseededAllTEAlgo as DummyAlgo)
-
-
-
 # FEX for Egamma
-from TrigEgammaHypo.TrigL2ElectronFexConfig import (L2ElectronFex_1,
-                                                    L2ElectronFex_L2StarA,
-                                                    L2ElectronFex_L2StarB,
-                                                    L2ElectronFex_L2StarC)
+from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_1
 from TrigEgammaHypo.TrigL2PhotonFexConfig import L2PhotonFex_1
 
 from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
@@ -101,22 +77,10 @@ from TrigEgammaHypo.TrigEFCaloCalibFexConfig import (TrigEFCaloCalibFex_Electron
 from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import (TrigL2CaloRingerFexHypo_e_ID,
                                                          TrigL2CaloRingerFexHypo_e_NoCut,
                                                          TrigL2CaloRingerFexHypo_e_EtCut,
-                                                         TrigL2CaloRingerFexHypo_g_EtCut,
-                                                         TrigL2CaloRingerFexHypo_g_ID,
-                                                         TrigL2CaloRingerFexHypo_g_NoCut)
-
-from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import (TrigL2CaloRingerFex,
-        TrigL2CaloRingerFex_Empty,
-        TrigL2CaloRingerHypo_e_ID,
-        TrigL2CaloRingerHypo_g_ID,
-        TrigL2CaloRingerHypo_NoCut,
-        TrigL2CaloRingerHypo_EtCut)
+                                                         TrigL2CaloRingerFexHypo_g_EtCut)
 
 # EF Calo
-from TrigHIHypo.UE import (theUEMaker, 
-        theFSCellMaker, 
-        theTrigCaloCellMaker_eGamma, 
-        theElectronUEMonitoring)
+from TrigHIHypo.UE import theTrigCaloCellMaker_eGamma as theTrigCaloCellMaker_eGammaHI
 
 # Hypos for Egamma
 from TrigEgammaHypo.TrigL2CaloHypoConfig import (L2CaloHypo_EtCut,
@@ -127,12 +91,10 @@ from TrigEgammaHypo.TrigL2CaloHypoConfig import (L2CaloHypo_EtCut,
                                                  )
 
 from TrigEgammaHypo.TrigL2PhotonHypoConfig import (L2PhotonHypo_g_EtCut, 
-        L2PhotonHypo_g_ID, 
-        L2PhotonHypo_g_NoCut
-        )
+                                                   L2PhotonHypo_g_ID, 
+                                                   L2PhotonHypo_g_NoCut)
 
 from TrigEgammaHypo.TrigL2ElectronHypoConfig import (L2ElectronHypo_e_ID,
-                                                     L2ElectronHypo_e_ID_L2TrkAlg,
                                                      L2ElectronHypo_e_NoCut)
 
 from TrigEgammaHypo.TrigEFCaloHypoConfig import (TrigEFCaloHypo_All,
@@ -145,8 +107,6 @@ from TrigEgammaHypo.TrigEFTrackHypoConfig import (EFTrackHypo_e,
                                                   EFTrackHypo_e_NoCut)
 
 from TrigEgammaHypo.TrigEFElectronHypoConfig import (TrigEFElectronHypo_e_ID,
-                                                     TrigEFElectronHypo_e_ID_EtIsEM,
-                                                     TrigEFElectronHypo_e_ID_EtIsEM_Iso,
                                                      TrigEFElectronHypo_e_ID_HI,
                                                      TrigEFElectronHypo_e_Iso,
                                                      TrigEFElectronHypo_e_LH,
@@ -155,16 +115,12 @@ from TrigEgammaHypo.TrigEFElectronHypoConfig import (TrigEFElectronHypo_e_ID,
                                                      TrigEFElectronHypo_e_WTP)
 
 from TrigEgammaHypo.TrigEFPhotonHypoConfig import (EFPhotonHypo_g_EtCut, 
-        EFPhotonHypo_g_ID_CaloOnly, 
-        EFPhotonHypo_g_NoCut, 
-        EFPhotonHypo_g_ID_CaloOnly_Iso
-        )
+                                                   EFPhotonHypo_g_ID_CaloOnly, 
+                                                   EFPhotonHypo_g_NoCut, 
+                                                   EFPhotonHypo_g_ID_CaloOnly_Iso)
 
-from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma as theTrigCaloCellMaker_eGammaHI
-
-from TriggerMenu.egamma.EgammaCleanMonitoring import *
-from TriggerMenu.menu.CleanMonitoring import *
-log.debug("Imports complete")
+from TriggerMenu.egamma.EgammaCleanMonitoring import EgammaChainsToKeepMonitoring
+from TriggerMenu.menu.CleanMonitoring import KeepMonitoring, DisableMonitoringButValAndTime
 
 # Helper utilities
 def print_attributes(obj):
@@ -214,8 +170,8 @@ class EgammaFexBuilder(object):
         self._egamma_rec_conv    = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma", doConversions = True,doPrint=False)()
         self._egamma_rec_noid    = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
         self._egamma_rec_iso    = TrigEgammaRec.copy(name = "TrigEgammaRec_Iso_eGamma",PhotonContainerName="egamma_Iso_Photons",
-                                                        doTrackMatching = False,doTrackIsolation = False,
-                                                        doCaloTopoIsolation=True,doPrint=False)()
+                                                     doTrackMatching = False,doTrackIsolation = False,
+                                                     doCaloTopoIsolation=True,doPrint=False)()
         self._cell_maker = TrigCaloCellMaker_eGamma()
         self._tower_maker    = TrigCaloTowerMaker_eGamma()
         self._tower_maker_ion    = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
@@ -227,15 +183,17 @@ class EgammaFexBuilder(object):
         [self._fast_track, self._precise_track] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
         
         self._gensequence = {'fastcalo':self._get_fastcalo,
-                'fastrec':self._get_fastrec,
-                'fastringer':self._get_fastringer,
-                'fasttrack':self._get_fasttrack,
-                'precisecalo':self._get_precisecalo,
-                'precisecalocalib':self._get_precisecalocalib,
-                'precisetrack':self._get_precisetrack,
-                'trackrec':self._get_trackrec,
-                'preciserec':self._get_preciserec
-                }
+                             'fastcalorec':self._get_fastringer,
+                             'fastcalohypo':self._get_fastcalohypo,
+                             'fastringer':self._get_fastringer,
+                             'fastringerhypo':self._get_fastringerhypo,
+                             'fastrec':self._get_fastrec,
+                             'fasttrack':self._get_fasttrack,
+                             'precisecalo':self._get_precisecalo,
+                             'precisecalocalib':self._get_precisecalocalib,
+                             'precisetrack':self._get_precisetrack,
+                             'trackrec':self._get_trackrec,
+                             'preciserec':self._get_preciserec}
         
         
         EgammaFexBuilder.inst_count += 1
@@ -243,6 +201,7 @@ class EgammaFexBuilder(object):
             self.logger.error('EgammaFexBuilder multiple instances %s' % EgammaFexBuilder.inst_count)
 
         self.logger.debug('EgammaFexBuilder init complete')
+        self.logger.setLevel(logging.INFO)
     
     def __str__(self):
         descr = ''
@@ -250,9 +209,9 @@ class EgammaFexBuilder(object):
     
     def get_sequences(self,chainDict):
         ''' Retrieve the correct reco algorithms and sequences for given chain type '''
-        chain_part = chainDict['chainParts']
         seq = {}
         for key in self._gensequence:
+            self.logger.debug('Fex %s'%key)
             seq[key] = self._gensequence[key](chainDict)
 
         return update_map(seq) 
@@ -271,6 +230,12 @@ class EgammaFexBuilder(object):
         self.logger.debug('fastcalo %s',seq) 
         return seq
     
+    def _get_fastcalohypo(self,chainDict):
+        return []
+    
+    def _get_fastringerhypo(self,chainDict):
+        return []
+
     def _get_fastringer(self,chainDict):
         seq = [self._fast_calo_ringer]
         self.logger.debug('fastringer %s',seq) 
@@ -299,7 +264,7 @@ class EgammaFexBuilder(object):
         elif(chain_part['trigType'] == 'g'):
             seq = [self._fast_photon]
         else:
-            logger.error('Trigger type not known, cannot configured fastrec')
+            self.logger.error('Trigger type not known, cannot configured fastrec')
         self.logger.debug('fastrec %s',seq)
         return seq    
     
@@ -327,7 +292,7 @@ class EgammaFexBuilder(object):
         elif(chain_part['trigType'] == 'g'):
             seq = [self._photon_calib]
         else:
-            logger.error('Trigger type not known, cannot configured precisecalocalib')
+            self.logger.error('Trigger type not known, cannot configured precisecalocalib')
         self.logger.debug('precisecalocalib %s',seq)
         return seq    
     
@@ -339,7 +304,7 @@ class EgammaFexBuilder(object):
         elif(chain_part['trigType'] == 'g'):
             seq = [self._get_photonrec(chainDict)]
         else:
-            logger.error('Trigger type not known, cannot configured preciserec')
+            self.logger.error('Trigger type not known, cannot configured preciserec')
         self.logger.debug('preciserec %s',seq)
         return seq    
 
@@ -385,37 +350,40 @@ class EgammaHypoBuilder(object):
 
         ''' Properties of chain required to configure the hypos '''
         self._properties = {'threshold':0,
-                'IDinfo':'',
-                'isoInfo':'',
-                'lhInfo':'',
-                'etcut':False,
-                'perf':False,
-                'ringer':False,
-                'g':False,
-                'e':False,
-                'hiptrt':False,
-                'ion':False,
-                'trkcut':False,
-                'idperf':False}
+                            'IDinfo':'',
+                            'isoInfo':'',
+                            'lhInfo':'',
+                            'etcut':False,
+                            'perf':False,
+                            'ringer':False,
+                            'g':False,
+                            'e':False,
+                            'hiptrt':False,
+                            'ion':False,
+                            'trkcut':False,
+                            'idperf':False}
 
         self._chain_part = {} 
 
         self.logger = logging.getLogger('EgammaDef.EgammaHypoBuilder')
+        self.logger.setLevel(logging.INFO)
         ''' 
         Restructure code to return the hypo algorithm for each step 
         this works well for fex sequences
         '''
 
         self._gensequence = {'fastcalo':self._get_fastcalo,
-                'fastrec':self._get_fastrec,
-                'fastringer':self._get_fastringer,
-                'fasttrack':self._get_fasttrack,
-                'precisecalo':self._get_precisecalo,
-                'precisecalocalib':self._get_precisecalocalib,
-                'precisetrack':self._get_precisetrack,
-                'trackrec':self._get_trackrec,
-                'preciserec':self._get_preciserec
-                }
+                             'fastcalorec':self._get_fastcalorec,
+                             'fastcalohypo':self._get_fastcalo,
+                             'fastringer':self._get_fastringer,
+                             'fastringerhypo':self._get_fastringer,
+                             'fastrec':self._get_fastrec,
+                             'fasttrack':self._get_fasttrack,
+                             'precisecalo':self._get_precisecalo,
+                             'precisecalocalib':self._get_precisecalocalib,
+                             'precisetrack':self._get_precisetrack,
+                             'trackrec':self._get_trackrec,
+                             'preciserec':self._get_preciserec}
 
         self._chain_part = chainDict['chainParts']   
         self._set_properties()
@@ -437,6 +405,7 @@ class EgammaHypoBuilder(object):
         '''
         sequences = {}
         for key in self._gensequence:
+            self.logger.debug('Hypo %s'%key)
             sequences[key] = self._gensequence[key]()
         # Remove key for algos not defined
         return update_map(sequences) 
@@ -450,9 +419,9 @@ class EgammaHypoBuilder(object):
     def _set_algo_suffix(self):
         suffix = self._base_name
         parts = [self._properties['IDinfo'],
-                self._properties['lhInfo'],
-                self._properties['isoInfo']]
-
+                 self._properties['lhInfo'],
+                 self._properties['isoInfo']]
+        
         for item in parts:
             if item:
                 suffix = suffix + "_" + item
@@ -486,6 +455,9 @@ class EgammaHypoBuilder(object):
 
     def _get_fastcalo(self):
         seq = []
+        #if 'ringer' in self._properties:
+        #    if self._properties['ringer']:
+        #        seq = self._get_fastringer()
         if self._properties['e']:
             seq = [self._get_fastcalo_electron()]
         elif self._properties['g']:
@@ -496,6 +468,11 @@ class EgammaHypoBuilder(object):
         self.logger.debug('fastcalo %s',seq) 
         return seq
 
+    def _get_fastcalorec(self):
+        seq = [] 
+        self.logger.debug('fastcalorec %s',seq) 
+        return seq
+    
     def _get_fastcalo_electron(self):
         algo = None
         name = self._base_name
@@ -544,16 +521,16 @@ class EgammaHypoBuilder(object):
         '''
         fex = None
         hypo = None
-        name = self._base_name
         tt = self._chain_part['trigType']
         thr = self._properties['threshold']
         idinfo = self._properties['IDinfo']
-        suffix = self._algo_suffix
-        
-        if 'merged' in idinfo or self._properties['hiptrt']:
+
+        if self._properties['hiptrt']:   
             return [None,None]
         
-        if self._properties['perf']:
+        if 'merged' in idinfo:  
+            fex,hypo = TrigL2CaloRingerFexHypo_e_EtCut(thr)
+        elif self._properties['perf']:
             if(tt == 'e'):
                 fex,hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
             if(tt == 'g'):
@@ -617,7 +594,7 @@ class EgammaHypoBuilder(object):
         name = self._base_name
         thr = self._properties['threshold']
         idinfo = self._properties['IDinfo']
-        if self._properties['etcut'] or self._properties['perf']:
+        if self._properties['etcut'] or self._properties['perf'] or self._properties['idperf']:
             algo = L2ElectronHypo_e_NoCut("L2ElectronHypo_"+name+"_NoCut",thr ) 
         elif idinfo:
             algo = L2ElectronHypo_e_ID("TrigL2ElectronHypo_e"+str(thr)+"_"+idinfo,thr,idinfo)
@@ -652,7 +629,6 @@ class EgammaHypoBuilder(object):
         algo = None
         name = self._base_name
         thr = self._properties['threshold']
-        idinfo = self._properties['IDinfo']
         if (self._properties['etcut']):
             if self._properties['ion']:
                 algo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_"+name+"_EtCut_heavyIon",thr)
@@ -784,7 +760,7 @@ class EgammaHypoBuilder(object):
                 else: 
                     algo = TrigEFElectronHypo_e_ID_HI("TrigEFElectronHypo_"+suffix+"_heavyIon",thr,idinfo)
             else:
-                logger.error('Cannot configure precise_electorn for ion')
+                self.logger.error('Cannot configure precise_electorn for ion')
         elif wtp: 
             algo = TrigEFElectronHypo_e_WTP("TrigEFElectronHypo_e"+str(thr)+"_WTP",thr)
         elif (self._properties['idperf'] or self._properties['etcut'] or self._properties['perf']):
@@ -823,6 +799,7 @@ class EgammaSequence(object):
 
     sequences with key values:
         self.sequences['fastcalo'] 
+        self.sequences['fastcalohypo']
         self.sequences['fastringer'] 
         self.sequences['fasttrack']
         self.sequences['fastrec'] 
@@ -840,6 +817,7 @@ class EgammaSequence(object):
         merges sequences from Fex and Hypo Builder instances
         '''
         self.logger = logging.getLogger('EgammaDef.EgammaSequence')
+        self.logger.setLevel(logging.INFO)
         self._chain_name = chainDict['chainName']
         self._disable_mon = not KeepMonitoring(self._chain_name,EgammaChainsToKeepMonitoring)
         self._fex = EgammaSequence.fex_obj.get_sequences(chainDict)
@@ -857,8 +835,12 @@ class EgammaSequence(object):
         return
     
     def get_sequences(self):
+        self.logger.debug('Get sequences')
         seq = self._fex 
         hypo = self._hypoObj.get_sequences()
+        self.logger.debug('Fex: %s',seq)
+        self.logger.debug('Hypos: %s',hypo)
+
         for step in seq:
             self.logger.debug('Creating sequence for step %s', step)
             if seq[step]:
@@ -868,7 +850,15 @@ class EgammaSequence(object):
                 else:
                     self.logger.debug('No hypo for step %s ', step)
             else:
-                self.logger.error('Step %s found, sequence empty for fex ', step)
+                self.logger.debug('Step %s found, sequence empty for fex ', step)
+                seq[step]=hypo[step]
+        # The sequences are cleaned to remove None
+        # Now need to check for hypos that don't have fex
+        # Allows to split some reconstruction and hypos into steps
+        for step in hypo:
+            if step not in seq:
+                self.logger.debug('Hypo only step %s ', step)
+                seq[step]=hypo[step]
         if ( self._disable_mon ):
             self._config_monitoring(hypo)
         self.sequences = seq
@@ -897,14 +887,15 @@ class EgammaSequence(object):
         """Append an algo to a prefined sequence"""
         sequence = seq.extend([algo])
         return sequence
+
 # try to test standalone
 # Test chain dictionary 
 test_chain_parts = {
-        'trigType':'g',
-        'threshold':26.,
-        'IDinfo':'medium',
-        'addInfo':''
-        }   
+    'trigType':'g',
+    'threshold':26.,
+    'IDinfo':'medium',
+    'addInfo':''
+}   
 test_chainDict = {'chainParts':test_chain_parts, 'chainName':'testChain'}
 print(test_chainDict)
 def test_sequence():
