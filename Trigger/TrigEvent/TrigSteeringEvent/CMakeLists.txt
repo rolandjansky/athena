@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 782979 2016-11-08 13:53:37Z smh $
+# $Id: CMakeLists.txt 790888 2016-12-22 22:12:11Z ssnyder $
 ################################################################################
 # Package: TrigSteeringEvent
 ################################################################################
@@ -43,6 +43,8 @@ else()
       Trigger/TrigDataAccess/TrigSerializeCnvSvc
       Trigger/TrigEvent/TrigNavigation
       Trigger/TrigT1/TrigT1Interfaces )
+
+    find_package( tdaq-common )
 endif()
 
 # External dependencies:
