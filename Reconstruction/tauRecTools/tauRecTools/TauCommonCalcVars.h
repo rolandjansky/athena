@@ -38,6 +38,9 @@ public:
 private:
     std::string m_configPath;
 
+    int m_isolationTrackType;
+
+
 };
 
 #endif // TAUREC_TAUCOMMONCALCVARS_H
