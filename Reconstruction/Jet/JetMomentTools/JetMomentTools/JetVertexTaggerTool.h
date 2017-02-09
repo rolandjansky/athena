@@ -99,18 +99,6 @@ public:
   float updateJvt(const xAOD::Jet& jet, std::string sjvt = "Jvt",
                   std::string scale ="JetPileupScaleMomentum") const;
 
-  // Local method to return the primary and pileup track pT sums
-  // this method also allows the standard jvf to be calculated
-  std::pair<float,float>
-  getJetVertexTrackSums(const xAOD::Vertex*, 
-                        const std::vector<const xAOD::TrackParticle*>&, 
-                        const jet::TrackVertexAssociation*) const;
-
-  // Local method to count the number of pileup tracks in the event
-  int getPileupTrackCount(const xAOD::Vertex*, 
-  const xAOD::TrackParticleContainer*&, 
-  const jet::TrackVertexAssociation*) const; 
-
   // Local method to return the HS vertex - that of type PriVtx
   const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
 
@@ -121,6 +109,8 @@ private:  // data
   std::string m_assocTracksName;
   std::string m_tvaName;
   std::string m_tracksName;
+  std::string m_jvfCorrName;
+  std::string m_sumPtTrkName;
   std::string m_jvtlikelihoodHistName;
   std::string m_jvtfileName;
   std::string m_jvtName;
@@ -128,9 +118,6 @@ private:  // data
   TString m_fn;
   TFile * m_jvtfile;
   TH2F * m_jvthisto;
-  float m_kcorrJVF;
-  float m_z0cut;
-  float m_PUtrkptcut;
 
 };
 

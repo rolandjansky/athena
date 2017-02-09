@@ -76,7 +76,7 @@ void JetCaloEnergies::fillEperSamplingCluster(xAOD::Jet& jet, std::vector<float>
 
 #define FillESamplingPFO( LAYERNAME )					\
   float E_##LAYERNAME = 0.0;						\
-  if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_##LAYERNAME, E_##LAYERNAME)) { \
+  if (constit->attribute(xAOD::PFODetails::eflowRec_LAYERENERGY_##LAYERNAME, E_##LAYERNAME)) { \
     ePerSampling[CaloSampling::LAYERNAME] += E_##LAYERNAME;		\
   }
   
