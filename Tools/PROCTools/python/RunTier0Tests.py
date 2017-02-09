@@ -28,6 +28,11 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
+    if 'CMTPATH' in os.environ:
+        if q == 'q431':
+            extraArg += " --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11 "
+        elif q == 'q221':
+            extraArg += " --conditionsTag all:OFLCOND-RUN12-SDR-25 "
 
     logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
@@ -43,6 +48,11 @@ def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
+    if 'CMTPATH' in os.environ:
+        if q == 'q431':
+            extraArg += " --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11 "
+        elif q == 'q221':
+            extraArg += " --conditionsTag all:OFLCOND-RUN12-SDR-25 "
 
     logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
 
