@@ -27,8 +27,6 @@ namespace HLT {
   class TriggerElement;
 }
 
-using namespace std;
-
 class TrigTauDiscriBuilder: public HLT::FexAlgo {
  public:
   /**  constructor */
@@ -50,7 +48,7 @@ class TrigTauDiscriBuilder: public HLT::FexAlgo {
 
  private:
   /** internal tool store */
-  ToolHandleArray<ITauToolBase>  tools;
+  ToolHandleArray<ITauToolBase>  m_tools;
 
   /** vector of Timers */
   std::vector<TrigTimer* > m_mytimers;
