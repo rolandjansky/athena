@@ -19,6 +19,8 @@
 #include "JetTagTools/DL1Tag.h"
 #include "JetTagTools/TagNtupleDumper.h"
 #include "JetTagTools/JetFitterNNTool.h"
+#include "JetTagTools/JetFitterDummyClassifier.h"
+#include "JetTagTools/JetFitterInputWriter.h"
 
 #include "JetTagTools/SVForIPTool.h"
 #include "JetTagTools/BasicTrackGradeFactory.h"
@@ -66,6 +68,8 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, DL1Tag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, TagNtupleDumper )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MultivariateTagManager )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterNNTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterDummyClassifier )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterInputWriter )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterCharmNNTool )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GaiaNNTool );
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SVForIPTool )
