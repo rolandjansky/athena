@@ -17,7 +17,7 @@
  **
  **   Created:  Tue Nov 28 0:56:50 CET 2006
  **   Modified:  V. Perez Reale added doxygen comments 26/6/07
- **
+ **   Modified:     R. White optimisation for v7 menu (Run2) 07/02/2017
  **************************************************************************/ 
 
 #ifndef TRIG_TrigL2ElectronFex_H 
@@ -36,24 +36,11 @@
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-// trigger EDM
-//#include "TrigInDetEvent/TrigInDetTrack.h"
-//#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
-//#include "TrigCaloEvent/TrigEMCluster.h"
-//#include "TrigParticle/TrigElectron.h"
-//#include "TrigParticle/TrigElectronContainer.h"
-
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
 
-//#include "TrigCaloEvent/RingerEvent.h" // will be moved to TrigEvent
-//#include "TrigCaloEvent/RingerEventContainer.h" // will be moved to TrigEvent
-
-//class ITrigInDetTrackExtrapolator;
-//class IExtrapolateToCaloTool;
 namespace Trk
 { class IParticleCaloExtensionTool; } 
 
@@ -67,6 +54,12 @@ namespace Trk
  * The TrigElectron conatiner will then be retrieved by the hypothesis algorithm TrigL2ElectronHypo
  * that will perform the corresponding L2 electron selection
  *
+ * Cleanup / Update for Run2
+ * Remove m_calo_algoID; m_trackalgoID -- only 1 type of track
+ * Remove deta/dphi cluster -- this is checked at L2Calo
+ * Remove track pt for TRT tracks -- TRT only not used
+ * Remove m_calotrackdeta/dphiTRT -- not cutting on TRT tracks
+ * calotrack deta/dphi and eoverp cuts flat (not as function of eta)
  */
 
 class TrigL2ElectronFex : public HLT::FexAlgo  {
@@ -80,49 +73,27 @@ class TrigL2ElectronFex : public HLT::FexAlgo  {
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
                             HLT::TriggerElement* outputTE);
-  
-  //HLT::ErrorCode acceptInput(const HLT::TriggerElement* inputTE, bool& pass);
 
  private:
   
-  // Properties:
-  unsigned int m_trackalgoID; // used to select algorithm producing tracks, 0: all, 1: SiTrack, 2: IDScan, 4: TRTxK, 5: SiTrack+IDScan
-  unsigned int m_calo_algoID; // used to run from either TrigEMCluster or RingerEvent
-
-  //L1-L2 matching variables
-  float  m_detacluster;
-  float  m_dphicluster;
-  
   //tracking cut
   float  m_trackPtthr;
-  float  m_trackPtthrTRT; //Track pt cut on TRT tracks
   
   //calo-tracking cuts
-  std::vector<float> m_etabin;
-  std::vector<float> m_calotrackdeta; //!<  deta between calo and track
-  std::vector<float> m_calotrackdphi; //!<  dphi between calo and track
-  std::vector<float> m_calotrackdeoverp_low; //!<  E/p lower cut between calo and track
-  std::vector<float> m_calotrackdeoverp_high; //!<  E/p upper cut  between calo and track
-
-  //TRTSegFinder specific calo-track cuts
-  std::vector<float> m_calotrackdetaTRT; //!<  deta between calo and track
-  std::vector<float> m_calotrackdphiTRT; //!<  dphi between calo and track
-
+  float m_calotrackdeta; //!<  deta between calo and track
+  float m_calotrackdphi; //!<  dphi between calo and track
+  float m_calotrackdeoverp_low; //!<  E/p lower cut between calo and track
+  float m_calotrackdeoverp_high; //!<  E/p upper cut  between calo and track
   
   //radius and Z of calorimeter face
   float m_RCAL;  //!<  radious of calorimeter face
   float m_ZCAL;  //!<  Z of calorimeter face
   
-  // to set Accept-All mode and to be able 
-  // to avoid generating TrigElectrons
+  // build electrons for all tracks  
   bool m_acceptAll;
-  //  bool m_saveTrigEl; // now needed to transfer information to hypo
 
   // for extrapolating TrigInDetTracks to calorimeter surface
-//  ITrigInDetTrackExtrapolator* m_trackExtrapolator; //!<  pointer for extrapolating TrigInDetTracks to calorimeter surface
-  //ToolHandle<IExtrapolateToCaloTool> m_trackExtrapolator;
   ToolHandle< Trk::IParticleCaloExtensionTool > m_caloExtensionTool; 
-//  std::string m_trackExtrapolatorName;
 
   xAOD::TrigElectronContainer* m_trigElecColl; //!<  pointer to TrigElectron container
 
@@ -131,16 +102,17 @@ class TrigL2ElectronFex : public HLT::FexAlgo  {
 
   ///Static getter methods for monitoring of TrigElectron container
   static inline double getCaloPt(const xAOD::TrigElectron* aElectron){
-    
     if(!aElectron) return -999.0;
     return aElectron->pt();
   }
 
   static inline double getTkPt(const xAOD::TrigElectron* aElectron){
+      if(!aElectron) return -999.0;
+      return (aElectron->trackParticle() ? aElectron->trackParticle()->pt()   : -999);
+  }
 
-  if(!aElectron) return -999.0;
-  return (aElectron->trackParticle() ? aElectron->trackParticle()->pt()   : -999); 
-}
+  bool extrapolate(const xAOD::TrigEMCluster *, const xAOD::TrackParticle *, double &, double &);
+
 
 
 };
