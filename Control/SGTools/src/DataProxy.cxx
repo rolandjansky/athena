@@ -367,31 +367,33 @@ DataObject* DataProxy::accessData()
   DataObject* obj = obju.release();
   setObject(obj);
   DataBucketBase* bucket = dynamic_cast<DataBucketBase*>(obj);
-  if (bucket) {
-    void* payload = bucket->object();
-    m_t2p->t2pRegister(payload, this);
-    m_errno=ALLOK;
+  if (m_t2p) {
+    if (bucket) {
+      void* payload = bucket->object();
+      m_t2p->t2pRegister(payload, this);
+      m_errno=ALLOK;
 
-    // Register bases as well.
-    const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (m_tAddress->clID());
-    if (bi) {
-      std::vector<CLID> base_clids = bi->get_bases();
-      for (unsigned i=0; i < base_clids.size(); ++i) {
-        void* bobj = SG::DataProxy_cast (this, base_clids[i]);
-        if (bobj && bobj != payload)
-          m_t2p->t2pRegister (bobj, this);
+      // Register bases as well.
+      const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (m_tAddress->clID());
+      if (bi) {
+        std::vector<CLID> base_clids = bi->get_bases();
+        for (unsigned i=0; i < base_clids.size(); ++i) {
+          void* bobj = SG::DataProxy_cast (this, base_clids[i]);
+          if (bobj && bobj != payload)
+            m_t2p->t2pRegister (bobj, this);
+        }
       }
     }
-  }
-  else {
-    MsgStream gLog(m_ims, "DataProxy");
-    gLog << MSG::ERROR
-         << "accessData: ERROR registering object in t2p map" 
-         <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
-         <<" Returning NULL DataObject pointer  " << endmsg;
-    obj=0; 
-    setObject(0);
-    m_errno=T2PREGFAILED;
+    else {
+      MsgStream gLog(m_ims, "DataProxy");
+      gLog << MSG::ERROR
+           << "accessData: ERROR registering object in t2p map" 
+           <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
+           <<" Returning NULL DataObject pointer  " << endmsg;
+      obj=0; 
+      setObject(0);
+      m_errno=T2PREGFAILED;
+    }
   }
 
   return obj;
