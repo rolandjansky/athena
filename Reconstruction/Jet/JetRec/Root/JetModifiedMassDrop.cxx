@@ -45,21 +45,23 @@ JetModifiedMassDrop::~JetModifiedMassDrop() {
 
 StatusCode JetModifiedMassDrop::initialize() {
   if ( m_zcut < 0.0 || m_zcut > 10.0 ) {
-    ATH_MSG_WARNING("Invalid value for ZCut " << m_zcut);
+    ATH_MSG_ERROR("Invalid value for ZCut " << m_zcut);
+    return StatusCode::FAILURE;
   }
   if ( m_mu < 0.0 ) {
-    ATH_MSG_WARNING("Invalid value for MassDrop " << m_mu);
+    ATH_MSG_ERROR("Invalid value for MassDrop " << m_mu);
   }
   if ( m_sym != y && m_sym != scalar_z && m_sym != vector_z ) {
-    ATH_MSG_WARNING("Invalid value for SymmetryMeasure " << m_sym);
+    ATH_MSG_ERROR("Invalid value for SymmetryMeasure " << m_sym);
     return StatusCode::FAILURE;
   }
   if ( m_recursion != larger_pt && m_recursion != larger_mt && m_recursion != larger_m ) {
-    ATH_MSG_WARNING("Invalid value for RecursionChoice " << m_recursion);
+    ATH_MSG_ERROR("Invalid value for RecursionChoice " << m_recursion);
     return StatusCode::FAILURE;
   }
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
+    return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;

@@ -84,6 +84,7 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorr
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import QwTool
 try:
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
   jtm.haveShowerDeconstructionTool = True
@@ -114,7 +115,8 @@ ghostScaleFactor = 1e-40
 #jtm += InDet__InDetDetailedTrackSelectionTool(
 jtm += InDet__InDetTrackSelectionTool(
   "trk_trackselloose",
-  CutLevel                = "Loose"
+  CutLevel = "Loose",
+  minPt    = 500
 )
 
 jtm += JetTrackSelectionTool(
@@ -126,7 +128,8 @@ jtm += JetTrackSelectionTool(
 
 jtm += InDet__InDetTrackSelectionTool(
   "trk_trackselloose_trackjets",
-  CutLevel                = "Loose"
+  CutLevel = "Loose",
+  minPt    = 500
 )
 
 jtm += JetTrackSelectionTool(
@@ -155,14 +158,17 @@ else:
 # Track-vertex association.
 #--------------------------------------------------------------
 from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
-jtm += CP__TightTrackVertexAssociationTool("jetTighTVAtool", dzSinTheta_cut=3, doPV=True)
+jtm += CP__TightTrackVertexAssociationTool("jetTightTVAtool", dzSinTheta_cut=3, doPV=True)
+
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__LooseTrackVertexAssociationTool
+jtm += CP__LooseTrackVertexAssociationTool("jetLooseTVAtool")
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
   TrackParticleContainer  = jtm.trackContainer,
   TrackVertexAssociation  = "JetTrackVtxAssoc",
   VertexContainer         = jtm.vertexContainer,
-  TrackVertexAssoTool     = jtm.jetTighTVAtool,
+  TrackVertexAssoTool     = jtm.jetTightTVAtool,
 )
 
 jtm += TrackVertexAssociationTool(
@@ -203,7 +209,7 @@ jtm += JetPseudojetRetriever("jpjretriever")
 labs = []
 if jetFlags.useTracks():
   labs += ["Track"]
-  labs += ["AntiKt3TrackJet", "AntiKt3TrackJet"]
+  labs += ["AntiKt2TrackJet", "AntiKt2TrackJet"]
 if jetFlags.useMuonSegments():
   labs += ["MuonSegment",]
 if jetFlags.useTruth():
@@ -592,13 +598,13 @@ jtm += JetCaloEnergies("jetens")
 ##   )
 
 # Jet vertex fraction.
-jtm += JetVertexFractionTool(
-  "jvfold",
-  VertexContainer = jtm.vertexContainer,
-  AssociatedTracks = "GhostTrack",
-  TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-  JVFName = "JVFOld"
-)
+# jtm += JetVertexFractionTool(
+#   "jvfold",
+#   VertexContainer = jtm.vertexContainer,
+#   AssociatedTracks = "GhostTrack",
+#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
+#   JVFName = "JVFOld"
+# )
 
 # Jet vertex fraction with selection.
 jtm += JetVertexFractionTool(
@@ -606,22 +612,22 @@ jtm += JetVertexFractionTool(
   VertexContainer = jtm.vertexContainer,
   AssociatedTracks = "GhostTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
+  TrackParticleContainer  = jtm.trackContainer,
   TrackSelector = jtm.trackselloose,
-  JVFName = "JVF"
+  JVFName = "JVF",
+  K_JVFCorrScale = 0.01,
+  #Z0Cut = 3.0,
+  PUTrkPtCut = 30000.0
 )
 
 # Jet vertex tagger.
 jtm += JetVertexTaggerTool(
   "jvt",
   VertexContainer = jtm.vertexContainer,
-  TrackParticleContainer  = jtm.trackContainer,
-  AssociatedTracks = "GhostTrack",
-  TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-  TrackSelector = jtm.trackselloose,
+  # AssociatedTracks = "GhostTrack",
+  # TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
+  # TrackSelector = jtm.trackselloose,
   JVTName = "Jvt",
-  K_JVFCorrScale = 0.01,
-  Z0Cut = 3.0,
-  PUTrkPtCut = 30000.0
 )
 
 # Jet track info.
@@ -792,6 +798,9 @@ jtm += JetChargeTool("charge", K=1.0)
 # Shower deconstruction.
 if jtm.haveShowerDeconstructionTool:
   jtm += ShowerDeconstructionTool("showerdec")
+
+#Q jets
+jtm += QwTool("qw")
 
 # Remove constituents (useful for truth jets in evgen pile-up file)
 jtm += JetConstitRemover("removeconstit")

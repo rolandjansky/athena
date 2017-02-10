@@ -43,13 +43,16 @@ StatusCode JetPruner::initialize() {
     return StatusCode::FAILURE;
   }
   if ( m_rcut < 0.0 || m_rcut > 10.0 ) {
-    ATH_MSG_WARNING("Invalid value for RCut " << m_rcut);
+    ATH_MSG_ERROR("Invalid value for RCut " << m_rcut);
+    return StatusCode::FAILURE;
   }
   if ( m_zcut < 0.0 || m_zcut > 1.0 ) {
-    ATH_MSG_WARNING("Invalid value for ZCut " << m_zcut);
+    ATH_MSG_ERROR("Invalid value for ZCut " << m_zcut);
+    return StatusCode::FAILURE;
   }
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
+    return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
