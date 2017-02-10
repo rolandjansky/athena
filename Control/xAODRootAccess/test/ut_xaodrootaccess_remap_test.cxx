@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodrootaccess_remap_test.cxx 646132 2015-02-11 15:17:44Z krasznaa $
+// $Id: ut_xaodrootaccess_remap_test.cxx 796448 2017-02-09 18:28:08Z ssnyder $
 
 // System include(s):
 #include <memory>
@@ -43,13 +43,16 @@ int main() {
    event.printNameRemap();
 
    // Connect the TEvent object to an input file:
-   static const char* INFILE = "/afs/cern.ch/atlas/project/PAT/xAODs/r5787/"
+   const char* ref = getenv ("ATLAS_REFERENCE_DATA");
+   std::string FPATH =
+     ref ? ref : "/afs/cern.ch/atlas/project/PAT";
+   std::string INFILE = FPATH + "/xAODs/r5787/"
       "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
       "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
       "AOD.01597980._000098.pool.root.1";
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( INFILE, "READ" ) );
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( INFILE.c_str(), "READ" ) );
    if( ! ifile.get() ) {
-      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file %s" ), INFILE );
+      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file %s" ), INFILE.c_str() );
       return 1;
    }
    RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
@@ -57,7 +60,7 @@ int main() {
    // Load the first event:
    if( event.getEntry( 0 ) < 0 ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't load event 0 from file %s" ),
-               INFILE );
+               INFILE.c_str() );
       return 1;
    }
 
