@@ -121,13 +121,14 @@ namespace jet {
       Int=1,
       Float=2,
       VectFloat=3,
+      VectInt=4,
 
       Float_Float=22,
       Float_VectFloat=23,
       VectFloat_Float=32,
     };
     static Supported fromString(const std::string &n){
-      static std::map< std::string , Supported > m( { {"int",Int}, {"float",Float}, {"vector<float>",VectFloat} } );
+      static std::map< std::string , Supported > m( { {"int",Int}, {"float",Float}, {"vector<float>",VectFloat}, {"vector<int>",VectInt},  } );
       if ( m.find( n ) != m.end() ) return m[n];
       return Unknown;
     }
@@ -219,6 +220,17 @@ int JetAttributeHisto::buildHistos(){
                                                        bookHisto( m_histoDef->buildTH1F() ), gev1 );
         else 
           m_histoFiller = new VecAttIndexFiller<float>(m_attNames[0], 
+                                                       bookHisto( m_histoDef->buildTH1F() ) , m_selectedIndex , gev1
+                                                        );
+      }
+      break;
+    case AttTypes::VectInt :
+      {
+        if(m_selectedIndex==-1)
+          m_histoFiller =      new VecAttFiller<int>(m_attNames[0], 
+                                                       bookHisto( m_histoDef->buildTH1F() ), gev1 );
+        else 
+          m_histoFiller = new VecAttIndexFiller<int>(m_attNames[0], 
                                                        bookHisto( m_histoDef->buildTH1F() ) , m_selectedIndex , gev1
                                                         );
       }
