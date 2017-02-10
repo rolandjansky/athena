@@ -452,6 +452,16 @@ metaJetFitterNNTool = { 'CalibrationFolders' : ['JetFitter',],
                                                 'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolNN'},
                         'ToolCollection'     : 'JetFitterCollection' }
 
+def _slim_jf_options(options):
+    new_opts = {}
+    removed = set(
+        ['CalibrationDirectory', 'CalibrationSubDirectory',
+         'calibrationTool', 'NeuralNetworkToHistoTool'])
+    kept = set(options) - removed
+    for optname in kept:
+        new_opts[optname] = options[optname]
+    return new_opts
+
 def toolJetFitterNNTool(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterNNTool tool and returns it.
 
@@ -469,15 +479,19 @@ def toolJetFitterNNTool(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
+                     'useCombinedIPNN'                  : False,
                      'CalibrationDirectory'             : 'JetFitter',
                      'CalibrationSubDirectory'          : 'NeuralNetwork',
-                     'useCombinedIPNN'                  : False,
                      'usePtCorrectedMass'               : True, }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__JetFitterNNTool
-    return Analysis__JetFitterNNTool(**options)
+    from JetTagTools.JetTagToolsConf import Analysis__JetFitterInputWriter
+    if BTaggingFlags.RunJetFitterNNTool:
+        return Analysis__JetFitterNNTool(**options)
+    else:
+        return Analysis__JetFitterInputWriter(**_slim_jf_options(options))
 
 #-------------------------------------------------------------------------
 
@@ -604,7 +618,12 @@ def toolJetFitterCOMBNNTool(name, useBTagFlagsDefaults = True, **options):
             options.setdefault(option, defaults[option])
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__JetFitterNNTool
-    return Analysis__JetFitterNNTool(**options)
+    from JetTagTools.JetTagToolsConf import Analysis__JetFitterInputWriter
+    if BTaggingFlags.RunJetFitterNNTool:
+        return Analysis__JetFitterNNTool(**options)
+    else:
+        return Analysis__JetFitterInputWriter(**_slim_jf_options(options))
+
 
 #-----------------------------------------------------------------------------
 

@@ -1,28 +1,28 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# Configuration functions for Myc100Tag
+# Configuration functions for MV2c10rnnFlipTag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMyc100Tag = { 'IsATagger'          : False,#True,
-                  'xAODBaseName'       : 'MV2c10mu',
+metaMV2c10rnnFlipTag = { 'IsATagger'          : False,#True,
+                  'xAODBaseName'       : 'MV2c10rnnFlip',
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
                                           'SoftMuonTag',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['MV2c10mu',],
+                  'CalibrationFolders' : ['MV2c10rnn',],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-                  'ToolCollection'     : 'Myc100Tag'}
+                  'ToolCollection'     : 'MV2c10rnnFlipTag'}
 
-def toolMyc100Tag(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a Myc100Tag tool and returns it.
+def toolMV2c10rnnFlipTag(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a MV2c10rnnTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
-    taggerName                          default: "MV2c10mu"
-    taggerNameBase                      default: "MV2c10mu"
+    taggerName                          default: "MV2c10rnnFlip"
+    taggerNameBase                      default: "MV2c10rnn"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
     MV2CalibAlias                       default: BTaggingFlags.MV2CalibAlias
 
@@ -30,16 +30,21 @@ def toolMyc100Tag(name, useBTagFlagsDefaults = True, **options):
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    from BTagging.MV2defaultValues import default_values
+    from BTagging.MV2defaultValues import MVTM_varNames
+
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'taggerName'                       : 'MV2c10mu',
-                     'taggerNameBase'                   : 'MV2c10mu',
+                     'taggerName'                       : 'MV2c10rnnFlip',
+                     'taggerNameBase'                   : 'MV2c10rnn',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
+                     'defaultvals'                      : default_values,
+                     'MVTMvariableNames'                : MVTM_varNames,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    from JetTagTools.JetTagToolsConf import Analysis__MyTag
-    return Analysis__MyTag(**options)
+    from JetTagTools.JetTagToolsConf import Analysis__MV2Tag
+    return Analysis__MV2Tag(**options)
