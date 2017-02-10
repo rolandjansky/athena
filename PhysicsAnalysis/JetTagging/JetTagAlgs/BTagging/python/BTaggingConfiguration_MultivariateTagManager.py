@@ -11,7 +11,6 @@ metaMultivariateTagManager = { 'IsATagger'          : True,
                                       'IP2DTag',
                                       'IP3DTag',                                      
                                       'NewJetFitterVxFinder',
-                                      'SV0Tag',
                                       'SV1Tag'],
               'ToolCollection'     : 'MultivariateTagManager' }
 
