@@ -184,8 +184,8 @@ StatusCode JetTagMonitoring::bookHistograms() {
 
     ATH_MSG_DEBUG("bookHistograms()");
 
-    m_isNewLumiBlock = newLumiBlock;
-    if ( !newRun ) {
+    m_isNewLumiBlock = newLumiBlockFlag();
+    if ( !newRunFlag() ) {
         // Only book run-length histogram
         return StatusCode::SUCCESS;
     }
@@ -234,7 +234,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
     registerHist(*m_monGr_shift, m_tag_ip3d_c_sj    = TH1F_LW::create("tag_IP3D_c_sj","IP3D Pc (Suspect Jets)",100,0.,1.)); 
     registerHist(*m_monGr_shift, m_tag_ip3d_llr_sj  = TH1F_LW::create("tag_IP3D_llr_sj","IP3D llr (Suspect Jets)",160,-40.,40.));  
     
-    registerHist(*m_monGr_shift, m_tag_sv0_sig3d  = TH1F_LW::create("tag_SV0_sig3d","SV0 sig3d",100, 0.,100.));     
+    registerHist(*m_monGr_shift, m_tag_sv0_sig3d  = TH1F_LW::create("tag_SV0_sig3d","SV1 sig3d",100, 0.,100.));     
      
     registerHist(*m_monGr_shift, m_tag_sv1_b    = TH1F_LW::create("tag_SV1_b","SV1 Pb (Quality Jets)",100,0.,1.));
     registerHist(*m_monGr_shift, m_tag_sv1_u    = TH1F_LW::create("tag_SV1_u","SV1 Pu (Quality Jets)",100,0.,1.));
@@ -253,86 +253,86 @@ StatusCode JetTagMonitoring::bookHistograms() {
     registerHist(*m_monGr_shift, m_tag_jfcnn_llr_sj   = TH1F_LW::create("tag_JFCNN_llr_sj","Combined weight JetFitterCOMBNN (Suspect Jets)",160,-40.,40.));
     
     registerHist(*m_monGr_shift, m_tag_sv1ip3d_w = TH1F_LW::create("tag_SV1IP3D_w","Combined weight SV1IP3D (quality jet)",100,-10.,10.));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w  = TH1F_LW::create("tag_MV2c20_w","Combined weight MV2c20 (quality jet)",100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w  = TH1F_LW::create("tag_MV2c20_w","Combined weight Mv2c10 (quality jet)",100,-1.,1.));    
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT10_20   = TH1F_LW::create("tag_MV2c20_w_pT10_20"  ,"Combined weight MV2c20 (quality jet), jet pT = [10,20] GeV"  ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT20_50   = TH1F_LW::create("tag_MV2c20_w_pT20_50"  ,"Combined weight MV2c20 (quality jet), jet pT = [20,50] GeV"  ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT50_100  = TH1F_LW::create("tag_MV2c20_w_pT50_100" ,"Combined weight MV2c20 (quality jet), jet pT = [50,100] GeV" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT100_200 = TH1F_LW::create("tag_MV2c20_w_pT100_200","Combined weight MV2c20 (quality jet), jet pT = [100,200] GeV",100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT200     = TH1F_LW::create("tag_MV2c20_w_pT200"    ,"Combined weight MV2c20 (quality jet), jet pT > 200 GeV"      ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT10_20   = TH1F_LW::create("tag_MV2c20_w_pT10_20"  ,"Combined weight Mv2c10 (quality jet), jet pT = [10,20] GeV"  ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT20_50   = TH1F_LW::create("tag_MV2c20_w_pT20_50"  ,"Combined weight Mv2c10 (quality jet), jet pT = [20,50] GeV"  ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT50_100  = TH1F_LW::create("tag_MV2c20_w_pT50_100" ,"Combined weight Mv2c10 (quality jet), jet pT = [50,100] GeV" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT100_200 = TH1F_LW::create("tag_MV2c20_w_pT100_200","Combined weight Mv2c10 (quality jet), jet pT = [100,200] GeV",100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT200     = TH1F_LW::create("tag_MV2c20_w_pT200"    ,"Combined weight Mv2c10 (quality jet), jet pT > 200 GeV"      ,100,-1.,1.));    
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta0_05  = TH1F_LW::create("tag_MV2c20_w_eta0_05" ,"Combined weight MV2c20 (quality jet), jet |eta| = [0.0,0.5]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta05_10 = TH1F_LW::create("tag_MV2c20_w_eta05_10","Combined weight MV2c20 (quality jet), jet |eta| = [0.5,1.0]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta10_15 = TH1F_LW::create("tag_MV2c20_w_eta10_15","Combined weight MV2c20 (quality jet), jet |eta| = [1.0,1.5]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta15_20 = TH1F_LW::create("tag_MV2c20_w_eta15_20","Combined weight MV2c20 (quality jet), jet |eta| = [1.5,2.0]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta20_25 = TH1F_LW::create("tag_MV2c20_w_eta20_25","Combined weight MV2c20 (quality jet), jet |eta| = [2.0,2.5]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta0_05  = TH1F_LW::create("tag_MV2c20_w_eta0_05" ,"Combined weight Mv2c10 (quality jet), jet |eta| = [0.0,0.5]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta05_10 = TH1F_LW::create("tag_MV2c20_w_eta05_10","Combined weight Mv2c10 (quality jet), jet |eta| = [0.5,1.0]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta10_15 = TH1F_LW::create("tag_MV2c20_w_eta10_15","Combined weight Mv2c10 (quality jet), jet |eta| = [1.0,1.5]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta15_20 = TH1F_LW::create("tag_MV2c20_w_eta15_20","Combined weight Mv2c10 (quality jet), jet |eta| = [1.5,2.0]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta20_25 = TH1F_LW::create("tag_MV2c20_w_eta20_25","Combined weight Mv2c10 (quality jet), jet |eta| = [2.0,2.5]" ,100,-1.,1.));    
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi0_07  = TH1F_LW::create("tag_MV2c20_w_phi0_07" ,"Combined weight MV2c20 (quality jet), jet |phi| = [0.0,0.7]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi07_14 = TH1F_LW::create("tag_MV2c20_w_phi07_14","Combined weight MV2c20 (quality jet), jet |phi| = [0.7,1.4]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi14_21 = TH1F_LW::create("tag_MV2c20_w_phi14_21","Combined weight MV2c20 (quality jet), jet |phi| = [1.4,2.1]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi21_28 = TH1F_LW::create("tag_MV2c20_w_phi21_28","Combined weight MV2c20 (quality jet), jet |phi| = [2.1,2.8]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi28    = TH1F_LW::create("tag_MV2c20_w_phi28","Combined weight MV2c20 (quality jet), jet |phi| > 2.8" ,100,-1.,1.));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi0_07  = TH1F_LW::create("tag_MV2c20_w_phi0_07" ,"Combined weight Mv2c10 (quality jet), jet |phi| = [0.0,0.7]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi07_14 = TH1F_LW::create("tag_MV2c20_w_phi07_14","Combined weight Mv2c10 (quality jet), jet |phi| = [0.7,1.4]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi14_21 = TH1F_LW::create("tag_MV2c20_w_phi14_21","Combined weight Mv2c10 (quality jet), jet |phi| = [1.4,2.1]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi21_28 = TH1F_LW::create("tag_MV2c20_w_phi21_28","Combined weight Mv2c10 (quality jet), jet |phi| = [2.1,2.8]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi28    = TH1F_LW::create("tag_MV2c20_w_phi28","Combined weight Mv2c10 (quality jet), jet |phi| > 2.8" ,100,-1.,1.));
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sum85OP = TH1F_LW::create("tag_MV2c20_w_phi_sum85OP","Sum weight MV2c20 > 85% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sum77OP = TH1F_LW::create("tag_MV2c20_w_phi_sum77OP","Sum weight MV2c20 > 77% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sum70OP = TH1F_LW::create("tag_MV2c20_w_phi_sum70OP","Sum weight MV2c20 > 70% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sum50OP = TH1F_LW::create("tag_MV2c20_w_phi_sum50OP","Sum weight MV2c20 > 50% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sumAll  = TH1F_LW::create("tag_MV2c20_w_phi_sumAll" ,"Sum weight MV2c20 All (quality jet)"      ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_frac85OP = TH1F_LW::create("tag_MV2c20_w_phi_frac85OP","Frac weight MV2c20 > 85% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_frac77OP = TH1F_LW::create("tag_MV2c20_w_phi_frac77OP","Frac weight MV2c20 > 77% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_frac70OP = TH1F_LW::create("tag_MV2c20_w_phi_frac70OP","Frac weight MV2c20 > 70% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_frac50OP = TH1F_LW::create("tag_MV2c20_w_phi_frac50OP","Frac weight MV2c20 > 50% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sum85OP = TH1F_LW::create("tag_MV2c20_w_phi_sum85OP","Sum weight Mv2c10 > 85% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sum77OP = TH1F_LW::create("tag_MV2c20_w_phi_sum77OP","Sum weight Mv2c10 > 77% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sum70OP = TH1F_LW::create("tag_MV2c20_w_phi_sum70OP","Sum weight Mv2c10 > 70% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sum50OP = TH1F_LW::create("tag_MV2c20_w_phi_sum50OP","Sum weight Mv2c10 > 50% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_sumAll  = TH1F_LW::create("tag_MV2c20_w_phi_sumAll" ,"Sum weight Mv2c10 All (quality jet)"      ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_frac85OP = TH1F_LW::create("tag_MV2c20_w_phi_frac85OP","Frac weight Mv2c10 > 85% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_frac77OP = TH1F_LW::create("tag_MV2c20_w_phi_frac77OP","Frac weight Mv2c10 > 77% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_frac70OP = TH1F_LW::create("tag_MV2c20_w_phi_frac70OP","Frac weight Mv2c10 > 70% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_phi_frac50OP = TH1F_LW::create("tag_MV2c20_w_phi_frac50OP","Frac weight Mv2c10 > 50% OP (quality jet)" ,14,-TMath::Pi(),TMath::Pi()));
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sum85OP = TH1F_LW::create("tag_MV2c20_w_eta_sum85OP","Sum weight MV2c20 > 85% OP (quality jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sum77OP = TH1F_LW::create("tag_MV2c20_w_eta_sum77OP","Sum weight MV2c20 > 77% OP (quality jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sum70OP = TH1F_LW::create("tag_MV2c20_w_eta_sum70OP","Sum weight MV2c20 > 70% OP (quality jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sum50OP = TH1F_LW::create("tag_MV2c20_w_eta_sum50OP","Sum weight MV2c20 > 50% OP (quality jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sumAll  = TH1F_LW::create("tag_MV2c20_w_eta_sumAll" ,"Sum weight MV2c20 All (quality jet)"      ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_frac85OP = TH1F_LW::create("tag_MV2c20_w_eta_frac85OP","Frac weight MV2c20 > 85% OP (quality jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_frac77OP = TH1F_LW::create("tag_MV2c20_w_eta_frac77OP","Frac weight MV2c20 > 77% OP (quality jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_frac70OP = TH1F_LW::create("tag_MV2c20_w_eta_frac70OP","Frac weight MV2c20 > 70% OP (quality jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_frac50OP = TH1F_LW::create("tag_MV2c20_w_eta_frac50OP","Frac weight MV2c20 > 50% OP (quality jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sum85OP = TH1F_LW::create("tag_MV2c20_w_eta_sum85OP","Sum weight Mv2c10 > 85% OP (quality jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sum77OP = TH1F_LW::create("tag_MV2c20_w_eta_sum77OP","Sum weight Mv2c10 > 77% OP (quality jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sum70OP = TH1F_LW::create("tag_MV2c20_w_eta_sum70OP","Sum weight Mv2c10 > 70% OP (quality jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sum50OP = TH1F_LW::create("tag_MV2c20_w_eta_sum50OP","Sum weight Mv2c10 > 50% OP (quality jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_sumAll  = TH1F_LW::create("tag_MV2c20_w_eta_sumAll" ,"Sum weight Mv2c10 All (quality jet)"      ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_frac85OP = TH1F_LW::create("tag_MV2c20_w_eta_frac85OP","Frac weight Mv2c10 > 85% OP (quality jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_frac77OP = TH1F_LW::create("tag_MV2c20_w_eta_frac77OP","Frac weight Mv2c10 > 77% OP (quality jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_frac70OP = TH1F_LW::create("tag_MV2c20_w_eta_frac70OP","Frac weight Mv2c10 > 70% OP (quality jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_eta_frac50OP = TH1F_LW::create("tag_MV2c20_w_eta_frac50OP","Frac weight Mv2c10 > 50% OP (quality jet)" ,20,-2.5,2.5));
 
     registerHist(*m_monGr_shift, m_tag_sv1ip3d_w_sj = TH1F_LW::create("tag_SV1IP3D_w_sj","Combined weight SV1IP3D (suspect jet)",100,-10.,10.));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj  = TH1F_LW::create("tag_MV2c20_w_sj","Combined weight MV2c20 (suspect jet)",100,-1.,1.));   
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj  = TH1F_LW::create("tag_MV2c20_w_sj","Combined weight Mv2c10 (suspect jet)",100,-1.,1.));   
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT10_20   = TH1F_LW::create("tag_MV2c20_w_sj_pT10_20"  ,"Combined weight MV2c20 (suspect jet), jet pT = [10,20] GeV"  ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT20_50   = TH1F_LW::create("tag_MV2c20_w_sj_pT20_50"  ,"Combined weight MV2c20 (suspect jet), jet pT = [20,50] GeV"  ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT50_100  = TH1F_LW::create("tag_MV2c20_w_sj_pT50_100" ,"Combined weight MV2c20 (suspect jet), jet pT = [50,100] GeV" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT100_200 = TH1F_LW::create("tag_MV2c20_w_sj_pT100_200","Combined weight MV2c20 (suspect jet), jet pT = [100,200] GeV",100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT200     = TH1F_LW::create("tag_MV2c20_w_sj_pT200"    ,"Combined weight MV2c20 (suspect jet), jet pT > 200 GeV"      ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT10_20   = TH1F_LW::create("tag_MV2c20_w_sj_pT10_20"  ,"Combined weight Mv2c10 (suspect jet), jet pT = [10,20] GeV"  ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT20_50   = TH1F_LW::create("tag_MV2c20_w_sj_pT20_50"  ,"Combined weight Mv2c10 (suspect jet), jet pT = [20,50] GeV"  ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT50_100  = TH1F_LW::create("tag_MV2c20_w_sj_pT50_100" ,"Combined weight Mv2c10 (suspect jet), jet pT = [50,100] GeV" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT100_200 = TH1F_LW::create("tag_MV2c20_w_sj_pT100_200","Combined weight Mv2c10 (suspect jet), jet pT = [100,200] GeV",100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_pT200     = TH1F_LW::create("tag_MV2c20_w_sj_pT200"    ,"Combined weight Mv2c10 (suspect jet), jet pT > 200 GeV"      ,100,-1.,1.));    
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta0_05  = TH1F_LW::create("tag_MV2c20_w_sj_eta0_05" ,"Combined weight MV2c20 (suspect jet), jet |eta| = [0.0,0.5]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta05_10 = TH1F_LW::create("tag_MV2c20_w_sj_eta05_10","Combined weight MV2c20 (suspect jet), jet |eta| = [0.5,1.0]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta10_15 = TH1F_LW::create("tag_MV2c20_w_sj_eta10_15","Combined weight MV2c20 (suspect jet), jet |eta| = [1.0,1.5]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta15_20 = TH1F_LW::create("tag_MV2c20_w_sj_eta15_20","Combined weight MV2c20 (suspect jet), jet |eta| = [1.5,2.0]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta20_25 = TH1F_LW::create("tag_MV2c20_w_sj_eta20_25","Combined weight MV2c20 (suspect jet), jet |eta| = [2.0,2.5]" ,100,-1.,1.));  
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta0_05  = TH1F_LW::create("tag_MV2c20_w_sj_eta0_05" ,"Combined weight Mv2c10 (suspect jet), jet |eta| = [0.0,0.5]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta05_10 = TH1F_LW::create("tag_MV2c20_w_sj_eta05_10","Combined weight MV2c10 (suspect jet), jet |eta| = [0.5,1.0]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta10_15 = TH1F_LW::create("tag_MV2c20_w_sj_eta10_15","Combined weight MV2c10 (suspect jet), jet |eta| = [1.0,1.5]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta15_20 = TH1F_LW::create("tag_MV2c20_w_sj_eta15_20","Combined weight MV2c10 (suspect jet), jet |eta| = [1.5,2.0]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta20_25 = TH1F_LW::create("tag_MV2c20_w_sj_eta20_25","Combined weight MV2c10 (suspect jet), jet |eta| = [2.0,2.5]" ,100,-1.,1.));  
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi0_07  = TH1F_LW::create("tag_MV2c20_w_sj_phi0_07" ,"Combined weight MV2c20 (suspect jet), jet |phi| = [0.0,0.7]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi07_14 = TH1F_LW::create("tag_MV2c20_w_sj_phi07_14","Combined weight MV2c20 (suspect jet), jet |phi| = [0.7,1.4]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi14_21 = TH1F_LW::create("tag_MV2c20_w_sj_phi14_21","Combined weight MV2c20 (suspect jet), jet |phi| = [1.4,2.1]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi21_28 = TH1F_LW::create("tag_MV2c20_w_sj_phi21_28","Combined weight MV2c20 (suspect jet), jet |phi| = [2.1,2.8]" ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi28    = TH1F_LW::create("tag_MV2c20_w_sj_phi28","Combined weight MV2c20 (suspect jet), jet |phi| > 2.8" ,100,-1.,1.));  
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi0_07  = TH1F_LW::create("tag_MV2c20_w_sj_phi0_07" ,"Combined weight MV2c10 (suspect jet), jet |phi| = [0.0,0.7]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi07_14 = TH1F_LW::create("tag_MV2c20_w_sj_phi07_14","Combined weight MV2c10 (suspect jet), jet |phi| = [0.7,1.4]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi14_21 = TH1F_LW::create("tag_MV2c20_w_sj_phi14_21","Combined weight MV2c10 (suspect jet), jet |phi| = [1.4,2.1]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi21_28 = TH1F_LW::create("tag_MV2c20_w_sj_phi21_28","Combined weight MV2c10 (suspect jet), jet |phi| = [2.1,2.8]" ,100,-1.,1.));    
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi28    = TH1F_LW::create("tag_MV2c20_w_sj_phi28","Combined weight MV2c10 (suspect jet), jet |phi| > 2.8" ,100,-1.,1.));  
     
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sum85OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_sum85OP","Sum weight MV2c20 > 85% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sum77OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_sum77OP","Sum weight MV2c20 > 77% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sum70OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_sum70OP","Sum weight MV2c20 > 70% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sum50OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_sum50OP","Sum weight MV2c20 > 50% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sumAll  = TH1F_LW::create("tag_MV2c20_w_sj_phi_sumAll" ,"Sum weight MV2c20 All (suspect jet)"      ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_frac85OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_frac85OP","Frac weight MV2c20 > 85% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_frac77OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_frac77OP","Frac weight MV2c20 > 77% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_frac70OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_frac70OP","Frac weight MV2c20 > 70% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_frac50OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_frac50OP","Frac weight MV2c20 > 50% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sum85OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_sum85OP","Sum weight MV2c10 > 85% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sum77OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_sum77OP","Sum weight MV2c10 > 77% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sum70OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_sum70OP","Sum weight MV2c10 > 70% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sum50OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_sum50OP","Sum weight MV2c10 > 50% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_sumAll  = TH1F_LW::create("tag_MV2c20_w_sj_phi_sumAll" ,"Sum weight MV2c10 All (suspect jet)"      ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_frac85OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_frac85OP","Frac weight MV2c10 > 85% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_frac77OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_frac77OP","Frac weight MV2c10 > 77% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_frac70OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_frac70OP","Frac weight MV2c10 > 70% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_phi_frac50OP = TH1F_LW::create("tag_MV2c20_w_sj_phi_frac50OP","Frac weight MV2c10 > 50% OP (suspect jet)" ,14,-TMath::Pi(),TMath::Pi()));
 
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sum85OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_sum85OP","Sum weight MV2c20 > 85% OP (suspect jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sum77OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_sum77OP","Sum weight MV2c20 > 77% OP (suspect jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sum70OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_sum70OP","Sum weight MV2c20 > 70% OP (suspect jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sum50OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_sum50OP","Sum weight MV2c20 > 50% OP (suspect jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sumAll  = TH1F_LW::create("tag_MV2c20_w_sj_eta_sumAll" ,"Sum weight MV2c20 All (suspect jet)"      ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_frac85OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_frac85OP","Frac weight MV2c20 > 85% OP (suspect jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_frac77OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_frac77OP","Frac weight MV2c20 > 77% OP (suspect jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_frac70OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_frac70OP","Frac weight MV2c20 > 70% OP (suspect jet)" ,20,-2.5,2.5));
-    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_frac50OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_frac50OP","Frac weight MV2c20 > 50% OP (suspect jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sum85OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_sum85OP","Sum weight MV2c10 > 85% OP (suspect jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sum77OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_sum77OP","Sum weight MV2c10 > 77% OP (suspect jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sum70OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_sum70OP","Sum weight MV2c10 > 70% OP (suspect jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sum50OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_sum50OP","Sum weight MV2c10 > 50% OP (suspect jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_sumAll  = TH1F_LW::create("tag_MV2c20_w_sj_eta_sumAll" ,"Sum weight MV2c10 All (suspect jet)"      ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_frac85OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_frac85OP","Frac weight MV2c10 > 85% OP (suspect jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_frac77OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_frac77OP","Frac weight MV2c10 > 77% OP (suspect jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_frac70OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_frac70OP","Frac weight MV2c10 > 70% OP (suspect jet)" ,20,-2.5,2.5));
+    registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj_eta_frac50OP = TH1F_LW::create("tag_MV2c20_w_sj_eta_frac50OP","Frac weight MV2c10 > 50% OP (suspect jet)" ,20,-2.5,2.5));
 
     registerHist(*m_monGr_shift, m_jet_n = TH1F_LW::create("jet_n","number of jets",20,0.,20.));
 
@@ -431,9 +431,9 @@ StatusCode JetTagMonitoring::bookHistograms() {
 
     registerHist(*m_monGr_shift, m_sv1ip3d_tag_pos_rate_2D = TH2F_LW::create("sv1ip3d_tag_pos_rate_2D", "SV1+IP3D Tag Positive Rate;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
     registerHist(*m_monGr_shift, m_sv1ip3d_tag_neg_rate_2D = TH2F_LW::create("sv1ip3d_tag_neg_rate_2D", "SV1+IP3D Tag Negative Rate;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
-    registerHist(*m_monGr_shift, m_mv2c20_tag_50_2D = TH2F_LW::create("mv2c20_tag_50_rate_2D", "MV2c20 Tag 50%;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
-    registerHist(*m_monGr_shift, m_mv2c20_tag_70_2D = TH2F_LW::create("mv2c20_tag_70_rate_2D", "MV2c20 Tag 70%;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
-    registerHist(*m_monGr_shift, m_mv2c20_tag_80_2D = TH2F_LW::create("mv2c20_tag_80_rate_2D", "MV2c20 Tag 80%;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
+    registerHist(*m_monGr_shift, m_mv2c20_tag_50_2D = TH2F_LW::create("mv2c20_tag_50_rate_2D", "MV2c10 Tag 50%;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
+    registerHist(*m_monGr_shift, m_mv2c20_tag_70_2D = TH2F_LW::create("mv2c20_tag_70_rate_2D", "MV2c10 Tag 70%;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
+    registerHist(*m_monGr_shift, m_mv2c20_tag_80_2D = TH2F_LW::create("mv2c20_tag_80_rate_2D", "MV2c10 Tag 80%;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
 
  
     registerHist(*m_monGr_shift, m_tracks_all_2D = TH2F_LW::create("tracks_all_2D", "All Tracks", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -459,7 +459,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
     /*
     Starting to register LowStat histograms:
     */
-    if ( newRun || newLowStatInterval ) {
+    if ( newRunFlag() || newLowStatIntervalFlag() ) {
         registerHist(*m_monGr_LowStat, m_tracks_all_2D_LS = TH2F_LW::create("tracks_all_2D_LS", "All Tracks;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
         registerHist(*m_monGr_LowStat, m_tracks_pTMin_2D_LS = TH2F_LW::create("tracks_pTMin_2D_LS", "Tracks Failed pTMin Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
         registerHist(*m_monGr_LowStat, m_tracks_d0Max_2D_LS = TH2F_LW::create("tracks_d0Max_2D_LS", "Tracks Failed d0Max Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -483,11 +483,11 @@ StatusCode JetTagMonitoring::bookHistograms() {
 
         // registerHist(*m_monGr_LowStat, m_mv2c20_tag_80_2D_LS = TH2F_LW::create("mv2c20_tag_80_2D_LS", "MV2c20 Tag 80%", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
 	registerHist(*m_monGr_shift, m_tag_mv2c20_w_LS  = TH1F_LW::create("tag_MV2c20_w_LS","Combined weight MV2c20 (quality jet)",100,-1.,1.));  
-	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT10_20_LS   = TH1F_LW::create("tag_MV2c20_w_pT10_20_LS"  ,"Combined weight MV2c20 (quality jet), jet pT = [10,20] GeV"  ,100,-1.,1.));    
-	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT20_50_LS   = TH1F_LW::create("tag_MV2c20_w_pT20_50_LS"  ,"Combined weight MV2c20 (quality jet), jet pT = [20,50] GeV"  ,100,-1.,1.));    
-	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT50_100_LS  = TH1F_LW::create("tag_MV2c20_w_pT50_100_LS" ,"Combined weight MV2c20 (quality jet), jet pT = [50,100] GeV" ,100,-1.,1.));    
-	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT100_200_LS = TH1F_LW::create("tag_MV2c20_w_pT100_200_LS","Combined weight MV2c20 (quality jet), jet pT = [100,200] GeV",100,-1.,1.));    
-	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT200_LS     = TH1F_LW::create("tag_MV2c20_w_pT200_LS"    ,"Combined weight MV2c20 (quality jet), jet pT > 200 GeV"      ,100,-1.,1.));   
+	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT10_20_LS   = TH1F_LW::create("tag_MV2c20_w_pT10_20_LS"  ,"Combined weight MV2c10 (quality jet), jet pT = [10,20] GeV"  ,100,-1.,1.));    
+	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT20_50_LS   = TH1F_LW::create("tag_MV2c20_w_pT20_50_LS"  ,"Combined weight MV2c10 (quality jet), jet pT = [20,50] GeV"  ,100,-1.,1.));    
+	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT50_100_LS  = TH1F_LW::create("tag_MV2c20_w_pT50_100_LS" ,"Combined weight MV2c10 (quality jet), jet pT = [50,100] GeV" ,100,-1.,1.));    
+	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT100_200_LS = TH1F_LW::create("tag_MV2c20_w_pT100_200_LS","Combined weight MV2c10 (quality jet), jet pT = [100,200] GeV",100,-1.,1.));    
+	registerHist(*m_monGr_shift, m_tag_mv2c20_w_pT200_LS     = TH1F_LW::create("tag_MV2c20_w_pT200_LS"    ,"Combined weight MV2c10 (quality jet), jet pT > 200 GeV"      ,100,-1.,1.));   
 
         registerHist(*m_monGr_LowStat, m_jet_2D_kinematic_LS     = TH2F_LW::create("jet_2D_kinematic_LS", "Jet 2D plot (Kinematic Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
         registerHist(*m_monGr_LowStat, m_track_selector_eff_LS   = TH2F_LW::create("track_selector_eff_LS", "Efficiency of Track Selector Tool;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -817,7 +817,7 @@ StatusCode JetTagMonitoring::procHistograms() {
     ATH_MSG_DEBUG("in procHistograms()");
 
     /* Finalize the histograms */
-    if ( m_histogramsCreated && (endOfRun || AthenaMonManager::environment() == AthenaMonManager::online) ) {
+    if ( m_histogramsCreated && (endOfRunFlag() || AthenaMonManager::environment() == AthenaMonManager::online) ) {
       
       m_track_selector_eff->getROOTHist()->Divide(m_track_selector_all->getROOTHist(),m_tracks_all_2D->getROOTHist());
       
@@ -931,7 +931,10 @@ void JetTagMonitoring::fillJetHistograms() {
         if(!btag) continue; 
 
 	double sv1ip3d = btag->SV1plusIP3D_discriminant();
-        double mv2c20 = btag->auxdata<double>("MV2c20_discriminant"); 
+        double mv2c10_tmp = 0;
+	btag->MVx_discriminant("MV2c10",mv2c10_tmp);
+	double mv2c20 = mv2c10_tmp;
+	
     
         /* fill the 2D SV1IP3D rate */
         if ( sv1ip3d > m_sv1ip3d_weight_cut ) {
@@ -1071,7 +1074,9 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t qualit
     ATH_MSG_VERBOSE("InfoBase for IP2D: #tracks = " << ntrk << ", Pb = " << pb 
     << ", Pu = " << pu<< ", Pc = " << pc << ", llr = " << llr);
 
-    m_tag_sv0_sig3d->Fill(btag->SV0_significance3D());
+    float sig3d = 0;
+    btag->variable<float>("SV1", "significance3d" , sig3d);
+    m_tag_sv0_sig3d->Fill(sig3d);
     
     pb          = btag->SV1_pb();        // b likelihood
     pu          = btag->SV1_pu();        // u likelihood
@@ -1101,7 +1106,9 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t qualit
       m_tag_jetfitter_llr_sj->Fill(llr);
     }
  
-    llr = btag->JetFitterCombNN_loglikelihoodratio(); // log likelihood ratio 
+    // log likelihood ratio
+    llr = btag->JetFitter_loglikelihoodratio();
+ 
     if ( quality == goodJet ) {
       m_tag_jfcnn_llr->Fill(llr);
     }
@@ -1162,8 +1169,10 @@ void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
     const xAOD::BTagging* btag = jet->btagging();
 
     double sv1ip3d = btag->SV1plusIP3D_discriminant();
-    double mv2c20 = btag->auxdata<double>("MV2c20_discriminant");    
-      
+    double mv2c10_tmp = 0;
+    btag->MVx_discriminant("MV2c10",mv2c10_tmp);
+    double mv2c20 = mv2c10_tmp;
+  
     m_tag_sv1ip3d_w->Fill(sv1ip3d);
     m_tag_mv2c20_w->Fill(mv2c20);   
     m_tag_mv2c20_w_LS->Fill(mv2c20);   
@@ -1263,9 +1272,11 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   
     const xAOD::BTagging* btag = jet->btagging();
 
-    double sv1ip3d = btag->SV1plusIP3D_discriminant();
-    double mv2c20 = btag->auxdata<double>("MV2c20_discriminant");    
-      
+    double sv1ip3d = btag->SV1plusIP3D_discriminant(); 
+    double mv2c10_tmp = 0;
+    btag->MVx_discriminant("MV2c10",mv2c10_tmp);
+    double mv2c20 = mv2c10_tmp;
+ 
     m_tag_sv1ip3d_w_sj->Fill(sv1ip3d);
     m_tag_mv2c20_w_sj->Fill(mv2c20);   
 
