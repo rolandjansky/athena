@@ -1,3 +1,11 @@
+2017-02-10 Noemi Calace
+	* Adding BrlInclOptRing_4.0ref GeoType option
+	* Tagged as TrkTrackSummaryTool-01-02-08-03
+
+2017-01-18 Noemi Calace
+	* Adding CMakeLists for rel21
+	* Tagged as TrkTrackSummaryTool-01-02-08-02
+
 2015-10-06 Goetz Gaycken
 	* Removed debug flags.
 

@@ -202,7 +202,10 @@ StatusCode
     //Layer i: 0 - 4; number of Rings for Layer i; number of Incl for Layer i;
     int pixel[nPixelBarrel][3] = { { 0, 16+1, 16+1 }, { 1, 18+1, 17+1 }, { 2, 15+1, 12+1 }, { 3, 15+1, 12+1 }, { 4, 0, 12+1 } };
     int nCompPixelVar = 2;
-    if ( m_geometryType == "BrlIncl4.0_ref" || m_geometryType == "IBrlExt4.0ref" ) nCompPixelVar = 3;
+    if ( m_geometryType == "BrlIncl4.0_ref" || m_geometryType == "IBrlExt4.0ref" || m_geometryType == "BrlInclOptRing4.0_ref") nCompPixelVar = 3;
+    if (m_geometryType == "BrlInclOptRing4.0_ref") {
+      pixel[0][1] = 14+1; pixel[1][1] = 12+1; pixel[2][1] =  9+1; pixel[3][1] = 11+1;
+    }
     int index = 1;
     for ( int ipart = 0; ipart < nPart; ipart++) {
       if ( part[ipart] == "Pixel" ) {
@@ -333,7 +336,7 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
      informationITk["numberOfContribStripECDisk"]   = 0; //Number of Contributing Strip EC Disks
 
      
-    if ( m_geometryType == "BrlIncl4.0_ref" || m_geometryType == "IBrlExt4.0ref" ) {
+    if ( m_geometryType == "BrlIncl4.0_ref" || m_geometryType == "IBrlExt4.0ref" || m_geometryType == "BrlInclOptRing4.0_ref") {
       informationITk["numberOfContribPixelInclined"] = 0; //Number of Contributing Inclined Pixel "Modules"?
       informationITk["numberOfContribPixelCentral"]  = 0; //Number of Contributing Central Pixel Modules
       informationITk["numberOfPixelInclHits"]        = 0; //Number of Inclined Pixel Hits
