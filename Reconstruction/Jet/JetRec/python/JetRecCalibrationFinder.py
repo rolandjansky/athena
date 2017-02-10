@@ -51,7 +51,7 @@ class JetRecCalibrationFinder:
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
     "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
     "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
-    "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016.config"
+    "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
   }
 
   def find(self, alg, rad, inpin, seq, configkeyin, evsprefix):
@@ -117,9 +117,7 @@ class JetRecCalibrationFinder:
       evskey = evsprefix + evssuf
       jetlog.info( myname + "  Event shape key: " + evskey )
       # ...create the tool.
-      setDetEtaPhi = (configkey != "reco") # Temporary setting to avoid clash with modifiers that set detector eta
-      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey,
-                                DoSetDetectorEta=setDetEtaPhi)
+      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey)
 
     return jtm.tools[tname]
 

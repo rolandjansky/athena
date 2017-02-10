@@ -27,7 +27,7 @@ def declareDefaultTools():
   labs = []
   if jetFlags.useTracks():
     labs += ["Track"]
-    labs += ["AntiKt3TrackJet", "AntiKt3TrackJet"]
+    labs += ["AntiKt2TrackJet", "AntiKt2TrackJet"]
   if jetFlags.useMuonSegments():
     labs += ["MuonSegment",]
   if jetFlags.useTruth():
