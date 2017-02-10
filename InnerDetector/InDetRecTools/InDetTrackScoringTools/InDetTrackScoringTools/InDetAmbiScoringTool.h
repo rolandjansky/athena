@@ -99,10 +99,9 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
 
   /** IncidentSvc to catch begining of event and end of event */   
   ServiceHandle<IIncidentSvc>           m_incidentSvc;   
-
-
-	/** tool to get cut values depending on different variable */   
-	ToolHandle<IInDetDynamicCutsTool>     m_dynamicCutsTool;
+  
+  /** tool to get cut values depending on different variable */   
+  ToolHandle<IInDetDynamicCutsTool>     m_dynamicCutsTool;
   
   /** use the scoring tuned to Ambiguity processing or not */
   bool m_useITkAmbigFcn;
@@ -150,6 +149,7 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   bool                  m_mapFilled;
 
   bool m_useDynamicCuts;	// use InDetDynamicCutsTool to determine the cut value depending on characteristics of each track (default is false)
+
 };
 
 

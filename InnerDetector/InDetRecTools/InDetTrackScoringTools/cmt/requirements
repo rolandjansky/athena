@@ -19,6 +19,7 @@ use InDetRecToolInterfaces   InDetRecToolInterfaces-*   InnerDetector/InDetRecTo
 use MagFieldInterfaces       MagFieldInterfaces-*       MagneticField
 use GeoPrimitives            GeoPrimitives-*            DetectorDescription
 use TrkCaloClusterROI        TrkCaloClusterROI-*        Tracking/TrkEvent
+
 public
 
 use AtlasPolicy 	  	 AtlasPolicy-*

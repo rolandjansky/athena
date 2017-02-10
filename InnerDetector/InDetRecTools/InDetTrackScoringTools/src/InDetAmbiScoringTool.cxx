@@ -74,6 +74,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("SummaryTool" ,      m_trkSummaryTool);
   declareProperty("DriftCircleCutTool",m_selectortool );
   declareProperty("BeamPositionSvc",   m_iBeamCondSvc );
+
   declareProperty("MagFieldSvc",       m_magFieldSvc);
   
   declareProperty("maxRPhiImpEM",      m_maxRPhiImpEM  = 50.  );
@@ -187,7 +188,6 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
     return StatusCode::FAILURE;
   }
 
-
   if (m_incidentSvc.retrieve().isFailure()){
     ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
     return StatusCode::FAILURE;
@@ -195,15 +195,15 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   
   // register to the incident service: EndEvent needed for memory cleanup
   m_incidentSvc->addListener( this, "BeginEvent");
-
+  
   if (m_useITkAmbigFcn) {
-    if(m_geometryType == "BrlIncl4.0_ref" || m_geometryType == "IBrlExt4.0ref") m_isInclined=true;
+    if(m_geometryType == "BrlIncl4.0_ref" || m_geometryType == "IBrlExt4.0ref" || m_geometryType == "BrlInclOptRing4.0_ref") m_isInclined=true;
     ATH_MSG_INFO("Using ITk Score Modifiers");
   }
   if (m_isInclined) {
     ATH_MSG_INFO(" for the inclined layout");
   }
-
+  
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
   
   return StatusCode::SUCCESS;
