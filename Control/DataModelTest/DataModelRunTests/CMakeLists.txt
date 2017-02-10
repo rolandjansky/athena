@@ -65,6 +65,14 @@ datamodel_run_test (xAODTestReadARA
                     COMMAND python
                     ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODTestReadARA_t.py
                     DEPENDS xAODTestWrite)
+datamodel_run_test (xAODRootTestRead
+                    COMMAND python
+                    ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODRootTestRead_t.py
+                    DEPENDS xAODTestWrite)
+datamodel_run_test (xAODRootTestRead2
+                    COMMAND python
+                    ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODRootTestRead2_t.py
+                    DEPENDS xAODRootTestRead)
 
 datamodel_run_test (ByteStreamTestWrite)
 datamodel_run_test (ByteStreamTestRead DEPENDS ByteStreamTestWrite)
