@@ -432,7 +432,7 @@ if InDetFlags.doStandardPlots():
                                                               doUpgrade          = InDetFlags.doSLHC(),
                                                               DoTruth            = InDetFlags.doTruth())
       if InDetFlags.doSplitReco() :
-        InDetStandardPerformancePseudoTracks.TruthParticleContainerName = "TruthEvent_PU"
+        InDetStandardPerformancePseudoTracks.TruthParticleContainerName = ["TruthEvent_PU"]
       ToolSvc += InDetStandardPerformancePseudoTracks
       if (InDetFlags.doPrintConfigurables()):
         print    InDetStandardPerformancePseudoTracks
@@ -535,7 +535,7 @@ if InDetFlags.doPhysValMon():
 #  if InDetFlags.doDBM():
 #    InDetPhysValMonToolDBM = InDetPhysValMonitoringTool (useTrackSelection   = False,
 #                                                         TrackParticleContainerName   = "InDetDBMTrackParticles",
-#                                                         TruthParticleContainerName = "DBMTracksTruth",
+#                                                         TruthParticleContainerName = ["DBMTracksTruth"],
 #                                                         TrackSelectionTool = None,
 #                                                         TruthSelectionTool = None,
 #                                                         jetContainerName = "")
@@ -554,7 +554,7 @@ if InDetFlags.doPhysValMon():
   if InDetFlags.doSplitReco():
     InDetPhysValMonToolPU = InDetPhysValMonitoringTool (useTrackSelection   = True,
                                                         TrackSelectionTool   = InDetTrackSelectorTool,
-                                                        TruthParticleContainerName = "SpclMCPU")
+                                                        TruthParticleContainerName = ["SpclMCPU"])
     ToolSvc += InDetPhysValMonToolPU
     InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonToolPU]
     if (InDetFlags.doPrintConfigurables()):

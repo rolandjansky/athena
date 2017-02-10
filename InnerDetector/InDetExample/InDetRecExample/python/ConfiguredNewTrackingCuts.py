@@ -292,6 +292,39 @@ class ConfiguredNewTrackingCuts :
         self.__minPTBrem                = [1000.0, 1000.0]
         self.__phiWidthBrem             = [0.3, 0.3]
         self.__etaWidthBrem             = [0.2, 0.2]  
+
+      elif self.__indetflags.useInDetDynamicCuts() and "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType():
+        self.__maxEta                  = 4.0
+        self.__etaBins                 = [-1.0, 2.4, 2.6]		# last bin goes from the last value in the list up to maxEta
+    
+        self.__minPT                   = [900.0, 900.0, 400.0]
+    
+        # --- cluster cuts
+        self.__minClusters             = [9, 8, 7]
+        self.__minSiNotShared          = [7, 6, 5]
+        self.__maxShared               = [2, 2, 2]
+        self.__minPixel                = [1, 1, 1]
+        self.__maxHoles                = [2, 2, 2]
+        self.__maxPixelHoles           = [1, 1, 1]
+        self.__maxSctHoles             = [2, 2, 2]
+        self.__maxDoubleHoles          = [1, 1, 1]
+        self.__maxPrimaryImpact        = [2.0, 2.0, 10.0]
+        self.__maxZImpact              = [250.0, 250.0, 250.0]
+    
+        # --- general pattern cuts for NewTracking
+        self.__nHolesMax               = self.__maxHoles
+        self.__nHolesGapMax            = self.__maxHoles
+        self.__Xi2max                  = [9.0, 9.0, 9.0]
+        self.__Xi2maxNoAdd             = [25.0, 25.0, 25.0]
+        self.__nWeightedClustersMin    = [6, 6, 6]
+    
+        # --- seeding 
+        self.__maxdImpactSSSSeeds       = [20.0, 20.0, 20.0]
+    
+        # --- min pt cut for brem
+        self.__minPTBrem                = [1000.0, 1000.0, 1000.0]
+        self.__phiWidthBrem             = [0.3, 0.3, 0.3]
+        self.__etaWidthBrem             = [0.2, 0.2, 0.2]  
         
       elif self.__indetflags.useInDetDynamicCuts() and ("BrlExt4.0_ref" == GeometryFlags.GeoType() or "BrlExt3.2_ref" == GeometryFlags.GeoType()):
         self.__maxEta                  = 4.0
@@ -325,6 +358,7 @@ class ConfiguredNewTrackingCuts :
         self.__minPTBrem                = [1000.0, 1000.0, 1000.0]
         self.__phiWidthBrem             = [0.3, 0.3, 0.3]
         self.__etaWidthBrem             = [0.2, 0.2, 0.2]
+
       elif self.__indetflags.useInDetDynamicCuts():
         self.__maxEta                  = 4.0
         self.__etaBins                 = [-1.0, 2.7]		# last bin goes from the last value in the list up to maxEta
