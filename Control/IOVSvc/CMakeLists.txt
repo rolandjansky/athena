@@ -25,7 +25,7 @@ atlas_add_library( IOVSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS IOVSvc
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools GaudiKernel StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools GaudiKernel StoreGateLib SGtests xAODEventInfo
                    PRIVATE_LINK_LIBRARIES TestTools EventInfo )
 
 atlas_add_component( IOVSvc
