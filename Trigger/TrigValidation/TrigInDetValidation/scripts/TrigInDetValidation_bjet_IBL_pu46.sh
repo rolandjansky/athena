@@ -1,7 +1,7 @@
 #!/bin/sh
 
 get_files -jo TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice.py
-athena.py  -c 'XMLDataSet="TrigInDetValidation_bjet_IBL_pu40";EventMax=900;runMergedChain=True;globalTag="OFLCOND-RUN12-SDR-17"' TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice.py 
+athena.py  -c 'XMLDataSet="TrigInDetValidation_bjet_IBL_pu46";EventMax=900;runMergedChain=True;globalTag="OFLCOND-RUN12-SDR-17"' TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice.py 
 
 
 get_files -data TIDAdata11-rtt.dat

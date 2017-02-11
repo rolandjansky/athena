@@ -1,7 +1,7 @@
 #!/bin/sh
 
 get_files -jo TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py
-athena.py  -c 'XMLDataSet="TrigInDetValidation_all_ttbar_pu46";EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)' TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py 
+athena.py  -c 'XMLDataSet="TrigInDetValidation_all_ttbar_pu80";EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)' TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py 
 
 
 get_files -data TIDAdata11-rtt.dat
