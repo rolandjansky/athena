@@ -52,7 +52,7 @@ int main (int argc, const char * argv[]) {
 	tool_SF.addFileName(file.Data());
 
 if(!tool_SF.initialize()){
-  printf("Tool not initialized properly, chech the error massages\n");
+  printf("Tool not initialized properly, check the error massages\n");
   return 0;
 }
 

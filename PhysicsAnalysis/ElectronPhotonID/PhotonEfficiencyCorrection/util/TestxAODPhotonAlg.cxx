@@ -81,33 +81,31 @@ int main( int argc, char* argv[] ) {
    }
 
 	// Initialize photonFS tool
-   AsgPhotonEfficiencyCorrectionTool photonSF_ID("AsgPhotonEfficiencyCorrectionTool");
-   AsgPhotonEfficiencyCorrectionTool photonSF_Iso("AsgPhotonEfficiencyCorrectionTool");
+   AsgPhotonEfficiencyCorrectionTool photonSF_ID("AsgPhotonEfficiencyCorrectionTool_idSF");
+   AsgPhotonEfficiencyCorrectionTool photonSF_Iso("AsgPhotonEfficiencyCorrectionTool_isoSF");
   
    //  photonSF_ID.msg().setLevel( MSG::DEBUG ); 
 
 
-   //loads input files
-   std::string file_unc = PathResolverFindCalibFile("PhotonEfficiencyCorrection/v1/efficiencySF.offline.Tight.2015.13TeV.rel20.unc.v02.root"); //returns "" if file not found
-   std::string file_con = PathResolverFindCalibFile("PhotonEfficiencyCorrection/v1/efficiencySF.offline.Tight.2015.13TeV.rel20.con.v02.root"); //returns "" if file not found
-   CHECK(photonSF_ID.setProperty("CorrectionFileNameConv",file_con));
-   CHECK(photonSF_ID.setProperty("CorrectionFileNameUnconv",file_unc));
+   //Set Properties for photonID_SF tool
+   CHECK(photonSF_ID.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
+   CHECK(photonSF_ID.setProperty("ForceDataType",1)); 
    
-   // files stored in SVN/trunk or in calibration area
-   std::string fileISO_unc = PathResolverFindCalibFile("PhotonEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v1/isolation/efficiencySF.Isolation.isolFixedCutLoose.2015.13TeV.rel20.7.25ns.unc.v01.root");
-   std::string fileISO_con = PathResolverFindCalibFile("PhotonEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v1/isolation/efficiencySF.Isolation.isolFixedCutLoose.2015.13TeV.rel20.7.25ns.con.v01.root");
-   CHECK(photonSF_Iso.setProperty("CorrectionFileNameConv",fileISO_unc));
-   CHECK(photonSF_Iso.setProperty("CorrectionFileNameUnconv",fileISO_unc));
+   //Set Properties for photonISO_SF tool
+   CHECK(photonSF_Iso.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
+   CHECK(photonSF_Iso.setProperty("IsoWP","Loose"));	// Set isolation WP: Loose,Tight,TightCaloOnly
+   CHECK(photonSF_Iso.setProperty("Threshold_lowPT",25.0));	// this is a default value, no need to set if using it
+   CHECK(photonSF_Iso.setProperty("Threshold_highPT",100.0));	// this is a default value, no need to set if using it
+   CHECK(photonSF_Iso.setProperty("UseRadiativeZSF_mediumPT",false));	// default=false, set to true to use RadZSF up to Threshold_highPT
+   CHECK(photonSF_Iso.setProperty("ForceDataType",1)); //set data type: 1 for FULLSIM, 3 for AF2
    
    
-   //set data type: 1 for FULLSIM, 3 for AF2
-   CHECK(photonSF_Iso.setProperty("ForceDataType",1));
-   if(!photonSF_Iso.initialize()){
+   
+   if(!photonSF_ID.initialize()){
      std::cout <<"Failed to initialize the tool, check for errors"<<std::endl;
      return 0;
    }
-   CHECK(photonSF_ID.setProperty("ForceDataType",1));
-   if(!photonSF_ID.initialize()){
+   if(!photonSF_Iso.initialize()){
      std::cout <<"Failed to initialize the tool, check for errors"<<std::endl;
      return 0;
    }
