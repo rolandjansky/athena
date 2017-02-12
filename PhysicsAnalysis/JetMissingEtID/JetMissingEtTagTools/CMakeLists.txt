@@ -12,15 +12,21 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODJet
                           GaudiKernel
                           PhysicsAnalysis/EventTag/TagEvent
+			  PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
                           PRIVATE
                           Control/AthContainers
                           Control/CxxUtils
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODMissingET
                           Event/xAOD/xAODParticleEvent
+                          Event/xAOD/xAODEgamma
+                          Event/xAOD/xAODMuon
+                          Event/xAOD/xAODTau
                           PhysicsAnalysis/AnalysisCommon/AnalysisUtils
                           PhysicsAnalysis/JetMissingEtID/JetSelectorTools
+			  Reconstruction/MET/METInterface
                           Reconstruction/Jet/JetCalibTools
+			  Reconstruction/Jet/JetInterface 
                           Reconstruction/Jet/JetUtils )
 
 # External dependencies:

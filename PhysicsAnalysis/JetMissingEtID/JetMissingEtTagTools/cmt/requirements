@@ -9,11 +9,17 @@ use AtlasCLHEP		AtlasCLHEP-*		External
 use JetUtils		JetUtils-*		Reconstruction/Jet
 use AnalysisUtils	AnalysisUtils-*		PhysicsAnalysis/AnalysisCommon
 use xAODCore            xAODCore-*              Event/xAOD
-use xAODMissingET       xAODMissingET-*         Event/xAOD
 use xAODParticleEvent   xAODParticleEvent-*     Event/xAOD 	
-use JetSelectorTools JetSelectorTools-* PhysicsAnalysis/JetMissingEtID
+use JetSelectorTools    JetSelectorTools-*      PhysicsAnalysis/JetMissingEtID
 use JetCalibTools       JetCalibTools-*         Reconstruction/Jet
+use JetInterface        JetInterface-*          Reconstruction/Jet
 use AthContainers       AthContainers-*         Control
+use xAODEgamma          xAODEgamma-*		Event/xAOD
+use xAODMuon            xAODMuon-*		Event/xAOD
+use xAODTau             xAODTau-*		Event/xAOD
+use xAODMissingET       xAODMissingET-*         Event/xAOD
+use METInterface        METInterface-*          Reconstruction/MET
+
 public 
 use xAODJet             xAODJet-*               Event/xAOD
 use AtlasPolicy		AtlasPolicy-*
@@ -21,6 +27,7 @@ use AthenaPoolUtilities	AthenaPoolUtilities-*	Database/AthenaPOOL
 use GaudiInterface	GaudiInterface-*	External
 use AthenaBaseComps	AthenaBaseComps-*	                Control
 use TagEvent		TagEvent-*		PhysicsAnalysis/EventTag
+use xAODBTaggingEfficiency xAODBTaggingEfficiency-* PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration
 
 
 apply_pattern dual_use_library files="*.cxx"
