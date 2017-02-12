@@ -478,9 +478,9 @@ void AthHistogramming::buildBookingString( std::string& bookingString,
   if(stream.empty()) stream = m_streamName;
 
   if(usePrefixPostfix){
-    bookingString = "/"+m_streamName+"/"+tDir+"/"+m_histNamePrefix+histName+m_histNamePostfix;
+    bookingString = "/"+stream+"/"+tDir+"/"+m_histNamePrefix+histName+m_histNamePostfix;
   } else {
-    bookingString = "/"+m_streamName+"/"+tDir+"/"+histName;
+    bookingString = "/"+stream+"/"+tDir+"/"+histName;
   }
   while(bookingString.find("//") != std::string::npos){
     this->myReplace(bookingString,"//","/");
