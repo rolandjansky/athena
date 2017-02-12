@@ -152,11 +152,15 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::Layer& lay, size_t lev
     // load the material map if not done yet
     if (!m_layerMaterialMap){ 
         if (loadMaterialMap().isFailure()){
-              ATH_MSG_WARNING( "Problems loading hte LayerMaterialMap - check name or call sequence." );
+              ATH_MSG_WARNING( "Problems loading the LayerMaterialMap - check name or call sequence." );
               return StatusCode::FAILURE;
         }
     }
-    
+    // is the pointer still null?
+    if (!m_layerMaterialMap) {
+      ATH_MSG_WARNING( "The LayerMaterialMap pointer is NULL - check name or call sequence." );
+      return StatusCode::FAILURE;
+    }
     // skip Layers w/o material
     if (!lay.layerMaterialProperties()) 
         return StatusCode::SUCCESS;
