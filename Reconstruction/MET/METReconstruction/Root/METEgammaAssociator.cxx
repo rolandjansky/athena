@@ -162,7 +162,10 @@ namespace met {
     nearbyPFO.reserve(20);
     for(const auto& pfo : *constits.pfoCont) {
       if(P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, m_useRapidity)) {
-	if(fabs(pfo->charge())<FLT_MIN || acceptChargedPFO(pfo->track(0),constits.pv)) {
+	if(fabs(pfo->charge())<FLT_MIN
+	   || (acceptChargedPFO(pfo->track(0),constits.pv)
+	       && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) )
+	       )) {
 	  nearbyPFO.push_back(pfo);
 	} // retain neutral PFOs and charged PFOs passing PV association
       } // DeltaR check
