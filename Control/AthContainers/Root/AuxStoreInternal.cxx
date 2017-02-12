@@ -349,7 +349,7 @@ bool AuxStoreInternal::insertMove (size_t pos,
         void* src_ptr = other.getData (id, other_size, other_size);
         if (src_ptr) {
           size_t sz = size_noLock();
-          if (sz < other_size) sz = other_size;
+          if (sz < other_size) sz = other_size + pos;
           (void)getDataInternal_noLock (id, sz, sz, false);
           m_vecs[id]->resize (sz - other_size);
           m_vecs[id]->insertMove (pos, src_ptr, reinterpret_cast<char*>(src_ptr) + other_size*r.getEltSize(id));
