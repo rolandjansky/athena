@@ -27,14 +27,12 @@ svcMgr.ViewAlgPool.TopAlg = [ "dflow_alg1", "dflow_alg2", "dflow_alg3" ] #use ex
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-viewList = []
-for viewNumber in range( 5 ):
-	viewList += [ "view" + str( viewNumber ) ]
-
 # Make views
 job += CfgMgr.AthViews__ViewSubgraphAlg("make_alg")
-job.make_alg.ViewNames = viewList
+job.make_alg.ViewBaseName = "view"
+job.make_alg.ViewNumber = 5
 job.make_alg.AlgPoolName = viewAlgPoolName
+job.make_alg.AlgorithmNameSequence = [ "dflow_alg1", "dflow_alg2", "dflow_alg3" ]
 
 # Algorithms for one view
 job += CfgMgr.AthViews__DFlowAlg1("dflow_alg1")
