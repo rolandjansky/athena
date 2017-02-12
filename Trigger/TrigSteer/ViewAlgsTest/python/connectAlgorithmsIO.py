@@ -17,6 +17,7 @@ class GraphGenerator:
       spaces_level = 0
       spaces = lambda: ' ' * 4 * spaces_level
       write_to_file = lambda text: f.write(spaces() + text + '\n')
+      write_to_file("## to visualise dot -T pdf workflow.dot > workflow.pdf")
 
       write_to_file('digraph {')
       spaces_level += 1
@@ -26,20 +27,21 @@ class GraphGenerator:
       write_to_file('splines=true;')
       write_to_file('sep="+25,25";')
       write_to_file('overlap=scalexy;')
+      write_to_file('rankdir=LR;')       
       write_to_file('node [fontsize=14, shape=box,fontname="helvetica"];')
       write_to_file('edge [minlen=2,fontname="helvetica"];')   
       write_to_file('')
       
       for node in self.__nodes:
-        if node[0] == 'MenuAlg':
-          write_to_file(node[1] + ' [label="' + node[0] + '\\n' + node[1] + '",style=filled;color="0.7 0.7 1"];')
+        if node[0] == 'DecisionAlg':
+          write_to_file(node[1] + ' [label="' + node[0] + '\\n' + node[1] + '", shape=hexagon, color=yellow, style=filled];')
         else:
           write_to_file(node[1] + ' [label="class: ' + node[0] + '\\n' + node[1] + '"];')
         
       write_to_file('')
       
       for link in self.__links:
-        write_to_file(link[0] + ' -> ' + link[2] + ' [labelfontsize=12, labeldistance=1.5, labelangle=0, headlabel=<<font color="#00CC00"><b>' + link[3] + '</b></font>>, taillabel=<<font color="#CC0000"><b>' + link[1] + '</b></font>>];')
+        write_to_file(link[0] + ' -> ' + link[2] + ' [labelfontsize=12, labeldistance=2.5, labelangle=35, headlabel=<<font color="#00CC00"><b>' + link[3] + '</b></font>>, taillabel=<<font color="#CC0000"><b>' + link[1] + '</b></font>>];')
       
       spaces_level -= 1
       write_to_file('}')
@@ -65,3 +67,31 @@ def connectHypoToMenu(producer, consumer):
     menu_ingredients.addHypo(consumer, producer[0])
 
 
+
+class DH:
+  def __init__(self, alg, prop):
+    self.alg  = alg
+    self.prop = prop
+  def __str__(self):
+    return self.alg.getName()+"."+self.prop
+    
+  def __lshift__(self, inp):
+    """ Enabling convenience notion consumer << producer"""
+    if type(inp).__name__ in ('list', 'tuple'):
+      [ self << i for i in inp ]
+    else:
+      print "setting data dependency: ", self, " <-- ", inp
+      connectAlgorithmsIO( consumer=( self.alg, self.prop ), producer=( inp.alg, inp.prop ) )
+
+  def __rshift__(self, out):
+    """Enabling convenient notion producer >> consumer"""
+    if type(out).__name__ in ('list', 'tuple'):
+      [ self >> i for i in out ]
+    else:
+      print "setting data dependency: ", self, " --> ", out
+      connectAlgorithmsIO( consumer=( out.alg, out.prop ), producer=( self.alg, self.prop ) )
+    
+# class In (IOHandle):
+#   pass
+# class Out (IOHandle):
+#   pass

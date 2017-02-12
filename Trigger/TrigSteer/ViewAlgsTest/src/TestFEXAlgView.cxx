@@ -33,7 +33,6 @@ StatusCode TestFEXAlgView::initialize() {
 
 StatusCode TestFEXAlgView::execute() {
 
-  useView();
   if ( not m_inputContainer.isValid() ) {
     ATH_MSG_ERROR("No decisions object prom previous stage");
     return StatusCode::FAILURE;
@@ -47,6 +46,12 @@ StatusCode TestFEXAlgView::execute() {
   m_outputProxyContainer = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
   m_outputProxyContainerAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
   m_outputProxyContainer->setStore(m_outputProxyContainerAux.ptr());
+
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  const EventContext& ctx = getContext();
+#else
+  const EventContext& ctx = *getContext();
+#endif
 
   // collect RoIs
   // do reco and produce (say clusters - that part is missing in this example)
@@ -68,8 +73,8 @@ StatusCode TestFEXAlgView::execute() {
       ATH_MSG_DEBUG("Created cluster of Et " << etVal);
       xAOD::TrigComposite* proxy  = new xAOD::TrigComposite();          
       m_outputProxyContainer->push_back(proxy);
-      proxy->setObjectLink("cluster", ElementLink<TestClusterContainer>(m_outputClusterContainer.name(), nRoI, eventView()) );
-      proxy->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputContainer.name(), nRoI, eventView()) );
+      proxy->setObjectLink("cluster", ElementLink<TestClusterContainer>(m_outputClusterContainer.name(), nRoI, eventView(ctx)) );
+      proxy->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputContainer.name(), nRoI, eventView(ctx)) );
     } else {
       ATH_MSG_DEBUG("No path to RoI object");
     }
