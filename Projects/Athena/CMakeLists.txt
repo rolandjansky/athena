@@ -77,10 +77,5 @@ configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
 install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
-# Turn off the compression of the created RPM. This makes the RPM a lot
-# bigger, but should push the RPM creation time down by a lot.
-set( CPACK_RPM_SPEC_MORE_DEFINE
-   "%define _source_payload w0.gzdio\n%define _binary_payload w0.gzdio" )
-
 # Package up the release using CPack:
 atlas_cpack_setup()
