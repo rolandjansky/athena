@@ -4,7 +4,7 @@
 
 // ********************************************************************
 //
-// NAME:     MuonClusterHypo.h
+// NAME:     MuonClusterIsolationHypo.h
 // PACKAGE:  Trigger/TrigHypotheis/TrigMuonHypo
 //
 // AUTHORS:   S. Giagu <stefano.giagu@cern.ch>
@@ -13,8 +13,8 @@
 // PURPOSE:  LVL2 Muon Cluster Hypothesis Algorithm: V1.0
 // ********************************************************************
 
-#ifndef TRIG_MUCLUHYPO_H 
-#define TRIG_MUCLUHYPO_H
+#ifndef TRIG_MUCLUISOHYPO_H 
+#define TRIG_MUCLUISOHYPO_H
 
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
@@ -22,19 +22,19 @@
 class StoreGateSvc;
 
 /*
- * \class MuionClusterHypo
- * \brief MuonClusterHypo is a Trigger Hypo Algorithm that retrieves the L1 Muon RoIs and then 
+ * \class MuonClusterHypo
+ * \brief MuonClusterIsolationHypo is a Trigger Hypo Algorithm that retrieves the L1 Muon RoIs and then 
  *        requires that these L1 RoIs form a cluster with number of RoI larger than 3, with no Jets with Log(H/E)<0.5 in the cluster cone and no SITRACKs around the cluster direction. 
  *        A TE will be set active if the selection cuts are fullfilled.
 */
 
-class MuonClusterHypo: public HLT::HypoAlgo {
+class MuonClusterIsolationHypo: public HLT::HypoAlgo {
   enum { MaxNumberTools = 20 };  
   public:
     /** Constructor. */
-    MuonClusterHypo(const std::string & name, ISvcLocator* pSvcLocator);
+    MuonClusterIsolationHypo(const std::string & name, ISvcLocator* pSvcLocator);
     /** Destructor. */
-    ~MuonClusterHypo();
+    ~MuonClusterIsolationHypo();
 
     /** HLT method to initialize. */
     HLT::ErrorCode hltInitialize();    
@@ -48,19 +48,27 @@ class MuonClusterHypo: public HLT::HypoAlgo {
     // Properties
     /** Accept all events flag. */
     BooleanProperty m_acceptAll;
+    /*do isolation*/
+    BooleanProperty m_doIsolation;
     /** Min number of RoIs in the cluster. */   
     IntegerProperty m_nRoIEndCap;
     IntegerProperty m_nRoIBarrel;
-    /** Eta cut between barrel and endcap */   
-    DoubleProperty m_etaMax;
-    /** Maximum allowed cluster eta */   
+    /** Eta of the cluster. */   
     DoubleProperty m_etaMid;
+    DoubleProperty m_etaMax;
+    /** Number of Jets with Log(H/E)<0.5 in the cluster. */   
+    IntegerProperty m_nJet;
+    /** Number of tracks in ID */   
+    IntegerProperty m_nTrk;
 
 
 
-
-    /** Numbers of Roi in cluster */
-    int mCluNum;
+  /** Numbers of Roi in cluster */
+  int mCluNum;
+  /** Number of Jet with Log(h/e)<0.5 **/
+  int mNumJet;
+  /** Cut on Tracks */
+  int mNumTrk;
 
 
     // Other members:   
