@@ -1,0 +1,11 @@
+package TriggerRelease
+
+author John Baines <j.baines@rl.ac.uk>
+author Simon george <S.George@rhul.ac.uk>
+
+use AtlasPolicy AtlasPolicy-*
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+
