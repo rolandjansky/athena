@@ -189,7 +189,8 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>& Trk::Parameter
 {
 	if (this!=&rhs)
 	{
-      if ( m_surface->isFree() ) delete m_surface; m_surface = 0;
+      if ( m_surface->isFree() ) delete m_surface;
+      m_surface = 0;
       // call the base class assignment operator
       Trk::ParametersBase<DIM,T>::operator=(rhs);
       m_surface           = ( rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface );
@@ -216,7 +217,8 @@ Trk::ParametersT<DIM, T, S>& Trk::ParametersT<DIM, T, S>::operator=
 // Destructor
 template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::~ParametersT ()
 {
-    if ( m_surface && m_surface->isFree() ) delete m_surface; m_surface = 0;                  
+    if ( m_surface && m_surface->isFree() ) delete m_surface;
+    m_surface = 0;                  
 }
 
 // PROTECTED Constructor with local arguments - persistency only, ownership of surface given
