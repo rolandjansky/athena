@@ -88,7 +88,7 @@ typedef int   IOFD;
 
 /* Define if `_r_debug' exists. */
 // note: leave undefined on SLC4 b/c of binutils problems
-// #define HAVE_R_DEBUG 1
+#define HAVE_R_DEBUG 1
 
 /* Define if you have the <elf.h> header file.  */
 #define HAVE_ELF_H 1
