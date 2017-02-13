@@ -49,7 +49,6 @@ class TrigTRTHTHCounter: public HLT::FexAlgo {
 
 
 
-  ToolHandle<ITrigTRT_DriftCircleProviderTool> m_rawDataTool; 
   std::vector<int> m_trtDataErrors;
  
   /** A pointer to the DriftCircles container */
