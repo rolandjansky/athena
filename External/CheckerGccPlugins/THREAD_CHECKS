@@ -138,3 +138,93 @@ void f2(const int* y)
 
     - Adding a not_const_thread_safe attribute to the function, when
       it discards const from something that is not an argument.
+
+
+=========================================================================
+check_mutable (thread6_test)
+
+Check for writing to a mutable class member, or for taking
+a non-const reference to a mutable class member, within a const function.
+
+Examples:
+
+void foo(int&);
+struct S
+{
+  mutable int x;
+  void f1(int y) const { x = y; }
+  void f2() const { foo(x); }
+};
+
+
+  Can suppress by:
+
+  - Making the function non-const.
+  
+  - Adding a thread_safe attribute to the member declaration.
+
+  - Adding a not_thread_safe attribute to the function.
+
+
+=========================================================================
+mutable/static checks (thread7_test)
+
+TBD
+
+=========================================================================
+check_discarded_const_from_return (thread8_test)
+
+
+Check for discarding const from a pointer/reference in a function return.
+
+Example:
+
+const int* xx();
+int* f1()
+{
+  return const_cast<int*>(xx());
+}
+
+  Can suppress by:
+
+    - Adding a not_thread_safe attribute to the function.
+
+    - Adding a not_const_thread_safe attribute to the function.
+
+
+=========================================================================
+check_returns (thread9_test)
+
+Check for returning a non-const data member from a const function.
+
+Example:
+
+struct S
+{
+  int* x;
+  int* f1() const;
+};
+
+
+int* S::f1() const
+{
+  return x;
+}
+
+
+NB: Doesn't find all the ways in which such a member can leak.
+    We don't diagnose, for example:
+
+int* foo(int* x) { return x; }
+int* S::f1() const
+{
+  return foo(x);
+}
+
+
+  Can suppress by:
+
+    - Adding a not_const_thread_safe attribute to the function.
+
+    - Making the function non-const.
+
