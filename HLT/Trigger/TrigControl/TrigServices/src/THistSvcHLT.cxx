@@ -1876,36 +1876,34 @@ void
 THistSvcHLT::copyFileLayout (TDirectory *dst, TDirectory *src) {
 
   if (m_log.level() <= MSG::DEBUG)
-    m_log << MSG::DEBUG
-	  << "copyFileLayout() to dst path: " << dst->GetPath () << endmsg;
+    m_log << MSG::DEBUG << "copyFileLayout() to dst path: " << dst->GetPath () << endmsg;
 
-    // strip out URLs
-    TString path ((char*)strstr (dst->GetPath(), ":"));
-    path.Remove (0, 2);
-
-    src->cd (path);
-    TDirectory *cur_src_dir = gDirectory;
-
-    // loop over all keys in this directory
-    TList *key_list = cur_src_dir->GetListOfKeys ();
-    int n = key_list->GetEntries ();
-    for ( int j = 0; j < n; ++j ) {
-      TKey *k = (TKey*)key_list->At (j);
-      const std::string src_pathname = cur_src_dir->GetPath()
-                                     + std::string("/")
-                                     + k->GetName();
-      TObject *o=src->Get (src_pathname.c_str());
-
+  // strip out URLs
+  TString path ((char*)strstr (dst->GetPath(), ":"));
+  path.Remove (0, 2);
+  
+  src->cd (path);
+  TDirectory *cur_src_dir = gDirectory;
+  
+  // loop over all keys in this directory
+  TList *key_list = cur_src_dir->GetListOfKeys ();
+  int n = key_list->GetEntries ();
+  for ( int j = 0; j < n; ++j ) {
+    TKey *k = (TKey*)key_list->At (j);
+    const std::string src_pathname = cur_src_dir->GetPath()
+      + std::string("/")
+      + k->GetName();
+    TObject *o=src->Get (src_pathname.c_str());
+    
     if ( o && o->IsA()->InheritsFrom ("TDirectory")) {
       if (m_log.level() <= MSG::VERBOSE)
-	m_log << MSG::VERBOSE << " subdir [" << o->GetName() << "]..."
-	      << endmsg;
-        dst->cd ();
-        TDirectory * dst_dir = dst->mkdir (o->GetName(), o->GetTitle());
+        m_log << MSG::VERBOSE << " subdir [" << o->GetName() << "]..." << endmsg;
+      dst->cd ();
+      TDirectory * dst_dir = dst->mkdir (o->GetName(), o->GetTitle());
       copyFileLayout (dst_dir, src);
-      }
-    } // loop over keys
-    return;
+    }
+  } // loop over keys
+  return;
 }
 
 //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *//
