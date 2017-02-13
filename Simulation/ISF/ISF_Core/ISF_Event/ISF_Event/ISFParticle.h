@@ -176,6 +176,10 @@ namespace ISF {
     std::ostream& dump(std::ostream& out) const;
 
   private :
+    /** Provides a new TruthBinding filled with the same primary truth particle
+        as the given parent's TruthBinding */
+    TruthBinding* inheritPrimaryTruth(const ISFParticle& parent);
+
     Amg::Vector3D                m_position;
     Amg::Vector3D                m_momentum;
     double                       m_mass;

@@ -78,11 +78,12 @@ int ISF::ISFTruthIncident::parentPdgCode() const {
 }
 
 HepMC::GenParticle* ISF::ISFTruthIncident::parentParticle() const {
+  auto* truthBinding = m_parent.getTruthBinding();
 
-  if ( m_parent.getTruthBinding() ) {
-    return getHepMCTruthParticle(m_parent);
+  if ( truthBinding ) {
+    return truthBinding->getTruthParticle();
   } else {
-    return updateHepMCTruthParticle(m_parent, &m_parent);
+    return nullptr;
   }
 }
 
@@ -100,13 +101,14 @@ bool ISF::ISFTruthIncident::parentSurvivesIncident() const {
 
 HepMC::GenParticle* ISF::ISFTruthIncident::parentParticleAfterIncident(Barcode::ParticleBarcode newBC) {
   // if parent is killed in the interaction -> return nullptr
-  if (m_killsPrimary==ISF::fKillsPrimary) return nullptr;
+  if (m_killsPrimary==ISF::fKillsPrimary) {
+      return nullptr;
+  }
 
-  // only update the parent particle, if it survived the interaction
+  // only create a truth particle for the parent if it survived the interaction
 
   m_parent.setBarcode( newBC );
-
-  return updateHepMCTruthParticle(m_parent, &m_parent);
+  return updateHepMCTruthParticle(m_parent, m_parent);
 }
 
 double ISF::ISFTruthIncident::childP2(unsigned short index) const {
@@ -136,7 +138,7 @@ HepMC::GenParticle* ISF::ISFTruthIncident::childParticle(unsigned short index,
     sec->setBarcode( bc);
   }
 
-  return updateHepMCTruthParticle( *sec, &m_parent );
+  return updateHepMCTruthParticle( *sec, m_parent );
 }
 
 void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) {
@@ -152,26 +154,16 @@ void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) 
   return;
 }
 
-
-/** return attached truth particle */
-HepMC::GenParticle* ISF::ISFTruthIncident::getHepMCTruthParticle( const ISF::ISFParticle& particle ) const {
-  auto* truthBinding     = particle.getTruthBinding();
-  auto* hepTruthParticle = truthBinding ? truthBinding->getTruthParticle() : nullptr;
-
-  return hepTruthParticle;
-}
-
-
 /** convert ISFParticle to GenParticle and attach to ISFParticle's TruthBinding */
 HepMC::GenParticle* ISF::ISFTruthIncident::updateHepMCTruthParticle( ISF::ISFParticle& particle,
-                                                                     const ISF::ISFParticle* parent ) const {
-  auto* truthBinding     = particle.getTruthBinding();
+                                                                     const ISF::ISFParticle& parent ) const {
+  auto* truthBinding = particle.getTruthBinding();
   auto* hepTruthParticle = ParticleHelper::convert( particle );
 
   if (truthBinding) {
     truthBinding->setTruthParticle(hepTruthParticle);
   } else {
-    auto* parentTruthBinding = parent ? parent->getTruthBinding() : nullptr;
+    auto* parentTruthBinding = parent.getTruthBinding();
     auto* hepPrimaryParticle = parentTruthBinding ? parentTruthBinding->getPrimaryTruthParticle() : nullptr;
     auto* hepGenZeroParticle = hepTruthParticle;
     truthBinding = new TruthBinding( hepTruthParticle, hepPrimaryParticle, hepGenZeroParticle );
@@ -180,4 +172,3 @@ HepMC::GenParticle* ISF::ISFTruthIncident::updateHepMCTruthParticle( ISF::ISFPar
 
   return hepTruthParticle;
 }
-

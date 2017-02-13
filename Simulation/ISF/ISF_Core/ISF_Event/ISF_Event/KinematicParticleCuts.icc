@@ -41,10 +41,14 @@ bool  ISF::KinematicParticleCuts::pass(const ISFParticle& particle) const {
   pass &= (m_cut_charge < (ISF_UNDEF_CHARGE+1.)) || fabs(particle.charge()-m_cut_charge)<chargeTolerance;
   pass &= (m_cut_minMom2 < 0.) || (mom2 >= m_cut_minMom2);
   pass &= (m_cut_maxMom2 < 0.) || (mom2 <= m_cut_maxMom2);
-  pass &= (momEta >= m_cut_minMomEta);
-  pass &= (momEta <= m_cut_maxMomEta);
-  pass &= (posEta >= m_cut_minPosEta);
-  pass &= (posEta <= m_cut_maxPosEta);
+  if (hepMom.mag()) {
+    pass &= (momEta >= m_cut_minMomEta);
+    pass &= (momEta <= m_cut_maxMomEta);
+  }
+  if (hepPos.mag()) {
+    pass &= (posEta >= m_cut_minPosEta);
+    pass &= (posEta <= m_cut_maxPosEta);
+  }
 
   return pass;
 }

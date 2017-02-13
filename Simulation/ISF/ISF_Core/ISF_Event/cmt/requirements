@@ -14,7 +14,7 @@ use  GaudiInterface             GaudiInterface-*                External
 use  BarcodeEvent               BarcodeEvent-*                  Simulation/Barcode
 use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
-use  TestTools                  TestTools-*                     AtlasTest 
+use  TestTools                  TestTools-*                     AtlasTest
 end_public
 
 private
@@ -30,3 +30,8 @@ private
 # un-comment the flags below to enable full debugging information in this package
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+#macro_append cppflags " -g"
+#macro_append cppflags " -O0"
+#macro_remove cppflags " -O1"
+#macro_remove cppflags " -O2"
+#macro_remove cppflags " -O3"

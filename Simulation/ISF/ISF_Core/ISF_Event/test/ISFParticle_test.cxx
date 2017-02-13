@@ -21,7 +21,7 @@ void testConstructors() {
     int    bcid    = 123;
     const ISF::DetRegionSvcIDPair origin( AtlasDetDescr::fAtlasCalo, 2 );
     Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode;
-    ISF::TruthBinding *truth = 0;
+    ISF::TruthBinding *truth = nullptr;
 
     //
     // Amg & origin
@@ -73,7 +73,7 @@ void testConstructors() {
     assert( 1       == history2.size()     );
     assert( origin  == history2[0]         );
     assert( bc      == isp2.barcode()      );
-    assert( truth   == isp2.getTruthBinding() );
+    assert( nullptr == isp2.getTruthBinding() );
 
     //
     // HepGeom & parent
@@ -100,7 +100,7 @@ void testConstructors() {
     assert( 1       == history3.size()     );
     assert( origin  == history3[0]         );
     assert( bc      == isp3.barcode()      );
-    assert( truth   == isp3.getTruthBinding() );
+    assert( nullptr == isp3.getTruthBinding() );
 }
 
 
@@ -108,4 +108,3 @@ int main() {
     testConstructors();
     return 0;
 }
-

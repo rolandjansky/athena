@@ -17,7 +17,7 @@ ISF::ISFParticle::ISFParticle(
   double charge,
   int pdgCode,
   double time,
-  const ISFParticle &p,
+  const ISFParticle &parent,
   Barcode::ParticleBarcode barcode,
   TruthBinding* truth):
  m_position(pos),
@@ -26,9 +26,9 @@ ISF::ISFParticle::ISFParticle(
  m_charge(charge),
  m_pdgCode(pdgCode),
  m_tstamp(time),
- m_history(p.history()),
+ m_history(parent.history()),
  m_barcode(barcode),
- m_bcid(p.getBCID()),
+ m_bcid(parent.getBCID()),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
  m_userInfo(nullptr)
@@ -43,7 +43,7 @@ ISF::ISFParticle::ISFParticle(
   double charge,
   int pdgCode,
   double time,
-  const ISFParticle &p,
+  const ISFParticle &parent,
   Barcode::ParticleBarcode barcode,
   TruthBinding* truth):
  m_position( pos.x(), pos.y(), pos.z()),
@@ -52,9 +52,9 @@ ISF::ISFParticle::ISFParticle(
  m_charge(charge),
  m_pdgCode(pdgCode),
  m_tstamp(time),
- m_history(p.history()),
+ m_history(parent.history()),
  m_barcode(barcode),
- m_bcid(p.getBCID()),
+ m_bcid(parent.getBCID()),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
  m_userInfo(nullptr)
@@ -88,7 +88,6 @@ ISF::ISFParticle::ISFParticle(
 {
 
 }
-
 
 ISF::ISFParticle::ISFParticle(const ISFParticle& isfp):
   m_position(isfp.position()),
@@ -231,7 +230,27 @@ bool ISF::ISFParticle::isIdent(const ISF::ISFParticle& rhs) const
   pass &= m_history == rhs.history();
   pass &= m_barcode == rhs.barcode();
   pass &= m_bcid == rhs.getBCID();
-  pass &= m_truth && rhs.getTruthBinding();
+
+  auto* rhsTruth = rhs.getTruthBinding();
+  if (m_truth && rhsTruth) {
+    pass &= *m_truth == *rhs.getTruthBinding();
+  } else {
+    pass &= m_truth == rhsTruth;
+  }
+
   pass &= m_userInfo == rhs.getUserInformation();
+
   return pass;
+}
+
+ISF::TruthBinding* ISF::ISFParticle::inheritPrimaryTruth(const ISF::ISFParticle& parent) {
+  auto* parentTruth = parent.getTruthBinding();
+  auto* primaryTruthParticle = parentTruth ? parentTruth->getPrimaryTruthParticle()
+                                           : nullptr;
+
+  HepMC::GenParticle* truthParticle = nullptr;
+  HepMC::GenParticle* genZerotruthParticle = nullptr;
+  return new ISF::TruthBinding(truthParticle,
+                               primaryTruthParticle,
+                               genZerotruthParticle);
 }

@@ -32,4 +32,3 @@ atlas_add_test( ISFParticle_test
                 test/ISFParticle_test.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                 LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} TestTools AthenaBaseComps AtlasDetDescr GeoPrimitives GaudiKernel ISF_Event )
-

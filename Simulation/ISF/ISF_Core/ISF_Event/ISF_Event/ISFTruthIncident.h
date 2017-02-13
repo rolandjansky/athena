@@ -96,11 +96,8 @@ namespace ISF {
   private:
     ISFTruthIncident();
 
-    /** return attached truth particle */
-    inline HepMC::GenParticle* getHepMCTruthParticle( const ISF::ISFParticle& particle ) const;
-
     /** convert ISFParticle to GenParticle and attach to ISFParticle's TruthBinding */
-    inline HepMC::GenParticle* updateHepMCTruthParticle( ISF::ISFParticle& particle, const ISF::ISFParticle* parent=nullptr ) const;
+    inline HepMC::GenParticle* updateHepMCTruthParticle( ISF::ISFParticle& particle, const ISF::ISFParticle& parent ) const;
 
     ISF::ISFParticle&                  m_parent;
     const ISFParticleVector&           m_children;
