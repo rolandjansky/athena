@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Sector.cxx 700318 2015-10-13 14:13:15Z wengler $
+// $Id: Sector.cxx 796872 2017-02-13 15:03:25Z fwinkl $
 
 // STL include(s):
 #include <sstream>
@@ -23,45 +23,6 @@ namespace LVL1MUCTPI {
    }
 
    Sector::~Sector() {
-
-   }
-
-
-   unsigned int Sector::getValue( const BitMask mask ) const {
-
-      unsigned int result;
-      unsigned int maskcopy;
-
-      // make a copy of the mask, because a mask is a mask and
-      // one should stay a mask (i.e. should be something constant!)
-      maskcopy = mask;
-      result   = m_bitField & mask;
-      if( mask != 0 ) {
-         while( ( maskcopy & 0x00000001 ) == 0 ) {
-            maskcopy =  maskcopy >> 1;
-            result   =  result   >> 1;
-         }
-      }
-      return result;
-
-   }
-
-   unsigned int Sector::getPtCand1() const {
-
-      return this->getValue( Pt1Mask );
-
-   }
-
-   unsigned int Sector::getPtCand2() const {
-
-      return this->getValue( Pt2Mask );
-
-   }
-
-   unsigned int Sector::getBCID() const {
-
-      return this->getValue( BCIDMask );
-
    }
 
    std::string Sector::getRapidityString() const {
