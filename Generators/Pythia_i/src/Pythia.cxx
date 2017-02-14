@@ -32,7 +32,6 @@
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/HEPEVT_Wrapper.h"
 
-#include "PythiaBc_i/PythiaBc.h"
 #include "ExoGraviton_i/ExoGraviton.h"
 #include "PathResolver/PathResolver.h"
 
@@ -657,11 +656,12 @@ StatusCode Pythia::genInitialize() {
        ::WriteGravParam(myint6, myint1, (double)myfl0);
      }
     // for PythiaBc_i user parameters setup
+    /*
     else if (myblock == "pythiabc")
      {
        ::WritePythiaBcParam(myint6, myint1, (double)myfl0);
      }
-
+    */
     else {
       ATH_MSG_ERROR(" ERROR in PYTHIA PARAMETERS   " << myblock << " is and invalid common block name !");
     }
