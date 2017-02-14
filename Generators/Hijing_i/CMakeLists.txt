@@ -41,7 +41,7 @@ atlas_add_library( Hijing_iLib
 
 atlas_add_component( Hijing_i
    src/components/*.cxx
-   LINK_LIBRARIES Hijing_iLib )
+   LINK_LIBRARIES GaudiKernel Hijing_iLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
