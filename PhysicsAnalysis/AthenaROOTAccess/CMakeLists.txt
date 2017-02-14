@@ -52,13 +52,15 @@ atlas_add_test( DVCollectionProxy_test
                 SOURCES
                 test/DVCollectionProxy_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthAllocators AthContainers AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthAllocators AthContainers AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess
+                EXTRA_PATTERNS "is already in" )
 
 atlas_add_test( DataBucketVoid_test
                 SOURCES
                 test/DataBucketVoid_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthAllocators AthContainers AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthAllocators AthContainers AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess
+                EXTRA_PATTERNS "is already in" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
