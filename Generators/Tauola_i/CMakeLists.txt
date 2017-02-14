@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 727753 2016-03-04 15:00:55Z krasznaa $
 ################################################################################
 # Package: Tauola_i
 ################################################################################
@@ -33,19 +32,20 @@ atlas_add_library( Tauola_iLib
    src/Tauola.cxx src/Atlas_HEPEVT.cxx src/gatlas_hepevt.F
    src/Fftau.cxx src/Fftaudet.cxx src/Ffinout.cxx
    src/gfftau.F src/gffinout.F src/gfftaudet.F
-   src/getaddr.cxx src/TauDetails.cxx src/tauface-jetset.F
+   src/TauDetails.cxx src/tauface-jetset.F
    src/UserGamprt.cxx src/usergamprt.F src/phyfix.F
    src/tauola_photos_ini.F
    PUBLIC_HEADERS Tauola_i
    INCLUDE_DIRS ${TAUOLA_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+   PRIVATE_DEFINITIONS -DATLAS_CMAKE
    LINK_LIBRARIES ${TAUOLA_LIBRARIES} ${HEPMC_LIBRARIES} SGTools GaudiKernel
    GeneratorModulesLib GeneratorFortranCommonLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel GeneratorObjects
    TruthUtils )
 
 atlas_add_component( Tauola_i src/components/*.cxx
-   LINK_LIBRARIES Tauola_iLib )
+   LINK_LIBRARIES GaudiKernel Tauola_iLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

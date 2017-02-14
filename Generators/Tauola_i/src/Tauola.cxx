@@ -736,7 +736,7 @@ StatusCode Tauola::fillEvt(HepMC::GenEvent* evt) {
       // std::cout << "Tauola_i-D-VS-Number of taus to decay = " << m_numberOfTauToDecay << std::endl;
 
       if ( m_numberOfTauToDecay > 0 ) {
-        MsgStream log(messageService(), name());
+        MsgStream log(msgSvc(), name());
         m_tauDetails.saveHerwig(log, evt);
       }
 
@@ -780,7 +780,7 @@ StatusCode Tauola::fillEvt(HepMC::GenEvent* evt) {
       if (m_saveDetails) {
         ATH_MSG_DEBUG("Tauola::fillEvt - found "
                       << m_tauDetails.size() << " taus for PYTHIA, SINGLE or OTHER but SHERPA");
-        MsgStream log(messageService(), name());
+        MsgStream log(msgSvc(), name());
 
         m_tauDetails.savePythia(log, evt);
         // clear the COMMON block "the hard way"
