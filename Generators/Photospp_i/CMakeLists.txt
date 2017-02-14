@@ -20,7 +20,8 @@ set( PHOTOSPP_ROOT
 
 # External dependencies:
 find_package( CLHEP )
-find_package( Photospp )
+find_package( Photospp COMPONENTS Photospp PhotosppHepMC )
+#find_package( Photospp )
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
