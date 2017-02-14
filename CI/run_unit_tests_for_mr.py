@@ -1,4 +1,4 @@
-import argparse, gitlab, logging, os, sys
+import argparse, gitlab, logging, os, subprocess, sys
 from gitlab.exceptions import GitlabGetError
 from gitlab_mr_helpers import print_collection, map_filename_to_package
 
@@ -29,7 +29,8 @@ def run_unit_tests(args):
 
     # execute
     logging.debug("ctest command = '%s'" % ctest_cmd)
-    os.system(ctest_cmd)
+    status = subprocess.call(ctest_cmd,shell=True)
+    return status
 
 def main():
     parser = argparse.ArgumentParser(description="ATLAS unit test runner",
@@ -49,7 +50,8 @@ def main():
                         level=logging.getLevelName(args.verbose))
 
     # delegate
-    run_unit_tests(args)
+    status = run_unit_tests(args)
+    sys.exit(status)
 
 if __name__ == "__main__":
     main()

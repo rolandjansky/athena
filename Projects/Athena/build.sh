@@ -6,11 +6,12 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p]"
+    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a]"
     echo " -c: Execute CMake step"
     echo " -m: Execute make step"
     echo " -i: Execute install step"
     echo " -p: Execute CPack step"
+    echo " -a: Abort on error"
     echo "If none of the c, m, i or p options are set then the script will do"
     echo "*all* steps. Otherwise only the enabled steps are run - it's your"
     echo "reponsibility to ensure that precusors are in good shape"
@@ -23,7 +24,8 @@ EXE_CMAKE=""
 EXE_MAKE=""
 EXE_INSTALL=""
 EXE_CPACK=""
-while getopts ":t:b:hcmip" opt; do
+NIGHTLY=true
+while getopts ":t:b:hcmipa" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -42,6 +44,9 @@ while getopts ":t:b:hcmip" opt; do
 	    ;;
 	p)
 	    EXE_CPACK="1"
+	    ;;
+	a)
+	    NIGHTLY=false
 	    ;;
         h)
             usage
@@ -83,6 +88,9 @@ source $AthenaSrcDir/build_env.sh -b $BUILDDIR
 mkdir -p ${BUILDDIR}/build/Athena
 cd ${BUILDDIR}/build/Athena
 
+# consider a pipe failed if ANY of the commands fails
+set -o pipefail
+
 # CMake:
 if [ -n "$EXE_CMAKE" ]; then
     time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
@@ -90,8 +98,11 @@ if [ -n "$EXE_CMAKE" ]; then
 	${AthenaSrcDir} 2>&1 | tee cmake_config.log
 fi
 
-# At this point stop worrying about errors:
-set +e
+# for nightly builds we want to get as far as we can
+if [ "$NIGHTLY" = true ]; then
+    # At this point stop worrying about errors:
+    set +e
+fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
