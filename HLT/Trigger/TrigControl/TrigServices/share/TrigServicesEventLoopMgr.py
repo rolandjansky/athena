@@ -30,8 +30,9 @@ HltEventLoopMgr.HltResultName = "HLTResult_HLT"
 #HltEventLoopMgr.WriteTruncatedHLTtoDebug = FALSE 
 # name of DEBUG Stream (default "TruncatedHLTResult")
 #HltEventLoopMgr.HltTruncationDebugStreamName = "TruncatedHLTResult"
+
 # list of stream names which should not be send to the truncation DEBUG stream (default ["CostMonitoring"]) 
-#HltEventLoopMgr.ExcludeFromHltTruncationDebugStream = ["CostMonitoring"]
+HltEventLoopMgr.ExcludeFromHltTruncationDebugStream = ["CostMonitoring"]
 
 #
 # properties for the HLT result size histogram
