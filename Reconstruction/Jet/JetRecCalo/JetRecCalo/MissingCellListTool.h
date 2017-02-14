@@ -25,6 +25,7 @@
 // STL includes
 #include <string>
 #include <list>
+#include <unordered_set>
 
 // FrameWork includes
 //#include "AthenaBaseComps/AthAlgTool.h"
@@ -35,7 +36,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "TileConditions/TileCablingSvc.h"
 
-#include "CxxUtils/unordered_set.h"
 #include "JetUtils/TiledEtaPhiMap.h"
 
 #include "AsgTools/CLASS_DEF.h"
@@ -49,7 +49,7 @@ class CaloDetDescrManager;
 class ITileBadChanTool ;
 class ILArBadChanTool;
 
-namespace SG {
+namespace std {
   template<>
   struct hash<Identifier> {    
     size_t operator()(Identifier id) const {return static_cast<size_t>(id.get_identifier32().get_compact());}
@@ -89,7 +89,7 @@ namespace jet {
     Identifier m_id;
   };
 
-  typedef SG::unordered_set<Identifier> cellset_t;
+  typedef std::unordered_set<Identifier> cellset_t;
 
 
   class CaloCellFastMap : public JetTiledMap::TiledEtaPhiMap<CellPosition> {
