@@ -79,10 +79,12 @@ mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd ${BUILDDIR} && pwd)
 source $AthenaSrcDir/build_env.sh -b $BUILDDIR
 
+# create the actual build directory
+mkdir -p ${BUILDDIR}/build/Athena
+cd ${BUILDDIR}/build/Athena
+
 # CMake:
 if [ -n "$EXE_CMAKE" ]; then
-    mkdir -p ${BUILDDIR}/build/Athena
-    cd ${BUILDDIR}/build/Athena
     time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
 	-DCTEST_USE_LAUNCHERS:BOOL=TRUE \
 	${AthenaSrcDir} 2>&1 | tee cmake_config.log
