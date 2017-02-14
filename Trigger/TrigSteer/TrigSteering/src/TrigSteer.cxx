@@ -140,6 +140,7 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
    declareProperty("TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty("EventInfoAccessTool", m_EventInfoTool,"Tool to update the EventInfo at the end of the execution");
    declareProperty("AuditChains", m_auditChains=false, "Call auditor hooks for chain execution");
+   declareProperty("TopoUseBitwise", m_topoUseBitwise=false, "Whether L1Topo simulation should use the bitwise implementation of the algorithms" );
 }
 
 
@@ -260,7 +261,7 @@ StatusCode TrigSteer::initialize()
       m_topoSteer = new TCS::TopoSteering();
       m_topoSteer->setMsgLevel( TrigConf::MSGTC::Level(m_topoOutputLevel) );
       m_topoSteer->setAlgMsgLevel( TrigConf::MSGTC::Level(m_topoOutputLevel) );
-
+      m_topoSteer->setUseBitwise(m_topoUseBitwise);
       try {
          m_topoSteer->setupFromConfiguration(*topomenu);
       }
@@ -818,6 +819,7 @@ void TrigSteer::runChains(bool secondPass) {
       msg() << " /////////////////////////////////////////////////" << endmsg;
     }
 
+
     chainsStillActive = false;
 
     // Prepare ROB requests:
@@ -837,9 +839,10 @@ void TrigSteer::runChains(bool secondPass) {
         if ( ! (*iterChain)->runInSecondPass()) continue;
       }
 
-      if (m_auditChains) auditorSvc()->before(IAuditor::Execute,(*iterChain)->getChainName());
+      const std::string& chainName = (*iterChain)->getChainName();
+      if (m_auditChains) auditorSvc()->before(IAuditor::Execute,chainName);
       // In case we crash, CoreDumpSvc will print this info
-      m_coreDumpSvc->setCoreDumpInfo("Current trigger chain",(*iterChain)->getChainName());
+      m_coreDumpSvc->setCoreDumpInfo("Current trigger chain",chainName);
 
       // execute step
       HLT::ErrorCode chainCode = (*iterChain)->executeStep();
@@ -848,7 +851,7 @@ void TrigSteer::runChains(bool secondPass) {
                                    HLT::SteeringInternalReason::ALGO_ERROR);
       m_config->setHltStatus( chainCode > m_config->getHltStatus() ? chainCode : m_config->getHltStatus() ); // keep ErrorCode in m_config always up to date
       
-      /* std::cout <<"TrigSteer::runChains():  step "<<step<<" chain "<< (*iterChain)->getChainName() 
+      /* std::cout <<"TrigSteer::runChains():  step "<<step<<" chain "<< chainName 
          << " EBAfterStep="<<(*iterChain)->getEBAfterStep()  
          << " isActive="<< (*iterChain)->isActive() 
          << " passed="<<(*iterChain)->chainPassed()
@@ -859,11 +862,10 @@ void TrigSteer::runChains(bool secondPass) {
          <<" ->requestScheduledRobIDs().size()="<<getAlgoConfig()->robRequestInfo()->requestScheduledRobIDs().size()
          <<" HLT status="<<m_config->getHltStatus() << " chaincode="<<chainCode <<std::endl; */
 
-      if (m_config->getMsgLvl() <=MSG::DEBUG) 
-        ATH_MSG_DEBUG("Executed chain: " << **iterChain << " in " << (secondPass ? "second pass" : "first pass") ); 
+      ATH_MSG_DEBUG("Executed chain: " << **iterChain << " in " << (secondPass ? "second pass" : "first pass") ); 
       
       if ( !canContinueEvent(chainCode) ) {
-        ATH_MSG_WARNING("Chain " << (*iterChain)->getChainName()
+        ATH_MSG_WARNING("Chain " << chainName
                         << " returned HLT::ErrorCode = " << strErrorCode(chainCode) << " :"
                         << " any further execution in this event is stopped!");
         noError = false;
@@ -889,7 +891,7 @@ void TrigSteer::runChains(bool secondPass) {
           issueEventBuildingRequest(step);
         }
       }
-      if (m_auditChains) auditorSvc()->after(IAuditor::Execute,(*iterChain)->getChainName());
+      if (m_auditChains) auditorSvc()->after(IAuditor::Execute,chainName);
 
       chainsStillActive = (*iterChain)->isActive() || chainsStillActive;
     }   
