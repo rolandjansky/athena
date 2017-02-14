@@ -69,7 +69,7 @@ TauDetails::setEvent(int eventNumber) {
 void
 TauDetails::savePythia(MsgStream& log, HepMC::GenEvent* evt) {
 
-  log << MSG::DEBUG << " TauDetails saving..."  << endreq;
+  log << MSG::DEBUG << " TauDetails saving..."  << endmsg;
 
   // Protect against null pointer
   if (evt == 0) return;
@@ -86,10 +86,10 @@ TauDetails::savePythia(MsgStream& log, HepMC::GenEvent* evt) {
     int barcode = this->fftaudet().itnp(i);
     HepMC::GenParticle* p = evt->barcode_to_particle(barcode);
     if (p == 0) {
-      log << MSG::WARNING << " Couldn't find particle with barcode " << barcode << "!" << endreq;
+      log << MSG::WARNING << " Couldn't find particle with barcode " << barcode << "!" << endmsg;
     } else if (abs(p->pdg_id()) != 15) {
       log << MSG::WARNING << " Particle with barcode " << barcode << " has pdg_id = " 
-	  << p->pdg_id() << " which is not a tau (=15)!" << endreq;
+	  << p->pdg_id() << " which is not a tau (=15)!" << endmsg;
     } else {
       
       // OK, everything checks out, set polarization
@@ -103,7 +103,7 @@ TauDetails::savePythia(MsgStream& log, HepMC::GenEvent* evt) {
       HepMC::GenVertex* v = p->end_vertex();
       if (v == 0) {
 	log << MSG::WARNING << ">>> Couldn't find ending vertex for tau with barcode " 
-	    << barcode << "!" << endreq;
+	    << barcode << "!" << endmsg;
       } else {
 	if (m_verbose)
 	std::cout << ">>> Set vertex type to " << this->fftaudet().itjak(i) << std::endl;
@@ -123,7 +123,7 @@ TauDetails::savePythia(MsgStream& log, HepMC::GenEvent* evt) {
 void
 TauDetails::saveHerwig(MsgStream& log, HepMC::GenEvent* evt) {
 
-  log << MSG::DEBUG << " TauDetails saving..."  << endreq;
+  log << MSG::DEBUG << " TauDetails saving..."  << endmsg;
 
   // Protect against null pointer
   if (evt == 0) return;
@@ -171,17 +171,17 @@ TauDetails::saveHerwig(MsgStream& log, HepMC::GenEvent* evt) {
 
     int barcode = tauBarcode[i-1];
     if (barcode == 0) {
-      log << MSG::WARNING << " Couldn't find particle with barcode " << barcode << "!" << endreq;
+      log << MSG::WARNING << " Couldn't find particle with barcode " << barcode << "!" << endmsg;
       return;
     }
 
     HepMC::GenParticle* p = evt->barcode_to_particle(barcode);
     if (p == 0) {
       log << MSG::WARNING << " Couldn't find particle with barcode " 
-	  << barcode << "!" << endreq;
+	  << barcode << "!" << endmsg;
     } else if (abs(p->pdg_id()) != 15) {
       log << MSG::WARNING << " Particle with barcode " << barcode
-	  << " has pdg_id = " << p->pdg_id() << " which is not a tau (=15)!" << endreq;
+	  << " has pdg_id = " << p->pdg_id() << " which is not a tau (=15)!" << endmsg;
     } else {
       
       // OK, everything checks out, set polarization
@@ -195,7 +195,7 @@ TauDetails::saveHerwig(MsgStream& log, HepMC::GenEvent* evt) {
       HepMC::GenVertex* v = p->end_vertex();
       if (v == 0) {
 	log << MSG::WARNING << ">>> Couldn't find ending vertex for tau with barcode " 
-	    << barcode << "!" << endreq;
+	    << barcode << "!" << endmsg;
       } else {
 	if (m_verbose)
 	std::cout << ">>> Set vertex type to " << this->fftaudet().itjak(i) << std::endl;

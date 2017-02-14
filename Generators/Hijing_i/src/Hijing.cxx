@@ -253,7 +253,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 {
   //  These two parameters need to be made user settable (done - AS)
   //
-    MsgStream log(messageService(), name());
+    MsgStream log(msgSvc(), name());
     ATH_MSG_INFO( " HIJING Filing.  \n" );
 
     // Set the event number
@@ -483,7 +483,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
                     log << (*iter)->barcode() << ", "; 
                   }
 
-                log << endreq;
+                log << endmsg;
                 inconsistency = true;
               }          
 
