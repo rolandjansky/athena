@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxVectorFactory.cxx 598033 2014-05-20 15:32:20Z krasznaa $
+// $Id: TAuxVectorFactory.cxx 797214 2017-02-14 19:51:39Z ssnyder $
 
 // ROOT include(s):
 #include <TClass.h>
@@ -58,6 +58,12 @@ namespace xAOD {
    TAuxVectorFactory::create( size_t size, size_t capacity ) const {
 
       return new TAuxVector( this, m_class, size, capacity );
+   }
+
+   SG::IAuxTypeVector*
+   TAuxVectorFactory::createFromData( void* /*data*/, bool /*isPacked*/, bool ) const {
+
+      std::abort();
    }
 
    void TAuxVectorFactory::copy( void* dst,        size_t dst_index,
