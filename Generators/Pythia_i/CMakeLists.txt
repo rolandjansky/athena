@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorFortranCommon
                           Generators/GeneratorUtils
                           Generators/MadGraph_i
-                          Generators/PythiaBc_i
                           Generators/TruthUtils
                           Tools/PathResolver )
 
@@ -103,12 +102,12 @@ atlas_add_library( Pythia_iLib
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${PYTHIA6_LIBRARIES} ${LHAPDF_LIBRARIES} GaudiKernel AcerMC_i Lhef_i GeneratorModulesLib Tauola_iLib GeneratorFortranCommonLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel AlpGen_i ExoGraviton_i MadGraph_i PythiaBc_i TruthUtils PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel AlpGen_i ExoGraviton_i MadGraph_i TruthUtils PathResolver )
 
 atlas_add_component( Pythia_i
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${PYTHIA6_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHIA6_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AcerMC_i GeneratorModulesLib Lhef_i Tauola_iLib AthenaKernel AlpGen_i ExoGraviton_i GeneratorFortranCommonLib MadGraph_i PythiaBc_i TruthUtils PathResolver Pythia_iLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHIA6_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AcerMC_i GeneratorModulesLib Lhef_i Tauola_iLib AthenaKernel AlpGen_i ExoGraviton_i GeneratorFortranCommonLib MadGraph_i  TruthUtils PathResolver Pythia_iLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
