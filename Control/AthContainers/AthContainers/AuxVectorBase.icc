@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorBase.icc 628528 2014-11-14 17:04:35Z ssnyder $
+// $Id: AuxVectorBase.icc 797205 2017-02-14 19:38:03Z ssnyder $
 /**
  * @file AthContainers/AuxVectorBase.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -447,7 +447,8 @@ inline
 void
 AuxVectorBase::moveAux (size_t /*index*/,
                         const void /*p*/*,
-                        bool /*clear = false*/)
+                        bool /*clear = false*/,
+                        bool /*skipDestClear = false*/)
 {
   ATHCONTAINERS_ASSERT (!m_trackIndices);
 }

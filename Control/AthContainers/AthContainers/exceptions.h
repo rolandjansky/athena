@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: exceptions.h 721712 2016-02-03 20:57:28Z ssnyder $
+// $Id: exceptions.h 797205 2017-02-14 19:38:03Z ssnyder $
 /**
  * @file AthContainers/exceptions.h
  * @author scott snyder <snyder@bnl.gov>
@@ -347,6 +347,22 @@ public:
  */
 [[noreturn]]
 void throwExcMissingBaseInfo (const std::type_info& ti);
+
+
+/**
+ * @brief Exception --- Ownership mismatch for insertMove.
+ *
+ * For insertMove, both vectors must have the same ownership mode.
+ */
+class ExcInsertMoveOwnershipMismatch
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcInsertMoveOwnershipMismatch();
+};
 
 
 } // namespace SG

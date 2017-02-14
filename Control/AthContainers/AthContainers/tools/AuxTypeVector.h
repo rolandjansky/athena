@@ -52,9 +52,13 @@ class AuxDataOption;
  * types in these vectors.  Thus, we define this abstract interface
  * to operate on the vectors.  This template class provides the
  * concrete implementations of this interface.
+ *
+ * This class is initialized with a pointer to the actual vector.
+ * For a version that holds the vector internally, see the derived
+ * class @c AuxTypeVector.
  */
 template <class T, class CONT = typename AuxDataTraits<T>::vector_type>
-class AuxTypeVector
+class AuxTypeVectorHolder
   : public IAuxTypeVector
 {
 public:
@@ -67,7 +71,7 @@ public:
   /// Vector element type.
   typedef typename vector_type::value_type vector_value_type;
   
-private:
+protected:
   /// 1 for the usual case of @c V being @c vector<T>.
   /// If @c V is @c vector<char>, then this is @c sizeof(T).
   static const int SCALE = sizeof(element_type) / sizeof(vector_value_type);
@@ -75,12 +79,45 @@ private:
 
 public:
   /**
-   * @brief Constructor.  Makes a new vector.
-   * @param size Initial size of the new vector.
-   * @param capacity Initial capacity of the new vector.
+   * @brief Constructor.
+   * @param vecPtr Pointer to the object (of type @c CONT).
+   * @param ownFlag If true, take ownership of the object.
    */
-  AuxTypeVector (size_t size, size_t capacity);
+  AuxTypeVectorHolder (vector_type* vecPtr, bool ownFlag);
     
+
+  /**
+   * @brief Destructor.
+   * If @c ownFlag was true, then delete the vector object.
+   */
+  ~AuxTypeVectorHolder();
+
+
+  /**
+   * @brief Copy constructor.
+   * @param other Object to copy.
+   */
+  AuxTypeVectorHolder (const AuxTypeVectorHolder& other);
+
+
+   /**
+   * @brief Move constructor.
+   * @param other Object to move.
+   */
+  AuxTypeVectorHolder (AuxTypeVectorHolder&& other);
+
+
+  /**
+   * @brief Assignment.
+   */
+  AuxTypeVectorHolder& operator= (const AuxTypeVectorHolder& other);
+    
+
+  /**
+   * @brief Move assignment.
+   */
+  AuxTypeVectorHolder& operator= (AuxTypeVectorHolder&& other);
+
 
   /**
    * @brief Return a reference to the payload vector.
@@ -124,8 +161,10 @@ public:
   /**
    * @brief Change the size of the vector.
    * @param sz The new vector size.
+   * Returns true if it is known that iterators have not been invalidated;
+   * false otherwise.
    */
-  virtual void resize (size_t sz) ATH_OVERRIDE;
+  virtual bool resize (size_t sz) ATH_OVERRIDE;
 
 
   /**
@@ -169,6 +208,29 @@ public:
    * (running destructors as appropriate).
    */
   virtual void shift (size_t pos, ptrdiff_t offs) ATH_OVERRIDE;
+
+  
+  /**
+   * @brief Insert elements into the vector via move semantics.
+   * @param pos The starting index of the insertion.
+   * @param beg Start of the range of elements to insert.
+   * @param end End of the range of elements to insert.
+   *
+   * @c beg and @c end define a range of container elements, with length
+   * @c len defined by the difference of the pointers divided by the
+   * element size.
+   *
+   * The size of the container will be increased by @c len, with the elements
+   * starting at @c pos copied to @c pos+len.
+   *
+   * The contents of the @c beg:end range will then be moved to our vector
+   * starting at @c pos.  This will be done via move semantics if possible;
+   * otherwise, it will be done with a copy.
+   *
+   * Returns true if it is known that the vector's memory did not move,
+   * false otherwise.
+   */
+  virtual bool insertMove (size_t pos, void* beg, void* end) override;
 
 
   /**
@@ -218,11 +280,105 @@ public:
 
 
 private:
+  /**
+   * @brief Helper for @c insertMove.
+   * @param pos The starting index of the insertion.
+   * @param beg Start of the range of elements to insert.
+   * @param end End of the range of elements to insert.
+   *
+   * This does the actual move for POD types.
+   */
+  void insertMove1 (typename CONT::iterator pos,
+                    element_type* beg,
+                    element_type* end,
+                    std::true_type);
+
+
+  /**
+   * @brief Helper for @c insertMove.
+   * @param pos The starting index of the insertion.
+   * @param beg Start of the range of elements to insert.
+   * @param end End of the range of elements to insert.
+   *
+   * This does the actual move for non-POD types.
+   */
+  void insertMove1 (typename CONT::iterator pos,
+                    element_type* beg,
+                    element_type* end,
+                    std::false_type);
+
+  /// The contained vector.
+  vector_type* m_vecPtr;
+
+  /// True if we need to delete the object.
+  bool m_ownFlag;
+};
+
+
+//**********************************************************************
+
+
+/**
+ * @brief Implementation of @c IAuxTypeVector holding a vector instance.
+ *
+ * This is a derived class of @c AuxTypeVectorHolder that holds the vector
+ * instance as a member variable (and thus manages memory internally).
+ */
+template <class T, class CONT = typename AuxDataTraits<T>::vector_type>
+class AuxTypeVector
+  : public AuxTypeVectorHolder<T, CONT>
+{
+public:
+  typedef AuxTypeVectorHolder<T, CONT> Base;
+  typedef typename Base::vector_type vector_type;
+  typedef typename Base::element_type element_type;
+  typedef typename Base::vector_value_type vector_value_type;
+
+  /**
+   * @brief Constructor.  Makes a new vector.
+   * @param size Initial size of the new vector.
+   * @param capacity Initial capacity of the new vector.
+   */
+  AuxTypeVector (size_t size, size_t capacity);
+
+
+
+  /**
+   * @brief Copy constructor.
+   */
+  AuxTypeVector (const AuxTypeVector& other);
+
+
+  /**
+   * @brief Move constructor.
+   */
+  AuxTypeVector (AuxTypeVector&& other);
+
+
+  /**
+   * @brief Assignment.
+   */
+  AuxTypeVector& operator= (const AuxTypeVector& other);
+
+
+  /**
+   * @brief Move assignment.
+   */
+  AuxTypeVector& operator= (AuxTypeVector&& other);
+
+
+  /**
+   * @brief Make a copy of this vector.
+   */
+  virtual IAuxTypeVector* clone() const override;
+
+  
+private:
   /// The contained vector.
   vector_type m_vec;
 };
 
-
+ 
 } // namespace SG
 
 
