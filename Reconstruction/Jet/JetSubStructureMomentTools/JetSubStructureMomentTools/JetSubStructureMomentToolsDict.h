@@ -9,7 +9,6 @@
 #include "JetSubStructureMomentTools/DipolarityTool.h"
 #include "JetSubStructureMomentTools/JetChargeTool.h"
 #include "JetSubStructureMomentTools/NSubjettinessRatiosTool.h"
-#include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
 #include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"

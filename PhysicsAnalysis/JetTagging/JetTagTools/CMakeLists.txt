@@ -97,7 +97,7 @@ atlas_add_library( JetTagToolsLib
 
 atlas_add_component( JetTagTools
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel JetTagToolsLib )
+   LINK_LIBRARIES GaudiKernel JetTagToolsLib VxSecVertex )
 
 # Install files from the package:
 atlas_install_runtime( share/*.root share/*.txt )
