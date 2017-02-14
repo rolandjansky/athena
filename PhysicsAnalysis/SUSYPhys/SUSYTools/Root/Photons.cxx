@@ -103,6 +103,7 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
   }
 
   dec_baseline(input) = false;
+  dec_selected(input) = 0;
   dec_isol(input) = false;
 
   // Author cuts needed according to https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_authors
@@ -146,6 +147,7 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
   if (!m_photonSelIsEMBaseline->accept(&input) )return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
+  dec_selected(input) = 2;
   dec_isol(input) = m_isoTool->accept(input);
 
   ATH_MSG_VERBOSE("FillPhoton: passed baseline selection.");

@@ -42,6 +42,8 @@ Ele.Iso: ${ELE_ISO}
 Ele.Id: ${ELE_ID}
 Ele.d0sig: 5.
 Ele.z0: 0.5
+# ChargeIDSelector WP
+Ele.CFT: None
 #
 MuonBaseline.Pt: 10000.
 MuonBaseline.Id: ${MU_ID_Base} # Medium
@@ -83,7 +85,7 @@ FwdJet.JvtPtMax: 50e3
 FwdJet.JvtUseTightOP: false
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-Jet.LargeRuncConfig: MultiTagging_medium.config 
+Jet.LargeRuncConfig: None 
 Jet.WtaggerWP: medium
 Jet.ZtaggerWP: medium
 #
@@ -94,7 +96,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2016-11-25_v1.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-01-31_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: false
@@ -140,6 +142,11 @@ MET.DoCaloSyst: 0
 #
 PRW.DefaultChannel: -1
 PRW.MuUncertainty: 0.2
+#
+# Trigger SFs configuration
+Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
+Ele.TriggerSFStringDi: DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0
+Ele.TriggerSFStringMixedLepton: DI_E_2015_e17_lhloose_2016_e17_lhloose
 #
 StrictConfigCheck: false
 """)

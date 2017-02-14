@@ -13,6 +13,7 @@
 
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 #include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
+#include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
@@ -23,6 +24,8 @@
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
+#include "PATCore/TResult.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
@@ -31,6 +34,13 @@ namespace ST {
 
   const static SG::AuxElement::Decorator<char>      dec_passSignalID("passSignalID");
   const static SG::AuxElement::ConstAccessor<char>  acc_passSignalID("passSignalID");
+
+  const static SG::AuxElement::Decorator<char>      dec_passChID("passChID");
+  const static SG::AuxElement::ConstAccessor<char>  acc_passChID("passChID");
+  const static SG::AuxElement::Decorator<double>    dec_ecisBDT("ecisBDT");
+
+  const static SG::AuxElement::Decorator<float>     dec_sfChIDEff("chargeIDEffiSF"); //tools' default
+  const static SG::AuxElement::ConstAccessor<float> acc_sfChIDEff("chargeIDEffiSF"); //tools' default
 
   const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
@@ -105,10 +115,13 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   // According to https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Electron_identification:
   // "Please apply the identification to uncalibrated electron object. ID scale factors are to be applied to calibrated objects."
   dec_baseline(input) = false;
+  dec_selected(input) = 0;
   dec_signal(input) = false;
   dec_isol(input) = false;
   //dec_passBaseID(input) = false;
   dec_passSignalID(input) = false;
+  dec_passChID(input) = false;
+  dec_ecisBDT(input) = -999.;
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
@@ -179,11 +192,25 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   ATH_MSG_VERBOSE( "FillElectron: post-calibration pt=" << input.pt() );
 
+  //ChargeIDSelector
+  if( m_runECIS ){
+    dec_passChID(input) = m_elecChargeIDSelectorTool->accept(input);
+    double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
+    dec_ecisBDT(input) = bdt;
+
+    //get ElectronChargeEfficiencyCorrectionTool decorations in this case
+    if(m_elecChargeEffCorrTool->applyEfficiencyScaleFactor(input) != CP::CorrectionCode::Ok)
+      ATH_MSG_ERROR( "FillElectron: ElectronChargeEfficiencyCorrectionTool SF decoration failed ");
+
+  }
 
   if (input.pt() < etcut) return StatusCode::SUCCESS;
 
+  if (m_elebaselinez0>0. && acc_z0sinTheta(input)>m_elebaselinez0) return StatusCode::SUCCESS;
+  if (m_elebaselined0sig>0. && acc_d0sig(input)>m_elebaselined0sig) return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
+  dec_selected(input) = 2;
   dec_isol(input) = m_isoTool->accept(input);
 
   ATH_MSG_VERBOSE( "FillElectron: passed baseline selection" );
@@ -241,7 +268,8 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
                                        const bool idSF,
                                        const bool triggerSF,
                                        const bool isoSF,
-                                       const std::string& trigExpr) {
+                                       const std::string& trigExpr,
+				       const bool chfSF) {
 
   if ((m_eleId == "VeryLooseLLH" || m_eleId == "LooseLLH" || m_eleId == "Loose" || m_eleId == "Medium" || m_eleId == "Tight") && (idSF || triggerSF || isoSF)) {
     ATH_MSG_ERROR("No signal electron ID or trigger scale factors provided for the selected working point!");
@@ -338,6 +366,45 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
       ATH_MSG_WARNING( "Don't know what to do for signal electron iso SF");
     }
   }
+
+  // new : charge flip SF 
+  if (chfSF){
+    double chf_sf(1.);
+
+    //ECIS SF 
+    CP::CorrectionCode result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
+    switch (result) {
+    case CP::CorrectionCode::Ok:
+      sf *= chf_sf;
+      break;
+    case CP::CorrectionCode::Error:
+      ATH_MSG_ERROR( "Failed to retrieve signal electron charge-flip SF");
+      break;
+    case CP::CorrectionCode::OutOfValidityRange:
+      ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron charge-flip SF");
+      break;
+    default:
+      ATH_MSG_WARNING( "Don't know what to do for signal electron charge-flip SF");
+    }
+
+    //CHIDEFF SF
+    result = m_elecChargeEffCorrTool->getEfficiencyScaleFactor(el, chf_sf);
+    switch (result) {
+    case CP::CorrectionCode::Ok:
+      sf *= chf_sf;
+      break;
+    case CP::CorrectionCode::Error:
+      ATH_MSG_ERROR( "Failed to retrieve signal electron charge efficiency correction SF");
+      break;
+    case CP::CorrectionCode::OutOfValidityRange:
+      ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron charge efficiency correction SF");
+      break;
+    default:
+      ATH_MSG_WARNING( "Don't know what to do for signal electron charge efficiency correction SF");
+    }   
+
+  }
+
   
   dec_effscalefact(el) = sf;
   return sf;
@@ -402,18 +469,20 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
 }
 
 
-float SUSYObjDef_xAOD::GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr) {
+  float SUSYObjDef_xAOD::GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool chfSF) {
   float sf(1.);
 
   for (const auto& electron : electrons) {
-    if (acc_signal(*electron) && acc_passOR(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr); }
+    if (!acc_passOR(*electron)) continue;
+    if (acc_signal(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }
+    else { this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }
   }
 
   return sf;
 }
 
 
-float SUSYObjDef_xAOD::GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr) {
+  float SUSYObjDef_xAOD::GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool chfSF) {
   float sf(1.);
 
   //Set the new systematic variation
@@ -459,11 +528,22 @@ float SUSYObjDef_xAOD::GetTotalElectronSFsys(const xAOD::ElectronContainer& elec
 
   ret = m_elecEfficiencySFTool_iso->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (isoger) for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
   }
 
+  ret = m_elecEfficiencySFTool_chf->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (charge-flip) for systematic var. " << systConfig.name() );
+  }
+
+  ret = m_elecChargeEffCorrTool->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure ElectronChargeEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+  }
+
+
   //Get the total SF for new config
-  sf = GetTotalElectronSF(electrons, recoSF, idSF, triggerSF, isoSF, trigExpr);
+  sf = GetTotalElectronSF(electrons, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF);
 
   //Roll back to default
   ret = m_elecEfficiencySFTool_reco->applySystematicVariation(m_currentSyst);
@@ -508,7 +588,17 @@ float SUSYObjDef_xAOD::GetTotalElectronSFsys(const xAOD::ElectronContainer& elec
 
   ret = m_elecEfficiencySFTool_iso->applySystematicVariation(m_currentSyst);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (isoger) back to default.");
+    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso) back to default.");
+  }
+
+  ret = m_elecEfficiencySFTool_chf->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (charge-flip) back to default.");
+  }
+
+  ret = m_elecChargeEffCorrTool->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure ElectronChargeEfficiencyCorrectionTool back to default.");
   }
 
   return sf;

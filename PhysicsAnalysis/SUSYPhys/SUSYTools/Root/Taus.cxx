@@ -98,6 +98,9 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   else {
     dec_baseline(input) = false;
   }
+  if(acc_baseline(input)) dec_selected(input) = 2;
+  else                    dec_selected(input) = 0;
+
   if (dec_baseline(input)) ATH_MSG_VERBOSE("FillTau: passed baseline selection");
   else ATH_MSG_VERBOSE("FillTau: failed baseline selection");
   return StatusCode::SUCCESS;
