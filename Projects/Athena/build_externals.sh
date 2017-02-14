@@ -77,6 +77,7 @@ cd ${thisdir}/../..
 if [ "$BUILDDIR" = "" ]; then
     BUILDDIR=${thisdir}/../../../build
 fi
+mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd $BUILDDIR; pwd)
 
 if [ -n "$FORCE" ]; then
