@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 791623 2017-01-10 02:38:48Z griffith $ 
+# $Id: CMakeLists.txt 796274 2017-02-08 17:13:03Z griffith $ 
 ################################################################################
 # Package: tauRecTools
 ################################################################################
@@ -21,12 +21,14 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Event/xAOD/xAODEventInfo
       Event/xAOD/xAODPFlow
       Event/xAOD/xAODTau
+      Event/xAOD/xAODEgamma
       Event/xAOD/xAODTracking
       Reconstruction/MVAUtils
       PRIVATE
       Event/FourMomUtils
       Event/xAOD/xAODJet
       Tools/PathResolver
+      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
       ${extra_deps} )
 else()
    atlas_depends_on_subdirs(
@@ -39,6 +41,7 @@ else()
       Event/xAOD/xAODEventInfo
       Event/xAOD/xAODPFlow
       Event/xAOD/xAODTau
+      Event/xAOD/xAODEgamma
       Event/xAOD/xAODTracking
       Reconstruction/Particle
       Reconstruction/MVAUtils
@@ -55,6 +58,7 @@ else()
       Reconstruction/RecoTools/ITrackToVertex
       Reconstruction/RecoTools/RecoToolInterfaces
       Tools/PathResolver
+      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools	
       Tracking/TrkEvent/TrkLinks
       Tracking/TrkEvent/TrkParametersIdentificationHelpers
       Tracking/TrkEvent/TrkTrackSummary
@@ -81,10 +85,10 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       ${FASTJET_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
-      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODTau
+      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils )
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
    atlas_add_library( tauRecToolsLib
       tauRecTools/*.h Root/*.cxx
@@ -93,10 +97,10 @@ else()
       ${FASTJET_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
-      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODTau
+      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking CaloUtilsLib Particle
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils )
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
 endif()
 
 if( NOT XAOD_STANDALONE )
@@ -105,15 +109,15 @@ if( NOT XAOD_STANDALONE )
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODTau
-         xAODTracking AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow MVAUtils GaudiKernel tauRecToolsLib )
+         xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
+         xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib )
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloUtilsLib
-         xAODTau xAODTracking AthContainers FourMomUtils NavFourMom
-         xAODCaloEvent xAODJet xAODPFlow MVAUtils GaudiKernel
+         xAODTau xAODTracking xAODEgamma AthContainers FourMomUtils NavFourMom
+         xAODCaloEvent xAODJet xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel
          InDetRecToolInterfaces JetEDM Particle ITrackToVertex
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces

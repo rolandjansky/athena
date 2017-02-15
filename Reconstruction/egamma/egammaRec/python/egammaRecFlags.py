@@ -23,7 +23,7 @@ class Enabled(JobProperty):
 
 class egammaRecFlagsJobProperty(JobProperty):
     """ special flag . Subclass  which  has get_value depending on job properties.egammaRecFlags.Enabled
-    so properties inheriting from can be disabled in batch
+    so properties inheriting from this will be disables if egammaRec is not Enabled.
     """
     def get_Value(self):
         return self.statusOn and self.StoredValue and jobproperties.egammaRecFlags.Enabled()
@@ -43,7 +43,7 @@ class doEgammaForwardSeeded (egammaRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class doTopoCaloSeeded (egammaRecFlagsJobProperty):
+class doTopoCaloSeeded (JobProperty):
     """ switch for SW TopoCalo algorithm
     """
     statusOn=True
@@ -51,7 +51,7 @@ class doTopoCaloSeeded (egammaRecFlagsJobProperty):
     StoredValue=True
 
 #Other options
-class doEgammaTruthAssociation (egammaRecFlagsJobProperty):
+class doEgammaTruthAssociation (JobProperty):
     """ switch for truth association alg
     """
     statusOn=True
@@ -80,7 +80,7 @@ class doSwitchTRTGas (JobProperty):
     StoredValue=True
 
 # Super cluster options
-class doSuperclusters (egammaRecFlagsJobProperty):
+class doSuperclusters (JobProperty):
     """ switch to enable/disable the supercluster based algorithm
     """
     statusOn=True
@@ -116,7 +116,7 @@ class calibMVAVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str', 'None']
-    StoredValue="egammaMVACalib/offline/v5.0_rel21pre"
+    StoredValue="egammaMVACalib/offline/v6"
 
 # Defines a sub-container holding the jobProperties for egamma
 class egammaRecFlags(JobPropertyContainer):
@@ -126,7 +126,9 @@ class egammaRecFlags(JobPropertyContainer):
 jobproperties.add_Container(egammaRecFlags)
 
 # I want always the following flags in the container  
-_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doConversions,doTopoCaloSeeded,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation,clusterCorrectionVersion,calibMVAVersion, doSuperclusters, inputTopoClusterCollection, egammaTopoClusterCollection]
+_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doConversions,doTopoCaloSeeded,cellContainerName,doSwitchTRTGas,
+              doEgammaTruthAssociation,clusterCorrectionVersion,calibMVAVersion, doSuperclusters, inputTopoClusterCollection, 
+              egammaTopoClusterCollection]
 
 for j in _list_Egamma: 
     jobproperties.egammaRecFlags.add_JobProperty(j)

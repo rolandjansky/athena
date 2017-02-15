@@ -29,15 +29,15 @@ namespace Muon{
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
-    Muon::TgcPrepDataContainer*  cluster( const Muon::TgcPrepDataContainer& prdContainer );
-    Muon::TgcPrepDataCollection* cluster( const Muon::TgcPrepDataCollection& col );
+    Muon::TgcPrepDataContainer*  cluster( const Muon::TgcPrepDataContainer& prdContainer ) const ;
+    Muon::TgcPrepDataCollection* cluster( const Muon::TgcPrepDataCollection& col ) const ;
 
-    Muon::RpcPrepDataContainer*  cluster( const Muon::RpcPrepDataContainer& prdContainer );
-    Muon::RpcPrepDataCollection* cluster( const Muon::RpcPrepDataCollection& col );
+    Muon::RpcPrepDataContainer*  cluster( const Muon::RpcPrepDataContainer& prdContainer ) const;
+    Muon::RpcPrepDataCollection* cluster( const Muon::RpcPrepDataCollection& col ) const;
 
   private:
-    void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::TgcPrepDataCollection* collection );
-    void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::RpcPrepDataCollection* collection );
+    void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::TgcPrepDataCollection* collection ) const ;
+    void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::RpcPrepDataCollection* collection ) const;
 
     ToolHandle<Muon::MuonIdHelperTool> m_idHelper;    //!< id helper Tool 
 

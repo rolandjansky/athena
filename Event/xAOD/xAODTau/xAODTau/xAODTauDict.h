@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauDict.h 740338 2016-04-14 16:03:58Z griffith $
+// $Id: xAODTauDict.h 796007 2017-02-07 15:38:04Z griffith $
 #ifndef XAODTAU_XAODTAUDICT_H
 #define XAODTAU_XAODTAUDICT_H
 

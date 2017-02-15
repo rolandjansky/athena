@@ -220,7 +220,7 @@ class MdtDriftCircleOnTrack;
                                                 const std::vector<const MdtDriftCircleOnTrack*>& mdts,
                                               const std::vector<const MuonClusterOnTrack*>&  clusters, bool hasPhiMeasurements);
     */
-    std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios ) ;
+    std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios ) const ;
     
     /** find segments starting from a list of RIO_OnTrack objects in multiple chambers, implementation of IMuonSegmentMaker interface routine 
        Will call:
@@ -230,7 +230,7 @@ class MdtDriftCircleOnTrack;
                                               const std::vector<const MuonClusterOnTrack*>&  clusters, bool hasPhiMeasurements);
      */
     std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
-					   const std::vector<const Trk::RIO_OnTrack*>& rios2 ) ;
+					   const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const ;
      
    /** find segments starting from:
 	- a list of MdtDriftCircleOnTrack objects
@@ -246,7 +246,7 @@ class MdtDriftCircleOnTrack;
 					       bool hasPhiMeasurements, double momentum );
     */
     std::vector<const MuonSegment*>* find(const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-					  const std::vector<const MuonClusterOnTrack*>&  clusters);
+					  const std::vector<const MuonClusterOnTrack*>&  clusters) const ;
 
     /** find segments starting from:
 	- an estimate of the global position and direction of the particle in the chamber
@@ -261,7 +261,7 @@ class MdtDriftCircleOnTrack;
     std::vector<const MuonSegment*>* find( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir,
 					   const std::vector<const MdtDriftCircleOnTrack*>& mdts,
 					   const std::vector<const MuonClusterOnTrack*>&  clusters, 
-					   bool hasPhiMeasurements = false, double momentum = 1e9 );
+					   bool hasPhiMeasurements = false, double momentum = 1e9 ) const;
 
     /** find segments starting from:
 	- a track prediction
@@ -280,7 +280,7 @@ class MdtDriftCircleOnTrack;
     std::vector<const MuonSegment*>* find( const Trk::TrackRoad& road,
 					   const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
 					   const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
-					   bool hasPhiMeasurements = false, double momentum = 1e9);       
+					   bool hasPhiMeasurements = false, double momentum = 1e9) const;       
 
 
     /** associate trigger hits to an existing segment
@@ -379,12 +379,12 @@ class MdtDriftCircleOnTrack;
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! printer helper tool
     ToolHandle<MuonEDMHelperTool>             m_helper;          //<! printer helper tool
     ToolHandle<IMdtSegmentFinder>             m_segmentFinder;   //<! segment finder tool
-    ToolHandle<AdjT0::IAdjustableT0Tool>      m_tofTool;         //<! tof tool
+    mutable ToolHandle<AdjT0::IAdjustableT0Tool>      m_tofTool;         //<! tof tool
     ToolHandle<IMuonSegmentFittingTool>       m_segmentFitter;   //<! segment fitting tool
     ToolHandle<IMuonSegmentSelectionTool>     m_segmentSelectionTool; //<! segment selection tool
     ToolHandle<IDCSLFitProvider>              m_dcslFitProvider;
 
-    double m_sinAngleCut;        //<! cut on the angle between the segment and the prediction
+    mutable double m_sinAngleCut;        //<! cut on the angle between the segment and the prediction
     bool m_debugSpacePoints; //<! additional debug output for space point formation
     bool m_doGeometry; //<! use chamber geometry in segment finding
     bool m_curvedErrorScaling; //<! rescale errors for low momenta

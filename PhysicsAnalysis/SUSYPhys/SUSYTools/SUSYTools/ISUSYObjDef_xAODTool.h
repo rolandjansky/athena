@@ -88,6 +88,7 @@ namespace ST {
       static const unsigned int Isolation = 1202;
       static const unsigned int ID = 1203;
       static const unsigned int Trigger = 1204;
+      static const unsigned int ChargeID = 1205;
     }
     
     namespace Tau {
@@ -231,9 +232,9 @@ namespace ST {
 
     virtual float BtagSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) = 0;
 
-    virtual float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true) = 0;
+    virtual float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true, const bool doBadMuonHP = true, const bool warnOVR = true) = 0;
 
-    virtual float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") = 0;
+    virtual float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", const bool chfSF = false) = 0;
 
     virtual double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const = 0; 
 
@@ -246,13 +247,13 @@ namespace ST {
 
     virtual double GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) = 0;
 
-    virtual double GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50") = 0;
+    virtual double GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool bmhptSF = true) = 0;
 
-    virtual float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton") = 0;  // singleLepton == Ele.TriggerSFStringSingle value
+    virtual float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) = 0;  // singleLepton == Ele.TriggerSFStringSingle value
 
-    virtual double GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50") = 0;
+    virtual double GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool bmhptSF = true) = 0;
 
-    virtual float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton") = 0;   // singleLepton == Ele.TriggerSFStringSingle value
+    virtual float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) = 0;   // singleLepton == Ele.TriggerSFStringSingle value
 
     virtual double GetSignalTauSF(const xAOD::TauJet& tau, const bool idSF = true, const bool triggerSF = true,  const std::string& trigExpr = "tau25_medium1_tracktwo") = 0;
   
@@ -276,8 +277,8 @@ namespace ST {
 
     virtual double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true) = 0;
 
-    virtual bool IsMETTrigPassed(unsigned int runnumber = 0) = 0;
-    virtual bool IsMETTrigPassed(const std::string& triggerName) = 0;
+    virtual bool IsMETTrigPassed(unsigned int runnumber = 0, bool j400_OR = false) const = 0;
+    virtual bool IsMETTrigPassed(const std::string& triggerName, bool j400_OR = false) const = 0;
 
     virtual bool IsTrigPassed(const std::string&, unsigned int condition=TrigDefs::Physics) const = 0;
 

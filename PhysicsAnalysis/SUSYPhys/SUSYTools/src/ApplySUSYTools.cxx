@@ -555,7 +555,7 @@ StatusCode ApplySUSYTools::execute()
 
 
   // Muons thinning
-  int muonsSize = p_Muons->size();
+  //int muonsSize = p_Muons->size();
   CHECK( m_thinningSvc->filter(*p_Muons, *muCutMask, 
                                IThinningSvc::Operator::Or) );
   CHECK( m_thinningSvc->filter(*p_MuonSpecTP, *muSpecCutMask,
@@ -726,7 +726,7 @@ StatusCode ApplySUSYTools::execute()
       CHECK( evtStore()->record(metaux, METsName+sysname+"Aux.") );
       if( doPrint ) ATH_MSG_DEBUG("Recorded " <<METsName+sysname <<" "
                                   <<METsName+sysname+"Aux.");
-      if( p_PrimVtx > 0 ){
+      if( p_PrimVtx ){
         CHECK( m_objTool->GetMET(*met, p_JetsN, p_ElectronsN, p_MuonsN, 
                                  0, 0, m_doTST, m_doTST).isSuccess() );
         if( doPrint ) ATH_MSG_DEBUG("MET et " 

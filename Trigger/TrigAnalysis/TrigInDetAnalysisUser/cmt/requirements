@@ -79,6 +79,10 @@ application  TIDAruntool  "../Analysis/src/runtool.cxx"
 # macro_append TIDAlistrootlinkopts       " -lResplot  -lTIDA"
 # macro_append TIDAlistroot_dependencies  " Resplot TIDA "
 
+application  TIDAsb  "../Analysis/src/chainparser.cxx"
+macro_append TIDAsb_cppflags      " -I../Readcards/src "
+macro_append TIDAsblinkopts       " -lReadcards"
+macro_append TIDAsb_dependencies  " Readcards "
 
 
 
@@ -90,7 +94,7 @@ macro_append TIDAmakeSmallRefFile_dependencies " "
 
 apply_pattern declare_scripts files="../scripts/TIDA*.sh"
 
-apply_pattern declare_runtime extras="../share/TIDA*.dat ../share/TIDA*.py ../share/Test_bin.dat"
+apply_pattern declare_runtime extras="../share/TIDA*.dat ../share/TIDA*.py ../share/Test_*.dat"
 
 
 

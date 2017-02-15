@@ -31,7 +31,7 @@ namespace Muon {
 	  @return a pointer to a vector of Muon::MuonPattern objects, zero if no patterns found.
 	   	  The ownership of the patterns is passed to the client calling the tool.
       */
-      virtual std::vector<const MuonPattern*>* find( std::vector<const Trk::PrepRawData*>& prds ) =0;
+      virtual std::vector<const MuonPattern*>* find( std::vector<const Trk::PrepRawData*>& prds ) const =0;
   };
   
   inline const InterfaceID& IMuonPatternFinder::interfaceID()

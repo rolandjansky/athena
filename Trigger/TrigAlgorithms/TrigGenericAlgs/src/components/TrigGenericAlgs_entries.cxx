@@ -1,6 +1,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigGenericAlgs/DummyFEX.h"
 #include "TrigGenericAlgs/DummyUnseededAllTEAlgo.h"
+#include "TrigGenericAlgs/DummyCopyAllTEAlgo.h"
 #include "TrigGenericAlgs/DummyCombineAlgo.h"
 #include "TrigGenericAlgs/OverlapRemoval.h"
 #include "TrigGenericAlgs/ReverseRoI.h"
@@ -21,6 +22,7 @@ using namespace PESA;
 
 DECLARE_ALGORITHM_FACTORY( DummyFEX )
 DECLARE_ALGORITHM_FACTORY( DummyUnseededAllTEAlgo )
+DECLARE_ALGORITHM_FACTORY( DummyCopyAllTEAlgo )
 DECLARE_ALGORITHM_FACTORY( DummyCombineAlgo )
 DECLARE_ALGORITHM_FACTORY( OverlapRemoval )
 DECLARE_ALGORITHM_FACTORY( ReverseRoI )
@@ -40,7 +42,8 @@ DECLARE_ALGORITHM_FACTORY( MergeTopoStarts )
 DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
     DECLARE_ALGORITHM( DummyFEX )
     DECLARE_ALGORITHM( DummyUnseededAllTEAlgo )
-    DECLARE_ALGORITHM( DummyComnbineAlgo )
+    DECLARE_ALGORITHM( DummyCopyAllTEAlgo )
+    DECLARE_ALGORITHM( DummyCombineAlgo )
     DECLARE_ALGORITHM( OverlapRemoval )
     DECLARE_ALGORITHM( ReverseRoI )
     DECLARE_ALGORITHM( AcceptWhenInputMissing )

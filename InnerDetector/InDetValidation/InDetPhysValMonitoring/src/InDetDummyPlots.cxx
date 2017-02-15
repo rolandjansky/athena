@@ -16,14 +16,23 @@ InDetDummyPlots::InDetDummyPlots(InDetPlotBase* pParent, const std::string& sDir
   m_brem_spectrum{},
   m_energy_remaining{},
   m_energy_remaining_vs_eta{},
-  m_energy_remaining_vs_prodR_low_eta{},
-  m_energy_remaining_vs_prodR_medium_eta{},
-  m_energy_remaining_vs_prodR_high_eta{},
+  m_energy_remaining_vs_prodR_TRT_barrel{},
+  m_energy_remaining_vs_prodR_type_A_endcap{},
+  m_energy_remaining_vs_prodR_type_A_and_B{},
+  m_energy_remaining_vs_prodR_type_B_endcap{},
   m_primary_photon_eta_vs_conversion_radius{},
   m_primary_photon_pt_vs_decay_radius{},
   m_primary_photon_pt{},
   m_brem_photon_eta_vs_radius_of_conversion{},
-  m_brem_photon_pt_vs_radius_of_origin_of_conversion{} {
+  m_brem_photon_pt_vs_radius_of_origin_of_conversion{},
+  m_truthMatchProbability_vs_delta_R{},
+  m_minimum_delta_R{},
+  m_minimum_delta_R_2{},
+  m_minimum_delta_R_3{},
+  m_minimum_delta_R_not_found{},
+  m_minimum_delta_R_2_not_found{},
+  m_minimum_delta_R_3_not_found{},
+  m_delta_inverse_pt{} {
   // nop
 }
 
@@ -35,14 +44,23 @@ InDetDummyPlots::initializePlots() {
   book(m_brem_spectrum, "brem_spectrum");
   book(m_energy_remaining, "energy_remaining");
   book(m_energy_remaining_vs_eta, "energy_remaining_vs_eta");
-  book(m_energy_remaining_vs_prodR_low_eta, "energy_remaining_vs_prodR_low_eta");
-  book(m_energy_remaining_vs_prodR_medium_eta, "energy_remaining_vs_prodR_medium_eta");
-  book(m_energy_remaining_vs_prodR_high_eta, "energy_remaining_vs_prodR_high_eta");
+  book(m_energy_remaining_vs_prodR_TRT_barrel, "energy_remaining_vs_prodR_TRT_barrel");
+  book(m_energy_remaining_vs_prodR_type_A_endcap, "energy_remaining_vs_prodR_type_A_endcap");
+  book(m_energy_remaining_vs_prodR_type_A_and_B, "energy_remaining_vs_prodR_type_A_and_B");
+  book(m_energy_remaining_vs_prodR_type_B_endcap, "energy_remaining_vs_prodR_type_B_endcap");
   book(m_primary_photon_eta_vs_conversion_radius, "primary_photon_eta_vs_conversion_radius");
   book(m_primary_photon_pt_vs_decay_radius, "primary_photon_pt_vs_decay_radius");
   book(m_primary_photon_pt, "primary_photon_pt");
   book(m_brem_photon_eta_vs_radius_of_conversion, "brem_photon_eta_vs_radius_of_conversion");
   book(m_brem_photon_pt_vs_radius_of_origin_of_conversion, "brem_photon_pt_vs_radius_of_origin_of_conversion");
+  book(m_truthMatchProbability_vs_delta_R, "truthMatchProbability_vs_delta_R");
+  book(m_minimum_delta_R, "minimum_delta_R");
+  book(m_minimum_delta_R_2, "minimum_delta_R_2");
+  book(m_minimum_delta_R_3, "minimum_delta_R_3");
+  book(m_minimum_delta_R_not_found, "minimum_delta_R_not_found");
+  book(m_minimum_delta_R_2_not_found, "minimum_delta_R_2_not_found");
+  book(m_minimum_delta_R_3_not_found, "minimum_delta_R_3_not_found");
+  book(m_delta_inverse_pt, "delta_inverse_pt");
 }
 
 void
@@ -118,14 +136,15 @@ InDetDummyPlots::lepton_fill(const xAOD::TruthParticle& truth, float weight) {
     std::cout<<"Fraction of electron/positron energy remaining: "<<e_left<<"\n";
     fillHisto(m_energy_remaining, prod_rad, e_left);
     fillHisto(m_energy_remaining_vs_eta, eta, e_left);
-    if(abseta < 1.0){
-      fillHisto(m_energy_remaining_vs_prodR_low_eta, prod_rad, e_left);
-    }else if(abseta < 1.8){
-      fillHisto(m_energy_remaining_vs_prodR_medium_eta, prod_rad, e_left);
-    }else{
-      fillHisto(m_energy_remaining_vs_prodR_high_eta, prod_rad, e_left);
+    if(abseta < 0.625){
+      fillHisto(m_energy_remaining_vs_prodR_TRT_barrel, prod_rad, e_left);
+    }else if((1.070 < abseta) and (abseta < 1.304)){
+      fillHisto(m_energy_remaining_vs_prodR_type_A_endcap, prod_rad, e_left);
+    }else if((1.304 < abseta) and (abseta < 1.752)){
+      fillHisto(m_energy_remaining_vs_prodR_type_A_and_B, prod_rad, e_left);
+    }else if((1.752 < abseta) and (abseta < 2.0)){
+      fillHisto(m_energy_remaining_vs_prodR_type_B_endcap, prod_rad, e_left);
     }
-
   }
 }
 
@@ -151,12 +170,64 @@ InDetDummyPlots::brem_photon_fill(const xAOD::TruthParticle& truth) {
   double log_pt = std::log10(pt);
   const xAOD::TruthVertex* vtx = truth.prodVtx();
 
-  // double prod_rad = vtx->perp(); unused
   if (truth.hasDecayVtx()) {
     double decay_rad = vtx->perp();
     fillHisto(m_brem_photon_eta_vs_radius_of_conversion, decay_rad, eta);
     fillHisto(m_brem_photon_pt_vs_radius_of_origin_of_conversion, decay_rad, log_pt);
   }
+}
+
+void
+InDetDummyPlots::track_vs_truth(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, float tmp){
+  double track_theta = track.theta();
+  double truth_theta = truth.auxdata< float >("theta");
+  //double track_pt = track.pt(); unused
+  //double truth_pt = truth.pt(); unused
+  double truth_eta = truth.eta();
+  double track_eta = -std::log(std::tan(track_theta*0.5));
+
+  double delta_eta = track_eta - truth_eta;
+  double delta_theta = track_theta - truth_theta;
+
+  double delta_R = sqrt(delta_eta * delta_eta + delta_theta * delta_theta);
+
+  fillHisto(m_truthMatchProbability_vs_delta_R, delta_R, tmp);
+  /*
+  if(truth.hasProdVtx()){
+    const xAOD::TruthVertex* vtx = truth.prodVtx();
+    double prod_rad = vtx->perp();
+    if(prod_rad < 100){
+      fillHisto(m_minimum_delta_R, delta_R);
+
+    }
+  }
+  */
+}
+
+void
+InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt){
+
+  if(bestmatch > 0.50){
+    if(prod_rad < 100){
+      fillHisto(m_minimum_delta_R, min_dR);
+    }else if(prod_rad < 200){
+      fillHisto(m_minimum_delta_R_2, min_dR);
+    }else{
+      fillHisto(m_minimum_delta_R_3, min_dR);
+    }
+  }else{
+    std::cout<<"Rey: the match probability is "<<bestmatch<<"\n";
+    if(prod_rad < 100){
+      fillHisto(m_minimum_delta_R_not_found, min_dR);
+    }else if(prod_rad < 200){
+      fillHisto(m_minimum_delta_R_2_not_found, min_dR);
+    }else{
+      fillHisto(m_minimum_delta_R_3_not_found, min_dR);
+    }
+  }
+
+  fillHisto(m_delta_inverse_pt, BIDPt);
+
 }
 
 void

@@ -423,7 +423,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
   // number of bins of parametrization
   int ncsx; // cluster size in x
   int ncsy; // cluster size in y
-  int neta; // pseudorapidity
+  int neta = 0; // pseudorapidity
   int nalpha; // incidence angle
   m_csxbinsibl = 0;
   m_csybinsibl = 0;

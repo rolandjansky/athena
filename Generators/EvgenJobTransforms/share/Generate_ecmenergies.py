@@ -30,8 +30,8 @@ elif 'Herwig' in evgenConfig.generators:
     genSeq.Herwig.HerwigCommand.append("beam2energy %s" % eBeam)
 elif 'Herwigpp' in evgenConfig.generators:
     genSeq.Herwigpp.Commands.append("set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy %s" % eCM)
-elif 'Herwig7' in evgenConfig.generators:
-    genSeq.Herwig7.Commands.append("set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy %s" % eCM)
+#elif 'Herwig7' in evgenConfig.generators:
+#    genSeq.Herwig7.Commands.append("set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy %s" % eCM)
 elif 'Sherpa' in evgenConfig.generators:
     genSeq.Sherpa_i.Parameters.append("BEAM_ENERGY_1=%s" % eBeam)
     genSeq.Sherpa_i.Parameters.append("BEAM_ENERGY_2=%s" % eBeam)

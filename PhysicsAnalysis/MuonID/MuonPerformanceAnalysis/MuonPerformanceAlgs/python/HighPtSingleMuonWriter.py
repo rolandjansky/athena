@@ -32,8 +32,7 @@ def AddConfiguredHighPtSingleMuonWriter(name_suffix="myProbes",
         ProbeContainer = "MuonTruthParticles"
 
     theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="HighPtSingeMuonWriterAlg_%s"%name_suffix,
-                           ProbeCont=ProbeContainer,
-                           MatchCont=ProbeContainer)
+                           ProbeCont=ProbeContainer)
     theAlg.TopLevelFolderName = "HighPtSingleMuon"
 
     # add a plotting tool

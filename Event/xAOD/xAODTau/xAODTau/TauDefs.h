@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 784645 2016-11-16 16:36:25Z griffith $
+// $Id: TauDefs.h 796092 2017-02-08 00:14:16Z griffith $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -126,6 +126,7 @@ namespace TauJetParameters
         // = 16,
         // = 17,
         // = 18,
+	JetBDTSigVeryLoose      = 18, // new in r21
         JetBDTSigLoose          = 19, // rename (add sig)
         JetBDTSigMedium         = 20, // rename (add sig)
         JetBDTSigTight          = 21, // rename (add sig)
@@ -314,6 +315,7 @@ namespace TauJetParameters
       
       nChargedTracks=109,
       nIsolatedTracks=110,
+      nModifiedIsolationTracks=111,//no static variable for now
 
       //Tau/Ele BDTVars
 
@@ -401,6 +403,7 @@ namespace TauJetParameters
       classifiedFake       = 8, // track classified as pileup or fake tracks (should not be used for isolation computation)
       unclassified         = 9,  // helper enum for not yet classified tracks
       passTrkSelectionTight = 10, //pass the xAOD Tight track selection
+      modifiedIsolationTrack = 11, //passTrkSelector && !classifiedCharged
       //if you add another flag, you'll need to check the track sorting alg, it assumes unclassified is the last flag *This should be fixed in TauTrackClassifier now*
       //Track sorting just requires that the classifiedXXX bits are consecutive, charged is first (of classifiedXXX), and fake is last (of classifiedXXX)
     };

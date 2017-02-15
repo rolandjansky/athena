@@ -69,30 +69,30 @@ InDetPerfPlot_Eff::initializePlots() {
 }
 
 void
-InDetPerfPlot_Eff::pro_fill(const xAOD::TruthParticle& truth, float weight) {
+InDetPerfPlot_Eff::fill(const xAOD::TruthParticle& truth, const bool isGood) {
   double eta = truth.eta();
   double pt = truth.pt() * 1_GeV; // convert MeV to GeV
   double phi = truth.phi();
 
-  fillHisto(m_trackeff_vs_eta, eta, weight);
-  fillHisto(m_trackeff_vs_pt, pt, weight);
-  fillHisto(m_trackeff_vs_phi, phi, weight);
+  fillHisto(m_trackeff_vs_eta, eta, isGood);
+  fillHisto(m_trackeff_vs_pt, pt, isGood);
+  fillHisto(m_trackeff_vs_phi, phi, isGood);
 
   double d0 = truth.auxdata<float>("d0");
   double z0 = truth.auxdata<float>("z0");
   double R = truth.auxdata<float>("prodR");
   double Z = truth.auxdata<float>("prodZ");
-  fillHisto(m_trackeff_vs_d0, d0, weight);
-  fillHisto(m_trackeff_vs_z0, z0, weight);
-  fillHisto(m_trackeff_vs_R, R, weight);
-  fillHisto(m_trackeff_vs_Z, Z, weight);
+  fillHisto(m_trackeff_vs_d0, d0, isGood);
+  fillHisto(m_trackeff_vs_z0, z0, isGood);
+  fillHisto(m_trackeff_vs_R, R, isGood);
+  fillHisto(m_trackeff_vs_Z, Z, isGood);
 
   if (truth.hasProdVtx()) {
     const xAOD::TruthVertex* vtx = truth.prodVtx();
     double prod_rad = vtx->perp();
     double prod_z = vtx->z();
-    fillHisto(m_trackeff_vs_prodR, prod_rad, weight);
-    fillHisto(m_trackeff_vs_prodZ, prod_z, weight);
+    fillHisto(m_trackeff_vs_prodR, prod_rad, isGood);
+    fillHisto(m_trackeff_vs_prodZ, prod_z, isGood);
   }
 }
 

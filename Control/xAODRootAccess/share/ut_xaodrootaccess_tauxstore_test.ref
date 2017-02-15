@@ -1,0 +1,31 @@
+ut_xaodrootaccess_taux... INFO    Environment initialised for data access
+******************************************************************************
+*Tree    :InputTree : Input Tree                                             *
+*Entries :        1 : Total =            1913 bytes  File  Size =          0 *
+*        :          : Tree compression factor =   1.00                       *
+******************************************************************************
+*Br    0 :PrefixAuxDyn.var1 : vector<float>                                  *
+*Entries :        1 : Total  Size=        758 bytes  One basket in memory    *
+*Baskets :        0 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br    1 :PrefixAuxDyn.var2 : vector<float>                                  *
+*Entries :        1 : Total  Size=        758 bytes  One basket in memory    *
+*Baskets :        0 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+ut_xaodrootaccess_taux... INFO    Created transient input TTree for the test
+ut_xaodrootaccess_taux... INFO    Auxiliary variables found on the input:
+ut_xaodrootaccess_taux... INFO      - id: 1, name: var2, type: float
+ut_xaodrootaccess_taux... INFO      - id: 0, name: var1, type: float
+******************************************************************************
+*Tree    :OutputTree: Output Tree                                            *
+*Entries :        1 : Total =            1953 bytes  File  Size =          0 *
+*        :          : Tree compression factor =   1.00                       *
+******************************************************************************
+*Br    0 :PrefixAuxDyn.var1 : vector<float>                                  *
+*Entries :        1 : Total  Size=        760 bytes  One basket in memory    *
+*Baskets :        0 : Basket Size=       2048 bytes  Compression=   1.00     *
+*............................................................................*
+*Br    1 :PrefixAuxDyn.decoration : vector<int>                              *
+*Entries :        1 : Total  Size=        796 bytes  One basket in memory    *
+*Baskets :        0 : Basket Size=       2048 bytes  Compression=   1.00     *
+*............................................................................*

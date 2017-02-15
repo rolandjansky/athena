@@ -304,6 +304,7 @@ DecisionSvc::isEventAccepted( const std::string& stream ) const
 {
   EventContext ec;
   ec.setValid(false);
+  ec.setSlot(0);
   return isEventAccepted(stream,ec);
 }
 
@@ -313,6 +314,14 @@ DecisionSvc::isEventAccepted( const std::string& stream,
 {
 
   ATH_MSG_DEBUG("In DecisionSvc::isEventAccepted( " << stream << " )");
+
+#if 0
+  if (! ectx.valid()) {
+    ATH_MSG_ERROR("In DecisionSvc::isEventAccepted( " << stream << " )"
+                  << " EventContext should never be INVALID!");
+    return false;
+  }
+#endif
 
   // By construction a stream is accepted
   bool result = true;
@@ -336,14 +345,8 @@ DecisionSvc::isEventAccepted( const std::string& stream,
       result = false;
       for (auto it = vecAlgs.begin(); it != vecAlgs.end(); it++) {
         bool isE,fp;
-        if (ectx.valid()) {
-          isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
-          fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
-        }
-        else {  
-          isE = m_algstateSvc->algExecState(*it).isExecuted();
-          fp = m_algstateSvc->algExecState(*it).filterPassed();
-        }
+        isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
+        fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
         if (isE && fp) {
 	  result = true;
 	  break;
@@ -365,14 +368,8 @@ DecisionSvc::isEventAccepted( const std::string& stream,
     if ( ! vecAlgs.empty( ) ) {
       for (auto it = vecAlgs.begin(); it != vecAlgs.end(); it++) {
         bool isE,fp;
-        if (ectx.valid()) {
-          isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
-          fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
-        }
-        else {  
-          isE = m_algstateSvc->algExecState(*it).isExecuted();
-          fp = m_algstateSvc->algExecState(*it).filterPassed();
-        }
+        isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
+        fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
         if (!isE || !fp) {
           result = false;
           break;
@@ -394,14 +391,8 @@ DecisionSvc::isEventAccepted( const std::string& stream,
     if ( ! vecAlgs.empty( ) ) {
       for (auto it = vecAlgs.begin(); it != vecAlgs.end(); it++) {
         bool isE,fp;
-        if (ectx.valid()) {
-          isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
-          fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
-        }
-        else {  
-          isE = m_algstateSvc->algExecState(*it).isExecuted();
-          fp = m_algstateSvc->algExecState(*it).filterPassed();
-        }
+        isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
+        fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
 	if ( isE && fp ) {
           result = false;
           break;

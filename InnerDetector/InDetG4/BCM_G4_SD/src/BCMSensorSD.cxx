@@ -37,12 +37,7 @@ BCMSensorSD::BCMSensorSD(const std::string& name, const std::string& hitCollecti
 // Initialize from G4 - necessary to new the write handle for now
 void BCMSensorSD::Initialize(G4HCofThisEvent *)
 {
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#endif
 }
 
 G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
@@ -85,7 +80,6 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   if(BEcopyNo == 11950 || BEcopyNo == 11951)
     {
       TrackHelper trHelp(aStep->GetTrack());
-      int barcode = trHelp.GetBarcode();
       //primary or not
       int primaren = 0;
       if(trHelp.IsPrimary())
@@ -96,7 +90,7 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
         primaren = 3;
       else if(trHelp.IsRegisteredSecondary())
         primaren = 4;
-      //std::cout << "BCMBarcode == " << barcode << " Vertex: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
+      //std::cout << "BCMBarcode == " << trHelp.GetBarcode() << " Vertex: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
 
       int produced_in_diamond = 0;
       if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmDiamondLog")
@@ -106,7 +100,8 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       else if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmWallLog")
         produced_in_diamond = 3;
 
-      m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), barcode, 0, 0, myTouch->GetVolume(1)->GetCopyNo()-951, BEcopyNo - 11950, primaren, produced_in_diamond);
+      m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), trHelp.GetParticleLink(),
+                         0, 0, myTouch->GetVolume(1)->GetCopyNo()-951, BEcopyNo - 11950, primaren, produced_in_diamond);
     }
   return true;
 }

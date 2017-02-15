@@ -69,8 +69,6 @@ StatusCode TrigTEMoni::bookHists()
 StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool /*isNewRun*/ )
 {
   std::string tmpstring;
-  TString htit;
-  TString hname;  
   TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
 
   //reset private members 
@@ -220,40 +218,36 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   if ( expertHistograms.regHist( m_numberOfallTEsHist2d ).isFailure()) 
     msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
  
-  if(m_trigLvl != "EF"){
-    /*
-      histo for number of input TEs from LVL1
-    */
-    name  = "NumberOfLvl1TEs";
+  /*
+    histo for number of input TEs from LVL1
+  */
+  name  = "NumberOfLvl1TEs";    
+  title  = "LVL1-TEs abundance in (L1 threshods counts)"+ m_trigLvl;
+
+  if(bin_number_lvl1>0){
+    m_numberOflvl1TEsHist =new TH1I(name.c_str(),title.c_str(), bin_number_lvl1,0.5, bin_number_lvl1+0.5 );
+  }else{
+    m_numberOflvl1TEsHist =new TH1I(name.c_str(),title.c_str(), 1,-0.5,0.5 );
+  }
+
+  if ( expertHistograms.regHist( m_numberOflvl1TEsHist ).isFailure()) 
+    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
+
+
+  /*
+    2dhisto for number of input TEs from LVL1
+  */
+  name  = "NumberOfLvl1TEsPerEvent";
+  title  = "LVL1-TEs abundance per event in (threshold multiplicities)"+ m_trigLvl;
     
-    title  = "LVL1-TEs abundance in (L1 threshods counts)"+ m_trigLvl;
-
-    if(bin_number_lvl1>0){
-      m_numberOflvl1TEsHist =new TH1I(name.c_str(),title.c_str(), bin_number_lvl1,0.5, bin_number_lvl1+0.5 );
-    }else{
-      m_numberOflvl1TEsHist =new TH1I(name.c_str(),title.c_str(), 1,-0.5,0.5 );
-    }
-
-    if ( expertHistograms.regHist( m_numberOflvl1TEsHist ).isFailure()) 
-      msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
-
-
-    /*
-      2dhisto for number of input TEs from LVL1
-    */
-    name  = "NumberOfLvl1TEsPerEvent";
-    title  = "LVL1-TEs abundance per event in (threshold multiplicities)"+ m_trigLvl;
+  if(bin_number_lvl1>0){
+    m_numberOflvl1TEsHist2d = new TH2I(name.c_str(), title.c_str(), bin_number_lvl1,0.5, bin_number_lvl1+0.5, 20,-0.5,19.5  );
+  }else{
+    m_numberOflvl1TEsHist2d = new TH2I(name.c_str(), title.c_str(), 1,-0.5, 0.5, 20,-0.5,19.5  );
+  }
+  if ( expertHistograms.regHist( m_numberOflvl1TEsHist2d ).isFailure()) 
+    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
     
-    if(bin_number_lvl1>0){
-      m_numberOflvl1TEsHist2d = new TH2I(name.c_str(), title.c_str(), bin_number_lvl1,0.5, bin_number_lvl1+0.5, 20,-0.5,19.5  );
-    }else{
-      m_numberOflvl1TEsHist2d = new TH2I(name.c_str(), title.c_str(), 1,-0.5, 0.5, 20,-0.5,19.5  );
-    }
-    if ( expertHistograms.regHist( m_numberOflvl1TEsHist2d ).isFailure()) 
-      msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
-    
-  }//"EF"
-
   
   //naming the histogram bins according to TE label
   int tmpbin=0;
@@ -269,63 +263,39 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     
   }
 
-  if(m_trigLvl!="EF"){// LVL1 TES only for L2 and HLT
-    tmpbin=0;
-    for ( unsigned int type : m_configuredlvl1TETypes ) {
-      TrigConf::HLTTriggerElement::getLabel (type,tmpstring);
-      tmpbin++;
+  tmpbin=0;
+  for ( unsigned int type : m_configuredlvl1TETypes ) {
+    TrigConf::HLTTriggerElement::getLabel (type,tmpstring);
+    tmpbin++;
       
-      m_numberOflvl1TEsHist->GetXaxis()->SetBinLabel(tmpbin,tmpstring.c_str());      
-      m_numberOflvl1TEsHist2d->GetXaxis()->SetBinLabel(tmpbin,tmpstring.c_str());
-      
-    }//for ...m_configuredlvl1TETypes.begin
-  }
+    m_numberOflvl1TEsHist->GetXaxis()->SetBinLabel(tmpbin,tmpstring.c_str());      
+    m_numberOflvl1TEsHist2d->GetXaxis()->SetBinLabel(tmpbin,tmpstring.c_str());      
+  } 
     
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode TrigTEMoni::fillHists()
-{
-  
-  
-  if( ( !m_numberOfTEsHist || !m_numberOfallTEsHist || !m_numberOfTEsHist2d ||
-	!m_numberOfallTEsHist2d )
-      ||  ( (m_trigLvl != "EF") && ( !m_numberOflvl1TEsHist2d || //!( m_numberOfalllvl1TEsHist2d>0)|| 
-				     !m_numberOflvl1TEsHist )
-				     //|| !( m_numberOfalllvl1TEsHist>0)  
-	    )  ){
-    msg()<<MSG::WARNING<<" pointers to runsummary histograms not ok, dont Fill ! "<<endmsg;
-    return StatusCode::FAILURE;  
-  }
-  
-  
+{  
   for ( unsigned int type : m_configuredTETypes ) {
-    
-    m_numberOfTEsHist->Fill( m_labels[type], 
-			     m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,true));
-    
-    m_numberOfallTEsHist->Fill( m_labels[type], 
-				m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,false));
+    int c = m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,true);
+    int cAll = m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,false);
+
+    m_numberOfTEsHist->Fill( m_labels[type], c);
+    m_numberOfallTEsHist->Fill( m_labels[type], cAll);
+
     //2dhistos
-    m_numberOfTEsHist2d->Fill( m_labels[type], 
-			       m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,true));
-    
-    m_numberOfallTEsHist2d->Fill( m_labels[type], 
-				  m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,false));
+    m_numberOfTEsHist2d->Fill( m_labels[type], c);
+    m_numberOfallTEsHist2d->Fill( m_labels[type], cAll);
   }
   
-  if(m_trigLvl != "EF"){
-    for ( unsigned int type : m_configuredlvl1TETypes ) {
-      
-      m_numberOflvl1TEsHist->Fill( m_lvl1labels[type], 
-				   m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,true));
-          
-      //2d histos
-      m_numberOflvl1TEsHist2d->Fill( m_lvl1labels[type], 
-				     m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,true));
-      
-    }
+  for ( unsigned int type : m_configuredlvl1TETypes ) {
+    int c = m_parentAlg->getAlgoConfig()->getNavigation()->countAllOfType(type,true);
+    m_numberOflvl1TEsHist->Fill( m_lvl1labels[type], c);
+    
+    //2d histos
+    m_numberOflvl1TEsHist2d->Fill( m_lvl1labels[type], c);
   }
   return StatusCode::SUCCESS;
 }

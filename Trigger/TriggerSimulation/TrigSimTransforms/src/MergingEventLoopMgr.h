@@ -13,6 +13,8 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataStore.h"
@@ -32,6 +34,10 @@ namespace TrigSim {
     protected:
         // Protected constructor
         MergingEventLoopMgr(const std::string& name, ISvcLocator* svcLoc);
+
+    protected:
+      /// Reference to the Algorithm Execution State Svc
+      SmartIF<IAlgExecStateSvc>  m_aess;
 
     public:
         // Destructor
@@ -92,7 +98,7 @@ namespace TrigSim {
         // Object for writing messages
         mutable MsgStream m_log;
 
-
+        EventContext m_eventContext;
 
         // Functionality for overwriting TriggerInfo
         BooleanProperty m_overwritePrimTriggerInfo;

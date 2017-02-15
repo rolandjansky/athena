@@ -20,7 +20,7 @@ from TrigDetCalib.TrigDetCalibConfig import (LArL2ROBListWriter,
                                              TileROBSelector,
                                              CSCSubDetListWriter,
                                              L2ROBListWriter)
-
+from TriggerMenu.commonUtils.makeCaloSequences import (getFullScanCaloSequences) 
 ###########################################################################
 # Helper classes
 ###########################################################################
@@ -313,13 +313,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
    # LarNoiseBurst chains
    ###########################################################################
    def setupLarNoiseBurstChains(self):
-
-     from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
-     theDummyRoiCreator = DummyAlgo('RoiCreator')
-
-     from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo
-     theTrigCaloCellMaker_jet_fullcalo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo", doNoise=0, AbsE=True, doPers=True)
-
+     
+     fullScanSeqMap = getFullScanCaloSequences()
      from TrigCaloHypo.TrigCaloHypoConfig import EFCaloHypoNoiseConfig
 
      if "loose" in self.chainPart['addInfo']:
@@ -330,12 +325,12 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
        theCaloHypo = EFCaloHypoNoiseConfig()
 
 
-     self.L2sequenceList += [['', [theDummyRoiCreator], 'EF_full']]
-     self.EFsequenceList += [[['EF_full'], [theTrigCaloCellMaker_jet_fullcalo ], 'EF_full_noise']]
-     self.EFsequenceList += [[['EF_full_noise'],[theCaloHypo], 'jet_hypo']]
+     self.EFsequenceList += [['',fullScanSeqMap['EF_full'],'EF_full']]
+     self.EFsequenceList += [[['EF_full'],fullScanSeqMap['EF_full_cell'],'EF_full_cell']]
+     self.EFsequenceList += [[['EF_full_cell'],[theCaloHypo], 'jet_hypo']]
 
      self.L2signatureList += [ [['EF_full']] ]
-     self.EFsignatureList += [ [['EF_full_noise']] ]
+     self.EFsignatureList += [ [['EF_full_cell']] ]
      self.EFsignatureList += [ [['jet_hypo']] ]
 
      antiktsize = 0
@@ -343,7 +338,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      suffix = "_loose" if "loose" in self.chainPart['addInfo'] else ""
 
      self.TErenamingDict = { 
-       'EF_full_noise' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had' ), 
+       'EF_full_cell' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had' ), 
        'jet_hypo' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had_noiseHypo'+suffix ), 
        }
 

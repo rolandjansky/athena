@@ -76,7 +76,7 @@ namespace Muon {
        @return a pointer to a vector of Muon::MuonSegment objects, zero if no segments found.
                The ownership of the segments is passed to the client calling the tool.
      */
-     virtual std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios ) =0;
+     virtual std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios ) const =0;
  
     /** @brief find segments starting from two lists of Trk::RIO_OnTrack objects in two neighbouring chambers 
       @param rios1 a vector of Trk::RIO_OnTrack objects in the first chamber
@@ -85,7 +85,7 @@ namespace Muon {
               The ownership of the segments is passed to the client calling the tool.
     */
     virtual std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
-                                                 const std::vector<const Trk::RIO_OnTrack*>& rios2 ) =0;
+                                                 const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const =0;
 
     /** @brief find segments starting from a list of MdtDriftCircleOnTrack objects and a list of MuonClusterOnTrack objects 
 	@param mdts a vector of Muon::MdtDriftCircleOnTrack obejcts
@@ -94,7 +94,7 @@ namespace Muon {
 	        The ownership of the segments is passed to the client calling the tool.
     */
     virtual std::vector<const MuonSegment*>* find( const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-						   const std::vector<const MuonClusterOnTrack*>&  clusters) =0;
+						   const std::vector<const MuonClusterOnTrack*>&  clusters) const =0;
 
 
     /** @brief seeded segment search starting from a list of MdtDriftCircleOnTrack objects and a list of MuonClusterOnTrack objects 
@@ -114,7 +114,7 @@ namespace Muon {
     virtual std::vector<const MuonSegment*>* find( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir,
 						   const std::vector<const MdtDriftCircleOnTrack*>& mdts,
 						   const std::vector<const MuonClusterOnTrack*>&  clusters, 
-						   bool updatePhi=false, double momentum = 1e9 ) =0;
+						   bool updatePhi=false, double momentum = 1e9 ) const =0;
 
     /** @brief seeded segment search starting from a list of MdtDriftCircleOnTrack objects and a list of MuonClusterOnTrack objects
 	@param road an estimate of the position and direction of the muon in the chamber
@@ -131,7 +131,7 @@ namespace Muon {
     virtual std::vector<const MuonSegment*>* find( const Trk::TrackRoad& road,
 						   const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
 						   const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
-						   bool updatePhi=false, double momentum = 1e9 ) =0;      
+						   bool updatePhi=false, double momentum = 1e9 ) const =0;      
   };
   
   inline const InterfaceID& IMuonSegmentMaker::interfaceID()

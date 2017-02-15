@@ -1,0 +1,52 @@
+Warning in <TInterpreter::ReadRootmapFile>: class  CP::IPileupReweightingTool found in libAsgAnalysisInterfacesDict.so  is already in libPileupReweightingDict.so 
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 192, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 128, which is not a valid value for type 'bool'
+[?1034hut_xaodrootaccess_tpye... INFO    Environment initialised for data access
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 971500411
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 971500411.
+xAOD::TEvent::addToStore  WARNING Function should only be called through an invalid ElementLink
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 981452424
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 981452424.
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 311645381
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 311645381.
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 582965710
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 582965710.
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 243728388
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 243728388.
+xAOD::MakeTransientTree   INFO    Created transient tree "CollectionTree" in ROOT's common memory
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 0
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 542073698
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 542073698.
+xAOD::TAuxStore::isCon... ERROR   /afs/cern.ch/user/s/ssnyder/atlas-work3e/Control/xAODRootAccess/Root/TAuxStore.cxx:1731 Couldn't determine if branch describes a single object or a container
+xAOD::TAuxStore::isCon... ERROR   /afs/cern.ch/user/s/ssnyder/atlas-work3e/Control/xAODRootAccess/Root/TAuxStore.cxx:1733 ROOT type  : std::vector<unsigned short>
+xAOD::TAuxStore::isCon... ERROR   /afs/cern.ch/user/s/ssnyder/atlas-work3e/Control/xAODRootAccess/Root/TAuxStore.cxx:1736 Object type: std::vector<short>
+xAOD::TAuxStore::isCon... ERROR   /afs/cern.ch/user/s/ssnyder/atlas-work3e/Control/xAODRootAccess/Root/TAuxStore.cxx:1739 Vector type: std::vector<std::vector<short> >
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 4
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 4
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 1
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 3
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 2
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 2
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 3
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 1
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 3
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 2
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 2
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 4
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 6
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 2
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 5
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 3
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 0
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 6
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 3
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 3
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 7
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 4
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 2
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 8
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 4
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 1
+ut_xaodrootaccess_tpyevent_test    INFO Processing entry 9
+ut_xaodrootaccess_tpyevent_test    INFO   Number of electrons: 5
+ut_xaodrootaccess_tpyevent_test    INFO   Number of central electrons: 1

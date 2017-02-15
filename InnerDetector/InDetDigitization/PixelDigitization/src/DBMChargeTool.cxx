@@ -29,61 +29,49 @@ using namespace InDetDD;
 
 // Constructor with parameters:
 DBMChargeTool::DBMChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
-	SubChargesTool(type,name,parent),
-	m_numberOfSteps(50),
-	m_numberOfCharges(10),
-	m_diffusionConstant(.00265) // Flers: was .007
-
+  SubChargesTool(type,name,parent),
+  m_numberOfSteps(50),
+  m_numberOfCharges(10),
+  m_diffusionConstant(.00265) // Flers: was .007
 { 
-	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for DBM");
-	declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for DBM");
-	declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for DBM");
-
+  declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for DBM");
+  declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for DBM");
+  declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for DBM");
 }
 
 class DetCondCFloat;
 
 // Destructor:
-DBMChargeTool::~DBMChargeTool()
-{
-}
+DBMChargeTool::~DBMChargeTool() { }
 
 //----------------------------------------------------------------------
 // Initialize
 //----------------------------------------------------------------------
 StatusCode DBMChargeTool::initialize() {
-  StatusCode sc = SubChargesTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "DBMChargeTool::initialize() failed");
-    return sc ;
-  }
-  ATH_MSG_INFO("numberOfSteps = " << m_numberOfSteps); 
-  if (!LoadPixelParameters().isSuccess()) return StatusCode::FAILURE;
-  ATH_MSG_DEBUG ( "DBMChargeTool::initialize()");
+  CHECK(SubChargesTool::initialize());
 
-  return sc ;
+  ATH_MSG_INFO("numberOfSteps = " << m_numberOfSteps); 
+  CHECK(LoadPixelParameters().isSuccess());
+  ATH_MSG_DEBUG ("DBMChargeTool::initialize()");
+
+	return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
 StatusCode DBMChargeTool::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "DBMChargeTool::finalize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "DBMChargeTool::finalize()");
-  return sc ;
+  ATH_MSG_DEBUG("DBMChargeTool::finalize()");
+	return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // charge
 //----------------------------------------------------------------------
-StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit,
-		  SiChargedDiodeCollection& chargedDiodes,
-		  const InDetDD::SiDetectorElement &Module)
-{
+StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
+
+  if (!Module.isDBM()) { return StatusCode::SUCCESS; }
+
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
@@ -93,22 +81,22 @@ StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit,
   //electronHolePairsPerEnergy = siProperties.electronHolePairsPerEnergy();
   // Flers: hard-code electronHolePairsPerEnergy
   electronHolePairsPerEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
-  
+
   double stepsize = sensorThickness/m_numberOfSteps;
   double tanLorentz = Module.getTanLorentzAnglePhi();
   const CLHEP::Hep3Vector pos=phit->localStartPosition();
   const CLHEP::Hep3Vector cs=phit->localEndPosition();
-  
+
   double xEta=pos[SiHit::xEta];
   double xPhi=pos[SiHit::xPhi];
   const double xDep=pos[SiHit::xDep];
-  
+
   double xEtaf = cs[SiHit::xEta];
   double xPhif = cs[SiHit::xPhi];
   const double xDepf = cs[SiHit::xDep];
 
   if (!m_disableDistortions && !delta_hit) simulateBow(&Module,xPhi,xEta,xDep,xPhif,xEtaf,xDepf);
-  
+
   double cEta=xEtaf-xEta;
   double cPhi=xPhif-xPhi;
   const double cDep=xDepf-xDep;
@@ -116,7 +104,7 @@ StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit,
   double length=sqrt(cEta*cEta+cPhi*cPhi+cDep*cDep);
   const int nsteps=int(length/stepsize)+1; 
   const int ncharges=this->m_numberOfCharges*this->m_numberOfSteps/nsteps+1; 
- 
+
   double stepEta = cEta / nsteps;
   double stepPhi = cPhi / nsteps;
   double stepDep = cDep / nsteps; 
@@ -142,32 +130,32 @@ StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 
     // nonTrapping probability
     double nontrappingProbability = exp(-spess/collectionDist);
-      
+
     for(int i=0 ; i<ncharges ; i++) {
-  
+
       // diffusion sigma
       double rdif=this->m_diffusionConstant*sqrt(spess*coLorentz/0.3);
-      
+
       // position at the surface
       double xPhiD=xPhi1+spess*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
       double xEtaD=xEta1+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
       // Get the charge position in Reconstruction local coordinates.
       SiLocalPosition chargePos = Module.hitLocalToLocal(xEtaD, xPhiD);
-      
+
       // The parametrization of the sensor efficiency (if needed)
       double ed=e1*this->electronHolePairsPerEnergy*nontrappingProbability*smearScale;
-      
+
       //The following lines are adapted from SiDigitization's Inserter class
       SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
-    
+
       SiCellId diode = Module.cellIdOfPosition(scharge.position());
-       
+
       SiCharge charge = scharge.charge();
 
       if (diode.isValid()) {
 
-	chargedDiodes.add(diode,charge);
+        chargedDiodes.add(diode,charge);
 
       }
     }									

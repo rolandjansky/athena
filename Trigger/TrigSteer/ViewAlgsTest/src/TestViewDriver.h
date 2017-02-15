@@ -7,6 +7,7 @@
 #ifndef ViewAlgs_TestViewDriver_h
 #define ViewAlgs_TestViewDriver_h
 
+#include <vector>
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
@@ -31,6 +32,8 @@ private:
   SG::WriteHandle< TestClusterAuxContainer > m_outputClusterContainerAux;
   //  SG::WriteHandle< xAOD::TrigCompositeContainer > m_outputProxyContainer;
   //  SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_outputProxyContainerAux;
+
+  std::vector<std::string> m_viewAlgorithmNames;
 };
 
 #endif

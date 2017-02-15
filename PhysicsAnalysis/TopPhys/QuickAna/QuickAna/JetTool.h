@@ -217,10 +217,20 @@ namespace ana
     /// failures: out of memory II
     JetToolWeight (const std::string& name);
 
+    /// \copydoc IAnaTool::inputTypes
+    virtual unsigned inputTypes () const override;
+
+    /// \copydoc IAnaTool::outputTypes
+    virtual unsigned outputTypes () const override;
+
     /// effects: initialize this tool
     /// guarantee: basic
     /// failures: configuration errors
     StatusCode initialize() override;
+
+    /// \copydoc IAnaTool::execute
+    /// Required to implement an event weight
+    virtual StatusCode execute (IEventObjects& objects) override;
 
     /// effects: calculate the weight for this event
     /// returns: the calculated weight
@@ -244,6 +254,8 @@ namespace ana
   private:
     /// @name Configurations -- tool properties
     /// @{
+    SG::AuxElement::ConstAccessor<SelectType> m_anaSelect;
+    SG::AuxElement::Accessor<float> m_anaWeight;
 
     /// B-tagger and working point
     std::string m_btagger;

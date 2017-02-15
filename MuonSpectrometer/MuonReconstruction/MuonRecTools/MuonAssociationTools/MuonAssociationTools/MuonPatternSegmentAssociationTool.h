@@ -44,59 +44,20 @@ namespace Muon
       
       virtual const IMuonPatternSegmentAssociationTool::AssociationMap& map() const;
 
-      virtual void insert(const MuonSegmentCombination* segmentCombi, const MuonPatternCombination* associatedPatternCombi);
+      virtual void insert(const MuonSegmentCombination* segmentCombi, const MuonPatternCombination* associatedPatternCombi) const;
 
-      virtual void reset();
+      virtual void reset() const;
 
       virtual AssociationMapRange find(const MuonSegmentCombination* segmentCombi) const;
       
       unsigned int count(const MuonSegmentCombination* segmentCombi) const;
       
     private:
-      
-      /** member variables for algorithm properties: */
-      //MuonSegPatAssMap m_map;
-      IMuonPatternSegmentAssociationTool::AssociationMap m_map;
-      
+		std::string m_key; //!< Key for association map (defaults to 'MuonPatternSegmentAssociationMap')   
+        IMuonPatternSegmentAssociationTool::AssociationMap& nonconst_map() const;
+		   
     }; 
 } // end of namespace
 
-
-inline 
-const Muon::IMuonPatternSegmentAssociationTool::AssociationMap& 
-Muon::MuonPatternSegmentAssociationTool::map() const {
-   return m_map;
-}
-
-inline 
-void 
-Muon::MuonPatternSegmentAssociationTool::insert( const Muon::MuonSegmentCombination* segmentCombi, 
-                                                 const Muon::MuonPatternCombination* associatedPatternCombi)
-{
-    //std::pair<IMuonPatternSegmentAssociationTool::AssociationMap::iterator, bool> retVal;
-    m_map.insert(std::make_pair(segmentCombi, associatedPatternCombi) );
-    return; // true if successfully inserted into map
-}
-
-inline 
-Muon::IMuonPatternSegmentAssociationTool::AssociationMapRange 
-Muon::MuonPatternSegmentAssociationTool::find(const Muon::MuonSegmentCombination* segmentCombi) const
-{
-    return m_map.equal_range(segmentCombi);
-}
-
-inline 
-unsigned int 
-Muon::MuonPatternSegmentAssociationTool::count(const MuonSegmentCombination* segmentCombi) const
-{
-    return m_map.count(segmentCombi);    
-}
-
-
-inline 
-void
-Muon::MuonPatternSegmentAssociationTool::reset(){
-   m_map.clear();
-}
 
 #endif 

@@ -514,8 +514,8 @@ namespace PixelCalib{
   void PixelChargeInterpolationParameters::Load(std::string file){
     std::ifstream infile(file.c_str());
     int version;
-    int nxbins;
-    int nybins;
+    int nxbins = 0;
+    int nybins = 0;
     int ncsx;
     int ncsy;
     int neta;

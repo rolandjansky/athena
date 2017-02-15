@@ -82,6 +82,12 @@ StatusCode Ibl3DChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  SiChargedDiodeCollection& chargedDiodes,
 		  const InDetDD::SiDetectorElement &Module)
 { 
+
+  if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
+  const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
+  if (p_design->getReadoutTechnology()!=InDetDD::PixelModuleDesign::FEI4) { return StatusCode::SUCCESS; }
+  if (p_design->numberOfCircuits()>1) { return StatusCode::SUCCESS; }
+
   ATH_MSG_VERBOSE("Applying IBL3D charge processor");
   double sensorThickness = Module.design().thickness();
   double stepsize = sensorThickness/m_numberOfSteps;
@@ -96,7 +102,6 @@ StatusCode Ibl3DChargeTool::charge(const TimedHitPtr<SiHit> &phit,
  
   // determine which readout is used
   // FEI4 : 50 X 250 microns
-  const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign *>(&(Module.design() ) );
   double pixel_size_x = Module.width()/p_design->rows();
   double pixel_size_y = Module.length()/p_design->columns();
   double module_size_x = Module.width();

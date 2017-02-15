@@ -545,14 +545,16 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
       pool::IDatabase* dbH = 0;
       if (!getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
          ATH_MSG_INFO("Failed to create FileCatalog entry.");
-         delete dbH; dbH = 0;
-         return(collPtr);
+      } else if( openMode == pool::ICollection::READ && dbH->fid().empty() ) {
+         ATH_MSG_INFO("Cannot retrieve the FID of an existing POOL database: '"
+                      << connection << "' - FileCatalog will NOT be updated.");
+      } else {
+         dbH->setTechnology(pool::ROOT_StorageType.type());
+         pool::FCregister action;
+         m_catalog->setAction(action);
+         std::string fid = dbH->fid();
+         action.registerPFN(connection.substr(4), "ROOT_All", fid);
       }
-      dbH->setTechnology(pool::ROOT_StorageType.type());
-      pool::FCregister action;
-      m_catalog->setAction(action);
-      std::string fid = dbH->fid();
-      action.registerPFN(connection.substr(4), "ROOT_All", fid);
       delete dbH; dbH = 0;
    }
    return(collPtr);

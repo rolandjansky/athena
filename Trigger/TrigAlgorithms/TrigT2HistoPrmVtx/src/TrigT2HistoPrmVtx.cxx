@@ -150,6 +150,7 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
   // Retrieve beamspot information
   c->m_xBeamSpot = c->m_yBeamSpot = c->m_zBeamSpot = 0;
   c->m_xBeamSpotSigma = c->m_yBeamSpotSigma = c->m_zBeamSpotSigma = 1e-6;
+  c->m_xBeamSpotTilt = c->m_yBeamSpotTilt = 0;
   
   if(c->m_useBeamSpot) {
     
@@ -174,6 +175,8 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
       c->m_xBeamSpotSigma = m_iBeamCondSvc->beamSigma(0);
       c->m_yBeamSpotSigma = m_iBeamCondSvc->beamSigma(1);
       c->m_zBeamSpotSigma = m_iBeamCondSvc->beamSigma(2);
+      c->m_xBeamSpotTilt = m_iBeamCondSvc->beamTilt(0);
+      c->m_yBeamSpotTilt = m_iBeamCondSvc->beamTilt(1);
 
       if(msgLvl() <= MSG::DEBUG)
 	msg() << MSG::DEBUG << "Beam spot from service: x = " << c->m_xBeamSpot << " +/- " << c->m_xBeamSpotSigma << "   "
@@ -184,7 +187,7 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
 
   // Get RoI descriptor
   const TrigRoiDescriptor* roiDescriptor = 0;
-  if (getFeature(outputTE, roiDescriptor) == HLT::OK ) {
+  if ((getFeature(outputTE, roiDescriptor) == HLT::OK ) && roiDescriptor) {
     if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Using outputTE: "
 	    << "RoI id " << roiDescriptor->roiId()
@@ -283,9 +286,11 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
   xAOD::Vertex* trigVertex = new xAOD::Vertex();
   m_trigVertexColl->push_back(trigVertex); 
 
-  trigVertex->setX(c->m_xBeamSpot);
-  trigVertex->setY(c->m_yBeamSpot);
   trigVertex->setZ(c->zPrmVtx.at(0) + c->m_zBeamSpot);
+//  trigVertex->setX(c->m_xBeamSpot);
+//  trigVertex->setY(c->m_yBeamSpot);
+  trigVertex->setX(c->m_xBeamSpot + tan(c->m_xBeamSpotTilt) * trigVertex->z());
+  trigVertex->setY(c->m_yBeamSpot + tan(c->m_yBeamSpotTilt) * trigVertex->z());
   trigVertex->setVertexType(xAOD::VxType::PriVtx);
 
   AmgSymMatrix(3) cov;

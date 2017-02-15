@@ -28,7 +28,6 @@ StatusCode TestHypoAlgView::initialize() {
 }
 
 StatusCode TestHypoAlgView::execute() {
- useView();
 
   if ( not m_inputProxyContainer.isValid() ) {
     ATH_MSG_ERROR("Missing Inputs");
@@ -38,12 +37,22 @@ StatusCode TestHypoAlgView::execute() {
   m_outputAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer >();  
   m_output->setStore(m_outputAux.ptr());
 
-    size_t nRoI = 0;
-    for ( const auto proxy : *m_inputProxyContainer.cptr() ) {
-      xAOD::TrigComposite * decision  = new xAOD::TrigComposite();          
-      m_output->push_back(decision);   
-      decision->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputProxyContainer.name(), nRoI,eventView()) ); // set ref. back to the input proxy on which the decision was made
-      
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  const EventContext& ctx = getContext();
+#else
+  const EventContext& ctx = *getContext();
+#endif
+
+  size_t nRoI = 0;
+  for ( const auto proxy : *m_inputProxyContainer.cptr() ) {
+    xAOD::TrigComposite * decision  = new xAOD::TrigComposite();          
+    m_output->push_back(decision);   
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+    decision->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputProxyContainer.name(), nRoI,eventView(getContext())) ); // set ref. back to the input proxy on which the decision was made
+#else
+    decision->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputProxyContainer.name(), nRoI,eventView(ctx)) ); // set ref. back to the input proxy on which the decision was made
+#endif
+    
       
       auto objWithCluster = ViewAlgs::find(proxy, ViewAlgs::HasObject("cluster"));
        if ( ! objWithCluster ) {

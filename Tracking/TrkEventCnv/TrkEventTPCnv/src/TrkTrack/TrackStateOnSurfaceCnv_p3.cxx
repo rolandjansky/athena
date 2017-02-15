@@ -52,15 +52,50 @@ transToPers( const Trk::TrackStateOnSurface *transObj, Trk::TrackStateOnSurface_
   //--- Parameters
   ITPConverter* dummy = topConverter ()->converterForType( typeid(Trk::TrackParameters));    
   if (!m_parametersCnv)  m_parametersCnv = dynamic_cast<TrackParametersCnv_p2*>(dummy); // FIXME - only in init?
-  persObj->m_trackParameters = toPersistent( &m_parametersCnv, transObj->trackParameters(), log );
+  bool persistify_all = !(transObj->type(Trk::TrackStateOnSurface::PartialPersistification));
 
-  persObj->m_fitQualityOnSurface = toPersistent( &m_fitQCnv, transObj->fitQualityOnSurface(), log );
+  persObj->m_trackParameters = toPersistent( &m_parametersCnv,
+                                             ( (persistify_all || transObj->type(Trk::TrackStateOnSurface::PersistifyTrackParameters) ) 
+                                               ? transObj->trackParameters()
+                                               : nullptr),
+                                             log );
+
+  persObj->m_fitQualityOnSurface = toPersistent( &m_fitQCnv,
+                                                 (persistify_all
+                                                  ? transObj->fitQualityOnSurface() 
+                                                  : nullptr),
+                                                 log ); 
 
   ITPConverterFor<Trk::MeasurementBase>  *measureCnv = 0;
-  persObj->m_measurementOnTrack = toPersistent( &measureCnv, transObj->measurementOnTrack(), log );
+  persObj->m_measurementOnTrack = toPersistent( &measureCnv,
+                                                ((persistify_all || transObj->type(Trk::TrackStateOnSurface::PersistifyMeasurement) )
+                                                 ? transObj->measurementOnTrack()
+                                                 : nullptr),
+                                                log );
 
-  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;  
+  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;
+  // @TODO create slimmed material effects on track object
   persObj->m_materialEffects = toPersistent( &matBaseCnv,
-                                             transObj->materialEffectsOnTrack(), log );
-  persObj->m_typeFlags = transObj->types().to_ulong();
+                                             ((persistify_all ||  transObj->type(Trk::TrackStateOnSurface::PersistifySlimCaloDeposit))
+                                              ? transObj->materialEffectsOnTrack()
+                                              : nullptr), log );
+  if (persistify_all ) {
+    persObj->m_typeFlags = transObj->types().to_ulong();
+  }
+  else {
+    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern; 
+    if ((persistify_all || transObj->type(Trk::TrackStateOnSurface::PersistifyTrackParameters))
+        && transObj->type(Trk::TrackStateOnSurface::Perigee)) {
+      typePattern.set(Trk::TrackStateOnSurface::Perigee);
+    }
+    if (persistify_all || transObj->type(Trk::TrackStateOnSurface::PersistifyMeasurement)) {
+      if (transObj->type(Trk::TrackStateOnSurface::Measurement)) {
+        typePattern.set(Trk::TrackStateOnSurface::Measurement);
+      }
+      if (transObj->type(Trk::TrackStateOnSurface::Outlier)) {
+        typePattern.set(Trk::TrackStateOnSurface::Outlier);
+      }
+    }
+    persObj->m_typeFlags = typePattern.to_ulong();
+  }
 }

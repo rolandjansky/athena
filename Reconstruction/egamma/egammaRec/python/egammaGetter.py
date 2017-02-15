@@ -50,11 +50,7 @@ def getTopoSeededCollectionName():
     return theCaloClusterTopoEMFixedSizeGetter.outputKey()
   else:
     return ""
-def doTopoCaloSeeded():
-  return egammaRecFlags.doTopoCaloSeeded() and not egammaRecFlags.doSuperclusters() and getTopoSeededCollectionName() 
-#
 
-#
 #The tools used to add properties 
 def egammaDecorationTools():
   "Return a list with the tools that decorate both electrons and photons"

@@ -260,7 +260,7 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
     expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Herwig")
     def _norm(s):
         # TODO: add EvtGen to this normalization for MC14?
-        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "").replace("Tauolapp", "").replace("TauolaPP", "")
+        return s.replace("Photospp", "").replace("Photos", "").replace("TauolaPP", "").replace("Tauolapp", "").replace("Tauola", "")
     def _norm2(s):
         return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("H7","Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
         

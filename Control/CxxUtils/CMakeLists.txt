@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 763028 2016-07-19 19:52:17Z ssnyder $
+# $Id: CMakeLists.txt 796875 2017-02-13 15:04:31Z fwinkl $
 ################################################################################
 # Package: CxxUtils
 ################################################################################
@@ -71,7 +71,7 @@ foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
       hashtable_test fpcompare_test StrFormat_test
       prefetch_test ClassName_test make_unique_test ones_test
-      exctrace1_test exctrace2_test )
+      exctrace1_test exctrace2_test bitscan_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LINK_LIBRARIES CxxUtils )

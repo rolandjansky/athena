@@ -93,15 +93,15 @@ class ICscCalibTool : virtual public IAlgTool {
      virtual double getNumberOfIntegration() const=0;
      virtual double getNumberOfIntegration2() const=0;
 
-     virtual bool stripT0phase ( uint32_t stripHashId ) =0;
-     virtual double stripT0base ( uint32_t stripHashId ) =0;
+     virtual bool stripT0phase ( uint32_t stripHashId ) const =0;
+     virtual double stripT0base ( uint32_t stripHashId ) const =0;
 
   
      virtual std::pair<double,double> addBipfunc(const double driftTime0, const double stripCharge0,
-                                              const double driftTime1, const double stripCharge1)=0;
+                                              const double driftTime1, const double stripCharge1) const =0;
      virtual std::string getDetDescr() const =0;
 
-  virtual std::vector<float> getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0)=0;
+  virtual std::vector<float> getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0) const =0;
   virtual double getLatency() const =0;
 
 protected:

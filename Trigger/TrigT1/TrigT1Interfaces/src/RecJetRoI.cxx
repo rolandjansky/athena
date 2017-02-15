@@ -1,4 +1,4 @@
-// $Id: RecJetRoI.cxx 756925 2016-06-22 13:31:16Z ddimond $
+// $Id: RecJetRoI.cxx 796120 2017-02-08 03:20:47Z ssnyder $
 /***************************************************************************
                          RecJetRoI.cxx  -  description
                             -------------------
@@ -57,7 +57,7 @@ RecJetRoI::RecJetRoI( const RecJetRoI &obj ) {
 }
 
 // written assignment operator
-RecJetRoI& RecJetRoI::operator=( const RecJetRoI &obj ) { 
+RecJetRoI& RecJetRoI::operator=( const RecJetRoI &/*obj*/ ) { 
    return *this;
 }
 

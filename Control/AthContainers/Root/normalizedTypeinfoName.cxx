@@ -81,6 +81,9 @@ void initRules (CxxUtils::ClassName::Rules& rules)
   rules.add ("DataVector<$T, $U>", "DataVector<$T>");
   rules.add ("DataList<$T, $U>",   "DataList<$T>");
 
+  // Handle gcc's C++11 ABI.
+  rules.add ("std::__cxx11", "std");
+
   // Needed for macos?
   rules.add ("std::__1", "std");
 }

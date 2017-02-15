@@ -607,6 +607,7 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
 	  return sc;
 	}
 
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
       Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
       if (alg != nullptr) {
         alg->setContext( m_eventContext );
@@ -617,6 +618,7 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
               << endmsg;
         return StatusCode::FAILURE;
       }
+#endif
     }
 
   // Initialize the list of Output Streams. Note that existing Output Streams
@@ -632,6 +634,7 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
 	return sc;
       }
 
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
       Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
       if (alg != nullptr) {
         alg->setContext( m_eventContext );
@@ -642,6 +645,7 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
               << endmsg;
         return StatusCode::FAILURE;
       }
+#endif
     }
 
   return StatusCode::SUCCESS;
@@ -657,7 +661,11 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms() {
         ita != m_topAlgList.end();
         ita++ ) 
   {
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+    const StatusCode& sc = (*ita)->sysExecute(*m_eventContext); 
+#else
     const StatusCode& sc = (*ita)->sysExecute(); 
+#endif
     // this duplicates what is already done in Algorithm::sysExecute, which
     // calls Algorithm::setExecuted, but eventually we plan to remove that 
     // function
@@ -851,7 +859,11 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
     // Call the execute() method of all output streams 
     for (ListAlg::iterator ito = m_outStreamList.begin(); 
 	 ito != m_outStreamList.end(); ito++ ) {
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+      sc = (*ito)->sysExecute(*m_eventContext); 
+#else
       sc = (*ito)->sysExecute(); 
+#endif
       if( !sc.isSuccess() ) {
 	eventFailed = true; 
       } 

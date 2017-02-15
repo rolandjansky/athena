@@ -149,7 +149,7 @@ namespace Muon {
     ToolHandle<MuonEDMPrinterTool>  m_printer;    //!< Tool to print EDM objects
     ToolHandle<MuPatCandidateTool> m_candidateTool; //!< Tool for manipulation of candidates
     ToolHandle<IMuonTrackBuilder>    m_trackBTool;    //<! Tool for helping in track building
-    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool; //!< Tool for ambiguity solving
+    mutable ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool; //!< Tool for ambiguity solving
     ToolHandle<MooTrackBuilder> m_mooBTool; //<! Temporary tool for helping to combine two segments
     ToolHandle<MooCandidateMatchingTool> m_candidateMatchingTool;
     ToolHandle<IMuonTrackRefiner> m_trackRefineTool;

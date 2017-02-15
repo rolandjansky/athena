@@ -78,9 +78,8 @@ namespace Muon {
     const CscIdHelper * m_cscHelper;
     
     /// CscStripPrepRawData containers
-    Muon::CscStripPrepDataContainer * m_cscStripPrepDataContainer;
-    std::string m_outputCollectionLocation;
-
+    SG::WriteHandle<Muon::CscStripPrepDataContainer> m_outputCollection;
+    SG::ReadHandle<CscRawDataContainer> m_rdoContainer;
     
     /// CSC Calibration tools
     ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool; 

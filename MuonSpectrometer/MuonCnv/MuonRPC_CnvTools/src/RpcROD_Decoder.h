@@ -8,8 +8,6 @@
 #include <stdint.h>
 #include <cassert>
 
-#include "GaudiKernel/IIncidentListener.h"
-
 #include "TrigT1RPChardware/RPCRODDecode.h"
 #include "TrigT1RPChardware/RPCRXRODDecode.h"
 #include "TrigT1RPChardware/RPCRODStructure.h"
@@ -35,7 +33,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/GaudiException.h"
 
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
 // start preparing for BS errors 
 //#include "MuonByteStreamErrors/RpcByteStreamErrorContainer.h"
 //#include "RpcByteStreamAccess/IRPC_ByteStreamErrorSvc.h"
@@ -59,7 +56,7 @@ namespace Muon
   }
   
   
-  class RpcROD_Decoder :virtual public IRpcROD_Decoder, virtual public IIncidentListener, public AthAlgTool 
+  class RpcROD_Decoder :virtual public IRpcROD_Decoder,  public AthAlgTool 
   {
     
   public: 
@@ -79,7 +76,7 @@ namespace Muon
     // implementation of the abstract interface
     StatusCode fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
                                RpcPadContainer& rdoIdc,
-                               std::vector<IdentifierHash>collections) const;
+                               const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer*) const override;
     
     int specialROBNumber() {return m_specialROBNumber;}
     
@@ -95,25 +92,24 @@ namespace Muon
 
     typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType BS;
     
-    void handle(const Incident&);
     
 
     StatusCode fillCollection_v240(BS data, const uint32_t data_size, RpcPad& v) const;
     
     StatusCode fillCollection_v300(BS data, const uint32_t data_size, RpcPad& v,
-                                   const uint16_t& subDetector) const;
+                                   const uint16_t& subDetector, RpcSectorLogicContainer*) const;
     
     StatusCode fillCollection_v301(BS data, const uint32_t data_size, RpcPad& v,
-                                   const uint16_t& subDetector) const;
+                                   const uint16_t& subDetector, RpcSectorLogicContainer*) const;
     
     // decoding of real data - 2010 & 2011 _v302 
     StatusCode fillCollection_v302new(BS data, const uint32_t data_size, RpcPad& v,
-                                   const uint32_t& sourceId ) const;
+                                   const uint32_t& sourceId, RpcSectorLogicContainer* ) const;
     StatusCode fillCollection_v302(BS data, const uint32_t data_size, RpcPad& v,
-                                   const uint32_t& sourceId ) const;
+                                   const uint32_t& sourceId,RpcSectorLogicContainer* ) const;
     // decoding of real data - 2010 & 2011 _v302 
     StatusCode fillCollectionsFromRob_v302(BS data, const uint32_t data_size, std::map<Identifier,RpcPad*>& vmap,
-				      const uint32_t& sourceId ) const;
+				      const uint32_t& sourceId, RpcSectorLogicContainer* ) const;
     
     
     // fragment each of the 32 bit words into 2 16 bit words!
@@ -390,7 +386,7 @@ namespace Muon
   inline StatusCode 
   RpcROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
                                   RpcPadContainer& rdoIdc,
-                                  std::vector<IdentifierHash>collections) const
+                                  const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer* RPC_SECTORLOGIC) const
   {
     try 
     {
@@ -532,7 +528,7 @@ namespace Muon
     return cnv_sc;
   }
   
-	cnv_sc = fillCollectionsFromRob_v302(data,robFrag.rod_ndata(),mapOfCollections,rod_sourceId);
+	cnv_sc = fillCollectionsFromRob_v302(data,robFrag.rod_ndata(),mapOfCollections,rod_sourceId, RPC_SECTORLOGIC);
 	if (cnv_sc!=StatusCode::SUCCESS)
 	  {
 	    if (cnv_sc==StatusCode::RECOVERABLE) 
@@ -575,9 +571,9 @@ namespace Muon
         switch(type)
         {
           case 0: cnv_sc = fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
-          case 1: cnv_sc = fillCollection_v300(data,robFrag.rod_ndata(),*coll,subDetector); break;
-          case 2: cnv_sc = fillCollection_v301(data,robFrag.rod_ndata(),*coll,subDetector); break;
-	  case 3: cnv_sc = fillCollection_v302(data,robFrag.rod_ndata(),*coll,sourceId); break;
+          case 1: cnv_sc = fillCollection_v300(data,robFrag.rod_ndata(),*coll,subDetector, RPC_SECTORLOGIC); break;
+          case 2: cnv_sc = fillCollection_v301(data,robFrag.rod_ndata(),*coll,subDetector, RPC_SECTORLOGIC ); break;
+	  case 3: cnv_sc = fillCollection_v302(data,robFrag.rod_ndata(),*coll,sourceId, RPC_SECTORLOGIC); break;
 	    //case 3: cnv_sc = fillCollection_v302new(data,robFrag.rod_ndata(),*coll,sourceId); break;
             
           default: fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
@@ -611,7 +607,7 @@ namespace Muon
   
   inline StatusCode
   RpcROD_Decoder::fillCollection_v302(BS data, const uint32_t data_size,
-                                      RpcPad& v, const uint32_t& sourceId ) const 
+                                      RpcPad& v, const uint32_t& sourceId, RpcSectorLogicContainer* sectorLogicContainer ) const 
   {
 
     /* for (unsigned int i = 0; i<1000; ++i) { */
@@ -668,9 +664,6 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "The source ID is: " << MSG::hex << sourceId << endmsg;
     
-    // retrieve the sector logic container
-    RpcSectorLogicContainer* sectorLogicContainer = 
-    Muon::MuonRdoContainerAccess::retrieveRpcSec("RPC_SECTORLOGIC");
     
     uint16_t sectorForCabling = 0;
     uint16_t sector = 0;
@@ -1253,7 +1246,7 @@ namespace Muon
    */ 
   inline StatusCode 
   RpcROD_Decoder::fillCollection_v301(BS data, const uint32_t data_size,
-                                      RpcPad& v, const uint16_t& subDetector ) const
+                                      RpcPad& v, const uint16_t& subDetector, RpcSectorLogicContainer* sectorLogicContainer ) const
   {
     
     // unpack the 32 bits words into 16 bits 
@@ -1273,9 +1266,6 @@ namespace Muon
     
     uint16_t side  = (subDetector == eformat::MUON_RPC_BARREL_A_SIDE) ? 1:0;    
     
-    // retrieve the sector logic container
-    RpcSectorLogicContainer* sectorLogicContainer =
-    Muon::MuonRdoContainerAccess::retrieveRpcSec("RPC_SECTORLOGIC");
     
     // TMP FIXME the sector number needs to be fixed !!
     uint16_t sector = 0;
@@ -1739,7 +1729,7 @@ namespace Muon
    */ 
   inline StatusCode
   RpcROD_Decoder::fillCollection_v300(BS data, const uint32_t data_size,
-                                      RpcPad& v, const uint16_t& subDetector ) const 
+                                      RpcPad& v, const uint16_t& subDetector, RpcSectorLogicContainer* sectorLogicContainer ) const 
   {
     
     //#ifndef NVERBOSE
@@ -1755,9 +1745,6 @@ namespace Muon
     
     uint16_t side  = (subDetector == eformat::MUON_RPC_BARREL_A_SIDE) ? 1:0;    
     
-    // retrieve the sector logic container
-    RpcSectorLogicContainer* sectorLogicContainer =
-    Muon::MuonRdoContainerAccess::retrieveRpcSec("RPC_SECTORLOGIC");
     
     // TMP FIXME the sector number needs to be fixed !!
     uint16_t sector = 0;

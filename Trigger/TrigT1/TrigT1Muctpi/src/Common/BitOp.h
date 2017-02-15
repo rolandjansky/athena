@@ -4,18 +4,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BitOp.h 362102 2011-04-28 13:17:28Z krasznaa $
+// $Id: BitOp.h 796872 2017-02-13 15:03:25Z fwinkl $
 #ifndef TRIGT1MUCTPI_BITOP_H
 #define TRIGT1MUCTPI_BITOP_H
 
 #include <string>
+#include "CxxUtils/bitscan.h"
 
 namespace LVL1MUCTPI {
 
   /**
    *******************************************************************
    *
-   *    $Date: 2011-04-28 15:17:28 +0200 (Thu, 28 Apr 2011) $
+   *    $Date: 2017-02-13 16:03:25 +0100 (Mon, 13 Feb 2017) $
    *
    *    @short Utility class for integer bit operations
    *
@@ -26,7 +27,7 @@ namespace LVL1MUCTPI {
    *
    *      @see
    *   @author  Author: Thorsten Wengler
-   *  @version $Revision: 362102 $
+   *  @version $Revision: 796872 $
    *
    *******************************************************************
    */
@@ -104,7 +105,10 @@ namespace LVL1MUCTPI {
      * get the value in the input word represented by a bit pattern
      * given as a bitmask
      */
-    static unsigned int getValue(const unsigned int* uintValue, const unsigned int mask);
+    static inline unsigned int getValue(const unsigned int* uintValue, const unsigned int mask)
+    {
+      return (*uintValue & mask) >> CxxUtils::count_trailing_zeros(mask);
+    }
 
   }; // class BitOp
 

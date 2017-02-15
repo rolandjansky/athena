@@ -71,8 +71,6 @@ StatusCode DFlowAlg2::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  useView();
-
   ATH_MSG_INFO("================================");
   ATH_MSG_INFO("myint r-handle...");
   ATH_MSG_INFO("name: [" << m_r_int.name() << "]");

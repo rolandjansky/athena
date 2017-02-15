@@ -66,7 +66,7 @@ public:
   //
   void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
   //
-  void fillHisto(TEfficiency* pTeff, const bool accepted, const float value);
+  void fillHisto(TEfficiency* pTeff,  const float value, const bool accepted);
   //
 protected:
   /// book, for use by macro

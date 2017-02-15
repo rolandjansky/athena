@@ -29,7 +29,8 @@
 
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 
-
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/Algorithm.h"
 
 
 
@@ -153,7 +154,7 @@ namespace TrigSim {
               m_currentRun              (0),
               m_firstRun                (true),
               m_nEvt                    (0),
-              m_log(msgSvc(), name) {
+              m_log                     (msgSvc(), name) {
 
         // Body of constructor
         declareProperty("IncidentSvc", m_incidentSvc);
@@ -204,7 +205,7 @@ namespace TrigSim {
         m_log.setLevel( m_outputLevel.value() );
 
         m_log << MSG::INFO << "Initializing TrigSim::MergingEventLoopMgr/" << name()
-              << " - package version " << PACKAGE_VERSION << endreq;
+              << " - package version " << PACKAGE_VERSION << endmsg;
    
 
 
@@ -213,7 +214,7 @@ namespace TrigSim {
          */
         if(m_overwritePrimTriggerInfo && m_overwriteSecTriggerInfo) {
             m_log << MSG::FATAL << "Can not overwrite both primary and secondary TriggerInfo"
-                  << endreq;
+                  << endmsg;
 
             return StatusCode::FAILURE;
         }
@@ -227,7 +228,7 @@ namespace TrigSim {
         StatusCode sc = MinimalEventLoopMgr::initialize();
         if(sc.isFailure()) {
             m_log << MSG::FATAL << "Failed to initialize MinimalEventLoopMgr base class"
-                  << endreq;
+                  << endmsg;
             return sc;
         }
 
@@ -237,7 +238,7 @@ namespace TrigSim {
         sc = m_incidentSvc.retrieve();
         if(sc.isFailure()) {
             m_log << MSG::FATAL << "Failed to retrieve handle to the incident service"
-                  << endreq;
+                  << endmsg;
             return sc;
         }
 
@@ -247,7 +248,7 @@ namespace TrigSim {
         sc = m_primEvtStore.retrieve();
         if(sc.isFailure()) {
             m_log << MSG::FATAL << "Failed to retrieve handle to the primary StoreGateSvc"
-                  << endreq;
+                  << endmsg;
             return sc;
         }
         
@@ -258,7 +259,7 @@ namespace TrigSim {
         sc = m_secEvtStore.retrieve();
         if(sc.isFailure()) {
             m_log << MSG::FATAL << "Failed to retrieve handle to the BS StoreGateSvc"
-                  << endreq;
+                  << endmsg;
             return sc;
         }
 
@@ -270,7 +271,7 @@ namespace TrigSim {
                                        m_primEvtSelector);
         if(sc.isFailure()) {
             m_log << MSG::FATAL << "Failed to access primary event selector called: "
-                  << m_primEvtSelName.value() << endreq;
+                  << m_primEvtSelName.value() << endmsg;
             throw GaudiException("No valid primary event selector", name(),
                                  StatusCode::FAILURE);
         }
@@ -278,7 +279,7 @@ namespace TrigSim {
         sc = m_primEvtSelector->createContext(m_primEvtContext);
         if(sc.isFailure()) {
             m_log << MSG::FATAL << "Failed to setup the primary event selector context"
-                  << endreq;
+                  << endmsg;
             throw GaudiException("Failed to setup the primary event selector context",
                                  name(), StatusCode::FAILURE);
         }
@@ -287,11 +288,11 @@ namespace TrigSim {
         if(!theSvc) {
             m_log << MSG::FATAL
                   << "Failed to cast the primary event selector into a Service"
-                  << endreq;
+                  << endmsg;
             return StatusCode::FAILURE;
         }
         m_log << MSG::INFO << "Setup primary EventSelector service: " << theSvc->name()
-              << endreq;
+              << endmsg;
 
 
         
@@ -303,7 +304,7 @@ namespace TrigSim {
                                        m_secEvtSelector);
         if(sc.isFailure()) {
             m_log << MSG::FATAL << "Failed to access BS event selector called: "
-                  << m_secEvtSelName.value() << endreq;
+                  << m_secEvtSelName.value() << endmsg;
             throw GaudiException("No valid BS event selector", name(),
                                  StatusCode::FAILURE);
         }
@@ -311,7 +312,7 @@ namespace TrigSim {
         sc = m_secEvtSelector->createContext(m_secEvtContext);
         if(sc.isFailure()) {
             m_log << MSG::FATAL << "Failed to setup the BS event selector context"
-                  << endreq;
+                  << endmsg;
             throw GaudiException("Failed to setup the BS event selector context",
                                  name(), StatusCode::FAILURE);
         }
@@ -320,11 +321,18 @@ namespace TrigSim {
         if(!theSvc) {
             m_log << MSG::FATAL
                   << "Failed to cast the BS event selector into a Service"
-                  << endreq;
+                  << endmsg;
             return StatusCode::FAILURE;
         }
         m_log << MSG::INFO << "Setup BS EventSelector service: " << theSvc->name()
-              << endreq;
+              << endmsg;
+
+        // Get the AlgExecStateSvc
+        m_aess = serviceLocator()->service("AlgExecStateSvc");
+        if( !m_aess.isValid() ) {
+          fatal() << "Error retrieving AlgExecStateSvc" << endmsg;
+          return StatusCode::FAILURE;
+        }
 
         return StatusCode::SUCCESS;
     }
@@ -338,7 +346,7 @@ namespace TrigSim {
         StatusCode sc = MinimalEventLoopMgr::finalize();
         if(sc.isFailure()) {
             m_log << MSG::ERROR << "Failed to finalize MinimalEventLoopMgr base class"
-                  << endreq;
+                  << endmsg;
             return StatusCode::FAILURE;
         }
 
@@ -359,7 +367,7 @@ namespace TrigSim {
     }
 //------------------------------------------------------------------------------
     StatusCode MergingEventLoopMgr::nextEvent(int maxEvt) {
-        m_log << MSG::INFO << "Entering nextEvent(...)" << endreq;
+        m_log << MSG::INFO << "Entering nextEvent(...)" << endmsg;
         
         StatusCode sc;
 
@@ -382,14 +390,14 @@ namespace TrigSim {
 
                 if(sc.isFailure()) {
                     m_log << MSG::INFO << "No more events in primary event selection"
-                          << endreq;
+                          << endmsg;
                     sc = StatusCode::SUCCESS;
                     break;
                 }
 
                 if (m_primEvtSelector->createAddress(*m_primEvtContext, primAddr).isFailure()) {
                     m_log << MSG::ERROR  << "Could not create a primary IOpaqueAddress"
-                          << endreq;
+                          << endmsg;
                     break;
                 } 
             
@@ -397,21 +405,21 @@ namespace TrigSim {
                     sc = m_primEvtStore->recordAddress(primAddr);
                     if(!sc.isSuccess()) {
                         m_log << MSG::WARNING << "Error declaring primary Event object"
-                              << endreq;
+                              << endmsg;
                         break;
                     }
                 }
 
                 if ((sc=m_primEvtStore->loadEventProxies()).isFailure()) {
                     m_log << MSG::ERROR  << "Error loading primary event proxies"
-                          << endreq;
+                          << endmsg;
                     break;
                 }
 
                 sc = m_primEvtStore->retrieve(pPrimEvt);
                 if( !sc.isSuccess() ) {
                     m_log << MSG::ERROR << "Unable to retrieve primary Event root object"
-                          << endreq;
+                          << endmsg;
                     break;
                 }
             } // primary context
@@ -430,14 +438,14 @@ namespace TrigSim {
                 
                 if(sc.isFailure()) {
                     m_log << MSG::INFO << "No more events in secondary event selection"
-                          << endreq;
+                          << endmsg;
                     sc = StatusCode::SUCCESS;
                     break;
                 }
 
                 if (m_secEvtSelector->createAddress(*m_secEvtContext, secAddr).isFailure()) {
                     m_log << MSG::ERROR  << "Could not create a secondary IOpaqueAddress"
-                          << endreq;
+                          << endmsg;
                     break;
                 } 
             
@@ -445,21 +453,21 @@ namespace TrigSim {
                     sc = m_secEvtStore->createProxy(secAddr);
                     if(!sc.isSuccess()) {
                         m_log << MSG::WARNING << "Error declaring secondary Event object"
-                              << endreq;
+                              << endmsg;
                         break;
                     }
                 }
 
                 if ((sc=m_secEvtStore->loadEventProxies()).isFailure()) {
                     m_log << MSG::ERROR  << "Error loading secondary event proxies"
-                          << endreq;
+                          << endmsg;
                     break;
                 }
 
                 sc = m_secEvtStore->retrieve(pSecEvt);
                 if( !sc.isSuccess() ) {
                     m_log << MSG::ERROR << "Unable to retrieve secondary Event root object"
-                          << endreq;
+                          << endmsg;
                     break;
                 }
             } // secondary context
@@ -476,11 +484,18 @@ namespace TrigSim {
                 || pPrimEvt->event_ID()->run_number() != pSecEvt->event_ID()->run_number()) {
 
                 m_log << MSG::ERROR << "EventInfo for primary and secondary differs or could not be retreived. This scenario has NOT been counted for (yet)."
-                      << endreq;
+                      << endmsg;
                 sc = StatusCode::FAILURE;
                 break;
             }
 
+            m_eventContext.setEventID( *((EventIDBase*) pPrimEvt->event_ID()) );
+            m_eventContext.set(m_nEvt,0);
+
+            m_eventContext.setProxy( m_primEvtStore->hiveProxyDict() );
+            Gaudi::Hive::setCurrentContext( m_eventContext );
+
+            m_aess->reset(m_eventContext);
 
 
             /*
@@ -538,7 +553,7 @@ namespace TrigSim {
 
                 if(sc.isFailure()) {
                     m_log << MSG::ERROR << "Failed to overwrite the primary TriggerInfo."
-                          << endreq;
+                          << endmsg;
                     break;
                 }
             }
@@ -548,7 +563,7 @@ namespace TrigSim {
              * Share proxies
              */
             if(m_sharePrimProxies || m_shareSecProxies) {
-                m_log << MSG::INFO << "Setting up proxy sharing. Trouble may lie ahead..." << endreq;
+                m_log << MSG::INFO << "Setting up proxy sharing. Trouble may lie ahead..." << endmsg;
                 
                 /*
                  * Get and order primary proxies
@@ -559,12 +574,12 @@ namespace TrigSim {
 
                 /*
                 m_log << MSG::DEBUG << "Got " << primProxyNames->size()<< " primary proxies."
-                      << endreq;
+                      << endmsg;
                 for(std::set<std::string>::iterator it = primProxyNames->begin();
                         it != primProxyNames->end(); ++it) {
                     m_log << MSG::DEBUG << "Primary proxy:   " << (*it)
 //                          << " @ " << primProxyMap[(*it)]
-                          << endreq;
+                          << endmsg;
                 }
                 */
 
@@ -579,12 +594,12 @@ namespace TrigSim {
 
                 /*
                 m_log << MSG::DEBUG << "Got " << secProxyNames->size()<< " secondary proxies."
-                      << endreq;
+                      << endmsg;
                 for(std::set<std::string>::iterator it = secProxyNames->begin();
                         it != secProxyNames->end(); ++it) {
                     m_log << MSG::DEBUG << "Secondary proxy: " << (*it)
 //                          << " @ " << secProxyMap[(*it)]
-                          << endreq;
+                          << endmsg;
                 }
                 */
 
@@ -665,7 +680,7 @@ namespace TrigSim {
                  */
                 if(m_sharePrimProxies) {
                     m_log << MSG::INFO << "Setting up sharing of primary proxies..."
-                        << endreq;
+                        << endmsg;
 
                     for(std::map<std::string, SG::DataProxy *>::iterator it = primProxyMap.begin();
                             it != primProxyMap.end(); ++it) {
@@ -674,7 +689,7 @@ namespace TrigSim {
 
                         m_log << MSG::INFO << "Adding primary proxy '" << it->first << "' to secondary data store."
                               //<< " Proxy is " << (it->second->isValid() ? "" : "NOT ") << "valid"
-                              << endreq;
+                              << endmsg;
 
 			// sc = secDataStore->addToStore(it->second->address()->clID(), it->second);
                         sc = m_secEvtStore->addToStore(it->second->address()->clID(), it->second);
@@ -691,7 +706,7 @@ namespace TrigSim {
                  */
                 if(m_shareSecProxies) {
                     m_log << MSG::INFO << "Setting up sharing of secondary proxies..."
-                        << endreq;
+                        << endmsg;
 
                     for(std::map<std::string, SG::DataProxy *>::iterator it = secProxyMap.begin();
                             it != secProxyMap.end(); ++it) {
@@ -700,7 +715,7 @@ namespace TrigSim {
 
                         m_log << MSG::INFO << "Adding secondary proxy '" << it->first << "' to primary data store."
                               //<< " Proxy is " << (it->second->isValid() ? "" : "NOT ") << "valid"
-                              << endreq;
+                              << endmsg;
 
 			// sc = primDataStore->addToStore(it->second->address()->clID(), it->second);
                         sc = m_primEvtStore->addToStore(it->second->address()->clID(), it->second);
@@ -711,7 +726,7 @@ namespace TrigSim {
 
                 if(sc.isFailure()) {
                     m_log << MSG::ERROR << "Failed to set up proxy sharing of secondary proxies"
-                          << endreq;
+                          << endmsg;
                     sc = StatusCode::FAILURE;
                     break;
                 }
@@ -724,7 +739,7 @@ namespace TrigSim {
             sc = loadObjects();
             if(sc.isFailure()) {
                 m_log << MSG::ERROR << "Failure while preloading data."
-                      << endreq;
+                      << endmsg;
                 break;
             }
 
@@ -735,15 +750,15 @@ namespace TrigSim {
             m_log << MSG::INFO << "  ===>>>  start processing of event #"
                   << pPrimEvt->event_ID()->event_number() << ", run #" << pPrimEvt->event_ID()->run_number()
                   << ". " << m_nEvt << " events processed so far  <<<==="
-                  << endreq;
+                  << endmsg;
 
             m_log << MSG::DEBUG << " ===>>> dumping trigger info for primary event: <<<==="
                   << (*pPrimEvt->trigger_info())
-                  << endreq;
+                  << endmsg;
 
             m_log << MSG::DEBUG << " ===>>> dumping trigger info for primary event: <<<==="
                   << (*pSecEvt->trigger_info())
-                  << endreq;
+                  << endmsg;
 
 
 
@@ -752,13 +767,15 @@ namespace TrigSim {
              */
 
             sc = executeAlgorithms();
+
             if(sc.isFailure()) {
+                m_aess->setEventStatus( EventStatus::AlgFail, m_eventContext );
                 m_log << MSG::ERROR << "Failure during algorithm execute."
-                      << endreq;
+                      << endmsg;
                 break;
             }
 
-
+            m_aess->setEventStatus( EventStatus::Success, m_eventContext );
 
 
             /*
@@ -767,7 +784,7 @@ namespace TrigSim {
             SG::DataStore *dataStoreBS  = (SG::DataStore *)m_secEvtStore->retrieve<Backdoor::DSfromSG>();
 
             std::vector<const SG::DataProxy*> proxiesBS = m_secEvntStore->proxies();
-            m_log << MSG::DEBUG << "Found " << proxiesBS.size() << " proxies. Starting mirroring." << endreq;
+            m_log << MSG::DEBUG << "Found " << proxiesBS.size() << " proxies. Starting mirroring." << endmsg;
            
 
 
@@ -777,7 +794,7 @@ namespace TrigSim {
                 SG::DataProxy *proxy = (SG::DataProxy *)(*it);
 
                 m_log << MSG::DEBUG << "Found proxy " << proxy->name()
-                      << endreq;
+                      << endmsg;
                 if(!proxy->isValid() ||
                     proxy->name() == "Input" ||
                     proxy->name() == "ByteStreamDataHeader" ||
@@ -788,7 +805,7 @@ namespace TrigSim {
                 sc = dataStoreRDO->addToStore(proxy->address()->clID(), proxy);
                 if(sc.isFailure()) {
                     m_log << MSG::ERROR << "Failed to mirror proxy " << proxy->name()
-                          << endreq;
+                          << endmsg;
                 }
             }
             
@@ -808,10 +825,10 @@ namespace TrigSim {
 
             m_log << MSG::DEBUG << " ===>>> dumping primary StoreGate: <<<==="
                   << m_primEvtStore->dump()
-                  << endreq;
+                  << endmsg;
             m_log << MSG::DEBUG << " ===>>> dumping secondary StoreGate: <<<==="
                   << m_secEvtStore->dump()
-                  << endreq;
+                  << endmsg;
 
             
 
@@ -838,10 +855,10 @@ namespace TrigSim {
 /*
             m_log << MSG::DEBUG << " ===>>> dumping primary StoreGate: <<<==="
                   << m_primEvtStore->dump()
-                  << endreq;
+                  << endmsg;
             m_log << MSG::DEBUG << " ===>>> dumping secondary StoreGate: <<<==="
                   << m_secEvtStore->dump()
-                  << endreq;
+                  << endmsg;
 */
             
 
@@ -852,14 +869,14 @@ namespace TrigSim {
             sc = m_primEvtStore->clearStore();
             if(sc.isFailure()) {
                 m_log << MSG::ERROR << "Failed to clear primary event store"
-                      << endreq;
+                      << endmsg;
                 break;
             }
            
             sc = m_secEvtStore->clearStore();
             if(sc.isFailure()) {
                 m_log << MSG::ERROR << "Failed to clear secondary event store"
-                      << endreq;
+                      << endmsg;
                 break;
             }
             
@@ -877,16 +894,16 @@ namespace TrigSim {
         par = par;
         m_log << MSG::ERROR
               << "executeEvent(...) is not implemented for MergingEventLoopMgr"
-              << endreq;
+              << endmsg;
         return StatusCode::FAILURE;
     }
 //------------------------------------------------------------------------------
     StatusCode MergingEventLoopMgr::executeRun(int maxEvt) {
-        m_log << MSG::INFO << "Entering executeRun(...)" << endreq;
+        m_log << MSG::INFO << "Entering executeRun(...)" << endmsg;
         
         if(initializeAlgorithms().isFailure()) {
             m_log << MSG::ERROR  << "One or more algorithms failed to initialize"
-                  << endreq;
+                  << endmsg;
             return StatusCode::FAILURE;
         }
 
@@ -903,7 +920,7 @@ namespace TrigSim {
         evt = evt;
         m_log << MSG::ERROR
               << "seek() is not implemented for MergingEventLoopMgr"
-              << endreq;
+              << endmsg;
         return StatusCode::FAILURE;
     }
 //------------------------------------------------------------------------------
@@ -917,23 +934,49 @@ namespace TrigSim {
         ListAlg::iterator it;
         for(it = m_topAlgList.begin(); it != m_topAlgList.end(); ++it) {
             m_log << MSG::DEBUG << "Initializong algorithm: "
-                  << (*it)->name() << endreq;
+                  << (*it)->name() << endmsg;
 
             if((*it)->sysInitialize().isFailure()) {
                 m_log << MSG::ERROR << "Unable to initialize algorithm: "
-                      << (*it)->name() << endreq;
+                      << (*it)->name() << endmsg;
                 failed = true;
             } 
+
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
+            Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*it) );
+            if (alg != nullptr) {
+              alg->setContext( &m_eventContext );
+            } else {
+              m_log << MSG::ERROR
+                    << "Unable to dcast IAlgorithm " << (*it)->name() 
+                    << " to Algorithm"
+                    << endmsg;
+              failed = true;
+            }
+#endif
         }
 
         for(it = m_outStreamList.begin(); it != m_outStreamList.end(); ++it) {
             m_log << MSG::INFO << "Initialize Output Stream: "
-                  << (*it)->name() << endreq;
+                  << (*it)->name() << endmsg;
             if((*it)->sysInitialize().isFailure()) {
                 m_log << MSG::ERROR << "Unable to initialize Output Stream: "
-                      << (*it)->name() << endreq;
+                      << (*it)->name() << endmsg;
                 failed = true;
+        }
+
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
+            Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*it) );
+            if (alg != nullptr) {
+              alg->setContext( &m_eventContext );
+            } else {
+              m_log << MSG::ERROR
+                    << "Unable to dcast IAlgorithm " << (*it)->name() 
+                    << " to Algorithm"
+                    << endmsg;
+              failed = true;
             }
+#endif
         }
 
 
@@ -945,11 +988,11 @@ namespace TrigSim {
 
         for(ListAlg::iterator it = m_topAlgList.begin(); it != m_topAlgList.end(); ++it) {
             m_log << MSG::DEBUG << "Calling sysBeginRun() for algorithm: "
-                  << (*it)->name() << endreq;
+                  << (*it)->name() << endmsg;
             
             if((*it)->sysBeginRun().isFailure()) {
                 m_log << MSG::ERROR << "Algorithm failed in sysBeginRun(): "
-                      << (*it)->name() << endreq;
+                      << (*it)->name() << endmsg;
                 failed = true;
             } 
         }
@@ -962,11 +1005,11 @@ namespace TrigSim {
 
         for(ListAlg::iterator it = m_topAlgList.begin(); it != m_topAlgList.end(); ++it) {
             m_log << MSG::DEBUG << "Calling sysEndRun() for algorithm: "
-                  << (*it)->name() << endreq;
+                  << (*it)->name() << endmsg;
             
             if((*it)->sysEndRun().isFailure()) {
                 m_log << MSG::ERROR << "Algorithm failed in sysEndRun(): "
-                      << (*it)->name() << endreq;
+                      << (*it)->name() << endmsg;
                 failed = true;
             } 
         }
@@ -979,12 +1022,20 @@ namespace TrigSim {
 
         for(ListAlg::iterator it = m_topAlgList.begin(); it != m_topAlgList.end(); ++it) {
 
-            (*it)->resetExecuted();   
-
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+            const StatusCode& sc = (*it)->sysExecute(m_eventContext); 
+#else
             sc = (*it)->sysExecute();
+#endif
+            // this duplicates what is already done in Algorithm::sysExecute, which
+            // calls Algorithm::setExecuted, but eventually we plan to remove that 
+            // function
+            m_aess->algExecState(*it,m_eventContext).setExecuted(true);
+            m_aess->algExecState(*it,m_eventContext).setExecStatus(sc);
+
             if(sc.isFailure()) {
                 m_log << MSG::ERROR << "Algorithm failed in sysExecute(): "
-                      << (*it)->name() << endreq;
+                      << (*it)->name() << endmsg;
                 return sc;
             } 
         }
@@ -992,7 +1043,7 @@ namespace TrigSim {
     }
 //------------------------------------------------------------------------------
     StatusCode MergingEventLoopMgr::overwriteTriggerInfo(EventInfo *pFrom, EventInfo *pTo) {
-        m_log << MSG::INFO << "Overwriting TriggerInfo..." << endreq;
+        m_log << MSG::INFO << "Overwriting TriggerInfo..." << endmsg;
         
         pTo->setTriggerInfo(new TriggerInfo(*pFrom->trigger_info()));
        

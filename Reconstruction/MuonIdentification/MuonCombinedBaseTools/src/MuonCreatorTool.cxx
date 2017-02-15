@@ -304,6 +304,15 @@ namespace MuonCombined {
 	    if(nBadSmall==nBadLarge) countHits=true;
 	  }
 	}
+	//check for CSC unspoiled clusters: if none, and this is an endcap track that includes the CSC, reduce nGoodPrec by one
+	//as we arbitrarily declare this to be a barrel track if there are equal numbers of good barrel and endcap chambers, we need not worry about that situation
+	if(isEnd && chamberQual.count(Muon::MuonStationIndex::CSS)>0 || chamberQual.count(Muon::MuonStationIndex::CSL)>0){
+	  if(mu->auxdata<int>("nUnspoiledCscHits")==0){
+	    ATH_MSG_DEBUG("found no unspoiled csc hits, reduce # of good precision layers");
+	    nGoodPrec--;
+	  }
+	  else ATH_MSG_DEBUG("found "<<mu->auxdata<int>("nUnspoiledCscHits")<<" unspoiled csc hits, don't change nGoodPrecisionLayers");
+	}
 	if(countHits){ //decide large-small by counting hits
 	  uint8_t sumval=0;
 	  int nSmallHits=0,nLargeHits=0;
@@ -847,7 +856,9 @@ namespace MuonCombined {
   void MuonCreatorTool::addSegmentTag( xAOD::Muon& muon, const SegmentTag* tag ) const {
     if (!tag){
       // init variables if necessary.
-      
+      muon.setParameter(static_cast<float>(-1.0),xAOD::Muon::segmentDeltaEta);
+      muon.setParameter(static_cast<float>(-1.0),xAOD::Muon::segmentDeltaPhi);
+      muon.setParameter(static_cast<float>(-1.0),xAOD::Muon::segmentChi2OverDoF);
       return;
     }
     
@@ -858,6 +869,11 @@ namespace MuonCombined {
     for( const auto& info : tag->segmentsInfo() ){
       if( info.link.isValid() ){
         segments.push_back(info.link);
+	if(segments.size()==1){ //add parameters for the first segment
+          muon.setParameter(static_cast<float>(info.dtheta),xAOD::Muon::segmentDeltaEta);
+          muon.setParameter(static_cast<float>(info.dphi),xAOD::Muon::segmentDeltaPhi);
+          muon.setParameter(static_cast<float>(info.segment->fitQuality()->chiSquared()/info.segment->fitQuality()->numberDoF()),xAOD::Muon::segmentChi2OverDoF);
+	}
       }
     }
     muon.setMuonSegmentLinks(segments) ;

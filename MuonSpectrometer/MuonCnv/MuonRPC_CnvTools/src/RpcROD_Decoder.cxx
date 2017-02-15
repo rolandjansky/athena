@@ -56,16 +56,6 @@ Muon::RpcROD_Decoder::~RpcROD_Decoder() {
 
 StatusCode Muon::RpcROD_Decoder::initialize() {
  
-    //   if (m_storeGate.retrieve().isFailure())
-    //   {
-    //       msg(MSG::ERROR) << "StoreGate not found " << endmsg;
-    //       return StatusCode::FAILURE;
-    //   }  
-    //   if (m_storeGate.retrieve().isFailure())
-    //   {
-    //       msg(MSG::ERROR) << "StoreGate not found " << endmsg;
-    //       return StatusCode::FAILURE;
-    //   }
 
 
   ServiceHandle<IRPCcablingServerSvc> rpc_server("RPCcablingServerSvc", name());
@@ -80,41 +70,7 @@ StatusCode Muon::RpcROD_Decoder::initialize() {
     }
 
     StatusCode status=StatusCode::SUCCESS;
-    /*
-    try 
-      {
-	// needs to build differently with the id-hash 
-	m_bsErrCont = new RpcByteStreamErrorContainer();
-      } 
-    catch(std::bad_alloc) {
-      msg (MSG::FATAL)
-        << "Could not create a new RPC ByteStreamErrorContainer!"<< endmsg;
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE("RPC ByteStreamErrorContainer created");
-    status = evtStore()->record(m_bsErrCont,m_bsErrContainerName);
-    if (status!=StatusCode::SUCCESS)
-      {
-    	ATH_MSG_ERROR("Problems while recording RPC ByteStreamErrorContainer in SG");
-      }
-    else 
-      ATH_MSG_INFO("RPC ByteStreamErrorContainer recorded in SG");
-    */	
 
-    //   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-    //   if (detStore.retrieve().isFailure())
-    //   {
-    //       msg(MSG::ERROR) << "DetectorStore not found" << endmsg;
-    //       return StatusCode::FAILURE;
-    //   }
-
-    /*  Do I have to use MuonMgr to retrieve the IdHelpers???
-	if (detStore->retrieve(m_muonMgr).isFailure())
-	{
-	msg(MSG::ERROR) << "Cannot retrieve MuonDetectorManager" << endmsg;
-	return sc;
-	}
-    */  
 
     // Get the RPC id helper from the detector store
     status = detStore()->retrieve(m_pRpcIdHelper, "RPCIDHELPER");
@@ -138,45 +94,8 @@ StatusCode Muon::RpcROD_Decoder::initialize() {
     m_previous=0;
     m_printerror=0;
 
-    /*
-    IIncidentSvc* incsvc;
-    status = service("IncidentSvc", incsvc);
-    int priority = 100;
-    if( status.isSuccess() ) {
-        incsvc->addListener( this, "BeginEvent", priority);
-	incsvc->addListener( this, "EndEvent", priority);
-    }	
-    */
-
-    // //niko
-    // if (m_byteStreamErrSvc.retrieve().isFailure()) 
-    // msg(MSG::FATAL) <<"Failed to get RPC_ByteStreamErrorSvc"<<endmsg;
-
     return StatusCode::SUCCESS;
 
-}
-
-//At the start of every event, create the bytestream error contatiner and store it to 
-//Store-Gate but not fill here  
-void Muon::RpcROD_Decoder::handle(const Incident& inc) {
-  if ((inc.type() == "BeginEvent") ){
-    msg(MSG::DEBUG) << "In handle::BeginEvent"<<endmsg;   
-    /*
-    // cleanup and record the error container 
-    if (!evtStore()->contains<Muon::RpcByteStreamErrorContainer>(m_bsErrContainerName)){
-      m_bsErrCont->clear();
-      msg(MSG::DEBUG) << "In handle::BeginEvent after clear"<<endmsg;   
-      //ServiceHandle<StoreGateSvc> sg = evtStore();
-      //msg(MSG::DEBUG) << "In handle::BeginEvent after eventStore"<<endmsg;   
-      // StatusCode status = evtStore()->record(m_bsErrCont,m_bsErrContainerName);
-      // msg(MSG::DEBUG) << "In handle::BeginEvent after record"<<endmsg;   
-      // if (status.isFailure() )
-      // 	msg(MSG::ERROR) << "Failed to record BSErrors to SG"<<endmsg;   
-    }
-    */
-  }
-  
-  return;
 }
 
 

@@ -930,7 +930,7 @@ namespace Muon {
     if ( straightLineMatch || entry1.hasMomentum() ) {
       
       // extrapolate to segment surface
-      Trk::IExtrapolator* extrapolator = 0;
+      const Trk::IExtrapolator* extrapolator = 0;
       const Trk::TrackParameters* exPars = 0;
       const Trk::TrackParameters* exMeasPars = 0;
       if (closestMeasPars) {
@@ -977,7 +977,7 @@ namespace Muon {
 	
         exMeasPars = exPars->covariance() ? exPars : 0;
         if ( !exMeasPars ) {
-          Trk::IExtrapolator* extrapolator = straightLineMatch ? &(*m_slExtrapolator) : &(*m_atlasExtrapolator);
+          const Trk::IExtrapolator* extrapolator = straightLineMatch ? &(*m_slExtrapolator) : &(*m_atlasExtrapolator);
           ATH_MSG_DEBUG( "track-segment match: Did not get measured track parameters from extrapolation\n"
 			 << "\nfrom " << m_idHelperTool->toStringChamber( info.trackChamberId ) 
 			 << " to segment surface " << m_idHelperTool->toStringChamber( info.segmentChamberId )

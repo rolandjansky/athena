@@ -270,13 +270,11 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 
   // construct new tgc hit
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
-
   myTGCHitColl->Emplace(TGCid,
                         globalTime,
                         localPosition,
                         localDireCos,
-                        barcode,
+                        trHelp.GetParticleLink(),
                         aStep->GetTotalEnergyDeposit(),
                         aStep->GetStepLength(),
                         track->GetDefinition()->GetPDGEncoding(),

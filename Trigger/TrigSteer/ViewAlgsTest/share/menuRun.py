@@ -89,17 +89,10 @@ topSequence += caloFakeRoI
 testViewAlgorithm = True
 if ( testViewAlgorithm ):
 
-  # The algorithm to launch the views
-  from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
-  runInViews = TestViewDriver("runInViews")
-  connectAlgorithmsIO ( producer=(caloFakeRoI, "OutputRoIs"),  consumer=(runInViews, "RoIsContainer")) 
-  runInViews.OutputLevel=DEBUG
-  topSequence += runInViews
-
   # The algorithm to run inside the views
   from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
   viewAlgName = "algInView"
-  viewAlg = SchedulerProxyAlg(viewAlgName)
+  viewAlg = SchedulerProxyAlg( viewAlgName )
   viewAlg.RequireView = True
   topSequence += viewAlg
 
@@ -108,6 +101,14 @@ if ( testViewAlgorithm ):
   viewAlgPoolName = "ViewAlgPool"
   svcMgr += AlgResourcePool( viewAlgPoolName )
   svcMgr.ViewAlgPool.TopAlg = [ viewAlgName ]
+
+  # The algorithm to launch the views
+  from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
+  runInViews = TestViewDriver( "runInViews" )
+  connectAlgorithmsIO ( producer=(caloFakeRoI, "OutputRoIs"), consumer=(runInViews, "RoIsContainer") ) 
+  runInViews.OutputLevel = DEBUG
+  runInViews.ViewAlgorithmNames = [ viewAlgName ]
+  topSequence += runInViews
 
 
 muonFakeRoI = FakeRoI("muonFakeRoI")
@@ -134,7 +135,7 @@ ps.OutputLevel=DEBUG
 topSequence += ps
 
 from ViewAlgs.ViewAlgsConf import DecisionAlg, CopyPassing
-activeRoIsAfterPrescaling = genDecisionAlg("activeRoIsAfterPrescaling")
+activeRoIsAfterPrescaling = genDecisionAlg("menuStep0")
 connectAlgorithmsIO(consumer=(activeRoIsAfterPrescaling, "InputChainDecisions"), producer=(ps, "OutputChainDecisions"))
 connectHypoToMenu(consumer=activeRoIsAfterPrescaling, producer=(caloFakeRoI, "OutputDecisions"))
 connectHypoToMenu(consumer=activeRoIsAfterPrescaling, producer=(muonFakeRoI, "OutputDecisions"))

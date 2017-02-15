@@ -6,7 +6,7 @@ if  [ "niko" = $USER ]; then
 else NAME=$USER
 fi
 
-pathena --trf "Reco_tf.py Reco_tf.py --inputAODFile=%IN --outputNTUP_MCPTPFile=%OUT.NTUP_MCPTP.root --outputNTUP_MCPScaleFile=%OUT.NTUP_MCScale.root" \
+pathena --trf "Reco_tf.py --inputAODFile=%IN --outputNTUP_MCPTPFile=%OUT.NTUP_MCPTP.root --outputNTUP_MCPScaleFile=%OUT.NTUP_MCScale.root" \
       --noSubmit \
       --inDS $1 \
       --outDS='group.perf-muons.'$NAME'.dummy.1' \

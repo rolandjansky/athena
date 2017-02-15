@@ -113,8 +113,14 @@ atlas_add_executable( TIDAmakeSmallRefFile
 
 atlas_add_executable( TIDAruntool
                       Analysis/src/runtool.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES}  )
+                      INCLUDE_DIRS 
+                      LINK_LIBRARIES   )
+
+atlas_add_executable( TIDAsb
+                      Analysis/src/chainparser.cxx
+                      INCLUDE_DIRS 
+                      LINK_LIBRARIES  Readcards  )
+
 
 # Install files from the package:
 atlas_install_runtime( share/TIDA*.dat share/Test_bin.dat share/TIDA*.py )

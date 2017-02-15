@@ -15,6 +15,14 @@
 
 #include "TROOT.h"
 
+AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name ) : AthAnalysisAlgorithm( name, Gaudi::svcLocator() ) {
+  //we assume this constructor is used outside of the framework
+  //therefore we must increment the ref count so that 
+  //any SmartIF doesn't "release" the alg and therefore delete it
+  addRef();
+
+}
+
 AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name, 
 			    ISvcLocator* pSvcLocator,
 			    const std::string& ) : 
@@ -23,9 +31,21 @@ AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name,
         m_outputMetaStore( "StoreGateSvc/MetaDataStore", name )
 {
   
+  //declare an update handler for the EvtStore property, to reset the ServiceHandle
+  for(auto prop : getProperties()) {
+    if(prop->name() != "EvtStore") continue;
+    prop->declareUpdateHandler(&AthAnalysisAlgorithm::updateEvtStore, this );
+    break;
+  }
+
 }
 
 AthAnalysisAlgorithm::~AthAnalysisAlgorithm() { }
+
+void AthAnalysisAlgorithm::updateEvtStore(Property& prop) {
+  evtStore().release().ignore(); 
+  evtStore().setTypeAndName(prop.toString());
+}
 
 
 ServiceHandle<StoreGateSvc>& AthAnalysisAlgorithm::inputMetaStore() const {
@@ -59,6 +79,7 @@ StatusCode AthAnalysisAlgorithm::sysInitialize() {
       return StatusCode::SUCCESS;
 }
 
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
 StatusCode AthAnalysisAlgorithm::sysExecute() {
   if(!m_doneFirstEvent) {
     m_doneFirstEvent=true;
@@ -69,6 +90,18 @@ StatusCode AthAnalysisAlgorithm::sysExecute() {
   }
   return AthHistogramAlgorithm::sysExecute();
 }
+#else
+StatusCode AthAnalysisAlgorithm::sysExecute(const EventContext& ctx) {
+  if(!m_doneFirstEvent) {
+    m_doneFirstEvent=true;
+    if( firstExecute().isFailure() ) {
+      ATH_MSG_FATAL("Failure in firstEvent method");
+      return StatusCode::FAILURE;
+    }
+  }
+  return AthHistogramAlgorithm::sysExecute(ctx);
+}
+#endif
 
 void AthAnalysisAlgorithm::handle( const Incident& inc ) {
 
@@ -138,14 +171,27 @@ TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {
    if(m_currentFile) return m_currentFile;
 
    //get the EventSelector so we can get it's list of input files
+   //dont get it with a ServiceHandle, because that invokes initialize, can get into init loop
+
+   IProperty* evtSelector = 0;
+   if(service(evtSelName,evtSelector,false).isFailure()) {
+     ATH_MSG_ERROR("currentFile(): Couldn't find the service: " << evtSelName);return 0;
+   }
+   //SmartIF<IProperty> evtSelector(mysel);
+   /*
    ServiceHandle<IProperty> evtSelector(evtSelName,name());
 
    if(evtSelector.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Couldn't find the service: " << evtSelName);return 0;
-   }
+      ATH_MSG_ERROR("currentFile(): Couldn't find the service: " << evtSelName);return 0;
+      }*/
 
-   //get the list of input files - use this to determine which open file is the current input file
-   const StringArrayProperty& inputCollectionsName = dynamic_cast<const StringArrayProperty&>(evtSelector->getProperty("InputCollections"));
+   StringArrayProperty inputCollectionsName;
+   try {
+     //get the list of input files - use this to determine which open file is the current input file
+     inputCollectionsName = dynamic_cast<const StringArrayProperty&>(evtSelector->getProperty("InputCollections"));
+   } catch(...) {
+     ATH_MSG_ERROR("currentFile(): Couldn't load InputCollections property of " << evtSelName); return 0;
+   }
    ATH_MSG_VERBOSE("nOpenFile=" << gROOT->GetListOfFiles()->GetSize() << ". nFilesInInputCollection=" << inputCollectionsName.value().size());
    if(msgLvl(MSG::VERBOSE)) {
       for(int i=0;i<gROOT->GetListOfFiles()->GetSize();i++) {
@@ -212,7 +258,7 @@ TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {
             }
          }
    } 
-   ATH_MSG_ERROR("Could not find the current file!");
+   ATH_MSG_ERROR("currentFile(): Could not find the current file!");
    return 0; //something went wrong :-(
 
 }

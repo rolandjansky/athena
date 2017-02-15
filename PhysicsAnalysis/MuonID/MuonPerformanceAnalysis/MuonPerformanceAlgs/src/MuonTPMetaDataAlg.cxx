@@ -6,12 +6,12 @@
 #include "MuonTPMetaDataAlg.h"
 
 #include <GaudiKernel/ITHistSvc.h>
-#include <xAODCutFlow/CutBookkeeper.h>
+#include <xAODCutFlow/CutBookkeeperContainer.h>
 
 #include <EventBookkeeperMetaData/EventBookkeeperCollection.h>
-#include <xAODCutFlow/CutBookkeeperContainer.h>
 #include <xAODEventInfo/EventInfo.h>
 #include <EventInfo/EventStreamInfo.h>
+#include <xAODMetaData/FileMetaData.h>
 
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 //#include "GaudiKernel/ITHistSvc.h"
@@ -23,14 +23,15 @@ MuonTPMetaDataAlg::MuonTPMetaDataAlg(const std::string& name, ISvcLocator* pSvcL
             m_MetaDataTree(NULL),
             m_isData(false),
             m_isDerivedAOD(false),
+            m_containsCutBookKeeper(false),
             m_TotEvents(0),
             m_ProcEvents(0),
             m_RunNumber(0),
             m_mcChannelNumber(-1),
             m_SumOfWeights(0.),
             m_SumOfWeights2(0.),
-            m_TotalLumi(),
-            m_ProcessedLumi() {
+            m_TotalLumiBlocks(),
+            m_ProcessedLumiBlocks() {
     //declareProperty( "Property", m_nProperty ); //example property declaration
 }
 
@@ -39,18 +40,18 @@ MuonTPMetaDataAlg::~MuonTPMetaDataAlg() {
 
 StatusCode MuonTPMetaDataAlg::initialize() {
     ATH_MSG_INFO("Initializing " << name() << "...");
-    m_MetaDataTree = new TTree("MetaDataTree", "Metadata tree of the MuonTPanalysis");
+    m_MetaDataTree = new TTree("MetaDataTree", "MetaData tree of the MuonTPanalysis");
     m_MetaDataTree->Branch("TotalEvents", &m_TotEvents);
     m_MetaDataTree->Branch("ProcessedEvents", &m_ProcEvents);
     m_MetaDataTree->Branch("isData", &m_isData);
+    m_MetaDataTree->Branch("isDerivedAOD", &m_isDerivedAOD);
     m_MetaDataTree->Branch("mcChannelNumber", &m_mcChannelNumber);
     m_MetaDataTree->Branch("runNumber", &m_RunNumber);
-    m_MetaDataTree->Branch("SumOfWeights", &m_SumOfWeights);
-    m_MetaDataTree->Branch("SumOfWeights2", &m_SumOfWeights2);
-    m_MetaDataTree->Branch("TotalLumiBlockIds", &m_TotalLumi);
-    m_MetaDataTree->Branch("ProcessedLumiBlockIds", &m_ProcessedLumi);
+    m_MetaDataTree->Branch("TotalSumW", &m_SumOfWeights);
+    m_MetaDataTree->Branch("TotalSumW2", &m_SumOfWeights2);
+    m_MetaDataTree->Branch("TotalLumiBlocks", &m_TotalLumiBlocks);
+    m_MetaDataTree->Branch("ProcessedLumiBlocks", &m_ProcessedLumiBlocks);
     CHECK(m_histSvc->regTree("/MUONTP/MetaDataTree", m_MetaDataTree));
-
     return StatusCode::SUCCESS;
 }
 
@@ -71,13 +72,13 @@ StatusCode MuonTPMetaDataAlg::execute() {
     int runNumber = evtInfo->runNumber();
     if (isData) {
         ATH_MSG_DEBUG("Append lumiblock: " << evtInfo->lumiBlock());
-        m_ProcessedLumi.insert(evtInfo->lumiBlock());
+        m_ProcessedLumiBlocks.insert(evtInfo->lumiBlock());
     }
     FillTree(isData, runNumber, mcChannel);
-    if (m_isDerivedAOD) return StatusCode::SUCCESS;
+    if (m_containsCutBookKeeper) return StatusCode::SUCCESS;
     if (isData) {
         ATH_MSG_DEBUG("Append lumiblock: " << evtInfo->lumiBlock());
-        m_TotalLumi.insert(evtInfo->lumiBlock());
+        m_TotalLumiBlocks.insert(evtInfo->lumiBlock());
     }
     ++m_TotEvents;
     float weight = isData ? 1. : (*evtInfo->mcEventWeights().begin());
@@ -87,7 +88,24 @@ StatusCode MuonTPMetaDataAlg::execute() {
 
     return StatusCode::SUCCESS;
 }
-
+const xAOD::CutBookkeeper* MuonTPMetaDataAlg::RetrieveCutBookKeeper(const std::string &Stream){
+    const xAOD::CutBookkeeper* all = 0;        
+    if (inputMetaStore()->contains < xAOD::CutBookkeeperContainer > ("CutBookkeepers")) {
+        const xAOD::CutBookkeeperContainer* bks = 0;
+        if(!inputMetaStore()->retrieve(bks, "CutBookkeepers").isSuccess()){
+            ATH_MSG_WARNING("Could not retrieve the CutBookKeeperContainer. Although it should be there");
+            return all;
+        }
+        int maxCycle = -1; //need to find the max cycle where input stream is StreamAOD and the name is AllExecutedEvents
+        for (auto cbk : *bks) {
+            if (cbk->inputStream() == Stream && cbk->name() == "AllExecutedEvents" && cbk->cycle() > maxCycle) {
+                maxCycle = cbk->cycle();
+                all = cbk;
+            }
+        }
+    }
+    return all;
+}
 StatusCode MuonTPMetaDataAlg::beginInputFile() {
     //
     //This method is called at the start of each input file, even if
@@ -99,46 +117,40 @@ StatusCode MuonTPMetaDataAlg::beginInputFile() {
         ATH_MSG_WARNING("There seem to be more event types than one");
     }
     bool isData = !esi->getEventTypes().begin()->test(EventType::IS_SIMULATION);
+    const xAOD::FileMetaData* fmd = 0;
+    if (inputMetaStore()->contains < xAOD::FileMetaData > ("FileMetaData")) ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
+    if (!fmd) {
+        ATH_MSG_WARNING("FileMetaData not found in input file, setting m_isDerivedAOD=false.");
+        m_isDerivedAOD = false;
+    }
+    else {
+        std::string dataType;
+        if (!(fmd->value(xAOD::FileMetaData::MetaDataType::dataType, dataType))) {
+            ATH_MSG_WARNING("MetaDataType::dataType not found in xAOD::FileMetaData, setting m_isDerivedAOD=false.");
+            m_isDerivedAOD = false;
+        }
+        if (dataType.find("DAOD")!=std::string::npos) m_isDerivedAOD = true;
+    }
     int mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
     int runNumber = (*esi->getRunNumbers().begin());
     FillTree(isData, runNumber, mcChannelNumber);
 
     //Copy the information about the LumiBlocks
     for (const auto& Lumi : esi->getLumiBlockNumbers()) {
-        m_TotalLumi.insert(Lumi);
+        m_TotalLumiBlocks.insert(Lumi);
     }
-    //Check the file for the CutBookKeeeper and fill it with the sum of weights
-    if (inputMetaStore()->contains < xAOD::CutBookkeeperContainer > ("CutBookkeepers")) {
-        const xAOD::CutBookkeeperContainer* bks = 0;
-        CHECK(inputMetaStore()->retrieve(bks, "CutBookkeepers"));
-        const xAOD::CutBookkeeper* all = 0;
-        int maxCycle = -1; //need to find the max cycle where input stream is StreamAOD and the name is AllExecutedEvents
-        for (auto cbk : *bks) {
-            if (cbk->inputStream() == "StreamAOD" && cbk->name() == "AllExecutedEvents" && cbk->cycle() > maxCycle) {
-                maxCycle = cbk->cycle();
-                all = cbk;
-            }
-        }
-        if (!all){
-            ATH_MSG_WARNING("CutBookKeeeperContainer found but no CutBookeper element named 'StreamAOD'");
-            for (auto cbk : *bks) {
-                if (cbk->inputStream() == "unknownStream" && cbk->name() == "AllExecutedEvents" && cbk->cycle() > maxCycle) {
-                    maxCycle = cbk->cycle();
-                    all = cbk;
-                }
-            }
-        }
-        if (!all){
-            ATH_MSG_ERROR("No CutBookKeeper information found. Although the container is there. Please check input");
-            m_isDerivedAOD=false;
-            return StatusCode::FAILURE;
-        }
+    const xAOD::CutBookkeeper* all = RetrieveCutBookKeeper("StreamAOD");
+    if (!all){
+        all = RetrieveCutBookKeeper("unknownStream");
+        if (!all) m_containsCutBookKeeper = false;
+        else m_containsCutBookKeeper = true;
+    } else m_containsCutBookKeeper = true;
+    if (m_containsCutBookKeeper) {
         m_TotEvents += all->nAcceptedEvents();
         m_SumOfWeights += all->sumOfEventWeights();
         m_SumOfWeights2 += all->sumOfEventWeightsSquared();
-        m_isDerivedAOD = true;
-        ATH_MSG_INFO("CutBookKeeper: -- Total Events: " << all->nAcceptedEvents() << " SumOfWeights: " << all->sumOfEventWeights() << " SumOfWeights2: " << all->sumOfEventWeightsSquared());
-    } else m_isDerivedAOD = false;
+        ATH_MSG_INFO("CutBookKeeper: -- Total Events: " << all->nAcceptedEvents() << " SumOfWeights: " << all->sumOfEventWeights() << " SumOfWeights2: " << all->sumOfEventWeightsSquared());        
+    } else ATH_MSG_WARNING("No CutBookKeeper information could be extracted");
     return StatusCode::SUCCESS;
 }
 void MuonTPMetaDataAlg::FillTree(bool isData, unsigned int runNumber, int mcChannelNumber) {
@@ -151,8 +163,8 @@ void MuonTPMetaDataAlg::FillTree(bool isData, unsigned int runNumber, int mcChan
         m_ProcEvents = 0;
         m_SumOfWeights = 0.;
         m_SumOfWeights2 = 0.;
-        m_isDerivedAOD = false;
-        m_ProcessedLumi.clear();
-        m_TotalLumi.clear();
+        m_containsCutBookKeeper = false;
+        m_ProcessedLumiBlocks.clear();
+        m_TotalLumiBlocks.clear();
     }
 }

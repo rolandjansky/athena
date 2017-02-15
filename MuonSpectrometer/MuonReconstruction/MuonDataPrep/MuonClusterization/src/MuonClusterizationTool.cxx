@@ -49,7 +49,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  TgcPrepDataContainer* MuonClusterizationTool::cluster( const TgcPrepDataContainer& prdContainer ){
+  TgcPrepDataContainer* MuonClusterizationTool::cluster( const TgcPrepDataContainer& prdContainer ) const {
   
     TgcPrepDataContainer* clusteredContainer = new TgcPrepDataContainer(m_idHelper->tgcIdHelper().module_hash_max());
     // loop over Tgc collections in container
@@ -64,7 +64,7 @@ namespace Muon {
     return clusteredContainer;
   }
 
-  TgcPrepDataCollection* MuonClusterizationTool::cluster( const TgcPrepDataCollection& col ) {
+  TgcPrepDataCollection* MuonClusterizationTool::cluster( const TgcPrepDataCollection& col ) const {
     if( col.empty() ) return 0;
     TgcPrepDataCollection* collection = new TgcPrepDataCollection(col.identifyHash());
     collection->setIdentifier(col.identify());
@@ -79,7 +79,7 @@ namespace Muon {
     return collection;
   }
 
-  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, TgcPrepDataCollection* collection ){
+  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, TgcPrepDataCollection* collection ) const {
     std::vector<ClusterObj>::const_iterator cit = clusters.begin();
     std::vector<ClusterObj>::const_iterator cit_end = clusters.end();
     for( ;cit!=cit_end;++cit ){
@@ -109,7 +109,7 @@ namespace Muon {
   }
 
 
-  RpcPrepDataContainer* MuonClusterizationTool::cluster( const RpcPrepDataContainer& prdContainer ){
+  RpcPrepDataContainer* MuonClusterizationTool::cluster( const RpcPrepDataContainer& prdContainer ) const {
   
     RpcPrepDataContainer* clusteredContainer = new RpcPrepDataContainer(m_idHelper->rpcIdHelper().module_hash_max());
     // loop over Rpc collections in container
@@ -124,7 +124,7 @@ namespace Muon {
     return clusteredContainer;
   }
 
-  RpcPrepDataCollection* MuonClusterizationTool::cluster( const RpcPrepDataCollection& col ) {
+  RpcPrepDataCollection* MuonClusterizationTool::cluster( const RpcPrepDataCollection& col ) const {
     if( col.empty() ) return 0;
     RpcPrepDataCollection* collection = new RpcPrepDataCollection(col.identifyHash());
     collection->setIdentifier(col.identify());
@@ -139,7 +139,7 @@ namespace Muon {
     return collection;
   }
 
-  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, RpcPrepDataCollection* collection ){
+  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, RpcPrepDataCollection* collection ) const {
     std::vector<ClusterObj>::const_iterator cit = clusters.begin();
     std::vector<ClusterObj>::const_iterator cit_end = clusters.end();
     for( ;cit!=cit_end;++cit ){

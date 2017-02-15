@@ -235,20 +235,30 @@ class L2EFChain_met(L2EFChainDef):
         #    m_output[i]= jetChainDef.sequenceList[i]['output']
         #    m_algo[i] =jetChainDef.sequenceList[i]['algorithm']
 
-        #obtaining DummyUnseededAllTEAlgo/RoiCreator, TrigCaloCellMaker/FS, TrigCaloClusterMaker
+        #obtaining DummyUnseededAllTEAlgo/RoiCreator 
         input0=jetChainDef.sequenceList[0]['input']
         output0 =jetChainDef.sequenceList[0]['output']
         algo0 =jetChainDef.sequenceList[0]['algorithm']
-
-        #obtaining TrigHLTEnergyDensity
+        
+        #obtaing TrigCaloCellMaker/FS 
         input1=jetChainDef.sequenceList[1]['input']
         output1 =jetChainDef.sequenceList[1]['output']
         algo1 =jetChainDef.sequenceList[1]['algorithm']
-
-        #obtaining TrigHLTJetRecFromCluster
+        
+        #obtaining TrigCaloClusterMaker
         input2=jetChainDef.sequenceList[2]['input']
         output2 =jetChainDef.sequenceList[2]['output']
         algo2 =jetChainDef.sequenceList[2]['algorithm']
+
+        #obtaining TrigHLTEnergyDensity
+        input3=jetChainDef.sequenceList[3]['input']
+        output3 =jetChainDef.sequenceList[3]['output']
+        algo3 =jetChainDef.sequenceList[3]['algorithm']
+
+        #obtaining TrigHLTJetRecFromCluster
+        input4=jetChainDef.sequenceList[4]['input']
+        output4 =jetChainDef.sequenceList[4]['output']
+        algo4 =jetChainDef.sequenceList[4]['algorithm']
 
         #---End of obtaining jet TEs------------------------------
                    
@@ -276,17 +286,20 @@ class L2EFChain_met(L2EFChainDef):
         #topocluster
         if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit':
             self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
-            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
             self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
-            self.EFsequenceList +=[[ [output1],          [theEFMETFex],  'EF_xe_step1' ]]            
+            self.EFsequenceList +=[[ input2,algo2,  output2 ]]           
+            self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
+            self.EFsequenceList +=[[ [output3],          [theEFMETFex],  'EF_xe_step1' ]]            
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
             
         #trigger-jet based MET
         elif EFrecoAlg=='mht': 
             self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
             self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
-            self.EFsequenceList +=[[ input2,algo2,  output2 ]]            
-            self.EFsequenceList +=[[ [output2], [theEFMETFex], 'EF_xe_step1' ]]
+            self.EFsequenceList +=[[ input2,algo2,  output2 ]]           
+            self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
+            self.EFsequenceList +=[[ input4,algo4,  output4 ]]            
+            self.EFsequenceList +=[[ [output4], [theEFMETFex], 'EF_xe_step1' ]]
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
             if "FStracks" in addInfo:
                 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence

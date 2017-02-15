@@ -44,9 +44,9 @@ ViewMergeAlg::ViewMergeAlg( const std::string& name,
 ///////////////
 ViewMergeAlg::~ViewMergeAlg()
 {
-	m_r_ints.reset();
-	m_w_ints.reset();
-	m_r_views.reset();
+  //m_r_ints.reset();
+  //m_w_ints.reset();
+  //m_r_views.reset();
 }
 
 // Athena Algorithm's Hooks
@@ -71,19 +71,19 @@ StatusCode ViewMergeAlg::execute()
 
   //Merge results
   std::vector< int > outputVector;
-  ViewHelper::MergeViewCollection( *m_r_views,		//Vector of views (inside ReadHandle)
-		  		m_r_ints,		//ReadHandle to access the views (the handle itself)
-				outputVector );		//Container to merge results into
+  CHECK( ViewHelper::MergeViewCollection( *m_r_views,	//Vector of views (inside ReadHandle)
+				m_r_ints,		//ReadHandle to access the views (the handle itself)
+				outputVector ) );	//Container to merge results into
 
   //Output the merged data
   if ( !m_w_ints.setProxyDict( 0 ).isSuccess() )
   {
-	  ATH_MSG_INFO( "Unable to load main event store" );
+    ATH_MSG_INFO( "Unable to load main event store" );
   }
   m_w_ints = CxxUtils::make_unique< std::vector< int > >( outputVector );
   for ( int const test : outputVector )
   {
-	  ATH_MSG_INFO( test );
+    ATH_MSG_INFO( test );
   }
 
   return StatusCode::SUCCESS;

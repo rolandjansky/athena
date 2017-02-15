@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 746122 2016-05-11 10:11:31Z krasznaa $ -->
+<!-- $Id: selection.xml 796516 2017-02-10 04:45:05Z ssnyder $ -->
 <lcgdict>
 
    <!-- The TEvent class: -->
@@ -48,6 +48,8 @@
 
    <!-- The TActiveStore helper class: -->
    <class name="xAOD::TActiveStore" />
+
+   <function name="xAOD::MakeTransientTree"/>
 
    <!-- Suppress the unwanted classes found by ROOT 6. -->
    <!-- Hopefully we can remove these extra lines at one point... -->

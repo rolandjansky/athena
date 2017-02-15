@@ -416,7 +416,7 @@ namespace Trk {
 StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& originalTracks){
   initializeNtuple();
 
-  originalTracks = 0;
+  originalTracks = nullptr;
 
   const Analysis::MuonContainer* muonContainer = 0;
   if ( StatusCode::SUCCESS != evtStore()->retrieve( muonContainer , m_inputMuonCollection) ){
@@ -425,12 +425,14 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
 
     // Can't do MS constraint refit, resort to retrieve tracks directly 
     if ( StatusCode::SUCCESS != evtStore()->retrieve(originalTracks, m_inputTracksCollection) ){
-      originalTracks = 0;
+      originalTracks = nullptr;
       ATH_MSG_WARNING(" Can't retrieve " << m_inputTracksCollection << " from the StoreGate ");
     } else {
-      ATH_MSG_DEBUG(" have tracks of this event: " << originalTracks->size());
+      if (originalTracks){ 
+        ATH_MSG_DEBUG(" have tracks of this event: " << originalTracks->size());
+      }
     }
-
+    
     return StatusCode::SUCCESS;
   } else {
 

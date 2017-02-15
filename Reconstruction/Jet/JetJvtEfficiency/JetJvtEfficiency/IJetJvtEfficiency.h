@@ -46,7 +46,7 @@ public:
     virtual CorrectionCode applyInefficiencyScaleFactor( const xAOD::Jet& jet ) = 0;
 
     //Returns the jvt scale factors as decorations on the input jets and fills in the combined scale factor into sf
-    virtual CorrectionCode applyAllEfficiencyScaleFactor(const xAOD::IParticleContainer *jets,float& sf,bool doJvtSelection) = 0;
+    virtual CorrectionCode applyAllEfficiencyScaleFactor(const xAOD::IParticleContainer *jets,float& sf) = 0;
 
     //Adds a random dropping decoration to single jet.
     virtual CorrectionCode applyRandomDropping( const xAOD::Jet& jet ) = 0;

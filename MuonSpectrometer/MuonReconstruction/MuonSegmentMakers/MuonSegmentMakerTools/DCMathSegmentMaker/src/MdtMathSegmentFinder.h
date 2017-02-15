@@ -42,7 +42,7 @@ namespace Muon {
 							    const TrkDriftCircleMath::CLVec&                    clvec,
 							    const TrkDriftCircleMath::Road&                     road,
 							    const TrkDriftCircleMath::DCStatistics&             dcstats,
-							    const TrkDriftCircleMath::ChamberGeometry*          multiGeo );
+							    const TrkDriftCircleMath::ChamberGeometry*          multiGeo ) const;
   protected:
 
     ToolHandle<IDCSLFitProvider> m_dcslFitProvider;

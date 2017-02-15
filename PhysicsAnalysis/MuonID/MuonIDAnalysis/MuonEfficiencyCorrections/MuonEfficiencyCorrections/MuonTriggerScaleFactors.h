@@ -225,6 +225,7 @@ namespace CP {
 	std::string m_isolation;
 	std::string m_binning;
 
+	bool m_allowZeroSF;
     //Variables for toy replicas setup
     std::vector< std::string > m_replicaTriggerList;
     std::set<std::string> m_replicaSet;//set of triggers for replicas, for fast searching

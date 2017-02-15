@@ -22,12 +22,12 @@ class TRTPrintingOfHits
     bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
   private:
-    int printMessages;
+    int m_printMessages;
 
-    int mask;
-    int shift;
+    int m_mask;
+    int m_shift;
 
-    TRTOutputFile* pOutputFile;
+    TRTOutputFile* m_pOutputFile;
 
     mutable Athena::MsgStreamMember m_msg;
 

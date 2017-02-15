@@ -58,7 +58,7 @@ namespace Muon {
 
       // access PRD container
       typedef MuonPrepDataContainer< COL > ContainerType;
-      ContainerType* container = 0;
+      const ContainerType* container = 0;
       std::string location = m_locations[technology];
       if( !evtStore()->contains<ContainerType>(location) ) {
         ATH_MSG_DEBUG("Cannot find container " << typeid(container).name() << " at " << location << " technology index " << technology);

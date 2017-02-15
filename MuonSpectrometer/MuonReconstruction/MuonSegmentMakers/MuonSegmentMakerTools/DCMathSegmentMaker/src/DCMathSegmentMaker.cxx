@@ -439,7 +439,7 @@ namespace Muon {
   std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const Amg::Vector3D& roadpos, const Amg::Vector3D& roaddir,
 							     const std::vector<const MdtDriftCircleOnTrack*>& mdts,
 							     const std::vector<const MuonClusterOnTrack*>&  clusters,
-							     bool hasPhiMeasurements, double momentum)
+							     bool hasPhiMeasurements, double momentum) const
   {
 
     if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) { 
@@ -907,7 +907,7 @@ namespace Muon {
   }
 
 
-  std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& rios)
+  std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& rios) const
   {
     std::vector<const MdtDriftCircleOnTrack*> mdts;
     std::vector<const MuonClusterOnTrack*>    clusters;
@@ -935,7 +935,7 @@ namespace Muon {
   }
 
   std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-							     const std::vector<const MuonClusterOnTrack*>&  clusters)
+							     const std::vector<const MuonClusterOnTrack*>&  clusters) const
   {
     if( mdts.empty() ) return 0;
 
@@ -954,7 +954,7 @@ namespace Muon {
 
 
   std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
-							     const std::vector<const Trk::RIO_OnTrack*>& rios2 ) 
+							     const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const
   {
     std::vector<const Trk::RIO_OnTrack*> rios = rios1;
     rios.insert( rios.end(), rios2.begin(), rios2.end() );
@@ -964,7 +964,7 @@ namespace Muon {
   std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const Trk::TrackRoad& road,
 							     const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
 							     const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
-							     bool hasPhiMeasurements, double momentum )
+							     bool hasPhiMeasurements, double momentum ) const
   {
     // copy all mdt hits into one vector
     std::vector< const MdtDriftCircleOnTrack* > all_mdts;
@@ -984,6 +984,7 @@ namespace Muon {
     
     // set angle cut from road, keep old value
     double sinAngleCut = m_sinAngleCut;
+	// FIXME - probably need to change interface to pass in sinAngleCut. EJWM.
     m_sinAngleCut = road.deltaEta();
     
     const Amg::Vector3D& gpos = road.globalPosition();

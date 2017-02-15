@@ -16,7 +16,6 @@
 // -RndmSvc		Random Number Service used in SCT & Pixel digitization
 // -RndmEngine		Random engine name	
 // -MergeCharge
-// -SpmNoiseOccu	Special Pixels map gen: probability for a noisy pixel in SPM
 // -RndNoiseProb	Random noisy pixels, amplitude from calib. - NOT special pixels! 
 //
 ///////////////////////////////////////////////////////////////////
@@ -55,12 +54,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 
 class PixelID;
 class TimeSvc;
 class IPixelCalibSvc;
-class DetectorSpecialPixelMap;
 
 class IAtRndmGenSvc;
 namespace CLHEP {
@@ -95,12 +92,6 @@ public:
   /** Process the collection of pre digits */
   virtual void process(SiChargedDiodeCollection &collection) const;
 
-  virtual void setNoisyPixel(std::map<unsigned int,std::vector<unsigned int> > *noisyPixelMap) {m_noisyPixel=noisyPixelMap;}
-
-protected:
-
-  std::map<unsigned int,std::vector<unsigned int> > *m_noisyPixel;
-
 private:
   
   /** Empty constructor made private */
@@ -112,16 +103,13 @@ private:
   bool                     m_mergeCharge;      /**< to merge or not to merge */
   std::vector<double>       m_noiseShape;      /**< ToT shape of noise*/
   void addRandomNoise(SiChargedDiodeCollection &collection, double occupancy) const;
-  void addNoisyPixels(SiChargedDiodeCollection &collection, double occupancy) const;
-  void addCell(SiChargedDiodeCollection &collection, const InDetDD::PixelModuleDesign *design,
-	       int circuit, int column, int row) const;
+  void addCell(SiChargedDiodeCollection &collection, const InDetDD::PixelModuleDesign *design, int circuit, int column, int row) const;
 
   double getNoiseToT() const;
   const PixelID            *m_pixelID;     /**< the ID helper */
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
   std::string m_rndmEngineName;
   CLHEP::HepRandomEngine* m_rndmEngine;
-  double m_spmNoiseOccu;
   double m_rndNoiseProb;
   const InDetDD::PixelDetectorManager *m_pixMgr;
 

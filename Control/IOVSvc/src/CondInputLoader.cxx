@@ -199,7 +199,12 @@ CondInputLoader::execute()
   }
 
   EventIDBase now;
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+  if (!getContext().valid()) {
+    ATH_MSG_WARNING("EventContext not valid! This should not happen!");
+#else
   if(getContext()==nullptr) {
+#endif
     const xAOD::EventInfo* thisEventInfo;
     if(evtStore()->retrieve(thisEventInfo)!=StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Unable to get Event Info");
@@ -210,9 +215,15 @@ CondInputLoader::execute()
     now.set_time_stamp(thisEventInfo->timeStamp());
   }
   else {
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+    now.set_run_number(getContext().eventID().run_number());
+    now.set_event_number(getContext().eventID().event_number());
+    now.set_time_stamp(getContext().eventID().time_stamp());
+#else
     now.set_run_number(getContext()->eventID().run_number());
     now.set_event_number(getContext()->eventID().event_number());
     now.set_time_stamp(getContext()->eventID().time_stamp());
+#endif
   }
   IOVTime t(now.run_number(), now.event_number(), now.time_stamp());
 
