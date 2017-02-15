@@ -604,8 +604,10 @@ namespace Muon {
         if( !meas ) {
           continue;
         }
+	if(dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas)) continue; //exclude pseudos
 //        if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
         Identifier id = m_helper->getIdentifier(*meas);
+	//std::cout<<"measurement: "<<*meas<<std::endl;
 
         if( m_idHelper->isMdt(id) ) stationIds.insert( m_idHelper->chamberIndex(id) );
 
