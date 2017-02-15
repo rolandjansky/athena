@@ -75,6 +75,11 @@ cd ${SOURCEDIR}
 git fetch origin
 git checkout ${TAGBRANCH}
 
+# If this is a branch, fast forward to the latest version of it:
+if git show-ref -q --verify "refs/heads/${TAGBRANCH}" 2>/dev/null; then
+    git pull
+fi
+
 # If an output file was not specified, stop here:
 if [ "$HASHFILE" = "" ]; then
     exit 0
