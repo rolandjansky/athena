@@ -3,7 +3,7 @@
 */
 
 #include <stdexcept>
-#include <boost/lexical_cast.hpp>
+#include <string>
 
 #include "TrigNavigation/RoICacheHistory.h"
 
@@ -20,7 +20,7 @@ void HLT::RoICacheHistory::addAnswer(const TriggerElement* te, const TriggerElem
     if (  m_current.isValid() ) {
       m_current.addAnswer(te, f);
     } else {
-      throw std::runtime_error("HLT caching problem: " + boost::lexical_cast<std::string>(te->getId()) );
+      throw std::runtime_error("HLT caching problem: " + std::to_string(te->getId()) );
     }
   }
 }

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 730693 2016-03-17 12:15:43Z krasznaa $
+# $Id: CMakeLists.txt 797273 2017-02-15 01:16:12Z ssnyder $
 ################################################################################
 # Package: TrigNavigation
 ################################################################################
@@ -51,8 +51,9 @@ atlas_add_dictionary( TrigNavigationDict
    LINK_LIBRARIES TrigNavigationLib )
 
 # Test(s) in the package:
-foreach( name TriggerElement_test Holder_test Registration_test Ownership_test
-      HLTNavigation_test RoICache_test )
+foreach( name TriggerElement_test Holder_test Registration_test Ownership_test HLTNavigation_test RoICache_test )
+#foreach( name TriggerElement_test Holder_test Registration_test Ownership_test
+#      HLTNavigation_test RoICache_test )
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
@@ -61,7 +62,8 @@ foreach( name TriggerElement_test Holder_test Registration_test Ownership_test
       AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore
       TrigSerializeCnvSvcLib
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-      EXTRA_PATTERNS ".*" )
+      EXTRA_PATTERNS "^ClassIDSvc *VERBOSE|added entry for CLID|no dictionary for class|when retrieved"
+      )
 
 endforeach()
 

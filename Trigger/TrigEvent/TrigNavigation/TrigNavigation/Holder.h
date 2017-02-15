@@ -8,6 +8,7 @@
 #define TRIGNAVIGATION_HOLDER_H
 #include <string>
 #include <vector>
+#include <type_traits>
 
 #include "GaudiKernel/ClassID.h"
 
@@ -211,7 +212,7 @@ namespace HLTNavDetails {
     bool get(ElementLinkVector<CONTAINER2>& cont, HLT::TriggerElement::ObjectIndex idx);
 
     template<class CONTAINER2> 
-    bool getWithLink(typename set_link<STORED,CONTAINER2,boost::is_same<STORED,CONTAINER2>::value>::type& link,
+    bool getWithLink(typename set_link<STORED,CONTAINER2,std::is_same<STORED,CONTAINER2>::value>::type& link,
                      HLT::TriggerElement::ObjectIndex& idx) {
       
       bool result = static_cast<HolderImp<STORED,CONTAINER2>*>(this)->getWithLink(link,idx);
@@ -266,7 +267,7 @@ namespace HLTNavDetails {
     bool getElementLinks(ElementLinkVector<CONTAINER>& cont,  HLT::TriggerElement::ObjectIndex idx);
     bool getElementLinks(ElementLinkVector<CONTAINER>& cont);
         
-    bool getWithLink(typename set_link<STORED,CONTAINER,boost::is_same<STORED,CONTAINER>::value>::type& link,
+    bool getWithLink(typename set_link<STORED,CONTAINER,std::is_same<STORED,CONTAINER>::value>::type& link,
                      HLT::TriggerElement::ObjectIndex& idx);
         
     virtual std::string getUniqueKey(); // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
