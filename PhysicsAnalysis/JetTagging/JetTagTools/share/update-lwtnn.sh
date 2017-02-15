@@ -11,9 +11,9 @@ SRC=$BASE/src
 DIR=$(mktemp -d)
 cd $DIR
 
-UPSTREAM=https://github.com/dguest/lwtnn.git
-# TAG=v1.0
-TAG=master
+UPSTREAM=https://github.com/lwtnn/lwtnn.git
+TAG=v2.0
+# TAG=master
 
 # this won't work with git version < 1.7.10
 # git clone -b $TAG --depth 1 $UPSTREAM lwtnn
@@ -26,7 +26,7 @@ REV=$(git describe)
 # only copy some files
 HEADERS=(
     parse_json.hh LightweightNeuralNetwork.hh Stack.hh
-    NNLayerConfig.hh)
+    NNLayerConfig.hh Exceptions.hh)
 SRC_FILES=(
     LightweightNeuralNetwork.cxx parse_json.cxx Stack.cxx)
 
