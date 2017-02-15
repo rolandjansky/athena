@@ -17,11 +17,13 @@
 namespace Trk
 {  
 
+#if 0
   namespace {
     int numRow(int numVertex) {
       return numVertex+5;
     }
   }
+#endif
 
   
  StatusCode KalmanVertexOnJetAxisSmoother::initialize()
@@ -31,7 +33,7 @@ namespace Trk
   //retrieving the udator itself 	 
   StatusCode sc = m_Updator.retrieve();
   if(sc.isFailure()) 	  { 	 
-    msg(MSG::ERROR)<<" Unable to retrieve "<<m_Updator<<endreq; 	 
+    ATH_MSG_ERROR( " Unable to retrieve "<<m_Updator );
     return StatusCode::FAILURE; 	 
   }
   m_initial_cov_momentum.setZero();
@@ -44,7 +46,7 @@ namespace Trk
  
  StatusCode KalmanVertexOnJetAxisSmoother::finalize()
  {
-   msg(MSG::INFO)  << "Finalize successful" << endreq;
+   ATH_MSG_INFO( "Finalize successful" );
   return StatusCode::SUCCESS;
  }
  
@@ -95,7 +97,7 @@ namespace Trk
    //  {
 
     if (vertexToSmooth==0) {
-      msg(MSG::WARNING) << " Empty pointers then calling fit method update. No fit will be done..." << endreq;
+      ATH_MSG_WARNING( " Empty pointers then calling fit method update. No fit will be done..." );
       return;
     }
 
@@ -406,7 +408,7 @@ namespace Trk
       }
       catch (std::string a)
       {
-        msg(MSG::ERROR)  << a << " Doing inversion the normal way " << endreq;
+        ATH_MSG_ERROR( a << " Doing inversion the normal way " );
         vrt_removed_tracks_covariance=vrt_removed_tracks_weight.inverse().eval();
       }
 
