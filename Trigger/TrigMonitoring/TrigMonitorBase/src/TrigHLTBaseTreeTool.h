@@ -48,6 +48,6 @@ private:
     std::string m_path;
     HLT::Algo* m_algo;
     TTree *m_tree;      // tree where we want to fill
-    int event;
+    int m_event;
 };
 #endif
