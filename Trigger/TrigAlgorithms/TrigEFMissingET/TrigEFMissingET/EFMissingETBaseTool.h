@@ -74,11 +74,11 @@ class EFMissingETBaseTool : public AthAlgTool
 
     static const InterfaceID& interfaceID() { return IID_EFMissingETBaseTool; }
     
-    int getFexType() { return _fextype; }
+    int getFexType() { return m_fextype; }
 
   protected:
     
-    int _fextype;    			  //!< Fex type 
+    int m_fextype;    			  //!< Fex type 
          
     ITrigTimerSvc* m_timersvc;    //!< Timer service
     TrigTimer*     m_timer[4][3]; //!< (EM, HEC, Tile, FCAL) x (RegionSelector, LoadCollections, loop)
