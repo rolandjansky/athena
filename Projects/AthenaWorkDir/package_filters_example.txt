@@ -1,0 +1,10 @@
+#
+# This is an example file for setting up which packages to pick up
+# for building from a full checkout of the repository.
+#
+# Note that when you use a partial checkout, you should only have the
+# packages available that you want to compile anyway. So in that case you
+# should not bother with using such a filter file.
+#
++ Control/AthenaExamples/AthExHelloWorld
+- .*
