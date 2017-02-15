@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 770884 2016-08-30 18:04:17Z gbesjes $
 ################################################################################
 # Package: TrigTauEmulation
 ################################################################################
@@ -29,21 +28,23 @@ atlas_depends_on_subdirs(
 find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
+atlas_add_library( TrigTauEmulationLib
+   TrigTauEmulation/*.h Root/*.cxx
+   PUBLIC_HEADERS TrigTauEmulation
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTau xAODTracking
+   xAODTrigger PATCoreLib PATInterfaces TrigDecisionToolLib
+   PRIVATE_LINK_LIBRARIES AthContainers xAODBase xAODCore )
+
 atlas_add_component( TrigTauEmulation
-  TrigTauEmulation/*.h Root/*.cxx src/*.h src/*.cxx src/components/*.cxx
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTau
-  xAODTracking xAODTrigger PATCoreLib PATInterfaces TrigDecisionToolLib
-  AthContainers AthenaBaseComps xAODJet xAODBase xAODCore GaudiKernel )
+  src/*.h src/*.cxx src/components/*.cxx
+  LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODJet xAODTau xAODTrigger
+  xAODTracking TrigTauEmulationLib )
 
 atlas_add_dictionary( TrigTauEmulationDict
   TrigTauEmulation/TrigTauEmulationDict.h
   TrigTauEmulation/selection.xml
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTau
-  xAODTracking xAODTrigger PATCoreLib PATInterfaces TrigDecisionToolLib
-  AthContainers AthenaBaseComps xAODJet xAODBase xAODCore GaudiKernel )
+  LINK_LIBRARIES AsgTools TrigTauEmulationLib )
 
 # Install files from the package:
-atlas_install_headers( TrigTauEmulation )
 atlas_install_python_modules( python/*.py )

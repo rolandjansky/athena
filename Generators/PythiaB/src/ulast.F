@@ -32,7 +32,7 @@
 C +CDE, TYPING.
 
          print *,'ULAST: my ulast is called'
-        CALL HROUT(0)
+c        CALL HROUT(0)
 c        CALL HREND('AT')
 *
       END          ! ulast
