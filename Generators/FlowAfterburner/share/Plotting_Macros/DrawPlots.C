@@ -62,15 +62,17 @@ for(int ipt=1;ipt<9;ipt++){
   if(implementation_type<7) prof2->Draw("same"); //Dont Draw for p-Pb as 2subevent resolution doesnto work
 
 
-  sprintf(name,"pT(%.2f,%.2f)",pt_binvals[ipt],pt_binvals[ipt+1]);
-  Tex.DrawTextNDC(0.4,0.4,name);
+  sprintf(name,"(%.2f,%.2f) GeV",pt_binvals[ipt],pt_binvals[ipt+1]);
+  Tex.SetNDC();
+  Tex.DrawLatex(0.4,0.4,name);
 
   if(ipt==8){
     C2->cd(9);
     Leg=new TLegend(.3,.3,.9,.9);
     Leg->AddEntry(prof1,"Using Truth  #Psi");
     if(implementation_type<7) Leg->AddEntry(prof2,"Using Reco  #Psi"); //Dont Draw for p-Pb as 2subevent resolution doesnto work
-    Leg->AddEntry(etadep,"expected");
+    //Leg->AddEntry(etadep,"expected");
+    Leg->AddEntry(etadep,"Fit to constant");
     Leg->Draw(); 
   }
  
@@ -124,8 +126,8 @@ for(int ihar=2;ihar<=6;ihar++){
     Leg->AddEntry(func1,"expected");
     //Leg->Draw();
 
-    sprintf(name,"eta(%.1f,%.1f)",ieta*0.5,ieta*0.5+0.5);
-    Tex.DrawTextNDC(0.5,0.7,name);
+    sprintf(name,"|eta| #in (%.1f,%.1f)",ieta*0.5,ieta*0.5+0.5);
+    Tex.DrawLatex(0.5,0.7,name);
 
     if(ieta<5){
       if(ieta==0) {prof3= (TProfile*) prof1->Clone();}//combined eta bin (-2.5-2.5)
