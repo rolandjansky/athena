@@ -444,14 +444,23 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
           // overrule the min bin - with the min radius 
           // do the output to screen
           double currentZ = -currentLayerExtend;
-          msg(MSG::DEBUG) <<  "  -> Z binning at      :  ";
+          if (msgLvl(MSG::DEBUG) {
+              msg(MSG::DEBUG) <<  "  -> Z binning at      :  ";
+          }
           for (size_t zbin = 0; zbin < layerZboundaries[layerCounter].size(); ++zbin) {
               currentZ += layerZboundaries[layerCounter][zbin];
-              msg(MSG::DEBUG) << currentZ;
+              if (msgLvl(MSG::DEBUG) {
+                  msg(MSG::DEBUG) << currentZ;
+              }
               if (zbin <  layerZboundaries[layerCounter].size()-1) 
+              if (msgLvl(MSG::DEBUG) {
                  msg(MSG::DEBUG) << ", ";
+              }
           }
-          msg(MSG::DEBUG) << endreq;           
+          
+          if (msgLvl(MSG::DEBUG) {
+            msg(MSG::DEBUG) << endmsg;           
+          }
       }
       // prepare the right overlap descriptor       
       Trk::OverlapDescriptor* olDescriptor = 0;
