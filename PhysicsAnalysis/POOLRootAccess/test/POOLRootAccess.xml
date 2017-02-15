@@ -13,7 +13,7 @@
       <errorMessage>FAILURE (ERROR)</errorMessage>
       <returnValue>0</returnValue>
     </expectations>
-    <postscript>rootmonitor.py  --lower='{"speed1":50,"speed2":3200}'  --html ut_basicxAODRead_test.results.root</postscript>
+    <postscript>rootmonitor.py  --lower='{"speed1":50,"speed2":2800}'  --html ut_basicxAODRead_test.results.root</postscript>
   </TEST>
 
   <TEST name="POOLRootAccess_python_basicRead_test" type="script" suite="ASG">
