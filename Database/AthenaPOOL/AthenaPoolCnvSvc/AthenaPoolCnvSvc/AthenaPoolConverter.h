@@ -19,6 +19,7 @@
 
 #include <string>
 #include <map>
+#include <mutex>
 
 class IOpaqueAddress;
 class DataObject;
@@ -78,7 +79,6 @@ protected:
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
    /// @param token [IN] POOL token of the persistent representation.
-   //virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token) = 0;
    virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token) = 0;
 
    /// Set POOL placement hint for a given type.
@@ -110,6 +110,9 @@ protected: // data
    DataObject*           m_dataObject;
    const Token*          m_i_poolToken;
    const Token*          m_o_poolToken;
+
+   typedef std::recursive_mutex CallMutex;
+   mutable CallMutex m_conv_mut;
 };
 
 #endif
