@@ -6,15 +6,67 @@
 
 namespace Tau{
 
-	RecoTauPlots::RecoTauPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):PlotBase(pParent, sDir),
-	m_oParamPlots(this, "", sTauJetContainerName),
-	m_sTauJetContainerName(sTauJetContainerName){	
-	}
+RecoTauPlots::RecoTauPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+   PlotBase(pParent, sDir),
+   m_oParamPlots(this, "", sTauJetContainerName),
+   m_eflowRec_charPFO_Pt(nullptr),
+   m_eflowRec_charPFO_Eta(nullptr),
+   m_eflowRec_charPFO_Phi(nullptr),
+   m_eflowRec_charPFO_E(nullptr),
+   m_eflowRec_neuPFO_Pt(nullptr),
+   m_eflowRec_neuPFO_Eta(nullptr),
+   m_eflowRec_neuPFO_Phi(nullptr),
+   m_eflowRec_neuPFO_E(nullptr),
+   m_eflowRec_neuPFO_bdtPi0Score(nullptr),
+   m_cellBased_charPFO_Pt(nullptr),
+   m_cellBased_charPFO_Eta(nullptr),
+   m_cellBased_charPFO_Phi(nullptr),
+   m_cellBased_charPFO_E(nullptr),
+   m_cellBased_neuPFO_Pt(nullptr),
+   m_cellBased_neuPFO_Eta(nullptr),
+   m_cellBased_neuPFO_Phi(nullptr),
+   m_cellBased_neuPFO_E(nullptr),
+   m_cellBased_neuPFO_bdtPi0Score(nullptr),
+   m_pantau_CellBasedInput_isPanTauCandidate(nullptr),
+   m_pantau_CellBasedInput_DecayMode(nullptr),
+   m_pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n(nullptr),
+   m_pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn(nullptr),
+   m_pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged(nullptr),
+   m_pantau_eflowRecInput_isPanTauCandidate(nullptr),
+   m_pantau_eflowRecInput_DecayMode(nullptr),
+   m_pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n(nullptr),
+   m_pantau_eflowRecInput_BDTValue_1p1n_vs_1pXn(nullptr),
+   m_pantau_eflowRecInput_BDTValue_3p0n_vs_3pXn(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Basic_NNeutralConsts(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Neutral_HLV_SumM(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts(nullptr),
+   m_pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged(nullptr),
+   m_id_BDTJetScore(nullptr),
+   m_id_BDTEleScore(nullptr),
+   m_sTauJetContainerName(sTauJetContainerName)
+{
+}
 	
-	RecoTauPlots::~RecoTauPlots()
-	{
-	}
-  void RecoTauPlots::initializePlots(){
+RecoTauPlots::~RecoTauPlots()
+{
+}
+
+void RecoTauPlots::initializePlots(){
     
     //  m_oParamPlots.initialize();
 

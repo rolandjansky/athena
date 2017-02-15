@@ -5,7 +5,7 @@
 #ifndef TAUHISTUTILS_EFFICIENCYPTPLOTS_H
 #define TAUHISTUTILS_EFFICIENCYPTPLOTS_H
 
-#include "TauHistUtils/PlotBase.h"
+#include "TrkValHistUtils/PlotBase.h"
 #include "TauHistUtils/ParamPlots.h"
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauDefs.h"
