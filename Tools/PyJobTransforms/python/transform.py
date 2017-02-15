@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 785618 2016-11-21 22:03:04Z uworlika $
+# @version $Id: transform.py 797402 2017-02-15 18:44:08Z uworlika $
 # 
 
 __version__ = '$Revision'
@@ -28,7 +28,8 @@ from PyJobTransforms.trfArgs import addStandardTrfArgs, addFileValidationArgumen
 from PyJobTransforms.trfLogger import setRootLoggerLevel, stdLogLevels
 from PyJobTransforms.trfArgClasses import trfArgParser, argFile, argHISTFile, argument
 from PyJobTransforms.trfExitCodes import trfExit
-from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr, isInteractiveEnv
+from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr
+from PyJobTransforms.trfUtils import isInteractiveEnv, calcCpuTime, calcWallTime
 from PyJobTransforms.trfReports import trfJobReport, defaultFileReport
 from PyJobTransforms.trfExe import transformExecutor
 from PyJobTransforms.trfGraph import executorGraph
@@ -49,9 +50,15 @@ class transform(object):
         '''Transform class initialiser'''
         msg.debug('Welcome to ATLAS job transforms')
         
-        ## @brief Get starting timestamp as early as possible
+        ## @brief Get transform starting timestamp as early as possible
         self._transformStart = os.times()
-        
+        msg.debug('+++ transformStart time is {0}'.format(self._transformStart))
+
+        self._inFileValidationStart = None
+        self._inFileValidationStop = None
+        self._outFileValidationStart = None
+        self._outFileValidationStop = None
+
         ## @brief Get trf pre-data as early as possible
         self._trfPredata = os.environ.get('TRF_PREDATA')
 
@@ -139,7 +146,56 @@ class transform(object):
     @property
     def transformStart(self):
         return self._transformStart
-    
+
+    @property
+    def transformSetupCpuTime(self):
+        transformSetupCpuTime = None
+        if self._transformStart and self._inFileValidationStart:
+            transformSetupCpuTime = calcCpuTime(self._transformStart, self._inFileValidationStart)
+
+        return transformSetupCpuTime
+
+    @property
+    def transformSetupWallTime(self):
+        transformSetupWallTime = None
+        if self._transformStart and self._inFileValidationStart:
+            transformSetupWallTime = calcWallTime(self._transformStart, self._inFileValidationStart)
+
+        return transformSetupWallTime
+
+    @property
+    def inFileValidationCpuTime(self):
+        inFileValidationCpuTime = None
+        if self._inFileValidationStart and self._inFileValidationStop:
+            inFileValidationCpuTime = calcCpuTime(self._inFileValidationStart, self._inFileValidationStop)
+
+        return inFileValidationCpuTime
+
+    @property
+    def inFileValidationWallTime(self):
+        inFileValidationWallTime = None
+        if self._inFileValidationStart and self._inFileValidationStop:
+            inFileValidationWallTime = calcWallTime(self._inFileValidationStart, self._inFileValidationStop)
+
+        return inFileValidationWallTime
+
+    @property
+    def outFileValidationCpuTime(self):
+        outFileValidationCpuTime = None
+        if self._outFileValidationStart and self._outFileValidationStop:
+            outFileValidationCpuTime = calcCpuTime(self._outFileValidationStart, self._outFileValidationStop)
+
+        return outFileValidationCpuTime
+
+    @property
+    def outFileValidationWallTime(self):
+        outFileValidationWallTime = None
+        if self._outFileValidationStart and self._outFileValidationStop:
+            outFileValidationWallTime = calcWallTime(self._outFileValidationStart, self._outFileValidationStop)
+
+        return outFileValidationWallTime
+
+
     @property
     def trfPredata(self):
         return self._trfPredata
@@ -311,7 +367,6 @@ class transform(object):
     ## @brief Execute transform
     # @detailed This function calls the actual transform execution class and
     # sets \c self.exitCode,  \c self.exitMsg and \c self.processedEvents transform data members.
-    # TODO: This method should be timed - try a decorator function for that 
     # @return None.
     def execute(self):
         msg.debug('Entering transform execution phase')
@@ -670,6 +725,10 @@ class transform(object):
 
 
     def validateInFiles(self):
+        if self._inFileValidationStart is None:
+            self._inFileValidationStart = os.times()
+            msg.debug('+++ inFileValidationStart time is {0}'.format(self._inFileValidationStart))
+
         if (('skipFileValidation' in self._argdict and self._argdict['skipFileValidation'] is True) or
             ('skipInputFileValidation' in self._argdict and self._argdict['skipInputFileValidation'] is True) or
             ('fileValidation' in self._argdict and self._argdict['fileValidation'].value is False) or
@@ -683,7 +742,14 @@ class transform(object):
             else:
                 trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='input')
 
+        self._inFileValidationStop = os.times()
+        msg.debug('+++ inFileValidationStop time is {0}'.format(self._inFileValidationStop))
+
     def validateOutFiles(self):
+        if self._outFileValidationStart is None:
+            self._outFileValidationStart = os.times()
+            msg.debug('+++ outFileValidationStart time is {0}'.format(self._outFileValidationStart))
+
         if (('skipFileValidation' in self._argdict and self._argdict['skipFileValidation'] is True) or
             ('skipOutputFileValidation' in self._argdict and self._argdict['skipOutputFileValidation'] is True) or
             ('fileValidation' in self._argdict and self._argdict['fileValidation'].value is False) or
@@ -696,3 +762,6 @@ class transform(object):
                 trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='output', parallelMode=self._argdict['parallelFileValidation'].value )
             else:
                 trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='output')
+
+        self._outFileValidationStop = os.times()
+        msg.debug('+++ outFileValidationStop time is {0}'.format(self._outFileValidationStop))
