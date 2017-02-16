@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigElectron_v1.cxx 602892 2014-06-20 12:23:53Z krasznaa $
+// $Id: TrigElectron_v1.cxx 797628 2017-02-16 21:31:00Z rwhite $
 
 // System include(s):
 #include <cmath>
@@ -287,8 +287,6 @@ namespace xAOD {
          // data: assume that track parameters at perigee give better
          // estimates of angular quantities near vertex
          setZvtx( tpPtr->z0() );
-         setTrkEtaAtCalo( tpPtr->eta() );  // is this correct? Needs to be checked by Calo experts
-         setTrkPhiAtCalo( tpPtr->phi0() ); // is this correct? Needs to be checked by Calo experts
          setCharge( tpPtr->charge() ); // is this correct? Needs to be checked by Calo experts
       }
  
