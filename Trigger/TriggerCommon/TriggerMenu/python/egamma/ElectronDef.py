@@ -13,6 +13,7 @@ from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theElectronUEMonitoring
 from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import TrigL2CaloRingerFexHypo_e_NoCut
 from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
+from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_Clean
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.egamma.ElectronDef")
@@ -192,6 +193,9 @@ class L2EFChain_e(L2EFChainDef):
         thr = self.chainPart['threshold']
         name = str(self.chainPart['threshold'])
         name = name.split('.')[0]
+        dofastrecseq = TriggerFlags.EgammaSlice.doFastElectronFex
+        if 'perf' in self.chainName: 
+            dofastrecseq=False
         log.debug('setup_electron %s, apply ringer %s for %s',self.chainName,self._ringer_selection,thr )
         # Ringer chains not tuned for low-et
         # use standard hypo
@@ -202,10 +206,12 @@ class L2EFChain_e(L2EFChainDef):
         # Essentially breaks the class design :(
         # but 
         algo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+name+"_EtCut",thr)
+        fastrec_algo = L2ElectronFex_Clean()
+        fastrec_hypo = self.el_sequences['fastrec'].pop()
         precisecalocalib =  self.el_sequences['precisecalocalib']
         precisecalocalib.pop()
         precisecalocalib.extend([algo])
-        #log.info('RYAN Calo seqeunce %s'%precisecalocalib)
+        
         seq_dict = self.el_sequences
         seq_dict['precisecalocalib']=precisecalocalib
 
@@ -214,13 +220,29 @@ class L2EFChain_e(L2EFChainDef):
             seq_dict['fastcalorec'].extend(fastcalohypo)
         
         seq_te_dict = collections.OrderedDict()
-        seq_te_dict['fastcalorec']=('L2_e_step1','cl')
-        seq_te_dict['fastringerhypo']=('L2_e_step2','clhypo')
-        seq_te_dict['trackrec']=('L2_e_step3','trk')
-        seq_te_dict['fastrec']=('L2_e_step4','') 
-        seq_te_dict['precisecalo']=('EF_e_step1','cl')
-        seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
-        seq_te_dict['preciserec']=('EF_e_step4','')
+        
+        # Here we revert to the traditional sequence
+        # But apply selection at L2Electron
+        if dofastrecseq:
+            seq_dict['fastrec']=[fastrec_algo,fastrec_hypo]
+            log.debug('FastRec sequence %s'%seq_dict['fastrec'])
+            
+            seq_te_dict['fastcalorec']=('L2_e_step1','cl')
+            seq_te_dict['fastringerhypo']=('L2_e_step2','clhypo')
+            seq_te_dict['fasttrack']=('L2_e_step3','id')
+            seq_te_dict['fastrec']=('L2_e_step4','')
+            seq_te_dict['precisecalo']=('EF_e_step1','calo')
+            seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
+            seq_te_dict['precisetrack']=('EF_e_step3','id') 
+            seq_te_dict['preciserec']=('EF_e_step4','')
+        else:    
+            seq_te_dict['fastcalorec']=('L2_e_step1','cl')
+            seq_te_dict['fastringerhypo']=('L2_e_step2','clhypo')
+            seq_te_dict['trackrec']=('L2_e_step3','trk')
+            seq_te_dict['fastrec']=('L2_e_step4','') 
+            seq_te_dict['precisecalo']=('EF_e_step1','cl')
+            seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
+            seq_te_dict['preciserec']=('EF_e_step4','')
 
         self.setupFromDict(seq_te_dict,seq_dict)
     
