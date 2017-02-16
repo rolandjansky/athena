@@ -10,13 +10,13 @@
 
 using namespace rapidjson;
 
-int ReadProcs(pid_t mother_pid, unsigned long values[8], bool verbose){
+int ReadProcs(pid_t mother_pid, unsigned long long values[8], bool verbose){
 
   //Get child process IDs
       std::vector<pid_t> cpids;
-      char smaps_buffer[32];
-      char io_buffer[32];
-      snprintf(smaps_buffer,32,"pstree -A -p %ld | tr \\- \\\\n",(long)mother_pid);
+      char smaps_buffer[64];
+      char io_buffer[64];
+      snprintf(smaps_buffer,64,"pstree -A -p %ld | tr \\- \\\\n",(long)mother_pid);
       FILE* pipe = popen(smaps_buffer, "r");
       if (pipe==0) {
 	if (verbose) 
@@ -41,45 +41,45 @@ int ReadProcs(pid_t mother_pid, unsigned long values[8], bool verbose){
             cpids.push_back(pt);} } } 
       pclose(pipe);
 
-      long tsize(0);
-      long trss(0);
-      long tpss(0);
-      long tswap(0);
+      long long tsize(0);
+      long long trss(0);
+      long long tpss(0);
+      long long tswap(0);
 
-      long trchar(0);
-      long twchar(0);
-      long trbyte(0);
-      long twbyte(0);
+      long long trchar(0);
+      long long twchar(0);
+      long long trbyte(0);
+      long long twbyte(0);
 
       std::vector<std::string> openFails;
 
       for(std::vector<pid_t>::const_iterator it=cpids.begin(); it!=cpids.end(); ++it) {
-        snprintf(smaps_buffer,32,"/proc/%ld/smaps",(long)*it);
+        snprintf(smaps_buffer,64,"/proc/%ld/smaps",(long)*it);
        
         FILE *file = fopen(smaps_buffer,"r");
         if(file==0) {
           openFails.push_back(std::string(smaps_buffer));} 
         else { 
           while(fgets(buffer,256,file)) {
-            if(sscanf(buffer,"Size: %80ld kB",&tsize)==1) values[0]+=tsize;
-            if(sscanf(buffer,"Pss: %80ld kB", &tpss)==1)  values[1]+=tpss;
-            if(sscanf(buffer,"Rss: %80ld kB", &trss)==1)  values[2]+=trss;
-            if(sscanf(buffer,"Swap: %80ld kB",&tswap)==1) values[3]+=tswap; } 
+            if(sscanf(buffer,"Size: %80lld kB",&tsize)==1) values[0]+=tsize;
+            if(sscanf(buffer,"Pss: %80lld kB", &tpss)==1)  values[1]+=tpss;
+            if(sscanf(buffer,"Rss: %80lld kB", &trss)==1)  values[2]+=trss;
+            if(sscanf(buffer,"Swap: %80lld kB",&tswap)==1) values[3]+=tswap; } 
           fclose(file);
 	}
 
 
-        snprintf(io_buffer,32,"/proc/%ld/io",(long)*it);
+        snprintf(io_buffer,64,"/proc/%ld/io",(long)*it);
        
         FILE *file2 = fopen(io_buffer,"r");
         if(file2==0) {
           openFails.push_back(std::string(io_buffer));} 
         else { 
           while(fgets(buffer,256,file2)) {
-            if(sscanf(buffer,      "rchar: %80ld kB", &trchar)==1) values[4]+=trchar; 
-            if(sscanf(buffer,      "wchar: %80ld kB", &twchar)==1) values[5]+=twchar; 
-            if(sscanf(buffer, "read_bytes: %80ld kB", &trbyte)==1) values[6]+=trbyte; 
-            if(sscanf(buffer,"write_bytes: %80ld kB", &twbyte)==1) values[7]+=twbyte; } 
+            if(sscanf(buffer,      "rchar: %80lld", &trchar)==1) values[4]+=trchar; 
+            if(sscanf(buffer,      "wchar: %80lld", &twchar)==1) values[5]+=twchar; 
+            if(sscanf(buffer, "read_bytes: %80lld", &trbyte)==1) values[6]+=trbyte; 
+            if(sscanf(buffer,"write_bytes: %80lld", &twbyte)==1) values[7]+=twbyte; } 
           fclose(file);
 	}
 
@@ -101,10 +101,11 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
      
      signal(SIGUSR1, SignalCallbackHandler);
 
-     unsigned long    values[8] = {0,0,0,0,0,0,0,0};
-     unsigned long maxValues[8] = {0,0,0,0,0,0,0,0};
-     unsigned long avgValues[8] = {0,0,0,0,0,0,0,0};
-     unsigned long oldValues[8] = {0,0,0,0,0,0,0,0};
+     unsigned long long    values[8] = {0,0,0,0,0,0,0,0};
+     unsigned long long maxValues[8] = {0,0,0,0,0,0,0,0};
+     unsigned long long avgValues[8] = {0,0,0,0,0,0,0,0};
+     unsigned long long oldValues[8] = {0,0,0,0,0,0,0,0};
+
      int iteration = 0;
      time_t lastIteration = time(0) - interval;
      time_t currentTime;
@@ -146,10 +147,10 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
 	       << values[1]   << "\t" 
 	       << values[2]   << "\t" 
 	       << values[3]   << "\t" 
-	       << (int) (values[4] - oldValues[4])    << "\t" 
-	       << (int) (values[5] - oldValues[5])    << "\t" 
-	       << (int) (values[6] - oldValues[6])    << "\t" 
-	       << (int) (values[7] - oldValues[7])    << std::endl;  
+	       << (long long) (values[4] - oldValues[4])    << "\t" 
+	       << (long long) (values[5] - oldValues[5])    << "\t" 
+	       << (long long) (values[6] - oldValues[6])    << "\t" 
+	       << (long long) (values[7] - oldValues[7])    << std::endl;  
 
           // Compute statistics
           for(int i=0;i<4;i++){
@@ -161,7 +162,7 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
 
           for(int i=4;i<8;i++){
 
-	    avgValues[i] =  avgValues[i] + (int) (values[i] - oldValues[i]) / ((float) interval) ;
+	    avgValues[i] =  avgValues[i] + (long long) (values[i] - oldValues[i]) / (interval) ;
              if (values[i] > maxValues[i])
                maxValues[i] = values[i];
 	     //             values[i] = 0;
@@ -188,8 +189,8 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
 	       ++i.first, ++i.second){
 
 	    if (tmp < 8) {
-             i.first->value.SetUint(maxValues[tmp]);
-             i.second->value.SetUint(avgValues[tmp]/iteration);
+             i.first->value.SetUint64(maxValues[tmp]);
+             i.second->value.SetUint64(avgValues[tmp]/iteration);
 	    }
              tmp += 1;
 
