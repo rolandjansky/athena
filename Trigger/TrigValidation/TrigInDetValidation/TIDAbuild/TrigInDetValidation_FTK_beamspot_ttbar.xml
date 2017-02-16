@@ -57,8 +57,6 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-FTK_beamspot_ttbar-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_beamspot_ttbar-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
    

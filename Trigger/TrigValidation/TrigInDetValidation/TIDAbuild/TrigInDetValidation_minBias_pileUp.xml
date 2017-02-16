@@ -32,7 +32,6 @@
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
-            <auxFilePattern>expert-monitoring-minBias_pileUp-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"	    
 
 
