@@ -167,7 +167,7 @@ protected:
   virtual StatusCode writeHistograms(bool force=false);
 
   /// Run the algorithms for the current event
-  virtual StatusCode executeAlgorithms();
+  virtual StatusCode executeAlgorithms(const EventContext&);
 
   /// Fire BeginRun EventIncident, run the algorithms beginRun hook
   StatusCode beginRunAlgorithms(const EventInfo&);
@@ -209,6 +209,9 @@ public:
   //FIXME hack to workaround pylcgdict problem...
   virtual const std::string& name() const { return Service::name(); } //FIXME 
 
+  /// Return the current event context.
+  //  const EventContext& eventContext() const { return *m_eventContext; }
+
 private:
   AthenaEventLoopMgr(); ///< no implementation
   AthenaEventLoopMgr(const AthenaEventLoopMgr&); ///< no implementation
@@ -228,7 +231,7 @@ private:
   bool m_useTools;
   StoreGateSvc* eventStore() const;
 
-   EventContext* m_eventContext;
+   EventContext m_eventContext;
    bool m_doChrono = false;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
 
