@@ -159,7 +159,7 @@ InDetPlotBase::fillHisto(TH3* pTh3, const float xval, const float yval, const fl
 }
 
 void
-InDetPlotBase::fillHisto(TEfficiency* pTeff, const bool accepted, const float value) {
+InDetPlotBase::fillHisto(TEfficiency* pTeff,  const float value, const bool accepted) {
   if (pTeff and validArguments(value)) {
     pTeff->Fill(accepted, value);
   }

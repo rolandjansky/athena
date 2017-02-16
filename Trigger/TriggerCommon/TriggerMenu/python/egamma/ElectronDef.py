@@ -5,15 +5,20 @@
 __author__  = 'Moritz Backes & Catrin Bernius'
 __version__=""
 __doc__="Implementation of Electron Signature"
+import collections
 
 from AthenaCommon.Logging import logging
 
-from TriggerMenu.menu.HltConfig                import L2EFChainDef, mergeRemovingOverlap
+from TriggerMenu.menu.HltConfig                import L2EFChainDef, HltChainDef, mergeRemovingOverlap
 from TriggerMenu.egamma.EgammaCleanMonitoring  import *
 from TriggerMenu.menu.CleanMonitoring          import *
 from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theElectronUEMonitoring
+from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import TrigL2CaloRingerFexHypo_e_NoCut
+from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.egamma.ElectronDef")
+
 ##########################################################################################
 #
 # L2 & EF Chain configuration helper classes
@@ -24,17 +29,17 @@ class L2EFChain_e(L2EFChainDef):
 
     # Define frequently used instances here as class variables
 
-    def __init__(self, chainDict, electron_seq):
+    def __init__(self, chainDict, seqObj):
 
         self.L2sequenceList   = []
         self.EFsequenceList   = []
         self.L2signatureList  = []
         self.EFsignatureList  = []
-        self.TErenamingDict   = []
+        self.TErenamingDict   = {}
     
         self.chainPart = chainDict['chainParts']
-        self.seqObj = electron_seq
-        self.sequences = electron_seq.get_sequences()
+        self.seqObj = seqObj
+        self.el_sequences = seqObj.get_sequences()
 
         self.chainL1Item = chainDict['L1item']        
         self.chainPartL1Item = self.chainPart['L1item']
@@ -57,15 +62,15 @@ class L2EFChain_e(L2EFChainDef):
         self.L2InputTE = self.L2InputTE.split("_")[0]
         self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 
-                
+        self.use_v7=False
+        #if TriggerFlags.run2Config() == '2017':
+        if '_v7' in TriggerFlags.triggerMenuSetup():
+            self.use_v7=True
+        
         # eXXvh_ID type chains:
-        if self.chainPart['trkInfo']=='idperf': #True:# self.chainPart['IDinfo'] \
-           #and not self.chainPart['isoInfo'] \
-           #and not self.chainPart['FSinfo'] \
-           #and not self.chainPart['recoAlg'] \
-           #and not self.chainPart['hypoInfo'] \
-           #and not self.chainPart['trkInfo'] \
-           #and not self.chainPart['reccalibInfo']:
+        if self.use_v7:
+            self.setup_electron()
+        elif self.chainPart['trkInfo']=='idperf': #True:# self.chainPart['IDinfo'] \
             if 'ion' in self.chainPart['extra']:
                 self.setup_eXXvh_idperf_heavyIon()
             else:
@@ -78,7 +83,14 @@ class L2EFChain_e(L2EFChainDef):
             else:
                 self.setup_eXXvh_ID_run2()
 
-        L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter, self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
+        L2EFChainDef.__init__(self, 
+                self.chainName, 
+                self.L2Name, 
+                self.chainCounter, 
+                self.chainL1Item, 
+                self.EFName, 
+                self.chainCounter, 
+                self.L2InputTE)
 
     def defineSequences(self):
 
@@ -98,66 +110,106 @@ class L2EFChain_e(L2EFChainDef):
 
     def defineTErenaming(self):
         self.TErenamingMap = self.TErenamingDict
+    
+    def setupFromDict(self, seq_te_dict, seq_dict=None):
+        ''' 
+        Dictionary completely defines steps, algos, sequences, etc..
+        pass a dictionary with sequence key values
+        and tuple with te_out and alias for TE renaming
+        i.e. seq_te_dict['fastringer']=('L2_e_step1','cl')
+        '''
+        
+        # Use default sequence map if not passed modified map
+        if seq_dict is None:
+            seq_dict=self.el_sequences
+
+        #log.debug('%s'%seq_dict)
+        te_in=self.L2InputTE
+        for step in seq_te_dict:
+            level=seq_te_dict[step][0].split('_')[0]
+            te_out=seq_te_dict[step][0]
+            alias=seq_te_dict[step][-1]
+            algos=seq_dict[step]
+            #log.info('%s %s %s %s'%(level,te_in,algos,te_out))
+            if level == 'L2':
+                self.L2sequenceList += [[te_in,algos,te_out]]                     
+                self.L2signatureList += [ [[te_out]*self.mult] ]
+            elif level == 'EF':
+                self.EFsequenceList += [[te_in,algos,te_out]]                     
+                self.EFsignatureList += [ [[te_out]*self.mult] ]
+            else:
+                log.error('Sequence TE dictionary incorrect')
+            te_in=[te_out]
+            self.TErenamingDict[te_out] = mergeRemovingOverlap(level+'_',self.chainPartNameNoMult+alias)
 
 ############################### DEFINE GROUPS OF CHAINS HERE ##############################
+
+    def setup_electron(self):
+        ''' 
+        MC_pp_v7 onwards configuration method for electron chains 
+        TrigEMCluster and Ringer reconstruction (same as photons)
+        Fast Calo-only rejection (w/ ringer or cut-based)
+        Full track reconstruction
+        Fast electron reconstruction (optimize pt cut for low/high pt chains)
+            Mark tracks which match to cluster
+        Precise Calo
+        MVA calibration + Et cut hypo on clusters
+        Offline reco + hypo
+        
+        When moving to ringer default, need to make low et chains use cut-based
+        Also the L2ElectronFex will have low/high et 
+        To preserve backward compt, need to do all this here :(
+        '''
+        
+        # define the ordered dictionary for sequences and TEs
+        thr = self.chainPart['threshold']
+        name = str(self.chainPart['threshold'])
+        name = name.split('.')[0]
+        doRinger = False
+        if 'ringer' in self.chainPart['addInfo']:
+            doRinger = True
+
+        # Ringer chains not tuned for low-et
+        # use standard hypo
+        fastcalohypo=self.el_sequences['fastcalohypo']
+        ringerfex,ringerhypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
+        # To preserve backward compatibility just remove hypo from calibration step
+        # Replace by Et cut (marks the clusters as passing)
+        # Essentially breaks the class design :(
+        # but 
+        algo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+name+"_EtCut",thr)
+        precisecalocalib =  self.el_sequences['precisecalocalib']
+        precisecalocalib.pop()
+        precisecalocalib.extend([algo])
+        #log.info('RYAN Calo seqeunce %s'%precisecalocalib)
+        seq_dict = self.el_sequences
+        seq_dict['precisecalocalib']=precisecalocalib
+
+        if not doRinger:
+            seq_dict['fastringerhypo'] = [ringerfex,ringerhypo]
+            seq_dict['fastcalorec'].extend(fastcalohypo)
+        
+        seq_te_dict = collections.OrderedDict()
+        seq_te_dict['fastcalorec']=('L2_e_step1','cl')
+        seq_te_dict['fastringerhypo']=('L2_e_step2','clhypo')
+        seq_te_dict['trackrec']=('L2_e_step3','trk')
+        seq_te_dict['fastrec']=('L2_e_step4','') 
+        seq_te_dict['precisecalo']=('EF_e_step1','cl')
+        seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
+        seq_te_dict['preciserec']=('EF_e_step4','')
+
+        self.setupFromDict(seq_te_dict,seq_dict)
+    
     def setup_eXXvh_idperf(self):
 
-        threshold = self.chainPart['threshold']
-        IDinfo = self.chainPart['IDinfo']
-        isoInfo = self.chainPart['isoInfo']
-        run1 = self.chainPart['trkInfo']
-       
-        log.debug('setup_eXXvh_idperf')
-        log.debug('threshold: %s',threshold)
-        log.debug('isoInfo: %s',isoInfo)
-        log.debug('IDinfo: %s',IDinfo)
-        log.debug('trkInfo: %s',run1)
-        
-        self.L2sequenceList += [[self.L2InputTE, 
-            self.sequences['fastcalo'],                     
-                                 'L2_e_step1']]
-        
-        self.EFsequenceList += [[['L2_e_step1'], 
-            self.sequences['precisecalo'],                     
-                                 'EF_e_step1']]
-        
-        self.EFsequenceList += [[['EF_e_step1'], 
-            self.sequences['precisecalocalib'],                     
-                                 'EF_e_step2']]
-        
-        #if 'L2Star' in self.chainPart['addInfo']:
-        #    self.EFsequenceList += [[['EF_e_step2'], 
-        #                             [theTrigL2SiTrackFinder_eGammaA]+self.theL2StarxAOD+
-        #                             [theTrigL2SiTrackFinder_eGammaB]+self.theL2StarxAOD+
-        #                             [theTrigL2SiTrackFinder_eGammaC]+self.theL2StarxAOD+theEFElectronIDFex,
-        #                             'EF_e_step3']]
-        self.EFsequenceList += [[['EF_e_step2'], 
-                                 self.sequences['trackrec'],
-                                 'EF_e_step3']]
-        
-        self.EFsequenceList += [[['EF_e_step3'], 
-            self.sequences['preciserec'],                     
-                                 'EF_e_step4']]
+        seq_te_dict = collections.OrderedDict()
+        seq_te_dict['fastcalo']=('L2_e_step1','cl')
+        seq_te_dict['precisecalo']=('EF_e_step1','cl')
+        seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
+        seq_te_dict['trackrec']=('EF_e_step3','trk') 
+        seq_te_dict['preciserec']=('EF_e_step4','')
 
-        ########### Signatures ###########
-
-        self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
-        #self.L2signatureList += [ [['L2_e_step2']*self.mult] ]
-        #self.L2signatureList += [ [['L2_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step4']*self.mult] ]
-
-        ########### TE renaming ###########
-
-        self.TErenamingDict = {
-            'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
-            'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'cl'),
-            'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
-            'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'trk'),
-            'EF_e_step4': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
+        self.setupFromDict(seq_te_dict)
 
     def setup_eXXvh_idperf_heavyIon(self):
 
@@ -172,32 +224,17 @@ class L2EFChain_e(L2EFChainDef):
         log.debug('IDinfo: %s',IDinfo)
         log.debug('trkInfo: %s',run1)
         
-        precisecalocalib =  self.sequences['precisecalocalib']
+        # Here we can modify a bit the sequence map (to handle special triggers, e.g. HI)
+        precisecalocalib =  self.el_sequences['precisecalocalib']
         precisecalocalib.insert(1,theElectronUEMonitoring) 
-        self.L2sequenceList += [[self.L2InputTE, 
-            self.sequences['fastcalo'],                     
-                                 'L2_e_step1']]
-        self.EFsequenceList += [[['L2_e_step1'], 
-                                     [theFSCellMaker], 'EF_e_step1_fs']]
-
-        self.EFsequenceList += [[['EF_e_step1_fs'], 
-                                 [theUEMaker], 'EF_e_step1_ue']]
-
-        self.EFsequenceList += [[['L2_e_step1'], 
-            self.sequences['precisecalo'],                     
-                                 'EF_e_step1']]
         
-        self.EFsequenceList += [[['EF_e_step1'], 
-            precisecalocalib,
-                                 'EF_e_step2']]
-        
-        self.EFsequenceList += [[['EF_e_step2'], 
-            self.sequences['trackrec'],
-                                 'EF_e_step3']]
-        
-        self.EFsequenceList += [[['EF_e_step3'], 
-            self.sequences['preciserec'],                     
-                                 'EF_e_step4']]
+        self.L2sequenceList += [[self.L2InputTE,self.el_sequences['fastcalo'],'L2_e_step1']]                      
+        self.EFsequenceList += [[['L2_e_step1'],[theFSCellMaker], 'EF_e_step1_fs']] 
+        self.EFsequenceList += [[['EF_e_step1_fs'],[theUEMaker], 'EF_e_step1_ue']] 
+        self.EFsequenceList += [[['L2_e_step1'],self.el_sequences['precisecalo'],'EF_e_step1']]                      
+        self.EFsequenceList += [[['EF_e_step1'],precisecalocalib,'EF_e_step2']] 
+        self.EFsequenceList += [[['EF_e_step2'],self.el_sequences['trackrec'],'EF_e_step3']] 
+        self.EFsequenceList += [[['EF_e_step3'],self.el_sequences['preciserec'],'EF_e_step4']]                      
 
         ########### Signatures ###########
 
@@ -222,186 +259,55 @@ class L2EFChain_e(L2EFChainDef):
             }
 
     def setup_eXXvh_ID_ringer(self):
-
-        threshold = self.chainPart['threshold']
-        IDinfo    = self.chainPart['IDinfo']
-        isoInfo   = self.chainPart['isoInfo']
-        addInfo   = self.chainPart['addInfo']
-        trkInfo   = self.chainPart['trkInfo']
-      
-        log.debug('setup_eXXvh_ID_ringer')
-        log.debug('threshold: %s',threshold)
-        log.debug('isoInfo: %s',isoInfo)
-        log.debug('IDinfo: %s',IDinfo)
-        log.debug('trkInfo: %s',trkInfo)
-              
-        self.L2sequenceList += [[self.L2InputTE, 
-                                self.sequences['fastringer'],                     
-                                 'L2_e_step1']]
         
-        self.EFsequenceList += [[['L2_e_step1'], 
-            self.sequences['precisecalo'],                     
-                                 'EF_e_step1']]
-        
-        self.EFsequenceList += [[['EF_e_step1'], 
-            self.sequences['precisecalocalib'],                     
-                                 'EF_e_step2']]
-        
-        self.EFsequenceList += [[['EF_e_step2'], 
-            self.sequences['trackrec'],                     
-                                 'EF_e_step3']]
-        
-        self.EFsequenceList += [[['EF_e_step3'], 
-            self.sequences['preciserec'],                     
-                                 'EF_e_step4']]
+        seq_te_dict = collections.OrderedDict()
+        seq_te_dict['fastringer']=('L2_e_step1','cl')
+        seq_te_dict['precisecalo']=('EF_e_step1','calo')
+        seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
+        seq_te_dict['trackrec']=('EF_e_step3','id') 
+        seq_te_dict['preciserec']=('EF_e_step4','')
 
-        ########### Signatures ###########
-
-        self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step4']*self.mult] ]
-        ########### TE renaming ###########
-
-        self.TErenamingDict = {
-            'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
-            'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calo'),
-            'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
-            'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'id'),
-            'EF_e_step4': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
+        self.setupFromDict(seq_te_dict)
 
     def setup_eXXvh_ID_run2(self):
-        threshold = self.chainPart['threshold']
-        IDinfo = self.chainPart['IDinfo']
-        isoInfo = self.chainPart['isoInfo']
-        addInfo = self.chainPart['addInfo']
-        trkInfo = self.chainPart['trkInfo']
-      
-        log.debug('setup_eXXvh_ID_run2')
-        log.debug('threshold: %s',threshold)
-        log.debug('isoInfo: %s',isoInfo)
-        log.debug('IDinfo: %s',IDinfo)
-        log.debug('trkInfo: %s',trkInfo)
-        self.L2sequenceList += [[self.L2InputTE, 
-                                 self.sequences['fastcalo'],
-                                 'L2_e_step1']]
         
-        self.L2sequenceList += [[['L2_e_step1'],    
-                                 self.sequences['fasttrack'], 
-                                 'L2_e_step2']]
-      
-        self.L2sequenceList += [[['L2_e_step2'], 
-                                 self.sequences['fastrec'], 
-                                 'L2_e_step3']]
-        
-        self.EFsequenceList += [[['L2_e_step3'], 
-                                 self.sequences['precisecalo'], 
-                                 'EF_e_step1']]
-        
-        self.EFsequenceList += [[['EF_e_step1'], 
-                                 self.sequences['precisecalocalib'], 
-                                 'EF_e_step2']]
-        
-        self.EFsequenceList += [[['EF_e_step2'], 
-                                 self.sequences['precisetrack'], 
-                                 'EF_e_step3']]
-     
-        self.EFsequenceList += [[['EF_e_step3'], 
-                                 self.sequences['preciserec'], 
-                                 'EF_e_step4']]
+        seq_te_dict = collections.OrderedDict()
+        seq_te_dict['fastcalo']=('L2_e_step1','cl')
+        seq_te_dict['fasttrack']=('L2_e_step2','id')
+        seq_te_dict['fastrec']=('L2_e_step3','')
+        seq_te_dict['precisecalo']=('EF_e_step1','calo')
+        seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
+        seq_te_dict['precisetrack']=('EF_e_step3','id') 
+        seq_te_dict['preciserec']=('EF_e_step4','')
 
-        ########### Signatures ###########
-
-        self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
-        self.L2signatureList += [ [['L2_e_step2']*self.mult] ]
-        self.L2signatureList += [ [['L2_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step4']*self.mult] ]
-        ########### TE renaming ###########
-
-        self.TErenamingDict = {
-            'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
-            'L2_e_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'id'),
-            'L2_e_step3': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
-            'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calo'),
-            'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
-            'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'id'),
-            'EF_e_step4': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
+        self.setupFromDict(seq_te_dict)
 
     def setup_eXXvh_ID_run2_heavyIon(self):
-        threshold = self.chainPart['threshold']
-        IDinfo = self.chainPart['IDinfo']
-        isoInfo = self.chainPart['isoInfo']
-        addInfo = self.chainPart['addInfo']
-        trkInfo = self.chainPart['trkInfo']
-      
-        log.debug('setup_eXXvh_ID_run2_heavyIon')
-        log.debug('threshold: %s',threshold)
-        log.debug('isoInfo: %s',isoInfo)
-        log.debug('IDinfo: %s',IDinfo)
-        log.debug('trkInfo: %s',trkInfo)
         
-        precisecalocalib =  self.sequences['precisecalocalib']
+        precisecalocalib =  self.el_sequences['precisecalocalib']
         precisecalocalib.insert(1,theElectronUEMonitoring) 
-        self.L2sequenceList += [[self.L2InputTE, 
-            self.sequences['fastcalo'],                     
-                                 'L2_e_step1']]
-        
-        self.L2sequenceList += [[['L2_e_step1'],    
-            self.sequences['fasttrack'],                     
-                                 'L2_e_step2']]
-        
-        self.L2sequenceList += [[['L2_e_step2'], 
-            self.sequences['fastrec'],                     
-                                 'L2_e_step3']]
-        
-        self.EFsequenceList += [[['L2_e_step3'], 
-                                 [theFSCellMaker], 'EF_e_step1_fs']]
+       
+        seq_dict = self.el_sequences
+        seq_dict['precisecalocalib']=precisecalocalib
 
-        self.EFsequenceList += [[['EF_e_step1_fs'], 
-                                 [theUEMaker], 'EF_e_step1_ue']]
-
-        self.EFsequenceList += [[['L2_e_step3'], 
-            self.sequences['precisecalo'],                     
-                                 'EF_e_step1']]
+        seq_te_dict = collections.OrderedDict()
+        seq_te_dict['fastcalo']=('L2_e_step1','cl')
+        seq_te_dict['fasttrack']=('L2_e_step2','id')
+        seq_te_dict['fastrec']=('L2_e_step3','')
+        seq_te_dict['precisecalo']=('EF_e_step1','calo')
+        seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
+        seq_te_dict['precisetrack']=('EF_e_step3','id') 
+        seq_te_dict['preciserec']=('EF_e_step4','')
         
-        self.EFsequenceList += [[['EF_e_step1'], 
-            precisecalocalib,                     
-                                 'EF_e_step2']]
-        self.EFsequenceList += [[['EF_e_step2'], 
-            self.sequences['precisetrack'],                     
-                                 'EF_e_step3']]
+        # First set the normal sequence 
+        self.setupFromDict(seq_te_dict,seq_dict)
         
-        self.EFsequenceList += [[['EF_e_step3'], 
-            self.sequences['preciserec'],                     
-                                 'EF_e_step4']]
+        # Now insert additional steps
+        self.EFsequenceList.insert(0,[['L2_e_step3'],[theFSCellMaker], 'EF_e_step1_fs'])
+        self.EFsequenceList.insert(1,[['EF_e_step1_fs'],[theUEMaker], 'EF_e_step1_ue'])
+        self.EFsignatureList.insert(0, [['EF_e_step1_fs']] )
+        self.EFsignatureList.insert(1, [['EF_e_step1_ue']] )
 
-        ########### Signatures ###########
-
-        self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
-        self.L2signatureList += [ [['L2_e_step2']*self.mult] ]
-        self.L2signatureList += [ [['L2_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step1_fs']] ]
-        self.EFsignatureList += [ [['EF_e_step1_ue']] ]
-        self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step4']*self.mult] ]
-        ########### TE renaming ###########
-
-        self.TErenamingDict = {
-            'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
-            'L2_e_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'id'),
-            'L2_e_step3': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
-            'EF_e_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs'),
-            'EF_e_step1_ue': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue'),
-            'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calo'),
-            'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
-            'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'id'),
-            'EF_e_step4': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
+        self.TErenamingDict['EF_e_step1_fs']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs')
+        self.TErenamingDict['EF_e_step1_ue']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue')
+        

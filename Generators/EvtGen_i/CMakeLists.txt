@@ -14,6 +14,21 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel )
 
+# Set the version of Tauolapp to use:
+set( TAUOLAPP_VERSION 1.1.6 )
+set( TAUOLAPP_ROOT
+   ${LCG_RELEASE_DIR}/MCGenerators/tauola++/${TAUOLAPP_VERSION}/${ATLAS_PLATFORM} )
+
+# Set the version of Photospp to use:
+set( PHOTOSPP_VERSION 3.61 )
+set( PHOTOSPP_ROOT
+   ${LCG_RELEASE_DIR}/MCGenerators/photos++/${PHOTOSPP_VERSION}/${ATLAS_PLATFORM} )
+
+# Set the version of EvtGen to use:
+set( EVTGEN_VERSION 1.6.0 )
+set( EVTGEN_ROOT
+   ${LCG_RELEASE_DIR}/MCGenerators/evtgen/${EVTGEN_VERSION}/${ATLAS_PLATFORM} )
+
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

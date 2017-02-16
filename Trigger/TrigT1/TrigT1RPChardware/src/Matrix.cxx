@@ -527,6 +527,7 @@ if(matrixDebug&1<<df) {
 //
 // check the stripaddress is consistent with the Matrix dimension
 //
+if (BCID>=NOBXS) return;
 
    if( stripaddress>=0 && stripaddress < nchan[sidemat] )  {  
   // coverity change

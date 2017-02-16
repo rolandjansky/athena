@@ -19,10 +19,10 @@ namespace athenaMP_MemHelper
 	     , unsigned long& size, bool verbose=false)
   {
     std::vector<pid_t> cpids;
-    char smaps_buffer[32];
+    char smaps_buffer[40];
 
     // Open pipe to pstree
-    snprintf(smaps_buffer,32,"pstree -A -p %ld | tr \\- \\\\n",(long)mother_pid);
+    snprintf(smaps_buffer,sizeof(smaps_buffer),"pstree -A -p %ld | tr \\- \\\\n",(long)mother_pid);
     if(verbose) std::cout << "AthenaMP getPss. pstree command: " << smaps_buffer << std::endl;
     FILE* pipe = popen(smaps_buffer, "r");
     if (pipe==0) {

@@ -75,6 +75,25 @@ CSCSimHit::CSCSimHit(int id,
 
 }
 
+CSCSimHit::CSCSimHit(int id, 
+		     double time, 
+		     double  energy,
+	             const Amg::Vector3D& HitStart, 
+		     const Amg::Vector3D& HitEnd, 
+	             int particleID, 
+		     const HepMcParticleLink hmpl, 
+                     const double kineticEnergy)
+    : m_CSCid(id), m_globalTime(time)
+    , m_energyDeposit(energy)
+    , m_hitStart(HitStart)
+    , m_hitEnd(HitEnd)
+    , m_particleID(particleID)
+    , m_partLink(hmpl)
+    , m_kineticEnergy(static_cast<float>(kineticEnergy))
+{
+
+}
+
 
 // Implementation of member functions
 

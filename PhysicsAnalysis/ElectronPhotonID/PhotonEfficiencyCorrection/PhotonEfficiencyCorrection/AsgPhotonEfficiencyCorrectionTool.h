@@ -18,9 +18,11 @@
 // STL includes
 #include <vector>
 #include <string>
+#include <fstream>      // std::ifstream
 
 // Utility includes
 #include "boost/unordered_map.hpp"
+#include "boost/algorithm/string.hpp" // this one to replace std::string names
 
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TResult.h"
@@ -101,7 +103,10 @@ private:
   /// Pointer to the underlying ROOT based tool
   Root::TPhotonEfficiencyCorrectionTool* m_rootTool_unc;
   Root::TPhotonEfficiencyCorrectionTool* m_rootTool_con;
-
+  /// additional pointers for ISO SF using RadZ decays
+  Root::TPhotonEfficiencyCorrectionTool* m_rootTool_uncRadZ;
+  Root::TPhotonEfficiencyCorrectionTool* m_rootTool_conRadZ;
+  
   /// A dummy return TResult object
   Root::TResult m_resultDummy;
 
@@ -111,15 +116,19 @@ private:
   /// Currently applied systematics
   CP::SystematicSet* m_appliedSystematics = nullptr;
   
-  // Properties
-
-  /// The list of file names
-  std::string m_corrFileNameConv;
-  std::string m_corrFileNameUnconv;
-
   // The prefix for the systematic name
   std::string m_sysSubstring;
+  std::string m_sysSubstringRadZ;
   
+  // Get the correction filename from the map
+  std::string getFileName(std::string isoWP, bool isConv, std::string sufix);
+  
+  // Properties
+  
+  /// The list of input file names
+  std::string m_corrFileNameConv;
+  std::string m_corrFileNameUnconv;
+ 
   /// The prefix string for the result
   std::string m_resultPrefix;
 
@@ -128,6 +137,17 @@ private:
 
   /// Force the data type to a given value
   int m_dataTypeOverwrite;
+  
+  /// Isolation working point
+  std::string m_isoWP;
+  
+  /// map filename
+  std::string m_mapFile;  
+  
+  /// photonPT threshold for different isolation menus
+  float m_Threshold_lowPT;
+  float m_Threshold_highPT;
+  bool  m_UseRadZ_mediumPT;
 
 
 

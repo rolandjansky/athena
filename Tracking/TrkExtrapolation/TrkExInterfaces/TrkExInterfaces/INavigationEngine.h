@@ -17,6 +17,8 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
  
 namespace Trk {
+
+  class TrackingGeometry;
   
   static const InterfaceID IID_INavigationEngine("INavigationEngine", 1, 0);
   
@@ -47,6 +49,15 @@ namespace Trk {
 
       /** resolve the boundary situation - for neutral particles */
       virtual ExtrapolationCode resolveBoundary(ExCellNeutral& enCell, PropDirection dir=alongMomentum) const = 0;
+
+      /** resolve the position - for charged particles */
+      virtual ExtrapolationCode resolvePosition(ExCellCharged& ecCell, PropDirection dir=alongMomentum, bool noLoop=false) const = 0;                                                                                         
+
+      /** resolve the position - for neutral particles */
+      virtual ExtrapolationCode resolvePosition(ExCellNeutral& enCell, PropDirection dir=alongMomentum, bool noLoop=false) const = 0;
+
+      /** acces to tracking geometry */
+      virtual const TrackingGeometry& trackingGeometry() const = 0;
        
     protected:
       //!< SCREEN output formatting  (SOP) - unify amongst extrapolation engines

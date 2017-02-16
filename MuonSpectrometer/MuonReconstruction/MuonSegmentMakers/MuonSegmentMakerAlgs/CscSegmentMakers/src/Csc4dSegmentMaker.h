@@ -52,34 +52,34 @@ public:  // methods
   // Finalization.
   StatusCode finalize();
 
-  MuonSegmentCombinationCollection* find( const std::vector<const Muon::CscPrepDataCollection*>& pcols);
-  MuonSegmentCombinationCollection* find( const MuonSegmentCombinationCollection& );
+  MuonSegmentCombinationCollection* find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const;
+  MuonSegmentCombinationCollection* find( const MuonSegmentCombinationCollection& ) const ;
 
   // Only for Csc4dSegmentMaker
   std::vector<const Muon::MuonSegment*>*  find( const Trk::TrackRoad &,
                                                 const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > > &,
                                                 const std::vector< std::vector< const Muon::MuonClusterOnTrack* > > &  ,
-                                                bool, double);
+                                                bool, double) const ;
   std::vector<const Muon::MuonSegment*>*  find( const Amg::Vector3D&, const Amg::Vector3D&,
                                                 const std::vector< const Muon::MdtDriftCircleOnTrack* > &,
                                                 const std::vector< const Muon::MuonClusterOnTrack* > &  ,
-                                                bool, double);
+                                                bool, double) const;
 
-  std::vector<const Muon::MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& /*rios*/ );
+  std::vector<const Muon::MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& /*rios*/ ) const;
   std::vector<const Muon::MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& /*rios1*/,
-                                         const std::vector<const Trk::RIO_OnTrack*>& /*rios2*/ ) ;
+                                         const std::vector<const Trk::RIO_OnTrack*>& /*rios2*/ ) const ;
   std::vector<const Muon::MuonSegment*>* find( const std::vector<const Muon::MdtDriftCircleOnTrack*>& /*mdts*/,
-                                         const std::vector<const Muon::MuonClusterOnTrack*>&  /*clusters*/);
+                                         const std::vector<const Muon::MuonClusterOnTrack*>&  /*clusters*/) const;
 
 
 private:  // data
 
   // Properties.
   // Number of events dumped.
-  int m_dumpcount;
-  int m_dumped;
+  mutable int m_dumpcount;
+  mutable int m_dumped;
   // Debug flags.
-  bool m_dump;
+  mutable bool m_dump;
   double m_max_chisquare;
   double m_max_slope_r;
   double m_max_slope_phi;

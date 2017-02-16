@@ -239,13 +239,13 @@ namespace Muon {
                 The ownership of the tracks is passed to the client calling the tool.
         
     */
-    std::vector<MuPatTrack*>* find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments );
+    std::vector<MuPatTrack*>* find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const;
 
     /** @brief interface for tools which refine the hit content of a given track
 	@param track input track
 	@return new refined track. Pointer could be zero, ownership passed to caller
     */
-    MuPatTrack* refine( MuPatTrack& track );
+    MuPatTrack* refine( MuPatTrack& track ) const;
 
   private:
 
@@ -279,7 +279,7 @@ namespace Muon {
     ToolHandle<IMuonTrackExtrapolationTool> m_trackExtrapolationTool; //<! track extrapolation tool
 
     ToolHandle<IMuonErrorOptimisationTool> m_errorOptimisationTool;
-    ToolHandle<AdjT0::IAdjustableT0Tool>   m_tofTool;   //<! tof tool
+    mutable ToolHandle<AdjT0::IAdjustableT0Tool>   m_tofTool;   //<! tof tool
     ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc; 
     Trk::MagneticFieldProperties           m_magFieldProperties; //!< magnetic field properties
 

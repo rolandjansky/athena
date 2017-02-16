@@ -115,7 +115,9 @@ if "DOEFF" in  globals():
 IncludeMinCuts=False
 if "MINCUTS" in  globals():
     IncludeMinCuts = MINCUTS
-
+outfilename = "muontp.root"
+if "OUTPUTFILE" in globals():
+    outfilename = OUTPUTFILE
 # optional override for local testing
 grl=''
 if "GRL" in  globals():
@@ -125,17 +127,25 @@ if "GRL" in  globals():
 # Configure algorithm.
 #--------------------------------------------------------------
 
-include ("MuonPerformanceAlgs/RecExCommon_for_TP.py")
 
 # Allow messge service more than default 500 lines.
 ServiceMgr.MessageSvc.infoLimit = 20000
 
 # Configure Muon TP tools
-from MuonPerformanceAlgs import MuonTPAnalysis
-MuonTPAnalysis.MuonTPConfig('muontp.root',doPlots=doPlots,doEff=doEff,doClosure=doClo,GRL=grl,IncludeMinimalCutTree=IncludeMinCuts)
+# 
+# 
+from MuonPerformanceAlgs import MuonTPFlags
+from MuonPerformanceAlgs.MuonTPFlags import MuonTPFlags
+from AthenaCommon.JobProperties import jobproperties
+mtf = jobproperties.MuonTPFlags
+mtf.outputFilename = outfilename
+mtf.doPlots = doPlots
+mtf.doEff = doEff
+mtf.GRL = grl
+mtf.IncludeMinimalCutTree = IncludeMinCuts
 
-
-
+include("MuonPerformanceAlgs/MuonTP_AnalysisAlgs.py")
+# 
 
 
 

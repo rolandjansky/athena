@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigMuonMatching
+                          Event/xAOD/xAODBPhys
                           PRIVATE
                           Calorimeter/CaloEvent
                           Control/AthContainers
@@ -38,7 +39,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MuonIdentification/muonEvent
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces )
-
+ 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
@@ -52,4 +53,4 @@ atlas_add_component( MuonTPTools
 
 # Install files from the package:
 atlas_install_headers( MuonTPTools )
-
+ 

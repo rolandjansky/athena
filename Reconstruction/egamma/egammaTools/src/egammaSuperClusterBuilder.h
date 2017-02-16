@@ -44,8 +44,6 @@ protected:
   xAOD::CaloCluster* CreateNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
 				      xAOD::EgammaParameters::EgammaType egType);
 
-  bool getTileGapCorrectedEMFrac(const xAOD::CaloCluster* cluster, double& emfrac ) const;
-
   // some constants to use
   static constexpr float s_cellEtaSize = 0.025;
   static constexpr float s_cellPhiSize = M_PI/128.;
@@ -63,13 +61,7 @@ private:
 
   /** Add the EM cells from reference cluster to self */
   StatusCode AddEMCellsToCluster(xAOD::CaloCluster* newCluster,
-				 const xAOD::CaloCluster* ref,
-				 std::vector<const CaloCell*>& cellsInWindow) const;
-
-  /** Add the cells in search window, not only those in topoclusters, to the new cluster */
-  StatusCode AddRemainingCellsToCluster(xAOD::CaloCluster *myCluster,
-					std::vector<const CaloCell*>& cellsInWindow) const;
-
+				 const xAOD::CaloCluster* ref) const;
 
   /** function to calibrate the new clusters energy */
   StatusCode CalibrateCluster(xAOD::CaloCluster* newCluster,
@@ -81,12 +73,13 @@ private:
   StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster); 
   // above can't be const because m_caloCellDetPos acceses are not const
 
-  //Calculate / refine posisiton in 1st sampling
+  /** functions to refine position in eta1*/
   StatusCode refineEta1Position(xAOD::CaloCluster* cluster) const ;
   StatusCode makeCorrection1(xAOD::CaloCluster* cluster,    
 			     const CaloSampling::CaloSample sample) const ;
   
-
+  /** functions to add all tile Gap 3 cells in a window*/
+  StatusCode AddTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const;
 
   // these are calculated window values for the windows in which cells of topoclusters are edded
   float m_addCellsWindowEtaBarrel; //!< half of addCells window size, converted to units of eta
@@ -110,13 +103,9 @@ private:
   int   m_addCellsWindowEtaCellsEndcap;
   /** @brief Size of windows et phi in which cells of topoclusters are edded for the endcap */
   int   m_addCellsWindowPhiCellsEndcap;
-
-  bool  m_sumRemainingCellsInWindow; //!< Whether to sum the cells outside of topoclusters in search window
-
   bool m_refineEta1 ;   //!< Whether to refine the eta1 calculation
   bool m_correctClusters;  //!< Whether to run cluster correction
   bool m_calibrateClusters;  //!< Whether to run cluster calibration
-
   /** @breif Handle to the MVA calibration Tool **/
   ToolHandle<IegammaMVATool>  m_MVACalibTool;  
   /** @brief Tool to handle cluster corrections */

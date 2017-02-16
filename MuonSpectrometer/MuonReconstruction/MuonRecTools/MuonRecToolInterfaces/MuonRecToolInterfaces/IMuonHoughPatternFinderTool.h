@@ -37,7 +37,7 @@ namespace Muon {
 							  const std::vector<const CscPrepDataCollection*>& cscCols,  
 							  const std::vector<const TgcPrepDataCollection*>& tgcCols,  
 							  const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-							  const MuonSegmentCombinationCollection* cscSegmentCombis ) = 0;
+							  const MuonSegmentCombinationCollection* cscSegmentCombis ) const = 0;
 
   };
   

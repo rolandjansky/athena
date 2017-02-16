@@ -8,6 +8,14 @@ use DataModel		 DataModel-*                Control
 use MuonPattern          MuonPattern-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonSegment          MuonSegment-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
 
-apply_pattern installed_library
 library MuonEDM_AssociationObjects *.cxx
+apply_pattern installed_library
+
+private
+use AtlasReflex            AtlasReflex-*          External -no_auto_imports
+# The following lines generate the dictionary
+apply_pattern lcgdict dict=MuonEDM_AssociationObjects selectionfile=selection.xml \
+     headerfiles="../MuonEDM_AssociationObjects/MuonEDM_AssociationObjectsDict.h" 
+
+
 

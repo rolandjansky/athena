@@ -47,8 +47,8 @@ private:
 private:
   void initializePlots();
 
-  TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
-  TEfficiency* m_testEff;
+  //TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
+  TEfficiency* m_hitEfficiencyVsEta[N_SUBDETECTORS][N_REGIONS];
   bool m_debug;
 };
 

@@ -56,8 +56,7 @@ void* AthenaRootSerializeSvc::serialize(const void* /*object*/, const std::strin
 
 //___________________________________________________________________________
 void* AthenaRootSerializeSvc::serialize(const void* object, const Guid& id, size_t& nbytes) {
-   RootType cltype(pool::DbReflex::forGuid(id));
-   return(this->serialize(object, cltype, nbytes));
+   return(this->serialize(object, pool::DbReflex::forGuid(id), nbytes));
 }
 
 //___________________________________________________________________________
@@ -77,8 +76,7 @@ void* AthenaRootSerializeSvc::deserialize(void* /*buffer*/, size_t& /*nbytes*/, 
 
 //___________________________________________________________________________
 void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const Guid& id) {
-   RootType cltype(pool::DbReflex::forGuid(id));
-   return(this->deserialize(buffer, nbytes, cltype));
+   return(this->deserialize(buffer, nbytes, pool::DbReflex::forGuid(id)));
 }
 
 //___________________________________________________________________________

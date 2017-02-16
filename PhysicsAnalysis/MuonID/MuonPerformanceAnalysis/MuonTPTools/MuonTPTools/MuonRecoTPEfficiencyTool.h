@@ -19,7 +19,7 @@ class MuonRecoTPEfficiencyTool : public MuonTPEfficiencyTool{
   MuonRecoTPEfficiencyTool(std::string name);
 
   /// Match probes for efficiency calculation
-  virtual void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const;
+  virtual void matchProbes(ProbeContainer*) const;
   void dRMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const;
   void ptrMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const;
   bool GoodMatchMuonType(const xAOD::IParticle* probe) const;
@@ -51,6 +51,7 @@ class MuonRecoTPEfficiencyTool : public MuonTPEfficiencyTool{
   bool m_do_IDHits;
 
 
+  std::string m_matchContainerName;
 
 };
 

@@ -188,7 +188,6 @@ private: // data
    std::string     m_dhContainerPrefix;
    std::string     m_collContainerPrefix;
    std::string     m_lastFileName;
-   std::vector<std::string>      m_className;
    ServiceHandle<IPoolSvc>       m_poolSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
    ServiceHandle<IClassIDSvc>    m_clidSvc;

@@ -16,7 +16,8 @@ Probe::Probe(const xAOD::IParticle& tagTrack, const xAOD::IParticle& probeTrack)
     m_sf_trig(1),
     m_tagPassTrigger(0),
     m_HasSomeTrigger(false),
-    m_HasSomeTrigger_HLT(false)
+    m_HasSomeTrigger_HLT(false),
+    m_vx(0)
 {}
 
 Probe::Probe(const xAOD::IParticle& tagTrack, const xAOD::IParticle& probeTrack, int tagPassTrigger) : 
@@ -30,10 +31,18 @@ Probe::Probe(const xAOD::IParticle& tagTrack, const xAOD::IParticle& probeTrack,
     m_sf_trig(1),
     m_tagPassTrigger(tagPassTrigger),
     m_HasSomeTrigger(false),
-    m_HasSomeTrigger_HLT(false)
+    m_HasSomeTrigger_HLT(false),
+    m_vx(0)
 {}
 
 // denstructor
 Probe::~Probe()
 {
+}
+
+void Probe::setVertex(const xAOD::Vertex* vertex){
+    m_vx = vertex;
+}
+const xAOD::Vertex* Probe::getVertex(){
+    return m_vx;
 }

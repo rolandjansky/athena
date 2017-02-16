@@ -18,5 +18,8 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/IsolationSF2016DS1
 In case you feel that some piece of information is missing, please feel free to contact the authors (Giovanni.Marchiori@cern.ch,Michael.Pitt@cern.ch).
 
 #example in ROOT:
-rcSetup -f Base,2.4.15; rc compile
+rcSetup -f Base,2.4.27; rc compile
+to test on a AOD file run
 TestxAODPhotonTool [filename]
+to test the output of the input files (stored in the CalibArea) run
+PrintPhotonSF [input]

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 778391 2016-10-14 00:23:00Z krasznaa $
+# $Id: CMakeLists.txt 789330 2016-12-12 17:07:48Z khoo $
 ################################################################################
 # Package: JetCalibTools
 ################################################################################
@@ -28,6 +28,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Event/xAOD/xAODMuon
    Tools/PathResolver
+   PhysicsAnalysis/POOLRootAccess
    ${extra_deps} )
 
 # External dependencies:
@@ -60,4 +61,11 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODEventShape xAODCore xAODRootAccess JetCalibToolsLib )
+else()
+   atlas_add_executable( JetCalibTools_Example
+      util/JetCalibTools_Example.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODEventShape xAODCore POOLRootAccess xAODRootAccess JetCalibToolsLib )
 endif()
+

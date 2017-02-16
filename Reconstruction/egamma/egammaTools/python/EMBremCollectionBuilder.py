@@ -138,15 +138,13 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                                          TrackSummaryTool        = GSFBuildInDetTrackSummaryTool,
                                                                          UseTrackSummaryTool     = False,
                                                                          ForceTrackSummaryUpdate = False)
-        # Otherwise Tracks and CombinedInDetTracks will be different when slimming
-
         ToolSvc += GSFBuildInDetParticleCreatorTool
         #
         # --- do track slimming
         #
         from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool
         GSFBuildInDetTrkSlimmingTool = ConfigurableTrackSlimmingTool(name  = "GSFBuildInDetTrackSlimmingTool",
-                                                                     KeepParameters = True,
+                                                                     KeepParameters = False,
                                                                      KeepOutliers   = True )
         ToolSvc += GSFBuildInDetTrkSlimmingTool
 

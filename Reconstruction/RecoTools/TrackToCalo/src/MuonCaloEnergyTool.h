@@ -54,7 +54,9 @@ namespace Rec {
                                 double deltaE, double meanIoni, double sigmaIoni,
                                 double& E, double& sigma, double& E_FSR, double& E_expected,
                                 double &E_em_meas, double &E_em_exp, double &E_tile_meas, double &E_tile_exp,
-                                double &E_HEC_meas, double &E_HEC_exp, double &E_dead_exp ) const;
+                                double &E_HEC_meas, double &E_HEC_exp, double &E_dead_exp, 
+ 				std::vector<Identifier>* crossedCells = 0, std::vector<double>* sigmaNoise_cell = 0, std::vector<double>* E_exp_cell = 0) const;
+
  
   private:
 

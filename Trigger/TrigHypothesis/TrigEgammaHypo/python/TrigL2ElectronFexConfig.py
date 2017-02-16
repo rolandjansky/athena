@@ -61,6 +61,19 @@ class L2ElectronFex_all(L2ElectronFexBase):
         self.ZCalEndcapFace = 3800.0*mm
 
         
+class L2ElectronFex_LowPt(L2ElectronFex_all):
+    __slots__ = []
+    def __init__(self,name="L2ElectronFex_1"):
+        super(L2ElectronFex_1, self).__init__(name)
+        self.AcceptAll = False
+
+class L2ElectronFex_HighPt(L2ElectronFex_all):
+    __slots__ = []
+    def __init__(self,name="L2ElectronFex_1"):
+        super(L2ElectronFex_1, self).__init__(name)
+        self.AcceptAll = False
+        self.TrackPt = 2.0 * GeV
+
 class L2ElectronFex_all_L2SW(L2ElectronFex_all):
     __slots__ = []
     def __init__(self,name="L2ElectronFex_all_L2SW"):

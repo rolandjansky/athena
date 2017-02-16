@@ -253,13 +253,19 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
     //Find the list of neighbours cells, to define the 3x3 cluster core
     std::vector<IdentifierHash> neighbourList = findNeighbours(m_cellCentrId);
     
-    //Loop over all the cluster cells
+    //Loop over all the Lar cluster cells
     xAOD::CaloCluster::const_cell_iterator cellIter    = cluster->cell_begin();
     xAOD::CaloCluster::const_cell_iterator cellIterEnd = cluster->cell_end();
     for( ;cellIter!=cellIterEnd;cellIter++) {
-      //Find cell parameters and properties
       const CaloCell* cell = (*cellIter);
-      if(!cell) continue;
+      if(!cell) {
+	continue;
+      }
+      //Check we are not tile
+      if (cell->caloDDE()->is_tile()) {
+	continue;
+      }
+      //Find cell parameters and properties
       float eta = cell->eta();
       // float phi = cell->phi(); // no longer used
       float qual = cell->quality();
@@ -271,7 +277,6 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
 	if(cell->e() > energyCellMax ) energyCellMax = cell->e();
 	if(cell->quality() > m_QCellCut ) badE += cell->e(); 
       }       
-
       bool isACoreCell =  false;
       isACoreCell = isCore(cell->ID(),neighbourList);
       
@@ -287,9 +292,10 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
       //==================================================================================//
 
       //======================== Set LAr bits ============================================================//
+      //
       HWIdentifier LArhwid = m_larCablingSvc->createSignalChannelIDFromHash(cell->caloDDE()->calo_hash());
       LArBadChannel bc = m_badChannelTool->status(LArhwid);      
-      //      if (!bc.good()){  //If it is ok, skip all checks
+      //
       if(isACoreCell) {
 	if((cell->provenance() & 0x0A00) == 0x0A00) { 
 	  iflag |= ( 0x1 << xAOD::EgammaParameters::MissingFEBCellCore);
@@ -352,9 +358,8 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
 	  iflag |= ( 0x1 << xAOD::EgammaParameters::HighQEdge);
 	}
       }
-    }  // end loop over cells
+    }// end loop over LAr cells
     //====================================================================================================================//
-
     //==== Set LArQCleaning bit ===============//
     double egammaLArQCleaning=0;
     if(totE !=0) egammaLArQCleaning=badE/totE;
@@ -369,7 +374,6 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
       iflag |= (0x1 << xAOD::EgammaParameters::HighRcell);
     }
     //=========================================//
-    
   } //close if found central cell
   
   //========================= Check the HV components ===================================================//
@@ -390,7 +394,6 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   bool checkDEADHV_PSB = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
   if(checkNNHV_PSE || checkNNHV_PSB)      iflag |= ( 0x1 << xAOD::EgammaParameters::NonNominalHVPS); 
   if(checkDEADHV_PSE || checkDEADHV_PSB)  iflag |= ( 0x1 << xAOD::EgammaParameters::DeadHVPS);
-
 
   //---------------> SAMPLING 2 : CLUSTER CORE
   layer=CaloSampling::EMB2;
@@ -480,8 +483,10 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   return StatusCode::SUCCESS;
 }
 
-bool egammaOQFlagsBuilder::isbadtilecell ( CaloCellList& ccl, const float clusterEta, const float clusterPhi, 
-					   const double sizeEta, const double sizePhi ,const CaloSampling::CaloSample sample) const {
+bool egammaOQFlagsBuilder::isbadtilecell ( CaloCellList& ccl, const float clusterEta, 
+					   const float clusterPhi, 
+					   const double sizeEta, const double sizePhi ,
+					   const CaloSampling::CaloSample sample) const {
 
   bool isbadtilecell = false;
   ccl.select(clusterEta,clusterPhi,sizeEta,sizePhi,sample);

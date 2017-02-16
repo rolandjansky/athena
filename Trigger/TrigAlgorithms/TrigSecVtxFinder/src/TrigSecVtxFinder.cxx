@@ -84,7 +84,7 @@ HLT::ErrorCode TrigSecVtxFinder::hltExecute(const HLT::TriggerElement* inputTE, 
 
   // ====== get RoI descriptor =========
   const TrigRoiDescriptor* roiDescriptor = 0;
-  if (getFeature(inputTE, roiDescriptor) == HLT::OK) {
+  if ((getFeature(inputTE, roiDescriptor) == HLT::OK) && roiDescriptor) {
     if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Using inputTE: " 
 	    << "RoI id " << roiDescriptor->roiId()
@@ -352,7 +352,7 @@ HLT::ErrorCode TrigSecVtxFinder::getJetDirection(CLHEP::HepLorentzVector& jetDir
 
   //* Get the updated RoI descriptor *//
   const TrigRoiDescriptor* roiDescriptor = 0;
-  if (getFeature(inputTE, roiDescriptor) == HLT::OK) {
+  if ((getFeature(inputTE, roiDescriptor) == HLT::OK) && roiDescriptor) {
     if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Using inputTE: " << "RoI id " << roiDescriptor->roiId()
 	    << ", Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endreq;

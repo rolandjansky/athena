@@ -6,13 +6,20 @@ echo "args: $*"
 
 BASEDIR=/afs/cern.ch/user/s/sutt/public
 
-for FILE in $BASEDIR/TIDAWeb/TIDAV/{style.css,index.php}; do
+
+# copy basic web page information 
+
+for FILE in style.css index.php; do
+  echo "checking file $FILE"
   if [ ! -e $FILE ]; then 
-      cp  $FILE .
+    cp  $BASEDIR/TIDAWeb/TIDAV/$FILE .
   fi
 done
 
-
+echo 
+echo "copy reference file and run comparitor"
+echo
+ 
 BASEREFDIR=$BASEDIR/TrigInDetValidationReference
 
 if [ -e TrkNtuple-0000.root ]; then 
@@ -27,19 +34,45 @@ if [ -e TrkNtuple-0000.root ]; then
 
     echo "fetching reference files from $REFDIR"
      
-    REFFILE=$REFDIR/$2
+
+    EXPERT=$(grep expert $2) 
+
+    # if expert timing histos
+    if [ "x$EXPERT" != "x" ]; then 
+      REFFILE=$REFDIR/expert/$2
+    else
+      REFFILE=$REFDIR/$2
+    fi
 
     if [ -e  $REFFILE ]; then 
       echo "copying $REFFILE" 
-      cp $REFFILE .
+
+      LOCALFILE=$(basename $REFFILE)
+
+      # don;t bother to copy it if it already exists in this directory
+      if [ ! -e $LOCALFILE ]; then 
+         cp $REFFILE .
+      fi
 
       ls -l
 
-      echo
-      echo "running comparitor " `date`
-      echo
+      if [ "x$EXPERT" == "x" ]; then 
 
-      TIDAcomparitor.exe $*
+        echo
+        echo "running comparitor " `date`
+        echo
+
+        TIDAcomparitor.exe $*
+
+      else
+
+        echo
+        echo "running cpucost " `date`
+        echo
+
+        TIDAcpucost.exe $*
+
+      fi
 
     else
       echo "no reference file $REFFILE" 

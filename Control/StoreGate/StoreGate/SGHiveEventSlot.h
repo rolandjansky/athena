@@ -8,7 +8,7 @@
  *  @brief A structure created by HiveMgrSvc and used by SGHiveStoreSvc
  *  to forward the StoreGateSvc method to a thread-specific SGImplSvc
  *
- *  $Id: SGHiveEventSlot.h 794854 2017-01-31 23:34:36Z leggett $
+ *  $Id: SGHiveEventSlot.h 794852 2017-01-31 23:24:04Z leggett $
  **/
 #include <mutex>
 #include <memory>

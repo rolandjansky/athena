@@ -35,10 +35,10 @@ using namespace InDetDD;
 
 // Constructor with parameters:
 PixelBarrelBichselChargeTool::PixelBarrelBichselChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
-	SubChargesTool(type,name,parent),
-	m_numberOfSteps(50),
-	m_numberOfCharges(10),
-	m_diffusionConstant(.007),
+  SubChargesTool(type,name,parent),
+  m_numberOfSteps(50),
+  m_numberOfCharges(10),
+  m_diffusionConstant(.007),
   m_doBichsel(false),
   //m_doBichselMomentumCut(1000.),     // need to change to beta-gamma cut
   m_doBichselBetaGammaCut(0.1),        // replace momentum cut
@@ -65,9 +65,9 @@ PixelBarrelBichselChargeTool::PixelBarrelBichselChargeTool(const std::string& ty
   h_timer_diffuse(0),
   h_hitCategory(0)
 { 
-	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelBarrel");
-	declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelBarrel");
-	declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for PixelBarrel");
+  declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelBarrel");
+  declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelBarrel");
+  declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for PixelBarrel");
   declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
   //declareProperty("doBichselMomentumCut", m_doBichselMomentumCut, "minimum MOMENTUM for particle to be re-simulated through Bichsel Model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
@@ -81,9 +81,7 @@ PixelBarrelBichselChargeTool::PixelBarrelBichselChargeTool(const std::string& ty
 class DetCondCFloat;
 
 // Destructor:
-PixelBarrelBichselChargeTool::~PixelBarrelBichselChargeTool()
-{
-}
+PixelBarrelBichselChargeTool::~PixelBarrelBichselChargeTool() { }
 
 //----------------------------------------------------------------------
 // Initialize
@@ -192,20 +190,21 @@ StatusCode PixelBarrelBichselChargeTool::finalize() {
     f_output->Write();
   }
 
-  ATH_MSG_DEBUG ( "PixelBarrelBichselChargeTool::finalize()");
+  ATH_MSG_DEBUG("PixelBarrelBichselChargeTool::finalize()");
   return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // charge
 //----------------------------------------------------------------------
-StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
-		  SiChargedDiodeCollection& chargedDiodes,
-		  const InDetDD::SiDetectorElement &Module)
-{
+StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
 #ifdef __BICHSEL_TIMER__
   auto timer_execute_start = std::chrono::high_resolution_clock::now();
 #endif
+
+  if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
+  const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
+  if (p_design->getReadoutTechnology()!=InDetDD::PixelModuleDesign::FEI3) { return StatusCode::SUCCESS; }
 
   ATH_MSG_DEBUG("Applying PixelBarrel charge processor");
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());

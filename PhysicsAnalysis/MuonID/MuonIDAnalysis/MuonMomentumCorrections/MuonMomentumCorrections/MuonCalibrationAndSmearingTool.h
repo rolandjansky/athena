@@ -10,6 +10,9 @@
 
 // ROOT include(s)
 #include "TRandom3.h"
+#include "TH3F.h"
+#include "TProfile2D.h"
+#include "TFile.h"
 
 // C++ include(s)
 #include <boost/unordered_map.hpp>
@@ -24,7 +27,7 @@
 #define EPSILON 1.0E-6
 #define DEFAULT_INIT_VAL -999
 #define MCAST_MAX_PT 100000000
-
+#define MZPDG 91.1876 
 
 namespace CP {
 
@@ -36,6 +39,8 @@ namespace MCAST {
   namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
   namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
+  namespace SagittaCorType { enum { CB=0, ID=1, ME=2, WEIGHTS=3, AUTO=4}; }
+  namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2}; }
 
 }
 
@@ -49,9 +54,12 @@ public:
 
   //::: Constructor
   MuonCalibrationAndSmearingTool( const std::string& name );
-
+  
   //::: Copy constructor
   MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool );
+
+  //::: Destructor
+  virtual ~MuonCalibrationAndSmearingTool();
 
   virtual StatusCode initialize();
 
@@ -70,8 +78,30 @@ public:
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
   // Set seed for the random number generator
   void setRandomSeed( unsigned seed = 0 ) { m_random3.SetSeed( seed ); m_useExternalSeed = true;}
+  virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
+  virtual double expectedResolution( const int DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
+
+
   double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
   double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
+
+ 
+  virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle, 
+                                               const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
+					       int charge,
+                                               AmgVector(5)& parsCB,
+                                               AmgSymMatrix(5)& covCB,
+                                               double& chi2);
+  virtual CorrectionCode applyStatCombination( xAOD::Muon& mu );  
+
+  virtual void setUseStatCombination(bool flag); 
+  
+  virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType,xAOD::Muon& mu,bool isMC=false,const unsigned int SytCase=0);
+ 
+  virtual  CorrectionCode CorrectForCharge(double p2,double& pt,int q=0, bool isMC=false);
+  virtual  CorrectionCode applyiSagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu,unsigned int iter=0,bool stop=false,bool isMC=false);
+ 
+
 
 protected:
   //::: Regions helpers 
@@ -101,14 +131,22 @@ protected:
   StatusCode SetAlgorithm( std::string );
   StatusCode SetRelease( std::string );
   StatusCode SetType( std::string );
+  
+  virtual unsigned int setSagittaHistogramsSingle(TProfile2D *pCB=NULL,unsigned int track=0);
+  virtual  double  sagitta(TProfile2D* corrM, TLorentzVector &lv);
+  
+  virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
+  virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
 
-//private:
+  //private:
   //::: fake assignment operator missing actual implementation
   MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& );
   struct ParameterSet { 
     double SmearTypeID; 
     double SmearTypeMS; 
     double Scale; 
+    double SagittaRho;
+    double SagittaBias;
   };
   mutable TRandom3   m_random3;
   bool               m_useExternalSeed;
@@ -155,8 +193,22 @@ protected:
 
   int m_scaleRegion;
 
+ 
+  
   boost::unordered_map< SystematicSet, ParameterSet > m_Parameters;
   ParameterSet *m_currentParameters;
+  
+  double m_StatCombPtThreshold;
+  bool m_useStatComb;
+  
+  std::vector <TProfile2D*> *m_sagittasCB;
+  std::vector <TProfile2D*> *m_sagittasID;
+  std::vector <TProfile2D*> *m_sagittasME;
+
+  bool m_doSagittaCorrection;
+  std::vector <double> m_GlobalZScales;
+  std::vector <unsigned int > m_SagittaIterations;
+  
 
 }; //::: class MuonCalibrationAndSmearingTool
 

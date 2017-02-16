@@ -20,6 +20,7 @@ from exc2string import exc2string2
 from TriggerMenu.menu.ChainDef import ErrorChainDef
 import os, inspect
 
+from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 # TrigEFHLTJetMassDEta_Config = __import__("TrigHLTJetHypo.TrigEFHLTJetMassDEtaConfig",fromlist=[""])
 
 
@@ -206,17 +207,13 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
     # adding LoF sequence
     if ('noiso' not in topoAlgs):
         # create a dummy roi and get full calo
-        from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
-        theDummyRoiCreator = DummyAlgo('RoiCreator')
+        fullScanSeqMap = getFullScanCaloSequences()
+        
+        theChainDef.addSequence(fullScanSeqMap['EF_full'][0],'', 'EF_full')
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, ['EF_full'])
 
-        from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo    
-        theTrigCaloCellMaker_jet_fullcalo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo", doNoise=0, AbsE=True, doPers=True)
-
-        theChainDef.addSequence(theDummyRoiCreator,'', 'EF_full_roi')
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, ['EF_full_roi'])
-
-        theChainDef.addSequence(theTrigCaloCellMaker_jet_fullcalo,'EF_full_roi', 'EF_full_cell')
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, ['EF_full_cell'])
+        theChainDef.addSequence(fullScanSeqMap['EF_full_cell'][0],'EF_full', 'EF_full_cell')
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, ['EF_full'])
 
         # adding beam halo removal sequence
         theChainDef.addSequence(theBHremoval, ['EF_full_cell',TE_LogRatioCut],TE_LogRatioCut_Fcalo)

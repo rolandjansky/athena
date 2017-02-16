@@ -62,17 +62,15 @@ class CombinedP4FromRecoTaus
 
   //Calculates the optimal tau 4-vector
   TLorentzVector getCombinedP4(const xAOD::TauJet* tau);
-  // move these to another file? :
-  TLorentzVector getCalibratedTauRecP4(const xAOD::TauJet* tau);
-  TLorentzVector getCalibratedConstituentP4(const xAOD::TauJet* tau);
-  TLorentzVector getWeightedP4(const xAOD::TauJet* tau);
 
   // Get the enum-value for eta corresponding to the eta value
   int GetIndex_Eta(float eta);
   float GetNsigma_Compatibility(float et_TauRec);  
 
+  //high pt flag
   double GetCaloResolution(const xAOD::TauJet* tau);
   bool GetUseCaloPtFlag(const xAOD::TauJet* tau);
+
   StatusCode execute(xAOD::TauJet& xTau); 
 
  private:
@@ -96,7 +94,8 @@ class CombinedP4FromRecoTaus
   bool m_addUseCaloPtFlag;
   bool m_tauRecEt_takenAs_combinedEt;
   double m_weight, m_combined_res, m_sigma_tauRec, m_sigma_constituent, m_corrcoeff;
-
+  double m_et_cb2PT_postcalib, m_et_postcalib, m_et_weighted;
+    
   std::string m_sWeightFileName;
   TF1 m_Nsigma_compatibility;
 };

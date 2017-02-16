@@ -59,6 +59,12 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 
+#ifdef SG_DEPRECATION_WARNINGS
+# define SG_DEPRECATED __attribute__((deprecated))
+#else
+# define SG_DEPRECATED
+#endif
+
 //forward declarations
 namespace SG {
   class DataProxy;
@@ -856,7 +862,6 @@ public:
 private:
 
   SGImplSvc* m_defaultStore;
-  std::string m_defaultStoreName; ///< property
   ServiceHandle<IProxyProviderSvc> m_pPPSHandle; ///< property
   ServiceHandle<IIncidentSvc> m_incSvc; ///< property
   mutable std::recursive_mutex m_recMutex; ///< to lock det store accesses
@@ -1002,34 +1007,34 @@ public:
   //@{
   /// DEPRECATED: Retrieve the default object into a const DataHandle
   template <typename T> 
-  StatusCode __attribute__((deprecated)) retrieve(const DataHandle<T>& handle);
+  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& handle);
 
   /// DEPRECATED: Retrieve the default object into a DataHandle
   template <typename T> 
-  StatusCode __attribute__((deprecated)) retrieve(DataHandle<T>& handle);
+  StatusCode SG_DEPRECATED retrieve(DataHandle<T>& handle);
 
   /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
   template <typename T, typename TKEY> 
-  StatusCode __attribute__((deprecated)) retrieve(const DataHandle<T>& handle, const TKEY& key);
+  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& handle, const TKEY& key);
   /// DEPRECATED: Retrieve an object with "key", into a DataHandle
   template <typename T, typename TKEY> 
-  StatusCode __attribute__((deprecated)) retrieve(DataHandle<T>& handle, const TKEY& key);
+  StatusCode SG_DEPRECATED retrieve(DataHandle<T>& handle, const TKEY& key);
 
   /// DEPRECATED Retrieve all objects of type T: use iterators version instead
   template <typename T> 
-  StatusCode __attribute__((deprecated)) retrieve(const DataHandle<T>& begin, 
+  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& begin, 
                                                   const DataHandle<T>& end);
   /// DEPRECATED, use version taking ref to vector
   template <typename T>
   std::vector<std::string> //FIXME inefficient. Should take ref to vector
-  __attribute__((deprecated)) keys(bool allKeys = false); 
+  SG_DEPRECATED keys(bool allKeys = false); 
  
   /// DEPRECATED, use version taking ref to vector
   std::vector<std::string> //FIXME inefficient. Should take ref to vector 
-  __attribute__((deprecated)) keys(const CLID& id, bool allKeys = false);
+  SG_DEPRECATED keys(const CLID& id, bool allKeys = false);
 
   /// DEPRECATED:  use recordAddress instead
-  StatusCode __attribute__((deprecated)) createProxy(IOpaqueAddress* pAddress, bool clearAddressFlag=true) {
+  StatusCode SG_DEPRECATED createProxy(IOpaqueAddress* pAddress, bool clearAddressFlag=true) {
     return recordAddress(pAddress, clearAddressFlag);
   }  
 
@@ -1037,13 +1042,13 @@ public:
   /// see tools/StorableConversion.h for replacement
   template <typename T>
   static 
-  DataObject* __attribute__((deprecated)) asStorable(T* pDObj);
+  DataObject* SG_DEPRECATED asStorable(T* pDObj);
 
   /// DEPRECATED gets a dobj pointer from a bucket as appropriate
   /// see tools/StorableConversion.h for replacement
   template <typename T>
   static 
-  bool __attribute__((deprecated)) fromStorable(DataObject* pObject, T*& pData);
+  bool SG_DEPRECATED fromStorable(DataObject* pObject, T*& pData);
 
   //@}
 

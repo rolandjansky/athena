@@ -1,4 +1,5 @@
 <lcgdict>
+   <class name="CP::IMuonSelectionTool" />
    <class name="CP::MuonSelectionTool" />
    <exclusion>
      <class name="SG::IConstAuxStore"/>

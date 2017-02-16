@@ -846,41 +846,95 @@ FitMatrices::avoidMomentumSingularity(void)
 bool
 FitMatrices::solveEquationsEigen(void)
 {
-    //  Note: matrix multiplication uses for loops from struct
-    //        with indices optimised for sparse DerivativeMatrix
-    //  first loop to fill off-diagonal symmetric weight matrix
+    // default is to use Eigen multiplication (ATR-15723) as proposed by Stewart Martin-Haugh
     Amg::MatrixX& weight		= *m_weight;
-    for (int row = 0; row < m_columnsDM; ++row)
-    {
-	for (int col = 0; col < row; ++col)
-	{
-	    double element = 0.;
-	    int iBegin	= m_firstRowForParameter[col];
-	    if (iBegin	< m_firstRowForParameter[row]) iBegin	= m_firstRowForParameter[row];
-	    int iEnd	= m_lastRowForParameter[col];
-	    if (iEnd	> m_lastRowForParameter[row]) iEnd	= m_lastRowForParameter[row];
-	    for (int i = iBegin; i < iEnd; ++i)
-		element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
-	    weight(row,col) = element;
-	    weight(col,row) = element;
-	}
-    }
-
-    //  second loop fills diagonal and weightedDifference vector
     Amg::VectorX& weightedDifference	= *m_weightedDifference;
-    for (int row = 0; row < m_columnsDM; ++row)
+
+    // useMatrixLoops && useSparseCode = true  gives code as for tags 00-13-19 and lower
+    bool useMatrixLoops = false;
+    if (useMatrixLoops)
     {
-	double element	= 0.;
-	double residual	= 0.;
-	for (int i = m_firstRowForParameter[row]; i < m_lastRowForParameter[row]; ++i)
+	bool useSparseCode  = true;
+	
+	// matrix multiplication using for loops from struct
+	if (useSparseCode)
 	{
-	    element	+= fitMatrix.derivative[i][row] * fitMatrix.derivative[i][row];
-	    residual	+= (*m_residuals)[i] * fitMatrix.derivative[i][row];
+	    //  here the indices are optimised for the sparse DerivativeMatrix
+	    //  first loop fills off-diagonal terms in symmetric weight matrix
+	    for (int row = 0; row < m_columnsDM; ++row)
+	    {
+		for (int col = 0; col < row; ++col)
+		{
+		    double element = 0.;
+		    int iBegin	= m_firstRowForParameter[col];
+		    if (iBegin	< m_firstRowForParameter[row]) iBegin	= m_firstRowForParameter[row];
+		    int iEnd	= m_lastRowForParameter[col];
+		    if (iEnd	> m_lastRowForParameter[row]) iEnd	= m_lastRowForParameter[row];
+		    for (int i = iBegin; i < iEnd; ++i)
+			element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
+		    weight(row,col) = element;
+		    weight(col,row) = element;
+		}
+	    }
+
+	    //  second loop fills diagonal and weightedDifference vector
+	    for (int row = 0; row < m_columnsDM; ++row)
+	    {
+		double element	= 0.;
+		double residual	= 0.;
+		for (int i = m_firstRowForParameter[row]; i < m_lastRowForParameter[row]; ++i)
+		{
+		    element	+= fitMatrix.derivative[i][row] * fitMatrix.derivative[i][row];
+		    residual	+= (*m_residuals)[i] * fitMatrix.derivative[i][row];
+		}
+		weight(row,row)		= element;
+		weightedDifference(row) = residual;
+	    }
 	}
-	weight(row,row)		= element;
-	weightedDifference(row) = residual;
+	else
+	{
+	    // complete (dumb) loops for checking
+	    for (int col = 0; col < m_columnsDM; ++col)
+	    {
+		double residual		 = 0.;
+		for (int i = 0; i <  m_rowsDM; ++i)
+		{
+		    residual		+= (*m_residuals)[i] * fitMatrix.derivative[i][col];
+		}
+		weightedDifference(col)	 = residual;
+	    
+		for (int row = 0; row < m_columnsDM; ++row)
+		{
+		    double element 	 = 0.;
+		    for (int i = 0; i <  m_rowsDM; ++i)
+		    {
+			element	+= fitMatrix.derivative[i][col] * fitMatrix.derivative[i][row];
+		    }
+		    weight(col,row)	 = element;
+		}
+	    }
+	}
+    }
+    else
+    {
+	// use Eigen Matrix multiplication ATR-15723
+	// note: fitMatrix (struct) is row-major whereas Eigen prefers column-major storage
+	//       hence the loops are nested to optimise row-major and to form the Eigen transpose
+	Amg::MatrixX fitMatrixDerivativeT(m_columnsDM, m_rowsDM);
+	Amg::MatrixX residuals(m_rowsDM,1);
+	for (int row = 0; row < m_rowsDM; ++row)
+	{
+	    residuals(row,0) = (*m_residuals)[row];
+	    for (int col = 0; col < m_columnsDM; ++col)
+	    {
+		fitMatrixDerivativeT(col,row)	= fitMatrix.derivative[row][col];
+	    }
+	}  
+	weight			= fitMatrixDerivativeT*fitMatrixDerivativeT.transpose();  
+	weightedDifference	= fitMatrixDerivativeT*residuals;
     }
 
+    // stabilize fits with badly determined phi
     if (m_parameters->phiInstability()) weight(0,0) += m_largePhiWeight;
 
     // avoid some possible singularities in matrix inversion
@@ -889,7 +943,7 @@ FitMatrices::solveEquationsEigen(void)
 //    bool debugEigen = false; 
 //    for (int col = 0; col < m_columnsDM; ++col) {
 //      double Eigen = weightedDifference(col);
-//      if(debugEigen) std::cout << " col " << col  << " Eigen weightedDifference input " << Eigen << std::endl;
+//      if(debugEigen) std::cout << " col " << col  << " Eigen weightedDifference input " << Eigen << " weight " << weight(col,col) << std::endl;
 //    }
  
     // solve is faster than inverse: wait for explicit request for covariance before inversion

@@ -295,6 +295,7 @@ namespace MuonCombined {
     double m_mdttBetaAssociationCut;    
     double m_rpcBetaAssociationCut;    
     double m_segmentBetaAssociationCut;    
+    bool m_ignoreSiAssocated;
   };
 }
 

@@ -37,6 +37,7 @@ const uint16_t MAX_AMPL = 4095; // 12-bit ADC
 CscDigitToCscRDOTool::CscDigitToCscRDOTool
 (const std::string& type,const std::string& name,const IInterface* pIID)
   : AthAlgTool(type, name, pIID), 
+    m_rdoContainer("CSCRDO"),
     m_cscCablingSvc("CSCcablingSvc", name),
     m_cscCalibTool("CscCalibTool"),
     m_rndmSvc("AtRndmGenSvc", name ),
@@ -79,11 +80,8 @@ StatusCode CscDigitToCscRDOTool::initialize()
     ATH_MSG_DEBUG ( " Found the CscIdHelper. " );
   }
   
-  // create an empty Rdo container and record it
-  m_rdoContainer = new CscRawDataContainer();
-  m_rdoContainer->addRef();
   
-  /** CSC calibratin tool for the Condtiions Data base access */
+  /** CSC calibration tool for the Condtiions Data base access */
   if ( m_cscCalibTool.retrieve().isFailure() ) {
     ATH_MSG_ERROR ( "Can't get handle on CSC calibration tools" );
     return StatusCode::FAILURE;
@@ -113,6 +111,7 @@ StatusCode CscDigitToCscRDOTool::initialize()
   m_numberOfIntegration =
     static_cast<uint16_t>(m_cscCalibTool->getNumberOfIntegration()); //12
 
+  ATH_CHECK( m_rdoContainer.initialize() );
   
   return StatusCode::SUCCESS;
 }
@@ -121,11 +120,10 @@ StatusCode CscDigitToCscRDOTool::digitize()
 {
   ATH_MSG_DEBUG ( "in execute()" );
 
-  m_rdoContainer->cleanup();
   m_activeStore->setStore( &*evtStore() );
-  std::string key = "CSCRDO";
-  if ( evtStore()->record(m_rdoContainer,key).isFailure())
-    ATH_MSG_ERROR ( "Fail to record CSC RDo container in TDS" );
+  
+
+  ATH_CHECK( m_rdoContainer.record(std::unique_ptr<CscRawDataContainer>(new CscRawDataContainer())) );
 
   if ( fill_CSCdata().isFailure() )
     ATH_MSG_ERROR ( " CscDigitToCscRdo failed to execute " );
@@ -138,7 +136,6 @@ StatusCode CscDigitToCscRDOTool::digitize()
 StatusCode CscDigitToCscRDOTool::finalize() {
  
   ATH_MSG_INFO ( "in finalize()" );
-   m_rdoContainer->release();
    
   return StatusCode::SUCCESS;
 }
@@ -548,8 +545,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
       for (unsigned int i=0; i<10; ++i) (itM->second)->set_spuCount(i,clusterCounts[i]);
 
       /** save collections into StoreGate */
-      if ( m_rdoContainer->addCollection(itM->second, itM->first).isFailure())
-	ATH_MSG_ERROR ( "Unable to record CSC RDO in IDC" );
+      ATH_CHECK( m_rdoContainer->addCollection(itM->second, itM->first) );
   }
   ATH_MSG_DEBUG ( "Added RDOs to the RdoContainer" );
   

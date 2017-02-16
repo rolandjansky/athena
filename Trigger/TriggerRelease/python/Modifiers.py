@@ -1,16 +1,4 @@
-# Copyright (C) 1995-2017 CERN for the benefit of the ATLAS collaboration
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -1421,6 +1409,11 @@ class doValidation(_modifier):
         
     def preSetup(self):
         TriggerFlags.Online.doValidation = True
+<<<<<<< HEAD
+=======
+        # Replace Online with Validation monitoring
+        TriggerFlags.enableMonitoring = filter(lambda x:x!='Online', TriggerFlags.enableMonitoring())+['Validation']
+>>>>>>> origin/svn-sweep-2015-02-15
         for m in self.modifiers: m.preSetup()
         
     def postSetup(self):
@@ -1545,7 +1538,11 @@ class enableCostMonitoring(_modifier):
     Enable Cost Monitoring for online
     """
     def preSetup(self):
+<<<<<<< HEAD
         TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecL2','CostExecEF','CostExecHLT']
+=======
+        TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecHLT']
+>>>>>>> origin/svn-sweep-2015-02-15
 
     def postSetup(self):
         from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost

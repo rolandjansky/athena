@@ -12,6 +12,7 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/MatchingTool.h"
 #include "TrigDecisionTool/FeatureContainer.h"
+#include "TrigDecisionTool/Conditions.h"
 
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 
@@ -25,7 +26,7 @@ namespace ST {
 
   const static SG::AuxElement::Decorator<int> dec_trigmatched("trigmatched");
 
-bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber) {
+bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) const {
 
   //Returns MET trigger decision for recommended lowest unprescaled evolution described in 
   //https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LowestUnprescaled#Jets_MET_Jet_MET_HT
@@ -40,16 +41,46 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber) {
     rn = GetRunNumber(); //it takes care of dealing with data and MC
   }
 
-  if(rn < 290000)                        return IsMETTrigPassed("HLT_xe70_mht"); //2015
-  else if(rn >= 296939 && rn <= 302872 ) return IsMETTrigPassed("HLT_xe90_mht_L1XE50"); //2016 A-D3
-  else if(rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50"); //2016 D4-F1
-  else if(rn >= 303943 )                 return IsMETTrigPassed("HLT_xe110_mht_L1XE50"); //2016 F2-(open) . Fallback to previous chain for simulation, as xe110 is not in the menu
+  if(rn < 290000)                        return IsMETTrigPassed("HLT_xe70_mht",j400_OR); //2015
+  else if(rn >= 296939 && rn <= 302872 ) return IsMETTrigPassed("HLT_xe90_mht_L1XE50",j400_OR); //2016 A-D3
+  else if(rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50",j400_OR); //2016 D4-F1
+  else if(rn >= 303943 )                 return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) . Fallback to previous chain for simulation, as xe110 is not in the menu
 
   return false; 
 }
 
-// Can't be const because of the lazy init of the map
-bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName) {
+// Can't be const because of the lazy init of the map - JBurr: Now fixed
+bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName, bool j400_OR) const {
+  // NB - this now applies to the entire function...
+  //std::string L1item = "L1_XE50"; For now, I'll assume all the triggers use L1_XE50 - might need changing in the future.
+
+  // First check if we're affected by the L1_XE50 bug
+  bool L1_XE50 = m_trigDecTool->isPassed("L1_XE50");
+  bool HLT_noalg_L1J400 = m_trigDecTool->isPassed("HLT_noalg_L1J400");
+  if (!L1_XE50 && j400_OR && HLT_noalg_L1J400) {
+    return m_emulateHLT(triggerName);
+  }
+  else if (L1_XE50) {
+    // See if the TDT knows about this
+    if (m_isTrigInTDT(triggerName) ) return m_trigDecTool->isPassed(triggerName);
+    else return m_emulateHLT(triggerName);
+  }
+  return false;
+}
+
+bool SUSYObjDef_xAOD::m_isTrigInTDT(const std::string& triggerName) const {
+  auto mapItr = m_checkedTriggers.find(triggerName);
+  if ( mapItr == m_checkedTriggers.end() ) {
+    auto cg = m_trigDecTool->getChainGroup(triggerName);
+    return m_checkedTriggers[triggerName] = cg->getListOfTriggers().size() != 0;
+  }
+  else {
+    return mapItr->second;
+  }
+}
+
+
+bool SUSYObjDef_xAOD::m_emulateHLT(const std::string& triggerName) const {
   // First, check if we've already tried using this trigger
   auto funcItr = m_metTriggerFuncs.find(triggerName);
   if (funcItr != m_metTriggerFuncs.end() )
@@ -61,18 +92,8 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName) {
     return false;
   }
 
-  // Next, check if the TDT knows about it
-  auto cg = m_trigDecTool->getChainGroup("HLT_xe.*");
-  for (const std::string& cgTrigName : cg->getListOfTriggers() ) {
-    if (cgTrigName == triggerName) {
-      m_metTriggerFuncs[triggerName] = [this, triggerName] () {return m_trigDecTool->isPassed(triggerName); };
-      return m_metTriggerFuncs.at(triggerName)();
-    }
-  }
   // Next, parse the name to work out which containers are needed to emulate the decision
-
   std::vector<std::pair<int, std::string> > hypos; // algorithms and thresholds needed
-  //std::string L1item = "L1_XE50"; For now, I'll assume all the triggers use L1_XE50 - might need changing in the future.
   std::string temp(triggerName);
   // Note, we need to split on '_AND_' used for the combined mht+cell trigger
   do {
@@ -84,7 +105,7 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName) {
     else
       temp = temp.substr(pos + 5);
 
-    std::regex expr("HLT_xe([[:digit:]]+)_?(mht|tc_lcw_pufit|tc_lcw_pueta|tc_lcw|)_?(?:L1XE([[:digit:]]+)|)");
+    std::regex expr("HLT_xe([[:digit:]]+)_?(mht|pufit|pueta|tc_lcw|)_?(?:L1XE([[:digit:]]+)|)");
     std::smatch sm;
     if (!std::regex_match(itemName, sm, expr) ) {
       ATH_MSG_WARNING( "Regex reading for item " << itemName << " (" << triggerName << ") failed! Will be ignored!" );
@@ -102,41 +123,54 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName) {
     std::string metContBaseName = "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET";
     if (algKey == "") hypos.push_back(std::make_pair(threshold, metContBaseName) );
     else if (algKey == "mht") hypos.push_back(std::make_pair(threshold, metContBaseName+"_mht") );
-    else if (algKey == "tc_lcw_pufit") hypos.push_back(std::make_pair(threshold, metContBaseName+"_topocl_PUC") );
-    else if (algKey == "tc_lcw_pueta") hypos.push_back(std::make_pair(threshold, metContBaseName+"_topocl_PS") );
+    else if (algKey == "pufit") hypos.push_back(std::make_pair(threshold, metContBaseName+"_topocl_PUC") );
+    else if (algKey == "pueta") hypos.push_back(std::make_pair(threshold, metContBaseName+"_topocl_PS") );
     else if (algKey == "tc_lcw") hypos.push_back(std::make_pair(threshold, metContBaseName+"topocl") );
 
     ATH_MSG_DEBUG( "Container: " << hypos.back().second << ", Threshold: " << hypos.back().first );
    
     if (sm[3] != "" && sm[3] != "50") {
       ATH_MSG_WARNING( "The trigger requires a different L1 item to L1_XE50! This currently isn't allowed for in the code so the emulation will be slightly wrong" );
+      // Note, now the L1 part is done in the previous section. However I'm keeping this warning here.
     }
   }
   while (!temp.empty() );
 
   // Check if we have the containers and construct the lambda
-  std::function<bool()> lambda = [this] () {return m_trigDecTool->isPassed("L1_XE50"); };
-  if (hypos.size() == 0) lambda = [] () {return false;};
+  // Already done the L1 decision - only care about HLT
+  std::function<bool()> lambda;
   bool hasRequired = true;
-  for (const auto& pair : hypos) {
-    if (evtStore()->contains<xAOD::TrigMissingETContainer>(pair.second) ) {
-      lambda = [this, lambda, pair] () {
-        if (!lambda() ) return false;
-        const xAOD::TrigMissingETContainer* cont(0);
-        if (evtStore()->retrieve(cont, pair.second) ) {
-          float ex = cont->front()->ex() * 0.001;
-          float ey = cont->front()->ey() * 0.001;
-          float met = sqrt(ex*ex + ey*ey);
-          return met > pair.first;
+  if (hypos.size() == 0) lambda = [] () {return false;};
+  else { 
+    for (const auto& pair : hypos) {
+      if (evtStore()->contains<xAOD::TrigMissingETContainer>(pair.second) ) {
+        auto lambda_hypo = [this, pair] () {
+          const xAOD::TrigMissingETContainer* cont(0);
+          if (evtStore()->retrieve(cont, pair.second) ) {
+            if (!cont->size()) return false;
+            float ex = cont->front()->ex() * 0.001;
+            float ey = cont->front()->ey() * 0.001;
+            float met = sqrt(ex*ex + ey*ey);
+            return met > pair.first;
+          }
+          else {
+            return false;
+          }
+        };
+        // an empty std::function evaluates to false
+        if (lambda) {
+          lambda = [lambda, lambda_hypo] () {
+            return lambda() && lambda_hypo();
+          };
         }
         else {
-          return false;
+          lambda = lambda_hypo;
         }
-      };
-    }
-    else {
-      hasRequired = false;
-      ATH_MSG_WARNING( "Container: " << pair.second << " missing!" );
+      }
+      else {
+        hasRequired = false;
+        ATH_MSG_WARNING( "Container: " << pair.second << " missing!" );
+      }
     }
   }
   if (hasRequired) {
@@ -146,12 +180,12 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName) {
   // We can't get the exact trigger decision :( . Look for an alternative
   std::vector<std::string> replacementTriggers({"HLT_xe110_mht_L1XE50", "HLT_xe100_mht_L1XE50", "HLT_xe90_mht_L1XE50", "HLT_xe70_mht"});
   for (const std::string& trigName : replacementTriggers) {
-    for (const std::string& cgTrigName : cg->getListOfTriggers() ) {
-      if (trigName == cgTrigName) {
-        ATH_MSG_WARNING( "Trigger " << triggerName << " not available and direct emulation impossible! Will use " << trigName << " instead!");
-        m_metTriggerFuncs[triggerName] = std::function<bool()>([this, trigName] () { return m_trigDecTool->isPassed(trigName); });
-        return m_metTriggerFuncs.at(triggerName)();
-      }
+    if (m_isTrigInTDT(trigName) ) {
+      ATH_MSG_WARNING( "Trigger " << triggerName << " not available and direct emulation impossible! Will use " << trigName << " instead!");
+      m_metTriggerFuncs[triggerName] = [this, trigName] () { 
+        return m_trigDecTool->isPassed(trigName);
+      };
+      return m_metTriggerFuncs.at(triggerName)();
     }
   }
   ATH_MSG_ERROR( "Cannot find the trigger in the menu, direct emulation is impossible and no replacement triggers are available! Will return false" );

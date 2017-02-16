@@ -62,6 +62,13 @@ class ThinNegativeEnergyCaloClusters(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
+
+class ThinNegativeEnergyNeutralPFOs(JobProperty):
+    """ If True, add ThinNegativeEnergyNeutralPFOs
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
     
 class Muon(JobProperty):
     """ If True, add Muon
@@ -275,6 +282,7 @@ _list_AOD=[ \
     Photon,Electron,egammaTrackSlimmer, \
     ThinGeantTruth, \
     ThinNegativeEnergyCaloClusters, \
+    ThinNegativeEnergyNeutralPFOs, \
     Muon,MuonTrackSlimmer, \
     Tau,TauTrackSlimmer, \
     TrackParticleSlimmer, TrackParticleLastHitAndPerigeeSlimmer, \

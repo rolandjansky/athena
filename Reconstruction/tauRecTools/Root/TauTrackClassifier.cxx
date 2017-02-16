@@ -94,7 +94,16 @@ StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
   xTau.setCharge(charge);
   xTau.setDetail(xAOD::TauJetParameters::nChargedTracks, (int) xTau.nTracks());
   xTau.setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) xTau.nTracks(xAOD::TauJetParameters::classifiedIsolation));
-  
+
+  //set modifiedIsolationTrack
+  for (xAOD::TauTrack* xTrack : vTracks) {
+    if( not xTrack->flag(xAOD::TauJetParameters::classifiedCharged) and 
+	xTrack->flag(xAOD::TauJetParameters::passTrkSelector) ) xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, true);
+    else xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, false);
+  }
+  xTau.setDetail(xAOD::TauJetParameters::nModifiedIsolationTracks, (int) xTau.nTracks(xAOD::TauJetParameters::modifiedIsolationTrack));
+
+
   return StatusCode::SUCCESS;
 }
 

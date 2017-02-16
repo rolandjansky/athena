@@ -72,6 +72,7 @@ namespace CP {
   class IMuonTriggerScaleFactors;
 
   class IEgammaCalibrationAndSmearingTool;
+  class IEfficiencyScaleFactorTool;
   class IIsolationSelectionTool;
   class IIsolationCloseByCorrectionTool;
   class IIsolationCorrectionTool;
@@ -213,26 +214,26 @@ namespace ST {
 
     //SF helpers
     //muons
-    float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true) override final;
+    float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true, const bool doBadMuonHP = true, const bool warnOVR = true) override final;
 
     double GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr, const bool isdata = false ) override final;
     //    double GetMuonTriggerEfficiencySF(const xAOD::Muon& mu, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
     double GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) override final;
 
-    double GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr="HLT_mu20_iloose_L1MU15_OR_HLT_mu50") override final;
+    double GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr="HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool bmhptSF = true) override final;
 
-    double GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50") override final;
+    double GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool bmhptSF = true) override final;
 
     //electrons
-    float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") override final;
+    float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", const bool chfSF = false) override final;
 
     double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const override final; 
     double GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const override final;
 
-    float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton") override final; // singleLepton == Ele.TriggerSFStringSingle value
+    float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
 
-    float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton") override final; // singleLepton == Ele.TriggerSFStringSingle value
+    float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
 
     //taus
     double GetSignalTauSF(const xAOD::TauJet& tau, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
@@ -260,8 +261,8 @@ namespace ST {
     double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true) override final;
 
     //Trigger
-    bool IsMETTrigPassed(unsigned int runnumber = 0) override final;
-    bool IsMETTrigPassed(const std::string& triggerName) override final;
+    bool IsMETTrigPassed(unsigned int runnumber = 0, bool j400_OR = false) const override final;
+    bool IsMETTrigPassed(const std::string& triggerName, bool j400_OR = false) const override final;
 
     bool IsTrigPassed(const std::string&, unsigned int condition=TrigDefs::Physics) const override final;
 
@@ -365,7 +366,13 @@ namespace ST {
     //book boolean properties already set
     std::set<std::string> m_bool_prop_set;
 
-    std::map<std::string, std::function<bool()>> m_metTriggerFuncs;
+    // These variables just cache decisions so it's OK to make them mutable
+    // Store trigger emulation functions so they're only setup once
+    mutable std::map<std::string, std::function<bool()>> m_metTriggerFuncs;
+    // Store whether the trigger was in the TDT
+    mutable std::map<std::string, bool> m_checkedTriggers;
+    bool m_emulateHLT(const std::string& triggerName) const;
+    bool m_isTrigInTDT(const std::string& triggerName) const;
 
     //book trigger chains for matching
     std::vector<std::string> v_trigs15_cache_single;
@@ -413,6 +420,7 @@ namespace ST {
     bool m_force_noElId;
     bool m_force_noMuId;
     bool m_doTTVAsf;
+    bool m_muNoTRT;
 
     int m_jesNPset;
     bool m_useBtagging;
@@ -423,6 +431,7 @@ namespace ST {
     std::string m_badJetCut;
 
     std::string m_fatJetUncConfig;
+    std::string m_fatJetUncVars;
 
     bool m_tool_init;
     bool m_subtool_init;
@@ -471,11 +480,14 @@ namespace ST {
     std::string m_tauIdBaseline;
     bool        m_tauMVACalib; //!< Use the MVA calibration for taus
     std::string m_eleIso_WP;
+    std::string m_eleChID_WP;
+    bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonIso_WP;
     std::string m_muIso_WP;
     std::string m_BtagWP;
     std::string m_BtagTagger;
     std::string m_BtagSystStrategy;
+
 
     //configurable cuts here
     double m_eleBaselinePt;
@@ -486,6 +498,8 @@ namespace ST {
     bool   m_eleCrackVeto;
     double m_eled0sig;
     double m_elez0;
+    double m_elebaselined0sig;
+    double m_elebaselinez0;
 
     double m_muBaselinePt;
     double m_muBaselineEta;
@@ -493,6 +507,8 @@ namespace ST {
     double m_muEta;
     double m_mud0sig;
     double m_muz0;
+    double m_mubaselined0sig;
+    double m_mubaselinez0;
     bool m_murequirepassedHighPtCuts;
 
     double m_muCosmicz0;
@@ -515,6 +531,7 @@ namespace ST {
     std::string m_tauConfigPath;
     std::string m_tauConfigPathBaseline;
     bool m_tauDoTTM;
+    bool m_tauRecalcOLR;
 
     double m_jetPt;
     double m_jetEta;
@@ -596,9 +613,11 @@ namespace ST {
 
     //
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+    asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionHighPtTool;
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolBaseline;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencySFTool;
+    asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyBMHighPtSFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonTTVAEfficiencySFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonIsolationSFTool;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool2015;
@@ -610,6 +629,7 @@ namespace ST {
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_trig_diLep;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_trig_mixLep;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_iso;
+    asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_chf;
     //
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_trigEff_singleLep;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_trigEff_diLep;
@@ -624,6 +644,8 @@ namespace ST {
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonIsolationSFTool;
     asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> m_electronPhotonShowerShapeFudgeTool;
     asg::AnaToolHandle<IEGammaAmbiguityTool> m_egammaAmbiguityTool;
+    asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_elecChargeIDSelectorTool;
+    asg::AnaToolHandle<CP::IEfficiencyScaleFactorTool>      m_elecChargeEffCorrTool;
     //
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelToolBaseline;
@@ -671,18 +693,22 @@ namespace ST {
 
   // decorators
   const static SG::AuxElement::Decorator<char> dec_baseline("baseline");
+  const static SG::AuxElement::Decorator<char> dec_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::Decorator<char> dec_signal("signal");
   const static SG::AuxElement::Decorator<char> dec_isol("isol");
   const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
   //    const static SG::AuxElement::Decorator<char> dec_passBaseID("passBaseID");
   const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
   // const static SG::AuxElement::Decorator<double> dec_trigscalefact("trigscalefact");
+  const static SG::AuxElement::Decorator<char> dec_signal_less_JVT("signal_less_JVT"); //!< Decorator for signal jets without a JVT requirement
 
   // const accessors for reading decorations that we set
   const static SG::AuxElement::ConstAccessor<char> acc_baseline("baseline");
+  const static SG::AuxElement::ConstAccessor<char> acc_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::ConstAccessor<char> acc_signal("signal");
   const static SG::AuxElement::ConstAccessor<char> acc_isol("isol");
   const static SG::AuxElement::ConstAccessor<char> acc_passOR("passOR");
+  const static SG::AuxElement::ConstAccessor<char> acc_signal_less_JVT("signal_less_JVT"); //!< Accessor for signal jets without a JVT requirement
   // more decorations that are set externally
   const static SG::AuxElement::ConstAccessor<unsigned int> acc_OQ("OQ");
   const static SG::AuxElement::ConstAccessor<int> acc_truthType("truthType");

@@ -40,6 +40,9 @@ AthAlgorithm(name, pSvcLocator){
   declareProperty("CreateHistory", m_createHistory = true);
   declareProperty("StopCriticalErrors", m_stopCritical=false);
   declareProperty("DelayInitialisation", m_delayInitialisation = false);
+  declareProperty("ZMECorrection", m_ZMECorrection = false);
+  declareProperty("WMECorrection", m_WMECorrection = false);
+  declareProperty("PhotonSplitting", m_photonSplitting = false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,6 +93,9 @@ void Photospp_i::setupPhotos(){
   Photos::setInterference(true);
   Photos::setCorrectionWtForW(true);
   Photos::maxWtInterference(m_maxWtInterference);
+  Photos::setMeCorrectionWtForW(m_WMECorrection);
+  Photos::setMeCorrectionWtForZ(m_ZMECorrection);
+  Photos::setPairEmission(m_photonSplitting);
   Photos::forceMassFrom4Vector(true);
   Photos::forceMassFromEventRecord(13);
   Photos::forceMassFromEventRecord(15);
@@ -97,14 +103,14 @@ void Photospp_i::setupPhotos(){
   Photos::forceMassFromEventRecord(211);
   Photos::setTopProcessRadiation(false);
   Photos::createHistoryEntries(m_createHistory, 3);
- 
+
   if(m_exponentiation){
     Photos::setExponentiation(true);
   }else{
     Photos::setInfraredCutOff(0.01);
     Photos::setDoubleBrem(true);
     Photos::setQuatroBrem(false);
-    phokey_.iexp = 0;
+    phokey.iexp = 0;
   }
   
   // over-ride default IR cutoff if user has set a specific value

@@ -14,9 +14,9 @@ int ReadProcs(pid_t mother_pid, unsigned long values[8], bool verbose){
 
   //Get child process IDs
       std::vector<pid_t> cpids;
-      char smaps_buffer[32];
-      char io_buffer[32];
-      snprintf(smaps_buffer,32,"pstree -A -p %ld | tr \\- \\\\n",(long)mother_pid);
+      char smaps_buffer[64];
+      char io_buffer[64];
+      snprintf(smaps_buffer,64,"pstree -A -p %ld | tr \\- \\\\n",(long)mother_pid);
       FILE* pipe = popen(smaps_buffer, "r");
       if (pipe==0) {
 	if (verbose) 
@@ -54,7 +54,7 @@ int ReadProcs(pid_t mother_pid, unsigned long values[8], bool verbose){
       std::vector<std::string> openFails;
 
       for(std::vector<pid_t>::const_iterator it=cpids.begin(); it!=cpids.end(); ++it) {
-        snprintf(smaps_buffer,32,"/proc/%ld/smaps",(long)*it);
+        snprintf(smaps_buffer,64,"/proc/%ld/smaps",(long)*it);
        
         FILE *file = fopen(smaps_buffer,"r");
         if(file==0) {
@@ -69,7 +69,7 @@ int ReadProcs(pid_t mother_pid, unsigned long values[8], bool verbose){
 	}
 
 
-        snprintf(io_buffer,32,"/proc/%ld/io",(long)*it);
+        snprintf(io_buffer,64,"/proc/%ld/io",(long)*it);
        
         FILE *file2 = fopen(io_buffer,"r");
         if(file2==0) {
@@ -80,7 +80,7 @@ int ReadProcs(pid_t mother_pid, unsigned long values[8], bool verbose){
             if(sscanf(buffer,      "wchar: %80ld kB", &twchar)==1) values[5]+=twchar; 
             if(sscanf(buffer, "read_bytes: %80ld kB", &trbyte)==1) values[6]+=trbyte; 
             if(sscanf(buffer,"write_bytes: %80ld kB", &twbyte)==1) values[7]+=twbyte; } 
-          fclose(file);
+          fclose(file2);
 	}
 
       } 

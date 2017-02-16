@@ -87,7 +87,6 @@ namespace trkvar {
   const std::string DPHI = "dPhi";
   const std::string ABS_ETA = "absEta";
 
-  // need to add
   const std::string PT_FRAC = "pTFrac";
   const std::string DR = "dR";
 
@@ -104,6 +103,10 @@ namespace trkvar {
   const std::string N_SCT_HITS = "nSCTHits";
   const std::string N_SHARED_SCT_HITS = "nsharedSCTHits";
   const std::string EXPECT_BL_HIT = "expectBLayerHit";
+  const std::string EXPECT_INNERMOST_PIX_HIT =
+    "expectInnermostPixelLayerHit";
+  const std::string EXPECT_NEXT_TO_INNERMOST_PIX_HIT =
+    "expectNextToInnermostPixelLayerHit";
 }
 
 namespace Analysis {
@@ -174,6 +177,8 @@ namespace Analysis {
     declareProperty("unbiasIPEstimation"  , m_unbiasIPEstimation);
     declareProperty("writeInputsToBtagObject",
                     m_writeInputsToBtagObject = false);
+    declareProperty("writeTrackLinks",
+                    m_writeTrackLinks = false);
 
     declareProperty("trackAssociationName"    ,
                     m_trackAssociationName = "BTagTrackToJetAssociator");
@@ -187,10 +192,6 @@ namespace Analysis {
     m_trackGradePartitionsDefinition.push_back("Good");
 
     declareProperty("SecVxFinderName"         ,m_secVxFinderName);
-
-    declareProperty("NtrkMin"                 , m_NtrkMin =6 );
-    declareProperty("NtrkMax"                 , m_NtrkMax =6 );
-    declareProperty("NtrkFract"               , m_trkFract=1.0 );
 
     // tools:
     declareProperty("trackSelectorTool"         , m_trackSelectorTool     );
@@ -401,21 +402,18 @@ namespace Analysis {
     // add the tags
     add_tags(*BTag, author, track_info);
 
-    TrackLinks ip_tracks;
-    for (const auto& trk: track_info) {
-      ip_tracks.push_back( trk.trk );
+    if (m_writeTrackLinks) {
+      TrackLinks ip_tracks;
+      for (const auto& trk: track_info) {
+        ip_tracks.push_back( trk.trk );
+      }
+
+      // specific fast accessors for mainstream instances of IPTag: IP3D, IP2D
+      //// need to handle to persistify for dynamic values before adding this
+      BTag->setVariable<TrackLinks> (
+        m_xAODBaseName, "TrackParticleLinks", ip_tracks );
+      BTag->setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
     }
-
-    // specific fast accessors for mainstream instances of IPTag: IP3D, IP2D
-    //// need to handle to persistify for dynamic values before adding this
-    BTag->setVariable<TrackLinks> (
-      m_xAODBaseName, "TrackParticleLinks", ip_tracks );
-    BTag->setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
-    // TODO: we can create vectors with the inputs using the
-    // the `get_nn_inputs` function below.
-
-    // BTag->setVariable< std::vector<float> >(m_xAODBaseName,
-    //                                         "valD0wrtPVofTracks", f_vectD0);
 
     return StatusCode::SUCCESS;
   }
@@ -697,7 +695,8 @@ namespace {
         PT_FRAC, DR,
         CHI2, N_INN_HITS, N_NEXT_TO_INN_HITS, N_BL_HITS, N_SHARED_BL_HITS,
         N_SPLIT_BL_HITS, N_PIX_HITS, N_SHARED_PIX_HITS, N_SPLIT_PIX_HITS,
-        N_SCT_HITS, N_SHARED_SCT_HITS, EXPECT_BL_HIT};
+        N_SCT_HITS, N_SHARED_SCT_HITS, EXPECT_BL_HIT,
+        EXPECT_INNERMOST_PIX_HIT, EXPECT_NEXT_TO_INNERMOST_PIX_HIT};
     VectorMap out;
     for (const auto& input: inputs) {
       out.emplace(input, std::vector<double>());
@@ -740,6 +739,10 @@ namespace {
         val(tp, xAOD::numberOfSCTSharedHits));
       out.at(EXPECT_BL_HIT).push_back(
         val(tp, xAOD::expectBLayerHit));
+      out.at(EXPECT_INNERMOST_PIX_HIT).push_back(
+        val(tp, xAOD::expectInnermostPixelLayerHit));
+      out.at(EXPECT_NEXT_TO_INNERMOST_PIX_HIT).push_back(
+        val(tp, xAOD::expectNextToInnermostPixelLayerHit));
     }
     return out;
   }

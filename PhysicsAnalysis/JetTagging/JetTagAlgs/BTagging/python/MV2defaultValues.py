@@ -71,6 +71,7 @@ default_values = {
 "MaxTrkRapidity_jf_path"      : 0.0,
 "MinTrkRapidity_jf_path"      : 0.0,
 "AvgTrkRapidity_jf_path"      : 0.0,
+"my_smt"					  : -1,
 "sm_mu_pt"                    :  -1,
 "sm_dR"                       :  -1,
 "sm_qOverPratio"              :  -99,
@@ -80,10 +81,10 @@ default_values = {
 "sm_mu_d0"                    :  -99,
 "sm_mu_z0"                    :  -99,
 "sm_ID_qOverP"                :  -99,
-"ipmp_pb"                     : -1,
-"ipmp_pc"                     : -1,
-"ipmp_pu"                     : -1,
-
+"rnnip_pb"                   : -20,
+"rnnip_pc"                   : -20,
+"rnnip_pu"                   : -20,
+"rnnip_ptau"                   : -20,
 }
 
 
@@ -157,6 +158,7 @@ MVTM_varNames = {
 "MaxTrkRapidity_jf_path"      : "MaxTrkRapidity_jf_path",
 "MinTrkRapidity_jf_path"      : "MinTrkRapidity_jf_path",
 "AvgTrkRapidity_jf_path"      : "AvgTrkRapidity_jf_path",
+"SMT_discriminant"			  : "my_smt",
 "sm_mu_pt"                    : "sm_mu_pt",
 "sm_dR"                       : "sm_dR",
 "sm_qOverPratio"              : "sm_qOverPratio",
@@ -166,8 +168,9 @@ MVTM_varNames = {
 "sm_mu_d0"                    : "sm_mu_d0",
 "sm_mu_z0"                    : "sm_mu_z0",
 "sm_ID_qOverP"                : "sm_ID_qOverP",
-"ipmp_pb"                     : "ipmp_pb",
-"ipmp_pc"                     : "ipmp_pc",
-"ipmp_pu"                     : "ipmp_pu",
+"rnnip_pb"                    : "rnnip_pb"   ,
+"rnnip_pc"                    : "rnnip_pc"   ,
+"rnnip_pu"                    : "rnnip_pu"   ,
+"rnnip_ptau"                  : "rnnip_ptau" ,
 
 }

@@ -6,7 +6,6 @@
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
@@ -153,47 +152,20 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
   
   // register the container only when the imput from ByteStream is set up     
   m_activeStore->setStore( &*evtStore() ); 
-  if( has_bytestream || m_rdoContainerKey != "MDTCSM" )
-    {   
-      MdtCsmContainer* container = 
-	Muon::MuonRdoContainerAccess::retrieveMdtCsm(m_rdoContainerKey);
-      
-      // create and register the container only once
-      if(container==0)
-	{
-          try 
-	    {
-              if(m_muonMgr->mdtIdHelper()->stationNameIndex("BME") != -1)
-                container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->detectorElement_hash_max());
-              else
-                container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->module_hash_max());
-	    } 
-          catch(std::bad_alloc) 
-	    {
-              ATH_MSG_FATAL("Could not create a new MDT CSM container!");
-              return StatusCode::FAILURE;
-	    }
-	  
-          // record the container for being used by the convert method
-          if( Muon::MuonRdoContainerAccess::record(container,
-                                                   m_rdoContainerKey,
-                                                   serviceLocator(),
-                                                   msg(),
-                                                   (&*evtStore())).isFailure() )
-	    {
-              ATH_MSG_FATAL("Recording of container " 
-			    << m_rdoContainerKey
-			    << " into MuonRdoContainerManager has failed");
-	      return StatusCode::FAILURE;
-	    }
-	}
-    }
-  else
-    {
+
+  m_useContainer = (has_bytestream || m_rdoContainerKey.key() != "MDTCSM") && !m_rdoContainerKey.key().empty();
+
+  if(!m_useContainer)
+  {
       ATH_MSG_DEBUG("ByteStream conversion service not found.");
       ATH_MSG_DEBUG("MDT CSM container not registered.");
-    }
-  
+  }
+  else{
+      m_maxhashtoUse = m_muonMgr->mdtIdHelper()->stationNameIndex("BME") != -1 ?
+             m_muonMgr->mdtIdHelper()->detectorElement_hash_max() : m_muonMgr->mdtIdHelper()->module_hash_max();
+  }
+
+  ATH_CHECK( m_rdoContainerKey.initialize() );
   
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
@@ -235,11 +207,10 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
   // if the MuonByteStream CNV has to be used, the container must have been
   // registered there!
   m_activeStore->setStore( &*evtStore() ); 
-  MdtCsmContainer* csm = Muon::MuonRdoContainerAccess::retrieveMdtCsm(m_rdoContainerKey);
   
-  if(csm==0)
+  if(m_useContainer==false)
     {
-      ATH_MSG_DEBUG("Container " << m_rdoContainerKey 
+      ATH_MSG_DEBUG("Container " << m_rdoContainerKey.key() 
 		    << " for bytestream conversion not available.");
       ATH_MSG_DEBUG("Try retrieving it from the Store");
       
@@ -248,7 +219,12 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
       // have been called .... but this depends
       // on the user experience
     }
-  
+
+  SG::WriteHandle<MdtCsmContainer> handle(m_rdoContainerKey);
+  if (handle.isPresent())
+    return StatusCode::SUCCESS;
+  auto csm = std::make_unique<MdtCsmContainer>(m_maxhashtoUse);
+
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator itFrag;
   
   for (itFrag = vecRobs.begin(); itFrag != vecRobs.end(); itFrag++)
@@ -277,6 +253,7 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
     }
   //in presence of errors return FAILURE
   ATH_MSG_DEBUG("After processing numColls="<<csm->numberOfCollections());
+  ATH_CHECK( handle.record (std::move (csm)) );
   return StatusCode::SUCCESS;
 }
 

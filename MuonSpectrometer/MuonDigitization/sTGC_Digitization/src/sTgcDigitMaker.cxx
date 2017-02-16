@@ -667,7 +667,7 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
     }
   }
   if(!duplicate) {
-    m_digits->push_back(new sTgcDigit(id, bctag, digittime));
+    m_digits->push_back(new sTgcDigit(id, bctag, digittime, -1));
   }
 
   return;

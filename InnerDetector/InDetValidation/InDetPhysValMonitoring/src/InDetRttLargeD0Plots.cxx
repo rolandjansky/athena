@@ -499,8 +499,8 @@ InDetRttLargeD0Plots::fillTruth(const xAOD::TruthParticle& truth) {
 }
 
 void
-InDetRttLargeD0Plots::pro_fill(const xAOD::TruthParticle& truth, float weight) {
-  m_effPlots.pro_fill(truth, weight);
+InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood) {
+  m_effPlots.fill(truth, isGood);
 }
 
 void
@@ -512,10 +512,10 @@ InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle& truth, \
                                      const int nTrtHits,          \
                                      const int nTrtTubeHits,          \
                                      const bool isSignal) {
-  unsigned int rec = (unsigned int) isReconstructed;
-  unsigned int LRT = (unsigned int) (isLargeD0Track and isReconstructed);
-  unsigned int TRT = (unsigned int) hasTRTHit;
-  unsigned int TRTout = (unsigned int) hasTRTOut;
+  //unsigned int rec = (unsigned int) isReconstructed;
+  const bool LRT = (isLargeD0Track and isReconstructed);
+  //unsigned int TRT = (unsigned int) hasTRTHit;
+  //unsigned int TRTout = (unsigned int) hasTRTOut;
   bool isStandardTrack = false;
   double tubeFrac = -1.0;
 
@@ -530,53 +530,53 @@ InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle& truth, \
   if (tubeFrac < 0.4) {
     tubeFrac04 = true;
   }
-  unsigned int tubeFracLess05 = (unsigned int) tubeFrac05;
-  unsigned int tubeFracLess04 = (unsigned int) tubeFrac04;
+  //unsigned int tubeFrac05 = (unsigned int) tubeFrac05;
+  //unsigned int tubeFrac04 = (unsigned int) tubeFrac04;
   if (!isLargeD0Track) {
     isStandardTrack = true;
   }
-  unsigned int STD = (unsigned int) (isStandardTrack and isReconstructed);
+  bool STD = (isStandardTrack and isReconstructed);
 
-  m_effPlots_all.pro_fill(truth, rec); // efficiency of all types of tracks - all matched reco tracks/all truth tracks
-  m_effPlots_all_trtHit.pro_fill(truth, rec and TRT); // how much of efficiency is from tracks with TRT hits?
-  m_effPlots_all_trtOut.pro_fill(truth, rec and TRTout and not TRT); // how much from tracks with TRT outliers but no
+  m_effPlots_all.fill(truth, isReconstructed); // efficiency of all types of tracks - all matched reco tracks/all truth tracks
+  m_effPlots_all_trtHit.fill(truth, isReconstructed and hasTRTHit); // how much of efficiency is from tracks with TRT hits?
+  m_effPlots_all_trtOut.fill(truth, isReconstructed and hasTRTOut and not hasTRTHit); // how much from tracks with TRT outliers but no
                                                                      // TRT hits?
-  m_effPlots_all_noTrt.pro_fill(truth, rec and not TRT and not TRTout); // how much from tracks without any TRT
+  m_effPlots_all_noTrt.fill(truth, isReconstructed and not hasTRTHit and not hasTRTOut); // how much from tracks without any TRT
                                                                         // contribution?
-  m_effPlots_st.pro_fill(truth, STD); // all matched reco tracks from standard tracking/all truth tracks
-  m_effPlots_st_trtHit.pro_fill(truth, STD and TRT);
-  m_effPlots_st_trtOut.pro_fill(truth, STD and TRTout and not TRT);
-  m_effPlots_st_noTrt.pro_fill(truth, STD and not TRT and not TRTout);
-  m_effPlots_ld0.pro_fill(truth, LRT); // all matched reco tracks from large d0 tracking/all truth tracks
-  m_effPlots_ld0_trtHit.pro_fill(truth, LRT and TRT);
-  m_effPlots_ld0_trtOut.pro_fill(truth, LRT and TRTout and not TRT);
-  m_effPlots_ld0_noTrt.pro_fill(truth, LRT and not TRT and not TRTout);
+  m_effPlots_st.fill(truth, STD); // all matched reco tracks from standard tracking/all truth tracks
+  m_effPlots_st_trtHit.fill(truth, STD and hasTRTHit);
+  m_effPlots_st_trtOut.fill(truth, STD and hasTRTOut and not hasTRTHit);
+  m_effPlots_st_noTrt.fill(truth, STD and not hasTRTHit and not hasTRTOut);
+  m_effPlots_ld0.fill(truth, LRT); // all matched reco tracks from large d0 tracking/all truth tracks
+  m_effPlots_ld0_trtHit.fill(truth, LRT and hasTRTHit);
+  m_effPlots_ld0_trtOut.fill(truth, LRT and hasTRTOut and not hasTRTHit);
+  m_effPlots_ld0_noTrt.fill(truth, LRT and not hasTRTHit and not hasTRTOut);
 
   if (isStandardTrack) { // the point of these plots is that the denominator is only std tracks, so we can see the
                          // peformance of the std tracking itself as comparison to lrt
-    m_effPlots_stNonLd0.pro_fill(truth, STD);
-    m_effPlots_stNonLd0_trtHit.pro_fill(truth, STD and TRT);
-    m_effPlots_stNonLd0_trtOut.pro_fill(truth, STD and TRTout and not TRT);
-    m_effPlots_stNonLd0_noTrt.pro_fill(truth, STD and not TRT and not TRTout);
+    m_effPlots_stNonLd0.fill(truth, STD);
+    m_effPlots_stNonLd0_trtHit.fill(truth, STD and hasTRTHit);
+    m_effPlots_stNonLd0_trtOut.fill(truth, STD and hasTRTOut and not hasTRTHit);
+    m_effPlots_stNonLd0_noTrt.fill(truth, STD and not hasTRTHit and not hasTRTOut);
   }
 
   if (isLargeD0Track) { // the point of these plots is that the denominator is only ld0 tracks, so we can see the
                         // peformance of the ld0 tracking itself
-    m_effPlots_ld0NonSt.pro_fill(truth, LRT);
-    m_effPlots_ld0NonSt_trtHit.pro_fill(truth, LRT and TRT);
-    m_effPlots_ld0NonSt_trtOut.pro_fill(truth, rec and LRT and TRTout and not TRT);
-    m_effPlots_ld0NonSt_noTrt.pro_fill(truth, rec and LRT and not TRT and not TRTout);
+    m_effPlots_ld0NonSt.fill(truth, LRT);
+    m_effPlots_ld0NonSt_trtHit.fill(truth, LRT and hasTRTHit);
+    m_effPlots_ld0NonSt_trtOut.fill(truth, isReconstructed and LRT and hasTRTOut and not hasTRTHit);
+    m_effPlots_ld0NonSt_noTrt.fill(truth, isReconstructed and LRT and not hasTRTHit and not hasTRTOut);
   }
 
   if (isSignal) { // reco signal tracks/tracks from all signal
-    m_effPlots_all_signal.pro_fill(truth, rec);
-    m_effPlots_all_signal_trtHit.pro_fill(truth, rec and TRT);
-    m_effPlots_all_signal_trtOut.pro_fill(truth, rec and TRTout and not TRT);
-    m_effPlots_all_signal_noTrt.pro_fill(truth, rec and not TRT and not TRTout);
-    m_effPlots_all_signal_tubeFrac051.pro_fill(truth, rec and TRT and not tubeFracLess05); // how much of eff comes from
+    m_effPlots_all_signal.fill(truth, isReconstructed);
+    m_effPlots_all_signal_trtHit.fill(truth, isReconstructed and hasTRTHit);
+    m_effPlots_all_signal_trtOut.fill(truth, isReconstructed and hasTRTOut and not hasTRTHit);
+    m_effPlots_all_signal_noTrt.fill(truth, isReconstructed and not hasTRTHit and not hasTRTOut);
+    m_effPlots_all_signal_tubeFrac051.fill(truth, isReconstructed and hasTRTHit and not tubeFrac05); // how much of eff comes from
                                                                                            // tracks with tube frac >
                                                                                            // 0.5?
-    m_effPlots_all_signal_tubeFrac0405.pro_fill(truth, rec and TRT and tubeFracLess05 and not tubeFracLess04); // how
+    m_effPlots_all_signal_tubeFrac0405.fill(truth, isReconstructed and hasTRTHit and tubeFrac05 and not tubeFrac04); // how
                                                                                                                // much
                                                                                                                // from
                                                                                                                // tracks
@@ -584,39 +584,39 @@ InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle& truth, \
                                                                                                                // tube
                                                                                                                // frac
                                                                                                                // (0.4,0.5)
-    m_effPlots_all_signal_tubeFrac004.pro_fill(truth, rec and TRT and tubeFracLess04); // how much from tracks with tube
+    m_effPlots_all_signal_tubeFrac004.fill(truth, isReconstructed and hasTRTHit and tubeFrac04); // how much from tracks with tube
                                                                                        // frac < 0.4?
-    m_effPlots_st_signal.pro_fill(truth, STD);
-    m_effPlots_st_signal_trtHit.pro_fill(truth, STD and TRT);
-    m_effPlots_st_signal_trtOut.pro_fill(truth, STD and TRTout and not TRT);
-    m_effPlots_st_signal_noTrt.pro_fill(truth, STD and not TRT and not TRTout);
-    m_effPlots_st_signal_tubeFrac051.pro_fill(truth, STD and TRT and not tubeFracLess05);
-    m_effPlots_st_signal_tubeFrac0405.pro_fill(truth, STD and TRT and tubeFracLess05 and not tubeFracLess04);
-    m_effPlots_st_signal_tubeFrac004.pro_fill(truth, STD and TRT and tubeFracLess04);
-    m_effPlots_ld0_signal.pro_fill(truth, LRT);
-    m_effPlots_ld0_signal_trtHit.pro_fill(truth, LRT and TRT);
-    m_effPlots_ld0_signal_trtOut.pro_fill(truth, LRT and TRTout and not TRT);
-    m_effPlots_ld0_signal_noTrt.pro_fill(truth, LRT and not TRT and not TRTout);
-    m_effPlots_ld0_signal_tubeFrac051.pro_fill(truth, LRT and TRT and not tubeFracLess05);
-    m_effPlots_ld0_signal_tubeFrac0405.pro_fill(truth, LRT and TRT and tubeFracLess05 and not tubeFracLess04);
-    m_effPlots_ld0_signal_tubeFrac004.pro_fill(truth, LRT and TRT and tubeFracLess04);
+    m_effPlots_st_signal.fill(truth, STD);
+    m_effPlots_st_signal_trtHit.fill(truth, STD and hasTRTHit);
+    m_effPlots_st_signal_trtOut.fill(truth, STD and hasTRTOut and not hasTRTHit);
+    m_effPlots_st_signal_noTrt.fill(truth, STD and not hasTRTHit and not hasTRTOut);
+    m_effPlots_st_signal_tubeFrac051.fill(truth, STD and hasTRTHit and not tubeFrac05);
+    m_effPlots_st_signal_tubeFrac0405.fill(truth, STD and hasTRTHit and tubeFrac05 and not tubeFrac04);
+    m_effPlots_st_signal_tubeFrac004.fill(truth, STD and hasTRTHit and tubeFrac04);
+    m_effPlots_ld0_signal.fill(truth, LRT);
+    m_effPlots_ld0_signal_trtHit.fill(truth, LRT and hasTRTHit);
+    m_effPlots_ld0_signal_trtOut.fill(truth, LRT and hasTRTOut and not hasTRTHit);
+    m_effPlots_ld0_signal_noTrt.fill(truth, LRT and not hasTRTHit and not hasTRTOut);
+    m_effPlots_ld0_signal_tubeFrac051.fill(truth, LRT and hasTRTHit and not tubeFrac05);
+    m_effPlots_ld0_signal_tubeFrac0405.fill(truth, LRT and hasTRTHit and tubeFrac05 and not tubeFrac04);
+    m_effPlots_ld0_signal_tubeFrac004.fill(truth, LRT and hasTRTHit and tubeFrac04);
     if (isStandardTrack) {
-      m_effPlots_stNonLd0_signal.pro_fill(truth, STD);
-      m_effPlots_stNonLd0_signal_trtHit.pro_fill(truth, STD and TRT);
-      m_effPlots_stNonLd0_signal_trtOut.pro_fill(truth, STD and TRTout and not TRT);
-      m_effPlots_stNonLd0_signal_noTrt.pro_fill(truth, STD and not TRT and not TRTout);
-      m_effPlots_stNonLd0_signal_tubeFrac051.pro_fill(truth, STD and TRT and not tubeFracLess05);
-      m_effPlots_stNonLd0_signal_tubeFrac0405.pro_fill(truth, STD and TRT and tubeFracLess05 and not tubeFracLess04);
-      m_effPlots_stNonLd0_signal_tubeFrac004.pro_fill(truth, STD and TRT and tubeFracLess04);
+      m_effPlots_stNonLd0_signal.fill(truth, STD);
+      m_effPlots_stNonLd0_signal_trtHit.fill(truth, STD and hasTRTHit);
+      m_effPlots_stNonLd0_signal_trtOut.fill(truth, STD and hasTRTOut and not hasTRTHit);
+      m_effPlots_stNonLd0_signal_noTrt.fill(truth, STD and not hasTRTHit and not hasTRTOut);
+      m_effPlots_stNonLd0_signal_tubeFrac051.fill(truth, STD and hasTRTHit and not tubeFrac05);
+      m_effPlots_stNonLd0_signal_tubeFrac0405.fill(truth, STD and hasTRTHit and tubeFrac05 and not tubeFrac04);
+      m_effPlots_stNonLd0_signal_tubeFrac004.fill(truth, STD and hasTRTHit and tubeFrac04);
     }
     if (isLargeD0Track) {
-      m_effPlots_ld0NonSt_signal.pro_fill(truth, LRT);
-      m_effPlots_ld0NonSt_signal_trtHit.pro_fill(truth, LRT and TRT);
-      m_effPlots_ld0NonSt_signal_trtOut.pro_fill(truth, LRT and TRTout and not TRT);
-      m_effPlots_ld0NonSt_signal_noTrt.pro_fill(truth, LRT and not TRT and not TRTout);
-      m_effPlots_ld0NonSt_signal_tubeFrac051.pro_fill(truth, LRT and TRT and not tubeFracLess05);
-      m_effPlots_ld0NonSt_signal_tubeFrac0405.pro_fill(truth, LRT and TRT and tubeFracLess05 and not tubeFracLess04);
-      m_effPlots_ld0NonSt_signal_tubeFrac004.pro_fill(truth, LRT and TRT and tubeFracLess04);
+      m_effPlots_ld0NonSt_signal.fill(truth, LRT);
+      m_effPlots_ld0NonSt_signal_trtHit.fill(truth, LRT and hasTRTHit);
+      m_effPlots_ld0NonSt_signal_trtOut.fill(truth, LRT and hasTRTOut and not hasTRTHit);
+      m_effPlots_ld0NonSt_signal_noTrt.fill(truth, LRT and not hasTRTHit and not hasTRTOut);
+      m_effPlots_ld0NonSt_signal_tubeFrac051.fill(truth, LRT and hasTRTHit and not tubeFrac05);
+      m_effPlots_ld0NonSt_signal_tubeFrac0405.fill(truth, LRT and hasTRTHit and tubeFrac05 and not tubeFrac04);
+      m_effPlots_ld0NonSt_signal_tubeFrac004.fill(truth, LRT and hasTRTHit and tubeFrac04);
     }
   }
 

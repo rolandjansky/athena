@@ -15,15 +15,16 @@
 
 
 
-TestViewDriver::TestViewDriver(const std::string& name, ISvcLocator* pSvcLocator) 
+TestViewDriver::TestViewDriver(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_roisContainer("RoIsContainer"),
     m_views("Views"), 
     // will use them in future to copy the output
     m_outputClusterContainer("OutputClusters"),
-    m_outputClusterContainerAux("OutputClusterAux.")
-    //m_outputProxyContainer("Output"), 
-    //m_outputProxyContainerAux("OutputAux.") 
+    m_outputClusterContainerAux("OutputClusterAux."),
+    //m_outputProxyContainer("Output"),
+    //m_outputProxyContainerAux("OutputAux.")
+    m_viewAlgorithmNames(std::vector<std::string>())
 {
    
   declareProperty("RoIsContainer", m_roisContainer, "Input RoIs");
@@ -34,6 +35,7 @@ TestViewDriver::TestViewDriver(const std::string& name, ISvcLocator* pSvcLocator
   // declareProperty("OutputProxyContainer", m_outputProxyContainer, "Output proxies - this is returned by each fex and can be used to access actual objects");
   // declareProperty("OutputProxyContainerAux", m_outputProxyContainerAux, "");
 
+  declareProperty( "ViewAlgorithmNames", m_viewAlgorithmNames, "Names of algorithms to run in the views" );
 }
 
 StatusCode TestViewDriver::initialize() {
@@ -62,37 +64,33 @@ StatusCode TestViewDriver::execute() {
 
   // Create the views and populate them
   std::vector<SG::View*> viewVector;
-  ViewHelper::MakeAndPopulate( name()+"_view",		// Base name for all views to use
-		  		viewVector,		// Vector to store views
+  CHECK( ViewHelper::MakeAndPopulate( name()+"_view",	// Base name for all views to use
+				viewVector,		// Vector to store views
 				roisForTheView,		// A writehandle to use to access the views (the handle itself, not the contents)
-				roiCollections );	// Data to initialise each view - one view will be made per entry
-
-  // Specify algorithms to run in views (data flow info not available yet)
-  std::vector< std::string > algorithmNameSequence = { "algInView" };
+				roiCollections ) );	// Data to initialise each view - one view will be made per entry
 
   // Run the views
-  ViewHelper::RunViews( viewVector,				// Vector to store views
-		  	algorithmNameSequence,			// Algorithms to run in each view
-			Gaudi::Hive::currentContext(),		// Context to attach the views to
-			serviceLocator()->service( "ViewAlgPool" ) );	// Service to retrieve algorithms by name (should make the service name configurable)
+  CHECK( ViewHelper::RunViews( viewVector,				// Vector to store views
+			m_viewAlgorithmNames,				// Algorithms to run in each view
+			Gaudi::Hive::currentContext(),			// Context to attach the views to
+			serviceLocator()->service( "ViewAlgPool" ) ) );	// Service to retrieve algorithms by name (should make the service name configurable)
 
-  // harvest the results into a merged collection
+  // Create a temporary ReadHandle to access the views (this should maybe be done with a configurable handle instead)
+  SG::ReadHandle< TestClusterContainer > viewClusters("Clusters");
+
+  // Harvest the results into a merged collection - currently impossible due to issue with TrigComposite
   m_outputClusterContainer = CxxUtils::make_unique< TestClusterContainer >();
   m_outputClusterContainerAux = CxxUtils::make_unique< TestClusterAuxContainer>();
   m_outputClusterContainer->setStore(m_outputClusterContainerAux.ptr());
-
-  // Temporary ReadHandles to access the views
-  SG::ReadHandle< TestClusterContainer > viewClusters("Clusters");
-  ViewHelper::MergeViewCollection( viewVector,		//Vector to store views
-		  		viewClusters,
-				*m_outputClusterContainer );
+  /*CHECK( ViewHelper::MergeViewCollection( viewVector,
+				viewClusters,
+				*m_outputClusterContainer ) );*/
 
 
-  /*for ( auto context: subEvents ) {
-    SG::ReadHandle<TestClusterContainer> r("Clusters");
-    CHECK(r.setProxyDict(context.proxy()));
+  for ( auto view : viewVector ) {
+    CHECK(viewClusters.setProxyDict(view));
 
-    for ( auto cl: *r.cptr() ) {
+    for ( auto cl: *viewClusters.cptr() ) {
       ATH_MSG_DEBUG("Pulling cluster from the view of Et " << TestEDM::getClusterEt(cl) );
     }
 
@@ -106,14 +104,14 @@ StatusCode TestViewDriver::execute() {
     
     //for ( auto el: *r.cptr() ) 
     //      m_outputClusterContainer.cptr()->push_back(el);
-  }*/
+  }
 
-   for ( auto cluster: *m_outputClusterContainer.cptr() ) {
-     ATH_MSG_DEBUG("Cluster of ET " << TestEDM::getClusterEt(cluster) );
-   }
+  for ( auto cluster: *m_outputClusterContainer.cptr() ) {
+    ATH_MSG_DEBUG("Cluster of ET " << TestEDM::getClusterEt(cluster) );
+  }
 
-   // Store the views for re-use/book-keeping
-   m_views = CxxUtils::make_unique< std::vector<SG::View*>>( viewVector );
+  // Store the views for re-use/book-keeping
+  m_views = CxxUtils::make_unique< std::vector<SG::View*>>( viewVector );
 
   return StatusCode::SUCCESS;
 }

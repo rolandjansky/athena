@@ -71,6 +71,24 @@ RPCSimHit::RPCSimHit(int id,
 {
 }
 
+RPCSimHit::RPCSimHit(int id, 
+		     double time, 
+	             const Amg::Vector3D& prePosition,
+		     const HepMcParticleLink hmpl, 
+	             const Amg::Vector3D& postPosition,
+		     const double energyDeposit, const double stepLength, 
+		     const int particleEncoding, const double kineticEnergy)
+    : m_RPCid(id), m_globalTime(time)
+    , m_localPosition(prePosition)
+    , m_partLink(hmpl)
+    , m_localPostStepPosition(postPosition)
+    , m_energyDeposit(static_cast<float>(energyDeposit))
+    , m_stepLength(static_cast<float>(stepLength))
+    , m_particleEncoding(particleEncoding) 
+    , m_kineticEnergy(static_cast<float>(kineticEnergy))
+{
+}
+
 // Implemenation of member functions
 std::string RPCSimHit::print() const {
 

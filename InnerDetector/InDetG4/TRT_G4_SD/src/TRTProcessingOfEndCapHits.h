@@ -26,28 +26,28 @@ private:
   void Initialize();
   void DeleteArrays();
 
-  int printMessages; //FIXME obsolete?
+  int m_printMessages; //FIXME obsolete?
 
-  int sectorsABC;
-  int testLocalCoordinatesOfHits;
+  int m_sectorsABC;
+  int m_testLocalCoordinatesOfHits;
 
-  int numberOfStrawsInPlanesAB;
-  int numberOfStrawsInPlaneC;
+  int m_numberOfStrawsInPlanesAB;
+  int m_numberOfStrawsInPlaneC;
 
-  int numberOfWheelsAB;
+  int m_numberOfWheelsAB;
 
-  int numberOfStrawsInSectorsAB;
-  int numberOfStrawsInSectorC;
-  int initialStrawIDInSectorsAB;
-  int initialStrawIDInSectorC;
+  int m_numberOfStrawsInSectorsAB;
+  int m_numberOfStrawsInSectorC;
+  int m_initialStrawIDInSectorsAB;
+  int m_initialStrawIDInSectorC;
 
-  int numberOfStrawsInIDSectorsAB;
-  int numberOfStrawsInIDSectorC;
+  int m_numberOfStrawsInIDSectorsAB;
+  int m_numberOfStrawsInIDSectorC;
 
-  TRTParameters* pParameters;
-  TRTSensitiveDetector* pSensitiveDetector;
+  TRTParameters* m_pParameters;
+  TRTSensitiveDetector* m_pSensitiveDetector;
 
-  int verboseLevel;
+  int m_verboseLevel;
 };
 
 #endif // TRT_G4_SD_TRTProcessingOfEndCapHits_hh

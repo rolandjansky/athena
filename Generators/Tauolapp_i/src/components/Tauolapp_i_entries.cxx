@@ -1,7 +1,7 @@
-#include "Tauolapp_i/TauolaAlg.h"
+#include "Tauolapp_i/TauolaPP.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_ALGORITHM_FACTORY( TauolaAlg )
+DECLARE_ALGORITHM_FACTORY( TauolaPP )
 DECLARE_FACTORY_ENTRIES( Tauolapp_i ) {
-  DECLARE_ALGORITHM( TauolaAlg )
+  DECLARE_ALGORITHM( TauolaPP )
 }

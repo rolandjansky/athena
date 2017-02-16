@@ -60,9 +60,12 @@ private:
   std::string m_track_collection;
   // pt threshold to apply
   float m_pt_min;
+
+# ifndef XAOD_ANALYSIS
   std::vector<xAOD::Iso::IsolationType> m_trk_iso_types;
   xAOD::TrackCorrection m_trk_corr;
-  
+
+# endif
 };
 
 

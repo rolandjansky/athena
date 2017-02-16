@@ -5,6 +5,7 @@
 #include "MDTSensitiveDetectorCosmics.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"
 #include "CxxUtils/make_unique.h" // For make unique
+#include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 
@@ -33,8 +34,10 @@ void MDTSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
   if (!m_MDTHitColl.isValid()) m_MDTHitColl = CxxUtils::make_unique<MDTSimHitCollection>();
   m_driftRadius = m_DEFAULT_TUBE_RADIUS;
+  // START OF COSMICS SPECIFIC CODE
   m_mom = Amg::Vector3D(0.,0.,0.);
   m_globH = Amg::Vector3D(0.,0.,0.);
+  // END OF COSMICS SPECIFIC CODE
 }
 
 G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
@@ -59,6 +62,7 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   // get top transformation
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform();
 
+  // START OF COSMICS SPECIFIC CODE
   // global coordinates
   G4ThreeVector globVrtx = aStep->GetPreStepPoint()->GetPosition();
 
@@ -86,8 +90,10 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
                            (m_globH[1] - globVrtx[1])*(m_globH[1] - globVrtx[1]) +
                            (m_globH[2] - globVrtx[2])*(m_globH[2] - globVrtx[2]));
   double tof = globalDist / lightspeed;
+  // END OF COSMICS SPECIFIC CODE
 
   // transform pre and post step positions to local positions
+
   Amg::Vector3D localVertex1( Amg::Hep3VectorToEigen( trans.TransformPoint(aStep->GetPreStepPoint()->GetPosition()) ) );
   Amg::Vector3D localVertex2( Amg::Hep3VectorToEigen( trans.TransformPoint(aStep->GetPostStepPoint()->GetPosition()) ) );
 
@@ -148,8 +154,10 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
     int MDTid = GetIdentifier(touchHist);
 
+    TrackHelper trHelp(aStep->GetTrack());
+
     // construct new mdt hit
-    m_MDTHitColl->Emplace(MDTid, m_globalTime, m_driftRadius, m_localPosition, trackid,
+    m_MDTHitColl->Emplace(MDTid, m_globalTime, m_driftRadius, m_localPosition, trHelp.GetParticleLink(),
                           aStep->GetStepLength(),
                           aStep->GetTotalEnergyDeposit(),
                           currentTrack->GetDefinition()->GetPDGEncoding(),
@@ -193,6 +201,18 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
       stationEta    = volCopyNo/100;
       stationPhi    = abs(volCopyNo%100);
 
+    }
+    else if ((npos = volName.find("component")) != std::string::npos && (!isAssembly)) {     // multilayer
+
+      int gmID = 0;
+      if ((loc1 = volName.find("[")) != std::string::npos) {
+        if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
+          std::istringstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
+          istrvar>>gmID;
+        }
+      }
+      multilayer = gmID;
+
     } else if ((npos = volName.find("MDT")) != std::string::npos && isAssembly) {
 
       // vol name for Assembly components are
@@ -223,16 +243,6 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
       if (sideC == 1) zi = -zi;
       stationEta = zi;
       stationPhi = fi;
-
-      int gmID = 0;
-      if ((loc1 = volName.find("[")) != std::string::npos) {
-        if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
-          std::istringstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
-          istrvar>>gmID;
-        }
-      }
-      multilayer = gmID;
-    } else if ((npos = volName.find("component")) != std::string::npos && (!isAssembly)) {     // multilayer
 
       int gmID = 0;
       if ((loc1 = volName.find("[")) != std::string::npos) {

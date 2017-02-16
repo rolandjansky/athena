@@ -101,8 +101,8 @@ endif
 
 # Root variables
 ROOTCFLAGS   = $(shell root-config --cflags)
-ROOTLIBS     = $(shell root-config --glibs)
-ROOTGLIBS    = $(shell root-config --glibs)
+ROOTLIBS     = $(shell root-config --libs)
+ROOTGLIBS    = $(shell root-config --libs)
 
 CLHEPLIB    = $(shell clhep-config --libs)
 CLHEPCFLAGS = $(shell clhep-config --include)
@@ -257,6 +257,9 @@ runtool : dirs $(EXEDIR)/runtool
 $(EXEDIR)/runtool : dirs $(OBJDIR)/runtool.o 
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(GLIBS)
 
+sb : $(EXEDIR)/sb  
+$(EXEDIR)/sb : $(OBJDIR)/chainparser.o 
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/chainparser.o $(RLIBS) $(ROOTLIBS)
 
 
 # compile
@@ -337,6 +340,7 @@ install : all
 	cp $(EXEDIR)/skim       $(HOME)/bin
 	cp $(EXEDIR)/listroot   $(HOME)/bin
 	cp $(EXEDIR)/runtool    $(HOME)/bin
+	cp $(EXEDIR)/sb         $(HOME)/bin
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 

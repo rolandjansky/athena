@@ -18,7 +18,6 @@
 #include "ByteStreamData/RawEvent.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
@@ -152,32 +151,9 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
   
   
   // register the container only when the imput from ByteStream is set up     
-    m_activeStore->setStore( &*evtStore() );
-  if( has_bytestream || m_containerKey != "CSCRDO" )
-  {
-    CscRawDataContainer* container = 
-    Muon::MuonRdoContainerAccess::retrieveCscRaw(m_containerKey);
-	    
-    // create and register the container only once
-    if(container==0)
-    {
-      try {
-        container = new CscRawDataContainer(idHelper->module_hash_max());
-      } catch(std::bad_alloc) {
-        ATH_MSG_FATAL ( "Could not create a new CSC RDO container!");
-        return StatusCode::FAILURE;
-      }
+  m_activeStore->setStore( &*evtStore() );
+  m_createContainerEachEvent = has_bytestream || m_containerKey.key() != "CSCRDO";
 
-      // record the container for being used by the convert method
-      if( Muon::MuonRdoContainerAccess::record(container, m_containerKey, serviceLocator(), m_log, &*evtStore())
-          .isFailure() ) {
-                                               //                                               (&*m_storeGateSvc)).isFailure() )
-        ATH_MSG_FATAL ( "Recording of container " << m_containerKey
-                        << " into MuonRdoContainerManager has failed" );
-        return StatusCode::FAILURE;
-      }
-    }
-  }
 
   // Retrieve decoder
   if (m_decoder.retrieve().isFailure()) {
@@ -188,6 +164,8 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
 
   m_decoder->setGeoVersion( m_muonMgr->geometryVersion() );
   ATH_MSG_INFO ( "The Muon Geometry version is " << m_muonMgr->geometryVersion() );
+
+  ATH_CHECK( m_containerKey.initialize() );
 
   ATH_MSG_INFO ( "initialize() successful in " << name() );
   return StatusCode::SUCCESS;
@@ -241,19 +219,25 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
 
 StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs)
 {
-  //If MuonRdoContainerAccess doesn't have the CSC RAW collection then the
-  // input is not bytestream. Do nothing!
   m_activeStore->setStore( &*evtStore() );
-  CscRawDataContainer* container = Muon::MuonRdoContainerAccess::retrieveCscRaw(m_containerKey);
+
       
-  if(container==0)
+  if(m_createContainerEachEvent==false)
   {
-    ATH_MSG_DEBUG ( "Container " << m_containerKey
+    ATH_MSG_DEBUG ( "Container " << m_containerKey.key()
                     << " for bytestream conversion not available." );
     ATH_MSG_DEBUG ( "Try retrieving it from the Store" );
         
     return StatusCode::SUCCESS;
   }
+
+  if (m_containerKey.isPresent())
+    return StatusCode::SUCCESS;
+  ATH_CHECK( m_containerKey.record(std::unique_ptr<CscRawDataContainer>( 
+           new CscRawDataContainer(m_muonMgr->cscIdHelper()->module_hash_max())) ));
+  
+  CscRawDataContainer* container = m_containerKey.ptr();
+
 
   m_activeStore->setStore( &*evtStore() );   
   const EventInfo* thisEventInfo;

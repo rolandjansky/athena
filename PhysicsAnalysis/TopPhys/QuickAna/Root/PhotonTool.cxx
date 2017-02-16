@@ -54,7 +54,7 @@ namespace ana
                     "photons to avoid errors");
     // Initialize the calibration tool
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calibration, CP::EgammaCalibrationAndSmearingTool));
-    ATH_CHECK (m_calibration.setProperty ("ESModel", "es2016PRE"));
+    ATH_CHECK (m_calibration.setProperty ("ESModel", "es2016data_mc15c"));
     ATH_CHECK (m_calibration.setProperty ("useAFII", m_isAF2?1:0));
     ATH_CHECK (m_calibration.setProperty ("decorrelationModel", "1NP_v1"));
     ATH_CHECK (m_calibration.initialize());
@@ -84,8 +84,11 @@ namespace ana
   StatusCode PhotonToolCorrect ::
   correctObject (xAOD::Photon& photon)
   {
-    if ((photon.author() & xAOD::EgammaParameters::AuthorPhoton) || (photon.author() & xAOD::EgammaParameters::AuthorAmbiguous)){
+    if (photon.author() & (xAOD::EgammaParameters::AuthorPhoton + xAOD::EgammaParameters::AuthorAmbiguous)){
       QA_CHECK_CUT (cut_calibration_tool, m_calibration->applyCorrection(photon));
+    } else {
+      // We should not even apply the remainder of the tools!
+      return StatusCode::SUCCESS;
     }
 
     // Do *not* apply smearing to AF2:

@@ -193,6 +193,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 	if(mkdir(m_workerTopDir.c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==0) 
 	  break;
       }
+      /* FALLTHROUGH */
     default:
       {
 	ATH_MSG_ERROR("Unable to make top directory " << m_workerTopDir << " for children processes! " << strerror(errno));

@@ -25,21 +25,21 @@ public:
     StatusCode initialize();
     StatusCode Finalize();
     virtual std::vector<const Muon::MuonSegment*>*
-    find(const std::vector<const Trk::RIO_OnTrack*>&)
+    find(const std::vector<const Trk::RIO_OnTrack*>&) const
     {
         return NULL;
     }
 
     virtual std::vector<const Muon::MuonSegment*>*
     find(const std::vector<const Trk::RIO_OnTrack*>&,
-         const std::vector<const Trk::RIO_OnTrack*>&)
+         const std::vector<const Trk::RIO_OnTrack*>&) const
     {
         return NULL;
     }
 
     virtual std::vector<const Muon::MuonSegment*>*
     find(const std::vector<const Muon::MdtDriftCircleOnTrack*>&,
-         const std::vector<const Muon::MuonClusterOnTrack*>&)
+         const std::vector<const Muon::MuonClusterOnTrack*>&) const
     {
         return NULL;
     }
@@ -49,7 +49,7 @@ public:
          const Amg::Vector3D&,
          const std::vector<const Muon::MdtDriftCircleOnTrack*>&,
          const std::vector<const Muon::MuonClusterOnTrack*>&,
-         bool,double)
+         bool,double) const
     {
         return NULL;
     }
@@ -58,7 +58,7 @@ public:
     find(const Trk::TrackRoad& road,
          const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > >& mdts,
          const std::vector< std::vector< const Muon::MuonClusterOnTrack* > >& clusters,
-         bool hasPhiMeasurements = false,double momentum=1e9);
+         bool hasPhiMeasurements = false,double momentum=1e9) const;
 
 private:
     void superPoint(const std::vector<const Muon::MuonClusterOnTrack*>& rios,

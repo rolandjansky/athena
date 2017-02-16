@@ -143,6 +143,11 @@ namespace Analysis {
     declareProperty("NtrkMax"                 , m_NtrkMax =6 );
     declareProperty("NtrkFract"               , m_trkFract=1.0 );
     declareProperty("SortingMode"             , m_sortOption="None"); //"None");
+#define PROP(name, def) declareProperty( #name, m_ ## name = def)
+    PROP(storeTrackParticles, true);
+    PROP(storeIpValues, false);
+    PROP(storeTrackParameters, true);
+#undef PROP
 
     // tools:
     declareProperty("trackSelectorTool"         , m_trackSelectorTool              );
@@ -835,46 +840,60 @@ namespace Analysis {
       std::vector<int> i_vectGrades( vectGrades.begin(), vectGrades.end() );
       // specific fast accessors for mainstream instances of IPTag: IP3D, IP2D
       if( "IP3D"==m_xAODBaseName ) {
-	BTag->setIP3D_TrackParticleLinks(IPTracks);
-	BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP3D_valD0wrtPVofTracks);
-	BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP3D_sigD0wrtPVofTracks);
-	BTag->setTaggerInfo(f_vectZ0,      xAOD::BTagInfo::IP3D_valZ0wrtPVofTracks);
-	BTag->setTaggerInfo(f_vectZ0Signi, xAOD::BTagInfo::IP3D_sigZ0wrtPVofTracks);
-	BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP3D_weightBofTracks);
-	BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP3D_weightUofTracks);
-	BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP3D_weightCofTracks);
-	BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP3D_flagFromV0ofTracks);
-	BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP3D_gradeOfTracks);
+        if (m_storeTrackParticles) BTag->setIP3D_TrackParticleLinks(IPTracks);
+        if (m_storeIpValues) {
+          BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP3D_valD0wrtPVofTracks);
+          BTag->setTaggerInfo(f_vectZ0,      xAOD::BTagInfo::IP3D_valZ0wrtPVofTracks);
+        }
+        if (m_storeTrackParameters) {
+          BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP3D_sigD0wrtPVofTracks);
+          BTag->setTaggerInfo(f_vectZ0Signi, xAOD::BTagInfo::IP3D_sigZ0wrtPVofTracks);
+          BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP3D_weightBofTracks);
+          BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP3D_weightUofTracks);
+          BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP3D_weightCofTracks);
+          BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP3D_flagFromV0ofTracks);
+          BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP3D_gradeOfTracks);
+        }
       } else {
-	if( "IP2D"==m_xAODBaseName ) {
-	  BTag->setIP2D_TrackParticleLinks(IPTracks);
-	  BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP2D_valD0wrtPVofTracks);
-	  BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP2D_sigD0wrtPVofTracks);
-	  BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP2D_weightBofTracks);
-	  BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP2D_weightUofTracks);
-	  BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP2D_weightCofTracks);
-	  BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP2D_flagFromV0ofTracks);
-	  BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP2D_gradeOfTracks);
-	} else { // generic accessors
-	  //// need to handle to persistify for dynamic values before adding this
-	  BTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > ( 
-	    m_xAODBaseName, "TrackParticleLinks", IPTracks );
-	  BTag->setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
-	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valD0wrtPVofTracks", f_vectD0);
-	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigD0wrtPVofTracks", f_vectD0Signi);
-	  if(m_impactParameterView=="3D") {
-	    BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valZ0wrtPVofTracks", f_vectZ0);
-	    BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigZ0wrtPVofTracks", f_vectZ0Signi);
-	  }
-	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightBofTracks",    vectWeightB);
-	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightUofTracks",    vectWeightU);
-	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightCofTracks",    vectWeightC);
-	  BTag->setVariable< std::vector<bool> >  (m_xAODBaseName, "flagFromV0ofTracks", vectFromV0);
-	  BTag->setVariable< std::vector<int> >   (m_xAODBaseName, "gradeOfTracks",      i_vectGrades);
-	}
+        if( "IP2D"==m_xAODBaseName ) {
+          if (m_storeTrackParticles) BTag->setIP2D_TrackParticleLinks(IPTracks);
+          if (m_storeIpValues) BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP2D_valD0wrtPVofTracks);
+          if (m_storeTrackParameters) {
+            BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP2D_sigD0wrtPVofTracks);
+            BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP2D_weightBofTracks);
+            BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP2D_weightUofTracks);
+            BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP2D_weightCofTracks);
+            BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP2D_flagFromV0ofTracks);
+            BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP2D_gradeOfTracks);
+          }
+        } else { // generic accessors
+          //// need to handle to persistify for dynamic values before adding this
+          if (m_storeTrackParticles) {
+            BTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > (
+              m_xAODBaseName, "TrackParticleLinks", IPTracks );
+            BTag->setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
+          }
+          if (m_storeIpValues) {
+            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valD0wrtPVofTracks", f_vectD0);
+            if (m_impactParameterView=="3D") {
+              BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valZ0wrtPVofTracks", f_vectZ0);
+            }
+          }
+          if (m_storeTrackParameters) {
+            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigD0wrtPVofTracks", f_vectD0Signi);
+            if(m_impactParameterView=="3D") {
+              BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigZ0wrtPVofTracks", f_vectZ0Signi);
+            }
+            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightBofTracks",    vectWeightB);
+            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightUofTracks",    vectWeightU);
+            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightCofTracks",    vectWeightC);
+            BTag->setVariable< std::vector<bool> >  (m_xAODBaseName, "flagFromV0ofTracks", vectFromV0);
+            BTag->setVariable< std::vector<int> >   (m_xAODBaseName, "gradeOfTracks",      i_vectGrades);
+          }
+        }
       }
     }
-    
+
     IPTracks.clear();
     
     m_likelihoodTool->clear();

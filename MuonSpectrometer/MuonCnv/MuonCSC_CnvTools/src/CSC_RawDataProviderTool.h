@@ -58,7 +58,7 @@ private:
 
   const MuonGM::MuonDetectorManager*  m_muonMgr;
 
-  std::string                         m_containerKey;
+  SG::WriteHandle<CscRawDataContainer> m_containerKey;
   std::set<uint32_t>                  m_robIdSet;
   CSC_Hid2RESrcID                     m_hid2re;
 
@@ -66,6 +66,7 @@ private:
   ServiceHandle<CSCcablingSvc>        m_cabling;
 
   ActiveStoreSvc*                     m_activeStore;
+  bool				      m_createContainerEachEvent;
 };
 } // end of namespace
 

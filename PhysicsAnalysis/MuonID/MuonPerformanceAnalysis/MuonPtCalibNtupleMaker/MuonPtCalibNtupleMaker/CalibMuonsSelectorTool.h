@@ -37,7 +37,7 @@ public:
   CalibMuonsSelectorTool();
 
   ToolHandle< CP::IMuonSelectionTool >     m_MuonSelectorTool;
-  ToolHandle< IGoodRunsListSelectionTool > m_GRLTool;
+  //ToolHandle< IGoodRunsListSelectionTool > m_GRLTool;
 
 private: 
 
@@ -47,7 +47,6 @@ private:
   double m_MinJpsiMassCut;
   double m_MaxJpsiMassCut;
   double m_MinZMassCut;
-  double m_MaxZMassCut;
 
   //::: Methods
   bool IsGoodMuon( const xAOD::Muon* the_muon );

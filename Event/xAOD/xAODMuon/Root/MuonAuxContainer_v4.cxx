@@ -77,18 +77,22 @@ namespace xAOD {
         AUX_VARIABLE( phiLayer1RPCHits );
         AUX_VARIABLE( phiLayer2RPCHits );
         AUX_VARIABLE( phiLayer3RPCHits );
+        AUX_VARIABLE( phiLayer4RPCHits );
 
         AUX_VARIABLE( etaLayer1RPCHits );
         AUX_VARIABLE( etaLayer2RPCHits );
         AUX_VARIABLE( etaLayer3RPCHits );
+        AUX_VARIABLE( etaLayer4RPCHits );
 
         AUX_VARIABLE( phiLayer1RPCHoles );
         AUX_VARIABLE( phiLayer2RPCHoles );
         AUX_VARIABLE( phiLayer3RPCHoles );
+        AUX_VARIABLE( phiLayer4RPCHoles );
 
         AUX_VARIABLE( etaLayer1RPCHoles );
         AUX_VARIABLE( etaLayer2RPCHoles );
         AUX_VARIABLE( etaLayer3RPCHoles );
+        AUX_VARIABLE( etaLayer4RPCHoles );
 
         AUX_VARIABLE( phiLayer1TGCHits );
         AUX_VARIABLE( phiLayer2TGCHits );
@@ -109,6 +113,9 @@ namespace xAOD {
         AUX_VARIABLE( etaLayer2TGCHoles );
         AUX_VARIABLE( etaLayer3TGCHoles );
         AUX_VARIABLE( etaLayer4TGCHoles );
+
+	AUX_VARIABLE( cscEtaHits );
+	AUX_VARIABLE( cscUnspoiledEtaHits );
 
         // Isolation
         AUX_VARIABLE( etcone20 );

@@ -354,42 +354,49 @@ namespace xAOD {
     phiLayer1RPCHits  = 45,  //!< number of phi hits  in the first  RPC trigger layer (BML1)
     phiLayer2RPCHits  = 46,  //!< number of phi hits  in the second RPC trigger layer (BML2)
     phiLayer3RPCHits  = 47,  //!< number of phi hits  in the third  RPC trigger layer (BOL1)
+    phiLayer4RPCHits  = 48,  //!< number of phi hits  in the fourth RPC trigger layer (BOL2)
 
-    etaLayer1RPCHits  = 48,  //!< number of eta hits  in the first  RPC trigger layer (BML1)
-    etaLayer2RPCHits  = 49,  //!< number of eta hits  in the second RPC trigger layer (BML2)
-    etaLayer3RPCHits  = 50,  //!< number of eta hits  in the third  RPC trigger layer (BOL1)
+    etaLayer1RPCHits  = 49,  //!< number of eta hits  in the first  RPC trigger layer (BML1)
+    etaLayer2RPCHits  = 50,  //!< number of eta hits  in the second RPC trigger layer (BML2)
+    etaLayer3RPCHits  = 51,  //!< number of eta hits  in the third  RPC trigger layer (BOL1)
+    etaLayer4RPCHits  = 52,  //!< number of eta hits  in the fourth RPC trigger layer (BOL2)
 
-    phiLayer1RPCHoles = 51,  //!< number of phi holes in the first  RPC trigger layer (BML1)
-    phiLayer2RPCHoles = 52,  //!< number of phi holes in the second RPC trigger layer (BML2)
-    phiLayer3RPCHoles = 53,  //!< number of phi holes in the third  RPC trigger layer (BOL1)
+    phiLayer1RPCHoles = 53,  //!< number of phi holes in the first  RPC trigger layer (BML1)
+    phiLayer2RPCHoles = 54,  //!< number of phi holes in the second RPC trigger layer (BML2)
+    phiLayer3RPCHoles = 55,  //!< number of phi holes in the third  RPC trigger layer (BOL1)
+    phiLayer4RPCHoles = 56,  //!< number of phi holes in the fourth RPC trigger layer (BOL2)
 
-    etaLayer1RPCHoles = 54,  //!< number of eta holes in the first  RPC trigger layer (BML1)
-    etaLayer2RPCHoles = 55,  //!< number of eta holes in the second RPC trigger layer (BML2)
-    etaLayer3RPCHoles = 56,  //!< number of eta holes in the third  RPC trigger layer (BOL1)
+    etaLayer1RPCHoles = 57,  //!< number of eta holes in the first  RPC trigger layer (BML1)
+    etaLayer2RPCHoles = 58,  //!< number of eta holes in the second RPC trigger layer (BML2)
+    etaLayer3RPCHoles = 59,  //!< number of eta holes in the third  RPC trigger layer (BOL1)
+    etaLayer4RPCHoles = 60,  //!< number of eta holes in the fourth RPC trigger layer (BOL2)
 
-    phiLayer1TGCHits  = 57,  //!< number of phi hits  in the first  TGC trigger layer (T4)
-    phiLayer2TGCHits  = 58,  //!< number of phi hits  in the second TGC trigger layer (T1)
-    phiLayer3TGCHits  = 59,  //!< number of phi hits  in the third  TGC trigger layer (T2)
-    phiLayer4TGCHits  = 60,  //!< number of phi hits  in the fourth TGC trigger layer (T3)
+    phiLayer1TGCHits  = 61,  //!< number of phi hits  in the first  TGC trigger layer (T4)
+    phiLayer2TGCHits  = 62,  //!< number of phi hits  in the second TGC trigger layer (T1)
+    phiLayer3TGCHits  = 63,  //!< number of phi hits  in the third  TGC trigger layer (T2)
+    phiLayer4TGCHits  = 64,  //!< number of phi hits  in the fourth TGC trigger layer (T3)
 
-    etaLayer1TGCHits  = 61,  //!< number of eta hits  in the first  TGC trigger layer (T4)
-    etaLayer2TGCHits  = 62,  //!< number of eta hits  in the second TGC trigger layer (T1)
-    etaLayer3TGCHits  = 63,  //!< number of eta hits  in the third  TGC trigger layer (T2)
-    etaLayer4TGCHits  = 64,  //!< number of eta hits  in the fourth TGC trigger layer (T3)
+    etaLayer1TGCHits  = 65,  //!< number of eta hits  in the first  TGC trigger layer (T4)
+    etaLayer2TGCHits  = 66,  //!< number of eta hits  in the second TGC trigger layer (T1)
+    etaLayer3TGCHits  = 67,  //!< number of eta hits  in the third  TGC trigger layer (T2)
+    etaLayer4TGCHits  = 68,  //!< number of eta hits  in the fourth TGC trigger layer (T3)
 
-    phiLayer1TGCHoles = 65,  //!< number of phi holes in the first  TGC trigger layer (T4)
-    phiLayer2TGCHoles = 66,  //!< number of phi holes in the second TGC trigger layer (T1)
-    phiLayer3TGCHoles = 67,  //!< number of phi holes in the third  TGC trigger layer (T2)
-    phiLayer4TGCHoles = 68,  //!< number of phi holes in the fourth TGC trigger layer (T3)
+    phiLayer1TGCHoles = 69,  //!< number of phi holes in the first  TGC trigger layer (T4)
+    phiLayer2TGCHoles = 70,  //!< number of phi holes in the second TGC trigger layer (T1)
+    phiLayer3TGCHoles = 71,  //!< number of phi holes in the third  TGC trigger layer (T2)
+    phiLayer4TGCHoles = 72,  //!< number of phi holes in the fourth TGC trigger layer (T3)
 
-    etaLayer1TGCHoles = 69,  //!< number of eta holes in the first  TGC trigger layer (T4)
-    etaLayer2TGCHoles = 70,  //!< number of eta holes in the second TGC trigger layer (T1)
-    etaLayer3TGCHoles = 71,  //!< number of eta holes in the third  TGC trigger layer (T2)
-    etaLayer4TGCHoles = 72,  //!< number of eta holes in the fourth TGC trigger layer (T3)
+    etaLayer1TGCHoles = 73,  //!< number of eta holes in the first  TGC trigger layer (T4)
+    etaLayer2TGCHoles = 74,  //!< number of eta holes in the second TGC trigger layer (T1)
+    etaLayer3TGCHoles = 75,  //!< number of eta holes in the third  TGC trigger layer (T2)
+    etaLayer4TGCHoles = 76,  //!< number of eta holes in the fourth TGC trigger layer (T3)
 
+    //CSC debugging
+    cscEtaHits = 77,           //!<number of CSC eta clusters on the track
+    cscUnspoiledEtaHits = 78,  //!<number of unspoiled CSC eta clusters on track
 
     // -- numbers...
-    numberOfMuonSummaryTypes       = 73
+    numberOfMuonSummaryTypes       = 79
   };
 
   /// A convenience namespace to make the client code easier to understand

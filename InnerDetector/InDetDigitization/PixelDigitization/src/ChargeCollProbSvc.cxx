@@ -10,7 +10,6 @@
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
  
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/PathResolver.h"
  
 #include <fstream>

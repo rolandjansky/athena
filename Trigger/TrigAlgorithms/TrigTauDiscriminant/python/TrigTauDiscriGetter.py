@@ -57,7 +57,7 @@ class TrigTauDiscriGetter(TrigTauDiscriBuilder):
                          jetSigBits = "trigger.sig.bits.jet.BDT.txt")
 
     def VarCalculatorSet(self):
-        from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
+        from tauRecTools.tauRecToolsConf import TauIDVarCalculator
         tauVarCalc = TauIDVarCalculator()
         tauVarCalc.inTrigger = True
         tauVarCalc.calibFolder = 'TrigTauRec/00-11-01/'
@@ -93,7 +93,7 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
                          jetSigBits = "trigger.sig.bits.jet.BDT.MC15c.ver5.txt")
 
     def VarCalculatorSet(self):
-        from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
+        from tauRecTools.tauRecToolsConf import TauIDVarCalculator
         tauVarCalc = TauIDVarCalculator()
         tauVarCalc.inTrigger = True
         tauVarCalc.calibFolder = 'TrigTauRec/00-11-01/'

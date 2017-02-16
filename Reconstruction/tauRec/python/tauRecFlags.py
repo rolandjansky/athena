@@ -36,7 +36,7 @@ class tauRecToolsCVMFSPath(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue="tauRecTools/00-00-10/"
+    StoredValue="tauRecTools/00-02-00/"
 
 #deprecated
 class TauDiscriminantCVMFSPath(JobProperty):
@@ -60,7 +60,7 @@ class tauRecMVATrackClassificationConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=[[[]]]
-    StoredValue=[ ["TMVAClassification_BDT_l1.weights.root", 0.0002], ["TMVAClassification_BDT_l2.weights.root", -0.0080], ["TMVAClassification_BDT_l3.weights.root", -0.2034] ]
+    StoredValue=[ ["TMVAClassification_BDT_l1.weights.root", 0.0002], ["TMVAClassification_BDT_l2.weights.root", -0.0080], ["TMVAClassification_BDT_l3.r207.weights.root", 0.0005] ]
 
 class tauRecSeedMaxEta(JobProperty):
     """ max allowed abs_eta of jet seed

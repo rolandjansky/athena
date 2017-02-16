@@ -25,6 +25,8 @@
 
 #include "METUtilities/METHelpers.h"
 
+#include "AthContainers/ConstDataVector.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
@@ -37,8 +39,8 @@ namespace ST {
   const static SG::AuxElement::Decorator<char>      dec_passJvt("passJvt");
   const static SG::AuxElement::ConstAccessor<char>  acc_passJvt("passJvt");
   const static SG::AuxElement::ConstAccessor<char>  acc_passFJvt("passFJvt");
-  const static SG::AuxElement::Decorator<double>    dec_jvtscalefact("jvtscalefact");    
-  
+
+  const static SG::AuxElement::Decorator<float> dec_jvt("jvt");
   const static SG::AuxElement::Accessor<float> acc_jvt("jvt");
   
   const static SG::AuxElement::Decorator<char> dec_bjet("bjet");
@@ -103,7 +105,16 @@ namespace ST {
         //      if( m_jetFwdJvtTool->forwardJet(*jet) ){ //redefine Jvt for fwd jets
         if( fabs((*jet).eta()) > m_fwdjetEtaMin ){
           dec_passJvt(*jet) = acc_passFJvt(*jet); 
-          dec_baseline(*jet) &= dec_passJvt(*jet); //redefine baseline after that
+          //dec_baseline(*jet) &= dec_passJvt(*jet); //redefine baseline after that
+	  
+	  //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+	  if ( acc_baseline(*jet) ){
+	    if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
+	    else                        dec_selected(*jet) = 1;
+	  }
+	  else{  
+	    dec_selected(*jet) = 0;    
+	  }
         }
         this->IsBadJet(*jet);
         this->IsSignalJet(*jet, m_jetPt, m_jetEta);
@@ -234,19 +245,24 @@ namespace ST {
         dec_passOR(input) = true;
         dec_bjet_jetunc(input) = false;
 
-        CP::CorrectionCode result = m_fatjetUncertaintiesTool->applyCorrection(input);
-        switch (result) {
-        case CP::CorrectionCode::Error:
-          ATH_MSG_ERROR( " Failed to apply largeR jet scale uncertainties.");
-          return StatusCode::FAILURE;
-          //break;
-        case CP::CorrectionCode::OutOfValidityRange:
-          ATH_MSG_VERBOSE( " No valid pt/eta/m range for largeR jet scale uncertainties. ");
-          break;
-        default:
-          break;
+        // If a user hasn't specified an uncertainty config, then this tool will be empty
+        if (!m_fatjetUncertaintiesTool.empty()){
+          CP::CorrectionCode result = m_fatjetUncertaintiesTool->applyCorrection(input);
+          switch (result) {
+          case CP::CorrectionCode::Error:
+            ATH_MSG_ERROR( " Failed to apply largeR jet scale uncertainties.");
+            return StatusCode::FAILURE;
+            //break;
+          case CP::CorrectionCode::OutOfValidityRange:
+            ATH_MSG_VERBOSE( " No valid pt/eta/m range for largeR jet scale uncertainties. ");
+            break;
+          default:
+            break;
+          }
+        } else {
+          ATH_MSG_DEBUG( "No valid fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
         }
-      
+
         return StatusCode::SUCCESS;
       }
       ATH_MSG_VERBOSE(  " jet (pt,eta,phi) after calibration " << input.pt() << " " << input.eta() << " " << input.phi() );
@@ -256,7 +272,7 @@ namespace ST {
       ATH_MSG_VERBOSE("JVT recalculation: "
                       << acc_jvt(input) << " (before)"
                       << jvt << " (after)");
-      acc_jvt(input) = jvt;
+      dec_jvt(input) = jvt;
     }
 
     dec_passOR(input) = true;
@@ -281,14 +297,25 @@ namespace ST {
 
     dec_baseline(input) = input.pt() > 20e3;
     dec_bad(input) = false;
+    dec_signal_less_JVT(input) = false;
     dec_signal(input) = false;
     dec_bjet_loose(input) = false;
     dec_effscalefact(input) = 1.;
 
-    if (!acc_passJvt(input)) {
-      dec_baseline(input) = false;
-      return StatusCode::SUCCESS;
+
+    //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+    if (acc_baseline(input) ){
+      if( acc_passJvt(input) ) 	dec_selected(input) = 2;
+      else                  	dec_selected(input) = 1;
     }
+    else{
+      	dec_selected(input) = 0;
+    }
+
+    // if (!acc_passJvt(input)) {
+    //   dec_baseline(input) = false;
+    //   return StatusCode::SUCCESS;
+    // }
 
     if (m_useBtagging && !m_orBtagWP.empty()) {
       bool isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5
@@ -328,7 +355,7 @@ namespace ST {
   
   bool SUSYObjDef_xAOD::JetPassJVT(xAOD::Jet& input, bool update_jvt) {
     if(update_jvt){ 
-      acc_jvt(input) = m_jetJvtUpdateTool->updateJvt(input);  
+      dec_jvt(input) = m_jetJvtUpdateTool->updateJvt(input);  
     }
 
     char pass_jvt = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
@@ -342,6 +369,12 @@ namespace ST {
     if ( input.pt() <= ptcut || fabs(input.eta()) >= etacut) return false;
 
     bool isgoodjet = !acc_bad(input) && acc_passJvt(input);
+
+    dec_signal(input) = isgoodjet;
+
+    // For JVT calculation
+    dec_signal_less_JVT(input) = !acc_bad(input);
+
 
     if (m_debug) {
       float emfrac, hecf, LArQuality, HECQuality, Timing,  fracSamplingMax, NegativeE, AverageLArQF;
@@ -375,7 +408,7 @@ namespace ST {
       ATH_MSG_INFO( "JET fracSamplingMax: " << fracSamplingMax );
       ATH_MSG_INFO( "JET AverageLArQF: " << AverageLArQF );
     }
-    dec_signal(input) = isgoodjet;
+
     ATH_MSG_VERBOSE( "JET isbad?: " << (int) acc_bad(input) );
 
     return isgoodjet;
@@ -445,7 +478,7 @@ namespace ST {
         if (!jet->getAttribute("HadronConeExclTruthLabelID", truthlabel)) {
           ATH_MSG_ERROR("Failed to get jet truth label!");
         }
-	const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
+        const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
         ATH_MSG_VERBOSE("This jet is " << (acc_bjet(*jet) ? "" : "not ") << "b-tagged.");
         ATH_MSG_VERBOSE("This jet's truth label is " << truthlabel);
 
@@ -515,30 +548,26 @@ namespace ST {
 
   double SUSYObjDef_xAOD::JVT_SF(const xAOD::JetContainer* jets) {
 
-    double totalSF = 1.;
+    float totalSF = 1.;
     if (!m_applyJVTCut) return totalSF;
 
-    for ( const auto& jet : *jets ) {
-
-      float sf = 1.;
-
-      CP::CorrectionCode ret = m_jetJvtEfficiencyTool->getEfficiencyScaleFactor(*jet, sf);
-
-      dec_jvtscalefact(*jet) = sf;
-
-      switch (ret) {
-      case CP::CorrectionCode::Error:
-        ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::JVT_SF" );
-        continue;
-      case CP::CorrectionCode::OutOfValidityRange:
-        ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::JVT_SF" );
-        continue;
-      default:
-        ATH_MSG_VERBOSE( " Retrieve SF for jet in SUSYTools_xAOD::JVT_SF with value " << sf );
+    ConstDataVector<xAOD::JetContainer> jvtjets(SG::VIEW_ELEMENTS);
+    for (const auto& jet : *jets) {
+      // Only jets that were good for every cut except JVT
+      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet)) {
+        jvtjets.push_back(jet);
       }
+    }
 
-      if( acc_signal(*jet) && acc_passOR(*jet) ) totalSF *= sf; //consider goodjets only 
+    CP::CorrectionCode ret = m_jetJvtEfficiencyTool->applyAllEfficiencyScaleFactor( jvtjets.asDataVector() , totalSF );
 
+    switch (ret) {
+    case CP::CorrectionCode::Error:
+      ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::JVT_SF" );
+    case CP::CorrectionCode::OutOfValidityRange:
+      ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::JVT_SF" );
+    default:
+      ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
     }
 
     return totalSF;

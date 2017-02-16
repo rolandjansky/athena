@@ -51,7 +51,7 @@ StatusCode MuonTPEfficiencyTool::initialize()
 
 //**********************************************************************
 
-void MuonTPEfficiencyTool::matchProbes(ProbeContainer* , const xAOD::IParticleContainer* ) const
+void MuonTPEfficiencyTool::matchProbes(ProbeContainer* ) const
 {
     // do nothing by default
 }

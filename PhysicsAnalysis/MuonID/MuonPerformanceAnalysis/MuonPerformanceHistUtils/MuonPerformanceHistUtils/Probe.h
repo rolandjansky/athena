@@ -7,6 +7,9 @@
 #define PROBE_H
 
 #include "xAODBase/IParticle.h"
+#include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTracking/VertexFwd.h"
+#include "xAODTracking/VertexContainerFwd.h"
 
 class Probe {
 
@@ -70,6 +73,11 @@ class Probe {
   float dRL1;
   float dRHLT;
 
+  // JPsi vertexing information - setter and getter
+  void setVertex(const xAOD::Vertex* vertex);
+  const xAOD::Vertex* getVertex();
+
+
  private:
 
   bool m_isMatched;
@@ -89,6 +97,8 @@ class Probe {
   std::string m_CurrentTrigger;
   bool        m_HasSomeTrigger;
   bool        m_HasSomeTrigger_HLT;
+
+  const xAOD::Vertex* m_vx; 
 };
 
 #endif

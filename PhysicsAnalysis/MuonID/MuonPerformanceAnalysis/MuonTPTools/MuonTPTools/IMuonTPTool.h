@@ -20,7 +20,7 @@ class IMuonTPTool : virtual public asg::IAsgTool {
 public:
 
     /// run the tag-and-probe 
-    virtual void runTagAndProbe(const xAOD::MuonContainer*, const xAOD::IParticleContainer*, const xAOD::IParticleContainer*) =0;
+    virtual void runTagAndProbe(const xAOD::MuonContainer*, const xAOD::IParticleContainer*) =0;
 
     /// retrieve booked histograms
     virtual std::vector<HistData> retrieveBookedHistograms() = 0;

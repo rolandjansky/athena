@@ -35,7 +35,7 @@ public:
   virtual StatusCode initialize();
 
   /// Match probes for efficiency calculation
-  virtual void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const =0;
+  virtual void matchProbes(ProbeContainer*) const =0;
   
   /// dR-based matching
   virtual void dRMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const;

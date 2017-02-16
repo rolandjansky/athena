@@ -52,6 +52,7 @@ namespace MuonCombined {
     declareProperty("MuonTrackBuilder",           m_trackFitter );    
     declareProperty("TrackAmbiguityProcessor",m_trackAmbibuityResolver );    
     declareProperty("IDTrackMinPt", m_idTrackMinPt = 2500.0 );
+    declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
   }
 
   MuonInsideOutRecoTool::~MuonInsideOutRecoTool() { }
@@ -88,6 +89,11 @@ namespace MuonCombined {
 
   void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) {
     
+    if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
+      ATH_MSG_DEBUG(" skip silicon associated track for extension ");
+      return;
+    }
+
     const xAOD::TrackParticle& indetTrackParticle = indetCandidate.indetTrackParticle();
     if( !indetTrackParticle.track() || indetTrackParticle.pt() < m_idTrackMinPt ) return;
     

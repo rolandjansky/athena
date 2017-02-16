@@ -59,75 +59,75 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
   virtual StatusCode initialize        ();
   virtual StatusCode finalize          ();
   
-  std::string segmentStationString( const Muon::MuonSegment* segment ) ;
+  std::string segmentStationString( const Muon::MuonSegment* segment ) const ;
 
   void testExtrapolation( const Trk::Surface* pSurface,
 			  const Trk::Track* pTrack
-			  );
+			  ) const;
   
   bool match( const Trk::TrackParameters*  atSurface, 
 	      const Muon::MuonSegment*     segment, 
-	      std::string                  surfaceName );
+	      std::string                  surfaceName ) const ;
   
   bool surfaceMatch( const Trk::TrackParameters*  atSurface, 
 		     const Muon::MuonSegment*     segment, 
-		     std::string                  surfaceName );
+		     std::string                  surfaceName ) const ;
   
   bool phiMatch( const Trk::TrackParameters*  atSurface, 
 		 const Muon::MuonSegment*     segment, 
-		 std::string                  surfaceName );
+		 std::string                  surfaceName ) const ;
   
   bool thetaMatch(  const Trk::TrackParameters*  atSurface, 
-		    const Muon::MuonSegment*     segment  );
+		    const Muon::MuonSegment*     segment  ) const ;
 
   bool rMatch(  const Trk::TrackParameters*  atSurface, 
-		const Muon::MuonSegment*     segment  );
+		const Muon::MuonSegment*     segment  ) const ;
 
   /** Get extrapolation at MS entrance level*/
   const Trk::TrackParameters* ExtrapolateTrktoMSEntrance(
 						       const Trk::Track* pTrack,
 						       Trk::PropDirection direction
-						       );
+						       ) const ;
 
   /** Get extrapolation at MSSurface level*/
   const Trk::TrackParameters* ExtrapolateTrktoMSSurface(
 						       const Trk::Surface* surface,
 						       const Trk::TrackParameters* pTrack,
 						       Trk::PropDirection direction
-						       );
+						       ) const ;
 
   /** Get extrapolation at Segment Plane Surface level*/
   const Trk::AtaPlane* ExtrapolateTrktoSegmentSurface(
 							    const Muon::MuonSegment*  segment,
 							    const Trk::TrackParameters* pTrack,
 							    Trk::PropDirection direction
-							    );
-  bool hasPhi( const Muon::MuonSegment* seg );
+							    ) const ;
+  bool hasPhi( const Muon::MuonSegment* seg ) const ;
    
-  double errorProtection( double exTrk_Err, bool isAngle );
+  double errorProtection( double exTrk_Err, bool isAngle ) const;
  
-  bool matchSegmentPosition( MuonCombined::MuonSegmentInfo* info,  bool idHasEtaHits);
+  bool matchSegmentPosition( MuonCombined::MuonSegmentInfo* info,  bool idHasEtaHits) const ;
 
-  bool matchSegmentDirection( MuonCombined::MuonSegmentInfo* info,  bool idHasEtaHits);
+  bool matchSegmentDirection( MuonCombined::MuonSegmentInfo* info,  bool idHasEtaHits) const;
    
 
   bool matchPtDependentPull( MuonCombined::MuonSegmentInfo* info,
-		       const Trk::Track*            trk ) ;
+		       const Trk::Track*            trk ) const ;
 
-  bool matchDistance( MuonCombined::MuonSegmentInfo* info);
+  bool matchDistance( MuonCombined::MuonSegmentInfo* info) const ;
 
-  bool matchCombinedPull( MuonCombined::MuonSegmentInfo* info );
+  bool matchCombinedPull( MuonCombined::MuonSegmentInfo* info ) const ;
   
   void nrTriggerHits( const Muon::MuonSegment* seg, 
-		      int& nRPC, int& nTGC );
+		      int& nRPC, int& nTGC ) const ;
 
-  const Trk::Perigee* flipDirection( const Trk::Perigee* inputPars ) ;
+  const Trk::Perigee* flipDirection( const Trk::Perigee* inputPars ) const ;
 
-  MuonCombined::MuonSegmentInfo muTagSegmentInfo( const Trk::Track* track, const Muon::MuonSegment* segment,  const Trk::AtaPlane* exTrack ) ;
+  MuonCombined::MuonSegmentInfo muTagSegmentInfo( const Trk::Track* track, const Muon::MuonSegment* segment,  const Trk::AtaPlane* exTrack ) const ;
 
-  void calculateLocalAngleErrors( const Trk::AtaPlane* expPars, double& exTrkErrXZ, double& exTrkErrYZ, double& covLocYYZ );
+  void calculateLocalAngleErrors( const Trk::AtaPlane* expPars, double& exTrkErrXZ, double& exTrkErrYZ, double& covLocYYZ ) const;
 
-  void calculateLocalAngleErrors( const Muon::MuonSegment* segment, double& exTrkErrXZ, double& exTrkErrYZ );
+  void calculateLocalAngleErrors( const Muon::MuonSegment* segment, double& exTrkErrXZ, double& exTrkErrYZ ) const ;
 
 
  private:
@@ -158,8 +158,6 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
 
    bool m_assumeLocalErrors;
    bool m_extrapolatePerigee;
-
-   const Trk::TrackingGeometry *m_trackingGeometry;
 
    double m_GLOBAL_THETA_CUT;
    double m_GLOBAL_PHI_CUT;

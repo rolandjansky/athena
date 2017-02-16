@@ -16,6 +16,7 @@
 #include "../FilterTracksInRoIs.h"
 #include "../TestViewDriver.h"
 #include "../SchedulerProxyAlg.h"
+#include "../TestCombiner.h"
 
 
 
@@ -34,6 +35,7 @@ DECLARE_ALGORITHM_FACTORY( TestSplitAlg )
 DECLARE_ALGORITHM_FACTORY( MergeRoIsAlg )
 DECLARE_ALGORITHM_FACTORY( TestViewDriver )
 DECLARE_ALGORITHM_FACTORY( SchedulerProxyAlg )
+DECLARE_ALGORITHM_FACTORY( TestCombiner )
 
 DECLARE_FACTORY_ENTRIES( ViewAlgsTest )
 {
@@ -48,6 +50,7 @@ DECLARE_FACTORY_ENTRIES( ViewAlgsTest )
   DECLARE_ALGORITHM( MergeRoIsAlg )
   DECLARE_ALGORITHM( TestViewDriver )
   DECLARE_ALGORITHM( SchedulerProxyAlg )
+  DECLARE_ALGORITHM( TestCombiner )
   DECLARE_TOOL( TestHypoTool )
   DECLARE_TOOL( TrackHypoTool )
   DECLARE_TOOL( TrackRoIAssocTool )

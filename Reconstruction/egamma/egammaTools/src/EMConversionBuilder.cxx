@@ -145,6 +145,9 @@ StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) {
     ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
     return StatusCode::SUCCESS;
   }
+  //reset the vertices
+  std::vector< ElementLink< xAOD::VertexContainer > >  vertices;
+  egRec->setVertices(vertices);
   ATH_CHECK(vertexExecute(egRec,conversions));
   return StatusCode::SUCCESS;
 }

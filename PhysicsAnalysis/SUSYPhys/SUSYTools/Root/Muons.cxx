@@ -132,6 +132,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   ATH_MSG_VERBOSE( "Starting FillMuon on mu with pt=" << input.pt() );
   
   dec_baseline(input) = false;
+  dec_selected(input) = 0;
   dec_signal(input) = false;
   dec_isol(input) = false;
   dec_passedHighPtCuts(input) = false;
@@ -227,8 +228,12 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   if ( !m_force_noMuId && !m_muonSelectionToolBaseline->accept(input)) return StatusCode::SUCCESS;
   
   if (input.pt() <= ptcut || fabs(input.eta()) >= etacut) return StatusCode::SUCCESS;
-  
+
+  if (m_mubaselinez0>0. && acc_z0sinTheta(input)>m_mubaselinez0) return StatusCode::SUCCESS;
+  if (m_mubaselined0sig>0. && acc_d0sig(input)>m_mubaselined0sig) return StatusCode::SUCCESS;
+
   dec_baseline(input) = true;
+  dec_selected(input) = 2;
   
   if (!(dec_passSignalID(input) = m_muonSelectionTool->accept(input))) return StatusCode::SUCCESS;
   
@@ -259,9 +264,13 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
     ATH_MSG_VERBOSE( "IsSignalMuon: passed isolation");
   } else return false; //isolation selection with IsoTool
 
-  if (m_muId == 4) { //corresponds to HighPt muons
-    if (!IsHighPtMuon(input)) return false; // sets dec_passedHighPtCuts decoration
-  }
+  //set HighPtMuon decoration
+  IsHighPtMuon(input);
+
+  //deprecated
+  // if (m_muId == 4) { //corresponds to HighPt muons
+  //   if (!IsHighPtMuon(input)) return false; // sets dec_passedHighPtCuts decoration
+  // }
 
   dec_signal(input) = true;
 
@@ -291,11 +300,12 @@ bool SUSYObjDef_xAOD::IsHighPtMuon(const xAOD::Muon& input) const
     dec_passedHighPtCuts(input) = false;
     return false;
   }
-  
-  bool isHighPt = m_muonSelectionTool->passedHighPtCuts(input);
+
+  bool isHighPt=false;
+  isHighPt = m_muonSelectionHighPtTool->accept(input);
   dec_passedHighPtCuts(input) = isHighPt;
+
   return isHighPt;
-  
 }
 
 
@@ -303,6 +313,9 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
 {
   const static SG::AuxElement::Decorator<char> dec_bad("bad");
   dec_bad(input) = false;
+
+  const static SG::AuxElement::Decorator<char> dec_bad_highPt("bad_highPt");
+  dec_bad_highPt(input) = false;
 
   //const xAOD::TrackParticle* track = input.primaryTrackParticle();   //no need for SAF muon special treatment anymore!
   const xAOD::TrackParticle* track;
@@ -317,12 +330,16 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
   float Rerr = Amg::error(track->definingParametersCovMatrix(), 4) / fabs(track->qOverP());
   ATH_MSG_VERBOSE( "Track momentum error (%): " << Rerr * 100 );
   bool isbad = Rerr > qopcut;
+  bool isbadHighPt = Rerr > qopcut;
 
   //new recommendation from MCP
   isbad |= m_muonSelectionTool->isBadMuon(input);
 
+  //new recommendation from MCP (at HighPT
+  isbadHighPt |= m_muonSelectionHighPtTool->isBadMuon(input);
 
   dec_bad(input) = isbad;
+  dec_bad_highPt(input) = isbadHighPt;
 
   ATH_MSG_VERBOSE( "MUON isbad?: " << isbad );
   return isbad;
@@ -361,14 +378,14 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
 }
 
 
-float SUSYObjDef_xAOD::GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF, const bool isoSF)
+  float SUSYObjDef_xAOD::GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF, const bool isoSF, const bool doBadMuonHP, const bool warnOVR)
 {
   float sf(1.);
 
   if (recoSF) {
     float sf_reco(1.);
     if (m_muonEfficiencySFTool->getEfficiencyScaleFactor( mu, sf_reco ) == CP::CorrectionCode::OutOfValidityRange) {
-      ATH_MSG_WARNING(" GetSignalMuonSF: Reco getEfficiencyScaleFactor out of validity range");
+      if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: Reco getEfficiencyScaleFactor out of validity range");
     }
     ATH_MSG_VERBOSE( " MuonReco ScaleFactor " << sf_reco );
     sf *= sf_reco;
@@ -376,10 +393,19 @@ float SUSYObjDef_xAOD::GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF, 
     float sf_ttva(1.);
     if(m_doTTVAsf){
       if (m_muonTTVAEfficiencySFTool->getEfficiencyScaleFactor( mu, sf_ttva ) == CP::CorrectionCode::OutOfValidityRange) {
-	ATH_MSG_WARNING(" GetSignalMuonSF: TTVA getEfficiencyScaleFactor out of validity range");
+	if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: TTVA getEfficiencyScaleFactor out of validity range");
       }
       ATH_MSG_VERBOSE( " MuonTTVA ScaleFactor " << sf_ttva );
       sf *= sf_ttva;
+    }
+
+    float sf_badHighPt(1.);
+    if(m_muId == 4 && doBadMuonHP){
+      if (m_muonEfficiencyBMHighPtSFTool->getEfficiencyScaleFactor( mu, sf_badHighPt ) == CP::CorrectionCode::OutOfValidityRange) {
+	if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: BadMuonHighPt getEfficiencyScaleFactor out of validity range");
+      }
+      ATH_MSG_VERBOSE( " MuonTTVA ScaleFactor " << sf_badHighPt );
+      sf *= sf_badHighPt;
     }
   }
 
@@ -389,7 +415,7 @@ float SUSYObjDef_xAOD::GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF, 
       ATH_MSG_WARNING(" GetSignalMuonSF: Attempt to retrieve isolation SF for unsupported working point " << m_muIso_WP);
     } else {
       if (m_muonIsolationSFTool->getEfficiencyScaleFactor( mu, sf_iso ) == CP::CorrectionCode::OutOfValidityRange) {
-        ATH_MSG_WARNING(" GetSignalMuonSF: Iso getEfficiencyScaleFactor out of validity range");
+        if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: Iso getEfficiencyScaleFactor out of validity range");
       }
       ATH_MSG_VERBOSE( " MuonIso ScaleFactor " << sf_iso );
       sf *= sf_iso;
@@ -430,7 +456,7 @@ double SUSYObjDef_xAOD::GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std
 
 double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) {
 
-  if (trigExpr.empty()) return 1.;
+  if (trigExpr.empty() || sfmuons.size()==0) return 1.;
 
   if (GetRandomRunNumber() == 0){
     ATH_MSG_VERBOSE("RRN = 0. Setting Muon Trigger Eff SF = 1 .");
@@ -500,14 +526,17 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
 }
 
 
-double SUSYObjDef_xAOD::GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF, const bool isoSF, const std::string& trigExpr) {
+  double SUSYObjDef_xAOD::GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF, const bool isoSF, const std::string& trigExpr, const bool bmhptSF) {
   double sf(1.);
 
   ConstDataVector<xAOD::MuonContainer> sfmuons(SG::VIEW_ELEMENTS);
   for (const auto& muon : muons) {
-    if (acc_signal(*muon) && acc_passOR(*muon)) {
+    if( !acc_passOR(*muon) ) continue;
+    if (acc_signal(*muon)) {
       sfmuons.push_back(muon);
-      if (recoSF || isoSF) { sf *= this->GetSignalMuonSF(*muon, recoSF, isoSF); }
+      if (recoSF || isoSF) { sf *= this->GetSignalMuonSF(*muon, recoSF, isoSF, bmhptSF); }
+    } else { // decorate baseline muons as well
+      if (recoSF || isoSF) { this->GetSignalMuonSF(*muon, recoSF, isoSF, bmhptSF, false); } //avoid OVR warnings in this case
     }
   }
 
@@ -517,13 +546,18 @@ double SUSYObjDef_xAOD::GetTotalMuonSF(const xAOD::MuonContainer& muons, const b
 }
 
 
-double SUSYObjDef_xAOD::GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF, const bool isoSF, const std::string& trigExpr) {
+  double SUSYObjDef_xAOD::GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF, const bool isoSF, const std::string& trigExpr, const bool bmhptSF) {
 
   double sf(1.);
   //Set the new systematic variation
   CP::SystematicCode ret = m_muonEfficiencySFTool->applySystematicVariation(systConfig);
   if ( ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure MuonEfficiencyScaleFactors for systematic var. " << systConfig.name() );
+  }
+
+  ret = m_muonEfficiencyBMHighPtSFTool->applySystematicVariation(systConfig);
+  if ( ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure MuonBadMuonHighPtScaleFactors for systematic var. " << systConfig.name() );
   }
 
   ret = m_muonTTVAEfficiencySFTool->applySystematicVariation(systConfig);
@@ -545,12 +579,17 @@ double SUSYObjDef_xAOD::GetTotalMuonSFsys(const xAOD::MuonContainer& muons, cons
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2016) for systematic var. " << systConfig.name() );
   }
 
-  sf = GetTotalMuonSF(muons, recoSF, isoSF, trigExpr);
+  sf = GetTotalMuonSF(muons, recoSF, isoSF, trigExpr, bmhptSF);
 
   //Roll back to default
   ret  = m_muonEfficiencySFTool->applySystematicVariation(m_currentSyst);
   if ( ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure MuonEfficiencyScaleFactors back to default.");
+  }
+
+  ret = m_muonEfficiencyBMHighPtSFTool->applySystematicVariation(m_currentSyst);
+  if ( ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure MuonBadMuonHighPtScaleFactors back to default.");
   }
 
   ret  = m_muonTTVAEfficiencySFTool->applySystematicVariation(m_currentSyst);

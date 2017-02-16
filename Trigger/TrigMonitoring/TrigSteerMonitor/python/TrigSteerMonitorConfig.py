@@ -3,22 +3,13 @@
 from TrigSteerMonitor.TrigSteerMonitorConf import *
 
 
-class TrigChainMoniConfigValidation(TrigChainMoni):
-    """ Chains monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigChainMoniValidation"):
-        super(TrigChainMoniConfigValidation, self).__init__(name)
-        self.LBNHistoryDepth=0
-
-    def target(self):
-        return [ "Validation" ]
-
 class TrigErrorMonConfigValidation(TrigErrorMon):
     """ HLT Error Code monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigErrorMonValidation"):
         super(TrigErrorMonConfigValidation, self).__init__(name)
         self.LBNHistoryDepth=0
+
     def target(self):
         return [ "Validation" ]
 
@@ -29,6 +20,7 @@ class TrigRoIMoniConfigValidation(TrigRoIMoni):
         super(TrigRoIMoniConfigValidation, self).__init__(name)
         self.LBNHistoryDepth=0
         self.ThreshMultiMax=18
+
     def target(self):
         return [ "Validation" ]
 
@@ -39,32 +31,29 @@ class TrigSignatureMoniConfigValidation(TrigSignatureMoni):
         super(TrigSignatureMoniConfigValidation, self).__init__(name)
         self.LBNHistoryDepth=0
 
-
     def target(self):
         return [ "Validation" ]
 
-class TrigTEMoniConfigValidation(TrigTEMoni):
+class TrigTEMoniConfig(TrigTEMoni):
     """ TriggerElement monitoring """
     __slots__ =  [ ]
-    def __init__(self,name="TrigTEMoniValidation"):
-        super(TrigTEMoniConfigValidation, self).__init__(name)
+    def __init__(self,name="TrigTEMoni"):
+        super(TrigTEMoniConfig, self).__init__(name)
         self.LBNHistoryDepth=0
 
     def target(self):
         return [ "Validation" ]
 
 
-# online
-
-class TrigChainMoniConfigOnline(TrigChainMoni):
+class TrigChainMoniConfig(TrigChainMoni):
     """ Chains monitoring """
     __slots__ =  [ ]
-    def __init__(self,name="TrigChainMoniOnline"):
-        super(TrigChainMoniConfigOnline, self).__init__(name)
+    def __init__(self,name="TrigChainMoni"):
+        super(TrigChainMoniConfig, self).__init__(name)
         self.LBNHistoryDepth=0
 
     def target(self):
-        return [ "Online", "Cosmic" ]
+        return [ "Online", "Validation" ]
 
 class TrigErrorMonitor(TrigErrorMon):
     """ HLT Error Code monitoring """
@@ -75,7 +64,7 @@ class TrigErrorMonitor(TrigErrorMon):
         self.expertMode=False
         
     def target(self):
-        return [ "Online", "Cosmic", "Validation" ]
+        return [ "Online", "Validation" ]
 
 class TrigErrorExpertMonitor(TrigErrorMon):
     """ HLT Error Code monitoring for experts (all errorcodes) """
@@ -86,7 +75,7 @@ class TrigErrorExpertMonitor(TrigErrorMon):
         self.expertMode=True
         
     def target(self):
-        return [ "Online", "Cosmic", "Validation" ]    
+        return [ "Online", "Validation" ]    
 
 class TrigRoIMoniConfigOnline(TrigRoIMoni):
     """ RoI monitoring """
@@ -96,10 +85,8 @@ class TrigRoIMoniConfigOnline(TrigRoIMoni):
         self.LBNHistoryDepth=2
         self.ThreshMultiMax=30
 
-
-
     def target(self):
-        return [ "Online", "Cosmic" ]
+        return [ "Online" ]
 
 class TrigSignatureMoniConfigOnline(TrigSignatureMoni):
     """ Signature monitoring """
@@ -109,17 +96,7 @@ class TrigSignatureMoniConfigOnline(TrigSignatureMoni):
         self.LBNHistoryDepth=5
 
     def target(self):
-        return [ "Online", "Cosmic" ]
-
-class TrigTEMoniConfigOnline(TrigTEMoni):
-    """ TriggerElement monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigTEMoniOnline"):
-        super(TrigTEMoniConfigOnline, self).__init__(name)
-        self.LBNHistoryDepth=0
-
-    def target(self):
-        return [ "Online", "Cosmic" ]
+        return [ "Online" ]
 
 class TrigRateMoniConfig20s(TrigRateMoni):
     """ Rates monitor for online use only """
@@ -136,7 +113,7 @@ class TrigRateMoniConfig20s(TrigRateMoni):
             ]
         
     def target(self):
-        return [ "Online", "Cosmic" ]    
+        return [ "Online" ]    
 
 
 class TrigOpMonitor(TrigOpMoni):
@@ -145,7 +122,7 @@ class TrigOpMonitor(TrigOpMoni):
         super(TrigOpMonitor, self).__init__(name)
         
     def target(self):
-        return [ "Online", "Cosmic" ]
+        return [ "Online", "Validation" ]
 
 class TrigMemMonitor(TrigMemMoni):
     """ Memory monitor """
@@ -175,18 +152,14 @@ class TrigCorMonitor(TrigCorMoni):
         super(TrigCorMonitor, self).__init__(name)
         
     def target(self):
-        return [ "Online", "Cosmic" ]
+        return [ "Online", "Validation" ]
     
-TrigSteerMonitorToolList = [  TrigChainMoniConfigValidation(),
-                              TrigErrorMonitor(),
+TrigSteerMonitorToolList = [  TrigErrorMonitor(),
                               TrigErrorExpertMonitor(),
-                              TrigRoIMoniConfigValidation(),
-                              TrigSignatureMoniConfigValidation(),
-                              TrigTEMoniConfigValidation(), 
-                              TrigChainMoniConfigOnline(),
-                              TrigRoIMoniConfigOnline(),
-                              TrigSignatureMoniConfigOnline(),
-                              TrigTEMoniConfigOnline(),
+                              TrigRoIMoniConfigValidation(), TrigRoIMoniConfigOnline(),
+                              TrigSignatureMoniConfigValidation(), TrigSignatureMoniConfigOnline(),
+                              TrigTEMoniConfig(), 
+                              TrigChainMoniConfig(),                                                            
                               TrigOpMonitor(),
                               TrigMemMonitor(),
                               TrigROBMoniConfig(),

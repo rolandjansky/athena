@@ -7,11 +7,6 @@
 
 /// algorithm to decode RDO into PrepRawData
 
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonRDO/CscRawData.h"
@@ -47,7 +42,8 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
   : AthAlgTool(type, name, parent),
     m_muonMgr(0),
     m_cscHelper(0),
-    m_cscStripPrepDataContainer(0),
+    m_outputCollection("CSC_Measurements"),
+    m_rdoContainer("CSCRDO"),
     m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
     m_cscCalibTool( "CscCalibTool/CscCalibTool"),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder"),
@@ -56,7 +52,8 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
 
   declareInterface<IMuonRdoToPrepDataTool>(this);
   declareProperty("CSCHashIdOffset",     m_cscOffset = 22000);
-  declareProperty("OutputCollection",    m_outputCollectionLocation = "CSC_Measurements" );
+  declareProperty("OutputCollection",    m_outputCollection );
+  declareProperty("RDOContainer",        m_rdoContainer );
   declareProperty("DecodeData",          m_decodeData = true ); 
   declareProperty("useBStoRdoTool",      m_useBStoRdoTool = false ); 
   // tools 
@@ -71,7 +68,7 @@ CscRdoToCscPrepDataTool::~CscRdoToCscPrepDataTool(){}
 StatusCode CscRdoToCscPrepDataTool::finalize() {
 
   ATH_MSG_DEBUG("in finalize()");
-  m_cscStripPrepDataContainer->release();
+
   
   return StatusCode::SUCCESS;
 
@@ -109,13 +106,7 @@ StatusCode CscRdoToCscPrepDataTool::initialize(){
   
   /// create an empty CSC cluster container for filling
   m_cscHelper = m_muonMgr->cscIdHelper();
-  try {
-    m_cscStripPrepDataContainer = new CscStripPrepDataContainer(m_cscHelper->module_hash_max()); 
-  } catch(std::bad_alloc) {
-    ATH_MSG_FATAL ( "Could not create a new CSC PrepRawData container!");
-    return StatusCode::FAILURE;
-  }
-  m_cscStripPrepDataContainer->addRef();
+
   
   if ( m_cabling.retrieve().isFailure() )
   {
@@ -135,15 +126,10 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
   // clear output vector of selected data collections containing data
   decodedIdhs.clear();
 
-  if (!evtStore()->contains<Muon::CscStripPrepDataContainer>(m_outputCollectionLocation)) {
-    /// clean up the PrepRawData container
-    m_cscStripPrepDataContainer->cleanup();
+  if (!evtStore()->contains<Muon::CscStripPrepDataContainer>(m_outputCollection.key())) {
     
     /// record the container in storeGate
-    if (evtStore()->record(m_cscStripPrepDataContainer,m_outputCollectionLocation).isFailure()) {
-      ATH_MSG_FATAL ( "Could not record container of CSC PrepRawData at " << m_outputCollectionLocation );
-      return StatusCode::FAILURE;
-    }
+    m_outputCollection = std::unique_ptr<Muon::CscStripPrepDataContainer>(new CscStripPrepDataContainer(m_muonMgr->cscIdHelper()->module_hash_max())); 
 
     if (sizeVectorRequested == 0) {
       m_fullEventDone=true;
@@ -188,11 +174,13 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
   // this will just get the pointer from memory if the container is already recorded in SG 
   // or 
   // will activate the TP converter for reading from pool root the RDO container and recording it in SG
-  const CscRawDataContainer* rdoContainer;
-  if (evtStore()->retrieve( rdoContainer, "CSCRDO" ).isFailure()) {
+
+  if (!m_rdoContainer.isValid()) {
     ATH_MSG_WARNING ( "No CSC RDO container in StoreGate!" );
     return StatusCode::SUCCESS;
   }	
+  const CscRawDataContainer* rdoContainer = m_rdoContainer.cptr();
+
   ATH_MSG_DEBUG ( "Retrieved " << rdoContainer->size() << " CSC RDOs." );
   // here the RDO container is in SG and its pointer m_rdoContainer is initialised 
   // decoding 
@@ -231,7 +219,7 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
   }
 
   // identifiers of collections already decoded and stored in the container will be skipped
-  if (m_cscStripPrepDataContainer->indexFind(givenHashId) != m_cscStripPrepDataContainer->end()) {
+  if (m_outputCollection->indexFind(givenHashId) != m_outputCollection->end()) {
     decodedIdhs.push_back(givenHashId);
     ATH_MSG_DEBUG ("A collection already exists in the container for offline id hash. "
                    << (int) givenHashId);
@@ -253,7 +241,7 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
   }
 
 
-  const CscRawDataCollection * rawCollection = it_coll->cptr();
+  const CscRawDataCollection * rawCollection = *it_coll;
   ATH_MSG_DEBUG ( "Retrieved " << rawCollection->size() << " CSC RDOs.");
   //************************************************
   Identifier oldId;
@@ -298,17 +286,23 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
     }
 
     if (oldId != stationId) {
-      Muon::CscStripPrepDataContainer::const_iterator it_coll = m_cscStripPrepDataContainer->indexFind(cscHashId);
-      if (m_cscStripPrepDataContainer->end() == it_coll) {
+      Muon::CscStripPrepDataContainer::const_iterator it_coll = m_outputCollection->indexFind(cscHashId);
+      if (m_outputCollection->end() == it_coll) {
 	CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
 	newCollection->setIdentifier(stationId);
 	collection = newCollection;
-	if ( m_cscStripPrepDataContainer->addCollection(newCollection, cscHashId).isFailure() )
+	if ( m_outputCollection->addCollection(newCollection, cscHashId).isFailure() )
 	  ATH_MSG_WARNING ("Couldn't record CscStripPrepdataCollection with key="
 			   << (unsigned int) cscHashId << " in StoreGate!" );
 	decodedIdhs.push_back(cscHashId); //Record that this collection contains data
       } else {  // It won't be needed because we already skipped decoded one (should be checked it's true)
-	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll->cptr() );
+
+//Hack for transition to athenaMT classes
+#ifdef __IdentifiableContainerMTUSED
+	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
+#else
+        CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll->cptr());
+#endif 
 	collection = oldCollection;
 	cscHashId = collection->identifyHash();
       }
@@ -532,18 +526,25 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
 	}
 
 	if (oldId != stationId) {
-	  Muon::CscStripPrepDataContainer::const_iterator it_coll = m_cscStripPrepDataContainer->indexFind(cscHashId);
-	  if (m_cscStripPrepDataContainer->end() == it_coll) {
+	  Muon::CscStripPrepDataContainer::const_iterator it_coll = m_outputCollection->indexFind(cscHashId);
+	  if (m_outputCollection->end() == it_coll) {
 	    CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
 	    newCollection->setIdentifier(stationId);
 	    collection = newCollection;
-	    if ( m_cscStripPrepDataContainer->addCollection(newCollection, cscHashId).isFailure() )
+	    if ( m_outputCollection->addCollection(newCollection, cscHashId).isFailure() )
 	      ATH_MSG_WARNING( "Couldn't record CscStripPrepdataCollection with key=" << (unsigned int) cscHashId
 			       << " in StoreGate!" );
 	    decodedIdhs.push_back(cscHashId); //Record that this collection contains data
 	    
 	  } else {  
-	    CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll->cptr() );
+//Hack for transition to athenaMT classes
+#ifdef __IdentifiableContainerMTUSED
+            CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
+#else
+            CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll->cptr());
+#endif
+
+
 	    collection = oldCollection;
 	    cscHashId = collection->identifyHash();
 	    
@@ -737,18 +738,18 @@ void CscRdoToCscPrepDataTool::printPrepData()
   ATH_MSG_INFO ( "***************************************************************" );
   ATH_MSG_INFO ( "****** Listing Csc(Strip)PrepData collections content *********" );
 
-  if (m_cscStripPrepDataContainer->size() <= 0)
+  if (m_outputCollection->size() <= 0)
     ATH_MSG_INFO ( "No Csc(Strip)PrepRawData collections found" );
   else {
     ATH_MSG_INFO ( "Number of Csc(Strip)PrepRawData collections found in this event is "
-		   << m_cscStripPrepDataContainer->size() );
+		   << m_outputCollection->size() );
     
     int ict = 0;
     int ncoll = 0;
     ATH_MSG_INFO ( "-------------------------------------------------------------" );
     for (IdentifiableContainer<Muon::CscStripPrepDataCollection>::const_iterator
-	   icscColl = m_cscStripPrepDataContainer->begin();
-         icscColl!=m_cscStripPrepDataContainer->end(); ++icscColl ) {
+	   icscColl = m_outputCollection->begin();
+         icscColl!=m_outputCollection->end(); ++icscColl ) {
 
       const Muon::CscStripPrepDataCollection* cscColl = *icscColl;
         

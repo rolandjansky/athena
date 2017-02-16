@@ -38,7 +38,7 @@ namespace Muon {
     /** @brief interface for tools to add information to the muon segment that has already been created
 	    @param segment the segment whose info you wish to extend
     */
-    virtual void extendInfo( MuPatSegment * segment ) = 0;
+    virtual void extendInfo( MuPatSegment * segment ) const = 0;
 
   };
   

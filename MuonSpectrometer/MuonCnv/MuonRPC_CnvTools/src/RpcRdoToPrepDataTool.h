@@ -17,6 +17,7 @@
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 
 #include "MuonRDO/RpcCoinMatrix.h"
+#include "MuonRDO/RpcPadContainer.h"
 
 #include <string>
 #include <set>
@@ -114,11 +115,10 @@ private:
   //RpcPadIdHash* m_padHashIdHelper;
  
   /// RpcPrepData containers
-  Muon::RpcPrepDataContainer * m_rpcPrepDataContainer;
-  std::string m_outputCollectionLocation;
+  SG::WriteHandle<Muon::RpcPrepDataContainer> m_rpcPrepDataContainer;
   /// RpcCoinData containers
-  Muon::RpcCoinDataContainer * m_rpcCoinDataContainer;
-  std::string m_trgOutputCollectionLocation;
+  SG::WriteHandle<Muon::RpcCoinDataContainer> m_rpcCoinDataContainer;
+  SG::ReadHandle<RpcPadContainer>             m_rdoContainer;
 
   /// RPC cabling Svc
   const IRPCcablingSvc *m_rpcCabling;

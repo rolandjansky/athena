@@ -34,6 +34,7 @@ public:
   virtual void transToPers( const Trk::TrackStateOnSurface    *transObj,
 			    Trk::TrackStateOnSurface_p3 *persObj,
 			    MsgStream                      &log );
+
 private:
   FitQualityCnv_p1                  *m_fitQCnv;
   // MaterialEffectsBaseCnv_p1         *m_matBaseCnv;

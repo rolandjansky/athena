@@ -55,7 +55,7 @@ namespace SG {
     
   private:
 
-    bool init();
+    bool initCondHandle();
         
     const EventIDBase& m_eid;
     CondCont<T>*  m_cc {nullptr};
@@ -106,7 +106,7 @@ namespace SG {
 
   template <typename T>
   bool
-  ReadCondHandle<T>::init() {
+  ReadCondHandle<T>::initCondHandle() {
 
     if (m_ent != 0) return true;
 
@@ -133,7 +133,7 @@ namespace SG {
   ReadCondHandle<T>::retrieve() {
     
     if (m_ent == 0) {
-      if (!init()) {
+      if (!initCondHandle()) {
       // std::ostringstream ost;
       // m_cc->list(ost);
       // MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
@@ -184,7 +184,7 @@ namespace SG {
   bool 
   ReadCondHandle<T>::isValid()  {
 
-    return init();
+    return initCondHandle();
   }
 
   //---------------------------------------------------------------------------
@@ -203,7 +203,7 @@ namespace SG {
   ReadCondHandle<T>::range(EventIDRange& r) {
 
     if (m_ent == 0) {
-      if (!init()) {
+      if (!initCondHandle()) {
         return false;
       }
     }
