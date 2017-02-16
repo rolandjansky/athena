@@ -25,7 +25,7 @@ jetlog.info( myname + "Defining standard tools" )
 # Set and lock flags.
 #########################################################
 
-from JetRec.JetRecFlags import jetFlags
+from JetRec.JetRecFlags import jetFlags, JetContentDetail
 
 # Set status on for flags that are initialized with status off.
 jetFlags.useTruth.set_On()
@@ -77,12 +77,30 @@ import JetRec.JetRecStandardTools
 
 if 0:
   jetlog.info( "First call to JetRecStandardToolManager.py:" )
-  from traceback import format_exc 
+  from traceback import format_exc
   jetlog.info( format_exc() )
   jetlog.info( "Exception" )
   raise Exception
   from traceback import print_stack
-  print_stack() 
+  print_stack()
+
+# Function to filter out skipped tools.
+def filterout(skiptoolnames, tools):
+  outtools = []
+  remtoolnames = []
+  nrem = 0
+  for tool in tools:
+    keep = True
+    for toolname in skiptoolnames:
+      skiptool = jtm[toolname]
+      same = tool == skiptool
+      if same:
+        keep = False
+        remtoolnames += [toolname]
+    if keep:
+      outtools += [tool]
+  jetlog.info( myname + "Removed tools: " + str(remtoolnames) )
+  return outtools
 
 #########################################################
 # Getters
@@ -166,6 +184,11 @@ if jetFlags.useTruth():
   jtm.gettersMap["truth"]   = list(truthgetters)
   jtm.gettersMap["truthwz"] = list(truthwzgetters)
 
+jtm.gettersMap["emtopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],emgetters)
+jtm.gettersMap["lctopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],lcgetters)
+jtm.gettersMap["empflow_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters)
+
+
 #########################################################
 # Modifiers
 #########################################################
@@ -201,10 +224,10 @@ ungroomed_modifiers += [jtm.ecpsfrac]
 if jetFlags.useCaloQualityTool():
   ungroomed_modifiers += [jtm.caloqual_cluster]
 if jetFlags.useTracks():
-  ungroomed_modifiers += [jtm.jvf]
-  ungroomed_modifiers += [jtm.jvt]
   ungroomed_modifiers += [jtm.trkmoms]
   ungroomed_modifiers += [jtm.trksummoms]
+  ungroomed_modifiers += [jtm.jvf]
+  ungroomed_modifiers += [jtm.jvt]
   ungroomed_modifiers += [jtm.charge]
   ungroomed_modifiers += ["trackassoc"]
   ungroomed_modifiers += [jtm.jetorigin_setpv]
@@ -213,37 +236,27 @@ if jetFlags.useTruth():
   if jtm.haveParticleJetTools:
     ungroomed_modifiers += [jtm.jetdrlabeler]
 
+#if jetFlags.detailLevel>=JetContentDetail.Validation:
+#  ungroomed_modifiers += [jtm.jvt]
+
 # Modifiers for groomed jets.
-groomed_modifiers = [ jtm.jetsorter,
-                      jtm.jetisol,
-                      jtm.ktdr,
-                      jtm.nsubjettiness,
-                      jtm.ktsplitter,
-                      jtm.angularity,
-                      jtm.dipolarity,
-                      jtm.planarflow,
-                      jtm.ktmassdrop,
-                      jtm.encorr,
-                      jtm.comshapes
-                      ]
-  
-# Function to filter out skipped tools.
-def filterout(skiptoolnames, tools):
-  outtools = []
-  remtoolnames = []
-  nrem = 0
-  for tool in tools:
-    keep = True
-    for toolname in skiptoolnames:
-      skiptool = jtm[toolname]
-      same = tool == skiptool
-      if same:
-        keep = False
-        remtoolnames += [toolname]
-    if keep:
-      outtools += [tool]
-  jetlog.info( myname + "Removed tools: " + str(remtoolnames) )
-  return outtools
+groomed_modifiers = [
+    jtm.jetsorter,
+    jtm.nsubjettiness,
+    jtm.ktdr,
+    jtm.ktsplitter,
+    jtm.encorr,
+    jtm.charge,
+    jtm.angularity,
+    jtm.comshapes,
+    jtm.ktmassdrop,
+    jtm.dipolarity,
+    jtm.pull,
+    jtm.planarflow,
+    jtm.width,
+    jtm.qw,
+    jtm.trksummoms
+    ]
 
 # Modifiers for pflow jets.
 # Same as topo jets.
@@ -251,6 +264,10 @@ def filterout(skiptoolnames, tools):
 pflow_ungroomed_modifiers = []
 pflow_ungroomed_modifiers += [jtm.constitfourmom_pflow]
 pflow_ungroomed_modifiers += filterout(["ecpsfrac"], ungroomed_modifiers)
+
+pflow_groomed_modifiers = []
+pflow_groomed_modifiers += [jtm.constitfourmom_pflow]
+pflow_groomed_modifiers += groomed_modifiers
 
 # Here add tools to be run for topo jets and NOT for pflow.
 
@@ -270,10 +287,28 @@ emtopo_ungroomed_modifiers = []
 emtopo_ungroomed_modifiers += [jtm.constitfourmom_emtopo]
 emtopo_ungroomed_modifiers += ungroomed_modifiers
 
+emtopo_groomed_modifiers = []
+emtopo_groomed_modifiers += [jtm.constitfourmom_emtopo]
+emtopo_groomed_modifiers += groomed_modifiers
+
 # LC-only modifiers here
 lctopo_ungroomed_modifiers = []
 lctopo_ungroomed_modifiers += [jtm.constitfourmom_lctopo]
 lctopo_ungroomed_modifiers += ungroomed_modifiers
+
+lctopo_groomed_modifiers = []
+lctopo_groomed_modifiers += [jtm.constitfourmom_lctopo]
+lctopo_groomed_modifiers += groomed_modifiers
+
+
+
+### XAOD SIZE REDUCTION
+# define a reduced set for AOD size reduction
+pflow_reduced_modifiers  = [jtm.constitfourmom_pflow,  jtm.jetens, "calib", jtm.jetsorter]
+emtopo_reduced_modifiers = [jtm.constitfourmom_emtopo, jtm.jetens, "calib", jtm.jetsorter]
+lctopo_reduced_modifiers = [jtm.constitfourmom_lctopo, jtm.jetens, "calib", jtm.jetsorter]
+
+
 
 # Filter out skipped tools.
 if len(jetFlags.skipTools()):
@@ -286,19 +321,30 @@ if len(jetFlags.skipTools()):
   pflow_ungroomed_modifiers         = filterout(jetFlags.skipTools(), pflow_ungroomed_modifiers)
   emtopo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), emtopo_ungroomed_modifiers)
   lctopo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), lctopo_ungroomed_modifiers)
+  pflow_groomed_modifiers           = filterout(jetFlags.skipTools(), pflow_groomed_modifiers)
+  emtopo_groomed_modifiers          = filterout(jetFlags.skipTools(), emtopo_groomed_modifiers)
+  lctopo_groomed_modifiers          = filterout(jetFlags.skipTools(), lctopo_groomed_modifiers)
 
 # Add modifier lists to jtm indexed by modifier type name.
 jtm.modifiersMap["none"]                  = []
 jtm.modifiersMap["ungroomed"]             =            list(ungroomed_modifiers)
+jtm.modifiersMap["groomed"]               =              list(groomed_modifiers)
 
 jtm.modifiersMap["emtopo_ungroomed"]      =     list(emtopo_ungroomed_modifiers)
 jtm.modifiersMap["lctopo_ungroomed"]      =     list(lctopo_ungroomed_modifiers)
 jtm.modifiersMap["pflow_ungroomed"]       =      list(pflow_ungroomed_modifiers)
 
+jtm.modifiersMap["emtopo_groomed"]        =       list(emtopo_groomed_modifiers)
+jtm.modifiersMap["lctopo_groomed"]        =       list(lctopo_groomed_modifiers)
+jtm.modifiersMap["pflow_groomed"]         =        list(pflow_groomed_modifiers)
+
+jtm.modifiersMap["emtopo_reduced"]        =       list(emtopo_reduced_modifiers)
+jtm.modifiersMap["lctopo_reduced"]        =       list(lctopo_reduced_modifiers)
+jtm.modifiersMap["pflow_reduced"]         =        list(pflow_reduced_modifiers)
+
 if jetFlags.useTruth():
   jtm.modifiersMap["truth_ungroomed"]     =      list(truth_ungroomed_modifiers)
 jtm.modifiersMap["track_ungroomed"]       =      list(track_ungroomed_modifiers)
-jtm.modifiersMap["groomed"]               =              list(groomed_modifiers)
 
 # Also index modifier type names by input type name.
 # These are used when the modifier list is omitted.

@@ -39,13 +39,13 @@ JetFromPseudojet::JetFromPseudojet(std::string name)
 //**********************************************************************
 
 StatusCode JetFromPseudojet::initialize() {
-  
+
 #ifdef USE_BOOST_FOREACH
   BOOST_FOREACH(std::string att, m_atts) {
 #else
   for (const std::string & att : m_atts) {
 #endif
-    if      ( att == "ActiveArea" )     m_doArea = true;  
+    if      ( att == "ActiveArea" )     m_doArea = true;
     else if ( att == "ActiveArea4vec" ) m_doFourVecArea = true;
     else if ( att == "ActiveAreaFourVector" ) m_doFourVecArea = true;
     else ATH_MSG_WARNING("Unrecognized attribute name ignored: " << att);
@@ -55,7 +55,7 @@ StatusCode JetFromPseudojet::initialize() {
   return StatusCode::SUCCESS;
 
 }
-  
+
 
 //**********************************************************************
 void JetFromPseudojet::
@@ -69,7 +69,7 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
   } else if ( (inputtype == xAOD::JetInput::EMTopoOrigin) ||
               (inputtype == xAOD::JetInput::LCTopoOrigin) ||
               (inputtype == xAOD::JetInput::LCTopo) ||
-              (inputtype == xAOD::JetInput::LCPFlow)|| 
+              (inputtype == xAOD::JetInput::LCPFlow)||
               (inputtype == xAOD::JetInput::EMCPFlow) ) {
     // fetch and sum the uncalibrated constituent momenta
     xAOD::JetConstituentVector vec = jet->getConstituents();
@@ -85,9 +85,9 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
     for (auto it=vec.begin(uncal); it != vec.end(uncal); ++it) {
       emscaleSum +=**it;
     }
-  
+
     ATH_MSG_VERBOSE("  Setting EM scale momentum");
-    jet->setJetP4(xAOD::JetEMScaleMomentum, emscaleSum);        
+    jet->setJetP4(xAOD::JetEMScaleMomentum, emscaleSum);
     ATH_MSG_DEBUG("  EM scale momentum set with uncalibrated constituents.");
 
   } else {
@@ -95,7 +95,7 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
   }
 
 }
- 
+
 //**********************************************************************
 
 xAOD::Jet*
@@ -110,7 +110,7 @@ JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
   // Set the jet's constituent scale.
   // Calibrated for all but EMTopo.
   ATH_MSG_VERBOSE("Done add with input");
-  if ( (inputtype == xAOD::JetInput::EMTopo ) || 
+  if ( (inputtype == xAOD::JetInput::EMTopo ) ||
        (inputtype == xAOD::JetInput::EMPFlow ) ) {
     ATH_MSG_VERBOSE("Setting constituent state to uncalibrated state");
     pjet->setConstituentsSignalState(xAOD::UncalibratedJetConstituent);
@@ -188,7 +188,7 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
 
   // Record the jet-finding momentum, i.e. the one used to find/groom the jet.
   pjet->setJetP4(xAOD::JetConstitScaleMomentum, pjet->jetP4());
-  
+
   if ( m_doArea || m_doFourVecArea ) {
     if ( pj.has_area() ) {
       if ( m_doArea ) {
@@ -197,7 +197,7 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
       }
       if ( m_doFourVecArea ) {
         fastjet::PseudoJet pja = pj.area_4vector();
-        xAOD::JetFourMom_t fvarea(pja.pt(), pja.eta(), pja.phi(), pja.m());      
+        xAOD::JetFourMom_t fvarea(pja.pt(), pja.eta(), pja.phi(), pja.m());
         pjet->setAttribute("ActiveArea4vec", fvarea);
         ATH_MSG_VERBOSE("Recording jet four-vector area.");
       }
@@ -213,14 +213,14 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
   const PseudoJetVector pjcons = pj.constituents();
   ATH_MSG_VERBOSE("  Adding constituents: multiplicity is " << pjcons.size());
   JetConstituentFiller confiller;
-  int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
-  if ( nconskip < 0 ) {
-    ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
-  }
-  ATH_MSG_DEBUG("  Real/total/skipped constituents: " << pjet->numConstituents()
-                << "/" << pjcons.size() << "/" << nconskip);
   if ( pparent == 0 ) {
     ATH_MSG_VERBOSE("  No parent jet.");
+    int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
+    if ( nconskip < 0 ) {
+      ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
+    }
+    ATH_MSG_DEBUG("  Real/total/skipped constituents: " << pjet->numConstituents()
+		  << "/" << pjcons.size() << "/" << nconskip);
   } else {
     ATH_MSG_VERBOSE("  Adding parent jet properties");
     const JetContainer* pcon = dynamic_cast<const JetContainer*>(pparent->container());
@@ -231,7 +231,7 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
       ElementLink<JetContainer> el(*pcon, pparent->index());
       ATH_MSG_VERBOSE("  Setting parent.");
       pjet->setAttribute("Parent", el);
-      //pjet->setAssociatedObject("Parent", pparent); 
+      //pjet->setAssociatedObject("Parent", pparent);
     }
     ATH_MSG_VERBOSE("  Setting input type from parent.");
     xAOD::JetInput::Type inputtype = pparent->getInputType();
@@ -245,9 +245,15 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
     ATH_MSG_VERBOSE("  Setting ghost area from parent.");
     pjet->setAttribute("JetGhostArea", pparent->getAttribute<float>("JetGhostArea"));
 
+    int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
+    if ( nconskip < 0 ) {
+      ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
+    }
+    ATH_MSG_DEBUG("  Real/total/skipped constituents: " << pjet->numConstituents()
+		  << "/" << pjcons.size() << "/" << nconskip);
+
     ATH_MSG_VERBOSE("  Setting EM scale momentum.");
     buildAndSetEMScaleMom(pjet, inputtype );
-        
   }
   ATH_MSG_VERBOSE("Done add with parent");
   return pjet;
