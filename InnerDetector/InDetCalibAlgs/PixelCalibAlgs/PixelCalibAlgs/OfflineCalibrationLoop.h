@@ -32,7 +32,11 @@ public :
 	void Analyze(std::string reference, std::string reference_tag);
 
 private:
-	// My variables
+
+  OfflineCalibrationLoop(const OfflineCalibrationLoop &);
+  OfflineCalibrationLoop &operator=(const OfflineCalibrationLoop&);
+
+  // My variables
 	TStopwatch *m_timer;
 	PixelChargeInterpolationCalibration *m_Calibration;
 	PixelChargeInterpolationValidation *m_Validation;

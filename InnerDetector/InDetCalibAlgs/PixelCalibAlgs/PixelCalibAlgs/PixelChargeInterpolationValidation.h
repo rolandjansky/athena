@@ -39,6 +39,9 @@ public:
 
 private:
 
+  PixelChargeInterpolationValidation(const PixelChargeInterpolationValidation &);
+  PixelChargeInterpolationValidation &operator=(const PixelChargeInterpolationValidation&);
+
 	PixelResidualHistograms *m_eta;
 	PixelResidualHistograms *m_phi;
 	PixelResidualHistograms *m_etaDig;

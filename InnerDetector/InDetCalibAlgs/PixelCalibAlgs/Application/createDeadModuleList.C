@@ -52,7 +52,7 @@ bool is_file_exist(const char *fileName)
 using namespace std;
 
 int main(int argc, char* argv[]){
-  bool m_isIBL = true;
+  const bool m_isIBL = true;
 
   //-----------------------------------
   //Usage configuration of the program
