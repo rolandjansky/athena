@@ -5,7 +5,7 @@
 #ifndef TAUHISTUTILS_PARAMPLOTS_H
 #define TAUHISTUTILS_PARAMPLOTS_H
 
-#include "TauHistUtils/PlotBase.h"
+#include "TrkValHistUtils/PlotBase.h"
 #include "xAODBase/IParticle.h"
 
 namespace Tau{
