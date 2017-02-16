@@ -165,6 +165,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     if(clusContainer->size() < 1){
         return HLT::OK;
     }
+    size_t coll_size = clusContainer->size();
     //==============================================================================================
     m_pCaloClusterContainer  = new xAOD::CaloClusterContainer();
     std::string clusterCollKey = "";
@@ -186,7 +187,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
 
     xAOD::CaloClusterTrigAuxContainer aux;
     m_pCaloClusterContainer->setStore (&aux);
-
+    m_pCaloClusterContainer->reserve(coll_size);
    
     //==============================================================================================
     
