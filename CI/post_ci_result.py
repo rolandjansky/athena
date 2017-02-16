@@ -7,13 +7,13 @@ def compose_result_text(status):
 
     status ... Jenkins exit code as string
     """
-    text = ":question: CI Build UNSET"
+    text = ":question: **CI Build UNSET**"
     if status == "SUCCESS":
-        text = ":white_check_mark: CI Build SUCCESS"
+        text = ":white_check_mark: **CI Build SUCCESS**"
     elif status == "FAILURE":
-        text = ":negative_squared_cross_mark: CI Build FAILURE"
+        text = ":negative_squared_cross_mark: **CI Build FAILURE**"
     elif status == "ABORT":
-        text = ":point_up: CI Build ABORTED"
+        text = ":point_up: **CI Build ABORTED**"
 
     return text
 
