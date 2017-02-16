@@ -45,6 +45,14 @@ class signatures(JobProperty):
 
 _flags.append(signatures)
 
+class doRinger(JobProperty):
+    '''apply ringer selection for Electron chains'''
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doRinger) 
+
 class ringerVersion (JobProperty):
     """ Version ringer tunes """
     statusOn=False
@@ -99,9 +107,6 @@ del _flags
 
 # make an alias
 EgammaSliceFlags = TriggerFlags.EgammaSlice
-
-# set properties based on top level trigger flag
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 run2Flag = TriggerFlags.run2Config
 if run2Flag is '2016':

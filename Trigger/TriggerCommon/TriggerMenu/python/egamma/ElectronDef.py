@@ -61,6 +61,9 @@ class L2EFChain_e(L2EFChainDef):
         self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 
         self.use_v7=False
+        self._ringer_selection=False
+        self.setRingerSelection()
+
         #if TriggerFlags.run2Config() == '2017':
         if '_v7' in TriggerFlags.triggerMenuSetup():
             self.use_v7=True
@@ -109,6 +112,31 @@ class L2EFChain_e(L2EFChainDef):
     def defineTErenaming(self):
         self.TErenamingMap = self.TErenamingDict
     
+    def setRingerSelection(self):
+        '''
+        determine whether to apply the ringer preselection
+        can be set globally via TriggerFlag
+        or by chain type, e.g. idperf 
+        '''
+        thr = self.chainPart['threshold']
+        log.debug("Apply ringer %s",self._ringer_selection)
+
+        if TriggerFlags.EgammaSlice.doRinger:
+            log.debug('Ringer selection applied for all chains above 15 GeV %s',thr)
+            if float(thr)>15.0:
+                self._ringer_selection=True
+            else:
+                self._ringer_selection=False
+        elif 'ringer' in self.chainPart['addInfo']:
+            self._ringer_selection = True
+        elif self.chainPart['trkInfo']=='idperf': 
+            if float(thr)>15.0:
+                self._ringer_selection=True
+            else:
+                self._ringer_selection=False
+        log.debug("Apply ringer is set %s",self._ringer_selection)
+
+
     def setupFromDict(self, seq_te_dict, seq_dict=None):
         ''' 
         Dictionary completely defines steps, algos, sequences, etc..
@@ -121,14 +149,14 @@ class L2EFChain_e(L2EFChainDef):
         if seq_dict is None:
             seq_dict=self.el_sequences
 
-        #log.debug('%s'%seq_dict)
+        log.debug('%s'%seq_dict)
         te_in=self.L2InputTE
         for step in seq_te_dict:
             level=seq_te_dict[step][0].split('_')[0]
             te_out=seq_te_dict[step][0]
             alias=seq_te_dict[step][-1]
             algos=seq_dict[step]
-            #log.info('%s %s %s %s'%(level,te_in,algos,te_out))
+            log.debug('%s %s %s %s'%(level,te_in,algos,te_out))
             if level == 'L2':
                 self.L2sequenceList += [[te_in,algos,te_out]]                     
                 self.L2signatureList += [ [[te_out]*self.mult] ]
@@ -160,13 +188,11 @@ class L2EFChain_e(L2EFChainDef):
         '''
         
         # define the ordered dictionary for sequences and TEs
+        
         thr = self.chainPart['threshold']
         name = str(self.chainPart['threshold'])
         name = name.split('.')[0]
-        doRinger = False
-        if 'ringer' in self.chainPart['addInfo']:
-            doRinger = True
-
+        log.debug('setup_electron %s, apply ringer %s for %s',self.chainName,self._ringer_selection,thr )
         # Ringer chains not tuned for low-et
         # use standard hypo
         fastcalohypo=self.el_sequences['fastcalohypo']
@@ -183,7 +209,7 @@ class L2EFChain_e(L2EFChainDef):
         seq_dict = self.el_sequences
         seq_dict['precisecalocalib']=precisecalocalib
 
-        if not doRinger:
+        if not self._ringer_selection:
             seq_dict['fastringerhypo'] = [ringerfex,ringerhypo]
             seq_dict['fastcalorec'].extend(fastcalohypo)
         
