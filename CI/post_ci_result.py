@@ -80,6 +80,7 @@ def main():
     comment += "Full details available at [NICOS {0}](http://atlas-nightlies-browser.cern.ch/~platinum/nightlies/info?tp=g&nightly=21.0.X-CI&rel={0}&ar=*)  \n".format(args.nicos_name)
     comment += "For experts only: Jenkins output [[CI-MERGE-REQUEST %d]](http://aibuild080.cern.ch:8080/job/CI-MERGE-REQUEST/${CI_MERGE_REQUEST_ID}/) (for remote access see instructions in Jenkins section [here](https://atlassoftwaredocs.web.cern.ch/MRtutorial/tools/))" % args.ci_id
 
+    logging.debug(comment)
     try:
         mr.notes.create({'body':comment})
     except GitlabCreateError as e:
