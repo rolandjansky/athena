@@ -96,8 +96,8 @@ muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
    declareProperty("WeightPhi",              m_WeightPhi      = 2.0);
 
    // g4 based backextrapolator
-   declareProperty("WinEtaSigma_g4",         m_WinEta_g4      = 4.0);
-   declareProperty("WinPhiSigma_g4",         m_WinPhi_g4      = 4.0);
+   declareProperty("WinEtaSigma_g4",         m_WinEta_g4      = 7.0);
+   declareProperty("WinPhiSigma_g4",         m_WinPhi_g4      = 7.0);
    declareProperty("Chi2Max_g4",             m_Chi2Max_g4     = 1.e33);
    declareProperty("WinEtaSigmaEndCaps_g4",  m_WinEta_EC_g4   = 7.0);
    declareProperty("WinPhiSigmaEndCaps_g4",  m_WinPhi_EC_g4   = 7.0);
@@ -337,6 +337,14 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
 
    double R = sp1_R;
    double z = sp1_z;
+   //msg() << MSG::DEBUG << m_test_string
+   //      << " Before Extrapolator: sp1_z / spi_R / spi2_z / sp2_R  / z / R "
+   //      << " / " << std::setw(11) << sp1_z
+   //      << " / " << std::setw(11) << sp1_R
+   //      << " / " << std::setw(11) << sp2_z
+   //      << " / " << std::setw(11) << sp2_R
+   //      << " / " << std::setw(11) << z
+   //      << " / " << std::setw(11) << R << endmsg;
 
    if (R == 0. && z == 0.) { //treat patological endcap cases
       doFix = kTRUE;
@@ -369,7 +377,19 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
 
    double id_eptinv = id_eipt; //now taken from Track itself ...
 
+   //msg() << MSG::DEBUG << m_test_string
+   //      << " Before Extrapolator: doFix / pt mu/ qoverp / eta mu/ phi mu/ x / y / z "
+   //      << " / " << std::setw(11) << doFix
+   //      << " / " << std::setw(11) << pt
+   //      << " / " << std::setw(11) << q_over_p
+   //      << " / " << std::setw(11) << feature->etaMS()
+   //      << " / " << std::setw(11) << phi
+   //      << " / " << std::setw(11) << x
+   //      << " / " << std::setw(11) << y
+   //      << " / " << std::setw(11) << z << endmsg;
+
    const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, Trk::muon);
+
 
    //Protection against failing extrapolation
    double extr_eta;
@@ -392,6 +412,17 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
          if (doFix) extr_pt = (1. / extr_q_over_p) * sin(theta);
       }
    }
+
+   //int isuc = 1;
+   //if (!muonPerigee) isuc = 0;
+   //msg() << MSG::DEBUG << m_test_string
+   //      << " Extrapolator called: Success / doFix / pt / eta / phi"
+   //      << " / " << std::setw(11) << isuc
+   //      << " / " << std::setw(11) << doFix
+   //      << " / " << std::setw(11) << extr_pt
+   //      << " / " << std::setw(11) << extr_eta
+   //      << " / " << std::setw(11) << extr_phi << endmsg;
+
    double extr_eeta = muCombUtil::getG4ExtEtaRes(feature->pt(), feature->etaMS());
    double extr_ephi = muCombUtil::getG4ExtPhiRes(feature->pt(), feature->etaMS());
    double extr_ptinv  = 1.0e33;
