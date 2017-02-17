@@ -26,4 +26,4 @@ for config in assocoutput:
 	MissingETESDList.append( 'xAOD::MissingETContainer#MET_Core_'+config )
 	MissingETESDList.append( 'xAOD::MissingETAuxContainer#MET_Core_'+config+'Aux.' )
 	MissingETESDList.append( 'xAOD::MissingETContainer#MET_Reference_'+config )
-	MissingETESDList.append( 'xAOD::MissingETAuxContainer#MET_Reference_'+config+'Aux.-ConstitObjectLinks' )
+	MissingETESDList.append( 'xAOD::MissingETAuxContainer#MET_Reference_'+config+'Aux.-ConstitObjectLinks.-ConstitObjectWeights' )

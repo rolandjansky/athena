@@ -103,7 +103,6 @@ namespace met {
     }
 
     // Create jet associations
-    MissingETBase::Types::constvec_t trkvec;
     for(const auto& jet : *jetCont) {
       std::vector<const IParticle*> selectedTracks;
       bool mismatchedPFlow = m_pflow && jet->rawConstituent(0)->type()!=xAOD::Type::ParticleFlow;
@@ -113,9 +112,8 @@ namespace met {
         for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
           const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
 	  ATH_MSG_VERBOSE("Jet constituent PFO, pt " << pfo->pt());
-          if (fabs(pfo->charge())>1e-9) {
+          if (fabs(pfo->charge())>1e-9 && isGoodEoverP(pfo->track(0))) {
 	    ATH_MSG_VERBOSE("  Accepted charged PFO, pt " << pfo->pt());
-	    trkvec += *pfo;
 	    selectedTracks.push_back(pfo);
 	  }
         }
