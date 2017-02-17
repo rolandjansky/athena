@@ -18,8 +18,37 @@
 #define CXXUTILS_BITSCAN_H
 
 #include <stdint.h>
+#include <type_traits>
 
 namespace CxxUtils {
+
+  /**
+   * Portable implementations
+   *
+   * These could be replaced by faster algorithms if needed
+   */
+  namespace detail {
+
+    template <typename T>
+    inline unsigned ctz_portable(T x) {
+      static_assert(std::is_integral<T>::value, "An integer type is required.");
+      unsigned n(0);
+      if (x!=0) {
+        for (;(x & 0x1) == 0; ++n, x >>= 1);
+      }
+      return n;
+    }    
+
+    template <typename T>
+    inline unsigned clz_portable(T x) {
+      static_assert(std::is_integral<T>::value, "An integer type is required.");
+      if (x==0) return sizeof(T)*8;
+      unsigned n(0);
+      T msb = static_cast<T>(1) << (sizeof(T)*8-1);
+      for (n = 0; (x & msb) == 0; ++n, x <<= 1);
+      return n;
+    }    
+  }
 
   /**
    * Count number of trailing zeros
@@ -49,48 +78,20 @@ namespace CxxUtils {
    * @param x Number to check
    * @return Number of leading zeros, input size in bits if x==0
    */
-  inline unsigned count_leading_zeros(uint32_t x) {
+  inline unsigned count_leading_zeros(unsigned x) {
 #if defined (__GNUC__) || defined(__clang__)
-    return (x!=0 ? __builtin_clz(x) : 32);
+    return (x!=0 ? __builtin_clz(x) : sizeof(x)*8);
 #else
     return detail::clz_portable(x);
 #endif
   }
 
-  inline unsigned count_leading_zeros(uint64_t x) {
+  inline unsigned count_leading_zeros(unsigned long x) {
 #if defined (__GNUC__) || defined(__clang__)
-    return (x!=0 ? __builtin_clzl(x) : 64);
+    return (x!=0 ? __builtin_clzl(x) : sizeof(x)*8);
 #else
     return detail::clz_portable(x);
 #endif
   }
-
-  /**
-   * Portable implementations
-   *
-   * These could be replaced by faster algorithms if needed
-   */
-  namespace detail {
-
-    template <typename T>
-    inline unsigned ctz_portable(T x) {
-      unsigned n(0);
-      if (x!=0) {
-        for (;(x & 0x1) == 0; ++n, x >>= 1);
-      }
-      return n;
-    }    
-
-    template <typename T>
-    inline unsigned clz_portable(T x) {
-      if (x==0) return sizeof(T)*8;
-      unsigned n;
-      T msb = static_cast<T>(1) << (sizeof(T)*8-1);
-      for (n = 0; (x & msb) == 0; ++n, x <<= 1);
-      return n;
-    }    
-  }
-
-
 }
 #endif // CXXUTILS_BITSCAN_H
