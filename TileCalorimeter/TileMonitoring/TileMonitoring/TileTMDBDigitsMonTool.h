@@ -20,6 +20,7 @@ class TileBeamInfoProvider;
 class ITileBadChanTool;
 class TileDQstatus;
 class TileCondToolNoiseSample;
+class TileDigitsCollection;
 
 
 #include <vector>
@@ -46,8 +47,8 @@ class TileTMDBDigitsMonTool : public TileFatherMonTool {
 
   private:
 
-    StatusCode bookTMDBHistograms(unsigned int ros, unsigned int channel);
-    StatusCode bookTMDBSummaryHistograms();
+    StatusCode bookTMDBHistograms(const TileDigitsCollection* digitsCollection);
+    StatusCode bookTMDBSummaryHistograms(unsigned int ros);
     StatusCode updateSummaryHistograms();
 
     std::string m_digitsContainerName;
@@ -71,7 +72,7 @@ class TileTMDBDigitsMonTool : public TileFatherMonTool {
 
     int m_summaryUpdateFrequency;
     int m_nEventsProcessed;
-    bool m_histogramsNotBooked;
+
 };
 
 #endif

@@ -144,6 +144,7 @@ class TileCellMonTool: public TileFatherMonTool {
     bool m_fillMaskedOnFly4LastLumiblocks;
     unsigned int m_nEventsLastLumiblocks;
     std::vector<unsigned int> m_nEventsLastLumiblocksShadow;
+    bool m_skipNotPhysicsEvents;
 };
 
 #endif
