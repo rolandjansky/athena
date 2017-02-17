@@ -4,5 +4,10 @@
 + AsgExternal/Asg_Test
 + AtlasTest/TestTools
 + Calorimeter/CaloGeoHelpers
+- Control/AthContainersRoot
++ Control/AthContainers
++ Control/AthContainersInterfaces
++ Control/AthLinksSA
 + Control/CxxUtils
++ Control/xAODRootAccessInterfaces
 - .*
