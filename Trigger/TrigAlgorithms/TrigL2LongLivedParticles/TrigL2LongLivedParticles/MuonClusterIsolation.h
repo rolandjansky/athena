@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
-#define TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
+#ifndef TRIGL2LONGLIVEDPARTICLES_MUONCLUSTERISOLATION_H
+#define TRIGL2LONGLIVEDPARTICLES_MUONCLUSTERISOLATION_H
 /*
-  MuonCluster Algorithm:  Trigger/TrigAlgorithm/TrigMuonCluster
+  MuonClusterIsolation Algorithm:  Trigger/TrigAlgorithm/TrigMuonClusterIsolation
 
   Authors: Stefano.Giagu@cern.ch
            Antonio.Policicchio@cern.ch
@@ -29,18 +29,20 @@
 
 #define kMAX_ROI 20
 
-class MuonCluster : public HLT::AllTEAlgo {
+class MuonClusterIsolation : public HLT::AllTEAlgo {
 public:
   enum {
     ITIMER_INIT,
     ITIMER_CLUSTER,
+    ITIMER_JETS,
+    ITIMER_TRACKS,
     ITIMER_FINAL
   };
 
 public:
   /** Constructor */
-  MuonCluster(const std::string& name, ISvcLocator* svc);
-  ~MuonCluster();
+  MuonClusterIsolation(const std::string& name, ISvcLocator* svc);
+  ~MuonClusterIsolation();
 
   /** hltBeginRun() */
   HLT::ErrorCode hltBeginRun();
@@ -62,27 +64,21 @@ public:
   /**
    * @brief This method overwrites the default one (doing nothing) in the algo.h class
    *
-   * This is used to reset the internal caching mechanism of this MuonCluster algorithm.
+   * This is used to reset the internal caching mechanism of this MuonClusterIsolation algorithm.
    */
   HLT::ErrorCode hltEndEvent() { m_useCachedResult = false; m_clu_feature = 0; m_cachedTE=0; return HLT::OK; }
 
   // monitored quantities
   std::vector<double> m_RoiEta;
   std::vector<double> m_RoiPhi;
-
-protected:
-  
-  typedef struct  {
-    float eta;
-    float phi;
-    int nroi;
-  } lvl1_muclu_roi;
   
 
 protected:
   // JobOption properties
   /** A property which specifies the radius of the cluster */
   float m_DeltaR;
+  /** A property which specifies the matching of the jet and of the cluster */
+  float m_DeltaRJet;
 
   /** Eta of the Center RoI cluster, for monitoring purpose */
   float m_CluEta;
@@ -90,14 +86,17 @@ protected:
   float m_CluPhi;
   /** Numbers of Roi in cluster */
   int m_CluNum;
-
-  /** calculcate the deltaR between two Rois */
-  float DeltaR(std::vector<const LVL1::RecMuonRoI*>::const_iterator, lvl1_muclu_roi );
-  float DeltaR(lvl1_muclu_roi , lvl1_muclu_roi );
+  
+  int m_NumTrk;
+  int m_NumJet;
+  
+  double m_PtMinID;
+  float m_DeltaRTrk;
+  double m_minJetEt;
+    
   
   //Output parameters. Keep old container so we don't break Frozen Tier0. Should be removed in the future!
   std::string m_featureLabel; //!< label for the mucluster  feature in the HLT Navigation
-  std::string m_featureLabelOld; //!< label for the mucluster  feature in the HLT Navigation
   bool m_useCachedResult;          //!< internal caching: true when the hltExecute will run in cached mode
   xAOD::TrigCompositeContainer *m_clu_feature;    //!< internal caching: m_clu_feature of the first execution
   HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution
@@ -107,4 +106,4 @@ protected:
   std::vector<TrigTimer*> m_Timers;
 };
 
-#endif // TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
+#endif // TRIGL2LONGLIVEDPARTICLES_MUONCLUSTERISOLATION_H
