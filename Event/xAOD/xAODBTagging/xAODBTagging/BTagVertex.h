@@ -15,6 +15,10 @@
 namespace xAOD {
    /// Definition of the current "BTagging version"
    typedef BTagVertex_v1 BTagVertex;
-
 }
+
+// Set up a CLID for the type:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::BTagVertex, 96886315, 1 )
+
 #endif // XAODBTAGGING_BTAGGING_H
