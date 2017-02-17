@@ -109,6 +109,12 @@ FitProcedure::~FitProcedure (void)
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
+void
+FitProcedure::clear (void)
+{
+    m_fitMatrices->releaseMemory();
+}
+
 Track*
 FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 			      const FitParameters&				parameters,
@@ -446,6 +452,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
     m_numberParameters	= parameters->numberParameters();
     m_worstMeasurement	= 0;
     MeasurementProcessor measurementProcessor(asymmetricCaloEnergy,
+					      *m_fitMatrices->derivativeMatrix(),
 					      intersector,
 					      measurements,
 					      parameters,
@@ -1027,7 +1034,7 @@ FitProcedure::reportQuality(const std::vector<FitMeasurement*>&	measurements,
 			    const FitParameters&		parameters) const
 {
     if (! m_fitQuality) return;
-    
+
     int fitCode	= m_fitQuality->fitCode();
     if (fitCode)
     {
@@ -1082,7 +1089,10 @@ FitProcedure::reportQuality(const std::vector<FitMeasurement*>&	measurements,
 	    break;
 	case 12:
 	    *m_log << "  maximum of one calorimeter permitted";
-	    break;	
+	    break;
+	case 13:
+	    *m_log << "  NO derivativeMatrix available";
+	    break;
 	default:
 	    break;
 	};
