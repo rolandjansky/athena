@@ -1,0 +1,540 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: ElementLink.icc 682051 2015-07-10 09:30:58Z krasznaa $
+#ifndef ATHLINKS_ELEMENTLINK_ICC
+#define ATHLINKS_ELEMENTLINK_ICC
+
+// System include(s):
+#include <stdexcept>
+
+// EDM include(s):
+#include "xAODRootAccessInterfaces/TVirtualEvent.h"
+#include "xAODRootAccessInterfaces/TActiveEvent.h"
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//                      Implementation of the constructors
+//
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink()
+   : ElementLinkBase(),
+     m_container( 0 ), m_element( 0 ), m_elementCached( false ),
+     m_event( xAOD::TActiveEvent::event() ) {
+
+}
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink(  xAOD::TVirtualEvent* event )
+   : ElementLinkBase(),
+     m_container( 0 ), m_element( 0 ), m_elementCached( false ),
+     m_event( event ) {
+
+}
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink( const ID_type& key, index_type index,
+                                      xAOD::TVirtualEvent* event )
+   : ElementLinkBase( 0, index ),
+     m_container( 0 ), m_element( 0 ), m_elementCached( false ),
+     m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Translate the id into a hashed key:
+   m_persKey = m_event->getHash( key );
+}
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink( sgkey_t id, index_type index,
+                                      xAOD::TVirtualEvent* event )
+   : ElementLinkBase( id, index ),
+     m_container( 0 ), m_element( 0 ), m_elementCached( false ),
+     m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+}
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink( const ID_type& key, index_type index,
+                                      ElementType element,
+                                      xAOD::TVirtualEvent* event )
+   : ElementLinkBase( 0, index ),
+     m_container( 0 ), m_element( element ), m_elementCached( true ),
+     m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Translate the id into a hashed key:
+   m_persKey = m_event->getHash( key );
+}
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink( sgkey_t id, index_type index,
+                                      ElementType element,
+                                      xAOD::TVirtualEvent* event )
+   : ElementLinkBase( id, index ),
+     m_container( 0 ), m_element( element ), m_elementCached( true ),
+     m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+}
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink( BaseConstReference container,
+                                      index_type index,
+                                      xAOD::TVirtualEvent* event )
+   : ElementLinkBase( 0, index ),
+     m_container( &container ), m_element( 0 ), m_elementCached( false ),
+     m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Find the identifier of the container that we received:
+   findIdentifier();
+}
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink( ElementType element,
+                                      BaseConstReference container,
+                                      xAOD::TVirtualEvent* event )
+   : ElementLinkBase(),
+     m_container( &container ), m_element( element ), m_elementCached( true ),
+     m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Find the identifier of the container that we received:
+   findIdentifier();
+   // Find the index of the specified object within the container:
+   findIndex();
+}
+
+template< typename STORABLE >
+ElementLink< STORABLE >::ElementLink( const ElementLink& parent )
+   : ElementLinkBase( parent ),
+     m_container( parent.m_container ), m_element( parent.m_element ),
+     m_elementCached( parent.m_elementCached ), m_event( parent.m_event ) {
+
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+template< typename STORABLE >
+ElementLink< STORABLE >&
+ElementLink< STORABLE >::operator=( const ElementLink< STORABLE >& rhs ) {
+
+   // Copy the contents of the base class:
+   ElementLinkBase::operator=( rhs );
+
+   // Copy the contents of this class:
+   m_container     = rhs.m_container;
+   m_element       = rhs.m_element;
+   m_elementCached = rhs.m_elementCached;
+   m_event         = rhs.m_event;
+
+   // Return this object:
+   return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//                   Implementation of the setter functions
+//
+
+/// This function can be used to set up an existing element link to point at
+/// an indexed element of a specific object in memory. The link needs to ask
+/// the event for the ID of the received object, so the function can take a
+/// bit of time.
+///
+/// @param container The container that the link should point to
+/// @param index     The index of the element inside the container that the link
+///                  needs to point to
+/// @returns A dummy value. Failure is signalled by an exception.
+///
+template< typename STORABLE >
+bool ElementLink< STORABLE >::toIndexedElement( BaseConstReference container,
+                                                index_type index ) {
+
+   // Remember the specified parameters:
+   m_container = &container;
+   m_persIndex = index;
+
+   // Find the identifier of this object:
+   findIdentifier();
+
+   // The object is no longer cached:
+   m_element = 0;
+   m_elementCached = false;
+
+   return true;
+}
+
+/// This is probably the slowest function of the class. It first needs to look
+/// up the ID of the received container inside the event, and then needs to
+/// find the index of the object within this container.
+///
+/// Avoid using if at all possible!
+///
+/// @param container The container that the link should point to
+/// @param element   The element within the container that the link should
+///                  point to
+/// @returns A dymmy value. Failure is signalled by an exception.
+///
+template< typename STORABLE >
+bool ElementLink< STORABLE >::toContainedElement( BaseConstReference container,
+                                                  ElementType element ) {
+
+   // Remember the specified parameters:
+   m_container = &container;
+   m_element   = element;
+
+   // Find the identifier of this object:
+   findIdentifier();
+   // Find the index of the element inside the object:
+   findIndex();
+
+   // Assume that the object is correctly cached:
+   m_elementCached = true;
+
+   return true;
+}
+
+/// This function can be used to set the link to point to a new element inside
+/// the container that it already points to. The function is slow, as it needs
+/// to find the index of the element inside the container.
+///
+/// Avoid using if at all possible!
+///
+/// @param element The element within the container that the link should
+///                point to
+/// @returns A dymmy value. Failure is signalled by an exception.
+///
+template< typename STORABLE >
+bool ElementLink< STORABLE >::setElement( ElementType element ) {
+
+   // Remember the specified parameter:
+   m_element = element;
+
+   // Find the index of the element inside the object:
+   findIndex();
+
+   // Assume that the object is correctly cached:
+   m_elementCached = true;
+
+   return true;
+}
+
+/// This function tells the object to start using a new container. It should
+/// be used together with the setElement function most of the time. It is
+/// however a slow function, so please avoid it if possible.
+///
+/// @param data The container that the link should point to
+/// @param replace <code>true</code> if the element pointer will be replaced
+/// @returns A dymmy value. Failure is signalled by an exception.
+///
+template< typename STORABLE >
+bool ElementLink< STORABLE >::setStorableObject( BaseConstReference data,
+                                                 bool replace ) {
+
+   // Remember the specified parameter:
+   m_container = &data;
+
+   // Find the identifier of the container:
+   findIdentifier();
+
+   // Do different things based on the second argument:
+   if( replace ) {
+      // Remove the cached element:
+      m_element = 0;
+      m_elementCached = false;
+      m_persKey = 0;
+   } else {
+      // Try to find the cached element inside the container:
+      findIndex();
+   }
+
+   return true;
+}
+
+/// This is probably the most preferred way of setting an existing ElementLink
+/// to point to a new element. It doesn't need to do any costly lookups.
+///
+/// @param key The user-readable key of the container
+/// @param index The index of the element inside its container
+/// @param event An alternative event object to use
+///
+template< typename STORABLE >
+void
+ElementLink< STORABLE >::resetWithKeyAndIndex( const ID_type& key,
+                                               index_type index,
+                                               xAOD::TVirtualEvent* event ) {
+
+   // Remember the new event object:
+   m_event = event;
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Update the persistent variables:
+   setPersKey( m_event->getHash( key ) );
+   setPersIndex( index );
+
+   return;
+}
+
+/// This is the fastest way of setting an existing ElementLink to point to a
+/// new element. It's just a bit more inconvenient than the function receiving
+/// a string identifier for the container.
+///
+/// @param id A hashed identifier for the container
+/// @param index The index of the element inside its container
+/// @param event An alternative event object to use
+///
+template< typename STORABLE >
+void
+ElementLink< STORABLE >::resetWithKeyAndIndex( sgkey_t id,
+                                               index_type index,
+                                               xAOD::TVirtualEvent* event ) {
+
+   // Remember the new event object:
+   m_event = event;
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Update the persistent variables:
+   setPersKey( id );
+   setPersIndex( index );
+
+   return;
+}
+
+template< typename STORABLE >
+void ElementLink< STORABLE >::reset() {
+
+   // Reset the persistent variables:
+   setPersKey( 0 );
+   setPersIndex( 0 );
+
+   return;
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//           Implementation of the accessor functions and operators
+//
+
+template< typename STORABLE >
+typename ElementLink< STORABLE >::BaseConstPointer
+ElementLink< STORABLE >::getStorableObjectPointer() const {
+
+   // Trigger the retrieval of the container/element:
+   cptr();
+   // Return the pointer, not caring if it's a null pointer or not:
+   return m_container;
+}
+
+template< typename STORABLE >
+typename ElementLink< STORABLE >::BaseConstReference
+ElementLink< STORABLE >::getStorableObjectRef() const {
+
+   // Trigger the retrieval of the container/element:
+   cptr();
+   // Check if a container is now available:
+   if( ! m_container ) {
+      throw std::runtime_error( "ElementLink::getStorableObjectRef "
+                                "No container is available" );
+   }
+
+   // Return a reference to the container:
+   return *m_container;
+}
+
+template< typename STORABLE >
+const typename ElementLink< STORABLE >::ID_type&
+ElementLink< STORABLE >::dataID() const {
+
+   return m_event->getName( persKey() );
+}
+
+template< typename STORABLE >
+typename ElementLink< STORABLE >::ElementConstReference
+ElementLink< STORABLE >::operator*() const {
+
+   // Access the pointer:
+   ElementConstPointer ptr = cptr();
+   // Check if it could be retrieved:
+   if( ! ptr ) {
+      throw std::runtime_error( "ElementLink::operator*() "
+                                "Element not available" );
+   }
+
+   // Return the reference:
+   return *ptr;
+}
+
+/// This is the only function in the ElementLink code that tries to retrieve
+/// information from the event.
+///
+/// @returns A constant pointer to the element, or a null pointer if
+///          unsuccessful
+///
+template< typename STORABLE >
+typename ElementLink< STORABLE >::ElementConstPointer
+ElementLink< STORABLE >::cptr() const {
+
+   /// Default key, calculated just once:
+   static const uint32_t DEFAULT_KEY = ( xAOD::TVirtualEvent::DEFAULT_KEY &
+                                         xAOD::TVirtualEvent::KEY_MASK );
+
+   // If the object is already cached, return right away:
+   if( m_elementCached ) return &m_element;
+   // If we can't retrieve it, sad day for us:
+   if( ( ! m_event ) || ( ! persKey() ) ||
+       ( persKey() == DEFAULT_KEY ) ) return 0;
+
+   // The object should be cached from now on:
+   m_elementCached = true;
+
+   // If the container is cached at least, then things are relatively simple:
+   if( m_container ) {
+      typename STORABLE::size_type index =
+         static_cast< typename STORABLE::size_type >( persIndex() );
+      m_element = ( *m_container )[ index ];
+      return &m_element;
+   }
+
+   // Ask the Event object for the container:
+   if( ! m_event->retrieve( m_container, persKey() ) ) {
+      m_element = 0;
+      m_elementCached = false;
+      return 0;
+   }
+
+   // Get the correct element out of the container:
+   typename STORABLE::size_type index =
+      static_cast< typename STORABLE::size_type >( persIndex() );
+   m_element = ( *m_container )[ index ];
+
+   // Return a pointer to the element:
+   return &m_element;
+}
+
+template< typename STORABLE >
+bool ElementLink< STORABLE >::isValid() const {
+
+   // If we already have the element cached, the answer is simple:
+   if( m_elementCached && m_element ) {
+      return true;
+   }
+
+   /// Default key, calculated just once:
+   static const uint32_t DEFAULT_KEY = ( xAOD::TVirtualEvent::DEFAULT_KEY &
+                                         xAOD::TVirtualEvent::KEY_MASK );
+
+   // Start with the simple checks:
+   if( ( ! m_event ) || ( ! persKey() ) ||
+       ( persKey() == DEFAULT_KEY ) ) return false;
+
+   // Check whether the container can be accessed:
+   if( ! m_event->retrieve( m_container, persKey(), true ) ) {
+      return false;
+   }
+
+   // Check that the container is large enough:
+   if( m_container->size() <=
+       static_cast< typename STORABLE::size_type >( persIndex() ) ) {
+      return false;
+   }
+
+   // Apparently things should work well:
+   return true;
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+template< typename STORABLE >
+bool ElementLink< STORABLE >::toTransient() {
+
+   m_container = 0;
+   m_element = 0;
+   m_elementCached = false;
+
+   return true;
+}
+
+/// This function is used internally to find the hashed identifier for a
+/// container that was given to the ElementLink by reference. It throws an
+/// exception if the object can't be found in the event.
+///
+template< typename STORABLE >
+void ElementLink< STORABLE >::findIdentifier() {
+
+   // Ask the event for the identifier of this object:
+   const sgkey_t key = m_event->getKey( m_container );
+   if( ! key ) {
+      throw std::runtime_error( "ElementLink::findIdentifier: Couldn't find "
+                                "the received object in the current event" );
+   }
+
+   // Remember this key:
+   m_persKey = key;
+
+   return;
+}
+
+/// This function is used internally to find the index of a given element inside
+/// the container. It has to do a linear search, so it's quite slow...
+///
+template< typename STORABLE >
+void ElementLink< STORABLE >::findIndex() {
+
+   // Check that we have a valid container:
+   if( ! m_container ) {
+      throw std::runtime_error( "ElementLink::findIndex: No valid container" );
+   }
+
+   // Look for the element insied the container:
+   const_iterator el_itr = m_container->begin();
+   const_iterator el_end = m_container->end();
+   for( index_type i = 0; el_itr != el_end; ++el_itr, ++i ) {
+
+      // Check if this is the element that we're looking for:
+      if( *el_itr != m_element ) continue;
+
+      // If yes, we're finished:
+      m_persIndex = i;
+      return;
+   }
+
+   // If we didn't find the element in the container, that's a problem...
+   throw std::runtime_error( "ElementLink::findIndex: Couldn't find element "
+                             "in the current container" );
+
+   return;
+}
+
+#endif // ATHLINKS_ELEMENTLINK_ICC

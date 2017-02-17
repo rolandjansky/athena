@@ -1,0 +1,265 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: ElementLinkVector.icc 572309 2013-11-25 16:22:38Z krasznaa $
+#ifndef ATHLINKS_ELEMENTLINKVECTOR_ICC
+#define ATHLINKS_ELEMENTLINKVECTOR_ICC
+
+// System include(s):
+#include <cassert>
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//                 Implementation of the different constructors
+//
+
+template< class CONTAINER >
+ElementLinkVector< CONTAINER >::ElementLinkVector()
+   : ElementLinkVectorBase(), m_elVec() {
+
+}
+
+template< class CONTAINER >
+ElementLinkVector< CONTAINER >::ElementLinkVector( size_type n,
+                                                   const ElemLink& link )
+   : ElementLinkVectorBase(), m_elVec( n, link ) {
+
+   // Create the persistent information:
+   toPersistent();
+}
+
+template< class CONTAINER >
+ElementLinkVector< CONTAINER >::ElementLinkVector( const ElemLinkVec& parent )
+   : ElementLinkVectorBase( parent ), m_elVec( parent.m_elVec ) {
+
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+template< class CONTAINER >
+typename ElementLinkVector< CONTAINER >::ElemLinkVec&
+ElementLinkVector< CONTAINER >::operator=( const ElemLinkVec& rhs ) {
+
+   // Copy the contents of the base class:
+   ElementLinkVectorBase::operator=( rhs );
+
+   // Copy the member variable(s):
+   m_elVec = rhs.m_elVec;
+
+   // Return this same object:
+   return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//              Implementation of the vector capacity functions
+//
+
+template< class CONTAINER >
+void ElementLinkVector< CONTAINER >::resize( size_type sz,
+                                             const ElemLink& link ) {
+
+   // Resize the transient vector:
+   m_elVec.resize( sz, link );
+
+   // Now re-create the persistent information:
+   toPersistent();
+
+   // Return gracefully:
+   return;
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//               Implementation of the vector modifier functions
+//
+
+template< class CONTAINER >
+void ElementLinkVector< CONTAINER >::push_back( const ElemLink& el ) {
+
+   // Add the new transient object:
+   m_elVec.push_back( el );
+
+   // Add the persistent info about it as well:
+   m_persKeys.push_back( el.persKey() );
+   m_persIndices.push_back( el.persIndex() );
+
+   // Return gracefully:
+   return;
+}
+
+template< class CONTAINER >
+void ElementLinkVector< CONTAINER >::pop_back() {
+
+   // Remove the last transient object:
+   m_elVec.pop_back();
+
+   // Remove the last persistent objects:
+   m_persKeys.pop_back();
+   m_persIndices.pop_back();
+
+   // Return gracefully:
+   return;
+}
+
+template< class CONTAINER >
+typename ElementLinkVector< CONTAINER >::iterator
+ElementLinkVector< CONTAINER >::erase( iterator position ) {
+
+   // Do the deed, and remember the iterator:
+   iterator result = m_elVec.erase( position );
+
+   // It may be more performant later on to put in dedicated code
+   // here, but for now let's do the simplest thing:
+   toPersistent();
+
+   // Return the cached iterator:
+   return result;
+}
+
+template< class CONTAINER >
+typename ElementLinkVector< CONTAINER >::iterator
+ElementLinkVector< CONTAINER >::erase( iterator first, iterator last ) {
+
+   // Do the deed, and remember the iterator:
+   iterator result = m_elVec.erase( first, last );
+
+   // It may be more performant later on to put in dedicated code
+   // here, but for now let's do the simplest thing:
+   toPersistent();
+
+   // Return the cached iterator:
+   return result;
+}
+
+template< class CONTAINER >
+void ElementLinkVector< CONTAINER >::swap( ElemLinkVec& vec ) {
+
+   // Swap the transient variable:
+   m_elVec.swap( vec.m_elVec );
+
+   // Swap the persistent variables:
+   m_persKeys.swap( vec.m_persKeys );
+   m_persIndices.swap( vec.m_persIndices );
+
+   // Return gracefully:
+   return;
+}
+
+template< class CONTAINER >
+template< class InputIterator >
+void ElementLinkVector< CONTAINER >::assign( InputIterator first,
+                                             InputIterator last ) {
+
+   // Achieve the result using other functions of the class:
+   clear();
+   insert( begin(), first, last );
+}
+
+template< class CONTAINER >
+void ElementLinkVector< CONTAINER >::assign( size_type n,
+                                             const ElemLink& link ) {
+
+   // Achieve the result using other functions of the class:
+   clear();
+   insert( begin(), n, link );
+}
+
+template< class CONTAINER >
+typename ElementLinkVector< CONTAINER >::iterator
+ElementLinkVector< CONTAINER >::insert( iterator position,
+                                        const ElemLink& link ) {
+
+   // Insert the new link:
+   iterator result = m_elVec.insert( position, link );
+
+   // It may be more performant later on to put in dedicated code
+   // here, but for now let's do the simplest thing:
+   toPersistent();
+
+   // Return the cached iterator:
+   return result;
+}
+
+template< class CONTAINER >
+void ElementLinkVector< CONTAINER >::insert( iterator position,
+                                             size_type n,
+                                             const ElemLink& link ) {
+
+   // Insert the links:
+   m_elVec.insert( position, n, link );
+
+   // It may be more performant later on to put in dedicated code
+   // here, but for now let's do the simplest thing:
+   toPersistent();
+}
+
+template< class CONTAINER >
+void ElementLinkVector< CONTAINER >::clear() {
+
+   // Simply clear all variables:
+   m_elVec.clear();
+   m_persKeys.clear();
+   m_persIndices.clear();
+
+   // Return gracefully:
+   return;
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+template< class CONTAINER >
+bool ElementLinkVector< CONTAINER >::toTransient() {
+
+   // A little sanity check:
+   assert( m_persKeys.size() == m_persIndices.size() );
+
+   // Re-create the transient variables based on the
+   // persistent ones:
+   m_elVec.clear();
+   m_elVec.reserve( m_persKeys.size() );
+   for( size_t i = 0; i < m_persKeys.size(); ++i ) {
+      m_elVec.push_back( ElemLink( m_persKeys[ i ], m_persIndices[ i ] ) );
+   }
+
+   // Return a dummy value:
+   return true;
+}
+
+/// In a few cases the simplest way of syncronising the transient and
+/// persistent data of the object is to simply re-create the persistent
+/// data from scratch. This function does this.
+///
+/// @returns <code>true</code> in case of success, and <code>false</code>
+///          in case of failure
+///
+template< class CONTAINER >
+bool ElementLinkVector< CONTAINER >::toPersistent() {
+
+   // First, clear the current persistent info:
+   m_persKeys.clear();
+   m_persIndices.clear();
+
+   // Loop over all the links in this container:
+   iterator p_itr = begin();
+   iterator p_end = end();
+   for( ; p_itr != p_end; ++p_itr ) {
+
+      // Ask the link to make itself persistifiable. (Shouldn't do anything
+      // actually, but maybe we'll need to do something special in
+      // ElementLink::toPersistent() at one point...)
+      if( ! p_itr->toPersistent() ) return false;
+
+      // Copy the link's persistent data into the base class's variables:
+      m_persKeys.push_back( p_itr->persKey() );
+      m_persIndices.push_back( p_itr->persIndex() );
+   }
+
+   // Return gracefully:
+   return true;
+}
+
+#endif // ATHLINKS_ELEMENTLINKVECTOR_ICC

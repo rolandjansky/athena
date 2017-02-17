@@ -1,0 +1,371 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: DataLink.icc 682051 2015-07-10 09:30:58Z krasznaa $
+#ifndef ATHLINKS_DATALINK_ICC
+#define ATHLINKS_DATALINK_ICC
+
+// System include(s):
+#include <stdexcept>
+
+// ROOT include(s):
+#include <TError.h>
+
+// EDM include(s):
+#include "xAODRootAccessInterfaces/TVirtualEvent.h"
+#include "xAODRootAccessInterfaces/TActiveEvent.h"
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//                Implementation of the different constructors
+//
+
+/// This constructor creates an object that will either return a null pointer
+/// when asked for one, or throw an exception when trying to de-reference it.
+///
+template< typename STORABLE >
+DataLink< STORABLE >::DataLink()
+   : DataLinkBase(), m_object( 0 ), m_event( xAOD::TActiveEvent::event() ) {
+
+}
+
+/// This constructor allows the user to create a null-pointer that uses an
+/// alternative TVirtualEvent object as its store.
+///
+/// @param event Pointer to an alternative TVirtualEvent object
+///
+template< typename STORABLE >
+DataLink< STORABLE >::DataLink( xAOD::TVirtualEvent* event )
+   : DataLinkBase(), m_object( 0 ), m_event( event ) {
+
+}
+
+/// This constructor can be used to create a valid object based on a reference
+/// to an existing object, that's already part of the current event. In case
+/// the object can not be found in the current event, the constructor throws
+/// an exception.
+///
+/// @param data A constant reference to the object that the smart pointer
+///             should point to
+/// @param event Pointer to an alternative TVirtualEvent object
+///
+template< typename STORABLE >
+DataLink< STORABLE >::DataLink( const_reference data,
+                                xAOD::TVirtualEvent* event )
+   : DataLinkBase(), m_object( &data ), m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Find the identifier of the object that we received:
+   findIdentifier();
+}
+
+/// This constructor can be used to create a valid object based on a pointer
+/// to an existing object, that's already part of the current event. In case
+/// the object can not be found in the current event, the constructor throws
+/// an exception.
+///
+/// @param data A constant pointer to the object that the smart pointer
+///             should point to
+/// @param event Pointer to an alternative TVirtualEvent object
+///
+template< typename STORABLE >
+DataLink< STORABLE >::DataLink( const_pointer data, xAOD::TVirtualEvent* event )
+   : DataLinkBase(), m_object( data ), m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Find the identifier of the object that we received:
+   findIdentifier();
+}
+
+/// This is probably the most convenient version of the constructors.
+/// It receives a string identifier (branch name) for the object that the smart
+/// pointer should reference.
+///
+/// @param id A string identifier for the object to be referenced
+/// @param event Pointer to an alternative TVirtualEvent object
+///
+template< typename STORABLE >
+DataLink< STORABLE >::DataLink( const ID_type& id, xAOD::TVirtualEvent* event )
+   : DataLinkBase(), m_object( 0 ), m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+
+   // Translate the id into a hashed key:
+   m_persKey = m_event->getHash( id );
+}
+
+/// This is the most cost-effective of the constructors after the default
+/// one. It relies on the user knowing exactly what hashed key to ask for
+/// for the target object.
+///
+/// @param key A hashed key identifying the object to be referenced
+/// @param event Pointer to an alternative TVirtualEvent object
+///
+template< typename STORABLE >
+DataLink< STORABLE >::DataLink( sgkey_t key, xAOD::TVirtualEvent* event )
+   : DataLinkBase( key ), m_object( 0 ), m_event( event ) {
+
+   // Get the active event if the user didn't specify one explicitly:
+   if( ! m_event ) {
+      m_event = xAOD::TActiveEvent::event();
+   }
+}
+
+/// Simple copy-constructor. It just copies the persistent information
+/// from the base class together with the TVirtualEvent pointer that the parent
+/// class had.
+///
+/// @param parent The parent object to be copied
+///
+template< typename STORABLE >
+template< typename T >
+DataLink< STORABLE >::DataLink( const DataLink< T >& parent )
+   : DataLinkBase( parent ), m_object( 0 ), m_event( parent.m_event ) {
+
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//             Implementation of the different setter functions
+//
+
+/// This function should be used to set up the object when your code has a
+/// reference to the target object.
+///
+/// The function will throw an exception if the supplied object can't be found
+/// in the current event.
+///
+/// @param data A reference to the target object
+///
+template< typename STORABLE >
+void DataLink< STORABLE >::toStorableObject( const_reference data ) {
+
+   // Remember the pointer:
+   m_object = &data;
+
+   // Now try to look up the object in the store:
+   findIdentifier();
+
+   return;
+}
+
+/// This function sets up the object to point at the default object of the
+/// template type in the event. It can be useful when only one object of a
+/// given type is available.
+///
+template< typename STORABLE >
+void DataLink< STORABLE >::toDefaultObject() {
+
+   // Reset the cached pointer:
+   m_object = 0;
+
+   // Set a special value for the persistent variable:
+   setPersKey( xAOD::TVirtualEvent::DEFAULT_KEY );
+
+   return;
+}
+
+/// This is one of the more convenient functions. It sets up the smart pointer
+/// using a user-readable string idetifier for the target object.
+///
+/// @param id A string identifier (branch name) for the target object
+///
+template< typename STORABLE >
+void DataLink< STORABLE >::toIdentifiedObject( const ID_type& id ) {
+
+   // Check if we have a valid event:
+   if( ! m_event ) {
+      throw std::runtime_error( "DataLink::toIdentifiedObject: No valid "
+                                "TVirtualEvent pointer available (key: " +
+                                id + ")" );
+   }
+
+   // Reset the cached pointer:
+   m_object = 0;
+
+   // Set the persistent key using this identifier:
+   m_persKey = m_event->getHash( id );
+
+   return;
+}
+
+/// This function hardly has to do anything. It just sets the received key as
+/// the persistent information for the object, and resets its internals.
+///
+/// @param key The hashed key for the target object
+///
+template< typename STORABLE >
+void DataLink< STORABLE >::toIdentifiedObject( sgkey_t key ) {
+
+   // Reset the cached pointer:
+   m_object = 0;
+
+   // Set the persistent key:
+   m_persKey =  key;
+
+   return;
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//            Implementation of the different accessor functions
+//
+
+/// This operator can be used to get a constant reference to the object.
+/// In most cases though one should probably use the -> operator instead.
+/// The code throws an exception if the target object is not available.
+///
+/// @returns A constant reference to the target object if available
+///
+template< class STORABLE >
+typename DataLink< STORABLE >::const_reference
+DataLink< STORABLE >::operator*() const {
+
+   // See if we have a valid object:
+   const_pointer ptr = cptr();
+
+   // If not, throw an exception:
+   if( ! ptr ) {
+      throw std::runtime_error( "DataLink::operator*: No valid target for the "
+                                "object" );
+   }
+
+   // Return the reference. Notice that we're not using the temporary variable
+   // here...
+   return *m_object;
+}
+
+/// This function is doing most of the heavy lifting. It interacts with the
+/// TVirtualEvent object to deliver a pointer to the target object to the user.
+///
+/// @returns A constant pointer to the target object if available, a
+///          null pointer if not
+///
+template< class STORABLE >
+typename DataLink< STORABLE >::const_pointer
+DataLink< STORABLE >::cptr() const {
+
+   // If the object is already cached, return right away:
+   if( m_object || ( ! m_event ) ) return m_object;
+
+   /// Default key, calculated just once:
+   static const uint32_t DEFAULT_KEY = ( xAOD::TVirtualEvent::DEFAULT_KEY &
+                                         xAOD::TVirtualEvent::KEY_MASK );
+
+   // If the key is nonsensical, fail silently:
+   if( ( ! persKey() ) || ( persKey() == DEFAULT_KEY ) ) {
+      return 0;
+   }
+
+   // Ask the event object for the object in question:
+   if( ! m_event->retrieve( m_object, m_persKey ) ) {
+      m_object = 0;
+   }
+
+   // Return what we acquired:
+   return m_object;
+}
+
+template< class STORABLE >
+bool DataLink< STORABLE >::isValid() const {
+
+   // If we have an object already cached, the answer is easy:
+   if( m_object ) {
+      return true;
+   }
+
+   // If there's no event object, we won't be able to retrieve anything:
+   if( ! m_event ) {
+      return false;
+   }
+
+   /// Default key, calculated just once:
+   static const uint32_t DEFAULT_KEY = ( xAOD::TVirtualEvent::DEFAULT_KEY &
+                                         xAOD::TVirtualEvent::KEY_MASK );
+
+   // Check for non-valid keys:
+   if( ( ! persKey() ) || ( persKey() == DEFAULT_KEY ) ) {
+      return false;
+   }
+
+   // Try retrieving the object:
+   if( ! m_event->retrieve( m_object, m_persKey, true ) ) {
+      return false;
+   }
+
+   // Apparently the link can be de-referenced:
+   return true;
+}
+
+template< typename STORABLE >
+const typename DataLink< STORABLE >::ID_type&
+DataLink< STORABLE >::dataID() const {
+
+   return m_event->getName( persKey() );
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+/// This function is just here to enable us compiling the same EDM code as
+/// we do offline. We don't actually need to prepare this object for being
+/// written out, it's always in a consistent state.
+///
+/// @returns A dummy value. Just to have the same signature as the offline
+///          function.
+///
+template< class STORABLE >
+bool DataLink< STORABLE >::toPersistent() {
+
+   return true;
+}
+
+/// This function just resets the cached pointer when ROOT streams in a new
+/// object from a TBranch.
+///
+/// @returns A dummy value. Just to have the same signature as the offline
+///          function.
+///
+template< class STORABLE >
+bool DataLink< STORABLE >::toTransient() {
+
+   m_object = 0;
+   return true;
+}
+
+/// This function is used internally to find the hashed identifier for an object
+/// that was given to the DataLink either by reference or pointer. It throws an
+/// exception if the object can't be found in the event.
+///
+template< class STORABLE >
+void DataLink< STORABLE >::findIdentifier() {
+
+   // Ask the event for the identifier of this object:
+   const sgkey_t key = m_event->getKey( m_object );
+   if( ! key ) {
+      Warning( "DataLink::findIdentifier",
+               "Couldn't find the received object in the current event" );
+   }
+
+   // Remember this key:
+   m_persKey = key;
+
+   return;
+}
+
+#endif // ATHLINKS_DATALINK_ICC
