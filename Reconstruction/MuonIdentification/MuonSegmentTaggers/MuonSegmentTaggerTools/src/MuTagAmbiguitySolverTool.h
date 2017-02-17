@@ -42,9 +42,9 @@ class MuTagAmbiguitySolverTool : virtual public IMuTagAmbiguitySolverTool, publi
   virtual StatusCode initialize        ();
   virtual StatusCode finalize          ();
   
-  std::vector<  MuonCombined::MuonSegmentInfo > solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) ;
+  std::vector<  MuonCombined::MuonSegmentInfo > solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) const ;
 
-  std::vector<  MuonCombined::MuonSegmentInfo > selectBestMuTaggedSegments(  std::vector<  MuonCombined::MuonSegmentInfo > mtss );
+  std::vector<  MuonCombined::MuonSegmentInfo > selectBestMuTaggedSegments(  std::vector<  MuonCombined::MuonSegmentInfo > mtss ) const ;
   
  private:
   ///////////////////////////////////

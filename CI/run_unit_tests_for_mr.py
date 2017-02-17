@@ -22,7 +22,7 @@ def run_unit_tests(args):
     affected_packages = sorted(set([map_filename_to_package(f) for f in changed_files]))
 
     # assemble ctest command
-    ctest_cmd = "ctest "
+    ctest_cmd = "ctest --output-on-failure "
     for p in affected_packages:
         # label is package name and not full package path
         ctest_cmd += "-L ^" + os.path.basename(p) + " "

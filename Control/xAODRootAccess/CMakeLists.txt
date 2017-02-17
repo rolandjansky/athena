@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 793778 2017-01-25 04:06:29Z ssnyder $
+# $Id: CMakeLists.txt 796624 2017-02-10 17:17:23Z ssnyder $
 #
 # Build configuration for the xAODRootAccess package.
 #
@@ -70,28 +70,36 @@ macro( _add_test name )
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore xAODRootAccess
-      PROPERTIES TIMEOUT 600 )
+      PROPERTIES TIMEOUT 600
+      EXTRA_PATTERNS "Opened file:|find dictionary for type|is already in" )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
-_add_test( ut_xaodrootaccess_metadata_test )
-_add_test( ut_xaodrootaccess_remap_test )
-_add_test( ut_xaodrootaccess_slimming_test )
-_add_test( ut_xaodrootaccess_stats_test )
 _add_test( ut_xaodrootaccess_tauxvector_test )
 _add_test( ut_xaodrootaccess_tauxstore_test )
 _add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
-_add_test( ut_xaodrootaccess_tchain_test )
-_add_test( ut_xaodrootaccess_tevent_test )
-_add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 _add_test( ut_xaodrootaccess_tfilemerger_test )
-_add_test( ut_xaodrootaccess_transtree_test )
 _add_test( ut_xaodrootaccess_tstore_test )
 
+# These require code from AtlasEvent, and so cannot run in ATN for AtlasCore.
+# Re-enable them once we've gone to a single-project build.
+#_add_test( ut_xaodrootaccess_metadata_test )
+#_add_test( ut_xaodrootaccess_remap_test )
+#_add_test( ut_xaodrootaccess_slimming_test )
+#_add_test( ut_xaodrootaccess_stats_test )
+#_add_test( ut_xaodrootaccess_tchain_test )
+#_add_test( ut_xaodrootaccess_tevent_test )
+#_add_test( ut_xaodrootaccess_transtree_test )
+
+# Needs network access; problematic outside CERN.
+#_add_test( ut_xaodrootaccess_tfileaccesstracer_test )
+
 # Run the scripted tests for the package:
-atlas_add_test( ut_xaodrootaccess_tpyevent_test
-   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600 )
-atlas_add_test( ut_xaodrootaccess_tpystore_test
-   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
-atlas_add_test( ut_xaodrootaccess_transtree2_test
-   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )
+# These also can't run with just AtlasCore.
+#atlas_add_test( ut_xaodrootaccess_tpyevent_test
+#   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600
+#  EXTRA_PATTERNS "/Root/TAuxStore" )
+#atlas_add_test( ut_xaodrootaccess_tpystore_test
+#   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
+#atlas_add_test( ut_xaodrootaccess_transtree2_test
+#   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )

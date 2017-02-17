@@ -86,7 +86,7 @@ std::vector<const Muon::MuonSegment*>*
 RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                  const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > >&,
                                  const std::vector< std::vector< const Muon::MuonClusterOnTrack* > >& clusters,
-                                 bool,double)
+                                 bool,double) const
 {
     ATH_MSG_DEBUG("RPC_LinearSegmentMakerTool::find");
     

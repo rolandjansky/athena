@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodrootaccess_metadata_test.cxx 663791 2015-04-29 13:08:06Z krasznaa $
+// $Id: ut_xaodrootaccess_metadata_test.cxx 796448 2017-02-09 18:28:08Z ssnyder $
 
 // System include(s):
 #include <memory>
@@ -64,18 +64,22 @@ int main() {
    xAOD::TEvent event;
 
    // First, test the reading of metadata from an input file.
-   static const char* FNAME =
-      "/afs/cern.ch/atlas/project/PAT/xAODs/r5597/"
+   const char* ref = getenv ("ATLAS_REFERENCE_DATA");
+   std::string FPATH =
+     ref ? ref : "/afs/cern.ch/atlas/project/PAT";
+   std::string FNAME = FPATH + "/xAODs/r5597/"
       "data12_8TeV.00204158.physics_JetTauEtmiss.recon.AOD.r5597/"
       "AOD.01495682._003054.pool.root.1";
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
+   
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME.c_str(),
+                                                    "READ" ) );
    if( ! ifile.get() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "File %s couldn't be opened..." ),
-               FNAME );
+               FNAME.c_str() );
       return 1;
    }
    RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
-   Info( APP_NAME, "Opened file: %s", FNAME );
+   Info( APP_NAME, "Opened file: %s", FNAME.c_str() );
 
    // Try to retrieve some objects:
    const SG::AuxVectorBase* v = 0;

@@ -19,3 +19,8 @@ atlas_add_library( MuonEDM_AssociationObjects
                    PUBLIC_HEADERS MuonEDM_AssociationObjects
                    LINK_LIBRARIES DataModel SGTools MuonPattern MuonSegment )
 
+atlas_add_dictionary( MuonEDM_AssociationObjectsDict
+                      MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h
+                      MuonEDM_AssociationObjects/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} DataModel SGTools MuonPattern MuonSegment)

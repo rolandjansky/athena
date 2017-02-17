@@ -14,26 +14,25 @@ CalibMuonsSelectorTool::CalibMuonsSelectorTool( const std::string& type, const s
   declareInterface< ICalibMuonsSelectorTool >( this );
 
   //::: Declaring properties
-  declareProperty( "PtCut",          m_PtCut = 6. * CLHEP::GeV );
+  declareProperty( "PtCut",          m_PtCut = 4.5 * CLHEP::GeV );
   declareProperty( "EtaCut",         m_EtaCut = 2.65 );
   declareProperty( "MinJpsiMassCut", m_MinJpsiMassCut = 2. * CLHEP::GeV );
   declareProperty( "MaxJpsiMassCut", m_MaxJpsiMassCut = 10. * CLHEP::GeV );
-  declareProperty( "MinZMassCut",    m_MinZMassCut = 66. * CLHEP::GeV );
-  declareProperty( "MaxZMassCut",    m_MaxZMassCut = 116. * CLHEP::GeV );
+  declareProperty( "MinZMassCut",    m_MinZMassCut = 60. * CLHEP::GeV );
 
   declareProperty( "MuonSelectorTool", m_MuonSelectorTool ); 
-  declareProperty( "GRLTool",          m_GRLTool ); 
+  //declareProperty( "GRLTool",          m_GRLTool ); 
 }
 
 StatusCode CalibMuonsSelectorTool::initialize() {
 
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
-  m_MuonSelectorTool.setTypeAndName( "CP::MuonSelectionTool/MuonSelectionTool" ); 
+  // m_MuonSelectorTool.setTypeAndName( "CP::MuonSelectionTool/MuonSelectionTool" ); 
   ATH_CHECK( m_MuonSelectorTool.retrieve() );
 
-  m_GRLTool.setTypeAndName( "GoodRunsListSelectionTool/GRLTool" ); 
-  ATH_CHECK( m_GRLTool.retrieve() );
+  //m_GRLTool.setTypeAndName( "GoodRunsListSelectionTool/GRLTool" ); 
+  //ATH_CHECK( m_GRLTool.retrieve() );
 
   return StatusCode::SUCCESS;
 
@@ -58,10 +57,10 @@ PairsVector CalibMuonsSelectorTool::GetMuons( const xAOD::MuonContainer* the_muo
     ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
     return SelectedMuons;
   }
-  bool pass_GRL = m_GRLTool->passRunLB( *evtInfo );
-  ATH_MSG_DEBUG( "RunNumber: " << evtInfo->runNumber() << ", LumiBlock: " << evtInfo->lumiBlock() << ", Passes GRL: " << std::boolalpha << pass_GRL );
-  if( pass_GRL ) cut_flow->Fill( 1.5 ); //::: Pass GRL 
-  else return SelectedMuons;
+  //bool pass_GRL = m_GRLTool->passRunLB( *evtInfo );
+  //ATH_MSG_DEBUG( "RunNumber: " << evtInfo->runNumber() << ", LumiBlock: " << evtInfo->lumiBlock() << ", Passes GRL: " << std::boolalpha << pass_GRL );
+  //if( pass_GRL ) cut_flow->Fill( 1.5 ); //::: Pass GRL 
+  //else return SelectedMuons;
 
   ATH_MSG_DEBUG( " ---> Number of muons in container: " << the_muons->size() );
 
@@ -87,7 +86,7 @@ PairsVector CalibMuonsSelectorTool::GetMuons( const xAOD::MuonContainer* the_muo
       ATH_MSG_DEBUG( " ------> Mass: " << ( ( *the_first_muon )->p4() + ( *the_second_muon )->p4() ).M() );
 
       //::: Mass Window Check
-      if( ! AreInMassWindow( *the_first_muon, *the_second_muon ) ) continue;
+      //if( ! AreInMassWindow( *the_first_muon, *the_second_muon ) ) continue;
       in_mass_window = true;
 
       //::: Charge Check
@@ -96,6 +95,12 @@ PairsVector CalibMuonsSelectorTool::GetMuons( const xAOD::MuonContainer* the_muo
       //::: Decorate with quality
       ( *the_first_muon )->auxdecor< int >( "MST_Quality" ) = m_MuonSelectorTool->getQuality( **the_first_muon );
       ( *the_second_muon )->auxdecor< int >( "MST_Quality" ) = m_MuonSelectorTool->getQuality( **the_second_muon );
+
+      ( *the_first_muon )->auxdecor< bool >( "MST_PassHighPt" ) = m_MuonSelectorTool->passedHighPtCuts( **the_first_muon );
+      ( *the_second_muon )->auxdecor< bool >( "MST_PassHighPt" ) = m_MuonSelectorTool->passedHighPtCuts( **the_second_muon );
+
+      ( *the_first_muon )->auxdecor< bool >( "MST_PassIDHits" ) = m_MuonSelectorTool->passedIDCuts( **the_first_muon );
+      ( *the_second_muon )->auxdecor< bool >( "MST_PassIDHits" ) = m_MuonSelectorTool->passedIDCuts( **the_second_muon );
 
       //::: Filling
       if( ( *the_first_muon )->charge() > 0. ) {
@@ -145,7 +150,7 @@ bool CalibMuonsSelectorTool::AreInMassWindow( const xAOD::Muon* first_muon, cons
   if( m_MinJpsiMassCut < invariant_mass && invariant_mass < m_MaxJpsiMassCut ) return true;
 
   //::: Z Mass Window
-  if( m_MinZMassCut < invariant_mass && invariant_mass < m_MaxZMassCut ) return true;
+  if( m_MinZMassCut < invariant_mass ) return true;
 
   //::: If We Got This Far...
   return false;

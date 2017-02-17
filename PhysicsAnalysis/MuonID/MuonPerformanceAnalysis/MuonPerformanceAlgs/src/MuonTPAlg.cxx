@@ -24,7 +24,6 @@ MuonTPAlg::MuonTPAlg(const std::string& name, ISvcLocator* pSvcLocator ) :
   declareProperty("MuonTPTools",        m_tptools);
   declareProperty("TagContainerName",   m_tagContainerName   = "Muons");
   declareProperty("ProbeContainerName", m_probeContainerName = "InDetTrackParticles");
-  declareProperty("MatchContainerName", m_matchContainerName = "Muons");
   declareProperty("TopLevelFolderName", m_topLevelOutputFolderName = "UndefinedTagAndProbe");
 }
 
@@ -124,26 +123,11 @@ StatusCode MuonTPAlg::execute() {
       }
   }
 
-  ATH_MSG_DEBUG(" -- Pick up matches");
-  // retrieve match container  
-  const xAOD::IParticleContainer* matchContainer = 0;
-  if(evtStore()->retrieve(matchContainer, m_matchContainerName).isFailure()) {
-      if (!info->eventType(xAOD::EventInfo::IS_SIMULATION) && m_matchContainerName.find("Truth")!=std::string::npos){
-          ATH_MSG_WARNING("Detected that the TP Alg is run with truth probes on a data sample. Will not produce any results!");
-          m_is_TruthOnData=true;
-          return StatusCode::SUCCESS;
-      }
-      else {
-          ATH_MSG_FATAL( "Unable to retrieve " << m_matchContainerName );
-          return StatusCode::FAILURE;
-      }
-  }
-
   ATH_MSG_DEBUG(" -- Call the tools");
     // call the TP tool 
   for(auto tool : m_tptools) {
 	  ATH_MSG_DEBUG(" -- Call to "<<tool->name());
-	  tool->runTagAndProbe(tagContainer, probeContainer, matchContainer);
+	  tool->runTagAndProbe(tagContainer, probeContainer);
   }
   ATH_MSG_DEBUG("done with execute");
   

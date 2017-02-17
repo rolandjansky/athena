@@ -178,7 +178,7 @@ namespace Muon {
     return AthAlgTool::finalize();
   }
 
-  void MuonLayerHoughTool::getTruth() {
+  void MuonLayerHoughTool::getTruth() const {
     m_truthCollections.clear();
     m_truthCollections.resize(m_ntechnologies,0);
     for( unsigned int i=0; i<m_truthNames.size(); ++i ){
@@ -241,7 +241,7 @@ namespace Muon {
 
   }
   
-  void MuonLayerHoughTool::reset() {
+  void MuonLayerHoughTool::reset() const {
     m_foundTruthHits.clear();
     m_outputTruthHits.clear();
     m_truthHits.clear();
@@ -265,7 +265,7 @@ namespace Muon {
                                                                     const std::vector<const CscPrepDataCollection*>& ,  
                                                                     const std::vector<const TgcPrepDataCollection*>& tgcCols,  
                                                                     const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-                                                                    const MuonSegmentCombinationCollection* ) {                                              
+                                                                    const MuonSegmentCombinationCollection* ) const {                                              
 
     reset();
     ATH_MSG_DEBUG("MuonLayerHoughTool::find");
@@ -335,7 +335,7 @@ namespace Muon {
                                                                  const TgcPrepDataContainer*  tgcCont,
                                                                  const RpcPrepDataContainer*  rpcCont,
                                                                  const sTgcPrepDataContainer* stgcCont,  
-                                                                 const MMPrepDataContainer*   mmCont ) {
+                                                                 const MMPrepDataContainer*   mmCont ) const {
 
     reset();
     ATH_MSG_DEBUG("MuonLayerHoughTool::analyse");
@@ -360,7 +360,7 @@ namespace Muon {
     return analyse();
   }
   
-  MuonPatternCombinationCollection* MuonLayerHoughTool::analyse() {    
+  MuonPatternCombinationCollection* MuonLayerHoughTool::analyse() const {    
 
     MuonPatternCombinationCollection* patternCombis = new MuonPatternCombinationCollection();
 
@@ -497,7 +497,7 @@ namespace Muon {
     return patternCombis;
   }
 
-  void MuonLayerHoughTool::buildRoads( std::vector<MuonLayerHoughTool::Road>& roads ) {
+  void MuonLayerHoughTool::buildRoads( std::vector<MuonLayerHoughTool::Road>& roads ) const {
     // sort maxima according to hits
     std::stable_sort( m_seedMaxima.begin(),m_seedMaxima.end(), [](const MuonHough::MuonLayerHough::Maximum* m1,
                                                                   const MuonHough::MuonLayerHough::Maximum* m2 ){ return m1->max > m2->max; } );
@@ -684,7 +684,7 @@ namespace Muon {
   // roads are combinations of maxima
   
   
-  void MuonLayerHoughTool::extendSeed( MuonLayerHoughTool::Road& road, MuonLayerHoughTool::HoughDataPerSector& sectorData ) { //const {
+  void MuonLayerHoughTool::extendSeed( MuonLayerHoughTool::Road& road, MuonLayerHoughTool::HoughDataPerSector& sectorData ) const { //const {
     if( !road.seed ) return;
     
     RegionMaximumVec& maxVec = sectorData.maxVec;
@@ -1060,7 +1060,7 @@ namespace Muon {
 
   void MuonLayerHoughTool::associateMaximaToPhiMaxima( MuonStationIndex::DetectorRegionIndex region, MuonLayerHoughTool::HoughDataPerSector& houghData,
          std::map< MuonHough::MuonPhiLayerHough::Maximum*, MuonLayerHoughTool::MaximumVec >& phiEtaAssociations,
-         MuonLayerHoughTool::RegionMaximumVec& unassEtaMaxima) 
+         MuonLayerHoughTool::RegionMaximumVec& unassEtaMaxima) const
   {
          
     std::set<MuonHough::MuonLayerHough::Maximum*> associatedMaxima;
@@ -1334,7 +1334,7 @@ namespace Muon {
 
 
   void MuonLayerHoughTool::createPatternCombinations( MuonLayerHoughTool::RegionMaximumVec& maxima,
-                  MuonPatternCombinationCollection& patternCombis ) {
+                  MuonPatternCombinationCollection& patternCombis )  const {
     
     ATH_MSG_DEBUG("Creating pattern combinations for eta patterns ");
 
@@ -1412,7 +1412,7 @@ namespace Muon {
   }
 
   void MuonLayerHoughTool::createPatternCombinations( std::map< MuonHough::MuonPhiLayerHough::Maximum*, MuonLayerHoughTool::MaximumVec >& phiEtaAssociations,
-                  MuonPatternCombinationCollection& patternCombis ) {
+                  MuonPatternCombinationCollection& patternCombis ) const {
     
     ATH_MSG_DEBUG("Creating pattern combinations from eta/phi combinations " << phiEtaAssociations.size() );
 
@@ -1598,7 +1598,7 @@ namespace Muon {
 
   bool MuonLayerHoughTool::findMaxima( MuonHough::MuonLayerHough& hough,
                                        MuonLayerHoughTool::HitVec& hits, 
-                                       MuonLayerHoughTool::MaximumVec& maxima ){
+                                       MuonLayerHoughTool::MaximumVec& maxima ) const {
     if( hits.empty() ) return false;
 
     if( hough.m_descriptor.chIndex < 0 || hough.m_descriptor.chIndex >= Muon::MuonStationIndex::ChIndexMax ){
@@ -1676,7 +1676,7 @@ namespace Muon {
   bool MuonLayerHoughTool::findMaxima( MuonHough::MuonPhiLayerHough& hough,
                                        MuonLayerHoughTool::PhiHitVec& hits, 
                                        MuonLayerHoughTool::PhiMaximumVec& maxima,
-                                       int sector ){
+                                       int sector ) const{
     if( hits.empty() ) return false;
 
     std::stable_sort(hits.begin(),hits.end(),MuonHough::SortHitsPerLayer());
@@ -1768,7 +1768,7 @@ namespace Muon {
                                                const RpcPrepDataContainer*  rpcCont,
                                                const sTgcPrepDataContainer* stgcCont,  
                                                const MMPrepDataContainer*   mmCont,
-                                               MuonLayerHoughTool::HoughDataPerSector& houghData ){
+                                               MuonLayerHoughTool::HoughDataPerSector& houghData ) const {
                                                
     // loop over all possible station layers in the sector
     for( unsigned int tech=0;tech<m_ntechnologies;++tech ){
@@ -1806,7 +1806,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::updateHits( MuonLayerHoughTool::PhiHitVec& hits, MuonHough::MuonPhiLayerHough& hough ) {
+  void MuonLayerHoughTool::updateHits( MuonLayerHoughTool::PhiHitVec& hits, MuonHough::MuonPhiLayerHough& hough ) const {
     PhiHitVec::iterator hit = hits.begin();
     PhiHitVec::iterator hit_end = hits.end();
     for( ;hit!=hit_end;++hit ){
@@ -1822,7 +1822,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::updateHits( MuonLayerHoughTool::HitVec& hits, MuonHough::MuonLayerHough& hough ){
+  void MuonLayerHoughTool::updateHits( MuonLayerHoughTool::HitVec& hits, MuonHough::MuonLayerHough& hough ) const {
     HitVec::iterator hit = hits.begin();
     HitVec::iterator hit_end = hits.end();
     for( ;hit!=hit_end;++hit ){
@@ -1837,7 +1837,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::matchTruth( const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ){
+  void MuonLayerHoughTool::matchTruth( const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const {
     typedef PRD_MultiTruthCollection::const_iterator iprdt;
     std::pair<iprdt, iprdt> range = truthCol.equal_range(id);
     
@@ -1856,7 +1856,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::fill( const MdtPrepDataCollection& mdts, MuonLayerHoughTool::HitVec& hits ){
+  void MuonLayerHoughTool::fill( const MdtPrepDataCollection& mdts, MuonLayerHoughTool::HitVec& hits ) const {
     
     if( mdts.empty() ) return;
 
@@ -1903,7 +1903,7 @@ namespace Muon {
 
   }
 
-  void MuonLayerHoughTool::fill( const RpcPrepDataCollection& rpcs, MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits ){
+  void MuonLayerHoughTool::fill( const RpcPrepDataCollection& rpcs, MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits ) const {
     
     if( rpcs.empty() ) return;
 
@@ -1961,7 +1961,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::fill( const MMPrepDataCollection& mms, MuonLayerHoughTool::HitVec& hits ){
+  void MuonLayerHoughTool::fill( const MMPrepDataCollection& mms, MuonLayerHoughTool::HitVec& hits ) const {
     
     if( mms.empty() ) return;
 
@@ -1994,7 +1994,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::fill( const sTgcPrepDataCollection& stgcs, MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits, int selectedSector ){
+  void MuonLayerHoughTool::fill( const sTgcPrepDataCollection& stgcs, MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits, int selectedSector ) const {
     
     if( stgcs.empty() ) return;
 
@@ -2090,7 +2090,7 @@ namespace Muon {
   }
 
   void MuonLayerHoughTool::fill( const TgcPrepDataCollection& tgcs, MuonLayerHoughTool::HitVec& hits,
-         MuonLayerHoughTool::PhiHitVec& phiHits, int sector ){
+         MuonLayerHoughTool::PhiHitVec& phiHits, int sector ) const {
     
     if( tgcs.empty() ) return;
     m_tgcClusteringObjs.push_back( new TgcHitClusteringObj(m_idHelper->tgcIdHelper()) );
@@ -2373,7 +2373,7 @@ namespace Muon {
     }  
   }
 
-  void MuonLayerHoughTool::fillNtuple( MuonLayerHoughTool::HoughDataPerSectorVec& houghDataPerSectorVec ) {
+  void MuonLayerHoughTool::fillNtuple( MuonLayerHoughTool::HoughDataPerSectorVec& houghDataPerSectorVec ) const {
     HoughDataPerSectorCit it = houghDataPerSectorVec.begin();
     HoughDataPerSectorCit it_end = houghDataPerSectorVec.end();
     for( ;it!=it_end;++it ){

@@ -38,7 +38,7 @@ namespace Muon {
 	@param track input track
         @return new refined track. Pointer could be zero, ownership passed to caller
     */
-    virtual MuPatTrack* refine( MuPatTrack& track ) = 0;
+    virtual MuPatTrack* refine( MuPatTrack& track ) const = 0;
 
   };
   

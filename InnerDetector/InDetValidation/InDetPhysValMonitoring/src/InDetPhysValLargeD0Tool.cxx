@@ -267,7 +267,7 @@ InDetPhysValLargeD0Tool::fillHistograms() {
 
       bool reconstructed(false), largeD0Track(false), trtHit(false), trtOut(false);
       float bestMatch(0.0);
-      float PF_w(1); // weight for the trackeff histos
+      bool addsToEfficiency(true); // weight for the trackeff histos
       uint8_t iTrtHits(0), iTrtOutliers(0), iTrtTubeHits(0);
       int nTrtHits(0), nTrtTubeHits(0);
 
@@ -332,9 +332,9 @@ InDetPhysValLargeD0Tool::fillHistograms() {
         }
         m_LargeD0Plots->fill(*assoc_Truth); // This is filling truth-only plots: m_TrackTruthInfoPlots
       } else {
-        PF_w = 0;
+        addsToEfficiency = false;
       }
-      m_LargeD0Plots->pro_fill(*thisTruth, PF_w);
+      m_LargeD0Plots->fillEfficiency(*thisTruth, addsToEfficiency);
       // end of bestMatch >= minProbEffHigh
 
       m_LargeD0Plots->fillEfficiency(*thisTruth, reconstructed, largeD0Track, trtHit, trtOut, nTrtHits, nTrtTubeHits, isSignal(

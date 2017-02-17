@@ -10,6 +10,7 @@
 #          include "samples/TrigInDetValidation_minBias_sample0.xml"
 	    
 
+
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -24,21 +25,8 @@
             </action>
 
 
+
             <action position="02">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-minBias.root data-minBias_offline-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
-              </arg>
-            </action>
-
-
-            <action position="03">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -47,9 +35,10 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-minBias.root data-minBias_offline-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-test-plots </argvalue>
+                <argvalue>data-minBias.root data-minBias_offline-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action>
+
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
@@ -71,5 +60,6 @@
           <athenaCommonFlags /> 
 	  <alwaysRunPostProc />
 	  </athena>
+
 
 

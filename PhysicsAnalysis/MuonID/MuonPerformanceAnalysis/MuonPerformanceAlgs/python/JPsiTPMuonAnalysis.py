@@ -39,7 +39,7 @@ def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe_JPsi",
     MuonContainerToUse = CommonMuonTPConfig.GetRightMuonContainer()
 
     ProbeContainer = MuonContainerToUse
-    theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="JPsiTPMuonAlg_%s"%name_suffix, ProbeCont=ProbeContainer, MatchCont=MatchContainer)
+    theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="JPsiTPMuonAlg_%s"%name_suffix, ProbeCont=ProbeContainer)
     theAlg.TopLevelFolderName = "JPsiTPMuon"
 
     SelectionTools = []
@@ -132,7 +132,7 @@ def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe_JPsi",
     if writeNtuple:
         ntuples.append(CommonMuonTPConfig.AddTreeTool(name="JPsiTPMuonTreeTool_%s"%name_suffix, 
                                                       EffiFlag="Trees",WriteSFInfo=doClosure,
-                                                      IsRunOnDAOD=IsRunOnDAOD))
+                                                      IsRunOnDAOD=IsRunOnDAOD,DoJpsiVertexInfo=True))
     
     for ntuple in ntuples:
         if doIso:

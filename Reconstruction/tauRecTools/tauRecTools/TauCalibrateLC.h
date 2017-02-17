@@ -55,7 +55,10 @@ private:
     double m_averageNPV=0;
 
     bool m_doEnergyCorr; //!< switch for energy correction
+    bool m_doPtResponse; //!< switch for pt response vs pt, if false, use E response vs E
+    bool m_countOnlyPileupVertices; //!< switch for counting vertices by nTracks or VxType::PileUp
     bool m_doAxisCorr;   //!< switch for eta correction
+    bool m_usePantauAxis; //!< switch for overwriting calo (eta,phi) with Pantau (eta,phi) 
     bool m_printMissingContainerINFO;
     bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 

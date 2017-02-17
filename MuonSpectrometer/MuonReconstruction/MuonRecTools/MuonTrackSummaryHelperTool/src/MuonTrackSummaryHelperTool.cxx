@@ -617,7 +617,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
       }
     }
   }
-  Trk::IExtrapolator* extrapolator = 0;
+  const Trk::IExtrapolator* extrapolator = 0;
   if( !isStraightLine && !m_extrapolator.empty() ) {
     extrapolator = &*(m_extrapolator);
   } else if ( isStraightLine && !m_slExtrapolator.empty() ) {

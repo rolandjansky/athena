@@ -83,12 +83,11 @@ StatusCode MuonTPTool::initialize()
 
 //**********************************************************************
 
-void MuonTPTool::runTagAndProbe(const xAOD::MuonContainer* tags, const xAOD::IParticleContainer* probes, const xAOD::IParticleContainer* matches) 
+void MuonTPTool::runTagAndProbe(const xAOD::MuonContainer* tags, const xAOD::IParticleContainer* probes) 
 {
 	ATH_MSG_DEBUG("runTagAndProbe ");
   ATH_MSG_DEBUG("Number of candidate tags    : " << tags->size() );
   ATH_MSG_DEBUG("Number of candidate probes  : " << probes->size() );
-  ATH_MSG_DEBUG("Number of candidate matches : " << matches->size() );
 
   const xAOD::EventInfo* info = 0;
   ATH_MSG_DEBUG("Picking up the EI ");
@@ -138,7 +137,7 @@ void MuonTPTool::runTagAndProbe(const xAOD::MuonContainer* tags, const xAOD::IPa
 
       // Match probes
       ATH_MSG_DEBUG("Matching for "<<tpEffTool->name());
-      tpEffTool->matchProbes(probeCont, matches);
+      tpEffTool->matchProbes(probeCont);
       ATH_MSG_DEBUG("Matching OK");
 
       // Fill efficiency histograms

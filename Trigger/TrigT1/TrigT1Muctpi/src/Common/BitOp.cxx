@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BitOp.cxx 362102 2011-04-28 13:17:28Z krasznaa $
+// $Id: BitOp.cxx 796872 2017-02-13 15:03:25Z fwinkl $
 
 // STL include(s):
 #include <iostream>
@@ -18,24 +18,6 @@ namespace LVL1MUCTPI {
 
   BitOp::~BitOp() {
 
-  }
-
-  unsigned int BitOp::getValue( const unsigned int * uintValue, const unsigned int mask ) {
-
-    unsigned int result;
-    unsigned int maskcopy;
-    // make a copy of the mask, because a mask is a mask and
-    // one should stay a mask (i.e. should be something constant!)
-    maskcopy = mask;
-    result   = *uintValue & mask;
-    if ( mask != 0 ) {
-      while ( (maskcopy & 0x00000001) == 0) {
-        maskcopy =  maskcopy >> 1;
-        result   =  result   >> 1;
-      }
-    }
-
-    return result;
   }
 
   void BitOp::printBinN( unsigned int uintValue, int nbits ) {

@@ -24,9 +24,10 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
 
-#include "PATInterfaces/CorrectionCode.h"
-#include "MuonEfficiencyCorrections/HistHandler.h"
-#include "PATInterfaces/ISystematicsTool.h"
+#include <PATInterfaces/CorrectionCode.h>
+#include <MuonEfficiencyCorrections/HistHandler.h>
+#include <MuonEfficiencyCorrections/MuonEfficiencyType.h>
+#include <PATInterfaces/ISystematicsTool.h>
 
 // further ROOT includes
 #include <TFile.h>
@@ -55,7 +56,7 @@ namespace CP {
             /// default constructor - will create the histos as NULL pointers
             EfficiencyScaleFactor();
             /// constructor to use in real life - will read in the histos from the given file
-            EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys, std::string effType = "EFF", bool is_lowpt = false, bool hasPtDepSys = false);
+            EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys, CP::MuonEfficiencyType effType, bool is_lowpt = false, bool hasPtDepSys = false);
 
             EfficiencyScaleFactor(const EfficiencyScaleFactor & other);
             EfficiencyScaleFactor & operator =(const EfficiencyScaleFactor & other);
@@ -116,9 +117,6 @@ namespace CP {
             HistHandler* get_mc_eff_sys() {
                 return m_mc_eff_sys;
             }
-            HistHandler* get_mc_eff_PtDepsys() {
-                return m_mc_eff_PtDepsys;
-            }
         private:
 
             // use some maps for easy histo loading / arithmetics by name
@@ -127,8 +125,8 @@ namespace CP {
             typedef std::vector<HistHandler*>::iterator iSFvec;
             typedef std::vector<HistHandler*>::const_iterator ciSFvec;
 
-            /// read the content of the correct bin in one of my histos
-            CorrectionCode GetContentFromHist(HistHandler* Hist, HistHandler* PtDepHist, const xAOD::Muon& mu, float & SF);
+            /// read the content of the correct bin in one of my histos. MCefficiencies actually do  not need a pt-dependet systematic
+            CorrectionCode GetContentFromHist(HistHandler* Hist, HistHandler* PtDepHist, const xAOD::Muon& mu, float & SF, bool PtDepHistNeeded);
             /// read a vector of replica contents in the correct bin in one of my histos
             CorrectionCode GetContentReplicasFromHist(EfficiencyScaleFactor::SFvec &replicas, const xAOD::Muon& mu, std::vector<float> & SF);
 
@@ -167,7 +165,6 @@ namespace CP {
             // these are for the continuous pt dependent systematic if we have one
             HistHandler* m_sf_PtDepsys;
             HistHandler* m_eff_PtDepsys;
-            HistHandler* m_mc_eff_PtDepsys;
 
             // replicas, in case we use them
             SFvec m_sf_replicas;
@@ -180,8 +177,6 @@ namespace CP {
             // the systematic variation associated with this instance
             SystematicSet m_sys;
 
-            std::string m_effType;
-
             // states that this SF should respond to low pt systematics rather than high pt ones
             bool m_is_lowpt;
             // steers the pt dependent systematics
@@ -189,6 +184,9 @@ namespace CP {
             float m_PtDepsys_weight;
             // default efficiency value (in case of OutOfValidityRange)
             float m_default_eff;
+            // default TTVA efficiency value (in case of MuonStandAlone for |eta|>2.5)
+            float m_default_eff_ttva;
+            CP::MuonEfficiencyType m_Type;
 
     };
 } /* namespace CP */

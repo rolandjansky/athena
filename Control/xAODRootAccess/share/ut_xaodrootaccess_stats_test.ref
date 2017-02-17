@@ -1,0 +1,39 @@
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 144, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 80, which is not a valid value for type 'bool'
+TInterpreter::ReadRoot... WARNING class  CP::IPileupReweightingTool found in libAsgAnalysisInterfacesDict.so  is already in libPileupReweightingDict.so 
+ut_xaodrootaccess_stat... INFO    Environment initialised for data access
+ut_xaodrootaccess_stat... INFO    Processing entry 0 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 100 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 200 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 300 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 400 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 500 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 600 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 700 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 800 / 907
+ut_xaodrootaccess_stat... INFO    Processing entry 900 / 907
+xAOD::ReadStats::Print    INFO    Printing xAOD I/O statistics
+xAOD::ReadStats::Print    INFO     
+xAOD::ReadStats::Print    INFO    Smart Slimming Statistics
+xAOD::ReadStats::Print    INFO     
+xAOD::ReadStats::Print    INFO      Processed 907 events from 907 (100%)
+xAOD::ReadStats::Print    INFO      Number of containers in on the input: 59
+xAOD::ReadStats::Print    INFO      Number of branches on the input: 1931
+xAOD::ReadStats::Print    INFO     
+xAOD::ReadStats::Print    INFO    Accessed containers:
+xAOD::ReadStats::Print    INFO     
+xAOD::BranchStats::Print  INFO    Branch name "ElectronCollectionAux.", type "CONTAINER", read 908 times
+xAOD::BranchStats::Print  INFO    Branch name "MuonsAux.", type "CONTAINER", read 908 times
+xAOD::BranchStats::Print  INFO    Branch name "ElectronCollection", type "CONTAINER", read 907 times
+xAOD::BranchStats::Print  INFO    Branch name "Muons", type "CONTAINER", read 907 times
+xAOD::ReadStats::Print    INFO     
+xAOD::ReadStats::Print    INFO    Accessed branches:
+xAOD::ReadStats::Print    INFO     
+xAOD::BranchStats::Print  INFO    Branch name "MuonsAux.pt", type "float", read 907 times
+xAOD::BranchStats::Print  INFO    Branch name "ElectronCollectionAux.pt", type "float", read 907 times
+xAOD::ReadStats::Print    INFO     
+xAOD::ReadStats::print... INFO    ItemList to use:
+xAOD::ReadStats::print... INFO      ElectronCollection
+xAOD::ReadStats::print... INFO      ElectronCollectionAux.pt
+xAOD::ReadStats::print... INFO      Muons
+xAOD::ReadStats::print... INFO      MuonsAux.pt

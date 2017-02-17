@@ -197,7 +197,6 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   }
 
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
 
   /** construct the hit identifier */
   HitID CSCid = m_muonHelper->BuildCscHitId(stationName, stationPhi,
@@ -205,7 +204,8 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
 
   /** insert hit in collection */
   m_myCSCHitColl->Emplace(CSCid, globalTime, energyDeposit,
-                        HitStart, HitEnd, lundcode, barcode, kinEnergy);
+                          HitStart, HitEnd, lundcode,
+                          trHelp.GetParticleLink(), kinEnergy);
 
   return true;
 }

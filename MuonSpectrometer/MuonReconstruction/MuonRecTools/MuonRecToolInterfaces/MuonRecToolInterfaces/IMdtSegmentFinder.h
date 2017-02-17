@@ -50,7 +50,7 @@ public:
 							   const TrkDriftCircleMath::CLVec&           clvec,
 							   const TrkDriftCircleMath::Road&            road,
 							   const TrkDriftCircleMath::DCStatistics&    dcstats,
-							   const TrkDriftCircleMath::ChamberGeometry* geometry = 0 ) = 0;
+							   const TrkDriftCircleMath::ChamberGeometry* geometry = 0 ) const = 0;
 
     /** access to tool interface */
     static const InterfaceID& interfaceID() { return IID_IMdtSegmentFinder; }

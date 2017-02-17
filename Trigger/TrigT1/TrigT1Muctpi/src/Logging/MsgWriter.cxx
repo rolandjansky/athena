@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MsgWriter.cxx 472835 2011-12-06 21:05:16Z stelzer $
+// $Id: MsgWriter.cxx 796122 2017-02-08 03:23:15Z ssnyder $
 
 #ifdef STANDALONE
 #include <iostream>
@@ -15,12 +15,12 @@
 
 //***********************************************************************
 //
-//       Version : $Revision: 472835 $
+//       Version : $Revision: 796122 $
 //
 //   Description : Implementation of the MsgWriterSingleton class
 //
 //        Author : $Author: krasznaa $
-//          Date : $Date: 2011-12-06 22:05:16 +0100 (Tue, 06 Dec 2011) $
+//          Date : $Date: 2017-02-08 04:23:15 +0100 (Wed, 08 Feb 2017) $
 //
 //***********************************************************************
 
@@ -54,7 +54,7 @@ namespace LVL1MUCTPI {
     if( type < m_min_type ) return;
     std::cout << "  (" << m_type_map[ type ] << ")  " << line << std::endl;
 #else
-    *m_stream << m_type_map[ type ] << line << endreq;
+    *m_stream << m_type_map[ type ] << line << endmsg;
 #endif // STANDALONE
 
   }

@@ -6,6 +6,7 @@
 #include <string>
 #include "CxxUtils/make_unique.h" // For make unique
 #include "MuonSimEvent/TgcHitIdHelper.h"
+#include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 
@@ -26,8 +27,10 @@ TGCSensitiveDetectorCosmics::TGCSensitiveDetectorCosmics(const std::string& name
 void TGCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
   if (!myTGCHitColl.isValid()) myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
+  // START OF COSMICS-SPECIFIC CODE
   mom = Amg::Vector3D(0.,0.,0.);
   globH = Amg::Vector3D(0.,0.,0.);
+  // END OF COSMICS-SPECIFIC CODE
 }
 
 G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
@@ -64,10 +67,11 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
   // TGC hit information
   double globalTime        = aStep->GetPreStepPoint()->GetGlobalTime();
-  Amg::Vector3D localPosition = Amg::Hep3VectorToEigen(trans.TransformPoint(position));
+  Amg::Vector3D localPosition = Amg::Hep3VectorToEigen( trans.TransformPoint(position) );
   G4ThreeVector direcos    = aStep->GetPreStepPoint()->GetMomentumDirection();
-  Amg::Vector3D localDireCos  = Amg::Hep3VectorToEigen(trans.TransformAxis(direcos));
+  Amg::Vector3D localDireCos  = Amg::Hep3VectorToEigen( trans.TransformAxis(direcos) );
 
+  // START OF COSMICS-SPECIFIC CODE
   // global coordinates
   G4ThreeVector globVrtx = aStep->GetPreStepPoint()->GetPosition();
 
@@ -95,6 +99,7 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
                            (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
                            (globH[2] - globVrtx[2])*(globH[2] - globVrtx[2]));
   double tof = globalDist * inv_lightspeed;
+  // END OF COSMICS-SPECIFIC CODE
 
   // scan geometry tree to identify hit channel
   int zside(0);
@@ -199,18 +204,21 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
                                           stationEta,
                                           gasGap);
   //muonHelper->Print(TGCid);
+  // START OF COSMICS-SPECIFIC CODE
   vertex = Amg::Hep3VectorToEigen(aStep->GetTrack()->GetVertexPosition());
   // if the track vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
   ((((vertex.mag()) < 100) || ((fabs(globalTime - tOrigin)) < 0.1) ) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
   // if m_globalTime  != globalTime and m_globalTime != tof in the output, this is due to multiple hits
   // before founding the good one (small approximation)
+  // END OF COSMICS-SPECIFIC CODE
 
   // construct new mdt hit
+  TrackHelper trHelp(aStep->GetTrack());
   myTGCHitColl->Emplace(TGCid,
                         m_globalTime,
                         localPosition,
                         localDireCos,
-                        trackid,
+                        trHelp.GetParticleLink(),
                         aStep->GetTotalEnergyDeposit(),
                         aStep->GetStepLength());
   return true;

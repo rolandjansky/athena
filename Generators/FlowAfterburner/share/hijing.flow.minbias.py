@@ -43,7 +43,7 @@ Hijing = job.Hijing
 Hijing.McEventKey = "HIJING_EVENT"
 Hijing.Initialize = ["efrm 5520", "frame CMS", "proj A", "targ A",
                     "iap 208", "izp 82", "iat 208", "izt 82",
-                    "bmin  0.0", "bmax 16.0", "ihpr2 4 0", # turn off quenching
+                    "bmin  4.9316", "bmax 6.0374", "ihpr2 4 0", # turn off quenching
                     "ihpr2 18 1", "hipr1 7 5.36", # turn on b production
                     "ihpr2 12 2", "ihpr2 21 1"] # turn on (some) decays
                                                 # and history
@@ -54,8 +54,10 @@ AddFlowByShifting = job.AddFlowByShifting
 AddFlowByShifting.McTruthKey    = "HIJING_EVENT"
 AddFlowByShifting.McFlowKey     = "GEN_EVENT"
 
-AddFlowByShifting.FlowFunctionName="jjia_minbias_new" #"jjia_minbias_new", "jjia_minbias_new_v2only", "fixed_vn", "fixed_v2", "jjia_minbias_old", "ao_test", "custom"
+#"jjia_minbias_new", "jjia_minbias_new_v2only", "fixed_vn", "fixed_v2", "jjia_minbias_old", "ao_test", "custom"
+AddFlowByShifting.FlowFunctionName="jjia_minbias_new"
 AddFlowByShifting.FlowImplementation="exact" # "approximate" , "exact"
+AddFlowByShifting.FlowFluctuations  =False # True, False
 
 AddFlowByShifting.RandomizePhi  = 0
 
@@ -85,7 +87,7 @@ svcMgr.MessageSvc.defaultLimit              = 10000
 # Event related parameters
 #--------------------------------------------------------------
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 20
+theApp.EvtMax = 1000
 
 # Set run number (default 0 causes problems)
 svcMgr.EventSelector.RunNumber = 1001

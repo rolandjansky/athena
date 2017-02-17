@@ -22,6 +22,7 @@ class MvaTESEvaluator
   virtual ~MvaTESEvaluator();
     
   StatusCode initialize();
+  StatusCode eventInitialize();
   StatusCode execute(xAOD::TauJet& xTau);
   StatusCode finalize() { delete reader; return StatusCode::SUCCESS;}
   
@@ -33,32 +34,38 @@ class MvaTESEvaluator
   MVAUtils::BDT *reader; //!
 
   std::map<TString, float*> m_availableVars; //!< addresses of the floats below
-    
+  
+  // HACK HACK HACK: Use to get nVtxPU, AuxElement::ConstAccessor doesn't work
+  const xAOD::VertexContainer* m_xVertexContainer; //!
+  
   // MVA input variables (provide all variables in float)
   float mu; //!
   float nVtxPU; //!
-    
+  
   float center_lambda; //!
   float first_eng_dens; //!
   float second_lambda; //!
   float presampler_frac; //!
   float em_probability; //!
-    
-  float interpolPt; //!
-  float LC_D_interpolPt; //!
-  float pantau_D_interpolPt;//!
-  float etaPanTauCellBased; //!
-    
+  
+  float ptCombined; //!
+  float ptLC_D_ptCombined; //!
+  float ptConstituent_D_ptCombined;//!
+  float etaConstituent; //!
+  
+  float PanTauBDT_1p0n_vs_1p1n; //!
+  float PanTauBDT_1p1n_vs_1pXn; //!
+  float PanTauBDT_3p0n_vs_3pXn; //!
   float nTracks; //!
-  float nPi0s; //!
   float PFOEngRelDiff; //!
-    
-  float nMuSeg; //!
-    
+  
   // Spectators
   float truthPtVis; //!
-  float ptTauEtaCalib; //!
+  float pt; //!
   float ptPanTauCellBased; //!
+  float ptDetectorAxis; //!
+  float truthDecayMode; //!
+  float PanTau_DecayMode; //!
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

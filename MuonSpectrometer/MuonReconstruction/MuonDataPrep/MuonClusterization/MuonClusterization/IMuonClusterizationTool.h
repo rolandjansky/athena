@@ -16,11 +16,11 @@ namespace Muon {
   class IMuonClusterizationTool : virtual public IAlgTool
   {
   public:
-    virtual Muon::TgcPrepDataContainer*  cluster( const Muon::TgcPrepDataContainer& prdContainer ) = 0;
-    virtual Muon::TgcPrepDataCollection* cluster( const Muon::TgcPrepDataCollection& col ) = 0;
+    virtual Muon::TgcPrepDataContainer*  cluster( const Muon::TgcPrepDataContainer& prdContainer ) const = 0;
+    virtual Muon::TgcPrepDataCollection* cluster( const Muon::TgcPrepDataCollection& col ) const = 0;
 
-    virtual Muon::RpcPrepDataContainer*  cluster( const Muon::RpcPrepDataContainer& prdContainer ) = 0;
-    virtual Muon::RpcPrepDataCollection* cluster( const Muon::RpcPrepDataCollection& col ) = 0;
+    virtual Muon::RpcPrepDataContainer*  cluster( const Muon::RpcPrepDataContainer& prdContainer ) const = 0;
+    virtual Muon::RpcPrepDataCollection* cluster( const Muon::RpcPrepDataCollection& col ) const = 0;
 
     /** access to tool interface */
     static const InterfaceID& interfaceID() { return IID_IMuonClusterizationTool; }

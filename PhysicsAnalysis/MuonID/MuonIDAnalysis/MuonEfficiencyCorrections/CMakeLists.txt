@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 780830 2016-10-27 16:21:04Z nkoehler $
+# $Id: CMakeLists.txt 783761 2016-11-11 16:50:45Z nkoehler $
 ################################################################################
 # Package: MuonEfficiencyCorrections
 ################################################################################
@@ -23,6 +23,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
    Control/AthContainers
    Event/xAOD/xAODTrigger
@@ -61,7 +62,7 @@ macro( _add_exec name )
       util/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon
-      PATInterfaces xAODCore PileupReweightingLib MuonEfficiencyCorrectionsLib )
+      PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib )
 endmacro( _add_exec )
 
 if( XAOD_STANDALONE )

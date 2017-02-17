@@ -35,8 +35,12 @@ class AthViewAlgorithm : public AthAlgorithm
   /// Destructor: 
   virtual ~AthViewAlgorithm();
 
-  virtual StatusCode sysExecute();
-  virtual StatusCode sysInitialize();
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  virtual StatusCode sysExecute(const EventContext&) override;
+#else
+  virtual StatusCode sysExecute() override;
+#endif
+  virtual StatusCode sysInitialize() override;
 
 
   /////////////////////////////////////////////////////////////////// 
@@ -47,8 +51,7 @@ class AthViewAlgorithm : public AthAlgorithm
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
-  SG::View * eventView();
-  void useView();
+  SG::View * eventView(const EventContext& ctx);
 
   /// callback for output level property 
   void msg_update_handler(Property& outputLevel);

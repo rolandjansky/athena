@@ -73,7 +73,7 @@ namespace Muon {
     const Trk::Perigee* createPerigee( const Trk::TrackParameters& pars ) const;
     
     /** determines whether a track is a straight line track (no momentum fitted). */
-    bool isSLTrack( const Trk::Track& track );
+    bool isSLTrack( const Trk::Track& track ) const;
 
   private:
     ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;

@@ -2,7 +2,7 @@
 
 import sys
 import os
-
+import collections
 # stop noise from imports - output to /dev/null
 
 oldout = sys.stdout
@@ -15,8 +15,8 @@ sys.stderr = f
 try:
     from TriggerMenu.commonUtils.LeptonIsoEDConfig import TrigHLTEnergyDensityCentral, TrigHLTEnergyDensityForward
 
-    from TrigGenericAlgs.TrigGenericAlgsConf import \
-        PESA__DummyUnseededAllTEAlgo as DummyAlgo
+    from TrigGenericAlgs.TrigGenericAlgsConf import (PESA__DummyCombineAlgo,
+                                                     PESA__DummyUnseededAllTEAlgo as DummyAlgo)
     
     from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
                                             TrigCaloClusterMaker_topo)
@@ -79,6 +79,35 @@ def fullScanTopoClusterSequence():
                                          doLC=True)]
     return SequenceSpecifier(te_in, te_out, alglist).generate()
 
+
+def getFullScanCaloSequences():
+    ''' 
+    Common utility to configure full scan calo algorithms.
+    To profit from caching, the sequence needs to be broken in steps.
+    Therefore, this function provides a map where the keys are the
+    outputTE names that are used amongst clients (and easily accesible to remap dict)
+    In addition, provide the ED algorithm for isolation chains
+    For isolation chains, these need to also add to sequence 
+    the dummy merger, to merge full scan back to RoI sequence (not available here)
+    '''
+    caloSeqMap = collections.OrderedDict()
+    theDummyRoiCreator=DummyAlgo('RoiCreator')
+    cellMaker=TrigCaloCellMaker_jet_fullcalo('TriggerCaloCellMaker_FS',
+                                              doNoise=0,
+                                              AbsE=True,
+                                              doPers=True)
+    topoMaker=TrigCaloClusterMaker_topo('TopoCaloClusterMaker_topo_FS',
+                                         doMoments=True,
+                                         doLC=True)
+    ed_alg_list = [TrigHLTEnergyDensityCentral("TrigHLTEnergyDensityCentral"), 
+                    TrigHLTEnergyDensityForward("TrigHLTEnergyDensityForward")]
+
+    caloSeqMap['EF_full']=[theDummyRoiCreator]
+    caloSeqMap['EF_full_cell']=[cellMaker]
+    caloSeqMap['EF_FSTopoClusters']=[topoMaker]
+    caloSeqMap['EF_FSTopoClustersED'] = ed_alg_list
+
+    return caloSeqMap
 
 def getFullScanTopoClusterEDSequences():
     theFullScanTopoClusterSequence = fullScanTopoClusterSequence()

@@ -62,18 +62,30 @@ private:
     std::map<int, double> m_ymax;
     
     // Ugly, but makes configuration easier to read
-    double m_effVeryLoose1P;
-    double m_effLoose1P;
-    double m_effMedium1P;
-    double m_effTight1P;
+    //double m_effVeryLoose1P;
+    //double m_effLoose1P;
+    //double m_effMedium1P;
+    //double m_effTight1P;
     
-    double m_effVeryLoose3P;
-    double m_effLoose3P;
-    double m_effMedium3P;
-    double m_effTight3P;
+    //double m_effVeryLoose3P;
+    //double m_effLoose3P;
+    //double m_effMedium3P;
+    //double m_effTight3P;
+    
     
     bool m_defineWP;
     bool m_electronMode;
+
+    std::vector<int> m_cut_bits;
+    std::vector<float> m_cut_effs_1p;
+    std::vector<float> m_cut_effs_3p;
+
+    std::vector<std::string> m_decoration_names;
+    std::vector<float> m_cut_effs_decoration_1p;
+    std::vector<float> m_cut_effs_decoration_3p;
+
+    std::string m_scoreName;
+    std::string m_newScoreName;
 
     SG::AuxElement::ConstAccessor<float>* acc_score;
     SG::AuxElement::Accessor<float>* acc_newScore;

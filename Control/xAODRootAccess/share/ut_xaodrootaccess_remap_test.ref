@@ -1,0 +1,437 @@
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 240, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 176, which is not a valid value for type 'bool'
+TInterpreter::ReadRoot... WARNING class  CP::IPileupReweightingTool found in libAsgAnalysisInterfacesDict.so  is already in libPileupReweightingDict.so 
+ut_xaodrootaccess_rema... INFO    Environment initialised for data access
+xAOD::TEvent::printNam... INFO    Name remapping rules:
+xAOD::TEvent::printNam... INFO       "ElectronCollection" -> "Electrons"
+xAOD::TEvent::printNam... INFO       "TauJetCollection" -> "Taus"
+******************************************************************************
+*Tree    :CollectionTree: xAOD event tree                                        *
+*Entries :        1 : Total =           89480 bytes  File  Size =      27342 *
+*        :          : Tree compression factor =   1.18                       *
+******************************************************************************
+*Br    0 :Electrons : DataVector<xAOD::Electron_v1>                          *
+*Entries :        1 : Total  Size=        608 bytes  File Size  =        114 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Branch  :ElectronsAux.                                                      *
+*Entries :        1 : BranchElement (see below)                              *
+*............................................................................*
+*Br    1 :ElectronsAux.xAOD::AuxContainerBase : BASE                         *
+*Entries :        1 : Total  Size=        782 bytes  File Size  =        184 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br    2 :ElectronsAux.caloClusterLinks :                                    *
+*         | vector<vector<ElementLink<DataVector<xAOD::CaloCluster_v1> > > > *
+*Entries :        1 : Total  Size=       1342 bytes  File Size  =        233 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   3.30     *
+*............................................................................*
+*Br    3 :ElectronsAux.pt : vector<float>                                    *
+*Entries :        1 : Total  Size=        712 bytes  File Size  =        194 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br    4 :ElectronsAux.eta : vector<float>                                   *
+*Entries :        1 : Total  Size=        717 bytes  File Size  =        195 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br    5 :ElectronsAux.phi : vector<float>                                   *
+*Entries :        1 : Total  Size=        717 bytes  File Size  =        195 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br    6 :ElectronsAux.m : vector<float>                                     *
+*Entries :        1 : Total  Size=        707 bytes  File Size  =        132 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.46     *
+*............................................................................*
+*Br    7 :ElectronsAux.EgammaCovarianceMatrix : vector<vector<float> >       *
+*Entries :        1 : Total  Size=       2092 bytes  File Size  =        854 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.75     *
+*............................................................................*
+*Br    8 :ElectronsAux.author : vector<unsigned short>                       *
+*Entries :        1 : Total  Size=        692 bytes  File Size  =        141 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.12     *
+*............................................................................*
+*Br    9 :ElectronsAux.OQ : vector<unsigned int>                             *
+*Entries :        1 : Total  Size=        712 bytes  File Size  =        147 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.32     *
+*............................................................................*
+*Br   10 :ElectronsAux.e011 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        189 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.04     *
+*............................................................................*
+*Br   11 :ElectronsAux.e033 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        190 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.03     *
+*............................................................................*
+*Br   12 :ElectronsAux.e132 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   13 :ElectronsAux.e1152 : vector<float>                                 *
+*Entries :        1 : Total  Size=        727 bytes  File Size  =        197 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   14 :ElectronsAux.ethad1 : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        198 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   15 :ElectronsAux.ethad : vector<float>                                 *
+*Entries :        1 : Total  Size=        727 bytes  File Size  =        197 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   16 :ElectronsAux.ehad1 : vector<float>                                 *
+*Entries :        1 : Total  Size=        727 bytes  File Size  =        197 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   17 :ElectronsAux.f1 : vector<float>                                    *
+*Entries :        1 : Total  Size=        712 bytes  File Size  =        194 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   18 :ElectronsAux.f3 : vector<float>                                    *
+*Entries :        1 : Total  Size=        712 bytes  File Size  =        194 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   19 :ElectronsAux.f1core : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        198 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   20 :ElectronsAux.f3core : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        198 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   21 :ElectronsAux.e233 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   22 :ElectronsAux.e235 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   23 :ElectronsAux.e255 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   24 :ElectronsAux.e237 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   25 :ElectronsAux.e277 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   26 :ElectronsAux.e333 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        193 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.02     *
+*............................................................................*
+*Br   27 :ElectronsAux.e335 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        194 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.01     *
+*............................................................................*
+*Br   28 :ElectronsAux.e337 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   29 :ElectronsAux.e377 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   30 :ElectronsAux.weta1 : vector<float>                                 *
+*Entries :        1 : Total  Size=        727 bytes  File Size  =        197 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   31 :ElectronsAux.weta2 : vector<float>                                 *
+*Entries :        1 : Total  Size=        727 bytes  File Size  =        197 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   32 :ElectronsAux.e2ts1 : vector<float>                                 *
+*Entries :        1 : Total  Size=        727 bytes  File Size  =        192 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.03     *
+*............................................................................*
+*Br   33 :ElectronsAux.e2tsts1 : vector<float>                               *
+*Entries :        1 : Total  Size=        737 bytes  File Size  =        195 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.02     *
+*............................................................................*
+*Br   34 :ElectronsAux.fracs1 : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        198 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   35 :ElectronsAux.widths1 : vector<float>                               *
+*Entries :        1 : Total  Size=        737 bytes  File Size  =        199 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   36 :ElectronsAux.widths2 : vector<float>                               *
+*Entries :        1 : Total  Size=        737 bytes  File Size  =        133 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.50     *
+*............................................................................*
+*Br   37 :ElectronsAux.poscs1 : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        198 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   38 :ElectronsAux.poscs2 : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        198 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   39 :ElectronsAux.asy1 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   40 :ElectronsAux.pos : vector<float>                                   *
+*Entries :        1 : Total  Size=        717 bytes  File Size  =        195 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   41 :ElectronsAux.pos7 : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        196 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   42 :ElectronsAux.barys1 : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        198 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   43 :ElectronsAux.wtots1 : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        198 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   44 :ElectronsAux.emins1 : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        190 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.04     *
+*............................................................................*
+*Br   45 :ElectronsAux.emaxs1 : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        197 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.01     *
+*............................................................................*
+*Br   46 :ElectronsAux.r33over37allcalo : vector<float>                      *
+*Entries :        1 : Total  Size=        782 bytes  File Size  =        208 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   47 :ElectronsAux.ecore : vector<float>                                 *
+*Entries :        1 : Total  Size=        727 bytes  File Size  =        197 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   48 :ElectronsAux.zvertex : vector<float>                               *
+*Entries :        1 : Total  Size=        737 bytes  File Size  =        133 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.50     *
+*............................................................................*
+*Br   49 :ElectronsAux.errz : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        130 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.51     *
+*............................................................................*
+*Br   50 :ElectronsAux.etap : vector<float>                                  *
+*Entries :        1 : Total  Size=        722 bytes  File Size  =        130 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.51     *
+*............................................................................*
+*Br   51 :ElectronsAux.depth : vector<float>                                 *
+*Entries :        1 : Total  Size=        727 bytes  File Size  =        131 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.50     *
+*............................................................................*
+*Br   52 :ElectronsAux.etcone : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        132 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.50     *
+*............................................................................*
+*Br   53 :ElectronsAux.etcone15 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        134 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.49     *
+*............................................................................*
+*Br   54 :ElectronsAux.etcone20 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        200 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   55 :ElectronsAux.etcone25 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        134 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.49     *
+*............................................................................*
+*Br   56 :ElectronsAux.etcone30 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        200 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   57 :ElectronsAux.etcone35 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        134 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.49     *
+*............................................................................*
+*Br   58 :ElectronsAux.etcone40 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        200 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   59 :ElectronsAux.ptcone20 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        200 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   60 :ElectronsAux.ptcone30 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        200 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   61 :ElectronsAux.ptcone40 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        200 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   62 :ElectronsAux.nucone20 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        174 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.15     *
+*............................................................................*
+*Br   63 :ElectronsAux.nucone30 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        176 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.14     *
+*............................................................................*
+*Br   64 :ElectronsAux.nucone40 : vector<float>                              *
+*Entries :        1 : Total  Size=        742 bytes  File Size  =        181 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.10     *
+*............................................................................*
+*Br   65 :ElectronsAux.etcone15_ptcorrected : vector<float>                  *
+*Entries :        1 : Total  Size=        802 bytes  File Size  =        212 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   66 :ElectronsAux.etcone20_ptcorrected : vector<float>                  *
+*Entries :        1 : Total  Size=        802 bytes  File Size  =        212 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   67 :ElectronsAux.etcone25_ptcorrected : vector<float>                  *
+*Entries :        1 : Total  Size=        802 bytes  File Size  =        212 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   68 :ElectronsAux.etcone30_ptcorrected : vector<float>                  *
+*Entries :        1 : Total  Size=        802 bytes  File Size  =        212 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   69 :ElectronsAux.etcone35_ptcorrected : vector<float>                  *
+*Entries :        1 : Total  Size=        802 bytes  File Size  =        212 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   70 :ElectronsAux.etcone40_ptcorrected : vector<float>                  *
+*Entries :        1 : Total  Size=        802 bytes  File Size  =        212 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   71 :ElectronsAux.etcone20_corrected : vector<float>                    *
+*Entries :        1 : Total  Size=        792 bytes  File Size  =        144 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.46     *
+*............................................................................*
+*Br   72 :ElectronsAux.etcone30_corrected : vector<float>                    *
+*Entries :        1 : Total  Size=        792 bytes  File Size  =        144 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.46     *
+*............................................................................*
+*Br   73 :ElectronsAux.etcone40_corrected : vector<float>                    *
+*Entries :        1 : Total  Size=        792 bytes  File Size  =        144 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.46     *
+*............................................................................*
+*Br   74 :ElectronsAux.topoetcone20 : vector<float>                          *
+*Entries :        1 : Total  Size=        762 bytes  File Size  =        204 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   75 :ElectronsAux.topoetcone30 : vector<float>                          *
+*Entries :        1 : Total  Size=        762 bytes  File Size  =        204 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   76 :ElectronsAux.topoetcone40 : vector<float>                          *
+*Entries :        1 : Total  Size=        762 bytes  File Size  =        204 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   77 :ElectronsAux.topoetcone40_ptcorrected : vector<float>              *
+*Entries :        1 : Total  Size=        822 bytes  File Size  =        216 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   78 :ElectronsAux.topoetcone40_corrected : vector<float>                *
+*Entries :        1 : Total  Size=        812 bytes  File Size  =        148 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.45     *
+*............................................................................*
+*Br   79 :ElectronsAux.trackParticleLinks :                                  *
+*         | vector<vector<ElementLink<DataVector<xAOD:                       *
+*         | :TrackParticle_v1> > > >                                         *
+*Entries :        1 : Total  Size=       1856 bytes  File Size  =        312 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   4.08     *
+*............................................................................*
+*Br   80 :ElectronsAux.charge : vector<float>                                *
+*Entries :        1 : Total  Size=        732 bytes  File Size  =        153 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.29     *
+*............................................................................*
+*Br   81 :ElectronsAux.deltaEta0 : vector<float>                             *
+*Entries :        1 : Total  Size=        747 bytes  File Size  =        201 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   82 :ElectronsAux.deltaEta1 : vector<float>                             *
+*Entries :        1 : Total  Size=        747 bytes  File Size  =        201 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   83 :ElectronsAux.deltaEta2 : vector<float>                             *
+*Entries :        1 : Total  Size=        747 bytes  File Size  =        201 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   84 :ElectronsAux.deltaEta3 : vector<float>                             *
+*Entries :        1 : Total  Size=        747 bytes  File Size  =        201 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   85 :ElectronsAux.deltaPhi0 : vector<float>                             *
+*Entries :        1 : Total  Size=        747 bytes  File Size  =        201 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   86 :ElectronsAux.deltaPhi1 : vector<float>                             *
+*Entries :        1 : Total  Size=        747 bytes  File Size  =        201 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   87 :ElectronsAux.deltaPhi2 : vector<float>                             *
+*Entries :        1 : Total  Size=        747 bytes  File Size  =        201 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   88 :ElectronsAux.deltaPhi3 : vector<float>                             *
+*Entries :        1 : Total  Size=        747 bytes  File Size  =        201 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   89 :ElectronsAux.deltaPhiFromLastMeasurement : vector<float>           *
+*Entries :        1 : Total  Size=        837 bytes  File Size  =        219 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   90 :ElectronsAux.deltaPhiRescaled0 : vector<float>                     *
+*Entries :        1 : Total  Size=        787 bytes  File Size  =        209 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   91 :ElectronsAux.deltaPhiRescaled1 : vector<float>                     *
+*Entries :        1 : Total  Size=        787 bytes  File Size  =        209 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   92 :ElectronsAux.deltaPhiRescaled2 : vector<float>                     *
+*Entries :        1 : Total  Size=        787 bytes  File Size  =        209 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   93 :ElectronsAux.deltaPhiRescaled3 : vector<float>                     *
+*Entries :        1 : Total  Size=        787 bytes  File Size  =        209 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   94 :ElectronsAuxDyn.Loose : vector<char>                               *
+*Entries :        1 : Total  Size=        682 bytes  File Size  =        139 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.01     *
+*............................................................................*
+*Br   95 :ElectronsAuxDyn.Medium : vector<char>                              *
+*Entries :        1 : Total  Size=        687 bytes  File Size  =        135 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.04     *
+*............................................................................*
+*Br   96 :ElectronsAuxDyn.Tight : vector<char>                               *
+*Entries :        1 : Total  Size=        682 bytes  File Size  =        134 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.04     *
+*............................................................................*
+*Br   97 :ElectronsAuxDyn.truthOrigin : vector<int>                          *
+*Entries :        1 : Total  Size=        772 bytes  File Size  =        147 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.40     *
+*............................................................................*
+*Br   98 :ElectronsAuxDyn.truthParticleLink :                                *
+*         | Int_t ElectronsAuxDyn.truthParticleLink_                         *
+*Entries :        1 : Total  Size=       2812 bytes  File Size  =        126 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.00     *
+*............................................................................*
+*Br   99 :ElectronsAuxDyn.truthParticleLink.m_persKey :                      *
+*         | UInt_t m_persKey[ElectronsAuxDyn.truthParticleLink_]             *
+*Entries :        1 : Total  Size=        974 bytes  File Size  =        161 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.32     *
+*............................................................................*
+*Br  100 :ElectronsAuxDyn.truthParticleLink.m_persIndex :                    *
+*         | UInt_t m_persIndex[ElectronsAuxDyn.truthParticleLink_]           *
+*Entries :        1 : Total  Size=        984 bytes  File Size  =        182 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.18     *
+*............................................................................*
+*Br  101 :ElectronsAuxDyn.truthType : vector<int>                            *
+*Entries :        1 : Total  Size=        762 bytes  File Size  =        152 *
+*Baskets :        1 : Basket Size=      32000 bytes  Compression=   1.34     *
+*............................................................................*
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 233808463
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 233808463.
+xAOD::TEvent::addToStore  WARNING Function should only be called through an invalid ElementLink
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 776133387
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 776133387.
+xAOD::TEvent::connectB... WARNING No metadata available for branch: ElectronCollection
+xAOD::TEvent::connectB... WARNING Branch "ElectronCollection" not available on input
+xAOD::TEvent::retrieve    WARNING Couldn't (const) retrieve "SG::AuxVectorBase/ElectronCollection"

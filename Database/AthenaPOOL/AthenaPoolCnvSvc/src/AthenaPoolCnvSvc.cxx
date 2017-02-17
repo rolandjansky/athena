@@ -191,7 +191,6 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    }
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
-      m_className.push_back(objName);
    }
    // Save pool input context to be used in setObjPtr for "this" converter
    m_contextIds.push_back(*(pAddress->ipar()));
@@ -199,8 +198,7 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    // Forward to base class createObj
    StatusCode status = ::AthCnvSvc::createObj(pAddress, refpObject);
    if (m_doChronoStat) {
-      m_chronoStatSvc->chronoStop("cObj_" + m_className.back());
-      m_className.pop_back();
+      m_chronoStatSvc->chronoStop("cObj_" + objName);
    }
    // Remove pool input context for "this" converter
    m_contextIds.pop_back();
@@ -223,7 +221,6 @@ StatusCode AthenaPoolCnvSvc::createRep(DataObject* pObject, IOpaqueAddress*& ref
    }
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cRep_" + objName);
-      m_className.push_back(objName);
    }
    StatusCode status = StatusCode::FAILURE;
    if (pObject->clID() == 1) {
@@ -242,8 +239,7 @@ StatusCode AthenaPoolCnvSvc::createRep(DataObject* pObject, IOpaqueAddress*& ref
       }
    }
    if (m_doChronoStat) {
-      m_chronoStatSvc->chronoStop("cRep_" + m_className.back());
-      m_className.pop_back();
+      m_chronoStatSvc->chronoStop("cRep_" + objName);
    }
    return(status);
 }
@@ -261,7 +257,6 @@ StatusCode AthenaPoolCnvSvc::fillRepRefs(IOpaqueAddress* pAddress, DataObject* p
    }
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("fRep_" + objName);
-      m_className.push_back(objName);
    }
    StatusCode status = StatusCode::FAILURE;
    if (pObject->clID() == 1) {
@@ -280,8 +275,7 @@ StatusCode AthenaPoolCnvSvc::fillRepRefs(IOpaqueAddress* pAddress, DataObject* p
       }
    }
    if (m_doChronoStat) {
-      m_chronoStatSvc->chronoStop("fRep_" + m_className.back());
-      m_className.pop_back();
+      m_chronoStatSvc->chronoStop("fRep_" + objName);
    }
    return(status);
 }
@@ -360,7 +354,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
       }
       return(StatusCode::SUCCESS);
    }
-   std::map<void*, RootType> dummy;
+   std::map<void*, RootType> commitCache;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isServer()) {
       // Clear object to get Placements for all objects in a Stream
       char* placementStr = 0;
@@ -382,7 +376,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             }
             if (m_doChronoStat) {
                m_chronoStatSvc->chronoStart("cRep_" + objName);
-               m_className.push_back(objName);
             }
             // Get object
             void* buffer = 0;
@@ -435,7 +428,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
                   return(StatusCode::FAILURE);
                }
             } else if (className != "Token" && !classDesc.IsFundamental()) {
-               dummy.insert(std::pair<void*, RootType>(obj, classDesc));
+               commitCache.insert(std::pair<void*, RootType>(obj, classDesc));
             }
 
             // Found DataHeader
@@ -468,8 +461,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
                return(StatusCode::FAILURE);
             }
             if (m_doChronoStat) {
-               m_chronoStatSvc->chronoStop("cRep_" + m_className.back());
-               m_className.pop_back();
+               m_chronoStatSvc->chronoStop("cRep_" + objName);
             }
          }
          delete placementStr; placementStr = 0;
@@ -518,7 +510,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
       ATH_MSG_ERROR("commitOutput FAILED to cleanup converters.");
       return(StatusCode::FAILURE);
    }
-   for (std::map<void*, RootType>::iterator iter = dummy.begin(), last = dummy.end(); iter != last; iter++) {
+   for (std::map<void*, RootType>::iterator iter = commitCache.begin(), last = commitCache.end(); iter != last; iter++) {
       iter->second.Destruct(iter->first);
    }
    // Check FileSize
@@ -610,7 +602,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
 	const void* obj,
 	const RootType& classDesc) const {
    if (m_doChronoStat) {
-      m_chronoStatSvc->chronoStart("cRepR_" + m_className.back());
+      m_chronoStatSvc->chronoStart("cRepR_ALL");
    }
    const Token* token = 0;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
@@ -627,16 +619,17 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          return(0);
       }
       // Serialize object via ROOT
-      void* buffer = 0;
+      const void* buffer = 0;
       size_t nbytes = 0;
+      bool own = true;
       if (classDesc.Name() == "Token") {
          nbytes = strlen(static_cast<const char*>(obj)) + 1;
-         buffer = new char[nbytes];
-         memcpy(buffer, obj, nbytes - 1); ((char*)buffer)[nbytes - 1] = 0;
+         buffer = obj;
+         own = false;
       } else if (classDesc.IsFundamental()) {
          nbytes = classDesc.SizeOf();
-         buffer = new char[nbytes];
-         memcpy(buffer, obj, nbytes);
+         buffer = obj;
+         own = false;
       } else {
          if (m_doChronoStat) {
             m_chronoStatSvc->chronoStart("wSer_ALL");
@@ -652,7 +645,8 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          usleep(100);
          sc = m_outputStreamingTool->putObject(buffer, nbytes);
       }
-      delete [] (char*)buffer; buffer = 0;
+      if (own) { delete [] (char*)buffer; }
+      buffer = 0;
       if (!sc.isSuccess() || !m_outputStreamingTool->putObject(0, 0).isSuccess()) {
          ATH_MSG_ERROR("Failed to put Data for " << placementStr);
          return(0);
@@ -677,14 +671,14 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       token = m_poolSvc->registerForWrite(placement, obj, classDesc);
    }
    if (m_doChronoStat) {
-      m_chronoStatSvc->chronoStop("cRepR_" + m_className.back());
+      m_chronoStatSvc->chronoStop("cRepR_ALL");
    }
    return(token);
 }
 //______________________________________________________________________________
 void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
    if (m_doChronoStat) {
-      m_chronoStatSvc->chronoStart("cObjR_" + m_className.back());
+      m_chronoStatSvc->chronoStart("cObjR_ALL");
    }
    if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
@@ -692,18 +686,18 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
          ATH_MSG_WARNING("Failed to lock Data for " << token->toString());
          obj = 0;
       } else {
+         if (m_doChronoStat) {
+            m_chronoStatSvc->chronoStart("gObj_ALL");
+         }
          void* buffer = 0;
          size_t nbytes = 0;
-         if (m_doChronoStat) {
-            m_chronoStatSvc->chronoStart("gObj_" + m_className.back());
-         }
          StatusCode sc = m_inputStreamingTool->getObject(&buffer, nbytes);
          while (sc.isRecoverable()) {
             // sleep
             sc = m_inputStreamingTool->getObject(&buffer, nbytes);
          }
          if (m_doChronoStat) {
-            m_chronoStatSvc->chronoStop("gObj_" + m_className.back());
+            m_chronoStatSvc->chronoStop("gObj_ALL");
          }
          if (!sc.isSuccess()) {
             delete [] (char*)buffer; buffer = 0;
@@ -718,46 +712,45 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
                m_chronoStatSvc->chronoStop("rDeser_ALL");
             }
          }
-
+         nbytes = 1; // StreamingTool owns buffer, will stay around until last dynamic attribute is copied
          sc = m_inputStreamingTool->getObject(&buffer, nbytes);
+         while (sc.isRecoverable() && nbytes > 0) {
+            // sleep
+            sc = m_inputStreamingTool->getObject(&buffer, nbytes);
+         }
          if (sc.isSuccess() && nbytes > 0) {
             const_cast<Token*>(token)->setCont(std::string((char*)buffer));
          }
-         delete [] (char*)buffer; buffer = 0;
          AuxDiscoverySvc auxDiscover;
          if (auxDiscover.getAuxStore(obj, *token)) {
             if (m_doChronoStat) {
-               m_chronoStatSvc->chronoStart("gObjD_" + m_className.back());
+               m_chronoStatSvc->chronoStart("gObjD_ALL");
             }
-            while (m_inputStreamingTool->getObject(&buffer, nbytes).isSuccess() && nbytes > 0) {
-               const std::string attrName((char*)buffer);
-               const std::string typeName((char*)buffer + attrName.size() + 1);
-               const std::string elemName((char*)buffer + attrName.size() + typeName.size() + 2);
-               delete [] (char*)buffer; buffer = 0;
-               sc = m_inputStreamingTool->getObject(&buffer, nbytes);
-               if (!sc.isSuccess()) {
-                  ATH_MSG_WARNING("Failed to get dynamic attribute for " << attrName);
+            void* attrName = 0;
+            void* typeName = 0;
+            void* elemName = 0;
+            // StreamingTool owns buffer, will stay around until last dynamic attribute is copied
+            while (m_inputStreamingTool->getObject(&attrName, nbytes).isSuccess() && nbytes > 0 &&
+	            m_inputStreamingTool->getObject(&typeName, nbytes).isSuccess() && nbytes > 0 &&
+	            m_inputStreamingTool->getObject(&elemName, nbytes).isSuccess() && nbytes > 0) {
+               nbytes = 0;
+               if (!m_inputStreamingTool->getObject(&buffer, nbytes).isSuccess()) {
+                  ATH_MSG_WARNING("Failed to get dynamic attribute for " << (char*)attrName);
                } else {
-                  const RootType type(typeName);
+                  const RootType type(std::string((char*)typeName));
                   void* dynAttr = 0;
                   if (type.IsFundamental()) {
                      dynAttr = buffer; buffer = 0;
                   } else {
-                     if (m_doChronoStat) {
-                        m_chronoStatSvc->chronoStart("rDeserD_ALL");
-                     }
                      dynAttr = m_serializeSvc->deserialize(buffer, nbytes, type); buffer = 0;
-                     if (m_doChronoStat) {
-                        m_chronoStatSvc->chronoStop("rDeserD_ALL");
-                     }
                   }
-                  SG::auxid_t auxid = auxDiscover.getAuxID(attrName, elemName, typeName);
+                  SG::auxid_t auxid = auxDiscover.getAuxID((char*)attrName, (char*)elemName, (char*)typeName);
                   auxDiscover.setData(auxid, dynAttr, type);
                }
             }
             auxDiscover.setAuxStore();
             if (m_doChronoStat) {
-               m_chronoStatSvc->chronoStop("gObjD_" + m_className.back());
+               m_chronoStatSvc->chronoStop("gObjD_ALL");
             }
          }
       }
@@ -768,7 +761,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
       m_poolSvc->setObjPtr(obj, token, m_contextIds.back());
    }
    if (m_doChronoStat) {
-      m_chronoStatSvc->chronoStop("cObjR_" + m_className.back());
+      m_chronoStatSvc->chronoStop("cObjR_ALL");
    }
 }
 //______________________________________________________________________________
@@ -931,25 +924,29 @@ StatusCode AthenaPoolCnvSvc::readData() const {
       }
       if (m_doChronoStat) {
          m_chronoStatSvc->chronoStart("cObj_" + objName);
-         const_cast<AthenaPoolCnvSvc*>(this)->m_className.push_back(objName);
       }
       this->setObjPtr(instance, &token);
       // Serialize object via ROOT
-      RootType cltype(pool::DbReflex::forGuid(token.classID()));
-      void* buffer = 0;
-      size_t nbytes = 0;
       if (m_doChronoStat) {
          m_chronoStatSvc->chronoStart("rSer_ALL");
       }
+      RootType cltype(pool::DbReflex::forGuid(token.classID()));
+      void* buffer = 0;
+      size_t nbytes = 0;
       buffer = m_serializeSvc->serialize(instance, cltype, nbytes);
       if (m_doChronoStat) {
          m_chronoStatSvc->chronoStop("rSer_ALL");
+         m_chronoStatSvc->chronoStart("pObj_ALL");
       }
       sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
       delete [] (char*)buffer; buffer = 0;
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Could not share object for: " << token.toString());
          return(StatusCode::FAILURE);
+      }
+      if (m_doChronoStat) {
+         m_chronoStatSvc->chronoStop("pObj_ALL");
+         m_chronoStatSvc->chronoStart("rAux_ALL");
       }
       AuxDiscoverySvc auxDiscover;
       const SG::auxid_set_t& auxIDs = auxDiscover.getAuxIDs(instance, token);
@@ -964,15 +961,11 @@ StatusCode AthenaPoolCnvSvc::readData() const {
          const std::string& attrName = auxDiscover.getAttrName(*iter);
          const std::string& typeName = auxDiscover.getTypeName(*iter);
          const std::string& elemName = auxDiscover.getElemName(*iter);
-         buffer = new char[attrName.size() + typeName.size() + elemName.size() + 3];
-         memcpy((char*)buffer, attrName.c_str(), attrName.size() + 1);
-         memcpy((char*)buffer + attrName.size() + 1, typeName.c_str(), typeName.size() + 1);
-         memcpy((char*)buffer + attrName.size() + typeName.size() + 2, elemName.c_str(), elemName.size() + 1);
-         sc = m_inputStreamingTool->putObject(buffer, attrName.size() + typeName.size() + elemName.size() + 3, num);
-         delete [] (char*)buffer; buffer = 0;
-         if (!sc.isSuccess()) {
+         if (!m_inputStreamingTool->putObject(attrName.c_str(), attrName.size() + 1, num).isSuccess() ||
+	         !m_inputStreamingTool->putObject(typeName.c_str(), typeName.size() + 1, num).isSuccess() ||
+	         !m_inputStreamingTool->putObject(elemName.c_str(), elemName.size() + 1, num).isSuccess()) {
             ATH_MSG_ERROR("Could not share object header for: " << token.toString());
-             return(StatusCode::FAILURE);
+            return(StatusCode::FAILURE);
          }
          const std::type_info* tip = auxDiscover.getType(*iter);
          if (tip == nullptr) {
@@ -983,13 +976,7 @@ StatusCode AthenaPoolCnvSvc::readData() const {
          if (type.IsFundamental()) {
             sc = m_inputStreamingTool->putObject(auxDiscover.getData(*iter), type.SizeOf(), num);
          } else {
-            if (m_doChronoStat) {
-               m_chronoStatSvc->chronoStart("rSerD_ALL");
-            }
             buffer = m_serializeSvc->serialize(auxDiscover.getData(*iter), type, nbytes);
-            if (m_doChronoStat) {
-               m_chronoStatSvc->chronoStop("rSerD_ALL");
-            }
             sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
             delete [] (char*)buffer; buffer = 0;
          }
@@ -998,14 +985,16 @@ StatusCode AthenaPoolCnvSvc::readData() const {
             return(StatusCode::FAILURE);
          }
       }
+      if (m_doChronoStat) {
+         m_chronoStatSvc->chronoStop("rAux_ALL");
+      }
       cltype.Destruct(instance); instance = 0;
       if (!m_inputStreamingTool->putObject(0, 0, num).isSuccess()) {
          ATH_MSG_ERROR("Could not share object for: " << token.toString());
          return(StatusCode::FAILURE);
       }
       if (m_doChronoStat) {
-         m_chronoStatSvc->chronoStop("cObj_" + m_className.back());
-         const_cast<AthenaPoolCnvSvc*>(this)->m_className.pop_back();
+         m_chronoStatSvc->chronoStop("cObj_" + objName);
       }
    } else if (token.dbID() != Guid::null()) {
       std::string returnToken;
@@ -1046,7 +1035,6 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_dhContainerPrefix("POOLContainer"),
 	m_collContainerPrefix("POOLCollectionTree"),
 	m_lastFileName(),
-	m_className(),
 	m_poolSvc("PoolSvc", name),
 	m_chronoStatSvc("ChronoStatSvc", name),
 	m_clidSvc("ClassIDSvc", name),

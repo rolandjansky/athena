@@ -241,7 +241,7 @@ bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
 
   const std::vector<TriggerElement*> &pvec = TrigNavStructure::getDirectPredecessors(curr);
 
-  // Start of the loop over previoisly asked quiestions.
+  // Start of the loop over previously asked questions.
   for(FeatureCallVec::const_iterator it = m_questions.begin(); it != m_questions.end(); ++it) {
     if ( !it->isget() )
       continue;
@@ -286,11 +286,11 @@ bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
       } else {
         if (fvec.empty()) {
 	  PCI("Object was available before but now is not");
-          return false; // This is inverted situation, frist time we got answer, but not this case, again we need to to run.
+          return false; // This is inverted situation, first time we got answer, but not this case, again we need to to run.
 	}
         // Now we need to do fancy check
         // In first pass and now we got some answers (features found). Now we need to check if they would be the same ...
-        // but not compleetly, i.e. only as many objects as were of interest first time (i.e. one)
+        // but not completly, i.e. only as many objects as were of interest first time (i.e. one)
         if ( !std::equal(it->getAnswers().begin(), it->getAnswers().end(), fvec.begin()) ) {
 	  PCI("result of getFeature (i.e. single obj request) and currently available set of objects differ in content " << fvec.size() << " " <<  it->getAnswers().size());
 	  //	  xx_print(fvec, "questions");

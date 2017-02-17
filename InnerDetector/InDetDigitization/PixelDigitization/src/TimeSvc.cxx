@@ -18,37 +18,37 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TimeSvc.h"
 
-TimeSvc::TimeSvc(const std::string& name, ISvcLocator* svc ) :
+TimeSvc::TimeSvc(const std::string& name, ISvcLocator* svc):
   AthService(name,svc),
+  m_useComTime(false),
   m_comTime(0.0),
   m_timePerBCO(25.0),
   m_timeBCN(5),
   m_timeZero(30.0),
   m_timeJitter(0),
+  m_eventStore("StoreGateSvc", name),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
   m_rndmEngine(0)
 {
-	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
-	declareProperty("RndmEngine",m_rndmEngineName,"Random engine name");
-	declareProperty("TimePerBCO",m_timePerBCO,"Time per BCO - should be 25ns");
-	declareProperty("TimeBCN",            m_timeBCN,              "Number of BCID");	
-	declareProperty("TimeJitter",         m_timeJitter,           "Time jitter");
-	declareProperty("TimeZero",           m_timeZero,             "Time zero...?");
+	declareProperty("RndmSvc",    m_rndmSvc,        "Random Number Service used in Pixel digitization");
+	declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
+	declareProperty("TimePerBCO", m_timePerBCO,     "Time per BCO - should be 25ns");
+	declareProperty("TimeBCN",    m_timeBCN,        "Number of BCID");	
+	declareProperty("TimeJitter", m_timeJitter,     "Time jitter");
+	declareProperty("TimeZero",   m_timeZero,       "Time zero...?");
+  declareProperty("UseComTime", m_useComTime,     "Use ComTime for timing");
 }
 
-TimeSvc::~TimeSvc()
-{}
+TimeSvc::~TimeSvc() { }
 
-
-inline StatusCode TimeSvc::queryInterface(const InterfaceID& riid, void** ppvIf)
-{
-  if (riid == TimeSvc::interfaceID()){
+inline StatusCode TimeSvc::queryInterface(const InterfaceID& riid, void** ppvIf) {
+  if (riid == TimeSvc::interfaceID()) {
     *ppvIf = dynamic_cast<TimeSvc*>(this);
     addRef();
     return StatusCode::SUCCESS;
   }
-  return AthService::queryInterface( riid, ppvIf );
+  return AthService::queryInterface(riid,ppvIf);
 }
 
 
@@ -67,7 +67,18 @@ StatusCode TimeSvc::initialize() {
     ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
   }
 
-  ATH_MSG_DEBUG ( "TimeSvc::initialize()");
+  if (m_useComTime) {
+    CHECK(m_eventStore.retrieve());
+    if (StatusCode::SUCCESS==m_eventStore->retrieve(m_ComputedTime,"ComTime")) {
+      m_comTime = m_ComputedTime->getTime();
+      ATH_MSG_DEBUG("Found tool for cosmic/commissioning timing: ComTime");
+    } 
+    else {
+      ATH_MSG_WARNING("Did not find tool needed for cosmic/commissioning timing: ComTime");
+    }
+  }
+
+  ATH_MSG_DEBUG("TimeSvc::initialize()");
   return StatusCode::SUCCESS;
 }
 
@@ -75,48 +86,41 @@ StatusCode TimeSvc::initialize() {
 // finalize
 //----------------------------------------------------------------------
 StatusCode TimeSvc::finalize() {
-  StatusCode sc = AthService::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "TimeSvc::finalize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "TimeSvc::finalize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
-int TimeSvc::relativeBunch(const double threshold,
-					  const double intimethreshold,
-					  const SiTotalCharge &totalCharge, bool CTW) const {
-    int BCID=0;
-    double myTimeWalkEff = 0.;
-    if(CTW){
-      double overdrive  = intimethreshold - threshold ;
-   
-      //my TimeWalk computation through PARAMETRIZATION (by Francesco De Lorenzi - Milan)
-      //double curvature  =  7.6e7*overdrive-2.64e10;
-      //double divergence = -1.6*overdrive+942 ;
+int TimeSvc::relativeBunch(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, bool CTW) const {
 
-      //double myTimeWalk    = curvature/(pow((totalCharge.charge()-divergence),2.5));
+  int BCID=0;
+  double myTimeWalkEff = 0.;
+  if (CTW) {
+    double overdrive  = intimethreshold - threshold ;
 
-      //my TimeWalk computation through PARAMETRIZATION from 2009 cosmic data (by I. Ibragimov and D. Miller)
-      double p1 = 20./log(intimethreshold/overdrive);
-      double p0 = p1 * log (1. - threshold/100000.);
-    
-      double myTimeWalk    = -p0 -p1 * log(1. - threshold/totalCharge.charge());
+    //my TimeWalk computation through PARAMETRIZATION (by Francesco De Lorenzi - Milan)
+    //double curvature  =  7.6e7*overdrive-2.64e10;
+    //double divergence = -1.6*overdrive+942 ;
 
-      myTimeWalkEff = myTimeWalk+myTimeWalk*0.2*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-    } 
-   
-    double randomjitter  = CLHEP::RandFlat::shoot(m_rndmEngine,(-m_timeJitter/2.0),(m_timeJitter/2.0));    	
-     
-    //double G4Time	 = totalCharge.time();
-    
-    double G4Time = getG4Time(totalCharge);
-    double timing        = m_timeZero+myTimeWalkEff+(randomjitter)+G4Time-m_comTime; 
-    BCID                 = static_cast<int>(floor(timing/m_timePerBCO));
-    //ATH_MSG_DEBUG (  CTW << " , " << myTimeWalkEff << " , " << G4Time << " , " << timing << " , " << BCID );    
+    //double myTimeWalk    = curvature/(pow((totalCharge.charge()-divergence),2.5));
 
-    return BCID;
+    //my TimeWalk computation through PARAMETRIZATION from 2009 cosmic data (by I. Ibragimov and D. Miller)
+    double p1 = 20./log(intimethreshold/overdrive);
+    double p0 = p1 * log (1. - threshold/100000.);
+
+    double myTimeWalk    = -p0 -p1 * log(1. - threshold/totalCharge.charge());
+
+    myTimeWalkEff = myTimeWalk+myTimeWalk*0.2*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+  } 
+
+  double randomjitter  = CLHEP::RandFlat::shoot(m_rndmEngine,(-m_timeJitter/2.0),(m_timeJitter/2.0));    	
+
+  //double G4Time	 = totalCharge.time();
+
+  double G4Time = getG4Time(totalCharge);
+  double timing        = m_timeZero+myTimeWalkEff+(randomjitter)+G4Time-m_comTime; 
+  BCID                 = static_cast<int>(floor(timing/m_timePerBCO));
+  //ATH_MSG_DEBUG (  CTW << " , " << myTimeWalkEff << " , " << G4Time << " , " << timing << " , " << BCID );    
+
+  return BCID;
 }
 
 //====================================================================
@@ -127,19 +131,18 @@ int TimeSvc::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, 
   //=================================
   // 2016.03.29  Soshi.Tsuno@cern.ch
   //
-  // The time walk effect is directly tuned with timing-data scan in 2015.
+  // The time walk effect is directly tuned with timing scan data (collision) in 2015.
   // 
   // See reference in the talk,
-  //    http://www.......
+  // https://indico.cern.ch/event/516099/contributions/1195889/attachments/1252177/1846815/pixelOffline_timing_04.04.2016_soshi.pdf
   //
-  // Ideally, it could be parameterized as a function of ToT.
-  // However, the ToT calibration was changed during Run-2. 
-  // Particular example is the b-layer charge calibration. (ToT30@MIP => ToT18@MIP in 2016)
-  // Therefore, the time walk effect needs to be parameterized with more universal value, that is, use charge.
-  // But it is not trivial where is the explicit border between ToT's to those in charge at each module level.
-  // One should expect some charge dispersion.
+  // Ideally, it could be directly parameterized as a function of given ToT.
+  // However, the ToT calibration was changed over 2015-2016, where newly calibrated ToT value was not available for 2016. 
+  // For instance, the b-layer charge tuning was changed from ToT30@MIP (2015) to ToT18@MIP (2016).
+  // Thus the time walk effect needs to be parameterized with more universal value, that is, charge information.
+  // But it was non-trivial because of the migration effect between the border in ToT.
   //
-  // Here, we employ the border of the 60% total charge on a certain ToT value, 
+  // Here in 2015 version, we apply the threshold of the 60% total charge to get a certain ToT value, 
   // which most describes the data timing structure.
   //
   // 60% working point tune-2
@@ -330,49 +333,33 @@ int TimeSvc::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, 
   return BCID;
 }
 
-double TimeSvc::getG4Time(const SiTotalCharge &totalCharge) const
-{
+double TimeSvc::getG4Time(const SiTotalCharge &totalCharge) const {
+
   // If there is one single charge, return its time:
-  if (totalCharge.chargeComposition().empty()) return totalCharge.time();
+  if (totalCharge.chargeComposition().empty()) { return totalCharge.time(); }
+
   std::list<SiCharge>::const_iterator p_charge=totalCharge.chargeComposition().begin();
-
-  // look for the earliest charge and return its time
-
-  //for ( std::list<SiCharge>::const_iterator g_charge=totalCharge.chargeComposition().begin();
-  //g_charge!=totalCharge.chargeComposition().end() ; g_charge++) {
-  //  const SiCharge::Process gproc = g_charge->processType();
-  //  double gtime = g_charge->time();
-  //  double gcharge = g_charge->charge();
-  //  ATH_MSG_DEBUG ( "process = " << gproc << "time = " << gtime << "charge = " << gcharge );
-  //}
-  //ATH_MSG_DEBUG ( "****************************************************************");
-
 
   int findfirst = 0;
   SiCharge first = *p_charge;
-  //
+
   // Look for first charge which is not noise
-  //
   for ( ; p_charge!=totalCharge.chargeComposition().end() ; p_charge++) {
     if (p_charge->processType()!=SiCharge::noise) {
       findfirst = 1;
       break;
     }
   }
-  //
+
   // if all charges were noise, return the time of the highest charge
-  //
   if (findfirst == 0) return totalCharge.time();   
-  //
+
   // look for the earlist charge among the remaining non-noise charges:
-  //
   first = *p_charge;
   p_charge++;
 
   for ( ; p_charge!=totalCharge.chargeComposition().end() ; p_charge++) {
     if (p_charge->time()<first.time() && p_charge->processType()!=SiCharge::noise) first = *p_charge;
   }
-
-  //ATH_MSG_DEBUG ( "first.time() = " << first.time() << " process type = " << p_charge->processType());
   return first.time();
 }

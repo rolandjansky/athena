@@ -8,6 +8,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+#include "MuonRDO/RpcPadContainer.h"
+#include "MuonRDO/RpcSectorLogicContainer.h"
 
 class StoreGateSvc;
 class RpcPadIdHash;
@@ -51,8 +53,11 @@ private:
 
     //    ServiceHandle<StoreGateSvc>         m_eventStore;
     ToolHandle<IRpcROD_Decoder>         m_decoder;
-    std::string                         m_rdoContainerKey;
-    
+//    std::string                         m_rdoContainerKey;
+    SG::WriteHandleKey<RpcPadContainer>            m_RpcPadC;
+    SG::WriteHandleKey<RpcSectorLogicContainer>    m_sec;
+    bool mAllowCreation;
+
     std::vector<IdentifierHash> to_be_converted(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                             const std::vector<IdentifierHash>& coll) const;
     ActiveStoreSvc*                     m_activeStore;

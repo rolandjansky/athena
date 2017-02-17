@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Sector.h 678659 2015-06-26 14:54:31Z wengler $
+// $Id: Sector.h 796872 2017-02-13 15:03:25Z fwinkl $
 #ifndef TRIGT1MUCTPI_SECTOR_H
 #define TRIGT1MUCTPI_SECTOR_H
 
-// STL include(s):
 #include <string>
+#include "CxxUtils/bitscan.h"
 
 // Local include(s):
 #include "../Common/Detector.h"
@@ -24,7 +24,7 @@ namespace LVL1MUCTPI {
 
    /************************************************************************
     *
-    *    $Date: 2015-06-26 16:54:31 +0200 (Fri, 26 Jun 2015) $ 
+    *    $Date: 2017-02-13 16:03:25 +0100 (Mon, 13 Feb 2017) $ 
     *
     *    @short Base class for a Sector of the Muon Trigger chambers.
     *
@@ -43,7 +43,7 @@ namespace LVL1MUCTPI {
     *      @see SectorConstants.h
     *      @see Detector.h
     *   @author $Author: krasznaa $
-    *  @version $Revision: 678659 $
+    *  @version $Revision: 796872 $
     *
     **//////////////////////////////////////////////////////////////////////
    class Sector {
@@ -77,11 +77,11 @@ namespace LVL1MUCTPI {
       /**
        * Extract the threshold of Candidate 1.
        */
-      unsigned int getPtCand1() const;
+      unsigned int getPtCand1() const { return getValue(Pt1Mask); }
       /**
        * Extract the threshold of Candidate 2.
        */
-      unsigned int getPtCand2() const;
+      unsigned int getPtCand2() const { return getValue(Pt2Mask); }
       virtual unsigned int getROI1() const = 0;
       virtual unsigned int getROI2() const = 0; 
       /**
@@ -130,7 +130,7 @@ namespace LVL1MUCTPI {
       virtual std::string getDetectorString() const = 0;
       std::string getRapidityString() const;
       unsigned int getSectorNumber() const { return m_sectorNumber; }
-      unsigned int getBCID() const;
+      unsigned int getBCID() const { return getValue( BCIDMask ); }
       virtual SectorID getSectorID() const = 0;
 
       void setCand1Supressed( bool flag ) const { m_cand1Supressed = flag; }
@@ -146,11 +146,14 @@ namespace LVL1MUCTPI {
       bool m_registered;
       /**
        * This function retrieves information from the bitfield of a sector.
+       *
        * @param mask the bitmask as defined in MuctpiBitMasks.h.
        * @return the value of the bitfield defined by the mask.
        * @see MuctpiBitMasks.h
        */
-      unsigned int getValue( const BitMask mask ) const;
+      unsigned int getValue( const BitMask mask ) const {
+        return (m_bitField & mask) >> CxxUtils::count_trailing_zeros(mask);
+      }
 
       Hemisphere   m_rapidityRegion;
       unsigned int m_sectorNumber;

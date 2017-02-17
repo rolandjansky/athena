@@ -112,10 +112,9 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
     int MDTid = GetIdentifier(touchHist);
 
     TrackHelper trHelp(aStep->GetTrack());
-    int barcode = trHelp.GetBarcode();
 
     // construct new mdt hit
-    m_MDTHitColl->Emplace(MDTid, m_globalTime, m_driftRadius, m_localPosition, barcode,
+    m_MDTHitColl->Emplace(MDTid, m_globalTime, m_driftRadius, m_localPosition, trHelp.GetParticleLink(),
                           aStep->GetStepLength(),
                           aStep->GetTotalEnergyDeposit(),
                           currentTrack->GetDefinition()->GetPDGEncoding(),

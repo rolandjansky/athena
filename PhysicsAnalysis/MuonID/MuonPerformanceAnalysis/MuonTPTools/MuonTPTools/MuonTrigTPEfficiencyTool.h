@@ -28,7 +28,7 @@ public:
     MuonTrigTPEfficiencyTool(std::string name);
 
     // Match probes for efficiency calculation
-    void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const;
+    void matchProbes(ProbeContainer*) const;
     
     CP::CorrectionCode getTrigSF(const xAOD::Muon * probe, double & sf) const;
     

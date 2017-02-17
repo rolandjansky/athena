@@ -34,6 +34,7 @@ MuonRecoTPEfficiencyTool::MuonRecoTPEfficiencyTool(std::string myname)
 	declareProperty("MatchToMuGirlLowBeta",m_match_MuGirlLowBeta=false);
 	declareProperty("MatchToCaloLikelihood",m_match_CaloLikelihood=false);
 	declareProperty("MatchToExtrapolateToIP",m_match_ExtrapolateToIP=false);
+  	declareProperty("MatchContainerName", m_matchContainerName = "Muons");
 
 }
 void MuonRecoTPEfficiencyTool::dRMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const
@@ -243,8 +244,16 @@ bool MuonRecoTPEfficiencyTool::GoodMatchMuonType(const xAOD::IParticle* probe) c
 }
 //**********************************************************************
 
-void MuonRecoTPEfficiencyTool::matchProbes(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const
+void MuonRecoTPEfficiencyTool::matchProbes(ProbeContainer* probes) const
 {
+
+	ATH_MSG_DEBUG(" -- Pick up matches");
+	// retrieve match container  
+	const xAOD::IParticleContainer* matches = 0;
+	if(evtStore()->retrieve(matches, m_matchContainerName).isFailure()) {
+	  ATH_MSG_ERROR( "Unable to retrieve " << m_matchContainerName );
+	  return ;
+	}
 	if(m_ptrMatching) ptrMatching(probes, matches);
 	else dRMatching(probes, matches);
 

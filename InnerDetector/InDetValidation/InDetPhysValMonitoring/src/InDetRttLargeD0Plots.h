@@ -61,11 +61,11 @@ public:
   ///fill for things needing all truth - not just the ones from the reco tracks
   void fillTruth(const xAOD::TruthParticle& particle);
 
-  void pro_fill(const xAOD::TruthParticle& truth, float weight);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood);
 
   void fillEfficiency(const xAOD::TruthParticle& particle,      \
                       const bool isReconstructed,               \
-                      const bool isLargeD0Track = false,        \
+                      const bool isLargeD0Track,     \
                       const bool hasTRTHit = false,     \
                       const bool hasTRTOut = false,     \
                       const int nTrtHits = 0,          \

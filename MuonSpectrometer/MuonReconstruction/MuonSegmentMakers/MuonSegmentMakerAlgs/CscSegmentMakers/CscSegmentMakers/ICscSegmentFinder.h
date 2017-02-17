@@ -45,10 +45,10 @@ public:  // Interface methods
   //  virtual Muon::MuonSegmentCombination* find( const Muon::CscPrepDataCollection& pcol) =0;
 
   //  using Muon::IMuonSegmentMaker::find;
-  virtual MuonSegmentCombinationCollection* find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) =0;
+  virtual MuonSegmentCombinationCollection* find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const =0;
 
   // for 4d SegmentMaker
-  virtual MuonSegmentCombinationCollection* find( const MuonSegmentCombinationCollection& segcols)  =0;
+  virtual MuonSegmentCombinationCollection* find( const MuonSegmentCombinationCollection& segcols) const =0;
   /*
 
   virtual std::vector<const Muon::MuonSegment*>* find( const Trk::TrackRoad& road,

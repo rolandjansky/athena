@@ -117,7 +117,6 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
 void
 InDetRttPlots::fillSpectrum(const xAOD::TrackParticle& trackParticle) {
   float prob = getMatchingProbability(trackParticle);
-
   m_specPlots.fillSpectrum(trackParticle, prob);
 }
 
@@ -140,7 +139,6 @@ void
 InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle,
                                   float /*weight*/) {
   double prob = getMatchingProbability(particle);
-
   m_specPlots.fillSpectrumLinked(particle, truthParticle, prob);
 }
 
@@ -152,7 +150,6 @@ InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float 
 void
 InDetRttPlots::fillSpectrumUnlinked2(const xAOD::TrackParticle& particle) {
   double prob = getMatchingProbability(particle);
-
   m_specPlots.fillSpectrumUnlinked2(particle, prob);
 }
 
@@ -179,8 +176,8 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
 }
 
 void
-InDetRttPlots::pro_fill(const xAOD::TruthParticle& truth, float weight) {
-  m_effPlots.pro_fill(truth, weight);
+InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood) {
+  m_effPlots.fill(truth, isGood);
   m_fakePlots.fillIncFakeDenom(truth);
 }
 
@@ -197,6 +194,16 @@ InDetRttPlots::prim_photon_fill(const xAOD::TruthParticle& truth) {
 void
 InDetRttPlots::brem_photon_fill(const xAOD::TruthParticle& truth) {
   m_dumPlots.brem_photon_fill(truth);
+}
+
+void
+InDetRttPlots::track_vs_truth(const xAOD::TrackParticle& track,const xAOD::TruthParticle& truth, float tmp){
+  m_dumPlots.track_vs_truth(track, truth, tmp);
+}
+
+void
+InDetRttPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt){
+  m_dumPlots.minDR(min_dR, prod_rad, bestmatch, BIDPt);
 }
 
 void

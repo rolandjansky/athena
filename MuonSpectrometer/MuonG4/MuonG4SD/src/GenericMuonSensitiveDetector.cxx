@@ -52,10 +52,9 @@ G4bool GenericMuonSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistor
   float StepLength=post_Step->GetStepLength();
 
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
 
   //G4cout << aHit->print() << G4endl;
-  m_GenericMuonHitCollection->Emplace( 0 /* HitID id generic*/,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
+  m_GenericMuonHitCollection->Emplace( 0 /* HitID id generic*/,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,trHelp.GetParticleLink());
 
   return true;
 }

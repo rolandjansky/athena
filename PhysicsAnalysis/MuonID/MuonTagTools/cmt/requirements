@@ -8,19 +8,19 @@ use GaudiInterface      GaudiInterface-*       			External
 use AthenaBaseComps	AthenaBaseComps-*	                Control
 use TagEvent		TagEvent-*		  		PhysicsAnalysis/EventTag
 use xAODMuon		xAODMuon-*				Event/xAOD 
+use MuonMomentumCorrections MuonMomentumCorrections-*           PhysicsAnalysis/MuonID/MuonIDAnalysis/
 use MuonSelectorTools 	MuonSelectorTools-* 			PhysicsAnalysis/MuonID
-use xAODEventInfo          xAODEventInfo-*         Event/xAOD
-use IsolationSelection     IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
+use xAODEventInfo       xAODEventInfo-*                         Event/xAOD
+use IsolationSelection  IsolationSelection-*                    PhysicsAnalysis/AnalysisCommon
 
 private
-
 use xAODTracking	xAODTracking-*				Event/xAOD
+use xAODCore               xAODCore-*              Event/xAOD
+use xAODParticleEvent      xAODParticleEvent-*     Event/xAOD   
 use AnalysisUtils	AnalysisUtils-*				PhysicsAnalysis/AnalysisCommon
 use AthContainers       AthContainers-*				Control 
-end_private
-
-public
 apply_pattern dual_use_library files=*.cxx
+
 apply_pattern declare_joboptions files="*.py"
 
 

@@ -8,7 +8,7 @@
  ATLAS Collaboration
  ***************************************************************************/
 
-// $Id: SGHive_test.cxx 794854 2017-01-31 23:34:36Z leggett $
+// $Id: SGHive_test.cxx 794852 2017-01-31 23:24:04Z leggett $
 
 
 #include <string>

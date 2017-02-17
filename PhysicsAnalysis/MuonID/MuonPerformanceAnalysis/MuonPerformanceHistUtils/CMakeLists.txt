@@ -12,14 +12,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMissingET
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTruth
+			  Event/xAOD/xAODTracking
                           GaudiKernel
                           MuonSpectrometer/MuonValidation/MuonHistogramming/MuonHistUtils
                           PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections
                           Tracking/TrkValidation/TrkValHistUtils
                           PRIVATE
                           Control/AthenaBaseComps
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTracking )
+                          Event/xAOD/xAODEventInfo )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

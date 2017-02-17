@@ -279,7 +279,11 @@ public:
 
 StatusCode TestAlgorithm::execute()
 {
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+  const EventContext& ctx = getContext();
+#else
   const EventContext& ctx = *getContext();
+#endif
   std::cout << "TestAlgorithm::execute "
             << ctx.eventID().event_number() << " "
             << ctx.evt() << "\n";

@@ -10,6 +10,7 @@
  */
 
 #include "MuonTPTools/MuonTrigTPEfficiencyTool.h"
+#include "xAODMuon/MuonAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
 
@@ -23,7 +24,7 @@ MuonTrigTPEfficiencyTool::MuonTrigTPEfficiencyTool(std::string myname)
 
 
 //---------------------------------------------------------
-void MuonTrigTPEfficiencyTool::matchProbes(ProbeContainer* probes, const xAOD::IParticleContainer* ) const
+void MuonTrigTPEfficiencyTool::matchProbes(ProbeContainer* probes ) const
 {
 	for(auto probe : *probes) {
 		double best_dR_L1  = m_dR_L1;

@@ -2,10 +2,8 @@
 
 #include "src/PixelDigitization.h"
 #include "src/PixelDigitizationTool.h"
-#include "src/SurfaceChargesTool.h"
 #include "src/PixelNoisyCellGenerator.h"
 #include "src/PixelGangedMerger.h"
-#include "src/SpecialPixelGenerator.h"
 #include "src/PixelCellDiscriminator.h"
 #include "src/PixelChargeSmearer.h"
 #include "src/PixelDiodeCrossTalkGenerator.h"
@@ -28,10 +26,8 @@
 DECLARE_ALGORITHM_FACTORY(PixelDigitization)
 DECLARE_TOOL_FACTORY(BichselSimTool)
 DECLARE_TOOL_FACTORY(PixelDigitizationTool)
-DECLARE_TOOL_FACTORY(SurfaceChargesTool)
 DECLARE_TOOL_FACTORY(PixelNoisyCellGenerator)
 DECLARE_TOOL_FACTORY(PixelGangedMerger)
-DECLARE_TOOL_FACTORY(SpecialPixelGenerator)
 DECLARE_TOOL_FACTORY(PixelCellDiscriminator)
 DECLARE_TOOL_FACTORY(PixelCellDiscriminator)
 DECLARE_TOOL_FACTORY(PixelChargeSmearer)
@@ -54,10 +50,8 @@ DECLARE_FACTORY_ENTRIES(PixelDigitization) {
   DECLARE_ALGORITHM(PixelDigitization)
   DECLARE_TOOL(BichselSimTool)
   DECLARE_TOOL(PixelDigitizationTool)
-  DECLARE_TOOL(SurfaceChargesTool)
   DECLARE_TOOL(PixelNoisyCellGenerator)
   DECLARE_TOOL(PixelGangedMerger)
-  DECLARE_TOOL(SpecialPixelGenerator)
   DECLARE_TOOL(PixelCellDiscriminator)
   DECLARE_TOOL(PixelChargeSmearer)
   DECLARE_TOOL(PixelDiodeCrossTalkGenerator)

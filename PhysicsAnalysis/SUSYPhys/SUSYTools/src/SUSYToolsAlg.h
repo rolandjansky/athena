@@ -60,9 +60,11 @@ class SUSYToolsAlg : public AthAnalysisAlgorithm {
     std::string m_rateMonitoringPath;
 
     std::vector<std::string> el_triggers;
+    std::vector<std::string> ph_triggers;
     std::vector<std::string> mu_triggers;
 
     int count_el_signal;
+    int count_ph_signal;
     int count_mu_signal;
 }; 
 

@@ -290,6 +290,7 @@ namespace SH
         std::unique_ptr<Sample> newSample
 	  (dynamic_cast<Sample*>(sample.Clone (newName.c_str())));
         newSample->name (newName);
+        newSample->meta()->setString (MetaFields::treeName, object->GetName());
 	sh.add (newSample.release());
       }
     }

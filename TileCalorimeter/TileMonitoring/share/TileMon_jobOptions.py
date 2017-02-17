@@ -113,7 +113,7 @@ if tileESDMon:
                                          , jetPtMin          = 20000.0
                                          , jetEtaMax         = 1.6
                                          , jetCollectionName = 'AntiKt4EMTopoJets'
-                                         , do_1dim_histos    = True
+                                         , do_1dim_histos    = False
                                          , do_2dim_histos    = False
                                          , do_enediff_histos = False
                                          , energyChanMin     = 2000 # Default: 2000

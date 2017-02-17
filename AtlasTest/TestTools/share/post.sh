@@ -154,6 +154,10 @@ PP="$PP"'|^warn  .fn-'
 # ubsan
 PP="$PP"'|bits/regex.h:1545'
 
+# More StoreGate changes.
+PP="$PP"'|DEBUG trying to create store'
+
+
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"

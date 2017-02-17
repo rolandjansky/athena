@@ -32,6 +32,10 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_roots.h>
 
+
+
+
+class TGraph;
 class StoreGateSvc;
 class HijingEventParams;
 
@@ -55,6 +59,7 @@ private:
 
 
   // flow functions to set the vn values
+  void (AddFlowByShifting::*m_flow_function)     (double b, double eta, double pt);//function pointer which is set to one of the functions below
   void jjia_minbias_new       (double b, double eta, double pt);
   void jjia_minbias_new_v2only(double b, double eta, double pt);
   void fixed_vn               (double b, double eta, double pt);
@@ -64,6 +69,8 @@ private:
   void custom_vn              (double b, double eta, double pt);
   void p_Pb_cent_eta_indep    (double b, double eta, double pt); //for p_Pb
 
+  TGraph *m_graph_fluc;//TGraph storing the v2_RP/delta Vs b_imp
+  void Set_EbE_Fluctuation_Multipliers(HepMC::GenVertex* mainvtx, float b);
 
 
 
@@ -77,9 +84,9 @@ private:
   int   m_ranphi_sw;
 
   std::string m_flow_function_name;
-  int   m_flow_function_index;
   std::string m_flow_implementation;
   int   m_flow_implementation_type;
+  bool  m_flow_fluctuations;
 
   int   m_floweta_sw;
   float m_flow_maxeta, m_flow_mineta;
@@ -92,7 +99,9 @@ private:
 
   int   m_particles_processed;
 
-  float psi_n[6],v1,v2,v3,v4,v5,v6;
+  //float psi_n[6],v1,v2,v3,v4,v5,v6;
+  float psi_n[6],v_n[6];
+  float EbE_Multiplier_vn[6];
 
 };
 

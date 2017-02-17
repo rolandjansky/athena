@@ -4,10 +4,8 @@
 
 #include "RPC_RawDataProviderTool.h"
 #include "MuonRPC_CnvTools/IRpcROD_Decoder.h"
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
-#include "MuonRDO/RpcPadContainer.h"
 #include "RPCcablingInterface/RpcPadIdHash.h"
-#include "MuonRDO/RpcSectorLogicContainer.h"
+
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
@@ -34,12 +32,14 @@ Muon::RPC_RawDataProviderTool::RPC_RawDataProviderTool(
     const IInterface*  p) :
     AthAlgTool(t, n, p),
     m_decoder("Muon__RpcROD_Decoder"),
-    m_rdoContainerKey("RPCPAD"),
+    m_RpcPadC("RPCPAD"),
+    m_sec("RPC_SECTORLOGIC"),
+    mAllowCreation(false),
     m_robDataProvider ("ROBDataProviderSvc",n)
 {
     declareInterface<IMuonRawDataProviderTool>(this);
     declareProperty("Decoder",     m_decoder);
-    declareProperty("RdoLocation", m_rdoContainerKey);
+    declareProperty("RdoLocation", m_RpcPadC);
 }
 
 
@@ -163,66 +163,9 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     
     // register the container only when the imput from ByteStream is set up     
     m_activeStore->setStore( &*evtStore() ); 
-    if( has_bytestream || m_rdoContainerKey != "RPCPAD" )
+    if( has_bytestream || m_RpcPadC.key() != "RPCPAD" )
     {
-        RpcPadContainer* container = 
-      Muon::MuonRdoContainerAccess::retrieveRpcPad(m_rdoContainerKey);
-      
-  // create and register the container only once
-        if(container==0)
-        {
-            try 
-            {
-                container = new RpcPadContainer(padMaxIndex);
-            } 
-            catch(std::bad_alloc) 
-            {
-              ATH_MSG_FATAL( "Could not create a new RPC PAD container!");
-                return StatusCode::FAILURE;
-            }
-
-            // record the container for being used by the convert method
-
-            if( Muon::MuonRdoContainerAccess::record(container,
-                                                     m_rdoContainerKey,
-                                                     serviceLocator(), msg(), 
-                                                     (&*evtStore())).isFailure() )
-            {
-              ATH_MSG_FATAL("Recording of container " 
-                  << m_rdoContainerKey
-                  << " into MuonRdoContainerManager has failed");
-              return StatusCode::FAILURE;
-            }
-  }
-  
-  RpcSectorLogicContainer* sec = 
-      Muon::MuonRdoContainerAccess::retrieveRpcSec("RPC_SECTORLOGIC");
-  
-  if(sec==0)
-        {
-            try 
-            {
-                sec = new RpcSectorLogicContainer();
-            } 
-            catch(std::bad_alloc) 
-            {
-              ATH_MSG_WARNING( "Could not create a new RpcSectorLogic container!");
-                //return StatusCode::FAILURE;
-            }
-
-            // record the container for being used by the convert method
-
-            if( Muon::MuonRdoContainerAccess::record(sec,
-                                                     "RPC_SECTORLOGIC",
-                                                     serviceLocator(),
-                                                     msg()).isFailure() )
-            {
-              ATH_MSG_WARNING("Recording of container " 
-              << "RPC_SECTORLOGIC"
-              << " into MuonRdoContainerManager has failed");
-              //return StatusCode::FAILURE;
-            }
-  }
+        mAllowCreation= true;
     }
     else
     {
@@ -230,6 +173,9 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     }
     
     ATH_MSG_INFO( "initialize() successful in " << name());
+
+    ATH_CHECK( m_RpcPadC.initialize() );
+    ATH_CHECK( m_sec.initialize() );
     
     return StatusCode::SUCCESS;
 }
@@ -294,19 +240,24 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     // if the MuonByteStream CNV has to be used, the container must have been
     // registered there!
     m_activeStore->setStore( &*evtStore() );
-    RpcPadContainer* pad = Muon::MuonRdoContainerAccess::retrieveRpcPad(m_rdoContainerKey);
       
-    if(pad==0)
+    if(mAllowCreation == false)
     {
-      ATH_MSG_DEBUG( "Container " << m_rdoContainerKey 
-          << " for bytestream conversion not available.\n" << "Try retrieving it from the Store");
+        ATH_MSG_WARNING( "Container create disabled due to byte stream");
         
         return StatusCode::SUCCESS; // Maybe it should be false to stop the job
                                     // because the convert method should not
                                     // have been called .... but this depends
                                     // on the user experience
     }
-    
+
+    SG::WriteHandle<RpcPadContainer>  padHandle(m_RpcPadC);
+    if (padHandle.isPresent())
+      return StatusCode::SUCCESS;
+    auto pad = std::make_unique<RpcPadContainer> (padMaxIndex);
+
+    SG::WriteHandle<RpcSectorLogicContainer>    logicHandle(m_sec);
+    auto logic = std::make_unique<RpcSectorLogicContainer>();
     
     for (ROBFragmentList::const_iterator itFrag = vecRobs.begin(); itFrag != vecRobs.end(); itFrag++)
     {
@@ -316,7 +267,7 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
             std::vector<IdentifierHash> coll =
                                       to_be_converted(**itFrag,collections);
       
-            if (m_decoder->fillCollections(**itFrag, *pad, coll).isFailure())
+            if (m_decoder->fillCollections(**itFrag, *pad, coll, logic.get()).isFailure())
                 {
                     // store the error conditions into the StatusCode and continue
                 }
@@ -333,6 +284,8 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
             // store the error condition into the StatusCode and continue
         }
     }
+    ATH_CHECK( padHandle.record (std::move (pad)) );
+    ATH_CHECK( logicHandle.record (std::move (logic)) );
     //in presence of errors return FAILURE
 //CALLGRIND_STOP_INSTRUMENTATION
     return StatusCode::SUCCESS;
@@ -344,7 +297,7 @@ Muon::RPC_RawDataProviderTool::to_be_converted(const ROBFragment& robFrag,
                             const std::vector<IdentifierHash>& coll) const
 {
     std::vector<IdentifierHash> to_return;
-    if(coll.size()==0)
+    if(coll.empty())
     {
     // get SubdetectorId and ModuleId
         uint32_t source_id = robFrag.rod_source_id();
@@ -356,6 +309,7 @@ Muon::RPC_RawDataProviderTool::to_be_converted(const ROBFragment& robFrag,
     {
         uint32_t source_id = robFrag.rod_source_id();
         std::vector<IdentifierHash>::const_iterator it = coll.begin();
+        to_return.reserve(coll.size());
         for ( ; it!= coll.end() ; ++it)
         {
             if( source_id == (m_rpcCabling->padHashFunction())->hash2source(*it) ) 
@@ -365,3 +319,5 @@ Muon::RPC_RawDataProviderTool::to_be_converted(const ROBFragment& robFrag,
 
     return to_return;
 }
+
+

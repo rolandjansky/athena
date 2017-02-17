@@ -42,13 +42,13 @@ namespace Muon {
     void clear();
 
     /** init truth */
-    void init();
+    void init() const;
 
     /** get the associated barcode for the identifier, return -1 if the channel was not hit by a muon */
-    int getBarcode( const Identifier& id );
+    int getBarcode( const Identifier& id ) const ;
 
     /** get the associated pdgId for a given barcode */
-    int getPdgId( int barcode );
+    int getPdgId( int barcode ) const;
 
     /** add identifier */
     void add( const Identifier& id, int level );
@@ -69,14 +69,14 @@ namespace Muon {
 
     /** add measurements */
     void add( const std::vector<const Trk::MeasurementBase*>& measurements, int level );
-    void getTruth(std::string name );
+    void getTruth(std::string name ) const;
     std::string printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found );
 
     ToolHandle<MuonIdHelperTool>                m_idHelper;
     ToolHandle<MuonEDMHelperTool>               m_helper;
     ToolHandle<MuonEDMPrinterTool>              m_printer;
     ServiceHandle< IIncidentSvc >               m_incidentSvc;
-    bool m_wasInit;
+    mutable bool m_wasInit;
 
     std::string m_CSC_TruthName;
     std::string m_RPC_TruthName;
@@ -85,9 +85,9 @@ namespace Muon {
     std::string m_MM_TruthName;
     std::string m_STGC_TruthName;
 
-    std::map<int,int>                           m_pdgIdLookupFromBarcode;
-    std::map<Identifier,int>                    m_truthHits; // map containing truth hits associated with muons, stores barcode as second element
-    std::map<int,std::set<Identifier> >         m_truthDataPerLevel;
+    mutable std::map<int,int>                           m_pdgIdLookupFromBarcode;
+    mutable std::map<Identifier,int>                    m_truthHits; // map containing truth hits associated with muons, stores barcode as second element
+    mutable std::map<int,std::set<Identifier> >         m_truthDataPerLevel;
     mutable std::map<int,unsigned int >         m_lossesPerLevel; // We can get rid of the mutable, once printSummary() isn't const.
     mutable unsigned int                        m_truthHitsTotal;
     

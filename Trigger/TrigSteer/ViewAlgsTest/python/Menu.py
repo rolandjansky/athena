@@ -1,5 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
+
+
+
 class Chain:
     def __init__(self, name, seed, ps, requirements):
         self.name = name
@@ -23,7 +27,7 @@ def setOutput(obj, prop, name):
     #print "red off ", name, cval
     if type(cval) == type(list()):                
         cval.append(name)
-        print prop, name, cval
+        #print "list property", prop, name, cval
         setattr(obj, prop, cval)
     else:
         setattr(obj, prop, name)
@@ -45,35 +49,17 @@ def getOutput(obj, prop):
 
 
 def genMenuAlgView(name):
-#    from connectAlgorithmsIO import connectAlgorithmsIO
-
     from ViewAlgs.ViewAlgsConf import AthViews__MenuAlgView
     menuAlg = AthViews__MenuAlgView(name)
-    # for hypo in inputHypos:
-    #     connectAlgorithmsIO(consumer=(menuAlg, "HypoDecisions"), producer=(hypo, "OutputDecisions"))
-    # #menuAlg.HypoDecisions = getOutput(inputHypos, "OutputDecisions")                                             
-    # for chains in inputChains:
-    #     connectAlgorithmsIO(consumer=(menuAlg, "InputChainDecisions"), producer=(chain, "OutputChainDecisions"))
-
-    #menuAlg.InputChainDecisions = getOutput(inputChains,"OutputChainDecisions")                                                                     
     setOutput(menuAlg, "OutputHypoDecisions", name+"RoIs")
     setOutput(menuAlg, "OutputChainDecisions", name+"Chains")
     return menuAlg
 
 
  
-def genDecisionAlg(name): #, inputHypos, inputChains):
-#    from connectAlgorithmsIO import connectAlgorithmsIO
-    
-#    assert inputHypos != None, 'Alg to take hypo putput from is missing'
-#    assert inputChains != None, 'Alg to take chain decisions from is missing'
-#    print inputChains, inputHypos
+def genDecisionAlg(name):
     from ViewAlgs.ViewAlgsConf import DecisionAlg
     alg = DecisionAlg(name)
-#    connectAlgorithmsIO(consumer=(menuAlg, "HypoDecisions"), producer=(inputHypos, "OutputDecisions"))
-    #menuAlg.HypoDecisions = getOutput(inputHypos, "OutputDecisions")
-#    connectAlgorithmsIO(consumer=(menuAlg, "InputChainDecisions"), producer=(inputChains, "OutputChainDecisions"))
-    #menuAlg.InputChainDecisions = getOutput(inputChains,"OutputChainDecisions")
     setOutput(alg, "OutputHypoDecisions", name+"RoIs")
     setOutput(alg, "OutputChainDecisions", name+"Chains")
     alg.OutputLevel=1
@@ -159,7 +145,7 @@ def configureFromXML(xmlFile, menu,topSequence):
     p = ET.parse(xmlFile)
 
     
-    prescaling = topSequence.activeRoIsAfterPrescaling
+    prescaling = topSequence.menuStep0
 
 
     # for each threshold mentioned in the chain we find Menu alg and through set there properties

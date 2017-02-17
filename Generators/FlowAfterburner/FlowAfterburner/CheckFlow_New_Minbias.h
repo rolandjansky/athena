@@ -17,7 +17,7 @@
 #define CheckFlow_New_Minbias_h
  
 #include <math.h>
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "TruthHelper/GenAccessIO.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -30,7 +30,7 @@ class TH1D;                    //Forward declaration
 class TProfile;                    //Forward declaration
 
 
-class CheckFlow_New_Minbias:public Algorithm {
+class CheckFlow_New_Minbias:public AthAlgorithm {
 public:
   CheckFlow_New_Minbias(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -64,6 +64,8 @@ private:
   TH1D *hist_Psi_n_ebe     [6][n_b_bins];
   TH1D *hist_Psi_n_ebe_pt  [6][n_b_bins];
   TH1D *hist_vn_ebe        [6][n_b_bins];
+  TH1D *hist_vn_ebe_ID1    [6][n_b_bins];
+  TH1D *hist_vn_ebe_ID2    [6][n_b_bins];
 
   TProfile *profile_pt_dep      [6][n_b_bins][n_etabin]; 
   TProfile *profile_eta_dep     [6][n_b_bins][n_ptbin ]; 

@@ -21,7 +21,7 @@ SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool u
     if (dp) {
       struct dirent * de;
       while ((de = readdir(dp)) != NULL) {
-	loadFile(fullPath + de->d_name);
+        loadFile(fullPath + de->d_name);
       }
     }
     else {
@@ -34,7 +34,7 @@ SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool u
     if (dp) {
       struct dirent * de;
       while ((de = readdir(dp)) != NULL) {
-	loadFile(txtfilenameOrDir + de->d_name);
+        loadFile(txtfilenameOrDir + de->d_name);
       }
     } else {
       loadFile(txtfilenameOrDir.c_str());
@@ -53,26 +53,77 @@ void SUSY::CrossSectionDB::loadFile(const std::string& txtfilename){
       // skip leading blanks (in case there are some in front of a comment)
       if ( !line.empty() )
         {
-	  while ( line[0] == ' ' ) line.erase(0, 1);
+          while ( line[0] == ' ' ) line.erase(0, 1);
         }
       // skip lines that do not start with a number, they are comments
       if ( !line.empty() && isdigit(line[0]) )
         {
-	  stringstream is(line);
-	  int id;
-	  string name;
-	  float xsect, kfactor, efficiency, relunc;
-	  float sumweight = -1, stat = -1;
-	  is >> id >> name >> xsect >> kfactor >> efficiency >> relunc;
-	  if (m_extended == true)
+          stringstream is(line);
+          int id;
+          string name;
+          float xsect, kfactor, efficiency, relunc;
+          float sumweight = -1, stat = -1;
+          is >> id >> name >> xsect >> kfactor >> efficiency >> relunc;
+          if (m_extended == true)
             {
-	      // cout << "m_extended was true!" << endl; 
-	      is >> sumweight >> stat;
+              // cout << "m_extended was true!" << endl; 
+              is >> sumweight >> stat;
             }
-	  //cout << " Process: " << name << "  " << id << " " << xsect << endl;
-	  m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
+          //cout << " Process: " << name << "  " << id << " " << xsect << endl;
+          m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
         }
     }
+}
+
+// Convenient accessor for finding based on *only* a process ID
+SUSY::CrossSectionDB::xsDB_t::iterator SUSY::CrossSectionDB::my_find( const int proc ) {
+  for (SUSY::CrossSectionDB::xsDB_t::iterator it = m_xsectDB.begin(); it!=m_xsectDB.end();it++){
+    if (it->second.ID()==proc) return it;
+  }
+  return m_xsectDB.end();
+}
+
+// Extend the record based on information from a second file
+void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
+  // Just like the above function, but with more functionality
+  string line;
+
+  ifstream in(txtfilename.c_str());
+  if (!in) return;
+  while ( getline(in, line) )
+    {
+      // skip leading blanks (in case there are some in front of a comment)
+      if ( !line.empty() ){
+          while ( line[0] == ' ' ) line.erase(0, 1);
+      }
+      // skip lines that do not start with a number, they are comments
+      if ( !line.empty() && isdigit(line[0]) ){
+          stringstream is(line);
+          int id;
+          string name;
+          float xsect, kfactor, efficiency, relunc;
+          float sumweight = -1, stat = -1;
+          is >> id;
+          auto my_it = my_find( id );
+          if (my_it==m_xsectDB.end()){
+            is >> name >> xsect >> kfactor >> efficiency >> relunc;
+            if (m_extended == true)
+              {
+                // cout << "m_extended was true!" << endl; 
+                is >> sumweight >> stat;
+              }
+            //cout << " Process: " << name << "  " << id << " " << xsect << endl;
+            m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
+          } else {
+            // Now we have extended records
+            if (!m_extended) m_extended=true;
+            is >> sumweight >> stat;
+            my_it->second.sumweight(sumweight);
+            my_it->second.stat(stat);
+          }
+        }
+    }
+
 }
 
 SUSY::CrossSectionDB::Process SUSY::CrossSectionDB::process(int id, int proc) const

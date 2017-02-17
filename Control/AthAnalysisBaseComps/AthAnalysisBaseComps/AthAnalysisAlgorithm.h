@@ -35,6 +35,9 @@
 class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IIncidentListener {
  public: 
 
+  /// Constructor taking just a name
+  AthAnalysisAlgorithm(const std::string& name);
+
   /// Constructor with parameters: 
   AthAnalysisAlgorithm(const std::string& name, 
                ISvcLocator* pSvcLocator,
@@ -56,7 +59,11 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       /// Function initialising the tool in the correct way in Athena
       virtual StatusCode sysInitialize() override;
       /// override to do firstEvent method
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
       virtual StatusCode sysExecute() override;
+#else
+      virtual StatusCode sysExecute(const EventContext&) override;
+#endif
 
       /// Helper function to access IOVMetaDataContainer information helped in the MetaDataStore
       template<typename T> StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out) { 
@@ -80,8 +87,8 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       }
 
    protected:
-      /// @name Callback functions helping in metadata reading
-      /// @{
+  void updateEvtStore(Property& prop);
+  
 
       /// Function receiving incidents from IncidentSvc/TEvent
       /// Experts can override but they should ensure they add
@@ -104,6 +111,8 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       /// user can read event information with evtStore()
       virtual StatusCode firstExecute();
 
+      /// Function returning the TFile pointer of the currently open file of the
+      /// given EventSelector (in athena jobs this defaults to "EventSelector")
       virtual TFile* currentFile(const char* evtSelName="EventSelector") final;
  
  private:

@@ -60,12 +60,12 @@ public:  // methods
   // Finalization.
   StatusCode finalize();
 
-  MuonSegmentCombinationCollection* find( const std::vector<const Muon::CscPrepDataCollection*>& pcols);
-  MuonSegmentCombinationCollection* find( const MuonSegmentCombinationCollection& );
+  MuonSegmentCombinationCollection* find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const;
+  MuonSegmentCombinationCollection* find( const MuonSegmentCombinationCollection& ) const;
 
 private:  // methods
 
-  Muon::MuonSegmentCombination* findSegmentCombination( const Muon::CscPrepDataCollection& pcol );
+  Muon::MuonSegmentCombination* findSegmentCombination( const Muon::CscPrepDataCollection& pcol ) const;
   
 
 private:  // data

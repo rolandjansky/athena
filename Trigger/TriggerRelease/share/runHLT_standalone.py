@@ -243,7 +243,7 @@ else:           # More data modifiers
                                 #Set muComb/muIso Backextrapolator tuned for real data
                                 'UseBackExtrapolatorDataForMuIso',
                                 #Monitoring for L1 muon group
-                                'muCTPicheck',
+                                #'muCTPicheck',
                                 #Monitoring L1Topo at ROB level
                                 'L1TopoCheck',
                               #for tests with data:
@@ -352,7 +352,11 @@ log.info("Trigger xml files HLT    : in = %s , out = %s (read from XML = %s)" % 
 
 # define a unique HLT configuration xml when running in a partition
 import os
+<<<<<<< HEAD
 if os.environ.has_key("TDAQ_PARTITION"):
+=======
+if "TDAQ_PARTITION" in os.environ:
+>>>>>>> origin/svn-sweep-2015-02-15
     from TriggerRelease import Utils
     ident = Utils.uniqueFileName()
     TriggerFlags.outputHLTconfigFile ="outputHLTconfig_%s.xml" % ident

@@ -124,7 +124,7 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
    }
 
  
-    ATH_MSG_DEBUG("About to create 4 vector of EFO. E / Eta / Phi / m: " << constituentEnergy << " / " << pfo->eta() << " / " << pfo->phi() << " / " << constituentMass);
+    //ATH_MSG_DEBUG("About to create 4 vector of EFO. E / Eta / Phi / m: " << constituentEnergy << " / " << pfo->eta() << " / " << pfo->phi() << " / " << constituentMass);
     TLorentzVector momentum; 
     PanTau::SetP4EEtaPhiM( momentum, constituentEnergy, pfo->eta(), pfo->phi(), constituentMass);
     
@@ -140,7 +140,8 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     
     if(deltaR_toTauJet > m_Config_TauConstituents_Types_DeltaRCore) {
         if(pfoCharge != 0) {
-            itsTypeFlags.at((int)PanTau::TauConstituent2::t_OutChrg) = 1;
+	  //itsTypeFlags.at((int)PanTau::TauConstituent2::t_OutChrg) = 1;
+            itsTypeFlags.at((int)PanTau::TauConstituent2::t_Charged) = 1;
         }
         if(pfoCharge == 0) {
             itsTypeFlags.at((int)PanTau::TauConstituent2::t_OutNeut) = 1;
@@ -178,6 +179,7 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     
     //! ==================================================
     //! create the tau constituent
+    ATH_MSG_DEBUG("About to create 4 vector of EFO. E / Eta / Phi / m / charge / mvaValue: " << constituentEnergy << " / " << pfo->eta() << " / " << pfo->phi() << " / " << constituentMass << " / " << pfoCharge << " / " << mvaValue);
     tauConstituent = new PanTau::TauConstituent2(momentum, pfoCharge, itsTypeFlags, mvaValue, pfo);
     tauConstituent->makePrivateStore();
     ATH_MSG_DEBUG("Created new TauConstituent2 at: " << tauConstituent);

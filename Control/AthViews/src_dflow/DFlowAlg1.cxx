@@ -71,8 +71,6 @@ StatusCode DFlowAlg1::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  useView();
-
   if ( !m_r_int.isValid() ) return StatusCode::FAILURE;
   int seedData = *m_r_int;
 
