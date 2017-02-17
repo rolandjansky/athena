@@ -81,7 +81,7 @@ git checkout ${TAGBRANCH}
 
 # If this is a branch, fast forward to the latest version of it:
 if git show-ref -q --verify "refs/heads/${TAGBRANCH}" 2>/dev/null; then
-    git pull
+    git reset --hard ${TAGBRANCH}
 fi
 
 # If an output file was not specified, stop here:
