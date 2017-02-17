@@ -91,7 +91,8 @@ if [ "$RPMDIR" = "" ]; then
     exit 0
 fi
 
-# Build the RPM for the project:
+# Build the RPM or other package for the project:
 cpack
 mkdir -p ${RPMDIR}
-cp ${PROJECT}*.rpm ${RPMDIR}
+FILES=$(ls ${PROJECT}*.rpm ${PROJECT}*.tar.gz ${PROJECT}*.dmg)
+cp ${FILES} ${RPMDIR}
