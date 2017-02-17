@@ -75,15 +75,6 @@ jtm.ptminFilter =    0
 # Add standard tool definitions to the tool manager.
 import JetRec.JetRecStandardTools
 
-if 0:
-  jetlog.info( "First call to JetRecStandardToolManager.py:" )
-  from traceback import format_exc
-  jetlog.info( format_exc() )
-  jetlog.info( "Exception" )
-  raise Exception
-  from traceback import print_stack
-  print_stack()
-
 # Function to filter out skipped tools.
 def filterout(skiptoolnames, tools):
   outtools = []
