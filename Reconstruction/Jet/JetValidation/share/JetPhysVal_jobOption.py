@@ -1,11 +1,13 @@
 # Inspired by PhysVal_jobOptions.py
 
 # Set up the reading of the input xAOD:
-#FNAME = "AOD.pool.root"
-FNAME = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/MC/AOD/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.simul.AOD.e1728_s1581.20_0_0.039772.pool.root.1"
+FNAME = "AOD.pool.root"
+#FNAME = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/MC/AOD/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.simul.AOD.e1728_s1581.20_0_0.039772.pool.root.1"
 include( "AthenaPython/iread_file.py" )
-#import AthenaPoolCnvSvc.ReadAthenaPool
-#ServiceMgr.EventSelector.InputCollections = [ FNAME ]
+
+# only for testing...
+# import AthenaPoolCnvSvc.ReadAthenaPool
+# ServiceMgr.EventSelector.InputCollections = [ FNAME ]
 
 
 from JetValidation.PhysicsValidationHistos import athenaPhysValTool

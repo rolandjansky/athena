@@ -34,13 +34,16 @@ JetTrimmer::~JetTrimmer() {
 
 StatusCode JetTrimmer::initialize() {
   if ( m_rclus < 0.0 || m_rclus > 10.0 ) {
-    ATH_MSG_WARNING("Invalid value for RClus " << m_rclus);
+    ATH_MSG_ERROR("Invalid value for RClus " << m_rclus);
+    return StatusCode::FAILURE;
   }
   if ( m_ptfrac < 0.0 || m_ptfrac > 1.0 ) {
-    ATH_MSG_WARNING("Invalid value for PtFrac " << m_ptfrac);
+    ATH_MSG_ERROR("Invalid value for PtFrac " << m_ptfrac);
+    return StatusCode::FAILURE;
   }
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
+    return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }

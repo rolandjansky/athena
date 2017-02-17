@@ -48,13 +48,16 @@ JetSplitter::~JetSplitter() {
 
 StatusCode JetSplitter::initialize() {
   if ( m_mumax < 0.0 || m_mumax > 1.0 ) {
-    ATH_MSG_WARNING("Invalid value for MuMax: " << m_mumax);
+    ATH_MSG_ERROR("Invalid value for MuMax: " << m_mumax);
+    return StatusCode::FAILURE;
   }
   if ( m_mumax < 0.0 || m_mumax > 1.0 ) {
-    ATH_MSG_WARNING("Invalid value for YMin: " << m_ymin);
+    ATH_MSG_ERROR("Invalid value for YMin: " << m_ymin);
+    return StatusCode::FAILURE;
   }
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
+    return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
