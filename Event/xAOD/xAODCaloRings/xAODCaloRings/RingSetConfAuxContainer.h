@@ -20,9 +20,7 @@ namespace xAOD {
 typedef RingSetConfAuxContainer_v1 RingSetConfAuxContainer;
 } // namespace xAOD
 
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::RingSetConfAuxContainer , 1307745126 , 1 )
-#endif
 
 #endif // XAODCALORINGS_RINGSETCONFAUXCONTAINER_H
