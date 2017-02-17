@@ -95,6 +95,7 @@ SCTRawContByteStreamService::initialize() {
 
 StatusCode
 SCTRawContByteStreamService::finalize() {
+  m_fea.clear();   
   StatusCode sc = AthService::finalize(); 
   return sc;
 }
