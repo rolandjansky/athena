@@ -63,6 +63,9 @@ public:
     // forbidden copy constructor
     // forbidden assignment operator
 
+    // clean up memory (after fit completion)
+    void	clear (void);
+    
     // retrieve result
     Track*	constructTrack (const std::list<FitMeasurement*>&		measurements,
 				const FitParameters&				parameters,
@@ -78,7 +81,7 @@ public:
 					 bool					for_iPatTrack = false);
 
     // for IGlobalTrackFit interface
-    Amg::MatrixX*		fullCovariance () const;
+    Amg::MatrixX*		fullCovariance (void) const;
     
     // set minimum number of iterations to perform (IGlobalTrackFit friends)
     void			setMinIterations (int minIter);

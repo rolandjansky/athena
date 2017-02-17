@@ -28,6 +28,7 @@ namespace Trk{
 
 // constructor
 MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
+					    Amg::MatrixX&			derivativeMatrix,
 					    ToolHandle<IIntersector>&		intersector,
 					    std::list<FitMeasurement*>&		measurements,
 					    FitParameters*			parameters,
@@ -38,6 +39,7 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 	m_caloEnergyMeasurement		(0),
 	m_cosPhi0			(parameters->cosPhi()),
 	m_cosTheta0			(parameters->cosTheta()),
+	m_derivativeMatrix		(derivativeMatrix),
 	m_derivQOverP0			(0.),
 	m_derivQOverP1			(0.),
 	m_energyResidual		(0.),
@@ -1078,36 +1080,42 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
     std::list<FitMeasurement*>::iterator m = m_measurements.begin();
     if ((**m).isVertex())
     {
-        if(m_useStepPropagator==99) {
-          const TrackSurfaceIntersection* newIntersectionSTEP =
-          m_stepPropagator->intersectSurface(*(**m).surface(),
-                                           intersection,
-                                           qOverP,
-                                           m_stepField,
-                                           Trk::muon);
-          double exdist = 0;
-          if(newIntersectionSTEP) exdist = (newIntersectionSTEP->position()-intersection->position()).mag();
-	  intersection	= m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
-	 							    intersection,
-								    qOverP);
-          if(newIntersectionSTEP) {
-            double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-            std::cout << " iMeasProc 1 distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
-            if(dist>10.) std::cout << " iMeasProc 1 ALARM distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
-            delete newIntersectionSTEP;
-          } else {
-            if(intersection) std::cout << " iMeasProc 1 ALARM STEP did not intersect! " << std::endl;
-          }
-        } else {
-	  intersection	= m_useStepPropagator==0?
-            m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
-			  			      intersection,
-						      qOverP):
-            m_stepPropagator->intersectSurface(*(**m).surface(),
-                                               intersection,
-                                               qOverP,
-                                               m_stepField,
-                                               Trk::muon);
+        if (m_useStepPropagator==99)
+	{
+	    const TrackSurfaceIntersection* newIntersectionSTEP =
+		m_stepPropagator->intersectSurface(*(**m).surface(),
+						   intersection,
+						   qOverP,
+						   m_stepField,
+						   Trk::muon);
+	    double exdist = 0;
+	    if(newIntersectionSTEP) exdist = (newIntersectionSTEP->position()-intersection->position()).mag();
+	    intersection	= m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
+									    intersection,
+									    qOverP);
+	    if (newIntersectionSTEP)
+	    {
+		double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
+		std::cout << " iMeasProc 1 distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
+		if(dist>10.) std::cout << " iMeasProc 1 ALARM distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
+		delete newIntersectionSTEP;
+	    }
+	    else
+	    {
+		if(intersection) std::cout << " iMeasProc 1 ALARM STEP did not intersect! " << std::endl;
+	    }
+        }
+	else
+	{
+	    intersection	= m_useStepPropagator==0?
+				  m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
+									    intersection,
+									    qOverP):
+				  m_stepPropagator->intersectSurface(*(**m).surface(),
+								     intersection,
+								     qOverP,
+								     m_stepField,
+								     Trk::muon);
         }
 	surface		= (**m).surface();	
 	if (! intersection)		return false;
@@ -1133,39 +1141,45 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
 	// to avoid rounding: copy intersection if at previous surface 
 	if ((**m).surface() != surface)
 	{
-          if(m_useStepPropagator==99) {
-            const TrackSurfaceIntersection* newIntersectionSTEP =
-            m_stepPropagator->intersectSurface(*(**m).surface(),
-                                           intersection,
-                                           qOverP,
-                                           m_stepField,
-                                           Trk::muon);
-            double exdist = 0;
-            if(newIntersectionSTEP) exdist = (newIntersectionSTEP->position()-intersection->position()).mag();
+	    if (m_useStepPropagator==99)
+	    {
+		const TrackSurfaceIntersection* newIntersectionSTEP =
+		    m_stepPropagator->intersectSurface(*(**m).surface(),
+						       intersection,
+						       qOverP,
+						       m_stepField,
+						       Trk::muon);
+		double exdist = 0;
+		if (newIntersectionSTEP) exdist = (newIntersectionSTEP->position()-intersection->position()).mag();
 
-	    intersection	= m_intersector->intersectSurface(*(**m).surface(),
+		intersection	= m_intersector->intersectSurface(*(**m).surface(),
 								  intersection,
 								  qOverP);
-            if(newIntersectionSTEP) {
-              double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-              std::cout << " iMeasProc 2 distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
-              if(dist>10.) std::cout << " iMeasProc 2 ALARM distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
-              delete newIntersectionSTEP;
-            } else {
-              if(intersection) std::cout << " iMeasProc 2 ALARM STEP did not intersect! " << std::endl;
-            }
-          } else {   
-	    intersection	= m_useStepPropagator==0?
-              m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
-			  			      intersection,
-						      qOverP):
-              m_stepPropagator->intersectSurface(*(**m).surface(),
-                                               intersection,
-                                               qOverP,
-                                               m_stepField,
-                                               Trk::muon);
-          }
-	  surface		= (**m).surface();
+		if (newIntersectionSTEP)
+		{
+		    double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
+		    std::cout << " iMeasProc 2 distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
+		    if (dist>10.) std::cout << " iMeasProc 2 ALARM distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
+		    delete newIntersectionSTEP;
+		}
+		else
+		{
+		    if (intersection) std::cout << " iMeasProc 2 ALARM STEP did not intersect! " << std::endl;
+		}
+	    }
+	    else
+	    {   
+		intersection	= m_useStepPropagator==0?
+				  m_intersector->intersectSurface(*(**m).surface(),
+								  intersection,
+								  qOverP):
+				  m_stepPropagator->intersectSurface(*(**m).surface(),
+								     intersection,
+								     qOverP,
+								     m_stepField,
+								     Trk::muon);
+	    }
+	    surface		= (**m).surface();
 	}
 	else
 	{
