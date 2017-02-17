@@ -35,6 +35,7 @@ def compose_stage_text(stage,result):
         
 def main():
     parser = argparse.ArgumentParser(description="GitLab merge request commentator",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--externals",required=True,type=str,help="result of external building step")
     parser.add_argument("--cmake",required=True,type=str,help="result of cmake configuration step")
     parser.add_argument("--make",required=True,type=str,help="result of build step")
     parser.add_argument("--test",required=True,type=str,help="result of test step")
@@ -73,6 +74,7 @@ def main():
     # prepare individual parts of the CI comment
     comment = compose_result_text(args.status)
     comment += "  \n"
+    comment += compose_stage_text("externals",args.externals) + "  \n"
     comment += compose_stage_text("cmake",args.cmake) + "  \n"
     comment += compose_stage_text("make",args.make) + "  \n"
     comment += compose_stage_text("test",args.test) + "  \n"
