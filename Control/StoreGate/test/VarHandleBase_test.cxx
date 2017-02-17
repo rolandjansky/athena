@@ -45,6 +45,7 @@ public:
   using SG::VarHandleBase::typeless_dataPointer_impl;
   using SG::VarHandleBase::typeless_cptr;
   using SG::VarHandleBase::typeless_ptr;
+  using SG::VarHandleBase::get_impl;
   using SG::VarHandleBase::record_impl;
   using SG::VarHandleBase::put_impl;
   using SG::VarHandleBase::m_store;
@@ -79,7 +80,7 @@ void test1()
 
   SG::VarHandleKey k3 (1234, "asd", Gaudi::DataHandle::Updater);
   k3.initialize().ignore();
-  TestHandle h3 (k3);
+  TestHandle h3 (k3, nullptr);
   assert (h3.clid() == 1234);
   assert (h3.key() == "asd");
   assert (h3.storeHandle().name() == "StoreGateSvc");
@@ -89,13 +90,13 @@ void test1()
   {
     SG::VarHandleKey k4 (1234, "asd", Gaudi::DataHandle::Updater, "BazSvc");
     k4.initialize().ignore();
-    EXPECT_EXCEPTION (SG::ExcUninitKey, TestHandle h4 (k4));
+    EXPECT_EXCEPTION (SG::ExcUninitKey, TestHandle h4 (k4, nullptr));
   }
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
   ctx5.setProxy (&dumstore);
-  TestHandle h5 (k3, ctx5);
+  TestHandle h5 (k3, &ctx5);
   assert (h5.clid() == 1234);
   assert (h5.key() == "asd");
   assert (h5.storeHandle().name() == "StoreGateSvc");
@@ -105,7 +106,7 @@ void test1()
   SG::VarHandleKey k6 (1234, "asd", Gaudi::DataHandle::Updater,
                        "OtherStore");
   k6.initialize().ignore();
-  TestHandle h6 (k6, ctx5);
+  TestHandle h6 (k6, &ctx5);
   assert (h6.clid() == 1234);
   assert (h6.key() == "asd");
   assert (h6.storeHandle().name() == "OtherStore");
@@ -115,7 +116,7 @@ void test1()
   {
     SG::VarHandleKey k7 (1234, "asd", Gaudi::DataHandle::Updater, "BazSvc");
     k7.initialize().ignore();
-    EXPECT_EXCEPTION (SG::ExcUninitKey, TestHandle h7 (k7, ctx5));
+    EXPECT_EXCEPTION (SG::ExcUninitKey, TestHandle h7 (k7, &ctx5));
   }
 }
 
@@ -549,16 +550,19 @@ void test10()
   TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
   obj = std::make_unique<MyObj>();
   objptr = obj.get();
-  assert (h1.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
-                       objptr,
-                       true, false, store) == nullptr);
+  EXPECT_EXCEPTION (GaudiException,
+                    h1.put_impl (nullptr,
+                                 std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                                 objptr,
+                                 true, false, store));
   assert (store == nullptr);
 
   assert (h1.setProxyDict (&testStore).isSuccess());
   obj = std::make_unique<MyObj>();
   objptr = obj.get();
   const void* newptr =
-    h1.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+    h1.put_impl (nullptr,
+                 std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                  objptr,
                  true, false, store);
   assert (store == &testStore);
@@ -566,17 +570,19 @@ void test10()
   MyObj* fooptr = objptr;
   assert (newptr == fooptr);
 
-  TestHandle h2 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
+  TestHandle h2 (293847295, "foo", Gaudi::DataHandle::Writer);
   assert (h2.setProxyDict (&testStore).isSuccess());
   obj = std::make_unique<MyObj>();
   objptr = obj.get();
-  assert (h2.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+  assert (h2.put_impl (nullptr,
+                       std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                        objptr,
                        true, false, store) == nullptr);
 
   obj = std::make_unique<MyObj>();
   objptr = obj.get();
-  newptr = h2.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+  newptr = h2.put_impl (nullptr,
+                        std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                         objptr,
                         true, true, store);
   assert (newptr != nullptr);
@@ -584,18 +590,70 @@ void test10()
 
   obj = std::make_unique<MyObj>();
   objptr = obj.get();
-  newptr = h2.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+  newptr = h2.put_impl (nullptr,
+                        std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                         objptr,
                         false, true, store);
   assert (newptr == fooptr);
+
+  EventContext ctx2;
+  SGTest::TestStore store2;
+  ctx2.setProxy (&store2);
+  obj = std::make_unique<MyObj>();
+  objptr = obj.get();
+  newptr = h2.put_impl (&ctx2,
+                        std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                        objptr,
+                        false, true, store);
+  assert (newptr == objptr);
 
   TestHandle h3 (293847295, "", Gaudi::DataHandle::Writer, "FooSvc");
   assert (h3.setProxyDict (&testStore).isSuccess());
   obj = std::make_unique<MyObj>();
   objptr = obj.get();
-  assert (h3.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+  assert (h3.put_impl (nullptr,
+                       std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                        objptr,
                        true, false, store) == nullptr);
+}
+
+// get_impl
+void test11()
+{
+  std::cout << "test11\n";
+
+  SGTest::TestStore store;
+
+  TestHandle h1 (293847295, "", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h1.get_impl(nullptr, false) == nullptr);
+  assert (h1.get_impl(nullptr, true) == nullptr);
+
+  TestHandle h2 (293847295, "", Gaudi::DataHandle::Reader, "FooSvc");
+  assert (h2.get_impl(nullptr, false) == nullptr);
+  assert (h2.get_impl(nullptr, true) == nullptr);
+
+  TestHandle h3 (293847295, "foo", Gaudi::DataHandle::Reader, "FooSvc");
+  EXPECT_EXCEPTION (GaudiException, h3.get_impl(nullptr, false));
+  assert (h3.setProxyDict (&store).isSuccess());
+
+  assert (h3.get_impl(nullptr, false) == nullptr);
+  assert (h3.get_impl(nullptr, true) == nullptr);
+  MyObj* foo = new MyObj;
+  store.record (foo, "foo");
+  assert (h3.get_impl(nullptr, false) == foo);
+  assert (h3.get_impl(nullptr, true) == foo);
+
+  TestHandle h4 (293847295, "foo", Gaudi::DataHandle::Reader);
+  SGTest::TestStore store2;
+  MyObj* foo2 = new MyObj;
+  store2.record (foo2, "foo");
+  EventContext ctx2;
+  ctx2.setProxy (&store2);
+  assert (h4.get_impl(&ctx2, false) == foo2);
+  assert (h4.get_impl(&ctx2, true) == foo2);
+  Gaudi::Hive::setCurrentContext (ctx2);
+  assert (h4.get_impl(nullptr, false) == foo2);
+  assert (h4.get_impl(nullptr, true) == foo2);
 }
 
 
@@ -615,6 +673,7 @@ int main()
   test8();
   test9();
   test10();
+  test11();
   return 0;
 }
 

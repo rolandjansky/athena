@@ -1,6 +1,6 @@
-   vector<string> Keys;
+   std::vector<std::string> Keys;
    for (size_t i=0; i<5; ++i)
-       Keys.push_back( "key_" + to_string(i) );
+       Keys.push_back( "key_" + std::to_string(i) );
    std::vector<SGTObj_ATNGGE*> VEC_ATNGGE;
    std::vector<const SGTObj_ATNGGE*> CVEC_ATNGGE;
    CVEC_ATNGGE.resize(5);

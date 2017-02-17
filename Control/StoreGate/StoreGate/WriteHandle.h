@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WriteHandle.h 787694 2016-12-01 20:03:47Z ssnyder $
+// $Id: WriteHandle.h 797637 2017-02-17 02:32:11Z ssnyder $
 /**
  * @file StoreGate/WriteHandle.h
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -162,14 +162,14 @@ public:
 
 
   /**
-   * @brief Derefence the pointer.
+   * @brief Dereference the pointer.
    * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
    */
   pointer_type operator->() const;
 
 
   /**
-   * @brief Derefence the pointer.
+   * @brief Dereference the pointer.
    * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
    */
   reference_type operator*() const;
@@ -259,7 +259,7 @@ public:
 
 
   /**
-   * @brief Record a const object to the store.
+   * @brief Record an object to the store.
    * @param data The object to record.
    * @param returnExisting Allow an existing object?
    *
@@ -272,15 +272,15 @@ public:
    * then return null, unless @c returnExisting is true, in which case
    * return success.  In either case, @c data is destroyed.
    */
-  const T* put (std::unique_ptr<T> data,
-                bool returnExisting = false) const;
+  const_pointer_type put (std::unique_ptr<T> data,
+                          bool returnExisting = false) const;
 
 
   /**
-   * @brief Record a const object to the store.
+   * @brief Record an object to the store.
+   * @param ctx The event context to use.
    * @param data The object to record.
    * @param returnExisting Allow an existing object?
-   * @param[out] store The store being used.
    *
    * Unlike record(), this does not change the handle object.
    * That means that will not be able to get the object back
@@ -291,9 +291,41 @@ public:
    * then return null, unless @c returnExisting is true, in which case
    * return success.  In either case, @c data is destroyed.
    */
-  const T* put (std::unique_ptr<T> data,
-                bool returnExisting,
-                IProxyDict* & store) const;
+  const_pointer_type put (const EventContext& ctx,
+                          std::unique_ptr<T> data,
+                          bool returnExisting = false) const;
+
+
+  /**
+   * @brief Record an object to the store.
+   * @param data The object to record.
+   *
+   * Unlike record(), this does not change the handle object.
+   * That means that will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   *
+   * The event store takes shared ownership of the object.
+   */
+  const_pointer_type put (SG::DataObjectSharedPtr<T> data) const;
+
+
+  /**
+   * @brief Record an object to the store.
+   * @param ctx The event context to use.
+   * @param data The object to record.
+   *
+   * Unlike record(), this does not change the handle object.
+   * That means that will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   *
+   * The event store takes shared ownership of the object.
+   */
+  const_pointer_type put (const EventContext& ctx,
+                          SG::DataObjectSharedPtr<T> data) const;
 
 
   /**
@@ -310,29 +342,30 @@ public:
    * then return null, and the objects passed in are destroyed.
    */
   template <class AUXSTORE>
-  const T*
+  const_pointer_type
   put (std::unique_ptr<T> data,
        std::unique_ptr<AUXSTORE> auxstore) const;
 
 
-  // Commit this out for now since it looks like we don't actually need it.
-#if 0
   /**
-   * @brief Record a new non-const object, or retrieve an old one.
+   * @brief Record an object and its auxiliary store to the store.
+   * @param ctx The event context to use.
    * @param data The object to record.
-   * @param isConst If true, record the objects as const.
+   * @param auxstore Auxiliary store object.
    *
-   * If no object for this handle's key exists already in StoreGate,
-   * then record @c data.
-   * Otherwise, if one exists and is non-const, then initialize
-   * the handle to refer to that object (and destroy @c data).
-   * Otherwise return an error.
-   *
-   * No const version of this method, since it then doesn't make sense
-   * to do that in multiple threads.
+   * Unlike record(), this does not change the handle object.
+   * That means that will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   * If there was already an object in the store with the given key,
+   * then return null, and the objects passed in are destroyed.
    */
-  StatusCode recordOrRetrieve (std::unique_ptr<T> data);
-#endif
+  template <class AUXSTORE>
+  const_pointer_type
+  put (const EventContext& ctx,
+       std::unique_ptr<T> data,
+       std::unique_ptr<AUXSTORE> auxstore) const;
 
 
   /**
@@ -364,6 +397,50 @@ private:
   StatusCode doRecord (U data,
                        bool isConst,
                        bool returnExisting);
+
+
+  /**
+   * @brief Helper for put.
+   * @param ctx The event context, or nullptr to use the current context.
+   * @param data The object to record.
+   * @param returnExisting Allow an existing object.
+   * @param[out] store The store being used.
+   *
+   * Unlike record(), this does not change the handle object.
+   * That means that will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   * If there was already an object in the store with the given key,
+   * then return null, unless @c returnExisting is true, in which case
+   * return success.  In either case, @c data is destroyed.
+   */
+  template <class U>
+  const_pointer_type doPut (const EventContext* ctx,
+                            U data,
+                            bool returnExisting,
+                            IProxyDict* & store) const;
+  
+
+  /**
+   * @brief Helper for recording an object and its auxiliary store to the store.
+   * @param ctx The event context, or nullptr to use the current context.
+   * @param data The object to record.
+   * @param auxstore Auxiliary store object.
+   *
+   * Unlike record(), this does not change the handle object.
+   * That means that will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   * If there was already an object in the store with the given key,
+   * then return null, and the objects passed in are destroyed.
+   */
+  template <class AUXSTORE>
+  typename WriteHandle<T>::const_pointer_type
+  doPut (const EventContext* ctx,
+         std::unique_ptr<T> data,
+         std::unique_ptr<AUXSTORE> auxstore) const;
 
 
   /**
