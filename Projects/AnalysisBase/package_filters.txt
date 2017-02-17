@@ -1,0 +1,8 @@
+#
+# Packages to build as part of AnalysisBase:
+#
++ AsgExternal/Asg_Test
++ AtlasTest/TestTools
++ Calorimeter/CaloGeoHelpers
++ Control/CxxUtils
+- .*
