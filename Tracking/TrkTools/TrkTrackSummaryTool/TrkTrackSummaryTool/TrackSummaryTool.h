@@ -48,33 +48,36 @@ namespace Trk {
       TrackSummaryTool(const std::string&,const std::string&,const IInterface*);
       virtual ~TrackSummaryTool ();
 
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
   /** create a summary object from passed Track. The summary object belongs to
       you, the user, and so you must take care of deletion of it.
       @param onlyUpdateTrack If false (default) then the summary is cloned and added to the track, and a separate summary returned. If true, only update track and return 0*/
-      virtual const TrackSummary* createSummary( const Track& track, bool onlyUpdateTrack=false ) const;
+      virtual const TrackSummary* createSummary( const Track& track, bool onlyUpdateTrack=false ) const override;
 
   /** create a summary object of passed track without doing the tedious hole search.
       Same comments as for createSummary apply here, of course, too. */	   
-      const Trk::TrackSummary* createSummaryNoHoleSearch( const Track& track ) ;
+      virtual const Trk::TrackSummary* createSummaryNoHoleSearch( const Track& track ) const override;
 
   /** use this method to update a track. this means a tracksummary is created for
       this track but not returned. the summary can then be obtained from the track.
       Because it is taken from the track the ownership stays with the track */
-      void updateTrack(Track& track) const;
+      virtual void updateTrack(Track& track) const override;
       
       /** method to update the shared hit content only, this is optimised for track collection merging. */
-      void updateSharedHitCount(Track& track) const;
+      virtual void updateSharedHitCount(Track& track) const override;
       
       /** method to update additional information (PID,shared hits, dEdX), this is optimised for track collection merging. */
-      void updateAdditionalInfo(Track& track) const;
+      virtual void updateAdditionalInfo(Track& track) const override;
 
     private:
       
+      const TrackSummary* createSummary( const Track& track, bool onlyUpdateTrack, bool doHolesInDet, bool doHolesMuon ) const;
+
       /** Return the correct tool, matching the passed Identifier*/
-      ITrackSummaryHelperTool*  getTool(const Identifier& id) const;
+      ITrackSummaryHelperTool*  getTool(const Identifier& id);
+      const ITrackSummaryHelperTool*  getTool(const Identifier& id) const;
       
   /** controls whether holes on track are produced
       Turning this on will (slightly) increase processing time.*/
@@ -134,7 +137,9 @@ namespace Trk {
       void processTrackStates(const Track& track,
 			      const DataVector<const TrackStateOnSurface>* tsos,
 			      std::vector<int>& information,
-			      std::bitset<numberOfDetectorTypes>& hitPattern) const;
+			      std::bitset<numberOfDetectorTypes>& hitPattern,
+                              bool doHolesInDet,
+                              bool doHolesMuon) const;
         
       void processMeasurement(const Track& track,
 			      const Trk::MeasurementBase* meas,
@@ -146,7 +151,10 @@ namespace Trk {
       the extrapolation are left out. The trackParameters of the destination hit (instead of the
         trackParameters of the extrapolation step) are then used as starting point for the next
         extrapolation step. */
-      void searchHolesStepWise( const Trk::Track& track, std::vector<int>& information) const;
+      void searchHolesStepWise( const Trk::Track& track,
+                                std::vector<int>& information,
+                                bool doHolesInDet,
+                                bool doHolesMuon) const;
 
     };
 
