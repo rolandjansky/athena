@@ -185,7 +185,9 @@ double InDet::TRT_ElectronPidTool::GetToT(unsigned int bitpattern, double HitZ, 
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-std::vector<float> InDet::TRT_ElectronPidTool::electronProbability(const Trk::Track& track){
+std::vector<float>
+InDet::TRT_ElectronPidTool::electronProbability(const Trk::Track& track) const
+{
 
   //Intialize the return vector
   //m_timingProfile->chronoStart("Tool::electronProb_new");
@@ -322,8 +324,9 @@ std::vector<float> InDet::TRT_ElectronPidTool::electronProbability(const Trk::Tr
     if(sum_ToT_by_sum_L>0 && nHits>0){
       // correct for data/MC normalisation
       // unfortunately vertex container not yet available here so pileup correction not applied
-      sum_ToT_by_sum_L*= m_TRTdEdxTool->correctNormalization(true,m_DATA);
-      prob_El_ToT = m_TRTdEdxTool->getTest(sum_ToT_by_sum_L, pTrk,  Trk::electron,  Trk::pion, nHits);
+      ITRT_ToT_dEdx::EGasType gasType;
+      sum_ToT_by_sum_L*= m_TRTdEdxTool->correctNormalization(true,m_DATA, gasType);
+      prob_El_ToT = m_TRTdEdxTool->getTest(gasType, sum_ToT_by_sum_L, pTrk,  Trk::electron,  Trk::pion, nHits);
     }
     //Calculate the probability based on Brem
     if(m_bremFitterEnabled)
@@ -567,7 +570,7 @@ std::vector<float> InDet::TRT_ElectronPidTool::electronProbability_old(const Trk
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-  float InDet::TRT_ElectronPidTool::probBrem(const Trk::Track& /*track*/){
+  float InDet::TRT_ElectronPidTool::probBrem(const Trk::Track& /*track*/) const {
   
   /*
   //old code in place in place up to 00-00-22:
@@ -663,7 +666,7 @@ StatusCode InDet::TRT_ElectronPidTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) 
 |*%%%  return true every time  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-bool InDet::TRT_ElectronPidTool::CheckGeometry(int BEC, int Layer, int Strawlayer){
+bool InDet::TRT_ElectronPidTool::CheckGeometry(int BEC, int Layer, int Strawlayer) const {
 
   //first check that the BEC is valid:
   if(not ( BEC==-2 || BEC ==-1 || BEC==1 || BEC==2)){
