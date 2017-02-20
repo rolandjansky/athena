@@ -56,10 +56,12 @@ int main(int argc, char** argv ){
 
     bool produceOutput = true;
     
-    TString outputTree = "output_testIsolationCloseByCorrectionTool_Zmumu_20160729.root";
+//     TString outputTree = "output_testIsolationCloseByCorrectionTool_Zmumu_20160729.root";
+    TString outputTree = "output_testIsolationCloseByCorrectionTool_ttbar.root";
     
-    TString fileName = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_Zmumu/147807/valid1.147807.PowhegPythia8_AU2CT10_Zmumu.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.147807.PowhegPythia8_AU2CT10_Zmumu.recon.AOD.e2658_s1967_s1964_r5787_v114._000187.1";
-//     TString fileName = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia_P2011C_ttbar/117050/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111._000001.4";
+//     TString fileName = "/afs/cern.ch/work/a/alesage/public/mc15_13TeV.402211.MGPy8EG_A14N_C1C1_800_10_LLE12k.merge.DAOD_SUSY2.e4097_a766_a821_r7676_p2839/DAOD_SUSY2.09727785._000001.pool.root.1";
+//     TString fileName = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_Zmumu/147807/valid1.147807.PowhegPythia8_AU2CT10_Zmumu.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.147807.PowhegPythia8_AU2CT10_Zmumu.recon.AOD.e2658_s1967_s1964_r5787_v114._000187.1";
+    TString fileName = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia_P2011C_ttbar/117050/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111._000001.4";
 //     TString fileName = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_Zee/147806/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_v114._000001.1";
 //     TString fileName = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_ggH125_gamgam/160009/valid1.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.AOD.e2658_s1967_s1964_r5787_v114._000001.1";
 
@@ -90,6 +92,15 @@ int main(int argc, char** argv ){
     std::vector<Float_t> muon_topoetcone20Corr;
     std::vector<Float_t> muon_topoetcone30Corr;
     std::vector<Float_t> muon_topoetcone40Corr;
+    std::vector<Float_t> muon_ptcone20Def;
+    std::vector<Float_t> muon_ptcone30Def;
+    std::vector<Float_t> muon_ptcone40Def;
+    std::vector<Float_t> muon_ptvarcone20Def;
+    std::vector<Float_t> muon_ptvarcone30Def;
+    std::vector<Float_t> muon_ptvarcone40Def;
+    std::vector<Float_t> muon_topoetcone20Def;
+    std::vector<Float_t> muon_topoetcone30Def;
+    std::vector<Float_t> muon_topoetcone40Def;
     
     std::vector<Int_t> electron_acceptLoose;
     std::vector<Int_t> electron_acceptCorrectedLoose;
@@ -102,6 +113,15 @@ int main(int argc, char** argv ){
     std::vector<Float_t> electron_topoetcone20Corr;
     std::vector<Float_t> electron_topoetcone30Corr;
     std::vector<Float_t> electron_topoetcone40Corr;
+    std::vector<Float_t> electron_ptcone20Def;
+    std::vector<Float_t> electron_ptcone30Def;
+    std::vector<Float_t> electron_ptcone40Def;
+    std::vector<Float_t> electron_ptvarcone20Def;
+    std::vector<Float_t> electron_ptvarcone30Def;
+    std::vector<Float_t> electron_ptvarcone40Def;
+    std::vector<Float_t> electron_topoetcone20Def;
+    std::vector<Float_t> electron_topoetcone30Def;
+    std::vector<Float_t> electron_topoetcone40Def;
     
     std::vector<Int_t> photon_acceptFixedCutTightCaloOnly;
     std::vector<Int_t> photon_acceptCorrectedFixedCutTightCaloOnly;
@@ -114,6 +134,15 @@ int main(int argc, char** argv ){
     std::vector<Float_t> photon_topoetcone20Corr;
     std::vector<Float_t> photon_topoetcone30Corr;
     std::vector<Float_t> photon_topoetcone40Corr;
+    std::vector<Float_t> photon_ptcone20Def;
+    std::vector<Float_t> photon_ptcone30Def;
+    std::vector<Float_t> photon_ptcone40Def;
+    std::vector<Float_t> photon_ptvarcone20Def;
+    std::vector<Float_t> photon_ptvarcone30Def;
+    std::vector<Float_t> photon_ptvarcone40Def;
+    std::vector<Float_t> photon_topoetcone20Def;
+    std::vector<Float_t> photon_topoetcone30Def;
+    std::vector<Float_t> photon_topoetcone40Def;
 
     muon_acceptLoose.clear();
     muon_acceptCorrectedLoose.clear();
@@ -126,6 +155,15 @@ int main(int argc, char** argv ){
     muon_topoetcone20Corr.clear();
     muon_topoetcone30Corr.clear();
     muon_topoetcone40Corr.clear();
+    muon_ptcone20Def.clear();
+    muon_ptcone30Def.clear();
+    muon_ptcone40Def.clear();
+    muon_ptvarcone20Def.clear();
+    muon_ptvarcone30Def.clear();
+    muon_ptvarcone40Def.clear();
+    muon_topoetcone20Def.clear();
+    muon_topoetcone30Def.clear();
+    muon_topoetcone40Def.clear();
     
     electron_acceptLoose.clear();
     electron_acceptCorrectedLoose.clear();
@@ -138,6 +176,15 @@ int main(int argc, char** argv ){
     electron_topoetcone20Corr.clear();
     electron_topoetcone30Corr.clear();
     electron_topoetcone40Corr.clear();
+    electron_ptcone20Def.clear();
+    electron_ptcone30Def.clear();
+    electron_ptcone40Def.clear();
+    electron_ptvarcone20Def.clear();
+    electron_ptvarcone30Def.clear();
+    electron_ptvarcone40Def.clear();
+    electron_topoetcone20Def.clear();
+    electron_topoetcone30Def.clear();
+    electron_topoetcone40Def.clear();
     
     photon_acceptFixedCutTightCaloOnly.clear();
     photon_acceptCorrectedFixedCutTightCaloOnly.clear();
@@ -150,6 +197,15 @@ int main(int argc, char** argv ){
     photon_topoetcone20Corr.clear();
     photon_topoetcone30Corr.clear();
     photon_topoetcone40Corr.clear();
+    photon_ptcone20Def.clear();
+    photon_ptcone30Def.clear();
+    photon_ptcone40Def.clear();
+    photon_ptvarcone20Def.clear();
+    photon_ptvarcone30Def.clear();
+    photon_ptvarcone40Def.clear();
+    photon_topoetcone20Def.clear();
+    photon_topoetcone30Def.clear();
+    photon_topoetcone40Def.clear();
 
     tree->Branch("eventNumber", &eventNumber);
     
@@ -164,6 +220,15 @@ int main(int argc, char** argv ){
     tree->Branch("muon_topoetcone20Corr", &muon_topoetcone20Corr);
     tree->Branch("muon_topoetcone30Corr", &muon_topoetcone30Corr);
     tree->Branch("muon_topoetcone40Corr", &muon_topoetcone40Corr);
+    tree->Branch("muon_ptcone20Def", &muon_ptcone20Def);
+    tree->Branch("muon_ptcone30Def", &muon_ptcone30Def);
+    tree->Branch("muon_ptcone40Def", &muon_ptcone40Def);
+    tree->Branch("muon_ptvarcone20Def", &muon_ptvarcone20Def);
+    tree->Branch("muon_ptvarcone30Def", &muon_ptvarcone30Def);
+    tree->Branch("muon_ptvarcone40Def", &muon_ptvarcone40Def);
+    tree->Branch("muon_topoetcone20Def", &muon_topoetcone20Def);
+    tree->Branch("muon_topoetcone30Def", &muon_topoetcone30Def);
+    tree->Branch("muon_topoetcone40Def", &muon_topoetcone40Def);
     
     tree->Branch("electron_acceptLoose", &electron_acceptLoose);
     tree->Branch("electron_acceptCorrectedLoose", &electron_acceptCorrectedLoose);
@@ -176,6 +241,15 @@ int main(int argc, char** argv ){
     tree->Branch("electron_topoetcone20Corr", &electron_topoetcone20Corr);
     tree->Branch("electron_topoetcone30Corr", &electron_topoetcone30Corr);
     tree->Branch("electron_topoetcone40Corr", &electron_topoetcone40Corr);
+    tree->Branch("electron_ptcone20Def", &electron_ptcone20Def);
+    tree->Branch("electron_ptcone30Def", &electron_ptcone30Def);
+    tree->Branch("electron_ptcone40Def", &electron_ptcone40Def);
+    tree->Branch("electron_ptvarcone20Def", &electron_ptvarcone20Def);
+    tree->Branch("electron_ptvarcone30Def", &electron_ptvarcone30Def);
+    tree->Branch("electron_ptvarcone40Def", &electron_ptvarcone40Def);
+    tree->Branch("electron_topoetcone20Def", &electron_topoetcone20Def);
+    tree->Branch("electron_topoetcone30Def", &electron_topoetcone30Def);
+    tree->Branch("electron_topoetcone40Def", &electron_topoetcone40Def);
     
     tree->Branch("photon_acceptLoose", &photon_acceptFixedCutTightCaloOnly);
     tree->Branch("photon_acceptCorrectedLoose", &photon_acceptCorrectedFixedCutTightCaloOnly);
@@ -188,6 +262,15 @@ int main(int argc, char** argv ){
     tree->Branch("photon_topoetcone20Corr", &photon_topoetcone20Corr);
     tree->Branch("photon_topoetcone30Corr", &photon_topoetcone30Corr);
     tree->Branch("photon_topoetcone40Corr", &photon_topoetcone40Corr);
+    tree->Branch("photon_ptcone20Def", &photon_ptcone20Def);
+    tree->Branch("photon_ptcone30Def", &photon_ptcone30Def);
+    tree->Branch("photon_ptcone40Def", &photon_ptcone40Def);
+    tree->Branch("photon_ptvarcone20Def", &photon_ptvarcone20Def);
+    tree->Branch("photon_ptvarcone30Def", &photon_ptvarcone30Def);
+    tree->Branch("photon_ptvarcone40Def", &photon_ptvarcone40Def);
+    tree->Branch("photon_topoetcone20Def", &photon_topoetcone20Def);
+    tree->Branch("photon_topoetcone30Def", &photon_topoetcone30Def);
+    tree->Branch("photon_topoetcone40Def", &photon_topoetcone40Def);
 
     // Create a TEvent object:
     xAOD::TEvent event(xAOD::TEvent::kClassAccess);
@@ -200,7 +283,7 @@ int main(int argc, char** argv ){
     m_isoCloseByTool_Muon->msg().setLevel(MSG::INFO);
     
     CP::IsolationSelectionTool* m_isoSelTool_Muon = new CP::IsolationSelectionTool("isoSelTool_Muon");
-    CHECK(m_isoSelTool_Muon->setProperty("MuonWP", "LooseTrackOnly"));
+    CHECK(m_isoSelTool_Muon->setProperty("MuonWP", "FixedCutLoose"));
     CHECK(m_isoSelTool_Muon->initialize());
     
     ToolHandle<CP::IIsolationSelectionTool> m_iIsoSelTool_Muon = m_isoSelTool_Muon;
@@ -213,7 +296,7 @@ int main(int argc, char** argv ){
     m_isoCloseByTool_Electron->msg().setLevel(MSG::INFO);
     
     CP::IsolationSelectionTool* m_isoSelTool_Electron = new CP::IsolationSelectionTool("isoSelTool_Electron");
-    CHECK(m_isoSelTool_Electron->setProperty("ElectronWP", "LooseTrackOnly"));
+    CHECK(m_isoSelTool_Electron->setProperty("ElectronWP", "Loose"));
     CHECK(m_isoSelTool_Electron->initialize());
     
     ToolHandle<CP::IIsolationSelectionTool> m_iIsoSelTool_Electron = m_isoSelTool_Electron;
@@ -262,8 +345,8 @@ int main(int argc, char** argv ){
 //         types.push_back(xAOD::Iso::IsolationType::etcone40);
 //         typeNames.push_back("etcone40");
 
-//   Long64_t maxEVT = 10;
-    Long64_t maxEVT = -1;
+    Long64_t maxEVT = 100;
+//     Long64_t maxEVT = -1;
     Long64_t entries = event.getEntries();
     if((entries < maxEVT) || (maxEVT <= 0)) {
         maxEVT = entries;
@@ -271,8 +354,8 @@ int main(int argc, char** argv ){
     Info( APP_NAME, "%lld events found, %lld events will be processed.", entries, maxEVT);
     
     const int INTERVAL = maxEVT > 20000? 10000: maxEVT/10;
-    
-    for(Long64_t entry = 0; entry < maxEVT; ++entry) {
+    Long64_t entry = 0;
+    while(entry < maxEVT) {
     
         event.getEntry(entry);
         const xAOD::EventInfo* ei = 0;
@@ -283,6 +366,8 @@ int main(int argc, char** argv ){
                 entry, ei->eventNumber(), ei->runNumber());
         }
         eventNumber = ei->eventNumber();
+        ++entry;
+//         if(eventNumber != 10491) continue;
 
         muon_acceptLoose.clear();
         muon_acceptCorrectedLoose.clear();
@@ -295,6 +380,15 @@ int main(int argc, char** argv ){
         muon_topoetcone20Corr.clear();
         muon_topoetcone30Corr.clear();
         muon_topoetcone40Corr.clear();
+        muon_ptcone20Def.clear();
+        muon_ptcone30Def.clear();
+        muon_ptcone40Def.clear();
+        muon_ptvarcone20Def.clear();
+        muon_ptvarcone30Def.clear();
+        muon_ptvarcone40Def.clear();
+        muon_topoetcone20Def.clear();
+        muon_topoetcone30Def.clear();
+        muon_topoetcone40Def.clear();
         
         electron_acceptLoose.clear();
         electron_acceptCorrectedLoose.clear();
@@ -307,6 +401,15 @@ int main(int argc, char** argv ){
         electron_topoetcone20Corr.clear();
         electron_topoetcone30Corr.clear();
         electron_topoetcone40Corr.clear();
+        electron_ptcone20Def.clear();
+        electron_ptcone30Def.clear();
+        electron_ptcone40Def.clear();
+        electron_ptvarcone20Def.clear();
+        electron_ptvarcone30Def.clear();
+        electron_ptvarcone40Def.clear();
+        electron_topoetcone20Def.clear();
+        electron_topoetcone30Def.clear();
+        electron_topoetcone40Def.clear();
         
         photon_acceptFixedCutTightCaloOnly.clear();
         photon_acceptCorrectedFixedCutTightCaloOnly.clear();
@@ -319,6 +422,15 @@ int main(int argc, char** argv ){
         photon_topoetcone20Corr.clear();
         photon_topoetcone30Corr.clear();
         photon_topoetcone40Corr.clear();
+        photon_ptcone20Def.clear();
+        photon_ptcone30Def.clear();
+        photon_ptcone40Def.clear();
+        photon_ptvarcone20Def.clear();
+        photon_ptvarcone30Def.clear();
+        photon_ptvarcone40Def.clear();
+        photon_topoetcone20Def.clear();
+        photon_topoetcone30Def.clear();
+        photon_topoetcone40Def.clear();
 
         // get muon container of interest
         const xAOD::MuonContainer* muons = 0;
@@ -354,20 +466,19 @@ int main(int argc, char** argv ){
         
             Info(APP_NAME, "---------NEW MUON -------");
         
-            if (m_isoCloseByTool_Muon->acceptCorrected(*muon, muonsVec)) {
-                Info(APP_NAME, "Muon passes Loose working point after correction.");
-                muon_acceptCorrectedLoose.push_back(1);
-            } else {
-                Info(APP_NAME, "Muon does not pass Loose working point after correction.");
-                muon_acceptCorrectedLoose.push_back(0);
-            }
-
             if (m_isoSelTool_Muon->accept(*muon)) {
-                Info(APP_NAME, "Muon passes Loose working point before correction.");
+                Info(APP_NAME, "Muon passes FixedCutLoose working point before correction.");
                 muon_acceptLoose.push_back(1);
             } else {
-                Info(APP_NAME, "Muon does not pass Loose working point before correction.");
+                Info(APP_NAME, "Muon does not pass FixedCutLoose working point before correction.");
                 muon_acceptLoose.push_back(0);
+            }
+            if (m_isoCloseByTool_Muon->acceptCorrected(*muon, muonsVec)) {
+                Info(APP_NAME, "Muon passes FixedCutLoose working point after correction.");
+                muon_acceptCorrectedLoose.push_back(1);
+            } else {
+                Info(APP_NAME, "Muon does not pass FixedCutLoose working point after correction.");
+                muon_acceptCorrectedLoose.push_back(0);
             }
 
             // Calculates the corrections.
@@ -381,34 +492,43 @@ int main(int argc, char** argv ){
                     muon->isolation(value, types.at(j));
                     float afterCorrection = value - corrections.at(j);
                     Info(APP_NAME, "Muon Isolation variable: %s", typeNames.at(j));
-                    Info(APP_NAME, "Muon Value, removal, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
+                    Info(APP_NAME, "Muon Value, correction, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
                     switch(j) {
                         case 0:
                             muon_ptcone20Corr.push_back(corrections.at(j));
+                            muon_ptcone20Def.push_back(value);
                             break;
                         case 1:
                             muon_ptcone30Corr.push_back(corrections.at(j));
+                            muon_ptcone30Def.push_back(value);
                             break;
                         case 2:
                             muon_ptcone40Corr.push_back(corrections.at(j));
+                            muon_ptcone40Def.push_back(value);
                             break;
                         case 3:
                             muon_ptvarcone20Corr.push_back(corrections.at(j));
+                            muon_ptvarcone20Def.push_back(value);
                             break;
                         case 4:
                             muon_ptvarcone30Corr.push_back(corrections.at(j));
+                            muon_ptvarcone30Def.push_back(value);
                             break;
                         case 5:
                             muon_ptvarcone40Corr.push_back(corrections.at(j));
+                            muon_ptvarcone40Def.push_back(value);
                             break;
                         case 6:
                             muon_topoetcone20Corr.push_back(corrections.at(j));
+                            muon_topoetcone20Def.push_back(value);
                             break;
                         case 7:
                             muon_topoetcone30Corr.push_back(corrections.at(j));
+                            muon_topoetcone30Def.push_back(value);
                             break;
                         case 8:
                             muon_topoetcone40Corr.push_back(corrections.at(j));
+                            muon_topoetcone40Def.push_back(value);
                             break;
                         default:
                             Info(APP_NAME, "The muon isolation was not recognised.");
@@ -421,20 +541,19 @@ int main(int argc, char** argv ){
         for(auto electron: *electrons){
             Info(APP_NAME, "---------NEW ELECTRON -------");
             
-            if (m_isoCloseByTool_Electron->acceptCorrected(*electron, electronsVec)) {
-                Info(APP_NAME, "Electron passes Loose working point after correction.");
-                electron_acceptCorrectedLoose.push_back(1);
-            } else {
-                Info(APP_NAME, "Electron does not pass Loose working point after correction.");
-                electron_acceptCorrectedLoose.push_back(0);
-            }
-
             if (m_isoSelTool_Electron->accept(*electron)) {
                 Info(APP_NAME, "Electron passes Loose working point before correction.");
                 electron_acceptLoose.push_back(1);
             } else {
                 Info(APP_NAME, "Electron does not pass Loose working point before correction.");
                 electron_acceptLoose.push_back(0);
+            }
+            if (m_isoCloseByTool_Electron->acceptCorrected(*electron, electronsVec)) {
+                Info(APP_NAME, "Electron passes Loose working point after correction.");
+                electron_acceptCorrectedLoose.push_back(1);
+            } else {
+                Info(APP_NAME, "Electron does not pass Loose working point after correction.");
+                electron_acceptCorrectedLoose.push_back(0);
             }
 
             // Calculates the corrections.
@@ -448,34 +567,43 @@ int main(int argc, char** argv ){
                     electron->isolation(value, types.at(j));
                     float afterCorrection = value - corrections.at(j);
                     Info(APP_NAME, "Electron Isolation variable: %s", typeNames.at(j));
-                    Info(APP_NAME, "Electron Value, removal, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
+                    Info(APP_NAME, "Electron Value, correction, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
                     switch(j) {
                         case 0:
                             electron_ptcone20Corr.push_back(corrections.at(j));
+                            electron_ptcone20Def.push_back(value);
                             break;
                         case 1:
                             electron_ptcone30Corr.push_back(corrections.at(j));
+                            electron_ptcone30Def.push_back(value);
                             break;
                         case 2:
                             electron_ptcone40Corr.push_back(corrections.at(j));
+                            electron_ptcone40Def.push_back(value);
                             break;
                         case 3:
                             electron_ptvarcone20Corr.push_back(corrections.at(j));
+                            electron_ptvarcone20Def.push_back(value);
                             break;
                         case 4:
                             electron_ptvarcone30Corr.push_back(corrections.at(j));
+                            electron_ptvarcone30Def.push_back(value);
                             break;
                         case 5:
                             electron_ptvarcone40Corr.push_back(corrections.at(j));
+                            electron_ptvarcone40Def.push_back(value);
                             break;
                         case 6:
                             electron_topoetcone20Corr.push_back(corrections.at(j));
+                            electron_topoetcone20Def.push_back(value);
                             break;
                         case 7:
                             electron_topoetcone30Corr.push_back(corrections.at(j));
+                            electron_topoetcone30Def.push_back(value);
                             break;
                         case 8:
                             electron_topoetcone40Corr.push_back(corrections.at(j));
+                            electron_topoetcone40Def.push_back(value);
                             break;
                         default:
                             Info(APP_NAME, "The electron isolation was not recognised.");
@@ -486,22 +614,21 @@ int main(int argc, char** argv ){
         }
     
         for(auto photon: *photons){
-            Info(APP_NAME, "---------NEW photon -------");
+            Info(APP_NAME, "---------NEW PHOTON -------");
             
-            if (m_isoCloseByTool_Photon->acceptCorrected(*photon, photonsVec)) {
-                Info(APP_NAME, "Photon passes FixedCutTightCaloOnly working point after correction.");
-                photon_acceptCorrectedFixedCutTightCaloOnly.push_back(1);
-            } else {
-                Info(APP_NAME, "Photon does not pass FixedCutTightCaloOnly working point after correction.");
-                photon_acceptCorrectedFixedCutTightCaloOnly.push_back(0);
-            }
-
             if (m_isoSelTool_Photon->accept(*photon)) {
                 Info(APP_NAME, "Photon passes FixedCutTightCaloOnly working point before correction.");
                 photon_acceptFixedCutTightCaloOnly.push_back(1);
             } else {
                 Info(APP_NAME, "Photon does not pass FixedCutTightCaloOnly working point before correction.");
                 photon_acceptFixedCutTightCaloOnly.push_back(0);
+            }
+            if (m_isoCloseByTool_Photon->acceptCorrected(*photon, photonsVec)) {
+                Info(APP_NAME, "Photon passes FixedCutTightCaloOnly working point after correction.");
+                photon_acceptCorrectedFixedCutTightCaloOnly.push_back(1);
+            } else {
+                Info(APP_NAME, "Photon does not pass FixedCutTightCaloOnly working point after correction.");
+                photon_acceptCorrectedFixedCutTightCaloOnly.push_back(0);
             }
 
             // Calculates the corrections.
@@ -515,34 +642,43 @@ int main(int argc, char** argv ){
                     photon->isolation(value, types.at(j));
                     float afterCorrection = value - corrections.at(j);
                     Info(APP_NAME, "Photon Isolation variable: %s", typeNames.at(j));
-                    Info(APP_NAME, "Photon Value, removal, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
+                    Info(APP_NAME, "Photon Value, correction, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
                     switch(j) {
                         case 0:
                             photon_ptcone20Corr.push_back(corrections.at(j));
+                            photon_ptcone20Def.push_back(value);
                             break;
                         case 1:
                             photon_ptcone30Corr.push_back(corrections.at(j));
+                            photon_ptcone30Def.push_back(value);
                             break;
                         case 2:
                             photon_ptcone40Corr.push_back(corrections.at(j));
+                            photon_ptcone40Def.push_back(value);
                             break;
                         case 3:
                             photon_ptvarcone20Corr.push_back(corrections.at(j));
+                            photon_ptvarcone20Def.push_back(value);
                             break;
                         case 4:
                             photon_ptvarcone30Corr.push_back(corrections.at(j));
+                            photon_ptvarcone30Def.push_back(value);
                             break;
                         case 5:
                             photon_ptvarcone40Corr.push_back(corrections.at(j));
+                            photon_ptvarcone40Def.push_back(value);
                             break;
                         case 6:
                             photon_topoetcone20Corr.push_back(corrections.at(j));
+                            photon_topoetcone20Def.push_back(value);
                             break;
                         case 7:
                             photon_topoetcone30Corr.push_back(corrections.at(j));
+                            photon_topoetcone30Def.push_back(value);
                             break;
                         case 8:
                             photon_topoetcone40Corr.push_back(corrections.at(j));
+                            photon_topoetcone40Def.push_back(value);
                             break;
                         default:
                             Info(APP_NAME, "The photon isolation was not recognised.");
