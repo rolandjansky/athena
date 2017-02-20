@@ -209,6 +209,26 @@ class useTrackVertexTool(JobProperty):
   allowedTypes = ['bool']
   StoredValue = False
 
+class JetContentDetail:
+  Reduced=1
+  Full=2
+  Validation=3
+
+class detailLevel(JobProperty):
+  """ Toggles detail level for AOD jet reconstruction
+      1. Reduced: This will disable the building of jet containers other than:
+        AntiKt4EMTopoJets, AntiKt4EMPFlowJets, AntiKt4LCTopoJets
+      2. Full: This corresponds to the r21 default prior to AOD size reduction:
+        AntiKt10LCTopoJets, AntiKt2PV0TrackJets, AntiKt4PV0TrackJets,
+        AntiKt4TruthJets, AntiKt4TruthWZJets, AntiKt10TruthJets, AntiKt10TruthWZJets
+      3. Validation: This adds to the Full content the building of jet containers:
+        AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+        with substructure moments included
+  """
+  statusOn = True
+  allowedTypes = ['int']
+  StoredValue = JetContentDetail.Full
+
 
 
 jobproperties.add_Container(JetRecFlags)
@@ -236,5 +256,6 @@ jobproperties.JetRecFlags.add_JobProperty(separateJetAlgs)
 jobproperties.JetRecFlags.add_JobProperty(timeJetToolRunner)
 jobproperties.JetRecFlags.add_JobProperty(timeJetRecTool)
 jobproperties.JetRecFlags.add_JobProperty(useTrackVertexTool)
+jobproperties.JetRecFlags.add_JobProperty(detailLevel)
 
 jetFlags = jobproperties.JetRecFlags

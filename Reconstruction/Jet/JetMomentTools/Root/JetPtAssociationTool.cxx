@@ -79,26 +79,19 @@ int JetPtAssociationTool::
 ptfrac(const APVector& apins, const xAOD::JetContainer& jets, FloatVector& ptfs) const {
   ptfs.clear();
   ptfs.resize(jets.size(), 0.0);
-  double ptden = 0.0;
-  for ( const IParticle* ppar : apins ) {
-    if ( ppar == 0 ) return -1;
-    ptden += ppar->pt();
-  }
-  if ( ptden < 0.0 ) return -2;
-  if ( ptden < 1.e-20 ) return 0;
-  const double inv_ptden = 1. / ptden;
   ATH_MSG_DEBUG("Match jet count: " << jets.size());
   for ( unsigned int ijet=0; ijet<jets.size(); ++ijet ) {
     const Jet* pjet = jets[ijet];
     if ( pjet == 0 ) return -3;
     APVector apouts;
-    match(apins, *pjet, apouts);
+    double ptsum_target = 0.;
+    match(apins, *pjet, apouts, ptsum_target);
     double ptsum = 0.0;
     for ( const IParticle* ppar : apouts ) {
       if ( ppar == 0 ) return -4;
       ptsum += ppar->pt();
     }
-    ptfs[ijet] = ptsum*inv_ptden;
+    ptfs[ijet] = ptsum/ptsum_target;
   }
   return 0;
 }
@@ -106,11 +99,13 @@ ptfrac(const APVector& apins, const xAOD::JetContainer& jets, FloatVector& ptfs)
 //**********************************************************************
 
 int JetPtAssociationTool::
-match(const APVector& aps, const xAOD::Jet& jet, APVector& apvs) const {
+match(const APVector& aps, const xAOD::Jet& jet, APVector& apvs, double& ptsum_constituents) const {
+  ptsum_constituents = 0.;
   apvs.clear();
   const JetConstituentVector cons = jet.getConstituents();
   for ( const JetConstituent* pcon : cons ) {
     const IParticle* pparcon = pcon->rawConstituent();
+    ptsum_constituents+=pparcon->pt();
     for ( const IParticle* pparap : aps ) {
       if ( pparap == pparcon ) {
         apvs.push_back(pparcon);
