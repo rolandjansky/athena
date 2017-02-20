@@ -78,7 +78,7 @@ hlt_hltEtBinsHigh              = [ 500., 500.]
 
 ## Default dummy config 
 
-hlt_JetKeys = { "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS"}
+hlt_JetKeys = { "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS"}
 
 hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets"}
 
@@ -104,7 +104,7 @@ hlt_hltEtaLowThresholds={'j360':0.}
 hlt_hltJetn={'j360':1}
   
   
-hlt_hltContainers={'j360':'a4tcemsubjesFS'}
+hlt_hltContainers={'j360':'a4tcemsubjesISFS'}
   
                 
 # Offline 
@@ -124,7 +124,7 @@ if (pp) or (mc):
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
-                  "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                  "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                   "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
                   "a4TTemnojcalibFS": "HLT_xAOD__JetContainer_a4TTemnojcalibFS"
                   }
@@ -270,31 +270,31 @@ if (pp) or (mc):
                                      'j0_0i1c500m900TLA':1}
   
   
-  hlt_hltContainers              = {'j25':'a4tcemsubjesFS',                  #Chose container to retrieve the features of a given chain
-                                    'j25_320eta490':'a4tcemsubjesFS',
-                                    'j60':'a4tcemsubjesFS',
-                                    'j60_L1RD0_FILLED':'a4tcemsubjesFS',
-                                    'j60_280eta320':'a4tcemsubjesFS',
-                                    'j60_320eta490':'a4tcemsubjesFS',
+  hlt_hltContainers              = {'j25':'a4tcemsubjesISFS',                  #Chose container to retrieve the features of a given chain
+                                    'j25_320eta490':'a4tcemsubjesISFS',
+                                    'j60':'a4tcemsubjesISFS',
+                                    'j60_L1RD0_FILLED':'a4tcemsubjesISFS',
+                                    'j60_280eta320':'a4tcemsubjesISFS',
+                                    'j60_320eta490':'a4tcemsubjesISFS',
                                     'j200_jes_PS':'a4tcemjesPS',
-                                    'j260':'a4tcemsubjesFS',
-                                    'j360':'a4tcemsubjesFS',
-                                    'j460':'a4tcemsubjesFS',
+                                    'j260':'a4tcemsubjesISFS',
+                                    'j360':'a4tcemsubjesISFS',
+                                    'j460':'a4tcemsubjesISFS',
                                     'j460_a10_lcw_sub_L1J100':'a10tclcwsubFS',
-                                    'j80_xe80':'a4tcemsubjesFS',
-                                    '4j45':'a4tcemsubjesFS',
-                                    '6j60':'a4tcemsubjesFS',
-                                    '5j60':'a4tcemsubjesFS',
-                                    '10j40_L14J20':'a4tcemsubjesFS',
-                                    'j0_perf_ds1_L1J75':'a4tcemsubjesFS',
-                                    'j0_perf_ds1_L1J100':'a4tcemsubjesFS',
-                                    'ht850_L1J100':'a4tcemsubjesFS',
+                                    'j80_xe80':'a4tcemsubjesISFS',
+                                    '4j45':'a4tcemsubjesISFS',
+                                    '6j60':'a4tcemsubjesISFS',
+                                    '5j60':'a4tcemsubjesISFS',
+                                    '10j40_L14J20':'a4tcemsubjesISFS',
+                                    'j0_perf_ds1_L1J75':'a4tcemsubjesISFS',
+                                    'j0_perf_ds1_L1J100':'a4tcemsubjesISFS',
+                                    'ht850_L1J100':'a4tcemsubjesISFS',
                                     'j60_TT':'a4TTemnojcalibFS',
-                                    'j85_cleanLLP':'a4tcemsubjesFS',
-                                    'j85_cleanL':'a4tcemsubjesFS',
-                                    'j85_cleanT':'a4tcemsubjesFS',
-                                    'j0_1i2c300m500TLA':'a4tcemsubjesFS',
-                                    'j0_0i1c500m900TLA':'a4tcemsubjesFS'}
+                                    'j85_cleanLLP':'a4tcemsubjesISFS',
+                                    'j85_cleanL':'a4tcemsubjesISFS',
+                                    'j85_cleanT':'a4tcemsubjesISFS',
+                                    'j0_1i2c300m500TLA':'a4tcemsubjesISFS',
+                                    'j0_0i1c500m900TLA':'a4tcemsubjesISFS'}
                 
                 
 # Offline 
@@ -340,7 +340,7 @@ if (hi):
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
-                  "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                  "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                   "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
                   "a4ionemsubjesFS" : "HLT_xAOD__JetContainer_a4ionemsubjesFS",  # Start HI chains
                   "a3ionemsubjesFS" : "HLT_xAOD__JetContainer_a3ionemsubjesFS" }
@@ -506,37 +506,37 @@ if (hi):
                                      'j50_2j30_0eta490_L1J10':1}
 
 
-  hlt_hltContainers              = {'j25':'a4tcemsubjesFS',                  #Chose container to retrieve the features of a given chain
-                                    'j25_320eta490':'a4tcemsubjesFS',
-                                    'j60':'a4tcemsubjesFS',
-                                    'j60_L1RD0_FILLED':'a4tcemsubjesFS',
-                                    'j60_280eta320':'a4tcemsubjesFS',
-                                    'j60_320eta490':'a4tcemsubjesFS',
+  hlt_hltContainers              = {'j25':'a4tcemsubjesISFS',                  #Chose container to retrieve the features of a given chain
+                                    'j25_320eta490':'a4tcemsubjesISFS',
+                                    'j60':'a4tcemsubjesISFS',
+                                    'j60_L1RD0_FILLED':'a4tcemsubjesISFS',
+                                    'j60_280eta320':'a4tcemsubjesISFS',
+                                    'j60_320eta490':'a4tcemsubjesISFS',
                                     'j200_jes_PS':'a4tcemjesPS',
-                                    'j260':'a4tcemsubjesFS',
-                                    'j360':'a4tcemsubjesFS',
+                                    'j260':'a4tcemsubjesISFS',
+                                    'j360':'a4tcemsubjesISFS',
                                     'j460_a10_lcw_sub_L1J100':'a10tclcwsubFS',
-                                    'j80_xe80':'a4tcemsubjesFS',
-                                    '4j45':'a4tcemsubjesFS',
-                                    '6j60':'a4tcemsubjesFS',
-                                    '5j60':'a4tcemsubjesFS',
-                                    'j0_perf_ds1_L1J75':'a4tcemsubjesFS',
-                                    'j0_perf_ds1_L1J100':'a4tcemsubjesFS',
-                                    'ht850_L1J100':'a4tcemsubjesFS',
+                                    'j80_xe80':'a4tcemsubjesISFS',
+                                    '4j45':'a4tcemsubjesISFS',
+                                    '6j60':'a4tcemsubjesISFS',
+                                    '5j60':'a4tcemsubjesISFS',
+                                    'j0_perf_ds1_L1J75':'a4tcemsubjesISFS',
+                                    'j0_perf_ds1_L1J100':'a4tcemsubjesISFS',
+                                    'ht850_L1J100':'a4tcemsubjesISFS',
                                     'j30_ion_L1TE20':'a4ionemsubjesFS', #start HI chains
-                                    'j30_L1TE20':'a4tcemsubjesFS',
+                                    'j30_L1TE20':'a4tcemsubjesISFS',
                                     'j75_ion_L1J20':'a4ionemsubjesFS',
                                     'j85_ion_L1J20':'a4ionemsubjesFS',
                                     'j100_ion_L1J20':'a4ionemsubjesFS',
                                     'j150_ion_L1J30':'a4ionemsubjesFS',
-                                    'j75_L1J20':'a4tcemsubjesFS',
-                                    'j85_L1J20':'a4tcemsubjesFS',
-                                    'j100_L1J20':'a4tcemsubjesFS',
-                                    'j150_L1J30':'a4tcemsubjesFS',
+                                    'j75_L1J20':'a4tcemsubjesISFS',
+                                    'j85_L1J20':'a4tcemsubjesISFS',
+                                    'j100_L1J20':'a4tcemsubjesISFS',
+                                    'j150_L1J30':'a4tcemsubjesISFS',
                                     'j45_320eta490_ion':'a4ionemsubjesFS',
-                                    'j45_320eta490':'a4tcemsubjesFS',
+                                    'j45_320eta490':'a4tcemsubjesISFS',
                                     'j50_ion_2j30_ion_0eta490_L1J10':'a4ionemsubjesFS',
-                                    'j50_2j30_0eta490_L1J10':'a4tcemsubjesFS'}
+                                    'j50_2j30_0eta490_L1J10':'a4tcemsubjesISFS'}
 
 
 
@@ -590,7 +590,7 @@ if (cosmics):
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
-                  "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                  "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                   "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
                   "a4TTemnojcalibFS": "HLT_xAOD__JetContainer_a4TTemnojcalibFS"
                   }
@@ -624,7 +624,7 @@ if (cosmics):
   hlt_hltJetn                    = { 'j25':1}
   
   
-  hlt_hltContainers              = {'j25':'a4tcemsubjesFS'}
+  hlt_hltContainers              = {'j25':'a4tcemsubjesISFS'}
                 
                 
 # Offline 
