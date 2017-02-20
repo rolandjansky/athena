@@ -44,8 +44,8 @@ TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISv
   declareProperty ("JetMaxEta",       m_maxJetEta       = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
   declareProperty ("NJetsMax",        m_nJetsMax        = -1); // option to limit the number of jets that form the super RoI
   declareProperty ("DynamicMinJetEt", m_dynamicMinJetEt = false); // if (X > -1 && nJets > X) minJetEt = m_minJetEt + (nJets-X)*Y
-  declareProperty ("DynamicNJetsMax", m_dynamicNJetsMax = 5); // variable X above
-  declareProperty ("DynamicEtFactor", m_dynamicEtFactor = 5); // variable Y above
+  declareProperty ("DynamicNJetsMax", m_dynamicNJetsMax = 9999); // variable X above
+  declareProperty ("DynamicEtFactor", m_dynamicEtFactor = 0); // variable Y above
 }
 
 
