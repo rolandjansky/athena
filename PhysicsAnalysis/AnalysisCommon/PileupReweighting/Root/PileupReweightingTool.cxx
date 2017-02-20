@@ -31,7 +31,9 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    m_activeTool(this), 
    m_noWeightsMode(false), 
    m_weightTool("McEventWeight/myWeightTool"),
-   m_grlTool("") {
+   m_grlTool(""), m_tdt("") {
+
+   m_defaultChannel=0;
 
 #ifndef XAOD_STANDALONE
    declareProperty("ConfigOutputStream", m_configStream="", "When creating PRW config files, this is the THistSvc stream it goes into. If blank, it wont write this way");
@@ -43,18 +45,15 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("Prefix",m_prefix="","Prefix to attach to all decorations ... only used in the 'apply' method");
    declareProperty("UnrepresentedDataAction",m_unrepresentedDataAction=3,"1 = remove unrepresented data, 2 = leave it there, 3 = reassign it to nearest represented bin");
    declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
-   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.16);
-   declareProperty("DefaultChannel",m_defaultChannel=0); //when channel info not present in config file, use this channel instead
+   declareProperty("UseMultiPeriods",m_useMultiPeriods=false,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
+   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.09);
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
-
    declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
-
    declareProperty("DataScaleFactorUP",m_upVariation=1./1.,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
-   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.23,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
-
-   //REMOVED ... obsolete declareProperty("LumiCalcRunNumberOffset",m_lumicalcRunNumberOffset=0,"Use to 'fake' a Run2 lumicalc file. Suggest using a value of 22000 to do this from an 8TeV lumicalc file");
-
+   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.18,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   
    declareProperty("GRLTool", m_grlTool, "If you provide a GoodRunsListSelectionTool, any information from lumicalc files will be automatically filtered" );
+   declareProperty("TrigDecisionTool",m_tdt, "When using the getDataWeight method, the TDT will be used to check decisions before prescale. Alternatively do expert()->SetTriggerBit('trigger',0) to flag which triggers are not fired before prescale (assumed triggers are fired if not specified)");
 
 #ifdef XAOD_STANDALONE
    declareProperty( "WeightTool", m_weightTool = new McEventWeight("myWeightTool"),"The tool to compute the weight in the sumOfWeights");
@@ -88,6 +87,15 @@ void PileupReweightingTool::updateHandler(Property& p) {
 bool PileupReweightingTool::runLbnOK(Int_t runNbr, Int_t lbn) {
    if(m_grlTool.empty()) return true;
    return m_grlTool->passRunLB(runNbr,lbn);
+}
+
+bool PileupReweightingTool::passTriggerBeforePrescale(const TString& trigger) const {
+  if(m_tdt.empty()) return TPileupReweighting::passTriggerBeforePrescale(trigger); 
+  ATH_MSG_VERBOSE("Checking tdt decision of " << trigger);
+  //Note that the trigger *must* be a rerun trigger if this result is to be valid ... could check this in the trigconf is absolutely necessary
+  //but for now we just assume it's a rerun
+  //if it's not rerun, all we will get back here is the TAP result
+  return m_tdt->isPassed( trigger.Data() , 37 /*physics|allowRessurectedDecision*/ ); //FIXME: need Trigger people to move Condition.h to interface package!
 }
 
 bool PileupReweightingTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const {
@@ -378,6 +386,7 @@ int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo, Double_t x, D
             case 222222: UsePeriodConfig("MC14_13TeV");break;
             case 222510: case 222525: case 222526: case 284500: UsePeriodConfig("MC15"); break;
          }
+	 if(eventInfo.runNumber()>284500) UsePeriodConfig("Run2"); //this is the automatic period config, allows any run numbers to be added
       }
       m_doneConfigs[eventInfo.runNumber()] = true;
    }
@@ -394,7 +403,7 @@ StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool m
    }
 
    if(!eventInfo.eventType(xAOD::EventInfo::IS_SIMULATION)) {
-      eventInfo.auxdecor<float>(m_prefix+"corrected_averageInteractionsPerCrossing") = getCorrectedMu(eventInfo,false);
+      eventInfo.auxdecor<float>(m_prefix+"corrected_averageInteractionsPerCrossing") = getCorrectedAverageInteractionsPerCrossing(eventInfo,false);
       return StatusCode::SUCCESS;
    }
 
@@ -408,7 +417,8 @@ StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool m
       eventInfo.auxdecor<float>(m_prefix+"PileupWeight") = weight;
    }
    //decorate with random run number etc
-   eventInfo.auxdecor<unsigned int>(m_prefix+"RandomRunNumber") = /*m_tool->*/getRandomRunNumber( eventInfo, mu_dependent );
+   unsigned int rrn = getRandomRunNumber( eventInfo, mu_dependent );
+   eventInfo.auxdecor<unsigned int>(m_prefix+"RandomRunNumber") = (rrn==0) ? getRandomRunNumber(eventInfo, false) : rrn;
    eventInfo.auxdecor<unsigned int>(m_prefix+"RandomLumiBlockNumber") = (eventInfo.auxdecor<unsigned int>(m_prefix+"RandomRunNumber")==0) ? 0 : /*m_tool->*/GetRandomLumiBlockNumber(  eventInfo.auxdecor<unsigned int>(m_prefix+"RandomRunNumber")  );
 
    eventInfo.auxdecor<ULong64_t>(m_prefix+"PRWHash") = getPRWHash( eventInfo );
@@ -426,16 +436,25 @@ float PileupReweightingTool::getDataWeight(const xAOD::EventInfo& eventInfo, con
    }
 
    if(!mu_dependent) return /*m_tool->*/m_activeTool->GetDataWeight(eventInfo.runNumber(), trigger);
-   return /*m_tool->*/m_activeTool->GetDataWeight( eventInfo.runNumber(), trigger, getCorrectedMu(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
+   
+   double correctedMu = getCorrectedAverageInteractionsPerCrossing(eventInfo,false);
+   if(correctedMu<0) {
+      ATH_MSG_ERROR("Unrecognised run+lumiblock number (" << eventInfo.runNumber() << "," << eventInfo.lumiBlock() << ") ... please ensure your lumicalc files are complete! Returning 1.");
+      return 1;
+   }
+   
+   return /*m_tool->*/m_activeTool->GetDataWeight( eventInfo.runNumber(), trigger,  correctedMu/*use the 'correct' mu instead of the one from the file!!*/ );
 
 }
 
 float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent ) {
    float out = getCombinedWeight(eventInfo);
+   if(!out) return out; //don't try to evaluate DataWeight if our PRW is 0 ... means there is no data available at that mu anyway
+
    //need to use the random run number ... only used to pick the subperiod, but in run2 so far we only have one subperiod
    unsigned int randomRunNum = (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")) ? eventInfo.auxdataConst<unsigned int>(m_prefix+"RandomRunNumber") : getRandomRunNumber( eventInfo, mu_dependent );
-   if(!mu_dependent) out /= m_activeTool->GetDataWeight(randomRunNum, trigger);
-   out /= m_activeTool->GetDataWeight( randomRunNum, trigger, getCorrectedMu(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
+   if(!mu_dependent) out *= m_activeTool->GetPrescaleWeight(randomRunNum, trigger);
+   out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
    return out;
 }
 
