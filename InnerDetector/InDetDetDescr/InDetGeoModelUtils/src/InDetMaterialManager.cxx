@@ -119,7 +119,15 @@ InDetMaterialManager::getMaterial(const std::string & materialName)
 }
 
 bool InDetMaterialManager::hasMaterial(const std::string &materialName) const {
-	return  m_store.find(materialName) != m_store.end();
+   MaterialWeightMap::const_iterator iter=m_weightMap.find(materialName);
+   if (iter != m_weightMap.end()) {
+       const std::string & materialBase = iter->second.name;
+       if (!materialBase.empty()) {
+	       return getMaterialInternal(materialBase);
+       }
+   }
+
+   return getMaterialInternal(materialName);
 }
 
 const GeoMaterial* 
@@ -247,11 +255,12 @@ InDetMaterialManager::getMaterialInternal(const std::string & origMaterialName,
   // First see if we already have the modified material
   const GeoMaterial* material = getAdditionalMaterial(newName2);
   if (material) {
-    if (!compareDensity(material->getDensity(), density)) {
-      msg(MSG::WARNING) << "Density is not consistent for material " << newName2 
+    if( abs(material->getDensity()-density) >0.001*density){
+      msg(MSG::WARNING) << "Density is not consistent for material " << newName2
 			<< "  "<<material->getDensity()/(CLHEP::gram/CLHEP::cm3)
-			<<" / "<<density/(CLHEP::gram/CLHEP::cm3)<<endmsg;
-    }    
+			<<" / "<<density/(CLHEP::gram/CLHEP::cm3)
+                        << endmsg;
+    }
     newMaterial = material;
   } else {
     const GeoMaterial * origMaterial = getMaterialInternal(origMaterialName);    
