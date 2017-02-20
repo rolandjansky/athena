@@ -14,7 +14,7 @@ def getPixelDetectorTool(name="PixelDetectorTool", **kwargs):
             envelopeToolName="GeoPixelEnvelopeAlpineTool"
         elif GeometryFlags.GeoType() in ["BrlExt3.2_ref","BrlExt4.0_ref"]:
             envelopeToolName="GeoPixelEnvelopeExtRefTool"
-        elif GeometryFlags.GeoType() in ["InclBrl4.0_ref"]:
+        elif GeometryFlags.GeoType() in ["BrlIncl4.0_ref","BrlInclOptRing4.0_ref","IBrlExt4.0ref"]:
             envelopeToolName="GeoPixelEnvelopeInclRefTool"
         print "GEOTYPE : ",GeometryFlags.GeoType()," ",envelopeToolName
 
