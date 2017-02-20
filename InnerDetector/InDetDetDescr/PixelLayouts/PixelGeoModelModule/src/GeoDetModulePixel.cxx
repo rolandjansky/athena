@@ -98,14 +98,15 @@ void GeoDetModulePixel::preBuild()
 
   // chip configuration
   int lengthChip = getInt("Module", m_moduleIndex, "lengthInChips");
-  int widthChip = getInt("Module", m_moduleIndex, "widthInChips", 0, -1);
+  //  int widthChip = getInt("Module", m_moduleIndex, "widthInChips", 0, -1);
   int widthChipMax = getInt("Module", m_moduleIndex, "widthMaxInChips", 0, -1);
-  int widthChipMin = getInt("Module", m_moduleIndex, "widthMinInChips", 0, -1);
-  widthChip = std::max(widthChip, widthChipMax);
-  widthChip = std::max(widthChip, widthChipMin);
+  //  int widthChipMin = getInt("Module", m_moduleIndex, "widthMinInChips", 0, -1);
+  //  widthChip = std::max(widthChip, widthChipMax);
+  //  widthChip = std::max(widthChip, widthChipMin);
+  int widthChip = widthChipMax;
   m_chipNumber = widthChip * lengthChip;
 
-  m_basics->msgStream()<<MSG::DEBUG<<"ChipWidth : "<<widthChip<<" "<<widthChipMin<<" "<<widthChipMax<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"ChipWidth : "<<widthChip<<endreq;
 
   //  sensor / chip and hybrid thicknesses 
   m_boardThick =  getDouble("Module", m_moduleIndex, "sensorThickness");
