@@ -40,7 +40,7 @@ StatusCode TrigEgammaL2SelectorTool::initialize() {
   }
   
   for(auto& tool : m_caloCutIDSelectors){
-    tool->setParents(m_trigdec, m_storeGate);
+    tool->setParents(m_trigdec, m_storeGate, m_decorations);
     sc = tool->initialize();
     if(sc.isFailure()){
       ATH_MSG_WARNING("TrigEgammaL2CaloSelectorTool::initialize() failed");
@@ -49,7 +49,7 @@ StatusCode TrigEgammaL2SelectorTool::initialize() {
   }// loop over pids: Tight, Medium, Loose and VeryLoose
   
   for(auto& tool : m_caloRingerSelectors){
-    tool->setParents(m_trigdec, m_storeGate);
+    tool->setParents(m_trigdec, m_storeGate, m_decorations);
     sc = tool->initialize();
     if(sc.isFailure()){
       ATH_MSG_WARNING("TrigEgammaL2CaloRingerSelectorTool::initialize() failed");
@@ -59,7 +59,7 @@ StatusCode TrigEgammaL2SelectorTool::initialize() {
  
 
   ATH_MSG_INFO("Initialising L2(Track) Electron Selector tool...");
-  m_electronSelector->setParents(m_trigdec, m_storeGate);
+  m_electronSelector->setParents(m_trigdec, m_storeGate, m_decorations);
   sc = m_electronSelector->initialize();
   if(sc.isFailure()){
     ATH_MSG_WARNING("TrigEgammaL2ElectronSelectorTool::initialize() failed");

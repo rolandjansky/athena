@@ -16,7 +16,7 @@
 #include <boost/tokenizer.hpp>
 #include "boost/algorithm/string.hpp"
 #include <boost/lexical_cast.hpp>
-#include <cmath>
+#include <math.h>
 #define SIZEOF_NODES            3
 #define SIZEOF_RINGSETS         7
 
@@ -28,21 +28,27 @@ TrigEgammaL2CaloRingerSelectorTool::
 TrigEgammaL2CaloRingerSelectorTool( const std::string& myname )
     : TrigEgammaSelectorBaseTool(myname)
 {
-  declareProperty("Signature"         , m_signature                           );
-  declareProperty("Pidname"           , m_pidname                             );
   declareProperty("NormalisationRings", m_normRings                           );
   declareProperty("SectionRings"      , m_sectionRings                        );
   declareProperty("NRings"            , m_nRings                              );
   declareProperty("Nodes"             , m_nodes                               );
   declareProperty("Weights"           , m_weights                             );
   declareProperty("Bias"              , m_bias                                );
-  declareProperty("Thresholds"        , m_threshold                           );
   declareProperty("EtaBins"           , m_etaBins                             );
   declareProperty("EtBins"            , m_etBins                              );
+  declareProperty("Thresholds"        , m_thresholds                          );
+  declareProperty("ThresholdEtaBins"  , m_thr_etaBins                         );
+  declareProperty("ThresholdEtBins"   , m_thr_etBins                         );
+  declareProperty("LuminosityCut"     , m_lumiCut=60                          );
+  declareProperty("UseEtaVar"         , m_useEtaVar=false                     );  
+  declareProperty("UseLumiVar"        , m_useLumiVar=false                    );  
+  declareProperty("DoPileupCorrection", m_doPileupCorrection=false            );
+  declareProperty("UseNoActivationFunctionInTheLastLayer", m_useNoActivationFunctionInTheLastLayer=false);
 
   m_nDiscr    = 0;
   m_nPreproc  = 0;
   m_output    = 0;
+
 }
 //**********************************************************************
 StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
@@ -53,12 +59,9 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-
-  boost::algorithm::to_lower(m_signature);
   //What is the number of discriminators?
   m_nDiscr   = m_nodes.size()/SIZEOF_NODES;
   m_nPreproc = m_normRings.size()/SIZEOF_RINGSETS;
-  m_str_etthr = boost::lexical_cast<std::string>(m_etCut*1e-3);
 
   ///check configuration
   if(m_weights.size() != m_nDiscr){
@@ -76,11 +79,6 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if((m_threshold.size() != m_nDiscr)){
-    ATH_MSG_ERROR("Threshold list dont match with the number of discriminators found" );
-    return StatusCode::FAILURE;
-  }
- 
   if(m_nRings.size() != m_normRings.size()){
     ATH_MSG_ERROR("Preproc nRings list dont match with the number of discriminators found" );
     return StatusCode::FAILURE;
@@ -91,11 +89,19 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     return StatusCode::FAILURE;
   }
 
+  if((m_thr_etaBins.size() != m_thresholds.size()) || (m_thr_etBins.size() != m_thresholds.size())){
+    ATH_MSG_ERROR("Eta/Et list dont match with the number of thresholds found" );
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_INFO("Using the activation function in the last layer? " <<  (m_useNoActivationFunctionInTheLastLayer ? "No":"Yes") );
+  ATH_MSG_INFO("Using the Correction?                            " <<  (m_doPileupCorrection ? "Yes":"No") );
+  
   ///Initialize all discriminators
   for(unsigned i=0; i<m_nDiscr; ++i)
   {
-    MultiLayerPerceptron   *discr   = nullptr;
-    TrigRingerPreprocessor *preproc = nullptr;
+    MultiLayerPerceptron   *discr              = nullptr;
+    TrigRingerPreprocessor *preproc            = nullptr;
    
     ATH_MSG_INFO("Create multi layer perceptron discriminator using configuration:" );
     ATH_MSG_INFO("   Input layer   :   " << m_nodes[i*SIZEOF_NODES+0] );
@@ -103,13 +109,15 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     ATH_MSG_INFO("   Output layer  :   " << m_nodes[i*SIZEOF_NODES+2] );
     ATH_MSG_INFO("   Eta range     :   " << m_etaBins[i][0] << " < |eta|   <=" << m_etaBins[i][1] );
     ATH_MSG_INFO("   Et range      :   " << m_etBins[i][0] << "  < Et[GeV] <=" << m_etBins[i][1]  );
+    
+    
     try{
       ///Alloc discriminator
       ///TODO: find best way to parse this vector. The athena don't accept vector<vector<unsigned int>>
       std::vector<unsigned int> nodes(SIZEOF_NODES);
       for(unsigned k=0; k<SIZEOF_NODES;++k) nodes[k]= m_nodes[i*SIZEOF_NODES+k]; ///Parser
      
-      discr = new MultiLayerPerceptron(nodes, m_weights[i], m_bias[i], m_threshold[i],
+      discr = new MultiLayerPerceptron(nodes, m_weights[i], m_bias[i],
                                        m_etBins[i][0], m_etBins[i][1], m_etaBins[i][0],
                                        m_etaBins[i][1]);
 
@@ -154,7 +162,21 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     ///Hold the pointer configuration
     m_preproc.push_back(preproc);
   }///Loop over discriminators
-  
+
+  // initialize the cuts...
+  for(unsigned i=0; i<m_thresholds.size(); ++i)
+  {
+    ///Hold the pointer configuration
+    try{
+      m_cutDefs.push_back(new TrigCaloRingsHelper::CutDefsHelper(m_thresholds[i],m_etaBins[i][0],/*
+                                                  */m_etaBins[i][1], m_etBins[i][0],m_etBins[i][1]));
+    }catch(std::bad_alloc xa){
+      msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endreq;
+      return StatusCode::FAILURE;
+    }
+  }///Loop over discriminators
+ 
+
   ATH_MSG_INFO("TrigL2CaloRingerHypo initialization completed successfully." );
   return StatusCode::SUCCESS;
 }
@@ -167,6 +189,10 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::finalize() {
     if(m_preproc.at(i))         delete m_preproc.at(i);
     if(m_discriminators.at(i))  delete m_discriminators.at(i);
   }//Loop over all discriminators and prepoc objects
+
+  for(unsigned i=0; i < m_cutDefs.size();++i){
+    if(m_cutDefs.at(i))         delete m_cutDefs.at(i);
+  }//Loop over all cutDefs objects
 
   ATH_MSG_DEBUG("TrigL2CaloRingerHypo finalization completed successfully.");
   return StatusCode::SUCCESS;
@@ -192,13 +218,13 @@ bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* em
     return false;
   }//protection
 
-  setEtThr((info.thrHLT-2));
-  m_output = 999;
+  setEtThr((info.thrHLT-3));
+  m_output = -999;
 
   ///It's ready to select the correct eta/et bin
   MultiLayerPerceptron    *discr  = nullptr;
   TrigRingerPreprocessor  *preproc = nullptr;
-  
+
   float eta = std::fabs(emCluster->eta());
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
   float et  = emCluster->et()*1e-3; ///in GeV
@@ -210,7 +236,9 @@ bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* em
   }
 
   if(m_discriminators.size() > 0){
+    unsigned discr_index=0;
     for(unsigned i=0; i<m_discriminators.size(); ++i){
+      discr_index++;
       if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
         if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
           discr   = m_discriminators[i];
@@ -230,9 +258,56 @@ bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* em
     if(preproc)     preproc->ppExecute(refRings);
     ///Apply the discriminator
     if(discr){
+
+      float avgmu = getOnlAverageMu();
+      float threshold=0.0;
+      
+      // Add extra variables in this order! Do not change this!!!
+      if(m_useEtaVar){
+        if(preproc){
+          ATH_MSG_INFO( "AKI JOAO, ETA = "<<preproc->normalize_eta(emCluster->eta(), discr->etamin(), discr->etamax()));
+          refRings.push_back(preproc->normalize_eta(emCluster->eta(), discr->etamin(), discr->etamax()));
+        }
+      }
+
+      if(m_useLumiVar){
+        if(preproc){
+          ATH_MSG_INFO( "AKI JOAO, MU = "<<preproc->normalize_mu(avgmu, m_lumiCut));
+          refRings.push_back(preproc->normalize_mu(avgmu, m_lumiCut));
+        }
+      }
+
       m_output = discr->propagate(refRings);
+      if(m_useNoActivationFunctionInTheLastLayer){
+        // overwrite the output value to before the tansig function
+        m_output = discr->getOutputBeforeTheActivationFunction();
+      }
+
+      // Hold this value into the store
+      //(*m_decorations)["TrigEgammaL2CaloRingerSelectorTool__NNOutput"] = m_output;
+
       //Apply cut
-      if(m_output < discr->threshold()){
+      for(unsigned i=0; i < m_cutDefs.size(); ++i){
+        if((et  > m_cutDefs[i]->etmin()) && (et  <= m_cutDefs[i]->etmax())){
+          if((eta > m_cutDefs[i]->etamin()) && (eta <= m_cutDefs[i]->etamax())){
+            
+            if(m_doPileupCorrection){
+              // Limited Pileup
+              if(avgmu>m_lumiCut)
+                avgmu=m_lumiCut;
+              ATH_MSG_INFO("Apply avgmu == " << avgmu);
+              threshold = m_cutDefs[i]->threshold(avgmu);
+            }else{
+              threshold = m_cutDefs[i]->threshold();
+              ATH_MSG_INFO("AKI JOAO, thr = "<<threshold);
+            }
+          }
+        }
+      }// Loop over cutDefs
+      
+      ATH_MSG_INFO("AKI JOAO, out = "<< m_output);
+
+      if(m_output < threshold){
         ATH_MSG_DEBUG("Event reproved by discriminator.");
         return true;
       }
@@ -245,4 +320,5 @@ bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* em
   pass=true;
   return true;
 }
-//!==========================================================================
+//!===========================================================================
+

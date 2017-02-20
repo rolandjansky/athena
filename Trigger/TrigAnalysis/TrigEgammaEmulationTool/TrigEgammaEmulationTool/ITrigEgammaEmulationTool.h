@@ -26,6 +26,10 @@
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "PATCore/TAccept.h"
+#include <boost/any.hpp>
+#include <vector>
+#include <map>
+
 
 namespace Trig{
     class ITrigEgammaEmulationTool : public virtual asg::IAsgTool {
@@ -43,6 +47,10 @@ namespace Trig{
             virtual bool isPassed(const std::string&)=0;
             virtual bool isPassed(const std::string&, const std::string&)=0;
             virtual const Root::TAccept& getAccept()=0;
+ 
+            /* Experimental methods */
+            virtual void ExperimentalAndExpertMethods()=0;
+            virtual std::map<std::string,boost::any> * getDecorations()=0;
 
 
         private:

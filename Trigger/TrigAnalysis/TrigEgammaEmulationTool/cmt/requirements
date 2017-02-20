@@ -46,12 +46,13 @@ use AtlasCLHEP                  AtlasCLHEP-*            External
 #use RecoToolInterfaces          RecoToolInterfaces-*            Reconstruction/RecoTools
 #use xAODPrimitives              xAODPrimitives-*                Event/xAOD
 use AthContainers           AthContainers-*           Control
+use AtlasBoost                  AtlasBoost-*                    External
 
 private
 use TrigEgammaMatchingTool      TrigEgammaMatchingTool-*        Trigger/TrigAnalysis/
 use AthenaBaseComps             AthenaBaseComps-*               Control
 use GaudiInterface              GaudiInterface-*                External
-use AtlasBoost                  AtlasBoost-*                    External
+
 use StoreGate                   StoreGate-*                     Control
 
 

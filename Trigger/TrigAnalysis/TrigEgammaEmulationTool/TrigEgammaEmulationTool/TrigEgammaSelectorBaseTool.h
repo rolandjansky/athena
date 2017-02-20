@@ -7,13 +7,15 @@
 
 
 #include "AsgTools/AsgTool.h"
+#include "PATCore/TAccept.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "AthContainers/AuxElement.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include <bitset>
-
+#include <map>
+#include <boost/any.hpp>
 
 //define RINGER_OFFLINE_PACKAGES
 #ifdef RINGER_OFFLINE_PACKAGES
@@ -46,11 +48,11 @@ namespace Trig{
       bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &){return true;};
       bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &){return true;};
       bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &){return true;};
-
       //parser TDT tool as a pointer
-      void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s){ m_trigdec=&(*t); m_storeGate=s; };
-      void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s){ m_trigdec=t; m_storeGate=s; };
-
+      void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s, std::map<std::string,boost::any> *d)
+      { m_trigdec=&(*t); m_storeGate=s; m_decorations=d;};
+      void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s, std::map<std::string,boost::any> *d)
+      { m_trigdec=t; m_storeGate=s; m_decorations=d;};
       void setTe(const HLT::TriggerElement *te){m_te=te;}; 
 
     protected:
@@ -77,6 +79,7 @@ namespace Trig{
       StoreGateSvc                    *m_storeGate;
       Trig::TrigDecisionTool          *m_trigdec;
       const HLT::TriggerElement       *m_te;
+      std::map<std::string, boost::any> *m_decorations;
   };
 
 

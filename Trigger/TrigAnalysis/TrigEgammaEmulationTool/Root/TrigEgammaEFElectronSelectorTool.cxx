@@ -123,7 +123,8 @@ bool TrigEgammaEFElectronSelectorTool::emulation(const xAOD::IParticleContainer 
   boost::dynamic_bitset<> bitAccept(elContainer->size());
   unsigned bit = 0;
   float etthr  = info.thrHLT;
-  auto avgmu = getAverageMu();
+  auto avgmu = getOnlAverageMu();
+
   for(const auto& el : *elContainer){
     bit++;
     //emulate electron cuts

@@ -56,6 +56,8 @@ TrigEgammaEmulationTool( const std::string& myname )
     declareProperty("EFElectronSelectorTools" , m_efElectronSelector      );
     declareProperty("EFPhotonSelectorTools"   , m_efPhotonSelector        );
 
+
+    m_experimentalAndExpertMethods=false;
     m_offElectrons   =nullptr;
     m_onlElectrons   =nullptr;
     m_onlPhotons     =nullptr;
@@ -92,9 +94,12 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     //Enable expert methods
     m_trigdec->ExperimentalAndExpertMethods()->enable();
 
+
+    m_decorations = new std::map<std::string, boost::any>();
+
     ATH_MSG_INFO("Initialising L1 Selectors tool...");
     if(m_l1Selector){
-      m_l1Selector->setParents(m_trigdec, m_storeGate);
+      m_l1Selector->setParents(m_trigdec, m_storeGate, m_decorations);
       sc = m_l1Selector->initialize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to initialize L1 selector tool." );
@@ -104,7 +109,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     
     ATH_MSG_INFO("Initialising L2 Selectors tool...");
     if(m_l2Selector){
-      m_l2Selector->setParents(m_trigdec, m_storeGate);
+      m_l2Selector->setParents(m_trigdec, m_storeGate, m_decorations);
       sc = m_l2Selector->initialize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to initialize L2 selector tool." );
@@ -114,7 +119,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     
     ATH_MSG_INFO("Initialising EFCalo Selectors tool...");
     if(m_efCaloSelector){
-      m_efCaloSelector->setParents(m_trigdec, m_storeGate);
+      m_efCaloSelector->setParents(m_trigdec, m_storeGate, m_decorations);
       sc = m_efCaloSelector->initialize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to initialize EF Calo selector tool." );
@@ -124,7 +129,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
 
     ATH_MSG_INFO("Initialising EF Electron Selectors tool...");
     for(auto& tool : m_efElectronSelector){
-      tool->setParents(m_trigdec, m_storeGate);
+      tool->setParents(m_trigdec, m_storeGate, m_decorations);
       sc = tool->initialize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to initialize EF Electron selector tool." );
@@ -134,7 +139,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
 
     ATH_MSG_INFO("Initialising EF Photon Selectors tool...");
     for(auto& tool : m_efPhotonSelector){
-      tool->setParents(m_trigdec, m_storeGate);
+      tool->setParents(m_trigdec, m_storeGate, m_decorations);
       sc = tool->initialize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to initialize EF Photon selector tool." );
@@ -228,6 +233,7 @@ StatusCode TrigEgammaEmulationTool::finalize() {
       }
     }
 
+    delete m_decorations;
     return StatusCode::SUCCESS;
 }
 //!==========================================================================
@@ -710,5 +716,9 @@ std::string TrigEgammaEmulationTool::getPid(const std::string pidtype){
   }
   return PidMap[pidtype];
 }
-//!==========================================================================
+
+
+
+
+
 
