@@ -77,10 +77,12 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
     TrigTimer* m_BmmHypTot;
 
 
-  string m_trackCollectionKey;
-  string m_bphysCollectionKey;
+  std::string m_trackCollectionKey;
+  std::string m_bphysCollectionKey;
   int m_nTrk ;
   int m_nTrkQ; // if negative - no cut
+  int m_nTrkVertexChi2; // if negative - no cut
+  float              m_trkMass; // track mass hypothesis for all tracks selected
   std::vector<float> m_ptTrkMin;
   std::vector<float> m_nTrkMassMin; // this has to be in pair
   std::vector<float> m_nTrkMassMax;
@@ -104,17 +106,17 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
 
     
   //Monitored variables 
-  std::vector<int>   mon_Errors;
-  std::vector<int>   mon_Acceptance;
-  float mon_NTrk;
-  float mon_highptNTrk;
-  float mon_accepted_highptNTrk;
-  std::vector<float> mon_NTrkMass;
-  std::vector<float> mon_NTrkFitMass;
-  std::vector<float> mon_NTrkChi2;
-  float mon_NPair;
-  float mon_acceptedNPair;
-  std::vector<float> mon_pairMass;
+  std::vector<int>   m_mon_Errors;
+  std::vector<int>   m_mon_Acceptance;
+  float m_mon_NTrk;
+  float m_mon_highptNTrk;
+  float m_mon_accepted_highptNTrk;
+  std::vector<float> m_mon_NTrkMass;
+  std::vector<float> m_mon_NTrkFitMass;
+  std::vector<float> m_mon_NTrkChi2;
+  float m_mon_NPair;
+  float m_mon_acceptedNPair;
+  std::vector<float> m_mon_pairMass;
     
 
 };
