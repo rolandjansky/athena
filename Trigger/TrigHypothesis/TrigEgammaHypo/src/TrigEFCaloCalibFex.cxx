@@ -39,17 +39,17 @@ TrigEFCaloCalibFex::TrigEFCaloCalibFex(const std::string & name, ISvcLocator* pS
   m_caloCellDetPos = new CaloCellDetPos();
 
   //Monitor collections
-  declareMonitoredStdContainer("EnergyBE0",m_EBE0);
-  declareMonitoredStdContainer("EnergyBE1",m_EBE1);
-  declareMonitoredStdContainer("EnergyBE2",m_EBE2);
-  declareMonitoredStdContainer("EnergyBE3",m_EBE3);
-  declareMonitoredStdContainer("Eta",m_Eta);
-  declareMonitoredStdContainer("Phi",m_Phi);
-  declareMonitoredStdContainer("EtaCalo",m_EtaCalo);
-  declareMonitoredStdContainer("PhiCalo",m_PhiCalo);
-  declareMonitoredStdContainer("E",m_E);
-  declareMonitoredStdContainer("ECalib",m_ECalib);
-  declareMonitoredStdContainer("ERes",m_ERes);
+  declareMonitoredStdContainer("EnergyBE0",m_EBE0,AutoClear);
+  declareMonitoredStdContainer("EnergyBE1",m_EBE1,AutoClear);
+  declareMonitoredStdContainer("EnergyBE2",m_EBE2,AutoClear);
+  declareMonitoredStdContainer("EnergyBE3",m_EBE3,AutoClear);
+  declareMonitoredStdContainer("Eta",m_Eta,AutoClear);
+  declareMonitoredStdContainer("Phi",m_Phi,AutoClear);
+  declareMonitoredStdContainer("EtaCalo",m_EtaCalo,AutoClear);
+  declareMonitoredStdContainer("PhiCalo",m_PhiCalo,AutoClear);
+  declareMonitoredStdContainer("E",m_E,AutoClear);
+  declareMonitoredStdContainer("ECalib",m_ECalib,AutoClear);
+  declareMonitoredStdContainer("ERes",m_ERes,AutoClear);
   
   //Initialize pointers
   m_totalTimer=nullptr;
@@ -108,20 +108,6 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     // Time total TrigEFCaloHypo execution time.
     // -------------------------------------
     if (timerSvc()) m_totalTimer->start();    
-    //clear the monitoring vectors
-    m_EBE0.clear();
-    m_EBE1.clear();
-    m_EBE2.clear();
-    m_EBE3.clear();
-    m_Eta.clear();
-    m_Phi.clear();
-    m_EtaCalo.clear();
-    m_PhiCalo.clear();
-    m_E.clear();
-    m_ECalib.clear();
-    m_ERes.clear();
-
-
     //Set the container to 0
     m_pCaloClusterContainer = 0;
     // Retrieve cluster container
@@ -165,6 +151,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     if(clusContainer->size() < 1){
         return HLT::OK;
     }
+    size_t coll_size = clusContainer->size();
     //==============================================================================================
     m_pCaloClusterContainer  = new xAOD::CaloClusterContainer();
     std::string clusterCollKey = "";
@@ -186,7 +173,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
 
     xAOD::CaloClusterTrigAuxContainer aux;
     m_pCaloClusterContainer->setStore (&aux);
-
+    m_pCaloClusterContainer->reserve(coll_size);
    
     //==============================================================================================
     

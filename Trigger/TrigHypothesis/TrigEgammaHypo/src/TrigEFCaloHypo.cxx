@@ -65,19 +65,19 @@ TrigEFCaloHypo::TrigEFCaloHypo(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
   
   //Monitor collections
-  declareMonitoredStdContainer("EnergyBE0",m_EBE0);
-  declareMonitoredStdContainer("EnergyBE1",m_EBE1);
-  declareMonitoredStdContainer("EnergyBE2",m_EBE2);
-  declareMonitoredStdContainer("EnergyBE3",m_EBE3);
-  declareMonitoredStdContainer("Eta",m_Eta);
-  declareMonitoredStdContainer("Phi",m_Phi);
-  declareMonitoredStdContainer("EtaCalo",m_EtaCalo);
-  declareMonitoredStdContainer("PhiCalo",m_PhiCalo);
-  declareMonitoredStdContainer("E",m_E);
-  declareMonitoredStdContainer("ECalib",m_ECalib);
-  declareMonitoredStdContainer("ERes",m_ERes);
-  declareMonitoredStdContainer("mu",m_avgmu);
-  declareMonitoredStdContainer("LikelihoodRatio",m_lhval);
+  declareMonitoredStdContainer("EnergyBE0",m_EBE0,AutoClear);
+  declareMonitoredStdContainer("EnergyBE1",m_EBE1,AutoClear);
+  declareMonitoredStdContainer("EnergyBE2",m_EBE2,AutoClear);
+  declareMonitoredStdContainer("EnergyBE3",m_EBE3,AutoClear);
+  declareMonitoredStdContainer("Eta",m_Eta,AutoClear);
+  declareMonitoredStdContainer("Phi",m_Phi,AutoClear);
+  declareMonitoredStdContainer("EtaCalo",m_EtaCalo,AutoClear);
+  declareMonitoredStdContainer("PhiCalo",m_PhiCalo,AutoClear);
+  declareMonitoredStdContainer("E",m_E,AutoClear);
+  declareMonitoredStdContainer("ECalib",m_ECalib,AutoClear);
+  declareMonitoredStdContainer("ERes",m_ERes,AutoClear);
+  declareMonitoredStdContainer("mu",m_avgmu,AutoClear);
+  declareMonitoredStdContainer("LikelihoodRatio",m_lhval,AutoClear);
 
   //Initialize pointers
   m_totalTimer = nullptr;
@@ -207,21 +207,6 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
     // Time total TrigEFCaloHypo execution time.
   if (timerSvc()) m_totalTimer->start();    
-
-  //clear the monitoring vectors
-  m_EBE0.clear();
-  m_EBE1.clear();
-  m_EBE2.clear();
-  m_EBE3.clear();
-  m_Eta.clear();
-  m_Phi.clear();
-  m_EtaCalo.clear();
-  m_PhiCalo.clear();
-  m_E.clear();
-  m_ECalib.clear();
-  m_ERes.clear();
-  m_lhval.clear();
-  m_avgmu.clear();
 
   ATH_MSG_DEBUG(": in execute()");
  
