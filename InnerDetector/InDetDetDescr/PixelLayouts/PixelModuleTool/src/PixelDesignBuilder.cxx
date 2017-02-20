@@ -108,7 +108,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      msg(MSG::INFO)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(basics);
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -133,14 +133,15 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   int lengthChip = getInt("Module", moduleIndex, "lengthInChips");
   int circuitsEta = lengthChip;
 
-  int widthChip = getInt("Module", moduleIndex, "widthInChips", 0, -1);
+  //  int widthChip = getInt("Module", moduleIndex, "widthInChips", 0, -1);
   int widthChipMax = getInt("Module", moduleIndex, "widthMaxInChips", 0, -1);
-  int widthChipMin = getInt("Module", moduleIndex , "widthMinInChips", 0, -1);
-  widthChip = std::max(widthChip, widthChipMax);
-  widthChip = std::max(widthChip, widthChipMin);
+  //  int widthChipMin = getInt("Module", moduleIndex , "widthMinInChips", 0, -1);
+  //  widthChip = std::max(widthChip, widthChipMax);
+  //   widthChip = std::max(widthChip, widthChipMin);
+  int widthChip=widthChipMax;
   int circuitsPhi = widthChip;
 
-  msg(MSG::DEBUG)<<"Readout geo parameters - ChipWidth : "<<moduleName<<"  "<<widthChip<<" "<<widthChipMin<<" "<<widthChipMax<<endmsg;
+  msg(MSG::DEBUG)<<"Readout geo parameters - ChipWidth : "<<moduleName<<"  "<<widthChipMax<<endmsg;
 
   double thick = getDouble("Module", moduleIndex, "sensorThickness");
 
