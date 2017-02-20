@@ -20,7 +20,7 @@ Routing2::Routing2(const Athena::MsgStreamMember& msg):
   c_nInnerPixelLayers = 2;
 
   c_bpEosLength = 40; // mm
-  c_epEosLength = 30;
+  c_epEosLength = 3;
   c_bsEosLength = 50;
   c_safetyGap = 0.001;
 
@@ -110,7 +110,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   double bpHorRouteR = bpVertRouteRmax;
   double bpHRouteZmin = bpVertRouteZpos +  0.5*c_ServiceDiskThickness + c_safetyGap;
   double bpHRouteZmax = eplc.back()->zPos(); // prolong if along PST ?
-  msg(MSG::INFO) << "Route2: setting bpHRouteZmax to " << bpHRouteZmax << endmsg;
+  msg(MSG::DEBUG) << "Route2: setting bpHRouteZmax to " << bpHRouteZmax << endmsg;
 
   /// Assume same length barrel, the loop is to make sure there are no volume overlaps
   /// in case strip barrel layers are slightly different
@@ -130,7 +130,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   if(bMSTI||bMSTM||bMSTO)
     if(bpHRouteZmax_mode>0.1&&bpHRouteZmax_mode<bpHRouteZmax) bpHRouteZmax = bpHRouteZmax_mode-0.001;
 
-  msg(MSG::INFO)<< "Changing bpHRouteZmax to " << bpHRouteZmax << endmsg;
+  msg(MSG::DEBUG)<< "Changing bpHRouteZmax to " << bpHRouteZmax << endmsg;
 
   double bsVertRouteRmin = bpHorRouteR + 0.5*c_ServiceCylinderThickness + c_safetyGap;
   double bsVertRouteRmax = bslc.back()->radius() + c_ServiceCylinderThickness; // approx
@@ -343,7 +343,7 @@ void Routing2::routeBarrelLayer(LayerContainer::const_iterator bl,
 					      route.zPos()-0.5*c_ServiceDiskThickness,
 					      route.zPos()+0.5*c_ServiceDiskThickness,
 					      nextVolumeName(route));
-  newDisk->dump(true);
+  if(msgLvl(MSG::DEBUG))  newDisk->dump(true);
   // newDisk->addLayer(*bl); // done by connect()
   connect( eosCylinder, newDisk);
   if (!route.volumes().empty()) connect( route.volumes().back(), newDisk);
@@ -495,7 +495,7 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
 					     route.radius()-0.5*c_ServiceCylinderThickness,
 					     route.radius()+0.5*c_ServiceCylinderThickness,
 					     zMin, zMax, nextVolumeName(route));
-  newCyl->dump();
+  if(msgLvl(MSG::DEBUG)) newCyl->dump();
   connect( eosVol, newCyl);
   if (! reverse) {
     if (!route.volumes().empty()) connect( route.volumes().back(), newCyl);
@@ -584,7 +584,7 @@ double Routing2::eosHalfThickness( DetType::Type /*type*/, DetType::Part /*part*
 void Routing2::dumpRoute( const Route& route) 
 {
   using namespace std;
-  msg(MSG::INFO)<< "Dumping route at pos " << route.position() 
+  msg(MSG::DEBUG)<< "Dumping route at pos " << route.position() 
 		<< " with exit at " << route.exit() << endmsg;
   for ( Route::VolumeContainer::const_iterator iv = route.volumes().begin(); 
 	iv != route.volumes().end(); ++iv) {
