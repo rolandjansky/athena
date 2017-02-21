@@ -1,5 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AthLinksDict.h 572309 2013-11-25 16:22:38Z krasznaa $
+/*
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 #ifndef ATHLINKS_ATHLINKSDICT_H
 #define ATHLINKS_ATHLINKSDICT_H
 

@@ -1,5 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ElementLink.icc 682051 2015-07-10 09:30:58Z krasznaa $
+/*
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 #ifndef ATHLINKS_ELEMENTLINK_ICC
 #define ATHLINKS_ELEMENTLINK_ICC
 

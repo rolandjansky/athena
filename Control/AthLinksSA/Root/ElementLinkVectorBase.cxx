@@ -1,4 +1,6 @@
-// $Id: ElementLinkVectorBase.cxx 579518 2014-01-22 11:01:30Z krasznaa $
+/*
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 // Local include(s):
 #include "AthLinks/ElementLinkVectorBase.h"

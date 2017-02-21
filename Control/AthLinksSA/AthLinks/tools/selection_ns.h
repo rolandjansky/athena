@@ -1,5 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: selection_ns.h 590863 2014-04-02 13:41:29Z krasznaa $
+/*
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 /**
  * @file  AthLinks/tools/selection_ns.h

@@ -1,5 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ElementLinkVectorBase.h 567807 2013-10-30 09:30:16Z krasznaa $
+/*
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 #ifndef ATHLINKS_ELEMENTLINKVECTORBASE_H
 #define ATHLINKS_ELEMENTLINKVECTORBASE_H
 
