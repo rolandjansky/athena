@@ -139,7 +139,7 @@ if InDetFlags.loadRotCreator():
         
         minCluster = 0
         from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
-        if ("BrlIncl4.0_ref" == GeometryFlags.GeoType() or "IBrlExt4.0ref" == GeometryFlags.GeoType()):
+        if ("BrlIncl4.0_ref" == GeometryFlags.GeoType() or "IBrlExt4.0ref" == GeometryFlags.GeoType() or "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType()):
             minCluster = 4
         elif ("BrlExt4.0_ref" == GeometryFlags.GeoType() or "BrlExt3.2_ref" == GeometryFlags.GeoType()):
             minCluster = 2        
@@ -1341,6 +1341,20 @@ if InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring() or 
                                                             Extrapolator = InDetExtrapolator)
 
     ToolSvc += InDetTrackSelectorTool
+    if InDetFlags.doSLHC():
+      from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+      from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrackCutSvc
+      InDetTrackCutSvcPV = InDet__InDetTrackCutSvc("InDetTrackCutSvcPV")
+      InDetTrackCutSvcPV.MaxD0 = InDetPrimaryVertexingCuts.IPd0Max()
+      InDetTrackCutSvcPV.MaxZ0 = InDetPrimaryVertexingCuts.z0Max()
+      InDetTrackCutSvcPV.MaxEta = InDetPrimaryVertexingCuts.etaMax()
+      InDetTrackCutSvcPV.MinSiHits = InDetPrimaryVertexingCuts.nHitSi()
+      InDetTrackCutSvcPV.MinPixelHits = InDetPrimaryVertexingCuts.nHitPix()
+      InDetTrackCutSvcPV.MinSCTHits = InDetPrimaryVertexingCuts.nHitSct()
+  
+      svcMgr += InDetTrackCutSvcPV
+
+      InDetTrackSelectorTool.TrackSelectionSvc = InDetTrackCutSvcPV
     if (InDetFlags.doPrintConfigurables()):
         print InDetTrackSelectorTool
 
