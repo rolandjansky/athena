@@ -68,13 +68,15 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   : asg::AsgTool( sName )
   , m_mSF(0)
   , m_sSystematicSet(0)
-  , m_fX(&tauPt)
-  , m_fY(&tauEta)
+  , m_fX(&caloTauPt)
+  , m_fY(&caloTauEta)
   , m_sSFHistName("sf")
   , m_bNoMultiprong(false)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bSFIsAvailable(false)
   , m_bSFIsAvailableChecked(false)
+  , m_bPtTauEtaCalibIsAvailable(false)
+  , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
   m_mSystematics = {};
 
@@ -154,6 +156,20 @@ StatusCode CommonEfficiencyTool::initialize()
 CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor)
 {
+  // save calo based TES if not available
+  if (not m_bPtTauEtaCalibIsAvailableIsChecked)
+  {
+    m_bPtTauEtaCalibIsAvailable = xTau.isAvailable<float>("ptTauEtaCalib");
+    m_bPtTauEtaCalibIsAvailableIsChecked = true;
+  }
+  if (not m_bPtTauEtaCalibIsAvailable) 
+  {
+    xTau.auxdecor<float>("ptTauEtaCalib") = xTau.pt();
+    xTau.auxdecor<float>("etaTauEtaCalib") = xTau.eta();
+    xTau.auxdecor<float>("phiTauEtaCalib") = xTau.phi();
+    xTau.auxdecor<float>("mTauEtaCalib") = xTau.m();
+  }
+
   // check which true state is requestet
   if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
   {
@@ -243,6 +259,20 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
 CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau)
 {
   double dSf = 0.;
+
+  // save calo based TES if not available
+  if (not m_bPtTauEtaCalibIsAvailableIsChecked)
+  {
+    m_bPtTauEtaCalibIsAvailable = xTau.isAvailable<float>("ptTauEtaCalib");
+    m_bPtTauEtaCalibIsAvailableIsChecked = true;
+  }
+  if (not m_bPtTauEtaCalibIsAvailable) 
+  {
+    xTau.auxdecor<float>("ptTauEtaCalib") = xTau.pt();
+    xTau.auxdecor<float>("etaTauEtaCalib") = xTau.eta();
+    xTau.auxdecor<float>("phiTauEtaCalib") = xTau.phi();
+    xTau.auxdecor<float>("mTauEtaCalib") = xTau.m();
+  }
 
   if (!m_bSFIsAvailableChecked)
   {
@@ -384,8 +414,8 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
   m_mSF->clear();
 
   // initialize function pointer
-  m_fX = &tauPt;
-  m_fY = &tauEta;
+  m_fX = &caloTauPt;
+  m_fY = &caloTauEta;
 
   TKey *kKey;
   TIter itNext(fFile->GetListOfKeys());
@@ -401,7 +431,7 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
       delete tObj;
       if (sTitle == "P")
       {
-        m_fX = &tauP;
+        m_fX = &caloTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
       continue;
@@ -418,7 +448,7 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
       }
       else if (sTitle == "|eta|")
       {
-        m_fY = &tauAbsEta;
+        m_fY = &caloTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
       continue;

@@ -70,9 +70,9 @@ The tool can be configured to use a specific set of systematic variations callin
 
   TauSmeTool.applySystematicVariation(customSystematicSet);
 
--------
-MVA TES
--------
+------------------------
+MVA TES and Combined TES
+------------------------
 
 The MVA TES calibration can be applied as well with TauSmearingTool. In addition
 to your standard configuration set the option::
@@ -86,7 +86,11 @@ four-momentum, when correcting your tau candidates via the standard
 Note: You must have at least tauRecTools-00-00-12-09. This package is only
 available in ABR since AnalysisBase-2.4.11. If you want to test the MVA
 calibration please update to that release or checkout and compile the package on
-your own..
+your own.
+
+The combined TES can be applied with the following option::
+
+  TauSmeTool.setProperty("ApplyCombinedTES", true );
 
 --------------------
 Available properties
@@ -109,8 +113,8 @@ The tool can be used to apply tau pt smearing for a specific
 
    * - ``RecommendationTag``
      - ``std::string``
-     - ``"2016-ichep"``
-     - ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``, ``"mc11-final"``
+     - ``"2017-moriond"``
+     - ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``, ``"mc11-final"``
 
 The following table lists other properties for further configurations:
 
@@ -127,7 +131,17 @@ The following table lists other properties for further configurations:
    * - ``ApplyMVATES``
      - ``bool``
      - ``false``
-     - apply new MVA based TES, see section `MVA TES`_
+     - apply new MVA based TES, see section `MVA TES and Combined TES`_
+
+   * - ``ApplyCombinedTES``
+     - ``bool``
+     - ``false``
+     - apply new combined MVA TES, see section `MVA TES and Combined TES`_
+
+   * - ``ApplyMVATESQualityCheck``
+     - ``bool``
+     - ``true``
+     - apply a check on MVA TES results. For taus that do not pass the test calo based TES is used. 
 
    * - ``IsData``
      - ``bool``

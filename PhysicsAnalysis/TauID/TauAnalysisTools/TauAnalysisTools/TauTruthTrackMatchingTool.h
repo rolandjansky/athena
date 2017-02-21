@@ -21,9 +21,6 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AnaToolHandle.h"
 
-// Tool include(s)
-#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
-
 // Local include(s)
 #include "TauAnalysisTools/ITauTruthTrackMatchingTool.h"
 
@@ -78,8 +75,6 @@ private:
 private:
   bool m_bIsHadronicTrackAvailable;
   bool m_bIsHadronicTrackAvailableChecked;
-  bool m_bIsInitialized;
-  asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_tInDetTrackSelectionTool;
 
 }; // class TauTruthTrackMatchingTool
 

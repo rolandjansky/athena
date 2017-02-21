@@ -28,7 +28,24 @@ default config file
 /afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/TauAnalysisTools/00-00-30/Selection/recommended_selection_mc15.conf
 (or in newer versions).
 
-**Note:** that in case one wants to use the electron overlap-removal `EleOLR` it
+------------------
+Release Check
+------------------
+
+Since TauAnalysisTools-00-02-43 an automatic release check is implemented. 
+For samples which are not AODFix (before 20.7.8.5, excluding 20.7.8.2) the electron overlap removal is re-run. For AODFix samples (20.7.8.5 and above)
+the available electron overlap removal is used. One can turn off this release 
+check via::
+   
+   TauSelTool.setProperty("IgnoreAODFixCheck", true);
+
+In that case one can force the electron overlap-removal to be 
+re-calculated via::
+  
+   TauSelTool.setProperty("RecalcEleOLR", true);
+
+**Note:** that in case one wants to use the electron overlap-removal `EleOLR` in
+ not AOD fixed samples it
  is recommended to run the `TauOverlappingElectronLLHDecorator
  <README-TauOverlappingElectronLLHDecorator.rst>`_ before calling the *accept*
  function of the TauSelectionTool. However, if this is not done, the tool uses
