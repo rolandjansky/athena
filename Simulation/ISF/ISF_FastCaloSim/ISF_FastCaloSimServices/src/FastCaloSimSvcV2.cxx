@@ -28,8 +28,8 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
     ATH_MSG_INFO(m_screenOutputPrefix << "Initializing ...");
 
     std::string samplename = "pions";
-    TFile* file = TFile::Open(Form("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/secondPCA_%s_bin0.root",samplename.c_str()));
-    m_epara.loadInputs(file);
+    TFile* file = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/secondPCA.root_bin1");
+    m_epara.loadInputs(file,1);
     file->Close();
     delete file;
 

@@ -33,6 +33,10 @@ use GeneratorObjects            GeneratorObjects-*              Generators
 use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
 use TrkEventPrimitives   TrkEventPrimitives-*   Tracking/TrkEvent
 
+use AtlasDetDescr						AtlasDetDescr-* 			DetectorDescription
+use IdDictParser						IdDictParser-* 			  DetectorDescription
+use AtlasDetDescr						AtlasDetDescr-* 			DetectorDescription
+use CaloIdentifier			CaloIdentifier-*				Calorimeter
 
 public
 library ISF_FastCaloSimServices *.cxx components/*.cxx
