@@ -48,8 +48,12 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
 
   // Gaudi algorithm hooks
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
-    
+  virtual StatusCode finalize()
+#ifndef XAOD_STANDALONE
+  override
+#endif // not XAOD_STANDALONE
+  ;
+
   //Old EDM  
 #ifndef XAOD_ANALYSIS
   virtual
