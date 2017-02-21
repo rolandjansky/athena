@@ -4,7 +4,7 @@
 PACKAGE          = JetSelectorTools
 PACKAGE_CXXFLAGS = 
 PACKAGE_LDFLAGS  =
-PACKAGE_DEP      = AsgTools PATCore xAODJet JetInterface
+PACKAGE_DEP      = AsgTools PATCore xAODJet JetInterface xAODRootAccess
 PACKAGE_REFLEX   = 1
 PACKAGE_PEDANTIC = 1
 
