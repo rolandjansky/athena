@@ -66,7 +66,7 @@ namespace TrkDriftCircleMath {
 	}
 	if(m_debug)
 	  std::cout << "DC:  (" << data.y << "," << data.z << ")  R = " << data.r
-		    << " W " << data.w << " sel " << selection[ii] << std::endl;
+		    << " W " << data.w << " sel " << selection[ii] << " tube="<<it->id().tube()<<std::endl;
 
 	if( selection[ii] == 0 ){
 	  S+=data.w;

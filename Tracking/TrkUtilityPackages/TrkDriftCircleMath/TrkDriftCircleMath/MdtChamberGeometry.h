@@ -110,12 +110,23 @@ namespace TrkDriftCircleMath {
   inline double MdtChamberGeometry::xPosTube(unsigned int ml, unsigned int lay, unsigned int tube) const
   {
     double xpos = tube*m_tubeDist + m_firstTube[ml].x();
-    
-    if( lay%2 == 1 ){
+    /*
+    if( m_id.stName() == 53 || m_id.stName() == 54 ){
+      std::cout<<"x tube position for tube "<<ml<<","<<lay<<","<<tube<<std::endl;
+      std::cout<<"tube*m_tubeDist+m_firstTube[ml].x()="<<tube<<"*"<<m_tubeDist<<"+"<<m_firstTube[ml].x()<<"="<<xpos<<std::endl;
+    }
+    */
+    if( lay%2 == 1 && !(m_id.stName() == 53 || m_id.stName() == 54)){
+      /*
+      if( m_id.stName() == 53 || m_id.stName() == 54 ){
+	std::cout<<"odd layer, adjust the x positions by the tube staggering"<<std::endl;
+	if(m_nlay==4 && ml==1) std::cout<<"4-layer ml, in ml1, so subtract "<<m_tubeStage<<std::endl;
+	else std::cout<<"add "<<m_tubeStage<<std::endl;
+      }
+      */
       if( m_nlay == 4 && ml == 1 ) xpos -= m_tubeStage;
       else xpos += m_tubeStage;
     }
-
     return xpos;
   }
 

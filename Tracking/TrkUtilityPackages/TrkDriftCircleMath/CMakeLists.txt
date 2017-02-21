@@ -8,11 +8,12 @@ atlas_subdir( TrkDriftCircleMath )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
-                          GaudiKernel )
+                          GaudiKernel
+ )			  
 
 # Component(s) in the package:
 atlas_add_library( TrkDriftCircleMath
                    src/*.cxx
                    PUBLIC_HEADERS TrkDriftCircleMath
-                   LINK_LIBRARIES CxxUtils GaudiKernel )
+                   LINK_LIBRARIES CxxUtils GaudiKernel)
 
