@@ -72,9 +72,9 @@ application example_METMaker_METSystematicsTool ../util/example_METMaker_METSyst
 application example_METMaker_advanced ../util/example_METMaker_advanced.cxx
 application example_METMaker_rebuildTrackMET ../util/example_rebuildTrackMET.cxx
 
-macro_append example_METMaker_METSystematicsTool METUtilitiesLib
-macro_append example_METMaker_advanced METUtilitiesLib
-macro_append example_METMaker_rebuildTrackMET METUtilitiesLib
+macro_append example_METMaker_METSystematicsTool_dependencies " METUtilitiesLib "
+macro_append example_METMaker_advanced_dependencies " METUtilitiesLib "
+macro_append example_METMaker_rebuildTrackMET_dependencies " METUtilitiesLib "
 
 end_private
 
