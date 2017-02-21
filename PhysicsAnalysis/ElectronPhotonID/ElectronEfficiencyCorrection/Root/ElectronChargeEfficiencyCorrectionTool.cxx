@@ -9,13 +9,9 @@
    @author Giulia Gonella <giulia.gonella@cern.ch>
    @date   September 2015
 */
-
-//#define XXXMSG(MSG) std::cout << __FILE__ << ":" << __LINE__ << ": " << MSG << std::endl;
-
 // Include this class's header
 // #include "ElectronChargeEfficiencyCorrectionTool/ElectronChargeEfficiencyCorrectionTool.h"
-#include "ElectronChargeEfficiencyCorrectionTool.h"
-
+#include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
 // xAOD includes
 #include "PathResolver/PathResolver.h"
 // #include "xAODTruth/TruthEventContainer.h"
@@ -91,12 +87,6 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 
   if(m_sfDec) delete m_sfDec;
   m_sfDec = new SG::AuxElement::Decorator< float>(m_sf_decoration_name);//xxxx
-
-  // Do some consistency checks //xxx
-  bool allOK(true);
-
-  // Stop here if the user configuration is wrong
-  if ( !allOK ) return StatusCode::FAILURE;
 
   //Resolve the path to the input file for the charge flip rates
   const std::string rootfilename = PathResolverFindCalibFile(m_filename);
@@ -201,11 +191,11 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
           std::string runlow = histid;
           runlow.erase(histid.find(Form("RunNumber") ),9);
           runlow.erase(runlow.find("_"),runlow.size() );
-          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
+//          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
           std::string runhigh = histid;
           runhigh.erase(histid.find(Form("RunNumber") ),9);
           runhigh.erase(0,runhigh.find("_")+1);
-          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
+//          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
         m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( keyListfolder->At(j)->GetName() ));
@@ -246,11 +236,11 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
           std::string runlow = histid;
           runlow.erase(histid.find(Form("RunNumber") ),9);
           runlow.erase(runlow.find("_"),runlow.size() );
-          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
+  //        m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
           std::string runhigh = histid;
           runhigh.erase(histid.find(Form("RunNumber") ),9);
           runhigh.erase(0,runhigh.find("_")+1);
-          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
+    //      m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
         m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( keyListfolder->At(j)->GetName() ));
@@ -276,7 +266,9 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 }
 
 
+  std::sort(m_RunNumbers.begin(),m_RunNumbers.end());
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
   //  rootFile->Close();
 
@@ -359,7 +351,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
   // taking reconstructed variables
   int reco_ele_charge  = ele.charge();
   const double ele_pt  = ele.pt()*m_gevmev;
-  const double ele_eta = std::abs(ele.eta());
+  const double ele_eta = std::abs( ele.caloCluster()->etaBE(2)   );
 
    // getting the truth charge
   int truth_ele_charge = 9999;
@@ -403,6 +395,10 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
       runnumber = randomrunnumber(*(eventInfo));
     }
     ATH_MSG_DEBUG("Number of RunNumbers: " << m_RunNumbers.size() );
+    for ( std::size_t r=0; r<m_RunNumbers.size()-1; r++ ){
+ATH_MSG_VERBOSE(  m_RunNumbers.at(r) );
+	}
+ATH_MSG_VERBOSE("DONE");
 
     for ( std::size_t r=0; r<m_RunNumbers.size()-1; r++ ){
       ATH_MSG_VERBOSE(m_RunNumbers.size()-1 << "  " << m_RunNumbers.at(r) << "  " << m_RunNumbers.at(r+1) << "  " << runnumber);
@@ -470,7 +466,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
   }
 
   std::vector<float> systs;
-  double val_sys;
+  double val_sys{0.0};
    /// STAT
   for (unsigned int s=2;s<OShistograms.size();s++){
     if (isOS) {
