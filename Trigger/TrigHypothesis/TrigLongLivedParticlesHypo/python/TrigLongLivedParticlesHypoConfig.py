@@ -19,8 +19,6 @@ def getCaloRatioHypoInstance( instance, threshold, logratio, dotrackiso):
         else:
             name=instance+"_"+str(threshold)+"GeV_reversed_notrackiso"
 
-    print "AACC name "+name
-
     return CaloRatioHypo( threshold=threshold, 
                           logratio=logratio, 
                           dotrackiso=dotrackiso, 
@@ -29,8 +27,21 @@ def getCaloRatioHypoInstance( instance, threshold, logratio, dotrackiso):
 
 class MuonClusterHypoConfig (MuonClusterHypo):
     __slots__ = []
-    def __init__(self, name, maxEta, numJet, numTrk):
+    def __init__(self, name, maxEta, midEta):
+
         super( MuonClusterHypoConfig, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll           = False
+        self.nRoIEndCap          = 4 
+        self.nRoIBarrel          = 3 
+        self.maxEta              = maxEta
+        self.midEta              = midEta
+
+class MuonClusterIsolationHypoConfig (MuonClusterIsolationHypo):
+    __slots__ = []
+    def __init__(self, name, maxEta, midEta, numJet, numTrk, doIsolation):
+        super( MuonClusterIsolationHypoConfig, self ).__init__( name )
 
         from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import MuonClusterHypoOnlineMonitoring,MuonClusterHypoValidationMonitoring,MuonClusterHypoCosmicMonitoring
         validation = MuonClusterHypoValidationMonitoring()
@@ -38,19 +49,19 @@ class MuonClusterHypoConfig (MuonClusterHypo):
         cosmic     = MuonClusterHypoCosmicMonitoring()
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("MuonClusterHypo_Time")
+        time = TrigTimeHistToolConfig("MuonClusterIsolationHypo_Time")
 
         self.AthenaMonTools = [ validation, online, time, cosmic]
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll           = False
-        self.nRoIEndCap          = 4 
-        self.nRoIBarrel          = 3 
-        self.nEta                = maxEta
+        self.nRoIEndCap          = 4
+        self.nRoIBarrel          = 3
+        self.maxEta              = maxEta
+        self.midEta              = midEta
         self.nJet                = numJet
         self.nTrk                = numTrk
-
-
+        self.doIsolation         = doIsolation
 
 class L2HVJetHypoAllCutsBase (TrigL2HVJetHypoAllCuts):
     __slots__ = []

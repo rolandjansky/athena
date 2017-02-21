@@ -5,7 +5,7 @@
 #ifndef TAUHISTUTILS_MIGRATION_H
 #define TAUHISTUTILS_MIGRATION_H
 
-#include "TauHistUtils/PlotBase.h"
+#include "TrkValHistUtils/PlotBase.h"
 #include "TauHistUtils/ParamPlots.h"
 #include "xAODTau/TauDefs.h" 
 #include "xAODTau/TauJet.h"
@@ -87,7 +87,6 @@ namespace Tau{
 	TH1* m_migration_tauRec;
 	TH1* m_migration_eflow;
 	TH1* m_migration_cellBased;
-	int rec_nProng,eflow_nNeu,eflow_nProng,rec_nNeu,cell_nProng,cell_nNeu;
     private:
 	void initializePlots();
 	std::string m_sTauJetContainerName;

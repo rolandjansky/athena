@@ -335,12 +335,12 @@ namespace xAOD
     /*!@{*/
     /*! @brief Update all internally used ElementLink instances 
      * 
-     *  @note This method scans the full list of contributing objects. It invokes
+     *  @note [Deprecated] This method scans the full list of contributing objects. It invokes
      *        MissingETAssociation_v1::updateJetlink internally.
      */
-    void updateLinks();
-    /*! @brief Update link to reference jet only */
-    void updateJetLink();
+    // void updateLinks();
+    // /*! @brief [Deprecated] Update link to reference jet only */
+    // void updateJetLink();
     size_t size() const;
     size_t sizeCal() const;
     size_t sizeTrk() const;

@@ -145,7 +145,7 @@ TrigEFMissingEtHelper::TrigEFMissingEtHelper(unsigned char len){
 
   for (unsigned char i=0; i<m_elements; ++i){
     if(m_elements==42){ // finest granularity
-      std::snprintf(m_vecOfComponents[i].m_name,10, names[i]);
+      std::snprintf(m_vecOfComponents[i].m_name,10, "%s", names[i]);
       m_vecOfComponents[i].m_calib0 = c0[i];
       m_vecOfComponents[i].m_calib1 = c1[i];
     } else {
@@ -203,55 +203,55 @@ std::string TrigEFMissingEtHelper::getFormattedValues(){
 MsgStream& operator<<(MsgStream& out, TrigEFMissingEtHelper& obj){
   std::string s;
   std::string start("REGTEST: (EF) ");
-  char buff[256];
+  char buff[380];
 
-  std::snprintf(buff,256,"Ex    = %10.2f MeV", obj.m_ex);
+  std::snprintf(buff,sizeof(buff),"Ex    = %10.2f MeV", obj.m_ex);
   s = start;
   s += buff;
-  out << s << endreq;
+  out << s << endmsg;
 
-  std::snprintf(buff,256,"Ey    = %10.2f MeV", obj.m_ey);
+  std::snprintf(buff,sizeof(buff),"Ey    = %10.2f MeV", obj.m_ey);
   s = start;
   s += buff;
-  out << s << endreq;
+  out << s << endmsg;
 
-  std::snprintf(buff,256,"Ez    = %10.2f MeV", obj.m_ez);
+  std::snprintf(buff,sizeof(buff),"Ez    = %10.2f MeV", obj.m_ez);
   s = start;
   s += buff;
-  out << s << endreq;
+  out << s << endmsg;
 
   float et = std::sqrt(obj.m_ex*obj.m_ex+obj.m_ey*obj.m_ey);
-  std::snprintf(buff,256,"Et    = %10.2f MeV", et);
+  std::snprintf(buff,sizeof(buff),"Et    = %10.2f MeV", et);
   s = start;
   s += buff;
-  out << s << endreq;
+  out << s << endmsg;
 
-  std::snprintf(buff,256,"SumEt = %10.2f MeV", obj.m_sumEt);
+  std::snprintf(buff,sizeof(buff),"SumEt = %10.2f MeV", obj.m_sumEt);
   s = start;
   s += buff;
-  out << s << endreq;
+  out << s << endmsg;
 
-  std::snprintf(buff,256,"SumE  = %10.2f MeV", obj.m_sumE);
+  std::snprintf(buff,sizeof(buff),"SumE  = %10.2f MeV", obj.m_sumE);
   s = start;
   s += buff;
-  out << s << endreq;
+  out << s << endmsg;
 
-  std::snprintf(buff,256,"Event status = 0x%08x;   auxiliary components = %4d", 
+  std::snprintf(buff,sizeof(buff),"Event status = 0x%08x;   auxiliary components = %4d", 
 	       (unsigned)obj.m_status, (int)obj.m_elements);
   s = start;
   s += buff;
-  out << s << endreq;
+  out << s << endmsg;
 
   if (obj.m_elements==0) return out; // basic info only
 
   s = start;
   s += obj.m_vecOfComponents[0].getFormattedHeader();
-  out << s << endreq;
+  out << s << endmsg;
 
   for (unsigned char i=0; i<obj.m_elements; ++i){
     s = start;
     s += obj.m_vecOfComponents[i].getFormattedValues();
-    out << s << endreq;
+    out << s << endmsg;
   }
 
   return out;

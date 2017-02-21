@@ -259,12 +259,15 @@ namespace CP {
          return m_periods[periodNumber]->primaryHists[channelNumber];
       }
 
-      TH1D* GetPrimaryTriggerDistribution(const TString trigger, Int_t periodNumber) {
-         if(m_periods.find(periodNumber)==m_periods.end()||
-            m_periods[periodNumber]->triggerHists.find(trigger)==m_periods[periodNumber]->triggerHists.end()) {
-            return 0;
-         }
-         return m_periods[periodNumber]->triggerHists[trigger];
+      TH1D* GetPrimaryTriggerDistribution(const TString& trigger, Int_t periodNumber, long triggerBits)  {
+         if(m_triggerObjs.find(trigger)==m_triggerObjs.end() || m_triggerObjs[trigger]->triggerHists.find(periodNumber) ==m_triggerObjs[trigger]->triggerHists.end() ||
+            m_triggerObjs[trigger]->triggerHists[periodNumber].find(triggerBits) == m_triggerObjs[trigger]->triggerHists[periodNumber].end()) return 0;
+      /*
+         if(m_triggerObjs.find(trigger)==m_triggerObjs.end() || m_triggerObjs.at(trigger).second->triggerHists.find(periodNumber)==m_triggerObjs.at(trigger).second->->triggerHists.end() ||
+            m_triggerObjs.at(trigger).second->triggerHists.at(periodNumber).find(triggerBits) == m_triggerObjs.at(trigger).second.at(periodNumber).end()) return 0;
+      */
+         
+         return m_triggerObjs[trigger]->triggerHists[periodNumber][triggerBits];
       }
 
       /** Method for weighting data to account for prescales and mu bias. Use by giving the tool multiple lumicalc files, one for each trigger */
@@ -285,8 +288,20 @@ namespace CP {
 
       Float_t GetDataScaleFactor() const { return m_dataScaleFactorX; }
 
+      void SetTriggerBit(const TString& trigger, bool in=true) { m_triggerPassBits[trigger]=in; }
+      void ResetTriggerBits() { m_triggerPassBits.clear(); }
+
   protected:
       virtual bool runLbnOK(Int_t /*runNbr*/, Int_t /*lbn*/) { return true; } //override in the ASG tool
+      virtual bool passTriggerBeforePrescale(const TString& trigger) const { 
+        if(m_triggerPassBits.size()==0) return true;
+        try {
+          return m_triggerPassBits.at(trigger); 
+        } catch(...) { return false; }
+      } //override in the ASG tool
+      std::map<TString, bool> m_triggerPassBits;
+      
+      
       Int_t GetNearestGoodBin(Int_t thisMCRunNumber, Int_t bin);
       Int_t IsBadBin(Int_t thisMCRunNumber, Int_t bin);
 
@@ -297,7 +312,7 @@ namespace CP {
       void AddDistributionTree(TTree *tree, TFile *file);
       //*Int_t FactorizeDistribution(TH1* hist, const TString weightName, Int_t channelNumber, Int_t periodNumber,bool includeInMCRun,bool includeInGlobal);
 
-      void CalculatePrescaledLuminosityHistograms(const TString trigger);
+      void CalculatePrescaledLuminosityHistograms(const TString& trigger);
 
       //********** Private members*************************
       TPileupReweighting* m_parentTool; //points to self if not a 'systematic varion' tool instance
@@ -332,19 +347,21 @@ namespace CP {
       /** channel metadata map */
       std::map<TString, std::map<Int_t, Double_t> > m_metadata; 
 
-
+public:
       struct CompositeTrigger {
          int op;
          CompositeTrigger* trig1;
          CompositeTrigger* trig2;
          TString val;
+         std::vector<TString> subTriggers; //only set for top-level object
          CompositeTrigger() : op(0),trig1(0),trig2(0),val("") { }
          ~CompositeTrigger() { if(trig1) delete trig1; if(trig2) delete trig2; }
-         double eval(std::map<TString, std::map<Int_t, std::map<Int_t, Float_t> > >& m, int run, int lbn) {
+         double eval(std::map<TString, std::map<Int_t, std::map<Int_t, Float_t> > >& m, int run, int lbn, const TPileupReweighting* tool) {
             switch(op) {
-               case 0: if(m[val][run].find(lbn)==m[val][run].end() || !m[val][run][lbn]) return 0; /*trigger disabled, so cannot contribute*/   return 1./m[val][run][lbn];
-               case 1: return 1. - (1. - trig1->eval(m,run,lbn))*(1.-trig2->eval(m,run,lbn)); //OR
-               case 2: return trig1->eval(m,run,lbn)*trig2->eval(m,run,lbn);
+               case 0: if(m[val][run].find(lbn)==m[val][run].end() || !m[val][run][lbn] || !tool->passTriggerBeforePrescale(val)) return 0; /*trigger/failed disabled, so cannot contribute*/   
+                        return 1./m[val][run][lbn];
+               case 1: return 1. - (1. - trig1->eval(m,run,lbn,tool))*(1.-trig2->eval(m,run,lbn,tool)); //OR
+               case 2: return trig1->eval(m,run,lbn,tool)*trig2->eval(m,run,lbn,tool);
                default: return 1;
             }
          }
@@ -352,12 +369,22 @@ namespace CP {
             if(trig1==0&&trig2==0&&val.Length()>0) s.push_back(val);
             else { trig1->getTriggers(s); trig2->getTriggers(s); }
          }
+         
+         long getBits(const TPileupReweighting* tool) {
+          long out(0);
+          for(uint i=0;i<subTriggers.size();i++) out += (tool->passTriggerBeforePrescale(subTriggers[i]) << i);
+          return out;
+         }
+         
+         std::map<int, std::map<long, TH1D*> > triggerHists; //unnormalized ... i.e. integral should be equal to the lumi! ... indexed by PeriodID,tbits
+         
       };
+protected:
 
+      std::map<TString, CompositeTrigger*> m_triggerObjs; //map from trigger string to composite trigger object
 
-      
-
-      CompositeTrigger* makeTrigger(TString s);
+      CompositeTrigger* makeTrigger(const TString& s);
+      void calculateHistograms(CompositeTrigger* trigger);
 
 public:
       inline void PrintPeriods() { for(auto p : m_periods) {std::cout << p.first << " -> "; p.second->print("");} }
@@ -376,7 +403,7 @@ public:
          std::map<Int_t, Int_t> numberOfEntries;
          std::map<Int_t, TH1D*> primaryHists; //normalized histograms, indexed by channelNumber. -1 holds the data
          std::map<Int_t, TH2D*> secondaryHists; //semi-normalized histograms, only used in 2D reweighting
-         std::map<TString, TH1D*> triggerHists; //unnormalized ... i.e. integral should be equal to the lumi! ... should really only be filled in the channel=-1 case (i.e. data)
+         //std::map<TString, TH1D*> triggerHists; //unnormalized ... i.e. integral should be equal to the lumi! ... should really only be filled in the channel=-1 case (i.e. data)
          bool contains(unsigned int runNumber) {
             if(runNumber >= start && runNumber <= end) return true;
             for(auto p : subPeriods) if(p->contains(runNumber)) return true;

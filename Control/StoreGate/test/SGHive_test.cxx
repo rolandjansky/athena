@@ -8,12 +8,12 @@
  ATLAS Collaboration
  ***************************************************************************/
 
-// $Id: SGHive_test.cxx 794852 2017-01-31 23:24:04Z leggett $
+// $Id: SGHive_test.cxx 797434 2017-02-15 23:30:43Z ssnyder $
 
 
+#undef NDEBUG
 #include <string>
 #include "TestTools/initGaudi.h"
-using namespace Athena_test;
 #include "TestTools/SGassert.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "../src/SGHiveMgrSvc.h"
@@ -21,6 +21,7 @@ using namespace Athena_test;
 #include "StoreGate/SGtests.h"
 
 
+using namespace Athena_test;
 using namespace std;
 namespace SG {
 class Foo {

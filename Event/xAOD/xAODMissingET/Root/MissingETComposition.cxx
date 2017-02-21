@@ -66,22 +66,6 @@ namespace xAOD {
     return flag;
   }
 
-  bool MissingETComposition::updateLinks(MissingETComponentMap* pMap)
-  {
-    if ( pMap == 0 ) return false;
-    //
-    for ( auto iter : *pMap ) { iter->updateLinks(); }
-    return true;
-  }
-
-  bool MissingETComposition::updateMETLinks(MissingETComponentMap* pMap)
-  { 
-    if ( pMap == 0 ) return false;
-    //
-    for ( auto iter : *pMap ) { iter->updateMETLink(); }
-    return true;
-  }
-
   // ------------------------------------------ find contribution from a particle
 
   // It is assumed that the default constructor for DataVector<MissingETComponent>::(const_)iterator initalizes

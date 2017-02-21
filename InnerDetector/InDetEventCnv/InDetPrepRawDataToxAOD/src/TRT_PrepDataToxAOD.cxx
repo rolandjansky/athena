@@ -42,6 +42,7 @@ TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   m_neighbourSvc("TRT_StrawNeighbourSvc", name),
   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
   m_TRTHelper(0),
+  m_trtman(0),
   m_firstEventWarnings(true)
 { 
   // --- Steering and configuration flags
@@ -73,6 +74,8 @@ StatusCode TRT_PrepDataToxAOD::initialize()
 
   // --- Retrieve services and tools
   CHECK ( detStore()->retrieve(m_TRTHelper, "TRT_ID") );
+
+  CHECK ( detStore()->retrieve(m_trtman, "TRT") );
 
   CHECK ( m_neighbourSvc.retrieve() );
 
@@ -177,6 +180,9 @@ StatusCode TRT_PrepDataToxAOD::execute()
       xprd->auxdata<int>("phi_module")  =   m_TRTHelper->phi_module( surfaceID )    ;
       xprd->auxdata<int>("strawlayer")  =   m_TRTHelper->straw_layer( surfaceID )   ;
       xprd->auxdata<int>("strawnumber") =   m_TRTHelper->straw( surfaceID )         ;
+      const InDetDD::TRT_BaseElement* element = m_trtman->getElement(surfaceID);
+      xprd->auxdata<float>("strawphi")    =   element->center(surfaceID).phi();
+
       int chip=0;
       int board=-1;
       m_neighbourSvc->getChip(surfaceID,chip);

@@ -235,6 +235,17 @@ int JetAttributeHisto::buildHistos(){
                                                         );
       }
       break;
+    case AttTypes::VectInt :
+      {
+        if(m_selectedIndex==-1)
+          m_histoFiller =      new VecAttFiller<int>(m_attNames[0], 
+                                                       bookHisto( m_histoDef->buildTH1F() ), gev1 );
+        else 
+          m_histoFiller = new VecAttIndexFiller<int>(m_attNames[0], 
+                                                       bookHisto( m_histoDef->buildTH1F() ) , m_selectedIndex , gev1
+                                                        );
+      }
+      break;
     default:
       {
         ATH_MSG_ERROR("Do not support attribute type "<< m_attTypes[0] << "  "<< typ);

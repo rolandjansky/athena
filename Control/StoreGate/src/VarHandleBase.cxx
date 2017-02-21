@@ -67,7 +67,8 @@ namespace SG {
     IResetable(),
     m_ptr(0),
     m_proxy(0),
-    m_store(nullptr)
+    m_store(nullptr),
+    m_storeWasSet(false)
   {
 #ifdef DEBUG_VHB
     std::cerr << "VarHandleBase() " << this << std::endl;
@@ -90,7 +91,8 @@ namespace SG {
     IResetable(),
     m_ptr(NULL),
     m_proxy(NULL),
-    m_store(nullptr)
+    m_store(nullptr),
+    m_storeWasSet(false)
   {
   }
 
@@ -98,43 +100,27 @@ namespace SG {
   /**
    * @brief Constructor from a VarHandleKey.
    * @param key The key object holding the clid/key/store.
+   * @param ctx The event context to use, or nullptr.
    *
    * This will raise an exception if the StoreGate key is blank,
    * or if the event store cannot be found.
    */
-  VarHandleBase::VarHandleBase(const VarHandleKey& key) :
-    VarHandleKey(key),
-    IResetable(),
-    m_ptr(nullptr),
-    m_proxy(nullptr),
-    m_store(nullptr)
+  VarHandleBase::VarHandleBase (const VarHandleKey& key,
+                                const EventContext* ctx)
+    : VarHandleKey(key),
+      IResetable(),
+      m_ptr(nullptr),
+      m_proxy(nullptr),
+      m_store(nullptr),
+      m_storeWasSet(false)
   {
     if (key.storeHandle().get() == nullptr)
       throw SG::ExcUninitKey (key.clid(), key.key(),
                               key.storeHandle().name());
     
-    if (storeFromHandle().isFailure())
+    if (setStoreFromHandle(ctx).isFailure())
       throw SG::ExcHandleInitError (key.clid(), key.key(),
                                     key.storeHandle().name());
-  }
-
-
-  /**
-   * @brief Constructor from a VarHandleKey and an explicit event context.
-   * @param key The key object holding the clid/key.
-   * @param ctx The current event context.
-   *
-   * This will raise an exception if the StoreGate key is blank,
-   * or if the event store cannot be found.
-   *
-   * If the default event store has been requested, then the thread-specific
-   * store from the event context will be used.
-   */
-  VarHandleBase::VarHandleBase(const VarHandleKey& key, const EventContext& ctx) :
-    VarHandleBase (key)
-  {
-    if (storeHandle().name() == "StoreGateSvc")
-      m_store = ctx.proxy();
   }
 
 
@@ -146,7 +132,8 @@ namespace SG {
     IResetable(),
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
-    m_store(rhs.m_store)
+    m_store(rhs.m_store),
+    m_storeWasSet(rhs.m_storeWasSet)
   {
 #ifdef DEBUG_VHB
     std::cerr << "::VHB::copy constr from " << &rhs
@@ -168,7 +155,8 @@ namespace SG {
     IResetable(),
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
-    m_store(rhs.m_store)
+    m_store(rhs.m_store),
+    m_storeWasSet(rhs.m_storeWasSet)
   {
     rhs.m_ptr=0;
 
@@ -198,6 +186,7 @@ namespace SG {
       VarHandleKey::operator= (rhs);
       m_ptr =    rhs.m_ptr;
       m_store =  rhs.m_store;
+      m_storeWasSet = rhs.m_storeWasSet;
       setProxy (rhs.m_proxy);
     }
 #ifdef DEBUG_VHB
@@ -222,6 +211,7 @@ namespace SG {
 
       m_ptr =    rhs.m_ptr;
       m_store =  rhs.m_store;
+      m_storeWasSet = rhs.m_storeWasSet;
 
       rhs.m_ptr=0;
 
@@ -400,6 +390,7 @@ namespace SG {
     if (!m_store) {
       CHECK( VarHandleKey::initialize() );
       m_store = &*(this->storeHandle());
+      m_storeWasSet = false;
     }
 
     if (!m_store)
@@ -443,6 +434,7 @@ namespace SG {
   {
     reset(true);
     m_store = store;
+    m_storeWasSet = true;
     return StatusCode::SUCCESS;
   }
 
@@ -468,8 +460,10 @@ namespace SG {
 #endif
     m_ptr = 0; 
 
-    if (hard)
+    if (hard) {
       m_store = 0;
+      m_storeWasSet = false;
+    }
 
     //if the proxy is not resetOnly then release it as it will become invalid
     // Also release on a hard reset.
@@ -593,6 +587,7 @@ namespace SG {
     if (!m_store) {
       CHECK (VarHandleKey::initialize());
       m_store = &*(this->storeHandle());
+      m_storeWasSet = false;
     }
 
     if (this->name() == "") {
@@ -637,7 +632,8 @@ namespace SG {
    * @brief Helper to record an object in the event store.
    *        Unlike record, put does not change the handle and does not
    *        cache the pointer in the handle.
-   * @param The wrapped data object (DataBucket) to record.
+   * @param ctx The event context, or nullptr to use the current context.
+   * @param dobj The wrapped data object (DataBucket) to record.
    * @param dataPtr Pointer to the transient object itself.
    * @param allowMods If false, record the object as const.
    * @param returnExisting Allow an existing object.
@@ -650,22 +646,21 @@ namespace SG {
    * return success.  In either case, @c dobj is destroyed.
    */
   const void*
-  VarHandleBase::put_impl (std::unique_ptr<DataObject> dobj,
+  VarHandleBase::put_impl (const EventContext* ctx,
+                           std::unique_ptr<DataObject> dobj,
                            void* dataPtr,
                            bool allowMods,
                            bool returnExisting,
                            IProxyDict* & store) const
   {
-    store = m_store;
-    if (!store) {
-      ServiceHandle<IProxyDict> h = storeHandle();
-      if (h.retrieve().isFailure())
-        return nullptr;
-      store = &*h;
-    }
-
     if (this->name() == "") {
       REPORT_ERROR (StatusCode::FAILURE) << "Attempt to record an object with a null key";
+      return nullptr;
+    }
+
+    store = storeFromHandle (ctx);
+    if (!store) {
+      REPORT_ERROR (StatusCode::FAILURE) << "No store.";
       return nullptr;
     }
 
@@ -745,20 +740,96 @@ namespace SG {
   }
 
 
+  /*
+   * @brief Retrieve an object from SG as a const pointer without caching.
+   * @param ctx The event context, or nullptr to use the current context.
+   * @param quiet If true, suppress failure messages.
+   *
+   * Like typeless_dataPointer_impl, except that we don't change
+   * any members of the handle.
+   */
+  const void* VarHandleBase::get_impl (const EventContext* ctx,
+                                       bool quiet/*= defaultQuiet*/) const
+  {
+    if (this->mode() != Gaudi::DataHandle::Reader) {
+      if (!quiet)
+        REPORT_ERROR (StatusCode::FAILURE)
+          << "get_impl called for a non-read handle.";
+      return nullptr;
+    }
+
+    if (this->key().empty()) {
+      if (!quiet)
+        REPORT_ERROR (StatusCode::FAILURE)
+          << "Cannot initialize a Read/Write/Update handle with a null key.";
+      return nullptr;
+    }
+
+    IProxyDict* store = storeFromHandle (ctx);
+    if (!store) {
+      if (!quiet)
+        REPORT_ERROR (StatusCode::FAILURE) << "No store.";
+      return nullptr;
+    }
+
+    SG::DataProxy* proxy = store->proxy (this->clid(), this->key());
+    if (!proxy) {
+      if (!quiet)
+        REPORT_ERROR (StatusCode::FAILURE)
+          << "Cannot find proxy for "
+          << this->clid() << "/" << this->key();
+      return nullptr;
+    }
+
+    return typeless_dataPointer_fromProxy (proxy, quiet);
+  }
+
+
+  /**
+   * @brief Return the store instance to use.
+   * @param ctx The current event context, or nullptr.
+   *
+   * If we're referencing the default event store, pick the specific
+   * store to use in this order:
+   *   - Store associated with an explicitly-provided context.
+   *   - A store explicitly set via setProxyDict.
+   *   - Store associated with the current context.
+   *
+   * For another store:
+   *  - A store explicitly set via setProxyDict.
+   *  - The store retrieved from the handle, resolved to the
+   *    current slot if it's a hive store.
+   */
+  IProxyDict* VarHandleBase::storeFromHandle (const EventContext* ctx) const
+  {
+    if (this->storeHandle().name() == "StoreGateSvc") {
+      if (ctx)
+        return ctx->proxy();
+      if (m_storeWasSet && m_store) return m_store;
+      return Gaudi::Hive::currentContext().proxy();
+    }
+
+    if (m_storeWasSet && m_store) return m_store;
+    IProxyDict* store = m_store;
+    if (!store)
+      store = &*this->storeHandle();
+    if (IHiveStore* hs = dynamic_cast<IHiveStore*> (store))
+      store = hs->hiveProxyDict();
+
+    return store;
+  }
+
+
   /**
    * @brief Initialize the store pointer from the store handle.
    *        Also checks that the key is valid.
+   * @param ctx The current event context, or nullptr.
    */
-  StatusCode VarHandleBase::storeFromHandle()
+  StatusCode VarHandleBase::setStoreFromHandle (const EventContext* ctx)
   {
     CHECK( VarHandleKey::initialize() );
-    if (this->storeHandle()->name() == "StoreGateSvc")
-      m_store = Gaudi::Hive::currentContext().proxy();
-    else {
-      m_store = &*this->storeHandle();
-      if (IHiveStore* hs = dynamic_cast<IHiveStore*> (m_store))
-        m_store = hs->hiveProxyDict();
-    }
+    m_store = storeFromHandle (ctx);
+    m_storeWasSet = (ctx && m_store == ctx->proxy());
     return StatusCode::SUCCESS;
   }
 

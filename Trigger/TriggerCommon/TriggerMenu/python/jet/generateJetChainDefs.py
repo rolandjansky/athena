@@ -105,9 +105,9 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
 
 ##########################################################################################
 def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
+
     HLTChainName = "HLT_" + chainDict['chainName']   
     
-
     if 'EMPTY' in HLTChainName:
         l1item = 'MU4'
     elif 'UNPAIRED' in HLTChainName:
@@ -117,41 +117,44 @@ def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, 
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkcore, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", "2step").getSequence()
-    
+    [trkcore,trkiso,trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", "2step").getSequence()
+
     # muon cluster 
     from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import MuonClusterConfig
     fexes_l2_MuonCluster = MuonClusterConfig()
 
-    # muon cluster hypo
+    # muon cluster isolation
+    from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import MuonClusterIsolationConfig
+    fexes_l2_MuonClusterIsolation = MuonClusterIsolationConfig()
+
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import MuonClusterHypoConfig
+    hypos_l2_MuonCluster = MuonClusterHypoConfig("MuonClusterHypo_all", maxEta=2.5, midEta=1.0) 
+
+    # muon cluster hypo
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import MuonClusterIsolationHypoConfig
     if ('noiso' not in topoAlgs):
-        hypos_l2_MuonCluster = MuonClusterHypoConfig("MuonClusterHypo_primary",maxEta=2.5, numJet=0, numTrk=0)
+        hypos_l2_MuonClusterIso = MuonClusterIsolationHypoConfig("MuonClusterIsolationHypo_primary", maxEta=2.5, midEta = 1.0, numJet=0, numTrk=0,doIsolation=True)
     else:
-        hypos_l2_MuonCluster = MuonClusterHypoConfig("MuonClusterHypo_background",maxEta=2.5, numJet=-1, numTrk=-1)
+        hypos_l2_MuonClusterIso = MuonClusterIsolationHypoConfig("MuonClusterIsolationHypo_background", maxEta=2.5, midEta = 1.0, numJet=-1, numTrk=-1,doIsolation=False)
 
-
-#    print "NILS: Called generateMuonClusterLLPchain for chain: "+HLTChainName+" with inputTEs:"
-#    print inputTEsEF
+    TE_muonClusters = HLTChainName+'_muonClusters'
     TEmuonIsoB = HLTChainName+'_muIsoB'
     TEmuonClusterFex = HLTChainName+'_muClusFex'
     TEmuonClusterHypo = HLTChainName+'_muClusHypo'
 
-    # adding muonIso sequence
-    theChainDef.addSequence(trkiso+trkprec,l1item, TEmuonIsoB)
+    # make clusters, then test if they pass the hypo
+    theChainDef.addSequence([fexes_l2_MuonCluster,hypos_l2_MuonCluster], l1item, TE_muonClusters)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_muonClusters])
+
+    # adding muonIso tracking sequence, seeded by good RoI clusters
+    theChainDef.addSequence(trkiso+trkprec,TE_muonClusters, TEmuonIsoB)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonIsoB])
-    
-    # adding seq using jetTE and TE from seq above (MuonCluster fex)
-#    theChainDef.addSequence([fexes_l2_MuonCluster], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
-    theChainDef.addSequence([fexes_l2_MuonCluster,hypos_l2_MuonCluster], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
+
+    # test if clusters pass isolation 
+    theChainDef.addSequence([fexes_l2_MuonClusterIsolation,hypos_l2_MuonClusterIso], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonClusterFex])
 
-#    # adding MuonCluster hypo
-#    theChainDef.addSequence([hypos_l2_MuonCluster], TEmuonClusterFex, TEmuonClusterHypo)
-#    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonClusterHypo])
-
     return theChainDef
-
 
 ##########################################################################################
 def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):

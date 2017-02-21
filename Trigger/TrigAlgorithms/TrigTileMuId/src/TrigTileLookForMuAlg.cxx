@@ -27,15 +27,15 @@ class ISvcLocator;
 TrigTileLookForMuAlg::TrigTileLookForMuAlg(const std::string& name, ISvcLocator* pSvcLocator)
   :HLT::AllTEAlgo(name, pSvcLocator)
 {
-  declareProperty("LowerTresh0MeV", th0d=150.0); 
-  declareProperty("LowerTresh1MeV", th1d=150.0);
-  declareProperty("LowerTresh2MeV", th2d=150.0);
-  declareProperty("LowerTreshScinMeV", thitcd=160.0);
-  declareProperty("UpperTresh2MeV", thres2);
-  declareProperty("UpperTresh1MeV", thres1);
-  declareProperty("UpperTresh0MeV", thres0);
-  declareProperty("From3to2", cell32);
-  declareProperty("From2to1", cell21);
+  declareProperty("LowerTresh0MeV", m_th0d=150.0); 
+  declareProperty("LowerTresh1MeV", m_th1d=150.0);
+  declareProperty("LowerTresh2MeV", m_th2d=150.0);
+  declareProperty("LowerTreshScinMeV", m_thitcd=160.0);
+  declareProperty("UpperTresh2MeV", m_thres2);
+  declareProperty("UpperTresh1MeV", m_thres1);
+  declareProperty("UpperTresh0MeV", m_thres0);
+  declareProperty("From3to2", m_cell32);
+  declareProperty("From2to1", m_cell21);
   declareProperty("LooseSelection", m_LooseSelection=true); 
   declareProperty("ReadRoIsFromL1", m_ReadRoIsFromL1=false);
   declareProperty("DelEta_ForRoIs", m_DelEta_ForRoIs=0.1);
@@ -101,13 +101,13 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltInitialize()
   double f;
   unsigned int i=0; 
   for (f = -1.2; f <1.3 ; f += 0.2) { 
-    eta2[i] = f;
+    m_eta2[i] = f;
     i=i+1;
   }
 
   i=0;
   for (f = -1.45; f<1.5; f += 0.1) { 
-    eta1[i] = f;
+    m_eta1[i] = f;
     i++;
   }
 
@@ -116,14 +116,14 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltInitialize()
     if ( fabs(f) > (1.05-0.001) && fabs(f) < (1.05+0.001)){ 
       ATH_MSG_VERBOSE("SKIP for A-11 or A+11 cell! eta=" << f);
     } else {
-      eta0[i] = f;
-      ATH_MSG_VERBOSE("Fill eta0[i]=" << eta0[i] << "[" << i << "]");
+      m_eta0[i] = f;
+      ATH_MSG_VERBOSE("Fill m_eta0[i]=" << m_eta0[i] << "[" << i << "]");
       i++;
     } 
   } 
 
-  deta2 = 0.1;
-  deta1 = 0.05;
+  m_deta2 = 0.1;
+  m_deta1 = 0.05;
 
   ATH_MSG_DEBUG("TrigTileLookForMuAlg initialization completed");
   
@@ -315,7 +315,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
         // D cells
         if(m_tileID->sample(nowcell->ID()) == 2) {
 	  for(j=0;j<13;++j) {
-	    if(nowcell->eta()<(eta2[j]+deta2) && nowcell->eta()>(eta2[j]-deta2)) {
+	    if(nowcell->eta()<(m_eta2[j]+m_deta2) && nowcell->eta()>(m_eta2[j]-m_deta2)) {
 	      m2[j][m_tileID->module(nowcell->ID())] = nowcell->energy();
 	      ph[m_tileID->module(nowcell->ID())] = nowcell->phi();
 	    }
@@ -325,7 +325,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
         // BC cells
         if(m_tileID->sample(nowcell->ID()) == 1) { 
 	  for(j=0;j<30;++j) {
-	    if(nowcell->eta()<(eta1[j]+deta1) && nowcell->eta()>(eta1[j]-deta1)) {	      
+	    if(nowcell->eta()<(m_eta1[j]+m_deta1) && nowcell->eta()>(m_eta1[j]-m_deta1)) {	      
 	      m1[j][m_tileID->module(nowcell->ID())] = nowcell->energy();
 	    }
 	  }
@@ -334,7 +334,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
         // A cells
         if(m_tileID->sample(nowcell->ID()) == 0) {
 	  for(j=0;j<30;++j) {
-	    if(nowcell->eta()<(eta0[j]+deta1) && nowcell->eta()>(eta0[j]-deta1)) {
+	    if(nowcell->eta()<(m_eta0[j]+m_deta1) && nowcell->eta()>(m_eta0[j]-m_deta1)) {
 	      m0[j][m_tileID->module(nowcell->ID())] = nowcell->energy();
 	    }
 	  } 
@@ -343,7 +343,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
         // ITC 
         if(m_tileID->sample(nowcell->ID()) == 3) {
 	  for(j=4;j<30;j+=21) {
-	    if(nowcell->eta()<=(eta0[j]+deta2) && nowcell->eta()>=(eta0[j]-deta2)) {
+	    if(nowcell->eta()<=(m_eta0[j]+m_deta2) && nowcell->eta()>=(m_eta0[j]-m_deta2)) {
 	      m0[j][m_tileID->module(nowcell->ID())] = nowcell->energy();
 	    }
 	  }
@@ -385,21 +385,21 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
     for (i=0;i<13; ++i) {
 
       bool OK_HighThr = true;
-      if (!m_LooseSelection && (m2[i][j] >= thres2[i])) OK_HighThr = false;
+      if (!m_LooseSelection && (m2[i][j] >= m_thres2[i])) OK_HighThr = false;
 	
-      if ( (m2[i][j]>= th2d) && OK_HighThr ) {
+      if ( (m2[i][j]>= m_th2d) && OK_HighThr ) {
 
 	phc3[cand] = j;
 	etc3[cand] = i;
 	splited[cand]=-1;
 	enedp3[cand]=m2[i][j];
-        cquality[cand] = (m2[i][j] < thres2[i] ? 0:1);
+        cquality[cand] = (m2[i][j] < m_thres2[i] ? 0:1);
 
 	ATH_MSG_VERBOSE(" found a muon candidate=  " << cand   
-	         << "i= " << i
-	         << ",j= " << j
-	         << ",ene= " << m2[i][j]
-	         << " thres2= " << thres2[i]);
+                        << "i= " << i
+                        << ",j= " << j
+                        << ",ene= " << m2[i][j]
+                        << " m_thres2= " << m_thres2[i]);
 
         cand++;
       }
@@ -416,16 +416,16 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 
   for ( i=0; i<cand; ++i ) {
 
-    tpeta3[i] = eta2[etc3[i]];
+    tpeta3[i] = m_eta2[etc3[i]];
 
     for (j=0;j<=i-1;++j) {
       if ( (cquality[i]+cquality[j]) <= 1 ) {
         if ( ( abs(phc3[i]-phc3[j]) == 0 ) && // same phi bin
 	     ( abs(etc3[i]-etc3[j]) <= 1 ) && // neighbor's eta bin 
-	     ( (m2[etc3[i]] [phc3[i]] + m2[etc3[j]] [phc3[j]]) < ( (thres2[etc3[i]] > thres2[etc3[j]]) ? thres2[etc3[i]] : thres2[etc3[j]] ) ) ) {
+	     ( (m2[etc3[i]] [phc3[i]] + m2[etc3[j]] [phc3[j]]) < ( (m_thres2[etc3[i]] > m_thres2[etc3[j]]) ? m_thres2[etc3[i]] : m_thres2[etc3[j]] ) ) ) {
 	  splited[i] = j;
 	  enedp3[i] = m2[etc3[i]] [phc3[i]] + m2[etc3[j]] [phc3[j]];
-	  tpeta3[i] = (eta2[etc3[i]] + eta2[etc3[j]])/2;
+	  tpeta3[i] = (m_eta2[etc3[i]] + m_eta2[etc3[j]])/2;
 	  nsplit = nsplit+1;
         }
       }
@@ -448,39 +448,39 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 
     ATH_MSG_VERBOSE("loop on  muon candidates: ci3,j " << ci3 << ", " << j);
 
-    int ksto2=cell32[6*etc3[ci3]+0];
+    int ksto2=m_cell32[6*etc3[ci3]+0];
 
     for (int ks=1; ks<=ksto2 && found[ci3]!=1; ++ks) {
 
-      int k2 = cell32[6*etc3[ci3]+ks];  
+      int k2 = m_cell32[6*etc3[ci3]+ks];  
 
       bool OK_HighThr = true;
-      if (!m_LooseSelection && (m1[k2][j]>= thres1[k2]) ) OK_HighThr = false;
+      if (!m_LooseSelection && (m1[k2][j]>= m_thres1[k2]) ) OK_HighThr = false;
  
-      if (m1[k2][j]>th1d && OK_HighThr) {
+      if (m1[k2][j]>m_th1d && OK_HighThr) {
 
-        flquality[ci3] = (m1[k2][j] < thres1[k2] ? 0:1);
+        flquality[ci3] = (m1[k2][j] < m_thres1[k2] ? 0:1);
 	enedp2[ci3] = m1[k2][j];
 
 	int j1 = j;
-	int ksto1 = cell21[6*k2+0];    
+	int ksto1 = m_cell21[6*k2+0];    
 
 	for(int kp=1; kp<=ksto1 && found[ci3]!=1; ++kp) {
 
-	  int k1 = cell21[6*k2+kp];  
+	  int k1 = m_cell21[6*k2+kp];  
 
           OK_HighThr = true;
-          if (!m_LooseSelection && (m0[k1][j1]>=thres0[k1]) ) OK_HighThr=false;
+          if (!m_LooseSelection && (m0[k1][j1]>=m_thres0[k1]) ) OK_HighThr=false;
 
-          if ( ( ( (k1!=4 || k1!=25) && m0[k1][j1]>th0d ) || ( (k1==4 || k1==25) && m0[k1][j1]>thitcd ) ) && OK_HighThr ) { 
+          if ( ( ( (k1!=4 || k1!=25) && m0[k1][j1]>m_th0d ) || ( (k1==4 || k1==25) && m0[k1][j1]>m_thitcd ) ) && OK_HighThr ) { 
 
 	    enedp1[ci3] = m0[k1][j1];
-	    aquality[ci3]=(m0[k1][j1] < thres0[k1] ? 0:1);  
+	    aquality[ci3]=(m0[k1][j1] < m_thres0[k1] ? 0:1);  
 
 	    if ( cquality[ci3]+flquality[ci3]+aquality[ci3] <= 1 ) { // We have some tracks muon like
 
 	      found[ci3] = 1;
-	      etatr = (tpeta3[ci3]+eta1[k2]+eta0[k1])/3;
+	      etatr = (tpeta3[ci3]+m_eta1[k2]+m_eta0[k1])/3;
 	      phitr = ph[j1];
 	      enetr.at(0) = enedp1[ci3];
 	      enetr.at(1) = enedp2[ci3];

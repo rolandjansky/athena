@@ -101,8 +101,6 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-el_single_e_7-80_larged0-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_single_e_7-80_larged0_PU-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	

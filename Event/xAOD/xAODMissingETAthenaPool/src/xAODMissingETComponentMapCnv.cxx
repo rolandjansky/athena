@@ -3,7 +3,7 @@
 */
 
  
-// $Id: xAODMissingETComponentMapCnv.cxx 614274 2014-08-30 18:38:15Z khoo $
+// $Id: xAODMissingETComponentMapCnv.cxx 795699 2017-02-05 23:26:05Z khoo $
 
 // System include(s):
 #include <exception>
@@ -55,12 +55,12 @@ xAODMissingETComponentMapCnv::createPersistent( xAOD::MissingETComponentMap* tra
   xAOD::MissingETComponentMap* result =
     new xAOD::MissingETComponentMap( trans->begin(), trans->end(), SG::VIEW_ELEMENTS );
 
-  // Prepare the objects to be written out:
-  xAOD::MissingETComponentMap::iterator itr = result->begin();
-  xAOD::MissingETComponentMap::iterator end = result->end();
-  for( ; itr != end; ++itr ) {
-    toPersistent( *itr );
-  }
+  // // Prepare the objects to be written out:
+  // xAOD::MissingETComponentMap::iterator itr = result->begin();
+  // xAOD::MissingETComponentMap::iterator end = result->end();
+  // for( ; itr != end; ++itr ) {
+  //   toPersistent( *itr );
+  // }
 
   // Return the new container:
   return result;
@@ -85,10 +85,10 @@ xAOD::MissingETComponentMap* xAODMissingETComponentMapCnv::createTransient() {
   return 0;
 }
 
-void xAODMissingETComponentMapCnv::toPersistent( xAOD::MissingETComponent* comp ) const {
+// void xAODMissingETComponentMapCnv::toPersistent( xAOD::MissingETComponent* comp ) const {
 
-  // Tell the object to prepare all its smart pointers for persistification:
-  comp->updateLinks();
+//   // Tell the object to prepare all its smart pointers for persistification:
+//   comp->updateLinks();
 
-  return;
-}
+//   return;
+// }

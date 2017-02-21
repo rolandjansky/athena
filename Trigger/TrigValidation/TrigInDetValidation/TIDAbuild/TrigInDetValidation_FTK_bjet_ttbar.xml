@@ -70,8 +70,6 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-FTK_bjet_ttbar-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_bjet_ttbar-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
    

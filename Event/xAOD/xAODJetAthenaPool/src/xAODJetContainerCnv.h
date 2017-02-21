@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODJetContainerCnv.h 581167 2014-02-03 10:45:56Z krasznaa $
+// $Id: xAODJetContainerCnv.h 795694 2017-02-05 23:13:50Z khoo $
 #ifndef XAODJETATHENAPOOL_XAODJETCONTAINERCNV_H
 #define XAODJETATHENAPOOL_XAODJETCONTAINERCNV_H
 
@@ -30,8 +30,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::JetContainer,
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 581167 $
- * $Date: 2014-02-03 11:45:56 +0100 (Mon, 03 Feb 2014) $
+ * $Revision: 795694 $
+ * $Date: 2017-02-06 00:13:50 +0100 (Mon, 06 Feb 2017) $
  */
 class xAODJetContainerCnv : public xAODJetContainerCnvBase {
 
@@ -51,8 +51,8 @@ public:
    virtual xAOD::JetContainer* createTransient();
 
 private:
-   /// Function preparing a vertex object for persistence
-   void toPersistent( xAOD::Jet* jet ) const;
+   // /// Function preparing a vertex object for persistence
+   // void toPersistent( xAOD::Jet* jet ) const;
 
    /// StoreGate key of the container just being created
    std::string m_key;

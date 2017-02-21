@@ -17,7 +17,7 @@ function Flexible \
                 MCtype="MC11b"
             elif [[ $configFiles = *JES_2012* ]] ; then
                 MCtype="MC12"
-            elif [[ $configFiles = *JES_2015* ]] || [[ $configFiles = *TLA_2015* ]] ; then
+            elif [[ $configFiles = *JES_2015* ]] || [[ $configFiles = *TLA_2015* ]] || [[ $configFiles = *JES_2016* ]]; then
                 MCtype="MC15"
             fi
         fi
@@ -31,7 +31,12 @@ function Flexible \
     if   [ -z "$jetDefinition" ] ; then
         echo "Flexible: failed to determine jetDefinition"
         exit -1
-    elif [ -z "$MCtype" ] ; then
+    else
+        echo "Using jet definition"
+        echo "$jetDefinition"
+    fi
+
+    if [ -z "$MCtype" ] ; then
         echo "Flexible: failed to determine MCtype"
         exit -2
     elif [ -z "$configFiles" ] ; then
@@ -241,7 +246,7 @@ function Moriond2016_Nominal_GlobalReduction \
     # Prerec 2015 release, full vs 3NP scenario 4
     jetDefinition="AntiKt4EMTopo"
     MCtype="MC15"
-    configFiles="JES_2015/Moriond2016/JES2015_AllNuisanceParameters.config;JES_2015/Moriond2016/JES2015_19NP.config"
+    configFiles="JES_2015/Moriond2016/JES2015_AllNuisanceParameters_forCorrTests.config;JES_2015/Moriond2016/JES2015_19NP_forCorrTests.config"
     outFile="CorrelationMatrix-Moriond2016-Nominal-GlobalReduction.pdf"
     outHistFile="CorrelationMatrix-Moriond2016-NominalGlobalReduction.root"
 }
@@ -255,6 +260,52 @@ function Moriond2016_Nominal_CategoryReduction \
     outFile="CorrelationMatrix-Moriond2016-Nominal-CategoryReduction.pdf"
     outHistFile="CorrelationMatrix-Moriond2016-Nominal-CategoryReduction.root"
 }
+
+################################################
+## ICHEP 2016 correlation plots
+
+function ICHEP2016_Nominal_GlobalReduction \
+{
+    jetDefinition="AntiKt4EMTopo;AntiKt4LCTopo"
+    MCtype="MC15"
+    configFiles="JES_2015/ICHEP2016/JES2015_AllNuisanceParameters_forCorrTests.config;JES_2015/ICHEP2016/JES2015_19NP_forCorrTests.config"
+    outFile="CorrelationMatrix-ICHEP2016-Nominal-GlobalReduction.pdf"
+    outHistFile="CorrelationMatrix-ICHEP2016-NominalGlobalReduction.root"
+}
+
+function ICHEP2016_Nominal_CategoryReduction \
+{
+    # Prerec 2015 release, full vs 3NP scenario 4
+    jetDefinition="AntiKt4EMTopo;AntiKt4LCTopo"
+    MCtype="MC15"
+    configFiles="JES_2015/ICHEP2016/JES2015_AllNuisanceParameters_forCorrTests.config;JES_2015/ICHEP2016/JES2015_25NP_ByCategory_forCorrTests.config"
+    outFile="CorrelationMatrix-ICHEP2016-Nominal-CategoryReduction.pdf"
+    outHistFile="CorrelationMatrix-ICHEP2016-Nominal-CategoryReduction.root"
+}
+
+################################################
+## Moriond 2017 correlation plots
+
+function Moriond2017_Nominal_GlobalReduction \
+{
+    jetDefinition="AntiKt4EMTopo;AntiKt4LCTopo"
+    MCtype="MC15"
+    configFiles="JES_2016/Moriond2017/JES2016_AllNuisanceParameters_forCorrTests.config;JES_2016/Moriond2017/JES2016_21NP_forCorrTests.config"
+    outFile="CorrelationMatrix-Moriond2017-Nominal-GlobalReduction.pdf"
+    outHistFile="CorrelationMatrix-Moriond2017-NominalGlobalReduction.root"
+}
+
+function Moriond2017_Nominal_CategoryReduction \
+{
+    # Prerec 2015 release, full vs 3NP scenario 4
+    jetDefinition="AntiKt4EMTopo;AntiKt4LCTopo"
+    MCtype="MC15"
+    configFiles="JES_2016/Moriond2017/JES2016_AllNuisanceParameters_forCorrTests.config;JES_2016/Moriond2017/JES2016_29NP_ByCategory_forCorrTests.config"
+    outFile="CorrelationMatrix-Moriond2017-Nominal-CategoryReduction.pdf"
+    outHistFile="CorrelationMatrix-Moriond2017-Nominal-CategoryReduction.root"
+}
+
+################################################
 
 function CoarseGrid \
 {
@@ -283,7 +334,7 @@ function FineGrid \
 
 function FineGridFixedEta \
 {
-    jetDefinition="AntiKt4EMTopo"
+#    jetDefinition="AntiKt4EMTopo"
     fixedEta="0;0.5;1;1.5;2;2.5;3;3.5;4;4.5"
     fixedPt=""
 }
@@ -337,6 +388,14 @@ function JER_grid \
     MCtype="MC12"
     fixedEta="0.01;0.81;1.21;2.11"
     fixedPt=""
+}
+
+function Paper2015_grid \
+{
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    fixedEta="0"
+    fixedPt="60"
 }
 
 function testGrid \
@@ -412,6 +471,9 @@ isRelative="false"
 if test $# -gt 2 ; then
     isRelative="$3"
 fi
+
+echo "Calling with jet definition"
+echo "$jetDefinition"
 
 MakeCorrelationMatrixPlots "$outFile" "$jetDefinition" "$MCtype" "$configFiles" "$fixedEta" "$fixedPt" "$outHistFile" "$isRelative"
 

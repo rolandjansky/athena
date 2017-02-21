@@ -12,6 +12,7 @@ use StoreGate StoreGate-* Control
 use AthenaKernel AthenaKernel-* Control
 
 use StoreGateBindings StoreGateBindings-* Control
+use SGTools SGTools-* Control
 
 private
 use AtlasROOT AtlasROOT-* External
@@ -41,9 +42,17 @@ private
 use xAODRootAccess xAODRootAccess-* Control
 use xAODEventInfo xAODEventInfo-* Event/xAOD
 use xAODBase xAODBase-* Event/xAOD
+
+#here we compile the individual test applications
+
 application ut_basicRead_test ../test/ut_basicRead_test.cxx
 macro_append ut_basicRead_test_dependencies " POOLRootAccess "
+
 application ut_basicxAODRead_test ../test/ut_basicxAODRead_test.cxx
 macro_append ut_basicxAODRead_test_dependencies " POOLRootAccess "
+
+application ut_basicAlg_test ../test/ut_basicAlg_test.cxx
+macro_append ut_basicAlg_test_dependencies " POOLRootAccess "
+
 end_private
 

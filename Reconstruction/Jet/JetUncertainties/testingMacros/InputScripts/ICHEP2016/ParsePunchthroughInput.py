@@ -27,13 +27,26 @@ def ReadPunchthroughHistograms(dirName):
     
     # Run over the one file
     rootFileList = sorted(glob.glob(dirName+"*.root"))
+    fileDict = {}
     if len(rootFileList) != 1:
         print "Found a number of root files not equal to 1 in dir:",dirName
-        return None
-    rootFile = TFile(rootFileList[0],"READ")
+        print "Assume separate files for EM, LC"
+        for aJetDef in jetDefDict.keys() :
+          for file in rootFileList :
+            if aJetDef in file :
+              if aJetDef not in fileDict.keys() :
+                fileDict[aJetDef] = file
+              else :
+                print "Oh no! More than one file corresponding to this jet definition:",aJetDef
+                return None
+    else :
+        print "Found only one root file: assume contents can be used for all jet collections."
+        for aJetDef in jetDefDict.keys() :
+          fileDict[aJetDef] = rootFileList[0]
 
     histos = {}
     for aJetDef,aJetDefProv in jetDefDict.iteritems():
+        rootFile = TFile(fileDict[aJetDef],"READ")
         histos[aJetDefProv] = {}
 
         for histName in rootFile.GetKeyNames():
@@ -47,12 +60,15 @@ def ReadPunchthroughHistograms(dirName):
                     return None
                 histo.SetName(aKey+"_"+aJetDefProv+"badaxes")
                 histo.SetDirectory(0)
-                histo.Print()
 
+                # In Lydia's histogram:
                 # x axis is pT.
                 # y axis is eta
                 # z axis is NSegments
                 # Last two axes need to get swapped to be compatible with 8TeV!!!!
+
+                # In Christopher's histogram,
+                # these are back to being as requested.
 
                 pTBinArray = []
                 nPTBins = histo.GetXaxis().GetNbins()
@@ -62,17 +78,30 @@ def ReadPunchthroughHistograms(dirName):
                 pTBinArray = array('d',pTBinArray)
 
                 etaBinArray = []
-                nEtaBins = histo.GetYaxis().GetNbins()
-                for bin in range(1,nEtaBins+2) :
-                  binEdge = histo.GetYaxis().GetBinLowEdge(bin)
-                  etaBinArray.append(binEdge)
+                if "EM" in aJetDef :
+                  nEtaBins = histo.GetYaxis().GetNbins()
+                  for bin in range(1,nEtaBins+2) :
+                    binEdge = histo.GetYaxis().GetBinLowEdge(bin)
+                    etaBinArray.append(binEdge)
+                else :
+                  nEtaBins = histo.GetZaxis().GetNbins()
+                  for bin in range(1,nEtaBins+2) :
+                    binEdge = histo.GetZaxis().GetBinLowEdge(bin)
+                    etaBinArray.append(binEdge)
                 etaBinArray = array('d',etaBinArray)
 
                 nSegmentsBinArray = []
-                nNSegBins = histo.GetZaxis().GetNbins()
-                for bin in range(1,nNSegBins+2) :
-                  binEdge = histo.GetZaxis().GetBinLowEdge(bin)
-                  nSegmentsBinArray.append(binEdge)
+                if "EM" in aJetDef :
+                  nNSegBins = histo.GetZaxis().GetNbins()
+                  for bin in range(1,nNSegBins+2) :
+                    binEdge = histo.GetZaxis().GetBinLowEdge(bin)
+                    nSegmentsBinArray.append(binEdge)
+                else :
+                  nNSegBins = histo.GetYaxis().GetNbins()
+                  for bin in range(1,nNSegBins+2) :
+                    binEdge = histo.GetYaxis().GetBinLowEdge(bin)
+                    nSegmentsBinArray.append(binEdge)
+
                 nSegmentsBinArray = array('d',nSegmentsBinArray)
 
                 outhisto = TH3D(aKey+"_"+aJetDefProv,aKey+"_"+aJetDefProv,nPTBins,pTBinArray,nNSegBins,nSegmentsBinArray,nEtaBins,etaBinArray)
@@ -88,20 +117,24 @@ def ReadPunchthroughHistograms(dirName):
                       #  - eta < 2.7
                       #  - NSegments > 20
 
-                      if histo.GetXaxis().GetBinCenter(xbin) < 50 or \
-                          histo.GetYaxis().GetBinCenter(ybin) > 2.7 or \
-                          histo.GetZaxis().GetBinCenter(zbin) < 20 :
-                        histo.SetBinContent(xbin,ybin,zbin,0.0)
-#                        print "Setting bin at pT",histo.GetXaxis().GetBinCenter(xbin),\
-#                          ", eta",histo.GetYaxis().GetBinCenter(ybin),\
-#                          ", nSegments",histo.GetZaxis().GetBinCenter(zbin),"to zero"
-                        outhisto.SetBinContent(xbin,zbin,ybin,0.0)
-                      else :
-                        outhisto.SetBinContent(xbin,zbin,ybin,histo.GetBinContent(xbin,ybin,zbin))
+                      if "EM" in aJetDef :
+                        if histo.GetXaxis().GetBinCenter(xbin) < 50 or \
+                            histo.GetYaxis().GetBinCenter(ybin) > 2.7 or \
+                            histo.GetZaxis().GetBinCenter(zbin) < 20 :
+                          histo.SetBinContent(xbin,ybin,zbin,0.0)
+                          outhisto.SetBinContent(xbin,zbin,ybin,0.0)
+                        else :
+                          outhisto.SetBinContent(xbin,zbin,ybin,histo.GetBinContent(xbin,ybin,zbin))
 
+                      elif "LC" in aJetDef :
+                        if histo.GetXaxis().GetBinCenter(xbin) < 50 or \
+                            histo.GetZaxis().GetBinCenter(zbin) > 2.7 or \
+                            histo.GetYaxis().GetBinCenter(ybin) < 20 :
+                          histo.SetBinContent(xbin,ybin,zbin,0.0)
+                          outhisto.SetBinContent(xbin,ybin,zbin,0.0)
+                        else :
+                          outhisto.SetBinContent(xbin,ybin,zbin,histo.GetBinContent(xbin,ybin,zbin))
 
-                histo.Print()
-                outhisto.Print()
 
                 histos[aJetDefProv][aKey] = outhisto
 
@@ -110,8 +143,6 @@ def ReadPunchthroughHistograms(dirName):
                 outhisto = TH3D(aKey+"_"+aJetDefProv,aKey+"_"+aJetDefProv,2,15.0,4500.0,2,0.0,1000.0,2,-4.5,4.5)
                 outhisto.SetDirectory(0)
                 histos[aJetDefProv][aKey] = outhisto
-
-    print histos
 
     # Done reading, close the file
     rootFile.Close()

@@ -20,8 +20,7 @@ class PixelChargeInterpolationPlot;
 class PixelChargeInterpolationPlot{
 
 public :
-	PixelChargeInterpolationPlot(const PixelChargeInterpolationParameters &parameters,
-			bool oneconst = false);
+  PixelChargeInterpolationPlot(const PixelChargeInterpolationParameters &parameters, bool oneconst = false);
 	virtual ~PixelChargeInterpolationPlot();
 	void AddReference(const PixelChargeInterpolationParameters &parameters,
 			std::string title = "Reference", int color = 0,
@@ -30,6 +29,9 @@ public :
 	void Write();
 	
 private:
+
+  PixelChargeInterpolationPlot(const PixelChargeInterpolationPlot &);
+  PixelChargeInterpolationPlot &operator=(const PixelChargeInterpolationPlot&);
 
 	// Histograms to be used
 	std::vector < TH1F* > *m_histogramsX;

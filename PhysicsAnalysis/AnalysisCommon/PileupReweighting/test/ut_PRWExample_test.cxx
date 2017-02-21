@@ -47,7 +47,7 @@ void testValue(double v1, double v2) {
 #ifdef XAOD_ANALYSIS
 
 #include "AsgTools/AnaToolHandle.h"
-#include "PileupReweighting/IPileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #include "TROOT.h"
 

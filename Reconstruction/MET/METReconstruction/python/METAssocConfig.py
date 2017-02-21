@@ -160,7 +160,8 @@ class METAssocConfig:
             self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc",
                                                                   CutLevel="TightPrimary",
                                                                   maxZ0SinTheta=3,
-                                                                  maxD0=2)
+                                                                  maxD0=2,
+                                                                  minPt=500)
             if not hasattr(ToolSvc,self.trkseltool.name()):
                 ToolSvc += self.trkseltool
 
@@ -169,7 +170,8 @@ class METAssocConfig:
         if not hasattr(ToolSvc,self.trkisotool.name()):
             ToolSvc += self.trkisotool
 
-        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET")
+        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
+                                                          saveOnlyRequestedCorrections=True)
         if not hasattr(ToolSvc,self.caloisotool.name()):
             ToolSvc += self.caloisotool
 

@@ -54,6 +54,7 @@ long AthenaPoolConverter::repSvcType() const {
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
+   std::lock_guard<CallMutex> lock(m_conv_mut);
    TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    if (tokAddr == 0 || tokAddr->getToken() == 0) {
       if (m_i_poolToken == 0) m_i_poolToken = new Token;
@@ -85,6 +86,7 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
+   std::lock_guard<CallMutex> lock(m_conv_mut);
    // Create a Pool object for DataObject
    m_o_poolToken = 0;
    try {
@@ -97,7 +99,7 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
       return(StatusCode::FAILURE);
    }
    // Null/empty token means ERROR
-   if ((m_o_poolToken == 0 || m_o_poolToken->classID() == Guid::null())) {
+   if (m_o_poolToken == 0 || m_o_poolToken->classID() == Guid::null()) {
       ATH_MSG_ERROR("CreateRep failed to get Token, key = " << pObj->registry()->name());
       return(StatusCode::FAILURE);
    }

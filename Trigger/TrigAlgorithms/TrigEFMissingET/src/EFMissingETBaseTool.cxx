@@ -80,7 +80,7 @@ EFMissingETBaseTool::EFMissingETBaseTool(const std::string& type,
   m_maskObjInCrack           = 0x40000000; // bit 30
   m_maskGlobErrors           = 0x80000000; // bit 31
 
-  _fextype = FexType::OTHER; 
+  m_fextype = FexType::OTHER; 
 
 }
 

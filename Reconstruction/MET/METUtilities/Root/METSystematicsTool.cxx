@@ -43,7 +43,7 @@ namespace met {
   {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__ );
 
-    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data16_13TeV/rec_July16v1"    );
+    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data16_13TeV/rec_Dec16v1");
     declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms.config"                     );
     //    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms_afii.config"            );//for ATLFAST
     declareProperty( "ConfigJetTrkFile",  m_configJetTrkFile  = ""                                          );

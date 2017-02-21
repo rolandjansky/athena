@@ -68,8 +68,6 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_bphys-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_bphys-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 

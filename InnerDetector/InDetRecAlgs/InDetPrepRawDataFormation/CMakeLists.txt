@@ -7,7 +7,6 @@ atlas_subdir( InDetPrepRawDataFormation )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          AtlasPolicy
                           Control/AthenaBaseComps
                           Control/StoreGate
                           DetectorDescription/IRegionSelector

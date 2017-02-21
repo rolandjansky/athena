@@ -306,6 +306,14 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
     delete newCluster;
     return nullptr;
   }
+
+  // Apply SW-style summation of TileGap3 cells (if necessary).
+  if (AddTileGap3CellsinWindow(newCluster).isFailure()) {
+    ATH_MSG_ERROR("Problem with the input cluster when running AddTileGap3CellsinWindow?");
+    return nullptr;
+  }
+  CaloClusterKineHelper::calculateKine(newCluster, true, true);
+
   // Apply correction  calibration
   if (CalibrateCluster(newCluster, egType).isFailure()) {
     ATH_MSG_WARNING("There was problem calibrating the object");
@@ -557,6 +565,12 @@ StatusCode egammaSuperClusterBuilder::AddTileGap3CellsinWindow(xAOD::CaloCluster
     std::vector<const CaloCell*> cells;
     cells.reserve(16);
     const CaloCellContainer* inputcells=myCluster->getCellLinks()->getCellContainer();
+
+    if (!inputcells) {
+      ATH_MSG_ERROR("No cell container in AddRemainingCellsToCluster?");
+      return StatusCode::FAILURE;      
+    }
+
     CaloCellList myList(inputcells);
 
     const std::vector<CaloSampling::CaloSample> samples = {CaloSampling::TileGap3};

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEvent.cxx 796624 2017-02-10 17:17:23Z ssnyder $
+// $Id: TEvent.cxx 796983 2017-02-14 05:09:12Z ssnyder $
 
 // System include(s):
 #include <cassert>
@@ -1273,7 +1273,7 @@ namespace xAOD {
       }
 
       // In order to make the tree cache work:
-      if( m_inTree->LoadTree( m_entry ) < 0 ) {
+      if( m_inTree && m_inTree->LoadTree( m_entry ) < 0 ) {
          ::Error( "xAOD::TEvent::getEntry",
                   XAOD_MESSAGE( "Failure in loading entry %i from the input "
                                 "file" ), static_cast< int >( m_entry ) );
@@ -1416,9 +1416,17 @@ namespace xAOD {
       // delete its transient (decoration) variables. Otherwise it does.
       // (As it's supposed to, when moving to a new event.)
       if( m_inChain ) {
-         getEntry( m_inChain->GetReadEntry(), 99 );
+         if (getEntry( m_inChain->GetReadEntry(), 99 ) < 0) {
+           ::Error( "xAOD::TEvent::fill",
+                    XAOD_MESSAGE( "getEntry failed!" ) );
+           return 0;
+         }
       } else if( m_inTree ) {
-         getEntry( m_entry, 99 );
+         if (getEntry( m_entry, 99 ) < 0) {
+           ::Error( "xAOD::TEvent::fill",
+                    XAOD_MESSAGE( "getEntry failed!" ) );
+           return 0;
+         }
       }
 
       // Prepare the objects for writing:

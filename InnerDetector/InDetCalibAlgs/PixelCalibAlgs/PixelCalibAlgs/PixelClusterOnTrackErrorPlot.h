@@ -31,6 +31,9 @@ public :
 	
 private:
 
+  PixelClusterOnTrackErrorPlot(const PixelClusterOnTrackErrorPlot &);
+  PixelClusterOnTrackErrorPlot &operator=(const PixelClusterOnTrackErrorPlot&);
+
 	// Histograms to be used
 	std::vector < TH1F* > *m_histogramsX;
 	std::vector < TH1F* > *m_histogramsY;

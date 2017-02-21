@@ -154,7 +154,9 @@ namespace met {
     for(const auto& pfo : *constits.pfoCont) {
       if(fabs(pfo->charge())>1e-9) {
 	// get charged PFOs by matching the muon ID track
-	if(idtrack && acceptChargedPFO(idtrack,constits.pv) && pfo->track(0) == idtrack) {
+	if(idtrack && pfo->track(0) == idtrack && acceptChargedPFO(idtrack,constits.pv) &&
+	   ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) )
+	   ) {
 	  ATH_MSG_VERBOSE("Accept muon PFO " << pfo << " px, py = " << pfo->p4().Px() << ", " << pfo->p4().Py());
 	  ATH_MSG_VERBOSE("Muon PFO index: " << pfo->index() << ", pt: " << pfo->pt() << ", eta: " << pfo->eta() << ", phi: " << pfo->phi() );
 	  ATH_MSG_VERBOSE("Muon ID Track index: " << idtrack->index() << ", pt: " << idtrack->pt() << ", eta: " << idtrack->eta() << ", phi: " << idtrack->phi() );

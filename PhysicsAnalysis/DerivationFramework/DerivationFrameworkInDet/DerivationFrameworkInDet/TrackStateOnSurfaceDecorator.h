@@ -94,6 +94,7 @@ namespace DerivationFramework {
       ToolHandle<Trk::IExtrapolator>            m_extrapolator;
       ServiceHandle<ITRT_CalDbSvc>              m_trtcaldbSvc;
 	  
+      ToolHandle<ITRT_ToT_dEdx>    m_TRTdEdxTool;
       // --- Private other members
   }; 
 }

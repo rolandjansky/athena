@@ -39,7 +39,7 @@ EFMissingETFromHelper::EFMissingETFromHelper(const std::string& type,
     const IInterface* parent):
   EFMissingETBaseTool(type, name, parent)
 {
-   _fextype = FexType::OTHER; 
+   m_fextype = FexType::OTHER; 
 }
 
 
@@ -53,13 +53,13 @@ EFMissingETFromHelper::~EFMissingETFromHelper()
 StatusCode EFMissingETFromHelper::initialize()
 {
   if(msgLvl( MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "called EFMissingETFromHelper::initialize()" << endreq;
+    msg(MSG::DEBUG) << "called EFMissingETFromHelper::initialize()" << endmsg;
   }
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg(MSG::WARNING) << name() <<
-      ": Unable to locate TrigTimer Service" << endreq;
+      ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
     // global time
@@ -91,17 +91,17 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 {
 
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "EFMissingETFromHelper::execute() called" << endreq;
+    msg(MSG::DEBUG) << "EFMissingETFromHelper::execute() called" << endmsg;
   }
 
   if (met==0 || metHelper==0) {
-    msg(MSG::ERROR) << "ERROR: null pointers as input!" << endreq;
+    msg(MSG::ERROR) << "ERROR: null pointers as input!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if(msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "Found this info in the helper class: "
-      << metHelper->getFormattedValues() << endreq;
+      << metHelper->getFormattedValues() << endmsg;
   }
 
   if(m_timersvc)
@@ -115,7 +115,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     msg(MSG::WARNING) 
       << "Found " << elem
       << " aux components in the transient helper class.  Not supported!" 
-      << endreq;
+      << endmsg;
   }
 
   bool skipAuxInfo=false;
@@ -150,7 +150,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       msg(MSG::WARNING)  
         << "Found " << comp
         << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" 
-        << endreq;
+        << endmsg;
       skipAuxInfo=true;
   }
   
@@ -472,17 +472,17 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
   if(msgLvl(MSG::DEBUG)){
     message = strformat ("REGTEST Ex =         %10.2f CLHEP::MeV", met->ex());    
-    msg() << MSG::DEBUG << message << endreq;
+    msg() << MSG::DEBUG << message << endmsg;
     message = strformat ("REGTEST Ey =         %10.2f CLHEP::MeV", met->ey());    
-    msg() << MSG::DEBUG << message << endreq;
+    msg() << MSG::DEBUG << message << endmsg;
     message = strformat ("REGTEST Ez =         %10.2f CLHEP::MeV", met->ez());    
-    msg() << MSG::DEBUG << message << endreq;
+    msg() << MSG::DEBUG << message << endmsg;
     message = strformat ("REGTEST SumET =         %10.2f CLHEP::MeV", met->sumEt());    
-    msg() << MSG::DEBUG << message << endreq;
+    msg() << MSG::DEBUG << message << endmsg;
     message = strformat ("REGTEST SumE =       %10.2f CLHEP::MeV", met->sumE());    
-    msg() << MSG::DEBUG << message << endreq;
+    msg() << MSG::DEBUG << message << endmsg;
     message = strformat ("REGTEST Flag =       %d", met->flag());    
-    msg() << MSG::DEBUG << message << endreq;
+    msg() << MSG::DEBUG << message << endmsg;
   }
 
   unsigned int Nc = met->getNumberOfComponents();
@@ -491,7 +491,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     if(msgLvl(MSG::DEBUG)){
         s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
 			    s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-        msg() << MSG::DEBUG << s << endreq; 
+        msg() << MSG::DEBUG << s << endmsg; 
      }
    }
              
@@ -512,7 +512,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
      if(msgLvl(MSG::DEBUG)){
         message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
 			   name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);    
-        msg() << MSG::DEBUG << message << endreq;
+        msg() << MSG::DEBUG << message << endmsg;
       }
 			
     }

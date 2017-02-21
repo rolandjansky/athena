@@ -290,7 +290,7 @@ const std::string Trk::RIO_OnTrackErrorScalingTool::makeInfoString
   if (errscaler.size() < 2 && do_detSystem)
     s1.append("WARNING, scaling active but empty vector of a,c values!");
   if (errscaler.size() > 1) {
-    char s2[11];
+    char s2[12];
     snprintf(s2,sizeof(s2),"%6.3g ",errscaler[0]);s1.append(s2);
     s1.append("* err (+) ");
     snprintf(s2,sizeof(s2),"%6.3g ",errscaler[1]);s1.append(s2);

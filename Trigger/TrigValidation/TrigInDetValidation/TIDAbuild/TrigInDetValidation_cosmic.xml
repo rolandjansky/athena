@@ -57,8 +57,6 @@
             </testToRemove>
 
 #           include "TrigInDetValidation_aux.xml"
-	    <auxFilePattern>data-cosmic-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-cosmic-ref.root</auxFilePattern>
 
          <athenaCommonFlags /> 
          </athena>

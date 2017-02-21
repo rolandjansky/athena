@@ -58,7 +58,7 @@ AUXSTORE* T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransient()
   // Didn't recognize the GUID.
   AthenaPoolCnvSvc::throwExcUnsupportedVersion (typeid(AUXSTORE),
                                                 this->m_i_poolToken->classID());
-  return 0;
+  return nullptr;
 }
 
 

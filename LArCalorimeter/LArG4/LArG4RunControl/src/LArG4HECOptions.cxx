@@ -4,25 +4,17 @@
 
 #include "LArG4RunControl/LArG4HECOptions.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
 
 void LArG4HECOptions::saveMe()
 {
-  IService* pSvc;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StatusCode result = svcLocator->service("DetectorStore",pSvc);
-
-  if(result.isSuccess())
-  {
-    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=detStore->record(this,"LArG4HECOptions");
-
-   if(!result.isSuccess())
-       std::cout << "Can not record LArG4HECOptions" << std::endl;
-
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore",
+                                        "LArG4HECOptions::saveMe");
+  if (detStore.retrieve().isSuccess()) {
+    if (detStore->record(this,"LArG4HECOptions").isFailure())
+      std::cout << "Can not record LArG4HECOptions" << std::endl;
   }
 }
 

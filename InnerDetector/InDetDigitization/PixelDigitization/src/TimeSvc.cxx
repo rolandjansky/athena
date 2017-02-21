@@ -2,14 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////
-// PixelCellDiscriminator.cxx
-//   Implementation file for class PixelCellDiscriminator
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "PixelCellDiscriminator.h"
 #include "InDetSimEvent/SiTotalCharge.h"
 #include <cmath>
 #include "CLHEP/Random/RandomEngine.h"
@@ -20,6 +16,7 @@
 
 TimeSvc::TimeSvc(const std::string& name, ISvcLocator* svc):
   AthService(name,svc),
+  m_ComputedTime(nullptr),
   m_useComTime(false),
   m_comTime(0.0),
   m_timePerBCO(25.0),
@@ -89,7 +86,7 @@ StatusCode TimeSvc::finalize() {
   return StatusCode::SUCCESS;
 }
 
-int TimeSvc::relativeBunch(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, bool CTW) const {
+int TimeSvc::relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, bool CTW) const {
 
   int BCID=0;
   double myTimeWalkEff = 0.;

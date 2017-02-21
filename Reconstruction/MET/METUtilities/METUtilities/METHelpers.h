@@ -17,7 +17,8 @@
 namespace met {
 
   void addGhostMuonsToJets(const xAOD::MuonContainer& muons, xAOD::JetContainer& jets);
-
+  // void addGhostElecsToJets(const xAOD::ElectronContainer& elecs, xAOD::JetContainer& jets);
+  
 }
 
 #endif

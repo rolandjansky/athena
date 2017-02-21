@@ -17,6 +17,8 @@
 #include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
+#include "PFlowUtils/IWeightPFOTool.h"
+
 namespace met {
 
   using namespace xAOD;
@@ -31,6 +33,7 @@ namespace met {
     declareProperty("DecorateSoftConst", m_decorateSoftTermConst=false);
     declareProperty("LCModClusterKey",   m_lcmodclus_key = "LCOriginTopoClusters");
     declareProperty("EMModClusterKey",   m_emmodclus_key = "EMOriginTopoClusters");
+    declareProperty("WeightSoftPFO",     m_weight_soft_pfo = false);
   }
 
   // Destructor
@@ -96,9 +99,15 @@ namespace met {
       for(const auto& sig : *uniquePFOs) {
 	const PFO *pfo = static_cast<const PFO*>(sig);
 	if (fabs(pfo->charge())>1e-9) {
-	  if (acceptChargedPFO(pfo->track(0),constits.pv)) {
+	  if (acceptChargedPFO(pfo->track(0),constits.pv) &&
+	      ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) 
+	      ) {
 	    *metCoreTrk += sig;
-	    *metCoreCl += sig;
+	    float weight = 1.0;
+	    if(m_weight_charged_pfo && m_weight_soft_pfo) {
+	      ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
+	    }
+	    metCoreCl->add(sig,weight);
 	    if(m_decorateSoftTermConst) {
 	      dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
 	      dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));

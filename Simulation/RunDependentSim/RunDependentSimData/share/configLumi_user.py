@@ -15,6 +15,10 @@ try:
 except:
     digilog.error("Set userRunLumiOverride=\'{\"run\":1234,...}\' in preExec to use configLumi_user.py!")
     raise RuntimeError("No valid userRunLumiOverride provided.")
+keys=['run','startmu','endmu','stepmu','startlb','timestamp']
+for key in userRunLumiOverride.keys():
+    if key not in keys:
+        raise RuntimeError("Invalid userRunLumiOverride provided, key: %s. Valid keys are: %s"%(key,keys)) 
     
 #We need to be able to adjust for different dataset sizes.
 if not 'ScaleTaskLength' in dir():   ScaleTaskLength = 1

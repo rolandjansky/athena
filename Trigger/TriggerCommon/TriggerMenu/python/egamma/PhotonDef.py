@@ -11,18 +11,11 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.egamma.PhotonDef")
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TriggerMenu.menu.TriggerPythonConfig import *
-from TriggerMenu.menu.HltConfig import *
-
+from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
-
-from TriggerMenu.commonUtils.makeCaloSequences import (fullScanTopoClusterSequence, 
-        EgammaSlwClusterSequence, 
-        EnergyDensitySequence, 
-        getFullScanTopoClusterEDSequences, getFullScanCaloSequences)
+from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 from TrigTRTHighTHitCounter.TrigTRTHighTHitCounterConf import TrigTRTHTHCounter, TrigTRTHTHhypo
 ##################
 #
@@ -81,7 +74,7 @@ class L2EFChain_g(L2EFChainDef):
             'itight' in self.chainPart['isoInfo']):
            self.doIsolation=True
 
-        log.debug('Sequences %s ' % (self.ph_sequences))
+        log.debug('Sequences %s ', self.ph_sequences)
                 
         # gXX_ID type chains:
         if "hiptrt" in self.chainPart['addInfo']:
@@ -103,13 +96,13 @@ class L2EFChain_g(L2EFChainDef):
         #    return False
             
         L2EFChainDef.__init__(self, 
-                self.chainName, 
-                self.L2Name, 
-                self.chainCounter, 
-                self.chainL1Item, 
-                self.EFName, 
-                self.chainCounter, 
-                self.L2InputTE)
+                              self.chainName, 
+                              self.L2Name, 
+                              self.chainCounter, 
+                              self.chainL1Item, 
+                              self.EFName, 
+                              self.chainCounter, 
+                              self.L2InputTE)
         
 
     def defineSequences(self):
@@ -168,9 +161,9 @@ class L2EFChain_g(L2EFChainDef):
         # required to preserve some backward compatibility
         # need to hack a bit the fastcalo step to use the T2CaloRinger
         fastcaloseq = self.ph_sequences['fastcalorec']
-        log.info('Photon L2 sequence %s'%fastcaloseq)
+        log.debug('Photon L2 sequence %s', fastcaloseq)
         fastcaloseq.extend(self.ph_sequences['fastcalohypo'])
-        log.info('Photon L2 sequence %s'%fastcaloseq)
+        log.debug('Photon L2 sequence %s', fastcaloseq)
         seq_dict = self.ph_sequences
         seq_dict['fastcalo']=fastcaloseq
 
@@ -273,7 +266,7 @@ class L2EFChain_g(L2EFChainDef):
             from TrigDetCalib.TrigDetCalibConfig import LArEFROBListWriter
             self.EFsequenceList += [[['EF_g_step3'], 
                                      [ LArEFROBListWriter('LArEFROBListWriter_' + self.chainName, 
-                                         addCTPResult = True, addL2Result = True, addEFResult = True) ],
+                                                          addCTPResult = True, addL2Result = True, addEFResult = True) ],
                                      'EF_g_step4']]
         
         if 'larpeb' in self.chainPart['addInfo']:
@@ -342,16 +335,9 @@ class L2EFChain_g(L2EFChainDef):
             'EF_g_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calo'),
             'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),
             'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
+        }
 
     def setup_gXX_ID_ringer(self):
-
-        threshold = self.chainPart['threshold']
-        IDinfo = self.chainPart['IDinfo']
-        algoSuffix = "g%s_%s()" % (str(threshold),IDinfo)
-       
-        # list of required key values for sequences
-        required_seq = ['fastringer','precisecalo','precisecalocalib','preciserec']
 
         ########### Sequences ###########
        
@@ -373,7 +359,7 @@ class L2EFChain_g(L2EFChainDef):
             'EF_g_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calo'),
             'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),
             'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
+        }
 
 
 
