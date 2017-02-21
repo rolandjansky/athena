@@ -86,8 +86,16 @@ def set_style(style="Plain"):
     gStyle.SetPadTickY(1)
 
 
+def doDrawText(xPos,yPos,text):
+    if not doDrawText.tex:
+        doDrawText.tex = TLatex()
+        doDrawText.tex.SetNDC()
+        doDrawText.tex.SetTextFont(42)
+        doDrawText.tex.SetTextSize(0.040)
 
+    doDrawText.tex.DrawLatex(xPos,yPos,text)
 
+doDrawText.tex = None
 
 
 def SetAxisRange(histo,oneSided=True,lowBound=-1e10,highBound=1e10):
@@ -254,6 +262,8 @@ def DetermineStatValues(histo,xValues,yValues,lowBound=-1e10,highBound=1e10,perc
         DetermineStatValues.tex.SetTextColor(kBlack)
     
     # Proceed region by region
+    overallMax = 0
+    maxAvg = 0
     for indexX in range(0,len(xValues)):
         factorX = int(histo.GetNbinsX()/len(xValues))
         lowX  = indexX*factorX+1
@@ -279,23 +289,18 @@ def DetermineStatValues(histo,xValues,yValues,lowBound=-1e10,highBound=1e10,perc
                             extremeVal = binValue
                         elif DetermineStatValues.minInsteadOfMax and fabs(binValue) < fabs(extremeVal):
                             extremeVal = binValue
+                        if fabs(extremeVal) > fabs(overallMax) :
+                            overallMax = extremeVal
+
             meanVal /= numValid
+            if fabs(meanVal) > fabs(maxAvg) :
+                maxAvg = meanVal
             DetermineStatValues.tex.DrawLatex(int(factorX*(indexX+0.4)),int(factorY*(indexY+0.70)),"%.f"%(extremeVal*100) if percent else "%.1f"%(extremeVal))
             DetermineStatValues.tex.DrawLatex(int(factorX*(indexX+0.4)),int(factorY*(indexY+0.30)),"%.f"%(meanVal*100) if percent else "%.1f"%(meanVal))
+    return overallMax,maxAvg
 DetermineStatValues.tex = None
 DetermineStatValues.minInsteadOfMax = False
 
-
-def DrawText(xPos,yPos,text):
-    if not DrawText.tex:
-        DrawText.tex = TLatex()
-        DrawText.tex.SetNDC()
-        DrawText.tex.SetTextFont(42)
-        DrawText.tex.SetTextSize(0.040)
-
-    DrawText.tex.DrawLatex(xPos,yPos,text)
-
-DrawText.tex = None
 
 
 

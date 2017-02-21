@@ -7,6 +7,7 @@
 
 #include "AsgTools/AsgMessaging.h"
 #include <vector>
+#include <utility>
 #include "TString.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
@@ -41,12 +42,16 @@ class OptionHelper : public asg::AsgMessaging
         bool    SpecifyTagger()   const { checkInit(); return m_specifyTagger; }
         double  AxisMax()         const { checkInit(); return m_axisMax < 0 ? (IsLargeR()? 0.2 : 0.1) : m_axisMax; }
         double  AxisMin()         const { checkInit(); return m_axisMin;       }
+        std::pair<double,double> xAxisRange() const { checkInit(); return m_xAxisRange; }
         bool    AbsValue()        const { checkInit(); return m_absVal;        }
         bool    LogPt()           const { checkInit(); return m_logPt;         }
         TString getMassType()     const { checkInit(); return m_massType;      }
 
-        std::vector<double> GetPtBins()  const;
-        std::vector<double> GetEtaBins() const;
+        std::vector<double> GetPtBins()             const;
+        std::vector<double> GetEtaBins()            const;
+        std::vector<double> GetFixedPtVals()        const;
+        std::vector<double> GetFixedEtaVals()       const;
+        std::vector<double> GetFixedMoverPtVals()   const;
         
         // Uncertainty types
         bool IsSmallR() const { checkInit(); return m_isSmallR; }
@@ -57,6 +62,7 @@ class OptionHelper : public asg::AsgMessaging
         // Compositions
         bool IsUnknownComposition() const { checkInit(); return m_isUnknownComp; }
         bool IsDijetComposition()   const { checkInit(); return m_isDijetComp;   }
+        bool IsGinosComposition()   const { checkInit(); return m_isGinosComp;   }
 
         // Comparison helpers
         bool                 CompareOnly()    const { checkInit(); return m_onlyCompare; }
@@ -65,6 +71,7 @@ class OptionHelper : public asg::AsgMessaging
         
         // Variable control
         std::vector<CompScaleVar::TypeEnum> GetScaleVars() const { checkInit(); return m_scaleVars; }
+        const std::vector<std::string> VariablesToShift() const { checkInit(); return m_systFilters; }
 
     private:
         bool    m_isInit;
@@ -82,12 +89,16 @@ class OptionHelper : public asg::AsgMessaging
         bool    m_specifyTagger;
         double  m_axisMax;
         double  m_axisMin;
+        std::pair<double,double> m_xAxisRange;
         bool    m_absVal;
         bool    m_logPt;
         TString m_massType;
         
         TString m_ptBins;
         TString m_etaBins;
+        TString m_fixedPtVals;
+        TString m_fixedEtaVals;
+        TString m_fixedMoverPtVals;
 
         bool    m_isSmallR;
         bool    m_isLargeR;
@@ -96,12 +107,14 @@ class OptionHelper : public asg::AsgMessaging
 
         bool    m_isUnknownComp;
         bool    m_isDijetComp;
+        bool    m_isGinosComp;
 
         bool    m_onlyCompare;
         TString m_doCompare;
         std::vector<TString> m_compareVals;
         
         std::vector<CompScaleVar::TypeEnum> m_scaleVars;
+        std::vector<std::string> m_systFilters;
 
         TString getOptionValue(const std::vector<TString>& options, const TString optionName) const;
         template <typename T>
@@ -130,12 +143,16 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_specifyTagger(true)
     , m_axisMax(-1)
     , m_axisMin(0)
+    , m_xAxisRange(0,0)
     , m_absVal(true)
     , m_logPt(true)
     , m_massType("")
     
     , m_ptBins("")
     , m_etaBins("")
+    , m_fixedPtVals("")
+    , m_fixedEtaVals("")
+    , m_fixedMoverPtVals("")
 
     , m_isSmallR(true)
     , m_isLargeR(false)
@@ -144,12 +161,14 @@ OptionHelper::OptionHelper(const std::string& name)
 
     , m_isUnknownComp(true)
     , m_isDijetComp(false)
+    , m_isGinosComp(false)
 
     , m_onlyCompare(false)
     , m_doCompare("")
     , m_compareVals()
 
     , m_scaleVars()
+    , m_systFilters()
 { }
 
 bool OptionHelper::Initialize(const std::vector<TString>& options)
@@ -178,12 +197,28 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_specifyTagger  = getOptionValueWithDefault(options,"specifyTagger",m_specifyTagger);
     m_axisMax        = getOptionValueWithDefault(options,"axisMax",m_axisMax);
     m_axisMin        = getOptionValueWithDefault(options,"axisMin",m_axisMin);
+    TString xAxisRange  = getOptionValue(options,"xAxisRange");
+    if (xAxisRange != "")
+    {
+        std::vector<double> range = jet::utils::vectorize<double>(xAxisRange,"&");
+        if (range.size() != 2)
+            ATH_MSG_WARNING("xAxisRange doesn't match expected format of \"val1&val2\". Skipping.");
+        else
+        {
+            const double lowX = range.at(0);
+            const double highX = range.at(1);
+            m_xAxisRange = std::make_pair(lowX,highX);
+        }
+    }
     m_absVal         = getOptionValueWithDefault(options,"absVal",m_absVal);
     m_logPt          = getOptionValueWithDefault(options,"logPt",m_logPt);
     m_massType       = getOptionValueWithDefault(options,"massDef",m_massType);
     
     m_ptBins         = getOptionValueWithDefault(options,"ptBins",m_ptBins);
     m_etaBins        = getOptionValueWithDefault(options,"etaBins",m_etaBins);
+    m_fixedPtVals    = getOptionValueWithDefault(options,"fixedPtVals",m_fixedPtVals);
+    m_fixedEtaVals   = getOptionValueWithDefault(options,"fixedEtaVals",m_fixedEtaVals);
+    m_fixedMoverPtVals = getOptionValueWithDefault(options,"fixedMoverPtVals",m_fixedMoverPtVals);
 
     m_isLargeR       = getOptionValueWithDefault(options,"isLargeR",m_isLargeR);
     m_isJER          = getOptionValueWithDefault(options,"isJER",m_isJER);
@@ -191,7 +226,12 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_isSmallR       = !(m_isLargeR || m_isJER);
     
     m_isDijetComp    = getOptionValueWithDefault(options,"isDijet",m_isDijetComp);
+    m_isGinosComp    = getOptionValueWithDefault(options,"isGinos",m_isGinosComp);
     m_isUnknownComp  = !m_isDijetComp;
+    if (m_isGinosComp) {
+      m_isDijetComp = false;
+      m_isUnknownComp = false;
+    }
 
     m_onlyCompare    = getOptionValueWithDefault(options,"compareOnly",m_onlyCompare);
     m_doCompare      = getOptionValueWithDefault(options,"doCompare",m_doCompare);
@@ -210,6 +250,10 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
         for (size_t iVar = 0; iVar < localScaleVarVec.size(); ++iVar)
             m_scaleVars.push_back(CompScaleVar::stringToEnum(localScaleVarVec.at(iVar)));
     }
+
+    const TString systFilterString = getOptionValue(options,"VariablesToShift");
+    if (systFilterString != "")
+        m_systFilters = jet::utils::vectorize<std::string>(systFilterString,",");
 
     return true;
 }
@@ -356,6 +400,52 @@ std::vector<double> OptionHelper::GetEtaBins() const
     return bins;
 }
 
+std::vector<double> OptionHelper::GetFixedPtVals() const
+{
+    checkInit();
+    std::vector<double> bins;
+
+    if (m_fixedPtVals != "")
+        bins = jet::utils::vectorize<double>(m_fixedPtVals,",");
+    else
+        bins = jet::utils::vectorize<double>("25,40,60,80,120",",");
+
+    return bins;
+}
+
+std::vector<double> OptionHelper::GetFixedEtaVals() const
+{
+    checkInit();
+    std::vector<double> bins;
+
+    if (m_fixedEtaVals != "")
+        bins = jet::utils::vectorize<double>(m_fixedEtaVals,",");
+    else if (IsLargeR())
+        bins = jet::utils::vectorize<double>("0",",");
+    else if (IsJER())
+        bins = jet::utils::vectorize<double>("0,0.8,1.2,2.1,2.8,3.2,3.6",",");
+    else
+        bins = jet::utils::vectorize<double>("0,0.5,1,2,2.5,3,4",",");
+
+    return bins;
+}
+
+std::vector<double> OptionHelper::GetFixedMoverPtVals() const
+{
+    checkInit();
+    std::vector<double> bins;
+
+    if (m_fixedMoverPtVals != "")
+        bins = jet::utils::vectorize<double>(m_fixedMoverPtVals,",");
+    else if (!IsLargeR())
+        bins = jet::utils::vectorize<double>("0",",");
+    else if (IsPublicFormat())
+        bins = jet::utils::vectorize<double>("0.101",",");
+    else
+        bins = jet::utils::vectorize<double>("0.001,0.05,0.101,0.15,0.201,0.25,0.301,0.35,0.401,0.45,0.501,0.55,0.601,0.65,0.701,0.75,0.801,0.85,0.901,0.95,1.001",",");
+    
+    return bins;
+}
 
 
 } // end jet namespace

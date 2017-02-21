@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 786868 2016-11-28 12:40:09Z krasznaa $
 ################################################################################
 # Package: JetUncertainties
 ################################################################################
@@ -5,73 +6,70 @@
 # Declare the package name:
 atlas_subdir( JetUncertainties )
 
+# Extra dependencies, based on the build environment:
+set( extra_deps )
+if( XAOD_STANDALONE )
+   set( extra_deps Control/xAODRootAccess )
+else()
+   set( extra_deps GaudiKernel )
+endif()
+
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODJet
-                          PhysicsAnalysis/AnalysisCommon/PATInterfaces
-                          Reconstruction/Jet/JetCPInterfaces
-                          PRIVATE
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          Tools/PathResolver )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODJet
+   PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   Reconstruction/Jet/JetCPInterfaces
+   PRIVATE
+   Event/xAOD/xAODCore
+   Event/xAOD/xAODTracking
+   Tools/PathResolver
+   ${extra_deps} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf Gpad )
 
-# Component(s) in the package:
+# Libraries in the package:
 atlas_add_library( JetUncertaintiesLib
-                   Root/*.cxx
-                   PUBLIC_HEADERS JetUncertainties
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools xAODEventInfo xAODJet PATInterfaces
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCore xAODTracking GaudiKernel PathResolver )
+   JetUncertainties/*.h Root/*.cxx
+   PUBLIC_HEADERS JetUncertainties
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet PATInterfaces
+   JetCPInterfaces
+   PRIVATE_LINK_LIBRARIES xAODCore xAODTracking PathResolver )
 
-atlas_add_component( JetUncertainties
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet PATInterfaces xAODCore xAODTracking GaudiKernel PathResolver JetUncertaintiesLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( JetUncertainties
+      src/components/*.cxx
+      LINK_LIBRARIES JetUncertaintiesLib )
+endif()
 
 atlas_add_dictionary( JetUncertaintiesDict
-                      JetUncertainties/JetUncertaintiesDict.h
-                      JetUncertainties/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet PATInterfaces xAODCore xAODTracking GaudiKernel PathResolver JetUncertaintiesLib )
+   JetUncertainties/JetUncertaintiesDict.h
+   JetUncertainties/selection.xml
+   LINK_LIBRARIES JetUncertaintiesLib )
+
+# Executable(s) in the package:
+atlas_add_executable( MakeCorrelationMatrixPlots
+   util/MakeCorrelationMatrixPlots.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} JetUncertaintiesLib )
+
+if( XAOD_STANDALONE )
+   atlas_add_executable( MakeUncertaintyPlots
+      util/MakeUncertaintyPlots.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODEventInfo
+      xAODRootAccess JetUncertaintiesLib )
+
+   atlas_add_executable( JetUncertainties_testTool
+      util/testTool.cxx
+      LINK_LIBRARIES xAODJet xAODEventInfo PATInterfaces xAODRootAccess
+      JetUncertaintiesLib )
+endif()
 
 # Install files from the package:
-atlas_install_generic( share/JES_2011/Final/*.config
-                       DESTINATION share/JetUncertainties/JES_2011/Final
-                       EXECUTABLE )
-atlas_install_generic( share/JES_2012/Moriond2013/*.config
-                       DESTINATION share/JetUncertainties/JES_2012/Moriond2013
-                       EXECUTABLE )
-atlas_install_generic( share/JES_2012/Final/*.config
-                       DESTINATION share/JetUncertainties/JES_2012/Final
-                       EXECUTABLE )
-atlas_install_generic( share/JES_2015/Prerec/*.config
-                       DESTINATION share/JetUncertainties/JES_2015/Prerec
-                       EXECUTABLE )
-atlas_install_generic( share/JES_2015/Moriond2016/*.config
-                       DESTINATION share/JetUncertainties/JES_2015/Moriond2016
-                       EXECUTABLE )
-atlas_install_generic( share/JES_2015/ICHEP2016/*.config
-                       DESTINATION share/JetUncertainties/JES_2015/ICHEP2016
-                       EXECUTABLE )
-atlas_install_generic( share/UJ_2012/*.config
-                       DESTINATION share/JetUncertainties/UJ_2012
-                       EXECUTABLE )
-atlas_install_generic( share/UJ_2015/Prerec/*.config
-                       DESTINATION share/JetUncertainties/UJ_2015/Prerec
-                       EXECUTABLE )
-atlas_install_generic( share/UJ_2015/Moriond2016/*.config
-                       DESTINATION share/JetUncertainties/UJ_2015/Moriond2016
-                       EXECUTABLE )
-atlas_install_generic( share/UJ_2015/ICHEP2016/*.config
-                       DESTINATION share/JetUncertainties/UJ_2015/ICHEP2016
-                       EXECUTABLE )
-atlas_install_generic( share/analysisInputs/*.root
-                       DESTINATION share/JetUncertainties/analysisInputs
-                       EXECUTABLE )
-
+atlas_install_generic( share/*
+   DESTINATION share PKGNAME_SUBDIR )

@@ -90,8 +90,10 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual bool        getComponentScalesD23(const size_t index)      const;
         virtual bool        getComponentScalesTau21(const size_t index)    const;
         virtual bool        getComponentScalesTau32(const size_t index)    const;
+        virtual bool        getComponentScalesTau21WTA(const size_t index) const;
         virtual bool        getComponentScalesTau32WTA(const size_t index) const;
         virtual bool        getComponentScalesD2Beta1(const size_t index)  const;
+        virtual bool        getComponentScalesQw(const size_t index)       const;
         virtual bool        getComponentScalesMultiple(const size_t index) const;
         // Retrieve multi-component information
         virtual std::vector<std::string> getComponentCategories() const;
@@ -171,6 +173,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_configFile;
         std::string m_path;
         std::string m_analysisFile;
+        std::vector<std::string> m_systFilters;
 
         // Information to read in and store from the config file
         float m_refNPV;
@@ -219,11 +222,14 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         StatusCode updateSplittingScale23(xAOD::Jet& jet, const double shift) const;
         StatusCode updateTau21(xAOD::Jet& jet, const double shift) const;
         StatusCode updateTau32(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateTau21WTA(xAOD::Jet& jet, const double shift) const;
         StatusCode updateTau32WTA(xAOD::Jet& jet, const double shift) const;
         StatusCode updateD2Beta1(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateQw(xAOD::Jet& jet, const double shift) const;
 
 
         // Helper methods for CP::ISystematicsTool functions
+        bool checkIfRecommendedSystematic(const jet::UncertaintyGroup& systematic) const;
         virtual CP::SystematicCode addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended);
         virtual CP::SystematicCode getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet);
         virtual CP::SystematicCode getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet);
