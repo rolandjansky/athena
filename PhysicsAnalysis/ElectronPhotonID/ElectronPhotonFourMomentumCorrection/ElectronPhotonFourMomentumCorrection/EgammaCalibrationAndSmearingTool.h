@@ -24,6 +24,7 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "AsgTools/AnaToolHandle.h"
 
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 
@@ -118,15 +119,16 @@ public:
 
   virtual double resolution( double energy, double cl_eta, double cl_etaCalo,
                              PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron, bool withCT=false) const override;
+
 private:
 
   bool m_metadata_retrieved = false;
   std::string m_ESModel;
   std::string m_decorrelation_model_name;
-	std::string m_decorrelation_model_scale_name;
-	std::string m_decorrelation_model_resolution_name;
-	ScaleDecorrelation m_decorrelation_model_scale = ScaleDecorrelation::FULL;
-	ResolutionDecorrelation m_decorrelation_model_resolution = ResolutionDecorrelation::FULL;
+  std::string m_decorrelation_model_scale_name;
+  std::string m_decorrelation_model_resolution_name;
+  ScaleDecorrelation m_decorrelation_model_scale = ScaleDecorrelation::FULL;
+  ResolutionDecorrelation m_decorrelation_model_resolution = ResolutionDecorrelation::FULL;
   egEnergyCorr::ESModel m_TESModel;
   int m_doScaleCorrection;
   int m_doSmearing;
@@ -136,6 +138,7 @@ private:
   egEnergyCorr::Resolution::resolutionType m_TResolutionType;
   int m_use_AFII;
   PATCore::ParticleDataType::DataType m_simulation = PATCore::ParticleDataType::Full;
+  int m_RandomRunNumber;
   //flags duplicated from the underlying ROOT tool
   int m_useLayerCorrection;
   int m_usePSCorrection;
@@ -150,6 +153,7 @@ private:
   int m_use_temp_correction201215;
   int m_use_uA2MeV_2015_first2weeks_correction;
   bool m_use_mapping_correction;
+  int m_user_random_run_number;
 
   void setupSystematics();
 
