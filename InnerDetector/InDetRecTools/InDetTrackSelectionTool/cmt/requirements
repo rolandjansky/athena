@@ -1,5 +1,6 @@
 package InDetTrackSelectionTool
 ## author Michael Clark <michael.ryan.clark@cern.ch>
+use AtlasPolicy            AtlasPolicy-*
 
 private
 
@@ -14,7 +15,6 @@ use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkTrackSummary"
 
 public
 
-use AtlasPolicy            AtlasPolicy-*
 use GaudiInterface         GaudiInterface-*         External
 use AsgTools        	   AsgTools-*   	     Control/AthToolSupport
 use PATCore         	   PATCore-*         	     PhysicsAnalysis/AnalysisCommon

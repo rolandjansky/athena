@@ -42,7 +42,7 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
 #endif // XAOD_ANALYSIS
 {
 
-  // set the cut selection: default is "no cut"
+    // set the cut selection: default is "no cut"
   setCutLevelPrivate(InDet::CutLevel::NoCut);
 
 #ifndef XAOD_STANDALONE
@@ -152,6 +152,7 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
   declareProperty("UseTrkTrackTools", m_initTrkTools);
   declareProperty("TrackSummaryTool", m_trackSumTool);
   declareProperty("Extrapolator", m_extrapolator);
+  declareProperty("TrackSelectionSvc", m_trackCutSvc);
 #endif
 
 }
