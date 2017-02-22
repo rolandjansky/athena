@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagging_v1.cxx 713466 2015-12-08 21:46:29Z ssnyder $
+// $Id: BTagging_v1.cxx 798360 2017-02-22 22:40:47Z mughetto $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -330,12 +330,12 @@ namespace xAOD {
    //              Implementation of the JetFitterComb accessor functions
    //
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, double, JetFitterCombNN_pb,
-                                         setJetFitterCombNN_pb )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, double, JetFitterCombNN_pu,
-                                         setJetFitterCombNN_pu )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, double, JetFitterCombNN_pc,
-                                         setJetFitterCombNN_pc )
+   //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, double, JetFitterCombNN_pb,
+   //                                      setJetFitterCombNN_pb )
+   //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, double, JetFitterCombNN_pu,
+   //                                      setJetFitterCombNN_pu )
+   //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, double, JetFitterCombNN_pc,
+   //                                      setJetFitterCombNN_pc )
 
    //
    /////////////////////////////////////////////////////////////////////////////
@@ -379,14 +379,35 @@ namespace xAOD {
      }
      return val;
    }
+   
+   double BTagging_v1::calcDL1LLR(const std::string& taggername) const {
+     double dl1 = -1.;
+     double fc = 0.07;
+     double dl1pb, dl1pc, dl1pu;
+     pu(taggername,dl1pu);
+     pb(taggername,dl1pb);
+     pc(taggername,dl1pc);
+     if (!std::isnan(dl1pu) && dl1pb>0 && dl1pc>0 && dl1pu>0 ) dl1 = log(dl1pb/(fc*dl1pc+(1.-fc)*dl1pu));
+     return dl1;
+   }
 
 
-   bool BTagging_v1::MVx_discriminant(const std::string& taggername, double &value) const {
-     return variable<double>(taggername, "discriminant", value);
+   bool BTagging_v1::pu(const std::string& taggername, double &value) const {
+     return variable<double>(taggername, "pu", value);
    } 
 
+   bool BTagging_v1::pb(const std::string& taggername, double &value) const {
+     return variable<double>(taggername, "pb", value);
+   }
  
-
+   bool BTagging_v1::pc(const std::string& taggername, double &value) const {
+     return variable<double>(taggername, "pc", value);
+   }
+ 
+   bool BTagging_v1::MVx_discriminant(const std::string& taggername, double &value) const {
+     return variable<double>(taggername, "discriminant", value);
+   }
+ 
    //
    /////////////////////////////////////////////////////////////////////////////
 
