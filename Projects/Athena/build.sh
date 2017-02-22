@@ -65,6 +65,7 @@ while getopts ":t:b:hcmipa" opt; do
     esac
 done
 
+# If no step was explicitly specified, turn them all on:
 if [ -z "$EXE_CMAKE" -a -z "$EXE_MAKE" -a -z "$EXE_INSTALL" -a -z "$EXE_CPACK" ]; then
     EXE_CMAKE="1"
     EXE_MAKE="1"
@@ -93,9 +94,13 @@ set -o pipefail
 
 # CMake:
 if [ -n "$EXE_CMAKE" ]; then
+    # Remove the CMakeCache.txt file, to force CMake to find externals
+    # from scratch in an incremental build.
+    rm -f CMakeCache.txt
+    # Now run the actual CMake configuration:
     time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
-	-DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-	${AthenaSrcDir} 2>&1 | tee cmake_config.log
+        -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
+        ${AthenaSrcDir} 2>&1 | tee cmake_config.log
 fi
 
 # for nightly builds we want to get as far as we can
@@ -106,17 +111,17 @@ fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
-    time make -k
+    time make -k 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
     time make install/fast \
-	DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION}
+	DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
-    time cpack
+    time cpack 2>&1 | tee cmake_cpack.log
     cp Athena*.rpm ${BUILDDIR}/
 fi

@@ -69,7 +69,7 @@ int JetTrackSumMomentsTool::modifyJet(xAOD::Jet& jet) const {
   // Note that there may be no tracks - this is both normal and an error case
   std::vector<const xAOD::TrackParticle*> tracks;
   if ( ! jet.getAssociatedObjects(m_assocTracksName, tracks) ) {
-    ATH_MSG_WARNING("Associated tracks not found.");
+    ATH_MSG_DEBUG("Associated tracks not found.");
   }
   
 
