@@ -2,4 +2,4 @@
 # this project, when doing a full stack nightly build.
 
 AthenaExternalsVersion = master
-GaudiVersion = v28r0.004
+GaudiVersion = v28r1.004
