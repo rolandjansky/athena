@@ -718,6 +718,8 @@ def defineMenu():
         'L1_DPHI-CJ20XE50',
         'L1_MU4_J20_XE30_DPHI-J20s2XE30',
         'L1_2MU4_J20_XE30_DPHI-J20s2XE30',
+        'L1_MU4_2EM3_J20_XE30_DPHI-J20s2XE30',
+        'L1_3EM3_J40_XE50_DPHI-J20s2XE50',
         'L1_MJJ-900',
         'L1_MJJ-800',
         'L1_MJJ-700',
@@ -799,6 +801,8 @@ def defineMenu():
         'L1_EM18VH_MJJ-300',
 
         'L1_LATE-MU10_XE50', 'L1_LATE-MU10_J50',
+
+        'L1_TAU60_DR-TAU20ITAU12I',
 
         'L1_SC111',
         'L1_SC85',
@@ -965,6 +969,7 @@ def defineMenu():
         'L1_MU10_TAU12I-J25' : 73,
         'L1_TAU20IM_2J20_XE45' : 74,
         'L1_TAU30_UNPAIRED_ISO' :343,
+        'L1_TAU60_DR-TAU20ITAU12I' : 76,
         'L1_EM15HI_2TAU12IM_XE35' : 78,
         'L1_MU10_TAU12IM_XE35' : 81,
 #        'L1_MU10_TAU12IM_XE40' : 82,
@@ -1213,6 +1218,8 @@ def defineMenu():
         'L1_J40_DPHI-CJ20XE50' : 253,
         'L1_MU4_J20_XE30_DPHI-J20s2XE30' : 257,
         'L1_2MU4_J20_XE30_DPHI-J20s2XE30' : 271,
+        'L1_MU4_2EM3_J20_XE30_DPHI-J20s2XE30' : 434,
+        'L1_3EM3_J40_XE50_DPHI-J20s2XE50' : 435,
 #SX
 #        'L1_BPH-DR-2MU4-B_BPH-2M-2MU4-B' : 254,
 #        'L1_BPH-DR-2MU4-B_BPH-4M8-2MU4-B' : 255,

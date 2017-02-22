@@ -24,7 +24,7 @@ class TrkDistanceFinderNeutralNeutral : public AthAlgTool
   ~TrkDistanceFinderNeutralNeutral();
   
   std::pair<Amg::Vector3D,double> getPointAndDistance(const Trk::NeutralTrack&,const Trk::NeutralTrack&,
-						    double &);
+						    double &) const;
   
   static const InterfaceID& interfaceID()
     {

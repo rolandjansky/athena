@@ -428,6 +428,10 @@ int main(int argc, char** argv) {
   if ( taglabels.size()>0 )    std::cout << "\textra text:   " << taglabels << std::endl;  
 
 
+  for ( size_t il=0 ; il<usrlabels.size() ; il++ ) { 
+    std::cout << "usr label[" << il << "] : " << usrlabels[il] << std::endl;
+  } 
+
   if ( atlasstyle ) { 
     SetAtlasStyle();
     

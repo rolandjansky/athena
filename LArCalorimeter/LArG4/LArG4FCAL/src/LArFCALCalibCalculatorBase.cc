@@ -65,7 +65,8 @@ namespace LArG4 {
 
     LArFCALCalibCalculatorBase::LArFCALCalibCalculatorBase()
       : m_deltaX(0), m_deltaY(0), m_FCalSampling(0), m_identifier(LArG4Identifier()), m_OOTcut(0), m_zShift(0.),
-	m_time(0), m_isInTime(0)
+	m_time(0), m_isInTime(0),
+        m_ChannelMap(nullptr)
     { 	
       // Initialize the energy calculators.
       //      m_electrode.GetElectrodes();

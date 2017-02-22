@@ -1,17 +1,18 @@
-Fri Dec 23 18:07:07 CET 2016
+Fri Feb 17 20:14:54 CET 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2016-12-23 18:05]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2017-02-17 20:14]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_BasicJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 4875 configurables from 11 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5232 configurables from 11 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO Can't set int to string property (this is correct)
 Py:Athena            INFO Can't set non-existing property (this is correct)
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
+|-Atomic                    = False
 |-AuditAlgorithms           = False
 |-AuditBeginRun             = False
 |-AuditEndRun               = False
@@ -31,9 +32,11 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 |-EvtStore                  = ServiceHandle('StoreGateSvc')
 |-ExtraInputs               = []  (default: [])
 |-ExtraOutputs              = []  (default: [])
+|-IgnoreFilterPassed        = False
 |-IsClonable                = False
 |-IsIOBound                 = False
 |-Members                   = ['TopAlgorithm/TopAlgorithm', 'TopAlgorithm/MyAlg']  (default: [])
+|-ModeOR                    = False
 |-MonitorService            = 'MonitorSvc'
 |-NeededResources           = []  (default: [])
 |-OutputLevel               = 0
@@ -406,25 +409,25 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | \----- (End of Algorithm TopAlgorithm/MyAlg) -------------------------------------------------------
 \----- (End of Algorithm AthSequencer/TopAlg) ------------------------------------------------------
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 16, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 200, which is not a valid value for type 'bool'
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r0)
-                                          running on lxplus019.cern.ch on Fri Dec 23 18:07:21 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
+                                          running on lxplus028.cern.ch on Fri Feb 17 20:15:08 2017
 ====================================================================================================================================
-/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 144, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 128, which is not a valid value for type 'bool'
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc                      INFO initialize
 AthDictLoaderSvc                   INFO in initialize...
 AthDictLoaderSvc                   INFO acquired Dso-registry
-ClassIDSvc                         INFO  getRegistryEntries: read 2297 CLIDRegistry entries for module ALL
+ClassIDSvc                         INFO  getRegistryEntries: read 2200 CLIDRegistry entries for module ALL
 ChronoStatSvc                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-45-01
+AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-60
 AthMasterSeq                       INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq                          INFO Member list: TopAlgorithm, TopAlgorithm/MyAlg
 TopAlgorithm                      DEBUG Property update for OutputLevel : new value = 2
@@ -522,6 +525,7 @@ MyAlg                             DEBUG Data Deps for MyAlg
 HistogramPersistencySvc         WARNING Histograms saving not required.
 ApplicationMgr                     INFO Application Manager Initialized successfully
 ApplicationMgr                     INFO Application Manager Started successfully
+ClassIDSvc                         INFO  getRegistryEntries: read 1279 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr                 INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr                 INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 TopAlgorithm                       INFO got this quote [Your day will be somewhat dictated by authority].
@@ -730,7 +734,7 @@ TopAlgorithm.TSTT                 DEBUG Calling destructor
 *****Chrono*****                   INFO ****************************************************************************************************
 *****Chrono*****                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                   INFO ****************************************************************************************************
-ChronoStatSvc                      INFO Time User   : Tot=  400 [ms]                                             #=  1
+ChronoStatSvc                      INFO Time User   : Tot=  340 [ms]                                             #=  1
 *****Chrono*****                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()           INFO  Service finalized successfully 
 ApplicationMgr                     INFO Application Manager Finalized successfully

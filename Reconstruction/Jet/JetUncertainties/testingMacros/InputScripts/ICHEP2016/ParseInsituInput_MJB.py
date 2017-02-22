@@ -85,6 +85,8 @@ def ReadInSituHistograms(dirName):
         if jetDef == "":
             print "Failed to determine jet definition for directory:",aSubDirName
             continue
+        else :
+            print "Jet definition is",jetDef
         histos[jetDef] = {}
         
         # Loop over the systematic files in the subdirectory

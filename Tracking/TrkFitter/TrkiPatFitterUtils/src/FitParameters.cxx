@@ -677,6 +677,7 @@ FitParameters::reset (const FitParameters& parameters)
 	else
 	{
 	    m_differences		= new Amg::VectorX(m_numberParameters);
+	    m_differences->setZero();
 	}
     }
     else

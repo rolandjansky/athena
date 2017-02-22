@@ -67,8 +67,6 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_single_mu_100-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_single_mu_100-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 

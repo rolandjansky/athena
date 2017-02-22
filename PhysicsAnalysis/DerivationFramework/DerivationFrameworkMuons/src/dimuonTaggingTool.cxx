@@ -69,10 +69,13 @@ DerivationFramework::dimuonTaggingTool::dimuonTaggingTool(const std::string& t,
   m_invariantMassLow2 = m_invariantMassLow*fabs(m_invariantMassLow);
   m_invariantMassHigh2 = m_invariantMassHigh*fabs(m_invariantMassHigh);
   m_thinningConeSize2 = m_thinningConeSize*fabs(m_thinningConeSize);
+
+//   deco_trkFlag = new SG::AuxElement::Decorator< int >(m_br_prefix+"DIMU_Status"); 
 }
   
 // Destructor
 DerivationFramework::dimuonTaggingTool::~dimuonTaggingTool() {
+//   delete deco_trkFlag;
 }  
 
 // Athena initialize and finalize
@@ -149,6 +152,9 @@ StatusCode DerivationFramework::dimuonTaggingTool::fillInfo(int* keepEvent, std:
   ATH_CHECK(evtStore()->retrieve(tracks, m_trackSGKey));
   const unsigned int NTRACKS = tracks->size();
   trackMask.assign(NTRACKS,0);
+  SG::AuxElement::Decorator< int > deco_trkFlag1(m_br_prefix+"DIMU_Status");
+  for(auto mu: *tracks) deco_trkFlag1(*mu) = 0;
+//   for(auto mu: *tracks) (*deco_trkFlag)(*mu) = 0;
 
   //// check Or triggers
   for(unsigned int i=0; i<m_orTrigs.size(); i++){if(m_trigDecisionTool->isPassed(m_orTrigs[i])) *keepEvent = 100;}
@@ -194,11 +200,11 @@ StatusCode DerivationFramework::dimuonTaggingTool::fillInfo(int* keepEvent, std:
     for(auto mu_itr2: *truth) maskNearbyIDtracks(mu_itr2, trackMask, tracks);
   }
 
-  static SG::AuxElement::Decorator< int > deco_trkFlag(m_br_prefix+"DIMU_Status");
   int i(0);
-  for(auto mu_itr2: *tracks) {
+  for(auto mu: *tracks) {
     int code = trackMask[i++];
-    deco_trkFlag(*mu_itr2) = code>=100?1000:code;
+    deco_trkFlag1(*mu) = code>=100?1000:code;
+//     (*deco_trkFlag)(*mu) = code>=100?1000:code;
   }
 
   return StatusCode::SUCCESS;

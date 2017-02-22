@@ -134,9 +134,9 @@ StatusCode Trk::InputLayerMaterialProvider::process(const Trk::Layer& lay, size_
     ATH_MSG_DEBUG(displayBuffer.str() << "   assigning material for Layer with Index: " << lIndex.value());
     ATH_MSG_VERBOSE(displayBuffer.str() << "                 Layer memory adress is : " << &lay);
     
-    Trk::HomogeneousLayerMaterial* hLayerMaterial = new Trk::HomogeneousLayerMaterial(m_constantMaterialProperties, 1.);
+    Trk::HomogeneousLayerMaterial hLayerMaterial = Trk::HomogeneousLayerMaterial(m_constantMaterialProperties, 1.);
     // assign it to the layer
-    lay.assignMaterialProperties(*hLayerMaterial);
+    lay.assignMaterialProperties(hLayerMaterial);
     
     return StatusCode::SUCCESS;
 }

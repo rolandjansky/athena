@@ -6,23 +6,32 @@
                        
 namespace Tau{
 
-	EfficiencyPtPlots::EfficiencyPtPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):PlotBase(pParent, sDir),
-	m_sTauJetContainerName(sTauJetContainerName){	
-	}
-	EfficiencyPtPlots::~EfficiencyPtPlots()
-	{
-	}
+EfficiencyPtPlots::EfficiencyPtPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+   PlotBase(pParent, sDir),
+   m_eff_pt_jetBDTloose(nullptr),
+   m_eff_pt_jetBDTmed(nullptr),
+   m_eff_pt_jetBDTtight(nullptr),
+   m_eff_jetBDTloose(nullptr),
+   m_eff_jetBDTmed(nullptr),
+   m_eff_jetBDTtight(nullptr),
+   m_sTauJetContainerName(sTauJetContainerName)
+{	
+}
+
+EfficiencyPtPlots::~EfficiencyPtPlots()
+{
+}
 
 void EfficiencyPtPlots::initializePlots(){
 
-	m_eff_pt_jetBDTloose      = BookTProfile("Eff_Pt_jetBDTloose"," Matched Tau loose eff in pt; pt; eff",15,0.,300.);
-	m_eff_pt_jetBDTmed        = BookTProfile("Eff_Pt_jetBDTmed","Matched Tau med eff in pt; pt; eff",15,0.,300.);
-	m_eff_pt_jetBDTtight      = BookTProfile("Eff_Pt_jetBDTtight","Matched Tau tight eff in pt; pt; eff",15,0.,300.);
-
-	m_eff_jetBDTloose      = BookTProfile("Eff_jetBDTloose"," Matched Tau loose eff total; bin; eff",3,-1.5,1.5);
-	m_eff_jetBDTmed        = BookTProfile("Eff_jetBDTmed","Matched Tau med eff total; bin; eff",3,-1.5,1.5);
-	m_eff_jetBDTtight      = BookTProfile("Eff_jetBDTtight","Matched Tau tight eff total; bin; eff",3,-1.5,1.5);
-
+   m_eff_pt_jetBDTloose = BookTProfile("Eff_Pt_jetBDTloose"," Matched Tau loose eff in pt; pt; eff",15,0.,300.);
+   m_eff_pt_jetBDTmed   = BookTProfile("Eff_Pt_jetBDTmed","Matched Tau med eff in pt; pt; eff",15,0.,300.);
+   m_eff_pt_jetBDTtight = BookTProfile("Eff_Pt_jetBDTtight","Matched Tau tight eff in pt; pt; eff",15,0.,300.);
+   
+   m_eff_jetBDTloose    = BookTProfile("Eff_jetBDTloose"," Matched Tau loose eff total; bin; eff",3,-1.5,1.5);
+   m_eff_jetBDTmed      = BookTProfile("Eff_jetBDTmed","Matched Tau med eff total; bin; eff",3,-1.5,1.5);
+   m_eff_jetBDTtight    = BookTProfile("Eff_jetBDTtight","Matched Tau tight eff total; bin; eff",3,-1.5,1.5);
+   
 
 }
 

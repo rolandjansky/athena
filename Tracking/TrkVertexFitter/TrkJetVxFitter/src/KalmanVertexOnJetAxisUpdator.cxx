@@ -50,7 +50,7 @@ namespace Trk{
 
  StatusCode KalmanVertexOnJetAxisUpdator::finalize()
  {
-   msg(MSG::INFO)  << "Finalize successful" << endreq;
+   ATH_MSG_INFO( "Finalize successful" );
    return StatusCode::SUCCESS;
  }
 
@@ -414,7 +414,7 @@ namespace Trk{
       }
       catch (std::string a)
       {
-        msg(MSG::ERROR)  << a << " Previous vertex returned " << endreq;
+        ATH_MSG_ERROR( a << " Previous vertex returned " );
         Trk::RecVertexPositions r_vtx(myPosition);
         return r_vtx;
       }
@@ -505,7 +505,7 @@ namespace Trk{
 
     //check that all pointers are there...
     if (vertexCandidate==0||trackToUpdate==0) { 
-      msg(MSG::WARNING) << " Empty pointers then calling fit method updateChi2NdfInfo. No update will be done..." << endreq;
+      ATH_MSG_WARNING( " Empty pointers then calling fit method updateChi2NdfInfo. No update will be done..." );
       return;
     }
 
@@ -518,7 +518,7 @@ namespace Trk{
     
     for (std::vector<Trk::VxTrackAtVertex*>::const_iterator tracksIter=tracksBegin;tracksIter!=tracksEnd;++tracksIter) {
       if ((*tracksIter)==0) {
-	msg(MSG::WARNING) << " Empty pointer in vector of VxTrackAtVertex of the VxVertexOnJetAxis whose chi2 is being updated. No update will be done..." << endreq;
+	ATH_MSG_WARNING( " Empty pointer in vector of VxTrackAtVertex of the VxVertexOnJetAxis whose chi2 is being updated. No update will be done..." );
 	return;
       } else {
 	if (*tracksIter==trackToUpdate) {
@@ -529,7 +529,7 @@ namespace Trk{
     }  
     
     if (found==false) {
-      msg(MSG::WARNING) << " Track was not found in the VxVertexOnJetAxis's list. No update will be done..." << endreq;
+      ATH_MSG_WARNING( " Track was not found in the VxVertexOnJetAxis's list. No update will be done..." );
       return;
     }
 
@@ -539,10 +539,10 @@ namespace Trk{
     
     Trk::RecVertexPositions vertexPositions = vertexCandidate->getRecVertexPositions();
     
-    //    log << MSG::VERBOSE << "vertexPositions (update chi2): " << vertexPositions << endreq;
+    //    log << MSG::VERBOSE << "vertexPositions (update chi2): " << vertexPositions << endmsg;
 
     if (trackToUpdate->linState()==0) {
-      msg(MSG::WARNING) << "Linearized state not associated to track. Aborting chi2 update... " << vertexPositions << endreq;
+      ATH_MSG_WARNING( "Linearized state not associated to track. Aborting chi2 update... " << vertexPositions );
       return;
     }
 
@@ -630,7 +630,7 @@ namespace Trk{
 
     //check that all pointers are there...
     if (vertexCandidate==0) { 
-      msg(MSG::WARNING) << " Empty pointers then calling chi2 update method updateVertexChi2. No update will be done..." << endreq;
+      ATH_MSG_WARNING( " Empty pointers then calling chi2 update method updateVertexChi2. No update will be done..." );
       return;
     }
 
@@ -760,7 +760,7 @@ namespace Trk{
 /*    if (numRows>6 && fabs(D(0,1))>1e-6)
     {
       //const std::streamsize old = std::cout.precision();
-      msg(MSG::ERROR) << std::setprecision(10) << " Will invert normally, because the non diagonal element is: " << D(0,1) << endreq;
+      ATH_MSG_ERROR( std::setprecision(10) << " Will invert normally, because the non diagonal element is: " << D(0,1) );
 
       new_vrt_weight=new_vrt_weight.inverse().eval();
       return;

@@ -74,6 +74,7 @@ int run(int argc, const char* argv[]) {
 
    // instantiate steering
    TCS::TopoSteering steering;
+   steering.setUseBitwise(false);
    steering.setupFromConfiguration(XMLParser.takeMenu());
 
    steering.setMsgLevel( msgLvl );

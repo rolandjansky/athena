@@ -4,23 +4,16 @@
 
 #include "LArG4RunControl/LArG4TBPosOptions.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
 void LArG4TBPosOptions::saveMe()
 {
-  IService* pSvc;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StatusCode result = svcLocator->service("DetectorStore",pSvc);
-
-  if(result.isSuccess())
-  {
-    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=detStore->record(this,"LArG4TBPosOptions");
-    if(!result.isSuccess())
-      std::cout << "Can not record LArG4BarrelOptions" << std::endl;
-
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore",
+                                        "LArG4TBPosOptions::saveMe");
+  if (detStore.retrieve().isSuccess()) {
+    if (detStore->record(this,"LArG4TBPosOptions").isFailure())
+      std::cout << "Can not record LArG4TBPosOptions" << std::endl;
   }
 }
 

@@ -6,14 +6,19 @@
 
 namespace Tau{
 
-    Migration::Migration(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):PlotBase(pParent, sDir),
-    		m_sTauJetContainerName(sTauJetContainerName){
-    }
-    
-    
-    Migration::~Migration()
-    {
-    }
+Migration::Migration(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+   PlotBase(pParent, sDir),
+   m_migration_tauRec(nullptr),
+   m_migration_eflow(nullptr),
+   m_migration_cellBased(nullptr),
+   m_sTauJetContainerName(sTauJetContainerName)
+{
+}
+ 
+Migration::~Migration()
+{
+}
+
     void Migration::initializePlots(){
 	m_migration_tauRec = Book1D("tauRec_migration",m_sTauJetContainerName + " TauRec migration",DECAYSIZE,0,DECAYSIZE);
 	m_migration_eflow = Book1D("eflow_migration",m_sTauJetContainerName + " eflow migration",DECAYSIZE,0,DECAYSIZE);

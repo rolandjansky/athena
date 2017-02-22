@@ -90,7 +90,7 @@ StatusCode VxCandidateXAODVertex::finalize()
 // Protected methods: 
 /////////////////////////////////////////////////////////////////// 
 
-  StatusCode VxCandidateXAODVertex::createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex)
+  StatusCode VxCandidateXAODVertex::createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex) const
   {
     if (vxVertex) {
       ATH_MSG_WARNING("Passed a valid pointer as return object. It will be overwritten: potential memory leak!");

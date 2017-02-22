@@ -85,8 +85,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-tau_IBL_pu46_offline-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-tau_IBL_pu46_offline-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 

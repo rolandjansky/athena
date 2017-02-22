@@ -92,50 +92,50 @@ namespace Trk
     //retrieving the udator itself 	 
     StatusCode sc = m_helper.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR)<<" Unable to retrieve "<<m_helper<<endreq; 	 
+      ATH_MSG_ERROR( " Unable to retrieve "<<m_helper );
       return StatusCode::FAILURE; 	 
     }
 
     sc = m_initializationHelper.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR)<<" Unable to retrieve "<<m_initializationHelper<<endreq; 	 
+      ATH_MSG_ERROR( " Unable to retrieve "<<m_initializationHelper );
       return StatusCode::FAILURE; 	 
     }
 
     sc = m_minDistanceFinder.retrieve();
     if (sc.isFailure()) 
     {
-      msg(MSG::ERROR)<<"Unable to retrieve " << m_minDistanceFinder << endreq;
+      ATH_MSG_ERROR( "Unable to retrieve " << m_minDistanceFinder );
       return StatusCode::FAILURE; 	 
     }
 
     sc = m_minDistanceFinderNeutral.retrieve();
     if (sc.isFailure()) 
     {
-      msg(MSG::ERROR)<<"Unable to retrieve " << m_minDistanceFinderNeutral << endreq;
+      ATH_MSG_ERROR( "Unable to retrieve " << m_minDistanceFinderNeutral );
       return StatusCode::FAILURE; 	 
     }
     
 
     sc = m_updator.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR)<<" Unable to retrieve "<<m_updator<<endreq; 	 
+      ATH_MSG_ERROR( " Unable to retrieve "<<m_updator );
       return StatusCode::FAILURE; 	 
     }
 
     sc = m_smoother.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR)<<" Unable to retrieve "<<m_smoother<<endreq; 	 
+      ATH_MSG_ERROR( " Unable to retrieve "<<m_smoother );
       return StatusCode::FAILURE; 	 
     }
 
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    ATH_MSG_INFO( "Initialize successful" );
     return StatusCode::SUCCESS;
   }
 
   StatusCode JetFitterRoutines::finalize() {
 
-    msg(MSG::INFO) << "Finalize successful" << endreq;
+    ATH_MSG_INFO( "Finalize successful" );
     return StatusCode::SUCCESS;
 
   }
@@ -174,18 +174,19 @@ namespace Trk
           
           const std::vector<VxTrackAtVertex*> & tracksAtVertex=myVertex->getTracksAtVertex();
           if (tracksAtVertex.size()>1) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Warning in JetFitterInitializationHelper.Number of tracks at vertex is bigger than one, " << 
-                "even during initialization phase. Skipping this vertex (already initialized)..." << endreq;
+            if (msgLvl(MSG::DEBUG)) 
+              ATH_MSG_DEBUG( "Warning in JetFitterInitializationHelper.Number of tracks at vertex is bigger than one, " 
+                             << "even during initialization phase. Skipping this vertex (already initialized)..." );
           } 
           else if (tracksAtVertex.size()==0)
           {
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No track at vertex. Internal fitter error. Contact author (GP) ... " << endreq;
+            if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "No track at vertex. Internal fitter error. Contact author (GP) ... " );
           }
           else
           {
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " TrackAtVertexSize is: " << tracksAtVertex.size() << endreq;
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " pointer to first element: " << tracksAtVertex[0] << endreq;
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " pointer to initialPerigee: " << tracksAtVertex[0]->initialPerigee() << endreq;
+            if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " TrackAtVertexSize is: " << tracksAtVertex.size() );
+            if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " pointer to first element: " << tracksAtVertex[0] );
+            if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " pointer to initialPerigee: " << tracksAtVertex[0]->initialPerigee() );
 
 	    // RS 19.04.2011 try to fix coverity defect 22750
 	    const Trk::Perigee* ptr = dynamic_cast<const Trk::Perigee*>((tracksAtVertex[0]->initialPerigee()));
@@ -205,7 +206,7 @@ namespace Trk
 
                   if (fabs(recPosition[Trk::jet_theta])>1e-8)
                   {
-                    msg(MSG::DEBUG) << " Closest distance of track to jet axis is outside ID envelope, R=" << R << ", setting to R= " << m_maxR << endreq;
+                    ATH_MSG_DEBUG( " Closest distance of track to jet axis is outside ID envelope, R=" << R << ", setting to R= " << m_maxR );
                     distOnAxis=m_maxR / fabs(TMath::Sin(recPosition[Trk::jet_theta]));
                   }
                 }
@@ -215,7 +216,7 @@ namespace Trk
                 {
                   if (fabs(TMath::Cos(recPosition[Trk::jet_theta]))>1e-8)
                   {
-                    msg(MSG::DEBUG) << " Closest distance of track to jet axis is outside ID envelope, Z=" << Z << ", setting to Z= " << m_maxZ << endreq;
+                    ATH_MSG_DEBUG( " Closest distance of track to jet axis is outside ID envelope, Z=" << Z << ", setting to Z= " << m_maxZ );
                     distOnAxis=m_maxZ / TMath::Cos(recPosition[Trk::jet_theta]);
                   }
                 }
@@ -224,9 +225,9 @@ namespace Trk
                   
 
               } catch (Error::NewtonProblem e) {
-                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Problem with Newton finder " << e.p << endreq;
+                if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "Problem with Newton finder " << e.p );
               } catch (...) {
-                msg(MSG::ERROR) << "Could not catch error " << endreq;
+                ATH_MSG_ERROR( "Could not catch error " );
               }
               ATH_MSG_DEBUG ("initializingToMinDistancesToJetAxis for vertex number... " << 
                              myVertex->getNumVertex() << " to distance " << distOnAxis << 
@@ -253,7 +254,7 @@ namespace Trk
                 
                 if (fabs(recPosition[Trk::jet_theta])>1e-8)
                 {
-                  msg(MSG::DEBUG) << " Closest distance of track to jet axis is outside ID envelope, R=" << R << ", setting to R= " << m_maxR << endreq;
+                  ATH_MSG_DEBUG( " Closest distance of track to jet axis is outside ID envelope, R=" << R << ", setting to R= " << m_maxR );
                   distOnAxis=m_maxR / fabs(TMath::Sin(recPosition[Trk::jet_theta]));
                 }
               }
@@ -263,23 +264,25 @@ namespace Trk
               {
                 if (fabs(TMath::Cos(recPosition[Trk::jet_theta]))>1e-8)
                 {
-                  msg(MSG::DEBUG) << " Closest distance of track to jet axis is outside ID envelope, Z=" << Z << ", setting to Z= " << m_maxZ << endreq;
+                  ATH_MSG_DEBUG( " Closest distance of track to jet axis is outside ID envelope, Z=" << Z << ", setting to Z= " << m_maxZ );
                   distOnAxis=m_maxZ / TMath::Cos(recPosition[Trk::jet_theta]);
                 }
               }
               
               linPositions[numRow(myVertex->getNumVertex())]=distOnAxis;
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "initializingToMinDistancesToJetAxis for vertex from NEUTRAL number... " << 
-                  myVertex->getNumVertex() << " to distance " << distOnAxis << " distance to axis " <<  result.second << endreq;
+              if (msgLvl(MSG::DEBUG)) 
+                ATH_MSG_DEBUG( "initializingToMinDistancesToJetAxis for vertex from NEUTRAL number... " << 
+                               myVertex->getNumVertex() << " to distance " << 
+                               distOnAxis << " distance to axis " <<  result.second );
               
             }
             else 
             {
-              if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not cast to neither CHARGED or NEUTRAL! This error is not FATAL" << endreq;
+              if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "Could not cast to neither CHARGED or NEUTRAL! This error is not FATAL" );
             }
           }
         } else {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Warning in JetFitterInitializationHelper.Inconsistency found. Pointer to VxVertexOnJetAxis should be different from zero. Skipping track..." << endreq;
+          if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "Warning in JetFitterInitializationHelper.Inconsistency found. Pointer to VxVertexOnJetAxis should be different from zero. Skipping track..." );
           throw;
         }
       }
@@ -317,7 +320,7 @@ namespace Trk
 
 	myJetCandidate->setRecVertexPositions(RecVertexPositions(myJetCandidate->getConstraintVertexPositions()));
 
-	msg() << myJetCandidate->getRecVertexPositions() << endreq;
+	ATH_MSG_DEBUG( myJetCandidate->getRecVertexPositions() );
 	
 	//linearization position is now stored in a different VertexPositions attached to the VxJetCandidate...
 	m_initializationHelper->linearizeAllTracks(myJetCandidate,true);
@@ -356,7 +359,7 @@ namespace Trk
 
     
       if (converged) {
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " For sign flip treatment there was convergence after " << num_iteration_signflip << endreq;
+	if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " For sign flip treatment there was convergence after " << num_iteration_signflip );
       } 
     }
     
@@ -390,7 +393,7 @@ namespace Trk
       
       const RecVertexPositions & myRecPosition=myJetCandidate->getRecVertexPositions();
 
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " num_iteration (full fit): " << num_iteration << " det " << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() << endreq;
+      if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " num_iteration (full fit): " << num_iteration << " det " << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() );
 
       const FitQuality & myFitQuality=myRecPosition.fitQuality();
       double actualchi2=myFitQuality.chiSquared();
@@ -415,7 +418,7 @@ namespace Trk
     } while ((!converged)&&num_iteration<num_maxiterations);
     
     if (converged) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Fit without sign flip treatment there was convergence after " << num_iteration << endreq;
+      if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " Fit without sign flip treatment there was convergence after " << num_iteration );
     } 
     
     //    if (msgSvc()->outputLevel()== MSG::VERBOSE) {
@@ -425,7 +428,7 @@ namespace Trk
       //    }
     if (num_iteration>=num_maxiterations)
     {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There wasn't convergence in JetFitter after: " << num_maxiterations << endreq;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG( "There wasn't convergence in JetFitter after: " << num_maxiterations );
     }
 
     //now only the smoothing is missing as a last step... (updated momenta, chi2 + ndf of clusters,...)
@@ -461,7 +464,7 @@ namespace Trk
       for (std::vector<VxTrackAtVertex*>::const_iterator  primaryVectorIter=primaryVectorTracksBegin;
 	   primaryVectorIter!=primaryVectorTracksEnd;++primaryVectorIter) {
 	
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " RecVertexPositions before update " << myJetCandidate->getRecVertexPositions() << endreq;
+	if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " RecVertexPositions before update " << myJetCandidate->getRecVertexPositions() );
 	
 	if ((!m_fast)) {
 	  m_updator->add(*primaryVectorIter,myPrimary,myJetCandidate);
@@ -471,7 +474,7 @@ namespace Trk
 
         const RecVertexPositions & myRecPosition=myJetCandidate->getRecVertexPositions();
 
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Determinant after PRIMARY VTX update: " << n_iteration <<  " det: "  << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() << endreq;	
+        if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " Determinant after PRIMARY VTX update: " << n_iteration <<  " det: "  << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() );
       }
     }
 
@@ -496,7 +499,7 @@ namespace Trk
       for (std::vector<VxTrackAtVertex*>::const_iterator  TrackVectorIter=TracksBegin;
 	   TrackVectorIter!=TracksEnd;++TrackVectorIter) {
 	
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " RecVertexPositions before update " << myJetCandidate->getRecVertexPositions() << endreq;
+	if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " RecVertexPositions before update " << myJetCandidate->getRecVertexPositions() );
 	
 	if (!m_fast) {
 	  m_updator->add(*TrackVectorIter,*VtxIter,myJetCandidate);
@@ -508,7 +511,7 @@ namespace Trk
 
         const RecVertexPositions & myRecPosition=myJetCandidate->getRecVertexPositions();
 
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Determinant after sec update: " << n_iteration <<  " det: "  << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() << endreq;
+        if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE( " Determinant after sec update: " << n_iteration <<  " det: "  << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() );
       }
     }
 
@@ -549,16 +552,16 @@ namespace Trk
     //check if primaryvertex exists
     const VxVertexOnJetAxis* myPrimary=myJetCandidate->getPrimaryVertex();
     if (myPrimary==0) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No primary vertex found in VxJetCandidate class. Initialization was not done correctly..."<< endreq; 
+      if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "No primary vertex found in VxJetCandidate class. Initialization was not done correctly..." );
       return false;
     } else {
       bool ok=true;
       if (myPrimary->getNumVertex()!=-10) { 
 	ok=false;
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Numvertex of primary vertex not correctly initialized. Not proceeding with the fit!" << endreq;
+	if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "Numvertex of primary vertex not correctly initialized. Not proceeding with the fit!" );
       }
       //      if (fabs(myPrimary->getLinearizationPosition(void))>1e-6) {
-      //	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Primary vertex linearization point is not zero as it should be!" << endreq;
+      //	if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "Primary vertex linearization point is not zero as it should be!" );
       //      }
 
       const std::vector<VxTrackAtVertex*> & primaryVectorTracks=myPrimary->getTracksAtVertex();
@@ -571,7 +574,7 @@ namespace Trk
       for (std::vector<VxTrackAtVertex*>::const_iterator  primaryVectorIter=primaryVectorTracksBegin;
 	   primaryVectorIter!=primaryVectorTracksEnd;++primaryVectorIter) {
 	if (*primaryVectorIter==0) {
-	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "One of the VxTrackAtVertex is a null pointer. Not proceeding with the fit!" << endreq;
+	  if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "One of the VxTrackAtVertex is a null pointer. Not proceeding with the fit!" );
 	  ok=false;
 	}
       }
@@ -591,11 +594,11 @@ namespace Trk
     for (std::vector<VxVertexOnJetAxis*>::const_iterator tracksIter=tracksBegin;
 	 tracksIter!=tracksEnd;++tracksIter) {
       if (*tracksIter==0) {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "One of the VxTrackAtVertex is a null pointer. Not proceeding with the fit!" << endreq;
+	if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "One of the VxTrackAtVertex is a null pointer. Not proceeding with the fit!" );
 	ok=false;
       } else {
 	if ((*tracksIter)->getNumVertex()<0) {
-	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "One of the VxTrackAtVertex has a not initialized numVertex. Not proceeding with the fit!" << endreq;
+	  if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "One of the VxTrackAtVertex has a not initialized numVertex. Not proceeding with the fit!" );
 	  ok=false;
 	}
       }
@@ -608,7 +611,7 @@ namespace Trk
     //now check if there is some track at least to do the fit...
 
     if (tracksOfVertex.size()==0&&sizeprimary==0) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No tracks at primary, no tracks on jet axis. Not proceeding with the fit!" << endreq;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG( "No tracks at primary, no tracks on jet axis. Not proceeding with the fit!" );
       return false;
     }
     
@@ -618,8 +621,10 @@ namespace Trk
     const Amg::VectorX& myPosition=myRecVertexPositions.position();
 
     if (static_cast<unsigned int>(tracksOfVertex.size()+5)!=static_cast<unsigned int>(myPosition.rows())) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "The position matrix has " <<  myPosition.rows() << " components while " <<  tracksOfVertex.size()+5 << 
-	" are expected. Not proceeding with the fit " << endreq;
+      if (msgLvl(MSG::WARNING)) 
+        ATH_MSG_WARNING ( "The position matrix has " <<  myPosition.rows() 
+                          << " components while " <<  tracksOfVertex.size()+5 
+                          << " are expected. Not proceeding with the fit " );
     }
 
     const Amg::MatrixX & myErrorMatrix=myRecVertexPositions.covariancePosition();
@@ -883,7 +888,7 @@ namespace Trk
 						     double threshold_probability) const {
     
     if (myJetCandidate==0) {
-      msg(MSG::WARNING) << "VxJetCandidate provided is a zero pointer. No compatibility table calculated." << endreq;
+      ATH_MSG_WARNING( "VxJetCandidate provided is a zero pointer. No compatibility table calculated." );
       return;
     }
     
@@ -901,7 +906,7 @@ namespace Trk
     primaryVertex->setCompatibilityToPrimaryVtx(1);//stupid but assign prob 1 to primary vtx for consistency
 
     if (primaryVertex==0) {
-      msg(MSG::WARNING) << "VxJetCandidate provided has no primary vertex. No compatibility table calculated." << endreq;
+      ATH_MSG_WARNING( "VxJetCandidate provided has no primary vertex. No compatibility table calculated." );
       return;
     }
 
@@ -1135,7 +1140,7 @@ namespace Trk
     }
     
     if (!found) {
-      msg(MSG::WARNING) << "Could not find the vertex to delete... Very strange... Check!!! " << endreq;
+      ATH_MSG_WARNING( "Could not find the vertex to delete... Very strange... Check!!! " );
     }
 
     //update myJetCandidate with the new vector of tracks
@@ -1178,7 +1183,7 @@ namespace Trk
         {
           if (fabs(TMath::Cos(linPositions[Trk::jet_theta]))>1e-8)
           {
-            msg(MSG::DEBUG) << " Closest distance of track to jet axis is outside ID envelope, Z=" << Z << ", setting to Z= " << m_maxZ << endreq;
+            ATH_MSG_DEBUG( " Closest distance of track to jet axis is outside ID envelope, Z=" << Z << ", setting to Z= " << m_maxZ );
             distOnAxis=m_maxZ / TMath::Cos(linPositions[Trk::jet_theta]);
           }
         }

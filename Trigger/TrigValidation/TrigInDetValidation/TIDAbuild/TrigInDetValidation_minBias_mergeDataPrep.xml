@@ -68,8 +68,6 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias_mergeDataPrep-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-minBias_mergeDataPrep-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 

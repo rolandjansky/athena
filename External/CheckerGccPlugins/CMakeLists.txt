@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 781116 2016-10-28 23:16:43Z ssnyder $
+# $Id: CMakeLists.txt 796948 2017-02-13 22:53:01Z ssnyder $
 
 # The name of the package:
 atlas_subdir( CheckerGccPlugins )
@@ -66,6 +66,7 @@ CheckerGccPlugins_test( thread5 )
 CheckerGccPlugins_test( thread6 )
 CheckerGccPlugins_test( thread7 )
 CheckerGccPlugins_test( thread8 )
+CheckerGccPlugins_test( thread9 )
 #CheckerGccPlugins_test( usingns1 )
 #CheckerGccPlugins_test( usingns2 )
 #CheckerGccPlugins_test( usingns3 )

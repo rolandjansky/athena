@@ -96,7 +96,7 @@ namespace InDet {
       SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
       ATH_CHECK(roiCollection.isValid());
       std::vector<IdentifierHash> listOfTRTIds;
-      for(auto &roi : *roiCollection){
+      for(const TrigRoiDescriptor* roi : *roiCollection){
          
          listOfTRTIds.clear(); //Prevents needless memory reallocations
          m_regionSelector->DetHashIDList( TRT, *roi, listOfTRTIds);

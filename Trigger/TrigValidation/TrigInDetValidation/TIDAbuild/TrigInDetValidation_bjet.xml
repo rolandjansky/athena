@@ -73,8 +73,6 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
          <athenaCommonFlags /> 

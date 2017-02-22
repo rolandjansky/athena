@@ -11,11 +11,11 @@ TrackIsoTool.TrackSelectionTool.minPt= 1000.
 TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += TrackIsoTool
 
-from AthenaCommon.GlobalFlags import globalflags
-isMC = not globalflags.DataSource()=='data'
-from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool
-IsoCorrectionTool = CP__IsolationCorrectionTool ("NewLeakageCorrTool",IsMC = isMC)
-ToolSvc += IsoCorrectionTool
+# from AthenaCommon.GlobalFlags import globalflags
+# isMC = not globalflags.DataSource()=='data'
+# from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool
+# IsoCorrectionTool = CP__IsolationCorrectionTool ("NewLeakageCorrTool",IsMC = isMC)
+# ToolSvc += IsoCorrectionTool
 
  # tool to collect topo clusters in cone
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
@@ -24,15 +24,19 @@ ToolSvc += xAOD__CaloClustersInConeTool("MyCaloClustersInConeTool",CaloClusterLo
 from CaloIdentifier import SUBCALO
 
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool
-CaloIsoTool = xAOD__CaloIsolationTool("CaloIsoTool")
-CaloIsoTool.IsoLeakCorrectionTool = ToolSvc.NewLeakageCorrTool
+CaloIsoTool = xAOD__CaloIsolationTool("MuonCaloIsoTool")
+# CaloIsoTool.IsoLeakCorrectionTool = ToolSvc.NewLeakageCorrTool
 CaloIsoTool.ClustersInConeTool = ToolSvc.MyCaloClustersInConeTool
 CaloIsoTool.EMCaloNums  = [SUBCALO.LAREM]
 CaloIsoTool.HadCaloNums = [SUBCALO.LARHEC, SUBCALO.TILE]
 CaloIsoTool.UseEMScale  = True
 CaloIsoTool.UseCaloExtensionCaching = False
 CaloIsoTool.saveOnlyRequestedCorrections = True
+CaloIsoTool.addCaloExtensionDecoration = False
+# if hasattr(CaloIsoTool, 'addCaloExtensionDecoration'): ### somehow does not work
+#     CaloIsoTool.addCaloExtensionDecoration = False
 # CaloIsoTool.OutputLevel = 2
+print CaloIsoTool
 ToolSvc += CaloIsoTool
 
 

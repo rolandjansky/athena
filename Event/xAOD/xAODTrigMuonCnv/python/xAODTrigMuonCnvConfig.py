@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from xAODTrigMuonCnv.xAODTrigMuonCnvConf import TrigMuonEFInfoToMuonCnvTool, TrigMuonEFInfoCnvTestAlg, xAODMaker__TrigMuonEFInfoToMuonCnvAlg
+from xAODTrigMuonCnv.xAODTrigMuonCnvConf import TrigMuonEFInfoToMuonCnvTool, TrigMuonEFInfoCnvTestAlg, xAODMaker__TrigMuonEFInfoToMuonCnvAlg, MuonFeatureCnvTool, MuonFeatureCnvTestAlg, xAODMaker__MuonFeatureCnvAlg
 
 from AthenaCommon import CfgMgr
 
@@ -28,3 +28,11 @@ def TrigMuonEFInfoToMuonCnvAlgTMG(name='TrigMuonEFInfoToMuonCnvAlgTMG',**kwargs)
 # Test algorithm for TrigMuonEF conversion
 def TrigMuonEFInfoCnvTestAlgTMEF(name='TrigMuonEFInfoCnvTestAlgTMEF',**kwargs):
     return TrigMuonEFInfoCnvTestAlg(name,**kwargs)
+
+# Converter algorithm for L2MuonSA results
+def MuonFeatureCnvAlgL2SA(name='MuonFeatureCnvAlgL2SA',**kwargs):
+    return xAODMaker__MuonFeatureCnvAlg(name, **kwargs)
+
+# Test algorithm for MuonFeature conversion
+def MuonFeatureCnvTestAlgL2SA(name='MuonFeatureCnvTestAlgL2SA',**kwargs):
+    return MuonFeatureCnvTestAlg(name,**kwargs)

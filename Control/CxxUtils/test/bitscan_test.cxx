@@ -9,10 +9,16 @@
  */
 
 #undef NDEBUG
-#include "CxxUtils/bitscan.h"
 #include <iostream>
 #include <vector>
 #include <bitset>
+
+// Compile with -DTEST_PORTABLE to test the non-GNU/CLANG version
+#ifdef TEST_PORTABLE
+#undef __GNUC__
+#undef __clang_
+#endif
+#include "CxxUtils/bitscan.h"
 
 using namespace CxxUtils;
 

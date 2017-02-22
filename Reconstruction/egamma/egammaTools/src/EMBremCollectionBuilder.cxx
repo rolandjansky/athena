@@ -465,7 +465,7 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     aParticle->setVertexLink(tmpTrkPart->vertexLink());         
     return StatusCode::SUCCESS;
   }else {
-    ATH_MSG_ERROR ("Could not create TrackParticle, this should never happen !");
+    ATH_MSG_WARNING("Could not create TrackParticle, this should never happen !");
     return StatusCode::FAILURE;
   }
 }

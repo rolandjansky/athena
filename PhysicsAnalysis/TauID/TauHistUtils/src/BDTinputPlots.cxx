@@ -6,8 +6,18 @@
 
 namespace Tau{
 
-BDTinputPlots::BDTinputPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):PlotBase(pParent, sDir),
-		m_sTauJetContainerName(sTauJetContainerName){
+BDTinputPlots::BDTinputPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+   PlotBase(pParent, sDir),
+   m_id_BDTJetScore(nullptr),
+   m_id_BDTEleScore(nullptr),
+   m_pt_eleBDTloose(nullptr),
+   m_pt_eleBDTmed(nullptr),
+   m_pt_eleBDTtight(nullptr),
+   m_pt_jetBDTloose(nullptr),
+   m_pt_jetBDTmed(nullptr),
+   m_pt_jetBDTtight(nullptr),
+   m_sTauJetContainerName(sTauJetContainerName)
+{
 }
 
 
@@ -23,14 +33,14 @@ void BDTinputPlots::initializePlots(){
 	  +++++++++++++++++++BDT OUTPUT+++++++++++++++++++++
 	  +++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-	m_id_BDTJetScore      = Book1D("id_BDTJetScore",m_sTauJetContainerName + " BDTJetScore ; BDTJetScore; # Tau",10,0.,1.05);
-	m_id_BDTEleScore      = Book1D("id_BDTEleScore",m_sTauJetContainerName + " BDTEleScore ; BDTEleScore; # Tau",10,0.,1.05);
-	m_pt_eleBDTloose      = Book1D("Pt_eleBDTloose",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
-	m_pt_eleBDTmed        = Book1D("Pt_eleBDTmed",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
-	m_pt_eleBDTtight      = Book1D("Pt_eleBDTtight",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
-	m_pt_jetBDTloose      = Book1D("Pt_jetBDTloose",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
-	m_pt_jetBDTmed        = Book1D("Pt_jetBDTmed",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
-	m_pt_jetBDTtight      = Book1D("Pt_jetBDTtigth",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
+	m_id_BDTJetScore = Book1D("id_BDTJetScore",m_sTauJetContainerName + " BDTJetScore ; BDTJetScore; # Tau",10,0.,1.05);
+	m_id_BDTEleScore = Book1D("id_BDTEleScore",m_sTauJetContainerName + " BDTEleScore ; BDTEleScore; # Tau",10,0.,1.05);
+	m_pt_eleBDTloose = Book1D("Pt_eleBDTloose",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
+	m_pt_eleBDTmed   = Book1D("Pt_eleBDTmed",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
+	m_pt_eleBDTtight = Book1D("Pt_eleBDTtight",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
+	m_pt_jetBDTloose = Book1D("Pt_jetBDTloose",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
+	m_pt_jetBDTmed   = Book1D("Pt_jetBDTmed",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
+	m_pt_jetBDTtight = Book1D("Pt_jetBDTtigth",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
 
 
 

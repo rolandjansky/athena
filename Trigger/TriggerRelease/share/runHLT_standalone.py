@@ -243,7 +243,7 @@ else:           # More data modifiers
                                 #Set muComb/muIso Backextrapolator tuned for real data
                                 'UseBackExtrapolatorDataForMuIso',
                                 #Monitoring for L1 muon group
-                                #'muCTPicheck',
+                                'muCTPicheck',
                                 #Monitoring L1Topo at ROB level
                                 'L1TopoCheck',
                               #for tests with data:

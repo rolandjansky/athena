@@ -66,6 +66,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_configFile("")
     , m_path("")
     , m_analysisFile("")
+    , m_systFilters()
     , m_refNPV(-1)
     , m_refMu(-1)
     , m_refNPVHist(NULL)
@@ -91,6 +92,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     declareProperty("ConfigFile",m_configFile);
     declareProperty("Path",m_path);
     declareProperty("AnalysisFile",m_analysisFile);
+    declareProperty("VariablesToShift",m_systFilters);
 
     ATH_MSG_DEBUG("Creating JetUncertaintiesTool named "<<m_name);
 
@@ -111,6 +113,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_configFile(toCopy.m_configFile)
     , m_path(toCopy.m_path)
     , m_analysisFile(toCopy.m_analysisFile)
+    , m_systFilters(toCopy.m_systFilters)
     , m_refNPV(toCopy.m_refNPV)
     , m_refMu(toCopy.m_refMu)
     , m_refNPVHist(toCopy.m_refNPVHist?new UncertaintyHistogram(*toCopy.m_refNPVHist):NULL)
@@ -348,8 +351,8 @@ StatusCode JetUncertaintiesTool::initialize()
         ATH_MSG_INFO("    WeightTAHist   = " << m_TAMassWeight->getName());
 
         // Check for custom mass definitions for the weight factors (not required, defaults exist)
-        const TString caloWeightMassDef = settings.GetValue("CombMassWeightCaloMassDef","");
-        const TString TAWeightMassDef   = settings.GetValue("CombMassWeightTAMassDef","");
+        const TString caloWeightMassDef = settings.GetValue("CombMassWeightCaloMassDef","Calo");
+        const TString TAWeightMassDef   = settings.GetValue("CombMassWeightTAMassDef","TA");
         if (caloWeightMassDef != "")
         {
             m_combMassWeightCaloMassDef = CompMassDef::stringToEnum(caloWeightMassDef);
@@ -405,6 +408,25 @@ StatusCode JetUncertaintiesTool::initialize()
         }
     }
     
+    // If systematic filters were specified, first-order validate them
+    // Then inform the user
+    if (m_systFilters.size())
+    {
+        std::string varString = "";
+        for (size_t iFilter = 0; iFilter < m_systFilters.size(); ++iFilter)
+        {
+            if (CompScaleVar::stringToEnum(m_systFilters.at(iFilter)) == CompScaleVar::UNKNOWN)
+            {
+                ATH_MSG_ERROR("Unable to parse VariablesToShift due to unknown variable, please check for typos: " << m_systFilters.at(iFilter));
+                return StatusCode::FAILURE;
+            }
+            if (varString != "")
+                varString += ", ";
+            varString += m_systFilters.at(iFilter);
+        }
+        ATH_MSG_INFO(Form("  VariablesToShift: %s",varString.c_str()));
+    }
+
     // Prepare for reading components and groups
     // Components can be a group by themself (single component groups) if "Group" == 0
     // Components can also form simple groups with "SubComp"
@@ -468,9 +490,18 @@ StatusCode JetUncertaintiesTool::initialize()
     // Preparing for a sanity check done after group merger
     // Do this with components rather than groups to make sure totals are the same
     size_t numCompsBeforeMerger = 0;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup) {
         numCompsBeforeMerger += m_groups.at(iGroup)->getNumComponents();
-
+//        std::cout << "Beginning group " << m_groups.at(iGroup)->getName() << std::endl;
+//        for (int i=0; i<m_groups.at(iGroup)->getComponents().size(); i++) {
+//          std::cout << "\t" << m_groups.at(iGroup)->getComponents().at(i)->getName() << std::endl;
+//        }
+//        for (int i=0; i<m_groups.at(iGroup)->getSubgroups().size(); i++) {
+//          for (int j=0; j<m_groups.at(iGroup)->getSubgroups().at(i)->getComponents().size(); j++)
+//          std::cout << "\t" << m_groups.at(iGroup)->getSubgroups().at(i)->getComponents().at(j)->getName() << std::endl;
+//        }
+    }
+  
     // Merge all of the subgroups into their parent groups
     for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
     {
@@ -523,8 +554,17 @@ StatusCode JetUncertaintiesTool::initialize()
     // Sanity check that things make sense
     // Do this with components rather than groups to make sure totals are the same
     size_t numCompsAfterMerger = 0;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup) {
         numCompsAfterMerger += m_groups.at(iGroup)->getNumComponents();
+//        std::cout << "Beginning group " << m_groups.at(iGroup)->getName() << std::endl;
+//        for (int i=0; i<m_groups.at(iGroup)->getComponents().size(); i++) {
+//          std::cout << "\t" << m_groups.at(iGroup)->getComponents().at(i)->getName() << std::endl;
+//        }
+//        for (int i=0; i<m_groups.at(iGroup)->getSubgroups().size(); i++) {
+//          for (int j=0; j<m_groups.at(iGroup)->getSubgroups().at(i)->getComponents().size(); j++)
+//          std::cout << "\t" << m_groups.at(iGroup)->getSubgroups().at(i)->getComponents().at(j)->getName() << std::endl;
+//        }
+    }
     
     if (numCompsBeforeMerger != numCompsAfterMerger)
     {
@@ -659,13 +699,36 @@ StatusCode JetUncertaintiesTool::initialize()
             return StatusCode::FAILURE;
 
         // Determine if the group is a recommended systematic
-        // Currently, all systematics are recommended with one exception:
+        // Currently, all small-R systematics are recommended with one exception:
         //      MC closure systematics can be zero (when working with the reference MC)
         //      Still, check if the component is always zero and don't recommend if so
-        const bool isRecommended = !m_groups.at(iGroup)->isAlwaysZero();
+        // For large-R, users are allowed to specify a set of filters for systematics
+        //      Done for Moriond2017 as many variables were provided for studies
+        //      Allows for users to not run variations of variables they don't use
+        //      If unspecified, all variables are systematically shifted by default
+        const bool isRecommended = checkIfRecommendedSystematic(*m_groups.at(iGroup));
         CP::SystematicVariation systVar(m_groups.at(iGroup)->getName().Data(),CP::SystematicVariation::CONTINUOUS);
         if (addAffectingSystematic(systVar,isRecommended) != CP::SystematicCode::Ok)
             return StatusCode::FAILURE;
+    }
+
+    // Ensure that the filters are sane (they are all associated to at least one group)
+    for (size_t iFilter = 0; iFilter < m_systFilters.size(); ++iFilter)
+    {
+        bool filterIsSane = false;
+        for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+        {
+            if (m_groups.at(iGroup)->getScaleVars().count(CompScaleVar::stringToEnum(m_systFilters.at(iFilter))))
+            {
+                filterIsSane = true;
+                break;
+            }
+        }
+        if (!filterIsSane)
+        {
+            ATH_MSG_ERROR("  One of the specified VariablesToShift is not associated with any components, please check for typos: " << m_systFilters.at(iFilter));
+            return StatusCode::FAILURE;
+        }
     }
 
     
@@ -675,7 +738,7 @@ StatusCode JetUncertaintiesTool::initialize()
         numCompInGroups += m_groups.at(iGroup)->getNumComponents();
 
     // Summary message
-    ATH_MSG_INFO(Form("   Found and read in %zu individual components into %zu component groups",numCompInGroups,m_groups.size()));
+    ATH_MSG_INFO(Form("   Found and read in %zu individual components into %zu component groups of which %zu are recommended",numCompInGroups,m_groups.size(),m_recommendedSystematics.size()));
 
     //// Summary message
     //ATH_MSG_INFO(Form("   Found and read in %zu components%s",m_components.size(),m_groups.size()?Form(" (%zu inputs in %zu groups, %zu independent input%s):",numCompInGroups,m_groups.size(),m_components.size()-m_groups.size(),m_components.size()-m_groups.size()!=1?"s":""):""));
@@ -1131,6 +1194,31 @@ CP::SystematicSet JetUncertaintiesTool::appliedSystematics() const
     return m_currentSystSet;
 }
 
+bool JetUncertaintiesTool::checkIfRecommendedSystematic(const jet::UncertaintyGroup& systematic) const
+{
+    // Check for things like AFII non-closure in full sim configurations
+    if (systematic.isAlwaysZero())
+        return false;
+
+    // Check for filters
+    bool passesFilter = !m_systFilters.size();
+    const std::set<CompScaleVar::TypeEnum> scaleVars = systematic.getScaleVars();
+
+    for (size_t iFilter = 0; iFilter < m_systFilters.size(); ++iFilter)
+    {
+        if (scaleVars.count(CompScaleVar::stringToEnum(m_systFilters.at(iFilter))))
+        {
+            passesFilter = true;
+            break;
+        }
+    }
+    if (!passesFilter)
+        return false;
+    
+    // All checked, this is a recommended systematic
+    return true;
+}
+
 CP::SystematicCode JetUncertaintiesTool::addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended)
 {
     CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
@@ -1230,7 +1318,7 @@ float JetUncertaintiesTool::getSqrtS() const
         sqrtS = 7000.*m_energyScale;
     else if (release.BeginsWith("2012_"))
         sqrtS = 8000.*m_energyScale;
-    else if (release.BeginsWith("2015_"))
+    else if (release.BeginsWith("2015_") || release.BeginsWith("2016"))
         sqrtS = 13000.*m_energyScale;
     return sqrtS;
 }
@@ -1437,6 +1525,11 @@ bool JetUncertaintiesTool::getComponentScalesTau32(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Tau32);
 }
+bool JetUncertaintiesTool::getComponentScalesTau21WTA(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Tau21WTA);
+}
 bool JetUncertaintiesTool::getComponentScalesTau32WTA(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
@@ -1446,6 +1539,11 @@ bool JetUncertaintiesTool::getComponentScalesD2Beta1(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::D2Beta1);
+}
+bool JetUncertaintiesTool::getComponentScalesQw(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Qw);
 }
 bool JetUncertaintiesTool::getComponentScalesMultiple(const size_t index) const
 {
@@ -1613,12 +1711,17 @@ double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) c
 {
     if (!m_caloMassWeight || !m_TAMassWeight) return 0;
 
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
+    static JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
+    static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
 
-    const double caloFactor = m_caloMassWeight->getValue(caloScale(jet).Pt()*m_energyScale,caloScale(jet).M()/caloScale(jet).Pt());
-    const double TAFactor   = m_TAMassWeight->getValue(TAScale(jet).Pt()*m_energyScale,TAScale(jet).M()/TAScale(jet).Pt());
+    const double caloRes = m_caloMassWeight->getValue(caloScale.pt(jet)*m_energyScale,caloScale.m(jet)/caloScale.pt(jet) );
+    const double TARes   = m_TAMassWeight->getValue(TAScale.pt(jet)*m_energyScale,TAScale.m(jet)/TAScale.pt(jet));
+
+    if (caloRes == 0 || TARes == 0) return 0;
+
+    const double caloFactor = 1./(caloRes*caloRes);
+    const double TAFactor   = 1./(TARes*TARes);
     
     if (caloFactor + TAFactor == 0) return 0;
 
@@ -1629,12 +1732,17 @@ double JetUncertaintiesTool::getNormalizedTAMassWeight(const xAOD::Jet& jet) con
 {
     if (!m_caloMassWeight || !m_TAMassWeight) return 0;
 
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
+    static JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
+    static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
 
-    const double caloFactor = m_caloMassWeight->getValue(caloScale(jet).Pt()*m_energyScale,caloScale(jet).M()/caloScale(jet).Pt());
-    const double TAFactor   = m_TAMassWeight->getValue(TAScale(jet).Pt()*m_energyScale,TAScale(jet).M()/TAScale(jet).Pt());
+    const double caloRes = m_caloMassWeight->getValue(caloScale.pt(jet)*m_energyScale,caloScale.m(jet)/caloScale.pt(jet) );
+    const double TARes   = m_TAMassWeight->getValue(TAScale.pt(jet)*m_energyScale,TAScale.m(jet)/TAScale.pt(jet));
+    
+    if (caloRes == 0 || TARes == 0) return 0;
+
+    const double caloFactor = 1./(caloRes*caloRes);
+    const double TAFactor   = 1./(TARes*TARes);
     
     if (caloFactor + TAFactor == 0) return 0;
 
@@ -1731,6 +1839,7 @@ TH2D* JetUncertaintiesTool::getPtCorrelationMatrix(const int numBins, const doub
         return NULL;
     }
 
+    std::cout << "Creating with max values " << valEta1 << " " << valEta2 << std::endl;
     CorrelationMatrix corrMat(Form("%s_varpt_eta%.2f_eta%.2f",m_name.c_str(),valEta1,valEta2),numBins,minPt*m_energyScale,maxPt*m_energyScale,valEta1,valEta2);
     if (corrMat.initializeForPt(*this).isFailure())
         return NULL;
@@ -1843,12 +1952,20 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                 if (updateTau32(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
+            case CompScaleVar::Tau21WTA:
+                if (updateTau21WTA(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
             case CompScaleVar::Tau32WTA:
                 if (updateTau32WTA(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::D2Beta1:
                 if (updateD2Beta1(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
+            case CompScaleVar::Qw:
+                if (updateQw(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
@@ -2137,6 +2254,70 @@ StatusCode JetUncertaintiesTool::updateTau32(xAOD::Jet& jet, const double shift)
     return StatusCode::FAILURE;
 }
 
+StatusCode JetUncertaintiesTool::updateTau21WTA(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accTau1wta("Tau1_wta");
+    static SG::AuxElement::Accessor<float> accTau2wta("Tau2_wta");
+    static SG::AuxElement::Accessor<float> accTau21wta("Tau21_wta");
+    static SG::AuxElement::Accessor<float> accTau1WTA("Tau1_WTA");
+    static SG::AuxElement::Accessor<float> accTau2WTA("Tau2_WTA");
+    static SG::AuxElement::Accessor<float> accTau21WTA("Tau21_WTA");
+    const static bool Tau21wtawasAvailable = accTau21wta.isAvailable(jet);
+    const static bool Tau21WTAwasAvailable = accTau21WTA.isAvailable(jet);
+    const static bool TauNNwtawasAvailable = accTau2wta.isAvailable(jet) && accTau1wta.isAvailable(jet);
+    const static bool TauNNWTAwasAvailable = accTau2WTA.isAvailable(jet) && accTau1WTA.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (Tau21wtawasAvailable)
+    {
+        if (!accTau21wta.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The Tau21_wta moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accTau21wta(constJet);
+        accTau21wta(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (Tau21WTAwasAvailable)
+    {
+        if (!accTau21WTA.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The Tau21_WTA moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accTau21WTA(constJet);
+        accTau21WTA(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (TauNNwtawasAvailable)
+    {
+        if (! (accTau2wta.isAvailable(jet) && accTau1wta.isAvailable(jet)) )
+        {
+            ATH_MSG_ERROR("The Tau2_wta and Tau1_wta moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float tau2 = accTau2wta(constJet);
+        const float tau1 = accTau1wta(constJet);
+        accTau21wta(jet) = fabs(tau1) > 1.e-6 ? shift*(tau2/tau1) : -999; // 999 to match JetSubStructureMomentTools/NSubjettinessRatiosTool
+        return StatusCode::SUCCESS;
+    }
+    if (TauNNWTAwasAvailable)
+    {
+        if (! (accTau2WTA.isAvailable(jet) && accTau1WTA.isAvailable(jet)) )
+        {
+            ATH_MSG_ERROR("The Tau2_WTA and Tau1_WTA moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float tau2 = accTau2WTA(constJet);
+        const float tau1 = accTau1WTA(constJet);
+        accTau21WTA(jet) = fabs(tau1) > 1.e-6 ? shift*(tau2/tau1) : -999; // 999 to match JetSubStructureMomentTools/NSubjettinessRatiosTool
+        return StatusCode::SUCCESS;
+    }
+    
+    ATH_MSG_ERROR("Neither Tau21_wta nor Tau1_wta+Tau2_wta moments are available on the jet, please make sure one of these options is available before calling the tool");
+    return StatusCode::FAILURE;
+}
 StatusCode JetUncertaintiesTool::updateTau32WTA(xAOD::Jet& jet, const double shift) const
 {
     static SG::AuxElement::Accessor<float> accTau2wta("Tau2_wta");
@@ -2278,6 +2459,22 @@ StatusCode JetUncertaintiesTool::updateD2Beta1(xAOD::Jet& jet, const double shif
 
     ATH_MSG_ERROR("Neither D2 nor ECF1+ECF2+ECF3 moments are available on the jet, please make sure one of these options is available before calling the tool");
     return StatusCode::FAILURE;
+}
+
+StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accQw("Qw");
+
+    const xAOD::Jet& constJet = jet;
+    if (accQw.isAvailable(constJet))
+    {
+        const float value = accQw(constJet);
+        accQw(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_ERROR("Qw moment is not available on the jet, please make sure to set Qw before calling the tool");
+    return StatusCode::FAILURE;       
 }
 
 

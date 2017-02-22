@@ -864,7 +864,6 @@ private:
   SGImplSvc* m_defaultStore;
   ServiceHandle<IProxyProviderSvc> m_pPPSHandle; ///< property
   ServiceHandle<IIncidentSvc> m_incSvc; ///< property
-  mutable std::recursive_mutex m_recMutex; ///< to lock det store accesses
 
   friend class SG::TestHiveStoreSvc;
   static SG::HiveEventSlot* currentSlot();

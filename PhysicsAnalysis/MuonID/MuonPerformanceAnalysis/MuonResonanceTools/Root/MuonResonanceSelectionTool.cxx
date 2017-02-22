@@ -103,11 +103,6 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
 //  std::cout << " Event1 " << eventNb1 << std::endl;
 //  std::cout << " Lumi1 " << lumiBL1 << std::endl;
 
-  if ( !hasPassedGRL () ){
-    ATH_MSG_DEBUG("No GRL pass - rejecting event");
-    return goodMuons;
-  }
-
 //  std::cout << " Run2 " << runNb1 << std::endl;
 //  std::cout << " Event2 " << eventNb1 << std::endl;
 //  std::cout << " Lumi2 " << lumiBL1 << std::endl;

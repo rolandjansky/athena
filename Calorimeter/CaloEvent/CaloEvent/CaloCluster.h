@@ -59,9 +59,7 @@ Update:  Sep 18, 2005 P Loch
 #include "CaloEvent/CaloClusterBadChannelData.h"
 
 #include <vector>
-#ifdef ATHENAHIVE
- #include "tbb/recursive_mutex.h"
-#endif
+#include "tbb/recursive_mutex.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -759,10 +757,6 @@ private:
   friend class CaloClusterContainerCnvTest_p6;
   friend class CaloClusterContainerCnvTest_p7;
 
-#ifdef ATHENAHIVE
-public:
-  mutable tbb::recursive_mutex m_mut;
-#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////

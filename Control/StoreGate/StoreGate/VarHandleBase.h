@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VarHandleBase.h 787694 2016-12-01 20:03:47Z ssnyder $
+// $Id: VarHandleBase.h 797637 2017-02-17 02:32:11Z ssnyder $
 /**
  * @file StoreGate/VarHandleBase.h
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -107,25 +107,16 @@ namespace SG {
     /**
      * @brief Constructor from a VarHandleKey.
      * @param key The key object holding the clid/key/store.
-     *
-     * This will raise an exception if the StoreGate key is blank,
-     * or if the event store cannot be found.
-     */
-    explicit VarHandleBase (const VarHandleKey& key);
-
-
-    /**
-     * @brief Constructor from a VarHandleKey and an explicit event context.
-     * @param key The key object holding the clid/key.
-     * @param ctx The current event context.
+     * @param ctx The event context to use, or nullptr.
      *
      * This will raise an exception if the StoreGate key is blank,
      * or if the event store cannot be found.
      *
      * If the default event store has been requested, then the thread-specific
-     * store from the event context will be used.
+     * store from @c ctx will be used.  If @c ctx is null, then the
+     * current event context will be read.
      */
-    explicit VarHandleBase (const VarHandleKey& key, const EventContext& ctx);
+    explicit VarHandleBase (const VarHandleKey& key, const EventContext* ctx);
 
 
     /**
@@ -344,7 +335,8 @@ namespace SG {
      * @brief Helper to record an object in the event store.
      *        Unlike record, put does not change the handle and does not
      *        cache the pointer in the handle.
-     * @param The wrapped data object (DataBucket) to record.
+     * @param ctx The event context, or nullptr to use the current context.
+     * @param dobj The wrapped data object (DataBucket) to record.
      * @param dataPtr Pointer to the transient object itself.
      * @param allowMods If false, record the object as const.
      * @param returnExisting Allow an existing object.
@@ -356,7 +348,8 @@ namespace SG {
      * then return null, unless @c returnExisting is true, in which case
      * return success.  In either case, @c dobj is destroyed.
      */
-    const void* put_impl (std::unique_ptr<DataObject> dobj,
+    const void* put_impl (const EventContext* ctx,
+                          std::unique_ptr<DataObject> dobj,
                           void* dataPtr,
                           bool allowMods,
                           bool returnExisting,
@@ -396,6 +389,18 @@ namespace SG {
     void* typeless_ptr(bool quiet=defaultQuiet);
 
 
+    /*
+     * @brief Retrieve an object from SG as a const pointer without caching.
+     * @param ctx The event context, or nullptr to use the current context.
+     * @param quiet If true, suppress failure messages.
+     *
+     * Like typeless_dataPointer_impl, except that we don't change
+     * any members of the handle.
+     */
+    const void* get_impl (const EventContext* ctx,
+                          bool quiet = defaultQuiet) const;
+
+
   protected: 
     //*************************************************************************
     // Protected data.
@@ -410,13 +415,24 @@ namespace SG {
     /// Pointer to the store that owns the object.
     IProxyDict* m_store;
 
+    /// True if the store was set explicitly via setProxyDict.
+    bool m_storeWasSet;
+
 
   private:
     /**
+     * @brief Return the store instance to use.
+     * @param ctx The current event context, or nullptr.
+     */
+    IProxyDict* storeFromHandle (const EventContext* ctx) const;
+
+
+    /**
      * @brief Initialize the store pointer from the store handle.
      *        Also checks that the key is valid.
+     * @param ctx The current event context, or nullptr.
      */
-    StatusCode storeFromHandle();
+    StatusCode setStoreFromHandle (const EventContext* ctx);
 
 
     /**

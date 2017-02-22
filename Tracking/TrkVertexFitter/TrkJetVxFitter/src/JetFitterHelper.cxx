@@ -46,14 +46,14 @@ namespace Trk
 
   StatusCode JetFitterHelper::initialize() {
 
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    ATH_MSG_INFO( "Initialize successful" );
     return StatusCode::SUCCESS;
 
   }
 
   StatusCode JetFitterHelper::finalize() {
 
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    ATH_MSG_INFO( "Finalize successful" );
     return StatusCode::SUCCESS;
 
   }
@@ -82,7 +82,7 @@ namespace Trk
 	tracksOfSecondVertex.push_back(*tracksIter);
 
       } else {
-	msg(MSG::WARNING) << " addTracksOfFirstVertexToSecondVertex method found an empty pointer for a track of the first vertex. Skipping it..." << endreq;
+	ATH_MSG_WARNING( " addTracksOfFirstVertexToSecondVertex method found an empty pointer for a track of the first vertex. Skipping it..." );
 	//	continue;
       }
       

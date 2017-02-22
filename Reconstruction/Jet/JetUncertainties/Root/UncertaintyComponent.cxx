@@ -142,7 +142,7 @@ bool UncertaintyComponent::isAlwaysZero() const
     }
 
     const TH1* histo = m_uncHist->getHisto();
-    if (fabs(histo->GetMinimum()) > 1.e-5 || fabs(histo->GetMaximum()) > 1.e-5)
+    if (fabs(histo->GetMinimum()) > 1.e-8 || fabs(histo->GetMaximum()) > 1.e-8)
         return false;
     return true;
 }
@@ -306,7 +306,7 @@ bool UncertaintyComponent::getValidBool(const double validity) const
 
 double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
 {
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> scale(CompMassDef::getJetScaleString(massDef).Data());
+    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
     static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
 
     // UNKNOWN is just use the assigned scale

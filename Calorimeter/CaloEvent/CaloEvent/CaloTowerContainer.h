@@ -55,9 +55,7 @@ UPDATE:   MAY-11-01
 //
 // This needs to be disabled for Hive
 
-#ifndef ATHENAHIVE
 #define CALOTOWERCONTAINER_USES_DATAPOOL
-#endif
 
 // INCLUDE HEADER FILES:
 #include "DataModel/DataVector.h"

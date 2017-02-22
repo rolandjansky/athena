@@ -17,7 +17,7 @@ TrigHLTBaseTreeTool::TrigHLTBaseTreeTool(const std::string & type,
       m_path("/EXPERT/NTUPLES/"),
       m_algo(0),
       m_tree(0),
-      event(0)
+      m_event(0)
 {
     declareProperty("BookingDir", m_path);
 }
@@ -53,9 +53,9 @@ StatusCode TrigHLTBaseTreeTool::fillHists() {
     if ( m_algo ) {
       m_pass.Lvl1Id = m_algo->config()->getLvl1Id();
     }
-    if ( event > 0 )
+    if ( m_event > 0 )
 	m_tree->Fill();
-    event++;
+    m_event++;
     return StatusCode::SUCCESS;
 }
 

@@ -57,9 +57,9 @@ bool TCS::TopoASCIIReader::getNextEvent() {
     
       if(currentLine == "<end_file>" || currentLine == "</file>") return false;
       if(currentLine == "<end_event>" || currentLine == "</event>") break;
-      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>") type = currentLine;
-      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>" || currentLine == "</lateMuon>" || currentLine == "</muonNextBC>" || currentLine == "</tau>" || currentLine == "</met>") { type = ""; continue; }
-      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>") continue;
+      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") type = currentLine;
+      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>" || currentLine == "</lateMuon>" || currentLine == "</muonNextBC>" || currentLine == "</tau>" || currentLine == "</met>" || currentLine == "</info>") { type = ""; continue; }
+      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") continue;
     
       // use stream iterators to copy the stream to a vector as whitespace separated strings
       std::stringstream ss(currentLine);
@@ -129,6 +129,12 @@ bool TCS::TopoASCIIReader::getNextEvent() {
          int et = atoi(results.at(2).c_str());
          TCS::MetTOB met( ex, ey, et );
          m_event->setMET( met );
+      } else if(type == "<info>") {
+         uint32_t runNo = atol(results.at(0).c_str());
+         uint32_t evtNo = atol(results.at(1).c_str());
+         uint32_t lumiB = atol(results.at(2).c_str());
+         uint32_t BCID  = atol(results.at(3).c_str());
+         m_event->setEventInfo(runNo, evtNo, lumiB, BCID);
       } else {
           TCS_EXCEPTION( "TOB for this event is of unknown type " << type<<": '"<<currentLine<<"'");
 

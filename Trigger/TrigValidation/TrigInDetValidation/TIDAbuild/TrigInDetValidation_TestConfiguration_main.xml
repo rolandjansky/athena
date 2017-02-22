@@ -67,6 +67,13 @@
 #     include   "TrigInDetValidation_bjet_IBL_pu46.xml"
 #     include   "TrigInDetValidation_bjet_IBL_pu80.xml"
 
+#     include   "TrigInDetValidation_bjet_IBL_pu40_trkpt2.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_super1.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_super2.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_super3.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_super4.xml"
+
+
 <!-- #     include   "TrigInDetValidation_tau_pu46.xml"  -->
 #     include   "TrigInDetValidation_tau_IBL_pu46.xml"
 #     include   "TrigInDetValidation_tau_IBL_pu46_offline.xml"

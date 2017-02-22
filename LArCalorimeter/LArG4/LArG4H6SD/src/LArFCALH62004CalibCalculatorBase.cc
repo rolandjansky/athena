@@ -73,7 +73,8 @@ LArFCALH62004CalibCalculatorBase::LArFCALH62004CalibCalculatorBase()
     m_identifier(LArG4Identifier()),
     m_OOTcut(0),
     m_time(0),
-    m_isInTime(0)
+    m_isInTime(0),
+    m_ChannelMap(nullptr)
  { 	
 
       StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");

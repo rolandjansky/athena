@@ -5,7 +5,7 @@
 #ifndef TAUHISTUTILS_BDTINPUTPLOTS_H
 #define TAUHISTUTILS_BDTINPUTPLOTS_H
 
-#include "TauHistUtils/PlotBase.h"
+#include "TrkValHistUtils/PlotBase.h"
 #include "TauHistUtils/ParamPlots.h"
 #include "xAODTau/TauDefs.h" 
 #include "xAODTau/TauJet.h"

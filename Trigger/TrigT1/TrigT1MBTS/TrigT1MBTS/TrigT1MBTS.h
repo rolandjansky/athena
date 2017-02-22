@@ -84,7 +84,7 @@ namespace LVL1 {
     bool m_ThrVecSize12;
     /** Flag to indicate whether or not the individual counter thresholds
 	are defined separately in the menu */
-    bool m_singleCounterInputs;
+    //bool m_singleCounterInputs;
   };
 }
 

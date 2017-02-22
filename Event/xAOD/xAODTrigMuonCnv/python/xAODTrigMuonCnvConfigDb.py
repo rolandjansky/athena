@@ -11,3 +11,6 @@ addAlgorithm("xAODTrigMuonCnv.xAODTrigMuonCnvConfig.TrigMuonEFInfoToMuonCnvAlgTM
 addAlgorithm("xAODTrigMuonCnv.xAODTrigMuonCnvConfig.TrigMuonEFInfoToMuonCnvAlgTMG","TrigMuonEFInfoToMuonCnvAlgTMG")
 
 addAlgorithm("xAODTrigMuonCnv.xAODTrigMuonCnvConfig.TrigMuonEFInfoCnvTestAlgTMEF","TrigMuonEFInfoCnvTestAlgTMEF")
+
+addAlgorithm("xAODTrigMuonCnv.xAODTrigMuonCnvConfig.MuonFeatureCnvAlgL2SA","MuonFeatureCnvAlgL2SA")
+addAlgorithm("xAODTrigMuonCnv.xAODTrigMuonCnvConfig.MuonFeatureCnvTestAlgL2SA","MuonFeatureCnvTestAlgL2SA")

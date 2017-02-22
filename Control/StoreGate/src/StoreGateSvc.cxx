@@ -25,7 +25,8 @@ StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) :
   Service(name,svc), 
   m_defaultStore(0),
   m_pPPSHandle("ProxyProviderSvc", name),
-  m_incSvc("IncidentSvc", name)
+  m_incSvc("IncidentSvc", name),
+  m_pIOVSvc(nullptr)
 {
   //our properties
   //properties of SGImplSvc
@@ -64,8 +65,6 @@ void
 StoreGateSvc::setSlot(SG::HiveEventSlot* pSlot) { 
   s_pSlot=pSlot;
   if ( 0 != s_pSlot) {
-    //probably overkill since Hive should not call setSlot concurrently     
-    std::lock_guard<SG::HiveEventSlot::mutex_t> lock(*(s_pSlot->storeMutex));
     s_pSlot->pEvtStore->makeCurrent();
   }
 }
@@ -177,6 +176,7 @@ StatusCode StoreGateSvc::initialize()    {
   debug() << "trying to create store " << implStoreFullName << endmsg;
 
   ISvcManager* pSM(dynamic_cast<ISvcManager*>(&*serviceLocator()));
+  if (!pSM) std::abort();
   m_defaultStore = dynamic_cast<SGImplSvc*>( (pSM->createService(implStoreFullName)).get() );
 
   if (!m_defaultStore) {
@@ -493,7 +493,6 @@ StoreGateSvc::clearStore(bool forceRemove)
 {
   StatusCode sc;
   if (isHiveStore()) { 
-    std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(s_pSlot->storeMutex) );
     if (0 != s_pSlot->pEvtStore) {
       sc = s_pSlot->pEvtStore->clearStore(forceRemove);
     }
@@ -513,8 +512,8 @@ StoreGateSvc::emptyTrash() {
 
 const InterfaceID& 
 StoreGateSvc::interfaceID() { 
-  static const InterfaceID _IDStoreGateSvc("StoreGateSvc", 1, 0);
-  return _IDStoreGateSvc; 
+  static const InterfaceID IDStoreGateSvc("StoreGateSvc", 1, 0);
+  return IDStoreGateSvc; 
 }
 StatusCode StoreGateSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
 {

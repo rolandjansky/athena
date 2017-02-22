@@ -36,7 +36,9 @@ union ShortLong {
 };
 }
 
-LArRodBlockPhysicsV6::LArRodBlockPhysicsV6() : LArRodBlockStructure()
+LArRodBlockPhysicsV6::LArRodBlockPhysicsV6()
+  : LArRodBlockStructure(),
+    m_onlineHelper(nullptr)
 {
   m_iHeadBlockSize=endtag/2; // The implicit cast rounds down to the right size 
   m_fixedGain=CaloGain::LARNGAIN;
