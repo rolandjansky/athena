@@ -158,7 +158,6 @@ print "=========================================================================
 # names of algs are:
 #  SGInputLoader
 #  xAODMaker::EventInfoCnvAlg
-#  xAODMaker::TriggerTowerCnvAlg
 #  EventCounter
 #  CaloCellMaker
 #  CmbTowerBldr

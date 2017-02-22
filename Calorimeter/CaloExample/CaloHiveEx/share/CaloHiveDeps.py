@@ -8,18 +8,10 @@ xAODMaker__EventInfoCnvAlg.ExtraInputs =  [('EventInfo','McEventInfo')]
 xAODMaker__EventInfoCnvAlg.ExtraOutputs = [('xAOD::EventAuxInfo','EventInfoAux.'),
                                            ('xAOD::EventInfo','EventInfo') ]
 
-                                           
-#xAODMaker__TriggerTowerCnvAlg.ExtraInputs =  [('EventInfo','McEventInfo'),
-#                                              ('DataVector<LVL1::TriggerTower>','TriggerTowers')]
-#xAODMaker__TriggerTowerCnvAlg.ExtraOutputs = [('xAOD::TriggerTowerAuxContainer','xAODTriggerTowersAux.'),
-#                                              ('xAOD::TriggerTowerContainer','xAODTriggerTowers')]
-
 
 topSequence.CaloCellMaker.ExtraInputs =   [('EventInfo','McEventInfo'),
                                            ('LArRawChannelContainer','LArRawChannels'),
                                            ('TileRawChannelContainer','TileRawChannelCnt')]
-#                                           ('DataVector<LVL1::TriggerTower>','TriggerTowers'),
-#                                           ('xAOD::TriggerTowerContainer','xAODTriggerTowers')]
 topSequence.CaloCellMaker.ExtraOutputs =  [('CaloCellContainer','AllCalo'),
                                            ('TileCellContainer','MBTSContainer')]
 
