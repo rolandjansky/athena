@@ -19,7 +19,9 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 __all__ = [ 'theApp', 'ServiceMgr', 'ToolSvc', 'AuditorSvc', 'theAuditorSvc',
             'athMasterSeq',
             'athFilterSeq',
+            'athBeginSeq',
             'athAlgSeq',    'topSequence',
+            'athEndSeq'
             'athOutSeq',
             'athRegSeq',
             ]
@@ -248,14 +250,19 @@ class AthAppMgr( AppMgr ):
          pieces : AthMasterSeq, AthFilterSeq, AthAlgSeq, AthOutSeq, AthRegSeq
       """
       from . import AlgSequence as _as
+      from AthenaServices.AthenaServicesConf import AthIncFirerAlg as IFA
+      from GaudiCoreSvc.GaudiCoreSvcConf import IncidentProcAlg as IPA
+
       def _build():
          Logging.log.debug ("building master sequence...")
          athMasterSeq = _as.AthSequencer ("AthMasterSeq")
          athFilterSeq = _as.AthSequencer ("AthFilterSeq"); 
+         athBeginSeq  = _as.AthSequencer ("AthBeginSeq")
          athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
+         athEndSeq    = _as.AthSequencer ("AthEndSeq")
          athOutSeq    = _as.AthSequencer ("AthOutSeq")
          athRegSeq    = _as.AthSequencer ("AthRegSeq")
-
+         athMTSeq     = _as.AthSequencer ("AthMTSeq")         
          # transfer old TopAlg to new AthAlgSeq
          _top_alg = _as.AlgSequence("TopAlg")
          # first transfer properties
@@ -269,8 +276,28 @@ class AthAppMgr( AppMgr ):
             athAlgSeq += c
             delattr(_top_alg, c.getName())
          del _top_alg, children
-         
-         
+
+         #Setup begin and end sequences
+         # Begin Sequence
+         #   IFA->BeginEvent
+         #   IPA
+         ifaBeg=IFA("BeginIncFiringAlg")
+         ifaBeg.Incidents=["BeginEvent"]
+         ifaBeg.FireSerial=True # we want serial incident to be fired as well
+         athBeginSeq += ifaBeg
+         ipa=IPA("IncidentProcAlg1")
+         athBeginSeq += ipa
+
+         # EndSequence
+         #   IFA->EndEvent
+         #   IPA
+         ifaEnd=IFA("EndIncFiringAlg")
+         ifaEnd.Incidents=["EndEvent"]
+         ifaEnd.FireSerial=True # we want serial incident to be fired as well
+         athEndSeq += ifaEnd
+         ipa2=IPA("IncidentProcAlg2")
+         athEndSeq += ipa2
+
          # unroll AthFilterSeq to save some function calls and
          # stack size on the C++ side
          for c in athFilterSeq.getChildren():
@@ -278,9 +305,16 @@ class AthAppMgr( AppMgr ):
 
          # XXX: should we discard empty sequences ?
          #      might save some CPU and memory...
-         athMasterSeq += athAlgSeq
+         athMTSeq+=athBeginSeq
+         athMTSeq+=athAlgSeq
+         athMTSeq+=athEndSeq
+         # athMasterSeq += athBeginSeq
+         # athMasterSeq += athAlgSeq
+         # athMasterSeq += athEndSeq
+         athMasterSeq += athMTSeq
          athMasterSeq += athOutSeq
          athMasterSeq += athRegSeq
+         
          Logging.log.debug ("building master sequence... [done]")
          return athMasterSeq
       # prevent hysteresis effect
@@ -594,7 +628,11 @@ class AthAppMgr( AppMgr ):
       self.setup()
 
     # create C++-side AppMgr
+      from ConcurrencyFlags import jobproperties as jp
       try:
+         # Set threaded flag to release the python GIL when we're in C++
+         is_threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         self.getHandle()._appmgr.initialize._threaded = is_threaded
          sc = self.getHandle().initialize()
          if sc.isFailure():
             self._exitstate = ExitCodes.INI_ALG_FAILURE
@@ -659,8 +697,12 @@ class AthAppMgr( AppMgr ):
 
     # actual run (FIXME: capture beginRun() exceptions and failures, which is
     #               not currently supported by IEventProcessor interface)
+      from ConcurrencyFlags import jobproperties as jp
       try:
-         sc = self.getHandle()._evtpro.executeRun( nEvt )
+         # Set threaded flag to release the GIL on execution
+         executeRunMethod = self.getHandle()._evtpro.executeRun
+         executeRunMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         sc = executeRunMethod(nEvt)
          if sc.isFailure() and not self._exitstate:
             self._exitstate = ExitCodes.EXE_ALG_FAILURE   # likely, no guarantee
       except Exception:
@@ -713,7 +755,11 @@ class AthAppMgr( AppMgr ):
          if not self._cppApp:
             raise RuntimeError, \
                   "C++ application not instantiated : Nothing to finalize !"
-         sc = self.getHandle()._appmgr.finalize()
+         # Set threaded flag to release the GIL when finalizing in the c++
+         from ConcurrencyFlags import jobproperties as jp
+         finalizeMethod = self.getHandle()._appmgr.finalize
+         finalizeMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         sc = finalizeMethod()
          if sc.isFailure():
             self._exitstate = ExitCodes.FIN_ALG_FAILURE
       except Exception:
@@ -903,7 +949,11 @@ def AuditorSvc():             # backwards compatibility
 #         |
 #         +-- athFilterSeq
 #                |
+#                +--- athBeginSeq
+#                |
 #                +--- athAlgSeq == TopAlg
+#                |
+#                +--- athEndSeq
 #                |
 #                +--- athOutSeq
 #                |
