@@ -4,7 +4,6 @@
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
@@ -21,7 +20,6 @@
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
 #include "TrigMuonEvent/MuonFeature.h"
-//#include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
@@ -52,7 +50,6 @@
 #include "Particle/TrackParticleContainer.h"
 #include "tauEvent/TauJetContainer.h"
 #include "tauEvent/TauJet.h"
-//#include "AnalysisTools/IAnalysisTools.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
@@ -93,26 +90,19 @@
 
 #include <iostream>
 
-//static const int  MAX_PARTICLES = 20;
-
 static  int trackWarningNum;
 static  int vertexWarningNum;
 static  int  maxRepWarnings;
 
 
-// TrigEDMChecker::TrigEDMChecker(const std::string& name,
-//   ISvcLocator* pSvcLocator) : CBNT_AthenaAwareBase(name, pSvcLocator),
-//   m_analysisTools(0) {
 TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
 {
-
-
 	/** switches to control the analysis through job options */
 
 	declareProperty("doDumpAll", m_doDumpAll = true);
-        declareProperty("doDumpTrigPassBits", m_doDumpTrigPassBits = false);
+    declareProperty("doDumpTrigPassBits", m_doDumpTrigPassBits = false);
 	declareProperty("doDumpLVL1_ROI", m_doDumpLVL1_ROI = false);
 	declareProperty("doDumpTrigMissingET", m_doDumpTrigMissingET = false);
 	declareProperty("doDumpxAODTrigMissingET", m_doDumpxAODTrigMissingET = false);
@@ -159,55 +149,53 @@ TrigEDMChecker::~TrigEDMChecker() {}
 
 StatusCode TrigEDMChecker::initialize() {
 
-	MsgStream mLog( messageService(), name() );
+	ATH_MSG_DEBUG("Initializing TrigEDMChecker");
 
-	mLog << MSG::DEBUG << "Initializing TrigEDMChecker" << endreq;
-
-	mLog << MSG::INFO << "REGTEST Initializing..." << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpAll                     = " <<  m_doDumpAll  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpLVL1_ROI                = " <<  m_doDumpLVL1_ROI << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigMissingET           = " <<  m_doDumpTrigMissingET  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigMissingET       = " <<  m_doDumpxAODTrigMissingET  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpMuonFeature             = " <<  m_doDumpMuonFeature  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpCombinedMuonFeature     = " <<  m_doDumpCombinedMuonFeature  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTileMuFeature           = " <<  m_doDumpTileMuFeature << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTileTrackMuFeature      = " <<  m_doDumpTileTrackMuFeature << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigPhotonContainer     = " <<  m_doDumpTrigPhotonContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigL2BphysContainer    = " <<  m_doDumpTrigL2BphysContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigEFBphysContainer    = " <<  m_doDumpTrigEFBphysContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigEFBjetContainer     = " <<  m_doDumpTrigEFBjetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigL2BjetContainer     = " <<  m_doDumpTrigL2BjetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODJetContainer        = " <<  m_doDumpxAODJetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigMuonEFContainer     = " <<  m_doDumpTrigMuonEFContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigMuonEFInfoContainer = " <<  m_doDumpTrigMuonEFInfoContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODMuonContainer       = " <<  m_doDumpxAODMuonContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigElectronContainer   = " <<  m_doDumpTrigElectronContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigElectronContainer   = " <<  m_doDumpxAODTrigElectronContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigPhotonContainer   = " <<  m_doDumpxAODTrigPhotonContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODElectronContainer   = " <<  m_doDumpxAODElectronContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODPhotonContainer   = " <<  m_doDumpxAODPhotonContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpHLTResult               = " <<  m_doDumpHLTResult  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigTauContainer        = " <<  m_doDumpTrigTauContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigTauTracksInfo       = " <<  m_doDumpTrigTauTracksInfo  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigInDetTrackCollection= " <<  m_doDumpTrigInDetTrackCollection  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigVertexCollection    = " <<  m_doDumpTrigVertexCollection  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigEMCluster           = " <<  m_doDumpTrigEMCluster  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigEMClusterContainer        = " <<  m_doDumpTrigEMClusterContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigTauClusterContainer = " <<  m_doDumpTrigTauClusterContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrackParticleContainer          = " <<  m_doDumpTrackParticleContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTauJetContainer          = " <<  m_doDumpTauJetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrackParticle         = " <<  m_doDumpxAODTrackParticle  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODVertex                = " <<  m_doDumpxAODVertex  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTauJetContainer          = " << m_doDumpxAODTauJetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigMinBias          = " << m_doDumpxAODTrigMinBias  << endreq;
+	ATH_MSG_INFO("REGTEST Initializing...");
+	ATH_MSG_INFO("REGTEST m_doDumpAll                     = " <<  m_doDumpAll );
+	ATH_MSG_INFO("REGTEST m_doDumpLVL1_ROI                = " <<  m_doDumpLVL1_ROI);
+	ATH_MSG_INFO("REGTEST m_doDumpTrigMissingET           = " <<  m_doDumpTrigMissingET );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigMissingET       = " <<  m_doDumpxAODTrigMissingET );
+	ATH_MSG_INFO("REGTEST m_doDumpMuonFeature             = " <<  m_doDumpMuonFeature );
+	ATH_MSG_INFO("REGTEST m_doDumpCombinedMuonFeature     = " <<  m_doDumpCombinedMuonFeature );
+	ATH_MSG_INFO("REGTEST m_doDumpTileMuFeature           = " <<  m_doDumpTileMuFeature);
+	ATH_MSG_INFO("REGTEST m_doDumpTileTrackMuFeature      = " <<  m_doDumpTileTrackMuFeature);
+	ATH_MSG_INFO("REGTEST m_doDumpTrigPhotonContainer     = " <<  m_doDumpTrigPhotonContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigL2BphysContainer    = " <<  m_doDumpTrigL2BphysContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigEFBphysContainer    = " <<  m_doDumpTrigEFBphysContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigEFBjetContainer     = " <<  m_doDumpTrigEFBjetContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigL2BjetContainer     = " <<  m_doDumpTrigL2BjetContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODJetContainer        = " <<  m_doDumpxAODJetContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigMuonEFContainer     = " <<  m_doDumpTrigMuonEFContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigMuonEFInfoContainer = " <<  m_doDumpTrigMuonEFInfoContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODMuonContainer       = " <<  m_doDumpxAODMuonContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigElectronContainer   = " <<  m_doDumpTrigElectronContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigElectronContainer   = " <<  m_doDumpxAODTrigElectronContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigPhotonContainer   = " <<  m_doDumpxAODTrigPhotonContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODElectronContainer   = " <<  m_doDumpxAODElectronContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODPhotonContainer   = " <<  m_doDumpxAODPhotonContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpHLTResult               = " <<  m_doDumpHLTResult );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigTauContainer        = " <<  m_doDumpTrigTauContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigTauTracksInfo       = " <<  m_doDumpTrigTauTracksInfo );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigInDetTrackCollection= " <<  m_doDumpTrigInDetTrackCollection );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigVertexCollection    = " <<  m_doDumpTrigVertexCollection );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigEMCluster           = " <<  m_doDumpTrigEMCluster );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigEMClusterContainer        = " <<  m_doDumpTrigEMClusterContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrigTauClusterContainer = " <<  m_doDumpTrigTauClusterContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTrackParticleContainer          = " <<  m_doDumpTrackParticleContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpTauJetContainer          = " <<  m_doDumpTauJetContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODTrackParticle         = " <<  m_doDumpxAODTrackParticle );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODVertex                = " <<  m_doDumpxAODVertex );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODTauJetContainer          = " << m_doDumpxAODTauJetContainer );
+	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigMinBias          = " << m_doDumpxAODTrigMinBias );
 
 
 //      puts this here for the moment
-        maxRepWarnings = 5;
-	mLog << MSG::INFO << "maxRepWarning      = " <<  maxRepWarnings  << endreq;
+    maxRepWarnings = 5;
+	ATH_MSG_INFO("maxRepWarning      = " <<  maxRepWarnings );
 
 	vertexWarningNum = 0;
-        trackWarningNum = 0;
+    trackWarningNum = 0;
 
 	if(m_doDumpxAODMuonContainer || m_doDumpAll) {
 	  StatusCode sc = m_muonPrinter.retrieve();
@@ -220,44 +208,20 @@ StatusCode TrigEDMChecker::initialize() {
 	return StatusCode::SUCCESS;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-/// Finalize - delete any memory allocation from the heap
-
-StatusCode TrigEDMChecker::finalize() {
-	MsgStream mLog( messageService(), name() );
-
-	return StatusCode::SUCCESS;
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-/// Clear - clear CBNT members
-// StatusCode TrigEDMChecker::CBNT_clear() {
-
-//   return StatusCode::SUCCESS;
-// }
-
-//////////////////////////////////////////////////////////////////////////////////
-/// Execute - on event by event
 
 StatusCode TrigEDMChecker::execute() {
-	MsgStream mLog( messageService(), name() );
-
-	mLog << MSG::DEBUG << "in execute()" << endreq;
 
 	if(m_doDumpTrackParticleContainer){
 		StatusCode sc = dumpTrackParticleContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrackParticleContainer() failed" << endreq;
-
+          ATH_MSG_ERROR("The method dumpTrackParticleContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpLVL1_ROI ){
 		StatusCode sc = dumpLVL1_ROI();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpLVL1_ROI() failed" << endreq;
-
+          ATH_MSG_ERROR("The method dumpLVL1_ROI() failed");
 		}
 	}
 
@@ -265,7 +229,7 @@ StatusCode TrigEDMChecker::execute() {
 	if(m_doDumpAll || m_doDumpTrigMissingET){
 		StatusCode sc = dumpTrigMissingET();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigMissingET() failed" << endreq;
+			mLog << MSG::ERROR << "The method dumpTrigMissingET() failed" << endmsg;
 
 		}
 	}
@@ -274,321 +238,258 @@ StatusCode TrigEDMChecker::execute() {
 	if(m_doDumpAll || m_doDumpxAODTrigMissingET){
 		StatusCode sc = dumpxAODTrigMissingET();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODTrigMissingET() failed" << endreq;
-
+          ATH_MSG_ERROR("The method dumpxAODTrigMissingET() failed");
 		}
     }
 
 	if(m_doDumpAll || m_doDumpMuonFeature){
 		StatusCode sc = dumpMuonFeature();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpMuonFeature() failed" << endreq;
-
+          ATH_MSG_ERROR("The method dumpMuonFeature() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpCombinedMuonFeature){
 		StatusCode sc = dumpCombinedMuonFeature();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpCombinedMuonFeature() failed" << endreq;
-
+          ATH_MSG_ERROR("The method dumpCombinedMuonFeature() failed");
 		}
 		sc = dumpCombinedMuonFeatureContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpCombinedMuonFeatureContainer() failed" << endreq;
-			return StatusCode::SUCCESS;
+          ATH_MSG_ERROR("The method dumpCombinedMuonFeatureContainer() failed");
+          return StatusCode::SUCCESS;
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTileMuFeature) {
 		StatusCode sc = dumpTileMuFeatureContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTileMuFeatureContainer() failed"
-			<< endreq;
-
+          ATH_MSG_ERROR("The method dumpTileMuFeatureContainer() failed");          
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTileTrackMuFeature) {
 		StatusCode sc = dumpTileTrackMuFeatureContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR
-			<< "The method dumpTileTrackMuFeatureContainer() failed" << endreq;
-
+          ATH_MSG_ERROR("The method dumpTileTrackMuFeatureContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigEMCluster){
 		StatusCode sc = dumpTrigEMCluster();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigEMCluster() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigEMCluster() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigEMClusterContainer){
 		StatusCode sc = dumpTrigEMClusterContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigEMClusterContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigEMClusterContainer() failed");          
 		}
 	}
 
-        if(m_doDumpAll || m_doDumpxAODTrigEMCluster){
-                StatusCode sc = dumpxAODTrigEMCluster();
-                if (sc.isFailure()) {
-                        mLog << MSG::ERROR << "The method dumpxAODTrigEMCluster() failed" << endreq;
+    if(m_doDumpAll || m_doDumpxAODTrigEMCluster){
+      StatusCode sc = dumpxAODTrigEMCluster();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpxAODTrigEMCluster() failed");
+      }
+    }
 
-
-                }
-        }
-
-        if(m_doDumpAll || m_doDumpxAODTrigEMClusterContainer){
-                StatusCode sc = dumpxAODTrigEMClusterContainer();
-                if (sc.isFailure()) {
-                        mLog << MSG::ERROR << "The method dumpxAODTrigEMClusterContainer() failed" << endreq;
-
-
-                }
-        }
+    if(m_doDumpAll || m_doDumpxAODTrigEMClusterContainer){
+      StatusCode sc = dumpxAODTrigEMClusterContainer();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpxAODTrigEMClusterContainer() failed");
+      }
+    }
 
 	if(m_doDumpTrigTauClusterContainer){
 		StatusCode sc = dumpTrigTauClusterContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigTauClusterContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigTauClusterContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigPhotonContainer){
 		StatusCode sc = dumpTrigPhotonContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigPhotonContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigPhotonContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpxAODJetContainer){
 		StatusCode sc = dumpxAODJetContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODJetContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpxAODJetContainer() failed");          
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigL2BphysContainer){
 		StatusCode sc = dumpTrigL2BphysContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigL2BphysContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigL2BphysContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigEFBphysContainer){
 		StatusCode sc = dumpTrigEFBphysContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigEFBphysContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigEFBphysContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigEFBjetContainer){
 		StatusCode sc = dumpTrigEFBjetContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigEFBjetContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigEFBjetContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigL2BjetContainer){
 		StatusCode sc = dumpTrigL2BjetContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigL2BjetContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigL2BjetContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigMuonEFContainer){
 		StatusCode sc = dumpTrigMuonEFContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigMuonEFContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigMuonEFContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigMuonEFInfoContainer){
 		StatusCode sc = dumpTrigMuonEFInfoContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigMuonEFInfoContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigMuonEFInfoContainer() failed");          
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigMuonEFIsolationContainer) {
 	  StatusCode sc = dumpTrigMuonEFIsolationContainer();
 	  if(sc.isFailure()) {
-	    mLog << MSG::ERROR << "The method dumpTrigMuonEFIsolationContainer() failed" << endreq;
+	    ATH_MSG_ERROR("The method dumpTrigMuonEFIsolationContainer() failed");
 	  }
 	}
 
 	if(m_doDumpAll || m_doDumpxAODMuonContainer) {
 	  StatusCode sc = dumpxAODMuonContainer();
 	  if(sc.isFailure()) {
-	    mLog << MSG::ERROR << "The method dumpxAODMuonContainer() failed" << endreq;
+	    ATH_MSG_ERROR("The method dumpxAODMuonContainer() failed");
 	  }
 	}
 
 	if(m_doDumpAll || m_doDumpTrigElectronContainer){
 		StatusCode sc = dumpTrigElectronContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigElectronContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigElectronContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpxAODTrigElectronContainer){
 		StatusCode sc = dumpxAODTrigElectronContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODTrigElectronContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpxAODTrigElectronContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpxAODTrigPhotonContainer){
 		StatusCode sc = dumpxAODTrigPhotonContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODTrigElectronContainer() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpxAODTrigElectronContainer() failed");
 		}
 	}
 
-        if(m_doDumpAll || m_doDumpxAODElectronContainer){
-		StatusCode sc = dumpxAODElectronContainer();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODTrigElectronContainer() failed" << endreq;
-
-
-		}
+    if(m_doDumpAll || m_doDumpxAODElectronContainer){
+      StatusCode sc = dumpxAODElectronContainer();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpxAODTrigElectronContainer() failed");
+      }
 	}
 
 	if(m_doDumpAll || m_doDumpxAODPhotonContainer){
-		StatusCode sc = dumpxAODPhotonContainer();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODTrigElectronContainer() failed" << endreq;
-
-
-		}
+      StatusCode sc = dumpxAODPhotonContainer();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpxAODTrigElectronContainer() failed");        
+      }
 	}
 
-        if(m_doDumpTrigTauContainer){
-		StatusCode sc = dumpTrigTauContainer();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigTauContainer() failed" << endreq;
-
-
-		}
+    if(m_doDumpTrigTauContainer){
+      StatusCode sc = dumpTrigTauContainer();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpTrigTauContainer() failed");
+      }
 	}
 
 	if(m_doDumpTrigTauTracksInfo){
 		StatusCode sc = dumpTrigTauTracksInfo();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigTauTracksInfo() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigTauTracksInfo() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpHLTResult){
 		StatusCode sc = dumpHLTResult();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpHLTResult() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpHLTResult() failed");
 		}
 	}
 
 	if(m_doDumpTrigInDetTrackCollection){
 		StatusCode sc = dumpTrigInDetTrackCollection();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigInDetTrackCollection() failed" << endreq;
-
-
+          ATH_MSG_ERROR("The method dumpTrigInDetTrackCollection() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpTrigVertexCollection){
-		StatusCode sc = dumpTrigVertexCollection();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigVertexCollection() failed" << endreq;
-
-
-		}
+      StatusCode sc = dumpTrigVertexCollection();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpTrigVertexCollection() failed");
+      }
 	}
 
 	if(m_doDumpAll || m_doDumpxAODTauJetContainer){
-		StatusCode sc = dumpxAODTauJetContainer();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODTauJetContainer() failed" << endreq;
-
-
-		}
+      StatusCode sc = dumpxAODTauJetContainer();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpxAODTauJetContainer() failed");
+      }
 	}
-
-
-
 
 	if(m_doDumpTauJetContainer){
 		StatusCode sc = dumpTauJetContainer();
 		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTauJetContainer() failed" << endreq;
-
+          ATH_MSG_ERROR("The method dumpTauJetContainer() failed");
 		}
 	}
 
 	if(m_doDumpAll || m_doDumpxAODTrackParticle){
-		StatusCode sc = dumpxAODTrackParticle();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODTrackParticle() failed" << endreq;
-
-		}
+      StatusCode sc = dumpxAODTrackParticle();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpxAODTrackParticle() failed");      
+      }
 	}
 
 	if(m_doDumpAll || m_doDumpxAODVertex){
-		StatusCode sc = dumpxAODVertex();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODVertex() failed" << endreq;
-
-		}
+      StatusCode sc = dumpxAODVertex();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpxAODVertex() failed");
+      }
 	}
-
 
 	if (m_doDumpAll || m_doDumpxAODTrigMinBias){
-		StatusCode sc = dumpxAODTrigMinBias();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpxAODTrigMinBias() failed" << endreq;
-		}
-
+      StatusCode sc = dumpxAODTrigMinBias();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpxAODTrigMinBias() failed");
+      }
 	}
-	if (m_doDumpTrigPassBits){
-		StatusCode sc = dumpTrigPassBits();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigPassBits() failed" << endreq;
-		}
 
+	if (m_doDumpTrigPassBits){
+      StatusCode sc = dumpTrigPassBits();
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("The method dumpTrigPassBits() failed");
+      }      
 	}
 
 	return StatusCode::SUCCESS;
@@ -627,9 +528,9 @@ StatusCode TrigEDMChecker::dumpTrigPassBits(){
     return StatusCode::SUCCESS;
 }
 
-void TrigEDMChecker::dumpTrigSpacePointCounts(MsgStream &mLog)
+void TrigEDMChecker::dumpTrigSpacePointCounts()
 {
-	mLog << MSG::INFO << "MinBias in dumpTrigSpacePointCounts()" << endreq;
+    ATH_MSG_INFO("MinBias in dumpTrigSpacePointCounts()");
 
 	std::string METTag="HLT_xAOD__TrigSpacePointCountsContainer_spacepoints";
 
@@ -637,209 +538,208 @@ void TrigEDMChecker::dumpTrigSpacePointCounts(MsgStream &mLog)
 	StatusCode sc = evtStore()->retrieve(SpacePointCountsCont,METTag);
 
 	if (sc.isFailure())
-	         mLog << MSG::INFO << "failed to retrieve " << METTag << endreq;
-        else {
-	         mLog << MSG::INFO << "Accessing " << METTag << " with " << SpacePointCountsCont->size() << " elements" << endreq;
-
-		std::string s; char buff[128];
-		std::vector<float> getVec;
-		float sum;
-
-		// Loop over container content
-    for(uint i = 0; i < SpacePointCountsCont->size(); i++) {
-			getVec = SpacePointCountsCont->at(i)->contentsPixelClusEndcapC();
-			sum = 0.;
-			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusEndcapC() =         %10.2f ", s.c_str(), sum );
-             		mLog <<MSG::INFO << buff << endreq;
-
-			getVec = SpacePointCountsCont->at(i)->contentsPixelClusBarrel();
-			sum = 0.;
-			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusBarrel() =         %10.2f ", s.c_str(), sum );
-             		mLog <<MSG::INFO << buff << endreq;
-
-			getVec = SpacePointCountsCont->at(i)->contentsPixelClusEndcapA();
-			sum = 0.;
-			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusEndcapA() =         %10.2f ", s.c_str(), sum );
-             		mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s pixelClusTotBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotBins() );
-            	 	mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s pixelClusTotMin() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMin() );
-            	 	mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s pixelClusTotMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMax() );
-            	 	mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s pixelClusSizeBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeBins() );
-            	 	mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s pixelClusSizeMin()  =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMin() );
-            	 	mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s pixelClusSizeMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMax() );
-			mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s sctSpEndcapC() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapC() );
-            	 	mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s sctSpBarrel() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpBarrel() );
-            	 	mLog <<MSG::INFO << buff << endreq;
-
-			snprintf(buff, 128, "REGTEST %s sctSpEndcapA() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapA() );
-            	 	mLog <<MSG::INFO << buff << endreq;
-		}
+      ATH_MSG_INFO("failed to retrieve " << METTag);
+    else {
+      ATH_MSG_INFO("Accessing " << METTag << " with " << SpacePointCountsCont->size() << " elements");
+      
+      std::string s; char buff[128];
+      std::vector<float> getVec;
+      float sum;
+      
+      // Loop over container content
+      for(uint i = 0; i < SpacePointCountsCont->size(); i++) {
+        getVec = SpacePointCountsCont->at(i)->contentsPixelClusEndcapC();
+        sum = 0.;
+        for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
+        snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusEndcapC() =         %10.2f ", s.c_str(), sum );
+        ATH_MSG_INFO(buff);
+        
+        getVec = SpacePointCountsCont->at(i)->contentsPixelClusBarrel();
+        sum = 0.;
+        for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
+        snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusBarrel() =         %10.2f ", s.c_str(), sum );
+        ATH_MSG_INFO(buff);
+        
+        getVec = SpacePointCountsCont->at(i)->contentsPixelClusEndcapA();
+        sum = 0.;
+        for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
+        snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusEndcapA() =         %10.2f ", s.c_str(), sum );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s pixelClusTotBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotBins() );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s pixelClusTotMin() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMin() );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s pixelClusTotMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMax() );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s pixelClusSizeBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeBins() );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s pixelClusSizeMin()  =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMin() );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s pixelClusSizeMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMax() );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s sctSpEndcapC() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapC() );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s sctSpBarrel() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpBarrel() );
+        ATH_MSG_INFO(buff);
+        
+        snprintf(buff, 128, "REGTEST %s sctSpEndcapA() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapA() );
+        ATH_MSG_INFO(buff);
+      }
 	}
 }
 
-void TrigEDMChecker::dumpTrigT2MBTSBits(MsgStream &mLog){
-	mLog << MSG::INFO << "MinBias in dumpTrigT2MBTSBits()" << endreq;
+void TrigEDMChecker::dumpTrigT2MBTSBits(){
+  ATH_MSG_INFO("MinBias in dumpTrigT2MBTSBits()");
 
-	std::string METTag="HLT_xAOD__TrigT2MbtsBitsContainer_T2Mbts";
+  std::string METTag="HLT_xAOD__TrigT2MbtsBitsContainer_T2Mbts";
 
-	const xAOD::TrigT2MbtsBitsContainer* T2MbtsBitsCont=0;
-	StatusCode sc = evtStore()->retrieve(T2MbtsBitsCont,METTag);
+  const xAOD::TrigT2MbtsBitsContainer* T2MbtsBitsCont=0;
+  StatusCode sc = evtStore()->retrieve(T2MbtsBitsCont,METTag);
 
-	if (sc.isFailure())
-	         mLog << MSG::INFO << "failed to retrieve " << METTag << endreq;
-        else {
-	         mLog << MSG::INFO << "Accessing " << METTag << " with " << T2MbtsBitsCont->size() << " elements" << endreq;
+  if (sc.isFailure())
+    ATH_MSG_INFO("failed to retrieve " << METTag);
+  else {
+    ATH_MSG_INFO("Accessing " << METTag << " with " << T2MbtsBitsCont->size() << " elements");
 
-		std::string s; char buff[128];
-		std::vector<float> getVec;
-		float sum;
+    std::string s; char buff[128];
+    std::vector<float> getVec;
+    float sum;
 
-		// Loop over container content
-            	for(uint i = 0; i < T2MbtsBitsCont->size(); i++) {
-			getVec = T2MbtsBitsCont->at(i)->triggerEnergies();
-			sum = 0.;
-			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of triggerEnergies() =         %10.2f ", s.c_str(), sum );
-             		mLog <<MSG::INFO << buff << endreq;
+    // Loop over container content
+    for(uint i = 0; i < T2MbtsBitsCont->size(); i++) {
+      getVec = T2MbtsBitsCont->at(i)->triggerEnergies();
+      sum = 0.;
+      for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
+      snprintf(buff, 128, "REGTEST %s SUM of triggerEnergies() =         %10.2f ", s.c_str(), sum );
+      ATH_MSG_INFO(buff);
 
-			getVec = T2MbtsBitsCont->at(i)->triggerTimes();
-			sum = 0.;
-			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of triggerTimes() =         %10.2f ", s.c_str(), sum );
-             		mLog <<MSG::INFO << buff << endreq;
-		}
-	}
+      getVec = T2MbtsBitsCont->at(i)->triggerTimes();
+      sum = 0.;
+      for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
+      snprintf(buff, 128, "REGTEST %s SUM of triggerTimes() =         %10.2f ", s.c_str(), sum );
+      ATH_MSG_INFO(buff);
+    }
+  }
 }
 
-void TrigEDMChecker::dumpTrigVertexCounts(MsgStream &mLog){
-	mLog << MSG::INFO << "MinBias in dumpTrigVertexCounts()" << endreq;
+void TrigEDMChecker::dumpTrigVertexCounts(){
+  ATH_MSG_INFO("MinBias in dumpTrigVertexCounts()");
 
-	std::string METTag="HLT_xAOD__TrigVertexCountsContainer_vertexcounts";
+  std::string METTag="HLT_xAOD__TrigVertexCountsContainer_vertexcounts";
 
-	const xAOD::TrigVertexCountsContainer* T2VertexCountsCont=0;
-	StatusCode sc = evtStore()->retrieve(T2VertexCountsCont,METTag);
+  const xAOD::TrigVertexCountsContainer* T2VertexCountsCont=0;
+  StatusCode sc = evtStore()->retrieve(T2VertexCountsCont,METTag);
 
-	if (sc.isFailure())
-	         mLog << MSG::INFO << "failed to retrieve " << METTag << endreq;
-        else {
-	         mLog << MSG::INFO << "Accessing " << METTag << " with " << T2VertexCountsCont->size() << " elements" << endreq;
+  if (sc.isFailure())
+    ATH_MSG_INFO("failed to retrieve " << METTag);
+  else {
+    ATH_MSG_INFO("Accessing " << METTag << " with " << T2VertexCountsCont->size() << " elements");
 
-		std::string s; char buff[128];
-		std::vector<float> fgetVec;
-		float fsum(0.);
-		std::vector<unsigned int> ugetVec;
-		unsigned int usum(0);
+    std::string s; char buff[128];
+    std::vector<float> fgetVec;
+    float fsum(0.);
+    std::vector<unsigned int> ugetVec;
+    unsigned int usum(0);
 
-		// Loop over container content
-            	for(uint i = 0; i < T2VertexCountsCont->size(); i++) {
-			ugetVec = T2VertexCountsCont->at(i)->vtxNtrks();
-			for (uint j = 0; j < ugetVec.size(); ++j) usum += ugetVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of vtxNtrks() =         %u ", s.c_str(), usum );
-             		mLog <<MSG::INFO << buff << endreq;
+    // Loop over container content
+    for(uint i = 0; i < T2VertexCountsCont->size(); i++) {
+      ugetVec = T2VertexCountsCont->at(i)->vtxNtrks();
+      for (uint j = 0; j < ugetVec.size(); ++j) usum += ugetVec[j];
+      snprintf(buff, 128, "REGTEST %s SUM of vtxNtrks() =         %u ", s.c_str(), usum );
+      ATH_MSG_INFO(buff);
 
-			fgetVec = T2VertexCountsCont->at(i)->vtxTrkPtSqSum();
-			for (uint j = 0; j < fgetVec.size(); ++j) fsum += fgetVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of vtxTrkPtSqSum() =         %10.2f ", s.c_str(), fsum );
-             		mLog <<MSG::INFO << buff << endreq;
-		}
-	}
+      fgetVec = T2VertexCountsCont->at(i)->vtxTrkPtSqSum();
+      for (uint j = 0; j < fgetVec.size(); ++j) fsum += fgetVec[j];
+      snprintf(buff, 128, "REGTEST %s SUM of vtxTrkPtSqSum() =         %10.2f ", s.c_str(), fsum );
+      ATH_MSG_INFO(buff);
+    }
+  }
 }
 
-void TrigEDMChecker::dumpTrigTrackCounts(MsgStream &mLog){
-	mLog << MSG::INFO << "MinBias in dumpTrigTrackCounts()" << endreq;
+void TrigEDMChecker::dumpTrigTrackCounts(){
+  ATH_MSG_INFO("MinBias in dumpTrigTrackCounts()");
 
-	std::string METTag="HLT_xAOD__TrigTrackCountsContainer_trackcounts";
+  std::string METTag="HLT_xAOD__TrigTrackCountsContainer_trackcounts";
 
-	const xAOD::TrigTrackCountsContainer* T2TrackCountsCont=0;
-	StatusCode sc = evtStore()->retrieve(T2TrackCountsCont,METTag);
+  const xAOD::TrigTrackCountsContainer* T2TrackCountsCont=0;
+  StatusCode sc = evtStore()->retrieve(T2TrackCountsCont,METTag);
 
-	if (sc.isFailure())
-	         mLog << MSG::INFO << "failed to retrieve " << METTag << endreq;
-        else {
-	         mLog << MSG::INFO << "Accessing " << METTag << " with " << T2TrackCountsCont->size() << " elements" << endreq;
+  if (sc.isFailure())
+    ATH_MSG_INFO("failed to retrieve " << METTag);
+  else {
+    ATH_MSG_INFO("Accessing " << METTag << " with " << T2TrackCountsCont->size() << " elements");
 
-		std::string s; char buff[128];
-		std::vector<float> getVec;
-		float sum;
+    std::string s; char buff[128];
+    std::vector<float> getVec;
+    float sum;
 
-		// Loop over container content
-            	for(uint i = 0; i < T2TrackCountsCont->size(); i++) {
-			getVec = T2TrackCountsCont->at(i)->z0_pt();
-			sum = 0.;
-			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of z0_pt =         %10.2f ", s.c_str(), sum );
-             		mLog <<MSG::INFO << buff << endreq;
+    // Loop over container content
+    for(uint i = 0; i < T2TrackCountsCont->size(); i++) {
+      getVec = T2TrackCountsCont->at(i)->z0_pt();
+      sum = 0.;
+      for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
+      snprintf(buff, 128, "REGTEST %s SUM of z0_pt =         %10.2f ", s.c_str(), sum );
+      ATH_MSG_INFO(buff);
 
-			getVec = T2TrackCountsCont->at(i)->eta_phi();
-			sum = 0.;
-			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			snprintf(buff, 128, "REGTEST %s SUM of eta_phi() =         %10.2f ", s.c_str(), sum );
-             		mLog <<MSG::INFO << buff << endreq;
+      getVec = T2TrackCountsCont->at(i)->eta_phi();
+      sum = 0.;
+      for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
+      snprintf(buff, 128, "REGTEST %s SUM of eta_phi() =         %10.2f ", s.c_str(), sum );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s z0Bins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->z0Bins() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s z0Bins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->z0Bins() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s z0Min() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Min() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s z0Min() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Min() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s z0Max() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Max() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s z0Max() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Max() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s ptBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->ptBins() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s ptBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->ptBins() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s ptMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMin() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s ptMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMin() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s ptMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMax() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s ptMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMax() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s etaBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->etaBins() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s etaBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->etaBins() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s etaMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMin() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s etaMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMin() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s etaMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMax() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s etaMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMax() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s phiBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->phiBins() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s phiBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->phiBins() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s phiMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMin() );
-			mLog <<MSG::INFO << buff << endreq;
+      snprintf(buff, 128, "REGTEST %s phiMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMin() );
+      ATH_MSG_INFO(buff);
 
-			snprintf(buff, 128, "REGTEST %s phiMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMax() );
-			mLog <<MSG::INFO << buff << endreq;
-		}
-	}
+      snprintf(buff, 128, "REGTEST %s phiMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMax() );
+      ATH_MSG_INFO(buff);
+    }
+  }
 }
 
 StatusCode TrigEDMChecker::dumpxAODTrigMinBias() {
-	MsgStream mLog( messageService(), name() );
 
-	dumpTrigSpacePointCounts(mLog);
-	dumpTrigT2MBTSBits(mLog);
-	dumpTrigVertexCounts(mLog);
-	dumpTrigTrackCounts(mLog);
+	dumpTrigSpacePointCounts();
+	dumpTrigT2MBTSBits();
+	dumpTrigVertexCounts();
+	dumpTrigTrackCounts();
 
 	return StatusCode::SUCCESS;
 }
@@ -849,78 +749,73 @@ StatusCode TrigEDMChecker::dumpxAODTrigMinBias() {
 
 
 StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::INFO << "dumpxAODTrigMissingET()" << endreq;
+  ATH_MSG_INFO("dumpxAODTrigMissingET()");
 
-	int ntag=4;
-	std::string METTags[]={"HLT_xAOD__TrigMissingETContainer_EFJetEtSum","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET", "HLT_xAOD__TrigMissingETContainer_TrigL2MissingET_FEB","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl"};
+  int ntag=4;
+  std::string METTags[]={"HLT_xAOD__TrigMissingETContainer_EFJetEtSum","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET", "HLT_xAOD__TrigMissingETContainer_TrigL2MissingET_FEB","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl"};
 
-        for(int itag=0; itag <ntag; itag++) {
+  for(int itag=0; itag <ntag; itag++) {
 
-           const xAOD::TrigMissingETContainer* MissingETCont=0;
-           StatusCode sc = evtStore()->retrieve(MissingETCont,METTags[itag]);
-           if (sc.isFailure())
-	         mLog << MSG::INFO << "failed to retrieve " << METTags[itag] << endreq;
-           else {
-	         mLog << MSG::INFO << "Accessing " << METTags[itag] << " with " << MissingETCont->size() << " elements" << endreq;
+    const xAOD::TrigMissingETContainer* MissingETCont=0;
+    StatusCode sc = evtStore()->retrieve(MissingETCont,METTags[itag]);
+    if (sc.isFailure())
+      ATH_MSG_INFO("failed to retrieve " << METTags[itag]);
+    else {
+      ATH_MSG_INFO("Accessing " << METTags[itag] << " with " << MissingETCont->size() << " elements");
 
-            // Loop over container content
-            for(uint i = 0; i < MissingETCont->size(); i++) {
+      // Loop over container content
+      for(uint i = 0; i < MissingETCont->size(); i++) {
 
-             std::string s; char buff[128];
+        std::string s; char buff[128];
              
-             snprintf(buff, 128, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ex() );
-             mLog <<MSG::INFO << buff << endreq;
-             snprintf(buff, 128, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ey() );
-             mLog <<MSG::INFO << buff << endreq;
-             snprintf(buff, 128, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ez() );
-             mLog <<MSG::INFO << buff << endreq;
-             snprintf(buff, 128, "REGTEST %s SumET =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumEt() );
-             mLog <<MSG::INFO << buff << endreq;
-             snprintf(buff, 128, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumE() );
-             mLog <<MSG::INFO << buff << endreq;
-             snprintf(buff, 128, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->flag() );
-             mLog <<MSG::INFO << buff << endreq;
-             snprintf(buff, 128, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->roiWord() );
-             mLog <<MSG::INFO << buff << endreq;
+        snprintf(buff, 128, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ex() );
+        ATH_MSG_INFO(buff);
+        snprintf(buff, 128, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ey() );
+        ATH_MSG_INFO(buff);
+        snprintf(buff, 128, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ez() );
+        ATH_MSG_INFO(buff);
+        snprintf(buff, 128, "REGTEST %s SumET =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumEt() );
+        ATH_MSG_INFO(buff);
+        snprintf(buff, 128, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumE() );
+        ATH_MSG_INFO(buff);
+        snprintf(buff, 128, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->flag() );
+        ATH_MSG_INFO(buff);
+        snprintf(buff, 128, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->roiWord() );
+        ATH_MSG_INFO(buff);
              
-
-     		unsigned int Nc = MissingETCont->at(i)->getNumberOfComponents();
-		    if (Nc > 0) { s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
-			              s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-			              mLog << MSG::INFO << s << endreq; }
-             
-            for(uint j = 0; j < Nc; j++) {
-             
-                std::string name =               MissingETCont->at(i)->nameOfComponent(j);
-				const short status =             MissingETCont->at(i)->statusComponent(j);
-				const unsigned short usedChan =  MissingETCont->at(i)->usedChannelsComponent(j);
-				const short sumOfSigns =         MissingETCont->at(i)->sumOfSignsComponent(j);
-				const float calib0 =             MissingETCont->at(i)->calib0Component(j);
-				const float calib1 =             MissingETCont->at(i)->calib1Component(j);
-				const float ex =                 MissingETCont->at(i)->exComponent(j);
-				const float ey =                 MissingETCont->at(i)->eyComponent(j);
-				const float ez =                 MissingETCont->at(i)->ezComponent(j);
-				const float sumE =               MissingETCont->at(i)->sumEComponent(j);
-				const float sumEt =              MissingETCont->at(i)->sumEtComponent(j);
-
-				snprintf(buff, 128,
-						"REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-						name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
-						ex, ey, ez, sumE, sumEt);
-				mLog << MSG::INFO << buff << endreq;
-				
-             }
-              
-
-            }
-
-          }
-
+        unsigned int Nc = MissingETCont->at(i)->getNumberOfComponents();
+        if (Nc > 0) { 
+          s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
+          s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
+          ATH_MSG_INFO(s);
         }
+             
+        for(uint j = 0; j < Nc; j++) {
+             
+          std::string name =               MissingETCont->at(i)->nameOfComponent(j);
+          const short status =             MissingETCont->at(i)->statusComponent(j);
+          const unsigned short usedChan =  MissingETCont->at(i)->usedChannelsComponent(j);
+          const short sumOfSigns =         MissingETCont->at(i)->sumOfSignsComponent(j);
+          const float calib0 =             MissingETCont->at(i)->calib0Component(j);
+          const float calib1 =             MissingETCont->at(i)->calib1Component(j);
+          const float ex =                 MissingETCont->at(i)->exComponent(j);
+          const float ey =                 MissingETCont->at(i)->eyComponent(j);
+          const float ez =                 MissingETCont->at(i)->ezComponent(j);
+          const float sumE =               MissingETCont->at(i)->sumEComponent(j);
+          const float sumEt =              MissingETCont->at(i)->sumEtComponent(j);
 
-        return StatusCode::SUCCESS;
+          snprintf(buff, 128,
+                   "REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
+                   name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
+                   ex, ey, ez, sumE, sumEt);
+          ATH_MSG_INFO(buff);		
+        }              
+      }
+    }
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -928,172 +823,167 @@ StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
 
 
 StatusCode TrigEDMChecker::dumpTrigMissingET() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigMissingET()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigMissingET()");
 
-	int ntag=3;
-	std::string METTags[]={"HLT_TrigMissingETContainer_TrigEFMissingET", "HLT_TrigMissingETContainer_TrigEFMissingET_FEB", "HLT_TrigMissingETContainer_TrigEFMissingET_topocl"};
+  int ntag=3;
+  std::string METTags[]={"HLT_TrigMissingETContainer_TrigEFMissingET", "HLT_TrigMissingETContainer_TrigEFMissingET_FEB", "HLT_TrigMissingETContainer_TrigEFMissingET_topocl"};
 
+  /// >= 14.2.10 /// ----------------------------
+  for (int itag=0; itag < ntag; itag++) { // loop over L2, EF
+    const TrigMissingETContainer* trigMETcont;
+    StatusCode sc=evtStore()->retrieve(trigMETcont , METTags[itag]);
+    if( sc.isFailure() ){
+      ATH_MSG_INFO("Failed to retrieve TrigMissingETContainer with key " << METTags[itag]);
+      continue;
+    }
 
-	/// >= 14.2.10 /// ----------------------------
-	for (int itag=0; itag < ntag; itag++) { // loop over L2, EF
-		const TrigMissingETContainer* trigMETcont;
-		StatusCode sc=evtStore()->retrieve(trigMETcont , METTags[itag]);
-		if( sc.isFailure() ){
-			mLog << MSG::INFO << "Failed to retrieve TrigMissingETContainer with key " << METTags[itag] << endreq;
-			continue;
-		}
+    ATH_MSG_INFO("Got TrigMissingETContainer with key \"" << METTags[itag]<< "\"");
 
-		mLog << MSG::INFO << "Got TrigMissingETContainer with key \"" << METTags[itag]<< "\"" << endreq;
+    TrigMissingETContainer::const_iterator trigMETfirst  = trigMETcont->begin();
+    TrigMissingETContainer::const_iterator trigMETlast = trigMETcont->end();
 
-		TrigMissingETContainer::const_iterator trigMETfirst  = trigMETcont->begin();
-		TrigMissingETContainer::const_iterator trigMETlast = trigMETcont->end();
+    for (int j=0; trigMETfirst !=  trigMETlast;  ++trigMETfirst++, ++j  ) {
 
-		for (int j=0; trigMETfirst !=  trigMETlast;  trigMETfirst++, j++  ) {
+      ATH_MSG_INFO("REGTEST ==========START of TrigMissingET DUMP===========");
 
-			mLog <<MSG::INFO << "REGTEST ==========START of TrigMissingET DUMP===========" << endreq;
+      std::string s;
+      char buff[128];
 
+      snprintf(buff, 128, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ex() );
+      ATH_MSG_INFO(buff);
+      snprintf(buff, 128, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ey() );
+      ATH_MSG_INFO(buff);
+      snprintf(buff, 128, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ez() );
+      ATH_MSG_INFO(buff);
+      snprintf(buff, 128, "REGTEST %s Et =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->et() );
+      ATH_MSG_INFO(buff);
+      snprintf(buff, 128, "REGTEST %s SumEt =      %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumEt() );
+      ATH_MSG_INFO(buff);
+      snprintf(buff, 128, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumE() );
+      ATH_MSG_INFO(buff);
+      snprintf(buff, 128, "REGTEST %s E =          %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->e() );
+      ATH_MSG_INFO(buff);
+      snprintf(buff, 128, "REGTEST %s flag =    %10d",       s.c_str(), (*trigMETfirst)->getFlag() );
+      ATH_MSG_INFO(buff);
+      snprintf(buff, 128, "REGTEST %s RoIword = %10ld",      s.c_str(), (*trigMETfirst)->RoIword() );
+      ATH_MSG_INFO(buff);
 
-			std::string s;
-			char buff[128];
+      unsigned int Nc = (*trigMETfirst)->getNumOfComponents();
+      if (Nc > 0) {
+        s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
+        s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
+        ATH_MSG_INFO(s);
 
-			snprintf(buff, 128, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ex() );
-			mLog <<MSG::INFO << buff << endreq;
-			snprintf(buff, 128, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ey() );
-			mLog <<MSG::INFO << buff << endreq;
-			snprintf(buff, 128, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ez() );
-			mLog <<MSG::INFO << buff << endreq;
-			snprintf(buff, 128, "REGTEST %s Et =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->et() );
-			mLog <<MSG::INFO << buff << endreq;
-			snprintf(buff, 128, "REGTEST %s SumEt =      %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumEt() );
-			mLog <<MSG::INFO << buff << endreq;
-			snprintf(buff, 128, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumE() );
-			mLog <<MSG::INFO << buff << endreq;
-			snprintf(buff, 128, "REGTEST %s E =          %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->e() );
-			mLog <<MSG::INFO << buff << endreq;
-			snprintf(buff, 128, "REGTEST %s flag =    %10d",       s.c_str(), (*trigMETfirst)->getFlag() );
-			mLog <<MSG::INFO << buff << endreq;
-			snprintf(buff, 128, "REGTEST %s RoIword = %10ld",      s.c_str(), (*trigMETfirst)->RoIword() );
-			mLog <<MSG::INFO << buff << endreq;
+        for (unsigned int i=0; i<Nc; ++i) { // loop over components
+          std::string name =              (*trigMETfirst)->getNameOfComponent(i);
+          const short status =            (*trigMETfirst)->getStatus(i);
+          const unsigned short usedChan = (*trigMETfirst)->getUsedChannels(i);
+          const short sumOfSigns =        (*trigMETfirst)->getSumOfSigns(i);
+          const float calib0 =            (*trigMETfirst)->getComponentCalib0(i);
+          const float calib1 =            (*trigMETfirst)->getComponentCalib1(i);
+          const float ex =                (*trigMETfirst)->getExComponent(i);
+          const float ey =                (*trigMETfirst)->getEyComponent(i);
+          const float ez =                (*trigMETfirst)->getEzComponent(i);
+          const float sumE =              (*trigMETfirst)->getSumEComponent(i);
+          const float sumEt =             (*trigMETfirst)->getSumEtComponent(i);
 
-			unsigned int Nc = (*trigMETfirst)->getNumOfComponents();
-			if (Nc > 0) {
-				s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
-				s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-				mLog << MSG::INFO << s << endreq;
-
-				for (unsigned int i=0; i<Nc; ++i) { // loop over components
-					std::string name =              (*trigMETfirst)->getNameOfComponent(i);
-					const short status =            (*trigMETfirst)->getStatus(i);
-					const unsigned short usedChan = (*trigMETfirst)->getUsedChannels(i);
-					const short sumOfSigns =        (*trigMETfirst)->getSumOfSigns(i);
-					const float calib0 =            (*trigMETfirst)->getComponentCalib0(i);
-					const float calib1 =            (*trigMETfirst)->getComponentCalib1(i);
-					const float ex =                (*trigMETfirst)->getExComponent(i);
-					const float ey =                (*trigMETfirst)->getEyComponent(i);
-					const float ez =                (*trigMETfirst)->getEzComponent(i);
-					const float sumE =              (*trigMETfirst)->getSumEComponent(i);
-					const float sumEt =             (*trigMETfirst)->getSumEtComponent(i);
-
-				    snprintf(buff, 128,
-							"REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-							name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
-							ex, ey, ez, sumE, sumEt);
-					mLog << MSG::INFO << buff << endreq;
-				} // loop over components
-			}
-		} // loop over TrigMissingET objects
-	} // loop over TrigMissingETContainers
+          snprintf(buff, 128,
+                   "REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
+                   name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
+                   ex, ey, ez, sumE, sumEt);
+          ATH_MSG_INFO(buff);
+        } // loop over components
+      }
+    } // loop over TrigMissingET objects
+  } // loop over TrigMissingETContainers
 
 	// if( sc.isSuccess() ) return sc; // Commented out by FB (12.07.14)
 
 	/// up to 14.2.0 /// ----------------------------
-	mLog <<MSG::INFO << "Trying to fetch TrigMissingET objects from older releases" << endreq;
+  ATH_MSG_INFO("Trying to fetch TrigMissingET objects from older releases");
 
-	const DataHandle<TrigMissingET> trigMETfirst ,trigMETlast;
-	StatusCode sc=evtStore()->retrieve(trigMETfirst ,trigMETlast);
-	if( sc.isFailure() ){
-		mLog << MSG::INFO << "Failed to retrieve TrigMissingET (rel. <= 14.2.0)" << endreq;
-	}
+  const DataHandle<TrigMissingET> trigMETfirst ,trigMETlast;
+  StatusCode sc=evtStore()->retrieve(trigMETfirst ,trigMETlast);
+  if( sc.isFailure() ){
+    ATH_MSG_INFO("Failed to retrieve TrigMissingET (rel. <= 14.2.0)");
+  }
 
-	for( ; trigMETfirst != trigMETlast ; ++trigMETfirst ){ // loop over TrigMissingET objects
-		std::string name(trigMETfirst.key());
-		mLog << MSG::INFO << "Got TrigMissingET object with key \"" << name << "\"" << endreq;
+  for( ; trigMETfirst != trigMETlast ; ++trigMETfirst ){ // loop over TrigMissingET objects
+    std::string name(trigMETfirst.key());
+    ATH_MSG_INFO("Got TrigMissingET object with key \"" << name << "\"");
 
-		std::string s;
-		char buff[128];
+    std::string s;
+    char buff[128];
 
-		if( name.find("TrigEFMissingET") != std::string::npos ) {
-			s="REGTEST EF: ";
-		} else if( name.find("T2MissingET") != std::string::npos ){
-			s="REGTEST L2: ";
-		} else {
-			mLog << MSG::WARNING << " This is UNKNOWN! " << name << endreq;
-			s="REGTEST ??? ";
-		}
+    if( name.find("TrigEFMissingET") != std::string::npos ) {
+      s="REGTEST EF: ";
+    } else if( name.find("T2MissingET") != std::string::npos ){
+      s="REGTEST L2: ";
+    } else {
+      ATH_MSG_WARNING(" This is UNKNOWN! " << name);
+      s="REGTEST ??? ";
+    }
 
-		snprintf(buff, 128, "%s Ex =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ex() );
-		mLog <<MSG::INFO << buff << endreq;
-		snprintf(buff, 128, "%s Ey =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ey() );
-		mLog <<MSG::INFO << buff << endreq;
-		snprintf(buff, 128, "%s Ez =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ez() );
-		mLog <<MSG::INFO << buff << endreq;
-		snprintf(buff, 128, "%s Et =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->et() );
-		mLog <<MSG::INFO << buff << endreq;
-		snprintf(buff, 128, "%s SumE =       %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumE() );
-		mLog <<MSG::INFO << buff << endreq;
-		snprintf(buff, 128, "%s SumEt =      %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumEt() );
-		mLog <<MSG::INFO << buff << endreq;
-		snprintf(buff, 128, "%s E =          %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->e() );
-		mLog <<MSG::INFO << buff << endreq;
-		snprintf(buff, 128, "%s flag =    %10d",       s.c_str(), trigMETfirst->getFlag() );
-		mLog <<MSG::INFO << buff << endreq;
-		snprintf(buff, 128, "%s RoIword = %10ld",      s.c_str(), trigMETfirst->RoIword() );
-		mLog <<MSG::INFO << buff << endreq;
+    snprintf(buff, 128, "%s Ex =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ex() );
+    ATH_MSG_INFO(buff);
+    snprintf(buff, 128, "%s Ey =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ey() );
+    ATH_MSG_INFO(buff);
+    snprintf(buff, 128, "%s Ez =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ez() );
+    ATH_MSG_INFO(buff);
+    snprintf(buff, 128, "%s Et =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->et() );
+    ATH_MSG_INFO(buff);
+    snprintf(buff, 128, "%s SumE =       %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumE() );
+    ATH_MSG_INFO(buff);
+    snprintf(buff, 128, "%s SumEt =      %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumEt() );
+    ATH_MSG_INFO(buff);
+    snprintf(buff, 128, "%s E =          %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->e() );
+    ATH_MSG_INFO(buff);
+    snprintf(buff, 128, "%s flag =    %10d",       s.c_str(), trigMETfirst->getFlag() );
+    ATH_MSG_INFO(buff);
+    snprintf(buff, 128, "%s RoIword = %10ld",      s.c_str(), trigMETfirst->RoIword() );
+    ATH_MSG_INFO(buff);
 
-		unsigned int Nc = trigMETfirst->getNumOfComponents();
-		if (Nc > 0) {
-			s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
-			s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-			mLog << MSG::INFO << s << endreq;
+    unsigned int Nc = trigMETfirst->getNumOfComponents();
+    if (Nc > 0) {
+      s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
+      s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
+      ATH_MSG_INFO(s);
 
-			for (unsigned int i=0; i<Nc; ++i) { // loop over components
-				std::string name =              trigMETfirst->getNameOfComponent(i);
-				const short status =            trigMETfirst->getStatus(i);
-				const unsigned short usedChan = trigMETfirst->getUsedChannels(i);
-				const short sumOfSigns =        trigMETfirst->getSumOfSigns(i);
-				const float calib0 =            trigMETfirst->getComponentCalib0(i);
-				const float calib1 =            trigMETfirst->getComponentCalib1(i);
-				const float ex =                trigMETfirst->getExComponent(i);
-				const float ey =                trigMETfirst->getEyComponent(i);
-				const float ez =                trigMETfirst->getEzComponent(i);
-				const float sumE =              trigMETfirst->getSumEComponent(i);
-				const float sumEt =             trigMETfirst->getSumEtComponent(i);
+      for (unsigned int i=0; i<Nc; ++i) { // loop over components
+        std::string name =              trigMETfirst->getNameOfComponent(i);
+        const short status =            trigMETfirst->getStatus(i);
+        const unsigned short usedChan = trigMETfirst->getUsedChannels(i);
+        const short sumOfSigns =        trigMETfirst->getSumOfSigns(i);
+        const float calib0 =            trigMETfirst->getComponentCalib0(i);
+        const float calib1 =            trigMETfirst->getComponentCalib1(i);
+        const float ex =                trigMETfirst->getExComponent(i);
+        const float ey =                trigMETfirst->getEyComponent(i);
+        const float ez =                trigMETfirst->getEzComponent(i);
+        const float sumE =              trigMETfirst->getSumEComponent(i);
+        const float sumEt =             trigMETfirst->getSumEtComponent(i);
 
-				snprintf(buff, 128,
-						"REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-						name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
-						ex, ey, ez, sumE, sumEt);
-				mLog << MSG::INFO << buff << endreq;
-			} // loop over components
-		}
-	} // loop over TrigMissingET objects
+        snprintf(buff, 128,
+                 "REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
+                 name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
+                 ex, ey, ez, sumE, sumEt);
+        ATH_MSG_INFO(buff);
+      } // loop over components
+    }
+  } // loop over TrigMissingET objects
 
-	mLog << MSG::INFO << "REGTEST ==========END of TrigMissingET DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of TrigMissingET DUMP===========");
 
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 
-	MsgStream mLog( messageService(), name() );
+  ATH_MSG_DEBUG("in dumpTrackParticleContainer()");
 
-	mLog << MSG::DEBUG << "in dumpTrackParticleContainer()" << endreq;
-
-	mLog <<MSG::INFO << "REGTEST ==========START of TrackParticleContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrackParticleContainer DUMP===========");
 
 	std::string trackPtags[]={"HLT_InDetTrigParticleCreation_Bjet_EFID",
 			"HLT_InDetTrigParticleCreation_Bphysics_EFID",
@@ -1111,41 +1001,40 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 		const Rec::TrackParticleContainer*  pTrackParticleC;
 		StatusCode sc = evtStore()->retrieve(pTrackParticleC, trackPtags[itag]);
 		if (sc.isFailure()) {
-			mLog << MSG::INFO << "REGTEST No TrackParticleContainer found with tag " << trackPtags[itag] << endreq;
+          ATH_MSG_INFO("REGTEST No TrackParticleContainer found with tag " << trackPtags[itag]);
 			continue;
 		}
-		mLog << MSG::INFO << "TrackParticleContainer found with tag " << trackPtags[itag]
-		                                                                            << " and size " << pTrackParticleC->size() << endreq;
+		ATH_MSG_INFO("TrackParticleContainer found with tag " << trackPtags[itag]
+                     << " and size " << pTrackParticleC->size());
 
 		Rec::TrackParticleContainer::const_iterator trackItr  = pTrackParticleC->begin();
 		Rec::TrackParticleContainer::const_iterator trackItrE = pTrackParticleC->end();
 		for (int ind=1; trackItr != trackItrE; ++trackItr, ind++) {
 			const Rec::TrackParticle * trackParticle = (*trackItr);
-			mLog << MSG::INFO << " TrackParticle " << ind << " charge "
-			<< trackParticle->charge() << " p "
-			<< trackParticle->p()<< " eta " << trackParticle->eta()
-			<< " phi " <<  trackParticle->phi() << endreq;
-
+			ATH_MSG_INFO(" TrackParticle " << ind << " charge "
+                         << trackParticle->charge() << " p "
+                         << trackParticle->p()<< " eta " << trackParticle->eta()
+                         << " phi " <<  trackParticle->phi());            
 
 			/// track
 			const Trk::Track * track = trackParticle->originalTrack();
 			if ( track ) {
-				mLog << MSG::INFO << " Got attached track" << endreq;
+              ATH_MSG_INFO(" Got attached track");
 				const Trk::TrackParameters* perigee = track->perigeeParameters();
-				if (!perigee) {
+				if (perigee) {
 					const auto& parameterVector = perigee->parameters();
-					mLog << MSG::INFO << " q/P " << parameterVector[Trk::qOverP] <<
-					" theta " << parameterVector[Trk::theta] <<
-					" phi   " <<parameterVector[Trk::phi] << endreq;
+					ATH_MSG_INFO(" q/P " << parameterVector[Trk::qOverP] <<
+                                 " theta " << parameterVector[Trk::theta] <<
+                                 " phi   " <<parameterVector[Trk::phi]);
 				} else {
-					mLog << MSG::INFO << " No perigee attached to track" << endreq;
+                  ATH_MSG_INFO(" No perigee attached to track");
 				}
 
 			} else {
 			  if(   trackWarningNum <= maxRepWarnings ) {
-			    mLog << MSG::DEBUG << " No attached track" << endreq;
+			    ATH_MSG_DEBUG(" No attached track");
 			    if(  trackWarningNum == maxRepWarnings) {
-			      mLog << MSG::WARNING << " Max attached track warning reached, no further warnings given" << endreq;
+			      ATH_MSG_WARNING(" Max attached track warning reached, no further warnings given");
 			    }
 			    trackWarningNum++;
 			  }
@@ -1156,13 +1045,13 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 			if ( vertex ) {
 				const Trk::RecVertex vtx = vertex->recVertex();
 				const Amg::Vector3D position = vtx.position();
-				mLog << MSG::INFO << " vertex position (" << position[0] << ", " <<
-				position[1] << ", " << position[2] << ") " << endreq;
+				ATH_MSG_INFO(" vertex position (" << position[0] << ", " <<
+                             position[1] << ", " << position[2] << ") ");
 			} else {
 			  if(   vertexWarningNum <= maxRepWarnings ) {
-			    mLog << MSG::DEBUG << " No attached vertex" << endreq;
+			    ATH_MSG_DEBUG(" No attached vertex");
 			    if(  vertexWarningNum == maxRepWarnings) {
-			      mLog << MSG::WARNING << " Max attached vertex warning reached, no further warnings given" << endreq;
+			      ATH_MSG_WARNING(" Max attached vertex warning reached, no further warnings given");
 			    }
 			    vertexWarningNum++;
 			  }
@@ -1171,218 +1060,204 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 			const Trk::Perigee* perigee = trackParticle->measuredPerigee();
 			if (perigee) {
 				const auto& parameters = perigee->parameters();
-				mLog << MSG::INFO << "Trk::Perigee parameters:" << endreq;
-				mLog << MSG::INFO << " * d_0   : "<< parameters[Trk::d0]       << endreq;
-				mLog << MSG::INFO << " * z_0   : "<< parameters[Trk::z0]       << endreq;
-				mLog << MSG::INFO << " * phi   : "<< parameters[Trk::phi]      << endreq;
-				mLog << MSG::INFO << " * Theta : "<< parameters[Trk::theta]    << endreq;
-				mLog << MSG::INFO << " * q/p   : "<< parameters[Trk::qOverP]   << endreq;
+				ATH_MSG_INFO("Trk::Perigee parameters:");
+				ATH_MSG_INFO(" * d_0   : "<< parameters[Trk::d0]      );
+				ATH_MSG_INFO(" * z_0   : "<< parameters[Trk::z0]      );
+				ATH_MSG_INFO(" * phi   : "<< parameters[Trk::phi]     );
+				ATH_MSG_INFO(" * Theta : "<< parameters[Trk::theta]   );
+				ATH_MSG_INFO(" * q/p   : "<< parameters[Trk::qOverP]  );
 			} else {
-				mLog << MSG::WARNING << " No attached perigee" << endreq;
+              ATH_MSG_WARNING(" No attached perigee");
 			}
 			/// access to TrackSummary information
 			const Trk::TrackSummary* summary = trackParticle->trackSummary();
 			if (summary) {
-				mLog << MSG::DEBUG<<"Track summary information:"<<endreq;
-				mLog << MSG::DEBUG<<" * Number of B layer hits : "<<summary->get(Trk::numberOfBLayerHits)<<endreq;
-				mLog << MSG::DEBUG<<" * Number of pixel hits : "<<summary->get(Trk::numberOfPixelHits)<<endreq;
-				mLog << MSG::DEBUG<<" * Number of SCT hits : "<<summary->get(Trk::numberOfSCTHits)<<endreq;
-				mLog << MSG::DEBUG<<" * Number of TRT hits : "<<summary->get(Trk::numberOfTRTHits)<<endreq;
-
+              ATH_MSG_DEBUG("Track summary information:");
+              ATH_MSG_DEBUG(" * Number of B layer hits : "<<summary->get(Trk::numberOfBLayerHits));
+              ATH_MSG_DEBUG(" * Number of pixel hits : "<<summary->get(Trk::numberOfPixelHits));
+              ATH_MSG_DEBUG(" * Number of SCT hits : "<<summary->get(Trk::numberOfSCTHits));
+              ATH_MSG_DEBUG(" * Number of TRT hits : "<<summary->get(Trk::numberOfTRTHits));
 			}
-
-
 		}
 	}
 	return returnsc;
 }
 
 
-
-
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpLVL1_ROI() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpLVL1_ROI()" << endreq;
+  ATH_MSG_DEBUG("in dumpLVL1_ROI()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of LVL1_ROI DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of LVL1_ROI DUMP===========");
 
-	const LVL1_ROI * lvl1ROI;
-	StatusCode sc = evtStore()->retrieve(lvl1ROI);
-	if (sc.isFailure() )
-	{
-		mLog << MSG::INFO << "REGTEST No LVL1_ROI found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
+  const LVL1_ROI * lvl1ROI;
+  StatusCode sc = evtStore()->retrieve(lvl1ROI);
+  if (sc.isFailure() ) {
+    ATH_MSG_INFO("REGTEST No LVL1_ROI found");
+    return  StatusCode::SUCCESS;
+  }
 
-	mLog << MSG::INFO << "REGTEST LVL1_ROI retrieved" << endreq;
+  ATH_MSG_INFO("REGTEST LVL1_ROI retrieved");
 
-	LVL1_ROI::emtaus_type::const_iterator itEMTau   =
-		(lvl1ROI->getEmTauROIs()).begin();
-	LVL1_ROI::emtaus_type::const_iterator itEMTau_e =
-		(lvl1ROI->getEmTauROIs()).end();
-	int j = 0;
-	for( ; itEMTau != itEMTau_e; ++itEMTau, ++j) {
-		mLog <<MSG::INFO << "REGTEST Looking at LVL1_ROI " << j << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI Eta     is " << itEMTau->getEta() << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI Phi     is " << itEMTau->getPhi() << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI EMClus  is " << itEMTau->getEMClus() << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI TauClus is " << itEMTau->getTauClus() << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI EMIsol  is " << itEMTau->getEMIsol() << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI HadIsol is " << itEMTau->getHadIsol() << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI Core    is " << itEMTau->getCore() << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI HadCore is " << itEMTau->getHadCore() << endreq;
-		mLog << MSG::INFO << "REGTEST LVL1 EmTauROI roiWord is " << itEMTau->getROIWord() << endreq;
-	}
+  LVL1_ROI::emtaus_type::const_iterator itEMTau   =
+    (lvl1ROI->getEmTauROIs()).begin();
+  LVL1_ROI::emtaus_type::const_iterator itEMTau_e =
+    (lvl1ROI->getEmTauROIs()).end();
+  int j = 0;
+  for( ; itEMTau != itEMTau_e; ++itEMTau, ++j) {
+    ATH_MSG_INFO("REGTEST Looking at LVL1_ROI " << j);
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI Eta     is " << itEMTau->getEta());
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI Phi     is " << itEMTau->getPhi());
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI EMClus  is " << itEMTau->getEMClus());
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI TauClus is " << itEMTau->getTauClus());
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI EMIsol  is " << itEMTau->getEMIsol());
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI HadIsol is " << itEMTau->getHadIsol());
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI Core    is " << itEMTau->getCore());
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI HadCore is " << itEMTau->getHadCore());
+    ATH_MSG_INFO("REGTEST LVL1 EmTauROI roiWord is " << itEMTau->getROIWord());
+  }
 
-	mLog <<MSG::INFO << "REGTEST ==========END of LVL1_ROI DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpLVL1_ROI() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  ATH_MSG_INFO("REGTEST ==========END of LVL1_ROI DUMP===========");
+  ATH_MSG_DEBUG("dumpLVL1_ROI() succeeded");
+  return StatusCode::SUCCESS;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigPhotonContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigPhotonContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigPhotonContainer()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigPhotonContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigPhotonContainer DUMP===========");
 
-	const DataHandle< TrigPhotonContainer > trigPhoton;
-	const DataHandle< TrigPhotonContainer > lastTrigPhoton;
+  const DataHandle< TrigPhotonContainer > trigPhoton;
+  const DataHandle< TrigPhotonContainer > lastTrigPhoton;
 
-	StatusCode sc = evtStore()->retrieve(trigPhoton,lastTrigPhoton);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigPhotonContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigPhotonContainers retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(trigPhoton,lastTrigPhoton);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigPhotonContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigPhotonContainers retrieved");
 
 
-	for (int i=0; trigPhoton != lastTrigPhoton; ++trigPhoton, ++i) {
+  for (int i=0; trigPhoton != lastTrigPhoton; ++trigPhoton, ++i) {
 
-	  mLog << MSG::INFO << "REGTEST Looking at TrigPhotonContainer " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at TrigPhotonContainer " << i);
 
-	  TrigPhotonContainer::const_iterator PhotonItr  = trigPhoton->begin();
-	  TrigPhotonContainer::const_iterator PhotonItrE = trigPhoton->end();
+    TrigPhotonContainer::const_iterator PhotonItr  = trigPhoton->begin();
+    TrigPhotonContainer::const_iterator PhotonItrE = trigPhoton->end();
 
-	  for (int j=0; PhotonItr != PhotonItrE; ++PhotonItr, ++j ) {
+    for (int j=0; PhotonItr != PhotonItrE; ++PhotonItr, ++j ) {
 
-	    mLog <<MSG::INFO << "REGTEST Looking at TrigPhoton " << j << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TrigPhoton " << j);
 
-	    mLog <<MSG::INFO << "REGTEST TrigPhoton->dPhi() returns " << (*PhotonItr)->dPhi() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TrigPhoton->dEta() returns " << (*PhotonItr)->dEta() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TrigPhoton->rCore() returns " << (*PhotonItr)->rCore() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TrigPhoton->isValid() returns " << (*PhotonItr)->isValid() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TrigPhoton->Et() returns " << (*PhotonItr)->Et() << endreq;
+      ATH_MSG_INFO("REGTEST TrigPhoton->dPhi() returns " << (*PhotonItr)->dPhi());
+      ATH_MSG_INFO("REGTEST TrigPhoton->dEta() returns " << (*PhotonItr)->dEta());
+      ATH_MSG_INFO("REGTEST TrigPhoton->rCore() returns " << (*PhotonItr)->rCore());
+      ATH_MSG_INFO("REGTEST TrigPhoton->isValid() returns " << (*PhotonItr)->isValid());
+      ATH_MSG_INFO("REGTEST TrigPhoton->Et() returns " << (*PhotonItr)->Et());
 
-	    if ( (*PhotonItr)->cluster() != NULL ) {
-	      mLog <<MSG::INFO << "REGTEST Cluster info: " << endreq;
-	      mLog <<MSG::INFO << "REGTEST cluster->e() returns " << (*PhotonItr)->cluster()->e() << endreq;
-	      mLog <<MSG::INFO << "REGTEST cluster->e237() returns " << (*PhotonItr)->cluster()->e237() << endreq;
-	      mLog <<MSG::INFO << "REGTEST cluster->e277() returns " << (*PhotonItr)->cluster()->e277() << endreq;
-	      mLog <<MSG::INFO << "REGTEST cluster->fracs1() returns " << (*PhotonItr)->cluster()->fracs1() << endreq;
-	      mLog <<MSG::INFO << "REGTEST cluster->weta2() returns " << (*PhotonItr)->cluster()->weta2() << endreq;
-	      mLog <<MSG::INFO << "REGTEST cluster->ehad() returns " << (*PhotonItr)->cluster()->ehad1() << endreq;
-	      mLog <<MSG::INFO << "REGTEST cluster->emaxs1() returns " << (*PhotonItr)->cluster()->emaxs1() << endreq;
+      if ( (*PhotonItr)->cluster() != NULL ) {
+        ATH_MSG_INFO("REGTEST Cluster info: ");
+        ATH_MSG_INFO("REGTEST cluster->e() returns " << (*PhotonItr)->cluster()->e());
+        ATH_MSG_INFO("REGTEST cluster->e237() returns " << (*PhotonItr)->cluster()->e237());
+        ATH_MSG_INFO("REGTEST cluster->e277() returns " << (*PhotonItr)->cluster()->e277());
+        ATH_MSG_INFO("REGTEST cluster->fracs1() returns " << (*PhotonItr)->cluster()->fracs1());
+        ATH_MSG_INFO("REGTEST cluster->weta2() returns " << (*PhotonItr)->cluster()->weta2());
+        ATH_MSG_INFO("REGTEST cluster->ehad() returns " << (*PhotonItr)->cluster()->ehad1());
+        ATH_MSG_INFO("REGTEST cluster->emaxs1() returns " << (*PhotonItr)->cluster()->emaxs1());
 
-	      mLog <<MSG::INFO << "REGTEST Looking at P4PtEtaPhiM " << j << endreq;
+        ATH_MSG_INFO("REGTEST Looking at P4PtEtaPhiM " << j);
 
-	      mLog <<MSG::INFO << "REGTEST P4PtEtaPhiM->Pt() returns " << (*PhotonItr)->pt() << endreq;
-	      mLog <<MSG::INFO << "REGTEST P4PtEtaPhiM->Eta() returns " << (*PhotonItr)->eta() << endreq;
-	      mLog <<MSG::INFO << "REGTEST P4PtEtaPhiM->Phi() returns " << (*PhotonItr)->phi() << endreq;
-	      mLog <<MSG::INFO << "REGTEST P4PtEtaPhiM->m() returns " << (*PhotonItr)->m() << endreq;
-	    }
+        ATH_MSG_INFO("REGTEST P4PtEtaPhiM->Pt() returns " << (*PhotonItr)->pt());
+        ATH_MSG_INFO("REGTEST P4PtEtaPhiM->Eta() returns " << (*PhotonItr)->eta());
+        ATH_MSG_INFO("REGTEST P4PtEtaPhiM->Phi() returns " << (*PhotonItr)->phi());
+        ATH_MSG_INFO("REGTEST P4PtEtaPhiM->m() returns " << (*PhotonItr)->m());
+      }
 
-	    // printout variables using the new << operator
-	    mLog << MSG::INFO << "TrigPhoton printout:" << endreq;
-	    mLog << MSG::INFO << "REGTEST " << (**PhotonItr) << endreq;
+      // printout variables using the new << operator
+      ATH_MSG_INFO("TrigPhoton printout:");
+      ATH_MSG_INFO("REGTEST " << (**PhotonItr));
 
-	    // do second loop to compare TrigPhotons using comparison operators
-	    TrigPhotonContainer::const_iterator PhotonItr2  = PhotonItr;
-	    TrigPhotonContainer::const_iterator PhotonItr2E = trigPhoton->end();
+      // do second loop to compare TrigPhotons using comparison operators
+      TrigPhotonContainer::const_iterator PhotonItr2  = PhotonItr;
+      TrigPhotonContainer::const_iterator PhotonItr2E = trigPhoton->end();
 
-	    for (int k=0; PhotonItr2 != PhotonItr2E; ++PhotonItr2, ++k ) {
-	      // find if TrigPhotons are the same (i.e. have same cluster and track
-	      if ( (**PhotonItr) == (**PhotonItr2) ) {
-		mLog << MSG::INFO << "REGTEST TrigPhoton nr. " << j << " is the same as TrigPhoton nr. " << k << endreq;
-	      } else {
-		// TrigPhotons are different, print out differences
-		std::map<std::string, double> v_diff;
-		diff(*(*PhotonItr),*(*PhotonItr2), v_diff);
-		std::map<std::string, double>::iterator it=v_diff.begin();
-		mLog << MSG::INFO << "TrigPhoton " << k << " different form TrigPhoton " << j << " :" << endreq;
-		for (int m=0;it !=v_diff.end();++it, ++m) {
-		  mLog << MSG::INFO << "TrigPhoton Delta_" << (*it).first << " = " << (*it).second << endreq;
-		}
-	      }
-	    }
-	  }
-	}
+      for (int k=0; PhotonItr2 != PhotonItr2E; ++PhotonItr2, ++k ) {
+        // find if TrigPhotons are the same (i.e. have same cluster and track
+        if ( (**PhotonItr) == (**PhotonItr2) ) {
+          ATH_MSG_INFO("REGTEST TrigPhoton nr. " << j << " is the same as TrigPhoton nr. " << k);
+        } else {
+          // TrigPhotons are different, print out differences
+          std::map<std::string, double> v_diff;
+          diff(*(*PhotonItr),*(*PhotonItr2), v_diff);
+          std::map<std::string, double>::iterator it=v_diff.begin();
+          ATH_MSG_INFO("TrigPhoton " << k << " different form TrigPhoton " << j << " :");
+          for (int m=0;it !=v_diff.end();++it, ++m) {
+            ATH_MSG_INFO("TrigPhoton Delta_" << (*it).first << " = " << (*it).second);
+          }
+        }
+      }
+    }
+  }
 
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigPhotonContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of TrigPhotonContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigPhotonContainer() succeeded");
 
-	mLog << MSG::DEBUG << "dumpTrigPhotonContainer() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigMuonEFContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigMuonEFContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigMuonEFContainer()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigMuonEFContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigMuonEFContainer DUMP===========");
 
-	const DataHandle< TrigMuonEFContainer > trigMuon;
-	const DataHandle< TrigMuonEFContainer > lastTrigMuon;
+  const DataHandle< TrigMuonEFContainer > trigMuon;
+  const DataHandle< TrigMuonEFContainer > lastTrigMuon;
 
-	StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigMuonEFContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigMuonEFContainers retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigMuonEFContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigMuonEFContainers retrieved");
 
+  for (int i=0; trigMuon != lastTrigMuon; ++trigMuon, ++i) {
 
-	for (int i=0; trigMuon != lastTrigMuon; ++trigMuon, ++i) {
+    ATH_MSG_INFO("REGTEST Looking at TrigMuonEFContainer " << i);
 
-		mLog << MSG::INFO << "REGTEST Looking at TrigMuonEFContainer " << i << endreq;
+    TrigMuonEFContainer::const_iterator MuonItr  = trigMuon->begin();
+    TrigMuonEFContainer::const_iterator MuonItrE = trigMuon->end();
 
-		TrigMuonEFContainer::const_iterator MuonItr  = trigMuon->begin();
-		TrigMuonEFContainer::const_iterator MuonItrE = trigMuon->end();
+    for (int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
 
-		for (int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
+      ATH_MSG_INFO("REGTEST Looking at TrigMuonEF " << j);
 
-			mLog <<MSG::INFO << "REGTEST Looking at TrigMuonEF " << j << endreq;
+      ATH_MSG_INFO("REGTEST TrigMuonEF->muonCode() returns " << (*MuonItr)->MuonCode());
+      ATH_MSG_INFO("REGTEST TrigMuonEF->roi() returns " << (*MuonItr)->RoINum());
+      ATH_MSG_INFO("REGTEST TrigMuonEF->charge() returns " << (*MuonItr)->Charge());
 
-			mLog <<MSG::INFO << "REGTEST TrigMuonEF->muonCode() returns " << (*MuonItr)->MuonCode() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigMuonEF->roi() returns " << (*MuonItr)->RoINum() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigMuonEF->charge() returns " << (*MuonItr)->Charge() << endreq;
+      ATH_MSG_INFO("REGTEST Looking at P4IPtCotThPhiM " << j);
 
-			mLog <<MSG::INFO << "REGTEST Looking at P4IPtCotThPhiM " << j << endreq;
+      ATH_MSG_INFO("REGTEST P4IPtCotThPhiM->iPt() returns " << (*MuonItr)->iPt());
+      ATH_MSG_INFO("REGTEST P4IPtCotThPhiM->CotTh() returns " << (*MuonItr)->cotTh());
+      ATH_MSG_INFO("REGTEST P4IPtCotThPhiM->Phi() returns " << (*MuonItr)->phi());
+      ATH_MSG_INFO("REGTEST P4IPtCotThPhiM->m() returns " << (*MuonItr)->m());
+    }
+  }
 
-			mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->iPt() returns " << (*MuonItr)->iPt() << endreq;
-			mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->CotTh() returns " << (*MuonItr)->cotTh() << endreq;
-			mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->Phi() returns " << (*MuonItr)->phi() << endreq;
-			mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->m() returns " << (*MuonItr)->m() << endreq;
-		}
-	}
+  ATH_MSG_INFO("REGTEST ==========END of TrigMuonEFContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigMuonEFContainer() succeeded");
 
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigMuonEFContainer DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpTrigMuonEFContainer() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEDMChecker::dumpxAODMuonContainer() {
@@ -1399,7 +1274,7 @@ StatusCode TrigEDMChecker::dumpxAODMuonContainer() {
   }
 
   std::string output = m_muonPrinter->print( *muonCont );
-  msg(MSG::INFO) << output << endreq;
+  msg(MSG::INFO) << output << endmsg;
 
   ATH_MSG_INFO( "REGTEST ==========END of xAOD::MuonContainer DUMP===========" );
 
@@ -1410,301 +1285,297 @@ StatusCode TrigEDMChecker::dumpxAODMuonContainer() {
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigMuonEFInfoContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigMuonEFInfoContainer()");
 
-	mLog << MSG::INFO << "REGTEST ==========START of TrigMuonEFInfoContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigMuonEFInfoContainer DUMP===========");
 
-	const DataHandle< TrigMuonEFInfoContainer > trigMuon;
-	const DataHandle< TrigMuonEFInfoContainer > lastTrigMuon;
+  const DataHandle< TrigMuonEFInfoContainer > trigMuon;
+  const DataHandle< TrigMuonEFInfoContainer > lastTrigMuon;
 
-	StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigMuonEFInfoContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigMuonEFInfoContainers retrieved" << endreq;
-
-
-	for (int i=0; trigMuon != lastTrigMuon; ++trigMuon, ++i) {
-
-		mLog << MSG::INFO << "REGTEST -+-+-+-+ Looking at TrigMuonEFInfoContainer " << i << endreq;
-
-		TrigMuonEFInfoContainer::const_iterator MuonItr  = trigMuon->begin();
-		TrigMuonEFInfoContainer::const_iterator MuonItrE = trigMuon->end();
-
-		for (int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
-
-			mLog <<MSG::INFO << "REGTEST Looking at TrigMuonEFInfo " << j << endreq;
-
-			TrigMuonEFInfo* muonInfo = (*MuonItr);
-
-			mLog <<MSG::INFO << "REGTEST Test self equality " << endreq;
-			if (*muonInfo == *muonInfo) {
-				mLog <<MSG::INFO << "REGTEST passed " << endreq;
-			}
-			else {
-				mLog <<MSG::INFO << "REGTEST failed " << endreq;
-			}
+  StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigMuonEFInfoContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigMuonEFInfoContainers retrieved");
 
 
-			if (muonInfo->hasTrack()) {
-				mLog <<MSG::INFO << "REGTEST Test new version " << endreq;
+  for (int i=0; trigMuon != lastTrigMuon; ++trigMuon, ++i) {
 
-				mLog <<MSG::INFO << "REGTEST hasTracks()=true " << endreq;
-				const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
-				mLog <<MSG::INFO << "REGTEST TrackContainer size: " <<  tc->size() << endreq;
+    ATH_MSG_INFO("REGTEST -+-+-+-+ Looking at TrigMuonEFInfoContainer " << i);
 
-				for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {
+    TrigMuonEFInfoContainer::const_iterator MuonItr  = trigMuon->begin();
+    TrigMuonEFInfoContainer::const_iterator MuonItrE = trigMuon->end();
 
-					TrigMuonEFInfoTrack* muonInfo = (*TrackItr);
-					mLog <<MSG::INFO << "REGTEST MuonType(): " << muonInfo->MuonType()<< endreq;
+    for (int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
 
-					TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
-					if (muonTrack) {
-						printMuonTrk(mLog,muonTrack);
-					} else {
-						mLog << MSG::INFO << "REGTEST no SpectrometerTrack track found" << endreq;
-					}
+      ATH_MSG_INFO("REGTEST Looking at TrigMuonEFInfo " << j);
 
-					mLog << MSG::INFO << "REGTEST Looking at TrigMuonEFTrack ExtrapolatedTrack()" << endreq;
-					muonTrack = muonInfo->ExtrapolatedTrack();
-					if (muonTrack) {
-						printMuonTrk(mLog,muonTrack);
-					} else {
-						mLog << MSG::INFO << "REGTEST no ExtrapolatedTrack track found" << endreq;
-					}
+      TrigMuonEFInfo* muonInfo = (*MuonItr);
 
-					mLog << MSG::INFO << "REGTEST Looking at TrigMuonEFTrack CombinedTrack()" << endreq;
-					TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
-					if (muonCbTrack) {
-						printMuonTrk(mLog,muonTrack);
-					} else {
-						mLog << MSG::INFO << "REGTEST no CombinedTrack track found" << endreq;
-					}
-				}
+      ATH_MSG_INFO("REGTEST Test self equality ");
+      if (*muonInfo == *muonInfo) {
+        ATH_MSG_INFO("REGTEST passed ");
+      }
+      else {
+        ATH_MSG_INFO("REGTEST failed ");
+      }
 
-			}
 
-			if (!muonInfo) {
-				mLog << MSG::INFO << "REGTEST no TrigMuonEFInfo found" << endreq;
-				return StatusCode::SUCCESS;
-			}
-			mLog << MSG::INFO << "REGTEST TrigMuonEFInfo->RoINum() returns " << muonInfo->RoINum() << endreq;
-			mLog <<MSG::INFO << "REGTEST Test the backwards compatibility " << endreq;
-			TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
-			if (muonTrack) {
-				printMuonTrk(mLog,muonTrack);
-			} else {
-				mLog << MSG::INFO << "REGTEST no SpectrometerTrack track found" << endreq;
-			}
+      if (muonInfo->hasTrack()) {
+        ATH_MSG_INFO("REGTEST Test new version ");
 
-			mLog << MSG::INFO << "REGTEST old Looking at TrigMuonEFTrack ExtrapolatedTrack()" << endreq;
-			muonTrack = muonInfo->ExtrapolatedTrack();
-			if (muonTrack) {
-				printMuonTrk(mLog,muonTrack);
-			} else {
-				mLog << MSG::INFO << "REGTEST old no ExtrapolatedTrack track found" << endreq;
-			}
+        ATH_MSG_INFO("REGTEST hasTracks()=true ");
+        const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
+        ATH_MSG_INFO("REGTEST TrackContainer size: " <<  tc->size());
 
-			mLog << MSG::INFO << "REGTEST old Looking at TrigMuonEFTrack CombinedTrack()" << endreq;
-			TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
-			if (muonCbTrack) {
-				printMuonTrk(mLog,muonCbTrack);
-			} else {
-				mLog << MSG::INFO << "REGTEST old no CombinedTrack track found" << endreq;
-			}
-		}
-	}
+        for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); ++TrackItr) {
 
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigMuonEFInfoContainer DUMP===========" << endreq;
+          TrigMuonEFInfoTrack* muonInfo = (*TrackItr);
+          ATH_MSG_INFO("REGTEST MuonType(): ");
 
-	mLog << MSG::DEBUG << "dumpTrigMuonEFInfoContainer() succeeded" << endreq;
+          TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
+          if (muonTrack) {
+            printMuonTrk(muonTrack);
+          } else {
+            ATH_MSG_INFO("REGTEST no SpectrometerTrack track found");
+          }
 
-	return StatusCode::SUCCESS;
+          ATH_MSG_INFO("REGTEST Looking at TrigMuonEFTrack ExtrapolatedTrack()");
+          muonTrack = muonInfo->ExtrapolatedTrack();
+          if (muonTrack) {
+            printMuonTrk(muonTrack);
+          } else {
+            ATH_MSG_INFO("REGTEST no ExtrapolatedTrack track found");
+          }
+
+          ATH_MSG_INFO("REGTEST Looking at TrigMuonEFTrack CombinedTrack()");
+          TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
+          if (muonCbTrack) {
+            printMuonTrk(muonTrack);
+          } else {
+            ATH_MSG_INFO("REGTEST no CombinedTrack track found");
+          }
+        }
+
+      }
+
+      if (!muonInfo) {
+        ATH_MSG_INFO("REGTEST no TrigMuonEFInfo found");
+        return StatusCode::SUCCESS;
+      }
+      ATH_MSG_INFO("REGTEST TrigMuonEFInfo->RoINum() returns " << muonInfo->RoINum());
+      ATH_MSG_INFO("REGTEST Test the backwards compatibility ");
+      TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
+      if (muonTrack) {
+        printMuonTrk(muonTrack);
+      } else {
+        ATH_MSG_INFO("REGTEST no SpectrometerTrack track found");
+      }
+
+      ATH_MSG_INFO("REGTEST old Looking at TrigMuonEFTrack ExtrapolatedTrack()");
+      muonTrack = muonInfo->ExtrapolatedTrack();
+      if (muonTrack) {
+        printMuonTrk(muonTrack);
+      } else {
+        ATH_MSG_INFO("REGTEST old no ExtrapolatedTrack track found");
+      }
+
+      ATH_MSG_INFO("REGTEST old Looking at TrigMuonEFTrack CombinedTrack()");
+      TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
+      if (muonCbTrack) {
+        printMuonTrk(muonCbTrack);
+      } else {
+        ATH_MSG_INFO("REGTEST old no CombinedTrack track found");
+      }
+    }
+  }
+
+  ATH_MSG_INFO("REGTEST ==========END of TrigMuonEFInfoContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigMuonEFInfoContainer() succeeded");
+
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigMuonEFIsolationContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigMuonEFIsolationContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigMuonEFIsolationContainer()");
 
-	mLog << MSG::INFO << "REGTEST ==========START of TrigMuonEFIsolationContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigMuonEFIsolationContainer DUMP===========");
 
-	const DataHandle< TrigMuonEFIsolationContainer > trigMuon;
-	const DataHandle< TrigMuonEFIsolationContainer > lastTrigMuon;
+  const DataHandle< TrigMuonEFIsolationContainer > trigMuon;
+  const DataHandle< TrigMuonEFIsolationContainer > lastTrigMuon;
 
-	StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigMuonEFIsolationContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigMuonEFIsolationContainers retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigMuonEFIsolationContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigMuonEFIsolationContainers retrieved");
 
 
-	for (int i=0; trigMuon != lastTrigMuon; ++trigMuon, ++i) {
+  for (int i=0; trigMuon != lastTrigMuon; ++trigMuon, ++i) {
 
-		mLog << MSG::INFO << "REGTEST -+-+-+-+ Looking at TrigMuonEFIsolationContainer " << i << endreq;
+    ATH_MSG_INFO("REGTEST -+-+-+-+ Looking at TrigMuonEFIsolationContainer " << i);
 
-		TrigMuonEFIsolationContainer::const_iterator MuonItr  = trigMuon->begin();
-		TrigMuonEFIsolationContainer::const_iterator MuonItrE = trigMuon->end();
+    TrigMuonEFIsolationContainer::const_iterator MuonItr  = trigMuon->begin();
+    TrigMuonEFIsolationContainer::const_iterator MuonItrE = trigMuon->end();
 
-		for (int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
+    for (int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
 
-			mLog <<MSG::INFO << "REGTEST Looking at TrigMuonEFIsolation " << j << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TrigMuonEFIsolation " << j);
 
-			TrigMuonEFIsolation* muonIsolation = (*MuonItr);
+      TrigMuonEFIsolation* muonIsolation = (*MuonItr);
 
-			mLog <<MSG::INFO << "REGTEST Test self equality " << endreq;
-			if (*muonIsolation == *muonIsolation) {
-				mLog <<MSG::INFO << "REGTEST passed " << endreq;
-			}
-			else {
-				mLog <<MSG::INFO << "REGTEST failed " << endreq;
-			}
+      ATH_MSG_INFO("REGTEST Test self equality ");
+      if (*muonIsolation == *muonIsolation) {
+        ATH_MSG_INFO("REGTEST passed ");
+      }
+      else {
+        ATH_MSG_INFO("REGTEST failed ");
+      }
 
-			mLog << MSG::INFO << "REGTEST sumTrkPtCone02(): " << muonIsolation->sumTrkPtCone02() << endreq;
-			mLog << MSG::INFO << "REGTEST sumTrkPtCone03(): " << muonIsolation->sumTrkPtCone03() << endreq;
-			mLog << MSG::INFO << "REGTEST sumEtCone01()   : " << muonIsolation->sumEtCone01() << endreq;
-			mLog << MSG::INFO << "REGTEST sumEtCone02()   : " << muonIsolation->sumEtCone02() << endreq;
-			mLog << MSG::INFO << "REGTEST sumEtCone03()   : " << muonIsolation->sumEtCone03() << endreq;
-			mLog << MSG::INFO << "REGTEST sumEtCone04()   : " << muonIsolation->sumEtCone04() << endreq;
-			mLog << MSG::INFO << "REGTEST trackPosition() : " << muonIsolation->trackPosition()  << endreq;
-			// access MuonInfo* - only works for >=2012 data
-			if(muonIsolation->getMuonInfo()) {
-			  mLog << MSG::INFO << "REGTEST Link MuonEFInfo found: " << muonIsolation->getMuonInfo() << endreq;
-			  if(!muonIsolation->getEFMuonInfoTrack()) {
-			    mLog << MSG::WARNING << "REGTEST No InfoTrack attached to this EFIsolation object" << endreq;
-			  }
-			  else {
-			    const TrigMuonEFInfoTrack* trk = muonIsolation->getEFMuonInfoTrack();
-			    mLog << MSG::INFO << "REGTEST Linke EFInfoTrack has MuonType : " << trk->MuonType() << endreq;
-			    if(trk->hasCombinedTrack()) mLog << MSG::INFO << "REGTEST Linked EFInfoTrack combined pt : " << trk->CombinedTrack()->pt() << endreq;
-			    if(trk->hasExtrapolatedTrack()) mLog << MSG::INFO << "REGTEST Linked EFInfoTrack extrapolated pt : " << trk->ExtrapolatedTrack()->pt() << endreq;
-			    if(trk->hasSpectrometerTrack()) mLog << MSG::INFO << "REGTEST Linked EFInfoTrack MS pt : " << trk->SpectrometerTrack()->pt() << endreq;
-			    if(trk->hasCombinedTrack()) {
-			      if(trk->CombinedTrack()->getIDTrackParticle()) mLog << MSG::INFO << "REGTEST Linked EFInfoTrack ID track pt : " << trk->CombinedTrack()->getIDTrackParticle()->pt() << endreq;
-			    }
+      ATH_MSG_INFO("REGTEST sumTrkPtCone02(): " << muonIsolation->sumTrkPtCone02());
+      ATH_MSG_INFO("REGTEST sumTrkPtCone03(): " << muonIsolation->sumTrkPtCone03());
+      ATH_MSG_INFO("REGTEST sumEtCone01()   : " << muonIsolation->sumEtCone01());
+      ATH_MSG_INFO("REGTEST sumEtCone02()   : " << muonIsolation->sumEtCone02());
+      ATH_MSG_INFO("REGTEST sumEtCone03()   : " << muonIsolation->sumEtCone03());
+      ATH_MSG_INFO("REGTEST sumEtCone04()   : " << muonIsolation->sumEtCone04());
+      ATH_MSG_INFO("REGTEST trackPosition() : " << muonIsolation->trackPosition() );
+      // access MuonInfo* - only works for >=2012 data
+      if(muonIsolation->getMuonInfo()) {
+        ATH_MSG_INFO("REGTEST Link MuonEFInfo found: " << muonIsolation->getMuonInfo());
+        if(!muonIsolation->getEFMuonInfoTrack()) {
+          ATH_MSG_WARNING("REGTEST No InfoTrack attached to this EFIsolation object");
+        }
+        else {
+          const TrigMuonEFInfoTrack* trk = muonIsolation->getEFMuonInfoTrack();
+          ATH_MSG_INFO("REGTEST Linke EFInfoTrack has MuonType : " << trk->MuonType());
+          if(trk->hasCombinedTrack()) ATH_MSG_INFO("REGTEST Linked EFInfoTrack combined pt : " << trk->CombinedTrack()->pt());
+          if(trk->hasExtrapolatedTrack()) ATH_MSG_INFO("REGTEST Linked EFInfoTrack extrapolated pt : " << trk->ExtrapolatedTrack()->pt());
+          if(trk->hasSpectrometerTrack()) ATH_MSG_INFO("REGTEST Linked EFInfoTrack MS pt : " << trk->SpectrometerTrack()->pt());
+          if(trk->hasCombinedTrack()) {
+            if(trk->CombinedTrack()->getIDTrackParticle()) 
+              ATH_MSG_INFO("REGTEST Linked EFInfoTrack ID track pt : " << trk->CombinedTrack()->getIDTrackParticle()->pt());
+          }
 
-			  }
-			}else {
-			  mLog << MSG::INFO << "REGTEST No Linked MuonEFInfo, expected for pre 2012 data" << endreq;
-			}
+        }
+      }else {
+        ATH_MSG_INFO("REGTEST No Linked MuonEFInfo, expected for pre 2012 data");
+      }
 
-		}//TrigMuonEFIsolation loop
-	}//TrigMuonEFIsolationContainer loop
+    }//TrigMuonEFIsolation loop
+  }//TrigMuonEFIsolationContainer loop
 
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigMuonEFIsolationContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of TrigMuonEFIsolationContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigMuonEFIsolationContainer() succeeded");
 
-	mLog << MSG::DEBUG << "dumpTrigMuonEFIsolationContainer() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 
 }//dumpTrigMuonEFIsolationContainer
 
 
-void TrigEDMChecker::printMuonTrk(MsgStream &mLog, const TrigMuonEFTrack* muonTrack) {
-	mLog <<MSG::INFO << "POINTER TrigMuonEFTrack: " << muonTrack << endreq;
-	//if(muonTrack) mLog << MSG::INFO << "REGTEST TrigMuonEFTrack: " << *muonTrack << endreq;
+void TrigEDMChecker::printMuonTrk(const TrigMuonEFTrack* muonTrack) {
+  ATH_MSG_INFO("POINTER TrigMuonEFTrack: " << muonTrack);
+	//if(muonTrack) mLog << MSG::INFO << "REGTEST TrigMuonEFTrack: " << *muonTrack << endmsg;
 
-// 	mLog <<MSG::INFO << "REGTEST TrigMuonEFTrack->charge() returns " << muonTrack->Charge() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->iPt() returns " << muonTrack->iPt() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->CotTh() returns " << muonTrack->cotTh() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->Phi() returns " << muonTrack->phi() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->m() returns " << muonTrack->m() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST chi2() returns " << muonTrack->chi2() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST chi2prob() returns " << muonTrack->chi2prob() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST posX() returns " << muonTrack->posX() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST posY() returns " << muonTrack->posY() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST posZ() returns " << muonTrack->posZ() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NCscHitsEta() returns " << muonTrack->NCscHitsEta() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NCscHitsPhi() returns " << muonTrack->NCscHitsPhi() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NTgcHitsEta() returns " << muonTrack->NTgcHitsEta() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NTgcHitsPhi() returns " << muonTrack->NTgcHitsPhi() << endreq;
-//  	mLog <<MSG::INFO << "REGTEST NMdtHitsEta() returns " << muonTrack->NMdtHitsEta() << endreq;
-//  	mLog <<MSG::INFO << "REGTEST NMdtHitsPhi() returns " << muonTrack->NMdtHitsPhi() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NRpcHitsEta() returns " << muonTrack->NRpcHitsEta() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NRpcHitsPhi() returns " << muonTrack->NRpcHitsPhi() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST d0() returns " << muonTrack->d0() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST z0() returns " << muonTrack->z0() << endreq;
+// 	mLog <<MSG::INFO << "REGTEST TrigMuonEFTrack->charge() returns " << muonTrack->Charge() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->iPt() returns " << muonTrack->iPt() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->CotTh() returns " << muonTrack->cotTh() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->Phi() returns " << muonTrack->phi() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST P4IPtCotThPhiM->m() returns " << muonTrack->m() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST chi2() returns " << muonTrack->chi2() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST chi2prob() returns " << muonTrack->chi2prob() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST posX() returns " << muonTrack->posX() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST posY() returns " << muonTrack->posY() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST posZ() returns " << muonTrack->posZ() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NCscHitsEta() returns " << muonTrack->NCscHitsEta() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NCscHitsPhi() returns " << muonTrack->NCscHitsPhi() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NTgcHitsEta() returns " << muonTrack->NTgcHitsEta() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NTgcHitsPhi() returns " << muonTrack->NTgcHitsPhi() << endmsg;
+//  	mLog <<MSG::INFO << "REGTEST NMdtHitsEta() returns " << muonTrack->NMdtHitsEta() << endmsg;
+//  	mLog <<MSG::INFO << "REGTEST NMdtHitsPhi() returns " << muonTrack->NMdtHitsPhi() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NRpcHitsEta() returns " << muonTrack->NRpcHitsEta() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NRpcHitsPhi() returns " << muonTrack->NRpcHitsPhi() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST d0() returns " << muonTrack->d0() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST z0() returns " << muonTrack->z0() << endmsg;
 }
 
-void TrigEDMChecker::printMuonTrk(MsgStream &mLog, const TrigMuonEFCbTrack* muonTrack) {
-	mLog <<MSG::INFO << " POINTER TrigMuonEFCbTrack: " << muonTrack << endreq;
-	//if(muonTrack) mLog << MSG::INFO << "REGTEST TrigMuonEFCbTrack: " << *muonTrack << endreq;
+void TrigEDMChecker::printMuonTrk(const TrigMuonEFCbTrack* muonTrack) {
+  ATH_MSG_INFO(" POINTER TrigMuonEFCbTrack: " << muonTrack);
+	//if(muonTrack) mLog << MSG::INFO << "REGTEST TrigMuonEFCbTrack: " << *muonTrack << endmsg;
 
 // 	printMuonTrk(mLog,(TrigMuonEFTrack*)muonTrack);
-//  	mLog <<MSG::INFO << "REGTEST TrigMuonEFCbTrack " << muonTrack << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NIdPixelHits() returns " << muonTrack->NIdPixelHits() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NIdSctHits() returns " << muonTrack->NIdSctHits() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST NTrtHits() returns " << muonTrack->NTrtHits() << endreq;
-// 	mLog <<MSG::INFO << "REGTEST matchChi2() returns " << muonTrack->matchChi2() << endreq;
+//  	mLog <<MSG::INFO << "REGTEST TrigMuonEFCbTrack " << muonTrack << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NIdPixelHits() returns " << muonTrack->NIdPixelHits() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NIdSctHits() returns " << muonTrack->NIdSctHits() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST NTrtHits() returns " << muonTrack->NTrtHits() << endmsg;
+// 	mLog <<MSG::INFO << "REGTEST matchChi2() returns " << muonTrack->matchChi2() << endmsg;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigElectronContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigElectronContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigElectronContainer()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigElectronContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigElectronContainer DUMP===========");
 
 	const DataHandle< TrigElectronContainer > trigElec;
 	const DataHandle< TrigElectronContainer > lastTrigElec;
 
 	StatusCode sc = evtStore()->retrieve(trigElec,lastTrigElec);
 	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigelectronContainer found" << endreq;
+      ATH_MSG_INFO("REGTEST No TrigelectronContainer found");
 		return  StatusCode::SUCCESS;
 	}
-	mLog << MSG::INFO << "REGTEST TrigElectronContainers retrieved" << endreq;
+	ATH_MSG_INFO("REGTEST TrigElectronContainers retrieved");
 
 	// declare pointer to the last trigElectron to test comparison operators
 	TrigElectronContainer::const_iterator firstTrigEl ;
 
 	for (int i=0; trigElec != lastTrigElec; ++trigElec, ++i) {
 
-	  mLog << MSG::INFO << "REGTEST Looking at TrigElectronContainer " << i << endreq;
+	  ATH_MSG_INFO("REGTEST Looking at TrigElectronContainer " << i);
 
 	  TrigElectronContainer::const_iterator elecItr  = trigElec->begin();
 	  TrigElectronContainer::const_iterator elecItrE = trigElec->end();
 
 	  for (int j=0; elecItr != elecItrE; ++elecItr, ++j ) {
 
-	    mLog <<MSG::INFO << "REGTEST Looking at TrigElectron " << j << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->isValid()      returns " << (*elecItr)->isValid() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->pt()           returns " << (*elecItr)->pt() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->eta()          returns " << (*elecItr)->eta() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->phi()          returns " << (*elecItr)->phi() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->Zvtx()         returns " << (*elecItr)->Zvtx() << endreq;
+	    ATH_MSG_INFO("REGTEST Looking at TrigElectron " << j);
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->isValid()      returns " << (*elecItr)->isValid() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->pt()           returns " << (*elecItr)->pt() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->eta()          returns " << (*elecItr)->eta() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->phi()          returns " << (*elecItr)->phi() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->Zvtx()         returns " << (*elecItr)->Zvtx() << endmsg;
 
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->charge()       returns " << (*elecItr)->charge() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trackIndx()    returns " << (*elecItr)->trackIndx() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trkClusDphi()  returns " << (*elecItr)->trkClusDphi() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trkClusDeta()  returns " << (*elecItr)->trkClusDeta() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->Pt() (track)   returns " << (*elecItr)->Pt() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->err_Pt()       returns " << (*elecItr)->err_Pt() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->err_eta()      returns " << (*elecItr)->err_eta() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->err_phi()      returns " << (*elecItr)->err_phi() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->err_Zvtx()     returns " << (*elecItr)->err_Zvtx() << endreq;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->charge()       returns " << (*elecItr)->charge() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trackIndx()    returns " << (*elecItr)->trackIndx() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trkClusDphi()  returns " << (*elecItr)->trkClusDphi() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trkClusDeta()  returns " << (*elecItr)->trkClusDeta() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->Pt() (track)   returns " << (*elecItr)->Pt() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->err_Pt()       returns " << (*elecItr)->err_Pt() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->err_eta()      returns " << (*elecItr)->err_eta() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->err_phi()      returns " << (*elecItr)->err_phi() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->err_Zvtx()     returns " << (*elecItr)->err_Zvtx() << endmsg;
 
-	    // 			mLog <<MSG::INFO << "REGTEST New methods: " << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->roiWord()      returns " << (*elecItr)->roiWord() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trkEtaAtCalo() returns " << (*elecItr)->trkEtaAtCalo() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trkPhiAtCalo() returns " << (*elecItr)->trkPhiAtCalo() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->caloEta()      returns " << (*elecItr)->caloEta() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->caloPhi()      returns " << (*elecItr)->caloPhi() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->Rcore()        returns " << (*elecItr)->Rcore() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->Eratio()       returns " << (*elecItr)->Eratio() << endreq;
-	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->EThad()        returns " << (*elecItr)->EThad() << endreq;
+	    // 			mLog <<MSG::INFO << "REGTEST New methods: " << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->roiWord()      returns " << (*elecItr)->roiWord() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trkEtaAtCalo() returns " << (*elecItr)->trkEtaAtCalo() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->trkPhiAtCalo() returns " << (*elecItr)->trkPhiAtCalo() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->caloEta()      returns " << (*elecItr)->caloEta() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->caloPhi()      returns " << (*elecItr)->caloPhi() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->Rcore()        returns " << (*elecItr)->Rcore() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->Eratio()       returns " << (*elecItr)->Eratio() << endmsg;
+	    // 			mLog <<MSG::INFO << "REGTEST TrigElectron->EThad()        returns " << (*elecItr)->EThad() << endmsg;
 
 	    // printout variables using the new << operator
-	    mLog << MSG::INFO << "TrigElectron printout:" << endreq;
-	    mLog << MSG::INFO << "REGTEST " << (**elecItr) << endreq;
+	    ATH_MSG_INFO("TrigElectron printout:");
+	    ATH_MSG_INFO("REGTEST " << (**elecItr));
 
 	    // do second loop to compare TrigElectrons using comparison operators
 	    TrigElectronContainer::const_iterator elecItr2  = elecItr; //trigElec->begin();
@@ -1713,24 +1584,23 @@ StatusCode TrigEDMChecker::dumpTrigElectronContainer() {
 	    for (int k=0; elecItr2 != elecItr2E; ++elecItr2, ++k ) {
 	      // find if TrigElectrons are the same (i.e. have same cluster and track
 	      if ( (**elecItr) == (**elecItr2) ) {
-		mLog << MSG::INFO << "REGTEST TrigElectron nr. " << j << " is the same as TrigElectron nr. " << k << endreq;
+            ATH_MSG_INFO("REGTEST TrigElectron nr. " << j << " is the same as TrigElectron nr. " << k);
 	      } else {
-		// TrigElectrons are different, print out differences
-		std::map<std::string, double> v_diff;
-		diff(*(*elecItr),*(*elecItr2), v_diff);
-		std::map<std::string, double>::iterator it=v_diff.begin();
-		mLog << MSG::INFO << "TrigElectron " << k << " different form TrigElectron " << j << " :" << endreq;
-		for (int m=0;it !=v_diff.end();++it, ++m) {
-		  mLog << MSG::INFO << "TrigElectron Delta_" << (*it).first << " = " << (*it).second << endreq;
-		}
+            // TrigElectrons are different, print out differences
+            std::map<std::string, double> v_diff;
+            diff(*(*elecItr),*(*elecItr2), v_diff);
+            std::map<std::string, double>::iterator it=v_diff.begin();
+            ATH_MSG_INFO("TrigElectron " << k << " different form TrigElectron " << j << " :");
+            for (int m=0;it !=v_diff.end();++it, ++m) {
+              ATH_MSG_INFO("TrigElectron Delta_" << (*it).first << " = " << (*it).second);
+            }
 	      }
 	    }
 	  }
 	}
 
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigElectronContainer DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpTrigElectronContainer() succeeded" << endreq;
+	ATH_MSG_INFO("REGTEST ==========END of TrigElectronContainer DUMP===========");
+    ATH_MSG_DEBUG("dumpTrigElectronContainer() succeeded");
 
 	return StatusCode::SUCCESS;
 }
@@ -1951,7 +1821,7 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           ATH_MSG_INFO(" REGTEST: no electron eg->trackParticle() pointer");
       }
 
-      //msg() << MSG::VERBOSE << " REGTEST: cluster variables " << endreq;
+      //msg() << MSG::VERBOSE << " REGTEST: cluster variables " << endmsg;
       //clus = eg->caloCluster();
       ATH_MSG_INFO(" REGTEST: EMShower variables ");
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::ethad);
@@ -2049,7 +1919,7 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
           ATH_MSG_INFO("REGTEST:: Original Cluster e,eta,phi" << origClus->e() << " " <<  origClus->eta() << " " << origClus->phi());
           ATH_MSG_INFO("REGTEST:: MVA      Cluster e,eta,phi" << eg->caloCluster()->e() << " " <<  eg->caloCluster()->eta() << " " << eg->caloCluster()->phi());
       }
-      //msg() << MSG::VERBOSE << " REGTEST: cluster variables " << endreq;
+      //msg() << MSG::VERBOSE << " REGTEST: cluster variables " << endmsg;
       //clus = eg->caloCluster();
       ATH_MSG_INFO(" REGTEST: EMShower variables ");
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::ethad);
@@ -2083,132 +1953,120 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigTauContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigTauContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigTauContainer()");
+  ATH_MSG_INFO("REGTEST ==========START of TrigTauContainer DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigTauContainer DUMP===========" << endreq;
+  const DataHandle< TrigTauContainer > trigTau;
+  const DataHandle< TrigTauContainer > lastTrigTau;
 
-	const DataHandle< TrigTauContainer > trigTau;
-	const DataHandle< TrigTauContainer > lastTrigTau;
+  StatusCode sc = evtStore()->retrieve(trigTau,lastTrigTau);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigTauContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigTauContainer retrieved");
 
-	StatusCode sc = evtStore()->retrieve(trigTau,lastTrigTau);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigTauContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigTauContainer retrieved" << endreq;
+  for (int i=0; trigTau != lastTrigTau; ++trigTau, ++i) {
 
-	for (int i=0; trigTau != lastTrigTau; ++trigTau, ++i) {
+    ATH_MSG_INFO("REGTEST Looking at TrigTauContainer " << i);
 
-                mLog << MSG::INFO << "REGTEST Looking at TrigTauContainer " << i << endreq;
+    TrigTauContainer::const_iterator TrigTauItr  = trigTau->begin();
+    TrigTauContainer::const_iterator TrigTauItrE = trigTau->end();
 
-                TrigTauContainer::const_iterator TrigTauItr  = trigTau->begin();
-                TrigTauContainer::const_iterator TrigTauItrE = trigTau->end();
+    for (int j=0; TrigTauItr != TrigTauItrE; ++TrigTauItr, ++j ) {
 
-                for (int j=0; TrigTauItr != TrigTauItrE; ++TrigTauItr, ++j ) {
+      ATH_MSG_INFO("REGTEST Looking at TrigTau " << j);
 
-		  mLog <<MSG::INFO << "REGTEST Looking at TrigTau " << j << endreq;
+      ATH_MSG_INFO("REGTEST TrigTau->pt() returns " << (*TrigTauItr)->pt());
+      ATH_MSG_INFO("REGTEST TrigTau->eta() returns " << (*TrigTauItr)->eta());
+      ATH_MSG_INFO("REGTEST TrigTau->phi() returns " << (*TrigTauItr)->phi());
 
-	 	  mLog <<MSG::INFO << "REGTEST TrigTau->pt() returns " << (*TrigTauItr)->pt() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTau->eta() returns " << (*TrigTauItr)->eta() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTau->phi() returns " << (*TrigTauItr)->phi() << endreq;
+      ATH_MSG_INFO("REGTEST TrigTau->nMatchedTracks() returns " << (*TrigTauItr)->nMatchedTracks());
+      ATH_MSG_INFO("REGTEST TrigTau->simpleEtFlow() returns " << (*TrigTauItr)->simpleEtFlow());
+      ATH_MSG_INFO("REGTEST TrigTau->m() returns " << (*TrigTauItr)->m());
+    }
+  }
 
-		  mLog <<MSG::INFO << "REGTEST TrigTau->nMatchedTracks() returns " << (*TrigTauItr)->nMatchedTracks() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTau->simpleEtFlow() returns " << (*TrigTauItr)->simpleEtFlow() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTau->m() returns " << (*TrigTauItr)->m() << endreq;
-                }
-	}
+  ATH_MSG_INFO("REGTEST ==========END of TrigTau DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigTauContainer() succeeded");
 
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigTau DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpTrigTauContainer() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 StatusCode TrigEDMChecker::dumpTrigTauTracksInfo() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigTauTracksInfo()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigTauTracksInfo()");
+  ATH_MSG_INFO("REGTEST ==========START of TrigTauTracksInfo DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigTauTracksInfo DUMP===========" << endreq;
+  const DataHandle< TrigTauTracksInfo > trigTau;
+  const DataHandle< TrigTauTracksInfo > lastTrigTau;
 
-	const DataHandle< TrigTauTracksInfo > trigTau;
-	const DataHandle< TrigTauTracksInfo > lastTrigTau;
+  StatusCode sc = evtStore()->retrieve(trigTau,lastTrigTau);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigTauTracksInfo found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigTauTracksInfos retrieved");
 
-	StatusCode sc = evtStore()->retrieve(trigTau,lastTrigTau);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigTauTracksInfo found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigTauTracksInfos retrieved" << endreq;
+  for (int i=0; trigTau != lastTrigTau; ++trigTau, ++i) {
 
+    const TrigTauTracksInfo* thisTrigTau = &(*trigTau);
 
-	for (int i=0; trigTau != lastTrigTau; ++trigTau, ++i) {
+    ATH_MSG_INFO("REGTEST Looking at TrigTauTracksInfo " << i);
 
-		const TrigTauTracksInfo* thisTrigTau = &(*trigTau);
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->pt() returns " << thisTrigTau->pt());
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->eta() returns " << thisTrigTau->eta());
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->phi() returns " << thisTrigTau->phi());
 
-		mLog <<MSG::INFO << "REGTEST Looking at TrigTauTracksInfo " << i << endreq;
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->nCoreTracks() returns " << thisTrigTau->nCoreTracks());
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->nSlowTracks() returns " << thisTrigTau->nSlowTracks());
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->nIsoTracks() returns " << thisTrigTau->nIsoTracks());
 
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->pt() returns " << thisTrigTau->pt() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->eta() returns " << thisTrigTau->eta() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->phi() returns " << thisTrigTau->phi() << endreq;
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->charge() returns " << thisTrigTau->charge());
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->leadingTrackPt() returns " <<
+                 thisTrigTau->leadingTrackPt());
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->scalarPtSumCore() returns " <<
+                 thisTrigTau->scalarPtSumCore());
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->scalarPtSumIso() returns " <<
+                 thisTrigTau->scalarPtSumIso());
+    ATH_MSG_INFO("REGTEST TrigTauTracksInfo->threeFastestTracks().pt() returns " <<
+                 thisTrigTau->threeFastestTracks().pt());
+  }
 
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->nCoreTracks() returns " << thisTrigTau->nCoreTracks() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->nSlowTracks() returns " << thisTrigTau->nSlowTracks() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->nIsoTracks() returns " << thisTrigTau->nIsoTracks() << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of TrigTauTracksInfo DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigTauTracksInfo() succeeded");
 
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->charge() returns " << thisTrigTau->charge() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->leadingTrackPt() returns " <<
-		thisTrigTau->leadingTrackPt() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->scalarPtSumCore() returns " <<
-		thisTrigTau->scalarPtSumCore() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->scalarPtSumIso() returns " <<
-		thisTrigTau->scalarPtSumIso() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigTauTracksInfo->threeFastestTracks().pt() returns " <<
-		thisTrigTau->threeFastestTracks().pt() << endreq;
-
-	}
-
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigTauTracksInfo DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpTrigTauTracksInfo() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpHLTResult() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpHLTResult()" << endreq;
+  ATH_MSG_DEBUG("in dumpHLTResult()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of HLTResult DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of HLTResult DUMP===========");
 
-	const HLT::HLTResult* hltResult = 0;
-	StatusCode sc=evtStore()->retrieve( hltResult, "HLTResult_L2");
-	if( sc.isFailure()  ||  !hltResult ) {
-		mLog << MSG::INFO
-		<< "No HLTResult_L2 found in TDS"
-		<< endreq;
-		return StatusCode::SUCCESS;
-	}
-	mLog <<MSG::INFO << "REGTEST HLTResult_L2 Successfully Retrieved" << endreq;
+  const HLT::HLTResult* hltResult = 0;
+  StatusCode sc=evtStore()->retrieve( hltResult, "HLTResult_L2");
+  if( sc.isFailure()  ||  !hltResult ) {
+    ATH_MSG_INFO("No HLTResult_L2 found in TDS");
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST HLTResult_L2 Successfully Retrieved");
 
-	mLog <<MSG::INFO << "REGTEST HLTResult_L2->isEmpty() returns " << hltResult->isEmpty() << endreq;
-	mLog <<MSG::INFO << "REGTEST HLTResult_L2->size() returns " << hltResult->size() << endreq;
-	mLog <<MSG::INFO << "REGTEST HLTResult_L2->isPassThrough() returns " << hltResult->isPassThrough() << endreq;
-	mLog <<MSG::INFO << "REGTEST HLTResult_L2->isAccepted() returns " << hltResult->isAccepted() << endreq;
+  ATH_MSG_INFO("REGTEST HLTResult_L2->isEmpty() returns " << hltResult->isEmpty());
+  ATH_MSG_INFO("REGTEST HLTResult_L2->size() returns " << hltResult->size());
+  ATH_MSG_INFO("REGTEST HLTResult_L2->isPassThrough() returns " << hltResult->isPassThrough());
+  ATH_MSG_INFO("REGTEST HLTResult_L2->isAccepted() returns " << hltResult->isAccepted());
 
+  ATH_MSG_INFO("REGTEST ==========END of HLTResult DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========END of HLTResult DUMP===========" << endreq;
+  ATH_MSG_DEBUG("dumpHLTResult() succeeded");
 
-	mLog << MSG::DEBUG << "dumpHLTResult() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -2217,215 +2075,203 @@ StatusCode TrigEDMChecker::dumpHLTResult() {
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigInDetTrackCollection() {
-	MsgStream mLog( messageService(), name() );
 
-	std::string TrigInDetTrackTags[]={ "HLT_TrigIDSCAN_Jet",
-			"HLT_TrigIDSCAN_Tau",
-			"HLT_TrigIDSCAN_eGamma",
-			"HLT_TrigIDSCAN_Muon",
-			"HLT_TrigIDSCAN_muonIso",
-			"HLT_TrigIDSCAN_Bphysics",
-			"HLT_TrigIDSCAN_FullScan",
-			"HLT_TrigIDSCAN_Cosmics",
-			"HLT_TrigIDSCAN_eGamma_Brem",
-			"HLT_TrigIDSCAN_Tile",
-			"HLT_TrigSiTrack_eGamma",
-			"HLT_TrigSiTrack_Muon",
-			"HLT_TrigSiTrack_muonIso",
-			"HLT_TrigSiTrack_Tau",
-			"HLT_TrigSiTrack_Jet",
-			"HLT_TrigSiTrack_Bphysics",
-			"HLT_TrigSiTrack_FullScan",
-			"HLT_TrigSiTrack_Cosmics",
-			"HLT_TRTSegmentFinder",
-			"HLT_TRTxK"};
-	int ntag=20;
+  std::string TrigInDetTrackTags[]={ "HLT_TrigIDSCAN_Jet",
+                                     "HLT_TrigIDSCAN_Tau",
+                                     "HLT_TrigIDSCAN_eGamma",
+                                     "HLT_TrigIDSCAN_Muon",
+                                     "HLT_TrigIDSCAN_muonIso",
+                                     "HLT_TrigIDSCAN_Bphysics",
+                                     "HLT_TrigIDSCAN_FullScan",
+                                     "HLT_TrigIDSCAN_Cosmics",
+                                     "HLT_TrigIDSCAN_eGamma_Brem",
+                                     "HLT_TrigIDSCAN_Tile",
+                                     "HLT_TrigSiTrack_eGamma",
+                                     "HLT_TrigSiTrack_Muon",
+                                     "HLT_TrigSiTrack_muonIso",
+                                     "HLT_TrigSiTrack_Tau",
+                                     "HLT_TrigSiTrack_Jet",
+                                     "HLT_TrigSiTrack_Bphysics",
+                                     "HLT_TrigSiTrack_FullScan",
+                                     "HLT_TrigSiTrack_Cosmics",
+                                     "HLT_TRTSegmentFinder",
+                                     "HLT_TRTxK"};
+  int ntag=20;
 
+  ATH_MSG_DEBUG("in dumpTrigInDetTrackCollection()");
 
-	mLog << MSG::DEBUG << "in dumpTrigInDetTrackCollection()" << endreq;
+  const TrigInDetTrackTruthMap* pTruthMap(nullptr);
+  bool gotTruthMap = false;
 
-	const TrigInDetTrackTruthMap* pTruthMap(nullptr);
-	bool gotTruthMap = false;
+  if (evtStore()->contains<TrigInDetTrackTruthMap>("TrigInDetTrackTruthMap")) {
+    StatusCode sc=evtStore()->retrieve(pTruthMap,"TrigInDetTrackTruthMap");
+    if (sc.isFailure())
+      {
+        ATH_MSG_WARNING(" could not retrieve TrackTruthMap with key TrigInDetTruthMap");
+      } else {
+      gotTruthMap=true;
+      //      pTruthMap->print();
+    }
+  }
+  else ATH_MSG_DEBUG(" didn't find any TrackTruthMap objects with key TrigInDetTruthMap");
 
-	if (evtStore()->contains<TrigInDetTrackTruthMap>("TrigInDetTrackTruthMap"))
-   	{
-         	StatusCode sc=evtStore()->retrieve(pTruthMap,"TrigInDetTrackTruthMap");
-		if (sc.isFailure())
-       		{
-			mLog << MSG::WARNING << " could not retrieve TrackTruthMap with key TrigInDetTruthMap" << endreq;
-		} else {
-			gotTruthMap=true;
-			//      pTruthMap->print();
-		}
-	}
- 	else mLog << MSG::DEBUG << " didn't find any TrackTruthMap objects with key TrigInDetTruthMap" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigInDetTrackCollection DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigInDetTrackCollection DUMP===========" << endreq;
+  for (int iTag=0; iTag < ntag; iTag++) {
+    const TrigInDetTrackCollection* trigInDetTrackCollection;
+    StatusCode sc = evtStore()->retrieve(trigInDetTrackCollection,TrigInDetTrackTags[iTag] );
+    if (sc.isFailure()) {
+      ATH_MSG_DEBUG("REGTEST No TrigInDetTrackCollection found with key " << TrigInDetTrackTags[iTag]);
+      continue;
+    }
+    ATH_MSG_INFO("REGTEST TrigInDetTrackCollections retrieved with key "
+                 << TrigInDetTrackTags[iTag]);
 
-	for (int iTag=0; iTag < ntag; iTag++) {
-		const TrigInDetTrackCollection* trigInDetTrackCollection;
-		StatusCode sc = evtStore()->retrieve(trigInDetTrackCollection,TrigInDetTrackTags[iTag] );
-		if (sc.isFailure()) {
-			mLog << MSG::DEBUG << "REGTEST No TrigInDetTrackCollection found with key " << TrigInDetTrackTags[iTag] << endreq;
-			continue;
-		}
-		mLog << MSG::INFO << "REGTEST TrigInDetTrackCollections retrieved with key "
-		<< TrigInDetTrackTags[iTag] << endreq;
+    ATH_MSG_INFO("REGTEST TrigInDetTrackCollection->size() returns " << trigInDetTrackCollection->size());
 
+    TrigInDetTrackCollection::const_iterator trkItr  = trigInDetTrackCollection->begin();
+    TrigInDetTrackCollection::const_iterator trkItrE = trigInDetTrackCollection->end();
 
-		mLog << MSG::INFO << "REGTEST TrigInDetTrackCollection->size() returns " << trigInDetTrackCollection->size() << endreq;
+    for (int j=0; trkItr != trkItrE; ++trkItr, ++j ) {
 
-		TrigInDetTrackCollection::const_iterator trkItr  = trigInDetTrackCollection->begin();
-		TrigInDetTrackCollection::const_iterator trkItrE = trigInDetTrackCollection->end();
+      ATH_MSG_INFO("REGTEST Looking at TrigInDetTrack " << j);
 
-		for (int j=0; trkItr != trkItrE; ++trkItr, ++j ) {
+      ATH_MSG_INFO("REGTEST TrigInDetTrack->algorithmId() returns " << (*trkItr)->algorithmId());
+      ATH_MSG_INFO("REGTEST TrigInDetTrack->chi2() returns " << (*trkItr)->chi2());
+      ATH_MSG_INFO("REGTEST TrigInDetTrack->NStrawHits() returns " << (*trkItr)->NStrawHits());
 
-			mLog <<MSG::INFO << "REGTEST Looking at TrigInDetTrack " << j << endreq;
+      ATH_MSG_INFO("REGTEST TrigInDetTrack->NStraw() returns " << (*trkItr)->NStraw());
+      ATH_MSG_INFO("REGTEST TrigInDetTrack->NStrawTime() returns " << (*trkItr)->NStrawTime());
+      ATH_MSG_INFO("REGTEST TrigInDetTrack->NTRHits() returns " << (*trkItr)->NTRHits());
 
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrack->algorithmId() returns " << (*trkItr)->algorithmId() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrack->chi2() returns " << (*trkItr)->chi2() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrack->NStrawHits() returns " << (*trkItr)->NStrawHits() << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TrigInDetFitTrack->param()");
+      const TrigInDetTrackFitPar* my_param = (*trkItr)->param();
 
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrack->NStraw() returns " << (*trkItr)->NStraw() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrack->NStrawTime() returns " << (*trkItr)->NStrawTime() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrack->NTRHits() returns " << (*trkItr)->NTRHits() << endreq;
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->a0() returns " << my_param->a0());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->z0() returns " << my_param->z0());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->phi0() returns " << my_param->phi0());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->eta() returns " << my_param->eta());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->pT() returns " << my_param->pT());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->ea0() returns " << my_param->ea0());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->ez0() returns " << my_param->ez0());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->ephi0() returns " << my_param->ephi0());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->eeta() returns " << my_param->eeta());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->epT() returns " << my_param->epT());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->surfaceType() returns " << my_param->surfaceType());
+      ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->surfaceCoordinate() returns " << my_param->surfaceCoordinate());
+      ATH_MSG_INFO("REGTEST Looking at covarience matrix: ");
 
-			mLog <<MSG::INFO << "REGTEST Looking at TrigInDetFitTrack->param()" << endreq;
-			const TrigInDetTrackFitPar* my_param = (*trkItr)->param();
+      const std::vector<double>* const my_cov = my_param->cov();
+      if (!my_cov) {
+        ATH_MSG_INFO("REGTEST covarience matrix NULL (not stored)");
+      } else {
+        std::vector<double> tempcov = *my_cov;
+        std::vector<double>::iterator iter;
+        int k;
+        for(iter = tempcov.begin(), k=0; iter != tempcov.end(); ++iter, ++k){
+          ATH_MSG_INFO("REGTEST TrigInDetTrackFitPar->cov() element " << k << " is " << (*iter));
+        }
+      }
+      if (gotTruthMap) {
+        if (!(pTruthMap->hasTruth((*trkItr)))) {
+          ATH_MSG_DEBUG(" REGTEST Track has no truth info  ");
+        } else {
+          ATH_MSG_DEBUG(" Track has truth info:  ");
+          const TrigInDetTrackTruth* pTRTtruth = pTruthMap->truth((*trkItr));
+          int nMatches = pTRTtruth->nrMatches() ;
+          if (nMatches==0) {
+            ATH_MSG_INFO(" REGTEST Track has no truth matches");
+          } else {
+            ATH_MSG_INFO("REGTEST number of matched truth hits: Si: " <<  pTruthMap->bestMatchSiHits((*trkItr))
+                         << " TRT: " <<   pTruthMap->bestMatchTRTHits((*trkItr)));
+            if (pTruthMap->bestMatchSiHits((*trkItr)) > 0) {
 
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->a0() returns " << my_param->a0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->z0() returns " << my_param->z0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->phi0() returns " << my_param->phi0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->eta() returns " << my_param->eta() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->pT() returns " << my_param->pT() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->ea0() returns " << my_param->ea0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->ez0() returns " << my_param->ez0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->ephi0() returns " << my_param->ephi0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->eeta() returns " << my_param->eeta() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->epT() returns " << my_param->epT() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->surfaceType() returns " << my_param->surfaceType() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->surfaceCoordinate() returns " << my_param->surfaceCoordinate() << endreq;
-			mLog <<MSG::INFO << "REGTEST Looking at covarience matrix: " << endreq;
+              const HepMcParticleLink* pSiTruth = pTruthMap->bestMatchSi((*trkItr));
 
-			const std::vector<double>* const my_cov = my_param->cov();
-			if (!my_cov) {
-				mLog <<MSG::INFO << "REGTEST covarience matrix NULL (not stored)" << endreq;
-			} else {
-				std::vector<double> tempcov = *my_cov;
-				std::vector<double>::iterator iter;
-				int k;
-				for(iter = tempcov.begin(), k=0; iter != tempcov.end(); iter++, k++){
-					mLog <<MSG::INFO << "REGTEST TrigInDetTrackFitPar->cov() element " << k << " is " << (*iter) << endreq;
-				}
-			}
-			if (gotTruthMap) {
-				if (!(pTruthMap->hasTruth((*trkItr)))) {
-					mLog << MSG::DEBUG << " REGTEST Track has no truth info  " << endreq;
-				} else {
-					mLog << MSG::DEBUG << " Track has truth info:  " << endreq;
-					const TrigInDetTrackTruth* pTRTtruth = pTruthMap->truth((*trkItr));
-					int nMatches = pTRTtruth->nrMatches() ;
-					if (nMatches==0) {
-						mLog << MSG::INFO << " REGTEST Track has no truth matches" <<  endreq;
-					} else {
-						mLog << MSG::INFO << "REGTEST number of matched truth hits: Si: " <<  pTruthMap->bestMatchSiHits((*trkItr))
-						<< " TRT: " <<   pTruthMap->bestMatchTRTHits((*trkItr)) << endreq;
-						if (pTruthMap->bestMatchSiHits((*trkItr)) > 0) {
+              ATH_MSG_INFO("REGTEST Si match to kine ref " <<  pSiTruth->barcode());
+              if (pSiTruth->cptr() != 0) {
+                ATH_MSG_INFO("REGTEST Si PDG id " << pSiTruth->cptr()->pdg_id());
+              }
+            }
 
-							const HepMcParticleLink* pSiTruth = pTruthMap->bestMatchSi((*trkItr));
+            if (pTruthMap->bestMatchTRTHits((*trkItr)) > 0) {
+              const HepMcParticleLink* pTRTtruth = pTruthMap->bestMatchTRT((*trkItr));
 
-							mLog << MSG::INFO << "REGTEST Si match to kine ref " <<  pSiTruth->barcode() << endreq;
-							if (pSiTruth->cptr() != 0) {
-							  mLog << MSG::INFO << "REGTEST Si PDG id " << pSiTruth->cptr()->pdg_id() << endreq;
-							}
-						}
+              ATH_MSG_INFO("REGTEST TRT match to kine ref " <<  pTRTtruth->barcode());
+              if (pTRTtruth->cptr() != 0) {
+                ATH_MSG_INFO("REGTEST TRT PDG id " << pTRTtruth->cptr()->pdg_id());
+              }
+            }
+          }
+        }
+      } // if (gotTruthMap)
+    }
+  }
 
+  ATH_MSG_INFO("REGTEST ==========END of TrigInDetTrackCollection DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigInDetTrackCollection() succeeded");
 
-						if (pTruthMap->bestMatchTRTHits((*trkItr)) > 0) {
-							const HepMcParticleLink* pTRTtruth = pTruthMap->bestMatchTRT((*trkItr));
-
-							mLog << MSG::INFO << "REGTEST TRT match to kine ref " <<  pTRTtruth->barcode() << endreq;
-							if (pTRTtruth->cptr() != 0) {
-							  mLog << MSG::INFO << "REGTEST TRT PDG id " << pTRTtruth->cptr()->pdg_id() << endreq;
-							}
-						}
-					}
-				}
-
-			} // if (gotTruthMap)
-
-		}
-	}
-
-
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigInDetTrackCollection DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpTrigInDetTrackCollection() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigVertexCollection() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigVertexCollection()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigVertexCollection()");
+  ATH_MSG_INFO("REGTEST ==========START of TrigVertexCollection DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigVertexCollection DUMP===========" << endreq;
+  const DataHandle< TrigVertexCollection > trigVertex;
+  const DataHandle< TrigVertexCollection > lastTrigVertex;
 
-	const DataHandle< TrigVertexCollection > trigVertex;
-	const DataHandle< TrigVertexCollection > lastTrigVertex;
-
-	StatusCode sc = evtStore()->retrieve(trigVertex,lastTrigVertex);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigVertexCollection found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigVertexCollection retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(trigVertex,lastTrigVertex);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigVertexCollection found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigVertexCollection retrieved");
 
 
-	for (int i=0; trigVertex != lastTrigVertex; ++trigVertex, ++i) {
+  for (int i=0; trigVertex != lastTrigVertex; ++trigVertex, ++i) {
 
-		mLog << MSG::INFO << "REGTEST Looking at TrigVertexCollection " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at TrigVertexCollection " << i);
 
-		TrigVertexCollection::const_iterator VertexItr  = trigVertex->begin();
-		TrigVertexCollection::const_iterator VertexItrE = trigVertex->end();
+    TrigVertexCollection::const_iterator VertexItr  = trigVertex->begin();
+    TrigVertexCollection::const_iterator VertexItrE = trigVertex->end();
 
-		for (int j=0; VertexItr != VertexItrE; ++VertexItr, ++j ) {
+    for (int j=0; VertexItr != VertexItrE; ++VertexItr, ++j ) {
 
-			mLog <<MSG::INFO << "REGTEST Looking at TrigVertex " << j << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TrigVertex " << j);
 
-			mLog <<MSG::INFO << "REGTEST TrigVertex->x() returns " << (*VertexItr)->x() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigVertex->y() returns " << (*VertexItr)->y() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigVertex->z() returns " << (*VertexItr)->z() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigVertex->energyFraction() returns " << (*VertexItr)->energyFraction() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigVertex->ndof() returns " << (*VertexItr)->ndof() << endreq;
+      ATH_MSG_INFO("REGTEST TrigVertex->x() returns " << (*VertexItr)->x());
+      ATH_MSG_INFO("REGTEST TrigVertex->y() returns " << (*VertexItr)->y());
+      ATH_MSG_INFO("REGTEST TrigVertex->z() returns " << (*VertexItr)->z());
+      ATH_MSG_INFO("REGTEST TrigVertex->energyFraction() returns " << (*VertexItr)->energyFraction());
+      ATH_MSG_INFO("REGTEST TrigVertex->ndof() returns " << (*VertexItr)->ndof());
 
-			if(((*VertexItr)->tracks())!=NULL ){
-				//	mLog <<MSG::INFO << "REGTEST *** ((*VertexItr)->tracks())!=NULL *** " << endreq;
-				TrackInVertexList::const_iterator trkItr  = (*VertexItr)->tracks()->begin();
-				TrackInVertexList::const_iterator trkItrE = (*VertexItr)->tracks()->end();
+      if(((*VertexItr)->tracks())!=NULL ){
+        //	mLog <<MSG::INFO << "REGTEST *** ((*VertexItr)->tracks())!=NULL *** " << endmsg;
+        TrackInVertexList::const_iterator trkItr  = (*VertexItr)->tracks()->begin();
+        TrackInVertexList::const_iterator trkItrE = (*VertexItr)->tracks()->end();
 
-				for (int p=0; trkItr != trkItrE; ++trkItr, ++p ) {
+        for (int p=0; trkItr != trkItrE; ++trkItr, ++p ) {
 
-					mLog <<MSG::INFO << "REGTEST Looking at track " << p << endreq;
+          ATH_MSG_INFO("REGTEST Looking at track " << p);
 
-					mLog <<MSG::INFO << "REGTEST Tracks info: " << endreq;
-					mLog <<MSG::INFO << "REGTEST tracks->NStrawHits() returns " << (*trkItr)->NStrawHits() << endreq;
-					mLog <<MSG::INFO << "REGTEST tracks->NStrawTime() returns " << (*trkItr)->NStrawTime() << endreq;
-					mLog <<MSG::INFO << "REGTEST tracks->NTRHits() returns " << (*trkItr)->NTRHits() << endreq;
-				}
-			}
-		}
-	}
+          ATH_MSG_INFO("REGTEST Tracks info: ");
+          ATH_MSG_INFO("REGTEST tracks->NStrawHits() returns " << (*trkItr)->NStrawHits());
+          ATH_MSG_INFO("REGTEST tracks->NStrawTime() returns " << (*trkItr)->NStrawTime());
+          ATH_MSG_INFO("REGTEST tracks->NTRHits() returns " << (*trkItr)->NTRHits());
+        }
+      }
+    }
+  }
 
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigVertexCollection DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of TrigVertexCollection DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigVertexCollection() succeeded");
 
-	mLog << MSG::DEBUG << "dumpTrigVertexCollection() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -2433,206 +2279,194 @@ StatusCode TrigEDMChecker::dumpTrigVertexCollection() {
 
 
 StatusCode TrigEDMChecker::dumpTrigEFBphysContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigEFBphysContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigEFBphysContainer()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigEFBphysContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigEFBphysContainer DUMP===========");
 
-    std::string EFBphysTags[]={"HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
-                               "HLT_xAOD__TrigBphysContainer_EFBMuMuXFex",
-                               "HLT_xAOD__TrigBphysContainer_EFDsPhiPiFex",
-                               "HLT_xAOD__TrigBphysContainer_EFMuPairs",
-                               "HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
-                               "HLT_xAOD__TrigBphysContainer_EFTrackMass"
-        };
+  std::string EFBphysTags[]={"HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
+                             "HLT_xAOD__TrigBphysContainer_EFBMuMuXFex",
+                             "HLT_xAOD__TrigBphysContainer_EFDsPhiPiFex",
+                             "HLT_xAOD__TrigBphysContainer_EFMuPairs",
+                             "HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
+                             "HLT_xAOD__TrigBphysContainer_EFTrackMass"
+  };
 
-   int ntag= (int) sizeof(EFBphysTags) / sizeof(EFBphysTags[0]);
-
-
-	for (int itag=0; itag<ntag; itag++){
-		const xAOD::TrigBphysContainer*  trigEFBphys;
-		StatusCode sc = evtStore()->retrieve(trigEFBphys, EFBphysTags[itag]);
-		if (sc.isFailure()) {
-			mLog << MSG::INFO << "REGTEST No TrigEFBphysContainer found with tag " << EFBphysTags[itag] << endreq;
-			continue;
-		}
-
-		mLog << MSG::INFO << "REGTEST TrigEFBphysContainer found with tag " << EFBphysTags[itag]
-		                                                                                   << " and size " << trigEFBphys->size() << endreq;
-
-		//  for (int i=0; trigEFBphys != lastTrigEFBphys; ++trigEFBphys, ++i) {
-
-		//mLog << MSG::INFO << "REGTEST Looking at TrigEFBphysContainer " << i << endreq;
-
-        xAOD::TrigBphysContainer::const_iterator EFBphysItr  = trigEFBphys->begin();
-        xAOD::TrigBphysContainer::const_iterator EFBphysItrE = trigEFBphys->end();
-
-		for (int j=0; EFBphysItr != EFBphysItrE; ++EFBphysItr, ++j ) {
-
-			mLog <<MSG::INFO << "REGTEST Looking at TrigEFBphys " << j << endreq;
-
-			mLog <<MSG::INFO << "REGTEST TrigEFBphys->eta() returns " << (*EFBphysItr)->eta() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBphys->phi() returns " << (*EFBphysItr)->phi() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBphys->mass() returns " << (*EFBphysItr)->mass() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBphys->fitmass() returns " << (*EFBphysItr)->fitmass() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigEFBphys->isValid() returns " << (*EFBphysItr)->isValid() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBphys->roiId() returns " << (*EFBphysItr)->roiId() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBphys->particleType() returns " << (*EFBphysItr)->particleType() << endreq;
-
-			if( (*EFBphysItr)->secondaryDecay() != NULL){
-                const xAOD::TrigBphys * psecond =(*EFBphysItr)->secondaryDecay();
-				mLog <<MSG::INFO << "REGTEST Secondary decay info: " << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->eta() returns " << psecond->eta() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->phi() returns " << psecond->phi() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->mass() returns " << psecond->mass() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->fitmass() returns " << psecond->fitmass() << endreq;
-				//	mLog <<MSG::INFO << "REGTEST pSecondDecay->isValid() returns " << (*EFBphysItr)->secondaryDecayLink()->isValid() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->roiId() returns " << psecond->roiId() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->particleType() returns " << psecond->particleType() << endreq;
-
-			} // end if secondary exists
+  int ntag= (int) sizeof(EFBphysTags) / sizeof(EFBphysTags[0]);
 
 
+  for (int itag=0; itag<ntag; itag++){
+    const xAOD::TrigBphysContainer*  trigEFBphys;
+    StatusCode sc = evtStore()->retrieve(trigEFBphys, EFBphysTags[itag]);
+    if (sc.isFailure()) {
+      ATH_MSG_INFO("REGTEST No TrigEFBphysContainer found with tag " << EFBphysTags[itag]);
+      continue;
+    }
 
-			const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*EFBphysItr)->trackParticleLinks();
- 			if (trackVector.size() != 0) {
-				mLog << MSG::INFO << " REGTEST got track vector size: " << trackVector.size() << endreq;
-			} else {
-				mLog << MSG::INFO << " REGTEST no track vector!!! "  << endreq;
-			}
-			std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
-			for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
-			  if (!(trkIt->isValid())) {
-			    mLog << MSG::WARNING << "TrackParticleContainer::Invalid ElementLink to track " << endreq;
-			    continue;
-			  }
-				//const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
-                const Trk::Perigee* trackPerigee=&((*(*trkIt))->perigeeParameters());
+    ATH_MSG_INFO("REGTEST TrigEFBphysContainer found with tag " << EFBphysTags[itag]
+                 << " and size " << trigEFBphys->size());
 
-				//      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
-				double phi = trackPerigee->parameters()[Trk::phi];
-				double theta = trackPerigee->parameters()[Trk::theta];
-				double px = trackPerigee->momentum()[Trk::px];
-				double py = trackPerigee->momentum()[Trk::py];
-				double pt = sqrt(px*px + py*py);
-				double eta = -std::log(tan(theta/2));
+    //  for (int i=0; trigEFBphys != lastTrigEFBphys; ++trigEFBphys, ++i) {
 
-				mLog << MSG::INFO << "track " << itrk << " pt phi eta " << pt << " " <<
-				phi << " " << eta << endreq;
-			}
+    //mLog << MSG::INFO << "REGTEST Looking at TrigEFBphysContainer " << i << endmsg;
 
-		}
-	}
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigEFBphysContainer DUMP===========" << endreq;
+    xAOD::TrigBphysContainer::const_iterator EFBphysItr  = trigEFBphys->begin();
+    xAOD::TrigBphysContainer::const_iterator EFBphysItrE = trigEFBphys->end();
 
-	mLog << MSG::DEBUG << "dumpTrigEFBphysContainer() succeeded" << endreq;
+    for (int j=0; EFBphysItr != EFBphysItrE; ++EFBphysItr, ++j ) {
 
-	return StatusCode::SUCCESS;
+      ATH_MSG_INFO("REGTEST Looking at TrigEFBphys " << j);
+
+      ATH_MSG_INFO("REGTEST TrigEFBphys->eta() returns " << (*EFBphysItr)->eta());
+      ATH_MSG_INFO("REGTEST TrigEFBphys->phi() returns " << (*EFBphysItr)->phi());
+      ATH_MSG_INFO("REGTEST TrigEFBphys->mass() returns " << (*EFBphysItr)->mass());
+      ATH_MSG_INFO("REGTEST TrigEFBphys->fitmass() returns " << (*EFBphysItr)->fitmass());
+      // ATH_MSG_INFO("REGTEST TrigEFBphys->isValid() returns " << (*EFBphysItr)->isValid());
+      ATH_MSG_INFO("REGTEST TrigEFBphys->roiId() returns " << (*EFBphysItr)->roiId());
+      ATH_MSG_INFO("REGTEST TrigEFBphys->particleType() returns " << (*EFBphysItr)->particleType());
+
+      if( (*EFBphysItr)->secondaryDecay() != NULL){
+        const xAOD::TrigBphys * psecond =(*EFBphysItr)->secondaryDecay();
+        ATH_MSG_INFO("REGTEST Secondary decay info: ");
+        ATH_MSG_INFO("REGTEST pSecondDecay->eta() returns " << psecond->eta());
+        ATH_MSG_INFO("REGTEST pSecondDecay->phi() returns " << psecond->phi());
+        ATH_MSG_INFO("REGTEST pSecondDecay->mass() returns " << psecond->mass());
+        ATH_MSG_INFO("REGTEST pSecondDecay->fitmass() returns " << psecond->fitmass());
+        // ATH_MSG_INFO("REGTEST pSecondDecay->isValid() returns " << (*EFBphysItr)->secondaryDecayLink()->isValid());
+        ATH_MSG_INFO("REGTEST pSecondDecay->roiId() returns " << psecond->roiId());
+        ATH_MSG_INFO("REGTEST pSecondDecay->particleType() returns " << psecond->particleType());
+
+      } // end if secondary exists
+
+
+
+      const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*EFBphysItr)->trackParticleLinks();
+      if (trackVector.size() != 0) {
+        ATH_MSG_INFO(" REGTEST got track vector size: " << trackVector.size());
+      } else {
+        ATH_MSG_INFO(" REGTEST no track vector!!! " );
+      }
+      std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
+      for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
+        if (!(trkIt->isValid())) {
+          ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
+          continue;
+        }
+        //const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
+        const Trk::Perigee* trackPerigee=&((*(*trkIt))->perigeeParameters());
+
+        //      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endmsg;
+        double phi = trackPerigee->parameters()[Trk::phi];
+        double theta = trackPerigee->parameters()[Trk::theta];
+        double px = trackPerigee->momentum()[Trk::px];
+        double py = trackPerigee->momentum()[Trk::py];
+        double pt = sqrt(px*px + py*py);
+        double eta = -std::log(tan(theta/2));
+
+        ATH_MSG_INFO("track " << itrk << " pt phi eta " << pt << " " <<
+                     phi << " " << eta);
+      }
+
+    }
+  }
+  ATH_MSG_INFO("REGTEST ==========END of TrigEFBphysContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigEFBphysContainer() succeeded");
+
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 StatusCode TrigEDMChecker::dumpTrigL2BphysContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigL2BphysContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigL2BphysContainer()");
+  ATH_MSG_INFO("REGTEST ==========START of TrigL2BphysContainer DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigL2BphysContainer DUMP===========" << endreq;
-
-
-    std::string L2BphysTags[]={"HLT_xAOD__TrigBphysContainer_L2BMuMuFex",
-        "HLT_xAOD__TrigBphysContainer_L2BMuMuXFex",
-        "HLT_xAOD__TrigBphysContainer_L2DsPhiPiFexDs",
-        "HLT_xAOD__TrigBphysContainer_L2DsPhiPiFexPhi",
-        "HLT_xAOD__TrigBphysContainer_L2JpsieeFex",
-        "HLT_xAOD__TrigBphysContainer_L2MultiMuFex",
-        "HLT_xAOD__TrigBphysContainer_L2TrackMass",
-    };
-    const int ntag = (int) sizeof(L2BphysTags) / sizeof(L2BphysTags[0]);
+  std::string L2BphysTags[]={"HLT_xAOD__TrigBphysContainer_L2BMuMuFex",
+                             "HLT_xAOD__TrigBphysContainer_L2BMuMuXFex",
+                             "HLT_xAOD__TrigBphysContainer_L2DsPhiPiFexDs",
+                             "HLT_xAOD__TrigBphysContainer_L2DsPhiPiFexPhi",
+                             "HLT_xAOD__TrigBphysContainer_L2JpsieeFex",
+                             "HLT_xAOD__TrigBphysContainer_L2MultiMuFex",
+                             "HLT_xAOD__TrigBphysContainer_L2TrackMass",
+  };
+  const int ntag = (int) sizeof(L2BphysTags) / sizeof(L2BphysTags[0]);
 
 
-	for (int itag=0; itag<ntag; itag++){
-		const xAOD::TrigBphysContainer*  trigL2Bphys;
-		StatusCode sc = evtStore()->retrieve(trigL2Bphys, L2BphysTags[itag]);
-		if (sc.isFailure()) {
-			mLog << MSG::INFO << "REGTEST No TrigL2BphysContainer found with tag " << L2BphysTags[itag] << endreq;
-			continue;
-		}
+  for (int itag=0; itag<ntag; itag++){
+    const xAOD::TrigBphysContainer*  trigL2Bphys;
+    StatusCode sc = evtStore()->retrieve(trigL2Bphys, L2BphysTags[itag]);
+    if (sc.isFailure()) {
+      ATH_MSG_INFO("REGTEST No TrigL2BphysContainer found with tag " << L2BphysTags[itag]);
+      continue;
+    }
 
-		mLog << MSG::INFO << "REGTEST TrigL2BphysContainer found with tag " << L2BphysTags[itag]
-		                  << " and size " << trigL2Bphys->size() << endreq;
+    ATH_MSG_INFO("REGTEST TrigL2BphysContainer found with tag " << L2BphysTags[itag]
+                 << " and size " << trigL2Bphys->size());
 
-		//  for (int i=0; trigL2Bphys != lastTrigL2Bphys; ++trigL2Bphys, ++i) {
+    //  for (int i=0; trigL2Bphys != lastTrigL2Bphys; ++trigL2Bphys, ++i) {
 
-		// mLog << MSG::INFO << "REGTEST Looking at TrigL2BphysContainer " << i << endreq;
+    // mLog << MSG::INFO << "REGTEST Looking at TrigL2BphysContainer " << i << endmsg;
 
-		xAOD::TrigBphysContainer::const_iterator L2BphysItr  = trigL2Bphys->begin();
-		xAOD::TrigBphysContainer::const_iterator L2BphysItrE = trigL2Bphys->end();
+    xAOD::TrigBphysContainer::const_iterator L2BphysItr  = trigL2Bphys->begin();
+    xAOD::TrigBphysContainer::const_iterator L2BphysItrE = trigL2Bphys->end();
 
-		for (int j=0; L2BphysItr != L2BphysItrE; ++L2BphysItr, ++j ) {
+    for (int j=0; L2BphysItr != L2BphysItrE; ++L2BphysItr, ++j ) {
 
-			mLog <<MSG::INFO << "REGTEST Looking at TrigL2Bphys " << j << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TrigL2Bphys " << j);
 
-			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->eta() returns " << (*L2BphysItr)->eta() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->phi() returns " << (*L2BphysItr)->phi() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->mass() returns " << (*L2BphysItr)->mass() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->fitmass() returns " << (*L2BphysItr)->fitmass() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigL2Bphys->isValid() returns " << (*L2BphysItr)->isValid() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->roiId() returns " << (*L2BphysItr)->roiId() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->particleType() returns " << (*L2BphysItr)->particleType() << endreq;
+      ATH_MSG_INFO("REGTEST TrigL2Bphys->eta() returns " << (*L2BphysItr)->eta());
+      ATH_MSG_INFO("REGTEST TrigL2Bphys->phi() returns " << (*L2BphysItr)->phi());
+      ATH_MSG_INFO("REGTEST TrigL2Bphys->mass() returns " << (*L2BphysItr)->mass());
+      ATH_MSG_INFO("REGTEST TrigL2Bphys->fitmass() returns " << (*L2BphysItr)->fitmass());
+      // ATH_MSG_INFO("REGTEST TrigL2Bphys->isValid() returns " << (*L2BphysItr)->isValid());
+      ATH_MSG_INFO("REGTEST TrigL2Bphys->roiId() returns " << (*L2BphysItr)->roiId());
+      ATH_MSG_INFO("REGTEST TrigL2Bphys->particleType() returns " << (*L2BphysItr)->particleType());
 
-			if( (*L2BphysItr)->secondaryDecay() != NULL){
-                const xAOD::TrigBphys * psecond =(*L2BphysItr)->secondaryDecay();
-				mLog <<MSG::INFO << "REGTEST Secondary decay info: " << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->eta() returns " << psecond->eta() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->phi() returns " << psecond->phi() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->mass() returns " << psecond->mass() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->fitmass() returns " << psecond->fitmass() << endreq;
-				//	mLog <<MSG::INFO << "REGTEST pSecondDecay->isValid() returns " << (*L2BphysItr)->secondaryDecayLink()->isValid() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->roiId() returns " << psecond->roiId() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->particleType() returns " << psecond->particleType() << endreq;
+      if( (*L2BphysItr)->secondaryDecay() != NULL){
+        const xAOD::TrigBphys * psecond =(*L2BphysItr)->secondaryDecay();
+        ATH_MSG_INFO("REGTEST Secondary decay info: ");
+        ATH_MSG_INFO("REGTEST pSecondDecay->eta() returns " << psecond->eta());
+        ATH_MSG_INFO("REGTEST pSecondDecay->phi() returns " << psecond->phi());
+        ATH_MSG_INFO("REGTEST pSecondDecay->mass() returns " << psecond->mass());
+        ATH_MSG_INFO("REGTEST pSecondDecay->fitmass() returns " << psecond->fitmass());
+        // ATH_MSG_INFO("REGTEST pSecondDecay->isValid() returns " << (*L2BphysItr)->secondaryDecayLink()->isValid());
+        ATH_MSG_INFO("REGTEST pSecondDecay->roiId() returns " << psecond->roiId());
+        ATH_MSG_INFO("REGTEST pSecondDecay->particleType() returns " << psecond->particleType());
+      } // end if secondary exists
 
-			} // end if secondary exists
+      const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*L2BphysItr)->trackParticleLinks();
+      if (trackVector.size() != 0) {
+        ATH_MSG_INFO(" REGTEST got track vector size: " << trackVector.size());
+      } else {
+        ATH_MSG_INFO(" REGTEST no track vector!!! " );
+      }
+      std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
+      for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
+        if (!(trkIt->isValid())) {
+          ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
+          continue;
+        }
+        //const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
+        const Trk::Perigee* trackPerigee=&((*(*trkIt))->perigeeParameters());
 
+        //      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endmsg;
+        double phi = trackPerigee->parameters()[Trk::phi];
+        double theta = trackPerigee->parameters()[Trk::theta];
+        double px = trackPerigee->momentum()[Trk::px];
+        double py = trackPerigee->momentum()[Trk::py];
+        double pt = sqrt(px*px + py*py);
+        double eta = -std::log(tan(theta/2));
+        
+        ATH_MSG_INFO("track " << itrk << " pt phi eta " << pt << " " <<
+                     phi << " " << eta);
+      }
+    }
+  }
 
+  ATH_MSG_INFO("REGTEST ==========END of TrigL2BphysContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigL2BphysContainer() succeeded");
 
-			const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*L2BphysItr)->trackParticleLinks();
- 			if (trackVector.size() != 0) {
-				mLog << MSG::INFO << " REGTEST got track vector size: " << trackVector.size() << endreq;
-			} else {
-				mLog << MSG::INFO << " REGTEST no track vector!!! "  << endreq;
-			}
-			std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
-			for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
-			  if (!(trkIt->isValid())) {
-			    mLog << MSG::WARNING << "TrackParticleContainer::Invalid ElementLink to track " << endreq;
-			    continue;
-			  }
-				//const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
-                const Trk::Perigee* trackPerigee=&((*(*trkIt))->perigeeParameters());
-
-				//      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
-				double phi = trackPerigee->parameters()[Trk::phi];
-				double theta = trackPerigee->parameters()[Trk::theta];
-				double px = trackPerigee->momentum()[Trk::px];
-				double py = trackPerigee->momentum()[Trk::py];
-				double pt = sqrt(px*px + py*py);
-				double eta = -std::log(tan(theta/2));
-
-				mLog << MSG::INFO << "track " << itrk << " pt phi eta " << pt << " " <<
-				phi << " " << eta << endreq;
-			}
-
-		}
-	}
-
-
-
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigL2BphysContainer DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpTrigL2BphysContainer() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -2640,7 +2474,6 @@ StatusCode TrigEDMChecker::dumpTrigL2BphysContainer() {
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpxAODJetContainer() {
-    MsgStream mLog( messageService(), name() );
     
     ATH_MSG_DEBUG("in dumpxAODJetContainer()");
     
@@ -2989,714 +2822,673 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigEFBjetContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigEFBjetContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigEFBjetContainer()");
+  ATH_MSG_INFO("REGTEST ==========START of TrigEFBjetContainer DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigEFBjetContainer DUMP===========" << endreq;
+  const DataHandle< TrigEFBjetContainer > trigEFBjet;
+  const DataHandle< TrigEFBjetContainer > lastTrigEFBjet;
 
-	const DataHandle< TrigEFBjetContainer > trigEFBjet;
-	const DataHandle< TrigEFBjetContainer > lastTrigEFBjet;
-
-	StatusCode sc = evtStore()->retrieve(trigEFBjet,lastTrigEFBjet);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigEFBjetContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigEFBjetContainers retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(trigEFBjet,lastTrigEFBjet);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigEFBjetContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigEFBjetContainers retrieved");
 
 
-	for (int i=0; trigEFBjet != lastTrigEFBjet; ++trigEFBjet, ++i) {
+  for (int i=0; trigEFBjet != lastTrigEFBjet; ++trigEFBjet, ++i) {
 
-		mLog << MSG::INFO << "REGTEST Looking at TrigEFBjetContainer " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at TrigEFBjetContainer " << i);
 
-		TrigEFBjetContainer::const_iterator EFBjetItr  = trigEFBjet->begin();
-		TrigEFBjetContainer::const_iterator EFBjetItrE = trigEFBjet->end();
+    TrigEFBjetContainer::const_iterator EFBjetItr  = trigEFBjet->begin();
+    TrigEFBjetContainer::const_iterator EFBjetItrE = trigEFBjet->end();
 
-		for (int j=0; EFBjetItr != EFBjetItrE; ++EFBjetItr, ++j ) {
+    for (int j=0; EFBjetItr != EFBjetItrE; ++EFBjetItr, ++j ) {
 
-			mLog <<MSG::INFO << "REGTEST Looking at TrigEFBjet " << j << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TrigEFBjet " << j);
 
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->prmVtx() returns " << (*EFBjetItr)->prmVtx() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->xComb() returns " << (*EFBjetItr)->xComb() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigEFBjet->x2D() returns " << (*EFBjetItr)->x2D() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->xIP1D() returns " << (*EFBjetItr)->xIP1D() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->isValid() returns " << (*EFBjetItr)->isValid() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->roiId() returns " << (*EFBjetItr)->roiId() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigEFBjet->xD0() returns " << (*EFBjetItr)->xD0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->xIP2D() returns " << (*EFBjetItr)->xIP2D() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigEFBjet->xZ0() returns " << (*EFBjetItr)->xZ0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->xIP3D() returns " << (*EFBjetItr)->xIP3D() << endreq;
-			// new one:
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->xCHI2() returns " << (*EFBjetItr)->xCHI2() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigEFBjet->x3D() returns " << (*EFBjetItr)->x3D() << endreq; // replaced by :
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->xSV() returns " << (*EFBjetItr)->xSV() << endreq;
-			//
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->xMVtx() returns " << (*EFBjetItr)->xMVtx() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet->xEVtx() returns " << (*EFBjetItr)->xEVtx() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigEFBjet-> xNVtx() returns " << (*EFBjetItr)-> xNVtx() << endreq;
-		}
-	}
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigEFBjetContainer DUMP===========" << endreq;
+      ATH_MSG_INFO("REGTEST TrigEFBjet->prmVtx() returns " << (*EFBjetItr)->prmVtx());
+      ATH_MSG_INFO("REGTEST TrigEFBjet->xComb() returns " << (*EFBjetItr)->xComb());
+      //      mLog <<MSG::INFO << "REGTEST TrigEFBjet->x2D() returns " << (*EFBjetItr)->x2D() << endmsg;
+      ATH_MSG_INFO("REGTEST TrigEFBjet->xIP1D() returns " << (*EFBjetItr)->xIP1D());
+      ATH_MSG_INFO("REGTEST TrigEFBjet->isValid() returns " << (*EFBjetItr)->isValid());
+      ATH_MSG_INFO("REGTEST TrigEFBjet->roiId() returns " << (*EFBjetItr)->roiId());
+      //      mLog <<MSG::INFO << "REGTEST TrigEFBjet->xD0() returns " << (*EFBjetItr)->xD0() << endmsg;
+      ATH_MSG_INFO("REGTEST TrigEFBjet->xIP2D() returns " << (*EFBjetItr)->xIP2D());
+      //      mLog <<MSG::INFO << "REGTEST TrigEFBjet->xZ0() returns " << (*EFBjetItr)->xZ0() << endmsg;
+      ATH_MSG_INFO("REGTEST TrigEFBjet->xIP3D() returns " << (*EFBjetItr)->xIP3D());
+      // new one:
+      ATH_MSG_INFO("REGTEST TrigEFBjet->xCHI2() returns " << (*EFBjetItr)->xCHI2());
+      //      mLog <<MSG::INFO << "REGTEST TrigEFBjet->x3D() returns " << (*EFBjetItr)->x3D() << endmsg; // replaced by :
+      ATH_MSG_INFO("REGTEST TrigEFBjet->xSV() returns " << (*EFBjetItr)->xSV());
+      //
+      ATH_MSG_INFO("REGTEST TrigEFBjet->xMVtx() returns " << (*EFBjetItr)->xMVtx());
+      ATH_MSG_INFO("REGTEST TrigEFBjet->xEVtx() returns " << (*EFBjetItr)->xEVtx());
+      ATH_MSG_INFO("REGTEST TrigEFBjet-> xNVtx() returns " << (*EFBjetItr)-> xNVtx());
+    }
+  }
+  ATH_MSG_INFO("REGTEST ==========END of TrigEFBjetContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigEFBjetContainer() succeeded");
 
-	mLog << MSG::DEBUG << "dumpTrigEFBjetContainer() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigL2BjetContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigL2BjetContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigL2BjetContainer()");
+  ATH_MSG_INFO("REGTEST ==========START of TrigL2BjetContainer DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigL2BjetContainer DUMP===========" << endreq;
+  const DataHandle< TrigL2BjetContainer > trigL2Bjet;
+  const DataHandle< TrigL2BjetContainer > lastTrigL2Bjet;
 
-	const DataHandle< TrigL2BjetContainer > trigL2Bjet;
-	const DataHandle< TrigL2BjetContainer > lastTrigL2Bjet;
-
-	StatusCode sc = evtStore()->retrieve(trigL2Bjet,lastTrigL2Bjet);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigL2BjetContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigL2BjetContainers retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(trigL2Bjet,lastTrigL2Bjet);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigL2BjetContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigL2BjetContainers retrieved");
 
 
-	for (int i=0; trigL2Bjet != lastTrigL2Bjet; ++trigL2Bjet, ++i) {
+  for (int i=0; trigL2Bjet != lastTrigL2Bjet; ++trigL2Bjet, ++i) {
 
-		mLog << MSG::INFO << "REGTEST Looking at TrigL2BjetContainer " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at TrigL2BjetContainer " << i);
 
-		TrigL2BjetContainer::const_iterator L2BjetItr  = trigL2Bjet->begin();
-		TrigL2BjetContainer::const_iterator L2BjetItrE = trigL2Bjet->end();
+    TrigL2BjetContainer::const_iterator L2BjetItr  = trigL2Bjet->begin();
+    TrigL2BjetContainer::const_iterator L2BjetItrE = trigL2Bjet->end();
 
-		for (int j=0; L2BjetItr != L2BjetItrE; ++L2BjetItr, ++j ) {
+    for (int j=0; L2BjetItr != L2BjetItrE; ++L2BjetItr, ++j ) {
 
-			mLog <<MSG::INFO << "REGTEST Looking at TrigL2Bjet " << j << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TrigL2Bjet " << j);
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->prmVtx() returns " << (*L2BjetItr)->prmVtx());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->xComb() returns " << (*L2BjetItr)->xComb());
+      // ATH_MSG_INFO("REGTEST TrigL2Bjet->x2D() returns " << (*L2BjetItr)->x2D());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->xIP1D() returns " << (*L2BjetItr)->xIP1D());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->isValid() returns " << (*L2BjetItr)->isValid());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->roiId() returns " << (*L2BjetItr)->roiId());
+      // ATH_MSG_INFO("REGTEST TrigL2Bjet->xD0() returns " << (*L2BjetItr)->xD0());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->xIP2D() returns " << (*L2BjetItr)->xIP2D());
+      // ATH_MSG_INFO("REGTEST TrigL2Bjet->xZ0() returns " << (*L2BjetItr)->xZ0());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->xIP3D() returns " << (*L2BjetItr)->xIP3D());
+      // new one:
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->xCHI2() returns " << (*L2BjetItr)->xCHI2());
+      // ATH_MSG_INFO("REGTEST TrigL2Bjet->x3D() returns " << (*L2BjetItr)->x3D());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->xSV() returns " << (*L2BjetItr)->xSV());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->xMVtx() returns " << (*L2BjetItr)->xMVtx());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet->xEVtx() returns " << (*L2BjetItr)->xEVtx());
+      ATH_MSG_INFO("REGTEST TrigL2Bjet-> xNVtx() returns " << (*L2BjetItr)-> xNVtx());
+    }
+  }
+  ATH_MSG_INFO("REGTEST ==========END of TrigL2BjetContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigL2BjetContainer() succeeded");
 
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->prmVtx() returns " << (*L2BjetItr)->prmVtx() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xComb() returns " << (*L2BjetItr)->xComb() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigL2Bjet->x2D() returns " << (*L2BjetItr)->x2D() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xIP1D() returns " << (*L2BjetItr)->xIP1D() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->isValid() returns " << (*L2BjetItr)->isValid() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->roiId() returns " << (*L2BjetItr)->roiId() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xD0() returns " << (*L2BjetItr)->xD0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xIP2D() returns " << (*L2BjetItr)->xIP2D() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xZ0() returns " << (*L2BjetItr)->xZ0() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xIP3D() returns " << (*L2BjetItr)->xIP3D() << endreq;
-			// new one:
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xCHI2() returns " << (*L2BjetItr)->xCHI2() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigL2Bjet->x3D() returns " << (*L2BjetItr)->x3D() << endreq; // replaced by :
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xSV() returns " << (*L2BjetItr)->xSV() << endreq;
-			//
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xMVtx() returns " << (*L2BjetItr)->xMVtx() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet->xEVtx() returns " << (*L2BjetItr)->xEVtx() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bjet-> xNVtx() returns " << (*L2BjetItr)-> xNVtx() << endreq;
-		}
-	}
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigL2BjetContainer DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpTrigL2BjetContainer() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpMuonFeature() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpMuonFeature()" << endreq;
+  ATH_MSG_DEBUG("in dumpMuonFeature()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of MuonFeature DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of MuonFeature DUMP===========");
 
-	const DataHandle< MuonFeature > MuFeature;
-	const DataHandle< MuonFeature > lastMuFeature;
+  const DataHandle< MuonFeature > MuFeature;
+  const DataHandle< MuonFeature > lastMuFeature;
 
-	StatusCode sc = evtStore()->retrieve(MuFeature,lastMuFeature);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No MuonFeature found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST MuonFeature retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(MuFeature,lastMuFeature);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No MuonFeature found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST MuonFeature retrieved");
 
 
-	for (int i=0; MuFeature != lastMuFeature; ++MuFeature, ++i) {
+  for (int i=0; MuFeature != lastMuFeature; ++MuFeature, ++i) {
 
-		const MuonFeature* thisMuFeature = &(*MuFeature);
+    const MuonFeature* thisMuFeature = &(*MuFeature);
 
-		mLog <<MSG::INFO << "REGTEST Looking at MuonFeature " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at MuonFeature " << i);
+    ATH_MSG_INFO("REGTEST MuonFeature->roiId() returns " << thisMuFeature->roiId());
+    ATH_MSG_INFO("REGTEST MuonFeature->eta() returns " << thisMuFeature->eta());
+    ATH_MSG_INFO("REGTEST MuonFeature->phi() returns " << thisMuFeature->phi());
+    ATH_MSG_INFO("REGTEST MuonFeature->saddress() returns " << thisMuFeature->saddress());
+    ATH_MSG_INFO("REGTEST MuonFeature->pt() returns " << thisMuFeature->pt());
+    ATH_MSG_INFO("REGTEST MuonFeature->radius() returns " << thisMuFeature->radius());
+    ATH_MSG_INFO("REGTEST MuonFeature->dir_phi() returns " << thisMuFeature->dir_phi());
+    ATH_MSG_INFO("REGTEST MuonFeature->zeta() returns " << thisMuFeature->zeta());
+    ATH_MSG_INFO("REGTEST MuonFeature->dir_zeta() returns " << thisMuFeature->dir_zeta());
+    ATH_MSG_INFO("REGTEST MuonFeature->beta() returns " << thisMuFeature->beta());
+  }
 
-		mLog <<MSG::INFO << "REGTEST MuonFeature->roiId() returns " << thisMuFeature->roiId() << endreq;
-		mLog <<MSG::INFO << "REGTEST MuonFeature->eta() returns " << thisMuFeature->eta() << endreq;
-		mLog <<MSG::INFO << "REGTEST MuonFeature->phi() returns " << thisMuFeature->phi() << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of MuonFeature DUMP===========");
+  ATH_MSG_DEBUG("dumpMuonFeature() succeeded");
 
-		mLog <<MSG::INFO << "REGTEST MuonFeature->saddress() returns " << thisMuFeature->saddress() << endreq;
-		mLog <<MSG::INFO << "REGTEST MuonFeature->pt() returns " << thisMuFeature->pt() << endreq;
-		mLog <<MSG::INFO << "REGTEST MuonFeature->radius() returns " << thisMuFeature->radius() << endreq;
-		mLog <<MSG::INFO << "REGTEST MuonFeature->dir_phi() returns " << thisMuFeature->dir_phi() << endreq;
-		mLog <<MSG::INFO << "REGTEST MuonFeature->zeta() returns " << thisMuFeature->zeta() << endreq;
-		mLog <<MSG::INFO << "REGTEST MuonFeature->dir_zeta() returns " << thisMuFeature->dir_zeta() << endreq;
-		mLog <<MSG::INFO << "REGTEST MuonFeature->beta() returns " << thisMuFeature->beta() << endreq;
-	}
-
-	mLog <<MSG::INFO << "REGTEST ==========END of MuonFeature DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpMuonFeature() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpCombinedMuonFeature() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpCombinedMuonFeature()" << endreq;
+  ATH_MSG_DEBUG("in dumpCombinedMuonFeature()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of CombinedMuonFeature DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of CombinedMuonFeature DUMP===========");
 
-	const DataHandle< CombinedMuonFeature > CombMuon;
-	const DataHandle< CombinedMuonFeature > lastCombMuon;
+  const DataHandle< CombinedMuonFeature > CombMuon;
+  const DataHandle< CombinedMuonFeature > lastCombMuon;
 
-	StatusCode sc = evtStore()->retrieve(CombMuon,lastCombMuon);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No CombinedMuonFeature found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST CombinedMuonFeatures retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(CombMuon,lastCombMuon);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No CombinedMuonFeature found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST CombinedMuonFeatures retrieved");
 
-	for (int i=0; CombMuon != lastCombMuon; ++CombMuon, ++i) {
+  for (int i=0; CombMuon != lastCombMuon; ++CombMuon, ++i) {
 
-		const CombinedMuonFeature* thisCombMuFeature = &(*CombMuon);
+    const CombinedMuonFeature* thisCombMuFeature = &(*CombMuon);
 
-		mLog << MSG::INFO << "REGTEST Looking at CombinedMuonFeature " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at CombinedMuonFeature " << i);
+    ATH_MSG_INFO("REGTEST TrigPhoton->pt() returns " << (thisCombMuFeature)->pt());
+    ATH_MSG_INFO("REGTEST TrigPhoton->sigma_pt() returns " << (thisCombMuFeature)->sigma_pt());
+    ATH_MSG_INFO("REGTEST MuonFeature info: ");
+    //      if ((thisCombMuFeature)->muFastTrack()) {
+    if ((thisCombMuFeature)->muFastTrackLink().isValid() ) {
+      ATH_MSG_INFO("REGTEST muFastTrack->eta() returns " << (thisCombMuFeature)->muFastTrack()->eta());
+      ATH_MSG_INFO("REGTEST muFastTrack->phi() returns " << (thisCombMuFeature)->muFastTrack()->phi());
+      ATH_MSG_INFO("REGTEST muFastTrack->radius() returns " << (thisCombMuFeature)->muFastTrack()->radius());
+      ATH_MSG_INFO("REGTEST muFastTrack->zeta() returns " << (thisCombMuFeature)->muFastTrack()->zeta());
+    } else {
+      ATH_MSG_INFO("CombinedMuonFeature has no muFastTrack" );
+    }
 
-		mLog <<MSG::INFO << "REGTEST TrigPhoton->pt() returns " << (thisCombMuFeature)->pt() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigPhoton->sigma_pt() returns " << (thisCombMuFeature)->sigma_pt() << endreq;
+    ATH_MSG_INFO("REGTEST TrigInDetTrack info: ");
+    //      if ((thisCombMuFeature)->IDTrack()) {
+    if ((thisCombMuFeature)->IDTrackLink().isValid() ) {
+      ATH_MSG_INFO("REGTEST IDTrack->algorithmId() returns " <<(thisCombMuFeature)->IDTrack()->algorithmId());
+      ATH_MSG_INFO("REGTEST IDTrack->chi2() returns " << (thisCombMuFeature)->IDTrack()->chi2());
+      ATH_MSG_INFO("REGTEST IDTrack->NStrawHits() returns " <<(thisCombMuFeature)->IDTrack()->NStrawHits());
+      ATH_MSG_INFO("REGTEST IDTrack->NStraw() returns " << (thisCombMuFeature)->IDTrack()->NStraw());
+      ATH_MSG_INFO("REGTEST IDTrack->NStrawTime() returns " <<(thisCombMuFeature)->IDTrack()->NStrawTime());
+      ATH_MSG_INFO("REGTEST IDTrack->NTRHits() returns " <<(thisCombMuFeature)->IDTrack()->NTRHits());
+    } else {
+      ATH_MSG_INFO("CombinedMuonFeature has no IDTrack" );
+    }
 
-		mLog <<MSG::INFO << "REGTEST MuonFeature info: " << endreq;
-		//      if ((thisCombMuFeature)->muFastTrack()) {
-		if ((thisCombMuFeature)->muFastTrackLink().isValid() ) {
-			mLog <<MSG::INFO << "REGTEST muFastTrack->eta() returns " << (thisCombMuFeature)->muFastTrack()->eta() << endreq;
-			mLog <<MSG::INFO << "REGTEST muFastTrack->phi() returns " << (thisCombMuFeature)->muFastTrack()->phi() << endreq;
-			mLog <<MSG::INFO << "REGTEST muFastTrack->radius() returns " << (thisCombMuFeature)->muFastTrack()->radius() << endreq;
-			mLog <<MSG::INFO << "REGTEST muFastTrack->zeta() returns " << (thisCombMuFeature)->muFastTrack()->zeta() << endreq;
-		} else {
-			mLog <<MSG::INFO << "CombinedMuonFeature has no muFastTrack"  << endreq;
-		}
+  }
 
-		mLog <<MSG::INFO << "REGTEST TrigInDetTrack info: " << endreq;
-		//      if ((thisCombMuFeature)->IDTrack()) {
-		if ((thisCombMuFeature)->IDTrackLink().isValid() ) {
-			mLog <<MSG::INFO << "REGTEST IDTrack->algorithmId() returns " <<(thisCombMuFeature)->IDTrack()->algorithmId() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDTrack->chi2() returns " << (thisCombMuFeature)->IDTrack()->chi2() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDTrack->NStrawHits() returns " <<(thisCombMuFeature)->IDTrack()->NStrawHits() << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of CombinedMuonFeature DUMP===========");
+  ATH_MSG_DEBUG("dumpCombinedMuonFeature() succeeded");
 
-			mLog <<MSG::INFO << "REGTEST IDTrack->NStraw() returns " << (thisCombMuFeature)->IDTrack()->NStraw() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDTrack->NStrawTime() returns " <<(thisCombMuFeature)->IDTrack()->NStrawTime() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDTrack->NTRHits() returns " <<(thisCombMuFeature)->IDTrack()->NTRHits() << endreq;
-		} else {
-			mLog <<MSG::INFO << "CombinedMuonFeature has no IDTrack"  << endreq;
-		}
-
-	}
-
-	mLog <<MSG::INFO << "REGTEST ==========END of CombinedMuonFeature DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpCombinedMuonFeature() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEDMChecker::dumpCombinedMuonFeatureContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpCombinedMuonFeatureContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpCombinedMuonFeatureContainer()");
+  ATH_MSG_INFO("REGTEST ==========START of CombinedMuonFeatureContainer DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of CombinedMuonFeatureContainer DUMP===========" << endreq;
+  const DataHandle< CombinedMuonFeatureContainer > CombMuon;
+  const DataHandle< CombinedMuonFeatureContainer > lastCombMuon;
 
-	const DataHandle< CombinedMuonFeatureContainer > CombMuon;
-	const DataHandle< CombinedMuonFeatureContainer > lastCombMuon;
+  StatusCode sc = evtStore()->retrieve(CombMuon,lastCombMuon);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No CombinedMuonFeatureContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST CombinedMuonFeaturesContainer retrieved");
 
-	StatusCode sc = evtStore()->retrieve(CombMuon,lastCombMuon);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No CombinedMuonFeatureContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST CombinedMuonFeaturesContainer retrieved" << endreq;
+  for (int j=0; CombMuon != lastCombMuon; ++CombMuon, ++j) {
+    ATH_MSG_INFO("REGTEST Looking at CombinedMuonFeatureContainer " << j);
 
-	for (int j=0; CombMuon != lastCombMuon; ++CombMuon, ++j) {
-		mLog << MSG::INFO << "REGTEST Looking at CombinedMuonFeatureContainer " << j << endreq;
+    const CombinedMuonFeatureContainer* container = &(*CombMuon);
+    CombinedMuonFeatureContainer::const_iterator muon;
 
-		const CombinedMuonFeatureContainer* container = &(*CombMuon);
-		CombinedMuonFeatureContainer::const_iterator muon;
+    int i = 0;
+    for ( muon = container->begin() ; muon != container->end(); ++i, ++muon ) {
+      const CombinedMuonFeature* thisCombMuFeature = *muon;
+      ATH_MSG_INFO("REGTEST Looking at CombinedMuonFeature " << i);
 
-		int i = 0;
-		for ( muon = container->begin() ; muon != container->end(); ++i, ++muon ) {
-			const CombinedMuonFeature* thisCombMuFeature = *muon;
-			mLog << MSG::INFO << "REGTEST Looking at CombinedMuonFeature " << i << endreq;
+      ATH_MSG_INFO("REGTEST CombinedMuonFeature->pt() returns " << (thisCombMuFeature)->pt());
+      ATH_MSG_INFO("REGTEST CombinedMuonFeature->sigma_pt() returns " << (thisCombMuFeature)->sigma_pt());
 
-			mLog <<MSG::INFO << "REGTEST CombinedMuonFeature->pt() returns " << (thisCombMuFeature)->pt() << endreq;
-			mLog <<MSG::INFO << "REGTEST CombinedMuonFeature->sigma_pt() returns " << (thisCombMuFeature)->sigma_pt() << endreq;
+      ATH_MSG_INFO("REGTEST MuonFeature info: ");
+      if ( thisCombMuFeature->muFastTrackLink().isValid() ) {
+        ATH_MSG_INFO("REGTEST muFastTrack->eta() returns " << (thisCombMuFeature)->muFastTrack()->eta());
+        ATH_MSG_INFO("REGTEST muFastTrack->phi() returns " << (thisCombMuFeature)->muFastTrack()->phi());
+        ATH_MSG_INFO("REGTEST muFastTrack->radius() returns " << (thisCombMuFeature)->muFastTrack()->radius());
+        ATH_MSG_INFO("REGTEST muFastTrack->zeta() returns " << (thisCombMuFeature)->muFastTrack()->zeta());
+      } else {
+        ATH_MSG_WARNING("MuonFeature has no muFastTrack!" );
+      }
 
-			mLog <<MSG::INFO << "REGTEST MuonFeature info: " << endreq;
-			if ( thisCombMuFeature->muFastTrackLink().isValid() ) {
-				mLog <<MSG::INFO << "REGTEST muFastTrack->eta() returns " << (thisCombMuFeature)->muFastTrack()->eta() << endreq;
-				mLog <<MSG::INFO << "REGTEST muFastTrack->phi() returns " << (thisCombMuFeature)->muFastTrack()->phi() << endreq;
-				mLog <<MSG::INFO << "REGTEST muFastTrack->radius() returns " << (thisCombMuFeature)->muFastTrack()->radius() << endreq;
-				mLog <<MSG::INFO << "REGTEST muFastTrack->zeta() returns " << (thisCombMuFeature)->muFastTrack()->zeta() << endreq;
-			} else {
-				mLog <<MSG::WARNING << "MuonFeature has no muFastTrack!"  << endreq;
-			}
+      ATH_MSG_INFO("REGTEST TrigInDetTrack info: ");
+      if ( thisCombMuFeature->IDTrackLink().isValid() ) {
+        ATH_MSG_INFO("REGTEST IDTrack->algorithmId() returns " <<(thisCombMuFeature)->IDTrack()->algorithmId());
+        ATH_MSG_INFO("REGTEST IDTrack->chi2() returns " << (thisCombMuFeature)->IDTrack()->chi2());
+        ATH_MSG_INFO("REGTEST IDTrack->NStrawHits() returns " <<(thisCombMuFeature)->IDTrack()->NStrawHits());
 
-			mLog <<MSG::INFO << "REGTEST TrigInDetTrack info: " << endreq;
-			if ( thisCombMuFeature->IDTrackLink().isValid() ) {
-				mLog <<MSG::INFO << "REGTEST IDTrack->algorithmId() returns " <<(thisCombMuFeature)->IDTrack()->algorithmId() << endreq;
-				mLog <<MSG::INFO << "REGTEST IDTrack->chi2() returns " << (thisCombMuFeature)->IDTrack()->chi2() << endreq;
-				mLog <<MSG::INFO << "REGTEST IDTrack->NStrawHits() returns " <<(thisCombMuFeature)->IDTrack()->NStrawHits() << endreq;
+        ATH_MSG_INFO("REGTEST IDTrack->NStraw() returns " << (thisCombMuFeature)->IDTrack()->NStraw());
+        ATH_MSG_INFO("REGTEST IDTrack->NStrawTime() returns " <<(thisCombMuFeature)->IDTrack()->NStrawTime());
+        ATH_MSG_INFO("REGTEST IDTrack->NTRHits() returns " <<(thisCombMuFeature)->IDTrack()->NTRHits());
+      } else {
+        ATH_MSG_WARNING("MuonFeature has no IDTrack!" );
+      }
 
-				mLog <<MSG::INFO << "REGTEST IDTrack->NStraw() returns " << (thisCombMuFeature)->IDTrack()->NStraw() << endreq;
-				mLog <<MSG::INFO << "REGTEST IDTrack->NStrawTime() returns " <<(thisCombMuFeature)->IDTrack()->NStrawTime() << endreq;
-				mLog <<MSG::INFO << "REGTEST IDTrack->NTRHits() returns " <<(thisCombMuFeature)->IDTrack()->NTRHits() << endreq;
-			} else {
-				mLog <<MSG::WARNING << "MuonFeature has no IDTrack!"  << endreq;
-			}
-
-		}
-	}
-	return StatusCode::SUCCESS;
+    }
+  }
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigEMCluster() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigEMCluster()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigEMCluster()");
+  ATH_MSG_INFO("REGTEST ==========START of TrigEMCluster DUMP===========");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigEMCluster DUMP===========" << endreq;
+  const DataHandle< TrigEMCluster > EMCluster;
+  const DataHandle< TrigEMCluster > lastEMCluster;
 
-	const DataHandle< TrigEMCluster > EMCluster;
-	const DataHandle< TrigEMCluster > lastEMCluster;
+  StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigEMCluster found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigEMCluster retrieved");
 
-	StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigEMCluster found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigEMCluster retrieved" << endreq;
+  for (int i=0; EMCluster != lastEMCluster; ++EMCluster, ++i) {
 
+    const TrigEMCluster* thisEMCluster = &(*EMCluster);
 
-	for (int i=0; EMCluster != lastEMCluster; ++EMCluster, ++i) {
+    ATH_MSG_INFO("REGTEST Looking at TrigEMCluster " << i);
 
-		const TrigEMCluster* thisEMCluster = &(*EMCluster);
+    ATH_MSG_INFO("REGTEST TrigEMCluster->energy() returns " << thisEMCluster->energy());
+    ATH_MSG_INFO("REGTEST TrigEMCluster->e() returns " << thisEMCluster->e());
+    ATH_MSG_INFO("REGTEST TrigEMCluster->phi() returns " << thisEMCluster->phi());
 
-		mLog <<MSG::INFO << "REGTEST Looking at TrigEMCluster " << i << endreq;
+    ATH_MSG_INFO("REGTEST TrigEMCluster->eta() returns " << thisEMCluster->eta());
+    ATH_MSG_INFO("REGTEST TrigEMCluster->e237() returns " << thisEMCluster->e237());
+    ATH_MSG_INFO("REGTEST TrigEMCluster->e277() returns " << thisEMCluster->e277());
+    ATH_MSG_INFO("REGTEST TrigEMCluster->fracs1() returns " << thisEMCluster->fracs1());
+    ATH_MSG_INFO("REGTEST TrigEMCluster->weta2() returns " << thisEMCluster->weta2());
+    ATH_MSG_INFO("REGTEST TrigEMCluster->ehad1() returns " << thisEMCluster->ehad1());
+    ATH_MSG_INFO("REGTEST TrigEMCluster->Eta1() returns " << thisEMCluster->Eta1());
+  }
 
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->energy() returns " << thisEMCluster->energy() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->e() returns " << thisEMCluster->e() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->phi() returns " << thisEMCluster->phi() << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of TrigEMCluster DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigEMCluster() succeeded");
 
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->eta() returns " << thisEMCluster->eta() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->e237() returns " << thisEMCluster->e237() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->e277() returns " << thisEMCluster->e277() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->fracs1() returns " << thisEMCluster->fracs1() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->weta2() returns " << thisEMCluster->weta2() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->ehad1() returns " << thisEMCluster->ehad1() << endreq;
-		mLog <<MSG::INFO << "REGTEST TrigEMCluster->Eta1() returns " << thisEMCluster->Eta1() << endreq;
-	}
-
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigEMCluster DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpTrigEMCluster() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEDMChecker::dumpxAODTrigEMCluster() {
-        MsgStream mLog( messageService(), name() );
 
-        mLog << MSG::DEBUG << "in dumpxAODTrigEMCluster()" << endreq;
+  ATH_MSG_DEBUG("in dumpxAODTrigEMCluster()");
 
-        mLog <<MSG::INFO << "REGTEST ==========START of TrigEMCluster DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigEMCluster DUMP===========");
 
-        const DataHandle< xAOD::TrigEMCluster > EMCluster;
-        const DataHandle< xAOD::TrigEMCluster > lastEMCluster;
+  const DataHandle< xAOD::TrigEMCluster > EMCluster;
+  const DataHandle< xAOD::TrigEMCluster > lastEMCluster;
 
-        StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
-        if (sc.isFailure()) {
-                mLog << MSG::INFO << "REGTEST No xAOD::TrigEMCluster found" << endreq;
-                return  StatusCode::SUCCESS;
-        }
-        mLog << MSG::INFO << "REGTEST xAOD::TrigEMCluster retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No xAOD::TrigEMCluster found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster retrieved");
 
 
-        for (int i=0; EMCluster != lastEMCluster; ++EMCluster, ++i) {
+  for (int i=0; EMCluster != lastEMCluster; ++EMCluster, ++i) {
 
-                const xAOD::TrigEMCluster* thisEMCluster = &(*EMCluster);
+    const xAOD::TrigEMCluster* thisEMCluster = &(*EMCluster);
 
-                mLog <<MSG::INFO << "REGTEST Looking at xAOD::TrigEMCluster " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at xAOD::TrigEMCluster " << i);
+    
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->energy() returns " << thisEMCluster->energy());
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->e() returns " << thisEMCluster->energy());
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->phi() returns " << thisEMCluster->phi());
 
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->energy() returns " << thisEMCluster->energy() << endreq;
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->e() returns " << thisEMCluster->energy() << endreq;
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->phi() returns " << thisEMCluster->phi() << endreq;
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->eta() returns " << thisEMCluster->eta());
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->e237() returns " << thisEMCluster->e237());
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->e277() returns " << thisEMCluster->e277());
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->fracs1() returns " << thisEMCluster->fracs1());
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->weta2() returns " << thisEMCluster->weta2());
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->ehad1() returns " << thisEMCluster->ehad1());
+    ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->Eta1() returns " << thisEMCluster->eta1());
+  }
 
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->eta() returns " << thisEMCluster->eta() << endreq;
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->e237() returns " << thisEMCluster->e237() << endreq;
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->e277() returns " << thisEMCluster->e277() << endreq;
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->fracs1() returns " << thisEMCluster->fracs1() << endreq;
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->weta2() returns " << thisEMCluster->weta2() << endreq;
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->ehad1() returns " << thisEMCluster->ehad1() << endreq;
-                mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->Eta1() returns " << thisEMCluster->eta1() << endreq;
-        }
+  ATH_MSG_INFO("REGTEST ==========END of xAOD::TrigEMCluster DUMP===========");
+  ATH_MSG_DEBUG("dumpxAODTrigEMCluster() succeeded");
 
-        mLog <<MSG::INFO << "REGTEST ==========END of xAOD::TrigEMCluster DUMP===========" << endreq;
-
-        mLog << MSG::DEBUG << "dumpxAODTrigEMCluster() succeeded" << endreq;
-
-        return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigTauClusterContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTrigTauClusterContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigTauClusterContainer()");
 
-	mLog <<MSG::INFO << "REGTEST ==========START of TrigTauClusterContainer/TrigTauClusterDetailsContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigTauClusterContainer/TrigTauClusterDetailsContainer DUMP===========");
 
-	const DataHandle< TrigTauClusterContainer > TauCluster;
-	const DataHandle< TrigTauClusterContainer > lastTauCluster;
+  const DataHandle< TrigTauClusterContainer > TauCluster;
+  const DataHandle< TrigTauClusterContainer > lastTauCluster;
 
-	StatusCode sc = evtStore()->retrieve(TauCluster,lastTauCluster);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TrigTauClusterContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigTauClusterContainer retrieved" << endreq;
-
-
-	int nClusters = 0;
-	for (int i=0; TauCluster != lastTauCluster; ++TauCluster, ++i) {
-
-                mLog << MSG::INFO << "REGTEST Looking at TrigTauClusterContainer " << i << endreq;
-
-                TrigTauClusterContainer::const_iterator TauClusterItr  = TauCluster->begin();
-                TrigTauClusterContainer::const_iterator TauClusterItrE = TauCluster->end();
-
-                for (int j=0; TauClusterItr != TauClusterItrE; ++TauClusterItr, ++j ) {
-		  nClusters++;
-                  mLog <<MSG::INFO << "REGTEST Looking at TrigTauCluster " << j << endreq;
-
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->energy() returns " << (*TauClusterItr)->energy() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->et() returns " << (*TauClusterItr)->et() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->EMCalibEnergy() returns " << (*TauClusterItr)->EMCalibEnergy() << endreq;
-
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->EMenergy() returns " << (*TauClusterItr)->EMenergy() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->HADenergy() returns " << (*TauClusterItr)->HADenergy() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->eta() returns " << (*TauClusterItr)->eta() << endreq;
-	   	  mLog <<MSG::INFO << "REGTEST TrigTauCluster->phi() returns " << (*TauClusterItr)->phi() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->IsoFrac() returns " << (*TauClusterItr)->IsoFrac() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->stripWidth() returns " << (*TauClusterItr)->stripWidth() << endreq;
-		  mLog <<MSG::INFO << "REGTEST TrigTauCluster->numStripCells() returns " << (*TauClusterItr)->numStripCells() << endreq;
-                  mLog <<MSG::INFO << "REGTEST TrigTauCluster->CaloRadius() returns " << (*TauClusterItr)->CaloRadius() << endreq;
-                  mLog <<MSG::INFO << "REGTEST TrigTauCluster->numTotCells() returns " << (*TauClusterItr)->numTotCells() << endreq;
+  StatusCode sc = evtStore()->retrieve(TauCluster,lastTauCluster);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigTauClusterContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigTauClusterContainer retrieved");
 
 
-		  if( (*TauClusterItr)->clusterDetails() == 0 )
-		    mLog <<MSG::WARNING << "REGTEST TrigTauCluster-> Details link is MISSING " << endreq;
-		  else{
-		    mLog <<MSG::INFO << "REGTEST TrigTauCluster->Energy in Narrow cone : EM[0/1/2/3]="
-			 <<(*TauClusterItr)->EMenergyNarrow(0) << " " << (*TauClusterItr)->EMenergyNarrow(1) << " "
-			 <<(*TauClusterItr)->EMenergyNarrow(2) << " " << (*TauClusterItr)->EMenergyNarrow(3) <<endreq;
-		    mLog <<MSG::INFO << "REGTEST TrigTauCluster->Energy in Narrow cone : HAD[0/1/2]="
-			 <<(*TauClusterItr)->HADenergyNarrow(0) << " " << (*TauClusterItr)->HADenergyNarrow(1) << " "
-			 <<(*TauClusterItr)->HADenergyNarrow(2) <<endreq;
-		  }
-                }
-	}
+  int nClusters = 0;
+  for (int i=0; TauCluster != lastTauCluster; ++TauCluster, ++i) {
 
-	int nDetails = 0;
-	const DataHandle< TrigTauClusterDetailsContainer > TauDetailsCluster;
-	const DataHandle< TrigTauClusterDetailsContainer > lastTauDetailsCluster;
-	sc = evtStore()->retrieve(TauDetailsCluster,lastTauDetailsCluster);
-	if (sc.isFailure()) {
-	        mLog << MSG::INFO << "REGTEST No TrigTauDetailsClusterContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TrigTauDetailsClusterContainer retrieved" << endreq;
+    ATH_MSG_INFO("REGTEST Looking at TrigTauClusterContainer " << i);
 
-	for (int i=0; TauDetailsCluster != lastTauDetailsCluster; ++TauDetailsCluster, ++i) {
+    TrigTauClusterContainer::const_iterator TauClusterItr  = TauCluster->begin();
+    TrigTauClusterContainer::const_iterator TauClusterItrE = TauCluster->end();
 
-                mLog << MSG::INFO << "REGTEST Looking at TrigTauClusterDetailsContainer " << i << endreq;
+    for (int j=0; TauClusterItr != TauClusterItrE; ++TauClusterItr, ++j ) {
+      nClusters++;
+      ATH_MSG_INFO("REGTEST Looking at TrigTauCluster " << j);
 
-                TrigTauClusterDetailsContainer::const_iterator TauDetailsClusterItr  = TauDetailsCluster->begin();
-                TrigTauClusterDetailsContainer::const_iterator TauDetailsClusterItrE = TauDetailsCluster->end();
+      ATH_MSG_INFO("REGTEST TrigTauCluster->energy() returns " << (*TauClusterItr)->energy());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->et() returns " << (*TauClusterItr)->et());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->EMCalibEnergy() returns " << (*TauClusterItr)->EMCalibEnergy());
 
-                for (int j=0; TauDetailsClusterItr != TauDetailsClusterItrE; ++TauDetailsClusterItr, ++j ) {
-		  nDetails++;
-                  mLog <<MSG::INFO << "REGTEST Looking at TrigTauClusterDetails " << j << endreq;
-
-		  for(unsigned int i = 0; i<4; ++i )
-		    {
-		      mLog <<MSG::INFO << "REGTEST TrigTauClusterDetails-> EM["<<i <<"] Radius/EnergyNar/EnergyMid/EnergyWid returns "
-			   << (*TauDetailsClusterItr)->EMRadius(i) << " "
-			   << (*TauDetailsClusterItr)->EMenergyNarrow(i) << " "
-			   << (*TauDetailsClusterItr)->EMenergyMedium(i) << " "
-			   << (*TauDetailsClusterItr)->EMenergyWide(i) << endreq;
-		    }
-		  for(unsigned int i = 0; i<3; ++i )
-		    {
-		      mLog <<MSG::INFO << "REGTEST TrigTauClusterDetails-> HAD["<<i <<"] Radius/EnergyNar/EnergyMid/EnergyWid returns "
-			   << (*TauDetailsClusterItr)->HADRadius(i) << " "
-			   << (*TauDetailsClusterItr)->HADenergyNarrow(i) << " "
-			   << (*TauDetailsClusterItr)->HADenergyMedium(i) << " "
-			   << (*TauDetailsClusterItr)->HADenergyWide(i) << endreq;
-		    }
-
-		}
-	}
-
-	if( nDetails != nClusters)
-	  mLog <<MSG::WARNING << "REGTEST inconsistent number of TrigTauClusters ("<< nClusters<< ") and TrigTauClusterDetails ("
-	       << nDetails << ")" << endreq;
+      ATH_MSG_INFO("REGTEST TrigTauCluster->EMenergy() returns " << (*TauClusterItr)->EMenergy());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->HADenergy() returns " << (*TauClusterItr)->HADenergy());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->eta() returns " << (*TauClusterItr)->eta());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->phi() returns " << (*TauClusterItr)->phi());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->IsoFrac() returns " << (*TauClusterItr)->IsoFrac());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->stripWidth() returns " << (*TauClusterItr)->stripWidth());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->numStripCells() returns " << (*TauClusterItr)->numStripCells());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->CaloRadius() returns " << (*TauClusterItr)->CaloRadius());
+      ATH_MSG_INFO("REGTEST TrigTauCluster->numTotCells() returns " << (*TauClusterItr)->numTotCells());
 
 
+      if( (*TauClusterItr)->clusterDetails() == 0 )
+        ATH_MSG_WARNING("REGTEST TrigTauCluster-> Details link is MISSING ");
+      else{
+        ATH_MSG_INFO("REGTEST TrigTauCluster->Energy in Narrow cone : EM[0/1/2/3]="
+                     <<(*TauClusterItr)->EMenergyNarrow(0) << " " << (*TauClusterItr)->EMenergyNarrow(1) << " "
+                     <<(*TauClusterItr)->EMenergyNarrow(2) << " ");
+        ATH_MSG_INFO("REGTEST TrigTauCluster->Energy in Narrow cone : HAD[0/1/2]="
+                     <<(*TauClusterItr)->HADenergyNarrow(0) << " " << (*TauClusterItr)->HADenergyNarrow(1) << " "
+                     <<(*TauClusterItr)->HADenergyNarrow(2));
+      }
+    }
+  }
 
-	mLog <<MSG::INFO << "REGTEST ==========END of TrigTauClusterContainer/TrigTauClusterDetailsContainer DUMP===========" << endreq;
+  int nDetails = 0;
+  const DataHandle< TrigTauClusterDetailsContainer > TauDetailsCluster;
+  const DataHandle< TrigTauClusterDetailsContainer > lastTauDetailsCluster;
+  sc = evtStore()->retrieve(TauDetailsCluster,lastTauDetailsCluster);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigTauDetailsClusterContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigTauDetailsClusterContainer retrieved");
 
-	mLog << MSG::DEBUG << "dumpTrigTauClusterContainer() succeeded" << endreq;
+  for (int i=0; TauDetailsCluster != lastTauDetailsCluster; ++TauDetailsCluster, ++i) {
 
-	return StatusCode::SUCCESS;
+    ATH_MSG_INFO("REGTEST Looking at TrigTauClusterDetailsContainer " << i);
+
+    TrigTauClusterDetailsContainer::const_iterator TauDetailsClusterItr  = TauDetailsCluster->begin();
+    TrigTauClusterDetailsContainer::const_iterator TauDetailsClusterItrE = TauDetailsCluster->end();
+
+    for (int j=0; TauDetailsClusterItr != TauDetailsClusterItrE; ++TauDetailsClusterItr, ++j ) {
+      nDetails++;
+      ATH_MSG_INFO("REGTEST Looking at TrigTauClusterDetails " << j);
+
+      for(unsigned int i = 0; i<4; ++i ) {
+        ATH_MSG_INFO("REGTEST TrigTauClusterDetails-> EM["<<i <<"] Radius/EnergyNar/EnergyMid/EnergyWid returns "
+                     << (*TauDetailsClusterItr)->EMRadius(i) << " "
+                     << (*TauDetailsClusterItr)->EMenergyNarrow(i) << " "
+                     << (*TauDetailsClusterItr)->EMenergyMedium(i) << " "
+                     << (*TauDetailsClusterItr)->EMenergyWide(i));
+      }
+      for(unsigned int i = 0; i<3; ++i ) {
+        ATH_MSG_INFO("REGTEST TrigTauClusterDetails-> HAD["<<i <<"] Radius/EnergyNar/EnergyMid/EnergyWid returns "
+                     << (*TauDetailsClusterItr)->HADRadius(i) << " "
+                     << (*TauDetailsClusterItr)->HADenergyNarrow(i) << " "
+                     << (*TauDetailsClusterItr)->HADenergyMedium(i) << " "
+                     << (*TauDetailsClusterItr)->HADenergyWide(i));
+      }      
+    }
+  }
+
+  if( nDetails != nClusters)
+    ATH_MSG_WARNING("REGTEST inconsistent number of TrigTauClusters ("<< nClusters<< ") and TrigTauClusterDetails ("
+                    << nDetails << ")");
+
+  ATH_MSG_INFO("REGTEST ==========END of TrigTauClusterContainer/TrigTauClusterDetailsContainer DUMP===========");
+
+  ATH_MSG_DEBUG("dumpTrigTauClusterContainer() succeeded");
+
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTrigEMClusterContainer() {
-        MsgStream mLog( messageService(), name() );
 
-        mLog << MSG::DEBUG << "in dumpTrigEMClusterContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpTrigEMClusterContainer()");
 
-        mLog <<MSG::INFO << "REGTEST ==========START of TrigEMClusterContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of TrigEMClusterContainer DUMP===========");
 
-        const DataHandle< TrigEMClusterContainer > EMCluster;
-        const DataHandle< TrigEMClusterContainer > lastEMCluster;
+  const DataHandle< TrigEMClusterContainer > EMCluster;
+  const DataHandle< TrigEMClusterContainer > lastEMCluster;
 
-        StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
-        if (sc.isFailure()) {
-                mLog << MSG::INFO << "REGTEST No TrigEMClusterContainer found" << endreq;
-                return  StatusCode::SUCCESS;
-        }
-        mLog << MSG::INFO << "REGTEST TrigEMClusterContainer retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TrigEMClusterContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TrigEMClusterContainer retrieved");
 
 
-        for (int i=0; EMCluster != lastEMCluster; ++EMCluster, ++i) {
+  for (int i=0; EMCluster != lastEMCluster; ++EMCluster, ++i) {
 
-                mLog << MSG::INFO << "REGTEST Looking at TrigEMClusterContainer " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at TrigEMClusterContainer " << i);
 
-                TrigEMClusterContainer::const_iterator EMClusterItr  = EMCluster->begin();
-                TrigEMClusterContainer::const_iterator EMClusterItrE = EMCluster->end();
+    TrigEMClusterContainer::const_iterator EMClusterItr  = EMCluster->begin();
+    TrigEMClusterContainer::const_iterator EMClusterItrE = EMCluster->end();
 
-                for (int j=0; EMClusterItr != EMClusterItrE; ++EMClusterItr, ++j ) {
+    for (int j=0; EMClusterItr != EMClusterItrE; ++EMClusterItr, ++j ) {
 
-                  mLog <<MSG::INFO << "REGTEST Looking at TrigEMCluster " << j << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TrigEMCluster " << j);
 
-                  mLog <<MSG::INFO << "REGTEST TrigEMCluster->energy() returns " << (*EMClusterItr)->energy() << endreq;
-                  mLog <<MSG::INFO << "REGTEST TrigEMCluster->et() returns " << (*EMClusterItr)->et() << endreq;
-                  mLog <<MSG::INFO << "REGTEST TrigEMCluster->eta() returns " << (*EMClusterItr)->eta() << endreq;
-                  mLog <<MSG::INFO << "REGTEST TrigEMCluster->phi() returns " << (*EMClusterItr)->phi() << endreq;
-                  mLog <<MSG::INFO << "REGTEST TrigEMCluster->print() gives" << endreq;
-		  int level = mLog.level();
-		  // little trick to print out stuff
-		  mLog.setLevel(MSG::DEBUG);
-		  (*EMClusterItr)->print(mLog);
-		  mLog.setLevel(level);
-                }
-        }
+      ATH_MSG_INFO("REGTEST TrigEMCluster->energy() returns " << (*EMClusterItr)->energy());
+      ATH_MSG_INFO("REGTEST TrigEMCluster->et() returns " << (*EMClusterItr)->et());
+      ATH_MSG_INFO("REGTEST TrigEMCluster->eta() returns " << (*EMClusterItr)->eta());
+      ATH_MSG_INFO("REGTEST TrigEMCluster->phi() returns " << (*EMClusterItr)->phi());
+      ATH_MSG_INFO("REGTEST TrigEMCluster->print() gives");
+      int level = msg().level();
+      // little trick to print out stuff
+      msg().setLevel(MSG::DEBUG);
+      (*EMClusterItr)->print(msg());
+      msg().setLevel(level);
+    }
+  }
 
-        mLog <<MSG::INFO << "REGTEST ==========END of TrigEMClusterContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of TrigEMClusterContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigEMClusterContainer() succeeded");
 
-        mLog << MSG::DEBUG << "dumpTrigEMClusterContainer() succeeded" << endreq;
-
-        return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEDMChecker::dumpxAODTrigEMClusterContainer() {
-        MsgStream mLog( messageService(), name() );
 
-        mLog << MSG::DEBUG << "in dumpxAODTrigEMClusterContainer()" << endreq;
+  ATH_MSG_DEBUG("in dumpxAODTrigEMClusterContainer()");
 
-        mLog <<MSG::INFO << "REGTEST ==========START of xAODTrigEMClusterContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of xAODTrigEMClusterContainer DUMP===========");
 
-        const DataHandle< xAOD::TrigEMClusterContainer > EMCluster;
-        const DataHandle< xAOD::TrigEMClusterContainer > lastEMCluster;
+  const DataHandle< xAOD::TrigEMClusterContainer > EMCluster;
+  const DataHandle< xAOD::TrigEMClusterContainer > lastEMCluster;
 
-        StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
-        if (sc.isFailure()) {
-                mLog << MSG::INFO << "REGTEST No xAOD::TrigEMClusterContainer found" << endreq;
-                return  StatusCode::SUCCESS;
-        }
-        mLog << MSG::INFO << "REGTEST xAOD::TrigEMClusterContainer retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No xAOD::TrigEMClusterContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST xAOD::TrigEMClusterContainer retrieved");
 
 
-        for (int i=0; EMCluster != lastEMCluster; ++EMCluster, ++i) {
+  for (int i=0; EMCluster != lastEMCluster; ++EMCluster, ++i) {
 
-                mLog << MSG::INFO << "REGTEST Looking at xAOD::TrigEMClusterContainer " << i << endreq;
+    ATH_MSG_INFO("REGTEST Looking at xAOD::TrigEMClusterContainer " << i);
 
-                xAOD::TrigEMClusterContainer::const_iterator EMClusterItr  = EMCluster->begin();
-                xAOD::TrigEMClusterContainer::const_iterator EMClusterItrE = EMCluster->end();
+    xAOD::TrigEMClusterContainer::const_iterator EMClusterItr  = EMCluster->begin();
+    xAOD::TrigEMClusterContainer::const_iterator EMClusterItrE = EMCluster->end();
 
-                for (int j=0; EMClusterItr != EMClusterItrE; ++EMClusterItr, ++j ) {
+    for (int j=0; EMClusterItr != EMClusterItrE; ++EMClusterItr, ++j ) {
 
-                  mLog <<MSG::INFO << "REGTEST Looking at xAOD::TrigEMCluster " << j << endreq;
+      ATH_MSG_INFO("REGTEST Looking at xAOD::TrigEMCluster " << j);
+      ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->energy() returns " << (*EMClusterItr)->energy());
+      ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->et() returns " << (*EMClusterItr)->et());
+      ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->eta() returns " << (*EMClusterItr)->eta());
+      ATH_MSG_INFO("REGTEST xAOD::TrigEMCluster->phi() returns " << (*EMClusterItr)->phi());
+      //msg() <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->print() gives" << endmsg;
+      //int level = msg().level();
+      // little trick to print out stuff
+      //msg().setLevel(MSG::DEBUG);
+      //(*EMClusterItr)->print(msg());
+      //msg().setLevel(level);
+    }
+  }
 
-                  mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->energy() returns " << (*EMClusterItr)->energy() << endreq;
-                  mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->et() returns " << (*EMClusterItr)->et() << endreq;
-                  mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->eta() returns " << (*EMClusterItr)->eta() << endreq;
-                  mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->phi() returns " << (*EMClusterItr)->phi() << endreq;
-                  //mLog <<MSG::INFO << "REGTEST xAOD::TrigEMCluster->print() gives" << endreq;
-                  //int level = mLog.level();
-                  // little trick to print out stuff
-                  //mLog.setLevel(MSG::DEBUG);
-                  //(*EMClusterItr)->print(mLog);
-                  //mLog.setLevel(level);
-                }
-          }
+  ATH_MSG_INFO("REGTEST ==========END of TrigEMClusterContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTrigEMClusterContainer() succeeded");
 
-          mLog <<MSG::INFO << "REGTEST ==========END of TrigEMClusterContainer DUMP===========" << endreq;
-
-          mLog << MSG::DEBUG << "dumpTrigEMClusterContainer() succeeded" << endreq;
-
-          return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTileMuFeatureContainer() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "in dumpTileMuFeatureContainer()" << endreq;
-	mLog <<MSG::INFO << "REGTEST ==========START of TileMuFeatureContainer DUMP===========" << endreq;
+  ATH_MSG_DEBUG("in dumpTileMuFeatureContainer()");
+  ATH_MSG_INFO("REGTEST ==========START of TileMuFeatureContainer DUMP===========");
 
-	const DataHandle< TileMuFeatureContainer > TileMu;
-	const DataHandle< TileMuFeatureContainer > lastTileMu;
+  const DataHandle< TileMuFeatureContainer > TileMu;
+  const DataHandle< TileMuFeatureContainer > lastTileMu;
 
-	StatusCode sc = evtStore()->retrieve(TileMu, lastTileMu);
-	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No TileMuFeatureContainer found" << endreq;
-		return  StatusCode::SUCCESS;
-	}
-	mLog << MSG::INFO << "REGTEST TileMuFeatureContainer retrieved" << endreq;
+  StatusCode sc = evtStore()->retrieve(TileMu, lastTileMu);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TileMuFeatureContainer found");
+    return  StatusCode::SUCCESS;
+  }
+  ATH_MSG_INFO("REGTEST TileMuFeatureContainer retrieved");
 
-	for (int i=0; TileMu != lastTileMu; ++TileMu, ++i) {
-		mLog << MSG::INFO << "REGTEST Looking at TileMuFeatureContainer " << i << endreq;
-		TileMuFeatureContainer::const_iterator TileMuItr  = TileMu->begin();
-		TileMuFeatureContainer::const_iterator TileMuItrE = TileMu->end();
+  for (int i=0; TileMu != lastTileMu; ++TileMu, ++i) {
+    ATH_MSG_INFO("REGTEST Looking at TileMuFeatureContainer " << i);
+    TileMuFeatureContainer::const_iterator TileMuItr  = TileMu->begin();
+    TileMuFeatureContainer::const_iterator TileMuItrE = TileMu->end();
 
-		for(int j=0; TileMuItr != TileMuItrE; ++TileMuItr, ++j) {
-			mLog <<MSG::INFO << "REGTEST Looking at TileMuFeature " << j << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuFeature->eta()          returns " << (*TileMuItr)->eta() << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuFeature->phi()          returns " << (*TileMuItr)->phi() << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuFeature->enedep().at(0) returns " << (*TileMuItr)->enedep().at(0) << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuFeature->enedep().at(1) returns " << (*TileMuItr)->enedep().at(1) << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuFeature->enedep().at(2) returns " << (*TileMuItr)->enedep().at(2) << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuFeature->enedep().at(3) returns " << (*TileMuItr)->enedep().at(3) << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuFeature->quality()      returns " << (*TileMuItr)->quality() << endreq;
+    for(int j=0; TileMuItr != TileMuItrE; ++TileMuItr, ++j) {
+      ATH_MSG_INFO("REGTEST Looking at TileMuFeature " << j);
+      ATH_MSG_INFO("REGTEST TileMuFeature->eta()          returns " << (*TileMuItr)->eta());
+      ATH_MSG_INFO("REGTEST TileMuFeature->phi()          returns " << (*TileMuItr)->phi());
+      ATH_MSG_INFO("REGTEST TileMuFeature->enedep().at(0) returns " << (*TileMuItr)->enedep().at(0));
+      ATH_MSG_INFO("REGTEST TileMuFeature->enedep().at(1) returns " << (*TileMuItr)->enedep().at(1));
+      ATH_MSG_INFO("REGTEST TileMuFeature->enedep().at(2) returns " << (*TileMuItr)->enedep().at(2));
+      ATH_MSG_INFO("REGTEST TileMuFeature->enedep().at(3) returns " << (*TileMuItr)->enedep().at(3));
+      ATH_MSG_INFO("REGTEST TileMuFeature->quality()      returns " << (*TileMuItr)->quality());
 
-		}
-	}
+    }
+  }
 
-	mLog << MSG::INFO  << "REGTEST ==========END of TileMuFeatureContainer DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========END of TileMuFeatureContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTileMuFeatureContainer() succeeded");
 
-	mLog << MSG::DEBUG << "dumpTileMuFeatureContainer() succeeded" << endreq;
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTileTrackMuFeatureContainer() {  MsgStream mLog( messageService(), name() );
+StatusCode TrigEDMChecker::dumpTileTrackMuFeatureContainer() {  
 
-mLog << MSG::DEBUG << "in dumpTileTrackMuFeatureContainer()" << endreq;
-mLog <<MSG::INFO << "REGTEST ==========START of TileTrackMuFeatureContainer DUMP===========" << endreq;
-
-const DataHandle< TileTrackMuFeatureContainer > TileTrackMu;
-const DataHandle< TileTrackMuFeatureContainer > lastTileTrackMu;
-
-StatusCode sc = evtStore()->retrieve(TileTrackMu, lastTileTrackMu);
-if (sc.isFailure()) {
-	mLog << MSG::INFO << "REGTEST No TileTrackMuFeatureContainer found" << endreq;
+  ATH_MSG_DEBUG("in dumpTileTrackMuFeatureContainer()");
+  ATH_MSG_INFO("REGTEST ==========START of TileTrackMuFeatureContainer DUMP===========");
+  
+  const DataHandle< TileTrackMuFeatureContainer > TileTrackMu;
+  const DataHandle< TileTrackMuFeatureContainer > lastTileTrackMu;
+  
+  StatusCode sc = evtStore()->retrieve(TileTrackMu, lastTileTrackMu);
+  if (sc.isFailure()) {
+	ATH_MSG_INFO("REGTEST No TileTrackMuFeatureContainer found");
 	return StatusCode::SUCCESS;
-}
-mLog << MSG::INFO << "REGTEST TileTrackMuFeatureContainer retrieved" << endreq;
-
-for (int i=0; TileTrackMu!=lastTileTrackMu; ++TileTrackMu, ++i) {
-	mLog << MSG::INFO << "REGTEST Looking at TileTrackMuFeatureContainer " << i << endreq;
+  }
+  ATH_MSG_INFO("REGTEST TileTrackMuFeatureContainer retrieved");
+  
+  for (int i=0; TileTrackMu!=lastTileTrackMu; ++TileTrackMu, ++i) {
+	ATH_MSG_INFO("REGTEST Looking at TileTrackMuFeatureContainer " << i);
 
 	TileTrackMuFeatureContainer::const_iterator TileTrackMuItr = TileTrackMu->begin();
 	TileTrackMuFeatureContainer::const_iterator TileTrackMuItrE= TileTrackMu->end();
 
 	for (int j=0; TileTrackMuItr != TileTrackMuItrE; ++TileTrackMuItr, ++j) {
-		mLog <<MSG::INFO << "REGTEST Looking at TileTrackMuFeature " << j << endreq;
-		mLog <<MSG::INFO << "REGTEST TileTrackMuFeature->PtTR_Trk()  returns " << (*TileTrackMuItr)->PtTR_Trk() << endreq;
-		mLog <<MSG::INFO << "REGTEST TileTrackMuFeature->EtaTR_Trk() returns " << (*TileTrackMuItr)->EtaTR_Trk() << endreq;
-		mLog <<MSG::INFO << "REGTEST TileTrackMuFeature->PhiTR_Trk() returns " << (*TileTrackMuItr)->PhiTR_Trk() << endreq;
-		mLog <<MSG::INFO << "REGTEST TileTrackMuFeature->Typ_IDTrk() returns " << (*TileTrackMuItr)->Typ_IDTrk() << endreq;
+      ATH_MSG_INFO("REGTEST Looking at TileTrackMuFeature " << j);
+      ATH_MSG_INFO("REGTEST TileTrackMuFeature->PtTR_Trk()  returns " << (*TileTrackMuItr)->PtTR_Trk());
+      ATH_MSG_INFO("REGTEST TileTrackMuFeature->EtaTR_Trk() returns " << (*TileTrackMuItr)->EtaTR_Trk());
+      ATH_MSG_INFO("REGTEST TileTrackMuFeature->PhiTR_Trk() returns " << (*TileTrackMuItr)->PhiTR_Trk());
+      ATH_MSG_INFO("REGTEST TileTrackMuFeature->Typ_IDTrk() returns " << (*TileTrackMuItr)->Typ_IDTrk());
 
-		mLog <<MSG::INFO << "REGTEST TileMuFeature info: " << endreq;
-		ElementLink<TileMuFeatureContainer> TileMuEL = (*TileTrackMuItr)->TileMuLink();
-		const TileMuFeature* TileMu;
-		if ( !TileMuEL.isValid() ) {
-			mLog <<MSG::INFO << "REGTEST No TileMuFeature (Something Wrong)"
-			<< endreq;
-			TileMu = 0;
-		} else{
-			TileMu = *TileMuEL;
-		}
+      ATH_MSG_INFO("REGTEST TileMuFeature info: ");
+      ElementLink<TileMuFeatureContainer> TileMuEL = (*TileTrackMuItr)->TileMuLink();
+      const TileMuFeature* TileMu;
+      if ( !TileMuEL.isValid() ) {
+        ATH_MSG_INFO("REGTEST No TileMuFeature (Something Wrong)");
+        TileMu = 0;
+      } else{
+        TileMu = *TileMuEL;
+      }
 
-		if( TileMu != 0 ){
-			mLog <<MSG::INFO << "REGTEST TileMuLink->eta()          returns " << TileMu->eta() << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuLink->phi()          returns " << TileMu->phi() << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuLink->enedep().at(0) returns " << TileMu->enedep().at(0) << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuLink->enedep().at(1) returns " << TileMu->enedep().at(1) << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuLink->enedep().at(2) returns " << TileMu->enedep().at(2) << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuLink->enedep().at(3) returns " << TileMu->enedep().at(3) << endreq;
-			mLog <<MSG::INFO << "REGTEST TileMuLink->quality()      returns " << TileMu->quality() << endreq;
-		}
+      if( TileMu != 0 ){
+        ATH_MSG_INFO("REGTEST TileMuLink->eta()          returns " << TileMu->eta());
+        ATH_MSG_INFO("REGTEST TileMuLink->phi()          returns " << TileMu->phi());
+        ATH_MSG_INFO("REGTEST TileMuLink->enedep().at(0) returns " << TileMu->enedep().at(0));
+        ATH_MSG_INFO("REGTEST TileMuLink->enedep().at(1) returns " << TileMu->enedep().at(1));
+        ATH_MSG_INFO("REGTEST TileMuLink->enedep().at(2) returns " << TileMu->enedep().at(2));
+        ATH_MSG_INFO("REGTEST TileMuLink->enedep().at(3) returns " << TileMu->enedep().at(3));
+        ATH_MSG_INFO("REGTEST TileMuLink->quality()      returns " << TileMu->quality());
+      }
 
-		mLog <<MSG::INFO << "REGTEST TrigInDetTrack info: " << endreq;
-		ElementLink<TrigInDetTrackCollection> IDScanEL = (*TileTrackMuItr)->IDScanLink();
-		const TrigInDetTrack* Track;
-		if ( !IDScanEL.isValid() ) {
-			mLog <<MSG::INFO << "REGTEST No valid IDtracks" << endreq;
-			Track = 0;
-		} else{
-			Track = *IDScanEL;
-		}
+      ATH_MSG_INFO("REGTEST TrigInDetTrack info: ");
+      ElementLink<TrigInDetTrackCollection> IDScanEL = (*TileTrackMuItr)->IDScanLink();
+      const TrigInDetTrack* Track;
+      if ( !IDScanEL.isValid() ) {
+        ATH_MSG_INFO("REGTEST No valid IDtracks");
+        Track = 0;
+      } else{
+        Track = *IDScanEL;
+      }
 
-		if (Track != 0) {
-			mLog <<MSG::INFO << "REGTEST IDScanLink->algorithmId()     returns " << Track->algorithmId() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDScanLink->chi2()            returns " << Track->chi2() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDScanLink->NStrawHits()      returns " << Track->NStrawHits()<< endreq;
-			mLog <<MSG::INFO << "REGTEST IDScanLink->NStraw()          returns " << Track->NStraw() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDScanLink->NStrawTime()      returns " <<
-			Track->NStrawTime() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDScanLink->NTRHits()         returns " << Track->NTRHits() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDScanLink->param()->phi0()   returns " << Track->param()->phi0() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDScanLink->param()->eta()    returns " << Track->param()->eta() << endreq;
-			mLog <<MSG::INFO << "REGTEST IDScanLink->param()->pT()     returns " << Track->param()->pT() << endreq;
-		}
+      if (Track != 0) {
+        ATH_MSG_INFO("REGTEST IDScanLink->algorithmId()     returns " << Track->algorithmId());
+        ATH_MSG_INFO("REGTEST IDScanLink->chi2()            returns " << Track->chi2());
+        ATH_MSG_INFO("REGTEST IDScanLink->NStrawHits()      returns ");
+        ATH_MSG_INFO("REGTEST IDScanLink->NStraw()          returns " << Track->NStraw());
+        ATH_MSG_INFO("REGTEST IDScanLink->NStrawTime()      returns " << Track->NStrawTime());
+        ATH_MSG_INFO("REGTEST IDScanLink->NTRHits()         returns " << Track->NTRHits());
+        ATH_MSG_INFO("REGTEST IDScanLink->param()->phi0()   returns " << Track->param()->phi0());
+        ATH_MSG_INFO("REGTEST IDScanLink->param()->eta()    returns " << Track->param()->eta());
+        ATH_MSG_INFO("REGTEST IDScanLink->param()->pT()     returns " << Track->param()->pT());
+      }
 	}
-}
+  }
 
-mLog << MSG::INFO <<  "REGTEST ==========END of TileTrackMuFeatureContainer DUMP===========" << endreq;
-
-mLog << MSG::DEBUG << "dumpTileTrackMuFeatureContainer() succeeded" << endreq;
-return StatusCode::SUCCESS;
+  ATH_MSG_INFO("REGTEST ==========END of TileTrackMuFeatureContainer DUMP===========");
+  ATH_MSG_DEBUG("dumpTileTrackMuFeatureContainer() succeeded");
+  return StatusCode::SUCCESS;
 }
 
 /////////////////////////////////////////////////
@@ -3716,7 +3508,7 @@ StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
   }
 
 
-  for(xAOD::TauJetContainer::const_iterator tauIt = TauJetcont->begin(); tauIt != TauJetcont->end();tauIt++){
+  for(xAOD::TauJetContainer::const_iterator tauIt = TauJetcont->begin(); tauIt != TauJetcont->end();++tauIt){
 
     ATH_MSG_INFO( "REGTEST (*tauIt)->eta() returns  " << (*tauIt)->eta() );
     ATH_MSG_INFO( "REGTEST (*tauIt)->phi() returns  " << (*tauIt)->phi() );
@@ -3835,172 +3627,166 @@ StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
 /////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpTauJetContainer() {
-	MsgStream mLog( messageService(), name() );
-	//  mLog << MSG::INFO << "REGTEST" << endreq;
-	mLog << MSG::INFO << "REGTEST ==========START of TauJetContainer DUMP===========" << endreq;
 
-	using namespace Analysis;
+  ATH_MSG_INFO("REGTEST ==========START of TauJetContainer DUMP===========");
 
-	StatusCode sCode=StatusCode::FAILURE;
-	int ntag=1;
-	std::string TauContainerTags[]={"HLT_TrigTauRecMerged"};
-	for (int itag=0; itag < ntag; itag++) {
-	  const TauJetContainer* TauJetcont;
-	  sCode=evtStore()->retrieve(TauJetcont , TauContainerTags[itag]);
-	  if( sCode.isFailure() ){
-	    mLog << MSG::INFO << "Failed to retrieve TauJetContainer  with key " << TauContainerTags[itag] << endreq;
-	    continue;
-	  }
+  using namespace Analysis;
 
-	  for(Analysis::TauJetContainer::const_iterator tauIt = TauJetcont->begin(); tauIt != TauJetcont->end(); tauIt++){
+  StatusCode sCode=StatusCode::FAILURE;
+  int ntag=1;
+  std::string TauContainerTags[]={"HLT_TrigTauRecMerged"};
+  for (int itag=0; itag < ntag; itag++) {
+    const TauJetContainer* TauJetcont;
+    sCode=evtStore()->retrieve(TauJetcont , TauContainerTags[itag]);
+    if( sCode.isFailure() ){
+      ATH_MSG_INFO("Failed to retrieve TauJetContainer  with key " << TauContainerTags[itag]);
+      continue;
+    }
 
-	    bool IsTaurec = false;
-	    bool Is1p3p = false;
-	    if ((*tauIt)->hasAuthor( TauJetParameters::tauRec)) {
-	      mLog <<MSG::INFO << "Is TauRec Seeded " << endreq;
-	      IsTaurec = true;
-	    }
+    for(Analysis::TauJetContainer::const_iterator tauIt = TauJetcont->begin(); tauIt != TauJetcont->end(); ++tauIt){
 
-	    if ((*tauIt)->hasAuthor( TauJetParameters::tau1P3P)) {
-	      mLog <<MSG::INFO << "Is Tau1p3p Seeded " << endreq;
-	      Is1p3p = true;
-	    }
+      bool IsTaurec = false;
+      bool Is1p3p = false;
+      if ((*tauIt)->hasAuthor( TauJetParameters::tauRec)) {
+        ATH_MSG_INFO("Is TauRec Seeded ");
+        IsTaurec = true;
+      }
 
-	    if ((*tauIt)->hasAuthor( TauJetParameters::unknown)) {
-	      mLog <<MSG::INFO << "Is unknown seeded " << endreq;
-	    }
+      if ((*tauIt)->hasAuthor( TauJetParameters::tau1P3P)) {
+        ATH_MSG_INFO("Is Tau1p3p Seeded ");
+        Is1p3p = true;
+      }
 
-	    const Analysis::TauCommonDetails*  TauDetails = (*tauIt)->details<const Analysis::TauCommonDetails>();
-	    if (TauDetails == NULL) {
-	      mLog <<MSG::INFO << " TauDetails == NULL " << endreq;
-	      continue;
-	    }
+      if ((*tauIt)->hasAuthor( TauJetParameters::unknown)) {
+        ATH_MSG_INFO("Is unknown seeded ");
+      }
 
-	    mLog <<MSG::INFO << "REGTEST (*tauIt)->eta()                    returns " << (*tauIt)->eta() << endreq;
-	    mLog <<MSG::INFO << "REGTEST (*tauIt)->phi()                    returns " << (*tauIt)->phi() << endreq;
-	    mLog <<MSG::INFO << "REGTEST (*tauIt)->numTrack()               returns " << (*tauIt)->numTrack() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TauDetails->nLooseTrk()            returns " << TauDetails->nLooseTrk() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TauDetails->leadTrkPt()            returns " << TauDetails->leadTrkPt() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TauDetails->leadLooseTrkPt()       returns " << TauDetails->leadLooseTrkPt() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TauDetails->ipZ0SinThetaSigLeadTrk() returns " << TauDetails->ipZ0SinThetaSigLeadTrk() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TauDetails->ipSigLeadTrk() returns "<<TauDetails->ipSigLeadTrk() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TauDetails->ipSigLeadLooseTrk() returns "<<TauDetails->ipSigLeadLooseTrk() << endreq;
-	    mLog <<MSG::INFO << "REGTEST TauDetails->trkWidth2() returns "<<TauDetails->trkWidth2()<< endreq;
-	    mLog <<MSG::INFO << "REGTEST TauDetails->trFlightPathSig() returns "<< TauDetails->trFlightPathSig() << endreq;
+      const Analysis::TauCommonDetails*  TauDetails = (*tauIt)->details<const Analysis::TauCommonDetails>();
+      if (TauDetails == NULL) {
+        ATH_MSG_INFO(" TauDetails == NULL ");
+        continue;
+      }
 
+      ATH_MSG_INFO("REGTEST (*tauIt)->eta()                    returns " << (*tauIt)->eta());
+      ATH_MSG_INFO("REGTEST (*tauIt)->phi()                    returns " << (*tauIt)->phi());
+      ATH_MSG_INFO("REGTEST (*tauIt)->numTrack()               returns " << (*tauIt)->numTrack());
+      ATH_MSG_INFO("REGTEST TauDetails->nLooseTrk()            returns " << TauDetails->nLooseTrk());
+      ATH_MSG_INFO("REGTEST TauDetails->leadTrkPt()            returns " << TauDetails->leadTrkPt());
+      ATH_MSG_INFO("REGTEST TauDetails->leadLooseTrkPt()       returns " << TauDetails->leadLooseTrkPt());
+      ATH_MSG_INFO("REGTEST TauDetails->ipZ0SinThetaSigLeadTrk() returns " << TauDetails->ipZ0SinThetaSigLeadTrk());
+      ATH_MSG_INFO("REGTEST TauDetails->ipSigLeadTrk() returns "<<TauDetails->ipSigLeadTrk());
+      ATH_MSG_INFO("REGTEST TauDetails->ipSigLeadLooseTrk() returns "<<TauDetails->ipSigLeadLooseTrk());
+      ATH_MSG_INFO("REGTEST TauDetails->trkWidth2() returns "<<TauDetails->trkWidth2());
+      ATH_MSG_INFO("REGTEST TauDetails->trFlightPathSig() returns "<< TauDetails->trFlightPathSig());
 
-	    if(IsTaurec) {
-	      mLog <<MSG::INFO << "Calo seeded" << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_etHadCalib()                returns " << TauDetails->seedCalo_etHadCalib() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_etEMCalib()                 returns " << TauDetails->seedCalo_etEMCalib() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_EMRadius()                  returns " << TauDetails->seedCalo_EMRadius() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_isolFrac()                  returns " << TauDetails->seedCalo_isolFrac() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_centFrac()                  returns " << TauDetails->seedCalo_centFrac() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_stripWidth2()               returns " << TauDetails->seedCalo_stripWidth2() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_nStrip()                    returns " << TauDetails->seedCalo_nStrip() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_etEMAtEMScale()             returns " << TauDetails->seedCalo_etEMAtEMScale() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_etHADAtEMScale()            returns " << TauDetails->seedCalo_etHadAtEMScale() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_hadRadius()                 returns " << TauDetails->seedCalo_hadRadius() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_nIsolLooseTrk()             returns " << TauDetails->seedCalo_nIsolLooseTrk() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_trkAvgDist()                returns " << TauDetails->seedCalo_trkAvgDist() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedCalo_trkRmsDist()                returns " << TauDetails->seedCalo_trkRmsDist() << endreq;
-	    }
+      if(IsTaurec) {
+        ATH_MSG_INFO("Calo seeded");
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_etHadCalib()                returns " << TauDetails->seedCalo_etHadCalib());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_etEMCalib()                 returns " << TauDetails->seedCalo_etEMCalib());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_EMRadius()                  returns " << TauDetails->seedCalo_EMRadius());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_isolFrac()                  returns " << TauDetails->seedCalo_isolFrac());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_centFrac()                  returns " << TauDetails->seedCalo_centFrac());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_stripWidth2()               returns " << TauDetails->seedCalo_stripWidth2());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_nStrip()                    returns " << TauDetails->seedCalo_nStrip());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_etEMAtEMScale()             returns " << TauDetails->seedCalo_etEMAtEMScale());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_etHADAtEMScale()            returns " << TauDetails->seedCalo_etHadAtEMScale());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_hadRadius()                 returns " << TauDetails->seedCalo_hadRadius());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_nIsolLooseTrk()             returns " << TauDetails->seedCalo_nIsolLooseTrk());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_trkAvgDist()                returns " << TauDetails->seedCalo_trkAvgDist());
+        ATH_MSG_INFO("REGTEST TauDetails->seedCalo_trkRmsDist()                returns " << TauDetails->seedCalo_trkRmsDist());
+      }
 
-	    if(Is1p3p) {
-	      mLog <<MSG::INFO << "Track seeded" << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_EMRadius()                   returns " << TauDetails->seedTrk_EMRadius() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_isolFrac()                   returns " << TauDetails->seedTrk_isolFrac() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etChrgHadOverSumTrkPt ()     returns " << TauDetails->seedTrk_etChrgHadOverSumTrkPt () << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_isolFracWide()               returns " << TauDetails->seedTrk_isolFracWide() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etHadAtEMScale()             returns " << TauDetails->seedTrk_etHadAtEMScale() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etEMAtEMScale()              returns " << TauDetails->seedTrk_etEMAtEMScale() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etEMCL()                     returns " << TauDetails->seedTrk_etEMCL() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etChrgEM()                   returns " << TauDetails->seedTrk_etChrgEM() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etNeuEM()                    returns " << TauDetails->seedTrk_etNeuEM() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etResNeuEM()                 returns " << TauDetails->seedTrk_etResNeuEM() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_hadLeakEt()                  returns " << TauDetails->seedTrk_hadLeakEt() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_sumEMCellEtOverLeadTrkPt()   returns " << TauDetails->seedTrk_sumEMCellEtOverLeadTrkPt() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_secMaxStripEt()              returns " << TauDetails->seedTrk_secMaxStripEt() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_stripWidth2()                returns " << TauDetails->seedTrk_stripWidth2() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_nStrip()                     returns " << TauDetails->seedTrk_nStrip() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etChrgHad()                  returns " << TauDetails->seedTrk_etChrgHad() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_nOtherCoreTrk()              returns " << TauDetails->seedTrk_nOtherCoreTrk() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_nIsolTrk()                   returns " << TauDetails->seedTrk_nIsolTrk() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etIsolEM()                   returns " << TauDetails->seedTrk_etIsolEM() << endreq;
-	      mLog <<MSG::INFO << "REGTEST TauDetails->seedTrk_etIsolHad()                  returns " << TauDetails->seedTrk_etIsolHad() << endreq;
-	    }
+      if(Is1p3p) {
+        ATH_MSG_INFO("Track seeded");
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_EMRadius()                   returns " << TauDetails->seedTrk_EMRadius());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_isolFrac()                   returns " << TauDetails->seedTrk_isolFrac());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etChrgHadOverSumTrkPt ()     returns " << TauDetails->seedTrk_etChrgHadOverSumTrkPt ());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_isolFracWide()               returns " << TauDetails->seedTrk_isolFracWide());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etHadAtEMScale()             returns " << TauDetails->seedTrk_etHadAtEMScale());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etEMAtEMScale()              returns " << TauDetails->seedTrk_etEMAtEMScale());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etEMCL()                     returns " << TauDetails->seedTrk_etEMCL());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etChrgEM()                   returns " << TauDetails->seedTrk_etChrgEM());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etNeuEM()                    returns " << TauDetails->seedTrk_etNeuEM());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etResNeuEM()                 returns " << TauDetails->seedTrk_etResNeuEM());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_hadLeakEt()                  returns " << TauDetails->seedTrk_hadLeakEt());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_sumEMCellEtOverLeadTrkPt()   returns " << TauDetails->seedTrk_sumEMCellEtOverLeadTrkPt());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_secMaxStripEt()              returns " << TauDetails->seedTrk_secMaxStripEt());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_stripWidth2()                returns " << TauDetails->seedTrk_stripWidth2());       
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_nStrip()                     returns " << TauDetails->seedTrk_nStrip());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etChrgHad()                  returns " << TauDetails->seedTrk_etChrgHad());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_nOtherCoreTrk()              returns " << TauDetails->seedTrk_nOtherCoreTrk());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_nIsolTrk()                   returns " << TauDetails->seedTrk_nIsolTrk());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etIsolEM()                   returns " << TauDetails->seedTrk_etIsolEM());
+        ATH_MSG_INFO("REGTEST TauDetails->seedTrk_etIsolHad()                  returns " << TauDetails->seedTrk_etIsolHad());
+      }
 
-	    const Analysis::TauJet* tj = *tauIt;
-	    if ( tj->clusterLink().isValid() ) {
-	      mLog <<MSG::INFO << "REGTEST CaloCluster present" << endreq;
-	    } else {
-	      mLog <<MSG::INFO << "REGTEST CaloCluster missing" << endreq;
-	    }
+      const Analysis::TauJet* tj = *tauIt;
+      if ( tj->clusterLink().isValid() ) {
+        ATH_MSG_INFO("REGTEST CaloCluster present");
+      } else {
+        ATH_MSG_INFO("REGTEST CaloCluster missing");
+      }
 
-	    if( TauDetails->looseTrk().size() !=0 ) {
-	      mLog <<MSG::INFO << "REGTEST TauDetails->looseTrk() link present " << endreq;
-	    } else {
-	      mLog <<MSG::INFO << "REGTEST TauDetails->looseTrk() link missing " << endreq;
-	    }
+      if( TauDetails->looseTrk().size() !=0 ) {
+        ATH_MSG_INFO("REGTEST TauDetails->looseTrk() link present ");
+      } else {
+        ATH_MSG_INFO("REGTEST TauDetails->looseTrk() link missing ");
+      }
 
-	    if ( tj->cellClusterLink().isValid() ) {
-	      mLog <<MSG::INFO << "REGTEST CellCaloCluster present" << endreq;
-	    } else {
-	      mLog <<MSG::INFO << "REGTEST CellCaloCluster missing" << endreq;
-	    }
+      if ( tj->cellClusterLink().isValid() ) {
+        ATH_MSG_INFO("REGTEST CellCaloCluster present");
+      } else {
+        ATH_MSG_INFO("REGTEST CellCaloCluster missing");
+      }
 
-	    if ( tj->jetLink().isValid() ) {
-	      mLog <<MSG::INFO << "REGTEST Jet present" << endreq;
-	    } else {
-	      mLog <<MSG::INFO << "REGTEST Jet missing" << endreq;
-	    }
+      if ( tj->jetLink().isValid() ) {
+        ATH_MSG_INFO("REGTEST Jet present");
+      } else {
+        ATH_MSG_INFO("REGTEST Jet missing");
+      }
 
-	    if ( tj->jetLink().isValid() ) {
-	      mLog <<MSG::INFO << "REGTEST Jet present" << endreq;
-	    } else {
-	      mLog <<MSG::INFO << "REGTEST Jet missing" << endreq;
-	    }
+      if ( tj->jetLink().isValid() ) {
+        ATH_MSG_INFO("REGTEST Jet present");
+      } else {
+        ATH_MSG_INFO("REGTEST Jet missing");
+      }
 
-	    mLog <<MSG::INFO << "REGTEST numTrack                returns " << tj->numTrack() << endreq;
+      ATH_MSG_INFO("REGTEST numTrack                returns " << tj->numTrack());
 
-	    if ( tj->trackLinkVector().size() != 0 ) {
-	      mLog <<MSG::INFO << "REGTEST TrackLinkVector present" << endreq;
-	    } else {
-	      mLog <<MSG::INFO << "REGTEST TrackkLinkVector missing" << endreq;
-	    }
+      if ( tj->trackLinkVector().size() != 0 ) {
+        ATH_MSG_INFO("REGTEST TrackLinkVector present");
+      } else {
+        ATH_MSG_INFO("REGTEST TrackkLinkVector missing");
+      }
 
-	    mLog <<MSG::INFO << "REGTEST author                  returns " << tj->author() << endreq;
-	    mLog <<MSG::INFO << "REGTEST ROIWord                 returns " << tj->author() << endreq;
+      ATH_MSG_INFO("REGTEST author                  returns " << tj->author());
+      ATH_MSG_INFO("REGTEST ROIWord                 returns " << tj->author());
+    }
+  }
 
-	  }
-	}
+  const DataHandle< TauJetContainer > TauJet;
+  const DataHandle< TauJetContainer > lastTauJet;
+  StatusCode sc = evtStore()->retrieve(TauJet, lastTauJet);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("REGTEST No TauJetContainer found");
+    return StatusCode::FAILURE;
+  }
+  else ATH_MSG_DEBUG("Found TauJetContainer");
 
-	const DataHandle< TauJetContainer > TauJet;
-	const DataHandle< TauJetContainer > lastTauJet;
-	StatusCode sc = evtStore()->retrieve(TauJet, lastTauJet);
-	if (sc.isFailure()) {
-	  mLog << MSG::INFO << "REGTEST No TauJetContainer found" << endreq;
-	  return StatusCode::FAILURE;
-	}
-	else if (mLog.level() <= MSG::DEBUG) mLog << MSG::DEBUG << "Found TauJetContainer" << endreq;
+  ATH_MSG_INFO("REGTEST TauJetContainer retrieved");
 
-	mLog << MSG::INFO << "REGTEST TauJetContainer retrieved" << endreq;
+  for ( ; TauJet != lastTauJet ; ++TauJet ) {
+    ATH_MSG_INFO("REGTEST TauJetContainer key: " << TauJet.key());
+  }
 
-	for ( ; TauJet != lastTauJet ; ++TauJet ) {
-	  std::string name(TauJet.key());
-
-	  mLog << "REGTEST TauJetContainer key: " << TauJet.key() << endreq;
-	}
-
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEDMChecker::dumpxAODTrackParticle() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "In dumpxAODTrackParticle()" << endreq;
+  ATH_MSG_DEBUG("In dumpxAODTrackParticle()");
 
-	mLog << MSG::INFO << "REGTEST ==========START of xAOD::TrackParticle DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of xAOD::TrackParticle DUMP===========");
 
 	std::vector<std::string> SGkeys;
 	SGkeys.push_back("HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bjet_EFID");
@@ -4017,141 +3803,137 @@ StatusCode TrigEDMChecker::dumpxAODTrackParticle() {
 		const xAOD::TrackParticleContainer* trackParticleContainer=0;
 		StatusCode sc = evtStore()->retrieve(trackParticleContainer,SGkeys.at(SGkey));
 		if (sc.isFailure()) {
-			mLog << MSG::INFO << "REGTEST No track particle container found with key " << SGkeys.at(SGkey) << endreq;
+          ATH_MSG_INFO("REGTEST No track particle container found with key " << SGkeys.at(SGkey));
 			continue;
 		}
-		mLog << MSG::INFO << "REGTEST TrackParticleContainer retrieved with key " << SGkeys.at(SGkey)
-		     << " and size " << trackParticleContainer->size() << endreq;
-
+		ATH_MSG_INFO("REGTEST TrackParticleContainer retrieved with key " << SGkeys.at(SGkey)
+                     << " and size " << trackParticleContainer->size());
+        
 		xAOD::TrackParticleContainer::const_iterator trackParticleItr = trackParticleContainer->begin();
 		xAOD::TrackParticleContainer::const_iterator trackParticleLast = trackParticleContainer->end();
 
 		for (int index = 0; trackParticleItr != trackParticleLast; ++trackParticleItr, ++index) {
-			mLog << MSG::INFO << "REGTEST Looking at Track Particle " << index << endreq;
+          ATH_MSG_INFO("REGTEST Looking at Track Particle " << index);
 
-			mLog << MSG::INFO << "REGTEST IParticle functions:" << endreq;
-			mLog << MSG::INFO << "REGTEST pt: " << (*trackParticleItr)->pt();
-			mLog << "/eta: " << (*trackParticleItr)->eta();
-			mLog << "/phi: " << (*trackParticleItr)->phi();
-			mLog << "/m: " << (*trackParticleItr)->m();
-			mLog << "/e: " << (*trackParticleItr)->e();
-			mLog << "/rapidity: " << (*trackParticleItr)->rapidity() << endreq;
+          ATH_MSG_INFO("REGTEST IParticle functions:");
+		  ATH_MSG_INFO("REGTEST pt: " << (*trackParticleItr)->pt()
+                       << "/eta: " << (*trackParticleItr)->eta()
+                       << "/phi: " << (*trackParticleItr)->phi()
+                       << "/m: " << (*trackParticleItr)->m()
+                       << "/e: " << (*trackParticleItr)->e()
+                       << "/rapidity: " << (*trackParticleItr)->rapidity());
 
-			mLog << MSG::INFO << "REGTEST Defining parameters functions:" << endreq;
-			mLog << MSG::INFO << "REGTEST charge: " << (*trackParticleItr)->charge();
-			mLog << "/d0: " << (*trackParticleItr)->d0();
-			mLog << "/z0: " << (*trackParticleItr)->z0();
-			mLog << "/phi0: " << (*trackParticleItr)->phi0();
-			mLog << "/theta: " << (*trackParticleItr)->theta();
-			mLog << "/qOverP: " << (*trackParticleItr)->qOverP();
-			mLog << "/vx: " << (*trackParticleItr)->vx();
-			mLog << "/vy: " << (*trackParticleItr)->vy();
-			mLog << "/vz: " << (*trackParticleItr)->vz() << endreq;
+          ATH_MSG_INFO("REGTEST Defining parameters functions:");
+		  ATH_MSG_INFO("REGTEST charge: " << (*trackParticleItr)->charge()
+                       << "/d0: " << (*trackParticleItr)->d0()
+                       << "/z0: " << (*trackParticleItr)->z0()
+                       << "/phi0: " << (*trackParticleItr)->phi0()
+                       << "/theta: " << (*trackParticleItr)->theta()
+                       << "/qOverP: " << (*trackParticleItr)->qOverP()
+                       << "/vx: " << (*trackParticleItr)->vx()
+                       << "/vy: " << (*trackParticleItr)->vy()
+                       << "/vz: " << (*trackParticleItr)->vz());
 
 			// Curvilinear functions skipped
 
-			mLog << MSG::INFO << "REGTEST Fit quality functions:" << endreq;
-			mLog << MSG::INFO << "REGTEST chiSquared: " << (*trackParticleItr)->chiSquared();
-			mLog << "/numberDoF: " << (*trackParticleItr)->numberDoF() << endreq;
+          ATH_MSG_INFO("REGTEST Fit quality functions:");
+		  ATH_MSG_INFO("REGTEST chiSquared: " << (*trackParticleItr)->chiSquared()
+                       << "/numberDoF: " << (*trackParticleItr)->numberDoF());
 
 			// TrackInfo functions skipped
 
-			mLog << MSG::INFO << "REGTEST summaryValue variables:" << endreq;
-			mLog << MSG::INFO << "REGTEST ";
+          ATH_MSG_INFO("REGTEST summaryValue variables:");
+          msg() << MSG::INFO << "REGTEST ";
 			uint8_t numberOfBLayerHits = 0;
 			if ( (*trackParticleItr)->summaryValue(numberOfBLayerHits, xAOD::numberOfBLayerHits) ) {
-				mLog << "/numberOfBLayerHits: " << static_cast<int>(numberOfBLayerHits);
+				msg() << "/numberOfBLayerHits: " << static_cast<int>(numberOfBLayerHits);
 			} else {
-				mLog << "/numberOfBLayerHits not found";
+				msg() << "/numberOfBLayerHits not found";
 			}
 
 			uint8_t numberOfPixelHits = 0;
 			if ( (*trackParticleItr)->summaryValue(numberOfPixelHits, xAOD::numberOfPixelHits) ) {
-				mLog << "/numberOfPixelHits: " << static_cast<int>(numberOfPixelHits);
+				msg() << "/numberOfPixelHits: " << static_cast<int>(numberOfPixelHits);
 			} else {
-				mLog << "/numberOfPixelHits not found";
+				msg() << "/numberOfPixelHits not found";
 			}
 
 			uint8_t numberOfPixelHoles = 0;
 			if ( (*trackParticleItr)->summaryValue(numberOfPixelHoles, xAOD::numberOfPixelHoles) ) {
-				mLog << "/numberOfPixelHoles: " << static_cast<int>(numberOfPixelHoles);
+				msg() << "/numberOfPixelHoles: " << static_cast<int>(numberOfPixelHoles);
 			} else {
-				mLog << "/numberOfPixelHoles not found";
+				msg() << "/numberOfPixelHoles not found";
 			}
 
 			uint8_t numberOfSCTHits = 0;
 			if ( (*trackParticleItr)->summaryValue(numberOfSCTHits, xAOD::numberOfSCTHits) ) {
-				mLog << "/numberOfSCTHits: " << static_cast<int>(numberOfSCTHits);
+				msg() << "/numberOfSCTHits: " << static_cast<int>(numberOfSCTHits);
 			} else {
-				mLog << "/numberOfSCTHits not found";
+				msg() << "/numberOfSCTHits not found";
 			}
 
 			uint8_t numberOfSCTHoles = 0;
 			if ( (*trackParticleItr)->summaryValue(numberOfSCTHoles, xAOD::numberOfSCTHoles) ) {
-				mLog << "/numberOfSCTHoles: " << static_cast<int>(numberOfSCTHoles);
+				msg() << "/numberOfSCTHoles: " << static_cast<int>(numberOfSCTHoles);
 			} else {
-				mLog << "/numberOfSCTHoles not found";
+				msg() << "/numberOfSCTHoles not found";
 			}
 
 			uint8_t numberOfTRTHits = 0;
 			if ( (*trackParticleItr)->summaryValue(numberOfTRTHits, xAOD::numberOfTRTHits) ) {
-				mLog << "/numberOfTRTHits: " << static_cast<int>(numberOfTRTHits);
+				msg() << "/numberOfTRTHits: " << static_cast<int>(numberOfTRTHits);
 			} else {
-				mLog << "/numberOfTRTHits not found";
+				msg() << "/numberOfTRTHits not found";
 			}
 
 			uint8_t numberOfTRTHoles = 0;
 			if ( (*trackParticleItr)->summaryValue(numberOfTRTHoles, xAOD::numberOfTRTHoles) ) {
-				mLog << "/numberOfTRTHoles: " << static_cast<int>(numberOfTRTHoles);
+				msg() << "/numberOfTRTHoles: " << static_cast<int>(numberOfTRTHoles);
 			} else {
-				mLog << "/numberOfTRTHoles not found";
+				msg() << "/numberOfTRTHoles not found";
 			}
-			mLog << endreq;
+			msg() << endmsg;
 		}
 	}
 
-	mLog << MSG::INFO << "REGTEST ==========END of xAOD::TrackParticle DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpxAODTrackParticles() succeeded" << endreq;
+	ATH_MSG_INFO("REGTEST ==========END of xAOD::TrackParticle DUMP===========");
+	ATH_MSG_DEBUG("dumpxAODTrackParticles() succeeded");
 
 	return returnsc;
 }
 
 StatusCode TrigEDMChecker::dumpxAODVertex() {
-	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::DEBUG << "In dumpxAODVertex()" << endreq;
+  ATH_MSG_DEBUG("In dumpxAODVertex()");
 
-	mLog << MSG::INFO << "REGTEST ==========START of xAOD::Vertex DUMP===========" << endreq;
+  ATH_MSG_INFO("REGTEST ==========START of xAOD::Vertex DUMP===========");
 
 	const xAOD::VertexContainer* vertexContainer=0;
 	StatusCode sc = evtStore()->retrieve(vertexContainer,"HLT_xAOD__VertexContainer_xPrimVx");
 	if (sc.isFailure()) {
-		mLog << MSG::INFO << "REGTEST No vertex container" << endreq;
+      ATH_MSG_INFO("REGTEST No vertex container");
 		return StatusCode::FAILURE;
 	}
-	mLog << MSG::INFO << "REGTEST VertexContainer retrieved" << endreq;
+	ATH_MSG_INFO("REGTEST VertexContainer retrieved");
 
 	xAOD::VertexContainer::const_iterator vertexItr = vertexContainer->begin();
 	xAOD::VertexContainer::const_iterator vertexLast = vertexContainer->end();
 
 	for (int index = 0; vertexItr != vertexLast; ++vertexItr, ++index) {
-		mLog << MSG::INFO << "REGTEST Looking at Vertex " << index << endreq;
+      ATH_MSG_INFO("REGTEST Looking at Vertex " << index);
 
-		mLog << MSG::INFO << "REGTEST Public Member Functions:" << endreq;
-		mLog << MSG::INFO << "REGTEST x: " << (*vertexItr)->x();
-		mLog << "/y: " << (*vertexItr)->y();
-		mLog << "/z: " << (*vertexItr)->z() << endreq;
+      ATH_MSG_INFO("REGTEST Public Member Functions:");
+      ATH_MSG_INFO("REGTEST x: " << (*vertexItr)->x()
+                   << "/y: " << (*vertexItr)->y()
+                   << "/z: " << (*vertexItr)->z());
 
-		mLog << MSG::INFO << "REGTEST Public Member Functions:" << endreq;
-		mLog << MSG::INFO << "REGTEST chiSquared: " << (*vertexItr)->chiSquared();
-		mLog << "/numberDoF: " << (*vertexItr)->numberDoF() << endreq;
-
+      ATH_MSG_INFO("REGTEST Public Member Functions:");
+      ATH_MSG_INFO("REGTEST chiSquared: " << (*vertexItr)->chiSquared()
+                   << "/numberDoF: " << (*vertexItr)->numberDoF());
 	}
 
-	mLog << MSG::INFO << "REGTEST ==========END of xAOD::Vertex DUMP===========" << endreq;
-
-	mLog << MSG::DEBUG << "dumpxAODVertex() succeeded" << endreq;
+	ATH_MSG_INFO("REGTEST ==========END of xAOD::Vertex DUMP===========");
+	ATH_MSG_DEBUG("dumpxAODVertex() succeeded");
 
 	return StatusCode::SUCCESS;
 }

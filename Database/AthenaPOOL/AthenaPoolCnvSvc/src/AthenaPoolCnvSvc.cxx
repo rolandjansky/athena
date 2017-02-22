@@ -470,7 +470,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
       }
    }
 
-   if (m_useDetailChronoStat.value()) {
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("commitOutput");
    }
    if (!processPoolAttributes(m_domainAttr, m_outputConnectionSpec, IPoolSvc::kOutputStream).isSuccess()) {
@@ -522,7 +522,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
    // For "safety" we reset the output file and the technology type
    m_outputConnectionSpec = "";
    m_dbType = pool::DbType();
-   if (m_useDetailChronoStat.value()) {
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("commitOutput");
    }
    // Prepare chrono for next commit

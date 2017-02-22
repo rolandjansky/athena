@@ -11,8 +11,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-//#include "CBNT_Utils/CBNT_AthenaAwareBase.h"
-
 #include <string>
 
 // forward declarations of muon track classes used in TrigMuonEFInfo
@@ -34,18 +32,9 @@ class TrigEDMChecker : public AthAlgorithm  {
    ~TrigEDMChecker();
 
    StatusCode initialize();
-   StatusCode finalize();
    StatusCode execute();
-   //   StatusCode CBNT_clear();
-
-
 
  private:
-
-
-   /** get a handle to the tool helper */
-   //   IAnalysisTools * m_analysisTools;
-
 
    /** a handle on Store Gate for access to the Event Store */
    bool m_doDumpAll;
@@ -116,8 +105,8 @@ class TrigEDMChecker : public AthAlgorithm  {
 
    bool m_doDumpTrigMuonEFInfoContainer;
    StatusCode dumpTrigMuonEFInfoContainer();
-   void printMuonTrk(MsgStream &mLog, const TrigMuonEFTrack* muonTrack);
-   void printMuonTrk(MsgStream &mLog, const TrigMuonEFCbTrack* muonTrack);
+   void printMuonTrk(const TrigMuonEFTrack* muonTrack);
+   void printMuonTrk(const TrigMuonEFCbTrack* muonTrack);
 
    bool m_doDumpxAODMuonContainer;
    StatusCode dumpxAODMuonContainer();
@@ -169,10 +158,10 @@ class TrigEDMChecker : public AthAlgorithm  {
 
    bool m_doDumpxAODTrigMinBias;
    StatusCode dumpxAODTrigMinBias();
-   void dumpTrigSpacePointCounts(MsgStream &mLog);
-   void dumpTrigT2MBTSBits(MsgStream &mLog);
-   void dumpTrigVertexCounts(MsgStream &mLog);
-   void dumpTrigTrackCounts(MsgStream &mLog);
+   void dumpTrigSpacePointCounts();
+   void dumpTrigT2MBTSBits();
+   void dumpTrigVertexCounts();
+   void dumpTrigTrackCounts();
 
    ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
 

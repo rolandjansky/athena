@@ -258,10 +258,15 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
 
     def _short2(s):
          return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Herwig7","H7").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+ 
+    if genpart != _norm(expectedgenpart)  and _norm2(genpart) != _norm(expectedgenpart):
+        evgenLog.error("Expected first part of JO name to be '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), _norm(_short2(expectedgenpart)), genpart))
+        evgenLog.error("gennames '%s' " %(expectedgenpart))
+        sys.exit(1)
 
-    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
-        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
-        sys.exit(1) 
+#    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
+#        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
+#        sys.exit(1) 
 
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present

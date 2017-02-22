@@ -8,110 +8,42 @@
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-// Class to generate the noisy cells for Pixel
-///////////////////////////////////////////////////////////////////
-// 
-// Configurable Parameters:
-// -NoiseShape		Vector containing noise ToT shape
-// -RndmSvc		Random Number Service used in SCT & Pixel digitization
-// -RndmEngine		Random engine name	
-// -MergeCharge
-// -RndNoiseProb	Random noisy pixels, amplitude from calib. - NOT special pixels! 
-//
-///////////////////////////////////////////////////////////////////
-
-/** @class PixelNoisyCellGenerator
- * @brief Generates random noise
- * @author David Calvet
- * @author Davide Costanzo
- * @author Fredrik Tegenfeldt
- *
- * \b Description
- *
- * This class generates random noise for random pixels. Which pixels that will receive noise and how much is
- * determined in the following way:
- * -# Number of pixels is drawn from a Poisson with <em>mean = </em>\f$N_{pixels}\cdot p_{noise}\cdot N_{BC}\f$
- *     - \f$N_{pixels}\f$ is the total number of pixels
- *     - \f$p_{noise}\f$ is the noise probability
- *     - \f$N_{BC}\f$ is the number of bunches; noise will occur at a random time with a flat distribution
- * -# Pixels are then randomly chosen (flat dist)
- * -# Noise charge is drawn from a Gaussian with <em>mean = threshold + 3*thresholdSigma</em> and <em>sigma = thresholdSigma</em>
- * -# If a pixel is already hit:
- *     - if \e mergeCharge is \e true then merge the noise charge with the existing charge
- *     - else, ignore the pixel
- *
- * Note that if looking at the noise in a simulation, the number of noisy pixels per event
- * will not \e quite follow the poisson ditribution with the above mean. The reason for this
- * is of course the treatment of already hit pixels. This will certainly be more eveident in events
- * with many hits.
- *
- */
-
 #ifndef PIXELDIGITIZATION_PIXELNOISYCELLGENERATOR_H
 #define PIXELDIGITIZATION_PIXELNOISYCELLGENERATOR_H
 
-#include "SiDigitization/ISiChargedDiodesProcessorTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "PixelProcessorTool.h"
+
+#include "TimeSvc.h"
+#include "PixelConditionsServices/IPixelCalibSvc.h"
 
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
-class PixelID;
-class TimeSvc;
-class IPixelCalibSvc;
+class PixelNoisyCellGenerator:public PixelProcessorTool {
 
-class IAtRndmGenSvc;
-namespace CLHEP {
-  class HepRandomEngine;
-}
+  public:
+    PixelNoisyCellGenerator( const std::string& type, const std::string& name,const IInterface* parent);
 
-namespace InDetDD {
-  class PixelDetectorManager;
-  class SiDetectorElement;
-  class SiDetectorManager;
-}
+    virtual ~PixelNoisyCellGenerator();
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
+    virtual void process(SiChargedDiodeCollection &collection);
 
-class PixelNoisyCellGenerator : public AthAlgTool, virtual public ISiChargedDiodesProcessorTool {
+  private:
+    PixelNoisyCellGenerator();
 
-public:
+    ServiceHandle<TimeSvc> m_TimeSvc;
+    ServiceHandle<IPixelCalibSvc> m_pixelCalibSvc;
+    bool                 m_mergeCharge;
+    std::vector<double>  m_noiseShape;
+    void addRandomNoise(SiChargedDiodeCollection &collection, double occupancy) const;
+    void addCell(SiChargedDiodeCollection &collection, const InDetDD::PixelModuleDesign *design, int circuit, int column, int row) const;
 
-  //Constructor:
-  PixelNoisyCellGenerator( const std::string& type, const std::string& name,const IInterface* parent);
-
-  /** Destructor */
-  virtual ~PixelNoisyCellGenerator();
-
-  /** AlgTool InterfaceID */
-  static const InterfaceID& interfaceID() ;
-
-  /** AlgTool initialize */
-  virtual StatusCode initialize();
-
-  /** AlgTool finalize */
-  virtual StatusCode finalize();
-
-  /** Process the collection of pre digits */
-  virtual void process(SiChargedDiodeCollection &collection) const;
-
-private:
-  
-  /** Empty constructor made private */
-  PixelNoisyCellGenerator();
-
-private:
-  ServiceHandle<TimeSvc> m_TimeSvc;
-  ServiceHandle<IPixelCalibSvc> m_pixelCalibSvc;
-  bool                     m_mergeCharge;      /**< to merge or not to merge */
-  std::vector<double>       m_noiseShape;      /**< ToT shape of noise*/
-  void addRandomNoise(SiChargedDiodeCollection &collection, double occupancy) const;
-  void addCell(SiChargedDiodeCollection &collection, const InDetDD::PixelModuleDesign *design, int circuit, int column, int row) const;
-
-  double getNoiseToT() const;
-  const PixelID            *m_pixelID;     /**< the ID helper */
-  ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
-  std::string m_rndmEngineName;
-  CLHEP::HepRandomEngine* m_rndmEngine;
-  double m_rndNoiseProb;
-  const InDetDD::PixelDetectorManager *m_pixMgr;
+    double getNoiseToT() const;
+    const PixelID            *m_pixelID;     /**< the ID helper */
+    double m_rndNoiseProb;
+    const InDetDD::PixelDetectorManager *m_pixMgr;
 
 };
 

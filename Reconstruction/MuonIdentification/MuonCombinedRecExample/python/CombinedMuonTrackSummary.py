@@ -13,6 +13,7 @@ from AthenaCommon.AppMgr    import ToolSvc
 from AthenaCommon.BeamFlags import jobproperties
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool
+from AthenaCommon.GlobalFlags import globalflags
 
 beamFlags                      = jobproperties.Beam
 
@@ -111,7 +112,8 @@ if DetFlags.haveRIO.SCT_on():
 if DetFlags.haveRIO.TRT_on():
   # load TRT_ElectronPid tool
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidTool
-  ToolSvc += InDet__TRT_ElectronPidTool(name = "CombinedMuonTRT_ElectronPid")
+  ToolSvc += InDet__TRT_ElectronPidTool(name = "CombinedMuonTRT_ElectronPid",
+                                        isData = (globalflags.DataSource == 'data'))
   ToolSvc.CombinedMuonTrackSummary.TRT_ElectronPidTool = ToolSvc.CombinedMuonTRT_ElectronPid
   
 # check configuration

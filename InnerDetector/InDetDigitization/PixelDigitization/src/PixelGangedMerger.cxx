@@ -8,93 +8,63 @@
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-// Version 1.0 24/03/2007 Fredrik Tegenfeldt <fredrik.tegenfeldt@cern.ch>
-///////////////////////////////////////////////////////////////////
 
 #include "PixelGangedMerger.h"
-#include "SiDigitization/SiChargedDiodeCollection.h"
 #include "SiDigitization/SiHelper.h"
-#include "InDetIdentifier/PixelID.h"
 
-using namespace InDetDD;
-
-static const InterfaceID IID_IPixelGangedMerger("PixelGangedMerger", 1, 0);
-const InterfaceID& PixelGangedMerger::interfaceID( ){ return IID_IPixelGangedMerger; }
-
-// Constructor with parameters:
 PixelGangedMerger::PixelGangedMerger(const std::string& type, const std::string& name,const IInterface* parent):
-  AthAlgTool(type,name,parent),
+  PixelProcessorTool(type,name,parent),
   m_pixelID(0)
 {
-  declareInterface< PixelGangedMerger >( this );
 }
 
-// Destructor:
-PixelGangedMerger::~PixelGangedMerger()
-{}
+PixelGangedMerger::~PixelGangedMerger() {}
 
-
-//----------------------------------------------------------------------
-// Initialize
-//----------------------------------------------------------------------
 StatusCode PixelGangedMerger::initialize() {
+  CHECK(PixelProcessorTool::initialize());
 
   CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-  ATH_MSG_DEBUG("PixelGangedMerger::initialize()");
 
+  ATH_MSG_DEBUG("PixelGangedMerger::initialize()");
   return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// finalize
-//----------------------------------------------------------------------
 StatusCode PixelGangedMerger::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelGangedMerger::finalize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "PixelGangedMerger::finalize()");
-  return sc ;
+  ATH_MSG_DEBUG("PixelGangedMerger::finalize()");
+  return StatusCode::SUCCESS;
 }
 
-// process the collection of diode collection
-void PixelGangedMerger::process(SiChargedDiodeCollection &collection) const
-{
+void PixelGangedMerger::process(SiChargedDiodeCollection &collection) {
   // loop over the collection and check if the diode is a ganged pixel
   // if ganged, find its ganged partner and merge/copy charge
   // we need:
   //   * check if ID is ganged
   //   * given an ID, find its ganged partner
   //   * create new charge
-  //
   Identifier gangedID;
-  for(SiChargedDiodeIterator i_chargedDiode=collection.begin();
-      i_chargedDiode!=collection.end();
-      ++i_chargedDiode) {
+  for(SiChargedDiodeIterator i_chargedDiode=collection.begin(); i_chargedDiode!=collection.end(); ++i_chargedDiode) {
 
     if (isGanged(collection.getId((*i_chargedDiode).first),collection.element(),gangedID)) {
       SiTotalCharge thisTotalCharge = (*i_chargedDiode).second.totalCharge();
       SiChargedDiode *gangedChargeDiode = collection.find(gangedID);
       int phiGanged = m_pixelID->phi_index(gangedID);
       int phiThis   = m_pixelID->phi_index(collection.getId((*i_chargedDiode).first));
-      //
+
       if (gangedChargeDiode) { // merge charges
         bool maskGanged = ((phiGanged>159) && (phiGanged<168));
         bool maskThis   = ((phiThis>159) && (phiThis<168));
-        //
         // mask the one ganged pixel that does not correspond to the readout electronics.
         // not really sure this is needed
-        //
         if (maskGanged && maskThis) {
-          ATH_MSG_ERROR ( "PixelGangedMerger: both ganged pixels are in the mask out region -> BUG!" );
+          ATH_MSG_ERROR("PixelGangedMerger: both ganged pixels are in the mask out region -> BUG!");
         }
         if (maskGanged) {
-          (*i_chargedDiode).second.add( gangedChargeDiode->totalCharge() ); // merged org pixel
+          (*i_chargedDiode).second.add(gangedChargeDiode->totalCharge()); // merged org pixel
           //        gangedChargeDiode->add(thisTotalCharge); // merged ganged pixel
           SiHelper::maskOut(*gangedChargeDiode,true);
-        } else {
-          gangedChargeDiode->add( (*i_chargedDiode).second.totalCharge() ); // merged org pixel
+        } 
+        else {
+          gangedChargeDiode->add((*i_chargedDiode).second.totalCharge()); // merged org pixel
           //        gangedChargeDiode->add(thisTotalCharge); // merged ganged pixel
           SiHelper::maskOut((*i_chargedDiode).second,true);
         }
@@ -103,10 +73,7 @@ void PixelGangedMerger::process(SiChargedDiodeCollection &collection) const
   }
 }
 
-bool PixelGangedMerger::isGanged(const Identifier& rdoID,
-                                 const InDetDD::SiDetectorElement* element,
-                                 Identifier& gangedID) const
-{
+bool PixelGangedMerger::isGanged(const Identifier& rdoID, const InDetDD::SiDetectorElement* element, Identifier& gangedID) const {
   InDetDD::SiCellId cellID = element->cellIdFromIdentifier(rdoID);
   // gangedCell will be invalid if cell was not ganged.
   InDetDD::SiCellId gangedCell = element->gangedCell(cellID);

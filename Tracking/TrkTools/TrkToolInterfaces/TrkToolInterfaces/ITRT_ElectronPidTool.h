@@ -36,7 +36,7 @@ namespace Trk {
        @param[in] track the track to be identified
        @returns   vector of probabilities
      */
-    virtual std::vector<float> electronProbability(const Trk::Track& track) = 0;
+    virtual std::vector<float> electronProbability(const Trk::Track& track) const = 0;
     
     /** @brief return high threshold probability 
         @returns double of probability

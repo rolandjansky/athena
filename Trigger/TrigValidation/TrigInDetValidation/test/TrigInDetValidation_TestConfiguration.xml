@@ -4801,7 +4801,7 @@
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_trkpt2'>
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;minVtxTrackpT=2000globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;minVtxTrackpT=2000;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -4999,7 +4999,7 @@
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_super1'>
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=2;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=2;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -5045,7 +5045,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -5061,7 +5061,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
                 </arg>
             </action>
 
@@ -5197,7 +5197,7 @@
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_super2'>
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=5;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=5;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -5243,7 +5243,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -5259,7 +5259,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
                 </arg>
             </action>
 
@@ -5395,7 +5395,7 @@
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_super3'>
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=10;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=10;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -5441,7 +5441,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -5457,7 +5457,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
                 </arg>
             </action>
 
@@ -5593,7 +5593,7 @@
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_super4'>
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=10;bjetDynamicEtFactor=10;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=10;bjetDynamicEtFactor=10;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -5639,7 +5639,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -5655,7 +5655,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
                 </arg>
             </action>
 

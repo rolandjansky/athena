@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PhotonTrigAuxContainer_v1.h 707253 2015-11-11 19:28:36Z rwhite $
+// $Id: PhotonTrigAuxContainer_v1.h 707252 2015-11-11 19:27:56Z rwhite $
 #ifndef XAODTRIGEGAMMA_VERSIONS_PHOTONTRIGAUXCONTAINER_V1_H
 #define XAODTRIGEGAMMA_VERSIONS_PHOTONTRIGAUXCONTAINER_V1_H
 

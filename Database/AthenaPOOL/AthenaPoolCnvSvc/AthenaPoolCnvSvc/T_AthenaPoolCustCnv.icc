@@ -165,12 +165,8 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
 template <class TRANS, class PERS>
 inline void T_AthenaPoolCustCnv<TRANS, PERS>::setToken(const std::string& token_str) {
    if (this->m_i_poolToken == nullptr) this->m_i_poolToken = new Token;
-   //if (this->m_i_poolToken != nullptr) {
-      const_cast<Token*>(this->m_i_poolToken)->fromString(token_str);
-      m_classID = this->m_i_poolToken->classID();
-   //} else {
-   //   m_classID = Guid::null();
-   //}
+   const_cast<Token*>(this->m_i_poolToken)->fromString(token_str);
+   m_classID = this->m_i_poolToken->classID();
 }
 //__________________________________________________________________________
 // Compare POOL class GUID with the one from object being read
