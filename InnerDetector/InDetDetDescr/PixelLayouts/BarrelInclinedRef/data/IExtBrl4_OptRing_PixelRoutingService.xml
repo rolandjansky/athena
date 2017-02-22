@@ -91,7 +91,7 @@ Routes by position : radius=... -> radial position
   <service>EndcapRingUK_L0</service>
   <thickness> .5 </thickness> 
   <zgap> 3.</zgap>
-  <r> rMin_Disc_14+2. rMax_Disc_14+.02 rMax_Disc_14+.02</r>
+  <r> rMin_Disc_13+2. rMax_Disc_13+.02 rMax_Disc_13+.02</r>
   <z> z_Disc+5. z_Disc+5. zMax_PST</z>
 </PixelSvcRoute>
 

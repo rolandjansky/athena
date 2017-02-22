@@ -71,17 +71,17 @@ void GeoPixelLadderInclRef::preBuild( ) {
   StatusCode sc = m_pixelModuleSvc.retrieve();
   if(sc.isFailure())
     {
-      msg(MSG::INFO) << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << endreq;
+      msg(MSG::DEBUG) << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << endreq;
     } 
   else 
     {
-      msg(MSG::INFO) << "Pixel module builder tool retrieved: " << m_pixelModuleSvc << endreq;
+      msg(MSG::DEBUG) << "Pixel module builder tool retrieved: " << m_pixelModuleSvc << endreq;
     }
 
 
   std::string value;
-  msg(MSG::INFO)<<endreq;
-  msg(MSG::INFO)<<"************** BUILD LADDER for layer "<< m_layer<<"  "<<m_staveTmp->name<<" --"<<endreq;
+  msg(MSG::DEBUG)<<endreq;
+  msg(MSG::DEBUG)<<"************** BUILD LADDER for layer "<< m_layer<<"  "<<m_staveTmp->name<<" --"<<endreq;
 
   std::string staveType = m_staveTmp->type;
 
@@ -118,16 +118,16 @@ void GeoPixelLadderInclRef::preBuild( ) {
   }
 
   int layerModuleIndex = 0;
-  msg(MSG::INFO)<<"xxxxxxxxxxxxx Get barrel module from svc : "<<m_barrelModuleType<<" / "<<staveType<<endreq;
+  msg(MSG::DEBUG)<<"xxxxxxxxxxxxx Get barrel module from svc : "<<m_barrelModuleType<<" / "<<staveType<<endreq;
   m_barrelModule = m_pixelModuleSvc->getModule(getBasics(),0,layerModuleIndex,m_barrelModuleType);
   m_barrelModuleDesign = m_pixelDesignSvc->getDesign(getBasics(),m_barrelModuleType);
 
-  msg(MSG::INFO)<<"-- Barrel modules : "<<m_barrelModuleNumber<<" "<<m_barrelModuleType<<" / "<<staveType<<endreq;
+  msg(MSG::DEBUG)<<"-- Barrel modules : "<<m_barrelModuleNumber<<" "<<m_barrelModuleType<<" / "<<staveType<<endreq;
 
   double maxTiltedModuleThick=0.; 
   // get the transition and endcap modules from moduelSvc
   if(staveType.compare("Alpine")==0){
-    msg(MSG::INFO)<<"xxxxxxxxxxxxx Get endcap module from svc : "<<m_endcapModuleType<<" / "<<staveType<<" "<<m_endcapModuleType<<"&"<<m_transitionModuleType<<endreq;
+    msg(MSG::DEBUG)<<"xxxxxxxxxxxxx Get endcap module from svc : "<<m_endcapModuleType<<" / "<<staveType<<" "<<m_endcapModuleType<<"&"<<m_transitionModuleType<<endreq;
     m_endcapModule =  m_pixelModuleSvc->getModule(getBasics(),0,layerModuleIndex,m_endcapModuleType);
     m_endcapModuleDesign = m_pixelDesignSvc->getDesign(getBasics(),m_endcapModuleType);
     maxTiltedModuleThick=m_endcapModule->Length()*cos(m_endcapInclAngle); 
@@ -140,7 +140,7 @@ void GeoPixelLadderInclRef::preBuild( ) {
 
   }
 
-  msg(MSG::INFO)<<"xxxxxxxxxxxxx Ladder modules barrel/endcap/transition "<<m_barrelModuleNumber<<" "<<m_endcapModuleNumber<<" "<<m_transitionModuleNumber<<"   Total "<<m_barrelModuleNumber*.5+m_endcapModuleNumber<<endreq;
+  msg(MSG::DEBUG)<<"xxxxxxxxxxxxx Ladder modules barrel/endcap/transition "<<m_barrelModuleNumber<<" "<<m_endcapModuleNumber<<" "<<m_transitionModuleNumber<<"   Total "<<m_barrelModuleNumber*.5+m_endcapModuleNumber<<endreq;
 
   // ----------------------------------------------------------------------------
   // Stave module service thickness
@@ -154,7 +154,7 @@ void GeoPixelLadderInclRef::preBuild( ) {
   m_gapPlanarStave = 10.;
   if (m_layer==1) m_gapPlanarStave = 0.;
   if(m_layer>1) m_gapPlanarStave = 4.;
-  msg(MSG::INFO)<<"xxxxxxxxxxxxx Build stave support for layer : "<<m_layer<<endreq;
+  msg(MSG::DEBUG)<<"xxxxxxxxxxxxx Build stave support for layer : "<<m_layer<<endreq;
   double zEndOfNBarrelModulePos = (m_barrelModuleNumber*m_barrelModule->Length()+m_barrelModuleGap*(m_barrelModuleNumber-1))*.5;
   m_staveSupport = new GeoPixelStaveSupportInclRef( getBasics(),
 						    m_layer, *m_barrelModule,
@@ -167,8 +167,8 @@ void GeoPixelLadderInclRef::preBuild( ) {
   m_length = m_staveSupport->length()+0.01;
   m_width = m_staveSupport->width()+.01;
 
-  msg(MSG::INFO)<<"** stave support thicknesses   : "<<m_thicknessN<<"  "<<m_thicknessP<<endreq;
-  msg(MSG::INFO)<<"** stave support width/length  : "<<m_width<<"  "<<m_length<<endreq;
+  msg(MSG::DEBUG)<<"** stave support thicknesses   : "<<m_thicknessN<<"  "<<m_thicknessP<<endreq;
+  msg(MSG::DEBUG)<<"** stave support width/length  : "<<m_width<<"  "<<m_length<<endreq;
 
 //   double halfThickness = 0.5*(m_thicknessP+m_thicknessN);
 //   double shift = 0.5*(m_thicknessP-m_thicknessN);
@@ -191,7 +191,7 @@ void GeoPixelLadderInclRef::preBuild( ) {
   if(m_endcapModuleNumber>0) nbTotModule += 2*(m_endcapModuleNumber);
   getBasics()->getDetectorManager()->numerology().setNumEtaModulesForLayer(m_layer, nbTotModule);
 
-//   msg(MSG::INFO)<<"** compute Rminmax : "<<m_rmin<<"  "<<m_rmax<<endreq;
+//   msg(MSG::DEBUG)<<"** compute Rminmax : "<<m_rmin<<"  "<<m_rmax<<endreq;
 }
 
 
