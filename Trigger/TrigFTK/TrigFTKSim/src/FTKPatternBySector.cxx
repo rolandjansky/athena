@@ -198,9 +198,10 @@ FTKPatternBySectorReader *FTKPatternBySectorReader::Factory
    int errorForest=0;
    reader=new FTKPatternBySectorIndexedReader(dir,sectorList,&errorIndex);
    if(errorIndex) {
-      delete reader;
+     if (reader) delete reader;
       reader=new FTKPatternBySectorForestReader(dir,sectorList,&errorForest);
       if(errorForest) {
+ 	 if (reader) delete reader;
          reader=new FTKPatternBySectorIndexedReader(dir,sectorList,0);
          delete reader;
          reader=new FTKPatternBySectorForestReader(dir,sectorList,&errorForest);
@@ -871,6 +872,7 @@ FTKPatternBySectorIndexedWriter::~FTKPatternBySectorIndexedWriter() {
    m_cpatternIndexTree->Write(0,TObject::kOverwrite);
    delete m_cpatternDataTree;
    delete m_cpatternIndexTree;
+   //  if (m_patternData) delete m_patternData;
 }
 
 int FTKPatternBySectorIndexedWriter::AppendPattern
@@ -1241,6 +1243,7 @@ FTKPatternBySectorIndexedReader::FTKPatternBySectorIndexedReader
 
 FTKPatternBySectorIndexedReader::~FTKPatternBySectorIndexedReader() {
    if(m_dataTree) delete m_dataTree;
+   if (m_patternData) delete m_patternData;
 }
 
 Long64_t FTKPatternBySectorIndexedReader::GetNPatterns(int sector) const {

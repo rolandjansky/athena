@@ -7,6 +7,7 @@
 #include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKSplitEncoder.h"
 #include "TrigFTKSim/atlClustering.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include <fstream>
 #include <cmath> // needed for floor()
@@ -71,6 +72,7 @@ void FTKDataInput::initClustering()
   SPLIT_BLAYER_MODULES = m_SplitBlayerModules;
   //
   //  new clustering class and pass options
+
 }
 
 /** Process the event:cluster raw hits and convert them to FTKHits */
@@ -201,110 +203,124 @@ void FTKDataInput::processEvent(bool clearOrig)
 
 void FTKDataInput::processRegion(int curreg, bool clearOrig)
 {
-  // set the reference the list used by the current region
-  vector<FTKRawHit> &currawhits = *(m_original_reghits[curreg]);
-  vector<FTKHit> &curhits = m_reghits[curreg];
-
-  // reset hit list
-  curhits.clear();
-
-
-  if(FTKSetup::getDBG()) {
-    cout << "DBG: Original hits = " << currawhits.size() << endl;
-  }
-  m_nao_nhits_tot += currawhits.size();
-
-  if (!m_read_clusters) {
-      // if raw channels are read the clustering algorithm can be applyied (default)
-    if (m_Clustering ) {
-      atlClusteringLNF(currawhits);
-      atlClusteringBlayer(currawhits);  // split blayer modules in half, if requested
-    }
-    else {
-      // If the clustering it is not executed the FTKRawHit.m_truth field has to be fixed
-      vector<FTKRawHit>::iterator ihit = currawhits.begin();
-      vector<FTKRawHit>::const_iterator ihit_end = currawhits.end();
-      for (;ihit!=ihit_end;++ihit) { // loop over the raw hits
-	FTKRawHit &curhit = *ihit;
-	MultiTruth mt;
-	MultiTruth::Barcode uniquecode(curhit.getEventIndex(),curhit.getBarcode());
-	mt.maximize(uniquecode,curhit.getBarcodePt());
-	curhit.setTruth(mt);
-      } // end hit
-    }
-  }
-
-  if(FTKSetup::getDBG()) {
-    cout << "DBG: Clustered hits = " << m_original_hits.size() << endl;
-  }
-  m_nao_nclus_tot += currawhits.size();
-
-  // read SCTtrk values (Constantinos case) and push SCTtrk hits into hits vector:
-  // Note that it assumes the raw data input and root track input are fully in sync!
-  if(m_trackinput && m_roadinput) {
-    // for now, only read tracks from "current" region
-    int res = m_trackinput[curreg]->nextEvent();
-    if(res<0) {
-      FTKSetup::PrintMessage(ftk::sevr,"SCTtrk input ran out before hit input");
-    }
-    res = m_roadinput[curreg]->nextEvent();
-    if(res<0) {
-      FTKSetup::PrintMessage(ftk::sevr,"SCTtrk road input ran out before hit input");
-    }
-    const FTKTrack *cur_track = m_trackinput[curreg]->nextTrack(m_region);
-    while (cur_track) {
-      FTKRawHit tmphit(cur_track,m_pmap->getSCTtrkPlane());
-      m_original_hits.push_back(tmphit);
-      cur_track = m_trackinput[curreg]->nextTrack(m_region);
-    }
-  }
-
-  // filter the hit end convert input hit format into FTKHit
-  vector<FTKRawHit>::iterator irawhit = currawhits.begin();
-  FTKSetup &ftkset = FTKSetup::getFTKSetup();
   
-  // create one list for each plane to order the hits
-  list<FTKHit> *planelist = new list<FTKHit>[m_nplanes];
+  if (m_read_FTKhits_directly) {
+      vector<FTKHit> &curhits = m_reghits[curreg];
+      vector<FTKHit*> &curhits_read = *(m_reghits_read[curreg]);
+      curhits.clear();
+      vector<FTKHit*>::iterator ihit = curhits_read.begin();
+      for(; ihit!=curhits_read.end(); ++ihit){
+          FTKHit tmphit = **ihit;
+          curhits.push_back(tmphit);
+      }
+      
+  }
+  else {
+     // set the reference the list used by the current region
+     vector<FTKRawHit> &currawhits = *(m_original_reghits[curreg]);
+     vector<FTKHit> &curhits = m_reghits[curreg];
 
-  for (;irawhit!=currawhits.end();++irawhit) { // loop over clusters
-    FTKRawHit &rawhit = *irawhit;
+     // reset hit list
+     curhits.clear();
 
-    // check if end-cap hits should be accepted
-    if (rawhit.getBarrelEC()!=0 && ftkset.getBarrelOnly() == true) {
-      // skip this hit
-      continue;
-    }
-    // check if SCT hits should be accepted
-    if(rawhit.getIsSCT() && ftkset.getSCTtrkMode()) {
-      // skip this hit
-      continue;
-    }
-    if (m_pmap->getMap(rawhit.getHitType(),rawhit.getBarrelEC()!=0,rawhit.getLayer()).getPlane() != -1) {
-      // accept this hit
-      FTKHit tmphit = rawhit.getFTKHit(m_pmap);
-      assert(rawhit.getTruth());
-      tmphit.setTruth(*(rawhit.getTruth())); // AB - attach truth data to the FTKHit.
-      planelist[tmphit.getPlane()].push_front(tmphit);
-    }
-    else if (m_save_unused) {
-      // accept this hit
-      FTKHit tmphit = rawhit.getFTKHit(m_pmap_unused);
-      assert(rawhit.getTruth());
-      tmphit.setTruth(*(rawhit.getTruth())); // AB - attach truth data to the FTKHit.
-      m_hits_unused.push_back(tmphit);
-    }
-  } // end loop over clusters
 
-  for (int ipl=0;ipl<m_nplanes;++ipl) { // loop over the planes
-    list<FTKHit>::iterator tmphit = planelist[ipl].begin();
-    for (;tmphit!=planelist[ipl].end();++tmphit) {
-      curhits.push_back(*tmphit);
-    }
-  } // end loop over the planes
+     if(FTKSetup::getDBG()) {
+       cout << "DBG: Original hits = " << currawhits.size() << endl;
+     }
+     m_nao_nhits_tot += currawhits.size();
 
-  // clear raw hits since we don't need them anymore
-  if(clearOrig)
-    currawhits.clear();
+     if (!m_read_clusters) {
+         // if raw channels are read the clustering algorithm can be applyied (default)
+       if (m_Clustering ) {
+         atlClusteringLNF(currawhits);
+         atlClusteringBlayer(currawhits);  // split blayer modules in half, if requested
+       }
+       else {
+         // If the clustering it is not executed the FTKRawHit.m_truth field has to be fixed
+         vector<FTKRawHit>::iterator ihit = currawhits.begin();
+         vector<FTKRawHit>::const_iterator ihit_end = currawhits.end();
+         for (;ihit!=ihit_end;++ihit) { // loop over the raw hits
+       FTKRawHit &curhit = *ihit;
+       MultiTruth mt;
+       MultiTruth::Barcode uniquecode(curhit.getEventIndex(),curhit.getBarcode());
+       mt.maximize(uniquecode,curhit.getBarcodePt());
+       curhit.setTruth(mt);
+         } // end hit
+       }
+     }
 
-  delete [] planelist;
+     if(FTKSetup::getDBG()) {
+       cout << "DBG: Clustered hits = " << m_original_hits.size() << endl;
+     }
+     m_nao_nclus_tot += currawhits.size();
+
+     // read SCTtrk values (Constantinos case) and push SCTtrk hits into hits vector:
+     // Note that it assumes the raw data input and root track input are fully in sync!
+     if(m_trackinput && m_roadinput) {
+       // for now, only read tracks from "current" region
+       int res = m_trackinput[curreg]->nextEvent();
+       if(res<0) {
+         FTKSetup::PrintMessage(ftk::sevr,"SCTtrk input ran out before hit input");
+       }
+       res = m_roadinput[curreg]->nextEvent();
+       if(res<0) {
+         FTKSetup::PrintMessage(ftk::sevr,"SCTtrk road input ran out before hit input");
+       }
+       const FTKTrack *cur_track = m_trackinput[curreg]->nextTrack(m_region);
+       while (cur_track) {
+         FTKRawHit tmphit(cur_track,m_pmap->getSCTtrkPlane());
+         m_original_hits.push_back(tmphit);
+         cur_track = m_trackinput[curreg]->nextTrack(m_region);
+       }
+     }
+
+     // filter the hit end convert input hit format into FTKHit
+     vector<FTKRawHit>::iterator irawhit = currawhits.begin();
+     FTKSetup &ftkset = FTKSetup::getFTKSetup();
+     
+     // create one list for each plane to order the hits
+     list<FTKHit> *planelist = new list<FTKHit>[m_nplanes];
+
+     for (;irawhit!=currawhits.end();++irawhit) { // loop over clusters
+       FTKRawHit &rawhit = *irawhit;
+
+       // check if end-cap hits should be accepted
+       if (rawhit.getBarrelEC()!=0 && ftkset.getBarrelOnly() == true) {
+         // skip this hit
+         continue;
+       }
+       // check if SCT hits should be accepted
+       if(rawhit.getIsSCT() && ftkset.getSCTtrkMode()) {
+         // skip this hit
+         continue;
+       }
+       if (m_pmap->getMap(rawhit.getHitType(),rawhit.getBarrelEC()!=0,rawhit.getLayer()).getPlane() != -1) {
+         // accept this hit
+         FTKHit tmphit = rawhit.getFTKHit(m_pmap);
+         assert(rawhit.getTruth());
+         tmphit.setTruth(*(rawhit.getTruth())); // AB - attach truth data to the FTKHit.
+         planelist[tmphit.getPlane()].push_front(tmphit);
+       }
+       else if (m_save_unused) {
+         // accept this hit
+         FTKHit tmphit = rawhit.getFTKHit(m_pmap_unused);
+         assert(rawhit.getTruth());
+         tmphit.setTruth(*(rawhit.getTruth())); // AB - attach truth data to the FTKHit.
+         m_hits_unused.push_back(tmphit);
+       }
+     } // end loop over clusters
+
+     for (int ipl=0;ipl<m_nplanes;++ipl) { // loop over the planes
+       list<FTKHit>::iterator tmphit = planelist[ipl].begin();
+       for (;tmphit!=planelist[ipl].end();++tmphit) {
+         curhits.push_back(*tmphit);
+       }
+     } // end loop over the planes
+
+     // clear raw hits since we don't need them anymore
+     if(clearOrig)
+       currawhits.clear();
+
+     delete [] planelist;
+  }
 }
