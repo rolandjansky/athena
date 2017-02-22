@@ -10,22 +10,21 @@ def map_filename_to_package(fname):
     """
     fname ... full path of filename
 
+    note: only works if this file resides in <ATHENA_ROOT>/CI
+
     return: package path for given full file path
     """
-    package_sub_dirs = ['cmt','components','doc','python','Root','scripts','share','src','test']
+    # get Athena root directory (specific to current layout) which is one level up
+    athena_root = os.path.dirname(os.path.abspath(os.path.join(os.path.realpath(__file__),'../')))
+    logging.debug("found Athena root directory '%s'",athena_root)
 
     # start from directory name
     pkg_name = os.path.dirname(fname)
 
-    # strip known package subfolders
-    while os.path.basename(pkg_name) in package_sub_dirs:
-        pkg_name = os.path.dirname(pkg_name)
-
-    # treat include directories which have the format:
-    # A/B/C/PackageName/PackageName
-    levels = pkg_name.split('/')
-    is_include_dir = len(levels) > 1 and levels[-1] == levels[-2]
-    if is_include_dir:
+    # recursively move up in directory hierarchy and look for CMakeLists.txt
+    while pkg_name and pkg_name != '/':
+        if os.path.isfile(os.path.join(athena_root,pkg_name,'CMakeLists.txt')):
+            break
         pkg_name = os.path.dirname(pkg_name)
 
     logging.debug("mapped file '%s' to package '%s'" % (fname,pkg_name))
