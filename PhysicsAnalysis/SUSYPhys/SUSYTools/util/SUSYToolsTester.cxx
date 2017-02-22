@@ -936,7 +936,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
             }              
             if(passTM)
               el_idx[trgmatch]++; 
-            
+
+
+	    //check ChID BDT
+	    //Info(APP_NAME, "electron passChID : %d ,  BDT : %.3f", el->auxdata<char>("passChID") , el->auxdata<double>("ecisBDT"));            
           }
         }
       }

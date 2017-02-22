@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 780661 2016-10-27 09:23:10Z krasznaa $
+# $Id: CMakeLists.txt 796691 2017-02-11 10:15:48Z ludovica $
 
 # The name of the package:
 atlas_subdir( PhotonEfficiencyCorrection )
@@ -67,4 +67,5 @@ endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_data( data/*.root )
+#atlas_install_data( data/*.root )
+atlas_install_data( data/*.root data/*.txt )

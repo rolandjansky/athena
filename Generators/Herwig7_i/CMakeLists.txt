@@ -28,6 +28,7 @@ set( HERWIG3_ROOT
 # External dependencies:
 find_package( Boost )
 find_package( Herwig3 )
+find_package( GSL )
 find_package( ThePEG )
 
 # Remove the --as-needed linker flags:
@@ -36,10 +37,10 @@ atlas_disable_as_needed()
 # Component(s) in the package:
 atlas_add_component( Herwig7_i
    Herwig7_i/*.h src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HERWIG3_INCLUDE_DIRS}
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${HERWIG3_INCLUDE_DIRS}
    ${THEPEG_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS -DHWVERSION=\"${HERWIG7_VERSION}\"
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${HERWIG7_LIBRARIES} ${THEPEG_LIBRARIES}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${GSL_LIBRARIES} ${HERWIG7_LIBRARIES} ${THEPEG_LIBRARIES}
    GeneratorModulesLib EventInfo GaudiKernel PathResolver )
 
 # Install files from the package:

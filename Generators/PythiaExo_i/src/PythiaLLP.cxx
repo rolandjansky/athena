@@ -176,9 +176,9 @@ StatusCode PythiaLLP::genInitialize() {
   // Initialise the listing output, parameter and decay data input streams
   //
   //  MsgStream log(messageService(), name());
-  // log << MSG::INFO << " PYTHIA INITIALISING.  \n"  << endreq;
+  // log << MSG::INFO << " PYTHIA INITIALISING.  \n"  << endmsg;
   if(msgLvl(MSG::INFO)){
-    msg(MSG::INFO) << " PYTHIA INITIALISING.  \n " << endreq;}
+    msg(MSG::INFO) << " PYTHIA INITIALISING.  \n " << endmsg;}
 
   static const bool CREATEIFNOTTHERE(true);
   StatusCode RndmStatus = service("AtRndmGenSvc",
@@ -186,9 +186,9 @@ StatusCode PythiaLLP::genInitialize() {
 				  CREATEIFNOTTHERE);
   if (!RndmStatus.isSuccess() || 0 == PythiaLLP::p_AtRndmGenSvc)
   {
-    //      log << MSG::ERROR << " Could not initialize Random Number Service" << endreq;
+    //      log << MSG::ERROR << " Could not initialize Random Number Service" << endmsg;
      if(msgLvl(MSG::ERROR)){
-       msg(MSG::ERROR) << " Could not initialize Random Number Service" << endreq;}
+       msg(MSG::ERROR) << " Could not initialize Random Number Service" << endmsg;}
       return RndmStatus;
   }	
   PythiaLLP::pythia_stream	=	"PYTHIA_INIT";
@@ -315,9 +315,9 @@ StatusCode PythiaLLP::genInitialize() {
   //   for(CommandVector::iterator it = m_pythiaCommandVector.begin(); 
   //     it != m_pythiaCommand.end(); it++ ) { 
   for (unsigned int i = 0; i < m_pythiaCommandVector.size(); i++) {
-    //    log << MSG::INFO << " Command is: " << m_pythiaCommandVector[i]  << endreq;
+    //    log << MSG::INFO << " Command is: " << m_pythiaCommandVector[i]  << endmsg;
     if(msgLvl(MSG::INFO)){
-      msg(MSG::INFO) << " Command is: " << m_pythiaCommandVector[i]  << endreq;}
+      msg(MSG::INFO) << " Command is: " << m_pythiaCommandVector[i]  << endmsg;}
     StringParse mystring(m_pythiaCommandVector[i]);
     string myblock=mystring.piece(1);
     string myentry=mystring.piece(2);
@@ -332,9 +332,9 @@ StatusCode PythiaLLP::genInitialize() {
     double  myfl0=mystring.numpiece(3);
 
     // Note that PythiaLLP needs doubles hence the convert here
-    //  log << MSG:: INFO << myblock << " block  " << myentry << " item  " << myint1 << "  value " << myfl1 <<endreq;
+    //  log << MSG:: INFO << myblock << " block  " << myentry << " item  " << myint1 << "  value " << myfl1 <<endmsg;
      if(msgLvl(MSG::INFO)){
-       msg(MSG::INFO)<< myblock << " block  " << myentry << " item  " << myint1 << "  value " << myfl1 <<endreq;}
+       msg(MSG::INFO)<< myblock << " block  " << myentry << " item  " << myint1 << "  value " << myfl1 <<endmsg;}
 
     if (myblock=="pyinit") {
       if(myentry=="user"){
@@ -372,7 +372,7 @@ StatusCode PythiaLLP::genInitialize() {
           if(msgLvl(MSG::ERROR)){
            msg(MSG::ERROR)
 	      << "PYTHIA ERROR, entry PYINIT USER has comphep, acermc, alpgen, madgraph, madcup,  lhaext, hvgen, lhef and user as options: YOU HAVE SPECIFIED "
-	      << myentry <<endreq ;}
+	      << myentry <<endmsg ;}
 	      }*/
 	extproc_(&m_ExternalProcess);
       }
@@ -417,34 +417,34 @@ StatusCode PythiaLLP::genInitialize() {
              if(msgLvl(MSG::ERROR)){
                msg(MSG::ERROR)
 		    << " INCOSISTENT SET OF rndm_IO PARAMETERS : FirstEvent < 1 || SkipEvents < 0. DUMPING RNDM SEEDS SWITCHED OFF"
-		    << myentry <<endreq ;}
+		    << myentry <<endmsg ;}
 		m_RndmSwitch = 0;
 	    }
 	}
 
 	//	log << MSG::INFO 
          if(msgLvl(MSG::INFO)){
-         msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA RANDOM NUMBERS !!!!!!!! " << endreq;
+         msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA RANDOM NUMBERS !!!!!!!! " << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO) << " THE ATHENA/PYTHIA DOES NOT USE ANY MORE THE STANDARD  " << endreq;
+         msg(MSG::INFO) << " THE ATHENA/PYTHIA DOES NOT USE ANY MORE THE STANDARD  " << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO)  << " PYTHIA RANDOM NUMBER SERVICES. SINCE RELEASE 5.2.0 THE" << endreq;
+         msg(MSG::INFO)  << " PYTHIA RANDOM NUMBER SERVICES. SINCE RELEASE 5.2.0 THE" << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO) << " ATHENA SERVICE AtRndmGenSvc IS USED. PLEASE FOR MORE  " << endreq;
+         msg(MSG::INFO) << " ATHENA SERVICE AtRndmGenSvc IS USED. PLEASE FOR MORE  " << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO) << " DETAILS LOOK IN  " << endreq;
+         msg(MSG::INFO) << " DETAILS LOOK IN  " << endmsg;
 	 //	log << MSG::INFO 
          msg(MSG::INFO) << " http://atlassw1.phy.bnl.gov/lxrsource/current/atlas/Generators/GeneratorModules/doc/Pythia.pdf "
-	    << endreq;
+	    << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endreq;
+         msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endmsg;
 	 }
 	m_RndmSwitch = 0;
       }
       else {
 	//	log << MSG:: ERROR 
        if(msgLvl(MSG::ERROR)){ 
-         msg(MSG::ERROR) << "PYTHIA ERROR, entry PYINIT has  USER PBAR PYLISTI  PYLISTF  PYSTAT  OUTPUT DUMPR WIN AND RNDM_IO: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+         msg(MSG::ERROR) << "PYTHIA ERROR, entry PYINIT has  USER PBAR PYLISTI  PYLISTF  PYSTAT  OUTPUT DUMPR WIN AND RNDM_IO: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }    
     }
     else if (myblock == "pysubs") {
@@ -463,7 +463,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR 
       if(msgLvl(MSG::ERROR)){ 
-	msg(MSG::ERROR) << "PYTHIA ERROR, block PYSUBS has MSEL, MSUB, KFIN AND CKIN: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	msg(MSG::ERROR) << "PYTHIA ERROR, block PYSUBS has MSEL, MSUB, KFIN AND CKIN: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
     }
     else if (myblock == "pypars"){
@@ -482,7 +482,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR 
       if(msgLvl(MSG::ERROR)){
-        msg(MSG::ERROR) << "PYTHIA ERROR, block PYPARS has MSTP,PARP, MSTI AND PARI: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+        msg(MSG::ERROR) << "PYTHIA ERROR, block PYPARS has MSTP,PARP, MSTI AND PARI: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
     }
     else if (myblock == "pydat1"){
@@ -501,7 +501,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR 
       if(msgLvl(MSG::ERROR)){
-	msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT1  HAS MSTU, MSTJ, PARU AND PARJ: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT1  HAS MSTU, MSTJ, PARU AND PARJ: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
     }
     else if (myblock == "pydat2"){
@@ -520,7 +520,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR 
       if(msgLvl(MSG::ERROR)){
-	msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT2  HAS KCHG, PMAS, PARF AND VCKM: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT2  HAS KCHG, PMAS, PARF AND VCKM: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
     }
     else if (myblock == "pydat3"){
@@ -539,27 +539,27 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR 
         if(msgLvl(MSG::ERROR)){
-	  msg(MSG::ERROR)<< "PYTHIA ERROR, block PYDAT3  HAS KFDP, MDCY, BRAT AND MDME : YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	  msg(MSG::ERROR)<< "PYTHIA ERROR, block PYDAT3  HAS KFDP, MDCY, BRAT AND MDME : YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
     }
     else if (myblock == "pydatr"){
       if(myentry == "mrpy"){
 	//	log << MSG::INFO 
          if(msgLvl(MSG::INFO)){
-         msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA RANDOM NUMBERS !!!!!!!! " << endreq;
+         msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA RANDOM NUMBERS !!!!!!!! " << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO) << " THE ATHENA/PYTHIA DOES NOT USE ANY MORE THE STANDARD  " << endreq;
+         msg(MSG::INFO) << " THE ATHENA/PYTHIA DOES NOT USE ANY MORE THE STANDARD  " << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO) << " PYTHIA RANDOM NUMBER SERVICES. SINCE RELEASE 5.2.0 THE" << endreq;
+         msg(MSG::INFO) << " PYTHIA RANDOM NUMBER SERVICES. SINCE RELEASE 5.2.0 THE" << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO) << " ATHENA SERVICE AtRndmGenSvc IS USED. PLEASE FOR MORE  " << endreq;
+         msg(MSG::INFO) << " ATHENA SERVICE AtRndmGenSvc IS USED. PLEASE FOR MORE  " << endmsg;
 	 //	log << MSG::INFO 
-         msg(MSG::INFO) << " DETAILS LOOK IN  " << endreq;
+         msg(MSG::INFO) << " DETAILS LOOK IN  " << endmsg;
 	 //	log << MSG::INFO 
          msg(MSG::INFO) << " http://atlassw1.phy.bnl.gov/lxrsource/current/atlas/Generators/GeneratorModules/doc/Pythia.pdf "
-	    << endreq;
+	    << endmsg;
 	 //	log << MSG::INFO 
-	 msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endreq;}
+	 msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endmsg;}
 	  
 	this->pydatr().mrpy(myint1)=myint2;
       }       
@@ -569,7 +569,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR 
         if(msgLvl(MSG::ERROR)){
-	  msg(MSG::ERROR) << "PYTHIA ERROR, block PYDATR  HAS MRPY AND RRPY : YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	  msg(MSG::ERROR) << "PYTHIA ERROR, block PYDATR  HAS MRPY AND RRPY : YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
     }
     else if (myblock == "pymssm"){
@@ -578,7 +578,7 @@ StatusCode PythiaLLP::genInitialize() {
 	  //	  log << MSG::WARNING 
           if(msgLvl(MSG::WARNING)){
            msg(MSG::WARNING)
-	     << "The seting of imss(21) and imss(22) is not allowed. When imss(1)=11 is chosen imss(21) and imss(22) are set to 66 by default" <<endreq;}
+	     << "The seting of imss(21) and imss(22) is not allowed. When imss(1)=11 is chosen imss(21) and imss(22) are set to 66 by default" <<endmsg;}
 	} else {
  	  this->pymssm().imss(myint1)=myint2;
 	}
@@ -589,7 +589,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR 
         if(msgLvl(MSG::ERROR)){
-	  msg(MSG::ERROR) << "PYTHIA ERROR, block PYMSSM has IMSS AND RMSS: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	  msg(MSG::ERROR) << "PYTHIA ERROR, block PYMSSM has IMSS AND RMSS: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
     }
     else if (myblock == "pyint2"){
@@ -608,7 +608,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//      log << MSG:: ERROR 
         if(msgLvl(MSG::ERROR)){
-	  msg(MSG::ERROR) << "PYTHIA ERROR, block PYINT2 has ISET KFPR COEF AND ICOL: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	  msg(MSG::ERROR) << "PYTHIA ERROR, block PYINT2 has ISET KFPR COEF AND ICOL: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
     }
     else if (myblock == "pystat"){
@@ -626,7 +626,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR 
        if(msgLvl(MSG::ERROR)){
-         msg(MSG::ERROR) << "PYTHIA ERROR, block PYTCM has ITCM AND RTCM: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+         msg(MSG::ERROR) << "PYTHIA ERROR, block PYTCM has ITCM AND RTCM: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
       }
 
     }
@@ -641,7 +641,7 @@ StatusCode PythiaLLP::genInitialize() {
     else {
       //      log << MSG:: ERROR
      if(msgLvl(MSG::ERROR)){ 
-       msg(MSG::ERROR) << " ERROR in PYTHIA PARAMETERS   " << myblock << " is and invalid common block name !" << endreq;}
+       msg(MSG::ERROR) << " ERROR in PYTHIA PARAMETERS   " << myblock << " is and invalid common block name !" << endmsg;}
     }
   }
   // end of parsing
@@ -661,17 +661,17 @@ StatusCode PythiaLLP::genInitialize() {
       this->pypars().mstp(82) = 1;
       //      log << MSG::INFO 
        if(msgLvl(MSG::INFO)){
-       msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA LOOPING !!!!!!!! " << endreq;
+       msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA LOOPING !!!!!!!! " << endmsg;
        //      log << MSG::INFO 
-       msg(MSG::INFO) << " YOU HAVE SWITCHED OFF MULTIPLE INTERACTIONS, mstp(81) = 0 " << endreq;
+       msg(MSG::INFO) << " YOU HAVE SWITCHED OFF MULTIPLE INTERACTIONS, mstp(81) = 0 " << endmsg;
        //      log << MSG::INFO 
-       msg(MSG::INFO) << " THE DEFAULT ATLAS MULTIPLE INTERACTIONS SCENARIO, mstp(82) = 4 " << endreq;
+       msg(MSG::INFO) << " THE DEFAULT ATLAS MULTIPLE INTERACTIONS SCENARIO, mstp(82) = 4 " << endmsg;
        //      log << MSG::INFO 
-       msg(MSG::INFO) << " CHANGED TO mstp(82) = 1, BECAUSE PYTHIA IS LOOPING WHEN " << endreq;
+       msg(MSG::INFO) << " CHANGED TO mstp(82) = 1, BECAUSE PYTHIA IS LOOPING WHEN " << endmsg;
        //      log << MSG::INFO 
-       msg(MSG::INFO) << " mstp(81) = 0 and mstp(82) > 2 " << endreq;
+       msg(MSG::INFO) << " mstp(81) = 0 and mstp(82) > 2 " << endmsg;
        //      log << MSG::INFO 
-       msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endreq;}
+       msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endmsg;}
   }
   
   // Now call pyinit and set listing
@@ -692,7 +692,7 @@ StatusCode PythiaLLP::genInitialize() {
       const char* RndmFileName = m_RndmFileName.c_str();
       m_RndmFileLength = openrandom_(&m_RndmSwitch, &m_RndmFileNumber, RndmFileName);
       if (m_RndmSwitch ==2 )  msg(MSG::INFO) << " THEY ARE " << m_RndmFileLength
-				 << " EVENTS STORED IN THE PYTHIA RANDOM NUMBER FILE \n"  << endreq;
+				 << " EVENTS STORED IN THE PYTHIA RANDOM NUMBER FILE \n"  << endmsg;
   }
   
   const char* frame = m_frame.c_str();
@@ -747,7 +747,7 @@ StatusCode PythiaLLP::genInitialize() {
     for (unsigned int i = 0; i < m_pythiaCommandVector.size(); i++) {
       //      log << MSG::INFO
       if(msgLvl(MSG::INFO)){ 
-	msg(MSG::INFO) << " Command is: " << m_pythiaCommandVector[i]  << endreq;}
+	msg(MSG::INFO) << " Command is: " << m_pythiaCommandVector[i]  << endmsg;}
       StringParse mystring(m_pythiaCommandVector[i]);
       string myblock=mystring.piece(1);
       string myentry=mystring.piece(2);
@@ -764,7 +764,7 @@ StatusCode PythiaLLP::genInitialize() {
       // Note that Pythia needs doubles hence the convert here
       //      log << MSG:: INFO 
       if(msgLvl(MSG::INFO)){
-	msg(MSG::INFO) << myblock << " block  " << myentry << " item  " << myint1 << "  value " << myfl1 <<endreq;}
+	msg(MSG::INFO) << myblock << " block  " << myentry << " item  " << myint1 << "  value " << myfl1 <<endmsg;}
       if (myblock=="pyinit") {
 	if(myentry=="user"){
 	  m_frame="USER  ";
@@ -801,7 +801,7 @@ StatusCode PythiaLLP::genInitialize() {
                 if(msgLvl(MSG::ERROR)){
                  msg(MSG::ERROR)
 		<< "PYTHIA ERROR, entry PYINIT USER has comphep, acermc, alpgen, madgraph, madcup, lhaext, hvgen, lhef and user as options: YOU HAVE SPECIFIED "
-		<< myentry <<endreq ;}
+		<< myentry <<endmsg ;}
 		}*/
 	  extproc_(&m_ExternalProcess);
 	}
@@ -846,34 +846,34 @@ StatusCode PythiaLLP::genInitialize() {
                  if(msgLvl(MSG::ERROR)){  
                    msg(MSG::ERROR)
 		      << " INCOSISTENT SET OF rndm_IO PARAMETERS : FirstEvent < 1 || SkipEvents < 0. DUMPING RNDM SEEDS SWITCHED OFF"
-		      << myentry <<endreq ;}
+		      << myentry <<endmsg ;}
 		  m_RndmSwitch = 0;
 		}
 	    }
 	  
 	  //	  log << MSG::INFO 
           if(msgLvl(MSG::INFO)){
-           msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA RANDOM NUMBERS !!!!!!!! " << endreq;
+           msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA RANDOM NUMBERS !!!!!!!! " << endmsg;
 	   //	  log << MSG::INFO 
-           msg(MSG::INFO) << " THE ATHENA/PYTHIA DOES NOT USE ANY MORE THE STANDARD  " << endreq;
+           msg(MSG::INFO) << " THE ATHENA/PYTHIA DOES NOT USE ANY MORE THE STANDARD  " << endmsg;
 	   //	  log << MSG::INFO 
-           msg(MSG::INFO) << " PYTHIA RANDOM NUMBER SERVICES. SINCE RELEASE 5.2.0 THE" << endreq;
+           msg(MSG::INFO) << " PYTHIA RANDOM NUMBER SERVICES. SINCE RELEASE 5.2.0 THE" << endmsg;
 	   //	  log << MSG::INFO 
-           msg(MSG::INFO) << " ATHENA SERVICE AtRndmGenSvc IS USED. PLEASE FOR MORE  " << endreq;
+           msg(MSG::INFO) << " ATHENA SERVICE AtRndmGenSvc IS USED. PLEASE FOR MORE  " << endmsg;
 	   //	  log << MSG::INFO 
-           msg(MSG::INFO) << " DETAILS LOOK IN  " << endreq;
+           msg(MSG::INFO) << " DETAILS LOOK IN  " << endmsg;
 	   //	  log << MSG::INFO 
            msg(MSG::INFO) << " http://atlassw1.phy.bnl.gov/lxrsource/current/atlas/Generators/GeneratorModules/doc/Pythia.pdf "
-	      << endreq;
+	      << endmsg;
 	   //	  log << MSG::INFO 
-           msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endreq;}
+           msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endmsg;}
 	  
 	  m_RndmSwitch = 0;
 	}
 	else {
 	  //	  log << MSG:: ERROR
          if(msgLvl(MSG::ERROR)){  
-	   msg(MSG::ERROR) << "PYTHIA ERROR, entry PYINIT has  USER PBAR PYLISTI  PYLISTF  PYSTAT  OUTPUT DUMPR WIN AND RNDM_IO: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	   msg(MSG::ERROR) << "PYTHIA ERROR, entry PYINIT has  USER PBAR PYLISTI  PYLISTF  PYSTAT  OUTPUT DUMPR WIN AND RNDM_IO: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}    
       }
       else if (myblock == "pysubs") {
@@ -892,7 +892,7 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR 
          if(msgLvl(MSG::ERROR)){ 
-	   msg(MSG::ERROR) << "PYTHIA ERROR, block PYSUBS has MSEL, MSUB, KFIN AND CKIN: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	   msg(MSG::ERROR) << "PYTHIA ERROR, block PYSUBS has MSEL, MSUB, KFIN AND CKIN: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
       }
       else if (myblock == "pypars"){
@@ -911,7 +911,7 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR 
          if(msgLvl(MSG::ERROR)){
-	   msg(MSG::ERROR) << "PYTHIA ERROR, block PYPARS has MSTP,PARP, MSTI AND PARI: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	   msg(MSG::ERROR) << "PYTHIA ERROR, block PYPARS has MSTP,PARP, MSTI AND PARI: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
       }
       else if (myblock == "pydat1"){
@@ -930,7 +930,7 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR 
           if(msgLvl(MSG::ERROR)){
-	    msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT1  HAS MSTU, MSTJ, PARU AND PARJ: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	    msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT1  HAS MSTU, MSTJ, PARU AND PARJ: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
       }
       else if (myblock == "pydat2"){
@@ -949,7 +949,7 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR 
          if(msgLvl(MSG::ERROR)){
-	   msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT2  HAS KCHG, PMAS, PARF AND VCKM: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	   msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT2  HAS KCHG, PMAS, PARF AND VCKM: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
       }
       else if (myblock == "pydat3"){
@@ -968,27 +968,27 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR 
           if(msgLvl(MSG::ERROR)){ 
-	    msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT3  HAS KFDP, MDCY, BRAT AND MDME : YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	    msg(MSG::ERROR) << "PYTHIA ERROR, block PYDAT3  HAS KFDP, MDCY, BRAT AND MDME : YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
       }
       else if (myblock == "pydatr"){
 	if(myentry == "mrpy"){
 	  //	  log << MSG::INFO 
           if(msgLvl(MSG::INFO)){
-          msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA RANDOM NUMBERS !!!!!!!! " << endreq;
+          msg(MSG::INFO) << " !!!!!!!!!!  WARNING ON PYTHIA RANDOM NUMBERS !!!!!!!! " << endmsg;
 	  //	  log << MSG::INFO 
-	          msg(MSG::INFO) << " THE ATHENA/PYTHIA DOES NOT USE ANY MORE THE STANDARD  " << endreq;
+	          msg(MSG::INFO) << " THE ATHENA/PYTHIA DOES NOT USE ANY MORE THE STANDARD  " << endmsg;
 	    //	   log << MSG::INFO 
-          msg(MSG::INFO) << " PYTHIA RANDOM NUMBER SERVICES. SINCE RELEASE 5.2.0 THE" << endreq;
+          msg(MSG::INFO) << " PYTHIA RANDOM NUMBER SERVICES. SINCE RELEASE 5.2.0 THE" << endmsg;
 	  //	  log << MSG::INFO
-           msg(MSG::INFO) << " ATHENA SERVICE AtRndmGenSvc IS USED. PLEASE FOR MORE  " << endreq;
+           msg(MSG::INFO) << " ATHENA SERVICE AtRndmGenSvc IS USED. PLEASE FOR MORE  " << endmsg;
 	   //	  log << MSG::INFO 
-           msg(MSG::INFO) << " DETAILS LOOK IN  " << endreq;
+           msg(MSG::INFO) << " DETAILS LOOK IN  " << endmsg;
 	   //	  log << MSG::INFO 
            msg(MSG::INFO) << " http://atlassw1.phy.bnl.gov/lxrsource/current/atlas/Generators/GeneratorModules/doc/Pythia.pdf "
-	      << endreq;
+	      << endmsg;
 	   //	  log << MSG::INFO 
-	   msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endreq;}
+	   msg(MSG::INFO) << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endmsg;}
 	  
 	  this->pydatr().mrpy(myint1)=myint2;
 	}       
@@ -998,7 +998,7 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR 
           if(msgLvl(MSG::ERROR)){
-	    msg(MSG::ERROR) << "PYTHIA ERROR, block PYDATR  HAS MRPY AND RRPY : YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	    msg(MSG::ERROR) << "PYTHIA ERROR, block PYDATR  HAS MRPY AND RRPY : YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
       }
       else if (myblock == "pymssm"){
@@ -1006,7 +1006,7 @@ StatusCode PythiaLLP::genInitialize() {
 	  if (myint1 == 21 || myint1 == 22) {
 	    //	    log << MSG::WARNING 
             if(msgLvl(MSG::WARNING)){
-	      msg(MSG::WARNING) << "The seting of imss(21) and imss(22) is not allowed. When imss(1)=11 is chosen imss(21) and imss(22) are set to 66 by default" <<endreq;}
+	      msg(MSG::WARNING) << "The seting of imss(21) and imss(22) is not allowed. When imss(1)=11 is chosen imss(21) and imss(22) are set to 66 by default" <<endmsg;}
 	  } else {
 	    this->pymssm().imss(myint1)=myint2;
 	  }
@@ -1017,7 +1017,7 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR 
           if(msgLvl(MSG::ERROR)){
-	    msg(MSG::ERROR)<< "PYTHIA ERROR, block PYMSSM has IMSS AND RMSS: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	    msg(MSG::ERROR)<< "PYTHIA ERROR, block PYMSSM has IMSS AND RMSS: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
       }
       else if (myblock == "pyint2"){
@@ -1036,7 +1036,7 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR 
        if(msgLvl(MSG::ERROR)){
-	 msg(MSG::ERROR) << "PYTHIA ERROR, block PYINT2 has ISET KFPR COEF AND ICOL: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	 msg(MSG::ERROR) << "PYTHIA ERROR, block PYINT2 has ISET KFPR COEF AND ICOL: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
       }
       else if (myblock == "pystat"){
@@ -1054,7 +1054,7 @@ StatusCode PythiaLLP::genInitialize() {
 	else {
 	  //	  log << MSG:: ERROR
          if(msgLvl(MSG::ERROR)){ 
-	   msg(MSG::ERROR) << "PYTHIA ERROR, block PYTCM has ITCM AND RTCM: YOU HAVE SPECIFIED "<< myentry <<endreq ;}
+	   msg(MSG::ERROR) << "PYTHIA ERROR, block PYTCM has ITCM AND RTCM: YOU HAVE SPECIFIED "<< myentry <<endmsg ;}
 	}
 	
       }
@@ -1069,7 +1069,7 @@ StatusCode PythiaLLP::genInitialize() {
       else {
 	//	log << MSG:: ERROR
         if(msgLvl(MSG::ERROR)){ 
-	  msg(MSG::ERROR) << " ERROR in PYTHIA PARAMETERS   " << myblock << " is and invalid common block name !" << endreq;}
+	  msg(MSG::ERROR) << " ERROR in PYTHIA PARAMETERS   " << myblock << " is and invalid common block name !" << endmsg;}
       }
     }
   }
@@ -1135,7 +1135,7 @@ StatusCode PythiaLLP::callGenerator() {
   //  MsgStream log(messageService(), name());
   //  log << MSG::DEBUG 
    if(msgLvl(MSG::DEBUG)){
-     msg(MSG::DEBUG) << " PYTHIA generating.  \n"  << endreq;}
+     msg(MSG::DEBUG) << " PYTHIA generating.  \n"  << endmsg;}
 
   // Write/Read the random numbers to/from file if requested
   if (m_RndmSwitch > 0)	RandomNumberIO();
@@ -1158,7 +1158,7 @@ StatusCode PythiaLLP::callGenerator() {
        m_events <= m_lastlistevent) {
     //    log<< MSG:: INFO 
      if(msgLvl(MSG::INFO)){
-       msg(MSG::INFO) << "PYEVNT event no. " << m_events << " will be listed" << endreq;}
+       msg(MSG::INFO) << "PYEVNT event no. " << m_events << " will be listed" << endmsg;}
     if (m_frame == "USER  ")
     {
 	int uspr = 7;
@@ -1190,12 +1190,12 @@ StatusCode PythiaLLP::genFinalize() {
   //  MsgStream log(messageService(), name());
   //  log << MSG::INFO 
    if(msgLvl(MSG::INFO)){
-     msg(MSG::INFO) << " PYTHIA Ending.  \n"  << endreq;}
+     msg(MSG::INFO) << " PYTHIA Ending.  \n"  << endmsg;}
   for (std::vector<int>::iterator i = m_pystatlistlevel.begin(); i != m_pystatlistlevel.end(); ++i)
   {
     //      log << MSG::INFO
     if(msgLvl(MSG::INFO)){ 
-      msg(MSG::INFO) <<"Call PYSTAT at endRun with level " << *i << endreq;}
+      msg(MSG::INFO) <<"Call PYSTAT at endRun with level " << *i << endmsg;}
       pystat_(&(*i));
   }
   std::cout << "MetaData: cross-section (nb)= " << 1000000. * this->pyint5().xsec(0,3) << std::endl;
@@ -1208,12 +1208,12 @@ StatusCode PythiaLLP::fillEvt(HepMC::GenEvent* evt) {
 
   //  log << MSG::DEBUG
    if(msgLvl(MSG::DEBUG)){
-     msg(MSG::DEBUG) << " PYTHIA Atlas_HEPEVT Filling.  \n"  << endreq;}
+     msg(MSG::DEBUG) << " PYTHIA Atlas_HEPEVT Filling.  \n"  << endmsg;}
   store_Atlas_HEPEVT();
 
   //  log << MSG::DEBUG 
   if(msgLvl(MSG::DEBUG)){
-    msg(MSG::DEBUG) << " PYTHIA Filling.  \n"  << endreq;}
+    msg(MSG::DEBUG) << " PYTHIA Filling.  \n"  << endmsg;}
   HepMC::IO_HEPEVT hepio;
   hepio.set_print_inconsistency_errors(0);
   //HepMC::IO_Ascii output("dump.dat",ios::out);
@@ -1305,7 +1305,7 @@ PythiaLLP::RandomNumberIO()
              if(msgLvl(MSG::INFO)){ 
              msg(MSG::INFO) << "EVENT " << m_events+1
 		   << " will be generated with the random seeds read from record "
-			    << c_pos+1 << " in file " << m_RndmFileName << endreq;}
+			    << c_pos+1 << " in file " << m_RndmFileName << endmsg;}
 		pyrset_(&m_RndmFileNumber, &MOVE);
 	    }
 	}
@@ -1337,7 +1337,7 @@ PythiaLLP::store_Atlas_HEPEVT(void)
     //    MsgStream msg(messageService(), name());
     //    msg << MSG::WARNING 
     if(msgLvl(MSG::WARNING)){
-      msg(MSG::WARNING)<< " Could not record Atlas_HEPEVT" << endreq;}
+      msg(MSG::WARNING)<< " Could not record Atlas_HEPEVT" << endmsg;}
   }
 
 }

@@ -4,9 +4,13 @@
 
 // MuonTPExtrapolationTool.cxx
 #include "MuonTPTools/MuonTPExtrapolationTool.h"
-#include "TrkSurfaces/DiscSurface.h"
-#include "TrkSurfaces/CylinderSurface.h"
-#include "TrkExInterfaces/IExtrapolator.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#ifndef XAOD_ANALYSIS
+  #include "TrkSurfaces/DiscSurface.h"
+  #include "TrkSurfaces/CylinderSurface.h"
+  #include "TrkExInterfaces/IExtrapolator.h"
+#endif
 #include "TVector2.h"
 
 //**********************************************************************
@@ -23,8 +27,8 @@ MuonTPExtrapolationTool::MuonTPExtrapolationTool(std::string myname)
   declareProperty("EndcapPivotPlaneZ",             m_endcapPivotPlaneZ = 15525.);// z position of pivot plane in endcap region
   declareProperty("EndcapPivotPlaneMinimumRadius", m_endcapPivotPlaneMinimumRadius = 0.);// minimum radius of pivot plane in endcap region
   declareProperty("EndcapPivotPlaneMaximumRadius", m_endcapPivotPlaneMaximumRadius = 11977.); // maximum radius of pivot plane in endcap region
-  declareProperty("BarrelPivotPlaneRadius",        m_barrelPivotPlaneRadius = 7500.);// radius of pivot plane in barrel region
-  declareProperty("BarrelPivotPlaneHalfLength",    m_barrelPivotPlaneHalfLength = 9500.);// half length of pivot plane in barrel region
+  declareProperty("BarrelPivotPlaneRadius",        m_barrelPivotPlaneRadius = 8000.);// radius of pivot plane in barrel region
+  declareProperty("BarrelPivotPlaneHalfLength",    m_barrelPivotPlaneHalfLength = 9700.);// half length of pivot plane in barrel region
 #ifndef XAOD_ANALYSIS
   declareProperty("Extrapolator", m_extrapolator);
 #endif
@@ -40,7 +44,9 @@ MuonTPExtrapolationTool::~MuonTPExtrapolationTool()
 
 StatusCode MuonTPExtrapolationTool::initialize()
 {
+#ifndef XAOD_ANALYSIS
   ATH_CHECK(m_extrapolator.retrieve());
+#endif
   
   return StatusCode::SUCCESS;
 }
@@ -50,10 +56,18 @@ StatusCode MuonTPExtrapolationTool::initialize()
 
 bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::TrackParticle* particle, float & eta, float & phi){
 
+#ifndef XAOD_ANALYSIS
   // decorators used to access or store the information 
-  static SG::AuxElement::Decorator< bool > Decorated ("DecoratedPivotEtaPhi");
+  static SG::AuxElement::Decorator< char > Decorated ("DecoratedPivotEtaPhi");
+  static SG::AuxElement::Decorator< std::string > DecoOutcome ("DecorationOutcome");
   static SG::AuxElement::Decorator< float > Eta ("EtaTriggerPivot");
   static SG::AuxElement::Decorator< float > Phi ("PhiTriggerPivot");
+#else
+  static SG::AuxElement::Accessor< char > Decorated ("DecoratedPivotEtaPhi");
+  static SG::AuxElement::Accessor< std::string > DecoOutcome ("DecorationOutcome");
+  static SG::AuxElement::Accessor< float > Eta ("EtaTriggerPivot");
+  static SG::AuxElement::Accessor< float > Phi ("PhiTriggerPivot");
+#endif
 
   if (! Decorated.isAvailable(*particle) || !Decorated(*particle)){
     // in the athena release, we can run the extrapolation if needed
@@ -61,17 +75,27 @@ bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Tr
       const Trk::TrackParameters* pTag = extrapolateToTriggerPivotPlane(*particle);
       if(!pTag) {
         // complain only if the particle has sufficient pt to actually make it to the MS... 
-        if (particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for a track with IP pt "<<particle->pt()<<", eta "<<particle->eta()<<", phi "<<particle->phi());
+        if (particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for a track particle with IP pt "<<particle->pt()<<", eta "<<particle->eta()<<", phi "<<particle->phi());
+        Decorated(*particle) = false;
+        DecoOutcome(*particle) = "Extrapolation Failed";
         return false;
       }
       Eta(*particle) = pTag->position().eta();
       Phi(*particle) = pTag->position().phi();
+      DecoOutcome(*particle) = "Extrapolation Success";
       Decorated(*particle) = true;
       delete pTag;
     // in AthAnalysis, we can only give up if the decoration is missing...
     #else 
-        // complain only if the particle has sufficient pt to actually make it to the MS... 
-      if (particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation not decorated to a probe at pt "<<particle->pt()<<", eta "<<particle->eta()<<", phi "<<particle->phi()<<" - can not recover @ DAOD, falling back to IP eta/phi!");
+      std::string outcome = "Not Decorated";
+      try {
+        outcome = DecoOutcome(*particle);
+        ATH_MSG_DEBUG("Pivot plane extrapolation failed for a track particle at pt "<<particle->pt()<<", eta "<<particle->eta()<<", phi "<<particle->phi());
+
+      }
+      catch (SG::ExcBadAuxVar &){
+        ATH_MSG_WARNING("Pivot plane extrapolation not decorated to a track particle at pt "<<particle->pt()<<", eta "<<particle->eta()<<", phi "<<particle->phi()<<" - decoration outcome: "<<outcome);
+      }
       return false;
     #endif
     }
@@ -84,6 +108,43 @@ bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Tr
 
 //**********************************************************************
 
+const xAOD::TrackParticle* MuonTPExtrapolationTool::getPreferredTrackParticle (const xAOD::IParticle* probe){
+  if (dynamic_cast<const xAOD::TruthParticle*>(probe)){
+    ATH_MSG_WARNING("Pivot plane extrapolation not supported for Truth probes!");
+    return 0;
+  }
+  const xAOD::TrackParticle* probeTrack = dynamic_cast<const xAOD::TrackParticle*>(probe);
+  if(!probeTrack && dynamic_cast<const xAOD::Muon*>(probe)) {
+    const xAOD::Muon* probeMuon = dynamic_cast<const xAOD::Muon*>(probe);
+    probeTrack = probeMuon->trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
+    if(!probeTrack) {
+      probeTrack = probeMuon->primaryTrackParticle();
+      if(!probeTrack) {
+       probeTrack = probeMuon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
+      }
+    }
+  }
+  if(!probeTrack){
+    ATH_MSG_WARNING("no valid track found for extrapolating the probe to the pivot plane!");
+  }
+  return probeTrack;
+
+}
+// **********************************************************************
+StatusCode MuonTPExtrapolationTool::decoratePivotPlaneCoords(const xAOD::IParticle* particle){
+
+  const xAOD::TrackParticle* track = getPreferredTrackParticle(particle);
+  float eta, phi = 0;
+  if (!extrapolateAndDecorateTrackParticle(track, eta, phi)){
+    return StatusCode::FAILURE;
+  }
+  else {
+    return StatusCode::SUCCESS;
+  }
+}
+
+// **********************************************************************
+
 double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe)
 {
   // should never happen, but better be safe than sorry
@@ -91,6 +152,14 @@ double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, con
     ATH_MSG_WARNING("No valid probe provided to MuonTPExtrapolationTool::dROnTriggerPivotPlane! ");
     return 0;
   }
+const xAOD::EventInfo* info = 0;
+  ATH_MSG_DEBUG(""<<evtStore());
+  if (evtStore()->retrieve(info, "EventInfo").isFailure()){
+    ATH_MSG_FATAL( "Unable to retrieve Event Info" );
+  }
+  int run = info->runNumber();
+  int evt = info->eventNumber();
+  // static bool isMC = info->eventType(xAOD::EventInfo::IS_SIMULATION);
 
   // starting values: Track direction @ IP
   float tag_eta = tag.eta();
@@ -101,67 +170,39 @@ double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, con
   // Try to replace the starting values by the extrapolated pivot plane coordinates
   // 
   // First, we need to pick the TrackParticle to extrapolate.
-  
-  // We prefer the MS measurement if we have one.
-  const xAOD::TrackParticle* tagTrack = tag.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
-  // If we don't find an MS track, we simply take the primary track.
-  if(!tagTrack) {
-    tagTrack=tag.primaryTrackParticle();
-    // Though just in case that is also missing (should never happen), we have the ID one as a backup.
-    if(!tagTrack) {
-      tagTrack = tag.trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
-    }
-  }
-  // If no ID / MS / primary track exists (wtf?) we print a warning.
-  // Hoping for the sake of our reco that the last case never happens...
-  if(!tagTrack){
-    ATH_MSG_WARNING("no valid track found for extrapolating the tag to the pivot plane!");
-  }
-  else {
+  const xAOD::TrackParticle* tagTrack = getPreferredTrackParticle(&tag);
+  if(tagTrack){
     // If we have the track particle, we load the existing decorations for the
     // pivot plane eta/phi, or (in full athena) to run the extrapolation and decorate. 
     // If the method returns true, we know that eta/phi were successfully updated
     // If this does not work, the method returns a false. 
     // In that case, eta/phi are not changed and we are stuck with the IP direction.
     // Print a warning just to let the user know.
+    // std::cout << "     ===> Checking the tag muon, with type "<<tag.muonType()<<" and author "<<tag.author() << std::endl;
     if (!extrapolateAndDecorateTrackParticle(tagTrack,tag_eta,tag_phi)){
-      ATH_MSG_INFO("Could not get the tag eta/phi @ pivot plane, using direction at IP!");
+      ATH_MSG_WARNING("Could not get the tag eta/phi @ pivot plane in event "<<evt<<" / run "<<run<<" , using direction at IP!");
     }
   }
 
   // Now we repeat exactly the same exercise as above for the probe
-  // One extra step: The probe can itself already be a track particle
-  // This happens for example when running ID probes
-  // So check this case first, then the usual order of preference as for the tag. 
   
   // Special flag in case an ID track doesn't reach the MS, causing the extrap to fail.
   // In this case, we fill an unphysical dummy value of -1 for the delta R, and -10 each eta / phi / dphi / deta. 
   // In the selection code, we accept these probes, since they can not cause a trigger-related bias
   bool IDProbeMissesMS = false;
   
-  const xAOD::TrackParticle* probeTrack = dynamic_cast<const xAOD::TrackParticle*>(probe);
-  if(!probeTrack && dynamic_cast<const xAOD::Muon*>(probe)) {
-    const xAOD::Muon* probeMuon = dynamic_cast<const xAOD::Muon*>(probe);
-    probeTrack = probeMuon->trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
-    if(!probeTrack) {
-      probeTrack = probeMuon->primaryTrackParticle();
-      if(!probeTrack) {
-	     probeTrack = probeMuon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
-      }
-    }
-  }
-  if(!probeTrack){
-    ATH_MSG_WARNING("no valid track found for extrapolating the probe to the pivot plane!");
-  }
-  else {
+  const xAOD::TrackParticle* probeTrack = getPreferredTrackParticle(probe);
+  // std::cout << "     ===> Checking the probe"<< std::endl;
+  if(probeTrack){
     if (!extrapolateAndDecorateTrackParticle(probeTrack,probe_eta,probe_phi)){
       // if an ID probe does not make it into the MS, we kick it out by returning an unphysical delta R of -100. 
       if (dynamic_cast<const xAOD::TrackParticle*>(probe)){
-        ATH_MSG_INFO("ID probe does not reach MS, returning unphysical dummy value for the exTP branches!");
+        ATH_MSG_DEBUG("ID probe does not reach MS, returning unphysical dummy value for the exTP branches!");
         IDProbeMissesMS = true;
       }
       else{ 
-        ATH_MSG_INFO("Could not get the tag eta/phi @ pivot plane, using direction at IP!");
+        const xAOD::Muon* mu = dynamic_cast<const xAOD::Muon*>(probe);
+        ATH_MSG_DEBUG("Could not get the muon probe eta/phi @ pivot plane, muon type and author are "<<mu->muonType()<<" and "<<mu->author());
       }
     }
   }
@@ -194,23 +235,31 @@ double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, con
     probe_phi = -10;
   }
 
-  DecDeta(tag) = deta;
+  // note that here we only decorate the tag muon with the properties of the TP pair.
+  // This has the background that, for ID probes, the probe may be a non-const TrackParticle
+  // with a locked AuxStore.
+  // If we attempted to overwrite an existing (e.g from DAOD) decoration, we would not be able to
+  // and get an exception. The tag, being a shallow copy of a muon, is fine however and suited for our purpose
+  DecDeta(tag) = deta;  
   DecDphi(tag) = dphi;
   DecDR(tag) = dr;
-  DecDeta(*probe) = deta;
-  DecDphi(*probe) = dphi;
-  DecDR(*probe) = dr;
 
 
-  DecEta(tag) = tag_eta;
-  DecPhi(tag) = tag_phi;
-  DecEta(*probe) = probe_eta;
-  DecPhi(*probe) = probe_phi;
+  // here, unlike the above, we can get away with simply ignoring the exception if the store is locked
+  // since the eta and the phi in the original decoration continue to be valid. 
+  try { 
+    DecEta(tag) = tag_eta;
+    DecPhi(tag) = tag_phi;
+    DecEta(*probe) = probe_eta;
+    DecPhi(*probe) = probe_phi;
+  }
+  catch (SG::ExcStoreLocked & ){
+   // Maintain a nice, passive agressive silence here.
+  }
 
   // the final variable we care about is the delta R.
   return dr;
 }
-
 //**********************************************************************
 
 #ifndef XAOD_ANALYSIS

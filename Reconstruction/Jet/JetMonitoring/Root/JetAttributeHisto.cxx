@@ -37,9 +37,9 @@ namespace jet {
   };
   // ------------------
 
-// shotcuts to have more compact code 
-#define scale1 this->m_toGeV1 
-#define scale2 this->m_toGeV2 
+// shotcuts to have more compact code
+#define scale1 this->m_toGeV1
+#define scale2 this->m_toGeV2
 
   // ------------------
   // 1D hist fillers
@@ -51,7 +51,7 @@ namespace jet {
     virtual bool isValid(const xAOD::Jet &j){return this->m_accessor.isAvailable(j);}
   };
 
-  
+
   template<typename T>
   struct VecAttFiller : public HistoFiller, public AccessorAndHisto<std::vector<T>, TH1F> {
     VecAttFiller(const std::string & attname, TH1F* h, bool gev1)  : AccessorAndHisto<std::vector<T>, TH1F>(attname, h, gev1) {}
@@ -63,12 +63,12 @@ namespace jet {
     virtual bool isValid(const xAOD::Jet & j){return this->m_accessor.isAvailable(j);}
 
   };
-  
+
   template<typename T>
   struct VecAttIndexFiller : public HistoFiller, public AccessorAndHisto<std::vector<T>, TH1F> {
     VecAttIndexFiller(const std::string & attname, TH1F* h, size_t index, bool gev1) : AccessorAndHisto<std::vector<T>,TH1F>(attname,h, gev1), m_index(index) {}
 
-    virtual void fill(const xAOD::Jet & j){      
+    virtual void fill(const xAOD::Jet & j){
       const std::vector<T> & vec = this->m_accessor( j);
       if( vec.size() > m_index) this->m_h->Fill( vec[m_index]*scale1 );
     }
@@ -77,8 +77,8 @@ namespace jet {
   protected:
     size_t m_index;
   };
-  
-  
+
+
   // ------------------
   // 2D hist fillers
   template<typename T,typename HTYPE>
@@ -94,8 +94,8 @@ namespace jet {
   struct AttvsVecAttIndexFiller : public HistoFiller, public AccessorAndHisto2<std::vector<T>,T, HTYPE> {
     AttvsVecAttIndexFiller(const std::string & att1,const std::string & att2  , HTYPE* h, size_t index , bool gev1, bool gev2, bool swapAxis=false) : AccessorAndHisto2<std::vector<T>,T, HTYPE>(att1,att2,h, gev1, gev2) , m_index(index), m_swap(swapAxis){}
 
-    virtual void fill(const xAOD::Jet & j){        
-      const std::vector<T> & vec = this->m_accessor( j);    
+    virtual void fill(const xAOD::Jet & j){
+      const std::vector<T> & vec = this->m_accessor( j);
       if( vec.size() > m_index) {
         if( m_swap) this->m_h->Fill( this->m_accessor2(j)*scale2, vec[m_index]*scale1 ) ;
         else        this->m_h->Fill( vec[m_index] *scale1, this->m_accessor2(j)*scale2) ;
@@ -110,7 +110,7 @@ namespace jet {
   };
 
 
-#undef scale1 
+#undef scale1
 #undef scale2
 
   // ------------------
@@ -121,13 +121,14 @@ namespace jet {
       Int=1,
       Float=2,
       VectFloat=3,
+      VectInt=4,
 
       Float_Float=22,
       Float_VectFloat=23,
       VectFloat_Float=32,
     };
     static Supported fromString(const std::string &n){
-      static std::map< std::string , Supported > m( { {"int",Int}, {"float",Float}, {"vector<float>",VectFloat} } );
+      static std::map< std::string , Supported > m( { {"int",Int}, {"float",Float}, {"vector<float>",VectFloat}, {"vector<int>",VectInt},  } );
       if ( m.find( n ) != m.end() ) return m[n];
       return Unknown;
     }
@@ -145,7 +146,7 @@ namespace jet {
         break;
       }
       return Unknown;
-    }    
+    }
 
   };
 
@@ -158,7 +159,7 @@ namespace jet {
 // ****************************************************
 
 
-JetAttributeHisto::JetAttributeHisto(const std::string &t) : JetHistoBase(t) 
+JetAttributeHisto::JetAttributeHisto(const std::string &t) : JetHistoBase(t)
                                                            , m_histoDef(this)
                                                            , m_attTypes()
                                                            , m_selectedIndex(-1)
@@ -200,25 +201,36 @@ using namespace jet;
 int JetAttributeHisto::buildHistos(){
   //std::string attname = m_histoDef->attributeName();
 
-  if( m_attTypes.size() == 1 ){ 
+  if( m_attTypes.size() == 1 ){
     bool gev1 = m_attGeV[0];
-    AttTypes::Supported typ = AttTypes::fromString(m_attTypes[0]);    
+    AttTypes::Supported typ = AttTypes::fromString(m_attTypes[0]);
     switch( typ ){
     case AttTypes::Int:
-      m_histoFiller = new AttFiller<int>(m_attNames[0], 
+      m_histoFiller = new AttFiller<int>(m_attNames[0],
                                          bookHisto( m_histoDef->buildTH1F() ), gev1 );
       break;
-    case AttTypes::Float :      
-      m_histoFiller = new AttFiller<float>(m_attNames[0], 
+    case AttTypes::Float :
+      m_histoFiller = new AttFiller<float>(m_attNames[0],
                                            bookHisto( m_histoDef->buildTH1F() ), gev1 );
       break;
     case AttTypes::VectFloat :
       {
         if(m_selectedIndex==-1)
-          m_histoFiller =      new VecAttFiller<float>(m_attNames[0], 
+          m_histoFiller =      new VecAttFiller<float>(m_attNames[0],
                                                        bookHisto( m_histoDef->buildTH1F() ), gev1 );
-        else 
-          m_histoFiller = new VecAttIndexFiller<float>(m_attNames[0], 
+        else
+          m_histoFiller = new VecAttIndexFiller<float>(m_attNames[0],
+                                                       bookHisto( m_histoDef->buildTH1F() ) , m_selectedIndex , gev1
+                                                        );
+      }
+      break;
+    case AttTypes::VectInt :
+      {
+        if(m_selectedIndex==-1)
+          m_histoFiller =      new VecAttFiller<int>(m_attNames[0],
+                                                       bookHisto( m_histoDef->buildTH1F() ), gev1 );
+        else
+          m_histoFiller = new VecAttIndexFiller<int>(m_attNames[0],
                                                        bookHisto( m_histoDef->buildTH1F() ) , m_selectedIndex , gev1
                                                         );
       }
@@ -230,8 +242,8 @@ int JetAttributeHisto::buildHistos(){
       }
     } // switch
   }// attType.size()==1
-  
-  else if( m_attTypes.size() == 2 ){ 
+
+  else if( m_attTypes.size() == 2 ){
     std::string att1 = m_attTypes[0];
     std::string att2 = m_attTypes[1];
     std::string n1 = m_attNames[0];
@@ -239,15 +251,15 @@ int JetAttributeHisto::buildHistos(){
     bool gev1 = m_attGeV[0];
     bool gev2 = m_attGeV[1];
 
-    AttTypes::Supported typ = AttTypes::fromString(att1,att2);    
+    AttTypes::Supported typ = AttTypes::fromString(att1,att2);
 
     switch( typ ){
     case AttTypes::Float_Float:
       {
         if(m_doTProfile)
           m_histoFiller = new AttvsAttFiller<float, TProfile>(n1, n2,
-                                                              bookHisto( m_histoDef->buildTProfile() ), gev1, gev2 ); 
-        else 
+                                                              bookHisto( m_histoDef->buildTProfile() ), gev1, gev2 );
+        else
           m_histoFiller =     new AttvsAttFiller<float, TH2F>(n1, n2,
                                                               bookHisto( m_histoDef->buildTH2F() ),gev1, gev2 );
       }
@@ -258,15 +270,15 @@ int JetAttributeHisto::buildHistos(){
         if(m_selectedIndex==-1) { ATH_MSG_ERROR("Must select an index >-1 for vector<float> vs float attribute histogramming"); return 1;}
         bool swapAxis = (typ != AttTypes::VectFloat_Float);
         if(swapAxis) att1.swap(att2);
-        if(m_doTProfile) 
+        if(m_doTProfile)
           m_histoFiller = new AttvsVecAttIndexFiller<float, TProfile>(n1, n2,
-                                                                      bookHisto( m_histoDef->buildTProfile() ), 
+                                                                      bookHisto( m_histoDef->buildTProfile() ),
                                                                       m_selectedIndex, gev1, gev2, swapAxis);
-        
-        else 
+
+        else
           m_histoFiller = new AttvsVecAttIndexFiller<float, TH2F>(n1, n2,
-                                                                  bookHisto( m_histoDef->buildTH2F() ), 
-                                                                  m_selectedIndex, gev1, gev2, swapAxis);    
+                                                                  bookHisto( m_histoDef->buildTH2F() ),
+                                                                  m_selectedIndex, gev1, gev2, swapAxis);
       }
       break;
     default:
@@ -309,5 +321,5 @@ void JetAttributeHisto::renameAndRegister(TH1* h, const std::string & subD, Inte
   if(m_selectedIndex >-1 ) {
     TString s=" (at index "; s+= m_selectedIndex; s+=")";
     h->SetTitle( h->GetTitle()+s);
-  }  
+  }
 }

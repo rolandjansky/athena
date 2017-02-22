@@ -49,6 +49,8 @@ void DiLeptonTPEventCutFlowPlots::initializePlots()
   probe_cf_steps.push_back("ProbeIP");
   probe_cf_steps.push_back("ProbeDeltaPhi");
   probe_cf_steps.push_back("ProbeDeltaEta");
+  probe_cf_steps.push_back("ProbeDR_exTP");
+
   tp_probe_selection = AddCutFlow("ProbeSelection",probe_cf_steps);
   for (auto step: probe_cf_steps) {
     tp_probe_selection->Fill(step.c_str(), 0);          //  fill once to avoid merging issues

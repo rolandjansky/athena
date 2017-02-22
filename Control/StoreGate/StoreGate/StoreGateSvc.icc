@@ -15,6 +15,7 @@
 /// macro to help writing the function calls.
 /// first looks if there is a hive slot defined, otherwise forwards to the "serial" implementation
 #define _SGXCALL(FUN,ARGS,ONERR)                                        \
+  if (!m_defaultStore) return ONERR;                                    \
   if (isHiveStore()) {                                                  \
     SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              \
     std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(pSlot->storeMutex) ); \
@@ -26,6 +27,7 @@
 
 /// macro to help writing the function calls
 #define _SGVOIDCALL(FUN,ARGS)                                           \
+  if (!m_defaultStore) return;                                          \
   if (isHiveStore()) {                                                  \
     SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              \
     std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(pSlot->storeMutex) ); \

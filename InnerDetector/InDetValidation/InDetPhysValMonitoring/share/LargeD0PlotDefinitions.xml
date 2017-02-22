@@ -574,31 +574,31 @@
 </h>
 
 <!-- Layer-by-Layer Efficiencies -->
-<h id="eff_hit_vs_eta_l0pix_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel IBL">
+<h id="eff_hit_vs_eta_l0pix_barrel" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel IBL">
   <x title="#eta" n="10" lo="0" hi="2.5"/>
   <y title="Cluster Efficiency" lo="0.95" hi="1.02"/>
 </h>
-<h id="eff_hit_vs_eta_pix_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel">
+<h id="eff_hit_vs_eta_pix_barrel" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel">
   <x title="#eta" n="10" lo="0" hi="2.5"/>
   <y title="Cluster Efficiency" lo="0.95" hi="1.02"/>
 </h>
-<h id="eff_hit_vs_eta_pix_endcap" type="TProfile" title="Cluster Efficiency: Pixel Endcaps">
+<h id="eff_hit_vs_eta_pix_endcap" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps">
   <x title="#eta" n="4" lo="1.5" hi="2.5"/>
   <y title="Cluster Efficiency" lo="0.95" hi="1.02"/>
 </h>
-<h id="eff_hit_vs_eta_sct_barrel" type="TProfile" title="Cluster Efficiency: SCT Barrel">
+<h id="eff_hit_vs_eta_sct_barrel" type="TEfficiency" title="Cluster Efficiency: SCT Barrel">
   <x title="#eta" n="7" lo="0" hi="1.75"/>
   <y title="Cluster Efficiency" lo="0.95" hi="1.02"/>
 </h>
-<h id="eff_hit_vs_eta_sct_endcap" type="TProfile" title="Cluster Efficiency: SCT Endcaps">
+<h id="eff_hit_vs_eta_sct_endcap" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps">
   <x title="#eta" n="6" lo="1.0" hi="2.5"/>
   <y title="Cluster Efficiency" lo="0.95" hi="1.02"/>
 </h>
-<h id="eff_hit_vs_eta_trt_barrel" type="TProfile" title="Cluster Efficiency: TRT Barrel">
+<h id="eff_hit_vs_eta_trt_barrel" type="TEfficiency" title="Cluster Efficiency: TRT Barrel">
   <x title="#eta" n="5" lo="0" hi="1.25"/>
   <y title="Cluster Efficiency" lo="0.95" hi="1.02"/>
 </h>
-<h id="eff_hit_vs_eta_trt_endcap" type="TProfile" title="Cluster Efficiency: TRT Endcaps">
+<h id="eff_hit_vs_eta_trt_endcap" type="TEfficiency" title="Cluster Efficiency: TRT Endcaps">
   <x title="#eta" n="6" lo="0.75" hi="2.25"/>
   <y title="Cluster Efficiency" lo="0.95" hi="1.02"/>
 </h>

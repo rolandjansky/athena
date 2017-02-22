@@ -59,7 +59,11 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
   m_dbTag(""),
   m_dbRevision(0),
   m_calibData(0),
-  m_geoModelSvc("GeoModelSvc",name)
+  m_geoModelSvc("GeoModelSvc",name),
+  m_toolsvc(nullptr),
+  m_IOVSvc(nullptr),
+  m_pixman(nullptr),
+  m_pixid(nullptr)
 {
   declareInterface< IPixelCalibDbTool >(this); 
 
@@ -105,20 +109,14 @@ StatusCode  PixelCalibDbTool::initialize()
   //m_log.setLevel(outputLevel());
   if(msgLvl(MSG::INFO))msg(MSG::INFO) << name() << " initialize()" << endmsg;
 
-  StatusCode sc = service("ToolSvc", m_toolsvc);
-  if (sc.isFailure()) {
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< " ToolSvc not found "<< endmsg;
-    return StatusCode::FAILURE;
-  }
+  CHECK(service("ToolSvc",m_toolsvc));
 
   // Get interface to IOVSvc 
   m_IOVSvc = 0; 
   bool CREATEIF(true); 
-  sc = service("IOVSvc", m_IOVSvc, CREATEIF); 
-  if(sc.isFailure()){ 
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " IOVSvc not found "<<endmsg; 
-    return StatusCode::FAILURE; 
-  }
+  CHECK(service("IOVSvc",m_IOVSvc,CREATEIF));
+
+
   // determine if RUN1 or RUN2 used 
   if (m_geoModelSvc.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
@@ -130,14 +128,9 @@ StatusCode  PixelCalibDbTool::initialize()
 
   // Get the geometry 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
-  if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixman, "Pixel")){
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Could not find Pixel manager "<<endmsg; 
-    return StatusCode::FAILURE; 
-  }
-  if (detStore()->retrieve(m_pixid, "PixelID").isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  CHECK(detStore()->retrieve(m_pixman,"Pixel"));
+  CHECK(detStore()->retrieve(m_pixid,"PixelID"));
+
   if(isRUN1&&(m_pixid->wafer_hash_max()==2048)){
     isIBL = true;
     isRUN1 = false;
@@ -185,8 +178,7 @@ StatusCode  PixelCalibDbTool::initialize()
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " PixelCalibDbTool: The Pixel/Calib keys and chips are: "<<m_calibobjs.size()<<endmsg;
   }
   else{
-    sc = createPixelCalibObjects(); // need the object to write DB as well 
-    if(sc.isFailure()) return StatusCode::FAILURE;
+    CHECK(createPixelCalibObjects());
   }
   return StatusCode::SUCCESS; 
 }
@@ -502,6 +494,10 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
     pch = strtok(headerx, "NULL"); 
 
     if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier "<<pch <<endmsg; 
+    if (strlen(pch)>4000) { 
+      msg(MSG::ERROR) << "Length of the string exceed 4000 characters (pch) : " << pch << endmsg;
+      return StatusCode::FAILURE;
+    }
     strcpy(header,pch);
     int component, eta;
     unsigned int layer,phi;

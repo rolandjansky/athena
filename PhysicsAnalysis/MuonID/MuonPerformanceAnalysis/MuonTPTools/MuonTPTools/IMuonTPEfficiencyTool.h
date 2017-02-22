@@ -19,7 +19,7 @@ class IMuonTPEfficiencyTool : virtual public asg::IAsgTool {
 public:
 
   /// Match probes for efficiency calculation
-  virtual void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const =0;
+  virtual void matchProbes(ProbeContainer*) const =0;
 
   /// Get Efficiency Flag
   virtual std::string efficiencyFlag() =0;

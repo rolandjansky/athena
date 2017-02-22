@@ -7,6 +7,7 @@ public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  AsgTools                   AsgTools-*                      Control/AthToolSupport
 use  xAODTau                    xAODTau-*                       Event/xAOD
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
 use  AtlasBoost                 AtlasBoost-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
 use  xAODTracking               xAODTracking-*                  Event/xAOD

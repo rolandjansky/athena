@@ -11,6 +11,7 @@
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 
@@ -112,13 +113,19 @@ StatusCode SUSYToolsAlg::initialize() {
 
   //reset signal lepton counters
   count_el_signal=0;
+  count_ph_signal=0;
   count_mu_signal=0;
 
   /// SETUP TRIGGERS TO BE CHECKED
   const int n_el_trig = 3;
-  el_triggers.push_back("HLT_e24_lhmedium_L1EM18VH");
+  el_triggers.push_back("HLT_e24_lhmedium_L1EM18VH"); // reference xAOD used for tests doesn't have the reprocessed menu yet (i.e. no *20VH in there) //MT
   el_triggers.push_back("HLT_e60_lhmedium");
   el_triggers.push_back("HLT_e120_lhloose");
+
+  const int n_ph_trig = 2;
+  ph_triggers.push_back("HLT_g120_loose");
+  ph_triggers.push_back("HLT_g140_loose");
+
 
   const int n_mu_trig = 5;
   mu_triggers.push_back("HLT_mu20_iloose_L1MU15");
@@ -131,6 +138,10 @@ StatusCode SUSYToolsAlg::initialize() {
   CHECK( book(TH1D("el_n_flow_nominal", "Electron Cutflow (Nominal)", nSel, 0, nSel) ) );
   CHECK( book(TH1D("el_trigmatch_eff_nominal", "Electron Trigger Matching Efficiency (Nominal)", n_el_trig, 0, n_el_trig) ) );
   CHECK( book(TH1D("el_pt_nominal", "Electron Pt (Nominal)", 100, 0, 100) ) );
+
+  CHECK( book(TH1D("ph_n_flow_nominal", "Photon Cutflow (Nominal)", nSel, 0, nSel) ) );
+  CHECK( book(TH1D("ph_trigmatch_eff_nominal", "Photon Trigger Matching Efficiency (Nominal)", n_ph_trig, 0, n_ph_trig) ) );
+  CHECK( book(TH1D("ph_pt_nominal", "Photon Pt (Nominal)", 100, 0, 100) ) );
 
   CHECK( book(TH1D("mu_n_flow_nominal", "Muon Cutflow (Nominal)", nSel, 0, nSel) ) );
   CHECK( book(TH1D("mu_trigmatch_eff_nominal", "Muon Trigger Matching Efficiency (Nominal)", n_mu_trig, 0, n_mu_trig) ) );
@@ -221,6 +232,10 @@ StatusCode SUSYToolsAlg::finalize() {
   for (unsigned int i=1; i < nSel+1; i++){ el_n_flow_nominal->GetXaxis()->SetBinLabel(i, SCut[i-1].Data()); }
   el_n_flow_nominal->GetXaxis()->SetLabelSize(0.05);
 
+  TH1* ph_n_flow_nominal = hist("ph_n_flow_nominal");
+  for (unsigned int i=1; i < nSel+1; i++){ ph_n_flow_nominal->GetXaxis()->SetBinLabel(i, SCut[i-1].Data()); }
+  ph_n_flow_nominal->GetXaxis()->SetLabelSize(0.05);
+
   TH1* mu_n_flow_nominal = hist("mu_n_flow_nominal");
   for (unsigned int i=1; i < nSel+1; i++){ mu_n_flow_nominal->GetXaxis()->SetBinLabel(i, SCut[i-1].Data()); }
   mu_n_flow_nominal->GetXaxis()->SetLabelSize(0.05);
@@ -234,6 +249,11 @@ StatusCode SUSYToolsAlg::finalize() {
   for (unsigned int i=1; i < el_triggers.size()+1; i++){ el_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, el_triggers[i-1].substr(4,string::npos).c_str()); }
   el_trigmatch_eff_nominal->GetXaxis()->SetLabelSize(0.05);
   el_trigmatch_eff_nominal->Scale(1/(float)count_el_signal);
+
+  TH1* ph_trigmatch_eff_nominal = hist("ph_trigmatch_eff_nominal");
+  for (unsigned int i=1; i < ph_triggers.size()+1; i++){ ph_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, ph_triggers[i-1].substr(4,string::npos).c_str()); }
+  ph_trigmatch_eff_nominal->GetXaxis()->SetLabelSize(0.05);
+  ph_trigmatch_eff_nominal->Scale(1/(float)count_ph_signal);
 
   TH1* mu_trigmatch_eff_nominal = hist("mu_trigmatch_eff_nominal");
   for (unsigned int i=1; i < mu_triggers.size()+1; i++){ mu_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, mu_triggers[i-1].substr(4,string::npos).c_str()); }
@@ -310,6 +330,11 @@ StatusCode SUSYToolsAlg::execute() {
   CHECK( m_SUSYTools->GetElectrons(electrons_nominal, electrons_nominal_aux) );
   ATH_MSG_DEBUG( "Number of electrons: " << electrons_nominal->size() );
 
+  xAOD::PhotonContainer* photons_nominal(0);
+  xAOD::ShallowAuxContainer* photons_nominal_aux(0);
+  CHECK( m_SUSYTools->GetPhotons(photons_nominal, photons_nominal_aux) );
+  ATH_MSG_DEBUG( "Number of photons: " << photons_nominal->size() );
+
   xAOD::MuonContainer* muons_nominal(0);
   xAOD::ShallowAuxContainer* muons_nominal_aux(0);
   CHECK( m_SUSYTools->GetMuons(muons_nominal, muons_nominal_aux) );
@@ -329,7 +354,7 @@ StatusCode SUSYToolsAlg::execute() {
                              jets_nominal,
                              electrons_nominal,
                              muons_nominal,
-                             0, 0, false, false) );
+                             photons_nominal, 0, false, false) );
 
   ATH_MSG_DEBUG("RefFinal CST etx=" << (*metcst_nominal)["Final"]->mpx()
                 << ", ety=" << (*metcst_nominal)["Final"]->mpy()
@@ -345,7 +370,7 @@ StatusCode SUSYToolsAlg::execute() {
                              jets_nominal,
                              electrons_nominal,
                              muons_nominal,
-                             0, 0, true, true) );
+                             photons_nominal, 0, true, true) );
   
   ATH_MSG_DEBUG("RefFinal TST etx=" << (*mettst_nominal)["Final"]->mpx()
                 << ", ety=" << (*mettst_nominal)["Final"]->mpy()
@@ -383,7 +408,7 @@ StatusCode SUSYToolsAlg::execute() {
   TH1* weight_event     = hist("weight_event");
   TH1* weight_electrons = hist("weight_electrons");
   TH1* weight_muons     = hist("weight_muons");
-  //TH1* weight_photons   = hist("weight_photons");
+  TH1* weight_photons   = hist("weight_photons");
   //TH1* weight_taus      = hist("weight_taus");
   TH1* weight_jets      = hist("weight_jets");
   TH1* weight_btags      = hist("weight_btags");
@@ -420,6 +445,38 @@ StatusCode SUSYToolsAlg::execute() {
       }
     }
     el_pt_nominal->Fill(el->pt() * 1e-3);
+  }
+
+  //----- Photons
+      
+  TH1* ph_n_flow_nominal = hist("ph_n_flow_nominal");
+  TH1* ph_trigmatch_eff_nominal = hist("ph_trigmatch_eff_nominal");
+  TH1* ph_pt_nominal     = hist("ph_pt_nominal");
+
+  for(auto ph : *photons_nominal) {
+    ph_n_flow_nominal->Fill(Cut::all);
+    if ( ph->auxdata<char>("baseline") == 1 ){ 
+      ph_n_flow_nominal->Fill(Cut::baseline);
+      if ( ph->auxdata<char>("passOR") == 1 ){ 
+	ph_n_flow_nominal->Fill(Cut::passOR);
+	if ( ph->auxdata<char>("signal") == 1 ){ 
+	  ph_n_flow_nominal->Fill(Cut::signal);
+
+	  count_ph_signal++;
+
+	  bool passTM=false;
+	  unsigned int idx=1;
+	  for(const auto& t : ph_triggers){
+	    bool passit = m_SUSYTools->IsTrigMatched(ph, t);
+	    passTM |= passit;
+	    if(passit) ph_trigmatch_eff_nominal->SetBinContent(idx, ph_trigmatch_eff_nominal->GetBinContent(idx)+1);
+	    idx++;
+	  }	      
+	  if(passTM) ph_n_flow_nominal->Fill(Cut::trigmatch);
+	}	  
+      }
+    }
+    ph_pt_nominal->Fill(ph->pt() * 1e-3);
   }
 
   //----- Muons
@@ -499,6 +556,7 @@ StatusCode SUSYToolsAlg::execute() {
 
   // Additionally define a nominal weight for each object type
   double electrons_weight_nominal(1.);
+  double photons_weight_nominal(1.);
   double muons_weight_nominal(1.);
   double jets_weight_nominal(1.);
   double btag_weight_nominal(1.);
@@ -550,6 +608,8 @@ StatusCode SUSYToolsAlg::execute() {
     // Define the generic collection pointers
     xAOD::ElectronContainer* electrons(electrons_nominal);
     xAOD::ShallowAuxContainer* electrons_aux(electrons_nominal_aux);
+    xAOD::PhotonContainer* photons(photons_nominal);
+    xAOD::ShallowAuxContainer* photons_aux(photons_nominal_aux);
     xAOD::MuonContainer* muons(muons_nominal);
     xAOD::ShallowAuxContainer* muons_aux(muons_nominal_aux);
     xAOD::JetContainer* jets(jets_nominal);
@@ -559,7 +619,7 @@ StatusCode SUSYToolsAlg::execute() {
 
     bool syst_affectsElectrons = ST::testAffectsObject(xAOD::Type::Electron, sysInfo.affectsType);
     bool syst_affectsMuons     = ST::testAffectsObject(xAOD::Type::Muon, sysInfo.affectsType);
-    //bool syst_affectsPhotons   = ST::testAffectsObject(xAOD::Type::Photon, sysInfo.affectsType);
+    bool syst_affectsPhotons   = ST::testAffectsObject(xAOD::Type::Photon, sysInfo.affectsType);
     //bool syst_affectsTaus      = ST::testAffectsObject(xAOD::Type::Tau, sysInfo.affectsType);
     bool syst_affectsJets      = ST::testAffectsObject(xAOD::Type::Jet, sysInfo.affectsType);
     bool syst_affectsBTag      = ST::testAffectsObject(xAOD::Type::BTag, sysInfo.affectsType);
@@ -573,6 +633,15 @@ StatusCode SUSYToolsAlg::execute() {
         CHECK( m_SUSYTools->GetElectrons(electrons_syst, electrons_syst_aux) );
         electrons = electrons_syst;
         electrons_aux = electrons_syst_aux;
+      }
+
+      if (syst_affectsPhotons) {
+        ATH_MSG_DEBUG("Get systematics-varied photons");
+        xAOD::PhotonContainer* photons_syst(0);
+        xAOD::ShallowAuxContainer* photons_syst_aux(0);
+        CHECK( m_SUSYTools->GetPhotons(photons_syst, photons_syst_aux) );
+        photons = photons_syst;
+        photons_aux = photons_syst_aux;
       }
 
       if (syst_affectsMuons) {
@@ -621,7 +690,7 @@ StatusCode SUSYToolsAlg::execute() {
     }
 
     //--- Overlap Removal
-    ATH_CHECK( m_SUSYTools->OverlapRemoval(electrons, muons, jets) );
+    ATH_CHECK( m_SUSYTools->OverlapRemoval(electrons, muons, jets, photons) );
 
 
     //--- Electrons
@@ -654,6 +723,38 @@ StatusCode SUSYToolsAlg::execute() {
     }
     
     event_weight *= electrons_weight;
+
+
+    //--- Photons
+    ATH_MSG_DEBUG("Working on photons");
+    float photons_weight(1.);
+    for ( const auto& el : *photons ) {
+      if( m_dataSource > 0 ){
+	if (isNominal || syst_affectsPhotons) {
+	  if ((el->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
+	    photons_weight *= m_SUSYTools->GetSignalPhotonSF( *el );
+	  }
+	}
+      }
+      ATH_MSG_VERBOSE( "  Photon passing baseline selection?" << (int) el->auxdata<char>("baseline") );
+      ATH_MSG_VERBOSE( "  Photon passing signal selection?" << (int) el->auxdata<char>("signal") );
+      if (el->auxdata< char >("signal") == 1)
+        ATH_MSG_VERBOSE( "  Photon weight " << el->auxdata<float>("effscalefact") );
+      
+    }
+    if (isNominal) {
+      photons_weight_nominal = photons_weight;
+      weight_photons->SetBinContent(1, weight_photons->GetBinContent(1)+photons_weight);    
+    }
+    else if (!syst_affectsPhotons) {
+      photons_weight = photons_weight_nominal;
+    }
+    else if ( sysInfo.affectsWeights ){
+      size_t iwbin = find(syst_ph_weights.begin(), syst_ph_weights.end(), sys.name()) - syst_ph_weights.begin(); 
+      if(iwbin < syst_ph_weights.size()) {  weight_photons->SetBinContent(iwbin+1, weight_photons->GetBinContent(iwbin+1)+photons_weight); }    
+    }
+    
+    event_weight *= photons_weight;
 
 
 
@@ -751,6 +852,10 @@ StatusCode SUSYToolsAlg::execute() {
         delete electrons;
         delete electrons_aux;
       }
+      if (syst_affectsPhotons) {
+        delete photons;
+        delete photons_aux;
+      }
       if (syst_affectsMuons) {
         delete muons;
         delete muons_aux;
@@ -767,6 +872,8 @@ StatusCode SUSYToolsAlg::execute() {
   delete jets_nominal_aux;
   delete electrons_nominal;
   delete electrons_nominal_aux;
+  delete photons_nominal;
+  delete photons_nominal_aux;
   delete muons_nominal;
   delete muons_nominal_aux;
   delete mettst_nominal;

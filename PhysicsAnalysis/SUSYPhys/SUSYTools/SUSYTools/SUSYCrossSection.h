@@ -25,7 +25,10 @@ class CrossSectionDB
 public:
   CrossSectionDB(const std::string& txtfilenameOrDir = "SUSYTools/data/mc15_13TeV/", bool usePathResolver = false, bool isExtended = false);
 
+  // Load all the information from a file
   void loadFile(const std::string&);
+  // Extend the record based on information from a second file
+  void extend(const std::string&);
 
   // class to defined a MC process with id (or run #), name and cross-section
   class Process
@@ -45,7 +48,8 @@ public:
     float relunc() const { return m_relunc;}
     float sumweight() const { return m_sumweight;}
     float stat() const { return m_stat;}
-
+    void  sumweight(float s) { m_sumweight=s; }
+    void  stat(float s) { m_stat=s; }
   private:
     int m_id;
     std::string m_name;
@@ -111,6 +115,7 @@ public:
 
 private:
 
+  xsDB_t::iterator my_find( const int proc );
   xsDB_t m_xsectDB;
   xsDB_t m_cache;
 };

@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/L1Topo/L1TopoConfig )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost COMPONENTS filesystem thread system regex )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

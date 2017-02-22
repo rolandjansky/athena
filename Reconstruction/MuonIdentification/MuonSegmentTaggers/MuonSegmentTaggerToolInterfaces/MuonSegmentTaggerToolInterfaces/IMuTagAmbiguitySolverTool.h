@@ -29,9 +29,9 @@ class IMuTagAmbiguitySolverTool : virtual public IAlgTool{
  public:  
   static const InterfaceID& interfaceID();
   
-  virtual std::vector<  MuonCombined::MuonSegmentInfo >     solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) = 0;
+  virtual std::vector<  MuonCombined::MuonSegmentInfo >     solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) const = 0;
 
-  virtual std::vector< MuonCombined::MuonSegmentInfo > selectBestMuTaggedSegments( std::vector<  MuonCombined::MuonSegmentInfo > mtss ) =0 ;  
+  virtual std::vector< MuonCombined::MuonSegmentInfo > selectBestMuTaggedSegments( std::vector<  MuonCombined::MuonSegmentInfo > mtss ) const =0 ;  
   virtual double Rseg( unsigned int nseg ) const = 0;
 };
 

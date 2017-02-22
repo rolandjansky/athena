@@ -53,6 +53,7 @@ TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase(MsgStream& log, unsigned int logLvl
   m_efTrkSelD0(0.0),
   m_efTrkSelPt(0.0),
   m_xBeamSpot(0.0), m_yBeamSpot(0.0), m_zBeamSpot(0.0),
+  m_xBeamSpotTilt(0.0), m_yBeamSpotTilt(0.0),
   m_xBeamSpotSigma(0.0), m_yBeamSpotSigma(0.0), m_zBeamSpotSigma(0.0)
 {
 
@@ -94,6 +95,8 @@ TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase(const TrigT2HistoPrmVtxBase &other)
   m_xBeamSpot(other.m_xBeamSpot), 
   m_yBeamSpot(other.m_yBeamSpot), 
   m_zBeamSpot(other.m_zBeamSpot),
+  m_xBeamSpotTilt(other.m_xBeamSpotTilt), 
+  m_yBeamSpotTilt(other.m_yBeamSpotTilt), 
   m_xBeamSpotSigma(other.m_xBeamSpotSigma), 
   m_yBeamSpotSigma(other.m_yBeamSpotSigma), 
   m_zBeamSpotSigma(other.m_zBeamSpotSigma)
@@ -150,6 +153,8 @@ TrigT2HistoPrmVtxBase& TrigT2HistoPrmVtxBase::operator=(const TrigT2HistoPrmVtxB
   this->m_xBeamSpot = rhs.m_xBeamSpot;
   this->m_yBeamSpot = rhs.m_yBeamSpot;
   this->m_zBeamSpot = rhs.m_zBeamSpot;
+  this->m_xBeamSpotTilt = rhs.m_xBeamSpotTilt;
+  this->m_yBeamSpotTilt = rhs.m_yBeamSpotTilt;
   this->m_xBeamSpotSigma = rhs.m_xBeamSpotSigma;
   this->m_yBeamSpotSigma = rhs.m_yBeamSpotSigma;
   this->m_zBeamSpotSigma = rhs.m_zBeamSpotSigma;

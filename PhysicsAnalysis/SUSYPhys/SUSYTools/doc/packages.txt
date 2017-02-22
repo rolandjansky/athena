@@ -1,6 +1,9 @@
-#for running on Base,2.4.25
+#for running on Base,2.4.27
 #
-# Tau MVA bugfix; see https://its.cern.ch/jira/browse/ATLTAU-1211
-atlasoff/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-00-02-37
+atlasoff/PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection/tags/ElectronEfficiencyCorrection-00-01-90
+atlasoff/PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection/tags/PhotonEfficiencyCorrection-00-01-21	
 #
-#
+# Typos in muon packages - ATLASG-1071
+atlasoff/PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections/tags/MuonEfficiencyCorrections-04-00-11
+atlasoff/PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections/tags/MuonMomentumCorrections-01-00-60
+

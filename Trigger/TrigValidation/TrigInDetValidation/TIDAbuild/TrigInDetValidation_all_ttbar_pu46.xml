@@ -10,6 +10,7 @@
 #          include "samples/TrigInDetValidation_ttbar_sample1.xml"
 	   
 
+
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -24,12 +25,13 @@
             </action>
 
 
+
            <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -39,12 +41,13 @@
 
 
 
+
             <action position="03">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -54,12 +57,13 @@
 
 
 
+
             <action position="04">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -68,12 +72,13 @@
             </action>
 
 
+
             <action position="05">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -82,12 +87,13 @@
             </action>
 
 
+
             <action position="06">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -96,12 +102,13 @@
             </action>
 
 
+
             <action position="07">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -109,19 +116,21 @@
               </arg>
             </action>
 
+
 	   
             <action position="08">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
                <argname>exeName</argname>
-               <argvalue>TIDAcomparitor.exe</argvalue> 
+               <argvalue>TIDArun.sh</argvalue> 
              </arg>
              <arg> 
                <argname>exeParamString</argname>
                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig    HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3 HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID  -d HLTEF-plots-tau </argvalue>
              </arg>
            </action> 
+
 
 	   
          	   
@@ -130,13 +139,14 @@
              <testname>ExeRunner</testname> 
              <arg> 
                <argname>exeName</argname>
-               <argvalue>TIDAcomparitor.exe</argvalue> 
+               <argvalue>TIDArun.sh</argvalue> 
              </arg>
              <arg> 
                <argname>exeParamString</argname>
                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots-tau </argvalue>
              </arg>
            </action> 
+
 
 	   
  
@@ -145,7 +155,7 @@
                 <testname>ExeRunner</testname> 
                 <arg> 
                     <argname>exeName</argname>
-                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                    <argvalue>TIDArun.sh</argvalue> 
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
@@ -153,127 +163,6 @@
                 </arg>
             </action>
 
-
-           <action position="11">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-test-plots-electron  </argvalue>
-              </arg>
-            </action>
-
-
-            <action position="12">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-test-plots-electron  </argvalue>
-              </arg>
-            </action>
-
-
-            <action position="13">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-test-plots-electron-lowpt  </argvalue>
-              </arg>
-            </action>
-
-            <action position="14">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-test-plots-electron-lowpt  </argvalue>
-              </arg>
-            </action>
-
-            <action position="15">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-test-plots-muon </argvalue>
-              </arg>
-            </action>
-
-            <action position="16">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  -d HLTL2-test-plots-muon </argvalue>
-              </arg>
-            </action>
-	   
-            <action position="17">
-             <modulename>RttLibraryTools</modulename> 
-             <testname>ExeRunner</testname> 
-             <arg> 
-               <argname>exeName</argname>
-               <argvalue>TIDArun.sh</argvalue> 
-             </arg>
-             <arg> 
-               <argname>exeParamString</argname>
-               <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig    HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3 HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID  -d HLTEF-test-plots-tau </argvalue>
-             </arg>
-           </action> 
-	   
-         	   
-           <action position="18">
-             <modulename>RttLibraryTools</modulename> 
-             <testname>ExeRunner</testname> 
-             <arg> 
-               <argname>exeName</argname>
-               <argvalue>TIDArun.sh</argvalue> 
-             </arg>
-             <arg> 
-               <argname>exeParamString</argname>
-               <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-test-plots-tau </argvalue>
-             </arg>
-           </action> 
-	   
- 
-           <action position="19">
-                <modulename>RttLibraryTools</modulename> 
-                <testname>ExeRunner</testname> 
-                <arg> 
-                    <argname>exeName</argname>
-                    <argvalue>TIDArun.sh</argvalue> 
-                </arg>
-                <arg> 
-                    <argname>exeParamString</argname>
-                    <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig   -d HLTEF-test-plots-bjet </argvalue>
-                </arg>
-            </action>
 
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
@@ -297,5 +186,6 @@
    
          <athenaCommonFlags /> 
          </athena>
+
 
 

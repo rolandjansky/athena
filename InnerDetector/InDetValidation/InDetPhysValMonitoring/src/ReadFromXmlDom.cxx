@@ -158,6 +158,8 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
     sx.histoType = type;
     return sx;
   }
+  //if get to here and axisDef0 is null, theres a problem
+  if (not axisDef0) return s;
   const xercesc::DOMElement* axisDef1 = axisDef0->getNextElementSibling();
   // only allow two axes, but could be ordered x-y or y-x
   std::string axisName0 = toNative(axisDef0->getTagName());

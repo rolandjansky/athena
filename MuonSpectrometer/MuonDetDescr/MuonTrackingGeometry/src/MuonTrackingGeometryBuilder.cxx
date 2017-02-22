@@ -61,14 +61,14 @@ Muon::MuonTrackingGeometryBuilder::MuonTrackingGeometryBuilder(const std::string
   //  m_barrelZ(6783.),
   m_barrelZ(6785.),
   m_innerEndcapZ(12900.),
-  m_outerEndcapZ(26050.),
+  m_outerEndcapZ(26046.),
   m_bigWheel(15600.),
   m_outerWheel(21000.),
   m_ectZ(7920.),
   m_beamPipeRadius(70.),
   //m_innerShieldRadius(810.),
   m_innerShieldRadius(850.),
-  m_outerShieldRadius(1550.),
+  m_outerShieldRadius(1500.),
   m_diskShieldZ(6915.),
   m_standaloneTrackingVolume(0),
   m_barrelEtaPartition(9),
@@ -181,7 +181,7 @@ StatusCode Muon::MuonTrackingGeometryBuilder::initialize()
   if (m_loadMSentry ) {
     // retrieve envelope definition service --------------------------------------------------
     if ( m_enclosingEnvelopeSvc.retrieve().isFailure() ){
-      ATH_MSG_WARNING( "Could not retrieve EnvelopeDefinition service. Abort.");
+      ATH_MSG_WARNING( "Could not retrieve EnvelopeDefinition service. Using default definition.");
       m_loadMSentry = false;
     }
   }
@@ -230,6 +230,59 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
   // dummy substructures
   const Trk::LayerArray* dummyLayers = 0;
   const Trk::TrackingVolumeArray* dummyVolumes = 0;
+
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //   Envelope definition (cutouts)
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  RZPairVector envelopeDefs;
+  if (m_enclosingEnvelopeSvc) {
+    // get the dimensions from the envelope service
+    RZPairVector& envelopeDefsIn = m_enclosingEnvelopeSvc->getMuonRZValues();
+
+    // find the max,max pair
+    unsigned int ii=0;
+    for (unsigned int i=0; i<envelopeDefsIn.size(); i++) { 
+      if (envelopeDefsIn[i].second>envelopeDefsIn[ii].second) ii=i;
+      else if (envelopeDefsIn[i].second==envelopeDefsIn[ii].second && 
+	       envelopeDefsIn[i].first>envelopeDefsIn[ii].first) ii=i;
+    }  
+
+    // find the sense of rotation
+    int irot=1;
+    unsigned int inext=ii+1;
+    if (inext==envelopeDefsIn.size()) inext=0;
+    if (envelopeDefsIn[inext].second!=envelopeDefsIn[ii].second) {irot=-1; inext = ii>0 ? ii-1:envelopeDefsIn.size()-1 ;}
+    
+    // fill starting with upper low edge, end with upper high edge
+    if (irot>0) {
+      for (unsigned int i=inext; i<envelopeDefsIn.size(); i++) envelopeDefs.push_back(envelopeDefsIn[i]); 
+      if (inext>0) for (unsigned int i=0; i<=inext-1; i++) envelopeDefs.push_back(envelopeDefsIn[i]); 
+    } else {
+      int i=inext;  while (i>=0) {envelopeDefs.push_back(envelopeDefsIn[i]); i=i-1;};
+      inext = envelopeDefsIn.size()-1; while (inext>=ii) {envelopeDefs.push_back(envelopeDefsIn[inext]); inext=inext-1;};
+    } 
+
+    // find maximal z,R extent
+    float maxR = 0.; 
+    for (unsigned int i=0; i<envelopeDefs.size(); i++) {
+      if (envelopeDefs[i].first > maxR )  maxR = envelopeDefs[i].first; 
+    } 
+    
+    m_outerBarrelRadius = maxR;
+    m_outerEndcapZ      = envelopeDefs[0].second;
+
+    ATH_MSG_VERBOSE( "Muon envelope definition retrieved: outer R,Z:"<<m_outerBarrelRadius<<","<< m_outerEndcapZ );  
+
+    // construct inner and outer envelope
+    
+    for (unsigned int i=0; i<envelopeDefs.size(); i++) {
+      ATH_MSG_VERBOSE( "Rz pair:"<< i<<":"<< envelopeDefs[i].first<<","<<envelopeDefs[i].second );   
+    }
+
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   if (m_muonSimple) {             
     Trk::VolumeBounds* globalBounds = new Trk::CylinderVolumeBounds(m_outerBarrelRadius,
@@ -341,23 +394,9 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
     if ( enclosedDetectorOuterRadius > m_innerBarrelRadius ) {
       ATH_MSG_WARNING( name() <<" enclosed volume too wide, cuts into muon envelope, abandon :R:" <<enclosedDetectorOuterRadius );
       return 0;   
-    } else {    
-      if ( enclosedDetectorOuterRadius < m_innerBarrelRadius ) {
-	Trk::CylinderVolumeBounds* barrelRBounds = new Trk::CylinderVolumeBounds(enclosedDetectorOuterRadius,
-										 m_innerBarrelRadius,
-										 enclosedDetectorHalfZ);
-	const Trk::TrackingVolume* barrelRBuffer = new Trk::TrackingVolume(0,
-									   barrelRBounds,
-									   m_muonMaterial,
-									   dummyLayers,dummyVolumes,
-									   "BarrelRBuffer");
-	
-	ATH_MSG_INFO( name() << "glue barrel R buffer + ID/Calo volumes" );
-	barrelR = m_trackingVolumeHelper->glueTrackingVolumeArrays(*barrelRBuffer,Trk::tubeInnerCover,
-								   *tvol, Trk::cylinderCover,
-								   "All::Gaps::BarrelR");    
-      } else  barrelR = tvol;
-      
+    } else { 
+      m_innerBarrelRadius = enclosedDetectorOuterRadius;
+      barrelR = tvol;      
     }
     // adjust z
     if ( enclosedDetectorHalfZ > m_barrelZ ) {
@@ -393,7 +432,9 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
 								    nameEncl);    
  
       } else enclosed = barrelR;
-      
+      // ST the following simplification forces MuonSpectrometerEntrance to coincide with Calo::Container
+      //m_barrelZ = enclosedDetectorHalfZ;
+      //enclosed = barrelR;      
     }
     
   } else {     // no input, create the enclosed volume
@@ -425,6 +466,36 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
     enclosed->registerColorCode(0); 
     ATH_MSG_DEBUG( " register Barrel m_entryVolume " << m_entryVolume);
   }
+
+  // construct inner and outer envelope
+    
+  for (unsigned int i=0; i<envelopeDefs.size(); i++) {
+    //ATH_MSG_VERBOSE( "Rz pair:"<< i<<":"<< envelopeDefs[i].first<<","<<envelopeDefs[i].second );   
+    if (m_msCutoutsIn.size() && m_msCutoutsIn.back().second== -m_outerEndcapZ) break;
+    if ( !m_msCutoutsIn.size() || fabs(m_msCutoutsIn.back().second) > m_barrelZ
+	 || fabs(envelopeDefs[i].second)> m_barrelZ ) m_msCutoutsIn.push_back(envelopeDefs[i]); 
+    else if (m_msCutoutsIn.size() && m_msCutoutsIn.back().second==m_barrelZ && m_msCutoutsIn.back().first!=m_innerBarrelRadius) {
+      m_msCutoutsIn.push_back(RZPair(m_innerBarrelRadius,m_barrelZ));
+      m_msCutoutsIn.push_back(RZPair(m_innerBarrelRadius,-m_barrelZ));
+      m_msCutoutsIn.push_back(RZPair(m_msCutoutsIn[m_msCutoutsIn.size()-3].first,-m_barrelZ));
+    }
+  }
+
+  unsigned int il=1; 
+  while (envelopeDefs[il-1].second!=-m_outerEndcapZ) il++;
+  for ( ; il<envelopeDefs.size(); il++)  m_msCutoutsOut.push_back(envelopeDefs[il]); 
+
+  for (unsigned int i=0; i<m_msCutoutsIn.size(); i++) {
+    ATH_MSG_VERBOSE( "Rz pair for inner MS envelope:"<< i<<":"<< m_msCutoutsIn[i].first<<","<<m_msCutoutsIn[i].second );   
+  }
+  for (unsigned int i=0; i<m_msCutoutsOut.size(); i++) {
+    ATH_MSG_VERBOSE( "Rz pair for outer MS envelope:"<< i<<":"<< m_msCutoutsOut[i].first<<","<<m_msCutoutsOut[i].second );   
+  }
+
+  if ( m_msCutoutsIn[5].second != m_innerEndcapZ) {
+    m_innerEndcapZ = m_msCutoutsIn[5].second;
+  }
+  ATH_MSG_VERBOSE( "inner endcap Z set to:"<< m_innerEndcapZ );   
   
   // create central volume ("enclosed" + disk shields ) - this is to allow safe gluing with 3D MS binning
   getShieldParts();
@@ -1108,10 +1179,29 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
     std::vector<const Trk::TrackingVolume*> sVolsPos;             // for gluing
     for (int eta = 0; eta < etaN; eta++) {
       if (colorCode>0) colorCode = 26 - colorCode;
+      // reference point for the check of envelope
+      double posZ = (vol->center())[2]+ etaSect * (2.*eta+1.-etaN) ;
+      double posR = 0.5*(cyl->innerRadius()+cyl->outerRadius());
+      int geoSignature = 4;
+      // loop over inner cutouts
+      for (unsigned int in=1; in<m_msCutoutsIn.size(); in++) {
+        if (posZ>=m_msCutoutsIn[in].second && posZ<=m_msCutoutsIn[in-1].second) {
+          if (posR < m_msCutoutsIn[in].first) geoSignature=2;
+          break;
+	}
+      }
+      if (geoSignature == 4) {
+	// loop over outer cutouts
+	for (unsigned int io=1; io<m_msCutoutsOut.size(); io++) {
+	  if (posZ>=m_msCutoutsOut[io-1].second && posZ<=m_msCutoutsOut[io].second) {
+	    if (posR > m_msCutoutsOut[io].first) geoSignature=5;
+	    break;
+	  }
+	}
+      }
       for (int phi = 0; phi < phiN; phi++) {
 	if (colorCode>0) colorCode = 26 - colorCode;
         // define subvolume
-        double posZ = (vol->center())[2]+ etaSect * (2.*eta+1.-etaN) ;
         Amg::Transform3D  transf(Amg::AngleAxis3D(phiSect*(2*phi+1), Amg::Vector3D(0.,0.,1.))*Amg::Translation3D(Amg::Vector3D(0.,0.,posZ)));
         const Trk::Volume* subVol= new Trk::Volume(*protVol, transf);     
         // enclosed muon objects ?   
@@ -1135,6 +1225,8 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
 	  }
 	}  
         //
+        if (geoSignature == 2) sVol->sign(Trk::BeamPipe);
+        if (geoSignature == 5) sVol->sign(Trk::Cavern);
         sVol->registerColorCode(colorCode); 
 	// reference position 
 	Amg::Vector3D gp(subBds->outerRadius(),0.,0.);
@@ -1376,7 +1468,23 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
 	      m_blendMap[blendVols[id]]->push_back(sVol);
 	    }
 	  }  
-          //
+	  // reference point for the check of envelope
+	  double posR = 0.5*(hSteps[h].second+hSteps[h+1].second);
+	  // loop over inner cutouts
+	  for (unsigned int in=1; in<m_msCutoutsIn.size(); in++) {
+	    if (posZ>=m_msCutoutsIn[in].second && posZ<=m_msCutoutsIn[in-1].second) {
+	      if (posR < m_msCutoutsIn[in].first) sVol->sign(Trk::BeamPipe);
+	      break;
+	    }
+	  }
+	  // loop over outer cutouts
+	  for (unsigned int io=1; io<m_msCutoutsOut.size(); io++) {
+	    if (posZ>=m_msCutoutsOut[io-1].second && posZ<=m_msCutoutsOut[io].second) {
+	      if (posR > m_msCutoutsOut[io].first) sVol->sign(Trk::Cavern);
+	      break;
+	    }
+	  }
+	  //
           sVol->registerColorCode(colorCode+pCode+hCode);
 	  // reference position 
 	  Amg::Vector3D gp(0.5*(hSteps[h].second+hSteps[h+1].second),0.,0.);
@@ -1525,6 +1633,22 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
 	    m_blendMap[blendVols[id]]->push_back(sVol);
 	  }
 	}  
+	// reference point for the check of envelope
+	double posR = 0.5*(cyl->innerRadius()+cyl->outerRadius());
+	// loop over inner cutouts
+	for (unsigned int in=1; in<m_msCutoutsIn.size(); in++) {
+	  if (posZ>=m_msCutoutsIn[in].second && posZ<=m_msCutoutsIn[in-1].second) {
+	    if (posR < m_msCutoutsIn[in].first) sVol->sign(Trk::BeamPipe);
+	    break;
+	  }
+	}
+	// loop over outer cutouts
+	for (unsigned int io=1; io<m_msCutoutsOut.size(); io++) {
+	  if (posZ>=m_msCutoutsOut[io-1].second && posZ<=m_msCutoutsOut[io].second) {
+	    if (posR > m_msCutoutsOut[io].first) sVol->sign(Trk::Cavern);
+	    break;
+	  }
+	}
         //delete subVol;
         sVol->registerColorCode(colorCode); 
         // reference position 
@@ -1708,6 +1832,15 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processShield(cons
 	  m_blendMap[blendVols[id]]->push_back(sVol);
 	}
       }  
+      // reference point for the check of envelope
+      double posR = 0.5*(hSteps[h].second+hSteps[h+1].second);
+      // loop over inner cutouts
+      for (unsigned int in=1; in<m_msCutoutsIn.size(); in++) {
+	if (posZ>=m_msCutoutsIn[in].second && posZ<=m_msCutoutsIn[in-1].second) {
+	  if (posR < m_msCutoutsIn[in].first) sVol->sign(Trk::BeamPipe);
+	  break;
+	}
+      }
       //
       sVol->registerColorCode(colorCode+hCode);
       // reference position 
@@ -2010,9 +2143,12 @@ void Muon::MuonTrackingGeometryBuilder::getZParts() const
 
   // outer endcap
   m_zPartitions.push_back(-m_outerEndcapZ);  m_zPartitionsType.push_back(1);   // EO
-  if (m_activeAdjustLevel>0) { m_zPartitions.push_back(-21630.);  m_zPartitionsType.push_back(1); }   // EOL
+  m_zPartitions.push_back(-23001.);  m_zPartitionsType.push_back(1);   // oute envelope change
+  //if (m_activeAdjustLevel>0) { m_zPartitions.push_back(-21630.);  m_zPartitionsType.push_back(1); }   // EOL
+  m_zPartitions.push_back(-22030.);  m_zPartitionsType.push_back(1);   // EOL
   m_zPartitions.push_back(-m_outerWheel);    m_zPartitionsType.push_back(0);   // Octogon
-  m_zPartitions.push_back(-17990.);          m_zPartitionsType.push_back(0);   // buffer
+  // m_zPartitions.push_back(-17990.);          m_zPartitionsType.push_back(0);   // buffer
+  m_zPartitions.push_back(-18650.);          m_zPartitionsType.push_back(0);   // buffer
   m_zPartitions.push_back(-m_bigWheel);      m_zPartitionsType.push_back(1);   // TGC3 
   if (m_activeAdjustLevel>2) { m_zPartitions.push_back(-15225.);  m_zPartitionsType.push_back(1);}    
   if (m_activeAdjustLevel>1) { m_zPartitions.push_back(-15172.);  m_zPartitionsType.push_back(1);}   // end supp 
@@ -2053,11 +2189,13 @@ void Muon::MuonTrackingGeometryBuilder::getZParts() const
   // barrel
   m_zPartitions.push_back(-m_diskShieldZ);   m_zPartitionsType.push_back(0);   // disk 
   if (m_inertAdjustLevel>0) { m_zPartitions.push_back(-6829.);  m_zPartitionsType.push_back(0); }   // back disk 
-  if (m_inertAdjustLevel>1) { m_zPartitions.push_back(-6600.);  m_zPartitionsType.push_back(0); }   // 
+  //if (m_inertAdjustLevel>1) { m_zPartitions.push_back(-6600.);  m_zPartitionsType.push_back(0); }   // 
+  m_zPartitions.push_back(-6550.); m_zPartitionsType.push_back(0);          // outer envelope change
   if (m_activeAdjustLevel>0){ m_zPartitions.push_back(-6100.);  m_zPartitionsType.push_back(0); }  
   if (m_inertAdjustLevel>0) { m_zPartitions.push_back(-5503.);  m_zPartitionsType.push_back(1); }   // BT 
   if (m_inertAdjustLevel>0) { m_zPartitions.push_back(-4772.);  m_zPartitionsType.push_back(0); }   //  
   if (m_activeAdjustLevel>0){ m_zPartitions.push_back(-4300.);  m_zPartitionsType.push_back(0); }  //  
+  m_zPartitions.push_back(-4000.); m_zPartitionsType.push_back(0);          // outer envelope change
   if (m_inertAdjustLevel>1) { m_zPartitions.push_back(-3700.);  m_zPartitionsType.push_back(0); }   //  
   if (m_inertAdjustLevel>1) { m_zPartitions.push_back(-3300.);  m_zPartitionsType.push_back(0); }   //  
   if (m_activeAdjustLevel>0){ m_zPartitions.push_back(-2600.);  m_zPartitionsType.push_back(0); }   //  
@@ -2160,6 +2298,7 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
     barrelZ0F0.push_back( std::pair<int,float>(0,4450.) );                // for DiskShieldingBackDisk
     barrelZ0F0.push_back( std::pair<int,float>(0,6500.) );                // BI/BM
     barrelZ0F0.push_back( std::pair<int,float>(0,8900.) );                // BM/BO
+    barrelZ0F0.push_back( std::pair<int,float>(0,13000.) );               // outer envelope
   }
   barrelZ0F0.push_back( std::pair<int,float>(0,m_outerBarrelRadius) );
 
@@ -2173,6 +2312,7 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
   if (m_inertAdjustLevel>0)  barrelZ0F1.push_back( std::pair<int,float>(1,8900.) );
   else if (m_activeAdjustLevel>0)  barrelZ0F1.push_back( std::pair<int,float>(0,8900.) );
   if (m_inertAdjustLevel>0)  barrelZ0F1.push_back( std::pair<int,float>(1,10100.) );
+  barrelZ0F1.push_back( std::pair<int,float>(0,13000.) );               // outer envelope
   barrelZ0F1.push_back( std::pair<int,float>(0,m_outerBarrelRadius) );
 
   // BT sector
@@ -2189,6 +2329,7 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
   }
   if (m_activeAdjustLevel>0) barrelZ1F0.push_back( std::pair<int,float>(0,8770.) );  // adapted for cryoring (from 8900)
   if (m_inertAdjustLevel>0) barrelZ1F0.push_back( std::pair<int,float>(1,9850.) );   // adapted for cryoring (from 9600)
+  barrelZ1F0.push_back( std::pair<int,float>(0,13000.) );               // outer envelope
   barrelZ1F0.push_back( std::pair<int,float>(0,m_outerBarrelRadius) );
 
   std::vector<std::pair<int,float> >  barrelZ1F1;
@@ -2203,6 +2344,7 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
     barrelZ1F1.push_back( std::pair<int,float>(1,8900.) );
     barrelZ1F1.push_back( std::pair<int,float>(1,10100.) );
   } else if (m_activeAdjustLevel>0) barrelZ1F1.push_back( std::pair<int,float>(0,8900.) );
+  barrelZ1F1.push_back( std::pair<int,float>(0,13000.) );               // outer envelope
   barrelZ1F1.push_back( std::pair<int,float>(0,m_outerBarrelRadius) );
 
   std::vector<std::vector<std::vector<std::pair<int,float> > > >  barrelZF(2);
@@ -2357,11 +2499,14 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
   // outer 1x1
   std::vector<std::pair<int,float> >  outerZ0F0;
   outerZ0F0.push_back( std::pair<int,float>(0,m_outerShieldRadius) );
-  outerZ0F0.push_back( std::pair<int,float>(0,2275.) );
+  outerZ0F0.push_back( std::pair<int,float>(0,2750.) );       // outer envelope 
+  outerZ0F0.push_back( std::pair<int,float>(0,12650.) );      // outer envelope
+  outerZ0F0.push_back( std::pair<int,float>(0,13400.) );      // outer envelope
   outerZ0F0.push_back( std::pair<int,float>(0,m_outerBarrelRadius) );
 
   std::vector<std::pair<int,float> >  outerZ0F1;
   outerZ0F1.push_back( std::pair<int,float>(0,m_outerShieldRadius) );
+  outerZ0F1.push_back( std::pair<int,float>(0,2750.) );      // outer envelope
   if ( m_activeAdjustLevel>0 ) {
     outerZ0F1.push_back( std::pair<int,float>(0,3600.) );
     outerZ0F1.push_back( std::pair<int,float>(0,5300.) );
@@ -2370,11 +2515,15 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
     outerZ0F1.push_back( std::pair<int,float>(0,10000.) );
     outerZ0F1.push_back( std::pair<int,float>(0,12000.) );
   }
+  outerZ0F1.push_back( std::pair<int,float>(0,12650.) );      // outer envelope
+  outerZ0F1.push_back( std::pair<int,float>(0,13400.) );      // outer envelope
   outerZ0F1.push_back( std::pair<int,float>(0,m_outerBarrelRadius) );
 
   std::vector<std::vector<std::vector<std::pair<int,float> > > >  outerZF(2);
   outerZF[0].push_back(outerZ0F0);
   outerZF[0].push_back(outerZ0F0);
+  outerZF[0].push_back(outerZ0F0);
+  outerZF[1].push_back(outerZ0F1);
   outerZF[1].push_back(outerZ0F1);
   outerZF[1].push_back(outerZ0F1);
 
@@ -2406,8 +2555,9 @@ void Muon::MuonTrackingGeometryBuilder::getShieldParts() const
 
   std::vector<std::pair<int,float> >  outerShield;
   outerShield.push_back(std::pair<int,float>(0,m_beamPipeRadius));
-  outerShield.push_back(std::pair<int,float>(0,600.));
-  outerShield.push_back(std::pair<int,float>(0,1150.));
+  outerShield.push_back(std::pair<int,float>(0,279.));    // outer envelope
+  outerShield.push_back(std::pair<int,float>(0,436.7));   // outer envelope
+  outerShield.push_back(std::pair<int,float>(0,1050.));   // outer envelope 
   outerShield.push_back(std::pair<int,float>(0,m_outerShieldRadius));
   m_shieldHPart.push_back(outerShield);
 

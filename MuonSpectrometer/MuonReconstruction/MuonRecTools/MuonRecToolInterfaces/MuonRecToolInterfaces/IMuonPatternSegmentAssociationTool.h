@@ -8,6 +8,7 @@
 #ifndef IMUONMUONPATTERNSEGMENTASSOCIATIONTOOL_H
 #define IMUONMUONPATTERNSEGMENTASSOCIATIONTOOL_H
 
+#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 #include "GaudiKernel/IAlgTool.h"
 #include <map>
 
@@ -23,14 +24,14 @@ namespace Muon
   public:
     static const InterfaceID& interfaceID( ) ;
     
-    typedef std::multimap<const MuonSegmentCombination*, const MuonPatternCombination*> AssociationMap;
+    typedef MuonSegmentCombPatternCombAssociationMap AssociationMap;
     typedef std::pair<AssociationMap::const_iterator, AssociationMap::const_iterator> AssociationMapRange;
     
     virtual const AssociationMap& map() const =0;
     
-    virtual void insert(const MuonSegmentCombination* segmentCombi, const MuonPatternCombination* associatedPatternCombi)=0;
+    virtual void insert(const MuonSegmentCombination* segmentCombi, const MuonPatternCombination* associatedPatternCombi) const =0;
     
-    virtual void reset()=0;
+    virtual void reset() const =0;
     
     virtual AssociationMapRange find(const MuonSegmentCombination* segmentCombi) const =0;
     

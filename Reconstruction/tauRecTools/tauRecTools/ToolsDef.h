@@ -15,6 +15,9 @@
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/TauChargedPFOCreator.h"
 #include "tauRecTools/TauWPDecorator.h"
+#include "tauRecTools/TauJetBDTEvaluator.h"
+#include "tauRecTools/TauIDVarCalculator.h"
+#include "tauRecTools/TauEleOLRDecorator.h"
 
 REGISTER_TOOL(TauCalibrateLC)
 REGISTER_TOOL(TauCommonCalcVars)
@@ -29,3 +32,6 @@ REGISTER_TOOL(tauRecTools::TauTrackClassifier)
 REGISTER_TOOL(tauRecTools::TrackMVABDT)
 REGISTER_TOOL(TauChargedPFOCreator)
 REGISTER_TOOL(TauWPDecorator)
+REGISTER_TOOL(TauJetBDTEvaluator)
+REGISTER_TOOL(TauEleOLRDecorator)
+REGISTER_TOOL(TauIDVarCalculator)

@@ -16,7 +16,9 @@
 /// @brief Utility class to collect the separate histos
 /// for Calo, Central and High Eta muon SF
 
-#include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
+#include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
+#include <MuonEfficiencyCorrections/MuonEfficiencyType.h>
+
 #include "PATInterfaces/ISystematicsTool.h"
 #include "xAODMuon/Muon.h"
 
@@ -28,7 +30,7 @@ namespace CP {
     class EffiCollection {
         public:
             EffiCollection();
-            EffiCollection(const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_caloo, SystematicSet sys, const std::string &effType = "EFF", double lowPtTransition = 20000.);
+            EffiCollection(const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_caloo, SystematicSet sys, CP::MuonEfficiencyType effType, double lowPtTransition = 20000.);
 
             EffiCollection(const EffiCollection & other);
             EffiCollection & operator =(const EffiCollection & other);
@@ -48,7 +50,7 @@ namespace CP {
             //Create a subclass to handle the periods
             class CollectionContainer {
                 public:
-                    CollectionContainer(const std::string &FileName, SystematicSet sys, std::string effType, bool isLowPt = false, bool hasPtDepSys = false);
+                    CollectionContainer(const std::string &FileName, SystematicSet sys, CP::MuonEfficiencyType effType, bool isLowPt = false, bool hasPtDepSys = false);
                     CollectionContainer & operator =(const CollectionContainer & other);
                     CollectionContainer(const CollectionContainer & other);
                     virtual ~CollectionContainer();
@@ -67,8 +69,8 @@ namespace CP {
             CollectionContainer* m_lowpt_central_eff;
             CollectionContainer* m_lowpt_calo_eff;
         private:
-            std::string m_effType;
             double m_lowpt_transition;
+            CP::MuonEfficiencyType m_Type;
     };
 }
 #endif /* EFFICOLLECTION_H_ */

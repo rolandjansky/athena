@@ -6,7 +6,7 @@ ByteStreamInputSvc  DEBUG Property update for OutputLevel : new value = 2
 ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-35-00
 ByteStreamAttLi...  DEBUG Property update for OutputLevel : new value = 2
 ByteStreamAttLi...  DEBUG ByteStreamAttListMetadataSvc::initialize()
-DetectorStore     WARNING retrieve(non-const): No valid proxy for object RunEventTag  of type AthenaAttributeList(CLID 40774348) 
+DetectorStore_ImplWARNING retrieve(non-const): No valid proxy for object RunEventTag  of type AthenaAttributeList(CLID 40774348) 
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Calling EventSelectorByteStream::start()
@@ -25,21 +25,21 @@ ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 4748
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 500
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x11099400
-ByteStreamInputSvc  DEBUG ByteStream File GUID:90923060-9FCE-E611-9161-02163E01890C
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x11aac800
+ByteStreamInputSvc  DEBUG ByteStream File GUID:BE963E60-7DEC-E611-98D8-02163E018AC1
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 424
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15b25b10 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x140bce10 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
 ByteStreamInputSvc  DEBUG Event Size 4812
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 500
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1109a800
-ByteStreamInputSvc  DEBUG ByteStream File GUID:90923060-9FCE-E611-9161-02163E01890C
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x11aab400
+ByteStreamInputSvc  DEBUG ByteStream File GUID:BE963E60-7DEC-E611-98D8-02163E018AC1
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 5188
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15b25b10 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x140bce10 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 EventSelector        INFO End of input file list reached
 EventSelector       DEBUG Event source found no more valid files left in input list

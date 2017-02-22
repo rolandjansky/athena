@@ -31,12 +31,13 @@ class egammaTopoClusterCopier : public egammaBaseTool, virtual public IegammaTop
   private:
 
   StatusCode  copyCaloTopo()const;
-  StatusCode  checkEMFraction (const xAOD::CaloCluster *clus) const;
+  StatusCode  checkEMFraction (const xAOD::CaloCluster *clus, float &emFrac) const;
   std::string m_inputTopoCollection;
   std::string m_outputTopoCollection;
   float m_etaCut;
   float m_ECut;
   float m_EMFracCut;
+  float m_EMCrackEtCut;
   
 };
 

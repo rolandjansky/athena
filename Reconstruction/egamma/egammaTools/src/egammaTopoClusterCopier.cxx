@@ -7,15 +7,15 @@
 #include "AthContainers/ConstDataVector.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "xAODCore/ShallowCopy.h"
+#include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 class greater{
 public:
   bool operator()(xAOD::CaloCluster const *a, xAOD::CaloCluster const *b) const { 
 
-    static const SG::AuxElement::Accessor<bool> acc("isE4TileGap3Recovered");
-
-    if(acc.isAvailable(*a) && acc.isAvailable(*b)) {
     //TieGap Recovered (true 1) should after (ascending) the no recovered (false 0) 
+    static const SG::AuxElement::Accessor<bool> acc("isCrackRecovered");
+    if(acc.isAvailable(*a) && acc.isAvailable(*b)) {
       if(acc(*a)!=acc(*b)){
 	return acc(*a) < acc(*b);
       }
@@ -35,13 +35,13 @@ public:
 
 // =============================================================
 egammaTopoClusterCopier::egammaTopoClusterCopier(const std::string& type, const std::string& name, const IInterface* parent) :
-  egammaBaseTool(type, name, parent)
-{
+  egammaBaseTool(type, name, parent){
   declareProperty("InputTopoCollection", m_inputTopoCollection = "CaloTopoCluster");
   declareProperty("OutputTopoCollection", m_outputTopoCollection = "egammaTopoCluster");
   declareProperty("EtaCut", m_etaCut = 2.6);
   declareProperty("ECut", m_ECut = 400);
   declareProperty("EMFracCut", m_EMFracCut = 0.5);
+  declareProperty("EMCrackEtCut", m_EMCrackEtCut = 1.0E3);
   declareInterface<IegammaTopoClusterCopier>(this);
 }
 
@@ -102,11 +102,22 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
 	) {            
       continue;
     }
+
     //Check if it passes the cuts
-    if( !checkEMFraction(*cciter)){
+    float emfrac(0.);
+    bool  passesCuts(checkEMFraction(*cciter, emfrac));
+
+    //Special condition for crack on EM fraction OR EM Et due to observed
+    //fragmentation of showers.
+    bool isCrack(fabs((*cciter)->eta()) > 1.37 && fabs((*cciter)->eta()) < 1.52);
+    if(isCrack){
+      passesCuts = (passesCuts || (emfrac*(*cciter)->et()) > m_EMCrackEtCut);
+    }
+    if (!passesCuts){
       continue;
     }
     //Clone the cluster 
+    CaloClusterKineHelper::calculateKine(*cciter,true,true);
     ATH_MSG_DEBUG("-->SELECTED Cluster at eta,phi,et " << (*cciter)->eta() << " , "<< (*cciter)->phi() << " , " << (*cciter)->et());
     viewCopy->push_back((*cciter));
   }
@@ -116,7 +127,7 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *clus) const{
+StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *clus, float &emFrac) const{
   
   double emfrac(0);
   if(!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
@@ -129,10 +140,10 @@ StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *cl
   ATH_MSG_DEBUG("Initial emfrac: " <<emfrac);
   //
   double aeta= fabs(clus->eta());
-  // if the cluster is in the crack or so, add the TileGap cells to its EM energy 
-  if(aeta>1.35 && aeta<1.55 && clusterE>0){
+  // Try to add the TileGap cells to its EM energy 
+  // For crack clusters, also want to consider EME0, EMB0
+  if(aeta>1.37 && aeta<1.63 && clusterE>0){
     double EMEnergy= clusterE*emfrac;
-
     xAOD::CaloCluster::const_cell_iterator cell_itr = clus->begin();
     xAOD::CaloCluster::const_cell_iterator cell_end = clus->end();   
 
@@ -152,6 +163,15 @@ StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *cl
 	  EMEnergy += cell->e()*cell_itr.weight();
 	}
       }
+
+      //Add also cells from EMB0, EME0 for crack.
+      if (CaloCell_ID::PreSamplerE == dde->getSampling()) {
+	EMEnergy += cell->e()*cell_itr.weight();
+      }
+      if (CaloCell_ID::PreSamplerB == dde->getSampling()) {
+	EMEnergy += cell->e()*cell_itr.weight();
+      }
+
       emfrac = EMEnergy/clusterE;
     }
     ATH_MSG_DEBUG("Corrected emfrac for E4 in TileGap3: " <<emfrac);
@@ -159,12 +179,14 @@ StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *cl
   //
   static const  SG::AuxElement::Decorator<float> acc("EMFraction");
   acc(*clus)=emfrac;
+  //Did it pass after correction
   const bool pass_after_correction= ((emfrac>m_EMFracCut) &&  ( (clusterE*emfrac) > m_ECut));
-
-  static const SG::AuxElement::Decorator<bool> acc1("isE4TileGap3Recovered");
+  static const SG::AuxElement::Decorator<bool> acc1("isCrackRecovered");
   acc1(*clus)= (pass_no_correction!=pass_after_correction);
   ATH_MSG_DEBUG("Cluster need to be recovered " << (pass_no_correction!=pass_after_correction));
-
+  //
+  emFrac = emfrac;
+  //Could re
   return pass_after_correction ;
 }
   

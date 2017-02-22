@@ -43,12 +43,12 @@ void PanTau::Tool_InformationStore::ABRDefaultInit(){
     {"TauConstituents_PreselectionMinEnergy",500.},
     {"TauConstituents_eflowRec_BDTThreshold_Pi0Neut",-0.04},
     // PanTau BDT Cut values --- CellBased
-    {"DecayModeDeterminator_BDTCutValue_R10X_CellBased",0.57},
-    {"DecayModeDeterminator_BDTCutValue_R11X_CellBased",-0.25},
-    {"DecayModeDeterminator_BDTCutValue_R110_CellBased",0.53},
-    {"DecayModeDeterminator_BDTCutValue_R1XX_CellBased",-0.06},
-    {"DecayModeDeterminator_BDTCutValue_R30X_CellBased",-0.12},
-    {"DecayModeDeterminator_BDTCutValue_R3XX_CellBased",-0.09},
+    {"DecayModeDeterminator_BDTCutValue_R10X_CellBased",0.52},
+    {"DecayModeDeterminator_BDTCutValue_R11X_CellBased",-0.33},
+    {"DecayModeDeterminator_BDTCutValue_R110_CellBased",0.47},
+    {"DecayModeDeterminator_BDTCutValue_R1XX_CellBased",-0.21},
+    {"DecayModeDeterminator_BDTCutValue_R30X_CellBased",-0.13},
+    {"DecayModeDeterminator_BDTCutValue_R3XX_CellBased",-0.08},
     // PanTau BDT Cut values --- eflowRec
     {"DecayModeDeterminator_BDTCutValue_R10X_eflowRec",-0.15},
     {"DecayModeDeterminator_BDTCutValue_R11X_eflowRec",-0.60},

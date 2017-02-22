@@ -40,7 +40,8 @@ namespace CP {
     m_appliedSystematics(0),
     m_runNumber(300345), 
     m_classname(name.c_str()),
-    m_max_period(TrigMuonEff::period_undefined)
+    m_max_period(TrigMuonEff::period_undefined),
+    m_allowZeroSF(false)
   {
     declareProperty( "MuonQuality", m_muonquality = "Medium"); // HighPt,Tight,Medium,Loose
     declareProperty( "Isolation", m_isolation = ""); // "", "IsoGradient", "IsoLoose", "IsoTight"
@@ -61,6 +62,8 @@ namespace CP {
                      "Number of generated toy replicas, if replicas are required.");
     declareProperty( "ReplicaRandomSeed", m_ReplicaRandomSeed = 1234 ,
                      "Random seed for toy replica generation.");
+    declareProperty( "AllowZeroSF", m_allowZeroSF, 
+		     "If a trigger is not available will return 0 instead of throwing an error. More difficult to spot configuration issues. Use at own risk");
   }
   
   // ==================================================================================
@@ -99,7 +102,8 @@ namespace CP {
     ATH_MSG_INFO("filename = '" << m_fileName );
     ATH_MSG_INFO("CalibrationRelease = '" << m_calibration_version << "'" );
     ATH_MSG_INFO("CustomInputFolder = '" << m_custom_dir  << "'");
-    
+    ATH_MSG_INFO("AllowZeroSF = "<<m_allowZeroSF);
+ 
     // Giving a bunch of errors if year, mc and SF file have problems
     if(m_year != "2015" && m_year != "2016"){
       ATH_MSG_ERROR("Note: you have set year " << m_year << ", which is not supported. You should use either 2015 or 2016.");
@@ -511,25 +515,37 @@ namespace CP {
     TH2* eff_h2 = nullptr;
     if(configuration.replicaIndex >= 0){//Only look into the replicas if asking for them
       std::map<std::string, std::vector<TH2*> >::const_iterator cit  = m_efficiencyMapReplicaArray.find(histname);
-      if (cit == m_efficiencyMapReplicaArray.end()) {
-        ATH_MSG_ERROR("Could not find what you are looking for in the efficiency map. The trigger you are looking for, year and mc are not consistent. Please check how you set up the tool.");
-        return CorrectionCode::OutOfValidityRange;
-      }
-
-      if (configuration.replicaIndex >= (int) cit->second.size()){
-        ATH_MSG_ERROR("MuonTriggerScaleFactors::getMuonEfficiency ; index for replicated histograms is out of range.");	
-        return CorrectionCode::OutOfValidityRange;
-      } 
-
-      eff_h2 = cit->second[configuration.replicaIndex];
-
+	if (cit == m_efficiencyMapReplicaArray.end()) {
+	  if(m_allowZeroSF){
+	    eff=0.;
+	    return CorrectionCode::Ok;
+	  }
+	  
+	  else{
+	    ATH_MSG_ERROR("Could not find what you are looking for in the efficiency map. The trigger you are looking for, year and mc are not consistent, or the trigger is unavailable in this data period. Please check how you set up the tool.");
+	    return CorrectionCode::OutOfValidityRange;
+	  }
+	}
+	  
+	if (configuration.replicaIndex >= (int) cit->second.size()){
+	  ATH_MSG_ERROR("MuonTriggerScaleFactors::getMuonEfficiency ; index for replicated histograms is out of range.");	
+	  return CorrectionCode::OutOfValidityRange;
+	} 
+	
+	eff_h2 = cit->second[configuration.replicaIndex];
     } else { //Standard case, look into the usual eff map
       EfficiencyMap::const_iterator cit = m_efficiencyMap.find(histname);
-      if (cit == m_efficiencyMap.end()) {
-        ATH_MSG_ERROR("Could not find what you are looking for in the efficiency map. The trigger you are looking for, year and mc are not consistent. Please check how you set up the tool.");
-        return CorrectionCode::OutOfValidityRange;
-      }
-      eff_h2 = cit->second;
+	if (cit == m_efficiencyMap.end()) {
+	  if(m_allowZeroSF){
+	    eff=0.;
+	    return CorrectionCode::Ok; 
+	  }
+	  else{
+	    ATH_MSG_ERROR("Could not find what you are looking for in the efficiency map. The trigger you are looking for, year and mc are not consistent, or the trigger is unavailable in this data period. Please check how you set up the tool.");
+	    return CorrectionCode::OutOfValidityRange;
+	  }
+	}
+	eff_h2 = cit->second;
     }
     
     double mu_phi_corr = mu_phi;
@@ -774,14 +790,13 @@ namespace CP {
     }
     
     double event_SF = 1.;
-    
+    if(1-rate_not_fired_data == 0) event_SF=0;
     if ((mucont.size()) and
 	(fabs(1. - rate_not_fired_mc) > 0.0001)){
       
       event_SF        = ( 1. - rate_not_fired_data ) / ( 1. - rate_not_fired_mc );
 
     }
-
     TriggerSF = event_SF;
     
     return CorrectionCode::Ok;

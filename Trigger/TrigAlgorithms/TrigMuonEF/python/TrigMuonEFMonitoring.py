@@ -379,9 +379,9 @@ class TrigMuonEFCaloIsolationValidationMonitoring(TrigGenericMonitoringToolConfi
         self.defineTarget("Validation")
         self.Histograms += [ defineHistogram('EF_etiso_cone2', type='TH1F', title="Calo Isolation cone 0.2; MuonEF Calo Isolation cone 0.2 [GeV]",
                                              xbins=40, xmin=-10, xmax=30) ]
-        self.Histograms += [ defineHistogram('EF_etiso_cone2_core', type='TH1F', title="Calo Isolation cone 0.2 core; MuonEF Calo Isolation cone 0.2 [GeV] core",
+        self.Histograms += [ defineHistogram('EF_etiso_cone3', type='TH1F', title="Calo Isolation cone 0.3; MuonEF Calo Isolation cone 0.3 [GeV]",
                                              xbins=40, xmin=-10, xmax=30) ]
-        self.Histograms += [ defineHistogram('EF_etiso_cone2_nocorr', type='TH1F', title="Calo Isolation cone 0.2 nocorr; MuonEF Calo Isolation cone 0.2 [GeV] nocorr",
+        self.Histograms += [ defineHistogram('EF_etiso_cone4', type='TH1F', title="Calo Isolation cone 0.4; MuonEF Calo Isolation cone 0.4 [GeV]",
                                              xbins=40, xmin=-10, xmax=30) ]
 
 

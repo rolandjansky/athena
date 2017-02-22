@@ -39,7 +39,7 @@ def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe",
 
 
     ProbeContainer = CommonMuonTPConfig.GetRightMuonContainer()
-    theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="ZmumuMuProbeAlg_%s"%name_suffix, ProbeCont=ProbeContainer, MatchCont=MatchContainer)
+    theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="ZmumuMuProbeAlg_%s"%name_suffix, ProbeCont=ProbeContainer)
     theAlg.TopLevelFolderName = "ZmumuTPMuon"
 
     SelectionTools = []
@@ -89,9 +89,9 @@ def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe",
         SelectionTools.append(SelecToolsSC_VeryLooseProbes)
     
     if doLooseProbes:
-        SelecToolsOC_LooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbes_%s"%name_suffix,EffiFlag="%s_OC_LooseProbes"%name_suffix, ProbeType="Loose",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
-        SelecToolsOC_LooseProbes.UseLooseProbes = True
-        SelectionTools.append(SelecToolsOC_LooseProbes)
+        # SelecToolsOC_LooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbes_%s"%name_suffix,EffiFlag="%s_OC_LooseProbes"%name_suffix, ProbeType="Loose",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
+        # SelecToolsOC_LooseProbes.UseLooseProbes = True
+        # SelectionTools.append(SelecToolsOC_LooseProbes)
         
         # configure one additional instance without d0 cuts, to measure the efficiency of IP requirements in data and MC
         SelecToolsOC_LooseProbes_noProbeIP = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbes_noProbeIP_%s"%name_suffix,EffiFlag="%s_OC_LooseProbes_noProbeIP"%name_suffix, ProbeType="Loose",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
@@ -105,9 +105,9 @@ def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe",
         SelectionTools.append(SelecToolsOC_LooseProbes_noProbeIP)
         
         
-        SelecToolsSC_LooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbes_%s"%name_suffix,EffiFlag="%s_SC_LooseProbes"%name_suffix, ProbeType="Loose", SameSign=True,forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
-        SelecToolsSC_LooseProbes.UseLooseProbes = True
-        SelectionTools.append(SelecToolsSC_LooseProbes)
+        # SelecToolsSC_LooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbes_%s"%name_suffix,EffiFlag="%s_SC_LooseProbes"%name_suffix, ProbeType="Loose", SameSign=True,forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
+        # SelecToolsSC_LooseProbes.UseLooseProbes = True
+        # SelectionTools.append(SelecToolsSC_LooseProbes)
         
         SelecToolsSC_LooseProbes_noProbeIP = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbes_noProbeIP_%s"%name_suffix,EffiFlag="%s_SC_LooseProbes_noProbeIP"%name_suffix, ProbeType="Loose", SameSign=True,forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsSC_LooseProbes_noProbeIP.UseLooseProbes = True

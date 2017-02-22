@@ -41,7 +41,7 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AnaToolHandle.h"
-#include "PileupReweighting/IPileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #define CHECK_CPCorr(Arg) \
     if (Arg.code() == CP::CorrectionCode::Error){    \
@@ -84,19 +84,18 @@ int main(int argc, char* argv[]) {
         Error(APP_NAME, " Unable to load xAOD input file");
     }
 
+    std::string DefaultCalibRelease("");
+    if (argc==3) {
+        DefaultCalibRelease = argv[2];
+        std::cout << "Found second argument (" << DefaultCalibRelease << "), assuming it is the CalibrationRelease..." << std::endl;
+    }
+
     // Create a TEvent object:
     xAOD::TEvent event;
     RETURN_CHECK(APP_NAME, event.readFrom(ifile.get(), xAOD::TEvent::kClassAccess));
     Info(APP_NAME, "Number of events in the file: %i", static_cast<int>(event.getEntries()));
 
-    // Decide how many events to run over:
     Long64_t entries = event.getEntries();
-    if (argc > 2) {
-        const Long64_t e = atoll(argv[2]);
-        if (e < entries) {
-            entries = e;
-        }
-    }
 
     TStopwatch tsw;
     tsw.Start();
@@ -104,32 +103,27 @@ int main(int argc, char* argv[]) {
     tsw.Reset();
 
     // instantiate the PRW tool which is needed to get random runnumbers 
-    asg::AnaToolHandle<CP::IPileupReweightingTool> m_prw_tool("CP::PileupReweightingTool/myTool");    
+    asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DefaultChannel", 410000));
     std::vector<std::string> m_ConfigFiles { "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root" };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
-    std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v82-pro20-13_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
+    std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v83-pro20-15_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("LumiCalcFiles", m_LumiCalcFiles));
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactor", 1. / 1.16));
+    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactor", 1.0 / 1.09));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorUP", 1.));
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorDOWN", 1. / 1.23));
+    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorDOWN", 1.0 / 1.18));
     // Initialize the PRW tool
     ASG_CHECK_SA(APP_NAME, m_prw_tool.initialize());
 
-    // for testing SF files:
-//     std::string CustomInputFolder = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonEfficiencyCorrections/160928_PostICHEP/";
-
-    // instantiate the MCP tool
+// instantiate the MCP tool
     CP::MuonEfficiencyScaleFactors m_effi_corr("TestSFClass");
     // set a working point
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "WorkingPoint", "Medium"));
     // turn on audit trail functionality
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "doAudit", true));
     // setting a custom input folder containing SF files: this is NOT recommended!
-//     ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr, "CustomInputFolder", DefaultCalibRelease));
 
-    // Initialize the tool
+// Initialize the tool
     ASG_CHECK_SA(APP_NAME, m_effi_corr.initialize());
 
 // test if the tool is robust against nonexistent properties being set
@@ -155,9 +149,8 @@ int main(int argc, char* argv[]) {
     // instantiate an MCP tool for testing TTVA scale factors
     CP::MuonEfficiencyScaleFactors m_ttva_corr("TestTTVAClass");
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "WorkingPoint", "TTVA"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "doAudit", true));
     // setting a custom input folder containing SF files: this is NOT recommended!
-    // ASG_CHECK_SA( APP_NAME,asg::setProperty( m_ttva_corr, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_ttva_corr, "CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, m_ttva_corr.initialize());
 
     CP::SystematicSet TTVAstatup;
@@ -173,7 +166,7 @@ int main(int argc, char* argv[]) {
     CP::MuonEfficiencyScaleFactors m_iso_effi_corr("TestIsolationSF");
     ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.setProperty("WorkingPoint", "GradientIso"));
     // setting a custom input folder containing SF files: this is NOT recommended!
-    // ASG_CHECK_SA( APP_NAME,asg::setProperty( m_iso_effi_corr, "CustomInputFolder", CustomInputFolder));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_iso_effi_corr, "CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.initialize());
     CP::SystematicSet isosysup;
     isosysup.insert(CP::SystematicVariation("MUON_ISO_SYS", 1));
@@ -197,7 +190,7 @@ int main(int argc, char* argv[]) {
         const xAOD::EventInfo* ei = 0;
         RETURN_CHECK(APP_NAME, event.retrieve(ei, "EventInfo"));
         //Apply the prwTool first before calling the efficiency correction methods
-        RETURN_CHECK(APP_NAME,m_prw_tool->apply(*ei) );
+        RETURN_CHECK(APP_NAME, m_prw_tool->apply(*ei));
         Info(APP_NAME, "===>>>  start processing event #%i, run #%i %i events processed so far  <<<===", static_cast<int>(ei->eventNumber()), static_cast<int>(ei->runNumber()), static_cast<int>(entry));
 
         // Get the Muons from the event:
@@ -210,7 +203,7 @@ int main(int argc, char* argv[]) {
         xAOD::MuonContainer::const_iterator mu_end = muons->end();
 
         for (; mu_itr != mu_end; ++mu_itr) {
-
+            bool IsHighEta = fabs((*mu_itr)->eta()) > 2.5;
             // Print some info about the selected muon:
             Info(APP_NAME, "  Selected muon: eta = %g, phi = %g, pt = %g", (*mu_itr)->eta(), (*mu_itr)->phi(), (*mu_itr)->pt());
 
@@ -218,18 +211,19 @@ int main(int argc, char* argv[]) {
             float eff = 0.0, sf = 0.0;
 
             // directly obtain some efficiencies and SF
-
-            CHECK_CPCorr(m_effi_corr.getDataEfficiency(**mu_itr, eff));
-            Info(APP_NAME, "        efficiency = %g", eff);
+            if (!IsHighEta) {
+                CHECK_CPCorr(m_effi_corr.getDataEfficiency(**mu_itr, eff));
+                Info(APP_NAME, "        data efficiency = %g", eff);
+                CHECK_CPCorr(m_effi_corr.getMCEfficiency(**mu_itr, eff));
+                Info(APP_NAME, "        MC efficiency = %g", eff);
+            }
 
             CHECK_CPSys(m_effi_corr.applySystematicVariation(CP::SystematicSet()));
             CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "       Central scaleFactor = %g", sf);
             // if in audit mode, this should return a true
-            Info(APP_NAME, "    Already applied this SF: %d", m_effi_corr.AlreadyApplied(**mu_itr));
             CHECK_CPSys(m_effi_corr.applySystematicVariation(statup));
             // and this a false (since we are looking at a different systematic)
-            Info(APP_NAME, "    Already applied this SF: %d", m_effi_corr.AlreadyApplied(**mu_itr));
             //         }
             CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "           Stat Up scaleFactor = %g", sf);
@@ -254,22 +248,31 @@ int main(int argc, char* argv[]) {
 
             // also run in decorating mode... Note that here we use our non-const copy created further up
             CHECK_CPCorr(m_effi_corr.applyEfficiencyScaleFactor(**mu_itr));
-            CHECK_CPCorr(m_effi_corr.applyDataEfficiency(**mu_itr));
-            // now we can retrieve the info from the muon directly:
-            Info(APP_NAME, "       efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("Efficiency"));
+            if (!IsHighEta) {
+                CHECK_CPCorr(m_effi_corr.applyDataEfficiency(**mu_itr));
+                CHECK_CPCorr(m_effi_corr.applyMCEfficiency(**mu_itr));
+                // now we can retrieve the info from the muon directly:
+                Info(APP_NAME, "       data efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("Efficiency"));
+                Info(APP_NAME, "       MC efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("mcEfficiency"));
+            }
             Info(APP_NAME, "       SF from decorated muon = %g", (**mu_itr).auxdataConst<float>("EfficiencyScaleFactor"));
 
             CHECK_CPCorr(m_ttva_corr.getDataEfficiency(**mu_itr, eff));
             Info(APP_NAME, "        TTVA efficiency = %g", eff);
 
             CHECK_CPSys(m_ttva_corr.applySystematicVariation(CP::SystematicSet()));
+
             CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "       TTVA Central scaleFactor = %g", sf);
-            // if in audit mode, this should return a true
-            Info(APP_NAME, "    TTVA Already applied this SF: %d", m_ttva_corr.AlreadyApplied(**mu_itr));
+            if (!IsHighEta) {
+                CHECK_CPCorr(m_ttva_corr.applyDataEfficiency(**mu_itr));
+                CHECK_CPCorr(m_ttva_corr.applyMCEfficiency(**mu_itr));
+                // now we can retrieve the info from the muon directly:
+                Info(APP_NAME, "       data efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("Efficiency"));
+                Info(APP_NAME, "       MC efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("mcEfficiency"));
+            }            // if in audit mode, this should return a true
             CHECK_CPSys(m_ttva_corr.applySystematicVariation(TTVAstatup));
             // and this a false (since we are looking at a different systematic)
-            Info(APP_NAME, "    TTVA Already applied this SF: %d", m_ttva_corr.AlreadyApplied(**mu_itr));
             //         }
             CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "           TTVA Stat Up scaleFactor = %g", sf);
@@ -317,8 +320,8 @@ int main(int argc, char* argv[]) {
                 "run #%i %i events processed so far  <<<===", static_cast<int>(ei->eventNumber()), static_cast<int>(ei->runNumber()), static_cast<int>(entry + 1));
     }
     double t_run = tsw.CpuTime() / entries;
-    Info(APP_NAME, " MCP init took %g s", t_init);
-    Info(APP_NAME, " time per event: %g s", t_run);
+    Info(APP_NAME, " MCP init took %gs", t_init);
+    Info(APP_NAME, " time per event: %gs", t_run);
 
     //get smart slimming list
     xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();

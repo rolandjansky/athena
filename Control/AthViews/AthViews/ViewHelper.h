@@ -9,6 +9,7 @@
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/StatusCode.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthViews/View.h"
@@ -21,7 +22,7 @@ namespace ViewHelper
 {
 	//Function to create a vector of views, each populated with one data object
 	template< typename T >
-	inline void MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
+	inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
 			SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData )
 	{
 		//Loop over all input data
@@ -37,26 +38,32 @@ namespace ViewHelper
 			StatusCode sc = PopulateHandle.setProxyDict( outputView );
 			if ( !sc.isSuccess() )
 			{
-				//Something went wrooooong - how to report error?
 				ViewVector.clear();
-				return;
+				return sc;
 			}
 
 			//Populate the view
 			sc = PopulateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
 			if ( !sc.isSuccess() )
 			{
-				//Something went wrooooong - how to report error?
 				ViewVector.clear();
-				return;
+				return sc;
 			}
 		}
+
+		return StatusCode::SUCCESS;
 	}
 
 	//Function to run a set of views with the named algorithms
-	inline void RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
+	inline StatusCode RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
 			EventContext const& InputContext, SmartIF< IService > & AlgPool )
 	{
+		//Check there is work to do
+		if ( !ViewVector.size() || !AlgorithmNames.size() )
+		{
+			return StatusCode::FAILURE;
+		}
+
 		//Create a tbb task for each view
 		tbb::task_list allTasks;
 		for ( SG::View* inputView : ViewVector )
@@ -72,11 +79,13 @@ namespace ViewHelper
 		
 		//Run the tasks
 		tbb::task::spawn_root_and_wait( allTasks );
+
+		return StatusCode::SUCCESS;
 	}
 
 	//Function merging view data into a single collection
 	template< typename T >
-	inline void MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< T > & QueryHandle, T & OutputData )
+	inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< T > & QueryHandle, T & OutputData )
 	{
 		//Loop over all views
 		for ( SG::View* inputView : ViewVector )
@@ -85,21 +94,21 @@ namespace ViewHelper
 			StatusCode sc = QueryHandle.setProxyDict( inputView );
 			if ( !sc.isSuccess() )
 			{
-				//Something went wrooooong - how to report error?
 				OutputData.clear();
-				return;
+				return sc;
 			}
 
 			//Merge the data
 			T inputData = *QueryHandle;
 			OutputData.insert( OutputData.end(), inputData.begin(), inputData.end() );
 		}
+
+		return StatusCode::SUCCESS;
 	}
 
 	//Function merging view data into a single collection - overload for datavectors because aux stores are annoying
-	//Currently doesn't do anything because of the TrigComposite merging problem
 	template< typename T >
-	inline void MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< DataVector< T > > & QueryHandle, DataVector< T > & OutputData )
+	inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< DataVector< T > > & QueryHandle, DataVector< T > & OutputData )
 	{
 		//Loop over all views
 		for ( SG::View* inputView : ViewVector )
@@ -108,25 +117,26 @@ namespace ViewHelper
 			StatusCode sc = QueryHandle.setProxyDict( inputView );
 			if ( !sc.isSuccess() )
 			{
-				//Something went wrooooong - how to report error?
 				OutputData.clear();
-				return;
+				return sc;
 			}
 
 			//Merge the data
-			//for ( const auto inputObject : *QueryHandle.cptr() )
-			//{
-			//	//Relies on non-existant assignment operator in TrigComposite
-			//	T * outputObject = new T();
-			//	OutputData.push_back( outputObject );
-			//	*outputObject = *inputObject;
-			//}
+			for ( const auto inputObject : *QueryHandle.cptr() )
+			{
+				//Relies on non-existant assignment operator in TrigComposite
+				T * outputObject = new T();
+				OutputData.push_back( outputObject );
+				*outputObject = *inputObject;
+			}
 
 			//Tomasz version
 			//const size_t sizeSoFar = OutputData.size();
 			//OutputData.resize( sizeSoFar + QueryHandle->size() );
-			//std::swap_ranges( QueryHandle.ptr()->begin(), QueryHandle.ptr()->end(), &(OutputData[ sizeSoFar ] ) );
+			//std::swap_ranges( QueryHandle.ptr()->begin(), QueryHandle.ptr()->end(), OutputData.begin() + sizeSoFar );
 		}
+
+		return StatusCode::SUCCESS;
 	}
 }
 

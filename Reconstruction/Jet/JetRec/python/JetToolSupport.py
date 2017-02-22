@@ -78,7 +78,7 @@ class JetToolManager:
     else:
       jetlog.info( type(mytool) )
       self.tools[myname] = mytool
-      from AthenaCommon.AppMgr import ToolSvc 
+      from AthenaCommon.AppMgr import ToolSvc
       ToolSvc += mytool
       mytool.lock()
       setattr(self, myname, mytool)
@@ -123,9 +123,15 @@ class JetToolManager:
   # If the argument is a list, it is returned directly.
   def getModifiers(self, modifiersin, altname =None):
     if modifiersin == None:
-      return self.modifiersMap[altname]
+      if altname in ["lctopo","emtopo"]:
+        return self.modifiersMap[altname+"_ungroomed"]
+      elif "pflow" in altname:
+        return self.modifiersMap["pflow_ungroomed"]
+      else:
+        return self.modifiersMap[altname]
     if type(modifiersin) == str:
-      return self.modifiersMap[modifiersin]
+        return self.modifiersMap[modifiersin]
+
     return modifiersin
 
   # Build the list of modifiers, replacing the string "calib:XXX:CALIB" with
@@ -236,13 +242,13 @@ class JetToolManager:
         tname = "jetpt" + str(self.ptminFilter)
         if not tname in self.tools:
           from JetRec.JetRecConf import JetFilterTool
-          self.add( JetFilterTool(tname, PtMin=self.ptminFilter) ) 
+          self.add( JetFilterTool(tname, PtMin=self.ptminFilter) )
         outmods += [self.tools[tname]]
       # btag - btagging
       elif mod == "btag":
         from BTagging.BTaggingConfiguration import getConfiguration
         ConfInstance = getConfiguration()
-        from AthenaCommon.AppMgr import ToolSvc 
+        from AthenaCommon.AppMgr import ToolSvc
         sinp = getters[0].Label
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
@@ -264,7 +270,7 @@ class JetToolManager:
         jetlog.info( self.prefix + "Calibration option (" + calibOpt + ") provided with multiple calibration modifiers." )
         raise Exception
 
-        
+
     return outmods
 
   # Create a jet finder without a JetRecToosl.
@@ -373,7 +379,7 @@ class JetToolManager:
       if gettersin == "ztrack": ivtx = -1        # Find tracs separatesly for each vertex
       elif gettersin == "pv0track": ivtx = 0     # Find tracks only for 1st vertex
     # Retrieve/build the jet finder.
-    lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
+    lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed,
                                             variableRMinRadius, variableRMassScale)
     jetrec = JetRecTool(output)
     jetrec.PseudoJetGetters = getters
@@ -404,7 +410,7 @@ class JetToolManager:
   #   ymin = YMin used in the filter
   #   input = name of the input jet container
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
-  #   doArea = whether to write jet areas (default false because work is needed to 
+  #   doArea = whether to write jet areas (default false because work is needed to
   #            recover this for reclustered jets).
   def addJetSplitter(self, output, mumax, ymin, input, modifiersin ="groomed",
                      isTrigger =False, useTriggerStore =False, doArea =True):
@@ -542,7 +548,7 @@ class JetToolManager:
     from JetRec.JetRecConf import JetRecTool
     from JetRec.JetRecConf import JetReclusterer
     # Retrieve/build the jet finder.
-    lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
+    lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed,
                                               variableRMinRadius, variableRMassScale)
     reclname = output + "Reclusterer"
     groomer = JetReclusterer(

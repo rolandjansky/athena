@@ -60,6 +60,28 @@ TGCSimHit::TGCSimHit(const int id,
     
 }
 
+TGCSimHit::TGCSimHit(const int id,
+		     const double time, 
+		     const Amg::Vector3D& position,
+		     const Amg::Vector3D& direcos,
+		     const HepMcParticleLink hmpl,
+		     const double energyDeposit,
+		     const double stepLength,
+		     const int particleEncoding,
+		     const double kineticEnergy)
+    : m_TGCid(id)
+    , m_globalTime(static_cast<float>(time))
+    , m_localPosition(position)
+    , m_localDireCos(direcos)
+    , m_partLink(hmpl)
+    , m_energyDeposit(static_cast<float>(energyDeposit))
+    , m_stepLength(static_cast<float>(stepLength))
+    , m_particleEncoding(particleEncoding) 
+    , m_kineticEnergy(static_cast<float>(kineticEnergy))
+{
+    
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////

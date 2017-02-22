@@ -31,11 +31,11 @@ TrackIsolationDecorAlg::TrackIsolationDecorAlg(const std::string& name, ISvcLoca
   declareProperty("TrackIsolationTool",        m_track_iso_tool);
   declareProperty("TrackCollection",        m_track_collection="InDetTrackParticles");
   declareProperty("PtMin",        m_pt_min=10.);
-# endif
   
   m_trk_iso_types = {xAOD::Iso::ptcone40, xAOD::Iso::ptcone30, xAOD::Iso::ptcone20  };
                                                 
   m_trk_corr.trackbitset = xAOD::Iso::coreTrackPtr;
+# endif
   
 }
 

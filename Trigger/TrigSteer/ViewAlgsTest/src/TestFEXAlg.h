@@ -1,9 +1,9 @@
-// -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+// -*- c++ -*-
 #ifndef ViewAlgs_TestFexAlg_h
 #define ViewAlgs_TestFexAlg_h
 

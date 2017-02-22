@@ -69,6 +69,10 @@ env_setup() {
     cd $startdir
 }
 
+# we need to reset the option index as we are sourcing this script
+# http://stackoverflow.com/questions/23581368/bug-in-parsing-args-with-getopts-in-bash
+OPTIND=1
+
 # Parse the command line arguments:
 BUILDDIR=""
 while getopts "b:h" opt; do

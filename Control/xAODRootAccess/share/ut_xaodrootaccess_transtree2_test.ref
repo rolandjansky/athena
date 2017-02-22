@@ -1,0 +1,85 @@
+Warning in <TInterpreter::ReadRootmapFile>: class  CP::IPileupReweightingTool found in libAsgAnalysisInterfacesDict.so  is already in libPileupReweightingDict.so 
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 48, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 240, which is not a valid value for type 'bool'
+[?1034hut_xaodrootaccess_tran... INFO    Environment initialised for data access
+generateDVIterators INFO Attaching iterators to all known DV types
+generateDVIterators INFO This may take a moment...
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 0
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 5
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.87225, phi: 2.58505, pt: 7153.77
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.89711, phi: 2.30334, pt: 6618.11
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.03354, phi: -0.733827, pt: 8336.68
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 2.27778, phi: -1.85701, pt: 4034.43
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.89711, phi: 2.30334, pt: 3463.31
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 1
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 16
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.20973, phi: -2.73644, pt: 64042.3
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.810467, phi: 1.29538, pt: 46569.2
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.407468, phi: -0.850301, pt: 41894.1
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.0397363, phi: -0.92689, pt: 14259.2
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.853443, phi: 1.3642, pt: 10362
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.166232, phi: -1.05669, pt: 7517.21
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.10591, phi: -1.20178, pt: 11971.2
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.056347, phi: -1.17958, pt: 18189.3
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.24841, phi: -2.8877, pt: 11875.8
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.2158, phi: -2.70483, pt: 10173.6
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.191049, phi: -1.06734, pt: 7704.97
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.31224, phi: 1.46253, pt: 7555.06
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.6782, phi: 2.67353, pt: 7261.89
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.0242342, phi: -0.875958, pt: 3211.76
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.16864, phi: -2.69413, pt: 1721.68
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.407468, phi: -0.850301, pt: 1905.01
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 2
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 3
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.35437, phi: -1.67835, pt: 18782.8
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.34787, phi: -1.67925, pt: 7960.93
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.385872, phi: 0.694237, pt: 3030.75
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 3
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 7
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.14451, phi: -0.0736832, pt: 83290.3
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.0945223, phi: -2.97419, pt: 83881.3
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.548944, phi: 0.834652, pt: 15323.1
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.58378, phi: -1.62608, pt: 7411.35
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.600011, phi: 0.447199, pt: 5797.86
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.0472115, phi: -3.07577, pt: 3075.44
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.624104, phi: 0.970929, pt: 2826.36
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 4
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 4
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.293212, phi: -2.43334, pt: 28535.9
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.12055, phi: -2.83096, pt: 5174.22
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.715128, phi: -2.48471, pt: 3333.71
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.734061, phi: -1.81256, pt: 1553.44
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 5
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 3
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.89356, phi: 0.843517, pt: 26125.2
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.89874, phi: 0.902491, pt: 7945.43
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 0.42673, phi: 2.93155, pt: 4142.02
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 6
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 5
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.978776, phi: -1.66459, pt: 28746.5
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.34012, phi: 0.505818, pt: 12818.6
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.21412, phi: 0.621285, pt: 18685
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.03222, phi: 0.840678, pt: 6101.92
+ut_xaodrootaccess_transtree2_test    INFO    - eta: 1.27168, phi: -2.37407, pt: 8790.23
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 7
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 7
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.14669, phi: -0.176249, pt: 14384.1
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.551749, phi: 0.368342, pt: 5799.93
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.07237, phi: -0.459667, pt: 3497.28
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.580715, phi: 0.302969, pt: 4047.04
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.81865, phi: -2.75309, pt: 4069.96
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.580715, phi: 0.302969, pt: 2536.63
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.10472, phi: 0.15616, pt: 2568.13
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 8
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 8
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.893952, phi: -1.5656, pt: 62553.9
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.194155, phi: 3.07662, pt: 30000.2
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -2.23172, phi: 1.52299, pt: 14864.5
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -2.27369, phi: 1.69665, pt: 6536.86
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.860373, phi: -1.55368, pt: 4250.91
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -0.783786, phi: -2.12645, pt: 3000.41
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -2.23172, phi: 1.52299, pt: 2125.29
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.07172, phi: 0.533009, pt: 2353.17
+ut_xaodrootaccess_transtree2_test    INFO Processing entry 9
+ut_xaodrootaccess_transtree2_test    INFO   Number of electrons: 1
+ut_xaodrootaccess_transtree2_test    INFO    - eta: -1.23239, phi: -2.08669, pt: 5215.82

@@ -202,7 +202,11 @@ StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
   {
     // Call the sysExecute() of the method the algorithm
     m_abortTimer.start(m_timeoutMilliseconds);
-    sc = theAlgorithm->sysExecute( );
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
+    sc = theAlgorithm->sysExecute();
+#else
+    sc = theAlgorithm->sysExecute( getContext() );
+#endif
     all_good = sc.isSuccess();
     // I think this should be done by the algorithm itself, 
     // but just in case...

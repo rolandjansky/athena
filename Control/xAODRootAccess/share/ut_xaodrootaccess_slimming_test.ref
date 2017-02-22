@@ -1,0 +1,20 @@
+ut_xaodrootaccess_slim... INFO    Environment initialised for data access
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+ut_xaodrootaccess_slim... INFO    Slimming in xAOD::TEvent::copy(...) seems correct
+xAOD::AuxSelection WARNING Selected dynamic Aux atribute "bar" not found in the registry
+xAOD::AuxSelection WARNING Selected dynamic Aux atribute "foo" not found in the registry
+ut_xaodrootaccess_slim... INFO    Slimming in xAOD::TEvent::recordAux(...) seems correct

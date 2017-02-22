@@ -33,7 +33,7 @@ DiMuonTPSelectionTool::DiMuonTPSelectionTool(std::string myname)
 
     declareProperty("DeltaPhiCut",       m_deltaPhiCut = -1.00);
     declareProperty("DeltaEtaCut",       m_deltaEtaCut = -1.00);
-    declareProperty("DeltaRTriggerPivot", m_deltaRTriggerPivot = 10000.0);
+    declareProperty("DeltaRTriggerPivot", m_deltaRTriggerPivot = 0.0);  // default to off - only decorate the value for offline use
 
     declareProperty("DoOnlyAside",       m_only_A_side = false);
     declareProperty("DoOnlyCside",       m_only_C_side = false);
@@ -178,11 +178,11 @@ ProbeContainer* DiMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* t
             FillCutFlows("ProbeDeltaPhi",evtWeight);
             FillCutFlows("ProbeDeltaEta",evtWeight);
 
-	    // add energy deopsition in calo layers as decoration
-	    if(!m_is_on_DAOD && m_addCaloDeposits)
-	      if ( m_trk_calodep_tool->decorate(probe).isFailure() )	      
-		ATH_MSG_WARNING("Unable to decorare probe with calo energy deposits!");
-	    
+         // add energy deopsition in calo layers as decoration
+         if(!m_is_on_DAOD && m_addCaloDeposits)
+           if ( m_trk_calodep_tool->decorate(probe).isFailure() )           
+          ATH_MSG_WARNING("Unable to decorare probe with calo energy deposits!");
+         
             // in this case, fill the 'tag' slot of the probe with the probe - there is no tag for the truth efficiencies.
             probeCont->push_back( new Probe(*probe, *probe) );
             have_probe = true;
@@ -201,30 +201,30 @@ ProbeContainer* DiMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* t
             FillCutFlows("TagCandidates",evtWeight);
 //
 //            if (tag->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon){
-//            	ATH_MSG_DEBUG ("SAF Muon - primary pt "<<
-//            			tag->primaryTrackParticle()->pt()<<
-//						", pt() pt "<<tag->pt()<<
-//						", CB pt "<<(*(tag->combinedTrackParticleLink()))->pt()<<
-//						", ID pt "<<(*(tag->inDetTrackParticleLink()))->pt()
-//            	);
+//                 ATH_MSG_DEBUG ("SAF Muon - primary pt "<<
+//                           tag->primaryTrackParticle()->pt()<<
+//                              ", pt() pt "<<tag->pt()<<
+//                              ", CB pt "<<(*(tag->combinedTrackParticleLink()))->pt()<<
+//                              ", ID pt "<<(*(tag->inDetTrackParticleLink()))->pt()
+//                 );
 //            }
 //
 //            if (tag->muonType() == xAOD::Muon::SegmentTagged){
-//            	ATH_MSG_DEBUG ("Segment-Tagged Muon - primary pt "<<
-//            			tag->primaryTrackParticle()->pt()<<
-//						", pt() pt "<<tag->pt()<<
-////						", CB pt "<<(*(tag->combinedTrackParticleLink()))->pt()<<
-//						", ID pt "<<(*(tag->inDetTrackParticleLink()))->pt()
-//            	);
+//                 ATH_MSG_DEBUG ("Segment-Tagged Muon - primary pt "<<
+//                           tag->primaryTrackParticle()->pt()<<
+//                              ", pt() pt "<<tag->pt()<<
+////                              ", CB pt "<<(*(tag->combinedTrackParticleLink()))->pt()<<
+//                              ", ID pt "<<(*(tag->inDetTrackParticleLink()))->pt()
+//                 );
 //            }
 //
 //            if (tag->muonType() == xAOD::Muon::CaloTagged){
-//            	ATH_MSG_DEBUG ("Calo-Tagged Muon - primary pt "<<
-//            			tag->primaryTrackParticle()->pt()<<
-//						", pt() pt "<<tag->pt()<<
-////						", CB pt "<<(*(tag->combinedTrackParticleLink()))->pt()<<
-//						", ID pt "<<(*(tag->inDetTrackParticleLink()))->pt()
-//            	);
+//                 ATH_MSG_DEBUG ("Calo-Tagged Muon - primary pt "<<
+//                           tag->primaryTrackParticle()->pt()<<
+//                              ", pt() pt "<<tag->pt()<<
+////                              ", CB pt "<<(*(tag->combinedTrackParticleLink()))->pt()<<
+//                              ", ID pt "<<(*(tag->inDetTrackParticleLink()))->pt()
+//                 );
 //            }
 
             // select good muons (combined for the time being)
@@ -277,10 +277,6 @@ ProbeContainer* DiMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* t
 
                 // remove the probe track matched to the tag
                 if(isTag(tag, probe)) continue;
-
-                // Cut on probe-tag dR in trigger pivot plane
-                if (!m_skip_dRTriggerPivotPlane && m_muonTPextrapolator->dROnTriggerPivotPlane(*tag, probe) > m_deltaRTriggerPivot ) continue;
-
                 // ID hits
                 xAOD::Muon* probemu = dynamic_cast<xAOD::Muon*> (probe);
                 if (m_probe_ID_hits && probemu) {
@@ -324,7 +320,7 @@ ProbeContainer* DiMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* t
 
                 // Charge cut
                 //if(m_oppositeCharge &&
-                //	 tag->trackParticle(xAOD::Muon::Primary)->charge()
+                //      tag->trackParticle(xAOD::Muon::Primary)->charge()
                 int cp = ChargeProd(tag,probe);
                 if (cp == 1 && !m_accept_sameCharge) continue;
                 if (cp == -1 && !m_accept_oppCharge) continue;
@@ -352,11 +348,26 @@ ProbeContainer* DiMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* t
                 if (fabs(tag->eta()-probe->eta()) < m_deltaEtaCut) continue;
                 FillCutFlows("ProbeDeltaEta",evtWeight);
 
-		// add energy deopsition in calo layers as decoration
-		if(!m_is_on_DAOD && m_addCaloDeposits)
-		  if ( m_trk_calodep_tool->decorate(probe).isFailure() )
-		    ATH_MSG_WARNING("Unable to decorare probe with calo energy deposits!");
-		
+                // Cut on probe-tag dR in trigger pivot plane
+                // Shift this back in the selection to save CPU time (expensive!)
+                if (!m_skip_dRTriggerPivotPlane){
+                    float dR = m_muonTPextrapolator->dROnTriggerPivotPlane(*tag, probe);
+                    // dR < 0 is assigned when an ID probe does not make it into the MS.
+                    // In this case, we can safely accept the probe since there can 
+                    // be no trigger bias 
+                    if (dR >= 0 && dR < m_deltaRTriggerPivot ) continue;
+                    // note to keen-eyed svn diff readers: Yes, the sign of the cut switched in this commit.
+                    // It should have been a "<" all the time (minimum separation)....
+                    // Good that no one noticed the last 2 years. 
+                }
+                FillCutFlows("ProbeDR_exTP",evtWeight);
+
+
+          // add energy deopsition in calo layers as decoration
+          if(!m_is_on_DAOD && m_addCaloDeposits)
+            if ( m_trk_calodep_tool->decorate(probe).isFailure() )
+              ATH_MSG_WARNING("Unable to decorare probe with calo energy deposits!");
+          
                 // for each selected probe build a Probe object
                 probeCont->push_back( new Probe(*tag, *probe) );
                 have_probe = true;

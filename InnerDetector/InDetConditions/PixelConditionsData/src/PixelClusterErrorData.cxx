@@ -215,8 +215,8 @@ void PixelClusterErrorData::Load(std::string file){
   std::ifstream infile(file.c_str()); 
 
   // number of bins for barrel and endcap
-  int nb;
-  int ne;
+  int nb = 0;
+  int ne = 0;
 
   infile >> m_version;
   if(m_version >= 0){  // very first format, without version number in file

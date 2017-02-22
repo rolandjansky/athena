@@ -105,7 +105,7 @@ StatusCode NtupleSimpleResolutionTool::initialize()
 	{
 
 	ATH_MSG_INFO( "Initializing Simple resolution Tool" );
-	StatusCode sc;
+	//StatusCode sc;
 
 //get pointer to Calibration input service
 	ATH_CHECK( m_calib_input_svc.retrieve() );

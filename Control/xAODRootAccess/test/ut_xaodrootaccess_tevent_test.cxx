@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodrootaccess_tevent_test.cxx 726838 2016-02-29 16:38:45Z krasznaa $
+// $Id: ut_xaodrootaccess_tevent_test.cxx 796448 2017-02-09 18:28:08Z ssnyder $
 
 // System include(s):
 #include <memory>
@@ -83,14 +83,17 @@ int main() {
    xAOD::TStore store;
 
    // Connect an input file to the event:
-   static const char* FNAME =
-      "/afs/cern.ch/atlas/project/PAT/xAODs/r5597/"
+   const char* ref = getenv ("ATLAS_REFERENCE_DATA");
+   std::string FPATH =
+     ref ? ref : "/afs/cern.ch/atlas/project/PAT";
+   std::string FNAME = FPATH + 
+      "/xAODs/r5597/"
       "data12_8TeV.00204158.physics_JetTauEtmiss.recon.AOD.r5597/"
       "AOD.01495682._003054.pool.root.1";
-   std::auto_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
+   std::auto_ptr< ::TFile > ifile( ::TFile::Open( FNAME.c_str(), "READ" ) );
    if( ! ifile.get() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "File %s couldn't be opened..." ),
-               FNAME );
+               FNAME.c_str() );
       return 1;
    }
    RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
@@ -98,7 +101,7 @@ int main() {
    // Read in the first event:
    if( event.getEntry( 0 ) < 0 ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't load entry 0 from file %s" ),
-               FNAME );
+               FNAME.c_str() );
       return 1;
    }
 

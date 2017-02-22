@@ -3,7 +3,7 @@ package PmbUtils
 use AtlasPolicy AtlasPolicy-*
 use CoolDozer CoolDozer-* Tools -no_auto_imports
 use PyUtils PyUtils-* Tools -no_auto_imports
-use AtlasMatplotlib AtlasMatplotlib-* External
+
 
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_scripts files="*.py pmb-rtt-domain-callgrind"
