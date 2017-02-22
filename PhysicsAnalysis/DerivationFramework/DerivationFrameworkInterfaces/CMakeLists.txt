@@ -20,4 +20,4 @@ atlas_add_dictionary( DerivationFrameworkInterfacesDict
 atlas_add_library( DerivationFrameworkInterfaces
   DerivationFrameworkInterfaces/*.h
   INTERFACE
-  LINK_LIBRARIES GaudiKernel )
+  PUBLIC_HEADERS DerivationFrameworkInterfaces )
