@@ -20,8 +20,3 @@ atlas_add_library( TrigConfL1Data
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
   LINK_LIBRARIES ${Boost_LIBRARIES}
   PRIVATE_LINK_LIBRARIES TrigConfBase )
-
-atlas_add_dictionary( TrigConfL1DataDict
-   TrigConfL1Data/TrigConfL1DataDict.h
-   TrigConfL1Data/selection.xml
-   LINK_LIBRARIES TrigConfL1Data )

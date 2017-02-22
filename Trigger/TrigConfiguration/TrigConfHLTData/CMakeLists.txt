@@ -19,8 +19,3 @@ atlas_add_library( TrigConfHLTData
    PUBLIC_HEADERS TrigConfHLTData
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data )
-
-atlas_add_dictionary( TrigConfHLTDataDict
-   TrigConfHLTData/TrigConfHLTDataDict.h
-   TrigConfHLTData/selection.xml
-   LINK_LIBRARIES TrigConfHLTData )
