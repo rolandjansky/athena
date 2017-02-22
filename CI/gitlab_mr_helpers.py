@@ -14,8 +14,8 @@ def map_filename_to_package(fname):
 
     return: package path for given full file path
     """
-    # get Athena root directory (specific to current layout)
-    athena_root = os.path.dirname(os.path.abspath(os.path.join(os.path.realpath(__file__),"../")))
+    # get Athena root directory (specific to current layout) which is one level up
+    athena_root = os.path.dirname(os.path.abspath(os.path.join(os.path.realpath(__file__),'../')))
     logging.debug("found Athena root directory '%s'",athena_root)
 
     # start from directory name
