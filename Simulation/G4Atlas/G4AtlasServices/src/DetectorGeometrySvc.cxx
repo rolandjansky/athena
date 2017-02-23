@@ -68,13 +68,15 @@ StatusCode DetectorGeometrySvc::initialize(){
   m_detConstruction->SetWorld(m_detTool->GetWorldVolume());
 
   ATH_MSG_DEBUG( "Setting up G4 physics regions" );
-  for (auto it: m_regionCreators)
-    ATH_CHECK( it.retrieve() );
+  for (auto& it: m_regionCreators)
+    {
+      ATH_CHECK( it.retrieve() );
+    }
 
   if (m_activateParallelWorlds)
     {
       ATH_MSG_DEBUG( "Setting up G4 parallel worlds" );
-      for (auto it: m_parallelWorlds)
+      for (auto& it: m_parallelWorlds)
         {
           ATH_CHECK( it.retrieve() );
           m_parallelWorldNames.push_back(it.name());
@@ -85,7 +87,6 @@ StatusCode DetectorGeometrySvc::initialize(){
   ATH_MSG_DEBUG( "Setting up field managers" );
   ATH_CHECK( m_fieldManagers.retrieve() );
   ATH_CHECK( initializeFields() );
-  //for (auto fm: m_fieldManagers) ATH_CHECK( fm.retrieve() );
 
   ATH_MSG_DEBUG( "DetectorGeometrySvc initialized!!!" );
   return StatusCode::SUCCESS;
