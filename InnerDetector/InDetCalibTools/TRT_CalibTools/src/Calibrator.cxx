@@ -17,44 +17,44 @@ PURPOSE: Class for calibrating a TRT sub-level
 #include "Calibrator.h"
 
 caldata::caldata(){
-	res		= -999; 
-   	resMean 	= -999;
-   	reserr		= -999;
-   	tres 		= -999;
-   	tresMean 	= -999;
-   	t0 		= -999;
-   	t0err 		= -999;
-   	reft0  		= -999; 
-   	t0off  		= -999; 
-   	rtt0  		= -999; 
-   	nhits 		= -999;
-   	x  		= -999;
-   	y  		= -999;
-   	z  		= -999;
-   	oldt02  	= -999;
-   	sumt0  		= -999;
-   	sumx  		= -999;
-   	sumy  		= -999;
-   	sumz  		= -999;
-   	calflag  	= -999;
-   	rtflag  	= -999;
-   	t0flag  	= -999;
-   	treshist  	= NULL;
-   	reshist  	= NULL;
-   	rthist  	= NULL;
-  	det		= -999;
-  	lay		= -999;
-  	mod		= -999;
-  	brd		= -999;
-  	chp		= -999;
-  	stl		= -999;
-  	stw		= -999;
-  	sid		= -999;
-  	ntres		= -999;
-  	nrt		= -999;
-  	nres		= -999;
-  	t0fittype	= -999;
-  	rtgraph		= NULL;
+  res = -999; 
+  resMean = -999;
+  reserr = -999;
+  tres = -999;
+  tresMean = -999;
+  t0 = -999;
+  t0err = -999;
+  reft0  = -999; 
+  t0off  = -999; 
+  rtt0  = -999; 
+  nhits = -999;
+  x  = -999;
+  y  = -999;
+  z  = -999;
+  oldt02  = -999;
+  sumt0  = -999;
+  sumx  = -999;
+  sumy  = -999;
+  sumz  = -999;
+  calflag  = -999;
+  rtflag  = -999;
+  t0flag  = -999;
+  treshist  = NULL;
+  reshist  = NULL;
+  rthist  = NULL;
+  det = -999;
+  lay = -999;
+  mod = -999;
+  brd = -999;
+  chp = -999;
+  stl = -999;
+  stw = -999;
+  sid = -999;
+  ntres = -999;
+  nrt = -999;
+  nres = -999;
+  t0fittype = -999;
+  rtgraph = NULL;
 }
 
 caldata::~caldata(){
@@ -65,57 +65,57 @@ caldata::~caldata(){
 }
 
 caldata::caldata(bool makehist, int nbinst, int nbinsr){
-	res		= -999; 
-   	resMean 	= -999;
-   	reserr		= -999;
-   	tres 		= -999;
-   	tresMean 	= -999;
-   	t0 		= -999;
-   	t0err 		= -999;
-   	reft0  		= -999; 
-   	t0off  		= -999; 
-   	rtt0  		= -999; 
-   	nhits 		= -999;
-   	x  		= -999;
-   	y  		= -999;
-   	z  		= -999;
-   	oldt02  	= -999;
-   	sumt0  		= -999;
-   	sumx  		= -999;
-   	sumy  		= -999;
-   	sumz  		= -999;
-   	calflag  	= -999;
-   	rtflag  	= -999;
-   	t0flag  	= -999;
-   	treshist  	= NULL;
-   	reshist  	= NULL;
-   	rthist  	= NULL;
-  	det		= -999;
-  	lay		= -999;
-  	mod		= -999;
-  	brd		= -999;
-  	chp		= -999;
-  	stl		= -999;
-  	stw		= -999;
-  	sid		= -999;
-  	ntres		= -999;
-  	nrt		= -999;
-  	nres		= -999;
-  	t0fittype	= -999;
-  	rtgraph		= NULL;
+  res = -999; 
+  resMean = -999;
+  reserr = -999;
+  tres = -999;
+  tresMean = -999;
+  t0 = -999;
+  t0err = -999;
+  reft0  = -999; 
+  t0off  = -999; 
+  rtt0  = -999; 
+  nhits = -999;
+  x  = -999;
+  y  = -999;
+  z  = -999;
+  oldt02  = -999;
+  sumt0  = -999;
+  sumx  = -999;
+  sumy  = -999;
+  sumz  = -999;
+  calflag  = -999;
+  rtflag  = -999;
+  t0flag  = -999;
+  treshist  = NULL;
+  reshist  = NULL;
+  rthist  = NULL;
+  det = -999;
+  lay = -999;
+  mod = -999;
+  brd = -999;
+  chp = -999;
+  stl = -999;
+  stw = -999;
+  sid = -999;
+  ntres = -999;
+  nrt = -999;
+  nres = -999;
+  t0fittype= -999;
+  rtgraph = NULL;
 
   if (makehist) {
-		if (treshist) delete treshist;
-		treshist = new float[100];
-		}
+    if (treshist) delete treshist;
+    treshist = new float[100];
+  }
   if (makehist) {
-		if (reshist) delete reshist;
-		reshist = new float[100];
-		}
+    if (reshist) delete reshist;
+    reshist = new float[100];
+  }
   if (makehist) {
-		if (rthist) delete rthist;
-		rthist = new float[nbinsr*nbinst+200];
-		}
+    if (rthist) delete rthist;
+    rthist = new float[nbinsr*nbinst+200];
+  }
 }
 
 RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDirectory* dir){
@@ -127,12 +127,12 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
   npoints = binvar==0 ? rtHist->GetNbinsX() : rtHist->GetNbinsY() ;
 
 
-  mean 	= -20.0; 
-  t 	= -20.0;
-  d 	= -20.0;
-  et 	= -20.0;
-  ed 	= -20.0;
-  ff	=  NULL ;
+  mean = -20.0; 
+  t = -20.0;
+  d = -20.0;
+  et = -20.0;
+  ed = -20.0;
+  ff =  NULL ;
 
   
   hslizes = new TH1D*[npoints];
@@ -174,10 +174,10 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
     for (int j=1;j<=hslizes[i]->GetNbinsX();j++) {
       float val=hslizes[i]->GetBinContent(j);
       if (val>maxval[i]){
-	maxval[i]=val;
-	maxbin[i]=j;
-	leftval[i] = hslizes[i]->GetBinContent(j-1);
-	rightval[i] = hslizes[i]->GetBinContent(j+1);
+        maxval[i]=val;
+        maxbin[i]=j;
+        leftval[i] = hslizes[i]->GetBinContent(j-1);
+        rightval[i] = hslizes[i]->GetBinContent(j+1);
       }
     }
     
@@ -194,8 +194,8 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
     } 
     else{
       if (hslizes[i]->GetEntries()>0){
-	if (i<(float)hslizes[i]->GetNbinsX()/2)  btype[i]=LOW;
-	else btype[i]=HIGH;
+        if (i<(float)hslizes[i]->GetNbinsX()/2)  btype[i]=LOW;
+        else btype[i]=HIGH;
       }
     }
     printf("%s ... %8f %8i %4i %8f %8f %4i\n", chtit.data(), (float)hslizes[i]->GetEntries()/(float)rtHist->GetEntries(), (int)hslizes[i]->GetEntries(), maxbin[i], leftsig[i], rightsig[i], btype[i]);
@@ -242,16 +242,16 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
     }
     if (btype[i]==GOOD){
       if (btype[i-1]==GOOD){
-	fitresult=hslizes[i]->Fit("dtfitfunc","QR");
-	ff->SetRange(mean-1.0*ff->GetParameter(2), mean+1.0*ff->GetParameter(2));
-	fitresult=hslizes[i]->Fit("dtfitfunc","QR");
-	d =  ff->GetParameter(1);
-	ed = ff->GetParError(1);
-	cout << fitresult << " " << ed << endl;
+        fitresult=hslizes[i]->Fit("dtfitfunc","QR");
+        ff->SetRange(mean-1.0*ff->GetParameter(2), mean+1.0*ff->GetParameter(2));
+        fitresult=hslizes[i]->Fit("dtfitfunc","QR");
+        d =  ff->GetParameter(1);
+        ed = ff->GetParError(1);
+        cout << fitresult << " " << ed << endl;
       }
       else{
-	d =  0;
-	ed = 0;
+        d =  0;
+        ed = 0;
       }
     }
 
@@ -265,12 +265,12 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
       edv[ipoint]=ed;
       ipoint++;
       if (binvar==0) {
-	rval.push_back(d);
-	tval.push_back(t);
+        rval.push_back(d);
+        tval.push_back(t);
       }
       else {
-	rval.push_back(t);
-	tval.push_back(d);
+        rval.push_back(t);
+        tval.push_back(d);
       }
     }
 
@@ -404,12 +404,12 @@ double rtrel_dines(double *x, double *par) {
 */
 
 Calibrator::Calibrator(){
-  level		=-10;
-  name		="None"; 
-  rtbinning	="None";
-  minrtstat	=-10;
-  mint0stat	=-10;
-  t0shift	=-100.;
+  level =-10;
+  name ="None"; 
+  rtbinning ="None";
+  minrtstat =-10;
+  mint0stat =-10;
+  t0shift =-100.;
   mint=-5;
   maxt=50;
   nbinst=55;
@@ -518,13 +518,13 @@ float Calibrator::AccumulativeMean(float n, float oldmean, float newvalue){
 }
 
 bool Calibrator::HasKey(string key){
-/*	std::map<std::string,caldata>::iterator i = data.begin();
+/* std::map<std::string,caldata>::iterator i = data.begin();
 
-		cout << key << endl;
-	for ( ; i != data.end(); ++i ){
-	      	printf("# ");	
-		cout << i->first << endl;
-	}
+   cout << key << endl;
+   for ( ; i != data.end(); ++i ){
+   printf("# ");
+   cout << i->first << endl;
+   }
 */
   return data.find(key) != data.end();
 }
@@ -612,13 +612,13 @@ int Calibrator::UpdateOldConstants(){
   if (oldconstfile.is_open())
     {
       while (!oldconstfile.eof() )
-	{
-	  oldconstfile >> key >> t0;
-	  if (data.find(key) != data.end()){
-	    cout << "UPDATED OLD T0: " << key << " " << data[key].oldt02 << " -> " << t0 << endl; 
-	    data[key].oldt02=t0;
-	  }
-	}
+      {
+        oldconstfile >> key >> t0;
+        if (data.find(key) != data.end()){
+          cout << "UPDATED OLD T0: " << key << " " << data[key].oldt02 << " -> " << t0 << endl; 
+          data[key].oldt02=t0;
+        }
+      }
       oldconstfile.close();
       return 0;
     }  
@@ -753,7 +753,7 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist, TDirectory* dir){
       ntries = ntries + 1;
       //cout << "RES " << residual << " " << tdrift << endl;
       if (ntries>maxtries){
-	break;
+        break;
       }
     }
   }
@@ -876,9 +876,9 @@ float Calibrator::FitTimeResidual(string key, TH1F* tresHist){
     
     data[key].tres = tresHist->GetRMS();
     data[key].tresMean =  tresHist->GetMean();
-	  data[key].t0err = tresHist->GetRMS();
-	  data[key].t0fittype = 6;
-	  return tresHist->GetMean(); 
+    data[key].t0err = tresHist->GetRMS();
+    data[key].t0fittype = 6;
+    return tresHist->GetMean(); 
   }
   
   
@@ -970,13 +970,13 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
       data[key].rtflag=true;
       rtHists[key] = new TH2F("rt-relation","rt-relation",nbinst,mint,maxt,nbinsr,minr,maxr); //make a root histogram
       for (int i=0;i<nbinst;i++) {
-	for (int j=0;j<nbinsr;j++) {
-	  rtHists[key]->SetBinContent(i+1,j+1,data[key].rthist[i+nbinst*j]);
-	}
+        for (int j=0;j<nbinsr;j++) {
+          rtHists[key]->SetBinContent(i+1,j+1,data[key].rthist[i+nbinst*j]);
+        }
       }
       rtHists[key]->SetEntries(data[key].nrt);
       if (bequiet) {
-	rtHists[key]->SetDirectory(0);
+        rtHists[key]->SetDirectory(0);
       }
       data[key].rtt0=FitRt(key,opt,rtHists[key],hdirs[key]); //do the fit
       //if (prnt) printf("RT    %7i (%8.1e) %8.1e %8.1e %8.1e, %3.2f  : ", data[key].nrt, data[key].rtpar[0], data[key].rtpar[1], data[key].rtpar[2], data[key]. rtpar[3], data[key].rtt0);     
@@ -1014,42 +1014,42 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
     }
     else {
       //do fit
-      if ((calt0 && enough_t0) || level==0) { 
-	data[key].t0flag=true;
-	tresHists[key] = new TH1F("timeresidual","time residual",nbinstres,mintres,maxtres); //make a root histogram
+      if ((calt0 && enough_t0) || level==0) {
+        data[key].t0flag=true;
+        tresHists[key] = new TH1F("timeresidual","time residual",nbinstres,mintres,maxtres); //make a root histogram
 
-	for (int i=0;i<100;i++) {
-	  tresHists[key]->SetBinContent(i+1,data[key].treshist[i]);
-	}
-	tresHists[key]->SetEntries(data[key].ntres);
-	if (bequiet) {
-	  tresHists[key]->SetDirectory(0);
-	}      
+        for (int i=0;i<100;i++) {
+          tresHists[key]->SetBinContent(i+1,data[key].treshist[i]);
+        }
+        tresHists[key]->SetEntries(data[key].ntres);
+        if (bequiet) {
+          tresHists[key]->SetDirectory(0);
+        }      
 
-	data[key].t0=data[key].oldt02 + FitTimeResidual(key,tresHists[key]) + data[key].rtt0 + t0shift; //do the fit and modify t0
-	data[key].t0off=data[key].t0-caldata_above->t0; //calculate t0 offset from level above
-	if (data[key].t0<0) data[key].t0=0;
-	if (prnt) printf("T0    %7i  %05.2f%+05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, data[key].oldt02, data[key].t0-data[key].oldt02-data[key].rtt0, data[key].rtt0, t0shift, data[key].t0); 
+        data[key].t0=data[key].oldt02 + FitTimeResidual(key,tresHists[key]) + data[key].rtt0 + t0shift; //do the fit and modify t0
+        data[key].t0off=data[key].t0-caldata_above->t0; //calculate t0 offset from level above
+        if (data[key].t0<0) data[key].t0=0;
+        if (prnt) printf("T0    %7i  %05.2f%+05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, data[key].oldt02, data[key].t0-data[key].oldt02-data[key].rtt0, data[key].rtt0, t0shift, data[key].t0); 
 
 
       }
       //use data from level above
       else { 
-	//data[key].t0=caldata_above->t0;
-//TEMP FIX to dont destroy right T0s
-	if (data[key].oldt02 + (caldata_above->t0 - caldata_above->oldt02)  >0)    data[key].t0=data[key].oldt02 + (caldata_above->t0 - caldata_above->oldt02);
-	else data[key].t0= 0;
-//TEMP FIX to dont destroy right T0s
-//	if (level != 6 )  data[key].t0=data[key].oldt02;
-//	if (level == 6 ) {
-//		data[key].t0=caldata_above->t0;
-//		if  (caldata_above->ntres< mint0stat )  data[key].t0=data[key].oldt02;
-//	}
+        //data[key].t0=caldata_above->t0;
+        //TEMP FIX to dont destroy right T0s
+        if (data[key].oldt02 + (caldata_above->t0 - caldata_above->oldt02)  >0)    data[key].t0=data[key].oldt02 + (caldata_above->t0 - caldata_above->oldt02);
+        else data[key].t0= 0;
+        //TEMP FIX to dont destroy right T0s
+        //if (level != 6 )  data[key].t0=data[key].oldt02;
+        //if (level == 6 ) {
+        //data[key].t0=caldata_above->t0;
+        //if  (caldata_above->ntres< mint0stat )  data[key].t0=data[key].oldt02;
+        //}
       //add the short straw correction here. In this way, the shift is only done when contants at STRAW level come from level above.
         if ((level == 6 && useshortstw) && fabs(data[key].det)<2  && (data[key].lay==0 && data[key].stl<9) )         data[key].t0=caldata_above->t0-0.75; 
-	data[key].t0err=caldata_above->t0err;
-	data[key].t0off=data[key].t0-caldata_above->t0 + data[key].rtt0;;
-	data[key].t0fittype = 4;
+        data[key].t0err=caldata_above->t0err;
+        data[key].t0off=data[key].t0-caldata_above->t0 + data[key].rtt0;;
+        data[key].t0fittype = 4;
 //      if (prnt) printf("T0 /\\ %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above->t0, 0.0, 0.0, data[key].t0); 
       if (prnt) printf("T0 /\\ %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above->t0, caldata_above->oldt02, data[key].oldt02 ,  data[key].t0); 
       }
@@ -1097,25 +1097,25 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
     for (int i=0;i<nbinsr*nbinst+200;i++) {
       if (makehist) hist->rthist[i]=0;
       if (i<100) {
-	if (makehist) hist->treshist[i]=0;
-	if (makehist) hist->reshist[i]=0;
+        if (makehist) hist->treshist[i]=0;
+        if (makehist) hist->reshist[i]=0;
       }
     }
 
     if (binhist==NULL){ //if it is a hit
       
       if (tresbin>=0){ 
-	if (makehist) hist->treshist[tresbin]=d.weight; //add value to bin
-	hist->ntres=1; //set bin content to 1
-	nhits=1;
+        if (makehist) hist->treshist[tresbin]=d.weight; //add value to bin
+        hist->ntres=1; //set bin content to 1
+        nhits=1;
       }
       if (resbin>=0){ 
-	if (makehist) hist->reshist[resbin]=1;
-	hist->nres=1;
+        if (makehist) hist->reshist[resbin]=1;
+        hist->nres=1;
       }
       if (rtbin>=0){ 
-	if (makehist) hist->rthist[rtbin]=1;
-	hist->nrt=1;
+        if (makehist) hist->rthist[rtbin]=1;
+        hist->nrt=1;
       }
 
       hist->sumt0=d.t0;
@@ -1126,26 +1126,26 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
       
       for(int ipop=2;ipop<2*npop+2;ipop=ipop+2) { //loop over the data
 
-	ibin=binhist[ipop]; //bin number
-	value=binhist[ipop+1]; //value
+        ibin=binhist[ipop]; //bin number
+        value=binhist[ipop+1]; //value
 
-	if (ibin<100) { //timeresidual histogram
-	  ntreshits+=value;
-	  hist->ntres+=value;
-	  nhits+=value;
-	  if (makehist) hist->treshist[ibin]=(float)value;
-	  hist->sumt0+=d.t0*value;
-	}
-	else if (ibin>=100 && ibin<200) { //residual histogram
-	  nreshits+=value;
-	  hist->nres+=value;
-	  if (makehist) hist->reshist[ibin-100]=(float)value;
-	}
-	else { //rt histogram
-	  nrthits+=value;
-	  hist->nrt+=value;
-	  if (makehist) hist->rthist[ibin-200]=(float)value;
-	}
+        if (ibin<100) { //timeresidual histogram
+          ntreshits+=value;
+          hist->ntres+=value;
+          nhits+=value;
+          if (makehist) hist->treshist[ibin]=(float)value;
+          hist->sumt0+=d.t0*value;
+        }
+        else if (ibin>=100 && ibin<200) { //residual histogram
+          nreshits+=value;
+          hist->nres+=value;
+          if (makehist) hist->reshist[ibin-100]=(float)value;
+        }
+        else { //rt histogram
+          nrthits+=value;
+          hist->nrt+=value;
+          if (makehist) hist->rthist[ibin-200]=(float)value;
+        }
 
       }    
     }
@@ -1191,7 +1191,7 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
 
 
     for (unsigned int i =0; i < 4; i++){
-    	hist->rtpar[i]=-10.0;
+      hist->rtpar[i]=-10.0;
     }
 
     data[key]=*hist; //save the histogram in the map 
@@ -1209,18 +1209,18 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
     //increment histogram bins
     if (binhist==NULL){
       
-      if (tresbin>=0){ 
-	if (makehist) data[key].treshist[tresbin]=data[key].treshist[tresbin]+d.weight;
-	data[key].ntres++;
-	nhits=1;
+      if (tresbin>=0){
+        if (makehist) data[key].treshist[tresbin]=data[key].treshist[tresbin]+d.weight;
+        data[key].ntres++;
+        nhits=1;
       }
-      if (resbin>=0){ 
-	if (makehist) data[key].reshist[resbin]++;
-	data[key].nres++;
+      if (resbin>=0){
+        if (makehist) data[key].reshist[resbin]++;
+        data[key].nres++;
       }
-      if (rtbin>=0){ 
-	if (makehist) data[key].rthist[rtbin]++;
-	data[key].nrt++;
+      if (rtbin>=0){
+        if (makehist) data[key].rthist[rtbin]++;
+        data[key].nrt++;
       }
 
       data[key].sumt0+=d.t0;
@@ -1232,27 +1232,27 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
       npop=binhist[0];
 
       for(int ipop=2;ipop<2*npop+2;ipop=ipop+2) {
-		
-	ibin=binhist[ipop];
-	value=binhist[ipop+1];
-	
-	if (ibin<100) {
-	  ntreshits+=value;
-	  nhits+=value;
-	  data[key].ntres+=value;
-	  if (makehist) data[key].treshist[ibin]+=(float)value;
-	  data[key].sumt0+=d.t0*value;
-	}
-	else if (ibin>=100 && ibin<200) {
-	  nreshits+=value;
-	  data[key].nres+=value;
-	  if (makehist) data[key].reshist[ibin-100]+=(float)value;
-	}
-	else {
-	  nrthits+=value;
-	  data[key].nrt+=value;
-	  if (makehist) data[key].rthist[ibin-200]+=(float)value;
-	}
+
+        ibin=binhist[ipop];
+        value=binhist[ipop+1];
+
+        if (ibin<100) {
+          ntreshits+=value;
+          nhits+=value;
+          data[key].ntres+=value;
+          if (makehist) data[key].treshist[ibin]+=(float)value;
+          data[key].sumt0+=d.t0*value;
+        }
+        else if (ibin>=100 && ibin<200) {
+          nreshits+=value;
+          data[key].nres+=value;
+          if (makehist) data[key].reshist[ibin-100]+=(float)value;
+        }
+        else {
+          nrthits+=value;
+          data[key].nrt+=value;
+          if (makehist) data[key].rthist[ibin-200]+=(float)value;
+        }
 
       }    
       
@@ -1285,34 +1285,34 @@ void Calibrator::WriteStat(TDirectory* dir){
   for(map<string,caldata>::iterator ihist=data.begin(); ihist!=data.end(); ++ihist){
     if ((ihist->second).calflag) {
       float const ntvar[27]={
-	float((ihist->second).det),
-	float((ihist->second).lay),
-	float((ihist->second).mod),
-	float((ihist->second).brd),
-	float((ihist->second).chp),
-	float((ihist->second).sid),
-	float((ihist->second).stl),
-	float((ihist->second).stw),
-	float((int)(ihist->second).rtflag),	
-	float((int)(ihist->second).t0flag),	
-	(ihist->second).t0,
-	float((ihist->second).oldt02),
-	//oldt0(ihist->first),
-	(ihist->second).reft0,
-	(ihist->second).t0err,
-	(ihist->second).t0off,
-	float((ihist->second).t0fittype),
-	(ihist->second).nhits,
-	(float)(ihist->second).ntres,
-	(float)(ihist->second).nrt,
-	(float)(ihist->second).res,
-	(float)(ihist->second).resMean,
-	(ihist->second).reserr,
-	(ihist->second).tres,
-	(ihist->second).tresMean,
-	(ihist->second).x,
-	(ihist->second).y,
-	(ihist->second).z
+        float((ihist->second).det),
+        float((ihist->second).lay),
+        float((ihist->second).mod),
+        float((ihist->second).brd),
+        float((ihist->second).chp),
+        float((ihist->second).sid),
+        float((ihist->second).stl),
+        float((ihist->second).stw),
+        float((int)(ihist->second).rtflag),
+        float((int)(ihist->second).t0flag),
+        (ihist->second).t0,
+        float((ihist->second).oldt02),
+        //oldt0(ihist->first),
+        (ihist->second).reft0,
+        (ihist->second).t0err,
+        (ihist->second).t0off,
+        float((ihist->second).t0fittype),
+        (ihist->second).nhits,
+        (float)(ihist->second).ntres,
+        (float)(ihist->second).nrt,
+        (float)(ihist->second).res,
+        (float)(ihist->second).resMean,
+        (ihist->second).reserr,
+        (ihist->second).tres,
+        (ihist->second).tresMean,
+        (ihist->second).x,
+        (ihist->second).y,
+        (ihist->second).z
       };      
       stattup->Fill(ntvar);
     }
