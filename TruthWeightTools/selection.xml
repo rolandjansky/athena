@@ -1,0 +1,11 @@
+<!-- $Id$ -->
+<lcgdict>
+
+  <!-- The main tool of the package: -->
+  <class name="IIndexRetriever" />
+  <class name="IndexRetriever" />
+  <class name="xAOD::ITruthWeightTool" />
+  <class name="xAOD::TruthWeightTool" />
+
+</lcgdict>
+

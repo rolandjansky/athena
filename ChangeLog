@@ -1,0 +1,6 @@
+2017-02-22 Dag Gillberg <dag.gillberg@cern.ch>
+	* Tagging TruthWeightTools-01-00-00
+
+2017-02-19 Dag Gillberg <dag.gillberg@cern.ch>
+	* Moving Tobias Bisanz' TruthWeightTool from Generators/GenAnalysisTools/TruthTools to this package (PhysicsAnalysis/TruthWeightTools) since its intended for physics analysis
+
