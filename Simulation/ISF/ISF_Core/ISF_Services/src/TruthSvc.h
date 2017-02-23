@@ -68,7 +68,7 @@ namespace ISF {
     StatusCode  finalize() override final;
 
     /** Register a truth incident */
-    void registerTruthIncident( ITruthIncident& truthincident) override final;
+    void registerTruthIncident( ITruthIncident& truthincident) const override final;
 
     /** Initialize the Truth Svc at the beginning of each event */
     StatusCode initializeTruthCollection() override final;
@@ -81,12 +81,12 @@ namespace ISF {
 
   private:
     /** Record the given truth incident to the MC Truth */
-    void recordIncidentToMCTruth( ITruthIncident& truthincident);
+    void recordIncidentToMCTruth( ITruthIncident& truthincident) const;
     /** Record and end vertex to the MC Truth for the parent particle */
-    HepMC::GenVertex *createGenVertexFromTruthIncident( ITruthIncident& truthincident);
+    HepMC::GenVertex *createGenVertexFromTruthIncident( ITruthIncident& truthincident) const;
 
     /** Set shared barcode for child particles */
-    void setSharedChildParticleBarcode( ITruthIncident& truthincident);
+    void setSharedChildParticleBarcode( ITruthIncident& truthincident) const;
 
     ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
 
