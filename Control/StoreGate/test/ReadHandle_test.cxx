@@ -183,6 +183,7 @@ void test3()
   SG::ReadHandle<MyObj> h1 ("foo", "FooSvc");
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (!h1.isInitialized());
+  assert (h1.get() == fooptr);
   assert (h1.cachedPtr() == nullptr);
   assert (h1.cptr() == fooptr);
   assert (h1.isInitialized());
@@ -204,6 +205,16 @@ void test3()
   int UNUSED(xx) = 0;
   EXPECT_EXCEPTION (SG::ExcNullReadHandle, xx = (*h2).x);
   EXPECT_EXCEPTION (SG::ExcNullReadHandle, xx = h2->x );
+
+  SG::ReadHandle<MyObj> h3 ("foox");
+  assert (h3.setProxyDict (&testStore).isSuccess());
+  assert (h3.get() == nullptr);
+  SGTest::TestStore testStore2;
+  MyObj* foox = new MyObj;
+  testStore2.record (foox, "foox");
+  EventContext ctx2;
+  ctx2.setProxy (&testStore2);
+  assert (h3.get(ctx2) == foox);
 }
 
 

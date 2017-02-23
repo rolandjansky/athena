@@ -263,10 +263,10 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
                    << " PhiMin=" << now_phimin
                    << " PhiMax=" << now_phimax);
 
-	  TrigRoiDescriptor _roi( 0.5*(now_etamin+now_etamax),          now_etamin, now_etamax, 
+	  TrigRoiDescriptor roi( 0.5*(now_etamin+now_etamax),          now_etamin, now_etamax, 
 				  HLT::phiMean(now_phimin, now_phimax), now_phimin, now_phimax );
 
-          m_pRegionSelector->DetROBIDListUint(TILE, _roi, m_vrobid);
+          m_pRegionSelector->DetROBIDListUint(TILE, roi, m_vrobid);
         //}
       }
     }
@@ -277,10 +277,10 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
         m_vrobid.push_back(*iter);
       }
     }else{
-      TrigRoiDescriptor _roi( 0.5*(m_etaMin+m_etaMax),          m_etaMin, m_etaMax, 
+      TrigRoiDescriptor roi( 0.5*(m_etaMin+m_etaMax),          m_etaMin, m_etaMax, 
 			      HLT::phiMean(m_phiMin, m_phiMax), m_phiMin, m_phiMax );
      
-      m_pRegionSelector->DetROBIDListUint(TILE, _roi, m_vrobid);
+      m_pRegionSelector->DetROBIDListUint(TILE, roi, m_vrobid);
     }
   }
 

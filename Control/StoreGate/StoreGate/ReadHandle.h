@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ReadHandle.h 726621 2016-02-27 20:03:45Z ssnyder $
+// $Id: ReadHandle.h 797637 2017-02-17 02:32:11Z ssnyder $
 /**
  * @file StoreGate/ReadHandle.h
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -150,14 +150,14 @@ public:
 
   
   /**
-   * @brief Derefence the pointer.
+   * @brief Dereference the pointer.
    * Throws ExcNullReadHandle on failure.
    */
   const_pointer_type  operator->();
 
 
   /**
-   * @brief Derefence the pointer.
+   * @brief Dereference the pointer.
    * Throws ExcNullReadHandle on failure.
    */
   const_reference_type operator*();
@@ -187,6 +187,19 @@ public:
    * @brief Can the handle be successfully dereferenced?
    */
   virtual bool isValid() override final;
+
+
+  /**
+   * @brief Dereference the pointer, but don't cache anything.
+   */
+  const_pointer_type get() const;
+
+
+  /**
+   * @brief Dereference the pointer, but don't cache anything.
+   * @param ctx The event context to use.
+   */
+  const_pointer_type get (const EventContext& ctx) const;
 
   
 private:

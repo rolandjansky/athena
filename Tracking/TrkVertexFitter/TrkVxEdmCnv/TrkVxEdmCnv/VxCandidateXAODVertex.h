@@ -59,7 +59,7 @@ class VxCandidateXAODVertex
   /**
    * Convert xAOD::Vertex to a VxCandidate. Return object is own by the clients.
    */
-  virtual StatusCode createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex);
+  virtual StatusCode createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex) const;
 
   /**
    * Convert a VxCandidate to a VxVertex. Return object is own by the clients.

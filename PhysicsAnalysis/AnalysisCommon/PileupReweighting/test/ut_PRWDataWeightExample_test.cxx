@@ -38,9 +38,6 @@ int main() {
   
   
   prwTool.setProperty( "LumiCalcFiles" , lcFiles );
-  
-  
- 
   //prwTool.setProperty( "OutputLevel", 1 ); //VERBOSE OUTPUT LEVEL
 
   prwTool.initialize();

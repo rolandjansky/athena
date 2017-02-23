@@ -16,6 +16,7 @@
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ServiceLocatorHelper.h"
 #include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/EventContext.h"
 
 // Athena includes
 #include "StoreGate/StoreGateSvc.h"
@@ -283,7 +284,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,19.5,20)),
   m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
   m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,199.5,200)),
-  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100))
+  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100)),
+  m_eventContext(nullptr)
 {
   // General properties for event loop managers
   declareProperty("predefinedLumiBlock",      m_predefinedLumiBlock=0);
@@ -313,8 +315,6 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("WriteTruncatedHLTtoDebug", m_writeHltTruncationToDebug=true);
   declareProperty("HltTruncationDebugStreamName",  m_HltTruncationDebugStreamName ="TruncatedHLTResult");
   declareProperty("ExcludeFromHltTruncationDebugStream",  m_excludeFromHltTruncationDebugStream );
-
-  m_excludeFromHltTruncationDebugStream.value().push_back("CostMonitoring");
 }
 
 //=========================================================================
@@ -495,6 +495,8 @@ StatusCode HltEventLoopMgr::initialize()
   msgStream() << MSG::INFO << " ---> Write events with truncated HLT result to debug stream  = " << m_writeHltTruncationToDebug << endmsg;
   msgStream() << MSG::INFO << " ---> Debug stream name for events with truncated HLT result  = " << m_HltTruncationDebugStreamName << endmsg;
   msgStream() << MSG::INFO << " ---> Stream names of events with a truncated HLT result which will not be send to the debug stream  = " << m_excludeFromHltTruncationDebugStream << endmsg;
+
+  m_eventContext = new EventContext();
 
   //-------------------------------------------------------------------------
   // Setup the StoreGateSvc
@@ -702,6 +704,8 @@ StatusCode HltEventLoopMgr::finalize()
     msgStream() << MSG::ERROR << "Error in MinimalEventLoopMgr Finalize" << endmsg;
   }
 
+  delete m_eventContext; m_eventContext = nullptr;
+
   // Release all interfaces
   m_incidentSvc.release().ignore();
   m_robDataProviderSvc.release().ignore();
@@ -766,7 +770,21 @@ StatusCode HltEventLoopMgr::executeAlgorithms()
   }
 
   // Call the execute() method of all top algorithms
-  return callOnAlgs(&IAlgorithm::sysExecute, "sysExecute", true);
+
+  StatusCode sc;
+  for(auto alg : m_topAlgList) {
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+    sc = alg->sysExecute(*m_eventContext);
+#else
+    sc = alg->sysExecute();
+#endif
+    if(sc.isFailure()) {
+      msgStream() << MSG::ERROR << "Execution of algorithm " << alg->name()
+                  << " failed" << endmsg;
+      return sc;
+    }
+  }
+  return StatusCode::SUCCESS;
 }
 
 
@@ -799,7 +817,9 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
                   << eventrn << " Complete EventID   = "
                   << *(m_currentEvent->event_ID()) << endmsg;
   }
-
+  
+  m_eventContext->setEventID( *((EventIDBase*) m_currentEvent->event_ID()) );
+  
   //-----------------------------------------------------------------------
   // obtain the HLT conditions update counters from the CTP fragment
   //-----------------------------------------------------------------------
@@ -950,7 +970,12 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     // Call the execute() method of all output streams
     for (auto o : m_outStreamList ) {
       o->resetExecuted();
+
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+      sc = o->sysExecute(*m_eventContext);
+#else
       sc = o->sysExecute();
+#endif
       if(sc.isFailure())  {
         msgStream() << MSG::WARNING << "Execution of output stream " << o->name() << " failed" << endmsg;
         eventFailed = true;

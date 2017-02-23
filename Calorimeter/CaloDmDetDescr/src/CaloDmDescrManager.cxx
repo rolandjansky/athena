@@ -93,7 +93,7 @@ int CaloDmDescrManager::initialize()
   }
 
   sc = m_detStore->retrieve(m_caloDM_ID);
-  if (sc.isFailure()) {
+  if (sc.isFailure() || !m_caloDM_ID) {
     log << MSG::ERROR
         << "Unable to retrieve caloDM_ID helper from DetectorStore" << endmsg;
     return 1;

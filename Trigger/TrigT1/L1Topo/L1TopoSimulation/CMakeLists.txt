@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 777073 2016-10-07 11:51:55Z krasznaa $
+# $Id: CMakeLists.txt 780947 2016-10-28 10:01:38Z salderwe $
 ################################################################################
 # Package: L1TopoSimulation
 ################################################################################
@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaBaseComps
    Control/AthenaMonitoring
+   Event/EventInfo
    GaudiKernel
    Trigger/TrigConfiguration/TrigConfBase
    Trigger/TrigConfiguration/TrigConfInterfaces
@@ -43,7 +44,7 @@ atlas_add_component( L1TopoSimulation
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib
    TrigInterfacesLib TrigT1CaloEventLib TrigT1CaloUtilsLib
-   AthenaBaseComps GaudiKernel TrigConfBase TrigConfL1Data L1TopoConfig
+   AthenaBaseComps EventInfo GaudiKernel TrigConfBase TrigConfL1Data L1TopoConfig
    L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoAlgorithms TrigT1Interfaces
    TrigT1Result TrigConfInterfaces )
 

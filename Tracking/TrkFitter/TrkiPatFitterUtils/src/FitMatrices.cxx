@@ -41,9 +41,10 @@
 namespace Trk{
     
 FitMatrices::FitMatrices(bool constrainedAlignmentEffects, bool eigenMatrixTreatment)
-    :	m_columnsDM			(mxparam),	// reserve at maximum size
+    :	m_columnsDM			(0),
 	m_constrainedAlignmentEffects	(constrainedAlignmentEffects),
 	m_covariance			(0),
+	m_derivativeMatrix		(0),
 	m_eigen				(eigenMatrixTreatment),
 	m_finalCovariance		(0),
 	m_largePhiWeight		(10000.),	// arbitrary - equiv to 10um
@@ -60,31 +61,17 @@ FitMatrices::FitMatrices(bool constrainedAlignmentEffects, bool eigenMatrixTreat
 	m_rowsDM			(0),
 	m_usePerigee			(false),
 	m_weight			(0),
-	m_weight***REMOVED***			(0),
-	m_weightedDifference		(0),
-	m_weightedDifference***REMOVED***	(0)
-{
-    if (m_eigen)
-    {
-	m_weight			= new Amg::MatrixX(mxparam,mxparam);
-	m_weightedDifference		= new Amg::VectorX(mxparam);
-    }
-    else
-    {
-	m_weight***REMOVED***			= new AlSpaMat(mxparam);
-	m_weightedDifference***REMOVED***	= new AlVec(mxparam);
-    }
-}
+	m_weightedDifference		(0)
+{}
 
 FitMatrices::~FitMatrices(void)
 {
     delete m_covariance;
+    delete m_derivativeMatrix;
     delete m_finalCovariance;
     delete m_residuals;
     delete m_weight;
-    delete m_weight***REMOVED***;
     delete m_weightedDifference;
-    delete m_weightedDifference***REMOVED***;
 }
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
@@ -123,25 +110,31 @@ FitMatrices::checkPointers (MsgStream& log) const
 double
 FitMatrices::chiSquaredChange (void) const
 {
-    // not applicable when matrix has been inverted already
-    if (! m_numberDoF || ! m_weight***REMOVED*** || m_covariance) return 0.;
-    AlVec diffAl	= m_parameters->differences***REMOVED***();
-    Amg::VectorX diff(m_columnsDM);
-    for (int i = 0; i != m_columnsDM; ++i) diff[i] = diffAl[i];
-    if (m_matrixFromCLHEP)
-    {
-	// return m_weightCLHEP->similarity(diff)/static_cast<double>(m_numberDoF);
-	return 0;
-    }
-    else
-    {
-	Amg::MatrixX weight(m_columnsDM,m_columnsDM);
-	for (int i = 0; i != m_columnsDM; ++i)
-	{
-	    for (int j = 0; j != m_columnsDM; ++j) weight(i,j) = (*m_weight***REMOVED***)[j][i];
-	}
-	return (diff * weight * diff.transpose())(0,0) / static_cast<double>(m_numberDoF);
-    }
+    // TODO: eigen
+    // // not applicable when matrix has been inverted already
+    // if (! m_numberDoF || ! m_weight***REMOVED*** || m_covariance) return 0.;
+    // AlVec diffAl	= m_parameters->differences***REMOVED***();
+    // Amg::VectorX diff(m_columnsDM);
+    // for (int i = 0; i != m_columnsDM; ++i) diff[i] = diffAl[i];
+    // if (m_matrixFromCLHEP)
+    // {
+    // 	// return m_weightCLHEP->similarity(diff)/static_cast<double>(m_numberDoF);
+    // 	return 0;
+    // }
+    // else
+    // {
+    // 	Amg::MatrixX weight(m_columnsDM,m_columnsDM);
+    // 	for (int i = 0; i != m_columnsDM; ++i)
+    // 	{
+    // 	    for (int j = 0; j != m_columnsDM; ++j) weight(i,j) = (*m_weight***REMOVED***)[j][i];
+    // 	}
+    // 	return (diff * weight * diff.transpose())(0,0) / static_cast<double>(m_numberDoF);
+    // }
+
+    ////
+    std::cout << " unexpected :chiSquaredChange  " << std::endl;
+    return 0.;
+    ////
 }
 
 const Amg::MatrixX*
@@ -151,65 +144,45 @@ FitMatrices::fullCovariance (void)
     if (m_covariance)	return m_covariance;
     m_covariance	= new Amg::MatrixX(m_columnsDM,m_columnsDM);
 
-    // fix weighting
+    // fix weighting    ???? shouldn't we just remove large phi weight?
     if (m_parameters->phiInstability()) solveEquations();
 
     // invert weight matrix
     Amg::MatrixX& covariance    = *m_covariance;
     int failure                 = 0;
 
-    // CLHEP method
-    if (m_matrixFromCLHEP)
+    // avoid singularity through ill-defined momentum   ???? again
+    avoidMomentumSingularity();
+	
+    if (m_eigen)
     {
-        // for (int i = 0; i != m_columnsDM; ++i)
-        // {
-        //     for (int j = 0; j <= i; ++j)     covariance[i][j] = (*m_weightCLHEP)[i][j];
-        // }
-        // covariance.invert(failure);
+	// neater - but gives small rounding-like diffs wrt matrix copy version
+	// keep matrix copy for release 21 to avoid rounding changes at Tier0
+	// covariance = (*m_weight).inverse();
+
+	// matrix copy version (legacy of ***REMOVED*** which needed copy between matrix packages)
+	Amg::MatrixX weight(m_columnsDM,m_columnsDM);
+	weight.selfadjointView<0x2>();
+	weight	= (*m_weight).inverse();
+	for (int row = 0; row != m_columnsDM; ++row)
+	{
+	    for (int col = 0; col != m_columnsDM; ++col)	covariance(row,col) = weight(col,row);
+	}
     }
     else
-    {
-        // avoid singularity through ill-defined momentum
-	if (m_eigen)
+    {   
+	// copy to AlSymMat for inversion
+	AlSymMat weight(m_columnsDM);
+	for (int i = 0; i != m_columnsDM; ++i)
 	{
-	    avoidMomentumSingularity();
-	    Amg::MatrixX weight(m_columnsDM,m_columnsDM);
-	    for (int i = 0; i != m_columnsDM; ++i)
-	    {
-		for (int j = 0; j <= i; ++j)
-		{	
-		    weight(i,j) = (*m_weight)(i,j);
-		    weight(j,i) = (*m_weight)(i,j);
-		}
-	    }
-	    // isn't this faster?  indicating that we have a symmetric matrix <0x2> = <Upper> 
-	    // std::cout << " Eigen weight 00 " << weight(0,0) << " 11 " <<  weight(1,1) << " 22 " <<  weight(2,2) << " 33 " <<  weight(3,3) << " 44 " <<  weight(4,4) << std::endl;
-	    weight.selfadjointView<0x2>();
-	    weight = weight.inverse();
-	    // std::cout << " Eigen inverse weight 00 " << weight(0,0) << " 11 " <<  weight(1,1) << " 22 " <<  weight(2,2) << " 33 " <<  weight(3,3) << " 44 " <<  weight(4,4) << std::endl;
-	    for (int i = 0; i != m_columnsDM; ++i)
-	    {
-		for (int j = 0; j != m_columnsDM; ++j)	covariance(j,i) = weight(i,j);
-	    }
-	    // std::cout << " Eigen cov 00 " << covariance(0,0) << " 11 " <<  covariance(1,1) << " 22 " <<  covariance(2,2) << " 33 " <<  covariance(3,3) << " 44 " <<  covariance(4,4) << std::endl;
+	    for (int j = 0; j <= i; ++j)		weight[i][j] = (*m_weight)(i,j);
 	}
-	else
-	{   
-	    avoidMomentumSingularity***REMOVED***();
-
-	    // copy to AlSymMat for inversion
-	    AlSymMat weight(m_columnsDM);
-	    for (int i = 0; i != m_columnsDM; ++i)
-	    {
-		for (int j = 0; j <= i; ++j)		weight[i][j] = (*m_weight***REMOVED***)[i][j];
-	    }
-	    failure = weight.invert();
-	    for (int i = 0; i != m_columnsDM; ++i)
-	    {
-		for (int j = 0; j != m_columnsDM; ++j)	covariance(j,i) = weight[i][j];
-	    }
-	}   
-    }   
+	failure = weight.invert();
+	for (int i = 0; i != m_columnsDM; ++i)
+	{
+	    for (int j = 0; j != m_columnsDM; ++j)	covariance(j,i) = weight[i][j];
+	}
+    } 
 
     // trap singular matrix
     if (failure)
@@ -247,7 +220,7 @@ FitMatrices::fullCovariance (void)
     // FIXME: errors underestimated on d0,z0 when large scatterer precedes precise measurements
     // final covariance starts with 5*5 representing perigee from full covariance
     delete m_finalCovariance;
-    m_finalCovariance	= new Amg::MatrixX(5,5);  // AmgSymMatrix(5);
+    m_finalCovariance	= new Amg::MatrixX(5,5);
     for (int i = 0; i != 5; ++i)
     {
 	for (int j = 0; j != 5; ++j)
@@ -381,16 +354,9 @@ FitMatrices::printWeightMatrix (void)
 		  << " row " << std::setw(3) << row << " col  0     ";
 	for (int col = 0; col <= row; ++col)
 	{
-	    if (m_eigen)
-	    {
-		std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
-			  <<  std::setw(10) << (*m_weight)(row,col) << "  ";
-	    }
-	    else
-	    {
-		std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
-			  <<  std::setw(10) << (*m_weight***REMOVED***)[row][col] << "  ";
-            }	    
+	    std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
+		      <<  std::setw(10) << (*m_weight)(row,col) << "  ";
+	    
 	    if ((col+1)%13 == 0 && col < row)
 		std::cout << std::endl << std::setiosflags(std::ios::fixed)
 			  << "         col " << std::setw(3) << col+1 << "    ";
@@ -418,6 +384,17 @@ FitMatrices::refinePointers (void)
 	    m_lastRowForParameter[col]	= ++j;
 	}
     }
+}
+ 
+void
+FitMatrices::releaseMemory (void)
+{
+    delete m_derivativeMatrix;
+    delete m_weight;
+    delete m_weightedDifference;
+    m_derivativeMatrix		= 0;
+    m_weight			= 0;
+    m_weightedDifference	= 0;
 }
     
 int
@@ -696,25 +673,25 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
     delete m_finalCovariance;
     m_finalCovariance	= 0;
     
-    // reallocate to get correct matrix sizes 
-    if (numberParameters != m_columnsDM)
+    // reallocate to get correct matrix sizes
+    if (! m_derivativeMatrix || ! m_weight || numberParameters != m_columnsDM)
     {
-	m_columnsDM			= numberParameters;
-	if (m_eigen)
-	{
-	    delete m_weight;
-            m_weight			= new Amg::MatrixX(m_columnsDM,m_columnsDM);
-	    delete m_weightedDifference;
-            m_weightedDifference	= new Amg::VectorX(m_columnsDM);
-	}
-	else
-	{
-	    delete m_weight***REMOVED***;
-	    m_weight***REMOVED***		= new AlSpaMat(m_columnsDM);
-	    delete m_weightedDifference***REMOVED***;
-	    m_weightedDifference***REMOVED***	= new AlVec(m_columnsDM);
-	}
+	m_columnsDM		= numberParameters;
+	delete m_derivativeMatrix;
+        m_derivativeMatrix	= new Amg::MatrixX(m_rowsDM,m_columnsDM);
+	delete m_weight;
+	m_weight		= new Amg::MatrixX(m_columnsDM,m_columnsDM);
+	// isn't this faster?  indicating that we have a symmetric matrix <0x2> = <Upper>
+	// any gain seems to be negated by additional for loop copies to recover full cov matrix
+	// introduces some rounding differences - keep for release 21 to respect strict Tier0 policy
+	(*m_weight).selfadjointView<0x2>();
+	
+	delete m_weightedDifference;
+	m_weightedDifference	= new Amg::VectorX(m_columnsDM);
     }
+
+    // this should never happen
+    if (! m_derivativeMatrix) fitCode = 13;
     
     return fitCode;
 }
@@ -722,6 +699,30 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 bool
 FitMatrices::solveEquations(void)
 {
+    // use Eigen Matrix multiplication ATR-15723
+    // note: fitMatrix (struct) is row-major whereas Eigen prefers column-major storage
+    //       hence the loops are nested to optimise row-major and to form the Eigen transpose
+    Amg::MatrixX& weight		= *m_weight;
+    Amg::VectorX& weightedDifference	= *m_weightedDifference;
+    Amg::MatrixX fitMatrixDerivativeT(m_columnsDM, m_rowsDM);
+    Amg::MatrixX residuals(m_rowsDM,1);
+    for (int row = 0; row < m_rowsDM; ++row)
+    {
+	residuals(row,0) = (*m_residuals)[row];
+	for (int col = 0; col < m_columnsDM; ++col)
+	{
+	    fitMatrixDerivativeT(col,row)	= fitMatrix.derivative[row][col];
+	}
+    }  
+    weight		= fitMatrixDerivativeT*fitMatrixDerivativeT.transpose();  
+    weightedDifference	= fitMatrixDerivativeT*residuals;
+
+    // stabilize fits with badly determined phi
+    if (m_parameters->phiInstability()) weight(0,0) += m_largePhiWeight;
+
+    // avoid some possible singularities in matrix inversion
+    avoidMomentumSingularity();
+  
     // use eigen or ***REMOVED*** methods
     if (m_eigen)
     {
@@ -729,34 +730,7 @@ FitMatrices::solveEquations(void)
     }
     else
     {
-//       bool debugEigen = false;
-//       if (debugEigen) {
-//         std::cout << " cols " << m_columnsDM << " rows " << m_rowsDM << " vector size " <<  m_weightedDifference***REMOVED***->size() << std::endl;
-//         for (int row = 0; row < m_columnsDM; ++row) {
-//           (*m_weightedDifference)(row) = (*m_weightedDifference***REMOVED***)[row];
-//           std::cout << " row " << row << "  ***REMOVED*** = Eigen start " << (*m_weightedDifference***REMOVED***)[row] << std::endl;
-//           for (int col = 0; col <= row; ++col) {
-//             (*m_weight)(row,col) = (*m_weight***REMOVED***)[row][col];
-//             (*m_weight)(col,row) = (*m_weight***REMOVED***)[row][col];
-//           } 
-//         } 
-//       }
-       bool OK = solveEquations***REMOVED***();
-//       if (OK&&debugEigen) {
-//          for (int col = 0; col < m_columnsDM; ++col) {
-//            double ***REMOVED***  = (*m_weightedDifference***REMOVED***)[col]; 
-//            std::cout << " col " << col << "  ***REMOVED*** " << ***REMOVED*** << std::endl;
-//          }  
-//          m_eigen = true;
-//          OK = solveEquationsEigen();
-//          printWeightMatrix();
-//          m_eigen = false;
-//          for (int col = 0; col < m_columnsDM; ++col) {
-//            double Eigen = (*m_weightedDifference)(col);
-//            std::cout << " col " << col << "  Eigen " << Eigen << std::endl;
-//          }  
-//       }
-       return OK; 
+       return solveEquations***REMOVED***();
     }
 }
 
@@ -765,7 +739,7 @@ FitMatrices::usePerigee (const FitMeasurement& measurement)
 {
     m_perigee		= measurement.perigee();
     m_perigeeWeight	= measurement.perigeeWeight();
-    // TODO: needs AlMat equiv !!
+    // TODO: needs eigen equiv !!
     if (m_matrixFromCLHEP)
     {
 	m_usePerigee	= true;
@@ -778,8 +752,7 @@ FitMatrices::usePerigee (const FitMeasurement& measurement)
 void
 FitMatrices::addPerigeeMeasurement (void)
 {
-    // TODO mig5
-    // TODO: needs AlMat equiv !!
+    // TODO: needs eigen equiv !!
     // const Amg::MatrixX&	perigeeWeight		= *m_perigeeWeight;
     // Amg::MatrixX&	weight			= *m_weightCLHEP;
     // AmgVectorX&    	weightedDifference	= *m_weightedDifferenceCLHEP;
@@ -789,32 +762,6 @@ FitMatrices::addPerigeeMeasurement (void)
     // 	weightedDifference[row] += diff_vector[row];
     // 	for (int col = 0; col <= row; ++col) weight[row][col] += perigeeWeight[row][col];
     // }
-}
-
-void
-FitMatrices::avoidMomentumSingularity***REMOVED***(void)
-{
-    // fix momentum if line-fit or fit attempted with negligible field integral
-    AlSpaMat& weight		= *m_weight***REMOVED***;
-    if (m_parameters->fitEnergyDeposit() && weight[5][5] < 1./Gaudi::Units::TeV)
-    {
-	for (int i = 0; i != m_columnsDM; ++i)
-	{
-	    weight[i][5]	=  0.;
-	    weight[5][i]	=  0.;
-	}
-	weight[5][5]	+= 1./Gaudi::Units::TeV;
-    }
-    if (! m_parameters->fitMomentum() || weight[4][4] < 1./Gaudi::Units::TeV)
-    {  
-	m_parameters->fitMomentum(false);
-	for (int i = 0; i != m_columnsDM; ++i)
-	{
-	    weight[i][4]	=  0.;
-	    weight[4][i]	=  0.;
-	}
-	weight[4][4]	+= 1./Gaudi::Units::TeV;
-    }
 }
 
 void
@@ -846,215 +793,53 @@ FitMatrices::avoidMomentumSingularity(void)
 bool
 FitMatrices::solveEquationsEigen(void)
 {
-    // default is to use Eigen multiplication (ATR-15723) as proposed by Stewart Martin-Haugh
+    // solve is faster than inverse: wait for explicit request for covariance before inversion
     Amg::MatrixX& weight		= *m_weight;
     Amg::VectorX& weightedDifference	= *m_weightedDifference;
-
-    // useMatrixLoops && useSparseCode = true  gives code as for tags 00-13-19 and lower
-    bool useMatrixLoops = false;
-    if (useMatrixLoops)
-    {
-	bool useSparseCode  = true;
-	
-	// matrix multiplication using for loops from struct
-	if (useSparseCode)
-	{
-	    //  here the indices are optimised for the sparse DerivativeMatrix
-	    //  first loop fills off-diagonal terms in symmetric weight matrix
-	    for (int row = 0; row < m_columnsDM; ++row)
-	    {
-		for (int col = 0; col < row; ++col)
-		{
-		    double element = 0.;
-		    int iBegin	= m_firstRowForParameter[col];
-		    if (iBegin	< m_firstRowForParameter[row]) iBegin	= m_firstRowForParameter[row];
-		    int iEnd	= m_lastRowForParameter[col];
-		    if (iEnd	> m_lastRowForParameter[row]) iEnd	= m_lastRowForParameter[row];
-		    for (int i = iBegin; i < iEnd; ++i)
-			element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
-		    weight(row,col) = element;
-		    weight(col,row) = element;
-		}
-	    }
-
-	    //  second loop fills diagonal and weightedDifference vector
-	    for (int row = 0; row < m_columnsDM; ++row)
-	    {
-		double element	= 0.;
-		double residual	= 0.;
-		for (int i = m_firstRowForParameter[row]; i < m_lastRowForParameter[row]; ++i)
-		{
-		    element	+= fitMatrix.derivative[i][row] * fitMatrix.derivative[i][row];
-		    residual	+= (*m_residuals)[i] * fitMatrix.derivative[i][row];
-		}
-		weight(row,row)		= element;
-		weightedDifference(row) = residual;
-	    }
-	}
-	else
-	{
-	    // complete (dumb) loops for checking
-	    for (int col = 0; col < m_columnsDM; ++col)
-	    {
-		double residual		 = 0.;
-		for (int i = 0; i <  m_rowsDM; ++i)
-		{
-		    residual		+= (*m_residuals)[i] * fitMatrix.derivative[i][col];
-		}
-		weightedDifference(col)	 = residual;
-	    
-		for (int row = 0; row < m_columnsDM; ++row)
-		{
-		    double element 	 = 0.;
-		    for (int i = 0; i <  m_rowsDM; ++i)
-		    {
-			element	+= fitMatrix.derivative[i][col] * fitMatrix.derivative[i][row];
-		    }
-		    weight(col,row)	 = element;
-		}
-	    }
-	}
-    }
-    else
-    {
-	// use Eigen Matrix multiplication ATR-15723
-	// note: fitMatrix (struct) is row-major whereas Eigen prefers column-major storage
-	//       hence the loops are nested to optimise row-major and to form the Eigen transpose
-	Amg::MatrixX fitMatrixDerivativeT(m_columnsDM, m_rowsDM);
-	Amg::MatrixX residuals(m_rowsDM,1);
-	for (int row = 0; row < m_rowsDM; ++row)
-	{
-	    residuals(row,0) = (*m_residuals)[row];
-	    for (int col = 0; col < m_columnsDM; ++col)
-	    {
-		fitMatrixDerivativeT(col,row)	= fitMatrix.derivative[row][col];
-	    }
-	}  
-	weight			= fitMatrixDerivativeT*fitMatrixDerivativeT.transpose();  
-	weightedDifference	= fitMatrixDerivativeT*residuals;
-    }
-
-    // stabilize fits with badly determined phi
-    if (m_parameters->phiInstability()) weight(0,0) += m_largePhiWeight;
-
-    // avoid some possible singularities in matrix inversion
-    avoidMomentumSingularity();
-  
-//    bool debugEigen = false; 
-//    for (int col = 0; col < m_columnsDM; ++col) {
-//      double Eigen = weightedDifference(col);
-//      if(debugEigen) std::cout << " col " << col  << " Eigen weightedDifference input " << Eigen << " weight " << weight(col,col) << std::endl;
-//    }
- 
-    // solve is faster than inverse: wait for explicit request for covariance before inversion
     *m_weightedDifference = weight.colPivHouseholderQr().solve(weightedDifference);
     
-// isn't this faster?  indicating that we have a symmetric matrix <0x2> = <Upper> 
-    weight.selfadjointView<0x2>();
-    bool failure = (weight*(*m_weightedDifference) -  weightedDifference).isZero(1e-4);
-
-//    for (int col = 0; col < m_columnsDM; ++col) {
-//      double Eigen = (*m_weightedDifference)(col);
-//      if(debugEigen) std::cout << " col " << col << " Eigen m_weightedDifference output " << Eigen << std::endl;
-//    }
-
-    if (failure)
-    {
-        std::cout << " Eigen failed " << std::endl;
-    	return false;
-    }
-    else
-    {
+    // bool failure = (weight*(*m_weightedDifference) -  weightedDifference).isZero(1e-4);
+    // if (failure)
+    // {
+    //     std::cout << " Eigen failed " << std::endl;
+    // 	return false;
+    // }
+    // else
+    // {
 	m_parameters->update(*m_weightedDifference);
 	return true;
-    }
+    // }
 }
 
 bool
 FitMatrices::solveEquations***REMOVED***(void)
 {
     // using alignment matrix package
-    //  Note: multiplication using for loops is much faster than CLHEP ...
-    //        and fastest of all using an array from a struct !
-    //  first loop to fill off-diagonal symmetric weight matrix
-    AlSpaMat& weight		= *m_weight***REMOVED***;
+    // with copy from eigen weightMatrix
+    Amg::MatrixX& weight		= *m_weight;
+    Amg::VectorX& weightedDifference	= *m_weightedDifference;
+    AlSpaMat weight***REMOVED***(m_columnsDM);
+    AlVec weightedDifference***REMOVED***(m_columnsDM);
     for (int row = 0; row < m_columnsDM; ++row)
     {
-	for (int col = 0; col < row; ++col)
+	for (int col = 0; col < m_columnsDM; ++col)
 	{
-	    double element = 0.;
-	    int iBegin	= m_firstRowForParameter[col];
-	    if (iBegin	< m_firstRowForParameter[row]) iBegin	= m_firstRowForParameter[row];
-	    int iEnd	= m_lastRowForParameter[col];
-	    if (iEnd	> m_lastRowForParameter[row]) iEnd	= m_lastRowForParameter[row];
-	    for (int i = iBegin; i < iEnd; ++i)
-		element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
-	    weight[row][col] = element;
-	    weight[col][row] = element;
+	    weight***REMOVED***[row][col] = weight(row,col);
 	}
+	weightedDifference***REMOVED***[row] = weightedDifference(row);
     }
 
-    //  second loop fills diagonal and weightedDifference vector
-    AlVec& weightedDifference	= *m_weightedDifference***REMOVED***;
-    for (int row = 0; row < m_columnsDM; ++row)
-    {
-	double element	= 0.;
-	double residual	= 0.;
-	for (int i = m_firstRowForParameter[row]; i < m_lastRowForParameter[row]; ++i)
-	{
-	    element	+= fitMatrix.derivative[i][row] * fitMatrix.derivative[i][row];
-	    residual	+= (*m_residuals)[i] * fitMatrix.derivative[i][row];
-	}
-	weight[row][row]	= element;
-	weightedDifference[row] = residual;
-    }
-
-//    bool debugEigen = false; 
-//    for (int col = 0; col < m_columnsDM; ++col) {
-//      double ***REMOVED*** = weightedDifference[col];
-//      if(debugEigen) std::cout << " col " << col  << " ***REMOVED*** weightedDifference input " << ***REMOVED*** << std::endl;
-//    }
-
-    // AlVec& weightedDifference	= *m_weightedDifference***REMOVED***;
-    // for (int row = 0; row < m_columnsDM; ++row)
-    // {
-    // 	for (int col = 0; col <= row; ++col)
-    // 	{
-    // 	    double element = 0.;
-    // 	    // FIXME:  disable smart pointers during alignment development
-    // 	    // for (int i = m_firstRowForParameter[row]; i < m_rowsDM; ++i)
-    // 	    for (int i = 0; i < m_rowsDM; ++i)	
-    // 		element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
-    // 	    weight[row][col] = element;
-    // 	}
-    // }
-    
-    // for (int row = 0; row < m_columnsDM; ++row)
-    // {
-    // 	double element = 0.;
-    // 	// FIXME:  disable smart pointers during alignment development
-    // 	// for (int i = m_firstRowForParameter[row]; i < m_rowsDM; ++i)
-    // 	for (int i = 0; i < m_rowsDM; ++i)
-    // 	    element += (*m_residuals)[i] * fitMatrix.derivative[i][row];
-    // 	weightedDifference[row] = element;
-    // }
-
-    if (m_parameters->phiInstability()) weight[0][0] += m_largePhiWeight;
-
-    // avoid some possible singularities in matrix inversion
-    avoidMomentumSingularity***REMOVED***();
-    
     // solve is faster than inverse: wait for explicit request for covariance before inversion
-    // checked with O(50) param   (SA OK with invert; ***REMOVED*** much faster for CB)
+    int failure		= weight***REMOVED***.***REMOVED***Solve(weightedDifference***REMOVED***);
+    
     // trap singular matrix
-    int failure		= weight.***REMOVED***Solve(weightedDifference);
     if (failure)
     {
 	return false;
     }
     else
     {
-	m_parameters->update(weightedDifference);
+	m_parameters->update(weightedDifference***REMOVED***);
 	return true;
     }
 }

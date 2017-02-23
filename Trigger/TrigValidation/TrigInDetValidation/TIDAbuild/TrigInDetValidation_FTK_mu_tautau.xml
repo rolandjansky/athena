@@ -70,8 +70,6 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-FTK_mu_tautau-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_mu_tautau-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 

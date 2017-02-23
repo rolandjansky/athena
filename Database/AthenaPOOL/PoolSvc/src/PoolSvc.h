@@ -14,13 +14,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "AthenaBaseComps/AthService.h"
-#ifdef ATHENAHIVE
-#include "tbb/recursive_mutex.h"
-#endif
 
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
 
 // Forward declarations
 namespace pool {
@@ -129,19 +127,19 @@ public: // Non-static members
 
    /// Connect to a logical database unit; PersistencySvc is chosen according to transaction type (accessmode).
    StatusCode connect(pool::ITransaction::Type type,
-	   unsigned long stream = IPoolSvc::kInputStream) const;
+	   unsigned long contextId = IPoolSvc::kInputStream) const;
 
-   /// Commit data for a given stream and flush buffer.
-   /// @param stream [IN] poolStream to be commited.
-   StatusCode commit(unsigned long stream = IPoolSvc::kInputStream) const;
+   /// Commit data for a given contextId and flush buffer.
+   /// @param contextId [IN] poolStream to be commited.
+   StatusCode commit(unsigned long contextId = IPoolSvc::kInputStream) const;
 
-   /// Commit data for a given stream and hold buffer.
-   /// @param stream [IN] poolStream to be commited.
-   StatusCode commitAndHold(unsigned long stream = IPoolSvc::kInputStream) const;
+   /// Commit data for a given contextId and hold buffer.
+   /// @param contextId [IN] poolStream to be commited.
+   StatusCode commitAndHold(unsigned long contextId = IPoolSvc::kInputStream) const;
 
-   /// Disconnect PersistencySvc associated with a stream.
-   /// @param stream [IN] poolStream to be disconnected.
-   StatusCode disconnect(unsigned long stream = IPoolSvc::kInputStream) const;
+   /// Disconnect PersistencySvc associated with a contextId.
+   /// @param contextId [IN] poolStream to be disconnected.
+   StatusCode disconnect(unsigned long contextId = IPoolSvc::kInputStream) const;
 
    /// Disconnect single Database.
    /// @param connection [IN] connection string for Database to be disconnected.
@@ -190,10 +188,13 @@ protected: // constructor and destructor
    virtual ~PoolSvc();
 
 private: // data
+   typedef std::recursive_mutex CallMutex;
+   mutable CallMutex                                 m_pool_mut;
    coral::Context*                                   m_context;
    pool::IFileCatalog*                               m_catalog;
    ServiceHandle<IAthenaSealSvc>                     m_athenaSealSvc;
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
+   mutable std::vector<CallMutex*>                   m_pers_mut;
    std::map<std::string, unsigned long>              m_contextLabel;
    std::map<unsigned long, unsigned int>             m_contextMaxFile;
    mutable std::map<unsigned long, std::list<Guid> > m_guidLists;
@@ -247,11 +248,5 @@ private: // internal helper functions
 
    /// Resolve a file using ATLAS_POOLCOND_PATH
    std::string poolCondPath(const std::string& leaf);
-
-#ifdef ATHENAHIVE
-  typedef tbb::recursive_mutex CallMutex;
-  mutable CallMutex m_callLock;
-#endif
-
 };
 #endif

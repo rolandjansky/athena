@@ -8,7 +8,6 @@
 #include <vector>
 #include <chrono>
 #include "TestTools/initGaudi.h"
-using namespace Athena_test;
 #include "TestTools/SGassert.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "../src/SGHiveMgrSvc.h"
@@ -18,14 +17,11 @@ using namespace Athena_test;
 #include "SGTiming_test_objs.h"
 #include "SGTiming_test_def.inc"
 
-using namespace std;
-
 int main() {
-
-  cout << "**** SGTimingTest BEGINS ****" << endl;
+  std::cout << "**** SGTimingTest BEGINS ****" << std::endl;
 
   ISvcLocator* pSvcLoc;
-  initGaudi("SGTiming_test.txt", pSvcLoc);
+  Athena_test::initGaudi("SGTiming_test.txt", pSvcLoc);
 
   StoreGateSvc* pSG(0);
   assert( pSvcLoc->service("StoreGateSvc", pSG, true).isSuccess() );
@@ -55,37 +51,37 @@ int main() {
     end = std::chrono::high_resolution_clock::now();
     vd_clr.push_back(end-start);
 
-    cout << "rec: " << setw(8) 
-         << chrono::duration_cast<chrono::microseconds>(vd_rec[i]).count() 
-         << "  ret: " << setw(8) 
-         << chrono::duration_cast<chrono::microseconds>(vd_ret[i]).count() 
-         << "  clr: " << setw(8)
-         << chrono::duration_cast<chrono::microseconds>(vd_clr[i]).count() 
-         << endl;
+    std::cout << "rec: " << std::setw(8) 
+              << std::chrono::duration_cast<std::chrono::microseconds>(vd_rec[i]).count() 
+              << "  ret: " << std::setw(8) 
+              << std::chrono::duration_cast<std::chrono::microseconds>(vd_ret[i]).count() 
+              << "  clr: " << std::setw(8)
+              << std::chrono::duration_cast<std::chrono::microseconds>(vd_clr[i]).count() 
+              << std::endl;
 
     
   }
 
   unsigned int a_ret{0}, a_rec{0}, a_clr{0};
   for (size_t i=1; i<NITER; ++i) {
-    a_rec += chrono::duration_cast<chrono::microseconds>(vd_rec[i]).count();
-    a_ret += chrono::duration_cast<chrono::microseconds>(vd_ret[i]).count();
-    a_clr += chrono::duration_cast<chrono::microseconds>(vd_clr[i]).count();
+    a_rec += std::chrono::duration_cast<std::chrono::microseconds>(vd_rec[i]).count();
+    a_ret += std::chrono::duration_cast<std::chrono::microseconds>(vd_ret[i]).count();
+    a_clr += std::chrono::duration_cast<std::chrono::microseconds>(vd_clr[i]).count();
   }
-    
-  cout << "===== averages  TYPES: " << NTYPES << "  KEYS: " << NKEYS << "  iter: " 
-       << NITER << " ===============\n";
+  
+  std::cout << "===== averages  TYPES: " << NTYPES << "  KEYS: " << NKEYS << "  iter: " 
+            << NITER << " ===============\n";
 
-  cout << NTYPES << "/" << NKEYS << " ";
-  cout << "rec: " << setw(6) << setprecision(2) << fixed
-       << float(a_rec) / ((NITER-1) * NTYPES * NKEYS)
-       << "  ret: " << setw(6)  
-       << float(a_ret) / ((NITER-1) * NTYPES * NKEYS)
-       << "  clr: " << setw(6)  
-       << float(a_clr) / ((NITER-1) * NTYPES * NKEYS)
-       << endl;
+  std::cout << NTYPES << "/" << NKEYS << " ";
+  std::cout << "rec: " << std::setw(6) << std::setprecision(2) << std::fixed
+            << float(a_rec) / ((NITER-1) * NTYPES * NKEYS)
+            << "  ret: " << std::setw(6)  
+            << float(a_ret) / ((NITER-1) * NTYPES * NKEYS)
+            << "  clr: " << std::setw(6)  
+            << float(a_clr) / ((NITER-1) * NTYPES * NKEYS)
+            << std::endl;
  
-  cout << "**** SGTimingTest ENDS ****" << endl;
+  std::cout << "**** SGTimingTest ENDS ****" << std::endl;
 
   return 0;
 

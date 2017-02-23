@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
 			  Control/StoreGateBindings
+			  Control/SGTools
                           PRIVATE
                           Control/xAODRootAccess
 			  Control/AthAnalysisBaseComps

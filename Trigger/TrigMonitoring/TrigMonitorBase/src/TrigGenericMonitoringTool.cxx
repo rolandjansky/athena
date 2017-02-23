@@ -799,3 +799,7 @@ unsigned TrigGenericMonitoringTool<M,P>::HistogramFiller2D::fill() {
   return i;
 }
 
+// Explicitly instantiate the possible templates and define aliases
+template class TrigGenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
+template class TrigGenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
+

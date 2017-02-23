@@ -104,8 +104,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_ttbar_pu138-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu138-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 

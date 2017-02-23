@@ -70,8 +70,6 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet_IBL_pu40-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
    

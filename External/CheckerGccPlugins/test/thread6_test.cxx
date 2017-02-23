@@ -1,4 +1,4 @@
-// testing mutable checks
+// testing check_mutable
 
 #pragma ATLAS check_thread_safety
 
@@ -19,6 +19,7 @@ struct S
   void f6(int y) const;
   void f9(int y) const;
   void f12(int y);
+  void f15 [[gnu::not_thread_safe]] (int y) const;
 };
 
 
@@ -92,3 +93,7 @@ void f14(S* s)
 }
 
 
+void S::f15(int y) const
+{
+  x = y;
+}

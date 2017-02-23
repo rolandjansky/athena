@@ -63,14 +63,14 @@ bool AuxDiscoverySvc::setData(SG::auxid_t auxid, void* data, const RootType& typ
       void* dstdata = m_storeInt->getData(auxid, 1, 1);
       registry.copy(auxid, dstdata, 0, data, 0);
       if (type.IsFundamental()) {
-         delete [] (char*)data; data = 0;
+         delete [] (char*)data; data = nullptr;
       } else {
-         type.Destruct(data); data = 0;
+         type.Destruct(data); data = nullptr;
       }
    } else {
       // Move the data to the dynamic store.
       std::unique_ptr<SG::IAuxTypeVector> vec(registry.makeVectorFromData(auxid, data, false, true));
-      m_storeInt->addVector(auxid, std::move(vec), false); data = 0;
+      m_storeInt->addVector(auxid, std::move(vec), false); data = nullptr;
    }
    return true;
 }

@@ -11,6 +11,7 @@ from __future__ import print_function
 import ROOT
 import cppyy
 
+ROOT.xAOD.TEvent
 ROOT.xAOD.TReturnCode.enableFailure()
 
 

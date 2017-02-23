@@ -11,4 +11,9 @@ TCS::SortingAlg::doReset() {
    return StatusCode::SUCCESS;
 }
 
+TCS::StatusCode TCS::SortingAlg::sortBitCorrect(const InputTOBArray & input, TOBArray & output)
+{
+  return sort(input, output);
+}
+
 TCS::SortingAlg::~SortingAlg() {}

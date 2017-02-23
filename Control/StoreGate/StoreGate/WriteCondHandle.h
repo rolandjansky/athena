@@ -67,7 +67,7 @@ namespace SG {
   template <typename T>
   WriteCondHandle<T>::WriteCondHandle( const SG::WriteCondHandleKey<T>& key,
                                        const EventContext& ctx) :
-    SG::VarHandleBase( key, ctx ),
+    SG::VarHandleBase( key, &ctx ),
     m_eid(ctx.eventID()),
     m_cc( key.getCC() ),
     m_cs( key.getCS() ),

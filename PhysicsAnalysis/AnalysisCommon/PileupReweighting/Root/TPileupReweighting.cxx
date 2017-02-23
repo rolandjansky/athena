@@ -1909,7 +1909,7 @@ void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStrin
 }
 
 void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
-   
+
    //now we need the trigger bits for this trigger for this event
    long tbits = t->getBits(this);
    //1. Open all the lumicalc files
@@ -2010,7 +2010,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
               }
               pFactor = 1. - pFactor;
   */
-              
+
               double pFactor = t->eval(prescaleByRunAndLbn,runNbr,lbn,this);
   
               //Info("...","prescale in [%d,%d] = %f", runNbr,lbn,1./pFactor);

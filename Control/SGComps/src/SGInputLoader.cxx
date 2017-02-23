@@ -82,7 +82,6 @@ SGInputLoader::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-#ifdef ATHENAHIVE
   for (auto &obj: extraOutputDeps()) {
     SG::DataProxy* dp = evtStore()->proxy(obj.clid(), obj.key());
     if (dp != 0) {
@@ -95,7 +94,6 @@ SGInputLoader::execute()
       ATH_MSG_ERROR("unable to get proxy for " << obj);
     }
   }
-#endif
 
   if (m_dump) {
     ATH_MSG_DEBUG(evtStore()->dump()); 

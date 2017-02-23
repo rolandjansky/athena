@@ -456,7 +456,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
   ncsx = std::min(ncsx, nmax);
   m_csx.clear();
   m_csx.reserve(ncsx);
-  for(int i=0; i<ncsx; i++){
+  for(int i=0; i<ncsx && !infile.eof(); i++){
     infile >> value;
     m_csx.push_back(value);
   }
@@ -464,7 +464,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
   ncsy = std::min(ncsy, nmax);
   m_csy.clear();
   m_csy.reserve(ncsy);
-  for(int i=0; i<ncsy; i++){
+  for(int i=0; i<ncsy && !infile.eof(); i++){
     infile >> value;
     m_csy.push_back(value);
   }
@@ -488,7 +488,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
   neta = std::min(neta, nmax);
   m_etaref.clear();
   m_etaref.reserve(neta);
-  for(int i=0; i<neta; i++){
+  for(int i=0; i<neta && !infile.eof(); i++){
     infile >> value;
     m_etaref.push_back(value);
   }
@@ -496,7 +496,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
   nalpha = std::min(nalpha, nmax);
   m_phibins.clear();
   m_phibins.reserve(nalpha);
-  for(int i=0; i<nalpha; i++){
+  for(int i=0; i<nalpha && !infile.eof(); i++){
     infile >> value;
     m_phibins.push_back(value);
   }

@@ -1292,6 +1292,8 @@ class ItemDef:
                     LVL1MenuItem('L1_J40_DPHI-J20s2XE30').setLogic( J40 & TOPO_10MINDPHI_J20s2_XE30  & physcond)
                     LVL1MenuItem('L1_MU4_J20_XE30_DPHI-J20s2XE30').setLogic( MU4 & J20 & XE30 & TOPO_10MINDPHI_J20s2_XE30  & physcond)
                     LVL1MenuItem('L1_2MU4_J20_XE30_DPHI-J20s2XE30').setLogic( MU4.x(2) & J20 & XE30 & TOPO_10MINDPHI_J20s2_XE30  & physcond)
+                    LVL1MenuItem('L1_MU4_2EM3_J20_XE30_DPHI-J20s2XE30').setLogic( MU4 & EM3.x(2) & J20 & XE30 & TOPO_10MINDPHI_J20s2_XE30  & physcond)
+                    LVL1MenuItem('L1_3EM3_J40_XE50_DPHI-J20s2XE50').setLogic( EM3.x(3) & J40 & XE50 & TOPO_10MINDPHI_J20s2_XE50  & physcond)
 
 
                     LVL1MenuItem('L1_J40_XE50_DPHI-J20s2XE50').setLogic( J40 & XE50 & TOPO_10MINDPHI_J20s2_XE50  & physcond) 
@@ -1591,6 +1593,8 @@ class ItemDef:
                     LVL1MenuItem('L1_LATE-MU10_J50').setLogic(  TOPO_LATE_MU10s1 & J50 & physcond)  
                     LVL1MenuItem('L1_SC111').setLogic(  TOPO_SC111_CJ15abETA26 & physcond)
                     LVL1MenuItem('L1_SC85').setLogic(  TOPO_SC85_CJ15abETA26 & physcond)
+
+                    LVL1MenuItem('L1_TAU60_DR-TAU20ITAU12I' ).setLogic( HA60 & TOPO_0DR28_TAU20abi_TAU12abi & physcond)
 
             except Exception, ex:
                     print "Creation of L1Topo item failed, will abort! Exception is : " , ex

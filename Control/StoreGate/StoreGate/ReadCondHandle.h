@@ -79,7 +79,7 @@ namespace SG {
   template <typename T>
   ReadCondHandle<T>::ReadCondHandle(const SG::ReadCondHandleKey<T>& key,
                                     const EventContext& ctx):
-    SG::VarHandleBase( key, ctx ),
+    SG::VarHandleBase( key, &ctx ),
     m_eid( ctx.eventID() ),
     m_cc( key.getCC() ),
     m_hkey(key)

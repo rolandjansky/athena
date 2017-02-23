@@ -51,9 +51,7 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias_offline-reference.root</auxFilePattern>
 
-            <auxFilePattern>expert-monitoring-minBias-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 

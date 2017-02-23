@@ -54,7 +54,9 @@ namespace TCS {
       // @brief: build the execution structure and parameterspace from
       // the configuration
       StatusCode setupFromConfiguration(const TXC::L1TopoMenu& menu);
-      
+     
+      void setUseBitwise(bool useBitwise) { m_useBitwise = useBitwise; }
+ 
       // @brief: call the initialize function of the algorithms
       // will be called after the parameters are set and before the event loop starts
       StatusCode initializeAlgorithms();
@@ -108,6 +110,7 @@ namespace TCS {
 
 
    private:
+      bool m_useBitwise{false};                  // Using bitwise algorithms? Disabled by default. Needs a menu global flag.
 
       TopoInputEvent         m_inputEvent;       // the input event
 

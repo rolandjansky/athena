@@ -21,13 +21,13 @@ TrkDistanceFinderNeutralNeutral::TrkDistanceFinderNeutralNeutral(const std::stri
 StatusCode TrkDistanceFinderNeutralNeutral::initialize() 
   { 
     StatusCode s = AthAlgTool::initialize();
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    ATH_MSG_INFO("Initialize successful");
     return s;
   }
 
 StatusCode TrkDistanceFinderNeutralNeutral::finalize() 
 {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  ATH_MSG_INFO("Finalize successful");
   return StatusCode::SUCCESS;
 }
 
@@ -37,7 +37,7 @@ TrkDistanceFinderNeutralNeutral::~TrkDistanceFinderNeutralNeutral() { }
 std::pair<Amg::Vector3D,double>  
 TrkDistanceFinderNeutralNeutral::getPointAndDistance(const Trk::NeutralTrack& neutralaxis,
                                                      const Trk::NeutralTrack& neutraltrk,
-						     double & distanceOnAxis) {
+						     double & distanceOnAxis) const {
 
   const Trk::NeutralTrack& neutraltrk1=neutralaxis;
   const Trk::NeutralTrack& neutraltrk2=neutraltrk;

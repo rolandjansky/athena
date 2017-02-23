@@ -99,9 +99,9 @@ void DrawLabels(const TH2D* histo, const double fixedValue1, const double fixedV
     }
     else
     {
-        tex->DrawLatex(0.48,0.960,Form("anti-#it{k}_{t} #it{R} = %s, %s+JES + #it{in situ}",jetDef.Contains("AntiKt4") ? "0.4" : jetDef.Contains("AntiKt6") ? "0.6" : "UNKNOWN", jetDef.Contains("EM") ? "EM" : jetDef.Contains("LC") ? "LCW" : "UNKNOWN"));
-        tex->DrawLatex(0.48,0.905,fixedValString.Data());
-        tex->DrawLatex(0.13,0.905,Form("Data %s, #sqrt{s} = %d TeV",year.Data(),year=="2012"?8:year=="2011"?7:year=="2015"||year=="2016"?13:0));
+        tex->DrawLatex(0.13,0.955,Form("anti-k_{t} #it{R} = %s, %s+JES",jetDef.Contains("AntiKt4") ? "0.4" : jetDef.Contains("AntiKt6") ? "0.6" : "UNKNOWN", jetDef.Contains("EM") ? "EM" : jetDef.Contains("LC") ? "LCW" : "UNKNOWN"));
+        tex->DrawLatex(0.56,0.955,fixedValString.Data());
+        tex->DrawLatex(0.56,0.905,Form("Data %s, #sqrt{s} = %d TeV",year.Data(),year=="2012"?8:year=="2011"?7:year=="2015"||year=="2016"?13:0));
     }
 
     

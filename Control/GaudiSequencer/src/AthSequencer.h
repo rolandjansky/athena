@@ -209,7 +209,14 @@ private:
   /// Member names (of the form '<cppType>/<instanceName>')
   Gaudi::Property<std::vector<std::string>> m_names;
 
-  /// Stop on filter failure Override flag
+  // Atomic sequencer (don't unroll in MT)
+  Gaudi::Property<bool> m_atomic;
+
+  // Invert logic of Sequence
+  Gaudi::Property<bool> m_modeOR;
+  // Ignore filterPassed() decisions of member algs
+  Gaudi::Property<bool> m_ignoreFilter;
+  /// Stop on filter failure Override flag (normally stop if alg filter fails)
   Gaudi::Property<bool> m_stopOverride;
   
   /// set optional algorithm / sequence time outs

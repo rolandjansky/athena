@@ -205,6 +205,10 @@ public :
    void Analyze(std::string reference, std::string reference_tag);
 
 private:
+
+   PixelRIOs(const PixelRIOs &);
+   PixelRIOs &operator=(const PixelRIOs&);
+
    // My variables
    TStopwatch *m_timer;
    PixelChargeInterpolationCalibration *m_Calibration;

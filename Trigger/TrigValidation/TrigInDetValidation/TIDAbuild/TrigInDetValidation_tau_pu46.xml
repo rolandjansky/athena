@@ -85,8 +85,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-tau_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-tau_pu46-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 

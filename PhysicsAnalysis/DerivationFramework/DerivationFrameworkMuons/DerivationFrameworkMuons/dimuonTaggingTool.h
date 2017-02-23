@@ -76,6 +76,7 @@ namespace DerivationFramework {
     std::string m_trackSGKey;
     bool m_useTrackProbe;
     std::string m_br_prefix;
+//     SG::AuxElement::Decorator< int >* deco_trkFlag;
 
     bool m_requireOS;
     float m_dPhiMin;

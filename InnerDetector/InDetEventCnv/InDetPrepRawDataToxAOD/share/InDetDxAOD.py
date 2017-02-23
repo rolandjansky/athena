@@ -152,6 +152,10 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD
         print xAOD_TRT_PrepDataToxAOD.properties()
 
+    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    ToolSvc += TRT_dEdx_Tool
+
 if dumpSctInfo:
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
     xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
@@ -210,6 +214,10 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           StorePixel = dumpPixInfo,
                                                           IsSimulation = isIdTrkDxAODSimulation,
                                                           OutputLevel = INFO)
+
+if dumpTrtInfo:
+    #Add tool to calculate TRT-based dEdx
+    DFTSOS.TRT_ToT_dEdx = TRT_dEdx_Tool
 
 ToolSvc += DFTSOS
 augmentationTools+=[DFTSOS]

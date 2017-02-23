@@ -284,7 +284,7 @@ class Analysis:
         self.f = ROOT.TFile (ifname)
         self.event = ROOT.xAOD.TEvent (ROOT.xAOD.TEvent.kAthenaAccess)
         CHECK (self.event.readFrom (self.f, True, 'CollectionTree'))
-        self.tree = ROOT.xAOD.MakeTransientTreeFromEvent(self.event, 'CollectionTree')
+        self.tree = ROOT.xAOD.MakeTransientTree(self.event, 'CollectionTree')
         self.fout = None
         if ofname:
             self.fout = ROOT.TFile.Open (ofname, 'recreate')

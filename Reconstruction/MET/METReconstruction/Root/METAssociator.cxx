@@ -60,22 +60,22 @@ namespace met {
     declareProperty( "PrimVxColl",         m_pvcoll      = "PrimaryVertices"     );
     declareProperty( "TrkColl",            m_trkcoll     = "InDetTrackParticles" );
     declareProperty( "ClusColl",           m_clcoll      = "CaloCalTopoClusters" );
-    declareProperty( "UseModifiedClus",    m_useModifiedClus = false           );
+    declareProperty( "UseModifiedClus",    m_useModifiedClus = false             );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
-    declareProperty( "WeightCPFO",        m_weight_charged_pfo = true         );
+    declareProperty( "WeightCPFO",         m_weight_charged_pfo = true           );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
     declareProperty( "PFOTool",            m_pfotool                             );
-    declareProperty( "PFOWeightTool",     m_pfoweighttool                     );
+    declareProperty( "PFOWeightTool",      m_pfoweighttool                       );
     declareProperty( "TrackSelectorTool",  m_trkseltool                          );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
     declareProperty( "CaloIsolationTool",  m_caloIsolationTool                   );
-    declareProperty( "GoodTracksColl",     m_goodtracks_coll = "METRecoGoodTrackParticles" );
     declareProperty( "IgnoreJetConst",     m_skipconst = false                   );
-    declareProperty( "ForwardColl",        m_forcoll   = ""            );
+    declareProperty( "ForwardColl",        m_forcoll   = ""                      );
     declareProperty( "ForwardDef",         m_foreta    = 2.5                     );
-    declareProperty( "CentralTrackPtThr",  m_cenTrackPtThr = 200e+3              );
-    declareProperty( "ForwardTrackPtThr",  m_forTrackPtThr = 120e+3              );
+    declareProperty( "CentralTrackPtThr",  m_cenTrackPtThr = 30e+3               );
+    declareProperty( "ForwardTrackPtThr",  m_forTrackPtThr = 30e+3               );
+    declareProperty( "CleanCPFO",          m_cleanChargedPFO = true              );
   }
 
   // Destructor
@@ -325,7 +325,7 @@ namespace met {
       std::vector<Iso::IsolationType> caloIsoCones_coreCone; 
       caloIsoCones_coreCone.push_back(xAOD::Iso::IsolationType::etcone20); 
       xAOD::CaloCorrection caloIsoCorr_coreCone;
-      caloIsoCorr_coreCone.calobitset.set(xAOD::Iso::IsolationCaloCorrection::coreCone); 
+      caloIsoCorr_coreCone.calobitset.set(xAOD::Iso::IsolationCaloCorrection::noneCaloCorrection); 
       m_caloIsolationTool->caloTopoClusterIsolation(caloIsoResult_coreCone,
 						    *trk,
 						    caloIsoCones_coreCone,

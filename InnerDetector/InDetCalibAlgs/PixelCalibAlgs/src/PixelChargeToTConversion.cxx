@@ -20,8 +20,8 @@ PixelChargeToTConversion::PixelChargeToTConversion(const std::string& name, ISvc
   m_calibsvc("PixelCalibSvc", name),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_overflowIBLToT(0),
-  m_Pixel_clcontainer(0),
-  m_offlineCalibSvc("PixelOfflineCalibSvc", name)
+  m_offlineCalibSvc("PixelOfflineCalibSvc", name),
+  m_Pixel_clcontainer(0)
 {
   declareProperty("PixelCalibSvc", m_calibsvc);
 }

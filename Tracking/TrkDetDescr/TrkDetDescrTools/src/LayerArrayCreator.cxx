@@ -87,11 +87,11 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
                 layerOrderVector.push_back( Trk::LayerOrderPosition(Trk::SharedObject<const Layer>(layIter),
                                                                     Amg::Vector3D(currentR, 0.,0.)));
             }        
-            // create the binUitlity
+            // create the binUtility
             binUtility = new Trk::BinUtility(layers,rmin,rmax,Trk::open, Trk::binR);
             ATH_MSG_VERBOSE( "equidistant : created a BinUtility as " << *binUtility );
             
-            // create the BinnedArray
+            // create the BinnedArray; BinnedArray now owns the binUtility pointer
             cylinderLayerArray = new Trk::BinnedArray1D<Trk::Layer>(layerOrderVector, binUtility);     
         } break;
         
@@ -155,7 +155,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             binUtility = new Trk::BinUtility(layers, layerThickness, rMinBoundary, rMaxBoundary, Trk::open, Trk::binR);
             ATH_MSG_VERBOSE( "bi-equidistant : created a BinUtility as " << *binUtility );
             
-            // create the BinnedArray
+            // create the BinnedArray; BinnedArray now owns the binUtility pointer
             cylinderLayerArray = new Trk::BinnedArray1D<Trk::Layer>(layerOrderVector, binUtility);
         
         } break;
@@ -220,7 +220,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             binUtility = new Trk::BinUtility(boundaries, Trk::open, Trk::binR);
             ATH_MSG_VERBOSE( "arbitrary : created a BinUtility as " << *binUtility );
             
-            // and the BinnedArray
+            // create the BinnedArray; BinnedArray now owns the binUtility pointer
             cylinderLayerArray = new Trk::BinnedArray1D<Trk::Layer>(layerOrderVector, binUtility);
         
         } break;
@@ -275,7 +275,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             binUtility = new Trk::BinUtility(layers,zmin,zmax,Trk::open,Trk::binZ);
             ATH_MSG_VERBOSE( "equidistant : created a BinUtility as " << *binUtility );
 
-            // create the BinnedArray
+            // create the BinnedArray; BinnedArray now owns the binUtility pointer
             discLayerArray = new Trk::BinnedArray1D<Trk::Layer>(layerOrderVector, binUtility);
         
         } break;
@@ -342,7 +342,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             binUtility = new Trk::BinUtility(layers, layerThickness, zminBoundary, zmaxBoundary, Trk::open, Trk::binZ);
             ATH_MSG_VERBOSE( "bi-equidistant : created a BinUtility as " << *binUtility );
         
-            // create the BinnedArray
+            // create the BinnedArray; BinnedArray now owns the binUtility pointer
             discLayerArray = new Trk::BinnedArray1D<Trk::Layer>(layerOrderVector, binUtility);
         
         } break;
@@ -419,7 +419,8 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             binUtility = new Trk::BinUtility(boundaries, Trk::open, Trk::binZ);
             ATH_MSG_VERBOSE( "arbitrary : created a BinUtility as " << *binUtility );
             
-            // and the BinnedArray
+            // create the BinnedArray; BinnedArray now owns the binUtility pointer
+            // cppcheck-suppress memleak
             discLayerArray = new Trk::BinnedArray1D<Trk::Layer>(layerOrderVector, binUtility);
         
         } break;
@@ -692,6 +693,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
     }
 
     return planeLayerArray;
+    //cppcheck-suppress memleak
 }
 
 const Trk::Layer* Trk::LayerArrayCreator::checkAndReplaceEmptyLayer(const Trk::Layer* lay) const {

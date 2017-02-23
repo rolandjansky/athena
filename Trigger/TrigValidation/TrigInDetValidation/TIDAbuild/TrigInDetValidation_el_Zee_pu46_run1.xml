@@ -89,8 +89,6 @@
 
 #           include "TrigInDetValidation_aux.xml"
 
-            <auxFilePattern>data-el_Zee_pu46_run1-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_Zee_pu46_run1-ref.root</auxFilePattern>
             <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
          <athenaCommonFlags /> 

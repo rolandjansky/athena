@@ -1008,6 +1008,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             }
             break;
           }
+          /* FALLTHROUGH */
 
         case LASERII_OBJ_FRAG:
 

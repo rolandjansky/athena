@@ -80,6 +80,7 @@ int convertStrToIntName(std::string ChamberName, std::string ChamberType) {
     else if (m_Name_str=="CSS") m_Name_int = 50;
     else if (m_Name_str=="CSL") m_Name_int = 51;
     else if (m_Name_str=="BIM") m_Name_int = 52;
+    else if (m_Name_str=="BMG") m_Name_int = 54;
     else m_Name_int = -1;
  
   } else if (m_Type=="RPC") {

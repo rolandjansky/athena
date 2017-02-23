@@ -20,13 +20,10 @@
  **                 N.Berger Dec.06 - migrate to new steering (RG)
  **************************************************************************/
 
-//#include "TrigInDetToolInterfaces/ITrigInDetTrackExtrapolator.h"
-//#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h" 
 #include "TrkCaloExtension/CaloExtensionHelpers.h" 
 #include "TrigEgammaHypo/TrigL2ElectronFex.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
-
 class ISvcLocator;
 
 template <class SRC>
@@ -42,23 +39,14 @@ TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvc
 {
   // Read cuts - should probably get these from an xml file
   declareProperty( "AcceptAll",            m_acceptAll  = false );
-  declareProperty( "EtaBins",              m_etabin );
   declareProperty( "TrackPt",              m_trackPtthr = 5.0*CLHEP::GeV );
   declareProperty( "CaloTrackdETA",        m_calotrackdeta );
   declareProperty( "CaloTrackdPHI",        m_calotrackdphi ); 
   declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low );
   declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high );
-  declareProperty( "TrackAlgoId",          m_trackalgoID = 0 );
-  declareProperty( "CaloAlgoId",           m_calo_algoID = 1 ); // 0=all (N/A); 1=T2Calo; 2=CaloRinger
-  declareProperty( "dETACLUSTERthr",       m_detacluster = 0.1 );
-  declareProperty( "dPHICLUSTERthr",       m_dphicluster = 0.1 );
   declareProperty( "RCalBarrelFace",       m_RCAL = 1470.0*CLHEP::mm );
   declareProperty( "ZCalEndcapFace",       m_ZCAL = 3800.0*CLHEP::mm );
   declareProperty( "ParticleCaloExtensionTool",    m_caloExtensionTool);
-  
-  declareProperty( "TrackPtTRT",              m_trackPtthrTRT = 5.0*CLHEP::GeV );
-  declareProperty( "CaloTrackdETATRT",        m_calotrackdetaTRT ); 
-  declareProperty( "CaloTrackdPHITRT",        m_calotrackdphiTRT );
   
   declareMonitoredCollection("PtCalo",*dvec_cast(&m_trigElecColl),&TrigL2ElectronFex::getCaloPt);
   declareMonitoredCollection("PtTrack",*dvec_cast(&m_trigElecColl),&TrigL2ElectronFex::getTkPt);
@@ -92,15 +80,10 @@ HLT::ErrorCode TrigL2ElectronFex::hltInitialize()
   ATH_MSG_DEBUG( "AcceptAll            = "<< 
           (m_acceptAll==true ? "True" : "False")); 
   ATH_MSG_DEBUG("TrackPt              = " << m_trackPtthr);           
-  ATH_MSG_DEBUG("EtaBins              = " << m_etabin);               
   ATH_MSG_DEBUG("CaloTrackdETA        = " << m_calotrackdeta);        
   ATH_MSG_DEBUG("CaloTrackdPHI        = " << m_calotrackdphi);        
   ATH_MSG_DEBUG("CaloTrackdEoverPLow  = " << m_calotrackdeoverp_low); 
   ATH_MSG_DEBUG("CaloTrackdEoverPHigh = " << m_calotrackdeoverp_high);
-  ATH_MSG_DEBUG("TrackAlgoId          = " << m_trackalgoID);          
-  ATH_MSG_DEBUG("CaloAlgoId           = " << m_calo_algoID);          
-  ATH_MSG_DEBUG("dETACLUSTERthr       = " << m_detacluster);          
-  ATH_MSG_DEBUG("dPHICLUSTERthr       = " << m_dphicluster);          
 
   return HLT::OK;
 }
@@ -166,14 +149,6 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
           << ": Eta = "      << roiDescriptor->eta()
           << ", Phi = "      << roiDescriptor->phi());
   
-  // fill local variables for RoI reference position
-  double etaRef = roiDescriptor->eta();
-  double phiRef = roiDescriptor->phi();
-
-  // CaloAlgoId now isn't used anymore, as TrigCaloRinger also dumps a TrigEMCluster
-  // It is kept for backward compability.
-  // Eventually it can be passed to the next algos for information?!
-  
   float calo_eta(999), calo_phi(999), calo_et(-1);
   // the ElementLink pointing to a TrigEMCluster needs to be declared in this scope
   ElementLink<xAOD::TrigEMClusterContainer> el_t2calo_clus;
@@ -192,43 +167,6 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
       return HLT::MISSING_FEATURE;
   }
 
-  
-  // figure out what eta bin this cluster is in
-  float absEta = fabs(calo_eta);
-  int etaBin = 0;
-  
-  if(m_etabin.size()<2 ) {
-    ATH_MSG_WARNING("etaBin not configured correctly");
-    return HLT::OK;//eta bins not configured correctly
-  }
-
-  for (unsigned int iBin = 0; iBin < (m_etabin.size()-1); iBin++ )
-      if ( absEta > m_etabin[iBin] && absEta < m_etabin[iBin+1] ) etaBin = iBin;
-
-  ATH_MSG_DEBUG("eta bin used for cuts: " << etaBin);
-
-
-  // calculate eta and phi distances (deal with angle diferences > Pi)
-  float dPhi =  calo_phi - phiRef;
-  dPhi = ( fabs(dPhi) < M_PI ? dPhi : 2*M_PI - dPhi );
-  
-  float dEta = fabs( etaRef - calo_eta );
-
-
-  // Following code was previously commented out
-  // VD already cutting on TriL2CaloHypo
-  // Accept only L2 em clusters which are "close" to the one provided by L1
-
-  ATH_MSG_DEBUG("Not cutting on dEta=" << dEta << " or dPhi=" << dPhi);
-
-  //if ( dEta > m_detacluster || dPhi > m_dphicluster ) {
-  //  if ( msgLvl() <= MSG::DEBUG ) {
-  //    msg() << MSG::DEBUG << "Cluster doesn't match RoI! Leaving." << endmsg;
-  //  }
-  //  return HLT::OK;
-  //}
-
-  
   // Transverse em energy
   ATH_MSG_DEBUG("Cluster: ET=" << calo_et);
   ATH_MSG_DEBUG("searching a matching track: loop over tracks");
@@ -238,12 +176,27 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   stat = getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE, v_inputTracks, "");
 
   if ( stat != HLT::OK){ 
-      ATH_MSG_WARNING("Failed to retrieve track collection");
+      ATH_MSG_WARNING("Failed to retrieve track EL collection");
       return HLT::MISSING_FEATURE;
   }
 
   ATH_MSG_DEBUG("Got vector of " << v_inputTracks.size()
           << " InDetTrackCollections");
+  std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
+  stat = getFeatures(inputTE, vectorTrackParticleContainer);
+  if (stat != HLT::OK){
+      ATH_MSG_WARNING("Failed to retrieve track collection");
+      return HLT::MISSING_FEATURE;
+  }
+  if (vectorTrackParticleContainer.size() < 1){
+      ATH_MSG_ERROR("No track collection, vector < 1");
+      return HLT::MISSING_FEATURE;
+  }
+  const xAOD::TrackParticleContainer *tracks = vectorTrackParticleContainer.back();
+  if(!tracks){
+      ATH_MSG_WARNING("Track collection is null");
+      return HLT::MISSING_FEATURE;
+  }
 
   CaloExtensionHelpers::LayersToSelect layersToSelect; 
   layersToSelect.insert(CaloSampling::CaloSample::EMB2); 
@@ -260,120 +213,81 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
       ATH_MSG_VERBOSE(" eta = " << fabs((trkIter)->eta())); 
       ATH_MSG_VERBOSE(" z0  = " << fabs((trkIter)->z0()));  
 
-      // algorithm ID
-      int algoId = 0; 
-      if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::FastTrackFinderSeed] ) algoId=9;
-      if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyA] ) algoId=5;
-      if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyB] ) algoId=6;
-      if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyC] ) algoId=7;
-
-      // ======== Following to be checked ============== //
-      // do not try track/cluster match if produced by wrong algo (0=all algos)
-      // Following code needs to be checked for rel21
-      // Is it required to check for track algorithm ID?
-      if (m_trackalgoID == 0 || (unsigned int)algoId == m_trackalgoID || m_acceptAll  || 
-              (m_trackalgoID == 5 &&  (unsigned int)algoId <= 2 )) {
-          // =============================== ============== //
-          
-          ATH_MSG_VERBOSE("good track AlgoId");
-          
-          //Use SiTrack/IDScan cuts or TRT cuts
-          std::vector<float> temp_calotrackdeta;
-          std::vector<float> temp_calotrackdphi;
-          float temp_trackPtthr;
-          temp_calotrackdeta = m_calotrackdeta;
-          temp_calotrackdphi = m_calotrackdphi;
-          temp_trackPtthr = m_trackPtthr;
-
-          // ======== Following to be checked ============== //
-          // The following should be checked at initialize or before loop 
-          // throw a warning/error and quit chain due to misconfiguration
-          //
-          //ignore tracks that don't have cuts 
-          if(temp_calotrackdeta.size()<1 || temp_calotrackdphi.size()<1 ){
-              ATH_MSG_DEBUG("Track type does not have corresponding cut configuration");
+      // ============================================= //
+      // Pt cut
+      float trkPt = fabs((trkIter)->pt());
+      float etoverpt = fabs(calo_et/trkPt);
+      double etaAtCalo=999.;
+      double phiAtCalo=999.;
+      if(m_acceptAll){
+          if(!extrapolate(*el_t2calo_clus,trkIter,etaAtCalo,phiAtCalo)){
+              ATH_MSG_VERBOSE("extrapolator failed");
+              continue; 
+          }
+          else{
+              ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster = " <<
+                      el_t2calo_clus.getStorableObjectPointer() << " index = " << el_t2calo_clus.index() <<
+                      " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
+              xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
+              m_trigElecColl->push_back(trigElec);
+              trigElec->init(  initialRoI->roiWord(),
+                      etaAtCalo, phiAtCalo,  etoverpt,        
+                      el_t2calo_clus,
+                      trkLink);
+          }
+      }
+      else {
+          ATH_MSG_VERBOSE("Apply cuts");
+          if(trkPt < m_trackPtthr){
+              ATH_MSG_VERBOSE("Failed track pt cut");
               continue;
           }
-          //ignore incorrect cut configurations
-          if(temp_calotrackdeta.size()!=(m_etabin.size()-1) || temp_calotrackdphi.size()!=(m_etabin.size()-1) ){
-              ATH_MSG_DEBUG("Track type has inconsistent cut configuration");
+          if (etoverpt < m_calotrackdeoverp_low){ 
+              ATH_MSG_VERBOSE("failed low cut on ET/PT");
               continue;
           }
-          // ============================================= //
-          // Pt cut
-          float trkPt = fabs((trkIter)->pt());
-          if (trkPt > temp_trackPtthr || m_acceptAll) {
-              ATH_MSG_VERBOSE("passed pT cut");
+          if (etoverpt > m_calotrackdeoverp_high){ 
+              ATH_MSG_VERBOSE("failed high cut on ET/PT");
+              continue;
+          }
+          if(!extrapolate(*el_t2calo_clus,trkIter,etaAtCalo,phiAtCalo)){
+              ATH_MSG_VERBOSE("extrapolator failed 1");
+              m_extrapolator_failed++;  
+              continue; 
+          }
+          // all ok: do track-matching cuts
+          ATH_MSG_VERBOSE("extrapolated eta/phi=" << etaAtCalo << "/" << phiAtCalo);
+          // match in eta
+          float dEtaCalo = fabs(etaAtCalo - calo_eta);
+          if ( dEtaCalo > m_calotrackdeta){ 
+              ATH_MSG_VERBOSE("failed eta match cut");
+              continue;
+          }
 
-              // match in ET/PT
-              float etoverpt = fabs(calo_et/trkPt);
-              if (etoverpt > m_calotrackdeoverp_low[etaBin] || m_acceptAll) {
-                  ATH_MSG_VERBOSE("passed low cut on ET/PT");
+          // match in phi: deal with differences larger than Pi
+          float dPhiCalo =  fabs(phiAtCalo - calo_phi);
+          dPhiCalo       = ( dPhiCalo < M_PI ? dPhiCalo : 2*M_PI - dPhiCalo );
+          if ( dPhiCalo > m_calotrackdphi) {
+              ATH_MSG_VERBOSE("failed phi match cut");
+              continue;
+          }
+          // all cuts passed
+          result = true;
+          /** Create a TrigElectron corresponding to this candidate
+            assume cluster quantities give better estimate of transverse energy
+            (probably a safe assumption for large pT) and that track parameters
+            at perigee give better estimates of angular quantities */
 
-                  if (etoverpt < m_calotrackdeoverp_high[etaBin] || m_acceptAll) {
-                      ATH_MSG_VERBOSE("passed high cut on ET/PT");
-
-                      // extrapolate track using tool
-                      // get calo extension 
-                      const Trk::CaloExtension* caloExtension = 0; 
-                      bool useCaching = false; 
-
-                      if( !m_caloExtensionTool->caloExtension(*trkIter,caloExtension,useCaching) || caloExtension->caloLayerIntersections().empty() ) { 
-                          ATH_MSG_VERBOSE("extrapolator failed 1");
-                          m_extrapolator_failed++;  
-                          continue; 
-                      }  
-                      // extract eta/phi in EM2 
-                      CaloExtensionHelpers::EtaPhiPerLayerVector intersections; 
-                      CaloExtensionHelpers::midPointEtaPhiPerLayerVector( *caloExtension, intersections, &layersToSelect ); 
-                      if( intersections.empty() ) { 
-                          ATH_MSG_VERBOSE("extrapolator failed 2");
-                          m_extrapolator_failed++; 
-                          continue; 
-                      }  
-                      // pick the correct sample in case of ambiguity 
-                      std::tuple<CaloSampling::CaloSample, double, double> etaPhiTuple = intersections.front(); 
-                      if( intersections.size() == 2 )  
-                          if ( (*el_t2calo_clus)->energy(CaloSampling::CaloSample::EME2) > (*el_t2calo_clus)->energy(CaloSampling::CaloSample::EMB2) ) 
-                              etaPhiTuple=intersections.back(); 
-                      double etaAtCalo = std::get<1>(etaPhiTuple); 
-                      double phiAtCalo = std::get<2>(etaPhiTuple); 
-                      
-                      // all ok: do track-matching cuts
-                      ATH_MSG_VERBOSE("extrapolated eta/phi=" << etaAtCalo << "/" << phiAtCalo);
-
-                      // match in eta
-                      float dEtaCalo = fabs(etaAtCalo - calo_eta);
-                      if ( dEtaCalo < temp_calotrackdeta[etaBin] || m_acceptAll) {
-                          ATH_MSG_VERBOSE("passed eta match cut");
-                          
-                          // match in phi: deal with differences larger than Pi
-                          float dPhiCalo =  fabs(phiAtCalo - calo_phi);
-                          dPhiCalo       = ( dPhiCalo < M_PI ? dPhiCalo : 2*M_PI - dPhiCalo );
-                          if ( dPhiCalo < temp_calotrackdphi[etaBin] || m_acceptAll) {
-                              ATH_MSG_VERBOSE("passed phi match cut");
-                              // all cuts passed
-                              result = true;
-                              /** Create a TrigElectron corresponding to this candidate
-                                assume cluster quantities give better estimate of transverse energy
-                                (probably a safe assumption for large pT) and that track parameters
-                                at perigee give better estimates of angular quantities */
-
-                              ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster = " <<
-                                      el_t2calo_clus.getStorableObjectPointer() << " index = " << el_t2calo_clus.index() <<
-                                      " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
-                              xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
-                              m_trigElecColl->push_back(trigElec);
-                              trigElec->init(  initialRoI->roiWord(),
-                                      etaAtCalo, phiAtCalo,  etoverpt,        
-                                      el_t2calo_clus,
-                                      trkLink);
-                          } // dphi
-                      } // deta
-                  } //eoverPhi
-              } //eoverPlow
-          } //tmp track pt
-      } // track type
+          ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster = " <<
+                  el_t2calo_clus.getStorableObjectPointer() << " index = " << el_t2calo_clus.index() <<
+                  " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
+          xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
+          m_trigElecColl->push_back(trigElec);
+          trigElec->init(  initialRoI->roiWord(),
+                  etaAtCalo, phiAtCalo,  etoverpt,        
+                  el_t2calo_clus,
+                  trkLink);
+      }
   }
 
   // set output TriggerElement unless acceptAll is set
@@ -398,4 +312,37 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   // Requires NULL pointer for monitoring?
   m_trigElecColl = nullptr;
   return HLT::OK;
+}
+
+bool TrigL2ElectronFex::extrapolate(const xAOD::TrigEMCluster *clus, const xAOD::TrackParticle *trk, double &etaAtCalo, double &phiAtCalo){
+    CaloExtensionHelpers::LayersToSelect layersToSelect; 
+    layersToSelect.insert(CaloSampling::CaloSample::EMB2); 
+    layersToSelect.insert(CaloSampling::CaloSample::EME2); 
+    // extrapolate track using tool
+    // get calo extension 
+    const Trk::CaloExtension* caloExtension = 0; 
+    bool useCaching = false; 
+
+    if( !m_caloExtensionTool->caloExtension(*trk,caloExtension,useCaching) || caloExtension->caloLayerIntersections().empty() ) {
+        ATH_MSG_VERBOSE("extrapolator failed 1");
+        m_extrapolator_failed++;  
+        return false;
+    }  
+    // extract eta/phi in EM2 
+    CaloExtensionHelpers::EtaPhiPerLayerVector intersections; 
+    CaloExtensionHelpers::midPointEtaPhiPerLayerVector( *caloExtension, intersections, &layersToSelect ); 
+    if( intersections.empty() ) { 
+        ATH_MSG_VERBOSE("extrapolator failed 2");
+        m_extrapolator_failed++;  
+        return false;
+    }  
+    // pick the correct sample in case of ambiguity 
+    std::tuple<CaloSampling::CaloSample, double, double> etaPhiTuple = intersections.front(); 
+    if( intersections.size() == 2 )  
+        if ( clus->energy(CaloSampling::CaloSample::EME2) > clus->energy(CaloSampling::CaloSample::EMB2) ) 
+            etaPhiTuple=intersections.back(); 
+    etaAtCalo = std::get<1>(etaPhiTuple); 
+    phiAtCalo = std::get<2>(etaPhiTuple); 
+
+    return true;
 }
