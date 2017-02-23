@@ -13,15 +13,18 @@ set -e
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: checkout_Gaudi.sh <-t branch/tag> " \
-        "<-s source directory> [-o hash_file.txt]"
+    echo "Usage: checkout_Gaudi.sh [options]"
+    echo "  Options:"
+    echo "    -t branch/tag: Mandatory branch/tag/hash to check out"
+    echo "    -s directory: Mandatory source directory to use"
+    echo "    -e url: Optional source URL to use for the checkout"
 }
 
 # Parse the command line arguments:
 TAGBRANCH=""
 SOURCEDIR=""
-HASHFILE=""
-while getopts ":t:o:s:h" opt; do
+GAUDIURL="https://gitlab.cern.ch/atlas/Gaudi.git"
+while getopts ":t:o:s:e:h" opt; do
     case $opt in
         t)
             TAGBRANCH=$OPTARG
@@ -29,8 +32,8 @@ while getopts ":t:o:s:h" opt; do
         s)
             SOURCEDIR=$OPTARG
             ;;
-        o)
-            HASHFILE=$OPTARG
+        e)
+            GAUDIURL=$OPTARG
             ;;
         h)
             usage
@@ -58,33 +61,16 @@ fi
 
 # Tell the user what will happen:
 echo "Checking out Gaudi tag/branch: $TAGBRANCH"
-if [ "$HASHFILE" != "" ]; then
-    echo "Writing the commit hash into file: $HASHFILE"
-fi
+echo "   from: $GAUDIURL"
 
 if [ ! -d "${SOURCEDIR}" ]; then
     # Clone the repository:
-    git clone https://gitlab.cern.ch/atlas/Gaudi.git \
-    ${SOURCEDIR}
+    git clone ${GAUDIURL} ${SOURCEDIR}
 else
     echo "${SOURCEDIR} already exists -> assume previous checkout"
 fi
 
-# Get the appropriate tag of it:
+# Get the appropriate version of it:
 cd ${SOURCEDIR}
-git fetch origin
-git checkout ${TAGBRANCH}
-
-# If this is a branch, fast forward to the latest version of it:
-if git show-ref -q --verify "refs/heads/${TAGBRANCH}" 2>/dev/null; then
-    git reset --hard ${TAGBRANCH}
-fi
-
-# If an output file was not specified, stop here:
-if [ "$HASHFILE" = "" ]; then
-    exit 0
-fi
-
-# Write the hash of whatever we have checked out currently, into the
-# specified output file:
-git rev-parse ${TAGBRANCH} > ${HASHFILE}
+git fetch --prune origin
+git checkout -f ${TAGBRANCH}
