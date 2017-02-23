@@ -3,11 +3,11 @@
 */
 
 #include "LArG4H62004CalibSD.h"
-#include "LArG4Code/VCalibrationCalculator.h"
+#include "LArG4Code/ILArCalibCalculatorSvc.h"
 
 #undef DEBUG_SD
 
-LArG4H62004CalibSD::LArG4H62004CalibSD(G4String a_name, LArG4::VCalibrationCalculator* calc,bool doPID):
+LArG4H62004CalibSD::LArG4H62004CalibSD(G4String a_name, ILArCalibCalculatorSvc* calc,bool doPID):
   LArG4CalibSD(a_name,calc,doPID)
 {
 #ifdef DEBUG_SD
@@ -20,8 +20,10 @@ G4bool LArG4H62004CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhi
 #ifdef DEBUG_SD
   std::cout << "my name: "<<this->GetName()<<", calc: "<<LArG4::m_calculator<<std::endl;
 #endif
+  LArG4Identifier ident;
+  std::vector<G4double> energies;
   // Convert the G4Step into identifier and energy.
-  G4bool valid = m_calculator->Process(a_step, LArG4::VCalibrationCalculator::kEnergyAndID);
+  G4bool valid = m_calculator->Process(a_step, ident, energies, LArG4::kEnergyAndID);
 
   // Check that hit was valid.  (It might be invalid if, for example,
   // it occurred outside the sensitive region.  If such a thing
@@ -35,9 +37,6 @@ G4bool LArG4H62004CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhi
       return false;
     }
 
-  // Fetch the values from the calculator.
-  LArG4Identifier ident = m_calculator->identifier();
-  std::vector<G4double> energies = m_calculator->energies();
   // Changing the ident to comply with H6 dictionary
   if(ident[1] == 1) { // EMEC module
     ident[6] += 8; // change phi id
@@ -64,13 +63,13 @@ G4bool LArG4H62004CalibSD::SpecialHit(G4Step* a_step,
   std::cout<<"LArG4H62004CalibSD::SpecialHit called, calling calculator..."<<std::endl;
 #endif
   // Convert the G4Step into an identifier.
-  G4bool valid = m_calculator->Process( a_step, LArG4::VCalibrationCalculator::kOnlyID );
+  LArG4Identifier ident;
+  std::vector<double> energies;
+  G4bool valid = m_calculator->Process( a_step, ident, energies, LArG4::kOnlyID );
 
   // If we can't calculate the identifier, something is wrong.
   if ( ! valid ) return false;
 
-  // Fetch the identifier from the calculator.
-  LArG4Identifier ident = m_calculator->identifier();
   // Changing the ident to comply with H6 dictionary
   if(ident[1] == 1) { // EMEC module
     ident[6] += 8; // change phi id
