@@ -541,9 +541,6 @@ bool TRTCalibrator::calibrate() {
   msg(MSG::INFO) << Chip.PrintInfo() << endmsg;
   msg(MSG::INFO) << Straw.PrintInfo() << endmsg;
   msg(MSG::INFO) << endmsg;
-//   msg(MSG::INFO) << WholeBarrel.PrintInfo() << endmsg;
-//   msg(MSG::INFO) << WholeBarrelLayer.PrintInfo() << endmsg;
-//   msg(MSG::INFO) << endmsg;
 
   if (m_DoArXenonSep){
   //print some info
@@ -979,9 +976,6 @@ bool TRTCalibrator::calibrate() {
   msg(MSG::INFO) << Board.PrintStat() << endmsg;
   msg(MSG::INFO) << Chip.PrintStat() << endmsg;
   msg(MSG::INFO) << Straw.PrintStat() << endmsg;
-  //msg(MSG::INFO) << endmsg;
-  //msg(MSG::INFO) << WholeBarrel.PrintStat() << endmsg;
-  //msg(MSG::INFO) << WholeBarrelLayer.PrintStat() << endmsg;
   msg(MSG::INFO) << endmsg;
 
 
