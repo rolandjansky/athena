@@ -23,8 +23,15 @@ def use_nystromrk4_stepper():
 
 ## Use verbose G4 tracking
 def use_verbose_tracking():
-    from G4AtlasApps import AtlasG4Eng
-    AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.G4Commands += ['/tracking/verbose 1']
+
+## Do a recursive geometry test
+def do_recursive_geometry_test():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.G4Commands += ["/geometry/test/recursion_start 0"]
+    simFlags.G4Commands += ["/geometry/test/recursion_depth 2"]
+    simFlags.G4Commands += ["/geometry/test/recursive_test"]
 
 # Add a truth catch for LLP decay processes
 def add_LLP_truth_strategies():
