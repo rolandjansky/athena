@@ -107,44 +107,24 @@ ISF::CollectionMerger::~CollectionMerger()
 /** Athena Algorithm initialize */
 StatusCode ISF::CollectionMerger::initialize()
 {
-  ATH_CHECK( setupReadHandleKeyVector(m_inputBCMHitsSGKeys,             m_inputBCMHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputBLMHitsSGKeys,             m_inputBLMHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputPixelHitsSGKeys,           m_inputPixelHits          ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputSCTHitsSGKeys,             m_inputSCTHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputTRTUncompressedHitsSGKeys, m_inputTRTUncompressedHits) );
+  ATH_CHECK( setupReadHandleVector(m_inputBCMHitsSGKeys,             m_inputBCMHits            ) );
+  ATH_CHECK( setupReadHandleVector(m_inputBLMHitsSGKeys,             m_inputBLMHits            ) );
+  ATH_CHECK( setupReadHandleVector(m_inputPixelHitsSGKeys,           m_inputPixelHits          ) );
+  ATH_CHECK( setupReadHandleVector(m_inputSCTHitsSGKeys,             m_inputSCTHits            ) );
+  ATH_CHECK( setupReadHandleVector(m_inputTRTUncompressedHitsSGKeys, m_inputTRTUncompressedHits) );
 
-  ATH_CHECK( setupReadHandleKeyVector(m_inputLArEMBHitsSGKeys,          m_inputLArEMBHits         ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputLArEMECHitsSGKeys,         m_inputLArEMECHits        ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputLArFCALHitsSGKeys,         m_inputLArFCALHits        ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputLArHECHitsSGKeys,          m_inputLArHECHits         ) );
+  ATH_CHECK( setupReadHandleVector(m_inputLArEMBHitsSGKeys,          m_inputLArEMBHits         ) );
+  ATH_CHECK( setupReadHandleVector(m_inputLArEMECHitsSGKeys,         m_inputLArEMECHits        ) );
+  ATH_CHECK( setupReadHandleVector(m_inputLArFCALHitsSGKeys,         m_inputLArFCALHits        ) );
+  ATH_CHECK( setupReadHandleVector(m_inputLArHECHitsSGKeys,          m_inputLArHECHits         ) );
 
-  ATH_CHECK( setupReadHandleKeyVector(m_inputTileHitsSGKeys,            m_inputTileHits           ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputMBTSHitsSGKeys,            m_inputMBTSHits           ) );
+  ATH_CHECK( setupReadHandleVector(m_inputTileHitsSGKeys,            m_inputTileHits           ) );
+  ATH_CHECK( setupReadHandleVector(m_inputMBTSHitsSGKeys,            m_inputMBTSHits           ) );
 
-  ATH_CHECK( setupReadHandleKeyVector(m_inputCSCHitsSGKeys,             m_inputCSCHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputMDTHitsSGKeys,             m_inputMDTHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputRPCHitsSGKeys,             m_inputRPCHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputTGCHitsSGKeys,             m_inputTGCHits            ) );
-
-
-  ATH_CHECK( initializeVarHandleKey(m_outputBCMHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputBLMHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputPixelHits          ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputSCTHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputTRTUncompressedHits) );
-
-  ATH_CHECK( initializeVarHandleKey(m_outputLArEMBHits         ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputLArEMECHits        ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputLArFCALHits        ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputLArHECHits         ) );
-
-  ATH_CHECK( initializeVarHandleKey(m_outputTileHits           ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputMBTSHits           ) );
-
-  ATH_CHECK( initializeVarHandleKey(m_outputCSCHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputMDTHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputRPCHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputTGCHits            ) );
+  ATH_CHECK( setupReadHandleVector(m_inputCSCHitsSGKeys,             m_inputCSCHits            ) );
+  ATH_CHECK( setupReadHandleVector(m_inputMDTHitsSGKeys,             m_inputMDTHits            ) );
+  ATH_CHECK( setupReadHandleVector(m_inputRPCHitsSGKeys,             m_inputRPCHits            ) );
+  ATH_CHECK( setupReadHandleVector(m_inputTGCHitsSGKeys,             m_inputTGCHits            ) );
 
   return StatusCode::SUCCESS;
 }
@@ -175,17 +155,3 @@ StatusCode ISF::CollectionMerger::execute()
   return StatusCode::SUCCESS;
 }
 
-
-/** Athena Algorithm finalize */
-StatusCode ISF::CollectionMerger::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
-/** Initialize the given VarHandleKey */
-StatusCode ISF::CollectionMerger::initializeVarHandleKey( SG::VarHandleKey& varHandleKey ) const {
-  if ( varHandleKey.key().empty() )
-    return StatusCode::SUCCESS;
-  
-  return varHandleKey.initialize();
-}

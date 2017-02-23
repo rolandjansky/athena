@@ -25,7 +25,6 @@
 #include "../src/CollectionMerger.h"
 
 
-
 namespace ISFTesting {
 
 // needed every time an AthAlgorithm, AthAlgTool or AthService is instantiated
@@ -68,13 +67,8 @@ class CollectionMerger_test : public ::testing::Test {
     //     CollectionMerger AthAlgorithm
     //
     template<typename... Args>
-    StatusCode initializeVarHandleKey(Args&&... args) const {
-      return m_alg->initializeVarHandleKey(std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    StatusCode setupReadHandleKeyVector(Args&&... args) const {
-      return m_alg->setupReadHandleKeyVector(std::forward<Args>(args)...);
+    StatusCode setupReadHandleVector(Args&&... args) const {
+      return m_alg->setupReadHandleVector(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
@@ -92,111 +86,119 @@ TEST_F(CollectionMerger_test, empty_alg_execute) {
 }
 
 
-TEST_F(CollectionMerger_test, initializeVarHandleKey) {
-  SG::VarHandleKey testKey{ 123456789 /* clid */,
-                            std::string("testKey"),
-                            Gaudi::DataHandle::Reader };
-  ASSERT_TRUE( initializeVarHandleKey(testKey).isSuccess() );
-  ASSERT_TRUE( testKey.storeHandle().isSet() );
-}
+TEST_F(CollectionMerger_test, setupReadHandleVector__emptySGKeysVector__expectEmptyReadHandleVector) {
+  std::vector<std::string> sgKeys{};
+  std::vector<SG::ReadHandle<TestHitCollection_t>> readHandles{};
 
-
-TEST_F(CollectionMerger_test, initializeVarHandleKey_emptyKey) {
-  SG::VarHandleKey emptyTestKey{ 123456789 /* clid */,
-                                 std::string(),
-                                 Gaudi::DataHandle::Reader };
-  ASSERT_TRUE( initializeVarHandleKey(emptyTestKey).isSuccess() );
-  ASSERT_TRUE( !emptyTestKey.storeHandle().isSet() );
-}
-
-
-TEST_F(CollectionMerger_test, setupReadHandleKeyVector) {
-  std::vector<std::string>                            sgKeys{};
-  std::vector<SG::ReadHandleKey<TestHitCollection_t>> readHandles{};
-
-  ASSERT_TRUE( setupReadHandleKeyVector(sgKeys, readHandles).isSuccess() );
+  ASSERT_TRUE( setupReadHandleVector(sgKeys, readHandles).isSuccess() );
   ASSERT_TRUE( readHandles.empty() );
-
-  sgKeys.emplace_back( "testKeyA" );
-  sgKeys.emplace_back( "testKeyB" );
-  sgKeys.emplace_back( "testKeyC" );
-
-  ASSERT_TRUE( setupReadHandleKeyVector(sgKeys, readHandles).isSuccess() );
-  ASSERT_EQ( readHandles.size(), 3 );
-  ASSERT_EQ( readHandles.at(0).key(), "testKeyA" );
-  ASSERT_TRUE( readHandles.at(0).clid() );
-  ASSERT_EQ( readHandles.at(0).mode(), Gaudi::DataHandle::Reader );
-  ASSERT_TRUE( readHandles.at(0).storeHandle().isSet() );
-  ASSERT_EQ( readHandles.at(1).key(), "testKeyB" );
-  ASSERT_TRUE( readHandles.at(1).clid() );
-  ASSERT_EQ( readHandles.at(1).mode(), Gaudi::DataHandle::Reader );
-  ASSERT_TRUE( readHandles.at(1).storeHandle().isSet() );
-  ASSERT_EQ( readHandles.at(2).key(), "testKeyC" );
-  ASSERT_TRUE( readHandles.at(2).clid() );
-  ASSERT_EQ( readHandles.at(2).mode(), Gaudi::DataHandle::Reader );
-  ASSERT_TRUE( readHandles.at(2).storeHandle().isSet() );
 }
 
 
-TEST_F(CollectionMerger_test, setupReadHandleKeyVector_emptyKey) {
-  std::vector<std::string>                            sgKeys{"testKeyA", std::string(), "testKeyC"};
-  std::vector<SG::ReadHandleKey<TestHitCollection_t>> readHandles{};
+TEST_F(CollectionMerger_test, setupReadHandleVector__oneNonExistingSGCollectionInSGKeysVector__expectFailure) {
+  // populating test collections on StoreGate
+  SG::WriteHandle<TestHitCollection_t> testCollectionA1("testKeyA0");
+  testCollectionA1 = CxxUtils::make_unique<TestHitCollection_t>();
+  // -> skipping testKeyB2
+  SG::WriteHandle<TestHitCollection_t> testCollectionC1("testKeyC0");
+  testCollectionC1 = CxxUtils::make_unique<TestHitCollection_t>();
+
+  std::vector<std::string> sgKeys{"testKeyA0", "testKeyB0", "testKeyC0"};
+  std::vector<SG::ReadHandle<TestHitCollection_t>> readHandles{};
+
+  ASSERT_TRUE( setupReadHandleVector(sgKeys, readHandles).isFailure() );
+}
+
+
+TEST_F(CollectionMerger_test, setupReadHandleVector__filledSGKeysVectorFilledCollections__expectValidReadHandles) {
+  // populating test collections on StoreGate
+  SG::WriteHandle<TestHitCollection_t> testCollectionA1("testKeyA1");
+  testCollectionA1 = CxxUtils::make_unique<TestHitCollection_t>();
+  SG::WriteHandle<TestHitCollection_t> testCollectionB1("testKeyB1");
+  testCollectionB1 = CxxUtils::make_unique<TestHitCollection_t>();
+  SG::WriteHandle<TestHitCollection_t> testCollectionC1("testKeyC1");
+  testCollectionC1 = CxxUtils::make_unique<TestHitCollection_t>();
+
+  std::vector<std::string> sgKeys{"testKeyA1", "testKeyB1", "testKeyC1"};
+  std::vector<SG::ReadHandle<TestHitCollection_t>> readHandles{};
+
+  ASSERT_TRUE( setupReadHandleVector(sgKeys, readHandles).isSuccess() );
+
+  ASSERT_EQ( readHandles.size(), 3 );
+  ASSERT_EQ( readHandles.at(0).key(), "testKeyA1" );
+  ASSERT_TRUE( readHandles.at(0).isValid() );
+  ASSERT_EQ( readHandles.at(1).key(), "testKeyB1" );
+  ASSERT_TRUE( readHandles.at(1).isValid() );
+  ASSERT_EQ( readHandles.at(2).key(), "testKeyC1" );
+  ASSERT_TRUE( readHandles.at(2).isValid() );
+}
+
+
+TEST_F(CollectionMerger_test, setupReadHandleVector__oneEmptySGKeyString__expectFailure) {
+  // populating test collections on StoreGate
+  SG::WriteHandle<TestHitCollection_t> testCollectionA2("testKeyA2");
+  testCollectionA2 = CxxUtils::make_unique<TestHitCollection_t>();
+  SG::WriteHandle<TestHitCollection_t> testCollectionB2("testKeyB2");
+  testCollectionB2 = CxxUtils::make_unique<TestHitCollection_t>();
+
+  std::vector<std::string> sgKeys{"testKeyA2", std::string(), "testKeyB2"};
+  std::vector<SG::ReadHandle<TestHitCollection_t>> readHandles{};
 
   // isFailure because of the empty string in the sgKeys vector
-  ASSERT_TRUE( setupReadHandleKeyVector(sgKeys, readHandles).isFailure() );
+  ASSERT_TRUE( setupReadHandleVector(sgKeys, readHandles).isFailure() );
 }
 
 
-TEST_F(CollectionMerger_test, mergeCollections) {
-  std::vector<SG::ReadHandleKey<TestHitCollection_t>> inputKeys{};
-  SG::WriteHandleKey<TestHitCollection_t>             outputKey{"outputCollectionMergeTest"};
-  ASSERT_TRUE( outputKey.initialize().isSuccess() );
+TEST_F(CollectionMerger_test, mergeCollections__emptySGInputKeysVector__expectSuccess) {
+  std::vector<SG::ReadHandle<TestHitCollection_t>> inputKeys{};
+  SG::WriteHandle<TestHitCollection_t> outputWriteHandle{"outputCollectionMergeTest1"};
 
   // should not fail, just does nothing
-  mergeCollections(inputKeys, outputKey);
+  mergeCollections(inputKeys, outputWriteHandle);
+}
 
+
+TEST_F(CollectionMerger_test, mergeCollections__filledInputCollections__expectMergedDataInOutputCollection) {
   // create dummy input collections containing dummy data
-  auto                                 inputTestDataA = CxxUtils::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleA{"inputCollectionA"};
-  inputTestDataHandleA.record( std::move(inputTestDataA) );
+  inputTestDataHandleA = CxxUtils::make_unique<TestHitCollection_t>();
   inputTestDataHandleA->Emplace(1);
   inputTestDataHandleA->Emplace(20);
   inputTestDataHandleA->Emplace(5);
 
-  auto                                 inputTestDataB = CxxUtils::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleB{"inputCollectionB"};
-  inputTestDataHandleB.record( std::move(inputTestDataB) );
+  inputTestDataHandleB = CxxUtils::make_unique<TestHitCollection_t>();
   inputTestDataHandleB->Emplace(50);
   inputTestDataHandleB->Emplace(1);
 
-  auto                                 inputTestDataC = CxxUtils::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleC{"inputCollectionC"};
-  inputTestDataHandleC.record( std::move(inputTestDataC) );
+  inputTestDataHandleC = CxxUtils::make_unique<TestHitCollection_t>();
   inputTestDataHandleC->Emplace(20);
   inputTestDataHandleC->Emplace(5);
   inputTestDataHandleC->Emplace(1);
 
-  // add inputCollections with test data to inputKeys for later merging
+  // add inputCollections with test data to inputReadHandles for later merging
   // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-  inputKeys.emplace_back( "inputCollectionA" );
-  inputKeys.emplace_back( "inputCollectionC" );
-  inputKeys.emplace_back( "inputCollectionB" );
-  ASSERT_TRUE( inputKeys.at(0).initialize().isSuccess() );
-  ASSERT_TRUE( inputKeys.at(1).initialize().isSuccess() );
-  ASSERT_TRUE( inputKeys.at(2).initialize().isSuccess() );
+  std::vector<SG::ReadHandle<TestHitCollection_t>> inputReadHandles{};
+  inputReadHandles.emplace_back( "inputCollectionA" );
+  inputReadHandles.emplace_back( "inputCollectionC" );
+  inputReadHandles.emplace_back( "inputCollectionB" );
+  ASSERT_TRUE( inputReadHandles.at(0).isValid() );
+  ASSERT_TRUE( inputReadHandles.at(1).isValid() );
+  ASSERT_TRUE( inputReadHandles.at(2).isValid() );
+
+  SG::WriteHandle<TestHitCollection_t> outputWriteHandle{"outputCollectionMergeTest2"};
 
   // access the inputTestData
-  mergeCollections(inputKeys, outputKey);
+  mergeCollections(inputReadHandles, outputWriteHandle);
 
-  // test "outputCollectionMergeTest" contents
-  SG::ReadHandleKey<TestHitCollection_t>  mergedCollectionKey{"outputCollectionMergeTest"};
-  ASSERT_TRUE( mergedCollectionKey.initialize().isSuccess() );
-  SG::ReadHandle<TestHitCollection_t>     mergedCollectionHandle{mergedCollectionKey};
+  // test "outputCollectionMergeTest2" contents
+  SG::ReadHandle<TestHitCollection_t> mergedCollectionHandle{"outputCollectionMergeTest2"};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
   ASSERT_EQ( mergedCollectionHandle->size(), 3+2+3 );
 
-  auto& mergedCollectionVector = mergedCollectionHandle->getVector();
+  const auto& mergedCollectionVector = mergedCollectionHandle->getVector();
   ASSERT_EQ( mergedCollectionVector.at(0).m_value, 1  ); // inputCollectionA
   ASSERT_EQ( mergedCollectionVector.at(1).m_value, 20 ); // inputCollectionA
   ASSERT_EQ( mergedCollectionVector.at(2).m_value, 5  ); // inputCollectionA
@@ -208,7 +210,7 @@ TEST_F(CollectionMerger_test, mergeCollections) {
 }
 
 
-TEST_F(CollectionMerger_test, integration_with_data) {
+TEST_F(CollectionMerger_test, initializeAndexecute__propertiesSetAndFilledCollections__expectMergedDataInOutputCollection) {
   // ordering A, C, B is on purpose to test for unintended alphabetic ordering
   std::string inputPropertyValue = "['inputPixelCollectionIntegrationTestA',"
                                     "'inputPixelCollectionIntegrationTestC',"
@@ -219,22 +221,19 @@ TEST_F(CollectionMerger_test, integration_with_data) {
 
   // create dummy input collections containing dummy data
   HepGeom::Point3D<double> pos(0.,0.,0.);
-  auto                                 inputTestDataA = CxxUtils::make_unique<SiHitCollection>();
   SG::WriteHandle<SiHitCollection> inputTestDataHandleA{"inputPixelCollectionIntegrationTestA"};
-  inputTestDataHandleA.record( std::move(inputTestDataA) );
+  inputTestDataHandleA = CxxUtils::make_unique<SiHitCollection>();
   inputTestDataHandleA->Emplace( pos, pos, 1., 1.,  1, 0 );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1.,  5, 0 );
 
-  auto                                 inputTestDataB = CxxUtils::make_unique<SiHitCollection>();
   SG::WriteHandle<SiHitCollection> inputTestDataHandleB{"inputPixelCollectionIntegrationTestB"};
-  inputTestDataHandleB.record( std::move(inputTestDataB) );
+  inputTestDataHandleB = CxxUtils::make_unique<SiHitCollection>();
   inputTestDataHandleB->Emplace( pos, pos, 1., 1., 50, 0 );
   inputTestDataHandleB->Emplace( pos, pos, 1., 1.,  1, 0 );
 
-  auto                                 inputTestDataC = CxxUtils::make_unique<SiHitCollection>();
   SG::WriteHandle<SiHitCollection> inputTestDataHandleC{"inputPixelCollectionIntegrationTestC"};
-  inputTestDataHandleC.record( std::move(inputTestDataC) );
+  inputTestDataHandleC = CxxUtils::make_unique<SiHitCollection>();
   inputTestDataHandleC->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1.,  5, 0 );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1.,  1, 0 );
@@ -243,14 +242,12 @@ TEST_F(CollectionMerger_test, integration_with_data) {
   ASSERT_TRUE( m_alg->execute().isSuccess() );
 
   // test "outputPixelCollectionIntegrationTest" contents
-  SG::ReadHandleKey<SiHitCollection>  mergedCollectionKey{"outputPixelCollectionIntegrationTest"};
-  ASSERT_TRUE( mergedCollectionKey.initialize().isSuccess() );
-  SG::ReadHandle<SiHitCollection>     mergedCollectionHandle{mergedCollectionKey};
+  SG::ReadHandle<SiHitCollection> mergedCollectionHandle{"outputPixelCollectionIntegrationTest"};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
   ASSERT_EQ( mergedCollectionHandle->size(), 3+2+3 );
 
-  auto& mergedCollectionVector = mergedCollectionHandle->getVector();
+  const auto& mergedCollectionVector = mergedCollectionHandle->getVector();
   ASSERT_EQ( mergedCollectionVector.at(0).trackNumber(), 1  ); // inputPixelCollectionIntegrationTestA
   ASSERT_EQ( mergedCollectionVector.at(1).trackNumber(), 20 ); // inputPixelCollectionIntegrationTestA
   ASSERT_EQ( mergedCollectionVector.at(2).trackNumber(), 5  ); // inputPixelCollectionIntegrationTestA
