@@ -11,17 +11,12 @@
 // simulation.
 
 #undef DEBUG_HITS
-#define DEBUG_VOLUMES
+#undef DEBUG_VOLUMES
 #undef DEBUG_DMXYZ
 
-#include "LArG4EC/EMECSupportCalibrationCalculator.h"
-#ifdef DEBUG_DMXYZ
-#include "LArG4Code/CalibrationDefaultCalculator.h"
-#endif
-#include "LArG4EC/CryostatCalibrationLArCalculator.h"
+#include "EMECSupportCalibrationCalculator.h"
 
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4Code/VCalibrationCalculator.h"
 
 // direct access to database
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -49,8 +44,6 @@ namespace Units = Athena::Units;
 
 
 namespace LArG4 {
-
-  VCalibrationCalculator* EMECSupportCalibrationCalculator::m_backupCalculator = 0;
 
   ///////////////////////////////////////////////////////////
     // Local class to store detector parameters for calculator
@@ -173,39 +166,48 @@ namespace LArG4 {
   // Methods
   ///////////////////////////////////////////////////////////
 
-  EMECSupportCalibrationCalculator::EMECSupportCalibrationCalculator() : m_par(new Parameters()),
-									 m_parameters(0)
+  EMECSupportCalibrationCalculator::EMECSupportCalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator)
+    : LArCalibCalculatorSvcImp(name, pSvcLocator)
+    , m_par(nullptr)
+    , m_backupCalculator("EndcapCryostatCalibrationLArCalculator",name)
   {
-    // Get a "backup" calculator.
-    if ( m_backupCalculator == 0)
-      m_backupCalculator = new EndcapCryostat::CalibrationLArCalculator();
+   declareProperty("BackupCalculator",m_backupCalculator);
+  }
+
+  StatusCode EMECSupportCalibrationCalculator::initialize() {
+    ATH_CHECK(m_backupCalculator.retrieve());
+    m_par = new Parameters();
+    return StatusCode::SUCCESS;
   }
 
 
   EMECSupportCalibrationCalculator::~EMECSupportCalibrationCalculator()
   {
     // Cleanup pointers.
-    delete m_backupCalculator;
-    m_backupCalculator = 0;
+    //delete m_backupCalculator;
+    //m_backupCalculator = 0;
     delete m_par;
   }
 
-  G4bool EMECSupportCalibrationCalculator::Process( const G4Step* a_step,
-            const eCalculatorProcessing a_process )
+  G4bool EMECSupportCalibrationCalculator::Process (const G4Step* a_step,
+                  LArG4Identifier & _identifier,
+                  std::vector<G4double> & _energies,
+                  const eCalculatorProcessing a_process) const
   {
     // Use the calculators to determine the energies and the
     // identifier associated with this G4Step.  Note that the
     // default is to process both the energy and the ID.
 
-    m_energies.clear();
-    if ( a_process == kEnergyAndID  ||  a_process == kOnlyEnergy ) {
-      m_energyCalculator.Energies( a_step, m_energies );
+    _energies.reserve(4);
+    _energies.clear();
+    if ( a_process == LArG4::kEnergyAndID  ||  a_process == LArG4::kOnlyEnergy ) {
+      m_energyCalculator.Energies( a_step, _energies );
     } else {
-      for (unsigned int i=0; i != 4; i++) m_energies.push_back( 0. );
+      for (unsigned int i=0; i != 4; i++) _energies.push_back( 0. );
     }
 
-    m_identifier.clear();
-    if ( a_process == kEnergyAndID  ||  a_process == kOnlyID )
+    _identifier.clear();
+    if ( a_process == LArG4::kEnergyAndID  ||  a_process == LArG4::kOnlyID )
     {
       static const double oneOverDeta = 10.;       //   1/Deta = 1./0.1 = 10.
       static const double oneOverDphi = 32./M_PI;  //   1/Dphi
@@ -238,7 +240,10 @@ namespace LArG4 {
 
       if(name.index("LArMgr::") == 0) name.erase(0,8);
 
+#if defined (DEBUG_VOLUMES) || defined (DEBUG_HITS)
+      // The 'copy' variable is used only inside defines
       G4int copy = a_step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
+#endif 
 #ifdef DEBUG_HITS
       std::cout << "LArG4::EMECSupportCalibrationCalculator::Process"
         << "   G4Step in '" << name
@@ -454,7 +459,7 @@ namespace LArG4 {
       {
 // g.p. 09/05/2006
 #ifdef DEBUG_DMXYZ
-        LArG4::CalibrationDefaultCalculator::Print("UNEXP LArG4EC/EMECSupportCalibrationCalculator",m_identifier,a_step);
+        LArG4::CalibrationDefaultCalculator::Print("UNEXP LArG4EC/EMECSupportCalibrationCalculator",_identifier,a_step);
 #endif
 #if defined (DEBUG_VOLUMES) || defined (DEBUG_HITS)
        static const G4int messageMax = 1000;
@@ -477,11 +482,13 @@ namespace LArG4 {
             << std::endl;
         }
 #endif
-        m_backupCalculator->Process(a_step, kOnlyID);
-        m_identifier = m_backupCalculator->identifier();
+        //m_backupCalculator->Process(a_step, kOnlyID);
+        //_identifier = m_backupCalculator->identifier();
+        std::vector<G4double> _tmpv;
+        m_backupCalculator->Process(a_step, _identifier, _tmpv, kOnlyID);
       } else {
         // Append the cell ID to the (empty) identifier.
-        m_identifier << 10         // Calorimeter
+        _identifier << 10         // Calorimeter
           << subdet     // LAr +/-4 where "+" or " -" according to the sign of Z in World coorinate
           << type
           << sampling
@@ -489,26 +496,26 @@ namespace LArG4 {
           << etaBin
           << phiBin;
       }
-    }
+    } // end of if ( a_process == kEnergyAndID  ||  a_process == kOnlyID )
 
 #ifdef DEBUG_HITS
-//    G4double energy = accumulate(m_energies.begin(),m_energies.end(),0.);
+//    G4double energy = accumulate(_energies.begin(),_energies.end(),0.);
     std::cout << "LArG4::EMECSupportCalibrationCalculator::Process"
-      << " ID=" << std::string(m_identifier)
+      << " ID=" << std::string(_identifier)
 //      << " energy=" << energy
-      << " energies=(" << m_energies[0]
-      << "," << m_energies[1]
-      << "," << m_energies[2]
-      << "," << m_energies[3] << ")"
+      << " energies=(" << _energies[0]
+      << "," << _energies[1]
+      << "," << _energies[2]
+      << "," << _energies[3] << ")"
       << std::endl;
 #endif
 
 // g.p. 09/05/2006
 #ifdef DEBUG_DMXYZ
-    LArG4::CalibrationDefaultCalculator::Print("DMXYZ LArG4EC/EMECSupportCalibrationCalculator",m_identifier,a_step);
+    LArG4::CalibrationDefaultCalculator::Print("DMXYZ LArG4EC/EMECSupportCalibrationCalculator",_identifier,a_step);
 #endif
     // Check for bad result.
-    if ( m_identifier == LArG4Identifier() ) return false;
+    if ( _identifier == LArG4Identifier() ) return false;
 
     return true;
   }

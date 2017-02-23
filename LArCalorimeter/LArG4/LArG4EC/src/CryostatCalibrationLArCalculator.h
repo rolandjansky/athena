@@ -6,7 +6,7 @@
 // Prepared 19-Aug-2004 Bill Seligman
 
 // This class calculates the values needed for calibration hits in the
-// simulation. 
+// simulation.
 
 // A "calculator" is used in much the same way as a hand-held
 // calculator might be.  The user supplies a value and hits 'Enter'
@@ -21,7 +21,7 @@
 #ifndef LArG4_EndcapCryostat_CalibrationLArCalculator_H
 #define LArG4_EndcapCryostat_CalibrationLArCalculator_H
 
-#include "LArG4Code/VCalibrationCalculator.h"
+#include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 #include "CaloG4Sim/SimulationEnergies.h"
@@ -41,12 +41,13 @@ namespace LArG4 {
 
   namespace EndcapCryostat {
 
-    class CalibrationLArCalculator : public VCalibrationCalculator {
+    class CalibrationLArCalculator : public LArCalibCalculatorSvcImp {
     public:
-    
-      CalibrationLArCalculator();
+
+      CalibrationLArCalculator(const std::string& name, ISvcLocator *pSvcLocator);
+      StatusCode initialize() override final;
       virtual ~CalibrationLArCalculator();
-    
+
       // The Process method returns a boolean value.  If it's true, the
       // hit can be used by Geant4; if it's false, there's something wrong
       // with the energy deposit and it should be ignored.
@@ -58,21 +59,11 @@ namespace LArG4 {
       // yet, but you can never tell).  Use the enum (defined in
       // VCalibrationCalculator.h) to control any special processing.
 
-      virtual G4bool Process (const G4Step* step, 
-			      const eCalculatorProcessing p = kEnergyAndID);
-    
-      // The cell identifier determined by the Process method.
-      virtual const LArG4Identifier& identifier() const { return m_identifier; }
-    
-      // The calibration energies as determined by the Process method for
-      // the current G4Step.  Units are the native G4 unit of energy.
-      virtual const std::vector<G4double>& energies() const { return m_energies; }
+      virtual G4bool Process (const G4Step* step, LArG4Identifier & _identifier,
+                              std::vector<G4double> & _energies,
+                              const eCalculatorProcessing p = kEnergyAndID) const override final;
 
     private:
-
-      // The values calculated by Process().
-      LArG4Identifier m_identifier;
-      std::vector<G4double> m_energies;
 
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;
@@ -81,8 +72,24 @@ namespace LArG4 {
       LArVG4DetectorParameters* m_parameters;
 
       // For the default calculator (hopefully temporary).
-      static VCalibrationCalculator* m_defaultCalculator;
+      ServiceHandle<ILArCalibCalculatorSvc> m_defaultCalculator;
 
+      double m_rhoOutOfEmecHec;      // used as const after init
+      double m_zInFrontOfPresampler; // used as const after init
+      double m_zEMECRefPoint;        // used as const after init
+      double m_zInFrontOfSpanishFan; // used as const after init
+      double m_zInFrontOfHEC;        // used as const after init
+      double m_zBehindTile;          // used as const after init
+      double m_endZHEC1Wheel;        // used as const after init
+      double m_startZHEC2Wheel;      // used as const after init
+      inline double rhoOutOfEmecHec() const { return m_rhoOutOfEmecHec; };
+      inline double zInFrontOfPresampler() const { return m_zInFrontOfPresampler; };
+      inline double zEMECRefPoint() const { return m_zEMECRefPoint; };
+      inline double zInFrontOfSpanishFan() const { return m_zInFrontOfSpanishFan; };
+      inline double zInFrontOfHEC() const { return m_zInFrontOfHEC; };
+      inline double zBehindTile() const { return m_zBehindTile; };
+      inline double endZHEC1Wheel() const { return m_endZHEC1Wheel; };
+      inline double startZHEC2Wheel() const { return m_startZHEC2Wheel; };
     };
 
   } // namespace EndcapCryostat

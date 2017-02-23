@@ -8,26 +8,27 @@ author Mikhail Leltchouk <lelchuk@nevis.columbia.edu>
 # liquid-argon endcap cryostat, pre-sampler, and calorimeter.
 
 use AtlasPolicy    AtlasPolicy-*
-use LArG4Code      LArG4Code-*         LArCalorimeter/LArG4
-use LArGeoCode     LArGeoCode-*        LArCalorimeter/LArGeoModel
-use GeoSpecialShapes    GeoSpecialShapes-*      DetectorDescription/GeoModel
-
-use CaloG4Sim      CaloG4Sim-*      Calorimeter
-use Geant4         Geant4-*         External
+use AthenaBaseComps AthenaBaseComps-* Control
 
 # Build the library (and export the headers)
-library LArG4EC *.cc
-apply_pattern installed_library
+library LArG4EC *.cc  -s=components *.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
 
 #=======================================================
 private
-use AthenaKernel        AthenaKernel-*  Control
-use AtlasCLHEP      AtlasCLHEP-*        External
+use AthenaKernel        AthenaKernel-*          Control
 use GaudiInterface  GaudiInterface-*    External
+use Geant4         Geant4-*         External
 use GeoModelInterfaces GeoModelInterfaces-*   DetectorDescription/GeoModel
 use GeoModelUtilities  GeoModelUtilities-*   DetectorDescription/GeoModel
 use RDBAccessSvc    RDBAccessSvc-*      Database/AthenaPOOL
 use PathResolver    PathResolver-*      Tools
 use StoreGate       StoreGate-*         Control
-use LArG4RunControl LArG4RunControl-*   LArCalorimeter/LArG4
+use AtlasCLHEP      AtlasCLHEP-*        External
+#use LArG4RunControl LArG4RunControl-*   LArCalorimeter/LArG4
 use LArHV           LArHV-*             LArCalorimeter/LArGeoModel
+use LArG4Code      LArG4Code-*         LArCalorimeter/LArG4
+use LArGeoCode     LArGeoCode-*        LArCalorimeter/LArGeoModel
+use GeoSpecialShapes    GeoSpecialShapes-*      DetectorDescription/GeoModel
+use CaloG4Sim      CaloG4Sim-*      Calorimeter
