@@ -39,6 +39,8 @@ PURPOSE: Tool for calibrating the TRT
 
 TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent),
+  m_DetID(0),
+  m_TRTID(0),
   m_trtmanager(0),
   m_trtcaldbSvc("ITRT_CalDbSvc", name),
   m_neighbourSvc("ITRT_StrawNeighbourSvc", name),
@@ -66,7 +68,8 @@ TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, c
   m_useP0(true),
   m_floatP3(true),
   m_DoShortStrawCorrection(true),
-  m_DoArXenonSep(false)
+  m_DoArXenonSep(false),
+  m_histfile(0)
 {
   declareInterface<ITRTCalibrator>(this);
   declareProperty("TRTCalDbSvc",m_trtcaldbSvc);

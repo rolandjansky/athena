@@ -45,10 +45,12 @@ PURPOSE: Tool
 
 FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent),
+  m_DetID(NULL), m_TRTID(NULL),
   m_driftFunctionTool("TRT_DriftFunctionTool"),
   m_trtcaldbSvc("ITRT_CalDbSvc", name),
   m_neighbourSvc("ITRT_StrawNeighbourSvc", name), 
   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
+  m_eventInfo(NULL),
   m_maxDistance(2.8),
   m_maxTimeResidual(150),
   m_minTimebinsOverThreshold(2),
@@ -58,7 +60,9 @@ FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& n
   m_numOfProcessedTracks(0),
   m_comTimeName("TRT_Phase"),
   m_DoMCCosmicTimeShift(0),
-  m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator")
+  m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
+  m_updator(NULL),
+  m_f(NULL), m_ntuple(NULL)
 {
   declareInterface<IFillAlignTrkInfo>(this);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
@@ -363,27 +367,32 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
 			drrtrack        = sqrt(Amg::error(*(mparp->covariance()),Trk::driftRadius));
 			ttrackunbias    = 0;
 
-			if (m_updator){
-			tparp=((*tsos)->trackParameters());
-			HitOnTrackToRemove = *tsos;
+      if (m_updator){
+        tparp=((*tsos)->trackParameters());
+        HitOnTrackToRemove = *tsos;
 
-			if(HitOnTrackToRemove){
-				unbiasedTrkParameters = m_updator->removeFromState(*(HitOnTrackToRemove->trackParameters()),
-													  HitOnTrackToRemove->measurementOnTrack()->localParameters(),
-													  HitOnTrackToRemove->measurementOnTrack()->localCovariance());
-			}
-			if(unbiasedTrkParameters){
-					const Trk::TrackParameters *unmparp = (unbiasedTrkParameters);
-					rtrackunbias  = unbiasedTrkParameters->parameters()[Trk::driftRadius];
-					drrtrackunbias = sqrt(Amg::error(*(unmparp->covariance()),Trk::driftRadius));
-					//drrtrackunbias = sqrt(unbiasedTrkParameters->localErrorMatrix().covValue(Trk::driftRadius));
-					if( rtrelation )  ttrackunbias = rtrelation->drifttime(fabs( rtrackunbias ));
-			}
-           if(msgLvl(MSG::DEBUG)) msg() << "TrackParameters 1: " << *(HitOnTrackToRemove->trackParameters()) << endreq;
-           if(msgLvl(MSG::DEBUG)) msg() << "Unbias TrackParameters 2: " << *unbiasedTrkParameters << endreq;
-           if(msgLvl(MSG::DEBUG)) msg() << "Radius : " << (*newhit)[TRT::Hit::trackDriftRadius] << endreq;
-           if(msgLvl(MSG::DEBUG)) msg() << "Radius 2: " << rtrackunbias << endreq;
+        if(HitOnTrackToRemove){
+          unbiasedTrkParameters = m_updator->removeFromState(*(HitOnTrackToRemove->trackParameters()),
+              HitOnTrackToRemove->measurementOnTrack()->localParameters(),
+              HitOnTrackToRemove->measurementOnTrack()->localCovariance());
+          ATH_MSG_DEBUG ("TrackParameters 1: " << *(HitOnTrackToRemove->trackParameters()));
         }
+        else if (msgLvl(MSG::DEBUG)) {
+          msg() << "TrackParameters 1: NULL" << endreq;
+        }
+
+        if(unbiasedTrkParameters){
+          const Trk::TrackParameters *unmparp = (unbiasedTrkParameters);
+          rtrackunbias  = unbiasedTrkParameters->parameters()[Trk::driftRadius];
+          drrtrackunbias = sqrt(Amg::error(*(unmparp->covariance()),Trk::driftRadius));
+          //drrtrackunbias = sqrt(unbiasedTrkParameters->localErrorMatrix().covValue(Trk::driftRadius));
+          if( rtrelation )  ttrackunbias = rtrelation->drifttime(fabs( rtrackunbias ));
+          ATH_MSG_DEBUG("Unbiased TrackParameters 2: " << *unbiasedTrkParameters );
+          ATH_MSG_DEBUG("Radius : " << (*newhit)[TRT::Hit::trackDriftRadius] );
+          ATH_MSG_DEBUG("Radius 2: " << rtrackunbias );
+        }
+
+      }
         /// END INCLUDE TO HAVE UNBIAS RESIDUAL!!  
 	    float const ntvar[40]={
 			     (float)(*output)[TRT::Track::run],
