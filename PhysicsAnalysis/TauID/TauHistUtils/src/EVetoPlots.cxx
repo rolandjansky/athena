@@ -6,13 +6,23 @@
 
 namespace Tau{
 
-  EVetoPlots::EVetoPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):PlotBase(pParent, sDir),
-  m_sTauJetContainerName(sTauJetContainerName){	
+EVetoPlots::EVetoPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+   PlotBase(pParent, sDir),
+   m_HadRadius(nullptr),
+   m_EMRadius(nullptr),	 
+   m_IsoFrac(nullptr),
+   m_CentFrac(nullptr),
+   m_id_BDTEleScore(nullptr),
+   m_pt_eleBDTloose(nullptr),
+   m_pt_eleBDTmed(nullptr),
+   m_pt_eleBDTtight(nullptr),
+   m_sTauJetContainerName(sTauJetContainerName)
+{
 }
 	
-  EVetoPlots::~EVetoPlots()
- {
- }
+EVetoPlots::~EVetoPlots()
+{
+}
 
 
 void EVetoPlots::initializePlots(){

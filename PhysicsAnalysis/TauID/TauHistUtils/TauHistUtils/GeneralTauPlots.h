@@ -5,7 +5,7 @@
 #ifndef TAUHISTUTILS_GENERALTAUPLOTS_H
 #define TAUHISTUTILS_GENERALTAUPLOTS_H
 
-#include "TauHistUtils/PlotBase.h"
+#include "TrkValHistUtils/PlotBase.h"
 #include "TauHistUtils/ParamPlots.h"
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauDefs.h"

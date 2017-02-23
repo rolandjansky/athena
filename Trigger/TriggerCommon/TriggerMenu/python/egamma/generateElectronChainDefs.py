@@ -19,7 +19,7 @@ except:
     log.info(traceback.print_exc())
 
 #from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.menu.MenuUtils import splitChainDict, mergeChainDefs, setupTopoStartFrom
 Electrons = []
 
 from TriggerMenu.egamma.EgammaDef import EgammaSequence
@@ -27,15 +27,13 @@ from TriggerMenu.egamma.EgammaDef import EgammaSequence
 ##########################################################################################
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 
-
     for subChainDict in listOfChainDicts:
         electron_seq = EgammaSequence(subChainDict)
-        log.info('Egamma Sequence: %s', electron_seq)
+        log.debug('Egamma Sequence: %s', electron_seq)
         if "IdTest" in subChainDict["chainParts"]["addInfo"]:
             Electron = L2EFChain_e_IdTest(subChainDict)
         else:
@@ -60,18 +58,14 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
         if signature['listOfTriggerElements'][0][0:2] == "L2":
             maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
     
-    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements']    
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
 
-    L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']
 
     topoThresh = chainDict['topoThreshold']
     topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
 
     if "Jpsiee" in chainDict["topo"]:
-        topo2StartFrom = None
         if topoStartFrom:
             EFChainName = EFChainName+'_tsf'
 
@@ -94,7 +88,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
     elif "Zee" in chainDict["topo"]:
 
-        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight, TrigEFDielectronMassHypo_Zee
+        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight
 
         if 'etcut' in chainDict['chainName']:
             from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFexElectronCluster_Zee, TrigEFDielectronMassHypoElectronCluster_Zee

@@ -6,6 +6,8 @@
 # results into SG. These may then be accessed along the train   
 #********************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkMuons import DFCommonMuonsConfig
+DFCommonMuonsTrtCutOff = DFCommonMuonsConfig.TrtCutOff
 
 #====================================================================
 # MCP GROUP TOOLS 
@@ -24,6 +26,8 @@ DFCommonMuonsSelector.MaxEta = 3.
 DFCommonMuonsSelector.MuQuality = 3
 # turn of the momentum correction which is not needed for IDHits cut and Preselection
 DFCommonMuonsSelector.TurnOffMomCorr = True
+
+if DFCommonMuonsTrtCutOff != None: DFCommonMuonsSelector.TrtCutOff = DFCommonMuonsTrtCutOff
 ToolSvc += DFCommonMuonsSelector
 print DFCommonMuonsSelector
 
@@ -42,6 +46,8 @@ DFCommonMuonsSelectorPreselection.MaxEta = 3.
 DFCommonMuonsSelectorPreselection.MuQuality = 3
 # turn of the momentum correction which is not needed for IDHits cut and Preselection
 DFCommonMuonsSelectorPreselection.TurnOffMomCorr = True
+
+if DFCommonMuonsTrtCutOff != None: DFCommonMuonsSelectorPreselection.TrtCutOff = DFCommonMuonsTrtCutOff
 ToolSvc += DFCommonMuonsSelectorPreselection
 print DFCommonMuonsSelectorPreselection
 

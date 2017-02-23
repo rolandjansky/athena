@@ -51,7 +51,7 @@ StatusCode AthenaRootSerializeSvc::queryInterface(const InterfaceID& riid, void*
 
 //___________________________________________________________________________
 void* AthenaRootSerializeSvc::serialize(const void* /*object*/, const std::string& /*name*/, size_t& /*nbytes*/) {
-   return(0);
+   return(nullptr);
 }
 
 //___________________________________________________________________________
@@ -65,13 +65,13 @@ void* AthenaRootSerializeSvc::serialize(const void* object, const RootType& clty
    writeBuffer.WriteObjectAny(object, cltype);
    void* buffer = writeBuffer.Buffer();
    nbytes = writeBuffer.Length();
-   writeBuffer.ResetBit(TBuffer::kIsOwner); writeBuffer.SetBuffer(0);
+   writeBuffer.ResetBit(TBuffer::kIsOwner); writeBuffer.SetBuffer(nullptr);
    return(buffer);
 }
 
 //___________________________________________________________________________
 void* AthenaRootSerializeSvc::deserialize(void* /*buffer*/, size_t& /*nbytes*/, const std::string& /*name*/) {
-   return(0);
+   return(nullptr);
 }
 
 //___________________________________________________________________________

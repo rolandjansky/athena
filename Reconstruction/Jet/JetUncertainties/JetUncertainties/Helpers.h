@@ -17,6 +17,9 @@
 
 #include "AsgTools/MsgStreamMacros.h"
 
+#include "xAODJet/Jet.h"
+#include "xAODJet/JetAccessors.h"
+
 #define JESUNC_ERROR_CODE -1234
 #define JESUNC_NO_DEFAULT_CONSTRUCTOR ATH_MSG_FATAL("Default constructor is not supported");
 #define JESUNC_SAFE_DELETE(T) { if(T) { delete T; T = NULL; } }
@@ -25,6 +28,19 @@ class TH1;
 
 namespace jet
 {
+  /// JetFourMomAccessor is an extension of JetAttributeAccessor::AccessorWrapper<xAOD::JetFourMom_t>
+  /// AccessorWrapper<xAOD::JetFourMom_t> purpose is to provide a direct and simple access to JetFourMom_t attributes (which are 
+  ///  internally saved as 4 floats inside jets).
+  /// JetFourMomAccessor is here to workaround 2 limitations of AccessorWrapper
+  ///  - it does not provide an operator() method 
+  ///  - it does not provide const methods as needed in this package.
+  /// AccessorWrapper should be updated to remove these limitations.
+  ///  when this happens, JetFourMomAccessor can just be replaced by a typedef to the AccessorWrapper<xAOD::JetFourMom_t>
+  class JetFourMomAccessor: public xAOD::JetAttributeAccessor::AccessorWrapper<xAOD::JetFourMom_t> {
+  public:
+    using xAOD::JetAttributeAccessor::AccessorWrapper<xAOD::JetFourMom_t>::AccessorWrapper;
+    xAOD::JetFourMom_t operator()(const xAOD::Jet & jet) const {return const_cast<JetFourMomAccessor*>(this)->getAttribute(jet);}
+  };
 
 namespace utils
 {

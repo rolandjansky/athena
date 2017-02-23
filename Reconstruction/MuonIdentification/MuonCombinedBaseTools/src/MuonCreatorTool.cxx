@@ -42,6 +42,7 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkMaterialOnTrack/ScatteringAngles.h"
 
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
@@ -1451,6 +1452,8 @@ namespace MuonCombined {
     
     if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
 
+    addMSIDScatteringAngles(muon);
+
     if(!muon.isAvailable<int>("nUnspoiledCscHits")){
       muon.auxdata<int>("nUnspoiledCscHits")=-999;
     }
@@ -1786,5 +1789,45 @@ namespace MuonCombined {
     }
   }
 
+  void MuonCreatorTool::addMSIDScatteringAngles(xAOD::Muon& muon) const {
+    const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
+    int nscatter=0;
+    if( tp && tp->track() && tp->track()->trackStateOnSurfaces() && tp != muon.trackParticle( xAOD::Muon::InnerDetectorTrackParticle) ){
+      for(auto tsos : *(tp->track()->trackStateOnSurfaces())) {
+        if(tsos->materialEffectsOnTrack()){
+          const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack () );
+          if(!meot->energyLoss() || !meot->scatteringAngles()) continue;
+          if(meot->energyLoss()->deltaE()==0){ //artificial scatterer found                                                                                                  
+            if(nscatter==0){
+              muon.auxdata<float>("deltaphi_0")=meot->scatteringAngles()->deltaPhi();
+              muon.auxdata<float>("deltatheta_0")=meot->scatteringAngles()->deltaTheta();
+	      muon.auxdata<float>("sigmadeltaphi_0")=meot->scatteringAngles()->sigmaDeltaPhi();
+              muon.auxdata<float>("sigmadeltatheta_0")=meot->scatteringAngles()->sigmaDeltaTheta();
+            }
+            else if(nscatter==1){
+              muon.auxdata<float>("deltaphi_1")=meot->scatteringAngles()->deltaPhi();
+              muon.auxdata<float>("deltatheta_1")=meot->scatteringAngles()->deltaTheta();
+              muon.auxdata<float>("sigmadeltaphi_1")=meot->scatteringAngles()->sigmaDeltaPhi();
+              muon.auxdata<float>("sigmadeltatheta_1")=meot->scatteringAngles()->sigmaDeltaTheta();
+            }
+            nscatter++;
+          }
+        }
+        if(nscatter>1) break;
+      }
+    }
+    if(nscatter<=1){
+      muon.auxdata<float>("deltaphi_1")=-999;
+      muon.auxdata<float>("deltatheta_1")=-999;
+      muon.auxdata<float>("sigmadeltaphi_1")=-999;
+      muon.auxdata<float>("sigmadeltatheta_1")=-999;
+    }
+    if(nscatter==0){
+      muon.auxdata<float>("deltaphi_0")=-999;
+      muon.auxdata<float>("deltatheta_0")=-999;
+      muon.auxdata<float>("sigmadeltaphi_0")=-999;
+      muon.auxdata<float>("sigmadeltatheta_0")=-999;
+    }
+  }
  
 }	// end of namespace

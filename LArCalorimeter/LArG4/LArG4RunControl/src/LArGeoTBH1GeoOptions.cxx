@@ -4,21 +4,15 @@
 
 #include "LArG4RunControl/LArGeoTBH1GeoOptions.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
 void LArGeoTBH1GeoOptions::saveMe()
 {
-  IService* pSvc;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StatusCode result = svcLocator->service("DetectorStore",pSvc);
-
-  if(result.isSuccess())
-  {
-    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=detStore->record(this,"LArGeoTBH1GeoOptions");
-    if(!result.isSuccess())
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore",
+                                        "LArGeoTBH1GeoOptions::saveMe");
+  if (detStore.retrieve().isSuccess()) {
+    if (detStore->record(this,"LArGeoTBH1GeoOptions").isFailure())
       std::cout << "Can not record LArGeoTBH1GeoOptions" << std::endl;
   }
 }

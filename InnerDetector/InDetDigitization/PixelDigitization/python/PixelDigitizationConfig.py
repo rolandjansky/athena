@@ -158,15 +158,38 @@ def TimeSvc(name="TimeSvc", **kwargs):
     kwargs.setdefault("TimeBCN",timeBCN)
     return CfgMgr.TimeSvc(name, **kwargs)
 
-def PixelCellDiscriminator(name="PixelCellDiscriminator", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.PixelCellDiscriminator(name, **kwargs)
-
 def PixelRandomDisabledCellGenerator(name="PixelRandomDisabledCellGenerator", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.PixelRandomDisabledCellGenerator(name, **kwargs)
+
+def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    return CfgMgr.FrontEndSimTool(name, **kwargs)
+
+def FEI4SimTool(name="FEI4SimTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("BarrelToTthreshold", [-1])
+    kwargs.setdefault("EndcapToTthreshold", [-1,-1,-1])
+    kwargs.setdefault("HitDiscConfig", 2)
+    kwargs.setdefault("TimingTune", 2015)
+    return CfgMgr.FEI4SimTool(name, **kwargs)
+
+def FEI3SimTool(name="FEI3SimTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("BarrelToTthreshold", [-1, 5, 5, 5])    # first argument is dummy
+    kwargs.setdefault("EndcapToTthreshold", [ 5, 5, 5])
+    kwargs.setdefault("BarrelLatency", [ -1, 151, 256, 256])
+    kwargs.setdefault("EndcapLatency", [256, 256, 256])
+    kwargs.setdefault("BarrelHitDuplication", [False, False, False, False])
+    kwargs.setdefault("EndcapHitDuplication", [False, False, False])
+    kwargs.setdefault("BarrelSmallHitToT", [-1, -1, -1, -1])
+    kwargs.setdefault("EndcapSmallHitToT", [-1, -1, -1])
+    kwargs.setdefault("TimingTune", 2015)
+    return CfgMgr.FEI3SimTool(name, **kwargs)
 
 def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon import CfgGetter
@@ -196,44 +219,32 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       ServiceMgr += pixelSiPropertiesSvc
     kwargs.setdefault("InputObjectName", "PixelHits")
     pixTools = []
-    pixTools += ['PixelDiodeCrossTalkGenerator']
-    pixTools += ['PixelChargeSmearer']
-    pixTools += ['PixelNoisyCellGenerator']
-    pixTools += ['PixelGangedMerger']
-    pixTools += ['PixelRandomDisabledCellGenerator']
-    pixTools += ['PixelCellDiscriminator']
-    kwargs.setdefault("PixelTools", pixTools)
     chargeTools = []
+    feSimTools = []
     if GeometryFlags.isSLHC():
+      pixTools += ['PixelDiodeCrossTalkGenerator']
+      pixTools += ['PixelChargeSmearer']
+      pixTools += ['PixelNoisyCellGenerator']
+      pixTools += ['PixelGangedMerger']
+      pixTools += ['PixelRandomDisabledCellGenerator']
       chargeTools += ['IblPlanarBichselChargeTool']
+      feSimTools += ['FEI4SimTool']
     else:
+      pixTools += ['PixelDiodeCrossTalkGenerator']
+      pixTools += ['PixelChargeSmearer']
+      pixTools += ['PixelNoisyCellGenerator']
+      pixTools += ['PixelGangedMerger']
+      pixTools += ['PixelRandomDisabledCellGenerator']
       chargeTools += ['DBMChargeTool']
       chargeTools += ['PixelECBichselChargeTool']
       chargeTools += ['PixelBarrelBichselChargeTool']
       chargeTools += ['IblPlanarBichselChargeTool']
       chargeTools += ['Ibl3DBichselChargeTool']
+      feSimTools += ['FEI4SimTool']
+      feSimTools += ['FEI3SimTool']
+    kwargs.setdefault("PixelTools", pixTools)
     kwargs.setdefault("ChargeTools", chargeTools)
-    if GeometryFlags.isSLHC():
-        LVL1Latency = [255, 255, 255, 255, 255, 16, 255]
-        ToTMinCut = [0, 0, 0, 0, 0, 0, 0]
-        ApplyDupli = [False, False, False, False, False, False, False]
-        LowTOTduplication = [0, 0, 0, 0, 0, 0, 0]
-        kwargs.setdefault("LVL1Latency", LVL1Latency)
-        kwargs.setdefault("ToTMinCut", ToTMinCut)
-        kwargs.setdefault("ApplyDupli", ApplyDupli)
-        kwargs.setdefault("LowTOTduplication", LowTOTduplication)
-    else:
-        # For LVL1Latency, ToTMinCut, ApplyDupli and LowTOTduplication, first component [0] is always for IBL, even for run 1 production.
-        # The order is IBL, BL, L1, L2, EC, DBM
-        # For IBL and DBM, values of LVL1Latency and LowToTDupli are superseded by values driven by HitDiscCnfg settings, in PixelDigitizationTool.cxx
-        LVL1Latency = [16, 150, 255, 255, 255, 16]
-        ToTMinCut = [0, 6, 6, 6, 6, 0]
-        ApplyDupli = [True, False, False, False, False, False]
-        LowTOTduplication = [0, 7, 7, 7, 7, 0]
-        kwargs.setdefault("LVL1Latency", LVL1Latency)
-        kwargs.setdefault("ToTMinCut", ToTMinCut)
-        kwargs.setdefault("ApplyDupli", ApplyDupli)
-        kwargs.setdefault("LowTOTduplication", LowTOTduplication)
+    kwargs.setdefault("FrontEndSimTools", feSimTools)
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
         kwargs.setdefault("LastXing", Pixel_LastXing() )

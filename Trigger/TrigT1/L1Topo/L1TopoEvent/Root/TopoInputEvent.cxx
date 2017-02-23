@@ -23,7 +23,8 @@ TopoInputEvent::TopoInputEvent(const string & clusterName,
    m_muons(muonName,32),
    m_lateMuons(lateMuonName,32),
    m_muonsNextBC(muonNextBCName,32),
-   m_met(metName,1)
+   m_met(metName,1),
+   m_runNo(0), m_evtNo(0), m_lumiB(0), m_BCID(0)
 {
    setMET(MetTOB(0,0,0)); // default MET
 }
@@ -66,6 +67,14 @@ StatusCode TopoInputEvent::setMET(const TCS::MetTOB & met) {
    return StatusCode::SUCCESS;
 }
 
+StatusCode TopoInputEvent::setEventInfo(const uint32_t runNo, const uint32_t evtNo, const uint32_t lumiB, const uint32_t BCID) {
+   m_runNo = runNo;
+   m_evtNo = evtNo;
+   m_lumiB = lumiB;
+   m_BCID  = BCID; 
+   return StatusCode::SUCCESS;
+}
+
 // access to data for the steering
 const InputTOBArray *
 TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
@@ -94,6 +103,10 @@ TCS::TopoInputEvent::clear() {
    m_lateMuons.clear();
    m_muonsNextBC.clear();
    m_met.clear();
+   m_runNo = 0;
+   m_evtNo = 0;
+   m_lumiB = 0;
+   m_BCID  = 0;
 
    setMET(MetTOB(0,0,0)); // default MET
 
@@ -149,6 +162,9 @@ TopoInputEvent::dump() {
       file << met->Ex() << "  " << met->Ey() << "  " << met->Et() << endl;
    }
    file << "</met>" << endl;
+   file << "<info>" << endl;
+   file << m_runNo << "  " << m_evtNo << "  " << m_lumiB << "  " << m_BCID << endl;
+   file << "</info>" << endl;
    file << "</event>" << endl;
    file.close();
 }
@@ -183,6 +199,7 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "  #latemuons   : " << evt.lateMuons().size() << " (capacity: " << evt.lateMuons().capacity() << ")" << endl;
    o << "  #muonsNextBC : " << evt.muonsNextBC().size() << " (capacity: " << evt.muonsNextBC().capacity() << ")" << endl;
    o << "  #met     : " << evt.m_met.size() << " (capacity: " << evt.m_met.capacity() << ")" << endl;
+   o << "  #info    : runNo, evtNo, lumiBlock and BCID" << endl;
    
    o << "Details:" << endl;
    o << "Cluster input vector (" << evt.clusters().name() << "):" << endl << evt.clusters();
@@ -192,6 +209,7 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "LateMuon input vector (" << evt.lateMuons().name() << "):" << endl << evt.lateMuons();
    o << "MuonNextBC input vector (" << evt.muonsNextBC().name() << "):" << endl << evt.muonsNextBC();
    o << "MET input (" << evt.m_met.name() << "):" << endl << evt.m_met;
+   o << "Event info: " << evt.run_number() << "  " << evt.event_number() << "  " << evt.lumi_block() << "  " << evt.bunch_crossing_id();
 
    return o;
 }
@@ -225,6 +243,8 @@ TopoInputEvent::print() const {
    for(auto * x : muonsNextBC()) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("MET input (" << m_met.name() << "):");// << endl << m_met;
    for(auto * x : m_met) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("Event info:");
+   TRG_MSG_DEBUG("      runNo: " << run_number() << "  evtNo: " << event_number() << "  lumiBlock: " << lumi_block() << "  BCID: " << bunch_crossing_id());
 }
 
 

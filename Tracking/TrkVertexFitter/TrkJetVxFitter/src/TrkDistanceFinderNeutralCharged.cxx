@@ -34,16 +34,16 @@ StatusCode TrkDistanceFinderNeutralCharged::initialize()
     s = m_magFieldSvc.retrieve();
     if (s.isFailure())
     {
-      msg(MSG::FATAL)<<"Could not find magnetic field service." << endreq;
+      ATH_MSG_FATAL("Could not find magnetic field service.");
       return StatusCode::FAILURE;
     }
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    ATH_MSG_INFO("Initialize successful");
     return StatusCode::SUCCESS;
   }
 
 StatusCode TrkDistanceFinderNeutralCharged::finalize() 
 {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  ATH_MSG_INFO("Finalize successful");
   return StatusCode::SUCCESS;
 }
 
@@ -53,7 +53,7 @@ TrkDistanceFinderNeutralCharged::~TrkDistanceFinderNeutralCharged() { }
 std::pair<Amg::Vector3D,double>  
 TrkDistanceFinderNeutralCharged::getPointAndDistance(const Trk::NeutralTrack& neutraltrk,
                                                      const Trk::Perigee& chargedtrk,
-						     double & distanceOnAxis) {
+						     double & distanceOnAxis) const {
 
   double m_b_phi0=chargedtrk.parameters()[Trk::phi0];
   double m_b_cosphi0=cos(m_b_phi0);
@@ -238,7 +238,7 @@ TrkDistanceFinderNeutralCharged::getPointAndDistance(const Trk::NeutralTrack& ne
       }
     }
     if (m_det>0&&m_d2da_lambda2<0) {
-      msg(MSG::WARNING) << "Hessian indicates a maximum: derivative will be zero but result incorrect" << endreq;
+      ATH_MSG_WARNING("Hessian indicates a maximum: derivative will be zero but result incorrect");
       throw Error::NewtonProblem("Maximum point found");
     }
 
@@ -275,7 +275,8 @@ TrkDistanceFinderNeutralCharged::getPointAndDistance(const Trk::NeutralTrack& ne
 			 (y1fin-y2fin)*(y1fin-y2fin)+
 			 (z1fin-z2fin)*(z1fin-z2fin));
 
-  ATH_MSG_DEBUG ("distance " << distance << endreq << "fitted dist from primary vertex " <<
+  ATH_MSG_DEBUG ("distance " << distance << std::endl 
+                 << "fitted dist from primary vertex " <<
                  m_a_lambda/fabs(m_a_lambda)*sqrt(std::pow(m_a_px*m_a_lambda,2)+
                  std::pow(m_a_py*m_a_lambda,2)+std::pow(m_a_pz*m_a_lambda,2)) );
 

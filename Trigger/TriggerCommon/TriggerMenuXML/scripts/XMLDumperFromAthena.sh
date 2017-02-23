@@ -59,7 +59,6 @@ TRAPTERM() {
     return 143 # 128+SIGTERM
 }
 
-
 ## menu generation starts here
 if [ -n "${AtlasTrigger_PLATFORM}" ]; then   # CMAKE
     platform=${AtlasTrigger_PLATFORM}
@@ -76,16 +75,13 @@ generateL1TopoMenu.py $menu >&! $logfiletopo
 cp L1Topoconfig_*.xml ${dest}
 
 # L1 + HLT config file
-if [ -z "$TMXML_BUILD_TEST" ]; then
-    athena.py -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
-    athena_exit=$?
+if [ -z "$TMXML_DEBUG" ]; then
+    MSGLVL=""
 else
-    # Set the above env var to fake the output files (for fast build system test)
-    echo $menu > outputLVL1config.xml
-    echo $menu > outputHLTconfig.xml
-    echo $menu > $logfile
-    athena_exit=0
+    MSGLVL="-lDEBUG"
 fi
+athena.py $MSGLVL -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
+athena_exit=$?
 
 cp $logfile $logfiletopo ${dest}
 if [ $athena_exit -eq 0 ]; then

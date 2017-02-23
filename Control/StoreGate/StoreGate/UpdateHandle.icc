@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: UpdateHandle.icc 726621 2016-02-27 20:03:45Z ssnyder $
+// $Id: UpdateHandle.icc 797637 2017-02-17 02:32:11Z ssnyder $
 /**
  * @file StoreGate/UpdateHandle.icc
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -62,7 +62,7 @@ UpdateHandle<T>::UpdateHandle(const std::string& sgkey,
 template <class T>
 inline
 UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key)
-  : VarHandleBase (key),
+  : VarHandleBase (key, nullptr),
     m_updated(false)
 {
 }
@@ -82,7 +82,7 @@ UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key)
 template <class T>
 UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key,
                                const EventContext& ctx)
-  : VarHandleBase (key, ctx),
+  : VarHandleBase (key, &ctx),
     m_updated(false)
 {
 }
@@ -149,7 +149,7 @@ UpdateHandle<T>::UpdateHandle::operator= (UpdateHandle&& h)
 
 
 /**
- * @brief Derefence the pointer.
+ * @brief Dereference the pointer.
  * Throws ExcNullReadHandle on failure.
  *
  * This will inform Hive that the object has been modified.
@@ -164,7 +164,7 @@ UpdateHandle<T>::operator->()
 
 
 /**
- * @brief Derefence the pointer.
+ * @brief Dereference the pointer.
  * Throws ExcNullReadHandle on failure.
  *
  * This will inform Hive that the object has been modified.
@@ -178,7 +178,7 @@ typename UpdateHandle<T>::reference_type UpdateHandle<T>::operator*()
 
 
 /**
- * @brief Derefence the pointer.
+ * @brief Dereference the pointer.
  * Returns nullptr on failure.
  *
  * This will _not_ inform Hive that the object has been modified.
@@ -192,7 +192,7 @@ typename UpdateHandle<T>::const_pointer_type UpdateHandle<T>::cptr()
 
 
 /**
- * @brief Derefence the pointer.
+ * @brief Dereference the pointer.
  * Returns nullptr on failure.
  *
  * This will inform Hive that the object has been modified.

@@ -49,7 +49,12 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_pixelRDOKey("PixelRDOs"),
   m_isIBL(true), // kazuki
   m_nEvents(0.),
-  m_disabledModules(0),
+  m_nEventsHist(nullptr),
+  m_nEventsLBHist(nullptr),
+  m_disabledModules(nullptr),
+  m_overlayedPixelNoiseMap(nullptr),
+  m_overlayedIBLDCNoiseMap(nullptr),
+  m_overlayedIBLSCNoiseMap(nullptr),
   m_pixelID(0),
   m_pixman(0), // kazuki
   m_disk1ACut(1.e-3),
@@ -1132,7 +1137,6 @@ StatusCode NoiseMapBuilder::finalize() {
     int eta_max    = m_pixelID->eta_index_max(moduleID);
     */
 
-    TH2F* nhitsPlot = 0; // kazuki
     TH2F* nhitsNoNoisePlot = 0; // kazuki
     std::string component;
     double cut = 0.;
@@ -1140,8 +1144,6 @@ StatusCode NoiseMapBuilder::finalize() {
     //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 7: " << moduleHash << std::endl;
 
     if ( barrel != 0 ) { // if Disk (or DBM)
-
-      nhitsPlot = nhitsPlotEC; // kazuki
 
       //if (barrel == -2)
       if (barrel == 2) // kazuki
@@ -1159,56 +1161,47 @@ StatusCode NoiseMapBuilder::finalize() {
       }
       else if (barrel ==  4) // kazuki
       {
-        nhitsPlot = nhitsPlotDBM; // kazuki
         cut = m_dbmCut; component = "DBMA";
       }
       else if (barrel == -4) // kazuki
       {
-        nhitsPlot = nhitsPlotDBM; // kazuki
         cut = m_dbmCut; component = "DBMC";
       }
     } else if ( barrel == 0 ) { // if barrel
       if (m_isIBL) { // ----- IBL ----- //
         if(layer == 0){
           cut = m_iblCut;
-          nhitsPlot = nhitsPlotBI;
           nhitsNoNoisePlot = nhitsNoNoisePlotBI;
           component = "IBL";
         }
         else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
           cut = m_bLayerCut;
-          nhitsPlot = nhitsPlotB0;
           nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
           component = "B-layer";
         }
         else if(layer == 2) {
           cut = m_layer1Cut;
-          nhitsPlot = nhitsPlotB1; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
           component = "Layer1";
         }
         else if(layer == 3) {
           cut = m_layer2Cut;
-          nhitsPlot = nhitsPlotB2; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
           component = "Layer2";
         }
       } else { // only Pixel
         if(layer == 0){
           cut = m_bLayerCut;
-          nhitsPlot = nhitsPlotB0; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
           component = "B-layer";
         }
         else if(layer == 1) {
           cut = m_layer1Cut;
-          nhitsPlot = nhitsPlotB1; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
           component = "Layer1";
         }
         else if(layer == 2) {
           cut = m_layer2Cut;
-          nhitsPlot = nhitsPlotB2; // kazuki
           nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
           component = "Layer2";
         }
@@ -1236,7 +1229,7 @@ StatusCode NoiseMapBuilder::finalize() {
 
       //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 10: " << moduleHash << std::endl;
 
-      if      (barrel== 0) {
+      if (barrel== 0) {
         if (m_isIBL) { // ----- IBL ----- //
           if(layer == 0){
             disablePlotBI->Fill(module_eta,module_phi,-1);
@@ -1273,15 +1266,46 @@ StatusCode NoiseMapBuilder::finalize() {
     }
     else if( m_hitMaps[moduleHash]->GetEntries() != 0 ) ///////////////////////////////////////////////////////////////////////////////
     {
-      // <== kazuki
-      if ( barrel == 0) nhitsPlot->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-      //else if ( barrel > 0 ) nhitsPlot->Fill(layer+1,module_phi,m_hitMaps[moduleHash]->GetEntries());
-      else if ( barrel == 2 ) nhitsPlot->Fill(layer+1,module_phi,m_hitMaps[moduleHash]->GetEntries());
-      //else nhitsPlot->Fill(-(layer+1),module_phi,m_hitMaps[moduleHash]->GetEntries());
-      else if ( barrel == -2) nhitsPlot->Fill(-(layer+1),module_phi,m_hitMaps[moduleHash]->GetEntries());
-      else if ( barrel == 4 ) nhitsPlot->Fill(layer+1,module_phi,m_hitMaps[moduleHash]->GetEntries());
-      else if ( barrel == -4) nhitsPlot->Fill(-(layer+1),module_phi,m_hitMaps[moduleHash]->GetEntries());
-      // ==> kazuki
+      if (barrel== 0) {
+        if (m_isIBL) { // ----- IBL ----- //
+          if(layer == 0){
+            nhitsPlotBI->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+          }
+          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
+            nhitsPlotB0->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+          }
+          else if(layer == 2) {
+            nhitsPlotB1->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+          }
+          else if(layer == 3) {
+            nhitsPlotB2->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+          }
+        }
+        else {
+          if(layer == 0){
+            nhitsPlotB0->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+          }
+          else if(layer == 1) {
+            nhitsPlotB1->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+          }
+          else if(layer == 2) {
+            nhitsPlotB2->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+          }
+        }
+      }
+      else if (barrel== 2) {
+        nhitsPlotEC->Fill(layer+1,module_phi,m_hitMaps[moduleHash]->GetEntries());
+      }
+      else if (barrel==-2) { 
+        nhitsPlotEC->Fill(-(layer+1),module_phi,m_hitMaps[moduleHash]->GetEntries());
+      }
+      else if (barrel== 4) { 
+        nhitsPlotDBM->Fill(layer+1,module_phi,m_hitMaps[moduleHash]->GetEntries());
+      }
+      else if (barrel==-4) { 
+        nhitsPlotDBM->Fill(-(layer+1),module_phi,m_hitMaps[moduleHash]->GetEntries());
+      }
+
       modulesWithHits++;
     }
 

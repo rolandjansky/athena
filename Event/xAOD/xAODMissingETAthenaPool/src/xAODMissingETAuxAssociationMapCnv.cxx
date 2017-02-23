@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMissingETAuxAssociationMapCnv.cxx 692925 2015-09-03 12:11:56Z khoo $
+// $Id: xAODMissingETAuxAssociationMapCnv.cxx 795534 2017-02-04 16:24:29Z khoo $
 
 // System include(s):
 #include <exception>
@@ -10,6 +10,10 @@
 // Local include(s):
 #include "xAODMissingETAuxAssociationMapCnv.h"
 #include "xAODMissingETAuxAssociationMapCnv_v1.h"
+
+// Correct ElementLink treatment
+#include "AthenaKernel/IThinningSvc.h"
+#include "AthContainers/tools/copyAuxStoreThinned.h"
 
 xAODMissingETAuxAssociationMapCnv::xAODMissingETAuxAssociationMapCnv( ISvcLocator* svcLoc )
    : xAODMissingETAuxAssociationMapCnvBase( svcLoc ) {
@@ -21,8 +25,8 @@ xAODMissingETAuxAssociationMapCnv::
 createPersistent( xAOD::MissingETAuxAssociationMap* trans ) {
 
    // Create a copy of the container:
-   xAOD::MissingETAuxAssociationMap* result =
-      new xAOD::MissingETAuxAssociationMap( *trans );
+  xAOD::MissingETAuxAssociationMap* result = new xAOD::MissingETAuxAssociationMap;
+  SG::copyAuxStoreThinned( *trans, *result, IThinningSvc::instance() );
 
    return result;
 }
@@ -55,3 +59,4 @@ xAOD::MissingETAuxAssociationMap* xAODMissingETAuxAssociationMapCnv::createTrans
                              "xAOD::MissingETAuxAssociationMap found" );
    return 0;
 }
+

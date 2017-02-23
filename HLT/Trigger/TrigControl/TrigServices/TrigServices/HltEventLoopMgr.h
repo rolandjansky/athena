@@ -46,6 +46,8 @@ class TProfile;
 class EventInfo;
 class TrigCOOLUpdateHelper;
 class CondAttrListCollection;
+class EventContext;
+
 namespace coral {
   class AttributeList;
 }
@@ -441,6 +443,7 @@ private:
   /// we need this maintain the data
   uint32_t                  m_status_words[3] = {0};
 
+  EventContext* m_eventContext;
 };
 
 //=========================================================================

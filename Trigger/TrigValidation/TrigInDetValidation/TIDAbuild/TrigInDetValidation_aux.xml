@@ -6,7 +6,6 @@
             <auxFilePattern>TIDAWeb/STAR</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/STAR</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>

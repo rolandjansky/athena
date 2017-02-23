@@ -70,8 +70,6 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_Zmumu_IBL_pu40_offline-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_Zmumu_IBL_pu40_offline-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 

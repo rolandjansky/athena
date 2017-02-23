@@ -635,10 +635,80 @@ void check_calls (gimplePtr stmt, function* fun)
 }
 
 
+// Test to see if a pointer value comes directly or indirectly from
+// a structure.  Return the structure object if so, and set FIELD
+// to thee referenced member.
+tree pointer_from_struct (tree val, tree& field)
+{
+  if (TREE_CODE (val) == COMPONENT_REF) {
+    field = TREE_OPERAND (val, 1);
+    return get_inner (val);
+  }
+
+  tree valtest = get_inner (val);
+  tree valtype = TREE_TYPE (valtest);
+  if (!POINTER_TYPE_P(valtype))
+    return NULL_TREE;
+
+  if (TREE_CODE (val) == ADDR_EXPR)
+    val = TREE_OPERAND (val, 0);
+  if (TREE_CODE (val) == MEM_REF)
+    val = TREE_OPERAND (val, 0);
+
+  if (TREE_CODE (val) != SSA_NAME) return NULL_TREE;
+
+  gimplePtr stmt = SSA_NAME_DEF_STMT (val);
+  if (!stmt) return NULL_TREE;
+  //debug_gimple_stmt (stmt);
+  //fprintf (stderr, "code %s\n", get_tree_code_name(gimple_expr_code(stmt)));
+  
+  if (is_gimple_assign (stmt) && (gimple_expr_code(stmt) == VAR_DECL ||
+                                  gimple_expr_code(stmt) == PARM_DECL ||
+                                  gimple_expr_code(stmt) == POINTER_PLUS_EXPR ||
+                                  gimple_expr_code(stmt) == ADDR_EXPR ||
+                                  gimple_expr_code(stmt) == COMPONENT_REF))
+  {
+    //fprintf (stderr, "recurse\n");
+    return pointer_from_struct (gimple_op(stmt, 1), field);
+  }
+  else if (gimple_code (stmt) == GIMPLE_PHI) {
+    size_t nop = gimple_num_ops (stmt);
+    for (size_t i = 0; i < nop; i++) {
+      tree op = gimple_op (stmt, i);
+      tree ret = pointer_from_struct (op, field);
+      if (ret) return ret;
+    }
+  }
+  return NULL_TREE;
+}
+
+
+void check_returns (gimplePtr stmt, function* fun)
+{
+  if (gimple_code (stmt) != GIMPLE_RETURN) return;
+  //debug_gimple_stmt (stmt);
+  tree retval = gimple_op (stmt, 0);
+  tree field = NULL_TREE;
+  tree s = pointer_from_struct (retval, field);
+  if (s && TREE_READONLY (TREE_TYPE (s))) {
+    warning_at (gimple_location (stmt), 0,
+                "Returning non-const pointer or reference member %<%E%> from structure %<%D%> within const member function %<%D%>; may not be thread-safe.",
+                field, TREE_TYPE (s), fun->decl);
+    inform (DECL_SOURCE_LOCATION (field), "Declared here:");
+    CheckerGccPlugins::inform_url (gimple_location (stmt), url);
+  }
+}
+
+
 unsigned int thread_pass::thread_execute (function* fun)
 {
   if (!check_thread_safety_p (fun->decl))
     return 0;
+
+  const bool static_memfunc_p = DECL_CONST_MEMFUNC_P (fun->decl);
+  tree rettype = TREE_TYPE (DECL_RESULT (fun->decl));
+  const bool nonconst_pointer_return_p = POINTER_TYPE_P (rettype) && !TYPE_READONLY (TREE_TYPE (rettype));
+  const bool not_const_thread_safe = has_attrib (fun, "not_const_thread_safe");
 
   basic_block bb;
   FOR_EACH_BB_FN(bb, fun) {
@@ -652,6 +722,10 @@ unsigned int thread_pass::thread_execute (function* fun)
       check_direct_static_use (stmt, fun);
       check_assignments (stmt, fun);
       check_calls (stmt, fun);
+
+      if (static_memfunc_p &&
+          nonconst_pointer_return_p && !not_const_thread_safe)
+        check_returns (stmt, fun);
     }
   }
   

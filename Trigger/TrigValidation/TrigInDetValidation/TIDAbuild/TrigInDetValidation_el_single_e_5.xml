@@ -85,9 +85,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_single_e_5-reference.root</auxFilePattern>
-           <auxFilePattern>data-el_single_e_5-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_single_e_5-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 	   

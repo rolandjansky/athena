@@ -137,6 +137,7 @@ StatusCode SGImplSvc::record1(DataObject* obj,
                               T* pObject, const TKEY& key, 
                               bool allowMods, bool resetOnly, bool noHist)
 {
+  lock_t lock (m_mutex);
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
 #endif
@@ -201,6 +202,7 @@ StatusCode SGImplSvc::overwrite1(DataObject* obj, T* pObject,
                                  const TKEY& key, 
                                  bool allowMods, bool noHist)
 {
+  lock_t lock (m_mutex);
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
 #endif
@@ -267,6 +269,7 @@ StatusCode SGImplSvc::overwrite(std::unique_ptr<T> pUnique, const TKEY& key,
 template <typename T, typename AKEY>
 StatusCode SGImplSvc::setAlias(const T* pObject, const AKEY& aKey)
 {
+  lock_t lock (m_mutex);
   boost::function_requires< KeyConcept<AKEY> > ();
   std::string aliasKey(aKey);
 
@@ -296,6 +299,7 @@ template <typename T, typename TKEY, typename AKEY>
 StatusCode SGImplSvc::setAlias(const T* /*pObject*/,
                                const TKEY& key, const AKEY& aKey)
 {
+  lock_t lock (m_mutex);
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
   BOOST_CONCEPT_ASSERT( (KeyConcept<AKEY>) );
@@ -332,6 +336,7 @@ StatusCode SGImplSvc::setAlias(const T* /*pObject*/,
 template <typename T, typename TLINK> 
 StatusCode SGImplSvc::symLink(const T* pObject, TLINK*)
 {
+  lock_t lock (m_mutex);
   SG::DataProxy* dp(proxy(pObject));
   CLID linkID = ClassID_traits<TLINK>::ID();
 
@@ -347,6 +352,7 @@ StatusCode SGImplSvc::symLink(const T* pObject, TLINK*)
 template <typename T, typename TLINK> 
 StatusCode SGImplSvc::symLink(const T* pObject, const TLINK*)
 {
+  lock_t lock (m_mutex);
   SG::DataProxy* dp(proxy(pObject));
   CLID linkID = ClassID_traits<TLINK>::ID();
   // if symLink already exists, just return success      
@@ -358,6 +364,7 @@ StatusCode SGImplSvc::symLink(const T* pObject, const TLINK*)
 template <typename TKEY> 
 StatusCode SGImplSvc::symLink(const CLID& id, const TKEY& key, const CLID& linkID)
 {
+  lock_t lock (m_mutex);
 #ifndef __clang__
   //FIXME we have no way to check that the type represented by ID (the primary)
   //FIXME is convertible into the linkid type. VERY BAD. Need introspection???
@@ -377,6 +384,7 @@ StatusCode SGImplSvc::symLink(const CLID& id, const TKEY& key, const CLID& linkI
 template <typename T> 
 StatusCode SGImplSvc::retrieve(const T*& ptr)
 {
+  lock_t lock (m_mutex);
   const DataHandle<T> handle; 
   StatusCode sc = retrieve(handle);
   try {
@@ -394,6 +402,7 @@ StatusCode SGImplSvc::retrieve(const T*& ptr)
 template <typename T> 
 StatusCode SGImplSvc::retrieve(T*& ptr)
 {
+  lock_t lock (m_mutex);
   DataHandle<T> handle;
   StatusCode sc = retrieve(handle);
   try {
@@ -412,6 +421,7 @@ template <typename T, typename TKEY>
 StatusCode SGImplSvc::retrieve(const T*& ptr, const TKEY& key)
 {
 
+  lock_t lock (m_mutex);
   const DataHandle<T> handle;
   StatusCode sc = retrieve(handle, key);
   try {
@@ -430,6 +440,7 @@ template <typename T, typename TKEY>
 StatusCode SGImplSvc::retrieve(T*& ptr, const TKEY& key)
 {
 
+  lock_t lock (m_mutex);
   DataHandle<T> handle;
   StatusCode sc = retrieve(handle, key);
   try {
@@ -449,6 +460,7 @@ StatusCode SGImplSvc::retrieve(T*& ptr, const TKEY& key)
 template <typename T> 
 StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle)
 {
+  lock_t lock (m_mutex);
   SG::DataProxy* dp(proxy(ClassID_traits<T>::ID()));
   StatusCode sc = handle.setState(dp);
 
@@ -477,6 +489,7 @@ template <typename T>
 StatusCode SGImplSvc::retrieve(DataHandle<T>& handle)
 {
 
+  lock_t lock (m_mutex);
   SG::DataProxy* dp(proxy(ClassID_traits<T>::ID()));
   StatusCode sc = handle.setState(dp);
 
@@ -507,6 +520,7 @@ template <typename T, typename TKEY>
 StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle, 
                                const TKEY& key)
 {
+  lock_t lock (m_mutex);
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
 #endif
@@ -539,6 +553,7 @@ template <typename T, typename TKEY>
 StatusCode SGImplSvc::retrieve(DataHandle<T>& handle, 
                                const TKEY& key)
 {
+  lock_t lock (m_mutex);
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
 #endif
@@ -574,6 +589,7 @@ template <typename T>
 StatusCode SGImplSvc::retrieve(SG::ConstIterator<T>& cibegin,
                                SG::ConstIterator<T>& ciend )
 {
+  lock_t lock (m_mutex);
   const DataHandle<T> chbegin, chend;
   StatusCode sc = this->retrieve(chbegin, chend);
   if (sc.isSuccess()) {
@@ -592,6 +608,7 @@ template <typename T>
 StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
                                const DataHandle<T>& chend )
 {
+  lock_t lock (m_mutex);
   SG::ConstProxyIterator first;
   SG::ConstProxyIterator end = first;
 
@@ -656,6 +673,7 @@ T* SGImplSvc::retrieve (const TKEY& key)
 template <typename T>
 T* SGImplSvc::tryRetrieve ()
 {
+  lock_t lock (m_mutex);
   //FIXME should call addNewPersObject
   DataHandle<T> handle;
   if (handle.setState(proxy(ClassID_traits<T>::ID())).isSuccess()) {
@@ -668,6 +686,7 @@ T* SGImplSvc::tryRetrieve ()
 template <typename T>
 const T* SGImplSvc::tryConstRetrieve()
 {
+  lock_t lock (m_mutex);
   //FIXME should call addNewPersObject
   const DataHandle<T> handle;
   if (handle.setState(proxy(ClassID_traits<T>::ID())).isSuccess()) {
@@ -685,6 +704,7 @@ const T* SGImplSvc::tryConstRetrieve()
 template <typename T, class TKEY>
 T* SGImplSvc::tryRetrieve (const TKEY& key)
 {
+  lock_t lock (m_mutex);
   DataHandle<T> handle;
   if ( handle.setState(proxy(ClassID_traits<T>::ID(), key, false)).isSuccess() ) {
     //for types with an associated store, try to retrieve it and associate it
@@ -696,6 +716,7 @@ T* SGImplSvc::tryRetrieve (const TKEY& key)
 template <typename T, class TKEY>
 const T* SGImplSvc::tryConstRetrieve (const TKEY& key)
 {
+  lock_t lock (m_mutex);
   const DataHandle<T> handle;
   if ( handle.setState(proxy(ClassID_traits<T>::ID(), key, false)).isSuccess() ) {
     //for types with an associated store, try to retrieve it and associate it
@@ -713,6 +734,7 @@ const T* SGImplSvc::tryConstRetrieve (const TKEY& key)
 template <typename T, class TKEY>
 T* SGImplSvc::retrieveAux (const TKEY& key)
 {
+  lock_t lock (m_mutex);
   //FIXME should call addNewPersObject
   DataHandle<T> handle;
   StatusCode sc = retrieve(handle, key);
@@ -725,6 +747,7 @@ T* SGImplSvc::retrieveAux (const TKEY& key)
 template <typename T, class TKEY>
 const T* SGImplSvc::constRetrieveAux (const TKEY& key)
 {
+  lock_t lock (m_mutex);
   //FIXME should call addNewPersObject
   const DataHandle<T> handle;
   StatusCode sc = retrieve(handle, key);
@@ -756,6 +779,7 @@ template <typename T>
 std::auto_ptr<T> 
 SGImplSvc::retrievePrivateCopy (const std::string& key)
 {
+  lock_t lock (m_mutex);
   const T* p = 0;
   //we do not want anyone to mess up with our copy hence we release it
   //immediately
@@ -787,6 +811,7 @@ SGImplSvc::retrieveUniquePrivateCopy (const std::string& key)
 template<typename TKEY>
 CLID SGImplSvc::clid( const TKEY& key ) const
 {
+  lock_t lock (m_mutex);
   SG::DataStore::ConstStoreIterator s_iter, s_end;
   store()->tRange(s_iter, s_end).ignore();
   
@@ -805,6 +830,7 @@ CLID SGImplSvc::clid( const TKEY& key ) const
 template<typename TKEY>
 std::vector<CLID> SGImplSvc::clids( const TKEY& key ) const
 {
+  lock_t lock (m_mutex);
   std::list<CLID> clids;
   SG::DataStore::ConstStoreIterator s_iter, s_end;
   store()->tRange(s_iter, s_end).ignore();
@@ -888,6 +914,7 @@ template <typename T>
 StatusCode 
 SGImplSvc::remove(const T* pObject)
 {
+  lock_t lock (m_mutex);
   return removeProxy(proxy(pObject), pObject);
 }
 
@@ -896,6 +923,7 @@ template <typename T>
 StatusCode       
 SGImplSvc::removeDataAndProxy(const T* pObject)          
 {        
+  lock_t lock (m_mutex);
   const bool FORCEREMOVE(true);          
   return removeProxy(proxy(pObject), pObject, FORCEREMOVE);      
 }
@@ -936,6 +964,7 @@ SGImplSvc::setupProxy(const CLID& dataID,
 template <typename T, typename TKEY>
 StatusCode 
 SGImplSvc::bind(const DataHandle<T>& handle, const TKEY& key) {
+  lock_t lock (m_mutex);
   const IResetable *ir = &handle;
   SG::DataProxy *dp = 0;
   if (!(bindHandleToProxy(ClassID_traits<T>::ID(), key,
@@ -954,12 +983,14 @@ SGImplSvc::bind(const DataHandle<T>& handle, const TKEY& key) {
 inline
 void 
 SGImplSvc::setProxyProviderSvc(IProxyProviderSvc* pPPSvc) {
+  lock_t lock (m_mutex);
   m_pPPS = pPPSvc;
 }
 
 inline
 IProxyProviderSvc*
 SGImplSvc::proxyProviderSvc() {
+  lock_t lock (m_mutex);
   return m_pPPS;
 }
 
@@ -969,6 +1000,7 @@ template <typename H, typename TKEY>
 StatusCode
 SGImplSvc::regHandle(const DataHandle<H>& handle, const TKEY& key) {
 
+  lock_t lock (m_mutex);
   CLID id = ClassID_traits<H>::ID();
   std::string tname;
   (m_pCLIDSvc->getTypeNameOfID(id, tname)).ignore();
@@ -1009,6 +1041,7 @@ StatusCode
 SGImplSvc::regHandle( DataHandle<H>& /*handle*/, 
                       const TKEY& key) {
 
+  lock_t lock (m_mutex);
   CLID id = ClassID_traits<H>::ID();
   std::string tname;
   (m_pCLIDSvc->getTypeNameOfID(id, tname)).ignore();
@@ -1028,6 +1061,7 @@ SGImplSvc::regFcn(StatusCode (T::*/*updFcn*/)(IOVSVC_CALLBACK_ARGS),
                   const T* /*obj*/, DataHandle<H>& /*handle*/, 
                   const TKEY& key, bool /*trigger*/) {
 
+  lock_t lock (m_mutex);
   CLID id = ClassID_traits<H>::ID();
   std::string tname;
   m_pCLIDSvc->getTypeNameOfID(id, tname).ignore();
@@ -1048,6 +1082,7 @@ SGImplSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS),
                   const T* obj, const DataHandle<H>& handle, 
                   const TKEY& key, bool trigger) {
 
+  lock_t lock (m_mutex);
   CLID id = ClassID_traits<H>::ID();
   std::string tname;
   m_pCLIDSvc->getTypeNameOfID(id, tname).ignore();
@@ -1093,6 +1128,7 @@ SGImplSvc::regFcn( StatusCode (T1::*updFcn1)(IOVSVC_CALLBACK_ARGS),
                    bool trigger) {
 
 
+  lock_t lock (m_mutex);
   const CallBackID c1(updFcn1, obj1);
   const CallBackID c2(updFcn2, obj2);
 
@@ -1112,6 +1148,7 @@ SGImplSvc::regFcn( const std::string& toolName,
                    bool trigger) {
 
 
+  lock_t lock (m_mutex);
   const CallBackID c2(updFcn2, obj2);
 
   IOVSvcCallBackFcn fcn2( boost::bind(updFcn2,const_cast<T2*>(obj2),_1,_2));
@@ -1155,6 +1192,7 @@ template <typename T, class TKEY>
 StatusCode
 SGImplSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
                                const TKEY& requestedKey) {
+  lock_t lock (m_mutex);
   StatusCode sc(StatusCode::FAILURE);
   const DataHandle<T> i,e;
   if ((this->retrieve<T>(i,e)).isSuccess()){
@@ -1202,6 +1240,7 @@ void SGImplSvc::remap (CLID clid,
                        const TKEY& target,
                        off_t index_offset)
 {
+  lock_t lock (m_mutex);
   this->remap_impl (this->stringToKey (source, clid),
                     this->stringToKey (target, clid),
                     index_offset);
@@ -1259,6 +1298,7 @@ bool SGImplSvc::associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE
 template <class DOBJ>
 bool SGImplSvc::associateAux (DataHandle<DOBJ>& handle, bool ignoreMissing)
 {
+  lock_t lock (m_mutex);
   typename SG::AuxStore_traits<DOBJ>::type* pDummy(0); //used to pass down auxstore type
   bool hasAux=associateAux_impl(handle, pDummy) || ignoreMissing;
   if (!hasAux) SG_MSG_WARNING("associateAux const: Could not associate AuxStore of type "  
@@ -1271,6 +1311,7 @@ bool SGImplSvc::associateAux (DataHandle<DOBJ>& handle, bool ignoreMissing)
 template <class DOBJ>
 bool SGImplSvc::associateAux (const DataHandle<DOBJ>& handle, bool ignoreMissing)
 {
+  lock_t lock (m_mutex);
   typename SG::AuxStore_traits<DOBJ>::const_type* pDummy(0); //used to pass down auxstore type
   bool hasAux=associateAux_impl(handle, pDummy) || ignoreMissing;
   if (!hasAux) SG_MSG_WARNING("associateAux const: Could not associate AuxStore of type "  

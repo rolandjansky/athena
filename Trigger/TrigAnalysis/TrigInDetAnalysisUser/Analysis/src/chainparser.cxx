@@ -203,14 +203,14 @@ int main( int argc, char** argv ) {
     
     unsigned expected_size = 0;
     
-    bool shifter = false;
+    //    bool shifter = false;
 
     if      ( expl[2] == "IDMon" ) expected_size = 6;
     else if ( expl[2] == "TRIDT" ) { 
       if      ( expl[4] == "Expert"  ) expected_size = 7;
       else if ( expl[4] == "Shifter" ) {
-	shifter = true;
-	std::cout << "shifter histogram setting not yet available: " << shifter << std::endl;
+	//	shifter = true;
+	//	std::cout << "shifter histogram setting not yet available: " << shifter << std::endl;
 	expected_size = 6;
       }
       else { 

@@ -600,10 +600,10 @@ StatusCode Trk::CylinderVolumeCreator::estimateAndCheckDimension(
             ATH_MSG_WARNING( "Provided layers are not contained by volume ! Bailing out. " );
             return StatusCode::FAILURE;
         }
+        ATH_MSG_VERBOSE( "Created/Checked " << *cylinderVolumeBounds );
     }
 
-    ATH_MSG_VERBOSE( "Created/Checked " << *cylinderVolumeBounds );
-
+    
     return StatusCode::SUCCESS;
 }
                                            

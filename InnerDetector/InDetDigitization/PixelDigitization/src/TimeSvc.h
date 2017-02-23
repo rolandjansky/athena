@@ -79,7 +79,6 @@
 
 #include "CommissionEvent/ComTime.h"
 
-class PixelCellDiscriminator;
 class SiTotalCharge;
 
 class IAtRndmGenSvc;
@@ -101,7 +100,7 @@ class TimeSvc : public AthService, virtual public IInterface {
     virtual StatusCode finalize();
     virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
 
-    int relativeBunch(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, bool CTW) const;
+    int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, bool CTW) const;
 
     int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID) const;
 

@@ -24,9 +24,11 @@ BASEREFDIR=$BASEDIR/TrigInDetValidationReference
 
 if [ -e TrkNtuple-0000.root ]; then 
 
-    RELEASE=$(TIDAreader.exe -ro data*.root | grep release | awk '{print $2}' | head -1)
+    RELEASE=$(TIDAreader.exe -ro TrkNtuple-0000.root | grep release | awk '{print $2}' | head -1)
 
     REFDIR=$BASEREFDIR/share
+
+    echo "RELEASE: $RELEASE"
 
     if [ -d $BASEREFDIR/$RELEASE ]; then 
         REFDIR=$BASEREFDIR/$RELEASE
@@ -77,6 +79,9 @@ if [ -e TrkNtuple-0000.root ]; then
     else
       echo "no reference file $REFFILE" 
     fi
+
+    echo "finished postprocessing"
+    ls -l
 
 
 fi

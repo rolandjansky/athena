@@ -38,10 +38,12 @@ public:
    virtual DataHeader* createTransient();
 
 private:
-   DataHeaderCnv_p5 m_TPconverter;
+   DataHeaderCnv_p5 m_tpOutConverter;
+   DataHeaderCnv_p5 m_tpInConverter;
    RootType m_mapClassDesc;
    mutable std::string m_dhFormMdx;
-   mutable DataHeaderForm_p5* m_dhForm;
+   mutable DataHeaderForm_p5* m_dhOutForm;
+   mutable DataHeaderForm_p5* m_dhInForm;
 };
 
 #endif

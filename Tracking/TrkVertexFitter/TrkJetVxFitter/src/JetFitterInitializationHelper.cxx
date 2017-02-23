@@ -39,6 +39,7 @@ namespace Trk
       return numVertex+5;
     }
 
+#if 0
     std::pair<double,double> getPhiAndThetaError(const Amg::Vector3D & jetdirection)
     {
       double pT=jetdirection.perp();
@@ -143,6 +144,7 @@ namespace Trk
 			   yv+dist*sin(phi)*sin(theta),
 			   zv+dist*cos(theta));
     }
+#endif
 
     Amg::Vector3D getSingleVtxPositionWithSignFlip(const Amg::VectorX & myPosition,
 					           int numVertex,
@@ -199,7 +201,7 @@ namespace Trk
 
     StatusCode sc=m_linearizedFactory.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR)<<" Unable to retrieve "<<m_linearizedFactory<<endreq; 	 
+      ATH_MSG_ERROR( " Unable to retrieve "<<m_linearizedFactory );
       return StatusCode::FAILURE; 	 
     }
     

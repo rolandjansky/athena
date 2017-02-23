@@ -4395,6 +4395,7 @@ chain_list=[
     'zdcpeb_L1ZDC_C',   
     'zdcpeb_L1ZDC_AND', 
     'zdcpeb_L1ZDC_A_C',
+    'timeburner',
     ]
 Prescales.HLTPrescales_tight_physics_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################

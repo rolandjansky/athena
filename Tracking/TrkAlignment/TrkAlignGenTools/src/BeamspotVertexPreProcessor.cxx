@@ -592,9 +592,14 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Tr
          ATH_MSG_FATAL("Similarity transpose done incorrectly");
     delete perigee;
   }
-
-  vot = new VertexOnTrack(beamSpotParameters, errorMatrix, *surface);
-  ATH_MSG_DEBUG(" the VertexOnTrack objects created from BeamSpot are " << *vot);
+  if (surface){
+    vot = new VertexOnTrack(beamSpotParameters, errorMatrix, *surface);
+  } else {
+    ATH_MSG_WARNING("surface is nullptr in "<<__FILE__<<":"<<__LINE__);
+  }
+  if (vot){
+    ATH_MSG_DEBUG(" the VertexOnTrack objects created from BeamSpot are " << *vot);
+  }
   // garbage collection:
   delete surface;
 
@@ -868,16 +873,13 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
     ATH_MSG_DEBUG("Processing track "<<index);
     const Track* track = *itr;
     AlignTrack * alignTrack = 0;
-    
+    if (not track) continue;
     
     // check whether the track passes the basic selection
-    if (track && !m_trkSelector.empty()) {
-      if(!m_trkSelector->accept(*track))
-        continue;
-    }
+    if ((not m_trkSelector.empty()) and (not m_trkSelector->accept(*track))) continue;
   
   
-    if(m_refitTracks && track){
+    if(m_refitTracks){
       alignTrack = doTrackRefit(track); 
  
       // 2nd track check after refit
@@ -900,7 +902,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
   // delete the collection if it's empty
   if (newTrks->size()==0) {
     delete newTrks;
-    return 0;
+    return nullptr;
   }
 
   return newTrks;

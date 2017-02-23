@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 796875 2017-02-13 15:04:31Z fwinkl $
+# $Id: CMakeLists.txt 797343 2017-02-15 15:13:34Z ssnyder $
 ################################################################################
 # Package: CxxUtils
 ################################################################################
@@ -66,10 +66,19 @@ atlas_add_test( stacktrace_test
    SOURCES test/stacktrace_test.cxx
    LINK_LIBRARIES CxxUtils dl )
 
+atlas_add_test( bitscan_test_portable
+   SOURCES test/bitscan_test.cxx
+   LINK_LIBRARIES CxxUtils )
+
+if( TARGET CxxUtils_bitscan_test_portable )
+  target_compile_definitions(CxxUtils_bitscan_test_portable
+    PRIVATE "-DTEST_PORTABLE" )
+endif()
+
 # Set up the "simple" tests:
 foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
-      hashtable_test fpcompare_test StrFormat_test
+      fpcompare_test StrFormat_test
       prefetch_test ClassName_test make_unique_test ones_test
       exctrace1_test exctrace2_test bitscan_test )
    atlas_add_test( ${test}

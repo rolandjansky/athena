@@ -37,8 +37,6 @@
 
 namespace Trk
 {
-    class AlSpaMat;
-    class AlVec;
     class FitMeasurement;
     class FitParameters;
 
@@ -49,15 +47,18 @@ namespace Trk
      
      ~FitMatrices (void);
      
-    // implicit copy constructor
-    // implicit assignment operator
+    // forbidden copy constructor
+    // forbidden assignment operator
 
      // debugging aid: check 'smart' pointers
      void			checkPointers (MsgStream& log) const;
      
      // change to chiSquared
      double			chiSquaredChange (void) const;
-     
+
+     // accessor to DerivativeMatrix (eigen)
+     Amg::MatrixX*		derivativeMatrix (void) const;
+
      // accessor to final covariance (5*5) 
      //   includes leading material effects on construction, but
      //   field gradient effects have to be added by MeasurementProcessor as 'extrapolation aware' 
@@ -86,7 +87,10 @@ namespace Trk
 
      // remove leading+trailing zeroes from smart pointers
      void			refinePointers (void);
-     
+
+     // release memory (eigen)
+     void			releaseMemory (void);
+
      // initialize matrices - set appropriate dimensions for a given set of measurements 
      int	       		setDimensions (std::list<FitMeasurement*>&	measurements,
 					       FitParameters*			parameters);
@@ -98,11 +102,14 @@ namespace Trk
      void			usePerigee (const FitMeasurement& measurement);
 
  private:
+     // copy, assignment: no semantics, no implementation
+     FitMatrices (const FitMatrices&);
+     FitMatrices &operator= (const FitMatrices&);
+     
      // add perigee measurement
      void			addPerigeeMeasurement (void);
      // fix for momentum singularity
      void			avoidMomentumSingularity (void);  // using Eigen    
-     void			avoidMomentumSingularity***REMOVED*** (void); // using alignment matrix pkg ***REMOVED***     
      // implementation of matrix equation solution
      bool			solveEquationsEigen (void);	// using Eigen
      bool			solveEquations***REMOVED*** (void);	// using alignment matrix pkg ***REMOVED***
@@ -110,6 +117,7 @@ namespace Trk
      int		       		m_columnsDM;
      bool				m_constrainedAlignmentEffects;
      Amg::MatrixX*			m_covariance;
+     Amg::MatrixX*			m_derivativeMatrix;
      bool				m_eigen;
      Amg::MatrixX*		   	m_finalCovariance;
      std::vector<int>       		m_firstRowForParameter;
@@ -128,13 +136,14 @@ namespace Trk
      int				m_rowsDM;
      bool       			m_usePerigee;
      Amg::MatrixX*			m_weight;
-     AlSpaMat*				m_weight***REMOVED***;
      Amg::VectorX*			m_weightedDifference;
-     AlVec*	       			m_weightedDifference***REMOVED***;
-     
 };   
 
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+
+inline Amg::MatrixX*
+FitMatrices::derivativeMatrix (void) const
+{ return m_derivativeMatrix; }
 
 inline Amg::MatrixX*
 FitMatrices::finalCovariance (void) const

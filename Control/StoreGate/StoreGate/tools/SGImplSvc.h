@@ -112,7 +112,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
  * @author ATLAS Collaboration
- * $Id: SGImplSvc.h 796084 2017-02-07 22:58:58Z leggett $
+ * $Id: SGImplSvc.h 797595 2017-02-16 18:36:10Z ssnyder $
  **/
 class SGImplSvc :
   public Service, 
@@ -1103,6 +1103,11 @@ private:
   /// for all threads in clearStore().
   std::map<std::thread::id, std::vector<IResetable*> > m_newBoundHandles;
 
+  typedef std::recursive_mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+  mutable mutex_t m_mutex;
+
+  
 public:
   ///////////////////////////////////////////////////////////////////////
   /// \name Obsolete and Deprecated methods 

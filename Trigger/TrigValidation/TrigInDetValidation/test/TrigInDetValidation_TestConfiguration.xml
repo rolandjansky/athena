@@ -44,6 +44,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000003.pool.root.1</dataset>
 
+
 	   
 
 
@@ -299,14 +300,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-all_ttbar_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-all_ttbar_pu46-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -316,10 +316,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
    
          <athenaCommonFlags /> 
@@ -349,6 +349,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
 
+
 	   
 
 
@@ -604,14 +605,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-all_ttbar_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-all_ttbar_pu46-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -621,10 +621,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
    
          <athenaCommonFlags /> 
@@ -647,6 +647,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000003.pool.root.1</dataset>
 
+
 	   
 
 
@@ -902,14 +903,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-all_ttbar_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-all_ttbar_pu46-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -919,14 +919,15 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
+
    
          <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -952,6 +953,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
 
 	   
 
@@ -1097,14 +1099,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-beamspot_ttbar_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-beamspot_ttbar_pu46-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -1114,14 +1115,15 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
+
    
          <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -1147,6 +1149,7 @@
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000024.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000029.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000039.pool.root.1</dataset>
+
 	   
 
 
@@ -1293,6 +1296,7 @@
         </action>
 
 
+
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -1300,8 +1304,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_Jpsiee_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_Jpsiee_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -1311,10 +1313,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
 	   
            <athenaCommonFlags /> 
@@ -1345,6 +1347,7 @@
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240167._000008.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240167._000009.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240167._000010.pool.root.1</dataset>
+
 
 
 
@@ -1522,14 +1525,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-el_single_e_7-80_larged0-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_single_e_7-80_larged0_PU-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -1539,10 +1541,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
@@ -1574,6 +1576,7 @@
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945414._000012.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945414._000013.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945414._000014.pool.root.1</dataset>
+
 
 
 
@@ -1751,14 +1754,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-el_single_e_7-80_larged0_PU-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_single_e_7-80_larged0-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -1768,16 +1770,17 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
 
          <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -1805,6 +1808,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728/RDO.10240159._000008.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728/RDO.10240159._000009.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728/RDO.10240159._000010.pool.root.1</dataset>
+
 
 
 
@@ -1984,14 +1988,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-el_single_e_7-80_IBL-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_single_e_7-80_IBL-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2001,10 +2004,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 
@@ -2034,6 +2037,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7772/RDO.09929877._000008.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7772/RDO.09929877._000009.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7772/RDO.09929877._000010.pool.root.1</dataset>
+
 
 
 
@@ -2212,14 +2216,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-el_single_e_7-80_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_single_e_7-80_IBL_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2229,15 +2232,16 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
 
 
          <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -2265,6 +2269,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
  
+
 
 	   
 
@@ -2443,6 +2448,7 @@
         </action>
 
 
+
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -2450,8 +2456,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_Zee_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_Zee_IBL_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2461,10 +2465,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
@@ -2496,6 +2500,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
  
+
 
 	   
 
@@ -2673,6 +2678,7 @@
         </action>
 
 
+
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -2680,8 +2686,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_Zee_IBL_pu40_offline-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_Zee_IBL_pu40_offline-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2691,10 +2695,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
@@ -2726,6 +2730,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
  
+
 
 	   
 
@@ -2903,6 +2908,7 @@
         </action>
 
 
+
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -2910,8 +2916,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_Zee_IBL_pu40_offline_rzMatcher-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2921,10 +2925,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
@@ -2956,6 +2960,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
  
+
 
 	   
 
@@ -3133,6 +3138,7 @@
         </action>
 
 
+
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -3140,8 +3146,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_Zee_IBL_pu40_rzMatcher-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_Zee_IBL_pu40_rzMatcher-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -3151,15 +3155,16 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
            <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -3179,6 +3184,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000003.pool.root.1</dataset>
+
 
 
 	   
@@ -3357,6 +3363,7 @@
         </action>
 
 
+
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -3364,8 +3371,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_ttbar_pu40-reference.root</auxFilePattern>
-           <auxFilePattern>expert-monitoring-el_ttbar_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -3375,10 +3380,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
@@ -3402,6 +3407,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000001.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000003.pool.root.1</dataset>
+
 
 
 	   
@@ -3580,6 +3586,7 @@
         </action>
 
 
+
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -3587,8 +3594,6 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_ttbar_pu80-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu80-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -3598,15 +3603,16 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
            <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -3635,6 +3641,7 @@
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_cos.108865.CosSimPixVolSolOnTorOn.recon.RDO.s2111_r6258_tid05313290_00/RDO.05313290._000638.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_cos.108865.CosSimPixVolSolOnTorOn.recon.RDO.s2111_r6258_tid05313290_00/RDO.05313290._000701.pool.root.1</dataset>
 	    <!--<dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_cos.108865.CosSimPixVolSolOnTorOn.recon.RDO.s2111_r6258_tid05313290_00/RDO.05313290._000873.pool.root.1</dataset>-->
+
 
 
 
@@ -3767,6 +3774,7 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -3781,15 +3789,14 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-	    <auxFilePattern>data-cosmic-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-cosmic-ref.root</auxFilePattern>
+
 
          <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -3815,6 +3822,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
 
 
 
@@ -3962,14 +3970,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet_IBL_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -3979,10 +3986,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
    
          <athenaCommonFlags /> 
@@ -4013,6 +4020,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
 
 
 
@@ -4160,14 +4168,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet_IBL_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -4177,10 +4184,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
    
          <athenaCommonFlags /> 
@@ -4211,6 +4218,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
 
 
 
@@ -4372,6 +4380,7 @@
 
 
 
+
         
 
             <testToRemove>
@@ -4380,8 +4389,6 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet_IBL_pu40_offline-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet_IBL_pu40_offline-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -4391,14 +4398,15 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
+
    
          <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -4419,6 +4427,7 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000003.pool.root.1</dataset>
+
 
 
 
@@ -4566,14 +4575,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet_IBL_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -4583,10 +4591,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
    
          <athenaCommonFlags /> 
@@ -4614,6 +4622,7 @@
 
 
 
+
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -4757,14 +4766,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet_IBL_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -4774,14 +4782,1008 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
+
    
          <athenaCommonFlags /> 
          </athena>
+
+
+
+
+
+
+
+
+         <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_trkpt2'>
+            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
+	    <commandLineFlags>EventMax=900;runMergedChain=True;minVtxTrackpT=2000globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+	   
+
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
+
+
+
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+
+
+           <action position="02">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+            <action position="03">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDAcpucost.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="30">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>RunTrigCostD3PD.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+              </arg> 
+            </action>
+
+            <action position="31">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="32">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+
+
+
+            <action position="33">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="34">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+        <action position="40">
+             <modulename>CheckLog_TriggerTest</modulename>
+             <testname>CheckLog_TriggerTest</testname>
+             <arg>
+                <argname>command</argname>
+                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+             </arg>
+        </action>
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+
+
+            <auxFilePattern>TIDA*.dat</auxFilePattern>
+            <auxFilePattern>Test*.dat</auxFilePattern>
+            <auxFilePattern>TIDA*.sh</auxFilePattern> 
+
+            <auxFilePattern>TIDAWeb/*</auxFilePattern>
+            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
+            <auxFilePattern>TIDAindex.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
+            <auxFilePattern>TIDAindex*.php</auxFilePattern>
+            <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
+
+
+
+
+         <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_super1'>
+            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
+	    <commandLineFlags>EventMax=900;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=2;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+	   
+
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
+
+
+
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+
+
+           <action position="02">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+            <action position="03">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDAcpucost.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="30">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>RunTrigCostD3PD.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+              </arg> 
+            </action>
+
+            <action position="31">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="32">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+
+
+
+            <action position="33">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="34">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+        <action position="40">
+             <modulename>CheckLog_TriggerTest</modulename>
+             <testname>CheckLog_TriggerTest</testname>
+             <arg>
+                <argname>command</argname>
+                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+             </arg>
+        </action>
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+
+
+            <auxFilePattern>TIDA*.dat</auxFilePattern>
+            <auxFilePattern>Test*.dat</auxFilePattern>
+            <auxFilePattern>TIDA*.sh</auxFilePattern> 
+
+            <auxFilePattern>TIDAWeb/*</auxFilePattern>
+            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
+            <auxFilePattern>TIDAindex.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
+            <auxFilePattern>TIDAindex*.php</auxFilePattern>
+            <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
+
+
+
+
+         <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_super2'>
+            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
+	    <commandLineFlags>EventMax=900;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=5;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+	   
+
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
+
+
+
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+
+
+           <action position="02">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+            <action position="03">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDAcpucost.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="30">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>RunTrigCostD3PD.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+              </arg> 
+            </action>
+
+            <action position="31">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="32">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+
+
+
+            <action position="33">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="34">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+        <action position="40">
+             <modulename>CheckLog_TriggerTest</modulename>
+             <testname>CheckLog_TriggerTest</testname>
+             <arg>
+                <argname>command</argname>
+                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+             </arg>
+        </action>
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+
+
+            <auxFilePattern>TIDA*.dat</auxFilePattern>
+            <auxFilePattern>Test*.dat</auxFilePattern>
+            <auxFilePattern>TIDA*.sh</auxFilePattern> 
+
+            <auxFilePattern>TIDAWeb/*</auxFilePattern>
+            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
+            <auxFilePattern>TIDAindex.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
+            <auxFilePattern>TIDAindex*.php</auxFilePattern>
+            <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
+
+
+
+
+         <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_super3'>
+            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
+	    <commandLineFlags>EventMax=900;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=5;bjetDynamicEtFactor=10;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+	   
+
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
+
+
+
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+
+
+           <action position="02">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+            <action position="03">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDAcpucost.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="30">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>RunTrigCostD3PD.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+              </arg> 
+            </action>
+
+            <action position="31">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="32">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+
+
+
+            <action position="33">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="34">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+        <action position="40">
+             <modulename>CheckLog_TriggerTest</modulename>
+             <testname>CheckLog_TriggerTest</testname>
+             <arg>
+                <argname>command</argname>
+                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+             </arg>
+        </action>
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+
+
+            <auxFilePattern>TIDA*.dat</auxFilePattern>
+            <auxFilePattern>Test*.dat</auxFilePattern>
+            <auxFilePattern>TIDA*.sh</auxFilePattern> 
+
+            <auxFilePattern>TIDAWeb/*</auxFilePattern>
+            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
+            <auxFilePattern>TIDAindex.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
+            <auxFilePattern>TIDAindex*.php</auxFilePattern>
+            <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
+
+
+
+
+         <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_super4'>
+            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
+	    <commandLineFlags>EventMax=900;runMergedChain=True;bjetDynamicMinJetEt=True;bjetDynamicNJetsMax=10;bjetDynamicEtFactor=10;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+	   
+
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
+
+
+
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+
+
+           <action position="02">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+            <action position="03">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDAcpucost.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="30">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>RunTrigCostD3PD.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+              </arg> 
+            </action>
+
+            <action position="31">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="32">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+
+
+
+            <action position="33">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="34">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+        <action position="40">
+             <modulename>CheckLog_TriggerTest</modulename>
+             <testname>CheckLog_TriggerTest</testname>
+             <arg>
+                <argname>command</argname>
+                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+             </arg>
+        </action>
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+
+
+            <auxFilePattern>TIDA*.dat</auxFilePattern>
+            <auxFilePattern>Test*.dat</auxFilePattern>
+            <auxFilePattern>TIDA*.sh</auxFilePattern> 
+
+            <auxFilePattern>TIDAWeb/*</auxFilePattern>
+            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
+            <auxFilePattern>TIDAindex.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
+            <auxFilePattern>TIDAindex*.php</auxFilePattern>
+            <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
 
 
 
@@ -4808,6 +5810,7 @@
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004607.pool.root.1</dataset>
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004797.pool.root.1</dataset>
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004832.pool.root.1</dataset>
+
            
 
 
@@ -4969,14 +5972,13 @@
 
 
 
+
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
              <testidentifier>CheckFileRunner0</testidentifier>
            </testToRemove>
 	   
 
-           <auxFilePattern>data-tau_IBL_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-tau_IBL_pu46-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -4986,10 +5988,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
 
            <athenaCommonFlags /> 
@@ -5017,6 +6019,7 @@
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004607.pool.root.1</dataset>
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004797.pool.root.1</dataset>
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004832.pool.root.1</dataset>
+
            
 
 
@@ -5178,14 +6181,13 @@
 
 
 
+
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
              <testidentifier>CheckFileRunner0</testidentifier>
            </testToRemove>
 	   
 
-           <auxFilePattern>data-tau_IBL_pu46_offline-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-tau_IBL_pu46_offline-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -5195,15 +6197,16 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
+
            <athenaCommonFlags /> 
          </athena>
 	 
+
 
 
 
@@ -5227,6 +6230,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240174._000008.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240174._000009.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240174._000010.pool.root.1</dataset>
+
 
 
            <action position="01">
@@ -5371,14 +6375,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_single_mu_larged0-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_single_mu_larged0-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -5388,10 +6391,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
 
@@ -5422,6 +6425,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945423._000008.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945423._000009.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945423._000010.pool.root.1</dataset>
+
 
 
 
@@ -5567,14 +6571,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_single_mu_larged0_PU-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_single_mu_larged0_PU-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -5584,15 +6587,16 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
 
          <athenaCommonFlags />
          </athena>
+
 
 
 
@@ -5621,6 +6625,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
+
 
 
 
@@ -5768,14 +6773,13 @@
 
 
 
+
              <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_Zmumu_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_Zmumu_IBL_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -5785,10 +6789,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
 
 	  <athenaCommonFlags />
@@ -5819,6 +6823,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
+
 
 
 
@@ -5966,14 +6971,13 @@
 
 
 
+
              <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_Zmumu_IBL_pu40_offline-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_Zmumu_IBL_pu40_offline-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -5983,10 +6987,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
 
 	  <athenaCommonFlags />
@@ -6017,6 +7021,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
+
 
 
 
@@ -6165,14 +7170,13 @@
 
 
 
+
              <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_Zmumu_IBL_pu40_offline_rzMatcher-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_Zmumu_IBL_pu40_offline_rzMatcher-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -6182,10 +7186,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
 
 	  <athenaCommonFlags />
@@ -6216,6 +7220,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
+
 
 
 
@@ -6364,14 +7369,13 @@
 
 
 
+
              <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_Zmumu_IBL_pu40_rzMatcher-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -6381,14 +7385,15 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
+
 	  <athenaCommonFlags />
 	  </athena>
+
 
 
 
@@ -6408,6 +7413,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000001.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000002.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000003.pool.root.1</dataset>
+
 
 
 
@@ -6555,14 +7561,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-mu_bphys_IBL-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_bphys_IBL-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -6572,15 +7577,16 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
+
 	  <athenaCommonFlags />
 	  <alwaysRunPostProc />
 	  </athena>
+
 
 
 
@@ -6627,6 +7633,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000903.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000932.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000948.pool.root.1</dataset> 
+
 
 	    
 
@@ -6755,15 +7762,14 @@
         </action>
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias-reference.root</auxFilePattern>
 
-            <auxFilePattern>expert-monitoring-minBias-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -6773,10 +7779,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
 
           <athenaCommonFlags /> 
@@ -6826,6 +7832,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000903.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000932.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000948.pool.root.1</dataset> 
+
 
 	    
 
@@ -6954,15 +7961,14 @@
         </action>
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias_offline-reference.root</auxFilePattern>
 
-            <auxFilePattern>expert-monitoring-minBias-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -6972,15 +7978,16 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
+
           <athenaCommonFlags /> 
 	  <alwaysRunPostProc />
 	  </athena>
+
 
 
 
@@ -7007,6 +8014,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
+
 
 
 
@@ -7186,14 +8194,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-FTK_mu_ttbar-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_mu_ttbar-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -7203,10 +8210,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
 	  <athenaCommonFlags />
@@ -7231,6 +8238,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000043.RDO_FTK_ttbar.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000044.RDO_FTK_ttbar.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000053.RDO_FTK_ttbar.root</dataset>
+
 
 
 
@@ -7379,14 +8387,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-FTK_tau_tautau-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_tau_tautau-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -7396,10 +8403,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
 	  <athenaCommonFlags />
@@ -7429,6 +8436,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
+
 
 
 
@@ -7576,6 +8584,7 @@
 
 
 
+
         
 
             <testToRemove>
@@ -7584,8 +8593,6 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-FTK_bjet_ttbar-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_bjet_ttbar-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -7595,10 +8602,10 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
 
    
          <athenaCommonFlags /> 
@@ -7629,6 +8636,7 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
+
 
 
 
@@ -7765,14 +8773,13 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-            <auxFilePattern>data-FTK_beamspot_ttbar-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_beamspot_ttbar-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -7782,14 +8789,15 @@
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
             <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
+
    
          <athenaCommonFlags /> 
          </athena>
+
 
 
 
@@ -7929,4 +8937,5 @@
 </unifiedTestConfiguration>
 
 <!--  LocalWords:  eosatlas -->
+
 

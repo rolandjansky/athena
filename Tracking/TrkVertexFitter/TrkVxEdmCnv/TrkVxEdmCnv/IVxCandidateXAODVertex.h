@@ -64,7 +64,7 @@ class IVxCandidateXAODVertex
    * @param xAODVx input object
    * @param vxVertex return object, owned by the clients.
    */
-  virtual StatusCode createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex) = 0;
+  virtual StatusCode createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex) const = 0;
 
   /**
    * Convert a VxCandidate to a VxVertex. Return object is own by the clients.

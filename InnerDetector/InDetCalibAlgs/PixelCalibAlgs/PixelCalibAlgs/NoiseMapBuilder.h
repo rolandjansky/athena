@@ -64,7 +64,7 @@ class NoiseMapBuilder: public AthAlgorithm{
   std::vector<int> m_moduleHashList;
 
   double m_nEvents;
-  double m_occupancyCut;
+//  double m_occupancyCut;
 
   TH1D* m_nEventsHist;
   TH1D* m_nEventsLBHist;
@@ -100,7 +100,7 @@ class NoiseMapBuilder: public AthAlgorithm{
   double m_longPixelMultiplier;
   double m_gangedPixelMultiplier;
 
-  int m_maxLVL1A;
+//  int m_maxLVL1A;
 
   bool m_occupancyPerBC;
 

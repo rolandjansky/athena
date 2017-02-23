@@ -8,9 +8,8 @@ __doc__="Implementation of Electron Signature"
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-logElectronDef = logging.getLogger("TriggerMenu.egamma.ElectronDef")
+log = logging.getLogger("TriggerMenu.egamma.ElectronDef")
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 
 ##########################################################################################
@@ -61,7 +60,6 @@ theT2CaloEgamma_cells_e           = T2CaloEgamma_cells("T2CaloEgamma_cells")
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 [trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
 
-from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 [theFastTrackFinderxAOD]                  = TrigInDetSequence("Electron","electron","FastxAOD").getSequence()
 [theL2StarxAOD]                           = TrigInDetSequence("Electron","electron","L2StarxAOD").getSequence()
@@ -169,12 +167,12 @@ class L2EFChain_e(L2EFChainDef):
         trkInfo = self.chainPart['trkInfo']
         L2IDAlg = self.chainPart['L2IDAlg']
         
-        logElectronDef.info('setup_eXXvh_ID')
-        logElectronDef.info('threshold: %s',threshold)
-        logElectronDef.info('isoInfo: %s',isoInfo)
-        logElectronDef.info('IDinfo: %s',IDinfo)
-        logElectronDef.info('addInfo: %s',addInfo)
-        logElectronDef.info('trkInfo: %s',trkInfo)
+        log.info('setup_eXXvh_ID')
+        log.info('threshold: %s',threshold)
+        log.info('isoInfo: %s',isoInfo)
+        log.info('IDinfo: %s',IDinfo)
+        log.info('addInfo: %s',addInfo)
+        log.info('trkInfo: %s',trkInfo)
        
         # common imports required for EtCut and Electron ID chains
         # L2 Calo FEX
@@ -190,9 +188,8 @@ class L2EFChain_e(L2EFChainDef):
         from TrigEgammaHypo.TrigL2ElectronFexConfig  import L2ElectronFex_L2StarA
         from TrigEgammaHypo.TrigL2ElectronFexConfig  import L2ElectronFex_L2StarB
         from TrigEgammaHypo.TrigL2ElectronFexConfig  import L2ElectronFex_L2StarC
-        from TrigEgammaHypo.TrigL2ElectronFexConfig  import L2ElectronFex_all_NoCut
         # Depends on L2 Strategy
-        logElectronDef.info('L2IDAlg: %s', self.chainPart['L2IDAlg'])
+        log.info('L2IDAlg: %s', self.chainPart['L2IDAlg'])
         if self.chainPart['L2IDAlg']: 
             if L2IDAlg == 'L2StarA': 
                 theL2TrackingFex = TrigL2SiTrackFinder_eGammaA()
@@ -204,10 +201,10 @@ class L2EFChain_e(L2EFChainDef):
                 theL2TrackingFex = TrigL2SiTrackFinder_eGammaC()
                 theL2ElectronFex = L2ElectronFex_L2StarC()
             else:
-                logElectronDef.info('Incorrect L2IDAlg')
+                log.info('Incorrect L2IDAlg')
         # Default
         else:
-            logElectronDef.info('Use default L2StarA tracking')
+            log.info('Use default L2StarA tracking')
             theL2TrackingFex = TrigL2SiTrackFinder_eGammaA()
             theL2ElectronFex = L2ElectronFex_L2StarA()
  
@@ -252,7 +249,7 @@ class L2EFChain_e(L2EFChainDef):
         
         elif self.chainPart['IDinfo']:
             algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
-            logElectronDef.info('chain suffix: %s', algoSuffix)
+            log.info('chain suffix: %s', algoSuffix)
             #if 'mvt' in algoSuffix: 
             #    algoSuffix = algoSuffix.replace('mvt','')
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_e_ID
@@ -281,8 +278,8 @@ class L2EFChain_e(L2EFChainDef):
                 theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
         else:
             algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
-            logElectronDef.error('Chain %s could not be assembled', self.chainPartName)
-            logElectronDef.erro('chain suffix: %s', algoSuffix)
+            log.error('Chain %s could not be assembled', self.chainPartName)
+            log.erro('chain suffix: %s', algoSuffix)
             return False
         
         ########### Sequences ###########
@@ -339,11 +336,11 @@ class L2EFChain_e(L2EFChainDef):
         isoInfo = self.chainPart['isoInfo']
         run1 = self.chainPart['trkInfo']
        
-        logElectronDef.info('setup_eXXvh_idperf')
-        logElectronDef.info('threshold: %s',threshold)
-        logElectronDef.info('isoInfo: %s',isoInfo)
-        logElectronDef.info('IDinfo: %s',IDinfo)
-        logElectronDef.info('trkInfo: %s',run1)
+        log.info('setup_eXXvh_idperf')
+        log.info('threshold: %s',threshold)
+        log.info('isoInfo: %s',isoInfo)
+        log.info('IDinfo: %s',IDinfo)
+        log.info('trkInfo: %s',run1)
         
         # L2 Tracking FEX
         from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_eGammaA
@@ -354,7 +351,7 @@ class L2EFChain_e(L2EFChainDef):
         theTrigL2SiTrackFinder_eGammaC=TrigL2SiTrackFinder_eGammaC()
         # EF Calo
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma_cells
-        theTrigCaloCellMaker_eGamma_cells= TrigCaloCellMaker_eGamma_cells()
+        #theTrigCaloCellMaker_eGamma_cells= TrigCaloCellMaker_eGamma_cells()
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
         theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma()
         theTrigCaloTowerMaker_eGamma     = TrigCaloTowerMaker_eGamma()
@@ -370,7 +367,6 @@ class L2EFChain_e(L2EFChainDef):
         #print 'ESETUP', self.chainPart
         # these can be made more configurable later (according to tracking algorithms etc...)
         
-        algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
         if 'etcut' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
@@ -434,14 +430,13 @@ class L2EFChain_e(L2EFChainDef):
         threshold = self.chainPart['threshold']
         IDinfo = self.chainPart['IDinfo']
         isoInfo = self.chainPart['isoInfo']
-        addInfo = self.chainPart['addInfo']
         trkInfo = self.chainPart['trkInfo']
       
-        logElectronDef.info('setup_eXXvh_ID_run2')
-        logElectronDef.info('threshold: %s',threshold)
-        logElectronDef.info('isoInfo: %s',isoInfo)
-        logElectronDef.info('IDinfo: %s',IDinfo)
-        logElectronDef.info('trkInfo: %s',trkInfo)
+        log.info('setup_eXXvh_ID_run2')
+        log.info('threshold: %s',threshold)
+        log.info('isoInfo: %s',isoInfo)
+        log.info('IDinfo: %s',IDinfo)
+        log.info('trkInfo: %s',trkInfo)
        
         # common imports required for EtCut and Electron ID chains
         # L2 Calo FEX
@@ -489,7 +484,7 @@ class L2EFChain_e(L2EFChainDef):
 
         elif self.chainPart['IDinfo']:
             algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
-            logElectronDef.info('chain suffix: %s', algoSuffix)
+            log.info('chain suffix: %s', algoSuffix)
             #if 'mvt' in algoSuffix: 
             #    algoSuffix = algoSuffix.replace('mvt','')
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_e_ID
@@ -514,8 +509,8 @@ class L2EFChain_e(L2EFChainDef):
                 theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
         else:
             algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
-            logElectronDef.error('Chain %s could not be assembled', self.chainPartName)
-            logElectronDef.erro('chain suffix: %s', algoSuffix)
+            log.error('Chain %s could not be assembled', self.chainPartName)
+            log.erro('chain suffix: %s', algoSuffix)
             return False
         
         ########### Sequences ###########

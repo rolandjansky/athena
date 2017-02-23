@@ -51,21 +51,16 @@ class MuonClusterHypo: public HLT::HypoAlgo {
     /** Min number of RoIs in the cluster. */   
     IntegerProperty m_nRoIEndCap;
     IntegerProperty m_nRoIBarrel;
-    /** Eta of the cluster. */   
-    DoubleProperty m_nEta;
-    /** Number of Jets with Log(H/E)<0.5 in the cluster. */   
-    IntegerProperty m_nJet;
-    /** Number of tracks in ID */   
-    IntegerProperty m_nTrk;
+    /** Eta cut between barrel and endcap */   
+    DoubleProperty m_etaMax;
+    /** Maximum allowed cluster eta */   
+    DoubleProperty m_etaMid;
 
 
 
-  /** Numbers of Roi in cluster */
-  int mCluNum;
-  /** Number of Jet with Log(h/e)<0.5 **/
-  int mNumJet;
-  /** Cut on Tracks */
-  int mNumTrk;
+
+    /** Numbers of Roi in cluster */
+    int mCluNum;
 
 
     // Other members:   
