@@ -9,10 +9,7 @@ private
 use AtlasCLHEP          AtlasCLHEP-*            External
 use Geant4              Geant4-*                External
 use FadsPackageLoader   FadsPackageLoader-*     Simulation/G4Sim/FADS
-use FadsUtilities       FadsUtilities-*         Simulation/G4Sim/FADS
-use FadsXMLParser       FadsXMLParser-*         Simulation/G4Sim/FADS
 use MCTruthBase         MCTruthBase-*           Simulation/G4Sim
-use PathResolver        PathResolver-*          Tools
 end_private
 
 ####include_dirs "$(G4AtlasControl_root)"
