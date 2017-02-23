@@ -164,15 +164,27 @@ StatusCode TileTriggerDefaultCalibTool::execute()
 
   ATH_MSG_DEBUG ( "cispar[16] " << cispar[16] << ", cispas[17] " << cispar[17] << ", cispar[18] " << cispar[18] );
   if (cispar[16] == 0x07){
-  	m_charge = cispar[17];
-  	m_ipmt = cispar[18];
-  	//m_itower = cispar[19];
-	//m_idrawer = cispar[20];
+      if (cispar[18]>5) {
+          ATH_MSG_WARNING ( "Bad CISpar detected, using pmt index and charge from previous event: " << m_ipmt << " " << m_charge );
+      } else {
+          m_charge = cispar[17];
+          m_ipmt = cispar[18];
+          //m_itower = cispar[19];
+          //m_idrawer = cispar[20];
+      }
+  }
+  else if (cispar[16] == 0x107){ // bad CISpar
+      ATH_MSG_WARNING ( "Bad CISpar detected, using pmt index and charge from previous event: " << m_ipmt << " " << m_charge );
   }
   else
-     return StatusCode::SUCCESS;
-  
+      return StatusCode::SUCCESS;
+
   ATH_MSG_DEBUG ( "Pattern/ipmt/charge: " << cispar[16] << " " << m_ipmt << " " << m_charge );
+  if (m_charge<1.0e-20) {
+      ATH_MSG_WARNING ( "Bad charge " << m_charge << " - skipping event" );
+      return StatusCode::SUCCESS;
+  }
+  
   if (m_ipmtOld != m_ipmt){
 	if (m_ipmt < m_ipmtOld) return StatusCode::SUCCESS;
 	m_ipmtCount = 1;
@@ -227,7 +239,7 @@ StatusCode TileTriggerDefaultCalibTool::execute()
 	continue;
 
       float amp = (*it)->amplitude();
-      //log << MSG::DEBUG << "ros " << ros << ", pos_neg_z " << pos_neg_z << ", drawer " << drawer <<" ieta " << ieta <<  ", chan " << chan << ", aplitude " << amp << endreq;
+      //log << MSG::DEBUG << "ros " << ros << ", pos_neg_z " << pos_neg_z << ", drawer " << drawer <<" ieta " << ieta <<  ", chan " << chan << ", aplitude " << amp << endmsg;
 
       m_meanTile[ros][drawer][chan] += amp;
       m_rmsTile[ros][drawer][chan]  += square(amp);

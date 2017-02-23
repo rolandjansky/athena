@@ -51,8 +51,8 @@ StatusCode TileTopCalibAlg::initialize()
   // Create output root file, one file for all tools
   m_rootFile = new TFile(m_fileName.c_str(), "recreate");
 
-  ToolHandleArray< ITileCalibTool >::const_iterator itTool = m_tileCalibToolList.begin();
-  ToolHandleArray< ITileCalibTool >::const_iterator  itToolEnd = m_tileCalibToolList.end();
+  ToolHandleArray< ITileCalibTool >::iterator itTool = m_tileCalibToolList.begin();
+  ToolHandleArray< ITileCalibTool >::iterator  itToolEnd = m_tileCalibToolList.end();
 
   for ( ; itTool != itToolEnd; ++itTool ) {
     ATH_CHECK( (*itTool)->initNtuple(m_runNumber,m_runType,m_rootFile) );
@@ -69,8 +69,8 @@ StatusCode TileTopCalibAlg::execute()
 {
   ATH_MSG_DEBUG ( "in execute()" );
 
-  ToolHandleArray< ITileCalibTool >::const_iterator itTool = m_tileCalibToolList.begin();
-  ToolHandleArray< ITileCalibTool >::const_iterator itToolEnd = m_tileCalibToolList.end();
+  ToolHandleArray< ITileCalibTool >::iterator itTool = m_tileCalibToolList.begin();
+  ToolHandleArray< ITileCalibTool >::iterator itToolEnd = m_tileCalibToolList.end();
 
   for ( ; itTool != itToolEnd; ++itTool ) {
     ATH_CHECK( (*itTool)->execute() );
@@ -88,8 +88,8 @@ TileTopCalibAlg::finalize()
 {
   ATH_MSG_INFO ( "in finalize()" );
 
-  ToolHandleArray< ITileCalibTool >::const_iterator itTool = m_tileCalibToolList.begin();
-  ToolHandleArray< ITileCalibTool >::const_iterator  itToolEnd = m_tileCalibToolList.end();
+  ToolHandleArray< ITileCalibTool >::iterator itTool = m_tileCalibToolList.begin();
+  ToolHandleArray< ITileCalibTool >::iterator  itToolEnd = m_tileCalibToolList.end();
 
   for ( ; itTool != itToolEnd; ++itTool ) {
     ATH_CHECK( (*itTool)->finalizeCalculations() );
