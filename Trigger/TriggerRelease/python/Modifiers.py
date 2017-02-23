@@ -1409,11 +1409,8 @@ class doValidation(_modifier):
         
     def preSetup(self):
         TriggerFlags.Online.doValidation = True
-<<<<<<< HEAD
-=======
         # Replace Online with Validation monitoring
         TriggerFlags.enableMonitoring = filter(lambda x:x!='Online', TriggerFlags.enableMonitoring())+['Validation']
->>>>>>> origin/svn-sweep-2015-02-15
         for m in self.modifiers: m.preSetup()
         
     def postSetup(self):
@@ -1538,11 +1535,8 @@ class enableCostMonitoring(_modifier):
     Enable Cost Monitoring for online
     """
     def preSetup(self):
-<<<<<<< HEAD
         TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecL2','CostExecEF','CostExecHLT']
-=======
         TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecHLT']
->>>>>>> origin/svn-sweep-2015-02-15
 
     def postSetup(self):
         from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost
