@@ -108,28 +108,28 @@ TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, c
 
 StatusCode TRTCalibrator::initialize()
 {
-  msg(MSG::INFO) << "initialize()" << endreq;
+  msg(MSG::INFO) << "initialize()" << endmsg;
   
   m_trtmanager=0; 
   
   if ((detStore()->retrieve(m_DetID,"AtlasID")).isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving ATLASDetectorID helper" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving ATLASDetectorID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if ((detStore()->retrieve(m_trtmanager,m_ntrtmanager)).isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT_DetectorManager" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT_DetectorManager" << endmsg;
     return StatusCode::FAILURE;
   }
   if ((detStore()->retrieve(m_TRTID)).isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if(m_trtcaldbSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRTCalDbTool !" << endreq;
+    msg(MSG::FATAL) << "Could not get TRTCalDbTool !" << endmsg;
     return StatusCode::FAILURE;
   }
   if(StatusCode::SUCCESS!=m_neighbourSvc.retrieve() ) {
-    msg(MSG::FATAL) <<"Could not get TRTStrawNeighbourTool !"<<endreq;
+    msg(MSG::FATAL) <<"Could not get TRTStrawNeighbourTool !"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -141,7 +141,7 @@ StatusCode TRTCalibrator::initialize()
       ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
       return StatusCode::FAILURE;
    } else {
-      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
+      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endmsg;
    }
 
 
@@ -524,47 +524,47 @@ bool TRTCalibrator::calibrate() {
   if(m_calsub!="user") m_selstring = "_" + TRT.GetSelString() + "_" + Detector.GetSelString() + "_" + Layer.GetSelString() + "_" + Module.GetSelString() + "_" + Board.GetSelString() + "_" + Chip.GetSelString() + "_" + Straw.GetSelString();
   
   //print some info
-  msg(MSG::INFO) << endreq;
-  msg(MSG::INFO) << "INPUT FILE       : " << infile << endreq; 
-  msg(MSG::INFO) << "OUTPUT FILE      : " << outfile << endreq; 
-  msg(MSG::INFO) << "SELECTION STRING : " << m_selstring << endreq; 
-  msg(MSG::INFO) << "OPTION STRING    : " << m_options << endreq; 
-  msg(MSG::INFO) << "RT RELATION      : " << m_rtrel << endreq; 
-  msg(MSG::INFO) << "MIN STATISTICS   : RT=" << m_minrt << ", T0=" << m_mint0 << endreq; 
-  msg(MSG::INFO) << "T0 OFFSET        : " << m_t0offset << endreq; 
-  msg(MSG::INFO) << endreq;
-  msg(MSG::INFO) << TRT.PrintInfo() << endreq;
-  msg(MSG::INFO) << Detector.PrintInfo() << endreq;
-  msg(MSG::INFO) << Layer.PrintInfo() << endreq;
-  msg(MSG::INFO) << Module.PrintInfo() << endreq;
-  msg(MSG::INFO) << Board.PrintInfo() << endreq;
-  msg(MSG::INFO) << Chip.PrintInfo() << endreq;
-  msg(MSG::INFO) << Straw.PrintInfo() << endreq;
-  msg(MSG::INFO) << endreq;
-//   msg(MSG::INFO) << WholeBarrel.PrintInfo() << endreq;
-//   msg(MSG::INFO) << WholeBarrelLayer.PrintInfo() << endreq;
-//   msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
+  msg(MSG::INFO) << "INPUT FILE       : " << infile << endmsg; 
+  msg(MSG::INFO) << "OUTPUT FILE      : " << outfile << endmsg; 
+  msg(MSG::INFO) << "SELECTION STRING : " << m_selstring << endmsg; 
+  msg(MSG::INFO) << "OPTION STRING    : " << m_options << endmsg; 
+  msg(MSG::INFO) << "RT RELATION      : " << m_rtrel << endmsg; 
+  msg(MSG::INFO) << "MIN STATISTICS   : RT=" << m_minrt << ", T0=" << m_mint0 << endmsg; 
+  msg(MSG::INFO) << "T0 OFFSET        : " << m_t0offset << endmsg; 
+  msg(MSG::INFO) << endmsg;
+  msg(MSG::INFO) << TRT.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Detector.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Layer.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Module.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Board.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Chip.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Straw.PrintInfo() << endmsg;
+  msg(MSG::INFO) << endmsg;
+//   msg(MSG::INFO) << WholeBarrel.PrintInfo() << endmsg;
+//   msg(MSG::INFO) << WholeBarrelLayer.PrintInfo() << endmsg;
+//   msg(MSG::INFO) << endmsg;
 
   if (m_DoArXenonSep){
   //print some info
-        msg(MSG::INFO) << endreq;
-        msg(MSG::INFO) << "Setup for the ARGON Straws: " <<endreq;
-        msg(MSG::INFO) << "INPUT FILE       : " << infile << endreq;
-        msg(MSG::INFO) << "OUTPUT FILE      : " << outfile << endreq;
-        msg(MSG::INFO) << "SELECTION STRING : " << m_selstring << endreq;
-        msg(MSG::INFO) << "OPTION STRING    : " << m_options << endreq;
-        msg(MSG::INFO) << "RT RELATION      : " << m_rtrel << endreq;
-        msg(MSG::INFO) << "MIN STATISTICS   : RT=" << m_minrt << ", T0=" << m_mint0 << endreq;
-        msg(MSG::INFO) << "T0 OFFSET        : " << m_t0offset << endreq;
-        msg(MSG::INFO) << endreq;
-        msg(MSG::INFO) << TRT_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Detector_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Layer_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Module_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Board_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Chip_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Straw_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << endreq;
+        msg(MSG::INFO) << endmsg;
+        msg(MSG::INFO) << "Setup for the ARGON Straws: " <<endmsg;
+        msg(MSG::INFO) << "INPUT FILE       : " << infile << endmsg;
+        msg(MSG::INFO) << "OUTPUT FILE      : " << outfile << endmsg;
+        msg(MSG::INFO) << "SELECTION STRING : " << m_selstring << endmsg;
+        msg(MSG::INFO) << "OPTION STRING    : " << m_options << endmsg;
+        msg(MSG::INFO) << "RT RELATION      : " << m_rtrel << endmsg;
+        msg(MSG::INFO) << "MIN STATISTICS   : RT=" << m_minrt << ", T0=" << m_mint0 << endmsg;
+        msg(MSG::INFO) << "T0 OFFSET        : " << m_t0offset << endmsg;
+        msg(MSG::INFO) << endmsg;
+        msg(MSG::INFO) << TRT_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Detector_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Layer_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Module_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Board_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Chip_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Straw_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << endmsg;
   }
   //read the chip reference t0 values from finedelays.txt
   int rbrd, rchp, rdet, dum;
@@ -802,16 +802,16 @@ bool TRTCalibrator::calibrate() {
 
 
       if ((ihist%10000==9999) | (ihist==m_nevents-1)){
-	msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endreq;
-        if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endreq;
+	msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endmsg;
+        if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endmsg;
 	//nTRThist=ndethist=nlayhist=nmodhist=nbrdhist=nchphist=nstwhist=0;
       }
       
       ihist++;
       delete chist;
     } // Finish Straw Loop   
-    msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endreq;
-    if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endreq;
+    msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endmsg;
+    if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endmsg;
 
     TRT.UpdateOldConstants();
     Detector.UpdateOldConstants();
@@ -833,7 +833,7 @@ bool TRTCalibrator::calibrate() {
 
   } else { // LOOP OVER HITS IN CASE OF ROOT NTUPLE =====================================
 
-    msg(MSG::INFO)  <<  " READING basic NTUPLE is HIGHLY DEPRECATED!!! Do NOT use it!!!" << endreq;
+    msg(MSG::INFO)  <<  " READING basic NTUPLE is HIGHLY DEPRECATED!!! Do NOT use it!!!" << endmsg;
     
     //open the ntuple
     TFile* ntfile=new TFile(infile.data());
@@ -855,11 +855,11 @@ bool TRTCalibrator::calibrate() {
       if (m_nevents==-1) m_nevents = hittuple->GetEntries();
       
       //loop a 1st time over the hittuple and calculate event phase and other track related data;
-      msg(MSG::INFO)  << "CALCULATING TRACK DATA!" << endreq;
+      msg(MSG::INFO)  << "CALCULATING TRACK DATA!" << endmsg;
       for (int ievt=0;ievt<m_nevents;ievt++){
 	
 	if ((ievt%1000000==999999) | (ievt==m_nevents-1)) {
-	  msg(MSG::INFO) << ievt+1 << " HITS READ! " << endreq; 
+	  msg(MSG::INFO) << ievt+1 << " HITS READ! " << endmsg; 
 	}
 	
 	hittuple->GetEntry(ievt);
@@ -887,11 +887,11 @@ bool TRTCalibrator::calibrate() {
       }
       
       //loop a 2nd time over the hittuple and add hits to the Calibrators
-      msg(MSG::INFO)  << "READING AND ADDING HITS!" << endreq;
+      msg(MSG::INFO)  << "READING AND ADDING HITS!" << endmsg;
       for (int ievt=0;ievt<m_nevents;ievt++){
 	
 	if ((ievt%100000==99999) | (ievt==m_nevents-1)){
-	  msg(MSG::INFO)  << ievt+1 << " HITS READ! " << " " << nTRThist << " " << ndethist << " " << nlayhist << " " << nmodhist << " " << nbrdhist << " " << nchphist << " " << nstwhist << endreq;
+	  msg(MSG::INFO)  << ievt+1 << " HITS READ! " << " " << nTRThist << " " << ndethist << " " << nlayhist << " " << nmodhist << " " << nbrdhist << " " << nchphist << " " << nstwhist << endmsg;
 	  nTRThist=ndethist=nlayhist=nmodhist=nbrdhist=nchphist=nstwhist=0;
 	}
 	
@@ -953,17 +953,17 @@ bool TRTCalibrator::calibrate() {
 	  nchphist += Chip.AddHit(Ckey,hitdata,NULL,true);    
 	  nstwhist += Straw.AddHit(Skey,hitdata,NULL,true);   
 	  
-	  if (msgLvl(MSG::DEBUG)) msg() << hitdata.sid << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->barrel_ec(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->layer_or_wheel(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->phi_module(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->straw_layer(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->straw(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << chip << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << board << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).x() << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).y() << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).z() << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg() << hitdata.sid << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->barrel_ec(ident) << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->layer_or_wheel(ident) << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->phi_module(ident) << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->straw_layer(ident) << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->straw(ident) << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << chip << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << board << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).x() << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).y() << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).z() << endmsg;
 	  
 	}
 
@@ -971,30 +971,30 @@ bool TRTCalibrator::calibrate() {
     }// if .. file ok
   }// if .. binhist or ntuple
 
-  msg(MSG::INFO) << endreq;
-  msg(MSG::INFO) << TRT.PrintStat() << endreq;
-  msg(MSG::INFO) << Detector.PrintStat() << endreq;
-  msg(MSG::INFO) << Layer.PrintStat() << endreq;
-  msg(MSG::INFO) << Module.PrintStat() << endreq;
-  msg(MSG::INFO) << Board.PrintStat() << endreq;
-  msg(MSG::INFO) << Chip.PrintStat() << endreq;
-  msg(MSG::INFO) << Straw.PrintStat() << endreq;
-  //msg(MSG::INFO) << endreq;
-  //msg(MSG::INFO) << WholeBarrel.PrintStat() << endreq;
-  //msg(MSG::INFO) << WholeBarrelLayer.PrintStat() << endreq;
-  msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
+  msg(MSG::INFO) << TRT.PrintStat() << endmsg;
+  msg(MSG::INFO) << Detector.PrintStat() << endmsg;
+  msg(MSG::INFO) << Layer.PrintStat() << endmsg;
+  msg(MSG::INFO) << Module.PrintStat() << endmsg;
+  msg(MSG::INFO) << Board.PrintStat() << endmsg;
+  msg(MSG::INFO) << Chip.PrintStat() << endmsg;
+  msg(MSG::INFO) << Straw.PrintStat() << endmsg;
+  //msg(MSG::INFO) << endmsg;
+  //msg(MSG::INFO) << WholeBarrel.PrintStat() << endmsg;
+  //msg(MSG::INFO) << WholeBarrelLayer.PrintStat() << endmsg;
+  msg(MSG::INFO) << endmsg;
 
 
   if(m_DoArXenonSep){
-          msg(MSG::INFO) << endreq;
-          msg(MSG::INFO) << TRT_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Detector_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Layer_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Module_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Board_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Chip_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Straw_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << endreq;
+          msg(MSG::INFO) << endmsg;
+          msg(MSG::INFO) << TRT_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Detector_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Layer_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Module_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Board_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Chip_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Straw_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << endmsg;
   }
 
 

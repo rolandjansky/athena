@@ -78,21 +78,21 @@ FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& n
 }
 
 StatusCode FillAlignTRTHits::initialize(){
-  msg(MSG::INFO) << "initialize() " << endreq;
+  msg(MSG::INFO) << "initialize() " << endmsg;
   if ((detStore()->retrieve(m_DetID,"AtlasID")).isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving ATLASDetectorID helper" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving ATLASDetectorID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if ((detStore()->retrieve(m_TRTID)).isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::FAILURE;
   }  
   if(m_trtcaldbSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRTCalDbSvc !" << endreq;
+    msg(MSG::FATAL) << "Could not get TRTCalDbSvc !" << endmsg;
     return StatusCode::FAILURE;
   }
   if(StatusCode::SUCCESS!=m_neighbourSvc.retrieve() ) {
-    msg(MSG::FATAL) <<"Could not get TRTStrawNeighbourSvc !"<<endreq;
+    msg(MSG::FATAL) <<"Could not get TRTStrawNeighbourSvc !"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -100,17 +100,17 @@ StatusCode FillAlignTRTHits::initialize(){
    // Get DriftFunction tool servise
    //
    if ( m_driftFunctionTool.retrieve().isFailure() ) {
-     msg(MSG::FATAL) << m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() << endreq;
+     msg(MSG::FATAL) << m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() << endmsg;
      return StatusCode::FAILURE;
    } else {
-     msg(MSG::INFO) << m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() << endreq;
+     msg(MSG::INFO) << m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() << endmsg;
    }
 
   // use updator to get unbiased states
   if ( ! m_updatorHandle.empty() ) {
     StatusCode sc = m_updatorHandle.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not retrieve measurement updator tool: "<< m_updatorHandle << endreq;
+      msg(MSG::FATAL) << "Could not retrieve measurement updator tool: "<< m_updatorHandle << endmsg;
       return sc;
     }
     m_updator = &(*m_updatorHandle);
@@ -125,7 +125,7 @@ StatusCode FillAlignTRTHits::initialize(){
       ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
       return StatusCode::FAILURE;
    } else {
-      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
+      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endmsg;
    }
 
   m_f = new TFile("basic.root","RECREATE");
@@ -188,15 +188,15 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
   if(evtStore()->contains<ComTime>(m_comTimeName)){
       if ( StatusCode::SUCCESS == evtStore()->retrieve(theComTime,m_comTimeName)) {
 	    timecor = theComTime->getTime() + m_DoMCCosmicTimeShift ;
-        if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved ComTime object with name "<<m_comTimeName<<" found! Time="<<timecor<<endreq; 
+        if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved ComTime object with name "<<m_comTimeName<<" found! Time="<<timecor<<endmsg; 
       }else{
-        if (msgLvl(MSG::DEBUG)) msg() << "ComTime object not found with name "<<m_comTimeName<<"!!!" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "ComTime object not found with name "<<m_comTimeName<<"!!!" << endmsg;
       }
    }
    if ( StatusCode::SUCCESS ==  evtStore()->retrieve(m_eventInfo) ){
 	 lbn = (float)		m_eventInfo->event_ID()->lumi_block();
    }else{
-	 if (msgLvl(MSG::DEBUG)) msg() << "Fail to extract Lumiblocke !!!" << endreq;
+	 if (msgLvl(MSG::DEBUG)) msg() << "Fail to extract Lumiblocke !!!" << endmsg;
    }
 	//Number of Prim vertex:
 /*
@@ -252,10 +252,10 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
 	          mparp = (tparp);
 
 	          if(tparp==0) {
-                if (msgLvl(MSG::DEBUG)) msg() << "strange: trk parameters not available" << endreq;
+                if (msgLvl(MSG::DEBUG)) msg() << "strange: trk parameters not available" << endmsg;
 	          }
 	          if(dcp==0) {
-                msg(MSG::ERROR)  << "strange: prepRawData not available" << endreq;
+                msg(MSG::ERROR)  << "strange: prepRawData not available" << endmsg;
 	          }
 	  
 		      if(mparp && dcp) {
@@ -378,7 +378,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
           ATH_MSG_DEBUG ("TrackParameters 1: " << *(HitOnTrackToRemove->trackParameters()));
         }
         else if (msgLvl(MSG::DEBUG)) {
-          msg() << "TrackParameters 1: NULL" << endreq;
+          msg() << "TrackParameters 1: NULL" << endmsg;
         }
 
         if(unbiasedTrkParameters){
@@ -450,7 +450,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
 		
 	      }	  
         } else {
-          msg(MSG::ERROR) << "TRT drift RIO cast failed - no hit stored" << endreq;
+          msg(MSG::ERROR) << "TRT drift RIO cast failed - no hit stored" << endmsg;
         }
 
 
@@ -459,12 +459,12 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
     } // non-zero ROTpointer
   } // end loop on Surfaces
   if (msgLvl(MSG::VERBOSE)) msg() << "Track has " << (*output)[TRT::Track::numberOfTRTHits] << " TRT hits --> of which "
-       << output->size() << " hits had FULL info available" << endreq;
+       << output->size() << " hits had FULL info available" << endmsg;
 
 
 
   delete unbiasedTrkParameters;
-  if(msgLvl(MSG::INFO)) msg() << "Delete all : " << endreq;
+  if(msgLvl(MSG::INFO)) msg() << "Delete all : " << endmsg;
 
 
   return true;
