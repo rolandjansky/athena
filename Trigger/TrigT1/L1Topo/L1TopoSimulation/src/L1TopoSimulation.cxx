@@ -77,6 +77,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    declareProperty( "AthenaMonTools", m_monitors, "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
    declareProperty( "MonHistBaseDir", m_histBaseDir = "L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>" );
    declareProperty( "EnableInputDump", m_enableInputDump, "Boolean to enable writing of input data for standalone running");
+   declareProperty( "UseBitwise", m_enableBitwise, "Boolean to enable the bitwise version of software algorithms");
    declareProperty( "InputDumpFile", m_inputDumpFile, "File name for dumping input data");
    declareProperty( "TopoCTPLocation", m_topoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP" );
    declareProperty( "TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
@@ -133,6 +134,7 @@ L1TopoSimulation::initialize() {
       return StatusCode::FAILURE;
    }
 
+   m_topoSteering->setUseBitwise(m_enableBitwise);
    std::cout << "Calling m_topoSteering->setupFromConfiguration(*menu)" << endl;
    try {
       m_topoSteering->setupFromConfiguration(*menu);
@@ -228,6 +230,11 @@ L1TopoSimulation::execute() {
 
    // fill the L1Topo Input Event
    TCS::TopoInputEvent & inputEvent = m_topoSteering->inputEvent();
+
+   // Event Info
+   const EventInfo *evt;
+   CHECK(evtStore()->retrieve(evt));
+   inputEvent.setEventInfo(evt->event_ID()->run_number(),evt->event_ID()->event_number(),evt->event_ID()->lumi_block(),evt->event_ID()->bunch_crossing_id());
 
    // EM TAU
    CHECK(m_emtauInputProvider->fillTopoInputEvent(inputEvent));

@@ -1420,81 +1420,86 @@ namespace Trk {
         ATH_MSG_INFO((*alignParList)[i]->paramType());*/
 
         //Skip solving for Pixel or IBL:
-
-	if (m_AlignIBLbutNotPixel) //If m_AlignIBLbutNotPixel is set to True, Pixel will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier)  
-	    {ATH_MSG_INFO( "Pixel DoF have been skiped in the solving because AlignIBLbutNotPixel is set to True");
+  const auto & theParameterList = *alignParList;      
+  const auto & thisIdentifier = theParameterList[i]->alignModule()->identify32();
+  const auto & thisParameterType = theParameterList[i]->paramType();
+  const bool oldPixel = (thisIdentifier == OldPixelIdentifier);
+  const bool ibl = (thisIdentifier == IBLIdentifier);
+  //
+	if (m_AlignIBLbutNotPixel) //If m_AlignIBLbutNotPixel is set to True, Pixel will be skipped in the solving.
+	  if  (oldPixel)  
+	    {ATH_MSG_INFO( "Pixel DoF have been skipped in the solving because AlignIBLbutNotPixel is set to True");
 	      continue;} 
 	
-	if (m_AlignPixelbutNotIBL) //If m_AlignPixelbutNotIBL is set to True, IBL will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier)  
-	    {ATH_MSG_INFO( "IBL DoF have been skiped in the solving because AlignPixelbutNotIBL is set to True");
+	if (m_AlignPixelbutNotIBL) //If m_AlignPixelbutNotIBL is set to True, IBL will be skipped in the solving.
+	  if  (ibl)  
+	    {ATH_MSG_INFO( "IBL DoF have been skipped in the solving because AlignPixelbutNotIBL is set to True");
 	      continue;}
 
         //For specific DoF: (*alignParList)[i]->paramType() = 0,1,2,3,4,5,6 for Tx,Ty,Tz,Rx,Ry,Rz,Bx
 	//Pixel Dofs:
-	if (m_Remove_Pixel_Tx) //If m_Remove_Pixel_Tx is set to True, Pixel Tx will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 0)  
-	    {ATH_MSG_INFO( "Pixel Tx DoF has been skiped in the solving because Remove_Pixel_Tx is set to True");
+	if (m_Remove_Pixel_Tx) //If m_Remove_Pixel_Tx is set to True, Pixel Tx will be skipped in the solving.
+	  if  ( oldPixel and (thisParameterType == 0))  
+	    {ATH_MSG_INFO( "Pixel Tx DoF has been skipped in the solving because Remove_Pixel_Tx is set to True");
 	      continue;} 
         
-	if (m_Remove_Pixel_Ty) //If m_Remove_Pixel_Ty is set to True, Pixel Ty will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 1)  
-	    {ATH_MSG_INFO( "Pixel Ty DoF has been skiped in the solving because Remove_Pixel_Ty is set to True");
+	if (m_Remove_Pixel_Ty) //If m_Remove_Pixel_Ty is set to True, Pixel Ty will be skipped in the solving.
+	  if  ( oldPixel and (thisParameterType == 1))  
+	    {ATH_MSG_INFO( "Pixel Ty DoF has been skipped in the solving because Remove_Pixel_Ty is set to True");
 	      continue;} 
         
-	if (m_Remove_Pixel_Tz) //If m_Remove_Pixel_Tz is set to True, Pixel Tz will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 2)  
-	    {ATH_MSG_INFO( "Pixel Tz DoF has been skiped in the solving because Remove_Pixel_Tz is set to True");
+	if (m_Remove_Pixel_Tz) //If m_Remove_Pixel_Tz is set to True, Pixel Tz will be skipped in the solving.
+	  if  (oldPixel and (thisParameterType == 2))  
+	    {ATH_MSG_INFO( "Pixel Tz DoF has been skipped in the solving because Remove_Pixel_Tz is set to True");
 	      continue;} 
         
-	if (m_Remove_Pixel_Rx) //If m_Remove_Pixel_Rx is set to True, Pixel Rx will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 3)  
-	    {ATH_MSG_INFO( "Pixel Rx DoF has been skiped in the solving because Remove_Pixel_Rx is set to True");
+	if (m_Remove_Pixel_Rx) //If m_Remove_Pixel_Rx is set to True, Pixel Rx will be skipped in the solving.
+	  if  (oldPixel and (thisParameterType == 3))
+	    {ATH_MSG_INFO( "Pixel Rx DoF has been skipped in the solving because Remove_Pixel_Rx is set to True");
 	      continue;} 
         
-	if (m_Remove_Pixel_Ry) //If m_Remove_Pixel_Ry is set to True, Pixel Ry will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 4)  
-	    {ATH_MSG_INFO( "Pixel Ry DoF has been skiped in the solving because Remove_Pixel_Ry is set to True");
+	if (m_Remove_Pixel_Ry) //If m_Remove_Pixel_Ry is set to True, Pixel Ry will be skipped in the solving.
+	  if  (oldPixel and (thisParameterType == 4)) 
+	    {ATH_MSG_INFO( "Pixel Ry DoF has been skipped in the solving because Remove_Pixel_Ry is set to True");
 	      continue;} 
         
-	if (m_Remove_Pixel_Rz) //If m_Remove_Pixel_Rz is set to True, Pixel Rz will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 5)  
-	    {ATH_MSG_INFO( "Pixel Rz DoF has been skiped in the solving because Remove_Pixel_Rz is set to True");
+	if (m_Remove_Pixel_Rz) //If m_Remove_Pixel_Rz is set to True, Pixel Rz will be skipped in the solving.
+	  if  (oldPixel and (thisParameterType == 5)) 
+	    {ATH_MSG_INFO( "Pixel Rz DoF has been skipped in the solving because Remove_Pixel_Rz is set to True");
 	      continue;} 
         
         //IBL Dofs:
-	if (m_Remove_IBL_Tx) //If m_Remove_IBL_Tx is set to True, IBL Tx will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 0)  
-	    {ATH_MSG_INFO( "IBL Tx DoF has been skiped in the solving because Remove_IBL_Tx is set to True");
+	if (m_Remove_IBL_Tx) //If m_Remove_IBL_Tx is set to True, IBL Tx will be skipped in the solving.
+	  if  (ibl and (thisParameterType == 0))  
+	    {ATH_MSG_INFO( "IBL Tx DoF has been skipped in the solving because Remove_IBL_Tx is set to True");
 	      continue;} 
         
-	if (m_Remove_IBL_Ty) //If m_Remove_IBL_Ty is set to True, IBL Ty will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 1)  
-	    {ATH_MSG_INFO( "IBL Ty DoF has been skiped in the solving because Remove_IBL_Ty is set to True");
+	if (m_Remove_IBL_Ty) //If m_Remove_IBL_Ty is set to True, IBL Ty will be skipped in the solving.
+	  if  (ibl and (thisParameterType == 1)) 
+	    {ATH_MSG_INFO( "IBL Ty DoF has been skipped in the solving because Remove_IBL_Ty is set to True");
 	      continue;} 
         
-	if (m_Remove_IBL_Tz) //If m_Remove_IBL_Tz is set to True, IBL Tz will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 2)  
-	    {ATH_MSG_INFO( "IBL Tz DoF has been skiped in the solving because Remove_IBL_Tz is set to True");
+	if (m_Remove_IBL_Tz) //If m_Remove_IBL_Tz is set to True, IBL Tz will be skipped in the solving.
+	  if  (ibl and (thisParameterType == 2))  
+	    {ATH_MSG_INFO( "IBL Tz DoF has been skipped in the solving because Remove_IBL_Tz is set to True");
 	      continue;} 
         
-	if (m_Remove_IBL_Rx) //If m_Remove_IBL_Rx is set to True, IBL Rx will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 3)  
-	    {ATH_MSG_INFO( "IBL Rx DoF has been skiped in the solving because Remove_IBL_Rx is set to True");
+	if (m_Remove_IBL_Rx) //If m_Remove_IBL_Rx is set to True, IBL Rx will be skipped in the solving.
+	  if  (ibl and (thisParameterType == 3))
+	    {ATH_MSG_INFO( "IBL Rx DoF has been skipped in the solving because Remove_IBL_Rx is set to True");
 	      continue;} 
         
-	if (m_Remove_IBL_Ry) //If m_Remove_IBL_Ry is set to True, IBL Ry will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 4)  
-	    {ATH_MSG_INFO( "IBL Ry DoF has been skiped in the solving because Remove_IBL_Ry is set to True");
+	if (m_Remove_IBL_Ry) //If m_Remove_IBL_Ry is set to True, IBL Ry will be skipped in the solving.
+	  if  (ibl and (thisParameterType == 4))  
+	    {ATH_MSG_INFO( "IBL Ry DoF has been skipped in the solving because Remove_IBL_Ry is set to True");
 	      continue;} 
 
-	if (m_Remove_IBL_Rz) //If m_Remove_IBL_Rz is set to True, IBL Rz will be skiped in the solving.
-	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 5)  
-	    {ATH_MSG_INFO( "IBL Rz DoF has been skiped in the solving because Remove_IBL_Rz is set to True");
+	if (m_Remove_IBL_Rz) //If m_Remove_IBL_Rz is set to True, IBL Rz will be skipped in the solving.
+	  if  (ibl and (thisParameterType == 5))  
+	    {ATH_MSG_INFO( "IBL Rz DoF has been skipped in the solving because Remove_IBL_Rz is set to True");
 	      continue;}
 
-	if((*alignParList)[i]->alignModule()->nHits() >= m_minNumHits && (*alignParList)[i]->alignModule()->nTracks() >= m_minNumTrks)
+	if(theParameterList[i]->alignModule()->nHits() >= m_minNumHits && theParameterList[i]->alignModule()->nTracks() >= m_minNumTrks)
 	  m_activeIndices.push_back(i);
       }
     m_aNDoF = m_activeIndices.size();

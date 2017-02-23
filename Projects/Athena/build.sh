@@ -6,19 +6,51 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build.sh [-t build type] [-b build dir]"
+    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a]"
+    echo " -c: Execute CMake step"
+    echo " -m: Execute make step"
+    echo " -i: Execute install step"
+    echo " -p: Execute CPack step"
+    echo " -a: Abort on error"
+    echo "If none of the c, m, i or p options are set then the script will do"
+    echo "*all* steps. Otherwise only the enabled steps are run - it's your"
+    echo "reponsibility to ensure that precusors are in good shape"
 }
 
 # Parse the command line arguments:
 BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
-while getopts ":t:s:b:h" opt; do
+EXE_CMAKE=""
+EXE_MAKE=""
+EXE_INSTALL=""
+EXE_CPACK=""
+NIGHTLY=true
+while getopts ":t:b:hcmipa" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
             ;;
         b)
             BUILDDIR=$OPTARG
+            ;;
+	c)
+	    EXE_CMAKE="1"
+	    ;;
+	m)
+	    EXE_MAKE="1"
+	    ;;
+	i)
+	    EXE_INSTALL="1"
+	    ;;
+	p)
+	    EXE_CPACK="1"
+	    ;;
+	a)
+	    NIGHTLY=false
+	    ;;
+        h)
+            usage
+            exit 0
             ;;
         :)
             echo "Argument -$OPTARG requires a parameter!"
@@ -33,68 +65,63 @@ while getopts ":t:s:b:h" opt; do
     esac
 done
 
+# If no step was explicitly specified, turn them all on:
+if [ -z "$EXE_CMAKE" -a -z "$EXE_MAKE" -a -z "$EXE_INSTALL" -a -z "$EXE_CPACK" ]; then
+    EXE_CMAKE="1"
+    EXE_MAKE="1"
+    EXE_INSTALL="1"
+    EXE_CPACK="1"
+fi
+
 # Stop on errors from here on out:
 set -e
 
-# We are in BASH, get the path of this script in a simple way:
+# Source in our environment
 AthenaSrcDir=$(dirname ${BASH_SOURCE[0]})
-AthenaSrcDir=$(cd ${AthenaSrcDir};pwd)
-
-# The directory holding the helper scripts:
-scriptsdir=${AthenaSrcDir}/../../Build/AtlasBuildScripts
-
-# Go to the main directory of the repository:
-cd ${AthenaSrcDir}/../..
-
-# Check if the user specified any source/build directories:
-if [ "$BUILDDIR" = "" ]; then
+if [ -z "$BUILDDIR" ]; then
     BUILDDIR=${AthenaSrcDir}/../../../build
 fi
+mkdir -p ${BUILDDIR}
+BUILDDIR=$(cd ${BUILDDIR} && pwd)
+source $AthenaSrcDir/build_env.sh -b $BUILDDIR
 
-# Set up the environment for the build:
-export NICOS_PROJECT_VERSION=`cat ${AthenaSrcDir}/version.txt`
-export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/Athena
-
-# Set up the environment variables for finding LCG and the TDAQ externals:
-source ${scriptsdir}/LCG_RELEASE_BASE.sh
-source ${scriptsdir}/TDAQ_RELEASE_BASE.sh
-
-# Set up the AthenaExternals project:
-extDir=${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea
-if [ ! -d ${extDir} ]; then
-    echo "Didn't find the AthenaExternals project under ${extDir}"
-    exit 1
-fi
-echo "Setting up AthenaExternals from: ${extDir}"
-source ${extDir}/*/setup.sh
-
-# Get the "platform name" from the directory created by the AthenaExternals
-# build:
-platform=$(cd ${extDir};ls)
-
-# Point to Gaudi:
-export GAUDI_ROOT=${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION}/InstallArea/${platform}
-echo "Taking Gaudi from: ${GAUDI_ROOT}"
-
-# Configure the build:
+# create the actual build directory
 mkdir -p ${BUILDDIR}/build/Athena
 cd ${BUILDDIR}/build/Athena
-time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
-    -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-    ${AthenaSrcDir} 2>&1 | tee cmake_config.log
 
-# At this point stop worrying about errors:
-set +e
+# consider a pipe failed if ANY of the commands fails
+set -o pipefail
 
-# Execute the build:
-time make -k
+# CMake:
+if [ -n "$EXE_CMAKE" ]; then
+    # Remove the CMakeCache.txt file, to force CMake to find externals
+    # from scratch in an incremental build.
+    rm -f CMakeCache.txt
+    # Now run the actual CMake configuration:
+    time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+        -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
+        ${AthenaSrcDir} 2>&1 | tee cmake_config.log
+fi
+
+# for nightly builds we want to get as far as we can
+if [ "$NIGHTLY" = true ]; then
+    # At this point stop worrying about errors:
+    set +e
+fi
+
+# make:
+if [ -n "$EXE_MAKE" ]; then
+    time make -k 2>&1 | tee cmake_build.log
+fi
 
 # Install the results:
-time make install/fast \
-    DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION}
+if [ -n "$EXE_INSTALL" ]; then
+    time make install/fast \
+	DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
+fi
 
 # Build an RPM for the release:
-time cpack
-cp Athena*.rpm ${BUILDDIR}/
+if [ -n "$EXE_CPACK" ]; then
+    time cpack 2>&1 | tee cmake_cpack.log
+    cp Athena*.rpm ${BUILDDIR}/
+fi

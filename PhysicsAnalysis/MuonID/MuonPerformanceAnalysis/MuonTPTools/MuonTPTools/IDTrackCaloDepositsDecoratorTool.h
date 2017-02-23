@@ -17,8 +17,11 @@
 #include "AsgTools/ToolHandle.h"
 
 #include "MuonTPTools/IIDTrackCaloDepositsDecoratorTool.h"
-#include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
 
+
+#ifndef XAOD_ANALYSIS
+#include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
+#endif
 class IDTrackCaloDepositsDecoratorTool :
           public asg::AsgTool,
           virtual public IIDTrackCaloDepositsDecoratorTool {
@@ -28,7 +31,10 @@ public:
     virtual StatusCode      initialize  ();
     StatusCode              decorate (const xAOD::IParticle* part) const;
 protected:
+
+#ifndef XAOD_ANALYSIS
     ToolHandle<ITrackDepositInCaloTool>  m_trkDepositInCalo;
+#endif
     StatusCode    recompute_and_decorate (const xAOD::IParticle* part) const;
 
     SG::AuxElement::Decorator< float > m_dec_EMB1_dep;

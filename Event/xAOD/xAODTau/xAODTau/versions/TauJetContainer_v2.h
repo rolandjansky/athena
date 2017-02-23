@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetContainer_v2.h 631748 2014-11-28 09:58:13Z janus $
+// $Id: TauJetContainer_v2.h 796007 2017-02-07 15:38:04Z griffith $
 #ifndef XAODTAU_VERSIONS_TAUCONTAINER_V2_H
 #define XAODTAU_VERSIONS_TAUCONTAINER_V2_H
 

@@ -60,6 +60,12 @@ AthSequencer::AthSequencer( const std::string& name,
                    "Algorithm names (of the form '<cppType>/<instanceName>')" );
   m_names.declareUpdateHandler( &AthSequencer::membershipHandler, this );
 
+  declareProperty( "Atomic", m_atomic=false, "Atomic sequence: don't unroll in MT");
+
+  declareProperty( "ModeOR", m_modeOR=false, "use OR logic instead of AND" );
+  declareProperty( "IgnoreFilterPassed", m_ignoreFilter=false, 
+                   "always continue sequence");
+
   declareProperty( "StopOverride", m_stopOverride=false,
                    "Stop on filter failure Override flag" );
   
@@ -140,6 +146,7 @@ AthSequencer::execute()
   volatile bool all_good = true;
   volatile bool caughtfpe= false;
   StatusCode sc = StatusCode::SUCCESS;
+  bool seqPass = !m_modeOR;
 
   ATH_MSG_DEBUG ("Executing " << name() << "...");
   
@@ -166,16 +173,19 @@ AthSequencer::execute()
 	
         if ( all_good ) {
 	  
-          // Take the filter passed status of this algorithm as my own status
-          bool passed = theAlgorithm->filterPassed( );
-          setFilterPassed( passed );
-	  
-          // The behaviour when the filter fails depends on the 
-          // StopOverride property.
-          // The default action is to stop processing, but this default can be
-          // overridden by setting the "StopOverride" property to false.
-          if ( ! m_stopOverride ) {
-            if ( ! passed ) break;
+          if ( !m_ignoreFilter ) {
+            // Take the filter passed status of this algorithm as my own status
+            bool passed = theAlgorithm->filterPassed( );
+            setFilterPassed( passed );
+            
+            // The behaviour when the filter fails depends on the 
+            // StopOverride property.
+            // The default action is to stop processing, but this default can be
+            // overridden by setting the "StopOverride" property to false.
+            if ( m_modeOR ? passed : !passed ) {
+              seqPass = passed;
+              if ( !m_stopOverride ) break;
+            }
           }
         } else {
           ATH_MSG_INFO ("execute of [" << theAlgorithm->name() << "] did NOT succeed");
@@ -184,6 +194,10 @@ AthSequencer::execute()
       }
     }
   }
+
+  if ( !m_ignoreFilter && !m_names.empty() ) setFilterPassed( seqPass );
+
+
   return caughtfpe ? StatusCode::RECOVERABLE : sc;
 }
 
@@ -202,7 +216,11 @@ StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
   {
     // Call the sysExecute() of the method the algorithm
     m_abortTimer.start(m_timeoutMilliseconds);
-    sc = theAlgorithm->sysExecute( );
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
+    sc = theAlgorithm->sysExecute();
+#else
+    sc = theAlgorithm->sysExecute( getContext() );
+#endif
     all_good = sc.isSuccess();
     // I think this should be done by the algorithm itself, 
     // but just in case...

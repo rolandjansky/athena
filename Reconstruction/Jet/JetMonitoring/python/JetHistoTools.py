@@ -18,8 +18,8 @@ compactSpecification = {
     # "histoname" : ( binning, attributeInfo )
     # where
     #  - binning is ("title;labelx;labely", nbins, xlow, xup) as in TH1 ctor
-    #  - attributeInfo is ("attribute", "attribute type") or ("attribute", "attribute type", "gev")    
-    # 
+    #  - attributeInfo is ("attribute", "attribute type") or ("attribute", "attribute type", "gev")
+    #
 
 #
 #  Jet moments added from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2JetMoments/
@@ -82,11 +82,11 @@ compactSpecification = {
 #
     "PullMag"          : (("PullMag;PullMag;",100,0,100),("PullMag","float")),
     "PullPhi"          : (("PullPhi;PullPhi;",100,-6.3,6.3),("PullPhi","float")),
-    "Pull_C00"         : (("Pull_C00;Pull_C00;",100,-1,1),("Pull_C00","float")), 
-    "Pull_C01"         : (("Pull_C01;Pull_C01;",100,-1,1),("Pull_C01","float")),                                                                                         
-    "Pull_C10"         : (("Pull_C10;Pull_C10;",100,-1,1),("Pull_C10","float")),                                                                                         
-    "Pull_C11"         : (("Pull_C11;Pull_C11;",100,-1,1),("Pull_C11","float")),                                                                                         
-#   
+    "Pull_C00"         : (("Pull_C00;Pull_C00;",100,-1,1),("Pull_C00","float")),
+    "Pull_C01"         : (("Pull_C01;Pull_C01;",100,-1,1),("Pull_C01","float")),
+    "Pull_C10"         : (("Pull_C10;Pull_C10;",100,-1,1),("Pull_C10","float")),
+    "Pull_C11"         : (("Pull_C11;Pull_C11;",100,-1,1),("Pull_C11","float")),
+#
     "Charge"           : (("Charge;Charge;",100,-2,2),("Charge","float")),
 #
     "ShowerDeconstructionW": (("ShowerDeconstructionW;ShowerDeconstructionW;",100,-100,100),("ShowerDeconstructionW","float")),
@@ -94,22 +94,30 @@ compactSpecification = {
 #
     "Volatility"       : (("Volatility;Volatility;",100,-100,100),("Volatility","float")),
 #
-    "pt"               : (("Jet Pt;Pt [MeV];", 100, 0, 200) ,     ("pt","float","gev" ) ),    
+    "pt"               : (("Jet Pt;Pt [MeV];", 100, 0, 200) ,     ("pt","float","gev" ) ),
     "Width"            : (("Jet Width;Width;", 50, 0, 1.0) ,         ("Width","float" ) ),
     "Width15"          : (("Jet Width;Width;", 50, 0, 1.5) ,         ("Width","float" ) ),
     "EMFrac"           : (("EM Fraction;EM fraction;", 50, -0.1, 1.4),  ("EMFrac", "float") ),
     "HECFrac"          : (("HEC Fraction;HEC fraction;", 50, -0.1, 1.4),  ("HECFrac", "float") ),
-    "Timing"           : (("Jet Time info;Time;", 40, -20, 20) ,     ("Timing", "float") ),    
+    "Timing"           : (("Jet Time info;Time;", 40, -20, 20) ,     ("Timing", "float") ),
     "NegativeE"        : (("Negative E in Jet;Energy;", 80, -10, 0),  ("NegativeE", "float", "gev") ),
     "LArQuality"       : (("LAr quality;Energy;", 50, -0.4, 1.2),  ("LArQuality", "float") ),
-    
-    "GhostTruthCount"  : (("Number of associate truth part;Number;", 60,0,60) , ("GhostTruthCount", "int")), 
-    "GhostTrackCount"  : (("Number of associate tracks;Number;", 60,0,60), ("GhostTrackCount", "int") ), 
-    "JVF"              : (("Jet Vertex Fraction;JVF;", 60,0,1.), ("JVF", "vector<float>") ), 
-    "JVF[0]"           : (("Jet Vertex Fraction;JVF;", 60,0,1.), ("JVF[0]", "vector<float>") ), 
-    "SumPtTrkPt1000"   : (("Sum Pt of all tracks above 1GeV:SumPt;", 100,0,200), ("SumPtTrkPt1000", "vector<float>", "gev") ),
-    
-    "SumPtTrkPt1000[0]": (("Sum Pt of tracks from PV0 above 1GeV:SumPt;", 100,0,200), ("SumPtTrkPt1000[0]", "vector<float>", "gev") ),
+
+    "GhostTruthCount"  : (("Number of associate truth part;Number;", 60,0,60) , ("GhostTruthCount", "int")),
+    "GhostTruthAssociationFraction"  : (("Fraction of associated truth particles from a matched truth jet jet;GhostTruthAssociationFraction;", 50,0,1.) , ("GhostTruthAssociationFraction", "float")),
+    "GhostTrackCount"  : (("Number of associate tracks;Number;", 60,0,60), ("GhostTrackCount", "int") ),
+    "GhostMuonSegmentCount"  : (("Number of associated muon segments;Number;", 60,0,60), ("GhostMuonSegmentCount", "int") ),
+    "JVF"              : (("Jet Vertex Fraction;JVF;", 60,0,1.2), ("JVF", "vector<float>") ),
+    "JVF[0]"           : (("Jet Vertex Fraction;JVF;", 60,0,1.2), ("JVF[0]", "vector<float>") ),
+    'JVFCorr'          : (("Jet JVT JVFCorr;;", 120, -1.2, 1.2) , ("JVFCorr","float" ) ),
+    'Jvt'              : (("Jet JVT;;", 70, -0.2, 1.2) , ("Jvt","float" ) ),
+    'JvtRpt'           : (("Jet JVT Rpt;;", 75, 0, 1.5) , ("JvtRpt","float" ) ),
+
+    "SumPtTrkPt500"    : (("Sum Pt of all tracks above 0.5 GeV:SumPt(p_{T}>0.5 GeV);", 100,0,200), ("SumPtTrkPt500", "vector<float>", "gev") ),
+    "SumPtTrkPt500[0]" : (("Sum Pt of tracks from PV0 above 0.5 GeV:SumPt(p_{T}>0.5 GeV);", 100,0,200), ("SumPtTrkPt500[0]", "vector<float>", "gev") ),
+    "NumTrkPt500[0]"   : (("Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);", 100,0,100), ("NumTrkPt500[0]", "vector<int>") ),
+    "NumTrkPt1000[0]"    : (("Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);", 100,0,100), ("NumTrkPt1000[0]", "vector<int>") ),
+    "TrackWidthPt1000[0]": (("Width from tracks from PV0 above 1 GeV:Track Width(p_{T}>1 GeV);", 75,0.,1.5), ("TrackWidthPt1000[0]", "vector<float>") ),
 
     "ActiveArea"       : (("Active Area;Area;", 80, 0, 0.8), ("ActiveArea", "float") ),
     "ActiveArea15"     : (("Active Area;Area;", 80, 0, 1.5), ("ActiveArea", "float") ),
@@ -120,31 +128,32 @@ compactSpecification = {
     "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",100,0, 65535), ("AverageLArQF", "float") ),
     "HECQuality"       : (("HEC Quality;HEC Quality;",50,-0.1, 1.4), ("HECQuality", "float") ),
     "FracSamplingMax"  : (("FracSamplingMax; FracSamplingMax;",50,-0.1, 1.2), ("FracSamplingMax", "float") ),
-    # binning optimisation from Emma Tolley 
+    # binning optimisation from Emma Tolley
     #"FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",23,0,23), ("FracSamplingMaxIndex", "int") ),
     "FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",24,0,24), ("FracSamplingMaxIndex", "int") ),
     # binning optimisation from Emma Tolley
-    #"N90Constituents"  : (("N90Constituents; N90Constituents;",50,0,10), ("N90Constituents", "float") ), 
+    #"N90Constituents"  : (("N90Constituents; N90Constituents;",50,0,10), ("N90Constituents", "float") ),
     "N90Constituents"  : (("N90Constituents; N90Constituents;",15,0,15), ("N90Constituents", "float") ),
     "CentroidR"        : (("CentroidR; CentroidR;",100,0,7500), ("CentroidR", "float") ),
     "OotFracClusters5" : (("OotFracClusters5; OotFracClusters5;",50,-0.1,1.2), ("OotFracClusters5", "float") ),
     "OotFracClusters10": (("OotFracClusters10; OotFracClusters10;",50,-0.1,1.2), ("OotFracClusters10", "float") ),
     #CBG
-    "ptN"               : (("Jet Pt;Pt [GeV];", 250, 0., 5000.) ,     ("pt","float","gev" ) ), 
+    "ptN"               : (("Jet Pt;Pt [GeV];", 250, 0., 5000.) ,     ("pt","float","gev" ) ),
     "LeadingClusterCenterLambda": (("LeadingClusterCenterLambda; LeadingClusterCenterLambda;",100,0.,10000.), ("LeadingClusterCenterLambda", "float") ),
     "LeadingClusterSecondLambda": (("LeadingClusterSecondLambda; LeadingClusterSecondLambda;",100,0.,10000.), ("LeadingClusterSecondLambda", "float") ),
-    # binning optimisation from Emma Tolley 
-    #"LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,1000.), ("LeadingClusterSecondR", "float") ), 
-    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,100000.), ("LeadingClusterSecondR", "float") ), 
-    "CHF": (("SumPtTrkPt1000/pT; SumPtTrkPt1000/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ), 
-    #CBG 
-    # 
+    # binning optimisation from Emma Tolley
+    #"LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,1000.), ("LeadingClusterSecondR", "float") ),
+    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,100000.), ("LeadingClusterSecondR", "float") ),
+    #"CHF": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ),
+    #"CHF[0]": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf[0]", "vector<float>", "gev") ),
+    #CBG
+    #
 
     # 2D Histo format is
     # "histoname" : ( binning, attributeInfo1, attributeInfo2 )
     # where
     #  - binning is ("title;labelx;labely", nbins, xlow, xup, nbinsy, ylow, yup) as in TH2 ctor
-    #  - attributeInfo is ("attribute", "attribute type") or ("attribute", "attribute type", "gev")    
+    #  - attributeInfo is ("attribute", "attribute type") or ("attribute", "attribute type", "gev")
 
     }
 
@@ -171,13 +180,13 @@ jhm.addTool( LeadingJetsRelations("leadingjetrel",
     hdef('ljrDeltaPhi', "#Delta #Phi (lead, sublead);#Delta#Phi;Entries",100,0,3.142 ),
     hdef('ljrDeltaR', "#Delta R (lead, sublead);#Delta R;Entries",100,0,10 ),
     hdef('ljrFrac', "(sublead Pt)/(lead Pt);ratio;Entries",100,0,1. ),
-    
+
     #hdef('ljrEta1Eta2', "sublead #eta vs lead #eta;lead #eta;sublead #eta",100,-5,5.,100,-5,5 ),
 
     ]
                                   )  )
 
-jhm.addTool( EfficiencyResponseHistos("effresponse", 
+jhm.addTool( EfficiencyResponseHistos("effresponse",
                                       HistoDef = [
     hdef('erhEfficiencyR1', "Jet p_{T} Efficiency #DeltaR = 0.1;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
     hdef('erhEfficiencyR2', "Jet p_{T} Efficiency #DeltaR = 0.2;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
@@ -226,11 +235,11 @@ def selectionAndHistos( selectType, histos, selectionName="", histoNameSuffix=""
                                             HistoNameSuffix = histoNameSuffix)
     else:
         selTool = selectType
-    
+
     if selTool is None :
         print "ERROR can't build histo tool for a jet selection. Uknown or wrong selection request :",selectType , selTool
         return None
-    
+
     if selectionName != "":
         selTool = selTool.clone(selectionName)
 

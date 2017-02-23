@@ -16,7 +16,7 @@ SiHit::SiHit( ) :
   m_enZ(0.),
   m_energyLoss(0.),
   m_meanTime(0.),
-  m_partLink(), 
+  m_partLink(),
   m_ID(0xffff)
 {
 
@@ -27,11 +27,11 @@ SiHit::~SiHit() {}
 
 // Constructor
 SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
-	     const HepGeom::Point3D<double> &localEndPosition,
-	     const double energyLoss,
-	     const double meanTime,
-	     const int trackNumber,
-	     const unsigned int id) :
+             const HepGeom::Point3D<double> &localEndPosition,
+             const double energyLoss,
+             const double meanTime,
+             const int trackNumber,
+             const unsigned int id) :
   //  m_localStartPosition(localStartPosition),
   //  m_localEndPosition(localEndPosition),
   m_stX( (float) localStartPosition.x() ),
@@ -46,15 +46,15 @@ SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
   m_ID(id)
 {
 }
-	
+
 // Constructor
 SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
-	     const HepGeom::Point3D<double> &localEndPosition,
-	     const double energyLoss,
-	     const double meanTime,
-	     const int trackNumber,
-	     const int Pixel_SCT, const int BrlECap, const int LayerDisk,
-	     const int etaM, const int phiM, const int side) :
+             const HepGeom::Point3D<double> &localEndPosition,
+             const double energyLoss,
+             const double meanTime,
+             const int trackNumber,
+             const int Pixel_SCT, const int BrlECap, const int LayerDisk,
+             const int etaM, const int phiM, const int side) :
   //  m_localStartPosition(localStartPosition),
   //  m_localEndPosition(localEndPosition),
   m_stX( (float) localStartPosition.x() ),
@@ -72,15 +72,62 @@ SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
   m_ID =  SiHitIdHelper::GetHelper()->buildHitId(Pixel_SCT,BrlECap,LayerDisk,etaM,phiM,side);
 }
 
+// Constructor
+SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
+             const HepGeom::Point3D<double> &localEndPosition,
+             const double energyLoss,
+             const double meanTime,
+             const HepMcParticleLink &track,
+             const unsigned int id) :
+  //  m_localStartPosition(localStartPosition),
+  //  m_localEndPosition(localEndPosition),
+  m_stX( (float) localStartPosition.x() ),
+  m_stY( (float) localStartPosition.y() ),
+  m_stZ( (float) localStartPosition.z() ),
+  m_enX( (float) localEndPosition.x() ),
+  m_enY( (float) localEndPosition.y() ),
+  m_enZ( (float) localEndPosition.z() ),
+  m_energyLoss(energyLoss),
+  m_meanTime(meanTime),
+  m_partLink(track),
+  m_ID(id)
+{
+}
+
+// Constructor
+SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
+             const HepGeom::Point3D<double> &localEndPosition,
+             const double energyLoss,
+             const double meanTime,
+             const HepMcParticleLink &track,
+             const int Pixel_SCT, const int BrlECap, const int LayerDisk,
+             const int etaM, const int phiM, const int side) :
+  //  m_localStartPosition(localStartPosition),
+  //  m_localEndPosition(localEndPosition),
+  m_stX( (float) localStartPosition.x() ),
+  m_stY( (float) localStartPosition.y() ),
+  m_stZ( (float) localStartPosition.z() ),
+  m_enX( (float) localEndPosition.x() ),
+  m_enY( (float) localEndPosition.y() ),
+  m_enZ( (float) localEndPosition.z() ),
+  m_energyLoss(energyLoss),
+  m_meanTime(meanTime),
+  m_partLink(track),
+  m_ID(0)
+{
+  // Compress the location info into the integer:
+  m_ID =  SiHitIdHelper::GetHelper()->buildHitId(Pixel_SCT,BrlECap,LayerDisk,etaM,phiM,side);
+}
+
 void SiHit::ScaleLength(double sfactor) {
   //  m_localStartPosition *= sfactor;
   //  m_localEndPosition   *= sfactor;
-   m_stX *=  (float) sfactor;
-   m_stY *=  (float) sfactor;
-   m_stZ *=  (float) sfactor;
-   m_enX *=  (float) sfactor;
-   m_enY *=  (float) sfactor;
-   m_enZ *=  (float) sfactor;
+  m_stX *=  (float) sfactor;
+  m_stY *=  (float) sfactor;
+  m_stZ *=  (float) sfactor;
+  m_enX *=  (float) sfactor;
+  m_enY *=  (float) sfactor;
+  m_enZ *=  (float) sfactor;
 }
 
 bool SiHit::isPixel() const {
@@ -129,7 +176,7 @@ void SiHit::print() const {
     std::cout << "*** Pixel Hit " << std::endl;
   } else {
     std::cout << "*** SCT Hit " << std::endl;
-  }    
+  }
   std::cout << "          Barrel/ EndCap Number " << getBarrelEndcap() << std::endl;
   std::cout << "          Layer/Disk Number     " << getLayerDisk() << std::endl;
   std::cout << "          Eta Number            " << getEtaModule() << std::endl;

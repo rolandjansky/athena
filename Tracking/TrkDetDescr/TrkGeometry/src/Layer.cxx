@@ -226,7 +226,7 @@ void Trk::Layer::assignMaterialProperties( const LayerMaterialProperties& prop, 
 void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
     // set the layer surface representation
     ++tSurfaces;
-    if (&surfaceRepresentation() && surfaceRepresentation().owner() == Trk::noOwn){
+    if (surfaceRepresentation().owner() == Trk::noOwn){
         surfaceRepresentation().setOwner(Trk::TGOwn);
         ++cSurfaces;
     }

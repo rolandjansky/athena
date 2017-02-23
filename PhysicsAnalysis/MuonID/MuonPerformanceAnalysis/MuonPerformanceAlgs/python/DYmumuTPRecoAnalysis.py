@@ -31,7 +31,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
     #if hasattr(job, "MuonQualityUpdater"):
         #MuonContainerToUse = "UpdatedMuons"
 
-    ProbeContainer=MuonContainerToUse
+    ProbeContainer=CommonMuonTPConfig.GetRightMuonContainer()
 
     if ProbeKind == "MSTrackPart":
         ProbeContainer = "ExtrapolatedMuonTrackParticles"
@@ -140,21 +140,21 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
     MatchingTools = []
     if doCB:
         thistoolCB = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_CB"%name_suffix,
-                                                                    EffiFlag="CombinedMuons",doClosure=doClosure,IsNominal=True)
+                                                                    EffiFlag="CombinedMuons",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolCB.MatchToCB = True
         thistoolCB.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure)
         thistoolCB.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolCB]
         if doDRSys:
             thistoolCB_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_CB_dRDown"%name_suffix,
-                                                                               EffiFlag="CombinedMuons_dRDown",doClosure=doClosure,IsNominal=False)                   
+                                                                               EffiFlag="CombinedMuons_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)                   
             thistoolCB_dRDown.MatchToCB = True
             thistoolCB_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure)
             thistoolCB_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolCB_dRDown]
             
             thistoolCB_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_CB_dRUp"%name_suffix,
-                                                                             EffiFlag="CombinedMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                             EffiFlag="CombinedMuons_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolCB_dRUp.MatchToCB = True
             thistoolCB_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure)
             thistoolCB_dRUp.MaximumDrCut = 2. * MATCH_DR
@@ -162,21 +162,21 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
 
     if doLoose:
         thistoolLoose = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Loose"%name_suffix,
-                                                                       EffiFlag="LooseMuons",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="LooseMuons",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolLoose.MatchToLoose = True
         thistoolLoose.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
         thistoolLoose.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolLoose]
         if doDRSys:
             thistoolLoose_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Loose_dRDown"%name_suffix,
-                                                                                  EffiFlag="LooseMuons_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                  EffiFlag="LooseMuons_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolLoose_dRDown.MatchToLoose = True
             thistoolLoose_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
             thistoolLoose_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolLoose_dRDown]
             
             thistoolLoose_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Loose_dRUp"%name_suffix,
-                                                                                EffiFlag="LooseMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="LooseMuons_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolLoose_dRUp.MatchToLoose = True
             thistoolLoose_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
             thistoolLoose_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -184,7 +184,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             
         # also run a version without CaloTag
         thistoolLoose_noCaloTag = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Loose_noCaloTag"%name_suffix,
-                                                                                 EffiFlag="LooseMuons_noCaloTag",doClosure=doClosure,IsNominal=True)
+                                                                                 EffiFlag="LooseMuons_noCaloTag",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolLoose_noCaloTag.MatchToLoose_noCaloTag = True
         thistoolLoose_noCaloTag.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
         thistoolLoose_noCaloTag.ApplyScaleFactors=doClosure
@@ -193,14 +193,14 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolLoose_noCaloTag]
         if doDRSys:
             thistoolLoose_noCaloTag_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Loose_noCaloTag_dRDown"%name_suffix,
-                                                                                            EffiFlag="LooseMuons_noCaloTag_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                            EffiFlag="LooseMuons_noCaloTag_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolLoose_noCaloTag_dRDown.MatchToLoose_noCaloTag = True
             thistoolLoose_noCaloTag_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
             thistoolLoose_noCaloTag_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolLoose_noCaloTag_dRDown]
             
             thistoolLoose_noCaloTag_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Loose_noCaloTag_dRUp"%name_suffix,
-                                                                                          EffiFlag="LooseMuons_noCaloTag_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                          EffiFlag="LooseMuons_noCaloTag_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolLoose_noCaloTag_dRUp.MatchToLoose_noCaloTag = True
             thistoolLoose_noCaloTag_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
             thistoolLoose_noCaloTag_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -208,28 +208,28 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
         
     if doMedium:
         thistoolMed = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Medium"%name_suffix,
-                                                                     EffiFlag="MediumMuons",doClosure=doClosure,IsNominal=True)
+                                                                     EffiFlag="MediumMuons",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMed.MatchToMedium = True
         thistoolMed.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure)
         thistoolMed.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMed]
         if doDRSys:
             thistoolMed_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Medium_dRDown"%name_suffix,
-                                                                                EffiFlag="MediumMuons_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="MediumMuons_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMed_dRDown.MatchToMedium = True
             thistoolMed_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure)
             thistoolMed_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolMed_dRDown]
 
             thistoolMed_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Medium_dRUp"%name_suffix,
-                                                                              EffiFlag="MediumMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                              EffiFlag="MediumMuons_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMed_dRUp.MatchToMedium = True
             thistoolMed_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure)
             thistoolMed_dRUp.MaximumDrCut = 2 * MATCH_DR
             MatchingTools += [thistoolMed_dRUp]
             
         thistoolMed_PtrMatch = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_PtrMatch_%s_Medium"%name_suffix,
-                                                                              EffiFlag="MediumMuons_PtrMatching",doClosure=doClosure,IsNominal=True)
+                                                                              EffiFlag="MediumMuons_PtrMatching",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMed_PtrMatch.MatchToMedium = True
         thistoolMed_PtrMatch.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure)
         thistoolMed_PtrMatch.MaximumDrCut = MATCH_DR
@@ -238,21 +238,21 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
         
     if doTight:
         thistoolTight = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Tight"%name_suffix,
-                                                                       EffiFlag="TightMuons",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="TightMuons",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolTight.MatchToTight = True
         thistoolTight.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure)
         thistoolTight.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolTight]
         if doDRSys:
             thistoolTight_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Tight_dRDown"%name_suffix,
-                                                                                  EffiFlag="TightMuons_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                  EffiFlag="TightMuons_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolTight_dRDown.MatchToTight = True
             thistoolTight_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure)
             thistoolTight_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolTight_dRDown]
             
             thistoolTight_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_Tight_dRUp"%name_suffix,
-                                                                                EffiFlag="TightMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="TightMuons_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolTight_dRUp.MatchToTight = True
             thistoolTight_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure)
             thistoolTight_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -261,21 +261,21 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
         
     if doHighPt:
         thistoolHighPt = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_HighPt"%name_suffix,
-                                                                       EffiFlag="HighPtMuons",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="HighPtMuons",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolHighPt.MatchToHighPt = True
         thistoolHighPt.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure)  # UPDATE when SF available for high pt
         thistoolHighPt.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolHighPt]
         if doDRSys:
             thistoolHighPt_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_HighPt_dRDown"%name_suffix,
-                                                                                  EffiFlag="HighPtMuons_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                  EffiFlag="HighPtMuons_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolHighPt_dRDown.MatchToHighPt = True
             thistoolHighPt_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("HighPt",doClosure=doClosure)  # UPDATE when SF available for high pt
             thistoolHighPt_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolHighPt_dRDown]
             
             thistoolHighPt_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_HighPt_dRUp"%name_suffix,
-                                                                                EffiFlag="HighPtMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="HighPtMuons_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolHighPt_dRUp.MatchToHighPt = True
             thistoolHighPt_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure)  # UPDATE when SF available for high pt
             thistoolHighPt_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -284,7 +284,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
 
     if doStandalone:
         thistoolSA = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_SA"%name_suffix,
-                                                                    EffiFlag="StandaloneMuons",doClosure=doClosure,IsNominal=True)
+                                                                    EffiFlag="StandaloneMuons",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolSA.MatchToAnyMS = True
         thistoolSA.IDhitCut = False
         thistoolSA.ApplyScaleFactors = False
@@ -292,7 +292,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolSA]
         if doDRSys:
             thistoolSA_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_SA_dRDown"%name_suffix,
-                                                                               EffiFlag="StandaloneMuons_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                               EffiFlag="StandaloneMuons_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolSA_dRDown.MatchToAnyMS = True
             thistoolSA_dRDown.IDhitCut = False
             thistoolSA_dRDown.IsNominal=False
@@ -301,7 +301,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolSA_dRDown]
 
             thistoolSA_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_SA_dRUp"%name_suffix,
-                                                                             EffiFlag="StandaloneMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                             EffiFlag="StandaloneMuons_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolSA_dRUp.MatchToAnyMS = True
             thistoolSA_dRUp.IDhitCut = False
             thistoolSA_dRUp.IsNominal=False
@@ -311,7 +311,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
 
     if doCaloTag:
         thistoolCT = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_CT"%name_suffix,
-                                                                    EffiFlag="CaloTaggedMuons",doClosure=doClosure,IsNominal=True)
+                                                                    EffiFlag="CaloTaggedMuons",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolCT.MatchToCaloTag = True
         thistoolCT.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
         thistoolCT.ApplyScaleFactors=doClosure
@@ -319,14 +319,14 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolCT]
         if doDRSys:
             thistoolCT_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_CT_dRDown"%name_suffix,
-                                                                               EffiFlag="CaloTaggedMuons_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                               EffiFlag="CaloTaggedMuons_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolCT_dRDown.MatchToCaloTag = True
             thistoolCT_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
             thistoolCT_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolCT_dRDown]
 
             thistoolCT_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_CT_dRUp"%name_suffix,
-                                                                             EffiFlag="CaloTaggedMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                             EffiFlag="CaloTaggedMuons_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolCT_dRUp.MatchToCaloTag = True
             thistoolCT_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
             thistoolCT_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -334,14 +334,14 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
 
     if doID:
         thistoolID = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_ID"%name_suffix,
-                                                                    EffiFlag="IDTracks",doClosure=doClosure,IsNominal=True)
+                                                                    EffiFlag="IDTracks",MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=True)
         thistoolID.MatchToID = True
         thistoolID.ApplyScaleFactors = False
         thistoolID.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolID]
         if doDRSys:
             thistoolID_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_ID_dRUp"%name_suffix,
-                                                                             EffiFlag="IDTracks_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                             EffiFlag="IDTracks_dRUp",MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=False)
             thistoolID_dRUp.MatchToID = True
             thistoolID_dRUp.ApplyScaleFactors = False
             thistoolID_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -349,7 +349,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolID_dRUp]
 
             thistoolID_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_ID_dRDown"%name_suffix,
-                                                                               EffiFlag="IDTracks_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                               EffiFlag="IDTracks_dRDown",MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=False)
             thistoolID_dRDown.MatchToID = True
             thistoolID_dRDown.ApplyScaleFactors = False
             thistoolID_dRDown.MaximumDrCut = 0.5 * MATCH_DR
@@ -362,7 +362,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             CutList = [x+"Off" for x in IDCuts if not x == cut]
             
             thistoolIDsub =  CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_ID_CutCheck_%s"%(name_suffix,cut),
-                                                                    EffiFlag="IDTracks_IDCutCheck_%s"%cut,doClosure=doClosure,IsNominal=True)
+                                                                    EffiFlag="IDTracks_IDCutCheck_%s"%cut,MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=True)
             thistoolIDsub.SelectionTool = CommonMuonTPConfig.GetMuonSelectionTool(CutList)
             
             thistoolIDsub.MatchToID = True
@@ -371,7 +371,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolIDsub]
             if doDRSys:
                 thistoolIDsub_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_ID_CutCheck_%s_dRUp"%(name_suffix,cut),
-                                                                                EffiFlag="IDTracks_IDCutCheck_%s_dRUp"%cut,doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="IDTracks_IDCutCheck_%s_dRUp"%cut,MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=False)
                 thistoolIDsub_dRUp.MatchToID = True
                 thistoolIDsub_dRUp.SelectionTool = CommonMuonTPConfig.GetMuonSelectionTool(CutList)
                 thistoolIDsub_dRUp.ApplyScaleFactors = False
@@ -380,7 +380,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
                 MatchingTools += [thistoolIDsub_dRUp]
 
                 thistoolIDsub_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_ID_CutCheck_%s_dRDown"%(name_suffix,cut),
-                                                                                EffiFlag="IDTracks_IDCutCheck_%s_dRDown"%cut,doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="IDTracks_IDCutCheck_%s_dRDown"%cut,MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=False)
                 thistoolIDsub_dRDown.MatchToID = True
                 
                 thistoolIDsub_dRDown.SelectionTool = CommonMuonTPConfig.GetMuonSelectionTool(CutList)
@@ -391,14 +391,14 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
 
     if doIndividualAuthors:
         thistoolMuidCB = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidCB"%name_suffix,
-                                                                        EffiFlag="MuidCB",doClosure=doClosure,IsNominal=True)
+                                                                        EffiFlag="MuidCB",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuidCB.MatchToMuidCB = True
         thistoolMuidCB.ApplyScaleFactors = False
         thistoolMuidCB.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMuidCB]
         if doDRSys:
             thistoolMuidCB_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidCB_dRDown"%name_suffix,
-                                                                                   EffiFlag="MuidCB_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                   EffiFlag="MuidCB_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuidCB_dRDown.MatchToMuidCB = True
             thistoolMuidCB_dRDown.ApplyScaleFactors = False
             thistoolMuidCB_dRDown.MaximumDrCut = 0.5 * MATCH_DR
@@ -406,7 +406,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuidCB_dRDown]
 
             thistoolMuidCB_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidCB_dRUp"%name_suffix,
-                                                                                 EffiFlag="MuidCB_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                 EffiFlag="MuidCB_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuidCB_dRUp.MatchToMuidCB = True
             thistoolMuidCB_dRUp.ApplyScaleFactors = False
             thistoolMuidCB_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -414,14 +414,14 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuidCB_dRUp]
 
         thistoolSTACO = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_STACO"%name_suffix,
-                                                                       EffiFlag="STACO",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="STACO",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolSTACO.MatchToSTACO = True
         thistoolSTACO.ApplyScaleFactors = False
         thistoolSTACO.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolSTACO]
         if doDRSys:
             thistoolSTACO_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_STACO_dRDown"%name_suffix,
-                                                                                  EffiFlag="STACO_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                  EffiFlag="STACO_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolSTACO_dRDown.MatchToSTACO = True
             thistoolSTACO_dRDown.ApplyScaleFactors = False
             thistoolSTACO_dRDown.IsNominal=False
@@ -429,7 +429,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolSTACO_dRDown]
 
             thistoolSTACO_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_STACO_dRUp"%name_suffix,
-                                                                                EffiFlag="STACO_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="STACO_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolSTACO_dRUp.MatchToSTACO = True
             thistoolSTACO_dRUp.ApplyScaleFactors = False
             thistoolSTACO_dRUp.IsNominal=False
@@ -437,14 +437,14 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolSTACO_dRUp]
 
         thistoolMuTag = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuTag"%name_suffix,
-                                                                       EffiFlag="MuTag",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="MuTag",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuTag.MatchToMuTag = True
         thistoolMuTag.ApplyScaleFactors = False
         thistoolMuTag.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMuTag]
         if doDRSys:
             thistoolMuTag_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuTag_dRDown"%name_suffix,
-                                                                                  EffiFlag="MuTag_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                  EffiFlag="MuTag_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuTag_dRDown.MatchToMuTag = True
             thistoolMuTag_dRDown.ApplyScaleFactors = False
             thistoolMuTag_dRDown.IsNominal=False
@@ -452,7 +452,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuTag_dRDown]
 
             thistoolMuTag_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuTag_dRUp"%name_suffix,
-                                                                                EffiFlag="MuTag_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="MuTag_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuTag_dRUp.MatchToMuTag = True
             thistoolMuTag_dRUp.ApplyScaleFactors = False
             thistoolMuTag_dRUp.IsNominal=False
@@ -460,14 +460,14 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuTag_dRUp]
 
         thistoolMuTagIMO = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuTagIMO"%name_suffix,
-                                                                          EffiFlag="MuTagIMO",doClosure=doClosure,IsNominal=True)
+                                                                          EffiFlag="MuTagIMO",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuTagIMO.MatchToMuTagIMO = True
         thistoolMuTagIMO.ApplyScaleFactors = False
         thistoolMuTagIMO.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMuTagIMO]
         if doDRSys:
             thistoolMuTagIMO_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuTagIMO_dRDown"%name_suffix,
-                                                                                     EffiFlag="MuTagIMO_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                     EffiFlag="MuTagIMO_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuTagIMO_dRDown.MatchToMuTagIMO = True
             thistoolMuTagIMO_dRDown.ApplyScaleFactors = False
             thistoolMuTagIMO_dRDown.IsNominal=False
@@ -475,7 +475,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuTagIMO_dRDown]
 
             thistoolMuTagIMO_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuTagIMO_dRUp"%name_suffix,
-                                                                                   EffiFlag="MuTagIMO_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                   EffiFlag="MuTagIMO_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuTagIMO_dRUp.MatchToMuTagIMO = True
             thistoolMuTagIMO_dRUp.ApplyScaleFactors = False
             thistoolMuTagIMO_dRUp.IsNominal=False
@@ -483,7 +483,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuTagIMO_dRUp]
 
         thistoolMuidSA = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidSA"%name_suffix,
-                                                                        EffiFlag="MuidSA",doClosure=doClosure,IsNominal=True)
+                                                                        EffiFlag="MuidSA",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuidSA.MatchToMuidSA = True
         thistoolMuidSA.ApplyScaleFactors = False
         thistoolMuidSA.IDhitCut = False
@@ -491,7 +491,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolMuidSA]
         if doDRSys:
             thistoolMuidSA_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidSA_dRDown"%name_suffix,
-                                                                                   EffiFlag="MuidSA_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                   EffiFlag="MuidSA_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuidSA_dRDown.MatchToMuidSA = True
             thistoolMuidSA_dRDown.ApplyScaleFactors = False
             thistoolMuidSA_dRDown.IsNominal=False
@@ -499,7 +499,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuidSA_dRDown]
 
             thistoolMuidSA_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidSA_dRUp"%name_suffix,
-                                                                                 EffiFlag="MuidSA_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                 EffiFlag="MuidSA_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuidSA_dRUp.MatchToMuidSA = True
             thistoolMuidSA_dRUp.ApplyScaleFactors = False
             thistoolMuidSA_dRUp.IsNominal=False
@@ -507,14 +507,14 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuidSA_dRUp]
 
         thistoolMuGirl = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidGirl"%name_suffix,
-                                                                        EffiFlag="MuGirl",doClosure=doClosure,IsNominal=True)
+                                                                        EffiFlag="MuGirl",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuGirl.MatchToMuGirl = True
         thistoolMuGirl.ApplyScaleFactors = False
         thistoolMuGirl.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMuGirl]
         if doDRSys:
             thistoolMuGirl_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidGirl_dRDown"%name_suffix,
-                                                                                   EffiFlag="MuGirl_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                   EffiFlag="MuGirl_dRDown",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuGirl_dRDown.MatchToMuGirl = True
             thistoolMuGirl_dRDown.ApplyScaleFactors = False
             thistoolMuGirl_dRDown.IsNominal=False
@@ -522,7 +522,7 @@ def AddConfiguredDYmumuTPAlg(name_suffix="myProbes",
             MatchingTools += [thistoolMuGirl_dRDown]
 
             thistoolMuGirl_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="DYmumuTPEfficiencyTool_%s_MuidGirl_dRUp"%name_suffix,
-                                                                                 EffiFlag="MuGirl_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                 EffiFlag="MuGirl_dRUp",MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMuGirl_dRUp.MatchToMuGirl = True
             thistoolMuGirl_dRUp.IsNominal=False
             thistoolMuGirl_dRUp.ApplyScaleFactors = False

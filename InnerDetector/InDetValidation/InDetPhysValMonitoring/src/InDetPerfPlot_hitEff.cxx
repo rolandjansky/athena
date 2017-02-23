@@ -18,9 +18,7 @@
 
 
 
-InDetPerfPlot_hitEff::InDetPerfPlot_hitEff(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(pParent,
-                                                                                                             sDir),
-  m_eff_hit_vs_eta{}, m_testEff{}, m_debug{false} {
+InDetPerfPlot_hitEff::InDetPerfPlot_hitEff(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(pParent,                                                                                                          sDir), m_hitEfficiencyVsEta{},  m_debug{false} {
   //
 }
 
@@ -29,6 +27,7 @@ InDetPerfPlot_hitEff::initializePlots() {
   // const bool prependDirectory(false);
   // eff plots for L0PIXBARR, PIXEL, SCT, TRT
   // Barrel
+  /**
   book(m_eff_hit_vs_eta[L0PIXBARR][BARREL], "eff_hit_vs_eta_l0pix_barrel");
   book(m_eff_hit_vs_eta[PIXEL][BARREL], "eff_hit_vs_eta_pix_barrel");
   book(m_eff_hit_vs_eta[SCT][BARREL], "eff_hit_vs_eta_sct_barrel");
@@ -37,7 +36,16 @@ InDetPerfPlot_hitEff::initializePlots() {
   book(m_eff_hit_vs_eta[PIXEL][ENDCAP], "eff_hit_vs_eta_pix_endcap");
   book(m_eff_hit_vs_eta[SCT][ENDCAP], "eff_hit_vs_eta_sct_endcap");
   book(m_eff_hit_vs_eta[TRT][ENDCAP], "eff_hit_vs_eta_trt_endcap");
-  book(m_testEff, "testEfficiency");
+  **/
+  //
+  book(m_hitEfficiencyVsEta[L0PIXBARR][BARREL], "eff_hit_vs_eta_l0pix_barrel");
+  book(m_hitEfficiencyVsEta[PIXEL][BARREL], "eff_hit_vs_eta_pix_barrel");
+  book(m_hitEfficiencyVsEta[SCT][BARREL], "eff_hit_vs_eta_sct_barrel");
+  book(m_hitEfficiencyVsEta[TRT][BARREL], "eff_hit_vs_eta_trt_barrel");
+
+  book(m_hitEfficiencyVsEta[PIXEL][ENDCAP], "eff_hit_vs_eta_pix_endcap");
+  book(m_hitEfficiencyVsEta[SCT][ENDCAP], "eff_hit_vs_eta_sct_endcap");
+  book(m_hitEfficiencyVsEta[TRT][ENDCAP], "eff_hit_vs_eta_trt_endcap");
 }
 
 void
@@ -69,12 +77,14 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
         if (det == DBM) {
           continue; // ignore DBM
         }
-        fillHisto(m_eff_hit_vs_eta[det][region], eta, int(isHit));
+        //fillHisto(m_eff_hit_vs_eta[det][region], eta, int(isHit));
+        fillHisto(m_hitEfficiencyVsEta[det][region], eta, isHit);
       }
     }
   }
-  // for testing
+  /** for testing
   const float binValue = std::rand() % 75;
   const bool passed = (binValue - 5 + (std::rand() % 10)) > 30;
   fillHisto(m_testEff, passed, binValue);
+  **/
 }

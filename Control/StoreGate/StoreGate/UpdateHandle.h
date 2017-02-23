@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: UpdateHandle.h 733875 2016-04-04 23:33:03Z leggett $
+// $Id: UpdateHandle.h 797637 2017-02-17 02:32:11Z ssnyder $
 /**
  * @file StoreGate/UpdateHandle.h
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -152,7 +152,7 @@ namespace SG {
 
 
     /**
-     * @brief Derefence the pointer.
+     * @brief Dereference the pointer.
      * Throws ExcNullReadHandle on failure.
      *
      * This will inform Hive that the object has been modified.
@@ -161,7 +161,7 @@ namespace SG {
 
 
     /**
-     * @brief Derefence the pointer.
+     * @brief Dereference the pointer.
      * Throws ExcNullReadHandle on failure.
      *
      * This will inform Hive that the object has been modified.
@@ -170,7 +170,7 @@ namespace SG {
 
 
     /**
-     * @brief Derefence the pointer.
+     * @brief Dereference the pointer.
      * Returns nullptr on failure.
      *
      * This will _not_ inform Hive that the object has been modified.
@@ -179,7 +179,7 @@ namespace SG {
 
 
     /**
-     * @brief Derefence the pointer.
+     * @brief Dereference the pointer.
      * Returns nullptr on failure.
      *
      * This will inform Hive that the object has been modified.

@@ -37,7 +37,7 @@ public:
 private:
     NTuple::Tuple* m_ntuplePtr;
     int m_ntupleID;
-    int max_ntag;
+    int m_max_ntag;
     int m_close;
     std::string m_ntupleLoc;
     

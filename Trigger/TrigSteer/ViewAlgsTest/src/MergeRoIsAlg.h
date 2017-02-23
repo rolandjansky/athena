@@ -26,8 +26,9 @@ private:
 
   bool m_useSuperRoI;
 
-  SG::ReadHandle< TrigRoiDescriptorCollection > m_inputRoisContainer;
-  SG::WriteHandle< TrigRoiDescriptorCollection > m_outputRoisContainer;
+  SG::ReadHandleKeyArray<TrigRoiDescriptorCollection> m_inputRoIContainerKeys;
+  //SG::ReadHandle< TrigRoiDescriptorCollection > m_inputRoisContainer;
+  SG::WriteHandle< TrigRoiDescriptorCollection > m_outputRoIContainer;
 
 };
 

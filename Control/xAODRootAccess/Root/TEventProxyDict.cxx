@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEventProxyDict.cxx 791156 2016-12-28 19:24:45Z ssnyder $
+// $Id: TEventProxyDict.cxx 796514 2017-02-10 04:33:07Z ssnyder $
 //
 // File holding the implementation of the xAOD::TEvent functions that implement
 // the IProxyDict interface. Just to make TEvent.cxx a little smaller.
@@ -23,6 +23,7 @@
 #   include "SGTools/TransientAddress.h"
 #   include "SGTools/DataBucketBase.h"
 #   include "GaudiKernel/Converter.h"
+#   include "GaudiKernel/GenericAddress.h"
 #endif // NOT XAOD_STANDALONE
 
 // Local include(s):
@@ -296,7 +297,9 @@ namespace xAOD {
 #ifndef XAOD_STANDALONE
       // Create a proper proxy for the input branch:
       SG::TransientAddress* taddr =
-         new SG::TransientAddress( CLID_NULL, efe->branchName() );
+         new SG::TransientAddress( CLID_NULL,
+                                   efe->branchName(),
+                                   new GenericAddress() );
       taddr->setSGKey( sgkey );
       TEvent* nc_this = const_cast<TEvent*>(this);
       xAODPrivate::TLoader* loader =

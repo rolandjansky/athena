@@ -620,6 +620,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
   //status.ignore();
   
   int nKilledStrips = 0;
+  int nToBeKilledStrips = 0;
   
   RPCSimHitCollection* inputSimHitColl=NULL;
   
@@ -804,7 +805,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 				     MuonMCData((*b),time)); // store tof+strip_propagation+corr.jitter
 	//				     MuonMCData((*b),G4Time+bunchTime+proptime          )); // store tof+strip_propagation
 
-        if( abs(hit.particleEncoding())== 13 ){
+        if( abs(hit.particleEncoding())== 13 || hit.particleEncoding() == 0){
 
           auto channelSimDataMapPos = channelSimDataMap.find(atlasId);
           if( channelSimDataMapPos == channelSimDataMap.end() ){
@@ -842,8 +843,11 @@ StatusCode RpcDigitizationTool::doDigitization() {
 		if(m_rSummarySvc->RPC_DeadStripList().find( newId )  != m_rSummarySvc->RPC_DeadStripList().end()) 
 		  {
 		    ATH_MSG_DEBUG ( "After DetectionEfficiency: strip "<< m_idHelper->show_to_string(newId) <<" in a cluster of size "<< pcs[2]-pcs[1]+1<<" is dead - kill it ");
-		    ++nKilledStrips;
-		    if (m_kill_deadstrips) continue;//gabriele
+		    ++nToBeKilledStrips;
+		    if (m_kill_deadstrips){
+		      ++nKilledStrips;
+		      continue;//gabriele
+		    }
 		  }
 	      }
 	  }
@@ -1053,7 +1057,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
     m_thpcRPC=0;
   }
 
-  ATH_MSG_DEBUG ("EndOf Digitize() n. of strips Killed (dead) in the DB = "<<nKilledStrips);
+  ATH_MSG_DEBUG ("EndOf Digitize() n. of strips Killed (dead) in the DB = "<<nKilledStrips<<" ("<<nToBeKilledStrips<<")");
   return StatusCode::SUCCESS;
 }
 
@@ -1609,8 +1613,9 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
   int result= int((impact-min_)/pitch)+1;
   if (result<1 || result>nstrips) 
     {
-      ATH_MSG_WARNING("strip closest to hit is outside the strip panel boundaries: impact, min_, max_ "
-		      <<impact<<" ["<<min_<<", "<<max_<<"]  strip # "<<result<<" [1, "<<nstrips<<"]   pitch = "<<pitch);
+      ATH_MSG_DEBUG("WARNING: strip closest to hit is outside the strip panel boundaries: impact, min_, max_ "
+		    <<impact<<" ["<<min_<<", "<<max_<<"]  strip # "<<result<<" [1, "<<nstrips<<"]   pitch = "<<pitch
+		    <<" stripID="<< m_idHelper->show_to_string(digitId));
       if (result>nstrips) result=nstrips;
       else if (result<1) result=1;
     }
@@ -1937,14 +1942,14 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 
     if (fabs(FracDeadStripEta-1.)<0.001) 
       {
-	ATH_MSG_WARNING ("SPECIAL CASE: Read from Cool: FracDeadStripEta/Phi "<<FracDeadStripEta<<"/"<<FracDeadStripPhi
+	ATH_MSG_DEBUG ("Watch out: SPECIAL CASE: Read from Cool: FracDeadStripEta/Phi "<<FracDeadStripEta<<"/"<<FracDeadStripPhi
 			 <<" RPC_ProjectedTracksEta "<<RPC_ProjectedTracksEta<<" Eta/PhiPanelEfficiency "<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency
-			 <<" gapEff "<<GapEfficiency<<" for gas gap "<<m_idHelper->show_to_string(IdEta));
+			 <<" gapEff "<<GapEfficiency<<" for gas gap "<<m_idHelper->show_to_string(IdEta)<<" id "<<IdEta.get_identifier32().get_compact());
 	// dead eta panel => cannot determine the strip status for phi strips 
 	// FracDeadStripPhi must be reset to 0. and undefinedPhiStripStatus = true
 	FracDeadStripPhi = 0.;
 	undefinedPhiStripStatus = true;
-	ATH_MSG_WARNING ("SPECIAL CASE: Resetting FracDeadStripPhi "<<FracDeadStripPhi<<" ignoring phi dead strips ");
+	ATH_MSG_VERBOSE ("Watch out: SPECIAL CASE: Resetting FracDeadStripPhi "<<FracDeadStripPhi<<" ignoring phi dead strips ");
       }
 
 
@@ -1959,7 +1964,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     if ((maxGeomEff-FracDeadStripEta)-EtaPanelEfficiency<-0.011) 
       {
 	  ATH_MSG_DEBUG("Ineff. from dead strips on Eta Panel larger that measured efficiency: deadFrac="<<FracDeadStripEta<<" Panel Eff="<<EtaPanelEfficiency<<" for Panel "<<m_idHelper->show_to_string(IdEta));
-	  ATH_MSG_DEBUG("... see the corresponding report among the warnings of RpcDetectorStatusDbTool");
+	  ATH_MSG_DEBUG("... see the corresponding report from RpcDetectorStatusDbTool");
 	//EtaPanelEfficiency = 1.-FracDeadStripEta;	
 	EtaPanelEfficiency = maxGeomEff-FracDeadStripEta;	
 	changing = true;

@@ -106,7 +106,7 @@ ProbeContainer* MuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* tag
 
       // Charge cut
       //if(m_oppositeCharge &&
-      //	 tag->trackParticle(xAOD::Muon::Primary)->charge()
+      //      tag->trackParticle(xAOD::Muon::Primary)->charge()
 
       // for each selected probe build a Probe object
       probeCont->push_back( new Probe(*tag, *probe) );
@@ -195,7 +195,7 @@ bool MuonTPSelectionTool::isTruthMatched(const xAOD::IParticle* part) const
           return true;
       }
       catch (SG::ExcBadAuxVar &){
-          ATH_MSG_WARNING("Unable to access truth matching info for probe!");
+          ATH_MSG_INFO("Unable to access truth matching decoration for a muon!");
       }
     }
   } 
@@ -207,7 +207,7 @@ bool MuonTPSelectionTool::isTruthMatched(const xAOD::IParticle* part) const
           return true;    
         }
     catch (SG::ExcBadAuxVar &){
-        ATH_MSG_WARNING("Unable to access truth matching info for probe!");
+        ATH_MSG_INFO("Unable to access truth matching decoration for a track!");
     }
   }  
 
@@ -232,7 +232,7 @@ bool MuonTPSelectionTool::TagTriggerMatch (const xAOD::Muon* tag) const
     //  require the tag to match one of our triggers
     bool pass = false;
     for (auto trig: m_tag_Triggers) {
-    	pass |= m_trigUtils->Trig_Match(*tag, trig);
+         pass |= m_trigUtils->Trig_Match(*tag, trig);
     }
     return pass;
 }
@@ -245,7 +245,7 @@ bool MuonTPSelectionTool::TagTriggerMatch_RerunMode (const xAOD::Muon* tag) cons
     //  require the tag to match one of our triggers
     bool pass = false;
     for (auto trig: m_tag_Triggers_RerunMode) {
-    	pass |= m_trigUtils->Trig_Match_RM(*tag, trig);
+         pass |= m_trigUtils->Trig_Match_RM(*tag, trig);
     }
     return pass;
 }
@@ -280,6 +280,10 @@ const std::vector<std::string>& MuonTPSelectionTool::observerTriggerList(const s
 //========================================================================================================================
 bool MuonTPSelectionTool::PassIPCuts(const xAOD::TrackParticle* tp, double d0cut, double d0signcut, double z0cut) const
 {
+  if (!tp) {
+      ATH_MSG_ERROR("TrackParticle is null!");
+      return false;
+  }
   // find the PV
   const xAOD::VertexContainer* primVertices = 0 ;
   const xAOD::Vertex* pv = 0;
@@ -287,7 +291,8 @@ bool MuonTPSelectionTool::PassIPCuts(const xAOD::TrackParticle* tp, double d0cut
     ATH_MSG_ERROR("Found no PV candidate for IP computation!");
   }
   else {
-    pv = primVertices->at(0);
+    if (primVertices->size()) pv = primVertices->at(0);
+    else ATH_MSG_ERROR("PrimaryVertices has size 0!");
   }
 
   const xAOD::EventInfo* info = 0;
@@ -297,7 +302,13 @@ bool MuonTPSelectionTool::PassIPCuts(const xAOD::TrackParticle* tp, double d0cut
   }
   
   float d0     = tp->d0();
-  float d0sign = xAOD::MuonTP_TrackingHelpers::d0significance(tp, info->beamPosSigmaX(), info->beamPosSigmaY(), info->beamPosSigmaXY() );
+  float d0sign = 0.;
+    try {
+        d0sign = xAOD::MuonTP_TrackingHelpers::d0significance(tp, info->beamPosSigmaX(), info->beamPosSigmaY(), info->beamPosSigmaXY());
+    } catch (std::runtime_error&) {
+        ATH_MSG_WARNING("Could not calculate d0significance of TrackParticle, set it to 1.e10.");
+        d0sign = 1.e10;
+    }
   float z0     = tp->z0();
   if (pv) z0   += tp->vz() - pv->z();
 

@@ -188,7 +188,6 @@ private: // data
    std::string     m_dhContainerPrefix;
    std::string     m_collContainerPrefix;
    std::string     m_lastFileName;
-   std::vector<std::string>      m_className;
    ServiceHandle<IPoolSvc>       m_poolSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
    ServiceHandle<IClassIDSvc>    m_clidSvc;
@@ -241,11 +240,9 @@ private: // properties
    /// pool connection context
    std::vector<unsigned long> m_contextIds;
 
-#ifdef ATHENAHIVE
-  typedef std::recursive_mutex CallMutex;
-  mutable CallMutex m_i_mut;
-  mutable CallMutex m_o_mut;
-#endif
+   typedef std::recursive_mutex CallMutex;
+   mutable CallMutex m_i_mut;
+   mutable CallMutex m_o_mut;
 };
 
 #endif

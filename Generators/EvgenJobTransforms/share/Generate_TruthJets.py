@@ -8,7 +8,7 @@
 # Convert HepMC event record to xAODTruth for use by jet tools
 from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
 if not hasattr(prefiltSeq, 'xAODCnv'):
-    prefiltSeq += xAODMaker__xAODTruthCnvAlg('xAODCnv')
+    prefiltSeq += xAODMaker__xAODTruthCnvAlg('xAODCnv',WriteTruthMetaData=False)
 prefiltSeq.xAODCnv.AODContainerName = 'GEN_EVENT'
 
 # Turn off jet tools specific to detector-level jets

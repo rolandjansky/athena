@@ -26,7 +26,7 @@ template <class TYPE> class SvcFactory;
  *  @brief A service that manages a multi-event collection of StoreGateSvc
  *  It implements the IHiveWhiteBoard interface
  *
- *  $Id: SGHiveMgrSvc.h 794854 2017-01-31 23:34:36Z leggett $
+ *  $Id: SGHiveMgrSvc.h 794852 2017-01-31 23:24:04Z leggett $
  **/
 namespace SG {
 class HiveMgrSvc : virtual public IHiveWhiteBoard, public Service {

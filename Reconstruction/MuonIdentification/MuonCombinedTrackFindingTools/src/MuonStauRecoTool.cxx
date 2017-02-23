@@ -110,6 +110,7 @@ namespace MuonCombined {
     declareProperty("MDTTAssocationCut", m_mdttBetaAssociationCut = 0.4 );
     declareProperty("RPCAssocationCut", m_rpcBetaAssociationCut = 0.2 );
     declareProperty("SegmentAssocationCut", m_segmentBetaAssociationCut = 0.2 );
+    declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
   }
 
   MuonStauRecoTool::~MuonStauRecoTool() { }
@@ -181,6 +182,11 @@ namespace MuonCombined {
 
   void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) {
     
+    if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
+      ATH_MSG_DEBUG(" skip silicon associated track for extension ");
+      return;
+    }
+
     /** STAGE 0 
         Preselection, preparation of truth related quantities, extrapolation in muon system
      */

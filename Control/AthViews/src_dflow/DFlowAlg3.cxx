@@ -77,7 +77,11 @@ StatusCode DFlowAlg3::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  useView();
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  const EventContext& ctx = getContext();
+#else
+  const EventContext& ctx = *getContext();
+#endif
 
   ATH_MSG_INFO("================================");
   ATH_MSG_INFO("myint r-handle...");
@@ -118,7 +122,7 @@ StatusCode DFlowAlg3::execute()
 
   // create a temporary r-handle
   SG::ReadHandle<std::vector<int> > ints(m_r_ints.name());
-  StatusCode sc = ints.setProxyDict( eventView() );
+  StatusCode sc = ints.setProxyDict( eventView(ctx) );
   if ( !sc.isSuccess() ) ATH_MSG_INFO( "Failed to load view " );
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
   /*ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_r_ints.ptr()));

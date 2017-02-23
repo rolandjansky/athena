@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxStore.cxx 793778 2017-01-25 04:06:29Z ssnyder $
+// $Id: TAuxStore.cxx 796624 2017-02-10 17:17:23Z ssnyder $
 
 // System include(s):
 #include <string.h>
@@ -15,6 +15,7 @@
 #include <TBranch.h>
 #include <TString.h>
 #include <TClass.h>
+#include <TROOT.h>
 #include <TVirtualCollectionProxy.h>
 
 // EDM include(s):
@@ -32,6 +33,23 @@
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/tools/TAuxVectorFactory.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
+
+namespace {
+
+
+TClass* lookupVectorType (TClass *cl)
+{
+  std::string tname = cl->GetName();
+  tname += "::vector_type";
+  TDataType* typ = gROOT->GetType (tname.c_str());
+  if (typ)
+    return TClass::GetClass (typ->GetFullTypeName());
+  return nullptr;
+}
+
+
+}
+
 
 namespace xAOD {
 
@@ -973,6 +991,11 @@ namespace xAOD {
          if( ! containerBranch ) {
             m_vecs[ auxid ]->resize( 1 );
          }
+         if (clDummy && strncmp (clDummy->GetName(), "SG::PackedContainer<", 20) == 0) {
+           SG::IAuxTypeVector* packed = m_vecs[ auxid ]->toPacked();
+           std::swap (m_vecs[ auxid ], packed);
+           delete packed;
+         }
       } else {
          ::Error( "xAOD::TAuxStore::setupInputData",
                   XAOD_MESSAGE( "Couldn't create in-memory vector for "
@@ -984,7 +1007,9 @@ namespace xAOD {
 
       // Create a new branch handle:
       m_branches[ auxid ] = new TBranchHandle( staticBranch, primitiveBranch,
-                                               brType,
+                                               (containerBranch ?
+                                                m_vecs[ auxid ]->objType() :
+                                                brType),
                                                ( containerBranch ?
                                                  m_vecs[ auxid ]->toVector() :
                                                  m_vecs[ auxid ]->toPtr() ),
@@ -1190,9 +1215,12 @@ namespace xAOD {
               SG::AuxTypeRegistry::instance().getVecType( auxid ) :
               SG::AuxTypeRegistry::instance().getType( auxid ) );
          // Create the handle object:
+         bool primitiveBranch = (strlen( brType->name() ) == 1);
          m_branches[ auxid ] =
             new TBranchHandle( kFALSE, ( strlen( brType->name() ) == 1 ),
-                               brType,
+                               (primitiveBranch ? 
+                                brType :
+                                m_vecs[ auxid ]->objType() ),
                                ( m_structMode == kObjectStore ?
                                  m_vecs[ auxid ]->toPtr() :
                                  m_vecs[ auxid ]->toVector() ),
@@ -1475,7 +1503,14 @@ namespace xAOD {
          } else {
             ::TVirtualCollectionProxy* prox =
                expectedClass->GetCollectionProxy();
-            if( ! prox ) {
+
+           if (!prox) {
+             TClass* cl2 = lookupVectorType (expectedClass);
+             if (cl2)
+               prox = cl2->GetCollectionProxy();
+           }
+
+           if( ! prox ) {
                if( ( ! staticBranch ) ||
                    ( strncmp( auxName, "m_", 2 ) != 0 ) ) {
                   ::Warning( "xAOD::TAuxStore::setupAuxBranch",
@@ -1729,7 +1764,15 @@ namespace xAOD {
          return kTRUE;
       }
 
-      // If neither, then something went wrong...
+      if (cl) {
+        TClass* cl2 = lookupVectorType (cl);
+        if (cl2) {
+          if (*cl2->GetTypeInfo() == *aux_vec_ti)
+            return kTRUE;
+        }
+      }
+
+     // If neither, then something went wrong...
       ::Error( "xAOD::TAuxStore::isContainerBranch",
                XAOD_MESSAGE( "Couldn't determine if branch describes a single "
                              "object or a container" ) );

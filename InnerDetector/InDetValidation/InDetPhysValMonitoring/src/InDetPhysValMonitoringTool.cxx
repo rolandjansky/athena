@@ -210,10 +210,16 @@ StatusCode
 InDetPhysValMonitoringTool::fillHistograms() {
   ATH_MSG_DEBUG("Filling hists " << name() << "...");
   // function object could be used to retrieve truth: IDPVM::CachedGetAssocTruth getTruth;
+  const char* debugBacktracking = std::getenv("BACKTRACKDEBUG");
+
   // retrieve trackParticle container
   const auto ptracks = getContainer<xAOD::TrackParticleContainer>(m_trkParticleName);
   if (not ptracks) {
     return StatusCode::FAILURE;
+  }
+  if(debugBacktracking){
+    std::cout<<"Rey: Start of new event \n";
+    std::cout<<"Finn: Number of particles in container: "<<ptracks->size()<<"\n";
   }
   //
   // retrieve truthParticle container
@@ -328,6 +334,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
     float BMR_w(0), RF_w(0); // weights for filling the Bad Match & Fake Rate plots
     float Prim_w(0), Sec_w(0), Unlinked_w(0);  // weights for the fake plots
 
+    if (associatedTruth) m_monPlots->track_vs_truth(*thisTrack, *associatedTruth, prob);
+
     if (prob < minProbEffHigh) {
       BMR_w = 1;
     }
@@ -380,8 +388,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
     0, 0, 0
   };
 
-  const char* debugBacktracking = std::getenv("BACKTRACKDEBUG");
-
   // This is the beginning of the Nested Loop, built mainly for the Efficiency Plots
   if (debugBacktracking) {
     std::cout << "Start of new nested loop event ------------------------------------------------ \n";
@@ -430,11 +436,10 @@ InDetPhysValMonitoringTool::fillHistograms() {
       }
 
       // LMTODO add this Jain/Swift
-      float PF_w(1); // weight for the trackeff histos
+      bool addsToEfficiency(true); // weight for the trackeff histos
 
-
-      double lepton_w(0);
       if (debugBacktracking) {
+        float lepton_w(0);
         std::cout << "Barcode: " << thisTruth->barcode() << "\n";
         std::cout << "PDGId: " << thisTruth->pdgId() << "\n";
         std::cout << "Number of Parents: " << thisTruth->nParents() << "\n";
@@ -461,7 +466,41 @@ InDetPhysValMonitoringTool::fillHistograms() {
         m_monPlots->lepton_fill(*thisTruth, lepton_w);
       }// end of debugging backtracking section
 
+      if(debugBacktracking){
+	if(thisTruth->hasProdVtx()){
+	  const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
+	  double prod_rad = vtx->perp();
+	  if(prod_rad < 300){
+	    double min_dR = 10;
+	    float bestmatch = 0;
+	    double best_inverse_delta_pt(0);
+	    double inverse_delta_pt(0);
+	    for(const auto& thisTrack: selectedTracks){
+	      float prob(0);
+	      if((thisTrack->qOverP()) * (thisTruth->auxdata<float>("qOverP")) > 0){
+		prob = getMatchingProbability(*thisTrack);
+		double track_theta = thisTrack->theta();
+		double truth_theta = thisTruth->auxdata< float >("theta");
+		double truth_eta = thisTruth->eta();
+		double track_eta = -std::log(std::tan(track_theta/2));
+		
+		double track_pt = thisTrack->pt() * 0.001;
+		double truth_pt = thisTruth->pt() * 0.001;
+	      
+		if((track_pt != 0) and (truth_pt != 0))  inverse_delta_pt = ((1./track_pt) - (1./truth_pt));
 
+		double delta_eta = track_eta - truth_eta;
+		double delta_theta = track_theta - truth_theta;
+		double delta_R = sqrt(delta_eta * delta_eta + delta_theta * delta_theta);
+		if(min_dR > delta_R) min_dR = delta_R;
+	      }
+	      if(prob >= bestmatch) best_inverse_delta_pt = inverse_delta_pt;
+	      bestmatch = std::max(prob, bestmatch);
+	    }
+	    m_monPlots->minDR(min_dR, prod_rad, bestmatch, best_inverse_delta_pt);
+	  }
+	}
+      }
 
       std::vector <std::pair<float, const xAOD::TrackParticle*> > matches; // Vector of pairs:
                                                                            // <truth_matching_probability, track> if
@@ -526,11 +565,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
           }
         }
       }
-      // if (prospects.empty()) ATH_MSG_WARNING("Called 'back' on empty container!");
-      // auto thisProspect=prospects.back();
 
       // fill truth-only plots
-
       if (bestMatch >= minProbEffHigh) {
         ++num_truthmatch_match;
         const xAOD::TruthParticle* associatedTruth = matches.empty() ? nullptr : getAsTruth.getTruth(
@@ -540,10 +576,10 @@ InDetPhysValMonitoringTool::fillHistograms() {
         }
         m_monPlots->fill(*associatedTruth); // This is filling truth-only plots:  m_TrackTruthInfoPlots
       } else {
-        PF_w = 0;
+        addsToEfficiency = false;
       }
 
-      m_monPlots->pro_fill(*thisTruth, PF_w);
+      m_monPlots->fillEfficiency(*thisTruth, addsToEfficiency);
     } // end of the "if(accept)" loop
   }// End of Big truthParticle loop
   ATH_MSG_DEBUG("End of efficiency calculation");

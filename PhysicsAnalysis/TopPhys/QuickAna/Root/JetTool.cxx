@@ -32,6 +32,7 @@
 #include <xAODBTaggingEfficiency/BTaggingSelectionTool.h>
 #include <JetMomentTools/JetVertexTaggerTool.h>
 #include <JetJvtEfficiency/JetJvtEfficiency.h>
+#include <AthContainers/ConstDataVector.h>
 
 static const float GeV = 1000.;
 static const float TeV = 1e6;
@@ -48,15 +49,15 @@ namespace
 #elif ROOTCORE_RELEASE_SERIES == 24
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2016-11-25_v1.root";
+    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-01-31_v1.root";
   const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
-  const std::string uncertConfigFile = "JES_2015/ICHEP2016/JES2015_SR_Scenario1.config";
+  const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
 #else
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2016-11-25_v1.root";
+    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-01-31_v1.root";
   const char *jesFile = "JES_MC15cRecommendation_May2016_rel21.config";
-  const std::string uncertConfigFile = "JES_2015/ICHEP2016/JES2015_SR_Scenario1.config";
+  const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
 #endif
 }
 
@@ -323,12 +324,27 @@ namespace ana
   JetToolWeight (const std::string& name)
     : AsgTool (name), AnaToolWeight<xAOD::JetContainer> (name),
       m_btagging_eff_tool ("btagging_eff", this),
-      m_jvtEffTool("jvt_eff", this)
+      m_jvtEffTool("jvt_eff", this),
+      m_anaSelect ("ana_select"),
+      m_anaWeight ("ana_weight")
   {
     declareProperty("BTagger", m_btagger = btagAlgDefault);
     declareProperty("BTagWP", m_btagWP = "-0_4434");
   }
 
+
+  unsigned JetToolWeight ::
+  inputTypes () const
+  {
+    return (1 << OBJECT_EVENTINFO) | (1 << OBJECT_JET);
+  }
+
+
+  unsigned JetToolWeight ::
+  outputTypes () const
+  {
+    return (1 << OBJECT_EVENTINFO) | (1 << OBJECT_JET);
+  }
 
 
   StatusCode JetToolWeight ::
@@ -367,6 +383,51 @@ namespace ana
   }
 
 
+  StatusCode JetToolWeight ::
+  execute (IEventObjects& objects)
+  {
+
+    ConstDataVector<xAOD::JetContainer> jvtjets(SG::VIEW_ELEMENTS);
+    for (auto object : *objects.jets())
+    {
+      float weight = 1;
+      if (m_anaSelect (*object))
+      {
+        ATH_CHECK (this->objectWeight (*object, weight));
+        if (!(weight > 0))
+        {
+          ATH_MSG_WARNING ("object weight of " << weight <<
+                             " is not allowed: pt=" << object->pt() <<
+                             " eta=" << object->eta() <<
+                             " phi=" << object->phi());
+          //return StatusCode::FAILURE;
+        }
+        jvtjets.push_back( object );
+      } else
+      {
+        weight = 1;
+      }
+      m_anaWeight (*object) = weight;
+    }
+
+    float totalSF=1.;
+
+    CP::CorrectionCode ret = m_jvtEffTool->applyAllEfficiencyScaleFactor( jvtjets.asDataVector() , totalSF );
+
+    switch (ret) {
+    case CP::CorrectionCode::Error:
+      ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::JVT_SF" );
+    case CP::CorrectionCode::OutOfValidityRange:
+      ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::JVT_SF" );
+    default:
+      ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
+    }
+    objects.eventinfo()->auxdata<float>("JVT_SF") = totalSF;
+
+
+    return StatusCode::SUCCESS;
+  }
+
 
   StatusCode JetToolWeight ::
   objectWeight (const xAOD::Jet& jet, float& weight)
@@ -387,17 +448,6 @@ namespace ana
         QA_CHECK_WEIGHT( float, weight,
                          m_btagging_eff_tool->getInefficiencyScaleFactor(jet, weight) );
       }
-    }
-
-    // Apply the JVT efficiency SF.
-    // Recommended selection from
-    //  https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JVTCalibration
-    // @TODO make a helper function? This is in three places in this file now :(
-    if (jet.getAttribute<char>("Jvt_pass") && jet.pt()<60.*GeV && fabs(jet.getAttribute<float>("DetectorEta"))<=2.4){
-      float jvtWeight = 1;
-      QA_CHECK_WEIGHT( float, jvtWeight,
-                       m_jvtEffTool->getEfficiencyScaleFactor(jet, jvtWeight) );
-      weight *= jvtWeight;
     }
 
     return StatusCode::SUCCESS;

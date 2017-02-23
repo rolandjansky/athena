@@ -218,6 +218,7 @@ namespace HLT {
       bool m_enableRobRequestPreparation; //!< directive to enable ROB request preparation step
       bool m_doL1TopoSimulation; //!< Turns on L1Topo Simulation
       int  m_topoOutputLevel{TrigConf::MSGTC::WARNING};  // property to set the outputlevel of the topo algorithms
+      bool m_topoUseBitwise;              //!< property to set 'UseBitwise' of TopoSteering
       bool m_enableRerun;                 //!< directive to enable rerun on prescaled chains
       int  m_stepForEB;                   //!< step of the EB in the merged L2EF system
       int  m_strategyEB;                  //!< directive to decide the EB strategy in the merged L2EF system

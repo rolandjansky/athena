@@ -1380,88 +1380,88 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 
   unsigned int chip = 0, column = 0, row = 0;
   //
-   if(component != 2 || component != -2){   //not endcap
-     if(mch>2){
-       if(pixel_phi_index < mrows){
-	 chip = pixel_eta_index / mcolumns + mch/2;
-	 column = pixel_eta_index % mcolumns;
-	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else if(ng>0){
-	   for(int k=0; k<ng; ++k){ 
-	     if(pixel_phi_index ==(mrowsrdo+k))row = mrowsrdo+1 -2*(ng-k);
-	   }
-	 }
-       }
-       else if(pixel_phi_index >= mrows && pixel_phi_index < 2*mrows){
-	 chip = mch/2 - (1 + pixel_eta_index / mcolumns);
-	 column = mcolumns - (1+pixel_eta_index % mcolumns);
-	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows-1 - pixel_phi_index;
-	 else if(ng>0){
-	   for(int k = 0; k<ng; ++k){
-	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
-	   }
-	 }
-       }
-     }
-     else{ 
-       row = (mrows-1) - pixel_phi_index; 
-       column = mcolumns-(1 + pixel_eta_index%mcolumns);
-       chip = mch==1 ? 0: 1-pixel_eta_index/mcolumns; 
-     }
-   }
-   else{                    //disks
-     if(module_phi_index % 2 == 0){                                //even modules
-       if(pixel_phi_index < mrows){
-	 chip = mch/2 - (1+pixel_eta_index / mcolumns);
-	 column = mcolumns - (1+pixel_eta_index % mcolumns);
-	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else if(ng>0){
-	   for(int k=0; k<ng; ++k){ 
-	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
-	   }
-	 }
-       }
-       else if(pixel_phi_index > (mrows-1) && pixel_phi_index < 2*mrows){
-	 chip = pixel_eta_index / mcolumns + mch/2;
-	 column = pixel_eta_index % mcolumns;
-	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
-	 else if(ng>0){
-	   for(int k = 0; k<ng; ++k){
-	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
-	   }
-	 }
-       }
-     }
-     else if(module_phi_index % 2 == 1){                          //odd modules
-       if(pixel_phi_index > (mrows+ng-1) && pixel_phi_index < 2*mrows){
-	 chip = mch/2 -(1 + pixel_eta_index / mcolumns);
-	 column = mcolumns - (1 + pixel_eta_index % mcolumns);
-	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
-	 else if(ng>0){
-	   for(int k = 0; k<ng; ++k){
-	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
-	   }
-	 }
-       }
-       else if(pixel_phi_index < mrows){
-	 chip = pixel_eta_index / mcolumns + mch/2;
-	 column = pixel_eta_index % mcolumns;
-	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else if(ng>0){ 
-	   for(int k=0; k<ng; ++k){ 
-	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
-	   }
-	 }
-       }
-     }
-   }
-   unsigned int pixelID = row;
-   pixelID = (i==0) ? pixelID << 5 : pixelID << 8;
-   pixelID += column;
-   pixelID = pixelID << 4;
-   pixelID += chip;
-  
-   return pixelID;
+  if(std::abs(component)!=2) {   //not endcap
+    if(mch>2){
+      if(pixel_phi_index < mrows){
+        chip = pixel_eta_index / mcolumns + mch/2;
+        column = pixel_eta_index % mcolumns;
+        if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
+        else if(ng>0){
+          for(int k=0; k<ng; ++k){ 
+            if(pixel_phi_index ==(mrowsrdo+k))row = mrowsrdo+1 -2*(ng-k);
+          }
+        }
+      }
+      else if(pixel_phi_index >= mrows && pixel_phi_index < 2*mrows){
+        chip = mch/2 - (1 + pixel_eta_index / mcolumns);
+        column = mcolumns - (1+pixel_eta_index % mcolumns);
+        if(pixel_phi_index > (mrows+ng-1))row = 2*mrows-1 - pixel_phi_index;
+        else if(ng>0){
+          for(int k = 0; k<ng; ++k){
+            if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
+          }
+        }
+      }
+    }
+    else{ 
+      row = (mrows-1) - pixel_phi_index; 
+      column = mcolumns-(1 + pixel_eta_index%mcolumns);
+      chip = mch==1 ? 0: 1-pixel_eta_index/mcolumns; 
+    }
+  }
+  else{                    //disks
+    if(module_phi_index % 2 == 0){                                //even modules
+      if(pixel_phi_index < mrows){
+        chip = mch/2 - (1+pixel_eta_index / mcolumns);
+        column = mcolumns - (1+pixel_eta_index % mcolumns);
+        if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
+        else if(ng>0){
+          for(int k=0; k<ng; ++k){ 
+            if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
+          }
+        }
+      }
+      else if(pixel_phi_index > (mrows-1) && pixel_phi_index < 2*mrows){
+        chip = pixel_eta_index / mcolumns + mch/2;
+        column = pixel_eta_index % mcolumns;
+        if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
+        else if(ng>0){
+          for(int k = 0; k<ng; ++k){
+            if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
+          }
+        }
+      }
+    }
+    else if(module_phi_index % 2 == 1){                          //odd modules
+      if(pixel_phi_index > (mrows+ng-1) && pixel_phi_index < 2*mrows){
+        chip = mch/2 -(1 + pixel_eta_index / mcolumns);
+        column = mcolumns - (1 + pixel_eta_index % mcolumns);
+        if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
+        else if(ng>0){
+          for(int k = 0; k<ng; ++k){
+            if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
+          }
+        }
+      }
+      else if(pixel_phi_index < mrows){
+        chip = pixel_eta_index / mcolumns + mch/2;
+        column = pixel_eta_index % mcolumns;
+        if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
+        else if(ng>0){ 
+          for(int k=0; k<ng; ++k){ 
+            if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
+          }
+        }
+      }
+    }
+  }
+  unsigned int pixelID = row;
+  pixelID = (i==0) ? pixelID << 5 : pixelID << 8;
+  pixelID += column;
+  pixelID = pixelID << 4;
+  pixelID += chip;
+
+  return pixelID;
 }
 
 /*

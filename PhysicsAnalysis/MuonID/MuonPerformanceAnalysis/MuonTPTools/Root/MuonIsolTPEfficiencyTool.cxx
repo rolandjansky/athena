@@ -19,7 +19,7 @@ MuonIsolTPEfficiencyTool::MuonIsolTPEfficiencyTool(std::string myname)
 
 
 //---------------------------------------------------------
-void MuonIsolTPEfficiencyTool::matchProbes(ProbeContainer* probes, const xAOD::IParticleContainer* ) const
+void MuonIsolTPEfficiencyTool::matchProbes(ProbeContainer* probes) const
 {
     float sf = 1.;
     bool match = false;

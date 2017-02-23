@@ -6,13 +6,10 @@ __doc__=""
 __version__="Implementation of Photon Slice single electron signatures"
 
 from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger( 'TriggerMenu.egamma.generatePhotonChainDefs' )
 
-
-from TriggerMenu.egamma.PhotonDef import *
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.egamma.PhotonDef import L2EFChain_g
+from TriggerMenu.menu.MenuUtils import splitChainDict, mergeChainDefs
 
 Photons = []
 
@@ -21,14 +18,13 @@ from TriggerMenu.egamma.EgammaDef import EgammaSequence
 ##########################################################################################
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 
     for subChainDict in listOfChainDicts:      
         photon_seq = EgammaSequence(subChainDict)
-        log.info('Egamma Sequence: %s', photon_seq)
+        log.debug('Egamma Sequence: %s', photon_seq)
         Photon = L2EFChain_g(subChainDict,photon_seq)
             
         listOfChainDefs += [Photon.generateHLTChainDef()]
@@ -56,7 +52,6 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
     L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']
     
     if "Jpsiee" in chainDict["topo"]:
 

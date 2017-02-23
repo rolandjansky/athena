@@ -13,8 +13,8 @@
 #include "L1TopoEvent/GenericTOB.h"
 
 #include "L1TopoConfig/L1TopoMenu.h"
+#include "L1TopoConfig/L1TopoConfigGlobal.h"
 #include "L1TopoConfig/LayoutConstraints.h"
-
 
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoCoreSim/Connector.h"
@@ -47,6 +47,10 @@ TopoSteering::~TopoSteering() {
 
 StatusCode
 TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu& menu) {
+   
+   if(m_useBitwise){ TRG_MSG_INFO("Will be using bitwise implementation of algorithms");}
+   else{TRG_MSG_INFO("Will NOT be using bitwise implementation of algorithms");}
+
 
    StatusCode sc = m_structure.setupFromMenu( menu );
 
@@ -125,7 +129,10 @@ TopoSteering::saveHist() {
 StatusCode
 TopoSteering::executeEvent() {
 
+
    TRG_MSG_INFO("L1 TopoSteering: start executing event " << m_evtCounter << "-----------------------------------");
+
+
    if( ! structure().isConfigured() ) {
       TRG_MSG_INFO("L1Topo Steering has not been configured, can't run");
       TCS_EXCEPTION("L1Topo Steering has not been configured, can't run");
@@ -304,7 +311,8 @@ TopoSteering::executeSortingAlgorithm(TCS::SortingAlg *alg,
 
    const InputTOBArray * input = inputConnector->outputData();
 
-   alg->sort(*input, *sortedOutput);
+   if(m_useBitwise) alg->sortBitCorrect(*input, *sortedOutput);
+   else alg->sort(*input, *sortedOutput);
 
    return StatusCode::SUCCESS;
 }
@@ -317,7 +325,7 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
                                        const std::vector<TCS::TOBArray *> & output,
                                        TCS::Decision & decision) {
 
-   TRG_MSG_DEBUG("  ... executing decision alg '" << alg->fullname() << "'");
+   TRG_MSG_INFO("  ... executing decision alg '" << alg->fullname() << "'");
 
    if(inputConnectors.size()<1) {
       TCS_EXCEPTION("L1Topo Steering: Decision algorithm expects at least 1 input array but got 0");
@@ -338,9 +346,12 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
    }
 
    alg->reset();
-   
-   alg->process( input, output, decision );
-      
+
+
+   if(m_useBitwise) alg->processBitCorrect( input, output, decision);   
+   else alg->process( input, output, decision );
+   //TRG_MSG_ALWAYS("[XS1234sz]L1Topo Steering alg " << alg->name() << " has decision " << decision.decision());
+     
    return StatusCode::SUCCESS;
 }
 

@@ -19,16 +19,6 @@
 
 #include "TileEvent/TileDigits.h"
 
-#ifndef ATHENAHIVE
-#define USE_TILEDIGITS_DATAPOOL
-#endif
-
-#ifdef USE_TILEDIGITS_DATAPOOL
-#define NEWTILEDIGITS  tileDigitsPool.nextElementPtr
-#else
-#define NEWTILEDIGITS new TileDigits
-#endif
-
 #include "AthAllocators/DataPool.h"
 #include "PathResolver/PathResolver.h"
 
@@ -233,9 +223,7 @@ StatusCode TileDigitsFromPulse::execute() {
 	TileRawChannel * pRawChannel;
 	TileRawChannelContainer * pRawChannelContainer;
 	pRawChannelContainer = new TileRawChannelContainer(true, m_rChType, m_rChUnit);
-#ifdef USE_TILEDIGITS_DATAPOOL
 	DataPool < TileDigits > tileDigitsPool(m_tileHWID->adc_hash_max());
-#endif
 
 	TRandom3 *random = new TRandom3(m_seed); //Randomizer for pulse-shape imperfection
 	double tFit = 0, ped = 50.; //Settings for simulation
@@ -378,7 +366,7 @@ StatusCode TileDigitsFromPulse::execute() {
 
 				ATH_MSG_VERBOSE("New ADC " << ros << "/" << drawer << "/" << channel << "/   saving gain  " << gain);
 
-				TileDigits * digit = NEWTILEDIGITS();
+				TileDigits * digit = tileDigitsPool.nextElementPtr();
                                 *digit = TileDigits (m_tileHWID->adc_id(ros, drawer, channel, gain),
                                                      std::move(samples));
 				outputCont->push_back(digit);

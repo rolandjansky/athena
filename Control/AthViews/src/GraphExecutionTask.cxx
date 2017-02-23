@@ -7,6 +7,7 @@
 // Framework
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IAlgResourcePool.h"
+#include "GaudiKernel/IAlgorithm.h"
 
 
 //The method for scheduling a subgraph
@@ -42,8 +43,12 @@ tbb::task* GraphExecutionTask::execute()
 	{
 		return nullptr;
 	}
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+	algoPtr->sysExecute( *m_eventContext );
+#else
 	algoPtr->setContext( m_eventContext );
 	algoPtr->sysExecute();
+#endif
 
 	//Release the algorithm
 	testPool = m_algResourcePool->releaseAlgorithm( name, ialgoPtr );

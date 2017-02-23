@@ -31,7 +31,7 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    m_activeTool(this), 
    m_noWeightsMode(false), 
    m_weightTool("McEventWeight/myWeightTool"),
-   m_grlTool("") {
+   m_grlTool(""), m_tdt("") {
 
 #ifndef XAOD_STANDALONE
    declareProperty("ConfigOutputStream", m_configStream="", "When creating PRW config files, this is the THistSvc stream it goes into. If blank, it wont write this way");
@@ -55,6 +55,7 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    //REMOVED ... obsolete declareProperty("LumiCalcRunNumberOffset",m_lumicalcRunNumberOffset=0,"Use to 'fake' a Run2 lumicalc file. Suggest using a value of 22000 to do this from an 8TeV lumicalc file");
 
    declareProperty("GRLTool", m_grlTool, "If you provide a GoodRunsListSelectionTool, any information from lumicalc files will be automatically filtered" );
+   declareProperty("TrigDecisionTool",m_tdt, "When using the getDataWeight method, the TDT is needed to check trigger decisions, particularly when using trigger OR");
 
 #ifdef XAOD_STANDALONE
    declareProperty( "WeightTool", m_weightTool = new McEventWeight("myWeightTool"),"The tool to compute the weight in the sumOfWeights");
@@ -88,6 +89,12 @@ void PileupReweightingTool::updateHandler(Property& p) {
 bool PileupReweightingTool::runLbnOK(Int_t runNbr, Int_t lbn) {
    if(m_grlTool.empty()) return true;
    return m_grlTool->passRunLB(runNbr,lbn);
+}
+
+bool PileupReweightingTool::passTriggerBeforePrescale(const TString& trigger) const {
+  if(m_tdt.empty()) return TPileupReweighting::passTriggerBeforePrescale(trigger); 
+  ATH_MSG_VERBOSE("Checking tdt decision of " << trigger);
+  return m_tdt->isPassed( trigger.Data() , /*TrigDefs::allowResurrectedDecision*/0x1 << 2 ); //FIXME: need Trigger people to move Condition.h to interface package!
 }
 
 bool PileupReweightingTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const {

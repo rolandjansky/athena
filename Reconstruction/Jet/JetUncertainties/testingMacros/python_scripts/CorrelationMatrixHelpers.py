@@ -10,6 +10,8 @@ import AtlasStyleMacro
 
 from PlotHelpers import *
 
+# Script is Steven's
+# Structural modifications by Kate, Dec 2016
 
 ##################################################
 #                                                #
@@ -18,12 +20,23 @@ from PlotHelpers import *
 ##################################################
 
 class CorrMat4D:
-    def __init__(self):
+
+    def __init__(self,relMet=False):
         self.hist4D   = None
         self.jetDef   = None
         self.varType  = None
         self.plotType = None
+        self.OOB  = -1234 # out of bounds value
+        self.OOBT = -1000 # out of bounds threshold
+        # Whether to use (nominal-reduced) or (1-nominal)/(1-reduced)
+        self.relativeMetric = relMet
     
+        # For the plotting functions
+        self.ATLASLabelName = "Internal"
+        self.DrawATLASLabel = True
+        self.iEPS = 0
+
+
     def setInfo(self,jetDef,varType,plotType):
         self.jetDef   = jetDef
         self.varType  = varType
@@ -43,230 +56,26 @@ class CorrMat4D:
 
     def applyAbsValue(self):
         if not self.hist4D:
-            print "Cannot apply absolute value when the histogram hasn't been created"
-            return False
+          print "Cannot apply absolute value when the histogram hasn't been created"
+          return False
 
         for binX in range(1,self.hist4D.GetNbinsX()+1):
-            for binY in range(1,self.hist4D.GetNbinsY()+1):
-                if self.hist4D.GetBinContent(binX,binY) > self.OOBT:
-                    self.hist4D.SetBinContent(binX,binY,fabs(self.hist4D.GetBinContent(binX,binY)))
+          for binY in range(1,self.hist4D.GetNbinsY()+1):
+            if self.hist4D.GetBinContent(binX,binY) > self.OOBT:
+                self.hist4D.SetBinContent(binX,binY,fabs(self.hist4D.GetBinContent(binX,binY)))
         return True
-CorrMat4D.OOB  = -1234 # out of bounds value
-CorrMat4D.OOBT = -1000 # out of bounds threshold
-CorrMat4D.relativeMetric = False # Whether to use (nominal-reduced) or (1-nominal)/(1-reduced)
 
-def relativeMetric(numerator,denominator):
-    if fabs(denominator) < 1.e-3:
-        if fabs(numerator) < 1.e-3:
-            return 1
-        else:
-            return CorrMat4D.OOB
-    if numerator/denominator < 0:
-        print "NUM/DEN = %f/%f"%(numerator,denominator)
-    return sqrt(numerator/denominator)
-
-# Class methods are defined later where relevant
-
-
-##################################################
-#                                                #
-# Plotting helpers specific to CorrelationMatrix #
-#                                                #
-##################################################
-
-def DrawLabels(hist,jetDefString,scenarioString):
-    if DrawLabels.DrawATLASLabel:
-        AtlasStyleMacro.ATLASLabel(0.10,0.845,DrawLabels.ATLASLabelName)
-    jetDefLabel = ""
-
-    if jetDefString.startswith("AntiKt4"):
-        jetDefLabel += "anti-k_{t} #it{R} = 0.4, "
-    elif jetDefString.startswith("AntiKt6"):
-        jetDefLabel += "anti-k_{t} #it{R} = 0.6, "
+    ##################################################
+    # 4D histogram building from 2D histograms       #
+    def fillHist4DFromFile(self,inFile,fixedString,fixedX,fixedY,filterStartString="",granularityFactor=1):
+      # Ensure the histogram wasn't already filled
+      if self.hist4D:
+          print "Blocking re-filling of existing CorrMat4D histogram of name ",self.hist4D.GetName()
+          return False
     
-    if jetDefString.endswith("LCTopo") or jetDefString.endswith("TopoLC"):
-        jetDefLabel += "LCW+JES"
-    elif jetDefString.endswith("EMTopo") or jetDefString.endswith("TopoEM"):
-        jetDefLabel += "EM+JES"
-    
-    DrawText(0.10,0.900,jetDefLabel+" 2015")
-    DrawText(0.10,0.955,scenarioString)
-DrawLabels.ATLASLabelName = "Internal"
-DrawLabels.DrawATLASLabel = True
-
-def DrawLabelsGuessScenario(histo):
-    jetDefString = histo.jetDef
-    scenarioLabel = histo.hist4D.GetName().replace("4D_varpt_%s_"%(jetDefString),"").replace("4D_vareta_%s_"%(jetDefString),"").replace(".root","")
-    plotType = histo.plotType
-    if "_" in scenarioLabel:
-        if scenarioLabel.startswith("diff_"):
-            scenarioLabel = re.sub("diff_","",scenarioLabel)
-            scenarioLabel = re.sub("_"," - ",scenarioLabel)
-            scenarioLabel = "Correlation differences, "+scenarioLabel
-        elif scenarioLabel.startswith("minDiff_"):
-            scenarioLabel = re.sub("minDiff_","",scenarioLabel)
-            scenarioLabel = re.sub("_",", ",scenarioLabel)
-            #scenarioLabel = "Correlation differences, min[" + scenarioLabel + "]"
-            scenarioLabel = "Metric 1 (minimum correlation differences)" if not CorrMat4D.relativeMetric else "Metric 1' (minimum correlation differences)"
-        elif scenarioLabel.startswith("maxDiff_"):
-            scenarioLabel = re.sub("maxDiff_","",scenarioLabel)
-            scenarioLabel = re.sub("_",", ",scenarioLabel)
-            scenarioLabel = "Correlation differences, max[" + scenarioLabel + "]"
-        elif scenarioLabel.startswith("coverageRaw_"):
-            scenarioLabel = re.sub("coverageRaw_","",scenarioLabel)
-            scenarioLabel = re.sub("_",", ",scenarioLabel)
-            #scenarioLabel = "Correlation loss coverage, [" + scenarioLabel + "]"
-            scenarioLabel = "Metric 2 (raw)"
-        elif scenarioLabel.startswith("coverageRes_") or plotType == "Metric2" or plotType == "Metric 2":
-            scenarioLabel = re.sub("coverageRes_","",scenarioLabel)
-            scenarioLabel = re.sub("_",", ",scenarioLabel)
-            #scenarioLabel = "Correlation loss remaining, [" + scenarioLabel + "]"
-            scenarioLabel = "Metric 2 (uncovered correlation differences)" if not CorrMat4D.relativeMetric else "Metric 2' (uncovered correlation differences)"
-        elif scenarioLabel.startswith("uncertaintyRaw_coverageRaw"):
-            #scenarioLabel = "Remaining loss not covered by correlation uncertainties"
-            scenarioLabel = "Metric 3 (raw)"
-        elif scenarioLabel.startswith("uncertaintyRes_coverageRes") or plotType == "Metric3" or plotType == "Metric 3":
-            #scenarioLabel = "Remaining loss beyond correlation uncertainties"
-            scenarioLabel = "Metric 3 (uncovered corr. diff. including uncertainties)" if not CorrMat4D.relativeMetric else "Metric 3' (uncovered corr. diff. including uncertainties)"
-    elif scenarioLabel=="uncenvelope":
-        scenarioLabel = "Correlation uncertainties"
-    else:
-        scenarioNum = re.sub("JER","",re.sub("4NP","",re.sub("3NP","",scenarioLabel)))
-        if len(scenarioNum) == 1:
-            scenarioLabel = "Correlation difference, Rep_{full}^{JES} - Rep_{str.red}^{%s,JES}"%(scenarioNum if not (scenarioNum == "3" and "JER" in scenarioLabel) else "evdm")
-        else:
-            scenarioNum = "Correlation difference, full - %s"%(scenarioLabel)
-    
-    DrawLabels(histo.hist4D,jetDefString,scenarioLabel)
-
-
-
-##################################################
-#                                                #
-# Fixed value manipulation (pT and eta values)   #
-#                                                #
-##################################################
-
-
-def getFixedValuesFromName(histName):
-    # Parse the histogram name
-    tokens = histName.split("_")
-    fixed1 = ""
-    fixed2 = ""
-    for aToken in tokens:
-        keep = False
-        if aToken.startswith("pt"):
-            keep = True
-        elif aToken.startswith("eta"):
-            keep = True
-        
-        if keep:
-            if fixed1 == "":
-                fixed1 = aToken
-            elif fixed2 == "":
-                fixed2 = aToken
-            else:
-                print "ERROR: More than two fixed values appear in name:",histName
-                sys.exit(-1)
-    return fixed1,fixed2
-
-
-def getFixedValuesFromFile(inFile,jetDef):
-    fixedPt = []
-    fixedEta = []
-    for histName in inFile.GetKeyNames():
-        # Ensure this histogram is for the collection we want
-        if not jetDef in histName:
-            continue
-        # Ensure this is a difference histogram
-        if not histName.startswith("diff_"):
-            continue
-
-        fixed1,fixed2 = getFixedValuesFromName(histName)
-        
-        if fixed1 != "" and fixed2 != "":
-            if fixed1.startswith("pt") and fixed2.startswith("pt"):
-                fixedPt.append([float(fixed1.replace("pt","",1)),float(fixed2.replace("pt","",1))])
-            elif fixed1.startswith("eta") and fixed2.startswith("eta"):
-                fixedEta.append([float(fixed1.replace("eta","",1)),float(fixed2.replace("eta","",1))])
-            else:
-                print "ERROR: Unexpected mixture of fixed variables for histogram:",histName
-                sys.exit(-1)
-        else:
-            print "ERROR: Failed to parse histogram name for fixed values:",histName
-            sys.exit(-2)
-
-
-    return fixedPt,fixedEta
-
-
-def getFixedValuesFromFiles(inFiles,jetDef):
-    # Get fixed pt and/or eta values from the first file
-    fixedPt,fixedEta = getFixedValuesFromFile(inFiles[0],jetDef)
-    fixedPt.sort()
-    fixedEta.sort()
-    
-    # Ensure that subsequent file(s) match the fixed pt/eta values
-    for aFile in inFiles[1:]:
-        localFixedPt,localFixedEta = getFixedValuesFromFile(aFile,jetDef)
-        localFixedPt.sort()
-        localFixedEta.sort()
-    
-        # Check for equality
-        # Note that these are floating point equalities, so be careful
-        if len(localFixedPt) != len(fixedPt):
-            print "ERROR: File %s has %d fixed pt values, while %s has %d values"%(aFile.GetNameNoDir(),len(localFixedPt),inFiles[0],len(fixedPt))
-            sys.exit(3)
-        elif len(localFixedEta) != len(fixedEta):
-            print "ERROR: File %s has %d fixed eta values, while %s has %d values"%(aFile.GetNameNoDir(),len(localFixedEta),inFiles[0],len(fixedEta))
-            sys.exit(4)
-        for localVal,globalVal in zip(localFixedPt,fixedPt):
-            if fabs(localVal[0]-globalVal[0]) > 1.e-4 or fabs(localVal[1]-globalVal[1]) > 1.e-4:
-                print "ERROR: File %s and %s have different fixed pt values, was comparing %f and %f"%(aFile.GetNameNoDir(),inFiles[0],localVal,globalVal)
-                sys.exit(5)
-        for localVal,globalVal in zip(localFixedEta,fixedEta):
-            if fabs(localVal[0]-globalVal[0]) > 1.e-4 or fabs(localVal[1]-globalVal[1]) > 1.e-4:
-                print "ERROR: File %s and %s have different fixed eta values, was comparing %f and %f"%(aFile.GetNameNoDir(),inFiles[0],localVal,globalVal)
-                sys.exit(6)
-    
-    # Files have now been confirmed to match in fixed values, assuming multiple files were specified
-    # Determine the actual pT and eta values available now (not just pairs)
-    fixedPtX = set([])
-    fixedPtY = set([])
-    for fixedPtSet in fixedPt:
-        fixedPtX.add(fixedPtSet[0])
-        fixedPtY.add(fixedPtSet[1])
-    fixedPtX = sorted(fixedPtX)
-    fixedPtY = sorted(fixedPtY)
-    
-    fixedEtaX = set([])
-    fixedEtaY = set([])
-    for fixedEtaSet in fixedEta:
-        fixedEtaX.add(fixedEtaSet[0])
-        fixedEtaY.add(fixedEtaSet[1])
-    fixedEtaX = sorted(fixedEtaX)
-    fixedEtaY = sorted(fixedEtaY)
-
-    # Done, return the sorted lists of fixed values
-    return fixedPtX,fixedPtY,fixedEtaX,fixedEtaY
-
-
-
-##################################################
-#                                                #
-# 4D histogram building from 2D histograms       #
-#                                                #
-##################################################
-
-def fillHist4DFromFile(self,inFile,fixedString,fixedX,fixedY,filterStartString="",granularityFactor=1):
-    # Ensure the histogram wasn't already filled
-    if self.hist4D:
-        print "Blocking re-filling of existing CorrMat4D histogram of name ",self.hist4D.GetName()
-        return False
-    
-    # Begin by checking the size of the 2D matrices
-    numBins = -1
-    for histName in inFile.GetKeyNames():
+      # Begin by checking the size of the 2D matrices
+      numBins = -1
+      for histName in inFile.GetKeyNames():
         if filterStartString != "" and not histName.startswith(filterStartString):
             continue
         if self.jetDef not in histName:
@@ -275,31 +84,31 @@ def fillHist4DFromFile(self,inFile,fixedString,fixedX,fixedY,filterStartString="
             hist = inFile.Get(histName)
             numBins = hist.GetNbinsX()
             break
-    if numBins < 0:
+      if numBins < 0:
         print "Failed to find histogram matching criteria:"
         print "jetDef = \"%s\""%(self.jetDef)
         print "filterStartString = \"%s\""%(filterStartString)
         return False
 
-    # Granularity scaling if requested
-    localNumBins = int(numBins / granularityFactor) if granularityFactor > 1 else numBins
-    if granularityFactor > 1:
+      # Granularity scaling if requested
+      localNumBins = int(numBins / granularityFactor) if granularityFactor > 1 else numBins
+      if granularityFactor > 1:
         # Ensure the granularity fits
         if numBins % granularityFactor != 0:
             print "Cannot apply granularity factor: %d bins can't be divided by %d"%(numBins,granularityFactor)
             return False
 
-    # Now build the empty 4D matrix
-    histName4D = "4D_var%s_%s_%s"%(self.varType,self.jetDef,inFile.GetNameNoDir())
-    self.hist4D = TH2D(histName4D,"",len(fixedX)*localNumBins,0.,len(fixedX)*localNumBins,len(fixedY)*localNumBins,0.,len(fixedY)*localNumBins)
+      # Now build the empty 4D matrix
+      histName4D = "4D_var%s_%s_%s"%(self.varType,self.jetDef,inFile.GetNameNoDir())
+      self.hist4D = TH2D(histName4D,"",len(fixedX)*localNumBins,0.,len(fixedX)*localNumBins,len(fixedY)*localNumBins,0.,len(fixedY)*localNumBins)
 
-    # Fill with the out-of-bounds value
-    for binX in range(1,self.hist4D.GetNbinsX()+1):
+      # Fill with the out-of-bounds value
+      for binX in range(1,self.hist4D.GetNbinsX()+1):
         for binY in range(1,self.hist4D.GetNbinsY()+1):
             self.hist4D.SetBinContent(binX,binY,self.OOB)
 
-    # Fill the histogram
-    for histName in inFile.GetKeyNames():
+      # Fill the histogram
+      for histName in inFile.GetKeyNames():
         if filterStartString != "" and not histName.startswith(filterStartString):
             continue
         if self.jetDef not in histName:
@@ -357,150 +166,63 @@ def fillHist4DFromFile(self,inFile,fixedString,fixedX,fixedY,filterStartString="
                     self.hist4D.SetBinContent(binX+1+offsetX,binY+1+offsetY,subVal/numVal if numVal > 0 else self.OOB)
 
         # Done with this 2D histogram
-    # Done with this 4D histogram
-    return True
-CorrMat4D.fillHist4DFromFile = fillHist4DFromFile
+      # Done with this 4D histogram
+      return True
 
+    ##################################################
+    # 4D histograms from differences of 4D hist sets #
 
-def buildAndFillHists4DFromFiles(inFiles,jetDef,varString,fixedString,fixedX,fixedY,filterStartString="",granularityFactor=1):
-    try:
-        iterator = iter(inFiles)
-    except TypeError:
-        # Not iterable
-        # Probably a single item
-        inFiles = [inFiles]
-    else:
-        # Iterable
-        # Probably a list of files, but watch for strings
-        if isinstance(inFiles,str):
-            inFiles = [TFile.Open(inFiles,"READ")]
-        else:
-            for iFile in range(0,len(inFiles)):
-                if isinstance(inFiles[iFile],str):
-                    inFiles[iFile] = TFile.Open(inFiles[iFile],"READ")
-
-    hists4D = [CorrMat4D() for aFile in inFiles]
-    for aFile,aHist in zip(inFiles,hists4D):
-        aHist.setInfo(jetDef,varString,"raw" if filterStartString == "" else "raw_"+ re.sub("_","",filterStartString))
-        if not aHist.fillHist4DFromFile(aFile,fixedString,fixedX,fixedY,filterStartString,granularityFactor):
-            return None
-
-    return hists4D
-
-
-def buildAndFillHists4DFromFile(inFile,jetDef,varString,fixedString,fixedX,fixedY,excludeStartString="",granularityFactor=1):
-    try:
-        iterator = iter(inFile)
-    except TypeError:
-        # Not iterable
-        # Probably a single item
-        # Nothing to do in this case
-        pass
-    else:
-        # Iterable
-        # Probably a list of files, but watch for a single string
-        if isinstance(inFile,str):
-            inFile = TFile.Open(inFile,"READ")
-        else:
-            print "Expected a string, but did not receive one: ",inFile
-            print "This method is for building a set of histograms from a single file"
-            return None
-
-    # Get the list of starts (the string before _var*)
-    startStrings = set()
-    for histName in inFile.GetKeyNames():
-        if excludeStartString != "" and histName.startswith(excludeStartString):
-            continue
-        # Find the _var and get what's in front of it
-        startStrings.add(histName[:histName.find("_var")])
-
-    # Now run over the scenarios
-    hists4D = [CorrMat4D() for aString in startStrings]
-    for aString,aHist in zip(startStrings,hists4D):
-        aHist.setInfo(jetDef,varString,"raw_"+aString)
-        if not aHist.fillHist4DFromFile(inFile,fixedString,fixedX,fixedY,aString,granularityFactor):
-            return None
-
-    return hists4D
-
-
-
-##################################################
-#                                                #
-# 4D histograms from differences of 4D hist sets #
-#                                                #
-##################################################
-
-def fillHist4DFromDifference(self,hist1,hist2):
-    # Ensure the histogram wasn't already filled
-    if self.hist4D:
+    def fillHist4DFromDifference(self,hist1,hist2):
+      # Ensure the histogram wasn't already filled
+      if self.hist4D:
         print "Blocking re-filling of existing CorrMat4D histogram of name ",self.hist4D.GetName()
         return False
 
-    # Ensure the histograms exist
-    if not hist1 or not hist2:
+      # Ensure the histograms exist
+      if not hist1 or not hist2:
         print "Argument(s) are None: ",hist1,hist2
         return False
 
-    # Copy the first histogram and subtract the second
-    self.cloneHist4D(hist1)
+      # Copy the first histogram and subtract the second
+      self.cloneHist4D(hist1)
 
-    # Manually do the difference so that we can watch for out-of-bounds
-    for binX in range(1,hist1.hist4D.GetNbinsX()+1):
+      # Manually do the difference so that we can watch for out-of-bounds
+      for binX in range(1,hist1.hist4D.GetNbinsX()+1):
         for binY in range(1,hist2.hist4D.GetNbinsX()+1):
             if hist1.hist4D.GetBinContent(binX,binY) > self.OOBT and hist2.hist4D.GetBinContent(binX,binY) > self.OOBT:
-                if not CorrMat4D.relativeMetric:
+                if not hist1.relativeMetric:
                     self.hist4D.SetBinContent(binX,binY,hist1.hist4D.GetBinContent(binX,binY) - hist2.hist4D.GetBinContent(binX,binY))
                 else:
                     self.hist4D.SetBinContent(binX,binY,relativeMetric(hist1.hist4D.GetBinContent(binX,binY),hist2.hist4D.GetBinContent(binX,binY)))
 
-    return True
-CorrMat4D.fillHist4DFromDifference = fillHist4DFromDifference
+      return True
 
-def buildAndFillHists4DFromDifferences(hists):
-    # Must do all possible comparisons
-    diffHists = []
-    for iHist1 in range(0,len(hists)):
-        for iHist2 in range(iHist1+1,len(hists)):
-            hist4D = CorrMat4D()
-            hist4D.setInfoCopy(hists[iHist1],"diff_%s_%s"%(hists[iHist1].plotType,hists[iHist2].plotType))
-            if not hist4D.fillHist4DFromDifference(hists[iHist1],hists[iHist2]):
-                return None
-            diffHists.append(hist4D)
-    return diffHists
+    ##################################################
+    # 4D histogram from minimum value of a 4D set    #
 
-
-
-
-##################################################
-#                                                #
-# 4D histogram from minimum value of a 4D set    #
-#                                                #
-##################################################
-
-def fillHist4DFromMinOfSet(self,hists):
-    # Ensure the histogram wasn't already filled
-    if self.hist4D:
+    def fillHist4DFromMinOfSet(self,hists):
+      # Ensure the histogram wasn't already filled
+      if self.hist4D:
         print "Blocking re-filling of existing CorrMat4D histogram of name ",self.hist4D.GetName()
         return False
 
-    # Ensure the histogram(s) exist
-    if not hists or len(hists) == 0:
+      # Ensure the histogram(s) exist
+      if not hists or len(hists) == 0:
         print "Argument is None or empty list: ",hists
         return False
 
-    # Copy the first histogram for formatting purposes
-    self.cloneHist4D(hists[0])
+      # Copy the first histogram for formatting purposes
+      self.cloneHist4D(hists[0])
 
-    # The values from the first histogram are already set from cloning
-    # Now just check if any other hists have smaller values
-    # Note that smaller may be relative to 1, not zero (for the relative metric)
-    # Watch for out-of-bounds
-    for aHist in hists[1:]:
+      # The values from the first histogram are already set from cloning
+      # Now just check if any other hists have smaller values
+      # Note that smaller may be relative to 1, not zero (for the relative metric)
+      # Watch for out-of-bounds
+      for aHist in hists[1:]:
         for binX in range(1,aHist.hist4D.GetNbinsX()+1):
             for binY in range(1,aHist.hist4D.GetNbinsY()+1):
                 if aHist.hist4D.GetBinContent(binX,binY) > aHist.OOBT:
-                    if not CorrMat4D.relativeMetric:
+                    if not aHist.relativeMetric:
                         if fabs(aHist.hist4D.GetBinContent(binX,binY)) < fabs(self.hist4D.GetBinContent(binX,binY)):
                             self.hist4D.SetBinContent(binX,binY,aHist.hist4D.GetBinContent(binX,binY))
                     else:
@@ -523,53 +245,34 @@ def fillHist4DFromMinOfSet(self,hists):
                         elif currVal > 1 and newVal > 1:
                             if newVal < currVal:
                                 self.hist4D.SetBinContent(binX,binY,newVal)
-    return True
-CorrMat4D.fillHist4DFromMinOfSet = fillHist4DFromMinOfSet
+      return True
 
+    ##################################################
+    # 4D histogram from maximum value of a 4D set    #
 
-def buildAndFillHist4DFromMinOfSet(hists):
-    # Ensure the histogram(s) exist
-    if not hists or len(hists) == 0:
-        print "Argument is None or empty list: ",hists
-        return None
-    
-    minHist = CorrMat4D()
-    minHist.setInfoCopy(hists[0],"minDiff_%dinputs"%(len(hists)))
-    if not minHist.fillHist4DFromMinOfSet(hists):
-        return None
-    return minHist
-
-
-
-##################################################
-#                                                #
-# 4D histogram from maximum value of a 4D set    #
-#                                                #
-##################################################
-
-def fillHist4DFromMaxOfSet(self,hists):
-    # Ensure the histogram wasn't already filled
-    if self.hist4D:
+    def fillHist4DFromMaxOfSet(self,hists):
+      # Ensure the histogram wasn't already filled
+      if self.hist4D:
         print "Blocking re-filling of existing CorrMat4D histogram of name ",self.hist4D.GetName()
         return False
 
-    # Ensure the histogram(s) exist
-    if not hists or len(hists) == 0:
+      # Ensure the histogram(s) exist
+      if not hists or len(hists) == 0:
         print "Argument is None or empty list: ",hists
         return False
 
-    # Copy the first histogram for formatting purposes
-    self.cloneHist4D(hists[0])
+      # Copy the first histogram for formatting purposes
+      self.cloneHist4D(hists[0])
 
-    # The values from the first histogram are already set from cloning
-    # Now just check if any other hists have smaller values
-    # Note that this may be values with respect to 1 if relative metric
-    # Watch for out-of-bounds
-    for aHist in hists[1:]:
+      # The values from the first histogram are already set from cloning
+      # Now just check if any other hists have smaller values
+      # Note that this may be values with respect to 1 if relative metric
+      # Watch for out-of-bounds
+      for aHist in hists[1:]:
         for binX in range(1,aHist.hist4D.GetNbinsX()+1):
             for binY in range(1,aHist.hist4D.GetNbinsY()+1):
                 if aHist.hist4D.GetBinContent(binX,binY) > aHist.OOBT and aHist.hist4D.GetBinContent(binX,binY) < -aHist.OOBT:
-                    if not CorrMat4D.relativeMetric:
+                    if not aHist.relativeMetric:
                         if fabs(aHist.hist4D.GetBinContent(binX,binY)) > fabs(self.hist4D.GetBinContent(binX,binY)):
                             self.hist4D.SetBinContent(binX,binY,aHist.hist4D.GetBinContent(binX,binY))
                     else:
@@ -587,117 +290,82 @@ def fillHist4DFromMaxOfSet(self,hists):
                         elif currVal > 1 and newVal > 1:
                             if newVal > currVal:
                                 self.hist4D.SetBinContent(binX,binY,newVal)
-    return True
-CorrMat4D.fillHist4DFromMaxOfSet = fillHist4DFromMaxOfSet
+      return True
 
+    ##################################################
+    # 4D histogram from envelope of a 4D set         #
 
-def buildAndFillHist4DFromMaxOfSet(hists):
-    # Ensure the histogram(s) exist
-    if not hists or len(hists) == 0:
-        print "Argument is None or empty list: ",hists
-        return None
-    
-    maxHist = CorrMat4D()
-    maxHist.setInfoCopy(hists[0],"maxDiff_%dinputs"%(len(hists)))
-    if not maxHist.fillHist4DFromMaxOfSet(hists):
-        return None
-    return maxHist
-
-
-##################################################
-#                                                #
-# 4D histogram from envelope of a 4D set         #
-#                                                #
-##################################################
-
-def fillHist4DFromEnvelopeOfSet(self,hists):
-    # Ensure the histogram wasn't already filled
-    if self.hist4D:
+    def fillHist4DFromEnvelopeOfSet(self,hists):
+      # Ensure the histogram wasn't already filled
+      if self.hist4D:
         print "Blocking re-filling of existing CorrMat4D histogram of name ",self.hist4D.GetName()
         return False
 
-    # Ensure the histogram(s) exist
-    if not hists or len(hists) < 2:
+      # Ensure the histogram(s) exist
+      if not hists or len(hists) < 2:
         print "Argument is None or contains less than two histograms: ",hists
         return False
 
-    # Copy the first histogram for formatting purposes
-    self.cloneHist4D(hists[0])
+      # Copy the first histogram for formatting purposes
+      self.cloneHist4D(hists[0])
 
-    # The values of the first histogram were copied from cloning
-    # We need to set these back to 0 (excluding out-of-bounds values)
-    for binX in range(1,self.hist4D.GetNbinsX()+1):
+      # The values of the first histogram were copied from cloning
+      # We need to set these back to 0 (excluding out-of-bounds values)
+      for binX in range(1,self.hist4D.GetNbinsX()+1):
         for binY in range(1,self.hist4D.GetNbinsY()+1):
             if self.hist4D.GetBinContent(binX,binY) > self.OOBT:
                 self.hist4D.SetBinContent(binX,binY,0)
 
-    # Now construct the envelope
-    # Fill with the maximum |difference| from zero when subtracting config X from config Y for all combinations of X,Y
-    for iHist1 in range(0,len(hists)):
+      # Now construct the envelope
+      # Fill with the maximum |difference| from zero when subtracting config X from config Y for all combinations of X,Y
+      for iHist1 in range(0,len(hists)):
         hist1 = hists[iHist1]
         for iHist2 in range(iHist1+1,len(hists)):
             hist2 = hists[iHist2]
             for binX in range(self.hist4D.GetNbinsX()+1):
                 for binY in range(self.hist4D.GetNbinsY()+1):
                     if self.hist4D.GetBinContent(binX,binY) > self.OOBT:
-                        if CorrMat4D.relativeMetric:
+                        if aHist.relativeMetric:
                             diff = relativeMetric(1-hist1.hist4D.GetBinContent(binX,binY),1-hist2.hist4D.GetBinContent(binX,binY))
                         else:
                             diff = fabs(hist2.hist4D.GetBinContent(binX,binY) - hist1.hist4D.GetBinContent(binX,binY))
                         if diff > self.hist4D.GetBinContent(binX,binY):
                             self.hist4D.SetBinContent(binX,binY,diff)
 
-    return True
-CorrMat4D.fillHist4DFromEnvelopeOfSet = fillHist4DFromEnvelopeOfSet
+      return True
 
-def buildAndFillHists4DFromEnvelopeOfSet(hists):
-    # Ensure the histogram(s) exist
-    if not hists or len(hists) < 2:
-        print "Argument is None or contains less than two histograms: ",hists
-        return None
+    ##################################################
+    # 4D histogram from coverage of a 4D set         #
 
-    envelopeHist = CorrMat4D()
-    envelopeHist.setInfoCopy(hists[0],"envelope_%dinputs"%(len(hists)))
-    if not envelopeHist.fillHist4DFromEnvelopeOfSet(hists):
-        return None
-    return envelopeHist
-
-
-##################################################
-#                                                #
-# 4D histogram from coverage of a 4D set         #
-#                                                #
-##################################################
-
-def fillHist4DFromCoverageOfSet(self,minDiffFromNominal,maxDiffBetweenScenarios,plotStyle,nominalHist=None):
-    # Ensure the histogram wasn't already filled
-    if self.hist4D:
+    def fillHist4DFromCoverageOfSet(self,minDiffFromNominal,maxDiffBetweenScenarios,plotStyle,nominalHist=None):
+      # Ensure the histogram wasn't already filled
+      if self.hist4D:
         print "Blocking re-filling of existing CorrMat4D histogram of name ",self.hist4D.GetName()
         return False
 
-    # Ensure the histogram(s) exist
-    if not minDiffFromNominal or not maxDiffBetweenScenarios:
+      # Ensure the histogram(s) exist
+      if not minDiffFromNominal or not maxDiffBetweenScenarios:
         print "Argument is None or empty list: ",minDiffFromNominal,maxDiffBetweenScenarios
         return False
-    if plotStyle==2 and not nominalHist:
+      if plotStyle==2 and not nominalHist:
         print "NominalHist is None for style which requires it"
         return False
 
-    # Copy the minDiff histogram for formatting purposes
-    self.cloneHist4D(minDiffFromNominal)
+      # Copy the minDiff histogram for formatting purposes
+      self.cloneHist4D(minDiffFromNominal)
 
-    # Now fill with the value controlled by plotStyle
-    #   0: 0 if max(scenarioDiff) > min(nominalDiff) else min(nominalDiff)
-    #   1: 0 if max(scenarioDiff) > min(nominalDiff) else min(nominalDiff) - max(scenarioDiff)
-    #   2: 0 if max(scenarioDiff) > min(nominalDiff) else nominalValue
+      # Now fill with the value controlled by plotStyle
+      #   0: 0 if max(scenarioDiff) > min(nominalDiff) else min(nominalDiff)
+      #   1: 0 if max(scenarioDiff) > min(nominalDiff) else min(nominalDiff) - max(scenarioDiff)
+      #   2: 0 if max(scenarioDiff) > min(nominalDiff) else nominalValue
 
-    for binX in range(1,self.hist4D.GetNbinsX()+1):
+      for binX in range(1,self.hist4D.GetNbinsX()+1):
         for binY in range(1,self.hist4D.GetNbinsY()+1):
             if self.hist4D.GetBinContent(binX,binY) > self.OOBT:
                 minDiff = fabs(minDiffFromNominal.hist4D.GetBinContent(binX,binY))
                 maxDiff = fabs(maxDiffBetweenScenarios.hist4D.GetBinContent(binX,binY))
                 
-                if not CorrMat4D.relativeMetric:
+                if not self.relativeMetric:
                     if minDiff <= maxDiff:
                         self.hist4D.SetBinContent(binX,binY,0)
                     elif plotStyle == 0:
@@ -734,67 +402,364 @@ def fillHist4DFromCoverageOfSet(self,minDiffFromNominal,maxDiffBetweenScenarios,
                             print "Unrecognized plotStyle of ",plotStyle
                             return False
 
-    return True
-CorrMat4D.fillHist4DFromCoverageOfSet = fillHist4DFromCoverageOfSet
+      return True
 
-def buildAndFillHist4DFromCoverageOfSet(minDiffFromNominal,maxDiffBetweenScenarios,plotStyle,nominalHist=None):
-    coverageHist = CorrMat4D()
+
+    ##################################################
+    # 4D histogram plotting helpers
+
+def DrawLabels(hist,jetDefString,scenarioString,drawATLASLabel,labelName):
+    if drawATLASLabel:
+      AtlasStyleMacro.ATLASLabel(0.10,0.845,labelName)
+    jetDefLabel = ""
+
+    if jetDefString.startswith("AntiKt4"):
+      jetDefLabel += "anti-k_{t} #it{R} = 0.4, "
+    elif jetDefString.startswith("AntiKt6"):
+      jetDefLabel += "anti-k_{t} #it{R} = 0.6, "
+    
+    if jetDefString.endswith("LCTopo") or jetDefString.endswith("TopoLC"):
+      jetDefLabel += "LCW+JES"
+    elif jetDefString.endswith("EMTopo") or jetDefString.endswith("TopoEM"):
+      jetDefLabel += "EM+JES"
+    
+    scenarioString = "{0}".format(scenarioString)
+    doDrawText(0.10,0.900,jetDefLabel+" 2016")
+    doDrawText(0.10,0.955,scenarioString)
+
+def DrawLabelsGuessScenario(histo):
+    jetDefString = histo.jetDef
+    scenarioLabel = histo.hist4D.GetName().replace("4D_varpt_%s_"%(jetDefString),"").replace("4D_vareta_%s_"%(jetDefString),"").replace(".root","")
+    plotType = histo.plotType
+    if "_" in scenarioLabel:
+      if scenarioLabel.startswith("diff_"):
+          scenarioLabel = re.sub("diff_","",scenarioLabel)
+          scenarioLabel = re.sub("_"," - ",scenarioLabel)
+          scenarioLabel = "Correlation differences, "+scenarioLabel
+      elif scenarioLabel.startswith("minDiff_"):
+          scenarioLabel = re.sub("minDiff_","",scenarioLabel)
+          scenarioLabel = re.sub("_",", ",scenarioLabel)
+          #scenarioLabel = "Correlation differences, min[" + scenarioLabel + "]"
+          scenarioLabel = "Metric 1 (minimum correlation differences)" if not histo.relativeMetric else "Metric 1' (minimum correlation differences)"
+      elif scenarioLabel.startswith("maxDiff_"):
+          scenarioLabel = re.sub("maxDiff_","",scenarioLabel)
+          scenarioLabel = re.sub("_",", ",scenarioLabel)
+          scenarioLabel = "Correlation differences, max[" + scenarioLabel + "]"
+      elif scenarioLabel.startswith("coverageRaw_"):
+          scenarioLabel = re.sub("coverageRaw_","",scenarioLabel)
+          scenarioLabel = re.sub("_",", ",scenarioLabel)
+          #scenarioLabel = "Correlation loss coverage, [" + scenarioLabel + "]"
+          scenarioLabel = "Metric 2 (raw)"
+      elif scenarioLabel.startswith("coverageRes_") or plotType == "Metric2" or plotType == "Metric 2":
+          scenarioLabel = re.sub("coverageRes_","",scenarioLabel)
+          scenarioLabel = re.sub("_",", ",scenarioLabel)
+          #scenarioLabel = "Correlation loss remaining, [" + scenarioLabel + "]"
+          scenarioLabel = "Metric 2 (uncovered correlation differences)" if not histo.relativeMetric else "Metric 2' (uncovered correlation differences)"
+      elif scenarioLabel.startswith("uncertaintyRaw_coverageRaw"):
+          #scenarioLabel = "Remaining loss not covered by correlation uncertainties"
+          scenarioLabel = "Metric 3 (raw)"
+      elif scenarioLabel.startswith("uncertaintyRes_coverageRes") or plotType == "Metric3" or plotType == "Metric 3":
+          #scenarioLabel = "Remaining loss beyond correlation uncertainties"
+          scenarioLabel = "Metric 3 (uncovered corr. diff. including uncertainties)" if not histo.relativeMetric else "Metric 3' (uncovered corr. diff. including uncertainties)"
+    elif scenarioLabel=="uncenvelope":
+      scenarioLabel = "Correlation uncertainties"
+    else:
+      scenarioNum = re.sub("JER","",re.sub("4NP","",re.sub("3NP","",scenarioLabel)))
+      if len(scenarioNum) == 1:
+          scenarioLabel = "Correlation difference, Rep_{full}^{JES} - Rep_{str.red}^{%s,JES}"%(scenarioNum if not (scenarioNum == "3" and "JER" in scenarioLabel) else "evdm")
+      else:
+          scenarioNum = "Correlation difference, full - %s"%(scenarioLabel)
+    
+    DrawLabels(histo.hist4D,jetDefString,scenarioLabel,histo.DrawATLASLabel,histo.ATLASLabelName)
+
+def saveHists4D(canvas,plotFileName,hist,oneSidedAxis,fixedX,fixedY,fixedStr,scenarioLabel="",drawATLASLabel=True,additionalString = ""):
+
+    # Check for empty inputs
+    if not hist:
+      pass
+    elif isinstance(hist,list):
+      # A list, iterate on the entries
+      for aHist in hist:
+          saveHists4D(canvas,plotFileName,aHist,oneSidedAxis,fixedX,fixedY,fixedStr,drawATLASLabel=drawATLASLabel,additionalString = "{0}.{1}".format(additionalString,hist.index(aHist)))
+    else:
+      # Not a list, save the output
+      hist.DrawATLASLabel = drawATLASLabel
+      SetAxisRange(hist.hist4D,oneSidedAxis,hist.OOBT,1e10)
+      SetAxisLabels(hist.hist4D,fixedX,fixedY,fixedStr)
+      
+      if canvas.GetLogx():
+          hist.hist4D.GetXaxis().SetMoreLogLabels()
+      if canvas.GetLogy():
+          hist.hist4D.GetYaxis().SetMoreLogLabels()
+      if canvas.GetLogz():
+          hist.hist4D.GetZaxis().SetMoreLogLabels()
+          hist.hist4D.GetZaxis().SetLabelOffset(0.0010)
+
+      if hist.relativeMetric:
+          for binX in range(1,hist.hist4D.GetNbinsX()+1):
+              for binY in range(1,hist.hist4D.GetNbinsY()+1):
+                  if hist.hist4D.GetBinContent(binX,binY) < hist.OOBT:
+                      hist.hist4D.SetBinContent(binX,binY,1.e-10)
+      hist.hist4D.Draw("colz")
+      DrawGrid(hist.hist4D,fixedX,fixedY)
+      thisMaxAll,thisMaxAvg = DetermineStatValues(hist.hist4D,fixedX,fixedY,hist.OOBT if not hist.relativeMetric else 1.e-9,1e10,not hist.relativeMetric)
+      if scenarioLabel != "": DrawLabels(hist.hist4D,hist.jetDef,scenarioLabel,hist.DrawATLASLabel,hist.ATLASLabelName)
+      else: DrawLabelsGuessScenario(hist)
+            
+      if not (plotFileName.endswith(".eps") or plotFileName.endswith(".png")):
+          canvas.Print(plotFileName)
+      else:
+          mynewname = plotFileName.replace(".png","-{0}-maxAll{1}-maxAvg{2}.png".format(additionalString,int(fabs(thisMaxAll*100)),int(fabs(thisMaxAvg*100))))
+          mynewname = mynewname.replace(".eps","-{0}-maxAll{1}-maxAvg{2}.eps".format(additionalString, int(fabs(thisMaxAll*100)),int(fabs(thisMaxAvg*100))))
+          canvas.Print(mynewname)
+          hist.iEPS += 1
+        #canvas.Print(getPlotFileName(plotFileName))
+
+
+##################################################
+#                                                #
+# Fixed value manipulation (pT and eta values)   #
+#                                                #
+##################################################
+
+
+def getFixedValuesFromName(histName):
+    # Parse the histogram name
+    tokens = histName.split("_")
+    fixed1 = ""
+    fixed2 = ""
+    for aToken in tokens:
+        keep = False
+        if aToken.startswith("pt"):
+            keep = True
+        elif aToken.startswith("eta"):
+            keep = True
+        
+        if keep:
+            if fixed1 == "":
+                fixed1 = aToken
+            elif fixed2 == "":
+                fixed2 = aToken
+            else:
+                print "ERROR: More than two fixed values appear in name:",histName
+                sys.exit(-1)
+    return fixed1,fixed2
+
+
+def getFixedValuesFromFile(inFile,jetDef):
+    newfixedPt = []
+    newfixedEta = []
+    for histName in inFile.GetKeyNames():
+        # Ensure this histogram is for the collection we want
+        if not jetDef in histName:
+            continue
+        # Ensure this is a difference histogram
+        if not histName.startswith("diff_"):
+            continue
+
+        fixed1,fixed2 = getFixedValuesFromName(histName)
+        
+        if fixed1 != "" and fixed2 != "":
+            if fixed1.startswith("pt") and fixed2.startswith("pt"):
+                newfixedPt.append([float(fixed1.replace("pt","",1)),float(fixed2.replace("pt","",1))])
+            elif fixed1.startswith("eta") and fixed2.startswith("eta"):
+                newfixedEta.append([float(fixed1.replace("eta","",1)),float(fixed2.replace("eta","",1))])
+            else:
+                print "ERROR: Unexpected mixture of fixed variables for histogram:",histName
+                sys.exit(-1)
+        else:
+            print "ERROR: Failed to parse histogram name for fixed values:",histName
+            sys.exit(-2)
+
+
+    return newfixedPt,newfixedEta
+
+
+def getFixedValuesFromFiles(inFiles,jetDef):
+    # Get fixed pt and/or eta values from the first file
+    newfixedPt,newfixedEta = getFixedValuesFromFile(inFiles[0],jetDef)
+    newfixedPt.sort()
+    newfixedEta.sort()
+    
+    # Ensure that subsequent file(s) match the fixed pt/eta values
+    for aFile in inFiles[1:]:
+        localFixedPt,localFixedEta = getFixedValuesFromFile(aFile,jetDef)
+        localFixedPt.sort()
+        localFixedEta.sort()
+    
+        # Check for equality
+        # Note that these are floating point equalities, so be careful
+        if len(localFixedPt) != len(newfixedPt):
+            print "ERROR: File %s has %d fixed pt values, while %s has %d values"%(aFile.GetNameNoDir(),len(localFixedPt),inFiles[0],len(newfixedPt))
+            sys.exit(3)
+        elif len(localFixedEta) != len(newfixedEta):
+            print "ERROR: File %s has %d fixed eta values, while %s has %d values"%(aFile.GetNameNoDir(),len(localFixedEta),inFiles[0],len(newfixedEta))
+            sys.exit(4)
+        for localVal,globalVal in zip(localFixedPt,newfixedPt):
+            if fabs(localVal[0]-globalVal[0]) > 1.e-4 or fabs(localVal[1]-globalVal[1]) > 1.e-4:
+                print "ERROR: File %s and %s have different fixed pt values, was comparing %f and %f"%(aFile.GetNameNoDir(),inFiles[0],localVal,globalVal)
+                sys.exit(5)
+        for localVal,globalVal in zip(localFixedEta,newfixedEta):
+            if fabs(localVal[0]-globalVal[0]) > 1.e-4 or fabs(localVal[1]-globalVal[1]) > 1.e-4:
+                print "ERROR: File %s and %s have different fixed eta values, was comparing %f and %f"%(aFile.GetNameNoDir(),inFiles[0],localVal,globalVal)
+                sys.exit(6)
+    
+    # Files have now been confirmed to match in fixed values, assuming multiple files were specified
+    # Determine the actual pT and eta values available now (not just pairs)
+    newfixedPtX = set([])
+    newfixedPtY = set([])
+    for newfixedPtSet in newfixedPt:
+        newfixedPtX.add(newfixedPtSet[0])
+        newfixedPtY.add(newfixedPtSet[1])
+    newfixedPtX = sorted(newfixedPtX)
+    newfixedPtY = sorted(newfixedPtY)
+    
+    newfixedEtaX = set([])
+    newfixedEtaY = set([])
+    for newfixedEtaSet in newfixedEta:
+        newfixedEtaX.add(newfixedEtaSet[0])
+        newfixedEtaY.add(newfixedEtaSet[1])
+    newfixedEtaX = sorted(newfixedEtaX)
+    newfixedEtaY = sorted(newfixedEtaY)
+
+    # Done, return the sorted lists of fixed values
+    return newfixedPtX,newfixedPtY,newfixedEtaX,newfixedEtaY
+
+
+def relativeMetric(numerator,denominator):
+    if fabs(denominator) < 1.e-3:
+        if fabs(numerator) < 1.e-3:
+            return 1
+        else:
+            return globalOOB
+    if numerator/denominator < 0:
+        print "NUM/DEN = %f/%f"%(numerator,denominator)
+    return sqrt(numerator/denominator)
+
+##################################################
+#                                                #
+# Build-and-fill functions                       #
+#                                                #
+##################################################
+
+
+def buildAndFillHists4DFromFiles(inFiles,jetDef,varString,fixedString,fixedX,fixedY,filterStartString="",granularityFactor=1,relativeMetric=False):
+    try:
+        iterator = iter(inFiles)
+    except TypeError:
+        # Not iterable
+        # Probably a single item
+        inFiles = [inFiles]
+    else:
+        # Iterable
+        # Probably a list of files, but watch for strings
+        if isinstance(inFiles,str):
+            inFiles = [TFile.Open(inFiles,"READ")]
+        else:
+            for iFile in range(0,len(inFiles)):
+                if isinstance(inFiles[iFile],str):
+                    inFiles[iFile] = TFile.Open(inFiles[iFile],"READ")
+
+    hists4D = [CorrMat4D(relativeMetric) for aFile in inFiles]
+    for aFile,aHist in zip(inFiles,hists4D):
+        aHist.setInfo(jetDef,varString,"raw" if filterStartString == "" else "raw_"+ re.sub("_","",filterStartString))
+        if not aHist.fillHist4DFromFile(aFile,fixedString,fixedX,fixedY,filterStartString,granularityFactor):
+            return None
+
+    return hists4D
+
+
+def buildAndFillHists4DFromFile(inFile,jetDef,varString,fixedString,fixedX,fixedY,excludeStartString="",granularityFactor=1,relativeMetric=False):
+    try:
+        iterator = iter(inFile)
+    except TypeError:
+        # Not iterable
+        # Probably a single item
+        # Nothing to do in this case
+        pass
+    else:
+        # Iterable
+        # Probably a list of files, but watch for a single string
+        if isinstance(inFile,str):
+            inFile = TFile.Open(inFile,"READ")
+        else:
+            print "Expected a string, but did not receive one: ",inFile
+            print "This method is for building a set of histograms from a single file"
+            return None
+
+    # Get the list of starts (the string before _var*)
+    startStrings = set()
+    for histName in inFile.GetKeyNames():
+        if excludeStartString != "" and histName.startswith(excludeStartString):
+            continue
+        # Find the _var and get what's in front of it
+        startStrings.add(histName[:histName.find("_var")])
+
+    # Now run over the scenarios
+    hists4D = [CorrMat4D(relativeMetric) for aString in startStrings]
+    for aString,aHist in zip(startStrings,hists4D):
+        aHist.setInfo(jetDef,varString,"raw_"+aString)
+        if not aHist.fillHist4DFromFile(inFile,fixedString,fixedX,fixedY,aString,granularityFactor):
+            return None
+
+    return hists4D
+
+
+def buildAndFillHists4DFromDifferenceHists(hists,relativeMetric=False) :
+
+    # Must do all possible comparisons
+    diffHists = []
+    for iHist1 in range(0,len(hists)):
+        for iHist2 in range(iHist1+1,len(hists)):
+            hist4D = CorrMat4D(relativeMetric)
+            hist4D.setInfoCopy(hists[iHist1],"diff_%s_%s"%(hists[iHist1].plotType,hists[iHist2].plotType))
+            if not hist4D.fillHist4DFromDifference(hists[iHist1],hists[iHist2]):
+                return None
+            diffHists.append(hist4D)
+    return diffHists
+
+def buildAndFillHist4DFromMinOfSet(hists,relativeMetric=False):
+    # Ensure the histogram(s) exist
+    if not hists or len(hists) == 0:
+        print "Argument is None or empty list: ",hists
+        return None
+    
+    minHist = CorrMat4D(relativeMetric)
+    minHist.setInfoCopy(hists[0],"minDiff_%dinputs"%(len(hists)))
+    if not minHist.fillHist4DFromMinOfSet(hists):
+        return None
+    return minHist
+
+def buildAndFillHist4DFromMaxOfSet(hists,relativeMetric=False):
+    # Ensure the histogram(s) exist
+    if not hists or len(hists) == 0:
+        print "Argument is None or empty list: ",hists
+        return None
+    
+    maxHist = CorrMat4D(relativeMetric)
+    maxHist.setInfoCopy(hists[0],"maxDiff_%dinputs"%(len(hists)))
+    if not maxHist.fillHist4DFromMaxOfSet(hists):
+        return None
+    return maxHist
+
+def buildAndFillHists4DFromEnvelopeOfSet(hists,relativeMetric=False):
+    # Ensure the histogram(s) exist
+    if not hists or len(hists) < 2:
+        print "Argument is None or contains less than two histograms: ",hists
+        return None
+
+    envelopeHist = CorrMat4D(relativeMetric)
+    envelopeHist.setInfoCopy(hists[0],"envelope_%dinputs"%(len(hists)))
+    if not envelopeHist.fillHist4DFromEnvelopeOfSet(hists):
+        return None
+    return envelopeHist
+
+def buildAndFillHist4DFromCoverageOfSet(minDiffFromNominal,maxDiffBetweenScenarios,plotStyle,nominalHist=None,relativeMetric=False):
+    coverageHist = CorrMat4D(relativeMetric)
     coverageHist.setInfoCopy(minDiffFromNominal,"coverage_type%d"%(plotStyle))
     
     if not coverageHist.fillHist4DFromCoverageOfSet(minDiffFromNominal,maxDiffBetweenScenarios,plotStyle,nominalHist):
         return None
     return coverageHist
-
-
-
-
-##################################################
-#                                                #
-# 4D histogram plotting helpers                  #
-#                                                #
-##################################################
-
-def saveHists4D(canvas,plotFileName,hist,oneSidedAxis,fixedX,fixedY,fixedStr,scenarioLabel=""):
-    # Check for empty inputs
-    if not hist:
-        pass
-    elif isinstance(hist,list):
-        # A list, iterate on the entries
-        for aHist in hist:
-            saveHists4D(canvas,plotFileName,aHist,oneSidedAxis,fixedX,fixedY,fixedStr)
-    else:
-        # Not a list, save the output
-        SetAxisRange(hist.hist4D,oneSidedAxis,CorrMat4D.OOBT,1e10)
-        SetAxisLabels(hist.hist4D,fixedX,fixedY,fixedStr)
-
-        if canvas.GetLogx():
-            hist.hist4D.GetXaxis().SetMoreLogLabels()
-        if canvas.GetLogy():
-            hist.hist4D.GetYaxis().SetMoreLogLabels()
-        if canvas.GetLogz():
-            hist.hist4D.GetZaxis().SetMoreLogLabels()
-            hist.hist4D.GetZaxis().SetLabelOffset(0.0010)
-
-        if CorrMat4D.relativeMetric:
-            for binX in range(1,hist.hist4D.GetNbinsX()+1):
-                for binY in range(1,hist.hist4D.GetNbinsY()+1):
-                    if hist.hist4D.GetBinContent(binX,binY) < hist.OOBT:
-                        hist.hist4D.SetBinContent(binX,binY,1.e-10)
-        hist.hist4D.Draw("colz")
-        DrawGrid(hist.hist4D,fixedX,fixedY)
-        DetermineStatValues(hist.hist4D,fixedX,fixedY,CorrMat4D.OOBT if not CorrMat4D.relativeMetric else 1.e-9,1e10,not CorrMat4D.relativeMetric)
-        if scenarioLabel != "": DrawLabels(hist.hist4D,hist.jetDef,scenarioLabel)
-        else: DrawLabelsGuessScenario(hist)
-            
-        if not (plotFileName.endswith(".eps") or plotFileName.endswith(".png")):
-            canvas.Print(plotFileName)
-        else:
-            canvas.Print(re.sub(".png","-%d.png"%(saveHists4D.iEPS),re.sub(".eps","-%d.eps"%(saveHists4D.iEPS),plotFileName)))
-            saveHists4D.iEPS += 1
-        #canvas.Print(getPlotFileName(plotFileName))
-saveHists4D.iEPS = 0
-
-
-
 
 

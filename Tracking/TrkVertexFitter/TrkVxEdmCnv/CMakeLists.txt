@@ -20,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_library( TrkVxEdmCnvLib
                    src/*.cxx
-                   src/components/*.cxx
                    PUBLIC_HEADERS TrkVxEdmCnv
                    LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES TrkLinks VxVertex TrkVertexFitterInterfaces )

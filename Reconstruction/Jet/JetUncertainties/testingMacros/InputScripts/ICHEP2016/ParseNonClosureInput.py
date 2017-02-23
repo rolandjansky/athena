@@ -9,13 +9,14 @@ import ProviderHistoHelpers
 
 
 SystematicNameDictionary = {
-                            'RelativeNonClosure_AFII_AntiKt4EMTopo' : 'RelativeNonClosure_AFII'
+                            'RelativeNonClosure_AFII_AntiKt4EMTopo' : 'RelativeNonClosure_AFII',
+                            'RelativeNonClosure_AFII_AntiKt4LCTopo' : 'RelativeNonClosure_AFII'
                            }
 
 jetDefDict =    {
                     '4EM' : 'AntiKt4Topo_EMJES',
 #                    '6EM' : 'AntiKt6Topo_EMJES',
-#                    '4LC' : 'AntiKt4Topo_LCJES',
+                    '4LC' : 'AntiKt4Topo_LCJES',
 #                    '6LC' : 'AntiKt6Topo_LCJES'
                 }
 
@@ -44,6 +45,7 @@ def ReadNonClosureHistograms(dirName,freezepT=False):
         # Read in the histogram from the file
         inFile = TFile(aFileName,"READ")
         for aName,aSystName in SystematicNameDictionary.iteritems():
+            if not aFileDef in aName : continue
             systematicName = aSystName + "_" + jetDef
             histo = inFile.Get(aName)
             if histo is None:
@@ -68,6 +70,7 @@ def ReadNonClosureHistograms(dirName,freezepT=False):
             histoSym = ProviderHistoHelpers.SymmetrizeHistoInEta(histo,systematicName)
             histoSym.SetDirectory(0)
             histos[jetDef][aSystName] = histoSym
+            print "Added hist with name",aSystName,"for jetDef",jetDef
 
             # Also add a blank nonclosure histo for Pythia8
             # Also add a blank Closeby histo for both AFII and Pythia8

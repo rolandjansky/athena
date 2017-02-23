@@ -77,7 +77,8 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 
-class PixelCellDiscriminator;
+#include "CommissionEvent/ComTime.h"
+
 class SiTotalCharge;
 
 class IAtRndmGenSvc;
@@ -89,57 +90,43 @@ static const InterfaceID IID_ITimeSvc("TimeSvc",1,0);
 
 class TimeSvc : public AthService, virtual public IInterface {
 
- public:
+  public:
 
-  //Constructor:
-  TimeSvc( const std::string& name, ISvcLocator* svc);
+    TimeSvc( const std::string& name, ISvcLocator* svc);
+    ~TimeSvc();
 
-  /** Destructor */
-  ~TimeSvc();
+    static const InterfaceID& interfaceID() ;
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
+    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
 
-  /** AlgTool InterfaceID */
-  static const InterfaceID& interfaceID() ;
+    int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, bool CTW) const;
 
-  /** AlgTool initialize */
-  virtual StatusCode initialize();
+    int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID) const;
 
-  /** AlgTool finalize */
-  virtual StatusCode finalize();
+    /** sets the ComTime */
+    double getTimePerBCO() {return m_timePerBCO;}
+    double getTimeBCN() {return m_timeBCN;}
 
-virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
-  /** compute the relative bunch using the NEW parametrisation
-   * @param threshold the given threshold of the pixel
-   * @param intimethreshold the given intime-threshold of the pixel
-   * @param totalCharge its total charge
-   * @return relative bunch number, integer >= 0
-   */  
-  int relativeBunch(const double threshold,
-                    const double intimethreshold,
-                    const SiTotalCharge &totalCharge, bool CTW) const;
+  private:
 
-  int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID) const;
+    TimeSvc();
 
-  /** sets the ComTime */
-  void setComTime(const double cT ) { m_comTime = cT;  }
-  double getTimePerBCO() {return m_timePerBCO;}
-  double getTimeBCN() {return m_timeBCN;}
- private:
-
-  /** Empty constructor */
-  TimeSvc();
-
-  double m_comTime;     /**< cosmics timing ofs */
-  double m_timePerBCO;
-  double m_timeBCN;
-  double m_timeZero;
-  double m_timeJitter; 
-  double getG4Time(const SiTotalCharge &totalCharge) const;
-  ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
-  std::string m_rndmEngineName;
-  CLHEP::HepRandomEngine* m_rndmEngine;
-
+    ComTime  *m_ComputedTime;
+    bool   m_useComTime;    /**< use ComTime for timing */
+    double m_comTime;       /**< cosmics timing ofs */
+    double m_timePerBCO;
+    double m_timeBCN;
+    double m_timeZero;
+    double m_timeJitter; 
+    double getG4Time(const SiTotalCharge &totalCharge) const;
+    ServiceHandle<StoreGateSvc>  m_eventStore;
+    ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
+    std::string m_rndmEngineName;
+    CLHEP::HepRandomEngine* m_rndmEngine;
 };
+
 inline const InterfaceID& TimeSvc::interfaceID(){
-	return IID_ITimeSvc;
+  return IID_ITimeSvc;
 }
 #endif // PIXELDIGITIZATION_TIMESVC_H

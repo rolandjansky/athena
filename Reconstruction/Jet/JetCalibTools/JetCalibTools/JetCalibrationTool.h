@@ -44,13 +44,9 @@ class JetCalibrationTool
 
   ASG_TOOL_CLASS2(JetCalibrationTool, IJetCalibrationTool, IJetModifier)
 
-public: 
-
-  // Default constructor: 
-  JetCalibrationTool();
-
+public:
   /// Constructor with parameters: 
-  JetCalibrationTool(const std::string& name);
+  JetCalibrationTool(const std::string& name = "JetCalibrationTool");
 
   /// Destructor: 
   virtual ~JetCalibrationTool(); 

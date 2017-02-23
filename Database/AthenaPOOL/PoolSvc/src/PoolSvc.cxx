@@ -52,12 +52,7 @@
 #include <sys/stat.h> 	// for struct stat
 #include <algorithm> 	// for STL find()
 
-#ifdef ATHENAHIVE
-  #define HIVE_CALLMUTEX CallMutex::scoped_lock l(m_callLock)
-#else
-  #define HIVE_CALLMUTEX
-#endif
-  
+#include <iostream>
 
 //__________________________________________________________________________
 StatusCode PoolSvc::initialize() {
@@ -109,7 +104,7 @@ StatusCode PoolSvc::initialize() {
       return(StatusCode::FAILURE);
    }
    m_context = &coral::Context::instance();
-   if (m_context == 0) {
+   if (m_context == nullptr) {
       ATH_MSG_FATAL("Failed to access CORAL Context");
       return(StatusCode::FAILURE);
    }
@@ -159,9 +154,8 @@ StatusCode PoolSvc::initialize() {
       default: lvl = coral::Warning;
    };
    coral::MessageStream::setMsgVerbosity(lvl);
-
-   if( !setupPersistencySvc().isSuccess() ) {
-      return StatusCode::FAILURE;
+   if (!setupPersistencySvc().isSuccess()) {
+      return(StatusCode::FAILURE);
    }
    return reinit();
 }
@@ -170,13 +164,11 @@ StatusCode PoolSvc::initialize() {
 StatusCode PoolSvc::reinit() {
    ATH_MSG_INFO("Re-initializing " << name());
    // Setup a catalog connection based on the value of $POOL_CATALOG
- 
    return(StatusCode::SUCCESS);
 }
 
 //__________________________________________________________________________
-StatusCode PoolSvc::io_reinit()
-{
+StatusCode PoolSvc::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -212,59 +204,61 @@ StatusCode PoolSvc::io_reinit()
          m_writeCatalog.setValue("xmlcatalog_file:" + fileName);
       }
    }
-   
-   if( !setupPersistencySvc().isSuccess() ) {
-      return StatusCode::FAILURE;
+   if (!setupPersistencySvc().isSuccess()) {
+      return(StatusCode::FAILURE);
    }
    // MN: reinit: maybe needed, maybe not
    return reinit();
 }
 
 //__________________________________________________________________________
-StatusCode PoolSvc::setupPersistencySvc()
-{
+StatusCode PoolSvc::setupPersistencySvc() {
    ATH_MSG_INFO("Setting up APR FileCatalog and Streams");
-   if( m_catalog ) {
+   if (m_catalog != nullptr) {
       m_catalog->commit();
-      delete m_catalog;
+      delete m_catalog; m_catalog = nullptr;
    }
    m_catalog = createCatalog();
-   if (m_catalog != 0) {
+   if (m_catalog != nullptr) {
       m_catalog->start();
    } else {
       ATH_MSG_FATAL("Failed to setup POOL File Catalog.");
       return(StatusCode::FAILURE);
    }
-
    // Setup a persistency service
-   unsigned int streamId = 0;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
-		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
+		   last = m_persistencySvcVec.end(); iter != last; iter++) {
       delete *iter;
    }
    m_persistencySvcVec.clear();
+   for (std::vector<CallMutex*>::const_iterator iter = m_pers_mut.begin(),
+		   last = m_pers_mut.end(); iter != last; iter++) {
+      delete *iter;
+   }
+   m_pers_mut.clear();
 
    pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-   if (psfactory == 0) {
+   if (psfactory == nullptr) {
       ATH_MSG_FATAL("Failed to create PersistencySvcFactory.");
       return(StatusCode::FAILURE);
    }
-   
    m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Read Service
-   if (m_persistencySvcVec[IPoolSvc::kInputStream] == 0) {
+   if (m_persistencySvcVec[IPoolSvc::kInputStream] == nullptr) {
       ATH_MSG_FATAL("Failed to create Input PersistencySvc.");
       return(StatusCode::FAILURE);
    }
+   m_pers_mut.push_back(new CallMutex);
    m_contextMaxFile.insert(std::pair<unsigned long, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
    if (!connect(pool::ITransaction::READ).isSuccess()) {
       ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
       return(StatusCode::FAILURE);
    }
    m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Write Service
-   if (m_persistencySvcVec[IPoolSvc::kOutputStream] == 0) {
+   if (m_persistencySvcVec[IPoolSvc::kOutputStream] == nullptr) {
       ATH_MSG_FATAL("Failed to create Output PersistencySvc.");
       return(StatusCode::FAILURE);
    }
+   m_pers_mut.push_back(new CallMutex);
    pool::DatabaseConnectionPolicy policy;
    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
    policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
@@ -272,18 +266,17 @@ StatusCode PoolSvc::setupPersistencySvc()
       policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
    }
    m_persistencySvcVec[IPoolSvc::kOutputStream]->session().setDefaultConnectionPolicy(policy);
-
-   return StatusCode::SUCCESS;
+   return(StatusCode::SUCCESS);
 }
 
 //__________________________________________________________________________
 StatusCode PoolSvc::stop() {
-   unsigned int streamId = 0;
+   unsigned long contextId = 0;
    bool retError = false;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
-		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
-      if (!disconnect(streamId).isSuccess()) {
-         ATH_MSG_FATAL("Cannot disconnect Stream: " << streamId);
+		   last = m_persistencySvcVec.end(); iter != last; iter++, contextId++) {
+      if (!disconnect(contextId).isSuccess()) {
+         ATH_MSG_FATAL("Cannot disconnect Stream: " << contextId);
          retError = true;
       }
    }
@@ -291,15 +284,20 @@ StatusCode PoolSvc::stop() {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::finalize() {
-   unsigned int streamId = 0;
+   unsigned long contextId = 0;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
-		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
+		   last = m_persistencySvcVec.end(); iter != last; iter++, contextId++) {
       delete *iter;
    }
    m_persistencySvcVec.clear();
-   if (m_catalog != 0) {
+   for (std::vector<CallMutex*>::const_iterator iter = m_pers_mut.begin(),
+		   last = m_pers_mut.end(); iter != last; iter++) {
+      delete *iter;
+   }
+   m_pers_mut.clear();
+   if (m_catalog != nullptr) {
       m_catalog->commit();
-      delete m_catalog; m_catalog = 0;
+      delete m_catalog; m_catalog = nullptr;
    }
    if (!m_athenaSealSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release AthenaSealSvc");
@@ -331,19 +329,20 @@ StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 const Token* PoolSvc::registerForWrite(const Placement* placement,
                                        const void* obj,
                                        const RootType& classDesc) const {
+   std::lock_guard<CallMutex> lock(*m_pers_mut[IPoolSvc::kOutputStream]);
    Token* token = m_persistencySvcVec[IPoolSvc::kOutputStream]->registerForWrite(*placement, obj, classDesc);
-   if (token == 0) {
+   if (token == nullptr) {
       ATH_MSG_WARNING("Cannot write object: " << placement->containerName());
    }
    return(token);
 }
 //__________________________________________________________________________
 void PoolSvc::setObjPtr(void*& obj, const Token* token, unsigned long contextId) const {
-  HIVE_CALLMUTEX;
-
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kInputStream;
    }
+   std::lock_guard<CallMutex> dummy(m_pool_mut); // FIXME, PvG: Don't know why we need this, DataHeader?
+   std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    obj = m_persistencySvcVec[contextId]->readObject(*token, obj);
    std::map<unsigned long, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
    if (maxFileIter != m_contextMaxFile.end() && maxFileIter->second > 0) {
@@ -356,7 +355,7 @@ void PoolSvc::setObjPtr(void*& obj, const Token* token, unsigned long contextId)
 }
 //__________________________________________________________________________
 unsigned long PoolSvc::getInputContext(const std::string& label, unsigned int maxFile) {
-   HIVE_CALLMUTEX;
+   std::lock_guard<CallMutex> lock(m_pool_mut);
    if (!label.empty()) {
       std::map<std::string, unsigned long>::const_iterator contextIter = m_contextLabel.find(label);
       if (contextIter != m_contextLabel.end()) {
@@ -367,16 +366,17 @@ unsigned long PoolSvc::getInputContext(const std::string& label, unsigned int ma
       }
    }
    pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-   if (psfactory == 0) {
+   if (psfactory == nullptr) {
       ATH_MSG_ERROR("Failed to create PersistencySvcFactory.");
       return(IPoolSvc::kInputStream);
    }
    const unsigned long id = m_persistencySvcVec.size();
    m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog));
-   if (m_persistencySvcVec[id] == 0) {
+   if (m_persistencySvcVec[id] == nullptr) {
       ATH_MSG_ERROR("Failed to create Input PersistencySvc.");
       return(IPoolSvc::kInputStream);
    }
+   m_pers_mut.push_back(new CallMutex);
    if (!connect(pool::ITransaction::READ).isSuccess()) {
       ATH_MSG_ERROR("Failed to connect Input PersistencySvc.");
       return(IPoolSvc::kInputStream);
@@ -442,8 +442,6 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
 		const std::string& collectionName,
 		const pool::ICollection::OpenMode& openMode,
 		unsigned long contextId) const {
-   HIVE_CALLMUTEX;
-
    std::string collection(collectionName);
    if (collectionType == "RootCollection") {
       if (collectionName.find("PFN:") == std::string::npos
@@ -458,9 +456,11 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    if (contextId == IPoolSvc::kInputStream && openMode != pool::ICollection::READ) {
       contextId = IPoolSvc::kOutputStream;
    }
+   std::lock_guard<CallMutex> lock(m_pool_mut);
    if (contextId >= m_persistencySvcVec.size() && !const_cast<PoolSvc*>(this)->reinit().isSuccess()) {
-      return(0);
+      return(nullptr);
    }
+   std::lock_guard<CallMutex> lockC(*m_pers_mut[contextId]);
    // Check POOL FileCatalog entry.
    bool insertFile = false;
    if (connection.substr(0, 4) == "PFN:") {
@@ -475,12 +475,12 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    }
    // Check whether Collection Container exists.
    if (collectionType == "ImplicitCollection" || collectionType == "SeekableCollection") {
-      pool::ISession* sesH = 0;
-      pool::IDatabase* dbH = 0;
+      pool::ISession* sesH = nullptr;
+      pool::IDatabase* dbH = nullptr;
       if (!getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
          ATH_MSG_INFO("Failed to get Session/DatabaseHandle to create POOL collection.");
-         delete dbH; dbH = 0;
-         return(0);
+         delete dbH; dbH = nullptr;
+         return(nullptr);
       }
       try {
          if (dbH->openMode() == pool::IDatabase::CLOSED) {
@@ -508,17 +508,17 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
                std::string fid = dbH->fid();
                action.registerPFN(connection.substr(4), "ROOT_All", fid);
             }
-            delete dbH; dbH = 0;
-            return(0); // no events
+            delete dbH; dbH = nullptr;
+            return(nullptr); // no events
          }
       } catch(std::exception& e) {
          ATH_MSG_INFO("Failed to open container to check POOL collection - trying.");
       }
-      delete dbH; dbH = 0;
+      delete dbH; dbH = nullptr;
    }
    pool::CollectionFactory* collFac = pool::CollectionFactory::get();
    pool::CollectionDescription collDes(collection, collectionType, (collectionType == "ImplicitCollection" || collectionType == "SeekableCollection") ? connection : "");
-   pool::ICollection* collPtr = 0;
+   pool::ICollection* collPtr = nullptr;
    if (collectionType == "RootCollection" && contextId == IPoolSvc::kOutputStream) {
       ATH_MSG_INFO("Writing ExplicitROOT Collection - do not pass session pointer");
       collPtr = collFac->create(collDes, openMode);
@@ -527,46 +527,47 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
          collPtr = collFac->create(collDes, openMode, &m_persistencySvcVec[contextId]->session());
       } catch (std::exception &e) {
          if (insertFile) {
-            pool::ISession* sesH = 0;
-            pool::IDatabase* dbH = 0;
+            pool::ISession* sesH = nullptr;
+            pool::IDatabase* dbH = nullptr;
             if (getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
                if (!dbH->fid().empty()) {
-                  delete dbH; dbH = 0;
-                  return(0); // no events
+                  delete dbH; dbH = nullptr;
+                  return(nullptr); // no events
                }
             }
-            delete dbH; dbH = 0;
+            delete dbH; dbH = nullptr;
          }
          throw; // bad file, rethrow
       }
    }
    if (insertFile && m_attemptCatalogPatch.value()) {
-      pool::ISession* sesH = 0;
-      pool::IDatabase* dbH = 0;
+      pool::ISession* sesH = nullptr;
+      pool::IDatabase* dbH = nullptr;
       if (!getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
          ATH_MSG_INFO("Failed to create FileCatalog entry.");
-         delete dbH; dbH = 0;
-         return(collPtr);
+      } else if( openMode == pool::ICollection::READ && dbH->fid().empty() ) {
+         ATH_MSG_INFO("Cannot retrieve the FID of an existing POOL database: '"
+                      << connection << "' - FileCatalog will NOT be updated.");
+      } else {
+         dbH->setTechnology(pool::ROOT_StorageType.type());
+         pool::FCregister action;
+         m_catalog->setAction(action);
+         std::string fid = dbH->fid();
+         action.registerPFN(connection.substr(4), "ROOT_All", fid);
       }
-      dbH->setTechnology(pool::ROOT_StorageType.type());
-      pool::FCregister action;
-      m_catalog->setAction(action);
-      std::string fid = dbH->fid();
-      action.registerPFN(connection.substr(4), "ROOT_All", fid);
-      delete dbH; dbH = 0;
+      delete dbH; dbH = nullptr;
    }
    return(collPtr);
 }
 //__________________________________________________________________________
 void PoolSvc::registerExistingCollection(pool::ICollection* coll, bool overwrite, bool sharedCat) {
-   HIVE_CALLMUTEX;
-
+   std::lock_guard<CallMutex> lock(m_pool_mut);
    pool::CollectionFactory* collFac = pool::CollectionFactory::get();
    m_catalog->commit();
    if (sharedCat) {
       collFac->registerExisting(coll, overwrite, m_catalog);
    } else {
-      collFac->registerExisting(coll, overwrite, 0);
+      collFac->registerExisting(coll, overwrite, nullptr);
    }
    m_catalog->start();
 }
@@ -574,12 +575,12 @@ void PoolSvc::registerExistingCollection(pool::ICollection* coll, bool overwrite
 Token* PoolSvc::getToken(const std::string& connection,
 	const std::string& collection,
 	const unsigned long ientry) const {
-   HIVE_CALLMUTEX;
-   pool::ISession* sesH = 0;
-   pool::IDatabase* dbH = 0;
+   std::lock_guard<CallMutex> lock(*m_pers_mut[IPoolSvc::kInputStream]);
+   pool::ISession* sesH = nullptr;
+   pool::IDatabase* dbH = nullptr;
    if (!getSessionDbHandles(sesH, dbH, IPoolSvc::kInputStream, connection).isSuccess()) {
-      delete dbH; dbH = 0;
-      return(0);
+      delete dbH; dbH = nullptr;
+      return(nullptr);
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
       dbH->connectForRead();
@@ -590,24 +591,24 @@ Token* PoolSvc::getToken(const std::string& connection,
    }
    if (find(it->second.begin(), it->second.end(), collection) ==  it->second.end()) {
       ATH_MSG_INFO("Failed to find container " << collection << " to get Token.");
-      delete dbH; dbH = 0;
-      return(0);
+      delete dbH; dbH = nullptr;
+      return(nullptr);
    }
-   pool::IContainer* contH = 0;
+   pool::IContainer* contH = nullptr;
    std::string objName;
    if (!getContainerHandle(dbH, collection, contH, objName).isSuccess()) {
-      delete contH; contH = 0;
-      delete dbH; dbH = 0;
-      return(0);
+      delete contH; contH = nullptr;
+      delete dbH; dbH = nullptr;
+      return(nullptr);
    }
    pool::ITokenIterator* tokenIter = contH->tokens("");
    Token* thisToken = tokenIter->next();
    for (unsigned long ipos = 0; ipos < ientry; ipos++) {
       delete thisToken; thisToken = tokenIter->next();
    }
-   delete tokenIter; tokenIter = 0;
-   delete contH; contH = 0;
-   delete dbH; dbH = 0;
+   delete tokenIter; tokenIter = nullptr;
+   delete contH; contH = nullptr;
+   delete dbH; dbH = nullptr;
    return(thisToken);
 }
 //__________________________________________________________________________
@@ -618,16 +619,16 @@ bool PoolSvc::testDictionary(const std::string& className) const {
    return(true);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned long stream) const {
-   HIVE_CALLMUTEX;
-
+StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned long contextId) const {
    if (type != pool::ITransaction::READ) {
-      stream = IPoolSvc::kOutputStream;
+      contextId = IPoolSvc::kOutputStream;
    }
-   if (stream >= m_persistencySvcVec.size() && !const_cast<PoolSvc*>(this)->reinit().isSuccess()) {
+   std::lock_guard<CallMutex> lock(m_pool_mut);
+   if (contextId >= m_persistencySvcVec.size() && !const_cast<PoolSvc*>(this)->reinit().isSuccess()) {
       return(StatusCode::FAILURE);
    }
-   pool::IPersistencySvc* persSvc = m_persistencySvcVec[stream];
+   std::lock_guard<CallMutex> lockC(*m_pers_mut[contextId]);
+   pool::IPersistencySvc* persSvc = m_persistencySvcVec[contextId];
    // Connect to a logical database using the pre-defined technology and dbID
    if (persSvc->session().transaction().isActive()) {
       return(StatusCode::SUCCESS);
@@ -639,11 +640,14 @@ StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned long stream)
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::commit(unsigned long stream) const {
-   HIVE_CALLMUTEX;
-
-   pool::IPersistencySvc* persSvc = m_persistencySvcVec[stream];
-   if (persSvc != 0 && persSvc->session().transaction().isActive()) {
+StatusCode PoolSvc::commit(unsigned long contextId) const {
+   if (contextId >= m_persistencySvcVec.size()) {
+      return(StatusCode::FAILURE);
+   }
+   std::lock_guard<CallMutex> dummy(m_pool_mut);
+   std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
+   pool::IPersistencySvc* persSvc = m_persistencySvcVec[contextId];
+   if (persSvc != nullptr && persSvc->session().transaction().isActive()) {
       unsigned int type = persSvc->session().transaction().type();
       if (!persSvc->session().transaction().commit()) {
          ATH_MSG_ERROR("POOL commit failed " << persSvc);
@@ -657,10 +661,13 @@ StatusCode PoolSvc::commit(unsigned long stream) const {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::commitAndHold(unsigned long stream) const {
-   HIVE_CALLMUTEX;
-
-   pool::IPersistencySvc* persSvc = m_persistencySvcVec[stream];
+StatusCode PoolSvc::commitAndHold(unsigned long contextId) const {
+   if (contextId >= m_persistencySvcVec.size()) {
+      return(StatusCode::FAILURE);
+   }
+   std::lock_guard<CallMutex> dummy(m_pool_mut);
+   std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
+   pool::IPersistencySvc* persSvc = m_persistencySvcVec[contextId];
    if (persSvc->session().transaction().isActive()) {
       if (!persSvc->session().transaction().commitAndHold()) {
          ATH_MSG_ERROR("POOL commitAndHold failed " << persSvc);
@@ -670,15 +677,14 @@ StatusCode PoolSvc::commitAndHold(unsigned long stream) const {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::disconnect(unsigned long stream) const {
-   HIVE_CALLMUTEX;
-
-   if (stream >= m_persistencySvcVec.size()) {
+StatusCode PoolSvc::disconnect(unsigned long contextId) const {
+   if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::SUCCESS);
    }
-   pool::IPersistencySvc* persSvc = m_persistencySvcVec[stream];
-   if (persSvc != 0 && persSvc->session().transaction().isActive()) {
-      if (!commit(stream).isSuccess()) {
+   std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
+   pool::IPersistencySvc* persSvc = m_persistencySvcVec[contextId];
+   if (persSvc != nullptr && persSvc->session().transaction().isActive()) {
+      if (!commit(contextId).isSuccess()) {
          ATH_MSG_ERROR("disconnect failed to commit " << persSvc);
          return(StatusCode::FAILURE);
       }
@@ -688,18 +694,15 @@ StatusCode PoolSvc::disconnect(unsigned long stream) const {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned long contextId) const {
-   HIVE_CALLMUTEX;
-   pool::ISession* sesH = 0;
-   pool::IDatabase* dbH = 0;
-   if (contextId >= m_persistencySvcVec.size()) {
-      contextId = IPoolSvc::kInputStream;
-   }
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::SUCCESS);
    }
+   std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
+   pool::ISession* sesH = nullptr;
+   pool::IDatabase* dbH = nullptr;
    if (!getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
       ATH_MSG_ERROR("Failed to get Session/DatabaseHandle.");
-      delete dbH; dbH = 0;
+      delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
    std::map<unsigned long, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
@@ -709,16 +712,16 @@ StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned long co
    }
    m_containersMap.erase(dbH->fid());
    dbH->disconnect();
-   delete dbH; dbH = 0;
+   delete dbH; dbH = nullptr;
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
 long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigned long contextId) const {
-   pool::ISession* sesH = 0;
-   pool::IDatabase* dbH = 0;
+   pool::ISession* sesH = nullptr;
+   pool::IDatabase* dbH = nullptr;
    if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
       ATH_MSG_DEBUG("getFileSize: Failed to get Session/DatabaseHandle to get POOL FileSize property.");
-      delete dbH; dbH = 0;
+      delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
@@ -730,7 +733,7 @@ long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigne
       }
    }
    long long int value = dbH->technologySpecificAttributes().attribute<long long int>("FILE_SIZE");
-   delete dbH; dbH = 0;
+   delete dbH; dbH = nullptr;
    return(value);
 }
 //_______________________________________________________________________
@@ -742,7 +745,7 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
       contextId = IPoolSvc::kInputStream;
    }
    pool::ISession* sesH = &m_persistencySvcVec[contextId]->session();
-   if (sesH == 0) {
+   if (sesH == nullptr) {
        ATH_MSG_DEBUG("Failed to get SessionHandle for context " << contextId << " to get POOL property.");
       return(StatusCode::FAILURE);
    }
@@ -768,11 +771,11 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
 		const std::string& dbName,
 		const std::string& contName,
 		unsigned long contextId) const {
-   pool::ISession* sesH = 0;
-   pool::IDatabase* dbH = 0;
+   pool::ISession* sesH = nullptr;
+   pool::IDatabase* dbH = nullptr;
    if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
       ATH_MSG_DEBUG("getAttribute: Failed to get Session/DatabaseHandle to get POOL property.");
-      delete dbH; dbH = 0;
+      delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
@@ -800,12 +803,12 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
       }
       ATH_MSG_INFO("Database (" << dbH->pfn() << ") attribute [" << optName << "]" << ": " << oss.str());
    } else {
-      pool::IContainer* contH = 0;
+      pool::IContainer* contH = nullptr;
       std::string objName;
       if (!getContainerHandle(dbH, contName, contH, objName).isSuccess()) {
          ATH_MSG_DEBUG("Failed to get ContainerHandle to get POOL property.");
-         delete contH; contH = 0;
-         delete dbH; dbH = 0;
+         delete contH; contH = nullptr;
+         delete dbH; dbH = nullptr;
          return(StatusCode::FAILURE);
       }
       if (data == "DbLonglong") {
@@ -818,11 +821,11 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
          int value = contH->technologySpecificAttributes().attribute<int>(optName);
          oss << std::dec << value;
       }
-      delete contH; contH = 0;
+      delete contH; contH = nullptr;
       ATH_MSG_INFO("Container attribute [" << contName << "." << optName << "]: " << oss.str());
    }
    data = oss.str();
-   delete dbH; dbH = 0;
+   delete dbH; dbH = nullptr;
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -830,13 +833,11 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 		const std::string& data,
 		long tech,
 		unsigned long contextId) const {
-   HIVE_CALLMUTEX;
-
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kOutputStream;
    }
    pool::ISession* sesH = &m_persistencySvcVec[contextId]->session();
-   if (sesH == 0) {
+   if (sesH == nullptr) {
       ATH_MSG_DEBUG("Failed to get SessionHandle to set POOL property.");
       return(StatusCode::FAILURE);
    }
@@ -862,13 +863,12 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 		const std::string& dbName,
 		const std::string& contName,
 		unsigned long contextId) const {
-   HIVE_CALLMUTEX;
-
-   pool::ISession* sesH = 0;
-   pool::IDatabase* dbH = 0;
+   std::lock_guard<CallMutex> lock(m_pool_mut);
+   pool::ISession* sesH = nullptr;
+   pool::IDatabase* dbH = nullptr;
    if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
       ATH_MSG_DEBUG("Failed to get Session/DatabaseHandle to set POOL property.");
-      delete dbH; dbH = 0;
+      delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
@@ -893,15 +893,15 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
       }
       if (!retError) {
          ATH_MSG_DEBUG("Failed to set POOL property, " << optName << " to " << data);
-         delete dbH; dbH = 0;
+         delete dbH; dbH = nullptr;
          return(StatusCode::FAILURE);
       }
    } else {
-      pool::IContainer* contH = 0;
+      pool::IContainer* contH = nullptr;
       if (!getContainerHandle(dbH, contName, contH, objName).isSuccess()) {
          ATH_MSG_DEBUG("Failed to get ContainerHandle to set POOL property.");
-         delete contH; contH = 0;
-         delete dbH; dbH = 0;
+         delete contH; contH = nullptr;
+         delete dbH; dbH = nullptr;
          return(StatusCode::FAILURE);
       }
       if (data[data.size() - 1] == 'L') {
@@ -920,19 +920,18 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 	         << contName << " : " << objName
 	         << " to "
 	         << data);
-         delete contH; contH = 0;
-         delete dbH; dbH = 0;
+         delete contH; contH = nullptr;
+         delete dbH; dbH = nullptr;
          return(StatusCode::FAILURE);
       }
-      delete contH; contH = 0;
+      delete contH; contH = nullptr;
    }
-   delete dbH; dbH = 0;
+   delete dbH; dbH = nullptr;
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
-   HIVE_CALLMUTEX;
-
+   std::lock_guard<CallMutex> lock(m_pool_mut);
    ATH_MSG_VERBOSE("setFrontierCache called for connection:" << conn);
    // setup the Frontier cache information for the given logical or physical connection string
    // first determine if the connection is logical (no ':')
@@ -951,14 +950,14 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
          return(StatusCode::FAILURE);
       }
       coral::IDatabaseServiceSet* dbset = lookSvcH->lookup(conn, coral::ReadOnly);
-      if (dbset != 0) {
+      if (dbset != nullptr) {
          for (int irep = 0, nrep = dbset->numberOfReplicas(); irep < nrep; ++irep) {
 	    const std::string pcon = dbset->replica(irep).connectionString();
 	    if (pcon.substr(0, 9) == "frontier:") {
                physcons.push_back(pcon);
             }
          }
-         delete dbset; dbset = 0;
+         delete dbset; dbset = nullptr;
       } else {
          ATH_MSG_DEBUG("setFrontierCache: Could not find any replicas for " << conn);
       }
@@ -996,8 +995,6 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
 }
 //__________________________________________________________________________
 pool::IFileCatalog* PoolSvc::createCatalog() {
-   HIVE_CALLMUTEX;
-
    pool::IFileCatalog* ctlg = new pool::IFileCatalog;
    for (std::vector<std::string>::const_iterator iter = m_readCatalog.value().begin(),
 	   last = m_readCatalog.value().end(); iter != last; ++iter) {
@@ -1029,17 +1026,18 @@ pool::IFileCatalog* PoolSvc::createCatalog() {
       ctlg->connect();
    } catch(std::exception& e) {
       ATH_MSG_ERROR("setWriteCatalog - caught exception: " << e.what());
-      return(0); // This catalog is not setup properly!
+      return(nullptr); // This catalog is not setup properly!
    }
    return(ctlg);
 }
 //__________________________________________________________________________
 PoolSvc::PoolSvc(const std::string& name, ISvcLocator* pSvcLocator) :
         ::AthService(name, pSvcLocator),
-	m_context(0),
-	m_catalog(0),
+	m_context(nullptr),
+	m_catalog(nullptr),
 	m_athenaSealSvc("AthenaSealSvc", name),
 	m_persistencySvcVec(),
+	m_pers_mut(),
 	m_contextLabel(),
 	m_contextMaxFile(),
 	m_guidLists(),
@@ -1070,7 +1068,7 @@ StatusCode PoolSvc::getSessionDbHandles(pool::ISession*& sesH,
       contextId = IPoolSvc::kInputStream;
    }
    sesH = &m_persistencySvcVec[contextId]->session();
-   if (sesH == 0) {
+   if (sesH == nullptr) {
       ATH_MSG_DEBUG("Failed to get SessionHandle.");
       return(StatusCode::FAILURE);
    }
@@ -1093,7 +1091,7 @@ StatusCode PoolSvc::getSessionDbHandles(pool::ISession*& sesH,
    } else {
       dbH = sesH->databaseHandle(dbName, pool::DatabaseSpecification::PFN);
    }
-   if (dbH == 0) {
+   if (dbH == nullptr) {
       ATH_MSG_DEBUG("Failed to get DatabaseHandle.");
       return(StatusCode::FAILURE);
    }
@@ -1112,7 +1110,7 @@ StatusCode PoolSvc::getContainerHandle(pool::IDatabase* dbH,
    } else {
       contH = dbH->containerHandle(contName);
    }
-   if (contH == 0) {
+   if (contH == nullptr) {
       ATH_MSG_DEBUG("Failed to get ContainerHandle for: " << contName);
       return(StatusCode::FAILURE);
    }

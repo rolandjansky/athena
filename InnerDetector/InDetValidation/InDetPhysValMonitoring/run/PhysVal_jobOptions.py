@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 793586 2017-01-24 01:06:17Z mbaugh $
+# $Id: PhysVal_jobOptions.py 795792 2017-02-06 14:45:08Z sroe $
 
 # Set up the reading of the input xAOD:
 import getpass
@@ -99,7 +99,7 @@ tool1.TruthSelectionTool = AthTruthSelectionTool
 tool1.useTrackSelection = usingTrackSelection
 tool1.TrackSelectionTool=InDetTrackSelectorTool
 tool1.useTrkSelectPV= False
-tool1.FillTrackInJetPlots = False
+tool1.FillTrackInJetPlots = True
 print tool1
 ToolSvc += tool1
 

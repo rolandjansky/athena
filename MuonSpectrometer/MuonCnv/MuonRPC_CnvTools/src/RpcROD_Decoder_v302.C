@@ -3,14 +3,14 @@
 */
 
 StatusCode Muon::RpcROD_Decoder::fillCollection_v302new(BS data, const uint32_t data_size, RpcPad& v,
-							const uint32_t& sourceId ) const
+							const uint32_t& sourceId, RpcSectorLogicContainer* sectorLogicContainer ) const
 
 {
   ATH_MSG_VERBOSE("in fillCollection_v302new");
   //std::cout<<" in fillCollection_v302"<<std::endl;
   std::map<Identifier,RpcPad*> vmap;
   vmap[v.identify()]=&v;
-  StatusCode cnvsc= fillCollectionsFromRob_v302(data,data_size,vmap,sourceId);
+  StatusCode cnvsc= fillCollectionsFromRob_v302(data,data_size,vmap,sourceId, sectorLogicContainer);
   if (cnvsc!=StatusCode::SUCCESS) 
     {
       ATH_MSG_DEBUG("Some decoding problem observed");
@@ -19,7 +19,8 @@ StatusCode Muon::RpcROD_Decoder::fillCollection_v302new(BS data, const uint32_t 
 }
 
 
-StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint32_t data_size,	std::map<Identifier,RpcPad*>& vmap, const uint32_t& sourceId ) const 
+StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint32_t data_size,	std::map<Identifier,RpcPad*>& vmap, const uint32_t& sourceId,
+    RpcSectorLogicContainer* sectorLogicContainer ) const 
 {
 
   /* for (unsigned int i = 0; i<1000; ++i) { */
@@ -91,9 +92,6 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
     
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "The source ID is: " << MSG::hex << sourceId << endmsg;
     
-  // retrieve the sector logic container
-  RpcSectorLogicContainer* sectorLogicContainer = 
-    Muon::MuonRdoContainerAccess::retrieveRpcSec("RPC_SECTORLOGIC");
     
   uint16_t sectorForCabling = 0;
   uint16_t sector = 0;
@@ -158,7 +156,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
   uint16_t slstatus;
   uint16_t slcrc;
   unsigned int SLBodyWords = 0;
-  unsigned int SL_data_sise = 500; //same value used for the size of SLBuff
+  constexpr unsigned int SL_data_sise = 500; //same value used for the size of SLBuff
   unsigned short int SLBuff[500];
     
   // decode the source Id and set side and sector number

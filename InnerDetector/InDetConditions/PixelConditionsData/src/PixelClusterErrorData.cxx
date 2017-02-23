@@ -215,8 +215,8 @@ void PixelClusterErrorData::Load(std::string file){
   std::ifstream infile(file.c_str()); 
 
   // number of bins for barrel and endcap
-  int nb;
-  int ne;
+  int nb = 0;
+  int ne = 0;
 
   infile >> m_version;
   if(m_version >= 0){  // very first format, without version number in file
@@ -238,13 +238,13 @@ void PixelClusterErrorData::Load(std::string file){
   float value;
   nb = std::min(nb, nmax);
   ne = std::min(ne, nmax);
-  for(int ib=0; ib<nb; ib++){
+  for(int ib=0; ib<nb && !infile.eof(); ib++){
     infile >> value;
     m_barrelphierror.push_back(value);
     infile >> value;
     m_barreletaerror.push_back(value);
   }
-  for(int ie=0; ie<ne; ie++){
+  for(int ie=0; ie<ne && !infile.eof(); ie++){
     infile >> value;
     m_endcapphierror.push_back(value);
     infile >> value;

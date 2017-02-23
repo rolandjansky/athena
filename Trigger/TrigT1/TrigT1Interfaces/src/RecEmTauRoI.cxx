@@ -1,4 +1,4 @@
-// $Id: RecEmTauRoI.cxx 756925 2016-06-22 13:31:16Z ddimond $
+// $Id: RecEmTauRoI.cxx 796120 2017-02-08 03:20:47Z ssnyder $
 /***************************************************************************
                         RecEmTauRoI.cxx  -  description
                            -------------------
@@ -69,7 +69,7 @@ RecEmTauRoI::RecEmTauRoI( const RecEmTauRoI &obj ) {
 }
 
 // written assignment operator
-RecEmTauRoI& RecEmTauRoI::operator = ( const RecEmTauRoI &obj ) { 
+RecEmTauRoI& RecEmTauRoI::operator = ( const RecEmTauRoI &/*obj*/ ) { 
    return *this;
 }
 

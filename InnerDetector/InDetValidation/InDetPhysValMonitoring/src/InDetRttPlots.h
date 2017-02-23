@@ -61,6 +61,9 @@ public:
   void fill(const xAOD::TrackParticle& particle);
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
+  ///Fill for efficiency plots
+  void fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood);
+
   void fillSpectrum(const xAOD::TrackParticle& trackParticle);
   void fillSpectrum(const xAOD::TruthParticle& particle);
   void fillSpectrum(const xAOD::TrackParticle& trkprt, const xAOD::TruthVertex& truthVrt);
@@ -73,13 +76,12 @@ public:
   void fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle& trackParticle,
                              const xAOD::TrackParticle& particle, const xAOD::TruthParticle& tp);
   ///fill for things needing all truth - not just the ones from the reco tracks
-  void pro_fill(const xAOD::TruthParticle& truth, float weight);
 
   void lepton_fill(const xAOD::TruthParticle& truth, float weight);
-
   void prim_photon_fill(const xAOD::TruthParticle& truth);
   void brem_photon_fill(const xAOD::TruthParticle& truth);
-
+  void track_vs_truth(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, float tmp);
+  void minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt);
   void BT_fill(const xAOD::TruthParticle& truth, float weight);
 
   // fill the fake and bad match rate plots

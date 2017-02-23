@@ -324,10 +324,6 @@ private:
   TH1* create2DProfile( TProfile2D*& histo, const HistogramDef& def );
 };
 
-// Explicitly instantiate the possible templates and define aliases
-template class TrigGenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
-template class TrigGenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
-
 using TrigGenericMonitoringToolST = TrigGenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
 using TrigGenericMonitoringToolMT = TrigGenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
 

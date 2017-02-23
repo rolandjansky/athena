@@ -129,9 +129,16 @@ bool
 FilteredAlgorithm::isEventAccepted( ) const
 {
   bool result = true;
-  if (this->getContext()!=nullptr) {
-    result = m_decSvc->isEventAccepted(this->name(),*(this->getContext()));
-    //ATH_MSG_DEBUG("res=" << result << " n=" << this->name() << " sl=" << this->getContext()->slot() << " evt=" << this->getContext()->eventID().event_number());
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  const EventContext& ctx = this->getContext();
+  if (ctx.valid()) {
+#else
+  const EventContext* ctxptr = this->getContext();
+  if (ctxptr && ctxptr->valid()) {
+    const EventContext& ctx = *ctxptr;
+#endif
+    result = m_decSvc->isEventAccepted(this->name(),ctx);
+    //ATH_MSG_DEBUG("res=" << result << " n=" << this->name() << " sl=" << ctx.slot() << " evt=" << ctx.eventID().event_number());
   } else {
     ATH_MSG_DEBUG("Not a threaded app");
     result = m_decSvc->isEventAccepted(this->name());

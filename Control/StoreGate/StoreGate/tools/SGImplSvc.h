@@ -112,7 +112,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
  * @author ATLAS Collaboration
- * $Id: SGImplSvc.h 794854 2017-01-31 23:34:36Z leggett $
+ * $Id: SGImplSvc.h 797595 2017-02-16 18:36:10Z ssnyder $
  **/
 class SGImplSvc :
   public Service, 
@@ -1062,7 +1062,6 @@ private:
   SG::DataStore* m_pStore;             
   std::list<DataObject*> m_trash;    ///< The Recycle Bin
 
-  std::string m_defaultStoreName; ///< property
   ServiceHandle<IIncidentSvc> m_pIncSvc; ///< property
   bool m_DumpStore; ///< Dump Property flag: triggers dump() at EndEvent 
   bool m_ActivateHistory; ///< Activate the history service
@@ -1104,6 +1103,11 @@ private:
   /// for all threads in clearStore().
   std::map<std::thread::id, std::vector<IResetable*> > m_newBoundHandles;
 
+  typedef std::recursive_mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+  mutable mutex_t m_mutex;
+
+  
 public:
   ///////////////////////////////////////////////////////////////////////
   /// \name Obsolete and Deprecated methods 
@@ -1169,8 +1173,9 @@ private:
 };
 
 
-/// Here's one that's easy to call from the debugger.
+/// These are intended to be easy to call from the debugger.
 void SG_dump (SGImplSvc* sg);
+void SG_dump (SGImplSvc* sg, const char* fname);
 
 
 #include "StoreGate/tools/SGImplSvc.icc"

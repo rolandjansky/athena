@@ -281,17 +281,15 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
   // retrieve track barcode
   TrackHelper trHelp(aStep->GetTrack());
 
-  int barcode = trHelp.GetBarcode();
-
   //construct new rpc hit
   m_myRPCHitColl->Emplace(RPCid_eta, globalTime,
-                        localPosition, barcode, localPostPosition,
+                        localPosition, trHelp.GetParticleLink(), localPostPosition,
                         aStep->GetTotalEnergyDeposit(),
                         aStep->GetStepLength(),
                         track->GetDefinition()->GetPDGEncoding(),
                         aStep->GetPreStepPoint()->GetKineticEnergy());
   m_myRPCHitColl->Emplace(RPCid_phi, globalTime,
-                        localPosition, barcode, localPostPosition,
+                        localPosition, trHelp.GetParticleLink(), localPostPosition,
                         aStep->GetTotalEnergyDeposit(),
                         aStep->GetStepLength(),
                         track->GetDefinition()->GetPDGEncoding(),

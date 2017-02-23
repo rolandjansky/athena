@@ -3,7 +3,7 @@
 */
 
  
-// $Id: xAODMissingETAssociationMapCnv.cxx 692089 2015-08-30 14:36:16Z khoo $
+// $Id: xAODMissingETAssociationMapCnv.cxx 795699 2017-02-05 23:26:05Z khoo $
 
 // System include(s):
 #include <exception>
@@ -55,12 +55,12 @@ xAODMissingETAssociationMapCnv::createPersistent( xAOD::MissingETAssociationMap*
   xAOD::MissingETAssociationMap* result =
     new xAOD::MissingETAssociationMap( trans->begin(), trans->end(), SG::VIEW_ELEMENTS );
 
-  // Prepare the objects to be written out:
-  xAOD::MissingETAssociationMap::iterator itr = result->begin();
-  xAOD::MissingETAssociationMap::iterator end = result->end();
-  for( ; itr != end; ++itr ) {
-    toPersistent( *itr );
-  }
+  // // Prepare the objects to be written out:
+  // xAOD::MissingETAssociationMap::iterator itr = result->begin();
+  // xAOD::MissingETAssociationMap::iterator end = result->end();
+  // for( ; itr != end; ++itr ) {
+  //   toPersistent( *itr );
+  // }
 
   // Return the new container:
   return result;
@@ -85,10 +85,10 @@ xAOD::MissingETAssociationMap* xAODMissingETAssociationMapCnv::createTransient()
   return 0;
 }
 
-void xAODMissingETAssociationMapCnv::toPersistent( xAOD::MissingETAssociation* comp ) const {
+// void xAODMissingETAssociationMapCnv::toPersistent( xAOD::MissingETAssociation* comp ) const {
 
-  // Tell the object to prepare all its smart pointers for persistification:
-  comp->updateLinks();
+//   // Tell the object to prepare all its smart pointers for persistification:
+//   comp->updateLinks();
 
-  return;
-}
+//   return;
+// }

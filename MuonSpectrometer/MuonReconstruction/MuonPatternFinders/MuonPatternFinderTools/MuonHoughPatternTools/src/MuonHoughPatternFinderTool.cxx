@@ -206,7 +206,7 @@ namespace Muon {
 									    const std::vector<const CscPrepDataCollection*>& cscCols,  
 									    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
 									    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-									    const MuonSegmentCombinationCollection* cscSegmentCombis ) {
+									    const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
     // read event_data:
     const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis );
 
@@ -244,7 +244,7 @@ namespace Muon {
     return patCombiCol;
   } 
 
-  void MuonHoughPatternFinderTool::cleanUp() {
+  void MuonHoughPatternFinderTool::cleanUp() const {
     //clear csc association map
     m_cschitsegassociation.clear();
 
@@ -274,7 +274,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  const MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer ) {
+  const MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer ) const {
     
     ATH_MSG_DEBUG ("size of event: " << hitcontainer.size());
 
@@ -328,7 +328,7 @@ namespace Muon {
 								       const std::vector<const CscPrepDataCollection*>& cscCols,  
 								       const std::vector<const TgcPrepDataCollection*>& tgcCols,  
 								       const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-								       const MuonSegmentCombinationCollection* cscSegmentCombis )
+								       const MuonSegmentCombinationCollection* cscSegmentCombis ) const
   {
     ATH_MSG_VERBOSE ("getAllHits()");
 
@@ -341,7 +341,7 @@ namespace Muon {
     if (use_csc_segments == true && m_use_csc == true)
       {
 
-	m_csc_segments = cscSegmentCombis;
+  // m_csc_segments = cscSegmentCombis;
 	MuonSegmentCombinationCollection::const_iterator msc = cscSegmentCombis->begin();
 	MuonSegmentCombinationCollection::const_iterator msc_end = cscSegmentCombis->end();
 
@@ -523,7 +523,7 @@ namespace Muon {
   
   } // getAllHits
 
-  void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, std::string location ) {
+  void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, std::string location ) const {
     
     if( !patCol ) {
       ATH_MSG_WARNING ("Zero pointer, could not save patterns!!! ");
@@ -548,7 +548,7 @@ namespace Muon {
     }
   }
 
-  bool MuonHoughPatternFinderTool::cut()
+  bool MuonHoughPatternFinderTool::cut() const
   {
     if (1)
       {
@@ -562,7 +562,7 @@ namespace Muon {
     }
   }
 
-  void MuonHoughPatternFinderTool::addRpcCollection(Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer)
+  void MuonHoughPatternFinderTool::addRpcCollection(Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
   {
     if (cit_begin == cit_end) return;
     Muon::RpcPrepDataCollection::const_iterator cit = cit_begin;   
@@ -716,7 +716,7 @@ namespace Muon {
 
   }
 
-  void MuonHoughPatternFinderTool::addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer)
+  void MuonHoughPatternFinderTool::addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
   {
     if (cit_begin == cit_end) return;
     Muon::TgcPrepDataCollection::const_iterator cit = cit_begin;
@@ -862,7 +862,7 @@ namespace Muon {
 
   }
 
-  void MuonHoughPatternFinderTool::addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer)const
+  void MuonHoughPatternFinderTool::addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
   {
     if (cit_begin == cit_end) return;
 
@@ -1377,33 +1377,33 @@ namespace Muon {
     }
   }
 
-  void MuonHoughPatternFinderTool::storeCscAssMap(const MuonPatternCombinationCollection* combinedpatterns)const
+  void MuonHoughPatternFinderTool::storeCscAssMap(const MuonPatternCombinationCollection* combinedpatterns) const
   {
     //Muon::MuonSegPatAssMap* cscAssMap = new Muon::MuonSegPatAssMap();
 
     MuonPatternCombinationCollection::const_iterator it = combinedpatterns->begin();
-    for( ; it!=combinedpatterns->end();++it )
-      {
-	std::vector< Muon::MuonPatternChamberIntersect >::const_iterator mpcit = (*it)->chamberData().begin();
-	for (; mpcit!=(*it)->chamberData().end(); ++mpcit)
-          {
-	    std::vector< const Trk::PrepRawData* >::const_iterator pit = (*mpcit).prepRawDataVec().begin();
-	    for (; pit!=(*mpcit).prepRawDataVec().end(); ++pit)
-              {
-		if (m_cscIdHelper->is_csc((*pit)->identify()))
-                  {
-		    std::map <const Trk::PrepRawData*, const Muon::MuonSegmentCombination*>::const_iterator cscSegment = m_cschitsegassociation.find(*pit); 
-		    if ( cscSegment != m_cschitsegassociation.end())
-                      {
-			ATH_MSG_VERBOSE ("Hit CSC Association Found");
-			//cscAssMap->addAssociation( combinedpatterns, *it, m_csc_segments, (*cscSegment).second );
-			m_assocTool->insert( (*cscSegment).second, *it);
-			break;
-                      }
-                  }
-              }
-          }
-      }
+	for( ; it!=combinedpatterns->end();++it )
+	{
+		std::vector< Muon::MuonPatternChamberIntersect >::const_iterator mpcit = (*it)->chamberData().begin();
+		for (; mpcit!=(*it)->chamberData().end(); ++mpcit)
+		{
+			std::vector< const Trk::PrepRawData* >::const_iterator pit = (*mpcit).prepRawDataVec().begin();
+			for (; pit!=(*mpcit).prepRawDataVec().end(); ++pit)
+			{
+				if (m_cscIdHelper->is_csc((*pit)->identify()))
+				{
+					std::map <const Trk::PrepRawData*, const Muon::MuonSegmentCombination*>::const_iterator cscSegment = m_cschitsegassociation.find(*pit); 
+					if ( cscSegment != m_cschitsegassociation.end())
+					{
+						ATH_MSG_VERBOSE ("Hit CSC Association Found");
+						//cscAssMap->addAssociation( combinedpatterns, *it, m_csc_segments, (*cscSegment).second );
+						m_assocTool->insert( (*cscSegment).second, *it);
+						break;
+					}
+				}
+			}
+		}
+	}
     // if (evtStore()->record(cscAssMap,m_cscAssoOutputLocation).isSuccess())
     // {
     //     msg() << MSG::DEBUG << "stored Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation  << endmsg;
@@ -1414,7 +1414,7 @@ namespace Muon {
     // }
   }
 
-  void MuonHoughPatternFinderTool::updateRpcMdtStationMap(const Identifier rpcid, const int hit_begin, const int hit_end)
+  void MuonHoughPatternFinderTool::updateRpcMdtStationMap(const Identifier rpcid, const int hit_begin, const int hit_end) const
   {
     //  input is a RPC identifier, begin container and end container
     //  rpcmdtstationmap is updated
@@ -1479,7 +1479,7 @@ namespace Muon {
     addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
   }
 
-  void MuonHoughPatternFinderTool::updateTgcMdtStationMap(const Identifier tgcid, int hit_begin, int hit_end)
+  void MuonHoughPatternFinderTool::updateTgcMdtStationMap(const Identifier tgcid, int hit_begin, int hit_end) const
   {
     //  input is a TGC identifier, begin container and end container
     //  tgcmdtstationmap is updated
@@ -1617,7 +1617,7 @@ namespace Muon {
     return 10000000*stationname + 100000*phi + 1000*(eta+10);
   }
 
-  void MuonHoughPatternFinderTool::addToStationMap(std::map<int,std::vector<std::pair<int, int> > > &stationmap, std::map<int,std::vector<std::pair<int, int> > >::iterator &it, int &stationcode, const int &hit_begin, const int &hit_end)
+  void MuonHoughPatternFinderTool::addToStationMap(std::map<int,std::vector<std::pair<int, int> > > &stationmap, std::map<int,std::vector<std::pair<int, int> > >::iterator &it, int &stationcode, const int &hit_begin, const int &hit_end) const
   {
     it = stationmap.find(stationcode);
     if (it==stationmap.end()){

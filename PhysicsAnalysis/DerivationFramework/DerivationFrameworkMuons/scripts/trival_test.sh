@@ -1,31 +1,27 @@
-OUT=Mar03_A
+OUT=Feb07_A
 
 runJob(){
 	input=$1
 	output=$2
-# 	Reco_tf.py --inputFileValidation False --inputAODFile $input --outputDAODFile ${output}.pool.root --reductionConf MUON0 MUON1 MUON2 MUON3 MUON4 --maxEvents 1000
-# 	Reco_tf.py --inputFileValidation False --inputAODFile $input --outputDAODFile ${output}.pool.root --reductionConf MUON0 MUON2 MUON3 --maxEvents 1000
-# 	Reco_tf.py --inputFileValidation False --inputAODFile $input --outputDAODFile ${output}.pool.root --reductionConf MUON0 --maxEvents 1000
-# 	Reco_tf.py --inputFileValidation False --inputAODFile $input --outputDAODFile ${output}.pool.root --reductionConf MUON0 --maxEvents 1000 --postExec="svcMgr.IOVDbSvc.CacheTime=100000"
-	Reco_tf.py --inputFileValidation False --inputAODFile $input --outputDAODFile ${output}.pool.root --reductionConf MUON0
+	otherOpt=$3
+# Reco_tf.py --inputFileValidation False --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True)' --inputAODFile $input --outputDAODFile ${output}.pool.root --reductionConf MUON1 --maxEvents 2000
+Reco_tf.py --inputFileValidation False --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True)' --inputAODFile $input --outputDAODFile ${output}.pool.root --reductionConf MUON0 MUON1 $otherOpt
+
+mv log.AODtoDAOD log_${output}.AODtoDAOD
 }
 
-OUT1=${OUT}1
-# INPUT=/home/dzhang/links/SAMPLES/R20/MC15/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.AOD.e3601_s2576_s2132_r6630_tid05348608_00/AOD.05348608._004042.pool.root.1
-INPUT=root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc15/MC15_AOD.pool.root
-runJob $INPUT $OUT1
-mv log.AODtoDAOD log_${OUT1}.AODtoDAOD
+# INPUT=root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc15/MC15_207.AOD.pool.root
+# runJob $INPUT ${OUT}1 "--passThrough True"
+# 
+# INPUT=/net/s3_datad/Data15/MC15/AOD/mc15_13TeV.424107.Pythia8B_A14_CTEQ6L1_Jpsimu8mu8.merge.AOD.e5290_s2726_r7772_r7676/AOD.09264436._001199.pool.root.1
+# runJob $INPUT ${OUT}2 "--passThrough True"
 
-# OUT2=${OUT}2
-# INPUT=/home/dzhang/links/SAMPLES/R20/MC15/mc15_13TeV.424100.Pythia8B_A14_CTEQ6L1_Jpsimu4mu4.merge.AOD.e3735_s2608_s2183_r6630_r6264_tid05382368_00/AOD.05382368._000014.pool.root.1
-# runJob $INPUT $OUT2
-# mv log.AODtoDAOD log_${OUT2}.AODtoDAOD
+INPUT=root://eosatlas//eos/atlas/user/m/mdobre/forRTTdata15/Data16_207.AOD.pool.root
+runJob $INPUT ${OUT}3
 
-OUT3=${OUT}3
-# INPUT=~/links/SAMPLES/R20/Data15/AOD/data15_13TeV.00267639.physics_Main.merge.AOD.r6818_p2358_tid05695962_00/AOD.05695962._000894.pool.root.1
-# INPUT=root://eosatlas//eos/atlas/user/m/mdobre/forRTTdata15/Data15_AOD.pool.root
-INPUT=root://eosatlas//eos/atlas/user/m/mdobre/forRTTdata15/Data15_207.AOD.pool.root
-runJob $INPUT $OUT3
-mv log.AODtoDAOD log_${OUT3}.AODtoDAOD
+INPUT4=/home/dzhang/links/SAMPLES/R20/MC15/AOD/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.AOD.e3601_s2576_s2132_r7773_r7676/AOD.07981188._000211.pool.root.1
+runJob $INPUT4 ${OUT}4 "--passThrough True"
 
 for i in `ls DAOD_MUON*.${OUT}*.pool.root`; do j=${i##DAOD_}; k=${j%%.pool.root}; checkSG.py $i > ${k}_SG.txt; checkFile.py $i > ${k}_cF.txt; done
+
+grep "(B)" ${k}_cF.txt |sed 's/Aux.*$//'|awk '{a[$10]+=$3}END{for(x in a){print a[x]" "x}}'|sort -n|sed 's/HLT_.*/HLT/' |awk '{a[$2]+=$1}END{for(x in a)print a[x]" "x}'|sort -n >${k}_cFsummary.txt

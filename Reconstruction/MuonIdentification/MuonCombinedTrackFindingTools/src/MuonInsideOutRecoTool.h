@@ -81,7 +81,7 @@ namespace MuonCombined {
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbibuityResolver;
     /** id pt cut */
     double m_idTrackMinPt;
-    
+    bool m_ignoreSiAssocated;
   };
 }
 

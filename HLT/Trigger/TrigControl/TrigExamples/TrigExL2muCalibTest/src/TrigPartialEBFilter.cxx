@@ -47,10 +47,7 @@ StatusCode TrigPartialEBFilter::initialize() {
 
 StatusCode TrigPartialEBFilter::execute() {
 
-   // Get the messaging service, print where you are
-   MsgStream log(msgSvc(), name());
-
-   if (outputLevel() <= MSG::DEBUG)  ATH_MSG_DEBUG("execute()");
+   ATH_MSG_DEBUG("execute()");
   
    // get EventInfo
    const EventInfo* p_EventInfo(0);
@@ -83,9 +80,7 @@ StatusCode TrigPartialEBFilter::execute() {
    for (StreamTagVector_t::const_iterator it = vecStreamTags.begin();
         it != vecStreamTags.end(); ++it) {
       if ( (*it).type() == "physics") havePhysicsStream = true;
-      if (outputLevel() <= MSG::DEBUG) {
-         ATH_MSG_DEBUG("  .. " << (*it).type() << " : " << (*it).name());
-      }
+      ATH_MSG_DEBUG("  .. " << (*it).type() << " : " << (*it).name());
    }
   
    //if(havePhysicsStream != isAccepted) {
@@ -125,7 +120,7 @@ StatusCode TrigPartialEBFilter::execute() {
   
    //retrieve back the stream tag vector and check
    vecStreamTags = p_EventInfo->trigger_info()->streamTags();
-   if (outputLevel() <= MSG::DEBUG) {
+   if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG("After applying selection:");
       for (StreamTagVector_t::const_iterator it = vecStreamTags.begin();
            it != vecStreamTags.end(); ++it) {
@@ -133,17 +128,6 @@ StatusCode TrigPartialEBFilter::execute() {
       }
    }
  
-   return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode TrigPartialEBFilter::finalize() {
-
-   // Get the messaging service
-   MsgStream log(msgSvc(), name());
-   ATH_MSG_INFO("finalize()");
-
    return StatusCode::SUCCESS;
 }
 

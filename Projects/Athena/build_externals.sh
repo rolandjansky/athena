@@ -5,19 +5,31 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build type] [-b build dir]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f]"
+    echo " -f: Force rebuild of externals, otherwise if script"
+    echo "     finds an external build present it will simply exit"
+    echo "If a build_dir is not given the default is '../build'"
+    echo "relative to the athena checkout"
 }
 
 # Parse the command line arguments:
 BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
-while getopts ":t:s:b:h" opt; do
+FORCE=""
+while getopts ":t:b:fh" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
             ;;
         b)
             BUILDDIR=$OPTARG
+            ;;
+	f)
+            FORCE=1
+            ;;
+        h)
+            usage
+            exit 0
             ;;
         :)
             echo "Argument -$OPTARG requires a parameter!"
@@ -65,6 +77,19 @@ cd ${thisdir}/../..
 if [ "$BUILDDIR" = "" ]; then
     BUILDDIR=${thisdir}/../../../build
 fi
+mkdir -p ${BUILDDIR}
+BUILDDIR=$(cd $BUILDDIR; pwd)
+
+if [ -n "$FORCE" ]; then
+    echo "Force deleting existing build area..."
+    rm -fr ${BUILDDIR}/install ${BUILDDIR}/src ${BUILDDIR}/build
+fi
+
+if [ -d ${BUILDDIR}/install/AthenaExternals -a -d ${BUILDDIR}/install/GAUDI ]; then
+        echo "Found install directories for AthenaExternals and Gaudi in ${BUILDDIR}/install"
+        echo "Use -f option to force a rebuild"
+        exit 0
+fi
 
 # Create some directories:
 mkdir -p ${BUILDDIR}/install
@@ -76,6 +101,7 @@ export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
+scriptsdir=$(cd ${scriptsdir}; pwd)
 
 # Set the environment variable for finding LCG releases:
 source ${scriptsdir}/LCG_RELEASE_BASE.sh

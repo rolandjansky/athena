@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEvent.h 791156 2016-12-28 19:24:45Z ssnyder $
+// $Id: TEvent.h 796516 2017-02-10 04:45:05Z ssnyder $
 #ifndef XAODROOTACCESS_TEVENT_H
 #define XAODROOTACCESS_TEVENT_H
 
@@ -73,8 +73,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 791156 $
-   /// $Date: 2016-12-28 20:24:45 +0100 (Wed, 28 Dec 2016) $
+   /// $Revision: 796516 $
+   /// $Date: 2017-02-10 05:45:05 +0100 (Fri, 10 Feb 2017) $
    ///
    class TEvent : public TVirtualEvent,
                   public IProxyDict {
@@ -349,6 +349,9 @@ namespace xAOD {
                                   const std::type_info& ti,
                                   ::Bool_t silent = kFALSE,
                                   ::Bool_t metadata = kFALSE );
+
+   public:
+      // Make this public for calling from python.
       /// Internal function for recording an object into the output
       TReturnCode record( void* obj, const std::string& typeName,
                           const std::string& key,
@@ -356,6 +359,8 @@ namespace xAOD {
                           ::Bool_t overwrite = kFALSE,
                           ::Bool_t metadata = kFALSE,
                           ::Bool_t isOwner = kTRUE );
+
+   protected:
       /// Internal function for adding an auxiliary store object to the output
       TReturnCode record( TAuxStore* store, const std::string& key,
                           ::Int_t basketSize, ::Int_t splitLevel,

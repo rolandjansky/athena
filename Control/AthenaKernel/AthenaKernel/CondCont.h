@@ -134,7 +134,7 @@ bool CondCont<T>::insert(const EventIDRange& r, DataObject* obj) {
 
   if (t == 0) {
     std::cerr << "CondCont<>T unable to dcast from DataObject to " 
-              << typeid(*t).name()
+              << typeid(T).name()
               << std::endl;
     return false;
   }

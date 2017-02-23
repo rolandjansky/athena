@@ -16,6 +16,7 @@
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ServiceLocatorHelper.h"
 #include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/EventContext.h"
 
 // Athena includes
 #include "StoreGate/StoreGateSvc.h"
@@ -280,10 +281,11 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_l1_hltPrescaleUpdateLB(0xffffffff),
   m_mandatoryL1ROBs{{begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)}},
   m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,200000,100)),
-  m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,9.5,10)),
+  m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,19.5,20)),
   m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
-  m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,99.5,100)),
-  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100))
+  m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,199.5,200)),
+  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100)),
+  m_eventContext(nullptr)
 {
   // General properties for event loop managers
   declareProperty("predefinedLumiBlock",      m_predefinedLumiBlock=0);
@@ -313,8 +315,6 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("WriteTruncatedHLTtoDebug", m_writeHltTruncationToDebug=true);
   declareProperty("HltTruncationDebugStreamName",  m_HltTruncationDebugStreamName ="TruncatedHLTResult");
   declareProperty("ExcludeFromHltTruncationDebugStream",  m_excludeFromHltTruncationDebugStream );
-
-  m_excludeFromHltTruncationDebugStream.value().push_back("CostMonitoring");
 }
 
 //=========================================================================
@@ -495,6 +495,8 @@ StatusCode HltEventLoopMgr::initialize()
   msgStream() << MSG::INFO << " ---> Write events with truncated HLT result to debug stream  = " << m_writeHltTruncationToDebug << endmsg;
   msgStream() << MSG::INFO << " ---> Debug stream name for events with truncated HLT result  = " << m_HltTruncationDebugStreamName << endmsg;
   msgStream() << MSG::INFO << " ---> Stream names of events with a truncated HLT result which will not be send to the debug stream  = " << m_excludeFromHltTruncationDebugStream << endmsg;
+
+  m_eventContext = new EventContext();
 
   //-------------------------------------------------------------------------
   // Setup the StoreGateSvc
@@ -702,6 +704,8 @@ StatusCode HltEventLoopMgr::finalize()
     msgStream() << MSG::ERROR << "Error in MinimalEventLoopMgr Finalize" << endmsg;
   }
 
+  delete m_eventContext; m_eventContext = nullptr;
+
   // Release all interfaces
   m_incidentSvc.release().ignore();
   m_robDataProviderSvc.release().ignore();
@@ -766,7 +770,21 @@ StatusCode HltEventLoopMgr::executeAlgorithms()
   }
 
   // Call the execute() method of all top algorithms
-  return callOnAlgs(&IAlgorithm::sysExecute, "sysExecute", true);
+
+  StatusCode sc;
+  for(auto alg : m_topAlgList) {
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+    sc = alg->sysExecute(*m_eventContext);
+#else
+    sc = alg->sysExecute();
+#endif
+    if(sc.isFailure()) {
+      msgStream() << MSG::ERROR << "Execution of algorithm " << alg->name()
+                  << " failed" << endmsg;
+      return sc;
+    }
+  }
+  return StatusCode::SUCCESS;
 }
 
 
@@ -799,7 +817,9 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
                   << eventrn << " Complete EventID   = "
                   << *(m_currentEvent->event_ID()) << endmsg;
   }
-
+  
+  m_eventContext->setEventID( *((EventIDBase*) m_currentEvent->event_ID()) );
+  
   //-----------------------------------------------------------------------
   // obtain the HLT conditions update counters from the CTP fragment
   //-----------------------------------------------------------------------
@@ -907,11 +927,9 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
   if (!b_invalidCTPRob) {
     sc = checkHltPrescaleUpdate(l1_hltCounters);
     if(sc.isFailure()) {
-      if (pHltResult) {
-        std::vector<uint32_t>& vExtraData = pHltResult->getExtras();
-        // set the HLT PSK flag to 0 to indicate error
-        vExtraData[vExtraData.size()-2] = 0;       // one word for prescale counter (=1 ok, =0 error)
-      }
+      std::vector<uint32_t>& vExtraData = pHltResult->getExtras();
+      // set the HLT PSK flag to 0 to indicate error
+      vExtraData[vExtraData.size()-2] = 0;       // one word for prescale counter (=1 ok, =0 error)
       msgStream() << MSG::FATAL << "HLT Conditions update failed" << endmsg;
       throw ers::HLTAbort(ERS_HERE, name()+": HLT Conditions update failed");
     }
@@ -952,7 +970,12 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     // Call the execute() method of all output streams
     for (auto o : m_outStreamList ) {
       o->resetExecuted();
+
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+      sc = o->sysExecute(*m_eventContext);
+#else
       sc = o->sysExecute();
+#endif
       if(sc.isFailure())  {
         msgStream() << MSG::WARNING << "Execution of output stream " << o->name() << " failed" << endmsg;
         eventFailed = true;
@@ -1077,7 +1100,7 @@ StatusCode HltEventLoopMgr::processRoIs (
     (m_hltTHistSvc->send()).ignore() ;
     if ( msgLevel() <= MSG::DEBUG ) {
       msgStream() << MSG::DEBUG << " ---> THistSvc->send(): m_hltTHistSvc = "
-      << m_hltTHistSvc << endmsg;
+                  << m_hltTHistSvc << endmsg;
     }
   }
 
@@ -1119,7 +1142,7 @@ StatusCode HltEventLoopMgr::processRoIs (
   }
 
   // *-- SubDetectors in received L1 ROB list
-  if (m_hist_l1_robs) {
+  if (m_doMonitoring.value()) {
     scoped_lock_histogram lock;
     for(const auto& rob : l1_result)
     {
@@ -1128,7 +1151,6 @@ StatusCode HltEventLoopMgr::processRoIs (
       if(std::find(begin(L1R_BINS), end(L1R_BINS), sid.subdetector_id())
          != end(L1R_BINS))
         label = sid.human_detector();
-
       m_hist_l1_robs->Fill(label.c_str(), 1.);
     }
   }
@@ -1251,8 +1273,7 @@ StatusCode HltEventLoopMgr::processRoIs (
   } else {
     // no valid CTP fragment found
     m_invalid_lvl1_result++;
-    if (m_hist_l1_robs)
-      lock_histogram_operation<TH1F>(m_hist_l1_robs)->Fill(MISSING_L1R_CTP_LABEL, 1.);
+    if (m_doMonitoring.value()) m_hist_l1_robs->Fill(MISSING_L1R_CTP_LABEL, 1.);
 
     std::string issue_msg = std::string("No valid CTP fragment found.  ") ;
     if (m_hltROBDataProviderSvc.isValid()) issue_msg = issue_msg + std::string("\n") +
@@ -1359,7 +1380,8 @@ StatusCode HltEventLoopMgr::processRoIs (
                 << endmsg;
   }
 
-  msgStream() << MSG::DEBUG << " new xAOD::EventInfo: " << xev << endmsg;
+  if (msgLevel() <= MSG::DEBUG)
+    msgStream() << MSG::DEBUG << " new xAOD::EventInfo: " << xev << endmsg;
 
   //-----------------------------------------------------------------------
   // build HLT result
@@ -1806,10 +1828,8 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
       // The HLT result got truncated, put the event on a special debug stream if requested 
       if (!serializationOk) {
 	m_truncated_hlt_result++;
-	if (m_hist_Hlt_truncated_result) {
-	  scoped_lock_histogram lock;
-	  m_hist_Hlt_truncated_result->Fill(1.);
-	}
+    if (m_doMonitoring.value()) m_hist_Hlt_truncated_result->Fill(1.);
+
  	if ((!m_HltTruncationDebugStreamName.value().empty()) &&
 	    (m_writeHltTruncationToDebug.value())) {
       	  // check if event should be not send to the debug stream (e.g. Cost Monitoring)
@@ -1822,10 +1842,7 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
 	  }
 	  if (sendToDebug) {
 	    m_truncated_hlt_result_to_debug++;	 
-	    if (m_hist_Hlt_truncated_result) {
-	      scoped_lock_histogram lock;
-	      m_hist_Hlt_truncated_result->Fill(2.);
-	    }
+        if (m_doMonitoring.value()) m_hist_Hlt_truncated_result->Fill(2.);
 	    hlt_result.stream_tag.clear();
 	    addDebugStreamTag(hlt_result, m_HltTruncationDebugStreamName);
 	    msgStream() << MSG::ERROR << ST_WHERE
@@ -1833,10 +1850,7 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
 			<< m_HltTruncationDebugStreamName << endmsg;
 	  } else {
 	    m_truncated_hlt_result_not_to_debug++;	 
-	    if (m_hist_Hlt_truncated_result) {
-	      scoped_lock_histogram lock;
-	      m_hist_Hlt_truncated_result->Fill(3.);
-	    }
+        if (m_doMonitoring.value()) m_hist_Hlt_truncated_result->Fill(3.);
 	    msgStream() << MSG::WARNING << ST_WHERE
 			<< "HLTResult was truncated. Event was NOT send to debug stream  = "
 			<< m_HltTruncationDebugStreamName
@@ -1845,30 +1859,24 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
 	  }
 	} else {
 	  m_truncated_hlt_result_not_to_debug++;
-	  if (m_hist_Hlt_truncated_result) {
-	    scoped_lock_histogram lock;
-	    m_hist_Hlt_truncated_result->Fill(3.);
-	  }
+      if (m_doMonitoring.value()) m_hist_Hlt_truncated_result->Fill(3.);
 	}
       }
     }
   }
 
-  if (m_hist_eventAcceptFlags)
-    lock_histogram_operation<TH1F>(m_hist_eventAcceptFlags)->Fill(
-        static_cast<float>(m_mapAccept.codeToHash(hlt_decision)));
+  if (m_doMonitoring.value())
+    m_hist_eventAcceptFlags->Fill(static_cast<float>(m_mapAccept.codeToHash(hlt_decision)));
 
-  if(msgLevel() <= MSG::DEBUG)
-  {
+  if(msgLevel() <= MSG::DEBUG) {
     msgStream() << MSG::DEBUG << ST_WHERE << "Decision = "
                 << hltonl::PrintHltAcceptFlag(hlt_decision) << "\n"
                 << hlt_result << endmsg;
-    if(dobj)
-    {
+    if(dobj) {
       const auto& extraData = dobj->getExtraData();
       msgStream() << MSG::DEBUG << ST_WHERE
-          << "HltResult extra data: Host name = " << extraData.appName
-          << ", status code = " << extraData.statusCode << endmsg;
+                  << "HltResult extra data: Host name = " << extraData.appName
+                  << ", status code = " << extraData.statusCode << endmsg;
     }
   }
 
@@ -1932,169 +1940,163 @@ void HltEventLoopMgr::bookHistograms()
   // *-- | Event accept flags |
   //     +--------------------+
   uint32_t n_bins_eventAcceptFlags = hltonl::NUM_ACCEPTANCE_FLAGS;
-  m_hist_eventAcceptFlags    = new TH1F ("EventAcceptFlags",
-      "EventAcceptFlags;;entries", n_bins_eventAcceptFlags, 0.5, n_bins_eventAcceptFlags+0.5);
+  m_hist_eventAcceptFlags = new TH1F ("EventAcceptFlags",
+                                      "EventAcceptFlags;;entries", 
+                                      n_bins_eventAcceptFlags, 0.5, 
+                                      n_bins_eventAcceptFlags+0.5);
 
-  if (m_hist_eventAcceptFlags) {
-    for (hltonl::MapAcceptFlag::EnumMap::const_iterator map_it = m_mapAccept.begin(); map_it != m_mapAccept.end(); ++map_it) {
-      m_hist_eventAcceptFlags->GetXaxis()->SetBinLabel( ((*map_it).second).second , (((*map_it).second).first).c_str() );
-    }
-    regHistsTH1F.push_back(&m_hist_eventAcceptFlags);
+  for (const auto& m : m_mapAccept) {
+    m_hist_eventAcceptFlags->GetXaxis()->SetBinLabel( m.second.second , (m.second.first).c_str() );
   }
+  regHistsTH1F.push_back(&m_hist_eventAcceptFlags);
 
   //     +-----------------------+
   // *-- | HLT result properties |
   //     +-----------------------+
   // *-- HLT result size plot
-  m_hist_Hlt_result_size      = new TH1F ((m_histProp_Hlt_result_size.value().title()).c_str(),
-      (m_histProp_Hlt_result_size.value().title() + ";words;entries").c_str(),
-      m_histProp_Hlt_result_size.value().bins(),
-      m_histProp_Hlt_result_size.value().lowEdge(),
-      m_histProp_Hlt_result_size.value().highEdge());
-  if (m_hist_Hlt_result_size) {
-    m_hist_Hlt_result_size->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_Hlt_result_size);
-  }
+  m_hist_Hlt_result_size = new TH1F ((m_histProp_Hlt_result_size.value().title()).c_str(),
+                                     (m_histProp_Hlt_result_size.value().title() + ";words;entries").c_str(),
+                                     m_histProp_Hlt_result_size.value().bins(),
+                                     m_histProp_Hlt_result_size.value().lowEdge(),
+                                     m_histProp_Hlt_result_size.value().highEdge());
+
+  m_hist_Hlt_result_size->SetCanExtend(TH1::kAllAxes);
+  regHistsTH1F.push_back(&m_hist_Hlt_result_size);
 
   // *-- HLT result status codes
   uint32_t n_bins_ResultStatus = hltonl::NUM_HLT_STATUS_CODES;
-  m_hist_Hlt_result_status =    new TH1F ("HltResultStatusCodes",
-      "HltResultStatusCodes;;entries", n_bins_ResultStatus, 0.5, n_bins_ResultStatus+0.5);
+  m_hist_Hlt_result_status = new TH1F ("HltResultStatusCodes", "HltResultStatusCodes;;entries", 
+                                       n_bins_ResultStatus, 0.5, n_bins_ResultStatus+0.5);
 
-  if (m_hist_Hlt_result_status) {
-    // do not print label for normal HLT result with no errors, it is not filled
-    for (hltonl::MapResultStatusCode::EnumMap::const_iterator map_it = m_mapResultStatus.begin(); map_it != m_mapResultStatus.end(); ++map_it) {
-      if ( (*map_it).first == hltonl ::NORMAL_HLT_RESULT ) {
-        m_hist_Hlt_result_status->GetXaxis()->SetBinLabel( ((*map_it).second).second, (((*map_it).second).first+" (bin not filled)").c_str() );
-      } else {
-        m_hist_Hlt_result_status->GetXaxis()->SetBinLabel( ((*map_it).second).second, (((*map_it).second).first).c_str() );
-      }
+  // do not print label for normal HLT result with no errors, it is not filled
+  for (hltonl::MapResultStatusCode::EnumMap::const_iterator map_it = m_mapResultStatus.begin(); map_it != m_mapResultStatus.end(); ++map_it) {
+    if ( (*map_it).first == hltonl ::NORMAL_HLT_RESULT ) {
+      m_hist_Hlt_result_status->GetXaxis()->SetBinLabel( ((*map_it).second).second, (((*map_it).second).first+" (bin not filled)").c_str() );
+    } else {
+      m_hist_Hlt_result_status->GetXaxis()->SetBinLabel( ((*map_it).second).second, (((*map_it).second).first).c_str() );
     }
-    regHistsTH1F.push_back(&m_hist_Hlt_result_status);
   }
+  regHistsTH1F.push_back(&m_hist_Hlt_result_status);
 
   // *-- HLT result truncation
   uint32_t n_bins_ResultTruncation = 3;
-  m_hist_Hlt_truncated_result =    new TH1F ("HltResultTruncation",
-      "HltResultTruncation;;entries", n_bins_ResultTruncation, 0.5, n_bins_ResultTruncation+0.5);
+  m_hist_Hlt_truncated_result = new TH1F ("HltResultTruncation",
+                                          "HltResultTruncation;;entries", 
+                                          n_bins_ResultTruncation, 0.5, n_bins_ResultTruncation+0.5);
 
-  if (m_hist_Hlt_truncated_result) {
-    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 1, std::string("Truncated HLT result").c_str() );
-    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 2, std::string("Truncated HLT result (send to debug stream)").c_str() );
-    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 3, std::string("Truncated HLT result (not send to debug stream)").c_str() );
-    regHistsTH1F.push_back(&m_hist_Hlt_truncated_result);
-  }
+  m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 1, std::string("Truncated HLT result").c_str() );
+  m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 2, std::string("Truncated HLT result (send to debug stream)").c_str() );
+  m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 3, std::string("Truncated HLT result (not send to debug stream)").c_str() );
+  regHistsTH1F.push_back(&m_hist_Hlt_truncated_result);
 
   // *-- HLT result size plot (Stream Physiscs Main)
-  m_hist_Hlt_result_size_physics = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main:physics))").c_str(),
-      (m_histProp_Hlt_result_size.value().title() + "-(Stream (Main:physics))" + ";words;entries").c_str(),
-      m_histProp_Hlt_result_size.value().bins(),
-      m_histProp_Hlt_result_size.value().lowEdge(),
-      m_histProp_Hlt_result_size.value().highEdge());
-  if (m_hist_Hlt_result_size_physics) {
-    m_hist_Hlt_result_size_physics->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_Hlt_result_size_physics);
-  }
+  m_hist_Hlt_result_size_physics = 
+    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main:physics))").c_str(),
+              (m_histProp_Hlt_result_size.value().title() + "-(Stream (Main:physics))" + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size.value().bins(),
+              m_histProp_Hlt_result_size.value().lowEdge(),
+              m_histProp_Hlt_result_size.value().highEdge());
+
+  m_hist_Hlt_result_size_physics->SetCanExtend(TH1::kAllAxes);
+  regHistsTH1F.push_back(&m_hist_Hlt_result_size_physics);
+
 
   // *-- HLT result size plot (Stream Express)
-  m_hist_Hlt_result_size_express = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express:express))").c_str(),
-      (m_histProp_Hlt_result_size.value().title() + "-(Stream (express:express))" + ";words;entries").c_str(),
-      m_histProp_Hlt_result_size.value().bins(),
-      m_histProp_Hlt_result_size.value().lowEdge(),
-      m_histProp_Hlt_result_size.value().highEdge());
-  if (m_hist_Hlt_result_size_express) {
-    m_hist_Hlt_result_size_express->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_Hlt_result_size_express);
-  }
+  m_hist_Hlt_result_size_express = 
+    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express:express))").c_str(),
+              (m_histProp_Hlt_result_size.value().title() + "-(Stream (express:express))" + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size.value().bins(),
+              m_histProp_Hlt_result_size.value().lowEdge(),
+              m_histProp_Hlt_result_size.value().highEdge());
+
+  m_hist_Hlt_result_size_express->SetCanExtend(TH1::kAllAxes);
+  regHistsTH1F.push_back(&m_hist_Hlt_result_size_express);
+
 
   // *-- HLT result size plot (Stream calibration, DataScouting results)
-  m_hist_Hlt_result_size_DataScouting = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*:calibration))").c_str(),
-      (m_histProp_Hlt_result_size.value().title() + "-(Streams (DataScouting_*:calibration))" + ";words;entries").c_str(),
-      m_histProp_Hlt_result_size.value().bins(),
-      m_histProp_Hlt_result_size.value().lowEdge(),
-      m_histProp_Hlt_result_size.value().highEdge());
-  if (m_hist_Hlt_result_size_DataScouting) {
-    m_hist_Hlt_result_size_DataScouting->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_Hlt_result_size_DataScouting);
-  }
+  m_hist_Hlt_result_size_DataScouting = 
+    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*:calibration))").c_str(),
+              (m_histProp_Hlt_result_size.value().title() + "-(Streams (DataScouting_*:calibration))" + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size.value().bins(),
+              m_histProp_Hlt_result_size.value().lowEdge(),
+              m_histProp_Hlt_result_size.value().highEdge());
+
+  m_hist_Hlt_result_size_DataScouting->SetCanExtend(TH1::kAllAxes);
+  regHistsTH1F.push_back(&m_hist_Hlt_result_size_DataScouting);
+
 
   // *-- HLT result size profile plot for all stream types "physiscs"
-  m_hist_HltResultSizes_Stream_physics = new TProfile( std::string("Average Hlt Result size for physics streams").c_str(),
-						       std::string("Average Hlt Result size for physics streams;Stream Name;Average size in words").c_str(),
-						       1,
-						       (double) 0., (double) 1.,
-						       (double) 0., (double) 3000000.);
-  if (m_hist_HltResultSizes_Stream_physics) {
-    m_hist_HltResultSizes_Stream_physics->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
-    m_hist_HltResultSizes_Stream_physics->SetCanExtend(TH1::kAllAxes);
-    regHistsTProfile.push_back(&m_hist_HltResultSizes_Stream_physics);
-  }
+  m_hist_HltResultSizes_Stream_physics = new TProfile( "Average Hlt Result size for physics streams",
+                                                       "Average Hlt Result size for physics streams;Stream Name;Average size in words",
+                                                       1,
+                                                       (double) 0., (double) 1.,
+                                                       (double) 0., (double) 3000000.);
+
+  m_hist_HltResultSizes_Stream_physics->GetXaxis()->SetBinLabel(1, "NoTag");
+  m_hist_HltResultSizes_Stream_physics->SetCanExtend(TH1::kAllAxes);
+  regHistsTProfile.push_back(&m_hist_HltResultSizes_Stream_physics);
 
   // *-- HLT result size profile plot for all stream names "DataScouting"
-  m_hist_HltResultSizes_Stream_DataScouting = new TProfile( std::string("Average Hlt Result size for data scouting streams").c_str(),
-						       std::string("Average Hlt Result size for data scouting streams;Stream Name;Average size in words").c_str(),
-						       1,
-						       (double) 0., (double) 1.,
-						       (double) 0., (double) 3000000.);
-  if (m_hist_HltResultSizes_Stream_DataScouting) {
-    m_hist_HltResultSizes_Stream_DataScouting->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
-    m_hist_HltResultSizes_Stream_DataScouting->SetCanExtend(TH1::kAllAxes);
-    regHistsTProfile.push_back(&m_hist_HltResultSizes_Stream_DataScouting);
-  }
+  m_hist_HltResultSizes_Stream_DataScouting = new TProfile( "Average Hlt Result size for data scouting streams",
+                                                            "Average Hlt Result size for data scouting streams;Stream Name;Average size in words",
+                                                            1,
+                                                            (double) 0., (double) 1.,
+                                                            (double) 0., (double) 3000000.);
+
+  m_hist_HltResultSizes_Stream_DataScouting->GetXaxis()->SetBinLabel(1, "NoTag");
+  m_hist_HltResultSizes_Stream_DataScouting->SetCanExtend(TH1::kAllAxes);
+  regHistsTProfile.push_back(&m_hist_HltResultSizes_Stream_DataScouting);
 
   //     +-----------------------+
   // *-- | framework error codes |
   //     +-----------------------+
   uint32_t n_bins_error = hltonl::NUM_PSC_ERROR_CODES;
   m_hist_frameworkErrorCodes = new TH1F ("FrameworkErrorCodes",
-      "FrameworkErrorCodes;;entries", n_bins_error, 0.5, n_bins_error+0.5);
+                                         "FrameworkErrorCodes;;entries", 
+                                         n_bins_error, 0.5, n_bins_error+0.5);
 
-  if (m_hist_frameworkErrorCodes) {
-    for (hltonl::MapPscErrorCode::EnumMap::const_iterator map_it = m_mapPscError.begin(); map_it != m_mapPscError.end(); ++map_it) {
-      m_hist_frameworkErrorCodes->GetXaxis()->SetBinLabel( ((*map_it).second).second , (((*map_it).second).first).c_str() );
-    }
-    regHistsTH1F.push_back(&m_hist_frameworkErrorCodes);
+  for (const auto& m : m_mapPscError) {
+    m_hist_frameworkErrorCodes->GetXaxis()->SetBinLabel( m.second.second , (m.second.first).c_str() );
   }
-
+  regHistsTH1F.push_back(&m_hist_frameworkErrorCodes);
+  
   //     +-------------+
   // *-- | Stream Tags |
   //     +-------------+
   // *-- number of set stream tags
-  m_hist_numStreamTags       = new TH1F ((m_histProp_numStreamTags.value().title()).c_str(),
-      (m_histProp_numStreamTags.value().title() + ";tags;entries").c_str(),
-      m_histProp_numStreamTags.value().bins(),
-      m_histProp_numStreamTags.value().lowEdge(),
-      m_histProp_numStreamTags.value().highEdge());
-  if (m_hist_numStreamTags) {
-    m_hist_numStreamTags->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_numStreamTags);
-  }
+  m_hist_numStreamTags = new TH1F ((m_histProp_numStreamTags.value().title()).c_str(),
+                                   (m_histProp_numStreamTags.value().title() + ";tags;entries").c_str(),
+                                   m_histProp_numStreamTags.value().bins(),
+                                   m_histProp_numStreamTags.value().lowEdge(),
+                                   m_histProp_numStreamTags.value().highEdge());
+  regHistsTH1F.push_back(&m_hist_numStreamTags);
+
 
   // *-- stream tag types
   uint32_t n_bins_tag = eformat::helper::TagTypeDictionary.size() + 1;
-  m_hist_streamTagTypes      = new TH1F ("StreamTagTypes",
-      "StreamTagTypes;tags;entries", n_bins_tag, -0.5 , n_bins_tag-0.5);
-  if (m_hist_streamTagTypes) {
-    using eformat::helper::tagtype_to_string;
-    for(uint32_t i=0; i < n_bins_tag; i++ ) { // StreamTag labels
-      uint32_t bit = (1u << i);
-      m_hist_streamTagTypes->GetXaxis()->SetBinLabel( i+1, tagtype_to_string( static_cast<eformat::TagType>(bit) ).c_str() );
-    }
-    m_hist_streamTagTypes->GetXaxis()->SetBinLabel(n_bins_tag, "NoTag(=Rejected)");
-    regHistsTH1F.push_back(&m_hist_streamTagTypes);
+  m_hist_streamTagTypes = new TH1F ("StreamTagTypes",
+                                    "StreamTagTypes;tags;entries", n_bins_tag, -0.5 , n_bins_tag-0.5);
+  
+  using eformat::helper::tagtype_to_string;
+  for(uint32_t i=0; i < n_bins_tag; i++ ) { // StreamTag labels
+    uint32_t bit = (1u << i);
+    m_hist_streamTagTypes->GetXaxis()->SetBinLabel( i+1, tagtype_to_string( static_cast<eformat::TagType>(bit) ).c_str() );
   }
+  m_hist_streamTagTypes->GetXaxis()->SetBinLabel(n_bins_tag, "NoTag(=Rejected)");
+  regHistsTH1F.push_back(&m_hist_streamTagTypes);
+
 
   // *-- stream tag names
-  m_hist_streamTagNames      = new TH1F ((m_histProp_streamTagNames.value().title()).c_str(),
-      (m_histProp_streamTagNames.value().title() + ";tags;entries").c_str(),
-      m_histProp_streamTagNames.value().bins(),
-      m_histProp_streamTagNames.value().lowEdge(),
-      m_histProp_streamTagNames.value().highEdge());
-  if (m_hist_streamTagNames) {
-    if (m_histProp_streamTagNames.value().bins()>0) m_hist_streamTagNames->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
-    m_hist_streamTagNames->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_streamTagNames);
+  m_hist_streamTagNames = new TH1F ((m_histProp_streamTagNames.value().title()).c_str(),
+                                    (m_histProp_streamTagNames.value().title() + ";tags;entries").c_str(),
+                                    m_histProp_streamTagNames.value().bins(),
+                                    m_histProp_streamTagNames.value().lowEdge(),
+                                    m_histProp_streamTagNames.value().highEdge());
+  if (m_histProp_streamTagNames.value().bins()>0) {
+    m_hist_streamTagNames->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
   }
+  m_hist_streamTagNames->SetCanExtend(TH1::kAllAxes);
+  regHistsTH1F.push_back(&m_hist_streamTagNames);
 
   //     +------------------------+
   // *-- | Partial event building |
@@ -2104,119 +2106,98 @@ void HltEventLoopMgr::bookHistograms()
 
   // *-- number of ROBs for partial event building
   m_hist_num_partial_eb_robs = new TH1F ((m_histProp_num_partial_eb_robs.value().title()).c_str(),
-      (m_histProp_num_partial_eb_robs.value().title() + ";robs;entries").c_str(),
-      m_histProp_num_partial_eb_robs.value().bins(),
-      m_histProp_num_partial_eb_robs.value().lowEdge(),
-      m_histProp_num_partial_eb_robs.value().highEdge());
-  if (m_hist_num_partial_eb_robs) {
-    m_hist_num_partial_eb_robs->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_num_partial_eb_robs);
-  }
+                                         (m_histProp_num_partial_eb_robs.value().title() + ";robs;entries").c_str(),
+                                         m_histProp_num_partial_eb_robs.value().bins(),
+                                         m_histProp_num_partial_eb_robs.value().lowEdge(),
+                                         m_histProp_num_partial_eb_robs.value().highEdge());
+
+  regHistsTH1F.push_back(&m_hist_num_partial_eb_robs);
+
 
   // *-- number of SubDetectors used in partial event building
   m_hist_num_partial_eb_SubDetectors = new TH1F ("NumberSubDetectorsPartialEB",
-      "NumberSubDetectorsPartialEB;subdet;entries",
-      n_bins_partEBSubDet,-0.5,(float) n_bins_partEBSubDet-0.5);
-  if (m_hist_num_partial_eb_SubDetectors) {
-    m_hist_num_partial_eb_SubDetectors->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_num_partial_eb_SubDetectors);
-  }
+                                                 "NumberSubDetectorsPartialEB;subdet;entries",
+                                                 n_bins_partEBSubDet,-0.5,(float) n_bins_partEBSubDet-0.5);
+  regHistsTH1F.push_back(&m_hist_num_partial_eb_SubDetectors);
 
   // *-- SubDetectors used in partial event building: ROB list
   m_hist_partial_eb_SubDetectors_ROBs = new TH1F ("SubDetectorsPartialEBFromROBList",
-      "SubDetectorsPartialEBFromROBList;;entries",
-      n_bins_partEBSubDet,0.,(float) n_bins_partEBSubDet);
-  if (m_hist_partial_eb_SubDetectors_ROBs) {
-    uint32_t n_tmp_bin = 1;
-    for (const auto& sub : eformat::helper::SubDetectorDictionary) {
-      m_hist_partial_eb_SubDetectors_ROBs->GetXaxis()->SetBinLabel( n_tmp_bin, sub.second.c_str() );
-      n_tmp_bin++;
-    }
-    m_hist_partial_eb_SubDetectors_ROBs->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_partial_eb_SubDetectors_ROBs);
+                                                  "SubDetectorsPartialEBFromROBList;;entries",
+                                                  n_bins_partEBSubDet,0.,(float) n_bins_partEBSubDet);
+  uint32_t n_tmp_bin = 1;
+  for (const auto& sub : eformat::helper::SubDetectorDictionary) {
+    m_hist_partial_eb_SubDetectors_ROBs->GetXaxis()->SetBinLabel( n_tmp_bin++, sub.second.c_str() );
   }
+  regHistsTH1F.push_back(&m_hist_partial_eb_SubDetectors_ROBs);
 
   // *-- SubDetectors used in partial event building: SD list
   m_hist_partial_eb_SubDetectors_SDs = new TH1F ("SubDetectorsPartialEBFromSDList",
-      "SubDetectorsPartialEBFromSDList;;entries",
-      n_bins_partEBSubDet,0.,(float) n_bins_partEBSubDet);
-  if (m_hist_partial_eb_SubDetectors_SDs) {
-    uint32_t n_tmp_bin = 1;
-    for (const auto& sub: eformat::helper::SubDetectorDictionary) {
-      m_hist_partial_eb_SubDetectors_SDs->GetXaxis()->SetBinLabel( n_tmp_bin, sub.second.c_str() );
-      n_tmp_bin++;
-    }
-    m_hist_partial_eb_SubDetectors_SDs->SetCanExtend(TH1::kAllAxes);
-    regHistsTH1F.push_back(&m_hist_partial_eb_SubDetectors_SDs);
+                                                 "SubDetectorsPartialEBFromSDList;;entries",
+                                                 n_bins_partEBSubDet,0.,(float) n_bins_partEBSubDet);
+
+  n_tmp_bin = 1;
+  for (const auto& sub: eformat::helper::SubDetectorDictionary) {
+    m_hist_partial_eb_SubDetectors_SDs->GetXaxis()->SetBinLabel( n_tmp_bin++, sub.second.c_str() );
   }
+  regHistsTH1F.push_back(&m_hist_partial_eb_SubDetectors_SDs);
+
 
   //     +---------------+
   // *-- | HLT EDM Sizes |
   //     +---------------+
   // *-- EDM sizes for all events without a truncated HLT result
-  m_hist_HltEdmSizes_No_Truncation = new TProfile( (m_histProp_Hlt_Edm_Sizes.value().title()+":Events_Without_Truncation").c_str(),
-      (m_histProp_Hlt_Edm_Sizes.value().title()+":Events_Without_Truncation;;Average size in words").c_str(),
-      m_histProp_Hlt_Edm_Sizes.value().bins(),
-      (double) 0., (double) m_histProp_Hlt_Edm_Sizes.value().bins(),
-      (double) m_histProp_Hlt_Edm_Sizes.value().lowEdge(),
-      (double) m_histProp_Hlt_Edm_Sizes.value().highEdge());
-  if (m_hist_HltEdmSizes_No_Truncation) {
-    uint32_t n_tmp_bin = 1;
-    for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
-      m_hist_HltEdmSizes_No_Truncation->GetXaxis()->SetBinLabel( n_tmp_bin, col_name.c_str() );
-      n_tmp_bin++;
-    }
-    //    m_hist_HltEdmSizes_No_Truncation->SetBit(TProfile::kCanRebin);
-    regHistsTProfile.push_back(&m_hist_HltEdmSizes_No_Truncation);
+  m_hist_HltEdmSizes_No_Truncation = 
+    new TProfile( (m_histProp_Hlt_Edm_Sizes.value().title()+":Events_Without_Truncation").c_str(),
+                  (m_histProp_Hlt_Edm_Sizes.value().title()+":Events_Without_Truncation;;Average size in words").c_str(),
+                  m_histProp_Hlt_Edm_Sizes.value().bins(), 0., m_histProp_Hlt_Edm_Sizes.value().bins(),
+                  m_histProp_Hlt_Edm_Sizes.value().lowEdge(), m_histProp_Hlt_Edm_Sizes.value().highEdge());
+
+  n_tmp_bin = 1;
+  for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
+    m_hist_HltEdmSizes_No_Truncation->GetXaxis()->SetBinLabel( n_tmp_bin++, col_name.c_str() );
   }
+  regHistsTProfile.push_back(&m_hist_HltEdmSizes_No_Truncation);
+
   // *-- EDM sizes for all events with a truncated HLT result
-  m_hist_HltEdmSizes_With_Truncation = new TProfile( (m_histProp_Hlt_Edm_Sizes.value().title()+":Events_With_Truncation").c_str(),
-      (m_histProp_Hlt_Edm_Sizes.value().title()+":Events_With_Truncation;;Average size in words").c_str(),
-      m_histProp_Hlt_Edm_Sizes.value().bins(),
-      (double) 0., (double) m_histProp_Hlt_Edm_Sizes.value().bins(),
-      (double) m_histProp_Hlt_Edm_Sizes.value().lowEdge(),
-      (double) m_histProp_Hlt_Edm_Sizes.value().highEdge());
-  if (m_hist_HltEdmSizes_With_Truncation) {
-    uint32_t n_tmp_bin = 1;
-    for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
-      m_hist_HltEdmSizes_With_Truncation->GetXaxis()->SetBinLabel( n_tmp_bin, col_name.c_str() );
-      n_tmp_bin++;
-    }
-    //    m_hist_HltEdmSizes_With_Truncation->SetBit(TProfile::kCanRebin);
-    regHistsTProfile.push_back(&m_hist_HltEdmSizes_With_Truncation);
+  m_hist_HltEdmSizes_With_Truncation = 
+    new TProfile( (m_histProp_Hlt_Edm_Sizes.value().title()+":Events_With_Truncation").c_str(),
+                  (m_histProp_Hlt_Edm_Sizes.value().title()+":Events_With_Truncation;;Average size in words").c_str(),
+                  m_histProp_Hlt_Edm_Sizes.value().bins(), 0., m_histProp_Hlt_Edm_Sizes.value().bins(),
+                  m_histProp_Hlt_Edm_Sizes.value().lowEdge(), m_histProp_Hlt_Edm_Sizes.value().highEdge());
+
+  n_tmp_bin = 1;
+  for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
+    m_hist_HltEdmSizes_With_Truncation->GetXaxis()->SetBinLabel( n_tmp_bin++, col_name.c_str() );
   }
+  regHistsTProfile.push_back(&m_hist_HltEdmSizes_With_Truncation);
+
   // *-- Sizes of collections which were retained for events with a truncated HLT result
-  m_hist_HltEdmSizes_TruncatedResult_Retained_Collections = new TProfile( "Events_With_HLTResult_Truncation:Size_of_Not_Truncated_Collections",
-      "Events_With_HLTResult_Truncation:Size_of_Not_Truncated_Collections;;Average size in words",
-      m_histProp_Hlt_Edm_Sizes.value().bins(),
-      (double) 0., (double) m_histProp_Hlt_Edm_Sizes.value().bins(),
-      (double) m_histProp_Hlt_Edm_Sizes.value().lowEdge(),
-      (double) m_histProp_Hlt_Edm_Sizes.value().highEdge());
-  if (m_hist_HltEdmSizes_TruncatedResult_Retained_Collections) {
-    uint32_t n_tmp_bin = 1;
-    for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
-        m_hist_HltEdmSizes_TruncatedResult_Retained_Collections->GetXaxis()->SetBinLabel( n_tmp_bin, col_name.c_str() );
-      n_tmp_bin++;
-    }
-    //    m_hist_HltEdmSizes_TruncatedResult_Retained_Collections->SetBit(TProfile::kCanRebin);
-    regHistsTProfile.push_back(&m_hist_HltEdmSizes_TruncatedResult_Retained_Collections);
+  m_hist_HltEdmSizes_TruncatedResult_Retained_Collections = 
+    new TProfile( "Events_With_HLTResult_Truncation:Size_of_Not_Truncated_Collections",
+                  "Events_With_HLTResult_Truncation:Size_of_Not_Truncated_Collections;;Average size in words",
+                  m_histProp_Hlt_Edm_Sizes.value().bins(), 0., m_histProp_Hlt_Edm_Sizes.value().bins(),
+                  m_histProp_Hlt_Edm_Sizes.value().lowEdge(), m_histProp_Hlt_Edm_Sizes.value().highEdge());
+
+  n_tmp_bin = 1;
+  for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
+    m_hist_HltEdmSizes_TruncatedResult_Retained_Collections->GetXaxis()->SetBinLabel( n_tmp_bin++, col_name.c_str() );
   }
+  regHistsTProfile.push_back(&m_hist_HltEdmSizes_TruncatedResult_Retained_Collections);
+
   // *-- Sizes of collections which were truncated for events with a truncated HLT result
-  m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections = new TProfile( "Events_With_HLTResult_Truncation:Size_of_Truncated_Collections",
-      "Events_With_HLTResult_Truncation:Size_of_Truncated_Collections;;Average size in words",
-      m_histProp_Hlt_Edm_Sizes.value().bins(),
-      (double) 0., (double) m_histProp_Hlt_Edm_Sizes.value().bins(),
-      (double) m_histProp_Hlt_Edm_Sizes.value().lowEdge(),
-      (double) m_histProp_Hlt_Edm_Sizes.value().highEdge());
-  if (m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections) {
-    uint32_t n_tmp_bin = 1;
-    for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
-      m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections->GetXaxis()->SetBinLabel( n_tmp_bin, col_name.c_str() );
-      n_tmp_bin++;
-    }
-    //    m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections->SetBit(TProfile::kCanRebin);
-    regHistsTProfile.push_back(&m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections);
+  m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections = 
+    new TProfile( "Events_With_HLTResult_Truncation:Size_of_Truncated_Collections",
+                  "Events_With_HLTResult_Truncation:Size_of_Truncated_Collections;;Average size in words",
+                  m_histProp_Hlt_Edm_Sizes.value().bins(), 0., m_histProp_Hlt_Edm_Sizes.value().bins(),
+                  m_histProp_Hlt_Edm_Sizes.value().lowEdge(),
+                  m_histProp_Hlt_Edm_Sizes.value().highEdge());
+
+  n_tmp_bin = 1;
+  for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
+    m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections->GetXaxis()->SetBinLabel( n_tmp_bin++, col_name.c_str() );
   }
+  regHistsTProfile.push_back(&m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections);
+
   //     +---------------------+
   // *-- | register histograms |
   //     +---------------------+
@@ -2298,10 +2279,13 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
     uint16_t hltrob_moduleID = eformat::helper::SourceIdentifier( hltrob.rob_source_id() ).module_id();
 
     // *-- HLT result size plots
-    if ((m_hist_Hlt_result_size) && (hltrob_moduleID == 0)) lock_histogram_operation<TH1F>(m_hist_Hlt_result_size)->Fill( (float) hltrob.fragment_size_word() ) ;
+    if (hltrob_moduleID == 0) {
+      lock_histogram_operation<TH1F>(m_hist_Hlt_result_size)->Fill( (float) hltrob.fragment_size_word() ) ;
+    }
 
-    if ( (m_hist_Hlt_result_size_physics) || (m_hist_Hlt_result_size_express) || (m_hist_Hlt_result_size_DataScouting) ||
-         (m_hist_HltResultSizes_Stream_physics) || (m_hist_HltResultSizes_Stream_DataScouting) ) {
+    int xbins_physics = m_hist_HltResultSizes_Stream_physics->GetNbinsX();
+    int xbins_DS = m_hist_HltResultSizes_Stream_DataScouting->GetNbinsX();
+    {
       scoped_lock_histogram lock;
       for (const eformat::read::ROBFragment& rob : hlt_result.hltResult_robs) {
         uint16_t moduleID = eformat::helper::SourceIdentifier( rob.rob_source_id() ).module_id();
@@ -2309,29 +2293,34 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
           // only normal HLT Results
           if (moduleID == 0) {
             if (st.type == "physics") {
-              if ((st.name == "Main") && (m_hist_Hlt_result_size_physics)) m_hist_Hlt_result_size_physics->Fill( (float) rob.fragment_size_word() ) ;
-              if (m_hist_HltResultSizes_Stream_physics) m_hist_HltResultSizes_Stream_physics->Fill( st.name.c_str(), (double) rob.fragment_size_word() ) ;
+              if (st.name == "Main") m_hist_Hlt_result_size_physics->Fill( (float) rob.fragment_size_word() ) ;
+              m_hist_HltResultSizes_Stream_physics->Fill( st.name.c_str(), (double) rob.fragment_size_word() ) ;
             }
             if (st.type == "express") {
-              if (m_hist_Hlt_result_size_express) m_hist_Hlt_result_size_express->Fill( (float) rob.fragment_size_word() ) ;
+              m_hist_Hlt_result_size_express->Fill( (float) rob.fragment_size_word() ) ;
             }
           }
           // DataScouting HLT ROBs
           if (moduleID != 0) {
             if ((st.type == "calibration") && ((st.name).find("DataScouting_") != std::string::npos)) {
-              if (m_hist_Hlt_result_size_DataScouting) m_hist_Hlt_result_size_DataScouting->Fill( (float) rob.fragment_size_word() ) ;
-              if (m_hist_HltResultSizes_Stream_DataScouting) m_hist_HltResultSizes_Stream_DataScouting->Fill( (st.name).c_str(), (double) rob.fragment_size_word() ) ;
+              m_hist_Hlt_result_size_DataScouting->Fill( (float) rob.fragment_size_word() ) ;
+              m_hist_HltResultSizes_Stream_DataScouting->Fill( st.name.c_str(), (double) rob.fragment_size_word() ) ;
             }
           }
         }
+    }
+
+      // deflate bins for profile histograms if needed
+      if ( m_hist_HltResultSizes_Stream_physics->GetNbinsX()!=xbins_physics ) {
+        m_hist_HltResultSizes_Stream_physics->LabelsDeflate("X");
       }
-      // deflate bins for profile histograms
-      m_hist_HltResultSizes_Stream_physics->LabelsDeflate("X");
-      m_hist_HltResultSizes_Stream_DataScouting->LabelsDeflate("X");
+      if ( m_hist_HltResultSizes_Stream_DataScouting->GetNbinsX()!=xbins_DS ) {
+        m_hist_HltResultSizes_Stream_DataScouting->LabelsDeflate("X");
+      }
     }
 
     // *-- HLT result status codes
-    if ((hltrob.nstatus() > 1) && (m_hist_Hlt_result_status) && (hltrob_moduleID == 0)) {
+    if ((hltrob.nstatus() > 1) && (hltrob_moduleID == 0)) {
       scoped_lock_histogram lock;
       const uint32_t* it;
       hltrob.status(it);
@@ -2342,7 +2331,7 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
   //     +-----------------------+
   // *-- | framework error codes |
   //     +-----------------------+
-  if ((hlt_result.psc_errors.size() > 0) &&  (m_hist_frameworkErrorCodes))  {
+  if (hlt_result.psc_errors.size() > 0)  {
     scoped_lock_histogram lock;
     for (uint32_t ec : hlt_result.psc_errors) {
       m_hist_frameworkErrorCodes->Fill( (float) m_mapPscError.codeToHash( (hltonl::PSCErrorCode) ec) );
@@ -2353,33 +2342,32 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
   // *-- | Stream Tags |
   //     +-------------+
   //     number of set stream tags
-  if (m_hist_numStreamTags) lock_histogram_operation<TH1F>(m_hist_numStreamTags)->Fill( (float) hlt_result.stream_tag.size() );
+  m_hist_numStreamTags->Fill( (float) hlt_result.stream_tag.size() );
 
   //     stream tag types
-  if (m_hist_streamTagTypes) {
-    scoped_lock_histogram lock;
-    if(hlt_result.stream_tag.empty())
-      m_hist_streamTagTypes->Fill( (float) m_hist_streamTagTypes->GetXaxis()->GetNbins() - 1. );
-    using namespace eformat::helper;
-    for(int32_t i=0; i < m_hist_streamTagTypes->GetXaxis()->GetNbins(); i++) {
-      uint32_t bit = (1u<<i);
-      if( contains_type(hlt_result.stream_tag, static_cast<eformat::TagType>(bit)) ) {
-        m_hist_streamTagTypes->Fill( (float) i);
-      }
+  if(hlt_result.stream_tag.empty()) {
+    m_hist_streamTagTypes->Fill( (float) m_hist_streamTagTypes->GetXaxis()->GetNbins() - 1. );
+  }
+  using namespace eformat::helper;
+  for(int32_t i=0; i < m_hist_streamTagTypes->GetXaxis()->GetNbins(); i++) {
+    uint32_t bit = (1u<<i);
+    if( contains_type(hlt_result.stream_tag, static_cast<eformat::TagType>(bit)) ) {
+      m_hist_streamTagTypes->Fill( (float) i);
     }
   }
 
   //     stream tag names
-  if (m_hist_streamTagNames) {
-    scoped_lock_histogram lock;
-    if(hlt_result.stream_tag.empty()) {
-      m_hist_streamTagNames->Fill(0.);
-    } else {
-      for(const eformat::helper::StreamTag& st: hlt_result.stream_tag) {
-        m_hist_streamTagNames->Fill(st.name.c_str(),1.);
-      }
+  if(hlt_result.stream_tag.empty()) {
+    m_hist_streamTagNames->Fill(0.);
+  } else {
+    int xbins = m_hist_streamTagNames->GetNbinsX();
+    scoped_lock_histogram lock;      
+    for(const eformat::helper::StreamTag& st: hlt_result.stream_tag) {
+      m_hist_streamTagNames->Fill(st.name.c_str(),1.);
     }
-    m_hist_streamTagNames->LabelsDeflate("X");
+    // Remove extra empty bins if needed
+    if ( m_hist_streamTagNames->GetNbinsX()!=xbins )
+      m_hist_streamTagNames->LabelsDeflate("X");
   }
 
   //     +------------------------+
@@ -2397,27 +2385,19 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
   }
 
   // *-- number of ROBs for partial event building
-  if (m_hist_num_partial_eb_robs) lock_histogram_operation<TH1F>(m_hist_num_partial_eb_robs)->Fill( (float) num_robs);
+  m_hist_num_partial_eb_robs->Fill( (float) num_robs);
 
   // *-- number of SubDetectors for partial event building
-  if (m_hist_num_partial_eb_SubDetectors) lock_histogram_operation<TH1F>(m_hist_num_partial_eb_SubDetectors)->Fill( (float) num_sd);
+  m_hist_num_partial_eb_SubDetectors->Fill( (float) num_sd);
 
   // *-- SubDetectors for partial event building in ROB list
-  if (m_hist_partial_eb_SubDetectors_ROBs) {
-    scoped_lock_histogram lock;
-    for(uint32_t rob : peb_robs) {
-      m_hist_partial_eb_SubDetectors_ROBs->Fill(eformat::helper::SourceIdentifier(rob).human_detector().c_str(),1.);
-      m_hist_partial_eb_SubDetectors_ROBs->LabelsDeflate("X");
-    }
-  }
+  for(uint32_t rob : peb_robs) {
+    m_hist_partial_eb_SubDetectors_ROBs->Fill(eformat::helper::SourceIdentifier(rob).human_detector().c_str(),1.);
+  }  
 
   // *-- SubDetectors for partial event building in SD list
-  if (m_hist_partial_eb_SubDetectors_SDs) {
-    scoped_lock_histogram lock;
-    for (const eformat::SubDetector& sd : peb_sd) {
-      m_hist_partial_eb_SubDetectors_SDs->Fill(eformat::helper::SourceIdentifier(sd,0).human_detector().c_str(),1.);
-      m_hist_partial_eb_SubDetectors_SDs->LabelsDeflate("X");
-    }
+  for (const eformat::SubDetector& sd : peb_sd) {
+    m_hist_partial_eb_SubDetectors_SDs->Fill(eformat::helper::SourceIdentifier(sd,0).human_detector().c_str(),1.);
   }
 
   return;
@@ -2437,9 +2417,6 @@ StatusCode
 HltEventLoopMgr::callOnAlgs(const function<StatusCode(IAlgorithm&)> & func,
                             const string & fname, bool failureIsError)
 {
-  msgStream() << MSG::DEBUG << ST_WHERE
-              << "calling " << fname << "() on all algorithms" << endmsg;
-
   StatusCode sc;
   for(auto alg : m_topAlgList)
   {

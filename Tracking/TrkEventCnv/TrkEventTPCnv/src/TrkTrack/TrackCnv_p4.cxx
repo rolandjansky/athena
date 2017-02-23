@@ -10,6 +10,16 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkEventTPCnv/TrkTrack/TrackCnv_p4.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+
+namespace {
+   unsigned int keepTSOS(const Trk::TrackStateOnSurface *tsos) {
+      return (tsos &&
+		   (   !tsos->type(Trk::TrackStateOnSurface::PartialPersistification)
+		    || tsos->type(Trk::TrackStateOnSurface::PersistifyTrackParameters)
+		    || tsos->type(Trk::TrackStateOnSurface::PersistifyMeasurement)) );
+   }
+}
 
 //-----------------------------------------------------------------------------
 // Persistent to transient
@@ -59,7 +69,7 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
     for (;i<32;++i)       persObj->m_patternRecognition    |= ((transObj->info().m_patternRecognition[i]) << i);
     for (i=32;i<size;++i) persObj->m_extPatternRecognition |= ((transObj->info().m_patternRecognition[i]) << (i-32));
   }
-  
+
   assert(transObj->fitQuality());
   if (transObj->m_fitQuality){
     persObj->m_chiSquared = transObj->m_fitQuality->chiSquared();
@@ -67,5 +77,32 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
   } else {
     log<<MSG::WARNING<<"No FitQuality on track at ["<<transObj<<"]"<<" with info="<<transObj->info().dumpInfo()<<endmsg;
   }
-  m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector, &persObj->m_trackState, log );
+
+  if (transObj->m_trackStateVector) {
+  unsigned int n_elms=0;
+  {
+    for (const Trk::TrackStateOnSurface *tsos: *(transObj->m_trackStateVector) ) {
+      if (keepTSOS(tsos)) ++n_elms;
+    }
+  }
+
+  if (n_elms != transObj->m_trackStateVector->size()) {
+    DataVector<const Trk::TrackStateOnSurface> pers_tsos(SG::VIEW_ELEMENTS);
+    pers_tsos.reserve(n_elms);
+    {
+      for (const Trk::TrackStateOnSurface *tsos: *(transObj->m_trackStateVector) ) {
+        if (keepTSOS(tsos)) {
+          pers_tsos.push_back( const_cast<Trk::TrackStateOnSurface *>(tsos) );
+        }
+      }
+    }
+    m_trackStateVectorCnv.transToPers( &pers_tsos, &persObj->m_trackState, log );
+  }
+  else {
+    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector, &persObj->m_trackState, log );
+  }
+  }
+  else {
+    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector, &persObj->m_trackState, log );
+  }
 }

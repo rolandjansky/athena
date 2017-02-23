@@ -156,15 +156,16 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   // Retrieve xAOD b-jet object 
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
-  if(getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) {
+ 
+  if((getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) && trigBTaggingContainer) {
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endmsg;
     return HLT::OK;
   }
   if(msgLvl() <= MSG::DEBUG && trigBTaggingContainer != 0) {
     msg() << MSG::DEBUG << "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" << endmsg;
-  }
-  if(trigBTaggingContainer->size() > 1) {
+   }
+  if(trigBTaggingContainer != 0 && trigBTaggingContainer->size() > 1) {
     if(msgLvl() <= MSG::ERROR)
       msg() << MSG::ERROR << "More than one BTagging object to analyse: this should never happen" << endmsg;
     return HLT::NAV_ERROR;

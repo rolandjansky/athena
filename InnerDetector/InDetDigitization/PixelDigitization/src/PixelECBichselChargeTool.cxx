@@ -30,19 +30,19 @@ using namespace InDetDD;
 
 // Constructor with parameters:
 PixelECBichselChargeTool::PixelECBichselChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
-	SubChargesTool(type,name,parent),
-	m_numberOfSteps(50),
-	m_numberOfCharges(10),
-	m_diffusionConstant(.007),
+  SubChargesTool(type,name,parent),
+  m_numberOfSteps(50),
+  m_numberOfCharges(10),
+  m_diffusionConstant(.007),
   m_doBichsel(false),
   //m_doBichselMomentumCut(1000.),
   m_doBichselBetaGammaCut(0.1),
   m_doPU(true),
   m_BichselSimTool("BichselSimTool")
 { 
-	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelEC");
-	declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelEC");
-	declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for PixelEC");
+  declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelEC");
+  declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelEC");
+  declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for PixelEC");
   declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
   //declareProperty("doBichselMomentumCut", m_doBichselMomentumCut, "minimum MOMENTUM for particle to be re-simulated through Bichsel Model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
@@ -53,59 +53,44 @@ PixelECBichselChargeTool::PixelECBichselChargeTool(const std::string& type, cons
 class DetCondCFloat;
 
 // Destructor:
-PixelECBichselChargeTool::~PixelECBichselChargeTool()
-{
-}
+PixelECBichselChargeTool::~PixelECBichselChargeTool() { }
 
 //----------------------------------------------------------------------
 // Initialize
 //----------------------------------------------------------------------
 StatusCode PixelECBichselChargeTool::initialize() {
-  StatusCode sc = SubChargesTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelECBichselChargeTool::initialize() failed");
-    return sc ;
-  }
 
+  CHECK(SubChargesTool::initialize());
   ATH_MSG_INFO("You are using PixelECBichselChargeTool, not PixelECChargeTool");
 
   if(m_doBichsel){
     ATH_MSG_INFO("Bichsel Digitization is turned ON in PixelECBichselChargeTool!");
-
-    sc = m_BichselSimTool.retrieve();
-    if(sc.isFailure()){
-      ATH_MSG_FATAL("Fail to retrieve BichselSimTool in PixelECBichselChargeTool!");
-      return sc;
-    }
+    CHECK(m_BichselSimTool.retrieve());
   }
   else{
     ATH_MSG_INFO("Bichsel Digitization is turned OFF in PixelECBichselChargeTool!");
   }
 
-  ATH_MSG_DEBUG ( "PixelECBichselChargeTool::initialize()");
-  return sc ;
+  ATH_MSG_DEBUG("PixelECBichselChargeTool::initialize()");
+	return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
 StatusCode PixelECBichselChargeTool::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelECBichselChargeTool::finalize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "PixelECBichselChargeTool::finalize()");
-  return sc ;
+	return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // charge
 //----------------------------------------------------------------------
-StatusCode PixelECBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
-		  SiChargedDiodeCollection& chargedDiodes,
-		  const InDetDD::SiDetectorElement &Module)
-{
+StatusCode PixelECBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
+
+  if (!Module.isEndcap()) { return StatusCode::SUCCESS; }
+  const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
+  if (p_design->getReadoutTechnology()!=InDetDD::PixelModuleDesign::FEI3) { return StatusCode::SUCCESS; }
+
   ATH_MSG_DEBUG("Applying PixelEC charge processor");
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
   const HepMC::GenParticle* genPart= McLink.cptr(); 

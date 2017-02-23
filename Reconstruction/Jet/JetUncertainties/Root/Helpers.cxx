@@ -135,6 +135,7 @@ TFile* readRootFile(const TString& fileName, const TString& path)
     TFile* rootFile = NULL;
     
     TString pathToGet = findFilePath(fileName,path);
+    std::cout << "Looking for file " << fileName << " in path " << path << std::endl;
 
     if (pathToGet != "")
         rootFile = new TFile(pathToGet,"READ");

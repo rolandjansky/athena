@@ -3422,6 +3422,39 @@ ps_Jpsi_list = [
 ps_ftk_list = [
 ]
 
+ps_Bphys_list = [
+    '2mu4_bBmumux_BcmumuDsloose',
+    '2mu4_bBmumux_BcmumuDsloose_noL2',
+    'mu6_mu4_bBmumux_BcmumuDsloose_noL2',
+    '2mu6_bBmumux_BcmumuDsloose_noL2',
+    'mu10_mu6_bBmumux_BcmumuDsloose_noL2',
+    '2mu10_bBmumux_BcmumuDsloose_noL2',
+    '2mu4_bBmumux_BcmumuDsloose_noL2_L12MU4-B',
+    '2mu4_bBmumux_BcmumuDsloose_noL2_L12MU4-BO',
+    'mu6_mu4_bBmumux_BcmumuDsloose_noL2_L12MU4-B',
+    'mu6_mu4_bBmumux_BcmumuDsloose_noL2_L1MU6MU4-BO',
+    '2mu6_bBmumux_BcmumuDsloose_noL2_L12MU6-B',
+    '2mu6_bBmumux_BcmumuDsloose_noL2_L12MU6-BO',
+    'mu10_mu6_bBmumux_BcmumuDsloose_noL2_L1LFV-MU',
+    '2mu4_bBmumux_BcmumuDsloose_noL2_L1BPH-2M8-2MU4',
+    '2mu4_bBmumux_BcmumuDsloose_noL2_L1BPH-2M8-2MU4_BPH-0DR15-2MU4',
+    '2mu4_bBmumux_BcmumuDsloose_noL2_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
+    'mu6_mu4_bBmumux_BcmumuDsloose_noL2_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
+    'mu6_mu4_bBmumux_BcmumuDsloose_noL2_L1BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4',
+    '2mu6_bBmumux_BcmumuDsloose_noL2_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
+    '2mu4_bBmumux_BcmumuDsloose_L1BPH-2M8-2MU4_BPH-0DR15-2MU4',
+    '2mu4_bBmumux_BcmumuDsloose_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
+    '2mu4_bBmumux_BcmumuDsloose_L1BPH-2M9-2MU4_BPH-0DR15-2MU4',
+    'mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
+    '2mu6_bBmumux_BcmumuDsloose_L1LFV-MU6',
+    '2mu4_bBmumux_LbmumuLambda',
+    'mu6_mu4_bBmumux_LbmumuLambda',
+    '2mu6_bBmumux_LbmumuLambda',
+    '2mu6_bBmumux_LbmumuLambda_L1LFV-MU6',
+    '2mu4_bBmumux_LbmumuLambda_L1BPH-2M9-2MU4_BPH-0DR15-2MU4',
+    'mu6_mu4_bBmumux_LbmumuLambda_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
+    '2mu6_bBmumux_LbmumuLambda_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
+]
 
 if TriggerFlags.doFTK():
     ps_ftk_list = [
@@ -3547,7 +3580,7 @@ Prescales.HLTPrescales_loose_mc_prescale.update(dict(map(None,chain_list,len(cha
 Prescales.L1Prescales_tightperf_mc_prescale= deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tightperf_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
 
-chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
+chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
 if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
 
@@ -3558,7 +3591,7 @@ Prescales.HLTPrescales_tightperf_mc_prescale.update(dict(map(None,chain_list,len
 ######################################################
 Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
-chain_list=ps_perform_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
+chain_list=ps_perform_list+ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
 
 #Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
 #chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_ftk_list+ps_perform_list

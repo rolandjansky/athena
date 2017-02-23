@@ -71,34 +71,34 @@ class TrigTileLookForMuAlg : public HLT::AllTEAlgo{
   TileCellCollection::const_iterator m_itT;
 
   /** Eta for D cells */
-  double eta2[13]; 
+  double m_eta2[13]; 
 
   /** Eta for BC cells */
-  double eta1[30];
+  double m_eta1[30];
 
   /** Eta for A cells */
-  double eta0[30]; 
+  double m_eta0[30]; 
 
   /** DeltaEta */
-  double deta2;
-  double deta1;
+  double m_deta2;
+  double m_deta1;
 
   /** Lower energy thresholds */
-  double th0d;
-  double th1d;
-  double th2d;
-  double thitcd;
+  double m_th0d;
+  double m_th1d;
+  double m_th2d;
+  double m_thitcd;
 
   /** Higher energy thresholds */
-  std::vector<double> thres2;
-  std::vector<double> thres1;
-  std::vector<double> thres0;
+  std::vector<double> m_thres2;
+  std::vector<double> m_thres1;
+  std::vector<double> m_thres0;
 
   /** Pattern search from 3rd to 2nd layer */
-  std::vector<int> cell32;
+  std::vector<int> m_cell32;
 
   /** Pattern search from 2nd to 1st layer */
-  std::vector<int> cell21; 
+  std::vector<int> m_cell21; 
 
   /** Properties */
   bool m_LooseSelection;

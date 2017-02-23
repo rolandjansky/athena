@@ -17,9 +17,13 @@
 #include "AsgTools/ToolHandle.h"
 
 #include "MuonTPTools/IIDTrackIsolationDecoratorTool.h"
+
+#ifndef XAOD_ANALYSIS
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
 #include "RecoToolInterfaces/IsolationCommon.h"
+#endif
+
 #include "xAODPrimitives/IsolationType.h"
 
 
@@ -32,8 +36,10 @@ public:
     virtual StatusCode      initialize  ();
     StatusCode                  decorate (const xAOD::IParticle* part) const;
 protected:
+#ifndef XAOD_ANALYSIS
     ToolHandle<xAOD::ITrackIsolationTool>                        m_track_iso_tool;
     ToolHandle<xAOD::ICaloTopoClusterIsolationTool>     m_calo_iso_tool;
+#endif
     StatusCode    recompute_and_decorate (const xAOD::IParticle* part) const;
 
     std::vector<xAOD::Iso::IsolationType> m_trk_isos;
@@ -51,8 +57,11 @@ protected:
     SG::AuxElement::ConstAccessor<float> m_ptvarcone30_acc;
     SG::AuxElement::ConstAccessor<float> m_topoetcone40_acc;
     SG::AuxElement::ConstAccessor<float> m_topoetcone20_acc;
+
+#ifndef XAOD_ANALYSIS
     xAOD::TrackCorrection                m_trk_corr;
     xAOD::CaloCorrection                 m_calo_corr;
+#endif
 };
 
 #endif /* IDTRACKISOLATIONDECORATORTOOL_H_ */

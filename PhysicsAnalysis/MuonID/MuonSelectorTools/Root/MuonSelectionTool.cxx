@@ -94,7 +94,7 @@ namespace CP {
     ATH_MSG_INFO( "Maximum eta: " << m_maxEta );
     ATH_MSG_INFO( "Muon quality: " << m_quality );
     if ( m_toroidOff ) ATH_MSG_INFO( "!! CONFIGURED FOR TOROID-OFF COLLISIONS !!" );
-    if ( m_TrtCutOff ) ATH_MSG_WARNING( "!! SWITCHING TRT REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
+    //if ( m_TrtCutOff ) ATH_MSG_WARNING( "!! SWITCHING TRT REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if ( m_SctCutOff ) ATH_MSG_WARNING( "!! SWITCHING SCT REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if ( m_PixCutOff ) ATH_MSG_WARNING( "!! SWITCHING PIXEL REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if ( m_SiHolesCutOff ) ATH_MSG_WARNING( "!! SWITCHING SILICON HOLES REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
@@ -500,6 +500,7 @@ namespace CP {
   }
   
   bool MuonSelectionTool::isBadMuon( const xAOD::Muon& mu ) const {
+   
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
     // ::
     const xAOD::TrackParticle*       idtrack = mu.trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
@@ -516,10 +517,15 @@ namespace CP {
       double qOverP_CB = cbtrack->qOverP();
       double qOverPerr_CB = sqrt( cbtrack->definingParametersCovMatrix()(4,4) );
       // ::
-      double IdCbRatio = fabs( (qOverPerr_ID/qOverP_ID) / (qOverPerr_CB/qOverP_CB) );
-      double MeCbRatio = fabs( (qOverPerr_ME/qOverP_ME) / (qOverPerr_CB/qOverP_CB) );
-      IsBadMuon = ( IdCbRatio<0.8 || MeCbRatio<0.8 );
-      // ::
+      if( m_quality==4 ) { 
+	// recipe for high-pt selection
+	IsBadMuon = ( qOverPerr_ME*1000. > sqrt( pow(0.07*fabs(qOverP_ME*1000),2) + pow(0.0005*sin(metrack->theta()),2) ) );
+      } else {
+	// recipe for other WP
+	double IdCbRatio = fabs( (qOverPerr_ID/qOverP_ID) / (qOverPerr_CB/qOverP_CB) );
+	double MeCbRatio = fabs( (qOverPerr_ME/qOverP_ME) / (qOverPerr_CB/qOverP_CB) );
+	IsBadMuon = ( IdCbRatio<0.8 || MeCbRatio<0.8 );
+      }	
     } else {
       return true;
     }
@@ -529,11 +535,11 @@ namespace CP {
   bool MuonSelectionTool::passedHighPtCuts( const xAOD::Muon& mu ) const {
     using namespace xAOD;
     
-    //::: Request combined muons
+    // :: Request combined muons
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
     if( mu.author()==xAOD::Muon::STACO ) return false;
 
-    // rejection muons with out-of-bounds hits                                                                                                                                     
+    // :: Reject muons with out-of-bounds hits
     uint8_t m_combinedTrackOutBoundsPrecisionHits;
     if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
       ATH_MSG_VERBOSE("getQuality - # of out-of-bounds hits missing in combined muon! Aborting.");
@@ -543,14 +549,27 @@ namespace CP {
       return false;
     }
 
-    //::: Require 3 station muons
-    uint8_t nprecisionLayers(0), nGoodPrecLayers(0);
-    if( !mu.summaryValue( nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers ) ||
-	!mu.summaryValue( nGoodPrecLayers, xAOD::numberOfGoodPrecisionLayers ) 
-      ) {
-      ATH_MSG_VERBOSE( "passedHighPtCuts - numberOfPrecisionLayers missing in muon! Aborting." );
+    // :: Access MS hits information 
+    uint8_t nprecisionLayers(0), nGoodPrecLayers(0), innerSmallHits(0), innerLargeHits(0), middleSmallHits(0), middleLargeHits(0), 
+      outerSmallHits(0), outerLargeHits(0), extendedSmallHits(0), extendedLargeHits(0), extendedSmallHoles(0), isSmallGoodSectors(0);
+    if ( !mu.summaryValue( nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers ) || 
+	 !mu.summaryValue( nGoodPrecLayers, xAOD::numberOfGoodPrecisionLayers ) ||
+	 !mu.summaryValue(innerSmallHits, xAOD::MuonSummaryType::innerSmallHits) ||
+	 !mu.summaryValue(innerLargeHits, xAOD::MuonSummaryType::innerLargeHits) ||
+	 !mu.summaryValue(middleSmallHits, xAOD::MuonSummaryType::middleSmallHits) ||
+	 !mu.summaryValue(middleLargeHits, xAOD::MuonSummaryType::middleLargeHits) ||
+	 !mu.summaryValue(outerSmallHits, xAOD::MuonSummaryType::outerSmallHits) ||
+	 !mu.summaryValue(outerLargeHits, xAOD::MuonSummaryType::outerLargeHits) ||
+	 !mu.summaryValue(extendedSmallHits, xAOD::MuonSummaryType::extendedSmallHits) ||
+	 !mu.summaryValue(extendedLargeHits, xAOD::MuonSummaryType::extendedLargeHits) ||
+	 !mu.summaryValue(extendedSmallHoles, xAOD::MuonSummaryType::extendedSmallHoles) ||
+	 !mu.summaryValue(isSmallGoodSectors, xAOD::MuonSummaryType::isSmallGoodSectors)
+       ){
+      ATH_MSG_VERBOSE("getQuality - MS hits information missing!!! Failing High-pT selection...");
       return false;
     }
+
+    //::: Require 3 (good) station muons
     if( nprecisionLayers < 3 ) return false;
     if( nGoodPrecLayers < 3 ) return false;
 
@@ -560,6 +579,7 @@ namespace CP {
     // The vetoes are applied based on the MS track if available. If the MS track is not available, 
     // the vetoes are applied according to the combined track, and runtime warning is printed to
     // the command line.
+    const xAOD::TrackParticle* CB_track = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
     const xAOD::TrackParticle* MS_track = NULL;
     if( mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "muonSpectrometerTrackParticleLink" )
 	&& ( mu.muonSpectrometerTrackParticleLink() ).isValid() 
@@ -569,13 +589,15 @@ namespace CP {
       MS_track = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
     }
     
-    if( MS_track != NULL ) {
+    if( MS_track != NULL && CB_track !=NULL ) {
 
       float etaMS = MS_track->eta();
       float phiMS = MS_track->phi();
-      
+      float etaCB = CB_track->eta();
+
       //::: Barrel/Endcap overlap region
       if( 1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1 ) return false;
+      if( 1.01 < fabs( etaCB ) && fabs( etaCB ) < 1.1 ) return false;
 
       //::: BIS78
       float BIS78_eta[ 2 ] = { 1.05, 1.3 };
@@ -601,10 +623,21 @@ namespace CP {
 	  // Muon falls in the BEE eta-phi region: asking for 4 good precision layers
 	  if( nGoodPrecLayers < 4 ) return false;
 	}  
-      } 
+      }
+      if( fabs(etaCB)>1.4 ) {
+	// Veto residual 3-station muons in BEE region due to MS eta/phi resolution effects
+	if( nGoodPrecLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false;
+      }
     } else {
-      ATH_MSG_VERBOSE( "passedHighPtCuts - MS track missing in muon! Aborting." );
+      ATH_MSG_VERBOSE( "passedHighPtCuts - MS or CB track missing in muon! Aborting." );
       return false;
+    }
+
+    // Remove 3-station muons with small-large sectors overlap
+    if( isSmallGoodSectors ) {
+      if( !(innerSmallHits > 2 && middleSmallHits > 2 && (outerSmallHits>2||extendedSmallHits>2)) ) return false;
+    } else {
+      if( !(innerLargeHits > 2 && middleLargeHits > 2 && (outerLargeHits>2||extendedLargeHits>2)) ) return false;
     }
     
     //::: Apply 1/p significance cut
@@ -623,7 +656,7 @@ namespace CP {
 	  ATH_MSG_FATAL( "No MomentumCorrections decorations available! MuonSelectionTool can not work!!! " <<
 			 "Please apply MuonMomentumCorrections before feeding the muon to MuonSelectorTools." );
 	  throw std::runtime_error( "No MomentumCorrections decorations available, throwing a runtime error" );
-	  return xAOD::Muon::VeryLoose;
+	  return false;
 	}
       } else {
 	mePt = metrack->pt();
@@ -650,9 +683,9 @@ namespace CP {
       else return true;
     }
     // ::
-    if( mu.muonType() == xAOD::Muon::CaloTagged && fabs(mu.eta())<0.15 ) return true; 
+    if( mu.muonType() == xAOD::Muon::CaloTagged && fabs(mu.eta())<0.105 ) return true;
     // ::
-    if( mu.muonType() == xAOD::Muon::SegmentTagged && fabs(mu.eta())<0.15 ) return true;
+    if( mu.muonType() == xAOD::Muon::SegmentTagged && fabs(mu.eta())<0.105 ) return true;
     // ::
     if( mu.author()==xAOD::Muon::MuidSA && fabs(mu.eta())>2.4 ) return true;
     // ::
@@ -671,8 +704,9 @@ namespace CP {
     uint8_t value1=0;
     uint8_t value2=0;
 
-    if( (m_PixCutOff || m_SctCutOff || m_SiHolesCutOff || m_TrtCutOff) && !m_developMode )
-      ATH_MSG_WARNING( " !! Tool configured with some of the ID requirements swithed off... FOR DEVELOPMENT ONLY: muon efficiency SF won't be valid !! " );
+    //if( (m_PixCutOff || m_SctCutOff || m_SiHolesCutOff || m_TrtCutOff) && !m_developMode )
+    if( (m_PixCutOff || m_SctCutOff || m_SiHolesCutOff) && !m_developMode )
+      ATH_MSG_WARNING( " !! Tool configured with some of the ID hits requirements changed... FOR DEVELOPMENT ONLY: muon efficiency SF won't be valid !! " );
 
     if (track.summaryValue(value1, xAOD::SummaryType::numberOfPixelHits) &&
 	track.summaryValue(value2, xAOD::SummaryType::numberOfPixelDeadSensors) ) {
@@ -710,7 +744,6 @@ namespace CP {
       if ( (!((0.1<abseta && abseta<=1.9 && totTRThits>5 && value2<(0.9 * totTRThits)) || (abseta <= 0.1 || abseta > 1.9))) && !m_TrtCutOff )
 	return false;
     } else {
-      
       ATH_MSG_WARNING("isPassedIDCuts - TRT values are missing! Aborting.");
       return false;
     }

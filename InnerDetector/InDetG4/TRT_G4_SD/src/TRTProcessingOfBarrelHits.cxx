@@ -29,36 +29,36 @@
 
 TRTProcessingOfBarrelHits::TRTProcessingOfBarrelHits
 (TRTSensitiveDetector* pSensitiveDet):
-  printMessages(0), //FIXME obsolete?
-  barrelIdentifier(0),
-  testLocalCoordinatesOfHits(0),
-  numberOfStrawLayersA(0),
-  numberOfStrawLayersB(0),
-  numberOfStrawLayersC(0),
-  numberOfStrawsA(0),
-  numberOfStrawsB(0),
-  numberOfStrawsC(0),
-  integralDistributionOfStrawsA(nullptr),
-  integralDistributionOfStrawsB(nullptr),
-  integralDistributionOfStrawsC(nullptr),
-  strawIDToLayerIDA(nullptr),
-  strawIDToLayerIDB(nullptr),
-  strawIDToLayerIDC(nullptr),
-  pParameters(nullptr),
-  pSensitiveDetector(pSensitiveDet),
-  verboseLevel(pSensitiveDet->verboseLevel)
+  m_printMessages(0), //FIXME obsolete?
+  m_barrelIdentifier(0),
+  m_testLocalCoordinatesOfHits(0),
+  m_numberOfStrawLayersA(0),
+  m_numberOfStrawLayersB(0),
+  m_numberOfStrawLayersC(0),
+  m_numberOfStrawsA(0),
+  m_numberOfStrawsB(0),
+  m_numberOfStrawsC(0),
+  m_integralDistributionOfStrawsA(nullptr),
+  m_integralDistributionOfStrawsB(nullptr),
+  m_integralDistributionOfStrawsC(nullptr),
+  m_strawIDToLayerIDA(nullptr),
+  m_strawIDToLayerIDB(nullptr),
+  m_strawIDToLayerIDC(nullptr),
+  m_pParameters(nullptr),
+  m_pSensitiveDetector(pSensitiveDet),
+  m_verboseLevel(pSensitiveDet->verboseLevel)
 {
-  pParameters = TRTParameters::GetPointer();
+  m_pParameters = TRTParameters::GetPointer();
 
-  printMessages = pParameters->GetInteger("PrintMessages"); //FIXME obsolete?
+  m_printMessages = m_pParameters->GetInteger("PrintMessages"); //FIXME obsolete?
 
-  if (verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfBarrelHits" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfBarrelHits" << G4endl; }
 
-  Initialize();
+  this->Initialize();
 
-  pParameters = nullptr;
+  m_pParameters = nullptr;
 
-  if (verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfBarrelHits done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfBarrelHits done" << G4endl; }
 }
 
 
@@ -67,11 +67,11 @@ TRTProcessingOfBarrelHits::TRTProcessingOfBarrelHits
 TRTProcessingOfBarrelHits::~TRTProcessingOfBarrelHits()
 {
 
-  if (verboseLevel>5) { G4cout << "##### Destructor TRTProcessingOfBarrelHits" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "##### Destructor TRTProcessingOfBarrelHits" << G4endl; }
 
-  DeleteArrays();
+  this->DeleteArrays();
 
-  if (verboseLevel>5) { G4cout << "##### Destructor TRTProcessingOfBarrelHits done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "##### Destructor TRTProcessingOfBarrelHits done" << G4endl; }
 
 }
 
@@ -80,41 +80,41 @@ TRTProcessingOfBarrelHits::~TRTProcessingOfBarrelHits()
 
 void TRTProcessingOfBarrelHits::Initialize()
 {
-  if (verboseLevel>5) { G4cout << "######### Method TRTProcessingOfBarrelHits::Initialize" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Method TRTProcessingOfBarrelHits::Initialize" << G4endl; }
 
 
-  barrelIdentifier = pParameters->GetInteger("BarrelIdentifier");
-  testLocalCoordinatesOfHits =
-    pParameters->GetInteger("TestLocalCoordinatesOfHits");
+  m_barrelIdentifier = m_pParameters->GetInteger("BarrelIdentifier");
+  m_testLocalCoordinatesOfHits =
+    m_pParameters->GetInteger("TestLocalCoordinatesOfHits");
 
-  if (barrelIdentifier == 1)
+  if (m_barrelIdentifier == 1)
     {
-      strawIDToLayerIDA = nullptr;
-      strawIDToLayerIDB = nullptr;
-      strawIDToLayerIDC = nullptr;
+      m_strawIDToLayerIDA = nullptr;
+      m_strawIDToLayerIDB = nullptr;
+      m_strawIDToLayerIDC = nullptr;
     }
 
 
-  if (barrelIdentifier == 2)
+  if (m_barrelIdentifier == 2)
     {
-      numberOfStrawsA = pParameters->GetInteger("NumberOfStrawsA");
-      numberOfStrawsB = pParameters->GetInteger("NumberOfStrawsB");
-      numberOfStrawsC = pParameters->GetInteger("NumberOfStrawsC");
+      m_numberOfStrawsA = m_pParameters->GetInteger("NumberOfStrawsA");
+      m_numberOfStrawsB = m_pParameters->GetInteger("NumberOfStrawsB");
+      m_numberOfStrawsC = m_pParameters->GetInteger("NumberOfStrawsC");
 
-      strawIDToLayerIDA = new int[numberOfStrawsA];
-      strawIDToLayerIDB = new int[numberOfStrawsB];
-      strawIDToLayerIDC = new int[numberOfStrawsC];
+      m_strawIDToLayerIDA = new int[m_numberOfStrawsA];
+      m_strawIDToLayerIDB = new int[m_numberOfStrawsB];
+      m_strawIDToLayerIDC = new int[m_numberOfStrawsC];
     }
 
-  numberOfStrawLayersA = pParameters->GetInteger("NumberOfStrawLayersA");
-  numberOfStrawLayersB = pParameters->GetInteger("NumberOfStrawLayersB");
-  numberOfStrawLayersC = pParameters->GetInteger("NumberOfStrawLayersC");
+  m_numberOfStrawLayersA = m_pParameters->GetInteger("NumberOfStrawLayersA");
+  m_numberOfStrawLayersB = m_pParameters->GetInteger("NumberOfStrawLayersB");
+  m_numberOfStrawLayersC = m_pParameters->GetInteger("NumberOfStrawLayersC");
 
-  integralDistributionOfStrawsA = new int[numberOfStrawLayersA];
-  integralDistributionOfStrawsB = new int[numberOfStrawLayersB];
-  integralDistributionOfStrawsC = new int[numberOfStrawLayersC];
+  m_integralDistributionOfStrawsA = new int[m_numberOfStrawLayersA];
+  m_integralDistributionOfStrawsB = new int[m_numberOfStrawLayersB];
+  m_integralDistributionOfStrawsC = new int[m_numberOfStrawLayersC];
 
-  if (verboseLevel>5) { G4cout << "######### Method TRTProcessingOfBarrelHits::Initialize done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Method TRTProcessingOfBarrelHits::Initialize done" << G4endl; }
 }
 
 
@@ -137,7 +137,6 @@ bool TRTProcessingOfBarrelHits::ProcessHit(G4Step* pStep)
   G4Track* pTrack = pStep->GetTrack();
   // get the HepMC barcode using the track helper
   TrackHelper trHelp(pTrack);
-  int trackID = trHelp.GetBarcode();
 
   G4ThreeVector globalPreStepPoint = pPreStepPoint->GetPosition();
 
@@ -164,21 +163,21 @@ bool TRTProcessingOfBarrelHits::ProcessHit(G4Step* pStep)
   double postStepX = localPostStepPoint.x();
   double postStepY = localPostStepPoint.y();
 
-  if (testLocalCoordinatesOfHits)
+  if (m_testLocalCoordinatesOfHits)
     {
       double preStepR = std::sqrt(preStepX * preStepX + preStepY * preStepY);
       double postStepR = std::sqrt(postStepX * postStepX + postStepY * postStepY);
 
       if (preStepR > 2.0000001 || postStepR > 2.0000001)
         {
-          G4int particleEncoding = pSensitiveDetector->particleEncoding;
-          G4double kineticEnergy = pSensitiveDetector->kineticEnergy;
-          G4double energyDeposit = pSensitiveDetector->energyDeposit;
+          G4int particleEncoding = m_pSensitiveDetector->m_particleEncoding;
+          G4double kineticEnergy = m_pSensitiveDetector->m_kineticEnergy;
+          G4double energyDeposit = m_pSensitiveDetector->m_energyDeposit;
 
           std::cout << "!!!!! Barrel. Error in local coordinates of hits!" << std::endl;
           std::cout << "  barrelID=" << hitID << "  ringID=" << ringID
                     << "  moduleID=" << moduleID << "  strawID=" << strawID
-                    << "  trackID=" << trackID << std::endl;
+                    << "  trackID=" << trHelp.GetBarcode() << std::endl;
           std::cout << "  particleEncoding=" << particleEncoding;
 
           if (kineticEnergy < 0.0001)
@@ -214,7 +213,7 @@ bool TRTProcessingOfBarrelHits::ProcessHit(G4Step* pStep)
 
   int layerID;
 
-  if (barrelIdentifier == 1)
+  if (m_barrelIdentifier == 1)
     layerID = GetLayerID1(ringID, strawID);
   else
     layerID = GetLayerID2(ringID, strawID);
@@ -225,15 +224,15 @@ bool TRTProcessingOfBarrelHits::ProcessHit(G4Step* pStep)
   hitID += (layerID << 5);
   hitID += strawID;
 
-  pSensitiveDetector->hitID = hitID;
-  pSensitiveDetector->trackID = trackID;
-  pSensitiveDetector->preStepX = preStepX;
-  pSensitiveDetector->preStepY = preStepY;
-  pSensitiveDetector->preStepZ = preStepZ;
-  pSensitiveDetector->postStepX = postStepX;
-  pSensitiveDetector->postStepY = postStepY;
-  pSensitiveDetector->postStepZ = postStepZ;
-  pSensitiveDetector->globalTime = globalTime;
+  m_pSensitiveDetector->m_hitID = hitID;
+  m_pSensitiveDetector->m_partLink = trHelp.GetParticleLink();
+  m_pSensitiveDetector->m_preStepX = preStepX;
+  m_pSensitiveDetector->m_preStepY = preStepY;
+  m_pSensitiveDetector->m_preStepZ = preStepZ;
+  m_pSensitiveDetector->m_postStepX = postStepX;
+  m_pSensitiveDetector->m_postStepY = postStepY;
+  m_pSensitiveDetector->m_postStepZ = postStepZ;
+  m_pSensitiveDetector->m_globalTime = globalTime;
 
   return true;
 }
@@ -249,75 +248,75 @@ int TRTProcessingOfBarrelHits::GetLayerID1(const int& ringID,
 
   if (ringID == 0)
     {
-      if (strawID <= integralDistributionOfStrawsA[layerID])
+      if (strawID <= m_integralDistributionOfStrawsA[layerID])
         {
           layerID -= 8;
-          if (strawID > integralDistributionOfStrawsA[layerID])
+          if (strawID > m_integralDistributionOfStrawsA[layerID])
             layerID += 4;
           else
             layerID -= 4;
         }
-      if (strawID > integralDistributionOfStrawsA[layerID])
+      if (strawID > m_integralDistributionOfStrawsA[layerID])
         layerID += 2;
       else
         layerID -= 2;
-      if (strawID > integralDistributionOfStrawsA[layerID])
+      if (strawID > m_integralDistributionOfStrawsA[layerID])
         ++layerID;
       else
         --layerID;
-      if (strawID > integralDistributionOfStrawsA[layerID])
+      if (strawID > m_integralDistributionOfStrawsA[layerID])
         ++layerID;
 
       if (layerID > 0)
-        strawID -= integralDistributionOfStrawsA[layerID - 1];
+        strawID -= m_integralDistributionOfStrawsA[layerID - 1];
     }
   else if (ringID == 1)
     {
-      if (strawID > integralDistributionOfStrawsB[layerID])
+      if (strawID > m_integralDistributionOfStrawsB[layerID])
         layerID += 8;
       else
         layerID -= 8;
-      if (strawID > integralDistributionOfStrawsB[layerID])
+      if (strawID > m_integralDistributionOfStrawsB[layerID])
         layerID += 4;
       else
         layerID -= 4;
-      if (strawID > integralDistributionOfStrawsB[layerID])
+      if (strawID > m_integralDistributionOfStrawsB[layerID])
         layerID += 2;
       else
         layerID -= 2;
-      if (strawID > integralDistributionOfStrawsB[layerID])
+      if (strawID > m_integralDistributionOfStrawsB[layerID])
         ++layerID;
       else
         --layerID;
-      if (strawID > integralDistributionOfStrawsB[layerID])
+      if (strawID > m_integralDistributionOfStrawsB[layerID])
         ++layerID;
 
       if (layerID > 0)
-        strawID -= integralDistributionOfStrawsB[layerID - 1];
+        strawID -= m_integralDistributionOfStrawsB[layerID - 1];
     }
   else
     {
-      if (strawID > integralDistributionOfStrawsC[layerID])
+      if (strawID > m_integralDistributionOfStrawsC[layerID])
         layerID += 8;
       else
         layerID -= 8;
-      if (strawID > integralDistributionOfStrawsC[layerID])
+      if (strawID > m_integralDistributionOfStrawsC[layerID])
         layerID += 4;
       else
         layerID -= 4;
-      if (strawID > integralDistributionOfStrawsC[layerID])
+      if (strawID > m_integralDistributionOfStrawsC[layerID])
         layerID += 2;
       else
         layerID -= 2;
-      if (strawID > integralDistributionOfStrawsC[layerID])
+      if (strawID > m_integralDistributionOfStrawsC[layerID])
         ++layerID;
       else
         --layerID;
-      if (strawID > integralDistributionOfStrawsC[layerID])
+      if (strawID > m_integralDistributionOfStrawsC[layerID])
         ++layerID;
 
       if (layerID > 0)
-        strawID -= integralDistributionOfStrawsC[layerID - 1];
+        strawID -= m_integralDistributionOfStrawsC[layerID - 1];
     }
 
   --strawID;
@@ -333,21 +332,21 @@ int TRTProcessingOfBarrelHits::GetLayerID2(const int& ringID,
   int layerID;
   if (ringID == 0)
     {
-      layerID = strawIDToLayerIDA[strawID];
+      layerID = m_strawIDToLayerIDA[strawID];
       if (layerID > 0)
-        strawID -= integralDistributionOfStrawsA[layerID - 1];
+        strawID -= m_integralDistributionOfStrawsA[layerID - 1];
     }
   else if (ringID == 1)
     {
-      layerID = strawIDToLayerIDB[strawID];
+      layerID = m_strawIDToLayerIDB[strawID];
       if (layerID > 0)
-        strawID -= integralDistributionOfStrawsB[layerID - 1];
+        strawID -= m_integralDistributionOfStrawsB[layerID - 1];
     }
   else
     {
-      layerID = strawIDToLayerIDC[strawID];
+      layerID = m_strawIDToLayerIDC[strawID];
       if (layerID > 0)
-        strawID -= integralDistributionOfStrawsC[layerID - 1];
+        strawID -= m_integralDistributionOfStrawsC[layerID - 1];
     }
 
   return layerID;
@@ -359,18 +358,18 @@ int TRTProcessingOfBarrelHits::GetLayerID2(const int& ringID,
 void TRTProcessingOfBarrelHits::DeleteArrays()
 {
 
-  if (verboseLevel>5) { G4cout << "######### Method TRTProcessingOfBarrelHits::DeleteArrays" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Method TRTProcessingOfBarrelHits::DeleteArrays" << G4endl; }
 
-  delete [] integralDistributionOfStrawsA;
-  delete [] integralDistributionOfStrawsB;
-  delete [] integralDistributionOfStrawsC;
+  delete [] m_integralDistributionOfStrawsA;
+  delete [] m_integralDistributionOfStrawsB;
+  delete [] m_integralDistributionOfStrawsC;
 
-  if (barrelIdentifier == 2)
+  if (m_barrelIdentifier == 2)
     {
-      delete [] strawIDToLayerIDA;
-      delete [] strawIDToLayerIDB;
-      delete [] strawIDToLayerIDC;
+      delete [] m_strawIDToLayerIDA;
+      delete [] m_strawIDToLayerIDB;
+      delete [] m_strawIDToLayerIDC;
     }
 
-  if (verboseLevel>5) { G4cout << "######### Method TRTProcessingOfBarrelHits::DeleteArrays done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Method TRTProcessingOfBarrelHits::DeleteArrays done" << G4endl; }
 }

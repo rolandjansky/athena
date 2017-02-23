@@ -19,6 +19,7 @@ atlas_depends_on_subdirs(
   PhysicsAnalysis/AnalysisCommon/PATInterfaces
   InnerDetector/InDetRecTools/InDetTrackSelectionTool
   PRIVATE
+  Tracking/TrkExtrapolation/TrkExUtils
   Control/AthenaBaseComps
   GaudiKernel
   Tools/PathResolver )
@@ -32,7 +33,7 @@ atlas_add_library( IsolationSelectionLib
   PUBLIC_HEADERS IsolationSelection
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon
-  xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib
+  xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib TrkExUtils
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
 

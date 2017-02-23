@@ -1,0 +1,20 @@
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 240, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 176, which is not a valid value for type 'bool'
+TInterpreter::ReadRoot... WARNING class  CP::IPileupReweightingTool found in libAsgAnalysisInterfacesDict.so  is already in libPileupReweightingDict.so 
+ut_xaodrootaccess_tran... INFO    Environment initialised for data access
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 981452424
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 981452424.
+xAOD::TEvent::addToStore  WARNING Function should only be called through an invalid ElementLink
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 311645381
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 311645381.
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 582965710
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 582965710.
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 243728388
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 243728388.
+xAOD::MakeTransientTree   INFO    Created transient tree "CollectionTree" in ROOT's common memory
+TCanvas::MakeDefCanvas    INFO     created default TCanvas with name c1
+xAOD::MakeTransientTree   INFO    Created transient tree "CollectionTree" in ROOT's common memory
+xAOD::MakeTransientMet... INFO    Created transient metadata tree "MetaData" in ROOT's common memory
+xAOD::MakeTransientMet... INFO    Created transient metadata tree "MetaData" in ROOT's common memory
+xAOD::MakeTransientTree   INFO    Created transient tree "CollectionTree" in ROOT's common memory
+xAOD::MakeTransientMet... INFO    Created transient metadata tree "MetaData" in ROOT's common memory

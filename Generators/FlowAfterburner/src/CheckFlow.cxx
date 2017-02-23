@@ -43,7 +43,7 @@ using namespace TruthHelper;
 typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
 
 CheckFlow::CheckFlow(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_hgenerated ( NULL ),
   m_b ( NULL ),
   m_phi ( NULL ),
@@ -72,12 +72,11 @@ CheckFlow::CheckFlow(const std::string& name, ISvcLocator* pSvcLocator) :
 
 StatusCode CheckFlow::initialize(){
   StatusCode result = StatusCode::SUCCESS;
-  MsgStream msglog(messageService(), name());
-  msglog << MSG::INFO << ">>> CheckFlow from Initialize" << endreq;
+  msg(MSG::INFO) << ">>> CheckFlow from Initialize" << endreq;
 
   StatusCode sc = service("StoreGateSvc", m_sgSvc);
   if (sc.isFailure()) {
-    msglog << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
+    msg(MSG::ERROR) << "Could not find StoreGateSvc" << endreq;
     return sc;
   }
 
@@ -105,7 +104,7 @@ StatusCode CheckFlow::initialize(){
 
   ITHistSvc *rootHistSvc;
   if (!service("THistSvc", rootHistSvc, true).isSuccess()) {
-    msglog << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+    msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -113,60 +112,60 @@ StatusCode CheckFlow::initialize(){
   std::string histPath = StreamAndPath;
   if ( rootHistSvc->regHist(histPath+m_hgenerated->GetName(), 
 			    m_hgenerated).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_hgenerated->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_b->GetName(), 
 			    m_b).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_b->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_phi->GetName(), 
 			    m_phi).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_phi->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_phiR->GetName(), 
 			    m_phiR).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_phiR->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_phi_vs_phiR->GetName(), 
 			    m_phi_vs_phiR).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_phi_vs_phiR->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_phiv1reco_vs_phiR->GetName(), 
 			    m_phiv1reco_vs_phiR).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_phiv1reco_vs_phiR->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_phiv2reco_vs_phiR->GetName(), 
 			    m_phiv2reco_vs_phiR).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_phiv2reco_vs_phiR->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_phi_vs_phiR_etap->GetName(), 
 			    m_phi_vs_phiR_etap).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_phi_vs_phiR_etap->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_phi_vs_phiR_etan->GetName(), 
 			    m_phi_vs_phiR_etan).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_phi_vs_phiR_etan->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_v2betapth->GetName(), 
 			    m_v2betapth).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_v2betapth->GetName() << endreq;
 
   if ( rootHistSvc->regHist(histPath+m_ebetapth->GetName(), 
 			    m_ebetapth).isFailure() )
-    msglog << MSG::WARNING << "Can't book "
+    msg(MSG::WARNING) << "Can't book "
 	    << histPath+m_ebetapth->GetName() << endreq;
 
-  msglog << MSG::DEBUG << "Histograms have been booked " << endreq;
+  msg(MSG::DEBUG) << "Histograms have been booked " << endreq;
 
   m_tesIO = new GenAccessIO();
 
@@ -178,8 +177,7 @@ StatusCode CheckFlow::execute() {
   //   HepMC::IO_PDG_ParticleDataTable pdg_io("PDGTABLE");
   //   static HepMC::ParticleDataTable *pp = NULL;
   //   if (pp == NULL) pp = pdg_io.read_particle_data_table();
-  MsgStream msglog(messageService(), name());
-  msglog << MSG::INFO << ">>> CheckFlow from execute" << endreq;
+  msg(MSG::INFO) << ">>> CheckFlow from execute" << endreq;
 
   //
   // Event parameters
@@ -198,7 +196,8 @@ StatusCode CheckFlow::execute() {
 
 
   if ( m_sgSvc->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
-    msglog << MSG::ERROR << "Could not retrieve Hijing_event_params"
+//  if ( evtStore()->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
+    msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"
 	   << endreq;
     return StatusCode::FAILURE;
   }
@@ -232,7 +231,7 @@ StatusCode CheckFlow::execute() {
   std::vector<const HepMC::GenParticle*> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
-    msglog << MSG::ERROR << "Could not find " << m_key << endreq;
+    msg(MSG::ERROR) << "Could not find " << m_key << endreq;
     return stat;
   }
 
@@ -243,7 +242,7 @@ StatusCode CheckFlow::execute() {
     double pt = (*pitr)->momentum().perp();
     double rapid = (*pitr)->momentum().pseudoRapidity();
     double phi = (*pitr)->momentum().phi();
-    msglog << MSG::DEBUG
+    msg(MSG::DEBUG)
 	   << " PID = " << pid << " Status = " << p_stat
 	   << " Eta = " << rapid << "  Phi = " << phi 
 	   << " PhiR = " << phiR << endreq;
@@ -287,7 +286,7 @@ StatusCode CheckFlow::execute() {
   // averaged v1 plane position (in pos and neg eta ranges)
   phiv1_reco = (phiv1_recop + phiv1_recon)/2;
   phiv2_reco = 0.5 * atan2( phi_reco_sin2phi,phi_reco_cos2phi );
-  msglog << MSG::INFO
+  msg(MSG::INFO)
 	 << " PhiR = " << phiR 
 	 << " PhiV1Reco = " << phiv1_reco 
 	 << " PhiV2Reco = " << phiv2_reco << endreq;
@@ -307,8 +306,7 @@ StatusCode CheckFlow::execute() {
 }
 
 StatusCode CheckFlow::finalize() {
-  MsgStream msglog(messageService(), name());
-  msglog << MSG::INFO << ">>> CheckFlow from finalize" << endreq;
+  msg(MSG::INFO) << ">>> CheckFlow from finalize" << endreq;
 
   return StatusCode::SUCCESS;
 }

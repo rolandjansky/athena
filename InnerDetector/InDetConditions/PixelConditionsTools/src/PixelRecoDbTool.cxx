@@ -43,7 +43,12 @@ PixelRecoDbTool::PixelRecoDbTool(const std::string& type,
          const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent),
   par_caliblocation("PixRecoKey"),
-  m_calibData(0)
+  m_calibData(0),
+  m_toolsvc(nullptr),
+  m_IOVSvc(nullptr),
+  m_PixelClusterErrorDataVersion(0),
+  m_PixelClusterOnTrackErrorDataVersion(0),
+  m_PixelChargeInterpolationDataVersion(0)
 {
   declareInterface< IPixelRecoDbTool >(this); 
 
@@ -96,21 +101,14 @@ StatusCode PixelRecoDbTool::initialize()
   //m_log.setLevel(outputLevel());
   if(msgLvl(MSG::INFO))msg(MSG::INFO) << name() << " initialize()" << endmsg;
 
-  StatusCode sc = service("ToolSvc", m_toolsvc);
-  if (sc.isFailure()) {
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< " ToolSvc not found "<< endmsg;
-    return StatusCode::FAILURE;
-  }
+  CHECK(service("ToolSvc",m_toolsvc));
 
   // Get interface to IOVSvc 
   m_IOVSvc = 0; 
   bool CREATEIF(true); 
-  sc = service("IOVSvc", m_IOVSvc, CREATEIF); 
-  if(sc.isFailure()){ 
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " IOVSvc not found "<<endmsg; 
-    return StatusCode::FAILURE; 
-  }
+  CHECK(service("IOVSvc",m_IOVSvc,CREATEIF));
 
+  StatusCode sc;
   switch (m_inputSource) {
   case 0: // just the hardwired constants 
       sc = createPixelCalibObjects();

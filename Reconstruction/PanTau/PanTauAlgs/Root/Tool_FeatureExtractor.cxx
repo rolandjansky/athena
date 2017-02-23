@@ -556,16 +556,18 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
             double  etaCurConst = list_TypeConstituents_SortBDT[iTypeConst]->p4().Eta();
             int     etaBinIndex = m_HelperFunctions.getBinIndex(m_Config_CellBased_BinEdges_Eta, fabs(etaCurConst));
             bool    isOK;
-            int     numTrack    = inSeed->getConstituentsOfType(PanTau::TauConstituent2::t_Charged, isOK).size();
+            //int     numTrack    = inSeed->getConstituentsOfType(PanTau::TauConstituent2::t_Charged, isOK).size();
+            int     numTrack    = inSeed->getTauJet()->nTracks();
             if(numTrack == 1) { mvaCorrection = m_Config_CellBased_EtaBinned_Pi0MVACut_1prong.at(etaBinIndex); }
             else              { mvaCorrection = m_Config_CellBased_EtaBinned_Pi0MVACut_3prong.at(etaBinIndex); }
+	    ATH_MSG_DEBUG("\t\tnumTrack = " << numTrack << " / value_BDT = " << value_BDT << " / mvaCorrection = " << mvaCorrection << " / etaCurConst = " << etaCurConst << " / etaBinIndex = " << etaBinIndex);
             value_BDT = value_BDT - mvaCorrection;
         }
         
         value_sumBDT_BDTSort += value_BDT;
         std::string iConst = m_HelperFunctions.convertNumberToString((double)(iTypeConst+1));
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BDTValues_BDTSort_" + iConst, value_BDT);
-	//ATH_MSG_DEBUG("\t\tAdded variable " << inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_nPhotons_BDTSort_" + iConstStr << " with value " << totalPhotonsInNeutral);
+	ATH_MSG_DEBUG("\t\tAdded variable " << inputAlgName << "_" << curTypeName << "_" << prefixVARType << "_BDTValues_BDTSort_" << iConst << " with value " << value_BDT);
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BDTValuesSum_BDTSort_" + iConst, value_sumBDT_BDTSort);
     }
     

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import MuonCluster
+from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import MuonClusterIsolation
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigMuonJetFex
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigJetSplitter
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigBHremoval
@@ -83,9 +84,25 @@ class MuonClusterConfig(MuonCluster):
  
         # muClu Parameters
         self.DeltaR      = 0.4
-        self.DeltaRJet   = 0.7
-        self.DeltaRTrk   = 0.4
-       
+
+class MuonClusterIsolationConfig(MuonClusterIsolation): 
+   __slots__ = []
+   def __init__ (self, name="MuonClusterIsolationConfig"): 
+        super(MuonClusterIsolationConfig, self).__init__(name)
+
+        from TrigL2LongLivedParticles.TrigL2LongLivedParticlesMonitoring import TrigMuonClusterValidationMonitoring, TrigMuonClusterOnlineMonitoring, TrigMuonClusterCosmicMonitoring
+        validation = TrigMuonClusterValidationMonitoring()
+        online     = TrigMuonClusterOnlineMonitoring()
+        cosmic     = TrigMuonClusterCosmicMonitoring()
+
+ 
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("muClu_Time")
+ 
+        self.AthenaMonTools = [ validation, online, time, cosmic]
+ 
+        # muClu Parameters
+        self.DeltaR      = 0.4
 
 class TrigL2MuonJetFexGlobal (TrigMuonJetFex):
     __slots__ = []

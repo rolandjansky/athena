@@ -37,6 +37,10 @@ public:
     CSCSimHit(int id, double time, double energy, 
     const Amg::Vector3D& HitStart, const Amg::Vector3D& HitEnd, int particleID, 
 	      const int trackNumber, double kineticEnergy);
+
+    CSCSimHit(int id, double time, double energy, 
+    const Amg::Vector3D& HitStart, const Amg::Vector3D& HitEnd, int particleID, 
+	      const HepMcParticleLink hmpl, double kineticEnergy);
     
 
     //

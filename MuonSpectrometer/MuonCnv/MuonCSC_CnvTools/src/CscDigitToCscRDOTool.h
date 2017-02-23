@@ -59,7 +59,7 @@ class CscDigitToCscRDOTool : virtual public IMuonDigitizationTool, public AthAlg
 
   ActiveStoreSvc*             m_activeStore;
 
-  CscRawDataContainer * m_rdoContainer;
+  SG::WriteHandle<CscRawDataContainer> m_rdoContainer;
   const CscIdHelper   * m_cscHelper;
   ServiceHandle<CSCcablingSvc> m_cscCablingSvc;
   ToolHandle<ICscCalibTool>  m_cscCalibTool;

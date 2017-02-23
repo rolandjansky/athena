@@ -218,6 +218,7 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
         track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelector, true);
         // in case TrackClassifier is not run, still get sensible results
         track->setFlag(xAOD::TauJetParameters::TauTrackFlag::classifiedIsolation, true); // for sake of trigger, reset in TauTrackClassifier
+        track->setFlag(xAOD::TauJetParameters::TauTrackFlag::modifiedIsolationTrack, true); // for sake of trigger, reset in TauTrackClassifier
         track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true); 
         //track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelectionTight, m_trackSelectorTool_tau_xAOD->accept(trackParticle));
         ElementLink<xAOD::TauTrackContainer> linkToTauTrack;

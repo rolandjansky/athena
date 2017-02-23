@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEvent.cxx 784654 2016-11-16 17:17:32Z krasznaa $
+// $Id: TEvent.cxx 796983 2017-02-14 05:09:12Z ssnyder $
 
 // System include(s):
 #include <cassert>
@@ -1273,7 +1273,7 @@ namespace xAOD {
       }
 
       // In order to make the tree cache work:
-      if( m_inTree->LoadTree( m_entry ) < 0 ) {
+      if( m_inTree && m_inTree->LoadTree( m_entry ) < 0 ) {
          ::Error( "xAOD::TEvent::getEntry",
                   XAOD_MESSAGE( "Failure in loading entry %i from the input "
                                 "file" ), static_cast< int >( m_entry ) );
@@ -1416,9 +1416,17 @@ namespace xAOD {
       // delete its transient (decoration) variables. Otherwise it does.
       // (As it's supposed to, when moving to a new event.)
       if( m_inChain ) {
-         getEntry( m_inChain->GetReadEntry(), 99 );
+         if (getEntry( m_inChain->GetReadEntry(), 99 ) < 0) {
+           ::Error( "xAOD::TEvent::fill",
+                    XAOD_MESSAGE( "getEntry failed!" ) );
+           return 0;
+         }
       } else if( m_inTree ) {
-         getEntry( m_entry, 99 );
+         if (getEntry( m_entry, 99 ) < 0) {
+           ::Error( "xAOD::TEvent::fill",
+                    XAOD_MESSAGE( "getEntry failed!" ) );
+           return 0;
+         }
       }
 
       // Prepare the objects for writing:
@@ -3103,13 +3111,20 @@ namespace xAOD {
       Object_t& objects = ( metadata ? m_outputMetaObjects : m_outputObjects );
 
       // Extract all the dynamic variables from the object:
-      SG::auxid_set_t::const_iterator itr = auxids.begin();
-      SG::auxid_set_t::const_iterator end = auxids.end();
-      for( ; itr != end; ++itr ) {
+      // This iteration will determine the ordering of branches within
+      // the tree, so sort auxids by name.
+      const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+      typedef std::pair<std::string, SG::auxid_t> AuxVarSort_t;
+      std::vector<AuxVarSort_t> varsort;
+      varsort.reserve (auxids.size());
+      for (SG::auxid_t id : auxids)
+        varsort.emplace_back (r.getName(id), id);
+      std::sort (varsort.begin(), varsort.end());
+      for (const auto& p : varsort) {
+         SG::auxid_t id = p.second;
 
          // Construct a name for the branch that we will write:
-         const std::string brName =
-            dynNamePrefix + SG::AuxTypeRegistry::instance().getName( *itr );
+         const std::string brName = dynNamePrefix + p.first;
 
          // Try to find the branch:
          Object_t::iterator bmgr = objects.find( brName );
@@ -3118,7 +3133,7 @@ namespace xAOD {
          if( bmgr == objects.end() ) {
 
             // Construct the full type name of the variable:
-            const std::type_info* brType = aux->getIOType( *itr );
+            const std::type_info* brType = aux->getIOType( id );
             const std::string brTypeName =
                Utils::getTypeName( *brType );
             std::string brProperTypeName = "<unknown>";
@@ -3147,10 +3162,10 @@ namespace xAOD {
                leaflist << brName << "/" << rootType;
 
                // Let's create a holder for this property:
-               THolder* hldr = new THolder( ( void* ) aux->getIOData( *itr ),
+               THolder* hldr = new THolder( ( void* ) aux->getIOData( id ),
                                             0, kFALSE );
                TPrimitiveAuxBranchManager* auxmgr =
-                  new TPrimitiveAuxBranchManager( *itr, 0, hldr );
+                  new TPrimitiveAuxBranchManager( id, 0, hldr );
                objects[ brName ] = auxmgr;
 
                // ... and let's add it to the output TTree:
@@ -3193,11 +3208,14 @@ namespace xAOD {
                brProperTypeName = cl->GetName();
 
                // Let's create a holder for this property:
-               THolder* hldr = new THolder( ( void* ) aux->getIOData( *itr ),
+               THolder* hldr = new THolder( ( void* ) aux->getIOData( id ),
                                             cl, kFALSE );
                TAuxBranchManager* auxmgr =
-                  new TAuxBranchManager( *itr, 0, hldr );
+                  new TAuxBranchManager( id, 0, hldr );
                objects[ brName ] = auxmgr;
+
+               if (!cl->CanSplit() && strncmp (cl->GetName(), "SG::PackedContainer<", 20) == 0)
+                 splitLevel = 0;
 
                // ... and let's add it to the output TTree:
                *( auxmgr->branchPtr() ) =
@@ -3253,7 +3271,7 @@ namespace xAOD {
          }
 
          // Replace the managed object:
-         bmgr->second->setObject( ( void* ) aux->getIOData( *itr ) );
+         bmgr->second->setObject( ( void* ) aux->getIOData( id ) );
       }
 
       // Return gracefully:

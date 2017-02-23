@@ -61,13 +61,16 @@ StatusCode AthViewAlgorithm::sysInitialize()
 
   return AthAlgorithm::sysInitialize();
 }
-
-StatusCode AthViewAlgorithm::sysExecute()
-{
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+StatusCode AthViewAlgorithm::sysExecute(const EventContext& ctx) {
+#else
+StatusCode AthViewAlgorithm::sysExecute() {
+  const EventContext& ctx = *getContext();
+#endif
   ATH_MSG_DEBUG( "AthViewAlgorithm sysExecute for " << name() );
 
   //Skip the algorithm if views are required or avoided
-  SG::View * myView = eventView();
+  SG::View * myView = eventView(ctx);
   if ( !myView && m_require_view )
   {
     ATH_MSG_INFO( "Skipping execution of " << name() << ": not in event view" );
@@ -82,50 +85,29 @@ StatusCode AthViewAlgorithm::sysExecute()
   //Set all DataHandles to use the EventView pointer
   for ( auto handle : inputHandles() )
   {
-    SG::VarHandleBase * athenaHandle = ( SG::VarHandleBase* )handle;
+    SG::VarHandleBase * athenaHandle = static_cast< SG::VarHandleBase* >( handle );
     CHECK( athenaHandle->setProxyDict( myView ) );
   }
   for ( auto handle : outputHandles() )
   {
-    SG::VarHandleBase * athenaHandle = ( SG::VarHandleBase* )handle;
+    SG::VarHandleBase * athenaHandle = static_cast< SG::VarHandleBase* >( handle );
     CHECK( athenaHandle->setProxyDict( myView ) );
   }
 
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  return AthAlgorithm::sysExecute(ctx);
+#else
   return AthAlgorithm::sysExecute();
-}
-
-//Manual use of views
-void AthViewAlgorithm::useView()
-{
-  //If this alg shouldn't be run in a view, skip this
-  if ( m_require_not_view ) return;
-
-  //Get the view
-  SG::View * myView = eventView();
-  if ( !myView ) return;
-
-  //Set all DataHandles to use the EventView pointer
-  StatusCode sc;
-  for ( auto handle : inputHandles() )
-  {
-    SG::VarHandleBase * athenaHandle = ( SG::VarHandleBase* )handle;
-    sc = athenaHandle->setProxyDict( myView );
-    if ( !sc.isSuccess() ) ATH_MSG_ERROR( "Cannot set view " << myView << " for handle " << athenaHandle );
-  }
-  for ( auto handle : outputHandles() )
-  {
-    SG::VarHandleBase * athenaHandle = ( SG::VarHandleBase* )handle;
-    sc = athenaHandle->setProxyDict( myView );
-    if ( !sc.isSuccess() ) ATH_MSG_ERROR( "Cannot set view " << myView << " for handle " << athenaHandle );
-  }
+#endif
 }
 
 //Retrieve the EventView pointer from the context if it exists
-SG::View * AthViewAlgorithm::eventView()
+SG::View * AthViewAlgorithm::eventView(const EventContext& ctx)
 {
+
   //Try to get the view from context
-  if ( !m_event_context ) return 0; //but why no context?
-  SG::View * myView = dynamic_cast< SG::View * >( m_event_context->proxy() );
+  if ( ! ctx.valid() ) return 0; //but why no context?
+  SG::View * myView = dynamic_cast< SG::View * >( ctx.proxy() );
   if ( myView )
   {
     ATH_MSG_DEBUG( "Algorithm " << name() << " is in view " << myView );

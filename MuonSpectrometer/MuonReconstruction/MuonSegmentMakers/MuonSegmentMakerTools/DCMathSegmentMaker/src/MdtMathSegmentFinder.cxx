@@ -148,7 +148,7 @@ namespace Muon {
 								       const TrkDriftCircleMath::CLVec& clvec,
 								       const TrkDriftCircleMath::Road& road,
 								       const TrkDriftCircleMath::DCStatistics& dcstats,
-								       const TrkDriftCircleMath::ChamberGeometry* multiGeo = 0 )
+								       const TrkDriftCircleMath::ChamberGeometry* multiGeo = 0 ) const
   {
     // reset defaults
     if( m_fitter ) {

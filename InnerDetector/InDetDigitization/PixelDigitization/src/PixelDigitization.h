@@ -66,7 +66,8 @@
 // Data members
 #include "GaudiKernel/ToolHandle.h"
 
-class PixelDigitizationTool;
+#include "PileUpTools/PileUpToolBase.h"
+
 class PixelDigitization : public AthAlgorithm {
 
 public:
@@ -87,7 +88,7 @@ public:
   virtual StatusCode finalize();
 
 private:
-  ToolHandle<PixelDigitizationTool> m_pixelDigitizationTool;
+  ToolHandle<IPileUpTool> m_pixelDigitizationTool;
 };
 	
 #endif // PIXELDIGITIZATION_PIXELDIGITIZATION_H

@@ -34,7 +34,7 @@ class MuonTPTool
   virtual StatusCode initialize();
   
   /// run the tag-and-probe 
-  void runTagAndProbe(const xAOD::MuonContainer*, const xAOD::IParticleContainer*, const xAOD::IParticleContainer*) ;      
+  void runTagAndProbe(const xAOD::MuonContainer*, const xAOD::IParticleContainer*) ;      
 
   /// retrieve booked histograms
   std::vector<HistData> retrieveBookedHistograms();
@@ -56,6 +56,8 @@ class MuonTPTool
   bool m_centeta;
   ToolHandleArray<IMuonTPPlotTool> m_TPPlots;
   ToolHandleArray<IMuonTPTreeTool> m_TPTrees;
+
+  std::string m_matchContainerName;
   
 
   };

@@ -47,6 +47,7 @@ void sTGCDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 sTGC_Technology* sTGCDetectorDescription::GetTechnology()
 {
    AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();   
-   sTGC_Technology* t = dynamic_cast<sTGC_Technology*>(ds->GetTechnology(name));
+   sTGC_Technology* t = dynamic_cast<sTGC_Technology*>(ds->GetTechnology("sTGC_1")); //This needs to be the tech name not the chamber name
+
    return t;
 }

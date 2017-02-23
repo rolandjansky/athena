@@ -85,7 +85,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016.config") );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
   ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
@@ -97,7 +97,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   // Create a TEvent object to read from file and a transient store in which to place items
 #ifdef XAOD_STANDALONE
   std::unique_ptr<xAOD::TEvent> event(new xAOD::TEvent( xAOD::TEvent::kClassAccess ) );
-  std::unique_ptr<xAOD::TStore store>(new xAOD::TStore());
+  std::unique_ptr<xAOD::TStore> store(new xAOD::TStore());
 #else // Athena "Store" is the same StoreGate used by the TEvent
   std::unique_ptr<POOL::TEvent> event(new POOL::TEvent( POOL::TEvent::kClassAccess ));
   ServiceHandle<StoreGateSvc>& store = event->evtStore();
@@ -107,6 +107,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   asg::AnaToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
   ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
+  ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );
+  ANA_CHECK( metMaker.setProperty("DoSetMuonJetEMScale", true) );
   ANA_CHECK( metMaker.retrieve() );
 
   for(size_t ievent = 0;  ievent < std::min(size_t(event->getEntries()), evtmax); ++ievent){
@@ -253,7 +255,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 #ifdef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
     //fill the containers stored in the event
     //to the output file and clear the transient store
-    ANA_CHECK(event->fill());
+    assert(event->fill());
     store->clear();
 #endif
   }

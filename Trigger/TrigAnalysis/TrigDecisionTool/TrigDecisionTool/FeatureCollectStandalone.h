@@ -132,6 +132,7 @@ namespace Trig {
 	auto typelessholder = navigation->getHolder(feature.accessHelper());
 	if(!typelessholder){
 	  std::cerr << "ERROR, holder not present" << std::endl;
+          continue;
 	}
 	HLT::TypedHolder<STORED,CONTAINER> typedholder(*typelessholder,store,container_name);
 	const STORED* dest = 0;

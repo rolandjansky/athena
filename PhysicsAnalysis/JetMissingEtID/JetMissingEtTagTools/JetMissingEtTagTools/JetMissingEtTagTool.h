@@ -17,12 +17,14 @@ Purpose : build the JetMissingEt Tag objects - ParticleJetTagCollection.h and Mi
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
 
 #include <map>
 
 // forward declaration
 class IJetCalibrationTool;
-
+class IJetUpdateJvt;
+class IMETMaker;
 
 class JetMetTagTool : public AthAlgTool {
 
@@ -53,14 +55,27 @@ private:
   /**Calibrate and record a shallow copy of a given jet container */
   const xAOD::JetContainer* calibrateAndRecordShallowCopyJetCollection(const xAOD::JetContainer * jetContainer);
 
+  /**recompute MET*/
+  StatusCode recomputeMissingEt();
+
+
   /** Jet calibration tool handle */
   ToolHandle<IJetCalibrationTool>        m_jetCalibrationTool;
-
+  ToolHandle<IJetUpdateJvt>              m_jetJVTUpdateTool;
+  ToolHandle<IMETMaker>                  m_metmaker;
+  ToolHandle<IBTaggingSelectionTool>     m_FixedCutBEff_60,m_FixedCutBEff_70,m_FixedCutBEff_85,
+                                         m_FlatBEff_60,m_FlatBEff_70,m_FlatBEff_77;
 
   /** Properties */
   std::string m_containerName;
   std::string m_jetCalibcontainerName;
   std::string m_jetCalibcontainerName_skim;
+  std::string m_ElectronsContainer_skim;
+  std::string m_PhotonsContainer_skim;
+  std::string m_TausContainer_skim;
+  std::string m_MuonsContainer_skim;
+  std::string m_METCoreName;
+  std::string m_METMapName;
   std::string m_metContainerName;
   std::string m_metRefFinalName;
   std::string m_metRefJetName;
@@ -76,6 +91,7 @@ private:
   double m_jetPtCut_skim;
   bool   m_useEMScale; //Emergency fix for HI (W.L, 22.11.2010)
   bool   m_isSimulation;
+  bool   m_doJVT;
 
   /** the attribute names */
   std::vector<std::string> m_ptStr;

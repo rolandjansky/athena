@@ -82,6 +82,7 @@ class POOL2EI(PyAthena.Alg):
         _info("## DoTriggerInfo: {}".format(self.DoTriggerInfo))
         _info("## HaveHlt: {}".format(self.HaveHlt))
         _info("## HaveXHlt: {}".format(self.HaveXHlt))
+        _info("## RUN1: {}".format(self.RUN1))
         _info("## SendToBroker: {}".format(self.SendToBroker))
 
 
@@ -130,7 +131,7 @@ class POOL2EI(PyAthena.Alg):
             cls = getattr(PyAthena, cls_name)
 
         _info("retrieving various stores...")
-        for store_name in ('evtStore', 'inputStore',
+        for store_name in ('evtStore', 'inputStore', 'detStore', 
                            'tagStore', 'metaStore'):
             _info("retrieving [{}]...".format(store_name))
             o = getattr(self, store_name)
@@ -138,7 +139,7 @@ class POOL2EI(PyAthena.Alg):
         _info("retrieving various stores... [done]")
 
 
-        if "/TRIGGER/HLT/HltConfigKeys" in self.inputStore.keys():
+        if self.HaveHlt:
             # load trigger decision tool
             from TriggerJobOpts.TriggerFlags import TriggerFlags
             TriggerFlags.configurationSourceList=['ds']
@@ -146,16 +147,12 @@ class POOL2EI(PyAthena.Alg):
             self.trigDec = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
             self.trigDec.ExperimentalAndExpertMethods().enable()
             if self.HaveXHlt:
+                self.trigDec.setProperty("ConfigTool","TrigConf::xAODConfigTool");
                 self.trigDec.setProperty("TrigDecisionKey","xTrigDecision")
             else:
+                self.trigDec.setProperty("ConfigTool","TrigConf::AODConfigTool");
                 self.trigDec.setProperty("TrigDecisionKey","TrigDecision")
-        else:
-            if self.HaveHlt:
-                _info("Switch HaveHlt to False")
-                self.HaveHlt = False
-            #if self.DoTriggerInfo:
-            #    _info("Switch DoTriggerInfo to False")
-            #    self.DoTriggerInfo = False
+
 
         ## open output pkl file
         import os
@@ -224,6 +221,11 @@ class POOL2EI(PyAthena.Alg):
     def tagStore(self):
         import AthenaPython.PyAthena as PyAthena
         return PyAthena.py_svc('StoreGateSvc/TagMetaDataStore')
+    
+    @property
+    def detStore(self):
+        import AthenaPython.PyAthena as PyAthena
+        return PyAthena.py_svc('StoreGateSvc/DetectorStore')
     
     @property
     def inputStore(self):
@@ -451,17 +453,15 @@ class POOL2EI(PyAthena.Alg):
 
         return 
 
-    def getChainCounter(self,level):
+    #################################################
+    # Get trigger list and chain counters or ctpIds
+    #################################################
+    def getChainCounter(self, level):
+        _info = self.msg.info
 
-        if self.HaveXHlt:
-            if level.startswith("L1"):
-                triggers = self.trigDec.getChainGroup(level)
-                names = triggers.getListOfTriggers()
-            else:
-                names = self.trigDec.getListOfTriggers(level)
-        else:
-            triggers = self.trigDec.getChainGroup(level)
-            names = triggers.getListOfTriggers()
+        triggers = self.trigDec.getChainGroup(level)
+        names = triggers.getListOfTriggers()
+        _info("POOL2EI::getChainCounter got {} triggers for level {}".format( names.size(),level))
 
         if level.startswith("L1"):
             level1 = True
@@ -470,20 +470,33 @@ class POOL2EI(PyAthena.Alg):
 
         ccname = {}
         ccmax = 0
-        for i in xrange(names.size()):
-            name = names.at(i)
-            if level1:
-                cc = self.trigDec.ExperimentalAndExpertMethods().getItemConfigurationDetails(name).ctpId()
-            else:
-                cc = self.trigDec.ExperimentalAndExpertMethods().getChainConfigurationDetails(name).chain_counter()
-            ccname[cc]=name
-            if cc > ccmax:
-                ccmax = cc
+        gtd_method = True                         # by default, use getChainDetails for L2,EF,HLT
+        try:
+            for i in xrange(names.size()):
+                name = names.at(i)
+                if level1:
+                    cc = self.trigDec.ExperimentalAndExpertMethods().getItemConfigurationDetails(name).ctpId()
+                else:
+                    if gtd_method:
+                        try:
+                            cc = self.trigDec.ExperimentalAndExpertMethods().getChainDetails(name).getChainCounter()
+                        except:
+                            gtd_method = False    # disable this method for next triggers 
+                    if not gtd_method:
+                        cc = self.trigDec.ExperimentalAndExpertMethods().getChainConfigurationDetails(name).chain_counter()
+                ccname[cc]=name
+                if cc > ccmax:
+                    ccmax = cc
 
-        if len(ccname) == 0:
+            if len(ccname) == 0:
+                cclen = 0
+            else:
+                cclen = ccmax + 1
+        except:
+            _info("POOL2EI::getChainCounter Unable to get trigger chains for {}".format(level))
+            ccname = {}
             cclen = 0
-        else:
-            cclen = ccmax + 1
+
         return ( cclen, ccname )
         
  
@@ -497,16 +510,106 @@ class POOL2EI(PyAthena.Alg):
 
         # get trigger chains
         if self.DoTriggerInfo and self.HaveHlt:
-            if self.HaveXHlt:
-                ( self.cclenL1, self.ccnameL1 ) = self.getChainCounter("L1_.*")
-                ( self.cclenL2, self.ccnameL2 ) = self.getChainCounter("HLT_.*")
-                ( self.cclenEF, self.ccnameEF ) = ( self.cclenL2, self.ccnameL2 )
-            else:
+            if self.RUN1:
                 ( self.cclenL1, self.ccnameL1 ) = self.getChainCounter("L1_.*")
                 ( self.cclenL2, self.ccnameL2 ) = self.getChainCounter("L2_.*")
                 ( self.cclenEF, self.ccnameEF ) = self.getChainCounter("EF_.*")
-                
+            else:
+                ( self.cclenL1, self.ccnameL1 ) = self.getChainCounter("L1_.*")
+                ( self.cclenL2, self.ccnameL2 ) = self.getChainCounter("HLT_.*")
+                ( self.cclenEF, self.ccnameEF ) = ( self.cclenL2, self.ccnameL2 )
+
         return StatusCode.Success
+
+    ##########################################
+    # get chain counters from detector Store
+    ##########################################
+    def getChainCountersFromDetStore(self):
+        _info = self.msg.info
+
+        # try to get L1 trigger menu from detStore if not loaded in BeginRun
+        if self.cclenL1 == 0:
+            _info("POOL2EI::getChainCountersFromDetStore Trying to get L1 trigger names from detStore")
+            try:
+                self.cclenL1 = 0
+                self.ccnameL1 = {}
+                lvl1menu = self.detStore['/TRIGGER/LVL1/Menu']
+                for (ichan, entry) in lvl1menu:
+                    self.ccnameL1[ichan] = entry['ItemName']
+                    if ichan > self.cclenL1:
+                        self.cclenL1 = ichan
+                _info("POOL2EI::getChainCountersFromDetStore got {} triggers for level L1".format(self.cclenL1))
+                if len(self.ccnameL1) == 0:
+                    self.cclenL1 = 0
+                else:
+                    self.cclenL1 += 1
+            except:
+                _info("POOL2EI::getChainCountersFromDetStore Unable to get L1 trigger names from detStore")
+                self.cclenL1 = 0
+                self.ccnameL1 = {}
+                pass
+
+        # try to get HLT trigger menu from detStore if not loaded in BeginRun
+        if self.cclenL2 == 0 or self.cclenEF == 0:
+            _info("POOL2EI::getChainCountersFromDetStore Trying to get HLT trigger names from detStore")
+            if self.RUN1:
+                try:
+                    self.cclenL2 = 0
+                    self.ccnameL2 = {}
+                    self.cclenEF = 0
+                    self.ccnameEF = {}
+                    hltmenu = self.detStore['/TRIGGER/HLT/Menu']
+                    for (ichan, entry) in hltmenu:
+                        ccounter = entry['ChainCounter']
+                        ccname   = entry['ChainName']
+                        if ccname.startswith("L2_"):
+                            self.ccnameL2[ccounter] = ccname
+                            if ccounter > self.cclenL2:
+                                self.cclenL2 = ccounter
+                        if ccname.startswith("EF_"):
+                            self.ccnameEF[ccounter] = ccname
+                            if ccounter > self.cclenEF:
+                                self.cclenEF = ccounter
+                    _info("POOL2EI::getChainCountersFromDetStore got {} triggers for level L2".format(self.cclenL2))
+                    _info("POOL2EI::getChainCountersFromDetStore got {} triggers for level EF".format(self.cclenEF))
+                    if len(self.ccnameL2) == 0:
+                        self.cclenL2 = 0
+                    else:
+                        self.cclenL2 += 1
+                    if len(self.ccnameEF) == 0:
+                        self.cclenEF = 0
+                    else:
+                        self.cclenEF += 1
+                except:
+                    _info("POOL2EI::getChainCountersFromDetStore Unable to get L2 & EF trigger names from detStore")
+                    self.cclenL2 = 0
+                    self.ccnameL2 = {}
+                    self.cclenEF = 0
+                    self.ccnameEF = {}
+                    pass
+            else:
+                try:
+                    self.cclenL2 = 0
+                    self.ccnameL2 = {}
+                    hltmenu = self.detStore['/TRIGGER/HLT/Menu']
+                    for (ichan, entry) in hltmenu:
+                        ccounter = entry['ChainCounter']
+                        ccname   = entry['ChainName']
+                        if ccname.startswith("HLT_"):
+                            self.ccnameL2[ccounter] = ccname
+                            if ccounter > self.cclenL2:
+                                self.cclenL2 = ccounter
+                    _info("POOL2EI::getChainCountersFromDetStore got {} triggers for level HLT".format(self.cclenL2))
+                    if len(self.ccnameL2) == 0:
+                        self.cclenL2 = 0
+                    else:
+                        self.cclenL2 += 1
+                    ( self.cclenEF, self.ccnameEF ) = ( self.cclenL2, self.ccnameL2 )
+                except:
+                    _info("POOL2EI::getChainCountersFromDetStore Unable to get HLT trigger names from detStore")
+                    self.cclenL2 = 0
+                    self.ccnameL2 = {}
+                    pass
 
 
     ##########################################
@@ -593,6 +696,8 @@ class POOL2EI(PyAthena.Alg):
         if self.DoTriggerInfo:
             eit = ei.trigger_info()
             _info("## Lvl1ID {}".format(eit.extendedLevel1ID()))
+            if 'xAOD::EventInfo' in store.keys():
+                _info("#2# Lvl1ID {}".format(xei.extendedLevel1ID()))
             Lvl1ID = eit.extendedLevel1ID()
             eirec['Lvl1ID'] = Lvl1ID
             trigL1=""
@@ -618,7 +723,11 @@ class POOL2EI(PyAthena.Alg):
             eirec['L2PassedTrigMask'] = trigL2
             eirec['EFPassedTrigMask'] = trigEF
         
-        
+            # if trigger chains were not read at BeginRun try now from detStore
+            if self.cclenL1 == 0 or self.cclenL2 == 0 or self.cclenEF == 0:
+                _info("triggers were not read  at BeginRun try now from detStore")
+                self.getChainCountersFromDetStore()
+
             ## from Metadata
             SMK = self._iov.get('SMK',(run_number,event_number))
             L1PSK = self._iov.get('L1PSK',(run_number,lumi_block))
@@ -627,14 +736,31 @@ class POOL2EI(PyAthena.Alg):
             _info('## L1PSK:  {}'.format(L1PSK))
             _info('## HLTPSK: {}'.format(HLTPSK))
 
+            if SMK is None:
+                # try read keys from detector store
+                try:
+                    SMK    = self.detStore['/TRIGGER/HLT/HltConfigKeys']['MasterConfigurationKey']
+                    L1PSK  = self.detStore['/TRIGGER/LVL1/Lvl1ConfigKey']['Lvl1PrescaleConfigurationKey']
+                    if '/TRIGGER/HLT/PrescaleKey' in self.detStore.keys():
+                        # LB-wise 
+                        HLTPSK = self.detStore['/TRIGGER/HLT/PrescaleKey']['HltPrescaleKey']
+                    else:
+                        # Run-wise
+                        HLTPSK = self.detStore['/TRIGGER/HLT/HltConfigKeys']['HltPrescaleConfigurationKey']
+                except:
+                    pass
+                _info('## SMK*:    {}'.format(SMK))
+                _info('## L1PSK*:  {}'.format(L1PSK))
+                _info('## HLTPSK*: {}'.format(HLTPSK))
+
             eirec['SMK'] = SMK
             eirec['L1PSK'] = L1PSK
             eirec['HLTPSK'] = HLTPSK
 
 
         # update trigger if TrigDecision info is available
-        if self.DoTriggerInfo and self.HaveHlt and ('TrigDecision' in self.evtStore.keys() or 
-                                                    'xTrigDecision' in self.evtStore.keys()):
+        if self.DoTriggerInfo and self.HaveHlt:
+
             L1_isPassedAfterPrescale  = 0x1 << 16
             L1_isPassedBeforePrescale = 0x1 << 17
             L1_isPassedAfterVeto      = 0x1 << 18
@@ -882,8 +1008,8 @@ class POOL2EISvc(PyAthena.Svc):
 
         incsvc.addListener(self, 'BeginInputFile')
         incsvc.addListener(self, 'EndInputFile')
-        incsvc.addListener(self, 'BeginRun', 10)
-        incsvc.addListener(self, 'EndRun', 10)
+        #incsvc.addListener(self, 'BeginRun', 10)
+        #incsvc.addListener(self, 'EndRun', 10)
         incsvc.addListener(self, 'EndEvtLoop')
         incsvc.release()
 
@@ -917,10 +1043,10 @@ class POOL2EISvc(PyAthena.Svc):
             if self.insideInputFile:
                 self.algo.endFile()
             pass
-        elif tp == 'BeginRun':
-            _info('POOL2EISvc::handle BeginRun')
-            self.algo.beginRun()
-            pass
+        #elif tp == 'BeginRun':
+        #    _info('POOL2EISvc::handle BeginRun')
+        #    self.algo.beginRun()
+        #    pass
         else:
             _info('POOL2EISvc::handle {}'.format(tp))
             pass

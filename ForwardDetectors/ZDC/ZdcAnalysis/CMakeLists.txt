@@ -15,14 +15,14 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 atlas_add_component( ZDCAnalysis
 		     Root/*.cxx
 	             INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		     LINK_LIBRARIES ${ROOT_LIBRARIES}  AsgTools xAODForward xAODTrigL1Calo xAODEventInfo
+		     LINK_LIBRARIES ${ROOT_LIBRARIES}  AsgTools xAODForward xAODTrigL1Calo xAODEventInfo PathResolver
 		     )
 
 atlas_add_library (ZDCAnalysisLib
 		  Root/*.cxx
 		  PUBLIC_HEADERS ZDCAnalysis
                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODForward xAODTrigL1Calo xAODEventInfo
+		  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODForward xAODTrigL1Calo xAODEventInfo PathResolver
 		  )
 
 atlas_install_joboptions( share/*.py)

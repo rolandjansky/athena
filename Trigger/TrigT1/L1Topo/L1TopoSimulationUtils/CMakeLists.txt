@@ -5,6 +5,10 @@
 # Declare the package name:
 atlas_subdir( L1TopoSimulationUtils )
 
+# Trigger dependencies
+atlas_depends_on_subdirs( PUBLIC
+                          Trigger/TrigT1/L1Topo/L1TopoEvent )
+
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 
@@ -14,4 +18,7 @@ atlas_add_library( L1TopoSimulationUtils
                    PUBLIC_HEADERS L1TopoSimulationUtils
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} )
+
+
+
 

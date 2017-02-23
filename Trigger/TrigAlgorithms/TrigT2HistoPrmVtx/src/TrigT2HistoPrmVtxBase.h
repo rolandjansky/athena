@@ -155,6 +155,7 @@ class TrigT2HistoPrmVtxBase {
 
   /** @brief Beam spot position and precision. */
   float m_xBeamSpot,m_yBeamSpot,m_zBeamSpot;
+  float m_xBeamSpotTilt,m_yBeamSpotTilt;
   float m_xBeamSpotSigma,m_yBeamSpotSigma,m_zBeamSpotSigma;
 
   /** @brief DeclareProperty: to monitor track selection for likelihood methods. */

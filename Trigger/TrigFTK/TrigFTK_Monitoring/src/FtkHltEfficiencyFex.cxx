@@ -159,9 +159,10 @@ HLT::ErrorCode FtkHltEfficiencyFex::hltInitialize()
 //-----------------------------------------------------------------
 HLT::ErrorCode FtkHltEfficiencyFex::hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement*)
 {
-  ATH_MSG_INFO("FtkHltEfficiencyFex::hltExecute event" << eventCounter++);
-  m_timer[AlgoTime]->start();
-  
+  ATH_MSG_INFO("FtkHltEfficiencyFex::hltExecute event " << eventCounter++);
+  if(m_timer[AlgoTime]) m_timer[AlgoTime]->start(); // avoid crash when timing service not available
+
+
   //To start monitoring:  
   beforeExecMonitors().ignore();
 
@@ -187,7 +188,7 @@ HLT::ErrorCode FtkHltEfficiencyFex::hltExecute(const HLT::TriggerElement* input,
         );
 
     //  Get last track collection attached to this ROI (there should only be one)
-    m_timer[GetHltTracksTime]->start();
+    if(m_timer[GetHltTracksTime]) m_timer[GetHltTracksTime]->start();
     const xAOD::TrackParticleContainer* HLT_tpcPtr;
     status = getFeature(input, HLT_tpcPtr);
     if( status == HLT::OK && HLT_tpcPtr ){
@@ -196,10 +197,10 @@ HLT::ErrorCode FtkHltEfficiencyFex::hltExecute(const HLT::TriggerElement* input,
     }
     else   
       ATH_MSG_DEBUG("Failed to get TrackParticleContainers ");
-    m_timer[GetHltTracksTime]->stop();
+    if(m_timer[GetHltTracksTime]) m_timer[GetHltTracksTime]->stop();
 
     // Get FTK tracks in ROI
-    m_timer[GetFtkTracksTime]->start(); 
+    if(m_timer[GetFtkTracksTime]) m_timer[GetFtkTracksTime]->start(); 
     const xAOD::TrackParticleContainer* FTK_tpcPtr;
     FTK_tpcPtr = m_FTKDataProviderSvc->getTrackParticlesInRoi(*roiDescriptor, 0);
     if( FTK_tpcPtr ){
@@ -208,26 +209,28 @@ HLT::ErrorCode FtkHltEfficiencyFex::hltExecute(const HLT::TriggerElement* input,
     }
     else
       ATH_MSG_DEBUG("Failed to get FTK TrackParticleContainer ");
-    m_timer[GetFtkTracksTime]->stop();    
+    if(m_timer[GetFtkTracksTime]) m_timer[GetFtkTracksTime]->stop();    
     ATH_MSG_DEBUG("FTK retrieval time " << m_timer[GetFtkTracksTime]->elapsed());
   }
   
   // run efficiency analysis
-  m_timer[EfficiencyToolTime]->start();
+  if(m_timer[EfficiencyToolTime]) m_timer[EfficiencyToolTime]->start();
   m_efficiencyAnalysis->TrackAnalyisis(m_HLTTrkPtr_vec, m_FTKTrkPtr_vec);
-  m_timer[EfficiencyToolTime]->stop();
+  if(m_timer[EfficiencyToolTime]) m_timer[EfficiencyToolTime]->stop();
   // perform regular efficiency analyisis with test and reference tracks swapped
   // works only if only FTK tracks in ROIs are selected so that there is indeed
   // 1to1 overlap between HLT and FTK tracks
-  m_timer[PurityToolTime]->start();
+  if(m_timer[PurityToolTime]) m_timer[PurityToolTime]->start();
   m_purityAnalysis->TrackAnalyisis(m_FTKTrkPtr_vec, m_HLTTrkPtr_vec, true);
-  m_timer[PurityToolTime]->stop();
+  if(m_timer[PurityToolTime]) m_timer[PurityToolTime]->stop();
 
   //To stop monitoring:
   afterExecMonitors().ignore();
 
-  m_timer[AlgoTime]->stop();
-  ATH_MSG_DEBUG("execution time " << m_timer[AlgoTime]->lastElapsed());
+  if(m_timer[AlgoTime]){ 
+    m_timer[AlgoTime]->stop();
+    ATH_MSG_DEBUG("execution time " << m_timer[AlgoTime]->lastElapsed());
+  }
   return HLT::OK;  
 }
 //-----------------------------------------------------------------

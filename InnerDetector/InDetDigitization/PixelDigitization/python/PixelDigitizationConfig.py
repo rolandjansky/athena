@@ -28,21 +28,6 @@ def Pixel_LastXing():
 def ChargeCollProbSvc(name="ChargeCollProbSvc", **kwargs):
     return CfgMgr.ChargeCollProbSvc(name, **kwargs)
 
-def SurfaceChargesTool(name="SurfaceChargesTool", **kwargs):
-    if hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation():
-        kwargs.setdefault("PixelBarrelChargeTool","PixelBarrelBichselChargeTool")
-        kwargs.setdefault("PixelECChargeTool","PixelECBichselChargeTool")
-        kwargs.setdefault("IblPlanarChargeTool","IblPlanarBichselChargeTool")
-        kwargs.setdefault("Ibl3DChargeTool","Ibl3DBichselChargeTool")
-    else:
-        kwargs.setdefault("PixelBarrelChargeTool","PixelBarrelChargeTool")
-        kwargs.setdefault("PixelECChargeTool","PixelECChargeTool")
-        kwargs.setdefault("IblPlanarChargeTool","IblPlanarChargeTool")
-        kwargs.setdefault("Ibl3DChargeTool","Ibl3DChargeTool")
-    kwargs.setdefault("DBMChargeTool","DBMChargeTool") # No separate implementation when using Bichsel model
-    kwargs.setdefault("doITk", GeometryFlags.isSLHC())
-    return CfgMgr.SurfaceChargesTool(name, **kwargs)
-
 def DBMChargeTool(name="DBMChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
@@ -140,20 +125,6 @@ def PixelNoisyCellGenerator(name="PixelNoisyCellGenerator", **kwargs):
          kwargs.setdefault("RndNoiseProb", 1.e-10)
     return CfgMgr.PixelNoisyCellGenerator(name, **kwargs)
 
-def SpecialPixelGenerator(name="SpecialPixelGenerator", **kwargs):
-    from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType == "cosmics" :
-        # random noise probability
-        kwargs.setdefault("SpmNoiseProb", 1e-5)
-        kwargs.setdefault("SpmNoBumpProb", 5e-4)
-        kwargs.setdefault("SpmDisableProb", 2e-5)
-        #kwargs.setdefault("SpmBadTOTProb", 5e-4)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.SpecialPixelGenerator(name, **kwargs)
-
-
-
 def PixelGangedMerger(name="PixelGangedMerger", **kwargs):
     return CfgMgr.PixelGangedMerger(name, **kwargs)
 
@@ -176,6 +147,7 @@ def TimeSvc(name="TimeSvc", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
         ## Timing for cosmics run
+        kwargs.setdefault("UseComTime", True)
         kwargs.setdefault("TimeJitter", 25.)
         kwargs.setdefault("TimeZero", 100.)
         timeBCN = 8
@@ -186,15 +158,38 @@ def TimeSvc(name="TimeSvc", **kwargs):
     kwargs.setdefault("TimeBCN",timeBCN)
     return CfgMgr.TimeSvc(name, **kwargs)
 
-def PixelCellDiscriminator(name="PixelCellDiscriminator", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.PixelCellDiscriminator(name, **kwargs)
-
 def PixelRandomDisabledCellGenerator(name="PixelRandomDisabledCellGenerator", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.PixelRandomDisabledCellGenerator(name, **kwargs)
+
+def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    return CfgMgr.FrontEndSimTool(name, **kwargs)
+
+def FEI4SimTool(name="FEI4SimTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("BarrelToTthreshold", [-1])
+    kwargs.setdefault("EndcapToTthreshold", [-1,-1,-1])
+    kwargs.setdefault("HitDiscConfig", 2)
+    kwargs.setdefault("TimingTune", 2015)
+    return CfgMgr.FEI4SimTool(name, **kwargs)
+
+def FEI3SimTool(name="FEI3SimTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("BarrelToTthreshold", [-1, 5, 5, 5])    # first argument is dummy
+    kwargs.setdefault("EndcapToTthreshold", [ 5, 5, 5])
+    kwargs.setdefault("BarrelLatency", [ -1, 151, 256, 256])
+    kwargs.setdefault("EndcapLatency", [256, 256, 256])
+    kwargs.setdefault("BarrelHitDuplication", [False, False, False, False])
+    kwargs.setdefault("EndcapHitDuplication", [False, False, False])
+    kwargs.setdefault("BarrelSmallHitToT", [-1, -1, -1, -1])
+    kwargs.setdefault("EndcapSmallHitToT", [-1, -1, -1])
+    kwargs.setdefault("TimingTune", 2015)
+    return CfgMgr.FEI3SimTool(name, **kwargs)
 
 def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon import CfgGetter
@@ -206,6 +201,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.Resilience import protectedInclude
     from AthenaCommon.Include import include
     from AthenaCommon.AppMgr import ServiceMgr
+    from AthenaCommon.CfgGetter import getService
     protectedInclude( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
     include.block( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
     protectedInclude( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
@@ -213,46 +209,42 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     protectedInclude("PixelConditionsServices/PixelCalibSvc_jobOptions.py")
     from IOVDbSvc.CondDB import conddb
     conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed")
-    kwargs.setdefault("PixelCablingSvc","PixelCablingSvc")
+    PixelCablingSvc = getService("PixelCablingSvc")
+    ServiceMgr += PixelCablingSvc
+    print  PixelCablingSvc
     if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
-        from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
-        pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
-        ServiceMgr += pixelSiPropertiesSvc
+      from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
+      from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+      pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
+      ServiceMgr += pixelSiPropertiesSvc
     kwargs.setdefault("InputObjectName", "PixelHits")
     pixTools = []
-    pixTools += ['PixelDiodeCrossTalkGenerator']
-    pixTools += ['PixelChargeSmearer']
-    pixTools += ['PixelNoisyCellGenerator']
-    pixTools += ['PixelGangedMerger']
-    pixTools += ['SpecialPixelGenerator']
-    pixTools += ['PixelRandomDisabledCellGenerator']
-    pixTools += ['PixelCellDiscriminator']
-    kwargs.setdefault("PixelTools", pixTools)
-    # Start of special cosmics tuning:
-    if jobproperties.Beam.beamType == "cosmics" :
-        kwargs.setdefault("UseComTime", True)
+    chargeTools = []
+    feSimTools = []
     if GeometryFlags.isSLHC():
-        LVL1Latency = [255, 255, 255, 255, 255, 16, 255]
-        ToTMinCut = [0, 0, 0, 0, 0, 0, 0]
-        ApplyDupli = [False, False, False, False, False, False, False]
-        LowTOTduplication = [0, 0, 0, 0, 0, 0, 0]
-        kwargs.setdefault("LVL1Latency", LVL1Latency)
-        kwargs.setdefault("ToTMinCut", ToTMinCut)
-        kwargs.setdefault("ApplyDupli", ApplyDupli)
-        kwargs.setdefault("LowTOTduplication", LowTOTduplication)
+      pixTools += ['PixelDiodeCrossTalkGenerator']
+      pixTools += ['PixelChargeSmearer']
+      pixTools += ['PixelNoisyCellGenerator']
+      pixTools += ['PixelGangedMerger']
+      pixTools += ['PixelRandomDisabledCellGenerator']
+      chargeTools += ['IblPlanarBichselChargeTool']
+      feSimTools += ['FEI4SimTool']
     else:
-        # For LVL1Latency, ToTMinCut, ApplyDupli and LowTOTduplication, first component [0] is always for IBL, even for run 1 production.
-        # The order is IBL, BL, L1, L2, EC, DBM
-        # For IBL and DBM, values of LVL1Latency and LowToTDupli are superseded by values driven by HitDiscCnfg settings, in PixelDigitizationTool.cxx
-        LVL1Latency = [16, 150, 255, 255, 255, 16]
-        ToTMinCut = [0, 6, 6, 6, 6, 0]
-        ApplyDupli = [True, False, False, False, False, False]
-        LowTOTduplication = [0, 7, 7, 7, 7, 0]
-        kwargs.setdefault("LVL1Latency", LVL1Latency)
-        kwargs.setdefault("ToTMinCut", ToTMinCut)
-        kwargs.setdefault("ApplyDupli", ApplyDupli)
-        kwargs.setdefault("LowTOTduplication", LowTOTduplication)
+      pixTools += ['PixelDiodeCrossTalkGenerator']
+      pixTools += ['PixelChargeSmearer']
+      pixTools += ['PixelNoisyCellGenerator']
+      pixTools += ['PixelGangedMerger']
+      pixTools += ['PixelRandomDisabledCellGenerator']
+      chargeTools += ['DBMChargeTool']
+      chargeTools += ['PixelECBichselChargeTool']
+      chargeTools += ['PixelBarrelBichselChargeTool']
+      chargeTools += ['IblPlanarBichselChargeTool']
+      chargeTools += ['Ibl3DBichselChargeTool']
+      feSimTools += ['FEI4SimTool']
+      feSimTools += ['FEI3SimTool']
+    kwargs.setdefault("PixelTools", pixTools)
+    kwargs.setdefault("ChargeTools", chargeTools)
+    kwargs.setdefault("FrontEndSimTools", feSimTools)
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
         kwargs.setdefault("LastXing", Pixel_LastXing() )

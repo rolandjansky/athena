@@ -87,6 +87,7 @@ top.L1TopoSimulation.TopoOutputLevel=DEBUG
 top.L1TopoSimulation.TopoSteeringOutputLevel=DEBUG
 top.L1TopoSimulation.EnableInputDump = True
 top.L1TopoSimulation.InputDumpFile = "inputdump.txt"
+top.L1TopoSimulation.UseBitwise = False
 
 # new calo sim
 top.CPCMX.OutputLevel = VERBOSE

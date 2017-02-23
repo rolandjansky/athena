@@ -10,6 +10,8 @@ Purpose : create a collection of MuonTag
 *****************************************************************************/
 
 #include "GaudiKernel/Property.h"
+#include "xAODCore/ShallowCopy.h"
+#include "xAODParticleEvent/IParticleLink.h"
 #include "AthContainers/ConstDataVector.h"
 #include "xAODMuon/MuonContainer.h"
 #include "MuonTagTools/MuonTagTool.h"
@@ -34,64 +36,68 @@ MuonTagTool::MuonTagTool (const std::string& type, const std::string& name,
   m_loose_isolation(""),
   m_tight_isolation(""),
   m_gradient_loose_isolation(""),
-  m_gradient_isolation("") {
-  
-  
+  m_gradient_isolation(""),
+  m_fixedcut_tight_trackonly_isolation(""),
+  m_fixedcut_loose_isolation("") {
   
   /** Muon AOD Container Name */
-  declareProperty("Container",          m_containerNames);
+  declareProperty("Container",            m_containerNames);
 
   /** Muon MET input container name*/
-  declareProperty("MuonMETContainerName",   m_muon_met_container_name);
+  declareProperty("MuonMETContainerName", m_muon_met_container_name);
   
   /** selection cut of Pt */
-  declareProperty("EtCut",              m_cut_Et = 6.0*CLHEP::GeV);
+  declareProperty("PtCut",                m_cut_Pt = 6.0*CLHEP::GeV);
   
   /** overlap removal deltaR cut */
-  declareProperty("OverlapDeltaRCut",   m_DRcut = 0.01);
+  declareProperty("OverlapDeltaRCut",     m_DRcut = 0.01);
   
   /** Calo Isolation cut values */
   declareProperty("EtconeIsoCutValues",   m_etconeisocutvalues, "Cut values for Etcone isolation");
   
   /** Calo Isolation cut values */
-  declareProperty("PtconeIsoCutValues",  m_ptconeisocutvalues, "Cut values for Ptcone isolation");
+  declareProperty("PtconeIsoCutValues",   m_ptconeisocutvalues, "Cut values for Ptcone isolation");
   
   /** Calo Isolation cut values */
-  declareProperty("EtconeRelIsoCutValues",   m_etconeisorelcutvalues, "Cut values for Etcone/pt isolation");
+  declareProperty("EtconeRelIsoCutValues",m_etconeisorelcutvalues, "Cut values for Etcone/pt isolation");
   
   /** Calo Isolation cut values */
-  declareProperty("PtconeRelIsoCutValues",  m_ptconeisorelcutvalues, "Cut values for Ptcone/pt isolation");
+  declareProperty("PtconeRelIsoCutValues",m_ptconeisorelcutvalues, "Cut values for Ptcone/pt isolation");
   
   /** D0 preselection cut value */
-  declareProperty("maxD0PreSelection",  m_maxD0preselection = 5*CLHEP::mm, "Cut values for track impact parameter");
+  declareProperty("maxD0PreSelection",    m_maxD0preselection = 5*CLHEP::mm, "Cut values for track impact parameter");
   
   /** cosmic flag */
-  declareProperty("isCosmics", m_cosmics = false);
+  declareProperty("isCosmics",            m_cosmics = false);
   
   /** inner detector flag */ 
-  declareProperty("doInDet", m_doInDet = true);
+  declareProperty("doInDet",              m_doInDet = true);
   
   /** key for primary vertex container */
-  declareProperty ("PrimaryVertexKey", m_vxCandidate = "PrimaryVertices");
+  declareProperty ("PrimaryVertexKey",    m_vxCandidate = "PrimaryVertices");
   
   /** D0 tight veto cut */
-  declareProperty("maxD0tight",  m_maxD0tight = 0.3*CLHEP::mm);
+  declareProperty("maxD0tight",              m_maxD0tight = 0.3*CLHEP::mm);
   /** Z0 tight veto cut */
-  declareProperty("maxZ0tight",  m_maxZ0tight = 2*CLHEP::mm);
+  declareProperty("maxZ0tight",              m_maxZ0tight = 2*CLHEP::mm);
   /** Z0 loose veto cut */
-  declareProperty("maxZ0loose",  m_maxZ0loose = 10*CLHEP::mm);
+  declareProperty("maxZ0loose",              m_maxZ0loose = 10*CLHEP::mm);
   /** D0 significance loose veto cut */
   declareProperty("maxD0SignificanceLoose",  m_maxD0signLoose = 5 );
   /** D0 significance tight veto cut */
   declareProperty("maxD0SignificanceTight",  m_maxD0signTight = 3.5 );
+  /**Muon Calibration Tool*/
+  declareProperty("MuonCalibrationTool",     m_muon_calibration_tool );
   /**Muon Selection Tool*/
-  declareProperty("MuonSelectionTool",  m_muon_selection_tool );
+  declareProperty("MuonSelectionTool",       m_muon_selection_tool );
   /** Muon Isolation Tool names */
-  declareProperty("LooseTrackOnlyIsolation",m_loose_trackonly_isolation);
-  declareProperty("LooseIsolation",         m_loose_isolation);
-  declareProperty("TightIsolation",         m_tight_isolation);
-  declareProperty("GradientLooseIsolation", m_gradient_loose_isolation);
-  declareProperty("GradientIsolation",      m_gradient_isolation);
+  declareProperty("LooseTrackOnlyIsolation", m_loose_trackonly_isolation);
+  declareProperty("LooseIsolation",          m_loose_isolation);
+  declareProperty("TightIsolation",          m_tight_isolation);
+  declareProperty("GradientLooseIsolation",  m_gradient_loose_isolation);
+  declareProperty("GradientIsolation",       m_gradient_isolation);
+  declareProperty("FixedCutTightTrackOnlyIsolation", m_fixedcut_tight_trackonly_isolation);
+  declareProperty("FixedCutLooseIsolation",          m_fixedcut_loose_isolation);
 
   declareInterface<MuonTagTool>( this );
 }
@@ -100,6 +106,8 @@ MuonTagTool::MuonTagTool (const std::string& type, const std::string& name,
 StatusCode  MuonTagTool::initialize() {
   
   AthAlgTool::initialize().ignore();
+  /** retrieve and check the muon calibration tool*/
+  ATH_CHECK ( m_muon_calibration_tool.retrieve() );
   /** retrieve and check the muon selector tool*/
   ATH_CHECK ( m_muon_selection_tool.retrieve() );
   /** retrieve and check the muon isolation tool*/
@@ -108,6 +116,8 @@ StatusCode  MuonTagTool::initialize() {
   CHECK(m_tight_isolation.retrieve());
   CHECK(m_gradient_loose_isolation.retrieve());
   CHECK(m_gradient_isolation.retrieve());
+  CHECK(m_fixedcut_tight_trackonly_isolation.retrieve());
+  CHECK(m_fixedcut_loose_isolation.retrieve());
 
   if (m_etconeisorelcutvalues.size() > 2) {
     ATH_MSG_FATAL ("More than to EtconeRel values are not permitted");
@@ -206,17 +216,7 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
   
   ATH_MSG_DEBUG ("in execute()");
   
-  /** retrieve the  EventInfo container*/
-  const xAOD::EventInfo* eventInfo = 0;
-  StatusCode sc = evtStore()->retrieve( eventInfo, "EventInfo");
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "No AOD EventInfo container found in SG" );
-    return StatusCode::SUCCESS;
-  }
-  ATH_MSG_DEBUG( "AOD EventInfo container successfully retrieved");
-  
   std::vector<const xAOD::Muon*> unique_muons; 
-  xAOD::Muon::Quality my_quality;  
   
   /** now loop over the Muon containers */
   
@@ -229,55 +229,77 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
       continue;
     }
     
-    xAOD::MuonContainer::const_iterator cm_it     = muonContainer->begin();
-    xAOD::MuonContainer::const_iterator cm_it_end = muonContainer->end();
+    // create a shallow copy of the muon container
+    std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*muonContainer);
+    xAOD::MuonContainer       *muonContainerShallowCopy    = shallowCopy.first;
+    xAOD::ShallowAuxContainer *muonAuxContainerShallowCopy = shallowCopy.second;
     
-    // create a new copy for MET calculation
+    CHECK( evtStore()->record(muonContainerShallowCopy,    "MuonShallowTAG"));
+    CHECK( evtStore()->record(muonAuxContainerShallowCopy, "MuonShallowTAGAux."));
+
+    static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
+    for ( xAOD::Muon *shallowCopyMuon : * muonContainerShallowCopy ) {
+
+      /** fix calibration using tool */
+      ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyMuon->pt());
+      if(m_muon_calibration_tool->applyCorrection(*shallowCopyMuon) != CP::CorrectionCode::Ok){
+          ATH_MSG_WARNING("Cannot calibrate muon");
+      }
+      ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyMuon->pt()); 
+
+      const xAOD::IParticleLink originLink( *muonContainer, shallowCopyMuon->index() );
+      accSetOriginLink(*shallowCopyMuon) = originLink;
+    }
+    CHECK(evtStore()->setConst(muonContainerShallowCopy ));
+    CHECK(evtStore()->setConst(muonAuxContainerShallowCopy ));
+
+    /** create a new copy for MET calculation */
     ConstDataVector< xAOD::MuonContainer >* selectedMuons = new ConstDataVector< xAOD::MuonContainer >( SG::VIEW_ELEMENTS );
     ATH_CHECK( evtStore()->record( selectedMuons, m_muon_met_container_name ) );
 
     /** loop over the muon container */
+    xAOD::MuonContainer::const_iterator cm_it     = muonContainerShallowCopy->begin();
+    xAOD::MuonContainer::const_iterator cm_it_end = muonContainerShallowCopy->end();
     for ( ; cm_it != cm_it_end ; ++cm_it) {
       
       ATH_MSG_DEBUG ("next Muon has pt = " <<  (*cm_it)->pt()/1000. << " Gev, eta = " <<  (*cm_it)->eta() << ", phi = " <<  (*cm_it)->phi());
-      /** preselection of good muon candidate for tags */
+
+      /** now preselection of good muon candidate for tags */
 
       /** use the muon selector tool to get the tightness */
+      xAOD::Muon::Quality my_quality = m_muon_selection_tool->getQuality(**cm_it);
+      /** require that the muon is combined */
+      bool muonType                  = (*cm_it)->muonType();
 
-      my_quality = m_muon_selection_tool->getQuality(**cm_it);
-      
+      /** we require at least Loose, not Standalone, passes Pt cut */
+      if ( my_quality <= xAOD::Muon::Loose && muonType != xAOD::Muon::MuonStandAlone &&
+	   (*cm_it)->pt() > m_cut_Pt ) {
 
-      /** Fill the Muon MET input container only if the muons are medium */
-      if(my_quality <= xAOD::Muon::Medium &&  m_muon_selection_tool->passedIDCuts(**cm_it)){
-	selectedMuons->push_back( *cm_it );
-      }
-      /** preselection for tag writing is "loose" and we apply a pt cut*/
-      if ( (*cm_it)->pt() > m_cut_Et && ( my_quality <= xAOD::Muon::Loose ) ) {
         ATH_MSG_DEBUG ("-> Muon passes preselection");
-
-        /** not first container, do overlap removal */
+      
+        /** not first container, do overlap removal (obsolete) */
         if ( j!=0 ) {
 
           std::vector<const xAOD::Muon*>::const_iterator cm2_it = unique_muons.begin();
           for ( ; cm2_it != unique_muons.end() ; ++cm2_it) {
-
+	    
             /** now we apply a deltaR check*/
             double dR= (*cm_it)->p4().DeltaR((*cm2_it)->p4());
             if (dR<m_DRcut) {
               ATH_MSG_DEBUG ("-> Muon fails dR overlap cut, dR = " << dR);
               continue;
             }
-            
+	    
           }
           ATH_MSG_DEBUG ("-> Muon passes overlap check !");
         }
         
         /** we apply impact preselection if no cosmics and no standalone muon */
-        if (!m_cosmics && !((*cm_it)->muonType()==xAOD::Muon::MuonStandAlone) ) {
-          ATH_MSG_DEBUG ("-> Muon is combined or segment tagged, try impact veto against cosmics");
-          
-          double d0=0,z0=0;
-          getMuonImpactParameter (*cm_it, d0, z0);
+        if (!m_cosmics) {
+	  ATH_MSG_DEBUG ("-> try impact veto against cosmics");
+	  
+	  double d0=0,z0=0, d0_significance=0;
+          getMuonImpactParameter (*cm_it, d0, z0, d0_significance);
           
           if ( std::abs(d0) > m_maxD0preselection ) {
             ATH_MSG_DEBUG ("-> Muon fails impact veto, ha d0 = " << d0 << " mm, for cosmics, reject it");
@@ -286,11 +308,12 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
             ATH_MSG_DEBUG ("-> Muon passes impact veto, has d0 = " << d0 << " mm");         
           }
         }
-
-        ATH_MSG_DEBUG ("-> copy Muon for output !");
+	
+        ATH_MSG_DEBUG ("-> Muon passed, copy Muon for output !");
+	/** Fill the Muon into output list for TAG file */
         unique_muons.push_back( *cm_it );
-      } else {
-        ATH_MSG_DEBUG ("-> Muon failed preselection !");
+	/** Fill the Muon MET input container only if the muons are medium */
+	selectedMuons->push_back( *cm_it );
       }
     }
   }
@@ -309,7 +332,7 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
     const xAOD::Muon& muon = **muonItr;
     
     ATH_MSG_DEBUG("Muon: pt " << muon.pt()
-                  << "  eta " << muon.eta() << "  phi " << muon.phi() 
+                  << " eta " << muon.eta() << " phi " << muon.phi() 
                   << " px " << muon.p4().Px() << " py " << muon.p4().Py() );
     
     /** pt */
@@ -565,6 +588,8 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
     if(m_tight_isolation->accept(**muonItr))          tightness |= (1 << 26);
     if(m_gradient_isolation->accept(**muonItr))       tightness |= (1 << 27);
     if(m_gradient_loose_isolation->accept(**muonItr)) tightness |= (1 << 28);
+    if(m_fixedcut_tight_trackonly_isolation->accept(**muonItr))tightness |= (1 << 29);
+    if(m_fixedcut_loose_isolation->accept(**muonItr))          tightness |= (1 << 30);
 
     /** varying levels of tighness cuts - to be defined and implemented */
     
@@ -573,7 +598,7 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
     if ( muon.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon ) tightness = tightness | bit2int(2);
     if ( muon.muonType() == xAOD::Muon::SegmentTagged )                tightness = tightness | bit2int(3);
     
-    my_quality = m_muon_selection_tool->getQuality(muon);
+    xAOD::Muon::Quality my_quality = m_muon_selection_tool->getQuality(muon);
     if ( my_quality <= xAOD::Muon::Loose)                              tightness = tightness | bit2int(7);
     if ( my_quality <= xAOD::Muon::Medium)                             tightness = tightness | bit2int(4);
     if ( my_quality <= xAOD::Muon::Tight)                              tightness = tightness | bit2int(8);
@@ -592,13 +617,10 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
 
         /** Add the impact parameter bits for cosmic veto */
         
-        double d0=0,z0=0;
+        double d0=0,z0=0,d0sig=0;
         /**calling getMuonImpactParameter to get d0,z0 values*/
-        getMuonImpactParameter ((*muonItr), d0, z0);
-        
-        /**evaluating d0significance using TrackingHelper*/
-        
-        double d0sig = xAOD::TrackingHelpers::d0significance(tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), eventInfo->beamPosSigmaXY() );
+        getMuonImpactParameter ((*muonItr), d0, z0, d0sig);
+
         if ( d0sig < m_maxD0signLoose) tightness = tightness | bit2int(5);
         if ( d0sig < m_maxD0signTight) tightness = tightness | bit2int(6);
         if ( fabs(d0) < m_maxD0tight)  tightness = tightness | bit2int(9);
@@ -741,17 +763,26 @@ MuonTagTool::~MuonTagTool() {
  
 
 /** private function to get impact parameter */
-void MuonTagTool::getMuonImpactParameter (const xAOD::Muon* muon, double& d0, double& z0) {
-  
+void MuonTagTool::getMuonImpactParameter (const xAOD::Muon* muon, double& d0, double& z0, double& d0_significance) {
+   
   /** let's initialize to 0 the impact parameters*/
-  
   d0    = 0;
   z0    = 0;
+  d0_significance = 0;
+
+  StatusCode sc;
   
+  /** retrieve the  EventInfo container*/
+  const xAOD::EventInfo* eventInfo = 0;
+  sc = evtStore()->retrieve( eventInfo, "EventInfo");
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING( "No AOD EventInfo container found in SG" );
+    return;
+  }
+
   /** get vertex container, we assume the first vertex is the primary by convention */
-  
   const xAOD::VertexContainer* vxContainer=0;
-  StatusCode sc = evtStore()->retrieve(vxContainer, m_vxCandidate);
+  sc = evtStore()->retrieve(vxContainer, m_vxCandidate);
   if (sc.isFailure() || !vxContainer) {
     ATH_MSG_DEBUG ("Could not retrieve primary vertex info: " << m_vxCandidate <<", return 0 impact parameter.");
     return;
@@ -761,32 +792,30 @@ void MuonTagTool::getMuonImpactParameter (const xAOD::Muon* muon, double& d0, do
     return;
   } 
   xAOD::VertexContainer::const_iterator vxI     = vxContainer->begin();
-  
-  ATH_MSG_DEBUG ("---> vertex at (x/y/z) = " << 
-                 (*vxI)->x() << " / " <<
-                 (*vxI)->y() << " / " <<
-                 (*vxI)->z() );
+  if ((*vxI)->vertexType() != xAOD::VxType::PriVtx) {
+    ATH_MSG_DEBUG ("---> no primary vertex reconstructed, return 0 impact parameters.");
+    return;
+  }
+  ATH_MSG_DEBUG ("---> vertex at (x/y/z) = " << (*vxI)->x() << " / " << (*vxI)->y() << " / " << (*vxI)->z() );
   
   /** We try to find the link to the primary track and after we retrieve it*/
-  
   const ElementLink<xAOD::TrackParticleContainer> &  tp_prime = muon->primaryTrackParticleLink();
   if(!tp_prime){
     ATH_MSG_DEBUG("found no link to primary track particle");
-    return;
-  }
+  } else {
+    const xAOD::TrackParticle* trk = *tp_prime;
   
-  const xAOD::TrackParticle* tp = 0;
-  if( tp_prime.isValid() ) {
-    tp = *tp_prime;
-    ATH_MSG_DEBUG("retrieved TrackParticle");
-    
-    d0    = tp->d0();
-    z0    = tp->z0();
+    /** d0 Significance w.r.t. Beam Spot covariance as recommended (even if it makes little sense) */
+    double d0_significance = xAOD::TrackingHelpers::d0significance(trk,
+								   eventInfo->beamPosSigmaX(),
+								   eventInfo->beamPosSigmaY(),
+								   eventInfo->beamPosSigmaXY() );
+    /** get d0 impact parameter */
+    d0    = trk->d0();
+    /** z0 is an approximation, just do the diff */
+    double z0 = fabs(trk->z0() + trk->vz() - (*vxI)->z());
 
-    ATH_MSG_DEBUG("d0 = " <<  d0 << " z0 = " <<z0 );
-  }
-  else{ 
-    ATH_MSG_DEBUG("TrackParticle not retrieved");
+    ATH_MSG_DEBUG("d0 = " <<  d0 << " z0 = " <<z0 << " d0_significance = " << d0_significance);
   }
   return;
 }

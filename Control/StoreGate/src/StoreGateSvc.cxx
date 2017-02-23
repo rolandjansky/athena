@@ -23,13 +23,12 @@ __thread HiveEventSlot* s_pSlot(0);
 /// Standard Constructor
 StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) : 
   Service(name,svc), 
-  m_defaultStore(0), m_defaultStoreName(name+"_Impl"),
+  m_defaultStore(0),
   m_pPPSHandle("ProxyProviderSvc", name),
-  m_incSvc("IncidentSvc", name)
+  m_incSvc("IncidentSvc", name),
+  m_pIOVSvc(nullptr)
 {
   //our properties
-  declareProperty("defaultStoreName", m_defaultStoreName, "the implementation for the default event store");
-
   //properties of SGImplSvc
   declareProperty("Dump", m_DumpStore=false, "Dump contents at EndEvent");
   declareProperty("ActivateHistory", m_ActivateHistory=false, "record DataObjects history");
@@ -66,8 +65,6 @@ void
 StoreGateSvc::setSlot(SG::HiveEventSlot* pSlot) { 
   s_pSlot=pSlot;
   if ( 0 != s_pSlot) {
-    //probably overkill since Hive should not call setSlot concurrently     
-    std::lock_guard<SG::HiveEventSlot::mutex_t> lock(*(s_pSlot->storeMutex));
     s_pSlot->pEvtStore->makeCurrent();
   }
 }
@@ -158,12 +155,13 @@ StatusCode StoreGateSvc::initialize()    {
     error() << "Failed to retrieve JobOptionsSvc" << endmsg;
   }
   //copy our properties to the prototype (default) SGImplSvc
+  std::string implStoreName = name() + "_Impl";
   const std::vector<const Property*>* props = pJOSvc->getProperties( name() );
   if ( props ) {
     std::vector<const Property*>::const_iterator prop(props->begin());
     std::vector<const Property*>::const_iterator pEnd(props->end());
     while (prop != pEnd) {
-      pJOSvc->addPropertyToCatalogue( m_defaultStoreName, **prop ).ignore();
+      pJOSvc->addPropertyToCatalogue( implStoreName, **prop ).ignore();
       ++prop;
     }    
   } 
@@ -173,9 +171,20 @@ StatusCode StoreGateSvc::initialize()    {
   //HACK ALERT: using createService rather then the customary service(...,CREATEIF=true) we set our pointer
   // to SGImplSvc early (even before it is initialized). This should help take care of some initialize loops
   // for example when we try to record an address from one of the address providers initialize methods
+
+  std::string implStoreFullName = "SGImplSvc/" + implStoreName;
+  debug() << "trying to create store " << implStoreFullName << endmsg;
+
   ISvcManager* pSM(dynamic_cast<ISvcManager*>(&*serviceLocator()));
-  m_defaultStore = dynamic_cast<SGImplSvc*>( (pSM->createService("SGImplSvc/"+m_defaultStoreName)).get() );
-  if ( m_defaultStore && m_defaultStore->initialize().isSuccess() ) {
+  if (!pSM) std::abort();
+  m_defaultStore = dynamic_cast<SGImplSvc*>( (pSM->createService(implStoreFullName)).get() );
+
+  if (!m_defaultStore) {
+    error() << "Could not create store " << implStoreFullName << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  if ( m_defaultStore->sysInitialize().isSuccess() ) {
     // createService returns to us a reference to the service; we shouldn't
     // increment it again.
     //m_defaultStore->addRef();
@@ -186,7 +195,8 @@ StatusCode StoreGateSvc::initialize()    {
       m_defaultStore->makeCurrent();
     }
   } else {
-    error() << "Could not locate default store " << m_defaultStoreName << endmsg;
+    error() << "Could not initialize default store " << implStoreFullName 
+            << endmsg;
     return StatusCode::FAILURE;
   }
   if ( !m_incSvc.retrieve().isSuccess() ) {
@@ -483,7 +493,6 @@ StoreGateSvc::clearStore(bool forceRemove)
 {
   StatusCode sc;
   if (isHiveStore()) { 
-    std::lock_guard<SG::HiveEventSlot::mutex_t> lock( *(s_pSlot->storeMutex) );
     if (0 != s_pSlot->pEvtStore) {
       sc = s_pSlot->pEvtStore->clearStore(forceRemove);
     }
@@ -503,8 +512,8 @@ StoreGateSvc::emptyTrash() {
 
 const InterfaceID& 
 StoreGateSvc::interfaceID() { 
-  static const InterfaceID _IDStoreGateSvc("StoreGateSvc", 1, 0);
-  return _IDStoreGateSvc; 
+  static const InterfaceID IDStoreGateSvc("StoreGateSvc", 1, 0);
+  return IDStoreGateSvc; 
 }
 StatusCode StoreGateSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
 {

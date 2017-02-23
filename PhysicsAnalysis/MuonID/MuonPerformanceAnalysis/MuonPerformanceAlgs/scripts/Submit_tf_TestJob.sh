@@ -14,7 +14,7 @@
 # SUFFIX="TP"
 # DATE=`date +%Y%m%d`
 # SUFFIX+=$DATE
-SUFFIX="_v025_TEST2"                  # change version name
+SUFFIX="_v030"                  # change version name
 
 GRL="grl.xml" ## defined in setup.sh
 

@@ -186,7 +186,7 @@ namespace Muon {
     return true;
   }
 
-  bool MuonEDMHelperTool::isSLTrack( const Trk::Track& track ) {
+  bool MuonEDMHelperTool::isSLTrack( const Trk::Track& track ) const {
 
     // use track info if set properly
     if( track.info().trackProperties(Trk::TrackInfo::StraightTrack) ) return true;

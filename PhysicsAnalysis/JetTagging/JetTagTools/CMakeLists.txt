@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 786110 2016-11-23 19:25:18Z ssnyder $
+# $Id: CMakeLists.txt 793433 2017-01-23 10:57:26Z dguest $
 ################################################################################
 # Package: JetTagTools
 ################################################################################
@@ -31,6 +31,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetRecTools/InDetSVWithMuonTool
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    InnerDetector/InDetRecTools/TrackVertexAssociationTool
+   InnerDetector/InDetRecTools/InDetRecToolInterfaces
    PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    PhysicsAnalysis/JetTagging/JetTagCalibration
    PhysicsAnalysis/MuonID/MuonSelectorTools
@@ -72,6 +73,7 @@ atlas_add_library( JetTagToolsLib
    src/GradedTrack.cxx src/IPTag.cxx src/JetTagUtils.cxx
    src/SVForIPTool.cxx src/SVTag.cxx src/JetFitterTag.cxx
    src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
+   src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx
    src/MV1Tag.cxx src/MV1cTag.cxx src/MV2Tag.cxx
    src/MyTag.cxx
    src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
@@ -92,11 +94,11 @@ atlas_add_library( JetTagToolsLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel
    Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives
    TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxSecVertex VxVertex
-   TrkVertexFitterInterfaces )
+   TrkVertexFitterInterfaces InDetRecToolInterfaces )
 
 atlas_add_component( JetTagTools
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel JetTagToolsLib )
+   LINK_LIBRARIES GaudiKernel JetTagToolsLib VxSecVertex )
 
 # Install files from the package:
 atlas_install_runtime( share/*.root share/*.txt )

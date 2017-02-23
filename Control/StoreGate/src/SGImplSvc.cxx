@@ -11,6 +11,7 @@
 #include <unordered_map>
 
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 
 #include "AthenaKernel/IClassIDSvc.h"
@@ -139,7 +140,6 @@ SGImplSvc::SGImplSvc(const string& name,ISvcLocator* svc)
     m_pPPSHandle("ProxyProviderSvc", name),
     m_pPPS(nullptr),
     m_pHistorySvc(0), m_pStore(new DataStore(*this)), 
-    m_defaultStoreName(""), 
     m_pIncSvc("IncidentSvc", name),
     m_DumpStore(false), 
     m_ActivateHistory(false),
@@ -156,7 +156,6 @@ SGImplSvc::SGImplSvc(const string& name,ISvcLocator* svc)
   declareProperty("Dump", m_DumpStore);
   declareProperty("ActivateHistory", m_ActivateHistory);
   //StoreGateSvc properties
-  declareProperty("defaultStoreName", m_defaultStoreName, "NOT USED");
   declareProperty("IncidentSvc", m_pIncSvc);
   //add handler for Service base class property
   m_outputLevel.declareUpdateHandler(&SGImplSvc::msg_update_handler, this);
@@ -310,6 +309,7 @@ void SGImplSvc::handle(const Incident &inc) {
 }
 
 StatusCode SGImplSvc::loadEventProxies() {
+  lock_t lock (m_mutex);
   StatusCode sc(StatusCode::SUCCESS);
   //FIXME this should probably be dealt with by the providers
   if (0 != m_pPPS && !m_storeLoaded) {
@@ -332,6 +332,7 @@ string SGImplSvc::createKey(const CLID& id)
 // clear store
 StatusCode SGImplSvc::clearStore(bool forceRemove)
 {
+  lock_t lock (m_mutex);
   emptyTrash();
   for (auto& p : m_newBoundHandles)
     p.second.clear();
@@ -429,6 +430,7 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
                                     IOpaqueAddress* pAddress, 
                                     bool clearAddressFlag)
 {
+  lock_t lock (m_mutex);
   assert(0 != pAddress);
   CLID dataID = pAddress->clID();
 
@@ -502,6 +504,7 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
 //////////////////////////////////////////////////////////////////////
 StatusCode SGImplSvc::recordAddress(IOpaqueAddress* pAddress, bool clearAddressFlag)
 {
+  lock_t lock (m_mutex);
   assert(0 != pAddress);
 
   CLID dataID = pAddress->clID();
@@ -557,11 +560,13 @@ DataProxy* SGImplSvc::setupProxy(const CLID& dataID,
 /// set store id in DataStore:
 void SGImplSvc::setStoreID(StoreID::type id)
 {
+  lock_t lock (m_mutex);
   store()->setStoreID(id);
 }
 /// get store id from DataStore:
 StoreID::type SGImplSvc::storeID() const
 {
+  lock_t lock (m_mutex);
   return store()->storeID();
 }
 
@@ -570,6 +575,7 @@ SGImplSvc::keys(const CLID& id, std::vector<std::string>& vkeys,
                 bool includeAlias, bool onlyValid) 
 
 { 
+  lock_t lock (m_mutex);
   return store()->keys(id, vkeys, includeAlias, onlyValid);
 } 
 
@@ -582,6 +588,7 @@ bool SGImplSvc::isSymLinked(const CLID& linkID, DataProxy* dp)
 // Dump Contents in store:
 string SGImplSvc::dump() const
 { 
+  lock_t lock (m_mutex);
   ostringstream ost;
   ost << "<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> \n";
   ost << "SGImplSvc(" + name() + ")::dump():\n";
@@ -672,12 +679,14 @@ SGImplSvc::addAlias(const std::string& aliasKey, DataProxy* proxy)
 
 int SGImplSvc::typeCount(const CLID& id) const
 {
+  lock_t lock (m_mutex);
   return m_pStore->typeCount(id);
 }  
 
 DataProxy* 
 SGImplSvc::proxy(const void* const pTransient) const
 { 
+  lock_t lock (m_mutex);
   return m_pStore->locatePersistent(pTransient); 
 }
 
@@ -690,6 +699,7 @@ SGImplSvc::proxy(const CLID& id) const
 DataProxy* 
 SGImplSvc::proxy(const CLID& id, bool checkValid) const
 { 
+  lock_t lock (m_mutex);
   DataProxy* dp = m_pStore->proxy(id);
   if (0 == dp && 0 != m_pPPS) {
     dp = m_pPPS->retrieveProxy(id, string("DEFAULT"), *m_pStore);
@@ -706,13 +716,14 @@ SGImplSvc::proxy(const CLID& id, bool checkValid) const
 
 DataProxy* 
 SGImplSvc::proxy(const CLID& id, const string& key) const
-{ 
+{
   return proxy(id, key, false);
 }
 
 DataProxy*
 SGImplSvc::proxy(const CLID& id, const string& key, bool checkValid) const
 { 
+  lock_t lock (m_mutex);
   DataProxy* dp = m_pStore->proxy(id, key);
   if (0 == dp && 0 != m_pPPS) {
     dp = m_pPPS->retrieveProxy(id, key, *m_pStore);
@@ -729,6 +740,7 @@ SGImplSvc::proxy(const CLID& id, const string& key, bool checkValid) const
  */
 StatusCode SGImplSvc::addToStore (CLID id, SG::DataProxy* proxy)
 {
+  lock_t lock (m_mutex);
   return m_pStore->addToStore (id, proxy);
 }
 
@@ -756,6 +768,7 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                                         bool allowMods,
                                         bool returnExisting)
 {
+  lock_t lock (m_mutex);
   const void* raw_ptr = obj.get();
   const std::type_info* tinfo = nullptr;
   
@@ -808,6 +821,7 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
  */
 StatusCode SGImplSvc::updatedObject (CLID id, const std::string& key)
 {
+  lock_t lock (m_mutex);
   addedNewTransObject (id, key);
   return StatusCode::SUCCESS;
 }
@@ -829,6 +843,7 @@ void SGImplSvc::setSlotNumber (int slot, int numSlots)
 std::vector<const SG::DataProxy*> 
 SGImplSvc::proxies() const
 {
+  lock_t lock (m_mutex);
   using std::distance;
   DataStore::ConstStoreIterator s_iter, s_end;
   store()->tRange(s_iter, s_end).ignore();
@@ -856,6 +871,7 @@ SGImplSvc::proxies() const
 DataProxy*
 SGImplSvc::transientProxy(const CLID& id, const string& key) const
 { 
+  lock_t lock (m_mutex);
   DataProxy* dp(m_pStore->proxy(id, key));
   return ( (0 != dp && dp->isValidObject()) ? dp : 0 );
 }
@@ -863,6 +879,7 @@ SGImplSvc::transientProxy(const CLID& id, const string& key) const
 DataObject* 
 SGImplSvc::accessData(const CLID& id) const
 { 
+  lock_t lock (m_mutex);
   DataProxy* theProxy(proxy(id, true));
   return (0 == theProxy) ? 0 : theProxy->accessData();
 }
@@ -870,6 +887,7 @@ SGImplSvc::accessData(const CLID& id) const
 DataObject* 
 SGImplSvc::accessData(const CLID& id, const string& key) const
 { 
+  lock_t lock (m_mutex);
   DataProxy* theProxy(proxy(id, key, true));
   return (0 == theProxy) ? 0 : theProxy->accessData();
 }
@@ -878,6 +896,7 @@ bool
 SGImplSvc::transientSwap( const CLID& id,
                           const std::string& keyA, const std::string& keyB )
 {
+  lock_t lock (m_mutex);
   const bool checkValid = true;
   DataProxy* a = proxy( id, keyA, checkValid );
   DataProxy* b = proxy( id, keyB, checkValid );
@@ -928,6 +947,7 @@ SGImplSvc::typeless_record( DataObject* obj, const std::string& key,
                             SG::DataProxy** proxy_ret,
                             bool noOverwrite)
 {
+  lock_t lock (m_mutex);
   SG::DataProxy* proxy =
     record_impl( obj, key, raw_ptr, allowMods, resetOnly, noOverwrite, tinfo);
   if ( proxy == nullptr )
@@ -955,6 +975,7 @@ SGImplSvc::typeless_overwrite( const CLID& clid,
                                bool noHist,
                                const std::type_info* tinfo)
 {
+  lock_t lock (m_mutex);
   StatusCode sc(StatusCode::SUCCESS);
   SG::DataProxy* toRemove(proxy(clid, key, false));
   if (0 != toRemove) {
@@ -1131,6 +1152,7 @@ StatusCode
 SGImplSvc::removeProxy(DataProxy* proxy, const void* pTrans, 
                        bool forceRemove)
 {
+  lock_t lock (m_mutex);
   // check if valid proxy
   if (0 == proxy) return StatusCode::FAILURE;
 
@@ -1178,11 +1200,13 @@ StatusCode
 SGImplSvc::proxyRange(const CLID& id,
                       SG::ConstProxyIterator& begin,
                       SG::ConstProxyIterator& end) const {
+  lock_t lock (m_mutex);
   return m_pStore->pRange(id,begin,end);
 }
 
 StatusCode SGImplSvc::setConst(const void* pObject)
 {
+  lock_t lock (m_mutex);
   // Check if dataproxy does not exist
   DataProxy * dp = proxy(pObject); 
 
@@ -1207,6 +1231,7 @@ void SGImplSvc::recycle(DataObject* pBadDObj) {
 
 //throw away bad objects
 void SGImplSvc::emptyTrash() {
+  lock_t lock (m_mutex);
   while (!m_trash.empty()) {
     m_trash.front()->release();  //delete the bad data object
     m_trash.pop_front();     //remove pointer from list
@@ -1284,6 +1309,7 @@ SGImplSvc::record_HistObj(const CLID& id, const std::string& key,
 SGImplSvc::sgkey_t
 SGImplSvc::stringToKey (const std::string& str, CLID clid)
 {
+  lock_t lock (m_mutex);
   return m_stringpool.stringToKey (str, clid);
 }
 
@@ -1297,6 +1323,7 @@ SGImplSvc::stringToKey (const std::string& str, CLID clid)
  */
 const std::string* SGImplSvc::keyToString (sgkey_t key) const
 {
+  lock_t lock (m_mutex);
   return m_stringpool.keyToString (key);
 }
 
@@ -1312,6 +1339,7 @@ const std::string* SGImplSvc::keyToString (sgkey_t key) const
 const std::string*
 SGImplSvc::keyToString (sgkey_t key, CLID& clid) const
 {
+  lock_t lock (m_mutex);
   return m_stringpool.keyToString (key, clid);
 }
 
@@ -1332,6 +1360,7 @@ void SGImplSvc::registerKey (sgkey_t key,
                              const std::string& str,
                              CLID clid)
 {
+  lock_t lock (m_mutex);
   if (!m_stringpool.registerKey (key, str, clid)) {
     CLID clid2;
     const std::string* str2 = m_stringpool.keyToString (key, clid2);
@@ -1344,6 +1373,7 @@ void SGImplSvc::registerKey (sgkey_t key,
 
 void
 SGImplSvc::releaseObject(const CLID& id, const std::string& key) {
+  lock_t lock (m_mutex);
   DataProxy *pP(0);
   if (0 != (pP = proxy(id, key))) {
     // remove all entries from t2p map
@@ -1360,6 +1390,7 @@ SGImplSvc::releaseObject(const CLID& id, const std::string& key) {
 
 void
 SGImplSvc::clearProxyPayload(SG::DataProxy* dp) {
+  lock_t lock (m_mutex);
   SG::DataProxy::CLIDCont_t clids = dp->transientID();
   SG::DataProxy::CLIDCont_t::const_iterator i(clids.begin()), e(clids.end());
   while (i != e) {
@@ -1381,6 +1412,7 @@ void SGImplSvc::remap_impl (sgkey_t source,
                             sgkey_t target,
                             off_t index_offset)
 {
+  lock_t lock (m_mutex);
   SG::RemapImpl::remap_t payload;
   payload.target = target;
   payload.index_offset = index_offset;
@@ -1399,6 +1431,7 @@ void SGImplSvc::remap_impl (sgkey_t source,
 bool SGImplSvc::tryELRemap (sgkey_t sgkey_in, size_t index_in,
                             sgkey_t& sgkey_out, size_t& index_out)
 {
+  lock_t lock (m_mutex);
   SG::RemapImpl::remap_map_t::iterator i =
     m_remap_impl->m_remaps.find (sgkey_in);
   if (i == m_remap_impl->m_remaps.end())
@@ -1411,6 +1444,7 @@ bool SGImplSvc::tryELRemap (sgkey_t sgkey_in, size_t index_in,
 
 DataObject* SGImplSvc::typeless_readPrivateCopy(const CLID& clid,
                                                 const std::string& key) {
+  lock_t lock (m_mutex);
   DataObject *pObj(0);
   DataProxy *p(this->proxy(clid, key));
   if (p) {
@@ -1509,20 +1543,23 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
 }
 
 StatusCode SGImplSvc::getNewDataObjects(DataObjIDColl& products) {
-  tbb::spin_rw_mutex::scoped_lock lock(m_newDataLock,true);
+  lock_t lock (m_mutex);
+  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,true);
   products.swap(m_newDataObjects);
   m_newDataObjects.clear();
   return StatusCode::SUCCESS;
 }
 
 bool SGImplSvc::newDataObjectsPresent() /*const*/ {
-  tbb::spin_rw_mutex::scoped_lock lock(m_newDataLock,false);
+  lock_t lock (m_mutex);
+  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,false);
   return !m_newDataObjects.empty();
 } 
 
 void
 SGImplSvc::commitNewDataObjects() {
-  tbb::spin_rw_mutex::scoped_lock lock(m_newDataLock,true);
+  lock_t lock (m_mutex);
+  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,true);
   for (auto obj : s_newObjs) {
     if (msg().level() <= MSG::VERBOSE) {
       msg() << MSG::VERBOSE
@@ -1546,6 +1583,7 @@ void SGImplSvc::addedNewPersObject(CLID, DataProxy*) {}
 void SGImplSvc::addedNewTransObject(CLID, const std::string&) {}
 #else
 void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) {
+  lock_t lock (m_mutex);
   //if proxy is loading from persistency
   //add key of object to list of "newly recorded" objects
   if (0 != dp->transientAddress()->provider()) {
@@ -1553,6 +1591,7 @@ void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) {
   }
 }
 void SGImplSvc::addedNewTransObject(CLID clid, const std::string& key) {
+  lock_t lock (m_mutex);
   s_newObjs.insert(DataObjID(clid,key));
 }
 #endif
@@ -1591,6 +1630,7 @@ SGImplSvc::unboundHandle (IResetable* handle)
 // Only intended to be called by ActiveStoreSvc.
 void SGImplSvc::makeCurrent()
 {
+  lock_t lock (m_mutex);
   m_arena.makeCurrent();
   SG::CurrentEventStore::setStore (this);
 }
@@ -1600,6 +1640,12 @@ void SGImplSvc::makeCurrent()
 void SG_dump (SGImplSvc* sg)
 {
   std::cout << sg->dump() << "\n";
+}
+void SG_dump (SGImplSvc* sg, const char* fname)
+{
+  std::ofstream f (fname);
+  f << sg->dump() << "\n";
+  f.close();
 }
 
 

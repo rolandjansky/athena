@@ -447,45 +447,6 @@ void test6()
 }
 
 
-#if 0
-// recordOrRetrieve
-void test7()
-{
-  std::cout << "test7\n";
-  SGTest::TestStore testStore;
-
-  SG::WriteHandle<MyObj> h1 ("foo1", "FooSvc");
-  assert (h1.setProxyDict (&testStore).isSuccess());
-  auto obj1 = std::make_unique<MyObj>(400);
-  MyObj* objptr = obj1.get();
-  assert (h1.recordOrRetrieve (std::move(obj1)).isSuccess());
-  assert (h1.isValid());
-  assert (h1->x == 400);
-  assert (h1.ptr() == objptr);
-  assert (!h1.isConst());
-
-  MyObj::deleted.clear();
-  SG::WriteHandle<MyObj> h2 ("foo1", "FooSvc");
-  assert (h2.setProxyDict (&testStore).isSuccess());
-  auto obj2 = std::make_unique<MyObj>(401);
-  assert (h2.recordOrRetrieve (std::move(obj2)).isSuccess());
-  assert (h2.isValid());
-  assert (h2->x == 400);
-  assert (h2.ptr() == objptr);
-  assert (MyObj::deleted == std::vector<int>{401});
-  assert (!h2.isConst());
-
-  MyObj::deleted.clear();
-  assert (h1.setConst().isSuccess());
-  SG::WriteHandle<MyObj> h3 ("foo1", "FooSvc");
-  assert (h3.setProxyDict (&testStore).isSuccess());
-  auto obj3 = std::make_unique<MyObj>(402);
-  assert (h3.recordOrRetrieve (std::move(obj3)).isFailure());
-  assert (MyObj::deleted == std::vector<int>{402});
-}
-#endif
-
-
 // makeHandle
 void test8()
 {
@@ -535,7 +496,7 @@ void test9()
   std::cout << "test9\n";
   SGTest::TestStore testStore;
 
-  SG::WriteHandle<MyObj> h4 ("foo4", "FooSvc");
+  SG::WriteHandle<MyObj> h4 ("foo4");
   assert (h4.setProxyDict (&testStore).isSuccess());
   const MyObj* o = h4.put (std::make_unique<MyObj>(23));
   assert (o->x == 23);
@@ -552,22 +513,19 @@ void test9()
   o = h5.put (std::make_unique<MyObj>(25), true);
   assert (MyObj::deleted == std::vector<int>{25});
   assert (o->x == 23);
+
+  // Record to a different context.
+  MyObj::deleted.clear();
+  SGTest::TestStore testStore2;
+  EventContext ctx2;
+  ctx2.setProxy (&testStore2);
+  o = h4.put (ctx2, std::make_unique<MyObj>(26));
+  assert (o->x == 26);
+  assert (MyObj::deleted.empty());
 }
 
 
 // put (with aux store)
-#if 0
-SG::WriteHandle<MyObj> test5a (IProxyDict& testStore, MyObjAux*& paux)
-{
-  SG::WriteHandle<MyObj> h7a ("foo7a", "FooSvc");
-  assert (h7a.setProxyDict (&testStore).isSuccess());
-  auto ptrs7a = makeWithAux(31);
-  paux = ptrs7a.second.get();
-  assert (h7a.record (std::move(ptrs7a.first), std::move(ptrs7a.second)).isSuccess());
-  assert (!paux->m_locked);
-  return h7a;
-}
-#endif
 void test10()
 {
   std::cout << "test10\n";
@@ -589,7 +547,7 @@ void test10()
 
   MyObj::deleted.clear();
   MyObjAux::deleted.clear();
-  SG::WriteHandle<MyObj> h5 ("foo1", "FooSvc");
+  SG::WriteHandle<MyObj> h5 ("foo1");
   assert (h5.setProxyDict (&testStore).isSuccess());
   auto ptrs5 = makeWithAux(34);
   assert (h5.put (std::move(ptrs5.first), std::move(ptrs5.second)) == nullptr);
@@ -620,6 +578,52 @@ void test10()
   assert (o != 0);
   assert (o->x == 30);
   assert (o->aux == auxptr);
+
+  // Record to a different context.
+  MyObj::deleted.clear();
+  MyObjAux::deleted.clear();
+  SGTest::TestStore testStore2;
+  EventContext ctx2;
+  ctx2.setProxy (&testStore2);
+  auto ptrs9 = makeWithAux(40);
+  o = h5.put (ctx2, std::move(ptrs9.first), std::move(ptrs9.second));
+  assert (o->x == 40);
+  assert (MyObj::deleted.empty());
+  assert (MyObjAux::deleted.empty());
+}
+
+
+// put (with shared pointer)
+void test11()
+{
+  std::cout << "test11\n";
+
+  SGTest::TestStore testStore;
+
+  SG::DataObjectSharedPtr<MyDObj> p1 (new MyDObj (300));
+  assert (p1->refCount() == 1);
+
+  SG::WriteHandle<MyDObj> h1 ("foo1", "FooSvc");
+  assert (h1.setProxyDict (&testStore).isSuccess());
+  assert (h1.put (p1) == p1.get());
+  assert (p1->refCount() == 2);
+
+  SG::WriteHandle<MyDObj> h4 ("foo4", "FooSvc");
+  assert (h4.setProxyDict (&testStore).isSuccess());
+  assert (h4.put (p1) == p1.get());
+  assert (p1->refCount() == 3);
+
+  SG::WriteHandle<MyDObj> h5 ("foo4");
+  assert (h5.setProxyDict (&testStore).isSuccess());
+  assert (h5.put (p1) == nullptr);
+  assert (p1->refCount() == 3);
+
+  // Record to a different context.
+  MyObj::deleted.clear();
+  SGTest::TestStore testStore2;
+  EventContext ctx2;
+  ctx2.setProxy (&testStore2);
+  assert (h5.put (ctx2, p1) == p1.get());
 }
 
 
@@ -640,5 +644,6 @@ int main()
   test8();
   test9();
   test10();
+  test11();
   return 0;
 }

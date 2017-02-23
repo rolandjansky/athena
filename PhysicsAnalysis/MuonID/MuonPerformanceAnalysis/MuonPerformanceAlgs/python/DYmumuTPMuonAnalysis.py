@@ -4,7 +4,6 @@ from MuonPerformanceAlgs import CommonMuonTPConfig, ZmumuTPTrigAnalysis, ZmumuTP
 
 #========================================================================================================================
 def AddConfiguredDYmumuMuonTPAlg(name_suffix  = "MuonProbe",
-                            MatchContainer = "Muons",
                             doIso = True,
                             doTrig = True,
                             doTrigEtaSlices    = True, 
@@ -38,8 +37,9 @@ def AddConfiguredDYmumuMuonTPAlg(name_suffix  = "MuonProbe",
     job = AlgSequence()
 
 
+    MuonContainerToUse = CommonMuonTPConfig.GetRightMuonContainer()
     ProbeContainer = CommonMuonTPConfig.GetRightMuonContainer()
-    theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="DYmumuMuProbeAlg_%s"%name_suffix, ProbeCont=ProbeContainer, MatchCont=MatchContainer)
+    theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="DYmumuMuProbeAlg_%s"%name_suffix, ProbeCont=ProbeContainer)
     theAlg.TopLevelFolderName = "DYmumuTPMuon"
 
     SelectionTools = []
@@ -223,7 +223,6 @@ def AddDYmumuTPMuonAnalysis(doIso = True,
     ##########################################################################################
     # Add the Zmm TP algorithm for muon probes
     AddConfiguredDYmumuMuonTPAlg(name_suffix  = "DYMuonProbe",
-                            MatchContainer = CommonMuonTPConfig.GetRightMuonContainer(),
                             doIso=doIso,
                             doTrig=doTrig,
                             doTrigEtaSlices    = doTrigEtaSlices, 

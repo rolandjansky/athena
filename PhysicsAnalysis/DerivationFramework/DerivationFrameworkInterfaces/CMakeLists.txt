@@ -9,12 +9,15 @@ atlas_subdir( DerivationFrameworkInterfaces )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
-# Install files from the package:
-atlas_install_headers( DerivationFrameworkInterfaces )
-
 # reflex dictionary
 atlas_add_dictionary( DerivationFrameworkInterfacesDict
 		      DerivationFrameworkInterfaces/DerivationFrameworkInterfacesDict.h
                       DerivationFrameworkInterfaces/selection.xml
 	                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
 	                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
+
+# add interface library
+atlas_add_library( DerivationFrameworkInterfaces
+  DerivationFrameworkInterfaces/*.h
+  INTERFACE
+  PUBLIC_HEADERS DerivationFrameworkInterfaces )

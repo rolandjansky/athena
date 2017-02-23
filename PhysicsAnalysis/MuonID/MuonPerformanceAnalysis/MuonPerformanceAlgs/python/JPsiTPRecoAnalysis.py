@@ -4,8 +4,8 @@ from MuonPerformanceAlgs import CommonMuonTPConfig
 
 def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
                            ProbeKind = "CaloTag", # options: "CaloTag","MS", "Truth", "ID"
-                           MatchContainer="Muons",
                            doID=False,
+                           doDetailedID=False,
                            doCB=True,
                            doLoose=True,
                            doMedium=True,
@@ -29,6 +29,7 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
     job = AlgSequence()
 
     ProbeContainer=CommonMuonTPConfig.GetRightMuonContainer()
+    MuonContainerToUse = CommonMuonTPConfig.GetRightMuonContainer()
 
     if ProbeKind == "MSTrackPart":
         ProbeContainer = "ExtrapolatedMuonTrackParticles"
@@ -41,8 +42,7 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         ProbeContainer = "MuonTruthParticles"
 
     theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="JPsiTPAlg_%s"%name_suffix,
-                           ProbeCont=ProbeContainer,
-                           MatchCont=MatchContainer)
+                           ProbeCont=ProbeContainer)
     theAlg.TopLevelFolderName = "JPsiTPReco"
 
     #AddMuonSelectionTool()
@@ -76,13 +76,13 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
     MatchingTools = []
 
     if doID:
-        thistoolID = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID"%name_suffix,EffiFlag="IDTracks",doClosure=doClosure,IsNominal=True)
+        thistoolID = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID"%name_suffix,EffiFlag="IDTracks", MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=True)
         thistoolID.MatchToID = True
         thistoolID.ApplyScaleFactors=False
         thistoolID.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolID]
         
-        thistoolID_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_ID"%name_suffix,EffiFlag="IDTracks_PtrMatching",doClosure=doClosure,IsNominal=True)
+        thistoolID_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_ID"%name_suffix,EffiFlag="IDTracks_PtrMatching", MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=True)
         thistoolID_ptr.MatchToID = True
         thistoolID_ptr.ApplyScaleFactors=False
         thistoolID_ptr.ptrMatching = True
@@ -90,24 +90,60 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolID_ptr]
         
         if doDRSys:
-            thistoolID_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID_dRdown"%name_suffix,EffiFlag="IDTracks_dRDown",doClosure=doClosure,IsNominal=False)
+            thistoolID_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID_dRdown"%name_suffix,EffiFlag="IDTracks_dRDown", MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=False)
             thistoolID_dRdown.MatchToID = True
             thistoolID_dRdown.MaximumDrCut = 0.5 *MATCH_DR
             MatchingTools += [thistoolID_dRdown]
             
-            thistoolID_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID_dRUp"%name_suffix,EffiFlag="IDTracks_dRUp",doClosure=doClosure,IsNominal=False)
+            thistoolID_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID_dRUp"%name_suffix,EffiFlag="IDTracks_dRUp", MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=False)
             thistoolID_dRUp.MatchToID = True
             thistoolID_dRUp.MaximumDrCut = 2 * MATCH_DR
             MatchingTools += [thistoolID_dRUp]
+
+    if doDetailedID:
+        IDCuts= ["TrtCut","SctCut","PixCut","SiHolesCut"]
+        for cut in IDCuts+["NoIDQualityCut"] + [Cut+"Off" for Cut in IDCuts]:
+            if not "Off" in cut:
+                CutList = [x+"Off" for x in IDCuts if not x == cut]
+            else: 
+                CutList = [cut]
+
+            thistoolIDsub =  CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID_CutCheck_%s"%(name_suffix,cut),
+                                                                    EffiFlag="IDTracks_IDCutCheck_%s"%cut, MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=True)
+            thistoolIDsub.SelectionTool = CommonMuonTPConfig.GetMuonSelectionTool(CutList)
+
+            thistoolIDsub.MatchToID = True
+            thistoolIDsub.ApplyScaleFactors = False
+            thistoolIDsub.MaximumDrCut = MATCH_DR
+            MatchingTools += [thistoolIDsub]
+            if doDRSys:
+                thistoolIDsub_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID_CutCheck_%s_dRUp"%(name_suffix,cut),
+                                                                                EffiFlag="IDTracks_IDCutCheck_%s_dRUp"%cut, MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=False)
+                thistoolIDsub_dRUp.MatchToID = True
+                thistoolIDsub_dRUp.SelectionTool = CommonMuonTPConfig.GetMuonSelectionTool(CutList)
+                thistoolIDsub_dRUp.ApplyScaleFactors = False
+                thistoolIDsub_dRUp.MaximumDrCut = 2 * MATCH_DR
+                thistoolIDsub_dRUp.IsNominal=False
+                MatchingTools += [thistoolIDsub_dRUp]
+
+                thistoolIDsub_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_ID_CutCheck_%s_dRDown"%(name_suffix,cut),
+                                                                                EffiFlag="IDTracks_IDCutCheck_%s_dRDown"%cut, MatchCont="InDetTrackParticles",doClosure=doClosure,IsNominal=False)
+                thistoolIDsub_dRDown.MatchToID = True
+
+                thistoolIDsub_dRDown.SelectionTool = CommonMuonTPConfig.GetMuonSelectionTool(CutList)
+                thistoolIDsub_dRDown.ApplyScaleFactors = False
+                thistoolIDsub_dRDown.MaximumDrCut = 0.5 * MATCH_DR
+                thistoolIDsub_dRDown.IsNominal=False
+                MatchingTools += [thistoolIDsub_dRDown]
         
     if doLoose:
-        thistoolLoose = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose"%name_suffix,EffiFlag="LooseMuons",doClosure=doClosure,IsNominal=True)
+        thistoolLoose = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose"%name_suffix,EffiFlag="LooseMuons", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolLoose.MatchToLoose = True
         thistoolLoose.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure) 
         thistoolLoose.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolLoose]
         
-        thistoolLoose_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_Loose"%name_suffix,EffiFlag="LooseMuons_PtrMatching",doClosure=doClosure,IsNominal=True)
+        thistoolLoose_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_Loose"%name_suffix,EffiFlag="LooseMuons_PtrMatching", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolLoose_ptr.MatchToLoose = True
         thistoolLoose_ptr.ptrMatching = True
         thistoolLoose_ptr.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure) 
@@ -115,24 +151,24 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolLoose_ptr]
         
         if doDRSys:
-            thistoolLoose_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_dRdown"%name_suffix,EffiFlag="LooseMuons_dRDown",doClosure=doClosure,IsNominal=False)
+            thistoolLoose_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_dRdown"%name_suffix,EffiFlag="LooseMuons_dRDown", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolLoose_dRdown.MatchToLoose = True
             thistoolLoose_dRdown.MaximumDrCut = 0.5 *MATCH_DR
             MatchingTools += [thistoolLoose_dRdown]
             
-            thistoolLoose_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_dRUp"%name_suffix,EffiFlag="LooseMuons_dRUp",doClosure=doClosure,IsNominal=False)
+            thistoolLoose_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_dRUp"%name_suffix,EffiFlag="LooseMuons_dRUp", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolLoose_dRUp.MatchToLoose = True
             thistoolLoose_dRUp.MaximumDrCut = 2 * MATCH_DR
             MatchingTools += [thistoolLoose_dRUp]
             
         # also run a version without CaloTag
-        thistoolLoose_noCaloTag = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_noCaloTag"%name_suffix,EffiFlag="LooseMuons_noCaloTag",doClosure=doClosure,IsNominal=True)
+        thistoolLoose_noCaloTag = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_noCaloTag"%name_suffix,EffiFlag="LooseMuons_noCaloTag", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolLoose_noCaloTag.MatchToLoose_noCaloTag = True
         thistoolLoose_noCaloTag.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure) 
         thistoolLoose_noCaloTag.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolLoose_noCaloTag]
         
-        thistoolLoose_noCaloTag_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_Loose_noCaloTag"%name_suffix,EffiFlag="LooseMuons_noCaloTag_PtrMatching",doClosure=doClosure,IsNominal=True)
+        thistoolLoose_noCaloTag_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_Loose_noCaloTag"%name_suffix,EffiFlag="LooseMuons_noCaloTag_PtrMatching", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolLoose_noCaloTag_ptr.MatchToLoose_noCaloTag = True
         thistoolLoose_noCaloTag_ptr.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure) 
         thistoolLoose_noCaloTag_ptr.ptrMatching = True
@@ -140,24 +176,24 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolLoose_noCaloTag_ptr]
         
         if doDRSys:
-            thistoolLoose_noCaloTag_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_noCaloTag_dRdown"%name_suffix,EffiFlag="LooseMuons_noCaloTag_dRDown",doClosure=doClosure,IsNominal=False)
+            thistoolLoose_noCaloTag_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_noCaloTag_dRdown"%name_suffix,EffiFlag="LooseMuons_noCaloTag_dRDown", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolLoose_noCaloTag_dRdown.MatchToLoose_noCaloTag = True
             thistoolLoose_noCaloTag_dRdown.MaximumDrCut = 0.5 *MATCH_DR
             MatchingTools += [thistoolLoose_noCaloTag_dRdown]
             
-            thistoolLoose_noCaloTag_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_noCaloTag_dRUp"%name_suffix,EffiFlag="LooseMuons_noCaloTag_dRUp",doClosure=doClosure,IsNominal=False)
+            thistoolLoose_noCaloTag_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Loose_noCaloTag_dRUp"%name_suffix,EffiFlag="LooseMuons_noCaloTag_dRUp", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolLoose_noCaloTag_dRUp.MatchToLoose_noCaloTag = True
             thistoolLoose_noCaloTag_dRUp.MaximumDrCut = 2 * MATCH_DR
             MatchingTools += [thistoolLoose_noCaloTag_dRUp]
         
     if doMedium:
-        thistoolMed = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Medium"%name_suffix,EffiFlag="MediumMuons",doClosure=doClosure,IsNominal=True)
+        thistoolMed = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Medium"%name_suffix,EffiFlag="MediumMuons", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMed.MatchToMedium = True
         thistoolMed.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure) 
         thistoolMed.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMed]
         
-        thistoolMed_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_Medium"%name_suffix,EffiFlag="MediumMuons_PtrMatching",doClosure=doClosure,IsNominal=True)
+        thistoolMed_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_Medium"%name_suffix,EffiFlag="MediumMuons_PtrMatching", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMed_ptr.MatchToMedium = True
         thistoolMed_ptr.ptrMatching = True
         thistoolMed_ptr.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Medium",doClosure=doClosure) 
@@ -165,24 +201,24 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolMed_ptr]
         
         if doDRSys:
-            thistoolMedium_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Medium_dRdown"%name_suffix,EffiFlag="MediumMuons_dRDown",doClosure=doClosure,IsNominal=False)
+            thistoolMedium_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Medium_dRdown"%name_suffix,EffiFlag="MediumMuons_dRDown", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMedium_dRdown.MatchToMedium = True
             thistoolMedium_dRdown.MaximumDrCut = 0.5 *MATCH_DR
             MatchingTools += [thistoolMedium_dRdown]
             
-            thistoolMedium_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Medium_dRUp"%name_suffix,EffiFlag="MediumMuons_dRUp",doClosure=doClosure,IsNominal=False)
+            thistoolMedium_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Medium_dRUp"%name_suffix,EffiFlag="MediumMuons_dRUp", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolMedium_dRUp.MatchToMedium = True
             thistoolMedium_dRUp.MaximumDrCut = 2 * MATCH_DR
             MatchingTools += [thistoolMedium_dRUp]
         
     if doTight:
-        thistoolTight = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Tight"%name_suffix,EffiFlag="TightMuons",doClosure=doClosure,IsNominal=True)
+        thistoolTight = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Tight"%name_suffix,EffiFlag="TightMuons", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolTight.MatchToTight = True
         thistoolTight.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure) 
         thistoolTight.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolTight]
         
-        thistoolTight_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_Tight"%name_suffix,EffiFlag="TightMuons_PtrMatching",doClosure=doClosure,IsNominal=True)
+        thistoolTight_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_Tight"%name_suffix,EffiFlag="TightMuons_PtrMatching", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolTight_ptr.MatchToTight = True
         thistoolTight_ptr.ptrMatching = True
         thistoolTight_ptr.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure) 
@@ -191,26 +227,26 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         
         
         if doDRSys:
-            thistoolTight_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Tight_dRdown"%name_suffix,EffiFlag="TightMuons_dRDown",doClosure=doClosure,IsNominal=False)
+            thistoolTight_dRdown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Tight_dRdown"%name_suffix,EffiFlag="TightMuons_dRDown", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolTight_dRdown.MatchToTight = True
             thistoolTight_dRdown.MaximumDrCut = 0.5 *MATCH_DR
             MatchingTools += [thistoolTight_dRdown]
             
-            thistoolTight_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Tight_dRUp"%name_suffix,EffiFlag="TightMuons_dRUp",doClosure=doClosure,IsNominal=False)
+            thistoolTight_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_Tight_dRUp"%name_suffix,EffiFlag="TightMuons_dRUp", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolTight_dRUp.MatchToTight = True
             thistoolTight_dRUp.MaximumDrCut = 2 * MATCH_DR
             MatchingTools += [thistoolTight_dRUp]
 
     if doHighPt:
         thistoolHighPt = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_HighPt"%name_suffix,
-                                                                       EffiFlag="HighPtMuons",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="HighPtMuons", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolHighPt.MatchToHighPt = True
         thistoolHighPt.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure)  # UPDATE when SF available for high pt
         thistoolHighPt.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolHighPt]
         
         thistoolHighPt_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_HighPt"%name_suffix,
-                                                                       EffiFlag="HighPtMuons_PtrMatching",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="HighPtMuons_PtrMatching", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolHighPt_ptr.MatchToHighPt = True
         thistoolHighPt_ptr.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure)  # UPDATE when SF available for high pt
         thistoolHighPt_ptr.MaximumDrCut = MATCH_DR
@@ -218,14 +254,14 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolHighPt_ptr]
         if doDRSys:
             thistoolHighPt_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_HighPt_dRDown"%name_suffix,
-                                                                                  EffiFlag="HighPtMuons_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                                  EffiFlag="HighPtMuons_dRDown", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolHighPt_dRDown.MatchToHighPt = True
             thistoolHighPt_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("HighPt",doClosure=doClosure)  # UPDATE 
             thistoolHighPt_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolHighPt_dRDown]
             
             thistoolHighPt_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_HighPt_dRUp"%name_suffix,
-                                                                                EffiFlag="HighPtMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                                EffiFlag="HighPtMuons_dRUp", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolHighPt_dRUp.MatchToHighPt = True
             thistoolHighPt_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Tight",doClosure=doClosure)  # UPDATE 
             thistoolHighPt_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -233,7 +269,7 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
        
     if doCaloTag:
         thistoolCT = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_CT"%name_suffix,
-                                                                    EffiFlag="CaloTaggedMuons",doClosure=doClosure,IsNominal=True)
+                                                                    EffiFlag="CaloTaggedMuons", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolCT.MatchToCaloTag = True
         thistoolCT.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
         thistoolCT.ApplyScaleFactors=doClosure
@@ -241,7 +277,7 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolCT]
         
         thistoolCT_ptr = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_PtrMatching_%s_CT"%name_suffix,
-                                                                    EffiFlag="CaloTaggedMuons_PtrMatching",doClosure=doClosure,IsNominal=True)
+                                                                    EffiFlag="CaloTaggedMuons_PtrMatching", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolCT_ptr.MatchToCaloTag = True
         thistoolCT_ptr.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
         thistoolCT_ptr.ApplyScaleFactors=doClosure
@@ -250,14 +286,14 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolCT_ptr]
         if doDRSys:
             thistoolCT_dRDown = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_CT_dRDown"%name_suffix,
-                                                                               EffiFlag="CaloTaggedMuons_dRDown",doClosure=doClosure,IsNominal=False)
+                                                                               EffiFlag="CaloTaggedMuons_dRDown", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolCT_dRDown.MatchToCaloTag = True
             thistoolCT_dRDown.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
             thistoolCT_dRDown.MaximumDrCut = 0.5 * MATCH_DR
             MatchingTools += [thistoolCT_dRDown]
 
             thistoolCT_dRUp = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_CT_dRUp"%name_suffix,
-                                                                             EffiFlag="CaloTaggedMuons_dRUp",doClosure=doClosure,IsNominal=False)
+                                                                             EffiFlag="CaloTaggedMuons_dRUp", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=False)
             thistoolCT_dRUp.MatchToCaloTag = True
             thistoolCT_dRUp.RecoScaleFactorTool = CommonMuonTPConfig.AddMuonEfficiencyScaleFactors("Loose",doClosure=doClosure)
             thistoolCT_dRUp.MaximumDrCut = 2 * MATCH_DR
@@ -266,34 +302,34 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
             
     if doValid:        
         thistoolMuidCB = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_MuidCB"%name_suffix,
-                                                                        EffiFlag="MuidCB",doClosure=doClosure,IsNominal=True)
+                                                                        EffiFlag="MuidCB", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuidCB.MatchToMuidCB = True
         thistoolMuidCB.ApplyScaleFactors = False
         thistoolMuidCB.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMuidCB]
     
         thistoolSTACO = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_STACO"%name_suffix,
-                                                                       EffiFlag="STACO",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="STACO", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolSTACO.MatchToSTACO = True
         thistoolSTACO.ApplyScaleFactors = False
         thistoolSTACO.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolSTACO]
         thistoolMuTag = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_MuTag"%name_suffix,
-                                                                       EffiFlag="MuTag",doClosure=doClosure,IsNominal=True)
+                                                                       EffiFlag="MuTag", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuTag.MatchToMuTag = True
         thistoolMuTag.ApplyScaleFactors = False
         thistoolMuTag.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMuTag]
     
         thistoolMuTagIMO = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_MuTagIMO"%name_suffix,
-                                                                          EffiFlag="MuTagIMO",doClosure=doClosure,IsNominal=True)
+                                                                          EffiFlag="MuTagIMO", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuTagIMO.MatchToMuTagIMO = True
         thistoolMuTagIMO.ApplyScaleFactors = False
         thistoolMuTagIMO.MaximumDrCut = MATCH_DR
         MatchingTools += [thistoolMuTagIMO]
     
         thistoolMuidSA = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_MuidSA"%name_suffix,
-                                                                        EffiFlag="MuidSA",doClosure=doClosure,IsNominal=True)
+                                                                        EffiFlag="MuidSA", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuidSA.MatchToMuidSA = True
         thistoolMuidSA.ApplyScaleFactors = False
         thistoolMuidSA.IDhitCut = False
@@ -301,7 +337,7 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
         MatchingTools += [thistoolMuidSA]
         
         thistoolMuGirl = CommonMuonTPConfig.AddMuonRecoTPEfficiencyTool(name="JPsiTPEfficiencyTool_%s_MuGirl"%name_suffix,
-                                                                        EffiFlag="MuGirl",doClosure=doClosure,IsNominal=True)
+                                                                        EffiFlag="MuGirl", MatchCont=MuonContainerToUse,doClosure=doClosure,IsNominal=True)
         thistoolMuGirl.MatchToMuGirl = True
         thistoolMuGirl.ApplyScaleFactors = False
         thistoolMuGirl.MaximumDrCut = MATCH_DR
@@ -344,7 +380,7 @@ def AddConfiguredJPsiTPAlg(name_suffix="myProbes",
     if writeNtuple:
         ntuples.append(CommonMuonTPConfig.AddTreeTool(name="JPsiTPTreeTool_%s"%name_suffix, 
                                                       EffiFlag="Trees",WriteSFInfo=doClosure,
-                                                      IsRunOnDAOD=IsRunOnDAOD))
+                                                      IsRunOnDAOD=IsRunOnDAOD,DoJpsiVertexInfo=True))
 #     if doValid:
     for ntuple in ntuples:
         ntuple.AddExtendedIsolation = True
@@ -378,7 +414,6 @@ def AddJPsiTPRecoAnalysis(writeNtuple=False,
     # Add the JPsi TP algorithm using ID tracks as probes and matching to muons
     AddConfiguredJPsiTPAlg(name_suffix = "IDProbes_JPsi",
                            ProbeKind = "ID",
-                           MatchContainer = MuonContainerToUse,
                            doID = False,
                            doCB = False, 
                            doLoose = True,
@@ -398,31 +433,10 @@ def AddJPsiTPRecoAnalysis(writeNtuple=False,
                            IsRunOnDAOD=IsRunOnDAOD)
     ##########################################################################################
     # Add the JPsi TP algorithm using MS tracks as probes and matching to ID tracks
-    AddConfiguredJPsiTPAlg(name_suffix = "MSProbes_ID_JPsi",
+    AddConfiguredJPsiTPAlg(name_suffix = "MSProbes_JPsi",
                            ProbeKind = "MS",
-                           MatchContainer = "InDetTrackParticles",
                            doID = True,
-                           doCB = False, 
-                           doLoose = False,
-                           doMedium = False,
-                           doDRSys=doDRSys,
-                           doTight = False,
-                           doHighPt=False,
-                           doClosure=doClosure,
-                           doStandalone = False,
-                           doCaloTag = False,
-                           writeProbeIso = writeProbeIso,
-                           doValid = doValid,
-                           writeNtuple = writeNtuple,
-                           DoProbeMatchPlots=DoProbeMatchPlots,
-                           ProduceEfficiencies=ProduceEfficiencies,
-                           IsRunOnDAOD=IsRunOnDAOD)
-    ##########################################################################################
-    # Add the JPsi TP algorithm using MS tracks as probes and matching to ID tracks
-    AddConfiguredJPsiTPAlg(name_suffix = "MSProbes_Muon_JPsi",
-                           ProbeKind = "MS",
-                           MatchContainer = MuonContainerToUse,
-                           doID = False,
+                           doDetailedID=True,
                            doCB = True, 
                            doLoose = True,
                            doMedium = True,
@@ -438,13 +452,32 @@ def AddJPsiTPRecoAnalysis(writeNtuple=False,
                            DoProbeMatchPlots=DoProbeMatchPlots,
                            ProduceEfficiencies=ProduceEfficiencies,
                            IsRunOnDAOD=IsRunOnDAOD)
+    ##########################################################################################
+    # Add the JPsi TP algorithm using MS tracks as probes and matching to ID tracks
+    # AddConfiguredJPsiTPAlg(name_suffix = "MSProbes_Muon_JPsi",
+    #                        ProbeKind = "MS",
+    #                        doID = False,
+    #                        doCB = True, 
+    #                        doLoose = True,
+    #                        doMedium = True,
+    #                        doDRSys=doDRSys,
+    #                        doTight = True,
+    #                        doHighPt=True,
+    #                        doClosure=doClosure,
+    #                        doStandalone = False,
+    #                        doCaloTag = True,
+    #                        writeProbeIso = writeProbeIso,
+    #                        doValid = doValid,
+    #                        writeNtuple = writeNtuple,
+    #                        DoProbeMatchPlots=DoProbeMatchPlots,
+    #                        ProduceEfficiencies=ProduceEfficiencies,
+    #                        IsRunOnDAOD=IsRunOnDAOD)
 
 
     #########################################################################################
     #Add the JPsi TP algorithm using CaloTag muons as probes and matching to muons
     AddConfiguredJPsiTPAlg(name_suffix = "CaloProbes_JPsi",
                            ProbeKind = "CaloTag",
-                           MatchContainer = MuonContainerToUse,
                            doID = False,
                            doCB = False, 
                            doLoose = True,
@@ -465,7 +498,6 @@ def AddJPsiTPRecoAnalysis(writeNtuple=False,
     if doValid:
         AddConfiguredJPsiTPAlg(name_suffix = "VeryLooseProbes_JPsi",
                                ProbeKind = "VeryLoose",
-                               MatchContainer = MuonContainerToUse,
                                doID = True,
                                doCB = True, 
                                doLoose = True,
@@ -486,10 +518,10 @@ def AddJPsiTPRecoAnalysis(writeNtuple=False,
 
     ##########################################################################################
     # Add the JPsi TP algorithm using Truth probes for Muons
-    AddConfiguredJPsiTPAlg(name_suffix = "TruthProbes_Muon_JPsi",
+    AddConfiguredJPsiTPAlg(name_suffix = "TruthProbes_JPsi",
                            ProbeKind = "Truth",
-                           MatchContainer = MuonContainerToUse,
-                           doID = False,
+                           doID = True,
+                           doDetailedID=True,
                            doCB = False, 
                            doLoose = True,
                            doMedium = True,
@@ -508,25 +540,25 @@ def AddJPsiTPRecoAnalysis(writeNtuple=False,
                            IsRunOnDAOD=IsRunOnDAOD)
 
 
-    ##########################################################################################
-    # Add the JPsi TP algorithm using Truth probes for ID tracks
-    AddConfiguredJPsiTPAlg(name_suffix = "TruthProbes_ID_JPsi",
-                           ProbeKind = "Truth",
-                           MatchContainer = "InDetTrackParticles",
-                           doID = True,
-                           doCB = False, 
-                           doLoose = False,
-                           doMedium = False,
-                           doTight = False,
-                           doHighPt=False,
-                           doDRSys=False,
-                           doClosure=doClosure,
-                           doStandalone = False,
-                           doCaloTag = False,
-                           writeProbeIso = False,
-                           doValid = doValid,
-                           writeNtuple = writeNtuple,
-                           useTrigger = False,
-                           DoProbeMatchPlots=DoProbeMatchPlots,
-                           ProduceEfficiencies=ProduceEfficiencies,
-                           IsRunOnDAOD=IsRunOnDAOD)
+    # ##########################################################################################
+    # # Add the JPsi TP algorithm using Truth probes for ID tracks
+    # AddConfiguredJPsiTPAlg(name_suffix = "TruthProbes_ID_JPsi",
+    #                        ProbeKind = "Truth",
+    #                        MatchContainer = "InDetTrackParticles",
+    #                        doID = True,
+    #                        doCB = False, 
+    #                        doLoose = False,
+    #                        doMedium = False,
+    #                        doTight = False,
+    #                        doHighPt=False,
+    #                        doDRSys=False,
+    #                        doClosure=doClosure,
+    #                        doStandalone = False,
+    #                        doCaloTag = False,
+    #                        writeProbeIso = False,
+    #                        doValid = doValid,
+    #                        writeNtuple = writeNtuple,
+    #                        useTrigger = False,
+    #                        DoProbeMatchPlots=DoProbeMatchPlots,
+    #                        ProduceEfficiencies=ProduceEfficiencies,
+    #                        IsRunOnDAOD=IsRunOnDAOD)

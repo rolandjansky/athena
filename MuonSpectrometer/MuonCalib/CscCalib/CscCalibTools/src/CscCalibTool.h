@@ -93,10 +93,10 @@ public:
   virtual int stripStatusBit ( uint32_t stripHashId ) const;
 
   /** return T0phase related to 5 ASM. For convenience, we use stripHashId to get it **/
-  virtual bool stripT0phase ( uint32_t stripHashId ) ;
+  virtual bool stripT0phase ( uint32_t stripHashId ) const ;
 
   /** return T0base related to 5 ASM. For convenience, we use stripHashId to get it **/
-  virtual double stripT0base ( uint32_t stripHashId ) ;
+  virtual double stripT0base ( uint32_t stripHashId ) const ;
 
   /** these function used in the AOD <-> conversion; may not be needed once 
       we integrate the calibration service */
@@ -119,16 +119,16 @@ public:
   // To add bipolar functions and extract drftTime and stripCharge after addition,
   // this function is defined. Return value is pair and the first one is driftTime.
   virtual std::pair<double,double> addBipfunc(const double driftTime0, const double stripCharge0,
-                                              const double driftTime1, const double stripCharge1);
+                                              const double driftTime1, const double stripCharge1) const;
   virtual std::string getDetDescr() const;
 
   // 09/2010
-  virtual std::vector<float> getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0);
+  virtual std::vector<float> getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0) const;
   virtual double getLatency() const;
 
 
-  int m_messageCnt_t0base;
-  int m_messageCnt_t0phase;
+  mutable int m_messageCnt_t0base;
+  mutable int m_messageCnt_t0phase;
   //private:
   //  ../src/CscCalibTool.cxx: In member function 'virtual bool CscCalibTool::stripT0phase(uint32_t) const':
   //  ../src/CscCalibTool.cxx:351: error: increment of data-member 'CscCalibTool::m_messageCnt_t0phase' in read-only structure
@@ -167,8 +167,8 @@ protected:
   float m_latencyInDigitization; // new in 12/2010 for New Digitization package...
   
   unsigned int m_nSamples; 
-  TF1* m_addedfunc;
-  TF1* m_bipolarFunc;
+  mutable TF1* m_addedfunc;
+  mutable TF1* m_bipolarFunc;
 
   bool m_onlineHLT;
   bool m_use2Samples; // for the use of only 2 samples for strip charge

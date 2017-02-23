@@ -20,7 +20,7 @@ class IMuTagIMOTool : virtual public IAlgTool{
  public:
   static const InterfaceID& interfaceID();
 
-  virtual MuTagContainer* tag( const Rec::TrackParticleContainer* trackParticles,  const Trk::SegmentCollection* segments ) = 0;
+  virtual MuTagContainer* tag( const Rec::TrackParticleContainer* trackParticles,  const Trk::SegmentCollection* segments ) const = 0;
 
 };
 

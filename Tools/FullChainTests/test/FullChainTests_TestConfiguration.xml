@@ -21,53 +21,12 @@
     <jobList>
 
       <!-- COSMICS CHAIN -->
-      <chain>
-        <chainName>CosmicsChainJob</chainName> <!-- Only letters allowed, no white space or punctuation -->
-        <sequential>
+	  <!-- retire the chain, not useful for Prod rel -->
           <!-- Run Simulation -->
-          <chainElement>
-            <jobTransform userJobId="cosmicsSimul">
-              <doc>simul</doc>
-              <jobTransformJobName>cosmics_sim_trf_s1994_2010</jobTransformJobName>
-              <jobTransformCmd>
-                Sim_tf.py --simulator 'MC12G4' --outputHitsFile 'cosmics.HITS.pool.root' --maxEvents '5000' --DataRunNumber '155697' --physicsList 'FTFP_BERT' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --enableLooperKiller 'True' --CosmicFilterVolume 'Calo' --CosmicPtSlice 'slice3' --beamType 'cosmics' --preInclude 'SimulationJobOptions/preInclude.BeamPipeKill.py' --postInclude 'PyJobTransforms/UseFrontier.py' --postExec 'from IOVDbSvc.CondDB import conddb;conddb.addOverride("/EXT/DCS/MAGNETS/SENSORDATA", "ExtDCSMagnetsSensorData-001");conddb.addOverride("/GLOBAL/BField/Map", "BFieldMap-FullAsym-09");' --ignorePatterns=ToolSvc.ISFG4.+ERROR\s+ISF_to_G4Event.+article.conversion.failed+ISF_Particle+PDG+code+=+1000260560
-              </jobTransformCmd>
-              <group>FCTTransform</group>
-              <queue>long</queue>
-              <batchWallTime>300</batchWallTime>
-            </jobTransform>
-
-            <chainfileout>cosmics.HITS.pool.root</chainfileout>
-          </chainElement>
-
           <!-- Run Digitisation -->
-          <chainElement>
-            <jobTransform userJobId="cosmicsDigi">
-              <doc>digi</doc>
-              <jobTransformJobName>cosmics_digi_trf</jobTransformJobName>
-              <jobTransformCmd>
-                Digi_tf.py --inputHITSFile 'cosmics.HITS.pool.root' --outputRDOFile 'cosmics.RDO.pool.root' --maxEvents 100 --skipEvents 0 --geometryVersion 'ATLAS-R2-2015-03-01-00' --digiSeedOffset1 1232 --digiSeedOffset2 342 --conditionsTag 'OFLCOND-RUN12-SDR-21' --beamType 'cosmics' --DataRunNumber '155697' --postInclude 'PyJobTransforms/UseFrontier.py'
-              </jobTransformCmd>
-              <group>FCTTransform</group>
-              <chaindataset_info>
-                <jobTransformData/>
-                <chaindatasetName>cosmics.HITS.pool.root</chaindatasetName>
-                <dataset_info>
-                  <jobTransformData/>
-                  <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/cosmics.HITS.pool.root</datasetName>
-                </dataset_info>
-              </chaindataset_info>
-              <queue>long</queue>
-              <batchWallTime>300</batchWallTime>
-            </jobTransform>
-            <chainfileout>cosmics.RDO.pool.root</chainfileout>
-          </chainElement>
-
           <!-- Run Reconstruction -->
 		  <!-- retired, cosmics trigger menu is not prod rel [ATR-10605] -->
 
-        </sequential>
-      </chain>
 
       <!-- LONG RECONSTRUCTION CHAIN with fct_trf.py -->
       <chain>
@@ -339,7 +298,7 @@
                   <doc>evgen</doc>
                   <jobTransformJobName>minbias2Cavern_trf</jobTransformJobName>
                   <jobTransformCmd>
-                    Sim_tf.py --simulator 'MC12G4' --inputEVNTFile 'MC14.108351.pythia_minbias.8TeV.EVNT.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_CAVERNTRFile 'MC14.cavbg8TeV.EVNT.pool.root' --maxEvents 5 --skipEvents 0 --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --DataRunNumber='222222' --physicsList 'FTFP_BERT' --randomSeed 5678 --postInclude 'PyJobTransforms/UseFrontier.py'
+                    AtlasG4_tf.py --inputEVNTFile 'MC14.108351.pythia_minbias.8TeV.EVNT.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_CAVERNTRFile 'MC14.cavbg8TeV.EVNT.pool.root' --maxEvents 5 --skipEvents 0 --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --DataRunNumber='222222' --physicsList 'FTFP_BERT' --randomSeed 5678 --postInclude 'PyJobTransforms/UseFrontier.py'
                   </jobTransformCmd>
                   <group>FCTTransform</group>
                   <chaindataset_info>
@@ -483,6 +442,8 @@
       <!-- MC15c CHAIN -->
       <chain>
         <chainName>ChainJobwthMC15c</chainName>
+		<sequential>
+		<parallel>
         <!-- Only letters allowed, no white space or punctuation in Name -->
         <sequential>
               <!-- Run Event Generation -->
@@ -562,7 +523,172 @@
                 </chainfileout>
               </chainElement>
         </sequential>
+
+
+        <sequential>
+              <!-- Minbias Event Generation -->
+              <chainElement>
+                <!-- <jobTransform> -->
+                <jobTransform userJobId="MinbiasEvgen_MC15c">
+				<!-- create minbias chain similar to above Zhad r7725 MC15c chain -->
+                  <doc>evgen</doc>
+                  <jobTransformJobName>MinbiasEvgen_MC15c</jobTransformJobName>
+                  <jobTransformCmd>
+				  export JODIR=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest;export JOBOPTSEARCHPATH=$JODIR/share/DSID361xxx:$JOBOPTSEARCHPATH; Generate_tf.py --ecmEnergy=13000. --runNumber=361033 --firstEvent=1 --maxEvents=5000 --randomSeed=8917284 --jobConfig=MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.py --outputEVNTFile=MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root
+                  </jobTransformCmd>
+                  <group>FCTTransform</group>
+                  <queue>short</queue>
+                  <batchWallTime>300</batchWallTime>
+                  <keepFilePattern>log.*</keepFilePattern>
+                </jobTransform>
+                <chainfileout>
+                  MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root
+                </chainfileout>
+              </chainElement>
+              <!-- Run Simulation -->
+              <chainElement>
+                <jobTransform userJobId="MinbiasSimul_MC15c">
+                  <doc>simul</doc>
+                  <jobTransformJobName>MinbiasSimul_MC15c</jobTransformJobName>
+                  <jobTransformCmd>
+				  Sim_tf.py --conditionsTag "default:OFLCOND-RUN12-SDR-19" --DataRunNumber 222525 --DBRelease "default:current" --geometryVersion "default:ATLAS-R2-2015-03-01-00_VALIDATION" --physicsList FTFP_BERT --postInclude "default:PyJobTransforms/UseFrontier.py" --preInclude "EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py" --runNumber=304628 --simulator MC12G4 --truthStrategy MC15aPlus --inputEVNTFile MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root --outputHITSFile MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.HITS.pool.root --maxEvents=10
+                  </jobTransformCmd>
+                  <group>FCTTransform</group>
+                  <chaindataset_info>
+                    <jobTransformData />
+                    <chaindatasetName>
+                      MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root
+                    </chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData />
+                      <datasetName>
+                        /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.EVNT.pool.root
+                      </datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>long</queue>
+                  <batchWallTime>
+                    300
+                  </batchWallTime>
+                </jobTransform>
+                <chainfileout>
+                  MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.HITS.pool.root
+                </chainfileout>
+              </chainElement>
+
+              <chainElement>
+                <jobTransform userJobId="minbiasEvt2CavernEvt_MC15c">
+                  <doc>evgen</doc>
+                  <jobTransformJobName>minbiasEvt2CavernEvt_MC15c</jobTransformJobName>
+                  <jobTransformCmd>
+				  AtlasG4_tf.py --inputEVNTFile 'MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_CAVERNTRFile 'MC15.cavbg13TeV.EVNT.pool.root' --maxEvents 10 --skipEvents 0 --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --DataRunNumber='222525' --physicsList 'FTFP_BERT' --randomSeed 5678 --preInclude 'SimulationJobOptions/preInclude.G4WriteCavern.py' --postInclude 'PyJobTransforms/UseFrontier.py'
+                  </jobTransformCmd>
+                  <group>FCTTransform</group>
+                  <chaindataset_info>
+                    <jobTransformData />
+                    <chaindatasetName>
+                      MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root
+                    </chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData />
+                      <datasetName>
+                        /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.EVNT.pool.root
+                      </datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>long</queue>
+                  <batchWallTime>300</batchWallTime>
+                </jobTransform>
+                <chainfileout>
+                  MC15.cavbg13TeV.EVNT.pool.root
+                </chainfileout>
+              </chainElement>
+              <!-- Run Simulation -->
+              <chainElement>
+                <jobTransform userJobId="cavernSimul_MC15c">
+                  <doc>simul</doc>
+                  <jobTransformJobName>cavernSimul_MC15c</jobTransformJobName>
+                  <jobTransformCmd>
+				  Sim_tf.py --simulator 'MC12G4' --inputEVNT_CAVERNFile 'MC15.cavbg13TeV.EVNT.pool.root' --outputHITSFile 'MC15.cavbg13TeV.HITS.pool.root' --maxEvents -1 --skipEvents 0 --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --enableLooperKiller 'True' --randomSeed 8765 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.G4ReadCavern.py' --postInclude 'PyJobTransforms/UseFrontier.py' --ignorePatterns='ToolSvc.ISFG4.+ERROR\s+ISF_to_G4Event.+article.conversion.failed'
+                  </jobTransformCmd>
+                  <group>FCTTransform</group>
+                  <chaindataset_info>
+                    <jobTransformData />
+                    <chaindatasetName>
+                      MC15.cavbg13TeV.EVNT.pool.root
+                    </chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData />
+                      <datasetName>
+                        /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.cavbg8TeV.EVNT.pool.root
+                      </datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>long</queue>
+                  <batchWallTime>300</batchWallTime>
+                </jobTransform>
+                <chainfileout>
+                  MC15.cavbg13TeV.HITS.pool.root
+                </chainfileout>
+              </chainElement>
+        </sequential>
+		</parallel>
+
+          <!-- Pileup DIY -->
+          <!-- Run DigiReco -->
+          <chainElement>
+            <jobTransform userJobId="pileupDigiReco_MC15c">
+              <doc>digireco</doc>
+              <jobTransformJobName>pileupDigiReco_MC15c</jobTransformJobName>
+              <jobTransformCmd>
+			  Reco_tf.py --inputHITSFile MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.HITS.pool.root --outputRDOFile MC15.Pileup.RDO.pool.root --outputESDFile 'MC15.Pileup.ESD.pool.root' --outputAODFile 'MC15.Pileup.AOD.pool.root' --maxEvents 2 --jobNumber 1 --skipEvents 0 --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --DataRunNumber='222525' --digiSeedOffset1 123456 --digiSeedOffset2 2345678 --LowPtMinbiasHitsFile 'MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.HITS.pool.root' --cavernHitsFile 'MC15.cavbg13TeV.HITS.pool.root' --preInclude 'HITtoRDO:SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,Digitization/ForceUseOfPileUpTools.py,RunDependentSimData/configLumi_run284500_v2.py' --postInclude 'PyJobTransforms/UseFrontier.py'
+              </jobTransformCmd>
+              <group>FCTTransform</group>
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>
+                  MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.HITS.pool.root
+                </chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>
+                    /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.147818.Pythia8_AU2CTEQ6L1_Ztautau.8TeV.HITS.pool.root
+                  </datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>
+                  MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.HITS.pool.root
+                </chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>
+                    /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root
+                  </datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>
+                  MC15.cavbg13TeV.HITS.pool.root
+                </chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>
+                    /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.cavbg8TeV.HITS.pool.root
+                  </datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              <queue>long</queue>
+              <batchWallTime>300</batchWallTime>
+            </jobTransform>
+            <chainfileout>
+              MC15.Pileup.AOD.pool.root
+            </chainfileout>
+          </chainElement>
       </chain>
+
     </jobList>
     <jobGroups>
       <jobGroup name="FCTTransform" parent="Transform">

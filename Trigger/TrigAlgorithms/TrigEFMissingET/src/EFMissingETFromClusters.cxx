@@ -33,7 +33,7 @@ EFMissingETFromClusters::EFMissingETFromClusters(const std::string& type,
   declareProperty("SaveUncalibrated", m_saveuncalibrated = false ,"save uncalibrated topo. clusters");
   // declare configurables
   
-  _fextype = FexType::TOPO;
+  m_fextype = FexType::TOPO;
   
   m_methelperposition = 18;
 
@@ -52,11 +52,11 @@ StatusCode EFMissingETFromClusters::initialize()
 {
 
   if(msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "called EFMissingETFromClusters::initialize()" << endreq;
+    msg(MSG::DEBUG) << "called EFMissingETFromClusters::initialize()" << endmsg;
   
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) 
-    msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endreq;
+    msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endmsg;
   
   if (m_timersvc) {
     // global time
@@ -81,7 +81,7 @@ StatusCode EFMissingETFromClusters::execute()
 StatusCode EFMissingETFromClusters::finalize()
 {
   if(msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "called EFMissingETFromClusters::finalize()" << endreq;
+    msg(MSG::DEBUG) << "called EFMissingETFromClusters::finalize()" << endmsg;
 
   return StatusCode::SUCCESS;
   
@@ -93,7 +93,7 @@ StatusCode EFMissingETFromClusters::execute(xAOD::TrigMissingET * /* met */ ,
 {
 
   if(msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "called EFMissingETFromClusters::execute()" << endreq;
+    msg(MSG::DEBUG) << "called EFMissingETFromClusters::execute()" << endmsg;
   
   if(m_timersvc)
     m_glob_timer->start(); // total time
@@ -102,17 +102,17 @@ StatusCode EFMissingETFromClusters::execute(xAOD::TrigMissingET * /* met */ ,
   TrigEFMissingEtComponent* metComp = 0;
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
   if (metComp==0) {
-    msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endreq;
+    msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;
     return StatusCode::FAILURE;
   }
   if(string(metComp->m_name).substr(0,2)!="TC"){
     msg(MSG::ERROR) << "fetched " << metComp->m_name
-	     << " instead of the Clusters component!" << endreq;
+	     << " instead of the Clusters component!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if(msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "fetched metHelper component \"" << metComp->m_name << "\"" << endreq;
+    msg(MSG::DEBUG) << "fetched metHelper component \"" << metComp->m_name << "\"" << endmsg;
   
 
   if ( (metComp->m_status & m_maskProcessed)==0 ){ // not yet processed
@@ -132,8 +132,8 @@ StatusCode EFMissingETFromClusters::execute(xAOD::TrigMissingET * /* met */ ,
   
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + i); // fetch Cluster component
 
-  if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endreq;  return StatusCode::FAILURE; }
-  if(string(metComp->m_name).substr(0,2)!="TC"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Clusters component!" << endreq; return StatusCode::FAILURE; }
+  if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;  return StatusCode::FAILURE; }
+  if(string(metComp->m_name).substr(0,2)!="TC"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Clusters component!" << endmsg; return StatusCode::FAILURE; }
 
   for (xAOD::CaloClusterContainer::const_iterator it = caloCluster->begin(); it != caloCluster->end(); ++it ) {
   

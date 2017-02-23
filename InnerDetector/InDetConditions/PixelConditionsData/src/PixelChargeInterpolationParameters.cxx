@@ -513,9 +513,9 @@ namespace PixelCalib{
   // Load costants from file
   void PixelChargeInterpolationParameters::Load(std::string file){
     std::ifstream infile(file.c_str());
-    int version;
-    int nxbins;
-    int nybins;
+    int version = 0;
+    int nxbins = 0;
+    int nybins = 0;
     int ncsx;
     int ncsy;
     int neta;
@@ -529,7 +529,7 @@ namespace PixelCalib{
 
     float value, error;
     infile >> version;
-    if(version > 0){   // old format (without version number)
+    if (version>0) {   // old format (without version number)
 
       m_version = 0;
       nxbins = version;
@@ -542,11 +542,11 @@ namespace PixelCalib{
       m_deltax.reserve(nxbins);
       m_deltay.reserve(nybins); 
 
-      for(int ib=0; ib<nxbins; ib++){  
+      for(int ib=0; ib<nxbins && !infile.eof(); ib++){  
         infile >> value; 
         m_deltax.push_back(value);
       }
-      for(int ib=0; ib<nybins; ib++){  
+      for(int ib=0; ib<nybins && !infile.eof(); ib++){  
         infile >> value; 
         m_deltay.push_back(value); 
       }
@@ -571,7 +571,7 @@ namespace PixelCalib{
       if(ncsx<0)ncsx = 0;
       ncsx = std::min(ncsx,nmax);
       m_csx.reserve(ncsx+1);
-      for(int i=0; i<ncsx+1; i++){
+      for(int i=0; i<ncsx+1 && !infile.eof(); i++){
         infile >> value;
         m_csx.push_back(value);
       }
@@ -579,7 +579,7 @@ namespace PixelCalib{
       if(ncsy<0)ncsy = 0;
       ncsy = std::min(ncsy, nmax);
       m_csy.reserve(ncsy+1);
-      for(int i=0; i<ncsy+1; i++){
+      for(int i=0; i<ncsy+1 && !infile.eof(); i++){
         infile >> value;
         m_csy.push_back(value);
       }
@@ -604,7 +604,7 @@ namespace PixelCalib{
       if(neta<0)neta = 0;
       neta = std::min(neta, nmax);
       m_etabins.reserve(neta+1);
-      for(int i=0; i<neta+1; i++){
+      for(int i=0; i<neta+1 && !infile.eof(); i++){
         infile >> value;
         m_etabins.push_back(value);
       }
@@ -612,7 +612,7 @@ namespace PixelCalib{
       if(nalpha<0)nalpha = 0;
       nalpha = std::min(nalpha, nmax);
       m_phibins.reserve(nalpha+1);
-      for(int i=0; i<nalpha+1; i++){
+      for(int i=0; i<nalpha+1 && !infile.eof(); i++){
         infile >> value;
         m_phibins.push_back(value);
       }
@@ -633,12 +633,12 @@ namespace PixelCalib{
       m_deltay.reserve(nybins); 
       m_errdeltax.reserve(nxbins);
       m_errdeltay.reserve(nybins);
-      for(int ib=0; ib<nxbins; ib++){
+      for(int ib=0; ib<nxbins && !infile.eof(); ib++){
         infile >> value >> error; 
         m_deltax.push_back(value); 
         m_errdeltax.push_back(error); 
       }
-      for(int ib=0; ib<nybins; ib++){  
+      for(int ib=0; ib<nybins && !infile.eof(); ib++){  
         infile >> value >> error; 
         m_deltay.push_back(value); 
         m_errdeltay.push_back(error); 

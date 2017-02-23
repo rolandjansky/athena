@@ -979,7 +979,7 @@ InDetPerfPlot_resITk::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_nEtaBin
     for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
       std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ieta + 1);
       TH1D* tmp = (TH1D*) h->ProjectionY(tmpName.c_str(), h->GetXaxis()->FindBin(m_EtaBins[ieta]),
-                                         h->GetXaxis()->FindBin(m_EtaBins[ieta + 1]));
+                                         h->GetXaxis()->FindBin(m_EtaBins[ieta + 1]-0.05));
       if (tmp->Integral() < 1) {
         continue;
       }

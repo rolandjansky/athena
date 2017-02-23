@@ -74,6 +74,9 @@ public:
 
 private:
 
+  PixelResidualHistograms(const PixelResidualHistograms &);
+  PixelResidualHistograms &operator=(const PixelResidualHistograms&);
+
 	MultiHisto< TH1D > *m_HistogramsVector;
 	std::vector< TProfile*> *m_MeanProfilesVector;
 	std::vector< TProfile*> *m_RMSProfilesVector;

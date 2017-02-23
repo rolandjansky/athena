@@ -48,16 +48,16 @@ StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std:
       ATH_MSG_DEBUG("Retrieve class description for class (type/key) " << className << "/" << pObj->name());
       m_classDesc = RootType( typeid(T) );
    }
-   if (pObj->clID() == 1 && pObj->registry()->address() != 0) {
+   if (pObj->clID() == 1 && pObj->registry()->address() != nullptr) {
       ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
       if (!PoolToDataObject(pObj, this->m_i_poolToken).isSuccess()) {
          ATH_MSG_ERROR("Failed to read persistent DataType");
          return(StatusCode::FAILURE);
       }
    }
-   T* obj = 0;
+   T* obj = nullptr;
    bool success = SG::fromStorable(pObj, obj);
-   if (!success || obj == 0) {
+   if (!success || obj == nullptr) {
       ATH_MSG_ERROR("failed to cast to T for class (type/key) " << className << "/" << pObj->name());
       return(StatusCode::FAILURE);
    }
@@ -69,7 +69,7 @@ StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std:
 template <class T>
 StatusCode T_AthenaPoolCnvBase<T>::PoolToDataObject(DataObject*& pObj, const Token* token) {
    const std::string className = ClassName<T>::name();
-   void* voidPtr = 0;
+   void* voidPtr = nullptr;
    try {
       m_athenaPoolCnvSvc->setObjPtr(voidPtr, token);
    } catch (std::exception &e) {

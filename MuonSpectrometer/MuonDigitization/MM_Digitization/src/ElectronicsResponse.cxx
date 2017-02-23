@@ -35,6 +35,11 @@ ElectronicsResponse::ElectronicsResponse()
   m_StripResponse_qThreshold = stripObject->get_qThreshold();
   m_StripResponse_driftGap = stripObject->get_driftGap();
   m_StripResponse_driftVelocity = stripObject->get_driftVelocity();
+  timeWindowLowerOffset = get_timeWindowLowerOffset();
+  timeWindowUpperOffset = get_timeWindowUpperOffset();
+  stripdeadtime = get_stripdeadtime();
+  ARTdeadtime = get_ARTdeadtime();
+
 //  if(stripObject) delete stripObject;
 //  clearValues();
   alpha = 2.5;

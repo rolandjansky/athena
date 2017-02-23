@@ -18,12 +18,12 @@ private:
   void DefineParameters() const;
   void PrintParameters() const;
 
-  int printMessages;
+  int m_printMessages; // FIXME not used?
 
-  TRTParameters* pParameters;
-  TRTProcessingOfEndCapHits* pProcessingOfEndCapHits;
+  TRTParameters* m_pParameters;
+  TRTProcessingOfEndCapHits* m_pProcessingOfEndCapHits;
 
-  int verboseLevel;
+  int m_verboseLevel;
 
 };
 
