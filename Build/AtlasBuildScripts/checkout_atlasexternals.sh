@@ -13,17 +13,18 @@ set -e
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: checkout_atlasexternals.sh <-t branch/tag> " \
-        "<-s source directory> <-e atlas externals repo url> " \
-	"[-o hash_file.txt]"
+    echo "Usage: checkout_atlasexternals.sh [options]"
+    echo "  Options:"
+    echo "    -t branch/tag: Mandatory branch/tag/hash to check out"
+    echo "    -s directory: Mandatory source directory to use"
+    echo "    -e url: Optional source URL to use for the checkout"
 }
 
 # Parse the command line arguments:
 TAGBRANCH=""
 SOURCEDIR=""
-HASHFILE=""
 EXTERNALSURL="https://:@gitlab.cern.ch:8443/atlas/atlasexternals.git"
-while getopts ":t:o:s:h:e" opt; do
+while getopts ":t:o:s:e:h" opt; do
     case $opt in
         t)
             TAGBRANCH=$OPTARG
@@ -31,12 +32,9 @@ while getopts ":t:o:s:h:e" opt; do
         s)
             SOURCEDIR=$OPTARG
             ;;
-        o)
-            HASHFILE=$OPTARG
+        e)
+            EXTERNALSURL=$OPTARG
             ;;
-	e)
-	    EXTERNALSURL=$OPTARG
-	    ;;
         h)
             usage
             exit 0
@@ -63,9 +61,7 @@ fi
 
 # Tell the user what will happen:
 echo "Checking out atlasexternals tag/branch: $TAGBRANCH"
-if [ "$HASHFILE" != "" ]; then
-    echo "Writing the commit hash into file: $HASHFILE"
-fi
+echo "   from: $EXTERNALSURL"
 
 if [ ! -d "${SOURCEDIR}" ]; then
     # Clone the repository:
@@ -74,16 +70,7 @@ else
     echo "${SOURCEDIR} already exists -> assume previous checkout"
 fi
 
-# Get the appropriate tag of it:
+# Get the appropriate version of it:
 cd ${SOURCEDIR}
-git fetch origin
-git checkout ${TAGBRANCH}
-
-# If an output file was not specified, stop here:
-if [ "$HASHFILE" = "" ]; then
-    exit 0
-fi
-
-# Write the hash of whatever we have checked out currently, into the
-# specified output file:
-git rev-parse ${TAGBRANCH} > ${HASHFILE}
+git fetch --prune origin
+git checkout -f ${TAGBRANCH}

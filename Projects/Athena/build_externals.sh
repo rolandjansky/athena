@@ -5,9 +5,12 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f]"
-    echo " -f: Force rebuild of externals, otherwise if script"
-    echo "     finds an external build present it will simply exit"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c]"
+    echo " -f: Force rebuild of externals from scratch, otherwise if script"
+    echo "     finds an external build present it will only do an incremental"
+    echo "     build"
+    echo " -c: Build the externals for the continuous integration (CI) system,"
+    echo "     skipping the build of the externals RPMs."
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -16,7 +19,8 @@ usage() {
 BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
-while getopts ":t:b:fh" opt; do
+CI=""
+while getopts ":t:b:fch" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -24,8 +28,11 @@ while getopts ":t:b:fh" opt; do
         b)
             BUILDDIR=$OPTARG
             ;;
-	f)
-            FORCE=1
+        f)
+            FORCE="1"
+            ;;
+        c)
+            CI="1"
             ;;
         h)
             usage
@@ -80,15 +87,11 @@ fi
 mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd $BUILDDIR; pwd)
 
-if [ -n "$FORCE" ]; then
+if [ "$FORCE" = "1" ]; then
     echo "Force deleting existing build area..."
-    rm -fr ${BUILDDIR}/install ${BUILDDIR}/src ${BUILDDIR}/build
-fi
-
-if [ -d ${BUILDDIR}/install/AthenaExternals -a -d ${BUILDDIR}/install/GAUDI ]; then
-        echo "Found install directories for AthenaExternals and Gaudi in ${BUILDDIR}/install"
-        echo "Use -f option to force a rebuild"
-        exit 0
+    rm -fr ${BUILDDIR}/install/AthenaExternals ${BUILDDIR}/install/GAUDI
+    rm -fr ${BUILDDIR}/src/AthenaExternals ${BUILDDIR}/src/GAUDI
+    rm -fr ${BUILDDIR}/build/AthenaExternals ${BUILDDIR}/build/GAUDI
 fi
 
 # Create some directories:
@@ -106,6 +109,12 @@ scriptsdir=$(cd ${scriptsdir}; pwd)
 # Set the environment variable for finding LCG releases:
 source ${scriptsdir}/LCG_RELEASE_BASE.sh
 
+# Flag for triggering the build of RPMs for the externals:
+RPMOPTIONS="-r ${BUILDDIR}"
+if [ "$CI" = "1" ]; then
+    RPMOPTIONS=
+fi
+
 # Read in the tag/branch to use for AthenaExternals:
 AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
@@ -120,7 +129,7 @@ ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/AthenaExternals \
     -b ${BUILDDIR}/build/AthenaExternals \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
-    -p AthenaExternals -r ${BUILDDIR} -t ${BUILDTYPE} \
+    -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
     -v ${NICOS_PROJECT_VERSION}
 
 # Get the "platform name" from the directory created by the AthenaExternals
@@ -136,11 +145,10 @@ ${scriptsdir}/checkout_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI
 
 # Build Gaudi:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/Gaudi
+export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
 ${scriptsdir}/build_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI \
     -b ${BUILDDIR}/build/GAUDI \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
-    -p AthenaExternals -f ${platform} \
-    -r ${BUILDDIR} -t ${BUILDTYPE}
+    -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
