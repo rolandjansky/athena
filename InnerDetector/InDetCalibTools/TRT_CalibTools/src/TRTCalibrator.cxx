@@ -39,9 +39,9 @@ PURPOSE: Tool for calibrating the TRT
 
 TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_DetID(0),
-  m_TRTID(0),
-  m_trtmanager(0),
+  m_DetID(nullptr),
+  m_TRTID(nullptr),
+  m_trtmanager(nullptr),
   m_trtcaldbSvc("ITRT_CalDbSvc", name),
   m_neighbourSvc("ITRT_StrawNeighbourSvc", name),
   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
@@ -69,7 +69,7 @@ TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, c
   m_floatP3(true),
   m_DoShortStrawCorrection(true),
   m_DoArXenonSep(false),
-  m_histfile(0)
+  m_histfile(nullptr)
 {
   declareInterface<ITRTCalibrator>(this);
   declareProperty("TRTCalDbSvc",m_trtcaldbSvc);
@@ -945,13 +945,13 @@ bool TRTCalibrator::calibrate() {
           hitdata.z=(strawelement->center(ident)).z();
 
           //add the hit to the Calibrators on all levelels 
-          nTRThist += TRT.AddHit(Tkey,hitdata,NULL,true);
-          ndethist += Detector.AddHit(Dkey,hitdata,NULL,true);
-          nlayhist += Layer.AddHit(Lkey,hitdata,NULL,true);
-          nmodhist += Module.AddHit(Mkey,hitdata,NULL,true);    
-          nbrdhist += Board.AddHit(Bkey,hitdata,NULL,true);    
-          nchphist += Chip.AddHit(Ckey,hitdata,NULL,true);    
-          nstwhist += Straw.AddHit(Skey,hitdata,NULL,true);   
+          nTRThist += TRT.AddHit(Tkey,hitdata,nullptr,true);
+          ndethist += Detector.AddHit(Dkey,hitdata,nullptr,true);
+          nlayhist += Layer.AddHit(Lkey,hitdata,nullptr,true);
+          nmodhist += Module.AddHit(Mkey,hitdata,nullptr,true);    
+          nbrdhist += Board.AddHit(Bkey,hitdata,nullptr,true);    
+          nchphist += Chip.AddHit(Ckey,hitdata,nullptr,true);    
+          nstwhist += Straw.AddHit(Skey,hitdata,nullptr,true);   
 
           if (msgLvl(MSG::DEBUG)) msg() << hitdata.sid << endmsg;
           if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->barrel_ec(ident) << endmsg;
@@ -1237,8 +1237,8 @@ bool TRTCalibrator::calibrate() {
 }
 
 bool TRTCalibrator::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
-  if (aTrack==NULL) {};
-  if (output==NULL) {};
+  if (aTrack==nullptr) {};
+  if (output==nullptr) {};
   return true;
 }
 

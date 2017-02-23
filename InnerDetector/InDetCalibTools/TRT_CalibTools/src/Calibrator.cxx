@@ -39,9 +39,9 @@ caldata::caldata(){
   calflag  = -999;
   rtflag  = -999;
   t0flag  = -999;
-  treshist  = NULL;
-  reshist  = NULL;
-  rthist  = NULL;
+  treshist  = nullptr;
+  reshist  = nullptr;
+  rthist  = nullptr;
   det = -999;
   lay = -999;
   mod = -999;
@@ -54,7 +54,7 @@ caldata::caldata(){
   nrt = -999;
   nres = -999;
   t0fittype = -999;
-  rtgraph = NULL;
+  rtgraph = nullptr;
 }
 
 caldata::~caldata(){
@@ -87,9 +87,9 @@ caldata::caldata(bool makehist, int nbinst, int nbinsr){
   calflag  = -999;
   rtflag  = -999;
   t0flag  = -999;
-  treshist  = NULL;
-  reshist  = NULL;
-  rthist  = NULL;
+  treshist  = nullptr;
+  reshist  = nullptr;
+  rthist  = nullptr;
   det = -999;
   lay = -999;
   mod = -999;
@@ -102,7 +102,7 @@ caldata::caldata(bool makehist, int nbinst, int nbinsr){
   nrt = -999;
   nres = -999;
   t0fittype= -999;
-  rtgraph = NULL;
+  rtgraph = nullptr;
 
   if (makehist) {
     if (treshist) delete treshist;
@@ -132,7 +132,7 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
   d = -20.0;
   et = -20.0;
   ed = -20.0;
-  ff =  NULL ;
+  ff =  nullptr ;
 
   
   hslizes = new TH1D*[npoints];
@@ -1083,7 +1083,7 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
     caldata* hist=new caldata(makehist,nbinst,nbinsr);    
  
     //out of memory?
-    if (hist == NULL){
+    if (hist == nullptr){
       cout << "OUT OF MEMORY!" << endl;
       return -1;
     }
@@ -1102,7 +1102,7 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
       }
     }
 
-    if (binhist==NULL){ //if it is a hit
+    if (binhist==nullptr){ //if it is a hit
       
       if (tresbin>=0){ 
         if (makehist) hist->treshist[tresbin]=d.weight; //add value to bin
@@ -1207,7 +1207,7 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
   else { //if not the first hit or histogram
 
     //increment histogram bins
-    if (binhist==NULL){
+    if (binhist==nullptr){
       
       if (tresbin>=0){
         if (makehist) data[key].treshist[tresbin]=data[key].treshist[tresbin]+d.weight;

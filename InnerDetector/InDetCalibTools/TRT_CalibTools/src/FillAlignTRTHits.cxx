@@ -45,12 +45,12 @@ PURPOSE: Tool
 
 FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_DetID(NULL), m_TRTID(NULL),
+  m_DetID(nullptr), m_TRTID(nullptr),
   m_driftFunctionTool("TRT_DriftFunctionTool"),
   m_trtcaldbSvc("ITRT_CalDbSvc", name),
   m_neighbourSvc("ITRT_StrawNeighbourSvc", name), 
   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
-  m_eventInfo(NULL),
+  m_eventInfo(nullptr),
   m_maxDistance(2.8),
   m_maxTimeResidual(150),
   m_minTimebinsOverThreshold(2),
@@ -61,8 +61,8 @@ FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& n
   m_comTimeName("TRT_Phase"),
   m_DoMCCosmicTimeShift(0),
   m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
-  m_updator(NULL),
-  m_f(NULL), m_ntuple(NULL)
+  m_updator(nullptr),
+  m_f(nullptr), m_ntuple(nullptr)
 {
   declareInterface<IFillAlignTrkInfo>(this);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
@@ -227,13 +227,13 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
     TsosIt_t tsos=aTrack->trackStateOnSurfaces()->begin();
     TsosIt_t tsosEnd=aTrack->trackStateOnSurfaces()->end();
 
-    const Trk::MeasurementBase* mesb = NULL;
-    const Trk::RIO_OnTrack* rotp = NULL;
-    const InDet::TRT_DriftCircle* dcp   = NULL;
-    const Trk::TrackParameters* tparp   = NULL;
-    const Trk::TrackParameters *mparp   = NULL;
-    const InDet::TRT_DriftCircleOnTrack* trtcirc = NULL;
-    const TRTCond::RtRelation* rtrelation = NULL; 
+    const Trk::MeasurementBase* mesb = nullptr;
+    const Trk::RIO_OnTrack* rotp = nullptr;
+    const InDet::TRT_DriftCircle* dcp   = nullptr;
+    const Trk::TrackParameters* tparp   = nullptr;
+    const Trk::TrackParameters *mparp   = nullptr;
+    const InDet::TRT_DriftCircleOnTrack* trtcirc = nullptr;
+    const TRTCond::RtRelation* rtrelation = nullptr; 
 
 
     for (;tsos!=tsosEnd;++tsos) {
@@ -378,7 +378,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
                   ATH_MSG_DEBUG ("TrackParameters 1: " << *(HitOnTrackToRemove->trackParameters()));
                 }
                 else if (msgLvl(MSG::DEBUG)) {
-                  msg() << "TrackParameters 1: NULL" << endmsg;
+                  msg() << "TrackParameters 1: nullptr" << endmsg;
                 }
 
                 if(unbiasedTrkParameters){
