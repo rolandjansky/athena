@@ -23,49 +23,12 @@
 #ifndef CaloG4_CalibrationDefaultProcessing_h
 #define CaloG4_CalibrationDefaultProcessing_h
 
-// The Athena and stand-alone G4 setups have different UserAction
-// classes (though they accomplish the same thing.
-
-#include "G4AtlasTools/UserActionBase.h"
-
 
 // Forward declarations
 class G4Run;
 class G4Step;
 class G4VSensitiveDetector;
 
-namespace CaloG4 {
-
-  class CalibrationDefaultProcessing final : public UserActionBase {
-
-  public:
-
-    CalibrationDefaultProcessing(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~CalibrationDefaultProcessing();
-
-    virtual void Step(const G4Step*) override;
-    virtual void BeginOfEvent(const G4Event*) override;
-    
-    // Make the default sensitive detector available to other routines.
-    G4VSensitiveDetector* GetDefaultSD() { return m_defaultSD; }
-    //static void SetDefaultSD( G4VSensitiveDetector* );
-
-    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
-    
-
-  private:
-
-    // The default sensitive detector to be applied to all G4Steps
-    // in volumes without a CalibrationSensitiveDetector.
-    G4VSensitiveDetector* m_defaultSD;
-    std::string m_SDname;
-
-  };
-
-} // namespace CaloG4
-
-// new implementation for Hive
 
 #include "G4AtlasInterfaces/IBeginEventAction.h"
 #include "G4AtlasInterfaces/ISteppingAction.h"
