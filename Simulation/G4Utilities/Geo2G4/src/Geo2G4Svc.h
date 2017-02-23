@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4Svc_H
-#define Geo2G4Svc_H
+#ifndef GEO2G4_Geo2G4Svc_H
+#define GEO2G4_Geo2G4Svc_H
 
-#include "Geo2G4/IGeo2G4Svc.h"
+#include "G4AtlasInterfaces/IGeo2G4Svc.h"
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -16,37 +16,30 @@
 class VolumeBuilder;
 typedef std::map< std::string, VolumeBuilder*,std::less<std::string> > BuilderMap;
 
-class IAlgorithm;
-class ISvcLocator;
-class IIncident;
-class IIncidentSvc;
-
-//template <class TYPE> class SvcFactory;
-
+/// @todo NEEDS DOCUMENTATION
 class Geo2G4Svc: virtual public IGeo2G4Svc, virtual public IIncidentListener, public AthService
 {
 public:
   Geo2G4Svc(const std::string& , ISvcLocator *);
   virtual ~Geo2G4Svc();
-  StatusCode initialize();
-  StatusCode finalize();
-  virtual StatusCode queryInterface(const InterfaceID& , void** ppvInterface );
-
-  void handle(const Incident&);
-
-  virtual void RegisterVolumeBuilder(VolumeBuilder* vb);
-  virtual void UnregisterVolumeBuilder(VolumeBuilder* vb);
-  void SetDefaultBuilder(VolumeBuilder *vb) {defaultBuilder=vb;}
-  void SetDefaultBuilder(std::string n) {SetDefaultBuilder(GetVolumeBuilder(n));}
-  VolumeBuilder* GetVolumeBuilder(std::string s);
-  VolumeBuilder* GetDefaultBuilder() {return defaultBuilder;}
-  bool UseTopTransforms() {return m_getTopTransform;}
-  void ListVolumeBuilders();
-  //protected:
-  //friend class SvcFactory<Geo2G4Svc>;
+  /// AthService methods
+  StatusCode initialize() override final;
+  StatusCode finalize() override final;
+  virtual StatusCode queryInterface(const InterfaceID& , void** ppvInterface ) override final;
+  /// IIncidentListener methods -  FIXME does this service actually need to listen for Incidents?
+  void handle(const Incident&) override final;
+  /// Geo2G4SvcBase methods
+  virtual void RegisterVolumeBuilder(VolumeBuilder* vb) override final;
+  virtual void UnregisterVolumeBuilder(VolumeBuilder* vb) override final;
+  void SetDefaultBuilder(VolumeBuilder *vb) override final {m_defaultBuilder=vb;}
+  void SetDefaultBuilder(std::string n) override final {this->SetDefaultBuilder(this->GetVolumeBuilder(n));}
+  VolumeBuilder* GetVolumeBuilder(std::string s) const override final;
+  VolumeBuilder* GetDefaultBuilder() const override final {return m_defaultBuilder;}
+  bool UseTopTransforms() const override final {return m_getTopTransform;}
+  void ListVolumeBuilders() const override final;
 private:
-  IIncidentSvc* m_pIncSvc;
-  VolumeBuilder *defaultBuilder;
+  IIncidentSvc* m_pIncSvc; // not used - remove?
+  VolumeBuilder *m_defaultBuilder;
   BuilderMap m_builders ;
   bool m_getTopTransform;
 };

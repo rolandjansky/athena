@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4STParameterisation_H
-#define Geo2G4STParameterisation_H
+#ifndef GEO2G4_Geo2G4STParameterisation_H
+#define GEO2G4_Geo2G4STParameterisation_H
 
 #include "globals.hh"
 #include "G4VPVParameterisation.hh"

@@ -5,8 +5,8 @@
 #ifndef GEO2G4_VolumeBuilder_H
 #define GEO2G4_VolumeBuilder_H
 
-#include "Geo2G4/LogicalVolume.h"
-#include "Geo2G4/Geo2G4SvcAccessor.h"
+#include "G4LogicalVolume.hh"
+#include "Geo2G4SvcAccessor.h"
 
 #include "GeoModelUtilities/GeoOpticalPhysVol.h"
 
@@ -41,7 +41,7 @@ class VolumeBuilder
   void SetParam(bool flag){paramOn = flag;}
   bool GetParam(){return paramOn;}
 
-  virtual LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const = 0;
+  virtual G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const = 0;
 
  protected:
   bool paramOn;
