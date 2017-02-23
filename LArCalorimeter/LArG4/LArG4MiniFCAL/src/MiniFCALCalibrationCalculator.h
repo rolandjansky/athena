@@ -8,7 +8,7 @@
 #define MiniFCALCalibrationCalculator_H
 
 #include "CaloG4Sim/SimulationEnergies.h"
-#include "LArG4Code/VCalibrationCalculator.h"
+#include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4MiniFCAL/MiniFCALAssignIdentifier.h"
 
@@ -28,27 +28,23 @@ namespace LArG4 {
   namespace MiniFCAL {
 
 
-    class MiniFCALCalibrationCalculator : public VCalibrationCalculator {
+    class MiniFCALCalibrationCalculator : public LArCalibCalculatorSvcImp {
     public:
-    
-      MiniFCALCalibrationCalculator(const eMiniFCALAssignIdentifierType type = kActive);
+
+      MiniFCALCalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator);
+      StatusCode initialize();
+      StatusCode finalize() {return StatusCode::SUCCESS;}
       virtual ~MiniFCALCalibrationCalculator();
-    
-      virtual G4bool Process (const G4Step* step, 
-			      const eCalculatorProcessing p = kEnergyAndID);
-    
-      virtual const LArG4Identifier& identifier() const { return m_identifier; }
-    
-      virtual const std::vector<G4double>& energies() const { return m_energies; }
+
+      virtual G4bool Process (const G4Step* step, LArG4Identifier & identifier,
+                              std::vector<G4double> & energies,
+                              const eCalculatorProcessing process = kEnergyAndID) const override final;
 
     private:
-      LArG4Identifier m_identifier;
-
-      std::vector<G4double> m_energies;
-
       MiniFCALAssignIdentifier* m_geometryCalculator;
 
       eMiniFCALAssignIdentifierType m_geometryType;
+      std::string m_strgeometryType;
 
       CaloG4::SimulationEnergies m_energyCalculator;
 
