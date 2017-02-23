@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PsMap_h
-#define PsMap_h
+#ifndef LARG4BARREL_PsMap_h
+#define LARG4BARREL_PsMap_h
 
-#include "LArG4Barrel/CurrMap.h"
+#include "CurrMap.h"
 
 #include <map>
 #include <vector>
@@ -20,7 +20,7 @@ class PsMap {
    void SetDirectory(std::string dir);
    void Reset();
    void SetMap(int module);
-   CurrMap* Map() {return m_curr;}
+   CurrMap* Map() const {return m_curr;}
   private:
    PsMap();
    static PsMap* s_thePointer;
@@ -30,4 +30,4 @@ class PsMap {
    CurrMap* m_curr;
    int m_module;
 };
-#endif
+#endif // LARG4BARREL_PsMap_h

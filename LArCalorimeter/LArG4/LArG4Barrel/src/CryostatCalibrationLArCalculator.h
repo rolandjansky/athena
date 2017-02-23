@@ -2,26 +2,26 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// LArG4::BarrelCryostat::CalibrationMixedCalculator
+// LArG4::BarrelCryostat::CalibrationLArCalculator
 // Prepared 13-Aug-2004 Bill Seligman
 
 // This class calculates the values needed for calibration hits in the
-// simulation. 
+// simulation.
 
 // A "calculator" is used in much the same way as a hand-held
 // calculator might be.  The user supplies a value and hits 'Enter'
 // (i.e., invokes the Process() method).  Then they read off whatever
 // values are of interest.
 
-// This particular class is meant to be be used for particular volumes
-// in the barrel cryostat.  Some volumes have identifiers that change
-// significantly (mixed samplings, types, subdets) within that single
-// volume.  This calculator handles those special cases.
+// This particular class is meant to be be used for general LAr
+// regions within the barrel cryostat.  The liquid-argon volumes
+// typically "fill in the cracks" between all other volumes; this
+// calculator determines the identifiers for such "cracks".
 
-#ifndef LArG4_BarrelCryostat_CalibrationMixedCalculator_H
-#define LArG4_BarrelCryostat_CalibrationMixedCalculator_H
+#ifndef LArG4_BarrelCryostat_CalibrationLArCalculator_H
+#define LArG4_BarrelCryostat_CalibrationLArCalculator_H
 
-#include "LArG4Code/VCalibrationCalculator.h"
+#include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 
@@ -34,6 +34,7 @@
 // Forward declaractions:
 class G4Step;
 
+
 // Note the use of nested namespaces (mainly to prevent long names
 // like LArG4HECCalibrationCalculator).  This class is contained in
 // the namespace LArG4::BarrelCryostat.
@@ -42,12 +43,13 @@ namespace LArG4 {
 
   namespace BarrelCryostat {
 
-    class CalibrationMixedCalculator : public VCalibrationCalculator {
+    class CalibrationLArCalculator : public LArCalibCalculatorSvcImp {
     public:
-    
-      CalibrationMixedCalculator();
-      virtual ~CalibrationMixedCalculator();
-    
+
+      CalibrationLArCalculator(const std::string& name, ISvcLocator *pSvcLocator);
+      StatusCode initialize() override final;
+      virtual ~CalibrationLArCalculator();
+
       // The Process method returns a boolean value.  If it's true, the
       // hit can be used by Geant4; if it's false, there's something wrong
       // with the energy deposit and it should be ignored.
@@ -58,31 +60,18 @@ namespace LArG4 {
       // escaped energy), or only the energy (no known application
       // yet, but you can never tell).  Use the enum (defined in
       // VCalibrationCalculator.h) to control any special processing.
-
-      virtual G4bool Process (const G4Step* step, 
-			      const eCalculatorProcessing p = kEnergyAndID);
-    
-      // The cell identifier determined by the Process method.
-      virtual const LArG4Identifier& identifier() const { return m_identifier; }
-    
-      // The calibration energies as determined by the Process method for
-      // the current G4Step.  Units are the native G4 unit of energy.
-      virtual const std::vector<G4double>& energies() const { return m_energies; }
+      virtual G4bool Process (const G4Step* step, LArG4Identifier & identifier,
+                              std::vector<G4double> & energies,
+                              const eCalculatorProcessing process = kEnergyAndID) const override final;
 
     private:
-
-      // The values calculated by Process().
-      LArG4Identifier m_identifier;
-      std::vector<G4double> m_energies;
-
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;
 
       // Access to parameters.
       LArVG4DetectorParameters* m_parameters;
 
-      // Define a "backup" calculator.
-      static VCalibrationCalculator* m_backupCalculator;
+      ServiceHandle<ILArCalibCalculatorSvc> m_defaultCalculator;
 
     };
 
@@ -90,4 +79,4 @@ namespace LArG4 {
 
 } // namespace LArG4
 
-#endif // LArG4_BarrelCryostat_CalibrationMixedCalculator_H
+#endif // LArG4_BarrelCryostat_CalibrationLArCalculator_H
