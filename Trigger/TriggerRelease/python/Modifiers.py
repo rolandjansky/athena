@@ -1535,7 +1535,6 @@ class enableCostMonitoring(_modifier):
     Enable Cost Monitoring for online
     """
     def preSetup(self):
-        TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecL2','CostExecEF','CostExecHLT']
         TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecHLT']
 
     def postSetup(self):
