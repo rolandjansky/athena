@@ -71,14 +71,11 @@ def getSCTPhysicsRegionTool(name='SCTPhysicsRegionTool', **kwargs):
     return CfgMgr.RegionCreator(name, **kwargs)
 
 def getTRTPhysicsRegionTool(name='TRTPhysicsRegionTool', **kwargs):
-    from G4AtlasApps.SimFlags import simFlags
-    rangeCut = simFlags.TRTRangeCut.get_Value()
     kwargs.setdefault("RegionName", 'TRT')
     volumeList = ['TRT::Gas', 'TRT::GasMA']
     kwargs.setdefault("VolumeList",  volumeList)
-    kwargs.setdefault("ElectronCut", rangeCut)
-    kwargs.setdefault("PositronCut", rangeCut)
-    # The photon range cut is meant to stay small
+    kwargs.setdefault("ElectronCut", 0.05)
+    kwargs.setdefault("PositronCut", 0.05)
     kwargs.setdefault("GammaCut",    0.05)
     return CfgMgr.RegionCreator(name, **kwargs)
 
