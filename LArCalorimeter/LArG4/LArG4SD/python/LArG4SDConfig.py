@@ -24,7 +24,7 @@ def getLArActiveSensitiveDetector(name="LArActiveSensitiveDetector", **kwargs):
     kwargs.setdefault("ParticleID",simFlags.ParticleID())
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArCalibrationHitActive"])
-    return CfgMgr.LArG4ActiveSDTool(name, **kwargs)
+    return CfgMgr.LArG4__ActiveSDTool(name, **kwargs)
 
 def getLArDeadSensitiveDetector(name="LArDeadSensitiveDetector", **kwargs):
     ## Main configuration
@@ -112,7 +112,7 @@ def getLArDeadSensitiveDetector(name="LArDeadSensitiveDetector", **kwargs):
     kwargs.setdefault("doEscapedEnergy",simFlags.CalibrationRun.get_Value()!='DeadLAr')
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArCalibrationHitDeadMaterial"])
-    return CfgMgr.LArG4DeadSDTool(name, **kwargs)
+    return CfgMgr.LArG4__DeadSDTool(name, **kwargs)
 
 def getLArEMBSensitiveDetector(name="LArEMBSensitiveDetector", **kwargs):
     ## Main configuration
@@ -123,7 +123,7 @@ def getLArEMBSensitiveDetector(name="LArEMBSensitiveDetector", **kwargs):
     # Hook for fast simulation
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
-    return CfgMgr.LArG4EMBSDTool(name, **kwargs)
+    return CfgMgr.LArG4__EMBSDTool(name, **kwargs)
 
 def getLArEMECSensitiveDetector(name="LArEMECSensitiveDetector", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
@@ -139,7 +139,7 @@ def getLArEMECSensitiveDetector(name="LArEMECSensitiveDetector", **kwargs):
     kwargs.setdefault("OutputCollectionNames", ["LArHitEMEC"])
     # Hook for fast simulation
     kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
-    return CfgMgr.LArG4EMECSDTool(name, **kwargs)
+    return CfgMgr.LArG4__EMECSDTool(name, **kwargs)
 
 def getLArFCALSensitiveDetector(name="LArFCALSensitiveDetector", **kwargs):
     kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::Gap"])
@@ -150,7 +150,7 @@ def getLArFCALSensitiveDetector(name="LArFCALSensitiveDetector", **kwargs):
     # Hook for fast simulation
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
-    return CfgMgr.LArG4FCALSDTool(name, **kwargs)
+    return CfgMgr.LArG4__FCALSDTool(name, **kwargs)
 
 def getLArHECSensitiveDetector(name="LArHECSensitiveDetector", **kwargs):
     #kwargs.setdefault("SliceVolumes",["LAr::HEC::Module::Depth::Slice"])
@@ -159,7 +159,7 @@ def getLArHECSensitiveDetector(name="LArHECSensitiveDetector", **kwargs):
     #  You might think this should go here, but we don't think so!  LAr::HEC::Module::Depth::Slice::Wheel"])
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArHitHEC"])
-    return CfgMgr.LArG4HECSDTool(name, **kwargs)
+    return CfgMgr.LArG4__HECSDTool(name, **kwargs)
 
 def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwargs):
     ## Main configuration
@@ -220,11 +220,13 @@ def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwarg
     kwargs.setdefault("ParticleID",simFlags.ParticleID())
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArCalibrationHitInactive"])
-    return CfgMgr.LArG4InactiveSDTool(name, **kwargs)
+    return CfgMgr.LArG4__InactiveSDTool(name, **kwargs)
 
 def getLArMiniFCALSensitiveDetector(name="LArMiniFCALSensitiveDetector", **kwargs):
     kwargs.setdefault("MiniVolumes",["LArMgr::MiniFCAL::Wafer"])
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArHitMiniFCAL"])
-    return CfgMgr.LArG4MiniFCALSDTool(name, **kwargs)
+    return CfgMgr.LArG4__MiniFCALSDTool(name, **kwargs)
 
+def getCalibrationDefaultCalculator(name="CalibrationDefaultCalculator", **kwargs):
+    return CfgMgr.LArG4__CalibrationDefaultCalculator(name, **kwargs)
