@@ -125,11 +125,6 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
         curWeightFile += curModeCase + "_";
         curWeightFile += m_MethodName + ".weights.root";
 
-	// #ifndef XAOD_ANALYSIS
-	// std::string resolvedWeightFileName = PathResolver::find_file(curWeightFile, "DATAPATH");
-	// #else
-	// std::string resolvedWeightFileName = PathResolverFindCalibFile("PanTauAlgs/weights/"+curWeightFile);
-	// #endif
 	std::string resolvedWeightFileName = PathResolverFindCalibFile(curWeightFile);
 
         if(resolvedWeightFileName == "") {
