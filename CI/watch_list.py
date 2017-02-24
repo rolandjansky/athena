@@ -5,3 +5,5 @@ WATCH_LIST = {}
 
 WATCH_LIST['^CI$']       = set(['cgumpert'])
 WATCH_LIST['Simulation'] = set(['ritsch'])
+WATCH_LIST['TrkiPatFitter'] = set(['pop'])
+WATCH_LIST['MooPerformance'] = set(['pop'])
