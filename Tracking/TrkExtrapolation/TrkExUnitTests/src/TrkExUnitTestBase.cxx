@@ -11,8 +11,6 @@
 
 Trk::TrkExUnitTestBase::TrkExUnitTestBase(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_gaussDist(0),
-    m_flatDist(0),
     m_numTests(100),
     m_scanMode(false)
 {
@@ -22,9 +20,6 @@ Trk::TrkExUnitTestBase::TrkExUnitTestBase(const std::string& name, ISvcLocator* 
 
 Trk::TrkExUnitTestBase::~TrkExUnitTestBase()
 {
-    delete m_gaussDist;
-    delete m_flatDist;
-    delete m_landauDist;
 }
 
 StatusCode Trk::TrkExUnitTestBase::initialize()
@@ -32,9 +27,9 @@ StatusCode Trk::TrkExUnitTestBase::initialize()
     ATH_MSG_INFO( "Creating random number services, call bookTree() and initializeTest()" );
 
     // intialize the random number generators
-    m_gaussDist  = new Rndm::Numbers(randSvc(), Rndm::Gauss(0.,1.));
-    m_flatDist   = new Rndm::Numbers(randSvc(), Rndm::Flat(0.,1.));
-    m_landauDist = new Rndm::Numbers(randSvc(), Rndm::Landau(0.,1.)); 
+    m_gaussDist.reset( new Rndm::Numbers(randSvc(), Rndm::Gauss(0.,1.)) );
+    m_flatDist.reset( new Rndm::Numbers(randSvc(), Rndm::Flat(0.,1.)) );
+    m_landauDist.reset( new Rndm::Numbers(randSvc(), Rndm::Landau(0.,1.)) );
 
     if  (bookTree().isFailure()){
         ATH_MSG_FATAL( "Could not book the TTree object" );

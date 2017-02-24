@@ -57,9 +57,9 @@ namespace Trk {
 
     protected:
       /** Random Number setup */
-      Rndm::Numbers*            m_gaussDist;
-      Rndm::Numbers*            m_flatDist;
-      Rndm::Numbers*            m_landauDist;
+      std::unique_ptr<Rndm::Numbers>            m_gaussDist;
+      std::unique_ptr<Rndm::Numbers>            m_flatDist;
+      std::unique_ptr<Rndm::Numbers>            m_landauDist;
       
       /** number of tests */
       size_t                    m_numTests; 
