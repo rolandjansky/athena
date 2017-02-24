@@ -42,7 +42,7 @@ namespace ISF {
         virtual ~ITruthSvc() { }
 
         /** Register a truth incident */
-        virtual void registerTruthIncident( ITruthIncident& truthincident) = 0;
+        virtual void registerTruthIncident( ITruthIncident& truthincident) const = 0;
         
         /** Initialize the Truth Svc at the beginning of each event */
         virtual StatusCode initializeTruthCollection() = 0;
