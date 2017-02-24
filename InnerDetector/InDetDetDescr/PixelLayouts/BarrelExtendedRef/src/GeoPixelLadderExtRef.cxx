@@ -53,7 +53,7 @@ GeoPixelLadderExtRef::GeoPixelLadderExtRef(const PixelGeoBuilderBasics* basics, 
     msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
   }
   else{
-    msg(MSG::INFO) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
+    msg(MSG::DEBUG) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
   }
 
   // Build stave support and module
@@ -95,7 +95,7 @@ void GeoPixelLadderExtRef::preBuild( ) {
   if(sc.isFailure())
     msg(MSG::WARNING)<< "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." <<endmsg;
   else 
-    msg(MSG::INFO)<< "Pixel module builder tool retrieved: " << m_pixelModuleSvc <<endmsg;
+    msg(MSG::DEBUG)<< "Pixel module builder tool retrieved: " << m_pixelModuleSvc <<endmsg;
   
   // Access stave description xml file				
   PixelExtRefStaveXMLHelper staveDBHelper(m_layer, getBasics());

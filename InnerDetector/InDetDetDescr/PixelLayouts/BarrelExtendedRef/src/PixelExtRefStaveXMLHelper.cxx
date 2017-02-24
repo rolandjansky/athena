@@ -19,7 +19,7 @@ PixelExtRefStaveXMLHelper::PixelExtRefStaveXMLHelper(int layer, const PixelGeoBu
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      msg(MSG::INFO)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -27,7 +27,7 @@ PixelExtRefStaveXMLHelper::PixelExtRefStaveXMLHelper(int layer, const PixelGeoBu
     }
   else
     {
-      msg(MSG::INFO)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);

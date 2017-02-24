@@ -68,7 +68,7 @@ StatusCode GeoPixelEnvelopeExtRefTool::initialize()
     msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
   }
   else{
-    msg(MSG::INFO) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
+    msg(MSG::DEBUG) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
   }
 
   return StatusCode::SUCCESS;

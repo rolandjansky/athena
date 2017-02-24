@@ -116,7 +116,7 @@ GeoVPhysVol* GeoPixelLayerExtRef::Build() {
 
       // Now make the layer envelope
       // 
-      msg(MSG::INFO)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
+      msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
       const GeoMaterial* air = matMgr()->getMaterial("std::Air");
       std::ostringstream lname;
       lname << "Layer" << m_layer;

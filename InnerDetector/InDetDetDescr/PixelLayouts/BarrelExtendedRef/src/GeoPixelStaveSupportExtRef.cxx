@@ -52,7 +52,7 @@ void GeoPixelStaveSupportExtRef::preBuild() {
   if(width<0.01) width = m_barrelModule.Width();
   std::string routing = staveDBHelper.getSvcRoutingPos();
 
-  std::cout<<"Stave sizes LxWxT: "<<length<<"  "<<width<<"  "<<thickness<<"   "<<matName<<std::endl;
+  msg(MSG::DEBUG)<<"Stave sizes LxWxT: "<<length<<"  "<<width<<"  "<<thickness<<"   "<<matName<<endmsg;
 
   GeoBox * shape = new GeoBox(0.5*thickness, 0.5*width, 0.5*length);
   const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,shape->volume());

@@ -59,11 +59,11 @@ StatusCode GeoPixelBarrelExtRefTool::initialize()
     msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
   }
   else{
-    msg(MSG::INFO) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
+    msg(MSG::DEBUG) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
   }
 
   if (m_xmlReader.retrieve().isSuccess()){
-    ATH_MSG_INFO("ITkXMLReader successfully retrieved " << m_xmlReader );
+    ATH_MSG_DEBUG("ITkXMLReader successfully retrieved " << m_xmlReader );
   } else {
     ATH_MSG_WARNING("ITkXMLReader: Couldn't retrieve " << m_xmlReader );
     return StatusCode::FAILURE;
@@ -119,7 +119,7 @@ void GeoPixelBarrelExtRefTool::preBuild(const PixelGeoBuilderBasics* basics)
   double halflen = genDBHelper.getBarrelHalfLength();
   bool cylBarrel = genDBHelper.isBarrelCylindrical();
 
-  msg(MSG::INFO) << "GeoPixelBarrelExtendedTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << " "<<cylBarrel<<endreq;
+  msg(MSG::DEBUG) << "GeoPixelBarrelExtendedTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << " "<<cylBarrel<<endreq;
 
   if(cylBarrel) {
     m_barrelRegion.push_back("B");
@@ -153,7 +153,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
   double halflen = genDBHelper.getBarrelHalfLength();
   bool cylBarrel = genDBHelper.isBarrelCylindrical();
 
-  msg(MSG::INFO) << "GeoPixelBarrelExtRefTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
+  msg(MSG::DEBUG) << "GeoPixelBarrelExtRefTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
 
   const std::string matEnvelope("std::Air");
   GeoPhysVol* barrelPhys = 0;
