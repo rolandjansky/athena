@@ -19,6 +19,7 @@
 
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
+#include "SGTools/CLASS_DEF.h"
 
 #include <vector>
 
@@ -55,68 +56,57 @@ namespace InDet
    virtual ~TRT_LocalOccupancy ();
       
    /** standard Athena-Algorithm method */
-   virtual StatusCode initialize();
+   virtual StatusCode initialize() override;
 
    /** standard Athena-Algorithm method */
-   virtual StatusCode finalize  (); 
-
-   /** Event Initiazliation, so we do not count several times the local volume occupancies. */
-   StatusCode StartEvent();
+   virtual StatusCode finalize  () override; 
 
    /** Return the local occupancy for the sectors crossed by a given track */ 
-   virtual float LocalOccupancy( const Trk::Track& track);
-   virtual float LocalOccupancy(const double eta, const double phi);
+   virtual float LocalOccupancy( const Trk::Track& track) const override;
+   virtual float LocalOccupancy(const double eta, const double phi) const override;
 
 
    /** Return the global occupancy of the event*/ 
    /** 7 Floats: TRT, Barrel A / C, endcapA/B A/C */ 
-   virtual std::vector<float> GlobalOccupancy( );
+   virtual std::vector<float> GlobalOccupancy( ) const override;
 
 
-   virtual int  *getOccTotal()          {return m_occ_total;}
-   virtual int **getOccLocal()          {return m_occ_local;}
+   //Total TRT, (B, ECA, ECB)side C, (B, ECA, ECB)side A [7]
+   static const int NTOTAL = 7;
+   //(barrel, ECA, ECB)side C, (barrel, ECA, ECB)side A [6][32]
+   static const int NLOCAL = 6;
+   static const int NLOCALPHI = 32;
+   struct OccupancyData {
+     int m_occ_total[NTOTAL] = {0};
+     int m_hit_total[NTOTAL] = {0};
+     int m_occ_local[NLOCAL][NLOCALPHI] = {{0}};
+     int m_hit_local[NLOCAL][NLOCALPHI] = {{0}};
+     int* m_stw_total = nullptr;
+     int** m_stw_local = nullptr;
+     int** m_stw_wheel = nullptr;
+     float m_stws_ratio[2][NLOCALPHI] = {{0}};
+   };
+
 
   private:
-   /** Arrays to store the occupancy for each event */
-      // Comments show the meaning of each element in order:
-      int  *m_occ_total;       //Total TRT, (B, ECA, ECB)side C, (B, ECA, ECB)side A [7]
-      int **m_occ_local;       //(barrel, ECA, ECB)side C, (barrel, ECA, ECB)side A [6][32]
+      const OccupancyData* getData() const;
+      std::unique_ptr<OccupancyData> makeData() const;
+      std::unique_ptr<OccupancyData> makeDataTrigger() const;
 
-      int  *m_hit_total;
-      int **m_hit_local;
+      bool isMiddleBXOn(unsigned int word) const;
+      bool passValidityGate(unsigned int word, float t0) const;
 
-      int  *m_stw_total;
-      int **m_stw_local;
-      int **m_stw_wheel;
-
-      int **m_track_local; // records number of track hits in each region, for each track
-
-      bool isMiddleBXOn(unsigned int word);
-      bool passValidityGate(unsigned int word, float t0);
-
-      void  countHitsNearTrack();
+      void  countHitsNearTrack (OccupancyData& data,
+                                int track_local[NLOCAL][NLOCALPHI]) const;
       //   void  countHitsNearTrack(std::vector<IdentifierHash>* hash_vec);
   //   void  countHitsNearTrack(IdentifierHash hash);
 
-   /** tools to deal with arrays */
-   void resetOccArrays();
-   void resetArrays(float array_total [7], float array_local[6][32], float array_mod[34][32]);
-   void printArrays(float array_total [7], float array_local[6][32], float array_mod[34][32]);
   
 
    /** To convert from array index to det id and viceversa */
-   int findArrayTotalIndex(const int det, const int lay);
-   int findArrayLocalWheelIndex(const int det, const int lay);
-   int findArrayLocalStrawIndex(const int det, const int lay, const int strawlay);
-   int detToArrayIndex (int det);
-   int ArrayIndexToDet (int arrayindex);
-
-   int mapPhiToPhisector(const double phi);
-   int mapEtaToPartition(const double eta);
-
-
-   /** To prevent the creation of the maps more than 1 time per event, keep the event number */
-   int m_eventnumber;
+   int findArrayTotalIndex(const int det, const int lay) const;
+   int mapPhiToPhisector(const double phi) const;
+   int mapEtaToPartition(const double eta) const;
 
    /** External tools:  */
    const TRT_ID *m_TRTHelper;
@@ -131,12 +121,9 @@ namespace InDet
    // use a wider validity gate if you're not using T0 shift:
    float m_lowWideGate; 
    float m_highWideGate;
-
-   // for online use:
-   bool region_rescaled[6][32];
-   bool allOfEndcapAFound[2][32];
-   float stws_ratio[2][32];
-
    }; 
 }
+
+
+CLASS_DEF (InDet::TRT_LocalOccupancy::OccupancyData, 143585992, 0)
 #endif 

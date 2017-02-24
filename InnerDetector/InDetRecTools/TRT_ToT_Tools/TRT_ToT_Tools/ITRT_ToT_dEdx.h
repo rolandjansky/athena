@@ -24,7 +24,9 @@ static const InterfaceID IID_ITRT_ToT_dEdx("ITRT_ToT_dEdx", 1, 0);
 class ITRT_ToT_dEdx : virtual public IAlgTool {
 
   
- public:
+public:
+
+  enum EGasType {kXenon,kArgon,kKrypton,kUnset};
 
   /** Virtual destructor */
   virtual ~ITRT_ToT_dEdx(){};
@@ -39,8 +41,8 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param bool variable whether HT hits shoule be used 
    * @return ToT
    */
-  virtual double dEdx(const Trk::Track*, bool DivideByL, bool useHThits, bool corrected ) = 0;
-  virtual double dEdx(const Trk::Track*) = 0;
+  virtual double dEdx(const Trk::Track*, bool DivideByL, bool useHThits, bool corrected ) const = 0;
+  virtual double dEdx(const Trk::Track*) const = 0;
 
   /**
    * @brief function to calculate number of used hits
@@ -49,8 +51,8 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param bool variable whether HT hits shoule be used
    * @return nHits
    */
-  virtual double usedHits(const Trk::Track* track, bool DivideByL, bool useHThits) = 0;
-  virtual double usedHits(const Trk::Track* track) = 0;
+  virtual double usedHits(const Trk::Track* track, EGasType& gasType, bool DivideByL, bool useHThits) const = 0;
+  virtual double usedHits(const Trk::Track* track, EGasType& gasType) const = 0;
 
   /** 
    * @brief function to define what is a good hit to be used for dEdx calculation
@@ -68,7 +70,7 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param number of primary vertices per event
    * @return scaling variable
    */
-  virtual double correctNormalization(bool divideLength, bool scaledata, double nVtx=-1) const = 0;
+  virtual double correctNormalization(bool divideLength, bool scaledata, EGasType& gasType, double nVtx=-1) const = 0;
 
   /**
    * @brief function to calculate likelihood from prediction and resolution
@@ -78,8 +80,8 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param number of used hits
    * @return brobability  value between 0 and 1
    */
-  virtual double getProb(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits, bool dividebyL) = 0;
-  virtual double getProb(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const = 0;
+  virtual double getProb(const Trk::TrackStateOnSurface *itr, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits, bool dividebyL) const = 0;
+  virtual double getProb(const Trk::TrackStateOnSurface *itr, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const = 0;
 
   /**
    * @brief function to calculate likelihood ratio test
@@ -90,8 +92,8 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param number of used hits
    * @return test value between 0 and 1
    */
-  virtual double getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits, bool dividebyL) = 0;
-  virtual double getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const = 0;
+  virtual double getTest(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits, bool dividebyL) const = 0;
+  virtual double getTest(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const = 0;
 
 
   /**
@@ -100,8 +102,8 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param hypothesis
    * @return dEdx_pred
    */
-  virtual double predictdEdx(const double pTrk, Trk::ParticleHypothesis hypothesis, bool dividebyL) = 0;
-  virtual double predictdEdx(const double pTrk, Trk::ParticleHypothesis hypothesis) const = 0;
+  virtual double predictdEdx(const Trk::TrackStateOnSurface *itr, const double pTrk, Trk::ParticleHypothesis hypothesis, bool dividebyL) const = 0;
+  virtual double predictdEdx(const Trk::TrackStateOnSurface *itr, const double pTrk, Trk::ParticleHypothesis hypothesis) const = 0;
 
   /**
    * @brief function to extract most likely mass in bg [0,3]
@@ -109,7 +111,7 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param measured dEdx
    * @return mass
    */
-  virtual double mass(const double pTrk, double dEdx ) const = 0;
+  virtual double mass(const Trk::TrackStateOnSurface *itr, const double pTrk, double dEdx ) const = 0;
 
 
 
@@ -123,9 +125,9 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param bool to set data or MC
    * @return corrected ToT/L (returns 0 if hit criteria are not fulfilled)
    */
-  virtual double correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData) = 0;
+  virtual double correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData) const = 0;
  
-  virtual double correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData) = 0;
+  virtual double correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData) const = 0;
  
   /**
    * @brief main function to correct ToT values on hit level as a function of track radius and z-position
@@ -136,7 +138,7 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param bool variable whether mimic ToT to other gas hits shoule be used 
    * @return corrected value for ToT
    */
-  virtual double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) = 0;
+  virtual double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) const = 0;
 
 
   /**
@@ -154,24 +156,24 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param track on surface object
    * @return gasType
    */
-  virtual int gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const = 0; 
-  virtual int gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const = 0; 
+  virtual EGasType gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const = 0; 
+  virtual EGasType gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const = 0; 
 
   /**
    * @brief setters and getters
    */
   virtual void  SetDefaultConfiguration() = 0;
 
-  virtual void  SwitchOnRSCorrection() = 0;
-  virtual void  SwitchOffRSCorrection() = 0;
+  // virtual void  SwitchOnRSCorrection() = 0;
+  // virtual void  SwitchOffRSCorrection() = 0;
   virtual bool  GetStatusRSCorrection() const = 0;
 
-  virtual void  SwitchOnDivideByL() = 0;
-  virtual void  SwitchOffDivideByL() = 0;
+  // virtual void  SwitchOnDivideByL() = 0;
+  // virtual void  SwitchOffDivideByL() = 0;
   virtual bool  GetStatusDivideByL() const = 0;
 
-  virtual void  SwitchOnUseHThits() = 0;
-  virtual void  SwitchOffUseHThits() = 0;
+  // virtual void  SwitchOnUseHThits() = 0;
+  // virtual void  SwitchOffUseHThits() = 0;
   virtual bool  GetStatusUseHThits() const = 0;
 
   virtual void  SetLargerIslandToTEstimatorAlgo() = 0;
@@ -196,11 +198,11 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
   virtual void  UnsetGasTypeFordEdXCalculation() = 0;
   virtual int   GetGasTypeFordEdXCalculation() const = 0;
 
-  virtual void  SetXenonGasTypeInStraw() = 0;
-  virtual void  SetArgonGasTypeInStraw() = 0;
-  virtual void  SetKryptonGasTypeInStraw() = 0;
-  virtual void  UnsetGasTypeInStraw() = 0;
-  virtual int   GetStatusGasTypeInStraw() const = 0;
+  // virtual void  SetXenonGasTypeInStraw() = 0;
+  // virtual void  SetArgonGasTypeInStraw() = 0;
+  // virtual void  SetKryptonGasTypeInStraw() = 0;
+  // virtual void  UnsetGasTypeInStraw() = 0;
+  // virtual int   GetStatusGasTypeInStraw() const = 0;
 
   virtual void  UseStandardAlgorithm() = 0;
   virtual void  UseScalingAlgorithm() = 0;

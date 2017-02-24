@@ -176,7 +176,8 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const
 |*%%%  electronProbability - The interface method during reconstruction  %%%%*|
 \*****************************************************************************/
 
-std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) {
+std::vector<float>
+InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) const {
 
   //ATH_MSG_INFO("started electronProbabaility");
   //Intialize the return vector
@@ -418,8 +419,9 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
 
   // Jared - ToT Implementation
   dEdx = m_TRTdEdxTool->dEdx( &track, true, false, true); // Divide by L, exclude HT hits 
-  double usedHits = m_TRTdEdxTool->usedHits( &track, true, false);
-  prob_El_ToT = m_TRTdEdxTool->getTest( dEdx, pTrk, Trk::electron, Trk::pion, usedHits, true ); 
+  ITRT_ToT_dEdx::EGasType gasType;
+  double usedHits = m_TRTdEdxTool->usedHits( &track, gasType, true, false);
+  prob_El_ToT = m_TRTdEdxTool->getTest( gasType, dEdx, pTrk, Trk::electron, Trk::pion, usedHits, true ); 
   
   // Limit the probability values the the upper and lower limits that are given/trusted for each part:
   double limProbHT = HTcalc.Limit(prob_El_HT); 
@@ -469,7 +471,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::update( IOVSVC_CALLBACK_ARGS_P(I,keys
 |*%%%  return true every time  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int StrawLayer){
+bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int StrawLayer) const {
 
   //first check that the BEC is valid:
   if(not ( BEC==-2 || BEC ==-1 || BEC==1 || BEC==2)){

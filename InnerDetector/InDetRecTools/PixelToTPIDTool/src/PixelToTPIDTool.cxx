@@ -54,8 +54,6 @@ InDet::PixelToTPIDTool::PixelToTPIDTool(const std::string& t,
   declareProperty("MinimumdEdxForMass", m_mindedxformass = 1.8);
 
 
-  m_nusedhits=-1;
-  m_nUsedIBLOverflowHits=0;
   float energyPair = 3.68e-6; // Energy in MeV to create an electron-hole pair in silicon
   float sidensity = 2.329; // silicon density in g cm^-3
  
@@ -65,7 +63,6 @@ InDet::PixelToTPIDTool::PixelToTPIDTool(const std::string& t,
   m_conversionfactor=energyPair/sidensity;
   
   m_mydedx=0;  
-  m_slimwarn=0;  
 }
 
 //================ Destructor =================================================
@@ -148,17 +145,9 @@ StatusCode InDet::PixelToTPIDTool::finalize()
 
 //============================================================================================
 
-int InDet::PixelToTPIDTool::numberOfUsedHitsdEdx()
-{
-  return m_nusedhits;
-}
-
-int InDet::PixelToTPIDTool::numberOfUsedIBLOverflowHits()
-{
-  return m_nUsedIBLOverflowHits;
-}
-
-float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
+float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track,
+                                   int& nUsedHits,
+                                   int& nUsedIBLOverflowHits) const
 {
  
 
@@ -167,8 +156,8 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
   // ------------------------------------------------------------------------------------
 
   unsigned int pixelhits = 0;
-  m_nusedhits=0;
-  m_nUsedIBLOverflowHits=0;
+  nUsedHits=0;
+  nUsedIBLOverflowHits=0;
   float Pixel_sensorthickness=.025; //250 microns Pixel Planars
   float IBL_3D_sensorthickness=.023; //230 microns IBL 3D 
   float IBL_PLANAR_sensorthickness=.020;// 200 microns IBL Planars
@@ -192,12 +181,8 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
       const Trk::MeasurementBase *measurement = (*tsosIter)->measurementOnTrack();
       if (measurement && !(*tsosIter)->type(Trk::TrackStateOnSurface::Outlier)) {
         if (!(*tsosIter)->trackParameters()) {
-          if (m_slimwarn<10){
-            msg(MSG::WARNING) << "No track parameters available for a state of type measurement, returning -1" << endmsg;
-            msg(MSG::WARNING) << "Don't run this tool on slimmed tracks!" << endmsg;
-            m_slimwarn++;
-            if (m_slimwarn==10) msg(MSG::WARNING) << "(last message!)" << endmsg;
-          }
+          msg(MSG::WARNING) << "No track parameters available for a state of type measurement, returning -1" << endmsg;
+          msg(MSG::WARNING) << "Don't run this tool on slimmed tracks!" << endmsg;
           return -1;
         }
 
@@ -266,14 +251,14 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
 			dEdxValue=charge*m_conversionfactor/IBL_3D_sensorthickness;
 	    		dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
 			pixelhits++;
-			if(iblOverflow==1)m_nUsedIBLOverflowHits++;
+			if(iblOverflow==1)nUsedIBLOverflowHits++;
 	    
 	    }else if((eta_module>=-6 && eta_module<=5) && (fabs(locy)<20. &&( locx >-8.33 && locx <8.3 )) ){//check if IBL planar and good cluster selection
 	 
 	 		dEdxValue=charge*m_conversionfactor/IBL_PLANAR_sensorthickness; 
 	    		dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
 			pixelhits++;
-			if(iblOverflow==1)m_nUsedIBLOverflowHits++;
+			if(iblOverflow==1)nUsedIBLOverflowHits++;
 	    }else{
 	    	dEdxValue=-1;
 	    }//end check which IBL Module
@@ -302,7 +287,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
   //float averageCharge=-1;
   
   float averagedEdx=0.;
-  m_nusedhits=0;
+  nUsedHits=0;
   int IBLOverflow=0;
   
   for (std::pair<float,int> itdEdx : dEdxMap) {
@@ -311,7 +296,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
     
     if(itdEdx.second==0){
     	averagedEdx += itdEdx.first;
-    	m_nusedhits++;
+    	nUsedHits++;
     }
     
     if(itdEdx.second > 0){ 
@@ -321,13 +306,13 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
     
     
     //break, skipping last or the two last elements depending on total measurements
-    if (((int)pixelhits >= 5) and ((int)m_nusedhits >= (int)pixelhits-2)) break;
+    if (((int)pixelhits >= 5) and ((int)nUsedHits >= (int)pixelhits-2)) break;
     
     //break, IBL Overflow case pixelhits==3 and 4 
-    if((int)IBLOverflow>0 and ((int)pixelhits==3) and (int)m_nusedhits==1) break;
-    if((int)IBLOverflow>0 and ((int)pixelhits==4) and (int)m_nusedhits==2) break;
+    if((int)IBLOverflow>0 and ((int)pixelhits==3) and (int)nUsedHits==1) break;
+    if((int)IBLOverflow>0 and ((int)pixelhits==4) and (int)nUsedHits==2) break;
     
-    if (((int)pixelhits > 1) and ((int)m_nusedhits >=(int)pixelhits-1)) break; 
+    if (((int)pixelhits > 1) and ((int)nUsedHits >=(int)pixelhits-1)) break; 
     
     if((int)IBLOverflow>0 and (int)pixelhits==1){ //only IBL in overflow
     	averagedEdx=itdEdx.first;
@@ -336,13 +321,13 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
   
   }
   
-  if (m_nusedhits > 0 or (m_nusedhits==0 and(int)IBLOverflow>0 and (int)pixelhits==1)) {
+  if (nUsedHits > 0 or (nUsedHits==0 and(int)IBLOverflow>0 and (int)pixelhits==1)) {
   	
-	if(m_nusedhits > 0) averagedEdx = averagedEdx / m_nusedhits;
-  	if(m_nusedhits == 0 and (int)IBLOverflow > 0 and (int)pixelhits == 1) averagedEdx = averagedEdx; 
+	if(nUsedHits > 0) averagedEdx = averagedEdx / nUsedHits;
+  	//if(nUsedHits == 0 and (int)IBLOverflow > 0 and (int)pixelhits == 1) averagedEdx = averagedEdx; 
     
     	ATH_MSG_DEBUG("NEW dEdx = " << averagedEdx);
-    	ATH_MSG_DEBUG("Used hits: " << m_nusedhits << ", IBL overflows: " << IBLOverflow );
+    	ATH_MSG_DEBUG("Used hits: " << nUsedHits << ", IBL overflows: " << IBLOverflow );
     	ATH_MSG_DEBUG("Original number of measurements = " << pixelhits << "( map size = " << dEdxMap.size() << ") " );
     
     	return averagedEdx;  
@@ -356,7 +341,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
 // Callback function to update constants from database:
 /* ----------------------------------------------------------------------------------- */
 
-StatusCode InDet::PixelToTPIDTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
+StatusCode InDet::PixelToTPIDTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )  {
 
   ATH_MSG_INFO ("Updating constants for the PixelToTPIDTool! ");
 

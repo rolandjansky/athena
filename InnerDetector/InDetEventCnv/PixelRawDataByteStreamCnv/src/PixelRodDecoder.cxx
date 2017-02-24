@@ -43,14 +43,22 @@
 PixelRodDecoder::PixelRodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
     :  AthAlgTool(type,name,parent),
+      m_is_ibl_present(false),
+      m_is_ibl_module(false),
+      m_is_dbm_module(false),
+      masked_errors(0),
+      m_numGenWarnings(0),
+      m_maxNumGenWarnings(200),
+      m_numBCIDWarnings(0),
+      m_maxNumBCIDWarnings(50),
       m_pixelCabling("PixelCablingSvc",name),
+      m_pixel_id(nullptr),
+      m_cablingData(nullptr),
       m_condsummary("PixelConditionsSummarySvc",name),
       m_errors("PixelByteStreamErrorsSvc",name)
 {
     declareInterface< IPixelRodDecoder  >( this );
     declareProperty ("ErrorsSvc",m_errors);
-    m_is_ibl_present = false;
-    m_is_ibl_module = false;
 }
 
 //--------------------------------------------------------------------------- destructor

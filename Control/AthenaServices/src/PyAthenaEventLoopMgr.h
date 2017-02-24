@@ -60,7 +60,7 @@ protected:
   ~PyAthenaEventLoopMgr() {}
 
   /// Run the algorithms for the current event
-  virtual StatusCode executeAlgorithms();
+  virtual StatusCode executeAlgorithms(const EventContext&);
 
 private:
    PyObject* m_manager;

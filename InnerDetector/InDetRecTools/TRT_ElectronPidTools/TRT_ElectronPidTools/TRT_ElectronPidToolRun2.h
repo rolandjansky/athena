@@ -83,19 +83,19 @@ namespace InDet
     virtual ~TRT_ElectronPidToolRun2 ();
       
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  (); 
+    virtual StatusCode finalize  () override;
 
     /** Electron probabilities to be returned */
-    std::vector<float> electronProbability(const Trk::Track& track);
+    virtual std::vector<float> electronProbability(const Trk::Track& track) const override;
 
     /** Electron probabilities to be returned */
     std::vector<float> electronProbability_old(const Trk::Track& track);
 
-    double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer);
-    double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy );
+    virtual double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) override;
+    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) override;
 
   // get the ToT from the bitpattern and correct for local variations
   // Jared - Remove ToT calc
@@ -121,7 +121,7 @@ namespace InDet
     bool m_DATA;
 
     //Check valid TRT straw:
-    bool CheckGeometry(int BEC, int Layer, int Strawlayer);
+    bool CheckGeometry(int BEC, int Layer, int Strawlayer) const;
 
     //Turn the Bitpattern into a human readable string
     std::string PrintBitPattern(unsigned int bitpattern);
