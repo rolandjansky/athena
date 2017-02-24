@@ -10,20 +10,10 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "PixelNoisyCellGenerator.h"
-#include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
 
-#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "TimeSvc.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
 
 #include<fstream>
 #include<sstream>
@@ -31,125 +21,72 @@
 #include<limits>
 #include<iomanip>
 
-//#define __PIXEL_DEBUG__
-
-using namespace InDetDD;
-
-static const InterfaceID IID_IPixelNoisyCellGenerator("PixelNoisyCellGenerator", 1, 0);
-const InterfaceID& PixelNoisyCellGenerator::interfaceID( ){ return IID_IPixelNoisyCellGenerator; }
-
 PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const std::string& name,const IInterface* parent):
-  AthAlgTool(type,name,parent),
+  PixelProcessorTool(type,name,parent),
   m_TimeSvc("TimeSvc",name),
   m_pixelCalibSvc("PixelCalibSvc", name),
   m_mergeCharge(false),
   m_pixelID(0),
-  m_rndmSvc("AtDSFMTGenSvc",name),
-  m_rndmEngineName("PixelDigitization"),
-  m_rndmEngine(0),
-// STSTT  m_spmNoiseOccu(1e-5),
   m_rndNoiseProb(5e-8)
-  //m_pixMgr(0)
 {
-  declareInterface< PixelNoisyCellGenerator >( this );
   declareProperty("NoiseShape",m_noiseShape,"Vector containing noise ToT shape");
-  declareProperty("RndmSvc",         m_rndmSvc,          "Random Number Service used in SCT & Pixel digitization" );
-  declareProperty("RndmEngine",      m_rndmEngineName,   "Random engine name");	
   declareProperty("MergeCharge",     m_mergeCharge,      "");
-// STSTT  declareProperty("SpmNoiseOccu",    m_spmNoiseOccu,         "Special Pixels map gen: probability for a noisy pixel in SPM");
   declareProperty("RndNoiseProb",       m_rndNoiseProb,         "Random noisy pixels, amplitude from calib. - NOT special pixels!"); 
 }
 
-// Destructor:
-PixelNoisyCellGenerator::~PixelNoisyCellGenerator()
-{}
+PixelNoisyCellGenerator::~PixelNoisyCellGenerator() {}
 
-//----------------------------------------------------------------------
-// Initialize
-//----------------------------------------------------------------------
 StatusCode PixelNoisyCellGenerator::initialize() {
+  CHECK(PixelProcessorTool::initialize());
  
   CHECK(m_TimeSvc.retrieve());
 
   CHECK(m_pixelCalibSvc.retrieve());
   ATH_MSG_DEBUG("Retrieved PixelCalibSvc");
 
-  CHECK(m_rndmSvc.retrieve());
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (!m_rndmEngine) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  } 
-  else { 
-    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
-  }
+  CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
-  std::string pixelHelperName("PixelID");
-  if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixelID,pixelHelperName) ) {
-    msg(MSG::FATAL) << "Pixel ID helper not found" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  CHECK(detStore()->retrieve(m_pixMgr,"Pixel"));
 
-  std::string managerName("Pixel");
-  if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixMgr,managerName) ) {
-    msg(MSG::FATAL) << "PixelDetectorManager not found" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_DEBUG ( "PixelNoisyCellGenerator::initialize()");
+  ATH_MSG_DEBUG("PixelNoisyCellGenerator::initialize()");
   return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// finalize
-//----------------------------------------------------------------------
 StatusCode PixelNoisyCellGenerator::finalize() {
+  ATH_MSG_DEBUG("PixelNoisyCellGenerator::finalize()");
   return StatusCode::SUCCESS;
 }
 
-// process the collection of diode collection
-void PixelNoisyCellGenerator::process(SiChargedDiodeCollection &collection) const {
-  //
+void PixelNoisyCellGenerator::process(SiChargedDiodeCollection &collection) {
+
   // Get Module identifier
-  //
   Identifier mmod = collection.identify();
-  ATH_MSG_DEBUG ( " Processing diodes for module "
-	<< m_pixelID->show_to_string(mmod));
-  //
-  // if probability is 0, do nothing
-  //
+  ATH_MSG_DEBUG(" Processing diodes for module " << m_pixelID->show_to_string(mmod));
 
   double pnoise_rndm(m_rndNoiseProb);
   if (pnoise_rndm>0) addRandomNoise(collection,pnoise_rndm);
- 
+
   return;
 }
 
 void PixelNoisyCellGenerator::addRandomNoise(SiChargedDiodeCollection &collection, double occupancy) const {
-  //
-  // Get Module identifier
-  //
-  //Identifier mmod = collection.identify(); //not used
-  
+ 
   // number of bunch crossings
   int bcn = m_TimeSvc->getTimeBCN();
 
-  //
   // get pixel module design and check it
-  //
-  const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign *>(&(collection.design()));
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign *>(&(collection.design()));
 
-  //
   // compute number of noisy cells
   // multiply the number of pixels with BCN since noise will be evenly distributed
   // over time
-  //
   int number_rndm=CLHEP::RandPoisson::shoot(m_rndmEngine,
-                                      p_design->numberOfCircuits()    // =8
-				      *p_design->columnsPerCircuit()  // =18
-				      *p_design->rowsPerCircuit()     // =320
-				      *occupancy
-                                      *static_cast<double>(bcn));
+      p_design->numberOfCircuits()    // =8
+      *p_design->columnsPerCircuit()  // =18
+      *p_design->rowsPerCircuit()     // =320
+      *occupancy
+      *static_cast<double>(bcn));
+
   for (int i=0; i<number_rndm; i++) {
     int circuit = CLHEP::RandFlat::shootInt(m_rndmEngine,p_design->numberOfCircuits());
     int column  = CLHEP::RandFlat::shootInt(m_rndmEngine,p_design->columnsPerCircuit());
@@ -159,17 +96,17 @@ void PixelNoisyCellGenerator::addRandomNoise(SiChargedDiodeCollection &collectio
   return;
 }
 
-void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const PixelModuleDesign *design, int circuit, int column, int row) const {
+void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const InDetDD::PixelModuleDesign *design, int circuit, int column, int row) const {
   ATH_MSG_DEBUG("addCell 1 circuit = " << circuit << ", column = " << column << ", row = " << row);
 #ifdef __PIXEL_DEBUG__
   ATH_MSG_DEBUG("addCell: circuit,column,row=" << circuit << "," << column << "," << row);
 #endif
   ATH_MSG_DEBUG("addCell 2 circuit = " << circuit << ", column = " << column << ", row = " << row);
 
-  if ( row > 159 && design->getReadoutTechnology() == PixelModuleDesign::FEI3 ) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
+  if ( row > 159 && design->getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI3 ) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
   ATH_MSG_DEBUG("addCell 3 circuit = " << circuit << ", column = " << column << ", row = " << row);
 
-  SiReadoutCellId roCell(row, design->columnsPerCircuit() * circuit + column);
+  InDetDD::SiReadoutCellId roCell(row, design->columnsPerCircuit() * circuit + column);
   ATH_MSG_DEBUG("addCell 4 circuit = " << circuit << ", column = " << column << ", row = " << row);
 
   Identifier noisyID=collection.element()->identifierFromCellId(roCell);
@@ -178,7 +115,7 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
   // if required, check if the cell is already hit
   if (!m_mergeCharge) {
     if (collection.AlreadyHit(noisyID)) {
-      roCell = SiReadoutCellId(); // Set it to an Invalid ID
+      roCell = InDetDD::SiReadoutCellId(); // Set it to an Invalid ID
     }
   }
 
@@ -189,7 +126,7 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
   ATH_MSG_DEBUG("addCell 6 circuit = " << circuit << ", column = " << column << ", row = " << row);
   if (roCell.isValid()) {
     ATH_MSG_DEBUG("addCell 7 circuit = " << circuit << ", column = " << column << ", row = " << row);
-    SiCellId diode = roCell;
+    InDetDD::SiCellId diode = roCell;
     ATH_MSG_DEBUG("addCell 7a circuit = " << circuit << ", column = " << column << ", row = " << row);
 
     // create a random charge following the ToT shape of the noise measured in automn 2006 in EndCapA 

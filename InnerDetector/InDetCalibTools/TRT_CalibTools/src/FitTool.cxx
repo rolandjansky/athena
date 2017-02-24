@@ -21,12 +21,12 @@ FitTool::FitTool(const std::string& type, const std::string& name, const IInterf
 
 StatusCode FitTool::initialize()
 {
-  msg(MSG::INFO) << "initialize()" << endreq;
+  msg(MSG::INFO) << "initialize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
 bool FitTool::fit(std::vector<IdentifierProfileHistogram*>& histograms, std::vector<FloatArrayStore>& results) {
-  msg(MSG::INFO) << "dummy fit" << endreq;
+  msg(MSG::INFO) << "dummy fit" << endmsg;
   if (histograms.size()==0) {};
   if (results.size()==0) {};
   return true;

@@ -6,7 +6,6 @@
  TrigDecisionChecker based on TrigDecisionMaker/TrigDecisionTest */
 
 #include "TrigValAlgs/TrigDecisionChecker.h"
-//#include "TrigSteering/Chain.h"
 
 // EDM
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -55,23 +54,13 @@
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 
 #include "TrigConfigSvc/DSConfigSvc.h"
+#include "TrigConfHLTData/HLTTriggerElement.h"
 
-// Gaudi inlcudes
-//#include "AthenaBaseComps/AthAlgorithm.h"
-//#include "GaudiKernel/ServiceHandle.h"
 #include "SGTools/crc64.h"
-
-//#include "AthenaKernel/IUserDataSvc.h"
-//#include "AthenaKernel/IUserDataSvc.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-
-/*#include "xAODTrigMinBias/TrigSpacePointCountsContainer.h"
- /#include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
- /#include "xAODTrigMinBias/TrigVertexCountsContainer.h"
- /#include "xAODTrigMinBias/TrigTrackCountsContainer.h"*/
 #include "xAODTrigMinBias/TrigSpacePointCounts.h"
 #include "xAODTrigMinBias/TrigT2MbtsBits.h"
 #include "xAODTrigMinBias/TrigVertexCounts.h"
@@ -140,31 +129,23 @@ StatusCode TrigDecisionChecker::initialize()
     m_hltpsk=0;
     
     // print out properties
-    msg(MSG::INFO) << "Initializing..." << endreq;
-    msg(MSG::INFO) << "TrigDecisionKey:    " << m_trigDecisionKey << endreq;
-    msg(MSG::INFO) << "MonitoredChains:    " << m_count_sig_names << endreq;
-    //msg(MSG::INFO) << "MonitoredTauItem:   " << m_tauItem << endreq;
-    msg(MSG::INFO) << "MonitoringBlock:    " << m_monitoring_block_size<< endreq;
-    msg(MSG::INFO) << "PrintOutCounts:     " << m_printout_counts << endreq;
+    ATH_MSG_INFO("Initializing...");
+    ATH_MSG_INFO("TrigDecisionKey:    " << m_trigDecisionKey);
+    ATH_MSG_INFO("MonitoredChains:    " << m_count_sig_names);
+    //ATH_MSG_INFO("MonitoredTauItem:   " << m_tauItem);
+    ATH_MSG_INFO("MonitoringBlock:    " << m_monitoring_block_size);
+    ATH_MSG_INFO("PrintOutCounts:     " << m_printout_counts);
     if (m_printout_counts) {
-        msg(MSG::INFO) << "PrintOutFilename:   " << m_printout_filename << endreq;
+      ATH_MSG_INFO("PrintOutFilename:   " << m_printout_filename);
     }
-    msg(MSG::INFO) << "SuperMasterKey:     " << m_smKey << endreq;
+    ATH_MSG_INFO("SuperMasterKey:     " << m_smKey);
     
     // Retrieve the trigger configuration service
     // get handle to trigger configuration
-    StatusCode sc = m_configSvc.retrieve();
-    if ( sc.isFailure() ) {
-        msg(MSG::ERROR) << "Could not retrieve Trigger configuration!" << endreq;
-        return sc;
-    }
+    ATH_CHECK(m_configSvc.retrieve());
     
     // get handle to TrigDecisionTool
-    sc = m_trigDec.retrieve();
-    if ( sc.isFailure() ) {
-        msg(MSG::ERROR) << "Could not retrieve TrigDecisionTool!" << endreq;
-        return sc;
-    }
+    ATH_CHECK(m_trigDec.retrieve());
     m_trigDec->ExperimentalAndExpertMethods()->enable();
     
     // reserve space for vectors
@@ -183,23 +164,18 @@ StatusCode TrigDecisionChecker::initialize()
     m_lower_chain_accept.reserve(700);
     
     // initialize vectors for chains to monitor
-    msg(MSG::INFO) << "Monitoring number of events passing these chains (blocks of "
-	   << m_monitoring_block_size << " events):"<< endreq;
+    ATH_MSG_INFO("Monitoring number of events passing these chains (blocks of "
+                 << m_monitoring_block_size << " events):");
     for (unsigned int i=0; i < m_count_sig_names.size(); ++i) {
-        msg(MSG::INFO) << "Initializing monitoring counters for " << m_count_sig_names[i] << endreq;
+        ATH_MSG_INFO("Initializing monitoring counters for " << m_count_sig_names[i]);
         m_count_sigs.push_back(new std::vector<int>());
         m_run_count_sigs.push_back(0);
     }
     
     // retrieve muon printing tool
-    sc = m_muonPrinter.retrieve();
-    if(sc.isFailure()) {
-        ATH_MSG_ERROR("Could not retrieve MuonPrinter tool");
-        return sc;
-    }
+    ATH_CHECK(m_muonPrinter.retrieve());
     
-    msg(MSG::INFO) << "Initialization successful" << endreq;
-    
+    ATH_MSG_INFO("Initialization successful");    
     
     return StatusCode::SUCCESS;
 }
@@ -209,43 +185,43 @@ StatusCode TrigDecisionChecker::finalize()
 {
     
     // print summary of trigger decisions for each level
-    msg(MSG::INFO) << "==========================================================" << endreq;
-    msg(MSG::INFO) << "TrigDecisionTool summary:" << endreq;
-    msg(MSG::INFO) << "==========================================================" << endreq;
+    msg(MSG::INFO) << "==========================================================" << endmsg;
+    msg(MSG::INFO) << "TrigDecisionTool summary:" << endmsg;
+    msg(MSG::INFO) << "==========================================================" << endmsg;
     
     // LVL1
     std::map<std::string,int>::iterator itL1,itL1End=m_L1_summary.end();
     for ( itL1=m_L1_summary.begin(); itL1!=itL1End; ++itL1 ) {
-        msg(MSG::INFO) << "REGTEST item " << (*itL1).first << " accepted events=" << (*itL1).second << endreq;
+        msg(MSG::INFO) << "REGTEST item " << (*itL1).first << " accepted events=" << (*itL1).second << endmsg;
     }
     
     // HLT
     for ( unsigned int i=0; i<m_summary.size(); ++i) {
         msg(MSG::INFO) << "REGTEST chain " << m_summary[i] << " accepted events= " << m_summary_passphys[i]
-        <<" ( PS: " << m_summary_chain_PS[i] << " , PT: " << m_summary_chain_PT[i] << ")" << endreq;
+        <<" ( PS: " << m_summary_chain_PS[i] << " , PT: " << m_summary_chain_PT[i] << ")" << endmsg;
     }
     
     // print out nr. of events passed in blocks of N events for specific chains (configurable)
-    msg(MSG::INFO) << " " << endreq;
-    msg(MSG::INFO) << "TrigDecisionTool tests: monitored chain efficiency" << endreq;
-    msg(MSG::INFO) << "==================================================" << endreq;
+    ATH_MSG_INFO(" ");
+    ATH_MSG_INFO("TrigDecisionTool tests: monitored chain efficiency");
+    ATH_MSG_INFO("==================================================");
     msg(MSG::INFO) << "REGTEST  Nr.events: ";
     for (unsigned int k=0; k<m_count_event.size();++k) {
         msg() << m_count_event[k] << " ";
     }
-    msg() << endreq;
+    msg() << endmsg;
     for (unsigned int i=0; i<m_count_sig_names.size();++i) {
         msg(MSG::INFO) << "REGTEST " << m_count_sig_names[i] << " : ";
         for (unsigned int j=0; j<(m_count_sigs[i])->size();++j) {
             msg() << (*m_count_sigs[i])[j] << " ";
         }
-        msg() << endreq;
+        msg() << endmsg;
     }
     
     // compare prescale and passthrough fractions from configuration and by counting events
-    msg(MSG::INFO) << " " << endreq;
-    msg(MSG::INFO) << "TrigDecisionTool tests: chain prescale/passthrough " << endreq;
-    msg(MSG::INFO) << "==================================================" << endreq;
+    ATH_MSG_INFO(" ");
+    ATH_MSG_INFO("TrigDecisionTool tests: chain prescale/passthrough ");
+    ATH_MSG_INFO("==================================================");
     // HLT
     msg(MSG::INFO) << "REGTEST Chain (passed raw) PS(conf) PS(counts) PT(conf) PT(counts) (Lower chain)";
     for ( unsigned int i=0; i<m_summary.size(); ++i) {
@@ -253,21 +229,21 @@ StatusCode TrigDecisionChecker::finalize()
             msg(MSG::INFO) << "REGTEST " << m_summary[i] << " (" << m_summary_chain_PT[i] << ") \t"
             << " \t" << m_chain_prescales[i] << " \t" << m_chain_prescales_calculated[i] ///m_lower_chain_accept[i]
             << " \t" << m_chain_passthrough[i] << " \t" << m_chain_passthrough_calculated[i] ///m_lower_chain_accept[i]
-            << " (" << m_lower_chain_accept[i] << ")" << endreq;
+            << " (" << m_lower_chain_accept[i] << ")" << endmsg;
         } else {
             msg(MSG::INFO) << "REGTEST " << m_summary[i] << " (" << m_summary_chain_PT[i] << ") \t"
             << " \t" << m_chain_prescales[i] << "   ---   "
             << " \t" << m_chain_passthrough[i] << "   ---   "
-            << " (lower chain passed no events)" << endreq;
+            << " (lower chain passed no events)" << endmsg;
         }
     }
-    msg(MSG::INFO) << "REGTEST ran on " << m_event_number << " events" << endreq;
-    msg(MSG::INFO) << "Average mu value " << m_mu_sum/float(m_event_number) << endreq;
+    ATH_MSG_INFO("REGTEST ran on " << m_event_number << " events");
+    ATH_MSG_INFO("Average mu value " << m_mu_sum/float(m_event_number));
     
     // open output file and write out counts
     if (m_printout_counts) {
-        msg(MSG::INFO) << "==================================================" << endreq;
-        msg(MSG::INFO) << "Opening " << m_printout_filename << " for writing trigger counts" << endreq;
+        ATH_MSG_INFO("==================================================");
+        ATH_MSG_INFO("Opening " << m_printout_filename << " for writing trigger counts");
         m_printout_file.open(m_printout_filename.c_str());
         
         /*
@@ -301,17 +277,17 @@ StatusCode TrigDecisionChecker::finalize()
             // 	      << std::setiosflags(std::ios::dec) << std::setw(4) << (*(m_elink_vec[i]))->algorithmId() << "|"
             // 	      << std::setw(11) << *(m_elink_vec[i]) << "|";
         }
-        msg(MSG::INFO) << "Closing output file " << m_printout_filename << endreq;
+        ATH_MSG_INFO("Closing output file " << m_printout_filename);
         m_printout_file.close();
     }
     
     // cleanup newed vectors
-    msg(MSG::INFO) << "==================================================" << endreq;
-    msg(MSG::INFO) << "Cleaning up counters..." << endreq;
+    ATH_MSG_INFO("==================================================");
+    ATH_MSG_INFO("Cleaning up counters...");
     for (unsigned int i=0; i<m_count_sigs.size(); ++i) {
         delete m_count_sigs[i];
     }
-    msg(MSG::INFO) << "Finalised successfully" << endreq;
+    ATH_MSG_INFO("Finalised successfully");
     
     return StatusCode::SUCCESS;
 }
@@ -379,21 +355,19 @@ StatusCode TrigDecisionChecker::execute()
     }
     if ( sc.isFailure() || !eventInfo )
     {
-        msg(MSG::INFO)  << "Container '" << m_eventInfoName
-        << "' could not be retrieved from StoreGate !" << endreq;
-        sc = StatusCode::SUCCESS;
-        return sc;
+      ATH_MSG_INFO("Container '" << m_eventInfoName << "' could not be retrieved from StoreGate !");
+      sc = StatusCode::SUCCESS;
+      return sc;
     } else {
-        msg(MSG::DEBUG) << "Container '" << m_eventInfoName
-        << "' retrieved from StoreGate" << endreq;
+      ATH_MSG_DEBUG("Container '" << m_eventInfoName << "' retrieved from StoreGate");
     }
     
     if ( eventInfo ) {
         float mu = eventInfo->actualInteractionsPerCrossing();
         float muave =  eventInfo->averageInteractionsPerCrossing(); 
         msg(MSG::INFO) << "run number  " << eventInfo->event_ID()->run_number() << " event number " << eventInfo->event_ID()->event_number() << 
-        " lumi block " << eventInfo->event_ID()->lumi_block() << endreq;
-        msg(MSG::INFO) << "mu value " << mu << " average mu value " << muave <<  " event number " << m_event_number <<  endreq;
+        " lumi block " << eventInfo->event_ID()->lumi_block() << endmsg;
+        msg(MSG::INFO) << "mu value " << mu << " average mu value " << muave <<  " event number " << m_event_number <<  endmsg;
         m_mu_sum = m_mu_sum + eventInfo->actualInteractionsPerCrossing();
     }
     
@@ -402,7 +376,7 @@ StatusCode TrigDecisionChecker::execute()
         ATH_MSG_INFO("Check tau items " << tauItem);
         sc = checkTauEDM(tauItem);
         if ( sc.isFailure() ) {
-            msg(MSG::ERROR) << "Could not finish checkTauEDM test for chain " <<tauItem << endreq;
+            msg(MSG::ERROR) << "Could not finish checkTauEDM test for chain " <<tauItem << endmsg;
             return sc;
         }
         if(m_checkBits) {
@@ -414,11 +388,15 @@ StatusCode TrigDecisionChecker::execute()
     for(auto muonItem : m_muonItems) {
         sc = checkMuonEDM(muonItem);
         if ( sc.isFailure() ) {
-            msg(MSG::ERROR) << "Could not finish checkMuonEDM test for chain " << muonItem << endreq;
+            msg(MSG::ERROR) << "Could not finish checkMuonEDM test for chain " << muonItem << endmsg;
             return sc;
         }
         if(m_checkBits) {
             if(checkEDM<xAOD::MuonContainer>(muonItem).isFailure()) 
+                ATH_MSG_ERROR("Could not finish checkMuonEDM test for chain " << muonItem);
+            if(checkEDM<xAOD::L2CombinedMuonContainer>(muonItem).isFailure())
+                ATH_MSG_ERROR("Could not finish checkMuonEDM test for chain " << muonItem);
+            if(checkEDM<xAOD::L2StandAloneMuonContainer>(muonItem).isFailure())
                 ATH_MSG_ERROR("Could not finish checkMuonEDM test for chain " << muonItem);
         }
     }
@@ -426,7 +404,7 @@ StatusCode TrigDecisionChecker::execute()
     for(auto bjetItem : m_bjetItems) {
         sc = checkBjetEDM(bjetItem);
         if ( sc.isFailure() ) {
-            msg(MSG::ERROR) << "Could not finish checkBjetEDM test for chain " << bjetItem << endreq;
+            msg(MSG::ERROR) << "Could not finish checkBjetEDM test for chain " << bjetItem << endmsg;
             return sc;
         }
         if(m_checkBits) {
@@ -438,8 +416,12 @@ StatusCode TrigDecisionChecker::execute()
     for(auto bphysItem : m_bphysItems) {
         sc = checkBphysEDM(bphysItem);
         if ( sc.isFailure() ) {
-            msg(MSG::ERROR) << "Could not finish checkBphysEDM test for chain " << bphysItem << endreq;
+            msg(MSG::ERROR) << "Could not finish checkBphysEDM test for chain " << bphysItem << endmsg;
             // return sc; try not to return for other tests to run
+        }
+        if(m_checkBits) {
+            if(checkEDM<xAOD::TrigBphysContainer>(bphysItem).isFailure()) 
+                ATH_MSG_ERROR("Could not finish checkJetEDM test for chain " << bphysItem);
         }
     }
     
@@ -447,7 +429,7 @@ StatusCode TrigDecisionChecker::execute()
         ATH_MSG_INFO("Check Electron items " << electronItem);
         sc = checkElectronEDM(electronItem);
         if ( sc.isFailure() ) {
-            msg(MSG::ERROR) << "Could not finish checkElectronEDM test for chain " << electronItem << endreq;
+            msg(MSG::ERROR) << "Could not finish checkElectronEDM test for chain " << electronItem << endmsg;
         }
         if(m_checkBits) {
             if(checkEDM<xAOD::ElectronContainer>(electronItem).isFailure()) 
@@ -462,20 +444,20 @@ StatusCode TrigDecisionChecker::execute()
     for(auto photonItem : m_photonItems) {
         sc = checkPhotonEDM(photonItem);
         if ( sc.isFailure() ) {
-            msg(MSG::ERROR) << "Could not finish checkPhotonEDM test for chain " << photonItem << endreq;
+          ATH_MSG_ERROR("Could not finish checkPhotonEDM test for chain " << photonItem);
         }
         if(m_checkBits) {
             if(checkEDM<xAOD::PhotonContainer>(photonItem).isFailure()) 
-                ATH_MSG_ERROR("Could not finish checkPhotonEDM test for chain " << photonItem);
+              ATH_MSG_ERROR("Could not finish checkPhotonEDM test for chain " << photonItem);
             if(checkEDM<xAOD::CaloClusterContainer>(photonItem).isFailure()) 
-                ATH_MSG_ERROR("Could not finish checkPhotonEDM test for chain " << photonItem);
+              ATH_MSG_ERROR("Could not finish checkPhotonEDM test for chain " << photonItem);
         }
     }
     
     for(auto minBiasItem : m_minBiasItems) {
         sc = checkMinBiasEDM(minBiasItem);
         if ( sc.isFailure() ) {
-            msg(MSG::ERROR) << "Could not finish checkMinBiasEDM test for chain " << minBiasItem << endreq;
+            msg(MSG::ERROR) << "Could not finish checkMinBiasEDM test for chain " << minBiasItem << endmsg;
             return sc;
         }
     }
@@ -505,13 +487,13 @@ StatusCode TrigDecisionChecker::execute()
     ATH_MSG_INFO("REGTEST =========END of Met EDM/Navigation check============");
     
     if (m_event_decision_printout) {
-        msg(MSG::INFO) << "TrigDecisionChecker::execute" << endreq;
+        msg(MSG::INFO) << "TrigDecisionChecker::execute" << endmsg;
         
-        msg(MSG::INFO) << "Pass state     = " << m_trigDec->isPassed("EF_.*") << endreq;
-        msg(MSG::INFO) << "Pass state L1  = " << m_trigDec->isPassed("L1_.*") << endreq;
-        msg(MSG::INFO) << "Pass state L2  = " << m_trigDec->isPassed("L2_.*") << endreq;
-        msg(MSG::INFO) << "Pass state EF  = " << m_trigDec->isPassed("EF_.*") << endreq;
-        msg(MSG::INFO) << "Pass state HLT = " << m_trigDec->isPassed("HLT_.*") << endreq;
+        msg(MSG::INFO) << "Pass state     = " << m_trigDec->isPassed("EF_.*") << endmsg;
+        msg(MSG::INFO) << "Pass state L1  = " << m_trigDec->isPassed("L1_.*") << endmsg;
+        msg(MSG::INFO) << "Pass state L2  = " << m_trigDec->isPassed("L2_.*") << endmsg;
+        msg(MSG::INFO) << "Pass state EF  = " << m_trigDec->isPassed("EF_.*") << endmsg;
+        msg(MSG::INFO) << "Pass state HLT = " << m_trigDec->isPassed("HLT_.*") << endmsg;
     }
     
     Trig::ExpertMethods* em = m_trigDec->ExperimentalAndExpertMethods();
@@ -519,7 +501,7 @@ StatusCode TrigDecisionChecker::execute()
     // L1
     std::vector<std::string> allItems = m_trigDec->getListOfTriggers("L1_.*");
     if (!allItems.empty()) {
-        if (m_event_decision_printout) msg(MSG::INFO) << "Items : " << allItems.size() << endreq;
+        if (m_event_decision_printout) msg(MSG::INFO) << "Items : " << allItems.size() << endmsg;
         
         for (std::vector<std::string>::const_iterator itemIt = allItems.begin();
              itemIt != allItems.end(); ++itemIt) {
@@ -529,7 +511,7 @@ StatusCode TrigDecisionChecker::execute()
             if (!aItem) continue;
             if (aItem->name()=="") continue;
             
-            if (m_event_decision_printout) msg(MSG::INFO) << "Item " << aItem->name() << " : Item ID " << aItem->hashId() << " : " << aItem->isPassed() << endreq;
+            if (m_event_decision_printout) msg(MSG::INFO) << "Item " << aItem->name() << " : Item ID " << aItem->hashId() << " : " << aItem->isPassed() << endmsg;
             
             // fill bookkeeping map with zeros if first event
             std::string item_name = aItem->name();
@@ -538,12 +520,12 @@ StatusCode TrigDecisionChecker::execute()
             // increment counter for L1 summary
             if (aItem->isPassed()) m_L1_summary[item_name] = (m_L1_summary[item_name]+1);
             int count = (m_L1_summary.find(item_name))->second;
-            if (m_event_decision_printout) msg(MSG::INFO) << "L1_map[" << item_name << "] = " << count << endreq;
+            if (m_event_decision_printout) msg(MSG::INFO) << "L1_map[" << item_name << "] = " << count << endmsg;
             
             
         }
     } else {
-        msg(MSG::WARNING) << "Could not retrieve L1 Items !!" << endreq;
+      ATH_MSG_WARNING("Could not retrieve L1 Items !!");
     }
     
     
@@ -551,7 +533,7 @@ StatusCode TrigDecisionChecker::execute()
     
     // Get all configured chain names from config
     std::vector<std::string> confChains = m_trigDec->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
-    msg(MSG::INFO) << "Configuring for " << confChains.size() << " HLT chain counters" << endreq;
+    msg(MSG::INFO) << "Configuring for " << confChains.size() << " HLT chain counters" << endmsg;
     
     // resize & initialise counters in first event
     if (m_first_event) {
@@ -581,10 +563,10 @@ StatusCode TrigDecisionChecker::execute()
             t_pt_map[name] = ch->pass_through();
             t_ps_map[name] = ch->prescale();
             m_lower_chain_map[name] = ch->lower_chain_name();
-            msg(MSG::DEBUG) << "Configured chain: " << name
-            << "; prescale=" << ch->prescale()
-            << "; passthrough=" << ch->pass_through()
-            << "; lower chain=" << ch->lower_chain_name() << endreq;
+            ATH_MSG_DEBUG("Configured chain: " << name
+                          << "; prescale=" << ch->prescale()
+                          << "; passthrough=" << ch->pass_through()
+                          << "; lower chain=" << ch->lower_chain_name());
         }
         // sort by chain names to group together L2 and EF chains: do this for
         // first event only and use ordering in m_summary for later processing
@@ -659,18 +641,18 @@ StatusCode TrigDecisionChecker::execute()
         // print info for each event
         if (m_event_decision_printout){
             msg(MSG::INFO) << "chain " << name << " = "
-            << m_summary_chain_passraw[i] << endreq;
+            << m_summary_chain_passraw[i] << endmsg;
         }
     }
     
     // TrigDecisionTool tests on a few specific sigs:
     for (unsigned int i=0; i < m_count_sig_names.size(); ++i) {
-        msg(MSG::DEBUG) << "Monitoring " << m_count_sig_names[i] << endreq;
+        ATH_MSG_DEBUG("Monitoring " << m_count_sig_names[i]);
         if ( !m_trigDec->getListOfTriggers(m_count_sig_names[i]).empty() ) {
             if ( m_trigDec->isPassed(m_count_sig_names[i]) )
                 m_run_count_sigs[i] = m_run_count_sigs[i]+1;
         } else {
-            msg(MSG::WARNING) << m_count_sig_names[i] << " not configured!" << endreq;
+            msg(MSG::WARNING) << m_count_sig_names[i] << " not configured!" << endmsg;
         }
     }
     
@@ -691,38 +673,66 @@ StatusCode TrigDecisionChecker::execute()
 
 template <class T>
 StatusCode TrigDecisionChecker::checkEDM(std::string trigItem){
-    ATH_MSG_INFO("REGTEST Check TrigPassBits for " << trigItem);
+    ATH_MSG_INFO("REGTEST Check TrigPassBits for " << trigItem << " and type " << ClassID_traits< T >::typeName() );
     m_trigDec->isPassed(trigItem) ? ATH_MSG_INFO("REGTEST " << trigItem << " Passes ") : ATH_MSG_INFO("REGTEST " << trigItem << " Fails");
     const auto fc = m_trigDec->features(trigItem,TrigDefs::alsoDeactivateTEs);
     const auto vec = fc.get<T>();
-    
+    const auto vecbits = fc.get<xAOD::TrigPassBits>();
+    std::string label="";
+    for(const auto feat:vecbits){
+        const auto *xbits=feat.cptr();
+        TrigConf::HLTTriggerElement::getLabel(feat.te()->getId(), label );
+        const auto *cont=(m_trigDec->ancestor<T>(feat.te())).cptr();
+        if(cont){
+            ATH_MSG_INFO("REGTEST TrigPassBits for TE " << label  
+                    <<  " size " << cont->size());
+
+            if(cont->size()!=xbits->size()) {
+                ATH_MSG_WARNING("REGTEST Container and bit size not equal, continue");
+                continue;
+            }
+            int npassed=0;
+            for(const auto &ptr:*cont){
+                if(xbits->isPassing(ptr,cont))
+                    npassed++;
+            }
+            ATH_MSG_INFO("REGTEST TrigPassBits for container type " << ClassID_traits< T >::typeName() 
+                         <<  " size " << cont->size() << " xbits " << xbits->size() << " selected " << npassed);
+        }
+    }
+
+
+
     for(const auto feat:vec){
         const auto *cont=feat.cptr();
         const TrigPassBits *bits=(m_trigDec->ancestor<TrigPassBits>(feat.te())).cptr();
         const xAOD::TrigPassBits *xbits=(m_trigDec->ancestor<xAOD::TrigPassBits>(feat.te())).cptr();
+        TrigConf::HLTTriggerElement::getLabel(feat.te()->getId(), label );
         if(!cont){
-            ATH_MSG_WARNING(ClassID_traits< T >::typeName() << " is null ");
-            continue;
-        }
-        if(!xbits){
-            ATH_MSG_WARNING(ClassID_traits< T >::typeName() << " xbits null ");
+            ATH_MSG_WARNING(label << "  " << ClassID_traits< T >::typeName() << "REGTEST: TrigPassBits container is null ");
             continue;
         }
         if(!bits){
-            ATH_MSG_WARNING(ClassID_traits< T >::typeName() << " bits null ");
+            ATH_MSG_WARNING(label << " " << ClassID_traits< T >::typeName() << " REGTEST: TrigPassBits old bits null ");
+        }
+        if(!xbits){
+            ATH_MSG_WARNING(label << " " << ClassID_traits< T >::typeName() << " REGTEST: TrigPassBits xbits null ");
+            continue;
         }
         //
         const size_t bitlen = ( (cont->size() - 1)/32 ) + 1;
         if(bits) 
-            ATH_MSG_INFO("Retrieved container type " << ClassID_traits< T >::typeName() <<  " size " << cont->size() 
+            ATH_MSG_INFO("REGTEST Retrieved container type " << ClassID_traits< T >::typeName() <<  " size " << cont->size() 
                     << " bits " << bits->size() << " Expect vector of bits " << bitlen);
         int npassed=0;
-        for(const auto &ptr:*cont){
-            if(xbits->isPassing(ptr,cont))
-                npassed++;
+        if(xbits){
+            for(const auto &ptr:*cont){
+                if(xbits->isPassing(ptr,cont))
+                    npassed++;
+            }
+            ATH_MSG_INFO("REGTEST TrigPassBits for container type " << ClassID_traits< T >::typeName() 
+                    <<  " size " << cont->size() << " xbits " << xbits->size() << " selected " << npassed);
         }
-        ATH_MSG_INFO("REGTEST Retrieved container type " << ClassID_traits< T >::typeName() 
-                <<  " size " << cont->size() << " xbits " << xbits->size() << " selected " << npassed);
     }
     
     return StatusCode::SUCCESS;
@@ -730,7 +740,7 @@ StatusCode TrigDecisionChecker::checkEDM(std::string trigItem){
 
 StatusCode TrigDecisionChecker::checkBjetEDM(std::string trigItem){
     
-    msg(MSG::INFO) << "REGTEST ==========START of bjet EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    ATH_MSG_INFO("REGTEST ==========START of bjet EDM/Navigation check for chain " << trigItem << " ===========");
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
     
@@ -877,14 +887,14 @@ StatusCode TrigDecisionChecker::checkBjetEDM(std::string trigItem){
         
     }
     
-    msg(MSG::INFO) << "REGTEST ==========END of bjet EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========END of bjet EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     return StatusCode::SUCCESS;
 }//checkBjetEDM
 
 StatusCode TrigDecisionChecker::checkMuonEDM(std::string trigItem){
     
-    msg(MSG::INFO) << "REGTEST ==========START of muon EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========START of muon EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
     
@@ -920,13 +930,13 @@ StatusCode TrigDecisionChecker::checkMuonEDM(std::string trigItem){
         }
     }// loop over muon L2 SA features
     
-    msg(MSG::INFO) << "REGTEST ==========END of muon EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========END of muon EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     return StatusCode::SUCCESS;
 }//checkMuonEDM
 
 StatusCode TrigDecisionChecker::checkTauEDM(std::string trigItem){
-    msg(MSG::INFO)<< "REGTEST ==========START of tau EDM/Navigation check for chain " << trigItem<< "===========" << endreq;
+    msg(MSG::INFO)<< "REGTEST ==========START of tau EDM/Navigation check for chain " << trigItem<< "===========" << endmsg;
     Trig::FeatureContainer fc = m_trigDec->features(trigItem);
     const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_tauHLTClust = fc.get<xAOD::TauJetContainer>();
     ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::TauJetContainer> > = " << vec_tauHLTClust.size());
@@ -935,10 +945,10 @@ StatusCode TrigDecisionChecker::checkTauEDM(std::string trigItem){
         
         for(auto tauItr : *(cont_tau.cptr())) {
             
-            msg(MSG::INFO) << "REGTEST "<<" HLT tau number of tracks: "<<tauItr->nTracks()<<endreq;
-            msg(MSG::INFO)  << "REGTEST "<<" HLT tau pt : "<<tauItr->pt()<<endreq;
-            msg(MSG::INFO)  << "REGTEST "<<" HLT tau phi : "<<tauItr->phi()<<endreq;
-            msg(MSG::INFO)  << "REGTEST "<<" HLT tau eta : "<<tauItr->eta()<<endreq;
+            msg(MSG::INFO) << "REGTEST "<<" HLT tau number of tracks: "<<tauItr->nTracks()<<endmsg;
+            msg(MSG::INFO)  << "REGTEST "<<" HLT tau pt : "<<tauItr->pt()<<endmsg;
+            msg(MSG::INFO)  << "REGTEST "<<" HLT tau phi : "<<tauItr->phi()<<endmsg;
+            msg(MSG::INFO)  << "REGTEST "<<" HLT tau eta : "<<tauItr->eta()<<endmsg;
             if( !tauItr->jetLink().isValid() ) {
                 ATH_MSG_WARNING("tau does not have jet seed");
                 return StatusCode::SUCCESS;
@@ -965,7 +975,7 @@ StatusCode TrigDecisionChecker::checkTauEDM(std::string trigItem){
         }
     }
     
-    msg(MSG::INFO) << "REGTEST ==========END of Tau EDM/Navigation check ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========END of Tau EDM/Navigation check ===========" << endmsg;
     return StatusCode::SUCCESS;        
 }
 
@@ -973,7 +983,7 @@ StatusCode TrigDecisionChecker::checkTauEDM(std::string trigItem){
 
 StatusCode TrigDecisionChecker::checkBphysEDM(std::string trigItem){
     
-    msg(MSG::INFO) << "REGTEST ==========START of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========START of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
     
@@ -1000,7 +1010,7 @@ StatusCode TrigDecisionChecker::checkBphysEDM(std::string trigItem){
     //        ATH_MSG_INFO("REGTEST CombinedMuonFeature with pt, eta, phi = " << cbmufeat.cptr()->pt() << ", " << cbmufeat.cptr()->eta() << ", " << cbmufeat.cptr()->phi());
     //    }
     //    
-    msg(MSG::INFO) << "REGTEST ==========END of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    ATH_MSG_INFO("REGTEST ==========END of Bphysics EDM/Navigation check for chain " << trigItem << " ===========");
     
     return StatusCode::SUCCESS;
 }//checkBphysEDM
@@ -1011,7 +1021,7 @@ StatusCode TrigDecisionChecker::checkBphysEDM(std::string trigItem){
 
 
 StatusCode TrigDecisionChecker::checkElectronEDM(std::string trigItem){
-    msg(MSG::INFO) << "REGTEST ==========START of Electron EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========START of Electron EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
     
@@ -1061,12 +1071,12 @@ StatusCode TrigDecisionChecker::checkElectronEDM(std::string trigItem){
         }
     }
     
-    msg(MSG::INFO) << "REGTEST ==========END of Electron EDM/Navigation check ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========END of Electron EDM/Navigation check ===========" << endmsg;
     return StatusCode::SUCCESS;
 }
 
 StatusCode TrigDecisionChecker::checkPhotonEDM(std::string trigItem){
-    msg(MSG::INFO) << "REGTEST ==========START of Photon EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========START of Photon EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
     
@@ -1104,12 +1114,12 @@ StatusCode TrigDecisionChecker::checkPhotonEDM(std::string trigItem){
         }
     }
     
-    msg(MSG::INFO) << "REGTEST ==========END of Photon EDM/Navigation check ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========END of Photon EDM/Navigation check ===========" << endmsg;
     return StatusCode::SUCCESS;
 }
 
 StatusCode TrigDecisionChecker::checkMinBiasEDM(std::string trigItem){
-    msg(MSG::INFO) << "REGTEST ==========START of MinBias EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========START of MinBias EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
     
@@ -1120,7 +1130,7 @@ StatusCode TrigDecisionChecker::checkMinBiasEDM(std::string trigItem){
     checkTrigVertexCounts(fc);	
     checkTrigTrackCounts(fc);
     
-    msg(MSG::INFO) << "REGTEST ==========END of MinBias EDM/Navigation check ===========" << endreq;
+    msg(MSG::INFO) << "REGTEST ==========END of MinBias EDM/Navigation check ===========" << endmsg;
     return StatusCode::SUCCESS;
 }
 

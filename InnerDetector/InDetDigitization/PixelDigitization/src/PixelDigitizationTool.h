@@ -20,11 +20,11 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-// STSTST #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "StoreGate/WriteHandle.h"
 
 #include "InDetSimData/InDetSimDataCollection.h"
-#include "SiDigitization/ISiChargedDiodesProcessorTool.h"
+// STSTST #include "SiDigitization/ISiChargedDiodesProcessorTool.h"
+#include "PixelProcessorTool.h"
 #include "SubChargesTool.h"
 #include "FrontEndSimTool.h"
 
@@ -64,7 +64,8 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     bool              m_onlyHitElements;
 
-    ToolHandleArray<ISiChargedDiodesProcessorTool> m_diodesProcsTool;
+// STSTST    ToolHandleArray<ISiChargedDiodesProcessorTool> m_diodesProcsTool;
+    ToolHandleArray<PixelProcessorTool>            m_processorTool;
     ToolHandleArray<SubChargesTool>                m_chargeTool;
     ToolHandleArray<FrontEndSimTool>               m_fesimTool;
 

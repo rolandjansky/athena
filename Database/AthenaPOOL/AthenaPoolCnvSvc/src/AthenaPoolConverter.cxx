@@ -23,9 +23,9 @@ namespace pool {
 
 //__________________________________________________________________________
 AthenaPoolConverter::~AthenaPoolConverter() {
-   delete m_placement; m_placement = 0;
-   delete m_i_poolToken; m_i_poolToken = 0;
-   delete m_o_poolToken; m_o_poolToken = 0;
+   delete m_placement; m_placement = nullptr;
+   delete m_i_poolToken; m_i_poolToken = nullptr;
+   delete m_o_poolToken; m_o_poolToken = nullptr;
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::initialize() {
@@ -54,10 +54,10 @@ long AthenaPoolConverter::repSvcType() const {
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-   std::lock_guard<CallMutex> lock(m_conv_mut);
+   //std::lock_guard<CallMutex> lock(m_conv_mut);
    TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
-   if (tokAddr == 0 || tokAddr->getToken() == 0) {
-      if (m_i_poolToken == 0) m_i_poolToken = new Token;
+   if (tokAddr == nullptr || tokAddr->getToken() == nullptr) {
+      if (m_i_poolToken == nullptr) m_i_poolToken = new Token;
       const_cast<Token*>(m_i_poolToken)->fromString(*(pAddr->par()));
    } else {
       m_i_poolToken = tokAddr->getToken();
@@ -65,30 +65,30 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
    try {
       if (!PoolToDataObject(pObj, m_i_poolToken).isSuccess()) {
          ATH_MSG_ERROR("createObj PoolToDataObject() failed, Token = " << (m_i_poolToken ? m_i_poolToken->toString() : "NULL"));
-         pObj = 0;
+         pObj = nullptr;
       }
    } catch (std::exception& e) {
       ATH_MSG_ERROR("createObj - caught exception: " << e.what());
-      pObj = 0;
+      pObj = nullptr;
    }
-   if (pObj == 0) {
+   if (pObj == nullptr) {
       ATH_MSG_ERROR("createObj failed to get DataObject, Token = " << (m_i_poolToken ? m_i_poolToken->toString() : "NULL"));
    }
-   if (tokAddr == 0 || tokAddr->getToken() == 0) {
-      delete m_i_poolToken; m_i_poolToken = 0;
+   if (tokAddr == nullptr || tokAddr->getToken() == nullptr) {
+      delete m_i_poolToken; m_i_poolToken = nullptr;
    } else {
-      m_i_poolToken = 0;
+      m_i_poolToken = nullptr;
    }
-   if (pObj == 0) {
+   if (pObj == nullptr) {
       return(StatusCode::FAILURE);
    }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
-   std::lock_guard<CallMutex> lock(m_conv_mut);
+   //std::lock_guard<CallMutex> lock(m_conv_mut);
    // Create a Pool object for DataObject
-   m_o_poolToken = 0;
+   m_o_poolToken = nullptr;
    try {
       if (!DataObjectToPool(pObj, pObj->registry()->name()).isSuccess()) {
          ATH_MSG_ERROR("CreateRep failed, key = " << pObj->registry()->name());
@@ -99,12 +99,12 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
       return(StatusCode::FAILURE);
    }
    // Null/empty token means ERROR
-   if (m_o_poolToken == 0 || m_o_poolToken->classID() == Guid::null()) {
+   if (m_o_poolToken == nullptr || m_o_poolToken->classID() == Guid::null()) {
       ATH_MSG_ERROR("CreateRep failed to get Token, key = " << pObj->registry()->name());
       return(StatusCode::FAILURE);
    }
    const SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObj->registry());
-   if (proxy == 0) {
+   if (proxy == nullptr) {
       ATH_MSG_ERROR("AthenaPoolConverter CreateRep failed to cast DataProxy, key = "
 	      << pObj->registry()->name());
       return(StatusCode::FAILURE);
@@ -112,7 +112,7 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
    const CLID clid = proxy->clID();
    // Create a IOpaqueAddress for this object.
    pAddr = new TokenAddress(POOL_StorageType, clid, "", "", 0, m_o_poolToken);
-   m_o_poolToken = 0; // Token will be inserted into DataHeader, which takes ownership
+   m_o_poolToken = nullptr; // Token will be inserted into DataHeader, which takes ownership
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -122,19 +122,19 @@ long AthenaPoolConverter::storageType() {
 //__________________________________________________________________________
 AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLocator) :
 		::Converter(POOL_StorageType, myCLID, pSvcLocator),
-		::AthMessaging((pSvcLocator != 0 ? msgSvc() : 0), "AthenaPoolConverter"),
+		::AthMessaging((pSvcLocator != nullptr ? msgSvc() : nullptr), "AthenaPoolConverter"),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", "AthenaPoolConverter"),
-	m_placement(0),
+	m_placement(nullptr),
 	m_placementHints(),
 	m_className(),
 	m_classDescs(),
-	m_dataObject(0),
-	m_i_poolToken(0),
-	m_o_poolToken(0) {
+	m_dataObject(nullptr),
+	m_i_poolToken(nullptr),
+	m_o_poolToken(nullptr) {
 }
 //__________________________________________________________________________
 void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const std::string& key) {
-   if (m_placement == 0) {
+   if (m_placement == nullptr) {
       // Create placement for this converter if needed
       m_placement = new Placement();
    }

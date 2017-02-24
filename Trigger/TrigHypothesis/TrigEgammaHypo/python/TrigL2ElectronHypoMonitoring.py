@@ -50,7 +50,7 @@ class TrigL2ElectronFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2ElectronFexOnlineMonitoring"):
         super(TrigL2ElectronFexOnlineMonitoring, self).__init__(name)
         self.defineTarget( "Online" )
-
+        self.Histograms += [ defineHistogram('CaloTrackdEtaNoExtrapMon', type='TH1F', title="L2Electron Fex #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackdEta', type='TH1F', title="L2Electron Fex #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackdPhi', type='TH1F', title="L2Electron Fex #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackEoverP', type='TH1F', title="L2Electron Fex E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12) ]
@@ -62,7 +62,7 @@ class TrigL2ElectronFexValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2ElectronFexValidationMonitoring"):
         super(TrigL2ElectronFexValidationMonitoring, self).__init__(name)
         self.defineTarget( "Validation" )
-
+        self.Histograms += [ defineHistogram('CaloTrackdEtaNoExtrapMon', type='TH1F', title="L2Electron Fex #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackdEta', type='TH1F', title="L2Electron Fex #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackdPhi', type='TH1F', title="L2Electron Fex #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackEoverP', type='TH1F', title="L2Electron Fex E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12) ]
