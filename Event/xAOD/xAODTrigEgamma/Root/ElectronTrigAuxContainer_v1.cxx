@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronTrigAuxContainer_v1.cxx 707253 2015-11-11 19:28:36Z rwhite $
+// $Id: ElectronTrigAuxContainer_v1.cxx 707252 2015-11-11 19:27:56Z rwhite $
 
 // Local include(s):
 #include "xAODTrigEgamma/versions/ElectronTrigAuxContainer_v1.h"

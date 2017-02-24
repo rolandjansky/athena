@@ -18,12 +18,14 @@ PixelRawDataProviderTool::PixelRawDataProviderTool
   :  AthAlgTool(type,name,parent),
      m_decoder   ("PixelRodDecoder"),
      m_bsErrSvc  ("PixelByteStreamErrorsSvc",name),
-     m_robIdSet()
+     m_robIdSet(),
+     m_lastLvl1ID(0),
+     m_LVL1Collection(nullptr),
+     m_BCIDCollection(nullptr)
 {
   declareProperty ("Decoder", m_decoder);
   declareProperty ("ErrorsSvc", m_bsErrSvc);
   declareInterface< IPixelRawDataProviderTool >( this );   
-  m_lastLvl1ID = 0;
 }
 
 // -------------------------------------------------------

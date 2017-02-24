@@ -168,24 +168,27 @@ StatusCode
 }
 
 //============================================================================================
-const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const Track& track ) 
+const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const Track& track )  const
 {
-  bool bufferInDet = m_doHolesInDet;
-  bool bufferMuon = m_doHolesMuon;
-  m_doHolesInDet = false;
-  m_doHolesMuon = false;
-  const Trk::TrackSummary* tmpSum = createSummary(track);
-  m_doHolesInDet = bufferInDet;
-  m_doHolesMuon = bufferMuon;
-
-  return tmpSum;
+  return createSummary(track, false, false, false);
 }
 
 //============================================================================================
 
 const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& track, bool onlyUpdateTrack ) const
 {
-  // first chechk if track has summary already and then return a clone
+  return createSummary( track, onlyUpdateTrack, m_doHolesInDet, m_doHolesMuon );
+}
+
+//============================================================================================
+
+const Trk::TrackSummary*
+Trk::TrackSummaryTool::createSummary( const Track& track,
+                                      bool onlyUpdateTrack,
+                                      bool doHolesInDet,
+                                      bool doHolesMuon) const
+{
+  // first check if track has summary already and then return a clone
   // (remember the TrackSummaryTool is a factory!)
   if (track.trackSummary()!=0) {
     ATH_MSG_DEBUG ("Return cached summary for author : "<<track.info().dumpInfo());
@@ -226,9 +229,7 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
       information [numberOfInnermostLayerSplitHits] = 0;
       information [numberOfNextToInnermostLayerSplitHits] = 0;
       if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
-        dedx = m_dedxtool->dEdx(track);
-        nhitsuseddedx=m_dedxtool->numberOfUsedHitsdEdx();
-	noverflowhitsdedx=m_dedxtool->numberOfUsedIBLOverflowHits();
+        dedx = m_dedxtool->dEdx(track, nhitsuseddedx, noverflowhitsdedx);
       }
       information [Trk::numberOfDBMHits]                  = 0;
     }
@@ -284,13 +285,14 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
   if (track.trackStateOnSurfaces()!=0)
   {
     information[Trk::numberOfOutliersOnTrack] = 0;
-    processTrackStates(track,track.trackStateOnSurfaces(), information, hitPattern);
+    processTrackStates(track,track.trackStateOnSurfaces(), information, hitPattern,
+                       doHolesInDet, doHolesMuon);
   }else{
     ATH_MSG_WARNING ("Null pointer to TSoS found on Track (author = "
       <<track.info().dumpInfo()<<"). This should never happen! ");
   }
 
-  if (m_doHolesInDet || m_doHolesMuon) 
+  if (doHolesInDet || doHolesMuon) 
   {
     if (m_pixelExists) 
     {
@@ -298,12 +300,13 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
     }
     information [numberOfSCTHoles]       = 0; 
     information [numberOfSCTDoubleHoles] = 0;
-    searchHolesStepWise(track,information);
+    searchHolesStepWise(track,information, doHolesInDet, doHolesMuon);
   }
 
   if (!m_trt_dEdxTool.empty()) {
     if (information[Trk::numberOfTRTHits]+information[Trk::numberOfTRTOutliers]>=m_minTRThitsForTRTdEdx) {
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
+      ITRT_ToT_dEdx::EGasType gasType;
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, gasType, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
       double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
       eProbability.push_back(fvalue);
       information[ numberOfTRTHitsUsedFordEdx] = static_cast<uint8_t>(std::max(nhits,0));
@@ -384,7 +387,8 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
  
   if (!m_trt_dEdxTool.empty()) {
     if (tSummary->get(Trk::numberOfTRTHits)+tSummary->get(Trk::numberOfTRTOutliers)>=m_minTRThitsForTRTdEdx) {
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
+      ITRT_ToT_dEdx::EGasType gasType;
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, gasType, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
       double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
       eProbability.push_back(fvalue);
       if (!tSummary->update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nhits,0)) )) {
@@ -408,9 +412,7 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
   int noverflowhitsdedx=0;
 
   if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
-    dedx = m_dedxtool->dEdx(track);
-    nhitsuseddedx=m_dedxtool->numberOfUsedHitsdEdx();
-    noverflowhitsdedx=m_dedxtool->numberOfUsedIBLOverflowHits();
+    dedx = m_dedxtool->dEdx(track, nhitsuseddedx, noverflowhitsdedx);
   }
 
   m_idTool->updateAdditionalInfo(*tSummary, eProbability,dedx, nhitsuseddedx,noverflowhitsdedx);
@@ -429,7 +431,9 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
 void Trk::TrackSummaryTool::processTrackStates(const Track& track,
 					       const DataVector<const TrackStateOnSurface>* tsos,
 					       std::vector<int>& information,
-					       std::bitset<numberOfDetectorTypes>& hitPattern) const
+					       std::bitset<numberOfDetectorTypes>& hitPattern,
+                                               bool doHolesInDet,
+                                               bool doHolesMuon) const
 {
   ATH_MSG_DEBUG ("Starting to process " << tsos->size() << " track states");
 
@@ -468,12 +472,12 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
     }
 
     if ( (*it)->type(Trk::TrackStateOnSurface::Hole) && (*it)->trackParameters() ){
-      if (!m_doHolesInDet || !m_doHolesMuon ){ // no dedicated hole search via extrapolation, but take what might be on the track already.
+      if (!doHolesInDet || !doHolesMuon ){ // no dedicated hole search via extrapolation, but take what might be on the track already.
         if ( (*it)->trackParameters()->associatedSurface().associatedDetectorElement()!=0 ) {
           const Identifier& id = (*it)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
-          if ( !m_doHolesInDet && m_detID->is_pixel( id ) ) ++information[Trk::numberOfPixelHoles];
-          if ( !m_doHolesInDet && m_detID->is_sct( id ) )    ++information[Trk::numberOfSCTHoles];
-          if ( !m_doHolesMuon && m_detID->is_mdt( id ) )    ++information[Trk::numberOfMdtHoles];
+          if ( !doHolesInDet && m_detID->is_pixel( id ) ) ++information[Trk::numberOfPixelHoles];
+          if ( !doHolesInDet && m_detID->is_sct( id ) )    ++information[Trk::numberOfSCTHoles];
+          if ( !doHolesMuon && m_detID->is_mdt( id ) )    ++information[Trk::numberOfMdtHoles];
         }
       }
     }
@@ -496,7 +500,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
   
   if ( rot ){
     // have RIO_OnTrack
-    Trk::ITrackSummaryHelperTool* tool = getTool(rot->identify());
+    const Trk::ITrackSummaryHelperTool* tool = getTool(rot->identify());
     if (tool==0){
       msg(MSG::WARNING)<<"Cannot find tool to match ROT. Skipping."<<endmsg;
     } else {
@@ -510,7 +514,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
     if (compROT) {
       // if this works we have a CompetingRIOsOnTrack.
       rot = &compROT->rioOnTrack(0); // get 1st rot
-      Trk::ITrackSummaryHelperTool* tool = getTool(rot->identify()); // Use 'main' ROT to get detector type
+      const Trk::ITrackSummaryHelperTool* tool = getTool(rot->identify()); // Use 'main' ROT to get detector type
       if (tool==0){
         msg(MSG::WARNING)<<"Cannot find tool to match cROT. Skipping."<<endmsg;
       } else {
@@ -521,17 +525,38 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
 }
 
 Trk::ITrackSummaryHelperTool*  
-Trk::TrackSummaryTool::getTool(const Identifier& id) const
+Trk::TrackSummaryTool::getTool(const Identifier& id)
 {
   if (m_detID->is_indet(id)){
     if (!m_idTool.empty()){
-      return &(*m_idTool);
+      return &*m_idTool;
     } else { 
       msg(MSG::WARNING)<<"getTool: Identifier is from ID but have no ID tool"<<endmsg;
     }
   } else if(m_detID->is_muon(id)) {
     if (!m_muonTool.empty()) {
-      return &(*m_muonTool);
+      return &*m_muonTool;
+    } else {
+      msg(MSG::WARNING)<<"getTool: Identifier is from Muon but have no Muon tool"<<endmsg;
+    }
+  } else {
+    msg(MSG::WARNING) <<"getTool: Identifier is of unknown type! id: "<<id.getString();
+  }
+  return 0;
+}
+
+const Trk::ITrackSummaryHelperTool*  
+Trk::TrackSummaryTool::getTool(const Identifier& id) const
+{
+  if (m_detID->is_indet(id)){
+    if (!m_idTool.empty()){
+      return &*m_idTool;
+    } else { 
+      msg(MSG::WARNING)<<"getTool: Identifier is from ID but have no ID tool"<<endmsg;
+    }
+  } else if(m_detID->is_muon(id)) {
+    if (!m_muonTool.empty()) {
+      return &*m_muonTool;
     } else {
       msg(MSG::WARNING)<<"getTool: Identifier is from Muon but have no Muon tool"<<endmsg;
     }
@@ -543,7 +568,10 @@ Trk::TrackSummaryTool::getTool(const Identifier& id) const
 
 //============================================================================================
 
-void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track, std::vector<int>& information) const
+void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
+                                                 std::vector<int>& information,
+                                                 bool doHolesInDet,
+                                                 bool doHolesMuon) const
 {
 
   ATH_MSG_VERBOSE ("Entering Trk::TrackSummaryTool::searchHolesStepWise");
@@ -573,7 +601,7 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track, std::v
   }
   else
   {
-    if (m_doHolesInDet)
+    if (doHolesInDet)
     {
       // -------- perform the InDet hole search
       if (m_pixelExists) {
@@ -591,7 +619,7 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track, std::v
       //m_idHoleSearch->countHoles(track,information,Trk::pion) ; //TC: shouldn't it take the particle hypothesis from the track?
 
     }
-    if (!m_muonTool.empty() && m_doHolesMuon)
+    if (!m_muonTool.empty() && doHolesMuon)
     {
 // now do Muon hole search. It works completely differently to the above, so we need to make this all a bit more general
 // and probably more efficient. But this hopefully works for now! EJWM

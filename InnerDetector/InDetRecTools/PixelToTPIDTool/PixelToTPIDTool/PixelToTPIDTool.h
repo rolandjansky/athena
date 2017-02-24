@@ -50,13 +50,9 @@ namespace InDet
       virtual StatusCode finalize  () override; 
       
       /** dE/dx to be returned */
-      virtual float dEdx(const Trk::Track& track) override;
-
-      /** Number of hits selected for dE/dx track measurement */
-      virtual int numberOfUsedHitsdEdx() override;
-
-      /** Number of IBL hits with at least one hit in overflow used for Track dEdx measurement */
-      virtual int numberOfUsedIBLOverflowHits() override;
+      virtual float dEdx(const Trk::Track& track,
+                         int& nUsedHits,
+                         int& nUsedIBLOverflowHits) const override;
 
       virtual std::vector<float> getLikelihoods(double dedx, double p, int nGoodPixels) const override;
       virtual float getMass(double dedx, double p, int nGoodPixels) const override;
@@ -70,9 +66,6 @@ namespace InDet
       std::string m_filename;
       Trk::ParticleMasses        m_particlemasses;      // Particle masses.
       const PixelID* m_pixelid;
-      int m_nusedhits;      
-      int m_nUsedIBLOverflowHits;
-      int m_slimwarn;
       double m_conversionfactor;
       bool m_readfromcool;
       double m_mindedxformass;

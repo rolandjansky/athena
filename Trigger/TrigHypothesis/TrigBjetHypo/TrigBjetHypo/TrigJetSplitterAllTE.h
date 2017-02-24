@@ -48,6 +48,8 @@ class TrigJetSplitterAllTE : public HLT::AllTEAlgo {
 
   double m_maxJetEta;
 
+  std::string m_dynamicEtaPhiHalfWidth;
+
 };
  
 

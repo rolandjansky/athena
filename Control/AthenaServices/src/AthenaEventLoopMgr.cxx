@@ -60,7 +60,6 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_msg( msgSvc(), nam ),
     m_nev(0), m_proc(0), m_useTools(false), 
-    m_eventContext(nullptr),
     m_chronoStatSvc( "ChronoStatSvc", nam )
 
 {
@@ -318,10 +317,6 @@ StatusCode AthenaEventLoopMgr::initialize()
     return StatusCode::FAILURE;
   }
 
-  // create the EventContext object
-  m_eventContext = new EventContext();
-
-
   // Listen to the BeforeFork incident
   m_incidentSvc->addListener(this,"BeforeFork",0);
 
@@ -428,8 +423,6 @@ StatusCode AthenaEventLoopMgr::finalize()
   m_incidentSvc.release().ignore();
 
   delete m_evtContext; m_evtContext = nullptr;
-
-  delete m_eventContext; m_eventContext = nullptr;
 
   if(m_useTools) {
     tool_iterator firstTool = m_tools.begin();
@@ -606,19 +599,6 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
 		<< endmsg;
 	  return sc;
 	}
-
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-      Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
-      if (alg != nullptr) {
-        alg->setContext( m_eventContext );
-      } else {
-        m_msg << MSG::ERROR
-              << "Unable to dcast IAlgorithm " << (*ita)->name() 
-              << " to Algorithm"
-              << endmsg;
-        return StatusCode::FAILURE;
-      }
-#endif
     }
 
   // Initialize the list of Output Streams. Note that existing Output Streams
@@ -634,18 +614,6 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
 	return sc;
       }
 
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-      Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
-      if (alg != nullptr) {
-        alg->setContext( m_eventContext );
-      } else {
-        m_msg << MSG::ERROR
-              << "Unable to dcast IAlgorithm " << (*ita)->name() 
-              << " to Algorithm"
-              << endmsg;
-        return StatusCode::FAILURE;
-      }
-#endif
     }
 
   return StatusCode::SUCCESS;
@@ -654,23 +622,19 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
 //=========================================================================
 // Run the algorithms for the current event
 //=========================================================================
-StatusCode AthenaEventLoopMgr::executeAlgorithms() {
+StatusCode AthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx) {
 
   // Call the execute() method of all top algorithms 
   for ( ListAlg::iterator ita = m_topAlgList.begin(); 
         ita != m_topAlgList.end();
         ita++ ) 
   {
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
-    const StatusCode& sc = (*ita)->sysExecute(*m_eventContext); 
-#else
-    const StatusCode& sc = (*ita)->sysExecute(); 
-#endif
+    const StatusCode& sc = (*ita)->sysExecute(ctx); 
     // this duplicates what is already done in Algorithm::sysExecute, which
     // calls Algorithm::setExecuted, but eventually we plan to remove that 
     // function
-    m_aess->algExecState(*ita,*m_eventContext).setExecuted(true);
-    m_aess->algExecState(*ita,*m_eventContext).setExecStatus(sc);
+    m_aess->algExecState(*ita,ctx).setExecuted(true);
+    m_aess->algExecState(*ita,ctx).setExecStatus(sc);
     if ( !sc.isSuccess() ) {
       m_msg << MSG::INFO  << "Execution of algorithm "
 	    << (*ita)->name() << " failed with StatusCode::" << sc
@@ -746,13 +710,13 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
   assert(pEvent);
 
-  m_eventContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
-  m_eventContext->set(m_nev,0);
+  m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
+  m_eventContext.set(m_nev,0);
 
-  m_eventContext->setProxy( eventStore()->hiveProxyDict() );
+  m_eventContext.setProxy( eventStore()->hiveProxyDict() );
   Gaudi::Hive::setCurrentContext( m_eventContext );
 
-  m_aess->reset(*m_eventContext);
+  m_aess->reset(m_eventContext);
 
 
   /// Fire begin-Run incident if new run:
@@ -821,13 +785,13 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
 
   // Call the execute() method of all top algorithms 
-  StatusCode sc = executeAlgorithms();
+  StatusCode sc = executeAlgorithms(m_eventContext);
 
   
 
   if(!sc.isSuccess()) {
     eventFailed = true; 
-    m_aess->setEventStatus( EventStatus::AlgFail, *m_eventContext );
+    m_aess->setEventStatus( EventStatus::AlgFail, m_eventContext );
 
  /// m_failureMode 1, 
  ///    RECOVERABLE: skip algorithms, but do not terminate job
@@ -854,16 +818,12 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 
   }  else {
 
-    m_aess->setEventStatus( EventStatus::Success, *m_eventContext );
+    m_aess->setEventStatus( EventStatus::Success, m_eventContext );
 
     // Call the execute() method of all output streams 
     for (ListAlg::iterator ito = m_outStreamList.begin(); 
 	 ito != m_outStreamList.end(); ito++ ) {
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
-      sc = (*ito)->sysExecute(*m_eventContext); 
-#else
-      sc = (*ito)->sysExecute(); 
-#endif
+      sc = (*ito)->sysExecute(m_eventContext); 
       if( !sc.isSuccess() ) {
 	eventFailed = true; 
       } 

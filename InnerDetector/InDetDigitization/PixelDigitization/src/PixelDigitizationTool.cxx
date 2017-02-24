@@ -8,8 +8,6 @@
 ////////////////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ////////////////////////////////////////////////////////////////////////////
-
-// Pixel digitization includes
 #include "PixelDigitizationTool.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
@@ -18,9 +16,6 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-
-// STSTST #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
-// STSTST #include "CLHEP/Random/RandFlat.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
@@ -31,9 +26,6 @@
 static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 //Barcodes at the HepMC level are int
 
-// STSTST using namespace InDetDD;
-
-// Constructor with parameters:
 PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface * pIID) :
@@ -44,9 +36,9 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_HardScatterSplittingSkipper(false),
   m_rndmEngineName("PixelDigitization"),
   m_onlyHitElements(false),
-  m_diodesProcsTool(),
-  m_chargeTool(),
-  m_fesimTool(),
+  m_processorTool(nullptr),
+  m_chargeTool(nullptr),
+  m_fesimTool(nullptr),
   m_detID(nullptr),
   m_vetoThisBarcode(crazyParticleBarcode),
   m_timedHits(nullptr),
@@ -57,7 +49,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_inputObjectName(""),
   m_createNoiseSDO(false)
 {
-  declareProperty("PixelTools",       m_diodesProcsTool, "List of processor tools");
+  declareProperty("PixelProcessorTools", m_processorTool, "List of processor tools");
   declareProperty("ChargeTools",      m_chargeTool,      "List of charge tools");
   declareProperty("FrontEndSimTools", m_fesimTool,       "List of Front-End simulation tools");
   declareProperty("RndmSvc",          m_rndmSvc,         "Random number service used in Pixel Digitization");
@@ -105,7 +97,7 @@ StatusCode PixelDigitizationTool::initialize() {
   ATH_MSG_DEBUG("Pixel ID helper retrieved");
 
   // Initialize tools
-  CHECK(m_diodesProcsTool.retrieve());
+  CHECK(m_processorTool.retrieve());
 
   CHECK(m_chargeTool.retrieve());
 
@@ -203,9 +195,9 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
     // Apply processor tools
     ATH_MSG_DEBUG("Apply processor tools");
-    for (unsigned int itool=0; itool<m_diodesProcsTool.size(); itool++) {
-      ATH_MSG_DEBUG("Executing tool " << m_diodesProcsTool[itool]->name());
-      m_diodesProcsTool[itool]->process(*chargedDiodes);
+    for (unsigned int itool=0; itool<m_processorTool.size(); itool++) {
+      ATH_MSG_DEBUG("Executing tool " << m_processorTool[itool]->name());
+      m_processorTool[itool]->process(*chargedDiodes);
     }
 
     ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes->identify()));
@@ -253,9 +245,9 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
           // Apply processor tools
           ATH_MSG_DEBUG("Apply processor tools");
-          for (unsigned int itool=0; itool<m_diodesProcsTool.size(); itool++) {
-            ATH_MSG_DEBUG("Executing tool " << m_diodesProcsTool[itool]->name());
-            m_diodesProcsTool[itool]->process(*chargedDiodes);
+          for (unsigned int itool=0; itool<m_processorTool.size(); itool++) {
+            ATH_MSG_DEBUG("Executing tool " << m_processorTool[itool]->name());
+            m_processorTool[itool]->process(*chargedDiodes);
           }
 
           // Create and store RDO and SDO

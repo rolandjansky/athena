@@ -57,13 +57,16 @@ class TrigDecisionChecker ( TrigDecisionChecker ):
         MonitoringBlock = 100
 
         self.MuonItems = muon.monitoring_muonNonIso + muon.monitoring_muonIso + muon.monitoring_MSonly + muon.monitoring_muonEFFS
+        self.BphysicsItems=bphys.monitoring_bphys
         self.ElectronItems = egamma.monitoringTP_electron + egamma.monitoring_electron 
-        self.ElectronItems.append('HLT_e0_perf_L1EM15')
         self.PhotonItems = egamma.monitoring_photon 
         self.MinBiasItems = minbias.monitoring_minbias
         self.JetItems = jets.primary_l1jet + jets.primary_jet
+        self.JetItems.append('HLT_j0_perf_L1RD0_FILLED')
         self.BjetItems = bjet.monitoring_bjet
         self.TauItems = tau.monitoring_tau 
+        #self.TauItems.append('HLT_tau25_perf_track')
+        #self.TauItems.append('HLT_tau25_perf_ptonly')
         self.MetItems = met.monitoring_met
 
 
