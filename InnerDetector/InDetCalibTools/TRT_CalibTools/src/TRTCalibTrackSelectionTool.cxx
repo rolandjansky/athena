@@ -43,7 +43,7 @@ StatusCode TRTCalibTrackSelectionTool::initialize()
   // get the ToolSvc
 
   if (m_TrackSummaryTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Cannot get TrackSummaryTool" << endreq;
+    msg(MSG::FATAL) << "Cannot get TrackSummaryTool" << endmsg;
     return StatusCode::FAILURE;
   }
   // Print input properties
@@ -53,7 +53,7 @@ StatusCode TRTCalibTrackSelectionTool::initialize()
       << "\n " << m_EtaMin << " < eta < " << m_EtaMax
       << "\n number_of_PIXEL_hits >= " << m_MinPixelHits
       << "\n number_of_SCT_hits >= " << m_MinSCTHits
-      << "\n number_of_TRT_hits >= " << m_MinTRTHits << endreq;
+      << "\n number_of_TRT_hits >= " << m_MinTRTHits << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -83,6 +83,6 @@ bool TRTCalibTrackSelectionTool::isAccepted(const Trk::Track* pTrack) const
       << "\n\t eta = " << eta
       << "\n\t nPixel = " << summary->get(Trk::numberOfPixelHits)
       << "\n\t nSCT = " << summary->get(Trk::numberOfSCTHits)
-      << "\n\t nTRT = " << summary->get(Trk::numberOfTRTHits) << endreq;
+      << "\n\t nTRT = " << summary->get(Trk::numberOfTRTHits) << endmsg;
   return (true);
 }
