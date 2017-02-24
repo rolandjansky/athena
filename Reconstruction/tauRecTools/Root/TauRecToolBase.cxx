@@ -134,9 +134,7 @@ void TauRecToolBase::setTauEventData(TauEventData* data){
 TauRecToolBase::TauRecToolBase(const std::string& name) :
   asg::AsgTool(name) {
   declareProperty("inTrigger", m_in_trigger=false);
-  //generally set via tauRec/tauRecFlags.py 
-  //specifically in tauRec/TauRecConfigured.py
-  declareProperty("calibFolder", m_tauRecToolsTag="tauRecTools/00-02-00/"); 
+  declareProperty("calibFolder", m_tauRecToolsTag="tauRecTools/00-00-10/"); 
 }
 
 //________________________________________
