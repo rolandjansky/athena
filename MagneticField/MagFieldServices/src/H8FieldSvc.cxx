@@ -135,7 +135,7 @@ StatusCode MagField::H8FieldSvc::readMap( const std::string mapFile )
     return StatusCode::SUCCESS;
 }
 
-void MagField::H8FieldSvc::getField( const double *xyz, double *B, double *deriv )
+void MagField::H8FieldSvc::getField( const double *xyz, double *B, double *deriv ) const
 {
     for ( unsigned i = 0; i < m_grid.size(); i++ ) {
         // find the grid that contains xyz
@@ -152,7 +152,7 @@ void MagField::H8FieldSvc::getField( const double *xyz, double *B, double *deriv
     return;
 }
 
-void MagField::H8FieldSvc::getFieldZR( const double *xyz, double *B, double *deriv )
+void MagField::H8FieldSvc::getFieldZR( const double *xyz, double *B, double *deriv ) const
 {
     getField( xyz, B, deriv );
     return;

@@ -58,8 +58,8 @@ private:
 void
 BFieldCond::addBiotSavart( const double *xyz, double *B, double *deriv ) const
 {
-    static const double mu04pi( 1.0e-7 );  // mu_0/4pi
-    static const double minvsq( 10.*10. ); // (1 cm)^2
+    const double mu04pi( 1.0e-7 );  // mu_0/4pi
+    const double minvsq( 10.*10. ); // (1 cm)^2
     if ( m_finite ) { // finite conductor segment
         double r1[3], r2[3];
         for ( int i = 0; i < 3; i++ ) {
