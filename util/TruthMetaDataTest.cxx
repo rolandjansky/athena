@@ -73,26 +73,21 @@ int main( int argc, char* argv[] ) {
       // Loop over a few events:
       const ::Long64_t entries = event.getEntries();
 
-      for( ::Long64_t entry = 0; entry < entries; ++entry ) {
+      for ( ::Long64_t entry = 0; entry < entries; ++entry ) {
 
 	// Get the current entry:
 	event.getEntry( entry );
-	const xAOD::EventInfo *evtInfo;
-	RETURN_CHECK( APP_NAME, event.retrieve( evtInfo, "EventInfo" ) );
-	std::vector<float> weights = evtInfo->mcEventWeights();
 
-	if( entry == 0) {
-	  ::Info( APP_NAME, "Weights in event 1:");
-	  for(auto& name: weightTool.getWeightNames()) {
-	    auto indexRetriever = weightTool.spawnIndexRetriever(name);
-	    size_t idx = indexRetriever->getIndex();
-	    ::Info( APP_NAME,"Weight \"%s\" is in position %lu",name.c_str(),idx);
-	    ::Info( APP_NAME," - this weight = %.3f for the current event",weights[idx]);
-	  }
+	if ( entry == 0) {
+	  auto weightNames = weightTool.getWeightNames();
+	  auto weights = weightTool.getMCweights();
+	  for (size_t i=0;i<weightNames.size();++i)
+	     ::Info( APP_NAME,"Weight %3lu has value %.3f and name \"%s\"",
+		     i,weights[i],weightNames[i].c_str());
 	}
 	
 	// Give some feedback of where we are:
-	if( entry % 1000 == 0 ) {
+	if ( (entry+1) % 1000 == 0 ) {
 	  ::Info( APP_NAME, "Processed %i/%i events",
 		  static_cast< int >( entry+1 ),
 		  static_cast< int >( entries ) );
