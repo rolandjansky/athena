@@ -48,7 +48,12 @@ int main( int argc, char* argv[] ) {
   // Create the truth weight tool:
   xAOD::TruthWeightTool weightTool( "TruthWeightTool" );
   weightTool.setProperty( "OutputLevel", MSG::INFO ).ignore();
-
+  ToolHandle< xAOD::ITruthWeightTool > handle( "TruthWeightTool" );
+  if ( handle.retrieve().isFailure() ) {
+    ::Error( APP_NAME, "Could not retrieve TruthWeightTool");
+    return 1;
+  }
+  
   const ::Long64_t Nevts = evt.getEntries();
   for (int i=0;i < Nevts; i++) {
     if ( evt.getEntry(i) < 0) { ANA_MSG_ERROR("Failed to read event " << i); continue; }
