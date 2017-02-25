@@ -33,13 +33,43 @@ int main( int argc, char* argv[] ) {
   // The application's name:
   const char* APP_NAME = argv[ 0 ];
 
-  // Open the input file:
-  TString fileName = "";
-  if( argc < 1 ) {
-    ANA_MSG_WARNING("Usage: ath_test_truthWewightTool.exe <file>");
-  } else {
-    fileName = argv[1];
+  // Check that we received at least one file name:
+  if( argc < 2 ) {
+    ::Error( APP_NAME, "Usage: %s <xAOD file>", APP_NAME );
+    return 1;
   }
+  
+  POOL::TEvent::EReadMode mode = POOL::TEvent::kPOOLAccess; //POOL is slowest, but it can read everything!
+  //mode = POOL::TEvent::kClassAccess;
+  
+  POOL::TEvent evt(mode);
+  evt.readFrom( argv[1] );
+  
+  // Create the truth weight tool:
+  xAOD::TruthWeightTool weightTool( "TruthWeightTool" );
+  weightTool.setProperty( "OutputLevel", MSG::INFO ).ignore();
+
+  const ::Long64_t Nevts = evt.getEntries();
+  for (int i=0;i < Nevts; i++) {
+    if ( evt.getEntry(i) < 0) { ANA_MSG_ERROR("Failed to read event " << i); continue; }
+
+    if ( i == 0) {
+      auto weightNames = weightTool.getWeightNames();
+      auto weights = weightTool.getMCweights();
+      for (size_t i=0;i<weightNames.size();++i)
+	::Info( APP_NAME,"Weight %3lu has value %.3f and name \"%s\"",
+		i,weights[i],weightNames[i].c_str());
+    }
+
+    // Give some feedback of where we are:
+    if ( (i+1) % 1000 == 0 ) 
+      ::Info( APP_NAME, "Processed %i / %llu events",i+1,Nevts);
+    
+  }
+
+  // Will does this, so, so will I ;p
+  app->finalize();
+  return 0;
 }
 
-
+#endif
