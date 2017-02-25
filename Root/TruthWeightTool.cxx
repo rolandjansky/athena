@@ -13,7 +13,7 @@ namespace xAOD {
    }
 
    StatusCode TruthWeightTool::initialize() {
-      ATH_MSG_WARNING( "Initialising... " );
+      ATH_MSG_DEBUG( "Initialising... " );
       return StatusCode::SUCCESS;
    }
 
@@ -44,6 +44,7 @@ namespace xAOD {
       ATH_MSG_DEBUG( "Retrieving truth meta data from a new file" );
       m_metaDataContainer = nullptr;
       ATH_CHECK( inputMetaStore()->retrieve( m_metaDataContainer, m_metaName ) );
+      if (m_metaDataContainer==nullptr) std::runtime_error("Cannot access metadata: "+m_metaName);
       return StatusCode::SUCCESS;
    }
 

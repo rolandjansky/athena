@@ -48,7 +48,10 @@ int main( int argc, char* argv[] ) {
   // Create the truth weight tool:
   xAOD::TruthWeightTool weightTool( "TruthWeightTool" );
   weightTool.setProperty( "OutputLevel", MSG::INFO ).ignore();
-  ToolHandle< xAOD::ITruthWeightTool > handle( "TruthWeightTool" );
+
+  // The preferred way to create and configure tools is with a ToolHandle:
+  // constructor argument is: Type/Name
+  ToolHandle< xAOD::ITruthWeightTool > handle( "xAOD::TruthWeightTool/TruthWeightTool" );
   if ( handle.retrieve().isFailure() ) {
     ::Error( APP_NAME, "Could not retrieve TruthWeightTool");
     return 1;
