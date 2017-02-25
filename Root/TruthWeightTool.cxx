@@ -2,18 +2,18 @@
 
 // Local include(s):
 #include "TruthWeightTools/TruthWeightTool.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "TString.h"
 
 namespace xAOD {
 
    TruthWeightTool::TruthWeightTool( const std::string& name )
      :asg::AsgMetadataTool( name ), m_metaDataContainer(nullptr),
-      m_metaData(nullptr), m_uninitialized(true)  {
+      m_metaData(nullptr), m_uninitialized(true), m_evtInfo(nullptr)  {
       declareProperty( "MetaObjectName", m_metaName = "TruthMetaData" );
    }
 
    StatusCode TruthWeightTool::initialize() {
-      ATH_MSG_INFO( "Initialising... " );
+      ATH_MSG_WARNING( "Initialising... " );
       return StatusCode::SUCCESS;
    }
 
@@ -26,17 +26,17 @@ namespace xAOD {
      return sp;
    }
    
-  int TruthWeightTool::getWeightIndex(std::string weightName) {
+  size_t TruthWeightTool::getWeightIndex(std::string weightName) {
     auto sp = spawnIndexRetriever(weightName);
-    if (sp) return sp->getIndex();
-    return -1;
+    if (!sp) { ATH_MSG_ERROR("Requested weight \'"+weightName+"\' doesn't exist"); return 0; }
+    return sp->getIndex();
   }
 
    void TruthWeightTool::onNewMetaData(){
      ATH_MSG_DEBUG( "Updating all spawned index retreivers" );
-     for(auto& indexRetriever: m_indexRetrievers){
-	     auto sp =indexRetriever.second.lock();
-	     if(sp) sp->update(m_metaData);
+     for(auto& indexRetriever: m_indexRetrievers) {
+       auto sp =indexRetriever.second.lock();
+       if (sp) sp->update(m_metaData);
      }
    }
    
@@ -48,9 +48,12 @@ namespace xAOD {
    }
 
    StatusCode TruthWeightTool::beginEvent() {
-      const xAOD::EventInfo* ei = nullptr; 
-      ATH_CHECK( evtStore()->retrieve( ei, "EventInfo" ) );
-      uint32_t mcChannelNumber = ei->mcChannelNumber();
+     //const xAOD::EventInfo* ei = nullptr; 
+      m_evtInfo = nullptr;
+      ATH_CHECK( evtStore()->retrieve( m_evtInfo, "EventInfo" ) );
+      uint32_t mcChannelNumber = m_evtInfo->mcChannelNumber();
+
+      //ATH_CHECK( evtStore()->retrieve( m_truthEvents, "TruthEvents" ) );
 
       if( m_uninitialized || ( mcChannelNumber != m_mcChanNo ) ) {
 
@@ -63,6 +66,9 @@ namespace xAOD {
 	     m_mcChanNo = mcChannelNumber;
 	     m_metaData = *metaDataIterator;
              this->onNewMetaData();
+	     m_weightIndices.clear();
+	     for (auto weightName:m_metaData->weightNames())
+	       m_weightIndices.push_back(getWeightIndex(weightName));
 	     return StatusCode::SUCCESS;
           }
         }
@@ -79,4 +85,27 @@ namespace xAOD {
       }
       return m_metaData->weightNames();
    }
+
+  bool TruthWeightTool::hasWeight(std::string weightName) {
+    const std::vector<std::string> &wns = getWeightNames();
+    return std::find(wns.begin(),wns.end(),weightName) != wns.end();
+  }
+
+  std::vector<float> TruthWeightTool::getMCweights() {
+    std::vector<float> ws;
+    if (m_uninitialized||m_evtInfo==nullptr) {
+      ATH_MSG_ERROR("Cannot call TruthWeightTool::getMCweights prior to first event beling loaded");
+      return ws;
+    }
+    const std::vector<float> &mcWeights = m_evtInfo->mcEventWeights();
+    if (mcWeights.size()!=m_weightIndices.size()) {
+      // TODO: if we get here, check the truthEvent 
+      ATH_MSG_ERROR(Form("Current event has %lu weights, expect %lu from the metadata! Will return no weights",
+			 mcWeights.size(),m_weightIndices.size()));
+    }
+    for (auto i:m_weightIndices) ws.push_back(mcWeights.at(i));
+    return ws;
+  }
+
+
 } // namespace xAOD

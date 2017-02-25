@@ -14,6 +14,9 @@
 #include "xAODTruth/TruthMetaDataContainer.h"
 #include "xAODTruth/TruthMetaData.h"
 
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODTruth/TruthEventContainer.h"
+
 namespace xAOD {
 
    /// Implementation for the xAOD truth meta data weight tool
@@ -23,8 +26,9 @@ namespace xAOD {
    /// $Revision$
    /// $Date$
    ///
-   class TruthWeightTool : public virtual ITruthWeightTool,
-                                     public asg::AsgMetadataTool {
+   class TruthWeightTool 
+     : public virtual ITruthWeightTool,
+       public asg::AsgMetadataTool {
 
       /// Create a proper constructor for Athena
       ASG_TOOL_CLASS( TruthWeightTool, xAOD::ITruthWeightTool )
@@ -50,11 +54,21 @@ namespace xAOD {
       /// Create an IndexRetriever 
       virtual std::shared_ptr<IIndexRetriever> spawnIndexRetriever(std::string weightName);
 
+      /// Whether a weight with the current name exists
+      virtual bool hasWeight(std::string weightName);
+
       /// Return weight index
-      virtual int getWeightIndex(std::string weightName);
+      virtual size_t getWeightIndex(std::string weightName);
 
       /// Get a vector with all the currently weight names in meta data
       virtual std::vector<std::string> const & getWeightNames() const;
+
+      /// Get vector with weight indices in same order as weight names
+      virtual std::vector<size_t> getWeightIndices() { return m_weightIndices; }
+
+      /// Get vector with MC weights in same order as getWeightNames()
+      virtual std::vector<float> getMCweights();
+
       /// @}
 
    protected:
@@ -88,6 +102,14 @@ namespace xAOD {
       /// a previous event
       bool m_uninitialized;
 
+      /// Vector with weight indeces in same order as weight names
+      std::vector<size_t> m_weightIndices;
+
+      /// Event info 
+      const xAOD::EventInfo *m_evtInfo;
+
+      /// TruthEvent 
+      const xAOD::TruthEventContainer *m_truthEvents;
    };
 
 } // namespace xAOD
