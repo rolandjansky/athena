@@ -19,9 +19,7 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 __all__ = [ 'theApp', 'ServiceMgr', 'ToolSvc', 'AuditorSvc', 'theAuditorSvc',
             'athMasterSeq',
             'athFilterSeq',
-            'athBeginSeq',
             'athAlgSeq',    'topSequence',
-            'athEndSeq'
             'athOutSeq',
             'athRegSeq',
             ]
@@ -250,19 +248,14 @@ class AthAppMgr( AppMgr ):
          pieces : AthMasterSeq, AthFilterSeq, AthAlgSeq, AthOutSeq, AthRegSeq
       """
       from . import AlgSequence as _as
-      from AthenaServices.AthenaServicesConf import AthIncFirerAlg as IFA
-      from GaudiCoreSvc.GaudiCoreSvcConf import IncidentProcAlg as IPA
-
       def _build():
          Logging.log.debug ("building master sequence...")
          athMasterSeq = _as.AthSequencer ("AthMasterSeq")
          athFilterSeq = _as.AthSequencer ("AthFilterSeq"); 
-         athBeginSeq  = _as.AthSequencer ("AthBeginSeq")
          athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
-         athEndSeq    = _as.AthSequencer ("AthEndSeq")
          athOutSeq    = _as.AthSequencer ("AthOutSeq")
          athRegSeq    = _as.AthSequencer ("AthRegSeq")
-         athMTSeq     = _as.AthSequencer ("AthMTSeq")         
+
          # transfer old TopAlg to new AthAlgSeq
          _top_alg = _as.AlgSequence("TopAlg")
          # first transfer properties
@@ -276,28 +269,8 @@ class AthAppMgr( AppMgr ):
             athAlgSeq += c
             delattr(_top_alg, c.getName())
          del _top_alg, children
-
-         #Setup begin and end sequences
-         # Begin Sequence
-         #   IFA->BeginEvent
-         #   IPA
-         ifaBeg=IFA("BeginIncFiringAlg")
-         ifaBeg.Incidents=["BeginEvent"]
-         ifaBeg.FireSerial=True # we want serial incident to be fired as well
-         athBeginSeq += ifaBeg
-         ipa=IPA("IncidentProcAlg1")
-         athBeginSeq += ipa
-
-         # EndSequence
-         #   IFA->EndEvent
-         #   IPA
-         ifaEnd=IFA("EndIncFiringAlg")
-         ifaEnd.Incidents=["EndEvent"]
-         ifaEnd.FireSerial=True # we want serial incident to be fired as well
-         athEndSeq += ifaEnd
-         ipa2=IPA("IncidentProcAlg2")
-         athEndSeq += ipa2
-
+         
+         
          # unroll AthFilterSeq to save some function calls and
          # stack size on the C++ side
          for c in athFilterSeq.getChildren():
@@ -305,16 +278,9 @@ class AthAppMgr( AppMgr ):
 
          # XXX: should we discard empty sequences ?
          #      might save some CPU and memory...
-         athMTSeq+=athBeginSeq
-         athMTSeq+=athAlgSeq
-         athMTSeq+=athEndSeq
-         # athMasterSeq += athBeginSeq
-         # athMasterSeq += athAlgSeq
-         # athMasterSeq += athEndSeq
-         athMasterSeq += athMTSeq
+         athMasterSeq += athAlgSeq
          athMasterSeq += athOutSeq
          athMasterSeq += athRegSeq
-         
          Logging.log.debug ("building master sequence... [done]")
          return athMasterSeq
       # prevent hysteresis effect
@@ -949,11 +915,7 @@ def AuditorSvc():             # backwards compatibility
 #         |
 #         +-- athFilterSeq
 #                |
-#                +--- athBeginSeq
-#                |
 #                +--- athAlgSeq == TopAlg
-#                |
-#                +--- athEndSeq
 #                |
 #                +--- athOutSeq
 #                |
