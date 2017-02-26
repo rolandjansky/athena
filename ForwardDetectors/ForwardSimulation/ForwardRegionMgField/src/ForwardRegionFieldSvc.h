@@ -45,13 +45,13 @@ namespace MagField {
     /** get B field value at given position */
     /** xyz[3] is in mm, bxyz[3] is in kT */
     /** if deriv[9] is given, field derivatives are returned in kT/mm */
-    virtual void getField(const double *xyz, double *bxyz, double *deriv = 0) override final;
+    virtual void getField(const double *xyz, double *bxyz, double *deriv = 0) const override final;
 
     /** get B field value on the z-r plane at given position */
     /** works only inside the solenoid; otherwise calls getField() above */
     /** xyz[3] is in mm, bxyz[3] is in kT */
     /** if deriv[9] is given, field derivatives are returned in kT/mm */
-    virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = 0) override final;
+    virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = 0) const override final;
 
     /** Non-inherited public methods FIXME - add new interface? */
     // get magnetic induction vector in certain point inside Q1-Q3 quadrupoles (uses bilinear interpolation), q=0 - Q1, q=1 - Q2, q=2 - Q3

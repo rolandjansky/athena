@@ -594,7 +594,11 @@ class AthAppMgr( AppMgr ):
       self.setup()
 
     # create C++-side AppMgr
+      from ConcurrencyFlags import jobproperties as jp
       try:
+         # Set threaded flag to release the python GIL when we're in C++
+         is_threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         self.getHandle()._appmgr.initialize._threaded = is_threaded
          sc = self.getHandle().initialize()
          if sc.isFailure():
             self._exitstate = ExitCodes.INI_ALG_FAILURE
@@ -659,8 +663,12 @@ class AthAppMgr( AppMgr ):
 
     # actual run (FIXME: capture beginRun() exceptions and failures, which is
     #               not currently supported by IEventProcessor interface)
+      from ConcurrencyFlags import jobproperties as jp
       try:
-         sc = self.getHandle()._evtpro.executeRun( nEvt )
+         # Set threaded flag to release the GIL on execution
+         executeRunMethod = self.getHandle()._evtpro.executeRun
+         executeRunMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         sc = executeRunMethod(nEvt)
          if sc.isFailure() and not self._exitstate:
             self._exitstate = ExitCodes.EXE_ALG_FAILURE   # likely, no guarantee
       except Exception:
@@ -713,7 +721,11 @@ class AthAppMgr( AppMgr ):
          if not self._cppApp:
             raise RuntimeError, \
                   "C++ application not instantiated : Nothing to finalize !"
-         sc = self.getHandle()._appmgr.finalize()
+         # Set threaded flag to release the GIL when finalizing in the c++
+         from ConcurrencyFlags import jobproperties as jp
+         finalizeMethod = self.getHandle()._appmgr.finalize
+         finalizeMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         sc = finalizeMethod()
          if sc.isFailure():
             self._exitstate = ExitCodes.FIN_ALG_FAILURE
       except Exception:

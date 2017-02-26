@@ -66,7 +66,7 @@ class TBSimSkeleton(SimSkeleton):
         Setup and add metadata to the HIT file
         """
         import AtlasG4Eng
-        AtlasG4Eng.G4Eng.log.verbose('TBSimSkeleton :: _do_metadata :: starting')
+        AtlasG4Eng.G4Eng.log.verbose('SimSkeleton :: _do_metadata :: starting')
         from G4AtlasApps.G4Atlas_Metadata import createTBSimulationParametersMetadata
         createTBSimulationParametersMetadata()
 

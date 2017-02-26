@@ -5,8 +5,6 @@
 #include "TBECBackOuterBarretteTool.h"
 #include "LArG4Code/LArG4SimpleSD.h"
 
-#include "LArG4EC/EnergyCalculator.h"
-
 #include "CxxUtils/make_unique.h"
 
 TBECBackOuterBarretteTool::TBECBackOuterBarretteTool(const std::string& type, const std::string& name, const IInterface *parent)
@@ -18,6 +16,13 @@ TBECBackOuterBarretteTool::TBECBackOuterBarretteTool(const std::string& type, co
   , m_HitColl_gap_se("LArHitEMEC_gap_se")
   , m_HitColl_chcoll("LArHitEMEC_chcoll")
   , m_HitColl_ropt("LArHitEMEC_ropt")
+  , m_emecbobgadjcalc("EMECPosBOBWheel_ECOR_GADJCalculator", name)
+  , m_emecbobgadjoldcalc("EMECPosBOBWheel_ECOR_GADJ_OLDCalculator", name)
+  , m_emecbobgadjecalc("EMECPosBOBWheel_ECOR_GADJ_ECalculator", name)
+  , m_emecbobgadjscalc("EMECPosBOBWheel_ECOR_GADJ_SCalculator", name)
+  , m_emecbobgadjsecalc("EMECPosBOBWheel_ECOR_GADJ_SECalculator", name)
+  , m_emecbobchclcalc("EMECPosBOBWheel_ECOR_CHCLCalculator", name)
+  , m_emecbobcalc("EMECPosBOBWheelCalculator", name)
   , m_gapadjSD(nullptr)
   , m_gapoldSD(nullptr)
   , m_gap_eSD(nullptr)
@@ -27,18 +32,44 @@ TBECBackOuterBarretteTool::TBECBackOuterBarretteTool(const std::string& type, co
   , m_roptSD(nullptr)
 {
   declareInterface<ISensitiveDetector>(this);
+  declareProperty("EMECPosBOBWheel_ECOR_GADJCalculator", m_emecbobgadjcalc);
+  declareProperty("EMECPosBOBWheel_ECOR_GADJ_OLDCalculator", m_emecbobgadjoldcalc);
+  declareProperty("EMECPosBOBWheel_ECOR_GADJ_ECalculator", m_emecbobgadjecalc);
+  declareProperty("EMECPosBOBWheel_ECOR_GADJ_SCalculator", m_emecbobgadjscalc);
+  declareProperty("EMECPosBOBWheel_ECOR_GADJ_SECalculator", m_emecbobgadjsecalc);
+  declareProperty("EMECPosBOBWheel_ECOR_CHCLCalculator", m_emecbobchclcalc);
+  declareProperty("EMECPosBOBWheelCalculator", m_emecbobcalc);
 }
 
+StatusCode TBECBackOuterBarretteTool::initializeCalculators()
+{
+  ATH_CHECK(m_emecbobgadjcalc.retrieve());
+  ATH_CHECK(m_emecbobgadjoldcalc.retrieve());
+  ATH_CHECK(m_emecbobgadjecalc.retrieve());
+  ATH_CHECK(m_emecbobgadjscalc.retrieve());
+  ATH_CHECK(m_emecbobgadjsecalc.retrieve());
+  ATH_CHECK(m_emecbobchclcalc.retrieve());
+  ATH_CHECK(m_emecbobcalc.retrieve());
+
+  return StatusCode::SUCCESS;
+}
 
 StatusCode TBECBackOuterBarretteTool::initializeSD()
 {
-  m_gapadjSD = new LArG4SimpleSD( "LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gapadj" , new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ) , m_timeBinType , m_timeBinWidth );
-  m_gapoldSD = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gapold", new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_OLD) , m_timeBinType , m_timeBinWidth);
-  m_gap_eSD  = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gap_e", new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_E) , m_timeBinType , m_timeBinWidth);
-  m_gap_sSD  = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gap_s", new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_S) , m_timeBinType , m_timeBinWidth);
-  m_gap_seSD = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gap_se", new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_SE) , m_timeBinType , m_timeBinWidth);
-  m_chcollSD = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_chcoll", new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_CHCL) , m_timeBinType , m_timeBinWidth);
-  m_roptSD   = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_ropt", new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_ROPT) , m_timeBinType , m_timeBinWidth);
+  // Multi-threading not yet supported
+  if(m_gapadjSD) {
+    ATH_MSG_ERROR("TBECBackOuterBarretteTool::initializeSD - SDs already exist. " <<
+                  "Are you running an MT job? Not yet supported!");
+    return StatusCode::FAILURE;
+  }
+
+  m_gapadjSD = new LArG4SimpleSD( "LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gapadj" , &*m_emecbobgadjcalc, m_timeBinType , m_timeBinWidth );
+  m_gapoldSD = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gapold", &*m_emecbobgadjoldcalc, m_timeBinType , m_timeBinWidth);
+  m_gap_eSD  = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gap_e", &*m_emecbobgadjecalc, m_timeBinType , m_timeBinWidth);
+  m_gap_sSD  = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gap_s", &*m_emecbobgadjscalc, m_timeBinType , m_timeBinWidth);
+  m_gap_seSD = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gap_se", &*m_emecbobgadjsecalc, m_timeBinType , m_timeBinWidth);
+  m_chcollSD = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_chcoll", &*m_emecbobchclcalc, m_timeBinType , m_timeBinWidth);
+  m_roptSD   = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_ropt", &*m_emecbobcalc, m_timeBinType , m_timeBinWidth);
 
   std::map<G4VSensitiveDetector*,std::vector<std::string>*> configuration;
   configuration[m_gapadjSD] = &m_volumeNames;

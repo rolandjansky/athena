@@ -17,9 +17,8 @@
 
 #ifndef LArG4_EC_PresamplerGeometry_H
 #define LArG4_EC_PresamplerGeometry_H
-
-#include "G4ThreeVector.hh"
-#include "globals.hh"
+#include "LArG4EC/IECPresamplerGeometry.h"
+#include "AthenaBaseComps/AthService.h"
 
 // Forward declarations.
 class LArG4Identifier;
@@ -33,41 +32,42 @@ namespace LArG4 {
 
   namespace EC {
 
-    class PresamplerGeometry {
+    class PresamplerGeometry: public AthService, virtual public IECPresamplerGeometry {
 
     public:
-      // Standard implementation of a singleton pattern.
-      static const PresamplerGeometry* GetInstance();
+      // Constructor
+      PresamplerGeometry(const std::string& name, ISvcLocator * pSvcLocator);
+      StatusCode initialize() override final;
       virtual ~PresamplerGeometry();
 
-      // 15-Jan-2002 WGS: A "lookup" function for detector measurements,
-      // sizes, and other values.
-      enum kValue {
-	rMinEndcapPresampler,
-	rMaxEndcapPresampler,
-	zEndcapPresamplerFrontFace,
-	zEndcapPresamplerBackFace,
-	EndcapPresamplerHalfThickness,
-	EndcapPresamplerZpositionInMother
-      };
-      G4double GetValue(const kValue) const;
-      
+      /** Query interface method to make athena happy */
+      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
+
       // This is the "meat" of this class: calculate the identifier
       // given a G4Step.
-      LArG4Identifier CalculateIdentifier( const G4Step* ) const;
-
-    protected:
-      // Constructor is protected according to the singleton pattern.
-      PresamplerGeometry();
+      LArG4Identifier CalculateIdentifier( const G4Step* ) const override final;
 
     private:
+      double m_zEndcapFrontFace;
+      double m_halfThickness;
+      // The following variables describe the endcap geometry.  Mostly these
+      // were copied from the ATLAS G3 code.  FIXME Someday, they
+      // should be determined from the detector database and not
+      // hard-coded.
+      int m_zSide; // +- 3 for inner wheel, +- 2 for outer wheel, z determines sign
+      // For the presampler, the 'm_sampling' and 'm_region' are always zero.
+      int m_sampling;
+      int m_region;
+      double m_etaScale;   // 1/deta
+      double m_etaOffset;  // set so that the range of etaBin starts at zero for each compartment
+      int    m_maxEta;     // the maximum value of etaBin in this compartment
+      //int    m_gapsPerBin; // number of phi gaps (in LArWheelSolid) for each cell bin.
+      int    m_maxPhi;     // the maximum value of phiBin in this compartment
+      // Derived constants
+      double m_phiScale;
+      int m_maxPhi1;
+      int m_halfMaxPhi1;
 
-
-      struct Clockwork;
-      Clockwork *m_c;
-
-      PresamplerGeometry (const PresamplerGeometry&);
-      PresamplerGeometry& operator= (const PresamplerGeometry&);
     };
 
   } // namespace EC

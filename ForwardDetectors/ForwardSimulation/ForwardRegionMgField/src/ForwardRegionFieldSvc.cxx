@@ -105,21 +105,25 @@ StatusCode MagField::ForwardRegionFieldSvc::initialize()
   return StatusCode::SUCCESS;
 }
 
-// Query the interfaces - no idea what this is - TODO: find out
+// Query the interfaces
 StatusCode MagField::ForwardRegionFieldSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
   if(IIncidentListener::interfaceID().versionMatch(riid))
     {
       *ppvInterface = dynamic_cast<IIncidentListener*>(this);
     }
+  else if(IMagFieldSvc::interfaceID().versionMatch(riid))
+    {
+      *ppvInterface = dynamic_cast<IMagFieldSvc*>(this);
+    }
   else
     {
      // Interface is not directly available: try out a base class
-      return Service::queryInterface(riid, ppvInterface);
+      return AthService::queryInterface(riid, ppvInterface);
     }
+  addRef();
   return StatusCode::SUCCESS;
 }
-
 
 // Handle incident function - if BeginRun happens, initialize mag. fields
 void MagField::ForwardRegionFieldSvc::handle(const Incident& runIncident)
@@ -137,7 +141,7 @@ void MagField::ForwardRegionFieldSvc::handle(const Incident& runIncident)
 /** get B field value at given position */
 /** xyz[3] is in mm, bxyz[3] is in kT */
 /** if deriv[9] is given, field derivatives are returned in kT/mm */
-void MagField::ForwardRegionFieldSvc::getField(const double *xyz, double *bxyz, double*)
+void MagField::ForwardRegionFieldSvc::getField(const double *xyz, double *bxyz, double*) const
 {
   G4ThreeVector f = this->FieldValue(G4ThreeVector(xyz[0],xyz[1],xyz[2]));
   bxyz[0] = f[0];
@@ -149,7 +153,7 @@ void MagField::ForwardRegionFieldSvc::getField(const double *xyz, double *bxyz, 
 /** works only inside the solenoid; otherwise calls getField() above */
 /** xyz[3] is in mm, bxyz[3] is in kT */
 /** if deriv[9] is given, field derivatives are returned in kT/mm */
-void MagField::ForwardRegionFieldSvc::getFieldZR(const double*, double*, double*)
+void MagField::ForwardRegionFieldSvc::getFieldZR(const double*, double*, double*) const
 {
   throw; //FIXME not supported yet.
 }

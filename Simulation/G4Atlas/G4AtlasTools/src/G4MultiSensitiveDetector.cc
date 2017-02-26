@@ -74,7 +74,7 @@ G4MultiSensitiveDetector::Initialize(G4HCofThisEvent* )
 {
     //SDManager is resposnsible for calling this since the granular SDs
   // are also registered
-	//for ( auto sd : fSensitiveDetectors ) sd->Initialize(hcte);
+	//for ( auto* sd : fSensitiveDetectors ) sd->Initialize(hcte);
 }
 
 void
@@ -82,25 +82,25 @@ G4MultiSensitiveDetector::EndOfEvent(G4HCofThisEvent* )
 {
   //SDManager is resposnsible for calling this since the granular SDs
 // are also registered
-	//for ( auto sd : fSensitiveDetectors ) sd->EndOfEvent(hcte);
+	//for ( auto* sd : fSensitiveDetectors ) sd->EndOfEvent(hcte);
 }
 
 void
 G4MultiSensitiveDetector::clear()
 {
-	for ( auto sd : fSensitiveDetectors ) sd->clear();
+	for ( auto* sd : fSensitiveDetectors ) sd->clear();
 }
 
 void
 G4MultiSensitiveDetector::DrawAll()
 {
-	for ( auto sd : fSensitiveDetectors ) sd->DrawAll();
+	for ( auto* sd : fSensitiveDetectors ) sd->DrawAll();
 }
 
 void
 G4MultiSensitiveDetector::PrintAll()
 {
-	for ( auto sd : fSensitiveDetectors ) sd->PrintAll();
+	for ( auto* sd : fSensitiveDetectors ) sd->PrintAll();
 }
 
 G4bool
@@ -108,7 +108,7 @@ G4MultiSensitiveDetector::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 {
 	VDBG(2,GetName()<<" : Called processHits: "<<aStep<<" with Edep: "<<aStep->GetTotalEnergyDeposit());
 	G4bool result = true;
-	for (auto sd : fSensitiveDetectors )
+	for (auto* sd : fSensitiveDetectors )
 		result &= sd->Hit(aStep);
 	return result;
 }
@@ -130,7 +130,7 @@ G4VSensitiveDetector* G4MultiSensitiveDetector::Clone() const
 {
 	VDBG(2,GetName()<<"Cloning an instance of G4MultiSensitiveDetector");
 	G4MultiSensitiveDetector* newInst = new G4MultiSensitiveDetector(this->GetName());
-	for ( auto sd : fSensitiveDetectors )
+	for ( auto* sd : fSensitiveDetectors )
 		newInst->AddSD( sd->Clone() );
 	return newInst;
 }

@@ -61,8 +61,7 @@ class AtlasSimSkeleton(SimSkeleton):
         DetFlags.pileup.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
-        if not simFlags.IsEventOverlayInputSim():
-            DetFlags.overlay.all_setOff()
+        DetFlags.overlay.all_setOff()
         DetFlags.readRDOPool.all_setOff()
         DetFlags.makeRIO.all_setOff()
         DetFlags.writeBS.all_setOff()
@@ -271,21 +270,16 @@ class AtlasSimSkeleton(SimSkeleton):
         """
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: starting')
 
-        ## Inner detector
-        if DetFlags.ID_on():
-            if DetFlags.geometry.TRT_on():
-                AtlasG4Eng.G4Eng.read_XML("TRgeomodelgeometry.xml") # FIXME need to find a better way to do this
-
         ## Calorimeters
-        if DetFlags.Calo_on():
-            ## LAr
-            if DetFlags.geometry.LAr_on():
-                from G4AtlasApps.SimFlags import simFlags
-                # if this is an ISF run, allow the collections on store gate to be modified
-                # by other algorithms (i.e. set them non-const)
-                allowSGMods = True if simFlags.ISFRun else False
-                from atlas_calo import PyLArG4RunControler
-                lArG4RunControl = PyLArG4RunControler('PyLArG4RunControl', 'LArG4RunControlDict', allowMods=allowSGMods)
+        ##if DetFlags.Calo_on():
+        ##    ## LAr
+        ##    if DetFlags.geometry.LAr_on():
+        ##        from G4AtlasApps.SimFlags import simFlags
+        ##        # if this is an ISF run, allow the collections on store gate to be modified
+        ##        # by other algorithms (i.e. set them non-const)
+        ##        allowSGMods = True if simFlags.ISFRun else False
+        ##        from atlas_calo import PyLArG4RunControler
+        ##        lArG4RunControl = PyLArG4RunControler('PyLArG4RunControl', 'LArG4RunControlDict', allowMods=allowSGMods)
 
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: done')
 

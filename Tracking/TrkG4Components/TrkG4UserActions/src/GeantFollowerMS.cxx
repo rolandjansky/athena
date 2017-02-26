@@ -25,96 +25,98 @@
 #include "G4Track.hh"
 #include "TrkGeometry/TrackingGeometry.h"
 
-GeantFollowerMS::GeantFollowerMS(const std::string& type, const std::string& name, const IInterface* parent) :
-  UserActionBase(type,name,parent),
-    m_helper("Trk::GeantFollowerMSHelper"),
-    m_helperPointer(0),
-    m_trackingGeometry(0),
-    m_trackingGeometrySvc("AtlasTrackingGeometrySvc",name),
-    m_trackingGeometryName("AtlasTrackingGeometry")
-{
-  declareProperty("HelperTool",m_helper);
-}
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+namespace G4UA{
 
 
-StatusCode GeantFollowerMS::initialize()
-{
-  ATH_CHECK(m_helper.retrieve());
-  m_helperPointer = (&(*m_helper));
-  ATH_CHECK(m_trackingGeometrySvc.retrieve()); //FIXME possibly should not bail in this case?
-  m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-  return StatusCode::SUCCESS;
-}
+  GeantFollowerMS::GeantFollowerMS(const Config& config)
+    : m_config(config)
+    , m_trackingGeometry(nullptr)
+    , m_helperPointer(nullptr)
+  {}
 
+  void GeantFollowerMS::beginOfEvent(const G4Event*)
+  {
+    m_helperPointer->beginEvent();
+  }
 
-void GeantFollowerMS::BeginOfEvent(const G4Event*)
-{
-  // now initialize the helper
-  m_helperPointer->beginEvent();
-  return;
-}
+  void GeantFollowerMS::endOfEvent(const G4Event*)
+  {
+    m_helperPointer->endEvent();
+  }
 
+  void GeantFollowerMS::beginOfRun(const G4Run*)
+  {
+    if(m_config.helper.retrieve()!=StatusCode::SUCCESS)
+      {
+        G4ExceptionDescription description;
+        description << "Cannot retrieve GeantFollowerMS helper";
+        G4Exception("GeantFollowerMS", "GeantFollowerMS1", FatalException, description);
+        return;
+      }
+    m_helperPointer = (&(*m_config.helper));
 
-void GeantFollowerMS::EndOfEvent(const G4Event*)
-{
-  // release event
-  m_helperPointer->endEvent();
-  return;
-}
+    if(m_config.trackingGeometrySvc.retrieve()!=StatusCode::SUCCESS)
+      {
+        G4ExceptionDescription description;
+        description << "Cannot retrieve TrackingGeometrySvc in GeantFollowerMS";
+        G4Exception("GeantFollowerMS", "GeantFollowerMS2", FatalException, description);
+        return;
+      }
 
-
-void GeantFollowerMS::Step(const G4Step* aStep)
-{
-
-  // kill secondaries
-  if (aStep->GetTrack()->GetParentID()) {
-    aStep->GetTrack()->SetTrackStatus(fStopAndKill);
     return;
   }
 
-  // get the prestep point and follow this guy
-  G4StepPoint * g4PreStep  = aStep->GetPreStepPoint();
-  G4ThreeVector g4Momentum = g4PreStep->GetMomentum();
-  G4ThreeVector g4Position = g4PreStep->GetPosition();
+  void GeantFollowerMS::processStep(const G4Step* aStep)
+  {
+    // kill secondaries
+    if (aStep->GetTrack()->GetParentID())
+      {
+        aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+        return;
+      }
 
-  G4Track* g4Track = aStep->GetTrack();
-  const G4DynamicParticle* g4DynParticle = g4Track->GetDynamicParticle();
+    // get the prestep point and follow this guy
+    G4StepPoint * g4PreStep  = aStep->GetPreStepPoint();
+    G4ThreeVector g4Momentum = g4PreStep->GetMomentum();
+    G4ThreeVector g4Position = g4PreStep->GetPosition();
 
-  // the material information
-  const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
-  if(ATH_LIKELY(touchHist)) {
-    // G4LogicalVolume
-    const G4LogicalVolume *lv= touchHist->GetVolume()->GetLogicalVolume();
-    if(ATH_LIKELY(lv)) {
-      const G4Material *mat    = lv->GetMaterial();
-      // the step information
-      double steplength     = aStep->GetStepLength();
-      // the position information
-      double X0             = mat->GetRadlen();
-      // update the track follower
-      //std::cout << " particle PDG " << g4DynParticle->GetPDGcode() << " charge " << g4DynParticle->GetCharge() << std::endl;
-      m_helperPointer->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
-    }
-    else {
-      throw std::runtime_error("GeantFollowerMS::SteppingAction NULL G4LogicalVolume pointer.");
-    }
+    G4Track* g4Track = aStep->GetTrack();
+    const G4DynamicParticle* g4DynParticle = g4Track->GetDynamicParticle();
+
+    // the material information
+    const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
+    if(ATH_LIKELY(touchHist))
+      {
+        // G4LogicalVolume
+        const G4LogicalVolume *lv= touchHist->GetVolume()->GetLogicalVolume();
+        if(ATH_LIKELY(lv))
+          {
+            const G4Material *mat    = lv->GetMaterial();
+            // the step information
+            double steplength     = aStep->GetStepLength();
+            // the position information
+            double X0             = mat->GetRadlen();
+            // update the track follower
+            //std::cout << " particle PDG " << g4DynParticle->GetPDGcode() << " charge " << g4DynParticle->GetCharge() << std::endl;
+            m_helperPointer->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
+          }
+        else
+          {
+            G4ExceptionDescription description;
+            description << "GeantFollowerMS::SteppingAction NULL G4LogicalVolume pointer.";
+            G4Exception("GeantFollowerMS", "GeantFollowerMS3", FatalException, description);
+          }
+      }
+    else
+      {
+        G4ExceptionDescription description;
+        description << "GeantFollowerMS::SteppingAction NULL G4TouchableHistory pointer.";
+        G4Exception("GeantFollowerMS", "GeantFollowerMS4", FatalException, description);
+      }
+    return;
   }
-  else {
-    throw std::runtime_error("GeantFollowerMS::SteppingAction NULL G4TouchableHistory pointer.");
-  }
-  return;
-}
 
-
-StatusCode GeantFollowerMS::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
-  }
-  return StatusCode::SUCCESS;
-}
-
+} // namespace G4UA

@@ -9,6 +9,7 @@ use GaudiInterface      GaudiInterface-*        External
 private
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use AtlasCLHEP          AtlasCLHEP-*            External
+use CxxUtils            CxxUtils-*              Control
 use Geant4              Geant4-*                External
 use G4AtlasInterfaces   G4AtlasInterfaces-*     Simulation/G4Atlas
 use G4AtlasTools        G4AtlasTools-*          Simulation/G4Atlas

@@ -4,12 +4,13 @@
 
 // LArBarrelPresamplerGeometry.hh
 
-#ifndef LARBARRELPRESAMPLERGEOMETRY_H
-#define LARBARRELPRESAMPLERGEOMETRY_H
+#ifndef LARG4BARREL_LARBARRELPRESAMPLERGEOMETRY_H
+#define LARG4BARREL_LARBARRELPRESAMPLERGEOMETRY_H
 
-//#include "LArG4Code/LArVCalculator.h"
+#include "LArG4Barrel/IPresamplerGeometryCalculator.h"
+#include "AthenaBaseComps/AthService.h"
+
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4Code/LArVG4DetectorParameters.h"
 
 #include "globals.hh"
 
@@ -20,77 +21,73 @@ class G4Step;
 
 namespace LArG4 {
 
-namespace BarrelPresampler {
+  namespace BarrelPresampler {
 
-class Geometry {
-  
- public: 
+    class Geometry: public AthService, virtual public IPresamplerGeometryCalculator {
 
-  // Accessor method for singleton pattern.
-  static Geometry* GetInstance();
-  virtual ~Geometry();
+    public:
 
-  G4int itb;
+      Geometry(const std::string& name, ISvcLocator * pSvcLocator);
+      StatusCode initialize() override final;
+      virtual ~Geometry();
 
- private:
+      /** Query interface method to make athena happy */
+      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
+
+      LArG4Identifier CalculateIdentifier( const G4Step* ) const override final;
+      bool findCell(LArG4::BarrelPresampler::LArGeomData& result,double,double,double) const override final;
+
+    private:
+      std::string m_detectorName;
 #include "LArG4Barrel/PresParameterDef.h"
-  static Geometry* m_instance;
 
-  // end z of the various modules
-  G4double m_end_module[8];
-  G4double m_zminPS;
-  G4double m_zpres;
-  G4double m_cat_th;
-  // z of first cathode in each module
-  G4double m_first_cathod[8];
-  // tilt of electrodes
-  G4double m_tilt[8];
-  // number of gaps per cell
-  G4int m_ngap_cell[8];
-  // pitch in z of gaps
-  G4double m_pitch[8];
-  // number of cells per modules
-  G4int    m_ncell_module[8];
-  // total LAr thickness
-  G4double m_halfThickLAr;
+      // end z of the various modules
+      G4double m_end_module[8];
+      G4double m_zminPS;
+      G4double m_zpres;
+      G4double m_cat_th;
+      // z of first cathode in each module
+      G4double m_first_cathod[8];
+      // tilt of electrodes
+      G4double m_tilt[8];
+      // number of gaps per cell
+      G4int m_ngap_cell[8];
+      // pitch in z of gaps
+      G4double m_pitch[8];
+      // number of cells per modules
+      G4int    m_ncell_module[8];
+      // total LAr thickness
+      G4double m_halfThickLAr;
 
-  // Pointer to detector parameters routine.
-  LArVG4DetectorParameters* m_parameters;
+      // // Pointer to detector parameters routine.
+      // LArVG4DetectorParameters* m_parameters;
 
-  G4int m_sampling;
-  G4int m_region;
-  G4int m_etaBin; 
-  G4int m_phiBin;
-  G4int m_gap;
-  G4int m_module;
-  G4double m_distElec;
-  G4double m_xElec;
-  G4double m_dist;
+      // mutable G4int m_sampling;
+      // mutable G4int m_region;
+      // mutable G4int m_etaBin;
+      // mutable G4int m_phiBin;
+      // mutable G4int m_gap;
+      // mutable G4int m_module;
+      // mutable G4double m_distElec;
+      // mutable G4double m_xElec;
+      // mutable G4double m_dist;
 
- protected:
-  
-  Geometry();
+      LArG4Identifier CalculatePSActiveIdentifier( const G4Step* , const G4int indPS , const G4int itb ) const;
+      LArG4Identifier CalculatePS_DMIdentifier( const G4Step* , const G4int indPS , const G4int itb) const;
+      // G4int etaBin() const      {return m_etaBin;};
+      // G4int phiBin() const      {return m_phiBin;};
+      // G4int sampling() const    {return m_sampling;};
+      // G4int region() const      {return m_region;};
+      // G4int module() const      {return m_module;};
+      // G4int gap() const         {return m_gap;};
+      // G4double distElec() const {return m_distElec;};
+      // G4double xElec() const    {return m_xElec;};
+      // G4double dtrans() const   {return m_dist;};
 
- public:
+    } ;
 
-  LArG4Identifier CalculateIdentifier( const G4Step*, std::string strDetector="" );
-  LArG4Identifier CalculatePSActiveIdentifier( const G4Step* , const G4int indPS , const G4int itb );
-  LArG4Identifier CalculatePS_DMIdentifier( const G4Step* , const G4int indPS , const G4int itb);
-  bool findCell(G4double,G4double,G4double);
-  G4int etaBin()    {return m_etaBin;};
-  G4int phiBin()    {return m_phiBin;};
-  G4int sampling()  {return m_sampling;};
-  G4int region()    {return m_region;};
-  G4int module()    {return m_module;};
-  G4int gap()       {return m_gap;};
-  G4double distElec() {return m_distElec;};
-  G4double xElec()    {return m_xElec;};
-  G4double dtrans()   {return m_dist;};
- 
-} ;
-
-} //end of Barrel namespace
+  } //end of Barrel namespace
 
 } // end of LArG4 namespace
 
-#endif // LARBARRELGEOMETRY_H
+#endif // LARG4BARREL_LARBARRELPRESAMPLERGEOMETRY_H

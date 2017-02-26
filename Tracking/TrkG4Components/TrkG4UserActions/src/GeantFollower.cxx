@@ -24,91 +24,91 @@
 #include "G4DynamicParticle.hh"
 #include "G4Track.hh"
 
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
 
-GeantFollower::GeantFollower(const std::string& type, const std::string& name, const IInterface* parent) :
-  UserActionBase(type,name,parent),
-  m_helper("Trk::GeantFollowerHelper"),
-  m_helperPointer(0)
-{
-  declareProperty("HelperTool",m_helper);
-}
+namespace G4UA{
 
 
-StatusCode GeantFollower::initialize()
-{
-  ATH_CHECK(m_helper.retrieve());
-  m_helperPointer = (&(*m_helper));
-  return StatusCode::SUCCESS;
-}
+  GeantFollower::GeantFollower(const Config& config)
+    : m_config(config)
+    , m_helperPointer(nullptr)
+  {}
 
+  void GeantFollower::beginOfEvent(const G4Event*)
+  {
+    m_helperPointer->beginEvent();
+  }
 
+  void GeantFollower::endOfEvent(const G4Event*)
+  {
+    m_helperPointer->endEvent();
+  }
 
-void GeantFollower::BeginOfEvent(const G4Event*)
-{
-  // now initialize the helper
-  m_helperPointer->beginEvent();
-  return;
-}
+  void GeantFollower::beginOfRun(const G4Run*)
+  {
+    if(m_config.helper.retrieve()!=StatusCode::SUCCESS)
+      {
+        G4ExceptionDescription description;
+        description << "Cannot retrieve GeantFollower helper";
+        G4Exception("GeantFollower", "GeantFollower1", FatalException, description);
+        return;
+      }
 
+    m_helperPointer = (&(*m_config.helper));
 
-void GeantFollower::EndOfEvent(const G4Event*)
-{
-  // release event
-  m_helperPointer->endEvent();
-  return;
-}
-
-
-void GeantFollower::Step(const G4Step* aStep)
-{
-
-  // kill secondaries
-  if (aStep->GetTrack()->GetParentID()) {
-    aStep->GetTrack()->SetTrackStatus(fStopAndKill);
     return;
   }
 
-  // get the prestep point and follow this guy
-  G4StepPoint * g4PreStep  = aStep->GetPreStepPoint();
-  G4ThreeVector g4Momentum = g4PreStep->GetMomentum();
-  G4ThreeVector g4Position = g4PreStep->GetPosition();
+  void GeantFollower::processStep(const G4Step* aStep)
+  {
+    // kill secondaries
+    if (aStep->GetTrack()->GetParentID())
+      {
+        aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+        return;
+      }
 
-  G4Track* g4Track = aStep->GetTrack();
-  const G4DynamicParticle* g4DynParticle = g4Track->GetDynamicParticle();
+    // get the prestep point and follow this guy
+    G4StepPoint * g4PreStep  = aStep->GetPreStepPoint();
+    G4ThreeVector g4Momentum = g4PreStep->GetMomentum();
+    G4ThreeVector g4Position = g4PreStep->GetPosition();
 
-  // the material information
-  const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
-  if(ATH_LIKELY(touchHist)) {
-    // G4LogicalVolume
-    const G4LogicalVolume *lv= touchHist->GetVolume()->GetLogicalVolume();
-    if(ATH_LIKELY(lv)) {
-      const G4Material *mat    = lv->GetMaterial();
-      // the step information
-      double steplength     = aStep->GetStepLength();
-      // the position information
-      double X0             = mat->GetRadlen();
-      // update the track follower
-      m_helperPointer->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
-    }
-    else {
-      throw std::runtime_error("GeantFollower::SteppingAction NULL G4LogicalVolume pointer.");
-    }
+    G4Track* g4Track = aStep->GetTrack();
+    const G4DynamicParticle* g4DynParticle = g4Track->GetDynamicParticle();
+
+    // the material information
+    const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
+    if(ATH_LIKELY(touchHist))
+      {
+        // G4LogicalVolume
+        const G4LogicalVolume *lv= touchHist->GetVolume()->GetLogicalVolume();
+        if(ATH_LIKELY(lv))
+          {
+            const G4Material *mat    = lv->GetMaterial();
+            // the step information
+            double steplength     = aStep->GetStepLength();
+            // the position information
+            double X0             = mat->GetRadlen();
+            // update the track follower
+            m_helperPointer->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
+          }
+        else
+          {
+            G4ExceptionDescription description;
+            description << "GeantFollower::SteppingAction NULL G4LogicalVolume pointer.";
+            G4Exception("GeantFollower", "GeantFollower2", FatalException, description);
+          }
+      }
+    else
+      {
+        G4ExceptionDescription description;
+        description << "GeantFollower::SteppingAction NULL G4TouchableHistory pointer.";
+        G4Exception("GeantFollower", "GeantFollower3", FatalException, description);
+      }
+    return;
+
+
   }
-  else {
-    throw std::runtime_error("GeantFollower::SteppingAction NULL G4TouchableHistory pointer.");
-  }
-  return;
-}
 
-
-StatusCode GeantFollower::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
-  }
-  return StatusCode::SUCCESS;
-}
+} // namespace G4UA

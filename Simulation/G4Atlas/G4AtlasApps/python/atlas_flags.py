@@ -400,13 +400,3 @@ class TRTRangeCut(JobProperty):
     allowedTypes = ['float']
     allowedValues = [0.05,30.0]
     StoredValue = 30.0
-
-class IsEventOverlayInputSim(JobProperty):
-    """
-    Is will the output of this job be used as the input for an event
-    overlay job?
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-

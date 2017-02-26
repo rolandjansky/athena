@@ -15,7 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "InDetRawData/TRT_RDO_Container.h"
 #include "TRT_RawDataByteStreamCnv/ITRTRawDataProviderTool.h"
 #include "TRT_Cabling/ITRT_CablingSvc.h"
 
@@ -56,8 +56,7 @@ private:
   ServiceHandle<ITRT_CablingSvc>     m_CablingSvc;
 
   const TRT_ID*                      m_trt_id; 
-  std::string                        m_RDO_Key;
-  bool                               m_first_event;
+  SG::WriteHandleKey<TRT_RDO_Container> m_rdoContainerKey;
 
 };
 

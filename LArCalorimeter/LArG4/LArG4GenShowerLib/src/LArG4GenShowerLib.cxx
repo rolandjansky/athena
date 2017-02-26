@@ -3,14 +3,14 @@
 */
 
 /**
- *   $Id: LArG4GenShowerLib.cxx 770430 2016-08-26 20:49:25Z ssnyder $:
+ *   $Id: LArG4GenShowerLib.cxx 797404 2017-02-15 19:01:55Z sfarrell $:
  *
  *   @short Implementation of shower library generation algorithm
  *
  *
  *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
  *  @author Sasha Glazov, DESY Hamburg, Germany
- * @version $Revision: 770430 $
+ * @version $Revision: 797404 $
  *
  */
 

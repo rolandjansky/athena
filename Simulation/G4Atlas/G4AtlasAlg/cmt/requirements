@@ -5,6 +5,7 @@ use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External
 
 private
+use AsgTools		AsgTools-*		Control/AthToolSupport
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use AthenaKernel        AthenaKernel-*          Control
 use AtlasCLHEP          AtlasCLHEP-*            External

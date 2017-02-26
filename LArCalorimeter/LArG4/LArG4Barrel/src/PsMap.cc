@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4Barrel/PsMap.h"
+#include "PsMap.h"
 #include <iostream>
 #include <sstream>
 #ifndef LARG4_STAND_ALONE
 #include "PathResolver/PathResolver.h"
 #endif
 
-PsMap* PsMap::s_thePointer=0;
+PsMap* PsMap::s_thePointer=nullptr;
 
 PsMap::PsMap()
 {
@@ -24,20 +24,20 @@ PsMap::PsMap()
   double xnorm=15.9;  // nA/MeV normalisation for PS maps
 
   for (int imap=0;imap<5;imap++) {
-// accordion folds
-     std::ostringstream fn;
-     fn << "presampler_"<<imap<<".map";
-     std::string filename = fn.str();
-     std::string fileLocation;
+    // accordion folds
+    std::ostringstream fn;
+    fn << "presampler_"<<imap<<".map";
+    std::string filename = fn.str();
+    std::string fileLocation;
 #ifdef LARG4_STAND_ALONE
-       fileLocation=m_directory+"/"+filename;
+    fileLocation=m_directory+"/"+filename;
 #else
-       //fileLocation=larLocation+"/calo_data/"+filename;
-       fileLocation=larLocation+"/"+filename;
+    //fileLocation=larLocation+"/calo_data/"+filename;
+    fileLocation=larLocation+"/"+filename;
 #endif
-     CurrMap* cm = new CurrMap(fileLocation,xnorm);
-     int code=imap;
-     m_theMap[code]=cm;
+    CurrMap* cm = new CurrMap(fileLocation,xnorm);
+    int code=imap;
+    m_theMap[code]=cm;
   }
   m_curr=0;
 
@@ -45,7 +45,7 @@ PsMap::PsMap()
 
 PsMap* PsMap::GetPsMap()
 {
-  if (s_thePointer==0) s_thePointer=new PsMap();
+  if (s_thePointer==nullptr) s_thePointer=new PsMap();
   return s_thePointer;
 }
 
@@ -60,24 +60,24 @@ void PsMap::Reset()
 
 void PsMap::SetMap(int module)
 {
- if (m_module==module) return; 
- m_module=module;
-// module 0 and 1 have their own maps (code = 0 and 1)
-// module 2 and 3 have the same map (same geometry) with code 2
-// module 4 and 5 have the same map (same geometry) with code 3
-// module 6 and 7 have the same map (same geometry) with code 4
- int code = -1;
- if (module==0 || module==1) code=module;
- if (module > 1 && module < 8) code=(module-2)/2 + 2;
- if (m_theMap.find(code) != m_theMap.end())
-     m_curr = m_theMap[code];
- else {
-     std::cout << " Code " << code << " not found in map ..." << std::endl;
-     m_curr=0;
- }
+  if (m_module==module) return;
+  m_module=module;
+  // module 0 and 1 have their own maps (code = 0 and 1)
+  // module 2 and 3 have the same map (same geometry) with code 2
+  // module 4 and 5 have the same map (same geometry) with code 3
+  // module 6 and 7 have the same map (same geometry) with code 4
+  int code = -1;
+  if (module==0 || module==1) code=module;
+  if (module > 1 && module < 8) code=(module-2)/2 + 2;
+  if (m_theMap.find(code) != m_theMap.end())
+    m_curr = m_theMap[code];
+  else {
+    std::cout << " Code " << code << " not found in map ..." << std::endl;
+    m_curr=0;
+  }
 }
 
 void PsMap::SetDirectory(std::string dir)
 {
- m_directory=dir;
+  m_directory=dir;
 }
