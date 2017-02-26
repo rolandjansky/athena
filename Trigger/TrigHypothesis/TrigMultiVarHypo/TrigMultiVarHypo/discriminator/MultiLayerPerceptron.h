@@ -28,14 +28,15 @@ class MultiLayerPerceptron {
   private:
 
     std::vector<unsigned int> m_nodes; 
-    REAL ***m_weights;
-    REAL  **m_bias;
-    REAL  **m_layerOutputs;
-    REAL    m_threshold;
-    REAL    m_etmin;
-    REAL    m_etmax;
-    REAL    m_etamin;
-    REAL    m_etamax;
+    REAL                   ***m_weights;
+    REAL                    **m_bias;
+    REAL                    **m_layerOutputs;
+    REAL                    **m_neuronOutputs; // Use this to hold the neuron sum values before to apply the tansig function
+    std::vector<REAL>         m_threshold;
+    REAL                      m_etmin;
+    REAL                      m_etmax;
+    REAL                      m_etamin;
+    REAL                      m_etamax;
 
 
 
@@ -43,14 +44,17 @@ class MultiLayerPerceptron {
 
     MultiLayerPerceptron(std::vector<unsigned int> &, 
                          std::vector<REAL> &, std::vector<REAL> &, 
-                         REAL th, REAL etmin,  REAL etmax, 
+                         REAL etmin,  REAL etmax, 
                          REAL etamin,  REAL etamax);
 
     ~MultiLayerPerceptron();
 
     float propagate(std::vector<float> &input);
 
-    REAL threshold(){  return m_threshold;};
+    float getOutput();
+    
+    float getOutputBeforeTheActivationFunction();
+
     REAL etamin(){ return m_etamin;};
     REAL etamax(){ return m_etamax;};
     REAL etmin(){  return m_etmin;};

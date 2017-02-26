@@ -27,7 +27,7 @@ using namespace std;
 
 //!===============================================================================================
 TrigL2CaloRingerFex::TrigL2CaloRingerFex(const std::string& name, ISvcLocator* pSvcLocator):
-  HLT::FexAlgo(name, pSvcLocator)
+  HLT::FexAlgo(name, pSvcLocator), m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {  
   declareProperty("HltFeature"        , m_hlt_feature = "TrigRingerNeuralFex" );  
   declareProperty("Feature"           , m_feature = "TrigT2CaloEgamma"        );  
@@ -39,8 +39,11 @@ TrigL2CaloRingerFex::TrigL2CaloRingerFex(const std::string& name, ISvcLocator* p
   declareProperty("Bias"              , m_bias                                );
   declareProperty("Thresholds"        , m_threshold                           );
   declareProperty("EtaBins"           , m_etaBins                             );
-  declareProperty("EtBins"            , m_etBins                              );
-
+  declareProperty("EtBins"            , m_etBins                              );  
+  declareProperty("LuminosityTool"    , m_lumiBlockMuTool, "Luminosity Tool"  );
+  declareProperty("LuminosityCut"     , m_lumiCut=60                          );
+  declareProperty("UseEtaVar"         , m_useEtaVar=false                     );  
+  declareProperty("UseLumiVar"        , m_useLumiVar=false                    );  
   declareMonitoredVariable("NeuralNetworkOutput", m_output                    );
   m_key       = "";
   m_nDiscr    = 0;
@@ -70,7 +73,6 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     msg() << MSG::ERROR << "Eta/Et list dont match with the number of discriminators found" << endreq;
     return StatusCode::FAILURE;
   }
-
   
   if(m_nRings.size() != m_normRings.size()){
     msg() << MSG::ERROR << "Preproc nRings list dont match with the number of discriminators found" << endreq;
@@ -82,7 +84,6 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     return StatusCode::FAILURE;
   }
   
-
   ///Initialize all discriminators
   for(unsigned i=0; i<m_nDiscr; ++i)
   {
@@ -103,7 +104,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
       std::vector<unsigned int> nodes(SIZEOF_NODES);
       for(unsigned k=0; k<SIZEOF_NODES;++k) nodes[k]= m_nodes[i*SIZEOF_NODES+k]; ///Parser
       
-      discr = new MultiLayerPerceptron(nodes, m_weights[i], m_bias[i], 0,
+      discr = new MultiLayerPerceptron(nodes, m_weights[i], m_bias[i],
                                        m_etBins[i][0], m_etBins[i][1], m_etaBins[i][0],
                                        m_etaBins[i][1]);
     }
@@ -154,6 +155,17 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     m_storeTimer    = addTimer("StoreOutput");
   }///Only if time is set on python config
 
+
+  m_useLumiTool=false;
+  if (m_lumiBlockMuTool.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Unable to retrieve Luminosity Tool");
+  } else {
+    m_useLumiTool=true; // Tell to the execute that the LumiTool is available...
+    ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
+  }
+ 
+  ATH_MSG_INFO("Using the Luminosity tool? " <<  (m_useLumiTool ? "Yes":"No") );
+  
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigL2CaloRingerHypo initialization completed successfully." << endreq;
 
@@ -173,7 +185,9 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltFinalize() {
 //!===============================================================================================
 HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, HLT::TriggerElement* outputTE){
 
-  m_output = 999;
+  // For now, this must be [avgmu, rnnOutputWithTansig, rnnOutputWithoutTansig] 
+  m_output=-99;
+  std::vector<float> output;
 
   ///Retrieve rings pattern information
   const xAOD::TrigRingerRings *ringerShape = get_rings(outputTE);
@@ -195,14 +209,28 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
      msg() << MSG::DEBUG << "Event with roiword: 0x" << std::hex << emCluster->RoIword() << std::dec <<endreq;
   }
 
+
   ///It's ready to select the correct eta/et bin
   MultiLayerPerceptron    *discr  = nullptr;
   TrigRingerPreprocessor  *preproc = nullptr;
+
   float eta = std::fabs(emCluster->eta());
+  float et  = emCluster->et()*1e-3; ///in GeV 
+  float avgmu, mu = 0.0;
+
+  if(m_useLumiTool){
+    if(m_lumiBlockMuTool){
+      mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+      avgmu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+      ATH_MSG_DEBUG("Retrieved Mu Value : " << mu);
+      ATH_MSG_DEBUG("Average Mu Value   : " << avgmu);   
+    }
+  }
+
+  // Fix eta range
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
 
-  float et  = emCluster->et()*1e-3; ///in GeV
-  
+
   if(m_discriminators.size() > 0){
     if(doTiming())  m_decisionTimer->start();
     for(unsigned i=0; i<m_discriminators.size(); ++i){
@@ -226,7 +254,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
     if(msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "Et = " << et << " GeV, |eta| = " << eta << endreq;
 
-    ///pre-processing shape
+    ///pre-processing ringer shape (default is Norm1...)
     if(doTiming())  m_normTimer->start();
     if(preproc)     preproc->ppExecute(refRings);
     if(doTiming())  m_normTimer->stop();
@@ -235,7 +263,31 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
       msg() << MSG::DEBUG << "after preproc refRings.size() is: " <<rings.size() << endreq;
  
     ///Apply the discriminator
-    if(discr)  m_output = discr->propagate(refRings);
+    if(discr){
+
+      float eta_norm=0.0;
+      float avgmu_norm=0.0;
+
+      // Add extra variables in this order! Do not change this!!!
+      if(m_useEtaVar){
+        if(preproc){
+          eta_norm = preproc->normalize_eta(emCluster->eta(), discr->etamin(), discr->etamax());
+          refRings.push_back(eta_norm);
+        }
+      }
+
+      if(m_useLumiVar){
+        if(preproc){
+          avgmu_norm = preproc->normalize_mu(avgmu, m_lumiCut);
+          refRings.push_back(avgmu_norm);
+        }
+      }
+
+      m_output=discr->propagate(refRings);
+      output.push_back(avgmu);
+      output.push_back(m_output);
+      output.push_back(discr->getOutputBeforeTheActivationFunction());
+    }
 
   }else{
     if(msgLvl() <= MSG::DEBUG)
@@ -252,7 +304,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   ///Store outout information for monitoring and studys
   xAOD::TrigRNNOutput *rnnOutput = new xAOD::TrigRNNOutput();
   rnnOutput->makePrivateStore(); 
-  rnnOutput->setRnnDecision(m_output);
+  rnnOutput->setRnnDecision(output);
 
   ///Get the ringer link to store into TrigRNNOuput  
   HLT::ErrorCode hltStatus;

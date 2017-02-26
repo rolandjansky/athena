@@ -172,7 +172,6 @@ void TrigRingerPreprocessor::normalize_rings(std::vector<RingSet*> &rset) {
 }
 //!======================================================================================
 bool TrigRingerPreprocessor::ppExecute( Pattern& rings) {
-
   // vector rings 2 RingSets
   unsigned ridx = 0;
   for (auto& jt : m_ringsSet){
@@ -192,6 +191,25 @@ bool TrigRingerPreprocessor::ppExecute( Pattern& rings) {
   for (auto& jt : m_ringsSet) rings.insert(rings.end(), jt->pattern().begin(), jt->pattern().end());
   return true;
 }
+//!======================================================================================
+float TrigRingerPreprocessor::normalize_eta( float eta, float etamin, float etamax ){
+  int s = eta >= 0 ? 1 : -1;
+  return ((std::abs(eta)-etamin) * s)/(etamax);
+}
+//!======================================================================================
+float TrigRingerPreprocessor::normalize_mu(float mu, float mumax ){
+  if(mu>mumax)
+    mu=mumax;
+  return (mu/mumax);
+}
+
+
+
+
+
+
+
+
 
 
 
