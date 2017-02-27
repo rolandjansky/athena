@@ -897,8 +897,8 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	  testSf= dynamic_cast<const Trk::StraightLineSurface*>(&((*isegBarrel)->associatedSurface()));
 	}
 	
-	const Trk::AtaStraightLine* inputMatchingPar =0;
-	const Trk::Perigee* inputMatchingPer =0;
+	const Trk::AtaStraightLine* inputMatchingPar = nullptr;
+	const Trk::Perigee* inputMatchingPer = nullptr;
 	
 	if(!testSf){
 	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"No straightLineSurface !! Trying Perigee ..."<<endmsg;
@@ -906,14 +906,14 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	  const Trk::PerigeeSurface *testPSf=dynamic_cast<const Trk::PerigeeSurface*>(&((*isegBarrel)->associatedSurface()));
 	  
 	  if(!testPSf){
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Also PerigeeSurface failed? What is it? "<<(*isegBarrel)->associatedSurface()<<endmsg;
+	    if (msgLvl(MSG::VERBOSE)) {
+	      msg(MSG::VERBOSE)<<"associated surface dynamic_cast into PerigeeSurface failed. "<<(*isegBarrel)->associatedSurface()<<endmsg;
+	      msg(MSG::VERBOSE)<<"Leaving input matching perigee as nullptr, will not get a fittedTrack"<<endmsg;
+	    }
 	  }else{
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Ok, it seems to be a PerigeeSurface"<<endmsg;            
+	    inputMatchingPer = new Trk::Perigee(inputMatchingPos,inputMatchingMom, 1., *testPSf);
 	  }
-	  
-	  
-	  inputMatchingPer = new Trk::Perigee(inputMatchingPos,inputMatchingMom,
-					      1., *testPSf);
 	  
 	}else{
 	  inputMatchingPar = new Trk::AtaStraightLine(inputMatchingPos,inputMatchingMom,
