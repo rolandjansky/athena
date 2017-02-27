@@ -1,22 +1,18 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/CaloCellContainer_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3e/Calorimeter/CaloEvent/run/../share/CaloCellContainer_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/CaloCellContainer_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/CaloCellContainer_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
-                                          running on lxplus047.cern.ch on Tue Apr 12 17:48:22 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Mon Feb  6 17:26:57 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
 ApplicationMgr       INFO Application Manager Configured successfully
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-36
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
-ClassIDSvc           INFO  getRegistryEntries: read 2675 CLIDRegistry entries for module ALL
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-36
+ClassIDSvc           INFO  getRegistryEntries: read 3036 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -100,7 +96,7 @@ test2
 test3
 test4
 test5
-CaloCellContainer   ERROR ../src/CaloCellContainer.cxx:602 (void CaloCellContainer::orderWhenComplete()): Duplicated cell: hash= 0
-CaloCellContainer   ERROR ../src/CaloCellContainer.cxx:535 (void CaloCellContainer::orderWhenIncomplete()): Duplicated cell: hash= 9122
-CaloCellContainer   ERROR ../src/CaloCellContainer.cxx:560 (void CaloCellContainer::orderWhenIncomplete()): Duplicated cell: hash= 43509
+CaloCellContainer   ERROR ../src/CaloCellContainer.cxx:606 (void CaloCellContainer::orderWhenComplete()): Duplicated cell: hash= 0
+CaloCellContainer   ERROR ../src/CaloCellContainer.cxx:539 (void CaloCellContainer::orderWhenIncomplete()): Duplicated cell: hash= 9122
+CaloCellContainer   ERROR ../src/CaloCellContainer.cxx:564 (void CaloCellContainer::orderWhenIncomplete()): Duplicated cell: hash= 43509
 test6
