@@ -308,11 +308,13 @@ namespace MuonCombined {
 	//check for CSC unspoiled clusters: if none, and this is an endcap track that includes the CSC, reduce nGoodPrec by one
         //as we arbitrarily declare this to be a barrel track if there are equal numbers of good barrel and endcap chambers, we need not worry about that situation
         if(isEnd && (chamberQual.count(Muon::MuonStationIndex::CSS)>0 || chamberQual.count(Muon::MuonStationIndex::CSL)>0)){
-          if(mu->auxdata<int>("nUnspoiledCscHits")==0){
+	  uint8_t unspoiledHits=0;
+	  mu->summaryValue(unspoiledHits,xAOD::cscUnspoiledEtaHits);
+          if(unspoiledHits==0){
             ATH_MSG_DEBUG("found no unspoiled csc hits, reduce # of good precision layers");
             nGoodPrec--;
           }
-          else ATH_MSG_DEBUG("found "<<mu->auxdata<int>("nUnspoiledCscHits")<<" unspoiled csc hits, don't change nGoodPrecisionLayers");
+          else ATH_MSG_DEBUG("found "<<(int)unspoiledHits<<" unspoiled csc hits, don't change nGoodPrecisionLayers");
         }
 	if(countHits){ //decide large-small by counting hits
 	  uint8_t sumval=0;
@@ -553,8 +555,6 @@ namespace MuonCombined {
     // check if there is a cluster container, if yes collect the cells around the muon and fill
     // Etcore variables for muon
     collectCells(*muon,outputData.clusterContainer);
-
-    ATH_MSG_DEBUG("Done creating muon with "<<muon->auxdata<int>("nUnspoiledCscHits")<<" unspoiled csc hits");
 
     return muon;
   }
@@ -1059,8 +1059,6 @@ namespace MuonCombined {
 	    float fieldInt=m_trackQuery->fieldIntegral(*updatedExtrapolatedTrack).betweenSpectrometerMeasurements();
 	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
 	    //TrackSummary* tsum=updatedExtrapolatedTrack->trackSummary();
-	    int nunspoiled=updatedExtrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
-	    muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
 	  }
 	}
 	else{ //no refitted track, so add original un-refitted extrapolated track as ME track
@@ -1074,8 +1072,6 @@ namespace MuonCombined {
 	    muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
 	    float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
 	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
-            int nunspoiled=extrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
-	    muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
 	  }
 	}
       }
@@ -1091,8 +1087,6 @@ namespace MuonCombined {
 	  muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
 	  float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
 	  muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
-	  int nunspoiled=extrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
-	  muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
 	}
 	else{
 	  ATH_MSG_WARNING("failed to create ME track particle for SA muon");
@@ -1453,10 +1447,6 @@ namespace MuonCombined {
     if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
 
     addMSIDScatteringAngles(muon);
-
-    if(!muon.isAvailable<int>("nUnspoiledCscHits")){
-      muon.auxdata<int>("nUnspoiledCscHits")=-999;
-    }
 
     return true;
   }

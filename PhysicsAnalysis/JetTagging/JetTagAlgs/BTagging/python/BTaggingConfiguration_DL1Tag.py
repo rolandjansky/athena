@@ -4,16 +4,20 @@
 # Author: Marie Lanfermann (September 2015)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaDL1Tag = { 'IsATagger'          : False,#True,
-                  'xAODBaseName'       : 'DL1',
+
+
+def buildDL1(basename):
+
+  metaInstance = { 'IsATagger'          : False,
+                  'xAODBaseName'       : basename,
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['DL1',],
+                  'CalibrationFolders' : [basename],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-                  'ToolCollection'     : 'DL1Tag'}
+                  'ToolCollection'     : basename+'Tag'}
 
-def toolDL1Tag(name, useBTagFlagsDefaults = True, **options):
+  def DL1Instance(name, useBTagFlagsDefaults = True, **options):
     """Sets up a DL1Tag tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -34,6 +38,7 @@ def toolDL1Tag(name, useBTagFlagsDefaults = True, **options):
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'forceDL1CalibrationAlias'         : BTaggingFlags.ForceDL1CalibrationAlias,
                      'DL1CalibAlias'                    : BTaggingFlags.DL1CalibAlias,
+                     'calibration_directory'            : basename,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -41,3 +46,9 @@ def toolDL1Tag(name, useBTagFlagsDefaults = True, **options):
     options['LocalNNConfigurationFile'] = BTaggingFlags.DL1LocalNNConfig
     from JetTagTools.JetTagToolsConf import Analysis__DL1Tag
     return Analysis__DL1Tag(**options)
+
+  return DL1Instance, metaInstance
+
+toolDL1muTag, metaDL1muTag = buildDL1("DL1mu")
+toolDL1Tag, metaDL1Tag = buildDL1("DL1")
+toolDL1rnnTag, metaDL1rnnTag = buildDL1("DL1rnn")

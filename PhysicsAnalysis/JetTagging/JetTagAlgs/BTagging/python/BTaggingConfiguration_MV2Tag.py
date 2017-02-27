@@ -37,5 +37,5 @@ def toolMV2Tag(name, useBTagFlagsDefaults = True, **options):
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    from JetTagTools.JetTagToolsConf import Analysis__MV1Tag
-    return Analysis__MV1Tag(**options)
+    from JetTagTools.JetTagToolsConf import Analysis__MV2Tag
+    return Analysis__MV2Tag(**options)

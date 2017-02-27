@@ -26,20 +26,24 @@ MvaTESEvaluator::MvaTESEvaluator(const std::string& name)
   , second_lambda(0)
   , presampler_frac(0)
   , em_probability(0)    
-  , interpolPt(0)
-  , LC_D_interpolPt(0)
-  , pantau_D_interpolPt(0)
-  , etaPanTauCellBased(0)    
+  , ptCombined(0)
+  , ptLC_D_ptCombined(0)
+  , ptConstituent_D_ptCombined(0)
+  , etaConstituent(0)    
+  , PanTauBDT_1p0n_vs_1p1n(0)
+  , PanTauBDT_1p1n_vs_1pXn(0)
+  , PanTauBDT_3p0n_vs_3pXn(0)
   , nTracks(0)
-  , nPi0s(0)
   , PFOEngRelDiff(0)    
-  , nMuSeg(0)    
   , truthPtVis(0)
-  , ptTauEtaCalib(0)
+  , pt(0)
   , ptPanTauCellBased(0)
+  , ptDetectorAxis(0)
+  , truthDecayMode(0)
+  , PanTau_DecayMode(0)
 {
-  declareProperty( "WeightFileName", m_sWeightFileName = "MvaTES_20161015_pi0fix_BDTG.weights.root" );
-  //Old one: "LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.root"
+  declareProperty( "WeightFileName", m_sWeightFileName = "MvaTES_20170207_v2_BDTG.weights.root" );
+  //R20.7 pi0-fix version: "MvaTES_20161015_pi0fix_BDTG.weights.root"
 }
 
 //_____________________________________________________________________________
@@ -60,19 +64,24 @@ StatusCode MvaTESEvaluator::initialize(){
   m_availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanPresamplerFrac", &presampler_frac) );
   m_availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanEMProbability", &em_probability) );
   
-  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.LC_pantau_interpolPt", &interpolPt) );
-  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.LC_TES_precalib/TauJetsAuxDyn.LC_pantau_interpolPt", &LC_D_interpolPt) );
-  m_availableVars.insert( std::make_pair("TauJetsAux.ptPanTauCellBased/TauJetsAuxDyn.LC_pantau_interpolPt", &pantau_D_interpolPt) );
-  m_availableVars.insert( std::make_pair("TauJetsAux.etaPanTauCellBased", &etaPanTauCellBased) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.pt_combined", &ptCombined) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.ptDetectorAxis/TauJetsAuxDyn.pt_combined", &ptLC_D_ptCombined) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.pt_combined", &ptConstituent_D_ptCombined) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.etaPanTauCellBased", &etaConstituent) );
   
-  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.nPi0s", &nPi0s) );
-  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.PFOEngRelDiff", &PFOEngRelDiff) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n", &PanTauBDT_1p0n_vs_1p1n) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn", &PanTauBDT_1p1n_vs_1pXn) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_3p0n_vs_3pXn", &PanTauBDT_3p0n_vs_3pXn) );
   m_availableVars.insert( std::make_pair("TauJetsAuxDyn.nTracks", &nTracks) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.PFOEngRelDiff", &PFOEngRelDiff) );
 
   // Spectator variables declared in the training have to be added to the reader, too
   m_availableVars.insert( std::make_pair("TauJetsAuxDyn.truthPtVis", &truthPtVis) );
-  m_availableVars.insert( std::make_pair("TauJetsAux.ptTauEtaCalib", &ptTauEtaCalib) );
-  m_availableVars.insert( std::make_pair("TauJetsAux.ptPanTauCellBased", &ptPanTauCellBased) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.pt", &pt) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.ptPanTauCellBased", &ptPanTauCellBased) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.ptDetectorAxis", &ptDetectorAxis) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.truthDecayMode", &truthDecayMode) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_DecayMode", &PanTau_DecayMode) );
   
   std::string weightFile = find_file(m_sWeightFileName);
 
@@ -87,15 +96,34 @@ StatusCode MvaTESEvaluator::initialize(){
 }
 
 //_____________________________________________________________________________
+StatusCode MvaTESEvaluator::eventInitialize()
+{
+  // HACK HACK HACK: Get nVtxPU, AuxElement::ConstAccessor doesn't work
+  nVtxPU = 0;
+  if(evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices")){
+    ATH_CHECK(evtStore()->retrieve(m_xVertexContainer, "PrimaryVertices"));  
+    for (auto xVertex : *m_xVertexContainer)
+    if (xVertex->vertexType() == xAOD::VxType::PileUp)
+      nVtxPU++;
+  }
+  else {
+    ATH_MSG_WARNING("No xAOD::VertexContainer, setting nVtxPU to 0");
+    nVtxPU=0;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//_____________________________________________________________________________
 StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
 
   // Retrieve input variables
   
   // Retrieve event info
   static SG::AuxElement::ConstAccessor<double> acc_mu("mu");
-  static SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
+  //static SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
   mu = acc_mu(xTau);
-  nVtxPU = acc_nVtxPU(xTau);
+  //nVtxPU = acc_nVtxPU(xTau);
 
   // Retrieve seed jet info
   xTau.detail(xAOD::TauJetParameters::ClustersMeanCenterLambda, center_lambda);
@@ -103,26 +131,29 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
   xTau.detail(xAOD::TauJetParameters::ClustersMeanEMProbability,em_probability);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanSecondLambda, second_lambda);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, presampler_frac);
-  int nMuSeg_i=0;
-  xTau.detail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg_i);
-  nMuSeg=nMuSeg_i;
 
   // Retrieve pantau and LC-precalib TES
-  etaPanTauCellBased = xTau.etaPanTauCellBased();
-  float pT_LC     = xTau.ptDetectorAxis();
-  float pT_pantau = xTau.ptPanTauCellBased();
-  xTau.detail(xAOD::TauJetParameters::LC_pantau_interpolPt, interpolPt);
-  LC_D_interpolPt     = pT_LC / interpolPt;
-  pantau_D_interpolPt = pT_pantau / interpolPt;
+  etaConstituent = xTau.etaPanTauCellBased();
+  float ptLC = xTau.ptDetectorAxis();
+  float ptConstituent = xTau.ptPanTauCellBased();
+  static SG::AuxElement::ConstAccessor<float> acc_pt_combined("pt_combined");
+  ptCombined = acc_pt_combined(xTau);
+  ptLC_D_ptCombined = ptLC / ptCombined;
+  ptConstituent_D_ptCombined = ptConstituent / ptCombined;
   
   // Retrieve substructures info
+  static SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p0n_vs_1p1n("PanTau_BDTValue_1p0n_vs_1p1n");
+  static SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p1n_vs_1pXn("PanTau_BDTValue_1p1n_vs_1pXn");
+  static SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_3p0n_vs_3pXn("PanTau_BDTValue_3p0n_vs_3pXn");
+  PanTauBDT_1p0n_vs_1p1n = acc_PanTauBDT_1p0n_vs_1p1n(xTau);
+  PanTauBDT_1p1n_vs_1pXn = acc_PanTauBDT_1p1n_vs_1pXn(xTau);
+  PanTauBDT_3p0n_vs_3pXn = acc_PanTauBDT_3p0n_vs_3pXn(xTau);
   nTracks = (float)xTau.nTracks();
-  nPi0s = (float) xTau.nPi0PFOs();
   xTau.detail(xAOD::TauJetParameters::PFOEngRelDiff, PFOEngRelDiff);
 
-  float ptMVA = float( interpolPt * reader->GetResponse() );
+  float ptMVA = float( ptCombined * reader->GetResponse() );
   if(ptMVA<1) ptMVA=1;
-  xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, xTau.etaPanTauCellBased(), xTau.phiPanTauCellBased(), 0);
+  xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, etaConstituent, xTau.phiPanTauCellBased(), 0);
 
   return StatusCode::SUCCESS;
 

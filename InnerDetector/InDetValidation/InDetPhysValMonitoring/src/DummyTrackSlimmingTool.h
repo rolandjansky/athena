@@ -12,7 +12,7 @@
 class DummyTrackSlimmingTool: virtual public Trk::ITrackSlimmingTool, public AthAlgTool
 {
 public:
-  DummyTrackSlimmingTool(const std::string &, const std::string &, const IInterface *);
+  DummyTrackSlimmingTool(const std::string&, const std::string&, const IInterface*);
   /** default destructor */
   virtual ~DummyTrackSlimmingTool () {
   }
@@ -35,7 +35,7 @@ public:
      @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is
         configured
    */
-  Trk::Track *slim(const Trk::Track &track);
+  Trk::Track* slim(const Trk::Track& track);
 private:
 };
 

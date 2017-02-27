@@ -41,18 +41,18 @@ HLT::ErrorCode TrigMuonJetFex::hltInitialize()
  
   if (m_instance == "L2"){
     if (msgLvl() <= MSG::INFO) {
-      msg() << MSG::INFO << " ***** TrigL2MuonJetFex initialization on L2 ***** " << endreq;
+      msg() << MSG::INFO << " ***** TrigL2MuonJetFex initialization on L2 ***** " << endmsg;
     }
   }  
 
   if (m_instance == "EF"){
     if (msgLvl() <= MSG::INFO) {
-      msg() << MSG::INFO << " ***** TrigMuonJetFex initialization on EF ***** " << endreq;
+      msg() << MSG::INFO << " ***** TrigMuonJetFex initialization on EF ***** " << endmsg;
     }
   }
  
   if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " Initialization completed successfully" << endreq;
+    msg() << MSG::DEBUG << " Initialization completed successfully" << endmsg;
  
   return HLT::OK;
 }
@@ -66,11 +66,11 @@ HLT::ErrorCode TrigMuonJetFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigger
   if (m_instance == "L2"){
     
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << " ***** Executing TrigMuonJetFex on L2 ***** " << endreq; 
+      msg() << MSG::DEBUG << " ***** Executing TrigMuonJetFex on L2 ***** " << endmsg; 
  
 
     if (inputTE.size() != 2) {
-      msg() << MSG::ERROR << "Number of input TEs is " <<  inputTE.size() << " and not 2. Configuration problem." << endreq;
+      msg() << MSG::ERROR << "Number of input TEs is " <<  inputTE.size() << " and not 2. Configuration problem." << endmsg;
      
       return HLT::BAD_JOB_SETUP;
     }
@@ -80,7 +80,7 @@ HLT::ErrorCode TrigMuonJetFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigger
   if (m_instance == "EF"){
     
     if ( msgLvl() <= MSG::DEBUG ){
-      msg() << MSG::DEBUG << " ***** Executing TrigMuonJetFex on EF ***** " << endreq;
+      msg() << MSG::DEBUG << " ***** Executing TrigMuonJetFex on EF ***** " << endmsg;
     }
     
   }
@@ -95,7 +95,7 @@ HLT::ErrorCode TrigMuonJetFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigger
 
 HLT::ErrorCode TrigMuonJetFex::hltFinalize()
 {
-  msg() << MSG::INFO << " ***** Finalizing TrigMuonJetFex ***** " << endreq;
+  msg() << MSG::INFO << " ***** Finalizing TrigMuonJetFex ***** " << endmsg;
 
   return HLT::OK;
 }

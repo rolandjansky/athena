@@ -352,7 +352,6 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
       StreamTagCollectionHelperMap::iterator strIt;
 
       //      std::vector<int> es_chain_counters; // chain_counters of chains which sent the event to the express stream
-      int chid;
 
       if ( m_uniqueStreams.size() == 0 ) { // it means no debug stream
          // list of all StreamTags
@@ -398,7 +397,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
                      //    ATH_MSG_VERBOSE("Set expressOPI to 1 for: " << chain->getChainName());
                      // }
 		     if (streamInfo && chain_stream.getType() == "express") {
-		       chid = chain->getChainCounter();
+		       //chid = chain->getChainCounter();
 		       streamInfo->setDetail(chain->getChainName(), chain_stream.prescaleFactor());
 		       //		       es_chain_counters.push_back(chid);
 		       ATH_MSG_VERBOSE("Set express stream prescale to 1 for: " << chain->getChainName());
@@ -505,7 +504,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
              it != triggerTypeBits.end(); ++it ) {
          msg() << MSG::DEBUG << " 0x" << MSG::hex  << *it;
       }
-      msg() << MSG::DEBUG << MSG::dec << endreq;
+      msg() << MSG::DEBUG << MSG::dec << endmsg;
    }
 
 

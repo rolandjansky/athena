@@ -38,11 +38,6 @@ def release_metadata():
    """
    import ConfigParser
    import os
-   release_data = None
-   for d in os.environ['LD_LIBRARY_PATH'].split(os.pathsep):
-      release_data = os.path.join(d, '..', 'ReleaseData')
-      if os.path.exists(release_data):
-         break
    d = {
       'project name': '?',
       'release': '?',
@@ -52,14 +47,22 @@ def release_metadata():
       'date': '?',
       'platform': os.getenv('CMTCONFIG', '?'),
       }
-   if release_data:
-      cfg = ConfigParser.SafeConfigParser()
-      try:
-         cfg.read( release_data )
-         if cfg.has_section( 'release_metadata' ):
-            d.update( dict( cfg.items( 'release_metadata' ) ) )
-      except Exception:
-         pass
+
+   for ld_path in os.environ['LD_LIBRARY_PATH'].split(os.pathsep):
+      release_data = os.path.join(ld_path, '..', 'ReleaseData')
+      if os.path.exists(release_data):
+         d1=d
+         cfg = ConfigParser.SafeConfigParser()
+         try:
+            cfg.read( release_data )
+            if cfg.has_section( 'release_metadata' ):
+               d1.update( dict( cfg.items( 'release_metadata' ) ) )
+               release = d1['release'].split('.')
+               base_release = d1['base release'].split('.')
+               if len(release)>=3 or len(base_release)>=3:
+                  return d1
+         except Exception:
+            pass
    return d
 
 ### associator for public tools ----------------------------------------------

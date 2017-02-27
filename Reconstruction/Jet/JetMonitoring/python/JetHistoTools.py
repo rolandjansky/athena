@@ -104,12 +104,20 @@ compactSpecification = {
     "LArQuality"       : (("LAr quality;Energy;", 50, -0.4, 1.2),  ("LArQuality", "float") ),
     
     "GhostTruthCount"  : (("Number of associate truth part;Number;", 60,0,60) , ("GhostTruthCount", "int")), 
+    "GhostTruthAssociationFraction"  : (("Fraction of associated truth particles from a matched truth jet jet;GhostTruthAssociationFraction;", 50,0,1.) , ("GhostTruthAssociationFraction", "float")), 
     "GhostTrackCount"  : (("Number of associate tracks;Number;", 60,0,60), ("GhostTrackCount", "int") ), 
-    "JVF"              : (("Jet Vertex Fraction;JVF;", 60,0,1.), ("JVF", "vector<float>") ), 
-    "JVF[0]"           : (("Jet Vertex Fraction;JVF;", 60,0,1.), ("JVF[0]", "vector<float>") ), 
-    "SumPtTrkPt1000"   : (("Sum Pt of all tracks above 1GeV:SumPt;", 100,0,200), ("SumPtTrkPt1000", "vector<float>", "gev") ),
-    
-    "SumPtTrkPt1000[0]": (("Sum Pt of tracks from PV0 above 1GeV:SumPt;", 100,0,200), ("SumPtTrkPt1000[0]", "vector<float>", "gev") ),
+    "GhostMuonSegmentCount"  : (("Number of associated muon segments;Number;", 60,0,60), ("GhostMuonSegmentCount", "int") ), 
+    "JVF"              : (("Jet Vertex Fraction;JVF;", 60,0,1.2), ("JVF", "vector<float>") ), 
+    "JVF[0]"           : (("Jet Vertex Fraction;JVF;", 60,0,1.2), ("JVF[0]", "vector<float>") ), 
+    'JVFCorr'          : (("Jet JVT JVFCorr;;", 120, -1.2, 1.2) , ("JVFCorr","float" ) ),
+    'Jvt'              : (("Jet JVT;;", 70, -0.2, 1.2) , ("Jvt","float" ) ),
+    'JvtRpt'           : (("Jet JVT Rpt;;", 75, 0, 1.5) , ("JvtRpt","float" ) ),
+
+    "SumPtTrkPt500"    : (("Sum Pt of all tracks above 0.5 GeV:SumPt(p_{T}>0.5 GeV);", 100,0,200), ("SumPtTrkPt500", "vector<float>", "gev") ),
+    "SumPtTrkPt500[0]" : (("Sum Pt of tracks from PV0 above 0.5 GeV:SumPt(p_{T}>0.5 GeV);", 100,0,200), ("SumPtTrkPt500[0]", "vector<float>", "gev") ),
+    "NumTrkPt500[0]"   : (("Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);", 100,0,100), ("NumTrkPt500[0]", "vector<int>") ),
+    "NumTrkPt1000[0]"    : (("Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);", 100,0,100), ("NumTrkPt1000[0]", "vector<int>") ),
+    "TrackWidthPt1000[0]": (("Width from tracks from PV0 above 1 GeV:Track Width(p_{T}>1 GeV);", 75,0.,1.5), ("TrackWidthPt1000[0]", "vector<float>") ),
 
     "ActiveArea"       : (("Active Area;Area;", 80, 0, 0.8), ("ActiveArea", "float") ),
     "ActiveArea15"     : (("Active Area;Area;", 80, 0, 1.5), ("ActiveArea", "float") ),
@@ -136,7 +144,8 @@ compactSpecification = {
     # binning optimisation from Emma Tolley 
     #"LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,1000.), ("LeadingClusterSecondR", "float") ), 
     "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,100000.), ("LeadingClusterSecondR", "float") ), 
-    "CHF": (("SumPtTrkPt1000/pT; SumPtTrkPt1000/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ), 
+    #"CHF": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ), 
+    #"CHF[0]": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf[0]", "vector<float>", "gev") ), 
     #CBG 
     # 
 

@@ -8,7 +8,8 @@ namespace Trk {
   TruthTrkExtrapolationPlots::TruthTrkExtrapolationPlots(PlotBase *pParent, std::string sDir) : PlotBase(pParent, sDir),
     m_CaloEntry(this, "", "CaloEntry"),
     m_MuonEntry(this, "", "MuonEntry"),
-    m_MuonExit(this, "", "MuonExit") {// ,
+    m_MuonExit(this, "", "MuonExit")
+ {// ,
     // m_Calo(this,"Scattering/CaloOnly","CaloEntryLayer", "MuonEntryLayer"),
     // m_MS(this,"/Scattering/MSOnly","MuonEntryLayer", "MuonExitLayer"),
     // m_IP(this,"/Scattering/IPOnly","IP","CaloEntryLayer"),
@@ -33,7 +34,7 @@ namespace Trk {
 
   ExtrLayerPlots::ExtrLayerPlots(PlotBase *pParent, std::string sDir, std::string sLayerName) : PlotBase(pParent, sDir),
     m_sLayerName(sLayerName),
-    p{},px{},py{},pz{},p_extr{},px_extr{},pz_extr{},dp_truth{},dpx_truth{},dpy_truth{},dpz_truth{},
+    p{},px{},py{},pz{},p_extr{},px_extr{},py_extr{},pz_extr{},dp_truth{},dpx_truth{},dpy_truth{},dpz_truth{},
     pt{},eta{},phi{},theta{}{
     //nop
   }
@@ -114,9 +115,10 @@ namespace Trk {
                                    std::string sRegionEnd) : PlotBase(pParent, sDir),
     m_sRegionBegin(sRegionBegin),
     m_sRegionEnd(sRegionEnd),
-    dp{},dpt{},dpx{},dpy{},dpz{},dp_extr{},dpx_extr{},dpz_extr{},
+    dp{},dpt{},dpx{},dpy{},dpz{},dp_extr{},dpx_extr{},dpy_extr{},dpz_extr{},
     dp_vs_p{},dp_vs_phi{},dp_vs_eta{},dp_vs_eta_phi{},p_vs_p{},p_extr_vs_p_extr{},dp_extr_vs_eta{},
-    dR{},dR_vs_p{},dR_vs_dp{},dR_vs_eta{},dR_vs_phi{},dR_vs_eta_phi{},dphi{},dtheta{},dAngle{} {
+    dR{},dR_vs_p{},dR_vs_dp{},dR_vs_eta{},dR_vs_phi{},dR_vs_eta_phi{},dphi{},dtheta{},dAngle{},
+    dp_CaloEntry_IP_dp_CaloEntry_etxr{} {
     //nop
   }
 

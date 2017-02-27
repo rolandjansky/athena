@@ -7,13 +7,23 @@
 
 namespace Tau{
 
-	GeneralTauPlots::GeneralTauPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):PlotBase(pParent, sDir),
-	m_oParamPlots(this, "", sTauJetContainerName),
-	m_sTauJetContainerName(sTauJetContainerName){	
-	}
-	GeneralTauPlots::~GeneralTauPlots()
-	{
-	}
+GeneralTauPlots::GeneralTauPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+   PlotBase(pParent, sDir),
+   m_oParamPlots(this, "", sTauJetContainerName),
+   m_tauCharge(nullptr),
+   m_tauNCoreTracks(nullptr),
+   m_tauNWideTracks(nullptr),
+   m_id_BDTJetScore(nullptr),
+   m_pt_jetBDTloose(nullptr),
+   m_pt_jetBDTmed(nullptr),
+   m_pt_jetBDTtight(nullptr),
+   m_sTauJetContainerName(sTauJetContainerName)
+{	
+}
+
+GeneralTauPlots::~GeneralTauPlots()
+{
+}
 
 void GeneralTauPlots::initializePlots(){
 

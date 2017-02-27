@@ -9,7 +9,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h" 
-#include "TrigInDetToolInterfaces/ITrigTRT_DriftCircleProvider.h"
 
 #include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
@@ -55,7 +54,6 @@ TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcL
     m_detStore("DetectorStore", name),
     m_storeGate("StoreGateSvc", name),
     m_trtHelper(0),
-    m_rawDataTool("TrigTRT_DriftCircleProviderTool"),
     m_phiHalfWidth(0.1),
     m_etaHalfWidth(0.1),
     m_doFullScan(false),
@@ -69,7 +67,6 @@ TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcL
 {
   
   declareProperty("TRT_DC_ContainerName", m_trtDCContainerName = "TRT_TrigDriftCircles" );
-  declareProperty("TrtDataProviderTool",  m_rawDataTool, "TrigTRT_DriftCircleProviderTool");
   declareProperty("EtaHalfWidth",         m_etaHalfWidth); //Used to define subsection of RoI (to retrieve fewer TRT hits)
   declareProperty("PhiHalfWidth",         m_phiHalfWidth); //Used to define subsection of RoI (to retrieve fewer TRT hits)
   declareProperty("doFullScan",           m_doFullScan); //Whether to use all RoI (not implmented)
@@ -111,14 +108,6 @@ HLT::ErrorCode TrigTRTHTHCounter::hltInitialize() {
     return StatusCode::FAILURE;
   } else
     ATH_MSG_INFO ( "Retrieved service " << m_trtHelper);
-  
-
-  // Get TrigTRT_DriftCircleProviderTool
-  if( m_rawDataTool.retrieve().isFailure() ){
-    ATH_MSG_FATAL ( "Failed to retrieve " << m_rawDataTool);
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO ( "Retrieved service " << m_rawDataTool);
 
   ATH_MSG_INFO ( " TrigTRTHTHCounter initialized successfully");
 

@@ -75,6 +75,7 @@ namespace met{
     bool m_decorateSoftTermConst;
     std::string m_lcmodclus_key;
     std::string m_emmodclus_key;
+    bool m_weight_soft_pfo;
 
   }; 
 

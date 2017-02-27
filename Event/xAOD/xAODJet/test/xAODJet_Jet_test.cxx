@@ -19,13 +19,8 @@
 #ifndef XAOD_STANDALONE
 // allows to test EL 
 #include "AthLinks/ElementLink.h"
-// Done like this so that this will compile in both releases 20 and 21.
-# ifdef SGTOOLS_CURRENTEVENTSTORE_H
-#  include "SGTools/TestStore.h" 
-  using namespace SGTest;
-# else
-#  include "TestStore.icc"
-# endif
+#include "SGTools/TestStore.h" 
+using namespace SGTest;
 #endif
 
 
@@ -43,7 +38,7 @@ bool is_equal (double x1, double x2)
 
 #define TEST_MSG( msg ) std::cout << msg << std::endl
 
-#define TESTMACRO( failcond , errmsg )  { if(! ( failcond)  ) {TEST_MSG( "TEST FAILED : " << errmsg ) ; return 1 ;} else {TEST_MSG( "TEST SUCCEEDED : "<< errmsg );} } while(0)
+#define TESTMACRO( failcond , errmsg )  do { if(! ( failcond)  ) {TEST_MSG( "TEST FAILED : " << errmsg ) ; return 1 ;} else {TEST_MSG( "TEST SUCCEEDED : "<< errmsg );} } while(0)
 
 std::vector<xAOD::JetFourMom_t> jet4moms ={
   xAOD::JetFourMom_t(40000, 0, 1, 10000 ),

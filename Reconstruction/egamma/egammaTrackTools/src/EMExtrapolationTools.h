@@ -128,9 +128,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   /** @Perform the Rescaling of the perigee parameters with the cluster energy **/
   const Trk::TrackParameters*  getRescaledPerigee(const xAOD::TrackParticle* trkPB, const xAOD::CaloCluster* cluster) const;
 
-  /** @Get Last measurement  **/
-  Trk::CurvilinearParameters getLastMeasurement(const xAOD::TrackParticle* trkPB) const;    
-
   /** @brief Return +/- 1 (2) if track is in positive/negative TRT barrel (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
 
@@ -141,7 +138,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
                             float *phiAtCalo,
 			    CaloExtensionHelpers::LayersToSelect& layersToSelect
 			    ) const;
-
   
   ToolHandle<Trk::IParticleCaloExtensionTool>     m_defaultParticleCaloExtensionTool;
   ToolHandle<Trk::IParticleCaloExtensionTool>     m_perigeeParticleCaloExtensionTool;
@@ -162,17 +158,10 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
 
   // ID TRT helper
   const TRT_ID*                         m_trtId;
-
   
   //Use the a cache for track Particle extrapolation
   bool  m_useCaching;
-
-  // Use Trk::Track instead of TrackParticle to determine TRT section
-  // due to missing association with detector element
-  bool m_useTrkTrackForTRT;
   
-  // Guess TRT section from eta, instead of using track parameters
-  bool m_guessTRTsection;
 };
 
 

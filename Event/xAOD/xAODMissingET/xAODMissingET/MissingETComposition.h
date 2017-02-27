@@ -77,48 +77,6 @@ namespace xAOD
      */
     static bool insert(MissingETComponentMap* pMap,const MissingET* pMET,const IParticle* pPart,const MissingETBase::Types::object_vector_t& signalList,double wpx,double wpy,double wet,
 		       MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster);
-    /*! @brief Update all ElementLinks in all contributions 
-     *
-     *  This function triggers an update of all ElementLinks stored in the map entries. This may be necessary in case a @link MissingETComponent MissingETComponent @endlink
-     *  object has been filled with POD MET, particle, and/or signal objects, thus rendering the corresponding ElementLink incomplete. If the linked to objects are 
-     *  stored in a collection later, this function makes sure that all ElementLinks are updated with the collection pointer. 
-     *
-     *  @warning Usually MET terms are reconstructed from signal or physics objects stored in a collection. In this case this function does not need to  be
-     *           used at all, as all ElemenntLinks to contributing objects are complete. On the other hand, the @link MissingET MissingET @endlink in the 
-     *           contribution is usually still a POD when the composition map entry for the corresponding MET term is generated, and the ElementLink to 
-     *           it requires an update later, when the @link MissingET MissingET @endlink object is stored in a @link MissingETContainer MissingEETContainer @endlink.
-     *           In this case MissingETComposition::updateMETLinks(MissingETComponentMap*) should be used after the MET object is inserted in its container, as
-     *           it is much faster (only scans the small number of @link MissingETComponent MissingETComponent @endlink objects in the map).  
-     * 
-     *  @return @c true if all links in all MET contributions in the composition map are updated correctly. In case of an unsuccessful update attempt, or 
-     *          an invalid pointer to the @link MissingETComponentMap MissingETComponentMap @endlink object (NULL pointer), @c false is
-     *          returned. 
-     *
-     *  @param[in] pMap pointer referencing a modifiable MET composition map.
-     *
-     *  @note This method involves a scan of all @link MissingETComponent MissingETComponent @endlink objects stored in the map, and a scan
-     *        of the contributing object list in these MET contributions. This can be costly in terms off CPU usage.
-     *
-     */
-    static bool updateLinks(MissingETComponentMap* pMap);
-    /*! @brief Update all ElementLinks to MET objects only in all contributions 
-     *
-     *  This function triggers an update of all ElementLinks stored in the map entries. This may be necessary in case a @link MissingETComponent MissingETComponent @endlink
-     *  object has been filled with POD @link MissingET MissingET @endlink, thus rendering the corresponding ElementLink incomplete. If the linked to MET objects are 
-     *  stored in a collection later, this function makes sure that the ElementLinks are updated with the collection pointer. 
-     *
-     *  @return @c true if all links to @link MissingET MissingET @endlink objects in all MET contributions in the composition map are updated correctly. 
-     *          In case of an unsuccessful update attempt, or 
-     *          an invalid pointer to the @link MissingETComponentMap MissingETComponentMap @endlink object (NULL pointer), @c false is
-     *          returned. 
-     *
-     *  @param[in] pMap pointer referencing a modifiable MET composition map.
-     *
-     *  @note This method involves a scan of all @link MissingETComponent MissingETComponent @endlink objects stored in the map.
-     *
-     */
-    static bool updateMETLinks(MissingETComponentMap* pMap);
-    /*!@}*/
 
     /*! @name Find a contributing particle */
     /*!@{*/

@@ -153,9 +153,8 @@ namespace jet {
   class JetCalcNegativeEnergy: virtual public JetCaloCalculator {
   protected:
     double m_totE;
-    double m_totSig ; // cluster level calculation
 
-    JETCALCFUNCDECL( JetCalcNegativeEnergy, JetAttribute::NegativeE, m_totE=0; m_totSig=0; );
+    JETCALCFUNCDECL( JetCalcNegativeEnergy, JetAttribute::NegativeE, m_totE=0; );
   };
 
   /* @brief total negative energy in a jet*/

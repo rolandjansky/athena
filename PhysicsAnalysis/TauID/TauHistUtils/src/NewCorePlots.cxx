@@ -6,13 +6,46 @@
 
 namespace Tau{
 
-	NewCorePlots::NewCorePlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):PlotBase(pParent, sDir),
-	m_sTauJetContainerName(sTauJetContainerName){	
-	}
+NewCorePlots::NewCorePlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+   PlotBase(pParent, sDir),
+   m_ipZ0SinThetaSigLeadTrk(nullptr),
+   m_etOverPtLeadTrk(nullptr),
+   m_ipSigLeadTrk(nullptr),
+   m_massTrkSys(nullptr),
+   m_trkWidth2(nullptr),
+   m_trFlightPathSig(nullptr),
+   m_etEflow(nullptr),
+   m_nPi0(nullptr),
+   m_tauDRMax(nullptr),
+   m_tauSflight(nullptr),
+   m_EMRadius(nullptr),
+   m_hadRadius(nullptr),
+   m_isolFrac(nullptr),
+   m_centFrac(nullptr),
+   m_stripWidth2(nullptr),
+   m_nStrip(nullptr),
+   m_trkAvgDist(nullptr),
+   m_lead2ClusterEOverAllClusterE(nullptr),
+   m_lead3ClusterEOverAllClusterE(nullptr),
+   m_caloIso(nullptr),
+   m_caloIsoCorrected(nullptr),
+   m_mEflowTopo(nullptr),
+   m_ptRatioEflowTopo(nullptr),
+   m_nPi0Topo(nullptr),
+   m_PSSFraction(nullptr),
+   m_ChPiEMEOverCaloEME(nullptr),
+   m_EMPOverTrkSysP(nullptr),
+   m_innerTrkAvgDist(nullptr),
+   m_ptRatioEflowApprox(nullptr),
+   m_mEflowApprox(nullptr),
+   m_sTauJetContainerName(sTauJetContainerName)
+{	
+}
 	
-	NewCorePlots::~NewCorePlots()
-	 {
-	 }
+NewCorePlots::~NewCorePlots()
+{
+}
+
 void NewCorePlots::initializePlots(){
 
   //  m_oParamPlots.initialize();

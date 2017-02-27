@@ -40,31 +40,31 @@ StatusCode Trk::TrackSelectionProcessorTool::initialize()
   StatusCode sc = AthAlgTool::initialize();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "AlgTool::initialise failed" << endreq;
+      msg(MSG::FATAL) << "AlgTool::initialise failed" << endmsg;
       return StatusCode::FAILURE;
     }
   
   sc = m_scoringTool.retrieve();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_scoringTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_scoringTool << endmsg;
       return StatusCode::FAILURE;
     } 
   else 
-    msg(MSG::INFO) << "Retrieved tool " << m_scoringTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_scoringTool << endmsg;
   
   sc = m_selectionTool.retrieve();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_selectionTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_selectionTool << endmsg;
       return StatusCode::FAILURE;
     } 
   else 
-    msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endmsg;
 
 
   if(m_disableSorting) 
-    msg(MSG::INFO) << "Internal sorting disabled, using external ordering!" << endreq;    
+    msg(MSG::INFO) << "Internal sorting disabled, using external ordering!" << endmsg;    
       
   return sc;
 }
@@ -200,7 +200,7 @@ void Trk::TrackSelectionProcessorTool::solveTracks()
       ATH_MSG_DEBUG ("Accepted track "<<itnext->second.first<<"\t has score "<<-(itnext->first));
       // add track to PRD_AssociationTool
       StatusCode sc = m_selectionTool->registerPRDs(itnext->second.first);
-      if (sc.isFailure()) msg(MSG::ERROR) << "addPRDs() failed" << endreq;
+      if (sc.isFailure()) msg(MSG::ERROR) << "addPRDs() failed" << endmsg;
       // add to output list 
       m_finalTracks->push_back( const_cast<Track*>(itnext->second.first) );
 

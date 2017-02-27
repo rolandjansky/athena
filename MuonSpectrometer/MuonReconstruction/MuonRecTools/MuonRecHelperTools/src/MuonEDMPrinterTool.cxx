@@ -110,6 +110,7 @@ namespace Muon {
     for( ;chit!=chit_end;++chit ){
       const Identifier& chId = chit->chamberId();
       bool isMdt = m_idHelper->isMdt(chId);
+      bool isCsc = m_idHelper->isCsc(chId);
     
       sout << "  " << std::setw(35) << m_idHelper->toStringChamber(chId);
     
@@ -157,6 +158,8 @@ namespace Muon {
 	  sout << secondString << std::setw(3) << second.ncloseHits; 
 	}
       }
+
+      if(isCsc) sout<<" Unspoiled eta hits: "<<first.ngoodHits;
     
       if( chit != chit_last ) sout << std::endl;
     }

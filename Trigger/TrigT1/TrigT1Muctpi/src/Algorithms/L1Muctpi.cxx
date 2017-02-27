@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.cxx 726107 2016-02-25 11:04:42Z wengler $
+// $Id: L1Muctpi.cxx 794528 2017-01-30 12:36:33Z fwinkl $
 
 // STL include(s):
 #include <iostream>
@@ -152,7 +152,7 @@ namespace LVL1MUCTPI {
       }
 
       ATH_MSG_INFO( "XML LUT file defined in jobO: " << m_lutXMLFile << " with a RunPeriod=" << m_runPeriod );
-      const std::string fullFileName = PathResolverFindXMLFile( m_lutXMLFile );
+      const std::string fullFileName = PathResolverFindCalibFile( m_lutXMLFile );
       ATH_MSG_DEBUG( "Full path to XML LUT file: " << fullFileName );
       CHECK( m_theMuctpi->initializeLUTOverlapStrategy( fullFileName, m_flagMode,
 							m_dumpLut, m_runPeriod ) );
@@ -171,7 +171,7 @@ namespace LVL1MUCTPI {
     //
       
     ATH_MSG_INFO( "Geometry XML file defined in jobO: " << m_geometryXMLFile );
-    const std::string fullGeometryFileName = PathResolverFindXMLFile( m_geometryXMLFile );
+    const std::string fullGeometryFileName = PathResolverFindCalibFile( m_geometryXMLFile );
     ATH_MSG_INFO( "Full path to Geometry XML file: " << fullGeometryFileName );
 
     m_theMuctpi->setupL1TopoConverter(fullGeometryFileName);
@@ -197,8 +197,8 @@ namespace LVL1MUCTPI {
       ATH_MSG_INFO( "XML multiplicity file defined in jobO: "
 		    << m_multiplicityXMLFile );
       const std::string packagePrefix = "TrigT1Muctpi/";
-      const std::string fullFileName = PathResolverFindXMLFile( packagePrefix +
-								m_multiplicityXMLFile );
+      const std::string fullFileName = PathResolverFindCalibFile( packagePrefix +
+                                                                  m_multiplicityXMLFile );
       ATH_MSG_DEBUG( " Full path to XML file: " << fullFileName );
       m_theMuctpi->initializeXMLMultStrategy( fullFileName );
 

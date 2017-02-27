@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MioctModule.cxx 787150 2016-11-29 17:31:35Z smh $
+// $Id: MioctModule.cxx 795106 2017-02-02 11:21:27Z wengler $
 
 // STL include(s):
 #include <sstream>
@@ -16,12 +16,12 @@
 
 //***********************************************************************
 //
-//       Version : $Revision: 787150 $
+//       Version : $Revision: 795106 $
 //
 //   Description :
 //
 //        Author : $Author: krasznaa $
-//          Date : $Date: 2016-11-29 18:31:35 +0100 (Tue, 29 Nov 2016) $
+//          Date : $Date: 2017-02-02 12:21:27 +0100 (Thu, 02 Feb 2017) $
 //
 //
 //
@@ -155,8 +155,14 @@ namespace LVL1MUCTPI {
 
 
      // limit to 2 candidates per MIOCT as in the hardware
-     if (candList.size() > 2) candList.erase(candList.begin(), candList.end()-2);
-     
+     if (candList.size() > 2) {
+       candList.erase(candList.begin(), candList.end()-2);
+       // set second candidate pt to 3 (i.e. 11) to indicate overflow - note sorting is in ascending order, 
+       // so last element in vector is highest pt, i.e. first element in vector of two after cutoff is 
+       // second candidate
+       candList.at(0).setptL1TopoCodeToOvFl();
+     } 
+    
 
      result.setCandidates(candList);
      return result;

@@ -104,18 +104,22 @@ namespace xAOD {
       std::vector< uint8_t >          phiLayer1RPCHits;
       std::vector< uint8_t >          phiLayer2RPCHits;
       std::vector< uint8_t >          phiLayer3RPCHits;
+      std::vector< uint8_t >          phiLayer4RPCHits;
       
       std::vector< uint8_t >          etaLayer1RPCHits;
       std::vector< uint8_t >          etaLayer2RPCHits;
       std::vector< uint8_t >          etaLayer3RPCHits;
+      std::vector< uint8_t >          etaLayer4RPCHits;
       
       std::vector< uint8_t >          phiLayer1RPCHoles;
       std::vector< uint8_t >          phiLayer2RPCHoles;
       std::vector< uint8_t >          phiLayer3RPCHoles;
+      std::vector< uint8_t >          phiLayer4RPCHoles;
       
       std::vector< uint8_t >          etaLayer1RPCHoles;
       std::vector< uint8_t >          etaLayer2RPCHoles;
       std::vector< uint8_t >          etaLayer3RPCHoles;
+      std::vector< uint8_t >          etaLayer4RPCHoles;
       
       std::vector< uint8_t >          phiLayer1TGCHits;
       std::vector< uint8_t >          phiLayer2TGCHits;
@@ -136,6 +140,9 @@ namespace xAOD {
       std::vector< uint8_t >          etaLayer2TGCHoles;
       std::vector< uint8_t >          etaLayer3TGCHoles;
       std::vector< uint8_t >          etaLayer4TGCHoles;
+
+      std::vector< uint8_t >          cscEtaHits;
+      std::vector< uint8_t >          cscUnspoiledEtaHits;
 
       /// @}   
       

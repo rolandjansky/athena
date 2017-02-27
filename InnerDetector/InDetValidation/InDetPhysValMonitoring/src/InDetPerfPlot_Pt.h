@@ -22,14 +22,14 @@
 ///class holding Pt plots for Inner Detector RTT Validation and implementing fill methods
 class InDetPerfPlot_Pt: public InDetPlotBase {
 public:
-  InDetPerfPlot_Pt(InDetPlotBase *pParent, const std::string &dirName);
-  void fill(const xAOD::IParticle &particle);
-  void fill(const xAOD::TruthParticle &particle);
+  InDetPerfPlot_Pt(InDetPlotBase* pParent, const std::string& dirName);
+  void fill(const xAOD::IParticle& particle);
+  void fill(const xAOD::TruthParticle& particle);
 private:
   ///Pt Histogram with full pt range
-  TH1 *m_recPt;
+  TH1* m_recPt;
   ///Pt histogram with restricted range
-  TH1 *m_recPtLow;
+  TH1* m_recPtLow;
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
 };

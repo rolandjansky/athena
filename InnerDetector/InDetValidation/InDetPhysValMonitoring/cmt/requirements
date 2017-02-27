@@ -27,7 +27,8 @@ use xAODBase            xAODBase-*             Event/xAOD
 
 
 private
-use AtlasXercesC        AtlasXercesC-*        	External  
+use AtlasXercesC        AtlasXercesC-*        	External
+use AtlasBoost          AtlasBoost-*                    External
 use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
 use TrkToolInterfaces           TrkToolInterfaces-*     Tracking/TrkTools
 use AtlasROOT           AtlasROOT-*             External
@@ -50,7 +51,6 @@ use AthenaKernel     AthenaKernel-*       Control
 use TrkTrack         TrkTrack-*           Tracking/TrkEvent
 # for the DummyTrackSlimmingTool
 use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools/
-
 
 branches src src/components doc
 

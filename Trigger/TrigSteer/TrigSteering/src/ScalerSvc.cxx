@@ -95,7 +95,7 @@ bool HLT::ScalerSvc::registerType( IScalerFactory* factory, const std::string& t
     // This is a static method. No access to msg() member.
     MsgStream log(Athena::getMessageSvc(), "HLT::ScalerSvc");
     log << MSG::INFO << "A factory was already registered for type"
-        << type << ", replacing with this one." << endreq;
+        << type << ", replacing with this one." << endmsg;
 
     delete findFact->second;
     retVal = false;

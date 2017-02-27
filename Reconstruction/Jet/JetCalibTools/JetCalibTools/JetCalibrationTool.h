@@ -46,9 +46,6 @@ class JetCalibrationTool
 
 public: 
 
-  // Default constructor: 
-  JetCalibrationTool();
-
   /// Constructor with parameters: 
   JetCalibrationTool(const std::string& name);
 

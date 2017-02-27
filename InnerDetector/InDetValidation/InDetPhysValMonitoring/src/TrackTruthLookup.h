@@ -23,26 +23,25 @@
 #include "xAODTruth/TruthParticleContainer.h"
 
 namespace IDPVM {
-
 /**
- * Class for providing fast lookup of linked tracks and truth particles. 
+ * Class for providing fast lookup of linked tracks and truth particles.
  *
  * Intended to be used to avoid nested loops when matching tracks and truth
  * particles, e.g. when computing efficiencies.
- * 
+ *
  * The links are stored in two unordered maps (single caching call per event,
  * with O(N) complexity), emulating a bidirectional[1] map with O(1) look-up
  * complexity. Tracks in the provided container are guaranteed to exist in the
  * corresponding map, but may map to a nullptr if no link to a truth particle
- * exists. Conversely, every truth particle is guaranteed to exist in the 
- * corresponding map, but may map to an empty vector if no link to a track 
+ * exists. Conversely, every truth particle is guaranteed to exist in the
+ * corresponding map, but may map to an empty vector if no link to a track
  * exists.
  *
  * Use, e.g. in the InDetPhysValLargeD0Tool, like:
- * 
+ *
  *     [InDetPhysValMonitoring/InDetPhysValLargeD0Tool.h]
  *         #include "src/TrackTruthLookup.h"
- *         ...   
+ *         ...
  *         private:
  *             std::unique_ptr<IDPVM::TrackTruthLookup> m_lookup;
  *         ...
@@ -65,95 +64,96 @@ namespace IDPVM {
  *                 }
  *             }
  *             ...
- *         }         
+ *         }
  *
- * [1] It is not *exactly* bidirectional, since the mapping track <-> truth is 
+ * [1] It is not *exactly* bidirectional, since the mapping track <-> truth is
  *     not exactly bijective: tracks are injective (one-to-one) on the set of
- *     truth particles but one truth particle may (although rarely) be 
+ *     truth particles but one truth particle may (although rarely) be
  *     associated to more than one track.
  */
-class TrackTruthLookup {
+  class TrackTruthLookup {
+  public:
+    /// Constructor(s).
+    TrackTruthLookup() {
+    }
 
- public:
-  /// Constructor(s).
-  TrackTruthLookup() {}
-  
-  TrackTruthLookup(const xAOD::TrackParticleContainer* trackParticles,
-		   const xAOD::TruthParticleContainer* truthParticles) {
-    cache(trackParticles, truthParticles);
-  }
-  
-  TrackTruthLookup(const xAOD::TrackParticleContainer* trackParticles,
-		   const std::vector<const xAOD::TruthParticle*> * truthParticlesVec) {
-    cache(trackParticles, truthParticlesVec);
-  }
+    TrackTruthLookup(const xAOD::TrackParticleContainer* trackParticles,
+                     const xAOD::TruthParticleContainer* truthParticles) {
+      cache(trackParticles, truthParticles);
+    }
 
-  /// Destructor.
-  ~TrackTruthLookup() {}
+    TrackTruthLookup(const xAOD::TrackParticleContainer* trackParticles,
+                     const std::vector<const xAOD::TruthParticle*>* truthParticlesVec) {
+      cache(trackParticles, truthParticlesVec);
+    }
 
-  /** @name CacheMethods 
-   *  Methods for initial cache generation of links between associated 
-   *  tracks and truth particles in the provided containers.
-   */
-  //@{ 
-  /** Cache using a vector of TruthParticles, for compatibility with datatype returned
-	 *  from the xAOD::TruthEvent::truthParticleLinks()
-	 */
-  void cache(const xAOD::TrackParticleContainer* trackParticles,
-	     const std::vector<const xAOD::TruthParticle*> * truthParticlesVec);
-	     
-	/// Generate cache from usual evtStore() retrieved container pointers.
-	void cache(const xAOD::TrackParticleContainer* trackParticles,
-	     const xAOD::TruthParticleContainer* truthParticles);
-  //@}
-  
-  /** Accessor to get the vector of xAOD::TrackParticles associated with 'truth',
-   *  possibly empty if none is associated.
-   *  Throws out_of_range exception if truth particle does not exist in cache.
-   */
-  std::vector<const xAOD::TrackParticle*> getTracks(const xAOD::TruthParticle* truth) const;
+    /// Destructor.
+    ~TrackTruthLookup() {
+    }
 
-  /** Accessor to get the unique xAOD::TruthParticle associated with 'track', or
-   *  a nullptr is none is associated.
-   * Throws out_of_range exception if track does not exist in cache.
-   */
-  const xAOD::TruthParticle* getTruth(const xAOD::TrackParticle* track) const;
+    /** @name CacheMethods
+     *  Methods for initial cache generation of links between associated
+     *  tracks and truth particles in the provided containers.
+     */
+    // @{
+    /** Cache using a vector of TruthParticles, for compatibility with datatype returned
+     *  from the xAOD::TruthEvent::truthParticleLinks()
+     */
+    void cache(const xAOD::TrackParticleContainer* trackParticles,
+               const std::vector<const xAOD::TruthParticle*>* truthParticlesVec);
 
-  /// Returns true if the Lookup contains the pointer 'truth'.
-  inline bool contains (const xAOD::TruthParticle* truth) const { 
-    return m_mapTruth.find(truth) != m_mapTruth.end(); 
-  }
+    /// Generate cache from usual evtStore() retrieved container pointers.
+    void cache(const xAOD::TrackParticleContainer* trackParticles,
+               const xAOD::TruthParticleContainer* truthParticles);
+    // @}
 
-  /// Returns true if the Lookup contains the pointer 'track'.
-  inline bool contains (const xAOD::TrackParticle* track) const{ 
-    return m_mapTrack.find(track) != m_mapTrack.end(); 
-  }
+    /** Accessor to get the vector of xAOD::TrackParticles associated with 'truth',
+     *  possibly empty if none is associated.
+     *  Throws out_of_range exception if truth particle does not exist in cache.
+     */
+    std::vector<const xAOD::TrackParticle*> getTracks(const xAOD::TruthParticle* truth) const;
 
-  /// Clears the contents of the unordered map data members.
-  inline void clear() {
-    m_mapTrack.clear();
-    m_mapTruth.clear();
-    return;
-  }
+    /** Accessor to get the unique xAOD::TruthParticle associated with 'track', or
+     *  a nullptr is none is associated.
+     * Throws out_of_range exception if track does not exist in cache.
+     */
+    const xAOD::TruthParticle* getTruth(const xAOD::TrackParticle* track) const;
 
+    /// Returns true if the Lookup contains the pointer 'truth'.
+    inline bool
+    contains(const xAOD::TruthParticle* truth) const {
+      return m_mapTruth.find(truth) != m_mapTruth.end();
+    }
 
- private:
-  void cacheTracks(const xAOD::TrackParticleContainer* trackParticles);
-  void cacheTruth(const xAOD::TruthParticleContainer* truthParticles);
-  void cacheTruth(const std::vector<const xAOD::TruthParticle*> * truthParticlesVec);
-  /// Data member(s).
-  // Mapping of xAOD::TrackParticle to their unique associated
-  // xAOD::TruthParticle. nullptr if none exist.
-  std::unordered_map<const xAOD::TrackParticle*, 
-                     const xAOD::TruthParticle*> m_mapTrack;
+    /// Returns true if the Lookup contains the pointer 'track'.
+    inline bool
+    contains(const xAOD::TrackParticle* track) const {
+      return m_mapTrack.find(track) != m_mapTrack.end();
+    }
 
-  // Mapping of xAOD::TruthParticle to vector of their (possibly multiple
-  // associated xAOD::TrackParticles. Empty if none exist.
-  std::unordered_map<const xAOD::TruthParticle*, 
-                     std::vector<const xAOD::TrackParticle*> > m_mapTruth;
+    /// Clears the contents of the unordered map data members.
+    inline void
+    clear() {
+      m_mapTrack.clear();
+      m_mapTruth.clear();
+      return;
+    }
 
-}; 
+  private:
+    void cacheTracks(const xAOD::TrackParticleContainer* trackParticles);
+    void cacheTruth(const xAOD::TruthParticleContainer* truthParticles);
+    void cacheTruth(const std::vector<const xAOD::TruthParticle*>* truthParticlesVec);
+    /// Data member(s).
+    // Mapping of xAOD::TrackParticle to their unique associated
+    // xAOD::TruthParticle. nullptr if none exist.
+    std::unordered_map<const xAOD::TrackParticle*,
+                       const xAOD::TruthParticle*> m_mapTrack;
 
+    // Mapping of xAOD::TruthParticle to vector of their (possibly multiple
+    // associated xAOD::TrackParticles. Empty if none exist.
+    std::unordered_map<const xAOD::TruthParticle*,
+                       std::vector<const xAOD::TrackParticle*> > m_mapTruth;
+  };
 } // namespace
 
 #endif // > !INDETPHYSVALMONITORING_TRACKTRUTHLOOKUP_H

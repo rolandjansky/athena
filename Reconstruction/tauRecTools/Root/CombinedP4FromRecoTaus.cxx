@@ -29,10 +29,14 @@ CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) :
   m_combined_res(-1111.),
   m_sigma_tauRec(-1111.),
   m_sigma_constituent(-1111.),
-  m_corrcoeff(-1111.)
+  m_corrcoeff(-1111.),
+  m_et_cb2PT_postcalib(0.),
+  m_et_postcalib(0.),
+  m_et_weighted(0.)
 {
   declareProperty( "WeightFileName", m_sWeightFileName = "");
   declareProperty( "addCalibrationResultVariables", m_addCalibrationResultVariables=false);
+  declareProperty( "addUseCaloPtFlag", m_addUseCaloPtFlag=false);
   declareProperty( "tauRecEt_takenAs_combinedEt", m_tauRecEt_takenAs_combinedEt=false);
 }
 
@@ -51,8 +55,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 
   m_correlationHists = std::vector<TH1F*>(0);
 
-  
-  std::string calibFilePath = find_file(m_sWeightFileName);
+    std::string calibFilePath = find_file(m_sWeightFileName);
   TFile * file = TFile::Open(calibFilePath.c_str(), "READ");
 
   //m_Nsigma_compatibility=5;
@@ -64,7 +67,6 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
   std::string histname="";
   TGraph* Graph(0);
   std::string Graphname="";
-
 
   //loop over decay modes
   for(int imode=0;imode < abs(m_modeNames.size());imode++){
@@ -176,6 +178,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 //_____________________________________________________________________________
 StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   xAOD::TauJet* Tau = &xTau;
+
   static SG::AuxElement::Decorator<float> decPtCombined("pt_combined");
   static SG::AuxElement::Decorator<float> decEtaCombined("eta_combined");
   static SG::AuxElement::Decorator<float> decPhiCombined("phi_combined");
@@ -196,45 +199,27 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
 
 
   // move these to another file? :
-  m_weight = -1111.;
+
+  /*  m_weight = -1111.;
   m_combined_res = -1111.;
   m_sigma_tauRec = -1111.;
   m_sigma_constituent = -1111.;
   m_corrcoeff = -1111.;
+  */
 
-  TLorentzVector substructureP4;
+  if (m_addUseCaloPtFlag){
+    static SG::AuxElement::Decorator<char> decUseCaloPtFlag("UseCaloPtFlag");
+    decUseCaloPtFlag(xTau)  = GetUseCaloPtFlag(Tau);
+  }
 
   if (m_addCalibrationResultVariables){
 
-    substructureP4 = getCalibratedConstituentP4(Tau);
     static SG::AuxElement::Decorator<float> decPtConstituent("pt_constituent");
-    static SG::AuxElement::Decorator<float> decEtaConstituent("eta_constituent");
-    static SG::AuxElement::Decorator<float> decPhiConstituent("phi_constituent");
-    static SG::AuxElement::Decorator<float> decMConstituent("m_constituent");
-    decPtConstituent(xTau)  = substructureP4.Pt(); 
-    decEtaConstituent(xTau) = substructureP4.Eta();
-    decPhiConstituent(xTau) = substructureP4.Phi();
-    decMConstituent(xTau)   = substructureP4.M();  
-
-    substructureP4 = getCalibratedTauRecP4(Tau);
     static SG::AuxElement::Decorator<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
-    static SG::AuxElement::Decorator<float> decEtaTauRecCalibrated("eta_tauRecCalibrated");
-    static SG::AuxElement::Decorator<float> decPhiTauRecCalibrated("phi_tauRecCalibrated");
-    static SG::AuxElement::Decorator<float> decMTauRecCalibrated("m_tauRecCalibrated");
-    decPtTauRecCalibrated(xTau)  = substructureP4.Pt(); 
-    decEtaTauRecCalibrated(xTau) = substructureP4.Eta();
-    decPhiTauRecCalibrated(xTau) = substructureP4.Phi();
-    decMTauRecCalibrated(xTau)   = substructureP4.M();  
-
-    substructureP4 = getWeightedP4(Tau);
     static SG::AuxElement::Decorator<float> decPtWeighted("pt_weighted");
-    static SG::AuxElement::Decorator<float> decEtaWeighted("eta_weighted");
-    static SG::AuxElement::Decorator<float> decPhiWeighted("phi_weighted");
-    static SG::AuxElement::Decorator<float> decMWeighted("m_weighted");
-    decPtWeighted(xTau)  = substructureP4.Pt(); 
-    decEtaWeighted(xTau) = substructureP4.Eta();
-    decPhiWeighted(xTau) = substructureP4.Phi();
-    decMWeighted(xTau)   = substructureP4.M();  
+    decPtConstituent(xTau) = m_et_cb2PT_postcalib;
+    decPtTauRecCalibrated(xTau) = m_et_postcalib;
+    decPtWeighted(xTau) = m_et_weighted;
 
     static SG::AuxElement::Decorator<float> decWeightWeighted("weight_weighted");
     static SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
@@ -254,7 +239,6 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
 
 
 int CombinedP4FromRecoTaus::GetIndex_Eta(float eta){
-  //std::cout << "Entering GetIndex_Eta(" << eta << ")" << std::endl;
   if( fabs(eta) < 0.3 ) {
     return 0;
   }
@@ -267,12 +251,11 @@ int CombinedP4FromRecoTaus::GetIndex_Eta(float eta){
   if( fabs(eta) < 1.6 ) {
     return 3;
   }
-  if( fabs(eta) < 2.5 ) {
+  if( fabs(eta) < 2.7 ) {
     return 4;
   }
   
   return 99;
-
 }
 
 
@@ -286,60 +269,7 @@ double CombinedP4FromRecoTaus::GetCorrelationCoefficient(int etaIndex, xAOD::Tau
 
   return m_correlationHists[mode]->GetBinContent(etaIndex);
 
-  /*  
-  TString calibrationFile = "CalibLoopResult.root";
-  TFile *file = TFile::Open(calibrationFile, "READ" );
-
-  TString histname="";    
-  TString decayMode="";
-
-  switch(mode){
-  case xAOD::TauJetParameters::Mode_1p0n : decayMode = "1p0n";
-    break;
-  case xAOD::TauJetParameters::Mode_1p1n : decayMode = "1p1n";
-    break;
-  case xAOD::TauJetParameters::Mode_1pXn : decayMode = "1pXn";
-    break;
-  case xAOD::TauJetParameters::Mode_3p0n : decayMode = "3p0n";
-    break;
-  case xAOD::TauJetParameters::Mode_3pXn : decayMode = "3pXn";
-    break;
-  default: decayMode = "";
-  }
-
-  histname="ConstituentEt/CorrelationCoeff_ConstituentEt_" + decayMode;
-  TH1F* histogram = (TH1F*) file->GetObjectChecked(histname,"TH1F");      
-  std::cout << "\tReturning Mean of Histogram: " << histname  << " : "  << histogram->GetMean() << std::endl;
-
-  return histogram->GetMean();
-  */
-  
-  // from http://en.wikipedia.org/wiki/Standard_deviation#Identities_and_mathematical_properties
-  // values from my talk at Tau WG meeting March 10th 2015
-  
-  /*if( mode == xAOD::TauJetParameters::DecayMode::Mode_1p0n ) return 0.13;
-  if( mode == xAOD::TauJetParameters::DecayMode::Mode_1p1n ) return 0.32;
-  if( mode == xAOD::TauJetParameters::DecayMode::Mode_1pXn ) return 0.48;
-  if( mode == xAOD::TauJetParameters::DecayMode::Mode_3p0n ) return 0.1;
-  if( mode == xAOD::TauJetParameters::DecayMode::Mode_3pXn ) return 0.25;
-  return 0.;
-  */
-
 } 
-
-
-/*
-double CombinedP4FromRecoTaus::getCorrespondingBinContent(const TH1D* hist, double value) const {
-  if (not hist) {
-    return 0;
-  }
-  int bin = hist->FindFixBin(value);
-  if (bin > hist->GetNbinsX()) bin = hist->GetNbinsX();
-  if (bin < 1) bin = 1;
-  return hist->GetBinContent(bin);
-  }*/
-
-
 
 
 double CombinedP4FromRecoTaus::GetWeightedEt(double et_tauRec, 
@@ -350,11 +280,7 @@ double CombinedP4FromRecoTaus::GetWeightedEt(double et_tauRec,
 
   if( mode < xAOD::TauJetParameters::Mode_1p0n || mode > xAOD::TauJetParameters::Mode_3pXn ){
     ATH_MSG_WARNING("Warning! decay mode not defined!");
-    return 0.;
-  }
-  if( etaIndex < 0 || etaIndex > 4 ){
-    ATH_MSG_WARNING( "Warning! etaIndex not defined!" );
-    return 0.;
+    return et_tauRec;
   }
 
   float res_tauRec = GetResolution_taurec( et_tauRec, etaIndex, mode );  
@@ -378,45 +304,26 @@ double CombinedP4FromRecoTaus::GetWeightedEt(double et_tauRec,
   float weight=( pow(res_substruct, 2) - GetCorrelationCoefficient(etaIndex, mode )*res_tauRec*res_substruct )
     / ( pow(res_tauRec, 2) + pow(res_substruct, 2) - 2*GetCorrelationCoefficient(etaIndex, mode )*res_tauRec*res_substruct );
   //float weighted_et = ( et_tauRec*invres_tauRec + GetCellbased2PantauEt( et_cb2PT, mode )*invres_substruct ) / ( invres_tauRec + invres_substruct );
-  float weighted_et = weight*GetTauRecEt( et_tauRec, etaIndex, mode) + (1 - weight)*GetCellbased2PantauEt( et_cb2PT, etaIndex, mode );
+  double weighted_et = weight*GetTauRecEt( et_tauRec, etaIndex, mode) + (1 - weight)*GetCellbased2PantauEt( et_cb2PT, etaIndex, mode );
 
   m_weight = weight;
+  m_et_weighted = weighted_et;
   
   return weighted_et;
 }
 
 
 double CombinedP4FromRecoTaus::GetResolution_taurec( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode){
-  
   ATH_MSG_DEBUG("Entering GetResolution_tauRec!");
   if( mode < xAOD::TauJetParameters::Mode_1p0n || mode > xAOD::TauJetParameters::Mode_3pXn ){
     ATH_MSG_WARNING("Warning! decay mode not defined!");
     return 0.;
   }
-  if( etaIndex < 0 || etaIndex > 4 ){
-    ATH_MSG_WARNING("Warning! etaIndex not defined!");
-    return 0.;
-  }
   
   //Load file
-
-  /*int bin_taurec = m_resHists_tauRec[etaIndex][mode]->FindBin( et );
-  if( bin_taurec > m_resHists_tauRec[etaIndex][mode]->GetNbinsX() ) bin_taurec=m_resHists_tauRec[etaIndex][mode]->GetNbinsX();
-  if( bin_taurec < 1 ) bin_taurec=1; 
-  ATH_MSG_DEBUG("GetResolution_taurec: " << m_resHists_tauRec[etaIndex][mode]->GetBinContent( bin_taurec ) );
-  return m_resHists_tauRec[etaIndex][mode]->GetBinContent( bin_taurec ) * et;*/
-  
-  /*TGraph* m_resTGraph_tauRec;
-  m_resTGraph_tauRec = TGraph(m_resHists_tauRec[etaIndex][mode]);
-  double MaxEt = TMath::MaxElement(m_resTGraph_tauRec->GetN(),m_resTGraph_tauRec->GetX());
-  if (et > MaxEt){
-    return m_resTGraph_tauRec->Eval(MaxEt) * et;;
-  }
-  return m_resTGraph_tauRec->Eval(et) * et;*/
-
   double MaxEt = TMath::MaxElement(m_resTGraph_tauRec[etaIndex][mode]->GetN(),m_resTGraph_tauRec[etaIndex][mode]->GetX()); 
   if (et > MaxEt){
-    return m_resTGraph_tauRec[etaIndex][mode]->Eval(MaxEt) * et;;
+    return m_resTGraph_tauRec[etaIndex][mode]->Eval(MaxEt) * et;
   }
   return m_resTGraph_tauRec[etaIndex][mode]->Eval(et) * et;
 }
@@ -428,23 +335,10 @@ double CombinedP4FromRecoTaus::GetResolution_CellBased2PanTau( double et, int et
     ATH_MSG_WARNING("Warning! decay mode not defined!");
     return 0.;
   }
-  if( etaIndex < 0 || etaIndex > 4 ){
-    ATH_MSG_WARNING( "Warning! etaIndex not defined!");
-    return 0.;
-  }
-  
-  /*int bin_substruct = m_resHists_CellBased2PanTau[etaIndex][mode]->FindBin( et );
-  if( bin_substruct > m_resHists_CellBased2PanTau[etaIndex][mode]->GetNbinsX() ) bin_substruct=m_resHists_CellBased2PanTau[etaIndex][mode]->GetNbinsX();
-  if( bin_substruct < 1 ) {
-    bin_substruct=1;
-    ATH_MSG_DEBUG("bin_substruct < 1 . Set to 1!");
-  }
-  ATH_MSG_DEBUG( "GetResolution_CellBased2PanTau: " << m_resHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ));
-  return m_resHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ) * et;*/
   
   double MaxEt = TMath::MaxElement(m_resTGraph_CellBased2PanTau[etaIndex][mode]->GetN(),m_resTGraph_CellBased2PanTau[etaIndex][mode]->GetX()); 
   if (et > MaxEt){
-    return m_resTGraph_CellBased2PanTau[etaIndex][mode]->Eval(MaxEt) * et;;
+    return m_resTGraph_CellBased2PanTau[etaIndex][mode]->Eval(MaxEt) * et;
   }
   return m_resTGraph_CellBased2PanTau[etaIndex][mode]->Eval(et) * et;
 }
@@ -456,16 +350,6 @@ double CombinedP4FromRecoTaus::GetMean_CellBased2PanTau( double et, int etaIndex
     ATH_MSG_WARNING( "Warning! decay mode not defined!" );
     return 0.;
   }
-  if( etaIndex < 0 || etaIndex > 4 ){
-    ATH_MSG_WARNING( "Warning! etaIndex not defined!" );
-    return 0.;
-  }
-
-  /*int bin_substruct = m_meanHists_CellBased2PanTau[etaIndex][mode]->FindBin( et );
-  if( bin_substruct > m_meanHists_CellBased2PanTau[etaIndex][mode]->GetNbinsX() ) return 0.; // bin_substruct=m_meanHists_CellBased2PanTau[etaIndex][mode]->GetNbinsX();
-  if( bin_substruct < 1 ) return 0.; //bin_substruct=1;
-  ATH_MSG_DEBUG( "MeanHists_CellBased2PanTau: " << m_meanHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ));
-  return m_meanHists_CellBased2PanTau[etaIndex][mode]->GetBinContent( bin_substruct ) * et;*/
 
   double MaxEt = TMath::MaxElement(m_meanTGraph_CellBased2PanTau[etaIndex][mode]->GetN(),m_meanTGraph_CellBased2PanTau[etaIndex][mode]->GetX()); 
   if (et > MaxEt){
@@ -481,17 +365,7 @@ double CombinedP4FromRecoTaus::GetMean_TauRec( double et, int etaIndex, xAOD::Ta
     ATH_MSG_WARNING( "Warning! decay mode not defined!" );
     return 0.;
   }
-  if( etaIndex < 0 || etaIndex > 4 ){
-    ATH_MSG_WARNING("Warning! etaIndex not defined!");
-    return 0.;
-  }
     
-  /*int bin_tauRec = m_meanHists_tauRec[etaIndex][mode]->FindBin( et );
-  if( bin_tauRec > m_meanHists_tauRec[etaIndex][mode]->GetNbinsX() ) return 0.; //bin_tauRec=m_meanHists_tauRec[etaIndex][mode]->GetNbinsX();
-  if( bin_tauRec < 1 ) return 0.; //bin_tauRec=1;
-  ATH_MSG_DEBUG("MeanHists_tauRec: " << m_meanHists_tauRec[etaIndex][mode]->GetBinContent( bin_tauRec ) );
-  return m_meanHists_tauRec[etaIndex][mode]->GetBinContent( bin_tauRec ) * et;*/
-
   double MaxEt = TMath::MaxElement(m_meanTGraph_tauRec[etaIndex][mode]->GetN(),m_meanTGraph_tauRec[etaIndex][mode]->GetX()); 
   if (et > MaxEt){
     return 0;
@@ -504,10 +378,6 @@ double CombinedP4FromRecoTaus::GetCombinedResolution( double et_tauRec, double e
  
   if( mode < xAOD::TauJetParameters::Mode_1p0n || mode > xAOD::TauJetParameters::Mode_3pXn ){
     ATH_MSG_WARNING( "Warning! decay mode not defined!" );
-    return 0.;
-  }
-  if( etaIndex < 0 || etaIndex > 4 ){
-    ATH_MSG_WARNING( "Warning! etaIndex not defined!" );
     return 0.;
   }
  
@@ -531,12 +401,9 @@ double CombinedP4FromRecoTaus::GetCellbased2PantauEt( double et_cb2PT, int etaIn
   if( mode < xAOD::TauJetParameters::Mode_1p0n || mode > xAOD::TauJetParameters::Mode_3pXn ){
     return et_cb2PT;
   }
-  if( etaIndex < 0 || etaIndex > 4 ){
-    ATH_MSG_WARNING( "Warning! etaIndex not defined!" );
-    return et_cb2PT;
-  }
- 
-  return et_cb2PT - GetMean_CellBased2PanTau(et_cb2PT,etaIndex, mode);
+
+  m_et_cb2PT_postcalib = et_cb2PT - GetMean_CellBased2PanTau(et_cb2PT,etaIndex, mode);
+  return m_et_cb2PT_postcalib;
  
 }
 
@@ -545,12 +412,9 @@ double CombinedP4FromRecoTaus::GetTauRecEt( double et, int etaIndex, xAOD::TauJe
   if( mode < xAOD::TauJetParameters::Mode_1p0n || mode > xAOD::TauJetParameters::Mode_3pXn ){
     return et;
   }
-  if( etaIndex < 0 || etaIndex > 4 ){
-    ATH_MSG_WARNING( "Warning! etaIndex not defined!" );
-    return et;
-  }
   
-  return et - GetMean_TauRec(et, etaIndex, mode);
+  m_et_postcalib = et - GetMean_TauRec(et, etaIndex, mode);
+  return m_et_postcalib;
  
 }
 
@@ -562,10 +426,6 @@ double CombinedP4FromRecoTaus::getCombinedEt(double et_tauRec,
 
   int etaIndex = GetIndex_Eta(eta);
   ATH_MSG_DEBUG("Eta = " << eta << " , eta bin = " << etaIndex );
-  if(etaIndex == 99){
-    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//is this a warning?
-    return et_substructure;
-  }
 
   double et_reco = GetWeightedEt( et_tauRec, et_substructure, etaIndex, mode );
   ATH_MSG_DEBUG( "GetWeightedEt: " << et_reco );
@@ -578,58 +438,31 @@ double CombinedP4FromRecoTaus::getCombinedEt(double et_tauRec,
   m_combined_res = combined_res;
 
   if( fabs( et_diff ) > GetNsigma_Compatibility(et_tauRec)*combined_res) {
-    /*    
-	  if( mode == RecoTypes::t_3p0n){
-	  // *fillOK = false;
-	  // return -1;
-	  et_reco = et_cb2PT;
-	  
-	  } else {
-    */
     et_reco = et_tauRec;
     m_tauRecEt_takenAs_combinedEt = true;
     ATH_MSG_DEBUG( "(Boolean)m_tauRecEt_takenAs_combinedEt is set to:"  <<  m_tauRecEt_takenAs_combinedEt );
-    //    }
   }
   return et_reco;
 }
 
 
-/*
-TLorentzVector CombinedP4FromRecoTaus::getConstituentsP4(const xAOD::TauJet* tau) {
-  TLorentzVector constituentsP4;
-  // add all charged 4-vectors
-  for (size_t i = 0; i < tau->nTracks(); i++) {
-    constituentsP4 += tau->track(i)->p4();
-  }
-  // get all corrected Pi0s and add them
-  std::vector<TLorentzVector> correctedPi0P4s;
-
-  // TauAnalysisTools::createPi0Vectors(tau, correctedPi0P4s);
-  // for (auto vPi0 : correctedPi0P4s) {
-  //   constituentsP4 += vPi0;
-  // }
-
-  size_t iNumPi0PFO = tau->nPi0PFOs();
-  for (size_t iPFO = 0; iPFO < iNumPi0PFO; iPFO++){
-    constituentsP4 += tau->pi0PFO(iPFO)->p4();
-  }
-  return constituentsP4;
-}
-*/
-
-
 TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
-
   ATH_MSG_DEBUG( "In CombinedP4FromRecoTaus::getCombinedP4..." );
 
   m_tauRecEt_takenAs_combinedEt=false;
 
   ATH_MSG_DEBUG( "(Boolean)m_tauRecEt_takenAs_combinedEt is initialized to: " << m_tauRecEt_takenAs_combinedEt );
 
-  //const TLorentzVector& tauRecP4 = tau->p4();
   TLorentzVector tauRecP4;
   tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
+  TLorentzVector substructureP4;
+  if(tau->etaPanTauCellBased()<-111 || tau->phiPanTauCellBased()<-1111)
+    substructureP4.SetPtEtaPhiM(0,0,0,0);
+  else
+    substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
+
+  ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
+  ATH_MSG_DEBUG( "ConstituentET: " << substructureP4.Et() );
 
   xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
   int tmpDecayMode;
@@ -637,33 +470,21 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
 
-  ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
-  int numTracks = tau->nTracks();
-  ATH_MSG_DEBUG( "Number of tracks: " << numTracks );
-
-
-  //Return tauRec P4 if tau is no pantau candidate
+  //Return tauRec P4 if tau is no pantau candidate or pantau decay mode is unequal 1P or 3P
   int isPanTauCandidate;  
-  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
-  ATH_MSG_DEBUG( "is tau PanTau candidate = " << isPanTauCandidate );
-  if (isPanTauCandidate == 0) {
-    return tauRecP4;
-  }
-
-  //Return tauRec P4 if pantau decay mode is unequal 1P or 3P
+  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);  
   int DecayMode;
   tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, DecayMode);
-  if(DecayMode>xAOD::TauJetParameters::Mode_3pXn){
+
+  ATH_MSG_DEBUG( "tau IsPanTauCandidate = " << isPanTauCandidate );
+
+  if (isPanTauCandidate == 0 || DecayMode>xAOD::TauJetParameters::Mode_3pXn || fabs(tauRecP4.Eta()) > 2.5) {
+    m_et_cb2PT_postcalib = substructureP4.Et();
+    m_et_postcalib = tauRecP4.Et();
+    m_et_weighted = tauRecP4.Et();
     return tauRecP4;
   }
 
-  //  TLorentzVector substructureP4 = getConstituentsP4(tau);
-  TLorentzVector substructureP4;
-  substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
-  ATH_MSG_DEBUG( "ConstituentET: " << substructureP4.Et() );
-  ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
-
-  //double combinedEt = getCombinedEt(tauRecP4.Et(), substructureP4.Et(), tau->Eta(), decayMode);
   double combinedEt = getCombinedEt(tauRecP4.Et(), substructureP4.Et(), tauRecP4.Eta(), decayMode);
   ATH_MSG_DEBUG( "combinedET: " << combinedEt );
 
@@ -682,168 +503,8 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
   ATH_MSG_DEBUG( "combinedPt: " << combinedPt );
 
   combinedP4.SetPtEtaPhiM(combinedPt, substructureP4.Eta(), substructureP4.Phi(), combinedM);
-  if (combinedPt < 15){
-    std::cout << "ERROR pt is zero" << std::endl;
-  }
 
   return combinedP4;
-}
-
-
-TLorentzVector CombinedP4FromRecoTaus::getCalibratedConstituentP4(const xAOD::TauJet* tau) {
-
-  ATH_MSG_DEBUG( "In CombinedP4FromRecoTaus::getCalibratedConstituentP4..." );
-  TLorentzVector tauRecP4;
-  tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
-
-  TLorentzVector substructureP4;
-  substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
-
-  ATH_MSG_DEBUG( "ConstituentET: " << substructureP4.Et() );
-
-  xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
-  int tmpDecayMode;
-  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
-    decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
-  }
-  ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
-  int numTracks = tau->nTracks();
-  ATH_MSG_DEBUG( "Number of tracks: " << numTracks );
-
-  int DecayMode;
-  int isPanTauCandidate;  
-  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
-  ATH_MSG_DEBUG( "is tau PanTau candidate = " << isPanTauCandidate );
-  if (isPanTauCandidate == 0) {
-    return substructureP4;
-  }
-  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, DecayMode);
-  if(DecayMode>xAOD::TauJetParameters::Mode_3pXn){
-    return substructureP4;
-  }
-
-  float eta = tauRecP4.Eta();
-  int etaIndex = GetIndex_Eta(eta);
-  ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
-  if(etaIndex == 99){
-    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//warning?
-    return substructureP4;
-  }
-
-  double et = GetCellbased2PantauEt( substructureP4.Et(), etaIndex, decayMode );
-  ATH_MSG_DEBUG( "et: " << et );
-  ATH_MSG_DEBUG( "SubstructureP4.M(): " << substructureP4.M() );
-
-  TLorentzVector p4;
-  double pt = sqrt(pow(et,2) - substructureP4.M2());
-  ATH_MSG_DEBUG( "pt: " << pt );
-
-  p4.SetPtEtaPhiM(pt, substructureP4.Eta(), substructureP4.Phi(), substructureP4.M());
-
-  return p4;
-}
-
-TLorentzVector CombinedP4FromRecoTaus::getCalibratedTauRecP4(const xAOD::TauJet* tau) {
-
-  ATH_MSG_DEBUG( "In CombinedP4FromRecoTaus::getCalibratedTauRecP4..." );
-
-  TLorentzVector tauRecP4;
-  tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
-  //  TLorentzVector substructureP4 = getConstituentsP4(tau);
-
-  ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
-  xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
-  int tmpDecayMode;
-  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
-    decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
-  }
-  ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
-  int numTracks = tau->nTracks();
-  ATH_MSG_DEBUG( "Number of tracks: " << numTracks );
-
-  int DecayMode;
-  int isPanTauCandidate;  
-  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
-  ATH_MSG_DEBUG( "is tau PanTau candidate = " << isPanTauCandidate );
-  if (isPanTauCandidate == 0) {
-    return tauRecP4;
-  }
-  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, DecayMode);
-  if(DecayMode>xAOD::TauJetParameters::Mode_3pXn){
-    return tauRecP4;
-  }
-
-  float eta = tauRecP4.Eta();
-  int etaIndex = GetIndex_Eta(eta);
-  ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
-
-  if(etaIndex == 99){
-    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
-    return tauRecP4;
-  }
-
-  double et = GetTauRecEt( tauRecP4.Et(), etaIndex, decayMode);
-  ATH_MSG_DEBUG( "et: " << et );
-  ATH_MSG_DEBUG( "tauRecP4.M(): " << tauRecP4.M2() );
-
-  TLorentzVector p4;
-  double pt = sqrt(pow(et,2) - tauRecP4.M2());
-  p4.SetPtEtaPhiM(pt, tauRecP4.Eta(), tauRecP4.Phi(), tauRecP4.M());
-
-  return p4;
-}
-
-TLorentzVector CombinedP4FromRecoTaus::getWeightedP4(const xAOD::TauJet* tau) {
-
-  ATH_MSG_DEBUG( "In CombinedP4FromRecoTaus::WeightedP4..." );
-
-  //const TLorentzVector& tauRecP4 = tau->p4();
-  TLorentzVector tauRecP4;
-  tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
-  //  TLorentzVector substructureP4 = getConstituentsP4(tau);
-  TLorentzVector substructureP4;
-  substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
-  ATH_MSG_DEBUG( "ConstituentET: " << substructureP4.Et() );
-  ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
-  xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
-  int tmpDecayMode;
-  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
-    decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
-  }
-  ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
-  int numTracks = tau->nTracks();
-  ATH_MSG_DEBUG( "Number of tracks: " << numTracks );
-
-  int DecayMode;
-  int isPanTauCandidate;  
-  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
-  ATH_MSG_DEBUG( "is tau PanTau candidate = " << isPanTauCandidate );
-  if (isPanTauCandidate == 0) {
-    return tauRecP4;
-  }
-  tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, DecayMode);
-  if(DecayMode>xAOD::TauJetParameters::Mode_3pXn){
-    return tauRecP4;
-  }
-
-
-  float eta = tauRecP4.Eta();
-  int etaIndex = GetIndex_Eta(eta);
-  ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
-
-  if(etaIndex == 99){
-    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
-    return substructureP4;
-  }
-
-  double et = GetWeightedEt( tauRecP4.Et(), substructureP4.Et(), etaIndex, decayMode );
-  ATH_MSG_DEBUG( "et: " << et );
-
-  TLorentzVector p4;
-  double pt = sqrt(pow(et,2) - substructureP4.M2());
-  p4.SetPtEtaPhiM(pt, substructureP4.Eta(), substructureP4.Phi(), substructureP4.M());
-
-  return p4;
 }
 
 
@@ -856,3 +517,77 @@ float CombinedP4FromRecoTaus::GetNsigma_Compatibility(float et_TauRec){
     return nsigma;
 
   }
+
+
+//_____________________________________________________________________________
+double CombinedP4FromRecoTaus::GetCaloResolution(const xAOD::TauJet* tau){
+  ATH_MSG_DEBUG("Entering GetCaloResolution!");
+
+  TLorentzVector tauRecP4;
+  tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
+  double et = tauRecP4.Et();
+  float eta = tauRecP4.Eta();
+  int etaIndex = GetIndex_Eta(eta);
+
+  xAOD::TauJetParameters::DecayMode mode = xAOD::TauJetParameters::DecayMode::Mode_Error;
+
+  int tmpDecayMode;
+  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
+    mode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
+  }
+
+  if( mode < xAOD::TauJetParameters::Mode_1p0n || mode > xAOD::TauJetParameters::Mode_3pXn ){
+    ATH_MSG_DEBUG("PanTau decay mode > 3PXN! Return false");
+    return false;
+  }
+  if( etaIndex < 0 || etaIndex > 4 ){
+    ATH_MSG_DEBUG("eta > 2.7. Return false");
+    return false;
+  }
+
+  double MaxEt = TMath::MaxElement(m_resTGraph_tauRec[etaIndex][mode]->GetN(),m_resTGraph_tauRec[etaIndex][mode]->GetX()); 
+  if (et > MaxEt){
+    return m_resTGraph_tauRec[etaIndex][mode]->Eval(MaxEt) * et;
+  }
+  return m_resTGraph_tauRec[etaIndex][mode]->Eval(et) * et;
+}
+
+//_____________________________________________________________________________
+bool CombinedP4FromRecoTaus::GetUseCaloPtFlag(const xAOD::TauJet* tau){
+  ATH_MSG_DEBUG("Entering GetUseCaloPtFlag!");
+  
+  TLorentzVector tauRecP4;
+  TLorentzVector tauMVATESP4;
+  tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
+  tauMVATESP4.SetPtEtaPhiM(tau->ptFinalCalib(), tau->etaFinalCalib(), tau->phiFinalCalib(), tau->mFinalCalib());
+  double et_tauRec = tauRecP4.Et();
+  double et_MVATES = tauMVATESP4.Et();
+
+  float eta = tauRecP4.Eta();
+  int etaIndex = GetIndex_Eta(eta);
+
+  xAOD::TauJetParameters::DecayMode mode = xAOD::TauJetParameters::DecayMode::Mode_Error;
+  int tmpDecayMode;
+  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
+    mode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
+  }
+
+  if( mode < xAOD::TauJetParameters::Mode_1p0n || mode > xAOD::TauJetParameters::Mode_3pXn ){
+    ATH_MSG_DEBUG("PanTau decay mode > 3PXN! Return false");
+    return false;
+  }
+  if( etaIndex < 0 || etaIndex > 4 ){
+    ATH_MSG_DEBUG("eta > 2.7. Return false");
+    return false;
+  }
+  
+  double tauRec_res = GetCaloResolution(tau);
+  double et_diff = et_MVATES - et_tauRec;
+  
+  bool UseCaloPt = false;
+  if( et_diff > 5*tauRec_res) {
+    UseCaloPt = true;
+  }
+  
+  return UseCaloPt;
+}

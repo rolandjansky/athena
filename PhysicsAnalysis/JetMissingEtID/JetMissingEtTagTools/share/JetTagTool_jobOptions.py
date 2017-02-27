@@ -1,8 +1,5 @@
 include.block ("JetMissingEtTagTools/JetTagTool_jobOptions.py")
 
-########### Jet tag options ################
-from RecExConfig.RecFlags import rec
-
 #====================================================================
 # Check if we have Monte Carlo or real data, based on the inputFileSummary
 #====================================================================
@@ -14,109 +11,143 @@ if inputFileSummary.has_key("evt_type"):
 		inputIsSimulation = True
 	else:
 		print "Detected that the input file is real data"
-	pass
+		pass
+
+calibseq = "JetArea_Residual_EtaJES_GSC"
+evs = "Kt4EMTopoOriginEventShape"
+isdata = False
+# options for data
+if not inputIsSimulation:
+	calibseq += "_Insitu"
+	isdata = True
+
+# override for cosmics where neither PVs nor track moments are available
+from AthenaCommon.BeamFlags import jobproperties
+if jobproperties.Beam.beamType == 'cosmics':
+	print "Working on a cosmics file, use alternate JetCalib config"
+	calibseq = "JetArea_EtaJES"
+	evs = "Kt4EMTopoEventShape"
+	
+JetCalibTool = CfgMgr.JetCalibrationTool("JetCalib",
+					 JetCollection = "AntiKt4EMTopo",
+					 ConfigFile    = "JES_MC15cRecommendation_May2016_rel21.config",
+					 CalibSequence = calibseq,
+					 IsData = isdata,
+					 RhoKey=evs
+					 )
+
+ToolSvc += JetCalibTool
+
+JetVertexTaggerTool = CfgMgr.JetVertexTaggerTool('JVT')
+ToolSvc += JetVertexTaggerTool
+
+METMakerTool = CfgMgr.met__METMaker('METMaker',
+				    DoRemoveMuonJets    = True,
+				    DoSetMuonJetEMScale = True,
+				    JetJvtMomentName    = 'JvtUpdate',
+				    CustomJetJvtCut     = 0.59,
+				    CustomJetJvtPtMax   = 60e3
+				    )
+ToolSvc += METMakerTool
+
+# FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2016-13TeV-WorkingPointsOnly-Release20_7-AntiKt4EMTopoJets-May3.root"
+FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-May12_v1.root"
+MaxEta         = 2.5
+MinPt          = 20000.
+JetAuthor      = "AntiKt4EMTopoJets"
+TaggerName     = "MV2c10"
+
+BTagTool_FixedCutBEff_60 = CfgMgr.BTaggingSelectionTool('FixedCutBEff_60',
+							MaxEta         = MaxEta,
+							MinPt          = MinPt,
+							JetAuthor      = JetAuthor,
+							TaggerName     = TaggerName,
+							FlvTagCutDefinitionsFileName = FlvTagCutDefinitionsFileName,
+							OperatingPoint = "FixedCutBEff_60")
+ToolSvc += BTagTool_FixedCutBEff_60
+
+BTagTool_FixedCutBEff_70 = CfgMgr.BTaggingSelectionTool('FixedCutBEff_70',
+							MaxEta         = MaxEta,
+							MinPt          = MinPt,
+							JetAuthor      = JetAuthor,
+							TaggerName     = TaggerName,
+							FlvTagCutDefinitionsFileName = FlvTagCutDefinitionsFileName,
+							OperatingPoint = "FixedCutBEff_70")
+ToolSvc += BTagTool_FixedCutBEff_70
+
+BTagTool_FixedCutBEff_85 = CfgMgr.BTaggingSelectionTool('FixedCutBEff_85',
+							MaxEta         = MaxEta,
+							MinPt          = MinPt,
+							JetAuthor      = JetAuthor,
+							TaggerName     = TaggerName,
+							FlvTagCutDefinitionsFileName = FlvTagCutDefinitionsFileName,
+							OperatingPoint = "FixedCutBEff_85")
+ToolSvc += BTagTool_FixedCutBEff_85
+
+#FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2015-PreRecomm-13TeV-MC12-CDI-October23_v1.root"
+#BTagTool_FlatBEff_60 = CfgMgr.BTaggingSelectionTool('FlatBEff_60',
+#						    MaxEta         = MaxEta,
+#						    MinPt          = MinPt,
+#						    JetAuthor      = JetAuthor,
+#						    TaggerName     = TaggerName,
+#						    FlvTagCutDefinitionsFileName = FlvTagCutDefinitionsFileName,
+#						    OperatingPoint = "FlatBEff_60")
+#ToolSvc += BTagTool_FlatBEff_60
+#
+#BTagTool_FlatBEff_70 = CfgMgr.BTaggingSelectionTool('FlatBEff_70',
+#						    MaxEta         = MaxEta,
+#						    MinPt          = MinPt,
+#						    JetAuthor      = JetAuthor,
+#						    TaggerName     = TaggerName,
+#						    FlvTagCutDefinitionsFileName = FlvTagCutDefinitionsFileName,
+#						    OperatingPoint = "FlatBEff_70")
+#ToolSvc += BTagTool_FlatBEff_70
+#
+#BTagTool_FlatBEff_77 = CfgMgr.BTaggingSelectionTool('FlatBEff_77',
+#						    MaxEta         = MaxEta,
+#						    MinPt          = MinPt,
+#						    JetAuthor      = JetAuthor,
+#						    TaggerName     = TaggerName,
+#						    FlvTagCutDefinitionsFileName = FlvTagCutDefinitionsFileName,
+#						    OperatingPoint = "FlatBEff_77")
+#ToolSvc += BTagTool_FlatBEff_77
 
 from JetMissingEtTagTools.JetMissingEtTagToolsConf import JetMetTagTool as ConfiguredJetMissingEtTagTool
-from AthenaCommon.BeamFlags import jobproperties
-
-if rec.doHeavyIon() or  jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam':
-
-	CalibrationSetup="aroj"
-
-	if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam':
-		CalibrationSetup="aj"
-
-	from JetRec.JetRecCalibrationFinder import jrcf
-	JetCalibrationTool = jrcf.find("AntiKt", 0.4, "LCTopo", CalibrationSetup, "reco", "Kt4")
-	ToolSvc += JetCalibrationTool 
-
-	if rec.doHeavyIon():
-		JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
-			JetCalibrationTool  = JetCalibrationTool,
-			JetContainer        = "antikt4HIItrEM_TowerJets",
-			METContainer        = "MET_Reference_AntiKt4Topo_TAGcalibskim",
-			METFinalName        = "FinalClus",
-			METJetName          = "RefJet",
-			METMuonsName        = "Muons",
-			METSoftClusName     = "SoftClus",
-			METRefTauName       = "RefTau",
-			METRefEleName       = "RefEle",
-			METRefGammaName     = "RefGamma",
-			METPVSoftTrkName    = "PVSoftTrk",
-			METFinalTrkName     = "FinalTrk",
-			JetCalibContainer       = "AntiKt4TopoJets_TAGcalib",
-			JetCalibContainerSkim   = "AntiKt4TopoJets_TAGcalibskim",
-			EtCut               = 40.0*GeV,
-			EtCutSkim           = 20.0*GeV,
-			UseEMScale          = False,
-			isSimulation        = inputIsSimulation
-			#OutputLevel = 2,
-			)
-	else:
-		JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
-			JetCalibrationTool  = JetCalibrationTool,
-			JetContainer        = "AntiKt4LCTopoJets",
-			METContainer        = "MET_Reference_AntiKt4Topo_TAGcalibskim",
-			METFinalName        = "FinalClus",
-			METJetName          = "RefJet",
-			METMuonsName        = "Muons",
-			METSoftClusName     = "SoftClus",
-			METRefTauName       = "RefTau",
-			METRefEleName       = "RefEle",
-			METRefGammaName     = "RefGamma",
-			METPVSoftTrkName    = "PVSoftTrk",
-			METFinalTrkName     = "FinalTrk",
-
-			JetCalibContainer       = "AntiKt4TopoJets_TAGcalib",
-			JetCalibContainerSkim   = "AntiKt4TopoJets_TAGcalibskim",
-			EtCut               = 40.0*GeV,
-			EtCutSkim           = 20.0*GeV,
-			UseEMScale          = False,
-			isSimulation        = inputIsSimulation
-			
-			#OutputLevel = 2,
-			)
-		pass
-	pass
-else:
-
-	# ME: use EM jets for 2015 since this is calibrated
-
-	JetCalibTool = CfgMgr.JetCalibrationTool(
-		"JetCalib",
-		JetCollection = "AntiKt4EMTopo",
-		ConfigFile    = "JES_MC15Prerecommendation_April2015.config",
-		RhoKey        = "Kt4EMTopoEventShape"
-		)
-	if inputIsSimulation:
-		JetCalibTool.CalibSequence="JetArea_Residual_Origin_EtaJES_GSC"
-		JetCalibTool.IsData=False
-	else:
-		JetCalibTool.CalibSequence="JetArea_Residual_Origin_EtaJES_GSC_Insitu"
-		JetCalibTool.IsData=True
-	ToolSvc += JetCalibTool
-
-	JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
-		JetCalibrationTool  = JetCalibTool,
-		JetContainer        = "AntiKt4EMTopoJets",
-		METContainer        = "MET_Reference_AntiKt4Topo_TAGcalibskim",
-		METFinalName        = "FinalClus",
-		METJetName          = "RefJet",
-		METMuonsName        = "Muons",
-		METSoftClusName     = "SoftClus",
-		METRefTauName       = "RefTau",
-		METRefEleName       = "RefEle",
-		METRefGammaName     = "RefGamma",
-		METPVSoftTrkName    = "PVSoftTrk",
-		METFinalTrkName     = "FinalTrk",
-		JetCalibContainer       = "AntiKt4TopoJets_TAGcalib",
-		JetCalibContainerSkim   = "AntiKt4TopoJets_TAGcalibskim",
-		EtCut               = 40.0*GeV,
-		EtCutSkim           = 20.0*GeV,
-		UseEMScale          = False,
-		isSimulation        = inputIsSimulation
-		#OutputLevel = 2,
-		)
-	pass
+JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
+	JetCalibrationTool  = JetCalibTool,
+	JetVertexTaggerTool = JetVertexTaggerTool,
+	JetContainer        = "AntiKt4EMTopoJets",
+	EtCut               = 40.0*GeV,
+	EtCutSkim           = 20.0*GeV,
+	UseEMScale          = False,
+	isSimulation        = inputIsSimulation,
+	JetCalibContainer      = "AntiKt4TopoJets_TAGcalib",
+	JetCalibContainerSkim  = "AntiKt4TopoJets_TAGcalibskim",
+	ElectronsContainerSkim = "Electrons_TAG_skim",
+	PhotonsContainerSkim   = "Photons_TAG_skim",
+	TausContainerSkim      = "TauJets_TAG_skim",
+	MuonsContainerSkim     = "Muons_TAG_skim",
+	METMaker               = METMakerTool,
+	METCoreName             = "MET_Core_AntiKt4EMTopo",
+	METMapName            = "METAssoc_AntiKt4EMTopo",
+	METContainer        = "MET_Reference_AntiKt4Topo_TAGcalibskim",
+	METFinalName        = "FinalClus",
+	METJetName          = "RefJet",
+	METMuonsName        = "Muons",
+	METSoftClusName     = "SoftClus",
+	METRefTauName       = "RefTau",
+	METRefEleName       = "RefEle",
+	METRefGammaName     = "RefGamma",
+	METPVSoftTrkName    = "PVSoftTrk",
+	METFinalTrkName     = "FinalTrk",
+	FixedCutBEff60      = BTagTool_FixedCutBEff_60,
+	FixedCutBEff70      = BTagTool_FixedCutBEff_70,
+	FixedCutBEff85      = BTagTool_FixedCutBEff_85,
+	DoJVT               = jetFlags.useVertices(),
+#	FlatBEff60          = BTagTool_FlatBEff_60,
+#	FlatBEff70          = BTagTool_FlatBEff_70,
+#	FlatBEff77          = BTagTool_FlatBEff_77
+	#OutputLevel = 2,
+	)
 
 ToolSvc += JetMissingEtTagTool

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 744530 2016-05-03 15:37:50Z krasznaa $
+# $Id: CMakeLists.txt 790886 2016-12-22 22:03:35Z ssnyder $
 ################################################################################
 # Package: xAODMuon
 ################################################################################
@@ -29,7 +29,6 @@ atlas_depends_on_subdirs(
 atlas_add_library( xAODMuon
    xAODMuon/*.h xAODMuon/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODMuon
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCaloEvent xAODCore
    xAODPrimitives xAODTracking MuonIdHelpersLib ${extra_libs} )
 

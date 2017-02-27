@@ -74,7 +74,7 @@ namespace TrkDriftCircleMath {
 	    ++sit2;
 	    // dc1 == dc2
 	  }else{
-	    std::cout << " shouldn't come here, I think .... " << std::endl;
+	    //std::cout << " shouldn't come here, I think .... " << std::endl;
 	    ++sit1;++sit2;
 	  }
 	}

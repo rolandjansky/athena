@@ -39,6 +39,17 @@ class AlgList(object):
         # allow sequence trees by specifing the sequence to follow
         self.attach_to = attach_to
 
+class AlgStringProxy(object):
+
+    def __init__(self, alg):
+        self.alg = alg
+        self.manual_attrs = {}
+        
+    def asString(self):
+        return 'AlgStringProxy: Presintantiated Algorithm instance'
+
+    def __str__(self):
+        return self.asString()
 
 class JetSequencesBuilder(object):
     """Route incoming ChainConfig to the appropriate sequence
@@ -76,6 +87,8 @@ class JetSequencesBuilder(object):
         self.router = {'fs': self.make_fs,  # full scan
                        'fs2': self.make_fs2,  # fsull scan/cellmaker/cluster
                        'cmfs': self.make_cmfs,  # cell/cluster maker full scan
+                       'cmfs1': self.make_cmfs1,  # cell maker full scan
+                       'cmfs2': self.make_cmfs2,  # cluster maker full scan
                        'ed': self.make_ed,  # energy density
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
@@ -96,6 +109,8 @@ class JetSequencesBuilder(object):
                        'ds': self.make_datascouting,
                        }
 
+        # map with common calo sequences
+        self.calo_seq_map = makeCaloSequences.getFullScanCaloSequences()
         # object that produces Alg objects
         self.alg_factory = alg_factory
 
@@ -134,12 +149,13 @@ class JetSequencesBuilder(object):
         do_trimming = menu_data.fex_params.fex_type == 'jetrec_trimming'
         seq_order = {
             # ('tc', 'FS'): ['fs', 'cmfs', 'ed', 'jr'],
-            ('tc', 'FS', False): ['fs2', 'ed', 'jr'],
+            #('tc', 'FS', False): ['fs2', 'ed', 'jr'],
+            ('tc','FS',False): ['fs2','cmfs1','cmfs2','ed','jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
             ('tc', 'PS', False): ['ps', 'cm', 'jr'],
             ('ion', 'FS', False): ['fs','hicm','hijr'],
             ('TT', 'FS', False): ['tt', 'jt'],
-            ('tc', 'FS', True): ['fs2', 'ed', 'tr']}.get((data_type,
+            ('tc', 'FS', True): ['fs2', 'cmfs1', 'cmfs2','ed', 'tr']}.get((data_type,
                                                            scan_type,
                                                            do_trimming), [])
 
@@ -219,22 +235,8 @@ class JetSequencesBuilder(object):
         """make full scan/CellMaker/ClusterMAker sequence using
         common code from TriggerMenu"""
 
-        sequence = makeCaloSequences.fullScanTopoClusterSequence()
-
-        class AlgStringProxy(object):
-
-            def __init__(self, alg):
-                self.alg = alg
-                self.manual_attrs = {}
-                
-            def asString(self):
-                return 'AlgStringProxy: Presintantiated Algorithm instance'
-
-            def __str__(self):
-                return self.asString()
-        alg_list = [AlgStringProxy(a) for a in sequence[1]]
-        return AlgList(alg_list=alg_list, alias=sequence[2])
-
+        alg_list = [AlgStringProxy(a) for a in self.calo_seq_map['EF_full']]
+        return AlgList(alg_list=alg_list,alias='EF_full')
 
     def make_ps(self):
         """make partial scan Alglist"""
@@ -260,6 +262,14 @@ class JetSequencesBuilder(object):
         return AlgList(algs, alias=alias)
 
 
+    def make_cmfs1(self):
+        alg_list = [AlgStringProxy(a) for a in self.calo_seq_map['EF_full_cell']]
+        return AlgList(alg_list=alg_list,alias='EF_full_cell')
+
+    def make_cmfs2(self):
+        alg_list = [AlgStringProxy(a) for a in self.calo_seq_map['EF_FSTopoClusters']]
+        return AlgList(alg_list=alg_list,alias='EF_FSTopoClusters')
+    
     def make_ed(self):
         """Return Energy Density Alg"""
 

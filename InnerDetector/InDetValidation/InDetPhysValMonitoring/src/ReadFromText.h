@@ -15,16 +15,16 @@
 class ReadFromText: public IReadHistoDef {
 public:
   ReadFromText();
-  ReadFromText(const std::string &source);
+  ReadFromText(const std::string& source);
   std::string source() const final;
   std::string format() const final;
-  bool histoDefinitionMap(std::map<std::string, SingleHistogramDefinition> &usersMap) const;
-  bool insertDefinition(const SingleHistogramDefinition &oneDefinition);
+  bool histoDefinitionMap(std::map<std::string, SingleHistogramDefinition>& usersMap) const;
+  bool insertDefinition(const SingleHistogramDefinition& oneDefinition);
   bool initialize() final;
   bool sourceExists() const;
 private:
   std::vector <SingleHistogramDefinition> m_vectorOfDefinitions;
-  SingleHistogramDefinition parseTextLine(const std::string &line);
+  SingleHistogramDefinition parseTextLine(const std::string& line);
   std::string m_source;
   const std::string m_format;
 };

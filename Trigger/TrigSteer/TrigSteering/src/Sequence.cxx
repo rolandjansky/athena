@@ -66,41 +66,41 @@ Sequence::Sequence(std::vector<unsigned int> inputTypes,
    if ( config->getDoTiming() ) {
       ServiceHandle<ITrigTimerSvc> timerSvc("TrigTimerSvc/TrigTimerSvc", "tr");
       if ( timerSvc.retrieve().isFailure() ) {
-         m_config->getMsgStream() << MSG::WARNING << "Requested timing measurements but can't retrieve TrigTimerSvc for sequence" << endreq;
+         m_config->getMsgStream() << MSG::WARNING << "Requested timing measurements but can't retrieve TrigTimerSvc for sequence" << endmsg;
       }
       std::string telabel;
       if ( TrigConf::HLTTriggerElement::getLabel(outputType, telabel) ) {
 
          const AlgTool *ntool = dynamic_cast<AlgTool*>(m_config->getNavigation());
          if ( !ntool ) {
-            m_config->getMsgStream() << MSG::WARNING << "Navigation tool not available" << endreq;
+            m_config->getMsgStream() << MSG::WARNING << "Navigation tool not available" << endmsg;
             return;
          }
       
          const Algorithm* parentAlg = dynamic_cast<const Algorithm*>(ntool->parent()); // this is the way to get parent alg name (TrigSteer_L2/EF) ugh we need better way.
          if ( !parentAlg ) {
-            m_config->getMsgStream() << MSG::WARNING << "No parent algorithm for the sequence" << endreq;
+            m_config->getMsgStream() << MSG::WARNING << "No parent algorithm for the sequence" << endmsg;
             return;
          }
 
          std::string name( parentAlg->name()+":sequence_" + telabel );
          m_timer = timerSvc->addItem(name); // TrigSteer is hardcoded but we can find it via alg->parentAlg()->name() which should be steering instance name;
-         m_config->getMsgStream() << MSG::DEBUG << "Booked timer: " << name << endreq;
+         m_config->getMsgStream() << MSG::DEBUG << "Booked timer: " << name << endmsg;
 
       }
       else
-         m_config->getMsgStream() << MSG::WARNING << "Can not find TE label for id: " << outputType << endreq;
+         m_config->getMsgStream() << MSG::WARNING << "Can not find TE label for id: " << outputType << endmsg;
    }
 
    // Get TrigROBDataProvider_RTT for data pre-fetch test 
-   ServiceHandle<IROBDataProviderSvc>   m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc","TrigSteer_HLT");
-   if( m_robDataProvider.retrieve().isFailure() ) {
-      m_config->getMsgStream() << MSG::ERROR << "can't get ROBDataProviderSvc" << endreq;
+   ServiceHandle<IROBDataProviderSvc>   robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc","TrigSteer_HLT");
+   if( robDataProvider.retrieve().isFailure() ) {
+      m_config->getMsgStream() << MSG::ERROR << "can't get ROBDataProviderSvc" << endmsg;
    } else{
-      m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc_RTT>( &*m_robDataProvider );
+      m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc_RTT>( &*robDataProvider );
       if (m_trigROBDataProvider.isValid()) {
          if (m_config && m_config->getMsgLvl() <= MSG::DEBUG)
-            m_config->getMsgStream() << MSG::DEBUG << "A ROBDataProviderSvc implementing the trig interface ITrigROBDataProviderSvc_RTT was found."<< endreq;
+            m_config->getMsgStream() << MSG::DEBUG << "A ROBDataProviderSvc implementing the trig interface ITrigROBDataProviderSvc_RTT was found."<< endmsg;
       }
    }
    return;
@@ -116,18 +116,18 @@ bool Sequence::reset() {
 
    if ( m_firstAlgo ) {
       if (m_config->getMsgLvl() <= MSG::VERBOSE)
-         m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of 1st algo: " << m_firstAlgo->name()<< endreq;
+         m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of 1st algo: " << m_firstAlgo->name()<< endmsg;
       if ( !m_firstAlgo->reset() ) {
-	m_config->getMsgStream() << MSG::WARNING << "Sequence reset() of 1st algo problematic " << m_firstAlgo->name()<< endreq;
+	m_config->getMsgStream() << MSG::WARNING << "Sequence reset() of 1st algo problematic " << m_firstAlgo->name()<< endmsg;
 	return false;
       }
    }
 
    for (unsigned int i = 0; i < m_nextAlgos.size(); i++) {
       if (m_config->getMsgLvl() <=MSG::VERBOSE)
-         m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of next algo: " << m_nextAlgos[i]->name() << endreq;
+         m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of next algo: " << m_nextAlgos[i]->name() << endmsg;
       if ( !m_nextAlgos[i]->reset() ) {
-	m_config->getMsgStream() << MSG::WARNING << "Sequence reset() of next algo problematic " << m_nextAlgos[i]->name() << endreq;
+	m_config->getMsgStream() << MSG::WARNING << "Sequence reset() of next algo problematic " << m_nextAlgos[i]->name() << endmsg;
 	return false;
       }
    }
@@ -225,13 +225,13 @@ HLT::ErrorCode Sequence::execute()
    if (m_alreadyExecuted) {
       if (m_config->getMsgLvl() <=MSG::DEBUG) {
          m_config->getMsgStream() << MSG::DEBUG << "Sequence already executed! -> doing nothing"
-                                  << endreq;
+                                  << endmsg;
          m_config->getMsgStream() << MSG::DEBUG << "Sequence: inputTEs = ";
          for (std::vector< unsigned int >::const_iterator it = m_inputTeTypes.begin();
               it != m_inputTeTypes.end(); ++it) {
             m_config->getMsgStream() << MSG::DEBUG << (*it) << ", ";
          }
-         m_config->getMsgStream() << MSG::DEBUG << " outputTE = " << m_outputTeType << " firstAlgo = " << m_firstAlgo->name() << endreq;
+         m_config->getMsgStream() << MSG::DEBUG << " outputTE = " << m_outputTeType << " firstAlgo = " << m_firstAlgo->name() << endmsg;
       }
       return m_execErrorCode;
    }
@@ -270,7 +270,7 @@ HLT::ErrorCode Sequence::execute()
 
    if (m_config->getMsgLvl() <=MSG::DEBUG)
       m_config->getMsgStream() << MSG::DEBUG << "Sequence executing, producing output type = "
-                               << m_outputTeType << endreq;
+                               << m_outputTeType << endmsg;
 
 
    // Execute the algorithms.
@@ -280,7 +280,7 @@ HLT::ErrorCode Sequence::execute()
    try {
       if (m_config->getMsgLvl() <=MSG::DEBUG)
          m_config->getMsgStream() << MSG::DEBUG << "Executing first algo "
-                                  <<  m_firstAlgo->name() << endreq;
+                                  <<  m_firstAlgo->name() << endmsg;
 
       ErrorCode ec =  m_firstAlgo->createAndProcessTEs( m_inputTeTypes,  m_outputTeType,
                                                         m_outputTEs, m_topoStartFrom);
@@ -288,19 +288,19 @@ HLT::ErrorCode Sequence::execute()
 
       if (m_config->getMsgLvl() <=MSG::DEBUG)
          m_config->getMsgStream() << MSG::DEBUG << "Sequence '" << te_label
-                                  << "': EC from firstalgo->createAndProcessTEs(..) =  " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+                                  << "': EC from firstalgo->createAndProcessTEs(..) =  " << HLT::strErrorCode( m_execErrorCode ) <<  endmsg;
 
       if ( m_execErrorCode.action() > HLT::Action::CONTINUE ) {
          m_config->getMsgStream() << MSG::WARNING 
                                   << "Sequence '" << te_label << "' got error back while executing first algorithm '"
                                   << m_firstAlgo->name() << "':" 
-                                  << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+                                  << HLT::strErrorCode( m_execErrorCode ) <<  endmsg;
       }
 
       // Check if event timeout was reached
       if ( Athena::Timeout::instance().reached() ) {
          if (m_config->getMsgLvl() <= MSG::DEBUG)
-            m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo " << m_firstAlgo->name() << endreq;
+            m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo " << m_firstAlgo->name() << endmsg;
       
          return m_execErrorCode = HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
       }
@@ -315,31 +315,31 @@ HLT::ErrorCode Sequence::execute()
          if (activeOutputTEsInternal() == 0) {
             if (m_config->getMsgLvl() <=MSG::DEBUG)
                m_config->getMsgStream() << MSG::DEBUG << "No more valid TEs ==> exiting sequence before "
-                                        <<  m_nextAlgos[j]->name() << endreq;
+                                        <<  m_nextAlgos[j]->name() << endmsg;
             return m_execErrorCode;
          }
 
          if (m_config->getMsgLvl() <= MSG::DEBUG)
             m_config->getMsgStream() << MSG::DEBUG << "Executing next algo "
-                                     << m_nextAlgos[j]->name() << endreq;
+                                     << m_nextAlgos[j]->name() << endmsg;
      
          ErrorCode ec = m_nextAlgos[j]->processTEs(m_outputTEs);
          m_execErrorCode = m_execErrorCode > ec ? m_execErrorCode : ec;
 
          if (m_config->getMsgLvl() <=MSG::DEBUG)
             m_config->getMsgStream() << MSG::DEBUG << "Sequence "
-                                     << " EC from algo->processTEs(..) =  " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+                                     << " EC from algo->processTEs(..) =  " << HLT::strErrorCode( m_execErrorCode ) <<  endmsg;
 
          if ( ec.action() > HLT::Action::CONTINUE ) {
             m_config->getMsgStream() << MSG::WARNING 
                                      << "Sequence got error back while executing algorithm: " 
-                                     << m_nextAlgos[j]->name() << " " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+                                     << m_nextAlgos[j]->name() << " " << HLT::strErrorCode( m_execErrorCode ) <<  endmsg;
          }
 
          // Check if event timeout was reached
          if ( Athena::Timeout::instance().reached() ) {
             if (m_config->getMsgLvl() <= MSG::DEBUG)
-               m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo " << m_nextAlgos[j]->name() << endreq;
+               m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo " << m_nextAlgos[j]->name() << endmsg;
 	
             return m_execErrorCode = HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
          }
@@ -372,13 +372,13 @@ HLT::ErrorCode Sequence::prepareRobRequests()
       TrigConf::HLTTriggerElement::getLabel(m_outputTeType, telabel);
 
       m_config->getMsgStream() << MSG::DEBUG << "Sequence: prepareRobRequests for '" << telabel << "' already executed! -> doing nothing"
-                               << endreq;
+                               << endmsg;
       m_config->getMsgStream() << MSG::DEBUG << "Sequence: inputTEs = ";
       for (std::vector< unsigned int >::const_iterator it = m_inputTeTypes.begin();
            it != m_inputTeTypes.end(); ++it) {
         m_config->getMsgStream() << MSG::DEBUG << (*it) << ", ";
       }
-      m_config->getMsgStream() << MSG::DEBUG << " outputTE = " << m_outputTeType << " firstAlgo = " << m_firstAlgo->name() << endreq;
+      m_config->getMsgStream() << MSG::DEBUG << " outputTE = " << m_outputTeType << " firstAlgo = " << m_firstAlgo->name() << endmsg;
     }
     // and just return the result
     return m_prepRobReqErrorCode;
@@ -401,7 +401,7 @@ HLT::ErrorCode Sequence::prepareRobRequests()
     if (m_config->getMsgLvl() <=MSG::DEBUG) {
       std::string telabel;
       TrigConf::HLTTriggerElement::getLabel(m_outputTeType, telabel);
-      m_config->getMsgStream() << MSG::DEBUG << "Sequence " << telabel << " has input sequence at this step, calling prepareRobRequest for those" << endreq;
+      m_config->getMsgStream() << MSG::DEBUG << "Sequence " << telabel << " has input sequence at this step, calling prepareRobRequest for those" << endmsg;
     }
     // call prepareRobRequests() for all input Sequences
     for ( std::vector< HLT::Sequence* >::const_iterator seq = m_previousSequences.begin();
@@ -428,7 +428,7 @@ HLT::ErrorCode Sequence::prepareRobRequests()
   if (m_config->getMsgLvl() <=MSG::DEBUG) {
     std::string telabel;
     TrigConf::HLTTriggerElement::getLabel(m_outputTeType, telabel);
-    m_config->getMsgStream() << MSG::DEBUG << "Sequence " << telabel << ": preparing ROB requests for all fex-type of the " << m_nextAlgos.size()+1 << " algos of this sequence" << endreq;
+    m_config->getMsgStream() << MSG::DEBUG << "Sequence " << telabel << ": preparing ROB requests for all fex-type of the " << m_nextAlgos.size()+1 << " algos of this sequence" << endmsg;
   }
 
 
@@ -463,7 +463,7 @@ HLT::ErrorCode Sequence::prepareRobRequests()
       if (m_config->getMsgLvl() <=MSG::DEBUG){
 	std::string teName;
 	TrigConf::HLTTriggerElement::getLabel(m_outputTeType, teName);
-        m_config->getMsgStream() << MSG::DEBUG << "  calling processRobRequests of TECreateAlgo '" <<  te_create_alg->name() << "' with outputTE = " << teName << endreq;
+        m_config->getMsgStream() << MSG::DEBUG << "  calling processRobRequests of TECreateAlgo '" <<  te_create_alg->name() << "' with outputTE = " << teName << endmsg;
       }
 
       //test of the pre-fetching: clear the pre-fetching list
@@ -477,25 +477,25 @@ HLT::ErrorCode Sequence::prepareRobRequests()
       if (m_config->getMsgLvl() <=MSG::DEBUG)
         m_config->getMsgStream() << MSG::DEBUG
                                  << "EC from algo->processRobRequests(..) =  " 
-                                 << HLT::strErrorCode( m_prepRobReqErrorCode ) <<  endreq;
+                                 << HLT::strErrorCode( m_prepRobReqErrorCode ) <<  endmsg;
       
 
       if ( m_prepRobReqErrorCode.action() > HLT::Action::CONTINUE )
         m_config->getMsgStream() << MSG::WARNING 
                                  << "Sequence got error back while executing algo->processRobRequests(..): "
-                                 << te_create_alg->name() << " " << HLT::strErrorCode( m_prepRobReqErrorCode ) <<  endreq;
+                                 << te_create_alg->name() << " " << HLT::strErrorCode( m_prepRobReqErrorCode ) <<  endmsg;
 
       //test of the pretching: fill the pre-fetching list 
       if (do_prefetching_test){
 	std::string pref_name = alg->name() + "_pref";
-	if (m_config->getMsgLvl() <=MSG::INFO) m_config->getMsgStream() << MSG::INFO <<"Forcing trigROBDataProvider_RTT.addROBData: Algorithm "<< te_create_alg->name() <<" scheduled "<<m_config->robRequestInfo()->requestScheduledRobIDs().size() <<" ROBs"<<endreq;
+	if (m_config->getMsgLvl() <=MSG::INFO) m_config->getMsgStream() << MSG::INFO <<"Forcing trigROBDataProvider_RTT.addROBData: Algorithm "<< te_create_alg->name() <<" scheduled "<<m_config->robRequestInfo()->requestScheduledRobIDs().size() <<" ROBs"<<endmsg;
 	m_trigROBDataProvider->addROBData(m_config->robRequestInfo()->requestScheduledRobIDs(),pref_name);
       }
 
       // Check if event timeout was reached
       if ( Athena::Timeout::instance().reached() ) {
         if (m_config->getMsgLvl() <= MSG::DEBUG)
-          m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo->processRobRequests(..) " << m_nextAlgos[j]->name() << endreq;
+          m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo->processRobRequests(..) " << m_nextAlgos[j]->name() << endmsg;
         
         return m_prepRobReqErrorCode = HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
       }

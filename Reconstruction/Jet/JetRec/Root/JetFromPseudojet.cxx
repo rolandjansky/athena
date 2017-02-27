@@ -213,14 +213,14 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
   const PseudoJetVector pjcons = pj.constituents();
   ATH_MSG_VERBOSE("  Adding constituents: multiplicity is " << pjcons.size());
   JetConstituentFiller confiller;
-  int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
-  if ( nconskip < 0 ) {
-    ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
-  }
-  ATH_MSG_DEBUG("  Real/total/skipped constituents: " << pjet->numConstituents()
-                << "/" << pjcons.size() << "/" << nconskip);
   if ( pparent == 0 ) {
     ATH_MSG_VERBOSE("  No parent jet.");
+    int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
+    if ( nconskip < 0 ) {
+      ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
+    }
+    ATH_MSG_DEBUG("  Real/total/skipped constituents: " << pjet->numConstituents()
+		  << "/" << pjcons.size() << "/" << nconskip);
   } else {
     ATH_MSG_VERBOSE("  Adding parent jet properties");
     const JetContainer* pcon = dynamic_cast<const JetContainer*>(pparent->container());
@@ -245,9 +245,15 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
     ATH_MSG_VERBOSE("  Setting ghost area from parent.");
     pjet->setAttribute("JetGhostArea", pparent->getAttribute<float>("JetGhostArea"));
 
+    int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
+    if ( nconskip < 0 ) {
+      ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
+    }
+    ATH_MSG_DEBUG("  Real/total/skipped constituents: " << pjet->numConstituents()
+		  << "/" << pjcons.size() << "/" << nconskip);
+
     ATH_MSG_VERBOSE("  Setting EM scale momentum.");
-    buildAndSetEMScaleMom(pjet, inputtype );
-        
+    buildAndSetEMScaleMom(pjet, inputtype );        
   }
   ATH_MSG_VERBOSE("Done add with parent");
   return pjet;

@@ -88,8 +88,8 @@ namespace Rec {
                                                   double deltaE, double meanIoni, double sigmaIoni,
                                                   double& E,     double& sigma,   double& E_FSR   , double& E_expected, 
                                           double &E_em_meas, double &E_em_exp, double &E_tile_meas, double &E_tile_exp, 
-                                          double &E_HEC_meas, double &E_HEC_exp, double &E_dead_exp ) const {
-
+                                          double &E_HEC_meas, double &E_HEC_exp, double &E_dead_exp,
+  					  std::vector<Identifier>* crossedCells, std::vector<double>* sigmaNoise_cell, std::vector<double>* E_exp_cell) const {
 //
 // Input parameters trk:        (muon) track pointer
 //                  deltaE:     Mean Energy loss in Calorimeter
@@ -114,6 +114,14 @@ namespace Rec {
     E_HEC_meas  = 0.;
     E_HEC_exp   = 0.;
     E_dead_exp  = 0.;
+
+    bool storeCells = false;
+    if(crossedCells!=0&&sigmaNoise_cell!=0&&E_exp_cell!=0) {   
+      storeCells = true;
+      crossedCells->clear();
+      sigmaNoise_cell->clear();
+      E_exp_cell->clear();
+    }
 //
 // For the expected Eloss in the dead or not instrumented material we will use the meanIonization loss
 //     this meanIoni is stored on the extended Eloss object
@@ -312,6 +320,7 @@ namespace Rec {
       int cellSampling = curr_cell->caloDDE()->getSampling();
       bool badCell     = curr_cell->badcell();
       double cellEn    = curr_cell->energy();
+      Identifier id    = curr_cell->ID();
 
       double f_exp = (it.second)->pathLength(); 
       double E_exp = (it.second)->expectedEnergyLoss();
@@ -344,7 +353,14 @@ namespace Rec {
 // sum measured, expected energies for crossed cells after noise cuts 
 //
       if(cellSampling == CaloSampling::PreSamplerB || cellSampling == CaloSampling::PreSamplerE) {
-        if(f_exp>0&&cellEn>m_sigmasAboveNoise*sigma_Noise&&!badCell)  E_em1 += cellEn; 
+        if(f_exp>0&&cellEn>m_sigmasAboveNoise*sigma_Noise&&!badCell) {
+          E_em1 += cellEn; 
+          if(storeCells) {
+            crossedCells->push_back(id); 
+  	    sigmaNoise_cell->push_back(sigma_Noise);
+ 	    E_exp_cell->push_back(scale_Ionization*f_exp*E_exp*scale_em_expected); // I don't want sum, but value for each cell
+          }
+        }
       }
       if(curr_cell->caloDDE()->getSubCalo() == CaloCell_ID::LAREM) {
         E_em_exptot += scale_Ionization*f_exp*E_exp*scale_em_expected;
@@ -354,6 +370,11 @@ namespace Rec {
           E_em  += cellEn;
           E_em_expected += scale_Ionization*f_exp*E_exp*scale_em_expected;
           ATH_MSG_VERBOSE( " EM cell " << cellEn << " sigma_Noise " << sigma_Noise << " f_exp " << f_exp << " E_exp " << E_exp);
+          if(storeCells) {
+            crossedCells->push_back(id); 
+  	    sigmaNoise_cell->push_back(sigma_Noise);
+ 	    E_exp_cell->push_back(scale_Ionization*f_exp*E_exp*scale_em_expected);
+          }
         }
         if(f_exp>0&&!badCell) nlay_em++; 
         if(f_exp>0&&!badCell) sigma_Noise_em += sigma_Noise; 
@@ -365,6 +386,11 @@ namespace Rec {
           E_tile  += cellEn;
           E_tile_expected += scale_Ionization*f_exp*E_exp*scale_tile_expected;
           ATH_MSG_VERBOSE( " Tile cell " << cellEn << " sigma_Noise " << sigma_Noise << " f_exp " << f_exp << " E_exp " << E_exp);
+          if(storeCells) {
+            crossedCells->push_back(id); 
+  	    sigmaNoise_cell->push_back(sigma_Noise);
+ 	    E_exp_cell->push_back(scale_Ionization*f_exp*E_exp*scale_tile_expected);
+          }
         }
         if(f_exp>0&&!badCell) nlay_tile++; 
         if(f_exp>0&&!badCell) sigma_Noise_tile += sigma_Noise; 
@@ -377,6 +403,11 @@ namespace Rec {
           E_HEC  += cellEn;
           E_HEC_expected += scale_Ionization*f_exp*E_exp*scale_HEC_expected;
           ATH_MSG_VERBOSE( " HEC cell " << cellEn << " sigma_Noise " << sigma_Noise << " f_exp " << f_exp << " E_exp " << E_exp);
+          if(storeCells) {
+            crossedCells->push_back(id); 
+  	    sigmaNoise_cell->push_back(sigma_Noise);
+ 	    E_exp_cell->push_back(scale_Ionization*f_exp*E_exp*scale_HEC_expected);
+          }
         } 
         if(f_exp>0&&!badCell) nlay_HEC++; 
         if(f_exp>0&&!badCell) sigma_Noise_HEC += sigma_Noise; 

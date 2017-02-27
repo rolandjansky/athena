@@ -58,7 +58,7 @@ HLT::ErrorCode TrigMuonEFCaloIsolationHypo::hltInitialize() {
         ATH_MSG_INFO("Calo based isolation activated");
         ATH_MSG_INFO( (m_abscut ? "Absolute" : "Relative") << " isolation cut for calo selected");
         ATH_MSG_INFO("Calorimetric cone size selected: " << m_CaloConeSize);
-
+	ATH_MSG_INFO("MaxCaloIso_1/2/3 = "<<m_MaxCaloIso_1<<"/"<<m_MaxCaloIso_2<<"/"<<m_MaxCaloIso_3);
         if (m_MaxCaloIso_1 < 0.0 && m_MaxCaloIso_2 < 0.0 && m_MaxCaloIso_3 < 0.0) {
             ATH_MSG_FATAL("Configured to apply cuts, but not cut was specified");
             return HLT::BAD_JOB_SETUP;

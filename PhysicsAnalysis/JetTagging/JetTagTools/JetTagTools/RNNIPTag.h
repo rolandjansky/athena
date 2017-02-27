@@ -111,6 +111,7 @@ namespace Analysis {
     // we can save the sorted inputs for each tagger for debugging and
     // optimization
     bool m_writeInputsToBtagObject;
+    bool m_writeTrackLinks;
 
     //// VD: other (non-bool) configurables
     /** Name of the track-to-jet association in the BTagging object */
@@ -155,13 +156,6 @@ namespace Analysis {
     std::string m_secVxFinderNameForV0Removal;
     std::string m_secVxFinderNameForIPSign;
     std::string m_secVxFinderName;
-
-    /** additional switch for smart track selection */
-    int m_NtrkMin;          // minimum number of tracks to consider
-    int m_NtrkMax;          // maximum number of tracks to consider
-                            // (min will always prevail)
-    float m_trkFract;       // fraction of total tracks to consider
-                            // (min will alwayt prevail)
 
     //// VD: auxiliary information to be stored
     /** information to persistify: */

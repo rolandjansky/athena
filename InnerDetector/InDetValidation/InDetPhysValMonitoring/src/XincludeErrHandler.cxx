@@ -13,7 +13,7 @@ XIncludeErrHandler::~XIncludeErrHandler() {
 }
 
 bool
-XIncludeErrHandler::handleError(const xercesc::DOMError &domError) {
+XIncludeErrHandler::handleError(const xercesc::DOMError& domError) {
   bool continueParsing = true;
 
   if (domError.getSeverity() == xercesc::DOMError::DOM_SEVERITY_WARNING) {
@@ -21,7 +21,7 @@ XIncludeErrHandler::handleError(const xercesc::DOMError &domError) {
   } else if (domError.getSeverity() == xercesc::DOMError::DOM_SEVERITY_ERROR) {
     std::cout << "\nError at file ";
     m_errors = true;
-  }else {
+  } else {
     std::cout << "\nFatal Error at file ";
     continueParsing = false;
     m_errors = true;

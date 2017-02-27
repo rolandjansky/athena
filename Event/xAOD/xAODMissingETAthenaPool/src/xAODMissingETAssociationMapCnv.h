@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMissingETAssociationMapCnv.h 692089 2015-08-30 14:36:16Z khoo $
+// $Id: xAODMissingETAssociationMapCnv.h 795699 2017-02-05 23:26:05Z khoo $
 #ifndef XAODMISSINGETATHENAPOOL_XAODMISSINGETASSOCIATIONMAPCNV_H
 #define XAODMISSINGETATHENAPOOL_XAODMISSINGETASSOCIATIONMAPCNV_H
 
@@ -31,8 +31,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::MissingETAssociationMap,
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 692089 $
- * $Date: 2015-08-30 16:36:16 +0200 (Sun, 30 Aug 2015) $
+ * $Revision: 795699 $
+ * $Date: 2017-02-06 00:26:05 +0100 (Mon, 06 Feb 2017) $
  */
 class xAODMissingETAssociationMapCnv : public xAODMissingETAssociationMapCnvBase {
 
@@ -53,7 +53,8 @@ public:
 
 private:
    /// Function preparing a met object for persistence
-   void toPersistent( xAOD::MissingETAssociation* metComp ) const;
+   // Should be done by the aux container
+   // void toPersistent( xAOD::MissingETAssociation* metComp ) const;
 
    /// StoreGate key of the container just being created
    std::string m_key;

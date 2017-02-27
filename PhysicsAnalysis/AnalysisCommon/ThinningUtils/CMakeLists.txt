@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 791506 2017-01-09 00:33:35Z jcatmore $
+# $Id: CMakeLists.txt 795961 2017-02-07 12:53:47Z jcatmore $
 ################################################################################
 # Package: ThinningUtils
 ################################################################################
@@ -34,14 +34,15 @@ atlas_depends_on_subdirs(
    GaudiKernel
    PhysicsAnalysis/CommonTools/ExpressionEvaluation
    PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
+   Tracking/TrkTools/TrkToolInterfaces	
    ${extra_deps} )
 
 # Component(s) in the package:
-atlas_add_component( ThinningUtils
+atlas_add_component(ThinningUtils
    src/*.h src/*.cxx src/components/*.cxx
    LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase
    xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODParticleEvent xAODTau
-   xAODTracking xAODTruth GaudiKernel ExpressionEvaluationLib ${extra_libs} )
+   xAODTracking xAODTruth GaudiKernel ExpressionEvaluationLib TrkToolInterfaces ${extra_libs})
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

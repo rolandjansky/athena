@@ -16,6 +16,9 @@
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 #include "tauRecTools/TauChargedPFOCreator.h"
 #include "tauRecTools/TauWPDecorator.h"
+#include "tauRecTools/TauJetBDTEvaluator.h"
+#include "tauRecTools/TauIDVarCalculator.h"
+#include "tauRecTools/TauEleOLRDecorator.h"
 
 #ifdef __CINT__
 
@@ -44,5 +47,8 @@
 #pragma link C++ class CombinedP4FromRecoTaus+;
 #pragma link C++ class TauChargedPFOCreator+;
 #pragma link C++ class TauWPDecorator+;
+#pragma link C++ class TauJetBDTEvaluator+;
+#pragma link C++ class TauIDVarCalculator+;
+#pragma link C++ class TauEleOLRDecorator+;
 
 #endif

@@ -6,15 +6,11 @@
 
 #include "TauDiscriminant/TauJetBDT.h"
 #include "TauDiscriminant/TauEleBDT.h"
-#include "TauDiscriminant/TauIDVarCalculator.h"
-#include "TauDiscriminant/TauEleOLRDecorator.h"
 #include "TauDiscriminant/TauScoreFlatteningTool.h"
 #include "TauDiscriminant/TauMuonVeto.h"
 
 REGISTER_TOOL(TauJetBDT)
-REGISTER_TOOL(TauIDVarCalculator)
 REGISTER_TOOL(TauEleBDT)
-REGISTER_TOOL(TauEleOLRDecorator)
 REGISTER_TOOL(TauScoreFlatteningTool)
 REGISTER_TOOL(TauMuonVeto)
 

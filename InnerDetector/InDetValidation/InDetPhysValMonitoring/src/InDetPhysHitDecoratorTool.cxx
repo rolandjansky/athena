@@ -32,8 +32,8 @@
 // ​https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkParametersBase/trunk/TrkParametersBase/CurvilinearParametersT.h
 
 
-InDetPhysHitDecoratorTool::InDetPhysHitDecoratorTool(const std::string &type, const std::string &name,
-                                                     const IInterface *parent) :
+InDetPhysHitDecoratorTool::InDetPhysHitDecoratorTool(const std::string& type, const std::string& name,
+                                                     const IInterface* parent) :
   AthAlgTool(type, name, parent),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
   m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
@@ -56,7 +56,6 @@ InDetPhysHitDecoratorTool::~InDetPhysHitDecoratorTool () {
 
 StatusCode
 InDetPhysHitDecoratorTool::initialize() {
-
   ATH_CHECK(m_holeSearchTool.retrieve());
   if (not (m_updatorHandle.empty())) {
     ATH_CHECK(m_updatorHandle.retrieve());
@@ -95,7 +94,7 @@ InDetPhysHitDecoratorTool::finalize() {
 }
 
 bool
-InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, const std::string &prefix) {
+InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, const std::string& prefix) {
   static int trackNumber(0);
 
   typedef std::tuple<int, int, int, float, float, float, float, int, int, int> SingleResult_t;
@@ -112,7 +111,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
                                                        invalidPull, invalidRes, invalidPull, invalidWidth, invalidWidth,
                                                        invalidMeasure);
   // get element link to the original track
-  const ElementLink< TrackCollection > &trackLink = particle.trackLink();// using xAODTracking-00-03-09, interface has
+  const ElementLink< TrackCollection >& trackLink = particle.trackLink();// using xAODTracking-00-03-09, interface has
                                                                          // changed later
   if (trackLink.isValid()) {
     ATH_MSG_VERBOSE("Track link found ");
@@ -120,7 +119,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
     if (pt > m_ptThreshold) {
       ATH_MSG_VERBOSE("pt is over threshold ");
       std::unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trackLink));
-      const auto &allTrackStates = *(trackWithHoles->trackStateOnSurfaces());
+      const auto& allTrackStates = *(trackWithHoles->trackStateOnSurfaces());
       const int numberOfHits(allTrackStates.size());
       unsigned int trackParametersCounter(numberOfHits);
       TrackResult_t result;
@@ -134,7 +133,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
       }
       ATH_MSG_DEBUG("Num. track states in track " << ++trackNumber << ": " << allTrackStates.size());
 
-      for (const auto &thisTrackState: allTrackStates) {
+      for (const auto& thisTrackState: allTrackStates) {
         // Copy logic from InDetRttPerformance to get hits/outliers/holes
         // Variable specifying measurement type filled
         SingleResult_t thisResult(invalidResult);
@@ -143,8 +142,8 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
           continue;
         }
         Identifier surfaceID;
-        const Trk::MeasurementBase *mesb = (thisTrackState)->measurementOnTrack();
-        const Trk::RIO_OnTrack *hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack *>(mesb) : nullptr;
+        const Trk::MeasurementBase* mesb = (thisTrackState)->measurementOnTrack();
+        const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : nullptr;
         if (mesb && !hit) {
           continue; // skip pseudomeasurements
         }
@@ -193,7 +192,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
         int phiWidth(-1);
         int etaWidth(-1);
         std::unique_ptr<const Trk::ResidualPull> residualPull(nullptr);
-        const Trk::TrackParameters *biasedTrackParameters = thisTrackState->trackParameters();
+        const Trk::TrackParameters* biasedTrackParameters = thisTrackState->trackParameters();
         if (biasedTrackParameters) {
           ATH_MSG_VERBOSE("biased track parameters ok");
         }
@@ -202,13 +201,13 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
           ATH_MSG_DEBUG("mesb and biased track parameters are ok");
           // for outliers, the measurement is not part of the fit, so track parameters are already unbiased
           std::unique_ptr<const Trk::TrackParameters> cleanup_trackparam;
-          const Trk::TrackParameters *trackParameters =
+          const Trk::TrackParameters* trackParameters =
             (!thisTrackState->type(Trk::TrackStateOnSurface::Outlier)) ? getUnbiasedTrackParameters(
               biasedTrackParameters,
               mesb) :
             biasedTrackParameters;
           if (trackParameters != biasedTrackParameters) {
-              cleanup_trackparam.reset(trackParameters);
+            cleanup_trackparam.reset(trackParameters);
           }
           if (not trackParameters) {
             ATH_MSG_DEBUG("unbiased track parameters pointer is NULL");
@@ -237,8 +236,8 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
           // copy-paste from original
           if (hit && m_isUnbiased) {
             // Cluster width determination
-            if ((det == IBL)or(det == PIXEL) or(det == SCT)) {
-              const InDet::SiCluster *pCluster = dynamic_cast <const InDet::SiCluster *>(hit->prepRawData());
+            if ((det == L0PIXBARR)or(det == PIXEL) or(det == SCT)) {
+              const InDet::SiCluster* pCluster = dynamic_cast <const InDet::SiCluster*>(hit->prepRawData());
               if (pCluster) {
                 InDet::SiWidth width = pCluster->width();
                 phiWidth = int(width.colRow().x());
@@ -264,7 +263,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
       }// end of for loop*/
       ATH_MSG_DEBUG(
         "Out of " << numberOfHits << " hits, " << trackParametersCounter << " had track params, and " << result.size() <<
-        " had residuals.");
+          " had residuals.");
       if (not result.empty()) {
 //      particle.auxdecor<TrackResult_t>(prefix+"hitResiduals") = result; //!< no dictionary for tuple
         const unsigned int arraySize = result.size();
@@ -288,7 +287,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
         result_etaWidth.reserve(arraySize);
         std::vector<int> result_measureType;
         result_measureType.reserve(arraySize);
-        for (const SingleResult_t &single_result : result) {
+        for (const SingleResult_t& single_result : result) {
           result_det.push_back(std::get<0>(single_result));
           result_r.push_back(std::get<1>(single_result));
           result_iLayer.push_back(std::get<2>(single_result));
@@ -320,7 +319,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
 }
 
 bool
-InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier &id, Subdetector &det, Region &r, int &layer) {
+InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier& id, Subdetector& det, Region& r, int& layer) {
   bool success(false);
   const int normalBarrel(0);
   const int upgradedBarrel(1);
@@ -352,16 +351,10 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier &id, Subdetecto
     bec = abs(m_pixelID->barrel_ec(id));
     r = (bec == normalBarrel) ? (BARREL) : (ENDCAP);
     layer = m_pixelID->layer_disk(id);
-    if (layer == 0) {
-      det = IBL;
+    if (BARREL == r and layer == 0) {
+      det = L0PIXBARR;
     }
   }
-  /** cf. Miriam's code
-     if (det==PIXEL) {
-     r= (bec==normalBarrel)?(BARREL):(ENDCAP);
-     if (m_pixelID->layer_disk(id) == 0) det=BLAYER;
-     }
-   **/
   if (det == DBM) {
     r = (bec < 0) ? (BARREL) : (ENDCAP);
   }
@@ -384,11 +377,11 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier &id, Subdetecto
   return success;
 }
 
-const Trk::TrackParameters *
-InDetPhysHitDecoratorTool::getUnbiasedTrackParameters(const Trk::TrackParameters *trkParameters,
-                                                      const Trk::MeasurementBase *measurement) {
+const Trk::TrackParameters*
+InDetPhysHitDecoratorTool::getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters,
+                                                      const Trk::MeasurementBase* measurement) {
   static bool alreadyWarned(false);
-  const Trk::TrackParameters *unbiasedTrkParameters(trkParameters);
+  const Trk::TrackParameters* unbiasedTrkParameters(trkParameters);
 
   if (!m_updatorHandle.empty() && (m_isUnbiased)) {
     if (trkParameters->covariance()) {
@@ -407,7 +400,7 @@ InDetPhysHitDecoratorTool::getUnbiasedTrackParameters(const Trk::TrackParameters
                         << endmsg;
       alreadyWarned = true;
       m_isUnbiased = false;
-    }else {
+    } else {
       m_isUnbiased = false;
     }// end if no measured track parameter
   }

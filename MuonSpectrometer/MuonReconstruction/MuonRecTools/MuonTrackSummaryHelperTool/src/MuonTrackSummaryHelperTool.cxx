@@ -464,6 +464,10 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	  goodLayIds.insert(layId);
 	}
       }
+      else if(m_idHelperTool->isCsc(id)){
+	const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
+	if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
+      }
     }else{
       const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
       if( crot ){
@@ -479,6 +483,10 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	  // get layer Identifier and insert it into set
 	  Identifier layId =  m_idHelperTool->layerId( (*clit)->identify() );
 	  layIds.insert(layId);
+	  if(m_idHelperTool->isCsc(id)){
+	    const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(*clit);
+	    if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
+	  }
 	}
       }else{
 	continue;

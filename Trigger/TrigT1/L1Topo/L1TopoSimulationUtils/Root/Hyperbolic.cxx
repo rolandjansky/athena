@@ -10,7 +10,7 @@
 **********************************/
 
 #include "L1TopoSimulationUtils/Hyperbolic.h"
-
+//extra comment
 // 11 integer bit(s) + 7decimal bit(s); (79 entries)
 const std::vector<std::string> TSU::Hyperbolic::Cosh = {
 	"000000000010000000", // value = 1.0,	 argument value = 0.0

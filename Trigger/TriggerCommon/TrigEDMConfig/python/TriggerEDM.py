@@ -1604,7 +1604,10 @@ def getTriggerEDMList(key, runVersion):
     run can be: '1 (Run1)', '2 (Run2)'
     """
     if runVersion == 2:
-        return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
+        if 'SLIM' in key:
+            return getTriggerEDMSlimList(key)
+        else:
+            return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
     else:
         return getTriggerObjList(key,[TriggerL2List,TriggerEFList, TriggerResultsRun1List])
 

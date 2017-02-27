@@ -15,12 +15,10 @@
 #include "TrkExSTEP_Propagator/STEP_Propagator.h"
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkSurfaces/Surface.h"
-//#include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/AlignableTrackingVolume.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/BinnedMaterial.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-//#include "TrkEventPrimitives/Vector.h"
 #include "TrkExUtils/IntersectionSolution.h"
 #include "TrkExUtils/RungeKuttaUtils.h"
 #include "TrkExUtils/TransportJacobian.h"
@@ -31,11 +29,8 @@
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 // CLHEP
-//#include "CLHEP/Units/SystemOfUnits.h"
-//#include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
-//#include "AthenaKernel/IAtRndmGenSvc.h"
 //Gaudi
 #include "GaudiKernel/PhysicalConstants.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
@@ -68,21 +63,51 @@ Trk::STEP_Propagator::STEP_Propagator
   m_maxPath(100000.),         //Maximum propagation length in mm.
   m_maxSteps(10000),          //Maximum number of allowed steps (to avoid infinite loops).
   m_layXmax(1.),              // maximal layer thickness for multiple scattering calculations
+  m_binMat{},
+  m_matstates{},
+  m_identifiedParameters{},
+  m_hitVector{},
+  m_currentLayerBin{},
+  m_matupd_lastmom{},
+  m_matupd_lastpath{},
+  m_matdump_lastpath{},
+  m_delRad{},
+  m_delIoni{},
+  m_sigmaIoni{},
+  m_kazL{},
+  m_sigmaRad{},
+  m_stragglingVariance{},
+  m_combinedEloss{},
+  m_combinedThickness{},
+  m_combinedCovariance{},
+  m_covariance{},
+  m_inputThetaVariance{},
+  m_matInt{},
   m_simulation(false),        //flag for simulation mode 
   m_rndGenSvc("AtDSFMTGenSvc", n),
   m_randomEngine(0),
   m_randomEngineName("FatrasRnd"),
+  m_pathLimit{},
   m_propagateWithPathLimit(0),      //flag for propagation with path limit 
+  m_timeOfFlight{},
+  m_timeStep{},
   m_particleMass(0),
+  m_charge{},
   m_matPropOK( true),         //Flag for missing material properties.
+  m_particle{},
+  m_trackingVolume{},
+  m_material{},
   m_fieldServiceHandle("AtlasFieldSvc",n),
-  m_fieldService(0),
+  m_fieldService(nullptr),
   m_solenoid(false),
+  m_currentDist{},
+  m_maxCurrentDist{},
+  m_timeIn{},
   m_brem(false),
   m_bremMom(0.),
   m_bremEmitThreshold(0.),
   m_bremSampleThreshold(0.),
-  m_extrapolationCache(0)
+  m_extrapolationCache(nullptr)
 {
   declareInterface<Trk::IPropagator>(this);
   declareProperty( "Tolerance",          m_tolerance);
@@ -118,7 +143,7 @@ Trk::STEP_Propagator::~STEP_Propagator(){}
 // initialize
 StatusCode Trk::STEP_Propagator::initialize()
 {
-  msg(MSG::INFO) << name() <<" STEP_Propagator initialize() successful" << endmsg;
+  ATH_MSG_VERBOSE(" STEP_Propagator initialize() successful" );
 
   if (!m_materialEffects) { //override all material interactions
     m_multipleScattering = false;
@@ -173,7 +198,7 @@ StatusCode Trk::STEP_Propagator::initialize()
 // finalize
 StatusCode Trk::STEP_Propagator::finalize()
 {
-  msg(MSG::INFO) << name() <<" finalize() successful" << endmsg;
+  ATH_MSG_VERBOSE(" finalize() successful" );
   return StatusCode::SUCCESS;
 }
 
@@ -185,7 +210,7 @@ const Trk::NeutralParameters*
 				         Trk::BoundaryCheck,
 				              bool) const
 {
-  msg(MSG::WARNING) << "[STEP_Propagator] STEP_Propagator does not handle neutral track parameters. Use the StraightLinePropagator instead." << endmsg;
+  ATH_MSG_WARNING( "[STEP_Propagator] STEP_Propagator does not handle neutral track parameters. Use the StraightLinePropagator instead." );
   return 0;
 }
 
@@ -326,7 +351,7 @@ const Trk::TrackParameters*
   double beta = 1.;
   if (dTim>0.) {
     double mom = trackParameters.momentum().mag(); 
-    beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+    beta = mom/std::sqrt(mom*mom+m_particleMass*m_particleMass);
   }
   double timMax = dTim>0 ?  dTim*beta*Gaudi::Units::c_light : -1.;
   
@@ -1223,7 +1248,7 @@ bool
     if (errorPropagation && m_straggling) {
       double sigTot2 = m_sigmaIoni*m_sigmaIoni + m_sigmaRad*m_sigmaRad;
       // /(beta*beta*p*p*p*p) transforms Var(E) to Var(q/p)
-      mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+      mom = fabs(1./P[6]); beta = mom/std::sqrt(mom*mom+m_particleMass*m_particleMass);
       double bp2 = beta*mom*mom;
       m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*distanceStepped;  
     }
@@ -1264,7 +1289,7 @@ bool
   dir[2] = dir[2] + distanceToTarget*dDir[2];
   
   //Normalize dir
-  double norm  = 1./sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
+  double norm  = 1./std::sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
   dir[0] = norm*dir[0];
   dir[1] = norm*dir[1];
   dir[2] = norm*dir[2];
@@ -1425,7 +1450,7 @@ bool
       // collect material and update timing
       path = path + distanceStepped;
       // timing
-      mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+      mom = fabs(1./P[6]); beta = mom/std::sqrt(mom*mom+m_particleMass*m_particleMass);
       m_timeStep += distanceStepped/beta/CLHEP::c_light;
 
       if(fabs(distanceStepped)>0.001) m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));
@@ -1450,7 +1475,7 @@ bool
     absPath += fabs(distanceStepped);
 
     // timing
-    mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+    mom = fabs(1./P[6]); beta = mom/std::sqrt(mom*mom+m_particleMass*m_particleMass);
     m_timeStep += distanceStepped/beta/Gaudi::Units::c_light;
 
     if(fabs(distanceStepped)>0.001) m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));
@@ -1789,7 +1814,7 @@ bool
   path = path + distanceToTarget;
 
   // timing
-  mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+  mom = fabs(1./P[6]); beta = mom/std::sqrt(mom*mom+m_particleMass*m_particleMass);
   m_timeStep += distanceToTarget/beta/Gaudi::Units::c_light;
 
   //pos = pos + h*dir + 1/2*h*h*dDir. Second order Taylor expansion.
@@ -1803,7 +1828,7 @@ bool
   dir[2] = dir[2] + distanceToTarget*dDir[2];
 
   //Normalize dir
-  double norm  = 1./sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
+  double norm  = 1./std::sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
   dir[0] = norm*dir[0];
   dir[1] = norm*dir[1];
   dir[2] = norm*dir[2];
@@ -1865,7 +1890,7 @@ bool
   double     momentum = initialMomentum;        // Current momentum
   if (m_energyLoss && m_matPropOK) {
     g = dEds( momentum); //Use the same energy loss throughout the step.
-    double E = sqrt( momentum*momentum + particleMass*particleMass);
+    double E = std::sqrt( momentum*momentum + particleMass*particleMass);
     dP1 = g*E/momentum;
     if (errorPropagation) {
       if (m_includeGgradient) {
@@ -1892,7 +1917,7 @@ bool
     if (m_energyLoss && m_matPropOK) {
       momentum = initialMomentum + (h/2.)*dP1;
       if (momentum <= m_momentumCutOff) return false; //Abort propagation
-      double E = sqrt( momentum*momentum + particleMass*particleMass);
+      double E = std::sqrt( momentum*momentum + particleMass*particleMass);
       dP2 = g*E/momentum;
       lambda2 = charge/momentum;
       if (errorPropagation) {
@@ -1911,7 +1936,7 @@ bool
     if (m_energyLoss && m_matPropOK) {
       momentum = initialMomentum + (h/2.)*dP2;
       if (momentum <= m_momentumCutOff) return false; //Abort propagation
-      double E = sqrt( momentum*momentum + particleMass*particleMass);
+      double E = std::sqrt( momentum*momentum + particleMass*particleMass);
       dP3 = g*E/momentum;
       lambda3 = charge/momentum;
       if (errorPropagation) {
@@ -1928,7 +1953,7 @@ bool
     if (m_energyLoss && m_matPropOK) {
       momentum = initialMomentum + h*dP3;
       if (momentum <= m_momentumCutOff) return false; //Abort propagation
-      double E = sqrt( momentum*momentum + particleMass*particleMass);
+      double E = std::sqrt( momentum*momentum + particleMass*particleMass);
       dP4 = g*E/momentum;
       lambda4 = charge/momentum;
       if (errorPropagation) {
@@ -1948,11 +1973,8 @@ bool
 
     //Use the error estimate to calculate new step length. h is returned by reference.
     distanceStepped = h; //Store old step length.
-    if ( h >= 0.) {
-      h = std::min( std::max( 0.25*h, std::pow((m_tolerance / errorEstimate), 0.25)*h), 4.*h);
-    } else {
-      h = std::max( std::min( 0.25*h, std::pow((m_tolerance / errorEstimate), 0.25)*h), 4.*h);
-    }
+    h = h*std::min( std::max( 0.25, std::pow((m_tolerance / errorEstimate), 0.25)), 4.);
+
     //Repeat step with the new step size if error is too big.
     if (errorEstimate > 4.*m_tolerance) continue;
 
@@ -1970,7 +1992,7 @@ bool
     P[5] = dir.z();
 
     //Normalize direction
-    double norm = 1./sqrt( P[3]*P[3] + P[4]*P[4] + P[5]*P[5]);
+    double norm = 1./std::sqrt( P[3]*P[3] + P[4]*P[4] + P[5]*P[5]);
     P[3] = norm*P[3];
     P[4] = norm*P[4];
     P[5] = norm*P[5];
@@ -2218,7 +2240,7 @@ double Trk::STEP_Propagator::dgdlambda( double l) const
   double p     = fabs( 1./l);
   double m     = s_particleMasses.mass[m_particle];
   double me    = s_particleMasses.mass[Trk::electron];
-  double E     = sqrt(p*p+m*m);
+  double E     = std::sqrt(p*p+m*m);
   double beta  = p/E;
   double gamma = E/m;
   double I     = 16.e-6*std::pow( m_material->averageZ(),0.9);
@@ -2233,7 +2255,7 @@ double Trk::STEP_Propagator::dgdlambda( double l) const
 
   //density effect, only valid for high energies (gamma > 10 -> p > 1GeV for muons)
   if (gamma > 10.) {
-    double delta = 2.*log(28.816e-6 * sqrt(1000.*m_material->zOverAtimesRho())/I) + 2.*log(beta*gamma) - 1.;
+    double delta = 2.*log(28.816e-6 * std::sqrt(1000.*m_material->zOverAtimesRho())/I) + 2.*log(beta*gamma) - 1.;
     double delta_deriv = -2./(l*beta*beta)+2.*delta*l*m*m;
     Bethe_Bloch_deriv += kaz*delta_deriv;
   }
@@ -2338,7 +2360,7 @@ void Trk::STEP_Propagator::dumpMaterialEffects( const Trk::CurvilinearParameters
                           m_combinedEloss.meanIoni(), m_combinedEloss.sigmaIoni(),
                           m_combinedEloss.meanRad(), m_combinedEloss.sigmaRad(), path ) ;
 
-    Trk::ScatteringAngles* sa = new Trk::ScatteringAngles(0.,0.,sqrt(m_covariance(2,2)), sqrt(m_covariance(3,3)));    
+    Trk::ScatteringAngles* sa = new Trk::ScatteringAngles(0.,0.,std::sqrt(m_covariance(2,2)), std::sqrt(m_covariance(3,3)));    
   
     Trk::CurvilinearParameters* cvlTP = parms->clone();
     Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(m_combinedThickness,sa,eloss,cvlTP->associatedSurface());   
@@ -2417,7 +2439,7 @@ void Trk::STEP_Propagator::updateMaterialEffects( double mom, double sinTheta,do
     momentum = m_matupd_lastmom + totalMomentumLoss*(layer - 0.5)/msLayers;
 
     mom2 = momentum*momentum;
-    E = sqrt( mom2 + massSquared);
+    E = std::sqrt( mom2 + massSquared);
     beta = momentum/E;
 
     double C0 = 13.6*13.6/mom2/beta/beta;
@@ -2518,10 +2540,10 @@ void Trk::STEP_Propagator::smear( double& phi, double& theta, const Trk::TrackPa
   //Calculate polar angle
   double     particleMass = s_particleMasses.mass[m_particle]; //Get particle mass from ParticleHypothesis
   double momentum = parms->momentum().mag();
-  double energy = sqrt( momentum*momentum + particleMass*particleMass);
+  double energy = std::sqrt( momentum*momentum + particleMass*particleMass);
   double beta = momentum/energy;
-  double th = sqrt(2.)*15.*sqrt(radDist)/(beta*momentum) * CLHEP::RandGauss::shoot(m_randomEngine); //Moliere
-  //double th = (sqrt(2.)*13.6*sqrt(radDist)/(beta*momentum)) * (1.+0.038*log(radDist/(beta*beta))) * m_gaussian->shoot(); //Highland
+  double th = std::sqrt(2.)*15.*std::sqrt(radDist)/(beta*momentum) * CLHEP::RandGauss::shoot(m_randomEngine); //Moliere
+  //double th = (sqrt(2.)*13.6*std::sqrt(radDist)/(beta*momentum)) * (1.+0.038*log(radDist/(beta*beta))) * m_gaussian->shoot(); //Highland
 
   //Calculate azimuthal angle
   double ph = 2.*M_PI*CLHEP::RandFlat::shoot(m_randomEngine);

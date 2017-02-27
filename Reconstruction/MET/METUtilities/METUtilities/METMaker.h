@@ -153,6 +153,7 @@ namespace met {
     double m_jetMinWeightedPt;
     std::string m_jetConstitScaleMom;
     std::string m_jetJvtMomentName;
+    std::string m_jetRejectionDec;
 
     double m_CenJetPtCut, m_FwdJetPtCut ; // jet pt cut for central/forward jets(eta<2.4)
     double m_JvtCut, m_JvtPtMax; // JVT cut and pt region of jets to apply a JVT selection
@@ -161,12 +162,15 @@ namespace met {
     double m_customCenJetPtCut,m_customFwdJetPtCut;
     double m_customJvtCut,m_customJvtPtMax;
 
+    bool m_extraJetRejection;
     bool m_doPFlow;
     bool m_doSoftTruth;
     bool m_doConstJet;
 
     bool m_useGhostMuons;
     bool m_doRemoveMuonJets;
+    bool m_doRemoveElecTrks;
+    bool m_doRemoveElecTrksEM;
     bool m_doSetMuonJetEMScale;
 
     bool m_muEloss;

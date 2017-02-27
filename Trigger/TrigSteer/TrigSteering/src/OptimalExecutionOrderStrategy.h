@@ -26,9 +26,9 @@ namespace HLT {
     virtual bool insert(const HLT::SteeringChain* );
     void flush(std::vector<HLT::SteeringChain*>& chains);
   protected:
-    std::vector<const HLT::SteeringChain*> content;
+    std::vector<const HLT::SteeringChain*> m_content;
     
-    std::set<const HLT::SteeringChain*> matching;
+    std::set<const HLT::SteeringChain*> m_matching;
   };
   
   /**
