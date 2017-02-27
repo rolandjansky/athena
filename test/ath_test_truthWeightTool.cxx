@@ -40,26 +40,26 @@ int main( int argc, char* argv[] ) {
   }
   
   POOL::TEvent::EReadMode mode = POOL::TEvent::kPOOLAccess; //POOL is slowest, but it can read everything!
-  //mode = POOL::TEvent::kClassAccess;
-
-  ::Info(APP_NAME,"Will setup POOL Event");
+  // IMPORTANT: Need to use class-access for now since pool-covnerter for xAOD::TruthMetaDataContiner is missing
+  mode = POOL::TEvent::kClassAccess;
   
   POOL::TEvent evt(mode);
   evt.readFrom( argv[1] );
-  
+  evt.setEvtSelProperty("ReadMetaDataWithPool",false); // See comment above
+
   ::Info(APP_NAME,"Will create tool");
   // Create the truth weight tool:
   xAOD::TruthWeightTool weightTool( "TruthWeightTool" );
   weightTool.setProperty( "OutputLevel", MSG::DEBUG ).ignore();
   weightTool.initialize().ignore();
 
-  // The preferred way to create and configure tools is with a ToolHandle:
+  // Optional: create ToolHandle
   // constructor argument is: Type/Name
-  ToolHandle< xAOD::ITruthWeightTool > handle( "xAOD::TruthWeightTool/TruthWeightTool" );
-  if ( handle.retrieve().isFailure() ) {
-    ::Error( APP_NAME, "Could not retrieve TruthWeightTool");
-    return 1;
-  }
+  //  ToolHandle< xAOD::ITruthWeightTool > handle( "xAOD::TruthWeightTool/TruthWeightTool" );
+  //if ( handle.retrieve().isFailure() ) {
+  //  ::Error( APP_NAME, "Could not retrieve TruthWeightTool");
+  //  return 1;
+  //}
   
   ::Info(APP_NAME,"Will loop");
 
