@@ -15,7 +15,13 @@ namespace xAOD {
    StatusCode TruthWeightTool::initialize() {
       ATH_MSG_DEBUG( "Initialising... " );
       // AsgMetadataTool needs to call sysInitize to be registered in the incident svc
-      return sysInitialize(); //StatusCode::SUCCESS;
+      // "hack" to make sure sysInitlize is called (only once, or we get caut in infinite loop)
+      bool static first=true;
+      if (first) {
+	first=false; 
+	return sysInitialize();
+      }
+      return StatusCode::SUCCESS;
    }
 
    std::shared_ptr<IIndexRetriever> TruthWeightTool::spawnIndexRetriever(std::string weightName) { 
