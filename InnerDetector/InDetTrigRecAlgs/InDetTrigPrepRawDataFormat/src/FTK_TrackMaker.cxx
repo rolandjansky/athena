@@ -166,9 +166,8 @@ namespace InDet{
       //check for recoverable errors
       int n_err_total = 0;
        
-      //int bsErrors[EFID_MAXNUM_FTK_BS_ERRORS];
-      
       /*
+      int bsErrors[EFID_MAXNUM_FTK_BS_ERRORS];
       for (size_t idx = 0; idx<size_t(EFID_MAXNUM_FTK_BS_ERRORS); idx++){
 	int n_errors = m_bsErrorSvc->getNumberOfErrors(FTKByteStreamErrors::errorTypes(idx));
 	n_err_total += n_errors;
