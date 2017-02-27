@@ -126,6 +126,7 @@ class InDetTrigSliceSettingsDB:
     checkseedredundancy['muon'] = True
     checkseedredundancy['muonCore'] = True
     checkseedredundancy['bphysics'] = True
+    checkseedredundancy['beamSpot'] = True
     self.db['checkRedundantSeeds'] = checkseedredundancy
 
     
