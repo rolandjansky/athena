@@ -41,13 +41,17 @@ int main( int argc, char* argv[] ) {
   
   POOL::TEvent::EReadMode mode = POOL::TEvent::kPOOLAccess; //POOL is slowest, but it can read everything!
   //mode = POOL::TEvent::kClassAccess;
+
+  ::Info(APP_NAME,"Will setup POOL Event");
   
   POOL::TEvent evt(mode);
   evt.readFrom( argv[1] );
   
+  ::Info(APP_NAME,"Will create tool");
   // Create the truth weight tool:
   xAOD::TruthWeightTool weightTool( "TruthWeightTool" );
-  weightTool.setProperty( "OutputLevel", MSG::INFO ).ignore();
+  weightTool.setProperty( "OutputLevel", MSG::DEBUG ).ignore();
+  weightTool.initialize().ignore();
 
   // The preferred way to create and configure tools is with a ToolHandle:
   // constructor argument is: Type/Name
@@ -57,13 +61,16 @@ int main( int argc, char* argv[] ) {
     return 1;
   }
   
+  ::Info(APP_NAME,"Will loop");
+
   const ::Long64_t Nevts = evt.getEntries();
   for (int i=0;i < Nevts; i++) {
     if ( evt.getEntry(i) < 0) { ANA_MSG_ERROR("Failed to read event " << i); continue; }
 
     if ( i == 0) {
+      ::Info(APP_NAME,"Will print");
       auto weightNames = weightTool.getWeightNames();
-      auto weights = weightTool.getMCweights();
+      auto weights = weightTool.getWeights();
       for (size_t i=0;i<weightNames.size();++i)
 	::Info( APP_NAME,"Weight %3lu has value %.3f and name \"%s\"",
 		i,weights[i],weightNames[i].c_str());
