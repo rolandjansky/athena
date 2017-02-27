@@ -27,7 +27,7 @@ while getopts ":t:b:fh" opt; do
         b)
             BUILDDIR=$OPTARG
             ;;
-	f)
+        f)
             FORCE=1
             ;;
         h)

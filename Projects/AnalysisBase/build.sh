@@ -12,8 +12,6 @@ usage() {
     echo "    -t: The (optional) CMake build type to use."
     echo "    -b: The (optional) build directory to use."
     echo "    -g: The (optional) CMake generator to use."
-    echo "        Be careful that only the default can be used for"
-    echo "        automatic builds by the script."
     echo "    -a: Abort on error."
     echo "  Build step selection:"
     echo "    -c: Execute the CMake step."
@@ -133,7 +131,18 @@ fi
 
 # Run the build:
 if [ -n "$EXE_MAKE" ]; then
-    time make -k 2>&1 | tee cmake_build.log
+    if [ "$NIGHTLY" = true ]; then
+        # In order to build the project in a nightly setup, allowing for some
+        # build steps to fail while still continuing, we need to use "make"
+        # directly. Only allowing the usage of the Makefile generator.
+        time make -k 2>&1 | tee cmake_build.log
+    else
+        # However in a non-nightly setup we can just rely on CMake to start
+        # the build for us. In this case we can use any generator we'd like
+        # for the build. Notice however that the installation step can still
+        # be only done correctly by using GNU Make directly.
+        time cmake --build . 2>&1 | tee cmake_build.log
+    fi
 fi
 
 # Install the results:
