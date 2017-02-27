@@ -30,6 +30,9 @@ find_package( AtlasCMake QUIET )
 find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
+# Disable the usage of the --no-undefined linker flag:
+atlas_disable_no_undefined()
+
 # Set up CTest:
 atlas_ctest_setup()
 
