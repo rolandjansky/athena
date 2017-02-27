@@ -539,7 +539,7 @@ const Trk::Track* TRTTrackHoleSearchTool::addHolesToTrack(
                DataVector doesn't have stable sort, so we need to tamper with
                its vector content in order to avoid sort to get caught in DV full
                object ownership */
-            if (msgLvl(MSG::DEBUG)) msg() << "sorting vector with stable_sort "<<endreq;
+            if (msgLvl(MSG::DEBUG)) msg() << "sorting vector with stable_sort" << endmsg;
             std::vector<const Trk::TrackStateOnSurface*>* PtrVector
                 = const_cast<std::vector<const Trk::TrackStateOnSurface*>* > (&tsos->stdcont());
             stable_sort( PtrVector->begin(), PtrVector->end(), *CompFunc );

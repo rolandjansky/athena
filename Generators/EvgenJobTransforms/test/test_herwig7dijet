@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+## Any arguments are considered overrides, and will be added at the end
+export TRF_ECHO=True;
+Generate_tf.py --ecmEnergy=13000 --runNumber=429699 --maxEvents=10 \
+    --jobConfig=$JODIR15/share/DSID429xxx/MC15.429699.Herwig7_Dijet.py  \
+    --outputEVNTFile=test_herwig7_dijet.EVNT.pool.root \
+    $@

@@ -32,7 +32,7 @@ class ITrackSummaryTool : virtual public IAlgTool {
 
   /** create a summary object of passed track without doing the tedious hole search.
       Same comments as for createSummary apply here, of course, too. */	   
-  virtual const Trk::TrackSummary* createSummaryNoHoleSearch( const Track& track ) = 0;
+  virtual const Trk::TrackSummary* createSummaryNoHoleSearch( const Track& track ) const = 0;
   
   /** method which can be used to update the track and add a summary to it.
    *  this can be used to add a summary to a track and then retrieve it from it without the need to clone. */

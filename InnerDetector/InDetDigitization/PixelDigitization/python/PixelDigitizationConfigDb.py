@@ -11,6 +11,7 @@ addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelDigitizationHS"  , 
 addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelDigitizationPU"  , "PixelDigitizationPU")
 addTool("PixelDigitization.PixelDigitizationConfig.getPixelRange", "PixelRange")
 addService("PixelDigitization.PixelDigitizationConfig.ChargeCollProbSvc","ChargeCollProbSvc")
+addTool("PixelDigitization.PixelDigitizationConfig.PixelProcessorTool","PixelProcessorTool")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelNoisyCellGenerator", "PixelNoisyCellGenerator")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelGangedMerger", "PixelGangedMerger")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelChargeSmearer", "PixelChargeSmearer")

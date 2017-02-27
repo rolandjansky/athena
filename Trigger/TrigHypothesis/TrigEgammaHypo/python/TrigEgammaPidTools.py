@@ -71,30 +71,30 @@ ElectronLHVLooseToolName = {'cutd0dphideta':'AsgElectronLHVeryLooseCutD0DphiDeta
         'nodeta':'AsgElectronLHVeryLooseNoDetaSelector',
         'nodphires':'AsgElectronLHVeryLooseNoDphiResSelector',}
 
-ElectronLHVLooseToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodVeryLooseTriggerConfig2015_CutD0DphiDeta.conf',
-        'nod0':'ElectronLikelihoodVeryLooseTriggerConfig2015_NoD0.conf',
-        'nodeta':'ElectronLikelihoodVeryLooseTriggerConfig2015_NoDeta.conf',
-        'nodphires':'ElectronLikelihoodVeryLooseTriggerConfig2015_NoDphiRes.conf',}
+ElectronLHVLooseToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodVeryLooseTriggerConfig_CutDphiDeta.conf',
+        'nod0':'ElectronLikelihoodVeryLooseTriggerConfig.conf',
+        'nodeta':'ElectronLikelihoodVeryLooseTriggerConfig_NoDeta.conf',
+        'nodphires':'ElectronLikelihoodVeryLooseTriggerConfig_NoDphi.conf',}
 
 ElectronLHLooseToolName = {'cutd0dphideta':'AsgElectronLHLooseCutD0DphiDetaSelector',
         'nod0':'AsgElectronLHLooseNoD0Selector',
         'nodeta':'AsgElectronLHLooseNoDetaSelector',
         'nodphires':'AsgElectronLHLooseNoDphiResSelector',}
 
-ElectronLHLooseToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodLooseTriggerConfig2015_CutD0DphiDeta.conf',
-        'nod0':'ElectronLikelihoodLooseTriggerConfig2015_NoD0.conf',
-        'nodeta':'ElectronLikelihoodLooseTriggerConfig2015_NoDeta.conf',
-        'nodphires':'ElectronLikelihoodLooseTriggerConfig2015_NoDphiRes.conf',}
+ElectronLHLooseToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodLooseTriggerConfig_CutDphiDeta.conf',
+        'nod0':'ElectronLikelihoodLooseTriggerConfig.conf',
+        'nodeta':'ElectronLikelihoodLooseTriggerConfig_NoDeta.conf',
+        'nodphires':'ElectronLikelihoodLooseTriggerConfig_NoDphi.conf',}
 
 ElectronLHMediumToolName = {'cutd0dphideta':'AsgElectronLHMediumCutD0DphiDetaSelector',
         'nod0':'AsgElectronLHMediumNoD0Selector',
         'nodeta':'AsgElectronLHMediumNoDetaSelector',
         'nodphires':'AsgElectronLHMediumNoDphiResSelector',}
 
-ElectronLHMediumToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodMediumTriggerConfig2015_CutD0DphiDeta.conf',
-        'nod0':'ElectronLikelihoodMediumTriggerConfig2015_NoD0.conf',
-        'nodeta':'ElectronLikelihoodMediumTriggerConfig2015_NoDeta.conf',
-        'nodphires':'ElectronLikelihoodMediumTriggerConfig2015_NoDphiRes.conf',}
+ElectronLHMediumToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodMediumTriggerConfig_CutDphiDeta.conf',
+        'nod0':'ElectronLikelihoodMediumTriggerConfig.conf',
+        'nodeta':'ElectronLikelihoodMediumTriggerConfig_NoDeta.conf',
+        'nodphires':'ElectronLikelihoodMediumTriggerConfig_NoDphi.conf',}
 
 ElectronLHTightToolName = {'cutd0dphideta':'AsgElectronLHTightCutD0DphiDetaSelector',
         'nod0':'AsgElectronLHTightNoD0Selector',
@@ -102,11 +102,11 @@ ElectronLHTightToolName = {'cutd0dphideta':'AsgElectronLHTightCutD0DphiDetaSelec
         'nodphires':'AsgElectronLHTightNoDphiResSelector',
         'smooth':'AsgElectronLHTightSmoothSelector'}
 
-ElectronLHTightToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodTightTriggerConfig2015_CutD0DphiDeta.conf',
-        'nod0':'ElectronLikelihoodTightTriggerConfig2015_NoD0.conf',
-        'nodeta':'ElectronLikelihoodTightTriggerConfig2015_NoDeta.conf',
-        'nodphires':'ElectronLikelihoodTightTriggerConfig2015_NoDphiRes.conf',
-        'smooth':'ElectronLikelihoodTightTriggerConfig2015_Smooth.conf'}
+ElectronLHTightToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodTightTriggerConfig_CutDphiDeta.conf',
+        'nod0':'ElectronLikelihoodTightTriggerConfig.conf',
+        'nodeta':'ElectronLikelihoodTightTriggerConfig_NoDeta.conf',
+        'nodphires':'ElectronLikelihoodTightTriggerConfig_NoDphi.conf',
+        'smooth':'ElectronLikelihoodTightTriggerConfig_Smooth.conf'}
 
 ElectronToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf', 
     'loose':'ElectronIsEMLooseSelectorCutDefs.conf',
@@ -123,10 +123,10 @@ ElectronCaloToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf',
     'medium':'ElectronIsEMMediumSelectorCutDefs.conf',
     'tight':'ElectronIsEMTightSelectorCutDefs.conf',
     'mergedtight':'ElectronIsEMMergedTightSelectorCutDefs.conf',
-    'lhvloose':'ElectronLikelihoodEFCaloOnlyVeryLooseConfig2015.conf',
-    'lhloose':'ElectronLikelihoodEFCaloOnlyLooseConfig2015.conf',
-    'lhmedium':'ElectronLikelihoodEFCaloOnlyMediumConfig2015.conf',
-    'lhtight':'ElectronLikelihoodEFCaloOnlyTightConfig2015.conf',}
+    'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig_CaloOnly.conf',
+    'lhloose':'ElectronLikelihoodLooseTriggerConfig_CaloOnly.conf',
+    'lhmedium':'ElectronLikelihoodMediumTriggerConfig_CaloOnly.conf',
+    'lhtight':'ElectronLikelihoodTightTriggerConfig_CaloOnly.conf',}
 
 ElectronIsEMBits = {'vloose':SelectionDefElectron.ElectronLooseHLT,
     'loose':SelectionDefElectron.ElectronLooseHLT,

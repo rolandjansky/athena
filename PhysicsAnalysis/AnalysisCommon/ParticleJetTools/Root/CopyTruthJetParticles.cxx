@@ -85,13 +85,13 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   // -- added for dark jet clustering -- //
   // new classifiers to account for dark particles
   // for dark jets: ignore SM particles; include only "stable" dark hadrons
-  if (!m_includeSM && abs(tp->pdgId()) < 4.9e6) return false;
+  if (!m_includeSM && ((abs(tp->pdgId()) < 4.9e6) || (abs(tp->pdgId()) >= 5e6))) return false;
   if (m_includeDark) {
     if (abs(tp->pdgId()) <= 4900101) return false; // ignore Xd, qd, gd
-    if (abs(tp->child()->pdgId()) >= 4.9e6) return false; // ignore "non-stable" dark hadrons (decaying to dark sector) -- "stable" if decaying to SM
+    if (tp->hasDecayVtx() && (abs(tp->child()->pdgId()) >= 4.9e6)) return false; // ignore "non-stable" dark hadrons (decaying to dark sector) -- "stable" if decaying to SM
   }
   // for SM jets: ignore dark particles - probably unnecessary bc of status requirement above
-  if (!m_includeDark && abs(tp->pdgId()) >= 4.9e6) return false;
+  if (!m_includeDark && (abs(tp->pdgId()) >= 4.9e6) && (abs(tp->pdgId()) < 5e6)) return false;
   // ----------------------------------- //
 
   if(!m_includePromptLeptons && abs(pdgid)==22 && ( isPrompt( tp, originMap ) || getPartOrigin( tp, originMap )==FSRPhot ) ) {

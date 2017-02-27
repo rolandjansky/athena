@@ -39,7 +39,9 @@ PURPOSE: Tool for calibrating the TRT
 
 TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_trtmanager(0),
+  m_DetID(nullptr),
+  m_TRTID(nullptr),
+  m_trtmanager(nullptr),
   m_trtcaldbSvc("ITRT_CalDbSvc", name),
   m_neighbourSvc("ITRT_StrawNeighbourSvc", name),
   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
@@ -66,7 +68,8 @@ TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, c
   m_useP0(true),
   m_floatP3(true),
   m_DoShortStrawCorrection(true),
-  m_DoArXenonSep(false)
+  m_DoArXenonSep(false),
+  m_histfile(nullptr)
 {
   declareInterface<ITRTCalibrator>(this);
   declareProperty("TRTCalDbSvc",m_trtcaldbSvc);
@@ -105,28 +108,28 @@ TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, c
 
 StatusCode TRTCalibrator::initialize()
 {
-  msg(MSG::INFO) << "initialize()" << endreq;
+  msg(MSG::INFO) << "initialize()" << endmsg;
   
   m_trtmanager=0; 
   
   if ((detStore()->retrieve(m_DetID,"AtlasID")).isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving ATLASDetectorID helper" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving ATLASDetectorID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if ((detStore()->retrieve(m_trtmanager,m_ntrtmanager)).isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT_DetectorManager" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT_DetectorManager" << endmsg;
     return StatusCode::FAILURE;
   }
   if ((detStore()->retrieve(m_TRTID)).isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if(m_trtcaldbSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRTCalDbTool !" << endreq;
+    msg(MSG::FATAL) << "Could not get TRTCalDbTool !" << endmsg;
     return StatusCode::FAILURE;
   }
   if(StatusCode::SUCCESS!=m_neighbourSvc.retrieve() ) {
-    msg(MSG::FATAL) <<"Could not get TRTStrawNeighbourTool !"<<endreq;
+    msg(MSG::FATAL) <<"Could not get TRTStrawNeighbourTool !"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -138,7 +141,7 @@ StatusCode TRTCalibrator::initialize()
       ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
       return StatusCode::FAILURE;
    } else {
-      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
+      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endmsg;
    }
 
 
@@ -292,11 +295,11 @@ void TRTCalibrator::DumpStrawData(int isid){
   */
 
   std::string strawkey=string(Form("%i %i %i %i %i", 
-				   (int)m_TRTID->barrel_ec(ident), 
-				   (int)m_TRTID->layer_or_wheel(ident) ,
-				   (int)m_TRTID->phi_module(ident) ,
-				   (int)m_TRTID->straw_layer(ident) ,
-				   (int)m_TRTID->straw(ident)));
+        (int)m_TRTID->barrel_ec(ident), 
+        (int)m_TRTID->layer_or_wheel(ident) ,
+        (int)m_TRTID->phi_module(ident) ,
+        (int)m_TRTID->straw_layer(ident) ,
+        (int)m_TRTID->straw(ident)));
   strawmap[strawkey]=isid;
 }
 
@@ -521,47 +524,44 @@ bool TRTCalibrator::calibrate() {
   if(m_calsub!="user") m_selstring = "_" + TRT.GetSelString() + "_" + Detector.GetSelString() + "_" + Layer.GetSelString() + "_" + Module.GetSelString() + "_" + Board.GetSelString() + "_" + Chip.GetSelString() + "_" + Straw.GetSelString();
   
   //print some info
-  msg(MSG::INFO) << endreq;
-  msg(MSG::INFO) << "INPUT FILE       : " << infile << endreq; 
-  msg(MSG::INFO) << "OUTPUT FILE      : " << outfile << endreq; 
-  msg(MSG::INFO) << "SELECTION STRING : " << m_selstring << endreq; 
-  msg(MSG::INFO) << "OPTION STRING    : " << m_options << endreq; 
-  msg(MSG::INFO) << "RT RELATION      : " << m_rtrel << endreq; 
-  msg(MSG::INFO) << "MIN STATISTICS   : RT=" << m_minrt << ", T0=" << m_mint0 << endreq; 
-  msg(MSG::INFO) << "T0 OFFSET        : " << m_t0offset << endreq; 
-  msg(MSG::INFO) << endreq;
-  msg(MSG::INFO) << TRT.PrintInfo() << endreq;
-  msg(MSG::INFO) << Detector.PrintInfo() << endreq;
-  msg(MSG::INFO) << Layer.PrintInfo() << endreq;
-  msg(MSG::INFO) << Module.PrintInfo() << endreq;
-  msg(MSG::INFO) << Board.PrintInfo() << endreq;
-  msg(MSG::INFO) << Chip.PrintInfo() << endreq;
-  msg(MSG::INFO) << Straw.PrintInfo() << endreq;
-  msg(MSG::INFO) << endreq;
-//   msg(MSG::INFO) << WholeBarrel.PrintInfo() << endreq;
-//   msg(MSG::INFO) << WholeBarrelLayer.PrintInfo() << endreq;
-//   msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
+  msg(MSG::INFO) << "INPUT FILE       : " << infile << endmsg; 
+  msg(MSG::INFO) << "OUTPUT FILE      : " << outfile << endmsg; 
+  msg(MSG::INFO) << "SELECTION STRING : " << m_selstring << endmsg; 
+  msg(MSG::INFO) << "OPTION STRING    : " << m_options << endmsg; 
+  msg(MSG::INFO) << "RT RELATION      : " << m_rtrel << endmsg; 
+  msg(MSG::INFO) << "MIN STATISTICS   : RT=" << m_minrt << ", T0=" << m_mint0 << endmsg; 
+  msg(MSG::INFO) << "T0 OFFSET        : " << m_t0offset << endmsg; 
+  msg(MSG::INFO) << endmsg;
+  msg(MSG::INFO) << TRT.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Detector.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Layer.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Module.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Board.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Chip.PrintInfo() << endmsg;
+  msg(MSG::INFO) << Straw.PrintInfo() << endmsg;
+  msg(MSG::INFO) << endmsg;
 
   if (m_DoArXenonSep){
   //print some info
-        msg(MSG::INFO) << endreq;
-        msg(MSG::INFO) << "Setup for the ARGON Straws: " <<endreq;
-        msg(MSG::INFO) << "INPUT FILE       : " << infile << endreq;
-        msg(MSG::INFO) << "OUTPUT FILE      : " << outfile << endreq;
-        msg(MSG::INFO) << "SELECTION STRING : " << m_selstring << endreq;
-        msg(MSG::INFO) << "OPTION STRING    : " << m_options << endreq;
-        msg(MSG::INFO) << "RT RELATION      : " << m_rtrel << endreq;
-        msg(MSG::INFO) << "MIN STATISTICS   : RT=" << m_minrt << ", T0=" << m_mint0 << endreq;
-        msg(MSG::INFO) << "T0 OFFSET        : " << m_t0offset << endreq;
-        msg(MSG::INFO) << endreq;
-        msg(MSG::INFO) << TRT_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Detector_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Layer_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Module_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Board_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Chip_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << Straw_Ar.PrintInfo() << endreq;
-        msg(MSG::INFO) << endreq;
+        msg(MSG::INFO) << endmsg;
+        msg(MSG::INFO) << "Setup for the ARGON Straws: " <<endmsg;
+        msg(MSG::INFO) << "INPUT FILE       : " << infile << endmsg;
+        msg(MSG::INFO) << "OUTPUT FILE      : " << outfile << endmsg;
+        msg(MSG::INFO) << "SELECTION STRING : " << m_selstring << endmsg;
+        msg(MSG::INFO) << "OPTION STRING    : " << m_options << endmsg;
+        msg(MSG::INFO) << "RT RELATION      : " << m_rtrel << endmsg;
+        msg(MSG::INFO) << "MIN STATISTICS   : RT=" << m_minrt << ", T0=" << m_mint0 << endmsg;
+        msg(MSG::INFO) << "T0 OFFSET        : " << m_t0offset << endmsg;
+        msg(MSG::INFO) << endmsg;
+        msg(MSG::INFO) << TRT_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Detector_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Layer_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Module_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Board_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Chip_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << Straw_Ar.PrintInfo() << endmsg;
+        msg(MSG::INFO) << endmsg;
   }
   //read the chip reference t0 values from finedelays.txt
   int rbrd, rchp, rdet, dum;
@@ -632,15 +632,15 @@ bool TRTCalibrator::calibrate() {
       int chip=0,board=-1;
       m_neighbourSvc->getChip(ident,chip); 
       if(abs(m_TRTID->barrel_ec(ident))<2){
-	board=m_neighbourSvc->chipToBoardBarrel(chip,m_TRTID->layer_or_wheel(ident));
+        board=m_neighbourSvc->chipToBoardBarrel(chip,m_TRTID->layer_or_wheel(ident));
       }
-      else
-	if (chip<12)
-	  board=0;
-	else {
-	  chip=chip-20;
-	  board=1;
-	}
+      else if (chip<12) {
+        board=0;
+      }
+      else {
+        chip=chip-20;
+        board=1;
+      }
       if (m_SplitBarrel) hitdata.det=(int)m_TRTID->barrel_ec(ident); 
       else hitdata.det=abs((int)m_TRTID->barrel_ec(ident)); 
       hitdata.lay=(int)m_TRTID->layer_or_wheel(ident); 
@@ -658,18 +658,18 @@ bool TRTCalibrator::calibrate() {
       //float tmax ;
       const float defaultpcal[] = {0,0,0,0} ;
       if (isdines){
-	const TRTCond::DinesRtRelation* rtr = dynamic_cast<const TRTCond::DinesRtRelation*>(m_trtcaldbSvc->getRtRelation(ident)) ;
-	pcal = rtr ? rtr->cal() : defaultpcal ;
+        const TRTCond::DinesRtRelation* rtr = dynamic_cast<const TRTCond::DinesRtRelation*>(m_trtcaldbSvc->getRtRelation(ident)) ;
+        pcal = rtr ? rtr->cal() : defaultpcal ;
       }
 //       else if (isbinned) {
-// 	TRTCond::BinnedRtRelation* rtr = dynamic_cast<const TRTCond::BinnedRtRelation*>(m_trtcaldbSvc->getRtRelation(ident)) ;
-// 	tmin = rtr->tmin();
-// 	tmax = rtr->tmax();
-// 	rvalues = rtr->values();
+// TRTCond::BinnedRtRelation* rtr = dynamic_cast<const TRTCond::BinnedRtRelation*>(m_trtcaldbSvc->getRtRelation(ident)) ;
+// tmin = rtr->tmin();
+// tmax = rtr->tmax();
+// rvalues = rtr->values();
 //       }
       else {
-	const TRTCond::BasicRtRelation* rtr = dynamic_cast<const TRTCond::BasicRtRelation*>(m_trtcaldbSvc->getRtRelation(ident)) ;
-	pcal = rtr ? rtr->cal() : defaultpcal ;
+        const TRTCond::BasicRtRelation* rtr = dynamic_cast<const TRTCond::BasicRtRelation*>(m_trtcaldbSvc->getRtRelation(ident)) ;
+        pcal = rtr ? rtr->cal() : defaultpcal ;
       }
       hitdata.rtpar[0]=pcal[0];
       hitdata.rtpar[1]=pcal[1];
@@ -700,10 +700,10 @@ bool TRTCalibrator::calibrate() {
       
       //in the short straws corrections, autodetect if it was applied on the previous step
       if ( m_DoShortStrawCorrection &&  hitdata.lay==0 && hitdata.stl<9){
-	//If correction was done in ctes in db (readed), undo the correction: This fixes problem on t0 averaging....
-	double t0test1=m_trtcaldbSvc->getT0((Identifier)301998432);
-	double t0test2=m_trtcaldbSvc->getT0((Identifier)302001504);
-	if (t0test1 != t0test2) hitdata.t0+=0.75; //short straw compensation
+        //If correction was done in ctes in db (readed), undo the correction: This fixes problem on t0 averaging....
+        double t0test1=m_trtcaldbSvc->getT0((Identifier)301998432);
+        double t0test2=m_trtcaldbSvc->getT0((Identifier)302001504);
+        if (t0test1 != t0test2) hitdata.t0+=0.75; //short straw compensation
       }
       
       //the reference t0 from finedelays
@@ -798,17 +798,17 @@ bool TRTCalibrator::calibrate() {
 
 
 
-      if ((ihist%10000==9999) | (ihist==m_nevents-1)){
-	msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endreq;
-        if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endreq;
-	//nTRThist=ndethist=nlayhist=nmodhist=nbrdhist=nchphist=nstwhist=0;
-      }
+    if ((ihist%10000==9999) | (ihist==m_nevents-1)){
+      msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endmsg;
+      if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endmsg;
+      //nTRThist=ndethist=nlayhist=nmodhist=nbrdhist=nchphist=nstwhist=0;
+    }
       
       ihist++;
       delete chist;
     } // Finish Straw Loop   
-    msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endreq;
-    if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endreq;
+    msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endmsg;
+    if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endmsg;
 
     TRT.UpdateOldConstants();
     Detector.UpdateOldConstants();
@@ -830,7 +830,7 @@ bool TRTCalibrator::calibrate() {
 
   } else { // LOOP OVER HITS IN CASE OF ROOT NTUPLE =====================================
 
-    msg(MSG::INFO)  <<  " READING basic NTUPLE is HIGHLY DEPRECATED!!! Do NOT use it!!!" << endreq;
+    msg(MSG::INFO)  <<  " READING basic NTUPLE is HIGHLY DEPRECATED!!! Do NOT use it!!!" << endmsg;
     
     //open the ntuple
     TFile* ntfile=new TFile(infile.data());
@@ -852,146 +852,143 @@ bool TRTCalibrator::calibrate() {
       if (m_nevents==-1) m_nevents = hittuple->GetEntries();
       
       //loop a 1st time over the hittuple and calculate event phase and other track related data;
-      msg(MSG::INFO)  << "CALCULATING TRACK DATA!" << endreq;
+      msg(MSG::INFO)  << "CALCULATING TRACK DATA!" << endmsg;
       for (int ievt=0;ievt<m_nevents;ievt++){
-	
-	if ((ievt%1000000==999999) | (ievt==m_nevents-1)) {
-	  msg(MSG::INFO) << ievt+1 << " HITS READ! " << endreq; 
-	}
-	
-	hittuple->GetEntry(ievt);
-	
-	std::string epkey=std::string(Form("_%i_%i_%i",(int)run,(int)evt,(int)trk));
-	
-	if (ephasemap.find(epkey) == ephasemap.end()){
-	  ephasemap[epkey].run=run;
-	  ephasemap[epkey].event=evt;
-	  ephasemap[epkey].track=trk;
-	  ephasemap[epkey].ephase1=(t+ephase)-t0-ttrack;
-	  ephasemap[epkey].ephase2=ephase;
-	  ephasemap[epkey].nhits=1.0;
-	  ephasemap[epkey].t=t;
-	  ephasemap[epkey].ttrack=ttrack;
-	  ephasemap[epkey].t0=t0;
-	}
-	else {
-	  ephasemap[epkey].ephase1+=(t+ephase)-t0-ttrack;
-	  ephasemap[epkey].t+=t;
-	  ephasemap[epkey].ttrack+=ttrack;
-	  ephasemap[epkey].t0+=t0;
-	  ephasemap[epkey].nhits++;
-	}
+
+        if ((ievt%1000000==999999) | (ievt==m_nevents-1)) {
+          msg(MSG::INFO) << ievt+1 << " HITS READ! " << endmsg; 
+        }
+
+        hittuple->GetEntry(ievt);
+
+        std::string epkey=std::string(Form("_%i_%i_%i",(int)run,(int)evt,(int)trk));
+
+        if (ephasemap.find(epkey) == ephasemap.end()){
+          ephasemap[epkey].run=run;
+          ephasemap[epkey].event=evt;
+          ephasemap[epkey].track=trk;
+          ephasemap[epkey].ephase1=(t+ephase)-t0-ttrack;
+          ephasemap[epkey].ephase2=ephase;
+          ephasemap[epkey].nhits=1.0;
+          ephasemap[epkey].t=t;
+          ephasemap[epkey].ttrack=ttrack;
+          ephasemap[epkey].t0=t0;
+        }
+        else {
+          ephasemap[epkey].ephase1+=(t+ephase)-t0-ttrack;
+          ephasemap[epkey].t+=t;
+          ephasemap[epkey].ttrack+=ttrack;
+          ephasemap[epkey].t0+=t0;
+          ephasemap[epkey].nhits++;
+        }
       }
       
       //loop a 2nd time over the hittuple and add hits to the Calibrators
-      msg(MSG::INFO)  << "READING AND ADDING HITS!" << endreq;
+      msg(MSG::INFO)  << "READING AND ADDING HITS!" << endmsg;
       for (int ievt=0;ievt<m_nevents;ievt++){
-	
-	if ((ievt%100000==99999) | (ievt==m_nevents-1)){
-	  msg(MSG::INFO)  << ievt+1 << " HITS READ! " << " " << nTRThist << " " << ndethist << " " << nlayhist << " " << nmodhist << " " << nbrdhist << " " << nchphist << " " << nstwhist << endreq;
-	  nTRThist=ndethist=nlayhist=nmodhist=nbrdhist=nchphist=nstwhist=0;
-	}
-	
-	hittuple->GetEntry(ievt);
-	
-	//get the straw address (barrel/ec, layer, module, ...) based on the straw identifier
-	ident=(Identifier)((int)sid);
-	int chip=0,board=-1;
-	m_neighbourSvc->getChip(ident,chip); 
-	if(abs(m_TRTID->barrel_ec(ident))<2){
-	  board=m_neighbourSvc->chipToBoardBarrel(chip,m_TRTID->layer_or_wheel(ident));
-	}
-	else
-	  if (chip<12)
-	    board=0;
-	  else {
-	    chip=chip-20;
-	    board=1;
-	  }
-	hitdata.det=(int)m_TRTID->barrel_ec(ident); 
-	hitdata.lay=(int)m_TRTID->layer_or_wheel(ident); 
-	hitdata.mod=(int)m_TRTID->phi_module(ident); 
-	hitdata.brd=board; 
-	hitdata.chp=chip; 
-	hitdata.stl=(int)m_TRTID->straw_layer(ident); 
-	hitdata.stw=(int)m_TRTID->straw(ident); 
-	hitdata.sid=(int)sid;
-	
-	//only add the hit if the straw is included in the part of the TRT that is supposed to be calibrated
-	if (Detector.CheckSelection(hitdata.det) && Layer.CheckSelection(hitdata.lay)){
-	  
-	  //build map keys
-	  MakeBDKeys(hitdata.det, hitdata.lay, hitdata.mod, hitdata.brd, hitdata.chp, hitdata.sid);
-	  
-	  //make the level hierachy dictionary
-	  trt.t[Tkey].d[Dkey].l[Lkey].m[Mkey].b[Bkey].c[Ckey].s[Skey].z=0;
-	  
-	  //populate the hit data structure to be added 
-	  strawelement = m_trtmanager->getElement(ident);
-	  hitdata.ievt=ievt; 
-	  hitdata.tres=t-ttrack-t0; 
-	  hitdata.weight=1.0;
-	  hitdata.res=r-rtrack; 
-	  //hitdata.t=t-t0+averageT0-20.0; 
-	  hitdata.t=t-t0; 
-	  hitdata.r=fabs(rtrack);
-	  hitdata.t0=m_trtcaldbSvc->getT0(ident);
-	  hitdata.rt0=reft0map[std::string(Form("_%i_%i_%i",hitdata.det,hitdata.brd,hitdata.chp))];
-	  hitdata.x=(strawelement->center(ident)).x();
-	  hitdata.y=(strawelement->center(ident)).y();
-	  hitdata.z=(strawelement->center(ident)).z();
-	  
-	  //add the hit to the Calibrators on all levelels 
-	  nTRThist += TRT.AddHit(Tkey,hitdata,NULL,true);
-	  ndethist += Detector.AddHit(Dkey,hitdata,NULL,true);
-	  nlayhist += Layer.AddHit(Lkey,hitdata,NULL,true);
-	  nmodhist += Module.AddHit(Mkey,hitdata,NULL,true);    
-	  nbrdhist += Board.AddHit(Bkey,hitdata,NULL,true);    
-	  nchphist += Chip.AddHit(Ckey,hitdata,NULL,true);    
-	  nstwhist += Straw.AddHit(Skey,hitdata,NULL,true);   
-	  
-	  if (msgLvl(MSG::DEBUG)) msg() << hitdata.sid << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->barrel_ec(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->layer_or_wheel(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->phi_module(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->straw_layer(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->straw(ident) << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << chip << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << board << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).x() << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).y() << endreq;
-	  if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).z() << endreq;
-	  
-	}
+
+        if ((ievt%100000==99999) | (ievt==m_nevents-1)){
+          msg(MSG::INFO)  << ievt+1 << " HITS READ! " << " " << nTRThist << " " << ndethist << " " << nlayhist << " " << nmodhist << " " << nbrdhist << " " << nchphist << " " << nstwhist << endmsg;
+          nTRThist=ndethist=nlayhist=nmodhist=nbrdhist=nchphist=nstwhist=0;
+        }
+
+        hittuple->GetEntry(ievt);
+
+        //get the straw address (barrel/ec, layer, module, ...) based on the straw identifier
+        ident=(Identifier)((int)sid);
+        int chip=0,board=-1;
+        m_neighbourSvc->getChip(ident,chip); 
+        if(abs(m_TRTID->barrel_ec(ident))<2){
+          board=m_neighbourSvc->chipToBoardBarrel(chip,m_TRTID->layer_or_wheel(ident));
+        }
+        else
+          if (chip<12)
+            board=0;
+          else {
+            chip=chip-20;
+            board=1;
+          }
+        hitdata.det=(int)m_TRTID->barrel_ec(ident); 
+        hitdata.lay=(int)m_TRTID->layer_or_wheel(ident); 
+        hitdata.mod=(int)m_TRTID->phi_module(ident); 
+        hitdata.brd=board; 
+        hitdata.chp=chip; 
+        hitdata.stl=(int)m_TRTID->straw_layer(ident); 
+        hitdata.stw=(int)m_TRTID->straw(ident); 
+        hitdata.sid=(int)sid;
+
+        //only add the hit if the straw is included in the part of the TRT that is supposed to be calibrated
+        if (Detector.CheckSelection(hitdata.det) && Layer.CheckSelection(hitdata.lay)){
+
+          //build map keys
+          MakeBDKeys(hitdata.det, hitdata.lay, hitdata.mod, hitdata.brd, hitdata.chp, hitdata.sid);
+
+          //make the level hierachy dictionary
+          trt.t[Tkey].d[Dkey].l[Lkey].m[Mkey].b[Bkey].c[Ckey].s[Skey].z=0;
+
+          //populate the hit data structure to be added 
+          strawelement = m_trtmanager->getElement(ident);
+          hitdata.ievt=ievt; 
+          hitdata.tres=t-ttrack-t0; 
+          hitdata.weight=1.0;
+          hitdata.res=r-rtrack; 
+          //hitdata.t=t-t0+averageT0-20.0; 
+          hitdata.t=t-t0; 
+          hitdata.r=fabs(rtrack);
+          hitdata.t0=m_trtcaldbSvc->getT0(ident);
+          hitdata.rt0=reft0map[std::string(Form("_%i_%i_%i",hitdata.det,hitdata.brd,hitdata.chp))];
+          hitdata.x=(strawelement->center(ident)).x();
+          hitdata.y=(strawelement->center(ident)).y();
+          hitdata.z=(strawelement->center(ident)).z();
+
+          //add the hit to the Calibrators on all levelels 
+          nTRThist += TRT.AddHit(Tkey,hitdata,nullptr,true);
+          ndethist += Detector.AddHit(Dkey,hitdata,nullptr,true);
+          nlayhist += Layer.AddHit(Lkey,hitdata,nullptr,true);
+          nmodhist += Module.AddHit(Mkey,hitdata,nullptr,true);    
+          nbrdhist += Board.AddHit(Bkey,hitdata,nullptr,true);    
+          nchphist += Chip.AddHit(Ckey,hitdata,nullptr,true);    
+          nstwhist += Straw.AddHit(Skey,hitdata,nullptr,true);   
+
+          if (msgLvl(MSG::DEBUG)) msg() << hitdata.sid << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->barrel_ec(ident) << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->layer_or_wheel(ident) << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->phi_module(ident) << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->straw_layer(ident) << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->straw(ident) << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << chip << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << board << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).x() << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).y() << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg() << (strawelement->center(ident)).z() << endmsg;
+
+        }
 
       }// for .. event loop
     }// if .. file ok
   }// if .. binhist or ntuple
 
-  msg(MSG::INFO) << endreq;
-  msg(MSG::INFO) << TRT.PrintStat() << endreq;
-  msg(MSG::INFO) << Detector.PrintStat() << endreq;
-  msg(MSG::INFO) << Layer.PrintStat() << endreq;
-  msg(MSG::INFO) << Module.PrintStat() << endreq;
-  msg(MSG::INFO) << Board.PrintStat() << endreq;
-  msg(MSG::INFO) << Chip.PrintStat() << endreq;
-  msg(MSG::INFO) << Straw.PrintStat() << endreq;
-  //msg(MSG::INFO) << endreq;
-  //msg(MSG::INFO) << WholeBarrel.PrintStat() << endreq;
-  //msg(MSG::INFO) << WholeBarrelLayer.PrintStat() << endreq;
-  msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
+  msg(MSG::INFO) << TRT.PrintStat() << endmsg;
+  msg(MSG::INFO) << Detector.PrintStat() << endmsg;
+  msg(MSG::INFO) << Layer.PrintStat() << endmsg;
+  msg(MSG::INFO) << Module.PrintStat() << endmsg;
+  msg(MSG::INFO) << Board.PrintStat() << endmsg;
+  msg(MSG::INFO) << Chip.PrintStat() << endmsg;
+  msg(MSG::INFO) << Straw.PrintStat() << endmsg;
+  msg(MSG::INFO) << endmsg;
 
 
   if(m_DoArXenonSep){
-          msg(MSG::INFO) << endreq;
-          msg(MSG::INFO) << TRT_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Detector_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Layer_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Module_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Board_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Chip_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << Straw_Ar.PrintStat() << endreq;
-          msg(MSG::INFO) << endreq;
+          msg(MSG::INFO) << endmsg;
+          msg(MSG::INFO) << TRT_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Detector_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Layer_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Module_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Board_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Chip_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << Straw_Ar.PrintStat() << endmsg;
+          msg(MSG::INFO) << endmsg;
   }
 
 
@@ -1027,83 +1024,83 @@ bool TRTCalibrator::calibrate() {
     for (std::map<std::string,BDlayer>::iterator id = (it->second.d).begin() ; id != (it->second.d).end(); id++){
       
       if(Detector.Skip()) break; 
-      if(Detector.HasKey(id->first)){ 
-	detdir = Detector.Calibrate(trtdir,id->first,SubLev(m_options,2),&TRT.data[it->first]);
+      if(Detector.HasKey(id->first)){
+        detdir = Detector.Calibrate(trtdir,id->first,SubLev(m_options,2),&TRT.data[it->first]);
       }
       for (std::map<std::string,BDmodule>::iterator il = (id->second.l).begin(); il != (id->second.l).end(); il++){
-	
-	if(Layer.Skip()) break;
-	if(Layer.HasKey(il->first)){
-	  laydir = Layer.Calibrate(detdir,il->first,SubLev(m_options,3),&Detector.data[id->first]);
-	  if (Layer.printt0) t0calfile << Form("%i %i -1 -1 -1 : %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << endl;
-	  if (Layer.printrt) rtcalfile    << Form("%i %i -1 -1 -1 : %i %e %e %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << endl;
-//	  if (Layer.printrt) binrtcalfile << Form("%i %i -1 -1 -1 : 1 %s",          Layer.data[il->first].det,Layer.data[il->first].lay,Layer.GetBinnedRt(il->first).data()) << endl;	  
-	  if (!m_SplitBarrel) {
-	    if (Layer.printt0) t0calfile    << Form("%i %i -1 -1 -1 : %e %e",-Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << endl;
-	    if (Layer.printrt) rtcalfile    << Form("%i %i -1 -1 -1 : %i %e %e %e %e",-Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << endl;
-//	    if (Layer.printrt) binrtcalfile << Form("%i %i -1 -1 -1 : 1 %s",          -Layer.data[il->first].det,Layer.data[il->first].lay,Layer.GetBinnedRt(il->first).data()) << endl;	  
-	  }
-	}
-	for (std::map<std::string,BDboard>::iterator im = (il->second.m).begin(); im != (il->second.m).end(); im++){
-	  
-	  if(Module.Skip()) break; 
-	  if(Module.HasKey(im->first)){ 
-	    moddir = Module.Calibrate(laydir,im->first,SubLev(m_options,4),&Layer.data[il->first]);
-	    if (Module.printt0) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,Module.data[im->first].t0,Module.data[im->first].t0err) << endl;
-	    if (Module.printrt) rtcalfile    << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,rtint,Module.data[im->first].rtpar[0],Module.data[im->first].rtpar[1],Module.data[im->first].rtpar[2],Module.data[im->first].rtpar[3]) << endl;
-//	    if (Module.printrt) binrtcalfile << Form("%i %i %i -1 -1 : 1 %s",          Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,Module.GetBinnedRt(im->first).data()) << endl;
-	  } 
-	  for (std::map<std::string,BDchip>::iterator ib = (im->second.b).begin(); ib != (im->second.b).end(); ib++){
-	    
-	    if(Board.Skip()) break; 
-	    if(Board.HasKey(ib->first)){ 
-	      brddir = Board.Calibrate(moddir,ib->first,SubLev(m_options,5),&Module.data[im->first]);
-	    } 
-	    for (std::map<std::string,BDstraw>::iterator ic = (ib->second.c).begin(); ic != (ib->second.c).end(); ic++){
-	      
-	      if(Chip.Skip()) break; 
-	      if(Chip.HasKey(ic->first)){ 
-		chpdir = Chip.Calibrate(brddir,ic->first,SubLev(m_options,6),&Board.data[ib->first]);
-	      }
-	      for (std::map<std::string,BDzero>::iterator is = (ic->second.s).begin(); is != (ic->second.s).end(); is++){
-		
-		if(Straw.Skip()) break;
-		if(Straw.HasKey(is->first)){ 
-		  Straw.Calibrate(chpdir,is->first,SubLev(m_options,7),&Chip.data[ic->first]);
-		  if (Straw.printt0) t0calfile << Form("%i %i %i %i %i : %e %e",Straw.data[is->first].det,Straw.data[is->first].lay,Straw.data[is->first].mod,Straw.data[is->first].stl,Straw.data[is->first].stw,Straw.data[is->first].t0,Straw.data[is->first].t0err) << endl;
-		  if (Straw.printrt) rtcalfile << Form("%i %i %i %i %i : %i %e %e %e %e",Straw.data[is->first].det,Straw.data[is->first].lay,Straw.data[is->first].mod,Straw.data[is->first].stl,Straw.data[is->first].stw,rtint,Straw.data[is->first].rtpar[0],Straw.data[is->first].rtpar[1],Straw.data[is->first].rtpar[2],Straw.data[is->first].rtpar[3]) << endl;
-		  // 		dictfile << Form("%i %i %i %i %i %i %i %i %e %e %e %e %e %e %e %i %i %i %i %e %e",
-		  // 				 Straw.data[is->first].det,
-		  // 				 Straw.data[is->first].lay,
-		  // 				 Straw.data[is->first].mod,
-		  // 				 Straw.data[is->first].brd,
-		  // 				 Straw.data[is->first].chp,
-		  // 				 Straw.data[is->first].sid,
-		  // 				 Straw.data[is->first].stl,
-		  // 				 Straw.data[is->first].stw,
-		  // 				 Straw.data[is->first].t0,
-		  // 				 Straw.data[is->first].oldt02,
-		  // 				 //Straw.oldt0(is->first),
-		  // 				 Straw.data[is->first].res,
-		  // 				 Straw.data[is->first].rtpar[0],
-		  // 				 Straw.data[is->first].rtpar[1],
-		  // 				 Straw.data[is->first].rtpar[2],
-		  // 				 Straw.data[is->first].rtpar[3],
-		  // 				 Straw.data[is->first].ntres,
-		  // 				 Straw.data[is->first].nres,
-		  // 				 Straw.data[is->first].nrt,
-		  // 				 Board.data[ib->first].ntres,
-		  // 				 Board.data[ib->first].t0,
-		  // 				 //Board.oldt0(ib->first)) << endl;
-		  // 				 Board.data[ib->first].oldt02) << endl;
-		  
-		}
-	      }
-	    }
-	  }
-	}	  
+
+        if(Layer.Skip()) break;
+        if(Layer.HasKey(il->first)){
+          laydir = Layer.Calibrate(detdir,il->first,SubLev(m_options,3),&Detector.data[id->first]);
+          if (Layer.printt0) t0calfile << Form("%i %i -1 -1 -1 : %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << endl;
+          if (Layer.printrt) rtcalfile    << Form("%i %i -1 -1 -1 : %i %e %e %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << endl;
+          //  if (Layer.printrt) binrtcalfile << Form("%i %i -1 -1 -1 : 1 %s",          Layer.data[il->first].det,Layer.data[il->first].lay,Layer.GetBinnedRt(il->first).data()) << endl;
+          if (!m_SplitBarrel) {
+            if (Layer.printt0) t0calfile    << Form("%i %i -1 -1 -1 : %e %e",-Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << endl;
+            if (Layer.printrt) rtcalfile    << Form("%i %i -1 -1 -1 : %i %e %e %e %e",-Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << endl;
+            //    if (Layer.printrt) binrtcalfile << Form("%i %i -1 -1 -1 : 1 %s",          -Layer.data[il->first].det,Layer.data[il->first].lay,Layer.GetBinnedRt(il->first).data()) << endl;
+          }
+        }
+        for (std::map<std::string,BDboard>::iterator im = (il->second.m).begin(); im != (il->second.m).end(); im++){
+
+          if(Module.Skip()) break; 
+          if(Module.HasKey(im->first)){ 
+            moddir = Module.Calibrate(laydir,im->first,SubLev(m_options,4),&Layer.data[il->first]);
+            if (Module.printt0) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,Module.data[im->first].t0,Module.data[im->first].t0err) << endl;
+            if (Module.printrt) rtcalfile    << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,rtint,Module.data[im->first].rtpar[0],Module.data[im->first].rtpar[1],Module.data[im->first].rtpar[2],Module.data[im->first].rtpar[3]) << endl;
+            //    if (Module.printrt) binrtcalfile << Form("%i %i %i -1 -1 : 1 %s",          Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,Module.GetBinnedRt(im->first).data()) << endl;
+          } 
+          for (std::map<std::string,BDchip>::iterator ib = (im->second.b).begin(); ib != (im->second.b).end(); ib++){
+
+            if(Board.Skip()) break; 
+            if(Board.HasKey(ib->first)){ 
+              brddir = Board.Calibrate(moddir,ib->first,SubLev(m_options,5),&Module.data[im->first]);
+            } 
+            for (std::map<std::string,BDstraw>::iterator ic = (ib->second.c).begin(); ic != (ib->second.c).end(); ic++){
+
+              if(Chip.Skip()) break; 
+              if(Chip.HasKey(ic->first)){ 
+                chpdir = Chip.Calibrate(brddir,ic->first,SubLev(m_options,6),&Board.data[ib->first]);
+              }
+              for (std::map<std::string,BDzero>::iterator is = (ic->second.s).begin(); is != (ic->second.s).end(); is++){
+
+                if(Straw.Skip()) break;
+                if(Straw.HasKey(is->first)){ 
+                  Straw.Calibrate(chpdir,is->first,SubLev(m_options,7),&Chip.data[ic->first]);
+                  if (Straw.printt0) t0calfile << Form("%i %i %i %i %i : %e %e",Straw.data[is->first].det,Straw.data[is->first].lay,Straw.data[is->first].mod,Straw.data[is->first].stl,Straw.data[is->first].stw,Straw.data[is->first].t0,Straw.data[is->first].t0err) << endl;
+                  if (Straw.printrt) rtcalfile << Form("%i %i %i %i %i : %i %e %e %e %e",Straw.data[is->first].det,Straw.data[is->first].lay,Straw.data[is->first].mod,Straw.data[is->first].stl,Straw.data[is->first].stw,rtint,Straw.data[is->first].rtpar[0],Straw.data[is->first].rtpar[1],Straw.data[is->first].rtpar[2],Straw.data[is->first].rtpar[3]) << endl;
+                  // dictfile << Form("%i %i %i %i %i %i %i %i %e %e %e %e %e %e %e %i %i %i %i %e %e",
+                  //  Straw.data[is->first].det,
+                  //  Straw.data[is->first].lay,
+                  //  Straw.data[is->first].mod,
+                  //  Straw.data[is->first].brd,
+                  //  Straw.data[is->first].chp,
+                  //  Straw.data[is->first].sid,
+                  //  Straw.data[is->first].stl,
+                  //  Straw.data[is->first].stw,
+                  //  Straw.data[is->first].t0,
+                  //  Straw.data[is->first].oldt02,
+                  //  //Straw.oldt0(is->first),
+                  //  Straw.data[is->first].res,
+                  //  Straw.data[is->first].rtpar[0],
+                  //  Straw.data[is->first].rtpar[1],
+                  //  Straw.data[is->first].rtpar[2],
+                  //  Straw.data[is->first].rtpar[3],
+                  //  Straw.data[is->first].ntres,
+                  //  Straw.data[is->first].nres,
+                  //  Straw.data[is->first].nrt,
+                  //  Board.data[ib->first].ntres,
+                  //  Board.data[ib->first].t0,
+                  //  //Board.oldt0(ib->first)) << endl;
+                  //  Board.data[ib->first].oldt02) << endl;
+
+                }
+              }
+            }
+          }
+        }
       }
-    }      
+    }
   }
 
   std::map<std::string,TDirectory*> dirArmap;
@@ -1234,8 +1231,8 @@ bool TRTCalibrator::calibrate() {
 }
 
 bool TRTCalibrator::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
-  if (aTrack==NULL) {};
-  if (output==NULL) {};
+  if (aTrack==nullptr) {};
+  if (output==nullptr) {};
   return true;
 }
 

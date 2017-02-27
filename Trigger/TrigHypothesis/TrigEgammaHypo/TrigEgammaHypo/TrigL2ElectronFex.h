@@ -78,8 +78,12 @@ class TrigL2ElectronFex : public HLT::FexAlgo  {
   
   //tracking cut
   float  m_trackPtthr;
-  
+  float  m_trackPtthr_highet; //!< track pt cut for high et cluster (20 GeV)
+  float  m_clusEtthr; //!< cluster Et threshold for high et cuts
+  float m_calotrkdeta_noextrap; //!< preselection between track eta and cluster before extrapolation 
+  float m_calotrkdeta_noextrap_highet; //!< preselection between track eta and cluster before extrapolation for high et cluster
   //calo-tracking cuts
+
   float m_calotrackdeta; //!<  deta between calo and track
   float m_calotrackdphi; //!<  dphi between calo and track
   float m_calotrackdeoverp_low; //!<  E/p lower cut between calo and track
@@ -94,8 +98,6 @@ class TrigL2ElectronFex : public HLT::FexAlgo  {
 
   // for extrapolating TrigInDetTracks to calorimeter surface
   ToolHandle< Trk::IParticleCaloExtensionTool > m_caloExtensionTool; 
-
-  xAOD::TrigElectronContainer* m_trigElecColl; //!<  pointer to TrigElectron container
 
   // track-extrapolation error counter
   unsigned long m_extrapolator_failed;
@@ -113,7 +115,12 @@ class TrigL2ElectronFex : public HLT::FexAlgo  {
 
   bool extrapolate(const xAOD::TrigEMCluster *, const xAOD::TrackParticle *, double &, double &);
 
-
+  std::vector<float> m_calotrkdeta_noextrap_mon; //!< monitor preselection between track eta and cluster before extrapolation 
+  std::vector<float> m_calotrackdeta_mon; 
+  std::vector<float> m_calotrackdphi_mon; 
+  std::vector<float> m_calotrackdeoverp_mon;
+  std::vector<float> m_trackpt_mon;
+  std::vector<float> m_calopt_mon;
 
 };
 

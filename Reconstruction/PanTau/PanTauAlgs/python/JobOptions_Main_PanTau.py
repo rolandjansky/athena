@@ -110,7 +110,10 @@ def getPanTau():
     
     
     # ===> create the discri tools for this input algorithm
+    from tauRec.tauRecFlags import tauFlags
+    tauRecToolsCalibPath = tauFlags.tauRecToolsCVMFSPath()
     python_Tool_ModeDiscri_1p0n_vs_1p1n = PanTau__Tool_ModeDiscriminator(   "PanTau_ModeDiscri_1p0n_vs_1p1n_" + curInAlg,
+                                                                            calibFolder             = tauRecToolsCalibPath,
                                                                             Name_InputAlg           = curInAlg,
                                                                             Name_ModeCase           = "1p0n_vs_1p1n",
                                                                             Tool_InformationStore   = python_Tool_InformationStore)
@@ -118,6 +121,7 @@ def getPanTau():
     ToolSvc += python_Tool_ModeDiscri_1p0n_vs_1p1n
 
     python_Tool_ModeDiscri_1p1n_vs_1pXn = PanTau__Tool_ModeDiscriminator(   "PanTau_ModeDiscri_1p1n_vs_1pXn_" + curInAlg,
+                                                                            calibFolder             = tauRecToolsCalibPath,
                                                                             Name_InputAlg           = curInAlg,
                                                                             Name_ModeCase           = "1p1n_vs_1pXn",
                                                                             Tool_InformationStore   = python_Tool_InformationStore)
@@ -125,6 +129,7 @@ def getPanTau():
     ToolSvc += python_Tool_ModeDiscri_1p1n_vs_1pXn
 
     python_Tool_ModeDiscri_3p0n_vs_3pXn = PanTau__Tool_ModeDiscriminator(   "PanTau_ModeDiscri_3p0n_vs_3pXn_" + curInAlg,
+                                                                            calibFolder             = tauRecToolsCalibPath,
                                                                             Name_InputAlg           = curInAlg,
                                                                             Name_ModeCase           = "3p0n_vs_3pXn",
                                                                             Tool_InformationStore   = python_Tool_InformationStore)

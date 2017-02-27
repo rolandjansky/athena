@@ -17,56 +17,33 @@
 
 using namespace InDetDD;
 
-static const InterfaceID IID_IPixelDiodeCrossTalkGenerator("PixelDiodeCrossTalkGenerator", 1, 0);
-const InterfaceID& PixelDiodeCrossTalkGenerator::interfaceID( ){ return IID_IPixelDiodeCrossTalkGenerator; }
-
-// Constructor with parameters:
-PixelDiodeCrossTalkGenerator::PixelDiodeCrossTalkGenerator(const std::string& type, const std::string& name,const IInterface* parent) :
-  AthAlgTool(type,name,parent),
+PixelDiodeCrossTalkGenerator::PixelDiodeCrossTalkGenerator(const std::string& type, const std::string& name,const IInterface* parent):
+  PixelProcessorTool(type,name,parent),
   m_diodeCrossTalk(.06)
 {  
-	declareInterface< PixelDiodeCrossTalkGenerator >( this );
-	declareProperty("DiodeCrossTalk",m_diodeCrossTalk,"Diode cross talk factor");
+  declareProperty("DiodeCrossTalk",m_diodeCrossTalk,"Diode cross talk factor");
 }
 
-// Destructor:
-PixelDiodeCrossTalkGenerator::~PixelDiodeCrossTalkGenerator()
-{}
+PixelDiodeCrossTalkGenerator::~PixelDiodeCrossTalkGenerator() {}
 
-//----------------------------------------------------------------------
-// Initialize
-//----------------------------------------------------------------------
 StatusCode PixelDiodeCrossTalkGenerator::initialize() {
-  StatusCode sc = AthAlgTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelDiodeCrossTalkGenerator::initialize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "PixelDiodeCrossTalkGenerator::initialize()");
-  return sc ;
+  CHECK(PixelProcessorTool::initialize());
+  ATH_MSG_DEBUG("PixelDiodeCrossTalkGenerator::initialize()");
+	return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// finalize
-//----------------------------------------------------------------------
 StatusCode PixelDiodeCrossTalkGenerator::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelDiodeCrossTalkGenerator::finalize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "PixelDiodeCrossTalkGenerator::finalize()");
-  return sc ;
+  ATH_MSG_DEBUG("PixelDiodeCrossTalkGenerator::finalize()");
+	return StatusCode::SUCCESS;
 }
 
-// process the list of charged diodes
-void PixelDiodeCrossTalkGenerator::process(SiChargedDiodeCollection &collection) const {
+void PixelDiodeCrossTalkGenerator::process(SiChargedDiodeCollection &collection) {
+
   // if the cross talk factor if 0, do nothing
   if (0==m_diodeCrossTalk) return;
 
   // get pixel module design and check it
-  const PixelModuleDesign *p_design=
-    dynamic_cast<const PixelModuleDesign *>(&(collection.design()));
+  const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign *>(&(collection.design()));
   if (!p_design) return;
 
   // create a local copy of the current collection
@@ -76,51 +53,43 @@ void PixelDiodeCrossTalkGenerator::process(SiChargedDiodeCollection &collection)
 
   // loop on all old charged diodes
   // -ME fix- for(std::map<Identifier32,SiChargedDiode>::const_iterator p_chargedDiode=
-  for(SiChargedDiodeMap::const_iterator p_chargedDiode=
-	oldChargedDiodes.begin() ;
-      p_chargedDiode!=oldChargedDiodes.end() ; ++p_chargedDiode) {
+  for (SiChargedDiodeMap::const_iterator p_chargedDiode=oldChargedDiodes.begin(); p_chargedDiode!=oldChargedDiodes.end(); ++p_chargedDiode) {
 
-      // current diode
-      SiCellId diode=(*p_chargedDiode).second.diode();
-      
-      // get the list of neighbours for this diode
-      std::vector<SiCellId> neighbours;
-      p_design->neighboursOfCell(diode,neighbours);
+    // current diode
+    SiCellId diode=(*p_chargedDiode).second.diode();
 
-      // loop on all neighbours
-      for(std::vector<SiCellId>::const_iterator p_neighbour=neighbours.begin() ;
-	  p_neighbour!=neighbours.end() ; ++p_neighbour) {
+    // get the list of neighbours for this diode
+    std::vector<SiCellId> neighbours;
+    p_design->neighboursOfCell(diode,neighbours);
 
-	// get the intersection length between the two diodes
-	const double intersection=p_design->intersectionLength(diode,*p_neighbour);
-							       
+    // loop on all neighbours
+    for (std::vector<SiCellId>::const_iterator p_neighbour=neighbours.begin(); p_neighbour!=neighbours.end(); ++p_neighbour) {
+
+      // get the intersection length between the two diodes
+      const double intersection=p_design->intersectionLength(diode,*p_neighbour);
+
+      // add cross talk only if the intersection is non-zero
+      // if the original pixel is at (col,row) then the intersection length is
+      // (col+-1, row+-1) : 0 -> diagonal
+      // (col   , row+-1) : 0.4 mm (or 0.6 if long pixel) pixel width  = 400um or 600um
+      // (col+-1, row   ) : 0.05 mm , pixel height = 50um
+      // intersection length is just the length of the contact surface between
+      // the two pixels
+      if (intersection>0) {
         //
-	// add cross talk only if the intersection is non-zero
-        // if the original pixel is at (col,row) then the intersection length is
-        // (col+-1, row+-1) : 0 -> diagonal
-        // (col   , row+-1) : 0.4 mm (or 0.6 if long pixel) pixel width  = 400um or 600um
-        // (col+-1, row   ) : 0.05 mm , pixel height = 50um
-        // intersection length is just the length of the contact surface between
-        // the two pixels
+        // create a new charge:
+        // Q(new) = Q*L*X
+        //   Q = charge of source pixel
+        //   L = intersection length [mm]
+        //   X = crosstalk factor    [mm-1]
         //
-	if (intersection>0) {
-          //
-	  // create a new charge:
-          // Q(new) = Q*L*X
-          //   Q = charge of source pixel
-          //   L = intersection length [mm]
-          //   X = crosstalk factor    [mm-1]
-          //
-	  const SiChargedDiode & chargedDiode = (*p_chargedDiode).second;
-	  SiCharge charge(chargedDiode.charge()*intersection*m_diodeCrossTalk,
-                          chargedDiode.totalCharge().time(),
-			  SiCharge::diodeX_Talk,
-			  chargedDiode.totalCharge().particleLink());
-	  // add this new charge
-	  collection.add(*p_neighbour,charge);
-	}
+        const SiChargedDiode & chargedDiode = (*p_chargedDiode).second;
+
+        SiCharge charge(chargedDiode.charge()*intersection*m_diodeCrossTalk, chargedDiode.totalCharge().time(), SiCharge::diodeX_Talk, chargedDiode.totalCharge().particleLink());
+        // add this new charge
+        collection.add(*p_neighbour,charge);
       }
-    //}
+    }
   }
 }
 

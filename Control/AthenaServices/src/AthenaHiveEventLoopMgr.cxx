@@ -63,7 +63,8 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
     m_pITK(0), 
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_msg( msgSvc(), nam ),
-    m_nev(0), m_proc(0), m_useTools(false),m_doEvtHeartbeat(false)
+    m_nev(0), m_proc(0), m_useTools(false),m_doEvtHeartbeat(false),
+    m_pEvent(nullptr)
 
 {
   declareProperty("EvtSel", m_evtsel, 
@@ -684,8 +685,8 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   // Call any attached tools to reject events early
   unsigned int toolCtr=0;
   if(m_useTools) {
-    tool_iterator theTool = m_tools.begin();
-    tool_iterator lastTool  = m_tools.end();
+    tool_store::iterator theTool = m_tools.begin();
+    tool_store::iterator lastTool  = m_tools.end();
     while(toolsPassed && theTool!=lastTool ) 
       {
         toolsPassed = (*theTool)->passEvent(pEvent);
@@ -773,15 +774,12 @@ StatusCode AthenaHiveEventLoopMgr::executeRun(int maxevt)
   if (sc.isFailure())
     eventfailed=true;
 
-  if (eventfailed) {
+  if (eventfailed)
     return StatusCode::FAILURE;
-  } else {
-    m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
-    //    return this->endRunAlgorithms();
-    return StatusCode::SUCCESS;
-  }
 
-  return this->endRunAlgorithms();
+  m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
+  //    return this->endRunAlgorithms();
+  return StatusCode::SUCCESS;
 }
 //-----------------------------------------------------------------------------
 // Implementation of IEventProcessor::stopRun()
@@ -1130,10 +1128,11 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
       runNmb = m_nevt / m_flmbi + 1;
       evtNmb = m_nevt % m_flmbi;
     }
-    pEvent = new EventInfo(new EventID(runNmb,evtNmb), new EventType());
-
+    auto eid = std::make_unique<EventID> (runNmb,evtNmb);
     // Change lumiBlock# to match runNumber
-    pEvent->event_ID()->set_lumi_block( runNmb );
+    eid->set_lumi_block( runNmb );
+
+    pEvent = new EventInfo(eid.release(), new EventType());
 
     m_pEvent = pEvent;
 

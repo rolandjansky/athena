@@ -62,6 +62,7 @@ namespace PanTau {
         
         void                                        updateReaderVariables(PanTau::PanTauSeed2* inSeed);
         
+	std::string                                 m_calib_path; //<! cvmfs folder for data files
         std::string                                 m_Name_InputAlg;
         std::string                                 m_Name_ModeCase;
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;

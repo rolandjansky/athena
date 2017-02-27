@@ -30,16 +30,17 @@
 TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator* pSvcLocator) :
   HLT::AllTEAlgo(name, pSvcLocator)
 {
-  declareProperty ("JetInputKey",        m_jetInputKey        = "TrigJetRec");
-  declareProperty ("JetOutputKey",       m_jetOutputKey       = "SplitJet");
-  declareProperty ("PriVtxKey",          m_priVtxKey          = "xPrimVx"); //"EFHistoPrmVtx" 
-  declareProperty ("UsePriVtxKeyBackup", m_usePriVtxKeyBackup = true);
-  declareProperty ("PriVtxKeyBackup",    m_priVtxKeyBackup    = "EFHistoPrmVtx");
-  declareProperty ("EtaHalfWidth",       m_etaHalfWidth       = 0.4);
-  declareProperty ("PhiHalfWidth",       m_phiHalfWidth       = 0.4);
-  declareProperty ("ZHalfWidth",         m_zHalfWidth         = 20.0);// in mm?
-  declareProperty ("JetMinEt",           m_minJetEt           = 15.0); // in GeV ==> Can't be any higher than the lowest pT chain that will run
-  declareProperty ("JetMaxEta",          m_maxJetEta          = 3.2);//2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
+  declareProperty ("JetInputKey",            m_jetInputKey            = "TrigJetRec");
+  declareProperty ("JetOutputKey",           m_jetOutputKey           = "SplitJet");
+  declareProperty ("PriVtxKey",              m_priVtxKey              = "xPrimVx"); //"EFHistoPrmVtx" 
+  declareProperty ("UsePriVtxKeyBackup",     m_usePriVtxKeyBackup     = true);
+  declareProperty ("PriVtxKeyBackup",        m_priVtxKeyBackup        = "EFHistoPrmVtx");
+  declareProperty ("EtaHalfWidth",           m_etaHalfWidth           = 0.4);
+  declareProperty ("PhiHalfWidth",           m_phiHalfWidth           = 0.4);
+  declareProperty ("ZHalfWidth",             m_zHalfWidth             = 20.0); // in mm
+  declareProperty ("JetMinEt",               m_minJetEt               = 15.0); // in GeV ==> Can't be any higher than the lowest pT chain that will run
+  declareProperty ("JetMaxEta",              m_maxJetEta              = 3.2);  //2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
+  declareProperty ("DynamicEtaPhiHalfWidth", m_dynamicEtaPhiHalfWidth = "off"); // "off", "loose", "medium", "tight", "loose_exp", "medium_exp", "tight_exp"
 }
 
 
@@ -54,14 +55,15 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltInitialize() {
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " JetInputKey  = "  << m_jetInputKey << endmsg; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endmsg;
-    msg() << MSG::DEBUG << " PriVtxKey    = " << m_priVtxKey    << endmsg; 
-    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endmsg; 
-    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endmsg; 
-    msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endmsg; 
-    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endmsg; 
-    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endmsg; 
+    msg() << MSG::DEBUG << " JetInputKey            = "  << m_jetInputKey           << endmsg; 
+    msg() << MSG::DEBUG << " JetOutputKey           = " << m_jetOutputKey           << endmsg;
+    msg() << MSG::DEBUG << " PriVtxKey              = " << m_priVtxKey              << endmsg; 
+    msg() << MSG::DEBUG << " EtaHalfWidth           = " << m_etaHalfWidth           << endmsg; 
+    msg() << MSG::DEBUG << " PhiHalfWidth           = " << m_phiHalfWidth           << endmsg; 
+    msg() << MSG::DEBUG << " ZHalfWidth             = " << m_zHalfWidth             << endmsg; 
+    msg() << MSG::DEBUG << " MinJetEt               = " << m_minJetEt               << endmsg; 
+    msg() << MSG::DEBUG << " MaxJetEta              = " << m_maxJetEta              << endmsg; 
+    msg() << MSG::DEBUG << " DynamicEtaPhiHalfWidth = " << m_dynamicEtaPhiHalfWidth << endmsg; 
   }
 
   return HLT::OK;
@@ -215,7 +217,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     }
     if (fabs(jetEta) > m_maxJetEta) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endmsg;
+	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." << endmsg;
       continue;
     }
     if (msgLvl() <= MSG::DEBUG)
@@ -233,6 +235,38 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 
     double etaMinus = jetEta-m_etaHalfWidth;  
     double etaPlus  = jetEta+m_etaHalfWidth;  
+
+    // ===================================================
+    // Experimental pT-dependent Eta/PhiHalfWidth options
+    // ===================================================
+    if (m_dynamicEtaPhiHalfWidth != "off") {
+      if (msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG << "Using pT-dependent Eta/PhiHalfWidth (\'" << m_dynamicEtaPhiHalfWidth << "\' working point)" << endmsg;
+      }
+      double halfWidth = m_etaHalfWidth;
+      if      (m_dynamicEtaPhiHalfWidth == "loose"     ) halfWidth = 0.22 + (3.4/jetEt);
+      else if (m_dynamicEtaPhiHalfWidth == "medium"    ) halfWidth = 0.18 + (3.4/jetEt);
+      else if (m_dynamicEtaPhiHalfWidth == "tight"     ) halfWidth = 0.14 + (3.4/jetEt);
+      else if (m_dynamicEtaPhiHalfWidth == "loose_exp" ) halfWidth = 0.24 + exp(-1.22 - (0.017*jetEt));
+      else if (m_dynamicEtaPhiHalfWidth == "medium_exp") halfWidth = 0.20 + exp(-1.22 - (0.017*jetEt));
+      else if (m_dynamicEtaPhiHalfWidth == "tight_exp" ) halfWidth = 0.16 + exp(-1.22 - (0.017*jetEt));
+      else {
+	msg() << MSG::WARNING << m_dynamicEtaPhiHalfWidth << "is not a valid option for DynamicEtaPhiHalfWidth.  " 
+	      << "Reverting to default (Eta/PhiHalfWidth = " << m_etaHalfWidth << ")" << endmsg;
+      }
+      if (msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG << "==> Eta/PhiHalfWidth = " << halfWidth << endmsg;
+      }
+      m_etaHalfWidth = halfWidth;
+      m_phiHalfWidth = halfWidth;
+
+      phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
+      phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
+
+      etaMinus = jetEta-m_etaHalfWidth;  
+      etaPlus  = jetEta+m_etaHalfWidth;  
+    }
+
 
     double zMinus   = prmVtx_z-m_zHalfWidth;
     double zPlus    = prmVtx_z+m_zHalfWidth;

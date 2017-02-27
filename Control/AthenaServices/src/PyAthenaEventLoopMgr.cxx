@@ -177,13 +177,16 @@ StatusCode PyAthenaEventLoopMgr::initialize()
 //=========================================================================
 // Run the algorithms for the current event
 //=========================================================================
-StatusCode PyAthenaEventLoopMgr::executeAlgorithms()
+StatusCode PyAthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx)
 {
 // forward to call to the python-side object
    if ( m_manager != nullptr )
    {
    // forward call, if python side manager available
-      PyObject* result = PyObject_CallMethod( m_manager, execalgs, (char*)"" );
+     PyObject* pycontext = PyCObject_FromVoidPtr ( const_cast<EventContext*>(&ctx), nullptr);
+      PyObject* result = PyObject_CallMethod( m_manager, execalgs,
+                                              (char*)"O", pycontext);
+      Py_DECREF (pycontext);
 
       if ( ! result )
       {
@@ -208,7 +211,7 @@ StatusCode PyAthenaEventLoopMgr::executeAlgorithms()
    }
 
 // otherwise, let base class handle it
-   return AthenaEventLoopMgr::executeAlgorithms();
+   return AthenaEventLoopMgr::executeAlgorithms(ctx);
 }
 
 
