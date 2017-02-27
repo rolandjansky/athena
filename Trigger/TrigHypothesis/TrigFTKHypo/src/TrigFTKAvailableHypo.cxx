@@ -76,7 +76,7 @@ HLT::ErrorCode TrigFTKAvailableHypo::checkDetMask() {
   return HLT::OK;
 }
 
-HLT::ErrorCode TrigFTKAvailableHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass){
+HLT::ErrorCode TrigFTKAvailableHypo::hltExecute(const HLT::TriggerElement* /* outputTE*/, bool& pass){
 
   pass = false;
 
