@@ -14,8 +14,6 @@ find_package( COOL COMPONENTS CoolKernel )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
-athena_install_nonstandard_headers(PixelCoralClientUtils/*.hh)
-
 # Component(s) in the package:
 atlas_add_library( PixelCoralClientUtils
                    src/CoralClient.cc
