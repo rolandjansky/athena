@@ -2,28 +2,15 @@
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
-# If there's a directory called AtlasCMake in the project,
-# and the user didn't specify AtlasCMake_DIR yet, then let's
-# give it a default value.
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/../../Build/AtlasCMake AND
-      NOT AtlasCMake_DIR AND NOT ENV{AtlasCMake_DIR} )
-   set( AtlasCMake_DIR ${CMAKE_SOURCE_DIR}/../../Build/AtlasCMake )
-endif()
+# Read in the project's version from a file called version.txt. But let it be
+# overridden from the command line if necessary.
+file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
+string( STRIP ${_version} _version )
+set( ATHENA_PROJECT_VERSION ${_version}
+   CACHE STRING "Version of the Athena project to build" )
+unset( _version )
 
-# If there's a directory called AtlasLCG in the project,
-# and the user didn't specify LCG_DIR yet, then let's
-# give it a default value.
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/../../Build/AtlasLCG AND
-      NOT LCG_DIR AND NOT ENV{LCG_DIR} )
-   set( LCG_DIR ${CMAKE_SOURCE_DIR}/../../Build/AtlasLCG )
-endif()
-
-# Set up the project:
-message( STATUS "Using default project configuration" )
-set( PROJECT_NAME "Athena" )
-set( PROJECT_DEPS "AtlasExternals" "0.0.1" )
-set( PROJECT_VERSION "21.0.15" )
-
+# Set the versions of the TDAQ externals to pick up for the build:
 set( TDAQ-COMMON_VERSION "02-01-00" )
 set( TDAQ-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
@@ -36,20 +23,19 @@ set( TDAQ_PROJECT_NAME "tdaq")
 set( TDAQ_VERSION "07-00-00" )
 set( TDAQ_ROOT "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
 
-
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 
 # Find the base project(s):
-find_package( AtlasExternals REQUIRED )
+find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
 # Set up CTest:
 atlas_ctest_setup()
 
 # Declare project name and version
-atlas_project( ${PROJECT_NAME} ${PROJECT_VERSION}
-   USE ${PROJECT_DEPS}
+atlas_project( Athena ${ATHENA_PROJECT_VERSION}
+   USE AthenaExternals 0.0.1
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
    FORTRAN )
 
@@ -90,11 +76,6 @@ configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
 install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
-
-# Turn off the compression of the created RPM. This makes the RPM a lot
-# bigger, but should push the RPM creation time down by a lot.
-set( CPACK_RPM_SPEC_MORE_DEFINE
-   "%define _source_payload w0.gzdio\n%define _binary_payload w0.gzdio" )
 
 # Package up the release using CPack:
 atlas_cpack_setup()
