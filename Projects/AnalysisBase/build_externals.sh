@@ -8,9 +8,11 @@ set -e
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c]"
     echo " -f: Force rebuild of externals, otherwise if script"
     echo "     finds an external build present it will simply exit"
+    echo " -c: Build the externals for the continuous integration (CI) system,"
+    echo "     skipping the build of the externals RPMs."
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -19,7 +21,8 @@ usage() {
 BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
-while getopts ":t:b:fh" opt; do
+CI=""
+while getopts ":t:b:fch" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -28,7 +31,10 @@ while getopts ":t:b:fh" opt; do
             BUILDDIR=$OPTARG
             ;;
         f)
-            FORCE=1
+            FORCE="1"
+            ;;
+        c)
+            CI="1"
             ;;
         h)
             usage
@@ -61,15 +67,11 @@ fi
 mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd $BUILDDIR; pwd)
 
-if [ -n "$FORCE" ]; then
+if [ "$FORCE" = "1" ]; then
     echo "Force deleting existing build area..."
-    rm -fr ${BUILDDIR}/install ${BUILDDIR}/src ${BUILDDIR}/build
-fi
-
-if [ -d ${BUILDDIR}/install/AnalysisBaseExternals ]; then
-        echo "Found install directorr for AnalysisBaseExternalsn ${BUILDDIR}/install"
-        echo "Use -f option to force a rebuild"
-        exit 0
+    rm -fr ${BUILDDIR}/install/AnalysisBaseExternals
+    rm -fr ${BUILDDIR}/src/AnalysisBaseExternals
+    rm -fr ${BUILDDIR}/build/AnalysisBaseExternals
 fi
 
 # Create some directories:
@@ -83,6 +85,12 @@ export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
 scriptsdir=$(cd ${scriptsdir}; pwd)
+
+# Flag for triggering the build of RPMs for the externals:
+RPMOPTIONS="-r ${BUILDDIR}"
+if [ "$CI" = "1" ]; then
+    RPMOPTIONS=
+fi
 
 # Read in the tag/branch to use for AnalysisBaseExternals:
 AnalysisBaseExternalsVersion=$(awk '/^AnalysisBaseExternalsVersion/{print $3}' ${thisdir}/externals.txt)
@@ -98,5 +106,5 @@ ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/AnalysisBaseExternals \
     -b ${BUILDDIR}/build/AnalysisBaseExternals \
     -i ${BUILDDIR}/install/AnalysisBaseExternals/${NICOS_PROJECT_VERSION} \
-    -p AnalysisBaseExternals -r ${BUILDDIR} -t ${BUILDTYPE} \
+    -p AnalysisBaseExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
     -v ${NICOS_PROJECT_VERSION}
