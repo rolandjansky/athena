@@ -14,7 +14,8 @@ namespace xAOD {
 
    StatusCode TruthWeightTool::initialize() {
       ATH_MSG_DEBUG( "Initialising... " );
-      return StatusCode::SUCCESS;
+      // AsgMetadataTool needs to call sysInitize to be registered in the incident svc
+      return sysInitialize(); //StatusCode::SUCCESS;
    }
 
    std::shared_ptr<IIndexRetriever> TruthWeightTool::spawnIndexRetriever(std::string weightName) { 
@@ -57,23 +58,18 @@ namespace xAOD {
 
       if( m_uninitialized || ( mcChannelNumber != m_mcChanNo ) ) {
 
-	for( auto metaDataIterator = m_metaDataContainer->begin(); 
-	metaDataIterator != m_metaDataContainer->end(); metaDataIterator++) {
+	for (auto metaData:*m_metaDataContainer) {
 
-      	  if( (*metaDataIterator)->mcChannelNumber() == mcChannelNumber)
-          {
+      	  if ( metaData->mcChannelNumber() == mcChannelNumber) {
      	     m_uninitialized = false;
 	     m_mcChanNo = mcChannelNumber;
-	     m_metaData = *metaDataIterator;
+	     m_metaData = metaData;
              this->onNewMetaData();
-	     m_weightIndices.clear();
-	     for (auto weightName:m_metaData->weightNames())
-	       m_weightIndices.push_back(getWeightIndex(weightName));
 	     return StatusCode::SUCCESS;
           }
         }
+        ATH_MSG_ERROR( "No matching TruthMetaData found" );
         return StatusCode::FAILURE;
-        ATH_MSG_ERROR( "No matching meta data found" );
       }
       return StatusCode::SUCCESS;
    }

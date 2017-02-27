@@ -4,18 +4,14 @@
 #include <memory>
 
 // ROOT include(s):
-#ifdef ROOTCORE
-#   include <TFile.h>
-#   include <TError.h>
-#endif // ROOTCORE
+#include <TFile.h>
+#include <TError.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
-#   include "xAODRootAccess/Init.h"
-#   include "xAODRootAccess/TEvent.h"
-#   include "xAODRootAccess/tools/ReturnCheck.h"
-#   include "xAODEventInfo/EventInfo.h"
-#endif // ROOTCORE
+#include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccess/tools/ReturnCheck.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // ASG include(s):
 #include "AsgTools/ToolHandle.h"
@@ -45,6 +41,7 @@ int main( int argc, char* argv[] ) {
    xAOD::TruthWeightTool weightTool( "TruthWeightTool" );
    weightTool.setProperty( "OutputLevel", MSG::INFO ).ignore();
 
+   /*
    // Try creating ToolHandles for this tool:
    ToolHandle< xAOD::ITruthWeightTool > handle( "TruthWeightTool" );
    ToolHandleArray< xAOD::ITruthWeightTool > handleArray{ "TruthWeightTool" };
@@ -55,6 +52,7 @@ int main( int argc, char* argv[] ) {
                "Couldn't retrieve the tested tool through tool handles" );
       return 1;
    }
+   */
 
    // Loop over the files:
    for( int i = 1; i < argc; ++i ) {

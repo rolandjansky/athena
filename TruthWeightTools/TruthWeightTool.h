@@ -105,9 +105,6 @@ namespace xAOD {
       /// a previous event
       bool m_uninitialized;
 
-      /// Vector with weight indeces in same order as weight names
-      std::vector<size_t> m_weightIndices;
-
       /// Event info 
       const xAOD::EventInfo *m_evtInfo;
 
