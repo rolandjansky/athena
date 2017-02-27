@@ -29,20 +29,21 @@ namespace xAOD {
    public:
       virtual std::shared_ptr<IIndexRetriever> spawnIndexRetriever(std::string weightName) = 0;
 
-      /// Return weight index
-      virtual size_t getWeightIndex(std::string weightName) = 0;
-
       /// Return weight names (descriptions) from meta data
       virtual std::vector<std::string> const & getWeightNames() const = 0;
 
       /// check if a weight exist
       virtual bool hasWeight(std::string weightName) = 0;
 
-      /// return the weight indices in the same order as the weight names
-      virtual std::vector<size_t> getWeightIndices() = 0;
+      /// return the MC weight vector. Same as accessing it from TruthEvent or EventInfo
+      virtual const std::vector<float> &getWeights() const = 0;
 
-      /// return the weights in the same order as the weight names
-      virtual std::vector<float> getMCweights() = 0;
+      /// Return weight index
+      virtual size_t getWeightIndex(std::string weightName) = 0;
+
+      // Return the weight. Same as getWeights()[getWeightIndex(weightName)]
+      virtual float getWeight(std::string weightName) = 0;
+
    }; // class ITruthWeightTool 
 
 } // namespace xAOD
