@@ -22,6 +22,7 @@ namespace xAOD {
    /// Implementation for the xAOD truth meta data weight tool
    ///
    /// @author Tobias Bisanz  <tobias.bisanz@cern.ch>
+   /// @author Dag Gillberg <dag.gillberg@cern.ch>, trivial modifications
    ///
    /// $Revision$
    /// $Date$
@@ -54,20 +55,22 @@ namespace xAOD {
       /// Create an IndexRetriever 
       virtual std::shared_ptr<IIndexRetriever> spawnIndexRetriever(std::string weightName);
 
+      /// Get a vector with all the currently weight names in meta data
+      std::vector<std::string> const & getWeightNames() const;
+
       /// Whether a weight with the current name exists
-      virtual bool hasWeight(std::string weightName);
+      bool hasWeight(std::string weightName);
 
       /// Return weight index
-      virtual size_t getWeightIndex(std::string weightName);
+      size_t getWeightIndex(std::string weightName);
 
-      /// Get a vector with all the currently weight names in meta data
-      virtual std::vector<std::string> const & getWeightNames() const;
+      /// Get vector with MC weights. Same as accessing it from TruthEvent or EventInfo
+      const std::vector<float> &getWeights() const;
 
-      /// Get vector with weight indices in same order as weight names
-      virtual std::vector<size_t> getWeightIndices() { return m_weightIndices; }
-
-      /// Get vector with MC weights in same order as getWeightNames()
-      virtual std::vector<float> getMCweights();
+      /// Returns the weight
+      float getWeight(std::string weightName) {
+	return getWeights().at(getWeightIndex(weightName));
+      }
 
       /// @}
 

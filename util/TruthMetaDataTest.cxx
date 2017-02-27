@@ -80,18 +80,17 @@ int main( int argc, char* argv[] ) {
 
 	if ( entry == 0) {
 	  auto weightNames = weightTool.getWeightNames();
-	  auto weights = weightTool.getMCweights();
-	  for (size_t i=0;i<weightNames.size();++i)
-	     ::Info( APP_NAME,"Weight %3lu has value %.3f and name \"%s\"",
-		     i,weights[i],weightNames[i].c_str());
+	  auto weights = weightTool.getWeights();
+	  for (size_t i=0;i<weightNames.size();++i) {
+	    std::string wname = weightNames[i];
+	     ::Info( APP_NAME,"Weight %3lu has value %.3f = %.3f (index %lu) and name \"%s\"",
+		     i,weights[i],weightTool.getWeight(wname),weightTool.getWeightIndex(wname),wname.c_str());
+	  }
 	}
 	
 	// Give some feedback of where we are:
-	if ( (entry+1) % 1000 == 0 ) {
-	  ::Info( APP_NAME, "Processed %i/%i events",
-		  static_cast< int >( entry+1 ),
-		  static_cast< int >( entries ) );
-	}
+	if ( (entry+1) % 1000 == 0 ) 
+	  ::Info( APP_NAME, "Processed %5llu / %5llu events",entry+1,entries);
       }
    }
    // Return gracefully:

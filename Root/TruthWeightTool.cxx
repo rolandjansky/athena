@@ -49,7 +49,6 @@ namespace xAOD {
    }
 
    StatusCode TruthWeightTool::beginEvent() {
-     //const xAOD::EventInfo* ei = nullptr; 
       m_evtInfo = nullptr;
       ATH_CHECK( evtStore()->retrieve( m_evtInfo, "EventInfo" ) );
       uint32_t mcChannelNumber = m_evtInfo->mcChannelNumber();
@@ -80,7 +79,7 @@ namespace xAOD {
    }
 
    std::vector<std::string> const & TruthWeightTool::getWeightNames() const {
-      if(m_uninitialized) {
+      if (m_uninitialized) {
         ATH_MSG_ERROR( "Weight name not found in event, is the meta data already loaded?" );
         throw std::runtime_error("Weight name not found in event, is the meta data already loaded?");
       }
@@ -92,21 +91,11 @@ namespace xAOD {
     return std::find(wns.begin(),wns.end(),weightName) != wns.end();
   }
 
-  std::vector<float> TruthWeightTool::getMCweights() {
-    std::vector<float> ws;
-    if (m_uninitialized||m_evtInfo==nullptr) {
-      ATH_MSG_ERROR("Cannot call TruthWeightTool::getMCweights prior to first event beling loaded");
-      return ws;
-    }
-    const std::vector<float> &mcWeights = m_evtInfo->mcEventWeights();
-    if (mcWeights.size()!=m_weightIndices.size()) {
-      // TODO: if we get here, check the truthEvent 
-      ATH_MSG_ERROR(Form("Current event has %lu weights, expect %lu from the metadata! Will return no weights",
-			 mcWeights.size(),m_weightIndices.size()));
-    }
-    for (auto i:m_weightIndices) ws.push_back(mcWeights.at(i));
-    return ws;
+  const std::vector<float> &TruthWeightTool::getWeights() const {
+    if (m_uninitialized||m_evtInfo==nullptr) 
+      std::runtime_error("Cannot access MC weights. Tool is not properly initialized.");
+    // TODO: first check truth event. Else take from EventINfo. Check number of weights
+    return m_evtInfo->mcEventWeights();
   }
-
 
 } // namespace xAOD
