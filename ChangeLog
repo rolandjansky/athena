@@ -1,3 +1,9 @@
+2017-02-27 Dag Gillberg <dag.gillberg@cern.ch>
+	* Tagging TruthWeightTools-01-01-00
+	* Test exe that works in athena - but only in classAccess mode since TruthMetaData POOL converter missing
+	* AsgMetaDataTool need to call sysInitialze rather than initialize to be registred in tool svc
+	* Many thanks to Will Buttinger for help
+
 2017-02-24 Dag Gillberg <dag.gillberg@cern.ch>
 	* Adding a few more user friendly methods to the TruthWeightTool
 
