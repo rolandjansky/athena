@@ -20,6 +20,8 @@ namespace SG {
     friend class TestSGHiveMgrSvc;
     HiveEventSlot(SGImplSvc* pSG=0, int evt=-1) : 
       pEvtStore(pSG), eventNumber(evt) {}
+    HiveEventSlot(const HiveEventSlot& parent) :
+      pEvtStore(parent.pEvtStore), eventNumber(parent.eventNumber) {}
     SGImplSvc* pEvtStore;
     int eventNumber;
     mutex_t storeMutex;
