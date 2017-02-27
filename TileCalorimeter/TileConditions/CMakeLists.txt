@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
                           TileCalorimeter/TileIdentifier
                           PRIVATE
+                          AtlasTest/TestTools
                           Calorimeter/CaloDetDescr
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           TileCalorimeter/TileDetDescr
