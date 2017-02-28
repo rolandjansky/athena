@@ -595,21 +595,23 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
   //loop over the hits
   for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
     const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
-    if (hitOnTrack != 0) {
+    if (hitOnTrack) {
       const Identifier& surfaceID = hitOnTrack->identify();
       
       //take only TRT hits
       if(m_idHelper->is_trt(surfaceID)){
 
 	const InDet::TRT_DriftCircleOnTrack *dcot= dynamic_cast <const InDet::TRT_DriftCircleOnTrack*>(hitOnTrack);
-	const InDet::TRT_DriftCircle *dc=dcot->prepRawData();
-
-	if(dc!=0){
-	  
-	  if(dc->isNoise())
-	    nDriftNoise++;
-	  else
-	    nDriftReal++;
+	if (dcot) {
+	  const InDet::TRT_DriftCircle *dc=dcot->prepRawData();
+  
+	  if(dc){
+    
+	    if(dc->isNoise())
+	      nDriftNoise++;
+	    else
+	      nDriftReal++;
+	  }
 	}
       }
     }
