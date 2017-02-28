@@ -73,6 +73,8 @@ namespace xAOD {
     float qOverP() const;
     /// Set the taste of the TrackCaloCluster
     void setTaste(Taste&);
+    /// set the 4-vec
+    void setP4(float pt, float eta, float phi, float m=0.0);
     /// Get the taste of the TrackCaloCluster
     Taste& getTaste() const;
     /// @}

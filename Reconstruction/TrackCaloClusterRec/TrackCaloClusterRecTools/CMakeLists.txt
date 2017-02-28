@@ -33,11 +33,11 @@ atlas_add_library( TrackCaloClusterRecToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrackCaloClusterRecTools
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrackCaloClusterRecInterfaces TrkCaloExtension TrkParametersIdentificationHelpers 
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces )
 
 atlas_add_component( TrackCaloClusterRecTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrackCaloClusterRecInterfaces TrkCaloExtension TrkParametersIdentificationHelpers 
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
                      AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackCaloClusterRecToolsLib )

@@ -77,6 +77,24 @@ namespace xAOD {
   void TrackCaloCluster_v1::setTaste(TrackCaloCluster_v1::Taste& taste) {
     m_taste = taste; 
   }
+  
+  /// set the 4-vec
+  void TrackCaloCluster_v1::setP4(float pt, float eta, float phi, float m) {
+    
+    const static Accessor<float> accPt("pt");
+    accPt(*this) = pt;
+    
+    const static Accessor<float> accEta("eta");
+    accEta(*this) = eta;
+    
+    const static Accessor<float> accPhi("phi");
+    accPhi(*this) = phi;
+    
+    const static Accessor<float> accM("m");
+    accM(*this) = m;
+    
+    m_p4Cached = false;
+  }
     
   TrackCaloCluster_v1::Taste& TrackCaloCluster_v1::getTaste() const {
     return m_taste;
