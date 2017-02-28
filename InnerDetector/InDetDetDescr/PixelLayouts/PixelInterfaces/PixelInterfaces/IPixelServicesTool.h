@@ -10,7 +10,7 @@
 
 class StoreGateSvc;
 //class OraclePixGeoAccessor;
-//class InDetMaterialManager;
+class InDetMaterialManager;
 class PixelGeoBuilderBasics;
 
 class GeoPhysVol;
@@ -54,6 +54,8 @@ namespace InDetDD{
     virtual bool svcRouteAuto() const =0;
     //    virtual std::vector<InDet::GeoServiceAssembly* > getServiceAssemblies() =0;
     //    virtual std::vector<InDet::GeoSimpleObject* > getServiceObjects() =0;
+
+    virtual InDetMaterialManager* materialMgr() const =0;
 
   };
 //}
