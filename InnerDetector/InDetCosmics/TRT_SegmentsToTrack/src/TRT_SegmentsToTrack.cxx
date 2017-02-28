@@ -57,7 +57,14 @@ InDet::TRT_SegmentsToTrack::TRT_SegmentsToTrack(const std::string& name, ISvcLoc
   AthAlgorithm(name, pSvcLocator),
   m_trackFitter("Trk::KalmanFitter/TrkKalmanFitter"),
   m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
-  m_truthCollectionTRT(0)
+  m_idHelper(nullptr),
+  m_trtid(nullptr),
+  m_nTracksReal(0),
+  m_nTracksFake(0),
+  m_noiseratio(0.),
+  m_events(0),
+  m_truthCollectionTRT(nullptr),
+  m_n_combined_fit(0)
 {
   declareProperty("InputSegmentsCollection", m_inputSegmentCollectionName  = "TrackSegments");  
   declareProperty("OutputTrackCollection",   m_outputTrackCollectionName   =  "SegmentTracks");
