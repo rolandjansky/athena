@@ -1,0 +1,365 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthenaKernel/RCUObject.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2016
+ * @brief read-copy-update (RCU) style synchronization for Athena.
+ */
+
+
+namespace Athena {
+
+
+/**
+ * @brief Declare the current event slot of this object to be quiescent.
+ *
+ * This will take out a lock and possibly trigger object cleanup.
+ */
+inline
+void IRCUObject::quiescent()
+{
+  quiescent (Gaudi::Hive::currentContext());
+}
+
+
+/**
+ * @brief Declare the event slot @c ctx of this object to be quiescent.
+ * @param ctx The event context.
+ *
+ * This will take out a lock and possibly trigger object cleanup.
+ */
+inline
+void IRCUObject::quiescent (const EventContext& ctx)
+{
+  std::lock_guard<std::mutex> g (m_mutex);
+  if (endGrace(g, ctx)) return;
+  clearOld(g);
+}
+
+
+/**
+ * @brief Declare that the grace period for a slot is ending.
+ * @param Lock object (external locking).
+ * @param ctx Event context for the slot.
+ * @returns true if any slot is still in a grace period.
+ *          false if no slots are in a grace period.
+ *
+ * The caller must be holding the mutex for this object.
+ */
+inline
+bool IRCUObject::endGrace (lock_t& /*lock*/, const EventContext& ctx)
+{
+  EventContext::ContextID_t slot = ctx.slot();
+  if (slot == EventContext::INVALID_CONTEXT_ID) return false;
+  if (slot >= m_grace.size()) std::abort();
+  m_grace[slot] = false;
+  return m_grace.any();
+}
+
+
+/**
+ * @brief Declare that all slots are in a grace period.
+ * @param Lock object (external locking).
+ * @param ctx Event context for the slot.
+ *
+ * The caller must be holding the mutex for this object.
+ */
+inline
+void IRCUObject::setGrace (lock_t& /*lock*/)
+{
+  m_grace.set();
+}
+
+
+/**
+ * @brief Return the mutex for this object.
+ */
+inline
+typename IRCUObject::mutex_t& IRCUObject::mutex()
+{
+  return m_mutex;
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor, with RCUSvc.
+ * @param svc Service with which to register.
+ * @param args... Additional arguments to pass to the @c T constructor.
+ *
+ * The service will call @c quiescent at the end of each event.
+ */
+template <class T>
+template <typename... Args>
+inline
+RCUObject<T>::RCUObject (IRCUSvc& svc, Args&&... args)
+  : IRCUObject (svc)
+{
+  m_objs.push_back (CxxUtils::make_unique<T>(std::forward<Args>(args)...));
+  m_obj = m_objs.front().get();
+}
+
+
+/**
+ * @brief Constructor, with number of slots.
+ * @param nslots Number of event slots.
+ * @param args... Additional arguments to pass to the @c T constructor.
+ */
+template <class T>
+template <typename... Args>
+inline
+RCUObject<T>::RCUObject (size_t nslots, Args&&... args)
+  : IRCUObject (nslots)
+{
+  m_objs.push_back (CxxUtils::make_unique<T>(std::forward<Args>(args)...));
+  m_obj = m_objs.front().get();
+}
+
+
+/**
+ * @brief Return a reader for this @c RCUObject.
+ */
+template <class T>
+inline
+typename RCUObject<T>::Read_t RCUObject<T>::reader() const
+{
+  return Read_t (*this);
+}
+
+
+/**
+ * @brief Return a reader for this @c RCUObject.
+ *        When destroyed, this reader will declare
+ *        the @c RCUObject as quiescent
+ *
+ * This version will read the global event context.
+ */
+template <class T>
+inline
+typename RCUObject<T>::ReadQuiesce_t RCUObject<T>::readerQuiesce()
+{
+  return ReadQuiesce_t (*this);
+}
+
+
+/**
+ * @brief Return a reader for this @c RCUObject.
+ *        When destroyed, this reader will declare
+ *        the @c RCUObject as quiescent
+ * @param ctx The event context.
+ */
+template <class T>
+inline
+typename RCUObject<T>::ReadQuiesce_t
+RCUObject<T>::readerQuiesce (const EventContext& ctx)
+{
+  return ReadQuiesce_t (*this, ctx);
+}
+
+
+/**
+ * @brief Return an updater for this @c RCUObject.
+ *
+ * This version will read the global event context.
+ */
+template <class T>
+inline
+typename RCUObject<T>::Update_t RCUObject<T>::updater()
+{
+  return Update_t (*this);
+}
+
+
+/**
+ * @brief Return an updater for this @c RCUObject.
+ *
+ * This version will read the global event context.
+ */
+template <class T>
+inline
+typename RCUObject<T>::Update_t
+RCUObject<T>::updater (const EventContext& ctx)
+{
+  return Update_t (*this, ctx);
+}
+
+
+/**
+ * @brief Delete all old objects.
+ * @param Lock object (external locking).
+ *
+ * The caller must be holding the mutex for this object.
+ */
+template <class T>
+inline
+void RCUObject<T>::clearOld (lock_t& /*lock*/)
+{
+  while (m_objs.size() > 1)
+    m_objs.pop_back();
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ * @param rcuobj The @c RCUObject we're reading.
+ */
+template <class T>
+inline
+RCURead<T>::RCURead (const RCUObject<T>& rcuobj)
+  : m_obj (*rcuobj.m_obj)
+{
+}
+
+
+/**
+ * @brief Access data.
+ */
+template <class T>
+inline
+const T& RCURead<T>::operator*() const
+{
+  return m_obj;
+}
+
+
+/**
+ * @brief Access data.
+ */
+template <class T>
+inline
+const T* RCURead<T>::operator->() const
+{
+  return &m_obj;
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ * @param rcuobj The @c RCUObject we're reading.
+ *
+ * This version will read the global event context.
+ */
+template <class T>
+inline
+RCUReadQuiesce<T>::RCUReadQuiesce (RCUObject<T>& rcuobj)
+  : RCURead<T> (rcuobj),
+  m_rcuobj (rcuobj),
+  m_ctx (Gaudi::Hive::currentContext())
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param rcuobj The @c RCUObject we're reading.
+ * @param ctx The event context.
+ */
+template <class T>
+inline
+RCUReadQuiesce<T>::RCUReadQuiesce (RCUObject<T>& rcuobj,
+                                   const EventContext& ctx)
+  : RCURead<T> (rcuobj),
+  m_rcuobj (rcuobj),
+  m_ctx (ctx)
+{
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * Mark this event slot quiescent.
+ */
+template <class T>
+inline
+RCUReadQuiesce<T>::~RCUReadQuiesce()
+{
+  m_rcuobj.quiescent (m_ctx);
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ * @param rcuobj The @c RCUObject we're reading.
+ *
+ * This version will read the global event context.
+ */
+template <class T>
+inline
+RCUUpdate<T>::RCUUpdate (RCUObject<T>& rcuobj)
+  : m_rcuobj (rcuobj),
+    m_ctx (Gaudi::Hive::currentContext()),
+    m_g (rcuobj.mutex())
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param rcuobj The @c RCUObject we're reading.
+ * @param ctx The event context.
+ */
+template <class T>
+inline
+RCUUpdate<T>::RCUUpdate (RCUObject<T>& rcuobj, const EventContext& ctx)
+  : m_rcuobj (rcuobj),
+    m_ctx (ctx),
+    m_g (rcuobj.mutex())
+{
+}
+
+
+/**
+ * @brief Access data.
+ */
+template <class T>
+inline
+const T& RCUUpdate<T>::operator*() const
+{
+  return *m_rcuobj.m_obj;
+}
+
+
+/**
+ * @brief Access data.
+ */
+template <class T>
+inline
+const T* RCUUpdate<T>::operator->() const
+{
+  return m_rcuobj.m_obj;
+}
+
+
+/**
+ * @brief Publish a new version of the data object.
+ * @param ptr The new data object.
+ */
+template <class T>
+void RCUUpdate<T>::update (std::unique_ptr<T> ptr)
+{
+  m_rcuobj.m_objs.push_front (std::move (ptr));
+  m_rcuobj.m_obj = m_rcuobj.m_objs.front().get();
+  m_rcuobj.setGrace(m_g);
+
+  // Go ahead and end the grace period for the current slot.
+  m_rcuobj.endGrace(m_g, m_ctx);
+}
+
+
+} // namespace Athena

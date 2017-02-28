@@ -13,9 +13,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartIF.h"
 #include "AthenaKernel/IClassIDSvc.h"
-#ifdef ATLAS_CMAKE
-#include <dlfcn.h>
-#endif
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
@@ -94,9 +91,6 @@ int main(int argc, char* argv[]) {
     gaudiError("can not get IClassManager");
   }
 
-#ifdef ATLAS_CMAKE
-  dlopen("libCLIDComps.so", RTLD_LAZY);
-#endif
   IClassIDSvc* pClassIDSvc(0);
   if (!(pSvcLoc->service("ClassIDSvc", pClassIDSvc, true).isSuccess())) {
     cerr << "can not get ClassIDSvc, no clid.db will be generated" << endl;
