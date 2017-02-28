@@ -52,7 +52,8 @@ StatusCode JetConstituentModSequence::initialize() {
   
 int JetConstituentModSequence::execute() const {
   const xAOD::IParticleContainer* cont = 0;
-  ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
+  if(m_inputType != xAOD::Type::ParticleFlow)
+    ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
 
   xAOD::IParticleContainer* modifiedCont = 0;
 
@@ -72,13 +73,34 @@ int JetConstituentModSequence::execute() const {
 
 
   case xAOD::Type::ParticleFlow : {
-    modifiedCont = copyAndRecord<xAOD::PFOContainer>(cont, !m_trigger);
+    xAOD::PFOContainer *charged, *neutral;
+    ATH_CHECK( evtStore()->retrieve(charged, m_inputContainer+"ChargedParticleFlowObjects") );
+    ATH_CHECK( evtStore()->retrieve(neutral, m_inputContainer+"NeutralParticleFlowObjects") );
+
+    xAOD::IParticleContainer* chargedCopy = copyAndRecord<xAOD::PFOContainer>(cont, !m_trigger, "ChargedParticleFlowObjects");
+    xAOD::IParticleContainer* neutralCopy = copyAndRecord<xAOD::PFOContainer>(cont, !m_trigger, "NeutralParticleFlowObjects");
+   
+    modifiedCont = new xAOD::PFOContainer(SG::VIEW_ELEMENTS);
+
+    for ( xAOD::IParticle* pfo: *chargedCopy)
+      modifiedCont->push_back(const_cast<xAOD::IParticle*>(pfo));
+
+    for ( xAOD::IParticle* pfo: *neutralCopy)
+      modifiedCont->push_back(const_cast<xAOD::IParticle*>(pfo));
+
+    if(!m_trigger){
+      if( evtStore()->record(modifiedCont, m_outputContainer+"ParticleFlowObjects").isFailure() ){
+        ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer+"ParticleFlowObjects" );
+        return NULL;
+      }
+    }
+
     break; }
 
   default: {
     ATH_MSG_WARNING( "Unsupported input type " << m_inputType );
   }
-    
+
 
   }
 

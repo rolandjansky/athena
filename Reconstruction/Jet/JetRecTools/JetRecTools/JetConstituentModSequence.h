@@ -47,7 +47,7 @@ protected:
 
   /// helper function to cast, shallow copy and record a container.
   template<class T>
-  xAOD::IParticleContainer* copyAndRecord(const xAOD::IParticleContainer* cont, bool record) const {
+  xAOD::IParticleContainer* copyAndRecord(const xAOD::IParticleContainer* cont, bool record, std::string suffix="") const {
     const T * clustCont = dynamic_cast<const T *>(cont);
     if(clustCont == 0) {
       ATH_MSG_ERROR( "Container "<<m_inputContainer<< " is not of type "<< m_inputType);
@@ -57,7 +57,7 @@ protected:
     std::pair< T*, xAOD::ShallowAuxContainer* > newclust = xAOD::shallowCopyContainer(*clustCont );    
     newclust.second->setShallowIO(m_saveAsShallow);
     if(record){
-      if(evtStore()->record( newclust.first, m_outputContainer ).isFailure() || evtStore()->record( newclust.second, m_outputContainer+"Aux." ).isFailure() ){
+      if(evtStore()->record( newclust.first, m_outputContainer+suffix ).isFailure() || evtStore()->record( newclust.second, m_outputContainer+suffix+"Aux." ).isFailure() ){
         ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer );
         return NULL;
       }
