@@ -360,7 +360,7 @@ bool Trk::TargetSurfaces::checkDistance(Amg::Vector3D pos, Amg::Vector3D dir, do
 
   m_lastStep = (pos-m_probePos).mag();
 
-  if (!m_lastStep>0.) {
+  if (not (m_lastStep>0.)) {
     if (m_debugMode) std::cout <<"DEBUG:check distance with 0 step:"<<"next,dist:"<<m_nextSf<<","<<m_distanceToNext<< std::endl;
     return true;
   } 

@@ -85,7 +85,7 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
   if     (ty == Trk::Surface::Plane   ) transformGlobalToPlane   (su,useJac,P,par,Jac); 
   else if(ty == Trk::Surface::Line    ) transformGlobalToLine    (su,useJac,P,par,Jac);
   else if(ty == Trk::Surface::Cylinder) transformGlobalToCylinder(su,useJac,P,par,Jac);
-  else if(ty == Trk::Surface::Perigee ) transformGlobalToPerigee (su,useJac,P,par,Jac);
+  else if(ty == Trk::Surface::Perigee ) transformGlobalToLine    (su,useJac,P,par,Jac);
   else if(ty == Trk::Surface::Disc    ) transformGlobalToDisc    (su,useJac,P,par,Jac);
   else                                  transformGlobalToCone    (su,useJac,P,par,Jac);
 
@@ -132,7 +132,8 @@ void Trk::RungeKuttaUtils::transformGlobalToPlane
   double S[3] =  {T(0,2),T(1,2),T(2,2)};
 
   double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
   double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
@@ -192,7 +193,8 @@ void Trk::RungeKuttaUtils::transformGlobalToDisc
   double S[3] =  {T(0,2),T(1,2),T(2,2)};
 
   double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2]; 
   double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
@@ -369,61 +371,6 @@ void Trk::RungeKuttaUtils::transformGlobalToLine
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-// Global position transformation to local Perigee  system coordinate 
-/////////////////////////////////////////////////////////////////////////////////
-
-void Trk::RungeKuttaUtils::transformGlobalToPerigee
-(const Trk::Surface* su,bool useJac,double* P,double* par,double* Jac) const 
-{
-  const Amg::Transform3D&  T = su->transform();  
-
-  double Bx =-P[4], By = P[3], Bn = sqrt(Bx*Bx+By*By);
-  if(Bn > 1.e-10) {Bn = 1./Bn; Bx*=Bn; By*=Bn;}
-  else            {Bn = 1.e10; Bx=1. ; By =0.;}
-
-  double x  = P[0]-T(0,3);
-  double y  = P[1]-T(1,3);
-  par[0]    = x*Bx+y*By;
-  par[1]    = P[2]-T(2,3);
-
-  if(!useJac) return;
-
-  // Condition trajectory on surface
-  //
-  double a  = (1.-P[5])*(1.+P[5]), X =-P[3], Y = -P[4]; if(a!=0.) a=1./a;
-
-  double s0 = ((P[ 7]*X+P[ 8]*Y)-(x*P[10]+y*P[11]))*a; 
-  double s1 = ((P[14]*X+P[15]*Y)-(x*P[17]+y*P[18]))*a; 
-  double s2 = ((P[21]*X+P[22]*Y)-(x*P[24]+y*P[25]))*a; 
-  double s3 = ((P[28]*X+P[29]*Y)-(x*P[31]+y*P[32]))*a; 
-  double s4 = ((P[35]*X+P[36]*Y)-(x*P[38]+y*P[39]))*a; 
- 
-  P[ 7]+=(s0*P[ 3]); P[ 8]+=(s0*P[ 4]); P[ 9]+=(s0*P[ 5]);
-  P[10]+=(s0*P[42]); P[11]+=(s0*P[43]); P[12]+=(s0*P[44]);
-  P[14]+=(s1*P[ 3]); P[15]+=(s1*P[ 4]); P[16]+=(s1*P[ 5]);
-  P[17]+=(s1*P[42]); P[18]+=(s1*P[43]); P[19]+=(s1*P[44]);
-  P[21]+=(s2*P[ 3]); P[22]+=(s2*P[ 4]); P[23]+=(s2*P[ 5]);
-  P[24]+=(s2*P[42]); P[25]+=(s2*P[43]); P[26]+=(s2*P[44]);
-  P[28]+=(s3*P[ 3]); P[29]+=(s3*P[ 4]); P[30]+=(s3*P[ 5]);
-  P[31]+=(s3*P[42]); P[32]+=(s3*P[43]); P[33]+=(s3*P[44]);
-  P[35]+=(s4*P[ 3]); P[36]+=(s4*P[ 4]); P[37]+=(s4*P[ 5]);
-  P[38]+=(s4*P[42]); P[39]+=(s4*P[43]); P[40]+=(s4*P[44]);
-
-  // Jacobian production
-  //
-  Jac[ 0] = Bx*P[ 7]+By*P[ 8];                               // dL0/dL0
-  Jac[ 1] = Bx*P[14]+By*P[15];                               // dL0/dL1
-  Jac[ 2] = Bx*P[21]+By*P[22];                               // dL0/dPhi
-  Jac[ 3] = Bx*P[28]+By*P[29];                               // dL0/dThe
-  Jac[ 4] = Bx*P[35]+By*P[36];                               // dL0/dCM
-  Jac[ 5] = P[ 9];                                           // dL1/dL0
-  Jac[ 6] = P[16];                                           // dL1/dL1
-  Jac[ 7] = P[23];                                           // dL1/dPhi
-  Jac[ 8] = P[30];                                           // dL1/dThe
-  Jac[ 9] = P[37];                                           // dL1/dCM
-}
-
-/////////////////////////////////////////////////////////////////////////////////
 // Global position transformation to local Cone  system coordinate 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -529,15 +476,23 @@ double Trk::RungeKuttaUtils::stepEstimatorToCylinder
   if(S[8]!=0.) {
 
     if(inside > 0. || S[8] > 0.) return Smin;
-    if(S[7] >=0. ) {if(Smin>=0.) return Smin; return Smax;}
-                    if(Smin<=0.) return Smin; return Smax;
+    if(S[7] >=0. ) {
+      if(Smin>=0.) return Smin;
+      return Smax;
+    }
+    if(Smin<=0.) return Smin;
+    return Smax;
   }
 
   if(inside < 0.) {
 
     S[8]=-1.;
-    if(S[7]>=0.) {if(Smin>=0.) return Smin; return Smax;}
-                  if(Smin<=0.) return Smin; return Smax;
+    if(S[7]>=0.) {
+      if(Smin>=0.) return Smin;
+      return Smax;
+    }
+    if(Smin<=0.) return Smin;
+    return Smax;
   }
 
   //if(fabs(Smin) < .001) {S[8]=-1.; return Smax;} 
@@ -613,15 +568,23 @@ double Trk::RungeKuttaUtils::stepEstimatorToCone
   if(S[8]!=0.) {
 
     if(inside > 0. || S[8] > 0.) return Smin;
-    if(S[7] >=0. ) {if(Smin>=0.) return Smin; return Smax;}
-                    if(Smin<=0.) return Smin; return Smax;
+    if(S[7] >=0. ) {
+      if(Smin>=0.) return Smin;
+      return Smax;
+    }
+    if(Smin<=0.) return Smin;
+    return Smax;
   }
 
   if(inside < 0.) {
 
     S[8]=-1.;
-    if(S[7]>=0.) {if(Smin>=0.) return Smin; return Smax;}
-                  if(Smin<=0.) return Smin; return Smax;
+    if(S[7]>=0.) {
+      if(Smin>=0.) return Smin;
+      return Smax;
+    }
+    if(Smin<=0.) return Smin;
+    return Smax;
   }
 
   S[8]= 1.; return Smin;
@@ -917,37 +880,6 @@ void Trk::RungeKuttaUtils::transformLineToGlobal
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-// Perigee local position transformation to global system coordinate 
-/////////////////////////////////////////////////////////////////////////////////
-
-void Trk::RungeKuttaUtils::transformPerigeeToGlobal
-(bool useJac,const Trk::Surface* Su,const double* p,double* P) const
-{
-  const Amg::Transform3D& T = Su->transform();
-
-  double Bx =-P[4], By = P[3], Bn = sqrt(Bx*Bx+By*By);
-  if(Bn > 1.e-10) {Bn = 1./Bn; Bx*=Bn; By*=Bn;}
-  else            {Bn = 1.e10; Bx=1. ; By =0.;}
-
-  P[ 0]     = Bx*p[0]+T(0,3);                                        // X
-  P[ 1]     = By*p[0]+T(1,3);                                        // Y
-  P[ 2]     =    p[1]+T(2,3);                                        // Z
-
-  if(!useJac) return; 
-
-  double Bx2 =-P[25]          , Bx3   =-P[32]      ;
-  double By2 = P[24]          , By3   = P[31]      ;
-  double B2  = Bx*Bx2+By*By2  , B3  = Bx*Bx3+By*By3;
-  Bx2        =(Bx2-Bx*B2)*Bn  ; Bx3 =(Bx3-Bx*B3)*Bn;
-  By2        =(By2-By*B2)*Bn  ; By3 =(By3-By*B3)*Bn;
-  
-  //  /dL1  |     /dL2    |      /dPhi      |     /dThe       |
-  P[ 7] = Bx; P[14] = 0.  ; P[21] = Bx2*p[0]; P[28] = Bx3*p[0];     // dX/
-  P[ 8] = By; P[15] = 0.  ; P[22] = By2*p[0]; P[29] = By3*p[0];     // dY/
-  P[ 9] = 0.; P[16] = 1.  ; P[23] = 0.      ; P[30] = 0.      ;     // dZ/
-}
-
-/////////////////////////////////////////////////////////////////////////////////
 // Tramsform from local to global for all track parameters
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -983,7 +915,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
   if(ty == Trk::Surface::Plane   ) {transformPlaneToGlobal   (useJac,su,p,P); return true;}
   if(ty == Trk::Surface::Line    ) {transformLineToGlobal    (useJac,su,p,P); return true;}
   if(ty == Trk::Surface::Cylinder) {transformCylinderToGlobal(useJac,su,p,P); return true;}
-  if(ty == Trk::Surface::Perigee ) {transformPerigeeToGlobal (useJac,su,p,P); return true;}
+  if(ty == Trk::Surface::Perigee ) {transformLineToGlobal    (useJac,su,p,P); return true;}
   if(ty == Trk::Surface::Disc    ) {transformDiscToGlobal    (useJac,su,p,P); return true;}
   return false; 
 }
@@ -1009,7 +941,8 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
   double S [3] = {    P[3]   , P[4]     ,P[5]};
 
   double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
    
   double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
   double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
@@ -1158,7 +1091,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
     P[22] = static_cast<const Trk::CylinderSurface*>(su)->bounds().r(); 
                                      jacobianTransformCurvilinearToCylinder    (P,Jac); return;
   }
-  if(ty == Trk::Surface::Perigee )  {jacobianTransformCurvilinearToPerigee     (P,Jac); return;}
+  if(ty == Trk::Surface::Perigee )  {jacobianTransformCurvilinearToStraightLine(P,Jac); return;}
   if(ty == Trk::Surface::Disc    )  {jacobianTransformCurvilinearToDisc        (P,Jac); return;}
   Jac[0] = Jac[3] = 1.;
   Jac[1] = Jac[2] = 0.;
@@ -1179,7 +1112,8 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToPlane
   double* S  = &P[19]; 
 
   double    A = At[0]*S[0]+At[1]*S[1]+At[2]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s1 = Au[0]*S[0]+Au[1]*S[1];
   double s2 = Av[0]*S[0]+Av[1]*S[1]+Av[2]*S[2];
@@ -1215,7 +1149,8 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToDisc
   // Condition trajectory on surface
   //
   double    A = At[0]*S[0]+At[1]*S[1]+At[2]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s1 = Au[0]*S[0]+Au[1]*S[1];
   double s2 = Av[0]*S[0]+Av[1]*S[1]+Av[2]*S[2];
@@ -1243,29 +1178,6 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToDisc
   Jac[ 6] = B0*Av[0]+B1*Av[1]+B2*Av[2];   // dL1/dL1
   Jac[ 7] = 0.                        ;   // dL1/dPhi
   Jac[ 8] = 0.                        ;   // dL1/dThe
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-// Jacobian of transformations from curvilinear to Perigee system coordinates
-/////////////////////////////////////////////////////////////////////////////////
-
-void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToPerigee
-(double* P,double* Jac) const 
-{
-  double* p  = &P[ 0];
-  double* At = &P[ 4];
-  double* Av = &P[10];
-
-  // Jacobian production
-  //
-  Jac[ 0] = 1.                ;  // dL0/dL0 
-  Jac[ 1] = 0.                ;  // dL0/dL1
-  Jac[ 2] = 0.                ;  // dL0/dPhi
-  Jac[ 3] = 0.                ;  // dL0/dThe
-  Jac[ 5] = 0.                ;  // dL1/dL0
-  Jac[ 6] = 1./Av[2]          ;  // dL1/dL1
-  Jac[ 7] = -p[0]*At[2]*Jac[6];  // dL1/dPhi
-  Jac[ 8] = 0.                ;  // dL1/dThe
 }
 
 /////////////////////////////////////////////////////////////////////////////////
