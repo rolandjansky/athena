@@ -31,7 +31,6 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetRecTools/InDetSVWithMuonTool
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    InnerDetector/InDetRecTools/TrackVertexAssociationTool
-   InnerDetector/InDetRecTools/InDetRecToolInterfaces
    PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    PhysicsAnalysis/JetTagging/JetTagCalibration
    PhysicsAnalysis/MuonID/MuonSelectorTools
@@ -74,8 +73,7 @@ atlas_add_library( JetTagToolsLib
    src/SVForIPTool.cxx src/SVTag.cxx src/JetFitterTag.cxx
    src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
    src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx
-   src/MV1Tag.cxx src/MV1cTag.cxx src/MV2Tag.cxx
-   src/MyTag.cxx
+   src/MV1Tag.cxx src/MV2Tag.cxx src/MyTag.cxx
    src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
    src/MultiSVTag.cxx src/JetVertexCharge.cxx src/SoftMuonTag.cxx
    src/ExKtbbTag.cxx src/ExKtbbTagTool.cxx src/MultivariateTagManager.cxx
@@ -94,11 +92,11 @@ atlas_add_library( JetTagToolsLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel
    Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives
    TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxSecVertex VxVertex
-   TrkVertexFitterInterfaces InDetRecToolInterfaces )
+   TrkVertexFitterInterfaces )
 
 atlas_add_component( JetTagTools
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel JetTagToolsLib VxSecVertex )
+   LINK_LIBRARIES GaudiKernel VxSecVertex JetTagToolsLib )
 
 # Install files from the package:
 atlas_install_runtime( share/*.root share/*.txt )

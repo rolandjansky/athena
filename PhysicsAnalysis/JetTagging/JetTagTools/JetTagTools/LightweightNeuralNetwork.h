@@ -3,7 +3,7 @@
 */
 
 // WARNING: this code was copied automatically from
-// https://github.com/dguest/lwtnn.git (rev v1.0-76-gd837944)
+// https://github.com/lwtnn/lwtnn.git (rev v2.0)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
 // from JetTagTools/share
@@ -64,11 +64,11 @@ namespace lwt {
 
   private:
     // use the Stack class above as the computational core
-    Stack* _stack;
-    InputPreprocessor* _preproc;
+    Stack* m_stack;
+    InputPreprocessor* m_preproc;
 
     // output labels
-    std::vector<std::string> _outputs;
+    std::vector<std::string> m_outputs;
 
   };
 
@@ -86,11 +86,11 @@ namespace lwt {
     ValueMap reduce(const std::vector<ValueMap>&) const;
     ValueMap reduce(const VectorMap&) const;
   private:
-    RecurrentStack* _stack;
-    InputPreprocessor* _preproc;
-    InputVectorPreprocessor* _vec_preproc;
-    std::vector<std::string> _outputs;
-    size_t _n_inputs;
+    RecurrentStack* m_stack;
+    InputPreprocessor* m_preproc;
+    InputVectorPreprocessor* m_vec_preproc;
+    std::vector<std::string> m_outputs;
+    size_t m_n_inputs;
   };
 
 }
