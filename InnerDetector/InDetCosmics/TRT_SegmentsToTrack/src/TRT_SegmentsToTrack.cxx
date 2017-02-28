@@ -839,50 +839,52 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	  if(count2==firstechit || count2==lastechit){
 	    const InDet::TRT_DriftCircleOnTrack* trtcirc = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(*mit);
 	    if(trtcirc){
-	      //add pseudomeasurement
-	      double locz=-200.;
-              if ((count2==firstechit && firstechit!=0) || (count2==lastechit && firstechit==0)) locz=200;
-	      Trk::DefinedParameter dp(locz,Trk::locZ);
 	      const Trk::StraightLineSurface *line=dynamic_cast<const
 		Trk::StraightLineSurface*>(&trtcirc->associatedSurface());
-	      std::vector<Trk::DefinedParameter> defPar;
-	      defPar.push_back(dp);
-	      
-	      Trk::LocalParameters par(defPar);
-	      
-	      Amg::MatrixX cov(1,1);
-	      cov(0,0) = 16./12. ; // take actual length of straw instead !!!!!
-	      
-	      //create new surface
-	      Amg::Vector3D C = line->transform().translation();
-	      
-	      //decide on movement
-	      
-	      const Amg::Vector3D& gpos=(*mit)->globalPosition();
+	      if (line) {
+		//add pseudomeasurement
+		double locz=-200.;
+		if ((count2==firstechit && firstechit!=0) || (count2==lastechit && firstechit==0)) locz=200;
+		Trk::DefinedParameter dp(locz,Trk::locZ);
+		std::vector<Trk::DefinedParameter> defPar;
+		defPar.push_back(dp);
 
-	      if(fabs(gpos.z())>800){
-		if(theta>M_PI/2.){
-		  C[2]-=1.;
+		Trk::LocalParameters par(defPar);
+
+		Amg::MatrixX cov(1,1);
+		cov(0,0) = 16./12. ; // take actual length of straw instead !!!!!
+
+		//create new surface
+		Amg::Vector3D C = line->transform().translation();
+
+		//decide on movement
+
+		const Amg::Vector3D& gpos=(*mit)->globalPosition();
+
+		if(fabs(gpos.z())>800){
+		  if(theta>M_PI/2.){
+		    C[2]-=1.;
+		  }else{
+		    C[2]+=1.;
+		  }
 		}else{
-		  C[2]+=1.;
+		  C[1]-=1.;
 		}
-	      }else{
-		C[1]-=1.;
-	      }
-	      
-	      
-	      Amg::Transform3D* T    = new Amg::Transform3D();
-	      *T = line->transform().rotation();
-	      *T *= Amg::Translation3D(C.x(),C.y(),C.z());
-	      Trk::StraightLineSurface* surface = new Trk::StraightLineSurface(T);
-	      
-	      Trk::PseudoMeasurementOnTrack *pseudo=new Trk::PseudoMeasurementOnTrack( par,cov,*surface);
-	      
-	      tobedeleted.push_back(pseudo);
+      
+      
+		Amg::Transform3D* T    = new Amg::Transform3D();
+		*T = line->transform().rotation();
+		*T *= Amg::Translation3D(C.x(),C.y(),C.z());
+		Trk::StraightLineSurface* surface = new Trk::StraightLineSurface(T);
+     
+		Trk::PseudoMeasurementOnTrack *pseudo=new Trk::PseudoMeasurementOnTrack( par,cov,*surface);
+     
+		tobedeleted.push_back(pseudo);
 
-	      delete surface;
-	      
-	      myset2.push_back(pseudo);
+		delete surface;
+      
+		myset2.push_back(pseudo);
+	      }
 	    }
 	  }
 	  count2++;
