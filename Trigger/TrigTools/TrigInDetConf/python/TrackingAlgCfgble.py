@@ -36,4 +36,11 @@ class TrigFastTrackFinder(TrigFastTrackFinderBase):
     TrigFastTrackFinderBase.__init__(self, name, conftype)
     
 
+from InDetTrigPrepRawDataFormat.InDetTrigPrepRawDataFormatConf import InDet__FTK_TrackMaker
+
+class FTK_TrackMaker(InDet__FTK_TrackMaker):
+  def __init__(self, name="TrackMaker_Muon_FTK", type="muon"):
+
+    InDet__FTK_TrackMaker.__init__(self, name)
+
 

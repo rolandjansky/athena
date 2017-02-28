@@ -6,6 +6,9 @@
 # Set the minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
+# Let the user pick up updated AtlasCMake/AtlasLCG versions for testing:
+find_package( AtlasCMake QUIET )
+
 # Find the project that we depend on:
 find_package( Athena REQUIRED )
 
