@@ -49,7 +49,7 @@ HLT::ErrorCode TrigFTKAvailableHypo::hltInitialize() {
 
 HLT::ErrorCode TrigFTKAvailableHypo::checkDetMask() {
 
-  const xAOD::EventInfo* evinfo = 0;
+  const xAOD::EventInfo* evinfo = nullptr;
   if (store()->retrieve(evinfo).isFailure()) {
     ATH_MSG_ERROR("Cannot retrieve xAOD::EventInfo");
     return HLT::SG_ERROR;

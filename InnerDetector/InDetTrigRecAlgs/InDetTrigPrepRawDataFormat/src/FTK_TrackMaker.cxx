@@ -41,9 +41,7 @@
 
 namespace InDet{
 
-  // /////////////////////////////////////////////////////////////////
-  // Constructor
-  // /////////////////////////////////////////////////////////////////
+  //----------------------------------------------------------------------------
   FTK_TrackMaker::FTK_TrackMaker 
   (const std::string& name,ISvcLocator* pSvcLocator) : 
     HLT::FexAlgo(name,pSvcLocator),
@@ -54,11 +52,9 @@ namespace InDet{
   {
     
   
-    m_timerDPS=0;
+    m_timerDPS=nullptr;
   }
   
-  //----------------------------------  
-  //          beginRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::hltBeginRun(){
 
@@ -68,12 +64,8 @@ namespace InDet{
   }
 
 
-  //----------------------------------  
-  //          Initialize method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::hltInitialize() {
-    //----------------------------------------------------------------------------
-
       
     // Retrieving Region Selector Tool:
     if ( m_regionSelector.retrieve().isFailure() ) {
@@ -108,14 +100,14 @@ namespace InDet{
 
     return HLT::OK;
   }
+
   //----------------------------------------------------------------------------
   FTK_TrackMaker::~FTK_TrackMaker() {}  
-  //----------------------------------------------------------------------------
-  //         Execute method:
+
+
   //----------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::hltExecute(const HLT::TriggerElement*,
 					      HLT::TriggerElement* outputTE){
-    //----------------------------------------------------------------------------
     
     //initialisation of monitored quantities
   
@@ -137,12 +129,6 @@ namespace InDet{
       return HLT::NAV_ERROR;
     }
     
-    
-    //NaN. this is for the check on the case in which the call of phi() and eta() do not return a well-defined numerical value
-    if (roi->phi() != roi->phi() || roi->eta() !=roi->eta()){
-      ATH_MSG_WARNING( "Received bad RoI " << *roi ); 
-      return HLT::NAV_ERROR;
-    }
 
     if(doTiming()) m_timerDPS->start();
     
@@ -155,7 +141,7 @@ namespace InDet{
     if(doTiming()) m_timerDPS->stop();
 
 
-    //can be removed later
+    //initial debugging - can be removed later
     std::vector<IdentifierHash> listOfIds;
     m_regionSelector->DetHashIDList( FTK, *roi, listOfIds);
     ATH_MSG_DEBUG( "REGTEST: FTK: Roi contains " 
@@ -200,39 +186,32 @@ namespace InDet{
 
     return HLT::OK;
   }
-  //-----------------------------------
-  //          Finalize method:
+
   //----------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::hltFinalize() {
-    //----------------------------------------------------------------------------
 
     return HLT::OK;
   }
 
-  //----------------------------------  
-  //          endRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::hltEndRun()
   {
-
     ATH_MSG_INFO( "FTK_TrackMaker::endRun()" );
+
+    //errorSvc statistics
 
     return HLT::OK;
   }
 
   //---------------------------------------------------------------------------
-
-  //---------------------------------
-  //        prepareRobRequests method:
-  //--------------------------------
   HLT::ErrorCode FTK_TrackMaker::prepareRobRequests(const HLT::TriggerElement* inputTE){
 
     ATH_MSG_DEBUG( "FTK_TrackMaker::prepareRobRequests()" );
 
     //Calculate ROBs needed - this code should be shared with hltExecute to avoid slightly different requests
-    const TrigRoiDescriptor* roi = 0;
+    const TrigRoiDescriptor* roi = nullptr;
 
-    if (getFeature(inputTE, roi) != HLT::OK || roi == 0){
+    if (getFeature(inputTE, roi) != HLT::OK || roi == nullptr){
       ATH_MSG_WARNING( "REGTEST / Failed to find RoiDescriptor" );
       return HLT::NAV_ERROR;
     }
@@ -246,8 +225,9 @@ namespace InDet{
     m_regionSelector->DetROBIDListUint( FTK, *roi, uIntListOfRobs );
 
     ATH_MSG_DEBUG( "list of pre-registered ROB ID in FTK: ");
-    for(auto i : uIntListOfRobs)
+    for(auto i : uIntListOfRobs) {
       ATH_MSG_DEBUG( i );
+    }
 
     //m_robDataProvider->addROBData( uIntListOfRobs );
     config()->robRequestInfo()->addRequestScheduledRobIDs( uIntListOfRobs );
