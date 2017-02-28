@@ -262,13 +262,14 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 	const Trk::PerigeeSurface *testPSf=dynamic_cast<const Trk::PerigeeSurface*>(&((*iseg)->associatedSurface()));
 	
 	if(!testPSf){
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Also PerigeeSurface failed? What is it? "<<(*iseg)->associatedSurface()<<endmsg;
+	  if (msgLvl(MSG::DEBUG)) {
+	      msg(MSG::DEBUG)<<"associated surface dynamic_cast into PerigeeSurface failed. "<<(*iseg)->associatedSurface()<<endmsg;
+	      msg(MSG::DEBUG)<<"Leaving input matching perigee as nullptr, will not get a fittedTrack"<<endmsg;
+	  }
 	}else{
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Ok, it seems to be a PerigeeSurface"<<endmsg;            
+	  inputMatchingPer = new Trk::Perigee(p(0),p(1),p(2),p(3),p(4), *testPSf);
 	}
-	
-	
-	inputMatchingPer = new Trk::Perigee(p(0),p(1),p(2),p(3),p(4), *testPSf);
 	
       }else{
 	
