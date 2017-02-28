@@ -7,7 +7,7 @@
 #
 # ------------------------------------------------------------
 #
-# common things
+# common
 from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
@@ -910,12 +910,13 @@ if InDetTrigFlags.doAmbiSolving():
 
 
 if InDetTrigFlags.doNewTracking():
+
   #
   # ------ load new track selector (common for all vertexing algorithms, except for the moment VKalVrt
   #
   from InDetTrigRecExample.ConfiguredVertexingTrigCuts import EFIDVertexingCuts
-  
   from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+
   InDetTrigTrackSelectorTool = \
       InDet__InDetTrackSelectionTool(name = "InDetTrigDetailedTrackSelectorTool",
                                      CutLevel                   =  EFIDVertexingCuts.TrackCutLevel(),
@@ -937,12 +938,10 @@ if InDetTrigFlags.doNewTracking():
                                      Extrapolator     = InDetTrigExtrapolator,
                                      #TrtDCCutTool     = InDetTrigTRTDriftCircleCut,
                                      )
-  
-  
-  
+
+
+
   ToolSvc += InDetTrigTrackSelectorTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigTrackSelectorTool
-
-
 
