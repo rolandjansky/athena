@@ -6,7 +6,6 @@
 #define ATHENAKERNEL_IATHENASERIALIZESVC_H
 
 #include "GaudiKernel/IService.h"
-#include "DataModelRoot/RootType.h"
 
 class Guid;
 
@@ -18,11 +17,9 @@ public:
  
    virtual void* serialize(const void* object, const std::string& name, size_t& nbytes) = 0;
    virtual void* serialize(const void* object, const Guid& id, size_t& nbytes) = 0;
-   virtual void* serialize(const void* object, const RootType& cltype, size_t& nbytes) = 0;
 
-   virtual void* deserialize(void* buffer, size_t& nbytes, const std::string& name) = 0;
-   virtual void* deserialize(void* buffer, size_t& nbytes, const Guid& id) = 0;
-   virtual void* deserialize(void* buffer, size_t& nbytes, const RootType& cltype) = 0;
+   virtual void* deserialize(void* buffer, size_t nbytes, const std::string& name) = 0;
+   virtual void* deserialize(void* buffer, size_t nbytes, const Guid& id) = 0;
 };
 
 #endif
