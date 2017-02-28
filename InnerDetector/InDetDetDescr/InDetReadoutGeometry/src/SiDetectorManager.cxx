@@ -80,11 +80,11 @@ namespace InDetDD
 // DEPRECATED
     void SiDetectorManager::addKey(const std::string & key, int level, bool globalDelta)
     {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering alignmentCallback with key " << key << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering alignmentCallback with key " << key << endmsg;
         const DataHandle<AlignableTransform> transformCollection;  
         StatusCode sc = m_detStore->regFcn(&SiDetectorManager::alignmentCallback, this, transformCollection, key);
         if (sc.isFailure()) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to register call back using old method. This is OK if you are using COOL." << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to register call back using old method. This is OK if you are using COOL." << endmsg;
         }
         FrameType frame = (globalDelta) ? InDetDD::global : InDetDD::local;
         addKey(key, level, frame);

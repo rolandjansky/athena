@@ -99,7 +99,7 @@ void SiDetectorElement::commonConstructor() {
     m_isPixel = getIdHelper()->is_pixel(m_id);
     if (!m_isPixel && !getIdHelper()->is_sct(m_id)) {
         if (msgLvl(MSG::WARNING)) {
-            msg(MSG::WARNING) << "Element id is not for pixel or SCT" << endreq;
+            msg(MSG::WARNING) << "Element id is not for pixel or SCT" << endmsg;
         }
     }
 
@@ -220,11 +220,14 @@ void SiDetectorElement::updateCache() const {
         double etaDir = globalEtaAxis.dot(nominalEta);
         m_etaDirection = etaDir >= 0.;
 
+/* There is nothing wrong in principle with wanting all three reversed. Error message commented out.
         if (!m_depthDirection && !m_phiDirection && !m_etaDirection) {
             msg(MSG::FATAL) << "Something is very wrong in the GeoModel frame of a sensor. \n" << 
              "It would require swapping all three coordinate directions, which is not allowed (left-handed GeoModel frame?)" << 
-              endreq;
+              endmsg;
+            getIdHelper()->print(identify());
         }
+*/
 
     } // end if (m_firstTime)
 
@@ -607,7 +610,7 @@ double SiDetectorElement::sinStereo() const {
         const SCT_ModuleSideDesign *myDesign = dynamic_cast<const SCT_ModuleSideDesign *> (&design());
         if (!myDesign) {
             msg(MSG::FATAL) << "Request for cosStereo() for non-strip detector? " <<
-                               "Unable to convert SiDetectorElement design to SCT-type." << endreq;
+                               "Unable to convert SiDetectorElement design to SCT-type." << endmsg;
             return 1.0;
         }
         if (myDesign->shape() == DetectorShape::Annulus) {
@@ -1102,21 +1105,21 @@ void SiDetectorElement::checkOrientation(const HepGeom::Vector3D<double> &unitR,
         // Strips should be along globalZ
         if (fabs(globalEtaAxis[2]) < 0.7) {
             if (isPixel()) {
-                msg(MSG::WARNING) << "Pixel barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
-                                  globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endreq;
+                msg(MSG::DEBUG) << "Pixel barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
+                                  globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endmsg;
             }
             else {
-                msg(MSG::WARNING) << "SCT/Strip barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
-                                  globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endreq;
+                msg(MSG::DEBUG) << "SCT/Strip barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
+                                  globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endmsg;
             }
         }
         // Depth should be radial
         if (fabs(globalDepthAxis.dot(unitR)) < 0.7) {
             if (isPixel()) {
-                msg(MSG::WARNING) << "Pixel barrel sensor: depth direction far from radial" << endreq;
+                msg(MSG::DEBUG) << "Pixel barrel sensor: depth direction far from radial" << endmsg;
             }
             else {
-                msg(MSG::WARNING) << "SCT/Strip barrel sensor: depth direction far from radial" << endreq;
+                msg(MSG::DEBUG) << "SCT/Strip barrel sensor: depth direction far from radial" << endmsg;
             }
         } 
     }
@@ -1124,19 +1127,19 @@ void SiDetectorElement::checkOrientation(const HepGeom::Vector3D<double> &unitR,
         // Strips should be radial
         if (fabs(globalEtaAxis.dot(unitR)) < 0.7) {
             if (isPixel()) {
-                msg(MSG::WARNING) << "Pixel endcap sensor: eta/strip direction far from radial" << endreq;
+                msg(MSG::DEBUG) << "Pixel endcap sensor: eta/strip direction far from radial" << endmsg;
             }
             else {
-                msg(MSG::WARNING) << "SCT/Strip endcap sensor: eta/strip direction far from radial" << endreq;
+                msg(MSG::DEBUG) << "SCT/Strip endcap sensor: eta/strip direction far from radial" << endmsg;
             }
         }
         // Depth should be along z
         if (fabs(globalDepthAxis[2]) < 0.7) {
             if (isPixel()) {
-                msg(MSG::WARNING) << "Pixel endcap sensor: depth direction far from parallel to z\n";
+                msg(MSG::DEBUG) << "Pixel endcap sensor: depth direction far from parallel to z\n";
             }
             else {
-                msg(MSG::WARNING) << "SCT/Strip endcap sensor: depth direction far from parallel to z\n";
+                msg(MSG::DEBUG) << "SCT/Strip endcap sensor: depth direction far from parallel to z\n";
             }
         } 
     }
@@ -1154,7 +1157,7 @@ double SiDetectorElement::cosStereo() const {
     const SCT_ModuleSideDesign *myDesign = dynamic_cast<const SCT_ModuleSideDesign *> (&design());
     if (!myDesign) {
         msg(MSG::FATAL) << "Request for cosStereo() for non-strip detector? " <<
-                           "Unable to convert SiDetectorElement design to SCT-type." << endreq;
+                           "Unable to convert SiDetectorElement design to SCT-type." << endmsg;
         return 1.0;
     }
     SiCellId strip0(0);

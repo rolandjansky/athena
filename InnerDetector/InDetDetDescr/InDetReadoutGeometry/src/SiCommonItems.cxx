@@ -35,10 +35,10 @@ SiCommonItems::lorentzAngleSvc() const
     if (!m_lorentzAngleSvcHandle.empty()) {
       StatusCode sc = m_lorentzAngleSvcHandle.retrieve(); 
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "InDetReadoutGeometry ERROR: Could not locate Lorentz angle service: " << m_lorentzAngleSvcHandle.name() << endreq;
+	msg(MSG::ERROR) << "InDetReadoutGeometry ERROR: Could not locate Lorentz angle service: " << m_lorentzAngleSvcHandle.name() << endmsg;
       }
     }
-    m_lorentzAngleSvc =  &*m_lorentzAngleSvcHandle;
+    m_lorentzAngleSvc =  m_lorentzAngleSvcHandle.get();
     m_lorentzAngleSvcInit = true;
   }
   return m_lorentzAngleSvc;
