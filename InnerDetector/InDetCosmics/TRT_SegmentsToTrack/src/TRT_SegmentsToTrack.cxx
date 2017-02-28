@@ -259,8 +259,8 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
       	= dynamic_cast<const Trk::StraightLineSurface*>(&((*iseg)->associatedSurface()));
       
       
-      const Trk::AtaStraightLine* inputMatchingPar =0;
-      const Trk::Perigee* inputMatchingPer =0;
+      const Trk::AtaStraightLine* inputMatchLine =0;
+      const Trk::Perigee* inputMatchPerigee =0;
       const Amg::VectorX &p = dynamic_cast<const Amg::VectorX&>((**iseg).localParameters());      
       
       if(!testSf){
@@ -275,32 +275,32 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 	  }
 	}else{
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Ok, it seems to be a PerigeeSurface"<<endmsg;            
-	  inputMatchingPer = new Trk::Perigee(p(0),p(1),p(2),p(3),p(4), *testPSf);
+	  inputMatchPerigee = new Trk::Perigee(p(0),p(1),p(2),p(3),p(4), *testPSf);
 	}
 	
       }else{
 	
-	inputMatchingPar = new Trk::AtaStraightLine(p(0),p(1),p(2),p(3),p(4),*testSf);   
+	inputMatchLine = new Trk::AtaStraightLine(p(0),p(1),p(2),p(3),p(4),*testSf);   
        
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " created testSf : " << (*inputMatchingPar)<< endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " created testSf : " << (*inputMatchLine)<< endmsg;
 
    
         int nmeas=(*iseg)->numberOfMeasurementBases();
         Amg::Vector3D surfpos(.5*((*iseg)->measurement(nmeas/2)->globalPosition()+(*iseg)->measurement(nmeas/2+1)->globalPosition()));
         Trk::PerigeeSurface persurf(surfpos);
-        inputMatchingPer = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(*inputMatchingPar,persurf));
+        inputMatchPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(*inputMatchLine,persurf));
        
       }
       
       
       
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " created inputMatchingPar " << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " created inputMatchLine " << endmsg;
       
       Trk::Track *fittedTrack=0;
       const Trk::TrackParameters *inputpar=0;
-      if (inputMatchingPer) inputpar=inputMatchingPer;
-      else if (inputMatchingPar) inputpar=inputMatchingPar;
+      if (inputMatchPerigee) inputpar=inputMatchPerigee;
+      else if (inputMatchLine) inputpar=inputMatchLine;
 
       if (inputpar) {
 	
@@ -438,10 +438,8 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit did not converge!"<<endmsg;
       } //end of if(fittedTrack)
 
-      if(inputMatchingPar)
-	delete inputMatchingPar;
-      if(inputMatchingPer)
-	delete inputMatchingPer;
+      delete inputMatchLine;
+      delete inputMatchPerigee;
       
     } //end of if: (*iseg)->numberOfMeasurementBases()>0
   } //end of loop over segments
@@ -911,8 +909,8 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	  testSf= dynamic_cast<const Trk::StraightLineSurface*>(&((*isegBarrel)->associatedSurface()));
 	}
 	
-	const Trk::AtaStraightLine* inputMatchingPar = nullptr;
-	const Trk::Perigee* inputMatchingPer = nullptr;
+	const Trk::AtaStraightLine* inputMatchLine = nullptr;
+	const Trk::Perigee* inputMatchPerigee = nullptr;
 	
 	if(!testSf){
 	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"No straightLineSurface !! Trying Perigee ..."<<endmsg;
@@ -926,42 +924,42 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	    }
 	  }else{
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Ok, it seems to be a PerigeeSurface"<<endmsg;            
-	    inputMatchingPer = new Trk::Perigee(inputMatchingPos,inputMatchingMom, 1., *testPSf);
+	    inputMatchPerigee = new Trk::Perigee(inputMatchingPos,inputMatchingMom, 1., *testPSf);
 	  }
 	  
 	}else{
-	  inputMatchingPar = new Trk::AtaStraightLine(inputMatchingPos,inputMatchingMom,
+	  inputMatchLine = new Trk::AtaStraightLine(inputMatchingPos,inputMatchingMom,
 						      1., *testSf);          
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " created testSf : " << (*inputMatchingPar)<< endmsg;
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " created testSf : " << (*inputMatchLine)<< endmsg;
 	}
 	
 	
 	Amg::Vector3D startMomentum( 0., 0., 1.);
 	Trk::Track *fittedTrack=0;
 	if(m_materialEffects){
-	  if(inputMatchingPar){
+	  if(inputMatchLine){
 	    fittedTrack=m_trackFitter->fit(myset2,
-					   *inputMatchingPar,
+					   *inputMatchLine,
 					   false,
 					   Trk::muon
 					   );
-	  }else{
+	  }else if (inputMatchPerigee){
 	    fittedTrack=m_trackFitter->fit(myset2,
-					   *inputMatchingPer,
+					   *inputMatchPerigee,
 					   false,
 					   Trk::muon
 					   );
 	  }
 	}else{
-	  if(inputMatchingPar){
+	  if(inputMatchLine){
 	    fittedTrack=m_trackFitter->fit(myset2,
-					   *inputMatchingPar,
+					   *inputMatchLine,
 					   false,
 					   Trk::nonInteracting
 					   );
-	  }else{
+	  }else if (inputMatchPerigee){
 	    fittedTrack=m_trackFitter->fit(myset2,
-					   *inputMatchingPer,
+					   *inputMatchPerigee,
 					   false,
 					   Trk::muon
 					   );
@@ -980,11 +978,9 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	  //tobedeleted.clear(); // TILL : first delete its content (done further below)
 	}
 	
-	if(inputMatchingPer)
-	  delete inputMatchingPer;
+	delete inputMatchPerigee;
 	
-	if(inputMatchingPar)
-	  delete inputMatchingPar;
+	delete inputMatchLine;
 	
 
 	for(size_t i=0;i<tobedeleted.size();i++)
