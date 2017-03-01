@@ -42,14 +42,15 @@ namespace xAOD {
     double qcd_nnlops_nnlo, qcd_nnlops_pow;
 
     /// information of the current event kinematiocs
-    dobule pTH;
+    double pTH;
     int Njets30, STXScat;
 
     /// methods to print weights to the screen
     char *uncStr(double var, double nom) { return Form("%s%.3f",var>nom?"+":"",(var-nom)/nom); }
     void print() {
       double n=nominal;
-      printf("\n  Higgs MC weights of current event, pTH %.1f GeV, Njets=%i, STXS(ggF)\n");
+      printf("\n  Higgs MC weights of current event, pTH %.1f GeV, Njets=%i\n",
+	     pTH,Njets30);
       printf("    Nominal weight: %.3f\n",nominal);
       if (pdf4lhc.size()==30) {
 	printf("\n    PDF unc  1-10:");
