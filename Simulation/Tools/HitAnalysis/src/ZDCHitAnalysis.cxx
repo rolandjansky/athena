@@ -37,6 +37,8 @@ ZDCHitAnalysis::ZDCHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator
    , m_zdc_pix_side(0)
    , m_zdc_pix_mod(0)
    , m_zdc_pix_energy(0)
+   , m_tree(0)
+   , m_ntupleFileName("")
    , m_path("/ZDCHitAnalysis/")
    , m_thistSvc("THistSvc", name)
 {
