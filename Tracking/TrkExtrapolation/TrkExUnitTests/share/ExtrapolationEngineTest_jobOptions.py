@@ -31,7 +31,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 # build GeoModel
-DetDescrVersion = 'ATLAS-R2-2015-02-01-00'
+DetDescrVersion = 'ATLAS-R2-2016-01-00-03'
 #DetDescrVersion = 'ATLAS-PX-ITK-00-00-00'
 from AtlasGeoModel import SetGeometryVersion 
 from AtlasGeoModel import GeoModelInit 
