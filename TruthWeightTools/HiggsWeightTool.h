@@ -97,7 +97,7 @@ namespace xAOD {
     /// Index of MC event weight
     size_t getWeightIndex(std::string weightName);
 
-    HiggsWeights getHiggsWeights();
+    HiggsWeights getHiggsWeights(double HTXS_pTH=-1, int HTXS_Njets30=-1,int HTXS_cat=-1);
 
     // returns hardcoded list of weight names matching expecation
     // of ATLAS-default ggF NNLOPS 

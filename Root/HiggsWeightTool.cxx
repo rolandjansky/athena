@@ -147,7 +147,7 @@ namespace xAOD {
     return evtInfo->mcEventWeights();
   }
 
-  HiggsWeights HiggsWeightTool::getHiggsWeights() {
+  HiggsWeights HiggsWeightTool::getHiggsWeights(double pTH, int Njets30, int STXS_Stage1) {
     const std::vector<float> &weights = getMCweights();
 
     const xAOD::EventInfo *evtInfo = nullptr;
@@ -161,6 +161,9 @@ namespace xAOD {
     m_mcID=evtInfo->mcChannelNumber();
     
     HiggsWeights hw;
+    // set kinematics
+    hw.pTH=pTH; hw.Njets30=Njets30;
+
     // 1. Nominal weight
     hw.nominal = weights[m_nom];
 

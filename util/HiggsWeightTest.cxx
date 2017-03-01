@@ -14,6 +14,7 @@
 // Local include(s):
 #include "TruthWeightTools/TruthWeightTool.h"
 #include "TruthWeightTools/HiggsWeightTool.h"
+#include <TRandom3.h>
 
 int main( int argc, char* argv[] ) {
 
@@ -71,6 +72,11 @@ int main( int argc, char* argv[] ) {
      const xAOD::TruthEventContainer *tevts;
      RETURN_CHECK( APP_NAME, event.retrieve( tevts, "TruthEvents" ) );
      
+     // in reality we should pass the Higgs pT and Njets30 from HTXS
+     // but standard input files don't have these, so let's randomly sample them..
+     int HTXS_Njets30 = gRandom->Poisson(0.9);
+     double HTXS_pTH = std::abs(gRandom->Gaus(0.0,40.0));
+
      if ( entry == 0 ) {
        ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
 	      weights.size(),tevts->at(0)->weights().size());
@@ -78,14 +84,14 @@ int main( int argc, char* argv[] ) {
        for (size_t i=0;i<10;++i)
 	 ::Info(APP_NAME,"Weight %lu %.3f and %.3f. %lu weights and %lu names",
 		i,weights[i],ws[i],ws.size(),higgsMCtool->getWeightNames().size());
-       higgsMCtool->getHiggsWeights().print();
+       higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH).print();
      }
 
      // Give some feedback of where we are:
      if( (entry+1) % 10000 == 0 ) {
        ::Info( APP_NAME, "Processed %5llu/%5llu events",entry+1,entries);
        
-       higgsMCtool->getHiggsWeights().print();
+       higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH).print();
      }
    }
 
