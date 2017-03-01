@@ -57,7 +57,7 @@ McAodSymLinkTests::McAodSymLinkTests( const std::string& name,
 ///////////////
 McAodSymLinkTests::~McAodSymLinkTests()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  m_msg << MSG::DEBUG << "Calling destructor" << endmsg;
 }
 
 // Athena Algorithm's Hooks
@@ -66,13 +66,13 @@ StatusCode McAodSymLinkTests::initialize()
 {
   m_msg << MSG::INFO 
 	<< "Initializing " << name() << "..." 
-	<< endreq;
+	<< endmsg;
 
   // Get pointer to StoreGateSvc and cache it :
   if ( !m_storeGate.retrieve().isSuccess() ) {
     m_msg << MSG::ERROR 	
 	  << "Unable to retrieve pointer to StoreGateSvc"
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -83,7 +83,7 @@ StatusCode McAodSymLinkTests::finalize()
 {
   m_msg << MSG::INFO 
 	<< "Finalizing " << name() << "..." 
-	<< endreq;
+	<< endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -91,7 +91,7 @@ StatusCode McAodSymLinkTests::finalize()
 StatusCode McAodSymLinkTests::execute()
 {  
   m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-	<< endreq;
+	<< endmsg;
 
   const TruthParticleContainer * mcParts = 0;
   if ( !m_storeGate->retrieve( mcParts, 
@@ -101,7 +101,7 @@ StatusCode McAodSymLinkTests::execute()
 	  << "Could not retrieve a TruthParticleContainer at ["
 	  << m_truthParticlesName.value()
 	  << "] !!"
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -113,7 +113,7 @@ StatusCode McAodSymLinkTests::execute()
 	  << "Could not retrieve an IParticleContainer at ["
 	  << m_truthParticlesName.value()
 	  << "] !!"
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -125,7 +125,7 @@ StatusCode McAodSymLinkTests::execute()
 	  << "Could not retrieve an INavigable4MomentumCollection at ["
 	  << m_truthParticlesName.value()
 	  << "] !!"
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -137,10 +137,10 @@ StatusCode McAodSymLinkTests::execute()
 	  mcPartsSize == inavSize    &&
 	  ipartsSize  == inavSize    ) ) {
     m_msg << MSG::ERROR
-	  << "Symlinked containers do not have the same size !!" << endreq
-	  << " TruthParticleContainer :        " << mcPartsSize << endreq
-	  << " IParticleContainer :            " << ipartsSize  << endreq
-	  << " INavigable4MomentumCollection : " << inavSize    << endreq;
+	  << "Symlinked containers do not have the same size !!" << endmsg
+	  << " TruthParticleContainer :        " << mcPartsSize << endmsg
+	  << " IParticleContainer :            " << ipartsSize  << endmsg
+	  << " INavigable4MomentumCollection : " << inavSize    << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -154,11 +154,11 @@ StatusCode McAodSymLinkTests::execute()
 	     (tp_ene - in_ene) < eps &&
 	     (ip_ene - in_ene) < eps ) ) {
       m_msg << MSG::ERROR
-	    << "symlink FAILS at index [" << i << "]: " << endreq
-	    << " TruthParticle::e(): " << tp_ene << endreq
-	    << " IParticle::e():     " << ip_ene << endreq
-	    << " INav4Mom::e():      " << in_ene << endreq
-	    << " epsilon<double>:    " << eps << endreq;
+	    << "symlink FAILS at index [" << i << "]: " << endmsg
+	    << " TruthParticle::e(): " << tp_ene << endmsg
+	    << " IParticle::e():     " << ip_ene << endmsg
+	    << " INav4Mom::e():      " << in_ene << endmsg
+	    << " epsilon<double>:    " << eps << endmsg;
       allGood = false;
     }
   }
@@ -167,7 +167,7 @@ StatusCode McAodSymLinkTests::execute()
   }
 
   // this string is needed for the unit-test
-  m_msg << MSG::INFO << "McAodSymLink tests OK" << endreq;
+  m_msg << MSG::INFO << "McAodSymLink tests OK" << endmsg;
 
   return StatusCode::SUCCESS;
 }

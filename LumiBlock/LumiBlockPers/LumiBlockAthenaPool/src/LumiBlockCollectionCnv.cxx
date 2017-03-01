@@ -16,7 +16,7 @@ LumiBlockCollection_PERS* LumiBlockCollectionCnv::createPersistent(LumiBlockColl
   MsgStream log(messageService(), "LumiBlockCollectionConverter" );
   LumiBlockCollection_PERS * persObj = m_TPConverter.createPersistent( transCont,   log );
 
-  log << MSG::DEBUG << "Success" << endreq;
+  log << MSG::DEBUG << "Success" << endmsg;
   return persObj; 
 }
     

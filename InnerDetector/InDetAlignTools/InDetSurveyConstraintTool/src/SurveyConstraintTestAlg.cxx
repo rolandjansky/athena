@@ -38,45 +38,45 @@ AthAlgorithm(name, pSvcLocator),
 StatusCode SurveyConstraintTestAlg::initialize(){
 
   // Part 1: Get the messaging service, print where you are
-  msg(MSG::INFO) << "initialize()" << endreq;
+  msg(MSG::INFO) << "initialize()" << endmsg;
   
   // Get The ToolSvc
   StatusCode sc = service("ToolSvc",m_toolsvc);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not find ToolSvc. Exiting." << endreq;
+    msg(MSG::FATAL) << "Could not find ToolSvc. Exiting." << endmsg;
     return sc;
   }
   
   // Get SurveyConstraint from ToolService
   sc = m_toolsvc->retrieveTool("SurveyConstraint",SurvConstr);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) <<"Could not find SurveyConstraint Tool. Exiting."<<endreq;
+    msg(MSG::FATAL) <<"Could not find SurveyConstraint Tool. Exiting."<<endmsg;
     return sc;
   }
 
   // get PixelManager
   sc = detStore()->retrieve(m_pixelManager, "Pixel");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get PixelManager !" << endreq;
+    msg(MSG::ERROR) << "Could not get PixelManager !" << endmsg;
     return sc;
   }
-  msg(MSG::INFO) << "got m_pixelManager" << endreq;
+  msg(MSG::INFO) << "got m_pixelManager" << endmsg;
   
   // get SCTManager
   sc = detStore()->retrieve(m_SCT_Manager, "SCT");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get SCT_Manager !" << endreq;
+    msg(MSG::ERROR) << "Could not get SCT_Manager !" << endmsg;
     return sc;
   }
-  msg(MSG::INFO) << "got m_SCT_Manager" << endreq;
+  msg(MSG::INFO) << "got m_SCT_Manager" << endmsg;
 
   // get ID helpers from detector store (relying on GeoModel to put them)
   if ((StatusCode::SUCCESS!=detStore()->retrieve(m_pixid)) ||
       (StatusCode::SUCCESS!=detStore()->retrieve(m_sctid))) {
-    msg(MSG::FATAL) << "Problem retrieving ID helpers" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving ID helpers" << endmsg;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << "got ID helpers from detector store (relying on GeoModel to put them)" << endreq;
+  msg(MSG::INFO) << "got ID helpers from detector store (relying on GeoModel to put them)" << endmsg;
 
   // book histograms
   BookHist();
@@ -95,7 +95,7 @@ return StatusCode::SUCCESS;
     if ( !nt )    {    // Check if already booked
       nt = ntupleSvc()->book("/NTUPLES/FILE1/InitialAlignment", CLID_ColumnWiseTuple, "InitialAlignment");
       if ( nt )    {
-  msg(MSG::INFO) << "InitialAlignment ntuple booked." << endreq;
+  msg(MSG::INFO) << "InitialAlignment ntuple booked." << endmsg;
   
   sc = nt->addItem("x"         , m_AlignResults_x);
   sc = nt->addItem("y"         , m_AlignResults_y);
@@ -111,7 +111,7 @@ return StatusCode::SUCCESS;
   sc = nt->addItem("Eta"       , m_AlignResults_Identifier_Eta);
   
       } else {   // did not manage to book the N tuple....
-  msg(MSG::ERROR) << "Failed to book InitialAlignment ntuple." << endreq;
+  msg(MSG::ERROR) << "Failed to book InitialAlignment ntuple." << endmsg;
       }
     }
     
@@ -156,7 +156,7 @@ return StatusCode::SUCCESS;
       // Write out AlignResults ntuple
       sc = ntupleSvc()->writeRecord("NTUPLES/FILE1/InitialAlignment");
       if (sc.isFailure()) {
-        msg(MSG::ERROR)  << "Could not write InitialAlignment ntuple." << endreq;
+        msg(MSG::ERROR)  << "Could not write InitialAlignment ntuple." << endmsg;
       }
       
     } // end of module loop
@@ -167,7 +167,7 @@ return StatusCode::SUCCESS;
 StatusCode SurveyConstraintTestAlg::execute() {
 
 // Part 1: Get the messaging service, print where you are
-msg(MSG::INFO) << "execute()" << endreq;
+msg(MSG::INFO) << "execute()" << endmsg;
 
  float m_multipl=1.E3;
 
@@ -207,25 +207,25 @@ msg(MSG::INFO) << "execute()" << endreq;
 
        if (msgLvl(MSG::DEBUG)) msg() 
      << "Pixel_ModuleID = " <<  Pixel_ModuleID
-     << endreq;
+     << endmsg;
        if (msgLvl(MSG::DEBUG)) msg() 
      << "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")"
-     << endreq;
+     << endmsg;
        if (msgLvl(MSG::DEBUG)) msg() 
      << "chi^2 = " << deltachisq
-     << endreq;
+     << endmsg;
        if (msgLvl(MSG::DEBUG)) msg() 
      << "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")"
-     << endreq;
+     << endmsg;
        if (msgLvl(MSG::DEBUG)) msg() 
      << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")"
-     << endreq;
+     << endmsg;
        if (msgLvl(MSG::DEBUG)) msg() 
      << "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")"
-     << endreq;
+     << endmsg;
        if (msgLvl(MSG::DEBUG)) msg() 
      << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")"
-     << endreq;
+     << endmsg;
        //break;
      }
    }
@@ -242,25 +242,25 @@ msg(MSG::INFO) << "execute()" << endreq;
              DOCA_Matrix); 
      if (msgLvl(MSG::DEBUG)) msg() 
    << "Pixel Barrel ModuleID = " <<  Pixel_ModuleID
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "chi^2 = " << deltachisq
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")"
-   << endreq;
+   << endmsg;
      break;
    }
  }
@@ -276,25 +276,25 @@ msg(MSG::INFO) << "execute()" << endreq;
              DOCA_Matrix); 
      if (msgLvl(MSG::DEBUG)) msg() 
    << "SCT_ModuleID = " <<  SCT_ModuleID
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "chi^2 = " << deltachisq
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")"
-   << endreq;
+   << endmsg;
      break;
    }
  }
@@ -311,25 +311,25 @@ msg(MSG::INFO) << "execute()" << endreq;
              DOCA_Matrix); 
      if (msgLvl(MSG::DEBUG)) msg() 
    << "SCT Barrel ModuleID = " <<  SCT_ModuleID
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "chi^2 = " << deltachisq
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")"
-   << endreq;
+   << endmsg;
      if (msgLvl(MSG::DEBUG)) msg() 
    << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")"
-   << endreq;
+   << endmsg;
      break;
    }
  }
@@ -342,13 +342,13 @@ msg(MSG::INFO) << "execute()" << endreq;
 StatusCode SurveyConstraintTestAlg::finalize() {
 
   // Part 1: Get the messaging service, print where you are
-  msg(MSG::INFO) << "finalize()" << endreq;
+  msg(MSG::INFO) << "finalize()" << endmsg;
 
   msg(MSG::INFO) << "mm = " << CLHEP::mm 
      << ", mrad = " << CLHEP::mrad 
      << ", micrometer = " << CLHEP::micrometer 
      << ", deg = " << CLHEP::deg         
-     << endreq;
+     << endmsg;
 
   return StatusCode::SUCCESS;
 }

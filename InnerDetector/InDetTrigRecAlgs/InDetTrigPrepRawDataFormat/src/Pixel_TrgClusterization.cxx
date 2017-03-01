@@ -132,7 +132,7 @@ namespace InDet{
     /*
       StatusCode sc = m_rawDataProvider->initContainer();
       if (sc.isFailure())
-      msg() << MSG::WARNING << "RDO container cannot be registered" << endreq;
+      msg() << MSG::WARNING << "RDO container cannot be registered" << endmsg;
     */
     return HLT::OK;
   }
@@ -505,7 +505,7 @@ namespace InDet{
 	    m_numPixClusters+= m_clusterCollection->size();
 	  
 	    /*if ( m_clusterContainer->indexFind(clusterCollection->identifyHash()) != m_clusterContainer->end() )
-	      msg() << MSG::INFO << "FOUND Cluster collection :" << clusterCollection->identifyHash() << endreq; */
+	      msg() << MSG::INFO << "FOUND Cluster collection :" << clusterCollection->identifyHash() << endmsg; */
 	  
 	    if (m_clusterContainer->addCollection( m_clusterCollection, 
 						   m_clusterCollection->identifyHash() ).isFailure()) {

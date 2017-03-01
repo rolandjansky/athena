@@ -72,32 +72,32 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
 
   sc = detStore()->retrieve(m_atlasId, "AtlasID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get AtlasID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get AtlasID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Get TrkExtrapolator from ToolService
   if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
   }
 
   if (m_usepix) {
     // Get PixelConditionsSummarySvc
     if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg;
     }
     // Get InDetPixelLayerTool from ToolService
     if ( m_pixelLayerTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelLayerTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelLayerTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_pixelLayerTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_pixelLayerTool << endmsg;
     }
 
   }
@@ -105,17 +105,17 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
   if (m_usesct) {
     // Get SctConditionsSummarySvc
     if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummarySvc << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummarySvc << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endmsg;
     }
   }
 
   if (m_extendedListOfHoles) 
-    msg(MSG::INFO) << "Search for extended list of holes " << endreq;
+    msg(MSG::INFO) << "Search for extended list of holes " << endmsg;
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -284,9 +284,9 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
                 ++imeas;
                 if (!(*iterTSOS)->trackParameters() && m_warning<10) {
                   m_warning++;
-                  msg(MSG::WARNING) << "No track parameters available for state of type measurement" << endreq;
-                  msg(MSG::WARNING) << "Don't run this tool on slimmed tracks!" << endreq;
-                  if (m_warning==10) msg(MSG::WARNING) << "(last message!)" << endreq;
+                  msg(MSG::WARNING) << "No track parameters available for state of type measurement" << endmsg;
+                  msg(MSG::WARNING) << "Don't run this tool on slimmed tracks!" << endmsg;
+                  if (m_warning==10) msg(MSG::WARNING) << "(last message!)" << endmsg;
                 }
               }
 	      // for cosmics: remember parameters of first SI TSOS
@@ -524,20 +524,20 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 		    {
 		      if (!foundFirst && !(*iterTSOS)->type(Trk::TrackStateOnSurface::Outlier))
 			{
-                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found first Si measurement !" << endreq;
+                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found first Si measurement !" << endmsg;
 			  foundFirst = true;
 			}
 		      
 		      // is this a surface which might have a better prediction ?
 		      if (iTSOS->second->trackParameters())
 			{
-                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found track parameter on Si surface, take it" << endreq;
+                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found track parameter on Si surface, take it" << endmsg;
 			  delete startParameters;
 			  startParameters = iTSOS->second->trackParameters()->clone();
 			}
 		      else
 			{
-                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No parameter, take extrapolation" << endreq;
+                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No parameter, take extrapolation" << endmsg;
 			  delete startParameters;
 			  startParameters = thisParameters->clone();
 			}
@@ -547,10 +547,10 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 		  const Trk::TrackParameters *clonepar=thisParameters->clone();
 		  std::pair<const Trk::TrackParameters*,const bool> trackparampair (clonepar,true);
  		  if (mapOfPredictions.insert(std::pair<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >(id2,trackparampair)).second){
-		     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Added Si surface to mapOfPredictions" << endreq;
+		     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Added Si surface to mapOfPredictions" << endmsg;
 		  } 
 		  else {
-		     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Had this, it is a double, skipped" << endreq;
+		     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Had this, it is a double, skipped" << endmsg;
 		    delete clonepar;
 		  }
 		}
@@ -565,7 +565,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 	      
 	      if ( !(m_atlasId->is_pixel(id) || m_atlasId->is_sct(id)) )
 		{
-		   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Target was no longer an Si element, break loop" << endreq;
+		   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Target was no longer an Si element, break loop" << endmsg;
 		  break;
   		}
 	      
@@ -799,7 +799,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
 	  else if (iter->second->type(Trk::TrackStateOnSurface::Measurement))
 	    ++imeasurements;
 	  else
-	    msg(MSG::ERROR) << "Found wrong TSOS in map !!!" << endreq;
+	    msg(MSG::ERROR) << "Found wrong TSOS in map !!!" << endmsg;
 	}
 
       if ( imeasurements > 0 ) {
@@ -924,7 +924,7 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
       }
     }
   } else {
-    msg(MSG::WARNING) << "unknown identifier type, this should not happen !" << endreq; 
+    msg(MSG::WARNING) << "unknown identifier type, this should not happen !" << endmsg; 
     return false;
   }
   // the extrapolation of the track plus its error might not 
@@ -987,7 +987,7 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
 	 DataVector doesn't have stable sort, so we need to tamper with
 	 its vector content in order to avoid sort to get caught in DV full
 	 object ownership */
-      if (msgLvl(MSG::DEBUG)) msg() << "sorting vector with stable_sort "<<endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "sorting vector with stable_sort "<<endmsg;
       std::vector<const Trk::TrackStateOnSurface*>* PtrVector
 	= const_cast<std::vector<const Trk::TrackStateOnSurface*>* > (&trackTSOS->stdcont());
       stable_sort( PtrVector->begin(), PtrVector->end(), *CompFunc );

@@ -262,11 +262,11 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 			if ( msgLvl(MSG::DEBUG) ) {
 				if (sc.isFailure()) {
 					msg(MSG::DEBUG) 
-					<<"No SCT segments in StoreGate " <<endreq;
+					<<"No SCT segments in StoreGate " <<endmsg;
 				} else {
 					msg(MSG::DEBUG) <<"found SCT segments in StoreGate "  
 					<<m_SCTTracksName<<"Up "
-					<<m_sct_tracks_up->size()<<endreq;
+					<<m_sct_tracks_up->size()<<endmsg;
 				}
 			}
 		}
@@ -276,11 +276,11 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 			if ( msgLvl(MSG::DEBUG) ) {
 				if ( sc.isFailure()) {
 					msg(MSG::DEBUG)
-					<<"No SCT segments in StoreGate " <<endreq;
+					<<"No SCT segments in StoreGate " <<endmsg;
 				} else {
 					msg(MSG::DEBUG) <<"found SCT segments in StoreGate "  
 					<<m_SCTTracksName<<"Low "
-					<<m_sct_tracks_low->size()<<endreq;
+					<<m_sct_tracks_low->size()<<endmsg;
 				}
 			}
 		}
@@ -290,11 +290,11 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 			if ( msgLvl(MSG::DEBUG) ) {
 				if ( sc.isFailure()) {
 					msg(MSG::DEBUG) 
-					<<"No PIX segments in StoreGate " <<endreq;
+					<<"No PIX segments in StoreGate " <<endmsg;
 				} else {
 					msg(MSG::DEBUG) <<"found PIX segments in StoreGate "  
 					<<m_PIXTracksName<<"Up "
-					<<m_pix_tracks_up->size()<<endreq;
+					<<m_pix_tracks_up->size()<<endmsg;
 				}
 			}
 		}
@@ -303,11 +303,11 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 			if  ( msgLvl(MSG::DEBUG) ) {
 				if ( sc.isFailure()) {
 					msg(MSG::DEBUG) 
-					<<"No PIX segments in StoreGate " <<endreq;
+					<<"No PIX segments in StoreGate " <<endmsg;
 				} else {
 					msg(MSG::DEBUG) << "found PIX segments in StoreGate"
 					<< m_PIXTracksName<<"Low "
-					<< m_pix_tracks_low->size()<<endreq; 
+					<< m_pix_tracks_low->size()<<endmsg; 
 				}
 			}
 		}
@@ -317,11 +317,11 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 			if ( msgLvl(MSG::DEBUG) ) {
 				if ( sc.isFailure()) {
 					msg(MSG::DEBUG) <<"No TRT segments in StoreGate "
-					<<m_TRTTracksName<<"Up"<<endreq;
+					<<m_TRTTracksName<<"Up"<<endmsg;
 				} else {
 					msg(MSG::DEBUG) <<"found TRT segments in StoreGate "
 					<<m_TRTTracksName<<"Up "<<m_trt_tracks_up->size()
-					<<endreq;
+					<<endmsg;
 				}
 			}
 		}
@@ -331,11 +331,11 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 			if ( msgLvl(MSG::DEBUG) ) {
 				if ( sc.isFailure()) {
 					msg(MSG::DEBUG) <<"No TRT segments in StoreGate "
-					<<m_TRTTracksName<<"Low"<<endreq;
+					<<m_TRTTracksName<<"Low"<<endmsg;
 				} else {
 					msg(MSG::DEBUG)   <<"found TRT segments in StoreGate "
 					<<m_TRTTracksName<<"Low "
-					<<m_trt_tracks_low->size()<<endreq;
+					<<m_trt_tracks_low->size()<<endmsg;
 				}
 			}
 		}
@@ -345,11 +345,11 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 			if  ( msgLvl(MSG::DEBUG) ) {
 				if ( sc.isFailure()) { 
 					msg(MSG::DEBUG) <<"No combined tracks in StoreGate   "
-					<<m_CombinedTracksName<<"Up"<<endreq;
+					<<m_CombinedTracksName<<"Up"<<endmsg;
 				} else {
 					msg(MSG::DEBUG) <<"found combined tracks in StoreGate "
 					<<m_CombinedTracksName<<"Up"<<" "
-					<<m_combined_tracks_up->size()<<endreq;
+					<<m_combined_tracks_up->size()<<endmsg;
 				}
 			}
 		}
@@ -359,11 +359,11 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 			if ( msgLvl(MSG::DEBUG) ) {
 				if ( sc.isFailure()) {
 					msg(MSG::DEBUG) <<"No combined tracks in StoreGate "
-					<<m_CombinedTracksName+"Low"<<endreq;
+					<<m_CombinedTracksName+"Low"<<endmsg;
 				} else {
 					msg(MSG::DEBUG) <<"found combined tracks in StoreGate "
 					<<m_CombinedTracksName+"Low"<<" "
-					<<m_combined_tracks_low->size()<<endreq;
+					<<m_combined_tracks_low->size()<<endmsg;
 				}
 			}
 		}
@@ -399,7 +399,7 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 
 	    if (track_bottom == 0) { 
 		msg(MSG::WARNING)
-		      << "no pointer to bottom track!!!" << endreq;
+		      << "no pointer to bottom track!!!" << endmsg;
 		continue;
 	    }
     
@@ -429,7 +429,7 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 		}
 	    } else { 
 		msg(MSG::ERROR) 
-		      << "no measurement at perigee !!!" << endreq;
+		      << "no measurement at perigee !!!" << endmsg;
 	    }
 	    if ( nBottomTracks<s_nMaxTracks)
 		m_Bottom_chi2[nBottomTracks]=
@@ -453,7 +453,7 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 	    const Trk::Track *track_top=(*itop);
 	    if (track_top == 0){ 
 		msg(MSG::WARNING) 
-		      << "no pointer to top track!!!" << endreq;
+		      << "no pointer to top track!!!" << endmsg;
 		continue;
 	    } 
 	    // Track at perigee    
@@ -477,7 +477,7 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 		}
 	    } else {
 		msg(MSG::ERROR) 
-		      << "no measurement at perigee !!!" << endreq;
+		      << "no measurement at perigee !!!" << endmsg;
 	    } 
 	    if ( nTopTracks<s_nMaxTracks) {   
 		m_Top_chi2[nTopTracks]=

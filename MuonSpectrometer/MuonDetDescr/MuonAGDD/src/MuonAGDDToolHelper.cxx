@@ -203,7 +203,7 @@ bool MuonAGDDToolHelper::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*
 
   //std::map<std::string, GeoFullPhysVol*>* myMap =  NULL;
   //myMap = GetMSdetectors();
-  //log<<MSG::INFO<<"In AGDD2GeoSvc::BuildReadoutGeometry - size of the detector map = "<<myMap->size()<<endreq;
+  //log<<MSG::INFO<<"In AGDD2GeoSvc::BuildReadoutGeometry - size of the detector map = "<<myMap->size()<<endmsg;
 
   //std::map<std::string, GeoFullPhysVol*>::const_iterator it;
   

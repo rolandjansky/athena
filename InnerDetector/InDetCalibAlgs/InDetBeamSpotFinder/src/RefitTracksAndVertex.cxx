@@ -266,7 +266,7 @@ Trk::Track* RefitTracksAndVertex::fitSCTOnlyTrack(const Trk::Track* track) {
   for ( ; it!=itEnd; ++it){ 
     if( !(*it) ) {
       //      log (MSG::WARNING) << "The MeasurementBase set has a void"
-      //    << "  member! Skip it.." << endreq;
+      //    << "  member! Skip it.." << endmsg;
     } else {
       const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(*it);
       if (rio != 0) {

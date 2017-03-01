@@ -99,8 +99,8 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
 
 
    MsgStream log(messageService(), name());
-   log << MSG::INFO << " in CBNT_DetailedCellInfo_initialize" << endreq;
-   log << MSG::INFO << " reading CaloCellContainer " << m_cellsName << endreq ;
+   log << MSG::INFO << " in CBNT_DetailedCellInfo_initialize" << endmsg;
+   log << MSG::INFO << " reading CaloCellContainer " << m_cellsName << endmsg ;
 
 
 
@@ -114,7 +114,7 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
    
 
        if ( sc == StatusCode::FAILURE ) {
-	log<<MSG::ERROR << "   could not add item to col wise ntuple" << endreq;
+	log<<MSG::ERROR << "   could not add item to col wise ntuple" << endmsg;
         return StatusCode::FAILURE;
        }
 
@@ -165,7 +165,7 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
   if (sc.isFailure()) {
      mLog << MSG::ERROR
           << "Unable to retrieve pointer to StoreGateSvc"
-          << endreq;
+          << endmsg;
      return sc;
   }*/
 
@@ -173,7 +173,7 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
   sc = service("StoreGateSvc", m_storeGate);
   
   if ( sc == StatusCode::FAILURE ) {
-    log<<MSG::ERROR << "   could not access SotreGate " << endreq;
+    log<<MSG::ERROR << "   could not access SotreGate " << endmsg;
     return StatusCode::FAILURE;
   }
 // Bad Channel Tool not used so far 15.04.2008
@@ -181,7 +181,7 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
 /*  if (m_saveQInfo) {
     sc=m_pb_tool.retrieve();
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Could not retrieve bad channel tool " << m_pb_tool << endreq;
+      log << MSG::ERROR << "Could not retrieve bad channel tool " << m_pb_tool << endmsg;
       m_saveQInfo=false;
       return sc;
     }
@@ -192,11 +192,11 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
   //check calo number specified
   m_caloSelection = false ;
   if (m_caloNums.size()==0) {
-    log << MSG::INFO << " No calorimeter selection " << endreq;
+    log << MSG::INFO << " No calorimeter selection " << endmsg;
     //return StatusCode::SUCCESS;
   } else if  (m_caloNums.size()>nSubCalo ) {
     log << MSG::ERROR << " More than " 
-	<< nSubCalo << " calo specified. Must be wrong. Stop." << endreq;
+	<< nSubCalo << " calo specified. Must be wrong. Stop." << endmsg;
     return StatusCode::FAILURE;
   } else {
     m_caloSelection = true ;
@@ -204,12 +204,12 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
     for (unsigned int index=0; index < m_caloNums.size() ; ++index) {
       if (m_caloNums[index]>=nSubCalo ) {
 	log << MSG::ERROR << "Invalid calo specification:" 
-	    << m_caloNums[index] << "Stop." << endreq ;
+	    << m_caloNums[index] << "Stop." << endmsg ;
 	return StatusCode::FAILURE;
 	
       } else
 	{
-	  log << MSG::INFO << " Select calorimeter " << m_caloNums[index] << endreq ;
+	  log << MSG::INFO << " Select calorimeter " << m_caloNums[index] << endmsg ;
 	}
       
     }
@@ -221,7 +221,7 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
 
   m_caloDDM = CaloDetDescrManager::instance() ;
   if(m_cellsoutfile!="") {
-    log << MSG::INFO << "Creating cell output file "<< m_cellsoutfile << endreq ;
+    log << MSG::INFO << "Creating cell output file "<< m_cellsoutfile << endmsg ;
 
     std::ofstream outfile(m_cellsoutfile.c_str());
 
@@ -238,7 +238,7 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
     
     outfile.close();
   } else {
-    log << MSG::INFO << "skip creating cell output file"<< endreq ;
+    log << MSG::INFO << "skip creating cell output file"<< endmsg ;
   }
 //_______________________________________________________________________
 // end Cell information  
@@ -247,11 +247,11 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
   sc=m_FastShowerCellBuilderTool.retrieve();
   if (sc.isFailure()) {
     log << MSG::ERROR << "Failed to retrieve FastShowerCellBuilderTool: " 
-        << m_FastShowerCellBuilderTool << endreq;
+        << m_FastShowerCellBuilderTool << endmsg;
     return sc;
   } else {
     log << MSG::DEBUG << "Successfully retrieve FastShowerCellBuilderTool: " 
-        << m_FastShowerCellBuilderTool << endreq;
+        << m_FastShowerCellBuilderTool << endmsg;
   }
 
   m_gentesIO = new GenAccessIO();
@@ -259,13 +259,13 @@ CBNTAA_DetailedCellInfo::CBNT_initialize()
   IPartPropSvc* p_PartPropSvc;
   sc=service("PartPropSvc",p_PartPropSvc);
   if (sc.isFailure() || 0 == p_PartPropSvc) {
-    log<<MSG::ERROR << "could not find PartPropService"<<endreq;
+    log<<MSG::ERROR << "could not find PartPropService"<<endmsg;
     return StatusCode::FAILURE;
   }
   
   m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
   if(m_particleDataTable == 0){
-    log<<MSG::ERROR << "PDG table not found"<<endreq;
+    log<<MSG::ERROR << "PDG table not found"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -287,7 +287,7 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
 {
 
    MsgStream log( messageService(), name() );
-   log << MSG::INFO << " in CBNTAA_DetailedCellInfo_execute" << endreq;
+   log << MSG::INFO << " in CBNTAA_DetailedCellInfo_execute" << endmsg;
 
 //  typedef  CaloCellContainer CONTAINER; 
   
@@ -297,7 +297,7 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
   StatusCode sc=m_storeGate->retrieve(cellcoll,"AllCalo");
   if (sc.isFailure()) {
      log << MSG::ERROR
-	 << "" << endreq;
+	 << "" << endmsg;
      return sc;
    }
    const DataHandle<CaloCalibrationHitContainer> clbc;
@@ -309,7 +309,7 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
    for (iter=m_CalibrationContainerNames.begin();iter!=m_CalibrationContainerNames.end();iter++) {
      sc = m_storeGate->retrieve(clbc,*iter);
      if (sc.isFailure()) {
-       log << MSG::ERROR << "Cannot retrieve calibration container" << endreq;
+       log << MSG::ERROR << "Cannot retrieve calibration container" << endmsg;
      } else {
        v_clbc.push_back(clbc);
      }
@@ -318,7 +318,7 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
    for (iter=m_CalibrationContainerInactiveNames.begin();iter!=m_CalibrationContainerInactiveNames.end();iter++) {
      sc = m_storeGate->retrieve(clbc,*iter);
      if (sc.isFailure()) {
-       log << MSG::ERROR << "Cannot retrieve calibration container (Inactive)" << endreq;
+       log << MSG::ERROR << "Cannot retrieve calibration container (Inactive)" << endmsg;
      } else {
        v_clbcInactive.push_back(clbc);
      }
@@ -359,9 +359,9 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
 
       //if(cell->energy()>0){
    
-  /*    log << MSG::INFO << " cellenergie: " << cell->energy()  <<" Layer " << cell->caloDDE()->getSampling() <<endreq;
-      log << 	MSG::INFO << " eta " << cell->eta() << " phi " << cell->phi() << endreq ;		
-      log << 	MSG::INFO << "--------------------------------------------" << endreq;  */
+  /*    log << MSG::INFO << " cellenergie: " << cell->energy()  <<" Layer " << cell->caloDDE()->getSampling() <<endmsg;
+      log << 	MSG::INFO << " eta " << cell->eta() << " phi " << cell->phi() << endmsg ;		
+      log << 	MSG::INFO << "--------------------------------------------" << endmsg;  */
 
 	//} // added on 23. april use the calibaration hits info 	  
          
@@ -377,11 +377,11 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
              {
                // CalibrationHit which correspond to cell in ClusterContainer has been found
                CaloCalibrationHit *calibration_hit=*first_calib_cell;
-//                log << MSG::INFO << calibration_hit->energyEM()<< endreq ;
-//                log << MSG::INFO <<calibration_hit->energyNonEM()<< endreq ;
-//                log << MSG::INFO <<calibration_hit->energyInvisible()<< endreq ;
-//                log << MSG::INFO <<calibration_hit->energyEscaped()<< endreq ;
-//                log << MSG::INFO <<calibration_hit->energyTotal()<< endreq ; 
+//                log << MSG::INFO << calibration_hit->energyEM()<< endmsg ;
+//                log << MSG::INFO <<calibration_hit->energyNonEM()<< endmsg ;
+//                log << MSG::INFO <<calibration_hit->energyInvisible()<< endmsg ;
+//                log << MSG::INFO <<calibration_hit->energyEscaped()<< endmsg ;
+//                log << MSG::INFO <<calibration_hit->energyTotal()<< endmsg ; 
 
                CalEM += calibration_hit->energyEM();
 	       CalNONEM += calibration_hit->energyNonEM();
@@ -403,11 +403,11 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
              {
                // CalibrationHit which correspond to cell in ClusterContainer has been found
                CaloCalibrationHit *calibration_hit=*first_calib_cell;
-//                log << MSG::INFO << calibration_hit->energyEM()<< endreq ;
-//                log << MSG::INFO <<calibration_hit->energyNonEM()<< endreq ;
-//                log << MSG::INFO <<calibration_hit->energyInvisible()<< endreq ;
-//                log << MSG::INFO <<calibration_hit->energyEscaped()<< endreq ;
-//                log << MSG::INFO <<calibration_hit->energyTotal()<< endreq ; 
+//                log << MSG::INFO << calibration_hit->energyEM()<< endmsg ;
+//                log << MSG::INFO <<calibration_hit->energyNonEM()<< endmsg ;
+//                log << MSG::INFO <<calibration_hit->energyInvisible()<< endmsg ;
+//                log << MSG::INFO <<calibration_hit->energyEscaped()<< endmsg ;
+//                log << MSG::INFO <<calibration_hit->energyTotal()<< endmsg ; 
 
                CalEMInactive += calibration_hit->energyEM();
 	       CalNONEMInactive += calibration_hit->energyNonEM();
@@ -420,37 +420,37 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
 
 
 
-// 	log << MSG::INFO << "cell=" << (int)cell<< endreq ;
-// 	log << MSG::INFO << "m_eCells=" << (int)m_eCells<< endreq ;
-// 	log << MSG::INFO << "m_eCells" << cell->energy()<< endreq ;
+// 	log << MSG::INFO << "cell=" << (int)cell<< endmsg ;
+// 	log << MSG::INFO << "m_eCells=" << (int)m_eCells<< endmsg ;
+// 	log << MSG::INFO << "m_eCells" << cell->energy()<< endmsg ;
 
 	m_eCells->push_back( cell->energy());
-// 	log << MSG::INFO << "m_etaCells" << endreq ;
+// 	log << MSG::INFO << "m_etaCells" << endmsg ;
 	m_etaCells->push_back(cell->eta());
-// 	log << MSG::INFO << "m_phiCells" << endreq ;
+// 	log << MSG::INFO << "m_phiCells" << endmsg ;
 	m_phiCells->push_back(cell->phi()) ;
 
 
-// 	log << MSG::INFO << "Layer" << endreq ;
+// 	log << MSG::INFO << "Layer" << endmsg ;
         Layer->push_back(cell->caloDDE()->getSampling());
-// 	log << MSG::INFO << "CellID" << endreq ;
+// 	log << MSG::INFO << "CellID" << endmsg ;
 	CellID->push_back(cell->ID().get_identifier32().get_compact());
  
-// 	log << MSG::INFO << "EM_energy" << endreq ;
+// 	log << MSG::INFO << "EM_energy" << endmsg ;
         EM_energy->push_back(CalEM);
-// 	log << MSG::INFO << "NonEM_energy" << endreq ;
+// 	log << MSG::INFO << "NonEM_energy" << endmsg ;
         NonEM_energy->push_back(CalNONEM);
-// 	log << MSG::INFO << "Invisible_energy" << endreq ;
+// 	log << MSG::INFO << "Invisible_energy" << endmsg ;
         Invisible_energy->push_back(CalInv);
-// 	log << MSG::INFO << "Escaped_energy" << endreq ;
+// 	log << MSG::INFO << "Escaped_energy" << endmsg ;
         Escaped_energy->push_back(CalEsc);                     
 
         EMInactive_energy->push_back(CalEMInactive);
-// 	log << MSG::INFO << "NonEM_energy" << endreq ;
+// 	log << MSG::INFO << "NonEM_energy" << endmsg ;
         NonEMInactive_energy->push_back(CalNONEMInactive);
-// 	log << MSG::INFO << "Invisible_energy" << endreq ;
+// 	log << MSG::INFO << "Invisible_energy" << endmsg ;
         InvisibleInactive_energy->push_back(CalInvInactive);
-// 	log << MSG::INFO << "Escaped_energy" << endreq ;
+// 	log << MSG::INFO << "Escaped_energy" << endmsg ;
         EscapedInactive_energy->push_back(CalEscInactive);
         
     } // end of loop over all cells
@@ -463,33 +463,33 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
   MCparticleCollection particles;
 
 
-  log <<MSG::INFO<<"Start getting particles"<<endreq;
+  log <<MSG::INFO<<"Start getting particles"<<endmsg;
   sc = m_gentesIO->getMC(particles, &ifs, m_mcLocation );
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "getMC from "<<m_mcLocation<<" failed "<< endreq;
+    log << MSG::ERROR << "getMC from "<<m_mcLocation<<" failed "<< endmsg;
     return StatusCode::FAILURE;
   }
-  log << MSG::INFO <<"start finding partilces n="<<particles.size()<< endreq;
+  log << MSG::INFO <<"start finding partilces n="<<particles.size()<< endmsg;
 
   MCparticleCollectionCIter ip;
 
  for(ip=particles.begin();ip<particles.end();++ip){
 
-	log << MSG::INFO << "entering the for loop" << endreq;
+	log << MSG::INFO << "entering the for loop" << endmsg;
 	const HepMC::GenParticle* par=*ip;
 	double charge = 0;
 
 	HepPDT::ParticleData* ap = m_particleDataTable->particle( abs( par->pdg_id() ) );
 
 	if(!ap){ 
-	  log<<MSG::WARNING<<" id="<<par->pdg_id()<<" stat="<<par->status()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<" : particle info not found"<<endreq;
+	  log<<MSG::WARNING<<" id="<<par->pdg_id()<<" stat="<<par->status()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<" : particle info not found"<<endmsg;
       //return StatusCode::SUCCESS;
 	} else {
 	  charge = ap->charge();
 	  if(par->pdg_id()<0) charge = -charge;
 	}
 
- 	log << MSG::INFO <<" id="<<par->pdg_id()<<" stat="<<par->status()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<" charge="<<charge<< endreq;
+ 	log << MSG::INFO <<" id="<<par->pdg_id()<<" stat="<<par->status()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<" charge="<<charge<< endmsg;
 
   HepMC::GenVertex* pvtx = par->production_vertex();
 //    double eta=(*par)->particle()->momentum().eta();
@@ -503,7 +503,7 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
   Trk::Perigee candidatePerigee(pos,mom,charge,pos);
   FastShowerCellBuilderTool* the_FastShowerCellBuilderTool=dynamic_cast<FastShowerCellBuilderTool*>(&(*m_FastShowerCellBuilderTool));
 
-  log<<MSG::INFO<<"============= Getting Calo Surface ================="<<endreq;
+  log<<MSG::INFO<<"============= Getting Calo Surface ================="<<endmsg;
   const Trk::TrackParameters* params_on_surface=the_FastShowerCellBuilderTool->get_calo_surface(candidatePerigee,charge);
   if(!params_on_surface) {
     return StatusCode::FAILURE;
@@ -513,14 +513,14 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
   surface.SetPtEtaPhi(1,the_FastShowerCellBuilderTool->get_eta_calo_surf(),the_FastShowerCellBuilderTool->get_phi_calo_surf());
   surface.SetMag(the_FastShowerCellBuilderTool->get_d_calo_surf());
 
-  log<<MSG::INFO<< "eta_calo_surf:  "<< the_FastShowerCellBuilderTool->get_eta_calo_surf() << "phi_calo_surf(): "<< the_FastShowerCellBuilderTool->get_phi_calo_surf() << endreq;
+  log<<MSG::INFO<< "eta_calo_surf:  "<< the_FastShowerCellBuilderTool->get_eta_calo_surf() << "phi_calo_surf(): "<< the_FastShowerCellBuilderTool->get_phi_calo_surf() << endmsg;
 
   dcalosurf=the_FastShowerCellBuilderTool->get_d_calo_surf();
   etacalosurf=the_FastShowerCellBuilderTool->get_eta_calo_surf();
   phicalosurf=the_FastShowerCellBuilderTool->get_phi_calo_surf();
 
   for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
-          log<<MSG::INFO<<"============= Getting Calo position for sample "<<sample<<endreq;
+          log<<MSG::INFO<<"============= Getting Calo position for sample "<<sample<<endmsg;
           lok->push_back(the_FastShowerCellBuilderTool->get_calo_etaphi(params_on_surface,(CaloCell_ID_FCS::CaloSample)sample)); 
 	  ldcalolayercenter->push_back(the_FastShowerCellBuilderTool->get_d_calo_surf(sample));
 	  letacalolayercenter->push_back(the_FastShowerCellBuilderTool->get_eta_calo_surf(sample));
@@ -554,7 +554,7 @@ return StatusCode::SUCCESS;
 StatusCode CBNTAA_DetailedCellInfo::CBNT_clear()
 {
   MsgStream log( messageService(), name() );
-  log << MSG::INFO << " in CBNT_DetailedCellInfo_clear" << endreq;
+  log << MSG::INFO << " in CBNT_DetailedCellInfo_clear" << endmsg;
   
   m_nhit=0 ; 
   m_eCell=0 ;

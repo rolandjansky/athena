@@ -37,17 +37,17 @@ namespace JiveXML {
     
     if ( !evtStore()->contains<TruthParticleContainer>(m_sgKey)){
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No TruthParticle found in SG at "
-					      << m_sgKey << endreq;
+					      << m_sgKey << endmsg;
       return StatusCode::SUCCESS;
     }
     if ( evtStore()->retrieve(truthCont,m_sgKey).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "TruthParticle retrieval from SG failed "
-          << m_sgKey << endreq;
+          << m_sgKey << endmsg;
       return StatusCode::SUCCESS;
     } 
     int nTruth = truthCont->size();
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving TruthParticles with size " << nTruth << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving TruthParticles with size " << nTruth << endmsg;
 
 //code from: PhysicsAnalysis/HiggsPhys/HiggsToFourLeptons/src/H4lElectronPerformanceTool.cxx
 
@@ -115,12 +115,12 @@ namespace JiveXML {
      // jump to next particle (ignore) if PdgId is same as mother 
      if (m_skimTruth){ // some skimming criteria for simpler display of Truth
        if ( !initialProcessFlag && !protectedParticleFlag ){ 
-	 //	 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Particle rejected: not initial process " << endreq;
+	 //	 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Particle rejected: not initial process " << endmsg;
           continue; 
        } 
      }
      if ( samePdgIdFlag ){  
-       //         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Particle rejected: Same PdgId " << endreq;
+       //         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Particle rejected: Same PdgId " << endmsg;
          continue;
      }   
 
@@ -130,7 +130,7 @@ namespace JiveXML {
      dataType.push_back( DataType( (*mcpartItr)->dataType() ));
 
 // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TruthParticle No:" << countTruth << " pt:" 
-//                << (*mcpartItr)->et()/CLHEP::GeV << endreq;
+//                << (*mcpartItr)->et()/CLHEP::GeV << endmsg;
 	  
      pdgId.push_back( DataType( m_pdgId ));
 
@@ -285,11 +285,11 @@ namespace JiveXML {
 	} // end of hasMotherPdgId 
      } // end of MotherParticle loop
      countTruth++;
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TruthParticles label: " <<  DataType( truthLabels ).toString() << endreq;
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TruthParticles label: " <<  DataType( truthLabels ).toString() << endmsg;
      label.push_back( DataType( truthLabels ).toString() );
      typeLabelStr.push_back( DataType( typeLabel ).toString() );
      
-    //    log << MSG::DEBUG << "TruthParticles status: " << statusList << endreq;
+    //    log << MSG::DEBUG << "TruthParticles status: " << statusList << endmsg;
   } // end of TruthParticle Loop
     DataMap myDataMap;
       myDataMap["pt"] = pt;
@@ -301,7 +301,7 @@ namespace JiveXML {
       myDataMap["pdgId"] = pdgId;
       myDataMap["dataType"] = dataType;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

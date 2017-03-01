@@ -85,7 +85,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
   // First check whether we executed this instance before:
   if(m_useCachedResult) {
     if(msgLvl() <= MSG::DEBUG) {
-      m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endreq;
+      m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endmsg;
     }
     
     // Get all input TEs (for seeding relation of navigation structure)
@@ -111,7 +111,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
   }
   
   if(msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this T2MbtsFex as " << name() << endreq;
+    m_log << MSG::DEBUG << "Executing this T2MbtsFex as " << name() << endmsg;
   }
   
   // start monitoring
@@ -121,12 +121,12 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
   const xAOD::EventInfo* evinfo(0);
   StatusCode sc = store()->retrieve(evinfo);
   if( sc.isFailure() ){
-    m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG." << endreq;
+    m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG." << endmsg;
     return HLT::SG_ERROR;
   }
   else {
     m_BCID = evinfo->bcid();
-    m_log << MSG::DEBUG << "BCID is " << m_BCID << endreq;
+    m_log << MSG::DEBUG << "BCID is " << m_BCID << endmsg;
   }
 
   // Reset errors
@@ -145,7 +145,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
   
   if(msgLvl() <= MSG::WARNING) {
     if(m_itBegin == m_itEnd) {
-      m_log << MSG::WARNING << "The MBTS TileCellCollection has no elements!" << endreq;
+      m_log << MSG::WARNING << "The MBTS TileCellCollection has no elements!" << endmsg;
     }
   }
   
@@ -178,27 +178,27 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
     unsigned int module_id = m_tileTBID->module(id);
     
     if(msgLvl() <= MSG::DEBUG) {
-      m_log << MSG::DEBUG << "type_id = " << type_id << endreq;
-      m_log << MSG::DEBUG << "channel_id = " << channel_id << endreq;
-      m_log << MSG::DEBUG << "module_id = " << module_id << endreq;
+      m_log << MSG::DEBUG << "type_id = " << type_id << endmsg;
+      m_log << MSG::DEBUG << "channel_id = " << channel_id << endmsg;
+      m_log << MSG::DEBUG << "module_id = " << module_id << endmsg;
     }
 
     // Catch errors
     if(abs(type_id) != 1) {
       if(msgLvl() <= MSG::WARNING) {
-	m_log << MSG::WARNING << "MBTS identifier type is out of range" << endreq;
+	m_log << MSG::WARNING << "MBTS identifier type is out of range" << endmsg;
       }
       continue;
     }
     if( channel_id > 1 ){
       if(msgLvl() <= MSG::WARNING) {
-	m_log << MSG::WARNING << "MBTS identifier channel is out of range" << endreq;
+	m_log << MSG::WARNING << "MBTS identifier channel is out of range" << endmsg;
       }
       continue;
     }
     if( module_id > 7 ){
       if(msgLvl() <= MSG::WARNING) {
-	m_log << MSG::WARNING << "MBTS identifier module is out of range" << endreq;
+	m_log << MSG::WARNING << "MBTS identifier module is out of range" << endmsg;
       }
       continue;
     }      
@@ -214,24 +214,24 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
     
     unsigned int nTriggerEnergies = m_triggerEnergies.size();
     if(bit_pos > (nTriggerEnergies-1)) {
-      m_log << MSG::ERROR << "Bit pos " << bit_pos << " is greater than the size of the energy vector " << nTriggerEnergies << endreq;
+      m_log << MSG::ERROR << "Bit pos " << bit_pos << " is greater than the size of the energy vector " << nTriggerEnergies << endmsg;
     }
     else {
       m_triggerEnergies[bit_pos] = (*m_itt)->energy();
       m_triggerID[bit_pos] = bit_pos;
       if(msgLvl() <= MSG::DEBUG) {
-	m_log << MSG::DEBUG << "Counter id = " << bit_pos << ", energy = " << m_triggerEnergies[bit_pos] << " pC" << endreq;
+	m_log << MSG::DEBUG << "Counter id = " << bit_pos << ", energy = " << m_triggerEnergies[bit_pos] << " pC" << endmsg;
       }
     }
       
     unsigned int nTriggerTimes = m_triggerTimes.size();
     if(bit_pos > (nTriggerTimes-1)) {
-      m_log << MSG::ERROR << "Bit pos " << bit_pos << " is greater than the size of the time vector " << nTriggerTimes << endreq;
+      m_log << MSG::ERROR << "Bit pos " << bit_pos << " is greater than the size of the time vector " << nTriggerTimes << endmsg;
     }
     else {
       m_triggerTimes[bit_pos] = (*m_itt)->time();
       if(msgLvl() <= MSG::DEBUG) {
-	m_log << MSG::DEBUG << "Counter id = " << bit_pos << ", time = " << m_triggerTimes[bit_pos] << " ns" << endreq; 
+	m_log << MSG::DEBUG << "Counter id = " << bit_pos << ", time = " << m_triggerTimes[bit_pos] << " ns" << endmsg; 
       }
     }
   }
@@ -248,7 +248,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
 
   // Calculate the multiplicities to fill the monitoring variables
   if(!calculateMultiplicities(m_t2MbtsBits,0,m_log,msgLvl())) {
-    m_log << MSG::DEBUG << "calculateMultiplicities failed" << endreq;
+    m_log << MSG::DEBUG << "calculateMultiplicities failed" << endmsg;
     return HLT::OK;
   } 
 
@@ -265,7 +265,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
     HLT::TEVec::const_iterator inner_itEnd = (*it).end();
     for(HLT::TEVec::const_iterator inner_it = (*it).begin(); inner_it != inner_itEnd; ++inner_it ){
       if(msgLvl() <= MSG::DEBUG) {
-	m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endreq;
+	m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endmsg;
       }
       allTEs.push_back(*inner_it);
     }
@@ -278,7 +278,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
   HLT::ErrorCode hltStatus = attachFeature(outputTE, m_t2MbtsBits, "T2Mbts");
   if(hltStatus != HLT::OK) {
     if(msgLvl() <= MSG::ERROR) {
-      m_log << MSG::ERROR << "Write of TrigEMCluster into outputTE failed" << endreq;
+      m_log << MSG::ERROR << "Write of TrigEMCluster into outputTE failed" << endmsg;
     }
     return hltStatus;
   }
@@ -302,18 +302,18 @@ HLT::ErrorCode T2MbtsFex::hltInitialize() {
   m_log.setLevel(outputLevel());
 
   if(msgLvl() <= MSG::INFO) {
-    m_log << MSG::INFO << "in T2MbtsFex::initialize()" << endreq;
+    m_log << MSG::INFO << "in T2MbtsFex::initialize()" << endmsg;
   }
 
   if(m_data.retrieve().isFailure()) {
-    m_log << MSG::ERROR << "Could not get m_data" << endreq;
+    m_log << MSG::ERROR << "Could not get m_data" << endmsg;
     return StatusCode::FAILURE;
   }
   
   // Connect to the Detector Store to retrieve TileTBID.
   if(m_detStore.retrieve().isFailure()) {
     m_log << MSG::ERROR << "Couldn't connect to " << m_detStore.typeAndName()
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE;
   }
  
@@ -321,7 +321,7 @@ HLT::ErrorCode T2MbtsFex::hltInitialize() {
   // (The MBTS was added to the Test Beam (TB) list.)
   if(m_detStore->retrieve(m_tileTBID).isFailure()) {
     m_log << MSG::ERROR
-	  << "Unable to retrieve TileTBID helper from DetectorStore" << endreq;
+	  << "Unable to retrieve TileTBID helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
 

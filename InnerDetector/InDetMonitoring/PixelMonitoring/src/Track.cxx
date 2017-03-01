@@ -50,7 +50,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode PixelMainMon::BookTrackMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Tracks" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Tracks" << endmsg;  
 
    std::string path = "Pixel/Track";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/TrackOnTrack");
@@ -178,13 +178,13 @@ StatusCode PixelMainMon::BookTrackMon(void)
    if(m_LorentzAngle_B1)    m_LorentzAngle_B1->SetOption("colz");
    if(m_LorentzAngle_B2)    m_LorentzAngle_B2->SetOption("colz");
 
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;   
    return StatusCode::SUCCESS;
 }
 
 StatusCode PixelMainMon::FillTrackMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "MainFillTrackMon" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "MainFillTrackMon" << endmsg;  
 
    ///
    /// Retrieve and Check Store Gate Error
@@ -193,11 +193,11 @@ StatusCode PixelMainMon::FillTrackMon(void)
    sc = evtStore()->retrieve(m_tracks, m_TracksName);
    if (sc.isFailure())
    {
-      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"No tracks in StoreGate found"<< endreq;
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"No tracks in StoreGate found"<< endmsg;
       if(m_storegate_errors) m_storegate_errors->Fill(4.,3.);  
       return StatusCode::SUCCESS;
    } else{
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  <<"Tracks in StoreGate found" <<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  <<"Tracks in StoreGate found" <<endmsg;
    }
 
    m_ntracksPerEvent = 0;
@@ -218,7 +218,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
    {
       const Trk::Track *track0=(*m_tracks)[i];
       if (track0 == 0) {
-         if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endreq; break;
+         if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg; break;
       }
 
 
@@ -242,7 +242,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
       if(summary){
       	if (summary->get(Trk::numberOfPixelHits)==0) continue;
       } else {
-      	if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "No Track Summary Found" << endreq; continue;
+      	if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "No Track Summary Found" << endmsg; continue;
       }
 
       const Trk::Track* track = track0;
@@ -303,7 +303,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
             side = dynamic_cast<const InDetDD::SiDetectorElement *>( mesb->associatedSurface().associatedDetectorElement() );
          }else{ // holes, perigee                                                                              
             if(not (*trackStateOnSurfaceIterator)->trackParameters() ) {
-               msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
+               msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endmsg;
                continue;
             }
             surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();//check ptr
@@ -662,7 +662,7 @@ StatusCode PixelMainMon::ProcTrackMon(void)
   double lengthLB = 0;
   lengthLB = m_LBendTime - m_LBstartTime;
   if (lengthLB <= 0) {
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Luminosity block has length <= 0 sec, cannot calculate track rate." << endreq;  
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Luminosity block has length <= 0 sec, cannot calculate track rate." << endmsg;  
     return StatusCode::SUCCESS; //if LB length is zero, the rest is pointless and would divide by 0
   }
  

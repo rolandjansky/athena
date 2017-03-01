@@ -29,7 +29,7 @@ StatusCode EgammaLWCalibration::initialize(){
 	CHECK (CaloRec::ToolWithConstantsMixin::initialize() );
 	m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
-	(*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endreq;
+	(*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
 
 	// Initialize here to speed up
 	m_samps[0][0]=CaloSampling::PreSamplerB;
@@ -50,7 +50,7 @@ StatusCode EgammaLWCalibration::initialize(){
 }
 
 StatusCode EgammaLWCalibration::finalize(){
-	(*m_log) << MSG::DEBUG << "Finalize Tool : " << name() << endreq;
+	(*m_log) << MSG::DEBUG << "Finalize Tool : " << name() << endmsg;
 	delete m_log;
 	delete m_interp_barriers;
 	return StatusCode::SUCCESS;
@@ -61,9 +61,9 @@ void EgammaLWCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 	
 #ifndef NDEBUG
 	(*m_log) << MSG::DEBUG << "makeCorrection for tool : "
-		<< name() << endreq;
+		<< name() << endmsg;
 	(*m_log) << MSG::DEBUG << "Cluster E input : " <<
-		clus->energy() << endreq;
+		clus->energy() << endmsg;
 #endif
 	float the_aeta=(clus->eta());
 	if (the_aeta<0) the_aeta=-the_aeta;
@@ -104,7 +104,7 @@ void EgammaLWCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 	clus->setEt(clus->energy()/cosh(clus->eta()));
 #ifndef NDEBUG
 	(*m_log) << MSG::DEBUG << "Cluster E output : " <<
-		clus->energy() << endreq;
+		clus->energy() << endmsg;
 #endif
 
 }

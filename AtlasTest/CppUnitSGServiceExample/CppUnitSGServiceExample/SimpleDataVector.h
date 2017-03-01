@@ -32,7 +32,7 @@ struct SimpleTestStruct {
     log << MSG::INFO
 	<< "In SimpleDataVector Gaudi message service is called -" << endl 
         << "and it prints the value of integer data member:" << m_int 
-        << endreq;
+        << endmsg;
   }
 };
 

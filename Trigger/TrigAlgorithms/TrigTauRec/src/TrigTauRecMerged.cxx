@@ -211,7 +211,7 @@ TrigTauRecMerged::~TrigTauRecMerged()
 
 HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 {
-	msg() << MSG::INFO << "TrigTauRecMerged::initialize()" << endreq;
+	msg() << MSG::INFO << "TrigTauRecMerged::initialize()" << endmsg;
 
 	m_tauEventData.setInTrigger(true);
 	////////////////////
@@ -219,7 +219,7 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 	////////////////////
 	// check tool names
 	if ( m_tools.begin() == m_tools.end() ) {
-		msg() << MSG::ERROR << " no tools given for this algorithm." << endreq;
+		msg() << MSG::ERROR << " no tools given for this algorithm." << endmsg;
 		return HLT::BAD_JOB_SETUP;
 	}
 
@@ -227,43 +227,43 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 	//-------------------------------------------------------------------------
 	ToolHandleArray<ITauToolBase> ::iterator p_itT = m_tools.begin();
 	ToolHandleArray<ITauToolBase> ::iterator p_itTE = m_tools.end();
-	msg() << MSG::INFO << "List of tools in execution sequence:" << endreq;
-	msg() << MSG::INFO << "------------------------------------" << endreq;
+	msg() << MSG::INFO << "List of tools in execution sequence:" << endmsg;
+	msg() << MSG::INFO << "------------------------------------" << endmsg;
 
 	for(; p_itT != p_itTE; ++p_itT ) {
 		StatusCode p_sc = p_itT->retrieve();
 		if( p_sc.isFailure() ) {
 			msg() << MSG::WARNING << "Cannot find tool named <";
-			msg() << *p_itT << ">" << endreq;
+			msg() << *p_itT << ">" << endmsg;
 			return HLT::BAD_JOB_SETUP;
 		}
 		else {
 			msg() << MSG::INFO << "REGTEST ";
-			msg() <<" add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() << endreq;
+			msg() <<" add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() << endmsg;
 			if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itT)->name())) ;
 			(*p_itT)->setTauEventData(&m_tauEventData);
 		}
 	}
 
-	msg() << MSG::INFO << " " << endreq;
-	msg() << MSG::INFO << "------------------------------------" << endreq;
+	msg() << MSG::INFO << " " << endmsg;
+	msg() << MSG::INFO << "------------------------------------" << endmsg;
 
 	ToolHandleArray<ITauToolBase> ::iterator p_itTe = m_endtools.begin();
 	ToolHandleArray<ITauToolBase> ::iterator p_itTEe = m_endtools.end();
 
-	msg() << MSG::INFO << "List of end tools in execution sequence:" << endreq;
-	msg() << MSG::INFO << "------------------------------------" << endreq;
+	msg() << MSG::INFO << "List of end tools in execution sequence:" << endmsg;
+	msg() << MSG::INFO << "------------------------------------" << endmsg;
 
 	for(; p_itTe != p_itTEe; ++p_itTe ) {
 		StatusCode p_sc = p_itTe->retrieve();
 		if( p_sc.isFailure() ) {
 			msg() << MSG::WARNING << "Cannot find tool named <";
-			msg() << *p_itTe << ">" << endreq;
+			msg() << *p_itTe << ">" << endmsg;
 			return HLT::BAD_JOB_SETUP;
 		}
 		else {
 			msg() << MSG::INFO << "REGTEST ";
-			msg() <<" add time for end tool "<< ( *p_itTe )->type() <<" "<< ( *p_itTe )->name() << endreq;
+			msg() <<" add time for end tool "<< ( *p_itTe )->type() <<" "<< ( *p_itTe )->name() << endmsg;
 			if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itTe)->name())) ;
 			( *p_itTe )->setTauEventData(&m_tauEventData);
 		}
@@ -271,26 +271,26 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 
 	// // Try to retrieve the lumi tool
 	// if (m_lumiTool.retrieve().isFailure()) {                                     
-	//   msg() << MSG::WARNING << "Unable to retrieve Luminosity Tool" << endreq;     
+	//   msg() << MSG::WARNING << "Unable to retrieve Luminosity Tool" << endmsg;     
 	// } else {                                                                     
-	//   msg() << MSG::DEBUG << "Successfully retrieved Luminosity Tool" << endreq; 
+	//   msg() << MSG::DEBUG << "Successfully retrieved Luminosity Tool" << endmsg; 
 	// }                                                                            
 
 	if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
-	  msg() << MSG::WARNING << "Unable to retrieve LumiBlockMuTool" << endreq;     
+	  msg() << MSG::WARNING << "Unable to retrieve LumiBlockMuTool" << endmsg;     
 	} else {                                                                     
-	  msg() << MSG::DEBUG << "Successfully retrieved LumiBlockMuTool" << endreq; 
+	  msg() << MSG::DEBUG << "Successfully retrieved LumiBlockMuTool" << endmsg; 
 	}                                                                            
 
 	// Retrieve beam conditions
 	if(m_beamSpotSvc.retrieve().isFailure()) {
-	  msg() << MSG::WARNING << "Unable to retrieve Beamspot service" << endreq;
+	  msg() << MSG::WARNING << "Unable to retrieve Beamspot service" << endmsg;
         } else {
-          msg() << MSG::DEBUG << "Successfully retrieved Beamspot service" << endreq;
+          msg() << MSG::DEBUG << "Successfully retrieved Beamspot service" << endmsg;
 	}
 	
-	msg() << MSG::INFO << " " << endreq;
-	msg() << MSG::INFO << "------------------------------------" << endreq;
+	msg() << MSG::INFO << " " << endmsg;
+	msg() << MSG::INFO << "------------------------------------" << endmsg;
 	
 	return HLT::OK;
 }
@@ -298,7 +298,7 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 /////////////////////////////////////////////////////////////////
 HLT::ErrorCode TrigTauRecMerged::hltFinalize()
 {
-	//msg() << MSG::DEBUG << "Finalizing TrigTauRecMerged" << endreq;
+	//msg() << MSG::DEBUG << "Finalizing TrigTauRecMerged" << endmsg;
 	return HLT::OK;
 }
 
@@ -357,7 +357,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_PhiEF = -99;
 
 	// Retrieve store.
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Executing TrigTauRecMerged" << endreq;
+	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Executing TrigTauRecMerged" << endmsg;
 
 	// Get RoiDescriptor
 	const TrigRoiDescriptor* roiDescriptor = 0;
@@ -365,10 +365,10 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	if ( hltStatus==HLT::OK && roiDescriptor!= NULL ) {
 		if( msgLvl() <= MSG::DEBUG )
-			msg() << MSG::DEBUG << "REGTEST: RoI " << *roiDescriptor<< endreq;
+			msg() << MSG::DEBUG << "REGTEST: RoI " << *roiDescriptor<< endmsg;
 	}
 	else {
-		msg() <<  MSG::ERROR << "Failed to find RoiDescriptor " << endreq;
+		msg() <<  MSG::ERROR << "Failed to find RoiDescriptor " << endmsg;
 		m_calo_errors.push_back(NoROIDescr);
 		return hltStatus;
 	}
@@ -379,7 +379,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	hltStatus = getFeatures(inputTE, vectorCaloCellContainer);
 
 	if(hltStatus!=HLT::OK ) {
-		msg() << MSG::ERROR << " No CaloCellContainers retrieved for the trigger element" << endreq;
+		msg() << MSG::ERROR << " No CaloCellContainers retrieved for the trigger element" << endmsg;
 		m_calo_errors.push_back(NoCellCont);
 		return hltStatus;
 	}
@@ -388,7 +388,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		msg() << MSG::ERROR
 				<< "Size of vector CaloCell container is not 1. Is"
 				<< vectorCaloCellContainer.size()
-				<< endreq;
+				<< endmsg;
 		m_calo_errors.push_back(NoCellCont);
 		return HLT::ERROR;
 	}
@@ -401,18 +401,18 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		msg() << MSG::DEBUG
 				<< "REGTEST: Size of vector CaloCell container is "
 				<< RoICaloCellContainer->size()
-				<< endreq;
+				<< endmsg;
 		if(RoICaloCellContainer->size()==0) {
 			msg() << MSG::INFO
 					<< "Cannot proceed, size of vector CaloCell container is "
 					<< RoICaloCellContainer->size()
-					<< endreq;
+					<< endmsg;
 			m_calo_errors.push_back(EmptyCellCont);
 			return HLT::OK;
 		}
 	}
 	else {
-		msg() << MSG::ERROR << "no CaloCell container found "<< endreq;
+		msg() << MSG::ERROR << "no CaloCell container found "<< endmsg;
 		m_calo_errors.push_back(NoCellCont);
 		return HLT::ERROR;
 	}
@@ -422,7 +422,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	hltStatus = getFeatures(inputTE, vectorCaloClusterContainer);
   
 	if(hltStatus!=HLT::OK ) {
-	  msg() << MSG::ERROR << " No CaloClusterContainers retrieved for the trigger element" << endreq;
+	  msg() << MSG::ERROR << " No CaloClusterContainers retrieved for the trigger element" << endmsg;
 	  m_calo_errors.push_back(NoClustCont);
 	  return hltStatus;
 	}
@@ -430,13 +430,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	if (vectorCaloClusterContainer.size() < 1) {
 	  msg() << MSG::ERROR
 		<< "  CaloCluster container is empty"
-		<< endreq;
+		<< endmsg;
 	  m_calo_errors.push_back(NoClustCont);
 	  return HLT::ERROR;
 	}
   
 	if( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG << " CaloCluster container size is " << vectorCaloClusterContainer.size() << endreq;
+	  msg() << MSG::DEBUG << " CaloCluster container size is " << vectorCaloClusterContainer.size() << endmsg;
   
 	// Grab the last cluster collection attached
 	const xAOD::CaloClusterContainer* RoICaloClusterContainer = vectorCaloClusterContainer.back();
@@ -445,13 +445,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	hltStatus = getStoreGateKey( RoICaloClusterContainer, collKey );
 
 	if(hltStatus!=HLT::OK ) {
-		msg() << MSG::ERROR << "Cluster has no key " << endreq;
+		msg() << MSG::ERROR << "Cluster has no key " << endmsg;
 		m_calo_errors.push_back(NoClustKey);
 		return HLT::ERROR;
 	}
 
 	if( msgLvl() <= MSG::DEBUG )
-		msg() << MSG::DEBUG << " cluster key for back cluster is " << collKey << endreq;
+		msg() << MSG::DEBUG << " cluster key for back cluster is " << collKey << endmsg;
 
 	
 	// Not necessary anymore
@@ -460,7 +460,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	StatusCode sc = store()->retrieve(RoICaloClusterContainer,collKey);
 
 	if(sc.isFailure()) {
-		msg() << MSG :: ERROR << "failed to find Cluster container"<< endreq;
+		msg() << MSG :: ERROR << "failed to find Cluster container"<< endmsg;
 		m_calo_errors.push_back(NoClustCont);
 		return HLT :: ERROR;
 	}
@@ -469,18 +469,18 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		msg() << MSG::DEBUG
 				<< "REGTEST: Size of vector CaloCluster container is "
 				<< RoICaloClusterContainer->size()
-				<< endreq;
+				<< endmsg;
 		if(RoICaloClusterContainer->size()==0) {
 			msg() << MSG::DEBUG
 					<< "Cannot proceed, size of vector CaloCluster container is "
 					<< RoICaloClusterContainer->size()
-					<< endreq;
+					<< endmsg;
 			m_calo_errors.push_back(EmptyClustCont);
 			return HLT::OK;
 		}
 	}
 	else {
-		msg() << MSG::ERROR << "no CaloCluster container found "<< endreq;
+		msg() << MSG::ERROR << "no CaloCluster container found "<< endmsg;
 		m_calo_errors.push_back(NoClustCont);
 		return HLT::ERROR;
 	}
@@ -494,19 +494,19 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	const xAOD::TrackParticleContainer*  RoITrackContainer=NULL;
 
 	if (hltStatus!=HLT::OK) {
-		msg() << MSG::INFO << "REGTEST: No Track container found." << endreq;
+		msg() << MSG::INFO << "REGTEST: No Track container found." << endmsg;
 		m_track_errors.push_back(NoTrkCont);
 	}
 	else {
 		if (vectorTrackContainer.size()<1) {
-			msg() << MSG::DEBUG << "Size of vector Track container is not 1. Is " << vectorTrackContainer.size() << endreq;
+			msg() << MSG::DEBUG << "Size of vector Track container is not 1. Is " << vectorTrackContainer.size() << endmsg;
 			m_track_errors.push_back(NoTrkCont);
 		}
 
 		if(vectorTrackContainer.size()>0) {
 			RoITrackContainer = vectorTrackContainer.back();
 			if( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG << "REGTEST: Size of vector Track container is " << RoITrackContainer->size() << endreq;
+				msg() << MSG::DEBUG << "REGTEST: Size of vector Track container is " << RoITrackContainer->size() << endmsg;
 		}
 		if(RoITrackContainer != NULL) m_nTracks = RoITrackContainer->size();
 	}
@@ -517,19 +517,19 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	const xAOD::VertexContainer* RoIVxContainer = NULL;
 
 	if(hltStatus!=HLT::OK) {
-		msg() << MSG::INFO << "No VxContainers retrieved for the trigger element" << endreq;
+		msg() << MSG::INFO << "No VxContainers retrieved for the trigger element" << endmsg;
 		m_track_errors.push_back(NoVtxCont);
 	}
 	else {
 		if (vectorVxContainer.size() < 1) {
-			msg() << MSG::DEBUG << "Size of vector Vertex  container is not 1. Is " << vectorVxContainer.size() << endreq;
+			msg() << MSG::DEBUG << "Size of vector Vertex  container is not 1. Is " << vectorVxContainer.size() << endmsg;
 			m_track_errors.push_back(NoVtxCont);
 		}
 
 		if(vectorVxContainer.size() >0) {
 			RoIVxContainer = vectorVxContainer.back();
 			if( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG << "REGTEST: Size of vector Vertex  container " << RoIVxContainer->size() << endreq;
+				msg() << MSG::DEBUG << "REGTEST: Size of vector Vertex  container " << RoIVxContainer->size() << endmsg;
 		}
 	}
 
@@ -540,10 +540,10 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
         // double avg_mu = 0.0;
         // mu = m_lumiTool->lbLuminosityPerBCID() / m_lumiTool->muToLumi(); // (retrieve mu for the current BCID)                                             
 	// avg_mu = m_lumiTool->lbAverageInteractionsPerCrossing();
-        // msg() << MSG::DEBUG << "REGTEST: lbLuminosityPerBCID : " << m_lumiTool->lbLuminosityPerBCID() << endreq;
-        // msg() << MSG::DEBUG << "REGTEST: muToLumi            : " << m_lumiTool->muToLumi() << endreq;
-	// msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value  : " << mu << endreq;
-        // msg() << MSG::DEBUG << "REGTEST: Average Mu Value    : " << avg_mu << endreq;
+        // msg() << MSG::DEBUG << "REGTEST: lbLuminosityPerBCID : " << m_lumiTool->lbLuminosityPerBCID() << endmsg;
+        // msg() << MSG::DEBUG << "REGTEST: muToLumi            : " << m_lumiTool->muToLumi() << endmsg;
+	// msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value  : " << mu << endmsg;
+        // msg() << MSG::DEBUG << "REGTEST: Average Mu Value    : " << avg_mu << endmsg;
 
 	double mu = 0.0;
         double avg_mu = 0.0;
@@ -553,8 +553,8 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
           m_ActualInteractions = mu;
           m_AvgInteractions = avg_mu;
-	  msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value : " << mu << endreq;
-	  msg() << MSG::DEBUG << "REGTEST: Average Mu Value   : " << avg_mu << endreq;
+	  msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value : " << mu << endmsg;
+	  msg() << MSG::DEBUG << "REGTEST: Average Mu Value   : " << avg_mu << endmsg;
 	}
 	
 
@@ -622,12 +622,12 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	xAOD::CaloClusterContainer::const_iterator clusterIt;
 	for (clusterIt=RoICaloClusterContainer->begin(); clusterIt != RoICaloClusterContainer->end(); ++clusterIt) {
 	  if( msgLvl() <= MSG::DEBUG )
-	    msg()<< MSG::DEBUG <<" Cluster (e, eta, phi) : ("<< (*clusterIt)->e() << " , " <<(*clusterIt)->eta()<<" , "<<(*clusterIt)->phi()<< " )" << endreq;
+	    msg()<< MSG::DEBUG <<" Cluster (e, eta, phi) : ("<< (*clusterIt)->e() << " , " <<(*clusterIt)->eta()<<" , "<<(*clusterIt)->phi()<< " )" << endmsg;
     
 	  if((*clusterIt)->e() < 0)
 	    {
 	      if( msgLvl() <= MSG::DEBUG )
-		msg()<< MSG::DEBUG <<" Negative energy cluster is rejected" << endreq;
+		msg()<< MSG::DEBUG <<" Negative energy cluster is rejected" << endmsg;
 	      continue;
 	    }
     
@@ -639,17 +639,17 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	
 	aJet->setJetP4(xAOD::JetFourMom_t(TauBarycenter.Pt(), TauBarycenter.Eta(), TauBarycenter.Phi(), TauBarycenter.M() ) ); 
 
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG :: DEBUG << "jet formed"<< aJet->eta() <<" , " << aJet->phi() <<" , " << aJet->pt() << " , "<< aJet->e() << endreq;
+	if( msgLvl() <= MSG::DEBUG ) msg() << MSG :: DEBUG << "jet formed"<< aJet->eta() <<" , " << aJet->phi() <<" , " << aJet->pt() << " , "<< aJet->e() << endmsg;
 	
 	hltStatus=attachFeature(outputTE, theJetCollection, "TrigTauJet");
 	
 	if (hltStatus!=HLT::OK ) {
-	  msg() << MSG::ERROR << "Unable to record JetCollection  in TDS" << endreq;
+	  msg() << MSG::ERROR << "Unable to record JetCollection  in TDS" << endmsg;
 	  m_calo_errors.push_back(NoJetAttach);
 	  return hltStatus;
 	}
 	else {
-	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " JetCollection is recorded with key " << "HLT_" << "_" << "TrigTauJet" << endreq;
+	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " JetCollection is recorded with key " << "HLT_" << "_" << "TrigTauJet" << endmsg;
 	}
 
 
@@ -697,11 +697,11 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		processStatus = (*firstTool)->eventInitialize();
 
 		if( processStatus != StatusCode :: SUCCESS ) {
-			msg() << MSG :: ERROR << "tool "<<(*firstTool)->name()<< "failed in eventInitialize" << endreq;
+			msg() << MSG :: ERROR << "tool "<<(*firstTool)->name()<< "failed in eventInitialize" << endmsg;
 			return HLT :: TOOL_FAILURE;
 		}
 	}
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG ::DEBUG << " initialize all good " << endreq;
+	if( msgLvl() <= MSG::DEBUG ) msg() << MSG ::DEBUG << " initialize all good " << endmsg;
 
 	//-------------------------------------------------------------------------
 	// using Jet collection
@@ -716,15 +716,15 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_tauEventData.seedContainer = theJetCollection;
 
 	if(p_seed->e()<=0) {
-		msg() << MSG::DEBUG << " Roi: changing eta due to energy " << p_seed->e() << endreq;
+		msg() << MSG::DEBUG << " Roi: changing eta due to energy " << p_seed->e() << endmsg;
 		p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
 		
 		msg() << MSG::DEBUG << "Roi: " << roiDescriptor->roiId()
         		  << " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi()
-        		  << endreq;
+        		  << endmsg;
 	}
 
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG ::DEBUG <<" roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() << endreq;
+	if( msgLvl() <= MSG::DEBUG ) msg() << MSG ::DEBUG <<" roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() << endmsg;
 
 	m_tauEventData.setObject("JetCollection", theJetCollection );
 
@@ -736,13 +736,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	lastTool  = m_tools.end();
 	processStatus    = StatusCode::SUCCESS;
 
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Starting tool loop with seed jet" << endreq;
+	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Starting tool loop with seed jet" << endmsg;
 	std::vector<TrigTimer* >::iterator itimer =  m_mytimers.begin();
 	while ( ! processStatus.isFailure() && firstTool != lastTool ) {
 		// loop stops only when Failure indicated by one of the tools
 		if( msgLvl() <= MSG::DEBUG ) {
-			msg() << MSG::DEBUG << "Starting Tool: " << endreq;
-			msg() << MSG::DEBUG <<  (*firstTool)->name() << endreq;
+			msg() << MSG::DEBUG << "Starting Tool: " << endmsg;
+			msg() << MSG::DEBUG <<  (*firstTool)->name() << endmsg;
 		}
 		// time in the various tools
 		++toolnum;
@@ -751,14 +751,14 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		processStatus = (*firstTool)->execute( *p_tau );
 		if ( !processStatus.isFailure() ) {
 			if( msgLvl() <= MSG::DEBUG ) {
-				msg() << MSG::DEBUG << "REGTEST: "<< (*firstTool)->name() << " executed successfully " << endreq;
+				msg() << MSG::DEBUG << "REGTEST: "<< (*firstTool)->name() << " executed successfully " << endmsg;
 				msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
             						<< " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi()
-            						<< " Tau pT : "<< p_tau->pt()<< endreq;
+            						<< " Tau pT : "<< p_tau->pt()<< endmsg;
 			}
 		}
 		else {
-			if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG <<"REGTEST: "<< (*firstTool)->name() << " execution failed " << endreq;
+			if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG <<"REGTEST: "<< (*firstTool)->name() << " execution failed " << endmsg;
 		}
 
 		++firstTool;
@@ -768,7 +768,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	//check status
 	if ( !processStatus.isSuccess() )  {   // some problem
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has NOT been registered in the tau container" << endreq;
+		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has NOT been registered in the tau container" << endmsg;
 
 		// ToolHandleArray<ITauToolBase> ::iterator tool = m_tools.begin();
 		// for(; tool != firstTool; ++tool ) (*tool)->cleanup( &m_tauEventData );
@@ -780,16 +780,16 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 		pContainer->pop_back();
 
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "clean up done after jet seed" << endreq;
+		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "clean up done after jet seed" << endmsg;
 	}
 	else if( processStatus.isSuccess()) {
 
 	  float fJetEnergy = (*p_tau->jetLink())->e();
-	  msg() << MSG::DEBUG << " Roi: jet e "<< fJetEnergy <<endreq;
+	  msg() << MSG::DEBUG << " Roi: jet e "<< fJetEnergy <<endmsg;
 	  
 	  if( fJetEnergy < 0.00001 ) {
-	    msg() << MSG::DEBUG << " Roi: changing eta phi to L1 ones due to energy negative (PxPyPzE flips eta and phi)"<<endreq;
-	    msg() << MSG::DEBUG << " Roi: this is probably not needed anymore, method PxPyPzE has been corrected"<<endreq;
+	    msg() << MSG::DEBUG << " Roi: changing eta phi to L1 ones due to energy negative (PxPyPzE flips eta and phi)"<<endmsg;
+	    msg() << MSG::DEBUG << " Roi: this is probably not needed anymore, method PxPyPzE has been corrected"<<endmsg;
 	    
 	    //p_tau->setEta(roiDescriptor->eta0());
 	    //p_tau->setPhi(roiDescriptor->phi0());
@@ -799,7 +799,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	    msg() << MSG::DEBUG << " Roi: " << roiDescriptor->roiId()
 		  << " Tau eta: " << p_tau->eta()
 		  << " Tau phi: " << p_tau->phi()
-		  << " Tau pT : "<< p_tau->pt()<< endreq;
+		  << " Tau pT : "<< p_tau->pt()<< endmsg;
 	  }
 	  
 	  // loop over end tools
@@ -807,7 +807,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  ToolHandleArray<ITauToolBase> ::iterator p_itETE = m_endtools.end();
 	  for (; p_itET != p_itETE; ++p_itET ) {
 	    msg() << MSG::VERBOSE << "Invoking endTool ";
-	    msg() << ( *p_itET )->name() << endreq;
+	    msg() << ( *p_itET )->name() << endmsg;
 	    
 	    processStatus = ( *p_itET )->execute( *p_tau);
 	    if( processStatus.isFailure() ) break;
@@ -872,11 +872,11 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	   
 	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for core trk ";
 	   for ( unsigned int i=0; i<m_deltaZ0coreTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0coreTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endreq;
+	   msg() << MSG::DEBUG << endmsg;
 	   
 	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for wide trk ";
 	   for ( unsigned int i=0; i<m_deltaZ0wideTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0wideTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endreq;
+	   msg() << MSG::DEBUG << endmsg;
 	   }
 	  */
 
@@ -889,11 +889,11 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	  if( tmpCaloOnlyStatus != HLT::OK){ 
 
-	    msg() << MSG::DEBUG << "Can't get container TrigTauRecCaloOnly to copy four-vector" << endreq;
+	    msg() << MSG::DEBUG << "Can't get container TrigTauRecCaloOnly to copy four-vector" << endmsg;
 
 	  } else {
 
-	    msg() << MSG::DEBUG << "Got container TrigTauRecCaloOnly size :" << tempCaloOnlyContVec.size() << endreq;
+	    msg() << MSG::DEBUG << "Got container TrigTauRecCaloOnly size :" << tempCaloOnlyContVec.size() << endmsg;
 	     
 	    if ( tempCaloOnlyContVec.size() != 0 ) {
 
@@ -904,7 +904,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	      for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyContVec.back()->begin(); tauIt != tempCaloOnlyContVec.back()->end(); tauIt++){ 
 
-	   	msg() << MSG::DEBUG << "pT(tau) = " << (*tauIt)->pt() << " pT(caloOnly) = " << (*tauIt)->ptTrigCaloOnly() << endreq;
+	   	msg() << MSG::DEBUG << "pT(tau) = " << (*tauIt)->pt() << " pT(caloOnly) = " << (*tauIt)->ptTrigCaloOnly() << endmsg;
 	  	
 	   	p_tau->setP4(xAOD::TauJetParameters::TrigCaloOnly, (*tauIt)->ptTrigCaloOnly(), (*tauIt)->etaTrigCaloOnly(), (*tauIt)->phiTrigCaloOnly(), (*tauIt)->mTrigCaloOnly());
 
@@ -927,7 +927,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
 		<< " Tau being saved eta: " << m_EtaEF << " Tau phi: " << m_PhiEF
 		<< " wrt L1 dEta "<< m_dEta<<" dPhi "<<m_dPhi
-		<< " Tau Et (GeV): "<< m_EtFinal << endreq;
+		<< " Tau Et (GeV): "<< m_EtFinal << endmsg;
 	  
 	  ++m_Ncand;
 	}
@@ -937,18 +937,18 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  pTrackContainer->erase(pTrackContainer->end()-bad_tau->nAllTracks(), pTrackContainer->end());
 	  pContainer->pop_back();
 	  
-	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "deleted tau done after jet seed" << endreq;
+	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "deleted tau done after jet seed" << endmsg;
 	}
 	
 	// call eventFinalize on the booked tau tools
 	for ( firstTool = m_tools.begin(); firstTool != lastTool; firstTool++ ) {
 	  processStatus = (*firstTool)->eventFinalize();
 	  if( processStatus != StatusCode :: SUCCESS ) {
-	    msg() << MSG :: INFO << "tool "<<(*firstTool)->name()<< "failed in eventFinalize" << endreq;
+	    msg() << MSG :: INFO << "tool "<<(*firstTool)->name()<< "failed in eventFinalize" << endmsg;
 	    return HLT :: TOOL_FAILURE;
 	  }
 	}
-	msg() << MSG :: DEBUG << "tools succeed in eventFinalize" << endreq;
+	msg() << MSG :: DEBUG << "tools succeed in eventFinalize" << endmsg;
 	
 	
 	//-------------------------------------------------------------------------
@@ -958,15 +958,15 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	hltStatus=attachFeature(outputTE, pContainer, m_outputName);
 	hltStatus=attachFeature(outputTE, pTrackContainer, m_outputName+"Tracks");
 	if (hltStatus!=HLT::OK )  {
-		msg() << MSG::ERROR << "Unable to record tau Container in TDS" << endreq;
+		msg() << MSG::ERROR << "Unable to record tau Container in TDS" << endmsg;
 		m_calo_errors.push_back(NoHLTtauAttach);
 		return hltStatus;
 	}
 	else {
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Recorded a tau container: " << "HLT_" << "TrigTauRecMerged" << endreq;
+		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Recorded a tau container: " << "HLT_" << "TrigTauRecMerged" << endmsg;
 	}
 
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has been registered in the tau container" << endreq;
+	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has been registered in the tau container" << endmsg;
 	
 	// set status of TE to always true for FE algorithms
 	return HLT::OK;

@@ -89,7 +89,7 @@ StatusCode T2SampCalibTool::initialize()
   //Locate the ptr to the conditions store - needed for dB
   sc = service("DetectorStore", m_detStore);
   if (!sc.isSuccess() || 0 == m_detStore)  {
-    m_log << MSG::ERROR <<"Could not find DetStore" <<endreq;
+    m_log << MSG::ERROR <<"Could not find DetStore" <<endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -104,7 +104,7 @@ StatusCode T2SampCalibTool::initialize()
     if (sc.isFailure()) {
       m_log << MSG::ERROR
             << " Failed to create T2SampCalibTool dB object "
-            << endreq;
+            << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -114,7 +114,7 @@ StatusCode T2SampCalibTool::initialize()
     if (sc.isFailure()) {
         m_log << MSG::ERROR
               << " Failed to read T2SampCalibTool dB object "
-              << endreq;
+              << endmsg;
         //return StatusCode::FAILURE;
     }
   }
@@ -124,7 +124,7 @@ StatusCode T2SampCalibTool::initialize()
   IIncidentSvc* incSvc;
   sc = service( "IncidentSvc", incSvc );
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
+    m_log << MSG::ERROR << "Unable to get the IncidentSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   incSvc->addListener(this, "BeginRun");    
@@ -144,7 +144,7 @@ void T2SampCalibTool::handle(const Incident& inc) {
       if (sc.isFailure()) {
 	m_log << MSG::ERROR
               << " Failed to read T2SampCalibTool dB object "
-              << endreq;
+              << endmsg;
 	//return StatusCode::FAILURE;
       }
     }*/
@@ -153,7 +153,7 @@ void T2SampCalibTool::handle(const Incident& inc) {
     if (sc.isFailure()) {
       m_log << MSG::ERROR
             << " Failed to assign T2SampCalibTool calibration weights "
-            << endreq;
+            << endmsg;
       //return StatusCode::FAILURE;
     }
   }
@@ -188,7 +188,7 @@ double T2SampCalibTool::c_energy(double EMe,double HADe, double eta)
   if ( etR < m_etcut ) {
     if ( outputLevel() <= MSG::DEBUG )
       m_log << MSG::DEBUG << "Cluster transv. energy :" << etR << ", below threshold :" 
-            << m_etcut << endreq;
+            << m_etcut << endmsg;
     return 0.0;
   }
   m_ieta = -1;
@@ -233,7 +233,7 @@ double T2SampCalibTool::c_energy(double EMe,double HADe, double eta)
     if( eR < m_ecut || etf*eR < m_etcut) {
       if ( outputLevel() <= MSG::DEBUG )
         m_log << MSG::DEBUG << "At iteration: " << count << ", cluster transv. energy :" 
-              << etR << ", below threshold :"   << m_etcut << endreq;
+              << etR << ", below threshold :"   << m_etcut << endmsg;
 
       return 0.0; 
     }
@@ -269,7 +269,7 @@ double T2SampCalibTool::c_febenergy(double EMe,double HADe,
   if ( etR < m_etcut ) {
     if ( outputLevel() <= MSG::DEBUG )
       m_log << MSG::DEBUG << "Cluster transv. energy :" << etR << ", below threshold :" 
-            << m_etcut << endreq;
+            << m_etcut << endmsg;
     return 0.0;
   }
   m_ieta = -1;
@@ -315,7 +315,7 @@ double T2SampCalibTool::c_febenergy(double EMe,double HADe,
     if( eR < m_ecut || etf*eR < m_etcut) {
       if ( outputLevel() <= MSG::DEBUG )
         m_log << MSG::DEBUG << "At iteration: " << count << ", cluster transv. energy :" 
-              << etR << ", below threshold :"   << m_etcut << endreq;
+              << etR << ", below threshold :"   << m_etcut << endmsg;
 
       return 0.0; 
     }
@@ -357,15 +357,15 @@ void T2SampCalibTool::get_weight(double e, double CaloWeight[2])
 StatusCode T2SampCalibTool::readFromDb(){
   StatusCode status;
 
-  m_log << MSG::DEBUG <<"T2SampCalibTool::Reading from dB..." <<endreq;
+  m_log << MSG::DEBUG <<"T2SampCalibTool::Reading from dB..." <<endmsg;
 
   //Register DataHandle
   status = m_detStore->regHandle(m_lvl2_calib_handle, m_obj_key);
   if (status.isFailure()) {
-    m_log << MSG::ERROR <<"Could not retrieve DataHandle for T2CaloJetCalib_dBObj" <<endreq;
+    m_log << MSG::ERROR <<"Could not retrieve DataHandle for T2CaloJetCalib_dBObj" <<endmsg;
     return( StatusCode::FAILURE);
   } else {
-    m_log << MSG::INFO << "Retrieved DataHandle for T2CaloJetCalib_dBObj " << endreq;
+    m_log << MSG::INFO << "Retrieved DataHandle for T2CaloJetCalib_dBObj " << endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -374,14 +374,14 @@ StatusCode T2SampCalibTool::readFromDb(){
 StatusCode T2SampCalibTool::createCondObject(){
   StatusCode sc;
 
-  m_log << MSG::INFO <<"Creating T2SampCalibTool dB object" <<endreq;
+  m_log << MSG::INFO <<"Creating T2SampCalibTool dB object" <<endmsg;
   
   /////////////////////////////////
   // Create T2CaloJetCalib_dBObj //
   /////////////////////////////////
   T2CaloJetCalib_dBObj* lvl2_calib = new T2CaloJetCalib_dBObj();
   //Fill obj
-  m_log << MSG::INFO << "Setup T2CaloJetCalib_dBObj... " << endreq;
+  m_log << MSG::INFO << "Setup T2CaloJetCalib_dBObj... " << endmsg;
   //Use info from job option to fill dB objects
   lvl2_calib->set_eta_ranges(m_etareg);
   lvl2_calib->set_ve_cuts(m_vecut);
@@ -389,7 +389,7 @@ StatusCode T2SampCalibTool::createCondObject(){
   //Provide a key which is used as the name to create the folder
   sc = m_detStore->record(lvl2_calib, m_obj_key);
   if (sc.isFailure()) {
-    m_log <<MSG::ERROR <<"Could not record T2CaloJetCalib_dBObj" <<endreq;
+    m_log <<MSG::ERROR <<"Could not record T2CaloJetCalib_dBObj" <<endmsg;
     return( StatusCode::FAILURE);
   }
     return StatusCode::SUCCESS;
@@ -399,41 +399,41 @@ StatusCode T2SampCalibTool::createCondObject(){
 StatusCode T2SampCalibTool::printCondObjects(){
   StatusCode sc;
 
-  m_log << MSG::INFO << "Printing T2SampCalibTool dB Calibration Info." << endreq;
+  m_log << MSG::INFO << "Printing T2SampCalibTool dB Calibration Info." << endmsg;
   
   //Retrieve T2CaloJetCalib_dBObj
   sc = m_detStore->retrieve(m_lvl2_calib, m_obj_key);
   if (sc.isFailure()) {
-    m_log << MSG::ERROR <<"Could not retrieve T2CaloJetCalib_dBObj" <<endreq;
+    m_log << MSG::ERROR <<"Could not retrieve T2CaloJetCalib_dBObj" <<endmsg;
     return( StatusCode::FAILURE);
   } else {
-    m_log << MSG::INFO << "Retrieved T2CaloJetCalib_dBObj " << endreq;
+    m_log << MSG::INFO << "Retrieved T2CaloJetCalib_dBObj " << endmsg;
   }
   if (m_lvl2_calib==0) {
-    m_log <<MSG::ERROR <<"T2CaloJetCalib_dBObj ptr is 0" <<endreq;
+    m_log <<MSG::ERROR <<"T2CaloJetCalib_dBObj ptr is 0" <<endmsg;
     return( StatusCode::FAILURE);
   }
   if(outputLevel() <= MSG::DEBUG){
     int eta_size=(m_lvl2_calib->eta_ranges().size());
-    m_log << MSG::DEBUG << "T2SampCalibTool::Number of eta bins: " <<  eta_size << endreq;
+    m_log << MSG::DEBUG << "T2SampCalibTool::Number of eta bins: " <<  eta_size << endmsg;
     for(int i=0;i<eta_size;++i){
       m_log << MSG::DEBUG << "T2SampCalibTool::EtaRange["<<i<<"]: " 
             << (m_lvl2_calib->eta_ranges()).at(i) 
-            << endreq;
+            << endmsg;
     }
     int ve_size=(m_lvl2_calib->ve_cuts().size());
-    m_log << MSG::DEBUG << "T2SampCalibTool::Number of ve bins: " <<  ve_size << endreq;
+    m_log << MSG::DEBUG << "T2SampCalibTool::Number of ve bins: " <<  ve_size << endmsg;
     for(int i=0;i<ve_size;++i){
       m_log << MSG::DEBUG << "T2SampCalibTool::VECut["<<i<<"]: " 
             << (m_lvl2_calib->ve_cuts()).at(i) 
-            << endreq;;
+            << endmsg;;
     }
     int weight_size=(m_lvl2_calib->calib_weights().size());
-    m_log << MSG::DEBUG << "T2SampCalibTool::Number of ve bins: " <<  ve_size << endreq;
+    m_log << MSG::DEBUG << "T2SampCalibTool::Number of ve bins: " <<  ve_size << endmsg;
     for(int i=0;i<weight_size;++i){
       m_log << MSG::DEBUG << "T2SampCalibTool::Weights["<<i<<"]: " 
             << (m_lvl2_calib->calib_weights()).at(i) 
-            << endreq;
+            << endmsg;
     }
   }
 
@@ -454,7 +454,7 @@ StatusCode T2SampCalibTool::assignWeights(){
 	m_etareg.at(i)=(m_lvl2_calib_handle->eta_ranges()).at(i);
 	m_log <<  MSG::DEBUG << "T2SampCalibTool::EtaRanges["<<i<<"]: " 
               << (m_lvl2_calib_handle->eta_ranges()).at(i) 
-              << endreq;
+              << endmsg;
       }
       int ve_size=(m_lvl2_calib_handle->ve_cuts().size());
       m_vecut.resize(ve_size,0);
@@ -462,7 +462,7 @@ StatusCode T2SampCalibTool::assignWeights(){
 	m_vecut.at(i) = (m_lvl2_calib_handle->ve_cuts()).at(i); 
 	m_log << MSG::DEBUG << "T2SampCalibTool::VECuts["<<i<<"]: " 
               << (m_lvl2_calib_handle->ve_cuts()).at(i) 
-              << endreq;
+              << endmsg;
       }
       int weight_size=(m_lvl2_calib_handle->calib_weights().size());
       m_Weights.resize(weight_size,0);
@@ -470,13 +470,13 @@ StatusCode T2SampCalibTool::assignWeights(){
 	m_Weights.at(i) = (m_lvl2_calib_handle->calib_weights()).at(i);
 	m_log << MSG::DEBUG << "T2SampCalibTool::Weights["<<i<<"]: " 
               << (m_lvl2_calib_handle->calib_weights()).at(i) 
-              << endreq;
+              << endmsg;
       }
     }
   }
 
   if(outputLevel() <= MSG::DEBUG)
-    m_log << MSG::DEBUG <<  "T2SampCalib Weights: " << endreq;
+    m_log << MSG::DEBUG <<  "T2SampCalib Weights: " << endmsg;
   
   for(int i=0; i<m_nbin_eta; ++i)
     {
@@ -489,10 +489,10 @@ StatusCode T2SampCalibTool::assignWeights(){
 		m_log << MSG::DEBUG << "  m_wt["<<i<<"]["<<j<<"]["<<k<<"] =" << m_wt[i][j][k];
 	    }
 	  if(outputLevel() <= MSG::DEBUG)
-	    m_log << MSG::DEBUG << endreq;
+	    m_log << MSG::DEBUG << endmsg;
 	}
       if(outputLevel() <= MSG::DEBUG)
-	m_log << MSG::DEBUG << endreq;
+	m_log << MSG::DEBUG << endmsg;
     }
   return StatusCode::SUCCESS;
 }

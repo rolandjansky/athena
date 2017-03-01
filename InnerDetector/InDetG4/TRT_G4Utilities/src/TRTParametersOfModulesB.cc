@@ -18,11 +18,11 @@ TRTParametersOfModulesB::TRTParametersOfModulesB(): m_msg("TRTParametersOfModule
 
   printMessages = pParameters->GetInteger("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesB" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesB" << endmsg;
 
   DefineParameters();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesB done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesB done" << endmsg;
 }
 
 
@@ -30,7 +30,7 @@ TRTParametersOfModulesB::TRTParametersOfModulesB(): m_msg("TRTParametersOfModule
 
 TRTParametersOfModulesB::~TRTParametersOfModulesB()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesB" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesB" << endmsg;
 
   delete [] xLocalOfHolesB;
   delete [] zLocalOfHolesB;
@@ -39,7 +39,7 @@ TRTParametersOfModulesB::~TRTParametersOfModulesB()
   delete [] xOfHolesForCoolingTubesB;
   delete [] zOfHolesForCoolingTubesB;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesB done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesB done" << endmsg;
 }
 
 
@@ -47,7 +47,7 @@ TRTParametersOfModulesB::~TRTParametersOfModulesB()
 
 void TRTParametersOfModulesB::DefineParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::DefineParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::DefineParameters" << endmsg;
 
     // Distances between corners of shell B:
   int numberOfShellCorners = pParameters->GetInteger("NumberOfShellCorners");
@@ -264,7 +264,7 @@ void TRTParametersOfModulesB::DefineParameters()
   delete [] xGlobalOfHolesB;
   delete [] yGlobalOfHolesB;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::DefineParameters done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::DefineParameters done" << endmsg;
 }
 
 
@@ -273,7 +273,7 @@ void TRTParametersOfModulesB::DefineParameters()
 void TRTParametersOfModulesB::PrintParameters(double* xGlobalOfHolesB,
   double* yGlobalOfHolesB) const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::PrintParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::PrintParameters" << endmsg;
 
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
@@ -385,5 +385,5 @@ void TRTParametersOfModulesB::PrintParameters(double* xGlobalOfHolesB,
 
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::PrintParameters done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::PrintParameters done" << endmsg;
 }

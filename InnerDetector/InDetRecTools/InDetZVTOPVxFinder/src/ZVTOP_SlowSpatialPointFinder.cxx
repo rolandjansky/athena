@@ -43,11 +43,11 @@ StatusCode InDet::ZVTOP_SlowSpatialPointFinder::initialize()
   // get tool svc
   if(m_linFactory.retrieve().isFailure())
     {
-      msg (MSG::ERROR) <<"Could not find ToolSvc."<<endreq;
+      msg (MSG::ERROR) <<"Could not find ToolSvc."<<endmsg;
       return sc;
-    } else msg (MSG::INFO) << "Retrieved tool " << m_linFactory << endreq;
+    } else msg (MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
   
-  msg (MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -64,7 +64,7 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Tr
   const Trk::TrackParameters* perigee_1(dynamic_cast<const Trk::TrackParameters*>(trk_1->perigeeParameters()));
   const Trk::TrackParameters* perigee_2(dynamic_cast<const Trk::TrackParameters*>(trk_2->perigeeParameters()));
   if (!perigee_1 | !perigee_2) {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
     return 0;
   } else {
 		Trk::Vertex* vertex = findSpatialPoint(perigee_1, perigee_2);
@@ -78,7 +78,7 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Re
 {
   const Trk::TrackParameters *perigee_1(dynamic_cast<const Trk::TrackParameters*>(trk_1->perigeeParameters()));
   if (!perigee_1) {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
     return 0;
   } else {
     //we need Trk::Vertex
@@ -93,7 +93,7 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Rec::Tr
   const Trk::TrackParameters* perigee_1(trk_1->measuredPerigee());
   const Trk::TrackParameters* perigee_2(trk_2->measuredPerigee());
   if (!perigee_1 | !perigee_2) {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
     return 0;
   } else {
     //we need Trk::Vertex
@@ -107,7 +107,7 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Re
 {
   const Trk::TrackParameters* perigee_1(trk_1->measuredPerigee());
   if (!perigee_1) {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
     return 0;
   } else {
     Trk::Vertex* vertex = findSpatialPoint(vtx, perigee_1);
@@ -121,7 +121,7 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Tr
   const Trk::TrackParameters* perigee_1 = dynamic_cast<const Trk::TrackParameters*>(&(trk_1)->definingParameters());
   const Trk::TrackParameters* perigee_2 = dynamic_cast<const Trk::TrackParameters*>(&(trk_2)->definingParameters());
   if (!perigee_1 | !perigee_2) {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
     return 0;
   } else {
     //we need Trk::Vertex
@@ -134,7 +134,7 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Re
 {
   const Trk::TrackParameters* perigee_1 = dynamic_cast<const Trk::TrackParameters*>(&(trk_1)->definingParameters());
   if (!perigee_1) {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
     return 0;
   } else {
     Trk::Vertex* vertex = findSpatialPoint(vtx, perigee_1);
@@ -190,15 +190,15 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Tr
 	spatialPoint[0] += linPoint.position()[0];
 	spatialPoint[1] += linPoint.position()[1];
 	spatialPoint[2] += linPoint.position()[2];
-	if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point = ("<<spatialPoint[0]<<", "<<spatialPoint[1]<<", "<<spatialPoint[2]<<")"<< endreq;
-	if (msgLvl(MSG::VERBOSE)) msg() <<"chi2 = "<<chi2<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point = ("<<spatialPoint[0]<<", "<<spatialPoint[1]<<", "<<spatialPoint[2]<<")"<< endmsg;
+	if (msgLvl(MSG::VERBOSE)) msg() <<"chi2 = "<<chi2<<endmsg;
 	linPoint = Trk::Vertex(spatialPoint);
       }	
     delete linTrack1; linTrack1=0; delete linTrack2; linTrack2=0;
   }// two iterations
   if (chi2 <= m_chi2) return new Trk::Vertex(spatialPoint);
   else {
-    if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point candidate doesn't pass chi2_cut" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point candidate doesn't pass chi2_cut" << endmsg;
     return 0;
   }
 }
@@ -242,15 +242,15 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Re
 	spatialPoint[0] += linPoint.position()[0];
 	spatialPoint[1] += linPoint.position()[1];
 	spatialPoint[2] += linPoint.position()[2];
-	if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point = ("<<spatialPoint[0]<<", "<<spatialPoint[1]<<", "<<spatialPoint[2]<<")"<< endreq;
-	if (msgLvl(MSG::VERBOSE)) msg() <<"chi2 = "<<chi2<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point = ("<<spatialPoint[0]<<", "<<spatialPoint[1]<<", "<<spatialPoint[2]<<")"<< endmsg;
+	if (msgLvl(MSG::VERBOSE)) msg() <<"chi2 = "<<chi2<<endmsg;
 	linPoint = Trk::Vertex (spatialPoint);
       }
     delete linTrack1; linTrack1=0; 
   }
   if (chi2 <= m_chi2) return new Trk::Vertex(spatialPoint);
   else {
-    if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point candidate doesn't pass chi2_cut" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point candidate doesn't pass chi2_cut" << endmsg;
     return 0;
   }
 }

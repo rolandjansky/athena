@@ -21,14 +21,14 @@ TRTParameters::TRTParameters() : m_msg("TRTParameters")
 
   printMessages = GetInteger("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParameters" << endmsg;
 
   ReadInputFile("TRT_G4Utilities_geometry.txt");
 
   if (GetInteger("PrintListOfParameters"))
     PrintListOfParameters();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParameters done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParameters done" << endmsg;
 }
 
 
@@ -36,11 +36,11 @@ TRTParameters::TRTParameters() : m_msg("TRTParameters")
 
 TRTParameters::~TRTParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters" << endmsg;
 
   pParameters = NULL;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters done" << endmsg;
 }
 
 
@@ -48,7 +48,7 @@ TRTParameters::~TRTParameters()
 
 void TRTParameters::ReadInputFile(std::string fileName)
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile" << endmsg;
 
   std::string file = PathResolver::find_file (fileName, "DATAPATH");
   std::ifstream inputFile(file.c_str(), std::ios::in);
@@ -147,7 +147,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
 
   inputFile.close();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile done" << endmsg;
 }
 
 
@@ -155,7 +155,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
 
 void TRTParameters::PrintListOfParameters() const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters" << endmsg;
 
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
@@ -169,7 +169,7 @@ void TRTParameters::PrintListOfParameters() const
     output << "  " << (*i).first << "=" << (*i).second << std::endl;
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters done" << endmsg;
 }
 
 

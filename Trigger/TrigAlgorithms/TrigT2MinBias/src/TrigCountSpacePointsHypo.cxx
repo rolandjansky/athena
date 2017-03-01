@@ -82,87 +82,87 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltInitialize() {
   m_log.setLevel(outputLevel());
 
   if(msgLvl() <= MSG::INFO) {
-    m_log << MSG::INFO << "Initialising this TrigCountSpacePointsHypo: " << name() << endreq;
-    m_log << MSG::INFO << "================ Hypo Settings ================" << endreq;    
+    m_log << MSG::INFO << "Initialising this TrigCountSpacePointsHypo: " << name() << endmsg;
+    m_log << MSG::INFO << "================ Hypo Settings ================" << endmsg;    
     m_log << MSG::INFO << " AcceptAll -------------------  "
-          << (m_acceptAll==true ? "True" : "False") << endreq;
+          << (m_acceptAll==true ? "True" : "False") << endmsg;
 
     m_log << MSG::INFO << " TriggerTypeAND --------------  "
-          << (m_triggerTypeAND==true ? "True" : "False") << endreq;
+          << (m_triggerTypeAND==true ? "True" : "False") << endmsg;
 
     m_log << MSG::INFO << " TotalPixelClus  -------------  ";
-    if(m_totalPixelClus_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_totalPixelClus_cut << endreq;
+    if(m_totalPixelClus_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_totalPixelClus_cut << endmsg;
 
     m_log << MSG::INFO << " PixelClusRatioA  ------------  ";
-    if(m_pixelClusRatioA_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusRatioA_cut << endreq;
+    if(m_pixelClusRatioA_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusRatioA_cut << endmsg;
 
     m_log << MSG::INFO << " PixelClusRatioB  ------------  ";
-    if(m_pixelClusRatioB_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusRatioB_cut << endreq;
+    if(m_pixelClusRatioB_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusRatioB_cut << endmsg;
 
     m_log << MSG::INFO << " PixelClusEndcapC  -----------  ";
-    if(m_pixelClusEndcapC_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusEndcapC_cut << endreq;
+    if(m_pixelClusEndcapC_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusEndcapC_cut << endmsg;
 
     m_log << MSG::INFO << " PixelClusBarrel  ------------  ";
-    if(m_pixelClusBarrel_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusBarrel_cut << endreq;
+    if(m_pixelClusBarrel_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusBarrel_cut << endmsg;
 
     m_log << MSG::INFO << " PixelClusEndcapA  -----------  ";
-    if(m_pixelClusEndcapA_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusEndcapA_cut << endreq;
+    if(m_pixelClusEndcapA_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusEndcapA_cut << endmsg;
 
     m_log << MSG::INFO << " PixelClusEndcapC_max  -------  ";
-    if(m_pixelClusEndcapC_max < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusEndcapC_max << endreq;
+    if(m_pixelClusEndcapC_max < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusEndcapC_max << endmsg;
 
     m_log << MSG::INFO << " PixelClusBarrel_max  --------  ";
-    if(m_pixelClusBarrel_max < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusBarrel_max << endreq;
+    if(m_pixelClusBarrel_max < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusBarrel_max << endmsg;
 
     m_log << MSG::INFO << " PixelClusEndcapA_max  -------  ";
-    if(m_pixelClusEndcapA_max < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusEndcapA_max << endreq;
+    if(m_pixelClusEndcapA_max < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusEndcapA_max << endmsg;
 
     m_log << MSG::INFO << " PixelClusEndcaps_cut  -------  ";
-    if(m_pixelClusEndcaps_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_pixelClusEndcaps_cut << endreq;
+    if(m_pixelClusEndcaps_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_pixelClusEndcaps_cut << endmsg;
 
     m_log << MSG::INFO << " TotalSctSp  -----------------  ";
-    if(m_totalSctSp_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_totalSctSp_cut << endreq;
+    if(m_totalSctSp_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_totalSctSp_cut << endmsg;
 
     m_log << MSG::INFO << " SctSpEndcapC  ---------------  ";
-    if(m_sctSpEndcapC_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_sctSpEndcapC_cut << endreq;
+    if(m_sctSpEndcapC_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_sctSpEndcapC_cut << endmsg;
 
     m_log << MSG::INFO << " SctSpBarrel  ----------------  ";
-    if(m_sctSpBarrel_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_sctSpBarrel_cut << endreq;
+    if(m_sctSpBarrel_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_sctSpBarrel_cut << endmsg;
 
     m_log << MSG::INFO << " SctSpEndcapA  ---------------  ";
-    if(m_sctSpEndcapA_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_sctSpEndcapA_cut << endreq;
+    if(m_sctSpEndcapA_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_sctSpEndcapA_cut << endmsg;
 
     m_log << MSG::INFO << " SctSpEndcapC_max  -----------  ";
-    if(m_sctSpEndcapC_max < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_sctSpEndcapC_max << endreq;
+    if(m_sctSpEndcapC_max < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_sctSpEndcapC_max << endmsg;
 
     m_log << MSG::INFO << " SctSpBarrel_max  ------------  ";
-    if(m_sctSpBarrel_max < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_sctSpBarrel_max << endreq;
+    if(m_sctSpBarrel_max < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_sctSpBarrel_max << endmsg;
 
     m_log << MSG::INFO << " SctSpEndcapA_max  -----------  ";
-    if(m_sctSpEndcapA_max < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_sctSpEndcapA_max << endreq;
+    if(m_sctSpEndcapA_max < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_sctSpEndcapA_max << endmsg;
 
     m_log << MSG::INFO << " SctSpEndcaps_cut  -----------  ";
-    if(m_sctSpEndcaps_cut < 0.) m_log << MSG::INFO << "Off" << endreq;
-    else m_log << MSG::INFO << m_sctSpEndcaps_cut << endreq;
+    if(m_sctSpEndcaps_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
+    else m_log << MSG::INFO << m_sctSpEndcaps_cut << endmsg;
 
-    m_log << MSG::INFO << "===============================================" << endreq;
+    m_log << MSG::INFO << "===============================================" << endmsg;
   }
 
   // Create timers
@@ -177,18 +177,18 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltInitialize() {
 HLT::ErrorCode TrigCountSpacePointsHypo::hltBeginRun() {
   // This initialisation has been moved into the event loop.
   // @see TrigCountSpacePointsHypo::checkDetectorMask
-  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " TrigCountSpacePointsHypo will be initialized in hltExecute" << endreq; 
+  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " TrigCountSpacePointsHypo will be initialized in hltExecute" << endmsg; 
   return HLT::OK;
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountSpacePointsHypo::checkDetectorMask() {
   m_hltExecuteInitialisationRun = true;
-  m_log << MSG::DEBUG << "[TrigCountSpacePointsHypo::checkDetectorMask]  beginning run with this " << name() << endreq;
+  m_log << MSG::DEBUG << "[TrigCountSpacePointsHypo::checkDetectorMask]  beginning run with this " << name() << endmsg;
 
   const xAOD::EventInfo* evinfo = 0;
   if (store()->retrieve(evinfo).isFailure()) {
-    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endreq;
+    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endmsg;
     return HLT::SG_ERROR;
   }
   else {
@@ -200,13 +200,13 @@ HLT::ErrorCode TrigCountSpacePointsHypo::checkDetectorMask() {
       << ":" << evinfo->timeStampNSOffset()
       << "," << evinfo->bcid()
       << ",0x" << std::hex << evinfo->detectorMask() << std::dec
-      << "]" << endreq;
+      << "]" << endmsg;
 
     uint64_t mask = evinfo->detectorMask();
     eformat::helper::DetectorMask decoder(mask);
 
     if (mask == 0) {
-      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0. Assuming MC file and setting all of ID to ON." << endreq; 
+      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0. Assuming MC file and setting all of ID to ON." << endmsg; 
       m_sct_barrel_a_side = true;
       m_sct_barrel_c_side = true;
       m_sct_endcap_a_side = true;
@@ -225,14 +225,14 @@ HLT::ErrorCode TrigCountSpacePointsHypo::checkDetectorMask() {
     }
 
     if( msgLvl() <= MSG::INFO ){
-      m_log << MSG::INFO << "sct_barrel_a_side is " << (m_sct_barrel_a_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endreq;
-      m_log << MSG::INFO << "sct_barrel_c_side is " << (m_sct_barrel_c_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endreq;
-      m_log << MSG::INFO << "sct_endcap_a_side is " << (m_sct_endcap_a_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endreq;
-      m_log << MSG::INFO << "sct_endcap_c_side is " << (m_sct_endcap_c_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endreq;
+      m_log << MSG::INFO << "sct_barrel_a_side is " << (m_sct_barrel_a_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
+      m_log << MSG::INFO << "sct_barrel_c_side is " << (m_sct_barrel_c_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
+      m_log << MSG::INFO << "sct_endcap_a_side is " << (m_sct_endcap_a_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
+      m_log << MSG::INFO << "sct_endcap_c_side is " << (m_sct_endcap_c_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
       
-      m_log << MSG::INFO << "pixel_barrel is      " << (m_pixel_barrel==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endreq;
-      m_log << MSG::INFO << "pixel_b_layer is     " << (m_pixel_b_layer==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endreq;
-      m_log << MSG::INFO << "pixel_disk is        " << (m_pixel_disk==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endreq;
+      m_log << MSG::INFO << "pixel_barrel is      " << (m_pixel_barrel==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
+      m_log << MSG::INFO << "pixel_b_layer is     " << (m_pixel_b_layer==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
+      m_log << MSG::INFO << "pixel_disk is        " << (m_pixel_disk==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
     }
   }
   return HLT::OK;
@@ -258,7 +258,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
   m_totNumSctSP = -999;
 
   if(msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this TrigCountSpacePointsHypo " << name() << endreq;
+    m_log << MSG::DEBUG << "Executing this TrigCountSpacePointsHypo " << name() << endmsg;
   }
 
   if( timerSvc() ) m_formFeaturesTimer->start();
@@ -268,7 +268,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
   HLT::ErrorCode hltStatus = getFeature(outputTE, trigSpacePointCounts, m_trigSpacePointCountsKey);
   if(hltStatus != HLT::OK || !trigSpacePointCounts) {
     if( msgLvl() <= MSG::WARNING ){
-      m_log << MSG::WARNING << "Failed to retrieve features from TE." << endreq;
+      m_log << MSG::WARNING << "Failed to retrieve features from TE." << endmsg;
     }
     return HLT::OK;
   }
@@ -288,7 +288,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
 		  m_pixelClusEndcaps_cut > 0. );
 
   if( !(m_pixel_barrel &&  m_pixel_b_layer &&  m_pixel_disk) ) {
-    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "NO pixel detector present, proceeding to SCT." << endreq;
+    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "NO pixel detector present, proceeding to SCT." << endmsg;
   }
   
   
@@ -328,7 +328,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
         ratioA = (m_multiplicity[PIXEL_CLUS_SZ_2] + m_multiplicity[PIXEL_CLUS_SZ_3])/m_totNumPixSP;
       }
       else {
-	if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "ratioA not defined, m_totNumPixSP =" << m_totNumPixSP << endreq;
+	if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "ratioA not defined, m_totNumPixSP =" << m_totNumPixSP << endmsg;
 	ratioA = -1.;
       }
 
@@ -336,13 +336,13 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
 	ratioB = m_multiplicity[PIXEL_CLUS_SZ_2]/m_multiplicity[PIXEL_CLUS_SZ_1];
       }
       else {
-	if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "ratioB not defined, m_multiplicity[PIXEL_CLUS_SZ_1] =" << m_multiplicity[PIXEL_CLUS_SZ_1] << endreq;
+	if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "ratioB not defined, m_multiplicity[PIXEL_CLUS_SZ_1] =" << m_multiplicity[PIXEL_CLUS_SZ_1] << endmsg;
 	ratioB = -1.;
       }
     }
   }
   else{
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Won't use pixel." << endreq;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Won't use pixel." << endmsg;
     // do not decide on pixel features 
     pixelClusPass = false;
   }
@@ -359,7 +359,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
                  m_sctSpEndcaps_cut > 0.);
 
   if( !(m_sct_barrel_a_side && m_sct_barrel_c_side &&  m_sct_endcap_a_side &&  m_sct_endcap_c_side) ){
-    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "NO sct detector present." << endreq ;
+    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "NO sct detector present." << endmsg ;
   }
 
   if( useSCT ){
@@ -376,7 +376,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
 
   }
   else{
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Won't use SCT." << endreq;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Won't use SCT." << endmsg;
 
     // do not decide on sct features and use OR mode
     sctSpPass = false;
@@ -390,7 +390,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
   // move here to have meaningful monitoring
   if( m_acceptAll ){
     pass=true;
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Accepting all events in " << name() << endreq;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Accepting all events in " << name() << endmsg;
     return HLT::OK;
   }
 
@@ -399,91 +399,91 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
     if( ((m_totNumPixSP <= m_totalPixelClus_cut)&&!m_vetoLargeSP) ||
         (((m_totNumPixSP >= m_totalPixelClus_cut) || (m_totNumPixSP <= m_totalPixelClus_cut_min)) && m_vetoLargeSP)) {
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails TotalPixelNClus, value = " << m_totNumPixSP << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails TotalPixelNClus, value = " << m_totNumPixSP << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes TotalPixelNClus, value = " << m_totNumPixSP << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes TotalPixelNClus, value = " << m_totNumPixSP << endmsg;
   }
 
   if(m_pixelClusEndcapC_cut >= 0.){
     if( m_multiplicity[PIXEL_CLUS_EC] <= m_pixelClusEndcapC_cut ){
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcapC, value = " << m_multiplicity[PIXEL_CLUS_EC] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcapC, value = " << m_multiplicity[PIXEL_CLUS_EC] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcapC, value = " << m_multiplicity[PIXEL_CLUS_EC] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcapC, value = " << m_multiplicity[PIXEL_CLUS_EC] << endmsg;
   }
 
   if(m_pixelClusBarrel_cut >= 0.){
     if( m_multiplicity[PIXEL_CLUS_BL] <= m_pixelClusBarrel_cut ){
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusBarrel, value = " << m_multiplicity[PIXEL_CLUS_BL] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusBarrel, value = " << m_multiplicity[PIXEL_CLUS_BL] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusBarrel, value = " << m_multiplicity[PIXEL_CLUS_BL] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusBarrel, value = " << m_multiplicity[PIXEL_CLUS_BL] << endmsg;
   }
 
   if(m_pixelClusEndcapA_cut >= 0.){
     if( m_multiplicity[PIXEL_CLUS_EA] <= m_pixelClusEndcapA_cut ){
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcapA, value = " << m_multiplicity[PIXEL_CLUS_EA] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcapA, value = " << m_multiplicity[PIXEL_CLUS_EA] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcapA, value = " << m_multiplicity[PIXEL_CLUS_EA] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcapA, value = " << m_multiplicity[PIXEL_CLUS_EA] << endmsg;
   }
 
   if(m_pixelClusEndcapC_max >= 0.){
     if( m_multiplicity[PIXEL_CLUS_EC] > m_pixelClusEndcapC_max ){
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcapC_max, value = " << m_multiplicity[PIXEL_CLUS_EC] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcapC_max, value = " << m_multiplicity[PIXEL_CLUS_EC] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcapC_max, value = " << m_multiplicity[PIXEL_CLUS_EC] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcapC_max, value = " << m_multiplicity[PIXEL_CLUS_EC] << endmsg;
   }
 
   if(m_pixelClusBarrel_max >= 0.){
     if( m_multiplicity[PIXEL_CLUS_BL] > m_pixelClusBarrel_max ){
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusBarrel_max, value = " << m_multiplicity[PIXEL_CLUS_BL] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusBarrel_max, value = " << m_multiplicity[PIXEL_CLUS_BL] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusBarrel_max, value = " << m_multiplicity[PIXEL_CLUS_BL] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusBarrel_max, value = " << m_multiplicity[PIXEL_CLUS_BL] << endmsg;
   }
 
   if(m_pixelClusEndcapA_max >= 0.){
     if( m_multiplicity[PIXEL_CLUS_EA] > m_pixelClusEndcapA_max) {
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcapA_max, value = " << m_multiplicity[PIXEL_CLUS_EA] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcapA_max, value = " << m_multiplicity[PIXEL_CLUS_EA] << endmsg;
     }
     else
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcapA_max, value = " << m_multiplicity[PIXEL_CLUS_EA] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcapA_max, value = " << m_multiplicity[PIXEL_CLUS_EA] << endmsg;
   }
 
   if( m_pixelClusRatioA_cut >= 0.){
     if( ratioA < m_pixelClusRatioA_cut ){
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusRatioA, value = " << ratioA << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusRatioA, value = " << ratioA << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusRatioA, value = " << ratioA << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusRatioA, value = " << ratioA << endmsg;
   }
 
   if(m_pixelClusRatioB_cut >= 0.){
     if( ratioB < m_pixelClusRatioB_cut) {
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusRatioB, value = " << ratioB << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusRatioB, value = " << ratioB << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusRatioB, value = " << ratioB << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusRatioB, value = " << ratioB << endmsg;
   }
 
   if(m_pixelClusEndcaps_cut >= 0.){
     if( m_maxNumPixClusEC < m_pixelClusEndcaps_cut) {
       pixelClusPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcaps, value = " << m_maxNumPixClusEC << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails PixelClusEndcaps, value = " << m_maxNumPixClusEC << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcaps, value = " << m_maxNumPixClusEC << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes PixelClusEndcaps, value = " << m_maxNumPixClusEC << endmsg;
   }
 
   // SCT trigger logic
@@ -491,97 +491,97 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
     if( ((m_totNumSctSP <= m_totalSctSp_cut) && !m_vetoLargeSP ) ||
 	(((m_totNumSctSP >= m_totalSctSp_cut) || (m_totNumSctSP <= m_totalSctSp_cut_min)) && m_vetoLargeSP)) {
       sctSpPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails TotalSctSp, value = " << m_totNumSctSP << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails TotalSctSp, value = " << m_totNumSctSP << endmsg;
     }
   else 
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes TotalSctSp, value = " << m_totNumSctSP << endreq;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes TotalSctSp, value = " << m_totNumSctSP << endmsg;
   }
 
   if(m_sctSpEndcapC_cut >= 0.){
     if( m_multiplicity[SCT_SP_EC] <= m_sctSpEndcapC_cut) {
       sctSpPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcapC, value = " << m_multiplicity[SCT_SP_EC] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcapC, value = " << m_multiplicity[SCT_SP_EC] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpEndcapC, value = " << m_multiplicity[SCT_SP_EC] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpEndcapC, value = " << m_multiplicity[SCT_SP_EC] << endmsg;
   }
 
   if(m_sctSpBarrel_cut >= 0.){
     if( m_multiplicity[SCT_SP_BL] <= m_sctSpBarrel_cut) {
       sctSpPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpBarrel, value = " << m_multiplicity[SCT_SP_BL] << endreq;    
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpBarrel, value = " << m_multiplicity[SCT_SP_BL] << endmsg;    
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpBarrel, value = " << m_multiplicity[SCT_SP_BL] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpBarrel, value = " << m_multiplicity[SCT_SP_BL] << endmsg;
   }
 
   if(m_sctSpEndcapA_cut >= 0.){
     if( m_multiplicity[SCT_SP_EA] <= m_sctSpEndcapA_cut) {
       sctSpPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcapA, value = " << m_multiplicity[SCT_SP_EA] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcapA, value = " << m_multiplicity[SCT_SP_EA] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpEndcapA, value = " << m_multiplicity[SCT_SP_EA] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpEndcapA, value = " << m_multiplicity[SCT_SP_EA] << endmsg;
   }
 
   if(m_sctSpEndcapC_max >= 0.){
     if( m_multiplicity[SCT_SP_EC] > m_sctSpEndcapC_max) { 
       sctSpPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcapC_max, value = " << m_multiplicity[SCT_SP_EC] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcapC_max, value = " << m_multiplicity[SCT_SP_EC] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpEndcapC_max, value = " << m_multiplicity[SCT_SP_EC] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpEndcapC_max, value = " << m_multiplicity[SCT_SP_EC] << endmsg;
   }
 
   if(m_sctSpBarrel_max >= 0.){
     if( m_multiplicity[SCT_SP_BL] > m_sctSpBarrel_max) {
       sctSpPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpBarrel_max, value = " << m_multiplicity[SCT_SP_BL] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpBarrel_max, value = " << m_multiplicity[SCT_SP_BL] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpBarrel_max, value = " << m_multiplicity[SCT_SP_BL] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpBarrel_max, value = " << m_multiplicity[SCT_SP_BL] << endmsg;
   }
 
   if(m_sctSpEndcapA_max >= 0.){ 
     if( m_multiplicity[SCT_SP_EA] > m_sctSpEndcapA_max) {
       sctSpPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcapA_max, value = " << m_multiplicity[SCT_SP_EA] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcapA_max, value = " << m_multiplicity[SCT_SP_EA] << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpBarrel_max, value = " << m_multiplicity[SCT_SP_EA] << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpBarrel_max, value = " << m_multiplicity[SCT_SP_EA] << endmsg;
   }
 
   if(m_sctSpEndcaps_cut >= 0.){ 
     if( m_maxNumSctSpEC < m_sctSpEndcaps_cut ) {
       sctSpPass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcaps, value = " << m_maxNumSctSpEC << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails SctSpEndcaps, value = " << m_maxNumSctSpEC << endmsg;
     }
     else 
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpEndcaps, value = " << m_maxNumSctSpEC << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes SctSpEndcaps, value = " << m_maxNumSctSpEC << endmsg;
   }
 
   // Check the trigger decision.
   if( m_triggerTypeAND ){
     if( pixelClusPass && sctSpPass ){
       pass = true;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes Pixel AND SCT " << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes Pixel AND SCT " << endmsg;
     }
     else
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails Pixel AND SCT " << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails Pixel AND SCT " << endmsg;
   }
   else{
     if( pixelClusPass || sctSpPass ) {
       pass = true;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes Pixel OR SCT " << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event passes Pixel OR SCT " << endmsg;
     }
     else
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails Pixel OR SCT " << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails Pixel OR SCT " << endmsg;
   }
 
   // Veto
   if (m_veto == true) {
     pass = !pass;
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Using inverted/VETO logic, final decision is " << (pass ? "PASS" : "FAIL") << endreq;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Using inverted/VETO logic, final decision is " << (pass ? "PASS" : "FAIL") << endmsg;
   }
 
   // for monitoring  
@@ -600,7 +600,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
 //-----------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountSpacePointsHypo::hltFinalize() {
-  m_log << MSG::DEBUG << " finalizing this TrigCountSpacePointsHypo : " << name() << endreq; 
+  m_log << MSG::DEBUG << " finalizing this TrigCountSpacePointsHypo : " << name() << endmsg; 
 
   return HLT::OK;  
 }

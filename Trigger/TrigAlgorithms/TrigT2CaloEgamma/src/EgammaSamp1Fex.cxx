@@ -413,7 +413,7 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 #ifndef NDEBUG
   if ( msg().level() <= MSG::DEBUG ) {
         if ( m_geometryTool->EtaPhiRange(0,1,energyEta, energyPhi))
-                msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+                msg() << MSG::ERROR << "problems with EtaPhiRange" << endmsg;
         PrintCluster(totalEnergy,0,1,CaloSampling::EMB1,CaloSampling::EME1);
   }
 #endif

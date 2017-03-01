@@ -136,7 +136,7 @@ StatusCode SG_StepNtuple::initialize(){
     ntdir(ntupleSvc(),"/NTUPLES/FILE1/StepNtuple");
 
   if ( !ntdir ) ntdir = ntupleSvc()->createDirectory(file1,"StepNtuple");
-  //if ( !ntdir ) log << MSG::ERROR << " failed to get ntuple directory" << endreq;
+  //if ( !ntdir ) log << MSG::ERROR << " failed to get ntuple directory" << endmsg;
   NTuplePtr nt(ntupleSvc(), "/NTUPLES/FILE1/StepNtuple/10");
   if ( !nt ) {    // Check if already booked
     nt = ntupleSvc()->book (ntdir.ptr(), 10,CLID_ColumnWiseTuple, "GEANT4 Step NTuple");

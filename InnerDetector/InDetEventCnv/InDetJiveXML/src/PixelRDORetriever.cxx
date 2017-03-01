@@ -44,12 +44,12 @@ namespace JiveXML {
   StatusCode PixelRDORetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
   
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
 
     //retrieve the PixelRDO container
     const DataHandle<PixelRDO_Container> rdoContainer;
     if (evtStore()->retrieve(rdoContainer,m_PixelRDOContainerName).isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg() << "Unable to retrieve PixelRDO_Container with name " << m_PixelRDOContainerName << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Unable to retrieve PixelRDO_Container with name " << m_PixelRDOContainerName << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -76,7 +76,7 @@ namespace JiveXML {
 
         //Make sure we got the detector element
         if (element == NULL){
-          msg(MSG::WARNING) << "Unable to obtain detector element for PixelRDO hit with id " << id << endreq;
+          msg(MSG::WARNING) << "Unable to obtain detector element for PixelRDO hit with id " << id << endmsg;
           continue;
         }
 
@@ -95,7 +95,7 @@ namespace JiveXML {
     }
 
     //be verbose about the amount of data we retrieved
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved " << idVec.size() << " PixelRDO objects" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved " << idVec.size() << " PixelRDO objects" << endmsg;
 
     //Create a data map
     DataMap dataMap;
@@ -115,7 +115,7 @@ namespace JiveXML {
       return StatusCode::RECOVERABLE;
 
     //Clean up and exit
-    if (msgLvl(MSG::DEBUG)) msg() << dataTypeName() << " retrieved" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << dataTypeName() << " retrieved" << endmsg;
     
     return StatusCode::SUCCESS;
   }

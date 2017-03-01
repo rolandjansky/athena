@@ -95,32 +95,32 @@ GapJetFilter::filterInitialize()
   if (sc.isFailure()) {
     msg(MSG::ERROR)
          << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
+         << endmsg;
     return sc;
   }
 
   //Output settings to screen
-  msg(MSG::INFO) << "xAOD::JetContainer: " <<  m_jetContainer << endreq;
+  msg(MSG::INFO) << "xAOD::JetContainer: " <<  m_jetContainer << endmsg;
 
   //Jet Kinematic Cuts
-  msg( MSG::INFO) << "Jet 1 Min Pt: " <<  m_minPt1 <<" Gaudi::Units::GeV"<< endreq;
-  msg( MSG::INFO) << "Jet 1 Max Pt: " <<  m_maxPt1 <<" Gaudi::Units::GeV"<< endreq;
-  msg( MSG::INFO) << "Jet 2 Min Pt: " <<  m_minPt2 <<" Gaudi::Units::GeV"<< endreq;
-  msg( MSG::INFO) << "Jet 2 Max Pt: " <<  m_maxPt2 <<" Gaudi::Units::GeV"<< endreq;
+  msg( MSG::INFO) << "Jet 1 Min Pt: " <<  m_minPt1 <<" Gaudi::Units::GeV"<< endmsg;
+  msg( MSG::INFO) << "Jet 1 Max Pt: " <<  m_maxPt1 <<" Gaudi::Units::GeV"<< endmsg;
+  msg( MSG::INFO) << "Jet 2 Min Pt: " <<  m_minPt2 <<" Gaudi::Units::GeV"<< endmsg;
+  msg( MSG::INFO) << "Jet 2 Max Pt: " <<  m_maxPt2 <<" Gaudi::Units::GeV"<< endmsg;
 
   //Particle Cuts
-  msg(MSG::INFO) << "Particle Min Pt: " << m_PtCut <<" Gaudi::Units::MeV" <<endreq;
-  msg(MSG::INFO) << "Particle Eta: " << m_EtaCut << endreq;
+  msg(MSG::INFO) << "Particle Min Pt: " << m_PtCut <<" Gaudi::Units::MeV" <<endmsg;
+  msg(MSG::INFO) << "Particle Eta: " << m_EtaCut << endmsg;
 
-  msg(MSG::INFO) << "Fit param. c0 = " << m_c0 << endreq;
-  msg(MSG::INFO) << "Fit param. c1 = " << m_c1 << endreq;
-  msg(MSG::INFO) << "Fit param. c2 = " << m_c2 << endreq;
-  msg(MSG::INFO) << "Fit param. c3 = " << m_c3 << endreq;
-  msg(MSG::INFO) << "Fit param. c4 = " << m_c4 << endreq;
-  msg(MSG::INFO) << "Fit param. c5 = " << m_c5 << endreq;
-  msg(MSG::INFO) << "Fit param. c6 = " << m_c6 << endreq;
-  msg(MSG::INFO) << "Fit param. c7 = " << m_c7 << endreq;
-  msg(MSG::INFO) << "Max. weighted gap = " << m_gapf << endreq;
+  msg(MSG::INFO) << "Fit param. c0 = " << m_c0 << endmsg;
+  msg(MSG::INFO) << "Fit param. c1 = " << m_c1 << endmsg;
+  msg(MSG::INFO) << "Fit param. c2 = " << m_c2 << endmsg;
+  msg(MSG::INFO) << "Fit param. c3 = " << m_c3 << endmsg;
+  msg(MSG::INFO) << "Fit param. c4 = " << m_c4 << endmsg;
+  msg(MSG::INFO) << "Fit param. c5 = " << m_c5 << endmsg;
+  msg(MSG::INFO) << "Fit param. c6 = " << m_c6 << endmsg;
+  msg(MSG::INFO) << "Fit param. c7 = " << m_c7 << endmsg;
+  msg(MSG::INFO) << "Max. weighted gap = " << m_gapf << endmsg;
 
   xsgapf = m_c0*exp(m_c1+m_c2*m_gapf)+m_c3*exp(m_c4+m_c5*m_gapf)+m_c6*pow(m_gapf,m_c7);
 
@@ -152,7 +152,7 @@ GapJetFilter::filterEvent()
 
   // Get TruthJets
   //
-  msg(MSG::DEBUG) << "get truthJet container" << endreq;
+  msg(MSG::DEBUG) << "get truthJet container" << endmsg;
   const xAOD::JetContainer* truthjetTES;
   sc=m_storeGate->retrieve(truthjetTES, m_jetContainer);
   if( sc.isFailure() || !truthjetTES ) {
@@ -160,11 +160,11 @@ GapJetFilter::filterEvent()
          << "No xAOD::JetContainer found in TDS " 
 	 << m_jetContainer << " " 
 	 << sc.isFailure() << " " << !truthjetTES
-         << endreq;
+         << endmsg;
     return StatusCode::SUCCESS;
   }
   msg(MSG::INFO) << "xAOD::JetContainer Size = " 
-       << truthjetTES->size() << endreq;
+       << truthjetTES->size() << endmsg;
 
 
   // Get a list of all the truth jets
@@ -230,9 +230,9 @@ GapJetFilter::filterEvent()
     }
   }
  
-  msg(MSG::INFO) << "NJets  OK? : " << flagNJets  << endreq;
-  msg(MSG::INFO) << "1stJet OK? : " << flag1stJet << endreq;
-  msg(MSG::INFO) << "2ndJet OK? : " << flag2ndJet << endreq;
+  msg(MSG::INFO) << "NJets  OK? : " << flagNJets  << endmsg;
+  msg(MSG::INFO) << "1stJet OK? : " << flag1stJet << endmsg;
+  msg(MSG::INFO) << "2ndJet OK? : " << flag2ndJet << endmsg;
   
   if (flagNJets != 0 && flag1stJet != 0 && flag2ndJet != 0) {
    
@@ -302,7 +302,7 @@ GapJetFilter::filterEvent()
 
   //++m_nFail;
   setFilterPassed(false);
-  msg(MSG::INFO) << "drop event" << endreq;
+  msg(MSG::INFO) << "drop event" << endmsg;
   return StatusCode::SUCCESS;
   
 }

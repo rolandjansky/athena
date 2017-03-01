@@ -369,7 +369,7 @@ namespace InDet{
 	  sc = store()->retrieve(m_spOverlapColl, m_spOverlapName);
     
 	  if (sc.isFailure()) {
-	  msg() << MSG::ERROR << "Failed to get " << m_spOverlapName << endreq;
+	  msg() << MSG::ERROR << "Failed to get " << m_spOverlapName << endmsg;
 	  return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
 	  }
 	  else {

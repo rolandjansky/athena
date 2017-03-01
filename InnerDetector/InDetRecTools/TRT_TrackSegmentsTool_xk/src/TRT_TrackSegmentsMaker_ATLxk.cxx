@@ -92,7 +92,7 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
   //
   IToolSvc* toolSvc;
   if ((sc=service("ToolSvc", toolSvc)).isFailure())  {
-    msg(MSG::FATAL)<<"Toll service not found !"<<endreq; return sc;
+    msg(MSG::FATAL)<<"Toll service not found !"<<endmsg; return sc;
   }
 
   // Initiate magnetic field properties
@@ -102,29 +102,29 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
   // Get propagator tool
   //
   if( m_propTool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_propTool <<endreq;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_propTool <<endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_propTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_propTool << endmsg;
   }
 
   // Get tool for track extension to TRT
   //
   if( m_extensionTool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_extensionTool <<endreq;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_extensionTool <<endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_extensionTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_extensionTool << endmsg;
   }
 
   // Get tool for track-prd association
   //
   if( m_useassoTool ) {
     if( m_assoTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endreq; 
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endmsg; 
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
   }
 
@@ -133,14 +133,14 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
   m_trtmgr   = 0;
   sc = detStore()->retrieve(m_trtmgr,m_ntrtmanager);
   if (sc.isFailure()) {
-    msg(MSG::FATAL)<<"Could not get TRT_DetectorManager"<<endreq; return sc;
+    msg(MSG::FATAL)<<"Could not get TRT_DetectorManager"<<endmsg; return sc;
   }
 
   //m_trtid = m_trtmgr->getIdHelper();
 
   // TRT
   if (detStore()->retrieve(m_trtid, "TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -150,10 +150,10 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
   std::string tagInfoKey = "";
 
   if(tagInfoKeys.size()==0)
-    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endreq;
+    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endmsg;
    else {
      if(tagInfoKeys.size() > 1) {
-       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endreq;
+       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endmsg;
      }
      tagInfoKey = tagInfoKeys[0];
    }
@@ -168,10 +168,10 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
 			  this,tagInfoH,m_callbackString);
 
   if (sc.isFailure()) {
-    msg(MSG::FATAL)<< "Failed to register the callback " << name() << endreq;
+    msg(MSG::FATAL)<< "Failed to register the callback " << name() << endmsg;
   }
   else {
-    msg(MSG::INFO) << "Register the callback" << name() << endreq;
+    msg(MSG::INFO) << "Register the callback" << name() << endmsg;
   }
 
   
@@ -213,7 +213,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
   //
   StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
   if(s.isFailure() && m_outputlevel<=0) {
-    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endreq;
+    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
   if(!m_trtcontainer) return;
@@ -293,7 +293,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   //
   StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
   if(s.isFailure() && m_outputlevel<=0) {
-    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endreq;
+    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
   if(!m_trtcontainer) return;
@@ -358,7 +358,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 void InDet::TRT_TrackSegmentsMaker_ATLxk::endEvent ()
 {
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 
 }
@@ -864,7 +864,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsProduction()
     }
   }
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 

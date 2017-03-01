@@ -86,14 +86,14 @@ namespace Analysis {
     // if(2*m_ElectronToJetAssociatorList.size() != m_ElectronContainerNameList.size() + m_PhotonContainerNameList.size()){ // because use the same tool for electrons and photons
     //   msg( MSG::FATAL ) << "Size mismatch between electron/photon assoc tools("
     // 			<<m_ElectronToJetAssociatorList.size()<<") and names( "
-    // 			<<m_ElectronContainerNameList.size()<< "+" << m_PhotonContainerNameList.size()<<  ")"  << endreq;
+    // 			<<m_ElectronContainerNameList.size()<< "+" << m_PhotonContainerNameList.size()<<  ")"  << endmsg;
     //   return StatusCode::FAILURE;
     // }
     // if(m_ElectronToJetAssociatorList.retrieve().isFailure() ) {
-    //   msg( MSG::FATAL ) << "Failed to retrieve tools " << m_ElectronToJetAssociatorList << endreq;
+    //   msg( MSG::FATAL ) << "Failed to retrieve tools " << m_ElectronToJetAssociatorList << endmsg;
     //   return StatusCode::FAILURE;
     // } else {
-    //   msg( MSG::INFO ) << "Retrieved tools " << m_ElectronToJetAssociatorList << endreq;
+    //   msg( MSG::INFO ) << "Retrieved tools " << m_ElectronToJetAssociatorList << endmsg;
     // }
 
 

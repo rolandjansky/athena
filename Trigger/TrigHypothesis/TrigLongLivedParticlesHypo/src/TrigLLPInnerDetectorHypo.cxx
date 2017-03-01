@@ -106,35 +106,35 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltInitialize() {
 
   m_log.setLevel(outputLevel());
 
-  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Initialize: " << name() << endreq;
+  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Initialize: " << name() << endmsg;
 
   if ( m_regionSelector.retrieve().isFailure() ) {
-    msg() << MSG::FATAL << "Unable to retrieve RegionSelector tool " << m_regionSelector.type() << endreq;
+    msg() << MSG::FATAL << "Unable to retrieve RegionSelector tool " << m_regionSelector.type() << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   } else
-    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised RegionSelector tool !" << endreq;
+    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised RegionSelector tool !" << endmsg;
 
   if(m_detStore.retrieve().isFailure()) {
-    if (msgLvl() <= MSG::FATAL) m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endreq;
+    if (msgLvl() <= MSG::FATAL) m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endmsg;
     return StatusCode::FAILURE;
   } else
-    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised DetectorStore!" << endreq;
+    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised DetectorStore!" << endmsg;
  
   StatusCode sc_pixH = m_detStore->retrieve(m_pixHelper, "PixelID");
   if( sc_pixH.isFailure() ){
-    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain pix helper!" << endreq;
+    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain pix helper!" << endmsg;
     return StatusCode::FAILURE;
   } else 
-    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised pixel helper" << endreq;
+    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised pixel helper" << endmsg;
 
   StatusCode sc_sctH = m_detStore->retrieve(m_sctHelper, "SCT_ID");
   if( sc_sctH.isFailure() ){
-    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain sct helper!" << endreq;
+    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain sct helper!" << endmsg;
     return StatusCode::FAILURE;
   } else
-    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised SCT helper" << endreq;
+    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised SCT helper" << endmsg;
   
-  if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << " TrigLLPInnerDetectorHypo initialized successfully" << endreq; 
+  if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << " TrigLLPInnerDetectorHypo initialized successfully" << endmsg; 
   return HLT::OK;  
 }
 
@@ -144,11 +144,11 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::checkDetectorMask() {
 
   m_hltExecuteInitialisationRun = true;
 
-  m_log << MSG::DEBUG << "[TrigLLPInnerDetectorHypo::checkDetectorMask]  beginning run with this " << name() << endreq;
+  m_log << MSG::DEBUG << "[TrigLLPInnerDetectorHypo::checkDetectorMask]  beginning run with this " << name() << endmsg;
 
   const xAOD::EventInfo* evinfo = 0;
   if (store()->retrieve(evinfo).isFailure()) {
-    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endreq;
+    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endmsg;
     return HLT::SG_ERROR;
   }
   else {
@@ -160,13 +160,13 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::checkDetectorMask() {
       << ":" << evinfo->timeStampNSOffset()
       << "," << evinfo->bcid()
       << ",0x" << std::hex << evinfo->detectorMask() << std::dec
-      << "]" << endreq;
+      << "]" << endmsg;
 
     uint64_t mask = evinfo->detectorMask();
     eformat::helper::DetectorMask decoder(mask);
 
     if (mask == 0) {
-      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0." << endreq; 
+      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0." << endmsg; 
       m_sct_barrel_a_side = true;
       m_sct_barrel_c_side = true;
       m_sct_endcap_a_side = true;
@@ -185,14 +185,14 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::checkDetectorMask() {
     }
 
     if( msgLvl() <= MSG::INFO ){
-      m_log << MSG::INFO << "sct_barrel_a_side is " << (m_sct_barrel_a_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "sct_barrel_c_side is " << (m_sct_barrel_c_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "sct_endcap_a_side is " << (m_sct_endcap_a_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "sct_endcap_c_side is " << (m_sct_endcap_c_side==true? "present" : "OFF! ") << endreq;
+      m_log << MSG::INFO << "sct_barrel_a_side is " << (m_sct_barrel_a_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "sct_barrel_c_side is " << (m_sct_barrel_c_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "sct_endcap_a_side is " << (m_sct_endcap_a_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "sct_endcap_c_side is " << (m_sct_endcap_c_side==true? "present" : "OFF! ") << endmsg;
       
-      m_log << MSG::INFO << "pixel_barrel is      " << (m_pixel_barrel==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "pixel_b_layer is     " << (m_pixel_b_layer==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "pixel_disk is        " << (m_pixel_disk==true? "present" : "OFF! ") << endreq;
+      m_log << MSG::INFO << "pixel_barrel is      " << (m_pixel_barrel==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "pixel_b_layer is     " << (m_pixel_b_layer==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "pixel_disk is        " << (m_pixel_disk==true? "present" : "OFF! ") << endmsg;
     }
   }
   return HLT::OK;
@@ -206,7 +206,7 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* o
   }
 
   if ( msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing " << name() << endreq;
+    m_log << MSG::DEBUG << "Executing " << name() << endmsg;
   }
 
   std::vector<IdentifierHash>::iterator hashIt, hashItEnd;
@@ -235,10 +235,10 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* o
   sc = store()->retrieve( pixCont, m_pixelSpName );
 
   if(sc.isFailure() || !pixCont){
-    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR<< "Trig Pixel SP container " << m_pixelSpName <<" not found"<<endreq; 
+    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR<< "Trig Pixel SP container " << m_pixelSpName <<" not found"<<endmsg; 
     return HLT::TOOL_FAILURE;
   } else{
-    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Successfully retrieved pixel SP container!" << endreq;
+    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Successfully retrieved pixel SP container!" << endmsg;
   }
   
   m_regionSelector->DetHashIDList(PIXEL, m_listOfPixIds );
@@ -279,14 +279,14 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* o
 	m_pixSpPerModule.push_back(m_nPixSP);
 	
 	if( msgLvl() <= MSG::DEBUG ){ 
-	  m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints in total." << endreq; 
-	  m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCL_1 << " have cl size == 1 in total." << endreq; 
-	  m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCL_2 << " have cl size == 2 in total." << endreq; 
-	  m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCLmin3 << " have cl size >= 3 in total." << endreq; 
-	  m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints after ToT cut in total." << endreq;
-	  m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClBarrel << " SP in pixel barrel in total." << endreq;
-	  m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClEndcapA << " SP in pixel ECA in total." << endreq;
-	  m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClEndcapC << " SP in pixel ECC in total." << endreq;
+	  m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints in total." << endmsg; 
+	  m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCL_1 << " have cl size == 1 in total." << endmsg; 
+	  m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCL_2 << " have cl size == 2 in total." << endmsg; 
+	  m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCLmin3 << " have cl size >= 3 in total." << endmsg; 
+	  m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints after ToT cut in total." << endmsg;
+	  m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClBarrel << " SP in pixel barrel in total." << endmsg;
+	  m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClEndcapA << " SP in pixel ECA in total." << endmsg;
+	  m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClEndcapC << " SP in pixel ECC in total." << endmsg;
 	}    
 	
 	m_ratioA = -1.;  m_ratioB = -1.;  
@@ -322,7 +322,7 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* o
   const SpacePointContainer* sctCont;
   sc = store()->retrieve( sctCont, m_sctSpName );
   if( sc.isFailure() ){
-    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Trig SP SCT container " << m_sctSpName <<" not found"<<endreq; 
+    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Trig SP SCT container " << m_sctSpName <<" not found"<<endmsg; 
     return HLT::TOOL_FAILURE;
   }
   
@@ -351,7 +351,7 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* o
       
       if( msgLvl() <= MSG::VERBOSE ){ 
 	m_log << MSG::VERBOSE << " Formed " << m_nSctSP << " sct spacepoints" ;
-	m_log << MSG::VERBOSE << " with sctid module " << sctid << endreq;
+	m_log << MSG::VERBOSE << " with sctid module " << sctid << endmsg;
       }
       
       // total 
@@ -364,7 +364,7 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* o
 	if( nSctModIds <= m_maxnid ) {
 	  droppedSctModules.push_back(sctid);
 	} else {
-	  if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << m_maxnid << " sct modules are noisy, dump their id : " << sctid << endreq;
+	  if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << m_maxnid << " sct modules are noisy, dump their id : " << sctid << endmsg;
 	}
       }
       else{
@@ -381,10 +381,10 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* o
   
   m_totNumSctSP = m_sctSpEndcapC + m_sctSpBarrel + m_sctSpEndcapA;
   if( msgLvl() <= MSG::DEBUG ){ 
-    m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumSctSP << " sct spacepoints in total." << endreq;
-    m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpEndcapC << " sct ECC spacepoints in total." << endreq;
-    m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpBarrel << " sct Barr spacepoints in total." << endreq;
-    m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpEndcapA << " sct ECA spacepoints in total." << endreq;
+    m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumSctSP << " sct spacepoints in total." << endmsg;
+    m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpEndcapC << " sct ECC spacepoints in total." << endmsg;
+    m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpBarrel << " sct Barr spacepoints in total." << endmsg;
+    m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpEndcapA << " sct ECA spacepoints in total." << endmsg;
   }
   
   return HLT::OK;
@@ -393,7 +393,7 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* o
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigLLPInnerDetectorHypo::hltFinalize() {
-  m_log << MSG::DEBUG << " finalizing TrigLLPInnerDetectorHypo : "<< name() << endreq; 
+  m_log << MSG::DEBUG << " finalizing TrigLLPInnerDetectorHypo : "<< name() << endmsg; 
   return HLT::OK;  
 }
 

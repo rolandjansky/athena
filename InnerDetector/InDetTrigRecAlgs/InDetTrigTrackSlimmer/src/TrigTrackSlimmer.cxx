@@ -38,7 +38,7 @@ namespace InDet
   //          beginRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigTrackSlimmer::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackSlimmer::beginRun()" << endreq;
+    msg() << MSG::INFO << "TrigTrackSlimmer::beginRun()" << endmsg;
 
     return HLT::OK;
   }
@@ -49,21 +49,21 @@ namespace InDet
   ///////////////////////////////////////////////////////////////////
   HLT::ErrorCode TrigTrackSlimmer::hltInitialize() {
     
-    msg() << MSG::DEBUG << "initialize() success" << endreq;
+    msg() << MSG::DEBUG << "initialize() success" << endmsg;
     
     if ( m_trackSlimmingTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_trackSlimmingTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_trackSlimmingTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_trackSlimmingTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_trackSlimmingTool << endmsg;
     }
 
     if ( m_sumTool.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve trk::summary tool " << m_sumTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve trk::summary tool " << m_sumTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } else {
-      msg() << MSG::INFO << "Retrieved tool " << m_sumTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_sumTool << endmsg;
     }
 
     
@@ -80,7 +80,7 @@ namespace InDet
     int inputTracks(-1);
 
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "execHLTAlgorithm()" << endreq;
+      msg() << MSG::DEBUG << "execHLTAlgorithm()" << endmsg;
 
     //----------------------------------------------------------------------
     //  Navigate throw the trigger element to retrieve the last TrackCollection
@@ -89,7 +89,7 @@ namespace InDet
     //initialize monitored objects
     m_allTracksFromStoreGate = 0;
     if ( HLT::OK != getFeature(outputTE, m_allTracksFromStoreGate) ) {
-      msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+      msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
      
       return HLT::NAV_ERROR;
     }
@@ -98,11 +98,11 @@ namespace InDet
 
     if(!m_allTracksFromStoreGate){
       msg() << MSG::INFO
-	    << " Input track collection was not attached. Algorithm not executed!" << endreq;
+	    << " Input track collection was not attached. Algorithm not executed!" << endmsg;
     } else {
       inputTracks = m_allTracksFromStoreGate->size();
       if(outputLevel <= MSG::VERBOSE)
-	msg() << MSG::VERBOSE << " Input track collection has size " << inputTracks << endreq;
+	msg() << MSG::VERBOSE << " Input track collection has size " << inputTracks << endmsg;
 
       for (TrackCollection::const_iterator it = m_allTracksFromStoreGate->begin() ;
 	   it != m_allTracksFromStoreGate->end()   ; ++it) {
@@ -117,14 +117,14 @@ namespace InDet
     } 
 
     if ( HLT::OK !=  attachFeature(outputTE, slimmedTracks, name()) ) {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+      msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
       
       return HLT::NAV_ERROR;
     }
     else{
       if(outputLevel <= MSG::DEBUG){
 	msg() << MSG::DEBUG << "REGTEST: after TrackSlimmer  " << slimmedTracks->size()
-	      << " of " <<  inputTracks << " tracks." << endreq;
+	      << " of " <<  inputTracks << " tracks." << endmsg;
       }
     }
 
@@ -138,7 +138,7 @@ namespace InDet
   
   HLT::ErrorCode TrigTrackSlimmer::hltFinalize() {
 
-    msg() << MSG::DEBUG << "finalize() success" << endreq;
+    msg() << MSG::DEBUG << "finalize() success" << endmsg;
     return HLT::OK;
   }
 
@@ -147,7 +147,7 @@ namespace InDet
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigTrackSlimmer::hltEndRun() {
    
-    msg() << MSG::INFO << "TrigTrackSlimmer::endRun()" << endreq;
+    msg() << MSG::INFO << "TrigTrackSlimmer::endRun()" << endmsg;
    
     return HLT::OK;
   }

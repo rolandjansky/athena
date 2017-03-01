@@ -87,7 +87,7 @@ namespace iFatras {
   MsgStream& PlanarClusterOnTrack::dump( MsgStream& sl ) const
   {
     
-    sl << "PlanarClusterOnTrack {" << endreq;
+    sl << "PlanarClusterOnTrack {" << endmsg;
     Trk::RIO_OnTrack::dump(sl); 
     
     sl << "Global position (x,y,z) = (";
@@ -95,11 +95,11 @@ namespace iFatras {
       {
         sl  <<this->globalPosition().x()<<", "
 	    <<this->globalPosition().y()<<", "
-	    <<this->globalPosition().z()<<")"<<endreq;
+	    <<this->globalPosition().z()<<")"<<endmsg;
       } else {
-      sl<<"NULL!), "<<endreq;
+      sl<<"NULL!), "<<endmsg;
     }
-    sl<<"}"<<endreq;
+    sl<<"}"<<endmsg;
     return sl;
   }
   

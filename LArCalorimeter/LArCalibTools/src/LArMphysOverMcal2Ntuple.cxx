@@ -33,7 +33,7 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
   sc=m_detStore->retrieve(larMphysOverMcal,m_contKey);
   if (sc!=StatusCode::SUCCESS) {
      (*m_log)  << MSG::ERROR << "Unable to retrieve ILArMphysOverMcal with key " 
-               << m_contKey << " from DetectorStore" << endreq;
+               << m_contKey << " from DetectorStore" << endmsg;
      return StatusCode::FAILURE;
   }
 
@@ -42,20 +42,20 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
 
  sc=m_nt->addItem("icell",cellIndex,0,2000);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log)  << MSG::ERROR << "addItem 'Cell Index' failed" << endreq;
+   {(*m_log)  << MSG::ERROR << "addItem 'Cell Index' failed" << endmsg;
     return StatusCode::FAILURE;
    }
 
  sc=m_nt->addItem("gain",gain,0,3);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log) << MSG::ERROR << "addItem 'gain' failed" << endreq;
+   {(*m_log) << MSG::ERROR << "addItem 'gain' failed" << endmsg;
     return StatusCode::FAILURE;
    }
 
 
  sc=m_nt->addItem("mphysovermcal",mpmc,-1000.,2.);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log)  << MSG::ERROR << "addItem 'mphysovermcal' failed" << endreq;
+   {(*m_log)  << MSG::ERROR << "addItem 'mphysovermcal' failed" << endmsg;
     return StatusCode::FAILURE;
    }
 
@@ -73,7 +73,7 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
 	 mpmc = larMphysOverMcal->MphysOverMcal(hwid,igain);
 	 sc=ntupleSvc()->writeRecord(m_nt);
 	 if (sc!=StatusCode::SUCCESS) {
-	   (*m_log)  << MSG::ERROR << "writeRecord failed" << endreq;
+	   (*m_log)  << MSG::ERROR << "writeRecord failed" << endmsg;
 	   return StatusCode::FAILURE;
 	 }
      }//end if isConnected
@@ -81,7 +81,7 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
   }//end loop over online ID
  } // ovr gains
 
- (*m_log)  << MSG::INFO << "LArMphysOverMcal2Ntuple has finished." << endreq;
+ (*m_log)  << MSG::INFO << "LArMphysOverMcal2Ntuple has finished." << endmsg;
  return StatusCode::SUCCESS;
 }// end finalize-method.
    

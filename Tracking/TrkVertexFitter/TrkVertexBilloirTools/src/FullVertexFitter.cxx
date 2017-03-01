@@ -89,40 +89,40 @@ namespace Trk
 	{
 		if ( m_extrapolator.retrieve().isFailure() )
 		{
-			msg(MSG::FATAL)<< "Failed to retrieve tool " << m_extrapolator << endreq;
+			msg(MSG::FATAL)<< "Failed to retrieve tool " << m_extrapolator << endmsg;
 			return StatusCode::FAILURE;
 		}
 		else
 		{
-			msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+			msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
 		}
 
 		if ( m_linFactory.retrieve().isFailure() )
 		{
-			msg(MSG::FATAL)<< "Failed to retrieve tool " << m_linFactory << endreq;
+			msg(MSG::FATAL)<< "Failed to retrieve tool " << m_linFactory << endmsg;
 			return StatusCode::FAILURE;
 		}
 		else
 		{
-			msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endreq;
+			msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
 		}
 
 		//XAOD Converter   
 		if ( m_xaodConverter.retrieve().isFailure() ) { 
-		  msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endreq; 
+		  msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endmsg; 
 		  return StatusCode::FAILURE; 
 		} else { 
-		  msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endreq; 
+		  msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endmsg; 
 		} 
 		
 		
-		msg(MSG::INFO)  << "Initialize successful" << endreq;
+		msg(MSG::INFO)  << "Initialize successful" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
 	StatusCode FullVertexFitter::finalize()
 	{
-		msg(MSG::INFO)  << "Finalize successful" << endreq;
+		msg(MSG::INFO)  << "Finalize successful" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -455,8 +455,8 @@ namespace Trk
 				{ // protect while loop
 					if (msgLvl(MSG::WARNING))
                                         {
-                                          msg(MSG::WARNING) << " Track direction angles have numerical problems, stop perigee parameter update." << endreq;
-					  msg(MSG::WARNING) << " Phi value: "<<mom_at_Origin[iRP] ( 0 ) <<endreq;
+                                          msg(MSG::WARNING) << " Track direction angles have numerical problems, stop perigee parameter update." << endmsg;
+					  msg(MSG::WARNING) << " Phi value: "<<mom_at_Origin[iRP] ( 0 ) <<endmsg;
                                         }
 					return 0;
 				}
@@ -465,8 +465,8 @@ namespace Trk
 				{ // protect while loop
                                         if (msgLvl(MSG::WARNING))
                                         {
-                                          msg(MSG::WARNING) << " Track direction angles have numerical problems, stop perigee parameter update." << endreq;
-					  msg(MSG::WARNING) << " Theta value: "<<mom_at_Origin[iRP] ( 1 ) <<endreq;
+                                          msg(MSG::WARNING) << " Track direction angles have numerical problems, stop perigee parameter update." << endmsg;
+					  msg(MSG::WARNING) << " Theta value: "<<mom_at_Origin[iRP] ( 1 ) <<endmsg;
                                         }
                                         return 0;
 				}
@@ -628,7 +628,7 @@ namespace Trk
  		 { 
  		   if(vectorTrk.size() == 0) 
  		   { 
- 		    msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq; 
+ 		    msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg; 
  		    return 0; 
  		   } 
  		    
@@ -640,7 +640,7 @@ namespace Trk
  		    const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters()); 
  		   
  		    if(tmpMeasPer!=0) measuredPerigees.push_back(tmpMeasPer); 
- 		    else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+ 		    else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
  		   } 
  		    
  		    

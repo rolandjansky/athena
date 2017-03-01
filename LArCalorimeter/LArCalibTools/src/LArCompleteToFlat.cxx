@@ -124,13 +124,13 @@ CondAttrListCollection* LArCompleteToFlat::singleFloatFlat(const char* blobName,
     //delete attrList;//???
   }
 
-  msg(MSG::INFO) << "Converted " << blobName << " to inline storage. Total number of channels=" << nChannels << endreq;
-  msg(MSG::INFO) << "Number of channels filled with default value (1.0) " << nDefault << " (including disconnected)" << endreq;
+  msg(MSG::INFO) << "Converted " << blobName << " to inline storage. Total number of channels=" << nChannels << endmsg;
+  msg(MSG::INFO) << "Number of channels filled with default value (1.0) " << nDefault << " (including disconnected)" << endmsg;
   if (nCopiedEMPS) 
-    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endreq;  
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endmsg;  
   StatusCode sc=detStore()->record(coll,outputName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record CondAttrListCollection with key" << outputName << endreq;
+    msg(MSG::ERROR) << "Failed to record CondAttrListCollection with key" << outputName << endmsg;
     return NULL;
   }
   return coll;
@@ -139,7 +139,7 @@ CondAttrListCollection* LArCompleteToFlat::singleFloatFlat(const char* blobName,
 
 
 CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* input, const std::string& outputName) { 
-  msg(MSG::INFO)<<"LArCompleteToFlat::pedestalFlat, starting"<<endreq;
+  msg(MSG::INFO)<<"LArCompleteToFlat::pedestalFlat, starting"<<endmsg;
 
   unsigned nChannels=0;
   unsigned nCopiedEMPS=0;
@@ -180,12 +180,12 @@ CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* inpu
    
   StatusCode sc=detStore()->record(collPed,outputName);//"/LAR/ElecCalibFlat/Pedestal");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record CondAttrListCollection for pedestal with key " << outputName << endreq;
+    msg(MSG::ERROR) << "Failed to record CondAttrListCollection for pedestal with key " << outputName << endmsg;
     return NULL;
   }
-  msg(MSG::INFO) << "Converted Pedestal to inline storage. Total number of channels=" << nChannels << endreq;
+  msg(MSG::INFO) << "Converted Pedestal to inline storage. Total number of channels=" << nChannels << endmsg;
   if (nCopiedEMPS) 
-    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endreq;    
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endmsg;    
 
   return collPed;
 }
@@ -193,7 +193,7 @@ CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* inpu
 
 CondAttrListCollection* LArCompleteToFlat::ofcFlat(const ILArOFC* input, const std::string& outputName) {
 
-  msg(MSG::INFO)<<"LArCompleteToFlat::ofcFlat, starting"<<endreq;
+  msg(MSG::INFO)<<"LArCompleteToFlat::ofcFlat, starting"<<endmsg;
   unsigned nChannels=0;
   unsigned nCopiedEMPS=0;
   unsigned nDefault=0;
@@ -216,11 +216,11 @@ CondAttrListCollection* LArCompleteToFlat::ofcFlat(const ILArOFC* input, const s
       nSamples=ofca.size();
     }
     if (nSamples==0) {
-      msg(MSG::ERROR) << "All input OFCs for gain " << gain << " have 0 samples!" << endreq;
+      msg(MSG::ERROR) << "All input OFCs for gain " << gain << " have 0 samples!" << endmsg;
       continue;//jump to the next gain
     }
     
-    msg(MSG::INFO) << "Gain " << gain <<": Found " << nSamples << " OFC samples in input data" << endreq;
+    msg(MSG::INFO) << "Gain " << gain <<": Found " << nSamples << " OFC samples in input data" << endmsg;
 
     coral::AttributeList* attrList = new coral::AttributeList(*spec);
     (*attrList)["version"].setValue(0U);
@@ -285,21 +285,21 @@ CondAttrListCollection* LArCompleteToFlat::ofcFlat(const ILArOFC* input, const s
     
   StatusCode sc=detStore()->record(collOFC,outputName);//"/LAR/ElecCalibFlat/OFC");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record CondAttrListCollection OFC with key " << outputName << endreq;
+    msg(MSG::ERROR) << "Failed to record CondAttrListCollection OFC with key " << outputName << endmsg;
     return NULL;
   }
 
-  msg(MSG::INFO) << "Converted OFCs to inline storage. Total number of channels=" << nChannels << endreq;
-  msg(MSG::INFO) << "Number of channels filled with default OFCs {1,1,1,1} " << nDefault << " (including disconnected)" << endreq;
+  msg(MSG::INFO) << "Converted OFCs to inline storage. Total number of channels=" << nChannels << endmsg;
+  msg(MSG::INFO) << "Number of channels filled with default OFCs {1,1,1,1} " << nDefault << " (including disconnected)" << endmsg;
   if (nCopiedEMPS) 
-    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endreq;  
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endmsg;  
   return collOFC;
 }
 
  
 CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* input, const std::string& outputName) {
  
-  msg(MSG::INFO)<<"LArCompleteToFlat::shapeFlat, starting"<<endreq;
+  msg(MSG::INFO)<<"LArCompleteToFlat::shapeFlat, starting"<<endmsg;
 
   unsigned nChannels=0;
   unsigned nCopiedEMPS=0;
@@ -322,11 +322,11 @@ CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* inp
       nSamples=shape.size();
     }
     if (nSamples==0) {
-      msg(MSG::ERROR) << "All input Shapes for gain " << gain << " have 0 samples!" << endreq;
+      msg(MSG::ERROR) << "All input Shapes for gain " << gain << " have 0 samples!" << endmsg;
       continue;//jump to the next gain
     }
 
-    msg(MSG::INFO) << "Gain " << gain <<": Found " << nSamples << " shape samples in input data" << endreq;
+    msg(MSG::INFO) << "Gain " << gain <<": Found " << nSamples << " shape samples in input data" << endmsg;
 
     coral::AttributeList* attrList = new coral::AttributeList(*spec);    
     (*attrList)["version"].setValue(0U);
@@ -393,14 +393,14 @@ CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* inp
     
   StatusCode sc=detStore()->record(coll,outputName);//"/LAR/ElecCalibFlat/SHAPE");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record CondAttrListCollection Shape with key " << outputName << endreq;
+    msg(MSG::ERROR) << "Failed to record CondAttrListCollection Shape with key " << outputName << endmsg;
     return NULL;
   }
 
-  msg(MSG::INFO) << "Converted Shapes to inline storage. Total number of channels=" << nChannels << endreq;
-   msg(MSG::INFO) << "Number of channels filled with default shape {0,0,0,0} " << nDefault << " (including disconnected)" << endreq;
+  msg(MSG::INFO) << "Converted Shapes to inline storage. Total number of channels=" << nChannels << endmsg;
+   msg(MSG::INFO) << "Number of channels filled with default shape {0,0,0,0} " << nDefault << " (including disconnected)" << endmsg;
   if (nCopiedEMPS) 
-    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endreq;  
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endmsg;  
   
   return coll;
 }
@@ -409,7 +409,7 @@ CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* inp
 
 CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const std::string& outputName) {
 
-  msg(MSG::INFO)<<"LArCompleteToFlat::rampFlat, starting"<<endreq;
+  msg(MSG::INFO)<<"LArCompleteToFlat::rampFlat, starting"<<endmsg;
 
   unsigned nChannels=0;
   unsigned nCopiedEMPS=0;
@@ -433,12 +433,12 @@ CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const
       nPoints=ramp.size();
     }
     if (nPoints==0) {
-      msg(MSG::ERROR) << "All input Ramps for gain " << gain << " have 0 points!" << endreq;
+      msg(MSG::ERROR) << "All input Ramps for gain " << gain << " have 0 points!" << endmsg;
       continue;//jump to the next gain
     }
 
     defaultRamp.resize(nPoints,0.0); //fill remaining points if needed
-    msg(MSG::INFO) << "Gain " << gain << ": Found a ramp polynom of degree " << nPoints << " in input data" << endreq;
+    msg(MSG::INFO) << "Gain " << gain << ": Found a ramp polynom of degree " << nPoints << " in input data" << endmsg;
     coral::AttributeList* attrList = new coral::AttributeList(*spec);
     (*attrList)["version"].setValue(0U);
     coral::Blob& blobRamp=(*attrList)["RampVec"].data<coral::Blob>();
@@ -476,14 +476,14 @@ CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const
   
   StatusCode sc=detStore()->record(coll,outputName);//"/LAR/ElecCalibFlat/Ramp");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record CondAttrListCollection for ramp with key " << outputName << endreq;
+    msg(MSG::ERROR) << "Failed to record CondAttrListCollection for ramp with key " << outputName << endmsg;
     return NULL;
   }
 
-  msg(MSG::INFO) << "Converted Ramps to inline storage. Total number of channels " << nChannels << endreq;
-  msg(MSG::INFO) << "Number of channels filled with default ramp {0,1} " << nDefault << " (including disconnected)" << endreq;
+  msg(MSG::INFO) << "Converted Ramps to inline storage. Total number of channels " << nChannels << endmsg;
+  msg(MSG::INFO) << "Number of channels filled with default ramp {0,1} " << nDefault << " (including disconnected)" << endmsg;
   if (nCopiedEMPS) 
-    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain (applied factor 10)" <<  nCopiedEMPS << endreq;  
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain (applied factor 10)" <<  nCopiedEMPS << endmsg;  
   
 
   return coll;
@@ -508,7 +508,7 @@ CondAttrListCollection* LArCompleteToFlat::DAC2uAFlat(const ILArDAC2uA* input, c
   //delete attrList;//???
   StatusCode sc=detStore()->record(coll,outputName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record CondAttrListCollection with key" << outputName << endreq;
+    msg(MSG::ERROR) << "Failed to record CondAttrListCollection with key" << outputName << endmsg;
     return NULL;
   }
   return coll;
@@ -533,7 +533,7 @@ CondAttrListCollection* LArCompleteToFlat::uA2MeVFlat(const ILAruA2MeV* input, c
   //delete attrList;//???
   StatusCode sc=detStore()->record(coll,outputName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record CondAttrListCollection with key" << outputName << endreq;
+    msg(MSG::ERROR) << "Failed to record CondAttrListCollection with key" << outputName << endmsg;
     return NULL;
   }
   return coll;
@@ -569,14 +569,14 @@ AthenaAttributeList* LArCompleteToFlat::DSPThresholdsFlat(const LArDSPThresholds
     pSamplesThr[hs] = input->samplesThr(chid);
     pTrigThr[hs] = input->trigSumThr(chid);
 
-     msg(MSG::INFO) << "hwid: "<<chid.getString()<<" "<<hs<<" | "<<ptQThr[hs]<<" : "<<pSamplesThr[hs]<<" | "<<pTrigThr[hs] << endreq;
+     msg(MSG::INFO) << "hwid: "<<chid.getString()<<" "<<hs<<" | "<<ptQThr[hs]<<" : "<<pSamplesThr[hs]<<" | "<<pTrigThr[hs] << endmsg;
   }//end loop over hash ids
 
   AthenaAttributeList* coll=new AthenaAttributeList(*attrList);
     
   StatusCode sc=detStore()->record(coll,outputName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record AthenaAttributeList DSPThresholds with key " << outputName << endreq;
+    msg(MSG::ERROR) << "Failed to record AthenaAttributeList DSPThresholds with key " << outputName << endmsg;
     return NULL;
   }
 
@@ -590,7 +590,7 @@ StatusCode LArCompleteToFlat::stop() {
 
   StatusCode sc=detStore()->retrieve(m_onlineID);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to get LArOnlineID" << endreq;
+    msg(MSG::ERROR) << "Failed to get LArOnlineID" << endmsg;
     return sc;
   }
 
@@ -604,10 +604,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(uA2MeVComplete,m_uA2MeVInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LAruA2MeV with key " << m_uA2MeVInput << endreq;
+	msg(MSG::ERROR) << "Failed to get LAruA2MeV with key " << m_uA2MeVInput << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LAruA2MeV" << endreq;
+	msg(MSG::WARNING) << "Will not process LAruA2MeV" << endmsg;
       }
     } else {
       uA2MeVFlat(uA2MeVComplete, "/LAR/ElecCalibFlat/uA2MeV");
@@ -620,10 +620,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(DAC2uAComplete,m_DAC2uAInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LArDAC2uA with key " << m_DAC2uAInput << endreq;
+	msg(MSG::ERROR) << "Failed to get LArDAC2uA with key " << m_DAC2uAInput << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LArDAC2uA" << endreq;
+	msg(MSG::WARNING) << "Will not process LArDAC2uA" << endmsg;
       }  
     } else {
       DAC2uAFlat(DAC2uAComplete, "/LAR/ElecCalibFlat/DAC2uA");
@@ -636,10 +636,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(MphysOverMcalComplete,m_MphysOverMcalInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LArMphysOverMcal with key " << m_MphysOverMcalInput << endreq;
+	msg(MSG::ERROR) << "Failed to get LArMphysOverMcal with key " << m_MphysOverMcalInput << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LArMphysOverMcal" << endreq;
+	msg(MSG::WARNING) << "Will not process LArMphysOverMcal" << endmsg;
       }   
     } else {
       singleFloatFlat("MphysOverMcal", MphysOverMcalComplete, "/LAR/ElecCalibFlat/MphysOverMcal",3,false); //No MphysOverMCal for FCAL
@@ -652,10 +652,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(HVScaleCorrComplete,m_HVScaleCorrInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LArHVScaleCorr with key " << m_HVScaleCorrInput << endreq;
+	msg(MSG::ERROR) << "Failed to get LArHVScaleCorr with key " << m_HVScaleCorrInput << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LArHVScaleCorr" << endreq;
+	msg(MSG::WARNING) << "Will not process LArHVScaleCorr" << endmsg;
       }   
     } else {
       singleFloatFlat("HVScaleCorr", HVScaleCorrComplete, "/LAR/ElecCalibFlat/HVScaleCorr",1);
@@ -667,10 +667,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(pedComplete,m_PedestalInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LArPedestal" << endreq;
+	msg(MSG::ERROR) << "Failed to get LArPedestal" << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LArPedestal" << endreq;
+	msg(MSG::WARNING) << "Will not process LArPedestal" << endmsg;
       }   
     } else {
       pedestalFlat(pedComplete,"/LAR/ElecCalibFlat/Pedestal");
@@ -681,13 +681,13 @@ StatusCode LArCompleteToFlat::stop() {
   
      sc=detStore()->record(pf,"PedestalFlat");
      if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Failed to record LArPedestalFlat" << endreq;
+       msg(MSG::ERROR) << "Failed to record LArPedestalFlat" << endmsg;
      }
    
      ILArPedestal* iped=pf;
      sc=detStore()->symLink(pf,iped);
      if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Failed to symlink LArPedestalFlat" << endreq;
+       msg(MSG::ERROR) << "Failed to symlink LArPedestalFlat" << endmsg;
      }
    }
       */
@@ -700,10 +700,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(ofcComplete,m_OFCInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LArOFCComplete object" << endreq;
+	msg(MSG::ERROR) << "Failed to get LArOFCComplete object" << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LArOFCComplete" << endreq;
+	msg(MSG::WARNING) << "Will not process LArOFCComplete" << endmsg;
       }
     } else {
       ofcFlat(ofcComplete,"/LAR/ElecCalibFlat/OFC");
@@ -714,13 +714,13 @@ StatusCode LArCompleteToFlat::stop() {
      
 	sc=detStore()->record(of,"OFCFlat");
 	if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to record LArOFCFlat" << endreq;
+	msg(MSG::ERROR) << "Failed to record LArOFCFlat" << endmsg;
 	}
    
 	ILArOFC* iofc=of;
 	sc=detStore()->symLink(of,iofc);
 	if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to symlink LArOFCFlat" << endreq;
+	msg(MSG::ERROR) << "Failed to symlink LArOFCFlat" << endmsg;
 	}
       */
     }
@@ -732,10 +732,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(shapeComplete,m_ShapeInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LArShapeComplete object" << endreq;
+	msg(MSG::ERROR) << "Failed to get LArShapeComplete object" << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LArShapeComplete" << endreq;
+	msg(MSG::WARNING) << "Will not process LArShapeComplete" << endmsg;
       }   
     } else {
       shapeFlat(shapeComplete,"/LAR/ElecCalibFlat/Shape");
@@ -746,13 +746,13 @@ StatusCode LArCompleteToFlat::stop() {
      
       sc=detStore()->record(sf,"ShapeFlat");
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to record LArShapeFlat" << endreq;
+	msg(MSG::ERROR) << "Failed to record LArShapeFlat" << endmsg;
       }
    
       ILArShape* ishape=sf;
       sc=detStore()->symLink(sf,ishape);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to symlink LArShapeFlat" << endreq;
+	msg(MSG::ERROR) << "Failed to symlink LArShapeFlat" << endmsg;
       }
       */
     }
@@ -764,10 +764,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(rampComplete,m_RampInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LArRampComplete object" << endreq;
+	msg(MSG::ERROR) << "Failed to get LArRampComplete object" << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LArRampComplete" << endreq;
+	msg(MSG::WARNING) << "Will not process LArRampComplete" << endmsg;
       }   
     } else {
       rampFlat(rampComplete,"/LAR/ElecCalibFlat/Ramp");
@@ -780,10 +780,10 @@ StatusCode LArCompleteToFlat::stop() {
     sc=detStore()->retrieve(DSPTComplete,m_DSPThresholdsInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
-	msg(MSG::ERROR) << "Failed to get LArDSPThresholdsComplete object" << endreq;
+	msg(MSG::ERROR) << "Failed to get LArDSPThresholdsComplete object" << endmsg;
 	return sc;
       } else {
-	msg(MSG::WARNING) << "Will not process LArDSPThresholdsComplete" << endreq;
+	msg(MSG::WARNING) << "Will not process LArDSPThresholdsComplete" << endmsg;
       }   
     }
     DSPThresholdsFlat(DSPTComplete,"/LAR/Configuration/DSPThresholdFlat/Templates");
@@ -796,7 +796,7 @@ StatusCode LArCompleteToFlat::stop() {
       
       sc=detStore()->record(df,"DSPThresholdsFlat");
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to record LArDSPThresholdsFlat" << endreq;
+	msg(MSG::ERROR) << "Failed to record LArDSPThresholdsFlat" << endmsg;
       }
     } 
     */
@@ -816,7 +816,7 @@ void LArCompleteToFlat::errIfConnected(const HWIdentifier chid, const int gain, 
     if (! (gain==2 && m_onlineID->isEMBPS(chid))) { //No LG Presampler calibration
       msg(MSG::ERROR) << "No valid " << objName << " found for channel "  << m_onlineID->channel_name(chid) << ", gain " << gain << ". ";
       if (message) msg(MSG::ERROR) << message;
-      msg(MSG::ERROR) << " Filling with default value." << endreq;
+      msg(MSG::ERROR) << " Filling with default value." << endmsg;
     }
   }
   return;

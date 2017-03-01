@@ -13,7 +13,7 @@
 
 void AFP_TDSimHitCnv_p1::persToTrans(const AFP_TDSimHit_p1* persObj, AFP_TDSimHit* transObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "AFP_TDSimHitCnv_p1::persToTrans called " << endreq;
+	log << MSG::DEBUG << "AFP_TDSimHitCnv_p1::persToTrans called " << endmsg;
 
 	transObj->m_nHitID=persObj->m_nHitID;
 	transObj->m_nTrackID=persObj->m_nTrackID;
@@ -36,7 +36,7 @@ void AFP_TDSimHitCnv_p1::persToTrans(const AFP_TDSimHit_p1* persObj, AFP_TDSimHi
 
 void AFP_TDSimHitCnv_p1::transToPers(const AFP_TDSimHit* transObj, AFP_TDSimHit_p1* persObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "AFP_TDSimHitCnv_p1::transToPers called " << endreq;
+	log << MSG::DEBUG << "AFP_TDSimHitCnv_p1::transToPers called " << endmsg;
 
 	persObj->m_nHitID=transObj->m_nHitID;
 	persObj->m_nTrackID=transObj->m_nTrackID;

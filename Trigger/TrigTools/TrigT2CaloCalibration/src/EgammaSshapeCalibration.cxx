@@ -38,7 +38,7 @@ StatusCode EgammaSshapeCalibration::initialize(){
   m_log = new MsgStream(AthAlgTool::msgSvc(), name() ); 
   CHECK(AthAlgTool::initialize());
   CHECK(CaloRec::ToolWithConstantsMixin::initialize());
-  (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endreq;
+  (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -61,37 +61,37 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 
 #ifndef NDEBUG    
     (*m_log) << MSG::DEBUG << "caloDDE->descriptor()->is_lar_em_barrel() = " 
-	     << caloDDE->descriptor()->is_lar_em_barrel() << endreq;
+	     << caloDDE->descriptor()->is_lar_em_barrel() << endmsg;
     (*m_log) << MSG::DEBUG << "caloDDE->descriptor()->is_lar_em_endcap() = " 
-	     << caloDDE->descriptor()->is_lar_em_endcap() << endreq;
+	     << caloDDE->descriptor()->is_lar_em_endcap() << endmsg;
 
-    (*m_log) << MSG::DEBUG << "m_isRange_barrel=" << m_isRange_barrel << endreq;
+    (*m_log) << MSG::DEBUG << "m_isRange_barrel=" << m_isRange_barrel << endmsg;
 
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::PreSamplerB) = " 
-	     << clus->energy(CaloSampling::PreSamplerB) << endreq;
+	     << clus->energy(CaloSampling::PreSamplerB) << endmsg;
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EMB1)        = " 
-	     << clus->energy(CaloSampling::EMB1) << endreq;
+	     << clus->energy(CaloSampling::EMB1) << endmsg;
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EMB2)        = " 
-	     << clus->energy(CaloSampling::EMB2) << endreq;
+	     << clus->energy(CaloSampling::EMB2) << endmsg;
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EMB3)        = " 
-	     << clus->energy(CaloSampling::EMB3) << endreq;
+	     << clus->energy(CaloSampling::EMB3) << endmsg;
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::PreSamplerE) = " 
-	     << clus->energy(CaloSampling::PreSamplerE) << endreq;
+	     << clus->energy(CaloSampling::PreSamplerE) << endmsg;
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EME1)        = " 
-	     << clus->energy(CaloSampling::EME1) << endreq;
+	     << clus->energy(CaloSampling::EME1) << endmsg;
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EME2)        = " 
-	     << clus->energy(CaloSampling::EME2) << endreq;
+	     << clus->energy(CaloSampling::EME2) << endmsg;
     (*m_log) << MSG::DEBUG << "clus->energy(CaloSampling::EME3)        = " 
-	     << clus->energy(CaloSampling::EME3) << endreq;
+	     << clus->energy(CaloSampling::EME3) << endmsg;
 
     if((caloDDE->descriptor()->is_lar_em_barrel() &&  m_isRange_barrel) ||
        (caloDDE->descriptor()->is_lar_em_endcap() && !m_isRange_barrel))
       (*m_log) << MSG::DEBUG 
-	       << "[GOOD]: seedCell location and selected eta range agree" << endreq;
+	       << "[GOOD]: seedCell location and selected eta range agree" << endmsg;
     else if((caloDDE->descriptor()->is_lar_em_barrel() && !m_isRange_barrel) ||
 	    (caloDDE->descriptor()->is_lar_em_endcap() &&  m_isRange_barrel))
       (*m_log) << MSG::DEBUG 
-	       << "[BAD]: seedCell location and selected eta range disagree !!" << endreq;
+	       << "[BAD]: seedCell location and selected eta range disagree !!" << endmsg;
 #endif
   
     // check if seedCell is in barrel or end-cap for correct range selection
@@ -122,12 +122,12 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     double aeta = fabs(eta - elt_eta + elt_eta_raw);
 
 #ifndef NDEBUG    
-    (*m_log) << MSG::DEBUG << "eta         = " << eta         << endreq;
-    (*m_log) << MSG::DEBUG << "elt_eta     = " << elt_eta     << endreq;
-    (*m_log) << MSG::DEBUG << "elt_deta    = " << elt_deta    << endreq;
-    (*m_log) << MSG::DEBUG << "elt_eta_raw = " << elt_eta_raw << endreq;
-    (*m_log) << MSG::DEBUG << "u           = " << u           << endreq; 
-    (*m_log) << MSG::DEBUG << "aeta        = " << aeta        << endreq; 
+    (*m_log) << MSG::DEBUG << "eta         = " << eta         << endmsg;
+    (*m_log) << MSG::DEBUG << "elt_eta     = " << elt_eta     << endmsg;
+    (*m_log) << MSG::DEBUG << "elt_deta    = " << elt_deta    << endmsg;
+    (*m_log) << MSG::DEBUG << "elt_eta_raw = " << elt_eta_raw << endmsg;
+    (*m_log) << MSG::DEBUG << "u           = " << u           << endmsg; 
+    (*m_log) << MSG::DEBUG << "aeta        = " << aeta        << endmsg; 
 #endif
     
     // Find the appropriate region 
@@ -222,9 +222,9 @@ void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
     clus->setEta(eta+offs);  
 
 #ifndef NDEBUG     
-    (*m_log) << MSG::DEBUG << "Before correction : " << eta << endreq;
-    (*m_log) << MSG::DEBUG << "offset =" << offs << endreq;
-    (*m_log) << MSG::DEBUG << "After correction : " << eta+offs << endreq;
+    (*m_log) << MSG::DEBUG << "Before correction : " << eta << endmsg;
+    (*m_log) << MSG::DEBUG << "offset =" << offs << endmsg;
+    (*m_log) << MSG::DEBUG << "After correction : " << eta+offs << endmsg;
 #endif
     
     delete builder;

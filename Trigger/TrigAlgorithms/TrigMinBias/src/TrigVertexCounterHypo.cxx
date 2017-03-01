@@ -45,12 +45,12 @@ HLT::ErrorCode TrigVertexCounterHypo::hltInitialize() {
   m_log.setLevel( outputLevel() );
 
   if (msgLvl() <= MSG::INFO) {
-    m_log << MSG::INFO << "Initialising TrigVertexCounterHypo, name = " << name() << endreq;
-    m_log << MSG::INFO << "RejectPileup = " << (m_rejectPileup ? "True" : "False") << endreq; 
-    m_log << MSG::INFO << "Required_ntrks = " << m_required_ntrks << " #" << endreq;
-    m_log << MSG::INFO << "Max_ntrks = " << m_max_ntrks << " #" << endreq;
-    m_log << MSG::INFO << "AcceptAll = " << (m_acceptAll ? "True" : "False") << endreq;
-    m_log << MSG::INFO << "CutNumVtx = " << (m_cutNumVtx ? "True" : "False") << endreq;
+    m_log << MSG::INFO << "Initialising TrigVertexCounterHypo, name = " << name() << endmsg;
+    m_log << MSG::INFO << "RejectPileup = " << (m_rejectPileup ? "True" : "False") << endmsg; 
+    m_log << MSG::INFO << "Required_ntrks = " << m_required_ntrks << " #" << endmsg;
+    m_log << MSG::INFO << "Max_ntrks = " << m_max_ntrks << " #" << endmsg;
+    m_log << MSG::INFO << "AcceptAll = " << (m_acceptAll ? "True" : "False") << endmsg;
+    m_log << MSG::INFO << "CutNumVtx = " << (m_cutNumVtx ? "True" : "False") << endmsg;
   }
 
   return HLT::OK;
@@ -70,7 +70,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
   m_vtxNvtxAccepted = -1;
 
   if( msgLvl() <= MSG::DEBUG ) {
-    m_log << MSG::DEBUG << "Executing this TrigVertexCounterHypo " << name() << endreq;
+    m_log << MSG::DEBUG << "Executing this TrigVertexCounterHypo " << name() << endmsg;
   }
   
   if( m_acceptAll ){
@@ -82,7 +82,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
   m_trigVertexCounts = 0;
   HLT::ErrorCode hltStatus = getFeature(outputTE, m_trigVertexCounts, "vertexcounts");
   if(hltStatus != HLT::OK || !m_trigVertexCounts){
-    if( msgLvl() <= MSG::WARNING ) m_log << MSG::WARNING << "Failed to retrieve features from TE." << endreq;
+    if( msgLvl() <= MSG::WARNING ) m_log << MSG::WARNING << "Failed to retrieve features from TE." << endmsg;
     return HLT::OK;
   }
  
@@ -92,7 +92,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
 
   unsigned int nvtx = m_vtxNtrks.size();
   if(nvtx != m_vtxTrkPtSqSum.size()) {
-    m_log << MSG::ERROR << "The number of vertices does not agree within the TrigVertexCounts object." << endreq;
+    m_log << MSG::ERROR << "The number of vertices does not agree within the TrigVertexCounts object." << endmsg;
     return HLT::OK;
   }
   m_vtxNvtx = nvtx;
@@ -105,7 +105,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
      }
      if(num_vtx> m_min_Nvtx){
        pass = true;
-       if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event accepted.  Num vertices is :" << num_vtx << "  with at least " << m_required_ntrks << "  tracks" << endreq;
+       if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event accepted.  Num vertices is :" << num_vtx << "  with at least " << m_required_ntrks << "  tracks" << endmsg;
        // Fill the monitoring variables
        m_vtxNtrksAccepted = m_vtxNtrks;
        m_vtxTrkPtSqSumAccepted = m_vtxTrkPtSqSum;
@@ -113,7 +113,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
        return HLT::OK;
      } else {
        pass = false;
-       if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  Not enough vertices." << endreq;
+       if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  Not enough vertices." << endmsg;
        return HLT::OK;
      }
      
@@ -135,7 +135,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
 
   if(firstVtx) {
     pass = false;
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  No primary vertex." << endreq;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  No primary vertex." << endmsg;
     return HLT::OK;
   }
 
@@ -144,7 +144,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
       if(ivtx == priVtx) continue; // Skip the primary vertex
       if(m_vtxNtrks[ivtx] > m_max_ntrks) { // Check the pile up requirement
 	pass = false;
-	if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  Failed pile up requirement." << endreq;
+	if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  Failed pile up requirement." << endmsg;
 	return HLT::OK;
       }
     }
@@ -152,12 +152,12 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
     // Check if the primary vertex contains enough tracks.
     if(m_vtxNtrks[priVtx] < m_required_ntrks) {
       pass = false;
-      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  Primary vertex only has " << m_vtxNtrks[priVtx] << " tracks." << endreq;
+      if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  Primary vertex only has " << m_vtxNtrks[priVtx] << " tracks." << endmsg;
       return HLT::OK;
     }
 
     if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG
-                                     << "Event accepted.  Primary vertex has " << m_vtxNtrks[priVtx] << " tracks." << endreq; 
+                                     << "Event accepted.  Primary vertex has " << m_vtxNtrks[priVtx] << " tracks." << endmsg; 
 
     // Fill the monitoring variables
     m_vtxNtrksAccepted.push_back(m_vtxNtrks[priVtx]);
@@ -174,7 +174,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
 	
         if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG
 					 << "Event accepted, has a vertex with "
-					 <<  m_vtxNtrks[ivtx] << " tracks." << endreq;
+					 <<  m_vtxNtrks[ivtx] << " tracks." << endmsg;
 
         // Fill the monitoring variables
         m_vtxNtrksAccepted = m_vtxNtrks;
@@ -185,7 +185,7 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
       }
     }
 
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  No vertex contains enough tracks." << endreq;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event rejected.  No vertex contains enough tracks." << endmsg;
     pass = false;
   }
 
@@ -198,6 +198,6 @@ HLT::ErrorCode TrigVertexCounterHypo::hltExecute(const HLT::TriggerElement* outp
 HLT::ErrorCode TrigVertexCounterHypo::hltFinalize() {
 
   if( msgLvl() <= MSG::INFO )
-    m_log << MSG::INFO << " Finalizing this TrigVertexCounterHypo" << name() <<"." << endreq; 
+    m_log << MSG::INFO << " Finalizing this TrigVertexCounterHypo" << name() <<"." << endmsg; 
   return HLT::OK;  
 }

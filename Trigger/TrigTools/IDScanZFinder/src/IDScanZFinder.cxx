@@ -69,8 +69,8 @@ StatusCode IDScanZFinder::initialize()
   MsgStream athenaLog( msgSvc(), name() );
 
   if ( sc.isFailure() ){
-    athenaLog << MSG::ERROR << "Error in AthAlgTool::initialize()  " << endreq;
-    // msg(MSG::ERROR) << "Error in AthAlgTool::initialize()  " << endreq;
+    athenaLog << MSG::ERROR << "Error in AthAlgTool::initialize()  " << endmsg;
+    // msg(MSG::ERROR) << "Error in AthAlgTool::initialize()  " << endmsg;
     return sc;
   }
 
@@ -84,26 +84,26 @@ StatusCode IDScanZFinder::initialize()
   /// NB: These only have to go here, because they need to write to the msgsvc, and because 
   ///     is rubbish, we can't pass in a pointer to a (non-athena) sub algorithm.
   if ( m_phiBinSize < ZFinder_MinPhiSliceSize ){
-    athenaLog << MSG::WARNING << "IDScanZFinder constructor: " << name()  << endreq;
+    athenaLog << MSG::WARNING << "IDScanZFinder constructor: " << name()  << endmsg;
     athenaLog << MSG::WARNING 
 		<< "Requested PhiBinSize of "  << m_phiBinSize 
 		<< " degrees is smaller than the minimum allowed (" << ZFinder_MinPhiSliceSize
-		<< " degrees). Set to the minimum value." << endreq;
+		<< " degrees). Set to the minimum value." << endmsg;
     //  m_phiBinSize = ZFinder_MinPhiSliceSize;
   }
  
   // NB: This should go into the InitializeInternal !!!!
   if ( m_dphideta > 0 ){
-    athenaLog << MSG::WARNING << "IDScanZFinder constructor: " << name()  << endreq;
+    athenaLog << MSG::WARNING << "IDScanZFinder constructor: " << name()  << endmsg;
     athenaLog << MSG::WARNING 
 		<< "Requested DPhiDEta of "  << m_dphideta 
-		<< " is positive.  Setting to its negative!" << endreq;
+		<< " is positive.  Setting to its negative!" << endmsg;
     // m_dphideta *= -1.;
   }
 
   if (m_numberingTool.retrieve().isFailure()){
     athenaLog << MSG::FATAL << "Tool " << m_numberingTool
-	      << " not found " << endreq;
+	      << " not found " << endmsg;
     return StatusCode::FAILURE;
   } 
 
@@ -124,35 +124,35 @@ StatusCode IDScanZFinder::initialize()
   ///     endcap pixel layer
   initializeInternal(maxSiliconLayerNum,offsetEndcapPixels-1);
 
-  athenaLog << MSG::INFO << "IDScanZFinder constructed:     name()  "    << name()             << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinderInternal version:         "    << getVersion()       << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::PixOnly        set to   "    << m_pixOnly          << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::FullScanMode            "    << m_fullScanMode     << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::PhiBinSize     set to   "    << m_phiBinSize       << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::# of peaks to consider: "    << m_numberOfPeaks    << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::z bin size              "    << m_minZBinSize      << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::eta coeff               "    << m_zBinSizeEtaCoeff << endreq;
+  athenaLog << MSG::INFO << "IDScanZFinder constructed:     name()  "    << name()             << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinderInternal version:         "    << getVersion()       << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::PixOnly        set to   "    << m_pixOnly          << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::FullScanMode            "    << m_fullScanMode     << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::PhiBinSize     set to   "    << m_phiBinSize       << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::# of peaks to consider: "    << m_numberOfPeaks    << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::z bin size              "    << m_minZBinSize      << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::eta coeff               "    << m_zBinSizeEtaCoeff << endmsg;
   
-  athenaLog << MSG::INFO << "IDScanZFinder::m_nFirstLayers     = " << m_nFirstLayers     << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_invPhiSliceSize  = " << m_invPhiSliceSize  << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_phiBinSize       = " << m_phiBinSize       << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_dphideta         = " << m_dphideta         << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_neighborMultiplier = " << m_neighborMultiplier << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_minZBinSize      = " << m_minZBinSize      << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_zBinSizeEtaCoeff = " << m_zBinSizeEtaCoeff << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_chargeAware      = " << m_chargeAware      << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_zHistoPerPhi     = " << m_zHistoPerPhi     << endreq;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_nFirstLayers     = " << m_nFirstLayers     << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_invPhiSliceSize  = " << m_invPhiSliceSize  << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_phiBinSize       = " << m_phiBinSize       << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_dphideta         = " << m_dphideta         << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_neighborMultiplier = " << m_neighborMultiplier << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_minZBinSize      = " << m_minZBinSize      << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_zBinSizeEtaCoeff = " << m_zBinSizeEtaCoeff << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_chargeAware      = " << m_chargeAware      << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_zHistoPerPhi     = " << m_zHistoPerPhi     << endmsg;
 
-  athenaLog << MSG::INFO << "IDScanZFinder::m_nvrtxSeparation  = " << m_nvrtxSeparation  << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_vrtxDistCut      = " << m_vrtxDistCut      << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_vrtxMixing       = " << m_vrtxMixing       << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_preferCentralZ   = " << m_preferCentralZ   << endreq;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_nvrtxSeparation  = " << m_nvrtxSeparation  << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_vrtxDistCut      = " << m_vrtxDistCut      << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_vrtxMixing       = " << m_vrtxMixing       << endmsg;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_preferCentralZ   = " << m_preferCentralZ   << endmsg;
 
-  athenaLog << MSG::INFO << "IDScanZFinder::m_trustSPprovider  = " << m_trustSPprovider  << endreq;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_trustSPprovider  = " << m_trustSPprovider  << endmsg;
 
-  athenaLog << MSG::INFO << "IDScanZFinder::m_tripletMode      = " << m_tripletMode      << endreq;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_tripletMode      = " << m_tripletMode      << endmsg;
 
-  athenaLog << MSG::INFO << "IDScanZFinder::m_weigthThreshold  = " << m_weightThreshold  << endreq;
+  athenaLog << MSG::INFO << "IDScanZFinder::m_weigthThreshold  = " << m_weightThreshold  << endmsg;
 
   return sc;
 }
@@ -170,19 +170,19 @@ TrigVertexCollection* IDScanZFinder::findZ( const std::vector<const TrigSiSpaceP
   //  int outputLevel = msgSvc()->outputLevel( name() );
 
   std::vector<vertex>* vertices = findZInternal( spVec, roi);
-  //athenaLog << MSG::INFO << "RoI: " << *RoI << endreq;
-  //athenaLog << MSG::INFO << "RoI->phi0(): " << RoI->phi0() << endreq;
+  //athenaLog << MSG::INFO << "RoI: " << *RoI << endmsg;
+  //athenaLog << MSG::INFO << "RoI->phi0(): " << RoI->phi0() << endmsg;
 
 
-  athenaLog << MSG::DEBUG << "roi: "    << roi << endreq;
-  athenaLog << MSG::DEBUG << "m_NumPhiSlices: " << m_NumPhiSlices << endreq;
+  athenaLog << MSG::DEBUG << "roi: "    << roi << endmsg;
+  athenaLog << MSG::DEBUG << "m_NumPhiSlices: " << m_NumPhiSlices << endmsg;
  
 
   if ( GetInternalStatus()==-1 ) { 
-    //    athenaLog << MSG::ERROR << "phi of spacepoint out of range!" << endreq;
-    //    athenaLog << MSG::ERROR << "Exiting ZFinder..." << endreq;
-    athenaLog << MSG::WARNING << "phi of spacepoint out of range! phi=" << GetReturnValue() << endreq;
-    athenaLog << MSG::WARNING << "Exiting ZFinder..." << endreq;
+    //    athenaLog << MSG::ERROR << "phi of spacepoint out of range!" << endmsg;
+    //    athenaLog << MSG::ERROR << "Exiting ZFinder..." << endmsg;
+    athenaLog << MSG::WARNING << "phi of spacepoint out of range! phi=" << GetReturnValue() << endmsg;
+    athenaLog << MSG::WARNING << "Exiting ZFinder..." << endmsg;
   }
 
   for ( unsigned int i=0 ; i<vertices->size() ; i++ ) { 

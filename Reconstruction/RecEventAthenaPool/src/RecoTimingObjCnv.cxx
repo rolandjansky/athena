@@ -22,7 +22,7 @@ RecoTimingObjCnv::createPersistent( RecoTimingObj* transCont )
   RecoTimingObjCnv_p1 cnv;
   RecoTimingObj_PERS *persObj = cnv.createPersistent( transCont, *m_msg );
   
-  // msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  // msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

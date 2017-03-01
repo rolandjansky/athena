@@ -37,7 +37,7 @@ EFexAnalysis::~EFexAnalysis(){}
 StatusCode EFexAnalysis::initialize(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "initializing TrigT1CaloEFex" << endmsg;
         if ( m_enableMon ){
 		std::string histoName(name());
 		histoName+="Algo.root";
@@ -113,7 +113,7 @@ StatusCode EFexAnalysis::initialize(){
 
 StatusCode EFexAnalysis::finalize(){
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "finalizing TrigT1CaloEFex" << endmsg;
         if ( m_enableMon ){
 		m_histFile->Write();
 		m_histFile->Close();
@@ -124,15 +124,15 @@ StatusCode EFexAnalysis::finalize(){
 StatusCode EFexAnalysis::execute(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endmsg;
         const xAOD::TrigEMClusterContainer* scluster(nullptr);
 	if ( evtStore()->retrieve(scluster,m_inputClusterName).isFailure() ){
-		msg << MSG::WARNING << "did not find super cluster container" << endreq;
+		msg << MSG::WARNING << "did not find super cluster container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
         const xAOD::EmTauRoIContainer* lvl1(nullptr);
 	if ( evtStore()->retrieve(lvl1,m_inputLvl1Name).isFailure() ){
-		msg << MSG::WARNING << "did not find old l1 container" << endreq;
+		msg << MSG::WARNING << "did not find old l1 container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
         if ( lvl1 ) {
@@ -143,7 +143,7 @@ StatusCode EFexAnalysis::execute(){
 	const xAOD::VertexContainer* nvtx(NULL);
         int nvtxs=0;
         if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
-                msg << MSG::WARNING << "did not find Vectices container" << endreq;
+                msg << MSG::WARNING << "did not find Vectices container" << endmsg;
                 return StatusCode::SUCCESS;
         }
         if ( nvtx != NULL) nvtxs = nvtx->size();
@@ -181,7 +181,7 @@ StatusCode EFexAnalysis::execute(){
 	if ( m_doTruth ) {
 	const xAOD::TruthParticleContainer* truth;
 	if ( evtStore()->retrieve(truth,"TruthParticles").isFailure() ) {
-		msg << MSG::WARNING << "did not find truth particle container" << endreq;
+		msg << MSG::WARNING << "did not find truth particle container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -215,7 +215,7 @@ StatusCode EFexAnalysis::execute(){
 	if ( m_doOffline ){
         const xAOD::ElectronContainer* electrons;
         if ( evtStore()->retrieve(electrons,"Electrons").isFailure() ) {
-                msg << MSG::WARNING << "did not find electron offline container" << endreq;
+                msg << MSG::WARNING << "did not find electron offline container" << endmsg;
                 return StatusCode::SUCCESS;
         }
 

@@ -25,10 +25,10 @@ StatusCode FilterUsingMBTS::initialize()
 {
 	MsgStream log(msgSvc(), name());
 	StatusCode sc;
-	log << MSG::INFO << "Initializing " << name() << endreq;
+	log << MSG::INFO << "Initializing " << name() << endmsg;
 	  sc = service( "StoreGateSvc", m_eventStore);
 	  if( sc.isFailure() ) {
-		  log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endreq;
+		  log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endmsg;
 		  return sc;
 	  }
 	
@@ -53,7 +53,7 @@ StatusCode FilterUsingMBTS::execute()
 	sc = m_eventStore->retrieve(theCTP_RDO, "CTP_RDO");
 	if (sc.isFailure()) {
 		log << MSG::WARNING
-			<< "Could not find \"CTP_RDO\" in StoreGate" << endreq;
+			<< "Could not find \"CTP_RDO\" in StoreGate" << endmsg;
 		return sc;
 	}
 	CTP_Decoder ctp;
@@ -69,16 +69,16 @@ StatusCode FilterUsingMBTS::execute()
 		const std::vector < CTP_BC > &BCs = ctp.getBunchCrossings();
 		const CTP_BC & bunch = BCs[l1aBC];
 		unsigned int l1aBCID = bunch.getBCID();
-		log <<  MSG::DEBUG << "Number of Bunches in CTP window: " << numberBC << endreq;
-		log <<  MSG::DEBUG << "Level 1 Accept Bunch: " << l1aBC   << endreq;
-		log <<  MSG::DEBUG << "Level 1 Accept BCID: "  << l1aBCID << endreq;
+		log <<  MSG::DEBUG << "Number of Bunches in CTP window: " << numberBC << endmsg;
+		log <<  MSG::DEBUG << "Level 1 Accept Bunch: " << l1aBC   << endmsg;
+		log <<  MSG::DEBUG << "Level 1 Accept BCID: "  << l1aBCID << endmsg;
 		const std::bitset < 512 > TBP(bunch.getTBP());
 		for(int c=0;c<32;c++)  // Loop over MBTS counters
 		{
 			// Check the L1 result for each MBTS counter
 			if (TBP.test(m_ctpID[c]))
 			{
-				log << MSG::INFO << "Trigger fired for : " << m_counterLabel[c] << endreq;
+				log << MSG::INFO << "Trigger fired for : " << m_counterLabel[c] << endmsg;
 				if(c<16) m_nA++;
 				else     m_nC++;
 			}
@@ -88,12 +88,12 @@ StatusCode FilterUsingMBTS::execute()
 	// Check if filter is passed
 	if( (m_nA >= m_nA_required) && (m_nC >= m_nC_required) )
 	{
-		log << MSG::INFO << "MBTS filter passed" << endreq;
+		log << MSG::INFO << "MBTS filter passed" << endmsg;
 		this->setFilterPassed(true);
 	}
 	else
 	{
-		log << MSG::INFO << "MBTS filter failed" << endreq;
+		log << MSG::INFO << "MBTS filter failed" << endmsg;
 		this->setFilterPassed(false);
 	}	
 	

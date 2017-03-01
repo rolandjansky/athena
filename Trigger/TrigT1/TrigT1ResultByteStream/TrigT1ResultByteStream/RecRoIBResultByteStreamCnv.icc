@@ -60,17 +60,17 @@ StatusCode RecRoIBResultByteStreamCnv< ROBF >::initialize() {
   }
 
   MsgStream log( messageService(), "RecRoIBResultByteStreamCnv" );
-  log << MSG::DEBUG << "In initialize()" << endreq;
+  log << MSG::DEBUG << "In initialize()" << endmsg;
 
   //
   // Get RecRoIBResultByteStreamTool:
   //
   sc = m_tool.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::FATAL << "Couldn't retrieve RecRoIBResultByteStreamTool" << endreq;
+    log << MSG::FATAL << "Couldn't retrieve RecRoIBResultByteStreamTool" << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << "Retrieved RecRoIBResultByteStreamTool" << endreq;
+    log << MSG::DEBUG << "Retrieved RecRoIBResultByteStreamTool" << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -86,12 +86,12 @@ template< class ROBF >
 StatusCode RecRoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
   MsgStream log( messageService(), "RecRoIBResultByteStreamCnv" );
-  log << MSG::DEBUG << "createObj() called" << endreq;
+  log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddressL1R *pAddrL1;
   pAddrL1 = dynamic_cast< ByteStreamAddressL1R* >( pAddr );
   if( ! pAddrL1 ) {
-    log << MSG::ERROR << " Cannot cast to ByteStreamAddressL1R" << endreq ;
+    log << MSG::ERROR << " Cannot cast to ByteStreamAddressL1R" << endmsg ;
     return StatusCode::FAILURE;
   }
 
@@ -102,10 +102,10 @@ StatusCode RecRoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr,
   // Convert to Object
   StatusCode sc = m_tool->convert( robs, result );
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't Create Objects: " << *( pAddrL1->par() ) << endreq;
+    log << MSG::ERROR << "Couldn't Create Objects: " << *( pAddrL1->par() ) << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) << endreq;
+    log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) << endmsg;
   }
 
   pObj = SG::asStorable( result );

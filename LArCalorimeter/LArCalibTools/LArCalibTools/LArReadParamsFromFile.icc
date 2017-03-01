@@ -231,7 +231,7 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
 	  ATH_MSG_VERBOSE ( "LAr HEC Identifier=" << id );
 	} else if ( subdet == 3 ) { // LArFCAL
 	  // id = m_fcalId->channel_id(det,layer,region,eta,phi) ;
-	  // log << MSG::VERBOSE << "LAr FCAL Identifier=" << id << endreq ;
+	  // log << MSG::VERBOSE << "LAr FCAL Identifier=" << id << endmsg ;
 	  ATH_MSG_WARNING ( "Subdet=" << subdet 
                             << " is LArFCAL -- conversion to online channel not implemented yet!" );
 	  good_chID = false ;
@@ -295,7 +295,7 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
     for ( unsigned i=0 ; i<npar ; i++ )  pRead[i] = defaultValue ;
     for ( unsigned i=0 ; i<npar ; i++ ) {
       //if ( buffer.eof() ) {
-      //log << MSG::DEBUG << "end-of-record reached when reading parameter " << i << " of channel " << chID.get_compact() << endreq ;
+      //log << MSG::DEBUG << "end-of-record reached when reading parameter " << i << " of channel " << chID.get_compact() << endmsg ;
       //break ;
       //}
       buffer >> pRead[i] ;
@@ -307,7 +307,7 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
     // store into parameters vector
     msg() << MSG::VERBOSE << "read ch=" << chID.get_compact() ;
     for ( unsigned i=0 ; i<npar ; i++ )  msg() << " par[" << i << "]=" << pRead[i] ;
-    msg() << endreq ;
+    msg() << endmsg ;
     for ( unsigned gain=0 ; gain<3 ; gain++ ) {
       try {
 	StatusCode sc = set(m_dataclass,chID,gain,pRead) ;

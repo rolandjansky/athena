@@ -33,7 +33,7 @@ namespace Trk{
     //initializing the AlgTool itself
     if(sc.isFailure())
     {
-      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
       return StatusCode::FAILURE;
     }
     (TString)m_directoryName;
@@ -41,15 +41,15 @@ namespace Trk{
     sc = m_networkToHistoTool.retrieve();
     if (sc.isFailure())
     {
-      msg(MSG::FATAL) << " Could not retrieve " << m_networkToHistoTool  << ". Aborting..." << endreq;
+      msg(MSG::FATAL) << " Could not retrieve " << m_networkToHistoTool  << ". Aborting..." << endmsg;
       return sc;
     } 
-    else msg(MSG::INFO) << " Retrieved: " << m_networkToHistoTool << ". " << endreq;
+    else msg(MSG::INFO) << " Retrieved: " << m_networkToHistoTool << ". " << endmsg;
 
 
     if (!service("THistSvc",m_iTHistSvc , true).isSuccess()) 
     {
-      msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
+      msg(MSG::ERROR) << "Unable to locate THistSvc" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -57,7 +57,7 @@ namespace Trk{
     sc = m_iTHistSvc->regHist(std::string((const char*)(m_directoryName+LayerInfo)));
     if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
+      msg(MSG::ERROR) << "Unable to locate THistSvc" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -67,7 +67,7 @@ namespace Trk{
     
     if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
+      msg(MSG::ERROR) << "Unable to locate THistSvc" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -85,7 +85,7 @@ namespace Trk{
       sc = m_iTHistSvc->regHist(std::string((const char*)(m_directoryName+weightName)));
       if (sc.isFailure())
       {
-        msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
+        msg(MSG::ERROR) << "Unable to locate THistSvc" << endmsg;
         return StatusCode::FAILURE;
       }
       m_NNhistos.push_back(0);
@@ -94,21 +94,21 @@ namespace Trk{
       sc = m_iTHistSvc->regHist(std::string((const char*)(m_directoryName+thresholdName)));
       if (sc.isFailure())
       {
-        msg(MSG::ERROR)<< "Unable to locate THistSvc" << endreq;
+        msg(MSG::ERROR)<< "Unable to locate THistSvc" << endmsg;
         return StatusCode::FAILURE;
       }
       m_NNhistos.push_back(0);
       sc = m_iTHistSvc->getHist(std::string((const char*)(m_directoryName+thresholdName)),m_NNhistos[2*i + 2]);
     }
     
-    msg(MSG::INFO)<<"Initialization successfull"<<endreq;
+    msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
     return StatusCode::SUCCESS;
   }//end of initialize method
  
  
   StatusCode NNVertexWeightCalculator::finalize()
   {
-    msg(MSG::INFO)<< "Finalize successful" << endreq;
+    msg(MSG::INFO)<< "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
  

@@ -12,7 +12,7 @@ void Lvl1ResultCnv_p1::transToPers(const LVL1CTP::Lvl1Result* trans,
                                      Lvl1Result_p1* pers, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "Lvl1ResultCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "Lvl1ResultCnv_p1::transToPers called " << endmsg;
 
   pers->m_configured         = trans->isConfigured()        ;
   //  pers->m_l1_items           = trans->m_l1_items          ;
@@ -24,7 +24,7 @@ void Lvl1ResultCnv_p1::persToTrans(const LVL1CTP::Lvl1Result_p1* pers,
                                      Lvl1Result* trans, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "Lvl1ResultCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "Lvl1ResultCnv_p1::persToTrans called " << endmsg;
   // this is for reading in old, ie Lvl1Result_p1 class, into the new transient class
 
   *trans = Lvl1Result (pers->m_configured);

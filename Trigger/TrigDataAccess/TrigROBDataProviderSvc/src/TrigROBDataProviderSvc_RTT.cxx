@@ -113,7 +113,7 @@ StatusCode TrigROBDataProviderSvc_RTT::initialize()
   StatusCode sc = TrigROBDataProviderSvc::initialize();
 
   logStream() << MSG::INFO << " ---> TrigROBDataProviderSvc_RTT = " << name() << " initialize "
-	      << " - package version " << PACKAGE_VERSION << endreq ;
+	      << " - package version " << PACKAGE_VERSION << endmsg ;
   return sc;
 }
 
@@ -145,8 +145,8 @@ std::ostream& operator << (std::ostream& os, const TrigROBDataProviderSvc_RTT& c
 void TrigROBDataProviderSvc_RTT::setNextEvent(const std::vector<ROBF>& result) 
 { 
   TrigROBDataProviderSvc::setNextEvent(result) ;
-  logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::setNextEvent map size is " << m_caller_robmap.size() <<". Now reset it"<< endreq;
-  logStream() << MSG::DEBUG << *this << endreq;// print out the content of the map
+  logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::setNextEvent map size is " << m_caller_robmap.size() <<". Now reset it"<< endmsg;
+  logStream() << MSG::DEBUG << *this << endmsg;// print out the content of the map
   FillEvent();
   m_caller_robmap.clear(); 
   m_callerName = "UNKNOWN";
@@ -157,8 +157,8 @@ void TrigROBDataProviderSvc_RTT::setNextEvent(const std::vector<ROBF>& result)
 void TrigROBDataProviderSvc_RTT::setNextEvent(const RawEvent* re) 
 { 
   TrigROBDataProviderSvc::setNextEvent(re) ;
-  logStream() << MSG::DEBUG << "TrigROBDataProviderSvc_RTT::setNextEvent map size is " << m_caller_robmap.size() <<". Now reset it"<<endreq;
-  logStream() << MSG::DEBUG << *this << endreq; // print out the content of the map
+  logStream() << MSG::DEBUG << "TrigROBDataProviderSvc_RTT::setNextEvent map size is " << m_caller_robmap.size() <<". Now reset it"<<endmsg;
+  logStream() << MSG::DEBUG << *this << endmsg; // print out the content of the map
   FillEvent();
   m_caller_robmap.clear(); 
   m_callerName = "UNKNOWN";
@@ -252,7 +252,7 @@ void TrigROBDataProviderSvc_RTT::getROBData(const std::vector<uint32_t>& robIds,
 
 
   if (foundL1 !=0)
-    logStream() << MSG::WARNING <<"TrigROBDataProviderSvc_RTT::getROBData. Algo " <<m_callerName<<" called some L1 ROBIds. Is this an error?" <<endreq;
+    logStream() << MSG::WARNING <<"TrigROBDataProviderSvc_RTT::getROBData. Algo " <<m_callerName<<" called some L1 ROBIds. Is this an error?" <<endmsg;
 
   // monitor the requested ROBs
   if ( m_hist_requestedROBsPerAlgo ) {
@@ -286,7 +286,7 @@ void TrigROBDataProviderSvc_RTT::getROBData(const std::vector<uint32_t>& robIds,
 
   logStream() << MSG::DEBUG << "TrigROBDataProviderSvc_RTT::getROBData. ROBs of algo "<<m_callerName<<": requested "<< robIds.size() <<" ROBIDs "
 	      <<". Found "      << ( (m_caller_robmap.count(pref_name)>0)   ? (m_caller_robmap.find(pref_name)->second).size() : 0 )
-  	      <<" pre-fetched, "<< ( (m_caller_robmap.count(m_callerName)>0)? (m_caller_robmap.find(m_callerName)->second).size(): 0) << " pre-declared" << endreq;
+  	      <<" pre-fetched, "<< ( (m_caller_robmap.count(m_callerName)>0)? (m_caller_robmap.find(m_callerName)->second).size(): 0) << " pre-declared" << endmsg;
 
   
   bool found        = false;
@@ -370,24 +370,24 @@ void TrigROBDataProviderSvc_RTT::getROBData(const std::vector<uint32_t>& robIds,
 
       if ((found_another_pref) && (m_callerName != prefetching_caller)){
 	missingRequestedROBsPerCallButCached_pref++;// count the missing ROBs in this call during the pre-fetching, but data are cached by other algorithm
-	logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " was NOT predeclared in the PRE-FETCHING, but pre-declared by different algorithm " << prefetching_caller <<  std::dec << endreq;
+	logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " was NOT predeclared in the PRE-FETCHING, but pre-declared by different algorithm " << prefetching_caller <<  std::dec << endmsg;
       }
       else {// this is the error
 	// count the missing ROBs in this call during the pre-fetching, not cached or cached by this algo (meaning that the algo retrieved data without prefcthing)
 	not_prefetched_robIds.push_back(*it);
 	missingRequestedROBsPerCall_pref++;
-	logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData: RTTerrors algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " was NOT predeclared in the PRE-FETCHING!"<<  std::dec << endreq;
+	logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData: RTTerrors algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " was NOT predeclared in the PRE-FETCHING!"<<  std::dec << endmsg;
       }
       // check if the same algo prefetcehd any ROBIds
       if (m_caller_robmap.count(pref_name) != 0 ) {
 	// print the already declared ROBSId by this algo
-	logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" predeclared in pre-fetching these ROBIds:" << endreq;
+	logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" predeclared in pre-fetching these ROBIds:" << endmsg;
 	for (CALLER_ROBMAP::iterator iit=algo_rob_pref_it.first; iit!=algo_rob_pref_it.second; ++iit){//loop over the calls of this algo
 	  requested_pref_robIds = iit->second;
 	  for(std::vector<uint32_t>::const_iterator rit = requested_pref_robIds.begin(); rit != requested_pref_robIds.end(); ++rit){
 	    logStream() << MSG::DEBUG << (*rit) <<", ";
 	  }
-	  logStream() << MSG::DEBUG << endreq;
+	  logStream() << MSG::DEBUG << endmsg;
 	}
       }
     }
@@ -407,27 +407,27 @@ void TrigROBDataProviderSvc_RTT::getROBData(const std::vector<uint32_t>& robIds,
     if (!found  && !found_pref){
       if (found_cached && ( m_callerName != cached_caller)){
 	missingRequestedROBsPerCallButCached++;
-	logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " was NOT predeclared, but cached by different algorithm " << cached_caller <<  std::dec << endreq;
+	logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " was NOT predeclared, but cached by different algorithm " << cached_caller <<  std::dec << endmsg;
       }
       else {
 	not_predeclared_robIds.push_back(*it);
 	missingRequestedROBsPerCall++; // count the missing ROBs in this call, not cached or cached by the same algo
 	if (found_cached && ( m_callerName == cached_caller)){	 
-	  logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " was NOT predeclared, but cached "  <<  std::dec << endreq;
+	  logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " was NOT predeclared, but cached "  <<  std::dec << endmsg;
 	}
 	else {
-	  logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " NOT predeclared (and not cached)!"<<  std::dec << endreq;
+	  logStream() << MSG::DEBUG <<"TrigROBDataProviderSvc_RTT::getROBData:  algo "<< m_callerName <<" ROB id 0x" << std::hex << (*it) << " NOT predeclared (and not cached)!"<<  std::dec << endmsg;
 	}
       }
       if (m_caller_robmap.count(m_callerName) != 0 ) {
 	// print the already declared ROBSId by this algo
-	logStream() << MSG::DEBUG <<"getROBData:  algo "<< m_callerName <<" predeclared these ROBIds:" << endreq;
+	logStream() << MSG::DEBUG <<"getROBData:  algo "<< m_callerName <<" predeclared these ROBIds:" << endmsg;
 	for (CALLER_ROBMAP::iterator iit=algo_rob_it.first; iit!=algo_rob_it.second; ++iit){//loop over the calls of this algo
 	  requested_robIds = iit->second;
 	  for(std::vector<uint32_t>::const_iterator rit = requested_pref_robIds.begin(); rit != requested_pref_robIds.end(); ++rit){
 	    logStream() << MSG::DEBUG << (*rit) <<", ";
 	  }
-	  logStream() << MSG::DEBUG<< endreq;
+	  logStream() << MSG::DEBUG<< endmsg;
 	}
       }
 
@@ -439,12 +439,12 @@ void TrigROBDataProviderSvc_RTT::getROBData(const std::vector<uint32_t>& robIds,
   if (missingRequestedROBsPerCall_pref>0){
     logStream() << MSG::WARNING << "getROBData: ---> RTTerrors in the PRE-FETCHING: algo " << m_callerName << " missed to declare "
 						      << missingRequestedROBsPerCall_pref << " ROBs in this call,  " 
-						      << missingRequestedROBsPerCallButCached_pref <<" ROBs are  declared by other algorithm"<< endreq;
+						      << missingRequestedROBsPerCallButCached_pref <<" ROBs are  declared by other algorithm"<< endmsg;
     logStream() << MSG::DEBUG <<"getROBData: --->           in the PRE-FETCHING: These are the missing ROBS: "<< std::hex;
     for(std::vector<uint32_t>::const_iterator rit = not_prefetched_robIds.begin(); rit != not_prefetched_robIds.end(); ++rit){
       logStream() << MSG::DEBUG << "0x"  << (*rit)  <<", ";
     } 
-    logStream() << MSG::DEBUG << std::dec <<endreq;
+    logStream() << MSG::DEBUG << std::dec <<endmsg;
   }
 
   if ( m_hist_missingRequestedROBsPerCall_pref ) {
@@ -482,12 +482,12 @@ void TrigROBDataProviderSvc_RTT::getROBData(const std::vector<uint32_t>& robIds,
   if (missingRequestedROBsPerCall>0) {
     logStream() << MSG::WARNING << "getROBData: ---> RTTerrors in the EXECUTION: algo " << m_callerName << " missed to declare "
 		<< missingRequestedROBsPerCall << " ROBs in this call , " 
-		<< missingRequestedROBsPerCallButCached <<" ROBs are not declared, but cached by other algorithm "<< endreq;
+		<< missingRequestedROBsPerCallButCached <<" ROBs are not declared, but cached by other algorithm "<< endmsg;
     logStream() << MSG::DEBUG <<"getROBData: --->           in the EXECUTION: These are the missing ROBS: "<< std::hex;
     for(std::vector<uint32_t>::const_iterator rit = not_predeclared_robIds.begin(); rit != not_predeclared_robIds.end(); ++rit){
       logStream() << MSG::DEBUG << "0x"<<(*rit) <<", ";
     } 
-    logStream() << MSG::DEBUG <<std::dec <<endreq;
+    logStream() << MSG::DEBUG <<std::dec <<endmsg;
   }
   if ( m_hist_missingRequestedROBsPerCall ) {
     m_hist_missingRequestedROBsPerCall->Fill(missingRequestedROBsPerCall);
@@ -535,14 +535,14 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 
   if (incident.type()!="BeginRun") return;
   if(logLevel() <= MSG::DEBUG)
-    logStream() <<MSG::DEBUG << "In BeginRun incident." << endreq;
+    logStream() <<MSG::DEBUG << "In BeginRun incident." << endmsg;
   
   // if detailed ROB monitoring is requested, check if the AlgContextSvc is running, 
   // if yes use it to obtain the calling algorithm name
   if ( m_doDetailedROBMonitoring.value() ) {
     if ( service("AlgContextSvc", m_algContextSvc, /*createIf=*/ false).isFailure() ) {
       logStream() << MSG::ERROR << "Error retrieving AlgContextSvc."  
-    		  << "Calling algorithm name not available in detailed ROB monitoring" << endreq;
+    		  << "Calling algorithm name not available in detailed ROB monitoring" << endmsg;
       m_algContextSvc=0;
     }
   }
@@ -553,7 +553,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   // find histogramming service
   ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
   if ((rootHistSvc.retrieve()).isFailure()) {
-    logStream() << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+    logStream() << MSG::ERROR << "Unable to locate THistSvc" << endmsg;
     rootHistSvc.release().ignore();
     return;
   }
@@ -570,7 +570,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_missingRequestedROBsPerAlgo) {
     CAN_REBIN(m_hist_missingRequestedROBsPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerAlgo->GetName(), m_hist_missingRequestedROBsPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgo->GetName() << endmsg;
     }
   }
 
@@ -583,7 +583,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_missingRequestPerAlgo) {
     CAN_REBIN(m_hist_missingRequestPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_missingRequestPerAlgo->GetName(), m_hist_missingRequestPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgo->GetName() << endmsg;
     }
   }
 
@@ -596,7 +596,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestedROBsPerCall.value().highEdge());
   if (m_hist_missingRequestedROBsPerCall) {
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerCall->GetName(), m_hist_missingRequestedROBsPerCall).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerCall->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerCall->GetName() << endmsg;
     }
   }
 
@@ -610,7 +610,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_missingRequestedROBsPerAlgoButCached) {
     CAN_REBIN(m_hist_missingRequestedROBsPerAlgoButCached);
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerAlgoButCached->GetName(), m_hist_missingRequestedROBsPerAlgoButCached).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgoButCached->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgoButCached->GetName() << endmsg;
     }
   }
 
@@ -623,7 +623,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_missingRequestPerAlgoButCached) {
     CAN_REBIN(m_hist_missingRequestPerAlgoButCached);
     if( rootHistSvc->regHist(path + m_hist_missingRequestPerAlgoButCached->GetName(), m_hist_missingRequestPerAlgoButCached).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgoButCached->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgoButCached->GetName() << endmsg;
     }
   }
 
@@ -636,7 +636,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestedROBsPerCallButCached.value().highEdge());
   if (m_hist_missingRequestedROBsPerCallButCached) {
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerCallButCached->GetName(), m_hist_missingRequestedROBsPerCallButCached).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerCallButCached->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerCallButCached->GetName() << endmsg;
     }
   }
 
@@ -649,7 +649,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_requestPerAlgo) {
     CAN_REBIN(m_hist_requestPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_requestPerAlgo->GetName(), m_hist_requestPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestPerAlgo->GetName() << endmsg;
     }
   }
 
@@ -662,7 +662,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_callerPerEvent) {
     CAN_REBIN(m_hist_callerPerEvent);
     if( rootHistSvc->regHist(path + m_hist_callerPerEvent->GetName(), m_hist_callerPerEvent).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_callerPerEvent->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_callerPerEvent->GetName() << endmsg;
     }
   }
 
@@ -675,7 +675,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_requestedROBsPerAlgo) {
      CAN_REBIN(m_hist_requestedROBsPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerAlgo->GetName(), m_hist_requestedROBsPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerAlgo->GetName() << endmsg;
     }
   }
 
@@ -684,7 +684,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
  if (m_hist_requestedROBsPerCallPerAlgo) {
     CAN_REBIN(m_hist_requestedROBsPerCallPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCallPerAlgo->GetName(), m_hist_requestedROBsPerCallPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCallPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCallPerAlgo->GetName() << endmsg;
     }
   }
 
@@ -697,7 +697,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_nocachedRequestPerAlgo) {
      CAN_REBIN(m_hist_nocachedRequestPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_nocachedRequestPerAlgo->GetName(), m_hist_nocachedRequestPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_nocachedRequestPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_nocachedRequestPerAlgo->GetName() << endmsg;
     }
   }
 
@@ -710,7 +710,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_nocachedRequestedROBsPerAlgo) {
      CAN_REBIN(m_hist_nocachedRequestedROBsPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_nocachedRequestedROBsPerAlgo->GetName(), m_hist_nocachedRequestedROBsPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_nocachedRequestedROBsPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_nocachedRequestedROBsPerAlgo->GetName() << endmsg;
     }
   }
 
@@ -724,7 +724,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_missingRequestedROBsPerAlgo_pref) {
      CAN_REBIN(m_hist_missingRequestedROBsPerAlgo_pref);
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerAlgo_pref->GetName(), m_hist_missingRequestedROBsPerAlgo_pref).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgo_pref->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgo_pref->GetName() << endmsg;
     }
   }
 
@@ -737,7 +737,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_missingRequestPerAlgo_pref) {
      CAN_REBIN(m_hist_missingRequestPerAlgo_pref);
     if( rootHistSvc->regHist(path + m_hist_missingRequestPerAlgo_pref->GetName(), m_hist_missingRequestPerAlgo_pref).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgo_pref->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgo_pref->GetName() << endmsg;
     }
   }
 
@@ -749,7 +749,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestedROBsPerCall_pref.value().highEdge());
   if (m_hist_missingRequestedROBsPerCall_pref) {
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerCall_pref->GetName(), m_hist_missingRequestedROBsPerCall_pref).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerCall_pref->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerCall_pref->GetName() << endmsg;
     }
   }
 
@@ -762,7 +762,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_missingRequestedROBsPerAlgoButCached_pref) {
      CAN_REBIN(m_hist_missingRequestedROBsPerAlgoButCached_pref);
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerAlgoButCached_pref->GetName(), m_hist_missingRequestedROBsPerAlgoButCached_pref).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgoButCached_pref->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgoButCached_pref->GetName() << endmsg;
     }
   }
 
@@ -775,7 +775,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_missingRequestPerAlgoButCached_pref) {
      CAN_REBIN(m_hist_missingRequestPerAlgoButCached_pref);
     if( rootHistSvc->regHist(path + m_hist_missingRequestPerAlgoButCached_pref->GetName(), m_hist_missingRequestPerAlgoButCached_pref).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgoButCached_pref->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgoButCached_pref->GetName() << endmsg;
     }
   }
 
@@ -787,7 +787,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestedROBsPerCallButCached_pref.value().highEdge());
   if (m_hist_missingRequestedROBsPerCallButCached_pref) {
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerCallButCached_pref->GetName(), m_hist_missingRequestedROBsPerCallButCached_pref).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerCallButCached_pref->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerCallButCached_pref->GetName() << endmsg;
     }
   }
 
@@ -802,7 +802,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_declaredROBsPerAlgo) {
      CAN_REBIN(m_hist_declaredROBsPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_declaredROBsPerAlgo->GetName(), m_hist_declaredROBsPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_declaredROBsPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_declaredROBsPerAlgo->GetName() << endmsg;
     }
   }
 
@@ -815,7 +815,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   if (m_hist_prefetchedROBsPerAlgo) {
      CAN_REBIN(m_hist_prefetchedROBsPerAlgo);
     if( rootHistSvc->regHist(path + m_hist_prefetchedROBsPerAlgo->GetName(), m_hist_prefetchedROBsPerAlgo).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_prefetchedROBsPerAlgo->GetName() << endreq;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_prefetchedROBsPerAlgo->GetName() << endmsg;
     }
   }
 

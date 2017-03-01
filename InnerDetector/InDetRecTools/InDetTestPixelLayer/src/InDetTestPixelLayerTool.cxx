@@ -62,60 +62,60 @@ namespace InDet {
 
     // retrieve ID helpers:
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
       return StatusCode::FAILURE;
     }
     
     sc = detStore()->retrieve(m_pixelId, "PixelID");
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+      msg(MSG::ERROR) << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
     }
     
     m_configured=true;
     if( m_extrapolator.empty() ){
-      msg(MSG::INFO) << "Extrapolator not configured " << endreq; //n
+      msg(MSG::INFO) << "Extrapolator not configured " << endmsg; //n
       m_configured=false;
     }
     else{
       if ( m_extrapolator.retrieve().isFailure() )
 	{
-	  msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq; //n
+	  msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg; //n
 	  return StatusCode::FAILURE;
 	}  else { 
-	msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq; //n
+	msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg; //n
       }
     }
     
     // Get PixelConditionsSummarySvc
     if( m_pixelCondSummarySvc.empty() ){
-      msg(MSG::INFO) << "PixelConditionsSummarySvc not configured " << endreq; //n
+      msg(MSG::INFO) << "PixelConditionsSummarySvc not configured " << endmsg; //n
       m_configured=false;
     }
     else{
       if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endreq; //n
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg; //n
 	return StatusCode::FAILURE;
       } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endreq; //n
+	msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg; //n
       }
     }
 
     if(!m_configured){
-      msg(MSG::INFO) << "you are using an unconfigured tool" << endreq; 
-      msg(MSG::INFO) << "will not be able to extrapolate to the pixelLayer" << endreq;
-      msg(MSG::INFO) << "the values from the track summary will be returned" << endreq; 
+      msg(MSG::INFO) << "you are using an unconfigured tool" << endmsg; 
+      msg(MSG::INFO) << "will not be able to extrapolate to the pixelLayer" << endmsg;
+      msg(MSG::INFO) << "the values from the track summary will be returned" << endmsg; 
     }
    
     if (m_residualPullCalculator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_residualPullCalculator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_residualPullCalculator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_residualPullCalculator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_residualPullCalculator << endmsg;
     }
 
 
-    msg(MSG::VERBOSE) << " Initialization of InDetTestPixelLayerTool succesfull" << endreq;
+    msg(MSG::VERBOSE) << " Initialization of InDetTestPixelLayerTool succesfull" << endmsg;
     return StatusCode::SUCCESS;
 
   }
@@ -145,7 +145,7 @@ namespace InDet {
     const Trk::Track* track = trackparticle->originalTrack();
     
     if (!track) {
-      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endreq;
+      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endmsg;
       return 0;
     }
 
@@ -159,7 +159,7 @@ namespace InDet {
     const Trk::Track* track = trackparticle->originalTrack();
     
     if (!track) {
-      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endreq;
+      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endmsg;
       return;
     }
 
@@ -179,7 +179,7 @@ namespace InDet {
 	 it!=trackStates->end();
 	 it++) {
       if (!(*it)) {
-	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endreq;
+	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endmsg;
 	continue;
       }
 
@@ -557,13 +557,13 @@ namespace InDet {
        if( siElement->nearBondGap(trackpar->localPosition(), etatol) ) { 
 	 if (msgLvl(MSG::DEBUG)) 
 	   {
-	     msg(MSG::DEBUG) << "---> extrapolation on bond gap within " << etatol << ", return" << endreq;
+	     msg(MSG::DEBUG) << "---> extrapolation on bond gap within " << etatol << ", return" << endmsg;
 	   }
        } else if (!siIn.in()) {
 	 if (msgLvl(MSG::DEBUG)) 
 	   { 
 	     msg(MSG::DEBUG) << "---> extrapolation not inside (active?) detector within "<< phitol << " " << 
-				   etatol << ", return" << endreq;
+				   etatol << ", return" << endmsg;
 	   }
        } else {
 	 return true;

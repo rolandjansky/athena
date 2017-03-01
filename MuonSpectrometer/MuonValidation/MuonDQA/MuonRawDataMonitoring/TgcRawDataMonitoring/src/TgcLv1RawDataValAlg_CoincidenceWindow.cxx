@@ -84,7 +84,7 @@ TgcLv1RawDataValAlg::bookHistogramsCoincidenceWindow(){
         ss.str(""); ss << "CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << side[ac] ;
         tgclv1cw[ac][mod][pt] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
         if( ( tgclv1_cw_ac[ac]->regHist(tgclv1cw[ac][mod][pt]) ).isFailure()){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
           return StatusCode::FAILURE;
         }
         // Coincidence Window for SL triggers compared with Offline Muons
@@ -93,7 +93,7 @@ TgcLv1RawDataValAlg::bookHistogramsCoincidenceWindow(){
           ss.str(""); ss << "CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] ;
           tgclv1cwoffline[ac][mod][pt][m] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
           if( ( tgclv1_cw_ac[ac]->regHist(tgclv1cwoffline[ac][mod][pt][m]) ).isFailure()){
-            m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+            m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
             return StatusCode::FAILURE;
           }
           
@@ -101,7 +101,7 @@ TgcLv1RawDataValAlg::bookHistogramsCoincidenceWindow(){
           ss.str(""); ss << "!CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << muid[m] <<  "_" << side[ac] ;
           tgclv1cwrejectedoffline[ac][mod][pt][m] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
           if( ( tgclv1_cw_ac[ac]->regHist(tgclv1cwrejectedoffline[ac][mod][pt][m]) ).isFailure()){
-            m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+            m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
             return StatusCode::FAILURE;
           }
         }// muon algorithm

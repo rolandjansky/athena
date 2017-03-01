@@ -168,30 +168,30 @@ TrigCountSpacePoints::~TrigCountSpacePoints() {
 HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
   m_log.setLevel(outputLevel());
 
-  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Initialize this TrigCountSpacePoints: " << name() << endreq;
+  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Initialize this TrigCountSpacePoints: " << name() << endmsg;
 
   // Retrieving Region Selector Tool
   if ( m_regionSelector.retrieve().isFailure() ) {
     msg() << MSG::FATAL
 	  << "Unable to retrieve RegionSelector tool "
-	  << m_regionSelector.type() << endreq;
+	  << m_regionSelector.type() << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
   // get detector store
   if(m_detStore.retrieve().isFailure()) {
-    if (msgLvl() <= MSG::FATAL) m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endreq;
+    if (msgLvl() <= MSG::FATAL) m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
-    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised DetectorStore !" << endreq;
+    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised DetectorStore !" << endmsg;
   }
  
   // Only get the Pixel helper if Pixel spacepoints are requested
   if(m_doPixelSp) { 
     StatusCode sc_pixH = m_detStore->retrieve(m_pixHelper, "PixelID");
     if( sc_pixH.isFailure() ){
-      if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain pix helper!" << endreq;
+      if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain pix helper!" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -200,7 +200,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
   if(m_doSctSp) {
     StatusCode sc_sctH = m_detStore->retrieve(m_sctHelper, "SCT_ID");
     if( sc_sctH.isFailure() ){
-      if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain sct helper!" << endreq;
+      if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain sct helper!" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -239,7 +239,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
   m_pixelClusEndcapA_Tot.resize((m_hPixelClusTotBins+2),0);
   m_pixelClusEndcapA_Size.resize((m_hPixelClusSizeBins+2),0);
 
-  if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << " TrigCountSpacePoints initialized successfully" << endreq; 
+  if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << " TrigCountSpacePoints initialized successfully" << endmsg; 
   return HLT::OK;  
 }
 
@@ -248,18 +248,18 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
 HLT::ErrorCode TrigCountSpacePoints::hltBeginRun() {
   // This initialisation has been moved into the event loop.
   // @see TrigCountSpacePoints::checkDetectorMask
-  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " TrigCountSpacePoints will be initialized in hltExecute" << endreq; 
+  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " TrigCountSpacePoints will be initialized in hltExecute" << endmsg; 
   return HLT::OK;
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountSpacePoints::checkDetectorMask() {
   m_hltExecuteInitialisationRun = true;
-  m_log << MSG::DEBUG << "[TrigCountSpacePoints::checkDetectorMask]  beginning run with this " << name() << endreq;
+  m_log << MSG::DEBUG << "[TrigCountSpacePoints::checkDetectorMask]  beginning run with this " << name() << endmsg;
 
   const xAOD::EventInfo* evinfo = 0;
   if (store()->retrieve(evinfo).isFailure()) {
-    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endreq;
+    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endmsg;
     return HLT::SG_ERROR;
   }
   else {
@@ -271,13 +271,13 @@ HLT::ErrorCode TrigCountSpacePoints::checkDetectorMask() {
       << ":" << evinfo->timeStampNSOffset()
       << "," << evinfo->bcid()
       << ",0x" << std::hex << evinfo->detectorMask() << std::dec
-      << "]" << endreq;
+      << "]" << endmsg;
 
     uint64_t mask = evinfo->detectorMask();
     eformat::helper::DetectorMask decoder(mask);
 
     if (mask == 0) {
-      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0. Assuming MC file and setting all of ID to ON." << endreq; 
+      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0. Assuming MC file and setting all of ID to ON." << endmsg; 
       m_sct_barrel_a_side = true;
       m_sct_barrel_c_side = true;
       m_sct_endcap_a_side = true;
@@ -296,14 +296,14 @@ HLT::ErrorCode TrigCountSpacePoints::checkDetectorMask() {
     }
 
     if( msgLvl() <= MSG::INFO ){
-      m_log << MSG::INFO << "sct_barrel_a_side is " << (m_sct_barrel_a_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "sct_barrel_c_side is " << (m_sct_barrel_c_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "sct_endcap_a_side is " << (m_sct_endcap_a_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "sct_endcap_c_side is " << (m_sct_endcap_c_side==true? "present" : "OFF! ") << endreq;
+      m_log << MSG::INFO << "sct_barrel_a_side is " << (m_sct_barrel_a_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "sct_barrel_c_side is " << (m_sct_barrel_c_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "sct_endcap_a_side is " << (m_sct_endcap_a_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "sct_endcap_c_side is " << (m_sct_endcap_c_side==true? "present" : "OFF! ") << endmsg;
       
-      m_log << MSG::INFO << "pixel_barrel is      " << (m_pixel_barrel==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "pixel_b_layer is     " << (m_pixel_b_layer==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "pixel_disk is        " << (m_pixel_disk==true? "present" : "OFF! ") << endreq;
+      m_log << MSG::INFO << "pixel_barrel is      " << (m_pixel_barrel==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "pixel_b_layer is     " << (m_pixel_b_layer==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "pixel_disk is        " << (m_pixel_disk==true? "present" : "OFF! ") << endmsg;
     }
   }
   return HLT::OK;
@@ -317,14 +317,14 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   }
 
   if ( msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this TrigCountSpacePoints " << name() << endreq;
+    m_log << MSG::DEBUG << "Executing this TrigCountSpacePoints " << name() << endmsg;
   }
 
   // Caching.
   // First check whether we executed this instance before:
   if (m_useCachedResult) {
     if (msgLvl() <= MSG::DEBUG) {
-      m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endreq;
+      m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endmsg;
     }
     
     // Get all input TEs (for seeding relation of navigation structure)
@@ -356,7 +356,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
  
   // ------ PIXEL PART ---------------------------------------------
   if( !(m_pixel_barrel &&  m_pixel_b_layer &&  m_pixel_disk) ) {
-    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "NO pixel detector present." << endreq;
+    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "NO pixel detector present." << endmsg;
   }
 
   if( timerSvc() ){
@@ -407,11 +407,11 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     const SpacePointContainer* pixCont = 0;
     sc = store()->retrieve( pixCont, m_pixelSpName );
     if(sc.isFailure() || !pixCont){
-      if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR<< "Trig Pixel SP container " << m_pixelSpName <<" not found"<<endreq; 
+      if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR<< "Trig Pixel SP container " << m_pixelSpName <<" not found"<<endmsg; 
       return HLT::TOOL_FAILURE;
     }
     else{
-      if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Successfully retrieved pixel SP container!" << endreq;
+      if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Successfully retrieved pixel SP container!" << endmsg;
       //sc = StatusCode::FAILURE;
     }
     
@@ -477,40 +477,40 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	  
 	  // Histogram time over threshold against pixel size {1,2,3+}
 	  if(bec == -2) {
-// 	    m_log << MSG::DEBUG << " AZ:: debug1 " << m_pixclToT << endreq;
+// 	    m_log << MSG::DEBUG << " AZ:: debug1 " << m_pixclToT << endmsg;
 	    m_pixelClusEndcapC->fill(m_pixclToT, m_pixClSize,1);
-// 	    m_log << MSG::DEBUG << " AZ:: debug2 " << m_pixclToT << endreq;
+// 	    m_log << MSG::DEBUG << " AZ:: debug2 " << m_pixclToT << endmsg;
 	    if( msgLvl() <= MSG::DEBUG ){ 
-	      m_log << MSG::DEBUG << " ECC pixel totalToT is " << m_pixclToT << endreq;
-	      m_log << MSG::DEBUG << " ECC pixel size is " << m_pixclToT << endreq;
+	      m_log << MSG::DEBUG << " ECC pixel totalToT is " << m_pixclToT << endmsg;
+	      m_log << MSG::DEBUG << " ECC pixel size is " << m_pixclToT << endmsg;
 	    }
 	  }
 	  else if(bec == 0) { 
 	    m_pixelClusBarrel->fill(m_pixclToT, m_pixClSize,1);
-	    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " Barr pixel totalToT is " << m_pixclToT << endreq;
+	    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " Barr pixel totalToT is " << m_pixclToT << endmsg;
 	  }
 	  else if(bec == 2) { 
 	    m_pixelClusEndcapA->fill(m_pixclToT, m_pixClSize,1);
-	    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " ECA pixel totalToT is " << m_pixclToT << endreq;
+	    if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " ECA pixel totalToT is " << m_pixclToT << endmsg;
 	  }
 	}
 	
 	// barrel
 	if( bec==0 ){
 	  m_SPpixBarr = m_nPixSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX Barrel after ToT cut." << endreq;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX Barrel after ToT cut." << endmsg;
 	}
 	  
 	// endcap A
 	else if( bec==2 ){
 	  m_SPpixECA = m_nPixSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX ECA after ToT cut." << endreq;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX ECA after ToT cut." << endmsg;
 	}
 	  
 	// endcap C
 	else if( bec==-2 ){
 	  m_SPpixECC = m_nPixSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX ECC after ToT cut." << endreq;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nPixSP << " PIX spacepoints in PIX ECC after ToT cut." << endmsg;
 	}
 	
 	// total 
@@ -519,13 +519,13 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	
 	// check if there is a hot module and monitor it
 	if( (m_SPpixBarr > m_pixModuleThreshold) || (m_SPpixECA > m_pixModuleThreshold) || (m_SPpixECC > m_pixModuleThreshold) ){
-	  if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << " This pixel module : " << pixid << " produced " << m_nPixSP << " pix spacepoints. " << endreq;
+	  if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << " This pixel module : " << pixid << " produced " << m_nPixSP << " pix spacepoints. " << endmsg;
 	  
 	  unsigned int nPixModId = droppedPixelModules.size();
 	  if( nPixModId <= m_maxnid ) {
 	    droppedPixelModules.push_back(pixid);
 	  } else {
-	    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << m_maxnid << " pixel modules are noisy, dump their id : " << pixid << endreq;
+	    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << m_maxnid << " pixel modules are noisy, dump their id : " << pixid << endmsg;
 	  }
 
 	  int layer_disk  = m_pixHelper->layer_disk(pixid);
@@ -539,8 +539,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " PIX module in the barrel in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << m_nPixSP << " spacepoints!" << endreq;
-	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;
+		    << " produced " << m_nPixSP << " spacepoints!" << endmsg;
+	      m_log << MSG::DEBUG << " Will not account them. " <<endmsg;
 	    }
 	    if( layer_disk==0 ){
 	      m_pixBarrL0_clust_occ_eta.push_back( eta_module );
@@ -561,8 +561,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " PIX module in the ECA in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << m_nPixSP << " spacepoints!" << endreq;
-	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;
+		    << " produced " << m_nPixSP << " spacepoints!" << endmsg;
+	      m_log << MSG::DEBUG << " Will not account them. " <<endmsg;
 	    }
 	    m_pixECA_clust_occ_disk.push_back( layer_disk );
 	    m_pixECA_clust_occ_phi.push_back( phi_module ); 
@@ -572,8 +572,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " PIX module in the ECC in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << m_nPixSP << " spacepoints!" << endreq;
-	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;
+		    << " produced " << m_nPixSP << " spacepoints!" << endmsg;
+	      m_log << MSG::DEBUG << " Will not account them. " <<endmsg;
 	    }
 	    m_pixECC_clust_occ_disk.push_back( layer_disk );
 	    m_pixECC_clust_occ_phi.push_back( phi_module );
@@ -602,18 +602,18 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
       
     } //end //if( m_pixListSize != 0 ){
     else{
-      if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Data is ok, but pixel detector might be off or not a single pixel hit was produced." << endreq;    
+      if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Data is ok, but pixel detector might be off or not a single pixel hit was produced." << endmsg;    
     }// end of pixel data quality check
     
     if( msgLvl() <= MSG::DEBUG ){ 
-      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints in total." << endreq; 
-      m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCL_1 << " have cl size == 1 in total." << endreq; 
-      m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCL_2 << " have cl size == 2 in total." << endreq; 
-      m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCLmin3 << " have cl size >= 3 in total." << endreq; 
-      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints after ToT cut in total." << endreq;
-      m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClBarrel << " SP in pixel barrel in total." << endreq;
-      m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClEndcapA << " SP in pixel ECA in total." << endreq;
-      m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClEndcapC << " SP in pixel ECC in total." << endreq;
+      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints in total." << endmsg; 
+      m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCL_1 << " have cl size == 1 in total." << endmsg; 
+      m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCL_2 << " have cl size == 2 in total." << endmsg; 
+      m_log << MSG::DEBUG << "REGTEST : " << m_totNumPixCLmin3 << " have cl size >= 3 in total." << endmsg; 
+      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints after ToT cut in total." << endmsg;
+      m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClBarrel << " SP in pixel barrel in total." << endmsg;
+      m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClEndcapA << " SP in pixel ECA in total." << endmsg;
+      m_log << MSG::DEBUG << "REGTEST : Formed " << m_pixClEndcapC << " SP in pixel ECC in total." << endmsg;
     }    
     
     // Monitor the data stored in TrigSpacePointCounts
@@ -645,7 +645,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   // ------ SCT PART ------------------------------------------------
   
   if( !(m_sct_barrel_a_side && m_sct_barrel_c_side &&  m_sct_endcap_a_side &&  m_sct_endcap_c_side) )
-    m_log << MSG::DEBUG << "NO sct detector present." << endreq ;
+    m_log << MSG::DEBUG << "NO sct detector present." << endmsg ;
   
   if( timerSvc() )
     m_sctSPCTimer->start();
@@ -678,7 +678,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     const SpacePointContainer* sctCont;
     sc = store()->retrieve( sctCont, m_sctSpName );
     if( sc.isFailure() ){
-      if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Trig SP SCT container " << m_sctSpName <<" not found"<<endreq; 
+      if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Trig SP SCT container " << m_sctSpName <<" not found"<<endmsg; 
       return HLT::TOOL_FAILURE;
     }
       
@@ -723,25 +723,25 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	
 	if( msgLvl() <= MSG::VERBOSE ){ 
 	  m_log << MSG::VERBOSE << " Formed " << m_nSctSP << " sct spacepoints" ;
-	  m_log << MSG::VERBOSE << " with sctid module " << sctid << endreq;
+	  m_log << MSG::VERBOSE << " with sctid module " << sctid << endmsg;
 	}
 	
 	// barrel
 	if( bec==0 ){
 	  m_SPsctBarr = m_nSctSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nSctSP << " SCT barrel spacepoints ." << endreq;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nSctSP << " SCT barrel spacepoints ." << endmsg;
 	}
 	
 	// endcap, side A
 	else if( bec==2 ){
 	  m_SPsctECA = m_nSctSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nSctSP << " SCT ECA spacepoints." << endreq;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nSctSP << " SCT ECA spacepoints." << endmsg;
 	}
 	
 	// endcap, side C
 	else if( bec==-2 ){
 	  m_SPsctECC = m_nSctSP;
-	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nSctSP << " SCT ECC spacepoints." << endreq;
+	  if (msgLvl() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " Formed  " << m_nSctSP << " SCT ECC spacepoints." << endmsg;
 	}
 	
 	// total 
@@ -754,7 +754,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	  if( nSctModIds <= m_maxnid ) {
 	    droppedSctModules.push_back(sctid);
 	  } else {
-	    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << m_maxnid << " sct modules are noisy, dump their id : " << sctid << endreq;
+	    if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "More than " << m_maxnid << " sct modules are noisy, dump their id : " << sctid << endmsg;
 	  }
 	  
 	  int layer_disk  = m_sctHelper->layer_disk(sctid); // reference table in SCT_ID.h
@@ -762,9 +762,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	  int eta_module  = m_sctHelper->eta_module(sctid);
 	  
 	  if( msgLvl() <= MSG::VERBOSE ){
-	    m_log << MSG::VERBOSE << " SCT layer_disk = " << layer_disk << endreq;
-	    m_log << MSG::VERBOSE << " SCT phi_module = " << phi_module << endreq;
-	    m_log << MSG::VERBOSE << " SCT eta_module = " << eta_module << endreq;
+	    m_log << MSG::VERBOSE << " SCT layer_disk = " << layer_disk << endmsg;
+	    m_log << MSG::VERBOSE << " SCT phi_module = " << phi_module << endmsg;
+	    m_log << MSG::VERBOSE << " SCT eta_module = " << eta_module << endmsg;
 	  }
 	  
 	  if( m_SPsctBarr > m_sctModuleThreshold ){
@@ -772,8 +772,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " SCT module in the barrel in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << m_nSctSP << " spacepoints!" << endreq;
-	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;
+		    << " produced " << m_nSctSP << " spacepoints!" << endmsg;
+	      m_log << MSG::DEBUG << " Will not account them. " <<endmsg;
 	    }	  	  
 	    if( layer_disk == 0 ){
 	      m_sctBarrL1_sp_occ_eta.push_back( eta_module );
@@ -797,8 +797,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " SCT module in the ECA in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << m_nSctSP << " spacepoints!" << endreq;
-	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;	  
+		    << " produced " << m_nSctSP << " spacepoints!" << endmsg;
+	      m_log << MSG::DEBUG << " Will not account them. " <<endmsg;	  
 	    }
 	    m_sctECA_sp_occ_disk.push_back( layer_disk );
 	    m_sctECA_sp_occ_phi.push_back( phi_module );
@@ -808,8 +808,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	      m_log << MSG::DEBUG << " SCT module in the ECC in disk " << layer_disk 
 		    << " with eta index " << eta_module 
 		    << " and phi_module " << phi_module 
-		    << " produced " << m_nSctSP << " spacepoints!" << endreq;
-	      m_log << MSG::DEBUG << " Will not account them. " <<endreq;
+		    << " produced " << m_nSctSP << " spacepoints!" << endmsg;
+	      m_log << MSG::DEBUG << " Will not account them. " <<endmsg;
 	    }
 	    m_sctECC_sp_occ_disk.push_back( layer_disk );
 	    m_sctECC_sp_occ_phi.push_back( phi_module );
@@ -829,10 +829,10 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     
     m_totNumSctSP = m_sctSpEndcapC + m_sctSpBarrel + m_sctSpEndcapA;
     if( msgLvl() <= MSG::DEBUG ){ 
-      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumSctSP << " sct spacepoints in total." << endreq;
-      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpEndcapC << " sct ECC spacepoints in total." << endreq;
-      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpBarrel << " sct Barr spacepoints in total." << endreq;
-      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpEndcapA << " sct ECA spacepoints in total." << endreq;
+      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_totNumSctSP << " sct spacepoints in total." << endmsg;
+      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpEndcapC << " sct ECC spacepoints in total." << endmsg;
+      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpBarrel << " sct Barr spacepoints in total." << endmsg;
+      m_log << MSG::DEBUG << "REGTEST : Formed  " << m_sctSpEndcapA << " sct ECA spacepoints in total." << endmsg;
     }
     
   } // end of doSctSp
@@ -877,7 +877,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     for( HLT::TEVec::const_iterator inner_it = (*it).begin(); inner_it != inner_itEnd; ++inner_it ){
       
       if( msgLvl() <= MSG::DEBUG ){
-	m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endreq;
+	m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endmsg;
       }
       allTEs.push_back(*inner_it);
     }
@@ -886,13 +886,13 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
   outputTE->setActiveState(true);
   
-//   m_log << MSG::DEBUG << "AZ: debug 4: trying to attachFeature m_spacePointCounts"<<endreq;
+//   m_log << MSG::DEBUG << "AZ: debug 4: trying to attachFeature m_spacePointCounts"<<endmsg;
   HLT::ErrorCode hltStatus = attachFeature( outputTE, m_spacePointCounts, "spacepoints");
-//   m_log << MSG::DEBUG << "AZ: debug 5: AM i here? m_spacePointCounts"<<endreq;
+//   m_log << MSG::DEBUG << "AZ: debug 5: AM i here? m_spacePointCounts"<<endmsg;
   
   if( timerSvc() ) m_attachFTimer->stop(); 
   if(hltStatus != HLT::OK) {
-    m_log << MSG::ERROR << "Unable to attach HLT feature spacepoints to output TE." << endreq;
+    m_log << MSG::ERROR << "Unable to attach HLT feature spacepoints to output TE." << endmsg;
     return hltStatus;
   }
 
@@ -909,7 +909,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountSpacePoints::hltFinalize() {
-  m_log << MSG::DEBUG << " finalizing TrigCountSpacePoints : "<< name() << endreq; 
+  m_log << MSG::DEBUG << " finalizing TrigCountSpacePoints : "<< name() << endmsg; 
   return HLT::OK;  
 }
 

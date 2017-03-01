@@ -76,7 +76,7 @@ StatusCode HTFilter::filterInitialize() {
 
 StatusCode HTFilter::filterFinalize() {
   (*m_log) << MSG::INFO << "Total efficiency: " << 100.*double(m_passed)/double(m_total) << "% (" 
-           << 100.*double(m_ptfailed)/double(m_total) << "% failed p_T cuts)" << endreq;
+           << 100.*double(m_ptfailed)/double(m_total) << "% failed p_T cuts)" << endmsg;
   return StatusCode::SUCCESS;
 }
 

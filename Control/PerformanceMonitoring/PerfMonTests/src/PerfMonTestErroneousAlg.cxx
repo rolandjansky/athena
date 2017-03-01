@@ -89,7 +89,7 @@ bool ErroneousAlg::jumpOnUninitializedValue()
     else
       yesNo[1]++;
   
-  //m_msg << "Jump, jump not, jump, jump not : " << yesNo[0] << " to " << yesNo[1] << endreq;
+  //m_msg << "Jump, jump not, jump, jump not : " << yesNo[0] << " to " << yesNo[1] << endmsg;
   
   return (yesNo[1]==0);
 }

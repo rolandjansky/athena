@@ -1182,7 +1182,7 @@ namespace Trigger {
     const ITGCcablingServerSvc* TgcCabGet = 0;
     StatusCode sc = service("TGCcablingServerSvc", TgcCabGet, true);
     if(!sc.isSuccess()) {
-      msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endreq;
+      msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endmsg;
       return sc;
     }
     
@@ -1193,7 +1193,7 @@ namespace Trigger {
     
     sc = TgcCabGet->giveCabling(m_tgcCabling);
     if(!sc.isSuccess()) {
-      msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endreq;
+      msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endmsg;
       m_tgcCabling = 0;
       return sc;
     } else {

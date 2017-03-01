@@ -48,7 +48,7 @@ namespace TrigConf {
    * Main difference to Gaudi MsgStream:
    *   - OutputLevel cannot be configued via job options, instead the
    *     gloabal OutputLevel of the MessageSvc is being used
-   *   - Only supports endmsg and not the the deprecated endreq
+   *   - Only supports endmsg and not the the deprecated endmsg
    */
   class MsgStreamTC : public std::ostringstream {
   public:

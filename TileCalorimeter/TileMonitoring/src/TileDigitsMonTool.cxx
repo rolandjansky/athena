@@ -392,7 +392,7 @@ StatusCode TileDigitsMonTool::fillHists()
     
     int headsize = headerVec.size();
     //if (headsize > 16 ) {
-    //   log << MSG::ERROR << "legth of BCID vector " << headsize << " - greater than 16 !" << endreq;
+    //   log << MSG::ERROR << "legth of BCID vector " << headsize << " - greater than 16 !" << endmsg;
     //   headsize = 16;
     //}
     

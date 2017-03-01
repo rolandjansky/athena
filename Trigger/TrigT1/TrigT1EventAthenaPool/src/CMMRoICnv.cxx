@@ -18,7 +18,7 @@ CMMRoI_PERS * CMMRoICnv::createPersistent( CMMRoI *transObj)
   
   MsgStream mlog(msgSvc(), "CMMRoIConverter" );
 
-  //mlog << MSG::DEBUG << "CMMRoICnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CMMRoICnv::createPersistent called" << endmsg;
 
   CMMRoI_PERS * persObj = m_TPConverter_p1.createPersistent( transObj, mlog );
  
@@ -32,7 +32,7 @@ CMMRoI * CMMRoICnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CMMRoIConverter" );
   
-  //mlog << MSG::DEBUG << "CMMRoICnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CMMRoICnv::createTransient called" << endmsg;
 
   static pool::Guid p1_guid( "AF2D0BF8-8B28-4BFD-92B1-67F4708039C3" );
  

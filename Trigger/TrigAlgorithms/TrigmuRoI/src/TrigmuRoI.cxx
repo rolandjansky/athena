@@ -62,57 +62,57 @@ HLT::ErrorCode TrigmuRoI::hltInitialize()
 {
   m_log.setLevel(outputLevel());
 
-  m_log << MSG::INFO << "initialize()" << endreq;
+  m_log << MSG::INFO << "initialize()" << endmsg;
 
 #ifdef ATLAS_GAUDI_V21
   SmartIF<IService> tmp_msgSvc(msgSvc());
   if(tmp_msgSvc.isValid()) {
     m_log << MSG::INFO << " Algorithm = " << name() << " is connected to Message Service = "
-          << tmp_msgSvc->name() << endreq;
+          << tmp_msgSvc->name() << endmsg;
   }
 #else
   Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
   if(tmp_msgSvc != 0) {
     m_log << MSG::INFO << " Algorithm = " << name() << " is connected to Message Service = "
-          << tmp_msgSvc->name() << endreq;
+          << tmp_msgSvc->name() << endmsg;
   }
 #endif
 
    m_log << MSG::INFO << " ROB ID: DAQ CTP                            = " << m_daqCTPROBid
-	 << std::setw(6) << " (=0x" << MSG::hex << m_daqCTPROBid.value() << MSG::dec << ")" << endreq;
+	 << std::setw(6) << " (=0x" << MSG::hex << m_daqCTPROBid.value() << MSG::dec << ")" << endmsg;
    m_log << MSG::INFO << " ROB ID: DAQ muCTPi                         = " << m_daqMuCTPiROBid
-	 << std::setw(6) << " (=0x" << MSG::hex << m_daqMuCTPiROBid.value() << MSG::dec << ")" << endreq;
+	 << std::setw(6) << " (=0x" << MSG::hex << m_daqMuCTPiROBid.value() << MSG::dec << ")" << endmsg;
 
-   m_log << MSG::INFO << m_minValueForOutOfTimeBC << endreq;
-   m_log << MSG::INFO << m_maxValueForOutOfTimeBC << endreq;
+   m_log << MSG::INFO << m_minValueForOutOfTimeBC << endmsg;
+   m_log << MSG::INFO << m_maxValueForOutOfTimeBC << endmsg;
 
 
    // Retrieve the MuonRoITool
    StatusCode sc = m_trigMuonRoITool.retrieve();
    if ( sc.isFailure() ) {
-     m_log << MSG::ERROR << "Could not retrieve " << m_trigMuonRoITool << endreq;
+     m_log << MSG::ERROR << "Could not retrieve " << m_trigMuonRoITool << endmsg;
      return HLT::ERROR;
    } else {
-     m_log << MSG::INFO << "Retrieved tool " << m_trigMuonRoITool << endreq;
+     m_log << MSG::INFO << "Retrieved tool " << m_trigMuonRoITool << endmsg;
    }
 
    sc = m_recRPCRoiSvc.retrieve();
    if ( sc.isFailure() ) {
-     m_log << MSG::ERROR << "Couldn't connect to " << m_recRPCRoiSvc << endreq;
+     m_log << MSG::ERROR << "Couldn't connect to " << m_recRPCRoiSvc << endmsg;
      return HLT::ERROR;
    } else {
-     m_log << MSG::INFO << "Retrieved Service " << m_recRPCRoiSvc << endreq;
+     m_log << MSG::INFO << "Retrieved Service " << m_recRPCRoiSvc << endmsg;
    }
   
    sc = m_recTGCRoiSvc.retrieve();
    if ( sc.isFailure() ) {
-     m_log << MSG::ERROR << "Couldn't connect to " << m_recTGCRoiSvc << endreq;
+     m_log << MSG::ERROR << "Couldn't connect to " << m_recTGCRoiSvc << endmsg;
      return HLT::ERROR;
    } else {
-     m_log << MSG::INFO << "Retrieved Service " << m_recTGCRoiSvc << endreq;
+     m_log << MSG::INFO << "Retrieved Service " << m_recTGCRoiSvc << endmsg;
    }
 
-   m_log << MSG::DEBUG << "initialization - done" << endreq;
+   m_log << MSG::DEBUG << "initialization - done" << endmsg;
 
    return HLT::OK;
 }
@@ -137,7 +137,7 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
    
    if ( m_log.level() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Executing TrigmuRoI (" << name()
-	    << ")" << endreq;
+	    << ")" << endmsg;
    }
 
    int roi_id = 0;
@@ -148,42 +148,42 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
    int BCID_diff = distance(m_trigMuonRoITool->begin_OutOfTimeRoIs(),m_trigMuonRoITool->end_OutOfTimeRoIs());
     
    if(m_log.level() <= MSG::DEBUG) {
-       m_log << MSG::DEBUG << "=====================================================" << endreq;
+       m_log << MSG::DEBUG << "=====================================================" << endmsg;
        m_log << MSG::DEBUG << " RoIs out of time with event BCID:  Number of RoIs = "
-             << BCID_diff << endreq;
-       m_log << MSG::DEBUG << "=====================================================" << endreq;
+             << BCID_diff << endmsg;
+       m_log << MSG::DEBUG << "=====================================================" << endmsg;
    }
    
    std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it_begin_ot, it_end_ot;
    
    if(m_log.level() <= MSG::DEBUG)
-       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: get begin in time iterator" << endreq;
+       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: get begin in time iterator" << endmsg;
    
    it_begin_ot = m_trigMuonRoITool->begin_OutOfTimeRoIs();
    
    if(m_log.level() <= MSG::DEBUG)
-       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: get end   in time iterator" << endreq;
+       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: get end   in time iterator" << endmsg;
    
    it_end_ot   = m_trigMuonRoITool->end_OutOfTimeRoIs();
    
    if(m_log.level() <= MSG::DEBUG)
-       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: print out of time RoIs" << endreq;
+       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: print out of time RoIs" << endmsg;
    
    for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
        it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
        
        if(m_log.level() <= MSG::DEBUG) {
-           m_log << MSG::DEBUG << " Difference(RoI(BCID) - Event(BCID)) = " << (*it).second << endreq;
-           m_log << MSG::DEBUG << " ------------------------------------- " << endreq;
-           m_log << MSG::DEBUG << "RoIB word               : 0x" << MSG::hex << ((*it).first).roIWord() << MSG::dec << endreq;
-           m_log << MSG::DEBUG << "Threshold               :  pt" << ((*it).first).pt() << endreq;
-           m_log << MSG::DEBUG << "Sector ID               :  " << ((*it).first).getSectorID() << endreq;
-           m_log << MSG::DEBUG << "Sector addr             :  0x" << MSG::hex << ((*it).first).getSectorAddress() << MSG::dec << endreq;
-           m_log << MSG::DEBUG << "Sector overflow         :  " << ((*it).first).getSectorOverflow() << endreq;
-           m_log << MSG::DEBUG << "RoI overflow            :  " << ((*it).first).getRoiOverflow() << endreq;
-           m_log << MSG::DEBUG << "RoI number              :  " << ((*it).first).getRoiNumber() << endreq;
-           m_log << MSG::DEBUG << "IsHighestPt             :  " << ((*it).first).getCandidateIsHighestPt() << endreq;
-           m_log << MSG::DEBUG << "=================================================" << endreq;
+           m_log << MSG::DEBUG << " Difference(RoI(BCID) - Event(BCID)) = " << (*it).second << endmsg;
+           m_log << MSG::DEBUG << " ------------------------------------- " << endmsg;
+           m_log << MSG::DEBUG << "RoIB word               : 0x" << MSG::hex << ((*it).first).roIWord() << MSG::dec << endmsg;
+           m_log << MSG::DEBUG << "Threshold               :  pt" << ((*it).first).pt() << endmsg;
+           m_log << MSG::DEBUG << "Sector ID               :  " << ((*it).first).getSectorID() << endmsg;
+           m_log << MSG::DEBUG << "Sector addr             :  0x" << MSG::hex << ((*it).first).getSectorAddress() << MSG::dec << endmsg;
+           m_log << MSG::DEBUG << "Sector overflow         :  " << ((*it).first).getSectorOverflow() << endmsg;
+           m_log << MSG::DEBUG << "RoI overflow            :  " << ((*it).first).getRoiOverflow() << endmsg;
+           m_log << MSG::DEBUG << "RoI number              :  " << ((*it).first).getRoiNumber() << endmsg;
+           m_log << MSG::DEBUG << "IsHighestPt             :  " << ((*it).first).getCandidateIsHighestPt() << endmsg;
+           m_log << MSG::DEBUG << "=================================================" << endmsg;
        }
        
        unsigned int temp_sysID =
@@ -233,7 +233,7 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
 	       m_log << MSG::DEBUG << "New RoI descriptor for "
 	             << region << " created from word 0x"
 	             << MSG::hex  << ((*it).first).roIWord() << MSG::dec 
-		     << endreq;
+		     << endmsg;
            }
        }
        roi_id += 1;

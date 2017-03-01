@@ -21,14 +21,14 @@ TRTPrintingOfHits::TRTPrintingOfHits(): m_msg("TRTPrintingOfHits")
 
   m_printMessages = pParameters->GetInteger("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTPrintingOfHits" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTPrintingOfHits" << endmsg;
 
   m_mask = 0x0000001F;
   m_shift = 5;
 
   m_pOutputFile = TRTOutputFile::GetPointer();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTPrintingOfHits done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTPrintingOfHits done" << endmsg;
 }
 
 
@@ -36,8 +36,8 @@ TRTPrintingOfHits::TRTPrintingOfHits(): m_msg("TRTPrintingOfHits")
 
 TRTPrintingOfHits::~TRTPrintingOfHits()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTPrintingOfHits" << endreq;
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTPrintingOfHits done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTPrintingOfHits" << endmsg;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTPrintingOfHits done" << endmsg;
 }
 
 

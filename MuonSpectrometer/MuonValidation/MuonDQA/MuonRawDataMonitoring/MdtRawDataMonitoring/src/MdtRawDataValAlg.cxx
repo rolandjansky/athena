@@ -277,7 +277,7 @@ StatusCode MdtRawDataValAlg::initialize()
   //   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
   //   sc = m_trigDec.retrieve();
   //   if (sc.isFailure()) {
-  //     mLog << MSG::WARNING << " TriggerDecision not found in SG" << endreq;
+  //     mLog << MSG::WARNING << " TriggerDecision not found in SG" << endmsg;
   //     return StatusCode::FAILURE;
   //   }
   //   const Trig::ChainGroup* m_all = m_trigDec->getChainGroup(".*");

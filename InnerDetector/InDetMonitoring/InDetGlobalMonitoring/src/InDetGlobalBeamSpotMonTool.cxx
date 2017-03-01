@@ -83,10 +83,10 @@ StatusCode InDetGlobalBeamSpotMonTool::initialize() {
   if(!sc.isSuccess()) return sc;
   
   if ( m_beamCondSvc.retrieve().isFailure() ) {
-    msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endreq;
+    msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endmsg;
   } else {
     m_hasBeamCondSvc = true;
-    msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endreq;
+    msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -187,7 +187,7 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     m_hBsTiltY->Fill(1e6*beamTiltY);
     if (msgLvl(MSG::DEBUG)) msg() << "Beamspot from " << m_beamCondSvc << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
           << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
-          << ", tiltY = " << beamTiltY <<endreq;
+          << ", tiltY = " << beamTiltY <<endmsg;
   }
 
   const xAOD::TrackParticleContainer* trackCollection = evtStore()->tryConstRetrieve<xAOD::TrackParticleContainer>(m_trackContainerName);

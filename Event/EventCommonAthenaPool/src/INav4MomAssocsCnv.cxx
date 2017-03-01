@@ -51,7 +51,7 @@ INav4MomAssocsCnv::createPersistent( INav4MomAssocs* transCont )
 
   INav4MomAssocs_PERS *persObj = m_tpConverter_p3.createPersistent( transCont, log );
   
-  log << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  log << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

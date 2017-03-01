@@ -50,20 +50,20 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
 StatusCode InDetGlobalErrorMonTool::initialize() {
 
   if (detStore()->retrieve(m_pixID, "PixelID").isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve Pixel ID helper" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if (detStore()->retrieve(m_pixManager, "Pixel").isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve Pixel Detector Manager" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve Pixel Detector Manager" << endmsg;
     return StatusCode::FAILURE;
   }
   if (detStore()->retrieve(m_sctManager, "SCT").isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve SCT Detector Manager" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve SCT Detector Manager" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if (m_pixCond.retrieve().isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve Pixel conditions service!" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve Pixel conditions service!" << endmsg;
     return StatusCode::FAILURE;
   }
   

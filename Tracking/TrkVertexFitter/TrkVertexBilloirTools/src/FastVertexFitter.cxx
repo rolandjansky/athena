@@ -60,41 +60,41 @@ namespace Trk
 
 		if ( m_extrapolator.retrieve().isFailure() )
 		{
-			msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+			msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
 			return StatusCode::FAILURE;
 		}
 		else
 		{
-			msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+			msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
 		}
 
 		if ( m_linFactory.retrieve().isFailure() )
 		{
-			msg(MSG::FATAL) << "Failed to retrieve tool " << m_linFactory << endreq;
+			msg(MSG::FATAL) << "Failed to retrieve tool " << m_linFactory << endmsg;
 			return StatusCode::FAILURE;
 		}
 		else
 		{
-			msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endreq;
+			msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
 		}
 
 		//XAOD Converter   
  		  if ( m_xaodConverter.retrieve().isFailure() ) { 
- 		    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endreq; 
+ 		    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endmsg; 
  		    return StatusCode::FAILURE; 
  		  } else { 
- 		    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endreq; 
+ 		    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endmsg; 
  		  } 
  		  
 
 
-		msg(MSG::INFO)  << "Initialize successful" << endreq;
+		msg(MSG::INFO)  << "Initialize successful" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
 	StatusCode FastVertexFitter::finalize()
 	{
-		msg(MSG::INFO)  << "Finalize successful" << endreq;
+		msg(MSG::INFO)  << "Finalize successful" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -270,7 +270,7 @@ namespace Trk
 		{
 			// msg(MSG::VERBOSE) << "Start of iteration " << niter << ", starting point ("
 			// << linPoint [0] << ", " << linPoint [1] << ", " << linPoint [2]
-			// << ") and " << originalPerigees.size() << " tracks." << endreq;
+			// << ") and " << originalPerigees.size() << " tracks." << endmsg;
 
 			billoirTracks.clear();
 			chi2Old = chi2New;
@@ -299,24 +299,24 @@ namespace Trk
 					locXpVec[1] = locXpVec[1] - linPoint[1];
 					locXpVec[2] = locXpVec[2] - linPoint[2];
 					
-					// msg(MSG::VERBOSE) << "Track: " << count << endreq;
+					// msg(MSG::VERBOSE) << "Track: " << count << endmsg;
 					// count++;
 					// const Trk::MeasuredPerigee* tmpPerigee = dynamic_cast<const Trk::MeasuredPerigee*>(*iter);
 					//AmgVector(5) expParameters = linTrack->expectedParametersAtPCA();
 					
-					// msg(MSG::VERBOSE) << "locXp: " << locXpVec[0] << "\t" << locXpVec[1] << "\t" << locXpVec[2] << endreq;
+					// msg(MSG::VERBOSE) << "locXp: " << locXpVec[0] << "\t" << locXpVec[1] << "\t" << locXpVec[2] << endmsg;
 
 					// first get the cov 2x2 sub matrix and then invert (don't get the 2x2 sub matrix of the 5x5 already inverted cov matrix)
 					AmgMatrix(2,2) billoirCovMat = linTrack->expectedCovarianceAtPCA().block<2,2>(0,0);
-					// msg(MSG::VERBOSE) << "CovMatrix: " << billoirCovMat[0][0] << "\t" << billoirCovMat[0][1] << endreq;
-					// msg(MSG::VERBOSE) << "           " << billoirCovMat[1][0] << "\t" << billoirCovMat[1][1] << endreq;
+					// msg(MSG::VERBOSE) << "CovMatrix: " << billoirCovMat[0][0] << "\t" << billoirCovMat[0][1] << endmsg;
+					// msg(MSG::VERBOSE) << "           " << billoirCovMat[1][0] << "\t" << billoirCovMat[1][1] << endmsg;
 					AmgMatrix(2,2) billoirWeightMat = billoirCovMat.inverse().eval();
-					// msg(MSG::VERBOSE) << "WeightMatrix: " << billoirWeightMat[0][0] << "\t" << billoirWeightMat[0][1] << endreq;
-					// msg(MSG::VERBOSE) << "              " << billoirWeightMat[1][0] << "\t" << billoirWeightMat[1][1] << endreq;
+					// msg(MSG::VERBOSE) << "WeightMatrix: " << billoirWeightMat[0][0] << "\t" << billoirWeightMat[0][1] << endmsg;
+					// msg(MSG::VERBOSE) << "              " << billoirWeightMat[1][0] << "\t" << billoirWeightMat[1][1] << endmsg;
 					// D matrix for d0 and z0
 					D = linTrack->positionJacobian().block<2,3>(0,0);
-					// msg(MSG::VERBOSE) << "DMatrix:      " << D[0][0] << "\t" << D[0][1] << endreq;
-					// msg(MSG::VERBOSE) << "              " << D[1][0] << "\t" << D[1][1] << endreq;
+					// msg(MSG::VERBOSE) << "DMatrix:      " << D[0][0] << "\t" << D[0][1] << endmsg;
+					// msg(MSG::VERBOSE) << "              " << D[1][0] << "\t" << D[1][1] << endmsg;
 
 					// Calculate DtWD and DtWD*x and sum them
 					BilloirTrack locBilloirTrack;
@@ -390,9 +390,9 @@ namespace Trk
 			tmpPos[0] += delta_V[0];   tmpPos[1] += delta_V[1];   tmpPos[2] += delta_V[2];
 			linPoint = tmpPos;
 
-			// msg(MSG::VERBOSE) << "Vertex of Iteration " << niter << " with chi2: " << chi2New << "\t old chi2: " << chi2 << endreq;
-			// msg(MSG::VERBOSE) << "deltaV: ("    << delta_V[0] << ", " << delta_V[1] << ", " << delta_V[2] << ")" << endreq;
-			// msg(MSG::VERBOSE) << linPoint << endreq;
+			// msg(MSG::VERBOSE) << "Vertex of Iteration " << niter << " with chi2: " << chi2New << "\t old chi2: " << chi2 << endmsg;
+			// msg(MSG::VERBOSE) << "deltaV: ("    << delta_V[0] << ", " << delta_V[1] << ", " << delta_V[2] << ")" << endmsg;
+			// msg(MSG::VERBOSE) << linPoint << endmsg;
 
 			if ( chi2New < chi2 )
 			{
@@ -478,7 +478,7 @@ namespace Trk
  		 { 
  		   if(vectorTrk.size() == 0) 
  		   { 
- 		    msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq; 
+ 		    msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg; 
  		    return 0; 
  		   } 
  		    
@@ -490,7 +490,7 @@ namespace Trk
  		    const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters()); 
  		   
  		    if(tmpMeasPer!=0) measuredPerigees.push_back(tmpMeasPer); 
- 		    else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+ 		    else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
  		   } 
  		    
  		    

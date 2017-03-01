@@ -168,7 +168,7 @@ namespace InDet
   //          beginRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigTrackResidualMonitor::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackResidualMonitor::beginRun()" << endreq;
+    msg() << MSG::INFO << "TrigTrackResidualMonitor::beginRun()" << endmsg;
 
     return HLT::OK;
   }
@@ -179,65 +179,65 @@ namespace InDet
   ///////////////////////////////////////////////////////////////////
   HLT::ErrorCode TrigTrackResidualMonitor::hltInitialize() {
     
-    msg() << MSG::DEBUG << "initialize() success" << endreq;
+    msg() << MSG::DEBUG << "initialize() success" << endmsg;
     
     //Track Selector Tool
     if ( m_trackSelectorTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve track selector tool " << m_trackSelectorTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve track selector tool " << m_trackSelectorTool << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
     else{
-      msg() << MSG::INFO << "Retrieved track selector tool " << m_trackSelectorTool << endreq;
+      msg() << MSG::INFO << "Retrieved track selector tool " << m_trackSelectorTool << endmsg;
     }
     
     //Track Summary Tool
     if ( m_trkSummaryTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve track summary tool " <<  m_trkSummaryTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve track summary tool " <<  m_trkSummaryTool << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
     else{
-      msg() << MSG::INFO << "Retrieved track summary tool " << m_trkSummaryTool << endreq;
+      msg() << MSG::INFO << "Retrieved track summary tool " << m_trkSummaryTool << endmsg;
     }
     
     
     //Residual Pool Calculator Tool 
     if ( m_residualPullCalculator.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve ResidualPull Calculator " << m_residualPullCalculator << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve ResidualPull Calculator " << m_residualPullCalculator << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
     else{
-      msg() << MSG::INFO << "Retrieved ResidualPull Calculator " << m_residualPullCalculator << endreq;
+      msg() << MSG::INFO << "Retrieved ResidualPull Calculator " << m_residualPullCalculator << endmsg;
     }
     
     //detStore 
     StoreGateSvc* detStore(0);
     StatusCode sc = service("DetectorStore", detStore);
     if (sc.isFailure()){
-      msg() << MSG::FATAL << "Detector service not found !" << endreq;
+      msg() << MSG::FATAL << "Detector service not found !" << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     } 
     
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Detector service found" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Detector service found" << endmsg;
     
     
     //idHelper ATLAS ID 
     if (detStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
-      msg() << MSG::FATAL << "Could not get Atlas ID helper" << endreq;
+      msg() << MSG::FATAL << "Could not get Atlas ID helper" << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
     else{
-      msg() << MSG::DEBUG << "Atlas id Helper found !" << endreq;
+      msg() << MSG::DEBUG << "Atlas id Helper found !" << endmsg;
     }
     
     
     //Pixel ID 
     const PixelID * IdHelperPixel(0);
     if (detStore->retrieve(IdHelperPixel, "PixelID").isFailure()) {
-      msg() << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
+      msg() << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
     else{
-      msg() << MSG::DEBUG << "Pixel Id Helper found !" << endreq;
+      msg() << MSG::DEBUG << "Pixel Id Helper found !" << endmsg;
     }
     
     m_idHelperPixel = IdHelperPixel;
@@ -246,11 +246,11 @@ namespace InDet
     //SCT ID 
     const SCT_ID * IdHelperSCT(0);
     if (detStore->retrieve(IdHelperSCT, "SCT_ID").isFailure()) {
-      msg() << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+      msg() << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
     else{
-      msg() << MSG::DEBUG << "SCT Id Helper found !" << endreq;
+      msg() << MSG::DEBUG << "SCT Id Helper found !" << endmsg;
     }
     
     m_idHelperSCT = IdHelperSCT;
@@ -258,40 +258,40 @@ namespace InDet
 
     ///SCT Manager
     if(detStore->retrieve(m_SCT_Manager, "SCT").isFailure()){
-      msg() << MSG::FATAL   << "Could not get SCT_Manager !" << endreq;
+      msg() << MSG::FATAL   << "Could not get SCT_Manager !" << endmsg;
     }
     else{
-      msg() << MSG::DEBUG << "SCT manager found !" << endreq;
+      msg() << MSG::DEBUG << "SCT manager found !" << endmsg;
     }
     
     
     // Pixel Manager
     if(detStore->retrieve(m_Pixel_Manager, "Pixel").isFailure()){
-      msg() << MSG::FATAL   << "Could not get Pixel_Manager !" << endreq;
+      msg() << MSG::FATAL   << "Could not get Pixel_Manager !" << endmsg;
     }
     else{
-      msg() << MSG::DEBUG << "Pixel manager found !" << endreq;
+      msg() << MSG::DEBUG << "Pixel manager found !" << endmsg;
     }
     
     
     //Get Updator
     if (m_updator.retrieve().isFailure()) {
-      msg() << MSG::FATAL << "Can not retrieve Updator of type  " << m_updator.typeAndName() << endreq;
+      msg() << MSG::FATAL << "Can not retrieve Updator of type  " << m_updator.typeAndName() << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " <<  m_updator.typeAndName() << endreq;
+      msg() << MSG::INFO << "Retrieved tool " <<  m_updator.typeAndName() << endmsg;
     }
     
     
     
     // Get Propagator
     if (m_propagator.retrieve().isFailure()) {
-      msg() << MSG::FATAL << "Can not retrieve Updator of type  " << m_propagator.typeAndName() << endreq;
+      msg() << MSG::FATAL << "Can not retrieve Updator of type  " << m_propagator.typeAndName() << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " <<  m_propagator.typeAndName() << endreq;
+      msg() << MSG::INFO << "Retrieved tool " <<  m_propagator.typeAndName() << endmsg;
     }
     
     return HLT::OK;
@@ -311,7 +311,7 @@ namespace InDet
     int outputLevel = msgLvl();
     
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "execHLTAlgorithm()" << endreq;
+      msg() << MSG::DEBUG << "execHLTAlgorithm()" << endmsg;
     
     //////  histogram variables /////////
     
@@ -388,21 +388,21 @@ namespace InDet
     //initialize monitored objects
     m_allTracksFromStoreGate = 0;
     if ( HLT::OK != getFeature(outputTE, m_allTracksFromStoreGate) ) {
-      msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+      msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
       
       return HLT::NAV_ERROR;
     }
     if(!m_allTracksFromStoreGate){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endreq;
+	msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endmsg;
       
       return HLT::OK; 
     } else {
       if(outputLevel <= MSG::VERBOSE)
-	msg() << MSG::VERBOSE << " Input track collection has size " << m_allTracksFromStoreGate->size() << endreq;
+	msg() << MSG::VERBOSE << " Input track collection has size " << m_allTracksFromStoreGate->size() << endmsg;
       if ( m_allTracksFromStoreGate->size() == 0 ) {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
+	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endmsg;
 	return HLT::OK; 
       }
     }
@@ -692,7 +692,7 @@ namespace InDet
   
   HLT::ErrorCode TrigTrackResidualMonitor::hltFinalize() {
 
-    msg() << MSG::DEBUG << "finalize() success" << endreq;
+    msg() << MSG::DEBUG << "finalize() success" << endmsg;
     return HLT::OK;
   }
 
@@ -701,7 +701,7 @@ namespace InDet
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigTrackResidualMonitor::hltEndRun() {
    
-    msg() << MSG::INFO << "TrigTrackResidualMonitor::endRun()" << endreq;
+    msg() << MSG::INFO << "TrigTrackResidualMonitor::endRun()" << endmsg;
    
     return HLT::OK;
   }

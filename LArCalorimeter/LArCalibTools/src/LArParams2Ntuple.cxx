@@ -47,7 +47,7 @@ StatusCode LArParams2Ntuple::initialize() {
 
   
   if ( m_classNames.size() != m_nClasses ) { // should never happen! but just to be sure...
-    msg(MSG::FATAL) << "List of class names does not match foreseen number of classes, cannot go on!" << endreq ;
+    msg(MSG::FATAL) << "List of class names does not match foreseen number of classes, cannot go on!" << endmsg ;
     return StatusCode::FAILURE ;
   }
  
@@ -59,24 +59,24 @@ StatusCode LArParams2Ntuple::initialize() {
       ATH_MSG_DEBUG("key " << m_keylist[i] << " does not correspond to any foreseen class");
       return StatusCode::FAILURE ;
     } else {
-      msg(MSG::INFO) << "will dump " << m_keylist[i] << " to Ntuple" << endreq ;
+      msg(MSG::INFO) << "will dump " << m_keylist[i] << " to Ntuple" << endmsg ;
       m_dumpFlags.set(idx) ;
     }
   }
 
   if ( m_useAbstractInterface ) {
-    msg(MSG::INFO) << "All parameters will be accessed through abstract interface" << endreq ;
+    msg(MSG::INFO) << "All parameters will be accessed through abstract interface" << endmsg ;
     if ( ! m_allChannels2Ntuple ) {
-      msg(MSG::WARNING) << "This will force dumping to Ntuple all foreseen online channels!" << endreq ;
+      msg(MSG::WARNING) << "This will force dumping to Ntuple all foreseen online channels!" << endmsg ;
       m_allChannels2Ntuple = true ;
     }
   } else {
-    msg(MSG::INFO) << "All parameters will be accessed through their Complete/VsCalib class" << endreq ;
+    msg(MSG::INFO) << "All parameters will be accessed through their Complete/VsCalib class" << endmsg ;
   }
   if ( m_allChannels2Ntuple ) {
-    msg(MSG::INFO) << "All foreseen online channels will be written to Ntuple" << endreq ;
+    msg(MSG::INFO) << "All foreseen online channels will be written to Ntuple" << endmsg ;
   } else { 
-    msg(MSG::INFO) << "Only channels with sensible parameters will be written to Ntuple (default)" << endreq ;
+    msg(MSG::INFO) << "Only channels with sensible parameters will be written to Ntuple (default)" << endmsg ;
   }
 
   return LArCond2NtupleBase::initialize();
@@ -111,39 +111,39 @@ StatusCode LArParams2Ntuple::stop() {
 
   StatusCode sc=m_nt->addItem("cellIndex",ntcellIndex,0,2000);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'Cell Index' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'Cell Index' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("gain",ntgain,-1,2);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'Gain' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'Gain' failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if ( m_dumpFlags[CaliPulseParamsComplete] || m_dumpFlags[CaliPulseParamsVsCalib] ) {
     sc=m_nt->addItem("Tcal",ntTcal);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Tcal' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Tcal' failed" << endmsg;
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("Fstep",ntFstep);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Fstep' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Fstep' failed" << endmsg;
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("Offset",ntOffset);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Offset' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Offset' failed" << endmsg;
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("dTimeCal",ntdTimeCal);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'dTimeCal' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'dTimeCal' failed" << endmsg;
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("nCB",ntnCB);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'nCB' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'nCB' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -151,12 +151,12 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[DetCellParamsComplete] ) {
     sc=m_nt->addItem("Omega0",ntOmega0);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Omega0' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Omega0' failed" << endmsg;
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("Taur",ntTaur);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Taur' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Taur' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -164,7 +164,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[PhysCaliTdiffComplete] ) {
     sc=m_nt->addItem("Tdiff",ntTdiff);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Tdiff' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Tdiff' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -172,7 +172,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[TdriftComplete] ) {
     sc=m_nt->addItem("Tdrift",ntTdrift);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Tdrift' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Tdrift' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -180,7 +180,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[MphysOverMcalComplete] ) {
     sc=m_nt->addItem("MphysOverMcal",ntMphysOverMcal);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'MphysOverMcal' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'MphysOverMcal' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -188,7 +188,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[RinjComplete] ) {
     sc=m_nt->addItem("Rinj",ntRinj);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Rinj' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Rinj' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -196,7 +196,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[TshaperComplete] ) {
     sc=m_nt->addItem("Tshaper",ntTshaper);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Tshaper' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'Tshaper' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -204,7 +204,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[EMEC_CphiComplete] ) {
     sc=m_nt->addItem("EMEC_Cphi",ntEMEC_Cphi);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'EMEC_Cphi' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'EMEC_Cphi' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -212,7 +212,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[EMEC_HValphaComplete] ) {
     sc=m_nt->addItem("EMEC_HValpha",ntEMEC_HValpha);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'EMEC_HValpha' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'EMEC_HValpha' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -220,7 +220,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[EMEC_HVbetaComplete] ) {
     sc=m_nt->addItem("EMEC_HVbeta",ntEMEC_HVbeta);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'EMEC_HVbeta' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'EMEC_HVbeta' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -228,7 +228,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[CableLengthComplete] ) {
     sc=m_nt->addItem("CableLength",ntCableLength);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'CableLength' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'CableLength' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -236,7 +236,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[CableAttenuationComplete] ) {
     sc=m_nt->addItem("CableAttenuation",ntCableAttenuation);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'CableAttenuation' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'CableAttenuation' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -244,7 +244,7 @@ StatusCode LArParams2Ntuple::stop() {
   if ( m_dumpFlags[OFCBinComplete] ) {
     sc=m_nt->addItem("OFCBin",ntbin);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'OFCBin' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'OFCBin' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -430,7 +430,7 @@ StatusCode LArParams2Ntuple::stop() {
       const std::vector<bool> & flags = (map_it->second).flags() ;
       if ( flags.size() <= 0 ) continue ;
       if ( flags.size() < m_nClasses ) {  // should never happen...
-	msg(MSG::WARNING) << "... flags vector shorter than " << m_nClasses << ": " << flags.size() << endreq ;
+	msg(MSG::WARNING) << "... flags vector shorter than " << m_nClasses << ": " << flags.size() << endmsg ;
 	continue ;
       }
 
@@ -492,7 +492,7 @@ StatusCode LArParams2Ntuple::stop() {
       }
       sc=ntupleSvc()->writeRecord(m_nt);
       if (sc!=StatusCode::SUCCESS) {
-	msg(MSG::ERROR) << "writeRecord failed" << endreq;
+	msg(MSG::ERROR) << "writeRecord failed" << endmsg;
 	return StatusCode::FAILURE;
       }      
       ATH_MSG_DEBUG("... record written to ntuple");
@@ -511,7 +511,7 @@ StatusCode LArParams2Ntuple::scanReadoutChannels( const DATA*& data_object ) {
   bool     useGain    = LArParamsProperties::isGainDependent(data_object) ;
 
   if ( classIndex >= m_nClasses ) {
-    msg(MSG::ERROR) << "Class index " << classIndex << " beyond number of known classes: " << m_nClasses << endreq ;
+    msg(MSG::ERROR) << "Class index " << classIndex << " beyond number of known classes: " << m_nClasses << endmsg ;
     return StatusCode::FAILURE ;
   }
 
@@ -526,7 +526,7 @@ StatusCode LArParams2Ntuple::scanReadoutChannels( const DATA*& data_object ) {
   std::string dataName    =  m_classNames[classIndex] ;
 
   if ( dataName.substr(dataName.length()-8,8) != std::string("Complete") ) {
-    msg(MSG::ERROR) << "Function scanReadoutChannels cannot be called for data class " << dataName << endreq ;
+    msg(MSG::ERROR) << "Function scanReadoutChannels cannot be called for data class " << dataName << endmsg ;
     return StatusCode::FAILURE ;
   }
 
@@ -539,7 +539,7 @@ StatusCode LArParams2Ntuple::scanReadoutChannels( const DATA*& data_object ) {
   }
 
   if ( sc == StatusCode::FAILURE ) {
-    msg(MSG::ERROR) << "Could not retrieve " << dataName << " from detector store!" << endreq ;
+    msg(MSG::ERROR) << "Could not retrieve " << dataName << " from detector store!" << endmsg ;
     return sc ;
   } 
 
@@ -582,7 +582,7 @@ StatusCode LArParams2Ntuple::scanCalibChannels( const DATA*& data_object ) {
   unsigned classIndex = LArParamsProperties::getClassIndex(data_object) ;
   //bool     useGain    = LArParamsProperties::isGainDependent(data_object) ;
   if ( classIndex >= m_nClasses ) {
-    msg(MSG::ERROR) << "Class index " << classIndex << " beyond number of known classes: " << m_nClasses << endreq ;
+    msg(MSG::ERROR) << "Class index " << classIndex << " beyond number of known classes: " << m_nClasses << endmsg ;
     return StatusCode::FAILURE ;
   }
 
@@ -590,7 +590,7 @@ StatusCode LArParams2Ntuple::scanCalibChannels( const DATA*& data_object ) {
   std::string dataName    =  m_classNames[classIndex] ;
 
   if ( dataName.substr(dataName.length()-7,7) != std::string("VsCalib") ) {
-    msg(MSG::ERROR) << "Function scanCalibChannels cannot be called for data class " << dataName << endreq ;
+    msg(MSG::ERROR) << "Function scanCalibChannels cannot be called for data class " << dataName << endmsg ;
     return StatusCode::FAILURE ;
   }
 
@@ -603,7 +603,7 @@ StatusCode LArParams2Ntuple::scanCalibChannels( const DATA*& data_object ) {
   }
 
   if ( sc == StatusCode::FAILURE ) {
-    msg(MSG::ERROR) << "Could not retrieve " << dataName << " from detector store!" << endreq ;
+    msg(MSG::ERROR) << "Could not retrieve " << dataName << " from detector store!" << endmsg ;
     return sc ;
   } 
 
@@ -627,7 +627,7 @@ StatusCode LArParams2Ntuple::scanCalibChannels( const DATA*& data_object ) {
       unsigned ft   =  m_onlineId->feedthrough(cb_HWid) ;
       unsigned slot =  m_onlineId->slot(cb_HWid) ;
       msg(MSG::VERBOSE) << "    ... B/EC=" << b_ec << " P/N=" << p_n << " FT=" << ft << " slot=" << slot 
-			<< " nchan=" << nchan << endreq ;
+			<< " nchan=" << nchan << endmsg ;
     }//end if verbose
 
     for ( unsigned ichan=0 ; ichan<nchan ; ichan++ ) { // loop through channels in a CB
@@ -656,7 +656,7 @@ StatusCode LArParams2Ntuple::retrieveFromDetStore( const DATA*& data_object ) {
   unsigned classIndex = LArParamsProperties::getClassIndex(data_object) ;
   //bool     useGain    = LArParamsProperties::isGainDependent(data_object) ;
   if ( classIndex >= m_nClasses ) {
-    msg(MSG::ERROR) << "Class index " << classIndex << " beyond number of known classes: " << m_nClasses << endreq ;
+    msg(MSG::ERROR) << "Class index " << classIndex << " beyond number of known classes: " << m_nClasses << endmsg ;
     return StatusCode::FAILURE ;
   }
   std::string detStoreKey =  m_detStoreKeys[classIndex] + m_suffix ;
@@ -666,7 +666,7 @@ StatusCode LArParams2Ntuple::retrieveFromDetStore( const DATA*& data_object ) {
     ATH_MSG_VERBOSE("Trying to retrieve " << dataName << " from detector store through abstract interface I" << detStoreKey << " ...");
     StatusCode sc = retrieveAbstractInterface(data_object) ;
     if ( sc == StatusCode::FAILURE ) {
-      msg(MSG::WARNING) << "Could not retrieve " << dataName << " from detector store!" << endreq ;
+      msg(MSG::WARNING) << "Could not retrieve " << dataName << " from detector store!" << endmsg ;
       return sc ;
     }
 
@@ -679,7 +679,7 @@ StatusCode LArParams2Ntuple::retrieveFromDetStore( const DATA*& data_object ) {
       StatusCode sc = m_detStore->retrieve(data_object) ;
     }
     if ( sc == StatusCode::FAILURE ) {
-      msg(MSG::WARNING) << "Could not retrieve " << dataName << " from detector store!" << endreq ;
+      msg(MSG::WARNING) << "Could not retrieve " << dataName << " from detector store!" << endmsg ;
       return sc ;
     } 
 
@@ -777,8 +777,8 @@ void LArParams2Ntuple::dumpChannels()
   //
   FILE* f = fopen( m_dumpAllOnlineChannels.c_str() , "w" ) ;
   if ( f == NULL ) {
-    msg(MSG::WARNING) << "Could not open file " << m_dumpAllOnlineChannels << endreq ;
-    msg(MSG::WARNING) << "... channels dump cannot be done!" << endreq ;
+    msg(MSG::WARNING) << "Could not open file " << m_dumpAllOnlineChannels << endmsg ;
+    msg(MSG::WARNING) << "... channels dump cannot be done!" << endmsg ;
     return ;
   }
   std::string subdet , comment , descr ;
@@ -786,13 +786,13 @@ void LArParams2Ntuple::dumpChannels()
  
   std::vector<HWIdentifier>::const_iterator chIt    =  m_onlineId->channel_begin() ;
   std::vector<HWIdentifier>::const_iterator chItEnd =  m_onlineId->channel_end() ;
-  msg(MSG::INFO) << "Dumping online read-out channels to file " << m_dumpAllOnlineChannels << endreq; 
+  msg(MSG::INFO) << "Dumping online read-out channels to file " << m_dumpAllOnlineChannels << endmsg; 
   for ( ; chIt != chItEnd ; chIt++ ) {
     writeToFile(*chIt,f) ;
   }
   std::vector<HWIdentifier>::const_iterator chCalibIt    =  m_onlineId->calib_channel_begin() ;
   std::vector<HWIdentifier>::const_iterator chCalibItEnd =  m_onlineId->calib_channel_end() ;
-  msg(MSG::INFO) << "Dumping online calib channels to file " << m_dumpAllOnlineChannels << endreq; 
+  msg(MSG::INFO) << "Dumping online calib channels to file " << m_dumpAllOnlineChannels << endmsg; 
   for ( ; chCalibIt != chCalibItEnd ; chCalibIt++ ) {
     writeToFile(*chCalibIt,f) ;
   }

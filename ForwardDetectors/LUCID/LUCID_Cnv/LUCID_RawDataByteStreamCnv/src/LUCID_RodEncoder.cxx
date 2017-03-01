@@ -39,20 +39,20 @@ void LUCID_RodEncoder::encode(std::vector<uint32_t>& data_block) {
     else if (tubeID < 20) { data_word2 |= (isHit << (tubeID - 16)); m_hitcounter2 += isHit; }
     else if (tubeID < 36) { data_word1 |= (isHit << (tubeID - 20)); m_hitcounter1 += isHit; }
     else if (tubeID < 40) { data_word3 |= (isHit << (tubeID - 36)); m_hitcounter3 += isHit; }
-    else if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Unknown tubeID: " << tubeID << endreq;
+    else if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Unknown tubeID: " << tubeID << endmsg;
     
     if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) 
       << " tubeID: " << std::setw(10) << tubeID
       << " npe: "    << std::setw(10) << (*digit_it)->getNpe() 
       << " isHit:  " << std::setw(10) << isHit 
-      << endreq;
+      << endmsg;
   }
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) 
-    << " m_hitcounter0: " << std::setw(10) << m_hitcounter0 << endreq
-    << " m_hitcounter1: " << std::setw(10) << m_hitcounter1 << endreq
-    << " m_hitcounter2: " << std::setw(10) << m_hitcounter2 << endreq
-    << " m_hitcounter3: " << std::setw(10) << m_hitcounter3 << endreq;
+    << " m_hitcounter0: " << std::setw(10) << m_hitcounter0 << endmsg
+    << " m_hitcounter1: " << std::setw(10) << m_hitcounter1 << endmsg
+    << " m_hitcounter2: " << std::setw(10) << m_hitcounter2 << endmsg
+    << " m_hitcounter3: " << std::setw(10) << m_hitcounter3 << endmsg;
   
   data_word0 |= (m_hitcounter0 << 24);
   data_word1 |= (m_hitcounter1 << 24);
@@ -61,10 +61,10 @@ void LUCID_RodEncoder::encode(std::vector<uint32_t>& data_block) {
   
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) 
     << std::hex
-    << " data_word0: " << data_word0 << endreq
-    << " data_word1: " << data_word1 << endreq
-    << " data_word2: " << data_word2 << endreq
-    << " data_word3: " << data_word3 << endreq
+    << " data_word0: " << data_word0 << endmsg
+    << " data_word1: " << data_word1 << endmsg
+    << " data_word2: " << data_word2 << endmsg
+    << " data_word3: " << data_word3 << endmsg
     << std::dec;
   
   data_block.push_back(data_word0);

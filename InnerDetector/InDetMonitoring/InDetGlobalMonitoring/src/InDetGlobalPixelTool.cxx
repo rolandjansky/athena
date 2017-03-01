@@ -144,7 +144,7 @@ StatusCode InDetGlobalPixelTool::fillHistograms()
       const Trk::Track *track=(*m_tracks)[i];
       if (track == 0) 
 	{
-	  if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endreq;
+	  if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg;
 	  break;
 	}
       const Trk::TrackSummary* summary = m_trkSummaryTool->createSummary(*track);

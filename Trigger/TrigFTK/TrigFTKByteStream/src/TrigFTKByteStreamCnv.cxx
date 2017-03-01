@@ -56,38 +56,38 @@ StatusCode FTK::TrigFTKByteStreamCnv::initialize()
    }
 
    m_log = new MsgStream(messageService(), "TrigFTKByteStreamCnv");
-   (*m_log) << MSG::DEBUG << "TrigFTKByteStreamCnv in initialize() " <<endreq;
+   (*m_log) << MSG::DEBUG << "TrigFTKByteStreamCnv in initialize() " <<endmsg;
 
    //Get ByteStreamCnvSvc
    if ( m_ByteStreamEventAccess.retrieve().isFailure() ) {
      (*m_log) << MSG::FATAL << "failed to retrieve ByteStreamEventAccess service: "
-        << m_ByteStreamEventAccess << endreq;
+        << m_ByteStreamEventAccess << endmsg;
      return  StatusCode::FAILURE;
    } else {
      (*m_log) << MSG::DEBUG << "successfully retrieved ByteStreamEventAccess service: "
-        << m_ByteStreamEventAccess << endreq;
+        << m_ByteStreamEventAccess << endmsg;
    }
 
    // get the converter tool:
    if ( m_tool.retrieve().isFailure() ) {
      (*m_log) << MSG::FATAL << "failed to retrieve converter tool : "
-        << m_tool << endreq;
+        << m_tool << endmsg;
      return  StatusCode::FAILURE;
    } else {
      (*m_log) << MSG::DEBUG << "successfully retrieved converter tool: "
-        << m_tool << endreq;
+        << m_tool << endmsg;
    }
 
 
    // Get ROBDataProvider
    if (m_robDataProvider.retrieve().isFailure()) {
     (*m_log) << MSG::FATAL << "failed to retrieve ROBDataProviderSvc service: "
-       << m_robDataProvider << endreq;
+       << m_robDataProvider << endmsg;
     return StatusCode::FAILURE;
    }
 
    (*m_log) << MSG::DEBUG << "successfully retrieved ROBDataProviderSvc service: "
-      << m_robDataProvider << endreq;
+      << m_robDataProvider << endmsg;
 
    return StatusCode::SUCCESS;
 }
@@ -100,7 +100,7 @@ StatusCode FTK::TrigFTKByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObjec
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress*>(pAddr);
   if(!pBS_Addr) {
-    (*m_log) << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq ;
+    (*m_log) << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg ;
     return StatusCode::FAILURE;
   }
 
@@ -111,7 +111,7 @@ StatusCode FTK::TrigFTKByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObjec
 
   StatusCode sc = m_tool->convert(*m_robDataProvider, result, object_name); //<Actual converstion
   if (sc != StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "Failed to convert object " << object_name << endreq;
+    (*m_log) << MSG::ERROR << "Failed to convert object " << object_name << endmsg;
     return sc;
   }
 
@@ -127,7 +127,7 @@ StatusCode FTK::TrigFTKByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress
    StoreGateSvc::fromStorable(pObj, result);
 
    if (!result) {
-     (*m_log) << MSG::ERROR << " Cannot cast to FTK_RawTrackContainer " << endreq ;
+     (*m_log) << MSG::ERROR << " Cannot cast to FTK_RawTrackContainer " << endmsg ;
      return StatusCode::FAILURE;
    }
 

@@ -192,7 +192,7 @@ namespace Analysis {
     for(uint i=0;i<m_channels.size();i++) {
       if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG)<< " " << m_channels[i];
     }
-    if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG)<<endreq;
+    if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG)<<endmsg;
     for(uint i=0;i<m_folders.size();i++) {
       ATH_MSG_DEBUG("#BTAG#         folder " << m_folders[i] 
 		    << " contains " << m_histos[i].size() << " histograms:" );
@@ -211,7 +211,7 @@ namespace Analysis {
         } else {
 	  if( msgLvl(MSG::VERBOSE) )msg(MSG::VERBOSE)<< " NOT YET DEFINED";
 	}
-	if( msgLvl(MSG::VERBOSE) )msg(MSG::VERBOSE)<< endreq;
+	if( msgLvl(MSG::VERBOSE) )msg(MSG::VERBOSE)<< endmsg;
       }
     }
   }

@@ -97,28 +97,28 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   // Get RungeKutta propagator tool
   //
   if ( m_proptool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
   }
 
   // Get updator tool
   //
   if ( m_updatortool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_updatortool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_updatortool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_updatortool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_updatortool << endmsg;
   }
 
   // Get RIO_OnTrack creator
   //
   if ( m_riocreator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_riocreator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_riocreator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_riocreator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_riocreator << endmsg;
   }
   Trk::IRIO_OnTrackCreator* riocreator = &(*m_riocreator);
 
@@ -132,10 +132,10 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   IInDetConditionsSvc* pixcond = 0; 
   if(m_usePIX ) {  
     if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg;
     }
     pixcond = &(*m_pixelCondSummarySvc); 
   }
@@ -145,10 +145,10 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   IInDetConditionsSvc* sctcond = 0; 
   if(m_useSCT ) {  
     if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummarySvc << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummarySvc << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endmsg;
     }
     sctcond = &(*m_sctCondSummarySvc); 
   }
@@ -159,10 +159,10 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   std::string tagInfoKey = "";
 
   if(tagInfoKeys.size()==0)
-    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endreq;
+    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endmsg;
    else {
      if(tagInfoKeys.size() > 1) {
-       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endreq;
+       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endmsg;
      }
      tagInfoKey = tagInfoKeys[0];
    }
@@ -177,9 +177,9 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
 				     this,tagInfoH,m_callbackString);
 
   if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback for geometry " << name() << endreq;
+      msg(MSG::INFO) << "Registered callback for geometry " << name() << endmsg;
    } else {
-      msg(MSG::ERROR) << "Could not book callback for geometry " << name () << endreq;
+      msg(MSG::ERROR) << "Could not book callback for geometry " << name () << endmsg;
       return StatusCode::FAILURE;
   }
 
@@ -434,7 +434,7 @@ void InDet::SiCombinatorialTrackFinder_xk::endEvent()
   // Print event information 
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -759,7 +759,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction
   if(m_usePIX) {
     sc = detStore()->retrieve(pixmgr,m_pixm);
     if (sc.isFailure() || !pixmgr) {
-      msg(MSG::FATAL)<<"Could not get PixelDetectorManager  !"<<endreq; 
+      msg(MSG::FATAL)<<"Could not get PixelDetectorManager  !"<<endmsg; 
       return StatusCode::FAILURE;
     }
   }
@@ -770,7 +770,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction
   if(m_useSCT) {
     sc = detStore()->retrieve(sctmgr,m_sctm);
     if (sc.isFailure() || !sctmgr) {
-      msg(MSG::FATAL)<<"Could not get SCT_DetectorManager !"<<endreq; 
+      msg(MSG::FATAL)<<"Could not get SCT_DetectorManager !"<<endmsg; 
       return StatusCode::FAILURE;
     }
   }
@@ -791,12 +791,12 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction
   const SCT_ID*  IDs = 0; 
 
   if (m_usePIX && detStore()->retrieve(IDp, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   
   if (m_useSCT && detStore()->retrieve(IDs, "SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 

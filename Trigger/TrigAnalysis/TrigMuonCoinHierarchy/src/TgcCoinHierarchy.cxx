@@ -204,9 +204,9 @@ namespace Trigger {
 
   void TgcCoinHierarchy::dump(MsgStream& ms, MSG::Level level) const {
     unsigned int bc = timingToInt(m_bc_coin);
-    ms << "TIMING COIN:" << bc << endreq;
+    ms << "TIMING COIN:" << bc << endmsg;
     bc = timingToInt(m_bc_hit);
-    ms << "TIMING HIT :" << bc << endreq;
+    ms << "TIMING HIT :" << bc << endmsg;
 
     const TgcCoinData* highestCoin = this->getCoincidence(this->highestCoincidence());
     if(highestCoin) {
@@ -214,51 +214,51 @@ namespace Trigger {
          << (highestCoin->isAside() ? "Side A " : "Side C ") 
          << (highestCoin->isForward() ? "Forward " : "Endcap  ") 
          << "phi=" << highestCoin->phi() 
-         << " ***" << endreq; 
+         << " ***" << endmsg; 
 
       // SL
       if(this->hasCoincidence(SL)) {
         const TgcCoinData* sl = this->getCoincidence(SL);
         ms << level << "Sector Logic   : trackletId=" << sl->trackletId() 
-           << ", trackletIdStrip=" << sl->trackletIdStrip() << endreq;  
+           << ", trackletIdStrip=" << sl->trackletIdStrip() << endmsg;  
       } else {
-        ms << level << "Sector Logic   : does not exist" << endreq; 
+        ms << level << "Sector Logic   : does not exist" << endmsg; 
       }
 
       // HIPTWIRE 
       if(this->hasCoincidence(HIPTWIRE)) {
         const TgcCoinData* hw = this->getCoincidence(HIPTWIRE);
         ms << level << "HiPt Wire      : trackletId=" << hw->trackletId() 
-	   << ", isDuplicated=" << (m_duplicatedCoincidence[HIPTWIRE] ? "YES" : "NO") << endreq;
+	   << ", isDuplicated=" << (m_duplicatedCoincidence[HIPTWIRE] ? "YES" : "NO") << endmsg;
       } else {
-        ms << level << "HiPt Wire      : does not exist" << endreq; 
+        ms << level << "HiPt Wire      : does not exist" << endmsg; 
       }
 
       // HIPTSTRIP
       if(this->hasCoincidence(HIPTSTRIP)) {
         const TgcCoinData* hs = this->getCoincidence(HIPTSTRIP);
         ms << level << "HiPt Strip     : trackletId=" << hs->trackletId() 
-	   << ", isDuplicated=" << (m_duplicatedCoincidence[HIPTSTRIP] ? "YES" : "NO") << endreq;
+	   << ", isDuplicated=" << (m_duplicatedCoincidence[HIPTSTRIP] ? "YES" : "NO") << endmsg;
       } else {
-        ms << level << "HiPt Strip     : does not exist" << endreq; 
+        ms << level << "HiPt Strip     : does not exist" << endmsg; 
       }
 
       // TRACKLETWIRE 
       if(this->hasCoincidence(TRACKLETWIRE)) {
         const TgcCoinData* tw = this->getCoincidence(TRACKLETWIRE);
         ms << level << "Tracklet Wire  : trackletId=" << tw->trackletId() 
-	   << ", isDuplicated=" << (m_duplicatedCoincidence[TRACKLETWIRE] ? "YES" : "NO") << endreq;
+	   << ", isDuplicated=" << (m_duplicatedCoincidence[TRACKLETWIRE] ? "YES" : "NO") << endmsg;
       } else {
-        ms << level << "Tracklet Wire  : does not exist" << endreq; 
+        ms << level << "Tracklet Wire  : does not exist" << endmsg; 
       }
 
       // TRACKLETSTRIP
       if(this->hasCoincidence(TRACKLETSTRIP)) {
         const TgcCoinData* ts = this->getCoincidence(TRACKLETSTRIP);
         ms << level << "Tracklet Strip : trackletId=" << ts->trackletId() 
-           << ", isDuplicated=" << (m_duplicatedCoincidence[TRACKLETSTRIP] ? "YES" : "NO") << endreq;
+           << ", isDuplicated=" << (m_duplicatedCoincidence[TRACKLETSTRIP] ? "YES" : "NO") << endmsg;
       } else {
-        ms << level << "Tracklet Strip : does not exist" << endreq; 
+        ms << level << "Tracklet Strip : does not exist" << endmsg; 
       }
 
       // HITS
@@ -268,15 +268,15 @@ namespace Trigger {
           STATION station = (iST==TGC1 ? TGC1 : (iST==TGC2 ? TGC2 : TGC3));
           unsigned int numHits = this->numHits(isStrip, station);
           ms << level << "Hit " << (isStrip ? "Strip " : "Wire  ") 
-             << "TGC" << iST+1 << " : " << numHits << " hits" << endreq;
+             << "TGC" << iST+1 << " : " << numHits << " hits" << endmsg;
         }
       }
     }
     else {
-      ms << level << "*** TgcCoinHierarchy object : There is no highest coincidence. This is strange. ***" << endreq;
+      ms << level << "*** TgcCoinHierarchy object : There is no highest coincidence. This is strange. ***" << endmsg;
     }
 
-    ms << level << "*******************************************************" << endreq;
+    ms << level << "*******************************************************" << endmsg;
 
   }
 
