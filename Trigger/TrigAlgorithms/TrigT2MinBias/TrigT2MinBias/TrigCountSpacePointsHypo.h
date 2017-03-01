@@ -26,10 +26,6 @@ class TrigCountSpacePointsHypo: public HLT::HypoAlgo {
 
   Bool_t m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
   
-  /** A data member to retain a connection to the MsgStream
-      service. */
-  MsgStream m_log;
-  
   /** Name of the TrigSpacePointCounts object */
   std::string m_trigSpacePointCountsKey;
 

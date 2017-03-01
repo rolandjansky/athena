@@ -13,7 +13,6 @@
 T2MbtsHypo::T2MbtsHypo(const std::string &name, 
 		       ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator),
 						  T2MbtsUtils(),
-						  m_log(msgSvc(), name),
 						  m_acceptAll(false),
 						  m_mbtsCounters(0),
 						  m_coincidence(false),
@@ -74,34 +73,29 @@ T2MbtsHypo::T2MbtsHypo(const std::string &name,
 
 //-----------------------------------------------------------------------------
 HLT::ErrorCode T2MbtsHypo::hltInitialize() {
-  m_log.setLevel(outputLevel());
-  if(msgLvl() <= MSG::INFO) {
-    m_log << MSG::INFO << "Initialising this T2MbtsFex: " << name() << endreq;
-    
-    m_log << MSG::INFO << "================ Hypo Settings ================" << endreq;
-    m_log << MSG::INFO << " AcceptAll -------------------  " << (m_acceptAll==true ? "True" : "False") << endreq; 
-    m_log << MSG::INFO << " MbtsCounters required -------  " << m_mbtsCounters << endreq;
-    m_log << MSG::INFO << " Coincidence requirement -----  " << (m_coincidence==true ? "True" : "False") << endreq;
-    m_log << MSG::INFO << " Veto requirement ------------  " << (m_veto==true ? "True" : "False") << endreq;
-    m_log << MSG::INFO << " MBTS mode -------------------  " << (m_mbtsmode==0 ? "All" : ( m_mbtsmode==1 ? "Inner" : "Outer")) << endreq;
-    m_log << MSG::INFO << " Threshold -------------------  " << m_threshold << " pC" << endreq;
-    m_log << MSG::INFO << " TimeCut  --------------------  "; 
-    if(m_timeCut<0) {
-      m_log << MSG::INFO << "Off" << endreq;
-    }
-    else { 
-      m_log << MSG::INFO << m_timeCut << " ns" << endreq;
-      m_log << MSG::INFO << " GlobalTimeOffset  -----------  " << m_globalTimeOffset << " ns" << endreq;
-      m_log << MSG::INFO << " TimeOffsets (A0 to C16) -----  ";
-      for(int i=0; i<32; i++)  m_log << MSG::INFO << m_timeOffsets[i] << " ";
-      m_log << MSG::INFO << " ns" << endreq;
-    }
-    m_log << MSG::INFO << "===============================================" << endreq;
+  ATH_MSG_INFO("Initialising this T2MbtsFex: " << name());
+  ATH_MSG_INFO("================ Hypo Settings ================");
+  ATH_MSG_INFO(" AcceptAll -------------------  " << (m_acceptAll==true ? "True" : "False")); 
+  ATH_MSG_INFO(" MbtsCounters required -------  " << m_mbtsCounters);
+  ATH_MSG_INFO(" Coincidence requirement -----  " << (m_coincidence==true ? "True" : "False"));
+  ATH_MSG_INFO(" Veto requirement ------------  " << (m_veto==true ? "True" : "False"));
+  ATH_MSG_INFO(" MBTS mode -------------------  " << (m_mbtsmode==0 ? "All" : ( m_mbtsmode==1 ? "Inner" : "Outer")));
+  ATH_MSG_INFO(" Threshold -------------------  " << m_threshold << " pC");
+  ATH_MSG_INFO(" TimeCut  --------------------  "); 
+  if(m_timeCut<0) {
+    ATH_MSG_INFO("Off");
   }
+  else { 
+    ATH_MSG_INFO(m_timeCut << " ns");
+    ATH_MSG_INFO(" GlobalTimeOffset  -----------  " << m_globalTimeOffset << " ns");
+    ATH_MSG_INFO(" TimeOffsets (A0 to C16) -----  ");
+    for(int i=0; i<32; i++)  ATH_MSG_INFO(m_timeOffsets[i] << " ns");
+  }
+  ATH_MSG_INFO("===============================================");
  
   // little consistency checker
   if ( m_or && m_coincidence ) {
-    m_log << MSG::ERROR << "The Or and Coincidence logics can not be used together" << endreq;
+    ATH_MSG_ERROR("The Or and Coincidence logics can not be used together");
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
@@ -112,34 +106,25 @@ HLT::ErrorCode T2MbtsHypo::hltInitialize() {
 
 HLT::ErrorCode T2MbtsHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 				      bool& pass) {
-  if(msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this T2MbtsHypo " << name() << endreq;
-  }
+  ATH_MSG_DEBUG("Executing this T2MbtsHypo " << name());
      
   pass = false;
   
   // Try to retrieve the TrigT2MbtsBits object produced by the Fex
   if(getFeature(outputTE, m_t2MbtsBits, "T2Mbts") != HLT::OK){
-    if(msgLvl() <= MSG::WARNING){
-      m_log << MSG::WARNING << "Failed to retrieve features from TE." << endreq;
-    }
+    ATH_MSG_WARNING("Failed to retrieve features from TE.");
     return HLT::OK;
   }
   
   // If the object is not available the trigger fails without complaint.
   if(!m_t2MbtsBits){
-    m_log << MSG::DEBUG << "No trigger bits formed." << endreq;
+    ATH_MSG_DEBUG("No trigger bits formed.");
     return HLT::OK;
   }
   
-  // Print the contents of the object if debug is on.
-  if(msgLvl() <= MSG::DEBUG) {
-//    m_t2MbtsBits->print(m_log);
-  }
-
   // Calculate MBTS counter multiplicities after energy and an optional time cut.
-  if(!calculateMultiplicities(m_t2MbtsBits,m_mbtsmode, m_log,msgLvl())) {
-    m_log << MSG::DEBUG << "calculateMultiplicities failed" << endreq;
+  if(!calculateMultiplicities(m_t2MbtsBits,m_mbtsmode, msg(),msgLvl())) {
+    ATH_MSG_DEBUG("calculateMultiplicities failed");
     return HLT::OK;
   } 
 
@@ -150,7 +135,7 @@ HLT::ErrorCode T2MbtsHypo::hltExecute(const HLT::TriggerElement* outputTE,
     m_selMultEBA = m_mult.first;
     m_selMultEBC = m_mult.second;
 
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Accepting all events in " << name() << endreq;
+    ATH_MSG_DEBUG("Accepting all events in " << name());
     return HLT::OK;
   }
 
@@ -158,36 +143,27 @@ HLT::ErrorCode T2MbtsHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   if(m_coincidence) { // Coincidence logic
     if(!m_veto){
-      if(m_mult.first >= m_mbtsCounters && m_mult.second >= m_mbtsCounters) 
-	pass = true;
+      if(m_mult.first >= m_mbtsCounters && m_mult.second >= m_mbtsCounters) pass = true;
     } else {
-      if(m_mult.first < m_mbtsCounters && m_mult.second < m_mbtsCounters) 
-	pass = true;
+      if(m_mult.first < m_mbtsCounters && m_mult.second < m_mbtsCounters) pass = true;
     }
   } else {
-      if ( m_or ) { // Or logic
-	if(!m_veto){
-	  if ((m_mult.first >= m_mbtsCounters || m_mult.second >= m_mbtsCounters)) 
-	    pass = true;       
-	} else {
-	  if ((m_mult.first < m_mbtsCounters || m_mult.second < m_mbtsCounters)) 
-	    pass = true;       
-	}
-      } else {   // Sum logic
-	if(!m_veto){
-	  if((m_mult.first + m_mult.second) >= m_mbtsCounters) 
-	    pass = true;
-	} else {
-	  if((m_mult.first + m_mult.second) < m_mbtsCounters) 
-	    pass = true;
-	}
-      }
+    if ( m_or ) { // Or logic
+	    if(!m_veto) {
+	      if ((m_mult.first >= m_mbtsCounters || m_mult.second >= m_mbtsCounters)) pass = true;       
+	    } else {
+	      if ((m_mult.first < m_mbtsCounters || m_mult.second < m_mbtsCounters)) pass = true;       
+	    }
+    } else {   // Sum logic
+	    if(!m_veto){
+	      if((m_mult.first + m_mult.second) >= m_mbtsCounters) pass = true;
+	    } else {
+	      if((m_mult.first + m_mult.second) < m_mbtsCounters) pass = true;
+	    }
+    }
   }
   
-  if(msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "REGTEST: event " << (pass?"accepted":"failed") << " with EBA(" << m_mult.first << ") + EBC(" << m_mult.second << ") hits above threshold." <<  endreq;
-  }
-
+  ATH_MSG_DEBUG("REGTEST: event " << (pass?"accepted":"failed") << " with EBA(" << m_mult.first << ") + EBC(" << m_mult.second << ") hits above threshold.");
 
   if( pass ){
     m_selMultEBA = m_mult.first;
