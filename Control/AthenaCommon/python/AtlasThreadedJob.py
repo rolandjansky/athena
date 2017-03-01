@@ -51,7 +51,9 @@ def _setupAtlasThreadedJob():
 
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
-    svcMgr += AlgResourcePool( OutputLevel = INFO );
+    arp=AlgResourcePool( OutputLevel = INFO );
+    arp.TopAlg=["AthMTSeq"] #this should enable control flow
+    svcMgr += arp
 
     from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
     svcMgr += ForwardSchedulerSvc()

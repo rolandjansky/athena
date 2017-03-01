@@ -725,7 +725,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   resetTimeout(Athena::Timeout::instance());
   if(toolsPassed) {
     // Fire BeginEvent "Incident"
-    m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent",*evtContext));
+    //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent",*evtContext));
     
     
     // Now add event to the scheduler 
@@ -1249,8 +1249,8 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       continue;
     }
 
-    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
-					 *thisFinishedEvtContext ));
+    // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
+    // 					 *thisFinishedEvtContext ));
 
 
     info() << "Clearing slot " << thisFinishedEvtContext->slot() 
