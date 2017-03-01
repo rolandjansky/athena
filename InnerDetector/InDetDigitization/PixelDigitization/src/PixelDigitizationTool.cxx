@@ -125,9 +125,6 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
   unsigned int numberOfSiHits(0);
   CHECK(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName,hitCollList,numberOfSiHits));
 
-  // Create hit collection
-  m_timedHits     = new TimedHitCollection<SiHit>(numberOfSiHits);
-
   // Now merge all collections into one
   for (TimedHitCollList::iterator iColl=hitCollList.begin(); iColl!=hitCollList.end(); iColl++) {
     // Decide if this event will be processed depending on HardScatterSplittingMode
@@ -225,7 +222,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     chargedDiodes->clear();
   }
   delete m_timedHits;
-  m_timedHits = 0;
+  m_timedHits = nullptr;
   ATH_MSG_DEBUG("hits processed");
 
   // Loop over the Detectors without hits
@@ -348,6 +345,10 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   }
   ATH_MSG_DEBUG("InDetSimDataCollection " << m_simDataColl.name() << " registered in StoreGate");
 
+  // Create hit collection
+  if(m_timedHits) delete m_timedHits;
+  m_timedHits     = new TimedHitCollection<SiHit>(numberOfSiHits);
+
   m_HardScatterSplittingSkipper = false;
   return StatusCode::SUCCESS;
 }
@@ -376,8 +377,6 @@ StatusCode PixelDigitizationTool::mergeEvent() {
 // ProcessBunchXing method:
 //----------------------------------------------------------------------
 StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) {
-
-  if (m_timedHits==0) { m_timedHits = new TimedHitCollection<SiHit>(); }
 
   ATH_MSG_VERBOSE("PixelDigitizationTool::processBunchXing() " << bunchXing);
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
