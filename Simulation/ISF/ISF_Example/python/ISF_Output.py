@@ -96,8 +96,10 @@ def getEVNTStreamItemList():
     evntItemList=[]
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.CavernBG.statusOn and 'Write' in simFlags.CavernBG.get_Value():
+        evntItemList += ["EventInfo#*"]
         evntItemList += ["TrackRecordCollection#NeutronBG"]
     else:
+        evntItemList += ["EventInfo#*"]
         evntItemList += ["TrackRecordCollection#CosmicRecord"]
     return evntItemList
 
