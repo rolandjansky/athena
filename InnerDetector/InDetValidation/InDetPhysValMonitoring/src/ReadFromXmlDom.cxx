@@ -20,7 +20,7 @@
 
 namespace {
   bool
-  validAxisName(const std::string &proposedName, const std::array<std::string, 2> &allowedNames) {
+  validAxisName(const std::string& proposedName, const std::array<std::string, 2>& allowedNames) {
     return((proposedName == allowedNames[0])or(proposedName == allowedNames[1]));
   }
 }
@@ -28,7 +28,7 @@ namespace {
 ReadFromXmlDom::ReadFromXmlDom() : m_source("unspecified file"), m_format("text/xml") {
 }
 
-ReadFromXmlDom::ReadFromXmlDom(const std::string &source) : m_format("text/xml") {
+ReadFromXmlDom::ReadFromXmlDom(const std::string& source) : m_format("text/xml") {
   m_source = PathResolver::find_file(source, "DATAPATH");
 }
 
@@ -43,7 +43,7 @@ ReadFromXmlDom::format() const {
 }
 
 bool
-ReadFromXmlDom::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition> &usersmap) const {
+ReadFromXmlDom::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition>& usersmap) const {
   bool ok(true);
 
   for (auto i:m_vectorOfDefinitions) {
@@ -53,13 +53,18 @@ ReadFromXmlDom::histoDefinitionMap(std::map<std::string, SingleHistogramDefiniti
     if (not i.validType()) {
       continue;
     }
-    ok &= (usersmap.insert(std::pair<std::string, SingleHistogramDefinition>(i.stringIndex(), i))).second;
+    bool thisIsOk = (usersmap.insert(std::pair<std::string, SingleHistogramDefinition>(i.stringIndex(), i))).second;
+    if (not thisIsOk) {
+      ok &= thisIsOk;
+      std::string msg = "You have attempted to add a duplicate histogram definition: " + i.stringIndex();
+      throw std::runtime_error(msg);
+    }
   }
   return(ok and(not usersmap.empty()));
 }
 
 bool
-ReadFromXmlDom::insertDefinition(const SingleHistogramDefinition &oneDefinition) {
+ReadFromXmlDom::insertDefinition(const SingleHistogramDefinition& oneDefinition) {
   bool ok(true);
 
   m_vectorOfDefinitions.push_back(oneDefinition);
@@ -71,17 +76,17 @@ ReadFromXmlDom::initialize() {
   bool ok(true);
 
   if (m_source.empty() or(not sourceExists())) {
-    std::cerr<<"Could not open file "<<m_source<<" in ReadFromXmlDom initialize"<<std::endl;
+    std::cerr << "Could not open file " << m_source << " in ReadFromXmlDom initialize" << std::endl;
     return false;
   }
   myXerces::Lib xercesFrame; // RAII xerces context
   static const XMLCh gLS[] = {
     xercesc::chLatin_L, xercesc::chLatin_S, xercesc::chNull
   };
-  xercesc::DOMImplementation *impl = xercesc::DOMImplementationRegistry::getDOMImplementation(gLS);
-  xercesc::DOMLSParser *parser = ((xercesc::DOMImplementationLS *) impl)->createLSParser(
+  xercesc::DOMImplementation* impl = xercesc::DOMImplementationRegistry::getDOMImplementation(gLS);
+  xercesc::DOMLSParser* parser = ((xercesc::DOMImplementationLS*) impl)->createLSParser(
     xercesc::DOMImplementationLS::MODE_SYNCHRONOUS, 0);
-  xercesc::DOMConfiguration *config = parser->getDomConfig();
+  xercesc::DOMConfiguration* config = parser->getDomConfig();
   if (config->canSetParameter(xercesc::XMLUni::fgXercesDoXInclude, true)) {
     config->setParameter(xercesc::XMLUni::fgXercesDoXInclude, true);
   }
@@ -89,11 +94,11 @@ ReadFromXmlDom::initialize() {
   config->setParameter(xercesc::XMLUni::fgDOMErrorHandler, &errorHandler);
   auto doc = parser->parseURI(m_source.c_str());
   const XercesString temp = fromNative("h");
-  xercesc::DOMNodeList *list = doc->getElementsByTagName(temp.c_str());
+  xercesc::DOMNodeList* list = doc->getElementsByTagName(temp.c_str());
   const auto nElements = list->getLength();
   for (unsigned long i(0); i != nElements; ++i) {
-    xercesc::DOMNode const *thisNode = list->item(i);
-    auto thisElement = dynamic_cast<xercesc::DOMElement const *> (thisNode);
+    xercesc::DOMNode const* thisNode = list->item(i);
+    auto thisElement = dynamic_cast<xercesc::DOMElement const*> (thisNode);
     if (thisElement) {
       insertDefinition(parseXmlElement(thisElement));
     }
@@ -105,11 +110,12 @@ ReadFromXmlDom::initialize() {
 bool
 ReadFromXmlDom::sourceExists() const {
   struct stat buffer;
+
   return(stat(m_source.c_str(), &buffer) == 0);
 }
 
 SingleHistogramDefinition
-ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement *element) {
+ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
   SingleHistogramDefinition s;
   enum RegXHistoGroups {
     TYPE, NAME, TITLE, NX, NY, XLO, YLO, XHI, YHI, XAXIS, YAXIS, FOLDER, NGROUPS
@@ -117,10 +123,11 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement *element) {
   const std::array<std::string, NGROUPS> attrNames = {
     "type", "id", "title", "n", "n", "lo", "lo", "hi", "hi", "title", "title", "folder"
   };
+
   //
   // transform the std::string attribute names to Xerces string attribute names
   std::array<XercesString, NGROUPS> xercesNames;
-  std::transform(attrNames.begin(), attrNames.end(), xercesNames.begin(), [](const std::string &s) {
+  std::transform(attrNames.begin(), attrNames.end(), xercesNames.begin(), [](const std::string& s) {
     return fromNative(s);
   });
   // Use this array to store the primary returned attribute values, which will be Xerces strings
@@ -139,7 +146,7 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement *element) {
   const std::string type = toNative(xercesValues[TYPE]);
   const bool isTProfile = (type == "TProfile");
   // get children of the histogram, these are the two axes
-  const xercesc::DOMElement *axisDef0 = element->getFirstElementChild();
+  const xercesc::DOMElement* axisDef0 = element->getFirstElementChild();
   if (!axisDef0 and element->hasChildNodes()) {
     XercesString xercesContent = element->getTextContent();
     const std::string textContent = toNative(xercesContent);
@@ -151,12 +158,15 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement *element) {
     sx.histoType = type;
     return sx;
   }
-  const xercesc::DOMElement *axisDef1 = axisDef0->getNextElementSibling();
+  //if get to here and axisDef0 is null, theres a problem
+  if (not axisDef0) return s;
+  const xercesc::DOMElement* axisDef1 = axisDef0->getNextElementSibling();
   // only allow two axes, but could be ordered x-y or y-x
   std::string axisName0 = toNative(axisDef0->getTagName());
   std::string axisName1 = toNative(axisDef1->getTagName());
-  if (validAxisName(axisName0, allowedAxisNames) and validAxisName(axisName1,
-                                                                   allowedAxisNames) and(axisName1 != axisName0)) {
+  if (validAxisName(axisName0, allowedAxisNames) 
+   and validAxisName(axisName1,allowedAxisNames) 
+   and (axisName1 != axisName0)) {
     // default order
     unsigned int xIndex = 0, yIndex = 1;
     if (axisName0 == allowedAxisNames[1]) {
@@ -176,11 +186,11 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement *element) {
     std::array<std::string, NGROUPS> stringValues {
       ""
     };
-    std::transform(xercesValues.begin(), xercesValues.end(), stringValues.begin(), [](const XercesString &s) {
+    std::transform(xercesValues.begin(), xercesValues.end(), stringValues.begin(), [](const XercesString& s) {
       return toNative(s);
     });
     // numerical values are required for some quantities
-    constexpr float NaN = std::nanf(""); // default 'invalid' float is not-a-number (NaN)
+    const float NaN = std::nanf(""); // default 'invalid' float is not-a-number (NaN)
     const unsigned int nx = stringValues[NX].empty() ? 0 : (unsigned int) (std::stoul(stringValues[NX]));
     const unsigned int ny = stringValues[NY].empty() ? 0 : (unsigned int) (std::stoul(stringValues[NY]));
     const float xlo = stringValues[XLO].empty() ? NaN : std::stof(stringValues[XLO]);
@@ -197,11 +207,12 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement *element) {
 }
 
 SingleHistogramDefinition
-ReadFromXmlDom::parseTextLine(const std::string &line) {
+ReadFromXmlDom::parseTextLine(const std::string& line) {
   SingleHistogramDefinition s;
   enum RegXHistoGroups {
     TOTAL, TITLE, NBINS, XLO, XHI, XAXIS, YAXIS, DUMMY, FOLDER, NGROUPS
   };
+
   std::string rex =
     R"delim(^\s+"([^"]+)"\s+(\d+)\s+([-+.0-9eE]+)\s+([-+.0-9eE]+)\s+"([^"]+)"\s+"([^"]+)"\s*(.*)\s*$)delim";
   std::regex reg(rex);
@@ -223,11 +234,12 @@ ReadFromXmlDom::parseTextLine(const std::string &line) {
 }
 
 SingleHistogramDefinition
-ReadFromXmlDom::parseTProfileText(const std::string &line) {
+ReadFromXmlDom::parseTProfileText(const std::string& line) {
   SingleHistogramDefinition s;
   enum RegXHistoGroups {
     TOTAL, TITLE, NBINS, XLO, XHI, YLO, YHI, XAXIS, YAXIS, DUMMY, FOLDER, NGROUPS
   };
+
   // text like: &quot;Test of TProfile&quot; 20 -50 50 0 200 &quot;#eta&quot;  &quot;testEntries&quot;
   std::string rex =
     R"delim(^\s+"([^"]+)"\s+(\d+)\s+([-+.0-9eE]+)\s+([-+.0-9eE]+)\s+([-+.0-9eE]+)\s+([-+.0-9eE]+)\s+"([^"]+)"\s+"([^"]+)"\s*(.*)\s*$)delim";

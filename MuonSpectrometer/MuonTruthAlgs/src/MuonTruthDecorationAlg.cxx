@@ -367,9 +367,9 @@ namespace Muon {
           segment->setPosition(gpos.x(),gpos.y(),gpos.z());
           segment->setDirection(gdir.x(),gdir.y(),gdir.z());
 	}
-	delete firstPos;
-	delete secondPos;
       }
+      if(firstPos) delete firstPos;
+      if(secondPos) delete secondPos;
     }
   }
 

@@ -22,7 +22,7 @@ macro_append TrigConfReadWriteMuCTPiGeometrylinkopts " $(Boost_linkopts_filesyst
 
 
 # Install the LUTs:
-apply_pattern detcommon_link_files kind=XML files="-s=../data *.xml *.dtd" \
+apply_pattern detcommon_link_files kind=XML files="-s=../data *.dtd" \
                                    prefix=XML/TrigConfMuctpi
 
 apply_pattern detcommon_link_files kind=scripts files="-s=../scripts *.py" \

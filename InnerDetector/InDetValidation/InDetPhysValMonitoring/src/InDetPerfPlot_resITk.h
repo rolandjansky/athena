@@ -56,9 +56,9 @@ public:
   };
 
 
-  InDetPerfPlot_resITk(PlotBase *pParent, const std::string &dirName);
+  InDetPerfPlot_resITk(PlotBase* pParent, const std::string& dirName);
 
-  void fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt);
+  void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
 //  virtual bool isDefined(TString t);
   virtual ~InDetPerfPlot_resITk() {/** nop **/
   }
@@ -84,16 +84,16 @@ private:
   void initializePlots();
   void finalizePlots();
 
-  void makeResolutions(TH2 * h, TH1 * h2[m_nResHist], TH1 * h3[], bool s);
-  void makeResolutions(TH2 * h, TH1 * h2[m_nResHist]);
+  void makeResolutions(TH2* h, TH1* h2[m_nResHist], TH1* h3[], bool s);
+  void makeResolutions(TH2* h, TH1* h2[m_nResHist]);
 
-  void makeResolutions(TH3 * h, TH1 * h2[][m_nResHist], TH1 * h3[][m_nResHist]);
-  void getTrackParameters(const xAOD::TruthParticle &truthprt);
-  void getTrackParameters(const xAOD::TrackParticle &truthprt);
+  void makeResolutions(TH3* h, TH1* h2[][m_nResHist], TH1* h3[][m_nResHist]);
+  void getTrackParameters(const xAOD::TruthParticle& truthprt);
+  void getTrackParameters(const xAOD::TrackParticle& truthprt);
   void getPlotParameters();
   void getPlots();
-  void cloneHistogram(TH1D *h, TH1 *hcopy);
-  std::vector<float> getResolution(TH1 *h, std::string s);
+  void cloneHistogram(TH1D* h, TH1* hcopy);
+  std::vector<float> getResolution(TH1* h, std::string s);
 
   float m_trkP[NPARAMS];
   float m_truetrkP[NPARAMS];
@@ -105,91 +105,90 @@ private:
 
   pCfg m_paramProp[NPARAMS];
 
-  TH1 *m_resITk_pull[NPARAMS];
-  TH1 *m_resITk_res[NPARAMS];
-  TH1 *m_resITk_reco[NPARAMS];
-  TH1 *m_resITk_true[NPARAMS];
-  TH1 *m_resITk_sigma[NPARAMS];
+  TH1* m_resITk_pull[NPARAMS];
+  TH1* m_resITk_res[NPARAMS];
+  TH1* m_resITk_reco[NPARAMS];
+  TH1* m_resITk_true[NPARAMS];
+  TH1* m_resITk_sigma[NPARAMS];
 
-  TH1 *m_resITk_chargeID;
-  TH1 *m_resITk_chargeID_vs_eta;
-  TH1 *m_resITk_chargeID_vs_pt;
-  TH1 *m_resITk_chargeID_vs_phi;
+  TH1* m_resITk_chargeID;
+  TH1* m_resITk_chargeID_vs_eta;
+  TH1* m_resITk_chargeID_vs_pt;
+  TH1* m_resITk_chargeID_vs_phi;
 
-  TH1 *m_resITk_momTail;
-  TH1 *m_resITk_momTail_vs_eta;
-  TH1 *m_resITk_momTail_vs_pt;
-  TH1 *m_resITk_momTail_vs_phi;
-  TH1 *m_resITk_momTail_Frac;
-  TH2 *m_resITk_chargeID_chgvschg;
+  TH1* m_resITk_momTail;
+  TH1* m_resITk_momTail_vs_eta;
+  TH1* m_resITk_momTail_vs_pt;
+  TH1* m_resITk_momTail_vs_phi;
+  TH1* m_resITk_momTail_Frac;
+  TH2* m_resITk_chargeID_chgvschg;
 
-  TH2 *m_resITk_resHelpereta[NPARAMS];
-  TH1 *m_resITk_Resolution_vs_eta[NPARAMS][m_nResHist];
-  TH1 *m_resITk_ResProjections_vs_eta[NPARAMS][m_nEtaBins];
+  TH2* m_resITk_resHelpereta[NPARAMS];
+  TH1* m_resITk_Resolution_vs_eta[NPARAMS][m_nResHist];
+  TH1* m_resITk_ResProjections_vs_eta[NPARAMS][m_nEtaBins];
 
-  TH2 *m_resITk_resHelpereta_pos[NPARAMS];
-  TH1 *m_resITk_Resolution_vs_eta_pos[NPARAMS][m_nResHist];
-  TH2 *m_resITk_resHelpereta_neg[NPARAMS];
-  TH1 *m_resITk_Resolution_vs_eta_neg[NPARAMS][m_nResHist];
+  TH2* m_resITk_resHelpereta_pos[NPARAMS];
+  TH1* m_resITk_Resolution_vs_eta_pos[NPARAMS][m_nResHist];
+  TH2* m_resITk_resHelpereta_neg[NPARAMS];
+  TH1* m_resITk_Resolution_vs_eta_neg[NPARAMS][m_nResHist];
 
-  TH2 *m_resITk_resHelperpt[NPARAMS];
-  TH1 *m_resITk_Resolution_vs_pt[NPARAMS][m_nResHist];
-  TH1 *m_resITk_ResProjections_vs_pt[NPARAMS][m_nPtBins];
+  TH2* m_resITk_resHelperpt[NPARAMS];
+  TH1* m_resITk_Resolution_vs_pt[NPARAMS][m_nResHist];
+  TH1* m_resITk_ResProjections_vs_pt[NPARAMS][m_nPtBins];
 
-  TH2 *m_resITk_resHelperpt_pos[NPARAMS];
-  TH1 *m_resITk_Resolution_vs_pt_pos[NPARAMS][m_nResHist];
-  TH2 *m_resITk_resHelperpt_neg[NPARAMS];
-  TH1 *m_resITk_Resolution_vs_pt_neg[NPARAMS][m_nResHist];
-
-
-  TH3 *m_resITk_resHelperetapt[NPARAMS];
-
-  TH2 *m_resITk_pullHelperpt[NPARAMS]; // pull width as a function of pT
-  TH2 *m_resITk_pullHelpereta[NPARAMS]; // pull width as a function of pT
-  
-  TH1 *m_resITk_pullResolution_vs_pt[NPARAMS][m_nResHist];
-  TH1 *m_resITk_pullResolution_vs_eta[NPARAMS][m_nResHist];
-  
-  TH1 *m_resITk_pullProjections_vs_pt[NPARAMS][m_nPtBins];
-  TH1 *m_resITk_pullProjections_vs_eta[NPARAMS][m_nEtaBins];
+  TH2* m_resITk_resHelperpt_pos[NPARAMS];
+  TH1* m_resITk_Resolution_vs_pt_pos[NPARAMS][m_nResHist];
+  TH2* m_resITk_resHelperpt_neg[NPARAMS];
+  TH1* m_resITk_Resolution_vs_pt_neg[NPARAMS][m_nResHist];
 
 
-  TH1 *m_resITk_Resolution_vs_pt_EtaBin[NPARAMS][4][m_nResHist];
-  TH1 *m_resITk_Resolution_vs_eta_PtBin[NPARAMS][4][m_nResHist];
+//  TH3* m_resITk_resHelperetapt[NPARAMS];
 
-  TProfile *m_resITk_meanProfeta[NPARAMS];
-  TProfile *m_resITk_meanProfpt[NPARAMS];
-  TH2      *m_resITk_sigmaVsEta[NPARAMS];
-  TProfile *m_DEBUG_D0dep[NPARAMS];
-  TProfile *m_DEBUG_FirstHitR_d0;
-  TH1      *m_DEBUG_NOBREM_d0;
-  TH1      *m_DEBUG_BREM_d0;
+  TH2* m_resITk_pullHelperpt[NPARAMS]; // pull width as a function of pT
+  TH2* m_resITk_pullHelpereta[NPARAMS]; // pull width as a function of pT
 
-  TH1      *m_trk_chi2ndof;
-  TProfile *m_trk_chi2ndof_vs_eta;
-  TProfile *m_trk_chi2ndof_vs_totHits;
-  TProfile *m_trk_chi2ndof_vs_totHits_prob;
+  TH1* m_resITk_pullResolution_vs_pt[NPARAMS][m_nResHist];
+  TH1* m_resITk_pullResolution_vs_eta[NPARAMS][m_nResHist];
 
-  TH1      *m_trk_chi2;
-  TH1      *m_trk_ndof;
-
-  TH2      *m_significance_d0;
-  TH2      *m_significance_z0;
-
-  TH1      *m_significance_d0_vs_eta;
-  TH1      *m_significance_z0_vs_eta;
-
-  TH1      *m_fix_qoverpt_res[16];
-
-  TH1      *m_fix_qoverptresolutionRMS_vs_eta;
+  TH1* m_resITk_pullProjections_vs_pt[NPARAMS][m_nPtBins];
+  TH1* m_resITk_pullProjections_vs_eta[NPARAMS][m_nEtaBins];
 
 
-  TH1      *m_fix_d0_res[16];
-  TH1      *m_fix_d0resolutionRMS_vs_eta;
+  TH1* m_resITk_Resolution_vs_pt_EtaBin[NPARAMS][4][m_nResHist];
+  TH1* m_resITk_Resolution_vs_eta_PtBin[NPARAMS][4][m_nResHist];
 
-  TH1      *m_fix_z0_res[16];
-  TH1      *m_fix_z0resolutionRMS_vs_eta;
+  TProfile* m_resITk_meanProfeta[NPARAMS];
+  TProfile* m_resITk_meanProfpt[NPARAMS];
+  TH2* m_resITk_sigmaVsEta[NPARAMS];
+  TProfile* m_DEBUG_D0dep[NPARAMS];
+  TProfile* m_DEBUG_FirstHitR_d0;
+  TH1* m_DEBUG_NOBREM_d0;
+  TH1* m_DEBUG_BREM_d0;
 
+  TH1* m_trk_chi2ndof;
+  TProfile* m_trk_chi2ndof_vs_eta;
+  TProfile* m_trk_chi2ndof_vs_totHits;
+  TProfile* m_trk_chi2ndof_vs_totHits_prob;
+
+  TH1* m_trk_chi2;
+  TH1* m_trk_ndof;
+
+  TH2* m_significance_d0;
+  TH2* m_significance_z0;
+
+  TH1* m_significance_d0_vs_eta;
+  TH1* m_significance_z0_vs_eta;
+
+  TH1* m_fix_qoverpt_res[16];
+
+  TH1* m_fix_qoverptresolutionRMS_vs_eta;
+
+
+  TH1* m_fix_d0_res[16];
+  TH1* m_fix_d0resolutionRMS_vs_eta;
+
+  TH1* m_fix_z0_res[16];
+  TH1* m_fix_z0resolutionRMS_vs_eta;
 };
 
 

@@ -45,13 +45,11 @@ apply_pattern UnitTest_run unit_test=errorcheck extrapatterns="'$(extrapatterns)
 apply_pattern UnitTest_run unit_test=type_tools
 apply_pattern UnitTest_run unit_test=Units
 apply_pattern UnitTest_run unit_test=DataObjectSharedPtr
+apply_pattern UnitTest_run unit_test=IRCUSvc
+apply_pattern UnitTest_run unit_test=RCUObject
 
 macro_append DOXYGEN_INPUT " ../doc ../test ../AthenaKernel/tools " 
 macro_append DOXYGEN_FILE_PATTERNS    " *.icc"
-
-application genCLIDDB ../utils/genCLIDDB.cxx 
-macro_append genCLIDDBlinkopts " $(Boost_linkopts_program_options) "
-macro_append genCLIDDB_dependencies " AthenaKernel"
 
 #
 # dictionary creation for UserDataAssociation

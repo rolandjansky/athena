@@ -352,7 +352,7 @@ log.info("Trigger xml files HLT    : in = %s , out = %s (read from XML = %s)" % 
 
 # define a unique HLT configuration xml when running in a partition
 import os
-if os.environ.has_key("TDAQ_PARTITION"):
+if "TDAQ_PARTITION" in os.environ:
     from TriggerRelease import Utils
     ident = Utils.uniqueFileName()
     TriggerFlags.outputHLTconfigFile ="outputHLTconfig_%s.xml" % ident

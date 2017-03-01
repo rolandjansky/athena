@@ -28,7 +28,9 @@ using CLHEP::GeV;
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   TauRecToolBase(name),
   m_doEnergyCorr(false),
+  m_doPtResponse(false),
   m_doAxisCorr(false),
+  m_usePantauAxis(false),
   m_printMissingContainerINFO(true),
   m_isCaloOnly(false),
   m_clusterCone(0.2)  //not used
@@ -38,9 +40,12 @@ TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   declareProperty("calibrationFile", calibrationFile = "EnergyCalibrationLC2012.root");
   declareProperty("vertexContainerKey", vertexContainerKey = "PrimaryVertices");
   declareProperty("doEnergyCorrection", m_doEnergyCorr);
-  declareProperty("doAxisCorrection",    m_doAxisCorr);
+  declareProperty("doPtResponse", m_doPtResponse);
+  declareProperty("countOnlyPileupVertices", m_countOnlyPileupVertices=false);
+  declareProperty("doAxisCorrection", m_doAxisCorr);
+  declareProperty("usePantauAxis", m_usePantauAxis);
   declareProperty("ClusterCone", m_clusterCone); //not used
-  declareProperty("isCaloOnly",    m_isCaloOnly);
+  declareProperty("isCaloOnly", m_isCaloOnly);
 }
 
 /********************************************************************/
@@ -183,7 +188,11 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
       xAOD::VertexContainer::const_iterator vx_end = vxContainer->end();
 	  
       for (; vx_iter != vx_end; ++vx_iter) {
-	if ((*vx_iter)->nTrackParticles() >= m_minNTrackAtVertex)
+	if(m_countOnlyPileupVertices && 
+	   (*vx_iter)->vertexType() == xAOD::VxType::PileUp)
+	  ++nVertex;
+	else if(!m_countOnlyPileupVertices &&
+	   (*vx_iter)->nTrackParticles() >= m_minNTrackAtVertex)
 	  ++nVertex;
       }
 	  
@@ -206,17 +215,9 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 
     }
 
-    // get detector axis energy
-    // was saved by TauAxisSetter
-    double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV;            //was sumClusterVector.e() / GeV;
-	
-    if (energyLC <= 0) {
-      ATH_MSG_DEBUG("tau energy at LC scale is " << energyLC << "--> set energy=0.001");           
-      //TODO: we can not set tau energy to 0 due to bug in P4Helpers during deltaR calculation
-      //will set it to 0.001 MeV
-      pTau.setP4(0.001, pTau.eta(), pTau.phi(), pTau.m());
-      return StatusCode::SUCCESS;
-    }
+
+    
+    double calibConst = 1.0;
 
     double slopeNPV = slopeNPVHist[prongBin]->GetBinContent(etaBin + 1);
     double offset = slopeNPV * (nVertex - m_averageNPV);
@@ -225,19 +226,33 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     // no offset correction for trigger        
     //if (inTrigger) offset = 0.;
 
+    // energy response parameterized as a function of pileup-corrected E_LC
+    double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV;            //was sumClusterVector.e() / GeV;
+    if(m_doPtResponse) energyLC = pTau.ptDetectorAxis() / GeV;
+
+    if (energyLC <= 0) {
+      ATH_MSG_DEBUG("tau energy at LC scale is " << energyLC << "--> set energy=0.001");           
+      //TODO: we can not set tau energy to 0 due to bug in P4Helpers during deltaR calculation
+      //will set it to 0.001 MeV
+      pTau.setP4(0.001, pTau.eta(), pTau.phi(), pTau.m());
+      return StatusCode::SUCCESS;
+    }
+
+    // get detector axis energy
+    // was saved by TauAxisSetter
+      
     if (energyLC - offset <= 0) {
       ATH_MSG_DEBUG("after pile-up correction energy would be = " << energyLC - offset << " --> setting offset=0 now!");
       offset = 0;
     }
-
+      
     // apply offset correction
     double energyPileupCorr = energyLC - offset;
-
-    double calibConst = 1.0;
+      
     if (energyPileupCorr > 0 and energyPileupCorr < 10000) // from 0 to 10 TeV
       {
 	calibConst = calibFunc[prongBin][etaBin]->Eval(energyPileupCorr);
-
+	  
 	if (calibConst <= 0) {
 	  ATH_MSG_DEBUG("calibration constant = " << calibConst);
 	  ATH_MSG_DEBUG("prongBin             = " << prongBin);
@@ -247,36 +262,51 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 	  calibConst = 1.0;
 	}
       }
-
+      
     double energyFinal = energyPileupCorr / calibConst;
-
-    pTau.setP4(energyFinal * GeV / cosh( pTau.eta() ), pTau.eta(), pTau.phi(), pTau.m());
-
-    pTau.setP4(xAOD::TauJetParameters::TauEnergyScale, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
       
-    pTau.setDetail(xAOD::TauJetParameters::TESCalibConstant, static_cast<float>( calibConst ) );
-    pTau.setDetail(xAOD::TauJetParameters::TESOffset, static_cast<float>( offset * GeV ) );
-      
+    if (not m_doPtResponse) energyFinal /= cosh(pTau.eta()) ; 
+    pTau.setP4( energyFinal * GeV, pTau.eta(), pTau.phi(), pTau.m());
+
     ATH_MSG_DEBUG("Energy at LC scale = " << energyLC << " pile-up offset " << offset << " calib. const. = " << calibConst << " final energy = " << energyFinal);
+
+    pTau.setP4(xAOD::TauJetParameters::TauEnergyScale, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());      
+    pTau.setDetail(xAOD::TauJetParameters::TESCalibConstant, static_cast<float>( calibConst ) );
+    pTau.setDetail(xAOD::TauJetParameters::TESOffset, static_cast<float>( offset * GeV ) );      
+
   }
     
   // final tau axis
   if (m_doAxisCorr) {
 
     // get tau intermediate axis values
-    double eta = pTau.eta();
+
+    double eta = pTau.etaIntermediateAxis();
     double absEta = std::abs(eta);
     double etaCorr = eta;
+    
+    // WARNING !!! THIS IS NEW - MAKE SURE WE WANT THIS
+    double phi = pTau.phiIntermediateAxis();
+    double phiCorr = phi;
 
-    if (absEta)
+    // TauCalibrateLC should then only be called after Pantau !!
+    //
+    if(m_usePantauAxis && fabs(pTau.etaPanTauCellBased()) < 111) {      
+      etaCorr = pTau.etaPanTauCellBased();
+      phiCorr = pTau.phiPanTauCellBased();      
+
+    }
+    else if (absEta) {
+
       etaCorr = (eta / absEta)*(absEta - etaCorrectionHist->GetBinContent(etaCorrectionHist->GetXaxis()->FindBin(absEta)));
 
-    ATH_MSG_DEBUG("eta " << eta << "; corrected eta = " << etaCorr);
+    }      
 
-    pTau.setP4( pTau.e() / cosh( etaCorr ), etaCorr, pTau.phi(), pTau.m());
-
+    ATH_MSG_DEBUG("eta " << eta << "; corrected eta = " << etaCorr << " ; phi " << phi << "; corrected phi " << phiCorr );
+    
+    pTau.setP4( pTau.e() / cosh( etaCorr ), etaCorr, phiCorr, pTau.m());
+    
     pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
-     
   }
 
   if (m_isCaloOnly == true && tauEventData()->inTrigger() == true){

@@ -85,7 +85,6 @@ namespace met {
     std::string m_pvcoll;
     std::string m_trkcoll;
     std::string m_clcoll;
-    std::string m_goodtracks_coll;
 
     bool m_pflow;
     bool m_useTracks;
@@ -93,6 +92,7 @@ namespace met {
     bool m_useIsolationTools;
     bool m_useModifiedClus;
     bool m_weight_charged_pfo;
+    bool m_cleanChargedPFO;
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
     ToolHandle<CP::IWeightPFOTool> m_pfoweighttool;

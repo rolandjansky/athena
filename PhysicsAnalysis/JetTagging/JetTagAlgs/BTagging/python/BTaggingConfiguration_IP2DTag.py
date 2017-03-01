@@ -77,6 +77,9 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
                      'unbiasIPEstimation'               : False,
                      'UseCHypo'                         : True,
                      'SecVxFinderName'                  : 'SV1',
+                     'storeTrackParticles': True,
+                     'storeTrackParameters': True,
+                     'storeIpValues': False,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

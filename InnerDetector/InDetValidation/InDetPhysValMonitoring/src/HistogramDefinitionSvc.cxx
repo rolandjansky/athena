@@ -22,7 +22,7 @@ namespace {
 }
 
 
-HistogramDefinitionSvc::HistogramDefinitionSvc(const std::string &name, ISvcLocator *pSvcLocator) :
+HistogramDefinitionSvc::HistogramDefinitionSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator), m_format{UNKNOWN}, m_reader{} {
   declareProperty("DefinitionSource", m_source);
   declareProperty("DefinitionFormat", m_formatString = "text/plain");
@@ -59,16 +59,18 @@ HistogramDefinitionSvc::initialize() {
   }
   ok = m_reader->histoDefinitionMap(m_histoDefMap);
   bool allDefsOk(true);
-  for (auto &h:m_histoDefMap) {
+  for (auto& h:m_histoDefMap) {
     if (not h.second.isValid()) {
       ATH_MSG_WARNING("Invalid histogram definition: " << h.second.str());
       allDefsOk = false;
     }
   }
   if (ok and(not allDefsOk)) {
+    ATH_MSG_WARNING("Some histogram definitions were bad.");
     return StatusCode::RECOVERABLE;
   }
   if (not ok) {
+    ATH_MSG_ERROR("The definition reader failed to read the histogram definitions.");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -81,7 +83,7 @@ HistogramDefinitionSvc::finalize() {
 }
 
 SingleHistogramDefinition
-HistogramDefinitionSvc::definition(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::definition(const std::string& name, const std::string& dirName) const {
   SingleHistogramDefinition result;
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
 
@@ -92,7 +94,7 @@ HistogramDefinitionSvc::definition(const std::string &name, const std::string &d
 }
 
 std::string
-HistogramDefinitionSvc::histoType(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::histoType(const std::string& name, const std::string& dirName) const {
   std::string result {};
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
 
@@ -103,7 +105,7 @@ HistogramDefinitionSvc::histoType(const std::string &name, const std::string &di
 }
 
 std::string
-HistogramDefinitionSvc::title(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::title(const std::string& name, const std::string& dirName) const {
   std::string result {};
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
 
@@ -114,7 +116,7 @@ HistogramDefinitionSvc::title(const std::string &name, const std::string &dirNam
 }
 
 unsigned int
-HistogramDefinitionSvc::nBinsX(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::nBinsX(const std::string& name, const std::string& dirName) const {
   unsigned int nbins(0);
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
 
@@ -125,7 +127,7 @@ HistogramDefinitionSvc::nBinsX(const std::string &name, const std::string &dirNa
 }
 
 unsigned int
-HistogramDefinitionSvc::nBinsY(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::nBinsY(const std::string& name, const std::string& dirName) const {
   unsigned int nbins(0);
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
 
@@ -136,7 +138,7 @@ HistogramDefinitionSvc::nBinsY(const std::string &name, const std::string &dirNa
 }
 
 IHistogramDefinitionSvc::axesLimits_t
-HistogramDefinitionSvc::xLimits(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::xLimits(const std::string& name, const std::string& dirName) const {
   axesLimits_t result(invalidLimits);
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
 
@@ -147,7 +149,7 @@ HistogramDefinitionSvc::xLimits(const std::string &name, const std::string &dirN
 }
 
 IHistogramDefinitionSvc::axesLimits_t
-HistogramDefinitionSvc::yLimits(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::yLimits(const std::string& name, const std::string& dirName) const {
   axesLimits_t result(invalidLimits);
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
 
@@ -158,7 +160,7 @@ HistogramDefinitionSvc::yLimits(const std::string &name, const std::string &dirN
 }
 
 std::string
-HistogramDefinitionSvc::xTitle(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::xTitle(const std::string& name, const std::string& dirName) const {
   std::string result {};
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
 
@@ -169,10 +171,9 @@ HistogramDefinitionSvc::xTitle(const std::string &name, const std::string &dirNa
 }
 
 std::string
-HistogramDefinitionSvc::yTitle(const std::string &name, const std::string &dirName) const {
+HistogramDefinitionSvc::yTitle(const std::string& name, const std::string& dirName) const {
   std::string result {};
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
-
   if (pthisHistoPair != m_histoDefMap.end()) {
     result = pthisHistoPair->second.yTitle;
   }
@@ -190,11 +191,11 @@ HistogramDefinitionSvc::formatOk() {
 }
 
 StatusCode
-HistogramDefinitionSvc::queryInterface(const InterfaceID &riid, void * *ppvInterface) {
+HistogramDefinitionSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
   if (IIncidentListener::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<IIncidentListener *>(this);
+    *ppvInterface = dynamic_cast<IIncidentListener*>(this);
   } else if (IHistogramDefinitionSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<IHistogramDefinitionSvc *>(this);
+    *ppvInterface = dynamic_cast<IHistogramDefinitionSvc*>(this);
   } else {
     // Interface is not directly available : try out a base class
     return AthService::queryInterface(riid, ppvInterface);

@@ -97,6 +97,7 @@ std::string convertChamberName(int ChamberName , int ChamberEta , int ChamberPhi
       case 51 : m_Name_string = "CSL"; limits.push_back(1); limits.push_back(0); limits.push_back(1); limits.push_back(8); limits.push_back(-100); limits.push_back(-100); limits.push_back(1); break;
       case 52 : m_Name_string = "BIM"; limits.push_back(5); limits.push_back(0); limits.push_back(100); limits.push_back(-100); limits.push_back(6); limits.push_back(8); limits.push_back(1); break;
       case 53 : m_Name_string = "BME"; limits.push_back(1); limits.push_back(0); limits.push_back(100); limits.push_back(-100); limits.push_back(7); limits.push_back(7); limits.push_back(-1); break;
+      case 54 : m_Name_string = "BMG"; limits.push_back(3); limits.push_back(0); limits.push_back(100); limits.push_back(-100); limits.push_back(6); limits.push_back(7); limits.push_back(-1); break;
       default : m_Name_string = "WrongName"; limits.push_back(-100); limits.push_back(-100); limits.push_back(-100); limits.push_back(-100); limits.push_back(-100); limits.push_back(-100);
       }
   } else if (m_Type=="RPC") {
@@ -124,7 +125,10 @@ std::string convertChamberName(int ChamberName , int ChamberEta , int ChamberPhi
       }
       if (m_Name_int==10){//exception of the BOG,BOF alternating eta
 	m_Eta_int=2*m_Eta_int;
-      }				
+      }
+      if (m_Name_int==54){//exception of the BMG
+	m_Eta_int=2*m_Eta_int;
+      }
       std::stringstream eta_inttostring;
       std::string eta_str;
       eta_inttostring << m_Eta_int;
@@ -139,7 +143,10 @@ std::string convertChamberName(int ChamberName , int ChamberEta , int ChamberPhi
       }
       if (m_Name_int==10){//exception of the BOG,BOF alternating eta
 	m_Eta_int=2*m_Eta_int;
-      }		
+      }
+      if (m_Name_int==54){//exception of the BMG alternating eta
+	m_Eta_int=2*m_Eta_int;
+      }
       std::stringstream eta_inttostring;
       std::string eta_str;
       eta_inttostring << abs(m_Eta_int);

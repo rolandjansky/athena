@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODJetContainerCnv.cxx 581167 2014-02-03 10:45:56Z krasznaa $
+// $Id: xAODJetContainerCnv.cxx 795694 2017-02-05 23:13:50Z khoo $
 
 // System include(s):
 #include <exception>
@@ -55,12 +55,12 @@ xAODJetContainerCnv::createPersistent( xAOD::JetContainer* trans ) {
       new xAOD::JetContainer( trans->begin(), trans->end(),
                               SG::VIEW_ELEMENTS );
 
-   // Prepare the objects to be written out:
-   xAOD::JetContainer::iterator itr = result->begin();
-   xAOD::JetContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      toPersistent( *itr );
-   }
+   // // Prepare the objects to be written out:
+   // xAOD::JetContainer::iterator itr = result->begin();
+   // xAOD::JetContainer::iterator end = result->end();
+   // for( ; itr != end; ++itr ) {
+   //    toPersistent( *itr );
+   // }
 
    // Return the new container:
    return result;
@@ -84,10 +84,10 @@ xAOD::JetContainer* xAODJetContainerCnv::createTransient() {
    return 0;
 }
 
-void xAODJetContainerCnv::toPersistent( xAOD::Jet* jet ) const {
+// void xAODJetContainerCnv::toPersistent( xAOD::Jet* jet ) const {
 
-   // Tell the object to prepare all its smart pointers for persistification:
-   jet->toPersistent();
+//    // Tell the object to prepare all its smart pointers for persistification:
+//    jet->toPersistent();
 
-   return;
-}
+//    return;
+// }

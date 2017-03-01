@@ -50,6 +50,7 @@ using namespace asg::msgUserCode;
 
 #include "METInterface/IMETSystematicsTool.h"
 #include "METInterface/IMETMaker.h"
+#include "METUtilities/METHelpers.h"
 
 #include "PATInterfaces/SystematicRegistry.h"
 
@@ -72,12 +73,17 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
   std::string jetType = "AntiKt4EMTopo";
   bool debug = false;
+  bool calibjets = true;
   size_t evtmax = 100;
   for (int i=0; i<argc; ++i) {
     if (std::string(argv[i]) == "-filen" && i+1<argc) {
       fileName = argv[i+1];
     } else if (std::string(argv[i]) == "-jetcoll" && i+1<argc) {
       jetType = argv[i+1];
+    } else if (std::string(argv[i]) == "-nocalib") { // useful for checking smart slimming content
+      calibjets = false;
+    } else if (std::string(argv[i]) == "-evtmax" && i+1<argc) {
+      evtmax = atoi(argv[i+1]);
     } else if (std::string(argv[i]) == "-debug") {
       debug = true;
     }
@@ -89,8 +95,8 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 
   // Create a TEvent object to read from file and a transient store in which to place items
 #ifdef XAOD_STANDALONE
-  std::unique_ptr<xAOD::TEvent> event(new xAOD::TEvent( TEvent::kClassAccess ) );
-  std::unique_ptr<xAOD::TStore store>(new xAOD::TStore());
+  std::unique_ptr<xAOD::TEvent> event(new xAOD::TEvent( xAOD::TEvent::kClassAccess ) );
+  std::unique_ptr<xAOD::TStore> store(new xAOD::TStore());
 #else // Athena "Store" is the same StoreGate used by the TEvent
   std::unique_ptr<POOL::TEvent> event(new POOL::TEvent( POOL::TEvent::kClassAccess ));
   ServiceHandle<StoreGateSvc>& store = event->evtStore();
@@ -104,7 +110,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016.config") );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
   ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
@@ -117,6 +123,8 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   asg::AnaToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
   ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
+  ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );
+  ANA_CHECK( metMaker.setProperty("DoSetMuonJetEMScale", true) );
   ANA_CHECK( metMaker.retrieve() );
 
   for(size_t ievent = 0;  ievent < std::min(size_t(event->getEntries()), evtmax); ++ievent){
@@ -148,10 +156,13 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
     ANA_CHECK( event->retrieve(uncalibJets, jetType+"Jets"));//this retrieves and applies the correction
     std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > calibJetsPair = xAOD::shallowCopyContainer( *uncalibJets );//make a shallow copy to calibrate
     xAOD::JetContainer *& calibJets = calibJetsPair.first;//create a reference to the first element of the pair (i.e. the JetContainer)
-    for ( const auto& jet : *calibJets ) {
-      //Shallow copy is needed (see links below)
-      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
-	return 1;
+    met::addGhostMuonsToJets(*muons, *calibJets);
+    if(calibjets) {
+      for ( const auto& jet : *calibJets ) {
+	//Shallow copy is needed (see links below)
+	if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
+	  return 1;
+      }
     }
     if(!xAOD::setOriginalObjectLink(*uncalibJets, *calibJets)){//tell calib container what old container it matches
       if(debug) std::cout << "Failed to set the original object links" << std::endl;
@@ -274,12 +285,23 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       //we record the container to the store, with a systematic indicated name
       ANA_CHECK( store->record( newMetContainer,    "FinalMETContainer_" + iSysSet.name()      ));
       ANA_CHECK( store->record( newMetAuxContainer, "FinalMETContainer_" + iSysSet.name() + "Aux."));
+
+      if(debug) {
+	xAOD::MissingET * jetMet = (*newMetContainer)["RefJet"];
+	const std::vector<float>& jetweights = jetMet->auxdataConst<std::vector<float> >("ConstitObjectWeights");
+	const std::vector<ElementLink<xAOD::IParticleContainer> >& constitjets = jetMet->auxdataConst<std::vector<ElementLink<xAOD::IParticleContainer> > >("ConstitObjectLinks");
+	for(size_t iconstit=0; iconstit < jetweights.size(); ++iconstit) {
+	  const xAOD::Jet* constjet = static_cast<const xAOD::Jet*>(*constitjets[iconstit]);
+	  const float jetweight = jetweights[iconstit];
+	  std::cout << "RefJet jet " << constjet->index() << ", weight " << jetweight << ", pt: " << constjet->pt() << std::endl;
+	}
+      }
     }
 
 #ifdef XAOD_STANDALONE
     //fill the containers stored in the event
     //to the output file and clear the transient store
-    ANA_CHECK( event->fill());
+    assert( event->fill());
     store->clear();
 #endif
   }

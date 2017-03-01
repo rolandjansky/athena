@@ -14,8 +14,6 @@ find_package( CLHEP )
 find_package( Eigen )
 find_package( ROOT COMPONENTS MathCore MathMore Core Tree Hist RIO pthread )
 
-athena_install_nonstandard_headers(MuonCalibMath/*.ixx)
-
 # Component(s) in the package:
 atlas_add_library( MuonCalibMath
                    src/*.cxx

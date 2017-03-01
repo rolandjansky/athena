@@ -51,6 +51,7 @@ UPDATE :
 #include <stdint.h>
 #include <algorithm>
 #include <cmath>
+#include "CxxUtils/make_unique.h"
 
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 
@@ -117,13 +118,11 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   declareInterface<IEMBremCollectionBuilder>(this);
 }
 // ===================================================================
-EMBremCollectionBuilder::~EMBremCollectionBuilder() 
-{
+EMBremCollectionBuilder::~EMBremCollectionBuilder() {
 }
 
 // ==================================================================
-StatusCode EMBremCollectionBuilder::initialize() 
-{
+StatusCode EMBremCollectionBuilder::initialize() {
 
   // retrieve the track refitter tool:
   if(m_trkRefitTool.retrieve().isFailure()) {
@@ -155,7 +154,6 @@ StatusCode EMBremCollectionBuilder::initialize()
     return StatusCode::FAILURE;
   }
 
-
   //counters 
   m_AllClusters=0;
   m_AllTracks=0;
@@ -175,7 +173,6 @@ StatusCode EMBremCollectionBuilder::initialize()
 //*************************************************************************
 // Finalize
 StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){ 
-
   
   ATH_MSG_INFO ("AllClusters " << m_AllClusters);
   ATH_MSG_INFO ("AllTracks " << m_AllTracks);
@@ -285,8 +282,7 @@ StatusCode EMBremCollectionBuilder::contExecute()
         sc = refitTrack(*track_iter);	    
 	if(sc.isFailure()) {
           ATH_MSG_WARNING("Problem in EMBreCollection Builder Refit");
-        }
-	
+        }	
 	else { 	
 	  // Add Auxiliary decorations to the GSF Track Particle
 	  // Set Element link to original Track Particle	  
@@ -374,47 +370,59 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     ATH_MSG_ERROR ("TrackParticle has not Track --  are you running on AOD?");
     return StatusCode::FAILURE;
   }
-  
-  Trk::Track* trk_refit = 0;
+  std::unique_ptr<Trk::Track> trk_refit; 
   //
   if( nSiliconHits_trk >= m_MinNoSiHits ) {
     StatusCode status = m_trkRefitTool->refitTrackParticle(tmpTrkPart);
     if (status == StatusCode::SUCCESS){
       ATH_MSG_DEBUG("FIT SUCCESS ");
       m_RefittedTracks++;
-      trk_refit = m_trkRefitTool->refittedTrack(); //this is a Trk::Track
+      trk_refit.reset(m_trkRefitTool->refittedTrack()); //this is a Trk::Track
       m_summaryTool->updateTrack(*trk_refit);   
     }
     else{
       //We end up here due to a failed fit
       ATH_MSG_DEBUG("FIT FAILED ");
       m_FailedFitTracks++;
-      trk_refit = new Trk::Track(*tmpTrk);
+      trk_refit.reset(new Trk::Track(*tmpTrk));
     }
   }
   else{
     //We end up here if not enough silicons hits
     ATH_MSG_DEBUG("NO FIT ATTEMPTED");
     m_FailedSiliconRequirFit++;
-    trk_refit = new Trk::Track(*tmpTrk);
+    trk_refit.reset(new Trk::Track(*tmpTrk));
   }
-
-  //Save perigee eta, phi for later usage in supercluster algorithm.
-  float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
-  if (trk_refit) {
+  //
+  //Refit Trk::Track created
+  //
+  //Get the vertex (may be pileup) that this track particle points to
+  const xAOD::Vertex* trkVtx(0);
+  if (tmpTrkPart->vertexLink().isValid()){ 
+    trkVtx = tmpTrkPart->vertex();
+  }
+  //
+  // Use the the refitted track and the original vertex to construct a new track particle
+  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
+  //
+  //finalize things
+  if(aParticle!=0) { //store in container
+    //Additional info using the full  Trk::Track
+    //Save extrapolated perigee to calo (eta,phi) for later usage in supercluster algorithm.
+    static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
+    static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");  
+    float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
     auto tsos = trk_refit->trackStateOnSurfaces()->begin();
     for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
 
       if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
-
-	float extrapEta(-999.), extrapPhi(-999.);
-	const Trk::TrackParameters      *perigeeTrackParams(0);
       
+	float extrapEta(-999.), extrapPhi(-999.);
+	const Trk::TrackParameters *perigeeTrackParams(0);
 	perigeeTrackParams = (*tsos)->trackParameters();
       
 	const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
 	std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
-
 	//Do the straight-line extrapolation.	  
 	bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
 	if (hitEM2) {
@@ -426,54 +434,38 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
 	break;
       }
     }
-  }
-  //Slim the tracks   
-  Trk::Track* slimmed = m_slimTool->slim(*trk_refit);
-  if(!slimmed){
-    ATH_MSG_ERROR ("TrackSlimming failed, this should never happen !");
-    delete trk_refit;
-    return StatusCode::FAILURE;
-  }
-  m_finalTracks->push_back(slimmed);
-
-  //Get the vertex (may be pileup) that this track particle points to
-  const xAOD::Vertex* trkVtx(0);
-  if (tmpTrkPart->vertexLink().isValid()){ 
-    trkVtx = tmpTrkPart->vertex();
-  }
-
-  // Use the the refitted track and the original vertex to construct a new track particle
-  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
-  delete trk_refit; 
-  if(aParticle!=0) { //store in container
-
-    //Set up the links
-    ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
-    aParticle->setTrackLink( trackLink );     
-    aParticle->setVertexLink(tmpTrkPart->vertexLink());     
-
-    static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
     pgExtrapEta(*aParticle) = perigeeExtrapEta;    
-
-    static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
     pgExtrapPhi(*aParticle) = perigeeExtrapPhi;
-    
+    //
     //Add qoverP for the last measurement
     static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
-    auto tsos = slimmed->trackStateOnSurfaces()->rbegin();
-    for (;tsos != slimmed->trackStateOnSurfaces()->rend(); ++tsos){
-
-      if ((*tsos)->type(Trk::TrackStateOnSurface::Measurement) 
-	  && (*tsos)->trackParameters()!=0 
-	  &&(*tsos)->measurementOnTrack()!=0 
-	  && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*tsos)->measurementOnTrack())) {
-
-	QoverPLM(*aParticle) = (*tsos)->trackParameters()->parameters()[Trk::qOverP];
+    float QoverPLast(0);
+    auto rtsos = trk_refit->trackStateOnSurfaces()->rbegin();
+    for (;rtsos != trk_refit->trackStateOnSurfaces()->rend(); ++rtsos){
+      if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
+	  && (*rtsos)->trackParameters()!=0 
+	  &&(*rtsos)->measurementOnTrack()!=0 
+	  && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rtsos)->measurementOnTrack())) {
+	QoverPLast  = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
 	break;
       }
     }
+    QoverPLM(*aParticle) = QoverPLast;
+    //
+    //Now  Slim the track for writing to disk   
+    Trk::Track* slimmed = m_slimTool->slim(*trk_refit);
+    if(!slimmed){
+      ATH_MSG_ERROR ("TrackSlimming failed, this should never happen !");
+      return StatusCode::FAILURE;
+    }
+    m_finalTracks->push_back(slimmed);
+    //
+    ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
+    aParticle->setTrackLink( trackLink );     
+    aParticle->setVertexLink(tmpTrkPart->vertexLink());         
     return StatusCode::SUCCESS;
-  } else {
+  }else {
+    ATH_MSG_WARNING("Could not create TrackParticle, this should never happen !");
     return StatusCode::FAILURE;
   }
 }

@@ -123,9 +123,15 @@ class JetToolManager:
   # If the argument is a list, it is returned directly.
   def getModifiers(self, modifiersin, altname =None):
     if modifiersin == None:
-      return self.modifiersMap[altname]
+      if altname in ["lctopo","emtopo"]:
+        return self.modifiersMap[altname+"_ungroomed"]
+      elif "pflow" in altname:
+        return self.modifiersMap["pflow_ungroomed"]
+      else:
+        return self.modifiersMap[altname]
     if type(modifiersin) == str:
-      return self.modifiersMap[modifiersin]
+        return self.modifiersMap[modifiersin]
+        
     return modifiersin
 
   # Build the list of modifiers, replacing the string "calib:XXX:CALIB" with

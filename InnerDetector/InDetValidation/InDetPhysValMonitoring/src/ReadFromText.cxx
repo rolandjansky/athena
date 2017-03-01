@@ -20,7 +20,7 @@
 #include "PathResolver/PathResolver.h"
 namespace {
   std::vector<std::string>
-  split(const std::string &str, int delimiter(int) = std::isspace) {
+  split(const std::string& str, int delimiter(int) = std::isspace) {
     std::vector<std::string> result;
     auto e = str.end();
     auto i = str.begin();
@@ -42,7 +42,7 @@ namespace {
 ReadFromText::ReadFromText() : m_source("unspecified file"), m_format("text/plain") {
 }
 
-ReadFromText::ReadFromText(const std::string &source) : m_source(source), m_format("text/plain") {
+ReadFromText::ReadFromText(const std::string& source) : m_source(source), m_format("text/plain") {
   m_source = PathResolver::find_file(source, "DATAPATH");
 }
 
@@ -57,7 +57,7 @@ ReadFromText::format() const {
 }
 
 bool
-ReadFromText::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition> &usersmap) const {
+ReadFromText::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition>& usersmap) const {
   bool ok(true);
 
   for (auto i:m_vectorOfDefinitions) {
@@ -76,7 +76,7 @@ ReadFromText::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition
 }
 
 bool
-ReadFromText::insertDefinition(const SingleHistogramDefinition &oneDefinition) {
+ReadFromText::insertDefinition(const SingleHistogramDefinition& oneDefinition) {
   bool ok(true);
 
   m_vectorOfDefinitions.push_back(oneDefinition);
@@ -86,6 +86,7 @@ ReadFromText::insertDefinition(const SingleHistogramDefinition &oneDefinition) {
 bool
 ReadFromText::initialize() {
   bool ok(true);
+
   std::ifstream myfile;
 
   myfile.open(source());
@@ -104,7 +105,7 @@ ReadFromText::initialize() {
 }
 
 SingleHistogramDefinition
-ReadFromText::parseTextLine(const std::string &line) {
+ReadFromText::parseTextLine(const std::string& line) {
   SingleHistogramDefinition s;
 
   typedef std::vector<std::string> StringVec;
@@ -197,7 +198,7 @@ ReadFromText::parseTextLine(const std::string &line) {
     nbinsX = (unsigned int) (std::stoul(m[NXBINS]));
     xLo = std::stof(m[XLO]);
     xHi = std::stof(m[XHI]);
-  } catch (std::invalid_argument &e) {
+  } catch (std::invalid_argument& e) {
     std::cout << "Problem converting some of the arguments : " << m[NXBINS] << "; " << m[XLO] << "; " << m[XHI] <<
       std::endl;
     hType = INVALID;

@@ -163,7 +163,7 @@ StatusCode test1()
     msg << "a... ";
     msg << "b";
   }
-  REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "alg") << "foo" << endreq;
+  REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "alg") << "foo" << endmsg;
   assert( test1a().isFailure() );
   assert( test1b().isFailure() );
   assert( test1c().isFailure() );
@@ -195,7 +195,7 @@ void test2 (std::vector<int> = std::vector<int>(),
             int (*)() = 0,
             int [] = 0)
 {
-  REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "test2") << "test2" << endreq;
+  REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "test2") << "test2" << endmsg;
 
   assert (errorcheck::clean_allocator ("void test2(std::vector<int, std::allocator<int> >, const int*, int (*)(), int*)") ==
           "void test2(std::vector<int>, const int*, int (*)(), int*)");
@@ -204,7 +204,7 @@ void test2 (std::vector<int> = std::vector<int>(),
 
 void test3 (const std::string& = "", int = 0)
 {
-  REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "test3") << "test3" << endreq;
+  REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "test3") << "test3" << endmsg;
 }
 
 

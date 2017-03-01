@@ -17,7 +17,7 @@
  *@code
  *  StatusCode sc = something();
  *  if (! sc.isSuccess() ) {
- *    log << "Some error message" << endreq;
+ *    log << "Some error message" << endmsg;
  *    return sc;
  *  }
  @endcode
@@ -62,7 +62,7 @@
  * error reporting provided here with the macro
  * @c REPORT_ERROR, which takes a @c StatusCode as an argument.
  * Additional text can be added with the output streaming operator,
- * as for @c MsgStream.  (No need to use @c endreq.)
+ * as for @c MsgStream.  (No need to use @c endmsg.)
  *
  *@code
  *  StatusCode sc = something();

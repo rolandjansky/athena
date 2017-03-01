@@ -50,9 +50,10 @@ else:
 
 # Set the SupportedGeometry flag
 from AthenaCommon.AppMgr import release_metadata
-relversion = release_metadata()['release'].split('.')
+rel_metadata = release_metadata()
+relversion = rel_metadata['release'].split('.')
 if len(relversion) < 3:
-    relversion = release_metadata()['base release'].split('.')
+    relversion = rel_metadata['base release'].split('.')
 
 print "SetGeometryVersion.py obtained major release version %s" % relversion[0]
 GeoModelSvc.SupportedGeometry = int(relversion[0])

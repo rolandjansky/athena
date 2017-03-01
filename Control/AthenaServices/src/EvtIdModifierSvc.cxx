@@ -182,7 +182,7 @@ EvtIdModifierSvc::run_number() const
 
 /** @brief return the current evt-nbr (after modification)
  */
-number_type
+uint64_t
 EvtIdModifierSvc::event_number() const
 {
   return m_current.evtnbr;

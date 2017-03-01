@@ -27,8 +27,8 @@
 
 
 
-InDetPhysValTruthDecoratorTool::InDetPhysValTruthDecoratorTool(const std::string &type, const std::string &name,
-                                                               const IInterface *parent) :
+InDetPhysValTruthDecoratorTool::InDetPhysValTruthDecoratorTool(const std::string& type, const std::string& name,
+                                                               const IInterface* parent) :
   AthAlgTool(type, name, parent),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_beamSpotSvc("BeamCondSvc", name) {
@@ -60,7 +60,7 @@ InDetPhysValTruthDecoratorTool::finalize() {
 }
 
 bool
-InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle &particle, const std::string &prefix) {
+InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle& particle, const std::string& prefix) {
   ATH_MSG_VERBOSE("Decorate truth with d0 etc");
   if (particle.isNeutral()) {
     return false;
@@ -75,7 +75,7 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle &particl
   }
 
   static bool errorEmitted(false);
-  const xAOD::TruthVertex *ptruthVertex(0);
+  const xAOD::TruthVertex* ptruthVertex(0);
   try{
     ptruthVertex = particle.prodVtx();
   } catch (std::exception e) {
@@ -99,7 +99,7 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle &particl
 
   Trk::PerigeeSurface persf(m_beamSpotSvc->beamPos());
 
-  const Trk::TrackParameters *tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
+  const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
   if (tP) {
     float d0_truth = tP->parameters()[Trk::d0];
     float theta_truth = tP->parameters()[Trk::theta];

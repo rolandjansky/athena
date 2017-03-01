@@ -215,7 +215,6 @@ namespace jet {
 
   bool JetCalcNegativeEnergy_fromCells::processCell(const CaloCell *theCell, weight_t)
   {
-    m_totSig=1;
     if(theCell->e()<-2500)
       m_totE += theCell->e();
     return true;

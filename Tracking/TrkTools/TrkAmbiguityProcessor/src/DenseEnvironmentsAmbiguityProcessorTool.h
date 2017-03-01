@@ -121,7 +121,8 @@ namespace Trk {
       void dumpTracks(const TrackCollection& tracks);
 
       /** stores the minimal dist(trk,trk) for covariance correction*/
-      void storeTrkDistanceMapdR(const TrackCollection& tracks, TrackCollection &refit_tracks_out );
+      void storeTrkDistanceMapdR(const TrackCollection& tracks,
+                                 std::vector<const Trk::Track*> &refit_tracks_out );
       
       /**  Find SiS Tracks that share hits in the track score map*/
       void overlapppingTracks();

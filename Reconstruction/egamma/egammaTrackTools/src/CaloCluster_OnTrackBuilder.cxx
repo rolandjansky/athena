@@ -79,7 +79,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::Egamma* eg, int charge ) const
+  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::Egamma* eg, int charge )
 //--------------------------------------------------------------------------------------------
 {
   return buildClusterOnTrack( eg->caloCluster(), charge );
@@ -88,7 +88,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::CaloCluster* cluster, int charge ) const
+  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::CaloCluster* cluster, int charge ) 
 //--------------------------------------------------------------------------------------------
 {
 
@@ -135,7 +135,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::CaloCluster* cluster ) const
+const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::CaloCluster* cluster ) 
 //--------------------------------------------------------------------------------------------
 {
  

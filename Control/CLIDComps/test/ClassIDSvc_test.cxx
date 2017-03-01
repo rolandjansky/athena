@@ -49,9 +49,11 @@ void incident_test(ISvcLocator* pSvcLoc) {
   assert((pSvcLoc->service("ClassIDSvc", pClassIDSvc, true)).isSuccess());
   assert(pClassIDSvc);
   ModuleLoadedIncident fooInc("test", "Foo");
-  dynamic_cast<IIncidentListener*>(pClassIDSvc)->handle(fooInc);
+  IIncidentListener* il = dynamic_cast<IIncidentListener*>(pClassIDSvc);
+  if (!il) std::abort();
+  il->handle(fooInc);
   ModuleLoadedIncident barInc("test", "Bar");
-  dynamic_cast<IIncidentListener*>(pClassIDSvc)->handle(barInc);
+  il->handle(barInc);
   cout << "*** ClassIDSvc incident test OK ***" <<endl;
 }
 void basic_test(ISvcLocator* pSvcLoc) {

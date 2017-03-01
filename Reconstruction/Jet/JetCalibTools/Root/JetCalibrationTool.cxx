@@ -31,7 +31,6 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "IsData", m_isData = true );
   declareProperty( "ConfigDir", m_dir = "JetCalibTools/CalibrationConfigs/" );
   declareProperty( "EventInfoName", m_eInfoName = "EventInfo");
-  declareProperty( "DoSetDetectorEta", m_doSetDetectorEta=true);
 
 }
 
@@ -83,7 +82,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
-  m_calibAreaTag.insert(0,"CalibArea-00-04-73/"); // Hard-coding the CalibArea tag
+  m_calibAreaTag.insert(0,"CalibArea-00-04-76/"); // Hard-coding the CalibArea tag
   if(calibSeq.Contains("DEV")){
     m_devMode = true;
     ATH_MSG_WARNING("Dev Mode is ON!!! \n\n");
@@ -114,8 +113,9 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   //Set the default units to MeV, user can override by calling setUnitsGeV(true)
   setUnitsGeV(false);
 
-  // Origin-corrected clusters? (true for rel21 and/or 2.5.X)
+  // Settings for R21/2.5.X
   m_originCorrectedClusters = m_globalConfig->GetValue("OriginCorrectedClusters",false);
+  m_doSetDetectorEta = m_globalConfig->GetValue("SetDetectorEta",true);
 
   //Make sure the residual correction is turned on if requested, protect against applying it without the jet area subtraction                    
   if ( !calibSeq.Contains("JetArea") && !calibSeq.Contains("Residual") ) {
@@ -393,31 +393,23 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   //Should be determined using EventShape object, use hard coded values if EventShape doesn't exist
   double rho=0;
   const xAOD::EventShape * eventShape = 0;
-  //std::string rhoKey = m_jetScale == EM ? "Kt4EMTopoEventShape" : "Kt4LCTopoEventShape";
-  static unsigned int eventShapeWarnings = 0;
   if ( m_doJetArea && evtStore()->contains<xAOD::EventShape>(m_rhoKey) ) {
     ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey);
     if ( evtStore()->retrieve(eventShape, m_rhoKey).isFailure() || !eventShape ) {
       ATH_MSG_VERBOSE("  Event shape container not found.");
-      ++eventShapeWarnings;
-      rho = ( m_jetScale == EM || m_jetScale == PFLOW ? 6000. : 12000.);
-      if ( eventShapeWarnings < 20 )
-        ATH_MSG_WARNING("Could not retrieve xAOD::EventShape from evtStore, using hard-coded value, rho = " << rho/m_GeV << " GeV.");
+      ATH_MSG_FATAL("Could not retrieve xAOD::EventShape from evtStore.");
+      return StatusCode::FAILURE;
     } else if ( !eventShape->getDensity( xAOD::EventShape::Density, rho ) ) {
       ATH_MSG_VERBOSE("  Event density not found in container.");
-      ++eventShapeWarnings;
-      rho = ( m_jetScale == EM || m_jetScale == PFLOW ? 6000. : 12000.);
-      if ( eventShapeWarnings < 20 )
-        ATH_MSG_WARNING("Could not retrieve xAOD::EventShape::Density from xAOD::EventShape, using hard-coded value, rho = " << rho/m_GeV << " GeV.");
+      ATH_MSG_FATAL("Could not retrieve xAOD::EventShape::Density from xAOD::EventShape.");
+      return StatusCode::FAILURE;
     } else {
       ATH_MSG_VERBOSE("  Event density retrieved.");
     }
   } else if ( m_doJetArea && !evtStore()->contains<xAOD::EventShape>(m_rhoKey) ) {
     ATH_MSG_VERBOSE("  Rho container not found: " << m_rhoKey);
-    ++eventShapeWarnings;
-    rho = ( m_jetScale == EM ? 6000. : 12000.);
-    if ( eventShapeWarnings < 20 )
-      ATH_MSG_WARNING("Could not retrieve xAOD::EventShape from evtStore, using hard-coded value, rho = " << rho/m_GeV << " GeV.");
+    ATH_MSG_FATAL("Could not retrieve xAOD::EventShape from evtStore.");
+    return StatusCode::FAILURE;
   }
   jetEventInfo.setRho(rho);
   ATH_MSG_VERBOSE("  Rho = " << 0.001*rho << " GeV");

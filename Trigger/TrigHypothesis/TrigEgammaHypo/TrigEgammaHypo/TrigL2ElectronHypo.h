@@ -15,7 +15,7 @@
  **
  **   Created:      Sat Mar  1 19:55:56 GMT 2005
  **   Modified:     V. Perez Reale added doxygen comments 26/6/07
- **
+ **   Modified:     R. White optimisation for v7 menu (Run2) 07/02/2017
  **************************************************************************/ 
 
 #ifndef TRIG_TrigL2ElectronHypo_H 
@@ -44,6 +44,12 @@
  * \brief TrigL2ElectronHypo is a Trigger Hypo Algorithm that retrieves the L2 TrigElectronContainer
  * created by TrigL2ElectronFex and then apply a subset of electron selection cuts. A TE will be
  * set active if the selection cuts are fullfilled.
+ * Cleanup / Update for Run2
+ * Remove m_calo_algoID; m_trackalgoID -- only 1 type of track
+ * Remove deta/dphi cluster -- this is checked at L2Calo
+ * Remove track pt for TRT tracks -- TRT only not used
+ * Remove m_calotrackdeta/dphiTRT -- not cutting on TRT tracks
+ * calotrack deta/dphi and eoverp cuts flat (not as function of eta)
  *
  *
  */
@@ -61,31 +67,15 @@ class TrigL2ElectronHypo: public HLT::HypoAlgo  {
   
  private:
   
-  // Properties:
-  unsigned int m_trackalgoID; //!<  integer that assigns the tracking algorihtm used
-  
-  
   //tracking cut
   float  m_trackPtthr; //!< pT cut on track
   
   //calo-tracking cuts
-  std::vector<float> m_etabin;
-  std::vector<float> m_calotrackdeta; //!<  deta between calo and track
-  std::vector<float> m_calotrackdphi;  //!<  dphi between calo and track
-  std::vector<float> m_calotrackdeoverp_low;  //!<  E/p lower cut between calo and track
-  std::vector<float> m_calotrackdeoverp_high; //!<  E/p upper cut between calo and track  
-
-  //TRT cuts
-  std::vector<float> m_trtratio; //!< cut on ratio of NTRHits/NTRStrawHits for IDScan and SiTrack tracks
-
-  //TRTSegFinder cuts
-  float  m_trackPtthrTRT; //!< pT cut on track
-  std::vector<float> m_etabinTRT; //!< eta bins for TRT cuts
-  std::vector<float> m_trtratioTRT; //!< cut on ratio of NTRHits/NTRStrawHits for TRTSegFinder tracks
-  std::vector<float> m_calotrackdetaTRT; //!<  deta between calo and track
-  std::vector<float> m_calotrackdphiTRT;  //!<  dphi between calo and track
-  std::vector<float> m_calotrackdeoverp_lowTRT;  //!<  E/p lower cut between calo and track
-  std::vector<float> m_calotrackdeoverp_highTRT; //!<  E/p upper cut between calo and track  
+  float m_calotrackdeta; //!<  deta between calo and track
+  float m_calotrackdphi;  //!<  dphi between calo and track
+  float m_calotrackdeoverp_low;  //!<  E/p lower cut between calo and track
+  float m_calotrackdeoverp_high; //!<  E/p upper cut between calo and track 
+  float m_trtratio; //!< trt ratio cut
 
 
   // to set Accept-All mode
@@ -99,20 +89,15 @@ class TrigL2ElectronHypo: public HLT::HypoAlgo  {
 
   ///Static getter methods for monitoring of TrigElectron container
   static inline double getCaloPt(const xAOD::TrigElectron* aElectron){
-    
     if(!aElectron) return -999.0;
     return aElectron->pt();
   }
 
   static inline double getTkPt(const xAOD::TrigElectron* aElectron){
+      if(!aElectron) return -999.0;
+      return (aElectron->trackParticle() ? aElectron->trackParticle()->pt()   : -999); 
+  }
 
-  if(!aElectron) return -999.0;
-  return (aElectron->trackParticle() ? aElectron->trackParticle()->pt()   : -999); 
-}
-
-  // for extrapolating TrigInDetTracks to calorimeter surface
-//   ITrigInDetTrackExtrapolator* m_trackExtrapolator;
-//   std::string m_trackExtrapolatorName;
 };
 
 #endif

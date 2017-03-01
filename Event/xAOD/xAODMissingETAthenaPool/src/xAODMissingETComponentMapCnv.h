@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMissingETComponentMapCnv.h 586838 2014-03-08 15:10:34Z khoo $
+// $Id: xAODMissingETComponentMapCnv.h 795699 2017-02-05 23:26:05Z khoo $
 #ifndef XAODMISSINGETATHENAPOOL_XAODMISSINGETCOMPONENTMAPCNV_H
 #define XAODMISSINGETATHENAPOOL_XAODMISSINGETCOMPONENTMAPCNV_H
 
@@ -31,8 +31,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::MissingETComponentMap,
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 586838 $
- * $Date: 2014-03-08 16:10:34 +0100 (Sat, 08 Mar 2014) $
+ * $Revision: 795699 $
+ * $Date: 2017-02-06 00:26:05 +0100 (Mon, 06 Feb 2017) $
  */
 class xAODMissingETComponentMapCnv : public xAODMissingETComponentMapCnvBase {
 
@@ -52,8 +52,8 @@ public:
    virtual xAOD::MissingETComponentMap* createTransient();
 
 private:
-   /// Function preparing a met object for persistence
-   void toPersistent( xAOD::MissingETComponent* metComp ) const;
+   // /// Function preparing a met object for persistence
+   // void toPersistent( xAOD::MissingETComponent* metComp ) const;
 
    /// StoreGate key of the container just being created
    std::string m_key;

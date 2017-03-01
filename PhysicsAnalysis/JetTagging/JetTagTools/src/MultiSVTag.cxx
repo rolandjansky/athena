@@ -380,15 +380,7 @@ namespace Analysis
       }else{ diffntrkSV1 = all_trks;
       }
 
-      int diffntrkSV0 = -999;
-      int SV0ntrk  = 0;
-      std::vector< ElementLink< xAOD::VertexContainer > > SV0Vertice;
-      status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", SV0Vertice);
-      if (SV0Vertice.size()>0 && SV0Vertice[0].isValid()){
-         status &= BTag->taggerInfo(SV0ntrk, xAOD::BTagInfo::SV0_NGTinSvx);
-         diffntrkSV0 = all_trks - SV0ntrk;
-      }else{ diffntrkSV0 = all_trks;
-      }
+      int diffntrkSV0 = diffntrkSV1;
 
       if (!status) {
         ATH_MSG_WARNING("Error retrieving input values; results will be incorrect!");

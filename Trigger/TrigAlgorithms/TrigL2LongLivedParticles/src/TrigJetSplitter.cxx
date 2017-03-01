@@ -57,21 +57,21 @@ TrigJetSplitter::TrigJetSplitter(const std::string & name, ISvcLocator* pSvcLoca
 HLT::ErrorCode TrigJetSplitter::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigJetSplitter, version " << PACKAGE_VERSION << endreq;
+    msg() << MSG::INFO << "Initializing TrigJetSplitter, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " JetInputKey  = "  << m_jetInputKey << endreq; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq; 
-    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
-    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
-    msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endreq; 
-    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endreq; 
-    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endreq; 
-    msg() << MSG::DEBUG << " LogRatio  = " << m_logRatio    << endreq; 
-    msg() << MSG::DEBUG << " PUFixLogRatio    = " << m_pufixLogRatio    << endreq; 
-    msg() << MSG::DEBUG << " ReversedCut  = " << m_reversedCut    << endreq; 
+    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    msg() << MSG::DEBUG << " JetInputKey  = "  << m_jetInputKey << endmsg; 
+    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endmsg; 
+    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endmsg; 
+    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endmsg; 
+    msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endmsg; 
+    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endmsg; 
+    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endmsg; 
+    msg() << MSG::DEBUG << " LogRatio  = " << m_logRatio    << endmsg; 
+    msg() << MSG::DEBUG << " PUFixLogRatio    = " << m_pufixLogRatio    << endmsg; 
+    msg() << MSG::DEBUG << " ReversedCut  = " << m_reversedCut    << endmsg; 
   }
 
   return HLT::OK;
@@ -89,14 +89,14 @@ TrigJetSplitter::~TrigJetSplitter(){}
 
 HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigJetSplitter::hltExecute" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigJetSplitter::hltExecute" << endmsg;
 
   beforeExecMonitors().ignore();
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << endmsg;
   
   if (inputTEs.size() != 1) {
-    msg() << MSG::WARNING << "Wrong number of input TEs" << endreq;
+    msg() << MSG::WARNING << "Wrong number of input TEs" << endmsg;
     afterExecMonitors().ignore();
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
@@ -107,10 +107,10 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 
   std::vector<HLT::TriggerElement*>& jetTE = inputTEs.at(0);
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " jetTE.size() " << jetTE.size() << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " jetTE.size() " << jetTE.size() << endmsg;
 
   if (jetTE.size() == 0) {
-    msg() << MSG::WARNING << "Got an empty inputTE (jets)" << endreq;
+    msg() << MSG::WARNING << "Got an empty inputTE (jets)" << endmsg;
     afterExecMonitors().ignore();
     return HLT::MISSING_FEATURE; 
   }
@@ -119,12 +119,12 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
   HLT::ErrorCode statusJets = getFeature(jetTE.front(), jets);
 
   if (statusJets != HLT::OK) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (jets)" << endreq;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (jets)" << endmsg;
     return HLT::NAV_ERROR;
   }
 
   if(jets==0) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jets)." << endreq;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jets)." << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
@@ -136,15 +136,15 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     std::vector<const CaloCellContainer*> vectorOfCellContainers;
 
     if(getFeatures(jetTE.front(), vectorOfCellContainers, "") != HLT::OK) {
-    msg() << MSG::WARNING << "Failed to get TrigCells" << endreq;   
+    msg() << MSG::WARNING << "Failed to get TrigCells" << endmsg;   
     return HLT::OK;
     }
  
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endmsg;
  
     // if no containers were found, just leave the vector empty and leave
     if ( vectorOfCellContainers.size() < 1) {
-    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endreq;
+    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endmsg;
     return HLT::OK;
     }
 
@@ -152,11 +152,11 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     const CaloCellContainer* theCellCont = vectorOfCellContainers.back();
 
     if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " Retrieved a Cell Container of Size= " << theCellCont->size() << endreq;
+    msg() << MSG::DEBUG << " Retrieved a Cell Container of Size= " << theCellCont->size() << endmsg;
     }
   */
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endreq; 
+    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endmsg; 
 
   HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
   
@@ -181,18 +181,18 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     if (jetEt < m_minJetEt) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endreq;
+	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endmsg;
       continue;
     }
     if (fabs(jetEta) > m_maxJetEta) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endreq;
+	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endmsg;
       continue;
     }
     if(!m_reversedCut) {
       if ( jetRatio < m_pufixLogRatio) {
 	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_pufixLogRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
+	  msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_pufixLogRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endmsg;
 	continue;
       }
 
@@ -200,7 +200,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 
       if ( jetRatio < m_logRatio ) {
 	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " is below the " << m_logRatio << " threshold for the log-ratio cut and above the " << m_pufixLogRatio << " threshold; logRatio = " << jetRatio << "; performing pileup removal." << endreq;
+	  msg() << MSG::DEBUG << "Jet "<< i << " is below the " << m_logRatio << " threshold for the log-ratio cut and above the " << m_pufixLogRatio << " threshold; logRatio = " << jetRatio << "; performing pileup removal." << endmsg;
 
 	size_t nClusters = jet->numConstituents();
 	double clusterPU_sumEEM = 0; double clusterPU_sumE = 0;
@@ -258,13 +258,13 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 
 	if ( pufixLR < m_logRatio) {
 	  if (msgLvl() <= MSG::DEBUG)
-	    msg() << MSG::DEBUG << "Jet "<< i << " is still below the " << m_logRatio << " threshold for the log-ratio cut; recalculated logRatio = " << pufixLR << "; skipping this jet." << endreq;
+	    msg() << MSG::DEBUG << "Jet "<< i << " is still below the " << m_logRatio << " threshold for the log-ratio cut; recalculated logRatio = " << pufixLR << "; skipping this jet." << endmsg;
 	  continue;
 	}
 
 	if (msgLvl() <= MSG::DEBUG){
-	  msg() << MSG::DEBUG << "Jet "<< i << " old logRatio: " << jetRatio << "  new logRatio: " << pufixLR << endreq;
-	  msg() << MSG::DEBUG << "This is the jet with ET: " << jetEt << " eta: " << jetEta << " phi: " << jetPhi << endreq;
+	  msg() << MSG::DEBUG << "Jet "<< i << " old logRatio: " << jetRatio << "  new logRatio: " << pufixLR << endmsg;
+	  msg() << MSG::DEBUG << "This is the jet with ET: " << jetEt << " eta: " << jetEta << " phi: " << jetPhi << endmsg;
 	}
       }
       jetRatio = pufixLR;
@@ -272,7 +272,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     else {
       if ( jetRatio > m_logRatio) {
 	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " above the " << m_logRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
+	  msg() << MSG::DEBUG << "Jet "<< i << " above the " << m_logRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endmsg;
 	continue;
       } 
     }
@@ -302,7 +302,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     float c = 299.792458;//mm per ns
     float r = sqrt(x*x + y*y);
     if((fabs(t - (z-sqrt(z*z + r*r))/c) < 5.0) || (fabs(t - (-z-sqrt(z*z + r*r))/c) < 5.0)){
-    msg() << MSG::DEBUG << " cell E = " << (*celliter)->energy() << " cell phi = " << (*celliter)->phi() << " cell eta = " << (*celliter)->eta() << " cell r = " << r << endreq;
+    msg() << MSG::DEBUG << " cell E = " << (*celliter)->energy() << " cell phi = " << (*celliter)->phi() << " cell eta = " << (*celliter)->eta() << " cell r = " << r << endmsg;
     countCaloCell++;
     }
     }
@@ -311,7 +311,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     }
 
     if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi <<"; logRatio " << jetRatio << "; LoF Cells " << countCaloCell << endreq;
+    msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi <<"; logRatio " << jetRatio << "; LoF Cells " << countCaloCell << endmsg;
     
     */
     // Create an output TE seeded by an empty vector
@@ -332,7 +332,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     HLT::ErrorCode hltStatus = attachFeature(outputTE, roi, m_jetOutputKey);
     if ( hltStatus != HLT::OK ) {
-      msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endreq;
+      msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endmsg;
       return hltStatus;
     }
 
@@ -353,13 +353,13 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     trigInfoCellLoF->set("CellLoF", countCaloCell);
     HLT::ErrorCode hltCellStatus = attachFeature(outputTE, trigInfoCellLoF, "CellLoFInfo"); 
     if (hltCellStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (number of calo cells) as feature" << endreq;
+      msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (number of calo cells) as feature" << endmsg;
       return hltCellStatus;
     }
 
     hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
     if (hltStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endreq;
+      msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endmsg;
       return hltStatus;
     }
   }
@@ -376,7 +376,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 HLT::ErrorCode TrigJetSplitter::hltFinalize() {
 
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }

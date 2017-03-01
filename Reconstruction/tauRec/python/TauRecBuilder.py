@@ -277,7 +277,6 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
                 # SWITCHED OFF SELECTOR< SINCE NO CHARGED PFOS AVAILABLE ATM
                 tools.append(taualgs.getPi0Selector())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            tools.append(taualgs.getIDPileUpCorrection())
             #
             ## for testing purpose
             #tools.append(taualgs.getTauTestDump())
@@ -293,18 +292,27 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
 
 
             #these tools need pantau info
+            tools.append(taualgs.getCombinedP4FromRecoTaus())
             tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())
-            tools.append(taualgs.getCombinedP4FromRecoTaus())
 
             if tauFlags.doRunTauDiscriminant():
                 tools.append(taualgs.getTauIDVarCalculator())
-                tools.append(taualgs.getTauJetBDT())
-                tools.append(taualgs.getTauEleBDT())
-                tools.append(taualgs.getTauEleBDT(_n="TauEleBDT_run2", eBDT="TauDiscriminant/02-00-09/TauEleBDT_run2_test.bin", only_decorate=True, eBitsRoot="", eBits=""))
-                tools.append(taualgs.getTauEleOLRDecorator())
-                tools.append(taualgs.getTauWPDecorator())
+                tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT1P", weightsFile="vars2016_pt_gamma_1p_isofix.root", minNTracks=0, maxNTracks=1)) #update config?
+                tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT3P", weightsFile="vars2016_pt_gamma_3p_isofix.root", minNTracks=2, maxNTracks=1000)) #update config?
+                tools.append(taualgs.getTauWPDecoratorJetBDT())
+                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore"))#just inits values
+                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_bar", 
+                                                           weightsFile="EleBDT1PBar.root", minNTracks=1, maxAbsTrackEta=1.37, 
+                                                           outputVarName="BDTEleScore")) #update config?
+                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_end1", 
+                                                           weightsFile="EleBDT1PEnd1.root", minNTracks=1, minAbsTrackEta=1.37, 
+                                                           maxAbsTrackEta=2.0, outputVarName="BDTEleScore")) #update config?
+                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_end23", 
+                                                           weightsFile="EleBDT1PEnd23.root", minNTracks=1, minAbsTrackEta=2.0, 
+                                                           maxAbsTrackEta=3.0, outputVarName="BDTEleScore")) #update config?
                 tools.append(taualgs.getTauWPDecoratorEleBDT())
+                tools.append(taualgs.getTauEleOLRDecorator())
                 pass
 
             tools+=tauFlags.tauRecToolsDevToolListProcessor()

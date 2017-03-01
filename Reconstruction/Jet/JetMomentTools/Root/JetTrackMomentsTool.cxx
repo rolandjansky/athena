@@ -65,7 +65,7 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
     bool havetracks = jet.getAssociatedObjects(m_assocTracksName, tracksAsParticles);
 
     if ( ! havetracks ) {
-      ATH_MSG_WARNING("Associted tracks not found");
+      ATH_MSG_DEBUG("Associated tracks not found");
     }
 
     // Do the dynamic_cast once for the particles instead of repeatedly

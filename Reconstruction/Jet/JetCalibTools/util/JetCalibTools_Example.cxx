@@ -12,9 +12,6 @@
  *  1 14/03/16  First Version              J. Bossio (jbossios@cern.ch) * 
 \************************************************************************/
 
-// This will only run in RootCore
-#ifdef ROOTCORE
-
 // System include(s):
 #include <memory>
 
@@ -24,13 +21,19 @@
 // ROOT
 #include "TFile.h"
 
+#ifdef XAOD_STANDALONE
+#include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccess/TStore.h"
+#else
+#include "POOLRootAccess/TEvent.h"
+#include "StoreGate/StoreGateSvc.h"
+#endif
+
 //xAOD EDM classes
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODEventShape/EventShape.h"
-#include "xAODRootAccess/Init.h"
-#include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODCore/tools/IOStats.h"
@@ -124,7 +127,6 @@ int main(int argc, char* argv[]){
 
   // Set up the job for xAOD access:
   static const char* APP_NAME = "JetCalibTools_Example";
-  RETURN_CHECK( APP_NAME, xAOD::Init() );
  
   //--------------------
   // Opening input file
@@ -132,11 +134,13 @@ int main(int argc, char* argv[]){
   std::unique_ptr< TFile > ifile( TFile::Open( sample.c_str(), "READ" ) );
 
   // Create a TEvent object.
+#ifdef XAOD_STANDALONE
+  RETURN_CHECK( APP_NAME, xAOD::Init() );
   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
+#else // Athena "Store" is the same StoreGate used by the TEvent
+  POOL::TEvent event( POOL::TEvent::kClassAccess );
+#endif
   RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
-
-  // Create a transient object store. Needed for the tools.
-  xAOD::TStore store;
 
   //----------------------------------
   // Initialization of JetCalibTools
@@ -201,5 +205,3 @@ int main(int argc, char* argv[]){
 
   return 0;
 }
-
-#endif

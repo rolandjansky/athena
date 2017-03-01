@@ -96,13 +96,13 @@ TProfile trackeff_vs_prodZ "Track Efficiency vs Production Vertex Z" 100 0 2000 
 TProfile low_Pt_lepton_frac "Fraction of Primary Leptons with Pt below 3 GeV" 100 0 1500 0 2 "prod_R" "Efficiency" default
 
 #layer-by-layer efficiencies
-TProfile eff_hit_vs_eta_ibl_barrel "Cluster Efficiency: Pixel Barrel IBL" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
-TProfile eff_hit_vs_eta_pix_barrel "Cluster Efficiency: Pixel Barrel" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
-TProfile eff_hit_vs_eta_pix_endcap "Cluster Efficiency: Pixel Endcap" 4 1.5 2.5 0 2 "#eta" "Cluster Efficiency" default
-TProfile eff_hit_vs_eta_sct_barrel "Cluster Efficiency: SCT Barrel" 7 0 1.75 0 2 "#eta" "Cluster Efficiency" default
-TProfile eff_hit_vs_eta_sct_endcap "Cluster Efficiency: SCT Endcap" 6 1 2.5 0 2 "#eta" "Cluster Efficiency" default
-TProfile eff_hit_vs_eta_trt_barrel "Cluster Efficiency: TRT Barrel" 5 0 1.25 0 2 "#eta" "Cluster Efficiency" default
-TProfile eff_hit_vs_eta_trt_endcap "Cluster Efficiency: TRT Endcap" 6 0.75 2.25 0 2 "#eta" "Cluster Efficiency" default
+TEfficiency eff_hit_vs_eta_l0pix_barrel "Cluster Efficiency: Pixel Barrel IBL" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
+TEfficiency eff_hit_vs_eta_pix_barrel "Cluster Efficiency: Pixel Barrel" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
+TEfficiency eff_hit_vs_eta_pix_endcap "Cluster Efficiency: Pixel Endcap" 4 1.5 2.5 0 2 "#eta" "Cluster Efficiency" default
+TEfficiency eff_hit_vs_eta_sct_barrel "Cluster Efficiency: SCT Barrel" 7 0 1.75 0 2 "#eta" "Cluster Efficiency" default
+TEfficiency eff_hit_vs_eta_sct_endcap "Cluster Efficiency: SCT Endcap" 6 1 2.5 0 2 "#eta" "Cluster Efficiency" default
+TEfficiency eff_hit_vs_eta_trt_barrel "Cluster Efficiency: TRT Barrel" 5 0 1.25 0 2 "#eta" "Cluster Efficiency" default
+TEfficiency eff_hit_vs_eta_trt_endcap "Cluster Efficiency: TRT Endcap" 6 0.75 2.25 0 2 "#eta" "Cluster Efficiency" default
 
 #vertices
 TH1F vx_x "X position of vertex" 200  -1.0 1.0 "X (mm)" "Entries" default
@@ -130,6 +130,24 @@ TProfile BadMatchRate_vs_logpt "Fraction of Tracks with < 50.1% TMP vs Log(Pt)" 
 
 TProfile ReallyFakeRate "Fraction of Tracks with < 50.0% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Really Fake Rate" default
 #
+
+# Dummy Plots
+TH2 primary_photon_eta_vs_conversion_radius "Primary Photon #eta vs Conversion Radius" 100 0 1500 20 -2.5 2.5 "Conversion Radius [mm]" "#eta" default
+TH2 primary_photon_pt_vs_decay_radius "Primary Photon p_{T} vs Decay Radius" 100 0 1500 100 0 500 "Decay Radius [mm]" "p_{T} (GeV)" default
+TH1F primary_photon_pt "Primary Photon p_{T}" 100 0 500 "p_{T} (GeV)" "Entries" default
+TH2 brem_photon_eta_vs_radius_of_conversion "Brem Photon #eta vs Radius of Conversion" 100 0 1500 20 -2.5 2.5 "Radius of Conversion [mm]" "#eta" default
+TH2 brem_photon_pt_vs_radius_of_origin_of_conversion "Brem Photon p_{T} vs Radius of Origin of Conversion" 100 0 1500 100 0 500 "Radius of Origin of Conversion [mm]" "p_{T} (GeV)" default
+TH1F lepton_disappearance_radius "Radius at which electrons and positrons from the primary disappear" 100 0 1500 "Radius of Disappearance [mm]" "Entries" default
+TH1F nOut_of_lepdeath "Number of Particles out of the electron/positron endpoint" 6 0 5 "Number of Particles" "Entries" default
+TH2 brem_spectrum "log of the Energy of Brem Photons vs Radius of Emission" 100 0 1500 100 -3 3 "Radius of Emission [mm]" "log(Energy (GeV))" default
+TH2 energy_remaining "Fraction of electron/positron energy left at ECal vs production radius" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_eta "Fraction of electron/positron energy left at ECal vs Initial #eta" 20 -2.5 2.5 100 0 1.25 "#eta" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_prodR_TRT_barrel "Fraction of electron/positron energy left at ECal vs production radius (0 &lt; |#eta| &lt; 0.625)" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_prodR_type_A_endcap "Fraction of electron/positron energy left at ECal vs production radius (1.070 &lt; |#eta| &lt; 1.304)" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_prodR_type_A_and_B "Fraction of electron/positron energy left at ECal vs production radius (1.304 &lt; |#eta| &lt; 1.752)" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
+TH2 energy_remaining_vs_prodR_type_B_endcap "Fraction of electron/positron energy left at ECal vs production radius (1.752 &lt; |#eta| &lt; 2.0)" 100 0 1500 100 0 1.25 "Radius of Initial Conversion [mm]" "Fraction of Energy Remaining" default
+TH2 truthMatchProbability_vs_delta_R "Truth Matching Probability of electron/positron vs #DeltaR" 50 0 1.0 100 0 1.0 "#DeltaR" "Truth Matching Probability" default
+TH1 minimum_delta_R "Minimum #DeltaR for primary conversions within 100 mm of the origin" 50 0 1.0 "#DeltaR" "Entries" default
 
 # Track Parameter Resolution Plots
 #Track Parameter TH2s vs eta

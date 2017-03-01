@@ -16,6 +16,7 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/Property.h"
 
 #include <string>
 #include <vector>
@@ -31,7 +32,6 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 
 class IROBDataProviderSvc;
-class Property;
 
 typedef std::vector<uint32_t> ROBList;
 

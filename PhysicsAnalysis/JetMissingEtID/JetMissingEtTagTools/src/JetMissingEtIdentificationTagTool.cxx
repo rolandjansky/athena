@@ -50,7 +50,7 @@ JetMissingEtIdentificationTagTool::JetMissingEtIdentificationTagTool (const std:
 /** initialization - called once at the begginning */
 StatusCode  JetMissingEtIdentificationTagTool::initialize() {
   MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
+  mLog << MSG::DEBUG << "in intialize()" << endmsg;
 
 
   CHECK(initJetSelectors());
@@ -63,7 +63,7 @@ StatusCode JetMissingEtIdentificationTagTool::attributeSpecification(
            std::map<std::string,AthenaAttributeType>& attrMap, const int max) {
 
   MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  mLog << MSG::DEBUG << "in attributeSpecification()" << endmsg;
 
   /** specify the Jet and MissingET the attributes */
 
@@ -121,7 +121,7 @@ StatusCode JetMissingEtIdentificationTagTool::execute(TagFragmentCollection& jet
 /** finialize - called once at the end */
 StatusCode JetMissingEtIdentificationTagTool::finalize() {
   MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  mLog << MSG::DEBUG << "in finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 

@@ -30,8 +30,11 @@ namespace TCS {
                                        const std::vector<TCS::TOBArray *> & output,
                                        Decision & decison ) = 0;
     
-      unsigned int numberOutputBits() const { return m_numberOutputBits; }
+      virtual TCS::StatusCode processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                                       const std::vector<TCS::TOBArray *> & output,
+                                       Decision & decison ) = 0;
 
+      unsigned int numberOutputBits() const { return m_numberOutputBits; }
       void setNumberOutputBits(unsigned int numberOutputBits) { m_numberOutputBits = numberOutputBits; }
 
    private:

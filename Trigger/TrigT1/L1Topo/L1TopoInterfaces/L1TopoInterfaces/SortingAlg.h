@@ -23,6 +23,7 @@ namespace TCS {
       virtual ~SortingAlg();
 
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) = 0;
+      virtual TCS::StatusCode sortBitCorrect(const InputTOBArray & input, TOBArray & output);
 
    protected:
 

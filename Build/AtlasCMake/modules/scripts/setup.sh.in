@@ -1,4 +1,4 @@
-# $Id: setup.sh.in 769400 2016-08-23 08:33:18Z krasznaa $
+# $Id: setup.sh.in 791444 2017-01-06 14:17:10Z krasznaa $
 #
 # Script providing a functional build and runtime environment for project
 # @CMAKE_PROJECT_NAME@ when sourced from either BASH or ZSH.
@@ -38,20 +38,12 @@ remove_duplicates() {
     while [ -n "${temp}" ]; do
         # Take the first element of the remaining list:
         x=${temp%%:*}
-        # Only consider it if it's an existing directory:
-        if [ -d $x ] && [ -r $x ] && [ -x $x ] && [ "$x" != "" ]; then
-            # Get the absolute path name:
-            x=`cd $x; pwd`
-            # Get the current value of the environment variable:
-            eval "envval=\$$envname"
-            # Decide whether to add it to the environment or not:
-            case ${envval}: in
-                *:"$x":*) ;;
-                *) eval "${envname}=${envval}:$x";;
-            esac
-        fi
-        # Or if it begins with "http"...
-        if [[ $x == http* ]]; then
+        # Check that it's not an empty string:
+        if [ "$x" != "" ]; then
+            # If it's an existing directory, get its absolute path:
+            if [ -d $x ] && [ -r $x ] && [ -x $x ]; then
+                x=`cd $x; pwd`
+            fi
             # Get the current value of the environment variable:
             eval "envval=\$$envname"
             # Decide whether to add it to the environment or not:
@@ -150,116 +142,68 @@ if [ "x${ENV_VAR_VALUE}" = "x" ]; then
         else
             export CMAKE_PREFIX_PATH=${@CMAKE_PROJECT_NAME@_DIR}:${CMAKE_PREFIX_PATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/bin ] || \
-            [ -d ${@CMAKE_PROJECT_NAME@_DIR}/share ]; then
-            if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/bin ]; then
-                if [ -z "${PATH}" ]; then
-                    export PATH=${@CMAKE_PROJECT_NAME@_DIR}/bin:
-                else
-                    export PATH=${@CMAKE_PROJECT_NAME@_DIR}/bin:${PATH}:
-                fi
-            fi
-            if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/share ]; then
-                if [ -z "${PATH}" ]; then
-                    export PATH=${@CMAKE_PROJECT_NAME@_DIR}/share:
-                else
-                    export PATH=${@CMAKE_PROJECT_NAME@_DIR}/share:${PATH}:
-                fi
-            fi
+
+        # Set up the binary path(s):
+        if [ -z "${PATH}" ]; then
+            export PATH=${@CMAKE_PROJECT_NAME@_DIR}/bin:
         else
-            export PATH=${PATH}:
+            export PATH=${@CMAKE_PROJECT_NAME@_DIR}/bin:${PATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/lib ]; then
-            if [ -z "${LD_LIBRARY_PATH}" ]; then
-                export LD_LIBRARY_PATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:
-            else
-                export LD_LIBRARY_PATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:${LD_LIBRARY_PATH}:
-            fi
-            if [ -z "${DYLD_LIBRARY_PATH}" ]; then
-                export DYLD_LIBRARY_PATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:
-            else
-                export DYLD_LIBRARY_PATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:${DYLD_LIBRARY_PATH}:
-            fi
-            if [ -z "${PYTHONPATH}" ]; then
-                export PYTHONPATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:
-            else
-                export PYTHONPATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:${PYTHONPATH}:
-            fi
+        export PATH=${@CMAKE_PROJECT_NAME@_DIR}/share:${PATH}:
+
+        # Set up the library path(s):
+        if [ -z "${LD_LIBRARY_PATH}" ]; then
+            export LD_LIBRARY_PATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:
         else
-            export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:
-            export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:
+            export LD_LIBRARY_PATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:${LD_LIBRARY_PATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/python ]; then
-            if [ -z "${PYTHONPATH}" ]; then
-                export PYTHONPATH=${@CMAKE_PROJECT_NAME@_DIR}/python:
-            else
-                export PYTHONPATH=${@CMAKE_PROJECT_NAME@_DIR}/python:${PYTHONPATH}:
-            fi
+        if [ -z "${DYLD_LIBRARY_PATH}" ]; then
+            export DYLD_LIBRARY_PATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:
         else
-            export PYTHONPATH=${PYTHONPATH}:
+            export DYLD_LIBRARY_PATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:${DYLD_LIBRARY_PATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/jobOptions ]; then
-            if [ -z "${JOBOPTSEARCHPATH}" ]; then
-                export JOBOPTSEARCHPATH=${@CMAKE_PROJECT_NAME@_DIR}/jobOptions:
-            else
-                export JOBOPTSEARCHPATH=${@CMAKE_PROJECT_NAME@_DIR}/jobOptions:${JOBOPTSEARCHPATH}:
-            fi
+
+        # Set up the python path(s):
+        if [ -z "${PYTHONPATH}" ]; then
+            export PYTHONPATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:
         else
-            export JOBOPTSEARCHPATH=${JOBOPTSEARCHPATH}:
+            export PYTHONPATH=${@CMAKE_PROJECT_NAME@_DIR}/lib:${PYTHONPATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/share ]; then
-            if [ -z "${DATAPATH}" ]; then
-                export DATAPATH=${@CMAKE_PROJECT_NAME@_DIR}/share:
-            else
-                export DATAPATH=${@CMAKE_PROJECT_NAME@_DIR}/share:${DATAPATH}:
-            fi
+        export PYTHONPATH=${@CMAKE_PROJECT_NAME@_DIR}/python:${PYTHONPATH}:
+
+        # Set up the jobOptions path:
+        if [ -z "${JOBOPTSEARCHPATH}" ]; then
+            export JOBOPTSEARCHPATH=${@CMAKE_PROJECT_NAME@_DIR}/jobOptions:
         else
-            export DATAPATH=${DATAPATH}:
+            export JOBOPTSEARCHPATH=${@CMAKE_PROJECT_NAME@_DIR}/jobOptions:${JOBOPTSEARCHPATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/share ]; then
-            if [ -z "${CALIBPATH}" ]; then
-                export CALIBPATH=${@CMAKE_PROJECT_NAME@_DIR}/share:
-            else
-                export CALIBPATH=${@CMAKE_PROJECT_NAME@_DIR}/share:${CALIBPATH}:
-            fi
+
+        # Set up the data path(s):
+        if [ -z "${DATAPATH}" ]; then
+            export DATAPATH=${@CMAKE_PROJECT_NAME@_DIR}/share:
         else
-            export CALIBPATH=${CALIBPATH}:
+            export DATAPATH=${@CMAKE_PROJECT_NAME@_DIR}/share:${DATAPATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/data ]; then
-            if [ -z "${DATAPATH}" ]; then
-                export DATAPATH=${@CMAKE_PROJECT_NAME@_DIR}/data:
-            else
-                export DATAPATH=${@CMAKE_PROJECT_NAME@_DIR}/data:${DATAPATH}:
-            fi
+        export DATAPATH=${@CMAKE_PROJECT_NAME@_DIR}/data:${DATAPATH}:
+        if [ -z "${CALIBPATH}" ]; then
+            export CALIBPATH=${@CMAKE_PROJECT_NAME@_DIR}/share:
         else
-            export DATAPATH=${DATAPATH}:
+            export CALIBPATH=${@CMAKE_PROJECT_NAME@_DIR}/share:${CALIBPATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/data ]; then
-            if [ -z "${CALIBPATH}" ]; then
-                export CALIBPATH=${@CMAKE_PROJECT_NAME@_DIR}/data:
-            else
-                export CALIBPATH=${@CMAKE_PROJECT_NAME@_DIR}/data:${CALIBPATH}:
-            fi
+        export CALIBPATH=${@CMAKE_PROJECT_NAME@_DIR}/data:${CALIBPATH}:
+
+        # Set up the include path:
+        if [ -z "${ROOT_INCLUDE_PATH}" ]; then
+            export ROOT_INCLUDE_PATH=${@CMAKE_PROJECT_NAME@_DIR}/include:
         else
-            export CALIBPATH=${CALIBPATH}:
+            export ROOT_INCLUDE_PATH=${@CMAKE_PROJECT_NAME@_DIR}/include:${ROOT_INCLUDE_PATH}:
         fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/include ]; then
-            if [ -z "${ROOT_INCLUDE_PATH}" ]; then
-                export ROOT_INCLUDE_PATH=${@CMAKE_PROJECT_NAME@_DIR}/include:
-            else
-                export ROOT_INCLUDE_PATH=${@CMAKE_PROJECT_NAME@_DIR}/include:${ROOT_INCLUDE_PATH}:
-            fi
+
+        # Set up the XML path:
+        if [ -z "${XMLPATH}" ]; then
+            export XMLPATH=${@CMAKE_PROJECT_NAME@_DIR}/XML:
         else
-            export ROOT_INCLUDE_PATH=${ROOT_INCLUDE_PATH}:
-        fi
-        if [ -d ${@CMAKE_PROJECT_NAME@_DIR}/XML ]; then
-            if [ -z "${XMLPATH}" ]; then
-                export XMLPATH=${@CMAKE_PROJECT_NAME@_DIR}/XML:
-            else
-                export XMLPATH=${@CMAKE_PROJECT_NAME@_DIR}/XML:${XMLPATH}:
-            fi
-        else
-            export XMLPATH=${XMLPATH}:
+            export XMLPATH=${@CMAKE_PROJECT_NAME@_DIR}/XML:${XMLPATH}:
         fi
 
         # We can already not be in external-only mode. But the rest should only

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 729200 2016-03-11 15:37:14Z krasznaa $
+# $Id: CMakeLists.txt 787831 2016-12-02 10:18:34Z krasznaa $
 ################################################################################
 # Package: CLIDComps
 ################################################################################
@@ -12,10 +12,12 @@ atlas_depends_on_subdirs(
    AtlasTest/TestTools
    Control/AthenaKernel
    Control/SGTools
-   GaudiKernel )
+   GaudiKernel
+   PRIVATE
+   AtlasTest/TestTools )
 
 # External dependencies:
-find_package( Boost )
+find_package( Boost COMPONENTS program_options )
 
 # Component(s) in the package:
 atlas_add_component( CLIDComps
@@ -23,6 +25,15 @@ atlas_add_component( CLIDComps
    NOCLIDDB
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel SGTools GaudiKernel )
+
+# Executable(s) in the package:
+atlas_add_executable( genCLIDDB
+   util/genCLIDDB.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} TestTools GaudiKernel AthenaKernel )
+if( TARGET genCLIDDB AND TARGET CLIDComps )
+   add_dependencies( genCLIDDB CLIDCompsComponentsList )
+endif()
 
 # Test(s) in the package:
 atlas_add_test( ClassIDSvc_test

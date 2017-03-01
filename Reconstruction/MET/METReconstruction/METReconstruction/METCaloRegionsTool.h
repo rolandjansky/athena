@@ -118,7 +118,8 @@ namespace met{
     // Tool handle for CaloNoiseTool
     #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     #else
-    ToolHandle<ICaloNoiseTool> m_caloNoiseTool;
+    // FIXME: mutable
+    mutable ToolHandle<ICaloNoiseTool> m_caloNoiseTool;
     #endif
   }; 
 

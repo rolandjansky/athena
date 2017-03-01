@@ -375,28 +375,29 @@ namespace xAOD {
   }
 #endif //SIMULATIONBASE
 
-  void Jet_v1::toPersistent() {
+//   void Jet_v1::toPersistent() {
+//   No longer needed, as this is done by the POOL converter for the aux container
 
-    if( constituentAcc.isAvailableWritable( *this ) ) { 
-       std::vector< ElementLink< IParticleContainer > >::iterator itr =
-          constituentAcc( *this ).begin();
-       std::vector< ElementLink< IParticleContainer > >::iterator end =
-          constituentAcc( *this ).end();
-       for( ; itr != end; ++itr ) {
-          itr->toPersistent();
-       }
-    }
+//     if( constituentAcc.isAvailableWritable( *this ) ) { 
+//        std::vector< ElementLink< IParticleContainer > >::iterator itr =
+//           constituentAcc( *this ).begin();
+//        std::vector< ElementLink< IParticleContainer > >::iterator end =
+//           constituentAcc( *this ).end();
+//        for( ; itr != end; ++itr ) {
+//           itr->toPersistent();
+//        }
+//     }
 
-#ifndef SIMULATIONBASE
-    // On a new object we could only create a link with the new name, so:
-    if( btagAcc2.isAvailableWritable( *this ) ) {
-      btagAcc2( *this ).toPersistent();
-    }
-#endif //SIMULATIONBASE
+// #ifndef SIMULATIONBASE
+//     // On a new object we could only create a link with the new name, so:
+//     if( btagAcc2.isAvailableWritable( *this ) ) {
+//       btagAcc2( *this ).toPersistent();
+//     }
+// #endif //SIMULATIONBASE
 
     
-    return;
-  }
+//     return;
+//   }
   
 
 } // namespace xAOD

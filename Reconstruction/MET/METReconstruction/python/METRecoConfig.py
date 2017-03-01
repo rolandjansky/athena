@@ -268,11 +268,13 @@ class METConfig:
         self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
                                                               CutLevel="TightPrimary",
                                                               maxZ0SinTheta=3,
-                                                              maxD0=2)
+                                                              maxD0=2,
+                                                              minPt=500)
         if not hasattr(ToolSvc,self.trkseltool.name()):
             ToolSvc += self.trkseltool
         #
-        self.trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool_MET", dzSinTheta_cut=1.5, doPV=False)
+        self.trkvxtool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool_MET")
+        #self.trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool_MET", dzSinTheta_cut=3, doPV=False)
         if not hasattr(ToolSvc,self.trkvxtool.name()):
             ToolSvc += self.trkvxtool
         #
@@ -281,7 +283,8 @@ class METConfig:
         if not hasattr(ToolSvc,self.trkisotool.name()):
             ToolSvc += self.trkisotool
         #
-        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET")
+        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
+                                                          saveOnlyRequestedCorrections=True)
         if not hasattr(ToolSvc,self.caloisotool.name()):
             ToolSvc += self.caloisotool
 

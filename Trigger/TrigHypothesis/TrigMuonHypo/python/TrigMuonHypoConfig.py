@@ -14,6 +14,7 @@ ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
     '2GeV'             : [ [0,9.9],              [ 2.000 ] ],
+    '3GeV'             : [ [0,9.9],              [ 3.000 ] ],
     '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [  3.0,  2.5,  2.5,  2.5] ],
     '4GeV_barrelOnly'  : [ [0,1.05,1.5,2.0,9.9], [  3.0,1000.0,1000.0,1000.0]], 
     '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [  4.6,  3.3,  4.0,  4.5] ],
@@ -46,6 +47,7 @@ trigMuonEFSAThresholds = {
 
 efCombinerThresholds = {
     '2GeV'             : [ [0,9.9], [2.000] ],
+    '3GeV'             : [ [0,9.9], [3.000] ],
     '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [  3.93,  3.91,  3.88,  3.88] ],
     '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [  4.91,  4.86,  4.84,  4.83] ],
     '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [  5.88,  5.81,  5.78,  5.76] ],
@@ -77,6 +79,7 @@ efCombinerThresholds = {
     '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 90.00, 90.00, 90.00, 90.00] ],
     # original + 2015 tuning
     '2GeV_v15a'             : [ [0,9.9], [2.000] ],
+    '3GeV_v15a'             : [ [0,9.9], [3.000] ],
     '4GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  3.94,  3.91,  3.77,  3.72] ],
     '5GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  4.91,  4.86,  4.84,  4.83] ],
     '6GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  5.92,  5.86,  5.70,  5.64] ],
@@ -113,6 +116,7 @@ efCombinerThresholds = {
 efCaloTagThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.1,  0.1,  0.1,  0.1   ] ],
     '2GeV'             : [ [0,9.9],              [ 2.0,  2.0,  2.0,  2.0   ] ],
+    '3GeV'             : [ [0,9.9],              [ 3.0,  3.0,  3.0,  3.0   ] ],
     '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 4.0,  4.0,  4.0,  4.0   ] ],
     '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 5.0,  5.0,  5.0,  5.0   ] ],
     '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 6.0,  6.0,  6.0,  6.0   ] ],
@@ -140,6 +144,7 @@ efCaloTagThresholds = {
 
 muCombThresholds = {
     '2GeV'             : [ [0,9.9],              [ 2.000] ],
+    '3GeV'             : [ [0,9.9],              [ 3.000] ],
     '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [  3.0,  2.5,  2.5,  2.5] ],  
     '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [  4.9,  4.8,  4.8,  4.8] ], 
     '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [  5.8,  5.8,  5.8,  5.6] ], 
@@ -174,6 +179,7 @@ muCombThresholds = {
     '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 70.0, 70.0, 70.0, 70.0] ],
     # original + 2015 tuning
     '2GeV_v15a'             : [ [0,9.9],              [ 2.000] ],
+    '3GeV_v15a'             : [ [0,9.9],              [ 3.000] ],
     '4GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  3.86,  3.77,  3.69,  3.70] ],
     '5GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  4.9,  4.8,  4.8,  4.8] ],
     '6GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [  5.87,  5.79,  5.70,  5.62] ],
@@ -214,6 +220,7 @@ muFastThresholds = {
     #
     # original + 2010 tuning
     '2GeV'             : [ [0,9.9],              [ 2.000] ],               
+    '3GeV'             : [ [0,9.9],              [ 3.000] ],               
     '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [  3.0,  2.5,  2.5,  2.5] ], 
     '4GeV_V2'          : [ [0,1.05,1.5,2.0,9.9], [  3.0,  1.8,  2.0,  2.5] ], 
     '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [  4.6,  3.3,  4.0,  4.5] ], 
@@ -295,6 +302,7 @@ muFastThresholdsForECWeakBRegion = {
     #
     # original + 2010 tuning
     '2GeV'             : [  2.0,  2.0 ],   
+    '3GeV'             : [  3.0,  3.0 ],   
     '4GeV'             : [  2.5,  2.5 ],
     '4GeV_V2'          : [  1.8,  2.0 ],
     '5GeV'             : [  3.3,  4.0 ],
@@ -401,7 +409,7 @@ class MufastHypoConfig(MufastHypo) :
                 print 'MufastHypoConfig: No special thresholds for EC weak Bfield regions for',threshold
                 print 'MufastHypoConfig: -> Copy EC1 for region A, EC2 for region B'
                 spThres = values[0][1]
-                if threshold == '2GeV':
+                if threshold == '2GeV' or threshold == '3GeV':
                     self.PtThresholdForECWeakBRegionA = spThres[0] * GeV
                     self.PtThresholdForECWeakBRegionB = spThres[0] * GeV
                 else:
@@ -1278,6 +1286,15 @@ trigMuonEFTrkIsoThresholds = {
     'RelEFOnlyVarTightWide'      : [-1.0 ,  0.07 ]  #ivarmedium
     }
 
+
+
+trigMuonEFCaloIsoThresholds = {
+    
+    'Rel'                : [ 0.3, 0.3, 0.3 ],    
+    'AbsCalo'            : [ 5200.0,   4800.0, 4000.0],
+    
+    }
+
 """
 Class for hypothesis cuts on EF track isolation algorithm.
 arg[0] = Muon
@@ -1285,6 +1302,7 @@ arg[1] = working point
 See trigMuonEFTrkIsoThresholds for available working points
 Put passthrough in arg[1] for passthrough
 """
+
 class TrigMuonEFTrackIsolationHypoConfig(TrigMuonEFTrackIsolationHypo) :
 
     __slots__ = []
@@ -1333,6 +1351,13 @@ class TrigMuonEFTrackIsolationHypoConfig(TrigMuonEFTrackIsolationHypo) :
         self.AthenaMonTools = [ validation, online ]
 
 
+"""
+Class for hypothesis cuts on EF calo isolation algorithm.
+arg[0] = Muon
+arg[1]-arg[3] = working point (eta dependent)
+Put passthrough in arg[1] for passthrough
+"""
+
 class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
 
     __slots__ = []
@@ -1347,7 +1372,7 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
         super( TrigMuonEFCaloIsolationHypoConfig, self ).__init__( name )
 
         try:
-            #cuts = trigMuonEFCaloIsoThresholds[ args[1] ]
+            cuts = trigMuonEFCaloIsoThresholds[ args[1] ]
 
             # If configured with passthrough, set AcceptAll flag on
             self.AcceptAll = False
@@ -1358,10 +1383,10 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
 
             #Default cuts (more than 95% eff on Z->mumu) tuned on 2011 run 178044 data <beta>~6
             #These probably should be updated!
-            self.CaloConeSize = 1;
-            self.MaxCaloIso_1 = 5200.0
-            self.MaxCaloIso_2 = 4800.0
-            self.MaxCaloIso_3 = 4000.0
+            self.CaloConeSize = 2;
+            self.MaxCaloIso_1 = cuts[0]
+            self.MaxCaloIso_2 = cuts[1]
+            self.MaxCaloIso_3 = cuts[2]
 
             if 'Rel' in args[1] :
                 self.DoAbsCut = False

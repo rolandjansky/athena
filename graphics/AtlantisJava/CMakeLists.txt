@@ -29,6 +29,3 @@ atlas_install_generic( geometry/*.xml
 atlas_install_generic( help/help.jar help/online.xml help/*.png
                        DESTINATION "share/AtlantisJava/help"
                        EXECUTABLE )
-
-athena_env( SET ANT_OPTS "-Xms64m -Xmx64m" )
-

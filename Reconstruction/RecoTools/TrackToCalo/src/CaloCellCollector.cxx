@@ -264,6 +264,12 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
                                        bool applyNoiseCut,
                                        float sigmaNoiseCut) const
 {
+  // FIXME: const_cast
+  ICaloNoiseTool* caloNoiseTool_nc = nullptr;
+  if (!caloNoiseTool.empty()) {
+    const ICaloNoiseTool* caloNoiseTool_c = &*caloNoiseTool;
+    caloNoiseTool_nc = const_cast<ICaloNoiseTool*> (caloNoiseTool_c);
+  }
     // Collect the cells in the core for a muon
 
     // Collect etCore for the different samples
@@ -301,7 +307,7 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
         }
         // Check if cell passes the noise threshold of 3.4sigma
         if (m_doDebug && addCell) {
-           if( !caloNoiseTool.empty() ) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoiseTool->getNoise(cell);
+           if( !caloNoiseTool.empty() ) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoiseTool_nc->getNoise(cell);
            else std::cout << " cell E, NO CaloNoiseTool available: " << cell->energy() << "/ - ";
         }
         if (applyNoiseCut && caloNoiseTool.empty() ){
@@ -309,7 +315,7 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
                      << "ERROR : Changing configuration to NOT apply calo noise cut!" << std::endl;
            applyNoiseCut = false;
         }
-        if (applyNoiseCut && addCell && cell->energy() < sigmaNoiseCut*caloNoiseTool->getNoise(cell)) {
+        if (applyNoiseCut && addCell && cell->energy() < sigmaNoiseCut*caloNoiseTool_nc->getNoise(cell)) {
             addCell = false;
         }
         // sum of et, defined by cell E, and muon track eta

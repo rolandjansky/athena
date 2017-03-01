@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 786110 2016-11-23 19:25:18Z ssnyder $
+# $Id: CMakeLists.txt 793433 2017-01-23 10:57:26Z dguest $
 ################################################################################
 # Package: JetTagTools
 ################################################################################
@@ -72,6 +72,7 @@ atlas_add_library( JetTagToolsLib
    src/GradedTrack.cxx src/IPTag.cxx src/JetTagUtils.cxx
    src/SVForIPTool.cxx src/SVTag.cxx src/JetFitterTag.cxx
    src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
+   src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx
    src/MV1Tag.cxx src/MV1cTag.cxx src/MV2Tag.cxx
    src/MyTag.cxx
    src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx

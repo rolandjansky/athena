@@ -96,6 +96,10 @@ namespace Analysis {
     bool m_useCHypo;
     bool m_unbiasIPEstimation;  // remove track from vertex when computing IP
 
+    // make the output smaller
+    bool m_storeTrackParticles;
+    bool m_storeIpValues;
+    bool m_storeTrackParameters;
 
     //// VD: other (non-bool) configurables
     /** Name of the track-to-jet association in the BTagging object */
@@ -109,8 +113,6 @@ namespace Analysis {
     
     /** forcing the calibration folder of a given collection */
     std::string m_ForcedCalibName;
-
-    std::string m_infoPlusName; // key to store the IPInfoPlus (VD:???)
 
    /** for reference mode: */
     std::string m_referenceType;     // label to use for reference mode

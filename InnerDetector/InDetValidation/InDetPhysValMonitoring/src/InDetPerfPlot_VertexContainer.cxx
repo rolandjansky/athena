@@ -15,8 +15,8 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-InDetPerfPlot_VertexContainer::InDetPerfPlot_VertexContainer(InDetPlotBase *pParent,
-                                                             const std::string &sDir) : InDetPlotBase(pParent, sDir),
+InDetPerfPlot_VertexContainer::InDetPerfPlot_VertexContainer(InDetPlotBase* pParent,
+                                                             const std::string& sDir) : InDetPlotBase(pParent, sDir),
   m_vx_n_vs_mu{} {
   // nop
 }
@@ -30,15 +30,15 @@ InDetPerfPlot_VertexContainer::initializePlots() {
 }
 
 void
-InDetPerfPlot_VertexContainer::fill(const xAOD::VertexContainer &vertices, const xAOD::EventInfo &ei) {
+InDetPerfPlot_VertexContainer::fill(const xAOD::VertexContainer& vertices, const xAOD::EventInfo& ei) {
   // fill number of vertices
   int nGoodVertices(0);
 
-  for (const auto &vtx : vertices.stdcont()) {
+  for (const auto& vtx : vertices.stdcont()) {
     if (vtx->vertexType() == xAOD::VxType::NoVtx) {
       continue; // skip dummy vertex
     }
     nGoodVertices++;
   }
-  fillHisto(m_vx_n_vs_mu,nGoodVertices, ei.actualInteractionsPerCrossing());
+  fillHisto(m_vx_n_vs_mu, nGoodVertices, ei.actualInteractionsPerCrossing());
 }

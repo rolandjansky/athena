@@ -26,7 +26,7 @@ sel_muon  = 'Muons.pt > 24*GeV && Muons.ptcone20/Muons.pt < 0.2'
 from AthenaCommon.BFieldFlags import jobproperties
 if jobproperties.BField.solenoidOn():
     PerfDPD_TtbarMuon_log.info( "Configuring b-tagging selection with solenoid on" )
-    sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5 && BTagging_AntiKt4EMTopo.MV2c20_discriminant>0.0314'
+    sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5 && BTagging_AntiKt4EMTopo.MV2c10_discriminant>0.0314'
 else:
     PerfDPD_TtbarMuon_log.info( "Configuring b-tagging selection with solenoid off" )
     sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5'

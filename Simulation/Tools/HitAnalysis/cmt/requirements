@@ -7,21 +7,29 @@ use AtlasPolicy			AtlasPolicy-*
 branches run
 
 use GaudiInterface		GaudiInterface-*		External
-use AtlasCLHEP  		AtlasCLHEP-* 			External
 use AtlasROOT			AtlasROOT-*				External
 
-use StoreGate           StoreGate-*				Control
-
-use AthenaBaseComps		AthenaBaseComps-*		Control
-
 private
-use TileSimEvent        TileSimEvent-*          TileCalorimeter
-use TileDetDescr        TileDetDescr-*          TileCalorimeter
-use LArSimEvent         LArSimEvent-*           LArCalorimeter
-use GeoAdaptors         GeoAdaptors-*           DetectorDescription/GeoModel
-use CaloIdentifier      CaloIdentifier-*        Calorimeter
-use CaloDetDescr        CaloDetDescr-*          Calorimeter
-use EventInfo			EventInfo-*				Event
+use AthenaBaseComps	 AthenaBaseComps-*		 Control
+use InDetSimEvent        InDetSimEvent-*         	 InnerDetector
+use TileSimEvent         TileSimEvent-*          	 TileCalorimeter
+use TileDetDescr         TileDetDescr-*          	 TileCalorimeter
+use LArSimEvent          LArSimEvent-*           	 LArCalorimeter
+use GeoAdaptors          GeoAdaptors-*           	 DetectorDescription/GeoModel
+use CaloIdentifier       CaloIdentifier-*        	 Calorimeter
+use CaloDetDescr         CaloDetDescr-*          	 Calorimeter
+use CaloSimEvent         CaloSimEvent-*          	 Calorimeter
+use InDetSimEvent        InDetSimEvent-*         	 InnerDetector
+use MuonSimEvent         MuonSimEvent-*          	 MuonSpectrometer
+use AtlasCLHEP           AtlasCLHEP-*            	 External
+use EventInfo	         EventInfo-*			 Event
+use AtlasHepMC           AtlasHepMC-*            	 External
+use GeneratorObjects     GeneratorObjects-*      	 Generators
+use TrackRecord          TrackRecord-*			 Simulation/G4Sim
+use ALFA_SimEv           ALFA_SimEv-*			 ForwardDetectors/ALFA
+use LUCID_SimEvent 	 LUCID_SimEvent-*		 ForwardDetectors/LUCID/LUCID_SimUtils
+use ZDC_SimEvent     	 ZDC_SimEvent-*			 ForwardDetectors/ZDC
+use AFP_SimEv            AFP_SimEv-*                     ForwardDetectors/AFP
 end_private
 
 use AtlasSimulationRunTime 	AtlasSimulationRunTime-*

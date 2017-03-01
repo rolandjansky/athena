@@ -161,9 +161,6 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
         dynamic_cast<const MaterialEffectsOnTrack*>((**itTSoS).materialEffectsOnTrack());
       if (meot && meot->energyLoss())
       {
-        const EnergyLoss* energyLoss  = new EnergyLoss(*meot->energyLoss());
-        //std::cout<<"Keeping EnergyLoss "<<std::endl;
-
         if (m_setPersistificationHints) {
           // (**itTSoS).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
           (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifySlimCaloDeposit);
@@ -176,7 +173,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
           0,
           new MaterialEffectsOnTrack(meot->thicknessInX0(),
           0,
-          energyLoss,
+          new EnergyLoss(*meot->energyLoss()),
           meot->associatedSurface()),
           (**itTSoS).types()));
         }

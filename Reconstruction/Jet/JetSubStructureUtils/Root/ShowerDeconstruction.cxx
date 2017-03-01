@@ -4,17 +4,14 @@
 
 #include "JetSubStructureUtils/ShowerDeconstruction.h"
 
-#if defined(ROOTCORE)
-#include <RootCore/Packages.h>
-#endif
-#if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+#ifndef NO_SHOWERDECONSTRUCTION
 #include <Deconstruct.h>
 #include <AnalysisParameters.h>
 #include <TopGluonModel.h>
 #include <WDecayModel.h>
 #include <BackgroundModel.h>
 #include <ISRModel.h>
-#endif
+#endif // not NO_SHOWERDECONSTRUCTION
 
 #include <fastjet/ClusterSequence.hh>
 #include "xAODJet/Jet.h"
@@ -33,7 +30,7 @@ ShowerDeconstruction::ShowerDeconstruction(SignalModel signalModel)
   m_isrModel = 0;
   m_deconstruct = 0;
 
-#if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+#ifndef NO_SHOWERDECONSTRUCTION
   m_param = new AnalysisParameters();
   (*m_param)["R"] = 1.0;
   (*m_param)["lambda_mu_ext"] = 1.0;
@@ -68,19 +65,19 @@ ShowerDeconstruction::ShowerDeconstruction(SignalModel signalModel)
   }
 
   m_deconstruct = new Deconstruction::Deconstruct(*m_param, *sigModelPtr, *m_bkgModel, *m_isrModel);
-#endif
+#endif // not NO_SHOWERDECONSTRUCTION
 }
 
 ShowerDeconstruction::~ShowerDeconstruction()
 {
-#if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+#ifndef NO_SHOWERDECONSTRUCTION
   if (m_param) delete m_param;
   if (m_topModel) delete m_topModel;
   if (m_WModel) delete m_WModel;
   if (m_bkgModel) delete m_bkgModel;
   if (m_isrModel) delete m_isrModel;
   if (m_deconstruct) delete m_deconstruct;
-#endif
+#endif // not NO_SHOWERDECONSTRUCTION
 }
 
 double ShowerDeconstruction::result(const xAOD::Jet &jet)
@@ -92,7 +89,7 @@ double ShowerDeconstruction::result(const xAOD::Jet &jet)
 
 double ShowerDeconstruction::result(const fastjet::PseudoJet &jet, const float R)
 {
-#if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+#ifndef NO_SHOWERDECONSTRUCTION
   if(jet.constituents().size() == 0) return -999;
 
   (*m_param)["R"] = R;
@@ -124,6 +121,5 @@ double ShowerDeconstruction::result(const fastjet::PseudoJet &jet, const float R
   return lchi;
 #else
   return -999;
-#endif
+#endif // not NO_SHOWERDECONSTRUCTION
 }
-

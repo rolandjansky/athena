@@ -192,7 +192,13 @@ bool    PanTau::Tool_TauConstituentSelector::passesSelection_Pi0NeutConstituent(
 
 
 bool    PanTau::Tool_TauConstituentSelector::passesSelection_ChargedConstituent(PanTau::TauConstituent2* tauConstituent) const {
-    TLorentzVector tlv_Constituent = tauConstituent->p4();
+
+  TLorentzVector tlv_Constituent = tauConstituent->p4();
+
+  // we want to use all tracks
+  return true;
+
+  /*
     
     double curEta       = tlv_Constituent.Eta();
     double cut_MinEt    = getEtCut(fabs(curEta), PanTau::TauConstituent2::t_Charged);
@@ -204,6 +210,9 @@ bool    PanTau::Tool_TauConstituentSelector::passesSelection_ChargedConstituent(
     }
     
     return true;
+
+  */
+
 }
 
 
@@ -221,7 +230,13 @@ bool    PanTau::Tool_TauConstituentSelector::passesSelection_OutNeutConstituent(
 
 
 bool    PanTau::Tool_TauConstituentSelector::passesSelection_OutChrgConstituent(TauConstituent2* TauConstituent) const {
-    TLorentzVector tlv_Constituent = TauConstituent->p4();
+
+  TLorentzVector tlv_Constituent = TauConstituent->p4();
+
+  // we want to use all tracks
+  return true;
+
+  /*
     
     double curEta    = tlv_Constituent.Eta();
     double cut_MinEt = getEtCut(fabs(curEta), PanTau::TauConstituent2::t_OutChrg);
@@ -229,6 +244,8 @@ bool    PanTau::Tool_TauConstituentSelector::passesSelection_OutChrgConstituent(
     
     if(curEt < cut_MinEt) return false;
     return true;
+
+  */
 }
 
 

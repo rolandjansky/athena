@@ -45,7 +45,10 @@
 class MsgStream;
 class TrigTimer;
 
+
 namespace HLT {
+
+  static std::string no_config = "no config";
 
   // taht is for backward compatibility of TDT, once new TDT will be available it can be removed from steering
   enum ChainStatus { ChainInvalid=0, ConfigOnlyChain, ChainOK };
@@ -88,14 +91,14 @@ namespace HLT {
 
     // For Lvl Converters
 
-    float prescaleFactor()           const { return (m_configChain ? m_configChain->prescale() : -1.); } //!< get prescale factor
-    float passThroughFactor()        const { return (m_configChain ? m_configChain->pass_through() : -1.); }  //!< get pass-through factor
-    unsigned int getChainCounter()   const { return m_chain_counter; }   //!< return the unique identifier of this Chain (uint)
-    std::string  getChainName()      const { return (m_configChain ? m_configChain->chain_name(): "no config"); }    //!< return the Chain name (string)
-    std::string  getLowerChainName() const { return (m_configChain ? m_configChain->lower_chain_name(): "no config"); }    //!< return the Chain name (string)
-    int  getEBAfterStep()            const { return (m_configChain ? m_configChain->EB_after_step() : -1.); }    //!< get EB_after_step  
-    bool nextStepAfterEB()           const { return ((getChainStep()+1) > getEBAfterStep()) && (getEBAfterStep()>0.); } //!< return whether next step requires EB (-1 means no EB called)
-    bool isMerged()                  const { return (m_configChain ? (m_configChain->level()=="HLT") : false);}; //!<< return whether is a merged L2+EF chain 
+    float prescaleFactor()                  const { return (m_configChain ? m_configChain->prescale() : -1.); } //!< get prescale factor
+    float passThroughFactor()               const { return (m_configChain ? m_configChain->pass_through() : -1.); }  //!< get pass-through factor
+    unsigned int getChainCounter()          const { return m_chain_counter; }   //!< return the unique identifier of this Chain (uint)
+    const std::string&  getChainName()      const { return (m_configChain ? m_configChain->chain_name(): no_config); }    //!< return the Chain name (string)
+    const std::string&  getLowerChainName() const { return (m_configChain ? m_configChain->lower_chain_name(): no_config); }    //!< return the Chain name (string)
+    int  getEBAfterStep()                   const { return (m_configChain ? m_configChain->EB_after_step() : -1.); }    //!< get EB_after_step  
+    bool nextStepAfterEB()                  const { return ((getChainStep()+1) > getEBAfterStep()) && (getEBAfterStep()>0.); } //!< return whether next step requires EB (-1 means no EB called)
+    bool isMerged()                         const { return (m_configChain ? (m_configChain->level()=="HLT") : false);}; //!<< return whether is a merged L2+EF chain 
 
     unsigned int getChainHashId()  const { return (m_configChain ? m_configChain->chain_hash_id() : 0); } //!< return the Chain name's hash ID
     HLT::ErrorCode getErrorCode()  const { return m_errorCode; }          //!< return this Chain's most severe error code (from execution)

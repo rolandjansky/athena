@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/CxxUtils
                           Control/StoreGate
+      			  Event/FourMomUtils
 			  Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools )
@@ -39,13 +40,13 @@ atlas_add_library( TauDiscriminantLib
 atlas_add_component( TauDiscriminant
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaBaseComps xAODEgamma xAODTau GaudiKernel PATInterfaces tauRecToolsLib PathResolver CxxUtils StoreGateLib SGtests xAODEventInfo xAODTracking ElectronPhotonSelectorToolsLib TauDiscriminantLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaBaseComps xAODEgamma xAODTau FourMomUtils GaudiKernel PATInterfaces tauRecToolsLib PathResolver CxxUtils StoreGateLib SGtests xAODEventInfo xAODTracking ElectronPhotonSelectorToolsLib TauDiscriminantLib )
 
 atlas_add_dictionary( TauDiscriminantDict
                       TauDiscriminant/TauDiscriminantDict.h
                       TauDiscriminant/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaBaseComps xAODEgamma xAODTau GaudiKernel PATInterfaces tauRecToolsLib PathResolver CxxUtils StoreGateLib SGtests xAODEventInfo xAODTracking ElectronPhotonSelectorToolsLib TauDiscriminantLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaBaseComps xAODEgamma xAODTau FourMomUtils GaudiKernel PATInterfaces tauRecToolsLib PathResolver CxxUtils StoreGateLib SGtests xAODEventInfo xAODTracking ElectronPhotonSelectorToolsLib TauDiscriminantLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

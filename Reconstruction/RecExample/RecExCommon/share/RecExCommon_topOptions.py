@@ -1033,7 +1033,8 @@ if globalflags.InputFormat()=='bytestream':
 
     # enable IOVDbSvc to read metadata
     svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-    svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
+    if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
+        svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
 
 MetaDataStore=svcMgr.MetaDataStore
 
@@ -1073,12 +1074,13 @@ if rec.doFileMetaData():
         #force CutFlowSvc execution (necessary for file merging)
         theApp.CreateSvc+=['CutFlowSvc']
         logRecExCommon_topOptions.debug("Added CutFlowSvc to theApp")
-        pass
+        pass    
 
     try:
         # ByteStreamMetadata
-        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
-        svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
+        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool        
+        if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
+            svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
     except Exception:
         treatException("Could not load ByteStreamMetadataTool")
 
@@ -1427,6 +1429,10 @@ if rec.doWriteAOD():
         if AODFlags.ThinNegativeEnergyCaloClusters:
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
             ThinNegativeEnergyCaloClusters()            
+        if AODFlags.ThinNegativeEnergyNeutralPFOs:
+            from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
+            ThinNegativeEnergyNeutralPFOs()
+
 
        # Doens't exist in xAOD world:
        # if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
