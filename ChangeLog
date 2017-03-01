@@ -1,3 +1,10 @@
+2017-03-01 Dag Gillberg <dag.gillberg@cern.h>
+	* Tagging TruthWeightTools-01-02-00
+	* First version of HiggsWeightTool as announced on today's HComb meeeting: https://indico.cern.ch/event/616388/
+	* Improvements for Athena users by Will Buttinger (Thanks!):
+	  Even if the input file doesn't have the TruthMetaData, the tool will access the athena-only IOVMetaData
+	* Note: this is still a beta-version, no full validation done yet (although output values look reasonable)
+
 2017-02-27 Dag Gillberg <dag.gillberg@cern.ch>
 	* Tagging TruthWeightTools-01-01-00
 	* Test exe that works in athena - but only in classAccess mode since TruthMetaData POOL converter missing
