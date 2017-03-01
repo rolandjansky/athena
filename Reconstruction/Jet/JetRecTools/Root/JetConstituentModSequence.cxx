@@ -73,20 +73,21 @@ int JetConstituentModSequence::execute() const {
 
 
   case xAOD::Type::ParticleFlow : {
-    const xAOD::PFOContainer *charged, *neutral;
+    const xAOD::IParticleContainer *charged, *neutral;
     ATH_CHECK( evtStore()->retrieve(charged, m_inputContainer+"ChargedParticleFlowObjects") );
     ATH_CHECK( evtStore()->retrieve(neutral, m_inputContainer+"NeutralParticleFlowObjects") );
 
-    xAOD::IParticleContainer* chargedCopy = copyAndRecord<xAOD::PFOContainer>(charged, !m_trigger, "ChargedParticleFlowObjects");
-    xAOD::IParticleContainer* neutralCopy = copyAndRecord<xAOD::PFOContainer>(neutral, !m_trigger, "NeutralParticleFlowObjects");
-   
-    modifiedCont = new xAOD::IParticleContainer(SG::VIEW_ELEMENTS);
+    xAOD::PFOContainer* chargedCopy = dynamic_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer>(charged, !m_trigger, "ChargedParticleFlowObjects"));
+    xAOD::PFOContainer* neutralCopy = dynamic_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer>(neutral, !m_trigger, "NeutralParticleFlowObjects"));
 
-    for ( xAOD::IParticle* pfo: *chargedCopy)
-      modifiedCont->push_back(pfo);
-
-    for ( xAOD::IParticle* pfo: *neutralCopy)
-      modifiedCont->push_back(pfo);
+    xAOD::PFOContainer* tmpCont = new xAOD::PFOContainer(SG::VIEW_ELEMENTS);
+    for ( xAOD::PFO* pfo: *chargedCopy){
+      tmpCont->push_back(pfo);
+    }
+    for ( xAOD::PFO* pfo: *neutralCopy){
+      tmpCont->push_back(pfo);
+    }
+    modifiedCont=tmpCont;
 
     if(!m_trigger){
       if( evtStore()->record(modifiedCont, m_outputContainer+"ParticleFlowObjects").isFailure() ){
