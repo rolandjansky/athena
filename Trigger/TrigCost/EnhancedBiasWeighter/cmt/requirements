@@ -1,0 +1,66 @@
+## automatically generated CMT requirements file
+package EnhancedBiasWeighter
+author  burr
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## for gaudi tools, services and objects
+use GaudiInterface 	GaudiInterface-* 	External
+
+use AsgTools AsgTools-* Control/AthToolSupport
+use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
+use AtlasCOOL AtlasCOOL-* External
+use TrigAnalysisInterfaces TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+use xAODEventInfo xAODEventInfo-* Event/xAOD
+
+private
+
+apply_tag NEEDS_CORAL_BASE
+apply_tag NEEDS_COOL_FACTORY
+
+use AtlasCORAL AtlasCORAL-* External
+use AtlasROOT  AtlasROOT-*  External
+use PathResolver PathResolver-* Tools
+
+end_private
+##
+
+branches src src/components doc python share
+
+## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
+
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+library EnhancedBiasWeighterLib "../Root/*.cxx"
+apply_pattern named_installed_library library=EnhancedBiasWeighterLib
+
+library EnhancedBiasWeighter *.cxx components/*.cxx
+apply_pattern component_library
+macro_append EnhancedBiasWeighter_dependencies " EnhancedBiasWeighterLib"
+#library EnhancedBiasWeighter *.cxx ../Root/*.cxx components/*.cxx
+#apply_pattern component_library
+
+
+#Reflex Dictionary Generation:
+private
+use AtlasReflex AtlasReflex-* External
+apply_pattern lcgdict dict=EnhancedBiasWeighter selectionfile=selection.xml headerfiles="../EnhancedBiasWeighter/EnhancedBiasWeighterDict.h"
+end_private
+#test for EnhancedBiasWeighter ... compile and execute it with 'make check' 
+private
+use TestTools      TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=ut_EnhancedBiasWeighter
+macro_append ut_EnhancedBiasWeighter_test_dependencies " EnhancedBiasWeighter EnhancedBiasWeighterMergeComponentsList "
+end_private
+
+# need ROOT xml
+private
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS XMLIO XMLParser)"
+apply_pattern cmake_add_command command="find_package(xml)"
+
+macro_append EnhancedBiasWeighterLib_cppflags " `xml2-config --cflags`"
+macro_append EnhancedBiasWeighterLib_use_linkopts " -L$(ROOTSYS)/lib -lXMLIO -lXMLParser"
+macro_append EnhancedBiasWeighterLib_use_linkopts " -lxml2" slc4-gcc34 " /usr/lib/libxml2.so.2"
