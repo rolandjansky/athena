@@ -172,7 +172,7 @@ else
        # to handling the versioning manually.
        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
        # We first look for it in DATAPATH.  If we don't find it,
-       # we then look under ATLAS_REFERENCE_TAG, which falls back
+       # we then look under ATLAS_REFERENCE_DATA, which falls back
        # to an afs path if it's not found.
        if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
            # Look for the file in DATAPATH.
