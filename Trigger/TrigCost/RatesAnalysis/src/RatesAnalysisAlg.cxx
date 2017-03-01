@@ -537,6 +537,7 @@ StatusCode RatesAnalysisAlg::execute() {
   ATH_MSG_DEBUG("Executing " << name() << "...");
   setFilterPassed(false);
   if (m_populatedTriggers == false) { // First time in execute loop - cannot access TDT before this.
+    ATH_CHECK( checkGotTDT() );
     ATH_CHECK( populateTriggers() );
     m_populatedTriggers = true;
   }
