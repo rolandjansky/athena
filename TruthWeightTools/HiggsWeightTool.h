@@ -8,38 +8,58 @@
 
 namespace xAOD {
 
-  /// Struct like class for Higgs weights
+  /// Struct-like class for Higgs weights
   //// @author Dag Gillberg <dag.gillberg@cern.ch> 
   class HiggsWeights {
   public:
     /// Nominal event weight
     double nominal;
     
-    /// 30 PDF4LHC variations
+    /// 30 PDF4LHC variations + alphaS up/down
     std::vector<double> pdf4lhc;
-
-    /// alphaS up and down
     double alphaS_up, alphaS_dn;
 
-    /// ggF QCD uncertainty scheme
-    
+    /// ggF QCD scale variations (muR,muF), 8 variations
+    std::vector<double> qcd;
 
-    /// NNLOPS specific weights
-    
+    /// NNLOPS
+    /// 1. QCD scale variations 3x(NNLO), 9xPowheg(muR,muF) - 26 variations
+    std::vector<double> qcd_nnlops;
+
+    /// 2. quark mass variations
+    double mt_inf, mb_minlo;
+
+    /// Special PDF weights
+    double nnpdf30_nnlo;
+
+    /// WG1 proposed QCD uncertainty scheme
+    double qcd_wg1_mu, qcd_wg1_res, qcd_wg1_mig01, qcd_wg1_mig12;
+    double qcd_wg1_pTH, qcd_wg1_qm;
+
+    // Tackmann proposed QCD uncertainty scheme, TODO
+
+    /// Powheg NNLOPS possible scheme
+    double qcd_nnlops_nnlo, qcd_nnlops_pow;
+
+    /// information of the current event kinematiocs
+    dobule pTH;
+    int Njets30, STXScat;
+
+    /// methods to print weights to the screen
     char *uncStr(double var, double nom) { return Form("%s%.3f",var>nom?"+":"",(var-nom)/nom); }
     void print() {
       double n=nominal;
-      printf("\n  Higgs MC weights of current event\n");
+      printf("\n  Higgs MC weights of current event, pTH %.1f GeV, Njets=%i, STXS(ggF)\n");
       printf("    Nominal weight: %.3f\n",nominal);
       if (pdf4lhc.size()==30) {
 	printf("\n    PDF unc  1-10:");
-	for (size_t i=0;i<10;++i) printf(" %s%.3f",pdf4lhc[i]>n?"+":"",(pdf4lhc[i]-n)/n);
+	for (size_t i=0;i<10;++i) printf(" %s",uncStr(pdf4lhc[i],n));
 	printf("\n    PDF unc 11-20:");
-	for (size_t i=10;i<20;++i) printf(" %s%.3f",pdf4lhc[i]>n?"+":"",(pdf4lhc[i]-n)/n);
+	for (size_t i=10;i<20;++i) printf(" %s",uncStr(pdf4lhc[i],n));
 	printf("\n    PDF unc 21-30:");
-	for (size_t i=20;i<30;++i) printf(" %s%.3f",pdf4lhc[i]>n?"+":"",(pdf4lhc[i]-n)/n);
-	printf("\n    alphaS up: %s, down: %s\n",uncStr(alphaS_up,n),uncStr(alphaS_dn,n));
-	       
+	for (size_t i=20;i<30;++i) printf(" %s",uncStr(pdf4lhc[i],n));
+	printf("\n    alphaS up: %s, down: %s\n",
+	       uncStr(alphaS_up,n),uncStr(alphaS_dn,n));
       }
     }
 
