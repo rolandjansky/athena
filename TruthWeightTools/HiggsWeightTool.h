@@ -46,10 +46,10 @@ namespace xAOD {
     int Njets30, STXScat;
 
     /// methods to print weights to the screen
-    char *uncStr(double var, double nom) { return Form("%s%.3f",var>nom?"+":"",(var-nom)/nom); }
+    char *uncStr(double var, double nom) { return Form("%s%.1f%%",var>nom?"+":"",(var-nom)/nom*100); }
     void print() {
       double n=nominal;
-      printf("\n  Higgs MC weights of current event, pTH %.1f GeV, Njets=%i\n",
+      printf("\n------\n  Higgs MC weights of current event, pTH = %.1f GeV, Njets = %i\n",
 	     pTH,Njets30);
       printf("    Nominal weight: %.3f\n",nominal);
       if (pdf4lhc.size()==30) {
@@ -61,6 +61,13 @@ namespace xAOD {
 	for (size_t i=20;i<30;++i) printf(" %s",uncStr(pdf4lhc[i],n));
 	printf("\n    alphaS up: %s, down: %s\n",
 	       uncStr(alphaS_up,n),uncStr(alphaS_dn,n));
+	printf("\n    Quark mass varations  (m_top=inf): %s  (m_b minlo): %s\n",
+	       uncStr(mt_inf,n),uncStr(mb_minlo,n));
+	printf("\n    WG1 proposed QCD uncertainty scheme\n");
+	printf("      mu: %s,   res: %s,   mig01: %s,   mig12: %s\n",
+	       uncStr(qcd_wg1_mu,n),uncStr(qcd_wg1_res,n),uncStr(qcd_wg1_mig01,n),uncStr(qcd_wg1_mig12,n));
+	printf("      pTH: %s,   quark-mass: %s\n",
+	       uncStr(qcd_wg1_pTH,n),uncStr(qcd_wg1_qm,n));
       }
     }
 
@@ -97,7 +104,7 @@ namespace xAOD {
     /// Index of MC event weight
     size_t getWeightIndex(std::string weightName);
 
-    HiggsWeights getHiggsWeights(double HTXS_pTH=-1, int HTXS_Njets30=-1,int HTXS_cat=-1);
+    HiggsWeights getHiggsWeights(int HTXS_Njets30=-1, double HTXS_pTH=-99.0, int HTXS_cat=-1);
 
     // returns hardcoded list of weight names matching expecation
     // of ATLAS-default ggF NNLOPS 

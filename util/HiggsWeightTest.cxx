@@ -75,7 +75,7 @@ int main( int argc, char* argv[] ) {
      // in reality we should pass the Higgs pT and Njets30 from HTXS
      // but standard input files don't have these, so let's randomly sample them..
      int HTXS_Njets30 = gRandom->Poisson(0.9);
-     double HTXS_pTH = std::abs(gRandom->Gaus(0.0,40.0));
+     double HTXS_pTH = std::abs(gRandom->Gaus(0.0,50.0))*1000; // convert to MeV
 
      if ( entry == 0 ) {
        ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
