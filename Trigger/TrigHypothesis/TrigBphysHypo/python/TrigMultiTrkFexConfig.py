@@ -15,44 +15,42 @@ from TrigBphysHypo.TrigMultiTrkFexMonitoring import TrigMultiTrkFexOnlineMonitor
 class TrigMultiTrkFexPy (TrigMultiTrkFex):
     __slots__ = []
     def __init__(self, name = "MultiTrkFexPy"):
-        super( TrigMultiTrkFex, self ).__init__( name )
+        super( TrigMultiTrkFexPy, self ).__init__( name )
         # AcceptAll flag: if true take events regardless of cuts
 
         self.AcceptAll = False
 
 
     def setTrackThresholds(self, thresholds) :
-        print thresholds
-        if len(thresholds) > self.nTrk :
-            print "ERROR: TrigMultiTrkFex.setTrackThresholds - too many thresholds requested" , thresholds, " expecting only ", self.nTrk
         self.ptTrkMin = []  # reset, use thresholds from trigger name
-        for thr in thresholds :  self.ptTrkMin.append( thr )
+        for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
+            if len(self.ptTrkMin) < self.nTrk :
+                self.ptTrkMin.append( thr )
         while len(self.ptTrkMin) < self.nTrk  :
             self.ptTrkMin.append(900.)
             
     def setEFMuonThresholds(self, thresholds) :
-        if len(thresholds) > self.nEfMuon :
-            print "ERROR: TrigMultiTrkFex.setEFMuonThresholds - too many thresholds requested"
         self.ptMuonMin = []  # reset, use thresholds from trigger name
-        for thr in thresholds :  self.ptMuonMin.append( thr )
+        for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
+            if len(self.ptMuonMin) < self.nEfMuon :
+                self.ptMuonMin.append( thr )
         while len(self.ptMuonMin) < self.nEfMuon  :
             self.ptMuonMin.append(2000.)  # lower pt cut makes no sense at trigger
 
     def setL2CombMuonThresholds(self, thresholds) :
-        if len(thresholds) > self.nL2CombMuon :
-            print "ERROR: TrigMultiTrkFex.setL2CombMuonThresholds - too many thresholds requested"
         self.ptMuonMin = []  # reset, use thresholds from trigger name
-        for thr in thresholds :  self.ptMuonMin.append( thr )
+        for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
+            if len(self.ptMuonMin) < self.nL2CombMuon :
+                self.ptMuonMin.append( thr )
         while len(self.ptMuonMin) < self.nL2CombMuon  :
             self.ptMuonMin.append(2000.)  # lower pt cut makes no sense at trigger
 
     def setL2SAMuonThresholds(self, thresholds) :
-        print thresholds
         # in case of L2SA limits, take only 1 muon with lowest threshold
-        if len(thresholds) > self.nL2SAMuon :
-            print "ERROR: TrigMultiTrkFex.setL2SAMuonThresholds - too many thresholds requested: ", thresholds, " expecting only ", self.nL2SAMuon
         self.ptMuonMin = []  # reset, use thresholds from trigger name
-        for thr in thresholds :  self.ptMuonMin.append( thr )
+        for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
+            if len(self.ptMuonMin) < self.nL2SAMuon :
+                self.ptMuonMin.append( thr )
         while len(self.ptMuonMin) < self.nL2SAMuon  :
             self.ptMuonMin.append(2000.)  # lower pt cut makes no sense at trigger
 
@@ -63,7 +61,7 @@ class TrigMultiTrkFexPy (TrigMultiTrkFex):
 class TrigMultiTrkFex_trkPhi (TrigMultiTrkFexPy):
     __slots__ = []
     def __init__(self, name = "MultiTrkFex_trkPhi"):
-        super( TrigMultiTrkFexPy, self ).__init__( name )
+        super( TrigMultiTrkFex_trkPhi, self ).__init__( name )
 
         #self.trackCollectionKey = "'
         self.nTrk = 2
@@ -94,7 +92,7 @@ class TrigMultiTrkFex_trkPhi (TrigMultiTrkFexPy):
 class TrigMultiTrkFex_trkPhiX (TrigMultiTrkFexPy):
     __slots__ = []
     def __init__(self, name = "MultiTrkFex_trkPhiX"):
-        super( TrigMultiTrkFexPy, self ).__init__( name )
+        super( TrigMultiTrkFex_trkPhiX, self ).__init__( name )
 
         #self.trackCollectionKey = "'
         self.nTrk = 3
@@ -126,7 +124,7 @@ class TrigMultiTrkFex_trkPhiX (TrigMultiTrkFexPy):
 class TrigMultiTrkFex_trkPhiXTight (TrigMultiTrkFexPy):
     __slots__ = []
     def __init__(self, name = "MultiTrkFex_trkPhiXTight"):
-        super( TrigMultiTrkFexPy, self ).__init__( name )
+        super( TrigMultiTrkFex_trkPhiXTight, self ).__init__( name )
         self.nTrk = 3
         self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkCharge = 1
@@ -154,7 +152,7 @@ class TrigMultiTrkFex_trkPhiXTight (TrigMultiTrkFexPy):
 class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
     __slots__ = []
     def __init__(self, name = "MultiTrkFex_trkTau"):
-        super( TrigMultiTrkFexPy, self ).__init__( name )
+        super( TrigMultiTrkFex_trkTau, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -206,7 +204,7 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
 class TrigMultiTrkFex_B_2mu1trk (TrigMultiTrkFexPy):
     __slots__ = []
     def __init__(self, name = "MultiTrkFex_B_2mu1trk"):
-        super( TrigMultiTrkFexPy, self ).__init__( name )
+        super( TrigMultiTrkFex_B_2mu1trk, self ).__init__( name )
 
         #self.trackCollectionKey = "'
         # disable any parameter by setting it to -1 or giving an empty list
@@ -238,7 +236,7 @@ class TrigMultiTrkFex_B_2mu1trk (TrigMultiTrkFexPy):
 class TrigMultiTrkFex_B_2mu2trk (TrigMultiTrkFexPy):
     __slots__ = []
     def __init__(self, name = "MultiTrkFex_B_2mu2trk"):
-        super( TrigMultiTrkFexPy, self ).__init__( name )
+        super( TrigMultiTrkFex_B_2mu2trk, self ).__init__( name )
 
         #self.trackCollectionKey = "'
         # disable any parameter by setting it to -1 or giving an empty list
@@ -272,12 +270,12 @@ class TrigMultiTrkFex_B_2mu2trk (TrigMultiTrkFexPy):
 class TrigMultiTrkFex_DiMu (TrigMultiTrkFexPy):
     __slots__ = []
     def __init__(self, name = "MultiTrkFex_DiMu"):
-        super( TrigMultiTrkFexPy, self ).__init__( name )
+        super( TrigMultiTrkFex_DiMu, self ).__init__( name )
         self.nTrk = 2
         self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkVertexChi2 = 20
         self.nTrkCharge = 0
-        self.nTrkMassMin = [1000.]
+        self.nTrkMassMin = [100.]
         self.nTrkMassMax = [15000.] 
         self.ptTrkMin = [4000., 4000. ] # set minimal pt of tracks for 2mu passing L1
         self.diTrkMassMin = []   # phi window
@@ -296,3 +294,30 @@ class TrigMultiTrkFex_DiMu (TrigMultiTrkFexPy):
         online = TrigMultiTrkFexOnlineMonitoring()
                                 
         self.AthenaMonTools = [ validation, online, time ]
+
+
+class TrigMultiTrkFex_DiMu_noCut (TrigMultiTrkFex_DiMu):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_DiMu_noCut"):
+        super( TrigMultiTrkFex_DiMu_noCut, self ).__init__( name )
+        self.nTrkCharge = -1
+        self.nTrkVertexChi2 = -1
+        self.nTrkMassMin = [0.]  
+        self.nTrkMassMax = [1e+8] # should be safe at LHC, no? 
+        
+class TrigMultiTrkFex_DiMu_noVtx_noOS (TrigMultiTrkFex_DiMu):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_DiMu_noVtx_noOS"):
+        super( TrigMultiTrkFex_DiMu_noVtx_noOS, self ).__init__( name )
+        self.nTrkCharge = -1
+        self.nTrkVertexChi2 = -1
+
+
+class TrigMultiTrkFex_DiMu_noVtx_noM_SS (TrigMultiTrkFex_DiMu):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_DiMu_noVtx_noM_SS"):
+        super( TrigMultiTrkFex_DiMu_noVtx_noM_SS, self ).__init__( name )
+        self.nTrkCharge = 2
+        self.nTrkVertexChi2 = -1
+        self.nTrkMassMin = [0.]  # OI not sure if this will work...
+        self.nTrkMassMax = [1e+8] # should be safe at LHC, no? 

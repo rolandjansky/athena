@@ -40,9 +40,8 @@
 #define ACCEPT_RecordedCollection     12
 				      
 
-#define ERROR_No_EventInfo               0
-#define ERROR_WrongNum_Input_TE          1
-#define ERROR_BphysColl_Fails            2
+#define ERROR_AlgorithmProblem           0
+#define ERROR_BphysColl_Fails            1
 
 
 TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLocator):
@@ -342,6 +341,22 @@ HLT::ErrorCode TrigMultiTrkFex::hltFinalize()
 
 HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output)
 {
+  // start monitoring
+  beforeExecMonitors().ignore();
+
+  m_mon_Errors.clear();
+  m_mon_Acceptance.clear();
+  m_mon_NTrk = 0;
+  m_mon_highptNTrk = 0;
+  m_mon_accepted_highptNTrk = 0;
+  m_mon_NTrkMass.clear();
+  m_mon_NTrkFitMass.clear();
+  m_mon_NTrkChi2.clear();
+  m_mon_NPair = 0;
+  m_mon_acceptedNPair = 0;
+  m_mon_pairMass.clear();
+
+
     m_mon_Acceptance.push_back( ACCEPT_hltExecute );
     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In TrigMultiTrk hltExecute" << endmsg;
 
@@ -362,6 +377,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       if ( timerSvc() )  m_BmmHypTot->stop(); 
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed L2SA muon cut"<< endmsg; 
       //pass = false;
+      afterExecMonitors().ignore();   
       return HLT::OK;
     }else{
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed L2SA cut"<< endmsg; 
@@ -374,29 +390,25 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     // ElementLinkVector<xAOD::L2CombinedMuonContainer> >( 
     passMuon = passNObjects<xAOD::L2CombinedMuonContainer, 
       std::vector<ElementLink<xAOD::L2CombinedMuonContainer> >  >( 
-
 			     m_nL2CombMuon, m_ptMuonMin, inputTE, l2combmuons, "", m_mindR);
     if( !passMuon ){
       if ( timerSvc() )  m_BmmHypTot->stop();
       //pass = false;
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed L2Comb muon cut"<< endmsg; 
+      afterExecMonitors().ignore();   
       return HLT::OK;
     }
     m_mon_Acceptance.push_back( ACCEPT_PassNL2CombMuons );
 
     //========  check if we have enough EF muons :  =====================
-    //std::vector<const xAOD::Muon*> efmuons; // do not own vectors
-    //bool passMuon = passNObjects<std::vector<const xAOD::MuonContainer*>,  std::vector<const xAOD::Muon*> >( 
-    //m_nEfMuon, m_ptMuonMin, inputTE, efmuons, "", m_mindR);
     std::vector<ElementLink<xAOD::MuonContainer> > efmuons; // just a collection of pointers, not copies
-    //    bool passMuon = passNObjects<std::vector<const xAOD::MuonContainer*>,  
-  //      ElementLinkVector<xAOD::MuonContainer> >(
-     passMuon = passNObjects<xAOD::MuonContainer, std::vector<ElementLink<xAOD::MuonContainer> > >( 
- m_nEfMuon, m_ptMuonMin, inputTE, efmuons, "", m_mindR);
+    passMuon = passNObjects<xAOD::MuonContainer, 
+			    std::vector<ElementLink<xAOD::MuonContainer> > >( m_nEfMuon, m_ptMuonMin, 
+									      inputTE, efmuons, "", m_mindR);
     if( !passMuon ){
       if ( timerSvc() )  m_BmmHypTot->stop();
-      //pass = false;
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed EF muon cut"<< endmsg; 
+      afterExecMonitors().ignore();   
       return HLT::OK;
     }
     m_mon_Acceptance.push_back( ACCEPT_PassNEFMuons );
@@ -408,6 +420,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     if( !passTrack || int(tracks.size()) < m_nTrk ){
       if ( timerSvc() )  m_BmmHypTot->stop();
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed nTrack cut"<< endmsg;     //pass = false;
+      afterExecMonitors().ignore();   
     return HLT::OK;
     }else{
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed nTrack cut"<< endmsg; 
@@ -416,7 +429,9 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     if( (int)tracks.size() < m_nTrk ) {
       if ( timerSvc() )  m_BmmHypTot->stop();
-      if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "You should never get to this point - check code"<< endmsg;   
+      if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "You should never get to this point - check code"<< endmsg;  
+      m_mon_Errors.push_back(ERROR_AlgorithmProblem);
+      afterExecMonitors().ignore();   
     return HLT::OK;
     }
     m_mon_Acceptance.push_back( ACCEPT_PassNTracks );
@@ -658,20 +673,6 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
        m_mon_NTrkChi2.push_back(xaodobj->fitchi2() );
        //m_bphysHelperTool->fillTrigObjectKinematics(xaodobj,{mutrk,trk});
 
-       // OI : need to check the size of these, may be we can skip them
-       /*
-       for (std::size_t ind = 0; ind != dimasses.size(); ++ind) {
-	 xAOD::TrigBphys* xaodobj2 = new xAOD::TrigBphys;
-	 xAODTrigBphysColl->push_back( xaodobj2 );
-	 xaodobj2->initialise(0, 0., 0., 0., xAOD::TrigBphys::MULTIMU, dimasses[ind],xAOD::TrigBphys::EF);
-	 if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Adding TrigBphys xAOD obj for pair with mass "<< dimasses[ind] << endmsg;
-	 std::vector<ElementLink<xAOD::TrackParticleContainer> > trksEL = {thisIterationTracks[index_0[ind]], 
-									   thisIterationTracks[index_1[ind]]};
-	 if (m_bphysHelperTool->vertexFit(xaodobj2,trksEL,masses).isFailure()) {
-	   if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Problems with di-trk vertex fit in TrigMultiTrkFex"  << endmsg;
-	 }
-	 }*/
-       
         //std::cout << std::endl;
 
 
@@ -694,7 +695,9 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     HLT::TriggerElement* outputTE = addRoI(output);  
 
     if (xAODTrigBphysColl && xAODTrigBphysColl->size()) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << xAODTrigBphysColl->size() << endmsg;
+        if ( msgLvl() <= MSG::DEBUG ) 
+	  msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " 
+		 << xAODTrigBphysColl->size() << endmsg;
         
 	// OI do we always need to create outputTE? or only when there is something to write ?
 	outputTE->setActiveState(true);
@@ -704,19 +707,22 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
             msg()  << MSG::WARNING << "Failed to store trigBphys Collection" << endmsg;
             m_mon_Errors.push_back( ERROR_BphysColl_Fails );
             delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr; // assume deletion responsibility
+	    afterExecMonitors().ignore();   
             return HLT::ERROR;
         }
 	m_mon_Acceptance.push_back( ACCEPT_RecordedCollection );
 	m_countPassedCombination += xAODTrigBphysColl->size();
     } else {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endmsg;
+        if ( msgLvl() <= MSG::DEBUG ) 
+	  msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endmsg;
         delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr;
     }
 
     m_countPassedEvents++;
 
 
-    
+ // stop monitoring
+    afterExecMonitors().ignore();   
     return HLT::OK;
 }
 
