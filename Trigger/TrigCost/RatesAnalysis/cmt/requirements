@@ -1,0 +1,30 @@
+## automatically generated CMT requirements file
+package RatesAnalysis
+author  tamartin
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
+use EnhancedBiasWeighter EnhancedBiasWeighter-* Trigger/TrigCost
+use TrigDecisionTool TrigDecisionTool-* Trigger/TrigAnalysis
+use AtlasROOT AtlasROOT-* External
+
+## for gaudi tools, services and objects
+use GaudiInterface 	GaudiInterface-* 	External
+private
+
+use EventInfo EventInfo-* Event
+use xAODEventInfo xAODEventInfo-* Event/xAOD
+#use AsgTools AsgTools-* Control/AthToolSupport
+
+end_private
+
+##
+
+branches src src/components doc python share
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+library RatesAnalysis *.cxx
+apply_pattern installed_library
