@@ -381,11 +381,11 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 	bool deltrack=true;
 	
 	int nHT=nHTHits(fittedTrack);
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"NUmber of HT hits: "<<nHT<<endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of HT hits: "<<nHT<<endmsg;
 	
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Successfull fit of track. " << endmsg;
-	if (msgLvl(MSG::DEBUG) && (*iseg)->fitQuality()) msg(MSG::DEBUG) << " Quality of Segment: "<<(*iseg)->fitQuality()->chiSquared()<<" "<<(*iseg)->fitQuality()->numberDoF()<< endmsg;
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Quality of Track:   "<<fittedTrack->fitQuality()->chiSquared()<<" "<<fittedTrack->fitQuality()->numberDoF()<< endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Successful fit of track. " << endmsg;
+  if (msgLvl(MSG::DEBUG) && (*iseg)->fitQuality()) msg(MSG::DEBUG) << " Quality of Segment: chi^2 /ndof "<<(*iseg)->fitQuality()->chiSquared()<<" / "<<(*iseg)->fitQuality()->numberDoF()<< endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Quality of Track:  chi^2 /ndof "<<fittedTrack->fitQuality()->chiSquared()<<" / "<<fittedTrack->fitQuality()->numberDoF()<< endmsg;
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Noise probability: "<<getNoiseProbability(fittedTrack)<<endmsg;        
 
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< (*fittedTrack) <<endmsg;        
@@ -928,8 +928,7 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	  }
 	  
 	}else{
-	  inputMatchLine = new Trk::AtaStraightLine(inputMatchingPos,inputMatchingMom,
-						      1., *testSf);          
+	  inputMatchLine = new Trk::AtaStraightLine(inputMatchingPos,inputMatchingMom, 1., *testSf);          
 	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " created testSf : " << (*inputMatchLine)<< endmsg;
 	}
 	
@@ -970,7 +969,7 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 	  m_n_combined_fit++;
 	  outputCombiCollection->push_back(fittedTrack);
 	  if (msgLvl(MSG::DEBUG)){ 
-	    msg(MSG::DEBUG) << " Successfull Barrel+Endcap fit of segment. " << endmsg;
+	    msg(MSG::DEBUG) << " Successful Barrel+Endcap fit of segment. " << endmsg;
 	    msg(MSG::DEBUG)  << " Quality of Track:   "<<fittedTrack->fitQuality()->chiSquared()<<" / "<<fittedTrack->fitQuality()->numberDoF()<< endmsg;
 	  }
 
