@@ -9,8 +9,12 @@
 #include "xAODTracking/VertexContainer.h" 
 #include <cmath>
 
-CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierBase(name),
-							 m_weightPFOTool("WeightPFOTool"), m_trkVtxAssocName("JetTrackVtxAssoc")  {
+CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierBase(name), m_weightPFOTool("WeightPFOTool"), m_trkVtxAssocName("JetTrackVtxAssoc") {
+
+  #ifdef ASG_TOOL_ATHENA
+    declareInterface<IJetConstituentModifier>(this);
+  #endif
+
   declareProperty("WeightPFOTool",   m_weightPFOTool,    "Name of tool that extracts the cPFO weights.");
   declareProperty("InputIsEM",       m_inputIsEM =false, "True if neutral PFOs are EM scale clusters.");
   declareProperty("CalibratePFO",    m_calibrate =true,  "True if LC calibration should be applied to EM PFOs.");
@@ -22,9 +26,16 @@ CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierB
   declareProperty("TrackVertexAssociation", m_trkVtxAssocName, "SG key for the TrackVertexAssociation object");
 }
 
-StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const { 
-  //appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const { 
+StatusCode CorrectPFOTool::process(xAOD::IParticleContainer* cont) const {
+  xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
+  if(pfoCont) return process(pfoCont);
+  else{
+    ATH_MSG_ERROR("Unable to dynamic cast IParticleContainer to PFOContainer");
+    return StatusCode::FAILURE;
+  }
+}
 
+StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const { 
   // Get the vertex.
   const xAOD::VertexContainer* pvtxs = 0;
   const xAOD::Vertex* vtx = nullptr;
@@ -32,7 +43,7 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
     ATH_CHECK(evtStore()->retrieve(pvtxs, "PrimaryVertices"));
     if ( pvtxs == 0 || pvtxs->size()==0 ) {
       ATH_MSG_WARNING(" This event has no primary vertices " );
-      return 1;
+      return StatusCode::FAILURE;
     }
 
     //Usually the 0th vertex is the primary one, but this is not always the case. So we will choose the first vertex of type PriVtx
@@ -54,12 +65,12 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
       }
       if (nullptr == vtx) {
 	ATH_MSG_WARNING("Could not find a NoVtx in this event " );
-	return 1;
+	return StatusCode::FAILURE;
       }
     }
   }
 
-  CP::PFO_JetMETConfig_inputScale inscale = m_inputIsEM ? CP::EM : CP::LC;
+  //CP::PFO_JetMETConfig_inputScale inscale = m_inputIsEM ? CP::EM : CP::LC;
   SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
 
   for ( xAOD::PFO* ppfo : *cont ) {
@@ -71,12 +82,16 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
     bool matchedToPrimaryVertex = false;
 
     if ( m_correctneutral && ppfo->charge()==0) {
-      if ( !m_inputIsEM || m_calibrate ) {
-        if (m_usevertices) ppfo->setP4(ppfo->GetVertexCorrectedFourVec(*vtx));
-      } 
-      else { 
-        if (m_usevertices) ppfo->setP4(ppfo->GetVertexCorrectedEMFourVec(*vtx));
-        else ppfo->setP4(ppfo->p4EM());
+
+      if (ppfo->e() <= 0.0) ppfo->setP4(ppfo->p4()*0);   //This is necesarry to avoid changing sign of pT for pT<0 PFO
+      else{
+        if ( !m_inputIsEM || m_calibrate ) {
+          if (m_usevertices) ppfo->setP4(ppfo->GetVertexCorrectedFourVec(*vtx));
+        } 
+        else { 
+          if (m_usevertices) ppfo->setP4(ppfo->GetVertexCorrectedEMFourVec(*vtx));   //This
+          else ppfo->setP4(ppfo->p4EM());
+        }
       }
     }
 
@@ -91,7 +106,7 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
 	const jet::TrackVertexAssociation* trkVtxAssoc = nullptr;
 
 	StatusCode sc = evtStore()->retrieve(trkVtxAssoc, m_trkVtxAssocName);
-	if(sc.isFailure() || nullptr == trkVtxAssoc){ ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssocName); return 1;}
+	if(sc.isFailure() || nullptr == trkVtxAssoc){ ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssocName); return StatusCode::FAILURE;}
 	
 	const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
 	
@@ -129,6 +144,6 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
   }
   
-  return 0;
+  return StatusCode::SUCCESS;
 }
 
