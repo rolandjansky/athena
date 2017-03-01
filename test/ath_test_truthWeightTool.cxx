@@ -38,20 +38,21 @@ int main( int argc, char* argv[] ) {
     ::Error( APP_NAME, "Usage: %s <xAOD file>", APP_NAME );
     return 1;
   }
-  
-  POOL::TEvent::EReadMode mode = POOL::TEvent::kPOOLAccess; //POOL is slowest, but it can read everything!
-  // IMPORTANT: Need to use class-access for now since pool-covnerter for xAOD::TruthMetaDataContiner is missing
-  mode = POOL::TEvent::kClassAccess;
+
+
+  POOL::TEvent::EReadMode mode = POOL::TEvent::kClassAccess; //Class Access is faster than full POOL Access
   
   POOL::TEvent evt(mode);
   evt.readFrom( argv[1] );
-  evt.setEvtSelProperty("ReadMetaDataWithPool",false); // See comment above
+  //evt.setEvtSelProperty("ReadMetaDataWithPool",false); // If test xAOD format metadata, will need to uncomment this until pool converter is present
+
+
 
   ::Info(APP_NAME,"Will create tool");
   // Create the truth weight tool:
   xAOD::TruthWeightTool weightTool( "TruthWeightTool" );
   weightTool.setProperty( "OutputLevel", MSG::DEBUG ).ignore();
-  weightTool.initialize().ignore();
+  weightTool.sysInitialize().ignore(); //must call sysInitialize to get the callbacks registered properly for an AsgMetadataTool
 
   // Optional: create ToolHandle
   // constructor argument is: Type/Name
@@ -64,7 +65,7 @@ int main( int argc, char* argv[] ) {
   ::Info(APP_NAME,"Will loop");
 
   const ::Long64_t Nevts = evt.getEntries();
-  for (int i=0;i < Nevts; i++) {
+  for (int i=0;i < 10; i++) {
     if ( evt.getEntry(i) < 0) { ANA_MSG_ERROR("Failed to read event " << i); continue; }
 
     if ( i == 0) {

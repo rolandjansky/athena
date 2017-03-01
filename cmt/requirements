@@ -43,4 +43,4 @@ apply_pattern lcgdict dict=TruthWeightTools selectionfile=selection.xml headerfi
 end_private
 
 application ath_test_truthWeightTool ../test/ath_test_truthWeightTool.cxx
-
+macro_append ath_test_truthWeightTool_dependencies " TruthWeightToolsLib "

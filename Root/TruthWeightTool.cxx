@@ -4,6 +4,10 @@
 #include "TruthWeightTools/TruthWeightTool.h"
 #include "TString.h"
 
+#ifndef XAOD_STANDALONE
+#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+#endif
+
 namespace xAOD {
 
    TruthWeightTool::TruthWeightTool( const std::string& name )
@@ -14,13 +18,6 @@ namespace xAOD {
 
    StatusCode TruthWeightTool::initialize() {
       ATH_MSG_DEBUG( "Initialising... " );
-      // AsgMetadataTool needs to call sysInitize to be registered in the incident svc
-      // "hack" to make sure sysInitlize is called (only once, or we get caut in infinite loop)
-      bool static first=true;
-      if (first) {
-	first=false; 
-	return sysInitialize();
-      }
       return StatusCode::SUCCESS;
    }
 
@@ -28,7 +25,8 @@ namespace xAOD {
      auto sp = m_indexRetrievers[weightName].lock();
      if(!sp) {
        m_indexRetrievers[weightName] = sp = std::make_shared<IndexRetriever>(weightName);	   
-       sp->update(m_metaData);
+       if(!m_metaData) sp->update(m_poolWeightNames);
+       else sp->update(m_metaData);
      }
      return sp;
    }
@@ -50,8 +48,30 @@ namespace xAOD {
    StatusCode TruthWeightTool::beginInputFile() {
       ATH_MSG_DEBUG( "Retrieving truth meta data from a new file" );
       m_metaDataContainer = nullptr;
-      ATH_CHECK( inputMetaStore()->retrieve( m_metaDataContainer, m_metaName ) );
-      if (m_metaDataContainer==nullptr) std::runtime_error("Cannot access metadata: "+m_metaName);
+      m_poolWeightNames.clear();
+
+      if( inputMetaStore()->retrieve( m_metaDataContainer, m_metaName ).isFailure() ) {
+#ifdef XAOD_STANDALONE
+	//it's all over for eventloop release
+	throw std::runtime_error("Cannot access metadata: "+m_metaName);
+	return StatusCode::FAILURE;
+#else
+	//for athena release, one more try ... the POOL metadata!
+	//See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/AthAnalysisBase#How_to_read_the_truth_weight_nam
+	std::map<std::string, int> weightNamesMap;
+	if( AAH::retrieveMetadata( "/Generation/Parameters", "HepMCWeightNames" , weightNamesMap, inputMetaStore() ).isFailure() ) {
+	  //ok now it really is all over
+	  throw std::runtime_error(name() + " : Cannot access metadata: "+m_metaName + " and failed to get names from IOVMetadata");
+	  return StatusCode::FAILURE;
+	}
+	//convert map into ordered vector
+	m_poolWeightNames.resize( weightNamesMap.size() );
+	for(auto& w : weightNamesMap) m_poolWeightNames[w.second] = w.first;
+	//Now weightNames is a vector of weightnames in the correct order. ... we are done here
+	return StatusCode::SUCCESS;
+#endif
+      }
+      if (m_metaDataContainer==nullptr) throw std::runtime_error("Cannot access metadata: "+m_metaName);
       return StatusCode::SUCCESS;
    }
 
@@ -59,6 +79,9 @@ namespace xAOD {
       m_evtInfo = nullptr;
       ATH_CHECK( evtStore()->retrieve( m_evtInfo, "EventInfo" ) );
       uint32_t mcChannelNumber = m_evtInfo->mcChannelNumber();
+
+      if(m_poolWeightNames.size()) { m_uninitialized=false; return StatusCode::SUCCESS; }
+      if(!m_metaDataContainer) { return StatusCode::FAILURE; }
 
       //ATH_CHECK( evtStore()->retrieve( m_truthEvents, "TruthEvents" ) );
 
@@ -85,6 +108,7 @@ namespace xAOD {
         ATH_MSG_ERROR( "Weight name not found in event, is the meta data already loaded?" );
         throw std::runtime_error("Weight name not found in event, is the meta data already loaded?");
       }
+      if(m_poolWeightNames.size()) return m_poolWeightNames;
       return m_metaData->weightNames();
    }
 

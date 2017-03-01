@@ -10,6 +10,8 @@ class IIndexRetriever{
      IIndexRetriever(): m_isValid(false){};
      virtual ~IIndexRetriever(){};
      virtual void update(xAOD::TruthMetaData const * const) = 0;
+     virtual void update(const std::vector<std::string>& weightNamesVec) = 0;
+
      virtual size_t getIndex() = 0;
      //virtual size_t getIndex() {
      //  if (!m_isValid) throw std::runtime_error("Weight name not found in event"); 
@@ -26,6 +28,7 @@ class IndexRetriever : public IIndexRetriever
    public:
      IndexRetriever(std::string);
      virtual void update(xAOD::TruthMetaData const * const);
+     virtual void update(const std::vector<std::string>& weightNamesVec);
      virtual size_t getIndex() {
        if (!m_isValid) throw std::runtime_error("Weight \""+m_WeightName+"\" not found in event"); 
        return m_currentIndex;

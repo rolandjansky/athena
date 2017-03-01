@@ -110,6 +110,12 @@ namespace xAOD {
 
       /// TruthEvent 
       const xAOD::TruthEventContainer *m_truthEvents;
+
+#ifndef XAOD_STANDALONE
+      /// weight names from POOL metadata .. a fallback, available to athena only
+      std::vector<std::string> m_poolWeightNames;
+#endif
+
    };
 
 } // namespace xAOD

@@ -9,8 +9,17 @@ void IndexRetriever::update(xAOD::TruthMetaData const * const truthMetaData) {
     m_isValid = false;
     return;
   }
+  
+  update(truthMetaData->weightNames());
+}
 
-  auto weightNameVec = truthMetaData->weightNames();
+void IndexRetriever::update(const std::vector<std::string>& weightNameVec) {
+ 
+  if( !weightNameVec.size()) {
+    m_isValid = false;
+    return;
+  }
+
   auto weightPosItr = std::find(weightNameVec.begin(), weightNameVec.end(), m_WeightName);
   if( weightPosItr != weightNameVec.end() ) {
     m_isValid = true;
@@ -19,4 +28,3 @@ void IndexRetriever::update(xAOD::TruthMetaData const * const truthMetaData) {
     m_isValid = false;
   }
 }
-
