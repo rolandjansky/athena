@@ -39,91 +39,91 @@ int main(int argc, char * argv[]){
   cmdline_parser (argc, argv, &args_info);
 
   // Output Level
-  bool m_verbose = args_info.verbose_flag;
-  bool m_quiet = args_info.quiet_flag;
-  if (m_verbose && m_quiet) {
-    m_logger << Root::kWARNING << "Can't specify verbose and quiet, using verbose" << Root::GEndl;
-    m_quiet = false;
+  bool verbose = args_info.verbose_flag;
+  bool quiet = args_info.quiet_flag;
+  if (verbose && quiet) {
+    logger << Root::kWARNING << "Can't specify verbose and quiet, using verbose" << Root::GEndl;
+    quiet = false;
   }
 
-  if (m_verbose) Root::TMsgLogger::SetMinLevel(Root::kDEBUG);
-  if (m_quiet) Root::TMsgLogger::SetMinLevel(Root::kWARNING);
+  if (verbose) Root::TMsgLogger::SetMinLevel(Root::kDEBUG);
+  if (quiet) Root::TMsgLogger::SetMinLevel(Root::kWARNING);
 
   // Other flags
-  bool m_makeplots = args_info.plots_flag;
-  bool m_collisionlists = args_info.xml_collisionlist_flag;
+  bool makeplots = args_info.plots_flag;
+  bool collisionlists = args_info.xml_collisionlist_flag;
 
   // parse for any output xml file name
-  m_xmloutfile = "";
+  xmloutfile = "";
   if(args_info.xml_out_given){
-    m_xmloutfile = args_info.xml_out_arg;
+    xmloutfile = args_info.xml_out_arg;
   }
 
   //
   // Parameters to control luminosty calculation
   // ===========================================
 
-  float m_scalel1trigrate = float(args_info.scale_lumi_arg); // = 1 by default
-  if (m_scalel1trigrate != 1.) {
-    m_logger << Root::kWARNING << "Luminoisty scaled by factor: " << m_scalel1trigrate << Root::GEndl;
+  float scalel1trigrate = float(args_info.scale_lumi_arg); // = 1 by default
+  if (scalel1trigrate != 1.) {
+    logger << Root::kWARNING << "Luminoisty scaled by factor: " << scalel1trigrate << Root::GEndl;
   }
 
   // Use online folder
-  bool m_online = args_info.online_flag;
-  if (m_online) {
-    m_logger << Root::kINFO << "Luminosity read from online folders" << Root::GEndl;
+  bool online = args_info.online_flag;
+  if (online) {
+    logger << Root::kINFO << "Luminosity read from online folders" << Root::GEndl;
   }
 
   // Luminosity tag
-  std::string m_lumitag = args_info.lumitag_arg;
-  if (m_online) {
-    m_logger << Root::kWARNING << "Lumitag: " << m_lumitag << " ignored due to --online " << Root::GEndl;
+  std::string lumitag = args_info.lumitag_arg;
+  if (online) {
+    logger << Root::kWARNING << "Lumitag: " << lumitag << " ignored due to --online " << Root::GEndl;
   } else {
-    m_logger << Root::kINFO << "Lumitag: " << m_lumitag << Root::GEndl;
+    logger << Root::kINFO << "Lumitag: " << lumitag << Root::GEndl;
   }
 
   // LAr noise bursts
-  bool m_lar = args_info.lar_flag;
-  std::string m_lartag = args_info.lartag_arg;
-  if (m_lar) {
-    m_logger << Root::kINFO << "LAr noise burst inefficiency will be calculated from " << m_lartag << Root::GEndl;
+  bool lar = args_info.lar_flag;
+  std::string lartag = args_info.lartag_arg;
+  if (lar) {
+    logger << Root::kINFO << "LAr noise burst inefficiency will be calculated from " << lartag << Root::GEndl;
   }
 
   // Online Beamspot validity
-  bool m_beamspot = args_info.beamspot_flag;
-  std::string m_beamspottag = args_info.beamspottag_arg;
-  if (m_beamspot) {
-    m_logger << Root::kINFO << "Livetime will include online beamspot validity requirement from " << m_beamspottag << Root::GEndl;
+  bool beamspot = args_info.beamspot_flag;
+  std::string beamspottag = args_info.beamspottag_arg;
+  if (beamspot) {
+    logger << Root::kINFO << "Livetime will include online beamspot validity requirement from " << beamspottag << Root::GEndl;
   }
 
   // Luminosity channel
   // ==================
 
-  std::string m_lumimethod;
-  int m_lumichannel = -1;
+  std::string lumimethod;
+  int lumichannel = -1;
 
   // Check for online exceptions
-  if (m_online && args_info.lumimethod_given){
-    m_logger << Root::kERROR << "Sorry, the online database doesn't have luminosity method names, use --lumichannel instead!" << Root::GEndl;
+  if (online && args_info.lumimethod_given){
+    logger << Root::kERROR << "Sorry, the online database doesn't have luminosity method names, use --lumichannel instead!" << Root::GEndl;
     exit(-1);
   }
 
   if (args_info.lumimethod_given && args_info.lumichannel_given == 0) {
-    m_lumimethod  =     args_info.lumimethod_arg;
-    m_logger << Root::kINFO << "Lumimethod: " << m_lumimethod << Root::GEndl;
+    lumimethod  =     args_info.lumimethod_arg;
+    logger << Root::kINFO << "Lumimethod: " << lumimethod << Root::GEndl;
   } else if (args_info.lumimethod_given == 0 && args_info.lumichannel_given) {
-    m_lumichannel = args_info.lumichannel_arg;
-    m_logger << Root::kINFO << "Lumichannel: " << m_lumichannel << Root::GEndl;
+    lumichannel = args_info.lumichannel_arg;
+    logger << Root::kINFO << "Lumichannel: " << lumichannel << Root::GEndl;
   } else if (args_info.lumimethod_given && args_info.lumichannel_given) {
-    m_lumichannel = args_info.lumichannel_arg;
-    m_logger << Root::kINFO << "Both lumimethod and lumichannel is given, defaulting to Lumichannel: " << m_lumichannel << Root::GEndl;
+    lumichannel = args_info.lumichannel_arg;
+    logger << Root::kINFO << "Both lumimethod and lumichannel is given, defaulting to Lumichannel: " << lumichannel << Root::GEndl;
   } else if (args_info.lumimethod_given == 0 && args_info.lumichannel_given == 0) {
-    if (m_online) {
-      m_lumichannel = args_info.lumichannel_arg;
-      m_logger << Root::kINFO << "No lumimethod or lumichannel is given, defaulting to Lumichannel: " << m_lumichannel << Root::GEndl;
+    if (online) {
+      lumichannel = args_info.lumichannel_arg;
+      logger << Root::kINFO << "No lumimethod or lumichannel is given, defaulting to Lumichannel: " << lumichannel << Root::GEndl;
     } else {
-      m_lumimethod = args_info.lumimethod_arg;
-      m_logger << Root::kINFO << "No lumimethod or lumichannel is given, defaulting to Lumimethod: " << m_lumimethod << Root::GEndl;
+      lumimethod = args_info.lumimethod_arg;
+      logger << Root::kINFO << "No lumimethod or lumichannel is given, defaulting to Lumimethod: " << lumimethod << Root::GEndl;
     }
   }
 
@@ -131,34 +131,34 @@ int main(int argc, char * argv[]){
   // Handle triggers
   // ===============
   if(args_info.trigger_given == 0) {
-    m_logger << Root::kINFO << "No trigger specified, proceeding with --trigger=None" << Root::GEndl;
-    m_triggerchain.push_back("None");
+    logger << Root::kINFO << "No trigger specified, proceeding with --trigger=None" << Root::GEndl;
+    triggerchain.push_back("None");
   } else {
     if (args_info.trigger_given > 1) {
-      m_logger << Root::kINFO << "Processing Triggers: ";
+      logger << Root::kINFO << "Processing Triggers: ";
     } else {
-      m_logger << Root::kINFO << "Processing Trigger: ";
+      logger << Root::kINFO << "Processing Trigger: ";
     }
 
     for(unsigned int i = 0; i < args_info.trigger_given; ++i){
-      m_triggerchain.push_back(args_info.trigger_arg[i]);
-      m_logger << Root::kINFO << args_info.trigger_arg[i] << ", ";
+      triggerchain.push_back(args_info.trigger_arg[i]);
+      logger << Root::kINFO << args_info.trigger_arg[i] << ", ";
     }
-    m_logger << Root::GEndl;
+    logger << Root::GEndl;
   }
 
   // Livetime triggers
   // =================
-  bool m_uselivetrigger = false;
-  m_livetrigger = args_info.livetrigger_arg;   // Default if not specified on command line
+  bool uselivetrigger = false;
+  livetrigger = args_info.livetrigger_arg;   // Default if not specified on command line
 
   if (args_info.livetrigger_given || !args_info.trigger_given) {
     // Either livetime trigger specified, or no prescale triggers specified
-    m_uselivetrigger = true;
-    m_logger << Root::kINFO << "Trigger used for livetime: " << m_livetrigger << Root::GEndl;
+    uselivetrigger = true;
+    logger << Root::kINFO << "Trigger used for livetime: " << livetrigger << Root::GEndl;
   } else {
     // Prescale not specified AND trigger list given 
-    m_logger << Root::kINFO << "Prescale trigger chains will be used for livetime " << Root::GEndl;
+    logger << Root::kINFO << "Prescale trigger chains will be used for livetime " << Root::GEndl;
   }
 
 
@@ -213,7 +213,7 @@ int main(int argc, char * argv[]){
     // Try to see if file(s) exist
     for(std::vector<std::string>::iterator it = tagfile.begin(); it != tagfile.end(); ++it){
       if(!FileExists((*it))){
-	m_logger << Root::kWARNING << "Problem: file ["<< (*it)  <<"] may not exist.  Will try anyways..." << Root::GEndl;
+	logger << Root::kWARNING << "Problem: file ["<< (*it)  <<"] may not exist.  Will try anyways..." << Root::GEndl;
       }
     }
     //std::cout << "RunType: " << runtype << std::endl; 
@@ -230,7 +230,7 @@ int main(int argc, char * argv[]){
     // Try to see if file(s) exist
     for(std::vector<std::string>::iterator it = xmlfile.begin(); it != xmlfile.end(); ++it){
       if(! FileExists((*it))){
-	m_logger << Root::kWARNING << "Problem: file ["<< (*it)  <<"] may not exist.  Will try anyways..." << Root::GEndl;
+	logger << Root::kWARNING << "Problem: file ["<< (*it)  <<"] may not exist.  Will try anyways..." << Root::GEndl;
       }
     }
   //std::cout << "RunType: " << runtype << std::endl;
@@ -240,7 +240,7 @@ int main(int argc, char * argv[]){
   //============================================
   if((args_info.root_given >0 || args_info.tree_given > 0) && args_info.d3pd_dir_given == 0 && args_info.xml_given == 0 && args_info.tag_given == 0){
     if((args_info.root_given == 0 && args_info.tree_given > 0) || (args_info.root_given > 0 && args_info.tree_given == 0 )){
-      m_logger << Root::kERROR << "Please provide BOTH --root=\"myfile.root\" AND --tree=\"mytreename\" OR --d3pd_dir=\"mydirname\" options " << Root::GEndl;
+      logger << Root::kERROR << "Please provide BOTH --root=\"myfile.root\" AND --tree=\"mytreename\" OR --d3pd_dir=\"mydirname\" options " << Root::GEndl;
       exit(-1);
     }
     
@@ -249,13 +249,13 @@ int main(int argc, char * argv[]){
       rootfile.push_back(args_info.root_arg[i]);
     }
     if(args_info.tree_given){
-      m_treename = args_info.tree_arg;
+      treename = args_info.tree_arg;
     }else{
-      m_logger << Root::kERROR << "In Root file mode Tree name (--d3p_dir=\"mytreename\") must also be provided" << Root::GEndl;
+      logger << Root::kERROR << "In Root file mode Tree name (--d3p_dir=\"mytreename\") must also be provided" << Root::GEndl;
     }
     for(std::vector<std::string>::iterator it = rootfile.begin(); it != rootfile.end(); ++it){
       if(!FileExists((*it))){
-	m_logger << Root::kWARNING << "Problem: file ["<< (*it)  <<"] may not exist.  Will try anyways..." << Root::GEndl;
+	logger << Root::kWARNING << "Problem: file ["<< (*it)  <<"] may not exist.  Will try anyways..." << Root::GEndl;
       }
     }
   }
@@ -264,7 +264,7 @@ int main(int argc, char * argv[]){
   //============================================
   if((args_info.root_given >0 || args_info.d3pd_dir_given > 0) && args_info.tree_given == 0 && args_info.xml_given == 0 && args_info.tag_given == 0){
     if((args_info.root_given == 0 && args_info.d3pd_dir_given > 0) || (args_info.root_given > 0 && args_info.d3pd_dir_given == 0 )){
-      m_logger << Root::kERROR << "Please provide BOTH --root=\"myfile.root\" AND --d3pd_dir=\"myd3pddirname\" options" << Root::GEndl;
+      logger << Root::kERROR << "Please provide BOTH --root=\"myfile.root\" AND --d3pd_dir=\"myd3pddirname\" options" << Root::GEndl;
       exit(-1);
     }
 
@@ -273,16 +273,16 @@ int main(int argc, char * argv[]){
       rootfile.push_back(args_info.root_arg[i]);
     }
     if(args_info.d3pd_dir_given){
-      m_d3pddirname = args_info.d3pd_dir_arg;
+      d3pddirname = args_info.d3pd_dir_arg;
     }else{
-      m_logger << Root::kWARNING << "In D3PD Root file mode Directory name (--d3pd_dir=\"mylumidir\") must also be provided" << Root::GEndl;
-      m_logger << Root::kWARNING << "Ommitted, using default name \"Lumi\"" << Root::GEndl;
-      m_d3pddirname= "Lumi";
+      logger << Root::kWARNING << "In D3PD Root file mode Directory name (--d3pd_dir=\"mylumidir\") must also be provided" << Root::GEndl;
+      logger << Root::kWARNING << "Ommitted, using default name \"Lumi\"" << Root::GEndl;
+      d3pddirname= "Lumi";
     }
 
     for(std::vector<std::string>::iterator it = rootfile.begin(); it != rootfile.end(); ++it){
       if(!FileExists((*it))){
-	m_logger << Root::kWARNING << "Problem: file ["<< (*it)  <<"] may not exist.  Will try anyways..." << Root::GEndl;
+	logger << Root::kWARNING << "Problem: file ["<< (*it)  <<"] may not exist.  Will try anyways..." << Root::GEndl;
       }
     }
   }
@@ -293,7 +293,7 @@ int main(int argc, char * argv[]){
 
     // Nothing else specified, try run numbers
     if (!args_info.runnumber_given) {
-      m_logger << Root::kERROR << "No input data specified!" << Root::GEndl;
+      logger << Root::kERROR << "No input data specified!" << Root::GEndl;
       exit(-1);
     }
 
@@ -303,7 +303,7 @@ int main(int argc, char * argv[]){
     for (; itr != runList.end(); itr++) {
       // Dont allow open-ended IOVs
       if ((itr->first == minrunnum) || (itr->second == maxrunnum)) {
-	m_logger << Root::kERROR << "Can't use open-ended run ranges to specify sample!" << Root::GEndl;
+	logger << Root::kERROR << "Can't use open-ended run ranges to specify sample!" << Root::GEndl;
 	exit(-1);
       }
 
@@ -344,23 +344,23 @@ int main(int argc, char * argv[]){
   //==========================================================================
   // Set up LumiBlockCollection for the different scenarios
   std::vector< xAOD::LumiBlockRangeContainer* > iovcVec;
-  std::vector< std::vector<std::string> > m_triggerchainVec;
-  Root::TGRLCollection m_grlcollection;
-  LumiBlockRangeContainerConverter m_converter;
-  TString m_version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc
+  std::vector< std::vector<std::string> > triggerchainVec;
+  Root::TGRLCollection grlcollection;
+  LumiBlockRangeContainerConverter converter;
+  TString version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc
 
   //==========================================================================
   // User defined IOVRange in command line
   if (runtype == 0) {
 
-    m_logger << Root::kINFO << "Proceeding with command-line run list" << Root::GEndl;
+    logger << Root::kINFO << "Proceeding with command-line run list" << Root::GEndl;
     if (lbstart.size() != lbend.size()) {
-      m_logger << Root::kERROR << "number of lbstart and lbend values must match!" << Root::GEndl;
+      logger << Root::kERROR << "number of lbstart and lbend values must match!" << Root::GEndl;
       exit(-1); 
     }
 
     if (runnumber.size() > 1 && (runnumber.size() != lbstart.size())) {
-      m_logger << Root::kERROR << "number of lbstart and lbend values must match number of runs with multiple runs specified!" << Root::GEndl;
+      logger << Root::kERROR << "number of lbstart and lbend values must match number of runs with multiple runs specified!" << Root::GEndl;
       exit(-1);
     }
 
@@ -371,8 +371,8 @@ int main(int argc, char * argv[]){
     }
     */
 
-    uint32_t _lbstart;
-    uint32_t _lbend;
+    uint32_t lbstart_val;
+    uint32_t lbend_val;
 
     xAOD::LumiBlockRangeContainer* iovc = new xAOD::LumiBlockRangeContainer();
     xAOD::LumiBlockRangeAuxContainer* iovcAux = new xAOD::LumiBlockRangeAuxContainer();
@@ -384,21 +384,21 @@ int main(int argc, char * argv[]){
 
     if (runnumber.size() == 1) {
 
-	m_logger << Root::kINFO << "Runnumber [" << runnumber[0] <<  "]" << Root::GEndl;
+	logger << Root::kINFO << "Runnumber [" << runnumber[0] <<  "]" << Root::GEndl;
 	for(itstart = lbstart.begin(), itend = lbend.begin(); 
 	    itstart != lbstart.end() && itend != lbend.end(); ++itstart,++itend) {
-	  _lbstart = (*itstart);
-	  _lbend = (*itend);
-	  m_logger << Root::kINFO << "lbstart-lbend [" << _lbstart << "-" << _lbend << "]" << Root::GEndl; 
-	  if (_lbstart > _lbend) {
-	    m_logger << Root::kERROR << "lbstart > lbend! Should be: lbstart < = lbend" << Root::GEndl;
+	  lbstart_val = (*itstart);
+	  lbend_val = (*itend);
+	  logger << Root::kINFO << "lbstart-lbend [" << lbstart_val << "-" << lbend_val << "]" << Root::GEndl; 
+	  if (lbstart_val > lbend_val) {
+	    logger << Root::kERROR << "lbstart > lbend! Should be: lbstart < = lbend" << Root::GEndl;
 	    exit(-1);
 	  } else {
 	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange();
 	    iovr->setStartRunNumber(runnumber[0]);
-	    iovr->setStartLumiBlockNumber(_lbstart);
+	    iovr->setStartLumiBlockNumber(lbstart_val);
 	    iovr->setStopRunNumber(runnumber[0]);
-	    iovr->setStopLumiBlockNumber(_lbend);
+	    iovr->setStopLumiBlockNumber(lbend_val);
 	    iovc->push_back(iovr);
 	  }
 	}
@@ -408,8 +408,8 @@ int main(int argc, char * argv[]){
       for(itrun = runnumber.begin(), itstart = lbstart.begin(), itend = lbend.begin(); 
 	  itrun != runnumber.end() && itstart != lbstart.end() && itend != lbend.end();
 	  ++itrun, ++itstart, ++itend) {
-	m_logger << Root::kINFO << "Runnumbers [" << *itrun <<  "]" << Root::GEndl;
-	m_logger << Root::kINFO << "lbstart-lbend [" << *itstart << "-" << *itend << "]" << Root::GEndl; 
+	logger << Root::kINFO << "Runnumbers [" << *itrun <<  "]" << Root::GEndl;
+	logger << Root::kINFO << "lbstart-lbend [" << *itstart << "-" << *itend << "]" << Root::GEndl; 
 	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange();
 	    iovr->setStartRunNumber(*itrun);
 	    iovr->setStartLumiBlockNumber(*itstart);
@@ -420,11 +420,11 @@ int main(int argc, char * argv[]){
     }
 
     iovcVec.push_back(iovc); // take over iovc for usage below
-    m_triggerchainVec.push_back(m_triggerchain); // cmd-line triggerchain
-    std::map<TString,TString> m_metadata;
-    for (unsigned int j=0; j<m_triggerchain.size(); ++j)
-      m_metadata[Form("TriggerName%d",j)] = TString(m_triggerchain[j]);
-    m_grlcollection.push_back( *m_converter.GetGRLObject(*iovc,m_metadata,m_version) );
+    triggerchainVec.push_back(triggerchain); // cmd-line triggerchain
+    std::map<TString,TString> metadata;
+    for (unsigned int j=0; j<triggerchain.size(); ++j)
+      metadata[Form("TriggerName%d",j)] = TString(triggerchain[j]);
+    grlcollection.push_back( *converter.GetGRLObject(*iovc,metadata,version) );
   }
   
 
@@ -432,14 +432,14 @@ int main(int argc, char * argv[]){
   // Fetch up xAOD::LumiBlockRangeContainer from input TAG file
   if (runtype == 1) {
     // open TAG files to build xAOD::LumiBlockRangeContainer
-    m_logger << Root::kINFO << "Being in TAG file mode..." << Root::GEndl;
+    logger << Root::kINFO << "Being in TAG file mode..." << Root::GEndl;
 
-    Root::TGoodRunsListReader m_reader;
+    Root::TGoodRunsListReader reader;
     std::string connection ="";
     std::string type = "RootCollection";
     bool readOnly(true);
     for(std::vector<std::string>::iterator it = tagfile.begin(); it != tagfile.end(); ++it){
-      m_logger << Root::kINFO << "Processing file: <" << (*it) << ">" <<  Root::GEndl;
+      logger << Root::kINFO << "Processing file: <" << (*it) << ">" <<  Root::GEndl;
       int n = (*it).find(".root");
       std::string tagfilename =  (*it).substr(0,n);
 
@@ -447,39 +447,39 @@ int main(int argc, char * argv[]){
       pool::CollectionService collectionService;
       pool::ICollection* collection = collectionService.handle(tagfilename, type, connection, readOnly);
       if(collection == NULL) {
-         m_logger << Root::kERROR << "ICollection is NULL, exiting... " << Root::GEndl;
+         logger << Root::kERROR << "ICollection is NULL, exiting... " << Root::GEndl;
          exit(-1);
       }
 
       // MB : Reading incomplete LBs with tag. Request from Tulay
       const char* value = collection->metadata().getValueForKey("OutputLumirange");
       if(value == NULL) {         
-         m_logger << Root::kERROR << "The collection has no such key of OutputLumirange in metadata, try with OutputIncompleteLumirange key" << Root::GEndl;
+         logger << Root::kERROR << "The collection has no such key of OutputLumirange in metadata, try with OutputIncompleteLumirange key" << Root::GEndl;
          value = collection->metadata().getValueForKey("OutputIncompleteLumirange");
-         if (value != NULL) m_logger << Root::kINFO << "OutputIncompleteLumirange key is OK, reading the value..."  << Root::GEndl;
+         if (value != NULL) logger << Root::kINFO << "OutputIncompleteLumirange key is OK, reading the value..."  << Root::GEndl;
          else exit(-1);
       }
 
-      if(m_verbose == true) m_logger << Root::kINFO << "Value :  " << value << Root::GEndl;
+      if(verbose == true) logger << Root::kINFO << "Value :  " << value << Root::GEndl;
       // add xml string to TGoodRunsListReader. Sort out strings below
-      m_reader.AddXMLString(value);
+      reader.AddXMLString(value);
     }
     // do sorting of all grl objects
-    m_reader.Interpret();
-    m_grlcollection = m_reader.GetMergedGRLCollection();
+    reader.Interpret();
+    grlcollection = reader.GetMergedGRLCollection();
     
-    for (unsigned int j=0; j<m_grlcollection.size(); ++j) {
-      iovcVec.push_back( m_converter.GetLumiBlockRangeContainer(m_grlcollection[j]) );
+    for (unsigned int j=0; j<grlcollection.size(); ++j) {
+      iovcVec.push_back( converter.GetLumiBlockRangeContainer(grlcollection[j]) );
       // default: trigger names taken from xml metadata. Overwrite any existing cmd-line triggers.
-      if ( m_grlcollection[j].HasTriggerInfo() ) {
-        m_triggerchainVec.push_back(m_grlcollection[j].GetTriggerList()); // use existing trigger names
-        if (!m_triggerchain.empty())
-          m_logger << Root::kWARNING << "Input goodruns-list(s) <" << m_grlcollection[j].GetName() 
+      if ( grlcollection[j].HasTriggerInfo() ) {
+        triggerchainVec.push_back(grlcollection[j].GetTriggerList()); // use existing trigger names
+        if (!triggerchain.empty())
+          logger << Root::kWARNING << "Input goodruns-list(s) <" << grlcollection[j].GetName() 
                    << "> already contain trigger names. Cmd-line triggers are ignored!" << Root::GEndl;
       } else { // use cmdline trigger names
-        m_triggerchainVec.push_back(m_triggerchain) ;
-        for (unsigned int k=0; k<m_triggerchain.size(); ++k)
-          m_grlcollection[j].AddMetaData( Form("TriggerName%d",k),TString(m_triggerchain[k]) );
+        triggerchainVec.push_back(triggerchain) ;
+        for (unsigned int k=0; k<triggerchain.size(); ++k)
+          grlcollection[j].AddMetaData( Form("TriggerName%d",k),TString(triggerchain[k]) );
       }
     }
   }
@@ -488,28 +488,28 @@ int main(int argc, char * argv[]){
   // Fetch up xAOD::LumiBlockRangeContainer from input XML file
   if(runtype == 3){
     // open XML files to build xAOD::LumiBlockRangeContainer
-    m_logger << Root::kINFO << "Being in XML file mode..." << Root::GEndl;
-    Root::TGoodRunsListReader m_reader;
+    logger << Root::kINFO << "Being in XML file mode..." << Root::GEndl;
+    Root::TGoodRunsListReader reader;
     // looping over XML files
     for(std::vector<std::string>::iterator it = xmlfile.begin(); it != xmlfile.end(); ++it){
-      m_logger << Root::kINFO << "Processing file: <" << (*it) << ">" << Root::GEndl;
-      m_reader.AddXMLFile(*it);
+      logger << Root::kINFO << "Processing file: <" << (*it) << ">" << Root::GEndl;
+      reader.AddXMLFile(*it);
     }
-    m_reader.Interpret();
-    m_grlcollection = m_reader.GetMergedGRLCollection();
+    reader.Interpret();
+    grlcollection = reader.GetMergedGRLCollection();
 
-    for (unsigned int j=0; j<m_grlcollection.size(); ++j) {
-      iovcVec.push_back( m_converter.GetLumiBlockRangeContainer(m_grlcollection[j]) );
+    for (unsigned int j=0; j<grlcollection.size(); ++j) {
+      iovcVec.push_back( converter.GetLumiBlockRangeContainer(grlcollection[j]) );
       // default: trigger names taken from xml metadata. Overwrite any existing cmd-line triggers.
-      if ( m_grlcollection[j].HasTriggerInfo() ) {
-        m_triggerchainVec.push_back(m_grlcollection[j].GetTriggerList()); // use existing trigger names
-        if (!m_triggerchain.empty())
-          m_logger << Root::kWARNING << "Input goodruns-list(s) <" << m_grlcollection[j].GetName() 
+      if ( grlcollection[j].HasTriggerInfo() ) {
+        triggerchainVec.push_back(grlcollection[j].GetTriggerList()); // use existing trigger names
+        if (!triggerchain.empty())
+          logger << Root::kWARNING << "Input goodruns-list(s) <" << grlcollection[j].GetName() 
                    << "> already contain trigger names. Cmd-line triggers are ignored!" << Root::GEndl;
       } else { // use cmdline trigger names
-        m_triggerchainVec.push_back(m_triggerchain) ;
-        for (unsigned int k=0; k<m_triggerchain.size(); ++k)
-          m_grlcollection[j].AddMetaData( Form("TriggerName%d",k),TString(m_triggerchain[k]) );
+        triggerchainVec.push_back(triggerchain) ;
+        for (unsigned int k=0; k<triggerchain.size(); ++k)
+          grlcollection[j].AddMetaData( Form("TriggerName%d",k),TString(triggerchain[k]) );
       }
     }
   }
@@ -519,19 +519,19 @@ int main(int argc, char * argv[]){
   // Fetch up xAOD::LumiBlockRangeContainer from input ROOT files - Tree mode
   if(runtype == 4){
     // open ntuples to fetch xmlstrings
-    m_logger << Root::kINFO << "Being in ROOT ntuple file mode..." << Root::GEndl;
+    logger << Root::kINFO << "Being in ROOT ntuple file mode..." << Root::GEndl;
     
-    Root::TGoodRunsListReader m_reader;
+    Root::TGoodRunsListReader reader;
     
     for(std::vector<std::string>::iterator it = rootfile.begin(); it != rootfile.end(); ++it){
-      m_logger << Root::kINFO << "Processing root file: <" << (*it) << ">" <<  Root::GEndl;
+      logger << Root::kINFO << "Processing root file: <" << (*it) << ">" <<  Root::GEndl;
       std::string filename = (*it);
       TFile* file = TFile::Open(filename.c_str());
       TTree * tree = NULL;
       TList * list = NULL;
-      tree = dynamic_cast<TTree*>(file->Get(m_treename.c_str()));
+      tree = dynamic_cast<TTree*>(file->Get(treename.c_str()));
       if(tree == 0){
-	m_logger << Root::kERROR << "Tree: " << m_treename << " doesn't exist in file " << filename << Root::GEndl;
+	logger << Root::kERROR << "Tree: " << treename << " doesn't exist in file " << filename << Root::GEndl;
 	exit(-1);
       }else{
 	list = tree->GetUserInfo() ;
@@ -542,28 +542,28 @@ int main(int argc, char * argv[]){
 	  if (objstr==0) continue;
 	  if ( objstr->GetString().BeginsWith("<?xml version=\"1.0\"?") &&
 	       objstr->GetString().Contains("DOCTYPE LumiRangeCollection") ) // xml identifier
-	    m_reader.AddXMLString(objstr->GetString());
+	    reader.AddXMLString(objstr->GetString());
 	}
       }
       file->Close();
     }
 
     // do sorting of all grl objects
-    m_reader.Interpret();
-    m_grlcollection = m_reader.GetMergedGRLCollection();
+    reader.Interpret();
+    grlcollection = reader.GetMergedGRLCollection();
     
-    for (unsigned int j=0; j<m_grlcollection.size(); ++j) {
-      iovcVec.push_back( m_converter.GetLumiBlockRangeContainer(m_grlcollection[j]) );
+    for (unsigned int j=0; j<grlcollection.size(); ++j) {
+      iovcVec.push_back( converter.GetLumiBlockRangeContainer(grlcollection[j]) );
       // default: trigger names taken from xml metadata. Overwrite any existing cmd-line triggers.
-      if ( m_grlcollection[j].HasTriggerInfo() ) {
-	m_triggerchainVec.push_back(m_grlcollection[j].GetTriggerList()); // use existing trigger names
-	if (!m_triggerchain.empty())
-	  m_logger << Root::kWARNING << "Input goodruns-list(s) <" << m_grlcollection[j].GetName()
+      if ( grlcollection[j].HasTriggerInfo() ) {
+	triggerchainVec.push_back(grlcollection[j].GetTriggerList()); // use existing trigger names
+	if (!triggerchain.empty())
+	  logger << Root::kWARNING << "Input goodruns-list(s) <" << grlcollection[j].GetName()
 		   << "> already contain trigger names. Cmd-line triggers are ignored!" << Root::GEndl;
       } else { // use cmdline trigger names
-	m_triggerchainVec.push_back(m_triggerchain) ;
-	for (unsigned int k=0; k<m_triggerchain.size(); ++k)
-	  m_grlcollection[j].AddMetaData( Form("TriggerName%d",k),TString(m_triggerchain[k]) );
+	triggerchainVec.push_back(triggerchain) ;
+	for (unsigned int k=0; k<triggerchain.size(); ++k)
+	  grlcollection[j].AddMetaData( Form("TriggerName%d",k),TString(triggerchain[k]) );
       }
     }
   }
@@ -572,20 +572,20 @@ int main(int argc, char * argv[]){
   // Fetch up xAOD::LumiBlockRangeContainer from input ROOT files - D3PD mode
   if(runtype == 5){
     // open ntuples to fetch xmlstrings
-    m_logger << Root::kINFO << "Being in ROOT D3PD ntuple file mode..." << Root::GEndl;
+    logger << Root::kINFO << "Being in ROOT D3PD ntuple file mode..." << Root::GEndl;
 
-    Root::TGoodRunsListReader m_reader;
+    Root::TGoodRunsListReader reader;
 
     for(std::vector<std::string>::iterator it = rootfile.begin(); it != rootfile.end(); ++it){
-      m_logger << Root::kINFO << "Processing root file: <" << (*it) << ">" <<  Root::GEndl;
+      logger << Root::kINFO << "Processing root file: <" << (*it) << ">" <<  Root::GEndl;
       std::string filename = (*it);
       TList* list = NULL;
       TFile* file = TFile::Open(filename.c_str()); 
       TDirectoryFile * dir = NULL;
-      m_logger << Root::kINFO << "Using Directory name: " << m_d3pddirname.c_str() << Root::GEndl;
-      dir = dynamic_cast<TDirectoryFile*>(file->GetDirectory(m_d3pddirname.c_str()));
+      logger << Root::kINFO << "Using Directory name: " << d3pddirname.c_str() << Root::GEndl;
+      dir = dynamic_cast<TDirectoryFile*>(file->GetDirectory(d3pddirname.c_str()));
       if(!dir){
-	m_logger << Root::kERROR << "Directory [" << m_d3pddirname << "] doesn't exist in file " << filename << Root::GEndl;
+	logger << Root::kERROR << "Directory [" << d3pddirname << "] doesn't exist in file " << filename << Root::GEndl;
 	exit(-1);
       }else{
         TObjString* objstr = 0;
@@ -595,19 +595,19 @@ int main(int argc, char * argv[]){
 	for(int j=0; j<list->GetEntries();j++) {
           if ( keymap.find(list->At(j)->GetName())==keymap.end() ) { keymap[list->At(j)->GetName()] = 1; } 
           else { keymap[list->At(j)->GetName()] = keymap[list->At(j)->GetName()]+1; }
-          if(m_verbose)m_logger << Root::kINFO << "Found obj key: \"" << Form("%s;%d",list->At(j)->GetName(),keymap[list->At(j)->GetName()]) << "\"" << Root::GEndl;
+          if(verbose)logger << Root::kINFO << "Found obj key: \"" << Form("%s;%d",list->At(j)->GetName(),keymap[list->At(j)->GetName()]) << "\"" << Root::GEndl;
 	  objstr = dynamic_cast<TObjString*>(dir->Get( Form("%s;%d",list->At(j)->GetName(),keymap[list->At(j)->GetName()]) )); 
 	  if (objstr!=0){
-	    if(m_verbose)m_logger << Root::kINFO << "with obj: " << objstr->GetString() << Root::GEndl;
+	    if(verbose)logger << Root::kINFO << "with obj: " << objstr->GetString() << Root::GEndl;
 	    if ( objstr->GetString().BeginsWith("<?xml version=\"1.0\"?") &&
 		 objstr->GetString().Contains("DOCTYPE LumiRangeCollection") ){ // xml identifier
-	      m_reader.AddXMLString(objstr->GetString()); 
+	      reader.AddXMLString(objstr->GetString()); 
 	    }else{
-	      m_logger << Root::kERROR << "XML string is not in expected format: " << objstr->GetString() << ". Skipped." << Root::GEndl;
+	      logger << Root::kERROR << "XML string is not in expected format: " << objstr->GetString() << ". Skipped." << Root::GEndl;
 	      //exit(-1);
 	    }
 	  }else{
-	    m_logger << Root::kERROR << "No obj found with key \"" << list->At(j)->GetName() << "\"" << Root::GEndl;
+	    logger << Root::kERROR << "No obj found with key \"" << list->At(j)->GetName() << "\"" << Root::GEndl;
 	    exit(-1);
 	  }
 	}// end for cycle
@@ -616,20 +616,20 @@ int main(int argc, char * argv[]){
     }
     // do sorting of all grl objects
 
-    m_reader.Interpret();
-    m_grlcollection = m_reader.GetMergedGRLCollection();
-    for (unsigned int j=0; j<m_grlcollection.size(); ++j) {
-      iovcVec.push_back( m_converter.GetLumiBlockRangeContainer(m_grlcollection[j]) );
+    reader.Interpret();
+    grlcollection = reader.GetMergedGRLCollection();
+    for (unsigned int j=0; j<grlcollection.size(); ++j) {
+      iovcVec.push_back( converter.GetLumiBlockRangeContainer(grlcollection[j]) );
       // default: trigger names taken from xml metadata. Overwrite any existing cmd-line triggers.
-      if ( m_grlcollection[j].HasTriggerInfo() ) {
-        m_triggerchainVec.push_back(m_grlcollection[j].GetTriggerList()); // use existing trigger names
-        if (!m_triggerchain.empty())
-          m_logger << Root::kWARNING << "Input goodruns-list(s) <" << m_grlcollection[j].GetName() 
+      if ( grlcollection[j].HasTriggerInfo() ) {
+        triggerchainVec.push_back(grlcollection[j].GetTriggerList()); // use existing trigger names
+        if (!triggerchain.empty())
+          logger << Root::kWARNING << "Input goodruns-list(s) <" << grlcollection[j].GetName() 
                    << "> already contain trigger names. Cmd-line triggers are ignored!" << Root::GEndl;
       } else { // use cmdline trigger names
-        m_triggerchainVec.push_back(m_triggerchain) ;
-        for (unsigned int k=0; k<m_triggerchain.size(); ++k)
-          m_grlcollection[j].AddMetaData( Form("TriggerName%d",k),TString(m_triggerchain[k]) );
+        triggerchainVec.push_back(triggerchain) ;
+        for (unsigned int k=0; k<triggerchain.size(); ++k)
+          grlcollection[j].AddMetaData( Form("TriggerName%d",k),TString(triggerchain[k]) );
       }
     }
   }
@@ -643,7 +643,7 @@ int main(int argc, char * argv[]){
     // ===========================================================================
     if (runtype != 0 && runList.size() > 0) {
       std::vector<xAOD::LumiBlockRangeContainer*>::iterator iovIt = iovcVec.begin();
-      // std::vector<std::vector<std::string> >::iterator trigIt = m_triggerchainVec.begin();
+      // std::vector<std::vector<std::string> >::iterator trigIt = triggerchainVec.begin();
 
       for (;iovIt != iovcVec.end(); iovIt++) {
 
@@ -662,13 +662,13 @@ int main(int argc, char * argv[]){
 	  }
 
 	  if (!found) {
-	    m_logger << Root::kDEBUG << "Skipping run " << (*it)->startRunNumber() << " LB [" << (*it)->startLumiBlockNumber() << "-" << (*it)->stopLumiBlockNumber() << "] due to command-line run range" << Root::GEndl;
+	    logger << Root::kDEBUG << "Skipping run " << (*it)->startRunNumber() << " LB [" << (*it)->startLumiBlockNumber() << "-" << (*it)->stopLumiBlockNumber() << "] due to command-line run range" << Root::GEndl;
 	    (*iovIt)->erase(it);
 
 	    it = (*iovIt)->begin();
 
 	  } else {
-	    // m_logger << Root::kDEBUG << "Keeping run  " << runnum << " due to command-line run range" << Root::GEndl;
+	    // logger << Root::kDEBUG << "Keeping run  " << runnum << " due to command-line run range" << Root::GEndl;
 	    it++;
 	  }
 	}
@@ -678,34 +678,34 @@ int main(int argc, char * argv[]){
     }
 
 
-    LumiCalculator m_lumicalc;
+    LumiCalculator lumicalc;
     for (unsigned int j=0; j<iovcVec.size(); ++j) {
       xAOD::LumiBlockRangeContainer* iovc = iovcVec[j];
-      m_triggerchain = m_triggerchainVec[j];
+      triggerchain = triggerchainVec[j];
       
-      for(std::vector<std::string>::iterator it = m_triggerchain.begin(); it != m_triggerchain.end(); ++it){
+      for(std::vector<std::string>::iterator it = triggerchain.begin(); it != triggerchain.end(); ++it){
 	if(!iovc->empty()){
-	  m_logger << Root::kINFO << "--------------------------------------------" << Root::GEndl;
+	  logger << Root::kINFO << "--------------------------------------------" << Root::GEndl;
 	  TTree tree("LumiMetaData","LumiMetaData");
-	  m_lumicalc.setTree(&tree);
-	  m_lumicalc.UseLumiTag(m_lumitag);
-	  if(m_lumimethod != "")m_lumicalc.UseLumiMethod(m_lumimethod);
-	  if(m_lumichannel != -1)m_lumicalc.UseLumiChannel(m_lumichannel);
-	  m_lumicalc.UseMC(false);
-	  m_lumicalc.UseOnlineLumi(m_online);
-	  m_lumicalc.Verbose(m_verbose);
-	  m_lumicalc.MakePlots(m_makeplots);
-	  m_lumicalc.MakeCollList(m_collisionlists);
-          m_lumicalc.ScaleL1TrigRate(m_scalel1trigrate);
-	  m_lumicalc.UseLiveTrigger(m_uselivetrigger, m_livetrigger);
-	  m_lumicalc.UseLArNoiseDB(m_lar, m_lartag);
-	  m_lumicalc.UseBeamspot(m_beamspot, m_beamspottag);
-	  m_lumicalc.IntegrateLumi(iovc, (*it));
-	  m_logger << Root::kINFO << "--------------------------------------------" << Root::GEndl;
+	  lumicalc.setTree(&tree);
+	  lumicalc.UseLumiTag(lumitag);
+	  if(lumimethod != "")lumicalc.UseLumiMethod(lumimethod);
+	  if(lumichannel != -1)lumicalc.UseLumiChannel(lumichannel);
+	  lumicalc.UseMC(false);
+	  lumicalc.UseOnlineLumi(online);
+	  lumicalc.Verbose(verbose);
+	  lumicalc.MakePlots(makeplots);
+	  lumicalc.MakeCollList(collisionlists);
+          lumicalc.ScaleL1TrigRate(scalel1trigrate);
+	  lumicalc.UseLiveTrigger(uselivetrigger, livetrigger);
+	  lumicalc.UseLArNoiseDB(lar, lartag);
+	  lumicalc.UseBeamspot(beamspot, beamspottag);
+	  lumicalc.IntegrateLumi(iovc, (*it));
+	  logger << Root::kINFO << "--------------------------------------------" << Root::GEndl;
 
 	  // Write out some summary information for 'quiet' mode
-	  if (m_quiet) {
-	    m_lumicalc.printSummary(std::cout);
+	  if (quiet) {
+	    lumicalc.printSummary(std::cout);
 	  }
 	}
       }
@@ -713,22 +713,22 @@ int main(int argc, char * argv[]){
 
     //==========================================================================
     // write out complete xml file for all lb collections together
-    m_grlcollection.SetVersion(m_version);
-    if(!m_grlcollection.empty()){
+    grlcollection.SetVersion(version);
+    if(!grlcollection.empty()){
       TString xmlfile = "ilumicalc_merged_";
-      if (m_xmloutfile.empty()) {
-        if (m_grlcollection.size()==1) { xmlfile += m_grlcollection[0].GetSuggestedName() + ".xml"; }
+      if (xmloutfile.empty()) {
+        if (grlcollection.size()==1) { xmlfile += grlcollection[0].GetSuggestedName() + ".xml"; }
         else { xmlfile += "grls.xml"; }
-      } else { xmlfile = m_xmloutfile; }
-      m_converter.CreateXMLFile(m_grlcollection,xmlfile);
+      } else { xmlfile = xmloutfile; }
+      converter.CreateXMLFile(grlcollection,xmlfile);
     }
   }
 
   //==========================================================================
   // Print timing info 
   timer.Stop();
-  m_logger << Root::kINFO << "Real time: " << std::setw(5) << timer.RealTime() << " s" << Root::GEndl;
-  m_logger << Root::kINFO << "CPU time:  " << std::setw(5) << timer.CpuTime() << " s" << Root::GEndl;
+  logger << Root::kINFO << "Real time: " << std::setw(5) << timer.RealTime() << " s" << Root::GEndl;
+  logger << Root::kINFO << "CPU time:  " << std::setw(5) << timer.CpuTime() << " s" << Root::GEndl;
 
   return 0;
 
