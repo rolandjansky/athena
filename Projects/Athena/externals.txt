@@ -5,5 +5,5 @@
 # an "origin/" prefix before it. For tags however this is explicitly
 # forbidden.
 
-AthenaExternalsVersion = 1.0.0
-GaudiVersion = v28r1.conditions.003
+AthenaExternalsVersion = 1.0.2
+GaudiVersion = origin/atlas/20.8.X/Conditions
