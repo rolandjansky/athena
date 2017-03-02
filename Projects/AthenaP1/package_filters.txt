@@ -36,6 +36,7 @@
 - InnerDetector/InDetDigitization/.*
 - InnerDetector/InDetG4/.*
 - InnerDetector/InDetSimUtils/.*
++ LArCalorimeter/LArG4/LArG4RunControl
 - LArCalorimeter/LArG4/.*
 + MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
 + MuonSpectrometer/MuonDigitization/MuonFastDigitization
