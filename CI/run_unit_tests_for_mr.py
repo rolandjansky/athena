@@ -21,16 +21,30 @@ def run_unit_tests(args):
     logging.debug("changed files:\n" + print_collection(changed_files))
     affected_packages = sorted(set([map_filename_to_package(f) for f in changed_files]))
 
-    # assemble ctest command
-    ctest_cmd = "ctest --output-on-failure "
-    for p in affected_packages:
-        # label is package name and not full package path
-        ctest_cmd += "-L ^" + os.path.basename(p) + " "
+    # construct list of patterns for matching test labels
+    pattern_list = []
+    for package_path in affected_packages:
+        # ignore empty package paths which would trigger all tests
+        # (empty package paths may appear due to failed mapping)
+        if not package_path:
+            continue
 
-    # execute
-    logging.debug("ctest command = '%s'" % ctest_cmd)
-    status = subprocess.call(ctest_cmd,shell=True)
-    return status
+        # label is package name and not full package path
+        pattern_list.append("^" + os.path.basename(p) + "$")
+
+    # only run tests if we found some patterns for test labels
+    if pattern_list:
+        # assemble ctest command
+        ctest_cmd = "ctest --output-on-failure "
+        ctest_cmd += "-L \"" + "|".join(pattern_list) + "\""
+
+        # execute
+        logging.debug("ctest command = '%s'" % ctest_cmd)
+        status = subprocess.call(ctest_cmd,shell=True)
+        return status
+    # no tests -> return success
+    else:
+        return 0
 
 def main():
     parser = argparse.ArgumentParser(description="ATLAS unit test runner",
