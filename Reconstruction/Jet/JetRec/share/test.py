@@ -203,8 +203,6 @@ xAODStream = MSMgr.NewPoolRootStream( "StreamXAOD", "test.Out.pool.root" )
 xAODStream.AddItem(   "xAOD::JetContainer#*AntiKt4EM*PFlow*Jets*")
 xAODStream.AddItem("xAOD::JetAuxContainer#*AntiKt4EM*PFlow*Jets*")
 
-xAODStream.AddItem(   "xAOD::PFOContainer#PF*Candidates*")
-xAODStream.AddItem("xAOD::PFOAuxContainer#PF*Candidates*")
-
-xAODStream.AddItem(   "xAOD::PFOContainer#JetETMiss*ParticleFlowObjects*")
-xAODStream.AddItem("xAOD::PFOAuxContainer#JetETMiss*ParticleFlowObjects*")
+xAODStream.AddItem(       "xAOD::PFOContainer#*ParticleFlowObjects*")
+xAODStream.AddItem(    "xAOD::PFOAuxContainer#*ParticleFlowObjects*")
+xAODStream.AddItem("xAOD::ShallowAuxContainer#*ParticleFlowObjects*")
