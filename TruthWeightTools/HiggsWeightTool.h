@@ -109,6 +109,8 @@ namespace xAOD {
     // returns hardcoded list of weight names matching expecation
     // of ATLAS-default ggF NNLOPS 
     const std::vector<std::string> getDefaultNNLOPSweightNames();
+    const std::vector<std::string> getDefaultVBFweightNames();
+    const std::vector<std::string> getDefaultVHweightNames();
 
     /// Weight names in metadata
     const std::vector<std::string> &getWeightNames();
@@ -123,7 +125,7 @@ namespace xAOD {
     /// Flags 
     bool m_init;
 
-    enum mode { AUTO=0, FORCE_GGF_NNLOPS = 1 };
+    enum mode { AUTO=0, FORCE_GGF_NNLOPS = 1, FORCE_POWPY8_VBF = 2, FORCE_POWPY8_VH = 3 };
     mode m_mode;
     bool m_forceNNLOPS;
 
