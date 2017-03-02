@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CHARGINOS_CharginosPhysicsTool_H
-#define CHARGINOS_CharginosPhysicsTool_H
+#ifndef CHARGINOS_CHARGINOSPHYSICSTOOL_H
+#define CHARGINOS_CHARGINOSPHYSICSTOOL_H
 
 // Include files
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -40,21 +40,21 @@ public:
 protected:
 
 
-  G4double CharginoPlusMass, CharginoPlusWidth, CharginoPlusCharge, CharginoPlusPDGCode, CharginoPlusLifetime;
-  G4bool CharginoPlusShortlived,  CharginoPlusStable;
+  G4double m_CharginoPlusMass, m_CharginoPlusWidth, m_CharginoPlusCharge, m_CharginoPlusPDGCode, m_CharginoPlusLifetime;
+  G4bool m_CharginoPlusShortlived,  m_CharginoPlusStable;
 
-  G4double CharginoMinusMass, CharginoMinusWidth, CharginoMinusCharge, CharginoMinusPDGCode, CharginoMinusLifetime;
-  G4bool CharginoMinusShortlived,  CharginoMinusStable;
+  G4double m_CharginoMinusMass, m_CharginoMinusWidth, m_CharginoMinusCharge, m_CharginoMinusPDGCode, m_CharginoMinusLifetime;
+  G4bool m_CharginoMinusShortlived,  m_CharginoMinusStable;
 
-  G4double NeutralinoMass, NeutralinoWidth, NeutralinoCharge, NeutralinoPDGCode, NeutralinoLifetime;
-  G4bool NeutralinoShortlived,  NeutralinoStable;
+  G4double m_NeutralinoMass, m_NeutralinoWidth, m_NeutralinoCharge, m_NeutralinoPDGCode, m_NeutralinoLifetime;
+  G4bool m_NeutralinoShortlived,  m_NeutralinoStable;
 
 
-  G4ParticleDefinition *theCharginoMinus;
-  G4ParticleDefinition *theCharginoPlus;
-  G4ParticleDefinition *theNeutralino;
+  G4ParticleDefinition *m_theCharginoMinus;
+  G4ParticleDefinition *m_theCharginoPlus;
+  G4ParticleDefinition *m_theNeutralino;
 };
 
 
 
-#endif
+#endif // CHARGINOS_CHARGINOSPHYSICSTOOL_H
