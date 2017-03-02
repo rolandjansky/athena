@@ -2,21 +2,25 @@
 
 from AthenaCommon import CfgMgr
 def getGauginosPhysicsTool(name="GauginosPhysicsTool", **kwargs):
-    ##from AthenaCommon.SystemOfUnits import GeV,MeV,eplus
+    from AthenaCommon.SystemOfUnits import GeV,MeV,eplus,ns
+    from G4AtlasApps.SimFlags import simFlags
+    GMSBNeutralino = eval(simFlags.specialConfiguration.get_Value().get("GMSBNeutralino", None))
+    GMSBTime = eval(simFlags.specialConfiguration.get_Value().get("GMSBLifeTime", None))
+    kwargs.setdefault("NeutralinoMass",        GMSBNeutralino)
+    ##kwargs.setdefault("NeutralinoWidth",       0.0*GeV);
+    ##kwargs.setdefault("NeutralinoCharge",      0);
+    ##kwargs.setdefault("NeutralinoPDGCode",     1000039);
+    kwargs.setdefault("NeutralinoStable",      False);
+    kwargs.setdefault("NeutralinoLifetime",    GMSBTime);
+    ##kwargs.setdefault("NeutralinoShortlived",  False);
 
-    ##kwargs.setdefault"GravitinoMass",        0.108e-04*GeV);
-    ##kwargs.setdefault"GravitinoWidth",       0.0*GeV);
-    ##kwargs.setdefault"GravitinoCharge",      0);
-    ##kwargs.setdefault"GravitinoPDGCode",     1000039);
-    ##kwargs.setdefault"GravitinoStable",      True);
-    ##kwargs.setdefault"GravitinoLifetime",    -1);
-    ##kwargs.setdefault"GravitinoShortlived",  False);
-
-    ##kwargs.setdefault"NeutralinoMass",        118.848*GeV);
-    ##kwargs.setdefault"NeutralinoWidth",       0.0*GeV);
-    ##kwargs.setdefault"NeutralinoCharge",      0);
-    ##kwargs.setdefault"NeutralinoPDGCode",     1000022);
-    ##kwargs.setdefault"NeutralinoStable",      True);
-    ##kwargs.setdefault"NeutralinoLifetime",    -1);
-    ##kwargs.setdefault"NeutralinoShortlived",  False);
-    return CfgMgr.GauginosPhysicsToolTool(name, **kwargs)
+    if simFlags.specialConfiguration.get_Value().has_key("GMSBGravitino"):
+        GMSBGravitino = eval(simFlags.specialConfiguration.get_Value().get("GMSBGravitino", None))
+        kwargs.setdefault("GravitinoMass",       GMSBGravitino);
+        ##kwargs.setdefault("GravitinoWidth",       0.0*GeV);
+        ##kwargs.setdefault("GravitinoCharge",      0);
+        ##kwargs.setdefault("GravitinoPDGCode",     1000022);
+        ##kwargs.setdefault("GravitinoStable",      True);
+        ##kwargs.setdefault("GravitinoLifetime",    -1);
+        ##kwargs.setdefault("GravitinoShortlived",  False);
+    return CfgMgr.GauginosPhysicsTool(name, **kwargs)
