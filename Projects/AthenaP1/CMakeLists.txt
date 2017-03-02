@@ -6,7 +6,7 @@ cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 # overridden from the command line if necessary.
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-set( AthenaP1_PROJECT_VERSION ${_version}
+set( ATHENAP1_PROJECT_VERSION ${_version}
    CACHE STRING "Version of the AthenaP1 project to build" )
 unset( _version )
 

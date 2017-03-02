@@ -1,85 +1,93 @@
 # Package filtering rules for the Athena project build.
 #
 # Only pick up a few packages from the External directory:
-+External/AtlasDataArea
-+External/pyAMI
-+External/FWDet/TwissFiles
-+External/Herwigpp
-+External/AtlasMKL
--External
++ External/AtlasDataArea
++ External/pyAMI
++ External/Herwigpp
++ External/AtlasMKL
+- External/.*
 # Only pick up the RunTime packages from Projects:
-+Projects/.*RunTime
--Projects
++ Projects/.*RunTime
+- Projects/.*
 
 # Offload service has build problems
--External/APEGlue
--Offloading
+- External/APEGlue
+- Offloading/.*
 
 # Remove simulation packages except those required for EDM, etc.
-+Generators/McEventSelector
-+Generators/GenAnalysisTools/TruthHelper
-+Generators/GenAnalysisTools/TruthTools
-+Generators/GeneratorObjects
-+Generators/GeneratorObjectsAthenaPool
-+Generators/GeneratorObjectsTPCnv
-+Generators/GenzModuleEvent
-+Generators/HepMCWeightSvc
-+Generators/McAsciiEventSelector
-+Generators/TruthUtils
--Generators
--External/FWDet/TwissFiles
--External/Herwig7
--External/Herwigpp
--External/Pythia8
--External/Starlight
--InnerDetector/InDetDigitization
-+MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
-+MuonSpectrometer/MuonDigitization/MuonFastDigitization
--MuonSpectrometer/MuonDigitization
-+Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrInterfaces
-+Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrModel
-+Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrTools
-+Simulation/Tools/AtlasCLHEP_RandomGenerators
-+Simulation/Barcode/BarcodeInterfaces
-+Simulation/FastSimulation/FastSimulationEvent
-+Simulation/G4Sim/TrackRecord
-+Simulation/G4SimCnv/G4SimAthenaPOOL
-+Simulation/G4SimCnv/G4SimTPCnv
-+Simulation/G4Utilities/G4Ancillary/G4AncillarySimEvent
-+Simulation/HitManagement
-+Simulation/ISF/ISF_Core/ISF_AthenaPool
-+Simulation/ISF/ISF_Core/ISF_Event
-+Simulation/ISF/ISF_Core/ISF_Interfaces
-+Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
-+Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
-+Simulation/ISF/ISF_Fatras/ISF_FatrasEvent
-+Simulation/ISF/ISF_Fatras/ISF_FatrasEventAthenaPool
-+Simulation/ISF/ISF_Fatras/ISF_FatrasEventTPCnv
-+Simulation/ISF/ISF_Fatras/ISF_FatrasInterfaces
-+Simulation/ISF/ISF_HepMC/ISF_HepMC_Interfaces
-+Simulation/FastSimulation/FastSimulationJobTransforms
-+Simulation/FastSimulation/FastSimulationTests
-+Simulation/ISF/ISF_Config
-+Simulation/ISF/ISF_Example
-+Simulation/ISF/ISF_Validation
-+Simulation/SimuJobTransforms
-+Simulation/FastShower/FastCaloSim
-+Simulation/FastShower/FastCaloSimAthenaPool
-+Simulation/FastSimulation/FastSimulationConfig
-+Simulation/G4Utilities/MCTruthAlgs
-+Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimServices
-+Simulation/ISF/ISF_FastCaloSim/ISF_PunchThroughTools
-+Simulation/ISF/ISF_Fatras/ISF_FatrasRecoTools
-+Simulation/ISF/ISF_Fatras/ISF_FatrasServices
-+Simulation/ISF/ISF_Fatras/ISF_FatrasTools
-+Simulation/ISF/ISF_Fatras/ISF_FatrasToolsID
-+Simulation/ISF/ISF_Fatras/ISF_FatrasToolsMS
-+Simulation/TruthJiveXML
--Simulation
--TileCalorimeter/TileG4
--TileCalorimeter/TilePulseSimulator
--TileCalorimeter/TileSimAlgs
--TileCalorimeter/TileSimUtils
--TileCalorimeter/TileExample/TileSimEx
--TileCalorimeter/TileFastCaloSim
--TestBeam/TBDetDescrCnv
+- Calorimeter/CaloG4Sim
+- ForwardDetectors/AFP/AFP_G4_SD
+- ForwardDetectors/ALFA/ALFA_G4_SD
+- ForwardDetectors/ForwardTransport
+- ForwardDetectors/LUCID/LUCID_G4_SD
+- ForwardDetectors/LUCID/LUCID_SimUtils/LUCID_OpProcess
+- ForwardDetectors/ZDC/ZDC_SD
++ Generators/McEventSelector
++ Generators/GenAnalysisTools/TruthHelper
++ Generators/GenAnalysisTools/TruthTools
++ Generators/GeneratorObjects
++ Generators/GeneratorObjectsAthenaPool
++ Generators/GeneratorObjectsTPCnv
++ Generators/GenzModuleEvent
++ Generators/HepMCWeightSvc
++ Generators/McAsciiEventSelector
++ Generators/TruthUtils
+- Generators/.*
+- InnerDetector/InDetDigitization/.*
+- InnerDetector/InDetG4/.*
+- InnerDetector/InDetSimUtils/.*
+- LArCalorimeter/LArG4/.*
++ MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
++ MuonSpectrometer/MuonDigitization/MuonFastDigitization
+- MuonSpectrometer/MuonDigitization/.*
+- MuonSpectrometer/MuonG4/.*
+- PhysicsAnalysis/D3PDMaker/TruthD3PDMaker
++ Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrInterfaces
++ Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrModel
++ Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrTools
++ Simulation/Tools/AtlasCLHEP_RandomGenerators
++ Simulation/Barcode/BarcodeInterfaces
++ Simulation/FastSimulation/FastSimulationEvent
++ Simulation/G4Sim/TrackRecord
++ Simulation/G4SimCnv/G4SimAthenaPOOL
++ Simulation/G4SimCnv/G4SimTPCnv
++ Simulation/G4Utilities/G4Ancillary/G4AncillarySimEvent
++ Simulation/HitManagement
++ Simulation/ISF/ISF_Core/ISF_AthenaPool
++ Simulation/ISF/ISF_Core/ISF_Event
++ Simulation/ISF/ISF_Core/ISF_Interfaces
++ Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
++ Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
++ Simulation/ISF/ISF_Fatras/ISF_FatrasEvent
++ Simulation/ISF/ISF_Fatras/ISF_FatrasEventAthenaPool
++ Simulation/ISF/ISF_Fatras/ISF_FatrasEventTPCnv
++ Simulation/ISF/ISF_Fatras/ISF_FatrasInterfaces
++ Simulation/ISF/ISF_HepMC/ISF_HepMC_Interfaces
++ Simulation/FastSimulation/FastSimulationJobTransforms
++ Simulation/FastSimulation/FastSimulationTests
++ Simulation/ISF/ISF_Config
++ Simulation/ISF/ISF_Example
++ Simulation/ISF/ISF_Validation
++ Simulation/SimuJobTransforms
++ Simulation/FastShower/FastCaloSim
++ Simulation/FastShower/FastCaloSimAthenaPool
++ Simulation/FastSimulation/FastSimulationConfig
++ Simulation/G4Utilities/MCTruthAlgs
++ Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimServices
++ Simulation/ISF/ISF_FastCaloSim/ISF_PunchThroughTools
++ Simulation/ISF/ISF_Fatras/ISF_FatrasRecoTools
++ Simulation/ISF/ISF_Fatras/ISF_FatrasServices
+- Simulation/ISF/ISF_Fatras/ISF_FatrasToolsG4
++ Simulation/ISF/ISF_Fatras/ISF_FatrasTools
++ Simulation/ISF/ISF_Fatras/ISF_FatrasToolsID
++ Simulation/ISF/ISF_Fatras/ISF_FatrasToolsMS
++ Simulation/TruthJiveXML
+- Simulation/.*
+- TestBeam/TBDetDescrCnv
+- TileCalorimeter/TileG4
+- TileCalorimeter/TilePulseSimulator
+- TileCalorimeter/TileSimAlgs
+- TileCalorimeter/TileSimUtils
+- TileCalorimeter/TileExample/TileSimEx
+- TileCalorimeter/TileFastCaloSim
+- Tracking/TrkG4Components/.*
