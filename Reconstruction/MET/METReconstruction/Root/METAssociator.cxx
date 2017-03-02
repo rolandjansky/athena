@@ -90,8 +90,8 @@ namespace met {
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
     ATH_CHECK( m_trkseltool.retrieve() );
-    ATH_CHECK(m_trkIsolationTool.retrieve());
-    ATH_CHECK(m_caloIsolationTool.retrieve());
+    //    ATH_CHECK(m_trkIsolationTool.retrieve());
+    //    ATH_CHECK(m_caloIsolationTool.retrieve());
     if(m_pflow) {
       ATH_CHECK( m_pfotool.retrieve() );
       ATH_CHECK( m_pfoweighttool.retrieve() );
@@ -299,6 +299,13 @@ namespace met {
   bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk) const
   {
 
+    // FIXME ***************************************************
+    // workaround for AthenaMT testing only!
+    if(m_trkIsolationTool.empty() && m_caloIsolationTool.empty()) {
+      return true;
+    }
+    // FIXME ***************************************************
+
     if( (fabs(trk->eta())<1.5 && trk->pt()>m_cenTrackPtThr) ||
 	(fabs(trk->eta())>=1.5 && trk->pt()>m_forTrackPtThr) ) {
 
@@ -321,17 +328,25 @@ namespace met {
       ptcone20 = trkIsoResult.ptcones.size() > 0 ? trkIsoResult.ptcones[0] : 0;
       isolfrac = ptcone20/trk->pt();
       // etcone
-      CaloIsolation caloIsoResult_coreCone;
-      std::vector<Iso::IsolationType> caloIsoCones_coreCone; 
-      caloIsoCones_coreCone.push_back(xAOD::Iso::IsolationType::etcone20); 
+      CaloIsolation caloIsoResult;
+      std::vector<Iso::IsolationType> caloIsoCones; 
+      // We can't actually configure the tool to give etcone10, so instead we have to compute etcone20,
+      // applying the core cone correction.
+      // Then, we retrieve the correction value, which is etcone10, rather than the isolation value
+      caloIsoCones.push_back(xAOD::Iso::IsolationType::etcone20); 
       xAOD::CaloCorrection caloIsoCorr_coreCone;
-      caloIsoCorr_coreCone.calobitset.set(xAOD::Iso::IsolationCaloCorrection::noneCaloCorrection); 
-      m_caloIsolationTool->caloTopoClusterIsolation(caloIsoResult_coreCone,
+      caloIsoCorr_coreCone.calobitset.set(xAOD::Iso::IsolationCaloCorrection::coreCone); // this is etcone10
+      m_caloIsolationTool->caloTopoClusterIsolation(caloIsoResult,
 						    *trk,
-						    caloIsoCones_coreCone,
+						    caloIsoCones,
 						    caloIsoCorr_coreCone);
-      etcone10 =  caloIsoResult_coreCone.etcones.size() > 0 ? 
-	caloIsoResult_coreCone.coreCorrections[xAOD::Iso::IsolationCaloCorrection::coreCone][xAOD::Iso::IsolationCorrectionParameter::coreEnergy] : 0.;
+      if(caloIsoResult.etcones.size() > 0) {
+	// retrieve the correction value for the core cone
+	etcone10 = caloIsoResult.coreCorrections[xAOD::Iso::IsolationCaloCorrection::coreCone][xAOD::Iso::IsolationCorrectionParameter::coreEnergy];
+      } else {
+	ATH_MSG_WARNING("isGoodEoverP: Failed to retrieve the isolation core correction (etcone10)! Setting etcone10=0");
+	etcone10 = 0.;
+      }
       EoverP   =  etcone10/trk->pt(); 
       /////////////////////////////////////////////////////////////////////////
       ATH_MSG_VERBOSE( "Track isolation fraction: " << isolfrac );

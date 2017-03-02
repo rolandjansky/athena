@@ -75,31 +75,32 @@ namespace met {
     ATH_MSG_INFO("Retrieving tools...");
 
     // retrieve tools
-    if( m_metmaker.retrieve().isFailure() ) {
+    if ( m_metmaker.retrieve().isFailure() ) {
       ATH_MSG_ERROR("Failed to retrieve tool: " << m_metmaker->name());
       return StatusCode::FAILURE;
-    };
+    }
 
-    if( m_muonSelTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_muonSelTool->name());
-      return StatusCode::FAILURE;
-    };
-
-    if( m_elecSelLHTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_elecSelLHTool->name());
-      return StatusCode::FAILURE;
-    };
-
-    if( m_photonSelIsEMTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_photonSelIsEMTool->name());
-      return StatusCode::FAILURE;
-    };
-
-    if( m_tauSelTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauSelTool->name());
-      return StatusCode::FAILURE;
-    };
-
+// 
+// if ( m_muonSelTool.retrieve().isFailure() ) {
+// ATH_MSG_ERROR("Failed to retrieve tool: " << m_muonSelTool->name());
+// return StatusCode::FAILURE;
+// }
+// 
+// if ( m_elecSelLHTool.retrieve().isFailure() ) {
+// ATH_MSG_ERROR("Failed to retrieve tool: " << m_elecSelLHTool->name());
+// return StatusCode::FAILURE;
+// }
+// 
+// if ( m_photonSelIsEMTool.retrieve().isFailure() ) {
+// ATH_MSG_ERROR("Failed to retrieve tool: " << m_photonSelIsEMTool->name());
+// return StatusCode::FAILURE;
+// }
+// 
+// if ( m_tauSelTool.retrieve().isFailure() ) {
+// ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauSelTool->name());
+// return StatusCode::FAILURE;
+// }
+// 
     return StatusCode::SUCCESS;
   }
 
@@ -293,22 +294,22 @@ namespace met {
   bool METMakerAlg::accept(const xAOD::Muon* mu)
   {
     if( mu->pt()<2.5e3 || mu->pt()/cosh(mu->eta())<4e3 ) return false;
-    return m_muonSelTool->accept(*mu);
+    return m_muonSelTool.empty() || m_muonSelTool->accept(*mu);
   }
 
   bool METMakerAlg::accept(const xAOD::Electron* el)
   {
     if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
-    return m_elecSelLHTool->accept(*el);
+    return m_elecSelLHTool.empty() || m_elecSelLHTool->accept(*el);
   }
 
   bool METMakerAlg::accept(const xAOD::Photon* ph)
   {
     if( !(ph->author()&20) || fabs(ph->eta())>2.47 || ph->pt()<10e3 ) return false;
-    return m_photonSelIsEMTool->accept(ph);
+    return m_photonSelIsEMTool.empty() || m_photonSelIsEMTool->accept(ph);
   }
 
   bool METMakerAlg::accept(const xAOD::TauJet* tau)
-  { return m_tauSelTool->accept( *tau ); }
+  { return m_tauSelTool.empty() || m_tauSelTool->accept( *tau ); }
 
 }
