@@ -23,9 +23,13 @@ int main( int argc, char* argv[] ) {
 
    std::vector<TString> files;
    bool forceNNLOPS=false;
+   bool forceVBF=false;
+   bool forceVH=false;
    for (int i=1;i<argc;++i) {
      TString arg(argv[i]);
-     if (arg=="--forceNNLOPS") forceNNLOPS=true;
+     if      (arg=="--forceNNLOPS") forceNNLOPS=true;
+     else if (arg=="--forceVBF"   ) forceVBF=true;
+     else if (arg=="--forceVH"    ) forceVH=true;
      else if (arg.Contains(".root")) files.push_back(arg);
      else std::runtime_error(TString("Cannot intepret argument: "+arg).Data());
    }
@@ -44,6 +48,8 @@ int main( int argc, char* argv[] ) {
    xAOD::HiggsWeightTool *higgsMCtool = new xAOD::HiggsWeightTool( "HiggsWeightTool" );
    higgsMCtool->setProperty( "OutputLevel", MSG::DEBUG ).ignore();
    if (forceNNLOPS) higgsMCtool->setProperty("ForceNNLOPS",true);
+   if (forceVBF) higgsMCtool->setProperty("ForceVBF",true);
+   if (forceVH) higgsMCtool->setProperty("ForceVH",true);
    higgsMCtool->initialize().ignore();
 
    // Open the input file:
