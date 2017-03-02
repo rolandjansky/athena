@@ -1,27 +1,14 @@
 #include "RatesAnalysis/RatesGroup.h"
 #include "RatesAnalysis/RatesTrigger.h"
 
-/**
- * Keep track of a union product (OR of many chains) excluding the coherent part.
- */
 void RatesCPS::execute(const double prescale) {
   m_weight *= 1. - (1. / ( prescale / m_coherentFactor ) );
 }
 
-/**
- * Return the union product (OR of many chains) coherently weighted by the coherent factor.
- */
 double RatesCPS::getWeight() const {
   return (1. - m_weight) / m_coherentFactor;
 }
 
-/**
- * Construct new RatesGroup to enumerate the combined union (OR) and intersection (AND) rate of a set
- * of trigger at L1 or the HLT
- * @param name Name of the group
- * @param prescale Prescale to apply to the whole group
- * @param doHistograms Flag to mint histograms or not
- */
 RatesGroup::RatesGroup(const std::string& name, const double prescale, const bool doHistograms) :
   RatesHistoBase(name, doHistograms),
   m_name(name),
@@ -41,9 +28,6 @@ RatesGroup::RatesGroup(const std::string& name, const double prescale, const boo
 
 RatesGroup::~RatesGroup() {}
 
-/**
- * Prints the RatesGroup's configuration
- */
 const std::string RatesGroup::printConfig() const {
   std::stringstream ss;
   ss << m_name << " groupPS:" << m_groupPrescale << std::endl;
@@ -56,10 +40,6 @@ const std::string RatesGroup::printConfig() const {
   return ss.str();
 }
 
-/**
- * Prints the RatesGroup's rate
- * @param ratesDenominator The walltime for the run, needed to normalise from integrated weighted counts to a rate.
- */
 const std::string RatesGroup::printRate(const double ratesDenominator) const {
   std::stringstream ss;
   ss <<"RateOR:" << std::setw(11) << std::right << m_rateAccumulatorOR/ratesDenominator 
@@ -70,11 +50,6 @@ const std::string RatesGroup::printRate(const double ratesDenominator) const {
   return ss.str();
 }
 
-/**
- * Add a trigger to this group. It will be stored in a set mapped to its L1 seed. All L1 items are mapped under 
- * an empty string.
- * @param toAdd Pointer to a trigger to add to this group.
- */
 void RatesGroup::addToGroup(const RatesTrigger* toAdd) {
   if (m_children.count(toAdd->getSeedHash()) == 0) {
     m_children.insert( std::make_pair(toAdd->getSeedHash(), std::set<const RatesTrigger*>() ) );
@@ -83,22 +58,11 @@ void RatesGroup::addToGroup(const RatesTrigger* toAdd) {
   m_children.at(toAdd->getSeedHash()).insert(toAdd);
 }
 
-/**
- * Remove a trigger from this grouo. It will be removed from the set mapped to its L1 seed. All L1 items are mapped under 
- * an empty string.
- * @param toAdd Pointer to a trigger to be removed.
- */
 void RatesGroup::removeFromGroup(const RatesTrigger* toRemove) { 
   if (m_children.count(toRemove->getSeedHash()) == 0) return;
   m_children.at(toRemove->getSeedHash()).erase(toRemove);
 }
 
-/**
- * Remove from the groups mapping all triggers which have a dissimilar seed to the supplied trigger.
- * The group will be left with exactly one set of triggers with a common L1 seed.
- * This is used in unique rates groups which can use a lot of the calculations done by the master rates group
- * @param toKeep Pointer to a trigger. All other triggers which do not share toKeep's L1 seed will be removed.
- */
 void RatesGroup::removeOtherL1(const RatesTrigger* toKeep) { 
   for (auto iterator = m_children.begin(); iterator != m_children.end(); /*noop*/) {
     if (iterator->first == toKeep->getSeedHash()) {
@@ -109,17 +73,6 @@ void RatesGroup::removeOtherL1(const RatesTrigger* toKeep) {
   }
 }
 
-/**
- * Perform group rates evaluation.
- * We force all HLT chains to only have a single L1 seed, however L1 items may seed many HLT chains.
- * This allows for a factorising algorithm to be utilised.
- * The union (OR) and intercept (AND) are calculated.
- * If this is the master group (the "Main" group of HLT chains) then the sub-weights from all L1 seeds is cached
- * If this is a chain's unique rate group then the cached info from the Main group is used to speed up the calculation
- * Coherent prescales are taken into consideration. 
- * @param weightEB The enhanced bias weight of the event
- * @param mu The number of pileup interactions in the event
- */
 void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
   double weightOR = 1., weightAND = 1.;
   if (m_doCachedWeights == true) { // Reset cache
@@ -208,10 +161,6 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
 
 }
 
-/**
- * For a group being used to get a unique rate, we need to subtract the rate of this
- * group of N-1 chains from the master group of N chains.
- */
 double RatesGroup::getUniqueWeight(const double ratesDenominator) const {
   const double diff = m_masterGroup->m_rateAccumulatorOR - m_rateAccumulatorOR;
   if (isZero(diff)) return 0.;

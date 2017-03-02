@@ -15,6 +15,7 @@
 #include <unordered_set>
 
 /**
+ * @brief virtual analysis class for performing rates studies on AOD
  * Pure virtual base class for trigger rate studies on EnhancedBias or MC AOD files.
  * This class should be inherited and the user should implement ratesInitialize, ratesExecute
  * and ratesFinalize. Triggers to emulate should be added in ratesInitialize with newTrigger
@@ -37,10 +38,13 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~RatesAnalysisAlg(); 
 
-  virtual StatusCode ratesInitialize() = 0;
-  virtual StatusCode ratesExecute() = 0;
-  virtual StatusCode ratesFinalize() = 0;
+  virtual StatusCode ratesInitialize() = 0; //!< To be implemented by the user. Register "triggers" to calculate the rate for 
+  virtual StatusCode ratesExecute() = 0; //!<  To be implemented by the user. Supply pass/fail for all "triggers"
+  virtual StatusCode ratesFinalize() = 0; //!< To be implemented by the user.
 
+  /**
+   * @brief Version of newTrigger which accepts a set of group names rather than a comma separated string.
+   */
   StatusCode newTrigger(const std::string& name,
     const double prescale = 1.,
     const double expressPrescale = -1.,
@@ -49,6 +53,18 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
     const std::string& groups = "",
     const Method_t method = kMANUAL,
     const ExtrapStrat_t extrapolation = kLINEAR);
+
+  /**
+   * @brief Register a new trigger for emulation.
+   * @param name The name of the emulated trigger. Recommend either a "L1_" or "HLT_" prefix.
+   * @param prescale The prescale value to simulate applying. Default 1
+   * @param expressPrescale The prescale value to simulate applying to the express stream. Default -1
+   * @param seedName The name of any lower seeding e.g. L1 item. This info is required to get group rates correct when multiple chains seed of the same prescaled L1 item.
+   * @param seedPrescale The prescale of any L1 seed item. Default 1.
+   * @param Comma separated list of groups to include this trigger in. Any group containing "CPS" will be simulated as a coherent prescale group and implies that all members of that group share a common L1 seed.
+   * @param method Determines who is responsible for evaluating the emulated trigger decision, you (kMANUAL) or the algorithm (kAUTO or kEXISTING).
+   * @param extrapolation Determines the triggers luminosity extrapolation behaviour.
+   */
   StatusCode newTrigger(const std::string& name,
     const double prescale = 1.,
     const double expressPrescale = -1.,
@@ -58,6 +74,19 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
     const Method_t method = kMANUAL,
     const ExtrapStrat_t extrapolation = kLINEAR);
 
+  /**
+   * @brief Register a new threshold scan trigger which plots rate as a function of some dependent variable
+   * @param name The name of the emulated scan trigger. Recommend either a "L1_" or "HLT_" prefix.
+   * @param thresholdMin The lower threshold of this trigger, rates will not be available below this threshold
+   * @param thresholdMax The upper threshold of this trigger, rates will not be available above this threshold
+   * @param thresholdBins Granularity 
+   * @param behaviour If the trigger should activate above (kTriggerAboveThreshold) or below (kTriggerBelowThreshold) the threshold
+   * @param prescale The prescale value to simulate applying. Default 1
+   * @param seedName The name of any lower seeding e.g. L1 item. This info is required to get group rates correct
+   * @param seedPrescale The prescale of any L1 seed item. Default 1.
+   * @param method Determines who is responsible for evaluating the emulated trigger decision, you (kMANUAL) or the algorithm (kAUTO or kEXISTING).
+   * @param extrapolation Determines the triggers luminosity extrapolation behaviour.
+   */
   StatusCode newScanTrigger(const std::string& name,
     const double thresholdMin,
     const double thresholdMax,
@@ -68,6 +97,11 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
     const double seedPrecale = 1.,
     const Method_t method = kMANUAL,
     const ExtrapStrat_t extrapolation = kLINEAR);
+
+  /**
+   * Version of newScanTrigger which takes a vector of bin edges
+   * @param thresholdBinEdged Vector of bin edges to use for quantifying rate as a function of threshold
+   */
   StatusCode newScanTrigger(const std::string& name,
     const std::vector<double>& thresholdBinEdges,
     const RatesScanTrigger::TriggerBehaviour_t behaviour = RatesScanTrigger::TriggerBehaviour_t::kTriggerAboveThreshold,
@@ -78,39 +112,118 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
     const ExtrapStrat_t extrapolation = kLINEAR);
 
 
-  StatusCode addAllExisting();
+  StatusCode addAllExisting(); //!< Register all existing triggers in the AOD into the rates algorithm.
+
+  /**
+   * @brief Register some existing triggers based on wild-card match, e.g. "L1_.*" for all L1.
+   * @param pattern Wild-card string to match in trigger name 
+   */
   StatusCode addExisting(const std::string pattern);
 
+  /**
+   * Set the pass/fail decision for an item.
+   * @param name Name of the registered trigger
+   * @param triggerIsPassed Trigger decision.
+   */
   StatusCode setTriggerDesicison(const std::string& name, const bool triggerIsPassed = true);
+
+  /**
+   * Set the pass threshold for a Scan Trigger item.
+   * @param name Name of the registered scan-trigger
+   * @param threshold The passed threshold in the event
+   */
   StatusCode setTriggerDesicison(const std::string& name, const double threshold);
 
+  /**
+   * Set the target instantaneous luminosity and mu. Number of bunches in the ring is derived.
+   * @param lumi The target lumi in cm-2s-1
+   * @param mu The target pileup
+   */
   void setTargetLumiMu(const double lumi, const double mu);
+
+  /**
+   * @brief Set the target instantaneous luminosity and number of bunches. Mu is derived.
+   * @param lumi The target lumi in cm-2s-1
+   * @param bunches The target number of paired bunches
+   */
   void setTargetLumiBunches(const double lumi, const int32_t bunches);
+
+  /**
+   * @brief Set the target mu and number of bunches. The instantaneous luminosity is derived.
+   * @param mu The target pileup
+   * @param bunches The target number of paired bunches 
+   */
   void setTargetMuBunches(const double mu, const int32_t bunches);
+
+  /**
+   * @brief Set the target instantaneous luminosity. Assumes a full-ring. Mu is derived.
+   * @param lumi The target lumi in cm-2s-1
+   */
   void setTargetLumi(const double lumi) { setTargetLumiBunches(lumi, EnhancedBiasWeighter::FULL_RING); }
+
+  /**
+   * @brief Set the target pileup. Assumes a full-ring. Inst. lumi is derived.
+   * @param mu The target pileup
+   */
   void setTargetMu(const double mu) { setTargetMuBunches(mu, EnhancedBiasWeighter::FULL_RING); } 
+
+  /**
+   * @brief Set the exponential scaling factor for relevant chains. scaling = exp(f * (targetMu - eventMu))
+   * @param f Exponential factor
+   */
   void setExponentialMuScalingFactor(const double f) { m_expoScalingFactor = f; }
 
  private: 
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
-  virtual StatusCode beginInputFile();
+  virtual StatusCode initialize(); //!< Get the trigger decision tool and set up global groups
+  virtual StatusCode execute(); //!< In first call - register all triggers. Then load event weighting parameters, fill trigger decisions, compute group rates.
+  virtual StatusCode finalize(); //!< Print rates and normalise histograms
+  virtual StatusCode beginInputFile(); //!< Setup of the Enhanced Bias weighting tool. Needs AOD metadata so can not be set up before. Also read any prescale XML supplied.
 
-  StatusCode populateTriggers();
-  StatusCode executeTrigDecisionToolTriggers();
-  StatusCode executeTriggerEmulation();
+  StatusCode populateTriggers(); //!< Register all triggers to emulate. This is actually done at the start of the event loop such that the TDT has access to the configuration.
+  StatusCode executeTrigDecisionToolTriggers(); //!< Internal call to get the pass/fail for all TDT triggers
+  StatusCode executeTriggerEmulation(); //!< Internal call to get the pass/fail for all automatically emulated triggers
+
+  /**
+   * @brief Internal function to check if a supplied HLT trigger and L1 seed match what is stored in the AOD config
+   * @param name Name of the L1 or HLT trigger.
+   * @param seedName For HLT triggers, name of the L1 seed item.
+   * @return StatusCode::FAILURE if the trigger does not match the AOD.
+   */
   StatusCode checkExistingTrigger(const std::string& name, const std::string& seedName);
-  StatusCode checkGotTDT();
+  StatusCode checkGotTDT(); //!< Internal check that the TDT is fetched
 
-  void printTarget() const;
+  /**
+   * @brief Print the input data instantaneous luminosity, mu and number of bunches.
+   * Note this is averaged as the data are processed - so should only be printed at the end.
+   */
   void printInputSummary() const;
-  void printStatistics() const;
+
+  void printStatistics() const;  //!< Print some extra statistics on events processed
+  void printTarget() const; //!< Print the target instantaneous luminosity, mu and number of bunches.
+
+  /**
+   * @brief String match coherent prescale groups.
+   * @param group Name of a trigger group
+   * @return If name-parsing thinks that the group is a coherent prescale group
+   */
   bool isCPS(const std::string& group) const;
+
+  /**
+   * @brief String match random L1 items.
+   * @param me Name of the trigger
+   * @param seed Name of the trigger's seed
+   * @return if name-parsing thinks that the trigger seeds from a random L1 trgigger
+   */
   bool isRandomSeed(const std::string& me, const std::string& seed) const;
+
+  /**
+   * @brief String match to a trigger level. If unknown, we assume HLT.
+   * @return trigger level (1 or 2)
+   */
   uint32_t getLevel(const std::string& name) const;
-  bool isZero(double v) const { return fabs(v) < 1e-10; }
+  
+  bool isZero(double v) const { return fabs(v) < 1e-10; } //!< Helper function for floating point subtraction
 
   std::unordered_map<std::string, RatesTrigger> m_triggers; //!< All individual triggers (L1 or HLT)
   std::unordered_map<std::string, RatesScanTrigger> m_scanTriggers; //!< All individual rates-scan triggers (L1 or HLT)

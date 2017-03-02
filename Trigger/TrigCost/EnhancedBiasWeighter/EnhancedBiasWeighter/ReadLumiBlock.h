@@ -5,10 +5,6 @@
 // Connect to COOL and get LB lengths for a run
 //
 
-// C/C++
-#include <map>
-#include <string>
-
 // COOL
 #include "CoolKernel/DatabaseId.h"
 #include "CoolKernel/Exception.h"
@@ -16,6 +12,10 @@
 #include "CoolKernel/IDatabase.h"
 
 #include "GaudiKernel/MsgStream.h"
+
+// C/C++
+#include <map>
+#include <string>
 
 class ReadLumiBlock {
 public:

@@ -1,15 +1,16 @@
 // EnhancedBiasWeighter includes
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
-#include <memory>
 #include "PathResolver/PathResolver.h"
 
-#include <TXMLEngine.h> 
-#include <TObjString.h>
-#include <TDOMParser.h>
-#include <TXMLNode.h>
-#include <TXMLDocument.h>
-#include <TXMLAttr.h>
+#include "TXMLEngine.h" 
+#include "TObjString.h"
+#include "TDOMParser.h"
+#include "TXMLNode.h"
+#include "TXMLDocument.h"
+#include "TXMLAttr.h"
+
+#include <memory>
 
 namespace {
   template <typename T>
@@ -110,11 +111,10 @@ StatusCode EnhancedBiasWeighter::loadWeights()
   std::string weightingFile = PathResolverFindCalibFile( fileName.str() );  // Check standard area
   if (weightingFile == "") {
     weightingFile = PathResolverFindCalibFile( fileNameDev.str() ); // Else check DEV area
-  }
-
-  if (weightingFile == "") {
-    ATH_MSG_WARNING ("Could not retrieve " << fileName.str() << " or " << fileNameDev.str() << ", cannot perform enhanced bias weighting.");
-    return StatusCode::FAILURE;
+    if (weightingFile == "") {
+      ATH_MSG_WARNING ("Could not retrieve " << fileName.str() << " or " << fileNameDev.str() << ", cannot perform enhanced bias weighting.");
+      return StatusCode::FAILURE;
+    }
   }
 
   std::unique_ptr<TXMLEngine> xml(new TXMLEngine() );
@@ -127,7 +127,10 @@ StatusCode EnhancedBiasWeighter::loadWeights()
 
   // Navigate XML
   const XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
-  assert( xml->GetNodeName(mainNode) == std::string("run") );
+  if ( xml->GetNodeName(mainNode) != std::string("run") ) {
+    ATH_MSG_ERROR ("Canot parse XML. Expected 'run' node, got " << xml->GetNodeName(mainNode));
+    return StatusCode::FAILURE;
+  }
   const XMLNodePointer_t weightsNode = xml->GetChild( mainNode );
   const XMLNodePointer_t eventsNode  = xml->GetNext( weightsNode );
 
@@ -135,7 +138,10 @@ StatusCode EnhancedBiasWeighter::loadWeights()
   XMLNodePointer_t eventNode  = xml->GetChild( eventsNode );
 
   while ( weightNode != 0 ) { // Loop over all weight elements
-    assert( xml->GetNodeName(weightNode) == std::string("weight") );
+    if ( xml->GetNodeName(weightNode) != std::string("weight") ) {
+      ATH_MSG_ERROR ("Canot parse XML. Expected 'weight' node, got " << xml->GetNodeName(weightNode));
+      return StatusCode::FAILURE;
+    }
 
     const int32_t id   = std::atoi(xml->GetAttr(weightNode, "id") );
     const double weight = std::atof(xml->GetAttr(weightNode, "value") );
@@ -151,7 +157,10 @@ StatusCode EnhancedBiasWeighter::loadWeights()
   }
 
   while ( eventNode != 0 ) { // Loop over all event elements
-    assert( xml->GetNodeName(eventNode) == std::string("e") ); //Event
+    if ( xml->GetNodeName(eventNode) != std::string("e") ) {
+      ATH_MSG_ERROR ("Canot parse XML. Expected 'e' (event) node, got " << xml->GetNodeName(eventNode));
+      return StatusCode::FAILURE;
+    }
     const uint64_t eventNumber  = std::strtoll(xml->GetAttr(eventNode, "n"), nullptr, 10); //Number
     const int32_t eventWeightID = std::stoi(xml->GetAttr(eventNode, "w") ); //Weight ID
 
@@ -200,7 +209,10 @@ StatusCode EnhancedBiasWeighter::loadLumi()
   }
 
   const XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
-  assert( xml->GetNodeName(mainNode) == std::string("trigger") );
+  if ( xml->GetNodeName(mainNode) != std::string("trigger") ) {
+    ATH_MSG_ERROR ("Canot parse XML. Expected 'trigger' node, got " << xml->GetNodeName(mainNode));
+    return StatusCode::FAILURE;
+  }
   XMLNodePointer_t listNode = xml->GetChild( mainNode );
 
   while ( listNode != 0 ) { // Loop over all menu elements
@@ -210,7 +222,10 @@ StatusCode EnhancedBiasWeighter::loadLumi()
       
       XMLNodePointer_t node = xml->GetChild( listNode );
       while( node != 0) {
-        assert( xml->GetNodeName(node) == std::string("lb") );
+        if ( xml->GetNodeName(node) != std::string("lb") ) {
+          ATH_MSG_ERROR ("Canot parse XML. Expected 'lb' node, got " << xml->GetNodeName(node));
+          return StatusCode::FAILURE;
+        }
         const uint32_t lb      = std::atoi( xml->GetAttr(node, "id") );
         const double   lumi    = std::atof( xml->GetAttr(node, "lumi") );
         const uint32_t nEvents = std::atoi( xml->GetNodeContent(node) );
@@ -244,6 +259,14 @@ StatusCode EnhancedBiasWeighter::loadLumi()
         node = xml->GetNext(node);
       }
       
+    } else if (listName == "filters") {
+
+      ATH_MSG_DEBUG("Found filters section of enhanced bias XML. Unused by this application.");
+
+    } else {
+
+      ATH_MSG_INFO("Encountered unknown element in enhanced bias XML: " << listName << " ignoring it.");
+
     }
 
     listNode = xml->GetNext(listNode);
@@ -277,7 +300,10 @@ std::unordered_map<std::string, ChainDetail> EnhancedBiasWeighter::parsePrescale
 
   // Get access to main node
   XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
-  assert( xml->GetNodeName(mainNode) == std::string("trigger") );
+  if ( xml->GetNodeName(mainNode) != std::string("trigger") ) {
+    ATH_MSG_ERROR ("Canot parse XML. Expected 'trigger' node, got " << xml->GetNodeName(mainNode));
+    return result;
+  }
   XMLNodePointer_t listNode = xml->GetChild( mainNode );
 
 
@@ -345,6 +371,8 @@ std::unordered_map<std::string, ChainDetail> EnhancedBiasWeighter::parsePrescale
           result[chainName].m_prescaledEfficiencyErr = std::stod( xml->GetNodeContent(sigDetailsNode) );
         } else if (detail == "comment") {
           result[chainName].m_comment = xml->GetNodeContent(sigDetailsNode);
+        } else {
+          ATH_MSG_DEBUG("Input prescales XML contains additional data which cannot be parsed at present:" << detail);
         }
 
         sigDetailsNode = xml->GetNext(sigDetailsNode);

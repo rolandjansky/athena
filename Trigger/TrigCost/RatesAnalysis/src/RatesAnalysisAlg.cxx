@@ -40,20 +40,6 @@ RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLo
 
 RatesAnalysisAlg::~RatesAnalysisAlg() {}
 
-/**
- * Register a new threshold scan trigger which plots rate as a function of some dependent variable
- * @param name The name of the emulated scan trigger. Recommend either a "L1_" or "HLT_" prefix.
- * @param thresholdMin The lower threshold of this trigger, rates will not be available below this threshold
- * @param thresholdMax The upper threshold of this trigger, rates will not be available above this threshold
- * @param thresholdBins Granularity 
- * @param behaviour If the trigger should activate above (kTriggerAboveThreshold) or below (kTriggerBelowThreshold) the threshold
- * @param prescale The prescale value to simulate applying. Default 1
- * @param seedName The name of any lower seeding e.g. L1 item. This info is required to get group rates correct
- * @param seedPrescale The prescale of any L1 seed item. Default 1.
- * @param method Determines who is responsible for evaluating the emulated trigger decision, you (kMANUAL) or the
- * algorithm (kAUTO or kEXISTING).
- * @param extrapolation Determines the triggers luminosity extrapolation behaviour.
- */
 StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
   const double thresholdMin,
   const double thresholdMax,
@@ -77,10 +63,7 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
   return StatusCode::SUCCESS;
 }
 
-/**
- * Version of newScanTrigger which takes a vector of bin edges
- * @param thresholdBinEdged Vector of bin edges to use for quantifying rate as a function of threshold
- */
+
 StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
   const std::vector<double>& thresholdBinEdges,
   const RatesScanTrigger::TriggerBehaviour_t behaviour,
@@ -102,20 +85,7 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
   return StatusCode::SUCCESS;
 }
 
-/**
- * Register a new trigger for emulation.
- * @param name The name of the emulated trigger. Recommend either a "L1_" or "HLT_" prefix.
- * @param prescale The prescale value to simulate applying. Default 1
- * @param expressPrescale The prescale value to simulate applying to the express stream. Default -1
- * @param seedName The name of any lower seeding e.g. L1 item. This info is required to get group rates correct
- * when multiple chains seed of the same prescaled L1 item.
- * @param seedPrescale The prescale of any L1 seed item. Default 1.
- * @param Comma separated list of groups to include this trigger in. Any group containing "CPS" will be simulated
- * as a coherent prescale group and implies that all members of that group share a common L1 seed.
- * @param method Determines who is responsible for evaluating the emulated trigger decision, you (kMANUAL) or the
- * algorithm (kAUTO or kEXISTING).
- * @param extrapolation Determines the triggers luminosity extrapolation behaviour.
- */
+
 StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   const double prescale,
   const double expressPrescale,
@@ -136,9 +106,6 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   return newTrigger(name, prescale, expressPrescale, seedName, seedPrecale, groupSet, method, extrapolation);
 }
 
-/**
- * Version of newTrigger which accepts a set of group names rather than a comma separated string.
- */
 StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   const double prescale,
   const double expressPrescale,
@@ -148,7 +115,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   const Method_t method,
   const ExtrapStrat_t extrapolation) {
 
-  if (m_populatedTriggers == true) { // All triggers must be defined before we start looping over the sample
+  if (m_populatedTriggers) { // All triggers must be defined before we start looping over the sample
     ATH_MSG_FATAL("Too late to call newTrigger. All emulated triggers must be registered during ratesInitialize().");
     return StatusCode::FAILURE;
   }
@@ -169,7 +136,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   if (isRandomSeed(name, seedName)) newTriggerPtr->setSeedsFromRandom(true);
 
   // Only worthwhile doing the remainder if the trigger is not disabled. Otherwise will slow everything down
-  if (newTriggerPtr->getDisabled() == true) {
+  if (newTriggerPtr->getDisabled()) {
     ATH_MSG_DEBUG("newTrigger " <<  name << " added (disabled)");
     return StatusCode::SUCCESS;
   }  
@@ -213,17 +180,10 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   return StatusCode::SUCCESS;
 }
 
-/**
- * Register all existing triggers in the AOD into the rates algorithm.
- */
 StatusCode RatesAnalysisAlg::addAllExisting() {
   return addExisting(".*");
 }
 
-/**
- * Register some existing triggers based on wild-card match, e.g. "L1_.*" for all L1.
- * @param pattern Wild-card string to match in trigger name 
- */
 StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   // Check we have the TDT
   ATH_CHECK(checkGotTDT());
@@ -301,10 +261,6 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   return StatusCode::SUCCESS;
 }
 
-/**
- * Check the TDT is initialised. Internal function.
- * We don't do this by default as we may want to run over an upgrade MC file without any trigger information
- */
 StatusCode RatesAnalysisAlg::checkGotTDT() {
   if (!m_tdt.isSet()) {
     ATH_MSG_INFO("Setting up TDT");
@@ -314,12 +270,7 @@ StatusCode RatesAnalysisAlg::checkGotTDT() {
   return StatusCode::SUCCESS;
 }
 
-/**
- * Internal function to check if a supplied HLT trigger and L1 seed match what is stored in the AOD config
- * @param name Name of the L1 or HLT trigger.
- * @param seedName For HLT triggers, name of the L1 seed item.
- * @return StatusCode::FAILURE if the trigger does not match the AOD.
- */
+
 StatusCode RatesAnalysisAlg::checkExistingTrigger(const std::string& name, const std::string& seedName) {
   ATH_CHECK(checkGotTDT());
   const auto& triggers = m_tdt->getListOfTriggers(name);
@@ -337,15 +288,10 @@ StatusCode RatesAnalysisAlg::checkExistingTrigger(const std::string& name, const
   return StatusCode::SUCCESS;
 }
 
-/**
- * Set the pass/fail decision for an item.
- * @param name Name of the registered trigger
- * @param triggerIsPassed Trigger decision.
- */
 StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const bool triggerIsPassed) {
   // Currently - we call execute on setPassed, so the user would be unable to overwrite a decision set e.g. by the TDT.
   // so for now we only accept positive decisions here.
-  if (triggerIsPassed == true) {
+  if (triggerIsPassed) {
     const auto iterator = m_triggers.find(name);
     if (iterator == m_triggers.end()) {
       ATH_MSG_ERROR("Cannot find trigger " << name << " did you call newTrigger for this in initialize?");
@@ -357,11 +303,7 @@ StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const 
   return StatusCode::SUCCESS;
 }
 
-/**
- * Set the pass threshold for a Scan Trigger item.
- * @param name Name of the registered scan-trigger
- * @param threshold The passed threshold in the event
- */
+
 StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const double threshold) {
   const auto iterator = m_scanTriggers.find(name);
   if (iterator == m_scanTriggers.end()) {
@@ -373,9 +315,6 @@ StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const 
   return StatusCode::SUCCESS;
 }
 
-/**
- * Get the trigger decision tool and set up global groups
- */
 StatusCode RatesAnalysisAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
@@ -387,10 +326,6 @@ StatusCode RatesAnalysisAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-/**
- * Perform setup of the Enhanced Bias weighting tool. This needs to read in AOD metadata so can not be set up before.
- * Also read and parse any prescale XML supplied.
- */
 StatusCode RatesAnalysisAlg::beginInputFile() { 
 
   if (m_enhancedBiasRatesTool.isSet() == false) {
@@ -434,10 +369,6 @@ StatusCode RatesAnalysisAlg::beginInputFile() {
   return StatusCode::SUCCESS;
 }
 
-/**
- * Register all triggers to emulate. This is actually done at the start of the event loop such that
- * the TDT has access to the configuration.
- */
 StatusCode RatesAnalysisAlg::populateTriggers() {  
   // Let user add their triggers
   ATH_MSG_INFO("Setting up User's Triggers");
@@ -450,7 +381,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     if (CPSID != 0) iterator.second.setCoherentFactor( m_lowestPrescale.at(CPSID) );
   }
 
-  if (m_doUniqueRates == true) {
+  if (m_doUniqueRates) {
     ATH_MSG_INFO("Creating extra groups to calculate unique rates.");
     const RatesGroup* l2GroupPtr = &(m_globalGroups.at(m_l2GroupName)); // The finalised list of all HLT chains
     const RatesGroup* l1GroupPtr = &(m_globalGroups.at(m_l1GroupName)); // The finalised list of all L1 chains
@@ -489,7 +420,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
   ATH_MSG_DEBUG("################## Configured to estimate rates for the following groups of triggers:");
   for (const auto& group : m_groups) ATH_MSG_DEBUG(group.second.printConfig());
 
-  if (m_doHistograms == true) {
+  if (m_doHistograms) {
     ServiceHandle<ITHistSvc> histSvc("THistSvc", name());
     m_scalingHist = new TH1D("normalisation","normalisation;;sample walltime [s]",1,0.,1.);
     ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Normalisation/normalisation"), m_scalingHist) );
@@ -529,10 +460,6 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
   return StatusCode::SUCCESS;
 }
 
-/**
- * In first call - register all triggers.
- * Then load event weighting parameters, fill trigger decisions, compute group rates.
- */
 StatusCode RatesAnalysisAlg::execute() {  
   ATH_MSG_DEBUG("Executing " << name() << "...");
   setFilterPassed(false);
@@ -592,21 +519,15 @@ StatusCode RatesAnalysisAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-/**
- * Internal call to get the pass/fail for all TDT triggers
- */
 StatusCode RatesAnalysisAlg::executeTrigDecisionToolTriggers() {
   for (const auto& trigger : m_existingTriggers) {
-    if (trigger.second->isPassed() == true) {
+    if (trigger.second->isPassed()) {
       ATH_CHECK( setTriggerDesicison(trigger.first) );
     }
   }
   return StatusCode::SUCCESS;
 }
 
-/**
- * Internal call to get the pass/fail for all automatically emulated triggers
- */
 StatusCode RatesAnalysisAlg::executeTriggerEmulation() {
   // TODO emulation code here
   for (const auto& trigger : m_autoTriggers) {
@@ -615,9 +536,6 @@ StatusCode RatesAnalysisAlg::executeTriggerEmulation() {
   return StatusCode::SUCCESS;
 }
 
-/**
- * Print rates and normalise histograms
- */
 StatusCode RatesAnalysisAlg::finalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
   ATH_CHECK( ratesFinalize() );
@@ -664,11 +582,8 @@ StatusCode RatesAnalysisAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/**
- * Set the target instantaneous luminosity and mu. Number of bunches in the ring is derived.
- */
 void RatesAnalysisAlg::setTargetLumiMu(const double lumi, const double mu) {
-  if (m_populatedTriggers == true) { // All settings must be defined before we start looping over the sample
+  if (m_populatedTriggers) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetLumiMu. Do this during ratesInitialize().");
     return;
   }
@@ -687,11 +602,8 @@ void RatesAnalysisAlg::setTargetLumiMu(const double lumi, const double mu) {
   printTarget();
 }
 
-/**
- * Set the target instantaneous luminosity and number of bunches. Mu is derived.
- */
 void RatesAnalysisAlg::setTargetLumiBunches(const double lumi, const int32_t bunches) {
-  if (m_populatedTriggers == true) { // All settings must be defined before we start looping over the sample
+  if (m_populatedTriggers) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetLumiBunches. Do this during ratesInitialize().");
     return;
   }
@@ -706,11 +618,9 @@ void RatesAnalysisAlg::setTargetLumiBunches(const double lumi, const int32_t bun
   printTarget();
 }
 
-/**
- * Set the target mu and number of bunches. The instantaneous luminosity is derived.
- */
+
 void RatesAnalysisAlg::setTargetMuBunches(const double mu, const int32_t bunches) {
-  if (m_populatedTriggers == true) { // All settings must be defined before we start looping over the sample
+  if (m_populatedTriggers) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetMuBunches. Do this during ratesInitialize().");
     return;
   }
@@ -730,9 +640,6 @@ void RatesAnalysisAlg::setTargetMuBunches(const double mu, const int32_t bunches
   printTarget();
 }
 
-/**
- * Print the target instantaneous luminosity, mu and number of bunches.
- */
 void RatesAnalysisAlg::printTarget() const {
   if (m_enableLumiExtrapolation) {
     ATH_MSG_INFO("Calculating rates for a target L_inst. = " << m_targetLumi << " cm-2s-1, mu = " << m_targetMu << ", paired bunches = " << m_targetBunches);
@@ -741,17 +648,10 @@ void RatesAnalysisAlg::printTarget() const {
   }
 }
 
-/**
- * Print some extra statistics
- */
 void RatesAnalysisAlg::printStatistics() const {
   ATH_MSG_INFO("Processed " << m_eventCounter << " raw events, " << m_weightedEventCounter << " weighted. Total LHC wall-time of " << m_ratesDenominator << " s.");
 }
 
-/**
- * Print the input data instantaneous luminosity, mu and number of bunches.
- * Note this is averaged as the data are processed - so should only be printed at the end/
- */
 void RatesAnalysisAlg::printInputSummary() const {
   ATH_MSG_INFO("Input " << (m_isMC ? "MC" : "EB Data") 
     << " with <L_inst.> = "
@@ -762,16 +662,10 @@ void RatesAnalysisAlg::printInputSummary() const {
     << m_enhancedBiasRatesTool->getPairedBunches());
 }
 
-/**
- * String match coherent prescale groups.
- */
 bool RatesAnalysisAlg::isCPS(const std::string& group) const {
   return (group.find("CPS") != std::string::npos);
 }
 
-/**
- * String match random L1 items.
- */
 bool RatesAnalysisAlg::isRandomSeed(const std::string& me, const std::string& seed) const {
   if (me.find("L1_RD") != std::string::npos) return true;
   if (me.find("L1RD") != std::string::npos) return true;
@@ -779,9 +673,6 @@ bool RatesAnalysisAlg::isRandomSeed(const std::string& me, const std::string& se
   return false;
 }
 
-/**
- * String match to a trigger level. If unknown, we assume HLT.
- */
 uint32_t RatesAnalysisAlg::getLevel(const std::string& name) const {
   if (name.find("HLT_") != std::string::npos) return 2;
   if (name.find("L1_") != std::string::npos) return 1;
