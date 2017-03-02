@@ -11,10 +11,10 @@
 //-----------------------------------------------------------------------------
 
 T2ZdcHypo::T2ZdcHypo(const std::string &name, 
-		     ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator),
-						//  T2ZdcUtils(),
-						m_acceptAll(false),
-						m_t2ZdcSignals(0) {
+         ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator),
+            //  T2ZdcUtils(),
+            m_acceptAll(false),
+            m_t2ZdcSignals(0) {
   
   declareProperty("AcceptAll",                    m_acceptAll=false);
   //  declareProperty("Threshold",                    m_threshold = 40.0/222.0 );  // Value in pC
@@ -75,7 +75,7 @@ HLT::ErrorCode T2ZdcHypo::hltInitialize() {
 //-----------------------------------------------------------------------------
 
 HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE, 
-				      bool& pass) {
+              bool& pass) {
   ATH_MSG_DEBUG("Executing this T2ZdcHypo " << name());
      
   pass = false;
@@ -125,7 +125,7 @@ HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE,
   if(m_energyLogic==1){ // AND
     if(m_sumEn.first>= m_SumEn[0] && m_sumEn.first<= m_SumEn[1]){
       if(m_sumEn.second>= m_SumEn[2] && m_sumEn.second<= m_SumEn[3]){
-	      passflags[1] = true;
+        passflags[1] = true;
       }
     }
   } else if (m_energyLogic==2){ // OR

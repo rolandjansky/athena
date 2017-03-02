@@ -11,15 +11,15 @@
 //-----------------------------------------------------------------------------
 
 T2MbtsHypo::T2MbtsHypo(const std::string &name, 
-		       ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator),
-						  T2MbtsUtils(),
-						  m_acceptAll(false),
-						  m_mbtsCounters(0),
-						  m_coincidence(false),
-						  m_or(false),
-						  m_veto(false),
-						  m_mbtsmode(0),
-						  m_t2MbtsBits(0) {
+           ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator),
+              T2MbtsUtils(),
+              m_acceptAll(false),
+              m_mbtsCounters(0),
+              m_coincidence(false),
+              m_or(false),
+              m_veto(false),
+              m_mbtsmode(0),
+              m_t2MbtsBits(0) {
 
   declareProperty("AcceptAll",                          m_acceptAll=false);
   declareProperty("MbtsCounters",                       m_mbtsCounters=2);
@@ -105,7 +105,7 @@ HLT::ErrorCode T2MbtsHypo::hltInitialize() {
 //-----------------------------------------------------------------------------
 
 HLT::ErrorCode T2MbtsHypo::hltExecute(const HLT::TriggerElement* outputTE, 
-				      bool& pass) {
+              bool& pass) {
   ATH_MSG_DEBUG("Executing this T2MbtsHypo " << name());
      
   pass = false;
@@ -149,17 +149,17 @@ HLT::ErrorCode T2MbtsHypo::hltExecute(const HLT::TriggerElement* outputTE,
     }
   } else {
     if ( m_or ) { // Or logic
-	    if(!m_veto) {
-	      if ((m_mult.first >= m_mbtsCounters || m_mult.second >= m_mbtsCounters)) pass = true;       
-	    } else {
-	      if ((m_mult.first < m_mbtsCounters || m_mult.second < m_mbtsCounters)) pass = true;       
-	    }
+      if(!m_veto) {
+        if ((m_mult.first >= m_mbtsCounters || m_mult.second >= m_mbtsCounters)) pass = true;       
+      } else {
+        if ((m_mult.first < m_mbtsCounters || m_mult.second < m_mbtsCounters)) pass = true;       
+      }
     } else {   // Sum logic
-	    if(!m_veto){
-	      if((m_mult.first + m_mult.second) >= m_mbtsCounters) pass = true;
-	    } else {
-	      if((m_mult.first + m_mult.second) < m_mbtsCounters) pass = true;
-	    }
+      if(!m_veto){
+        if((m_mult.first + m_mult.second) >= m_mbtsCounters) pass = true;
+      } else {
+        if((m_mult.first + m_mult.second) < m_mbtsCounters) pass = true;
+      }
     }
   }
   

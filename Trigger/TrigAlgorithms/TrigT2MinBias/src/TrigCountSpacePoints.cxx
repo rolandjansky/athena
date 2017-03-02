@@ -329,7 +329,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
       HLT::TEVec::const_iterator inner_it = (*it).begin();
       HLT::TEVec::const_iterator inner_itEnd = (*it).end();
       for( ; inner_it != inner_itEnd; ++inner_it) {
-  allTEs.push_back(*inner_it);
+        allTEs.push_back(*inner_it);
       }
     }
     
@@ -403,8 +403,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     if(sc.isFailure() || !pixCont){
       ATH_MSG_ERROR("Trig Pixel SP container " << m_pixelSpName <<" not found"); 
       return HLT::TOOL_FAILURE;
-    }
-    else{
+    } else {
       ATH_MSG_DEBUG("Successfully retrieved pixel SP container!");
       //sc = StatusCode::FAILURE;
     }
@@ -436,147 +435,127 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
       //std::vector<int>::iterator idItEnd = m_listOfPixIds.end();
       //std::vector<int>::iterator idIt = m_listOfPixIds.begin();
       for( ; hashIt != hashItEnd; ++hashIt ){
-  
-  // get single pixel collection -> pixSpCollIt
-  SpacePointContainer::const_iterator pixSpCollIt = pixCont->indexFind( (*hashIt) );
-  if( pixSpCollIt == pixCont->end() ) continue;
-  if( (*pixSpCollIt) == NULL ) continue;
-  
-  // identify a module/wafer
-  Identifier pixid = (*pixSpCollIt)->identify(); 
+        // get single pixel collection -> pixSpCollIt
+        SpacePointContainer::const_iterator pixSpCollIt = pixCont->indexFind( (*hashIt) );
+        if( pixSpCollIt == pixCont->end() ) continue;
+        if( (*pixSpCollIt) == NULL ) continue;
+    
+        // identify a module/wafer
+        Identifier pixid = (*pixSpCollIt)->identify(); 
 
-  // If B-layer only mode, then enforce layer 0
-  if (m_doOnlyBLayer == true && m_pixHelper->layer_disk(pixid) != 0) continue;
+        // If B-layer only mode, then enforce layer 0
+        if (m_doOnlyBLayer == true && m_pixHelper->layer_disk(pixid) != 0) continue;
   
-  int bec = m_pixHelper->barrel_ec(pixid);
+        int bec = m_pixHelper->barrel_ec(pixid);
   
-  // retrieve number of pixel SP/CL per collection
-  SpacePointCollection::const_iterator spItEnd = (*pixSpCollIt)->end();
-  SpacePointCollection::const_iterator spIt = (*pixSpCollIt)->begin();
+        // retrieve number of pixel SP/CL per collection
+        SpacePointCollection::const_iterator spItEnd = (*pixSpCollIt)->end();
+        SpacePointCollection::const_iterator spIt = (*pixSpCollIt)->begin();
   
-  for( ; spIt != spItEnd; ++spIt ){
+        for( ; spIt != spItEnd; ++spIt ){
+          const Trk::SpacePoint* pSP = (*spIt);
+          //pixClust = dynamic_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
+          pixClust = static_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
+          m_pixClSize = (pixClust->rdoList()).size();
+          m_pixclToT = pixClust->totalToT();
     
-    const Trk::SpacePoint* pSP = (*spIt);
-    //pixClust = dynamic_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
-    pixClust = static_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
-    m_pixClSize = (pixClust->rdoList()).size();
-    m_pixclToT = pixClust->totalToT();
+          if( m_pixclToT > m_pixelClusToTCut ){
+            ++m_nPixSP;
+            if( m_pixClSize == 1 )++m_nPixCL_1; 
+            if( m_pixClSize == 2 )++m_nPixCL_2; 
+            if( m_pixClSize >= 3 )++m_nPixCLmin3; 
+          }
     
-    if( m_pixclToT > m_pixelClusToTCut ){
-      ++m_nPixSP;
-      if( m_pixClSize == 1 )++m_nPixCL_1; 
-      if( m_pixClSize == 2 )++m_nPixCL_2; 
-      if( m_pixClSize >= 3 )++m_nPixCLmin3; 
-    }
-    
-    // Histogram time over threshold against pixel size {1,2,3+}
-    if(bec == -2) {
-      m_pixelClusEndcapC->fill(m_pixclToT, m_pixClSize,1);
-      ATH_MSG_DEBUG(" ECC pixel totalToT is " << m_pixclToT);
-      ATH_MSG_DEBUG(" ECC pixel size is " << m_pixclToT);
-    }
-    else if(bec == 0) { 
-      m_pixelClusBarrel->fill(m_pixclToT, m_pixClSize,1);
-      ATH_MSG_DEBUG(" Barr pixel totalToT is " << m_pixclToT);
-    }
-    else if(bec == 2) { 
-      m_pixelClusEndcapA->fill(m_pixclToT, m_pixClSize,1);
-      ATH_MSG_DEBUG(" ECA pixel totalToT is " << m_pixclToT);
-    }
-  }
-  
-  // barrel
-  if( bec==0 ){
-    m_SPpixBarr = m_nPixSP;
-    ATH_MSG_VERBOSE(" Formed  " << m_nPixSP << " PIX spacepoints in PIX Barrel after ToT cut.");
-  }
-    
-  // endcap A
-  else if( bec==2 ){
-    m_SPpixECA = m_nPixSP;
-    ATH_MSG_VERBOSE(" Formed  " << m_nPixSP << " PIX spacepoints in PIX ECA after ToT cut.");
-  }
-    
-  // endcap C
-  else if( bec==-2 ){
-    m_SPpixECC = m_nPixSP;
-    ATH_MSG_VERBOSE(" Formed  " << m_nPixSP << " PIX spacepoints in PIX ECC after ToT cut.");
-  }
-  
-  // total 
-  m_pixSpPerModule.push_back(m_nPixSP);
-    
-  
-  // check if there is a hot module and monitor it
-  if( (m_SPpixBarr > m_pixModuleThreshold) || (m_SPpixECA > m_pixModuleThreshold) || (m_SPpixECC > m_pixModuleThreshold) ){
-    ATH_MSG_WARNING(" This pixel module : " << pixid << " produced " << m_nPixSP << " pix spacepoints. ");
-    
-    unsigned int nPixModId = droppedPixelModules.size();
-    if( nPixModId <= m_maxnid ) {
-      droppedPixelModules.push_back(pixid);
-    } else {
-      ATH_MSG_WARNING("More than " << m_maxnid << " pixel modules are noisy, dump their id : " << pixid);
-    }
+          // Histogram time over threshold against pixel size {1,2,3+}
+          if(bec == -2) {
+            m_pixelClusEndcapC->fill(m_pixclToT, m_pixClSize,1);
+            ATH_MSG_DEBUG(" ECC pixel totalToT is " << m_pixclToT);
+            ATH_MSG_DEBUG(" ECC pixel size is " << m_pixclToT);
+          } else if(bec == 0) { 
+            m_pixelClusBarrel->fill(m_pixclToT, m_pixClSize,1);
+            ATH_MSG_DEBUG(" Barr pixel totalToT is " << m_pixclToT);
+          } else if(bec == 2) { 
+            m_pixelClusEndcapA->fill(m_pixclToT, m_pixClSize,1);
+            ATH_MSG_DEBUG(" ECA pixel totalToT is " << m_pixclToT);
+          }
+        }
 
-    int layer_disk  = m_pixHelper->layer_disk(pixid);
-    int phi_module  = m_pixHelper->phi_module(pixid);
-    int eta_module  = m_pixHelper->eta_module(pixid);
+        // barrel
+        if( bec==0 ){
+          m_SPpixBarr = m_nPixSP;
+          ATH_MSG_VERBOSE(" Formed  " << m_nPixSP << " PIX spacepoints in PIX Barrel after ToT cut.");
+        } else if ( bec==2 ) { // endcap A
+          m_SPpixECA = m_nPixSP;
+          ATH_MSG_VERBOSE(" Formed  " << m_nPixSP << " PIX spacepoints in PIX ECA after ToT cut.");
+        } else if( bec==-2 ) { // endcap C
+          m_SPpixECC = m_nPixSP;
+          ATH_MSG_VERBOSE(" Formed  " << m_nPixSP << " PIX spacepoints in PIX ECC after ToT cut.");
+        }
+        // total 
+        m_pixSpPerModule.push_back(m_nPixSP);
+        
+        // check if there is a hot module and monitor it
+        if( (m_SPpixBarr > m_pixModuleThreshold) || (m_SPpixECA > m_pixModuleThreshold) || (m_SPpixECC > m_pixModuleThreshold) ){
+          ATH_MSG_WARNING(" This pixel module : " << pixid << " produced " << m_nPixSP << " pix spacepoints. ");
     
-    // check which module makes noise
-    // barrel
-    if( (m_SPpixBarr > m_pixModuleThreshold) ) {
-      ATH_MSG_DEBUG(" PIX module in the barrel in disk " << layer_disk  << " with eta index " << eta_module << " and phi_module " << phi_module  << " produced " << m_nPixSP << " spacepoints!");
-      ATH_MSG_DEBUG(" Will not account them. ");
-      if( layer_disk==0 ){
-        m_pixBarrL0_clust_occ_eta.push_back( eta_module );
-        m_pixBarrL0_clust_occ_phi.push_back( phi_module );
-      }
-      else if( layer_disk==1 ){
-        m_pixBarrL1_clust_occ_eta.push_back( eta_module );
-        m_pixBarrL1_clust_occ_phi.push_back( phi_module );
-      }
-      else if( layer_disk==2 ){
-        m_pixBarrL2_clust_occ_eta.push_back( eta_module );
-        m_pixBarrL2_clust_occ_phi.push_back( phi_module );
-      }
-    }
-    // endcaps
-    else if( m_SPpixECA > m_pixModuleThreshold ){
-      ATH_MSG_DEBUG(" PIX module in the ECA in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nPixSP << " spacepoints!");
-      ATH_MSG_DEBUG(" Will not account them. ");
-      m_pixECA_clust_occ_disk.push_back( layer_disk );
-      m_pixECA_clust_occ_phi.push_back( phi_module ); 
-    }
-    else if( m_SPpixECC > m_pixModuleThreshold ){
-      ATH_MSG_DEBUG(" PIX module in the ECC in disk " << layer_disk  << " with eta index " << eta_module << " and phi_module " << phi_module  << " produced " << m_nPixSP << " spacepoints!");
-      ATH_MSG_DEBUG(" Will not account them. ");
-      m_pixECC_clust_occ_disk.push_back( layer_disk );
-      m_pixECC_clust_occ_phi.push_back( phi_module );
-    }
-  }
+          unsigned int nPixModId = droppedPixelModules.size();
+          if( nPixModId <= m_maxnid ) {
+            droppedPixelModules.push_back(pixid);
+          } else {
+            ATH_MSG_WARNING("More than " << m_maxnid << " pixel modules are noisy, dump their id : " << pixid);
+          }
+
+          int layer_disk  = m_pixHelper->layer_disk(pixid);
+          int phi_module  = m_pixHelper->phi_module(pixid);
+          int eta_module  = m_pixHelper->eta_module(pixid);
     
-  else{
-    m_totNumPixSP += m_nPixSP;  
-    m_totNumPixCL_1 += m_nPixCL_1; 
-    m_totNumPixCL_2 += m_nPixCL_2; 
-    m_totNumPixCLmin3 += m_nPixCLmin3; 
-    m_pixClBarrel += m_SPpixBarr;
-    m_pixClEndcapA += m_SPpixECA;
-    m_pixClEndcapC += m_SPpixECC;
-  }
-    
-  m_nPixSP = 0;      
-  m_nPixSP = 0; 
-  m_nPixCL_1 = 0; 
-  m_nPixCL_2 = 0; 
-  m_nPixCLmin3 = 0; 
-  m_SPpixBarr = 0;
-  m_SPpixECA = 0;
-  m_SPpixECC = 0;
+          // check which module makes noise
+          // barrel
+          if( (m_SPpixBarr > m_pixModuleThreshold) ) {
+            ATH_MSG_DEBUG(" PIX module in the barrel in disk " << layer_disk  << " with eta index " << eta_module << " and phi_module " << phi_module  << " produced " << m_nPixSP << " spacepoints!");
+            ATH_MSG_DEBUG(" Will not account them. ");
+            if( layer_disk==0 ){
+              m_pixBarrL0_clust_occ_eta.push_back( eta_module );
+              m_pixBarrL0_clust_occ_phi.push_back( phi_module );
+            }
+            else if( layer_disk==1 ){
+              m_pixBarrL1_clust_occ_eta.push_back( eta_module );
+              m_pixBarrL1_clust_occ_phi.push_back( phi_module );
+            }
+            else if( layer_disk==2 ){
+              m_pixBarrL2_clust_occ_eta.push_back( eta_module );
+              m_pixBarrL2_clust_occ_phi.push_back( phi_module );
+            }
+          } else if( m_SPpixECA > m_pixModuleThreshold ){ // endcaps
+            ATH_MSG_DEBUG(" PIX module in the ECA in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nPixSP << " spacepoints!");
+            ATH_MSG_DEBUG(" Will not account them. ");
+            m_pixECA_clust_occ_disk.push_back( layer_disk );
+            m_pixECA_clust_occ_phi.push_back( phi_module ); 
+          } else if( m_SPpixECC > m_pixModuleThreshold ){
+            ATH_MSG_DEBUG(" PIX module in the ECC in disk " << layer_disk  << " with eta index " << eta_module << " and phi_module " << phi_module  << " produced " << m_nPixSP << " spacepoints!");
+            ATH_MSG_DEBUG(" Will not account them. ");
+            m_pixECC_clust_occ_disk.push_back( layer_disk );
+            m_pixECC_clust_occ_phi.push_back( phi_module );
+          }
+        } else {
+          m_totNumPixSP += m_nPixSP;  
+          m_totNumPixCL_1 += m_nPixCL_1; 
+          m_totNumPixCL_2 += m_nPixCL_2; 
+          m_totNumPixCLmin3 += m_nPixCLmin3; 
+          m_pixClBarrel += m_SPpixBarr;
+          m_pixClEndcapA += m_SPpixECA;
+          m_pixClEndcapC += m_SPpixECC;
+        }
+        m_nPixSP = 0;      
+        m_nPixSP = 0; 
+        m_nPixCL_1 = 0; 
+        m_nPixCL_2 = 0; 
+        m_nPixCLmin3 = 0; 
+        m_SPpixBarr = 0;
+        m_SPpixECA = 0;
+        m_SPpixECC = 0;
       }
-      
-    } //end //if( m_pixListSize != 0 ){
-    else{
+    } else{ //end //if( m_pixListSize != 0 ){
       ATH_MSG_DEBUG("Data is ok, but pixel detector might be off or not a single pixel hit was produced.");    
     }// end of pixel data quality check
     
@@ -604,16 +583,13 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     
     // Calculate the pixel cluser ratio values for this event.  
     m_ratioA = -1.;  m_ratioB = -1.;  
-    if( m_totNumPixSP > 0. )
-      m_ratioA = (m_totNumPixCL_2 + m_totNumPixCLmin3)/m_totNumPixSP;  
+    if( m_totNumPixSP > 0. ) m_ratioA = (m_totNumPixCL_2 + m_totNumPixCLmin3)/m_totNumPixSP;  
     
-    if( m_totNumPixCL_1 > 0. )
-      m_ratioB = m_totNumPixCL_2/m_totNumPixCL_1;
+    if( m_totNumPixCL_1 > 0. ) m_ratioB = m_totNumPixCL_2/m_totNumPixCL_1;
     
   } // end of doPixelSp
   
-  if( timerSvc() )
-    m_pixSPCTimer->stop();
+  if( timerSvc() ) m_pixSPCTimer->stop();
   
   // ------ SCT PART ------------------------------------------------
   
@@ -621,7 +597,6 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   
   if( timerSvc() ) m_sctSPCTimer->start();
   
-
   std::vector<Identifier> droppedSctModules;
   droppedSctModules.clear();
 
@@ -677,116 +652,102 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
       // loop over SCT collections
       std::vector<IdentifierHash>::iterator sctItEnd = m_listOfSctIds.end();
       std::vector<IdentifierHash>::iterator sctIt = m_listOfSctIds.begin();
-      for( ; sctIt != sctItEnd; ++sctIt ){
+      for ( ; sctIt != sctItEnd; ++sctIt ) {
+        SpacePointContainer::const_iterator sctSpCollIt = sctCont->indexFind( (*sctIt) );
   
-  SpacePointContainer::const_iterator sctSpCollIt = sctCont->indexFind( (*sctIt) );
+        if( sctSpCollIt == sctCont->end() ) continue;
+        if( (*sctSpCollIt) == NULL ) continue;
   
-  if( sctSpCollIt == sctCont->end() ) continue;
-  if( (*sctSpCollIt) == NULL ) continue;
+        const std::vector<Identifier>& rdoList();
+        m_nSctSP = (*sctSpCollIt)->size();
   
-  const std::vector<Identifier>& rdoList();
-  m_nSctSP = (*sctSpCollIt)->size();
+        // returns detector element identifier
+        Identifier sctid = (*sctSpCollIt)->identify();
   
-  // returns detector element identifier
-  Identifier sctid = (*sctSpCollIt)->identify();
+        int bec = (int)m_sctHelper->barrel_ec(sctid);
   
-  int bec = (int)m_sctHelper->barrel_ec(sctid);
+        ATH_MSG_VERBOSE(" Formed " << m_nSctSP << " sct spacepoints");
+        ATH_MSG_VERBOSE(" with sctid module " << sctid);
+          
+        // barrel
+        if( bec==0 ){
+          m_SPsctBarr = m_nSctSP;
+          ATH_MSG_VERBOSE(" Formed  " << m_nSctSP << " SCT barrel spacepoints .");
+        } else if( bec==2 ) { // endcap, side A
+          m_SPsctECA = m_nSctSP;
+          ATH_MSG_VERBOSE(" Formed  " << m_nSctSP << " SCT ECA spacepoints.");
+        } else if( bec==-2 ){ // endcap, side C
+          m_SPsctECC = m_nSctSP;
+          ATH_MSG_VERBOSE(" Formed  " << m_nSctSP << " SCT ECC spacepoints.");
+        }
   
-  ATH_MSG_VERBOSE(" Formed " << m_nSctSP << " sct spacepoints");
-  ATH_MSG_VERBOSE(" with sctid module " << sctid);
+        // total 
+        m_sctSpPerModule.push_back(m_nSctSP);
+  
+        // check if there is a tripped module
+        if( (m_SPsctBarr > m_sctModuleThreshold) || (m_SPsctECA > m_sctModuleThreshold) || (m_SPsctECC > m_sctModuleThreshold) ){
     
-  // barrel
-  if( bec==0 ){
-    m_SPsctBarr = m_nSctSP;
-    ATH_MSG_VERBOSE(" Formed  " << m_nSctSP << " SCT barrel spacepoints .");
-  }
-  
-  // endcap, side A
-  else if( bec==2 ){
-    m_SPsctECA = m_nSctSP;
-    ATH_MSG_VERBOSE(" Formed  " << m_nSctSP << " SCT ECA spacepoints.");
-  }
-  
-  // endcap, side C
-  else if( bec==-2 ){
-    m_SPsctECC = m_nSctSP;
-    ATH_MSG_VERBOSE(" Formed  " << m_nSctSP << " SCT ECC spacepoints.");
-  }
-  
-  // total 
-  m_sctSpPerModule.push_back(m_nSctSP);
-  
-  // check if there is a tripped module
-  if( (m_SPsctBarr > m_sctModuleThreshold) || (m_SPsctECA > m_sctModuleThreshold) || (m_SPsctECC > m_sctModuleThreshold) ){
+          unsigned int nSctModIds = droppedSctModules.size();
+          if( nSctModIds <= m_maxnid ) {
+            droppedSctModules.push_back(sctid);
+          } else {
+            ATH_MSG_WARNING("More than " << m_maxnid << " sct modules are noisy, dump their id : " << sctid);
+          }
     
-    unsigned int nSctModIds = droppedSctModules.size();
-    if( nSctModIds <= m_maxnid ) {
-      droppedSctModules.push_back(sctid);
-    } else {
-      ATH_MSG_WARNING("More than " << m_maxnid << " sct modules are noisy, dump their id : " << sctid);
-    }
+          int layer_disk  = m_sctHelper->layer_disk(sctid); // reference table in SCT_ID.h
+          int phi_module  = m_sctHelper->phi_module(sctid);
+          int eta_module  = m_sctHelper->eta_module(sctid);
     
-    int layer_disk  = m_sctHelper->layer_disk(sctid); // reference table in SCT_ID.h
-    int phi_module  = m_sctHelper->phi_module(sctid);
-    int eta_module  = m_sctHelper->eta_module(sctid);
+          ATH_MSG_VERBOSE(" SCT layer_disk = " << layer_disk);
+          ATH_MSG_VERBOSE(" SCT phi_module = " << phi_module);
+          ATH_MSG_VERBOSE(" SCT eta_module = " << eta_module);
     
-    ATH_MSG_VERBOSE(" SCT layer_disk = " << layer_disk);
-    ATH_MSG_VERBOSE(" SCT phi_module = " << phi_module);
-    ATH_MSG_VERBOSE(" SCT eta_module = " << eta_module);
-    
-    if( m_SPsctBarr > m_sctModuleThreshold ){
-      ATH_MSG_DEBUG(" SCT module in the barrel in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nSctSP << " spacepoints!");
-      ATH_MSG_DEBUG(" Will not account them. ");
-      if( layer_disk == 0 ){
-        m_sctBarrL1_sp_occ_eta.push_back( eta_module );
-        m_sctBarrL1_sp_occ_phi.push_back( phi_module );
-      }
-      else if( layer_disk == 1 ){
-        m_sctBarrL2_sp_occ_eta.push_back( eta_module );
-        m_sctBarrL2_sp_occ_phi.push_back( phi_module );
-      }
-      else if( layer_disk == 2 ){
-        m_sctBarrL3_sp_occ_eta.push_back( eta_module );
-        m_sctBarrL3_sp_occ_phi.push_back( phi_module );
-      }
-      else if( layer_disk == 3 ){
-        m_sctBarrL4_sp_occ_eta.push_back( eta_module );
-        m_sctBarrL4_sp_occ_phi.push_back( phi_module );
-      }
-    } 
-    else if( m_SPsctECA > m_sctModuleThreshold ){
-      ATH_MSG_DEBUG(" SCT module in the ECA in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nSctSP << " spacepoints!");
-      ATH_MSG_DEBUG(" Will not account them. ");    
-      m_sctECA_sp_occ_disk.push_back( layer_disk );
-      m_sctECA_sp_occ_phi.push_back( phi_module );
-    } 
-    else if( m_SPsctECC > m_sctModuleThreshold ){
-      ATH_MSG_DEBUG(" SCT module in the ECC in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nSctSP << " spacepoints!");
-      ATH_MSG_DEBUG(" Will not account them. ");
-      m_sctECC_sp_occ_disk.push_back( layer_disk );
-      m_sctECC_sp_occ_phi.push_back( phi_module );
-    }
-  }
-  else{
-    m_sctSpBarrel += m_SPsctBarr;
-    m_sctSpEndcapA += m_SPsctECA;
-    m_sctSpEndcapC += m_SPsctECC;
-  }
-  m_SPsctBarr = 0;
-  m_SPsctECA = 0;
-  m_SPsctECC = 0;
-      m_nSctSP = 0;
-      }
+          if( m_SPsctBarr > m_sctModuleThreshold ){
+            ATH_MSG_DEBUG(" SCT module in the barrel in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nSctSP << " spacepoints!");
+            ATH_MSG_DEBUG(" Will not account them. ");
+            if( layer_disk == 0 ) {
+              m_sctBarrL1_sp_occ_eta.push_back( eta_module );
+              m_sctBarrL1_sp_occ_phi.push_back( phi_module );
+            } else if( layer_disk == 1 ) {
+              m_sctBarrL2_sp_occ_eta.push_back( eta_module );
+              m_sctBarrL2_sp_occ_phi.push_back( phi_module );
+            } else if( layer_disk == 2 ) {
+              m_sctBarrL3_sp_occ_eta.push_back( eta_module );
+              m_sctBarrL3_sp_occ_phi.push_back( phi_module );
+            } else if( layer_disk == 3 ) {
+              m_sctBarrL4_sp_occ_eta.push_back( eta_module );
+              m_sctBarrL4_sp_occ_phi.push_back( phi_module );
+            }
+          } else if( m_SPsctECA > m_sctModuleThreshold ) {
+            ATH_MSG_DEBUG(" SCT module in the ECA in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nSctSP << " spacepoints!");
+            ATH_MSG_DEBUG(" Will not account them. ");    
+            m_sctECA_sp_occ_disk.push_back( layer_disk );
+            m_sctECA_sp_occ_phi.push_back( phi_module );
+          } else if( m_SPsctECC > m_sctModuleThreshold ) {
+            ATH_MSG_DEBUG(" SCT module in the ECC in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nSctSP << " spacepoints!");
+            ATH_MSG_DEBUG(" Will not account them. ");
+            m_sctECC_sp_occ_disk.push_back( layer_disk );
+            m_sctECC_sp_occ_phi.push_back( phi_module );
+          } else { // Accept the spacepoints
+            m_sctSpBarrel += m_SPsctBarr;
+            m_sctSpEndcapA += m_SPsctECA;
+            m_sctSpEndcapC += m_SPsctECC;
+          } // if m_SPsctBarr / m_SPsctECA / m_SPsctECC
+          m_SPsctBarr = 0;
+          m_SPsctECA = 0;
+          m_SPsctECC = 0;
+          m_nSctSP = 0;
+        }
+      } // end of for ( ; sctIt != sctItEnd; ++sctIt )
     }//end of //if( m_sctListSize !=0 )
     
     m_totNumSctSP = m_sctSpEndcapC + m_sctSpBarrel + m_sctSpEndcapA;
     ATH_MSG_DEBUG("REGTEST : Formed  " << m_totNumSctSP << " sct spacepoints in total.");
     ATH_MSG_DEBUG("REGTEST : Formed  " << m_sctSpEndcapC << " sct ECC spacepoints in total.");
     ATH_MSG_DEBUG("REGTEST : Formed  " << m_sctSpBarrel << " sct Barr spacepoints in total.");
-    ATH_MSG_DEBUG("REGTEST : Formed  " << m_sctSpEndcapA << " sct ECA spacepoints in total.");
-        
+    ATH_MSG_DEBUG("REGTEST : Formed  " << m_sctSpEndcapA << " sct ECA spacepoints in total.");    
   } // end of doSctSp
-  
+
   if( timerSvc() ) { 
     m_sctSPCTimer->stop();
   }  
@@ -822,7 +783,6 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   HLT::TEVec allTEs;
   std::vector<HLT::TEVec>::const_iterator itEnd = tes_in.end();
   for( std::vector<HLT::TEVec>::const_iterator it = tes_in.begin(); it != itEnd ; ++it) {
-
     HLT::TEVec::const_iterator inner_itEnd = (*it).end();
     for( HLT::TEVec::const_iterator inner_it = (*it).begin(); inner_it != inner_itEnd; ++inner_it ){
       ATH_MSG_DEBUG("Creating TE seeded from input TE " << (*inner_it)->getId());
@@ -832,9 +792,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   // Create an output TE seeded by the inputs
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
   outputTE->setActiveState(true);
-  
+
   HLT::ErrorCode hltStatus = attachFeature( outputTE, m_spacePointCounts, "spacepoints");
-  
+
   if( timerSvc() ) m_attachFTimer->stop(); 
   if(hltStatus != HLT::OK) {
     ATH_MSG_ERROR("Unable to attach HLT feature spacepoints to output TE.");
@@ -847,7 +807,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 
   // since this is an AllTEAlgo, we have to call the monitoring ourselves:
   afterExecMonitors().ignore();
-  
+
   return HLT::OK;
 }
 
