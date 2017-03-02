@@ -5,7 +5,7 @@
 #include "JetTagTools/RNNIPTag.h"
 #include "JetTagTools/LightweightNeuralNetwork.h"
 #include "JetTagTools/parse_json.h"
-#include "JetTagTools/Stack.h" // <-- added for exceptions
+#include "JetTagTools/Exceptions.h"
 
 #include "JetTagTools/TrackSelector.h"
 #include "JetTagTools/GradedTrack.h"
@@ -86,6 +86,8 @@ namespace trkvar {
   const std::string PT = "pt";
   const std::string DPHI = "dPhi";
   const std::string ABS_ETA = "absEta";
+  const std::string DETA = "dEta";
+  const std::string CHARGE = "charge";
 
   const std::string PT_FRAC = "pTFrac";
   const std::string DR = "dR";
@@ -119,6 +121,7 @@ namespace Analysis {
     double dphi;
     double ptfrac;
     double dr;
+    double deta;
     TrackGrade grade;
     const xAOD::TrackParticle* trkP;
     bool fromV0;
@@ -673,6 +676,7 @@ namespace Analysis {
       tmpObj.fromV0=isFromV0;
       tmpObj.dphi = Amg::deltaPhi(trk_momentum, unit);
       tmpObj.dr = Amg::deltaR(trk_momentum, unit);
+      tmpObj.deta = trk_momentum.eta() - unit.eta();
       tmpObj.ptfrac = trk->pt() / jet_pt;
       track_info.push_back(tmpObj);
     }
@@ -692,7 +696,7 @@ namespace {
     using namespace trkvar;
     const std::vector<std::string> inputs{
       D0, D0_SIG, Z0, Z0_SIG, D0Z0_SIG, GRADE, FROM_V0, PT, DPHI, ABS_ETA,
-        PT_FRAC, DR,
+        PT_FRAC, DR, DETA, CHARGE,
         CHI2, N_INN_HITS, N_NEXT_TO_INN_HITS, N_BL_HITS, N_SHARED_BL_HITS,
         N_SPLIT_BL_HITS, N_PIX_HITS, N_SHARED_PIX_HITS, N_SPLIT_PIX_HITS,
         N_SCT_HITS, N_SHARED_SCT_HITS, EXPECT_BL_HIT,
@@ -714,6 +718,8 @@ namespace {
       out.at(ABS_ETA).push_back(std::abs(tk.trkP->eta()));
       out.at(PT_FRAC).push_back(tk.ptfrac);
       out.at(DR).push_back(tk.dr);
+      out.at(DETA).push_back(tk.deta);
+      out.at(CHARGE).push_back(tk.trkP->charge());
 
       const auto& tp = *tk.trkP;
       out.at(CHI2).push_back(tp.chiSquared());

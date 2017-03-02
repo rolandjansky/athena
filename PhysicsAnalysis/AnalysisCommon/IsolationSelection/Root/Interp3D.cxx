@@ -14,9 +14,9 @@ double Interp3D::Interpol3d(double x, double y, double z, std::shared_ptr<TH3F> 
   int ibx = h->GetXaxis()->FindBin(x), iby = h->GetYaxis()->FindBin(y), ibz = h->GetZaxis()->FindBin(z);
   int ibx2,iby2,ibz2;
   double z000,z010,z110,z100,z001,z011,z111,z101,xc,yc,zc,xc2,yc2,zc2,u,t,v,r;
-  if (ibx > nx) ibx = nx;
-  if (iby > ny) iby = ny;
-  if (ibz > nz) ibz = nz;
+  if (ibx > nx) ibx = nx; else if (ibx == 0) ibx = 1;
+  if (iby > ny) iby = ny; else if (iby == 0) iby = 1;
+  if (ibz > nz) ibz = nz; else if (ibz == 0) ibz = 1;
   xc  = h->GetXaxis()->GetBinCenter(ibx);
   yc  = h->GetYaxis()->GetBinCenter(iby);
   zc  = h->GetZaxis()->GetBinCenter(ibz);

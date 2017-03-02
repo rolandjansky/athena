@@ -52,20 +52,20 @@ namespace JetTagDQA{
 		//ANDREA --- Store tracking info
 		m_track_d0       = Book1D("d0", "d_{0} of BTagTrackToJetAssociator -> "+ m_sParticleType +"; d_{0} (mm) ;Events", 200, -2, 2);
 		m_track_z0       = Book1D("z0", "z_{0} of BTagTrackToJetAssociator -> "+ m_sParticleType +"; z_{0} (mm) ;Events", 200, -10, 10); 
-		m_track_sigd0	 = Book1D("d0Sig", "d_{0} Significance of BTagTrackToJetAssociator -> "+ m_sParticleType +"; d_{0} / #sigma_{d_{0}} ;Events", 60, -3, 3);
-		m_track_sigz0    = Book1D("z0Sig", "z_{0} Significance of BTagTrackToJetAssociator -> "+ m_sParticleType +"; z_{0} / #sigma_{z_{0}} ;Events", 100, -0.5, 0.5);
+		//m_track_sigd0	 = Book1D("d0Sig", "d_{0} Significance of BTagTrackToJetAssociator -> "+ m_sParticleType +"; d_{0} / #sigma_{d_{0}} ;Events", 60, -3, 3);
+		//m_track_sigz0    = Book1D("z0Sig", "z_{0} Significance of BTagTrackToJetAssociator -> "+ m_sParticleType +"; z_{0} / #sigma_{z_{0}} ;Events", 100, -5, 5);
 
 		//ANDREA --- Store IPTag track grading/category
-		m_IP3D_trackGrading = Book1D("IP3DgradeOfTracks","IP3D grade of Tracks "+m_sParticleType,12,-0.5,11.5);
-		m_IP2D_trackGrading = Book1D("IP2DgradeOfTracks","IP2D grade of Tracks "+m_sParticleType,12,-0.5,11.5);
-		m_tmpD0 = Book1D("IP3D_valD0wrtPVofTracks","IP3D valD0 wrt PV of Tracks "+m_sParticleType,200,-2,2);
-		m_tmpZ0 = Book1D("IP3D_valZ0wrtPVofTracks","IP3D valZ0 wrt PV of Tracks "+m_sParticleType,100,-0.5,0.5);
-		m_tmpD0sig = Book1D("IP3D_sigD0wrtPVofTracks","IP3D sigD0 wrt PV of Tracks "+m_sParticleType,200,-2,2);
-		m_tmpZ0sig = Book1D("IP3D_sigZ0wrtPVofTracks","IP3D sigZ0 wrt PV of Tracks "+m_sParticleType,200,-2,2);
-		m_tmpIP3DBwgt = Book1D("IP3D_weightBofTracks","IP3D weight B of Tracks"+m_sParticleType,200,-2,2);
-		m_tmpIP3DUwgt = Book1D("IP3D_weightUofTracks","IP3D weight U of Tracks"+m_sParticleType,200,-2,2);
-		m_tmpIP2DBwgt = Book1D("IP2D_weightBofTracks","IP2D weight B of Tracks"+m_sParticleType,200,-2,2);
-		m_tmpIP2DUwgt = Book1D("IP2D_weightUofTracks","IP2D weight U of Tracks"+m_sParticleType,200,-2,2);	
+		m_IP3D_trackGrading = Book1D("IP3DgradeOfTracks","IP3D grade of Tracks "+m_sParticleType    +"; IP3D grade of Tracks ;Events"  ,12,-0.5,11.5);
+		m_IP2D_trackGrading = Book1D("IP2DgradeOfTracks","IP2D grade of Tracks "+m_sParticleType    +"; IP2D grade of Tracks ;Events"  ,12,-0.5,11.5);
+		m_tmpD0 = Book1D("IP3D_valD0wrtPVofTracks","IP3D valD0 wrt PV of Tracks "+m_sParticleType   +"; IP3D valD0 wrt PV of Tracks ;Events"  ,200,-2,2);
+		m_tmpZ0 = Book1D("IP3D_valZ0wrtPVofTracks","IP3D valZ0 wrt PV of Tracks "+m_sParticleType   +"; IP3D valZ0 wrt PV of Tracks ;Events"  ,100,-0.5,0.5);
+		m_tmpD0sig = Book1D("IP3D_sigD0wrtPVofTracks","IP3D sigD0 wrt PV of Tracks "+m_sParticleType+"; IP3D sigD0 wrt PV of Tracks ;Events"  ,200,-2,2);
+		m_tmpZ0sig = Book1D("IP3D_sigZ0wrtPVofTracks","IP3D sigZ0 wrt PV of Tracks "+m_sParticleType+"; IP3D sigZ0 wrt PV of Tracks ;Events"  ,200,-2,2);
+		m_tmpIP3DBwgt = Book1D("IP3D_weightBofTracks","IP3D weight B of Tracks"+m_sParticleType	    +"; IP3D weight B of Tracks ;Events"  ,200,-2,2);
+		m_tmpIP3DUwgt = Book1D("IP3D_weightUofTracks","IP3D weight U of Tracks"+m_sParticleType	    +"; IP3D weight U of Tracks ;Events"  ,200,-2,2);
+		m_tmpIP2DBwgt = Book1D("IP2D_weightBofTracks","IP2D weight B of Tracks"+m_sParticleType	    +"; IP2D weight B of Tracks ;Events"  ,200,-2,2);
+		m_tmpIP2DUwgt = Book1D("IP2D_weightUofTracks","IP2D weight U of Tracks"+m_sParticleType	    +"; IP2D weight U of Tracks ;Events"  ,200,-2,2);	
 
 	}
 	
@@ -126,35 +126,38 @@ namespace JetTagDQA{
 //		m_GAFinalHadronTau_dR->Fill(xAOD::deltaR(jet, "GhostTausFinal"));
 	}
 
-	void BTaggingValidationPlots::fill(const xAOD::Jet* jet, const xAOD::BTagging* btag){
+	void BTaggingValidationPlots::fill(const xAOD::Jet* jet, const xAOD::BTagging* btag, const xAOD::Vertex *myVertex){
 
 		int label(1000);
 
-		//if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
-		if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::ConeFinalParton);
+		if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) jet->getAttribute("HadronConeExclTruthLabelID", label);
 		else jet->getAttribute("TruthLabelID",label);	
-			
+
  		//ANDREA --- Store tracking quantities
 		const xAOD::BTagging* bjet = jet->btagging();
-	
  		std::vector< ElementLink< xAOD::TrackParticleContainer > > assocTracks = bjet->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >("BTagTrackToJetAssociator");
 		for (unsigned int iT=0; iT<assocTracks.size(); iT++) {
-      			if (!assocTracks.at(iT).isValid()) continue;
-      			const xAOD::TrackParticle* tmpTrk= *(assocTracks.at(iT));	 	
-			double d0(1000), z0(1000), sigma_d0(1000), sigma_z0(1000);				
-			d0 	         = tmpTrk->d0();
-			z0 	         = tmpTrk->z0();
-			sigma_d0         = sqrt(tmpTrk->definingParametersCovMatrixVec().at(0)); 
-			sigma_z0         = sqrt(tmpTrk->definingParametersCovMatrixVec().at(2));
-			//std::cout<<"****************** d0 = "<< d0 <<" and sigma_d0 = "<< sigma_d0 <<std::endl;
-			if(sigma_d0<=0 || sigma_z0<=0) std::cout<<"********************** IP error = or < 0 !!!"<<std::endl;
+      		  if (!assocTracks.at(iT).isValid()) continue;
+      		  const xAOD::TrackParticle* tmpTrk= *(assocTracks.at(iT));	 	
+		  double d0(1000), z0(1000); //, sigma_d0(1000), sigma_z0(1000);				
+		  d0 	         = tmpTrk->d0();
+		  z0 	         = tmpTrk->z0() + tmpTrk->vz() - myVertex->z(); //ANDREA: tmpTrk->z0() is defined wrt the beam spot-> Get it wrt the PV
+		  //z0 	         = tmpTrk->z0(); //Naive z0 wrt the beam spot
 
-			if(label == 5) {
-				m_track_d0     ->Fill(d0);
-		  		m_track_z0     ->Fill(z0);
-				m_track_sigd0  ->Fill(d0/sigma_d0);
-				m_track_sigz0  ->Fill(z0/sigma_z0);
-			}
+		  //ANDREA: for IP significances we already have IP-categories
+		  //sigma_d0         = sqrt(tmpTrk->definingParametersCovMatrixVec().at(0)); 
+		  //sigma_z0         = sqrt(tmpTrk->definingParametersCovMatrixVec().at(2));
+
+		  //std::cout<<"****************** BS z0 = "<< tmpTrk->z0() <<" and PV z0 = "<< z0 <<std::endl;
+		  //std::cout<<"****************** d0 = "<< d0 <<" and sigma_d0 = "<< sigma_d0 <<std::endl;
+		  //if(sigma_d0<=0 || sigma_z0<=0) std::cout<<"********************** IP error = or < 0 !!!"<<std::endl;
+
+		  if(label == 5) {
+		  	m_track_d0     ->Fill(d0);
+	  	  	m_track_z0     ->Fill(z0);
+		  	//m_track_sigd0  ->Fill(d0/sigma_d0);
+		  	//m_track_sigz0  ->Fill(z0/sigma_z0);
+		  }
 		}	
 		//ANDREA --- Store tracking quantities
 
@@ -324,25 +327,6 @@ namespace JetTagDQA{
 							for(std::map<std::string, double>::const_iterator ip3dsv1_iter = m_IP3DSV1_workingPoints.begin(); ip3dsv1_iter != 					          m_IP3DSV1_workingPoints.end(); ++ip3dsv1_iter){
 								if((hist_iter->first).find(ip3dsv1_iter->first) < (hist_iter->first).length() && (hist_iter->first).find("_"+label_iter->first+"_") < (hist_iter->first).length()){
 									if(label == label_iter->second && btag->SV1plusIP3D_discriminant()>ip3dsv1_iter->second){
-	 									  (hist_iter->second)->Fill(jet->pt()/GeV);
-									}
-								}
-							}
-						}	
-					}
-					if((hist_iter->first).find("JetFitterCombNN_") < 1 && (hist_iter->first).find("matched") < (hist_iter->first).length()){						
-						if( (hist_iter->first).find("_"+label_iter->first+"_") < (hist_iter->first).length() && label == label_iter->second && (hist_iter->first).find("_weight") < (hist_iter->first).length()){
-							if((hist_iter->first).find("_trackCuts") < (hist_iter->first).length()){
-								if(nGTinSvx > 0 && nIP3DTracks > 0) 							(hist_iter->second)->Fill(btag->JetFitterCombNN_loglikelihoodratio());	
-							}
-							else{
-								(hist_iter->second)->Fill(btag->JetFitterCombNN_loglikelihoodratio());
-							}
-						}
-						else{
-							for(std::map<std::string, double>::const_iterator jetfitcomb_iter = m_JetFitterCombNN_workingPoints.begin(); jetfitcomb_iter != m_JetFitterCombNN_workingPoints.end(); ++jetfitcomb_iter){
-							  if((hist_iter->first).find(jetfitcomb_iter->first) < (hist_iter->first).length() && (hist_iter->first).find("_"+label_iter->first+"_") < (hist_iter->first).length()){
-						  			if(label == label_iter->second && btag->JetFitterCombNN_loglikelihoodratio()>jetfitcomb_iter->second){
 	 									  (hist_iter->second)->Fill(jet->pt()/GeV);
 									}
 								}

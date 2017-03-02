@@ -19,10 +19,10 @@ use xAODTracking    xAODTracking-*    Event/xAOD
 use AtlasROOT       AtlasROOT-*       External
 use TruthUtils      TruthUtils-*      Generators
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*  PhysicsAnalysis/ElectronPhotonID
-use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
 use MCTruthClassifier MCTruthClassifier-* PhysicsAnalysis
 # use PileupReweighting PileupReweighting-* PhysicsAnalysis/AnalysisCommon
 use tauRecTools     tauRecTools-*     Reconstruction
+use AsgAnalysisInterfaces AsgAnalysisInterfaces-* PhysicsAnalysis/Interfaces
 
 private
 
@@ -30,10 +30,12 @@ use GaudiInterface  GaudiInterface-*  External
 use AthenaBaseComps AthenaBaseComps-* Control
 use xAODEventInfo   xAODEventInfo-*   Event/xAOD
 use xAODCore        xAODCore-*        Event/xAOD
+use xAODMetaData    xAODMetaData-*    Event/xAOD
 use PathResolver    PathResolver-*    Tools
 use AthLinks        AthLinks-*        Control
 use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
 use POOLRootAccess POOLRootAccess-* PhysicsAnalysis
+use PileupReweighting PileupReweighting-* PhysicsAnalysis/AnalysisCommon
 
 end_private
 

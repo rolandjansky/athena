@@ -50,6 +50,8 @@ public:
     return m_sName;
   };
 
+  void setProperty(const std::string& name, const std::string& value);
+
 protected:
   std::string m_sName;
 
@@ -57,6 +59,10 @@ protected:
   TH1F* m_hHistCut;
 
   TauSelectionTool* m_tTST;
+
+  void declareProperty(const std::string& name, std::string& loc);
+  std::map<std::string, std::string&> m_mProperties;
+  std::string getProperty(const std::string& name);
 
 private:
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) = 0;
@@ -160,7 +166,7 @@ private:
   std::string m_sEleOlrPassDecorationName;
 
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
-  const std::string m_sEleOlrLhScoreDecorationName;
+  std::string m_sEleOlrLhScoreDecorationName;
 };
 
 class SelectionCutMuonVeto

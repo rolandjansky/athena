@@ -18,10 +18,12 @@ TauSmearingTool::TauSmearingTool( const std::string& sName )
   , m_tCommonSmearingTool(sName+"_CommonSmearingTool", this)
   , m_sInputFilePath("")
 {
-  declareProperty( "RecommendationTag",   m_sRecommendationTag = "2016-ichep" );
+  declareProperty( "RecommendationTag",   m_sRecommendationTag = "2017-moriond" );
   declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty( "ApplyFading",         m_bApplyFading = true);
   declareProperty( "ApplyMVATES",         m_bApplyMVATES = false);
+  declareProperty( "ApplyCombinedTES",    m_bApplyCombinedTES = false);
+  declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
 
   // deprecated property
   declareProperty( "IsData",              m_bIsData = false );
@@ -48,7 +50,20 @@ StatusCode TauSmearingTool::initialize()
 
   std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Smearing/";
 
-  if (m_sRecommendationTag == "2016-ichep")
+  if (m_sRecommendationTag == "2017-moriond")
+  {
+    if (m_sInputFilePath.empty())
+      m_sInputFilePath = sDirectory+"TES_TrueHadTau_2017-moriond.root";
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCommonSmearingTool, TauAnalysisTools::CommonSmearingTool));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
+  }
+  else if (m_sRecommendationTag == "2016-ichep")
   {
     if (m_sInputFilePath.empty())
       m_sInputFilePath = sDirectory+"TES_TrueHadTau_2016-ichep.root";
@@ -57,6 +72,7 @@ StatusCode TauSmearingTool::initialize()
     ATH_CHECK(m_tCommonSmearingTool.setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
   }
   else if (m_sRecommendationTag == "mc15-moriond")
@@ -68,6 +84,8 @@ StatusCode TauSmearingTool::initialize()
     ATH_CHECK(m_tCommonSmearingTool.setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
   }
   else if (m_sRecommendationTag == "mc15-pre-recommendations")
   {

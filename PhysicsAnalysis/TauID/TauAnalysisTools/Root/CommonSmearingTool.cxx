@@ -16,6 +16,7 @@
 // tauRecTools include(s)
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/MvaTESEvaluator.h"
+#include "tauRecTools/CombinedP4FromRecoTaus.h"
 
 using namespace TauAnalysisTools;
 /*
@@ -70,14 +71,19 @@ CommonSmearingTool::CommonSmearingTool(std::string sName)
   : asg::AsgMetadataTool( sName )
   , m_mSF(0)
   , m_sSystematicSet(0)
-  , m_fX(&tauPt)
-  , m_fY(&tauEta)
+  , m_fX(&caloTauPt)
+  , m_fY(&caloTauEta)
   , m_bIsData(false)
   , m_bIsConfigured(false)
   , m_tMvaTESVariableDecorator("MvaTESVariableDecorator", this)
   , m_tMvaTESEvaluator("MvaTESEvaluator", this)
+  , m_tCombinedP4FromRecoTaus("CombinedP4FromRecoTaus", this)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bNoMultiprong(false)
+  , m_bPtFinalCalibIsAvailable(false)
+  , m_bPtFinalCalibIsAvailableIsChecked(false)
+  , m_bPtTauEtaCalibIsAvailable(false)
+  , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
   m_mSystematics = {};
 
@@ -85,6 +91,8 @@ CommonSmearingTool::CommonSmearingTool(std::string sName)
   declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty("ApplyFading",         m_bApplyFading         = true );
   declareProperty("ApplyMVATES",         m_bApplyMVATES         = false );
+  declareProperty("ApplyCombinedTES",    m_bApplyCombinedTES    = false );
+  declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
 }
 
 /*
@@ -139,10 +147,19 @@ StatusCode CommonSmearingTool::initialize()
   {
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESVariableDecorator, MvaTESVariableDecorator));
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESEvaluator, MvaTESEvaluator));
-    ATH_CHECK(m_tMvaTESEvaluator.setProperty("WeightFileName", "LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.xml"));
+    // ATH_CHECK(m_tMvaTESEvaluator.setProperty("WeightFileName", "LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.xml"));
+    ATH_CHECK(m_tMvaTESEvaluator.setProperty("WeightFileName", "MvaTES_20161015_pi0fix_BDTG.weights.xml"));
     ATH_CHECK(m_tMvaTESVariableDecorator.initialize());
     ATH_CHECK(m_tMvaTESEvaluator.initialize());
   }
+
+  if (m_bApplyCombinedTES || m_bApplyMVATES) // CombinedTES has to be available for MVA fix
+  {
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCombinedP4FromRecoTaus, CombinedP4FromRecoTaus));
+    ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult.root"));
+    ATH_CHECK(m_tCombinedP4FromRecoTaus.initialize());
+  }
+
 
   return StatusCode::SUCCESS;
 }
@@ -155,22 +172,81 @@ StatusCode CommonSmearingTool::initialize()
 //______________________________________________________________________________
 CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
 {
+  if (not m_bPtTauEtaCalibIsAvailableIsChecked)
+  {
+    m_bPtTauEtaCalibIsAvailable = xTau.isAvailable<float>("ptTauEtaCalib");
+    m_bPtTauEtaCalibIsAvailableIsChecked = true;
+  }
+
+  // save calo based TES before another TES is applied
+  if (not m_bPtTauEtaCalibIsAvailable) 
+  {
+    xTau.auxdecor<float>("ptTauEtaCalib") = xTau.pt();
+    xTau.auxdecor<float>("etaTauEtaCalib") = xTau.eta();
+    xTau.auxdecor<float>("phiTauEtaCalib") = xTau.phi();
+    xTau.auxdecor<float>("mTauEtaCalib") = xTau.m();
+  }
+
   if (m_bApplyMVATES)
+  {
+    if (not m_bPtFinalCalibIsAvailableIsChecked)
+    {
+      m_bPtFinalCalibIsAvailable = xTau.isAvailable<float>("ptFinalCalib");
+      m_bPtFinalCalibIsAvailableIsChecked = true;
+    }
+
+    if (not m_bPtFinalCalibIsAvailable)
+    {
+      // TODO: only call eventInitialize once per event, probably via migration to
+      // AsgMetadataTool
+      if (m_tMvaTESVariableDecorator->eventInitialize().isFailure())
+        return CP::CorrectionCode::Error;
+      if (m_tMvaTESVariableDecorator->execute(xTau).isFailure())
+        return CP::CorrectionCode::Error;
+      if (m_tMvaTESEvaluator->execute(xTau).isFailure())
+        return CP::CorrectionCode::Error; 
+    }
+    
+    // veto MVA TES for unreasonably low resolution values
+    bool bVeto = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetUseCaloPtFlag(&xTau);
+
+    if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
+    {
+      xTau.auxdecor<char>("MVATESQuality") = (char)bVeto;
+      if (bVeto && m_bApplyMVATESQualityCheck)
+      {
+        ATH_MSG_DEBUG("veto against MVA TES");
+        xTau.auxdata<float>("ptFinalCalib") = xTau.pt();
+        xTau.auxdata<float>("etaFinalCalib") = xTau.eta();
+        xTau.auxdata<float>("phiFinalCalib") = xTau.phi();
+        xTau.auxdata<float>("mFinalCalib") = xTau.m();
+      }
+      else
+      {
+        xTau.setP4(xTau.auxdata<float>("ptFinalCalib"),
+                   xTau.auxdata<float>("etaFinalCalib"),
+                   xTau.auxdata<float>("phiFinalCalib"),
+                   xTau.auxdata<float>("mFinalCalib"));
+      }
+    }
+  }
+
+  if (m_bApplyCombinedTES)
   {
     // TODO: only call eventInitialize once per event, probably via migration to
     // AsgMetadataTool
-    if (m_tMvaTESVariableDecorator->eventInitialize().isFailure())
+    if (m_tCombinedP4FromRecoTaus->eventInitialize().isFailure())
       return CP::CorrectionCode::Error;
-    if (m_tMvaTESVariableDecorator->execute(xTau).isFailure())
+    if (m_tCombinedP4FromRecoTaus->execute(xTau).isFailure())
       return CP::CorrectionCode::Error;
-    if (m_tMvaTESEvaluator->execute(xTau).isFailure())
-      return CP::CorrectionCode::Error;
-    if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
-      xTau.setP4(xTau.auxdecor<float>("ptFinalCalib"),
-                 xTau.auxdecor<float>("etaFinalCalib"),
-                 xTau.auxdecor<float>("phiFinalCalib"),
-                 xTau.auxdecor<float>("mFinalCalib"));
 
+    if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
+    {
+      xTau.setP4(xTau.auxdata<float>("pt_combined"),
+                 xTau.auxdata<float>("eta_combined"),
+                 xTau.auxdata<float>("phi_combined"),
+                 xTau.auxdata<float>("m_combined"));
+    }
   }
 
   // step out here if we run on data
@@ -392,8 +468,8 @@ template<class T>
 void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap)
 {
   // initialize function pointer
-  m_fX = &tauPt;
-  m_fY = &tauEta;
+  m_fX = &caloTauPt;
+  m_fY = &caloTauEta;
 
   TKey *kKey;
   TIter itNext(fFile->GetListOfKeys());
@@ -411,7 +487,7 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
       delete tObj;
       if (sTitle == "P")
       {
-        m_fX = &tauP;
+        m_fX = &caloTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
     }
@@ -427,7 +503,7 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
       }
       else if (sTitle == "|eta|")
       {
-        m_fY = &tauAbsEta;
+        m_fY = &caloTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
     }

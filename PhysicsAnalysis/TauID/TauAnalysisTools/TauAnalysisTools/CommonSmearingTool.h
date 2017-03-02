@@ -24,6 +24,8 @@
 #include "xAODTruth/TruthParticle.h"
 #include "PATInterfaces/CorrectionCode.h"
 
+#include "tauRecTools/CombinedP4FromRecoTaus.h"
+
 // Local include(s):
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
@@ -112,15 +114,23 @@ protected:
   bool m_bSkipTruthMatchCheck;
   bool m_bApplyFading;
   bool m_bApplyMVATES;
+  bool m_bApplyCombinedTES;
+  bool m_bApplyMVATESQualityCheck;
 
   asg::AnaToolHandle<ITauToolBase> m_tMvaTESVariableDecorator;
   asg::AnaToolHandle<ITauToolBase> m_tMvaTESEvaluator;
+  asg::AnaToolHandle<ITauToolBase> m_tCombinedP4FromRecoTaus;
 
   e_TruthMatchedParticleType m_eCheckTruth;
   bool m_bNoMultiprong;
   CP::SystematicSet m_sAffectingSystematics;
   CP::SystematicSet m_sRecommendedSystematics;
 
+  bool m_bPtFinalCalibIsAvailable;
+  bool m_bPtFinalCalibIsAvailableIsChecked;
+  bool m_bPtTauEtaCalibIsAvailable;
+  bool m_bPtTauEtaCalibIsAvailableIsChecked;
+  
 private:
 
   // Execute at each event

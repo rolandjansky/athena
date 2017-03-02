@@ -7,6 +7,9 @@ use AthenaBaseComps     AthenaBaseComps-*       Control
 
 use AtlasROOT		AtlasROOT-*		External
 
+## EDM
+use xAODEventInfo      xAODEventInfo-*         Event/xAOD
+
 end_private
 
 public
@@ -21,7 +24,7 @@ use AthLinks            AthLinks-*              Control
 use AthContainers       AthContainers-*         Control
 use AsgTools            AsgTools-*              Control/AthToolSupport
 
-use SGTools             SGTools-*               Control
+use xAODCore            xAODCore-*              Control
 
 ## tool interfaces
 
@@ -30,8 +33,6 @@ use xAODTracking	xAODTracking-*		Event/xAOD
 
 ## ROOT for timing
 
-## EDM
-#use xAODEventInfo      xAODEventInfo-*         Event/xAOD
 ##
 
 

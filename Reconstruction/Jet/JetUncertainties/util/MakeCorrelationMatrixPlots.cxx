@@ -54,7 +54,7 @@ void DrawLabels(const TH2D* histo, const double fixedValue1, const double fixedV
     }
 
     // Add the ATLAS label
-    ATLASLabel(0.13,minRepStyle?0.825:0.905,"Internal",kBlack);
+    ATLASLabel(0.13,minRepStyle?0.825:0.955,"Internal",kBlack);
 
     // Determine the configuration type (data year, correlation scenario, reduction if applicable)
     const TString config1 = uncTool->getConfigFile();
@@ -94,7 +94,7 @@ void DrawLabels(const TH2D* histo, const double fixedValue1, const double fixedV
         const TString reductionString = "str.red"; //"evdm";
         const TString selector = ""; //"#it{p}_{T}^{jet},";
         const TString scenarioString = TString(histo->GetName()).BeginsWith("diff_")?Form("Correlation difference, Rep_{full}^{%sJES} - Rep_{%s}^{%sJES}, %s",selector.Data(),reductionString.Data(),selector.Data(),fixedValString.Data()):Form("Correlation matrix, Rep_{%s}^{%sJES}, %s",TString(histo->GetName()).Contains("_0_")?"full":reductionString.Data(),selector.Data(),fixedValString.Data());
-        tex->DrawLatex(0.13,0.8751,Form("anti-k_{t} #it{R} = %s, %s+JES %s",jetDef.Contains("AntiKt4") ? "0.4" : jetDef.Contains("AntiKt6") ? "0.6" : "UNKNOWN", jetDef.Contains("EM") ? "EM" : jetDef.Contains("LC") ? "LCW" : "UNKNOWN", year.Data()));
+        tex->DrawLatex(0.13,0.8751,Form("anti-#it{k}_{t} #it{R} = %s, %s+JES %s",jetDef.Contains("AntiKt4") ? "0.4" : jetDef.Contains("AntiKt6") ? "0.6" : "UNKNOWN", jetDef.Contains("EM") ? "EM" : jetDef.Contains("LC") ? "LCW" : "UNKNOWN", year.Data()));
         tex->DrawLatex(0.13,0.9305,scenarioString.Data());
     }
     else

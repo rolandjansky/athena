@@ -84,6 +84,21 @@ StatusCode TauOverlappingElectronLLHDecorator::initialize()
 }
 
 //______________________________________________________________________________
+StatusCode TauOverlappingElectronLLHDecorator::setEleOlrPassDecorationName(const std::string& name)
+{
+  m_sEleOlrPassDecorationName = name;
+  return StatusCode::SUCCESS;
+}
+
+
+//______________________________________________________________________________
+StatusCode TauOverlappingElectronLLHDecorator::setEleOlrLhScoreDecorationName(const std::string& name)
+{
+  m_sEleOlrLhScoreDecorationName = name;
+  return StatusCode::SUCCESS;
+}
+
+//______________________________________________________________________________
 StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau) const
 {
   if (m_bNewEvent)

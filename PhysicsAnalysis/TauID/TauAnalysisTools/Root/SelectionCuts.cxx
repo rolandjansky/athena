@@ -63,6 +63,34 @@ void SelectionCut::fillHistogramCut(const xAOD::TauJet& xTau)
   fillHistogram(xTau, *m_hHistCut);
 }
 
+
+//______________________________________________________________________________
+void SelectionCut::setProperty(const std::string& name, const std::string& value)
+{
+  std::map<std::string, std::string&>::iterator it = m_mProperties.find(name);
+  if(it == m_mProperties.end() )
+    throw std::runtime_error (("Undeclared property: " + name + "\n").c_str());
+  it->second = value;
+}
+
+//______________________________________________________________________________
+void SelectionCut::declareProperty(const std::string& name, std::string& loc)
+{
+  std::pair<std::string, std::string&> p(name, loc);
+  m_mProperties.insert(p);
+}
+
+//______________________________________________________________________________
+std::string SelectionCut::getProperty(const std::string& name)
+{
+  std::map<std::string, std::string&>::iterator it = m_mProperties.find(name);
+  if(it == m_mProperties.end() )
+    throw std::runtime_error (("Undeclared property: " + name + "\n").c_str());
+
+  return it->second;
+}
+
+
 //_______________________________SelectionCutPt_________________________________
 //______________________________________________________________________________
 SelectionCutPt::SelectionCutPt(TauSelectionTool* tTST)
@@ -440,14 +468,10 @@ SelectionCutEleOLR::SelectionCutEleOLR(TauSelectionTool* tTST)
   , m_bCheckEleMatchPassAvailable(true)
   , m_bEleMatchPassAvailable(true)
 #endif // not XAODTAU_VERSIONS_TAUJET_V3_H
-  , m_sEleOlrPassDecorationName("ele_olr_pass_fix")
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  , m_sEleOlrLhScoreDecorationName("ele_match_lhscore_fix")
-#else
-  , m_sEleOlrLhScoreDecorationName("EleMatchLikelihoodScore")
-#endif
 
 {
+  declareProperty( "EleOlrPassDecorationName", m_sEleOlrPassDecorationName = "ele_olr_pass_fix");
+  declareProperty( "EleOlrLhScoreDecorationName", m_sEleOlrLhScoreDecorationName = "ele_match_lhscore_fix");  
   m_hHistCutPre = CreateControlPlot("hEleOLR_pre","EleOLR_pre;Electron Likelihood Score; events",100,-4,4);
   m_hHistCut = CreateControlPlot("hEleOLR_cut","EleOLR_cut;Electron Likelihood Score; events",100,-4,4);
 }

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 785220 2016-11-18 20:53:10Z dduschin $
+# $Id: CMakeLists.txt 796990 2017-02-14 07:47:22Z dduschin $
 ################################################################################
 # Package: TauAnalysisTools
 ################################################################################
@@ -28,18 +28,19 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    Event/xAOD/xAODTruth
    Generators/TruthUtils
-   InnerDetector/InDetRecTools/InDetTrackSelectionTool
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/MCTruthClassifier
    Reconstruction/tauRecTools
-   Tracking/TrkExtrapolation/TrkExUtils
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
    Control/AthLinks
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODMetaData
    Tools/PathResolver
+   PhysicsAnalysis/AnalysisCommon/PileupReweighting
    ${extra_deps} )
 
 # External dependencies:
@@ -51,10 +52,9 @@ atlas_add_library( TauAnalysisToolsLib
 	PUBLIC_HEADERS TauAnalysisTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODMuon xAODJet
-   xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces TrkExUtils
-   ElectronPhotonSelectorToolsLib tauRecToolsLib 
-   InDetTrackSelectionToolLib MCTruthClassifierLib
-   PRIVATE_LINK_LIBRARIES AthLinks xAODEventInfo PathResolver )
+   xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces
+   ElectronPhotonSelectorToolsLib tauRecToolsLib MCTruthClassifierLib
+   PRIVATE_LINK_LIBRARIES AthLinks xAODEventInfo xAODMetaData PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TauAnalysisTools
@@ -74,7 +74,7 @@ if( XAOD_STANDALONE )
       util/TauAnalysisToolsExample.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCore xAODEventInfo
-      xAODTau AsgTools  TauAnalysisToolsLib )
+      xAODTau AsgTools PileupReweightingLib TauAnalysisToolsLib )
 endif()
 
 # Test(s) in the package:
