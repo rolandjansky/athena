@@ -13,18 +13,29 @@ namespace xAOD {
       //m_weightTool("xAOD::TruthWeightTool/TruthWeightTool"),
       m_weightTool(nullptr) {
     
-    declareProperty("ForceNNLOPS",m_forceNNLOPS=false);
+    declareProperty("ForceNNLOPS", m_forceNNLOPS=false); // Run2-default Powheg NNLOPS ggF
+    declareProperty("ForceVBF",    m_forceVBF=false);    // Run2-default Powheg VBF
+    declareProperty("ForceVH",     m_forceVH=false);     // Run2-default Powheg VH (WpH, WmH, qq->ZH)
   }
 
   StatusCode HiggsWeightTool::initialize() {
-    m_mode=m_forceNNLOPS?FORCE_GGF_NNLOPS:AUTO;
-    if (m_mode==AUTO) {
+
+    int sum=m_forceNNLOPS+m_forceVBF+m_forceVH;
+    if (sum>1) std::runtime_error("Must not call more than one of ForceNNLOPS, ForceVBF or ForceVH");
+
+    if (sum==0) {
+      m_mode = AUTO;
       m_weightTool = new xAOD::TruthWeightTool("TruthWeightTool");
-      //if ( m_weightTool.retrieve().isFailure() )
-      //std::runtime_error("Failed accessing truth weight tool");
       ::Info("HiggsWeightTool","AUTO MODE");
-    } else {
+    } else if (m_forceNNLOPS) {
+      m_mode=FORCE_GGF_NNLOPS;
       ::Info("HiggsWeightTool","FORCE_GGF_NNLOPS MODE");
+    } else if (m_forceVBF) {
+      m_mode=FORCE_POWPY8_VBF;
+      ::Info("HiggsWeightTool","FORCE_POWPY8_VBF MODE");
+    } else if (m_forceVH) {
+      m_mode=FORCE_POWPY8_VH;
+      ::Info("HiggsWeightTool","FORCE_POWPY8_VH MODE");
     }
     m_init=true;
     return StatusCode::SUCCESS;
@@ -110,7 +121,9 @@ namespace xAOD {
   const std::vector<std::string> &HiggsWeightTool::getWeightNames() {
     if (!m_init) initialize();
     if (m_mode==AUTO) return m_weightTool->getWeightNames();
-    static std::vector<std::string> wNames = getDefaultNNLOPSweightNames();
+    static std::vector<std::string> wNames = 
+      m_mode==FORCE_GGF_NNLOPS ? getDefaultNNLOPSweightNames() :
+      m_mode==FORCE_POWPY8_VBF ? getDefaultVBFweightNames() : getDefaultVHweightNames();
     return wNames;
   }
 

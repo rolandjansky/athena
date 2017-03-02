@@ -127,7 +127,7 @@ namespace xAOD {
 
     enum mode { AUTO=0, FORCE_GGF_NNLOPS = 1, FORCE_POWPY8_VBF = 2, FORCE_POWPY8_VH = 3 };
     mode m_mode;
-    bool m_forceNNLOPS;
+    bool m_forceNNLOPS, m_forceVBF, m_forceVH;
 
     /// number of expected weights
     size_t m_Nweights;
