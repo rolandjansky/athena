@@ -15,6 +15,7 @@ class RatesTrigger : public RatesHistoBase {
    * @brief Construct new RatesTrigger to enumerate the rate for a single L1 or HLT trigger
    * Provide pass/fail information to RatesGroups which this trigger is part of.
    * @param name Name of the trigger
+   * @param log Reference to message service
    * @param prescale The prescale of the trigger. Anything < 1 is considered disabled
    * @param expressPrescale If the trigger is HLT and in the express group, its express prescale. Otherwise set = 0
    * @param seedName The name of any L1 seed the trigger has, leave blank if L1 item / no L1 seed.
@@ -23,6 +24,7 @@ class RatesTrigger : public RatesHistoBase {
    * @param extrapolation The luminosity extrapolation strategy to be applied to this trigger
    */
   RatesTrigger(const std::string& name,
+    const MsgStream& log,
     const double prescale = 1.,
     const double expressPrescale = -1,
     const std::string& seedName = "",

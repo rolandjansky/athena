@@ -28,10 +28,11 @@ class RatesGroup : public RatesHistoBase {
   /**
    * @brief Construct new RatesGroup to enumerate the combined union (OR) and intersection (AND) rate of a set of trigger at L1 or the HLT
    * @param name Name of the group
+   * @param log Reference to message service
    * @param prescale Prescale to apply to the whole group
    * @param doHistograms Flag to mint histograms or not
    */
-  RatesGroup(const std::string& name, const double prescale = 1., const bool doHistograms = true);
+  RatesGroup(const std::string& name, const MsgStream& log, const double prescale = 1., const bool doHistograms = true);
 
   ~RatesGroup();
 

@@ -1,10 +1,10 @@
 #include "RatesAnalysis/RatesTrigger.h"
 #include "RatesAnalysis/RatesGroup.h"
 
-RatesTrigger::RatesTrigger(const std::string& name, const double prescale, const double expressPrescale,
+RatesTrigger::RatesTrigger(const std::string& name, const MsgStream& log, const double prescale, const double expressPrescale,
                            const std::string& seedName, const double seedPrescale, const bool doHistograms,
                            const ExtrapStrat_t extrapolation) :
-  RatesHistoBase(name, (prescale < 1. || seedPrescale < 1. ? false : doHistograms)),
+  RatesHistoBase(name, log, (prescale < 1. || seedPrescale < 1. ? false : doHistograms)),
   m_pass(false),
   m_seedsFromRandom(false),
   m_rateAccumulator(0.),
@@ -71,7 +71,7 @@ double RatesTrigger::getExtrapolationFactor(const WeightingValuesSummary_t& weig
     case kBUNCH_SCALING: return weights.m_bunchFactor;
     case kMU_SCALING: return weights.m_muFactor;
     case kNONE: return weights.m_noScaling;
-    default: std::cerr << "ERROR in getExtrapolationFactor. Unknown ExtrapStrat_t ENUM supplied " << m_extrapolationStrategy << std::endl;
+    default: m_log << MSG::ERROR << "Error in getExtrapolationFactor. Unknown ExtrapStrat_t ENUM supplied " << m_extrapolationStrategy << endmsg;
   }
   return 0.;
 }

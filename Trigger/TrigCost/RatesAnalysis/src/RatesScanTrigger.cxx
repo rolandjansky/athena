@@ -1,12 +1,13 @@
 #include "RatesAnalysis/RatesScanTrigger.h"
 
 RatesScanTrigger::RatesScanTrigger( const std::string& name, 
+                                    const MsgStream& log,
                                     const double thresholdMin, const double thresholdMax, const uint32_t thresholdBins,  
                                     const TriggerBehaviour_t behaviour,
                                     const double prescale,
                                     const std::string& seedName, const double seedPrescale,
                                     const ExtrapStrat_t extrapolation) :
-  RatesTrigger(name, prescale, -1, seedName, seedPrescale, false, extrapolation),
+  RatesTrigger(name, log, prescale, -1, seedName, seedPrescale, false, extrapolation),
   m_rateScanHist(nullptr), m_thresholdPassed(0), m_behaviour(behaviour)
   {
     m_rateScanHist = new TH1D(TString(std::to_string(m_histoID++)),TString(name + ";Threshold;Rate [Hz]"), thresholdBins, thresholdMin, thresholdMax);
@@ -14,16 +15,17 @@ RatesScanTrigger::RatesScanTrigger( const std::string& name,
   }
 
 RatesScanTrigger::RatesScanTrigger( const std::string& name, 
+                                    const MsgStream& log,
                                     const std::vector<double>& thresholdBinEdged,  
                                     const TriggerBehaviour_t behaviour,
                                     const double prescale,
                                     const std::string& seedName, const double seedPrescale,
                                     const ExtrapStrat_t extrapolation) :
-  RatesTrigger(name, prescale, -1, seedName, seedPrescale, false, extrapolation),
+  RatesTrigger(name, log, prescale, -1, seedName, seedPrescale, false, extrapolation),
   m_rateScanHist(nullptr), m_thresholdPassed(0), m_behaviour(behaviour)
   {
     if (thresholdBinEdged.size() < 2) {
-      std::cerr << "RatesScanTrigger::RatesScanTrigger: ERROR Need more than one entry in thresholdBinEdged to define histogram binning." << std::endl;
+      m_log << MSG::ERROR << "Need more than one entry in thresholdBinEdged to define histogram binning." << endmsg;
       return;
     }
     size_t nBins = thresholdBinEdged.size() - 1;

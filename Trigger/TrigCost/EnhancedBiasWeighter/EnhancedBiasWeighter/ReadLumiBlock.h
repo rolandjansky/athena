@@ -54,15 +54,14 @@ private:
 
   std::map<uint32_t, uint64_t> m_lbLength;       // Hold the runs LB lengths
 
-  cool::DatabaseId            m_cool_id;        // COOL connection id
-  cool::DatabaseId            m_cool_id_run1;   // COOL connection id for run 1 data
-  cool::DatabaseId            m_cool_id_run2;   // COOL connection id for run 2 data
-  cool::IDatabasePtr          m_cool_ptr;       // COOL database pointer
+  cool::DatabaseId   m_cool_id;        // COOL connection id
+  cool::DatabaseId   m_cool_id_run1;   // COOL connection id for run 1 data
+  cool::DatabaseId   m_cool_id_run2;   // COOL connection id for run 2 data
+  cool::IDatabasePtr m_cool_ptr;       // COOL database pointer
   
-  std::string                 m_cool_source;    // COOL configuration source
-  uint32_t                    m_run;            // Run number
-
-  bool                        m_triedSetup;     // If we have tried to get a DB connection
+  std::string m_cool_source;    // COOL configuration source
+  uint32_t    m_run;            // Run number
+  bool        m_triedSetup;     // If we have tried to get a DB connection
 };
 
 #endif

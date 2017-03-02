@@ -2,8 +2,8 @@
 
 uint32_t RatesHistoBase::m_histoID = 0;
 
-RatesHistoBase::RatesHistoBase(const std::string& name, const bool doHistograms) : 
-  m_doHistograms(doHistograms), m_rateVsMu(nullptr), m_rateVsTrain(nullptr) 
+RatesHistoBase::RatesHistoBase(const std::string& name, const MsgStream& log, const bool doHistograms) : 
+  m_doHistograms(doHistograms), m_rateVsMu(nullptr), m_rateVsTrain(nullptr), m_log(log) 
 {
   if (m_doHistograms) {
     m_rateVsMu = new TH1D(TString(std::to_string(m_histoID++)),TString(name + ";#mu;Rate / Unit #mu [Hz]"),100,0.,100.) ;
@@ -19,8 +19,8 @@ RatesHistoBase::RatesHistoBase(const std::string& name, const bool doHistograms)
 RatesHistoBase::~RatesHistoBase() {}
 
 TH1D* RatesHistoBase::getMuHist() const { 
-  if (!m_doHistograms) {
-    std::cerr << "RatesHistoBase::getTrainHist Warning requested histograms when histograming is OFF here." << std::endl;
+  if (!m_doHistograms) { 
+    m_log << MSG::ERROR << "RatesHistoBase::getTrainHist Warning requested histograms when histograming is OFF here." << endmsg;
     return nullptr;
   }
   // std::cout << " returning a pointer to mu " << m_rateVsMu << std::endl;
@@ -30,7 +30,7 @@ TH1D* RatesHistoBase::getMuHist() const {
 
 TH1D* RatesHistoBase::getTrainHist() const { 
   if (!m_doHistograms) {
-    std::cerr << "RatesHistoBase::getTrainHist Warning requested histograms when histograming is OFF here." << std::endl;
+    m_log << MSG::ERROR << "RatesHistoBase::getTrainHist Warning requested histograms when histograming is OFF here." << endmsg;
     return nullptr;
   }
   // std::cout << " returning a pointer to train " << m_rateVsTrain << std::endl;

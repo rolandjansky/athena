@@ -1,6 +1,11 @@
 #ifndef RATESANALYSIS_RATESHISTOBASE_H
 #define RATESANALYSIS_RATESHISTOBASE_H 1
 
+#include "TH1.h"
+#include "TString.h"
+
+#include "GaudiKernel/MsgStream.h"
+
 #include <string>
 #include <unordered_map>
 #include <set>
@@ -9,9 +14,6 @@
 #include <iostream>
 #include <iomanip>
 #include <memory>
-
-#include <TH1.h>
-#include <TString.h>
 
 /**
 * Extrapolation strategy to apply to each emulated trigger.
@@ -60,7 +62,7 @@ struct WeightingValuesSummary_t {
 class RatesHistoBase {
  public:
 
-  RatesHistoBase(const std::string& name, const bool doHistograms = true);
+  RatesHistoBase(const std::string& name, const MsgStream& log, const bool doHistograms = true);
   ~RatesHistoBase();
 
   TH1D* getMuHist() const; //!< @return histogram pointer or nullptr and an error
@@ -76,6 +78,8 @@ class RatesHistoBase {
   TH1D* m_rateVsMu; //!< Histogram of rate as a fn. of the input event's mu
   TH1D* m_rateVsTrain; //!< Histogram of rate as a fn. of position in bunch train
   static uint32_t m_histoID; //!< Give every histo a unique name using this
+
+  mutable MsgStream m_log; //!< For ATHENA messaging
 };
 
 #endif //> !RATESANALYSIS_RATESHISTOBASE_H

@@ -56,7 +56,7 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
     return StatusCode::FAILURE;
   }
 
-  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, thresholdMin, thresholdMax, thresholdBins, behaviour, prescale, seedName, seedPrecale, extrapolation)));
+  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, msg(), thresholdMin, thresholdMax, thresholdBins, behaviour, prescale, seedName, seedPrecale, extrapolation)));
   RatesScanTrigger* newScanTrigger = &(m_scanTriggers.at(name));
   if (isRandomSeed(name, seedName)) newScanTrigger->setSeedsFromRandom(true);
   ATH_MSG_DEBUG("newScanTrigger " <<  name << " added");
@@ -78,7 +78,7 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
     return StatusCode::FAILURE;
   }
 
-  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, thresholdBinEdges, behaviour, prescale, seedName, seedPrecale, extrapolation)));
+  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, msg(), thresholdBinEdges, behaviour, prescale, seedName, seedPrecale, extrapolation)));
   RatesScanTrigger* newScanTrigger = &(m_scanTriggers.at(name));
   if (isRandomSeed(name, seedName)) newScanTrigger->setSeedsFromRandom(true);
   ATH_MSG_DEBUG("newScanTrigger " <<  name << " added");
@@ -130,7 +130,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
 
   const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
 
-  m_triggers.emplace(std::make_pair(name, RatesTrigger(name, prescale, expressPrescale, seedName, seedPrecale, m_doHistograms, e)));
+  m_triggers.emplace(std::make_pair(name, RatesTrigger(name, msg(), prescale, expressPrescale, seedName, seedPrecale, m_doHistograms, e)));
   RatesTrigger* newTriggerPtr = &(m_triggers.at(name));
 
   if (isRandomSeed(name, seedName)) newTriggerPtr->setSeedsFromRandom(true);
@@ -150,7 +150,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   // Add this trigger to its groups
   for (const std::string& group : groups) {
     if (m_groups.count(group) == 0) {
-      m_groups.emplace(std::make_pair(group, RatesGroup(group, .1, m_doHistograms)));
+      m_groups.emplace(std::make_pair(group, RatesGroup(group, msg(), .1, m_doHistograms)));
       // As the group is formed from at least one active trigger - it must be active itself (counter example - CPS group of a PS=-1 trigger)
       m_activeGroups.insert( &(m_groups.at(group)) );
     }
@@ -318,9 +318,9 @@ StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const 
 StatusCode RatesAnalysisAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  m_globalGroups.emplace(std::make_pair(m_l1GroupName,      RatesGroup(m_l1GroupName,      1., false))); // TODO re-enable group histograms
-  m_globalGroups.emplace(std::make_pair(m_l2GroupName,      RatesGroup(m_l2GroupName,      1., false)));
-  m_globalGroups.emplace(std::make_pair(m_expressGroupName, RatesGroup(m_expressGroupName, 1., false)));
+  m_globalGroups.emplace(std::make_pair(m_l1GroupName,      RatesGroup(m_l1GroupName, msg(),      1., false))); // TODO re-enable group histograms
+  m_globalGroups.emplace(std::make_pair(m_l2GroupName,      RatesGroup(m_l2GroupName, msg(),      1., false)));
+  m_globalGroups.emplace(std::make_pair(m_expressGroupName, RatesGroup(m_expressGroupName, msg(), 1., false)));
   m_globalGroups.at(m_l2GroupName).setDoCachedWeights( m_doUniqueRates ); // This extra sub-weight caching is only utilised by unique-rate groups 
   m_globalGroups.at(m_expressGroupName).setExpressGroup( true );
   return StatusCode::SUCCESS;
@@ -387,7 +387,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     const RatesGroup* l1GroupPtr = &(m_globalGroups.at(m_l1GroupName)); // The finalised list of all L1 chains
     for (const auto& trigger : m_triggers) {
       const uint32_t level = getLevel(trigger.first);
-      m_uniqueGroups.emplace(std::make_pair(trigger.first, RatesGroup(trigger.first, 1., false))); // Each trigger gets its own unique group. No hist needed
+      m_uniqueGroups.emplace(std::make_pair(trigger.first, RatesGroup(trigger.first, msg(), 1., false))); // Each trigger gets its own unique group. No hist needed
       RatesTrigger* triggerPtr = &(m_triggers.at(trigger.first));
       RatesGroup* uniqueGroupPtr = &(m_uniqueGroups.at(trigger.first));
       triggerPtr->setUniqueGroup( uniqueGroupPtr );

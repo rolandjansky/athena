@@ -21,6 +21,7 @@ class RatesScanTrigger : public RatesTrigger {
   /**
    * @brief Construct new RatesScanTrigger to enumerate the rate for a single L1 or HLT trigger as a function of some threshold
    * @param name Name of the trigger
+   * @param log Reference to message service
    * @param thresholdMin The lower threshold of this trigger, rates will not be available below this threshold
    * @param thresholdMax The upper threshold of this trigger, rates will not be available above this threshold
    * @param thresholdBins Granularity 
@@ -31,6 +32,7 @@ class RatesScanTrigger : public RatesTrigger {
    * @param extrapolation The luminosity extrapolation strategy to be applied to this trigger
    */
   RatesScanTrigger(const std::string& name,
+    const MsgStream& log,
     const double thresholdMin,
     const double thresholdMax,
     const uint32_t thresholdBins = 100,
@@ -43,6 +45,7 @@ class RatesScanTrigger : public RatesTrigger {
   /**
    * @brief Construct new RatesScanTrigger to enumerate the rate for a single L1 or HLT trigger as a function of some threshold
    * @param name Name of the trigger
+   * @param log Reference to message service
    * @param thresholdBinEdged Vector of bin edges to use for quantifying rate as a function of threshold
    * @param behaviour If the trigger should activate above (kTriggerAboveThreshold) or below (kTriggerBelowThreshold) the threshold
    * @param prescale The prescale of the trigger. Anything < 1 is considered disabled
@@ -51,6 +54,7 @@ class RatesScanTrigger : public RatesTrigger {
    * @param extrapolation The luminosity extrapolation strategy to be applied to this trigger
    */
   RatesScanTrigger(const std::string& name,
+    const MsgStream& log,
     const std::vector<double>& thresholdBinEdges,
     const TriggerBehaviour_t behaviour = kTriggerBelowThreshold,
     const double prescale = 1.,

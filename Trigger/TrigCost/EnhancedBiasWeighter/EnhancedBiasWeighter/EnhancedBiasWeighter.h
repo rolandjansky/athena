@@ -165,15 +165,15 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     std::unordered_map<uint64_t, int32_t> m_eventNumberToIdMap; //!< Map event number to a weighting ID
 
     mutable std::unordered_map<uint32_t, float> m_eventLivetime; //!< Cache of per-event livetime as a function of LB [LB -> effective walltime per event]
-    mutable double                              m_lumiAverageNum; //!< The average instantaneous lumionosity over all events. Numerator
-    mutable double                              m_muAverageNum; //!< The average mu over all events. Numerator
-    mutable uint32_t                            m_averageDenom; //!< The average over all events. Denominator
+    mutable double   m_lumiAverageNum; //!< The average instantaneous lumionosity over all events. Numerator
+    mutable double   m_muAverageNum; //!< The average mu over all events. Numerator
+    mutable uint32_t m_averageDenom; //!< The average over all events. Denominator
 
-    std::unordered_map<int32_t, double>     m_idToWeightMap; //!< Map a weighting ID to a Enhanced Bias event weight
-    std::unordered_map<int32_t, uint8_t>    m_idToUnbiasedMap; //!< Map a weighting ID to a flag if this weight is from an unbiased (RD) trigger online
-    std::unordered_map<uint32_t, uint32_t>  m_eventsPerLB; //!< Map of how many EnhancedBias events were recorded per LB 
-    std::unordered_map<uint32_t, double>    m_lumiPerLB; //!< Map of instantaneous luminosity per LB 
-    std::unordered_map<uint32_t, uint8_t>   m_goodLB;  //!< Like a Good Run List flag for EnhancedBias runs.
+    std::unordered_map<int32_t, double>    m_idToWeightMap; //!< Map a weighting ID to a Enhanced Bias event weight
+    std::unordered_map<int32_t, uint8_t>   m_idToUnbiasedMap; //!< Map a weighting ID to a flag if this weight is from an unbiased (RD) trigger online
+    std::unordered_map<uint32_t, uint32_t> m_eventsPerLB; //!< Map of how many EnhancedBias events were recorded per LB 
+    std::unordered_map<uint32_t, double>   m_lumiPerLB; //!< Map of instantaneous luminosity per LB 
+    std::unordered_map<uint32_t, uint8_t>  m_goodLB;  //!< Like a Good Run List flag for EnhancedBias runs.
 
     ReadLumiBlock m_readLumiBlock; //!< Cache lumi block lengths. Get this from COOL.
 }; 

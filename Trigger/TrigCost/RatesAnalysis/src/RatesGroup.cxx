@@ -9,8 +9,8 @@ double RatesCPS::getWeight() const {
   return (1. - m_weight) / m_coherentFactor;
 }
 
-RatesGroup::RatesGroup(const std::string& name, const double prescale, const bool doHistograms) :
-  RatesHistoBase(name, doHistograms),
+RatesGroup::RatesGroup(const std::string& name, const MsgStream& log, const double prescale, const bool doHistograms) :
+  RatesHistoBase(name, log, doHistograms),
   m_name(name),
   m_nameHash(std::hash<std::string>{}(name)),
   m_groupPrescale(prescale < 1. ? 0 : prescale),
