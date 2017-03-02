@@ -102,39 +102,15 @@ StatusCode InDet::TRT_SegmentsToTrack::initialize()
   m_events=0;
   m_noiseratio=0.;
 
-  StatusCode status = StatusCode::SUCCESS;
-  
   //--------- Set up fitter -------------
-  status = m_trackFitter.retrieve();
-  if (status.isFailure())
-    {
-      ATH_MSG_FATAL("Could not find tool " << m_trackFitter << ". Exiting.");
-      return status;
-    }
-  else{
-    ATH_MSG_DEBUG(" Got " << m_trackFitter << " as TrackFitter. ");
-  }
+  CHECK( m_trackFitter.retrieve());
 
+  CHECK(detStore()->retrieve(m_trtid));
 
-  if ((detStore()->retrieve(m_trtid)).isFailure()) {
-    ATH_MSG_ERROR( "Problem retrieving TRTID helper");
-    return StatusCode::FAILURE;
-  }
-  
+  CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
-
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_FATAL( "Could not get AtlasDetectorID helper");
-    return StatusCode::FAILURE;
-  }
-
-  if (m_extrapolator.retrieve().isFailure()) {  
-     ATH_MSG_FATAL( "Could not get " << m_extrapolator.type()); 
-     return StatusCode::FAILURE;  
-   } 
-
-  return status;
-
+  CHECK(m_extrapolator.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode InDet::TRT_SegmentsToTrack::finalize()
@@ -208,11 +184,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
   //output collections for fitted tracks
   TrackCollection *outputTrackCollection   = new TrackCollection();
 
-  sc = evtStore()->retrieve(inputSegments, m_inputSegmentCollectionName);
-  if(sc.isFailure()){
-    ATH_MSG_FATAL("Could not open segments collection : " << m_inputSegmentCollectionName);
-    return sc;
-  }
+  CHECK(evtStore()->retrieve(inputSegments, m_inputSegmentCollectionName));
 
 
   //try to get truth information
