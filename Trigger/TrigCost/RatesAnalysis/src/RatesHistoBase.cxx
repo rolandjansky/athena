@@ -2,9 +2,6 @@
 
 uint32_t RatesHistoBase::m_histoID = 0;
 
-/**
- * Base class such that everyone can have histograms.
- */
 RatesHistoBase::RatesHistoBase(const std::string& name, const bool doHistograms) : 
   m_doHistograms(doHistograms), m_rateVsMu(nullptr), m_rateVsTrain(nullptr) 
 {
@@ -19,9 +16,8 @@ RatesHistoBase::RatesHistoBase(const std::string& name, const bool doHistograms)
   }
 }
 
-/**
- * @return histogram pointer or nullptr and an error
- */
+RatesHistoBase::~RatesHistoBase() {}
+
 TH1D* RatesHistoBase::getMuHist() const { 
   if (!m_doHistograms) {
     std::cerr << "RatesHistoBase::getTrainHist Warning requested histograms when histograming is OFF here." << std::endl;
@@ -32,9 +28,6 @@ TH1D* RatesHistoBase::getMuHist() const {
   return m_rateVsMu; 
 }
 
-/**
- * @return histogram pointer or nullptr and an error
- */
 TH1D* RatesHistoBase::getTrainHist() const { 
   if (!m_doHistograms) {
     std::cerr << "RatesHistoBase::getTrainHist Warning requested histograms when histograming is OFF here." << std::endl;
@@ -45,14 +38,6 @@ TH1D* RatesHistoBase::getTrainHist() const {
   return m_rateVsTrain;
 }
 
-/**
- * Letting ROOT handle the memory management of the histograms
- */
-RatesHistoBase::~RatesHistoBase() {}
-
-/**
- * Normalise to walltime to get rate.
- */
 void RatesHistoBase::normaliseHist(const double ratesDenominator) {
   if (m_doHistograms) {
     m_rateVsMu->Scale(1. / ratesDenominator);

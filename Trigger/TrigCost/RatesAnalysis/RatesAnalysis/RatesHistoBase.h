@@ -26,22 +26,22 @@ enum ExtrapStrat_t{
 };
 
 /**
- * Structure to hold per-event weights for distribution
+ * @brief Structure to hold per-event weights for distribution
  */
 struct WeightingValuesSummary_t {
   // Event property weights
-  double   m_enhancedBiasWeight;
-  double   m_eventMu;
-  double   m_eventLumi;
-  bool     m_isUnbiased;
-  uint32_t m_distanceInTrain;
-  double   m_eventLiveTime;
+  double   m_enhancedBiasWeight; //!< A property of the event derived from online enhanced bias prescales
+  double   m_eventMu; //!< The actual number of interactions in the event
+  double   m_eventLumi; //!< The instantaneous lumi in cm-2s-1
+  bool     m_isUnbiased; //!< If the event was taken online with a RD trigger
+  uint32_t m_distanceInTrain; //!< How far into the bunch train the event was, in bunch crossings 
+  double   m_eventLiveTime; //!< How much wall-time at P1 did this event represent
   // Lumi weights
-  double   m_bunchFactor;
-  double   m_muFactor;
-  double   m_linearLumiFactor;
-  double   m_expoMuFactor;
-  const double m_noScaling = 1.;
+  double   m_bunchFactor; //!< What weight needs to be applied to extrapolate rates linear in number of bunches
+  double   m_muFactor; //!< What weight needs to be applied to extrapolate rates linear in mu
+  double   m_linearLumiFactor; //!< What weight needs to be applied to extrapolate rates linear in mu and bunches 
+  double   m_expoMuFactor; //!< What weight needs to be applied to extrapolate rates linear in bunches and exponential in mu.
+  const double m_noScaling = 1.; //!< Weight for no scaling.
   const std::string print() {
     std::stringstream ss;
     ss << "WeightSummary: wEB:" << m_enhancedBiasWeight << " mu:" << m_eventMu << " lumi:" << m_eventLumi;
@@ -54,7 +54,8 @@ struct WeightingValuesSummary_t {
 };
 
 /**
- * Basic base class for any common functionality between RatesTrigger and RatesGroup 
+ * @brief Basic base class for any common functionality between RatesTrigger and RatesGroup
+ * This means that everyone has access to the same histograms
  */
 class RatesHistoBase {
  public:
@@ -62,19 +63,19 @@ class RatesHistoBase {
   RatesHistoBase(const std::string& name, const bool doHistograms = true);
   ~RatesHistoBase();
 
-  TH1D* getMuHist() const;
-  TH1D* getTrainHist() const;
-  virtual void normaliseHist(const double ratesDenominator);
-  bool doHistograms() const { return m_doHistograms; }
+  TH1D* getMuHist() const; //!< @return histogram pointer or nullptr and an error
+  TH1D* getTrainHist() const; //!< @return histogram pointer or nullptr and an error
+  virtual void normaliseHist(const double ratesDenominator); //!< Normalise to walltime to get rate.
+  bool doHistograms() const { return m_doHistograms; } //!< If histogramming was enabled in this rates object
 
-  static bool isZero(double v) { return fabs(v) < 1e-10; }
+  static bool isZero(double v) { return fabs(v) < 1e-10; } //<! Helper fn
 
  protected:
 
-  bool m_doHistograms;
-  TH1D* m_rateVsMu;  
-  TH1D* m_rateVsTrain;
-  static uint32_t m_histoID;
+  bool m_doHistograms; //!< If histogramming is switched on
+  TH1D* m_rateVsMu; //!< Histogram of rate as a fn. of the input event's mu
+  TH1D* m_rateVsTrain; //!< Histogram of rate as a fn. of position in bunch train
+  static uint32_t m_histoID; //!< Give every histo a unique name using this
 };
 
 #endif //> !RATESANALYSIS_RATESHISTOBASE_H

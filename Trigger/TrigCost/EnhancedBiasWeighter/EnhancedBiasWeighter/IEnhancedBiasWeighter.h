@@ -9,6 +9,10 @@
 struct ChainDetail;
 
 //class IEnhancedBiasWeighter : public virtual asg::IAsgTool {
+
+/**
+ * @brief Define interface of EnhancedBias weighting class
+ */
 class IEnhancedBiasWeighter : public virtual DerivationFramework::IAugmentationTool {
    public:
       ASG_TOOL_INTERFACE( IEnhancedBiasWeighter ) //declares the interface to athena

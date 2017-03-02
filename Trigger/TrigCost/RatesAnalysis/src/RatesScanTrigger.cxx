@@ -1,17 +1,5 @@
 #include "RatesAnalysis/RatesScanTrigger.h"
 
-/**
- * Construct new RatesScanTrigger to enumerate the rate for a single L1 or HLT trigger as a function of some threshold
- * @param name Name of the trigger
- * @param thresholdMin The lower threshold of this trigger, rates will not be available below this threshold
- * @param thresholdMax The upper threshold of this trigger, rates will not be available above this threshold
- * @param thresholdBins Granularity 
- * @param behaviour If the trigger should activate above (kTriggerAboveThreshold) or below (kTriggerBelowThreshold) the threshold
- * @param prescale The prescale of the trigger. Anything < 1 is considered disabled
- * @param seedName The name of any L1 seed the trigger has, leave blank if L1 item / no L1 seed.
- * @param seedPrescale The prescale of any L1 seed. Leave = 1 if no L1 seed.
- * @param extrapolation The luminosity extrapolation strategy to be applied to this trigger
- */
 RatesScanTrigger::RatesScanTrigger( const std::string& name, 
                                     const double thresholdMin, const double thresholdMax, const uint32_t thresholdBins,  
                                     const TriggerBehaviour_t behaviour,
@@ -25,17 +13,6 @@ RatesScanTrigger::RatesScanTrigger( const std::string& name,
     m_rateScanHist->SetName("rateVsThreshold");
   }
 
-
-/**
- * Construct new RatesScanTrigger to enumerate the rate for a single L1 or HLT trigger as a function of some threshold
- * @param name Name of the trigger
- * @param thresholdBinEdged Vector of bin edges to use for quantifying rate as a function of threshold
- * @param behaviour If the trigger should activate above (kTriggerAboveThreshold) or below (kTriggerBelowThreshold) the threshold
- * @param prescale The prescale of the trigger. Anything < 1 is considered disabled
- * @param seedName The name of any L1 seed the trigger has, leave blank if L1 item / no L1 seed.
- * @param seedPrescale The prescale of any L1 seed. Leave = 1 if no L1 seed.
- * @param extrapolation The luminosity extrapolation strategy to be applied to this trigger
- */
 RatesScanTrigger::RatesScanTrigger( const std::string& name, 
                                     const std::vector<double>& thresholdBinEdged,  
                                     const TriggerBehaviour_t behaviour,
@@ -54,22 +31,13 @@ RatesScanTrigger::RatesScanTrigger( const std::string& name,
     m_rateScanHist->SetName("rateVsThreshold");
   }
 
-/**
- * Letting ROOT handle the memory management of the histograms
- */
 RatesScanTrigger::~RatesScanTrigger() {}
 
-/**
- * Sets the threshold the event 
- */
 void RatesScanTrigger::passThreshold(const double t, const bool unbiasedEvent) {
   if (m_seedsFromRandom == true && unbiasedEvent == false) return;
   m_thresholdPassed = t;
 }
 
-/**
- * Set the pass threshold and immediately call execute. Should only be done once per event.
- */
 void RatesScanTrigger::setPassedAndExecute(const double t, const WeightingValuesSummary_t& weights) {
   if (m_seedsFromRandom == true && weights.m_isUnbiased == false) return;
   if (m_thresholdPassed != std::numeric_limits<double>::min()) return; // We've already done this event
@@ -77,11 +45,7 @@ void RatesScanTrigger::setPassedAndExecute(const double t, const WeightingValues
   execute(weights);
 }
 
-/**
- * Execute trigger rate emulation. If the trigger passed threshold is within the defined range then fill the 
- * relevant histogram bins
- * @param weights Summary of all event weights which may be used by this trigger
- */
+
 void RatesScanTrigger::execute(const WeightingValuesSummary_t& weights) {
   if (m_thresholdPassed == std::numeric_limits<double>::min()) return; // Did not pass
   // This histogram we *do* include the extrapolation weight as we plot vs. some trigger property, not some event property
@@ -113,13 +77,6 @@ void RatesScanTrigger::normaliseHist(const double ratesDenominator) {
   m_rateScanHist->Scale(1. / ratesDenominator);
 }
 
-
-
-
-/**
- * Prints the RatesScanTrigger's rate
- * @param ratesDenominator The walltime for the run, needed to normalise from integrated weighted counts to a rate.
- */
 const std::string RatesScanTrigger::printRate(const double ratesDenominator) const {
   std::stringstream ss;
   const int nBins = m_rateScanHist->GetNbinsX();

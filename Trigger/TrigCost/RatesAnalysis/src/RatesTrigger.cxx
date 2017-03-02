@@ -1,17 +1,6 @@
 #include "RatesAnalysis/RatesTrigger.h"
 #include "RatesAnalysis/RatesGroup.h"
 
-/**
- * Construct new RatesTrigger to enumerate the rate for a single L1 or HLT trigger, and provide pass/fail
- * information to RatesGroups which this trigger is part of.
- * @param name Name of the trigger
- * @param prescale The prescale of the trigger. Anything < 1 is considered disabled
- * @param expressPrescale If the trigger is HLT and in the express group, its express prescale. Otherwise set = 0
- * @param seedName The name of any L1 seed the trigger has, leave blank if L1 item / no L1 seed.
- * @param seedPrescale The prescale of any L1 seed. Leave = 1 if no L1 seed.
- * @param doHistograms Flag to mint histograms or not
- * @param extrapolation The luminosity extrapolation strategy to be applied to this trigger
- */
 RatesTrigger::RatesTrigger(const std::string& name, const double prescale, const double expressPrescale,
                            const std::string& seedName, const double seedPrescale, const bool doHistograms,
                            const ExtrapStrat_t extrapolation) :
@@ -39,17 +28,11 @@ RatesTrigger::RatesTrigger(const std::string& name, const double prescale, const
 
 RatesTrigger::~RatesTrigger() {}
 
-/**
- * Set the pass/fail bool. Execute needs to be called separately afterwards.
- */
 void RatesTrigger::setPassed(const bool i, const bool unbiasedEvent) { 
   if (m_seedsFromRandom == true && unbiasedEvent == false) return;
   m_pass = i;
 }
 
-/**
- * Set the pass/fail bool and immediately call execute. Should only be done once per event.
- */
 void RatesTrigger::setPassedAndExecute(const bool i, const WeightingValuesSummary_t& weights) { 
   if (m_seedsFromRandom == true && weights.m_isUnbiased == false) return;
   if (m_pass == false) { // Protect against two positive calls/event
@@ -58,11 +41,6 @@ void RatesTrigger::setPassedAndExecute(const bool i, const WeightingValuesSummar
   }
 }
 
-/**
- * Execute trigger rate emulation. If the trigger passed, add to its rate the effective number of events it is accepting.
- * Also keep track of any express prescale rate
- * @param weights Summary of all event weights which may be used by this trigger
- */
 void RatesTrigger::execute(const WeightingValuesSummary_t& weights) {
   if (m_pass == false) return; 
   double w =  m_totalPrescaleWeight * weights.m_enhancedBiasWeight;
@@ -81,10 +59,6 @@ void RatesTrigger::execute(const WeightingValuesSummary_t& weights) {
   }
 }
 
-/**
- * Gets the triggers prescale
- * @param includeExpress If true, the items express prescale is added on top of its regular prescale
- */
 double RatesTrigger::getPrescale(const bool includeExpress) const { 
   if (includeExpress) return m_prescale * m_expressPrescale;
   return m_prescale;
@@ -102,10 +76,6 @@ double RatesTrigger::getExtrapolationFactor(const WeightingValuesSummary_t& weig
   return 0.;
 }
 
-
-/**
- * Prints the RatesTrigger's configuration
- */
 const std::string RatesTrigger::printConfig() const {
   std::stringstream ss;
   ss << std::setfill(' ') 
@@ -117,10 +87,6 @@ const std::string RatesTrigger::printConfig() const {
   return ss.str();
 }
 
-/**
- * Prints the RatesTrigger's rate
- * @param ratesDenominator The walltime for the run, needed to normalise from integrated weighted counts to a rate.
- */
 const std::string RatesTrigger::printRate(const double ratesDenominator) const {
   std::stringstream ss;
   ss << std::setfill(' '); 
@@ -140,10 +106,6 @@ const std::string RatesTrigger::printRate(const double ratesDenominator) const {
   return ss.str();
 }
 
-/**
- * Prints the RatesTrigger's express rate
- * @param ratesDenominator The walltime for the run, needed to normalise from integrated weighted counts to a rate.
- */
 const std::string RatesTrigger::printExpressRate(const double ratesDenominator) const {
   std::stringstream ss;
   ss << std::setfill(' '); 

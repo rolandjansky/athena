@@ -26,7 +26,7 @@ class RatesGroup : public RatesHistoBase {
  public: 
 
   /**
-   * @breif Construct new RatesGroup to enumerate the combined union (OR) and intersection (AND) rate of a set of trigger at L1 or the HLT
+   * @brief Construct new RatesGroup to enumerate the combined union (OR) and intersection (AND) rate of a set of trigger at L1 or the HLT
    * @param name Name of the group
    * @param prescale Prescale to apply to the whole group
    * @param doHistograms Flag to mint histograms or not
@@ -36,7 +36,7 @@ class RatesGroup : public RatesHistoBase {
   ~RatesGroup();
 
   /**
-   * @breif Add a trigger to this group. It will be stored in a set mapped to its L1 seed. 
+   * @brief Add a trigger to this group. It will be stored in a set mapped to its L1 seed. 
    * 'All L1' items are mapped under an empty string.
    * @param toAdd Pointer to a trigger to add to this group.
    */
@@ -58,7 +58,7 @@ class RatesGroup : public RatesHistoBase {
   void removeOtherL1(const RatesTrigger* toKeep);
 
   /**
-   * @breif Perform group rates evaluation.
+   * @brief Perform group rates evaluation.
    * We force all HLT chains to only have a single L1 seed, however L1 items may seed many HLT chains.
    * This allows for a factorising algorithm to be utilised.
    * The union (OR) and intercept (AND) are calculated.
@@ -76,7 +76,7 @@ class RatesGroup : public RatesHistoBase {
   double getCachedWeight(const size_t l1Hash) const { return m_cachedWeights.at(l1Hash); } //!< Get cached weight from triggers seeding from a given L1 item.
 
   /**
-   * @bried Get the unique rate of a unique-rate group
+   * @brief Get the unique rate of a unique-rate group
    * For a group being used to get a unique rate, we need to subtract the rate of this
    * group of N-1 chains from the master group of N chains.
    * @return the unique rate of the trigger being calculated by this group
@@ -88,7 +88,7 @@ class RatesGroup : public RatesHistoBase {
   const std::string printConfig() const; //!< Prints the RatesGroup's configuration
 
   /**
-   * @breif Prints the RatesGroup's rate
+   * @brief Prints the RatesGroup's rate
    * @param ratesDenominator The walltime for the run, needed to normalise from integrated weighted counts to a rate.
    */
   const std::string printRate(const double ratesDenominator) const;

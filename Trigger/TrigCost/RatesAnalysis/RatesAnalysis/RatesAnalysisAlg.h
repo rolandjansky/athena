@@ -99,7 +99,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
     const ExtrapStrat_t extrapolation = kLINEAR);
 
   /**
-   * Version of newScanTrigger which takes a vector of bin edges
+   * @brief Version of newScanTrigger which takes a vector of bin edges
    * @param thresholdBinEdged Vector of bin edges to use for quantifying rate as a function of threshold
    */
   StatusCode newScanTrigger(const std::string& name,
