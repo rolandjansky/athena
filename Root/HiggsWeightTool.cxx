@@ -21,7 +21,7 @@ namespace xAOD {
   StatusCode HiggsWeightTool::initialize() {
 
     int sum=m_forceNNLOPS+m_forceVBF+m_forceVH;
-    if (sum>1) std::runtime_error("Must not call more than one of ForceNNLOPS, ForceVBF or ForceVH");
+    if (sum>1) throw std::runtime_error("Must not call more than one of ForceNNLOPS, ForceVBF or ForceVH");
 
     if (sum==0) {
       m_mode = AUTO;
@@ -45,16 +45,16 @@ namespace xAOD {
     static TString name = "HiggsWeightTool::setupWeights";
     const std::vector<std::string> &wNames = getWeightNames();
     m_Nweights=wNames.size();
+    ::Info(name,"Setting up weights in %s. %lu weights availalbe in intput file, %lu expected.",
+	   m_mode==AUTO?"AUTO mode":Form("FORCE mode %i",m_mode),Nweights,m_Nweights);
     if (m_Nweights!=Nweights) 
-      std::runtime_error(Form("Current event has %lu weights, while we expect %lu weights from the metadata",
-			      Nweights,m_Nweights));
-
-    ::Info(name,"%lu weights availalbe",Nweights);
+      throw std::runtime_error(Form("Current event has %lu weights, while we expect %lu weights from the metadata",
+				    Nweights,m_Nweights));
 
     bool isNNLOPS = hasWeight(" nnlops-nominal-pdflhc ");
     
-    m_nom = isNNLOPS ? getWeightIndex(" nnlops-nominal-pdflhc ") : getWeightIndex(" nominal ");
-    if (!isNNLOPS) std::runtime_error("NOT NNLOPS?"); // all my test samples should be NNLOPS!
+    // Always use PDF4LHC as central value. For NNLOPS, use PDF4LHC @NNLO (91400), while VBF and VH use PDF4LHC @NLO (90400)
+    m_nom = isNNLOPS ? getWeightIndex(" nnlops-nominal-pdflhc ") : getWeightIndex(" PDF set = 90400 ");
     ::Info(name,"Nominal weight at index %lu",m_nom);
 
     // Check if we have the Higgs PDF uncertainty variations are there
@@ -64,6 +64,7 @@ namespace xAOD {
       ::Info(name,"PDF4LHC uncertainty variations at positions %lu-%lu",
 	     getWeightIndex(" PDF set = 90400 "),getWeightIndex(" PDF set = 90430 "));
     }
+
     m_aS_up=m_aS_dn=0;
     if ( hasWeight(" PDF set = 90431 ") && hasWeight(" PDF set = 90432 ") ) {
       m_aS_up = getWeightIndex(" PDF set = 90431 ");
@@ -75,9 +76,12 @@ namespace xAOD {
     if ( hasWeight(" muR = 0.5, muF = 0.5 ") ) {
       for (TString mur:{"0.5","1.0","2.0"})
 	for (TString muf:{"0.5","1.0","2.0"})
-	  if (!(mur=="1.0"&&muf=="1.0"))
-	    m_qcd.push_back(getWeightIndex((" muR = "+mur+", muF = "+muf+" ").Data()));
-      ::Info(name,"Read in 8 standard QCD variations");
+	  if (!(mur=="1.0"&&muf=="1.0")) {
+	    std::string wn=(" muR = "+mur+", muF = "+muf+" ").Data();
+	    if (hasWeight(wn)) // for some strange reason, VBF is missing some weights
+	      m_qcd.push_back(getWeightIndex(wn));
+	  }
+      ::Info(name,"Read in %lu standard QCD variations",m_qcd.size());
     }
 
     m_tinf=m_bminlo=m_nnlopsNom=0;
@@ -95,7 +99,7 @@ namespace xAOD {
 	  for (TString muf:{"Dn","Nom","Up"})
 	    if (!(mur=="Nom"&&muf=="Nom"&&nn=="Nom"))
 	      m_qcd_nnlops.push_back(getWeightIndex((" nnlops-nnlo"+nn+"-pwg"+mur+muf+" ").Data()));
-      ::Info(name,"Read in 3 NNLOPS quark mass weights and 26 QCD weights");
+      ::Info(name,"Read in 3 NNLOPS quark mass weights and %lu QCD weights",m_qcd_nnlops.size());
     }
 
     /*
@@ -135,13 +139,13 @@ namespace xAOD {
 
   size_t HiggsWeightTool::getWeightIndex(std::string wName) {
     if (m_mode==AUTO) return m_weightTool->getWeightIndex(wName);
-    if (!hasWeight(wName)) std::runtime_error("Weight "+wName+" doesn't exist.");
+    if (!hasWeight(wName)) throw std::runtime_error("Weight "+wName+" doesn't exist.");
     const std::vector<std::string> &wnames = getWeightNames();
     return static_cast<size_t>(std::find(wnames.begin(),wnames.end(),wName)-wnames.begin());
   }
 
   float HiggsWeightTool::getWeight(std::string wName) {
-    if (m_mode==AUTO) std::runtime_error("getWeight(string) only supported in AUTO mode so far");
+    if (m_mode!=AUTO) throw std::runtime_error("getWeight(string) only supported in AUTO mode so far");
     return m_weightTool->getWeight(wName);
   }
 
@@ -150,13 +154,13 @@ namespace xAOD {
     if (evtStore()->contains<xAOD::TruthEventContainer>("TruthEvents")) {
       const xAOD::TruthEventContainer *truthEvents = nullptr;
       if ( evtStore()->retrieve( truthEvents, "TruthEvents" ).isFailure() )
-	std::runtime_error("Cannot access TruthEvents ??");
+	throw std::runtime_error("Cannot access TruthEvents ??");
       if (truthEvents->at(0)) return truthEvents->at(0)->weights();
     }
     // 2. Otherwise use the mcWeights in EventInfo
     const xAOD::EventInfo *evtInfo = nullptr;
     if ( evtStore()->retrieve( evtInfo, "EventInfo" ).isFailure() )
-      std::runtime_error("Cannot access EventInfo (nor TruthEvents) in input file");
+      throw std::runtime_error("Cannot access EventInfo (nor TruthEvents) in input file");
     return evtInfo->mcEventWeights();
   }
 
@@ -169,7 +173,7 @@ namespace xAOD {
 
     const xAOD::EventInfo *evtInfo = nullptr;
     if ( evtStore()->retrieve( evtInfo, "EventInfo" ).isFailure() )
-      std::runtime_error("Cannot access EventInfo (nor TruthEvents) in input file");
+      throw std::runtime_error("Cannot access EventInfo (nor TruthEvents) in input file");
 
     // if needed, setup weight structure
     if (m_Nweights!=weights.size()||evtInfo->mcChannelNumber()!=m_mcID)

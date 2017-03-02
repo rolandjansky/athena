@@ -119,7 +119,7 @@ namespace xAOD {
 
   const std::vector<float> &TruthWeightTool::getWeights() const {
     if (m_uninitialized||m_evtInfo==nullptr) 
-      std::runtime_error("Cannot access MC weights. Tool is not properly initialized.");
+      throw std::runtime_error("Cannot access MC weights. Tool is not properly initialized.");
     // TODO: first check truth event. Else take from EventINfo. Check number of weights
     return m_evtInfo->mcEventWeights();
   }

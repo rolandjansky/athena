@@ -1,3 +1,8 @@
+2017-03-02 Dag Gillberg <dag.gillberg@cern.h>
+	* Tagging TruthWeightTools-01-02-01
+	* Support for forcing expected structure for Run-2 default VBF and VH sampels (W+H, W-H, ZH)
+	* Better error handling (code did not abort as intended when something was wrong)
+
 2017-03-01 Dag Gillberg <dag.gillberg@cern.h>
 	* Tagging TruthWeightTools-01-02-00
 	* First version of HiggsWeightTool as announced on today's HComb meeeting: https://indico.cern.ch/event/616388/
