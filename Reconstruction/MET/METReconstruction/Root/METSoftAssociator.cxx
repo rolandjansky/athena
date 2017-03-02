@@ -166,7 +166,6 @@ namespace met {
 	  }
 	}
       }
-
       if(constits.pv) {
 	for(const auto& trk : *uniqueTracks) {
 	  ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
