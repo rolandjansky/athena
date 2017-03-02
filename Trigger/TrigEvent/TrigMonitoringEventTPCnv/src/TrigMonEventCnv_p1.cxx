@@ -35,10 +35,10 @@ void TrigMonEventCnv_p1::persToTrans(const TrigMonEvent_p1* persObj,
 
   if(log.level() <= MSG::DEBUG) {
     log << MSG::DEBUG 
-	<< "TrigMonEventCnv_p1::persToTrans called - persistent to transient :" << endreq
-	<< " event: " << transObj->m_event << " to " << persObj->m_event << endreq
-	<< " lumi:  " << transObj->m_lumi  << " to " << persObj->m_lumi  << endreq
-	<< " run:   " << transObj->m_run   << " to " << persObj->m_run   << endreq;
+	<< "TrigMonEventCnv_p1::persToTrans called - persistent to transient :" << endmsg
+	<< " event: " << transObj->m_event << " to " << persObj->m_event << endmsg
+	<< " lumi:  " << transObj->m_lumi  << " to " << persObj->m_lumi  << endmsg
+	<< " run:   " << transObj->m_run   << " to " << persObj->m_run   << endmsg;
   }
 }
 
@@ -66,9 +66,9 @@ void TrigMonEventCnv_p1::transToPers(const TrigMonEvent* transObj,
 
   if(log.level() <= MSG::DEBUG) {
     log << MSG::DEBUG 
-	<< "TrigMonEventCnv_p1::transToPers called - persistent to transient:" << endreq
-	<< " event: " << persObj->m_event << " to " << transObj->m_event << endreq
-	<< " lumi:  " << persObj->m_lumi  << " to " << transObj->m_lumi  << endreq
-	<< " run:   " << persObj->m_run   << " to " << transObj->m_run   << endreq;
+	<< "TrigMonEventCnv_p1::transToPers called - persistent to transient:" << endmsg
+	<< " event: " << persObj->m_event << " to " << transObj->m_event << endmsg
+	<< " lumi:  " << persObj->m_lumi  << " to " << transObj->m_lumi  << endmsg
+	<< " run:   " << persObj->m_run   << " to " << transObj->m_run   << endmsg;
   }
 }

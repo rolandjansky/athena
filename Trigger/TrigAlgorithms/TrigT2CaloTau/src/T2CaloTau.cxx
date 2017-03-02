@@ -128,12 +128,12 @@ HLT::ErrorCode T2CaloTau::hltInitialize()
         StatusCode sc = it->retrieve();
         if(sc.isFailure())
         {
-            msg() << MSG::ERROR << "Unable to initialize tool " << *it << endreq;
+            msg() << MSG::ERROR << "Unable to initialize tool " << *it << endmsg;
             return HLT::BAD_ALGO_CONFIG ;
         }
         if(msgLvl() <= MSG::DEBUG)
         {
-            msg() << MSG::DEBUG << "REGTEST: Created " << *it << " AlgTool" << endreq;
+            msg() << MSG::DEBUG << "REGTEST: Created " << *it << " AlgTool" << endmsg;
         }
         (*it)->setCellContainerPointer(&m_Container);
     }
@@ -142,17 +142,17 @@ HLT::ErrorCode T2CaloTau::hltInitialize()
     {
         if(m_updateRoiDescriptor)
         {
-            msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will be updated " << endreq;
+            msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will be updated " << endmsg;
         }
         else
         {
-            msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will NOT be updated " << endreq;
+            msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will NOT be updated " << endmsg;
         }
     }
 
     if(m_storeCells && msgLvl() <= MSG::DEBUG)
     {
-        msg() << MSG::DEBUG << "REGTEST: will store cells in output " << endreq;
+        msg() << MSG::DEBUG << "REGTEST: will store cells in output " << endmsg;
     }
 
     return HLT::OK;
@@ -162,7 +162,7 @@ HLT::ErrorCode T2CaloTau::hltFinalize()
 {
     if(msgLvl() <= MSG::DEBUG)
     {
-        msg() << MSG::DEBUG << " hltFinalize is done" << endreq;
+        msg() << MSG::DEBUG << " hltFinalize is done" << endmsg;
     }
     return HLT::OK;
 }
@@ -217,7 +217,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 #ifndef NDEBUG
     if(msgLvl() <= MSG::DEBUG)
     {
-        msg() << MSG::INFO << "in execute()" << endreq;
+        msg() << MSG::INFO << "in execute()" << endmsg;
     }
 #endif
 
@@ -225,7 +225,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 #ifndef NDEBUG
     if(msgLvl() <= MSG::DEBUG)
     {
-        msg() << MSG::DEBUG << "output TE ID: " << outputTE->getId() << endreq;
+        msg() << MSG::DEBUG << "output TE ID: " << outputTE->getId() << endmsg;
     }
 #endif
 
@@ -233,7 +233,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 #ifndef NDEBUG
     if(msgLvl() <= MSG::DEBUG)
     {
-        msg() << MSG::DEBUG << "input TE ID: " << inputTE->getId() << endreq;
+        msg() << MSG::DEBUG << "input TE ID: " << inputTE->getId() << endmsg;
     }
 #endif
     const TrigRoiDescriptor* roiDescriptor = 0;
@@ -246,15 +246,15 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
         {        
             msg() << MSG::DEBUG  << " RoI id " << roiDescriptor->roiId() 
                   << " LVL1 id " << roiDescriptor->l1Id() 
-		  << *roiDescriptor << endreq;
+		  << *roiDescriptor << endmsg;
 	    //                  << " located at   phi = " <<  roiDescriptor->phi0() 
-            //      << ", eta = " << roiDescriptor->eta0() << endreq;
+            //      << ", eta = " << roiDescriptor->eta0() << endmsg;
         }
 #endif
     }
     else
     {
-        msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+        msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
         return HLT::ERROR;
     }
 
@@ -266,7 +266,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
               << roiDescriptor->phi()
               << " & LVL1 eta="
               << roiDescriptor->eta() << " " << roiDescriptor
-              << endreq;
+              << endmsg;
     }
 
 
@@ -282,7 +282,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     {
         if (msgLvl() <= MSG::DEBUG)
         {
-            msg() << MSG::ERROR << "Write of TrigTauClusterDetails into outputTE failed" << endreq;
+            msg() << MSG::ERROR << "Write of TrigTauClusterDetails into outputTE failed" << endmsg;
         }
         return hltstatusD;
     }
@@ -302,7 +302,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     {
         if(msgLvl() <= MSG::DEBUG)
         { 
-            msg() << MSG::DEBUG << "Failed to get TrigTauClusterDetails" << endreq; 
+            msg() << MSG::DEBUG << "Failed to get TrigTauClusterDetails" << endmsg; 
         }
         return HLT::MISSING_FEATURE;
     }
@@ -331,7 +331,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     //  TrigRoiDescriptor* roiEM = new TrigRoiDescriptor( _roi->eta(), _roi->eta()-m_etaWidthEM, _roi->eta()+m_etaWidthE<,
     //	  					          _roi->phi(), HLT::wrap_phi(_roi->phi()-m_phiWidthEM), HLT::wrap_phi(_roi->phi()+m_phiWidthEM) );
 
-    msg() << MSG::DEBUG << "Using RoIs " << roi << endreq;
+    msg() << MSG::DEBUG << "Using RoIs " << roi << endmsg;
 
     ToolHandleArray<IAlgToolCalo>::iterator it = m_emAlgTools.begin();
     if(timerSvc()) m_timer[1]->start();
@@ -343,14 +343,14 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
         HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, roi );
         if(stat.reason() == NEG_ENERGY_CLUSTER)
         {
-            msg() << MSG::DEBUG << (*it)->name() << " Found a cluster with E~<=0. CONTINUE execution. " << endreq;
+            msg() << MSG::DEBUG << (*it)->name() << " Found a cluster with E~<=0. CONTINUE execution. " << endmsg;
             // do not forget to delete trigTauCluster of attach it to storegate if return
             // return  stat; // uncomment to avaid running on the remaining tools.
             ToolStat = stat;
         }
         if(stat.reason() == NULL_ENERGY_SAMPLING)
         {
-            msg() << MSG::DEBUG << (*it)->name() << " Found E==0 in this sampling. CONTINUE execution. " << endreq;
+            msg() << MSG::DEBUG << (*it)->name() << " Found E==0 in this sampling. CONTINUE execution. " << endmsg;
             // do not forget to delete trigTauCluster of attach it to storegate if return
             // return  stat; // uncomment to avaid running on the remaining tools.
             ToolStat = stat;
@@ -359,7 +359,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
         }
         if(stat == HLT::TOOL_FAILURE)
         {
-            msg() << MSG::WARNING << "T2CaloTau AlgTool " << (*it)->name() << "  returned Failure" << endreq;
+            msg() << MSG::WARNING << "T2CaloTau AlgTool " << (*it)->name() << "  returned Failure" << endmsg;
             // if tool has returned this failure, then loadingCollection has failed and it
             // does not make sense to keep this TrigTauCluster - we would not learn anything from it
             delete ptrigTauCluster;
@@ -393,10 +393,10 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
       if(msgLvl() <= MSG::DEBUG) {        
 	msg() << MSG::DEBUG  << " RoI id " << roiL1Descriptor->roiId() 
 	      << " LVL1 id " << roiL1Descriptor->l1Id() 
-	      << *roiL1Descriptor << endreq;
+	      << *roiL1Descriptor << endmsg;
       }
     } else {
-      msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+      msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
       return HLT::ERROR;
     }
 
@@ -497,64 +497,64 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     if(msgLvl() <= MSG::DEBUG)
     {
         // Print out Cluster produced
-        //    msg() << MSG::DEBUG << "TEST-TEST-TEST-TEST" << endreq;
-        msg() << MSG::DEBUG << " REGTEST: eta/phi = "<< m_Eta << "/" << m_Phi << endreq;
-        //msg() << MSG::DEBUG << " REGTEST: etaL1/phiL1 = "<< m_EtaL1 << "/" << m_PhiL1 << endreq;
+        //    msg() << MSG::DEBUG << "TEST-TEST-TEST-TEST" << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: eta/phi = "<< m_Eta << "/" << m_Phi << endmsg;
+        //msg() << MSG::DEBUG << " REGTEST: etaL1/phiL1 = "<< m_EtaL1 << "/" << m_PhiL1 << endmsg;
         msg() << MSG::DEBUG << " REGTEST: EMenergy0Narrow/Medium/Wide = "<< (*ptrigTauCluster).clusterDetails()->EMenergyNarrow(0) 
               << "/" << (*ptrigTauCluster).clusterDetails()->EMenergyMedium(0) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->EMenergyWide(0) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->EMenergyWide(0) << endmsg;
         msg() << MSG::DEBUG << " REGTEST: EMenergy1Narrow/Medium/Wide = "
               << (*ptrigTauCluster).clusterDetails()->EMenergyNarrow(1) << "/" 
               << (*ptrigTauCluster).clusterDetails()->EMenergyMedium(1) << "/"
-              << (*ptrigTauCluster).clusterDetails()->EMenergyWide(1) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->EMenergyWide(1) << endmsg;
         msg() << MSG::DEBUG << " REGTEST: EMenergy2Narrow/Medium/Wide = "
               << (*ptrigTauCluster).clusterDetails()->EMenergyNarrow(2) << "/"
               << (*ptrigTauCluster).clusterDetails()->EMenergyMedium(2) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->EMenergyWide(2) <<  endreq;
+              << (*ptrigTauCluster).clusterDetails()->EMenergyWide(2) <<  endmsg;
         msg() << MSG::DEBUG << " REGTEST: EMenergy3Narrow/Medium/Wide = "
               << (*ptrigTauCluster).clusterDetails()->EMenergyNarrow(3) << "/"
               << (*ptrigTauCluster).clusterDetails()->EMenergyMedium(3) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->EMenergyWide(3) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->EMenergyWide(3) << endmsg;
         msg() << MSG::DEBUG << " REGTEST: HADenergy0Narrow/Medium/Wide = "
               << (*ptrigTauCluster).clusterDetails()->HADenergyNarrow(0) << "/" 
               << (*ptrigTauCluster).clusterDetails()->HADenergyMedium(0) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->HADenergyWide(0) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->HADenergyWide(0) << endmsg;
         msg() << MSG::DEBUG << " REGTEST: HADenergy1Narrow/Medium/Wide = "
               << (*ptrigTauCluster).clusterDetails()->HADenergyNarrow(1) << "/" 
               << (*ptrigTauCluster).clusterDetails()->HADenergyMedium(1) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->HADenergyWide(1) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->HADenergyWide(1) << endmsg;
         msg() << MSG::DEBUG << " REGTEST: HADenergy2Narrow/Medium/Wide = "
               << (*ptrigTauCluster).clusterDetails()->HADenergyNarrow(2) << "/" 
               << (*ptrigTauCluster).clusterDetails()->HADenergyMedium(2) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->HADenergyWide(2) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->HADenergyWide(2) << endmsg;
 
         msg() << MSG::DEBUG << " REGTEST: EMRadius0/1/2/3 = "
               << (*ptrigTauCluster).clusterDetails()->EMRadius(0) << "/" 
               << (*ptrigTauCluster).clusterDetails()->EMRadius(1) << "/" 
               << (*ptrigTauCluster).clusterDetails()->EMRadius(2) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->EMRadius(3) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->EMRadius(3) << endmsg;
 
         msg() << MSG::DEBUG << " REGTEST: HADRadius0/1/2 = "
               << (*ptrigTauCluster).clusterDetails()->HADRadius(0) << "/" 
               << (*ptrigTauCluster).clusterDetails()->HADRadius(1) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->HADRadius(2) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->HADRadius(2) << endmsg;
 
         msg() << MSG::DEBUG << " REGTEST: EMenergyWidth0/1/2/3 = "
               << (*ptrigTauCluster).clusterDetails()->EMenergyWidth(0) << "/" 
               << (*ptrigTauCluster).clusterDetails()->EMenergyWidth(1) << "/" 
               << (*ptrigTauCluster).clusterDetails()->EMenergyWidth(2) << "/" 
-              << (*ptrigTauCluster).clusterDetails()->EMenergyWidth(3) << endreq;
+              << (*ptrigTauCluster).clusterDetails()->EMenergyWidth(3) << endmsg;
 
         msg() << MSG::DEBUG << " REGTEST: EMenergy/Hadenergy =  "
               << (*ptrigTauCluster).EMenergy() << "/" 
               << (*ptrigTauCluster).HADenergy() << "/" 
-              <<  endreq;
+              <<  endmsg;
         msg() << MSG::DEBUG << " REGTEST: numStripCells/stripWidth/IsoFrac = "
               << (*ptrigTauCluster).numStripCells() << "/" 
               << (*ptrigTauCluster).stripWidth() << "/"
-              << m_IsoFrac << endreq;
+              << m_IsoFrac << endmsg;
         msg() << MSG::DEBUG << " REGTEST: RoIWord = "
-              << (*ptrigTauCluster).RoIword() << endreq;
+              << (*ptrigTauCluster).RoIword() << endmsg;
     }  
 
     //// From egamma. This is already done inside the tools for tau! but maybe would like to change at some point...
@@ -571,7 +571,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     {
         if (msgLvl() <= MSG::DEBUG)
         {
-            msg() << MSG::ERROR << "Write of TrigTauCluster into outputTE failed" << endreq;
+            msg() << MSG::ERROR << "Write of TrigTauCluster into outputTE failed" << endmsg;
         }
         return hltstatus;
     }
@@ -583,14 +583,14 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
             HLT::ErrorCode hltstatus = recordAndAttachFeature(outputTE, m_Container, key, "TrigT2CaloTauCells");
             if(msgLvl() <= MSG::DEBUG)
             {
-                msg() << MSG::DEBUG << " recorded " <<  m_Container->size() << " cells "<< endreq;
+                msg() << MSG::DEBUG << " recorded " <<  m_Container->size() << " cells "<< endmsg;
             }
             if(hltstatus != HLT::OK)
             {
 #ifndef NDEBUG
                 if(msgLvl() <= MSG::DEBUG)
                 {
-                    msg() << MSG::ERROR << "Write of TrigTauClusterCells into outputTE failed" << endreq;
+                    msg() << MSG::ERROR << "Write of TrigTauClusterCells into outputTE failed" << endmsg;
                 }
 #endif
                 if(m_timersvc) m_timer[0]->stop();
@@ -629,7 +629,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
         {
             msg() << MSG::DEBUG  << "Recorded an RoiDescriptor "
                   << " phi " << newRoiDescriptor->phi()
-                  << " eta " << newRoiDescriptor->eta() << "  " << *newRoiDescriptor << endreq;
+                  << " eta " << newRoiDescriptor->eta() << "  " << *newRoiDescriptor << endmsg;
         }
 
         hltstatus = attachFeature(outputTE, newRoiDescriptor, "TrigT2CaloTau"); 
@@ -638,7 +638,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
         {
             if(msgLvl() <= MSG::DEBUG)
             {
-                msg() << MSG::ERROR << "Write of newRoiDescriptor into outputTE failed" << endreq;
+                msg() << MSG::ERROR << "Write of newRoiDescriptor into outputTE failed" << endmsg;
             }
             return hltstatus;
         }
@@ -651,7 +651,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
               << "We assume success, set TE with id "
               << outputTE->getId()
               << " active to signal positive result."
-              << endreq;
+              << endmsg;
     }
 #endif
 

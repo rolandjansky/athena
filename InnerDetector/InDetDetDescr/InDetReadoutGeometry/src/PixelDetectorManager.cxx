@@ -33,7 +33,7 @@ namespace InDetDD {
 
     StatusCode sc = detStore->retrieve(m_idHelper,"PixelID");
     if (sc.isFailure() ) {
-      msg(MSG::ERROR) << "Could not retrieve Pixel id helper" << endreq;
+      msg(MSG::ERROR) << "Could not retrieve Pixel id helper" << endmsg;
     }
 
     // Initialize the collections.
@@ -236,14 +236,14 @@ namespace InDetDD {
 	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta);
       } else {
         // other not supported
-        msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
+        msg(MSG::WARNING) << "Frames other than global or local are not supported." << endmsg;
         return false;
       }
 
     } else { // higher level
 
       if (frame != InDetDD::global) {
-        msg(MSG::WARNING) << "Non global shift at higher levels is not possible." << endreq;
+        msg(MSG::WARNING) << "Non global shift at higher levels is not possible." << endmsg;
         return false;
       }
 
@@ -272,7 +272,7 @@ namespace InDetDD {
       const GeoVFullPhysVol * childFPV = dynamic_cast<const GeoVFullPhysVol *>(child);
       if (!childFPV) { 
         msg(MSG::ERROR) << "Child of alignable transform is not a full physical volume" 
-          << endreq;
+          << endmsg;
       } else {
         addAlignableTransform (level, id, transform, childFPV);
       }
@@ -326,7 +326,7 @@ namespace InDetDD {
 
   if(msgLvl(MSG::INFO))
     msg(MSG::INFO) << "Processing IBLDist alignment container with key (" <<
-      key << ") and alignment folder pointing to " << alignfolder << endreq;
+      key << ") and alignment folder pointing to " << alignfolder << endmsg;
 
   int nstaves = 0;
   if (numerology().numPhiModulesForLayer(0)<14) nstaves = 14;
@@ -349,13 +349,13 @@ namespace InDetDD {
   msg(MSG::VERBOSE) << "IBLDist DB -- channel: " << citr->first
         << " ,stave: " << atrlist["stave"].data<int>() 
         << " ,mag: " << atrlist["mag"].data<float>()
-        << " ,base: " << atrlist["base"].data<float>() << endreq;
+        << " ,base: " << atrlist["base"].data<float>() << endmsg;
     }
   }
   else {
     if (msgLvl(MSG::INFO))
   msg(MSG::INFO) << "Cannot find IBLDist Container for key "
-         << key << " - no IBL bowing alignment " << endreq;
+         << key << " - no IBL bowing alignment " << endmsg;
     return alignmentChange;                                   
   }
 
@@ -373,14 +373,14 @@ namespace InDetDD {
   const AlignableTransformContainer* container;
   if (StatusCode::SUCCESS!=m_detStore->retrieve(container, alignfolder)) {      
     msg(MSG::ERROR) << "Cannot find AlignableTransformContainer for key " 
-        << key << " - no misalignment" << endreq;
+        << key << " - no misalignment" << endmsg;
     // This should not occur in normal situations so we force job to abort.
     throw std::runtime_error("Unable to apply Inner Detector alignments");
   }
   // Check if container is empty - this can occur if it is an invalid IOV.
   if (container->empty()) {
     msg(MSG::ERROR) << "AlignableTransformContainer for key " 
-            << key << " is empty. Probably due to out of range IOV" << endreq;
+            << key << " is empty. Probably due to out of range IOV" << endmsg;
     // This should not occur in normal situations so we force job to abort.
     throw std::runtime_error("Unable to apply Inner Detector alignments.");
   }
@@ -392,7 +392,7 @@ namespace InDetDD {
     if (!( (*pat)->tag()==IBLalignfolder && 
 	   numerology().numPhiModulesForLayer(0)==14 &&
 	   numerology().numLayers()==4) ){  // hard-coded to IBL for now; no other geometry should really apply this!
-      msg(MSG::DEBUG) << "IBLDist; ignoring collections " << (*pat)->tag() << endreq;
+      msg(MSG::DEBUG) << "IBLDist; ignoring collections " << (*pat)->tag() << endmsg;
     }  
     else{
       const AlignableTransform* transformCollection = *pat;
@@ -401,14 +401,14 @@ namespace InDetDD {
          ++trans_iter) {
         if (msgLvl(MSG::DEBUG)) {
         msg(MSG::DEBUG) << "IBLDist alignment for identifier " 
-             << getIdHelper()->show_to_string(trans_iter->identify())   << endreq;
+             << getIdHelper()->show_to_string(trans_iter->identify())   << endmsg;
         }
   
         IdentifierHash idHash = getIdHelper()->wafer_hash(trans_iter->identify());
         if (!idHash.is_valid()){
 	  msg(MSG::WARNING) << "Invalid HashID for identifier "
-			    << getIdHelper()->show_to_string(trans_iter->identify())   << endreq;
-	  msg(MSG::WARNING) << "No IBLDist corrections can be applied for invalid HashID's - exiting " << endreq;
+			    << getIdHelper()->show_to_string(trans_iter->identify())   << endmsg;
+	  msg(MSG::WARNING) << "No IBLDist corrections can be applied for invalid HashID's - exiting " << endmsg;
 	  return false;
 	}
 	SiDetectorElement * sielem = m_elementCollection[idHash];
@@ -420,7 +420,7 @@ namespace InDetDD {
         double basex= iblbaseline[getIdHelper()->phi_module(trans_iter->identify())];
         // This is in the module frame, as bowing corrections are directly L3                
   
-        msg(MSG::DEBUG) << "Total IBL-module Tx shift (baseline+bowing): " << basex+bowx << endreq;
+        msg(MSG::DEBUG) << "Total IBL-module Tx shift (baseline+bowing): " << basex+bowx << endmsg;
         if ( (basex+bowx)==0 ) continue; // make sure we ignore NULL corrections
 
         Amg::Transform3D shift = Amg::Translation3D(basex+bowx,0,0) * Amg::RotationMatrix3D::Identity();
@@ -432,11 +432,11 @@ namespace InDetDD {
 
         /** Verbose level debug section for transforms **/
         if (msgLvl(MSG::VERBOSE)) {
-          msg(MSG::VERBOSE) << "Bowing Transformation only:" << endreq;
+          msg(MSG::VERBOSE) << "Bowing Transformation only:" << endmsg;
           printTransform(shift);
-          msg(MSG::VERBOSE) << "Original alignable Transformation from StoreGate:" << endreq;
+          msg(MSG::VERBOSE) << "Original alignable Transformation from StoreGate:" << endmsg;
           printTransform(Amg::CLHEPTransformToEigen(this_trans->transform()));
-          msg(MSG::VERBOSE) << "Final mModified Transformation:" << endreq;
+          msg(MSG::VERBOSE) << "Final mModified Transformation:" << endmsg;
           printTransform(Amg::CLHEPTransformToEigen(newtrans));
         }
         /** End of verbose level debug section **/
@@ -451,7 +451,7 @@ namespace InDetDD {
           if (msgLvl(MSG::DEBUG)) {
             msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."  
                 << getIdHelper()->show_to_string(trans_iter->identify())  
-                << " at level 0 for IBLDist bowing deformation " << endreq;
+                << " at level 0 for IBLDist bowing deformation " << endmsg;
           }
         }
 
@@ -470,7 +470,7 @@ namespace InDetDD {
     bool alignmentChange = false;
 
     if(msgLvl(MSG::INFO))
-      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endreq;
+      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endmsg;
 
     Identifier ident=Identifier();
     const CondAttrListCollection* atrlistcol=0;
@@ -490,8 +490,8 @@ namespace InDetDD {
 	// Precaution which does not work for e.g. SCT
 	if (!(getIdHelper()->wafer_hash(ident)).is_valid()){
 	  msg(MSG::WARNING) << "Invalid HashID for identifier "
-			    << getIdHelper()->show_to_string(ident)   << endreq;
-	  msg(MSG::WARNING) << "No global alignment corrections can be applied for invalid HashID's - exiting " << endreq;
+			    << getIdHelper()->show_to_string(ident)   << endmsg;
+	  msg(MSG::WARNING) << "No global alignment corrections can be applied for invalid HashID's - exiting " << endmsg;
 	  return false;
 	}
 
@@ -514,7 +514,7 @@ namespace InDetDD {
 			  << " ,Tz: "     << atrlist["Tz"].data<float>()
 			  << " ,Rx: "     << atrlist["Rx"].data<float>()
 			  << " ,Ry: "     << atrlist["Ry"].data<float>()
-			  << " ,Rz: "     << atrlist["Rz"].data<float>() << endreq;
+			  << " ,Rz: "     << atrlist["Rz"].data<float>() << endmsg;
       
         // Set the new transform; Will replace existing one with updated transform                                                                 
 	bool status = setAlignableTransformDelta(level,
@@ -526,7 +526,7 @@ namespace InDetDD {
           if (msgLvl(MSG::DEBUG)) {
             msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."
 			    << getIdHelper()->show_to_string(ident)
-			    << " at level " << level << " for new global DB " << endreq;
+			    << " at level " << level << " for new global DB " << endmsg;
           }
         }
 
@@ -536,7 +536,7 @@ namespace InDetDD {
     else {
       if (msgLvl(MSG::INFO))
 	msg(MSG::INFO) << "Cannot find new global align Container for key "
-		       << key << " - no new global alignment " << endreq;
+		       << key << " - no new global alignment " << endmsg;
       return alignmentChange;
     }
     return alignmentChange;
@@ -546,11 +546,11 @@ namespace InDetDD {
   // Helpful function for debugging of transforms
   void PixelDetectorManager::printTransform(const Amg::Transform3D & tr) const
   {
-  msg(MSG::DEBUG) <<" - translation: "<<tr.translation().x()<<"  "<<tr.translation().y()<<"  "<<tr.translation().z() << endreq;
-  msg(MSG::DEBUG) <<" - rotation:"<< endreq;
-  msg(MSG::DEBUG) <<"    "<<tr(0,0)<<"  "<<tr(0,1)<<"  "<<tr(0,2)<< endreq;
-  msg(MSG::DEBUG) <<"    "<<tr(1,0)<<"  "<<tr(1,1)<<"  "<<tr(1,2)<< endreq;
-  msg(MSG::DEBUG) <<"    "<<tr(2,0)<<"  "<<tr(2,1)<<"  "<<tr(2,2)<< endreq;
+  msg(MSG::DEBUG) <<" - translation: "<<tr.translation().x()<<"  "<<tr.translation().y()<<"  "<<tr.translation().z() << endmsg;
+  msg(MSG::DEBUG) <<" - rotation:"<< endmsg;
+  msg(MSG::DEBUG) <<"    "<<tr(0,0)<<"  "<<tr(0,1)<<"  "<<tr(0,2)<< endmsg;
+  msg(MSG::DEBUG) <<"    "<<tr(1,0)<<"  "<<tr(1,1)<<"  "<<tr(1,2)<< endmsg;
+  msg(MSG::DEBUG) <<"    "<<tr(2,0)<<"  "<<tr(2,1)<<"  "<<tr(2,2)<< endmsg;
   return;
   }
 

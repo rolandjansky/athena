@@ -77,7 +77,7 @@ StatusCode LeadingDiBjetFilter::filterInitialize() {
     /* Set seed with respect to computer clock time */
     m_ranNumGen->SetSeed(0);
   }
-  log << MSG::INFO << "Initialized" << endreq;
+  log << MSG::INFO << "Initialized" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -89,8 +89,8 @@ StatusCode LeadingDiBjetFilter::filterFinalize() {
   if(m_AcceptSomeLightEvents){
     delete m_ranNumGen;
   }
-  log << MSG::INFO <<  m_NPass << " Events out of " << m_Nevt << " passed the filter" << endreq;
-  log << MSG::INFO <<  m_SumOfWeigths_Pass << " out of " << m_SumOfWeigths_Evt << " SumOfWeights counter, passed/total" << endreq;
+  log << MSG::INFO <<  m_NPass << " Events out of " << m_Nevt << " passed the filter" << endmsg;
+  log << MSG::INFO <<  m_SumOfWeigths_Pass << " out of " << m_SumOfWeigths_Evt << " SumOfWeights counter, passed/total" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -102,26 +102,26 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
 
   bool pass = false;
   m_Nevt++;
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 001" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 001" << endmsg;
   const xAOD::JetContainer* truthjetTES = 0;
   //  StatusCode sc=m_sgSvc->retrieve( truthjetTES, m_TruthJetContainerName);
   StatusCode sc=evtStore()->retrieve( truthjetTES, m_TruthJetContainerName);
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 002" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 002" << endmsg;
   if( sc.isFailure()  ||  !truthjetTES ) {
     log << MSG::WARNING
 	<< "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
 	<< sc.isFailure() << " "<<   !truthjetTES
-	<< endreq;
+	<< endmsg;
     return StatusCode::SUCCESS;
   }
 
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 003" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 003" << endmsg;
   bool passLeadJetCut = false;
   xAOD::JetContainer::const_iterator jitr;
   double lead_jet_pt = 0.0;
   double lead_2nd_jet_pt = 0.0;
   std::vector<xAOD::JetContainer::const_iterator> jets;
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 004" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 004" << endmsg;
   for (jitr = (*truthjetTES).begin(); jitr !=(*truthjetTES).end(); ++jitr) { 
     if( (*jitr)->pt() < m_jetPtMin ) continue;
     if( fabs( (*jitr)->eta() ) > m_jetEtaMax ) continue;
@@ -153,34 +153,34 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
     }
   }
 
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 005" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 005" << endmsg;
   if(jets.size() > 0) lead_jet_pt = (*jets[0])->pt();
   if(jets.size() > 1) lead_2nd_jet_pt=(*jets[1])->pt();
   if( lead_jet_pt > m_leadJet_ptMin && lead_jet_pt < m_leadJet_ptMax ) passLeadJetCut = true;
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 006" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 006" << endmsg;
 
   int bJetCounter = 0; 
   double weight = 1;
   int n_events_in_collection=0;
   int n_bHadrons_total=0;
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 007" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 007" << endmsg;
   McEventCollection::const_iterator itr;
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 008" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 008" << endmsg;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 009" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 009" << endmsg;
     n_events_in_collection++;
     const HepMC::GenEvent* genEvt = (*itr);
     weight = genEvt->weights().front();
     HepMC::GenEvent::particle_const_iterator pitr;
     std::vector< HepMC::GenEvent::particle_const_iterator > bHadrons;
-    // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 010" << endreq;
+    // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 010" << endmsg;
     for(pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {  
       if( !isBwithWeakDK( (*pitr)->pdg_id()) ) continue;
       if( (*pitr)->momentum().perp() < m_bottomPtMin ) continue;
       if( fabs( (*pitr)->momentum().pseudoRapidity() ) > m_bottomEtaMax) continue;
       bHadrons.push_back(pitr);     
     }    
-    // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 011" << endreq;
+    // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 011" << endmsg;
     n_bHadrons_total += bHadrons.size();
     for(uint i = 0; i < jets.size(); i++){   
       for(uint j = 0; j < bHadrons.size(); j++){
@@ -195,7 +195,7 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
     }
   }
 
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 012" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 012" << endmsg;
   m_SumOfWeigths_Evt += weight;
 
   pass = (bJetCounter > 1) && passLeadJetCut;
@@ -210,7 +210,7 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
     pass = true;
   }
 
-  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 013" << endreq;
+  // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 013" << endmsg;
   if(pass){ 
     m_NPass++;
     m_SumOfWeigths_Pass += weight;
@@ -218,7 +218,7 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
 
   if(m_Nevt < 20 || m_Nevt%100 == 0 || pass) {
     log << MSG::INFO << " m_Nevt= " << m_Nevt << " n_events_in_collection= " << n_events_in_collection << " 1st,2nd lead_jet_pt= " << lead_jet_pt << " " <<  lead_2nd_jet_pt << " passLeadJetCut= " << passLeadJetCut 
-      << " n_bHadrons_total= " << n_bHadrons_total <<  " bJetCounter= " << bJetCounter << " pass= " << pass << " m_NPass= " << m_NPass << endreq;
+      << " n_bHadrons_total= " << n_bHadrons_total <<  " bJetCounter= " << bJetCounter << " pass= " << pass << " m_NPass= " << m_NPass << endmsg;
   }
   setFilterPassed(pass);
   return StatusCode::SUCCESS;

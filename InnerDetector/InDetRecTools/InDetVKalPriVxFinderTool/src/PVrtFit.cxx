@@ -30,7 +30,7 @@ namespace InDet {
       if( ListParticles.size() == 0 && ListTracks.size() == 0 )return;
       if( ListParticles.size() != 0 && ListTracks.size() == 0 ){ Selector =1; NTracksVrt=ListParticles.size(); }
       if( ListParticles.size() == 0 && ListTracks.size() != 0 ){ Selector =2; NTracksVrt=ListTracks.size();}
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "CleanTrkSet() called. Total tracks= " << NTracksVrt<< endreq;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "CleanTrkSet() called. Total tracks= " << NTracksVrt<< endmsg;
       if( NTracksVrt<10 ) return;  //nothing to do
 //
 //
@@ -135,9 +135,9 @@ namespace InDet {
       if( ListParticles.size() != 0 && ListTracks.size() == 0 ){ Selector =1; NTracksVrt=ListParticles.size(); }
       if( ListParticles.size() == 0 && ListTracks.size() != 0 ){ Selector =2; NTracksVrt=ListTracks.size();}
       
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called. Total tracks= " << NTracksVrt<< endreq;
-      if(Selector==1 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Trk::TrackParticleBases are used for common Vrt!!!"<<endreq;
-      if(Selector==2 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Trk::Tracks are used for common Vrt!!!"<<endreq;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called. Total tracks= " << NTracksVrt<< endmsg;
+      if(Selector==1 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Trk::TrackParticleBases are used for common Vrt!!!"<<endmsg;
+      if(Selector==2 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Trk::Tracks are used for common Vrt!!!"<<endmsg;
 //preparation
       std::vector<double> Chi2PerTrk;
       std::vector< std::vector<double> > TrkAtVrt; 
@@ -178,7 +178,7 @@ namespace InDet {
          double dof=0.; for(int itk=0; itk<NTracksVrt; itk++)dof += TrkWeights[itk]; 
 	 long int nDoF=(long int)(5.*dof-3.*NTracksVrt-3.); if(m_BeamConstraint)nDoF += 2; if(nDoF<1)nDoF=1;
          float vrtProb=TMath::Prob(Chi2,nDoF);
-if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<<TrkWeights[Outlier]<<" Z="<<FitVertex.z()<<" prob="<<vrtProb<<" iter="<<i<<endreq;
+if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<<TrkWeights[Outlier]<<" Z="<<FitVertex.z()<<" prob="<<vrtProb<<" iter="<<i<<endmsg;
  	 if( Chi2PerTrk[FindMax(Chi2PerTrk)] < m_SecTrkChi2Cut ){
             //if(NTracksVrt<3) break;
 	    break;
@@ -231,7 +231,7 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
       if(Selector==2)NTracksVrt=ListTracks.size();
       if(NTracksVrt<1)return -10000.; //Protection
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Primary Vertex fit converged N,Chi2,ChiT="<< NTracksVrt<<", "
-          <<Chi2<<", "<<Chi2PerTrk[Outlier]<<" Z="<<FitVertex.z()<<endreq;
+          <<Chi2<<", "<<Chi2PerTrk[Outlier]<<" Z="<<FitVertex.z()<<endmsg;
 //--
       if( Chi2PerTrk[Outlier] > m_SecTrkChi2Cut  && NTracksVrt<=2)  
 // VK 6.02.2008 Wrong!!!   Chi2/NTracksVrt > 4.                   )

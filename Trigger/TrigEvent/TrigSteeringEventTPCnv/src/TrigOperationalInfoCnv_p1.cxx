@@ -12,7 +12,7 @@ void TrigOperationalInfoCnv_p1::persToTrans(const TrigOperationalInfo_p1* persOb
 				       TrigOperationalInfo* transObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigOperationalInfoCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigOperationalInfoCnv_p1::persToTrans called " << endmsg;
    *transObj = TrigOperationalInfo (persObj->m_keys, persObj->m_values);
 }
 
@@ -21,7 +21,7 @@ void TrigOperationalInfoCnv_p1::transToPers(const TrigOperationalInfo* transObj,
 				       TrigOperationalInfo_p1* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigOperationalInfoCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigOperationalInfoCnv_p1::transToPers called " << endmsg;
    auto infos = transObj->infos();
    persObj->m_keys         =  std::move(infos.first);
    persObj->m_values       =  std::move(infos.second);

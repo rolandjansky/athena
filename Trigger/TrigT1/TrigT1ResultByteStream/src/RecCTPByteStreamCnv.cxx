@@ -68,17 +68,17 @@ StatusCode RecCTPByteStreamCnv::initialize() {
   }
 
   MsgStream log( messageService(), "RecCTPByteStreamCnv" );
-  log << MSG::DEBUG << "RecCTPByteStreamCnv in initialize()" << endreq;
+  log << MSG::DEBUG << "RecCTPByteStreamCnv in initialize()" << endmsg;
 
   //
   // Get RecCTPByteStreamTool:
   //
   sc = m_tool.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get RecCTPByteStreamTool" << endreq;
+    log << MSG::FATAL << "Can't get RecCTPByteStreamTool" << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to RecCTPByteStreamTool" << endreq;
+    log << MSG::DEBUG << "Connected to RecCTPByteStreamTool" << endmsg;
   }
 
   //
@@ -86,10 +86,10 @@ StatusCode RecCTPByteStreamCnv::initialize() {
   //
   sc = m_robDataProvider.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get ROBDataProviderSvc" << endreq;
+    log << MSG::FATAL << "Can't get ROBDataProviderSvc" << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endreq;
+    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
   }
 
   //
@@ -109,16 +109,16 @@ StatusCode RecCTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
 
   MsgStream log( messageService(), "RecCTPByteStreamCnv" );
 
-  log << MSG::DEBUG << "RecCTPByteStreamCnv::createObj() called" << endreq;
+  log << MSG::DEBUG << "RecCTPByteStreamCnv::createObj() called" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast< ByteStreamAddress* >( pAddr );
   if( !pBS_Addr ) {
-    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq ;
+    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg ;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::DEBUG << " Creating Objects: " << *( pBS_Addr->par() ) << endreq;
+  log << MSG::DEBUG << " Creating Objects: " << *( pBS_Addr->par() ) << endmsg;
 
   //
   // Get SourceID:
@@ -126,7 +126,7 @@ StatusCode RecCTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
   const uint32_t robId = m_srcIdMap->getRobID( m_srcIdMap->getRodID() );
 
   log << MSG::DEBUG << "expected ROB sub-detector ID: " << std::hex 
-      << robId << std::dec << endreq;  
+      << robId << std::dec << endmsg;  
 
   std::vector< uint32_t > vID;
   vID.push_back( robId );
@@ -138,7 +138,7 @@ StatusCode RecCTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
   // size check
   if ( robFrags.size() != 1 ) {
     log << MSG::WARNING << " Number of ROB fragments for source ID 0x" << MSG::hex << robId
-        << " is " << robFrags.size() << endreq;
+        << " is " << robFrags.size() << endmsg;
 
     CTP_RIO* result = new CTP_RIO;
     pObj = SG::asStorable( result ) ;
@@ -150,7 +150,7 @@ StatusCode RecCTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
 
   StatusCode sc = m_tool->convert( ROBData( *it ).getROBFragment(), result );
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endreq;
+    log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endmsg;
     return sc;
   }
   pObj = SG::asStorable( result );

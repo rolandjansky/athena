@@ -53,7 +53,7 @@ using namespace std;
 
 StatusCode 
 TgcRawDataValAlg::bookHistogramsSummary(){
-  m_log << MSG::INFO << "bookHistogramsSummary" << endreq;    
+  m_log << MSG::INFO << "bookHistogramsSummary" << endmsg;    
   StatusCode sc=StatusCode::SUCCESS;
   
   ///////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ TgcRawDataValAlg::bookHistogramsSummary(){
     tgcsummaryoflog10wireoccupancypergasgap[i]=new TH1F(ss.str().c_str(), (ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
     sc=tgcprd_summary_ac[i]->regHist(tgcsummaryoflog10wireoccupancypergasgap[i]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
     
@@ -82,7 +82,7 @@ TgcRawDataValAlg::bookHistogramsSummary(){
     tgcsummaryoflog10stripoccupancypergasgap[i]=new TH1F(ss.str().c_str(), (ss.str() + ";log10(Occupancy); Entries" ).c_str(),80,-8.,0.);
     sc=tgcprd_summary_ac[i]->regHist(tgcsummaryoflog10stripoccupancypergasgap[i]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
   }// side
@@ -115,7 +115,7 @@ TgcRawDataValAlg::bookHistogramsSummary(){
       tgcsummaryoflog10wireoccupancyperchambertype[ntype]=new TH1F(ss.str().c_str(), ( ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
       sc=tgcprd_summary.regHist(tgcsummaryoflog10wireoccupancyperchambertype[ntype]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << "tgcsummaryoflog10wireoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << "tgcsummaryoflog10wireoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endmsg;       
         return sc;
       }
       // Summary
@@ -123,7 +123,7 @@ TgcRawDataValAlg::bookHistogramsSummary(){
       tgcsummaryoflog10stripoccupancyperchambertype[ntype]=new TH1F(ss.str().c_str(), ( ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
       sc=tgcprd_summary.regHist(tgcsummaryoflog10stripoccupancyperchambertype[ntype]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << "tgcsummaryoflog10stripoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endreq;
+        m_log << MSG::FATAL << "tgcsummaryoflog10stripoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endmsg;
         return sc;
       }
       ntype++;
@@ -137,7 +137,7 @@ TgcRawDataValAlg::bookHistogramsSummary(){
 
 StatusCode 
 TgcRawDataValAlg::bookHistogramsLowStat(){
-  m_log << MSG::INFO << "bookHistogramsLowStat" << endreq;
+  m_log << MSG::INFO << "bookHistogramsLowStat" << endmsg;
   StatusCode sc=StatusCode::SUCCESS;
 
   MonGroup tgcprd_lowstat_a( this, generic_path_tgcmonitoring + "/TGCEA", lowStat, ATTRIB_UNMANAGED ); 
@@ -156,7 +156,7 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
     tgcwirestripcoinlowstat[ac] = new TH2F( ss.str().c_str(), ss.str() .c_str(),43, 0, 43, 48, 1, 49 );
     sc=tgcprd_lowstat_ac[ac]->regHist(tgcwirestripcoinlowstat[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 

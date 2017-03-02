@@ -16,7 +16,7 @@
 void
 TrackRecordCnv_p1::persToTrans(const TrackRecord_p1* persObj, TrackRecord* transObj, MsgStream &log)
 {
-   log << MSG::DEBUG << "TrackRecordCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrackRecordCnv_p1::persToTrans called " << endmsg;
 
    transObj->PDG_code           = persObj->PDG_code();
    transObj->Energy             = (double) persObj->energy();
@@ -32,14 +32,14 @@ TrackRecordCnv_p1::persToTrans(const TrackRecord_p1* persObj, TrackRecord* trans
      <<  transObj->Momentum.x()  << ", " <<  transObj->Momentum.y()  << ", " <<  transObj->Momentum.z()  << ", "
      <<  transObj->Position.x()  << ", " <<  transObj->Position.y()  << ", " <<  transObj->Position.z()  << ", "
      <<  transObj->Time << ", " << transObj->barCode << ", " << transObj->volName 
-     << endreq;
+     << endmsg;
 }
 
 
 void
 TrackRecordCnv_p1::transToPers(const TrackRecord* transObj, TrackRecord_p1* persObj, MsgStream &log)
 {
-   log << MSG::DEBUG << "TrackRecordCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrackRecordCnv_p1::transToPers called " << endmsg;
    persObj->m_PDG_code          = transObj->PDG_code;
    persObj->m_energy            = (float) transObj->Energy;
    persObj->m_momentumX		= (float) transObj->Momentum.x();

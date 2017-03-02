@@ -28,12 +28,12 @@ ComptonStrategy::ComptonStrategy(const std::string& n)
   // don't overwrite the values already in the strategy manager
   if(theTruthManager->GetTruthParameter("ComptonPrimaryMinEnergy")==0){
     log() << MSG::INFO << "ComptonPrimaryMinEnergy: setting default value of 100 MeV"
-          << endreq;
+          << endmsg;
     theTruthManager->SetTruthParameter("ComptonPrimaryMinEnergy", prim_thr);
   }
   if(theTruthManager->GetTruthParameter("ComptonSecondaryMinEnergy")==0){
     log() << MSG::INFO << "ComptonSecondaryMinEnergy: setting default value of 100 MeV"
-          << endreq;
+          << endmsg;
     theTruthManager->SetTruthParameter("ComptonSecondaryMinEnergy", seco_thr);
   }
 }

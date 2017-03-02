@@ -1343,7 +1343,7 @@ StatusCode TileRawChannelMonTool::finalDsp(int ros, int drawer)
       }
     } // close loops over chans, gain
 
-    //    log << MSG::WARNING << "LUCA Calling drawDsp" << endreq;
+    //    log << MSG::WARNING << "LUCA Calling drawDsp" << endmsg;
     drawDsp(ros, drawer, moduleName);
 
   } //close if there are histograms for this Module
@@ -2040,7 +2040,7 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
 
           //			    if (bin!=0)
           //			      log<<MSG::DEBUG<<"["<<ros<<"]["<<drawer+1<<"]["<<adc<<"]["<< bin <<"] : mean="
-          //	     << mean <<", var="<< rms*rms<<"\tVar/mean(corrected)="<< (rms*rms/mean) - Kapa*mean <<endreq;
+          //	     << mean <<", var="<< rms*rms<<"\tVar/mean(corrected)="<< (rms*rms/mean) - Kapa*mean <<endmsg;
           if (mean > 10e-3) {
             pmtGain_even[adc]->SetBinContent(ch + 1, (rms * rms / mean) - Kapa * mean);
             pmtGain_even[adc]->SetBinError(ch + 1, (rms * rms / mean) * sqrt((2 * drms / rms) * (2 * drms / rms) + (dmean / mean) * (dmean / mean)));
@@ -2055,7 +2055,7 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
           final_odd[adc]->SetBinError(ch + 1, m_finalHist1[ros][drawer][adc][0][0]->GetBinError(ch + 1) + 0.001);
 
           // log<<MSG::DEBUG<<"["<<ros<<"]["<<drawer+1<<"]["<<adc<<"]["<< bin <<"] : mean="
-          // << mean <<", var="<< rms*rms<<"\tVar/mean(corrected)="<< (rms*rms/mean) - Kapa*mean <<endreq;
+          // << mean <<", var="<< rms*rms<<"\tVar/mean(corrected)="<< (rms*rms/mean) - Kapa*mean <<endmsg;
           if (mean > 10e-3) {
             pmtGain_odd[adc]->SetBinContent(ch + 1, (rms * rms / mean) - Kapa * mean);
             pmtGain_odd[adc]->SetBinError(ch + 1, (rms * rms / mean) * sqrt((2 * drms / rms) * (2 * drms / rms) + (dmean / mean) * (dmean / mean)));

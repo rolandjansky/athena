@@ -67,7 +67,7 @@ StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont, RawEventW
 
   // set ROD Minor version
   m_fea.setRodMinorVersion(m_RodBlockVersion);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting ROD Minor Version Number to: " << m_RodBlockVersion << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting ROD Minor Version Number to: " << m_RodBlockVersion << endmsg;
 
   // a map for ROD ID onto Encoder
   std::map<uint32_t, BCM_RodEncoder> mapEncoder; 
@@ -75,7 +75,7 @@ StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont, RawEventW
   // loop over the BCM RDO collections
   BCM_RDO_Container::const_iterator it_coll = cont->begin(); 
   BCM_RDO_Container::const_iterator it_coll_end = cont->end();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found " << cont->size() << " BCM RDO collections" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found " << cont->size() << " BCM RDO collections" << endmsg;
 
   for( ; it_coll!=it_coll_end; ++it_coll) {
     const BCM_RDO_Collection* coll = (*it_coll);
@@ -85,7 +85,7 @@ StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont, RawEventW
       unsigned int offlineId = coll->getChannel();
       uint32_t rodId = getSourceID(offlineId);
       if ( offlineId >= 16 ) {
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Didn't find RODID for OfflineID: " << offlineId << endreq;
+	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Didn't find RODID for OfflineID: " << offlineId << endmsg;
       }
 
       mapEncoder[rodId].setRodMinorVersion(m_RodBlockVersion);
@@ -100,7 +100,7 @@ StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont, RawEventW
       }
     }
     else
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Container contains NULLpointer to collection, skipping collection" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Container contains NULLpointer to collection, skipping collection" << endmsg;
   }
 
   // Fill the ROD Data into Full Event loop over Encoder map and fill all ROD Data Blocks

@@ -79,7 +79,7 @@ StatusCode ${ALG}::initialize(){
 
 // Part 1: Get the messaging service, print where you are
 MsgStream log(msgSvc(), name());
-log << MSG::INFO << "initialize()" << endreq;
+log << MSG::INFO << "initialize()" << endmsg;
 
 return StatusCode::SUCCESS;
 }
@@ -90,10 +90,10 @@ StatusCode ${ALG}::execute() {
 
 // Part 1: Get the messaging service, print where you are
 MsgStream log(msgSvc(), name());
-log << MSG::INFO << "execute()" << endreq;
+log << MSG::INFO << "execute()" << endmsg;
 
 // Part 2: Print out the different levels of messages
-log << MSG::INFO << "Your new package and algorithm are successfully installed" << endreq;
+log << MSG::INFO << "Your new package and algorithm are successfully installed" << endmsg;
 
 return StatusCode::SUCCESS;
 }
@@ -104,7 +104,7 @@ StatusCode ${ALG}::finalize() {
 
 // Part 1: Get the messaging service, print where you are
 MsgStream log(msgSvc(), name());
-log << MSG::INFO << "finalize()" << endreq;
+log << MSG::INFO << "finalize()" << endmsg;
 
 return StatusCode::SUCCESS;
 }

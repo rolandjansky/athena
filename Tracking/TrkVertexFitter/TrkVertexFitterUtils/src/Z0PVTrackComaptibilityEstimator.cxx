@@ -38,7 +38,7 @@ namespace Trk{
 
     StatusCode sc = m_ipEstimator.retrieve();
     if( !sc.isSuccess() ){
-      msg(MSG::FATAL) << "Unable to retrieve impact parameter estimator tool" << endreq;
+      msg(MSG::FATAL) << "Unable to retrieve impact parameter estimator tool" << endmsg;
       return sc;
     }
 

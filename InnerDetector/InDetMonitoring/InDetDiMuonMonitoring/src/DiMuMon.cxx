@@ -138,12 +138,12 @@ StatusCode DiMuMon::initialize(){
   // IAlgTool* ptool;
   //sc = serviceLocator->service("ToolSvc", toolSvc, true);
   //if ( sc.isFailure() ) {
-  //msg(MSG::WARNING) << "Could not locate toolSvc"<<endreq;
+  //msg(MSG::WARNING) << "Could not locate toolSvc"<<endmsg;
   //return sc;
   //}
   //sc = toolSvc->retrieveTool("TrackIsolationTool", ptool);
   //if ( sc.isFailure() ) {
-  //msg(MSG::WARNING) << "Could not retrieve track isolation tool!" << endreq;
+  //msg(MSG::WARNING) << "Could not retrieve track isolation tool!" << endmsg;
   //return sc;
   //}
   //m_isolationTool = dynamic_cast<TrackIsolationTool*>(ptool);
@@ -177,7 +177,7 @@ StatusCode DiMuMon::bookHistograms()
 //    const EventInfo* thisEventInfo;
 //    sc=evtStore()->retrieve(thisEventInfo);
 //    if (sc != StatusCode::SUCCESS) {
-//      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
+//      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
 //    }
 //    else {
 //      m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
@@ -658,7 +658,7 @@ void DiMuMon::RegisterHisto(MonGroup& mon, T* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::WARNING) << "Cannot book histogram:" << endreq;
+    msg(MSG::WARNING) << "Cannot book histogram:" << endmsg;
   }
 }
 

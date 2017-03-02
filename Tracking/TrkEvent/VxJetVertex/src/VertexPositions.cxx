@@ -62,9 +62,9 @@ namespace Trk {
 	 << "yv " << m_position[jet_yv] << ", "
 	 << "zv " << m_position[jet_zv] << ", "
 	 << "phi " << m_position[jet_phi] << ", "
-	 << "theta " << m_position[jet_theta] << endreq;
+	 << "theta " << m_position[jet_theta] << endmsg;
     for (int i=5;i<m_position.rows();i++) {
-      sl << "dist" << i << " " << m_position[i] << " ." << endreq;
+      sl << "dist" << i << " " << m_position[i] << " ." << endmsg;
     }
     return sl;
   }

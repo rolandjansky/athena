@@ -54,22 +54,22 @@ MultiParticleFilter::MultiParticleFilter(const std::string& name, ISvcLocator* p
 StatusCode MultiParticleFilter::filterInitialize() {
 //---------------------------------------------------------------------------
  
-    msg(MSG:: INFO) << "MultiParticleFilter INITIALISING "  << endreq;   
+    msg(MSG:: INFO) << "MultiParticleFilter INITIALISING "  << endmsg;   
 
     if(m_particlePDG.size()==0) 
-        msg(MSG:: ERROR) << "particlePDG[] not set " << endreq; 
+        msg(MSG:: ERROR) << "particlePDG[] not set " << endmsg; 
     if(m_particleStatus.size()==0) 
-        msg( MSG:: ERROR) << "particleStatus[] not set " << endreq; 
+        msg( MSG:: ERROR) << "particleStatus[] not set " << endmsg; 
 
     for(unsigned int i=0; i<m_particlePDG.size(); i++) 
-        msg(MSG:: INFO) << "particlePDG["<<i<<"] = " << m_particlePDG[i] << endreq;
+        msg(MSG:: INFO) << "particlePDG["<<i<<"] = " << m_particlePDG[i] << endmsg;
     for(unsigned int i=0; i<m_particleStatus.size(); i++) 
-        msg( MSG:: INFO) << "particleStatus["<<i<<"] = " << m_particleStatus[i] << endreq;
+        msg( MSG:: INFO) << "particleStatus["<<i<<"] = " << m_particleStatus[i] << endmsg;
     
-    msg(MSG:: INFO) << "ptMinParticle = " << m_ptMinParticle << endreq;
-    msg(MSG:: INFO) << "ptMaxParticle = " << m_ptMaxParticle << endreq;
-    msg(MSG:: INFO) << "etaRangeParticle = " << m_etaRangeParticle << endreq;
-    msg(MSG:: INFO) << "Np = " << m_Np << endreq;
+    msg(MSG:: INFO) << "ptMinParticle = " << m_ptMinParticle << endmsg;
+    msg(MSG:: INFO) << "ptMaxParticle = " << m_ptMaxParticle << endmsg;
+    msg(MSG:: INFO) << "etaRangeParticle = " << m_etaRangeParticle << endmsg;
+    msg(MSG:: INFO) << "Np = " << m_Np << endmsg;
     
     return StatusCode::SUCCESS;
 
@@ -78,7 +78,7 @@ StatusCode MultiParticleFilter::filterInitialize() {
 //---------------------------------------------------------------------------
 StatusCode MultiParticleFilter::filterFinalize() {
 //---------------------------------------------------------------------------
-    msg(MSG:: INFO) << "Total efficiency: " << 100.*double(m_passed)/double(m_total) << "%" << endreq;
+    msg(MSG:: INFO) << "Total efficiency: " << 100.*double(m_passed)/double(m_total) << "%" << endmsg;
     return StatusCode::SUCCESS;
 }
 

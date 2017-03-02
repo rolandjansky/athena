@@ -63,7 +63,7 @@ JetFilterWithTruthPhoton::JetFilterWithTruthPhoton(const std::string& name,
 //---------------------------------------------------------------------------
 StatusCode JetFilterWithTruthPhoton::filterInitialize() {
 //---------------------------------------------------------------------------
-  msg( MSG:: INFO) << " JetFilterWithTruthPhoton INITIALISING.  \n"  << endreq;
+  msg( MSG:: INFO) << " JetFilterWithTruthPhoton INITIALISING.  \n"  << endmsg;
 // set up some defaults
    m_emaxeta=6.0;
    m_twopi=4*asin(1.);
@@ -88,28 +88,28 @@ StatusCode JetFilterWithTruthPhoton::filterInitialize() {
    }
 
    msg( MSG:: INFO) << "  JetFilterWithTruthPhoton filtering .  \n"  
-      << " Parameters are \n " << endreq;  
+      << " Parameters are \n " << endmsg;  
   if(m_Type){
     msg( MSG:: INFO) << "  Cone algorithm.  \n"  
        << " Pt cut  = " << m_UserThresh  << ", Number= " <<  m_UserNumber  << 
-     ", Cone size=" << m_Cone << ", Rapidity range " << m_UserEta << "\n "  << endreq;
+     ", Cone size=" << m_Cone << ", Rapidity range " << m_UserEta << "\n "  << endmsg;
    if (m_UserNumber >= 2) {
-     msg( MSG:: INFO) << "  Leading Pt cut  = " << m_UserLeadingThresh << "\n" << endreq;
+     msg( MSG:: INFO) << "  Leading Pt cut  = " << m_UserLeadingThresh << "\n" << endmsg;
    }
   }
   else {
     msg( MSG:: INFO) << "  GridAlgorithm.  \n"  
        << " Pt cut  = " << m_UserThresh << ", Number= " <<  m_UserNumber << 
      ", eta size (units of 0.06) =" << m_Gride <<", phi  size (units of 0.06) =" 
-       << m_Gridp <<  ", Rapidity range " << m_UserEta << " \n "<< endreq;    
+       << m_Gridp <<  ", Rapidity range " << m_UserEta << " \n "<< endmsg;    
    if (m_UserNumber >= 2) {
-     msg( MSG:: INFO) << "  Leading Pt cut  = " << m_UserLeadingThresh << "\n" << endreq;
+     msg( MSG:: INFO) << "  Leading Pt cut  = " << m_UserLeadingThresh << "\n" << endmsg;
    }
   }
 
-  msg( MSG::INFO) << "Truth photon condition pt = " << m_photonEta << " eta = " << m_photonEta << " dR(photon,jet) = " << m_dRphotonjet << endreq;
-  msg( MSG::INFO) << "Truth photon sum  pt = " << m_photonSumPt << " (if negative, photon info is not used in the filter)" << endreq;
-  msg(MSG::INFO) << "Dijet mass = " << m_massDijet << " (if negative, mjj info is not used in the filter)" << endreq;
+  msg( MSG::INFO) << "Truth photon condition pt = " << m_photonEta << " eta = " << m_photonEta << " dR(photon,jet) = " << m_dRphotonjet << endmsg;
+  msg( MSG::INFO) << "Truth photon sum  pt = " << m_photonSumPt << " (if negative, photon info is not used in the filter)" << endmsg;
+  msg(MSG::INFO) << "Dijet mass = " << m_massDijet << " (if negative, mjj info is not used in the filter)" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -121,7 +121,7 @@ StatusCode JetFilterWithTruthPhoton::filterFinalize() {
 //---------------------------------------------------------------------------
 StatusCode JetFilterWithTruthPhoton::filterEvent() {
   //---------------------------------------------------------------------------
-  msg( MSG:: INFO) << "  JetFilterWithTruthPhoton filtering .  \n"  << endreq;  
+  msg( MSG:: INFO) << "  JetFilterWithTruthPhoton filtering .  \n"  << endmsg;  
   // Loop over all events in McEventCollection: find particles and fill grid
   double m_etgrid[m_grphi][m_greta]; // clean it out before we start
   bool m_etgridused[m_grphi][m_greta]; //will use this to mark off cells after they are added to jets
@@ -155,7 +155,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	  //	  	  std::cout << ip << "   "<< ie <<std::endl;
 	  //		  std::cout << " true rap " << (*pitr)->momentum().pseudoRapidity() << "false rap " << (ie+0.5)*m_edeta-m_emaxeta << " True phi " <<  (*pitr)->momentum().phi() << "  false phi  "  << -m_twopi/2.+(ip+0.5)*m_edphi << std::endl;
 	  if( (ie<0) || (ie>=  m_greta)){ // its outside the ends so we should not be here
-	    msg( MSG::FATAL) << "  Jet too close to end"  << endreq;
+	    msg( MSG::FATAL) << "  Jet too close to end"  << endmsg;
 	    return StatusCode::FAILURE;
 	  }
 	  while(ip<0)
@@ -172,7 +172,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	  }
 #if 0
 	  if ((*pitr)->pdg_id() == 22) {
-	    msg(MSG::DEBUG) << "Truth photon pt = " << (*pitr)->momentum().perp() << " eta = " << (*pitr)->momentum().pseudoRapidity() << endreq;
+	    msg(MSG::DEBUG) << "Truth photon pt = " << (*pitr)->momentum().perp() << " eta = " << (*pitr)->momentum().pseudoRapidity() << endmsg;
 	  }
 #endif
 	}
@@ -277,7 +277,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
       for (int ie0=0; ie0< m_netacell2; ++ie0){
 	int ie1=ie0-m_netacell+etahigh;
 	if( (ie1<0) || (ie1>=  m_greta)){ // its outside the ends so we should not be here
-	  msg(MSG:: FATAL) << "  Jet too close to end"  << endreq;
+	  msg(MSG:: FATAL) << "  Jet too close to end"  << endmsg;
 	  return StatusCode::FAILURE;
 	}
 	for (int ip0=0; ip0<m_nphicell2; ++ip0){
@@ -336,11 +336,11 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
   }
   sort(m_Jets.begin(),m_Jets.end(),std::greater<JetFilter::McObj>());
   msg(MSG::DEBUG)<< "  Summary.  "  
-      << " Number of jets found   = " <<  m_Jets.size() <<  " \n "<< endreq;   
+      << " Number of jets found   = " <<  m_Jets.size() <<  " \n "<< endmsg;   
   if (m_Jets.size()>0) {
-    msg(MSG::DEBUG)<< " Highest pt (in GeV)  " <<  (m_Jets[0].P().perp()/Gaudi::Units::GeV)  <<   "   Rapidity " <<m_Jets[0].P().pseudoRapidity()<<  "   Phi "<< m_Jets[0].P().phi() << "\n "<< endreq; 
-    if (m_Jets.size()>1) msg(MSG::DEBUG)<< " Second Highest pt (in GeV)  " <<  (m_Jets[1].P().perp()/Gaudi::Units::GeV)  <<   "   Rapidity " <<m_Jets[1].P().pseudoRapidity()<<  "   Phi "<< m_Jets[1].P().phi() << "\n "<< endreq; 
-    msg(MSG::DEBUG) << " Lowest pt (in GeV)  " <<  (m_Jets[m_Jets.size()-1].P().perp()/Gaudi::Units::GeV)  <<  "   Rapidity " <<m_Jets[m_Jets.size()-1].P().pseudoRapidity() <<  "   Phi " << m_Jets[m_Jets.size()-1].P().phi() << "\n "<< endreq; 
+    msg(MSG::DEBUG)<< " Highest pt (in GeV)  " <<  (m_Jets[0].P().perp()/Gaudi::Units::GeV)  <<   "   Rapidity " <<m_Jets[0].P().pseudoRapidity()<<  "   Phi "<< m_Jets[0].P().phi() << "\n "<< endmsg; 
+    if (m_Jets.size()>1) msg(MSG::DEBUG)<< " Second Highest pt (in GeV)  " <<  (m_Jets[1].P().perp()/Gaudi::Units::GeV)  <<   "   Rapidity " <<m_Jets[1].P().pseudoRapidity()<<  "   Phi "<< m_Jets[1].P().phi() << "\n "<< endmsg; 
+    msg(MSG::DEBUG) << " Lowest pt (in GeV)  " <<  (m_Jets[m_Jets.size()-1].P().perp()/Gaudi::Units::GeV)  <<  "   Rapidity " <<m_Jets[m_Jets.size()-1].P().pseudoRapidity() <<  "   Phi " << m_Jets[m_Jets.size()-1].P().phi() << "\n "<< endmsg; 
   }
   int isOK = 1;
   if (m_UserNumber >= 2 && m_UserLeadingThresh > m_UserThresh && !hasLeadingJet) isOK = 0;
@@ -366,11 +366,11 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 
 #if 0
   if (0) {
-    msg(MSG::DEBUG) << " Summary  isOK " << isOK << " Number of jets found   = " << m_Jets.size() << " \n "<< endreq;
+    msg(MSG::DEBUG) << " Summary  isOK " << isOK << " Number of jets found   = " << m_Jets.size() << " \n "<< endmsg;
     if (m_Jets.size()>0) {
-      msg(MSG::DEBUG) << " Highest pt (in GeV)  " <<  (m_Jets[0].P().perp()/Gaudi::Units::GeV)  <<   "   Rapidity " <<m_Jets[0].P().pseudoRapidity()<<  "   Phi "<< m_Jets[0].P().phi() << endreq;
-      if (m_Jets.size()>1) msg(MSG::DEBUG) << " Second Highest pt (in GeV)  " <<  (m_Jets[1].P().perp()/Gaudi::Units::GeV)  <<   "   Rapidity " <<m_Jets[1].P().pseudoRapidity()<<  "   Phi "<< m_Jets[1].P().phi() << endreq; 
-      msg(MSG::DEBUG) << " Lowest pt (in GeV)  " <<  (m_Jets[m_Jets.size()-1].P().perp()/Gaudi::Units::GeV)  <<  "   Rapidity " <<m_Jets[m_Jets.size()-1].P().pseudoRapidity() <<  "   Phi " << m_Jets[m_Jets.size()-1].P().phi() << endreq; 
+      msg(MSG::DEBUG) << " Highest pt (in GeV)  " <<  (m_Jets[0].P().perp()/Gaudi::Units::GeV)  <<   "   Rapidity " <<m_Jets[0].P().pseudoRapidity()<<  "   Phi "<< m_Jets[0].P().phi() << endmsg;
+      if (m_Jets.size()>1) msg(MSG::DEBUG) << " Second Highest pt (in GeV)  " <<  (m_Jets[1].P().perp()/Gaudi::Units::GeV)  <<   "   Rapidity " <<m_Jets[1].P().pseudoRapidity()<<  "   Phi "<< m_Jets[1].P().phi() << endmsg; 
+      msg(MSG::DEBUG) << " Lowest pt (in GeV)  " <<  (m_Jets[m_Jets.size()-1].P().perp()/Gaudi::Units::GeV)  <<  "   Rapidity " <<m_Jets[m_Jets.size()-1].P().pseudoRapidity() <<  "   Phi " << m_Jets[m_Jets.size()-1].P().phi() << endmsg; 
     }
   }
 #endif

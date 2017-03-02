@@ -45,7 +45,7 @@ typedef INav4MomAssocs::object_link INav4MomLink_t;
 
 #define LOG_MSG(log,lvl,msg) \
    log << lvl; \
-   if( log.level() <= lvl ) log << lvl << msg << endreq
+   if( log.level() <= lvl ) log << lvl << msg << endmsg
 
 void 
 INav4MomAssocsCnv_p3::persToTrans( const INav4MomAssocs_p3* pers, 

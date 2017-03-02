@@ -97,7 +97,7 @@ SiDetectorElement::commonConstructor()
   // Set booleans for wether we are pixel/sct barrel/endcap
   m_isPixel = getIdHelper()->is_pixel(m_id);
   if (!m_isPixel && !getIdHelper()->is_sct(m_id)){
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element id is not for pixel or SCT" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element id is not for pixel or SCT" << endmsg;
   }
 
   // Set IdHash. Also set m_isBarrel.
@@ -225,10 +225,10 @@ SiDetectorElement::updateCache() const
 
     if (isBarrel() && !barrelLike) {      
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has endcap like orientation with barrel identifier." 
-						 << endreq;
+						 << endmsg;
     } else if (!isBarrel() && barrelLike) {
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has barrel like orientation with endcap identifier."
-						 << endreq;
+						 << endmsg;
     }
     
     if (barrelLike) {
@@ -250,11 +250,11 @@ SiDetectorElement::updateCache() const
       if (m_design->depthSymmetric()) {
 	m_depthDirection = false;
       } else {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local depth axis." << endreq;
+	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local depth axis." << endmsg;
       }
     }
     if (std::abs(depthDir) < 0.5) { // Check that it is in roughly the right direction.
-      msg(MSG::ERROR) << "Orientation of local depth axis does not follow correct convention." << endreq;
+      msg(MSG::ERROR) << "Orientation of local depth axis does not follow correct convention." << endmsg;
       // throw std::runtime_error("Orientation of local depth axis does not follow correct convention.");
       m_depthDirection = true; // Don't swap.
     }
@@ -268,12 +268,12 @@ SiDetectorElement::updateCache() const
       if (m_design->phiSymmetric()) {
 	m_phiDirection = false;
       } else {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local xPhi axis." << endreq;
+	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local xPhi axis." << endmsg;
       }
     }
     
     if (std::abs(phiDir) < 0.5) { // Check that it is in roughly the right direction.
-      msg(MSG::ERROR) << "Orientation of local xPhi axis does not follow correct convention." << endreq;
+      msg(MSG::ERROR) << "Orientation of local xPhi axis does not follow correct convention." << endmsg;
       // throw std::runtime_error("Orientation of local xPhi axis does not follow correct convention.");
       m_phiDirection = true; // Don't swap.
     }
@@ -287,11 +287,11 @@ SiDetectorElement::updateCache() const
       if (m_design->etaSymmetric()) {
 	m_etaDirection = false;
       } else {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endmsg;
       }
     }
     if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
-      msg(MSG::ERROR) << "Orientation of local xEta axis does not follow correct convention." << endreq;
+      msg(MSG::ERROR) << "Orientation of local xEta axis does not follow correct convention." << endmsg;
       // throw std::runtime_error("Orientation of local xEta axis does not follow correct convention.");
       m_etaDirection = true; // Don't swap
     }   
@@ -315,13 +315,13 @@ SiDetectorElement::updateCache() const
       if (m_design->depthSymmetric()) {
 	if(msgLvl(MSG::DEBUG))  
 	  msg(MSG::DEBUG) << "Local frame is left-handed, Swapping depth axis to make it right handed." 
-			  << endreq;
+			  << endmsg;
 	m_depthDirection = !m_depthDirection;
 	m_transformCLHEP = geoTransform * recoToHitTransform();
 	 m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
 	//m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
        } else {
-	 if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Local frame is left-handed." << endreq;
+	 if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Local frame is left-handed." << endmsg;
       }
     }
   }

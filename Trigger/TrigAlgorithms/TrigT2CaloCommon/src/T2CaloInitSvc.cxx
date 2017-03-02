@@ -32,7 +32,7 @@ StatusCode T2CaloInitSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
         *ppvIF = (T2CaloInitSvc*)this; 
     } else { 
         MsgStream log(messageService(), name());
-        log << MSG::DEBUG << name() << " cannot found the interface!" <<endreq;
+        log << MSG::DEBUG << name() << " cannot found the interface!" <<endmsg;
         return AthService::queryInterface(riid, ppvIF); 
     }
     return StatusCode::SUCCESS;
@@ -43,7 +43,7 @@ StatusCode T2CaloInitSvc::initialize()
     StatusCode sc;
 
     MsgStream log(messageService(), name());
-    log << MSG::DEBUG << name() << ": Start of run initialisation" << endreq;
+    log << MSG::DEBUG << name() << ": Start of run initialisation" << endmsg;
 
     sc = AthService::initialize();
     if ( sc.isFailure() ) return sc;
@@ -57,16 +57,16 @@ StatusCode T2CaloInitSvc::initialize()
     if ( sc.isSuccess( ) ) {
       sc = detStore->retrieve( theMgr );    
       if(sc.isSuccess( )) {
-	log << MSG::DEBUG << name() << ": successfully retrived CaloDetDescrManager" << endreq;
+	log << MSG::DEBUG << name() << ": successfully retrived CaloDetDescrManager" << endmsg;
       }
       else {
-        log << MSG::ERROR << name() << ": failed to retrive CaloDetDescrManager" << endreq;
+        log << MSG::ERROR << name() << ": failed to retrive CaloDetDescrManager" << endmsg;
         return sc;
       }
       
     }
     else {
-      log << MSG::ERROR << name() << ": Could not locate DetectorStore" << endreq;
+      log << MSG::ERROR << name() << ": Could not locate DetectorStore" << endmsg;
       return sc;
     }
 

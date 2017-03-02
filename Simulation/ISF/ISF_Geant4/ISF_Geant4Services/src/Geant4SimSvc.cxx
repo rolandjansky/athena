@@ -117,13 +117,13 @@ StatusCode iGeant4::Geant4SimSvc::finalize()
     float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(m_nrOfEntries-1.) : runTime;
     float sigma=( m_nrOfEntries>2) ? std::sqrt((m_accumulatedEventTimeSq/float(m_nrOfEntries-1)-
                                                 avgTimePerEvent*avgTimePerEvent)/float(m_nrOfEntries-2)) : 0;
-    ATH_MSG_INFO("*****************************************"<<endreq<<
-                 "**                                     **"<<endreq<<
+    ATH_MSG_INFO("*****************************************"<<endmsg<<
+                 "**                                     **"<<endmsg<<
                  "    End of run - time spent is "<<std::setprecision(4) <<
-                 runTime<<endreq<<
+                 runTime<<endmsg<<
                  "    Average time per event was "<<std::setprecision(4) <<
-                 avgTimePerEvent <<" +- "<< std::setprecision(4) << sigma<<endreq<<
-                 "**                                     **"<<endreq<<
+                 avgTimePerEvent <<" +- "<< std::setprecision(4) << sigma<<endmsg<<
+                 "**                                     **"<<endmsg<<
                  "*****************************************");
   }
 

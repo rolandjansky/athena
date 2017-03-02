@@ -40,25 +40,25 @@ void Trig::Print(const TrigMonEvent &event,
         << "|#L1=" << event.getL1Item().size()
         << "|#HLT=" << event.getChain().size() 
         << "|#WORD=" << event.getWord().size() 
-        << "|CE?:" << (_costEvent < 0.5 ? "N" : "Y")  << "]" << endreq;
+        << "|CE?:" << (_costEvent < 0.5 ? "N" : "Y")  << "]" << endmsg;
     return;
   }
  
   log << level 
       << "TrigMonEvent run #" << event.getRun() 
       << " lumi #" << event.getLumi()
-      << " event #" << event.getEvent() << endreq;
+      << " event #" << event.getEvent() << endmsg;
 
   if (verb == 1) return;
 
   log << level
-      << "   # of rob  = " << event.size<TrigMonROB>() << endreq
-      << "   # of roi  = " << event.size<TrigMonRoi>() << endreq
-      << "   # of seq  = " << event.size<TrigMonSeq>() << endreq
-      << "   # of te   = " << event.size<TrigMonTE> () << endreq
-      << "   # of l1   = " << event.getL1Item().size() << endreq
-      << "   # of hlt  = " << event.getChain().size()  << endreq
-      << "   # of word = " << event.getWord().size()   << endreq;
+      << "   # of rob  = " << event.size<TrigMonROB>() << endmsg
+      << "   # of roi  = " << event.size<TrigMonRoi>() << endmsg
+      << "   # of seq  = " << event.size<TrigMonSeq>() << endmsg
+      << "   # of te   = " << event.size<TrigMonTE> () << endmsg
+      << "   # of l1   = " << event.getL1Item().size() << endmsg
+      << "   # of hlt  = " << event.getChain().size()  << endmsg
+      << "   # of word = " << event.getWord().size()   << endmsg;
 
   if (verb == 2) return;
   
@@ -73,7 +73,7 @@ void Trig::Print(const TrigMonEvent &event,
       log << level << val.getCounter() << " ";
     }
   }
-  log << level << endreq;
+  log << level << endmsg;
 
   log << level << "   HLT: ";
   for(unsigned int i = 0; i < hlt.size(); ++i) {
@@ -86,13 +86,13 @@ void Trig::Print(const TrigMonEvent &event,
       log << level << val.getCounter() << " ";
     }
   }
-  log << level << endreq;
+  log << level << endmsg;
 
   log << level << "   WORD: ";
   for(unsigned int i = 0; i < event.getWord().size(); ++i) {
     log << level << event.getWord()[i] << " ";
   }
-  log << level << endreq;
+  log << level << endmsg;
 
   if (verb == 3) return;
 
@@ -112,7 +112,7 @@ void Trig::Print(const TrigMonEvent &event,
 	    << eta << ", " 
 	    << phi << ", " 
 	    << rword
-	    << endreq;
+	    << endmsg;
   }
 
   if (verb == 4) return;
@@ -159,7 +159,7 @@ void Trig::Print(const TrigMonEvent &event,
 	      << " #sum="  << rob.getSum().size()
 	      << " #data=" << ndata << ", "
 	      << " ROB size=" << rsize 
-	      << endreq;
+	      << endmsg;
   }
 
   if (verb == 5) return;
@@ -169,11 +169,11 @@ void Trig::Print(const TrigMonEvent &event,
   
   if(var_vec.size() == key_vec.size()) {
     for(unsigned i = 0; i < key_vec.size(); ++i) {
-      log << " key=" << key_vec.at(i) << " var=" << var_vec.at(i) << endreq;
+      log << " key=" << key_vec.at(i) << " var=" << var_vec.at(i) << endmsg;
     }
   }
   else {
-    log << "Size mismatch for var and key vectors" << endreq;
+    log << "Size mismatch for var and key vectors" << endmsg;
   }
 }
 

@@ -38,28 +38,28 @@ namespace JiveXML {
    */
   StatusCode MuonRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<Analysis::MuonContainer> iterator, end;
     const Analysis::MuonContainer* muCont;
     
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(muCont, m_sgKey);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(muCont);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Muon retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Muon retrieved" << endmsg;
       }
     }
 
     //obtain all other collections from StoreGate
     if (( evtStore()->retrieve(iterator, end)).isFailure()){
-       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endreq;
+       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endmsg;
 //        return StatusCode::WARNING;
     }
       
@@ -69,12 +69,12 @@ namespace JiveXML {
 	  (iterator.key() != "CaloESDMuonCollection" ))  {
       //// was:
       //       if (iterator.key()!=m_sgKey) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
             DataMap data = getData(iterator);
             if ( FormatTool->AddToEvent(dataTypeName(), iterator.key(), &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") Muon retrieved" << endreq;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") Muon retrieved" << endmsg;
             }
 	  }
     }	  
@@ -89,7 +89,7 @@ namespace JiveXML {
    */
   const DataMap MuonRetriever::getData(const Analysis::MuonContainer* muoncont) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
     DataMap m_DataMap;
 
@@ -159,7 +159,7 @@ namespace JiveXML {
        " Muon: matchChi2OverDoF: " << (*muonItr)->matchChi2OverDoF() << 
        ", matchChi2: " << (*muonItr)->matchChi2() << 
        ", fitChi2: " << (*muonItr)->fitChi2() << 
-       ", isCombined: " << (int)(*muonItr)->isCombinedMuon() << endreq;
+       ", isCombined: " << (int)(*muonItr)->isCombinedMuon() << endmsg;
        
 // parameters for associations:
 // stricly speaking, these should be ElementLinkVectors (see TauJet association)
@@ -219,7 +219,7 @@ namespace JiveXML {
     m_DataMap["trackIndex"] = trackIndexVec;
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

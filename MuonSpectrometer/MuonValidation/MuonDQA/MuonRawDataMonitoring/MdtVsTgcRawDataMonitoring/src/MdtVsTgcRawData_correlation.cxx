@@ -49,7 +49,7 @@ void
 MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_container, 
                                    const Muon::TgcCoinDataContainer* tgccontainer){
 
-  if (m_debuglevel) m_log<<MSG::DEBUG<<"inside correlation"<<endreq;
+  if (m_debuglevel) m_log<<MSG::DEBUG<<"inside correlation"<<endmsg;
   //StatusCode sc=StatusCode::SUCCESS;
 
   //loop over TGC RoI container
@@ -59,7 +59,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
        ++it){
   
 
-    if (m_debuglevel) m_log<<MSG::DEBUG<< "size of tgc collection is " << (*it) -> size() << endreq;
+    if (m_debuglevel) m_log<<MSG::DEBUG<< "size of tgc collection is " << (*it) -> size() << endmsg;
 
     //loop over TGC RoI collection
     Muon::TgcCoinDataCollection::const_iterator itc_end=(*it)->end();
@@ -101,7 +101,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
              <<" roiphi "<<roiphi
              <<" tgcEta "<<tgcEta
              <<" tgcPhi "<<tgcPhi
-             <<endreq;
+             <<endmsg;
       }
 
 
@@ -145,7 +145,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
         //if (m_debuglevel){
         //m_log<<MSG::DEBUG
         ///     <<"mmdtStationName "<<mdtStationName
-        //    <<endreq;
+        //    <<endmsg;
         //}
 
         //only Endcap middle MDT
@@ -161,7 +161,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
 
         //same Side
         if(ac!=mdtAC)continue;
-        if (m_debuglevel) m_log<<MSG::DEBUG<< "size of mdt collection is " << (*containerIt) -> size() << endreq;
+        if (m_debuglevel) m_log<<MSG::DEBUG<< "size of mdt collection is " << (*containerIt) -> size() << endmsg;
 
         if (m_debuglevel){
           m_log<<MSG::DEBUG
@@ -169,7 +169,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
                <<" mdtStationEta "<<mdtStationEta
                <<" mdtStationPhi "<<mdtStationPhi
                <<" mdtSectorPhi "<<mdtSectorPhi
-               <<endreq;
+               <<endmsg;
         }
         //if( itgcstationEta!=RoIEta || itgcstationPhi!=RoIPhi48 || end_or_for!=RoIEF || a_or_c!=RoISide )continue;
 
@@ -200,7 +200,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
                  <<" mdtTubeLayer "<<mdtTubeLayer
                  <<" mdtTube "<<mdtTube
                  <<" mdtTubeIdForEM "<<mdtTubeIdForEM
-                 <<endreq;
+                 <<endmsg;
           }
 
           if(tmp[mdtMultiLayer-1][mdtTubeLayer-1][mdtTube-1]==1)continue;
@@ -236,7 +236,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
                  <<" SecPhi "<<mdtSectorPhi
                  <<" ADC "<<adc
                  <<" TDC "<<tdc
-                 <<endreq;
+                 <<endmsg;
           }
           
         }//MDT collection

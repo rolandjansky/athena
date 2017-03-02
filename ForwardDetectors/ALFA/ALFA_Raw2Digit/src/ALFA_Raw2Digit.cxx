@@ -91,15 +91,15 @@ StatusCode ALFA_Raw2Digit::initialize()
 
 	StatusCode sc = mapping();
 
-	if (sc.isFailure()) { msg (MSG::FATAL) << " Could not open mapping " << endreq; return sc; }
-	else                  msg (MSG::DEBUG) << " mapping is fine " << endreq;
+	if (sc.isFailure()) { msg (MSG::FATAL) << " Could not open mapping " << endmsg; return sc; }
+	else                  msg (MSG::DEBUG) << " mapping is fine " << endmsg;
 
 //	sc = service("THistSvc", m_histSvc);
 
 	// retrieve ThistSvc ...
 //	if(sc.isFailure())
 //	{
-//		msg(MSG::FATAL) << "Unable to retrieve pointer to THistSvc" << endreq;
+//		msg(MSG::FATAL) << "Unable to retrieve pointer to THistSvc" << endmsg;
 //		return sc;
 //	}
 
@@ -177,7 +177,7 @@ StatusCode ALFA_Raw2Digit::execute()
 	ATH_MSG_DEBUG ("ALFA_Raw2Digit: BEGINING of execute");
 
 	m_nEvents++;
-	msg(MSG::DEBUG) << "event # "<< m_nEvents << endreq;
+	msg(MSG::DEBUG) << "event # "<< m_nEvents << endmsg;
 //	m_toFile << "Event " << m_nEvents << std::endl;
 
 	// retrieve the RawData RDO container from the TDS
@@ -185,27 +185,27 @@ StatusCode ALFA_Raw2Digit::execute()
 	StatusCode sc_read = evtStore()->retrieve(container, m_ALFA_RawDataCollectionKey);
 
 	if ( sc_read != StatusCode::SUCCESS ) {
-		msg(MSG::ERROR) << "ALFA_Raw2Digit: Could not find container" << endreq;
+		msg(MSG::ERROR) << "ALFA_Raw2Digit: Could not find container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
 	else if ( sc_read == StatusCode::SUCCESS ) {
-		msg(MSG::DEBUG)  << "ALFA_Raw2Digit: Raw data container retrieved" << endreq;
+		msg(MSG::DEBUG)  << "ALFA_Raw2Digit: Raw data container retrieved" << endmsg;
 	}
 
-	msg(MSG::DEBUG) << "MD record_collection()" << endreq;
+	msg(MSG::DEBUG) << "MD record_collection()" << endmsg;
 
 	StatusCode sc = recordCollection();
 	if  (sc.isFailure()) {
-		msg(MSG::WARNING) << "ALFA_Raw2Digit: recordCollection failed" << endreq;
+		msg(MSG::WARNING) << "ALFA_Raw2Digit: recordCollection failed" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
-	msg(MSG::DEBUG) << "OD record_collection()" << endreq;
+	msg(MSG::DEBUG) << "OD record_collection()" << endmsg;
 
 	sc = recordODCollection();
 	if  (sc.isFailure()) {
-		msg(MSG::WARNING) << "ALFA_Raw2Digit, recordODCollection failed" << endreq;
+		msg(MSG::WARNING) << "ALFA_Raw2Digit, recordODCollection failed" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -238,7 +238,7 @@ StatusCode ALFA_Raw2Digit::execute()
 	for(;RawData_Collection_Beg!=RawData_Collection_End; ++RawData_Collection_Beg)
 	{
 		mbID = ((*RawData_Collection_Beg)->GetMBId_POT());
-		msg(MSG::DEBUG) << "ALFA_Raw2Digit: MBId POT= " << mbID <<  endreq;
+		msg(MSG::DEBUG) << "ALFA_Raw2Digit: MBId POT= " << mbID <<  endmsg;
 
 //		std::cout << "*******    Time stamp = " << (*RawData_Collection_Beg)->GetTimeStamp_POT() << std::endl;
 //		time_t rawtime = (*RawData_Collection_Beg)->GetTimeStamp_POT();
@@ -255,7 +255,7 @@ StatusCode ALFA_Raw2Digit::execute()
 		charge_2[mbID-1] = ((*RawData_Collection_Beg)->Get_ADC2_POT());
 		for (unsigned int i=0;i<16;i++) {
 	  trigger_pattern_b[mbID-1][i] = ((*RawData_Collection_Beg)->Get_pattern_POT())[i];
-//	  msg(MSG::ERROR) << " pattern: bit " << i << ", value = "<< trigger_pattern_b[mbID-1][i] << " in MB = " << mbID-1 << endreq;
+//	  msg(MSG::ERROR) << " pattern: bit " << i << ", value = "<< trigger_pattern_b[mbID-1][i] << " in MB = " << mbID-1 << endmsg;
 		}
 
 // loop over collection start
@@ -264,7 +264,7 @@ StatusCode ALFA_Raw2Digit::execute()
 
 		for(;p_RawData_Beg!=p_RawData_End; ++p_RawData_Beg)
 		{
-//			msg(MSG::DEBUG) << " all, pmfId = " << (*p_RawData_Beg)->GetPMFId_PMF() <<  ", MBId = " << (*p_RawData_Beg)->GetMBId_PMF() << endreq;
+//			msg(MSG::DEBUG) << " all, pmfId = " << (*p_RawData_Beg)->GetPMFId_PMF() <<  ", MBId = " << (*p_RawData_Beg)->GetMBId_PMF() << endmsg;
 
 			if ((*p_RawData_Beg)->GetPMFId_PMF()>0 && ((*p_RawData_Beg)->GetWordId_PMF())<24)
 			{
@@ -274,16 +274,16 @@ StatusCode ALFA_Raw2Digit::execute()
 				else  WordId_count=0;
 
 				if (WordId_count==1){
-					msg(MSG::DEBUG)  << " pmfId = " << (*p_RawData_Beg)->GetPMFId_PMF() <<  ", MBId = " << (*p_RawData_Beg)->GetMBId_PMF() <<endreq;
+					msg(MSG::DEBUG)  << " pmfId = " << (*p_RawData_Beg)->GetPMFId_PMF() <<  ", MBId = " << (*p_RawData_Beg)->GetMBId_PMF() <<endmsg;
 				}
 
-//				msg(MSG::DEBUG) << " WordId_count " << WordId_count << endreq;
+//				msg(MSG::DEBUG) << " WordId_count " << WordId_count << endmsg;
 
 				for (unsigned int i=0;i<16;i++)
 				{
 					if ((*p_RawData_Beg)->Get_Chan(i)!=100)
 					{
-						msg(MSG::DEBUG)  <<"ALFA_Raw2Digit, maroc chanel # = " << (*p_RawData_Beg)->Get_Chan(i)<< endreq;
+						msg(MSG::DEBUG)  <<"ALFA_Raw2Digit, maroc chanel # = " << (*p_RawData_Beg)->Get_Chan(i)<< endmsg;
 
 						fibID = (*p_RawData_Beg)->Get_Chan(i);
 
@@ -299,9 +299,9 @@ StatusCode ALFA_Raw2Digit::execute()
 
 							layer_b[mbID-1][m_plate] = true;
 							fiber_b[mbID-1][m_plate][m_fiber] = true;
-//							msg(MSG::ERROR) << " bim ho, lumi = " << lumi_block << ", pot = "<< mbID-1 << ", plate " << m_plate << endreq;
+//							msg(MSG::ERROR) << " bim ho, lumi = " << lumi_block << ", pot = "<< mbID-1 << ", plate " << m_plate << endmsg;
 							n_hits_lay[mbID-1][m_plate] = n_hits_lay[mbID-1][m_plate] + 1;
-//							msg(MSG::ERROR) << " number of hits " << n_hits_lay[mbID-1][m_plate] << endreq;
+//							msg(MSG::ERROR) << " number of hits " << n_hits_lay[mbID-1][m_plate] << endmsg;
 
 //							m_digitCollection->push_back(new ALFA_Digit(m_pot,m_plate,m_fiber));
 							m_digitCollection->push_back(new ALFA_Digit(mbID-1,m_plate,m_fiber));
@@ -309,7 +309,7 @@ StatusCode ALFA_Raw2Digit::execute()
 							// changed by Petr - 19.12.2012 -----------------------------
 //							MapChan = maroc2mapmt[m_pot][fibID];
 							MapChan = maroc2mapmt[m_pot][m_plate][fibID];
-							msg(MSG::DEBUG)  << "pot = " << m_pot << ", pmf = " << pmfID-1 << ", maroc = " << fibID << ", mapmt = " << MapChan <<  endreq;
+							msg(MSG::DEBUG)  << "pot = " << m_pot << ", pmf = " << pmfID-1 << ", maroc = " << fibID << ", mapmt = " << MapChan <<  endmsg;
 
 //							PMFvsMAPMT[m_pot]->Fill(MapChan,pmfID-1);
 //							PMFvsMAROC[m_pot]->Fill(fibID,pmfID-1);
@@ -317,12 +317,12 @@ StatusCode ALFA_Raw2Digit::execute()
 //							ChanPlot(m_pot,fibID,chan_i,chan_j);
 //							ChanPlot(m_pot,m_plate,fibID,chan_i,chan_j);
 //							MapmtHit[m_pot][pmfID-1]->Fill(chan_i,chan_j);
-							msg(MSG::DEBUG)  << "fibID = " << fibID << ", chan_i " << chan_i << ", chan_j = " << chan_j << endreq;
+							msg(MSG::DEBUG)  << "fibID = " << fibID << ", chan_i " << chan_i << ", chan_j = " << chan_j << endmsg;
 
 							pmf_chan_hit_counter[m_pot][pmfID-1][fibID]++;
 							hit_counter[m_pot]++;
 
-							msg(MSG::DEBUG)  << "ALFA_Raw2Digit: new digit (softsim numbering-starting from 0) in the collection, pot = " << m_pot << ", plate = " << m_plate << ", fiber = " << m_fiber << endreq;
+							msg(MSG::DEBUG)  << "ALFA_Raw2Digit: new digit (softsim numbering-starting from 0) in the collection, pot = " << m_pot << ", plate = " << m_plate << ", fiber = " << m_fiber << endmsg;
 						}
 						else
 						{
@@ -334,7 +334,7 @@ StatusCode ALFA_Raw2Digit::execute()
 
 							// changed by Petr - 19.12.2012 ----------------------------- commented, is it needed by ODs? TODO: to correct MapChan for OD case
 //							MapChan = maroc2mapmt[m_ODpot][fibID];
-//							msg(MSG::DEBUG)  << " pot = " << m_ODpot << ", pmf = " << pmfID-1 << ", maroc = " << fibID << ", mapmt = " << MapChan << endreq;
+//							msg(MSG::DEBUG)  << " pot = " << m_ODpot << ", pmf = " << pmfID-1 << ", maroc = " << fibID << ", mapmt = " << MapChan << endmsg;
 
 							if (m_ODfiber!=98)
 							{
@@ -343,7 +343,7 @@ StatusCode ALFA_Raw2Digit::execute()
 //								m_ODdigitCollection->push_back(new ALFA_ODDigit(m_ODpot,m_ODside,m_ODplate,m_ODfiber));
 								m_ODdigitCollection->push_back(new ALFA_ODDigit(mbID-1,m_ODside,m_ODplate,m_ODfiber));
 
-//								msg(MSG::DEBUG) << "pot, side, plate, fiber = " << m_ODpot << ", " << m_ODside << ", " << m_ODplate << ", " << m_ODfiber << endreq;
+//								msg(MSG::DEBUG) << "pot, side, plate, fiber = " << m_ODpot << ", " << m_ODside << ", " << m_ODplate << ", " << m_ODfiber << endmsg;
 
 							}
 
@@ -354,12 +354,12 @@ StatusCode ALFA_Raw2Digit::execute()
 							// changed by Petr - 19.12.2012 ----------------------------- commented, is it needed by ODs? TODO: to correct ChanPlot for OD case
 //							ChanPlot(m_ODpot,fibID,chan_i,chan_j);
 //							MapmtHit[m_ODpot][pmfID-1]->Fill(chan_i,chan_j);
-							msg(MSG::DEBUG)  << "fibID = " << fibID << ", chan_i " << chan_i << ", chan_j = " << chan_j << endreq;
+							msg(MSG::DEBUG)  << "fibID = " << fibID << ", chan_i " << chan_i << ", chan_j = " << chan_j << endmsg;
 
 							pmf_chan_hit_counter[m_ODpot][pmfID-1][fibID]++;
 							hit_counter[m_ODpot]++;
 
-							msg(MSG::DEBUG)  << "ALFA_Raw2Digit:  new OD digit (softsim numbering-starting from 0) in the collection,  pot = " << m_ODpot << ", side = " << m_ODside << ", plate = " << m_ODplate << ", fiber = " << m_ODfiber << endreq;
+							msg(MSG::DEBUG)  << "ALFA_Raw2Digit:  new OD digit (softsim numbering-starting from 0) in the collection,  pot = " << m_ODpot << ", side = " << m_ODside << ", plate = " << m_ODplate << ", fiber = " << m_ODfiber << endmsg;
 						}
 					}
 						// */
@@ -367,15 +367,15 @@ StatusCode ALFA_Raw2Digit::execute()
 			} //if (PFM!=0)
 			else
 			{
-				msg(MSG::DEBUG) << "ALFA_Raw2Digit: More than n Raw Data " <<endreq;
+				msg(MSG::DEBUG) << "ALFA_Raw2Digit: More than n Raw Data " <<endmsg;
 				break;
 			}
 		} // loop raw data
 	
-		msg(MSG::DEBUG)  << "ALFA_Raw2Digit: finish loop over raw data " <<   endreq;
+		msg(MSG::DEBUG)  << "ALFA_Raw2Digit: finish loop over raw data " <<   endmsg;
 	} // loop collection
 
-	msg(MSG::DEBUG)  << "ALFA_Raw2Digit: finish loop over collection " <<   endreq;
+	msg(MSG::DEBUG)  << "ALFA_Raw2Digit: finish loop over collection " <<   endmsg;
 
 //	m_tree->Fill();
 
@@ -482,26 +482,26 @@ StatusCode ALFA_Raw2Digit::finalize()
 
 StatusCode ALFA_Raw2Digit::recordCollection()
 {
-	msg(MSG::DEBUG) << " ALFA_Digitization::recordCollection " << endreq;
+	msg(MSG::DEBUG) << " ALFA_Digitization::recordCollection " << endmsg;
 
 	m_digitCollection = new ALFA_DigitCollection();
 
 	StatusCode sc = evtStore()->record(m_digitCollection, m_key_DigitCollection);
-	if (sc.isFailure()) { msg (MSG::FATAL) << " MD - Could not record the empty digit collection in StoreGate " << endreq; return sc; }
-	else                  msg (MSG::DEBUG) << " MD - Digit collection is recorded in StoreGate " << endreq;
+	if (sc.isFailure()) { msg (MSG::FATAL) << " MD - Could not record the empty digit collection in StoreGate " << endmsg; return sc; }
+	else                  msg (MSG::DEBUG) << " MD - Digit collection is recorded in StoreGate " << endmsg;
 
 	return sc;
 }
 
 StatusCode ALFA_Raw2Digit::recordODCollection()
 {
-	msg(MSG::DEBUG) << " ALFA_Digitization::recordODCollection " << endreq;
+	msg(MSG::DEBUG) << " ALFA_Digitization::recordODCollection " << endmsg;
 
 	m_ODdigitCollection = new ALFA_ODDigitCollection();
 
 	StatusCode sc = evtStore()->record(m_ODdigitCollection, m_key_ODDigitCollection);
-	if (sc.isFailure()) { msg (MSG::FATAL) << " OD - Could not record the empty digit collection in StoreGate " << endreq; return sc; }
-	else                  msg (MSG::DEBUG) << " OD - Digit collection is recorded in StoreGate " << endreq;
+	if (sc.isFailure()) { msg (MSG::FATAL) << " OD - Could not record the empty digit collection in StoreGate " << endmsg; return sc; }
+	else                  msg (MSG::DEBUG) << " OD - Digit collection is recorded in StoreGate " << endmsg;
 
 	return sc;
 }
@@ -527,7 +527,7 @@ StatusCode ALFA_Raw2Digit::mapping()
 
 //	mapname = "./mapping/motheboard2detector.dat";
 //	inDet.open(mapname.c_str());
-//	msg(MSG::DEBUG) << "file name " << mapname.c_str() << endreq;
+//	msg(MSG::DEBUG) << "file name " << mapname.c_str() << endmsg;
 //	for (unsigned int i=0;i<64;i++) {
 //		inDet >> MBnum >> DETnum;
 //		mb2det[MBnum] = DETnum;
@@ -551,19 +551,19 @@ StatusCode ALFA_Raw2Digit::mapping()
 		mapname += s.str();
 		mapname += ".dat";
 		
-		msg(MSG::DEBUG) << "file name " << mapname.c_str() << endreq;
+		msg(MSG::DEBUG) << "file name " << mapname.c_str() << endmsg;
 		
 		// ************
 		std::string filePath = PathResolver::find_file(mapname.c_str(),"DATAPATH", PathResolver::RecursiveSearch);
 		if(filePath.length() == 0)
 		{
-			msg(MSG::FATAL) << " the mapping file MD maroc-mapmt \"" <<  mapname.c_str() << "\" not found in Datapath." << endreq;
+			msg(MSG::FATAL) << " the mapping file MD maroc-mapmt \"" <<  mapname.c_str() << "\" not found in Datapath." << endmsg;
 			throw std::runtime_error("FATAL: mapping MD maroc-mapmt not found in Datapath.");
 		}
 		else
 		{
-			msg(MSG::DEBUG) << "DEBUG: the mapping file MD maroc-mapmt \"" <<  mapname.c_str() << "\" found in Datapath." << endreq;	
-			msg(MSG::DEBUG) << "DEBUG: filePath =  " << filePath.c_str() << endreq;
+			msg(MSG::DEBUG) << "DEBUG: the mapping file MD maroc-mapmt \"" <<  mapname.c_str() << "\" found in Datapath." << endmsg;	
+			msg(MSG::DEBUG) << "DEBUG: filePath =  " << filePath.c_str() << endmsg;
 		}
                 // **************	
 		
@@ -576,8 +576,8 @@ StatusCode ALFA_Raw2Digit::mapping()
 			for (unsigned int i=0;i<1280;i++){
 //				inChan >> MarChan >> MapChan >> FibChan;
 				inChan >> iLayer >> MarChan >> MapChan >> FibChan;
-//				msg(MSG::DEBUG) << i << " maroc_mapmt_fiber, maroc = " << MarChan << ", map = "<< MapChan << ", fib = " << FibChan << endreq;
-				msg(MSG::DEBUG) << i << " maroc_mapmt_fiber, layer = " << iLayer << ", maroc = " << MarChan << ", map = "<< MapChan << ", fib = " << FibChan << endreq;
+//				msg(MSG::DEBUG) << i << " maroc_mapmt_fiber, maroc = " << MarChan << ", map = "<< MapChan << ", fib = " << FibChan << endmsg;
+				msg(MSG::DEBUG) << i << " maroc_mapmt_fiber, layer = " << iLayer << ", maroc = " << MarChan << ", map = "<< MapChan << ", fib = " << FibChan << endmsg;
 	
 				if ((MarChan < 0) || (MarChan > 63))
 				{
@@ -608,7 +608,7 @@ StatusCode ALFA_Raw2Digit::mapping()
 		}
 		else
 		{
-			msg(MSG::ERROR) << "the file " << mapname.c_str() << " was not open" << endreq;
+			msg(MSG::ERROR) << "the file " << mapname.c_str() << " was not open" << endmsg;
 			return StatusCode::FAILURE;
 		}
 		
@@ -616,19 +616,19 @@ StatusCode ALFA_Raw2Digit::mapping()
 		mapname = "PMF_LAYER_MD";		
 		mapname += s.str();
 		mapname += ".dat";
-		msg(MSG::DEBUG) << "file name " << mapname.c_str() << endreq;
+		msg(MSG::DEBUG) << "file name " << mapname.c_str() << endmsg;
 		
 		// ************
 		filePath = PathResolver::find_file(mapname.c_str(),"DATAPATH", PathResolver::RecursiveSearch);
 		if(filePath.length() == 0)
 		{
-			msg(MSG::FATAL) << " the mapping file PMF_LAYER_MD \"" <<  mapname.c_str() << "\" not found in Datapath." << endreq;
+			msg(MSG::FATAL) << " the mapping file PMF_LAYER_MD \"" <<  mapname.c_str() << "\" not found in Datapath." << endmsg;
 			throw std::runtime_error("FATAL: mapping PMF_LAYER_MD not found in Datapath.");
 		}
 		else
 		{
-			msg(MSG::DEBUG) << "DEBUG: the mapping file PMF_LAYER_MD \"" <<  mapname.c_str() << "\" found in Datapath." << endreq;	
-			msg(MSG::DEBUG) << "DEBUG: filePath =  " << filePath.c_str() << endreq;
+			msg(MSG::DEBUG) << "DEBUG: the mapping file PMF_LAYER_MD \"" <<  mapname.c_str() << "\" found in Datapath." << endmsg;	
+			msg(MSG::DEBUG) << "DEBUG: filePath =  " << filePath.c_str() << endmsg;
 		}
                 // **************
 
@@ -638,7 +638,7 @@ StatusCode ALFA_Raw2Digit::mapping()
 			for (unsigned int i=0;i<20;i++)
 			{
 				inPMF >> PMFNum >> LAYNum;
-				msg(MSG::DEBUG) << i << " pmf2layer, pmf = " << PMFNum  << ", layer = "<< LAYNum << endreq;
+				msg(MSG::DEBUG) << i << " pmf2layer, pmf = " << PMFNum  << ", layer = "<< LAYNum << endmsg;
 				
 				if ((PMFNum < 0) || ( PMFNum > 22))
 				{
@@ -654,7 +654,7 @@ StatusCode ALFA_Raw2Digit::mapping()
 		}
 		else
 		{
-			msg(MSG::WARNING) << "the file " << mapname.c_str() << " was not open" << endreq;
+			msg(MSG::WARNING) << "the file " << mapname.c_str() << " was not open" << endmsg;
 			return StatusCode::FAILURE;	
 		}
 
@@ -662,19 +662,19 @@ StatusCode ALFA_Raw2Digit::mapping()
 		mapname="OD_MAP";		
 		mapname += s.str();
 		mapname+=".dat";
-		msg(MSG::DEBUG) << "file name " << mapname.c_str() << endreq;
+		msg(MSG::DEBUG) << "file name " << mapname.c_str() << endmsg;
 
 		// ************
 		filePath = PathResolver::find_file(mapname.c_str(),"DATAPATH", PathResolver::RecursiveSearch);
 		if(filePath.length() == 0)
 		{
-			msg(MSG::FATAL) << " the mapping file OD_MAP \"" <<  mapname.c_str() << "\" not found in Datapath." << endreq;
+			msg(MSG::FATAL) << " the mapping file OD_MAP \"" <<  mapname.c_str() << "\" not found in Datapath." << endmsg;
 			throw std::runtime_error("FATAL: mapping OD_MAP not found in Datapath.");
 		}
 		else
 		{
-			msg(MSG::DEBUG) << "DEBUG: the mapping file OD_MAP \"" <<  mapname.c_str() << "\" found in Datapath." << endreq;	
-			msg(MSG::DEBUG) << "DEBUG: filePath =  " << filePath.c_str() << endreq;
+			msg(MSG::DEBUG) << "DEBUG: the mapping file OD_MAP \"" <<  mapname.c_str() << "\" found in Datapath." << endmsg;	
+			msg(MSG::DEBUG) << "DEBUG: filePath =  " << filePath.c_str() << endmsg;
 		}
                 // **************
 		
@@ -688,7 +688,7 @@ StatusCode ALFA_Raw2Digit::mapping()
 					for(unsigned int jch=0; jch<32; jch++)
 					{
 						inOD >> OD_PMFNum >> OD_Dieter >> OD_LAYNum >> OD_Side >> OD_MaPmtChan >> OD_FibChan; // warning!!! MaPmt, not Maroc!
-						msg(MSG::DEBUG) << " pmf2layer, OD_PMFNum = " << OD_PMFNum  << ", OD_Dieter = "<< OD_Dieter << ", OD_LAYNum = " << OD_LAYNum << ", OD_Side = " << OD_Side << ", OD_MaPmtChan = " << OD_MaPmtChan << ", OD_FibChan = " << OD_FibChan << endreq;
+						msg(MSG::DEBUG) << " pmf2layer, OD_PMFNum = " << OD_PMFNum  << ", OD_Dieter = "<< OD_Dieter << ", OD_LAYNum = " << OD_LAYNum << ", OD_Side = " << OD_Side << ", OD_MaPmtChan = " << OD_MaPmtChan << ", OD_FibChan = " << OD_FibChan << endmsg;
 	
 						if ((OD_PMFNum < 2) || ( OD_PMFNum > 4))
 						{
@@ -716,7 +716,7 @@ StatusCode ALFA_Raw2Digit::mapping()
 						}
 						else
 						{
-							msg(MSG::DEBUG) << "OD_LAYNum out of bounds" << endreq;
+							msg(MSG::DEBUG) << "OD_LAYNum out of bounds" << endmsg;
 						}
 
 						OD_pmf_maroc2fiber[j][OD_PMFNum-1][OD_MarChan] = OD_FibChan-1;
@@ -729,7 +729,7 @@ StatusCode ALFA_Raw2Digit::mapping()
 		}
 		else
 		{
-			msg(MSG::WARNING) << "the file " << mapname.c_str() << " was not open" << endreq;
+			msg(MSG::WARNING) << "the file " << mapname.c_str() << " was not open" << endmsg;
 			return StatusCode::FAILURE;
 		}
 	}
@@ -757,6 +757,6 @@ StatusCode ALFA_Raw2Digit::ChanPlot(uint32_t pot_n, uint32_t iLayer, uint32_t Ma
 		chan_j=1;
 	}
 
-//	msg(MSG::FATAL)  << "in funct: fibID = " << MarChan << ", chan_i " << chan_i << ", chan_j = " << chan_j <<  endreq;
+//	msg(MSG::FATAL)  << "in funct: fibID = " << MarChan << ", chan_i " << chan_i << ", chan_j = " << chan_j <<  endmsg;
 	return StatusCode::SUCCESS;
 }

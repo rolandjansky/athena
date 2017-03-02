@@ -17,7 +17,7 @@ void TrigConfChainCnv_p1::persToTrans(const TrigConfChain_p1* persObj,
 				      MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigConfChainCnv_p1::persToTrans called " << endreq;
+    log << MSG::DEBUG << "TrigConfChainCnv_p1::persToTrans called " << endmsg;
   }
 
   transObj->m_chain_name       = persObj->m_chain_name;
@@ -43,7 +43,7 @@ void TrigConfChainCnv_p1::transToPers(const TrigConfChain* transObj,
 				      MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigConfChainCnv_p1::transToPers called " << endreq;
+    log << MSG::DEBUG << "TrigConfChainCnv_p1::transToPers called " << endmsg;
   }
 
   persObj->m_chain_name      = transObj->m_chain_name;

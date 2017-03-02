@@ -51,7 +51,7 @@
 
 StatusCode PixelMainMon::BookClustersMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Clusters" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Clusters" << endmsg;  
    
    std::string path = "Pixel/Clusters";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ClustersOnTrack");
@@ -540,14 +540,14 @@ StatusCode PixelMainMon::BookClustersMon(void)
    }
 
 
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;   
    return StatusCode::SUCCESS;
 }
 
 
 StatusCode PixelMainMon::BookClustersLumiBlockMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Clusters for lowStat" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Clusters for lowStat" << endmsg;  
    
    std::string path = "Pixel/LumiBlock";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
@@ -574,7 +574,7 @@ StatusCode PixelMainMon::BookClustersLumiBlockMon(void)
      sc = m_cluster_ToT_mod_LB->regHist(this,(path+"/Modules_ClusToT").c_str(),lowStat,m_doIBL);
    }
    
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;   
    return StatusCode::SUCCESS;
 }
  
@@ -583,11 +583,11 @@ StatusCode PixelMainMon::FillClustersMon(void)
    sc = evtStore()->retrieve(m_Pixel_clcontainer, m_Pixel_SiClustersName);
    if (sc.isFailure()  || !m_Pixel_clcontainer)
    {
-      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"Pixel Cluster container for Pixels not found"<< endreq;
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"Pixel Cluster container for Pixels not found"<< endmsg;
       if(m_storegate_errors) m_storegate_errors->Fill(3.,3.);  
       return StatusCode::SUCCESS;
    } else {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  <<"Pixel Cluster container for Pixels found" <<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  <<"Pixel Cluster container for Pixels found" <<endmsg;
    }
 
    int nclusters=0;

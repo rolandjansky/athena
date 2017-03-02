@@ -301,7 +301,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
        // Trk::GlobalPosition tgcExtrapolatedPos;
 	Amg::Vector3D tgcExtrapolatedPos;
         if(stationIndex==3){// Extrapolate position from Inner Position to PRD Z position
-          //if(innerSegmPos=0)m_log << MSG::WARNING << "MidstationOnly: innerSegmPos=0 but passed canCheckGlobal" << endreq;
+          //if(innerSegmPos=0)m_log << MSG::WARNING << "MidstationOnly: innerSegmPos=0 but passed canCheckGlobal" << endmsg;
           float dZ = abs(tgcZ) - abs(innerSegmZ);
           //tgcExtrapolatedPos = Trk::GlobalPosition(innerSegmPos+(innerSegmDirzunit*dZ));
           tgcExtrapolatedPos = Amg::Vector3D(innerSegmPos+(innerSegmDirzunit*dZ)); 
@@ -363,7 +363,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
             m_log << MSG::WARNING << "SegmTrack: canCheckSector passed for jTGC=" << stationIndex
             << " but, FE=" << TGCstation_StationFE[stationIndex]
             << " Eta=" << TGCstation_StationEta[stationIndex]
-            << " Phi=" << TGCstation_StationPhi[stationIndex] << endreq;
+            << " Phi=" << TGCstation_StationPhi[stationIndex] << endmsg;
             continue;
           }
           // Get Sector histogram indexes

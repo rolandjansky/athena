@@ -40,13 +40,13 @@ namespace LVL1 {
   }
 
   StatusCode TrigT1ZDC::initialize() {
-     if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initialising" << endreq;
+     if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initialising" << endmsg;
 
     StatusCode sc;
 
      sc = Algorithm::initialize();
     if (sc.isFailure()) {
-       if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endreq;
+       if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endmsg;
        return sc;
     }
 
@@ -55,24 +55,24 @@ namespace LVL1 {
     sc = detStore().retrieve();
     if (sc.isFailure()) {
       if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << detStore().typeAndName()
-					     << endreq;
+					     << endmsg;
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Connected to " << detStore().typeAndName()
-		      << endreq;
+		      << endmsg;
     }
     
     // Connect to the LVL1ConfigSvc to retrieve threshold settings.
     sc = m_configSvc.retrieve();
     if (sc.isFailure()) {
       if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName() 
-					      << endreq;
+					      << endmsg;
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() 
-		      << endreq;
+		      << endmsg;
     }
 
     // Connect to StoreGate service to retrieve input ZDC
@@ -80,19 +80,19 @@ namespace LVL1 {
     sc = evtStore().retrieve();
     if (sc.isFailure()) {
       if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << evtStore().typeAndName() 
-					     << endreq;
+					     << endmsg;
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Connected to " <<  evtStore().typeAndName() 
-		      << endreq;
+		      << endmsg;
     }
     
     // Retrieve ZDC identifier helper from det store
     //sc = m_detStore->retrieve(m_tileTBID);
     //if (sc.isFailure()) {
     //  m_log << MSG::ERROR
-    //	    << "Unable to retrieve TileTBID helper from DetectorStore" << endreq;
+    //	    << "Unable to retrieve TileTBID helper from DetectorStore" << endmsg;
     //  return sc;
     //}
 
@@ -111,36 +111,36 @@ namespace LVL1 {
       if((*th_itr)->name() == "ZDC_A") {
 	m_threshold_a = (*th_itr)->triggerThresholdValue(0, 0)->ptcut(); // threshold in GeV
 	m_cablestart_a = (*th_itr)->cableStart();
-	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "m_threshold_a=" << m_threshold_a << " m_cablestart_a=" << m_cablestart_a << endreq;
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "m_threshold_a=" << m_threshold_a << " m_cablestart_a=" << m_cablestart_a << endmsg;
       }
       else if((*th_itr)->name() == "ZDC_C") {
 	m_threshold_c = (*th_itr)->triggerThresholdValue(0, 0)->ptcut(); // threshold in GeV
 	m_cablestart_c = (*th_itr)->cableStart();
-	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "m_threshold_c=" << m_threshold_c << " m_cablestart_c=" << m_cablestart_c << endreq;
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "m_threshold_c=" << m_threshold_c << " m_cablestart_c=" << m_cablestart_c << endmsg;
       }
       else if((*th_itr)->name() == "ZDC_AND") { //Legacy
         m_cablestart_ac = (*th_itr)->cableStart();
-      	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "(legacy ZDC coincidence) m_cablestart_ac=" << m_cablestart_ac << endreq;
+      	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "(legacy ZDC coincidence) m_cablestart_ac=" << m_cablestart_ac << endmsg;
       }
     }
 
-   if(msgLvl(MSG::INFO) &&  m_zdcIncludeLHCf) msg(MSG::INFO) << "LHCf Included, NO photons taken by ZDC" << endreq;
-   if(msgLvl(MSG::INFO) && !m_zdcIncludeLHCf) msg(MSG::INFO) << "LHCf Not Included, photons taken by ZDC" << endreq;
+   if(msgLvl(MSG::INFO) &&  m_zdcIncludeLHCf) msg(MSG::INFO) << "LHCf Included, NO photons taken by ZDC" << endmsg;
+   if(msgLvl(MSG::INFO) && !m_zdcIncludeLHCf) msg(MSG::INFO) << "LHCf Not Included, photons taken by ZDC" << endmsg;
     
     //Zero internal ZDC counters
     m_passedA = 0; m_passedC = 0; m_passedAC = 0;
 
     if(m_threshold_a == -1) {
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "ZDC_A Lvl 1 threshold not set.  Trigger will be disabled." << endreq;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "ZDC_A Lvl 1 threshold not set.  Trigger will be disabled." << endmsg;
       m_threshold_a = 10000000;
     }
     if(m_threshold_c == -1) {
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "ZDC_C Lvl 1 threshold not set.  Trigger will be disabled." << endreq;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "ZDC_C Lvl 1 threshold not set.  Trigger will be disabled." << endmsg;
       m_threshold_c = 10000000;
     }
 
     if(m_threshold_a != m_threshold_c) {
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "ZDC_A and ZDC_C Lvl 1 thresholds are not equal.  Are you sure you want to do that?" << endreq;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "ZDC_A and ZDC_C Lvl 1 thresholds are not equal.  Are you sure you want to do that?" << endmsg;
     }
 
     // The ZDC simulation is currently not ready for use.  Use truth
@@ -150,7 +150,7 @@ namespace LVL1 {
     IPartPropSvc* partPropSvc = 0;
     sc =  service("PartPropSvc", partPropSvc, true);
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endreq;
+      msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endmsg;
       return sc;
     }
 
@@ -158,7 +158,7 @@ namespace LVL1 {
   }
 
   StatusCode TrigT1ZDC::execute() {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endmsg;
     
     StatusCode sc;
     std::string containerName;
@@ -174,7 +174,7 @@ namespace LVL1 {
       const McEventCollection *mcEventCollection = 0;
       sc = evtStore()->retrieve(mcEventCollection, m_mcEventCollectionKey);
       if( sc.isFailure()  || !mcEventCollection ) {
-        if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error retrieving " << m_mcEventCollectionKey << endreq;
+        if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error retrieving " << m_mcEventCollectionKey << endmsg;
         return sc;
       }
     
@@ -257,8 +257,8 @@ namespace LVL1 {
       sc=m_storeGate->retrieve( m_zdcContainer, containerName);
       if( sc.isFailure()  || !m_zdcContainer ) {
       if(!m_badDataFound) {
-      msg(MSG::WARNING) << containerName << " not found" << endreq;
-      msg(MSG::WARNING) << "The ZDC trigger will be disabled for the rest of the run." << endreq;
+      msg(MSG::WARNING) << containerName << " not found" << endmsg;
+      msg(MSG::WARNING) << "The ZDC trigger will be disabled for the rest of the run." << endmsg;
       }
       else {
       m_badDataFound = true;
@@ -267,14 +267,14 @@ namespace LVL1 {
       }
       else {
       msg(MSG::DEBUG) << containerName << " Container Successfully Retrieved" 
-      << endreq;
+      << endmsg;
       }*/
     
     // Logic handling trigger simulation goes here...
     
     if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "ZDC Energy    : C side = " << energyECC/1000. << "(GeV),  A side = " << energyECA/1000. << "(GeV)" << endreq;
-      msg(MSG::DEBUG) << "ZDC Cable Word: " << std::bitset<std::numeric_limits<unsigned int>::digits>(cableWord) << endreq;
+      msg(MSG::DEBUG) << "ZDC Energy    : C side = " << energyECC/1000. << "(GeV),  A side = " << energyECA/1000. << "(GeV)" << endmsg;
+      msg(MSG::DEBUG) << "ZDC Cable Word: " << std::bitset<std::numeric_limits<unsigned int>::digits>(cableWord) << endmsg;
     }
 
     // Record the CTP trigger word in StoreGate.
@@ -287,19 +287,19 @@ namespace LVL1 {
     
     sc=evtStore()->record(zdcCTP, containerName, false);
     if(sc.isFailure()) {
-      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << containerName << endreq;
+      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << containerName << endmsg;
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << containerName << " registered successfully "
-		      << endreq;
+		      << endmsg;
     }
     
     return StatusCode::SUCCESS;
   }
   
   StatusCode TrigT1ZDC::finalize() {
-    msg(MSG::INFO) << "ZDC Finalize:  m_passedA:" << m_passedA << ", m_passedC:" << m_passedC << ", m_passedAC:" << m_passedAC << endreq;
+    msg(MSG::INFO) << "ZDC Finalize:  m_passedA:" << m_passedA << ", m_passedC:" << m_passedC << ", m_passedAC:" << m_passedAC << endmsg;
     return StatusCode::SUCCESS;
   }
 }

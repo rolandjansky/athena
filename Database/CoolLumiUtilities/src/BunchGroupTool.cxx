@@ -205,7 +205,7 @@ BunchGroupTool::updateCache( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
     msg(MSG::DEBUG) << "BunchGroup1 list: ";
     for (unsigned int i=0; i<m_bg1.size(); i++)
       msg(MSG::DEBUG) << m_bg1[i] << " ";
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
   }
 
   ATH_MSG_DEBUG( "Bunch Group 0 entries: " << m_bg0.size());

@@ -23,80 +23,80 @@ StatusCode LArWaves2Ntuple::initialize() {
   
   sc=m_nt->addItem("flag",m_flag,0,1000);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'Flag' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'Flag' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc=m_nt->addItem("timeIndex",m_timeIndex,0,100000);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'timeIndex' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'timeIndex' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc=m_nt->addItem("Dt",m_dt,0.,25.);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'Dt' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'Dt' failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc=m_nt->addItem("Time",m_timeIndex,m_time);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'Time' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'Time' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc=m_nt->addItem("Amplitude",m_timeIndex,m_ampliPulse);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc=m_nt->addItem("Error",m_timeIndex,m_errorPulse);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'Error' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'Error' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
   sc=m_nt->addItem("Triggers",m_timeIndex,m_triggers);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'Triggers' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'Triggers' failed" << endmsg;
     return StatusCode::FAILURE;
   }
  
   if ( m_saveDerivedInfo ) {
     sc=m_nt->addItem("Baseline",m_baseline,0.,1200.);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'Baseline' failed" << endreq;
+      (*m_log) << MSG::ERROR << "addItem 'Baseline' failed" << endmsg;
       return StatusCode::FAILURE;
     }
 
     sc=m_nt->addItem("TmaxAmp",m_tmaxAmp,0.,4095.);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'TmaxAmp' failed" << endreq;
+      (*m_log) << MSG::ERROR << "addItem 'TmaxAmp' failed" << endmsg;
       return StatusCode::FAILURE;
     }
 
     sc=m_nt->addItem("MaxAmp",m_maxAmp,0.,4095.);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'MaxAmp' failed" << endreq;
+      (*m_log) << MSG::ERROR << "addItem 'MaxAmp' failed" << endmsg;
       return StatusCode::FAILURE;
     }
     
     sc=m_nt->addItem("PosLobe",m_posLobe,0.,100.);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'PosLobe' failed" << endreq;
+      (*m_log) << MSG::ERROR << "addItem 'PosLobe' failed" << endmsg;
       return StatusCode::FAILURE;
     }
 
     sc=m_nt->addItem("T0",m_rT0,20.,100.);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'RT0' failed" << endreq;
+      (*m_log) << MSG::ERROR << "addItem 'RT0' failed" << endmsg;
       return StatusCode::FAILURE;
     }
 
     sc=m_nt->addItem("Width",m_width,0.,125.);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'Width' failed" << endreq;
+      (*m_log) << MSG::ERROR << "addItem 'Width' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }

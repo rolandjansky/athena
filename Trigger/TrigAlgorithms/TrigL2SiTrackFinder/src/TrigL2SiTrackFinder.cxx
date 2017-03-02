@@ -196,67 +196,67 @@ TrigL2SiTrackFinder::~TrigL2SiTrackFinder() {}
 
 HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
 
-  msg() << MSG::INFO << "TrigL2SiTrackFinder::initialize() "  << PACKAGE_VERSION << endreq;
+  msg() << MSG::INFO << "TrigL2SiTrackFinder::initialize() "  << PACKAGE_VERSION << endmsg;
 
   StatusCode sc = StatusCode::FAILURE;
   
   if (m_printDiagnosticMessages) 
     msg() << MSG::WARNING << "TrigL2SiTrackFinder Diagnostic Messages enabled - this will give many messages per event to std::cout !!" 
-	  << endreq;
+	  << endmsg;
   
   sc = m_spacePointProvider.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL << "Unable to locate SpacePointProviderTool " << m_spacePointProvider << endreq;
+    msg() << MSG::FATAL << "Unable to locate SpacePointProviderTool " << m_spacePointProvider << endmsg;
     return HLT::BAD_JOB_SETUP;
   } 
 
   sc = m_trigInDetTrackFitter.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL << "Unable to locate TrackFitter tool " << m_trigInDetTrackFitter << endreq;
+    msg() << MSG::FATAL << "Unable to locate TrackFitter tool " << m_trigInDetTrackFitter << endmsg;
     return HLT::BAD_JOB_SETUP;
   }      
   
   if(m_doTRTpropagation) {
     sc = m_trigTRT_TrackExtensionTool.retrieve();
     if ( sc.isFailure() ) {
-      msg() << MSG::FATAL <<"Unable to locate TRT track extension tool " << m_trigTRT_TrackExtensionTool << endreq;
+      msg() << MSG::FATAL <<"Unable to locate TRT track extension tool " << m_trigTRT_TrackExtensionTool << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
   }
 
   sc = m_trigL2ResidualCalculator.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endreq;
+    msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
   sc = m_recoStrategy.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL <<"Unable to locate Reconstruction Tool " << m_recoStrategy << endreq;
+    msg() << MSG::FATAL <<"Unable to locate Reconstruction Tool " << m_recoStrategy << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
   StoreGateSvc* detStore;
   sc = service("DetectorStore", detStore);
   if ( sc.isFailure() ) { 
-    msg() << MSG::ERROR << "DetStore service not found" << endreq;
+    msg() << MSG::ERROR << "DetStore service not found" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
   if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
-    msg() << MSG::ERROR << "Could not get Pixel ID helper" << endreq;
+    msg() << MSG::ERROR << "Could not get Pixel ID helper" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
   if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {  
-    msg() << MSG::ERROR << "Could not get SCT ID helper" << endreq;
+    msg() << MSG::ERROR << "Could not get SCT ID helper" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
 
   /*if ( m_adjustLayerThreshold ) { 
-    msg() << MSG::INFO << "will adjust layer threshold depending on disabled modules" << endreq;
+    msg() << MSG::INFO << "will adjust layer threshold depending on disabled modules" << endmsg;
     sc = serviceLocator()->service( m_regionSelectorName, m_regionSelector);
     if ( sc.isFailure() ) {
-      msg() << MSG::FATAL << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endreq;
+      msg() << MSG::FATAL << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endmsg;
       return HLT::BAD_JOB_SETUP;
     };
   }
@@ -292,13 +292,13 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
     m_TrtExtensionTimer     = addTimer("TrtExtension", "TrtExtension_nTracks");
   }
 
-  msg() << MSG::INFO << " TrigL2SiTrackFinder : MinHits set to " << m_minHits << endreq;
+  msg() << MSG::INFO << " TrigL2SiTrackFinder : MinHits set to " << m_minHits << endmsg;
 
   if (m_useBeamSpot) {
     StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
     if (scBS.isFailure() || m_iBeamCondSvc == 0) {
       m_iBeamCondSvc = 0;
-      msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endreq;
+      msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
     }
   }
 
@@ -321,18 +321,18 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
       m_attachedFeatureName2 = string("TrigL2SiTrackFinder_TrkTrack");
     }
   }
-  msg() << MSG::DEBUG << " Features recorded with Key " << m_attachedFeatureName << endreq;
-  msg() << MSG::DEBUG << " Features recorded with Key " << m_attachedFeatureName2 << endreq;
+  msg() << MSG::DEBUG << " Features recorded with Key " << m_attachedFeatureName << endmsg;
+  msg() << MSG::DEBUG << " Features recorded with Key " << m_attachedFeatureName2 << endmsg;
 
   sc= m_trackSummaryTool.retrieve();
   if(sc.isFailure()) {
-    msg() << MSG::ERROR << "unable to locate track summary tool" << endreq;
+    msg() << MSG::ERROR << "unable to locate track summary tool" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
    
 
-  msg() << MSG::DEBUG << " Initialized successfully" << endreq; 
+  msg() << MSG::DEBUG << " Initialized successfully" << endmsg; 
   return HLT::OK;  
 }
 
@@ -386,7 +386,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
   m_roi_nSPs=0;
   m_nZvertices=0;
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigL2SiTrackFinder::execHLTAlgorithm()" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigL2SiTrackFinder::execHLTAlgorithm()" << endmsg;
 
   // 1. Event information, masking update
   
@@ -396,16 +396,16 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
   unsigned int IdEvent=0;
   if ( store()->retrieve(pEventInfo).isFailure() ) {
     if(m_detector_mask_not_checked && m_detector_mask_on_event) {
-      msg() << MSG::ERROR << "Could not find EventInfo object for detector mask info" << endreq;
+      msg() << MSG::ERROR << "Could not find EventInfo object for detector mask info" << endmsg;
       return HLT::SG_ERROR;
     }
     // if we are not interested in the detector mask, this is a minor problem.
-    if (msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
   } 
   else {
     IdRun   = pEventInfo->event_ID()->run_number();
     IdEvent = pEventInfo->event_ID()->event_number();
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endreq;    
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endmsg;    
     if(m_detector_mask_not_checked && m_detector_mask_on_event)
       setup_detector_mask(pEventInfo->event_ID());
       }*/
@@ -499,7 +499,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
         getFeature(inputTE, roi);
       }
       if ( roi==nullptr ) {
-	msg() <<  MSG::WARNING << "REGTEST / Failed to find RoiDescriptor " << endreq;
+	msg() <<  MSG::WARNING << "REGTEST / Failed to find RoiDescriptor " << endmsg;
 	delete m_recoTracks;
 	m_recoTracks=nullptr;
 	return HLT::NAV_ERROR;
@@ -518,12 +518,12 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
       m_roiPhiWidth = HLT::wrapPhi(internalRoI->phiPlus() - internalRoI->phiMinus());
       
       if(msgLvl()<=MSG::DEBUG) {
-        msg() <<  MSG::DEBUG << "REGTEST / RoI: " << *roi << endreq;
+        msg() <<  MSG::DEBUG << "REGTEST / RoI: " << *roi << endmsg;
       }
       m_countTotalRoI++;
       if(roi->etaMinus()== roi->etaPlus() || roi->phiMinus()== roi->phiPlus()){// use values from configurable
 	if (!m_roiWidthWarning) {
-	  msg() << MSG::WARNING << "REGTEST / RoI width not set properly" << " " << *roi << endreq;
+	  msg() << MSG::WARNING << "REGTEST / RoI width not set properly" << " " << *roi << endmsg;
 	  m_roiWidthWarning=true;
 	}
 	TrigRoiDescriptor* _roi = new TrigRoiDescriptor( m_roiEta, m_roiEta-m_etaHalfWidth, m_roiEta+m_etaHalfWidth, 
@@ -565,7 +565,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 
 	/** Debug info. */
 	if(msgLvl()<=MSG::DEBUG) {
-	    msg() << MSG::DEBUG << "SEED DATA ACCESS: found " << m_filteredSpacePoints.size() << " space points" << endreq;
+	    msg() << MSG::DEBUG << "SEED DATA ACCESS: found " << m_filteredSpacePoints.size() << " space points" << endmsg;
 	}
 
 	if ( timerSvc() ) m_SpacePointReaderTimer->stop();
@@ -606,7 +606,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
     std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_sctDataErrors));
   }
   else if(scOSP.isFailure()) {
-    msg() << MSG::WARNING << "SpacePoint formation failed " << endreq; 
+    msg() << MSG::WARNING << "SpacePoint formation failed " << endmsg; 
     m_dataErrors.push_back(0);
     delete m_recoTracks;
     m_recoTracks=NULL;
@@ -616,19 +616,19 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
   if(scOSP.isRecoverable()||scOSP.isSuccess()) {
     if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Modules hit in RoI: PIX = " << listOfPixIds.size()
 				      << " , SCT = " << listOfSctIds.size()
-				      << endreq;
+				      << endmsg;
   }
       
   if( m_roi_nSPs >= m_minHits ) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST / Found " << m_roi_nSPs << " space points." << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST / Found " << m_roi_nSPs << " space points." << endmsg;
     m_countRoIwithEnoughHits++;
   }
   else {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No tracks found - too few hits in ROI to run " << m_roi_nSPs << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No tracks found - too few hits in ROI to run " << m_roi_nSPs << endmsg;
     HLT::ErrorCode code = attachFeature(outputTE, new TrigInDetTrackCollection, m_attachedFeatureName);
 
     if ( code != HLT::OK ) {
-      msg() << MSG::ERROR << "REGTEST/ Write into outputTE failed" << endreq;
+      msg() << MSG::ERROR << "REGTEST/ Write into outputTE failed" << endmsg;
       delete m_recoTracks;
       m_recoTracks=NULL;
       return code;
@@ -652,7 +652,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 	
     Amg::Vector3D vertex = m_iBeamCondSvc->beamPos();
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Beam spot position " << vertex << endreq;
+      msg() << MSG::DEBUG << "Beam spot position " << vertex << endmsg;
     double xVTX = vertex.x();
     double yVTX = vertex.y();
     double zVTX = vertex.z();
@@ -662,7 +662,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
     shifty = yVTX - tiltYZ*zVTX;//correction for tilt
 	
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Center position:  " << shiftx <<"  "<< shifty << endreq;
+      msg() << MSG::DEBUG << "Center position:  " << shiftx <<"  "<< shifty << endmsg;
   }
       
   // 7. actual pattern recognition, for example
@@ -693,7 +693,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
   */
 
   if( m_recoTracks->empty() ) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST / No tracks reconstructed" << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST / No tracks reconstructed" << endmsg;
     if (m_printDiagnosticMessages) std::cout << "TrigL2SiTrackFinder DIAGNOSTIC: No tracks reconstructed" << std::endl;
     //     StatusCode sc = m_EventData2XML->execute();
   }
@@ -702,10 +702,10 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 
   m_recoStrategy->getZvertices(m_zVertices);
   m_nZvertices=m_zVertices.size();
-	msg() << MSG::VERBOSE << "vertices.size(): " << m_zVertices << endreq;
+	msg() << MSG::VERBOSE << "vertices.size(): " << m_zVertices << endmsg;
   if(msgLvl() <= MSG::VERBOSE) {
     for (auto vertex : m_zVertices) {
-      msg() << MSG::VERBOSE << "vertex " << vertex << endreq;
+      msg() << MSG::VERBOSE << "vertex " << vertex << endmsg;
     }
   }
 
@@ -713,7 +713,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
   m_ntracks=m_recoTracks->size();	
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
 				    << "REGTEST / Found " << m_recoTracks->size() 
-				    << " tracks. Proceeding to track fitter." << endreq;
+				    << " tracks. Proceeding to track fitter." << endmsg;
   if (m_printDiagnosticMessages) std::cout << "TrigL2SiTrackFinder DIAGNOSTIC " <<  " Found " << m_recoTracks->size() 
 					   << " tracks. Proceeding to track fitter." << std::endl;
   if( !m_recoTracks->empty() )
@@ -775,7 +775,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
       std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_trtDataErrors));
     }
     else if(sc.isFailure()) {
-      msg() << MSG::WARNING <<"Bad TRT data"<<endreq;
+      msg() << MSG::WARNING <<"Bad TRT data"<<endmsg;
       m_dataErrors.push_back(2);
       delete m_recoTracks;
       m_recoTracks=NULL;
@@ -785,7 +785,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
   m_currentStage = 7; 
 
   if ( msgLvl() <= MSG::DEBUG || m_printDiagnosticMessages) { 
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST / Reconstructed " << m_recoTracks->size() << " tracks " << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST / Reconstructed " << m_recoTracks->size() << " tracks " << endmsg;
     if (m_printDiagnosticMessages) std::cout << "TrigL2SiTrackFinder DIAGNOSTIC " << " Reconstructed " << m_recoTracks->size() << " tracks " << std::endl;
     TrigInDetTrackCollection::iterator track = m_recoTracks->begin();
     TrigInDetTrackCollection::iterator lastTrack = m_recoTracks->end();
@@ -800,7 +800,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 	(*track)->param()->eta() << " / " << 
 	(*track)->param()->a0() << " / " <<
 	(*track)->param()->z0() << " / " <<
-	(*track)->chi2() << endreq;
+	(*track)->chi2() << endmsg;
       
       if (m_printDiagnosticMessages) std::cout << "TrigL2SiTrackFinder DIAGNOSTIC " << " track nstraw/ntr/phi0/pt/eta/d0/z0/chi2: " <<
 	(*track)->NStrawHits() << " / "  << 
@@ -825,7 +825,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
   HLT::ErrorCode code = attachFeature(outputTE, m_recoTracks, m_attachedFeatureName);
 
   if ( code != HLT::OK ) {
-    msg() << MSG::ERROR << "REGTEST/ Write into outputTE failed" << endreq;
+    msg() << MSG::ERROR << "REGTEST/ Write into outputTE failed" << endmsg;
     delete m_recoTracks;
     m_recoTracks=NULL;
     return code;
@@ -839,17 +839,17 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
     m_trackSummaryTool->updateTrack(**track);
   }
   code = attachFeature(outputTE, m_recoTrkTracks, m_attachedFeatureName2);
-  //msg() << MSG::INFO << "Number of converted tracks: " << m_recoTrkTracks->size() << endreq;
+  //msg() << MSG::INFO << "Number of converted tracks: " << m_recoTrkTracks->size() << endmsg;
 
   //if (m_recoTrkTracks->size()!=m_recoTracks->size()) {
-  //  msg() << MSG::INFO << "Mismatch " << endreq;
-  //  msg() << MSG::INFO << "Number of original tracks: " << m_recoTracks->size() << endreq;
-  //  msg() << MSG::INFO << "Number of converted tracks: " << m_recoTrkTracks->size() << endreq;
+  //  msg() << MSG::INFO << "Mismatch " << endmsg;
+  //  msg() << MSG::INFO << "Number of original tracks: " << m_recoTracks->size() << endmsg;
+  //  msg() << MSG::INFO << "Number of converted tracks: " << m_recoTrkTracks->size() << endmsg;
   //}
     
 
   if ( code != HLT::OK ) {
-    msg() << MSG::ERROR << "REGTEST/ Write into outputTE failed" << endreq;
+    msg() << MSG::ERROR << "REGTEST/ Write into outputTE failed" << endmsg;
     delete m_recoTrkTracks;
     m_recoTrkTracks=NULL;
     return code;
@@ -868,7 +868,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
     }
     HLT::ErrorCode code = attachFeature(outputTE,zVertColl, m_attachedFeatureName);
     if ( code != HLT::OK ) {
-      msg() << MSG::ERROR << "REGTEST/ Write into outputTE failed" << endreq;
+      msg() << MSG::ERROR << "REGTEST/ Write into outputTE failed" << endmsg;
       delete zVertColl;
       return code;
     }
@@ -891,13 +891,13 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltFinalize()
   }
 #endif
   
-  msg() << MSG::INFO << "=========================================================" << endreq;
-  msg() << MSG::INFO << "TrigL2SiTrackFinder::finalize() - TrigL2SiTrackFinder Statistics: " << endreq;
-  msg() << MSG::INFO << "Events processed: " <<  m_countTotalEvents << endreq;
-  msg() << MSG::INFO << "RoI processed: " <<  m_countTotalRoI << endreq;
-  msg() << MSG::INFO << "RoI with enough SPs : " <<  m_countRoIwithEnoughHits << endreq;
-  msg() << MSG::INFO << "RoI with Track(s)  Total/goodZvertex/badZvertex: " << m_countRoIwithTracks << endreq;
-  msg() << MSG::INFO << "=========================================================" << endreq;
+  msg() << MSG::INFO << "=========================================================" << endmsg;
+  msg() << MSG::INFO << "TrigL2SiTrackFinder::finalize() - TrigL2SiTrackFinder Statistics: " << endmsg;
+  msg() << MSG::INFO << "Events processed: " <<  m_countTotalEvents << endmsg;
+  msg() << MSG::INFO << "RoI processed: " <<  m_countTotalRoI << endmsg;
+  msg() << MSG::INFO << "RoI with enough SPs : " <<  m_countRoIwithEnoughHits << endmsg;
+  msg() << MSG::INFO << "RoI with Track(s)  Total/goodZvertex/badZvertex: " << m_countRoIwithTracks << endmsg;
+  msg() << MSG::INFO << "=========================================================" << endmsg;
 
   return HLT::OK;
 }
@@ -911,7 +911,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltFinalize()
   zinfo->push_back(zvert);
 
   HLT::ErrorCode code = attachFeature(outputTE, zinfo, m_attachedFeatureName);
-  if (code != HLT::OK) msg() << MSG::ERROR << "zinfo Write into outputTE failed" << endreq;
+  if (code != HLT::OK) msg() << MSG::ERROR << "zinfo Write into outputTE failed" << endmsg;
   }
 */
 
@@ -920,12 +920,12 @@ HLT::ErrorCode TrigL2SiTrackFinder::retrieveSpacePointsContainers() {
 	
   StatusCode sc=store()->retrieve(m_pixelSpacePointsContainer,m_pixelSpContName);
   if(sc.isFailure()) {
-    msg() << MSG::WARNING << "Trig SP Pixel container " <<m_pixelSpContName <<" not found"<<endreq; 
+    msg() << MSG::WARNING << "Trig SP Pixel container " <<m_pixelSpContName <<" not found"<<endmsg; 
     return HLT::TOOL_FAILURE;
   }
   sc=store()->retrieve(m_sctSpacePointsContainer,m_sctSpContName);
   if(sc.isFailure()) {
-    msg() << MSG::WARNING << "Trig SP SCT container " <<m_sctSpContName <<" not found"<<endreq; 
+    msg() << MSG::WARNING << "Trig SP SCT container " <<m_sctSpContName <<" not found"<<endmsg; 
     return HLT::TOOL_FAILURE;
   }
 
@@ -947,7 +947,7 @@ void TrigL2SiTrackFinder::runResidualMonitoring(const TrigInDetTrack* pT) {
   if(!scRes.isSuccess()) return;
 
   for(std::vector<TrigL2HitResidual>::iterator it=vResid.begin();it!=vResid.end();++it) {
-    //msg() << MSG::INFO << (*it) << endreq;
+    //msg() << MSG::INFO << (*it) << endmsg;
     switch(it->regionId()) {
     case Region::PixBarrel :
       m_pixResPhiBarrel.push_back(it->phiResidual());

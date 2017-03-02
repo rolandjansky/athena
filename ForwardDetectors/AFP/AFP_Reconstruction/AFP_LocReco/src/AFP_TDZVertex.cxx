@@ -119,10 +119,10 @@ StatusCode AFP_TDZVertex::Finalize(list<TDRESULT>* pListResults)
 void AFP_TDZVertex::GetData()
 {
 	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDZVertex::GetData()");
-	LogStream << MSG::DEBUG << "begin AFP_TDZVertex::GetData()" << endreq;
+	LogStream << MSG::DEBUG << "begin AFP_TDZVertex::GetData()" << endmsg;
 
 	/////
 	/////
 
-	LogStream << MSG::DEBUG << "end AFP_TDZVertex::GetData()" << endreq;
+	LogStream << MSG::DEBUG << "end AFP_TDZVertex::GetData()" << endmsg;
 }

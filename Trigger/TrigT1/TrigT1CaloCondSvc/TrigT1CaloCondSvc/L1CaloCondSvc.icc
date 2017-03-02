@@ -162,7 +162,7 @@ StatusCode L1CaloCondSvc::store(const T*& pobj, const std::string& key, const st
         for(;it_attrList!=mergedAttrListCollection->end();++it_attrList) {
         CondAttrListCollection::ChanNum channelNumber = it_attrList->first;
         CondAttrListCollection::AttributeList attrList = it_attrList->second;
-        //log<<MSG::INFO<<"atributeList : "<<attrList.toOutputStream(log)<<endreq;
+        //log<<MSG::INFO<<"atributeList : "<<attrList.toOutputStream(log)<<endmsg;
         std::cout <<channelNumber<<" "<< attrList.toOutputStream(std::cout) <<std::endl;
         }
       */
@@ -343,7 +343,7 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
       const DataHandle<AthenaAttributeList>& dh = *m_mDataHandleAttrList[key];
       StatusCode sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
       if(sc.isFailure()) {
-      log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endreq;
+      log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endmsg;
       return StatusCode::FAILURE;
       }
     */
@@ -361,10 +361,10 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
 //
 //	StatusCode sc;
 //
-//	log << MSG::DEBUG << "L1CaloCondSvc::registerCondition(std::string key, T*& pObj))" << endreq;
+//	log << MSG::DEBUG << "L1CaloCondSvc::registerCondition(std::string key, T*& pObj))" << endmsg;
 ///*
 //	if(!pObj) {
-//		log << MSG::ERROR << "IL1CaloPersistenceCapable* pObj is NULL in L1CaloCondSvc::registerCondition()" << endreq;
+//		log << MSG::ERROR << "IL1CaloPersistenceCapable* pObj is NULL in L1CaloCondSvc::registerCondition()" << endmsg;
 //		return StatusCode::FAILURE;
 //	}
 //
@@ -378,7 +378,7 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
 //		const DataHandle<CondAttrListCollection>& dh = *m_mDataHandleAttrListColl[key];
 //		sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
 //		if(sc.isFailure()) {
-//			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endreq;
+//			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endmsg;
 //			return StatusCode::FAILURE;
 //		}
 //
@@ -391,12 +391,12 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
 //		const DataHandle<AthenaAttributeList>& dh = *m_mDataHandleAttrList[key];
 //		sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
 //		if(sc.isFailure()) {
-//			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endreq;
+//			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endmsg;
 //			return StatusCode::FAILURE;
 //		}
 //
 //	} else {
-//		log << MSG::ERROR << "Condition type " << conditionType << "not recognized by L1CaloCondSvc" << endreq;
+//		log << MSG::ERROR << "Condition type " << conditionType << "not recognized by L1CaloCondSvc" << endmsg;
 //		return StatusCode::FAILURE;
 //	}
 //*/

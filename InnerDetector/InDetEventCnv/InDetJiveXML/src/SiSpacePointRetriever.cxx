@@ -111,7 +111,7 @@ namespace JiveXML
   StatusCode SiSpacePointRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
    
     /**
      * Try to retrieve all the relevant collections first
@@ -123,18 +123,18 @@ namespace JiveXML
 
     //Try to retrieve all four from store gate
     if ( evtStore()->retrieve(PixelSPContainer, m_PixelSPContainerName).isFailure() )
-       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve SpacePoint container with name " << m_PixelSPContainerName << endreq;
+       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve SpacePoint container with name " << m_PixelSPContainerName << endmsg;
 
     if ( evtStore()->contains<PRD_MultiTruthCollection>(m_PixelPRDTruthName) ){
       if ( evtStore()->retrieve(PixelPRDTruthColl, m_PixelPRDTruthName).isFailure() )
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve PRD_MultiTruth collection with name " << m_PixelPRDTruthName << endreq;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve PRD_MultiTruth collection with name " << m_PixelPRDTruthName << endmsg;
     }
     if ( evtStore()->retrieve(SCTSPContainer, m_SCTSPContainerName).isFailure() )
-       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve SpacePoint container with name " << m_SCTSPContainerName << endreq;
+       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve SpacePoint container with name " << m_SCTSPContainerName << endmsg;
 
     if ( evtStore()->contains<PRD_MultiTruthCollection>(m_SCTPRDTruthName) ){
       if ( evtStore()->retrieve(SCTPRDTruthColl, m_SCTPRDTruthName).isFailure() )        
-         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve PRD_MultiTruth collection with name " << m_SCTPRDTruthName << endreq;
+         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve PRD_MultiTruth collection with name " << m_SCTPRDTruthName << endmsg;
     }    
     /**
      * Now make a list of SpacePoint - PRDTruth collection pairs to run over
@@ -166,7 +166,7 @@ namespace JiveXML
         NSpacePoints += (**SpacePointCollItr).size();
     }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<  "Counted  " << NSpacePoints << " in total" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<  "Counted  " << NSpacePoints << " in total" << endmsg;
 
     /**
      * Declare all the data we want to retrieve
@@ -230,7 +230,7 @@ namespace JiveXML
           numBarcodes.push_back(SiSpacePointRetrieverHelpers::getTruthBarcodes(idFirst, idSecond, PRDTruthColl, barcodes));
 
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found " << numBarcodes.back() << " common barcodes, now " 
-                                                      << barcodes.size() << " in total" << endreq;
+                                                      << barcodes.size() << " in total" << endmsg;
 
         } // loop over SpacePoint collection
       } // loop over SpacePoint container
@@ -254,7 +254,7 @@ namespace JiveXML
       dataMap[bctag] = barcodes;
     }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
 
      //forward data to formating tool and return
     return FormatTool->AddToEvent(dataTypeName(), "", &dataMap);

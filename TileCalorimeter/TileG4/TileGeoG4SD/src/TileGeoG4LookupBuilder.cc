@@ -255,7 +255,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
     if (cell->detector > 1) {
       // ID for negative side
       cell_id = m_tileID->cell_id(std::min(cell->detector, 3), -(int)copysign(1.1, mtower), 0, abs(mtower) - 1, cell->sample - 1);
-      // (*m_log)<< MSG::DEBUG  << " cell_id2="<<m_tileID->to_string(cell_id,-2)<<endreq;
+      // (*m_log)<< MSG::DEBUG  << " cell_id2="<<m_tileID->to_string(cell_id,-2)<<endmsg;
       cellDim = m_theManager->get_cell_dim(cell_id);
       // Zmin2 and Zmax2 in ext.barrel - cell Z coordinates of EBC (negative ext.barrel)
       cell->zMin2 = cellDim->getZMin(0);
@@ -281,7 +281,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
     }
 
     // (*m_log)<< MSG::DEBUG <<" Zmin="<<_cell->zMin<<"  Zmax="<<_cell->zMax
-    // <<"  Zmin2="<<_cell->zMin2<<"  Zmax2="<<_cell->zMax2<<endreq;
+    // <<"  Zmin2="<<_cell->zMin2<<"  Zmax2="<<_cell->zMax2<<endmsg;
 
     for (i = 0; i <= (cell->lastRow - cell->firstRow); i++)
     cell->nrOfTilesInRow.push_back(static_cast<int>(m_dbManager->TICLntilesrow(i)));

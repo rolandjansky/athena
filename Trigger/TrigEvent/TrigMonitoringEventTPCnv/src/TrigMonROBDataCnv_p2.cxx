@@ -16,7 +16,7 @@ void TrigMonROBDataCnv_p2::persToTrans(const TrigMonROBData_p2* persObj,
 				       MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonROBDataCnv_p2::persToTrans called " << endreq;
+    log << MSG::DEBUG << "TrigMonROBDataCnv_p2::persToTrans called " << endmsg;
   }
 
   transObj->m_rob_id      = persObj->m_rob_id;
@@ -29,7 +29,7 @@ void TrigMonROBDataCnv_p2::transToPers(const TrigMonROBData* transObj,
 				    MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonROBDataCnv_p2::transToPers called " << endreq;
+    log << MSG::DEBUG << "TrigMonROBDataCnv_p2::transToPers called " << endmsg;
   }
 
   persObj->m_rob_id      = transObj->m_rob_id;

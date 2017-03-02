@@ -71,7 +71,7 @@ TgcRawDataValAlg::TgcRawDataValAlg( const std::string & type, const std::string 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 TgcRawDataValAlg::~TgcRawDataValAlg(){
-  m_log << MSG::INFO << " deleting TgcRawDataValAlg " << endreq;
+  m_log << MSG::INFO << " deleting TgcRawDataValAlg " << endmsg;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -83,7 +83,7 @@ TgcRawDataValAlg::initialize(){
   //m_log.setLevel(MSG::DEBUG);
   m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
   
-  m_log << MSG::INFO << "in initializing TgcRawDataValAlg" << endreq;
+  m_log << MSG::INFO << "in initializing TgcRawDataValAlg" << endmsg;
 
   StatusCode sc;
   sc = ManagedMonitorToolBase::initialize();
@@ -93,7 +93,7 @@ TgcRawDataValAlg::initialize(){
   // Store Gate store
   sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
   if (sc != StatusCode::SUCCESS ) {
-  m_log << MSG::ERROR << " Cannot get StoreGateSvc " << endreq;
+  m_log << MSG::ERROR << " Cannot get StoreGateSvc " << endmsg;
   return sc ;
   }
   */
@@ -101,7 +101,7 @@ TgcRawDataValAlg::initialize(){
   // Retrieve the Active Store
   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
   if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
+    m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endmsg;
     return sc ;
   }
 
@@ -109,7 +109,7 @@ TgcRawDataValAlg::initialize(){
   StoreGateSvc* detStore = 0;
   sc = service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    m_log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+    m_log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
     return StatusCode::FAILURE;
   }   
   
@@ -117,13 +117,13 @@ TgcRawDataValAlg::initialize(){
   sc = detStore->retrieve(m_muonMgr);
   if (sc.isFailure()) {
     m_log << MSG::FATAL 
-          << "Cannot get MuonDetectorManager from detector store" << endreq;
+          << "Cannot get MuonDetectorManager from detector store" << endmsg;
     return StatusCode::FAILURE;
-  }   else { if (m_debuglevel) m_log << MSG::DEBUG  << " Found the MuonDetectorManager from detector store. " << endreq; }
+  }   else { if (m_debuglevel) m_log << MSG::DEBUG  << " Found the MuonDetectorManager from detector store. " << endmsg; }
 
   sc = detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Can't retrieve TgcIdHelper" << endreq;
+    m_log << MSG::ERROR << "Can't retrieve TgcIdHelper" << endmsg;
     return sc;
   }
   
@@ -138,7 +138,7 @@ TgcRawDataValAlg::initialize(){
   //set minimum and maximum of channel difference
   setChannelDifferenceRange();
 
-  //  m_log << MSG::INFO<<"TgcRawDataValAlg initialize finished "<<endreq;
+  //  m_log << MSG::INFO<<"TgcRawDataValAlg initialize finished "<<endmsg;
 
   //do not monitor profile histograms
   //m_mon_profile=false;
@@ -151,7 +151,7 @@ TgcRawDataValAlg::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode
 TgcRawDataValAlg::bookHistogramsRecurrent(){
-  if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring Histograms being booked" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring Histograms being booked" << endmsg;
   StatusCode sc = StatusCode::SUCCESS; 
 
   if( newRun || newLowStatInterval ){
@@ -159,7 +159,7 @@ TgcRawDataValAlg::bookHistogramsRecurrent(){
     if( m_environment != AthenaMonManager::online ) {
       sc = bookHistogramsLowStat();
       if(sc.isFailure()){
-        m_log << MSG::FATAL << "bookLowStatHisto() Failed  " << endreq;       
+        m_log << MSG::FATAL << "bookLowStatHisto() Failed  " << endmsg;       
         return StatusCode::FAILURE;
       }
     }
@@ -172,7 +172,7 @@ TgcRawDataValAlg::bookHistogramsRecurrent(){
   if(newLumiBlock){}   
 
   if(newRun) {      
-    //if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring : newRun" << endreq;
+    //if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring : newRun" << endmsg;
 
     sc = bookHistogramsNumberOfHits();
     sc = bookHistogramsProfile();
@@ -181,16 +181,16 @@ TgcRawDataValAlg::bookHistogramsRecurrent(){
     sc = bookHistogramsSummary();
     
     if (m_debuglevel) {
-      m_log << MSG::DEBUG << "INSIDE bookHistograms : " << tgcevents << generic_path_tgcmonitoring << endreq;
-      //m_log << MSG::DEBUG << "SHIFT : " << shift << "  RUN : " << run << "  Booked booktgcevents successfully" << endreq; //attention
+      m_log << MSG::DEBUG << "INSIDE bookHistograms : " << tgcevents << generic_path_tgcmonitoring << endmsg;
+      //m_log << MSG::DEBUG << "SHIFT : " << shift << "  RUN : " << run << "  Booked booktgcevents successfully" << endmsg; //attention
     }
 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "have registered histograms for Number of Wire/Strip Hits" << endreq ;
+    if(m_debuglevel) m_log << MSG::DEBUG << "have registered histograms for Number of Wire/Strip Hits" << endmsg ;
 
 
   }//new run
-  //m_log << MSG::INFO << "TGC RawData Monitoring Histograms booked" << endreq;
+  //m_log << MSG::INFO << "TGC RawData Monitoring Histograms booked" << endmsg;
   
   return sc;
 }
@@ -201,13 +201,13 @@ StatusCode
 TgcRawDataValAlg::fillHistograms(){
   StatusCode sc = StatusCode::SUCCESS; 
   
-  if (m_debuglevel) m_log << MSG::DEBUG << "TgcRawDataValAlg::TGC RawData Monitoring Histograms being filled" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "TgcRawDataValAlg::TGC RawData Monitoring Histograms being filled" << endmsg;
   
   clearVectorsArrays();
 
   //fillEventInfo information
   if ( (fillEventInfo() ).isFailure() ){
-    m_log << MSG::ERROR << " Cannot fillEventInfo " << endreq;
+    m_log << MSG::ERROR << " Cannot fillEventInfo " << endmsg;
     return sc;
   }
   
@@ -220,31 +220,31 @@ TgcRawDataValAlg::fillHistograms(){
   // Previous
   sc = (*m_activeStore)->retrieve(tgc_previous_prd_container, m_tgcPrepDataPreviousContainerName);
   if(sc.isFailure()|| 0 == tgc_previous_prd_container) {
-    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for previous BC" << endreq;
+    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for previous BC" << endmsg;
     return sc;
   }
-  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc previous prd container size() : " << tgc_previous_prd_container->size() << endreq;
+  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc previous prd container size() : " << tgc_previous_prd_container->size() << endmsg;
   
   // Current
   sc = (*m_activeStore)->retrieve(tgc_current_prd_container, m_tgcPrepDataContainerName);
   if(sc.isFailure()|| 0 == tgc_current_prd_container ) {
-    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for current BC" << endreq;
+    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for current BC" << endmsg;
     return sc;
   }
-  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc current prd container size() : " << tgc_current_prd_container->size() << endreq;
+  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc current prd container size() : " << tgc_current_prd_container->size() << endmsg;
   
   // Next
   sc = (*m_activeStore)->retrieve(tgc_next_prd_container, m_tgcPrepDataNextContainerName);
   if(sc.isFailure()|| 0 == tgc_next_prd_container) {
-    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for next BC" << endreq;
+    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for next BC" << endmsg;
     return sc;
   }
-  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc next prd container size() : " << tgc_next_prd_container->size() << endreq;
+  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc next prd container size() : " << tgc_next_prd_container->size() << endmsg;
   
   
   // Increment event counter
   m_nEvent++;
-  if(m_debuglevel) m_log << MSG::DEBUG <<"event : " << m_nEvent << endreq;
+  if(m_debuglevel) m_log << MSG::DEBUG <<"event : " << m_nEvent << endmsg;
   
   
   /////////////////////////////////////
@@ -275,7 +275,7 @@ TgcRawDataValAlg::fillHistograms(){
   //vector<double> SLPhi[2];
   
   if (m_debuglevel) {
-    m_log << MSG::DEBUG << "********TGC event number : " << m_nEvent << endreq;   
+    m_log << MSG::DEBUG << "********TGC event number : " << m_nEvent << endmsg;   
   }
 
   return sc; // statuscode check 
@@ -287,8 +287,8 @@ TgcRawDataValAlg::fillHistograms(){
 StatusCode
 TgcRawDataValAlg::procHistograms(){
   if (m_debuglevel) {
-    m_log << MSG::DEBUG << "********Reached Last Event in TgcRawDataValAlg !!!" << endreq;
-    m_log << MSG::DEBUG << "TgcRawDataValAlg finalize()" << endreq;
+    m_log << MSG::DEBUG << "********Reached Last Event in TgcRawDataValAlg !!!" << endmsg;
+    m_log << MSG::DEBUG << "TgcRawDataValAlg finalize()" << endmsg;
   } 
   if(endOfLumiBlock){
     //histogram division every LB only for Global Montioring
@@ -404,7 +404,7 @@ TgcRawDataValAlg::fillEventInfo(){
   const xAOD::EventInfo* evt(0);
   StatusCode sc = (*m_activeStore)->retrieve(evt);
   if ( sc.isFailure() || evt==0) {
-    m_log << MSG::ERROR <<" Cannot retrieve EventInfo " <<endreq;
+    m_log << MSG::ERROR <<" Cannot retrieve EventInfo " <<endmsg;
     //tgceventsinlb->Fill( m_lumiblock );
     //tgceventsinbcid->Fill( m_BCID );
     return StatusCode::FAILURE;
@@ -417,7 +417,7 @@ TgcRawDataValAlg::fillEventInfo(){
   //tgceventsinlb->Fill( m_lumiblock );
   //tgceventsinbcid->Fill( m_BCID );
 
-  //m_log << MSG::INFO << "event " << m_event <<" lumiblock " << m_lumiblock << endreq;
+  //m_log << MSG::INFO << "event " << m_event <<" lumiblock " << m_lumiblock << endmsg;
 
   return StatusCode::SUCCESS;
 

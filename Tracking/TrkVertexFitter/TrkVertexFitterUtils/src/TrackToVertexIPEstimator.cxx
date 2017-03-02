@@ -39,28 +39,28 @@ namespace Trk
 //extrapolator    
   if ( m_extrapolator.retrieve().isFailure() ) 
   {
-   msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+   msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
    return StatusCode::FAILURE;
   } else {
-   msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+   msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
   }
 
 //updator 
   if ( m_Updator.retrieve().isFailure() ) 
   {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_Updator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_Updator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_Updator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_Updator << endmsg;
   }
   
 //linearized track factory
   if ( m_linFactory.retrieve().isFailure() ) 
   {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_linFactory << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_linFactory << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
   }
   
    return StatusCode::SUCCESS;  
@@ -68,7 +68,7 @@ namespace Trk
     
  StatusCode TrackToVertexIPEstimator::finalize()
  { 
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }
 
@@ -78,7 +78,7 @@ namespace Trk
   {
    return estimate(&(track->perigeeParameters()),&(track->perigeeParameters()),vtx,doRemoval); 
   }else{
-   msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endreq;
+   msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
    return 0;
   }//end of track particle validity check
  }//end of method using track particles
@@ -89,7 +89,7 @@ namespace Trk
   {
     return estimate(&(track->perigeeParameters()),&(newtrack->perigeeParameters()),vtx,doRemoval); 
   }else{
-   msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endreq;
+   msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
    return 0;
   }//end of track particle validity check
  }//end of method using track particles
@@ -102,7 +102,7 @@ namespace Trk
    if(track && vtx){
      return estimate(track,track,vtx,doRemoval); 
    }else{
-     msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endreq;
+     msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
      return 0;
    }//end of track particle validity check
  
@@ -182,7 +182,7 @@ namespace Trk
     }
     else
     {
-      msg(MSG::WARNING) << " The contribution to d0_err: " << d0_PVcontrib << " from PV is negative: critical error in PV error matrix! Removing contribution from PV ... "  << endreq;
+      msg(MSG::WARNING) << " The contribution to d0_err: " << d0_PVcontrib << " from PV is negative: critical error in PV error matrix! Removing contribution from PV ... "  << endmsg;
       newIPandSigma->sigmad0=sqrt(perigeeCov(Trk::d0,Trk::d0));
       newIPandSigma->PVsigmad0=0;
     }
@@ -208,7 +208,7 @@ namespace Trk
    }
    else
    {
-     msg(MSG::WARNING) << " The contribution to z0_err: " << vrtZZCov << " from PV is negative: critical error in PV error matrix! Removing contribution from PV ... "  << endreq;     
+     msg(MSG::WARNING) << " The contribution to z0_err: " << vrtZZCov << " from PV is negative: critical error in PV error matrix! Removing contribution from PV ... "  << endmsg;     
      newIPandSigma->IPz0SinTheta=z0*sin(theta);
      double _temp = (IPz0JacZ0Theta.transpose()*(covPerigeeZ0Theta*IPz0JacZ0Theta));
      newIPandSigma->sigmaz0SinTheta=sqrt(_temp);
@@ -362,7 +362,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const xAOD::Tra
   {
    return getUnbiasedVertex(&(track->perigeeParameters()),vtx);
   }else{
-   msg(MSG::INFO) << "Empty xAOD::TrackParticle pointer passed. Returning zero " << endreq;
+   msg(MSG::INFO) << "Empty xAOD::TrackParticle pointer passed. Returning zero " << endmsg;
    return 0;
   }//end of track particle validity check   
  }
@@ -370,11 +370,11 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const xAOD::Tra
 const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const 
  {
    if (!track) {
-     msg(MSG::INFO) << "Empty Trk::TrackParameter pointer passed. Returning zero " << endreq;
+     msg(MSG::INFO) << "Empty Trk::TrackParameter pointer passed. Returning zero " << endmsg;
      return 0;
    }
    if (!vtx) {
-     msg(MSG::INFO) << "Empty xAOD::Vertex pointer passed. Returning zero " << endreq;
+     msg(MSG::INFO) << "Empty xAOD::Vertex pointer passed. Returning zero " << endmsg;
      return 0;
    }
 

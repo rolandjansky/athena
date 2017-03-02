@@ -60,37 +60,37 @@ TrigCountTrtHits::~TrigCountTrtHits() {
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
-  m_log << MSG::DEBUG << "Initialising this TrigCountTrtHits: " << name() << endreq;
+  m_log << MSG::DEBUG << "Initialising this TrigCountTrtHits: " << name() << endmsg;
   StatusCode sc = StatusCode::FAILURE;
   m_log.setLevel(outputLevel());
 
   // Get storegate svc
   if(m_detStore.retrieve().isFailure()) {
-    m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endreq;
+    m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endmsg;
     return StatusCode::FAILURE;
   } else
-    m_log << MSG::INFO << "Retrieved service " << m_detStore.typeAndName() << endreq;
+    m_log << MSG::INFO << "Retrieved service " << m_detStore.typeAndName() << endmsg;
 
   if(m_storeGate.retrieve().isFailure()) {
-    m_log << MSG::FATAL << "Failed to connect to " << m_storeGate.typeAndName() << endreq;
+    m_log << MSG::FATAL << "Failed to connect to " << m_storeGate.typeAndName() << endmsg;
     return StatusCode::FAILURE;
   } else
-    m_log << MSG::INFO << "Retrieved service " << m_storeGate.typeAndName() << endreq;
+    m_log << MSG::INFO << "Retrieved service " << m_storeGate.typeAndName() << endmsg;
 
   // Get a TRT identifier helper
   sc = m_detStore->retrieve(m_trtHelper, "TRT_ID");
   if(sc.isFailure()) {
-    m_log << MSG::ERROR << "Failed to retrieve " << m_trtHelper << endreq; // fatal?
+    m_log << MSG::ERROR << "Failed to retrieve " << m_trtHelper << endmsg; // fatal?
     return StatusCode::FAILURE;
   } else
-    m_log << MSG::INFO << "Retrieved service " << m_trtHelper << endreq;
+    m_log << MSG::INFO << "Retrieved service " << m_trtHelper << endmsg;
   
   // Get TrigTRT_DriftCircleProviderTool
   if( m_rawDataTool.retrieve().isFailure() ){
-    m_log << MSG::FATAL << "Failed to retrieve " << m_rawDataTool << endreq;
+    m_log << MSG::FATAL << "Failed to retrieve " << m_rawDataTool << endmsg;
     return StatusCode::FAILURE;
   } else
-    m_log << MSG::INFO << "Retrieved service " << m_rawDataTool << endreq;
+    m_log << MSG::INFO << "Retrieved service " << m_rawDataTool << endmsg;
   
   // Create timer
   if ( timerSvc() ) {
@@ -99,7 +99,7 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
     m_attachFTimer        = addTimer("attachingFeatures");
   }
 
-  m_log << MSG::INFO << " TrigCountTrtHits initialized successfully" << endreq; 
+  m_log << MSG::INFO << " TrigCountTrtHits initialized successfully" << endmsg; 
 
   // Create empty histograms.
   m_endcapC = new TrigHisto1D(m_hTotBins, m_hTotMin, m_hTotMax);  
@@ -119,18 +119,18 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
 HLT::ErrorCode TrigCountTrtHits::hltBeginRun() {
   // This initialisation has been moved into the event loop.
   // @see TrigCountTrtHitsHypo::checkDetectorMask
-  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " TrigCountTrtHits will be initialized in hltExecute" << endreq; 
+  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " TrigCountTrtHits will be initialized in hltExecute" << endmsg; 
   return HLT::OK;
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHits::checkDetectorMask() {
   m_hltExecuteInitialisationRun = true;
-  m_log << MSG::DEBUG << "[TrigCountTrtHits::checkDetectorMask]  beginning run with this " << name() << endreq;
+  m_log << MSG::DEBUG << "[TrigCountTrtHits::checkDetectorMask]  beginning run with this " << name() << endmsg;
 
   const xAOD::EventInfo* evinfo = 0;
   if (store()->retrieve(evinfo).isFailure()) {
-    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endreq;
+    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endmsg;
     return HLT::SG_ERROR;
   }
   else {
@@ -142,13 +142,13 @@ HLT::ErrorCode TrigCountTrtHits::checkDetectorMask() {
       << ":" << evinfo->timeStampNSOffset()
       << "," << evinfo->bcid()
       << ",0x" << std::hex << evinfo->detectorMask() << std::dec
-      << "]" << endreq;
+      << "]" << endmsg;
 
     uint64_t mask = evinfo->detectorMask();
     eformat::helper::DetectorMask decoder(mask);
 
     if (mask == 0) {
-      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0. Assuming MC file and setting all of ID to ON." << endreq; 
+      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0. Assuming MC file and setting all of ID to ON." << endmsg; 
       m_trt_barrel_a_side = true;
       m_trt_barrel_c_side = true;
       m_trt_endcap_a_side = true;
@@ -161,10 +161,10 @@ HLT::ErrorCode TrigCountTrtHits::checkDetectorMask() {
     }
 
     if( msgLvl() <= MSG::INFO ){
-      m_log << MSG::INFO << "trt_barrel_a_side is " << (m_trt_barrel_a_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "trt_barrel_c_side is " << (m_trt_barrel_c_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "trt_endcap_a_side is " << (m_trt_endcap_a_side==true? "present" : "OFF! ") << endreq;
-      m_log << MSG::INFO << "trt_endcap_c_side is " << (m_trt_endcap_c_side==true? "present" : "OFF! ") << endreq; 
+      m_log << MSG::INFO << "trt_barrel_a_side is " << (m_trt_barrel_a_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "trt_barrel_c_side is " << (m_trt_barrel_c_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "trt_endcap_a_side is " << (m_trt_endcap_a_side==true? "present" : "OFF! ") << endmsg;
+      m_log << MSG::INFO << "trt_endcap_c_side is " << (m_trt_endcap_c_side==true? "present" : "OFF! ") << endmsg; 
     }
   }
   return HLT::OK;
@@ -178,12 +178,12 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     if (ec != HLT::OK) return ec;
   }
 
-  m_log << MSG::DEBUG << "Executing this TrigCountTrtHits " << name() << endreq;
+  m_log << MSG::DEBUG << "Executing this TrigCountTrtHits " << name() << endmsg;
 
   // Caching.
   // First check whether we executed this instance before:
   if( m_useCachedResult ){
-    m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endreq;
+    m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endmsg;
       
     // Get all input TEs (for seeding relation of navigation structure)
     HLT::TEVec allTEs;
@@ -210,7 +210,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
   beforeExecMonitors().ignore();
 
   if( !(m_trt_barrel_a_side && m_trt_barrel_c_side && m_trt_endcap_a_side && m_trt_endcap_c_side) ){
-    m_log << MSG::DEBUG << "Trt detector is not present. " << endreq;   
+    m_log << MSG::DEBUG << "Trt detector is not present. " << endmsg;   
     // currently dont return since only old data without detector flags exsist
   }
   // Clear TrigHisto1d histograms 
@@ -235,14 +235,14 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     TrigRoiDescriptor fsroi(true);
     StatusCode sc_fc = m_rawDataTool->fillCollections(fsroi);
     if( sc_fc.isRecoverable() ){
-        m_log << MSG::DEBUG << "Recoverable error(s) during TRT data preparation" << endreq;
+        m_log << MSG::DEBUG << "Recoverable error(s) during TRT data preparation" << endmsg;
 
         //  error monitoring 
         const std::vector<int>* errVect = m_rawDataTool->fillTRT_DataErrors();
         std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_trtDataErrors));
     } 
     else if(sc_fc.isFailure()){
-      m_log << MSG::ERROR << "BS conversion into RDOs failed" << endreq;
+      m_log << MSG::ERROR << "BS conversion into RDOs failed" << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::CORRUPTED_ROD);
     }
     
@@ -255,11 +255,11 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     StatusCode sc_sg = m_storeGate->retrieve( trtContainer, m_trtRdoContainerName );
 
     if( sc_sg.isFailure() ){
-      m_log << MSG::ERROR << " Failed to retrieve trt data from SG. " << endreq; 
+      m_log << MSG::ERROR << " Failed to retrieve trt data from SG. " << endmsg; 
       return HLT::TOOL_FAILURE;
     }
     else
-      m_log << MSG::DEBUG << " Successfully retrieved trt data from SG. " << endreq; 
+      m_log << MSG::DEBUG << " Successfully retrieved trt data from SG. " << endmsg; 
     
     // loop over collections of container
     TRT_RDO_Container::const_iterator trthitsCollIt = trtContainer->begin();
@@ -306,7 +306,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     m_attachFTimer->start();
   }
   
-  m_log << MSG::DEBUG << "REGTEST : number of TRT hits is  " << m_nTrtHits << endreq;
+  m_log << MSG::DEBUG << "REGTEST : number of TRT hits is  " << m_nTrtHits << endmsg;
   
   m_trtHitCounts = new TrigTrtHitCounts(*m_endcapC, *m_barrel, *m_endcapA);
   
@@ -325,7 +325,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     HLT::TEVec::const_iterator inner_itEnd = (*it).end();
 
     for( ; inner_it != inner_itEnd; ++inner_it ){
-      m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endreq;
+      m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endmsg;
       allTEs.push_back(*inner_it);
     }
   }
@@ -336,7 +336,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
   
   HLT::ErrorCode hltStatus = attachFeature( outputTE, m_trtHitCounts, "TrtHitCount");
   if(hltStatus != HLT::OK) {
-    m_log << MSG::ERROR << "Unable to attach HLT feature TrtHitCount to output TE." << endreq;
+    m_log << MSG::ERROR << "Unable to attach HLT feature TrtHitCount to output TE." << endmsg;
     m_attachFTimer->stop();
     return hltStatus;
   }
@@ -357,7 +357,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHits::hltFinalize() {
-  m_log << MSG::DEBUG << " finalizing TrigCountTrtHits : "<< name() << endreq; 
+  m_log << MSG::DEBUG << " finalizing TrigCountTrtHits : "<< name() << endmsg; 
   return HLT::OK;  
 }
 

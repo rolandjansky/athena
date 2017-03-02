@@ -205,10 +205,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
   //
   if( m_useassoTool ) {
     if( m_assoTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endreq; 
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endmsg; 
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
   }
   
@@ -221,7 +221,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return sc;
 }
@@ -576,7 +576,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find2Sp(const std::list<Trk::Vertex>& 
   i_seed  = l_seeds.begin();
   
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -609,7 +609,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const std::list<Trk::Vertex>& 
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -642,7 +642,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const std::list<Trk::Vertex>& 
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -677,7 +677,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findVSp (const std::list<Trk::Vertex>&
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 

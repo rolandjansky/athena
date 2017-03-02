@@ -211,9 +211,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
      }
      //if (m_materialMap.retrieve().isFailure()) {
      //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find InDetMaterialRejTool."
-     //                                      << "Use radial rejection"<< endreq;
+     //                                      << "Use radial rejection"<< endmsg;
      //} else {
-     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetMaterialRejTool found" << endreq;
+     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetMaterialRejTool found" << endmsg;
      //}
 //------
 //     if ( m_trackToVertexIP.retrieve().isFailure() ) {

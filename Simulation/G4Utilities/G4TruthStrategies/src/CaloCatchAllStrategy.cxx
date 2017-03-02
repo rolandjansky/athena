@@ -22,17 +22,17 @@ CaloCatchAllStrategy::CaloCatchAllStrategy(const std::string& n)
 {
   if(theTruthManager->GetTruthParameter("CaloMuBremsPrimaryMinEnergy")==0){
     log() << MSG::INFO << "CaloMuBremsPrimaryMinEnergy: "
-          << "setting default value of 1GeV" << endreq;
+          << "setting default value of 1GeV" << endmsg;
     theTruthManager->SetTruthParameter("CaloMuBremsPrimaryMinEnergy", 1000.);
   }
   if(theTruthManager->GetTruthParameter("CaloMuBremsSecondaryMinEnergy")==0){
     log() << MSG::INFO << "CaloMuBremsSecondaryMinEnergy: "
-          << "setting default value of 500MeV" << endreq;
+          << "setting default value of 500MeV" << endmsg;
     theTruthManager->SetTruthParameter("CaloMuBremsSecondaryMinEnergy", 500.);
   }
   if(theTruthManager->GetTruthParameter("CaloDecayPrimaryMinEnergy")==0){
     log() << MSG::INFO << "CaloDecayPrimaryMinEnergy: "
-          << "setting default value of 1GeV" << endreq;
+          << "setting default value of 1GeV" << endmsg;
     theTruthManager->SetTruthParameter("CaloDecayPrimaryMinEnergy", 1000.);
   }
 }

@@ -86,14 +86,14 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "LB_VS_LPT_Wire_Trigger_Sector_" << side[ac] ;
     tgclv1lptwireinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
     if( ( tgclv1_expert_ac[ac]->regHist( tgclv1lptwireinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
     // Lpt strip triggers per sector, per lumi block
     ss.str(""); ss << "LB_VS_LPT_Strip_Trigger_Sector_" << side[ac] ;
     tgclv1lptstripinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
     if( ( tgclv1_expert_ac[ac]->regHist( tgclv1lptstripinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -102,13 +102,13 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "EIFI_Sector_VS_Bit_" << side[ac] ;
     tgclv1hptstripinlbvssecteifisect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; Trigger_Sector;Bit").c_str(), 48, 1, 49, 8, 0, 8 );
     if( ( tgclv1_expert_ac[ac]->regHist( tgclv1hptstripinlbvssecteifisect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;
       return sc;
     }
     ss.str(""); ss << "EIFI_Lumi_VS_Bit_" << side[ac] ;
     tgclv1hptstripinlbvssecteifilumi[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;Bit").c_str(), 1250, 1, 2501, 8, 0, 8 );
     if( ( tgclv1_expert_ac[ac]->regHist( tgclv1hptstripinlbvssecteifilumi[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;
       return sc;
     }
 
@@ -116,7 +116,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "LB_VS_HPT_Wire_Trigger_Sector_" << side[ac] ;
     tgclv1hptwireinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
     if( ( tgclv1_expert_ac[ac]->regHist( tgclv1hptwireinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -124,7 +124,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "LB_VS_HPT_Strip_Trigger_Sector_" << side[ac] ;
     tgclv1hptstripinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
     if( ( tgclv1_expert_ac[ac]->regHist( tgclv1hptstripinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -132,7 +132,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "LB_VS_SL_Trigger_Sector_" << side[ac] ;
     tgclv1slinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
     if( ( tgclv1_shift_ac[ac]->regHist( tgclv1slinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -181,7 +181,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
       if(pcnt>2) sc=tgclv1_shift.regHist(tgclv1numberoflptwire[pcnt]) ;  
       else    sc=tgclv1_expert.regHist(tgclv1numberoflptwire[pcnt]) ;  
       if(sc.isFailure()){
-	m_log << MSG::FATAL << "tgclv1numberoflptwire Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << "tgclv1numberoflptwire Failed to register histogram " << endmsg;       
 	return sc;
       }
       tgclv1numberoflptwire[pcnt]->GetXaxis()->SetTitle("Low Pt Wire Triggers");
@@ -193,7 +193,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
       if(pcnt>2) sc=tgclv1_shift.regHist(tgclv1numberoflptstrip[pcnt]) ;  
       else    sc=tgclv1_expert.regHist(tgclv1numberoflptstrip[pcnt]) ;  
       if(sc.isFailure()){
-	m_log << MSG::FATAL << "tgclv1numberoflptstrip Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << "tgclv1numberoflptstrip Failed to register histogram " << endmsg;       
 	return sc;
       }
       tgclv1numberoflptstrip[pcnt]->GetXaxis()->SetTitle("Low Pt Strip Triggers");
@@ -205,7 +205,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
       if(pcnt>2) sc=tgclv1_shift.regHist(tgclv1numberofhptwire[pcnt]) ;  
       else    sc=tgclv1_expert.regHist(tgclv1numberofhptwire[pcnt]) ;  
       if(sc.isFailure()){
-	m_log << MSG::FATAL << "tgclv1numberofhptwire Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << "tgclv1numberofhptwire Failed to register histogram " << endmsg;       
 	return sc;
       }
       tgclv1numberofhptwire[pcnt]->GetXaxis()->SetTitle("High Pt Wire Triggers");
@@ -217,7 +217,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
       if(pcnt>2) sc=tgclv1_shift.regHist(tgclv1numberofhptstrip[pcnt]) ;  
       else    sc=tgclv1_expert.regHist(tgclv1numberofhptstrip[pcnt]) ;  
       if(sc.isFailure()){
-	m_log << MSG::FATAL << "tgclv1numberofhptstrip Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << "tgclv1numberofhptstrip Failed to register histogram " << endmsg;       
 	return sc;
       }
       tgclv1numberofhptstrip[pcnt]->GetXaxis()->SetTitle("High Pt Strip Triggers");
@@ -229,7 +229,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
       if(pcnt>2) sc=tgclv1_shift.regHist(tgclv1numberofsl[pcnt]) ;  
       else    sc=tgclv1_expert.regHist(tgclv1numberofsl[pcnt]) ;  
       if(sc.isFailure()){
-	m_log << MSG::FATAL << "tgclv1numberofsl Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << "tgclv1numberofsl Failed to register histogram " << endmsg;       
 	return sc;
       }
       tgclv1numberofsl[pcnt]->GetXaxis()->SetTitle("Sector Logic Triggers");
@@ -252,7 +252,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
   m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
   tgclv1roietavsphiAll =new TH2F(ss.str().c_str(), (ss.str() + ";C-side: Eta < 0, A-side: Eta > 0").c_str(), 55, -55, 55, 48, 0, 48); 
   if( (tgclv1_shift.regHist(tgclv1roietavsphiAll)).isFailure()){ 
-    m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
     return StatusCode::FAILURE;
   }
 
@@ -262,7 +262,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
     tgclv1roietavsphiptAll[ipt] =new TH2F(ss.str().c_str(), (ss.str() + ";C-side: Eta < 0, A-side: Eta > 0").c_str(), 55, -55, 55, 48, 0, 48); 
     if( (tgclv1_shift.regHist(tgclv1roietavsphiptAll[ipt])).isFailure()){ 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return StatusCode::FAILURE;
     }
   }// pt
@@ -292,7 +292,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     if(ac==0) sc=tgclv1_shift_a.regHist(tgclv1pt[ac]);
     else      sc=tgclv1_shift_c.regHist(tgclv1pt[ac]);
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "tgclv1pt Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1pt Failed to register histogram " << endmsg;       
       return sc;
     }
     tgclv1pt[ac]->GetXaxis()->SetTitle("Pt Threshold");
@@ -309,7 +309,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
     tgclv1roietavsphi[ac] =new TH2F(ss.str().c_str(), (ss.str() + ";Eta").c_str(), 53, 0, 53, 192, 0, 48); 
     if( (tgclv1_shift_ac[ac]->regHist(tgclv1roietavsphi[ac])).isFailure()){ 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return StatusCode::FAILURE;
     }
 
@@ -319,7 +319,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
       m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
       tgclv1roietavsphipt[ac][ipt] =new TH2F(ss.str().c_str(), (ss.str() + ";Eta").c_str(), 53, 0, 53, 192, 0, 48); 
       if( (tgclv1_shift_ac[ac]->regHist(tgclv1roietavsphipt[ac][ipt])).isFailure()){ 
-	m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
 	return StatusCode::FAILURE;
       }
     }// pt
@@ -347,7 +347,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
   ss.str(""); ss << "SL_Chamber_All";
   tgclv1slchamberAll =new TH2F(ss.str().c_str(),ss.str().c_str(), 14, -7, 7, 48, 1, 49); 
   if( ( tgclv1_shift.regHist(tgclv1slchamberAll) ).isFailure() ){
-    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
     return sc;
   }
   for(int ieta=0;ieta<6;ieta++){// X bins
@@ -378,7 +378,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     if(ac==0) sc=tgclv1_expert_a.regHist(tgclv1lptsectwire[ac]);
     else      sc=tgclv1_expert_c.regHist(tgclv1lptsectwire[ac]);
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "tgclv1lptsectwire["<<ac<<"] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1lptsectwire["<<ac<<"] Failed to register histogram " << endmsg;       
       return sc;
     }
     //tgclv1lptsectwire->GetXaxis()->SetTitle("Side*12+Sector");
@@ -392,7 +392,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     if(ac==0) sc=tgclv1_expert_a.regHist(tgclv1lptsectstrip[ac]);
     else      sc=tgclv1_expert_c.regHist(tgclv1lptsectstrip[ac]);
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "tgclv1lptsectstrip["<<ac<<"] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1lptsectstrip["<<ac<<"] Failed to register histogram " << endmsg;       
       return sc;
     }
     //tgclv1lptsectstrip->GetXaxis()->SetTitle("Side*12+Sector");
@@ -406,7 +406,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     if(ac==0) sc=tgclv1_expert_a.regHist(tgclv1hptsectwire[ac]);
     else      sc=tgclv1_expert_c.regHist(tgclv1hptsectwire[ac]);
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "tgclv1hptsectwire["<<ac<<"] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1hptsectwire["<<ac<<"] Failed to register histogram " << endmsg;       
       return sc;
     }
     //tgclv1hptsectwire->GetXaxis()->SetTitle("Side*12+Sector");
@@ -420,7 +420,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     if(ac==0) sc=tgclv1_expert_a.regHist(tgclv1hptsectstrip[ac]);
     else      sc=tgclv1_expert_c.regHist(tgclv1hptsectstrip[ac]);
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "tgclv1hptsectstrip[" << ac << "] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1hptsectstrip[" << ac << "] Failed to register histogram " << endmsg;       
       return sc;
     }
     //tgclv1hptsectstrip[ac]->GetXaxis()->SetTitle("Sector");
@@ -434,7 +434,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     if(ac==0)sc=tgclv1_shift_a.regHist(tgclv1slsect[ac]);
     else     sc=tgclv1_shift_c.regHist(tgclv1slsect[ac]);
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "tgclv1slsect[" << ac << "] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1slsect[" << ac << "] Failed to register histogram " << endmsg;       
       return sc;
     }
     //tgclv1slsect->GetXaxis()->SetTitle("Side*12+Sector");
@@ -483,7 +483,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "Low_Pt_Wire_Chamber_" << side[ac];
     tgclv1lptwirechamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 12, 0, 12, 48, 1, 49); 
     if( ( tgclv1_expert_ac[ac]->regHist(tgclv1lptwirechamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -491,7 +491,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "Low_Pt_Strip_Chamber_" << side[ac];
     tgclv1lptstripchamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 12, 0, 12, 48, 1, 49); 
     if( ( tgclv1_expert_ac[ac]->regHist(tgclv1lptstripchamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -499,7 +499,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "High_Pt_Wire_Chamber_" << side[ac];
     tgclv1hptwirechamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 11, 0, 11, 48, 1, 49); 
     if( ( tgclv1_expert_ac[ac]->regHist(tgclv1hptwirechamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -507,7 +507,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "High_Pt_Strip_Chamber_" << side[ac];
     tgclv1hptstripchamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 11, 0, 11, 48, 1, 49); 
     if( ( tgclv1_expert_ac[ac]->regHist(tgclv1hptstripchamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -515,7 +515,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "SL_Chamber_" << side[ac];
     tgclv1slchamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 6, 0, 6, 48, 1, 49); 
     if( ( tgclv1_shift_ac[ac]->regHist(tgclv1slchamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -568,7 +568,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
   ss.str(""); ss << "ES_SL_vs_Muon_Chain_";
   tgclv1_SL_vs_muonchain_ES = new TH2F( ss.str().c_str(), ( ss.str() + ";SL;No Muon Chain" ).c_str(), 2, 0, 2, 2, 0, 2 );
   if( ( tgclv1_expert_ES.regHist( tgclv1_SL_vs_muonchain_ES ) ).isFailure() ){
-    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
     return sc;
   }
   tgclv1_SL_vs_muonchain_ES->GetXaxis()->SetBinLabel(1,"false");
@@ -609,7 +609,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
   ss.str(""); ss << "Number_Of_Events_In_2LB";
   tgclv1eventsinlb = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;Events / 2LB" ).c_str(), 1250, 1,2501 );
   if( ( tgclv1_rate.regHist( tgclv1eventsinlb ) ).isFailure() ){
-    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
     return sc;
   }
 
@@ -617,7 +617,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
   ss.str(""); ss << "Number_Of_Events_In_10BCID";
   tgclv1eventsinbcid = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;Events / 10BCID" ).c_str(), 357, 0, 3570 );//BCID 0-3564
   if( ( tgclv1_rate.regHist( tgclv1eventsinbcid ) ).isFailure() ){
-    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
     return sc;
   }
 
@@ -629,7 +629,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
     ss.str(""); ss << "Number_Of_SL_Triggers_In_2LB_" << side[ac];
     tgclv1slinlb[ac] = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;SL / 2LB" ).c_str(), 1250, 1,2501 );
     if( ( tgclv1_rate_ac[ac]->regHist( tgclv1slinlb[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -637,7 +637,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
     ss.str(""); ss << "Number_Of_SL_Triggers_In_10BCID_" << side[ac];
     tgclv1slinbcid[ac] = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;SL / 10BCID" ).c_str(), 357, 0, 3570 );//BCID 0-3564
     if( ( tgclv1_rate_ac[ac]->regHist( tgclv1slinbcid[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -645,7 +645,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
     ss.str(""); ss << "Number_Of_SL_Triggers_Per_Event_Vs_2LB_" << side[ac];
     tgclv1slpereventlb[ac] = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;SL / Events" ).c_str(), 1250, 1,2501 );
     if( ( tgclv1_ratio_ac[ac]->regHist( tgclv1slpereventlb[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -653,7 +653,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
     ss.str(""); ss << "Number_Of_SL_Triggers_Per_Event_Vs_10BCID_" << side[ac];
     tgclv1slpereventbcid[ac] = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;SL / Events" ).c_str(), 357, 0, 3570 );//BCID 0-3564
     if( ( tgclv1_ratio_ac[ac]->regHist( tgclv1slpereventbcid[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -663,7 +663,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
       ss.str(""); ss << "Number_Of_PT" << pt + 1 << "_Triggers_In_2LB_" << side[ac];
       tgclv1slinlbpt[ac][pt] = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;SL / 2LB" ).c_str(), 1250, 1,2501 );
       if( ( tgclv1_rate_ac[ac]->regHist( tgclv1slinlbpt[ac][pt] ) ).isFailure() ){
-	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
 	return sc;
       }
 
@@ -671,7 +671,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
       ss.str(""); ss << "Number_Of_PT" << pt + 1 << "_Triggers_In_10BCID_" << side[ac];
       tgclv1slinbcidpt[ac][pt] = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;SL / 10BCID" ).c_str(), 357, 0, 3570 );//BCID 0-3564
       if( ( tgclv1_rate_ac[ac]->regHist( tgclv1slinbcidpt[ac][pt] ) ).isFailure() ){
-	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
 	return sc;
       }
 
@@ -679,7 +679,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
       ss.str(""); ss << "Number_Of_PT" << pt + 1 << "_Triggers_Per_Event_Vs_2LB_" << side[ac];
       tgclv1slpereventlbpt[ac][pt] = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;SL / Events" ).c_str(), 1250, 1,2501 );
       if( ( tgclv1_ratio_ac[ac]->regHist( tgclv1slpereventlbpt[ac][pt] ) ).isFailure() ){
-	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
 	return sc;
       }
 
@@ -687,7 +687,7 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
       ss.str(""); ss << "Number_Of_PT" << pt + 1 << "_Triggers_Per_Event_Vs_10BCID_" << side[ac];
       tgclv1slpereventbcidpt[ac][pt] = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;SL / Events" ).c_str(), 357, 0, 3570 );//BCID 0-3564
       if( ( tgclv1_ratio_ac[ac]->regHist( tgclv1slpereventbcidpt[ac][pt] ) ).isFailure() ){
-	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
 	return sc;
       }
     }// pT

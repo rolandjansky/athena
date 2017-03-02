@@ -115,16 +115,16 @@ StatusCode ALFA_BeamTransport::initialize()
 
   //-----------------------------------------------------------------------------------------
   m_log.setLevel(outputLevel());
-  m_log << MSG::INFO << name() << " initialize()" << endreq;
+  m_log << MSG::INFO << name() << " initialize()" << endmsg;
 /*
   // retrieve the StoreGate Service (delete if not needed)
   StatusCode sc= service("StoreGateSvc",m_sgSvc);
   if (sc.isFailure()) 
-    m_log << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
+    m_log << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endmsg;
   else 
-    m_log << MSG::INFO << "StoreGateSvc retrieved!" << endreq;
+    m_log << MSG::INFO << "StoreGateSvc retrieved!" << endmsg;
   */
-  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+  m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -160,24 +160,24 @@ StatusCode ALFA_BeamTransport::execute()
        //Load event info
      const EventInfo* mcInfoptr;
      if ( evtStore()->retrieve(mcInfoptr, m_infokey).isFailure() ) {
-	  msg(MSG::ERROR) << "Could not retrieve EventInfo" << endreq;
+	  msg(MSG::ERROR) << "Could not retrieve EventInfo" << endmsg;
 	  return StatusCode::FAILURE;
      }
      else{
 	  run_number=mcInfoptr->event_ID()->run_number();
 	  evt_number=mcInfoptr->event_ID()->event_number();
  
-	  msg(MSG::DEBUG) << "run: " << run_number << " event: " << evt_number << endreq;
+	  msg(MSG::DEBUG) << "run: " << run_number << " event: " << evt_number << endmsg;
      }
      
        const McEventCollection* mcCollptr;
 	  if ( evtStore()->retrieve(mcCollptr, m_key).isFailure() ) {
-	       msg(MSG::WARNING) << "Could not retrieve McEventCollection: " << m_key << endreq;
+	       msg(MSG::WARNING) << "Could not retrieve McEventCollection: " << m_key << endmsg;
 	       return StatusCode::SUCCESS;
 	  } 
 	  else {
 	       // Loop over all events in McEventCollectio
-	       msg(MSG::INFO) << "successful load of HepMC info" << endreq;
+	       msg(MSG::INFO) << "successful load of HepMC info" << endmsg;
 	       for (McEventCollection::const_iterator itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
 		       std::cout<<"loop"<<std::endl;
 		    HepMC::GenEvent* evt=(*itr);
@@ -213,7 +213,7 @@ StatusCode ALFA_BeamTransport::execute()
 		    
 	       }
 
-	       msg(MSG::INFO) << "after running the process function" << endreq;
+	       msg(MSG::INFO) << "after running the process function" << endmsg;
 	  }
 
        //-----------------------------------------------------------------------------------------
@@ -264,7 +264,7 @@ int ALFA_BeamTransport::AddHepMCData(HepMC::GenEvent* evt)
      
      //if(m_PosRP1.x()!=-99 && m_PosRP3.x()!=-99) //At the moment we are loosing bothparticles if one of the particles get lost in the beam pipe
      {
-	  msg(MSG::INFO) << "Add transproted particle into HepMC event record" << endreq;
+	  msg(MSG::INFO) << "Add transproted particle into HepMC event record" << endmsg;
 	  //Add Data for HepMC Collection
 	
 	  
@@ -518,7 +518,7 @@ int ALFA_BeamTransport::TransportSelectedParticle(HepMC::GenEvent* evt, int evt_
      
      //from here the transported particles are added to HepMC
      
-     msg(MSG::INFO) << "Add transproted particle into HepMC event record Beam 1" << endreq;
+     msg(MSG::INFO) << "Add transproted particle into HepMC event record Beam 1" << endmsg;
      //Add Data for HepMC Collection
      
      for(int i=0;i<(int)PosAtRP1.size();i++){//Beam1
@@ -540,7 +540,7 @@ int ALFA_BeamTransport::TransportSelectedParticle(HepMC::GenEvent* evt, int evt_
 	
      	}
      }
-     msg(MSG::INFO) << "Add transproted particle into HepMC event record Beam 2" << endreq;
+     msg(MSG::INFO) << "Add transproted particle into HepMC event record Beam 2" << endmsg;
      for(int i=0;i<(int)PosAtRP3.size();i++){
 	  
 	  //Add Data for HepMC Collection			

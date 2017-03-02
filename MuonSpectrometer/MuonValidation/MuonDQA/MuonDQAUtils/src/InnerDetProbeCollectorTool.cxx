@@ -46,7 +46,7 @@ namespace Muon {
     if(sc.isFailure() ){
       m_log   << MSG::ERROR
 	      << "Unable to retrieve pointer to THistSvc"
-	      << endreq;
+	      << endmsg;
       return sc;
     }
 	
@@ -54,23 +54,23 @@ namespace Muon {
     sc = service("StoreGateSvc",m_storeGate);
     if (sc.isFailure())
       {
-	m_log << MSG::FATAL << "StoreGate service not found !" << endreq;
+	m_log << MSG::FATAL << "StoreGate service not found !" << endmsg;
 	return StatusCode::FAILURE;
       }
 
     /// Getting InsituPerformanceTools
     if (m_InsituPerformanceTools.retrieve().isFailure())
       {
-	m_log << MSG::FATAL << "My Tool Service not found" << endreq;
+	m_log << MSG::FATAL << "My Tool Service not found" << endmsg;
 	return StatusCode::FAILURE;
       }
     sc = m_InsituPerformanceTools->initialize();
     if (sc.isFailure())
       {
-	m_log << MSG::FATAL << "InsituPerformanceTool service not found !" << endreq;
+	m_log << MSG::FATAL << "InsituPerformanceTool service not found !" << endmsg;
 	return StatusCode::FAILURE;
       }
-    m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+    m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -86,7 +86,7 @@ namespace Muon {
 
   StatusCode InnerDetProbeCollectorTool::createProbeCollection()
   {
-    m_log << MSG::DEBUG << "createProbeCollection() for Inner Detector" << endreq;
+    m_log << MSG::DEBUG << "createProbeCollection() for Inner Detector" << endmsg;
 	
     StatusCode sc = StatusCode::SUCCESS;
     /// Record the container of Probe Muons in StoreGate
@@ -95,10 +95,10 @@ namespace Muon {
     if (sc.isFailure())  
       {
 	m_log << MSG::ERROR << "Unable to record InnerDetectorProbeTracks in StoreGate" 
-	      << endreq;
+	      << endmsg;
 	return sc;
       } else
-	m_log << MSG::DEBUG << "InnerDetectorProbeTracks Container recorded in StoreGate." << endreq;
+	m_log << MSG::DEBUG << "InnerDetectorProbeTracks Container recorded in StoreGate." << endmsg;
 
 	
     /// Retrieve Muon Tracks
@@ -106,20 +106,20 @@ namespace Muon {
     sc=m_storeGate->retrieve( trackTES, m_MSTrackContainerName);
     if( sc.isFailure()  ||  !trackTES ) 
       {
-	m_log << MSG::WARNING	<< "No " << m_MSTrackContainerName << " container found in TDS"	<< endreq; 
+	m_log << MSG::WARNING	<< "No " << m_MSTrackContainerName << " container found in TDS"	<< endmsg; 
 	return StatusCode::FAILURE;
       }  
-    m_log << MSG::DEBUG << "MuonTrack Container successfully retrieved" << endreq;
+    m_log << MSG::DEBUG << "MuonTrack Container successfully retrieved" << endmsg;
 
     /// Retrieve Combined Tracks
     const Analysis::MuonContainer* muonTDS=0;
     sc=m_storeGate->retrieve( muonTDS, m_CombinedMuonTracksContainerName);
     if( sc.isFailure()  ||  !muonTDS ) 
       {
-	m_log << MSG::WARNING	<< "No AOD "<<m_CombinedMuonTracksContainerName<<" container of muons found in TDS"<< endreq; 
+	m_log << MSG::WARNING	<< "No AOD "<<m_CombinedMuonTracksContainerName<<" container of muons found in TDS"<< endmsg; 
 	return StatusCode::FAILURE;
       }  
-    m_log << MSG::DEBUG << "MuonContainer successfully retrieved" << endreq;
+    m_log << MSG::DEBUG << "MuonContainer successfully retrieved" << endmsg;
 	
     /// Loop over Combined Muon Tracks
     Analysis::MuonContainer::const_iterator muonItr  = muonTDS->begin();
@@ -151,7 +151,7 @@ namespace Muon {
     sc = m_storeGate->setConst(m_IDProbeTrackContainer);
     if( sc.isFailure()) 
       {
-	m_log << MSG::WARNING	<< "set const failed"<< endreq; 
+	m_log << MSG::WARNING	<< "set const failed"<< endmsg; 
 	return StatusCode::FAILURE;
       }  
     return StatusCode::SUCCESS;

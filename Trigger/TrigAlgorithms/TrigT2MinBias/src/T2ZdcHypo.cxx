@@ -59,20 +59,20 @@ T2ZdcHypo::T2ZdcHypo(const std::string &name,
 HLT::ErrorCode T2ZdcHypo::hltInitialize() {
   m_log.setLevel(outputLevel());
   if(msgLvl() <= MSG::INFO) {
-    m_log << MSG::INFO << "Initialising this T2ZdcFex: " << name() << endreq;
+    m_log << MSG::INFO << "Initialising this T2ZdcFex: " << name() << endmsg;
     
-    m_log << MSG::INFO << "================ Hypo Settings ================" << endreq;
-    m_log << MSG::INFO << " AcceptAll -------------------  " << (m_acceptAll==true ? "True" : "False") << endreq; 
-    m_log << MSG::INFO << " SelectionLogic --------------  Time: " <<  m_timeLogic << "  Energy:" << m_energyLogic << " Multi:" << m_multiLogic << endreq;
+    m_log << MSG::INFO << "================ Hypo Settings ================" << endmsg;
+    m_log << MSG::INFO << " AcceptAll -------------------  " << (m_acceptAll==true ? "True" : "False") << endmsg; 
+    m_log << MSG::INFO << " SelectionLogic --------------  Time: " <<  m_timeLogic << "  Energy:" << m_energyLogic << " Multi:" << m_multiLogic << endmsg;
     for(int ic=0;ic< ZDC_MOD*2 ;++ic){
-      m_log << MSG::INFO << " TimeOffset[" << ic << " ]  " <<  m_timeOffset[ic] << "  Pedestal" << m_EnergyPed[ic] << " EnergyModuleCalibrations: " <<  m_EnergyCal[ic] << endreq;
+      m_log << MSG::INFO << " TimeOffset[" << ic << " ]  " <<  m_timeOffset[ic] << "  Pedestal" << m_EnergyPed[ic] << " EnergyModuleCalibrations: " <<  m_EnergyCal[ic] << endmsg;
     }
-    m_log << MSG::INFO << " TimeModuleCut" << m_timeModuleCut << endreq;
-    m_log << MSG::INFO << " TimeDiffCut" << m_timeCut << endreq;
-    m_log <<  MSG::INFO << " EnergyCut: SideA " << m_SumEn[0] << "  " << m_SumEn[1] << endreq;
-    m_log <<  MSG::INFO << " EnergyCut: SideC " << m_SumEn[2] << "  " << m_SumEn[3] << endreq;
-    m_log <<  MSG::INFO << " MultiCut: SideA " << m_Mult[0] << "  SideC " << m_Mult[1] << endreq;
-    m_log << MSG::INFO << "===============================================" << endreq;
+    m_log << MSG::INFO << " TimeModuleCut" << m_timeModuleCut << endmsg;
+    m_log << MSG::INFO << " TimeDiffCut" << m_timeCut << endmsg;
+    m_log <<  MSG::INFO << " EnergyCut: SideA " << m_SumEn[0] << "  " << m_SumEn[1] << endmsg;
+    m_log <<  MSG::INFO << " EnergyCut: SideC " << m_SumEn[2] << "  " << m_SumEn[3] << endmsg;
+    m_log <<  MSG::INFO << " MultiCut: SideA " << m_Mult[0] << "  SideC " << m_Mult[1] << endmsg;
+    m_log << MSG::INFO << "===============================================" << endmsg;
   }
  
   return HLT::OK;
@@ -83,7 +83,7 @@ HLT::ErrorCode T2ZdcHypo::hltInitialize() {
 HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 				      bool& pass) {
   if(msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this T2ZdcHypo " << name() << endreq;
+    m_log << MSG::DEBUG << "Executing this T2ZdcHypo " << name() << endmsg;
   }
      
   pass = false;
@@ -94,14 +94,14 @@ HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // Try to retrieve the TrigT2ZdcSignals object produced by the Fex
   if(getFeature(outputTE, m_t2ZdcSignals, "zdcsignals") != HLT::OK){
     if(msgLvl() <= MSG::WARNING){
-      m_log << MSG::WARNING << "Failed to retrieve features from TE." << endreq;
+      m_log << MSG::WARNING << "Failed to retrieve features from TE." << endmsg;
     }
     return HLT::OK;
   }
   
   // If the object is not available the trigger fails without complaint.
   if(!m_t2ZdcSignals){
-    m_log << MSG::DEBUG << "No trigger bits formed." << endreq;
+    m_log << MSG::DEBUG << "No trigger bits formed." << endmsg;
     return HLT::OK;
   }
   
@@ -112,13 +112,13 @@ HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   // Calculate ZDC counter multiplicities, time mean and energy sums after energy and an optional time cut.
   if(!calculateSumMean()) { 
-    m_log << MSG::DEBUG << "calculateSumMean failed" << endreq;
+    m_log << MSG::DEBUG << "calculateSumMean failed" << endmsg;
     return HLT::OK;
   }
 
 
   if(m_acceptAll){
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Accepting all events in " << name() << endreq;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Accepting all events in " << name() << endmsg;
     pass=true;
     m_selMult_A = m_mult.first;
     m_selMult_C = m_mult.second;
@@ -198,7 +198,7 @@ int T2ZdcHypo::calculateSumMean(){
   m_meanTime = std::make_pair(0.,0.);
   m_sumEn = std::make_pair(0.,0.);
   if(!m_t2ZdcSignals){
-    m_log << MSG::WARNING << "Cannot access T2ZdcSignals " << endreq; 
+    m_log << MSG::WARNING << "Cannot access T2ZdcSignals " << endmsg; 
     return 0;
   }
   std::vector<float> triggerEnergies = m_t2ZdcSignals->triggerEnergies();
@@ -217,7 +217,7 @@ int T2ZdcHypo::calculateSumMean(){
 #endif
   
   if(triggerEnergies.size() != ZDC_MOD*2 || triggerTimes.size() != ZDC_MOD*2 ) {
-    m_log << MSG::WARNING << "Vector sizes " << triggerEnergies.size() << " / " << triggerTimes.size() << " are not equal to number of ZDC counters: " <<  ZDC_MOD*2 << endreq;     
+    m_log << MSG::WARNING << "Vector sizes " << triggerEnergies.size() << " / " << triggerTimes.size() << " are not equal to number of ZDC counters: " <<  ZDC_MOD*2 << endmsg;     
     //    return 0;
   }
   

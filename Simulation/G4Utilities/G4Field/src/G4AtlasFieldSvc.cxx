@@ -30,7 +30,7 @@ G4AtlasFieldSvc::G4AtlasFieldSvc(const std::string& n)
 void G4AtlasFieldSvc::Initialize() {
   if (!fieldinitialized) {
     if ( m_magFieldSvc.retrieve().isFailure()) {
-      // mlog << MSG::FATAL << "Could not find MagFieldAthenaSvc" << endreq ;
+      // mlog << MSG::FATAL << "Could not find MagFieldAthenaSvc" << endmsg ;
       std::cout << "Could not find MagFieldAthenaSvc" << std::endl ;
       return;
     }

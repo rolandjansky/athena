@@ -95,9 +95,9 @@ MuonGMTestOnPrd::execute()
         //     const DataHandle<MdtPrepDataCollection> mdtColl;
         //     const DataHandle<MdtPrepDataCollection> lastMdtColl;
         //     if (StatusCode::SUCCESS != p_EventStore->retrieve(mdtColl,lastMdtColl)) {
-        //         log << MSG::DEBUG << "No MdtPrepDataCollections found" << endreq;
+        //         log << MSG::DEBUG << "No MdtPrepDataCollections found" << endmsg;
         //     }
-        //     if (mdtColl==lastMdtColl) log<<MSG::DEBUG<<"NO MdtPrepDataCollections in the event"<<endreq;
+        //     if (mdtColl==lastMdtColl) log<<MSG::DEBUG<<"NO MdtPrepDataCollections in the event"<<endmsg;
 
         for (const Muon::MdtPrepDataCollection* mdtColl : *mdtContainer)
         {
@@ -268,11 +268,11 @@ MuonGMTestOnPrd::execute()
 //     TgcPrepDataContainer * tgcContainer;
 //     if ( StatusCode::SUCCESS != p_EventStore->retrieve(tgcContainer, key) )
 //     {
-//         log<<MSG::ERROR<<"Cannot retrieve TGC PRD Container "<<endreq;
+//         log<<MSG::ERROR<<"Cannot retrieve TGC PRD Container "<<endmsg;
 //         return StatusCode::FAILURE;
 //     }
 //     else
-//         log<<MSG::INFO<<"Retrieved TGC PRD Container with size = " << tgcContainer->size()<< endreq;
+//         log<<MSG::INFO<<"Retrieved TGC PRD Container with size = " << tgcContainer->size()<< endmsg;
 
 //     // Csc
 //     CscPrepDataContainer * cscContainer;
@@ -331,7 +331,7 @@ void MuonGMTestOnPrd::processMdtCollectionOld(const Muon::MdtPrepDataCollection*
         //Amg::Vector3D xvt = (mdtRE->transform(idchannel))*Amg::Vector3D(10.,10.,10.);
         Trk::SaggedLineSurface surf = mdtRE->surface(idchannel);
         
-        //log<<MSG::INFO<<"Tube center is ("<<xc.x()<<", "<<xc.y()<<", "<<xc.z()<<")"<<endreq;
+        //log<<MSG::INFO<<"Tube center is ("<<xc.x()<<", "<<xc.y()<<", "<<xc.z()<<")"<<endmsg;
 
         if (msgLvl(MSG::DEBUG))
         {

@@ -16,7 +16,7 @@ CMMEtSumsCollection_PERS * CMMEtSumsCollectionCnv::createPersistent( CMMEtSumsCo
   
   MsgStream mlog(msgSvc(), "CMMEtSumsCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "CMMEtSumsCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CMMEtSumsCollectionCnv::createPersistent called" << endmsg;
 
   CMMEtSumsCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ CMMEtSumsCollection * CMMEtSumsCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CMMEtSumsCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "CMMEtSumsCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CMMEtSumsCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "DAB02AE0-736D-4C24-AC21-E6F12B3A4FE3" );
  

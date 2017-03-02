@@ -51,7 +51,7 @@ class CosmicSamp2Fex: public IAlgToolCalo {
                 if ( IAlgToolCalo::initialize().isFailure() ) {
                 	*(new MsgStream(AlgTool::msgSvc(), name()))
 			<< MSG::FATAL 
-			<< "Could not init base class IAlgTooCalo" << endreq;
+			<< "Could not init base class IAlgTooCalo" << endmsg;
                 }
                 std::string basename(name().substr(25,5)+".");
 		if (m_timersvc) {

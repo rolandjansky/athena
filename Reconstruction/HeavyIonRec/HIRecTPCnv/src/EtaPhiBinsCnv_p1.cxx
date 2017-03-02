@@ -40,7 +40,7 @@ void EtaPhiBinsCnv_p1::persToTrans(  const EtaPhiBins_p1* pers,
 				    MsgStream& msg ) 
 {
    msg << MSG::DEBUG << "Loading EtaPhiBins from persistent state..."
-       << endreq;
+       << endmsg;
 
   trans->m_EtaMin      = pers->m_EtaMin;
   trans->m_EtaMax      = pers->m_EtaMax;
@@ -55,7 +55,7 @@ void EtaPhiBinsCnv_p1::persToTrans(  const EtaPhiBins_p1* pers,
   TH2F* h2 = (TH2F*) b.ReadObject(gROOT->GetClass("TH2F"));
   trans->m_H2          = *h2;
   //trans->m_H2.Print();
-  msg << MSG::DEBUG << "H2 reading didn't crash!" << endreq;
+  msg << MSG::DEBUG << "H2 reading didn't crash!" << endmsg;
   return;
 }
 
@@ -64,7 +64,7 @@ void EtaPhiBinsCnv_p1::transToPers(  const EtaPhiBins* trans,
 				    MsgStream& msg ) 
 {
    msg << MSG::DEBUG << "Creating persistent state of EtaPhiBins..."
-       << endreq;
+       << endmsg;
 
   pers->m_EtaMin    = trans->m_EtaMin;	
   pers->m_EtaMax    = trans->m_EtaMax;	
@@ -72,37 +72,37 @@ void EtaPhiBinsCnv_p1::transToPers(  const EtaPhiBins* trans,
   pers->m_NPhiBins  = trans->m_NPhiBins;
 
 
-  msg << MSG::DEBUG << "Printing H2" << endreq;
+  msg << MSG::DEBUG << "Printing H2" << endmsg;
   //trans->m_H2.Print();
 
-  msg << MSG::DEBUG << "Make TBuffer" << endreq;
+  msg << MSG::DEBUG << "Make TBuffer" << endmsg;
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,15,1)
   TBuffer b(TBuffer::kWrite);
 #else
   TBufferFile b(TBuffer::kWrite);
 #endif
-  msg << MSG::DEBUG << "Writing H2 into TBuffer" << endreq;
+  msg << MSG::DEBUG << "Writing H2 into TBuffer" << endmsg;
   b.WriteObject(&trans->m_H2);
   char* buf = b.Buffer(); 
   int len = b.Length();
-  msg << MSG::DEBUG << "Clearing vector" << endreq;
+  msg << MSG::DEBUG << "Clearing vector" << endmsg;
   pers->m_h2vec.clear();
-  msg << MSG::DEBUG << "Reserving m_h2vec to length " << len << endreq;
+  msg << MSG::DEBUG << "Reserving m_h2vec to length " << len << endmsg;
   pers->m_h2vec.reserve(len);
-  msg << MSG::DEBUG << "m_h2vec size = " << pers->m_h2vec.size() <<  endreq; 
+  msg << MSG::DEBUG << "m_h2vec size = " << pers->m_h2vec.size() <<  endmsg; 
   
-  msg << MSG::DEBUG << "Pushing back " << b.Length() << " bytes to m_h2vec" <<  endreq;
+  msg << MSG::DEBUG << "Pushing back " << b.Length() << " bytes to m_h2vec" <<  endmsg;
 
   for (int i = 0;i<len;i++)
     {
       unsigned char ib = buf[i];
 
-      msg << MSG::DEBUG << "push back  i = " << i <<  "cont = " << ib << endreq; 
+      msg << MSG::DEBUG << "push back  i = " << i <<  "cont = " << ib << endmsg; 
   
       pers->m_h2vec.push_back(ib);
     }
 
-  msg << MSG::DEBUG << "H2 writing didn't crash!" << endreq;
+  msg << MSG::DEBUG << "H2 writing didn't crash!" << endmsg;
   
   return;
 }

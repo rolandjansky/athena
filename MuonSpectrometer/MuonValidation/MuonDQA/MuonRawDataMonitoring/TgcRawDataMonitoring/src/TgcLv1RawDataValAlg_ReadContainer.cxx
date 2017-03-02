@@ -130,7 +130,7 @@ TgcLv1RawDataValAlg::clearVectorsArrays(){
 void 
 TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* tgc_coin_container, int pcn){
   std::string WS[2]={"wire","strip"};
-  if (m_debuglevel) m_log << MSG::DEBUG << "reading TgcCoinDataContainer into vectors" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "reading TgcCoinDataContainer into vectors" << endmsg;
 
   if(pcn!=TOTA){
     // PREV/CURR/NEXT timing
@@ -140,7 +140,7 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 	it!=it_end;
 	++it){
       if(it == it_end || (*it)->size()==0)continue;  //check if there are counts 
-      if(m_debuglevel) m_log << MSG::DEBUG << "size of tgc collection is " << (*it) -> size() << endreq;
+      if(m_debuglevel) m_log << MSG::DEBUG << "size of tgc collection is " << (*it) -> size() << endmsg;
 
       // Loop over Collection
       Muon::TgcCoinDataCollection::const_iterator itc_end=(*it)->end();
@@ -173,7 +173,7 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 	// Fill vectors for different Coincidence Types
 	if( tcd->type() == Muon::TgcCoinData::TYPE_TRACKLET ){
 	  // LpT triggers
-	  if (m_debuglevel)m_log << MSG::DEBUG << "Low_Pt" << WS[ws] << endreq;
+	  if (m_debuglevel)m_log << MSG::DEBUG << "Low_Pt" << WS[ws] << endmsg;
 
 	  // Do flags and counters
 	  m_hasLpTtrigger[ws][ac][etaout][phi48][pcn]=true;
@@ -195,7 +195,7 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 	}
 	else if( tcd->type() == Muon::TgcCoinData::TYPE_HIPT ){
 	  // HpT triggers
-	  if (m_debuglevel)m_log << MSG::DEBUG << "HighPt" << WS[ws] << endreq;
+	  if (m_debuglevel)m_log << MSG::DEBUG << "HighPt" << WS[ws] << endmsg;
 
 	  // Do flags and counters
 	  //m_hasHpTtrigger[ws][ac][etaout][phi48][pcn]=true;
@@ -219,7 +219,7 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 	}
 	else if( tcd->type() == Muon::TgcCoinData::TYPE_SL ){
 	  // SL triggers
-	  if (m_debuglevel)m_log << MSG::DEBUG << "SL" << endreq;
+	  if (m_debuglevel)m_log << MSG::DEBUG << "SL" << endmsg;
 
 	  // Do flags and counters
 	  if(m_earliestTrigger<0)m_earliestTrigger=pcn;
@@ -434,7 +434,7 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
   const xAOD::MuonRoIContainer* muonRoIs; 
   StatusCode sc = (*m_activeStore)->retrieve(muonRoIs, m_L1muonRoIName);
   if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::WARNING << " Cannot get LVL1 muon ROI " << endreq;
+    m_log << MSG::WARNING << " Cannot get LVL1 muon ROI " << endmsg;
     return sc ;
   }
   xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
@@ -469,7 +469,7 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
   const xAOD::EmTauRoIContainer* emtauRoIs; 
   sc = (*m_activeStore)->retrieve(emtauRoIs, m_L1emtauRoIName);
   if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::WARNING << " Cannot get LVL1 emtau ROI " << endreq;
+    m_log << MSG::WARNING << " Cannot get LVL1 emtau ROI " << endmsg;
     return sc ;
   }
   xAOD::EmTauRoIContainer::const_iterator em_it = emtauRoIs->begin(); 
@@ -487,7 +487,7 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
   const xAOD::JetRoIContainer* jetRoIs; 
   sc = (*m_activeStore)->retrieve(jetRoIs, m_L1jetRoIName);
   if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::WARNING << " Cannot get LVL1 jet ROI " << endreq;
+    m_log << MSG::WARNING << " Cannot get LVL1 jet ROI " << endmsg;
     return sc ;
   }
   xAOD::JetRoIContainer::const_iterator j_it = jetRoIs->begin(); 
@@ -505,7 +505,7 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
   //*  const xAOD::JetEtRoI* jetetRoIs; 
   //*  sc = (*m_activeStore)->retrieve(jetetRoIs);
   //*  if (sc != StatusCode::SUCCESS ) {
-  //*    m_log << MSG::WARNING << " Cannot get LVL1 jetet ROI " << endreq;
+  //*    m_log << MSG::WARNING << " Cannot get LVL1 jetet ROI " << endmsg;
   //*    return sc ;
   //*  }
   //*  m_L1TriggerType[3]++;
@@ -515,7 +515,7 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
   const xAOD::EnergySumRoI* esumRoIs; 
   sc = (*m_activeStore)->retrieve(esumRoIs);
   if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::WARNING << " Cannot get LVL1 jetet ROI " << endreq;
+    m_log << MSG::WARNING << " Cannot get LVL1 jetet ROI " << endmsg;
     return sc ;
   }
   m_L1TriggerType[3]++;
@@ -540,7 +540,7 @@ TgcLv1RawDataValAlg::readEventInfo(){
   // Get Event Info DataHandle
   const DataHandle<xAOD::EventInfo> event_handle;
   if((*m_activeStore)->retrieve(event_handle).isFailure()){
-    m_log << MSG::ERROR <<" Cannot retrieve EventInfo " <<endreq;
+    m_log << MSG::ERROR <<" Cannot retrieve EventInfo " <<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -572,7 +572,7 @@ TgcLv1RawDataValAlg::readEventInfo(){
     if( !(*m_activeStore)->contains<TrigOperationalInfoCollection>(key) ){
       continuesearch=false;
       if (errcnt < 1) {
-	m_log << MSG::INFO <<" Missing TrigOperationalInfoCollection: key= " << key <<endreq; 
+	m_log << MSG::INFO <<" Missing TrigOperationalInfoCollection: key= " << key <<endmsg; 
 	errcnt++;
       }
     }
@@ -583,7 +583,7 @@ TgcLv1RawDataValAlg::readEventInfo(){
       if( !(*m_activeStore)->retrieve<TrigOperationalInfoCollection>(opi,key).isSuccess() ){
 	continuesearch=false;
 	if (errcnt < 1) {
-	  m_log << MSG::INFO <<" Failed to retrieve TrigOperationalInfoCollection: key= " << key <<endreq;
+	  m_log << MSG::INFO <<" Failed to retrieve TrigOperationalInfoCollection: key= " << key <<endmsg;
 	  errcnt++;
 	}
       }

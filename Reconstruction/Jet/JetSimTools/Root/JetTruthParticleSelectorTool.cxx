@@ -326,17 +326,17 @@ JetTruthParticleSelectorTool::finalize()
 {
   if (m_listPDGofStables)
     {
-      msg(MSG::INFO) << "Counts of PDGs of all stable particles :" << endreq;
-      msg(MSG::INFO) << "========================================" << endreq;
-      msg(MSG::INFO) << "|    PDG    |  # particles  |" << endreq;
+      msg(MSG::INFO) << "Counts of PDGs of all stable particles :" << endmsg;
+      msg(MSG::INFO) << "========================================" << endmsg;
+      msg(MSG::INFO) << "|    PDG    |  # particles  |" << endmsg;
       for ( PDGList::iterator it = m_pdgList.begin(); it != m_pdgList.end(); it++ )
         {
           msg(MSG::INFO) << "|"
                          << std::setw(10) << it->first << " |"
                          << std::setw(10) << it->second << " |"
-                         << endreq;
+                         << endmsg;
         }
-      msg(MSG::INFO) << "|    PDG    |    <p>    |    rms    |    <pt>    |    rms    |    <eta>    |    rms    |" << endreq;
+      msg(MSG::INFO) << "|    PDG    |    <p>    |    rms    |    <pt>    |    rms    |    <eta>    |    rms    |" << endmsg;
       for ( PDGList::iterator it = m_pdgList.begin(); it != m_pdgList.end(); it++ )
         {
           int n=it->second;
@@ -357,9 +357,9 @@ JetTruthParticleSelectorTool::finalize()
                          << std::setw(15) << pt2 << " |"
                          << std::setw(15) << eta << " |"
                          << std::setw(15) << eta2 << " |"
-                         << endreq;
+                         << endmsg;
         }
-      msg(MSG::INFO) << "|    PDG    |   <phi>   |    rms    |     <m>     |     rms    |" << endreq;
+      msg(MSG::INFO) << "|    PDG    |   <phi>   |    rms    |     <m>     |     rms    |" << endmsg;
       for ( PDGList::iterator it = m_pdgList.begin(); it != m_pdgList.end(); it++ )
         {
           int n=it->second;
@@ -377,7 +377,7 @@ JetTruthParticleSelectorTool::finalize()
                          << std::setw(15) << phi2 << " |"
                          << std::setw(15) << m << " |"
                          << std::setw(15) << m2 << " |"
-                         << endreq;
+                         << endmsg;
         }
     }
   return StatusCode::SUCCESS;

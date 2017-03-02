@@ -40,7 +40,7 @@ StatusCode iFatras::ISF_PRD_AssociationTool::addPRDs( const Trk::Track& track )
   TrackPrepRawDataMap::const_iterator itvec = m_trackPrepRawDataMap.find(&track);
   if (itvec!=m_trackPrepRawDataMap.end())
     {
-      msg(MSG::ERROR)<<"track already found in cache, should not happen"<<endreq;
+      msg(MSG::ERROR)<<"track already found in cache, should not happen"<<endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -57,7 +57,7 @@ StatusCode iFatras::ISF_PRD_AssociationTool::addPRDs( const Trk::Track& track )
   m_trackPrepRawDataMap.insert( std::make_pair(&track, prds) );
      
   if (msgLvl(MSG::DEBUG)) msg()<<"Added PRDs from Track at ("<<&track<<") - map now has size: \t"
-			       <<m_prepRawDataTrackMap.size()<<endreq;
+			       <<m_prepRawDataTrackMap.size()<<endmsg;
   return StatusCode::SUCCESS;
 }
  
@@ -78,7 +78,7 @@ StatusCode iFatras::ISF_PRD_AssociationTool::removePRDs( const Trk::Track& track
   TrackPrepRawDataMap::iterator itvec = m_trackPrepRawDataMap.find(&track);
   if (itvec==m_trackPrepRawDataMap.end())
     {
-      msg(MSG::ERROR)<<"Track not found in cache, this should not happen"<<endreq;
+      msg(MSG::ERROR)<<"Track not found in cache, this should not happen"<<endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -112,7 +112,7 @@ StatusCode iFatras::ISF_PRD_AssociationTool::removePRDs( const Trk::Track& track
   
   if (msgLvl(MSG::DEBUG)) msg()<<"Removed  PRDs from track ("
 			       <<&track<<") \t- map has changed size from \t"
-			       <<oldSize <<" \tto "<<m_prepRawDataTrackMap.size()<<endreq;
+			       <<oldSize <<" \tto "<<m_prepRawDataTrackMap.size()<<endmsg;
   return StatusCode::SUCCESS;
 }
  
@@ -135,7 +135,7 @@ Trk::IPRD_AssociationTool::TrackSet iFatras::ISF_PRD_AssociationTool::findConnec
   connectedTracks.erase(&track);
   
   if (msgLvl(MSG::VERBOSE)) msg()<<"Added in connected tracks for track "<<&track
-				 << "\tsize of list is "<<connectedTracks.size()<<endreq;
+				 << "\tsize of list is "<<connectedTracks.size()<<endmsg;
   
   return connectedTracks;
 }
@@ -148,12 +148,12 @@ std::vector< const Trk::PrepRawData* > iFatras::ISF_PRD_AssociationTool::getPrds
    TrackPrepRawDataMap::const_iterator itvec = m_trackPrepRawDataMap.find(&track);
    if (itvec!=m_trackPrepRawDataMap.end())
    {
-     msg(MSG::VERBOSE)<<"found track in cache, return cached PRD vector for track"<<endreq;
+     msg(MSG::VERBOSE)<<"found track in cache, return cached PRD vector for track"<<endmsg;
      return itvec->second;
    }
  
    if (track.measurementsOnTrack()==0) {
-     msg(MSG::WARNING)<<"Track has no RoTs"<<endreq;
+     msg(MSG::WARNING)<<"Track has no RoTs"<<endmsg;
      return PRDs_t(); // return vector optimization
     }
  
@@ -173,7 +173,7 @@ std::vector< const Trk::PrepRawData* > iFatras::ISF_PRD_AssociationTool::getPrds
    }
    
    if (msgLvl(MSG::DEBUG)) msg()<<" Getting "<<vec.size()
-				<<" PRDs from track at:"<<&track<<endreq;
+				<<" PRDs from track at:"<<&track<<endmsg;
    return vec;
 }
  

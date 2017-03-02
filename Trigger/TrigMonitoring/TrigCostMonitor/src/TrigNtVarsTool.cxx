@@ -353,12 +353,12 @@ bool Trig::TrigNtVarsTool::CollectPU(TrigMonEvent& /*event*/)
  //  }
   
  //  log() << MSG::DEBUG 
-  // << "Number of minbias events  = " << nminbias        << endreq
-  // << "Number of cavern  events  = " << ncavern         << endreq
-  // << "Number of intime  events  = " << nevent_intime   << endreq
-  // << "Number of intime  signal  = " << nsignal_intime  << endreq
-  // << "Number of intime  minbias = " << nminbias_intime << endreq  
-  // << "Number of intime  cavern  = " << ncavern_intime  << endreq
+  // << "Number of minbias events  = " << nminbias        << endmsg
+  // << "Number of cavern  events  = " << ncavern         << endmsg
+  // << "Number of intime  events  = " << nevent_intime   << endmsg
+  // << "Number of intime  signal  = " << nsignal_intime  << endmsg
+  // << "Number of intime  minbias = " << nminbias_intime << endmsg  
+  // << "Number of intime  cavern  = " << ncavern_intime  << endmsg
   // << "Number of intime beamgas  = " << nbeamgas_intime );
 
  //  // Add event counts for all pileup events

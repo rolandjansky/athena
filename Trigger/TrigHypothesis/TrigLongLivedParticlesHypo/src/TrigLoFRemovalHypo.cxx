@@ -70,7 +70,7 @@ TrigLoFRemovalHypo::~TrigLoFRemovalHypo()
 HLT::ErrorCode TrigLoFRemovalHypo::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   
   m_accepted=0;
@@ -85,8 +85,8 @@ HLT::ErrorCode TrigLoFRemovalHypo::hltInitialize()
 HLT::ErrorCode TrigLoFRemovalHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
   return HLT::OK;
 
 }
@@ -99,7 +99,7 @@ HLT::ErrorCode TrigLoFRemovalHypo::hltExecute(const HLT::TriggerElement* outputT
 
 
   if(msgLvl() <= MSG::DEBUG) {
-     msg() << MSG::DEBUG << " in hltExecute() " << endreq;
+     msg() << MSG::DEBUG << " in hltExecute() " << endmsg;
   }
   m_cutCounter = -1;
 
@@ -109,12 +109,12 @@ HLT::ErrorCode TrigLoFRemovalHypo::hltExecute(const HLT::TriggerElement* outputT
   std::string cellCollKey  = "TrigCaloCellLoF";
   const CaloCellContainer* theLoFCellCont = 0;
   if( HLT::ErrorCode ec = getFeature(outputTE, theLoFCellCont, cellCollKey) != HLT::OK) {
-    msg() << MSG::WARNING << "Failed to get TrigLoFCells" << endreq;
+    msg() << MSG::WARNING << "Failed to get TrigLoFCells" << endmsg;
     return HLT::OK;
   }
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " Retrieved a Cell Container of Size= " << theLoFCellCont->size() << endreq;
+    msg() << MSG::DEBUG << " Retrieved a Cell Container of Size= " << theLoFCellCont->size() << endmsg;
   }
 
   //Use this to accept or reject events. 
@@ -132,10 +132,10 @@ HLT::ErrorCode TrigLoFRemovalHypo::hltExecute(const HLT::TriggerElement* outputT
   if(m_acceptAll || !this_event_is_a_LoF_event) {
     pass = true;
     m_accepted++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Not LoF event: accepted!" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Not LoF event: accepted!" << endmsg;
 
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " LoF event: rejected!!" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " LoF event: rejected!!" << endmsg;
     m_rejected++;
     m_cutCounter=1;
   }

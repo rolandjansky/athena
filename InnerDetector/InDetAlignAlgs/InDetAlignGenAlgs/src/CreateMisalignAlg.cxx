@@ -114,51 +114,51 @@ namespace InDetAlignment
 	// Destructor
 	CreateMisalignAlg::~CreateMisalignAlg(void)
 	{
-		if (msgLvl(MSG::DEBUG)) msg() << "CreateMisalignAlg destructor called" << endreq;
+		if (msgLvl(MSG::DEBUG)) msg() << "CreateMisalignAlg destructor called" << endmsg;
 	}
 	
 	//__________________________________________________________________________
 	StatusCode CreateMisalignAlg::initialize()
 	{
 
-		if (msgLvl(MSG::DEBUG)) msg() <<"CreateMisalignAlg initialize()" << endreq;
+		if (msgLvl(MSG::DEBUG)) msg() <<"CreateMisalignAlg initialize()" << endmsg;
 		
 
 		if (m_IDAlignDBTool.retrieve().isFailure()) {
 			msg(MSG::FATAL) << "Can not retrieve InDetAlignDBTool "
-			<< m_IDAlignDBTool << endreq;
+			<< m_IDAlignDBTool << endmsg;
 			return StatusCode::FAILURE;
-		} else msg(MSG::INFO) << "Retrieved InDetAlignDBTool " << m_IDAlignDBTool << endreq;
+		} else msg(MSG::INFO) << "Retrieved InDetAlignDBTool " << m_IDAlignDBTool << endmsg;
 		
 
 		if (m_trtaligndbservice.retrieve().isFailure()) {
 			msg(MSG::FATAL) << "Can not retrieve TRTAlignDbService "
-			<< m_trtaligndbservice << endreq;
+			<< m_trtaligndbservice << endmsg;
 			return StatusCode::FAILURE;
-		} else msg(MSG::INFO) << "Retrieved TRTAlignDbService " << m_trtaligndbservice << endreq;
+		} else msg(MSG::INFO) << "Retrieved TRTAlignDbService " << m_trtaligndbservice << endmsg;
 		
 
 		//ID helper
 		// Pixel
 		if (detStore()->retrieve(m_pixelIdHelper, "PixelID").isFailure()) {
-			msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+			msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
 			return StatusCode::FAILURE;
 		}
 		
 		// SCT
 		if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure()) {
-			msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+			msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
 			return StatusCode::FAILURE;
 		}
 		
 		// TRT
 		if (detStore()->retrieve(m_trtIdHelper, "TRT_ID").isFailure()) {
-			msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+			msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
 			return StatusCode::FAILURE;
 		}
 		
 		if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-			msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+			msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
 			return StatusCode::FAILURE;
 		}
 		
@@ -167,17 +167,17 @@ namespace InDetAlignment
 		//pixel and SCT  TRT manager
 		sc = detStore()->retrieve(m_pixelManager, "Pixel");
 		if (sc.isFailure()) {
-			msg(MSG::ERROR) << "Could not get PixelManager !" << endreq;
+			msg(MSG::ERROR) << "Could not get PixelManager !" << endmsg;
 			return sc;
 		}
 		sc = detStore()->retrieve(m_SCT_Manager, "SCT");
 		if (sc.isFailure()) {
-			msg(MSG::ERROR) << "Could not get SCT_Manager !" << endreq;
+			msg(MSG::ERROR) << "Could not get SCT_Manager !" << endmsg;
 			return sc;
 		}
 		sc = detStore()->retrieve(m_TRT_Manager, "TRT");
 		if (sc.isFailure()) {
-			msg(MSG::ERROR) << "Could not get TRT_Manager !" << endreq;
+			msg(MSG::ERROR) << "Could not get TRT_Manager !" << endmsg;
 			return sc;
 		}
 		
@@ -186,7 +186,7 @@ namespace InDetAlignment
 		ITHistSvc* hist_svc;
 		sc=service("THistSvc",hist_svc);
 		if (sc.isFailure()) {
-			msg(MSG::ERROR) << "Could not find HistService" << endreq;
+			msg(MSG::ERROR) << "Could not find HistService" << endmsg;
 			return sc;
 		}
 		
@@ -196,7 +196,7 @@ namespace InDetAlignment
 		//sc = hist_svc->regTree("/TTree/VisualizationLookup/IdentifierTree", m_VisualizationLookupTree);
 		sc = hist_svc->regTree("/IDENTIFIERTREE/IdentifierTree", m_VisualizationLookupTree);
 		if (sc.isFailure()) {
-			msg(MSG::ERROR) << "Unable to register TTree : " << "/TTree/VisualizationLookup/IdentifierTree" << endreq;
+			msg(MSG::ERROR) << "Unable to register TTree : " << "/TTree/VisualizationLookup/IdentifierTree" << endmsg;
 			return sc;
 		}
 		
@@ -212,7 +212,7 @@ namespace InDetAlignment
 		if ( !nt ) {       // Check if already booked
 			nt = ntupleSvc()->book("/NTUPLES/CREATEMISALIGN/InitialAlignment", CLID_ColumnWiseTuple, "InitialAlignment");
 			if ( nt ) {
-				msg(MSG::INFO) << "InitialAlignment ntuple booked." << endreq;
+				msg(MSG::INFO) << "InitialAlignment ntuple booked." << endmsg;
 				
 				ATH_CHECK( nt->addItem("x"         ,m_AlignResults_x) );
 				ATH_CHECK(  nt->addItem("y"         ,m_AlignResults_y) );
@@ -232,28 +232,28 @@ namespace InDetAlignment
                                 ATH_CHECK(  nt->addItem("center_z"         ,m_AlignResults_center_z) );
 				
 				if (sc.isFailure()) {
-				  msg(MSG::ERROR) << "Problems creating InitialAlignment ntuple structure !" << endreq;
+				  msg(MSG::ERROR) << "Problems creating InitialAlignment ntuple structure !" << endmsg;
 				  return sc;
 				}
 			} else {  // did not manage to book the N tuple....
-				msg(MSG::ERROR) << "Failed to book InitialAlignment ntuple." << endreq;
+				msg(MSG::ERROR) << "Failed to book InitialAlignment ntuple." << endmsg;
 			}
 		}
 		
 		if (m_MisalignmentMode) {
-			msg(MSG::INFO) << "Misalignment mode chosen: " << m_MisalignmentMode << endreq;
+			msg(MSG::INFO) << "Misalignment mode chosen: " << m_MisalignmentMode << endmsg;
 			if (m_MisalignmentMode == 1) {
-				msg(MSG::INFO) << "MisalignmentX     : " << m_Misalign_x / CLHEP::micrometer << " micrometer" << endreq;
-				msg(MSG::INFO) << "MisalignmentY     : " << m_Misalign_y / CLHEP::micrometer << " micrometer" << endreq;
-				msg(MSG::INFO) << "MisalignmentZ     : " << m_Misalign_z / CLHEP::micrometer << " micrometer" << endreq;
-				msg(MSG::INFO) << "MisalignmentAlpha : " << m_Misalign_alpha / CLHEP::mrad << " mrad" << endreq;
-				msg(MSG::INFO) << "MisalignmentBeta  : " << m_Misalign_beta / CLHEP::mrad << " mrad" << endreq;
-				msg(MSG::INFO) << "MisalignmentGamma : " << m_Misalign_gamma / CLHEP::mrad << " mrad" << endreq;
+				msg(MSG::INFO) << "MisalignmentX     : " << m_Misalign_x / CLHEP::micrometer << " micrometer" << endmsg;
+				msg(MSG::INFO) << "MisalignmentY     : " << m_Misalign_y / CLHEP::micrometer << " micrometer" << endmsg;
+				msg(MSG::INFO) << "MisalignmentZ     : " << m_Misalign_z / CLHEP::micrometer << " micrometer" << endmsg;
+				msg(MSG::INFO) << "MisalignmentAlpha : " << m_Misalign_alpha / CLHEP::mrad << " mrad" << endmsg;
+				msg(MSG::INFO) << "MisalignmentBeta  : " << m_Misalign_beta / CLHEP::mrad << " mrad" << endmsg;
+				msg(MSG::INFO) << "MisalignmentGamma : " << m_Misalign_gamma / CLHEP::mrad << " mrad" << endmsg;
 			} else {
-				msg(MSG::INFO) << "with maximum shift of " << m_Misalign_maxShift / CLHEP::micrometer << " micrometer" <<endreq;
+				msg(MSG::INFO) << "with maximum shift of " << m_Misalign_maxShift / CLHEP::micrometer << " micrometer" <<endmsg;
 			}
 		} else {
-			msg(MSG::INFO) << "Dry run, no misalignment will be generated." << endreq;
+			msg(MSG::INFO) << "Dry run, no misalignment will be generated." << endmsg;
 		}
 		
 		return sc;
@@ -287,7 +287,7 @@ namespace InDetAlignment
 			ATH_MSG_INFO( m_ModuleList.size() << " entries in identifier list" );
 			
 			if (StatusCode::SUCCESS!=GenerateMisaligment()) {
-                          msg(MSG::ERROR) << "GenerateMisalignment failed!" << endreq;
+                          msg(MSG::ERROR) << "GenerateMisalignment failed!" << endmsg;
 			  return StatusCode::FAILURE;
 			};
 			
@@ -300,7 +300,7 @@ namespace InDetAlignment
 	//__________________________________________________________________________
 	StatusCode CreateMisalignAlg::finalize()
 	{
-		if (msgLvl(MSG::DEBUG)) msg() <<"CreateMisalignAlg finalize()" << endreq;
+		if (msgLvl(MSG::DEBUG)) msg() <<"CreateMisalignAlg finalize()" << endmsg;
 		
 		m_ModuleList.clear();
 		
@@ -322,7 +322,7 @@ namespace InDetAlignment
 				m_ModuleList[SCT_ModuleID][1] = module->center()[1];
 				m_ModuleList[SCT_ModuleID][2] = module->center()[2];
 				++nSCT;
-				msg(MSG::INFO) << "SCT module " << nSCT << endreq;
+				msg(MSG::INFO) << "SCT module " << nSCT << endmsg;
 			}
 			
 			if (m_sctIdHelper->side((*iter)->identify()) == 0) { // inner side case
@@ -336,24 +336,24 @@ namespace InDetAlignment
 					m_HumanReadableID = m_sctIdHelper->barrel_ec(SCT_ModuleID)*(m_HumanReadableID + 10000000);
 				}
 				
-				msg(MSG::INFO) << "Human Readable ID: " << m_HumanReadableID << endreq;
+				msg(MSG::INFO) << "Human Readable ID: " << m_HumanReadableID << endmsg;
 				
 				m_VisualizationLookupTree->Fill();
 				
 				// Syntax is (ID, Level) where Level is from 1 to 3 (3 is single module level)
 				if (msgLvl(MSG::INFO)) {
           HepGeom::Transform3D InitialAlignment = Amg::EigenTransformToCLHEP(m_IDAlignDBTool->getTrans(SCT_ModuleID,3));
-					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(SCT_ModuleID,0,'/') << endreq;
-					msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endreq;
-					msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endreq;
-					msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endreq;
-					msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endreq;
-					msg() << endreq;
+					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(SCT_ModuleID,0,'/') << endmsg;
+					msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endmsg;
+					msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endmsg;
+					msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endmsg;
+					msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endmsg;
+					msg() << endmsg;
 				}
 			} // end inner side case
 		} //end loop over SCT elements
@@ -377,7 +377,7 @@ namespace InDetAlignment
 					m_ModuleList[Pixel_ModuleID][2] = module->center()[2];
 					
 					++nPixel;
-					msg(MSG::INFO) << "Pixel module " << nPixel << endreq;
+					msg(MSG::INFO) << "Pixel module " << nPixel << endmsg;
 					
 					// Write out Visualization Lookup Tree
 					m_AthenaHashedID = Pixel_ModuleID.get_identifier32().get_compact();
@@ -389,27 +389,27 @@ namespace InDetAlignment
 						m_HumanReadableID = m_pixelIdHelper->barrel_ec(Pixel_ModuleID)*(m_HumanReadableID + 10000000);
 					}
 					
-					msg(MSG::INFO) << "Human Readable ID: " << m_HumanReadableID << endreq;
+					msg(MSG::INFO) << "Human Readable ID: " << m_HumanReadableID << endmsg;
 					
 					m_VisualizationLookupTree->Fill();
 					
 					if (msgLvl(MSG::INFO)) {
             HepGeom::Transform3D InitialAlignment = Amg::EigenTransformToCLHEP(m_IDAlignDBTool->getTrans(Pixel_ModuleID,3));
-						msg() << "Initial Alignment of module " << m_idHelper->show_to_string(Pixel_ModuleID,0,'/') << endreq;
-						msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endreq;
-						msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endreq;
-						msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endreq;
-						msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endreq;
-						msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endreq;
-						msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endreq;
-						msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endreq;
-						msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endreq;
-						msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endreq;
-						msg() << endreq;
+						msg() << "Initial Alignment of module " << m_idHelper->show_to_string(Pixel_ModuleID,0,'/') << endmsg;
+						msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endmsg;
+						msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endmsg;
+						msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endmsg;
+						msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endmsg;
+						msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endmsg;
+						msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endmsg;
+						msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endmsg;
+						msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endmsg;
+						msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endmsg;
+						msg() << endmsg;
 					}
 				}
 			} else {
-				msg(MSG::INFO) << "not a valid PIXEL Module ID (setup)" <<  endreq;
+				msg(MSG::INFO) << "not a valid PIXEL Module ID (setup)" <<  endmsg;
 			}
 		}
 	}
@@ -435,8 +435,8 @@ namespace InDetAlignment
 			
 			//          HepGeom::Point3D<double> module_center = (*iter)->center();
 			//          HepGeom::Point3D<double> module_center_reduced = m_TRT_Manager->getElement(TRTID)->center();
-			//                   msg(MSG::DEBUG) << "center of module: " << module_center.rho()/CLHEP::cm << ";" << module_center.phi() << ";" << module_center.z()/CLHEP::cm << endreq;
-			//                   msg(MSG::DEBUG) << "center of reduced module: " << module_center_reduced.rho()/CLHEP::cm << ";" << module_center_reduced.phi() << ";" << module_center_reduced.z()/CLHEP::cm << endreq;
+			//                   msg(MSG::DEBUG) << "center of module: " << module_center.rho()/CLHEP::cm << ";" << module_center.phi() << ";" << module_center.z()/CLHEP::cm << endmsg;
+			//                   msg(MSG::DEBUG) << "center of reduced module: " << module_center_reduced.rho()/CLHEP::cm << ";" << module_center_reduced.phi() << ";" << module_center_reduced.z()/CLHEP::cm << endmsg;
 			
 			unsigned int nStraws = (*iter)->nStraws();
 			for (unsigned int l = 0; l<nStraws; l++) {
@@ -446,11 +446,11 @@ namespace InDetAlignment
 				trtModulesWithCOG[TRTID].at(2) += strawcenter.z(); /*sumz*/
 				trtModulesWithCOG[TRTID].at(3) += 1.;              /*nStraws*/
 				
-				//if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "center of straw " << l << ": " << strawcenter.rho()/CLHEP::cm << ";" << strawcenter.phi() << ";" << strawcenter.z()/CLHEP::cm << endreq;
+				//if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "center of straw " << l << ": " << strawcenter.rho()/CLHEP::cm << ";" << strawcenter.phi() << ";" << strawcenter.z()/CLHEP::cm << endmsg;
 			}
 			if (msgLvl(MSG::DEBUG)) {
-				msg() << "this strawlayer has " << nStraws << " straws." << endreq;
-				msg() << "strawcount of this module: " << trtModulesWithCOG[TRTID].at(3) << endreq;
+				msg() << "this strawlayer has " << nStraws << " straws." << endmsg;
+				msg() << "strawcount of this module: " << trtModulesWithCOG[TRTID].at(3) << endmsg;
 			}
 		}
 		
@@ -460,7 +460,7 @@ namespace InDetAlignment
 			const Identifier TRTID = iter2->first;
 			double nStraws = iter2->second.at(3);
 			nTRT++;
-			msg(MSG::INFO) << "TRT module " << nTRT << endreq;
+			msg(MSG::INFO) << "TRT module " << nTRT << endmsg;
 			m_ModuleList[TRTID] = HepGeom::Point3D<double>(iter2->second.at(0)/nStraws, iter2->second.at(1)/nStraws,iter2->second.at(2)/nStraws);
 			
 			HepGeom::Transform3D InitialAlignment ;
@@ -470,22 +470,22 @@ namespace InDetAlignment
 			if ( p ) {
 				if (msgLvl(MSG::INFO)) {
   				InitialAlignment = Amg::EigenTransformToCLHEP(*p) ;
-					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(TRTID,0,'/') << endreq;
-					msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endreq;
-					msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endreq;
-					msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endreq;
-					msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endreq;
-					msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endreq;
-					msg() << endreq;
+					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(TRTID,0,'/') << endmsg;
+					msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endmsg;
+					msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endmsg;
+					msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endmsg;
+					msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endmsg;
+					msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endmsg;
+					msg() << endmsg;
 				}
 			} else {
 				if (msgLvl(MSG::INFO)) {
-					msg()<<"No initial alignment for TRT module " << m_idHelper->show_to_string(TRTID,0,'/') << endreq;
-					//                 msg()<<"Let's set the initial alignment for this module ..."<<endreq;
+					msg()<<"No initial alignment for TRT module " << m_idHelper->show_to_string(TRTID,0,'/') << endmsg;
+					//                 msg()<<"Let's set the initial alignment for this module ..."<<endmsg;
 				}
 				//Align the individual modules
 				// //             m_trtaligndbservice->setLvl1Align(TRTID,InitialAlignment) ;
@@ -502,7 +502,7 @@ namespace InDetAlignment
 
 		IRndmGenSvc* randsvc;
 		if (StatusCode::SUCCESS!=service("RndmGenSvc",randsvc,true)) {
-			msg(MSG::WARNING) << "Cannot find RndmGenSvc" << endreq;
+			msg(MSG::WARNING) << "Cannot find RndmGenSvc" << endmsg;
 		}
 		else {
                   ATH_MSG_DEBUG( "Got RndmGenSvc" );
@@ -544,8 +544,8 @@ namespace InDetAlignment
 		const double maxAngleInner = 2 * asin ( m_Misalign_maxShift_Inner / (2*minRadius));
 		const double maxDeltaZ = m_Misalign_maxShift;
 		if (msgLvl(MSG::DEBUG)) {
-			msg() << "maximum deltaPhi              = " << maxAngle/CLHEP::mrad << " mrad" << endreq;
-			msg() << "maximum deltaPhi for 1/r term = " << maxAngleInner/CLHEP::mrad << " mrad" << endreq;
+			msg() << "maximum deltaPhi              = " << maxAngle/CLHEP::mrad << " mrad" << endmsg;
+			msg() << "maximum deltaPhi for 1/r term = " << maxAngleInner/CLHEP::mrad << " mrad" << endmsg;
 		}
 		
 		for (std::map<Identifier, HepGeom::Point3D<double> >::const_iterator iter = m_ModuleList.begin(); iter != m_ModuleList.end(); ++iter) {
@@ -565,7 +565,7 @@ namespace InDetAlignment
 				//module = m_TRT_Manager->getElement(ModuleID);
 				//const InDetDD::TRT_BaseElement *p_TRT_Module = m_TRT_Manager->getElement(iter->second.moduleID());
 			} else {
-				msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endreq;
+				msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endmsg;
 			}
 			
 			//TRT alignment transformations are given in global frame in DB,
@@ -624,23 +624,23 @@ namespace InDetAlignment
                               ScaleFactor=m_ScaleTRTEndcap;
                             }
                           } else {
-                          msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endreq;
+                          msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endmsg;
                         }
 
 
 
 			ATH_MSG_INFO(  "ID Module " << i << " with ID " << m_idHelper->show_to_string(ModuleID,0,'/') );
 			if (msgLvl(MSG::DEBUG)) {
-				msg() << "radius "  << r / CLHEP::cm << " centimeter" << endreq;
-				msg() << "phi "  << phi << endreq;
-				msg() << "z "  << z / CLHEP::cm << " centimeter" << endreq;
+				msg() << "radius "  << r / CLHEP::cm << " centimeter" << endmsg;
+				msg() << "phi "  << phi << endmsg;
+				msg() << "z "  << z / CLHEP::cm << " centimeter" << endmsg;
 				if (msgLvl(MSG::VERBOSE)) {
-					msg() << "localToGlobal transformation:" << endreq;
-					msg() << "translation: "  << localToGlobal.dx() / CLHEP::cm << ";" << localToGlobal.dy() / CLHEP::cm << ";" << localToGlobal.dz() / CLHEP::cm << endreq;
-					msg() << "rotation: "  << endreq;
-					msg() << localToGlobal.xx() << " " << localToGlobal.xy() << " " << localToGlobal.xz() << endreq;
-					msg() << localToGlobal.yx() << " " << localToGlobal.yy() << " " << localToGlobal.yz() << endreq;
-					msg() << localToGlobal.zx() << " " << localToGlobal.zy() << " " << localToGlobal.zz() << endreq;
+					msg() << "localToGlobal transformation:" << endmsg;
+					msg() << "translation: "  << localToGlobal.dx() / CLHEP::cm << ";" << localToGlobal.dy() / CLHEP::cm << ";" << localToGlobal.dz() / CLHEP::cm << endmsg;
+					msg() << "rotation: "  << endmsg;
+					msg() << localToGlobal.xx() << " " << localToGlobal.xy() << " " << localToGlobal.xz() << endmsg;
+					msg() << localToGlobal.yx() << " " << localToGlobal.yy() << " " << localToGlobal.yz() << endmsg;
+					msg() << localToGlobal.zx() << " " << localToGlobal.zy() << " " << localToGlobal.zz() << endmsg;
 				}
 			}
 			
@@ -696,13 +696,13 @@ namespace InDetAlignment
 				Rndm::Numbers RandMisgamma(randsvc, Rndm::Gauss(0.,ScaleFactor*m_Misalign_gamma));
 				
 				if (msgLvl(MSG::DEBUG)) {
-					msg() << "JRS ScaleFactor: " << ScaleFactor << endreq;
-					msg() << "JRS X: " <<   RandMisX() << endreq;
-					msg() << "JRS Y: " <<   RandMisY() << endreq;
-					msg() << "JRS Z: " <<   RandMisZ() << endreq;
-					msg() << "JRS a: " <<   RandMisalpha() << endreq;
-					msg() << "JRS b: " <<   RandMisbeta() << endreq;
-					msg() << "JRS c: " <<   RandMisgamma() << endreq;
+					msg() << "JRS ScaleFactor: " << ScaleFactor << endmsg;
+					msg() << "JRS X: " <<   RandMisX() << endmsg;
+					msg() << "JRS Y: " <<   RandMisY() << endmsg;
+					msg() << "JRS Z: " <<   RandMisZ() << endmsg;
+					msg() << "JRS a: " <<   RandMisalpha() << endmsg;
+					msg() << "JRS b: " <<   RandMisbeta() << endmsg;
+					msg() << "JRS c: " <<   RandMisgamma() << endmsg;
 				}
 				
 				HepGeom::Vector3D<double> shift(RandMisX(), RandMisY(), RandMisZ());
@@ -729,10 +729,10 @@ namespace InDetAlignment
                           } else {
                             //IBL-stave temperature distortion not applied to anything but IBL                             
                             deltaX = 0.;
-                            if (msgLvl(MSG::DEBUG)) msg() << "will not move this module for IBL temp distortion " << endreq;
+                            if (msgLvl(MSG::DEBUG)) msg() << "will not move this module for IBL temp distortion " << endmsg;
                           }
 
-                          if (msgLvl(MSG::DEBUG)) msg() << "deltaX for this module: "  << deltaX/CLHEP::micrometer << " um" << endreq;
+                          if (msgLvl(MSG::DEBUG)) msg() << "deltaX for this module: "  << deltaX/CLHEP::micrometer << " um" << endmsg;
                           parameterizedTrafo = HepGeom::Translate3D(deltaX,0,0); // translation in x direction                                          
                         }
 			
@@ -745,7 +745,7 @@ namespace InDetAlignment
 						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
 							//radial mode cannot handle TRT endcap, sorry
 							deltaR = 0.;
-							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for radial distortion " << endreq;
+							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for radial distortion " << endmsg;
 						} else {
 							//deltaR = 0.5 * cos ( 2*phi ) * r/maxRadius * maxDeltaR;
 							deltaR = r/maxRadius * maxDeltaR; //scale linearly in r
@@ -755,7 +755,7 @@ namespace InDetAlignment
 						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
 							//elliptical mode cannot handle TRT endcap, sorry
 							deltaR = 0.;
-							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for elliptical distortion " << endreq;
+							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for elliptical distortion " << endmsg;
 						} else {
 							// deltaR = 0.5 * cos ( 2*phi ) * r/maxRadius * maxDeltaR;
 							deltaR = cos ( 2*phi ) * r/maxRadius * maxDeltaR;
@@ -765,17 +765,17 @@ namespace InDetAlignment
 						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
 							//funnel mode cannot handle TRT endcap, sorry
 							deltaR = 0.;
-							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for funnel distortion " << endreq;
+							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for funnel distortion " << endmsg;
 						} else {
 							//deltaR = z/maxLength * maxDeltaR; // linearly in z
 							deltaR = 2. * z/maxLength * maxDeltaR; // linearly in z
 						}
 					} else {
-						msg(MSG::WARNING) << "Wrong misalignment mode entered, doing nothing." << endreq;
+						msg(MSG::WARNING) << "Wrong misalignment mode entered, doing nothing." << endmsg;
 						deltaR=0;
 					}
 					
-					if (msgLvl(MSG::DEBUG)) msg() << "deltaR for this module: "  << deltaR / CLHEP::micrometer << " um" << endreq;
+					if (msgLvl(MSG::DEBUG)) msg() << "deltaR for this module: "  << deltaR / CLHEP::micrometer << " um" << endmsg;
 					parameterizedTrafo = HepGeom::Translate3D(deltaR*cos(phi),deltaR * sin(phi),0.); // translation along R vector
 				}
 				
@@ -795,7 +795,7 @@ namespace InDetAlignment
 						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
 							//clamshell mode cannot handle TRT endcap, sorry
 							deltaPhi = 0.;
-							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for clamshell distortion " << endreq;
+							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for clamshell distortion " << endmsg;
 						} else {
 							//                        deltaPhi = 0.5 * cos ( 2*phi ) * maxAngle;
 							deltaPhi =  cos ( 2*phi ) * maxAngle;
@@ -805,11 +805,11 @@ namespace InDetAlignment
 						deltaPhi = 2*z/maxLength * maxAngle;
 						//deltaPhi = z/maxLength * maxAngle;
 					} else {
-						msg(MSG::WARNING) << "Wrong misalignment mode entered, doing nothing." << endreq;
+						msg(MSG::WARNING) << "Wrong misalignment mode entered, doing nothing." << endmsg;
 						deltaPhi=0;
 					}
 					
-					if (msgLvl(MSG::DEBUG)) msg() << "deltaPhi for this module: "  << deltaPhi/CLHEP::mrad << " mrad" << endreq;
+					if (msgLvl(MSG::DEBUG)) msg() << "deltaPhi for this module: "  << deltaPhi/CLHEP::mrad << " mrad" << endmsg;
 					parameterizedTrafo = HepGeom::RotateZ3D(deltaPhi); // rotation around z axis => in phi
 				}
 				
@@ -827,7 +827,7 @@ namespace InDetAlignment
 						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
 							//clamshell mode cannot handle TRT endcap, sorry
 							deltaZ = 0.;
-							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for skew distortion " << endreq;
+							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for skew distortion " << endmsg;
 						} else {
 							
 							deltaZ =  cos ( 2*phi ) * maxDeltaZ;
@@ -837,17 +837,17 @@ namespace InDetAlignment
 						//                  deltaZ = z/maxLength * maxDeltaZ;
 						deltaZ = 2. * z/maxLength * maxDeltaZ;
 					} else {
-						msg(MSG::WARNING) << "Wrong misalignment mode entered, doing nothing." << endreq;
+						msg(MSG::WARNING) << "Wrong misalignment mode entered, doing nothing." << endmsg;
 						deltaZ=0;
 					}
 					
-					if (msgLvl(MSG::DEBUG)) msg() << "deltaZ for this module: "  << deltaZ/CLHEP::micrometer << " um" << endreq;
+					if (msgLvl(MSG::DEBUG)) msg() << "deltaZ for this module: "  << deltaZ/CLHEP::micrometer << " um" << endmsg;
 					parameterizedTrafo = HepGeom::Translate3D(0,0,deltaZ); // translation in z direction
 				}
 				
 				else {
 					//no or wrong misalignment selected
-					msg(MSG::WARNING) << "Wrong misalignment mode entered, doing nothing." << endreq;
+					msg(MSG::WARNING) << "Wrong misalignment mode entered, doing nothing." << endmsg;
 					
 					parameterizedTrafo = HepGeom::Transform3D(); // initialized as identity transformation
 				}
@@ -855,7 +855,7 @@ namespace InDetAlignment
 			
 			if ( m_MisalignmentMode==21 && m_idHelper->is_trt(ModuleID) && m_trtIdHelper->is_barrel(ModuleID) ) {
 				//curl for TRT barrel
-				if (msgLvl(MSG::DEBUG)) msg() << "additional rotation for TRT barrel module!" << endreq;
+				if (msgLvl(MSG::DEBUG)) msg() << "additional rotation for TRT barrel module!" << endmsg;
 				HepGeom::Transform3D realLocalToGlobalTRT = HepGeom::Translate3D(center.x(),center.y(),center.z());
 				//rotate a TRT barrel module by the same angle again, but around its local z axis
 				//this is an approximation to accomodate the impossible curling of TRT segments
@@ -864,7 +864,7 @@ namespace InDetAlignment
 				//do the twist! (for TRT barrel)
 				HepGeom::Transform3D realLocalToGlobalTRT = HepGeom::Translate3D(center.x(),center.y(),center.z());
 				double deltaAlpha = (-2.) * r * maxAngle/maxLength;
-				if (msgLvl(MSG::DEBUG)) msg() << "TRT barrel module alpha for twist: "  << deltaAlpha/CLHEP::mrad << " mrad" << endreq;
+				if (msgLvl(MSG::DEBUG)) msg() << "TRT barrel module alpha for twist: "  << deltaAlpha/CLHEP::mrad << " mrad" << endmsg;
 				
 				CLHEP::HepRotation twistForTRTRotation(HepGeom::Vector3D<double>(center.x(),center.y(),center.z()), deltaAlpha );
 				HepGeom::Transform3D twistForTRT= HepGeom::Transform3D(twistForTRTRotation,HepGeom::Vector3D<double>(0.,0.,0.));
@@ -876,7 +876,7 @@ namespace InDetAlignment
 				HepGeom::Transform3D realLocalToGlobalTRT = HepGeom::Translate3D(center.x(),center.y(),center.z());
 				double deltaAlpha = (-2.) * maxDeltaR/maxLength;
 				//double deltaAlpha = maxDeltaR/maxLength;
-				if (msgLvl(MSG::DEBUG)) msg() << "TRT barrel module alpha for funnel: "  << deltaAlpha/CLHEP::mrad << " mrad" << endreq;
+				if (msgLvl(MSG::DEBUG)) msg() << "TRT barrel module alpha for funnel: "  << deltaAlpha/CLHEP::mrad << " mrad" << endmsg;
 				
 				HepGeom::Vector3D<double> normalVector(center.x(),center.y(),center.z());
 				HepGeom::Vector3D<double> beamVector(0.,0.,1.);
@@ -898,15 +898,15 @@ namespace InDetAlignment
 			}
 			
 			if (msgLvl(MSG::INFO)) {
-				msg() << "Align Transformation x = ("  << alignmentTrafo.getTranslation().x() / CLHEP::micrometer << " um)" << endreq;
-				msg() << "Align Transformation y = ("  << alignmentTrafo.getTranslation().y() / CLHEP::micrometer << " um)" << endreq;
-				msg() << "Align Transformation z = ("  << alignmentTrafo.getTranslation().z() / CLHEP::micrometer << " um)" << endreq;
-				msg() << "Align Transformation x phi   = ("  << alignmentTrafo.getRotation().phiX() / CLHEP::deg << ")" << endreq;
-				msg() << "Align Transformation x Theta = ("  << alignmentTrafo.getRotation().thetaX() / CLHEP::deg << ")" << endreq;
-				msg() << "Align Transformation y phi   = ("  << alignmentTrafo.getRotation().phiY() / CLHEP::deg << ")" << endreq;
-				msg() << "Align Transformation y Theta = ("  << alignmentTrafo.getRotation().thetaY() / CLHEP::deg << ")" << endreq;
-				msg() << "Align Transformation z phi   = ("  << alignmentTrafo.getRotation().phiZ() / CLHEP::deg << ")" << endreq;
-				msg() << "Align Transformation z Theta = ("  << alignmentTrafo.getRotation().thetaZ() / CLHEP::deg << ")" << endreq;
+				msg() << "Align Transformation x = ("  << alignmentTrafo.getTranslation().x() / CLHEP::micrometer << " um)" << endmsg;
+				msg() << "Align Transformation y = ("  << alignmentTrafo.getTranslation().y() / CLHEP::micrometer << " um)" << endmsg;
+				msg() << "Align Transformation z = ("  << alignmentTrafo.getTranslation().z() / CLHEP::micrometer << " um)" << endmsg;
+				msg() << "Align Transformation x phi   = ("  << alignmentTrafo.getRotation().phiX() / CLHEP::deg << ")" << endmsg;
+				msg() << "Align Transformation x Theta = ("  << alignmentTrafo.getRotation().thetaX() / CLHEP::deg << ")" << endmsg;
+				msg() << "Align Transformation y phi   = ("  << alignmentTrafo.getRotation().phiY() / CLHEP::deg << ")" << endmsg;
+				msg() << "Align Transformation y Theta = ("  << alignmentTrafo.getRotation().thetaY() / CLHEP::deg << ")" << endmsg;
+				msg() << "Align Transformation z phi   = ("  << alignmentTrafo.getRotation().phiZ() / CLHEP::deg << ")" << endmsg;
+				msg() << "Align Transformation z Theta = ("  << alignmentTrafo.getRotation().thetaZ() / CLHEP::deg << ")" << endmsg;
 			}
 			
 			// suppress tiny translations that occur due to trafo.inverse*trafo numerics
@@ -942,24 +942,24 @@ namespace InDetAlignment
 			
 			if (m_idHelper->is_sct(ModuleID) || m_idHelper->is_pixel(ModuleID)) {
 				if (m_IDAlignDBTool->tweakTrans(ModuleID,3, alignmentTrafoAmg)) {
-					msg(MSG::INFO) << "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " successful" << endreq;
+					msg(MSG::INFO) << "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " successful" << endmsg;
 				} else {
-					msg(MSG::ERROR) << "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " not successful" << endreq;
+					msg(MSG::ERROR) << "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " not successful" << endmsg;
 				}
 			} else if (m_idHelper->is_trt(ModuleID)) {
 				if (!m_trtIdHelper->is_barrel(ModuleID) && m_trtIdHelper->phi_module(ModuleID)!=0) {
 					//don't align - there's no trans in the DB for phi sectors other than 0
-					if (msgLvl(MSG::DEBUG)) msg() << "TRT endcap phi sector " << m_trtIdHelper->phi_module(ModuleID) << " not aligned" << endreq;
+					if (msgLvl(MSG::DEBUG)) msg() << "TRT endcap phi sector " << m_trtIdHelper->phi_module(ModuleID) << " not aligned" << endmsg;
 				} else {
 					//if (m_trtaligndbservice->tweakTrans(ModuleID,alignmentTrafo).isFailure()) {
 					if (m_trtaligndbservice->tweakAlignTransform(ModuleID,alignmentTrafoAmg,2).isFailure()) { 
-						msg(MSG::ERROR) << "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " not successful" << endreq;
+						msg(MSG::ERROR) << "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " not successful" << endmsg;
 					} else {
-						msg(MSG::INFO) << "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " successful" << endreq;
+						msg(MSG::INFO) << "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " successful" << endmsg;
 					}
 				}
 			} else {
-				msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endreq;
+				msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endmsg;
 			}
 			
 			double alpha, beta, gamma;
@@ -999,12 +999,12 @@ namespace InDetAlignment
 				m_AlignResults_Identifier_Eta = m_trtIdHelper->straw_layer(ModuleID);
 				
 			} else {
-				msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endreq;
+				msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endmsg;
 			}
 			
 			// Write out AlignResults ntuple
 			if (StatusCode::SUCCESS!=ntupleSvc()->writeRecord("NTUPLES/CREATEMISALIGN/InitialAlignment")) {
-				msg(MSG::ERROR) << "Could not write InitialAlignment ntuple." << endreq;
+				msg(MSG::ERROR) << "Could not write InitialAlignment ntuple." << endmsg;
 			}
 			
 		} // end of module loop
@@ -1014,24 +1014,24 @@ namespace InDetAlignment
 		//m_IDAlignDBTool->printDB(2);
 		
 		if (StatusCode::SUCCESS!=m_IDAlignDBTool->outputObjs()) {
-			msg(MSG::ERROR) << "Writing of AlignableTransforms failed" << endreq;
+			msg(MSG::ERROR) << "Writing of AlignableTransforms failed" << endmsg;
 		} else {
-			msg(MSG::INFO) << "AlignableTransforms were written" << endreq;
-			msg(MSG::INFO) << "Writing database to textfile" << endreq;
+			msg(MSG::INFO) << "AlignableTransforms were written" << endmsg;
+			msg(MSG::INFO) << "Writing database to textfile" << endmsg;
 			m_IDAlignDBTool->writeFile(false,m_asciiFileNameBase+"_Si.txt");
-			msg(MSG::INFO) << "Writing IoV information to mysql file" << endreq;
+			msg(MSG::INFO) << "Writing IoV information to mysql file" << endmsg;
 			m_IDAlignDBTool->fillDB("InDetSi_"+m_SQLiteTag,IOVTime::MINRUN,IOVTime::MINEVENT,IOVTime::MAXRUN,IOVTime::MAXEVENT);
 		}
 		
 		if (StatusCode::SUCCESS!=m_trtaligndbservice->streamOutAlignObjects()) {
-			msg(MSG::ERROR) << "Write of AlignableTransforms (TRT) failed" << endreq;
+			msg(MSG::ERROR) << "Write of AlignableTransforms (TRT) failed" << endmsg;
 		} else {
-			msg(MSG::INFO) << "AlignableTransforms for TRT were written" << endreq;
-			msg(MSG::INFO) << "Writing TRT database to textfile" << endreq;
+			msg(MSG::INFO) << "AlignableTransforms for TRT were written" << endmsg;
+			msg(MSG::INFO) << "Writing TRT database to textfile" << endmsg;
 			if ( StatusCode::SUCCESS != m_trtaligndbservice->writeAlignTextFile(m_asciiFileNameBase+"_TRT.txt") ) {
                           ATH_MSG_ERROR( "Failed to write AlignableTransforms (TRT) to txt file " << m_asciiFileNameBase+"_TRT.txt" );
                         }
-			msg(MSG::INFO) << "Writing IoV information for TRT to mysql file" << endreq;
+			msg(MSG::INFO) << "Writing IoV information for TRT to mysql file" << endmsg;
 			if ( StatusCode::SUCCESS
                              != m_trtaligndbservice->registerAlignObjects(m_SQLiteTag+"_TRT",IOVTime::MINRUN,IOVTime::MINEVENT,IOVTime::MAXRUN,IOVTime::MAXEVENT)) {
                           ATH_MSG_ERROR( "Write of AIoV information (TRT) to mysql failed (tag=" << m_SQLiteTag << "_TRT)");
@@ -1057,7 +1057,7 @@ namespace InDetAlignment
 	//__________________________________________________________________________
 	const Identifier CreateMisalignAlg::reduceTRTID(Identifier id)
 	{
-		//     msg(MSG::DEBUG)  << "in CreateMisalignAlg::reduceTRTID" << endreq;
+		//     msg(MSG::DEBUG)  << "in CreateMisalignAlg::reduceTRTID" << endmsg;
 		if (msgLvl(MSG::DEBUG)) msg()  << "reduceTRTID got Id " << m_idHelper->show_to_string(id,0,'/');
 		
 		int barrel_ec= m_trtIdHelper->barrel_ec(id);
@@ -1079,8 +1079,8 @@ namespace InDetAlignment
 			// only strawlayers 0,4,8,12 are fed into DB for endcap
 		}
 		
-		//     if (msgLvl(MSG::DEBUG)) msg()  << "    and returns Id " << m_idHelper->show_to_string(m_trtIdHelper->module_id(barrel_ec,phi_module,layer_or_wheel),0,'/') << endreq;
-		if (msgLvl(MSG::DEBUG)) msg()  << "    and returns Id " << m_idHelper->show_to_string(m_trtIdHelper->layer_id(barrel_ec,phi_module,layer_or_wheel,strawlayer),0,'/') << endreq;
+		//     if (msgLvl(MSG::DEBUG)) msg()  << "    and returns Id " << m_idHelper->show_to_string(m_trtIdHelper->module_id(barrel_ec,phi_module,layer_or_wheel),0,'/') << endmsg;
+		if (msgLvl(MSG::DEBUG)) msg()  << "    and returns Id " << m_idHelper->show_to_string(m_trtIdHelper->layer_id(barrel_ec,phi_module,layer_or_wheel,strawlayer),0,'/') << endmsg;
 		//     return  m_trtIdHelper->module_id(barrel_ec,phi_module,layer_or_wheel);
 		return  m_trtIdHelper->layer_id(barrel_ec,phi_module,layer_or_wheel,strawlayer);
 	}

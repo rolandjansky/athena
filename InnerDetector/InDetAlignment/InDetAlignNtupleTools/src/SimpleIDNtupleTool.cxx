@@ -155,21 +155,21 @@ StatusCode SimpleIDNtupleTool::initialize()
 
    // retrieve TRT ID helper
    if ( detStore()->retrieve(m_idHelper, "TRT_ID").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT ID Helper " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve TRT ID Helper " << endmsg;
       return StatusCode::FAILURE;
    }
    ATH_MSG_INFO("retrieved TRT ID Helper");
 
   // get TrackSummaryTool
   if ( m_trackSumTool.retrieve().isFailure() )  {
-    msg(MSG::FATAL) << "Failed to retrieve tool " <<m_trackSumTool<< endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " <<m_trackSumTool<< endmsg;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Retrieved tool " << m_trackSumTool);
 
   // get AlignModuleTool
   if ( m_alignModuleTool.empty() || m_alignModuleTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " <<m_alignModuleTool<< endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " <<m_alignModuleTool<< endmsg;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Retrieved tool " << m_alignModuleTool);
@@ -208,7 +208,7 @@ void SimpleIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrack)
   ATH_MSG_DEBUG("Retrieving event info.");
   const xAOD::EventInfo * eventInfo;
   if (evtStore()->retrieve(eventInfo).isFailure())
-    msg(MSG::ERROR) << "Could not retrieve event info." << endreq;
+    msg(MSG::ERROR) << "Could not retrieve event info." << endmsg;
   else
   {
     m_runNumber = eventInfo->runNumber();
@@ -229,7 +229,7 @@ void SimpleIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrack)
 
   const Trk::Perigee * aMeasPer = (alignTrack->perigeeParameters());
   if (aMeasPer==0)
-    msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endreq;
+    msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endmsg;
   else
   {
     m_d0 = aMeasPer->parameters()[Trk::d0];
@@ -241,9 +241,9 @@ void SimpleIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrack)
     if (msgLvl(MSG::DEBUG))
     {
       msg(MSG::DEBUG) << itrk << ". "
-        << " Track Parameters (d0, z0, phi0, theta, q/p)"  << endreq;
+        << " Track Parameters (d0, z0, phi0, theta, q/p)"  << endmsg;
       msg(MSG::DEBUG) << " " << m_d0 << ", " << m_z0  << ", "
-        << m_phi0 << ", " << m_theta  << ", " << m_qoverp << endreq;
+        << m_phi0 << ", " << m_theta  << ", " << m_qoverp << endmsg;
     }
 
     m_pt = sqrt((aMeasPer->momentum().x())*(aMeasPer->momentum().x())
@@ -258,7 +258,7 @@ void SimpleIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrack)
 
     const Trk::TrackSummary * summary = m_trackSumTool->createSummary((*alignTrack));
     if(summary==0)
-      msg(MSG::ERROR) << "Could not get Trk::TrackSummary" << endreq;
+      msg(MSG::ERROR) << "Could not get Trk::TrackSummary" << endmsg;
     else
     {
       // hits
@@ -301,7 +301,7 @@ void SimpleIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrack)
     // get fit quality and chi2 probability of track
     const Trk::FitQuality * fitQual = alignTrack->fitQuality();
     if (fitQual==0)
-      msg(MSG::ERROR) << "No fit quality assigned to the track" << endreq;
+      msg(MSG::ERROR) << "No fit quality assigned to the track" << endmsg;
     else
     {
       if (fitQual->chiSquared() > 0. && fitQual->numberDoF() > 0)

@@ -76,7 +76,7 @@ AthAlgorithm(name, pSvcLocator)
 {
 
   MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GloRec::ALFA_GloRec");
-	LogStream << MSG::DEBUG << "begin ALFA_GloRec::ALFA_GloRec" << endreq;
+	LogStream << MSG::DEBUG << "begin ALFA_GloRec::ALFA_GloRec" << endmsg;
 
 	////////////////////////////////
 	// ... steerable job options 
@@ -154,8 +154,8 @@ AthAlgorithm(name, pSvcLocator)
 //////////////////////////////////////////////////////////
 ALFA_GloRec::~ALFA_GloRec() {
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GloRec::~ALFA_GloRec");
-	LogStream << MSG::DEBUG << "begin ALFA_GloRec::~ALFA_GloRec" << endreq;
-	LogStream << MSG::DEBUG << "end ALFA_GloRec::~ALFA_GloRec" << endreq;
+	LogStream << MSG::DEBUG << "begin ALFA_GloRec::~ALFA_GloRec" << endmsg;
+	LogStream << MSG::DEBUG << "end ALFA_GloRec::~ALFA_GloRec" << endmsg;
 }
 
 /////////////////////////////////////////////////////////
@@ -165,21 +165,21 @@ ALFA_GloRec::~ALFA_GloRec() {
 //////////////////////////////////////////////////////////
 StatusCode ALFA_GloRec::initialize() {
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GloRec::initialize()");
-	LogStream << MSG::DEBUG << "begin ALFA_GloRec::initialize()" << endreq;
+	LogStream << MSG::DEBUG << "begin ALFA_GloRec::initialize()" << endmsg;
 
-	msg(MSG::DEBUG) << "======================================" << endreq;
-	msg(MSG::DEBUG) << "ALFA_GloRec::initialize  - data type  " << endreq;
-	msg(MSG::DEBUG) << "======================================" << endreq;
+	msg(MSG::DEBUG) << "======================================" << endmsg;
+	msg(MSG::DEBUG) << "ALFA_GloRec::initialize  - data type  " << endmsg;
+	msg(MSG::DEBUG) << "======================================" << endmsg;
 	msg(MSG::DEBUG) << "DataType = " << m_iDataType << endl;
 
 	TString l_strtmp(m_strTrackPathPatterns);
   	m_TObjArrTrackPathPatterns.Clear();
-	msg(MSG::DEBUG) << "==========================================================" << endreq;
-	msg(MSG::DEBUG) << "ALFA_GloRec::initialize  - Path patterns from job options " << endreq;
-	msg(MSG::DEBUG) << "==========================================================" << endreq;
+	msg(MSG::DEBUG) << "==========================================================" << endmsg;
+	msg(MSG::DEBUG) << "ALFA_GloRec::initialize  - Path patterns from job options " << endmsg;
+	msg(MSG::DEBUG) << "==========================================================" << endmsg;
   	m_TObjArrTrackPathPatterns = *(l_strtmp.Tokenize(","));
   	for(int i = 0; i < m_TObjArrTrackPathPatterns.GetEntries(); i++){
-			msg(MSG::DEBUG) << "pattern[" << i << "] = " << ((TObjString*) m_TObjArrTrackPathPatterns.At(i))->GetString().Data() << endreq;
+			msg(MSG::DEBUG) << "pattern[" << i << "] = " << ((TObjString*) m_TObjArrTrackPathPatterns.At(i))->GetString().Data() << endmsg;
 	}
 
   
@@ -200,7 +200,7 @@ StatusCode ALFA_GloRec::initialize() {
 StatusCode ALFA_GloRec::execute() {
 
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GloRec::execute()");
-	LogStream << MSG::DEBUG << "begin ALFA_GloRec::execute()" << endreq;
+	LogStream << MSG::DEBUG << "begin ALFA_GloRec::execute()" << endmsg;
 	StatusCode sc = StatusCode::SUCCESS;
 
  	//////////////////////////
@@ -209,7 +209,7 @@ StatusCode ALFA_GloRec::execute() {
 	const EventInfo* eventInfo;
 	sc = evtStore()->retrieve(eventInfo);
 	if (sc.isFailure())	{
-		msg(MSG::ERROR) << "ALFA_GloRec cannot get event info." << endreq;
+		msg(MSG::ERROR) << "ALFA_GloRec cannot get event info." << endmsg;
 		return sc;
 	}
 	m_nEvent = eventInfo->event_ID()->event_number();
@@ -223,10 +223,10 @@ StatusCode ALFA_GloRec::execute() {
   //  get truth information
   //////////////////////////////////////////
   if(m_iDataType == 0){
-	  LogStream << MSG::DEBUG << "truth info()" << endreq;        
+	  LogStream << MSG::DEBUG << "truth info()" << endmsg;        
 	  sc = Truth_info();  
 	  if  (sc.isFailure()) {
-		LogStream << MSG::WARNING << "ALFA digi, Truth_info failed" << endreq;  
+		LogStream << MSG::WARNING << "ALFA digi, Truth_info failed" << endmsg;  
 	    return StatusCode::SUCCESS; 
 	  }
 	}
@@ -237,7 +237,7 @@ StatusCode ALFA_GloRec::execute() {
 	m_pGloRecEvCollection = new ALFA_GloRecEvCollection();
 	sc = evtStore()->record(m_pGloRecEvCollection, "ALFA_GloRecEvCollection");
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Could not create the empty LocRecEv collection in StoreGate" << endreq;
+		msg(MSG::ERROR) << "Could not create the empty LocRecEv collection in StoreGate" << endmsg;
 	}
 
 
@@ -248,7 +248,7 @@ StatusCode ALFA_GloRec::execute() {
 	sc = evtStore()->retrieve(pLocRecCorrCol, m_strLocRecCorrCollectionName);
 	if(sc.isFailure() || !pLocRecCorrCol)
 	{
-		msg(MSG::ERROR) << "Container "<< m_strLocRecCorrCollectionName <<" NOT FOUND !!!!!!!" << endreq;
+		msg(MSG::ERROR) << "Container "<< m_strLocRecCorrCollectionName <<" NOT FOUND !!!!!!!" << endmsg;
 		return sc;
 	}
 
@@ -305,7 +305,7 @@ StatusCode ALFA_GloRec::execute() {
 StatusCode ALFA_GloRec::finalize() {
 
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GloRec::finalize()");
-	LogStream << MSG::DEBUG << "begin ALFA_GloRec::finalize()" << endreq;
+	LogStream << MSG::DEBUG << "begin ALFA_GloRec::finalize()" << endmsg;
 
 	WriteHistos();
 
@@ -330,7 +330,7 @@ StatusCode ALFA_GloRec::Truth_info(){
   const McEventCollection* mcTru = 0;      
   StatusCode sc = evtStore()->retrieve(mcTru,m_TruthCollectionName);
   if(sc.isFailure() || !mcTru){
-	msg(MSG::DEBUG) << "Container "<< m_TruthCollectionName <<" NOT FOUND !!!!!!!" << endreq;
+	msg(MSG::DEBUG) << "Container "<< m_TruthCollectionName <<" NOT FOUND !!!!!!!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -384,10 +384,10 @@ StatusCode ALFA_GloRec::Truth_info(){
 			  i++;
 			  // ... break the loop if both suitable vertices were found
 			  if (m_z_g_pos > 0. && m_z_g_neg < 0.){
-				msg(MSG::DEBUG) << "gen px, py, pz = " << m_px_g_pos <<  "  " << m_py_g_pos << "  " << m_pz_g_pos << endreq;
-					msg(MSG::DEBUG) << "prod x, y, z = " << m_x_g_pos <<  "  " << m_y_g_pos << "  " << m_z_g_pos << endreq;
-					msg(MSG::DEBUG) << "gen px, py, pz = " << m_px_g_neg <<  "  " << m_py_g_neg << "  " << m_pz_g_neg << endreq;
-					msg(MSG::DEBUG) << "prod x, y, z = " << m_x_g_neg <<  "  " << m_y_g_neg << "  " << m_z_g_neg << endreq;
+				msg(MSG::DEBUG) << "gen px, py, pz = " << m_px_g_pos <<  "  " << m_py_g_pos << "  " << m_pz_g_pos << endmsg;
+					msg(MSG::DEBUG) << "prod x, y, z = " << m_x_g_pos <<  "  " << m_y_g_pos << "  " << m_z_g_pos << endmsg;
+					msg(MSG::DEBUG) << "gen px, py, pz = " << m_px_g_neg <<  "  " << m_py_g_neg << "  " << m_pz_g_neg << endmsg;
+					msg(MSG::DEBUG) << "prod x, y, z = " << m_x_g_neg <<  "  " << m_y_g_neg << "  " << m_z_g_neg << endmsg;
 					break;
 				}
       }
@@ -470,7 +470,7 @@ void ALFA_GloRec::FillTrackCandHistos(AlfaTrackCand * trkcand){
 			py_g = m_py_g_neg;
 			pz_g = m_pz_g_neg;
 		}else{
-			msg(MSG::DEBUG) << "ALFA_GloRec::FillTrackCandHistos : Track candidate neither left nor right !!!" << endreq;
+			msg(MSG::DEBUG) << "ALFA_GloRec::FillTrackCandHistos : Track candidate neither left nor right !!!" << endmsg;
 			exit(0);
 		}
 		m_th1_xnearuppotresiduals -> Fill(trkcand->GetNearImpactPoint()->x()-trkcand->GetNearLocalHit()->GetX(),1.);
