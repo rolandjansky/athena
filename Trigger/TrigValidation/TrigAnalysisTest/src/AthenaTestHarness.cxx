@@ -25,22 +25,22 @@ StatusCode AthenaTestHarness::initialize()
 {
     
     // print out properties
-    msg(MSG::INFO) << "Initializing AthenaTestHarness ..." << endreq;
+    msg(MSG::INFO) << "Initializing AthenaTestHarness ..." << endmsg;
     
     StatusCode sc = m_trigDec.retrieve();
     if ( sc.isFailure() ) {
-        msg(MSG::ERROR) << "Could not retrieve TrigDecisionTool!" << endreq;
+        msg(MSG::ERROR) << "Could not retrieve TrigDecisionTool!" << endmsg;
         return sc;
     }
 		m_test = GetTrigAnalysisTest(m_test_name);
 		if(!m_test){
-        msg(MSG::ERROR) << "Could not retrieve the test: "<< m_test_name << endreq;
+        msg(MSG::ERROR) << "Could not retrieve the test: "<< m_test_name << endmsg;
         return StatusCode::FAILURE;
 		}
 
 		m_test->setEventStore( evtStore().operator->() ); // explicitly call the arrow operator
     
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     
     return StatusCode::SUCCESS;
 }
@@ -52,7 +52,7 @@ StatusCode AthenaTestHarness::finalize()
 		if(m_test->finalize())
     	return StatusCode::FAILURE;
     
-    msg(MSG::INFO) << "Finalised successfully" << endreq;
+    msg(MSG::INFO) << "Finalised successfully" << endmsg;
     return StatusCode::SUCCESS;
 }
 

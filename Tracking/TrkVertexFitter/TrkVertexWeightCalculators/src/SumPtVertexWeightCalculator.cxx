@@ -18,18 +18,18 @@ namespace Trk{
     //initializing the AlgTool itself
     if(sc.isFailure())
     {
-      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
       return StatusCode::FAILURE;
     }
     
-    msg(MSG::INFO)<<"Initialization successfull"<<endreq;
+    msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
     return StatusCode::SUCCESS;
   }//end of initialize method
   
   StatusCode SumPtVertexWeightCalculator::finalize()
   {
     MsgStream log(msgSvc(), name());
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
  

@@ -86,8 +86,6 @@
 // the xAOD::TrackParticle header if it exists
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
-#define endreq endmsg
-
 
 template<typename T>
 void HighestPTOnly( std::vector<T*>& tracks ) { 
@@ -177,7 +175,7 @@ public:
 
   /// doesn't work yet
   // void verbose( std::ostream& s ) {
-  //   if( m_provider->msg().level() <= MSG::VERBOSE )  m_provider->msg(MSG::VERBOSE) << s << endreq;
+  //   if( m_provider->msg().level() <= MSG::VERBOSE )  m_provider->msg(MSG::VERBOSE) << s << endmsg;
   // }
 
 protected:
@@ -201,7 +199,7 @@ protected:
   virtual void loop() {
 
     if( m_provider->msg().level() <= MSG::VERBOSE) {
-      m_provider->msg(MSG::VERBOSE) <<  "AnalysisConfig_Tier0::loop() for " << T_AnalysisConfig<T>::m_analysisInstanceName <<  endreq;
+      m_provider->msg(MSG::VERBOSE) <<  "AnalysisConfig_Tier0::loop() for " << T_AnalysisConfig<T>::m_analysisInstanceName <<  endmsg;
     }
 
     // get (offline) beam position
@@ -220,7 +218,7 @@ protected:
 #     endif
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
-        m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endreq;
+        m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
       }
     }
 
@@ -229,14 +227,14 @@ protected:
 
     if ( first ) {
 
-      m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endreq;
+      m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
 	
 	std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 	
         for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) {
-	  m_provider->msg(MSG::INFO)  << "Chain " << configuredChains[i]  << endreq;
+	  m_provider->msg(MSG::INFO)  << "Chain " << configuredChains[i]  << endmsg;
         }
 
       }
@@ -258,7 +256,7 @@ protected:
         /// get chain
         ChainString& chainName = (*chainitr);
 
-        m_provider->msg(MSG::INFO) << "process chain " << chainName << "\traw: " << chainitr->raw() << endreq;
+        m_provider->msg(MSG::INFO) << "process chain " << chainName << "\traw: " << chainitr->raw() << endmsg;
 
         /// check for wildcard ...
         // if ( chainName.head().find("*")!=std::string::npos ) {
@@ -273,7 +271,7 @@ protected:
 
         // std::cout << "selected chains " << selectChains.size() << std::endl;
 
-        // if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endreq;
+        // if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endmsg;
 	
         for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
@@ -298,7 +296,7 @@ protected:
           chains.push_back( ChainString(selectChains[iselected]) );
 
           if(m_provider->msg().level() <= MSG::VERBOSE) {
-            m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << ")" << endreq;
+            m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << ")" << endmsg;
 	  }
         }
         // else {
@@ -311,7 +309,7 @@ protected:
       // m_chainNames.insert( m_chainNames.end(), chains.begin(), chains.end() );
       m_chainNames = chains;
 
-      for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) m_provider->msg(MSG::VERBOSE) << "Analyse chain " << m_chainNames[ic] << endreq;
+      for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) m_provider->msg(MSG::VERBOSE) << "Analyse chain " << m_chainNames[ic] << endmsg;
 
     } /// end of first event setup
 
@@ -366,7 +364,7 @@ protected:
     double mu_val = 0;
 
     if ( m_provider->evtStore()->retrieve(pEventInfo).isFailure() ) {
-      m_provider->msg(MSG::WARNING) << "Failed to get EventInfo " << endreq;
+      m_provider->msg(MSG::WARNING) << "Failed to get EventInfo " << endmsg;
     } else {
 
 #ifndef  XAODTRACKING_TRACKPARTICLE_H
@@ -389,12 +387,12 @@ protected:
     if(m_provider->msg().level() <= MSG::VERBOSE){
       m_provider->msg(MSG::VERBOSE) << "run "     << run_number
                                     << "\tevent " << event_number
-                                    << "\tlb "    << lumi_block << endreq;
+                                    << "\tlb "    << lumi_block << endmsg;
     }
     
     //      m_provider->msg(MSG::INFO) << "run "     << run_number
     //				 << "\tevent " << event_number
-    //				 << "\tlb "    << lumi_block << endreq;
+    //				 << "\tlb "    << lumi_block << endmsg;
 
     // std::cout << "run "     << run_number  << "\tevent " << event_number  << "\tlb "    << lumi_block << std::endl;
 
@@ -428,7 +426,7 @@ protected:
       if ( m_provider->msg().level() <= MSG::DEBUG ) {
         m_provider->msg(MSG::DEBUG) << "Chain "  << chainname
                                     << "\tpass " << (*m_tdt)->isPassed(chainname)
-                                    << "\tpres " << (*m_tdt)->getPrescale(chainname) << endreq;
+                                    << "\tpres " << (*m_tdt)->getPrescale(chainname) << endmsg;
       }
 
       //      std::cout << "Chain "  << chainname << "\tpass " << (*m_tdt)->isPassed(chainname)
@@ -445,14 +443,14 @@ protected:
     first = false;
 
     if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
-      m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endreq;
+      m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
       return;
     }
 
     if ( !this->m_keepAllEvents && !analyse ) {
-      //     m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endreq;
+      //     m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endmsg;
       if(m_provider->msg().level() <= MSG::VERBOSE)
-        m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endreq;
+        m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endmsg;
       return;
     }
 
@@ -461,21 +459,21 @@ protected:
     selectorTruth.clear();
 
     if(m_provider->msg().level() <= MSG::VERBOSE)
-      m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endreq;
+      m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endmsg;
 
     const TrigInDetTrackTruthMap* truthMap = 0;
 
     if ( m_mcTruth ) {
-      if(m_provider->msg().level() <= MSG::VERBOSE ) m_provider->msg(MSG::VERBOSE) << "getting Truth" << endreq;
+      if(m_provider->msg().level() <= MSG::VERBOSE ) m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
 
       if ( m_provider->evtStore()->retrieve(truthMap, "TrigInDetTrackTruthMap").isFailure()) {
         if(m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE) << "TrigInDetTrackTruthMap not found" << endreq;
+          m_provider->msg(MSG::VERBOSE) << "TrigInDetTrackTruthMap not found" << endmsg;
         m_hasTruthMap = false;
       }
       else {
         if(m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE) << "TrigInDetTrackTruthMap found" << endreq;
+          m_provider->msg(MSG::VERBOSE) << "TrigInDetTrackTruthMap found" << endmsg;
         m_hasTruthMap = true;
       }
     }
@@ -499,7 +497,7 @@ protected:
       if ( m_provider->evtStore()->template contains<VxContainer>("VxPrimaryCandidate") ) {
         if ( m_provider->evtStore()->retrieve(primaryVtxCollection, "VxPrimaryCandidate").isFailure()) {
           if (m_provider->msg().level() <= MSG::WARNING)
-            m_provider->msg(MSG::WARNING) << "Primary vertex container not found" << endreq;
+            m_provider->msg(MSG::WARNING) << "Primary vertex container not found" << endmsg;
         }
         else {
           VxContainer::const_iterator vtxitr = primaryVtxCollection->begin();
@@ -522,17 +520,17 @@ protected:
 
     //std::vector<TIDA::Vertex> vertices;
     
-    m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endreq;
+    m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endmsg;
 
     const xAOD::VertexContainer* xaodVtxCollection = 0;
 
     if ( m_provider->evtStore()->retrieve( xaodVtxCollection, "PrimaryVertices" ).isFailure()) {
-      m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found with key " << "PrimaryVertices" <<  endreq;
+      m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found with key " << "PrimaryVertices" <<  endmsg;
     }
     
     if ( xaodVtxCollection!=0 ) { 
         
-      m_provider->msg(MSG::VERBOSE) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endreq;
+      m_provider->msg(MSG::VERBOSE) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
 
       xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
       for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
@@ -571,7 +569,7 @@ protected:
     if ( m_doOffline ) {
       for ( unsigned i=0 ; i<vertices.size() ; i++ )  {
         if(m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE) << "vertex " << i << " " << vertices[i] << endreq;
+          m_provider->msg(MSG::VERBOSE) << "vertex " << i << " " << vertices[i] << endmsg;
         m_event->addVertex(vertices[i]);
       }
     }
@@ -632,13 +630,13 @@ protected:
       if(m_provider->msg().level() <= MSG::VERBOSE){
         m_provider->msg(MSG::VERBOSE) << "status for chain " << chainname
                                       << "\tpass "           << (*m_tdt)->isPassed(chainname)
-                                      << "\tprescale "       << (*m_tdt)->getPrescale(chainname) << endreq;
+                                      << "\tprescale "       << (*m_tdt)->getPrescale(chainname) << endmsg;
 
-        m_provider->msg(MSG::VERBOSE) << "fetching features for chain " << chainname << endreq;
+        m_provider->msg(MSG::VERBOSE) << "fetching features for chain " << chainname << endmsg;
       }
 
       if(m_provider->msg().level() <= MSG::VERBOSE){
-        m_provider->msg(MSG::VERBOSE) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << endreq;
+        m_provider->msg(MSG::VERBOSE) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << endmsg;
       }
 
       //      std::cout << "\tstatus for chain " << chainname
@@ -647,7 +645,7 @@ protected:
       //		<< "\tprescale "       << (*m_tdt)->getPrescale( chainname ) << std::endl;
 	
 
-      //      m_provider->msg(MSG::INFO) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << "\t" << m_chainNames[ichain] << "\trun " << run_number << "\tevent " << event_number << endreq;
+      //      m_provider->msg(MSG::INFO) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << "\t" << m_chainNames[ichain] << "\trun " << run_number << "\tevent " << event_number << endmsg;
 
 
       if ( !this->m_keepAllEvents && !(*m_tdt)->isPassed( chainname, decisiontype ) ) continue;
@@ -667,13 +665,13 @@ protected:
 
       if ( c==cEnd ) {
         if(m_provider->msg().level() <= MSG::VERBOSE){
-          m_provider->msg(MSG::VERBOSE) << "No combinations: skipping this chain " << chainname << endreq;
+          m_provider->msg(MSG::VERBOSE) << "No combinations: skipping this chain " << chainname << endmsg;
         }
         continue;
       }
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
-	m_provider->msg(MSG::VERBOSE) << "combinations for chain " << chainname << " " << (cEnd-c) << endreq;
+	m_provider->msg(MSG::VERBOSE) << "combinations for chain " << chainname << " " << (cEnd-c) << endmsg;
       }
 
       ChainString& chainConfig = m_chainNames[ichain];
@@ -724,7 +722,7 @@ protected:
         // Skip chains seeded by multiple RoIs: not yet implemented
         if(initRois.size()>1 && roi_key!="SuperRoi" ) {
           if(m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE) << " More than one initial RoI found for seeded chain " << chainname << ": not yet supported" << endreq;
+            m_provider->msg(MSG::VERBOSE) << " More than one initial RoI found for seeded chain " << chainname << ": not yet supported" << endmsg;
           continue;
         }
 
@@ -734,7 +732,7 @@ protected:
           const TrigRoiDescriptor* roid = initRois[0].cptr();
 
           if(m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE) << " RoI descriptor for seeded chain " << chainname << " " << *roid << endreq;
+            m_provider->msg(MSG::VERBOSE) << " RoI descriptor for seeded chain " << chainname << " " << *roid << endmsg;
 
           roiInfo = new TIDARoiDescriptor(TIDARoiDescriptorBuilder(*roid));
           //  roiInfo->etaHalfWidth(m_roiInfo->etaHalfWidth());
@@ -744,7 +742,7 @@ protected:
           //  roiInfo->zedHalfWidth(roid->zedHalfWidth());
 
           if(m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE) << "using chain roi " << *roid << endreq;
+            m_provider->msg(MSG::VERBOSE) << "using chain roi " << *roid << endmsg;
 
         }
         else {
@@ -754,16 +752,16 @@ protected:
           //  roiInfo->zedHalfWidth(m_roiInfo->zedHalfWidth());
 
           if(m_provider->msg().level() <= MSG::WARNING)
-            m_provider->msg(MSG::WARNING) << "roi not found" <<  endreq;
+            m_provider->msg(MSG::WARNING) << "roi not found" <<  endmsg;
 
         }
 
         if(m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE) << *roiInfo << endreq;
+          m_provider->msg(MSG::VERBOSE) << *roiInfo << endmsg;
 
         m_selectorTest->clear();
 
-        m_provider->msg(MSG::VERBOSE) << "Searching for collection " << key << endreq;
+        m_provider->msg(MSG::VERBOSE) << "Searching for collection " << key << endmsg;
 	// std::cout << "Searching for collection " << key << std::endl;
 
         /// HLT and EF-like EDM
@@ -781,7 +779,7 @@ protected:
           else if ( this->template selectTracks<TrackCollection>( m_selectorTest, c, key ) );
           else if ( this->template selectTracks<TrigInDetTrackCollection>( m_selectorTest, c, truthMap, key, key_index ) );
 	  else { 
-	    //m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endreq;
+	    //m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endmsg;
 	  }
         }
         else {
@@ -793,22 +791,22 @@ protected:
 #           ifdef XAODTRACKING_TRACKPARTICLE_H
             else if ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) ) testbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( c, key );
 #           endif
-            else m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endreq;
+            else m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endmsg;
           }
         }
       
 
         const std::vector<TIDA::Track*>& testtracks = m_selectorTest->tracks();
 
-        m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endreq;
+        m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endmsg;
 	// std::cout << "test tracks.size() " << testtracks.size() << std::endl;
 
 	//	std::cout  << "\ttest tracks.size() " << testtracks.size() << std::endl;
 
         if(m_provider->msg().level() <= MSG::VERBOSE){
-          m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endreq;
+          m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endmsg;
           for ( int ii=testtracks.size() ; ii-- ; ) {
-            m_provider->msg(MSG::VERBOSE) << "  test track " << ii << " " << *testtracks[ii] << endreq;
+            m_provider->msg(MSG::VERBOSE) << "  test track " << ii << " " << *testtracks[ii] << endmsg;
             //test_tracks.push_back(testtracks.at(ii));
           }
         }
@@ -827,22 +825,22 @@ protected:
 
 	if ( vtx_name!="" ) { 
 
-	  m_provider->msg(MSG::VERBOSE) << "\tFetch xAOD::VertexContainer for chain " << chainConfig << " with key " << vtx_name << endreq;
+	  m_provider->msg(MSG::VERBOSE) << "\tFetch xAOD::VertexContainer for chain " << chainConfig << " with key " << vtx_name << endmsg;
 
 	  std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = c->get<xAOD::VertexContainer>(vtx_name);
 	  
 	  if ( xaodtrigvertices.empty() ) { 
-	    m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainConfig << " for key " << vtx_name << endreq;
+	    m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainConfig << " for key " << vtx_name << endmsg;
 	  }
 	  else {
 	    
-	    m_provider->msg(MSG::VERBOSE) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endreq;
+	    m_provider->msg(MSG::VERBOSE) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
 	    
 	    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
 	      
 	      const xAOD::VertexContainer* vert = xaodtrigvertices[iv].cptr();
 	      
-	      m_provider->msg(MSG::VERBOSE) << "\t" << iv << "  xAOD VxContainer for " << chainConfig << " " << vert << " key " << vtx_name << endreq;
+	      m_provider->msg(MSG::VERBOSE) << "\t" << iv << "  xAOD VxContainer for " << chainConfig << " " << vert << " key " << vtx_name << endmsg;
 	      
 	      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 	      
@@ -873,7 +871,7 @@ protected:
       }
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
-        m_provider->msg(MSG::VERBOSE) << "event: " << *m_event << endreq;
+        m_provider->msg(MSG::VERBOSE) << "event: " << *m_event << endmsg;
       }
 
 
@@ -906,7 +904,7 @@ protected:
 	/// will leave as it is for the time being
 
         if(m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endreq;
+          m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endmsg;
 
         bool foundTruth = false;
 
@@ -918,7 +916,7 @@ protected:
           selectorTruth.clear();
 
           if(m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE) << "getting Truth" << endreq;
+            m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
 
           if (m_provider->evtStore()->template contains<TruthParticleContainer>("INav4MomTruthEvent")) {
             //ESD
@@ -937,13 +935,13 @@ protected:
           }
           else
             if(m_provider->msg().level() <= MSG::VERBOSE)
-              m_provider->msg(MSG::VERBOSE) << "Truth not found - none whatsoever!" << endreq;
+              m_provider->msg(MSG::VERBOSE) << "Truth not found - none whatsoever!" << endmsg;
         }
 
       
         if ( !m_doOffline && m_mcTruth && !foundTruth ) {
           if(m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE) << "getting Truth" << endreq;
+            m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
 
           /// selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );
 
@@ -959,27 +957,27 @@ protected:
 
           for ( int ik=0 ; ik<4 ; ik++ ) {
             if( m_provider->msg().level() <= MSG::VERBOSE ) {
-              m_provider->msg(MSG::VERBOSE) << "Try McEventCollection: " << keys[ik] << endreq;
+              m_provider->msg(MSG::VERBOSE) << "Try McEventCollection: " << keys[ik] << endmsg;
             }
 
             if ( !m_provider->evtStore()->template contains<McEventCollection>(keys[ik]) ) {
               if( m_provider->msg().level() <= MSG::VERBOSE )
-                m_provider->msg(MSG::VERBOSE) << "No McEventCollection: " << keys[ik] << endreq;
+                m_provider->msg(MSG::VERBOSE) << "No McEventCollection: " << keys[ik] << endmsg;
               continue;
             }
 
             if(m_provider->msg().level() <= MSG::VERBOSE)
-              m_provider->msg(MSG::VERBOSE) << "evtStore()->retrieve( mcevent, " << keys[ik] << " )" << endreq;
+              m_provider->msg(MSG::VERBOSE) << "evtStore()->retrieve( mcevent, " << keys[ik] << " )" << endmsg;
 
             if ( m_provider->evtStore()->template retrieve( mcevent, keys[ik] ).isFailure() ) {
               if(m_provider->msg().level() <= MSG::VERBOSE)
-                m_provider->msg(MSG::VERBOSE) << "Failed to get McEventCollection: " << keys[ik] << endreq;
+                m_provider->msg(MSG::VERBOSE) << "Failed to get McEventCollection: " << keys[ik] << endmsg;
             }
             else {
               /// found this key
               key = keys[ik];
               if(m_provider->msg().level() <= MSG::VERBOSE)
-                m_provider->msg(MSG::VERBOSE) << "Found McEventCollection: " << key << endreq;
+                m_provider->msg(MSG::VERBOSE) << "Found McEventCollection: " << key << endmsg;
               foundcollection = true;
               break;
             }
@@ -988,7 +986,7 @@ protected:
           /// not found any truth collection
           if ( !foundcollection ) {
             if(m_provider->msg().level() <= MSG::VERBOSE)
-              m_provider->msg(MSG::WARNING) << "No MC Truth Collections of any sort, whatsoever!!!" << endreq;
+              m_provider->msg(MSG::WARNING) << "No MC Truth Collections of any sort, whatsoever!!!" << endmsg;
 
             //    m_tree->Fill();
             //    return StatusCode::FAILURE;
@@ -997,7 +995,7 @@ protected:
           }
 
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
-            m_provider->msg(MSG::VERBOSE) << "Found McEventCollection: " << key << "\tNevents " << mcevent->size() << endreq;
+            m_provider->msg(MSG::VERBOSE) << "Found McEventCollection: " << key << "\tNevents " << mcevent->size() << endmsg;
           }
 
           McEventCollection::const_iterator evitr = mcevent->begin();
@@ -1035,15 +1033,15 @@ protected:
 
             if ( _ip>0 ) {
               /// if there were some particles in this interaction ...
-              //      m_provider->msg(MSG::VERBOSE) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endreq;
+              //      m_provider->msg(MSG::VERBOSE) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endmsg;
               ++ie_ip;
               ip += _ip;
             }
           }
 
           if(m_provider->msg().level() <= MSG::VERBOSE){
-            m_provider->msg(MSG::VERBOSE) << "Found " << ip << " TruthParticles (GenParticles) in " << ie_ip << " GenEvents out of " << ie << endreq;
-            m_provider->msg(MSG::VERBOSE) << "selected " << selectorTruth.size() << " TruthParticles (GenParticles)" << endreq;
+            m_provider->msg(MSG::VERBOSE) << "Found " << ip << " TruthParticles (GenParticles) in " << ie_ip << " GenEvents out of " << ie << endmsg;
+            m_provider->msg(MSG::VERBOSE) << "selected " << selectorTruth.size() << " TruthParticles (GenParticles)" << endmsg;
           }
 
           if(selectorTruth.size() > 0) foundTruth = true;
@@ -1053,7 +1051,7 @@ protected:
 
           if ( !(ip>0) ) {
             if(m_provider->msg().level() <= MSG::VERBOSE)
-              m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endreq;
+              m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endmsg;
             return; /// need to be careful here, if not requiring truth *only* should not return
           }
 
@@ -1063,7 +1061,7 @@ protected:
 
         /// get offline tracks
 
-        // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endreq;
+        // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endmsg;
 
         if ( m_doOffline ) {
 #         ifdef XAODTRACKING_TRACKPARTICLE_H
@@ -1080,7 +1078,7 @@ protected:
           }
 #         endif
           else if ( m_provider->msg().level() <= MSG::WARNING ) {
-            m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endreq;
+            m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endmsg;
 	  }
 
 	  // std::cout << "seeking (more?) offline tracks..." << std::endl;
@@ -1092,9 +1090,9 @@ protected:
 	  //	  std::cout << "SUTT ref_tracks" << ref_tracks.size() << std::endl;  
 
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
-            m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endreq;
+            m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endmsg;
             for ( int ii=m_selectorRef->tracks().size() ; ii-- ; )
-              m_provider->msg(MSG::VERBOSE) << "  ref track " << ii << " " << *m_selectorRef->tracks()[ii] << endreq;
+              m_provider->msg(MSG::VERBOSE) << "  ref track " << ii << " " << *m_selectorRef->tracks()[ii] << endmsg;
           }
         }
 	else { 
@@ -1119,7 +1117,7 @@ protected:
 	if ( testbeamspot.size()>0 ) _analysis->setBeamTest( testbeamspot ); 
 
 	if ( first && m_NRois==0 && m_provider->msg().level() <= MSG::INFO) {
-	  m_provider->msg(MSG::INFO) << m_provider->name() << " using highest pt reference track only " << this->getUseHighestPT() << endreq;
+	  m_provider->msg(MSG::INFO) << m_provider->name() << " using highest pt reference track only " << this->getUseHighestPT() << endmsg;
 	}
 
 	/// if we want a purity, we need to swap round which tracks are the 
@@ -1181,14 +1179,14 @@ protected:
 	  m_provider->msg(MSG::INFO) << "Missing track for " << m_chainNames[ichain]  
 				     << "\trun "             << run_number 
 				     << "\tevent "           << event_number 
-				     << "\tlb "              << lumi_block << endreq;     
+				     << "\tlb "              << lumi_block << endmsg;     
 	}
 
       }
     }
     
     if ( m_provider->msg().level() <= MSG::VERBOSE ) {
-      m_provider->msg(MSG::VERBOSE) << "\n\nEvent " << *m_event << endreq;
+      m_provider->msg(MSG::VERBOSE) << "\n\nEvent " << *m_event << endmsg;
     }
   }
 
@@ -1197,27 +1195,27 @@ protected:
   virtual void book() {
 
     if(m_provider->msg().level() <= MSG::VERBOSE)
-      m_provider->msg(MSG::VERBOSE) << "AnalysisConfig_Tier0::book() " << name() << endreq;
+      m_provider->msg(MSG::VERBOSE) << "AnalysisConfig_Tier0::book() " << name() << endmsg;
 
     // get the beam condition services - one for online and one for offline
 
     m_iBeamCondSvc = 0;
     if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() ) {
       if(m_provider->msg().level() <= MSG::ERROR)
-        m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endreq;
+        m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
     }
 
     // get the TriggerDecisionTool
 
     if( m_tdt->retrieve().isFailure() ) {
       if(m_provider->msg().level() <= MSG::ERROR)
-        m_provider->msg(MSG::ERROR) << " Unable to retrieve the TrigDecisionTool: Please check job options file" << endreq;
+        m_provider->msg(MSG::ERROR) << " Unable to retrieve the TrigDecisionTool: Please check job options file" << endmsg;
       // return StatusCode::FAILURE;
       return;
     }
 
     if(m_provider->msg().level() <= MSG::VERBOSE) {
-      m_provider->msg(MSG::VERBOSE) << " Successfully retrived the TrigDecisionTool"  << endreq;
+      m_provider->msg(MSG::VERBOSE) << " Successfully retrived the TrigDecisionTool"  << endmsg;
     }
 
 
@@ -1225,10 +1223,10 @@ protected:
     if (m_provider->msg().level() <= MSG::VERBOSE) {
       std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
-      m_provider->msg(MSG::VERBOSE)  << "Configured chains" << endreq;
+      m_provider->msg(MSG::VERBOSE)  << "Configured chains" << endmsg;
       for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) {
         if( m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE)  << " Chain " << configuredChains[i]  << endreq;
+          m_provider->msg(MSG::VERBOSE)  << " Chain " << configuredChains[i]  << endmsg;
       }
     }
 
@@ -1248,7 +1246,7 @@ protected:
       /// get chain
       ChainString& chainName = (*chainitr);
 
-      // m_provider->msg(MSG::VERBOSE) << "process chain " << chainName << endreq;
+      // m_provider->msg(MSG::VERBOSE) << "process chain " << chainName << endmsg;
 
       /// check for wildcard ...
       // if ( chainName.head().find("*")!=std::string::npos ) {
@@ -1264,7 +1262,7 @@ protected:
 
       // std::cout << "selected chains " << selectChains.size() << std::endl;
 
-      // if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endreq;
+      // if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endmsg;
 
       for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
@@ -1279,7 +1277,7 @@ protected:
         chains.push_back( selectChains[iselected] );
 
         if(m_provider->msg().level() <= MSG::VERBOSE) {
-          m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endreq;
+          m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endmsg;
 	}
       }
       // else {
@@ -1298,14 +1296,14 @@ protected:
       
 
       if ( ic>0 ) { 
-	m_provider->msg(MSG::WARNING) << "more than one chain configured for this analysis - skipping " << m_chainNames[ic] << endreq;
+	m_provider->msg(MSG::WARNING) << "more than one chain configured for this analysis - skipping " << m_chainNames[ic] << endmsg;
 	continue;
       }
 
-      m_provider->msg(MSG::VERBOSE) << "Analyse chain " << m_chainNames[ic] << endreq;
+      m_provider->msg(MSG::VERBOSE) << "Analyse chain " << m_chainNames[ic] << endmsg;
 
 
-      // m_provider->msg(MSG::VERBOSE)  << "--------------------------------------------------" << endreq;
+      // m_provider->msg(MSG::VERBOSE)  << "--------------------------------------------------" << endmsg;
       
       
       std::string folder_name = "";
@@ -1381,7 +1379,7 @@ protected:
 
       //      std::cout << "SUTT chain " << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
       
-      m_provider->msg(MSG::INFO) << " book mongroup " << mongroup << endreq;
+      m_provider->msg(MSG::INFO) << " book mongroup " << mongroup << endmsg;
       
 #     ifdef ManagedMonitorToolBase_Uses_API_201401
       m_provider->addMonGroup( new ManagedMonitorToolBase::MonGroup( m_provider, mongroup, ManagedMonitorToolBase::run ) );
@@ -1421,7 +1419,7 @@ protected:
       }
       
       if(m_provider->msg().level() <= MSG::VERBOSE)
-	m_provider->msg(MSG::VERBOSE) << "AnalysisConfig_Tier0::book() done" << endreq;
+	m_provider->msg(MSG::VERBOSE) << "AnalysisConfig_Tier0::book() done" << endmsg;
       
     }
 
@@ -1432,14 +1430,14 @@ protected:
   virtual void finalize() {
 
     if(m_provider->msg().level() <= MSG::VERBOSE)
-      m_provider->msg(MSG::VERBOSE) << "AnalysisConfig_Tier0::finalise() " << m_provider->name() << endreq;
+      m_provider->msg(MSG::VERBOSE) << "AnalysisConfig_Tier0::finalise() " << m_provider->name() << endmsg;
 
     m_analysis->finalise();
 
-    m_provider->msg(MSG::INFO) << m_provider->name() << " NRois processed: " << m_NRois << "\tRef tracks: " << m_NRefTracks << "\tTestTracks: " << m_NTestTracks << endreq;
+    m_provider->msg(MSG::INFO) << m_provider->name() << " NRois processed: " << m_NRois << "\tRef tracks: " << m_NRefTracks << "\tTestTracks: " << m_NTestTracks << endmsg;
 
     if(m_provider->msg().level() <= MSG::VERBOSE)
-      m_provider->msg(MSG::VERBOSE) << m_provider->name() << " finalised" << endreq;
+      m_provider->msg(MSG::VERBOSE) << m_provider->name() << " finalised" << endmsg;
 
   }
 

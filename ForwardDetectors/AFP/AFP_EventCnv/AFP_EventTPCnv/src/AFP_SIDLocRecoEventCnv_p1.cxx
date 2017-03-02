@@ -13,7 +13,7 @@
 
 void AFP_SIDLocRecoEventCnv_p1::persToTrans(const AFP_SIDLocRecoEvent_p1* persObj, AFP_SIDLocRecoEvent* transObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "AFP_SIDLocRecoEventCnv_p1::persToTrans called " << endreq;
+	log << MSG::DEBUG << "AFP_SIDLocRecoEventCnv_p1::persToTrans called " << endmsg;
 
 	transObj->m_iAlgoNum	= persObj->m_iAlgoNum;
 	transObj->m_nStationID	= persObj->m_nStationID;
@@ -34,7 +34,7 @@ void AFP_SIDLocRecoEventCnv_p1::persToTrans(const AFP_SIDLocRecoEvent_p1* persOb
  
 void AFP_SIDLocRecoEventCnv_p1::transToPers(const AFP_SIDLocRecoEvent* transObj, AFP_SIDLocRecoEvent_p1* persObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "AFP_SIDLocRecoEventCnv_p1::transToPers called " << endreq;
+	log << MSG::DEBUG << "AFP_SIDLocRecoEventCnv_p1::transToPers called " << endmsg;
 
 	persObj->m_iAlgoNum	= transObj->m_iAlgoNum;
 	persObj->m_nStationID	= transObj->m_nStationID;

@@ -23,6 +23,7 @@
 
 # Some analysis packages that are not part of Athena
 -AsgExternal/Asg_Test
+-Control/AthLinksSA
 -PhysicsAnalysis/D3PDTools/EventLoop
 -PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 -PhysicsAnalysis/AnalysisCommon/PMGTools

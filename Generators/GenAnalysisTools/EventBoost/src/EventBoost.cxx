@@ -60,7 +60,7 @@ EventBoost::EventBoost( const std::string& name,
 //______________________________________________________________________________
 StatusCode EventBoost::initialize(){
 
-  msg(MSG::INFO) << "Base Class initializing" << endreq;
+  msg(MSG::INFO) << "Base Class initializing" << endmsg;
 
   //Call user job initialization:
   return GenAnalysis_initialize();
@@ -71,13 +71,13 @@ StatusCode EventBoost::execute() {
 
 
   //  MsgStream msglog(messageService(), name());
-  msg(MSG::VERBOSE) << "Begin execute()" << endreq;
+  msg(MSG::VERBOSE) << "Begin execute()" << endmsg;
 
 
   // Read Data from Transient Store
   const McEventCollection* mcCollptr;
   if ( sgSvc()->retrieve(mcCollptr, m_genEvtInKey).isFailure() ) {
-    msg(MSG::ERROR) << "Could not retrieve McEventCollection" << m_genEvtInKey<< endreq;
+    msg(MSG::ERROR) << "Could not retrieve McEventCollection" << m_genEvtInKey<< endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -99,7 +99,7 @@ StatusCode EventBoost::execute() {
   
   const McEventCollection* mcCollptrCOPY;
   if ( sgSvc()->retrieve(mcCollptrCOPY, m_genEvtOutKey).isFailure() ) {
-    msg(MSG::ERROR) << "Could not retrieve boosted McEventCollection" << m_genEvtOutKey<< endreq;
+    msg(MSG::ERROR) << "Could not retrieve boosted McEventCollection" << m_genEvtOutKey<< endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -147,18 +147,18 @@ StatusCode EventBoost::Analyse_EndEvent() {
   m_nModifiedTotal += m_nModifiedEvent;
   m_nFailedTotal += m_nFailedEvent;
   if ( m_nModifiedEvent+m_nFailedEvent == 0)
-    msg(MSG::VERBOSE) << "No particles requiring modifications found in event." << endreq;
+    msg(MSG::VERBOSE) << "No particles requiring modifications found in event." << endmsg;
   else
     msg(MSG::DEBUG) << "Modified a total of "
 	   <<m_nModifiedEvent<<" particles ("
-	   <<m_nFailedEvent<<" failures)."<< endreq;
+	   <<m_nFailedEvent<<" failures)."<< endmsg;
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
 StatusCode EventBoost::GenAnalysis_initialize(){
 
-  msg(MSG::INFO) << "EventBoost initializing" << endreq;
+  msg(MSG::INFO) << "EventBoost initializing" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -167,11 +167,11 @@ StatusCode EventBoost::GenAnalysis_initialize(){
 StatusCode EventBoost::GenAnalysis_finalize(){
 
   if ( m_nModifiedTotal+m_nFailedTotal == 0)
-    msg(MSG::WARNING) << "No particles requiring modifications found during entire job." << endreq;
+    msg(MSG::WARNING) << "No particles requiring modifications found during entire job." << endmsg;
   else
     msg(MSG::INFO) << "Modified a total of "
 	   <<m_nModifiedTotal<<" particles ("
-	   <<m_nFailedTotal<<" failures) during job."<< endreq;
+	   <<m_nFailedTotal<<" failures) during job."<< endmsg;
    return StatusCode::SUCCESS;
 }
 
@@ -179,7 +179,7 @@ StatusCode EventBoost::GenAnalysis_finalize(){
 
 StatusCode EventBoost::AnalyseGenEvent(HepMC::GenEvent* genEvt) {
 
-  msg(MSG::VERBOSE) << "EventBoost begin AnalyseGenEvent()" << endreq;
+  msg(MSG::VERBOSE) << "EventBoost begin AnalyseGenEvent()" << endmsg;
 
   HepMC::GenEvent::particle_iterator p = genEvt->particles_begin();
   HepMC::GenEvent::particle_iterator pEnd = genEvt->particles_end();
@@ -197,12 +197,12 @@ StatusCode EventBoost::AnalyseGenEvent(HepMC::GenEvent* genEvt) {
 
   for (;it!=itE;++it) {
     if (!doModification(*it,m_pxsum)) {
-      msg(MSG::WARNING) << "Problems modifying HepMC record!" << endreq;
+      msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
       ++m_nFailedEvent;
     } else
       ++m_nModifiedEvent;
   }
-  msg(MSG::DEBUG) << "Difference in total Px momentum = " << m_pxsum << " MeV" <<endreq;
+  msg(MSG::DEBUG) << "Difference in total Px momentum = " << m_pxsum << " MeV" <<endmsg;
 
   
   if ((m_gaussian_vertex_smearing)||(m_flat_vertex_smearing)) {
@@ -229,7 +229,7 @@ StatusCode EventBoost::AnalyseGenEvent(HepMC::GenEvent* genEvt) {
     Rndm::Numbers FlatVertexModifier_z(randSvc(), Rndm::Flat(m_flat_smearing_boundary_min[2], m_flat_smearing_boundary_max[2]));
     
     if ((m_gaussian_vertex_smearing)&&(m_flat_vertex_smearing)) {
-      msg(MSG::ERROR) << "Bad input settings: cannot smear according to multiple distributions: Gauss & Flat" << endreq;
+      msg(MSG::ERROR) << "Bad input settings: cannot smear according to multiple distributions: Gauss & Flat" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -248,7 +248,7 @@ StatusCode EventBoost::AnalyseGenEvent(HepMC::GenEvent* genEvt) {
 
       if (m_gaussian_vertex_smearing) {
 	if (!doVertexModification(*vit, m_gauss_rand_x, m_gauss_rand_y, m_gauss_rand_z)) {
-	  msg(MSG::WARNING) << "Problems modifying HepMC record!" << endreq;
+	  msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
 	  ++m_nFailedEvent;
 	} else
 	  ++m_nModifiedEvent;
@@ -256,7 +256,7 @@ StatusCode EventBoost::AnalyseGenEvent(HepMC::GenEvent* genEvt) {
 
       else if (m_flat_vertex_smearing) {
 	if (!doVertexModification(*vit, m_flat_rand_x, m_flat_rand_y, m_flat_rand_z)) {
-	  msg(MSG::WARNING) << "Problems modifying HepMC record!" << endreq;
+	  msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
 	  ++m_nFailedEvent;
 	} else
 	  ++m_nModifiedEvent;
@@ -320,7 +320,7 @@ bool EventBoost::doVertexModification(HepMC::GenVertex * ver, double rand_x, dou
   
   ver->set_position(new_vertex_pos);
 
-  msg(MSG::DEBUG) << "Vertex position modified from ("<<vertex.x()<<", "<<vertex.y()<<", "<<vertex.z()<<") to ("<<new_vertex_pos.x()<<", "<<new_vertex_pos.y()<<", "<<new_vertex_pos.z()<<")" << endreq;
+  msg(MSG::DEBUG) << "Vertex position modified from ("<<vertex.x()<<", "<<vertex.y()<<", "<<vertex.z()<<") to ("<<new_vertex_pos.x()<<", "<<new_vertex_pos.y()<<", "<<new_vertex_pos.z()<<")" << endmsg;
   
   
   return true;
@@ -339,7 +339,7 @@ StatusCode EventBoost::EventCopy(const HepMC::GenEvent* evt) const
   mcEvtColl->push_back(newEvt);
   
   if ( sgSvc()->record( mcEvtColl, m_genEvtOutKey ).isFailure() ) {
-    msg(MSG::ERROR) << "Could not record boosted McEventCollection" << m_genEvtOutKey<< endreq;
+    msg(MSG::ERROR) << "Could not record boosted McEventCollection" << m_genEvtOutKey<< endmsg;
     return StatusCode::FAILURE;
   }
   

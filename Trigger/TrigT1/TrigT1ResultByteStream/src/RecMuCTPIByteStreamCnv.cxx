@@ -67,17 +67,17 @@ StatusCode RecMuCTPIByteStreamCnv::initialize() {
   }
 
   MsgStream log( messageService(), "RecMuCTPIByteStreamCnv" );
-  log << MSG::DEBUG << "RecMuCTPIByteStreamCnv in initialize()" << endreq;
+  log << MSG::DEBUG << "RecMuCTPIByteStreamCnv in initialize()" << endmsg;
 
   //
   // Get RecMuCTPIByteStreamTool:
   //
   sc = m_tool.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Can't get RecMuCTPIByteStreamTool" << endreq;
+    log << MSG::ERROR << "Can't get RecMuCTPIByteStreamTool" << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to RecMuCTPIByteStreamTool" << endreq;
+    log << MSG::DEBUG << "Connected to RecMuCTPIByteStreamTool" << endmsg;
   }
 
   //
@@ -85,10 +85,10 @@ StatusCode RecMuCTPIByteStreamCnv::initialize() {
   //
   sc = m_robDataProvider.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Can't get ROBDataProviderSvc" << endreq;
+    log << MSG::ERROR << "Can't get ROBDataProviderSvc" << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endreq;
+    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
   }
 
   //
@@ -108,16 +108,16 @@ StatusCode RecMuCTPIByteStreamCnv::initialize() {
 StatusCode RecMuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
   MsgStream log( messageService(), "RecMuCTPIByteStreamCnv" );
-  log << MSG::DEBUG << "executing createObj()" << endreq;
+  log << MSG::DEBUG << "executing createObj()" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast< ByteStreamAddress* >( pAddr );
   if ( !pBS_Addr ) {
-    log << MSG::ERROR << " Cannot cast to ByteStreamAddress " << endreq ;
+    log << MSG::ERROR << " Cannot cast to ByteStreamAddress " << endmsg ;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::DEBUG << " Creating Objects  " << *( pBS_Addr->par() ) << endreq;
+  log << MSG::DEBUG << " Creating Objects  " << *( pBS_Addr->par() ) << endmsg;
 
   // get SourceID
   const uint32_t robId = m_srcIdMap->getRobID( m_srcIdMap->getRodID() );
@@ -140,7 +140,7 @@ StatusCode RecMuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*
     // size check
     if ( robFrags.size() != 1 ) {
       log << MSG::WARNING << " Number of ROB fragments for source ROB ID " << MSG::hex << newRobId << " (ROD ID " 
-          << m_srcIdMap->getRodID() << MSG::dec << ") is " << robFrags.size() << endreq;
+          << m_srcIdMap->getRodID() << MSG::dec << ") is " << robFrags.size() << endmsg;
       MuCTPI_RIO * result = new MuCTPI_RIO;
       pObj = SG::asStorable( result ) ;
       return StatusCode::SUCCESS;
@@ -152,7 +152,7 @@ StatusCode RecMuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*
   // Convert to Object
   StatusCode sc = m_tool->convert( ROBData( *it ).getROBFragment(), result );
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << " Failed to create Objects   " << *( pBS_Addr->par() ) << endreq;
+    log << MSG::ERROR << " Failed to create Objects   " << *( pBS_Addr->par() ) << endmsg;
     return sc;
   }
   pObj = SG::asStorable( result ) ;

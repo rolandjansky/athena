@@ -14,6 +14,10 @@
 #include "TEnv.h"
 #include "THashList.h"
 
+// EDM include(s)
+#include "xAODMetaData/FileMetaData.h"
+
+
 using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
@@ -65,6 +69,9 @@ TauSelectionTool::TauSelectionTool( const std::string& name )
   declareProperty( "EleOLRFilePath",        m_sEleOLRFilePath);
   declareProperty( "ElectronContainerName", m_sElectronContainerName);
   declareProperty( "MuonContainerName",     m_sMuonContainerName);
+
+  declareProperty( "IgnoreAODFixCheck", m_bIgnoreAODFixCheck = false);
+  declareProperty( "RecalcEleOLR",      m_bRecalcEleOLR = false);
 }
 
 //______________________________________________________________________________
@@ -346,6 +353,94 @@ StatusCode TauSelectionTool::initialize()
 
   return StatusCode::SUCCESS;
 }
+
+//______________________________________________________________________________
+StatusCode TauSelectionTool::beginInputFile()
+{
+  /* 
+  Checks if electron OLR has to be re-calculated based on file's production release.
+  It is possible but not recommended to ignore this check via m_bIgnoreAODFixCheck.
+  */
+  if (m_iSelectionCuts & CutEleOLR or m_bCreateControlPlots)
+  {
+
+    std::string eleOlrPassName = "ele_olr_pass";
+  #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+    std::string lhScoreName = "ele_match_lhscore";
+  #else 
+    std::string lhScoreName = "EleMatchLikelihoodScore";
+  #endif
+
+    if (m_bIgnoreAODFixCheck)
+    {
+      if (not m_bRecalcEleOLR)
+      {
+        ATH_MSG_WARNING("Recommended check for AODFix is ignored. Electron OLR will not be recalculated");
+        m_cMap[CutEleOLR]->setProperty("EleOlrPassDecorationName", eleOlrPassName);
+        m_cMap[CutEleOLR]->setProperty("EleOlrLhScoreDecorationName", lhScoreName);
+        ATH_CHECK(m_tTOELLHDecorator->setEleOlrPassDecorationName(eleOlrPassName));
+        ATH_CHECK(m_tTOELLHDecorator->setEleOlrLhScoreDecorationName(lhScoreName));
+      }
+      else
+      {
+        ATH_MSG_WARNING("Recommended check for AODFix is ignored. Electron OLR will be recalculated");
+        m_cMap[CutEleOLR]->setProperty("EleOlrPassDecorationName", eleOlrPassName+"_fix");
+        m_cMap[CutEleOLR]->setProperty("EleOlrLhScoreDecorationName", lhScoreName+"_fix");
+        ATH_CHECK(m_tTOELLHDecorator->setEleOlrPassDecorationName(eleOlrPassName+"_fix"));
+        ATH_CHECK(m_tTOELLHDecorator->setEleOlrLhScoreDecorationName(lhScoreName+"_fix"));
+      }
+    }
+    else
+    {
+      // Some default value if there's no metadata:
+      std::string release = "20.7.7.3";
+
+      // Try to get the release number from the metadata:
+      const xAOD::FileMetaData* fmd = 0;
+      if( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") &&
+          inputMetaStore()->retrieve( fmd, "FileMetaData" ).isSuccess() ) 
+      {
+        if( ! fmd->value( xAOD::FileMetaData::productionRelease, release ) ) 
+        {
+          ATH_MSG_WARNING( "No production release specified in the file metadata" );
+          ATH_MSG_WARNING( "Defaulting to: " << release );
+        }
+      } 
+      else 
+      {
+        ATH_MSG_WARNING( "No xAOD::FileMetaData object found with key: FileMetaData" );
+        ATH_MSG_WARNING( "Defaulting to production release: " << release );
+      }
+
+      // check if release has tau AOD fix
+      std::vector<std::string> vAodFixReleases = {"AtlasDerivation-20.7.8.2",
+                                                  "AtlasDerivation-20.7.8.7"};
+      if ( std::find(vAodFixReleases.begin(), vAodFixReleases.end(), release) 
+               != vAodFixReleases.end() )
+      {
+        // EleOLR will not be re-calculated
+        ATH_MSG_DEBUG(release <<" is known to have AODfix");
+        ATH_MSG_DEBUG("Based on production release electron OLR will not be recalculated.");
+        m_cMap[CutEleOLR]->setProperty("EleOlrPassDecorationName", eleOlrPassName);
+        m_cMap[CutEleOLR]->setProperty("EleOlrLhScoreDecorationName", lhScoreName);
+        ATH_CHECK(m_tTOELLHDecorator->setEleOlrPassDecorationName(eleOlrPassName));
+        ATH_CHECK(m_tTOELLHDecorator->setEleOlrLhScoreDecorationName(lhScoreName));
+      }
+      else 
+      {
+        // EleOLR will be re-calculated
+        ATH_MSG_WARNING(release <<" is not known to have AODfix");
+        ATH_MSG_WARNING("Based on production release electron OLR will be recalculated.");
+        m_cMap[CutEleOLR]->setProperty("EleOlrPassDecorationName", eleOlrPassName+"_fix");
+        m_cMap[CutEleOLR]->setProperty("EleOlrLhScoreDecorationName", lhScoreName+"_fix");
+        ATH_CHECK(m_tTOELLHDecorator->setEleOlrPassDecorationName(eleOlrPassName+"_fix"));
+        ATH_CHECK(m_tTOELLHDecorator->setEleOlrLhScoreDecorationName(lhScoreName+"_fix"));
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
 
 //______________________________________________________________________________
 #pragma GCC diagnostic push

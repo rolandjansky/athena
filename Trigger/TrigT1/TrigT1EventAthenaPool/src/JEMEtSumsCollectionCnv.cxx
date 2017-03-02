@@ -16,7 +16,7 @@ JEMEtSumsCollection_PERS * JEMEtSumsCollectionCnv::createPersistent( JEMEtSumsCo
   
   MsgStream mlog(msgSvc(), "JEMEtSumsCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "JEMEtSumsCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "JEMEtSumsCollectionCnv::createPersistent called" << endmsg;
 
   JEMEtSumsCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ JEMEtSumsCollection * JEMEtSumsCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "JEMEtSumsCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "JEMEtSumsCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "JEMEtSumsCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "FFEF6FF1-31E5-492A-9A44-4AD5B79DB22B" );
  

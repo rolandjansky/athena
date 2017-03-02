@@ -22,13 +22,13 @@ namespace JiveXML {
 
   StatusCode MuonGeometryWriter::writeGeometry() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "writeGeometry()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "writeGeometry()" << endmsg;
 
     std::ofstream outputFile("AMuonGeometry.xml");
     writeHeader(outputFile);
 
     if ( detStore()->retrieve(m_muon_manager).isFailure() ) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve MuonGM::MuonDetectorManager" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve MuonGM::MuonDetectorManager" << endmsg;
       m_muon_manager = 0;
       return StatusCode::FAILURE;
     } else {
@@ -103,7 +103,7 @@ namespace JiveXML {
     const MdtIdHelper *mdtIdHelper = m_muon_manager->mdtIdHelper();
     int snMax = mdtIdHelper->stationNameIndexMax();
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Station types: " << snMax << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Station types: " << snMax << endmsg;
 
     // Loop over all station types.
     for (int sn=0; sn<=snMax; sn++) {
@@ -159,7 +159,7 @@ namespace JiveXML {
 	  if (station) stations->push_back(station);
 	}
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Station size: " << stations->size() << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Station size: " << stations->size() << endmsg;
 
 	// While there are stations that haven't been written to XML, stay in this loop.
 	while (stations->size() > 0) {
@@ -221,7 +221,7 @@ namespace JiveXML {
 	      // to-be-processed list.
 	      phiString += " " + DataType(phi2).toString();
 
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " phiString " << phiString << endreq;
+              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " phiString " << phiString << endmsg;
 
 	      stations->erase(it, it+1);
 	    }

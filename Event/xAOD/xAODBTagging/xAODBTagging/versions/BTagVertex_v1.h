@@ -110,11 +110,4 @@ namespace xAOD {
   }; // class BTagVertex
 } // namespace xAOD
 
-
-
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::BTagVertex_v1, 96886315, 1 )
-#endif
-
 #endif

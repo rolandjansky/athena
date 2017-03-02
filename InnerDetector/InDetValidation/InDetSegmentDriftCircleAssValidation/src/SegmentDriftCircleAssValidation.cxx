@@ -62,14 +62,14 @@ StatusCode InDet::SegmentDriftCircleAssValidation::initialize()
 
   // Get output print level
   //
-  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endreq;}
+  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
 
   // get the Particle Properties Service
   //
   IPartPropSvc* partPropSvc = 0;
   sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endreq;
+    msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endmsg;
     return StatusCode::FAILURE;
   }      
 
@@ -77,7 +77,7 @@ StatusCode InDet::SegmentDriftCircleAssValidation::initialize()
   //
   m_particleDataTable = partPropSvc->PDT();
   if(!m_particleDataTable) {
-    msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endreq;
+    msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -96,15 +96,15 @@ StatusCode InDet::SegmentDriftCircleAssValidation::initialize()
 
 StatusCode InDet::SegmentDriftCircleAssValidation::execute() 
 { 
-  msg(MSG::DEBUG)    << " InDetSegmentDriftCircleAssValidation execute()" << endreq;
+  msg(MSG::DEBUG)    << " InDetSegmentDriftCircleAssValidation execute()" << endmsg;
 
   StatusCode sc = evtStore()->retrieve(m_origColTracks,m_origtracklocation);
   
   if(sc.isFailure()){
-    msg(MSG::FATAL) << "No TRT tracks with name " << m_origtracklocation << " found in StoreGate!" << endreq;
+    msg(MSG::FATAL) << "No TRT tracks with name " << m_origtracklocation << " found in StoreGate!" << endmsg;
     return sc;
   }else{
-    msg(MSG::DEBUG) << "Found TRT trak collection " << m_origtracklocation << " in StoreGate!" << endreq;
+    msg(MSG::DEBUG) << "Found TRT trak collection " << m_origtracklocation << " in StoreGate!" << endmsg;
   }
 
   //***************************************************************************************************
@@ -115,14 +115,14 @@ StatusCode InDet::SegmentDriftCircleAssValidation::execute()
   if(!m_PRDTruthNameTRT.empty()) {
     sc = evtStore()->retrieve(prdCollectionVector, m_PRDTruthNameTRT);
     if (sc.isFailure()){
-      msg(MSG::WARNING) << "TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT<<" NOT found"<< endreq;
+      msg(MSG::WARNING) << "TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT<<" NOT found"<< endmsg;
     } else {
-      msg(MSG::DEBUG) << "Got TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT <<endreq;
+      msg(MSG::DEBUG) << "Got TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT <<endmsg;
     }
   }
   m_prdCollectionVector.push_back(prdCollectionVector);
   //****************************************************************************************************
-  msg(MSG::DEBUG) << " prdCollectionVector size  " << m_prdCollectionVector.size() << endreq;
+  msg(MSG::DEBUG) << " prdCollectionVector size  " << m_prdCollectionVector.size() << endmsg;
 
   newCirclesEvent();
   m_nqsegments = QualityTracksSelection();
@@ -135,7 +135,7 @@ StatusCode InDet::SegmentDriftCircleAssValidation::execute()
 
   }
 
-  if(msgLvl(MSG::DEBUG)){m_nprint=1; msg(MSG::DEBUG) << (*this) << endreq;}
+  if(msgLvl(MSG::DEBUG)){m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;}
 
   return StatusCode::SUCCESS;
 }

@@ -526,7 +526,7 @@ namespace InDet
     
     if (m_linearizedTrackFactoryIsAvailable==false)
     {
-      msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endreq;
+      msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endmsg;
       return std::pair<double,double>(0,0);
     }
     

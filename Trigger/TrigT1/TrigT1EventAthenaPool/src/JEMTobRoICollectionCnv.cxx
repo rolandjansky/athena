@@ -16,7 +16,7 @@ JEMTobRoICollection_PERS * JEMTobRoICollectionCnv::createPersistent( JEMTobRoICo
   
   MsgStream mlog(msgSvc(), "JEMTobRoICollectionConverter" );
 
-  //mlog << MSG::DEBUG << "JEMTobRoICollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "JEMTobRoICollectionCnv::createPersistent called" << endmsg;
 
   JEMTobRoICollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ JEMTobRoICollection * JEMTobRoICollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "JEMTobRoICollectionConverter" );
   
-  //mlog << MSG::DEBUG << "JEMTobRoICollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "JEMTobRoICollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "49790040-16E0-4CAB-96A2-31DC010FFB06" );
  

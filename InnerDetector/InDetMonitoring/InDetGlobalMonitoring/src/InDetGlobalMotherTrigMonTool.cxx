@@ -38,7 +38,7 @@ InDetGlobalMotherTrigMonTool::InDetGlobalMotherTrigMonTool(
 StatusCode InDetGlobalMotherTrigMonTool::initialize(){
   if ( ManagedMonitorToolBase::initialize().isFailure() )
     {
-      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Could not initialize Monitor tool base!" << endreq;
+      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Could not initialize Monitor tool base!" << endmsg;
       return StatusCode::FAILURE;
     }
   m_triggerNames[0] = "RNDM";
@@ -83,7 +83,7 @@ StatusCode InDetGlobalMotherTrigMonTool::CheckTriggers()
 StatusCode InDetGlobalMotherTrigMonTool::PrintTriggers()
 {
   for ( int i = 0; i < 8; i++){
-    if ( msgLvl(MSG::INFO) ) msg(MSG::INFO) << std::setw(7) << m_triggerNames[i] << " : " << m_firedTriggers[i] << endreq;
+    if ( msgLvl(MSG::INFO) ) msg(MSG::INFO) << std::setw(7) << m_triggerNames[i] << " : " << m_firedTriggers[i] << endmsg;
   }
   return StatusCode::SUCCESS;
 }

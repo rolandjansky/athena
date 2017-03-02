@@ -61,7 +61,7 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
   // Number_Of_TGC_Strip_Hits_Per_Event
   // Number_Of_TGC_Hits_Per_Event_{A,C}
 
-  m_log << MSG::INFO << "bookHistogramsNumberOfHits" << endreq;       
+  m_log << MSG::INFO << "bookHistogramsNumberOfHits" << endmsg;       
 
   StatusCode sc=StatusCode::SUCCESS;
 
@@ -78,7 +78,7 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
   tgceventcounter=new TH1F("Event_Counter","Event_Counter; [counts]; Number of Hits/Events",1,0,1.);       
   sc=tgcprd_shift.regHist(tgceventcounter) ;  
   if(sc.isFailure()) { 
-    m_log << MSG::FATAL << "tgceventcounter Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << "tgceventcounter Failed to register histogram " << endmsg;       
     return sc;
   }
 
@@ -86,7 +86,7 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
   tgcevents=new TH1F("Number_Of_TGC_Hits_Per_Event", "Number_Of_TGC_Hits_Per_Event; [counts]; Number of Hits/Events",500,0,500.);       
   sc=tgcprd_shift.regHist(tgcevents) ;  
   if(sc.isFailure()) { 
-    m_log << MSG::FATAL << "tgcevents Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << "tgcevents Failed to register histogram " << endmsg;       
     return sc;
   }
   
@@ -95,7 +95,7 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
   tgcnumberofwirehits=new TH1F("Number_Of_TGC_Wire_Hits_Per_Event", "Number_Of_TGC_Wire_Hits_Per_Event; [counts]; Number of Wire Hits/Event",300,0,300.);       
   sc=tgcprd_expert.regHist(tgcnumberofwirehits) ;  
   if(sc.isFailure()) { 
-    m_log << MSG::FATAL << "tgcnumberofwirehits Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << "tgcnumberofwirehits Failed to register histogram " << endmsg;       
     return sc;
   }
 
@@ -104,7 +104,7 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
   tgcnumberofstriphits=new TH1F("Number_Of_TGC_Strip_Hits_Per_Event", "Number_Of_TGC_Strip_Hits_Per_Event; [counts]; Number of Strip Hits/Events",300,0,300.);       
   sc=tgcprd_expert.regHist(tgcnumberofstriphits) ;  
   if(sc.isFailure()) { 
-    m_log << MSG::FATAL << "tgcnumberofstriphits Failed to register histogram " << endreq;       
+    m_log << MSG::FATAL << "tgcnumberofstriphits Failed to register histogram " << endmsg;       
     return sc;
   }
 
@@ -115,7 +115,7 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
     if(ac==0) sc=tgcprd_shift_a.regHist(tgcnumberofhits[ac]) ;  
     else      sc=tgcprd_shift_c.regHist(tgcnumberofhits[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
   }

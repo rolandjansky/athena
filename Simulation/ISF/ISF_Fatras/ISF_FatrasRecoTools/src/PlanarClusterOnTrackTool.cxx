@@ -44,7 +44,7 @@ namespace iFatras {
   {
     StatusCode sc = AthAlgTool::initialize(); 
     
-    msg(MSG::INFO)  << name() << " initialize()" << endreq;   
+    msg(MSG::INFO)  << name() << " initialize()" << endmsg;   
     
     return sc;
   }

@@ -42,7 +42,7 @@ StatusCode TRTCondWrite::initialize() {
 
   //get Database manager tool
   if (StatusCode::SUCCESS!=m_caldbtool.retrieve()) {
-    msg(MSG::FATAL) << "TRTCalDbTool not found" << endreq;
+    msg(MSG::FATAL) << "TRTCalDbTool not found" << endmsg;
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG(" TRTCalDbTool found ");
@@ -50,7 +50,7 @@ StatusCode TRTCondWrite::initialize() {
   ATH_MSG_DEBUG(" TRT Calibration objects will be created");
 
   if (par_calfile!="") {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " Constants will read from text file " << par_calfile << endreq;
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " Constants will read from text file " << par_calfile << endmsg;
   } else {
     ATH_MSG_INFO(" You have supplied no input file ");
     ATH_MSG_INFO(" Assume you want to check the Db by dumping contents ");
@@ -76,7 +76,7 @@ StatusCode TRTCondWrite::execute() {
       if (par_calfile!="") sc=m_caldbtool->readTextFile(par_calfile);
       if(sc!=StatusCode::SUCCESS) {
         msg(MSG::ERROR) << " Could not read TRT Calibration objects from "
-              << par_calfile << endreq;
+              << par_calfile << endmsg;
         return sc;
       }
 

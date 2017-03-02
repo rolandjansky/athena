@@ -156,7 +156,7 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
 //                                <<m_muonMgr->mdtIdHelper()->stationName(id)<<", st. eta="
 //                                <<m_muonMgr->mdtIdHelper()->stationEta(id)<<", st. phi="
 //                                <<m_muonMgr->mdtIdHelper()->stationPhi(id)<<", multilayer="
-//                                <<m_muonMgr->mdtIdHelper()->multilayer(id)<<endreq;        
+//                                <<m_muonMgr->mdtIdHelper()->multilayer(id)<<endmsg;        
     if (detEl==0) ATH_MSG_ERROR( "Apparently could not find detector element for "<< id);
     ATH_MSG_VERBOSE("Found PRD at : "<<prd);    
     ////std::cout<<"Debug: pair = ("<<detEl<<","<<prd<<")"<<std::endl;

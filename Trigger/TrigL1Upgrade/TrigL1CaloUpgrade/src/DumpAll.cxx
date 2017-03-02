@@ -41,7 +41,7 @@ DumpAll::~DumpAll(){}
 StatusCode DumpAll::initialize(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing DumpAll" << endreq;
+	msg << MSG::DEBUG << "initializing DumpAll" << endmsg;
         m_counter = 0;
 	std::string filename=name();
 	filename+=".DumpAll.root";
@@ -118,7 +118,7 @@ StatusCode DumpAll::initialize(){
 
 	// for cell <-> SCell comparison
 	if ( m_cabling.retrieve().isFailure() ){
-		msg << MSG::ERROR << "cannot perform comparisons between SuperCells and digits" << endreq;
+		msg << MSG::ERROR << "cannot perform comparisons between SuperCells and digits" << endmsg;
 	}
 
 	return StatusCode::SUCCESS;
@@ -126,7 +126,7 @@ StatusCode DumpAll::initialize(){
 
 StatusCode DumpAll::finalize(){
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing SimpleLArDigitsChecks" << endreq;
+	msg << MSG::DEBUG << "finalizing SimpleLArDigitsChecks" << endmsg;
 	m_file->Write();
 	m_file->Close();
 	return StatusCode::SUCCESS;
@@ -135,50 +135,50 @@ StatusCode DumpAll::finalize(){
 StatusCode DumpAll::execute(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute DumpAll" << endreq;
+	msg << MSG::DEBUG << "execute DumpAll" << endmsg;
 	std::cout << "DumpAll" << std::endl;
         const CaloCellContainer* scells;
 	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container" << endreq;
+		msg << MSG::WARNING << "did not find cell container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 /*
 	if ( evtStore()->retrieve(allcalo,"LArDigitSCL1").isFailure() ){
-		msg << MSG::WARNING << "did not find lardigit container for regular cells" << endreq;
+		msg << MSG::WARNING << "did not find lardigit container for regular cells" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 */
 	const xAOD::VertexContainer* nvtx(NULL);
 	if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
-		msg << MSG::WARNING << "did not find Vectices container" << endreq;
+		msg << MSG::WARNING << "did not find Vectices container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
         const xAOD::TrigEMClusterContainer* scluster(nullptr);
         if ( evtStore()->retrieve(scluster,m_inputClusterName).isFailure() ){
-                msg << MSG::WARNING << "did not find super cluster container" << endreq;
+                msg << MSG::WARNING << "did not find super cluster container" << endmsg;
                 return StatusCode::SUCCESS;
         }
         const xAOD::EmTauRoIContainer* lvl1(nullptr);
         if ( evtStore()->retrieve(lvl1,m_inputLvl1Name).isFailure() ){
-                msg << MSG::WARNING << "did not find old l1 container" << endreq;
+                msg << MSG::WARNING << "did not find old l1 container" << endmsg;
                 return StatusCode::SUCCESS;
         }
 	const xAOD::TruthParticleContainer* truth;
         if ( evtStore()->retrieve(truth,"TruthParticles").isFailure() ) {
-                msg << MSG::WARNING << "did not find truth particle container" << endreq;
+                msg << MSG::WARNING << "did not find truth particle container" << endmsg;
                 return StatusCode::SUCCESS;
         }
 
 	const xAOD::ElectronContainer* electrons;
         if ( evtStore()->retrieve(electrons,"Electrons").isFailure() ) {
-                msg << MSG::WARNING << "did not find electron offline container" << endreq;
+                msg << MSG::WARNING << "did not find electron offline container" << endmsg;
                 return StatusCode::SUCCESS;
         }
 
 	bool caloavail=true;
 	const CaloCellContainer* allcalo;
         if ( evtStore()->retrieve(allcalo,"AllCalo").isFailure() ) {
-                msg << MSG::WARNING << "did not find allcalo container" << endreq;
+                msg << MSG::WARNING << "did not find allcalo container" << endmsg;
 		caloavail=false;
         }
 

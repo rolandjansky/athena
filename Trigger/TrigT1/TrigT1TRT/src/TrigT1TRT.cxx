@@ -30,10 +30,10 @@ namespace LVL1 {
   }
 
   StatusCode TrigT1TRT::initialize() {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initialising" << endreq;
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initialising" << endmsg;
 
     if (Algorithm::initialize().isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -42,36 +42,36 @@ namespace LVL1 {
     // Connect to the LVL1ConfigSvc to retrieve threshold settings.
     sc = m_configSvc.retrieve();
     if (sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName() << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName() << endmsg;
       return sc;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endmsg;
     }
 
     // retrieve TRT Detector Manager
     sc = detStore()->retrieve(mgr, "TRT");
     if (sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to TRT DetectorManager" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to TRT DetectorManager" << endmsg;
       return sc;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Connected to TRT DetectorManager" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Connected to TRT DetectorManager" << endmsg;
     }
 
     // retrieve TRT Helper
     sc = detStore()->retrieve(m_pTRTHelper,"TRT_ID");
     if (sc.isFailure()) {
-       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to TRT Helper" << endreq;
+       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to TRT Helper" << endmsg;
        return sc;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Connected to TRT Helper" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Connected to TRT Helper" << endmsg;
     }
 
     // retrieve TRT_StrawNeighbourService.
     if (m_TRTStrawNeighbourSvc.name() == "") {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_StrawNeighbourSvc not given." << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_StrawNeighbourSvc not given." << endmsg;
     } else { sc = m_TRTStrawNeighbourSvc.retrieve();
       if(sc.isFailure()){
-        if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get StrawNeighbourSvc!" << endreq;
+        if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get StrawNeighbourSvc!" << endmsg;
       }
     }
        
@@ -83,9 +83,9 @@ namespace LVL1 {
     std::vector<TrigConf::TriggerThreshold*>::iterator th_itr_end = thresholds.end();
     for(;th_itr!=th_itr_end;th_itr++) {
       if(*th_itr == 0) continue;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold name=" << (*th_itr)->name() << endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold value=" << (*th_itr)->triggerThresholdValue(0, 0)->ptcut() << endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Thershold cablestart=" << (*th_itr)->cableStart() << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold name=" << (*th_itr)->name() << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold value=" << (*th_itr)->triggerThresholdValue(0, 0)->ptcut() << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Thershold cablestart=" << (*th_itr)->cableStart() << endmsg;
       if        ((*th_itr)->name() == "TRTfast") {
         m_cablestarts[0]=(*th_itr)->cableStart();
       }
@@ -94,16 +94,16 @@ namespace LVL1 {
       
     if(thresholds.size()==0)
       {
-	msg(MSG::WARNING) << "No TRT thresholds found. Checking NIM thresholds for known TRT thresholds. THIS IS A HACK!"<<endreq;
+	msg(MSG::WARNING) << "No TRT thresholds found. Checking NIM thresholds for known TRT thresholds. THIS IS A HACK!"<<endmsg;
 	thresholds = m_configSvc->thresholdConfig()->getThresholdVector(TrigConf::L1DataDef::NIM);
 	th_itr = thresholds.begin();
 	th_itr_end = thresholds.end();
 	for(;th_itr!=th_itr_end;th_itr++) {
       if(*th_itr == 0) continue;
 	  if        ((*th_itr)->name() == "NIMDIR25") {
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold name=" << (*th_itr)->name() << endreq;
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold value=" << (*th_itr)->triggerThresholdValue(0, 0)->ptcut() << endreq;
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Thershold cablestart=" << (*th_itr)->cableStart() << endreq;
+	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold name=" << (*th_itr)->name() << endmsg;
+	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold value=" << (*th_itr)->triggerThresholdValue(0, 0)->ptcut() << endmsg;
+	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Thershold cablestart=" << (*th_itr)->cableStart() << endmsg;
 	    m_cablestarts[0]=(*th_itr)->cableStart();
 	  }
 	}
@@ -221,7 +221,7 @@ namespace LVL1 {
   }
 
   StatusCode TrigT1TRT::execute() {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endmsg;
     
     StatusCode sc;
     std::string containerName;
@@ -259,13 +259,13 @@ namespace LVL1 {
     m_TRTRDO = 0;
     sc = evtStore()->retrieve( m_TRTRDO, containerName);
     if( sc.isFailure()  || !m_TRTRDO ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << containerName << " not found" << endreq; 
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This event will be skipped." << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << containerName << " not found" << endmsg; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This event will be skipped." << endmsg;
       return StatusCode::SUCCESS;
     }
     else {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << containerName << " Container Successfully Retrieved" 
-    	    << endreq;
+    	    << endmsg;
     }
     
     // Loop over all Lvl 1 TRT hits
@@ -307,7 +307,7 @@ namespace LVL1 {
             m_chip = mat_chip_barrel[m_phi_module][m_strawNumber];
             m_board = BarrelChipToBoard(m_chip);
             if (m_board < 0) { 
-              if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failure in BarrelChipToBoard" << endreq;
+              if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failure in BarrelChipToBoard" << endmsg;
               return StatusCode::FAILURE;
             }
 
@@ -364,22 +364,22 @@ namespace LVL1 {
       }
     }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cableWord: " << cableWord0 << endreq;    
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cableWord: " << cableWord0 << endmsg;    
 
     // Record the CTP trigger word in StoreGate.
     TrtCTP *trtCTP = new TrtCTP(cableWord0);
     containerName = DEFAULT_TrtCTPLocation;
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "returning "<< trtCTP->dump() << endreq;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << trtCTP->print() << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "returning "<< trtCTP->dump() << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << trtCTP->print() << endmsg;
  
     sc = evtStore()->record(trtCTP, containerName, false);
     if(sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << containerName << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << containerName << endmsg;
       return StatusCode::FAILURE;
     } 
     else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << containerName << " registered successfully " << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << containerName << " registered successfully " << endmsg;
     }
    
     return StatusCode::SUCCESS;

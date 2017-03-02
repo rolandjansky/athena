@@ -73,7 +73,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
   // Summary_Of_Wire_Efficiency_Per_Chamber_Type_Station[1-3]_{E,F[1-5]}_T[1-9]
   // Summary_Of_Strip_Efficiency_Per_Chamber_Type_Station[1-3]_{E,F[1-5]}_T[1-9]
 
-  m_log << MSG::INFO << "bookHistogramsEfficiency" << endreq;       
+  m_log << MSG::INFO << "bookHistogramsEfficiency" << endmsg;       
   StatusCode sc=StatusCode::SUCCESS;
 
   MonGroup tgcprd_eff_a( this, generic_path_tgcmonitoring + "/TGCEA/Efficiency", run, ATTRIB_UNMANAGED ); 
@@ -107,7 +107,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
     tgceff[ac]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency").c_str(),13,0,13); 
     sc=tgcprd_eff_ac[ac]->regHist(tgceff[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "tgceff[ac] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgceff[ac] Failed to register histogram " << endmsg;       
       return sc;
     }
     
@@ -117,7 +117,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
     tgceffnum[ac]->Sumw2();
     sc=tgcprd_effnumdenom_ac[ac]->regHist(tgceffnum[ac]);
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "tgceffnum[ac] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgceffnum[ac] Failed to register histogram " << endmsg;       
       return sc;
     }
     
@@ -127,7 +127,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
     tgceffdenom[ac]->Sumw2();
     sc=tgcprd_effnumdenom_ac[ac]->regHist(tgceffdenom[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "tgceffdenom[ac] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgceffdenom[ac] Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -143,7 +143,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       tgceffmap[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
       sc=tgcprd_eff_ac[ac]->regHist(tgceffmap[ac][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
         return sc;
       }
       
@@ -152,7 +152,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       tgceffmapnum[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
       sc=tgcprd_effnumdenom_ac[ac]->regHist(tgceffmapnum[ac][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
         return sc;
       }
       
@@ -161,7 +161,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       tgceffmapdenom[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
       sc=tgcprd_effnumdenom_ac[ac]->regHist(tgceffmapdenom[ac][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
         return sc;
       }
       
@@ -172,7 +172,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
         tgceffmapbc[ac][ws][bc] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
         sc=tgcprd_eff_expert_ac[ac]->regHist(tgceffmapbc[ac][ws][bc]) ;  
         if(sc.isFailure()) { 
-          m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+          m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
           return sc;
         }
         
@@ -181,7 +181,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
         tgceffmapnumbc[ac][ws][bc] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
         sc=tgcprd_effnumdenom_expert_ac[ac]->regHist(tgceffmapnumbc[ac][ws][bc]) ;  
         if(sc.isFailure()) { 
-          m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+          m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
           return sc;
         }
       }
@@ -351,7 +351,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       tgceffsector[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency").c_str(),84,0,84);
       sc=tgcprd_eff_expert_ac[i]->regHist(tgceffsector[i][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() <<" Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() <<" Failed to register histogram " << endmsg;       
         return sc;
       }
 
@@ -361,7 +361,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       tgceffsectornum[i][ws]->Sumw2();
       sc=tgcprd_effnumdenom_expert_ac[i]->regHist(tgceffsectornum[i][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return sc;
       }
 
@@ -371,7 +371,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       tgceffsectordenom[i][ws]->Sumw2();
       sc=tgcprd_effnumdenom_expert_ac[i]->regHist(tgceffsectordenom[i][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return sc;
       }
     }
@@ -395,7 +395,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       tgcsummaryofeffpergasgap[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";Efficiency; Entries").c_str(), 101, 0., 1.01);
       sc=tgcprd_summary_ac[i]->regHist(tgcsummaryofeffpergasgap[i][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return sc;
       }
     }      
@@ -415,7 +415,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
         tgcsummaryofeffperchambertype[ws][ntype]=new TH1F(ss.str().c_str(), (ss.str() + ";Efficiency; Entries").c_str(), 101, 0., 1.01);
         sc=tgcprd_summary.regHist(tgcsummaryofeffperchambertype[ws][ntype++]) ;  
         if(sc.isFailure()) { 
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
           return sc;
         }
       }
@@ -443,7 +443,7 @@ TgcRawDataValAlg::fillEfficiency(){
   const Muon::TgcCoinDataContainer* tgc_trg_container(0);
   sc = (*m_activeStore)->retrieve(tgc_trg_container, m_outputCoinCollectionLocation);
   if (sc.isFailure() || 0 == tgc_trg_container ) {
-    m_log << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << endreq;
+    m_log << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << endmsg;
     return sc;
   }
   
@@ -453,7 +453,7 @@ TgcRawDataValAlg::fillEfficiency(){
        it!=it_end;
        ++it){
     if(it == it_end || (*it)->size()==0)continue;  //check if there are counts 
-    if (m_debuglevel) m_log<<MSG::DEBUG<< "size of tgccoin collection is " << (*it) -> size() << endreq;
+    if (m_debuglevel) m_log<<MSG::DEBUG<< "size of tgccoin collection is " << (*it) -> size() << endmsg;
     
     // Loop over Collection
     Muon::TgcCoinDataCollection::const_iterator itc_end=(*it)->end();
@@ -824,6 +824,6 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     }
   }
   
-  if(m_debuglevel)m_log<<MSG::DEBUG<<"no matching hit for efficiency calculation"<<endreq;
+  if(m_debuglevel)m_log<<MSG::DEBUG<<"no matching hit for efficiency calculation"<<endmsg;
   return;
 }

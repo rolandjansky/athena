@@ -27,13 +27,13 @@ StatusCode LArFEBTemp2Ntuple::stop() {
  
    sc=m_nt->addItem("temp1",temp1,-1000.,5000.);
    if (sc!=StatusCode::SUCCESS)
-     {(*m_log) << MSG::ERROR << "addItem 'temp1' failed" << endreq;
+     {(*m_log) << MSG::ERROR << "addItem 'temp1' failed" << endmsg;
 	return StatusCode::FAILURE;
      }
    
    sc=m_nt->addItem("temp2",temp2,-1000.,5000.);
    if (sc!=StatusCode::SUCCESS)
-     {(*m_log) << MSG::ERROR << "addItem 'temp2' failed" << endreq;
+     {(*m_log) << MSG::ERROR << "addItem 'temp2' failed" << endmsg;
 	return StatusCode::FAILURE;
      }
    
@@ -42,13 +42,13 @@ StatusCode LArFEBTemp2Ntuple::stop() {
    if (sc!=StatusCode::SUCCESS) 
      {
 	(*m_log)  << MSG::ERROR << "Unable to retrieve IToolSvc"
-	  << endreq;
+	  << endmsg;
      }   
 
    ILArFEBTempTool *larFEBTempTool;
    sc = toolSvc->retrieveTool("LArFEBTempTool", larFEBTempTool);
    if (sc!=StatusCode::SUCCESS) {
-      (*m_log)  << MSG::ERROR << "Unable to retrieve LArFEBTempTool from ToolSvc" << endreq;
+      (*m_log)  << MSG::ERROR << "Unable to retrieve LArFEBTempTool from ToolSvc" << endmsg;
       return StatusCode::FAILURE;
    } 
 
@@ -59,7 +59,7 @@ StatusCode LArFEBTemp2Ntuple::stop() {
      {
 	const HWIdentifier hwid = *itOnId;
 	FEBTemp tv = larFEBTempTool->getFebTemp(hwid);
-        (*m_log)  << MSG::DEBUG << hwid << " " << tv.size()<<endreq;
+        (*m_log)  << MSG::DEBUG << hwid << " " << tv.size()<<endmsg;
 	
 	if( !tv.empty() )
 	  {	     	 
@@ -77,14 +77,14 @@ StatusCode LArFEBTemp2Ntuple::stop() {
 	      
 		  if (sc!=StatusCode::SUCCESS) 
 		    {
-		       (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+		       (*m_log) << MSG::ERROR << "writeRecord failed" << endmsg;
 		       return StatusCode::FAILURE;
 		    }
 	       }	     
 	  }	
      }
    
-   (*m_log) << MSG::INFO << "LArFEBTemp2Ntuple has finished." << endreq;
+   (*m_log) << MSG::INFO << "LArFEBTemp2Ntuple has finished." << endmsg;
    
    return StatusCode::SUCCESS;
    

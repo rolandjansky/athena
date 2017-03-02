@@ -137,7 +137,7 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
 }
 
 MdtVsTgcRawDataValAlg::~MdtVsTgcRawDataValAlg(){
-  m_log << MSG::INFO << " deleting MdtVsTgcRawDataValAlg " << endreq;
+  m_log << MSG::INFO << " deleting MdtVsTgcRawDataValAlg " << endmsg;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -148,19 +148,19 @@ MdtVsTgcRawDataValAlg::initialize(){
   m_log.setLevel(outputLevel());                // individual outputlevel not known before initialise
   m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
   
-  m_log << MSG::INFO << "in initializing MdtVsTgcRawDataValAlg" << endreq;
+  m_log << MSG::INFO << "in initializing MdtVsTgcRawDataValAlg" << endmsg;
   StatusCode sc;
 
   // Store Gate store
   sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
   if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::ERROR << " Cannot get StoreGateSvc " << endreq;
+    m_log << MSG::ERROR << " Cannot get StoreGateSvc " << endmsg;
     return sc ;
   }
   // retrieve the active store
   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
   if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
+    m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endmsg;
     return sc ;
   }
 
@@ -168,31 +168,31 @@ MdtVsTgcRawDataValAlg::initialize(){
   StoreGateSvc* detStore = 0;
   sc = service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    m_log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+    m_log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
     return StatusCode::FAILURE;
   }   
   
   // Retrieve the MuonDetectorManager  
   sc = detStore->retrieve(m_muonMgr);
   if (sc.isFailure()) {
-    m_log << MSG::FATAL << "Cannot get MuonDetectorManager from detector store" << endreq;
+    m_log << MSG::FATAL << "Cannot get MuonDetectorManager from detector store" << endmsg;
     return StatusCode::FAILURE;
   }  
   else {
-    if (m_debuglevel) m_log << MSG::DEBUG << " Found the MuonDetectorManager from detector store. " << endreq;
+    if (m_debuglevel) m_log << MSG::DEBUG << " Found the MuonDetectorManager from detector store. " << endmsg;
   }
 
   //get TGC ID Helper
   sc = detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Can't retrieve TgcIdHelper" << endreq;
+    m_log << MSG::ERROR << "Can't retrieve TgcIdHelper" << endmsg;
     return sc;
   }
   
   //get MDT ID Helper
   sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
   if (sc.isFailure()) {
-    m_log << MSG::FATAL << "Cannot get MdtIdHelper" << endreq;
+    m_log << MSG::FATAL << "Cannot get MdtIdHelper" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -202,13 +202,13 @@ MdtVsTgcRawDataValAlg::initialize(){
     const ITGCcablingServerSvc* TgcCabGet = 0;
     sc = service("TGCcablingServerSvc", TgcCabGet);
     if (sc.isFailure()){
-    m_log << MSG::ERROR << " Can't get TGCcablingServerSvc " << endreq;
+    m_log << MSG::ERROR << " Can't get TGCcablingServerSvc " << endmsg;
     return StatusCode::FAILURE;
     }
     // get Cabling Service
     sc = TgcCabGet->giveCabling(m_cabling);
     if (sc.isFailure()){
-    m_log << MSG::ERROR << " Can't get TGCcablingSvc Server" << endreq;
+    m_log << MSG::ERROR << " Can't get TGCcablingSvc Server" << endmsg;
     return StatusCode::FAILURE; 
     }
     
@@ -216,9 +216,9 @@ MdtVsTgcRawDataValAlg::initialize(){
     int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
     m_cabling->getReadoutIDRanges( maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
     if (maxRodId ==12) {
-    m_log << MSG::INFO << "TGCcabling12Svc OK" << endreq ;
+    m_log << MSG::INFO << "TGCcabling12Svc OK" << endmsg ;
     } else {
-    m_log << MSG::WARNING << "TGCcablingSvc(octant segmentation) OK" << endreq ;
+    m_log << MSG::WARNING << "TGCcablingSvc(octant segmentation) OK" << endmsg ;
     }
 
     }
@@ -257,7 +257,7 @@ MdtVsTgcRawDataValAlg::initialize(){
 /*----------------------------------------------------------------------------------*/
 StatusCode MdtVsTgcRawDataValAlg::bookHistogramsRecurrent(){
 /*----------------------------------------------------------------------------------*/
-  if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring Histograms being booked" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring Histograms being booked" << endmsg;
   
   StatusCode sc = StatusCode::SUCCESS; 
   
@@ -270,7 +270,7 @@ StatusCode MdtVsTgcRawDataValAlg::bookHistogramsRecurrent(){
   if(newEventsBlock){}
   if(newLumiBlock){}
   if(newRun){
-    m_log << MSG::INFO << "MdtVsTgc RawData Monitoring : begin of run" << endreq;
+    m_log << MSG::INFO << "MdtVsTgc RawData Monitoring : begin of run" << endmsg;
     
     sc = bookmaphists(mdtvstgclv1_expert_a,
                       mdtvstgclv1_expert_c);
@@ -287,13 +287,13 @@ StatusCode MdtVsTgcRawDataValAlg::bookHistogramsRecurrent(){
 StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
 /*----------------------------------------------------------------------------------*/
   StatusCode sc = StatusCode::SUCCESS; 
-  if (m_debuglevel) m_log << MSG::DEBUG << "MdtVsTgcRawDataValAlg::TGC RawData Monitoring Histograms being filled" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "MdtVsTgcRawDataValAlg::TGC RawData Monitoring Histograms being filled" << endmsg;
 
   //TGC PRD
   const Muon::TgcPrepDataContainer* tgc_prd_container;
   sc = (*m_activeStore)->retrieve(tgc_prd_container, m_tgc_PrepDataContainerName);
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << " Cannot retrieve TgcPrepDataContainer " << "m_tgc_PrepDataContainerName" << endreq;
+    m_log << MSG::ERROR << " Cannot retrieve TgcPrepDataContainer " << "m_tgc_PrepDataContainerName" << endmsg;
     return sc;
   }
   
@@ -301,17 +301,17 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
   const Muon::TgcCoinDataContainer* tgc_coin_container;
   sc = (*m_activeStore)->retrieve(tgc_coin_container, m_tgc_CoinContainerName);
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << "m_tgc_CoinContainerName" << endreq;
+    m_log << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << "m_tgc_CoinContainerName" << endmsg;
     return sc;
   }
 
-  if (m_debuglevel) m_log << MSG::DEBUG << "size of tgc container is " << tgc_coin_container -> size() << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "size of tgc container is " << tgc_coin_container -> size() << endmsg;
   
   //MDT PRD
   const Muon::MdtPrepDataContainer* mdt_prd_container;
   sc = (*m_activeStore)->retrieve(mdt_prd_container, m_mdt_PrepDataContainerName);
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << " Cannot retrieve MdtPrepDataContainer " << m_mdt_PrepDataContainerName << endreq;
+    m_log << MSG::ERROR << " Cannot retrieve MdtPrepDataContainer " << m_mdt_PrepDataContainerName << endmsg;
     return sc;
   }
   
@@ -319,7 +319,7 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
     const xAOD::MuonSegmentContainer* mdt_new_segment ;
     sc = (*m_activeStore)->retrieve(mdt_new_segment, m_mdt_SegmentCollectionName);
     if (sc.isFailure()) {
-      m_log << MSG::ERROR << " Cannot retrieve New Mdt SegmentCollection " << m_mdt_SegmentCollectionName << endreq;
+      m_log << MSG::ERROR << " Cannot retrieve New Mdt SegmentCollection " << m_mdt_SegmentCollectionName << endmsg;
       return sc;
     }
   tgceffcalc(mdt_new_segment, tgc_prd_container);
@@ -329,7 +329,7 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
     const Trk::SegmentCollection* mdt_segment_collection;
     sc = (*m_activeStore)->retrieve(mdt_segment_collection, m_mdt_SegmentCollectionName);
     if (sc.isFailure()) {
-      m_log << MSG::ERROR << " Cannot retrieve Mdt SegmentCollection " << m_mdt_SegmentCollectionName << endreq;
+      m_log << MSG::ERROR << " Cannot retrieve Mdt SegmentCollection " << m_mdt_SegmentCollectionName << endmsg;
       return sc;
     }
     tgceffcalc(mdt_segment_collection, tgc_prd_container);
@@ -349,8 +349,8 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
     //TH1* testptr0 = tgclv1roietavsphi[0];
     //sc = tgclv1_expert.getHist(testptr0,"RoI_Eta_Vs_Phi_A");
     //tgclv1roietavsphi[0] = dynamic_cast<TH2*>(testptr0);
-    //if(sc.isFailure() ) m_log << MSG::WARNING << "couldn't get tgclv1roietavsphi[0] hist to MonGroup" << endreq;
-    //m_log<<MSG::INFO <<"RoI_Eta_Vs_Phi_A_Side has been got"<<endreq;
+    //if(sc.isFailure() ) m_log << MSG::WARNING << "couldn't get tgclv1roietavsphi[0] hist to MonGroup" << endmsg;
+    //m_log<<MSG::INFO <<"RoI_Eta_Vs_Phi_A_Side has been got"<<endmsg;
     
     //fill MDT hit vs TGC RoI
     correlation(mdt_prd_container, tgc_coin_container);
@@ -363,7 +363,7 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
 StatusCode MdtVsTgcRawDataValAlg::procHistograms(){
 /*----------------------------------------------------------------------------------*/
  
-  if (m_debuglevel) m_log << MSG::DEBUG << "MdtVsTgcRawDataValAlg finalize()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "MdtVsTgcRawDataValAlg finalize()" << endmsg;
   if(endOfEventsBlock){}
   if(endOfLumiBlock){}
   if(endOfRun){

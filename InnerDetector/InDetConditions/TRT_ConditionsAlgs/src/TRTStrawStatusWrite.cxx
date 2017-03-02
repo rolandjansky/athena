@@ -37,24 +37,24 @@ StatusCode TRTStrawStatusWrite::initialize()
 //  par_statusfile="/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt";
 //"/afs/cern.ch/user/a/attrtcal/TRT_Calibration/uploadedDB/Status/2010_06_30/listNoisyStraws.0158269.athenaFormat.txt";
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTStrawStatusWrite initialise" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTStrawStatusWrite initialise" << endmsg;
   StatusCode sc;
 
   if(StatusCode::SUCCESS != m_trtStrawStatusIF.retrieve()){
-    msg(MSG::ERROR) << " Can't get TRTStrawtatusTool" << endreq;
+    msg(MSG::ERROR) << " Can't get TRTStrawtatusTool" << endmsg;
     return StatusCode::FAILURE;
   }
 
   /*
   m_trtStrawStatus=dynamic_cast<TRTStrawStatusSummaryTool *>(&(* m_trtStrawStatusIF));
   if(!m_trtStrawStatus){
-    msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endreq;
+    msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endmsg;
     return StatusCode::FAILURE;
   }
 */
 
   if( m_trtStrawStatus.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endreq;
+    msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -75,7 +75,7 @@ StatusCode TRTStrawStatusWrite::execute()
 //  par_statusfile="/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt";
 // "/afs/cern.ch/user/a/attrtcal/TRT_Calibration/uploadedDB/Status/2010_06_30/listNoisyStraws.0158269.athenaFormat.txt";
 
-  msg(MSG::INFO) << "TRTStrawStatusWrite::execute write DB tag for straw status file " << par_statusfile << endreq;
+  msg(MSG::INFO) << "TRTStrawStatusWrite::execute write DB tag for straw status file " << par_statusfile << endmsg;
 
   //
   // at first event:
@@ -91,7 +91,7 @@ sc=m_trtStrawStatus->readFromTextFile(par_statusfile);
 
       if(sc!=StatusCode::SUCCESS) {
         msg(MSG::ERROR) << " Could not read TRT StrawStatusSummary objects from "
-              << par_statusfile << endreq;
+              << par_statusfile << endmsg;
         return StatusCode::FAILURE;
       }
 //

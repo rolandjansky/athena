@@ -16,7 +16,7 @@ CPMRoICollection_PERS * CPMRoICollectionCnv::createPersistent( CPMRoICollection 
   
   MsgStream mlog(msgSvc(), "CPMRoICollectionConverter" );
 
-  //mlog << MSG::DEBUG << "CPMRoICollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CPMRoICollectionCnv::createPersistent called" << endmsg;
 
   CPMRoICollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ CPMRoICollection * CPMRoICollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CPMRoICollectionConverter" );
   
-  //mlog << MSG::DEBUG << "CPMRoICollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CPMRoICollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "A5867077-621F-4B04-8777-56846085E550" );
  

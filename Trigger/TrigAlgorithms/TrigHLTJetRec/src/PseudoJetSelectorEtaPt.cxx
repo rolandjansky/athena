@@ -17,7 +17,7 @@ PseudoJetSelectorEtaPt::PseudoJetSelectorEtaPt(const std::string& s,
 
 StatusCode PseudoJetSelectorEtaPt::initialize() {
   m_selector = PseudoJetSelector(m_etaMax, m_ptMin);
-  ATH_MSG_INFO("etaMax: " << m_etaMax << " ptMin: " << m_ptMin << endreq);  
+  ATH_MSG_INFO("etaMax: " << m_etaMax << " ptMin: " << m_ptMin << endmsg);  
 
   return StatusCode::SUCCESS;
 }

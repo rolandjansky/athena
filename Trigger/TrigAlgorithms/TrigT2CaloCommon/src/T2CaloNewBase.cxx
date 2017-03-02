@@ -53,16 +53,16 @@ StatusCode T2CaloNewBase::initialize(){
   MsgStream log(msgSvc(), name());
 
   //  if ( msgLvl() <= MSG::INFO ) 
-  log << MSG::INFO << "on initialize()" << endreq;
+  log << MSG::INFO << "on initialize()" << endmsg;
   
   StatusCode stat = HLT::FexAlgo::initialize();
   if (stat.isFailure()) {
-    log << MSG::ERROR << "base class finalize failed!" << endreq;
+    log << MSG::ERROR << "base class finalize failed!" << endmsg;
     return stat;
   }
 
   m_emAlgTools.reserve(MaxNumberTools);
-  log << MSG::DEBUG << "Initialization set of tools" << endreq;
+  log << MSG::DEBUG << "Initialization set of tools" << endmsg;
      
   std::vector<std::string>::iterator it = m_emToolName.begin();
  
@@ -71,7 +71,7 @@ StatusCode T2CaloNewBase::initialize(){
 
   for (int iC = 0; it != m_emToolName.end(); ++iC, ++it) {
     if (iC >=  MaxNumberTools) {
-      log << MSG::FATAL << "More T2Calo Tools than expected" << endreq;
+      log << MSG::FATAL << "More T2Calo Tools than expected" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -81,13 +81,13 @@ StatusCode T2CaloNewBase::initialize(){
 
     if(toolSvc->retrieveTool(toolName, bTool, this).isFailure() ) {
       log << MSG::FATAL << "Unable to create " << *it
-          << "AlgTool" << endreq;
+          << "AlgTool" << endmsg;
       return StatusCode::FAILURE;
     } else {
       pTool = dynamic_cast<IAlgToolCalo*> (bTool);
 
 #ifndef NDEBUG
-	log << MSG::DEBUG << "Created " << *it << " AlgTool" << endreq;
+	log << MSG::DEBUG << "Created " << *it << " AlgTool" << endmsg;
 #endif
     }
 
@@ -99,7 +99,7 @@ StatusCode T2CaloNewBase::initialize(){
   // Initialize timing service
   
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-    log << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
+    log << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
   } 
 
   if (m_timersvc) {
@@ -112,7 +112,7 @@ StatusCode T2CaloNewBase::initialize(){
 #ifndef NDEBUG
   log << MSG::INFO 
       << "Initialization completed successfully" 
-      << endreq;
+      << endmsg;
 #endif
   
   return StatusCode::SUCCESS;
@@ -124,12 +124,12 @@ StatusCode T2CaloNewBase::finalize(){
   MsgStream log(msgSvc(), name());
 
 #ifndef NDEBUG
-    log << MSG::INFO << "in finalize()" << endreq;
+    log << MSG::INFO << "in finalize()" << endmsg;
 #endif  
 
     StatusCode stat = HLT::FexAlgo::finalize();
     if (stat.isFailure()) {
-      log << MSG::ERROR << "base class finalize failed!" << endreq;
+      log << MSG::ERROR << "base class finalize failed!" << endmsg;
       return stat;
     }
 

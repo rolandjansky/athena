@@ -44,52 +44,52 @@ namespace JiveXML {
    */
   StatusCode TauJetRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in retrieveAll()" << endmsg;
     
     const DataHandle<Analysis::TauJetContainer> iterator, end;
     const Analysis::TauJetContainer* tauCont;
     
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(tauCont, m_sgKey);
     if (sc.isFailure()) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg; 
     }else{
       if ( tauCont->size() > 0){ // check that collection is not empty
         DataMap data = getData(tauCont);
         if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){  
-	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
+	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg;
         }else{
-           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") TauJet retrieved" << endreq;
+           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") TauJet retrieved" << endmsg;
         }
       }
     }
 
     //obtain all other collections from StoreGate
     if (( evtStore()->retrieve(iterator, end)).isFailure()){
-       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endreq;
+       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endmsg;
 //        return StatusCode::WARNING;
     }
 
    for (; iterator!=end; iterator++) {
      m_fastSimSGFlag = false; //reset
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " Trying TauJets from:  " << iterator.key() << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " Trying TauJets from:  " << iterator.key() << endmsg;
       std::string::size_type position = iterator.key().find("HLT",0); // special case. Normally: HLTAutokey 
       // some Atlfast collections wrongly assign 'Full' to DataType:
       std::string::size_type positionFast = iterator.key().find("Atlfast",0); 
       if ( positionFast == 0){ 
          m_fastSimSGFlag = true; 
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " SG key Atlfast collection: Fast Sim " << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " SG key Atlfast collection: Fast Sim " << endmsg;
       };
       if ( m_doWriteHLT ){ position = 99; } // override SG key find
        if ( position != 0 ){  // SG key doesn't contain HLTAutoKey         
          if ( iterator.key()!=m_sgKey) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
             DataMap data = getData(iterator);
             if ( FormatTool->AddToEvent(dataTypeName(), iterator.key(), &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") TauJet retrieved" << endreq;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") TauJet retrieved" << endmsg;
             }
 	  }   
 	}
@@ -105,7 +105,7 @@ namespace JiveXML {
    */
   const DataMap TauJetRetriever::getData(const Analysis::TauJetContainer* taucont) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
     DataMap m_DataMap;
 
@@ -154,11 +154,11 @@ namespace JiveXML {
   }
 
   if(m_checkDataType){
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TauJet Datatype: Full Sim " << endreq;
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TauJet Datatype: Full Sim " << endmsg;
   }else{     
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TauJet Datatype: Fast Sim " << endreq;
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TauJet Datatype: Fast Sim " << endmsg;
   }
-  //  if ( m_fastSimSGFlag ){ if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " fastSimSGFlag set ! " << endreq; }
+  //  if ( m_fastSimSGFlag ){ if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " fastSimSGFlag set ! " << endmsg; }
 
   unsigned int countTrackLinks = 0;
   unsigned int numTauJets = 0;
@@ -166,7 +166,7 @@ namespace JiveXML {
   std::string trackKeyString = "trackKey"; // default: n/a or fast sim
   std::string trackIndexString = "trackIndex";
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Number of TauJets: " << taucont->size() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Number of TauJets: " << taucont->size() << endmsg;
   if (m_checkDataType && !m_fastSimSGFlag){ // full sim
    for (; taujetItr != taujetItrE; ++taujetItr) { // first, just count trackKey for multiple
       const ElementLinkVector<Rec::TrackParticleContainer> myTrackLinkVector = (*taujetItr)->trackLinkVector();
@@ -183,7 +183,7 @@ namespace JiveXML {
   } // full sim
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " trackKeyString: " << trackKeyString << 
-               " trackIndexString: " << trackIndexString << endreq;
+               " trackIndexString: " << trackIndexString << endmsg;
 
   std::string labelStr = "none"; 
   std::string isTauStr = "none";
@@ -230,7 +230,7 @@ namespace JiveXML {
        if ((*taujetItr)->tauID()->isTau(TauJetParameters::TauCutTight)){
          isTauStr = "TauCutTight"; labelStr += "_TauCutTight"; }
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TauJet # " << (++id) 
-               << ", label:" << labelStr << endreq;
+               << ", label:" << labelStr << endmsg;
       isTauString.push_back (isTauStr);
       label.push_back( labelStr );
 // obsolete, only for backwards compatibility
@@ -275,7 +275,7 @@ namespace JiveXML {
            int trackIndex  = trackParticleLink.index();
            if ( trackParticleLink.isValid()){
      //      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " TrackParticle " << trackKey << " ," 
-     //                             << " Index " << trackIndex << " " << endreq; 
+     //                             << " Index " << trackIndex << " " << endmsg; 
 
 	    trackKeyVec.push_back(DataType( trackKey ));
 	    trackIndexVec.push_back(DataType( trackIndex));
@@ -339,7 +339,7 @@ namespace JiveXML {
     m_DataMap["trackLinkCount"] = trackLinkCountVec;
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

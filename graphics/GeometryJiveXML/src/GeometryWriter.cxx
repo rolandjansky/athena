@@ -37,42 +37,42 @@ namespace JiveXML {
 
   StatusCode GeometryWriter::writeGeometry() 
   {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "writeGeometry()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "writeGeometry()" << endmsg;
 
     std::ofstream outputFile("AGeometry.xml");
     writeHeader(outputFile);
 
     if ( detStore()->retrieve(m_pixel_manager, "Pixel").isFailure() ){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::PixelDetectorManager" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::PixelDetectorManager" << endmsg;
     } else {
       if (detStore()->retrieve(m_pixelIdHelper, "PixelID").isFailure() ){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve PixelIDHelper" << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve PixelIDHelper" << endmsg;
       } else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved PixelIDHelper" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved PixelIDHelper" << endmsg;
 	writePixelGeometry(outputFile);
       }
     }
 
     if ( detStore()->retrieve(m_silicon_manager, "SCT").isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::SCT_DetectorManager" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::SCT_DetectorManager" << endmsg;
     } else {
       if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure() ){
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve SCT_IDHelper" << endreq;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve SCT_IDHelper" << endmsg;
       } else {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved SCT_IDHelper" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved SCT_IDHelper" << endmsg;
 	writeSCTGeometry(outputFile);
       }
     }
 
     if ( detStore()->retrieve(m_trt_manager, "TRT").isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::TRT_DetectorManager" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::TRT_DetectorManager" << endmsg;
     } else {
 // No SGKey ? As in graphics/VP1/VP1Systems/VP12DGeometrySystems/StoreGateGeometryReader
 //      if (detStore()->retrieve(m_trtIdHelper, "TRT_ID").isFailure() ){
       if (detStore()->retrieve(m_trtIdHelper, "").isFailure() ){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve TRT_IDHelper" << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve TRT_IDHelper" << endmsg;
       } else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved TRT_IDHelper" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved TRT_IDHelper" << endmsg;
 	writeTRTGeometry(outputFile);
       }
     }
@@ -80,9 +80,9 @@ namespace JiveXML {
     writeSolenoidGeometry(outputFile);
 
     if ( detStore()->retrieve(m_calo_manager, "CaloMgr").isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve CaloDetDescrManager" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve CaloDetDescrManager" << endmsg;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved CaloDetDescrManager" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved CaloDetDescrManager" << endmsg;
       // Hardcoded LAr zMin, zMax, rMin, rMax
       m_larMin.reserve(m_numCaloTypes);
       m_larMax.reserve(m_numCaloTypes);
@@ -114,16 +114,16 @@ namespace JiveXML {
     }
 
     if ( detStore()->retrieve(m_tile_manager, "Tile").isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve TileDetDescrManager" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve TileDetDescrManager" << endmsg;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved TileDetDescrManager" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved TileDetDescrManager" << endmsg;
       writeTILEGeometry(outputFile);
     }
     
     if ( detStore()->retrieve(m_lar_manager, "LArMgr").isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve LArDetectorManager" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve LArDetectorManager" << endmsg;
     } else {	
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved LArDetectorManager" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved LArDetectorManager" << endmsg;
       // temporarily disable writting MBTS geometry. Non-trivial migration CLHEP->Eigen                                    //   jpt 19Dec13  
       /*
       writeMBTSGeometry(outputFile);
@@ -317,7 +317,7 @@ namespace JiveXML {
 	    << " zMin=\"" << -zMax/10. << "\""
 	    << " zMax=\"" << zMax/10. << "\""
 	    << " />" << std::endl;
-        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel barrel out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel barrel out: " << out << endmsg;
       }
 
       if (element->isEndcap() && element->zMin() > 0 && m_pixelIdHelper->phi_module(element->identify()) == 0  
@@ -353,7 +353,7 @@ namespace JiveXML {
 	    << " zMin=\"" << zMin/10. << "\""
 	    << " zMax=\"" << zMax/10. << "\""
 	    << " />" << std::endl;
-        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel endcap out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel endcap out: " << out << endmsg;
       }
     }
   }
@@ -406,7 +406,7 @@ namespace JiveXML {
 	    << " zMin=\"" << -zMax/10. << "\""
 	    << " zMax=\"" << zMax/10. << "\""
 	    << " />" << std::endl;
-        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT barrel out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT barrel out: " << out << endmsg;
       }
 
       if (element->isEndcap() && element->zMin() > 0 && m_sctIdHelper->phi_module(element->identify()) == 0  
@@ -452,7 +452,7 @@ namespace JiveXML {
 	    << " zMin=\"" << zMin/10. << "\""
 	    << " zMax=\"" << zMax/10. << "\""
 	    << " />" << std::endl;
-        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT endcap out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT endcap out: " << out << endmsg;
       }
     }
   }
@@ -503,7 +503,7 @@ namespace JiveXML {
 	    << " zMin=\"" << -(posIn.z() + elementIn->strawLength()/2.)/10. << "\""
 	    << " zMax=\"" << (posIn.z() + elementIn->strawLength()/2.)/10. << "\""
 	    << " />" << std::endl;
-        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT barrel out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT barrel out: " << out << endmsg;
       } else {
 	elementOut = m_trt_manager->getEndcapElement(1,//m_trtIdHelper->barrel_ec(id),
 						     m_trtIdHelper->layer_or_wheel(id),
@@ -528,7 +528,7 @@ namespace JiveXML {
 	    << " zMin=\"" << posIn.z()/10. << "\""
 	    << " zMax=\"" << posOut.z()/10. << "\""
 	    << " />" << std::endl;
-        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT endcap out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT endcap out: " << out << endmsg;
       }
 
     }

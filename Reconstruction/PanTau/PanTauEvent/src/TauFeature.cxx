@@ -35,7 +35,7 @@ if(m_featureMap.end() == iter)
 {
      // not found
      isValid=false;
-     m_log << "Could not find key called '" << ItsName << "' in feature map. Either the spelling is wrong or the feature does not exist. Returning -999999." << endreq;
+     m_log << "Could not find key called '" << ItsName << "' in feature map. Either the spelling is wrong or the feature does not exist. Returning -999999." << endmsg;
      return -999999.;
 }
 // entry found, return value
@@ -129,19 +129,19 @@ void PanTau::TauFeature::addFeaturesFromMap(std::map<std::string, double> otherM
 MsgStream& PanTau::TauFeature::dump( MsgStream& out, MSG::Level debugLevel = MSG::VERBOSE ) const
 { 
     std::string name("TauFeature: ");
-    out << debugLevel << name << endreq;
+    out << debugLevel << name << endmsg;
     FeatureMapConstIter iter = m_featureMap.begin();
     FeatureMapConstIter iterEnd = m_featureMap.end();
     for ( ; iter!=iterEnd; iter++) {
-        out << debugLevel << (*iter).first << " : \t" << (*iter).second <<endreq;
+        out << debugLevel << (*iter).first << " : \t" << (*iter).second <<endmsg;
     }
     
     std::string nameVec("TauVecFeature: ");
-    out << debugLevel << nameVec << endreq;
+    out << debugLevel << nameVec << endmsg;
     VectorFeatureMapConstIter iterVec = m_vecFeatureMap.begin();
     VectorFeatureMapConstIter iterEndVec = m_vecFeatureMap.end();
     for ( ; iterVec!=iterEndVec; iterVec++) {
-        out << debugLevel << (*iterVec).first << " : \t" << (*iterVec).second.size() << " entries" <<endreq;
+        out << debugLevel << (*iterVec).first << " : \t" << (*iterVec).second.size() << " entries" <<endmsg;
     }
     return out; 
 }

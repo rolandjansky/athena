@@ -90,7 +90,7 @@ StatusCode TrigCostRun::initialize()
   ATH_MSG_DEBUG("Retrieved : " << m_tools);
 
   CHECK(m_toolsSave.retrieve());
-  ATH_MSG_DEBUG("Retrieved " << m_toolsSave << endreq);
+  ATH_MSG_DEBUG("Retrieved " << m_toolsSave << endmsg);
 
 
   //
@@ -387,27 +387,27 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
   // Find HLTResult and extract application id
   //  
   if(!storeGate->contains<HLT::HLTResult>(keyResult)) {
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "StoreGate does not contain HLTResult: " << keyResult << endreq;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "StoreGate does not contain HLTResult: " << keyResult << endmsg;
     return false;
   }
 
   const HLT::HLTResult *hlt_result = 0;
   if(storeGate->retrieve<HLT::HLTResult>(hlt_result, keyResult).isFailure() || !hlt_result) {
-    log() << MSG::WARNING << "Failed to retrieve HLTResult: " << keyResult << endreq;
+    log() << MSG::WARNING << "Failed to retrieve HLTResult: " << keyResult << endmsg;
     return false;
   }
   else {
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Found HLTResult: " << keyResult << endreq;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Found HLTResult: " << keyResult << endmsg;
   }
 
   if(hlt_result->isHLTResultTruncated()) {
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "HLTResult is truncated" << endreq;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "HLTResult is truncated" << endmsg;
     ++countTrunc;
   }
 
   const std::vector<uint32_t>& navData = hlt_result->getNavigationResult();
   if(navData.empty()) {
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Navigation data is empty" << endreq;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Navigation data is empty" << endmsg;
     return false;
   }
   
@@ -415,14 +415,14 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
     ScopeResumePauseTimer scopeTimer(timerNavig, false);
     
     if(!navigation->deserialize(navData)) {
-      log() << MSG::WARNING << "Failed to deserialize navigation" << endreq;
+      log() << MSG::WARNING << "Failed to deserialize navigation" << endmsg;
       return false;
     }
   }
 
   const std::vector<uint32_t> &extraData = hlt_result->getExtras();
   if(extraData.empty()) {
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extra data is empty" << endreq;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extra data is empty" << endmsg;
     return true;
   }
   
@@ -432,34 +432,34 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
   StringSerializer().deserialize(extraData, appName); 
   
   if(appName.empty()) {    
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Application name is empty" << endreq;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Application name is empty" << endmsg;
     return true;
   }
 
   if(hlt_result->getHLTLevel() == HLT::L2) {
     if(hltLevel != "L2") {
-      log() << MSG::WARNING << "HLT level error: " << hltLevel << "!=" << hlt_result->getHLTLevel() << endreq;
+      log() << MSG::WARNING << "HLT level error: " << hltLevel << "!=" << hlt_result->getHLTLevel() << endmsg;
     }
   }
   else if(hlt_result->getHLTLevel() == HLT::EF) {
     if(hltLevel != "EF") {
-      log() << MSG::WARNING << "HLT level error: " << hltLevel << "!=" << hlt_result->getHLTLevel() << endreq;
+      log() << MSG::WARNING << "HLT level error: " << hltLevel << "!=" << hlt_result->getHLTLevel() << endmsg;
     }
   }
   else if(hlt_result->getHLTLevel() == HLT::HLT) {
     if(hltLevel != "HLT") {
-      log() << MSG::WARNING << "HLT level error: " << hltLevel << "!=" << hlt_result->getHLTLevel() << endreq;
+      log() << MSG::WARNING << "HLT level error: " << hltLevel << "!=" << hlt_result->getHLTLevel() << endmsg;
     }
   }
   else {
-    log() << MSG::WARNING << "Unknown level for HLTResult: " << hlt_result->getHLTLevel() << endreq;
+    log() << MSG::WARNING << "Unknown level for HLTResult: " << hlt_result->getHLTLevel() << endmsg;
   }
 
   //
   // Append application ID with level string
   //
   appName = "APP_"+hltLevel+":"+appName;
-  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extracted App Name: " << appName << endreq;
+  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extracted App Name: " << appName << endmsg;
 
   //
   // Save a map between application name and application id (hashed name) in global config
@@ -489,16 +489,16 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
     ScopeResumePauseTimer scopeTimer(timerNavig, false);
 
     if(!storeGate->contains<TrigMonConfigCollection>(keyConfig)) {
-      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG  << "TrigMonConfigCollection does not exist: " << keyConfig << endreq;
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG  << "TrigMonConfigCollection does not exist: " << keyConfig << endmsg;
       return false;
     }
     
     if(storeGate->retrieve(configCol, keyConfig).isFailure() || !configCol) {
-      log() << MSG::WARNING << "Failed to retrieve TrigMonConfigCollection: " << keyConfig << endreq;
+      log() << MSG::WARNING << "Failed to retrieve TrigMonConfigCollection: " << keyConfig << endmsg;
       return false;
     }
     
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Found TrigMonConfigCollection: " << keyConfig << " size=" << configCol->size() << endreq;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Found TrigMonConfigCollection: " << keyConfig << " size=" << configCol->size() << endmsg;
   }
 
   for(TrigMonConfigCollection::const_iterator it = configCol->begin(); it != configCol->end(); ++it) {
@@ -516,7 +516,7 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
     const std::vector<uint32_t> &ids = ptr->getVarId();
     if(!std::count(ids.begin(), ids.end(), appId)) {
       ptr->add<TrigConfVar>(TrigConfVar(appName, appId));
-      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Attaching App Name map to Config " << appName << " = " << appId << endreq;
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Attaching App Name map to Config " << appName << " = " << appId << endmsg;
     }
 
     //
@@ -526,7 +526,7 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
 
     log() << MSG::INFO << "ExtractConfig M:" <<  ptr->getMasterKey() 
           << " L1:" << ptr->getLV1PrescaleKey() << " HLT:" << ptr->getHLTPrescaleKey() 
-          << " Lumi:" << ptr->getLumi() << endreq;
+          << " Lumi:" << ptr->getLumi() << endmsg;
   }
   
   //
@@ -552,12 +552,12 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     ScopeResumePauseTimer scopeTimer(timerNavig, false);
 
     if(!storeGate->contains<TrigMonEventCollection>(keyEvent)) {
-      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG  << "TrigMonEventCollection does not exist: " << keyEvent << endreq;
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG  << "TrigMonEventCollection does not exist: " << keyEvent << endmsg;
       return false;
     }
     
     if(storeGate->retrieve(eventCol, keyEvent).isFailure() || !eventCol) {
-      log() << MSG::WARNING << "Failed to retrieve TrigMonEventCollection: " << keyEvent << endreq;
+      log() << MSG::WARNING << "Failed to retrieve TrigMonEventCollection: " << keyEvent << endmsg;
       return false;
     }
   }
@@ -594,18 +594,18 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     for (unsigned i=0; i < ptr->getVarKey().size(); ++i) {
       if (ptr->getVarKey().at(i) == Trig::kEventLumiBlockLength) {
         _haveLumiLength = true;
-        if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Lumi length already stored in event" << endreq;
+        if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Lumi length already stored in event" << endmsg;
         break;
       }
     }
 
     if (_haveLumiLength == false) {
       if (m_readLumiBlock.getTriedSetup() == false) {
-        log() << MSG::INFO << "Reading lumi length" << endreq;
+        log() << MSG::INFO << "Reading lumi length" << endmsg;
         m_readLumiBlock.updateLumiBlocks( ptr->getRun() );
       }
       ptr->addVar(Trig::kEventLumiBlockLength, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
-      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Decorating Event:" << ptr->getEvent() << "  LB:"<< ptr->getLumi()<<" with LB Length " << m_readLumiBlock.getLumiBlockLength( ptr->getLumi()) << endreq;
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Decorating Event:" << ptr->getEvent() << "  LB:"<< ptr->getLumi()<<" with LB Length " << m_readLumiBlock.getLumiBlockLength( ptr->getLumi()) << endmsg;
       std::string _msg = m_readLumiBlock.infos();
       if (_msg.size()) log() << MSG::INFO << _msg;
       std::string _dbg = m_readLumiBlock.debug();
@@ -638,10 +638,10 @@ void TrigCostRun::ReadHLTResult::PrintInit()
   // Print summary counters
   //
   log() << MSG::INFO
-	<< "  " << hltLevel << ": HLTResult key     = " << keyResult << endreq
-	<< "  " << hltLevel << ": TrigMonConfig key = " << keyConfig << endreq
-	<< "  " << hltLevel << ": TrigMonEvent  key = " << keyEvent  << endreq
-	<< "  " << hltLevel << ": Enabled = "           << (doLevel ? "Yes" : "NO")  << endreq;
+	<< "  " << hltLevel << ": HLTResult key     = " << keyResult << endmsg
+	<< "  " << hltLevel << ": TrigMonConfig key = " << keyConfig << endmsg
+	<< "  " << hltLevel << ": TrigMonEvent  key = " << keyEvent  << endmsg
+	<< "  " << hltLevel << ": Enabled = "           << (doLevel ? "Yes" : "NO")  << endmsg;
 }
 
 //---------------------------------------------------------------------------------------
@@ -654,7 +654,7 @@ void TrigCostRun::ReadHLTResult::PrintEvent()
   // Print current events in memory
   //
   log() << MSG::INFO << "Extracted TrigMonEventCollection: " << keyEvent 
-	<< " with: " << vecEvent.size() << " event(s)" << endreq; 
+	<< " with: " << vecEvent.size() << " event(s)" << endmsg; 
 
   static unsigned _nPrinted = 0;
   for(unsigned i = 0; i < vecEvent.size(); ++i) {
@@ -676,10 +676,10 @@ void TrigCostRun::ReadHLTResult::PrintSummary()
   // Print summary counters
   //
   log() << MSG::INFO
-	<< "  " << hltLevel << ": POST_HLT: # of valid     HLT results = " << countValid   << endreq
-	<< "  " << hltLevel << ": POST_HLT: # of invalid   HLT results = " << countInvalid << endreq
-	<< "  " << hltLevel << ": POST_HLT: # of truncated HLT results = " << countTrunc   << endreq
-	<< "  " << hltLevel << ": POST_HLT: # of read TrigMonEvent     = " << countEvent   << endreq
-        << "  " << hltLevel << ": POST_HLT: # of read TrigMonCostEvent = " << countCostEvent << "(In which scale tools were run)" << endreq
-	<< "  " << hltLevel << ": POST_HLT: # of read TrigMonConfig    = " << countConfig  << endreq;
+	<< "  " << hltLevel << ": POST_HLT: # of valid     HLT results = " << countValid   << endmsg
+	<< "  " << hltLevel << ": POST_HLT: # of invalid   HLT results = " << countInvalid << endmsg
+	<< "  " << hltLevel << ": POST_HLT: # of truncated HLT results = " << countTrunc   << endmsg
+	<< "  " << hltLevel << ": POST_HLT: # of read TrigMonEvent     = " << countEvent   << endmsg
+        << "  " << hltLevel << ": POST_HLT: # of read TrigMonCostEvent = " << countCostEvent << "(In which scale tools were run)" << endmsg
+	<< "  " << hltLevel << ": POST_HLT: # of read TrigMonConfig    = " << countConfig  << endmsg;
 }

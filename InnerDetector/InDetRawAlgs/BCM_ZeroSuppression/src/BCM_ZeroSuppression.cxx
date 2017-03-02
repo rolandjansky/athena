@@ -27,29 +27,29 @@ BCM_ZeroSuppression::~BCM_ZeroSuppression()
 
 StatusCode BCM_ZeroSuppression::initialize() {
 
-  msg(MSG::INFO) <<  "Initialising" << endreq;
+  msg(MSG::INFO) <<  "Initialising" << endmsg;
 
   if (AthAlgorithm::initialize().isFailure()) {
-    msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endreq;
+    msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode BCM_ZeroSuppression::execute() {
-  msg(MSG::DEBUG) << "execute()" << endreq;
+  msg(MSG::DEBUG) << "execute()" << endmsg;
 
   StatusCode sc;
 
   //  Check for BCM RDO
   sc=evtStore()->contains<BCM_RDO_Container>(m_bcmContainerName);
   if( sc.isFailure() ) {
-    msg(MSG::DEBUG) << m_bcmContainerName << " not found" << endreq;
+    msg(MSG::DEBUG) << m_bcmContainerName << " not found" << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
     msg(MSG::DEBUG) << m_bcmContainerName << " container exists in StoreGate "
-		    << endreq;
+		    << endmsg;
   }
   
   // Retrieve BCM RDO
@@ -61,23 +61,23 @@ StatusCode BCM_ZeroSuppression::execute() {
   }
   else {
     msg(MSG::DEBUG) << m_bcmContainerName << " not found in StoreGate "
-		    << endreq;
+		    << endmsg;
   }
   
   // Create output RDO container and record it to StoreGate
   try {
     m_bcmCompactDO = new BCM_RDO_Container();
   } catch (std::bad_alloc) {
-    msg(MSG::FATAL) << "Could not create a new BCM RawDataContainer!" << endreq;
+    msg(MSG::FATAL) << "Could not create a new BCM RawDataContainer!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc = evtStore()->record(m_bcmCompactDO,  m_bcmOutputName);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Container '" << m_bcmOutputName  << "' could not be registered in StoreGate" << endreq;
+    msg(MSG::FATAL) << "Container '" << m_bcmOutputName  << "' could not be registered in StoreGate" << endmsg;
     return sc;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Container '" << m_bcmOutputName << "' registered in StoreGate" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Container '" << m_bcmOutputName << "' registered in StoreGate" << endmsg;
   }
 
   // check if the collection exists if in the original container and loop over it
@@ -107,7 +107,7 @@ StatusCode BCM_ZeroSuppression::execute() {
     }
 
     if (contains_hit) {
-      msg(MSG::VERBOSE) << "Container '" << m_bcmOutputName  << "' is being filled" << endreq;
+      msg(MSG::VERBOSE) << "Container '" << m_bcmOutputName  << "' is being filled" << endmsg;
       m_bcmCompactDO->push_back(my_collection);
     } else {
       delete my_collection;

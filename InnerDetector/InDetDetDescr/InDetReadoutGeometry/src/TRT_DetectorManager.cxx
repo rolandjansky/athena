@@ -45,7 +45,7 @@ namespace InDetDD {
     // If detstore no passed then get it from bootstrap.
         if (m_detStore == 0) {
             StatusCode sc = Gaudi::svcLocator()->service("DetectorStore", m_detStore); 
-            if (sc.isFailure()) msg(MSG::ERROR) << "Could not locate DetectorStore" << endreq;
+            if (sc.isFailure()) msg(MSG::ERROR) << "Could not locate DetectorStore" << endmsg;
         }
 
     //
@@ -149,7 +149,7 @@ namespace InDetDD {
             [barrel->getCode().getStrawLayerIndex()] ) {
 
             //Element already added - complain!
-            if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "manageBarrelElement: Overriding existing element"<<endreq;
+            if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "manageBarrelElement: Overriding existing element"<<endmsg;
         };
 
         barrelArray
@@ -173,11 +173,11 @@ namespace InDetDD {
                 if (m_elements[hashId]) {
                     //Element already added - complain!
                     if(msgLvl(MSG::DEBUG)) 
-                        msg(MSG::DEBUG) << "manageBarrelElement: Overriding existing element for hashID"<<endreq;
+                        msg(MSG::DEBUG) << "manageBarrelElement: Overriding existing element for hashID"<<endmsg;
                 }
                 m_elements[hashId]=barrel;
             } else {
-                msg(MSG::WARNING) << "manageBarrelElement: Invalid identifier" << endreq;	
+                msg(MSG::WARNING) << "manageBarrelElement: Invalid identifier" << endmsg;	
             }
 
         }
@@ -195,7 +195,7 @@ namespace InDetDD {
 
             //Element already added - complain!
             if(msgLvl(MSG::DEBUG)) 
-                msg(MSG::DEBUG) << "manageEndcapElement: Overriding existing element"<<endreq;
+                msg(MSG::DEBUG) << "manageEndcapElement: Overriding existing element"<<endmsg;
         };
 
         endcapArray
@@ -219,11 +219,11 @@ namespace InDetDD {
                 if (m_elements[hashId]) {
                     //Element already added - complain!
                     if(msgLvl(MSG::DEBUG))
-                        msg(MSG::DEBUG) << "manageEndcapElement: Overriding existing element for hashID"<<endreq;
+                        msg(MSG::DEBUG) << "manageEndcapElement: Overriding existing element for hashID"<<endmsg;
                 }
                 m_elements[hashId]=endcap;
             } else {
-                msg(MSG::WARNING) << "manageEndcapElement: Invalid identifier" << endreq;	    
+                msg(MSG::WARNING) << "manageEndcapElement: Invalid identifier" << endmsg;	    
             }
         }
     }
@@ -367,7 +367,7 @@ namespace InDetDD {
     {
         if(msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Registering alignmentCallback with key " << key << ", at level " << level 
-            << endreq;
+            << endmsg;
 
         const DataHandle<AlignableTransform> transformCollection;  
         m_detStore->regFcn(&TRT_DetectorManager::alignmentCallback, this, transformCollection, key);
@@ -399,11 +399,11 @@ namespace InDetDD {
             if (child && !childFPV) { 
                 msg(MSG::ERROR) 
                     << "Child of alignable transform is not a full physical volume" 
-                    << endreq;
+                    << endmsg;
             } else if (frameVol && !frameFPV) {
                 msg(MSG::ERROR) 
                     << "Frame for alignable transform is not a full physical volume" 
-                    << endreq;
+                    << endmsg;
             } else {
                 addAlignableTransform (level, id, transform, childFPV, frameFPV);
             }
@@ -431,7 +431,7 @@ namespace InDetDD {
                     } else {
                         msg(MSG::VERBOSE) << " using other frame";
                     }
-                    msg(MSG::VERBOSE) << endreq;
+                    msg(MSG::VERBOSE) << endmsg;
                 }
                 // Save in map
                 int index = level - FIRST_HIGHER_LEVEL; // level 0 treated separately.
@@ -528,7 +528,7 @@ namespace InDetDD {
 
         if (newFrame == InDetDD::global)  { // Global
             if (!child) {
-                msg(MSG::ERROR) << "global frame specified, but child == 0" << endreq;
+                msg(MSG::ERROR) << "global frame specified, but child == 0" << endmsg;
             } else {
                 const HepGeom::Transform3D & childXF = child->getDefAbsoluteTransform();
                 extXF->alignableTransform()->setDelta(childXF.inverse() * Amg::EigenTransformToCLHEP(delta) * childXF);
@@ -590,7 +590,7 @@ namespace InDetDD {
     bool TRT_DetectorManager::processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType /*dummy*/) const
     {
         if(msgLvl(MSG::DEBUG))
-            msg(MSG::DEBUG) << "Processing TRT fine alignment." << endreq;
+            msg(MSG::DEBUG) << "Processing TRT fine alignment." << endmsg;
 
         const TRTCond::StrawDxContainer* container = 0;
         StatusCode sc = StatusCode::FAILURE;
@@ -601,7 +601,7 @@ namespace InDetDD {
         if (sc.isFailure()) {
             if (msgLvl(MSG::INFO))
                 msg(MSG::INFO) << "Cannot find StrawDxContainer for key "
-                << key << " - no fine alignment " << endreq;
+                << key << " - no fine alignment " << endmsg;
             throw std::runtime_error("Unable to apply TRT fine alignment. This is normal for simulation");
       //return false;
         } else {
@@ -627,7 +627,7 @@ namespace InDetDD {
     {
     // Should only be set once.
         if (m_conditions) {
-            msg(MSG::WARNING) << "TRT_DetectorManager: Attempt to reset TRT_Conditions" << endreq;
+            msg(MSG::WARNING) << "TRT_DetectorManager: Attempt to reset TRT_Conditions" << endmsg;
             return;
         }
         m_conditions = conditions;
@@ -646,7 +646,7 @@ namespace InDetDD {
     bool alignmentChange = false;
 
     if(msgLvl(MSG::INFO))
-      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endreq;
+      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endmsg;
 
     Identifier ident=Identifier();
     const CondAttrListCollection* atrlistcol=0;
@@ -674,7 +674,7 @@ namespace InDetDD {
                         << " ,Tz: "     << atrlist["Tz"].data<float>()
                         << " ,phi: "    << atrlist["phi"].data<float>()
                         << " ,theta: "  << atrlist["theta"].data<float>()
-                        << " ,psi: "    << atrlist["psi"].data<float>() << endreq;                                                                              
+                        << " ,psi: "    << atrlist["psi"].data<float>() << endmsg;                                                                              
 
 	// Set the new transform; Will replace existing one with updated transform
         bool status = setAlignableTransformDelta(level,
@@ -686,7 +686,7 @@ namespace InDetDD {
           if (msgLvl(MSG::DEBUG)) {
             msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."
                             << getIdHelper()->show_to_string(ident)
-                            << " at level " << level << " for new global DB " << endreq;
+                            << " at level " << level << " for new global DB " << endmsg;
           }
         }
 
@@ -696,7 +696,7 @@ namespace InDetDD {
     else {
       if (msgLvl(MSG::INFO))
         msg(MSG::INFO) << "Cannot find new global align Container for key "
-                       << key << " - no new global alignment " << endreq;
+                       << key << " - no new global alignment " << endmsg;
       return alignmentChange;
     }
     return alignmentChange;

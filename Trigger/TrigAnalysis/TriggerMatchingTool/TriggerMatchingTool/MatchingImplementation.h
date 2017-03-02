@@ -32,15 +32,13 @@ namespace MatchingStrategy {
 
 class MatchingImplementation : public asg::AsgMessaging {
 public:
-  MatchingImplementation(MatchingTool& mt, double threshold=0.4);
+  MatchingImplementation(MatchingTool& mt);
   Trig::TrigDecisionTool* tdt();
-  bool matchDistanceMatrix(const std::vector<std::vector<double> >& matrix, const Trig::MatchingStrategy::Strategy strategy = Trig::MatchingStrategy::MinimalSum);
-  inline void setThreshold(double in) { m_threshold=in; }
+  std::pair<bool, IAssociationStrategy::index_assignment_t> matchDistanceMatrix(const std::vector<std::vector<double> >& matrix, double threshold, const Trig::MatchingStrategy::Strategy strategy = Trig::MatchingStrategy::MinimalSum);
 private:
-  bool assocIsMatched(IAssociationStrategy::index_assignment_t association, const std::vector<std::vector<double> >& matrix);
+  bool assocIsMatched(IAssociationStrategy::index_assignment_t association, const std::vector<std::vector<double> >& matrix, double threshold);
   MatchingTool& m_tool;
   std::map<Trig::MatchingStrategy::Strategy,std::unique_ptr<IAssociationStrategy> > m_strategies;
-  double m_threshold; //the distance threshold for a match
 };
 
 }

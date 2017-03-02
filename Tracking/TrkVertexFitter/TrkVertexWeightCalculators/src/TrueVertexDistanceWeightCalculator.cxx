@@ -18,18 +18,18 @@ namespace Trk{
     //initializing the AlgTool itself
     if(sc.isFailure())
     {
-      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
       return StatusCode::FAILURE;
     }
     
-    msg(MSG::INFO)<<"Initialization successfull"<<endreq;
+    msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
     return StatusCode::SUCCESS;
   }//end of initialize method
   
   StatusCode TrueVertexDistanceWeightCalculator::finalize()
   {
     MsgStream log(msgSvc(), name());
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
  
@@ -67,7 +67,7 @@ namespace Trk{
     const HepMC::GenEvent* myEvent=(*itr);
     if (!myEvent)
     {
-      msg(MSG::ERROR) << " Cannot find truth event...  Returning 0 distance... " << endreq;
+      msg(MSG::ERROR) << " Cannot find truth event...  Returning 0 distance... " << endmsg;
       return 0;
     }
     

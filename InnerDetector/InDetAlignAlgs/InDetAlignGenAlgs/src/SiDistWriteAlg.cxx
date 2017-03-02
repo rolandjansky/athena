@@ -37,7 +37,7 @@ SiDistWriteAlg::~SiDistWriteAlg()
 
 StatusCode SiDistWriteAlg::initialize()
 {
-  msg (MSG::DEBUG) << "SiDistWriteAlg::initialize()" << endreq;
+  msg (MSG::DEBUG) << "SiDistWriteAlg::initialize()" << endmsg;
   // check StoreGate service available
   if (evtStore().retrieve().isFailure())
     {
@@ -48,7 +48,7 @@ StatusCode SiDistWriteAlg::initialize()
   // get detector store
   if (detStore().retrieve().isFailure())
     {
-      msg( MSG::FATAL) << "Detector store not found" << endreq; 
+      msg( MSG::FATAL) << "Detector store not found" << endmsg; 
     }
   
   
@@ -56,7 +56,7 @@ StatusCode SiDistWriteAlg::initialize()
   if ((StatusCode::SUCCESS!=detStore()->retrieve(m_pixid)) ||
       (StatusCode::SUCCESS!=detStore()->retrieve(m_sctid))) {
     msg (MSG::ERROR) << "Could not get helpers from detector store" 
-    << endreq;
+    << endmsg;
   }
    ATH_MSG_DEBUG( "Distortion information in TDS at key " <<
     par_distkey );
@@ -92,7 +92,7 @@ bool SiDistWriteAlg::readFile() {
   std::ifstream infile;
   infile.open(par_readfile.c_str());
   if (!infile) {
-    msg (MSG::ERROR) << "Problem opening input file" << endreq;
+    msg (MSG::ERROR) << "Problem opening input file" << endmsg;
     return false;
   }
   // loop over lines in file
@@ -120,7 +120,7 @@ bool SiDistWriteAlg::readFile() {
       ++nadd;
     } else {
       msg (MSG::ERROR) << "Problem constructing identifier " << ident << 
-  " / " << identhash << endreq;
+  " / " << identhash << endmsg;
     }
     ++nline;
   }
@@ -133,7 +133,7 @@ bool SiDistWriteAlg::readFile() {
     ATH_MSG_DEBUG ( "Recorded DetCondCFloat " << par_distkey << " in TDS" );
   } else {
     msg(MSG::ERROR) << "Failed to record DetCondCFloat " << par_distkey << " in TDS"
-    << endreq;
+    << endmsg;
     return false;
   }
   return true;
@@ -156,7 +156,7 @@ bool SiDistWriteAlg::makeIdent(const std::string& ident,
   } else if (det==2) {
     identifier=m_sctid->wafer_id(bec,layer,phi,eta,side);
   } else {
-    msg(MSG::ERROR) << "Unknown detector type " << det << endreq;
+    msg(MSG::ERROR) << "Unknown detector type " << det << endmsg;
     return false;
   }
   // cross check with the supplied identifier compact value
@@ -172,6 +172,6 @@ void SiDistWriteAlg::print() {
     pdist->print2();
   } else {
     msg (MSG::ERROR) << "Unable to retrieve distortion parameters " <<
-      endreq;
+      endmsg;
   }
 }

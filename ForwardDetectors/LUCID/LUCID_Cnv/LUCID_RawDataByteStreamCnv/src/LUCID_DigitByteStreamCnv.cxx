@@ -24,7 +24,7 @@ StatusCode LUCID_DigitByteStreamCnv::initialize() {
   
   if (StatusCode::SUCCESS != service("ByteStreamCnvSvc", m_ByteStreamEventAccess) || !m_ByteStreamEventAccess) {
     
-    if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "Can't get ByteStreamEventAccess interface" << endreq;
+    if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "Can't get ByteStreamEventAccess interface" << endmsg;
     
     return StatusCode::FAILURE;
   }
@@ -39,7 +39,7 @@ const CLID& LUCID_DigitByteStreamCnv::classID() {
 
 StatusCode LUCID_DigitByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
   
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_DigitByteStreamCnv::createRep" << endreq;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_DigitByteStreamCnv::createRep" << endmsg;
 
    RawEventWrite*        re = m_ByteStreamEventAccess->getRawEvent();
    LUCID_DigitContainer* RDO_container = 0;
@@ -49,7 +49,7 @@ StatusCode LUCID_DigitByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*
 
    if (!RDO_container) {
 
-     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not cast to LUCID_DigitContainer" << endreq;
+     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not cast to LUCID_DigitContainer" << endmsg;
      
      return StatusCode::RECOVERABLE;
    }
@@ -66,7 +66,7 @@ StatusCode LUCID_DigitByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*
    
    if (sc.isFailure()){
 
-     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Could not convert RawData with to ByteStream " << endreq;
+     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Could not convert RawData with to ByteStream " << endmsg;
      
      return StatusCode::RECOVERABLE;
    }
@@ -81,7 +81,7 @@ StatusCode LUCID_DigitByteStreamCnv::fillFEA(LUCID_DigitContainer* RDO_container
   FullEventAssembler<SrcIdMap>::RODDATA* theROD;
 
   m_fea.setRodMinorVersion(RodBlockVersion());
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting ROD Minor Version Number to: " << m_RodBlockVersion << endreq;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting ROD Minor Version Number to: " << m_RodBlockVersion << endmsg;
 
   LucidRodEncoder_map RDOEncoder_map;
 
@@ -96,7 +96,7 @@ StatusCode LUCID_DigitByteStreamCnv::fillFEA(LUCID_DigitContainer* RDO_container
       
       RDOEncoder_map[rodId].addDigit((*it_cont));
     } 
-    else if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << " Digit is empty, skipping digit." << endreq;
+    else if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << " Digit is empty, skipping digit." << endmsg;
   }
 
   LucidRodEncoder_map::iterator it_map     = RDOEncoder_map.begin();

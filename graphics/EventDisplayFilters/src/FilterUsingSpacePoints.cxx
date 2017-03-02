@@ -23,10 +23,10 @@ StatusCode FilterUsingSpacePoints::initialize()
 {
 	MsgStream log(msgSvc(), name());
 	StatusCode sc;
-	log << MSG::INFO << "Initializing " << name() << endreq;
+	log << MSG::INFO << "Initializing " << name() << endmsg;
 	  sc = service( "StoreGateSvc", m_eventStore);
 	  if( sc.isFailure() ) {
-		  log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endreq;
+		  log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endmsg;
 		  return sc;
 	  }
 	
@@ -41,7 +41,7 @@ StatusCode FilterUsingSpacePoints::execute()
   const SpacePointContainer* m_SpacePointContainer;
 
   if ( m_eventStore->retrieve(m_SpacePointContainer,  m_SpacePointContainerName).isFailure() ){
-     log << MSG::INFO << "Unable to retrieve SpacePoint container with name " << m_SpacePointContainerName << endreq;
+     log << MSG::INFO << "Unable to retrieve SpacePoint container with name " << m_SpacePointContainerName << endmsg;
      return StatusCode::FAILURE;
   }
   
@@ -55,15 +55,15 @@ StatusCode FilterUsingSpacePoints::execute()
 
 
   //be verbose
-  log << MSG::DEBUG << "Number of SpacePoints is " << NSpacePoints << endreq;
+  log << MSG::DEBUG << "Number of SpacePoints is " << NSpacePoints << endmsg;
 
   //And cut
   if (NSpacePoints >= m_SpacePoints_required) {
     setFilterPassed(true);
-    log << MSG::INFO << "Event is accepted" << endreq;
+    log << MSG::INFO << "Event is accepted" << endmsg;
   } else {
     setFilterPassed(false);
-    log << MSG::INFO << "Event is rejected" << endreq;
+    log << MSG::INFO << "Event is rejected" << endmsg;
   }
 
 	return StatusCode::SUCCESS;

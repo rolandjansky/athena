@@ -1,119 +1,89 @@
 //
-//   @file    RoiWriter.cxx         
+//   @file    RoiWriter.cxx
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
+//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)
 //
-//   $Id: RoiWriter.cxx, v0.0   Wed 18 Nov 2015 12:22:35 CET sutt $
+//   $Id: RoiWriter.cxx 781778 2016-11-01 23:42:26Z sutt $
 
 
-/// class header
-#include "TrigRoiConversion/RoiWriter.h"
-
-
-/// xAOD storage class
+// EDM include(s):
 #include "xAODTrigger/RoiDescriptorStore.h"
 #include "xAODTrigger/RoiDescriptorStoreAuxInfo.h"
 
-/// utility to serialise the RoiDescriptorCollection
+// Local include(s):
+#include "RoiWriter.h"
 #include "TrigRoiConversion/RoiSerialise.h"
 
+RoiWriter::RoiWriter( const std::string& name, ISvcLocator* pSvcLocator )
+   : AthAlgorithm( name, pSvcLocator ) {
 
-RoiWriter::RoiWriter( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator )
-{ } 
-
-
-
-StatusCode RoiWriter::initialize() { 
-  return StatusCode::SUCCESS;
+   // Declare the property:
+   declareProperty( "ForceOverwrite", m_forceOverwrite = false );
 }
-
 
 StatusCode RoiWriter::execute() { 
 
-  ATH_MSG_DEBUG( "RoiWriter::execute() in" );
+   ATH_MSG_DEBUG( "In execute()..." );
 
-  bool just_dandy = true;
-  std::vector<std::string> keys;
-  evtStore()->keys<TrigRoiDescriptorCollection>( keys );
-  
-  for ( unsigned ik=0 ; ik<keys.size() ; ik++ ) { 
+   // Get the keys of the AOD container(s):
+   std::vector< std::string > keys;
+   evtStore()->keys< TrigRoiDescriptorCollection >( keys );
 
-    std::string collectionname = "TrigRoiDescriptorCollection";
-    
-    std::string keybase = keys[ik];
-    keybase.erase( 0, keybase.find(collectionname)+collectionname.size() );
-    
-    std::string newkey      = "HLT_xAOD__RoiDescriptorStore" + keybase;
-    std::string newstorekey = "HLT_xAOD__RoiDescriptorStore" + keybase + "Aux.";
+   bool just_dandy = true;
 
-    /// don't continue, overwrite instead
-    //    if ( evtStore()->contains<xAOD::RoiDescriptorStore>( newkey ) ) continue; 
+   // Loop over these container(s):
+   for( const std::string& key : keys ) {
 
-    const TrigRoiDescriptorCollection* roicollection = 0;
+      // Prefix of the AOD container:
+      static const std::string prefix = "HLT_TrigRoiDescriptorCollection";
+      static const std::string newPrefix = "HLT_xAOD__RoiDescriptorStore";
 
-    if ( evtStore()->retrieve( roicollection, keys[ik] ).isSuccess() && roicollection!=0 ) {
+      // Construct the key of the new container:
+      const std::string newKey = ( ( key.find( prefix ) == 0 ) ?
+				   ( newPrefix + key.substr( prefix.size() ) ) :
+                                   key );
       
-      ATH_MSG_DEBUG( "\tcollection" << keys[ik] << " " << roicollection->size() );
+      // Check if we need to do anything:
+      if( evtStore()->contains< xAOD::RoiDescriptorStore >( newKey ) &&
+          !m_forceOverwrite ) {
+         continue;
+      }
 
-      std::vector< std::vector<uint32_t> > roiserial;
-      RoiUtil::serialise( *roicollection, roiserial );
+      // Get the roi desciptor collection
+      const TrigRoiDescriptorCollection* roiCollection = 0;
 
-      /// The Store always needs it's own AuxInfo, so why the AuxInfo and setStore can't 
-      /// be done by default in the Store constructor is anyone's guess - presumably 
-      /// when reading back from persistant storage the constructors could be created
-      /// with some default parameter - I have code to *not* create the AuxInfo by
-      /// default, but to do if given a flag. Is this frowned upon?
-      /// this requires the xAOD container to have a method store() that returns the
-      /// internal auxilliary store
-      /// ideally, one would want an xAOD::RoiDescriptorStore constructor that takes 
-      /// a vector<vector<uint32_t>> then it could all be done in one line 
+      /// check object actually points to something - make sure that we do all 
+      /// collections that we can, and not barf on the first one that might fail  
+      if ( evtStore()->retrieve( roiCollection, key ).isSuccess() && roiCollection!=0 ) {
 
-      xAOD::RoiDescriptorStore*        roistore    = new xAOD::RoiDescriptorStore;
-      xAOD::RoiDescriptorStoreAuxInfo* roistoreaux = new xAOD::RoiDescriptorStoreAuxInfo;      
-      roistore->setStore( roistoreaux );	      
-      
-      roistore->setSerialised( roiserial );
+	// Create the "new payload" from it:
+	std::vector< std::vector< uint32_t > > roiserial;
+	RoiUtil::serialise( *roiCollection, roiserial );
+	
+	// Create the xAOD objects:
+	std::unique_ptr< xAOD::RoiDescriptorStore >         store( new xAOD::RoiDescriptorStore() );
+	std::unique_ptr< xAOD::RoiDescriptorStoreAuxInfo >    aux( new xAOD::RoiDescriptorStoreAuxInfo() );
+	store->setStore( aux.get() );
+	store->setSerialised( roiserial );
+	
+	// Record the new container:
+	if( evtStore()->contains< xAOD::RoiDescriptorStore >( newKey ) ) {
+	  ATH_CHECK( evtStore()->overwrite( std::move( store ), newKey, false ) );
+	  ATH_CHECK( evtStore()->overwrite( std::move( aux ),   newKey + "Aux.", false ) );
+	  
+	} else {
+	  ATH_CHECK( evtStore()->record( std::move( store ), newKey ) );
+	  ATH_CHECK( evtStore()->record( std::move( aux ),   newKey + "Aux." ) );
+	}
+      }
+      else just_dandy = false;
+   }
 
-      //      CHECK( evtStore()->record( roistore,    newkey ) );  
-      //      CHECK( evtStore()->record( roistoreaux, newstorekey ) );  
-
-      CHECK( evtStore()->overwrite( roistore,    newkey ) );  
-      CHECK( evtStore()->overwrite( roistoreaux, newstorekey ) );  
-
-      //   TrigRoiDescriptorCollection coll;	
-      //   RoiWriter::deserialiser( coll, newkey ); 
-      //   std::cout << "\tcollection size " << newkey << " " << coll.size() << std::endl;
-      //   for ( unsigned j=0 ; j<coll.size() ; j++ ) std::cout << "\t\t" << j << " " << *coll[j] << std::endl;
-           
-    }
-    else just_dandy = false;
-  }
-
-  ATH_MSG_DEBUG( "RoiWriter::execute() out " << just_dandy);
-
-  //  ATH_MSG_DEBUG( "Dump storegate " << evtStore()->dump() );
-
-  if ( just_dandy ) return StatusCode::SUCCESS;
-  else              return StatusCode::FAILURE;
-
-}
-
-
-StatusCode RoiWriter::finalize() { 
-  return StatusCode::SUCCESS;
-}
-
-
-
-
-void RoiWriter::deserialiser( TrigRoiDescriptorCollection& collection, const std::string key ) const {
-  xAOD::RoiDescriptorStore* fetchedstore = 0;
-  if ( evtStore()->retrieve( fetchedstore, key ).isSuccess() && fetchedstore!=0 ) { 
-    RoiUtil::deserialise( fetchedstore->serialised(), collection );
-  }
+   // Return gracefully:
+   if ( just_dandy ) return StatusCode::SUCCESS;
+   else              return StatusCode::FAILURE;
 }
 

@@ -136,7 +136,7 @@ FillParamsTool::updateCache( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
     m_beam1Bunches.push_back(*p);
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << *p << " ";
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
 
   // Decode beam2 list
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beam2 bunches list: ";
@@ -144,7 +144,7 @@ FillParamsTool::updateCache( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
     m_beam2Bunches.push_back(*p);
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << *p << " ";
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
 
   // Decode luminous list
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Luminous bunches list: ";
@@ -152,7 +152,7 @@ FillParamsTool::updateCache( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
     m_luminousBunches.push_back(*p);
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << *p << " ";
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
 
   return StatusCode::SUCCESS;
 }

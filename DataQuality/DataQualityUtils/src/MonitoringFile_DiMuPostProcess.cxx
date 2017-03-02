@@ -112,7 +112,7 @@ fitMergedFile_DiMuMonManager( std::string inFilename, bool isIncremental)
   
   f->Close();
   delete f;
-  //  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "DiMuPostProcessing done!" <<endreq;
+  //  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "DiMuPostProcessing done!" <<endmsg;
 }
   
 void MonitoringFile::processModule( TFile* f, std::string run_dir, TKey* key_module, std::string moduleName){

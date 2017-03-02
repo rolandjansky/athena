@@ -507,10 +507,8 @@ RingSetConf_v1::RawConf::RawConf()
 
 } // End of namespace xAOD
 
-#ifndef XAOD_STANDALONE
 #include "xAODCore/BaseInfo.h"
 SG_BASE ( xAOD::RingSetConf_v1, SG::AuxElement );
-#endif
 
 #endif // XAODCALORINGS_VERSIONS_RINGSETCONF_V1_H
 

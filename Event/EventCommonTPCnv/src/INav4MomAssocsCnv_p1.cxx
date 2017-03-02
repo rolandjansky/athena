@@ -47,11 +47,11 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
 {
   log << MSG::DEBUG 
       << "Loading INav4MomAssocs from persistent state..."
-      << endreq;
+      << endmsg;
   if ( 0 == m_storeGate ) {
     log << MSG::ERROR
-	<< "NULL pointer to StoreGateSvc !!" << endreq
-	<< "Cannot do anything !!" <<endreq;
+	<< "NULL pointer to StoreGateSvc !!" << endmsg
+	<< "Cannot do anything !!" <<endmsg;
     throw std::runtime_error("NULL pointer to StoreGateSvc !!");
   }
 
@@ -65,7 +65,7 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
 	  << "Could not build DataLink<INav4MomAssocs> from ["
 	  << *itr
 	  << "] !!"
-	  << endreq;
+	  << endmsg;
     } else {
       transObj->m_assocStores[*itr] = link;
     }
@@ -83,8 +83,8 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
     const std::string& objKey = objLink.first;
     const std::string& assKey = assLink.first;
 
-    log << MSG::DEBUG << "\tobjLink=" << objKey << ", " << objLink.second << endreq;
-    log << MSG::DEBUG << "\tassLink=" << assKey << ", " << assLink.second << endreq;
+    log << MSG::DEBUG << "\tobjLink=" << objKey << ", " << objLink.second << endmsg;
+    log << MSG::DEBUG << "\tassLink=" << assKey << ", " << assLink.second << endmsg;
 
     if ( collections.find(objKey) == collections.end() ) {
       collections[objKey] = 0;
@@ -93,13 +93,13 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
         log << MSG::ERROR
             << "Could not retrieve INavigable4MomentumCollection at : "
             << objKey
-            << endreq;
+            << endmsg;
         throw std::runtime_error("Could not retrieve an INavigable4MomentumCollection");
       } else {
         log << MSG::DEBUG
             << "Successfully retrieve INav4MomCollection at : "
             << objKey
-            << endreq;
+            << endmsg;
       }
     }
 
@@ -110,13 +110,13 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
         log << MSG::ERROR
             << "Could not retrieve INavigable4MomentumCollection at : "
             << assKey
-            << endreq;
+            << endmsg;
         throw std::runtime_error("Could not retrieve an INavigable4MomentumCollection");
       } else {
         log << MSG::DEBUG
             << "Successfully retrieve INav4MomCollection at : "
             << assKey
-            << endreq;
+            << endmsg;
       }
     }
 
@@ -127,7 +127,7 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
   
   log << MSG::DEBUG 
       << "Loaded INav4MomAssocs from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -138,7 +138,7 @@ INav4MomAssocsCnv_p1::transToPers( const INav4MomAssocs* transObj,
 {
   log << MSG::DEBUG 
       << "Creating persistent state of INav4MomAssocs..."
-      << endreq;
+      << endmsg;
 
   // first store the underlying association stores
   for ( std::map<std::string, DataLink<INav4MomAssocs> >::const_iterator itr = transObj->m_assocStores.begin();
@@ -166,7 +166,7 @@ INav4MomAssocsCnv_p1::transToPers( const INav4MomAssocs* transObj,
 
   log << MSG::DEBUG 
       << "Created persistent state of INav4MomAssocs [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 

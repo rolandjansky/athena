@@ -67,13 +67,13 @@ namespace Trk
   
   StatusCode MCTrueSeedFinder::initialize() 
   { 
-   msg(MSG::INFO)  << "Initialize successful" << endreq;
+   msg(MSG::INFO)  << "Initialize successful" << endmsg;
    return StatusCode::SUCCESS;
   }
 
   StatusCode MCTrueSeedFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -144,7 +144,7 @@ namespace Trk
     if(evtStore()->retrieve(myEventInfo/*,"MyEvent"*/).isFailure()) {
       // Key "MyEvent" is optional, usually not specified for EventInfo because
       // there'll be only one. When not specified, just takes the first container.
-      msg(MSG::ERROR) << "Failed to retrieve event information" << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -155,11 +155,11 @@ namespace Trk
       return SUCCESS; //cached info already available
 
     ATH_MSG_DEBUG("Retrieving interactions information");
-    msg(MSG::DEBUG) << "StoreGate Step: MCTrueSeedFinder retrieves -- " << m_McEventCollectionName << endreq;
+    msg(MSG::DEBUG) << "StoreGate Step: MCTrueSeedFinder retrieves -- " << m_McEventCollectionName << endmsg;
     StatusCode sc = evtStore()->retrieve(m_McEventCollection, m_McEventCollectionName);
     if ( sc.isFailure() ) {
       msg(MSG::DEBUG)
-	  << "Could not retrieve McEventCollection " << m_McEventCollectionName << " from StoreGate."  << endreq;
+	  << "Could not retrieve McEventCollection " << m_McEventCollectionName << " from StoreGate."  << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -189,7 +189,7 @@ namespace Trk
       HepMC::GenEvent::vertex_const_iterator Vert = myEvent->vertices_begin();
       msg(MSG::DEBUG) << "Retrieved position  x: " << (*Vert)->position().x()  << 
 	" y: " << (*Vert)->position().y() << 
-	" z: " << (*Vert)->position().z() << endreq;
+	" z: " << (*Vert)->position().z() << endmsg;
       vtxPosition = Amg::Vector3D((*Vert)->position().x(),
 				  (*Vert)->position().y(),
 				  (*Vert)->position().z());

@@ -63,14 +63,14 @@ PDFReweightTool::~PDFReweightTool() {
 StatusCode PDFReweightTool::initialize() {
 	msg(MSG::INFO) 
 	<< "Initializing PDF Reweighting Tool " 
-	<< endreq;	
+	<< endmsg;	
 
 	//retrieve StoreGate
 	StatusCode sc = service("StoreGateSvc", m_storeGate);
 	if (sc.isFailure()) {
      		msg(MSG::ERROR)
           	<< "Unable to retrieve pointer to StoreGateSvc"
-          	<< endreq;
+          	<< endmsg;
     		return sc;
   	}
 	
@@ -81,7 +81,7 @@ StatusCode PDFReweightTool::initialize() {
 		<<"Reweighting between the different c.m. energies is requested during the event generation... "
 		<<"Usually, it is needed for the existing events. At this moment the run continues but it might fail. "
 		<<"Please, check the tool settings"
-		<< endreq;
+		<< endmsg;
 	}
 
 	//check #2
@@ -91,7 +91,7 @@ StatusCode PDFReweightTool::initialize() {
 			<< "Reweighting between the different c.m. energies is requested. "
 			<< "But the proper original and new beam energy values are not set. "
 			<< "The corresponding propierty names are: 'OrigBeamEnergy' and 'NewBeamEnergy' "
-			<< endreq;
+			<< endmsg;
 
 			return StatusCode::FAILURE;			
 		}
@@ -105,7 +105,7 @@ StatusCode PDFReweightTool::initialize() {
 		msg(MSG::ERROR)
 		<<"The original (used or being used in the event generation) PDF set name has to be set. "
 		<<"Check the tool propierty 'OrigPDFSetName' "
-		<< endreq;
+		<< endmsg;
 
 		return StatusCode::FAILURE;
 	}
@@ -117,7 +117,7 @@ StatusCode PDFReweightTool::initialize() {
 		<<"the second PDF set name has to be empty (it is not needed). Force 'PDFSetName' = ''. "
 		<<"If none of the above modes are assumed, then make the both propierties false: "
 		<<"'GeneratorUse' and 'DifferentCMEnergies' and re-run "
-		<< endreq;
+		<< endmsg;
 
 		m_PDFSetName = "";
 	}
@@ -130,11 +130,11 @@ StatusCode PDFReweightTool::initialize() {
 	else {
              msg(MSG::ERROR)
              << "OigPDFSetName is too long"
-             << endreq;
+             << endmsg;
   	}
 
 	initpdfsetbynamem_(oldset, pdf_set_name, strlen(pdf_set_name));
-	msg(MSG::INFO) << " PDF set "<<m_OrigPDFSetName<<" has been initialized"<< endreq;
+	msg(MSG::INFO) << " PDF set "<<m_OrigPDFSetName<<" has been initialized"<< endmsg;
 
 	if(m_PDFSetName != "")	{	
 		int newset=2;	//do not change the number
@@ -145,10 +145,10 @@ StatusCode PDFReweightTool::initialize() {
 		   {
                     msg(MSG::ERROR)
                     << "PDFSetName is too long"
-                    << endreq;}
+                    << endmsg;}
 
 		initpdfsetbynamem_(newset, new_pdf_set_name, strlen(new_pdf_set_name));
-		msg(MSG::INFO) << " PDF set "<<m_PDFSetName<<" has been initialized"<< endreq;
+		msg(MSG::INFO) << " PDF set "<<m_PDFSetName<<" has been initialized"<< endmsg;
 	}
 
 	//the re-weighting 'flavor' is defined. anounce about it.
@@ -160,7 +160,7 @@ StatusCode PDFReweightTool::initialize() {
 		<<" TeV to the new energy "
 		<< m_NewBeamEnergy
 		<<" TeV will be performed"
-		<< endreq;
+		<< endmsg;
 	}
 	//scenario #2
 	//this scenario has two possible options: 
@@ -170,7 +170,7 @@ StatusCode PDFReweightTool::initialize() {
 		msg(MSG::INFO) 
 		<<"Event PDF weights will be calculated for this error PDF set - "
 		<<m_OrigPDFSetName
-		<<endreq;
+		<<endmsg;
 	}
 	//scenario #3
 	else {	// m_PDFSetName!=""
@@ -179,7 +179,7 @@ StatusCode PDFReweightTool::initialize() {
 		<< m_OrigPDFSetName
 		<<" will be reweighted to the new error PDF set - "
 		<<m_PDFSetName
-		<<endreq;
+		<<endmsg;
 	}
 	
 	return StatusCode::SUCCESS;
@@ -189,7 +189,7 @@ StatusCode PDFReweightTool::initialize() {
 
 StatusCode PDFReweightTool::execute() {
  	
-	msg(MSG::DEBUG) << " Execute PDF Reweighting Tool " << endreq;	
+	msg(MSG::DEBUG) << " Execute PDF Reweighting Tool " << endmsg;	
 
 	StatusCode sc;	
 
@@ -197,7 +197,7 @@ StatusCode PDFReweightTool::execute() {
 		msg(MSG::WARNING)
 		<< "No input McEventCollection is specified. "
 		<< "Can't create an output collection for reweighted events. Nothing will be done"
-		<< endreq;
+		<< endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -209,10 +209,10 @@ StatusCode PDFReweightTool::execute() {
   		if( sc.isFailure() ) {
      			msg(MSG::WARNING)
           		<< "New MC event container was not recorded in TDS"
-          		<< endreq;
+          		<< endmsg;
      			return StatusCode::SUCCESS;
   		}
-		msg(MSG::DEBUG) << "New MC Event Container Was Successfully Recorded" << endreq;
+		msg(MSG::DEBUG) << "New MC Event Container Was Successfully Recorded" << endmsg;
 	}
 
 	
@@ -224,10 +224,10 @@ StatusCode PDFReweightTool::execute() {
   			if( sc.isFailure()  ||  !mceventTES ) {
      				msg(MSG::WARNING)
           			<< "No MC event container found in TDS"
-	          		<< endreq;
+	          		<< endmsg;
      				return StatusCode::SUCCESS;
   			}
-			msg(MSG::DEBUG) << "MC Event Container Was Successfully Retrieved" << endreq;
+			msg(MSG::DEBUG) << "MC Event Container Was Successfully Retrieved" << endmsg;
 		
 			//loop over the events in a container
 			McEventCollection::const_iterator iter 		= mceventTES->begin();
@@ -239,7 +239,7 @@ StatusCode PDFReweightTool::execute() {
 				if( sc.isFailure() ) {
 					msg(MSG::WARNING)
 							<< "Event PDF re-weighting failed"
-							<< endreq;
+							<< endmsg;
 					return StatusCode::SUCCESS;
 				}
 
@@ -252,7 +252,7 @@ StatusCode PDFReweightTool::execute() {
                         msg(MSG::WARNING) 
 			<< "Input MC Event Container is not specified. "
 			<< "Reweighting won't be performed" 
-			<< endreq;
+			<< endmsg;
 		}
 	}
 	else { //runs during event generation
@@ -264,7 +264,7 @@ StatusCode PDFReweightTool::execute() {
 			if( sc.isFailure() ) {
 				msg(MSG::WARNING)
 						<< "Event PDF re-weighting failed"
-						<< endreq;
+						<< endmsg;
 				return StatusCode::SUCCESS;
 			}
 		}
@@ -272,7 +272,7 @@ StatusCode PDFReweightTool::execute() {
 			msg(MSG::WARNING) 
 					<< "Can't retrieve the current GenEvent. "
 					<< "Reweighting can't be performed"
-					<< endreq;
+					<< endmsg;
 		}
 	}
 
@@ -284,13 +284,13 @@ StatusCode PDFReweightTool::execute() {
 //StatusCode PDFReweightTool::Reweight(const HepMC::GenEvent* evt_orig) {
 StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 			
-	msg(MSG::DEBUG) << " Reweight PDF " << endreq;	
+	msg(MSG::DEBUG) << " Reweight PDF " << endmsg;	
 	
 	//safety check
 	if (!evt) {
                 msg(MSG::WARNING) 
 		<< " Invalid pointer to a GenEvent. Nothing will be done"
-		<< endreq;
+		<< endmsg;
 	        return StatusCode::SUCCESS;	
 	}
 
@@ -298,12 +298,12 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 	
 	//safety check
 	if (pdf_info) {
-	        msg(MSG::DEBUG) << " PdfInfo has been retrieved"<< endreq;		
+	        msg(MSG::DEBUG) << " PdfInfo has been retrieved"<< endmsg;		
 	}
 	else {
                 msg(MSG::WARNING) 
 		<< " PdfInfo could not be retrieved. Nothing will be done"
-		<< endreq;
+		<< endmsg;
 	        return StatusCode::SUCCESS;	
 	}
 	
@@ -367,7 +367,7 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 			<<"   x2="<<m_x2
 			<<"   fl2="<<m_fl2
 			<<"   pdf2="<<m_used_pdf2
-			<< endreq;	
+			<< endmsg;	
 
 
 	//clear/reset the weight vector		
@@ -418,7 +418,7 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 				<<"  pdf id="<<i
 				<<"  x1="<<m_x1<<"  fl1="<<m_fl1<<"     pdf1="<<f1[fl1+6]
 				<<"  x2="<<m_x2<<"  fl2="<<m_fl2<<"     pdf2="<<f2[fl2+6]
-				<<endreq;
+				<<endmsg;
 
 	
 		//if this is the first PDF from the PDF set (the central value PDF)	
@@ -450,7 +450,7 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 
 		msg(MSG::DEBUG)  <<" weight = "
 				<< weight
-				<< endreq;
+				<< endmsg;
 
 		//store the weight		   
 		m_weights_vec.push_back(weight);
@@ -467,7 +467,7 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 			msg(MSG::WARNING) 
 			<<" Event weights are going to be re-writed." 
 			<<" This option works properly only for the HERWIG samples "
-			<<endreq; 
+			<<endmsg; 
 
 			double genWeight = evt->weights()[0];
 			evt->weights().clear();

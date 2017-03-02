@@ -147,13 +147,13 @@ bool TauID::TruthTau::chargedProductHadHadronicInteraction(unsigned int index) c
 // MsgStream& operator << ( MsgStream& sl, const TauID::TauSeed& seed)
 // { 
 //     std::string name("TauSeed: ");
-//     sl <<name<<"\t of type : "<<seed.dumpType()<<endreq;
+//     sl <<name<<"\t of type : "<<seed.dumpType()<<endmsg;
 //     return sl; 
 // }
 // 
 // std::ostream& operator << ( std::ostream& sl, const TauID::TauSeed& seed)
 // { 
 //     std::string name("TauSeed: ");
-//     sl <<name<<"\t of type : "<<seed.dumpType()<<endreq;
+//     sl <<name<<"\t of type : "<<seed.dumpType()<<endmsg;
 //     return sl; 
 // }

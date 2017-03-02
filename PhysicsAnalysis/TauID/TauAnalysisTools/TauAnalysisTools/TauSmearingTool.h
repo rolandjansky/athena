@@ -71,6 +71,8 @@ private:
   bool m_bApplyFading;
 
   bool m_bApplyMVATES;
+  bool m_bApplyMVATESQualityCheck;
+  bool m_bApplyCombinedTES;
 
 }; // class TauSmearingTool
 

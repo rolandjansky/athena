@@ -25,7 +25,7 @@ StatusCode BoostEvent::initialize()
 		  << std::setw(60) << "BetaX " << m_beta_x << "\n"
 		  << std::setw(60) << "BetaY " << m_beta_y << "\n"
 		  << std::setw(60) << "BetaZ " << m_beta_z << "\n"
-		  << endreq;
+		  << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -34,7 +34,7 @@ StatusCode BoostEvent::execute()
   const McEventCollection* input_collection;
   if ( evtStore()->retrieve(input_collection, m_inkey).isFailure() )
   {
-    msg(MSG::ERROR) << "Could not retrieve truth McEventCollection " << m_inkey << endreq;
+    msg(MSG::ERROR) << "Could not retrieve truth McEventCollection " << m_inkey << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -47,7 +47,7 @@ StatusCode BoostEvent::execute()
   }
 
   //now loop on particles
-  msg(MSG::VERBOSE) << "Boosting event with beta=(" << m_beta_x << "," << m_beta_y << "," << m_beta_z << ")" << endreq;
+  msg(MSG::VERBOSE) << "Boosting event with beta=(" << m_beta_x << "," << m_beta_y << "," << m_beta_z << ")" << endmsg;
   msg(MSG::VERBOSE) << std::setw(10) << "pt"
 		    << std::setw(10) << "E"
 		    << std::setw(10) << "eta"
@@ -56,7 +56,7 @@ StatusCode BoostEvent::execute()
 		    << std::setw(10) << "E'"
 		    << std::setw(10) << "eta'"
 		    << std::setw(10) << "phi'"
-		    << endreq;
+		    << endmsg;
 
   for (McEventCollection::iterator itr = output_collection->begin(); itr!=output_collection->end(); itr++)
   {
@@ -76,7 +76,7 @@ StatusCode BoostEvent::execute()
 			<< std::setw(10) << momentum.e()
 			<< std::setw(10) << momentum.eta()
 			<< std::setw(10) << momentum.phi()
-			<< endreq;
+			<< endmsg;
 
       (*particleItr)->set_momentum( momentum );
     }
@@ -84,7 +84,7 @@ StatusCode BoostEvent::execute()
 
   if(evtStore()->record(output_collection, m_outkey).isFailure())
   {
-    msg(MSG::ERROR) << "Could not record boosted McEventCollection " << m_outkey << endreq;
+    msg(MSG::ERROR) << "Could not record boosted McEventCollection " << m_outkey << endmsg;
     return StatusCode::FAILURE;
   }
 

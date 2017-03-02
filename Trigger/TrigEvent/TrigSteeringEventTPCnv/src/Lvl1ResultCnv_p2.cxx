@@ -12,7 +12,7 @@ void Lvl1ResultCnv_p2::transToPers(const LVL1CTP::Lvl1Result* trans,
                                      Lvl1Result_p2* pers, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "Lvl1ResultCnv_p2::transToPers called " << endreq;
+  log << MSG::DEBUG << "Lvl1ResultCnv_p2::transToPers called " << endmsg;
 
   pers->m_configured  = trans->isConfigured();
   pers->m_l1_itemsTBP = trans->itemsBeforePrescale();
@@ -25,7 +25,7 @@ void Lvl1ResultCnv_p2::persToTrans(const LVL1CTP::Lvl1Result_p2* pers,
                                      Lvl1Result* trans, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "Lvl1ResultCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "Lvl1ResultCnv_p2::persToTrans called " << endmsg;
 
   *trans = Lvl1Result (pers->m_configured);
   trans->itemsBeforePrescale() = pers->m_l1_itemsTBP;

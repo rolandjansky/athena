@@ -72,7 +72,7 @@ class EgammaAllFex: public IAlgToolCalo {
                 if ( IAlgToolCalo::initialize().isFailure() ) {
                 	*(new MsgStream(AlgTool::msgSvc(), name()))
 			<< MSG::FATAL 
-			<< "Could not init base class IAlgTooCalo" << endreq;
+			<< "Could not init base class IAlgTooCalo" << endmsg;
                 }
                 std::string basename(name().substr(25,5)+".");
 		//std::string basename(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));

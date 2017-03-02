@@ -60,26 +60,26 @@ T2IDTau::~T2IDTau(){
 HLT::ErrorCode T2IDTau::hltInitialize()
 /*-------------------------------------------*/
 {
-  msg() << MSG::DEBUG << "REGTEST:  in initilize" << endreq;
-  msg() << MSG::DEBUG << "REGTEST:  Core cone: dR < " <<  m_dRCore << endreq;
-  msg() << MSG::DEBUG << "REGTEST:  Isolation annulus: "<< m_dRCore << " < dR < " <<  m_dRIso << endreq;
-  msg() << MSG::DEBUG << "REGTEST:  Consider tracks with pt > " << m_ptMin << endreq;
-  msg() << MSG::DEBUG << "REGTEST:  Slow tracks have pt < "<< m_ptSlowMax << endreq;
+  msg() << MSG::DEBUG << "REGTEST:  in initilize" << endmsg;
+  msg() << MSG::DEBUG << "REGTEST:  Core cone: dR < " <<  m_dRCore << endmsg;
+  msg() << MSG::DEBUG << "REGTEST:  Isolation annulus: "<< m_dRCore << " < dR < " <<  m_dRIso << endmsg;
+  msg() << MSG::DEBUG << "REGTEST:  Consider tracks with pt > " << m_ptMin << endmsg;
+  msg() << MSG::DEBUG << "REGTEST:  Slow tracks have pt < "<< m_ptSlowMax << endmsg;
 
-  if ( m_dZ0Max >= 0.0 ) msg() << MSG::DEBUG << "REGTEST:  track selection |DeltaZ0| wrt LdPtTrk <= "<< m_dZ0Max << endreq;
-  else                   msg() << MSG::DEBUG << "REGTEST:  no track selection based on |DeltaZ0|" << endreq;
+  if ( m_dZ0Max >= 0.0 ) msg() << MSG::DEBUG << "REGTEST:  track selection |DeltaZ0| wrt LdPtTrk <= "<< m_dZ0Max << endmsg;
+  else                   msg() << MSG::DEBUG << "REGTEST:  no track selection based on |DeltaZ0|" << endmsg;
 
-  if ( m_centerAroundLeadingTrack ) msg() << MSG::DEBUG << "REGTEST:  Isolation cones are centered around leading track direction" << endreq;
-  else                              msg() << MSG::DEBUG << "REGTEST:  Isolation cones are centered ar RoI center " << endreq;
+  if ( m_centerAroundLeadingTrack ) msg() << MSG::DEBUG << "REGTEST:  Isolation cones are centered around leading track direction" << endmsg;
+  else                              msg() << MSG::DEBUG << "REGTEST:  Isolation cones are centered ar RoI center " << endmsg;
 
-  if ( m_secondStep ) msg() << MSG::DEBUG << "REGTEST:  This algorithm is configured as second step, will find LdTrk from inputTE" << endreq; 
-  else                msg() << MSG::DEBUG << "REGTEST:  This algorithm is configured as either single step or first step" << endreq;
+  if ( m_secondStep ) msg() << MSG::DEBUG << "REGTEST:  This algorithm is configured as second step, will find LdTrk from inputTE" << endmsg; 
+  else                msg() << MSG::DEBUG << "REGTEST:  This algorithm is configured as either single step or first step" << endmsg;
 
-  if ( m_TrigTrackingAlgoLabel != "" ) msg() << MSG::DEBUG << "REGTEST: take track Collection with label = " << m_TrigTrackingAlgoLabel << endreq;
-  else                                 msg() << MSG::DEBUG << "REGTEST: take latest track Collection found in TE " << endreq;
+  if ( m_TrigTrackingAlgoLabel != "" ) msg() << MSG::DEBUG << "REGTEST: take track Collection with label = " << m_TrigTrackingAlgoLabel << endmsg;
+  else                                 msg() << MSG::DEBUG << "REGTEST: take latest track Collection found in TE " << endmsg;
   
-  if ( m_updateRoiDescriptor ) msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will be updated " << endreq;
-  else                         msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will NOT  be updated " << endreq;
+  if ( m_updateRoiDescriptor ) msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will be updated " << endmsg;
+  else                         msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will NOT  be updated " << endmsg;
   
   return HLT::OK;
 }
@@ -89,7 +89,7 @@ HLT::ErrorCode T2IDTau::hltFinalize()
 /*-------------------------------------------*/
 {
 
-  msg() << MSG::DEBUG << "in finalize()" << endreq;
+  msg() << MSG::DEBUG << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -100,7 +100,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
 {
 
   if (msgLvl() <= MSG::DEBUG){
-    msg() << MSG::DEBUG << "in execute()" << endreq;
+    msg() << MSG::DEBUG << "in execute()" << endmsg;
   }
   
   m_nCoreTracks = -1;
@@ -130,9 +130,9 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
 				      << " word " << roiDescriptor->roiWord()
 				      << " LVL1 id " << roiDescriptor->l1Id()
 				      << " located at  eta=" << roiDescriptor->eta() 
-				      << ", phi=" <<  roiDescriptor->phi() << endreq;
+				      << ", phi=" <<  roiDescriptor->phi() << endmsg;
   } else {
-    msg() <<  MSG::ERROR << " No RoI Descriptor for this Trigger Element! " << endreq;
+    msg() <<  MSG::ERROR << " No RoI Descriptor for this Trigger Element! " << endmsg;
     return hltStatus;
   }
 
@@ -143,14 +143,14 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
   hltStatus = getFeature(outputTE, tracks);
   
   if (msgLvl() <= MSG::DEBUG) {
-    if(hltStatus== HLT::OK) msg() << MSG::DEBUG << "REGTEST: Got TrigInDetTrackCollection with label "<< m_TrigTrackingAlgoLabel << endreq;
-    else                    msg() << MSG::DEBUG << "REGTEST: No TrigInDetTrackCollection is found in RoI! hltStatus = "<<hltStatus << endreq;
+    if(hltStatus== HLT::OK) msg() << MSG::DEBUG << "REGTEST: Got TrigInDetTrackCollection with label "<< m_TrigTrackingAlgoLabel << endmsg;
+    else                    msg() << MSG::DEBUG << "REGTEST: No TrigInDetTrackCollection is found in RoI! hltStatus = "<<hltStatus << endmsg;
   }
   
   //-------- 3 Make new object
   if( tracks == 0 || tracks->size() == 0 ){
     if (msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "REGTEST: No  TrigInDetTrackCollection is found in RoI or it is empty! hltStatus =HLT::OK" << endreq;
+      msg() << MSG::DEBUG << "REGTEST: No  TrigInDetTrackCollection is found in RoI or it is empty! hltStatus =HLT::OK" << endmsg;
     return HLT::OK;
   }
 
@@ -167,17 +167,17 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
 
   const TrigInDetTrackCollection* firstTracks(0);
   if ( m_secondStep ) { 
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Finding leading track in 2nd step using tracks from 1st step" << endreq;;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Finding leading track in 2nd step using tracks from 1st step" << endmsg;;
     hltStatus = getFeature(inputTE, firstTracks);
 
     if(hltStatus== HLT::OK) { 
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Got TrigInDetTrackCollection from inputTE "<< endreq;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Got TrigInDetTrackCollection from inputTE "<< endmsg;
     } else {
-      msg() << MSG::ERROR << "No TrigInDetTrackCollection is found in inputTE! RETURNING" << endreq;
+      msg() << MSG::ERROR << "No TrigInDetTrackCollection is found in inputTE! RETURNING" << endmsg;
       return hltStatus;
     }
   } else {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Finding leading track in outputTE" << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Finding leading track in outputTE" << endmsg;
     firstTracks = tracks;
   }
   
@@ -195,14 +195,14 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
       z01 = (*itrack)->param()->z0();
     }
   } // end loop over tracks
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: second step: " << m_secondStep << ", leading track pt = " << pt1 << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: second step: " << m_secondStep << ", leading track pt = " << pt1 << endmsg;
   
 
   if( m_centerAroundLeadingTrack && p1 != firstTracks->end() ) {
     eta = (*p1)->param()->eta();
     phi = (*p1)->param()->phi0();      
   }
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Center of core area is at eta="<< eta << ", phi=" << phi << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Center of core area is at eta="<< eta << ", phi=" << phi << endmsg;
 
   
 
@@ -234,7 +234,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
   for(TrigInDetTrackCollection::const_iterator  itrack = tracks->begin(); itrack != tracks->end(); ++itrack ) {
 
     if( (*itrack)->param() == 0 ) {
-      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Found TrigInDetTrack with undefined parameters" << endreq;
+      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Found TrigInDetTrack with undefined parameters" << endmsg;
       continue;
     }
     
@@ -242,7 +242,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Found track pT = " << (*itrack)->param()->pT()
                                         << " eta = " << (*itrack)->param()->eta() 
                                         << " phi0 = " << (*itrack)->param()->phi0()
-                                        << " AlgId = " << int((*itrack)->algorithmId()) << endreq;
+                                        << " AlgId = " << int((*itrack)->algorithmId()) << endmsg;
     
 
     //min Pt selection
@@ -263,7 +263,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
     double dR   = dPhi*dPhi + dEta*dEta;
     
     if( dR < dRCore2 ){
-      if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG <<  "             added to core " << endreq;
+      if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG <<  "             added to core " << endmsg;
       double tpx = pt*cos((*itrack)->param()->phi0());
       double tpy = pt*sin((*itrack)->param()->phi0());
       double tpz = pt/tan(2.*atan(exp(-(*itrack)->param()->eta())));
@@ -293,7 +293,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
       
       
     }else if( dR < dRIso2 ) {
-      if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG <<  "             added to isolation area " << endreq;
+      if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG <<  "             added to isolation area " << endmsg;
       nIsoTracks++;
       scalarPtSumIso += pt;
     }
@@ -353,7 +353,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
   
   hltStatus = attachFeature(outputTE, pTrackInfo );
   if (hltStatus != HLT::OK ){
-    msg() << MSG::ERROR << "Write of TrigTauTracksInfo into outputTE failed" << endreq;
+    msg() << MSG::ERROR << "Write of TrigTauTracksInfo into outputTE failed" << endmsg;
     return hltStatus;
   }
   
@@ -368,23 +368,23 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
     
     hltStatus = attachFeature(outputTE, newRoiDescriptor,m_TrigTrackingAlgoLabel); // use same label as tracking
     if (hltStatus != HLT::OK ){
-      msg() << MSG::ERROR << "Can not attach new RoI descriptor" << endreq;
+      msg() << MSG::ERROR << "Can not attach new RoI descriptor" << endmsg;
       return hltStatus;
     }
     
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG  << "REGTEST: Recorded an RoiDescriptor " << roiDescriptor->roiWord() 
                                      << ", eta=" << newRoiDescriptor->eta() 
-                                     << ", phi=" << newRoiDescriptor->phi() << endreq;
+                                     << ", phi=" << newRoiDescriptor->phi() << endmsg;
   }
   if(msgLvl() <= MSG::DEBUG){
-    msg() << MSG::DEBUG << "REGTEST: TrigTauTrackInfo::pt,eta,phi = " << pTrackInfo->pt() <<", " << pTrackInfo->eta() <<", " << pTrackInfo->phi() << endreq;
-    msg() << MSG::DEBUG << "REGTEST: leading Pt " << pTrackInfo->leadingTrackPt() << endreq;
+    msg() << MSG::DEBUG << "REGTEST: TrigTauTrackInfo::pt,eta,phi = " << pTrackInfo->pt() <<", " << pTrackInfo->eta() <<", " << pTrackInfo->phi() << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: leading Pt " << pTrackInfo->leadingTrackPt() << endmsg;
     msg() << MSG::DEBUG << "REGTEST: 3 fastests tracks pt, eta, phi = " << pTrackInfo->threeFastestTracks().pt()
-          <<", " << pTrackInfo->threeFastestTracks().eta() <<", " << pTrackInfo->threeFastestTracks().phi() << endreq;
+          <<", " << pTrackInfo->threeFastestTracks().eta() <<", " << pTrackInfo->threeFastestTracks().phi() << endmsg;
     msg() << MSG::DEBUG << "REGTEST: NCore= " << pTrackInfo->nCoreTracks() << ", NSlow= " << pTrackInfo->nSlowTracks() << ", NIso= " << pTrackInfo->nIsoTracks() 
-	  <<", Charge="<<pTrackInfo->charge() << endreq;
+	  <<", Charge="<<pTrackInfo->charge() << endmsg;
     msg() << MSG::DEBUG << "REGTEST: sumPtCore=" << pTrackInfo->scalarPtSumCore() << ", sumPtIso="<< pTrackInfo->scalarPtSumIso() 
-          << ", ptBalance="<<pTrackInfo->ptBalance() << endreq;
+          << ", ptBalance="<<pTrackInfo->ptBalance() << endmsg;
   }
   
 
@@ -409,7 +409,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
   else                m_sumPtRatio = pTrackInfo->scalarPtSumIso()*(1./40000.); // assume 40 GeV is average candidate.
   
   // Reach this point successfully   
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: always accept RoI " << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: always accept RoI " << endmsg;
   
   return HLT::OK;
 }
@@ -420,9 +420,9 @@ HLT::ErrorCode T2IDTau::getPrmVtxCollection(const TrigVertexCollection*& pointer
 
   HLT::ErrorCode status = getFeatures(outputTE, vectorOfL2PrmVtxCollections, "");
   if (status != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get TrigVertexCollection from the trigger element" << endreq;
+    msg() << MSG::ERROR << "Failed to get TrigVertexCollection from the trigger element" << endmsg;
   } else if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Got " << vectorOfL2PrmVtxCollections.size() << " TrigVertexCollection" << endreq;
+    msg() << MSG::DEBUG << "Got " << vectorOfL2PrmVtxCollections.size() << " TrigVertexCollection" << endmsg;
 
   std::vector<const TrigVertexCollection*>::iterator pPrmVtxColl    = vectorOfL2PrmVtxCollections.begin();
   std::vector<const TrigVertexCollection*>::iterator lastPrmVtxColl = vectorOfL2PrmVtxCollections.end();
@@ -432,7 +432,7 @@ HLT::ErrorCode T2IDTau::getPrmVtxCollection(const TrigVertexCollection*& pointer
     for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) {
 
       if ((*pPrmVtxColl)->size() != 0)
-        msg() << MSG::VERBOSE << "TrigVertexCollection with label " << (*pPrmVtxColl)->front()->algorithmId() << endreq;
+        msg() << MSG::VERBOSE << "TrigVertexCollection with label " << (*pPrmVtxColl)->front()->algorithmId() << endmsg;
     }
 
     pPrmVtxColl = vectorOfL2PrmVtxCollections.begin();
@@ -446,14 +446,14 @@ HLT::ErrorCode T2IDTau::getPrmVtxCollection(const TrigVertexCollection*& pointer
     //  if (m_algo == 1) {
  //     if ((*pPrmVtxColl)->front()->algorithmId() == 3) {
         if (msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Selected collection with TrigT2HistoPrmVtx label " << (*pPrmVtxColl)->front()->algorithmId() << endreq;
+          msg() << MSG::DEBUG << "Selected collection with TrigT2HistoPrmVtx label " << (*pPrmVtxColl)->front()->algorithmId() << endmsg;
         break;
    //   }
         //  } 
  //       else if (m_algo == 2) {
 //        if ((*pPrmVtxColl)->front()->algorithmId() == 10) {
 //          if (msgLvl() <= MSG::DEBUG)
-//            msg() << MSG::DEBUG << "Selected collection with TrigT2HistoPrmVtx label " << (*pPrmVtxColl)->front()->algorithmId() << endreq;
+//            msg() << MSG::DEBUG << "Selected collection with TrigT2HistoPrmVtx label " << (*pPrmVtxColl)->front()->algorithmId() << endmsg;
 //          break;
                 }
  //        }
@@ -461,7 +461,7 @@ HLT::ErrorCode T2IDTau::getPrmVtxCollection(const TrigVertexCollection*& pointer
       /*      else if (m_instance == "EF") {
               if ((*pPrmVtxColl)->front()->algorithmId() == 11) {
               if (msgLvl() <= MSG::DEBUG)
-              msg() << MSG::DEBUG << "Selected collection with TrigT2HistoPrmVtx label " << (*pPrmVtxColl)->front()->algorithmId() << endreq;
+              msg() << MSG::DEBUG << "Selected collection with TrigT2HistoPrmVtx label " << (*pPrmVtxColl)->front()->algorithmId() << endmsg;
               break;
               }
               }

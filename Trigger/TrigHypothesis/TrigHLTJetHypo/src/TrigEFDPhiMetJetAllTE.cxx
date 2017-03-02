@@ -82,7 +82,7 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
   //  if (m_executedEvent_EFDPhiMetJet) {
   //     if (msgLvl() <= MSG::DEBUG) {
-  //           msg() << MSG::DEBUG << "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"  << endreq;
+  //           msg() << MSG::DEBUG << "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"  << endmsg;
   //     }
   //     return HLT::OK;
   //  }
@@ -312,7 +312,7 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
   // attach the bits
   // if ( attachFeature(out_te, bits, "passbits") != HLT::OK ) {
-  //   msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endreq;
+  //   msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endmsg;
   // }
 
   auto sc = attachFeature(out_te, xBits.release(), "passbits");

@@ -35,13 +35,13 @@ int TrigInDetTrackTruth::addMatch(HepMcParticleLink p_tru_part,TrigIDHitStats hi
   std::string thisName("TrigInDetTrackTruth::addMatch");
   MsgStream log(Athena::getMessageSvc(), thisName);
 
-  log << MSG::DEBUG<< "Inserting HepMcParticleLink and TrigIDHitStats to TrigInDetTrackTruth map" << endreq;
+  log << MSG::DEBUG<< "Inserting HepMcParticleLink and TrigIDHitStats to TrigInDetTrackTruth map" << endmsg;
 
   int indx = index(p_tru_part);
   if ( indx >= 0 ) {
     // HepMcParticleLink already exists: replace in vectors
     log << MSG::DEBUG<< "HepMcParticleLink already in map: replacing" 
-	<< endreq;
+	<< endmsg;
     m_true_part_vec[indx]  = p_tru_part; 
     m_nr_common_hits[indx] = hits;
   } else {
@@ -97,7 +97,7 @@ int TrigInDetTrackTruth::updateFamilyTree()
   std::string thisName("TrigInDetTrackTruth::updateFamilyTree");
   MsgStream log(Athena::getMessageSvc(), thisName);
 
-  log << MSG::DEBUG<< "In TrigInDetTrackTruth::updateFamilyTree()" << endreq;
+  log << MSG::DEBUG<< "In TrigInDetTrackTruth::updateFamilyTree()" << endmsg;
 
   int nr_mothers_found=0;
   int child=-1; 
@@ -107,7 +107,7 @@ int TrigInDetTrackTruth::updateFamilyTree()
     {
       child++;
       /* get production vertex GenParticle pointed to by this link */
-      log << MSG::DEBUG<< "Looking for mother of matching particle nr "<<child<<endreq;
+      log << MSG::DEBUG<< "Looking for mother of matching particle nr "<<child<<endmsg;
 
       // first get GenParticle pointer
       if ( !it1->isValid() ) continue; 
@@ -117,17 +117,17 @@ int TrigInDetTrackTruth::updateFamilyTree()
 	  << p_child->pdg_id() << "; status=" << p_child->status() 
 	  << "; pT=" << p_child->momentum().perp() 
 	  << "; searches mother..." 
-	  << endreq;
+	  << endmsg;
       
       // then get production vertex (check against null)
       HepMC::GenVertex* p_child_vtx = p_child->production_vertex();
       if ( p_child_vtx == NULL ) 
 	{
-	  log << MSG::DEBUG<<"GenVertex pointer null: jump to next particle"<<endreq;
+	  log << MSG::DEBUG<<"GenVertex pointer null: jump to next particle"<<endmsg;
 	  continue;
 	}
       log << MSG::DEBUG<< "GenParticle "<< child << " comes from vertex with pointer "
-	  << p_child_vtx << endreq;
+	  << p_child_vtx << endmsg;
       
       /* find mother: there should be only one for final state particles 
 	 (particles which can leave energy deposits in detectors)        */
@@ -136,14 +136,14 @@ int TrigInDetTrackTruth::updateFamilyTree()
       // check a mother was found
       if ( p_mum == p_child_vtx->particles_in_const_end() )
 	{
-	  log << MSG::DEBUG<< "Mother not found: go to next particle" <<endreq;
+	  log << MSG::DEBUG<< "Mother not found: go to next particle" <<endmsg;
 	  continue;
 	} 
       log << MSG::DEBUG<< "Mother GenParticle (" << *p_mum << ") found; PDG id=" 
 	  << (*p_mum)->pdg_id() << "; status=" << (*p_mum)->status()
 	  << "; pT=" << (*p_mum)->momentum().perp() 
 	  << "; does it match track?" 
-	  << endreq;
+	  << endmsg;
       // mother is (*p_mum); still have to see if it is a match to this track
       std::vector<HepMcParticleLink>::iterator it2=m_true_part_vec.begin();
       
@@ -151,7 +151,7 @@ int TrigInDetTrackTruth::updateFamilyTree()
       for (unsigned int mum=0; it2 != end; ++it2, ++mum) 
 	{
 	  log << MSG::DEBUG << "* Trying daughter index=" << child 
-	      << " and mother index=" << mum << endreq;
+	      << " and mother index=" << mum << endmsg;
 	  if ( *p_mum == *it2 ) 
 	    { // mother also matches track
 	      m_family_tree.push_back( std::pair<unsigned int, unsigned int>(mum,child) );
@@ -160,16 +160,16 @@ int TrigInDetTrackTruth::updateFamilyTree()
 	      
 	      log << MSG::DEBUG << "* Mother also matches track! " 
 		  << nr_mothers_found 
-		  << " mother-daughter relations found so far" << endreq;
+		  << " mother-daughter relations found so far" << endmsg;
 	      log << MSG::DEBUG << "Daughter "<< child <<" (PDG id="  
 		  << p_child->pdg_id() << "; pT=" << p_child->momentum().perp() 
 		  << ") comes from mother " << mum << " (PDG id=" 
 		  << (*p_mum)->status() << "; pT=" << p_child->momentum().perp() 
-		  << ")" << endreq;
+		  << ")" << endmsg;
 	    }
 	}
       if (!mum_found) log << MSG::DEBUG << "* Mother doesn't match track"
-			      << endreq; 
+			      << endmsg; 
     }
   return nr_mothers_found;
 }

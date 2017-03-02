@@ -124,7 +124,7 @@ void dumbProperties(const AsgElectronEfficiencyCorrectionTool& tool){
       if(i.first == "OutputLevel" ){
 	MSG_INFO("Value : " << static_cast<int> (tool.msg().level()));
       }
-     break;
+      break;
     }
   }
 }
@@ -140,11 +140,10 @@ int main( int argc, char* argv[] ) {
   const char* APP_NAME = argv[ 0 ];
   //Set the message level
   MSG::Level mylevel=MSG::INFO;
-  MSG::Level mylevelToy=MSG::INFO;//MSG::FATAL;
 
   MSGHELPERS::getMsgStream().msg().setLevel(mylevel); 
   MSGHELPERS::getMsgStream().msg().setName(APP_NAME); 
-//  MSGHELPERS::getMsgStream().msg().setName(TElectronEffi);
+  //  MSGHELPERS::getMsgStream().msg().setName(TElectronEffi);
 
   bool useCompactDisplay = true;
   
@@ -175,7 +174,6 @@ int main( int argc, char* argv[] ) {
 
   p.Init(argc,argv);
 
-
   /// first check for mapfile
   TString tmp = p.getArg("m");
   if (tmp != "")
@@ -192,13 +190,13 @@ int main( int argc, char* argv[] ) {
   }
 
   if (fileName!="" && fileName.find(".root") == std::string::npos ){
-  MSG_INFO("filename not a root file? "<< fileName );
-      return 0;
+    MSG_INFO("filename not a root file? "<< fileName );
+    return 0;
   }
 
   if (mapfileName!="" && mapfileName.find(".txt")  == std::string::npos){
-  MSG_INFO("mapfilename not a txt file? "<< mapfileName  );
-      return 0;
+    MSG_INFO("mapfilename not a txt file? "<< mapfileName  );
+    return 0;
   }
 
   tmp = p.getArg("t");
@@ -216,8 +214,6 @@ int main( int argc, char* argv[] ) {
   tmp = p.getArg("d");
   if (tmp != "")
     idkey = tmp;
-
-
 
   tmp = p.getArg("r");
   if (tmp != "")
@@ -344,22 +340,22 @@ int main( int argc, char* argv[] ) {
   //Test the SIMPLIFIED
   AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");  
   MSG_INFO("using  :" << fileName);
- if (fileName!="")  CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
+  if (fileName!="")  
+    CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
 
   MSG_INFO("using mapfile :" << recokey);
 
   if (mapfileName!="") CHECK( myEgCorrections.setProperty("MapFilePath", mapfileName));
 
-// set the keys of interest for correction files
- if ( recokey!="")  CHECK( myEgCorrections.setProperty("RecoKey", recokey));
+  // set the keys of interest for correction files
+  if ( recokey!="")  CHECK( myEgCorrections.setProperty("RecoKey", recokey));
   MSG_INFO("using mapfile :" << recokey);
   if ( idkey!="")   CHECK( myEgCorrections.setProperty("IdKey", idkey));
- if ( isokey!="")   CHECK( myEgCorrections.setProperty("IsoKey", isokey));
- if ( triggerkey!="")   CHECK( myEgCorrections.setProperty("TriggerKey", triggerkey));
- CHECK( myEgCorrections.setProperty("ForceDataType",(int)SimType) );
-  CHECK( myEgCorrections.setProperty("CorrelationModel", "SIMPLIFIED" ));
+  if ( isokey!="")   CHECK( myEgCorrections.setProperty("IsoKey", isokey));
+  if ( triggerkey!="")   CHECK( myEgCorrections.setProperty("TriggerKey", triggerkey));
+  CHECK( myEgCorrections.setProperty("ForceDataType",(int)SimType) );
+  CHECK( myEgCorrections.setProperty("CorrelationModel", "TOTAL" ));
   myEgCorrections.msg().setLevel(mylevel);
-  dumbProperties(myEgCorrections);
   CHECK( myEgCorrections.initialize() );  
   dumbProperties(myEgCorrections);
   double SF = 0; 
@@ -401,19 +397,21 @@ int main( int argc, char* argv[] ) {
 
   MSG_INFO( "total up " << total_up  <<" total down " << total_down );
 
+  /*
   //==================================================================================
   //Test the TOYS
   //TOYS
+  MSG::Level mylevelToy=MSG::INFO;//MSG::FATAL;
   AsgElectronEfficiencyCorrectionTool myEgCorrectionsToys ("myEgCorrectionsToys");
- if (fileName!="")   CHECK( myEgCorrectionsToys.setProperty("CorrectionFileNameList",inputFiles) );
+  if (fileName!="")   CHECK( myEgCorrectionsToys.setProperty("CorrectionFileNameList",inputFiles) );
   if (mapfileName!="") CHECK( myEgCorrectionsToys.setProperty("MapFilePath", mapfileName));
 
-// set the keys of interest for correction files
- if ( recokey!="")  CHECK( myEgCorrectionsToys.setProperty("RecoKey", recokey));
+  // set the keys of interest for correction files
+  if ( recokey!="")  CHECK( myEgCorrectionsToys.setProperty("RecoKey", recokey));
   MSG_INFO("using mapfile :" << recokey);
   if ( idkey!="")   CHECK( myEgCorrectionsToys.setProperty("IdKey", idkey));
- if ( isokey!="")   CHECK( myEgCorrectionsToys.setProperty("IsoKey", isokey));
- if ( triggerkey!="")   CHECK( myEgCorrectionsToys.setProperty("TriggerKey", triggerkey));
+  if ( isokey!="")   CHECK( myEgCorrectionsToys.setProperty("IsoKey", isokey));
+  if ( triggerkey!="")   CHECK( myEgCorrectionsToys.setProperty("TriggerKey", triggerkey));
 
   CHECK( myEgCorrectionsToys.setProperty("ForceDataType",(int)SimType) );
   CHECK( myEgCorrectionsToys.setProperty("CorrelationModel", "MCTOYS" ));
@@ -433,19 +431,17 @@ int main( int argc, char* argv[] ) {
   sysListToys.calc(recSystsToys);
   std::vector<CP::SystematicSet> sysListToys2=sysListToys.result("toys");
 
-  // Loop over systematics
   /// DO TOY LOOP
   for(const auto& sysToys : sysListToys2){
-    double systematicToys = 0; 
-    // MSG_INFO(" Processing toy: " << sysToys.name());
-    //    MSG_INFO("is affected by  "<<sysToys.name()<<" : "<< myEgCorrectionsToys.isAffectedBySystematic(sysToys.name()));
-    CHECK( myEgCorrectionsToys.applySystematicVariation(sysToys) );    
-    if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,systematicToys) == CP::CorrectionCode::Ok){
-      MSG_INFO("SFToys value "<< systematicToys );
-    }
-    uncToys.push_back(systematicToys);
+  double systematicToys = 0; 
+  CHECK( myEgCorrectionsToys.applySystematicVariation(sysToys) );    
+  if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,systematicToys) == CP::CorrectionCode::Ok){
+  MSG_INFO("SFToys value "<< systematicToys );
   }
-  //==================================================================================
+  uncToys.push_back(systematicToys);
+  }
+
+  */
   return 0;
 }
 

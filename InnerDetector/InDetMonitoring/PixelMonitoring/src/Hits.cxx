@@ -50,7 +50,7 @@
 
 StatusCode PixelMainMon::BookHitsMon(void)
 {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits" << endreq;  
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits" << endmsg;  
  
    std::string path = "Pixel/Hits";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
@@ -337,13 +337,13 @@ StatusCode PixelMainMon::BookHitsMon(void)
      sc = rdoExpert.regHist(m_nFEswithHits_mod[i] = new TH3F(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, nmod_eta[i], -0.5, -0.5 + nmod_eta[i], 18, -0.5, 17.5));
    }
 
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
    return StatusCode::SUCCESS;
 }
 
 StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits for lowStat" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits for lowStat" << endmsg;  
    
    std::string path = "Pixel/LumiBlock";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
@@ -393,7 +393,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    m_occupancy_10min = new PixelMon2DMaps("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str());
    sc = m_occupancy_10min->regHist(lumiBlockHist);
    
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
    return StatusCode::SUCCESS;
 }
 
@@ -403,7 +403,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       //float mu = m_lumiTool->lbAverageInteractionsPerCrossing();
       //if(m_mu_vs_lumi) m_mu_vs_lumi->Fill( m_manager->lumiBlockNumber(),mu);
    }else{
-      msg(MSG::ERROR)  << "No lumitool found in FillHitsMon!"<<endreq;
+      msg(MSG::ERROR)  << "No lumitool found in FillHitsMon!"<<endmsg;
    }
 
 
@@ -415,7 +415,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    
    if ( !sc.isFailure() && Pixel_BCIDColl!=0 ) 
    {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Found Pixel BCID collection"<<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Found Pixel BCID collection"<<endmsg;
 
       for ( InDetTimeCollection::const_iterator ipix_bcid = Pixel_BCIDColl->begin(); ipix_bcid != Pixel_BCIDColl->end(); ++ipix_bcid ) 
       {
@@ -430,7 +430,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          n_pix_bcid_nrobs++;
       } // End for loop
    }
-   if (sc.isFailure()) if(msgLvl(MSG::INFO)) {msg(MSG::INFO)  << "Could not find the data object PixelBCID" << " !" << endreq;}
+   if (sc.isFailure()) if(msgLvl(MSG::INFO)) {msg(MSG::INFO)  << "Could not find the data object PixelBCID" << " !" << endmsg;}
 
    //needed for the rodSim histos and timing/trigger histogram
    //long int extLvl1ID = -1;
@@ -441,7 +441,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       sc=evtStore()->retrieve(thisEventInfo);
       if(sc != StatusCode::SUCCESS) 
       {
-	      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
+	      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
       }else{
 	      if (m_doRodSim|| m_doTiming) {
 	      //extLvl1ID = thisEventInfo->trigger_info()->extendedLevel1ID();
@@ -540,11 +540,11 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    sc=evtStore()->retrieve(m_rdocontainer,m_Pixel_RDOName);
    if (sc.isFailure() || !m_rdocontainer) 
    {
-      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not find the data object " << m_Pixel_RDOName << " !" << endreq;
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not find the data object " << m_Pixel_RDOName << " !" << endmsg;
       if(m_storegate_errors) m_storegate_errors->Fill(1.,3.);  //first entry (1). is for RDO, second (2) is for retrieve problem
       return StatusCode::SUCCESS;  //fail gracefully and keep going in the next tool
    } else {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Data object " << m_Pixel_RDOName << " found" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Data object " << m_Pixel_RDOName << " found" << endmsg;
    }
 
    PixelRDO_Container::const_iterator colNext   = m_rdocontainer->begin();
@@ -607,7 +607,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          /// Fill difference of Lvl1
          if(sc != StatusCode::SUCCESS)
          {
-	         if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
+	         if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
          }else{
 	         int lvl1idMOD = (int)(*p_rdo)->getLVL1ID();
 	         int lvl1idATLAS = (int)((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf);
@@ -901,9 +901,9 @@ StatusCode PixelMainMon::ProcHitsMon(void)
    if(m_doPixelOccupancy && m_pixel_occupancy && (m_doNoiseMap||m_doSpectrum) )//flags need to be set, and the right histograms need to exist
    {
       if(msgLvl(MSG::WARNING)){
-         msg(MSG::WARNING)  << "Starting to fill pixel granularity histograms." << endreq;   
-         msg(MSG::WARNING)  << "This is very CPU and memory intensive and should not normmally be turned on" << endreq;   
-         msg(MSG::WARNING)  << "Please be patient, it will take a while to fill these histograms" << endreq;   
+         msg(MSG::WARNING)  << "Starting to fill pixel granularity histograms." << endmsg;   
+         msg(MSG::WARNING)  << "This is very CPU and memory intensive and should not normmally be turned on" << endmsg;   
+         msg(MSG::WARNING)  << "Please be patient, it will take a while to fill these histograms" << endmsg;   
       }
 
       //if(m_pixel_noise_map) m_pixel_noise_map->Reset();

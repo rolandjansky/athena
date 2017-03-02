@@ -93,7 +93,7 @@ TrigL2HVJetHypo::~TrigL2HVJetHypo()
 HLT::ErrorCode TrigL2HVJetHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   m_accepted_L2=0;
   m_rejected_L2=0;
@@ -107,8 +107,8 @@ HLT::ErrorCode TrigL2HVJetHypo::hltInitialize()
 HLT::ErrorCode TrigL2HVJetHypo::hltFinalize(){
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endmsg;
   return HLT::OK;
 }
 
@@ -137,12 +137,12 @@ HLT::ErrorCode TrigL2HVJetHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     if ( getFeature(outputTE, roiDescriptor, "a_label")==HLT::OK ) {
       if ( roiDescriptor ) {
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: RoI id " << roiDescriptor->roiId()
-            << " located at   phi = " <<  roiDescriptor->phi() << ", eta = " << roiDescriptor->eta() << endreq;
+            << " located at   phi = " <<  roiDescriptor->phi() << ", eta = " << roiDescriptor->eta() << endmsg;
       } else {
-        if(msgLvl() <= MSG::DEBUG) msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endreq;
+        if(msgLvl() <= MSG::DEBUG) msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endmsg;
       }
     } else {
-      if(msgLvl() <= MSG::DEBUG) msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endreq;
+      if(msgLvl() <= MSG::DEBUG) msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endmsg;
     }
   }
 
@@ -153,7 +153,7 @@ HLT::ErrorCode TrigL2HVJetHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   HLT::ErrorCode ec = getFeatures(outputTE, vectorOfJets);
 
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get the L2 Jets " << endreq;
+    msg() << MSG::WARNING << " Failed to get the L2 Jets " << endmsg;
     m_errors_L2++; 
     return ec;
   }
@@ -163,14 +163,14 @@ HLT::ErrorCode TrigL2HVJetHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   // Check that there is only one JETROI.
   // We only expect ONE input RoI.
   if (vectorOfJets.size() != 1){
-    msg() << MSG::ERROR << "The number of Jets attached to the TE is not 1" << endreq;
+    msg() << MSG::ERROR << "The number of Jets attached to the TE is not 1" << endmsg;
     return HLT::OK;
   }
 
   // Get first (and only) RoI:
   const TrigT2Jet* pJet = vectorOfJets.back();
   if(!pJet){
-    msg() << MSG::ERROR << "Retrieval of RoI from vector failed"  << endreq;
+    msg() << MSG::ERROR << "Retrieval of RoI from vector failed"  << endmsg;
     return HLT::OK;
   }
 
@@ -192,8 +192,8 @@ HLT::ErrorCode TrigL2HVJetHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   if (CxxUtils::fpcompare::greater( emjet, zero ) && CxxUtils::fpcompare::greater( ehjet, zero )) erat = log10(double(ehjet/emjet));
   //if (double(emjet) > 0. && ehjet > 0.) erat = log10(double(ehjet/emjet));
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet energy (L2): " << etjet << endreq;
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet log10 of had / em energy ratio (L2): " << erat << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet energy (L2): " << etjet << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet log10 of had / em energy ratio (L2): " << erat << endmsg;
 
   //monitored variables
   m_JetEt = etjet/1000;
@@ -260,7 +260,7 @@ HLT::ErrorCode TrigL2HVJetHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
   } else {
     m_rejected_L2++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Event rejected !" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Event rejected !" << endmsg;
   }
 
 

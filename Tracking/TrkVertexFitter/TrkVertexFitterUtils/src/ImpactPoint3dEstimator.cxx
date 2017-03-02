@@ -49,22 +49,22 @@ namespace Trk
   StatusCode ImpactPoint3dEstimator::initialize() 
   { 
     if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
     }
 
     if (m_magFieldSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not find magnetic field service." << endreq;
+      msg(MSG::FATAL)<<"Could not find magnetic field service." << endmsg;
       return StatusCode::FAILURE;
     }
 
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
   StatusCode ImpactPoint3dEstimator::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -108,7 +108,7 @@ namespace Trk
       Amg::Transform3D* thePlane = new Amg::Transform3D(DeltaRcorrected, YDir, momentumUnit, *theVertex);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG
-      std::cout << "the translation is, directly from Transform3d: " << thePlane.getTranslation() << endreq;
+      std::cout << "the translation is, directly from Transform3d: " << thePlane.getTranslation() << endmsg;
 #endif
 
       return new PlaneSurface(thePlane);
@@ -145,12 +145,12 @@ namespace Trk
     const Trk::Perigee* thePerigee=dynamic_cast<const Trk::Perigee*>(trackPerigee);
     if (thePerigee==0)
     {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " ImpactPoint3dEstimator didn't get a Perigee* as ParametersBase*: cast not possible. Need to EXTRAPOLATE..." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " ImpactPoint3dEstimator didn't get a Perigee* as ParametersBase*: cast not possible. Need to EXTRAPOLATE..." << endmsg;
       
       /* run-1 code had not been adapted for Neutral parameters:
       const TrackParameters* ch_params = dynamic_cast<const TrackParameters*>(trackPerigee);
       if (ch_params == 0) {
-        msg(MSG::ERROR) << " Cannot cast to charged track parameters. Neutrals are not supported... " << endreq;
+        msg(MSG::ERROR) << " Cannot cast to charged track parameters. Neutrals are not supported... " << endmsg;
         return 0;
       }*/
 
@@ -160,7 +160,7 @@ namespace Trk
       if (thePerigee == NULL) return 0;
     }
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<< " Now running ImpactPoint3dEstimator::Estimate3dIP" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<< " Now running ImpactPoint3dEstimator::Estimate3dIP" << endmsg;
     double phi0=thePerigee->parameters()[Trk::phi0];
     double cosphi0=-sin(phi0);
     double sinphi0=cos(phi0);
@@ -206,7 +206,7 @@ namespace Trk
     do {
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG
-      msg(MSG::VERBOSE)<< "Cycle number: " << ncycle << " old phi: " << phiactual << endreq;
+      msg(MSG::VERBOSE)<< "Cycle number: " << ncycle << " old phi: " << phiactual << endmsg;
 #endif
       //      distance=std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
       //                 std::pow(y0-yc+Rt*sinphiactual,2)+
@@ -215,7 +215,7 @@ namespace Trk
       derivative=(x0-xc)*(-Rt*sinphiactual)+(y0-yc)*Rt*cosphiactual+(z0-zc-Rt*phiactual*cottheta)*(-Rt*cottheta);
       secderivative=Rt*(-(x0-xc)*cosphiactual-(y0-yc)*sinphiactual+Rt*cottheta*cottheta);
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-      msg(MSG::VERBOSE)<< "derivative is: " << derivative << " sec derivative is: " << secderivative << endreq;
+      msg(MSG::VERBOSE)<< "derivative is: " << derivative << " sec derivative is: " << secderivative << endmsg;
 #endif
 
       deltaphi=-derivative/secderivative;
@@ -229,13 +229,13 @@ namespace Trk
       sinphiactual=cos(phiactual);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-      msg(MSG::VERBOSE)<< "derivative is: " << derivative << " sec derivative is: " << secderivative << endreq;
+      msg(MSG::VERBOSE)<< "derivative is: " << derivative << " sec derivative is: " << secderivative << endmsg;
       std::cout << std::setprecision(25) << std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
                                                       std::pow(y0-yc+Rt*sinphiactual,2)+
                                                       std::pow(z0-zc-Rt*cottheta*phiactual,2)) << std::endl;
       msg(MSG::VERBOSE)<< "actual distance is: " << std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
                                                                  std::pow(y0-yc+Rt*sinphiactual,2)+
-                                                                 std::pow(z0-zc-Rt*cottheta*phiactual,2)) << endreq;
+                                                                 std::pow(z0-zc-Rt*cottheta*phiactual,2)) << endmsg;
 #endif
 
       if (secderivative<0) throw error::ImpactPoint3dEstimatorProblem("Second derivative is negative");
@@ -245,7 +245,7 @@ namespace Trk
       ncycle+=1;
       if (ncycle>m_maxiterations||fabs(deltaphi)<m_precision) {
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-        msg(MSG::VERBOSE)<< "found minimum at: " << phiactual << endreq;
+        msg(MSG::VERBOSE)<< "found minimum at: " << phiactual << endmsg;
 #endif
         isok=true;
       }
@@ -269,8 +269,8 @@ namespace Trk
 
     if ((DeltaR-DeltaRcorrected).mag()>1e-4)
     {
-      msg(MSG::WARNING) << " DeltaR and MomentumDir are not orthogonal " << endreq;
-      msg(MSG::DEBUG)<< std::setprecision(10) << " DeltaR-DeltaRcorrected: "  << (DeltaR-DeltaRcorrected).mag() << endreq;
+      msg(MSG::WARNING) << " DeltaR and MomentumDir are not orthogonal " << endmsg;
+      msg(MSG::DEBUG)<< std::setprecision(10) << " DeltaR-DeltaRcorrected: "  << (DeltaR-DeltaRcorrected).mag() << endmsg;
     }
 
     Amg::Vector3D YDir=MomentumDir.cross(DeltaRcorrected);
@@ -283,23 +283,23 @@ namespace Trk
 
       msg(MSG::VERBOSE)<< "final minimal distance is: " << std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
                                                                      std::pow(y0-yc+Rt*sinphiactual,2)+
-                                                                     std::pow(z0-zc-Rt*cottheta*phiactual,2)) << endreq;
+                                                                     std::pow(z0-zc-Rt*cottheta*phiactual,2)) << endmsg;
     }
 
     if(msgLvl(MSG::DEBUG))
     {
-      msg(MSG::DEBUG) << "POCA in 3D is: " << *m_vertex << endreq;
+      msg(MSG::DEBUG) << "POCA in 3D is: " << *m_vertex << endmsg;
     }
 
 
     //store the plane...
     if (msgLvl(MSG::VERBOSE))
-        msg(MSG::VERBOSE)<< "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << MomentumDir << endreq;
+        msg(MSG::VERBOSE)<< "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << MomentumDir << endmsg;
 
     Amg::Transform3D* thePlane = new Amg::Transform3D(DeltaRcorrected, YDir, MomentumDir, *theVertex);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-    std::cout << "the translation is, directly from Transform3d: " << thePlane.getTranslation() << endreq;
+    std::cout << "the translation is, directly from Transform3d: " << thePlane.getTranslation() << endmsg;
 #endif
 
    return new PlaneSurface(thePlane);
@@ -335,7 +335,7 @@ namespace Trk
   Trk::AtaPlane * ImpactPoint3dEstimator::IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
     if (!vtxTrack.initialPerigee() && vtxTrack.initialNeutralPerigee())
-      msg(MSG::WARNING) << "Calling ImpactPoint3dEstimator::IP3dAtaPlane cannot return NeutralAtaPlane" << endreq;
+      msg(MSG::WARNING) << "Calling ImpactPoint3dEstimator::IP3dAtaPlane cannot return NeutralAtaPlane" << endmsg;
 
     const PlaneSurface* theSurfaceAtIP(0);
 
@@ -345,15 +345,15 @@ namespace Trk
     }
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
-      msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endreq;
+      msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endmsg;
       return 0;
     }
     if(!theSurfaceAtIP) msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance and returned 0 "
-<< endreq;
+<< endmsg;
 
 #ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
-    msg(MSG::VERBOSE) << "Original perigee was: " << *(vtxTrack.initialPerigee()) << endreq;
-    msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endreq;
+    msg(MSG::VERBOSE) << "Original perigee was: " << *(vtxTrack.initialPerigee()) << endmsg;
+    msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endmsg;
 #endif
 
    Trk::AtaPlane* res = const_cast<Trk::AtaPlane *>(dynamic_cast<const Trk::AtaPlane *>
@@ -373,15 +373,15 @@ namespace Trk
     }
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
-      msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endreq;
+      msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endmsg;
       return 0;
     }
     if(!theSurfaceAtIP) msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance and returned 0 "
-<< endreq;
+<< endmsg;
 
 #ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
-    msg(MSG::VERBOSE) << "Original neutral perigee was: " << *initNeutPerigee << endreq;
-    msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endreq;
+    msg(MSG::VERBOSE) << "Original neutral perigee was: " << *initNeutPerigee << endmsg;
+    msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endmsg;
 #endif
 
     Trk::NeutralAtaPlane* res = const_cast<Trk::NeutralAtaPlane *>(dynamic_cast<const Trk::NeutralAtaPlane *>

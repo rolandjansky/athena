@@ -153,6 +153,8 @@ protected:
 
   bool m_bSFIsAvailable;
   bool m_bSFIsAvailableChecked;
+  bool m_bPtTauEtaCalibIsAvailable;
+  bool m_bPtTauEtaCalibIsAvailableIsChecked;
 };
 } // namespace TauAnalysisTools
 

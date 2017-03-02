@@ -53,7 +53,7 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
   if ( msg().level() <= MSG::DEBUG ) 
-        msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
+        msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endmsg;
 #endif
 
   double deta = 0.;           // eta difference current cell - seed
@@ -153,7 +153,7 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   if ( msg().level() <= MSG::DEBUG ) {
 	for (int sampling=0; sampling<3;sampling++)
           if (m_geometryTool->EtaPhiRange(1,sampling,energyEta, energyPhi))
-                msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+                msg() << MSG::ERROR << "problems with EtaPhiRange" << endmsg;
         PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC0),1,0
 		,CaloSampling::HEC0,CaloSampling::HEC0);
         PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC1),1,1

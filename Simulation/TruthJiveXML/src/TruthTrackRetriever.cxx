@@ -50,16 +50,16 @@ namespace JiveXML {
   StatusCode TruthTrackRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
 
     //Retrieve the collection
     const McEventCollection* McEvtColl = NULL;
     if ( !evtStore()->contains<McEventCollection>( m_McEvtCollName )){ 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not find McEventCollection " << m_McEvtCollName << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not find McEventCollection " << m_McEvtCollName << endmsg;
       return StatusCode::SUCCESS;
     }
     if( evtStore()->retrieve(McEvtColl, m_McEvtCollName).isFailure() ){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve McEventCollection " << m_McEvtCollName << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve McEventCollection " << m_McEvtCollName << endmsg;
       return StatusCode::SUCCESS;
     }
     
@@ -71,7 +71,7 @@ namespace JiveXML {
 
     //Show in verbose mode
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Total number of particles in McEventCollection \""
-                                            << m_McEvtCollName << "\" is " << NParticles << endreq;
+                                            << m_McEvtCollName << "\" is " << NParticles << endmsg;
 
     //Reserve space for the output data
     DataVect pt; pt.reserve(NParticles);
@@ -154,7 +154,7 @@ namespace JiveXML {
     myDataMap["zEndVertex"] = zEndVertex;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< pt.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< pt.size() << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_McEvtCollName, &myDataMap);

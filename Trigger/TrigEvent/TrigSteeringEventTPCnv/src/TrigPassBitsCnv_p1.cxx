@@ -59,7 +59,7 @@ void TrigPassBitsCnv_p1::persToTrans(const TrigPassBits_p1* persObj,
 				     TrigPassBits* transObj, 
 				     MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigPassBitsCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigPassBitsCnv_p1::persToTrans called " << endmsg;
    
    transObj->m_decisions.resize(persObj->m_size, false); // reserve space and set defaults to 0
 
@@ -72,7 +72,7 @@ void TrigPassBitsCnv_p1::transToPers(const TrigPassBits* transObj,
 				     TrigPassBits_p1* persObj, 
 				     MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigPassBitsCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigPassBitsCnv_p1::transToPers called " << endmsg;
    persObj->m_size = transObj->m_decisions.size();   
 
    persObj->m_serialized.resize(necessary_words(persObj->m_size), 0); // reserve the space and set the content to 0

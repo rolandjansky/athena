@@ -1059,7 +1059,7 @@ namespace InDet{
              if(m_useMaterialRejection && (SelectedTracks[i]->pt()<m_MaterialPtCut || SelectedTracks[j]->pt()<m_MaterialPtCut) ){
               //if(m_materialMap){
               //  if(m_materialMap->inMaterial(FitVertex)) BadTracks=4;
-              //  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" MaterialMap test="<< BadTracks<<endreq;
+              //  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" MaterialMap test="<< BadTracks<<endmsg;
 	      //}else{   
                float Dist2DBP=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
                float Dist2DBL=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 

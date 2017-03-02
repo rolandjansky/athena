@@ -35,6 +35,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "TH1.h"
 
 
 class TH1;
@@ -59,7 +60,7 @@ namespace CP {
   public:
 
       /** use a hardcoded period configuration */
-      Int_t UsePeriodConfig(const TString configName);
+      Int_t UsePeriodConfig(const TString& configName);
       /** Add a histogram binning config. To modify the pileup histo binning, use "pileup" as name */
       Int_t SetBinning(Int_t nbinsx, Double_t* xbins, Int_t nbinsy=0, Double_t* ybins=0);
       Int_t SetUniformBinning(Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy=0, Double_t ylow=0, Double_t yup=0);
@@ -162,9 +163,9 @@ namespace CP {
       //-----------------------------------------------------
       //Methods to load config files
       //-----------------------------------------------------
-      Int_t AddConfigFile(const TString fileName);
-      Int_t AddLumiCalcFile(const TString fileName, const TString trigger="None");
-      Int_t AddMetaDataFile(const TString fileName,const TString channelBranchName="mc_channel_number");
+      Int_t AddConfigFile(const TString& fileName);
+      Int_t AddLumiCalcFile(const TString& fileName, const TString& trigger="None");
+      Int_t AddMetaDataFile(const TString& fileName,const TString& channelBranchName="mc_channel_number");
 
       /** Removes a channel from the inputs ... this is for experts only */
       Bool_t RemoveChannel(int chanNum);
@@ -186,7 +187,7 @@ namespace CP {
       //-----------------------------------------------------
       //Methods to work with the metadata
       //-----------------------------------------------------
-      Double_t GetMetaData(const TString metadataName,Int_t channelNumber) {
+      Double_t GetMetaData(const TString& metadataName,Int_t channelNumber) {
          if(m_metadata.find(metadataName)==m_metadata.end()) {
             Error("GetMetaData","Metadata %s not known",metadataName.Data());
             return 0;
@@ -199,14 +200,14 @@ namespace CP {
       }
       /** combines loaded metadata with channel sumsofweights and entry counts */
       TTree* GetMetaDataTree(); 
-      Int_t GenerateMetaDataFile(const TString fileName,const TString channelBranchName="mc_channel_number");
+      Int_t GenerateMetaDataFile(const TString& fileName,const TString& channelBranchName="mc_channel_number");
 
 
       //-----------------------------------------------------
       //Methods to generate config files
       //-----------------------------------------------------
       Int_t Fill(Int_t runNumber,Int_t channelNumber,Float_t w,Float_t x, Float_t y=0.);
-      Int_t WriteToFile(const TString filename=""); //if no name given, will use tool name
+      Int_t WriteToFile(const TString& filename=""); //if no name given, will use tool name
       Int_t WriteToFile(TFile* outFile);
 
 
@@ -271,13 +272,17 @@ namespace CP {
       }
 
       /** Method for weighting data to account for prescales and mu bias. Use by giving the tool multiple lumicalc files, one for each trigger */
-      Double_t GetDataWeight(Int_t runNumber, TString trigger, Double_t x);
-      Double_t GetDataWeight(Int_t runNumber, TString trigger);//version without mu dependence
+      Double_t GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x);
+      Double_t GetDataWeight(Int_t runNumber, const TString& trigger);//version without mu dependence
+
+    /** Method for prescaling MC to account for prescales in data */
+      Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x);
+      Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger);//version without mu dependence
 
 
       // other methods 
       Bool_t IsInitialized() { return m_isInitialized; }
-
+// 
       Int_t AddDistribution(TH1* hist, Int_t runNumber, Int_t channelNumber);
 
       /** This method is DEFINITELY EXPERT USE ONLY. Used in the checkPRWConfigFile utitlity */
@@ -291,13 +296,15 @@ namespace CP {
       void SetTriggerBit(const TString& trigger, bool in=true) { m_triggerPassBits[trigger]=in; }
       void ResetTriggerBits() { m_triggerPassBits.clear(); }
 
+      double GetRunAverageMu(int run) { return m_runs[run].inputHists["None"]->GetMean(); }
+
   protected:
       virtual bool runLbnOK(Int_t /*runNbr*/, Int_t /*lbn*/) { return true; } //override in the ASG tool
       virtual bool passTriggerBeforePrescale(const TString& trigger) const { 
         if(m_triggerPassBits.size()==0) return true;
         try {
           return m_triggerPassBits.at(trigger); 
-        } catch(...) { return false; }
+        } catch(...) { return true; }
       } //override in the ASG tool
       std::map<TString, bool> m_triggerPassBits;
       
@@ -328,6 +335,7 @@ namespace CP {
       TTree *m_metadatatree;
       Double_t m_unrepDataTolerance;
       Bool_t m_doGlobalDataWeight; //used in GetDataWeight to flag mu-independent version
+      Bool_t m_doPrescaleWeight = false;
       Int_t m_lumicalcRunNumberOffset; //used for 'faking' a lumicalc file for run2
 
       /** map storing the lumicalc file locations - used when building DataPileupWeights */
@@ -441,7 +449,11 @@ protected:
       TRandom3 *m_random3;
 
       Bool_t m_ignoreBadChannels; //if true, will print a warning about any channels with too much unrepresented data, but will then just ignore them
+      Bool_t m_useMultiPeriods = true; //if true, will allow for runDependentMC 
 
+    //these two numbers are used in the auto-configurations, e.g. "Run2" .. fills additional periods
+    int m_autoRunStart = 0;
+    int m_autoRunEnd = 0;
       
 public:
       //this method is a convenience for copying over properties to the tools that are used for systematic variations

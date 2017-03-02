@@ -16,7 +16,7 @@ RODHeaderCollection_PERS * RODHeaderCollectionCnv::createPersistent( RODHeaderCo
   
   MsgStream mlog(msgSvc(), "RODHeaderCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "RODHeaderCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "RODHeaderCollectionCnv::createPersistent called" << endmsg;
 
   RODHeaderCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ RODHeaderCollection * RODHeaderCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "RODHeaderCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "RODHeaderCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "RODHeaderCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "8226F1B6-374D-424D-B059-E0A1B18A1DA7" );
  

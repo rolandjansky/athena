@@ -371,7 +371,7 @@ IOVPayloadContainerPTCnv_p1::fillAttributeData(unsigned int attrName,
         case IOVPayloadContainer_p1::ATTR_BLOB:                
 	  //            log << MSG::ERROR 
 	  //    << "IOVPayloadContainerPTCnv_p1::fillAttributeData - cannot currently treat BLOB type " 
-	  //    << endreq;
+	  //    << endmsg;
             return;
         case IOVPayloadContainer_p1::ATTR_DATE:                
             persObj->m_attrIndexes.push_back(
@@ -445,7 +445,7 @@ IOVPayloadContainerPTCnv_p1::fillAttributeData(const IOVPayloadContainer_p1* per
         case IOVPayloadContainer_p1::ATTR_BLOB:                
 	  //            log << MSG::ERROR 
 	  //    << "IOVPayloadContainerPTCnv_p1::fillAttributeData - cannot currently treat BLOB type " 
-	  //    << endreq;
+	  //    << endmsg;
             return;
         case IOVPayloadContainer_p1::ATTR_DATE:
           {

@@ -101,21 +101,21 @@ StatusCode DetailedIDNtupleTool::initialize()
 
         // AG: init truthToTrack
         if (m_truthToTrack.retrieve().isFailure() ) {
-	    msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endreq;
+	    msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endmsg;
 	    return StatusCode::FAILURE;
 	  }
 	  ATH_MSG_INFO("Retrieved TruthToTrack Tool: " << m_truthToTrack);
 	
         /* Retrieve extrapolator tool */
 	if (m_extrapolator.retrieve().isFailure()) {
-            msg(MSG::FATAL) << "Failed to retrieve tool "<<m_extrapolator<<endreq;
+            msg(MSG::FATAL) << "Failed to retrieve tool "<<m_extrapolator<<endmsg;
             return StatusCode::FAILURE;
          }
          ATH_MSG_INFO("Retrieved Extrapolator Tool " << m_extrapolator);
 
 	// get AlignModuleTool
 	if ( m_alignModuleTool.empty() || m_alignModuleTool.retrieve().isFailure() ) {
-		msg(MSG::FATAL) << "Failed to retrieve tool " <<m_alignModuleTool<< endreq;
+		msg(MSG::FATAL) << "Failed to retrieve tool " <<m_alignModuleTool<< endmsg;
 		return StatusCode::FAILURE;
 	}
 	ATH_MSG_INFO("Retrieved tool " << m_alignModuleTool);
@@ -160,7 +160,7 @@ void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrac
 	ATH_MSG_DEBUG("Retrieving event info.");
 	const xAOD::EventInfo * eventInfo;
 	if (evtStore()->retrieve(eventInfo).isFailure())
-		msg(MSG::ERROR) << "Could not retrieve event info." << endreq;
+		msg(MSG::ERROR) << "Could not retrieve event info." << endmsg;
 	else
 	{
 		m_runNumber = eventInfo->runNumber();
@@ -195,7 +195,7 @@ void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrac
     const Trk::Perigee * aMeasPer = (alignTrack->perigeeParameters());
 
 	if (aMeasPer==0){
-		msg(MSG::ERROR) << "Could not get Trk::Perigee of the alignTrack" << endreq;
+		msg(MSG::ERROR) << "Could not get Trk::Perigee of the alignTrack" << endmsg;
                 return;
         } 
 	else
@@ -234,7 +234,7 @@ void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrac
 		// get fit quality and chi2 probability of track
 		const Trk::FitQuality * fitQual = alignTrack->fitQuality();
 		if (fitQual==0)
-			msg(MSG::ERROR) << "No fit quality assigned to the track" << endreq;
+			msg(MSG::ERROR) << "No fit quality assigned to the track" << endmsg;
 		else
 		{
 			if (fitQual->chiSquared() > 0. && fitQual->numberDoF() > 0)
@@ -259,20 +259,20 @@ void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrac
         //HepGeom::Point3D<double> refPoint = measbase->associatedSurface().center();
         Amg::Vector3D refPoint = measbase->associatedSurface().center();
         const Trk::VertexOnTrack* vot = dynamic_cast<const Trk::VertexOnTrack*> (measbase);
-        msg(MSG::DEBUG) <<" VoT get from the alignTrack:" << *vot << endreq;
+        msg(MSG::DEBUG) <<" VoT get from the alignTrack:" << *vot << endmsg;
         if(!vot) {
-            msg(MSG::ERROR) << " Seems the pseudo-measuremnt in the alignTrack not exist!" << endreq;
-            msg(MSG::ERROR) << " this pseudo-measurement has been rejected as outlier in the refitting!" << endreq;
+            msg(MSG::ERROR) << " Seems the pseudo-measuremnt in the alignTrack not exist!" << endmsg;
+            msg(MSG::ERROR) << " this pseudo-measurement has been rejected as outlier in the refitting!" << endmsg;
             return;
         }
 
-        msg(MSG::DEBUG)<<" the pseudo-measurement position: "<< refPoint << endreq;
+        msg(MSG::DEBUG)<<" the pseudo-measurement position: "<< refPoint << endmsg;
         const Trk::Track* originalTrack = alignTrack->originalTrack();
   
         //const Trk::MeasuredPerigee * originalMeasPer = dynamic_cast<const Trk::MeasuredPerigee*>(originalTrack->perigeeParameters());
         const Trk::Perigee * originalMeasPer = originalTrack->perigeeParameters();
         if(!(originalTrack && originalMeasPer)){
-	     msg(MSG::ERROR) << "No original track!" << endreq;
+	     msg(MSG::ERROR) << "No original track!" << endmsg;
         } 
         else{
 
@@ -303,7 +303,7 @@ void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrac
             // get fit quality and chi2 probability of original Track
             const Trk::FitQuality * originalFitQual = originalTrack->fitQuality();
             if (originalFitQual==0)
-                msg(MSG::ERROR) << "No fit quality assigned to the track" << endreq;
+                msg(MSG::ERROR) << "No fit quality assigned to the track" << endmsg;
             else
               {
                if (originalFitQual->chiSquared() > 0. && originalFitQual->numberDoF() > 0)
@@ -326,10 +326,10 @@ void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrac
              const Trk::Perigee * originalTrackPerigee = originalTrack->perigeeParameters();
 	         if ( originalTrackPerigee && ((originalTrackPerigee->associatedSurface())) == persf )
                  {
-                  msg(MSG::DEBUG) << "Perigee of Track is already expressed to given vertex, a copy is returned." << endreq;
+                  msg(MSG::DEBUG) << "Perigee of Track is already expressed to given vertex, a copy is returned." << endmsg;
                   originalPerigeeAtRef = originalTrackPerigee->clone();
                  } else
-                     msg(MSG::DEBUG) << "Extrapolation to Perigee failed, NULL pointer is returned." << endreq;         
+                     msg(MSG::DEBUG) << "Extrapolation to Perigee failed, NULL pointer is returned." << endmsg;         
             }
 
             if(originalPerigeeAtRef){
@@ -350,10 +350,10 @@ void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrac
                  const Trk::Perigee* alignTrackPerigee = alignTrack->perigeeParameters();
                  if ( alignTrackPerigee && ((alignTrackPerigee->associatedSurface())) == persf )
                  {
-                  msg(MSG::DEBUG) << "Perigee of AlignTrack is already expressed to given vertex, a copy is returned." << endreq;
+                  msg(MSG::DEBUG) << "Perigee of AlignTrack is already expressed to given vertex, a copy is returned." << endmsg;
                   PerigeeAtRef = alignTrackPerigee->clone();
                  } else
-                     msg(MSG::DEBUG) << "Extrapolation to Perigee failed, NULL pointer is returned." << endreq;         
+                     msg(MSG::DEBUG) << "Extrapolation to Perigee failed, NULL pointer is returned." << endmsg;         
             }
 
 			//post-eigen, can simply use the TrackParameters * returned by m_extrapolator->extrapolate?
@@ -390,7 +390,7 @@ bool DetailedIDNtupleTool::retrieveTruthInfo(const Trk::AlignTrack * alignTrack)
 
   const TrackCollection * RecCollection = NULL;
   if (evtStore()->retrieve(RecCollection, m_trackCollection).isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg() <<"Track collection \"" << m_trackCollection << "\" not found." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() <<"Track collection \"" << m_trackCollection << "\" not found." << endmsg;
           return false;
       }
   if (RecCollection)
@@ -400,7 +400,7 @@ bool DetailedIDNtupleTool::retrieveTruthInfo(const Trk::AlignTrack * alignTrack)
   // get TrackTruthCollection
   const TrackTruthCollection  * TruthMap  = NULL;
   if (StatusCode::SUCCESS != evtStore()->retrieve(TruthMap,m_tracksTruthName)) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Cannot find " << m_tracksTruthName  << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Cannot find " << m_tracksTruthName  << endmsg;
     return false;
   }
 
@@ -440,12 +440,12 @@ bool DetailedIDNtupleTool::retrieveTruthInfo(const Trk::AlignTrack * alignTrack)
           if (genparptr->production_vertex()) {
 
             if(genparptr->pdg_id() == 0) {
-              //msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<genparptr->status()<<" mass "<< genparptr->momentum().m() <<" pt "<<genparptr->momentum().et()<<" eta "<<genparptr->momentum().eta()<<" phi "<<genparptr->momentum().phi()<<" Gen Vertex barcode "<<genparptr->production_vertex()->barcode()<<"Gen Vertex Position x" <<genparptr->production_vertex()->position().x()<< " y "<<genparptr->production_vertex()->position().y()<<" z "<<genparptr->production_vertex()->position().z()<<endreq;
+              //msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<genparptr->status()<<" mass "<< genparptr->momentum().m() <<" pt "<<genparptr->momentum().et()<<" eta "<<genparptr->momentum().eta()<<" phi "<<genparptr->momentum().phi()<<" Gen Vertex barcode "<<genparptr->production_vertex()->barcode()<<"Gen Vertex Position x" <<genparptr->production_vertex()->position().x()<< " y "<<genparptr->production_vertex()->position().y()<<" z "<<genparptr->production_vertex()->position().z()<<endmsg;
             }
             else {
               const Trk::TrackParameters * generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genparptr);
               if (!generatedTrackPerigee)
-                    msg(MSG::WARNING)<< "Unable to extrapolate genparticle to perigee!"<< endreq;
+                    msg(MSG::WARNING)<< "Unable to extrapolate genparticle to perigee!"<< endmsg;
               else {
 
                 flag = true;
@@ -491,7 +491,7 @@ const Trk::TrackParameters* DetailedIDNtupleTool::perigeeParameter(const Trk::Al
               break;
     }
     if (it == alignTrack->trackStateOnSurfaces()->end()){
-        msg(MSG::ERROR) << "Strange there is no perigee of the alignTrack" << endreq;
+        msg(MSG::ERROR) << "Strange there is no perigee of the alignTrack" << endmsg;
         return 0;
     }
 
@@ -499,7 +499,7 @@ const Trk::TrackParameters* DetailedIDNtupleTool::perigeeParameter(const Trk::Al
 	    const Trk::TrackParameters* aMeasPer = ((*it)->trackParameters());
 
     if (aMeasPer==0){
-        msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee of the alignTrack" << endreq;
+        msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee of the alignTrack" << endmsg;
         return 0;
     }
     return aMeasPer;

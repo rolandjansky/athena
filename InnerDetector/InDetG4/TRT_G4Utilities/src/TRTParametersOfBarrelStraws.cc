@@ -18,14 +18,14 @@ TRTParametersOfBarrelStraws::TRTParametersOfBarrelStraws(): m_msg("TRTParameters
 
   printMessages = pParameters->GetInteger("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws" << endmsg;
 
   DefineParameters();
 
   if (pParameters->GetInteger("PrintParametersOfBarrelStraws"))
     PrintParameters();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws done" << endmsg;
 }
 
 
@@ -33,9 +33,9 @@ TRTParametersOfBarrelStraws::TRTParametersOfBarrelStraws(): m_msg("TRTParameters
 
 TRTParametersOfBarrelStraws::~TRTParametersOfBarrelStraws()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfBarrelStraws" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfBarrelStraws" << endmsg;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfBarrelStraws done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfBarrelStraws done" << endmsg;
 }
 
 
@@ -43,7 +43,7 @@ TRTParametersOfBarrelStraws::~TRTParametersOfBarrelStraws()
 
 void TRTParametersOfBarrelStraws::DefineParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::DefineParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::DefineParameters" << endmsg;
 
     // Parameters of straw hole:
   outerRadiusOfStrawHole = pParameters->GetDouble("OuterRadiusOfStrawHole");
@@ -87,7 +87,7 @@ void TRTParametersOfBarrelStraws::DefineParameters()
     lengthOfLongDeadRegion;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::DefineParameters"
-						<< " done" << endreq;
+						<< " done" << endmsg;
 }
 
 
@@ -96,7 +96,7 @@ void TRTParametersOfBarrelStraws::DefineParameters()
 void TRTParametersOfBarrelStraws::PrintParameters() const
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
-						<< endreq;
+						<< endmsg;
 
   TRTUtilities* pUtilities = TRTUtilities::GetPointer();
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
@@ -153,5 +153,5 @@ void TRTParametersOfBarrelStraws::PrintParameters() const
   output << std::endl;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
-						<< " done" << endreq;
+						<< " done" << endmsg;
 }

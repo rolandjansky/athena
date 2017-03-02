@@ -22,7 +22,7 @@ HITRTInfoCnv::createPersistent( HITRTInfo* transCont )
   HITRTInfoCnv_p1 cnv;
   HITRTInfo_PERS *persObj = cnv.createPersistent( transCont, *m_msg );
   
-  // msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  // msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

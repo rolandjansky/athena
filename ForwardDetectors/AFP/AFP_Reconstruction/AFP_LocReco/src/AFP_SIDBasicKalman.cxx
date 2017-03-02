@@ -238,19 +238,19 @@ StatusCode AFP_SIDBasicKalman::Execute()
                 if( DoubleHole1 > 1 || DoubleHole2 != 0) continue ;
 	
 
-		LogStream << MSG::DEBUG << "Found new track candidate with parameters:" << endreq;
+		LogStream << MSG::DEBUG << "Found new track candidate with parameters:" << endmsg;
 		LogStream << MSG::DEBUG << "Hit ID's : ";
 		vector<Int_t>::const_iterator iter2;
 		for (iter2= HID.begin(); iter2!= HID.end(); iter2++) LogStream << MSG::DEBUG << (*iter2) << "\t";
-		LogStream << endreq;
+		LogStream << endmsg;
 		
-		LogStream << MSG::DEBUG << "Filtered parameters : X, DX, Y, DY, chi2" << endreq;
+		LogStream << MSG::DEBUG << "Filtered parameters : X, DX, Y, DY, chi2" << endmsg;
 		vector< CLHEP::HepVector >::const_iterator iter3;
 		vector< Float_t >::const_iterator iter4 = chik.begin();
-			LogStream << MSG::DEBUG << (*iter1).fSeedX << "\t" << (*iter1).fSeedDX << "\t" << (*iter1).fSeedY << "\t" << (*iter1).fSeedDY << "\t" << 0 << endreq;
+			LogStream << MSG::DEBUG << (*iter1).fSeedX << "\t" << (*iter1).fSeedDX << "\t" << (*iter1).fSeedY << "\t" << (*iter1).fSeedDY << "\t" << 0 << endmsg;
 		for (iter3=xk.begin(); iter3!= xk.end(); iter3++)
 		{
-			LogStream << MSG::DEBUG << (*iter3)[0] << "\t" << (*iter3)[1] << "\t" << (*iter3)[2] << "\t" << (*iter3)[3] << "\t" << (*iter4) << endreq;
+			LogStream << MSG::DEBUG << (*iter3)[0] << "\t" << (*iter3)[1] << "\t" << (*iter3)[2] << "\t" << (*iter3)[3] << "\t" << (*iter4) << endmsg;
 			iter4++;
 		}
 
@@ -261,16 +261,16 @@ StatusCode AFP_SIDBasicKalman::Execute()
 
 		Float_t Chi2Sum = 0;
 		
-		LogStream << MSG::DEBUG << "Smoothed parameters : X, DX, Y, DY, chi2" << endreq;
+		LogStream << MSG::DEBUG << "Smoothed parameters : X, DX, Y, DY, chi2" << endmsg;
 		vector< CLHEP::HepVector >::const_reverse_iterator iter5;
 		vector< Float_t >::const_reverse_iterator iter6 = chikS.rbegin();
 		for (iter5=xkS.rbegin(); iter5!= xkS.rend(); ++iter5)
 		{				
-			LogStream << MSG::DEBUG << (*iter5)[0] << "\t" << (*iter5)[1] << "\t" << (*iter5)[2] << "\t" << (*iter5)[3] << "\t" << (*iter6) << endreq;
+			LogStream << MSG::DEBUG << (*iter5)[0] << "\t" << (*iter5)[1] << "\t" << (*iter5)[2] << "\t" << (*iter5)[3] << "\t" << (*iter6) << endmsg;
 			Chi2Sum += (*iter6);
 			++iter6;					
 		}
-		LogStream << endreq;
+		LogStream << endmsg;
 		
 		
 		//////////////////////////////////////////
@@ -300,13 +300,13 @@ StatusCode AFP_SIDBasicKalman::Execute()
 	if (m_listResults.size()!=0)
 	{
 		list<SIDRESULT>::const_iterator iter7;
-		LogStream << MSG::INFO << "Filtered tracks parameters : X, DX, Y, DY, Z, quality: " << endreq;
+		LogStream << MSG::INFO << "Filtered tracks parameters : X, DX, Y, DY, Z, quality: " << endmsg;
 		for (iter7=m_listResults.begin(); iter7!=m_listResults.end(); iter7++)
 		{
 		LogStream << MSG::INFO << std::fixed << std::setprecision(6) \
-		<< (*iter7).x_pos << "\t" << (*iter7).x_slope << "\t" << (*iter7).y_pos << "\t" << (*iter7).y_slope <<"\t"<< (*iter7).z_pos << "\t" << (*iter7).fChi2 << endreq;
+		<< (*iter7).x_pos << "\t" << (*iter7).x_slope << "\t" << (*iter7).y_pos << "\t" << (*iter7).y_slope <<"\t"<< (*iter7).z_pos << "\t" << (*iter7).fChi2 << endmsg;
 		}
-		LogStream << endreq;
+		LogStream << endmsg;
 	}
 	
 	
@@ -804,10 +804,10 @@ void AFP_SIDBasicKalman::HistFinalize()
 void AFP_SIDBasicKalman::GetData()
 {
 	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDBasicKalman::GetData()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDBasicKalman::GetData()" << endreq;
+	LogStream << MSG::DEBUG << "begin AFP_SIDBasicKalman::GetData()" << endmsg;
 
 	/////
 	/////
 
-	LogStream << MSG::DEBUG << "end AFP_SIDBasicKalman::GetData()" << endreq;
+	LogStream << MSG::DEBUG << "end AFP_SIDBasicKalman::GetData()" << endmsg;
 }

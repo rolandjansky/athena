@@ -41,13 +41,13 @@ namespace JiveXML {
 
     // Get geo model manager
     if ( detStore()->retrieve(m_PixelGeoManager, "Pixel").isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel GeoModel Manager!" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel GeoModel Manager!" << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
     // Get identifier helper
     if (detStore()->retrieve(m_PixelIDHelper, "PixelID").isFailure()) {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel ID helper" << endreq;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel ID helper" << endmsg;
         return StatusCode::RECOVERABLE;
     }
   
@@ -57,13 +57,13 @@ namespace JiveXML {
 
     // Get geo model manager
     if ( detStore()->retrieve(m_SCTGeoManager, "SCT").isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get SCT GeoModel Manager!" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get SCT GeoModel Manager!" << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
     // Get identifier helper
     if (detStore()->retrieve(m_SCTIDHelper, "SCT_ID").isFailure()) {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get SCT ID helper" << endreq;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get SCT ID helper" << endmsg;
         return StatusCode::RECOVERABLE;
     }
  
@@ -72,12 +72,12 @@ namespace JiveXML {
     bool isSLHC = false;
     const IdDictManager* idDictMgr;
     if (detStore()->retrieve(idDictMgr, "IdDict").isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get IdDictManager !" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get IdDictManager !" << endmsg;
       return StatusCode::RECOVERABLE;
     } else {
       const IdDictDictionary* dict = idDictMgr->manager()->find_dictionary("InnerDetector"); 
       if(!dict) {
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << " Cannot access InnerDetector dictionary "<< endreq;
+	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << " Cannot access InnerDetector dictionary "<< endmsg;
 	return StatusCode::RECOVERABLE;
       }else{
 	//	if (dict->file_name().find("SLHC")!=std::string::npos) isSLHC=true;
@@ -92,13 +92,13 @@ namespace JiveXML {
 
       // Get geo model manager
       if ( detStore()->retrieve(m_TRTGeoManager, "TRT").isFailure()) {
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get TRT GeoModel Manager!" << endreq;
+	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get TRT GeoModel Manager!" << endmsg;
 	return StatusCode::RECOVERABLE;
       }
 
       // Get identifier helper
       if (detStore()->retrieve(m_TRTIDHelper, "TRT_ID").isFailure()) {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get TRT ID helper" << endreq;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get TRT ID helper" << endmsg;
         return StatusCode::RECOVERABLE;
       }
     }

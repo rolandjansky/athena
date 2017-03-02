@@ -35,11 +35,11 @@ StatusCode InDet::InDetTrackPRD_Association::initialize()
   //
   if( m_assoTool.retrieve().isFailure()) {
 
-    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_assoTool << endreq;
+    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_assoTool << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
-    msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
   }
 
   // Get output print level
@@ -47,7 +47,7 @@ StatusCode InDet::InDetTrackPRD_Association::initialize()
   m_outputlevel = msg().level()-MSG::DEBUG;
   
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -92,7 +92,7 @@ StatusCode InDet::InDetTrackPRD_Association::execute()
   // Print common event information
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }

@@ -34,12 +34,12 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   {
   	diamond = mat_mgr->getMaterial("std::Carbon");
 //  	if(msg)
-//  		(*msg) << "BLM with graphite." << endreq; //commented out by D.Dobos on request by M.Elsing
+//  		(*msg) << "BLM with graphite." << endmsg; //commented out by D.Dobos on request by M.Elsing
   }
 //  else
 //  {
 //  	if(msg)
-//  		(*msg) << "BLM with diamond." << endreq; //commented out by D.Dobos on request by M.Elsing
+//  		(*msg) << "BLM with diamond." << endmsg; //commented out by D.Dobos on request by M.Elsing
 //  }
   const GeoMaterial* stainless_steel = mat_mgr->getMaterial("std::Iron");
   const GeoMaterial* peek = mat_mgr->getMaterial("pix::Peek");

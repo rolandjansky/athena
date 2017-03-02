@@ -21,7 +21,7 @@ LUCID_HitsMoniTool::~LUCID_HitsMoniTool() {}
 
 StatusCode LUCID_HitsMoniTool::bookHistograms() {
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::bookHistograms " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::bookHistograms " << endmsg;
   
   m_LUCID_Histos.clear();
   
@@ -103,12 +103,12 @@ StatusCode LUCID_HitsMoniTool::bookHistograms() {
 
 StatusCode LUCID_HitsMoniTool::fillHistograms() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::fillHistograms " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::fillHistograms " << endmsg;
 
   StatusCode sc = evtStore()->retrieve(m_LUCID_RawDataContainer, "Lucid_RawData");
 
-  if (sc.isFailure()) { if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retireved LUCID_RawDataContainer from StoreGate " << endreq; return sc; }
-  else                  if (msgLvl(MSG::DEBUG))   msg(MSG::DEBUG)   << " LUCID_RawDataContainer is retireved from StoreGate "        << endreq;
+  if (sc.isFailure()) { if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retireved LUCID_RawDataContainer from StoreGate " << endmsg; return sc; }
+  else                  if (msgLvl(MSG::DEBUG))   msg(MSG::DEBUG)   << " LUCID_RawDataContainer is retireved from StoreGate "        << endmsg;
   
   LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = m_LUCID_RawDataContainer->begin();
   LUCID_RawDataContainer::const_iterator LUCID_RawData_end = m_LUCID_RawDataContainer->end();
@@ -126,7 +126,7 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
 				  << " bxID: " << std::setw(10) << bxID
 				  << " tub: "  << std::setw(10) << tub
 				  << " fire: " << std::setw(10) << isTubeFired
-				  << endreq;
+				  << endmsg;
 	
 	if (isTubeFired) m_LUCID_Histos[bxID]->Fill(tub);
       }
@@ -219,11 +219,11 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
 
 StatusCode LUCID_HitsMoniTool::procHistograms() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::procHistograms " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::procHistograms " << endmsg;
 
   if (endOfRun) {
     
-    msg(MSG::DEBUG) << " m_nEvents: " << m_nEvents << endreq;
+    msg(MSG::DEBUG) << " m_nEvents: " << m_nEvents << endmsg;
     
     for (int bxID=0; bxID<3; bxID++) m_LUCID_Histos[18+bxID]->Scale(1./m_nEvents);
   }

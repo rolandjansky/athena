@@ -71,7 +71,7 @@ TrigTrackCounter::~TrigTrackCounter(void) {
 
 HLT::ErrorCode TrigTrackCounter::hltInitialize() {
   m_log.setLevel(outputLevel());
-  m_log << MSG::INFO << "Initialising this TrigTrackCounter: " << name() << endreq;
+  m_log << MSG::INFO << "Initialising this TrigTrackCounter: " << name() << endmsg;
   
   // Create timers
   if( timerSvc() ){
@@ -81,7 +81,7 @@ HLT::ErrorCode TrigTrackCounter::hltInitialize() {
 
   StatusCode sc = service("StoreGateSvc", m_storeGate);
   if( sc.isFailure() ){
-      m_log << MSG::ERROR << "Unable to get StoreGateSvc" << endreq;
+      m_log << MSG::ERROR << "Unable to get StoreGateSvc" << endmsg;
       return StatusCode::FAILURE;
   }
 
@@ -96,7 +96,7 @@ HLT::ErrorCode TrigTrackCounter::hltInitialize() {
   m_eta_phi->initialize(m_hEtaBins, m_hEtaMin, m_hEtaMax,
 			m_hPhiBins, m_hPhiMin, m_hPhiMax);
   
-  m_log << MSG::INFO << "TrigTrackCounter initialized successfully" << endreq; 
+  m_log << MSG::INFO << "TrigTrackCounter initialized successfully" << endmsg; 
   return HLT::OK;  
 }
 
@@ -105,7 +105,7 @@ HLT::ErrorCode TrigTrackCounter::hltInitialize() {
 HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::TriggerElement* outputTE ){
   
   if ( msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this TrigTrackCounter " << name() << endreq;
+    m_log << MSG::DEBUG << "Executing this TrigTrackCounter " << name() << endmsg;
   } 
   
   if( timerSvc() ){ 
@@ -116,11 +116,11 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
   // retrieve output from TrigAmbiguitySolver
   HLT::ErrorCode ec = getFeature( outputTE, m_recoTracks, m_trkContainerName );
   if( ec != HLT::OK ){
-    m_log << MSG::ERROR << "Input track collection " << m_trkContainerName << "could not be found " << endreq;
+    m_log << MSG::ERROR << "Input track collection " << m_trkContainerName << "could not be found " << endmsg;
     return HLT::NAV_ERROR;
   }
   else{
-    m_log << MSG::DEBUG << "Retrieved successfully track collection " << m_trkContainerName << endreq;
+    m_log << MSG::DEBUG << "Retrieved successfully track collection " << m_trkContainerName << endmsg;
   }
 
   if( timerSvc() ){ 
@@ -134,13 +134,13 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
   m_ntrks = -999;
   if( !m_recoTracks || m_recoTracks->size() == 0 ){
     if( msgLvl() <= MSG::DEBUG ){
-      m_log << MSG::DEBUG << "REGTEST: TrackCollection contains is empty or contains 0 tracks." << endreq;
+      m_log << MSG::DEBUG << "REGTEST: TrackCollection contains is empty or contains 0 tracks." << endmsg;
     }
   }
   else{
     m_ntrks = m_recoTracks->size();
     if( msgLvl() <= MSG::DEBUG ){
-      m_log << MSG::DEBUG << "REGTEST: TrackCollection contains " << m_ntrks << " tracks." << endreq;
+      m_log << MSG::DEBUG << "REGTEST: TrackCollection contains " << m_ntrks << " tracks." << endmsg;
     }
     
     TrackCollection::const_iterator itr = m_recoTracks->begin();
@@ -168,7 +168,7 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
 	      << "z0 = " << z0 << " mm, "
 	      << "phi0 = " << phi0 << ", "
 	      << "eta = " << eta << ", "
-	      << "pt = " << pT/1000. << " GeV" << endreq;
+	      << "pt = " << pT/1000. << " GeV" << endmsg;
       }
     }
   }
@@ -212,7 +212,7 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
   HLT::ErrorCode hltStatus = attachFeature( outputTE, tk, "trackcounts" );
   if(hltStatus != HLT::OK) {
     if(msgLvl() <= MSG::ERROR) {
-      m_log << MSG::ERROR << "Write of TrigTrackCounts into outputTE failed" << endreq;
+      m_log << MSG::ERROR << "Write of TrigTrackCounts into outputTE failed" << endmsg;
     }
     return hltStatus;
   }
@@ -224,6 +224,6 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
 
 HLT::ErrorCode TrigTrackCounter::hltFinalize() {
   
-  m_log << MSG::INFO << "Finalizing this TrigTrackCounter" << name() << endreq; 
+  m_log << MSG::INFO << "Finalizing this TrigTrackCounter" << name() << endmsg; 
   return HLT::OK;  
 }

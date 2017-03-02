@@ -47,9 +47,9 @@ namespace Muon {
 
    // storing the map for further usage
    if( m_storeGate->record(assMap,"MyMuonSegPatAssociations").isSuccess() ){
-     log << MSG::DEBUG << "stored MuonSegPatAssociations "  << endreq;
+     log << MSG::DEBUG << "stored MuonSegPatAssociations "  << endmsg;
    }else{
-     log << MSG::DEBUG << "Failed to store MuonSegPatAssociations " << endreq;
+     log << MSG::DEBUG << "Failed to store MuonSegPatAssociations " << endmsg;
    }
    @endcode
 
@@ -60,10 +60,10 @@ namespace Muon {
    const Muon::MuonSegPatAssMap* assMap = 0;
    StatusCode sc = m_storeGate->retrieve(assMap,"MyMuonSegPatAssociations");
    if (sc.isFailure() ) {
-   log << MSG::ERROR << " Could not find MuonSegPatAssociations at " << "MyMuonSegPatAssociations" <<endreq;
+   log << MSG::ERROR << " Could not find MuonSegPatAssociations at " << "MyMuonSegPatAssociations" <<endmsg;
      return StatusCode::SUCCESS;
    }else{
-     log << MSG::INFO << " Retrieved MuonSegPatAssociations " << endreq;
+     log << MSG::INFO << " Retrieved MuonSegPatAssociations " << endmsg;
    }
 
 

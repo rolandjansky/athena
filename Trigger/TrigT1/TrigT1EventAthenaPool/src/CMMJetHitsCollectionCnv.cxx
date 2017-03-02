@@ -16,7 +16,7 @@ CMMJetHitsCollection_PERS * CMMJetHitsCollectionCnv::createPersistent( CMMJetHit
   
   MsgStream mlog(msgSvc(), "CMMJetHitsCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "CMMJetHitsCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CMMJetHitsCollectionCnv::createPersistent called" << endmsg;
 
   CMMJetHitsCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ CMMJetHitsCollection * CMMJetHitsCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CMMJetHitsCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "CMMJetHitsCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CMMJetHitsCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "972519B8-F2B3-4205-A0B1-06678460918F" );
  

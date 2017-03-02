@@ -29,7 +29,7 @@ StatusCode FTKDump::execute() {
   CHECK(evtStore()->retrieve(tracks_ptr, "dummy_tracks"));
 
   //ATH_MSG_INFO( "Got the tracks" );
-  (*m_log) << MSG::INFO << "Got no of tracks: " << tracks_ptr->size() << endreq;
+  (*m_log) << MSG::INFO << "Got no of tracks: " << tracks_ptr->size() << endmsg;
 
   return StatusCode::SUCCESS;
 }

@@ -106,7 +106,7 @@ InDetGlobalSynchMonTool::InDetGlobalSynchMonTool(
 StatusCode InDetGlobalSynchMonTool::initialize(){
     if ( InDetGlobalMotherTrigMonTool::initialize().isFailure() )
     {
-	if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Could not initialize Monitor tool base!" << endreq;
+	if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Could not initialize Monitor tool base!" << endmsg;
 	return StatusCode::FAILURE;
     }
     
@@ -353,7 +353,7 @@ StatusCode InDetGlobalSynchMonTool::fillHistograms()
     int prev_bcm_lvl1id = -1;
 
     if ( doTrigger == true && InDetGlobalMotherTrigMonTool::CheckTriggers() != StatusCode::SUCCESS ){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Triggers not found!" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Triggers not found!" << endmsg;
 	doTrigger = false;
     }
       

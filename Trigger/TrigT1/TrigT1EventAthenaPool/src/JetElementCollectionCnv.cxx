@@ -16,7 +16,7 @@ JetElementCollection_PERS * JetElementCollectionCnv::createPersistent( JetElemen
   
   MsgStream mlog(msgSvc(), "JetElementCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "JetElementCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "JetElementCollectionCnv::createPersistent called" << endmsg;
 
   JetElementCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ JetElementCollection * JetElementCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "JetElementCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "JetElementCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "JetElementCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "132ABB53-1F89-4E0E-83A3-382338B278F3" );
   static pool::Guid p0_guid( "48B92167-4892-4694-9E9E-E201F1E1FFFE" );

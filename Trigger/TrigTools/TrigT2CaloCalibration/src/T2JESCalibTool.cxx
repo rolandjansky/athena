@@ -87,7 +87,7 @@ double T2JESCalibTool::c_energy(double EMe,double HADe,double eta)
   if ( EMscale_et < m_etcut ) {
     if ( outputLevel() <= MSG::DEBUG )
       m_log << MSG::DEBUG << "Cluster transv. energy :" << EMscale_et 
-            << ", below threshold :" << m_etcut << endreq;
+            << ", below threshold :" << m_etcut << endmsg;
     return 0.0;
   }
 

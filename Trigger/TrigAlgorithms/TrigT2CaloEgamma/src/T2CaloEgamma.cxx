@@ -76,8 +76,8 @@ HLT::ErrorCode T2CaloEgamma::hltInitialize()
   declareMonitoredVariable("Eratio",m_eRatio);
   declareMonitoredVariable("ConversionErrors", m_conversionError);
   declareMonitoredVariable("AlgorithmErrors", m_algorithmError);
-  if ( m_calibsBarrel.retrieve().isFailure() ) (*m_log) << MSG::DEBUG << "No Calibration Available for the Barrel" << endreq;
-  if ( m_calibsEndcap.retrieve().isFailure() ) (*m_log) << MSG::DEBUG << "No Calibration Available for the Endcap" << endreq;
+  if ( m_calibsBarrel.retrieve().isFailure() ) (*m_log) << MSG::DEBUG << "No Calibration Available for the Barrel" << endmsg;
+  if ( m_calibsEndcap.retrieve().isFailure() ) (*m_log) << MSG::DEBUG << "No Calibration Available for the Endcap" << endmsg;
 
   // Sets the name of the key container 
   ToolHandleArray<IAlgToolCalo>::iterator it = m_emAlgTools.begin();
@@ -85,7 +85,7 @@ HLT::ErrorCode T2CaloEgamma::hltInitialize()
     (*it)->setCellContainerPointer(&m_Container);
 
   if ( (m_egammaqweta2c.retrieve()).isFailure() ){
-    (*m_log) << MSG::FATAL << "Could not find egammaqweta2c" << endreq;
+    (*m_log) << MSG::FATAL << "Could not find egammaqweta2c" << endmsg;
     return HLT::TOOL_FAILURE;
   }
   return HLT::OK;
@@ -107,7 +107,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
   
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 
-  (*m_log) << MSG::INFO << "in execute()" << endreq;
+  (*m_log) << MSG::INFO << "in execute()" << endmsg;
 #endif
  
   // Some debug output:
@@ -116,12 +116,12 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
     (*m_log) << MSG::DEBUG
 	  << "outputTE->getId(): "
 	  << outputTE->getId()
-	  << endreq;
+	  << endmsg;
 
     (*m_log) << MSG::DEBUG
 	  << "inputTE->getId(): "
 	  << inputTE->getId()
-	  << endreq;
+	  << endmsg;
    }
 #endif
     
@@ -132,10 +132,10 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
   if ( hltStatus == HLT::OK ) {
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 
-      (*m_log) << MSG::DEBUG  << *roiDescriptor << endreq;
+      (*m_log) << MSG::DEBUG  << *roiDescriptor << endmsg;
 #endif
   } else {
-    (*m_log) <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    (*m_log) <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
     return hltStatus;
   }
 
@@ -147,7 +147,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
 	   << roiDescriptor->phi()
 	   << " & LVL1 eta="
 	   << roiDescriptor->eta()
-	   << endreq;
+	   << endmsg;
 #endif
 
   // This will be used to restrict hot cell search
@@ -202,17 +202,17 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
 
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) {
-  (*m_log) << MSG::DEBUG  << " etamin = "<< etamin << endreq;
-  (*m_log) << MSG::DEBUG  << " etamax = "<< etamax << endreq;
-  (*m_log) << MSG::DEBUG  << " phimin = "<< phimin << endreq;
-  (*m_log) << MSG::DEBUG  << " phimax = "<< phimax << endreq;
+  (*m_log) << MSG::DEBUG  << " etamin = "<< etamin << endmsg;
+  (*m_log) << MSG::DEBUG  << " etamax = "<< etamax << endmsg;
+  (*m_log) << MSG::DEBUG  << " phimin = "<< phimin << endmsg;
+  (*m_log) << MSG::DEBUG  << " phimax = "<< phimax << endmsg;
   }
 #endif
 
 
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 
-  (*m_log) << MSG::DEBUG  << " Making TrigEMCluster "<< endreq;
+  (*m_log) << MSG::DEBUG  << " Making TrigEMCluster "<< endmsg;
 #endif
 
 
@@ -264,7 +264,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
     (*it)->setCaloDetDescrElement(caloDDE);
     //   if ((*it)->execute(*ptrigEmCluster,etamin,etamax,phimin,phimax).isFailure() ) {
     if ((*it)->execute(*ptrigEmCluster, newroi ).isFailure() ) {
-      (*m_log) << MSG::WARNING << "T2Calo AlgToolEgamma returned Failure" << endreq;
+      (*m_log) << MSG::WARNING << "T2Calo AlgToolEgamma returned Failure" << endmsg;
       //      return HLT::TOOL_FAILURE;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
     }
@@ -329,30 +329,30 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
 
   // Print out Cluster produced  
   if ( (*m_log).level() <= MSG::DEBUG ) {
-    (*m_log) << MSG::DEBUG  << " Values of Cluster produced: "<< endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: emEnergy = "<< (*ptrigEmCluster).energy() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: hadEnergy = "<< (*ptrigEmCluster).ehad1() << endreq;
+    (*m_log) << MSG::DEBUG  << " Values of Cluster produced: "<< endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: emEnergy = "<< (*ptrigEmCluster).energy() << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: hadEnergy = "<< (*ptrigEmCluster).ehad1() << endmsg;
 
     if ( ptrigEmCluster->e277()!=0. )
       (*m_log) << MSG::DEBUG  << " REGTEST: rCore = "
-	             << ((*ptrigEmCluster).e237() )/ ((*ptrigEmCluster).e277()) << endreq;
-    else (*m_log) << MSG::DEBUG  << " REGTEST: e277 equals to 0" << endreq;
+	             << ((*ptrigEmCluster).e237() )/ ((*ptrigEmCluster).e277()) << endmsg;
+    else (*m_log) << MSG::DEBUG  << " REGTEST: e277 equals to 0" << endmsg;
     
     (*m_log) << MSG::DEBUG  << " REGTEST: energyRatio = "
 	           << (((*ptrigEmCluster).emaxs1()-(*ptrigEmCluster).e2tsts1())/
 		            ((*ptrigEmCluster).emaxs1()+(*ptrigEmCluster).e2tsts1()))
-	           << endreq;
+	           << endmsg;
 
-    (*m_log) << MSG::DEBUG  << " REGTEST: clusterWidth = " << (*ptrigEmCluster).weta2() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: frac73 = " << (*ptrigEmCluster).fracs1() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: e233 = " << (*ptrigEmCluster).e233() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: wstot = " << (*ptrigEmCluster).wstot() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: eta = "<< (*ptrigEmCluster).eta() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: phi = "<< (*ptrigEmCluster).phi() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: Eta1 = "<< (*ptrigEmCluster).eta1() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: calZ0 = "<< calZ0 << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: quality = "<< (*ptrigEmCluster).clusterQuality() << endreq;
-    (*m_log) << MSG::DEBUG  << std::hex << " REGTEST: roiWord = 0x" << (*ptrigEmCluster).RoIword() << std::dec <<endreq;
+    (*m_log) << MSG::DEBUG  << " REGTEST: clusterWidth = " << (*ptrigEmCluster).weta2() << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: frac73 = " << (*ptrigEmCluster).fracs1() << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: e233 = " << (*ptrigEmCluster).e233() << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: wstot = " << (*ptrigEmCluster).wstot() << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: eta = "<< (*ptrigEmCluster).eta() << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: phi = "<< (*ptrigEmCluster).phi() << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: Eta1 = "<< (*ptrigEmCluster).eta1() << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: calZ0 = "<< calZ0 << endmsg;
+    (*m_log) << MSG::DEBUG  << " REGTEST: quality = "<< (*ptrigEmCluster).clusterQuality() << endmsg;
+    (*m_log) << MSG::DEBUG  << std::hex << " REGTEST: roiWord = 0x" << (*ptrigEmCluster).RoIword() << std::dec <<endmsg;
   }
   std::string key = "";
 
@@ -362,7 +362,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 
       (*m_log) << MSG::ERROR << "Write of TrigEMCluster into outputTE failed"
-	    << endreq;
+	    << endmsg;
 #endif
     if ( m_timersvc ) m_timer[0]->stop();
     return hltStatus;
@@ -375,7 +375,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
 #ifndef NDEBUG
 	if ( (*m_log).level() <= MSG::DEBUG ) 
 	  (*m_log) << MSG::ERROR << "Write of TrigEMClusterCells into outputTE failed"
-		   << endreq;
+		   << endmsg;
 #endif
 	if ( m_timersvc ) m_timer[0]->stop();
 	return hltStatus;
@@ -414,7 +414,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
  
   if ( hltStatus != HLT::OK ) {
      (*m_log) << MSG::ERROR << "Write of update TrigRoiDescriptor into outputTE failed"
-	   << endreq;
+	   << endmsg;
      if ( m_timersvc ) m_timer[0]->stop();
      return hltStatus;
   }
@@ -424,23 +424,23 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
   if(m_rings){
     hltStatus = recordAndAttachRings(outputTE);
     if(hltStatus != HLT::OK){
-      (*m_log)  << MSG::ERROR << "Can not attach the xAOD::TrigRingerRings features into StoreGate." << endreq;
+      (*m_log)  << MSG::ERROR << "Can not attach the xAOD::TrigRingerRings features into StoreGate." << endmsg;
       return hltStatus;
     }
     if( (*m_log).level() <= MSG::DEBUG){
       (*m_log) << MSG::DEBUG << "attach xAOD::TrigRingerRings with feature name " << m_ringerFeatureLabel
-                             << " and with roiword 0x" << std::hex << m_rings->emCluster()->RoIword() << std::dec << endreq;
-                             //<< " and with roiword 0x" << std::hex << m_rings->RoIword() << std::dec << endreq;
+                             << " and with roiword 0x" << std::hex << m_rings->emCluster()->RoIword() << std::dec << endmsg;
+                             //<< " and with roiword 0x" << std::hex << m_rings->RoIword() << std::dec << endmsg;
     }
   }
 
 
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) {
-    (*m_log) << MSG::DEBUG  << "Recorded an RoiDescriptor " << *newRoiDescriptor << endreq;
+    (*m_log) << MSG::DEBUG  << "Recorded an RoiDescriptor " << *newRoiDescriptor << endmsg;
     (*m_log) << MSG::DEBUG << "We assume success, set TE with Id "
 	  << outputTE->getId() << " active to signal positive result."
-	  << endreq;
+	  << endmsg;
   }
 #endif
  
@@ -458,7 +458,7 @@ HLT::ErrorCode T2CaloEgamma::hltFinalize(){
 
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 
-    (*m_log) << MSG::INFO << "in finalize()" << endreq;
+    (*m_log) << MSG::INFO << "in finalize()" << endmsg;
 #endif
 
   return HLT::OK;
@@ -485,7 +485,7 @@ HLT::ErrorCode T2CaloEgamma::recordAndAttachRings(HLT::TriggerElement *outputTE)
     }
     if(el_t2calo_clus.isValid()){
       if ( (*m_log).level() <= MSG::DEBUG ) {
-        (*m_log) << MSG::DEBUG << "ElementLink to xAOD::TrigEMClusterContainer is valid. set into xAOD::TrigRingerRings..." << endreq;
+        (*m_log) << MSG::DEBUG << "ElementLink to xAOD::TrigEMClusterContainer is valid. set into xAOD::TrigRingerRings..." << endmsg;
       }
 
       /* 
@@ -493,7 +493,7 @@ HLT::ErrorCode T2CaloEgamma::recordAndAttachRings(HLT::TriggerElement *outputTE)
       if( (*m_log).level() <= MSG::DEBUG){
         static SG::AuxElement::Accessor<ElementLink<xAOD::TrigEMClusterContainer>>orig("emClusterLink");
         if( !orig.isAvailable(*m_rings) || !orig(*m_rings).isValid() ){
-          (*m_log) << MSG::DEBUG << "Problem with emClusterLink." << endreq;
+          (*m_log) << MSG::DEBUG << "Problem with emClusterLink." << endmsg;
         }
       }*/
       

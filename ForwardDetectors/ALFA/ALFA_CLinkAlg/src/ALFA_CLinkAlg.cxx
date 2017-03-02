@@ -116,7 +116,7 @@ StatusCode ALFA_CLinkAlg::LoadAllEventData(ALFA_CLinkEvent* pDataEvent)
 		sc = evtStore()->retrieve(pAuxRawDataColl, EVCOLLNAME_RAWDATA);
 		if(sc.isFailure() || !pAuxRawDataColl)
 		{
-			msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_RAWDATA<<"' not found" << endreq;
+			msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_RAWDATA<<"' not found" << endmsg;
 			//return StatusCode::FAILURE;
 		}
 		else CHECK(pDataEvent->AddLink(EDVT_RAWDATAEVCOLLECTION, pAuxRawDataColl));
@@ -126,7 +126,7 @@ StatusCode ALFA_CLinkAlg::LoadAllEventData(ALFA_CLinkEvent* pDataEvent)
 	const ALFA_DigitCollection* pAuxDigitColl;
 	sc = evtStore()->retrieve(pAuxDigitColl, EVCOLLNAME_DIGIT);
 	if(sc.isFailure() || !pAuxDigitColl) {
-		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_DIGIT<<"' not found" << endreq;
+		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_DIGIT<<"' not found" << endmsg;
 		//return StatusCode::FAILURE;
 	}
 	else CHECK(pDataEvent->AddLink(EDVT_DIGITCOLLECTION, pAuxDigitColl));
@@ -135,7 +135,7 @@ StatusCode ALFA_CLinkAlg::LoadAllEventData(ALFA_CLinkEvent* pDataEvent)
 	const ALFA_ODDigitCollection* pAuxODDigitColl;
 	sc = evtStore()->retrieve(pAuxODDigitColl, EVCOLLNAME_ODDIGIT);
 	if(sc.isFailure() || !pAuxODDigitColl) {
-		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_ODDIGIT<<"' not found" << endreq;
+		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_ODDIGIT<<"' not found" << endmsg;
 		//return StatusCode::FAILURE;
 	}
 	else CHECK(pDataEvent->AddLink(EDVT_ODDIGITCOLLECTION, pAuxODDigitColl));
@@ -144,7 +144,7 @@ StatusCode ALFA_CLinkAlg::LoadAllEventData(ALFA_CLinkEvent* pDataEvent)
 	const ALFA_LocRecEvCollection* pAuxLocRecEvColl;
 	sc = evtStore()->retrieve(pAuxLocRecEvColl, EVCOLLNAME_LOCREC);
 	if(sc.isFailure() || !pAuxLocRecEvColl) {
-		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_LOCREC<<"' not found" << endreq;
+		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_LOCREC<<"' not found" << endmsg;
 		//return StatusCode::FAILURE;
 	}
 	else CHECK(pDataEvent->AddLink(EDVT_LOCRECEVCOLLECTION, pAuxLocRecEvColl));
@@ -153,7 +153,7 @@ StatusCode ALFA_CLinkAlg::LoadAllEventData(ALFA_CLinkEvent* pDataEvent)
 	const ALFA_LocRecODEvCollection* pAuxLocRecODEvColl;
 	sc = evtStore()->retrieve(pAuxLocRecODEvColl, EVCOLLNAME_LOCRECOD);
 	if(sc.isFailure() || !pAuxLocRecODEvColl) {
-		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_LOCRECOD<<"' not found" << endreq;
+		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_LOCRECOD<<"' not found" << endmsg;
 		//return StatusCode::FAILURE;
 	}
 	else CHECK(pDataEvent->AddLink(EDVT_LOCRECODEVCOLLECTION, pAuxLocRecODEvColl));
@@ -162,7 +162,7 @@ StatusCode ALFA_CLinkAlg::LoadAllEventData(ALFA_CLinkEvent* pDataEvent)
 	const ALFA_LocRecCorrEvCollection* pAuxLocRecCorrEvColl;
 	sc = evtStore()->retrieve(pAuxLocRecCorrEvColl, EVCOLLNAME_LOCRECCORR);
 	if(sc.isFailure() || !pAuxLocRecCorrEvColl) {
-		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_LOCRECCORR<<"' not found" << endreq;
+		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_LOCRECCORR<<"' not found" << endmsg;
 		//return StatusCode::FAILURE;
 	}
 	else CHECK(pDataEvent->AddLink(EDVT_LOCRECCORREVCOLLECTION, pAuxLocRecCorrEvColl));
@@ -171,7 +171,7 @@ StatusCode ALFA_CLinkAlg::LoadAllEventData(ALFA_CLinkEvent* pDataEvent)
 	const ALFA_LocRecCorrODEvCollection* pAuxLocRecCorrODEvColl;
 	sc = evtStore()->retrieve(pAuxLocRecCorrODEvColl, EVCOLLNAME_LOCRECCORROD);
 	if(sc.isFailure() || !pAuxLocRecCorrODEvColl) {
-		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_LOCRECCORROD<<"' not found" << endreq;
+		msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_LOCRECCORROD<<"' not found" << endmsg;
 		//return StatusCode::FAILURE;
 	}
 	else CHECK(pDataEvent->AddLink(EDVT_LOCRECCORRODEVCOLLECTION, pAuxLocRecCorrODEvColl));
@@ -180,7 +180,7 @@ StatusCode ALFA_CLinkAlg::LoadAllEventData(ALFA_CLinkEvent* pDataEvent)
 	//const ALFA_GloRecEvCollection* pAuxGloRecEvColl;
 	//sc = evtStore()->retrieve(pAuxGloRecEvColl, EVCOLLNAME_GLOREC);
 	//if(sc.isFailure() || !pAuxGloRecEvColl) {
-	//	msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_GLOREC<<"' not found" << endreq;
+	//	msg(MSG::WARNING) << "Container '"<<EVCOLLNAME_GLOREC<<"' not found" << endmsg;
 	//	return StatusCode::FAILURE;
 	//}
 	//else CHECK(pDataEvent->AddLink(EDVT_GLORECEVCOLLECTION, pAuxGloRecEvColl));
@@ -196,7 +196,7 @@ StatusCode ALFA_CLinkAlg::AddCOOLFolderCallback(const string& Folder)
 	const DataHandle<CondAttrListCollection> DataPtr;
 	sc=detStore()->regFcn(&ALFA_CLinkAlg::COOLUpdate, this, DataPtr, Folder, true);
 	if(sc!=StatusCode::SUCCESS){
-		msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<<Folder<<"'" << endreq;
+		msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<<Folder<<"'" << endmsg;
 	}
 
 	return sc;
@@ -212,35 +212,35 @@ StatusCode ALFA_CLinkAlg::COOLUpdate(IOVSVC_CALLBACK_ARGS_K(keys))
 
 	for(iter=keys.begin();iter!=keys.end();iter++){
 		if((*iter)==DCSCOLLNAME_BLM){
-			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_BLM<<"'" << endreq;
+			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_BLM<<"'" << endmsg;
 			m_CurrentDCSId.ullBlmID=CalcDCSId(EDCSI_BLM);
 		}
 		else if((*iter)==DCSCOLLNAME_HVCHANNEL){
-			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_HVCHANNEL<<"'" << endreq;
+			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_HVCHANNEL<<"'" << endmsg;
 			m_CurrentDCSId.ullHVChannelID=CalcDCSId(EDCSI_HVCHANNEL);
 		}
 		else if((*iter)==DCSCOLLNAME_LOCALMONITORING){
-			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_LOCALMONITORING<<"'" << endreq;
+			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_LOCALMONITORING<<"'" << endmsg;
 			m_CurrentDCSId.ullLocalMonitoringID=CalcDCSId(EDCSI_LOCALMONITORING);
 		}
 		else if((*iter)==DCSCOLLNAME_MOVEMENT){
-			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_MOVEMENT<<"'" << endreq;
+			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_MOVEMENT<<"'" << endmsg;
 			m_CurrentDCSId.ullMovementID=CalcDCSId(EDCSI_MOVEMENT);
 		}
 		else if((*iter)==DCSCOLLNAME_RADMON){
-			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_RADMON<<"'" << endreq;
+			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_RADMON<<"'" << endmsg;
 			m_CurrentDCSId.ullRadMonID=CalcDCSId(EDCSI_RADMON);
 		}
 		else if((*iter)==DCSCOLLNAME_TRIGGERRATES){
-			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_TRIGGERRATES<<"'" << endreq;
+			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_TRIGGERRATES<<"'" << endmsg;
 			m_CurrentDCSId.ullTriggerRatesID=CalcDCSId(EDCSI_TRIGGERRATES);
 		}
 		else if((*iter)==DCSCOLLNAME_FECONFIGURATION){
-			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_FECONFIGURATION<<"'" << endreq;
+			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_FECONFIGURATION<<"'" << endmsg;
 			m_CurrentDCSId.ullFEConfigurationID=CalcDCSId(EDCSI_FECONFIGURATION);
 		}
 		else if((*iter)==DCSCOLLNAME_TRIGGERSETTINGS){
-			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_TRIGGERSETTINGS<<"'" << endreq;
+			msg(MSG::DEBUG) << " IOV/COOL Notification '"<<DCSCOLLNAME_TRIGGERSETTINGS<<"'" << endmsg;
 			m_CurrentDCSId.ullTriggerSettingsID=CalcDCSId(EDCSI_TRIGGERSETTINGS);
 		}
 	}
@@ -290,7 +290,7 @@ unsigned long long ALFA_CLinkAlg::CalcDCSId(eDCSItem eItem)
 	const CondAttrListCollection* pAttrListCol=NULL;
 	CHECK(detStore()->retrieve(pAttrListCol,Folder));
 	if(!m_iovSvc->getKeyInfo(Folder,Foldername,Tag,Range,bRetrieved,ullBytesRead,fReadTime)) {
-		msg(MSG::ERROR)<<"Couldn't get IOV data about folder: "<<Folder<<endreq;
+		msg(MSG::ERROR)<<"Couldn't get IOV data about folder: "<<Folder<<endmsg;
 		return 0;
 	}
 
@@ -435,7 +435,7 @@ StatusCode ALFA_CLinkAlg::FillXAOD_TrackingData(xAOD::ALFADataContainer* pxAODCo
 	}
 	else
 	{
-		msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_LOCREC <<"' or '"<<EVCOLLNAME_LOCRECOD<<"' collection"<<endreq;
+		msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_LOCREC <<"' or '"<<EVCOLLNAME_LOCRECOD<<"' collection"<<endmsg;
 		//return StatusCode::FAILURE;
 	}
 
@@ -498,7 +498,7 @@ StatusCode ALFA_CLinkAlg::FillXAOD_TrackingData(xAOD::ALFADataContainer* pxAODCo
 	}
 	else
 	{
-		msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_LOCRECCORR <<"' or '"<<EVCOLLNAME_LOCRECCORROD<<"' collection"<<endreq;
+		msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_LOCRECCORR <<"' or '"<<EVCOLLNAME_LOCRECCORROD<<"' collection"<<endmsg;
 		//return StatusCode::FAILURE;
 	}
 
@@ -578,7 +578,7 @@ StatusCode ALFA_CLinkAlg::FillXAOD_HeaderData(xAOD::ALFADataContainer* pxAODCont
 		}
 		else
 		{
-			msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_RAWDATA <<"' collection"<<endreq;
+			msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_RAWDATA <<"' collection"<<endmsg;
 			//return StatusCode::FAILURE;
 		}
 	}
@@ -602,13 +602,13 @@ StatusCode ALFA_CLinkAlg::FillXAOD_HeaderData(xAOD::ALFADataContainer* pxAODCont
 			}
 			else
 			{
-				msg(MSG::ERROR) << "Index exceed array size for [RPotID, nPlateID, nFiberID]= ["<<nPotID<<", "<<nPlateID<<", "<<nFiberID<<"]"<<endreq;
+				msg(MSG::ERROR) << "Index exceed array size for [RPotID, nPlateID, nFiberID]= ["<<nPotID<<", "<<nPlateID<<", "<<nFiberID<<"]"<<endmsg;
 				//return StatusCode::FAILURE;
 			}
 		}
 	}
 	else{
-		msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_DIGIT <<"' collection"<<endreq;
+		msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_DIGIT <<"' collection"<<endmsg;
 		//return StatusCode::FAILURE;
 	}
 
@@ -638,14 +638,14 @@ StatusCode ALFA_CLinkAlg::FillXAOD_HeaderData(xAOD::ALFADataContainer* pxAODCont
 			}
 			else
 			{
-				msg(MSG::ERROR) << "Index exceed array size for [RPotID, nPlateID, nFiberID, nSideID]= ["<<nPotID<<", "<<nPlateID<<", "<<nFiberID<<", "<<nSideID<<"]"<<endreq;
+				msg(MSG::ERROR) << "Index exceed array size for [RPotID, nPlateID, nFiberID, nSideID]= ["<<nPotID<<", "<<nPlateID<<", "<<nFiberID<<", "<<nSideID<<"]"<<endmsg;
 				//return StatusCode::FAILURE;
 			}
 		}
 	}
 	else
 	{
-		msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_ODDIGIT <<"' collection"<<endreq;
+		msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_ODDIGIT <<"' collection"<<endmsg;
 		//return StatusCode::FAILURE;
 	}
 

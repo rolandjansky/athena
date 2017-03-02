@@ -5082,7 +5082,7 @@ public:
 
     if (m_phiweight.empty()) {
       // m_phiweight.resize(trajectory.numberOfScatterers());
-      m_phiweight.assign(trajectory.numberOfScatterers(), 1);
+      m_phiweight.assign(trajectory.trackStates().size(),1);
     }
     // bool iscombined= (nsihits+ntrthits>0 && nsihits+ntrthits!=nhits);
     FitterStatusCode fsc = calculateTrackParameters(trajectory, doderiv);

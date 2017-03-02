@@ -14,62 +14,54 @@
 #include "GaudiKernel/RndmGenerators.h"
 
 namespace Trk {
- 
-        
-    /** @class TrkExUnitTestBase
-       
-        Base class for all unit tests in the TrkEx package,
-        gives access to gaussian and flat random numbers
-        
-        @author Andreas.Salzburger@cern.ch       
-      */
-      
-    class TrkExUnitTestBase : public AthAlgorithm  {
+  /** @class TrkExUnitTestBase
 
-     public:
+      Base class for all unit tests in the TrkEx package,
+      gives access to gaussian and flat random numbers
 
-       /** Standard Athena-Algorithm Constructor */
-       TrkExUnitTestBase(const std::string& name, ISvcLocator* pSvcLocator);
+      @author Andreas.Salzburger@cern.ch
+   */
 
-       /** Default Destructor */
-       virtual ~TrkExUnitTestBase();
+  class TrkExUnitTestBase: public AthAlgorithm  {
+  public:
+    /** Standard Athena-Algorithm Constructor */
+    TrkExUnitTestBase(const std::string& name, ISvcLocator* pSvcLocator);
 
-       /** standard Athena-Algorithm method */
-       StatusCode          initialize();
+    /** Default Destructor */
+    virtual ~TrkExUnitTestBase();
 
-       /** standard Athena-Algorithm method */
-       StatusCode          execute();
-       
-       /** standard Athena-Algorithm method */
-       StatusCode          finalize();
-       
-       /* specify the test here */
-       virtual StatusCode runTest() = 0;
+    /** standard Athena-Algorithm method */
+    StatusCode initialize();
 
-       /* specify the scan here */
-       virtual StatusCode runScan() = 0;
+    /** standard Athena-Algorithm method */
+    StatusCode execute();
 
-       /* book the TTree branches */
-       virtual StatusCode bookTree();
-       
-       /* initalizeTest, this includes loading of tools */
-       virtual StatusCode initializeTest();
+    /** standard Athena-Algorithm method */
+    StatusCode finalize();
 
-    protected:
-      /** Random Number setup */
-      Rndm::Numbers*            m_gaussDist;
-      Rndm::Numbers*            m_flatDist;
-      Rndm::Numbers*            m_landauDist;
-      
-      /** number of tests */
-      size_t                    m_numTests; 
-      
-      /** enable scan mode */
-      bool                      m_scanMode;
+    /* specify the test here */
+    virtual StatusCode runTest() = 0;
+
+    /* specify the scan here */
+    virtual StatusCode runScan() = 0;
+
+    /* book the TTree branches */
+    virtual StatusCode bookTree();
+
+    /* initalizeTest, this includes loading of tools */
+    virtual StatusCode initializeTest();
+  protected:
+    /** Random Number setup */
+    std::unique_ptr<Rndm::Numbers>            m_gaussDist;
+    std::unique_ptr<Rndm::Numbers>            m_flatDist;
+    std::unique_ptr<Rndm::Numbers>            m_landauDist;
+
+    /** number of tests */
+    size_t m_numTests;
+
+    /** enable scan mode */
+    bool m_scanMode;
   };
-      
-   
 }
 
-#endif 
-
+#endif

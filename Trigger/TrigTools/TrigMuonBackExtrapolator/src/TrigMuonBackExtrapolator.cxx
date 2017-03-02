@@ -33,7 +33,7 @@ TrigMuonBackExtrapolator::~TrigMuonBackExtrapolator()
 StatusCode
 TrigMuonBackExtrapolator::initialize()
 {
-  msg(MSG::INFO) << "Initializing the MuonBackExtrapolator" << endreq;
+  msg(MSG::INFO) << "Initializing the MuonBackExtrapolator" << endmsg;
   ATH_CHECK( AthAlgTool::initialize() );
   return StatusCode::SUCCESS;
 }
@@ -42,7 +42,7 @@ TrigMuonBackExtrapolator::initialize()
 StatusCode
 TrigMuonBackExtrapolator::finalize()
 {
-  msg(MSG::INFO) << "Finalizing the MuonBackExtrapolator" << endreq;
+  msg(MSG::INFO) << "Finalizing the MuonBackExtrapolator" << endmsg;
   ATH_CHECK( AthAlgTool::finalize() );
   return StatusCode::SUCCESS;
 }
@@ -556,7 +556,7 @@ void
 TrigMuonBackExtrapolator::init_LUT()
 {
 
-  msg(MSG::INFO) << "TrigMuonBackExtrapolator LUT loaded" << endreq;
+  msg(MSG::INFO) << "TrigMuonBackExtrapolator LUT loaded" << endmsg;
 
 //Barrel
 data_Barrel_Param[0][0][0] = -0.344175;   data_Barrel_Param[0][0][1] = -0.007004; 

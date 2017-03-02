@@ -203,16 +203,16 @@ StatusCode LArDSPThresholdFillInline::stop() {
 	}
 	/*
 	  if(caloDDE->is_lar_em_barrel())
-	  log << MSG::DEBUG << "EM barrel" << endreq;
+	  log << MSG::DEBUG << "EM barrel" << endmsg;
 	  
 	  if(caloDDE->is_lar_em_endcap())
-	  log << MSG::DEBUG << "EM endcap" << endreq;
+	  log << MSG::DEBUG << "EM endcap" << endmsg;
 	  
 	  if(caloDDE->is_lar_hec())
-	  log << MSG::DEBUG << "HEC" << endreq;
+	  log << MSG::DEBUG << "HEC" << endmsg;
 
 	  if(caloDDE->is_lar_fcal())
-	  log << MSG::DEBUG << "FCAL" << endreq;
+	  log << MSG::DEBUG << "FCAL" << endmsg;
 	*/
 	CaloGain::CaloGain igain = CaloGain::INVALIDGAIN;
 

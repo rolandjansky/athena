@@ -69,15 +69,15 @@ InDet::InDetTrigExtensProcessor::InDetTrigExtensProcessor(const std::string &nam
 // Initialize method:
 HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltInitialize() {
 
-  msg() << MSG::INFO << "InDetTrigExtensProcessor::initialize()" << endreq;
+  msg() << MSG::INFO << "InDetTrigExtensProcessor::initialize()" << endmsg;
 
   // get track fitter tool
   if ( m_ITrackFitter.retrieve().isFailure() ) {
-    msg() << MSG::FATAL << "Failed to retrieve tool " << m_ITrackFitter << endreq;
+    msg() << MSG::FATAL << "Failed to retrieve tool " << m_ITrackFitter << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
   else{
-    msg() << MSG::INFO << "Retrieved tool " << m_ITrackFitter << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_ITrackFitter << endmsg;
   }
 
   // Configuration of the material effects
@@ -86,11 +86,11 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltInitialize() {
 
   // get scoring tool
   if ( m_scoringTool.retrieve().isFailure() ) {
-    msg() << MSG::FATAL << "Failed to retrieve tool " << m_scoringTool << endreq;
+    msg() << MSG::FATAL << "Failed to retrieve tool " << m_scoringTool << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
   else{
-    msg() << MSG::INFO << "Retrieved tool " << m_scoringTool << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_scoringTool << endmsg;
   }
   
 
@@ -106,7 +106,7 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
   int outputLevel = msgLvl();
   
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " InDetTrigExtensProcessor::execute()" << endreq;
+    msg() << MSG::DEBUG << " InDetTrigExtensProcessor::execute()" << endmsg;
 
   //----------------------------------------------------------------------
   // Trigger specific part: navigate throw the trigger element to get the
@@ -120,39 +120,39 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 
 
   if ( HLT::OK != getFeature(outputTE, m_tracks) ) {
-    msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+    msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
 
     return HLT::NAV_ERROR;
   }
 
   if(m_tracks->size()==0){
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
+      msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endmsg;
     
     return HLT::OK; 
   }
 
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " REGTEST: Retrieved track collection correctly. Size = " << m_tracks->size() << endreq;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved track collection correctly. Size = " << m_tracks->size() << endmsg;
 
   // get track ExensionMap from the trigger element
   // (the ExtensionMap is saved by the TRT_TrigTrackExtension algorithm):
 
   if ( HLT::OK != getFeature(outputTE, m_trackExtensionMap, "ExtTracks") ) {
-    msg() << MSG::ERROR << " Track extension map collection could not be found " << endreq;
+    msg() << MSG::ERROR << " Track extension map collection could not be found " << endmsg;
     
     return HLT::NAV_ERROR;
   }
   if(m_trackExtensionMap->size()==0){
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Track extension map has 0 size. Algorithm not executed!" << endreq;
+      msg() << MSG::DEBUG << " Track extension map has 0 size. Algorithm not executed!" << endmsg;
     
     return HLT::OK; 
   }
 
   if(outputLevel <= MSG::DEBUG)
     msg() <<MSG::DEBUG <<" REGTEST: TrackExtensionMap found, size:" 
-	  << m_trackExtensionMap->size() <<endreq; 
+	  << m_trackExtensionMap->size() <<endmsg; 
 
   m_numExtenTracks = 0;
   m_numOrigTracks = 0;
@@ -173,7 +173,7 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
       if(outputLevel <= MSG::DEBUG)
 	msg() << MSG::DEBUG 
 	    << " REGTEST: track not in extension map, copy original track to output" 
-	    << endreq;
+	    << endmsg;
 
       // push track into output, does copy, needs fixing
       m_newtracks->push_back( new Trk::Track(**itr) );
@@ -201,7 +201,7 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 	// we have the PRD Vector, we need to refit the track and see if it is better
 	if(outputLevel <= MSG::DEBUG)
 	  msg() << MSG::VERBOSE << "fit track " << itEx->first 
-		<< " with PRDs, number: " << vecPrd.size() << endreq;
+		<< " with PRDs, number: " << vecPrd.size() << endmsg;
 	
 	if (!m_cosmics) {
 	  newtrack = m_ITrackFitter->fit(*(itEx->first),vecPrd,m_runOutlier,m_ParticleHypothesis);
@@ -236,7 +236,7 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 	// we have an extension map with ROTs, we need to refit the track and see if it is better
 	if(outputLevel <= MSG::DEBUG)
 	  msg() << MSG::VERBOSE << "fit track " << itEx->first 
-		<< " with ROTs, number: " << itEx->second.size() << endreq;
+		<< " with ROTs, number: " << itEx->second.size() << endmsg;
 	
 
 	if (!m_cosmics) {
@@ -268,7 +268,7 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 	if(outputLevel <= MSG::DEBUG)
 	  msg() << MSG::DEBUG 
 		<< "refit of extended track failed, copy original track to output" 
-		<< endreq;
+		<< endmsg;
 
 	++m_numOrigTracks;
 	// push track into output, does copy, needs fixing
@@ -281,13 +281,13 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 	
 	// score old and new tool and decide which one to push back
 	Trk::TrackScore oldScore = m_scoringTool->score( **itr, m_suppressHoleSearch );
-	if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"original track has score: "<<oldScore<<endreq;
+	if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"original track has score: "<<oldScore<<endmsg;
 	Trk::TrackScore newScore = m_scoringTool->score( *newtrack, m_suppressHoleSearch );
-	if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"new track has score     : "<<newScore<<endreq;
+	if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"new track has score     : "<<newScore<<endmsg;
 	
 	if (newScore > oldScore) {
 
-	  if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"take extended track, it's better !"<< endreq;
+	  if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"take extended track, it's better !"<< endmsg;
 	  // push track into output
 	  m_newtracks->push_back( newtrack );
 	  ++m_numExtenTracks;
@@ -297,7 +297,7 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 	  // clean up newtrack
 	  delete (newtrack);
 	  
-	  if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"take original track, new one is worse !"<< endreq;
+	  if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"take original track, new one is worse !"<< endmsg;
 	  
 	  ++m_numOrigTracks;
 	  // push track into output, does copy, needs fixing
@@ -312,23 +312,23 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 
   std::string collKey = "ExtProcTracks";
   if ( HLT::OK !=  attachFeature(outputTE, m_newtracks, collKey) ) {
-    msg() << MSG::ERROR << "Could not attache feature to the TE" << endreq;
+    msg() << MSG::ERROR << "Could not attache feature to the TE" << endmsg;
     
     return HLT::NAV_ERROR;
   }
 
   if(outputLevel <= MSG::DEBUG) 
     msg() << MSG::DEBUG << " Stored " << m_newtracks->size() 
-	  << " tracks in SG. Track collection " << collKey << endreq; 
+	  << " tracks in SG. Track collection " << collKey << endmsg; 
 
   if (m_newtracks->size() != m_tracks->size()){
     if(outputLevel <= MSG::DEBUG) 
-      msg() << MSG::ERROR << "Lost tracks after extension ??? This is a bug !" << endreq;
+      msg() << MSG::ERROR << "Lost tracks after extension ??? This is a bug !" << endmsg;
   }
 
   if (msgLvl() <= MSG::VERBOSE){
     for (size_t i=0; i<m_newtracks->size() ; i++){
-      msg() << MSG::VERBOSE << *(m_newtracks->at(i)) << endreq;
+      msg() << MSG::VERBOSE << *(m_newtracks->at(i)) << endmsg;
     }
   }
   
@@ -341,7 +341,7 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 // Finalize method:
 HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltFinalize() {
 
-  msg() << MSG::INFO << "InDetTrigExtensProcessor::finalize()" << endreq;
+  msg() << MSG::INFO << "InDetTrigExtensProcessor::finalize()" << endmsg;
   
   return HLT::OK;
 }
@@ -365,7 +365,7 @@ Trk::Track* InDet::InDetTrigExtensProcessor::trackPlusExtension(const Trk::Track
 	Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface((**it));
 	extendedTrajectory->push_back( tsos );
       } else 
-	msg() << MSG::WARNING << "NULL trackStateOnSurface" << endreq;
+	msg() << MSG::WARNING << "NULL trackStateOnSurface" << endmsg;
     }
   }
   
@@ -380,7 +380,7 @@ Trk::Track* InDet::InDetTrigExtensProcessor::trackPlusExtension(const Trk::Track
 	const Trk::TrackStateOnSurface* aState = new Trk::TrackStateOnSurface((*it)->clone(),0,0,0,typePattern);
 	extendedTrajectory->push_back( aState );
       } else {
-	msg() << MSG::WARNING << "NULL trackStateOnSurface" << endreq;
+	msg() << MSG::WARNING << "NULL trackStateOnSurface" << endmsg;
       }
     }
   }
@@ -391,6 +391,6 @@ Trk::Track* InDet::InDetTrigExtensProcessor::trackPlusExtension(const Trk::Track
 					( siTrack->fitQuality() ? siTrack->fitQuality()->clone() : 0 )
 					);
   if (outputLevel <= MSG::DEBUG) msg() << MSG::VERBOSE << "rejected extension saved as Trk::Track with " << nSiStates
-			     << " fitted hits and " << nExtStates << " additional Outliers." << endreq;
+			     << " fitted hits and " << nExtStates << " additional Outliers." << endmsg;
   return extTrack;
 }

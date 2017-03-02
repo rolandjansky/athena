@@ -86,21 +86,21 @@ StatusCode
 FileStagerAlg::initialize() 
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << name() << "Initialize()" << endreq;
+  log << MSG::DEBUG << name() << "Initialize()" << endmsg;
 
   // use the incident service to register
   IIncidentSvc* incsvc = 0;
   StatusCode status = service("IncidentSvc", incsvc, true);
 
   if(status.isFailure() || incsvc==0) {
-    log << MSG::WARNING << "Unable to get IncidentSvc! MF mechanism is disabled" << endreq;
+    log << MSG::WARNING << "Unable to get IncidentSvc! MF mechanism is disabled" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   incsvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
   incsvc->addListener(this, "EndInputFile", 0);
 
-  log << MSG::DEBUG << "Added listeners on begin and end of input files." << endreq;
+  log << MSG::DEBUG << "Added listeners on begin and end of input files." << endmsg;
 
   // configure the stager
   configStager();
@@ -109,7 +109,7 @@ FileStagerAlg::initialize()
 
   setupNextFile();
 
-  log << MSG::DEBUG << name() << "Initialize() successful" << endreq;
+  log << MSG::DEBUG << name() << "Initialize() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -118,9 +118,9 @@ StatusCode
 FileStagerAlg::execute() 
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << name() << "Execute()" << endreq;
+  log << MSG::DEBUG << name() << "Execute()" << endmsg;
 
-  log << MSG::DEBUG << name() << "Execute() successful" << endreq;
+  log << MSG::DEBUG << name() << "Execute() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -129,12 +129,12 @@ StatusCode
 FileStagerAlg::finalize() 
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << name() << "Finalize()" << endreq;
-  log << MSG::WARNING << "Total wait time = " << _waittime << " s." << endreq;
+  log << MSG::DEBUG << name() << "Finalize()" << endmsg;
+  log << MSG::WARNING << "Total wait time = " << _waittime << " s." << endmsg;
 
   if (m_storeStats) {
     std::string fileName = "filestager_stats.root";
-    log << MSG::WARNING << "Writing filestager statistics to file <" << fileName << ">" << endreq;
+    log << MSG::WARNING << "Writing filestager statistics to file <" << fileName << ">" << endmsg;
     TFile *ff = new TFile(fileName.c_str(),"recreate");
     _waithist->Write();
     ff->Close();
@@ -143,7 +143,7 @@ FileStagerAlg::finalize()
 
   // release remaining staged files in destructor
 
-  log << MSG::DEBUG << name() << "Finalize() successful" << endreq;
+  log << MSG::DEBUG << name() << "Finalize() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -152,7 +152,7 @@ void
 FileStagerAlg::configStager()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "configStager()" << endreq;
+  log << MSG::DEBUG << "configStager()" << endmsg;
 
   // itr for looping over input files
   _fItr = m_inCollection.begin();
@@ -186,7 +186,7 @@ void
 FileStagerAlg::loadStager()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "loadStager()" << endreq;
+  log << MSG::DEBUG << "loadStager()" << endmsg;
 
   TStageManager& manager(TStageManager::instance());
 
@@ -225,7 +225,7 @@ void
 FileStagerAlg::setupNextFile()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "setupNextFile()" << endreq;
+  log << MSG::DEBUG << "setupNextFile()" << endmsg;
 
   if (_fItr!=m_inCollection.end()) {
     TStageManager& manager(TStageManager::instance());
@@ -239,7 +239,7 @@ FileStagerAlg::setupNextFile()
     _waithist->Fill(_stopwatch->RealTime());
     _waittime += _stopwatch->RealTime();
 
-    log << MSG::DEBUG << "Time to wait for <" << _fItr->c_str() << "> = " << _stopwatch->RealTime() << " s." << endreq;
+    log << MSG::DEBUG << "Time to wait for <" << _fItr->c_str() << "> = " << _stopwatch->RealTime() << " s." << endmsg;
 
     ++_fItr;
   }
@@ -253,12 +253,12 @@ FileStagerAlg::handle(const Incident& inc)
 
   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
   if (fileInc == 0) {
-      log << MSG::ERROR << " Unable to get FileName from BeginInputFile/EndInputFile incident" << endreq;
+      log << MSG::ERROR << " Unable to get FileName from BeginInputFile/EndInputFile incident" << endmsg;
       return;
   }
 
   const std::string fileName = fileInc->fileName();
-  log << MSG::DEBUG << "handle() " << inc.type() << " for " << fileName << endreq;
+  log << MSG::DEBUG << "handle() " << inc.type() << " for " << fileName << endmsg;
 
   if (inc.type() == "BeginInputFile") {
       // do nothing

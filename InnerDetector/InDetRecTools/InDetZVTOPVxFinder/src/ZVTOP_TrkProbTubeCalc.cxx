@@ -45,12 +45,12 @@ StatusCode InDet::ZVTOP_TrkProbTubeCalc::initialize()
   
   /* Get the right extrapolator tool from ToolSvc */
   if ( m_extrapolator.retrieve().isFailure() ) {
-    msg (MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+    msg (MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg (MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+    msg (MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
   }
-  msg (MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -122,10 +122,10 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Perigee* trkPer, Tr
       AmgMatrix(5,5) exp_perigee_weight = (*extrapolatedPerigee->covariance()).inverse();
       probTube = exp(-0.5*diff.transpose()*exp_perigee_weight*diff);
     } else {
-      if (msgLvl(MSG::DEBUG)) msg()  << "extrapolateted perigee has NO information on the covariance matrix" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg()  << "extrapolateted perigee has NO information on the covariance matrix" << endmsg;
     }
   } else {
-    if (msgLvl(MSG::DEBUG)) msg() << "Perigee was not extrapolated!" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Perigee was not extrapolated!" << endmsg;
   }
   delete extrapolatedPerigee;
   return probTube;

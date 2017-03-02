@@ -50,7 +50,7 @@ INav4MomAssocsCnv_p2::persToTrans( const INav4MomAssocs_p2* pers,
 {
   msg << MSG::DEBUG 
       << "Loading INav4MomAssocs from persistent state..."
-      << endreq;
+      << endmsg;
 
   // retrieve underlying association stores
   trans->m_assocStores.clear();
@@ -84,7 +84,7 @@ INav4MomAssocsCnv_p2::persToTrans( const INav4MomAssocs_p2* pers,
 
   msg << MSG::DEBUG 
       << "Loaded INav4MomAssocs from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -95,7 +95,7 @@ INav4MomAssocsCnv_p2::transToPers( const INav4MomAssocs* trans,
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of INav4MomAssocs..."
-      << endreq;
+      << endmsg;
 
   pers->m_assocStores.resize( trans->m_assocStores.size() );
   std::size_t j = 0;
@@ -139,7 +139,7 @@ INav4MomAssocsCnv_p2::transToPers( const INav4MomAssocs* trans,
 
   msg << MSG::DEBUG 
       << "Created persistent state of INav4MomAssocs [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
