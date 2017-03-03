@@ -17,17 +17,17 @@
 #include <TRandom3.h>
 #include <TH1F.h>
 
-typedef Str TString;
+typedef TString Str;
 typedef std::vector<Str> StrV;
 typedef std::vector<TH1F*> HistV;
-typedef std::vector<double> NumV;;
+typedef std::vector<double> NumV;
 void fatal(TString msg) { printf("\nFATAL:\n\n  %s\n\n",msg.Data()); abort(); }
-void fillHistos(HistV &hw, double x, NumV &ws) {
+void fillHistos(HistV &hw, double x, NumV ws) {
   if (hw.size()!=ws.size()) fatal("Bad input to fillHistos");
-  for (size_t i=0;i<hw.size();++i) hw->Fill(x,ws[i]);
+  for (size_t i=0;i<hw.size();++i) hw[i]->Fill(x,ws[i]);
 }
 HistV makeHistos(int N, Str prefix, int Nbins, double min, double max, Str tit="") {
-  HistV hv; for (int i=0;i<N;++i) hv.push_back(new TH1F(hn,tit,Nbins,min,max)); return hv;
+  HistV hv; for (int i=1;i<=N;++i) hv.push_back(new TH1F(prefix+Form("%i",i),tit,Nbins,min,max)); return hv;
 }
 HistV makeHistos(StrV names, int Nbins, double min, double max, Str tit="") {
   HistV hv; for (Str n:names) hv.push_back(new TH1F(n,tit,Nbins,min,max)); return hv;
@@ -65,7 +65,22 @@ int main( int argc, char* argv[] ) {
 
    TH1F *h_pTH = new TH1F("pTH",ptTit,Nbins,min,max);
    HistV h_pTH_pdf4lhc = makeHistos(30,"pTH_pdf4lhc",Nbins,min,max,ptTit);
-   HistV h_pTH_aS = makeHistos({"pTH_aSup","pTH_asDn"},Nbins,min,max,ptTit);
+   HistV h_pTH_aS = makeHistos({"pTH_aSup","pTH_aSdn"},Nbins,min,max,ptTit);
+
+   Nbins=10; min=-0.5; max=9.5; Str tit="#it{N}_{jets}";
+   TH1F *h_Njets = new TH1F("Njets30",tit,Nbins,min,max);
+   HistV h_Njets_pdf4lhc = makeHistos(30,"Njets30_pdf4lhc",Nbins,min,max,tit);
+   HistV h_Njets_aS = makeHistos({"Njets30_aSup","Njets30_aSdn"},Nbins,min,max,tit);
+
+   Nbins=30; min=0; max=30; tit="STXS fine index";
+   TH1F *h_STXS = new TH1F("STXS",tit,Nbins,min,max);
+   HistV h_STXS_pdf4lhc = makeHistos(30,"STXS_pdf4lhc",Nbins,min,max,tit);
+   HistV h_STXS_aS = makeHistos({"STXS_aSup","STXS_aSdn"},Nbins,min,max,tit);
+
+   Nbins=60; min=-3; max=3; tit="#it{y_{H}}";
+   TH1F *h_yH = new TH1F("yH",tit,Nbins,min,max);
+   HistV h_yH_pdf4lhc = makeHistos(30,"yH_pdf4lhc",Nbins,min,max,tit);
+   HistV h_yH_aS = makeHistos({"yH_aSup","yH_aSdn"},Nbins,min,max,tit);
    
    // Initialise the application:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
@@ -106,21 +121,45 @@ int main( int argc, char* argv[] ) {
        const xAOD::TruthEventContainer *tevts;
        RETURN_CHECK( APP_NAME, event.retrieve( tevts, "TruthEvents" ) );
 
-       // All input files used for test have the HTXS content
-       double HTXS_pTH  = evtInfo->auxdata<float>("HTXS_Higgs_pt");
-       double HTXS_etaH = evtInfo->auxdata<float>("HTXS_Higgs_eta");
-       double HTXS_phiH = evtInfo->auxdata<float>("HTXS_Higgs_phi");
-       double HTXS_mH   = evtInfo->auxdata<float>("HTXS_Higgs_m");
-       int HTXS_Njets30 = evtInfo->auxdata<int>("HTXS_Njets_pTjet30");
-       int HTXS_Stage1 = evtInfo->auxdata<int>("HTXS_Stage1_Category_pTjet30");
-       int HTXS_index  = evtInfo->auxdata<int>("HTXS_Stage1_FineIndex_pTjet30");
-
        TLorentzVector h;
-       h.SetPtEtaPhiM(HTXS_pTH,HTXS_etaH,HTXS_phiH,HTXS_mH);
+       h.SetPtEtaPhiM(gRandom->Gaus(0,40),0,0,125);
+       int HTXS_Njets30=gRandom->Poisson(0.9), HTXS_Stage1=0, HTXS_index=0;
+       double HTXS_pTH=0;
+       // All input files used for test have the HTXS content
+       if (evtInfo->isAvailable<int>("HTXS_Njets_pTjet30")) {
+	 HTXS_Njets30 = evtInfo->auxdata<int>("HTXS_Njets_pTjet30");
+	 HTXS_Stage1 = evtInfo->auxdata<int>("HTXS_Stage1_Category_pTjet30");
+	 HTXS_index  = evtInfo->auxdata<int>("HTXS_Stage1_FineIndex_pTjet30");
+	 HTXS_pTH  = evtInfo->auxdata<float>("HTXS_Higgs_pt");
+	 double HTXS_etaH = evtInfo->auxdata<float>("HTXS_Higgs_eta");
+	 double HTXS_phiH = evtInfo->auxdata<float>("HTXS_Higgs_phi");
+	 double HTXS_mH   = evtInfo->auxdata<float>("HTXS_Higgs_m");
+	 
+	 h.SetPtEtaPhiM(HTXS_pTH,HTXS_etaH,HTXS_phiH,HTXS_mH);
+	 h*=1e-3; // convert to GeV
+       } else HTXS_pTH=h.Pt()*1000;
 
        // Access all Higgs weights
        xAOD::HiggsWeights hw = higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH,HTXS_Stage1);
-       
+       // on of my test files lack PDF info..
+       bool doPDF = hw.pdf4lhc.size()==30;
+
+       h_pTH  -> Fill(h.Pt(),hw.nominal);
+       h_Njets-> Fill(HTXS_Njets30,hw.nominal);
+       h_yH   -> Fill(h.Rapidity(),hw.nominal);
+       h_STXS -> Fill(HTXS_index,hw.nominal);
+
+       if (doPDF) {
+	 fillHistos(h_pTH_pdf4lhc,h.Pt(),hw.pdf4lhc);
+	 fillHistos(h_pTH_aS,h.Pt(),{hw.alphaS_up,hw.alphaS_dn});
+	 fillHistos(h_yH_pdf4lhc,h.Rapidity(),hw.pdf4lhc);
+	 fillHistos(h_yH_aS,h.Rapidity(),{hw.alphaS_up,hw.alphaS_dn});
+	 fillHistos(h_Njets_pdf4lhc,HTXS_Njets30,hw.pdf4lhc);
+	 fillHistos(h_Njets_aS,HTXS_Njets30,{hw.alphaS_up,hw.alphaS_dn});
+	 fillHistos(h_STXS_pdf4lhc,HTXS_index,hw.pdf4lhc);
+	 fillHistos(h_STXS_aS,HTXS_index,{hw.alphaS_up,hw.alphaS_dn});
+       }
+
        // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {
 	 ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
