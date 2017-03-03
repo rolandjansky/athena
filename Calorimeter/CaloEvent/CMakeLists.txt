@@ -76,12 +76,12 @@ atlas_add_test( CaloConstCellContainer_test
 atlas_add_test( CaloTowerContainer_test
    SOURCES test/CaloTowerContainer_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} TestTools CaloEvent
+   LINK_LIBRARIES ${Boost_LIBRARIES} TestTools CaloEvent  ${CLHEP_LIBRARIES}
    EXTRA_PATTERNS "${_patterns}" )
 
 atlas_add_test( CaloTopoTowerContainer_test
    SOURCES test/CaloTopoTowerContainer_test.cxx
-   LINK_LIBRARIES TestTools StoreGateLib GaudiKernel CaloEvent
+   LINK_LIBRARIES TestTools StoreGateLib GaudiKernel CaloEvent ${CLHEP_LIBRARIES}
    EXTRA_PATTERNS "${_patterns}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}:$ENV{JOBOPTSEARCHPATH}" )
 
