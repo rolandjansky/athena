@@ -29,6 +29,7 @@ CREATED:  25th January, 2005
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
+#include "eflowRec/eflowRingThicknesses.h"
 
 #include "CaloEvent/CaloCluster.h"
 
@@ -63,7 +64,7 @@ eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& 
   //m_rCell(0.75),
   m_subtractionSigmaCut(1.5),
   m_consistencySigmaCut(1.0),
-  m_calcEOverP(false),
+  m_calcEOverP(true),
   m_goldenModeString(""),
   m_nMatchesInCellLevelSubtraction(1),
   m_useUpdated2015ChargedShowerSubtraction(true)
@@ -121,7 +122,7 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
 
 void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer) {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Executing eflowCellLevelSubtractionTool" << endmsg;
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Executing eflowCellLevelSubtractionTool" << endmsg;
 
   m_eflowCaloObjectContainer = theEflowCaloObjectContainer;
   m_eflowTrackContainer = recTrackContainer;
@@ -135,7 +136,17 @@ void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCa
     printAllClusters(recClusterContainer);
   }
 
-  performSubtraction();
+//   std::cout<<"E/p mode is"<<m_calcEOverP<<std::endl;
+  /* Check e/p mode - only perform subtraction if not in this mode */
+//   if (!m_calcEOverP) performSubtraction();
+//    performSubtraction();
+   
+// Check e/p mode - only perform radial profiles calculations if in this mode
+//     std::cout<<"Before calculating radial energy profile function"<<std::endl;
+//   if (m_calcEOverP) 
+calculateRadialEnergyProfiles();
+//     std::cout<<"After calculating radial energy profile function"<<std::endl;
+
 }
 
 int eflowCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
@@ -189,17 +200,158 @@ int eflowCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
   return nMatches;
 }
 
+void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
+
+  std::cout<<"Accessed radial energy profile function"<<std::endl;
+
+  unsigned int nEFCaloObs = m_eflowCaloObjectContainer->size();
+  
+  std::cout<<"Before iEFCalOb loop"<<std::endl;
+  for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb) {
+  
+    eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iEFCalOb);
+    std::cout<<"Within iEFCalOb loop"<<std::endl;
+    
+    unsigned int nClusters = thisEflowCaloObject->nClusters();
+    
+    if (nClusters < 1) {
+      std::cout<<"if nClusters < 1"<<std::endl;
+    continue;
+    }
+    
+    std::cout<<"Within iEFCalOb loop"<<std::endl;
+    const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEflowCaloObject->efRecLink();
+    std::cout<<"After efRecLink"<<std::endl;
+
+    int nTrackMatches = thisEflowCaloObject->nTracks();
+    std::cout<<"nTrackMatches = "<< nTrackMatches <<std::endl;
+     for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
+        std::cout<<"Within iTrack loop"<<std::endl;
+
+        std::cout<<"Matched Track List["<<iTrack<<"]"<<std::endl;
+        
+//         CHECK( matchedTrackList[iTrack]->getTrack() );
+        std::cout<<"Matched Track List["<<iTrack<<"] is "<< matchedTrackList[iTrack] <<std::endl;
+        eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
+        
+        std::cout<<"After get Track"<<std::endl;
+        std::vector<eflowRecCluster*> matchedClusters;
+        std::cout<<"After matched Clusters"<<std::endl;
+        matchedClusters.clear();
+        std::cout<<"After matched Clusters clear"<<std::endl;
+        std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
+        std::cout<<"After get matched Clusters"<<std::endl;
+        std::vector<eflowTrackClusterLink*>::iterator itLink = links.begin();
+        std::vector<eflowTrackClusterLink*>::iterator endLink = links.end();
+        std::cout<<"After defining links"<<std::endl;
+        
+        
+        for (; itLink != endLink; ++itLink) {
+          std::cout<<"Within itLINK loop"<<std::endl;
+          matchedClusters.push_back((*itLink)->getCluster());
+        }
+        std::vector<xAOD::CaloCluster*> clusterSubtractionList;
+        std::vector<eflowRecCluster*>::const_iterator itCluster = matchedClusters.begin();
+        std::vector<eflowRecCluster*>::const_iterator endCluster = matchedClusters.end();
+        for (; itCluster != endCluster; ++itCluster) {
+          std::cout<<"Within itCluster loop"<<std::endl; 
+          clusterSubtractionList.push_back(
+              (*itCluster)->getClusterForModification(eflowCaloObject::getClusterContainerPtr()));
+        }
+
+    std::cout<<"before calo cell list"<<std::endl;
+	eflowCellList calorimeterCellList;
+	Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
+	
+    std::cout<<"after calo cell list"<<std::endl;
+    
+	eflowRingThicknesses ringThicknessGenerator;
+	double EMB1_ringThickness = ringThicknessGenerator.ringThickness(eflowCaloENUM::EMB1);
+	
+	std::cout<<"after ring thicknesses list"<<std::endl;
+	
+	CellIt beginRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness);
+	CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*2);
+	
+	std::cout<<"after rings"<<std::endl;
+	
+	  double totalEnergyPerCell = 0;
+	  int indexofCell = 0;
+	  double energyDensityPerCell = -666;
+	  double totalEnergyPerRing = 0;
+	  double energyDensityPerRing = 0;
+	  double averageEnergyDensityPerRing = 0;
+	  double cellVolume = 0;
+	  int totalCells = 0;
+
+	for (;beginRing != endRing; beginRing++){
+	  std::cout<<"within ring loop "<< std::endl;
+	  std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
+	  std::vector<std::pair<CaloCell*,int> >::iterator firstPair = tempVector.begin();
+	  std::vector<std::pair<CaloCell*,int> >::iterator lastPair = tempVector.end();
+	  
+	  
+      
+	  
+	  
+	  for (; firstPair != lastPair; ++firstPair) {
+	    std::cout<<"within pair loop"<<std::endl;
+	    const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
+	    CaloCell_ID::CaloSample sampling = DDE->getSampling();
+	    
+	    std::cout << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
+	    std::cout << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
+	    totalCells += 1;
+	    
+	    totalEnergyPerRing += ((*firstPair).first)->energy();
+	    totalEnergyPerCell = ((*firstPair).first)->energy();
+	    std::cout << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
+	    std::cout << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
+	    
+	    //implement track E here and divide cluster E by track E to have energy ratio
+// 	    indexofCell = (*firstPair).second;
+	    cellVolume = DDE->volume();
+	    std::cout << " cell volume is " << cellVolume/1000.<<std::endl;
+	    
+	    energyDensityPerCell = totalEnergyPerCell/(cellVolume/1000.);
+	    std::cout << " E density per Cell is " << energyDensityPerCell<<std::endl;
+	    std::cout << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
+	    energyDensityPerRing += energyDensityPerCell;
+	    std::cout << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
+	    
+// 	    std::cout << " Added cell E densities are " << energyDensityPerRing<<std::endl;
+	    
+
+	  
+	  }
+	  
+	//where should these go?
+	averageEnergyDensityPerRing = energyDensityPerRing/(totalCells)*(efRecTrack->getTrack()->e()/1000.);
+	std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
+	std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;	  
+	  
+	}
+	
+
+    }
+
+     
+  }
+}
+
+
+
 void eflowCellLevelSubtractionTool::performSubtraction() {
+
+  std::cout<<"performing subtraction"<<std::endl;
   unsigned int nEFCaloObs = m_eflowCaloObjectContainer->size();
   for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb) {
     eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iEFCalOb);
-    /* Check e/p mode */
-    if (m_calcEOverP) {
-      continue;
-    }
+
     unsigned int nClusters = thisEflowCaloObject->nClusters();
     if (nClusters < 1) {
-      continue;
+      std::cout<<"if nClusters < 1"<<std::endl;
+    continue;
     }
 
     /* Get matched cluster via Links */
@@ -207,45 +359,41 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
     double expectedEnergy = thisEflowCaloObject->getExpectedEnergy();
     double clusterEnergy = thisEflowCaloObject->getClusterEnergy();
     double expectedSigma = sqrt(thisEflowCaloObject->getExpectedVariance());
-
+    
     /* Check e/p */
     if (isEOverPFail(expectedEnergy, expectedSigma, clusterEnergy, m_consistencySigmaCut,
                      runInGoldenMode())
         || (runInGoldenMode() && thisEflowCaloObject->nTracks() > 1)) {
+      std::cout<<"if isEOverPFail"<<std::endl;
       continue;
+      
     }    
 
     /* Do subtraction */
 
     int nTrackMatches = thisEflowCaloObject->nTracks();
     if (nTrackMatches == 0 || runInGoldenMode()) {
+      std::cout<<"if nTrackMatches is 0"<<std::endl;
       continue;
     }
 
 
-    if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
-      /* Check if we can annihilate right away */
-      std::vector<xAOD::CaloCluster*> clusterList;
-      unsigned nCluster = thisEflowCaloObject->nClusters();
-      for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
-        clusterList.push_back(
-            thisEflowCaloObject->efRecCluster(iCluster)->getClusterForModification(
-                eflowCaloObject::getClusterContainerPtr()));
-      }
-      Subtractor::annihilateClusters(clusterList);
-    } else {
       /* Subtract the track from all matched clusters */
       const std::vector<eflowTrackClusterLink*>& matchedTrackList =
           thisEflowCaloObject->efRecLink();
 
-
+      std::cout<<"before itrack loop"<<std::endl;
+      
       for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
         eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
+        
+        std::cout<<"After get Track in perform subtraction"<<std::endl; 
         /* Can't subtract without e/p */
         if (!efRecTrack->hasBin()) {
           continue;
         }
-
+     std::cout<<"after itrack loop"<<std::endl;
+     
 	if (efRecTrack->isInDenseEnvironment()) continue;
 
         std::vector<eflowRecCluster*> matchedClusters;
@@ -271,7 +419,22 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
           Subtractor::annihilateClusters(clusterSubtractionList);
         }
       }
-    }
+    
+
+
+    if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
+      /* Check if we can annihilate right away */
+      std::cout<<"if can annihilated"<<std::endl;
+      std::vector<xAOD::CaloCluster*> clusterList;
+      unsigned nCluster = thisEflowCaloObject->nClusters();
+      for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
+        clusterList.push_back(
+            thisEflowCaloObject->efRecCluster(iCluster)->getClusterForModification(
+                eflowCaloObject::getClusterContainerPtr()));
+      }
+      Subtractor::annihilateClusters(clusterList);
+    } 
+//     else {}
 
     /* Flag tracks as subtracted */
     for (unsigned int iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {

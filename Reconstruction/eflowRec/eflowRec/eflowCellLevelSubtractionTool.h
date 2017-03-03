@@ -52,6 +52,7 @@ public:
 
  private:
 
+  void calculateRadialEnergyProfiles();
   void performSubtraction();
   bool runInGoldenMode() { return ((m_goldenModeString == "golden1") || (m_goldenModeString == "golden2")); }
   bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode);
