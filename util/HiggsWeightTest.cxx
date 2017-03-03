@@ -105,7 +105,7 @@ int main( int argc, char* argv[] ) {
        h.SetPtEtaPhiM(HTXS_pTH,HTXS_etaH,HTXS_phiH,HTXS_mH);
 
        // Access all Higgs weights
-       HiggsWeights hw = higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH,HTXS_Stage1);
+       xAOD::HiggsWeights hw = higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH,HTXS_Stage1);
 
        // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {
