@@ -72,7 +72,7 @@ int main( int argc, char* argv[] ) {
    HistV h_Njets_pdf4lhc = makeHistos(30,"Njets30_pdf4lhc",Nbins,min,max,tit);
    HistV h_Njets_aS = makeHistos({"Njets30_aSup","Njets30_aSdn"},Nbins,min,max,tit);
 
-   Nbins=30; min=0; max=30; tit="STXS fine index";
+   Nbins=52; min=1; max=53; tit="STXS fine index";
    TH1F *h_STXS = new TH1F("STXS",tit,Nbins,min,max);
    HistV h_STXS_pdf4lhc = makeHistos(30,"STXS_pdf4lhc",Nbins,min,max,tit);
    HistV h_STXS_aS = makeHistos({"STXS_aSup","STXS_aSdn"},Nbins,min,max,tit);
