@@ -36,6 +36,8 @@ s/SGImplSvc/StoreGateSvc/
 s/SG::DataProxyHolder::sgkey_t/sgkey_t/
 s!\\\\(ERROR\\\\|INFO\\\\|WARNING\\\\|FATAL\\\\) [^ ]*/!\\\\1 ../!
 s/.[[][?]1034h//
+s/([0-9][0-9]* ms)/(xx ms)/
+s/([0-9][0-9]* ms total)/(xx ms total)/
 EOF
 
 # ignore diff annotations
