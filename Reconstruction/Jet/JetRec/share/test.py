@@ -138,18 +138,12 @@ jtm.addJetFinder("MyAntiKt4EMPFlowJets4",  "AntiKt", 0.4,  myempfgetters, pflow_
 """
 ############################################################################################
 #Use a sequence and PseudoJetGetter to correct PFO and apply CHS
-"""
-from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
-jtm += RetrievePFOTool("mypflowretriever",
-    NeutralInputContainer="correctedJetETMissNeutralParticleFlowObjects",
-    ChargedInputContainer="correctedJetETMissChargedParticleFlowObjects",
-    )
-"""
+
 from JetRec.JetRecConf import PseudoJetGetter
 jtm += PseudoJetGetter(
-  "mypjget",
+  "PFCHSGetter",
   Label = "EMPFlow",
-  InputContainer = "correctedJetETMissParticleFlowObjects",
+  InputContainer = "PFCHSParticleFlowObjects",
   OutputContainer = "MyPseudoJet",
   SkipNegativeEnergy = True,
   )
@@ -170,20 +164,20 @@ CHSTool = ChargedHadronSubtractionTool("CHSTool")
 ToolSvc += CHSTool
 
 from JetRecTools.JetRecToolsConf import  JetConstituentModSequence
-nominalSequence = JetConstituentModSequence("nominalSequence",
-                                            InputContainer = "JetETMiss",
-                                            OutputContainer = "correctedJetETMiss",
-                                            InputType = "ParticleFlow",
-                                            Modifiers = [correctPFOTool,CHSTool],
-                                            SaveAsShallow = False,
-                                            )
-ToolSvc += nominalSequence
+PFCHSSequence = JetConstituentModSequence("PFCHSSequence",
+                                          InputContainer = "JetETMiss",
+                                          OutputContainer = "PFCHS",
+                                          InputType = "ParticleFlow",
+                                          Modifiers = [correctPFOTool,CHSTool],
+                                          SaveAsShallow = False,
+                                          )
+ToolSvc += PFCHSSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
-myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.mypjget)
+myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFCHSGetter)
 from JetRec.JetRecStandardToolManager import filterout
 pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyAntiKt4EMPFlowJets5",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+jtm.addJetFinder("MyPFCHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
 
@@ -191,10 +185,10 @@ from JetRec.JetAlgorithm import addJetRecoToAlgSequence
 addJetRecoToAlgSequence(job=topSequence, separateJetAlgs=True)
 
 if hasattr(topSequence,"jetalgMyAntiKt4EMPFlowJets4"):
-  topSequence.jetalgMyAntiKt4EMPFlowJets4.Tools.insert(0,nominalSequence)
+  topSequence.jetalgMyAntiKt4EMPFlowJets4.Tools.insert(0,PFCHSSequence)
 
-if hasattr(topSequence,"jetalgMyAntiKt4EMPFlowJets5"):
-  topSequence.jetalgMyAntiKt4EMPFlowJets5.Tools.insert(0,nominalSequence)
+if hasattr(topSequence,"jetalgMyPFCHSAntiKt4EMPFlowJets"):
+  topSequence.jetalgMyPFCHSAntiKt4EMPFlowJets.Tools.insert(0,PFCHSSequence)
 
 ############################################################################################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
