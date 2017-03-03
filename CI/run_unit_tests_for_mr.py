@@ -30,7 +30,7 @@ def run_unit_tests(args):
             continue
 
         # label is package name and not full package path
-        pattern_list.append("^" + os.path.basename(p) + "$")
+        pattern_list.append("^" + os.path.basename(package_path) + "$")
 
     # only run tests if we found some patterns for test labels
     if pattern_list:
