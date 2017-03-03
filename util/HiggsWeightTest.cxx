@@ -15,6 +15,23 @@
 #include "TruthWeightTools/TruthWeightTool.h"
 #include "TruthWeightTools/HiggsWeightTool.h"
 #include <TRandom3.h>
+#include <TH1F.h>
+
+typedef Str TString;
+typedef std::vector<Str> StrV;
+typedef std::vector<TH1F*> HistV;
+typedef std::vector<double> NumV;;
+void fatal(TString msg) { printf("\nFATAL:\n\n  %s\n\n",msg.Data()); abort(); }
+void fillHistos(HistV &hw, double x, NumV &ws) {
+  if (hw.size()!=ws.size()) fatal("Bad input to fillHistos");
+  for (size_t i=0;i<hw.size();++i) hw->Fill(x,ws[i]);
+}
+HistV makeHistos(int N, Str prefix, int Nbins, double min, double max, Str tit="") {
+  HistV hv; for (int i=0;i<N;++i) hv.push_back(new TH1F(hn,tit,Nbins,min,max)); return hv;
+}
+HistV makeHistos(StrV names, int Nbins, double min, double max, Str tit="") {
+  HistV hv; for (Str n:names) hv.push_back(new TH1F(n,tit,Nbins,min,max)); return hv;
+}
 
 int main( int argc, char* argv[] ) {
 
@@ -43,6 +60,12 @@ int main( int argc, char* argv[] ) {
 
    // output file
    TFile *of = new TFile(ofn,"RECREATE");
+   Str ptTit = ";#it{p}_{T} [GeV]";
+   int Nbins=25; double min=0, max=250;
+
+   TH1F *h_pTH = new TH1F("pTH",ptTit,Nbins,min,max);
+   HistV h_pTH_pdf4lhc = makeHistos(30,"pTH_pdf4lhc",Nbins,min,max,ptTit);
+   HistV h_pTH_aS = makeHistos({"pTH_aSup","pTH_asDn"},Nbins,min,max,ptTit);
    
    // Initialise the application:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
@@ -52,9 +75,9 @@ int main( int argc, char* argv[] ) {
 
    xAOD::HiggsWeightTool *higgsMCtool = new xAOD::HiggsWeightTool( "HiggsWeightTool" );
    higgsMCtool->setProperty( "OutputLevel", MSG::DEBUG ).ignore();
-   if (forceNNLOPS) higgsMCtool->setProperty("ForceNNLOPS",true);
-   if (forceVBF) higgsMCtool->setProperty("ForceVBF",true);
-   if (forceVH) higgsMCtool->setProperty("ForceVH",true);
+   if (forceNNLOPS) higgsMCtool->setProperty("ForceNNLOPS",true).ignore();
+   if (forceVBF) higgsMCtool->setProperty("ForceVBF",true).ignore();
+   if (forceVH) higgsMCtool->setProperty("ForceVH",true).ignore();
    higgsMCtool->initialize().ignore();
 
    for (TString fn:files) {
@@ -80,15 +103,6 @@ int main( int argc, char* argv[] ) {
        RETURN_CHECK( APP_NAME, event.retrieve( evtInfo, "EventInfo" ) );
        std::vector<float> weights = evtInfo->mcEventWeights();
 
-       /*
-	 Float_t         EventInfoAuxDyn_HTXS_Higgs_eta;
-	 Float_t         EventInfoAuxDyn_HTXS_Higgs_m;
-	 Float_t         EventInfoAuxDyn_HTXS_Higgs_phi;
-	 Float_t         EventInfoAuxDyn_HTXS_Higgs_pt;
-	 Int_t           EventInfoAuxDyn_HTXS_Njets_pTjet30;
-	 Int_t           EventInfoAuxDyn_HTXS_Stage1_Category_pTjet30;
-	 Int_t           EventInfoAuxDyn_HTXS_Stage1_FineIndex_pTjet30;
-       */
        const xAOD::TruthEventContainer *tevts;
        RETURN_CHECK( APP_NAME, event.retrieve( tevts, "TruthEvents" ) );
 
@@ -106,7 +120,7 @@ int main( int argc, char* argv[] ) {
 
        // Access all Higgs weights
        xAOD::HiggsWeights hw = higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH,HTXS_Stage1);
-
+       
        // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {
 	 ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
@@ -128,6 +142,7 @@ int main( int argc, char* argv[] ) {
    of->Write();
    printf("\nProduced %s\n\n",of->GetName());
    of->Close();
+   
    // Return gracefully:
    return 0;
 }
