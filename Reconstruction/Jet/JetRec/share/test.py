@@ -187,7 +187,7 @@ jtm += PseudoJetGetter(
   "PFPUPPICHSGetter",
   Label = "EMPFlow",
   InputContainer = "PFPUPPICHSParticleFlowObjects",
-  OutputContainer = "MyPseudoJet",
+  OutputContainer = "PFPUPPICHSPseudoJet",
   SkipNegativeEnergy = True,
   )
 
@@ -221,10 +221,10 @@ PFPUPPICHSSequence = JetConstituentModSequence("PFPUPPICHSSequence",
 ToolSvc += PFPUPPICHSSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
-myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFPUPPICHSGetter)
+myPFPUPPICHSgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFPUPPICHSGetter)
 from JetRec.JetRecStandardToolManager import filterout
 pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyPFPUPPICHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+jtm.addJetFinder("MyPFPUPPICHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFPUPPICHSgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
 # CorrectPFO only - For comparison
@@ -234,7 +234,7 @@ jtm += PseudoJetGetter(
   "PFGetter",
   Label = "EMPFlow",
   InputContainer = "PFParticleFlowObjects",
-  OutputContainer = "MyPseudoJet",
+  OutputContainer = "PFPseudoJet",
   SkipNegativeEnergy = True,
   )
 
@@ -268,10 +268,10 @@ PFSequence = JetConstituentModSequence("PFSequence",
 ToolSvc += PFSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
-myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFGetter)
+myPFgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFGetter)
 from JetRec.JetRecStandardToolManager import filterout
 pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyPFAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+jtm.addJetFinder("MyPFAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
 #CorrectPFO and PUPPI only - for comparison
@@ -281,7 +281,7 @@ jtm += PseudoJetGetter(
   "PFPUPPIGetter",
   Label = "EMPFlow",
   InputContainer = "PFPUPPIParticleFlowObjects",
-  OutputContainer = "MyPseudoJet",
+  OutputContainer = "PFPUPPIPseudoJet",
   SkipNegativeEnergy = True,
   )
 
@@ -315,10 +315,10 @@ PFPUPPISequence = JetConstituentModSequence("PFPUPPISequence",
 ToolSvc += PFPUPPISequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
-myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFPUPPIGetter)
+myPFPUPPIgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFPUPPIGetter)
 from JetRec.JetRecStandardToolManager import filterout
 pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyPFPUPPIAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+jtm.addJetFinder("MyPFPUPPIAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFPUPPIgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
 
