@@ -40,9 +40,9 @@ namespace pool {
      std::string	        executableName;
      std::string                technologyName;
 
-     pool::Session*             session;
-     pool::IStorageSvc*         storageSvc;
-     pool::IStorageExplorer*    storageExplorer;
+     pool::Session*             session = nullptr;
+     pool::IStorageSvc*         storageSvc = nullptr;
+     pool::IStorageExplorer*    storageExplorer = nullptr;
 
      std::vector< std::string > args;
      std::vector< std::string > fileNames;
@@ -51,6 +51,7 @@ namespace pool {
 
 
    /// shortcut for reading file GUID from python
+   /* this is a class and not a namespace so it can be autoloaded by ROOT */
    class Utils {
     public:
      static std::string        readFileGUID( const std::string& pfn );

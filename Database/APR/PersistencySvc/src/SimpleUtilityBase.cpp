@@ -14,15 +14,11 @@
 #include "StorageSvc/FileDescriptor.h"
 #include "StorageSvc/poolDb.h"
 
-
 using namespace pool;
 
 
 SimpleUtilityBase::SimpleUtilityBase( int argc, char* argv[] ):
-      technologyName( pool::ROOT_StorageType.storageName() ),
-      session( 0 ),
-      storageSvc( 0 ),
-      storageExplorer( 0 )
+      technologyName( pool::ROOT_StorageType.storageName() )
 {
    if( argc > 0 && argv[0] )
       executableName = argv[0];
@@ -41,7 +37,6 @@ SimpleUtilityBase::~SimpleUtilityBase()
 }
 
 
-
 bool SimpleUtilityBase::parseArguments()
 {
    if( fileNames.empty() )
@@ -54,8 +49,7 @@ bool SimpleUtilityBase::parseArguments()
 }
 
 
-void
-SimpleUtilityBase::startSession()
+void SimpleUtilityBase::startSession()
 {
    storageSvc = pool::createStorageSvc( 0, "StorageSvc");
    if( !storageSvc ) {
@@ -64,7 +58,7 @@ SimpleUtilityBase::startSession()
    storageSvc->addRef();
    void* pVoid = 0;
    pool::DbStatus sc = storageSvc->queryInterface( pool::IStorageExplorer::interfaceID(), &pVoid );
-   storageExplorer = (pool::IStorageExplorer*)pVoid;
+   storageExplorer = static_cast<pool::IStorageExplorer*>(pVoid);
    if( !( sc.isSuccess() && storageExplorer ) ) {
       throw std::runtime_error( "Could not retrieve a IStorageExplorer interface" );
    }
@@ -105,14 +99,11 @@ std::string SimpleUtilityBase::readFileGUID( const std::string& pfn )
 
 void SimpleUtilityBase::readFileGUIDs()
 {
-   for( std::vector< std::string >::const_iterator iFile = fileNames.begin();
-        iFile != fileNames.end(); ++iFile ) {
-      const std::string& pfn = *iFile;
+   for( const auto& pfn : fileNames ) {
       std::string fid = readFileGUID( pfn );
       fidAndPfn.push_back( std::make_pair( fid, pfn ) );
    }
 }
-
 
 
 int SimpleUtilityBase::run()
@@ -135,15 +126,10 @@ int SimpleUtilityBase::run()
 }
 
 
-
+//  ------------------   Utils -----------------------
 std::string Utils::readFileGUID( const std::string& pfn )
 {
-   SimpleUtilityBase util(0,0);
+   SimpleUtilityBase util;
    util.startSession();
    return util.readFileGUID( pfn );
 }
-
-
-
-
-
