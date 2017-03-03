@@ -144,6 +144,7 @@ namespace Rec {
 
     float eta = pars->position().eta();
     float phi = pars->position().phi();
+    ATH_MSG_DEBUG("eta trk " << eta << " phi trk " << phi );
     if( container ){
       float dr2Cut = dr*dr;
       for( unsigned int i=0;i<container->size();++i ){
@@ -151,9 +152,13 @@ namespace Rec {
         float dPhi = P4Helpers::deltaPhi( (*container)[i]->phi(), phi);
         float dEta = (*container)[i]->eta()-eta;
         float dr2  = dPhi*dPhi+ dEta*dEta;
-        if( dr2 < dr2Cut ) clusters.push_back( (*container)[i]);
+        if( dr2 < dr2Cut ){
+            clusters.push_back( (*container)[i]);
+            ATH_MSG_DEBUG("eta cluster " << (*container)[i]->eta() << " phi cluster " << (*container)[i]->phi() );
+        } 
       }
     }else{
+      ATH_MSG_DEBUG("We're at the clustersinconetool." );
       if( !m_clustersInConeTool->particlesInCone(eta,phi,dr,clusters) ) {
         ATH_MSG_WARNING("Failed to get clusters");
       }

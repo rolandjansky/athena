@@ -60,14 +60,14 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(TrackCaloCluster_v1, float, theta)
   AUXSTORE_PRIMITIVE_GETTER(TrackCaloCluster_v1, float, qOverP)
   
-  void TrackCaloCluster_v1::setTaste(TrackCaloCluster_v1::Taste& taste) {
+  void TrackCaloCluster_v1::setTaste(TrackCaloCluster_v1::Taste taste) {
     m_taste = taste; 
   }
   
   /// set the 4-vec
-  void TrackCaloCluster_v1::setP4(TrackCaloCluster_v1::FourMom_t& p) {
+  void TrackCaloCluster_v1::setP4(double pt, double eta, double phi, double m) {
     
-    m_p4 = p;
+    m_p4.SetPtEtaPhiM(pt,eta,phi,m);
 
   }
     

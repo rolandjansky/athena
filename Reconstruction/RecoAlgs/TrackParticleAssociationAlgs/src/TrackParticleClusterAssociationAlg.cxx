@@ -122,7 +122,7 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
     }
     else{
         if( !trackLink.isValid() )   ATH_MSG_WARNING("Failed to create track ElementLink ");
-        if( caloClusterLinks.size()==0 ) ATH_MSG_WARNING("Failed to create cluster ElementLink ");
+        if( caloClusterLinks.size()==0 ) ATH_MSG_VERBOSE("Failed to create cluster ElementLink - this is probably a trackonly TCC ");
     }
    
   }

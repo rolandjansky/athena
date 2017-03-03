@@ -22,7 +22,7 @@ namespace xAOD {
   public: 
     
     /// Type of TrackCaloCluster - Charged - Neutral - Both
-    enum Taste { Charged = 0, Neutral, Both };
+    enum Taste { TrackOnly = 0, Neutral, Charged };
     
     // Default Constructor
     TrackCaloCluster_v1();
@@ -72,9 +72,9 @@ namespace xAOD {
     /// Returns the \f$q/p\f$  parameter
     float qOverP() const;
     /// Set the taste of the TrackCaloCluster
-    void setTaste(Taste&);
+    void setTaste(Taste);
     /// set the 4-vec
-    void setP4(FourMom_t&);
+    void setP4(double pt, double eta, double phi, double m);
     /// Get the taste of the TrackCaloCluster
     Taste& getTaste() const;
     /// @}
