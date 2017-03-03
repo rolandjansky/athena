@@ -15,12 +15,13 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODAssociations
-                          Event/xAOD/xAODTrackCaloCluster                )
+                          Event/xAOD/xAODTrackCaloCluster     
+                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecTools)
 
 # Component(s) in the package:
 atlas_add_component( TrackCaloClusterRecAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS 
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel AtlasDetDescr xAODBase xAODTracking xAODAssociations xAODTrackCaloCluster TrkParametersIdentificationHelpers )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel AtlasDetDescr xAODBase xAODTracking xAODAssociations xAODTrackCaloCluster TrackCaloClusterRecTools TrkParametersIdentificationHelpers )
                      
