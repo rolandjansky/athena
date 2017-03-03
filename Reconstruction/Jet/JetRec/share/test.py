@@ -184,10 +184,10 @@ jtm.addJetFinder("MyPFCHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFCHSgetters, p
 
 from JetRec.JetRecConf import PseudoJetGetter
 jtm += PseudoJetGetter(
-  "mypuppipjget",
+  "PFPUPPICHSGetter",
   Label = "EMPFlow",
-  InputContainer = "puppiParticleFlowObjects",
-  OutputContainer = "PuppiPseudoJets",
+  InputContainer = "PFPUPPICHSParticleFlowObjects",
+  OutputContainer = "MyPseudoJet",
   SkipNegativeEnergy = True,
   )
 
@@ -211,20 +211,114 @@ CHSTool = ChargedHadronSubtractionTool("CHSTool")
 ToolSvc += CHSTool
 
 from JetRecTools.JetRecToolsConf import  JetConstituentModSequence
-puppiSequence = JetConstituentModSequence("puppiSequence",
+PFPUPPICHSSequence = JetConstituentModSequence("PFPUPPICHSSequence",
                                           InputContainer = "JetETMiss",
-                                          OutputContainer = "puppi",
+                                          OutputContainer = "PFPUPPICHS",
                                           InputType = "ParticleFlow",
                                           Modifiers = [correctPFOTool,puppiWeightTool,CHSTool],
                                           SaveAsShallow = False,
                                           )
-ToolSvc += puppiSequence
+ToolSvc += PFPUPPICHSSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
-myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.mypuppipjget)
+myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFPUPPICHSGetter)
 from JetRec.JetRecStandardToolManager import filterout
 pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("PuppiAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+jtm.addJetFinder("MyPFPUPPICHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+
+############################################################################################
+# CorrectPFO only - For comparison
+
+from JetRec.JetRecConf import PseudoJetGetter
+jtm += PseudoJetGetter(
+  "PFGetter",
+  Label = "EMPFlow",
+  InputContainer = "PFParticleFlowObjects",
+  OutputContainer = "MyPseudoJet",
+  SkipNegativeEnergy = True,
+  )
+
+from JetRecTools.JetRecToolsConf import CorrectPFOTool
+correctPFOTool = CorrectPFOTool("correctPFOTool",
+                                WeightPFOTool = jtm.pflowweighter,
+                                InputIsEM = True,
+                                CalibratePFO = False,
+                                UseChargedWeights = True,
+                                UseVertices = True,
+                                UseTrackToVertexTool = False,
+                            )
+ToolSvc += correctPFOTool
+
+from JetRecTools.JetRecToolsConf import PuppiWeightTool
+puppiWeightTool = PuppiWeightTool()
+ToolSvc += puppiWeightTool
+
+from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
+CHSTool = ChargedHadronSubtractionTool("CHSTool")
+ToolSvc += CHSTool
+
+from JetRecTools.JetRecToolsConf import  JetConstituentModSequence
+PFSequence = JetConstituentModSequence("PFSequence",
+                                          InputContainer = "JetETMiss",
+                                          OutputContainer = "PF",
+                                          InputType = "ParticleFlow",
+                                          Modifiers = [correctPFOTool],
+                                          SaveAsShallow = False,
+                                          )
+ToolSvc += PFSequence
+
+from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
+myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFGetter)
+from JetRec.JetRecStandardToolManager import filterout
+pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
+jtm.addJetFinder("MyPFAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+
+############################################################################################
+#CorrectPFO and PUPPI only - for comparison
+
+from JetRec.JetRecConf import PseudoJetGetter
+jtm += PseudoJetGetter(
+  "PFPUPPIGetter",
+  Label = "EMPFlow",
+  InputContainer = "PFPUPPIParticleFlowObjects",
+  OutputContainer = "MyPseudoJet",
+  SkipNegativeEnergy = True,
+  )
+
+from JetRecTools.JetRecToolsConf import CorrectPFOTool
+correctPFOTool = CorrectPFOTool("correctPFOTool",
+                                WeightPFOTool = jtm.pflowweighter,
+                                InputIsEM = True,
+                                CalibratePFO = False,
+                                UseChargedWeights = True,
+                                UseVertices = True,
+                                UseTrackToVertexTool = False,
+                            )
+ToolSvc += correctPFOTool
+
+from JetRecTools.JetRecToolsConf import PuppiWeightTool
+puppiWeightTool = PuppiWeightTool()
+ToolSvc += puppiWeightTool
+
+from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
+CHSTool = ChargedHadronSubtractionTool("CHSTool")
+ToolSvc += CHSTool
+
+from JetRecTools.JetRecToolsConf import  JetConstituentModSequence
+PFPUPPISequence = JetConstituentModSequence("PFPUPPISequence",
+                                          InputContainer = "JetETMiss",
+                                          OutputContainer = "PFPUPPI",
+                                          InputType = "ParticleFlow",
+                                          Modifiers = [correctPFOTool,puppiWeightTool],
+                                          SaveAsShallow = False,
+                                          )
+ToolSvc += PFPUPPISequence
+
+from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
+myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFPUPPIGetter)
+from JetRec.JetRecStandardToolManager import filterout
+pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
+jtm.addJetFinder("MyPFPUPPIAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
 
@@ -237,8 +331,14 @@ if hasattr(topSequence,"jetalgMyAntiKt4EMPFlowJets4"):
 if hasattr(topSequence,"jetalgMyPFCHSAntiKt4EMPFlowJets"):
   topSequence.jetalgMyPFCHSAntiKt4EMPFlowJets.Tools.insert(0,PFCHSSequence)
 
-if hasattr(topSequence,"jetalgPuppiAntiKt4EMPFlowJets"):
-  topSequence.jetalgPuppiAntiKt4EMPFlowJets.Tools.insert(0,puppiSequence)
+if hasattr(topSequence,"jetalgMyPFPUPPICHSAntiKt4EMPFlowJets"):
+  topSequence.jetalgMyPFPUPPICHSAntiKt4EMPFlowJets.Tools.insert(0,PFPUPPICHSSequence)
+
+if hasattr(topSequence,"jetalgMyPFAntiKt4EMPFlowJets"):
+  topSequence.jetalgMyPFAntiKt4EMPFlowJets.Tools.insert(0,PFSequence)
+
+if hasattr(topSequence,"jetalgMyPFPUPPIAntiKt4EMPFlowJets"):
+  topSequence.jetalgMyPFPUPPIAntiKt4EMPFlowJets.Tools.insert(0,PFPUPPISequence)
 
 ############################################################################################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
