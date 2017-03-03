@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4SvcAccessor_H
-#define Geo2G4SvcAccessor_H
+#ifndef GEO2G4_Geo2G4SvcAccessor_H
+#define GEO2G4_Geo2G4SvcAccessor_H
 
-#include "Geo2G4/Geo2G4SvcBase.h"
-#include "Geo2G4/IGeo2G4Svc.h"
+#include "Geo2G4SvcBase.h"
+#include "IGeo2G4Svc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"

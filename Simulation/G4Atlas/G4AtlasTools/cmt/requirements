@@ -17,7 +17,6 @@ private
 use AtlasBoost           AtlasBoost-*            External
 use AtlasCLHEP           AtlasCLHEP-*            External
 use GaudiInterface       GaudiInterface-*        External
-use Geo2G4               Geo2G4-*                Simulation/G4Utilities
 use G4PhysicsLists       G4PhysicsLists-*        Simulation/G4Utilities
 end_private
 

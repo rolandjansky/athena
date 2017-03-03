@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Geo2G4/Geo2G4MaterialFactory.h"
+#include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
 #include "Geo2G4ElementFactory.h"
-#include "Geo2G4MatPropTableFactory.h"
+#include "GeoMaterial2G4/Geo2G4MatPropTableFactory.h"
 
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelUtilities/GeoExtendedMaterial.h"

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4MatPropTableFactory_h
-#define Geo2G4MatPropTableFactory_h
+#ifndef GEOMATERIAL2G4_Geo2G4MatPropTableFactory_h
+#define GEOMATERIAL2G4_Geo2G4MatPropTableFactory_h
 
 #include <map>
 

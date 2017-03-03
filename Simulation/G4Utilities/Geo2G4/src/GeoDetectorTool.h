@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoDetectorTool_H
-#define GeoDetectorTool_H
+#ifndef GEO2G4_GeoDetectorTool_H
+#define GEO2G4_GeoDetectorTool_H
 
 // Base classes
 #include "G4AtlasTools/DetectorGeometryBase.h"

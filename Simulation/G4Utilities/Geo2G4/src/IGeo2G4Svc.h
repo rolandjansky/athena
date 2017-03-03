@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IGeo2G4Svc_H
-#define IGeo2G4Svc_H
+#ifndef GEO2G4_IGeo2G4Svc_H
+#define GEO2G4_IGeo2G4Svc_H
 
 #ifndef GAUDIKERNEL_IINTERFACE_H
 #include "GaudiKernel/IInterface.h"
 #endif
-#include "Geo2G4/Geo2G4SvcBase.h"
+#include "Geo2G4SvcBase.h"
 #include <string>
 
 class IGeo2G4Svc: virtual public IInterface,

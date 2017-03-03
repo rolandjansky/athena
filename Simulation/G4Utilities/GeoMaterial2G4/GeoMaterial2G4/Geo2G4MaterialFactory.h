@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4MaterialFactory_h
-#define Geo2G4MaterialFactory_h
+#ifndef GEOMATERIAL2G4_Geo2G4MaterialFactory_h
+#define GEOMATERIAL2G4_Geo2G4MaterialFactory_h
 
 #include "G4Material.hh"
 #include "GeoModelKernel/GeoMaterial.h"

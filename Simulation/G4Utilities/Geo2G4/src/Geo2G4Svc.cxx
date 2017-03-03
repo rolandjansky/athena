@@ -9,8 +9,8 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "Geo2G4/Geo2G4SvcAccessor.h"
-#include "Geo2G4/VolumeBuilder.h"
+#include "Geo2G4SvcAccessor.h"
+#include "VolumeBuilder.h"
 
 void InitializeBuilders();
 

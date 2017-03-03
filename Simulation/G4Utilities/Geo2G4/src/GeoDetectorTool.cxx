@@ -4,11 +4,11 @@
 
 // Base class
 #include "G4AtlasTools/DetectorGeometryBase.h"
-#include "G4AtlasTools/GeoDetectorTool.h"
-#include "Geo2G4/Geo2G4SvcAccessor.h"
-#include "Geo2G4/Geo2G4SvcBase.h"
-#include "Geo2G4/Geo2G4Builder.h"
-#include "Geo2G4/VolumeBuilder.h"
+#include "GeoDetectorTool.h"
+#include "Geo2G4SvcAccessor.h"
+#include "Geo2G4SvcBase.h"
+#include "Geo2G4Builder.h"
+#include "VolumeBuilder.h"
 
 #include "G4NistManager.hh"
 #include "G4LogicalVolume.hh"
