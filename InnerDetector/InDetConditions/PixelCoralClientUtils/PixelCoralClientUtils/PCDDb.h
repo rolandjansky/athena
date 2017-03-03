@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef _PCDDb_h_
 #define _PCDDb_h_
 
@@ -29,7 +25,7 @@ class PCDDb
 
  private:
   bool m_verbose;
-  bool m_load_text;
+  //bool m_load_text;
   coral::ISessionProxy *m_session;
   std::string m_connString;
   std::string m_pixeltable;
