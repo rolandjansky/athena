@@ -32,7 +32,8 @@ atlas_add_library( xAODTrackCaloCluster
 atlas_add_dictionary( xAODTrackCaloClusterDict
    xAODTrackCaloCluster/xAODTrackCaloClusterDict.h
    xAODTrackCaloCluster/selection.xml
-   LINK_LIBRARIES xAODTrackCaloCluster )
+   LINK_LIBRARIES xAODTrackCaloCluster 
+   EXTRA_FILES Root/dict/*.cxx )
 
 # Test(s) in the package:
 #atlas_add_test( xAODTrackCaloCluster_TrackParticle_test

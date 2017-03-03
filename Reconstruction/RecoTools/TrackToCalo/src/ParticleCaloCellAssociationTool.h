@@ -20,8 +20,9 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "PathLengthUtils.h"
 
+#include "TrackCaloClusterRecInterfaces/IParticleExtrapolationTool.h"
+
 namespace Trk {
-  class IParticleCaloExtensionTool;
   class CaloExtension;
 }
 
@@ -65,7 +66,7 @@ namespace Rec {
     void associateCells( const CaloCellContainer& container, const Trk::CaloExtension& caloExtension, float dr,
                          std::vector<const CaloCell*>& cells ) const;
 
-    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
+    ToolHandle< IParticleExtrapolationTool >  m_caloExtensionTool;
     std::string m_cellContainerName;
     double      m_coneSize;
     mutable Trk::CaloCellSelectorLayerdR m_defaultSelector;

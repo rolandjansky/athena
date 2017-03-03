@@ -17,8 +17,9 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "ParticleCaloExtension/ParticleClusterAssociation.h"
 
+#include "TrackCaloClusterRecInterfaces/IParticleExtrapolationTool.h"
+
 namespace Trk {
-  class IParticleCaloExtensionTool;
   class CaloExtension;
 }
 namespace xAOD {
@@ -61,8 +62,10 @@ namespace Rec {
                             const Trk::CaloExtension& caloExtension,
                             float dr,
                             ParticleClusterAssociation::Data& clusters ) const;
+    
+    const xAOD::CaloClusterContainer* getClusterContainer() const;
 
-    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
+    ToolHandle< IParticleExtrapolationTool >  m_caloExtensionTool;
     // FIXME: mutable
     mutable ToolHandle< xAOD::ICaloClustersInConeTool >     m_clustersInConeTool;
     std::string m_containerName;

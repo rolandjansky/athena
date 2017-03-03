@@ -16,7 +16,7 @@ namespace Trk {
 namespace Rec {
   
   /** class storing calorimeter cell association with IParticle objects */
-  class ParticleClusterAssociation  : public ParticleCaloAssociation< ElementLink<xAOD::CaloClusterContainer> > {
+  class ParticleClusterAssociation  : public ParticleCaloAssociation< const xAOD::CaloCluster* > {
   public:
     /** constructor taking CaloExtension, a vector of cells and a cone size as arguments */
     ParticleClusterAssociation( const Trk::CaloExtension& caloExtension, Data&& clusters, float coneSize, const xAOD::CaloClusterContainer* container = 0);

@@ -24,6 +24,9 @@ private:
     
   ///TrackParticle container's name
   std::string m_trkParticleName;
+  
+  ///Output Collection container's name postfix
+  std::string m_outputPostFix;
     
 };
   

@@ -17,9 +17,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "TrackCaloClusterRecInterfaces/IParticleExtrapolationTool.h"
+
 namespace Trk {
   class ITrackSelectorTool;
-  class IParticleCaloExtensionTool;
 }
 namespace Rec {
   class IParticleCaloCellAssociationTool;
@@ -38,7 +39,7 @@ public:
   StatusCode finalize();
 
 private:
-  ToolHandle <Trk::IParticleCaloExtensionTool>       m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
+  ToolHandle < IParticleExtrapolationTool>       m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
   ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
   ToolHandle <Trk::ITrackSelectorTool>               m_trackSelector; //!< Tool to select tracks
 

@@ -9,7 +9,7 @@ namespace Rec {
 
   ParticleClusterAssociation::ParticleClusterAssociation( const Trk::CaloExtension& caloExtension, Data&& clusters, 
                                                           float coneSize, const xAOD::CaloClusterContainer* container ) :
-    ParticleCaloAssociation< ElementLink<xAOD::CaloClusterContainer> >(caloExtension,std::move(clusters),coneSize),
+    ParticleCaloAssociation< const xAOD::CaloCluster* >(caloExtension,std::move(clusters),coneSize),
     m_container(container) {
   }
 

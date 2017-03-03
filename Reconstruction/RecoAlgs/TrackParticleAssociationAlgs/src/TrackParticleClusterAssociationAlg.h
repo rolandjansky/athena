@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRACKPARTICLEASSOCIATIONALGS_TRACKPARTICLECELLASSOCIATIONALG_H
-#define TRACKPARTICLEASSOCIATIONALGS_TRACKPARTICLECELLASSOCIATIONALG_H
+#ifndef TRACKPARTICLEASSOCIATIONALGS_TRACKPARTICLECLUSTERASSOCIATIONALG_H
+#define TRACKPARTICLEASSOCIATIONALGS_TRACKPARTICLECLUSTERASSOCIATIONALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -11,18 +11,18 @@
 
 
 namespace Rec {
-  class IParticleCaloCellAssociationTool;
+  class IParticleCaloClusterAssociationTool;
 }
 namespace Trk {
   class ITrackSelectorTool;
 }
 
-class TrackParticleCellAssociationAlg : public AthAlgorithm
+class TrackParticleClusterAssociationAlg : public AthAlgorithm
 {
  public:
-  TrackParticleCellAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  TrackParticleClusterAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  ~TrackParticleCellAssociationAlg();
+  ~TrackParticleClusterAssociationAlg();
 
   StatusCode initialize();
   StatusCode execute();
@@ -30,7 +30,7 @@ class TrackParticleCellAssociationAlg : public AthAlgorithm
 
  private:
 
-  ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool;
+  ToolHandle<Rec::IParticleCaloClusterAssociationTool> m_caloClusterAssociationTool;
   ToolHandle <Trk::ITrackSelectorTool>              m_trackSelector; //!< Tool to select tracks
 
   std::string m_trackParticleCollectionName;

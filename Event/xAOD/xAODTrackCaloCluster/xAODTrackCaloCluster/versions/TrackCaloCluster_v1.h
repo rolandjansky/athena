@@ -74,7 +74,7 @@ namespace xAOD {
     /// Set the taste of the TrackCaloCluster
     void setTaste(Taste&);
     /// set the 4-vec
-    void setP4(float pt, float eta, float phi, float m=0.0);
+    void setP4(FourMom_t&);
     /// Get the taste of the TrackCaloCluster
     Taste& getTaste() const;
     /// @}
@@ -82,8 +82,7 @@ namespace xAOD {
   private:
     /// Cached 4-momentum object.
     mutable FourMom_t m_p4;
-    /// Cache state of the internal 4-momentum (reset from the streamer).
-    mutable bool m_p4Cached;
+
     /// This is caching the Type of TrackCaloCluster - Charged - Neutral - Both
     mutable TrackCaloCluster_v1::Taste m_taste;
     

@@ -4,16 +4,8 @@
   <!-- TrackCaloCluster_v1 dictionaries: -->
   <class name="xAOD::TrackCaloCluster_v1">
          <field name="m_p4" transient="true"/>
-         <field name="m_p4Cached" transient="true"/>
+         <field name="m_taste" transient="true"/>
   </class>
-  
-  <read sourceClass="xAOD::TrackCaloCluster_v1" version="[1-]"
-        targetClass="xAOD::TrackCaloCluster_v1"
-        source="" target="m_p4Cached">
-    <![CDATA[
-      m_p4Cached = false;
-     ]]>
-  </read>
   
   <class name="xAOD::TrackCaloClusterAuxContainer_v1"
          id="E3492C37-2469-4346-BCBA-7A18CACD46AC"/>

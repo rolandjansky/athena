@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Reconstruction/RecoEvent/ParticleCaloExtension
                           Reconstruction/RecoTools/RecoToolInterfaces
+                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces
                           Tracking/TrkEvent/TrkCaloExtension
                           Tracking/TrkEvent/TrkParametersIdentificationHelpers
                           PRIVATE

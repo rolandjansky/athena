@@ -4,7 +4,6 @@
 
 #include "ParticleCaloClusterAssociationTool.h"
 // forward declares
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
 #include "ParticleCaloExtension/ParticleClusterAssociationCollection.h"
 #include "ParticlesInConeTools/ICaloClustersInConeTool.h"
@@ -19,7 +18,8 @@ namespace Rec {
   ParticleCaloClusterAssociationTool::ParticleCaloClusterAssociationTool(const std::string& t, const std::string& n, const IInterface*  p )
     : AthAlgTool(t,n,p),
       m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-      m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool")
+      m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool"),
+      m_containerName("CaloCalTopoClusters")
   {
 
     declareInterface<IParticleCaloClusterAssociationTool>(this);
@@ -50,7 +50,7 @@ namespace Rec {
                                                                        const xAOD::CaloClusterContainer* container, bool useCaching ) const {
 
 
-    ATH_MSG_DEBUG(" particleCellAssociation: ptr " << &particle << " dr " << dr << " useCaching " << useCaching);
+    ATH_MSG_DEBUG(" particleClusterAssociation: ptr " << &particle << " dr " << dr << " useCaching " << useCaching);
 
     // reset pointer
     association = 0;
@@ -80,7 +80,7 @@ namespace Rec {
 
     // get the extrapolation into the calo
     const Trk::CaloExtension* caloExtension = 0;
-    if( !m_caloExtensionTool->caloExtension(particle,caloExtension) ) {
+    if( !m_caloExtensionTool->particleToCaloExtrapolate(particle,caloExtension) ) {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
     }
@@ -89,7 +89,12 @@ namespace Rec {
       return false;
     }
     
-
+    //retrieve the cluster container if not provided, return false it retrieval failed
+    if( !container && !(container = getClusterContainer()) ) {
+      ATH_MSG_DEBUG("Failed to get calo cluster container");      
+      return false;
+    }
+    
     // update cone size in case it is smaller than the default
     if( dr < m_coneSize ) dr = m_coneSize;
     ParticleClusterAssociation::Data clusters;
@@ -146,14 +151,26 @@ namespace Rec {
         float dPhi = P4Helpers::deltaPhi( (*container)[i]->phi(), phi);
         float dEta = (*container)[i]->eta()-eta;
         float dr2  = dPhi*dPhi+ dEta*dEta;
-        if( dr2 < dr2Cut ) clusters.push_back( ElementLink<xAOD::CaloClusterContainer>(*container,i) );
+        if( dr2 < dr2Cut ) clusters.push_back( (*container)[i]);
       }
     }else{
       if( !m_clustersInConeTool->particlesInCone(eta,phi,dr,clusters) ) {
         ATH_MSG_WARNING("Failed to get clusters");
       }
     }
-    ATH_MSG_DEBUG("associated cells " << clusters.size() << " using cone " << dr );
+    ATH_MSG_DEBUG("associated clusters " << clusters.size() << " using cone " << dr );
+  }
+  
+  const xAOD::CaloClusterContainer* ParticleCaloClusterAssociationTool::getClusterContainer() const {
+
+    const xAOD::CaloClusterContainer* container = 0;
+    //retrieve the cell container
+    if( evtStore()->retrieve(container, m_containerName).isFailure() || !container ) {
+      ATH_MSG_WARNING( "Unable to retrieve the cluster container  " << m_containerName << " container ptr " << container );
+      return 0;
+    }
+    if( container ) ATH_MSG_DEBUG("Retrieved cluster container " << container->size());
+    return container;
   }
 
 } // end of namespace Trk

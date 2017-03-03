@@ -24,7 +24,7 @@ ParticleToCaloExtrapolationTool::ParticleToCaloExtrapolationTool(const std::stri
 
   declareInterface<IParticleExtrapolationTool>(this);
   declareProperty("Extrapolator",        m_extrapolator );
-  declareProperty("ParticleType",        m_particleTypeName = "muon" );
+  declareProperty("ParticleType",        m_particleTypeName = "pion" );
 }
 
 ParticleToCaloExtrapolationTool::~ParticleToCaloExtrapolationTool() {}

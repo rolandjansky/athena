@@ -1,9 +1,9 @@
 ################################################################################
-# Package: TrackCaloClusterAlgs
+# Package: TrackCaloClusterRecAlgs
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( TrackCaloClusterAlgs )
+atlas_subdir( TrackCaloClusterRecAlgs )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
@@ -15,13 +15,12 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODAssociations
-                          Event/xAOD/xAODTrackCaloCluster
-                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces                    )
+                          Event/xAOD/xAODTrackCaloCluster                )
 
 # Component(s) in the package:
-atlas_add_component( TrackCaloClusterAlgs
+atlas_add_component( TrackCaloClusterRecAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS 
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel AtlasDetDescr xAODBase xAODTracking xAODAssociations xAODTrackCaloCluster TrkParametersIdentificationHelpers )
-
+                     
