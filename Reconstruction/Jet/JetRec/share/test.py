@@ -144,7 +144,7 @@ jtm += PseudoJetGetter(
   "PFCHSGetter",
   Label = "EMPFlow",
   InputContainer = "PFCHSParticleFlowObjects",
-  OutputContainer = "MyPseudoJet",
+  OutputContainer = "PFCHSPseudoJet",
   SkipNegativeEnergy = True,
   )
 
@@ -174,10 +174,10 @@ PFCHSSequence = JetConstituentModSequence("PFCHSSequence",
 ToolSvc += PFCHSSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
-myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFCHSGetter)
+myPFCHSgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFCHSGetter)
 from JetRec.JetRecStandardToolManager import filterout
 pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyPFCHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+jtm.addJetFinder("MyPFCHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFCHSgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
 
