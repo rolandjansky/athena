@@ -555,7 +555,7 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
             double mvaCorrection = 0.0;
             double  etaCurConst = list_TypeConstituents_SortBDT[iTypeConst]->p4().Eta();
             int     etaBinIndex = m_HelperFunctions.getBinIndex(m_Config_CellBased_BinEdges_Eta, fabs(etaCurConst));
-            bool    isOK;
+            //bool    isOK;
             //int     numTrack    = inSeed->getConstituentsOfType(PanTau::TauConstituent2::t_Charged, isOK).size();
             int     numTrack    = inSeed->getTauJet()->nTracks();
             if(numTrack == 1) { mvaCorrection = m_Config_CellBased_EtaBinned_Pi0MVACut_1prong.at(etaBinIndex); }

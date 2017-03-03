@@ -12,7 +12,6 @@
 __author__ = "Jiri Masik"
 __version__= "$Revision: 1.6 $"
 __doc__    = "InDetTrigSliceSettings"
-
 __all__    = [ "InDetTrigSliceSettings" ]
 
 class InDetTrigSliceSettingsDB:
@@ -126,6 +125,7 @@ class InDetTrigSliceSettingsDB:
     checkseedredundancy['muon'] = True
     checkseedredundancy['muonCore'] = True
     checkseedredundancy['bphysics'] = True
+    checkseedredundancy['beamSpot'] = True
     self.db['checkRedundantSeeds'] = checkseedredundancy
 
     
