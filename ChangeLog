@@ -1,4 +1,13 @@
 2017-03-02 Dag Gillberg <dag.gillberg@cern.h>
+	* Tagging TruthWeightTools-01-02-02
+	* All PDF weighs now read in to HiggsWeight struct, both to
+	*  1. reweight to a differnet PDF (central value) and
+	*  2. assess uncertainty using the error sets of PDF4LHC and NNPDF3.0
+	* Test exectuable now
+	* 1. accesses proper STXS obserables if existing in input file
+	* 2. produce histograms in output files (Higgs pT, yH, Njets, STXS spectra)
+
+2017-03-02 Dag Gillberg <dag.gillberg@cern.h>
 	* Tagging TruthWeightTools-01-02-01
 	* Support for forcing expected structure for Run-2 default VBF and VH sampels (W+H, W-H, ZH)
 	* Better error handling (code did not abort as intended when something was wrong)
