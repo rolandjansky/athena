@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "PixelCoralClientUtils/PCDDb.h"
 #include "PixelCoralClientUtils/PixelCalibData.hh"
 
@@ -36,7 +40,7 @@ using namespace std;
     Open the default database and seal context.
 */
 PCDDb::PCDDb(std::string connString, std::string tableName, bool verbose, bool /*load_text*/) :
-  m_verbose(verbose), //m_load_text(load_text),
+  m_verbose(verbose),
   m_session(0), m_connString(connString), m_pixeltable(tableName),
   m_query(0), m_query_2(0), m_cursor(0)
 { 

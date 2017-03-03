@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 ///////////////////////////////////////////////////////////////////
 // PixelCalibData.hh, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -171,8 +175,8 @@ inline int PixelCalibData::PixelChipSummaryData::getThresholdSigma(int type) con
   inline float PixelCalibData::PixelChipSummaryData::getTotP2() const{  return m_totres[1]*(1./1000.); }
 
  inline float PixelCalibData::PixelChipSummaryData::getTotRes(float Q) const{ 
-   float p1 = m_totres[0]*(1/100.);
-   float p2 = m_totres[1]*(1./1000.);
+   float p1 = m_totres[0]/100.0;
+   float p2 = m_totres[1]/1000.0;
    return p1+p2*Q; 
  }
 
