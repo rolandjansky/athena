@@ -17,11 +17,6 @@ atlas_depends_on_subdirs(
    Generators/GeneratorUtils
    Generators/TruthUtils )
 
-# Set the version of Starlight to use:
-set( STARLIGHT_VERSION r193 )
-set( STARLIGHT_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/starlight/${STARLIGHT_VERSION}/${ATLAS_PLATFORM} )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepMC )
