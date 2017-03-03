@@ -420,6 +420,7 @@ double EnhancedBiasWeighter::getEBWeight(const xAOD::EventInfo* eventInfo) const
 
 StatusCode EnhancedBiasWeighter::trackAverages(const xAOD::EventInfo* eventInfo) const 
 {
+  std::lock_guard<std::mutex> scopeLock(m_mutex);
   m_muAverageNum   += std::ceil( eventInfo->actualInteractionsPerCrossing() );
   m_lumiAverageNum += getLBLumi(eventInfo);
   ++m_averageDenom;
@@ -446,6 +447,7 @@ double EnhancedBiasWeighter::getEBLiveTime(const xAOD::EventInfo* eventInfo) con
       } else {
 
         uint32_t lumiBlock = eventInfo->lumiBlock();
+        std::lock_guard<std::mutex> scopeLock(m_mutex);
 
         // Check the cache
         const auto inCacheIterator = m_eventLivetime.find( lumiBlock );
@@ -584,12 +586,14 @@ uint32_t EnhancedBiasWeighter::getDistanceIntoTrain(const xAOD::EventInfo* event
 
 double EnhancedBiasWeighter::getAverageLumi() const
 {
+  std::lock_guard<std::mutex> scopeLock(m_mutex);
   if (m_averageDenom == 0) return 0;
   return m_lumiAverageNum / (double)m_averageDenom;
 }
 
 double EnhancedBiasWeighter::getAverageMu() const 
 {
+  std::lock_guard<std::mutex> scopeLock(m_mutex);
   if (m_averageDenom == 0) return 0;
   return m_muAverageNum / (double)m_averageDenom;
 }
