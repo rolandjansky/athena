@@ -309,6 +309,12 @@ namespace xAOD {
     // Quark-mass uncdertainty - TODO
     hw.qcd_wg1_qm = w_nom;
 
+    // Powheg uncertainty
+    hw.qcd_nnlops_nnlo = hw.qcd_nnlops_pow = w_nom;
+    if (m_qcd_nnlops.size()==26) {
+      hw.qcd_nnlops_nnlo = getWeight(weights,m_qcd_nnlops[4]); // nnlops-nnloDn-PowNomNom
+      hw.qcd_nnlops_pow  = getWeight(weights,m_qcd_nnlops[9]); // nnlops-nnloNom-PowDnDn
+    }
 
     /*********
      *  Tackmann STXS uncertainty scheme

@@ -76,6 +76,8 @@ namespace xAOD {
       if (qcd_nnlops.size()) {
 	printf("\n    ggF Powheg NNLOPS with %lu QCD uncertainty variations\n",
 	       qcd_nnlops.size());
+	// for (auto q:qcd_nnlops) printf(" %s",uncStr(q,n)); printf("\n");
+
 	printf("\n    Quark mass varations  (m_top=inf): %s  (m_b minlo): %s\n",
 	       uncStr(mt_inf,n),uncStr(mb_minlo,n));
 	printf("\n    WG1 proposed QCD uncertainty scheme\n");
@@ -83,7 +85,11 @@ namespace xAOD {
 	       uncStr(qcd_wg1_mu,n),uncStr(qcd_wg1_res,n),uncStr(qcd_wg1_mig01,n),uncStr(qcd_wg1_mig12,n));
 	printf("      pTH: %s,   quark-mass: %s\n",
 	       uncStr(qcd_wg1_pTH,n),uncStr(qcd_wg1_qm,n));
-
+	
+      }
+      if (qcd.size()) {
+	printf("\n    %lu Powheg QCD scale variations\n   ",qcd_nnlops.size());
+	for (auto q:qcd) printf(" %s",uncStr(q,n)); printf("\n");
       }
       printf("\n   PDF central values\n"); 
       printf("     PDF4LHC_nlo:  %s, PDF4LHC_nnlo: %s\n",uncStr(pdf4lhc_nlo,n),uncStr(pdf4lhc_nnlo,n));

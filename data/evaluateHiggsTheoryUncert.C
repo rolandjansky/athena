@@ -45,7 +45,7 @@ double hxswg(Str p) {
   if (p=="VBF") return 3.782E+00;
   if (p=="WpH") return 8.400E-01;
   if (p=="WmH") return 5.328E-01;
-  if (p=="ZH" ) return 8.839E-01-1.227E-01;
+  if (p=="ZH" ) return 8.839E-01-1.227E-01; // sig(qq->ZH) = sig(pp->ZH) - sig(gg->ZH)
   return 0.0;
 }
 char *per(double var, double nom) { return Form("%.2f%%",(var-nom)/nom*100); }
