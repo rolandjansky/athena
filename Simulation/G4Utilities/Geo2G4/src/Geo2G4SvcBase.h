@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4SvcBase_H
-#define Geo2G4SvcBase_H
+#ifndef GEO2G4_Geo2G4SvcBase_H
+#define GEO2G4_Geo2G4SvcBase_H
 
 class VolumeBuilder;
 #include <string>

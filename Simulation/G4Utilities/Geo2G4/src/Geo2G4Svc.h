@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4Svc_H
-#define Geo2G4Svc_H
+#ifndef GEO2G4_Geo2G4Svc_H
+#define GEO2G4_Geo2G4Svc_H
 
-#include "Geo2G4/IGeo2G4Svc.h"
+#include "IGeo2G4Svc.h"
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"

@@ -7,7 +7,7 @@
 #include "Geo2G4AssemblyVolume.h"
 #include "Geo2G4LVFactory.h"
 #include "Geo2G4STParameterisation.h"
-#include "Geo2G4/LogicalVolume.h"
+#include "G4LogicalVolume.hh"
 
 #include "G4PVPlacement.hh"
 #include "G4ReflectionFactory.hh"
@@ -35,7 +35,7 @@ ExtParameterisedVolumeBuilder::ExtParameterisedVolumeBuilder(std::string n):
 {
 }
 
-LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPhysVolume, OpticalVolumesMap* optical_volumes) const
+G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPhysVolume, OpticalVolumesMap* optical_volumes) const
 {
   PVConstLink theGeoPhysChild;
   const GeoSerialTransformer* serialTransformerChild=0;

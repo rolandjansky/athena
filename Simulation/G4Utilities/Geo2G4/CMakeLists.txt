@@ -7,17 +7,20 @@ atlas_subdir( Geo2G4 )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          DetectorDescription/GeoModel/GeoModelKernel
-                          DetectorDescription/GeoModel/GeoModelUtilities
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/AthenaKernel
                           Control/SGTools
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
+                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoSpecialShapes
-                          Simulation/G4Sim/SimHelpers )
+                          DetectorDescription/GeoModel/GeoModelUtilities
+                          Simulation/G4Atlas/G4AtlasInterfaces
+                          Simulation/G4Atlas/G4AtlasTools
+                          Simulation/G4Sim/SimHelpers
+                          Simulation/G4Utilities/GeoMaterial2G4 )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -33,13 +36,13 @@ atlas_add_library( Geo2G4Lib
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel GeoModelKernel GeoModelUtilities GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps SGTools GeoSpecialShapes SimHelpers )
+                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps SGTools GeoSpecialShapes G4AtlasToolsLib SimHelpers GeoMaterial2G4 AthenaKernel GeoModelKernel GeoModelUtilities StoreGateLib SGtests )
 
 atlas_add_component( Geo2G4
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelKernel GeoModelUtilities GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests GeoSpecialShapes SimHelpers Geo2G4Lib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelKernel GeoModelUtilities GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests GeoSpecialShapes G4AtlasToolsLib SimHelpers GeoMaterial2G4 Geo2G4Lib )
 
 atlas_add_dictionary( LArWheelSolidCheckerDict
                       src/LArWheelSolidDDProxy.h

@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4Builder_H
-#define Geo2G4Builder_H
+#ifndef GEO2G4_Geo2G4Builder_H
+#define GEO2G4_Geo2G4Builder_H
 
 // main builder to create/position all volumes described in a GeoModel Tree
 
 // GeoVPhysVol
-#include "Geo2G4/VolumeBuilder.h"
+#include "VolumeBuilder.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
-#include "Geo2G4/LogicalVolume.h"
+#include "G4LogicalVolume.hh"
 //#include "Geo2G4/GenericVolumeBuilder.h"
 
 // Typedef
@@ -34,7 +34,7 @@ public:
   ~Geo2G4Builder() {;}
 
   // Build method - geometry
-  LogicalVolume*        BuildTree();
+  G4LogicalVolume*        BuildTree();
 
   // Build method - optical surfaces
   void BuildOpticalSurfaces(const GeoBorderSurfaceContainer* surface_container,
