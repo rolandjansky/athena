@@ -84,11 +84,11 @@ def add_labels(mr,domains):
     for d in domains:
         labels.add(d)
     # remove possible complete review labels
-    for l in ["review-approved","review-postponed","2nd-level-pending","expert-pending"]:
-        labels.discard(l)
+    for label in list(labels):
+        if re.match("review-",label):
+            labels.discard(label)
     # add review-pending flag
-    labels.add("review-pending")
-    labels.add("1st-level-pending")
+    labels.add("review-pending-level-1")
     # add label for target branch
     labels.add(mr.target_branch)
     logging.debug("updated labels:\n" + print_collection(labels))
