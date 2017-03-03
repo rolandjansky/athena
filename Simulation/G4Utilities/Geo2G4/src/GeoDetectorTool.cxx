@@ -6,7 +6,7 @@
 #include "G4AtlasTools/DetectorGeometryBase.h"
 #include "GeoDetectorTool.h"
 #include "Geo2G4SvcAccessor.h"
-#include "Geo2G4SvcBase.h"
+#include "G4AtlasInterfaces/Geo2G4SvcBase.h"
 #include "Geo2G4Builder.h"
 #include "VolumeBuilder.h"
 
@@ -60,7 +60,7 @@ StatusCode GeoDetectorTool::initialize()
 void GeoDetectorTool::BuildGeometry()
 {
   ATH_MSG_VERBOSE( name() << " GeoDetectorTool::BuildGeometry(): Starting" );
-  G4LogicalVolume* temp=Convert();
+  G4LogicalVolume* temp = this->Convert();
   m_envelope.theEnvelope=temp;
 
   if (this->IsTopTransform())
