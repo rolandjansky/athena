@@ -268,6 +268,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
       }
     }
   }
+  delete chargedDiodes;
   ATH_MSG_DEBUG("non-hits processed");
 
   return StatusCode::SUCCESS;

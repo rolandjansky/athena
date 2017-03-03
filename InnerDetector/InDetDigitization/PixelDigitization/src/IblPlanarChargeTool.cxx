@@ -12,6 +12,7 @@
 #include "IblPlanarChargeTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "SiDigitization/SiSurfaceCharge.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -31,7 +32,6 @@ IblPlanarChargeTool::IblPlanarChargeTool(const std::string& type, const std::str
 	m_numberOfSteps(50),
 	m_numberOfCharges(10),
 	m_diffusionConstant(.007)
-
 { 
 	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for IblPlanar");
 	declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for IblPlanar");
@@ -124,8 +124,6 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharged
   double stepPhi = cPhi / nsteps;
   double stepDep = cDep / nsteps; 
 
-  double e1=phit->energyLoss()/static_cast<double>(nsteps*ncharges);
-
   double coLorentz=sqrt(1+pow(tanLorentz,2));
 
   for(int istep =0; istep < nsteps; istep++) {
@@ -146,6 +144,8 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharged
       // position at the surface
       double xPhiD=xPhi1+spess*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
       double xEtaD=xEta1+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+
+      double e1=phit->energyLoss()/static_cast<double>(nsteps*ncharges);
 
       // Slim Edge for IBL planar sensors:
       // TODO: Access these from somewhere          
@@ -169,7 +169,6 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharged
         }  
       }
 
-
       // Get the charge position in Reconstruction local coordinates.
       SiLocalPosition chargePos = Module.hitLocalToLocal(xEtaD, xPhiD);
 
@@ -186,6 +185,7 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharged
       if (diode.isValid()) {
         chargedDiodes.add(diode,charge);
       }
+
     }									
   }
   return StatusCode::SUCCESS;

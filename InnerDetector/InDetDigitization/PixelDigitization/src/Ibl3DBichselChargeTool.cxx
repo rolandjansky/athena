@@ -13,6 +13,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiHit.h"
+#include "SiDigitization/SiSurfaceCharge.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
@@ -22,7 +23,6 @@
 #include "HepMC/GenParticle.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
-#include "BichselSimTool.h"
 #include "TLorentzVector.h"
 
 using namespace InDetDD;
@@ -104,7 +104,7 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChar
   double sensorThickness = Module.design().thickness();
   double stepsize = sensorThickness/m_numberOfSteps;
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
-  electronHolePairsPerEnergy = siProperties.electronHolePairsPerEnergy();
+  double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
 
   // Charge Collection Probability Map bin size
   const double x_bin_size = 0.001;
@@ -243,9 +243,15 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChar
     // double xEta1 = xEta +  stepEta * (istep + 0.5);
     // double xPhi1 = xPhi +  stepPhi * (istep + 0.5);
     // double depD  = xDep +  stepDep * (istep + 0.5);
-    double xEta1 = xEta + 1.0*iHitRecord.first/iTotalLength*cEta;
-    double xPhi1 = xPhi + 1.0*iHitRecord.first/iTotalLength*cPhi;
-    double depD  = xDep + 1.0*iHitRecord.first/iTotalLength*cDep;
+
+    double xEta1 = xEta;
+    double xPhi1 = xPhi;
+    double depD  = xDep;
+    if (iTotalLength) {
+      xEta1 += 1.0*iHitRecord.first/iTotalLength*cEta;
+      xPhi1 += 1.0*iHitRecord.first/iTotalLength*cPhi;
+      depD  += 1.0*iHitRecord.first/iTotalLength*cDep;
+    }
 
     double es_current = 1.0*iHitRecord.second/1.E+6;
 
@@ -278,48 +284,48 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChar
     // -- Calculate signal in current pixel and in the neighboring ones
     // -- loop in the x-coordinate
     for (int i=-1; i<=1; i++){
-        x_neighbor = x_pix_center - i*pixel_size_x;
-        // -- loop in the y-coordinate
-        for (int j=-1; j<=1; j++){
-          y_neighbor = y_pix_center - j*pixel_size_y;
-         
-          //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<" before cut   x_neighbor  " << x_neighbor << " y_neighbor "<<y_neighbor);
-          // -- check if the neighbor falls inside the charge collection prob map window
-          if ( (fabs(x_neighbor)<pixel_size_x) && (fabs(y_neighbor)<pixel_size_y) ){
+      x_neighbor = x_pix_center - i*pixel_size_x;
+      // -- loop in the y-coordinate
+      for (int j=-1; j<=1; j++){
+        y_neighbor = y_pix_center - j*pixel_size_y;
 
-            // -- change origin of coordinates to the bottom left of the charge
-            //    collection prob map "window", i.e. shift of 1-pixel twd bottom left
-            double x_neighbor_map = x_neighbor + pixel_size_x;
-            double y_neighbor_map = y_neighbor + pixel_size_y;
+        //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<" before cut   x_neighbor  " << x_neighbor << " y_neighbor "<<y_neighbor);
+        // -- check if the neighbor falls inside the charge collection prob map window
+        if ( (fabs(x_neighbor)<pixel_size_x) && (fabs(y_neighbor)<pixel_size_y) ){
 
-            int x_bin_cc_map = static_cast<int>(x_neighbor_map / x_bin_size);
-            int y_bin_cc_map = static_cast<int>(y_neighbor_map / y_bin_size);
+          // -- change origin of coordinates to the bottom left of the charge
+          //    collection prob map "window", i.e. shift of 1-pixel twd bottom left
+          double x_neighbor_map = x_neighbor + pixel_size_x;
+          double y_neighbor_map = y_neighbor + pixel_size_y;
 
-            // -- retrieve the charge collection probability from Svc
-            // -- swap x and y bins to match Map coord convention
-            double ccprob_neighbor = m_chargeCollSvc->getProbMapEntry("FEI4",y_bin_cc_map,x_bin_cc_map);
-            if ( ccprob_neighbor == -1. ) return StatusCode::FAILURE;
-            //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<"  y_bin_cc_map   "<<y_bin_cc_map << "   x_bin_cc_map  " << x_bin_cc_map << " charge_coll neighbor "<<ccprob_neighbor);
+          int x_bin_cc_map = static_cast<int>(x_neighbor_map / x_bin_size);
+          int y_bin_cc_map = static_cast<int>(y_neighbor_map / y_bin_size);
 
-            // double ed=es*electronHolePairsPerEnergy*ccprob_neighbor;
-            double ed=es_current*electronHolePairsPerEnergy*ccprob_neighbor;
+          // -- retrieve the charge collection probability from Svc
+          // -- swap x and y bins to match Map coord convention
+          double ccprob_neighbor = m_chargeCollSvc->getProbMapEntry("FEI4",y_bin_cc_map,x_bin_cc_map);
+          if ( ccprob_neighbor == -1. ) return StatusCode::FAILURE;
+          //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<"  y_bin_cc_map   "<<y_bin_cc_map << "   x_bin_cc_map  " << x_bin_cc_map << " charge_coll neighbor "<<ccprob_neighbor);
 
-            // -- pixel coordinates --> module coordinates
-            //double x_mod = x_neighbor - half_pixel_size_x + pixel_size_x*nPixX -module_size_x/2.;
-            //double y_mod = y_neighbor - half_pixel_size_y + pixel_size_y*nPixY -module_size_y/2.;
-            double x_mod = x_neighbor + pixel_size_x/2 + pixel_size_x*nPixX -module_size_x/2.;
-            double y_mod = y_neighbor + pixel_size_y/2 + pixel_size_y*nPixY -module_size_y/2.;
-            SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod,x_mod);
-            //ATH_MSG_INFO(" Si3D charge pos "<<chargePos<<"  ed  "<<ed);
-            
-            SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
-            SiCellId diode = Module.cellIdOfPosition(scharge.position());
-            SiCharge charge = scharge.charge();
-            if (diode.isValid()) {
-              chargedDiodes.add(diode,charge);
-            }
+          // double ed=es*electronHolePairsPerEnergy*ccprob_neighbor;
+          double ed=es_current*eleholePairEnergy*ccprob_neighbor;
+
+          // -- pixel coordinates --> module coordinates
+          //double x_mod = x_neighbor - half_pixel_size_x + pixel_size_x*nPixX -module_size_x/2.;
+          //double y_mod = y_neighbor - half_pixel_size_y + pixel_size_y*nPixY -module_size_y/2.;
+          double x_mod = x_neighbor + pixel_size_x/2 + pixel_size_x*nPixX -module_size_x/2.;
+          double y_mod = y_neighbor + pixel_size_y/2 + pixel_size_y*nPixY -module_size_y/2.;
+          SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod,x_mod);
+          //ATH_MSG_INFO(" Si3D charge pos "<<chargePos<<"  ed  "<<ed);
+
+          SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+          SiCellId diode = Module.cellIdOfPosition(scharge.position());
+          SiCharge charge = scharge.charge();
+          if (diode.isValid()) {
+            chargedDiodes.add(diode,charge);
           }
         }
+      }
     }
   }
 

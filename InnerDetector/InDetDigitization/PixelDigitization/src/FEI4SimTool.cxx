@@ -59,7 +59,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   std::vector<int> row, col;
   const int maxRow = p_design->rowsPerCircuit();
   const int maxCol = p_design->columnsPerCircuit();
-  std::vector<std::vector<int>> FEI4Map(maxRow+1,std::vector<int>(maxCol+1));
+  std::vector<std::vector<int>> FEI4Map(maxRow+16,std::vector<int>(maxCol+16));
 
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
 

@@ -12,58 +12,29 @@
 #include "TH1.h"
 #include "TH2.h"
 
-
-// Base class
-class PixelID;
-
-namespace InDetDD {
-  class SiDetectorElement;
-}
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-class BichselSimTool;
+#include "BichselSimTool.h"
 
 class Ibl3DBichselChargeTool : public SubChargesTool {
 
-public:
-  
-  // Constructor:
-  Ibl3DBichselChargeTool( const std::string& type, const std::string& name,const IInterface* parent);
+  public:
+    Ibl3DBichselChargeTool( const std::string& type, const std::string& name,const IInterface* parent);
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
+    virtual ~Ibl3DBichselChargeTool();
 
+    virtual StatusCode charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module);  
 
-  /** AlgTool initialize */
-  virtual StatusCode initialize();
+  private:
+    Ibl3DBichselChargeTool();
 
-  /** AlgTool finalize */
-  virtual StatusCode finalize();
-
-  /** Destructor */
-  virtual ~Ibl3DBichselChargeTool();
-
-  virtual StatusCode charge(const TimedHitPtr<SiHit> &phit,
-			    SiChargedDiodeCollection& chargedDiodes,
-			    const InDetDD::SiDetectorElement &Module);  
-
-  //Constants that can be set by user 
-  int m_numberOfSteps;    //number of steps for particle traveling perpendicular to detector element
-
-  bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model
-  double m_doBichselBetaGammaCut;                      // Momentum cut on beta-gamma
-  bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
-                                                       // We will assume all delta-ray is electron, with all energy deposited in silicon layer. So the 4-momentum can be reconstructed using energy and direction
-  bool   m_doPU;                                       // whether we do Bichsel model for PU
-  ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here
- 
-private:
-  /** empty constructor, make private */
-  Ibl3DBichselChargeTool();
-private:
-	ServiceHandle<IChargeCollProbSvc> m_chargeCollSvc;
-
-	};
-
+    int m_numberOfSteps;
+    bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model
+    double m_doBichselBetaGammaCut;                      // Momentum cut on beta-gamma
+    bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
+    // We will assume all delta-ray is electron, with all energy deposited in silicon layer. So the 4-momentum can be reconstructed using energy and direction
+    bool   m_doPU;                                       // whether we do Bichsel model for PU
+    ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here
+    ServiceHandle<IChargeCollProbSvc> m_chargeCollSvc;
+};
 
 #endif // PIXELDIGITIZATION_Ibl3DBichselChargeTool_H

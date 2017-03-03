@@ -128,9 +128,6 @@ def PixelNoisyCellGenerator(name="PixelNoisyCellGenerator", **kwargs):
          kwargs.setdefault("RndNoiseProb", 1.e-10)
     return CfgMgr.PixelNoisyCellGenerator(name, **kwargs)
 
-def PixelGangedMerger(name="PixelGangedMerger", **kwargs):
-    return CfgMgr.PixelGangedMerger(name, **kwargs)
-
 def PixelChargeSmearer(name="PixelChargeSmearer", **kwargs):
     kwargs.setdefault("ThermalNoise", 160.0)
     return CfgMgr.PixelChargeSmearer(name, **kwargs)
@@ -228,7 +225,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       procTools += ['PixelDiodeCrossTalkGenerator']
       procTools += ['PixelChargeSmearer']
       procTools += ['PixelNoisyCellGenerator']
-      procTools += ['PixelGangedMerger']
       procTools += ['PixelRandomDisabledCellGenerator']
       chargeTools += ['DBMChargeTool']
       chargeTools += ['PixelECBichselChargeTool']

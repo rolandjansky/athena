@@ -12,6 +12,7 @@
 #include "PixelECBichselChargeTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "SiDigitization/SiSurfaceCharge.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -22,7 +23,6 @@
 #include "HepMC/GenParticle.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
-#include "BichselSimTool.h"
 #include "TLorentzVector.h"
 
 using namespace InDetDD;
@@ -98,7 +98,7 @@ StatusCode PixelECBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCh
   if (genPart) delta_hit = false;
   double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
-  electronHolePairsPerEnergy = siProperties.electronHolePairsPerEnergy();
+  double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
 
   double stepsize = sensorThickness/m_numberOfSteps;
   double tanLorentz = Module.getTanLorentzAnglePhi();
@@ -212,9 +212,15 @@ StatusCode PixelECBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCh
     // double xEta1 = xEta +  stepEta * (istep + 0.5);
     // double xPhi1 = xPhi +  stepPhi * (istep + 0.5);
     // double depD  = xDep +  stepDep * (istep + 0.5);
-    double xEta1 = xEta + 1.0*iHitRecord.first/iTotalLength*cEta;
-    double xPhi1 = xPhi + 1.0*iHitRecord.first/iTotalLength*cPhi;
-    double depD  = xDep + 1.0*iHitRecord.first/iTotalLength*cDep;
+
+    double xEta1 = xEta;
+    double xPhi1 = xPhi;
+    double depD  = xDep;
+    if (iTotalLength) {
+      xEta1 += 1.0*iHitRecord.first/iTotalLength*cEta;
+      xPhi1 += 1.0*iHitRecord.first/iTotalLength*cPhi;
+      depD  += 1.0*iHitRecord.first/iTotalLength*cDep;
+    }
 
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
@@ -235,7 +241,7 @@ StatusCode PixelECBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCh
       
       // The parametrization of the sensor efficiency (if needed)
       // double ed=e1*this->electronHolePairsPerEnergy;
-      double ed=(1.0*iHitRecord.second/1.E+6/ncharges)*this->electronHolePairsPerEnergy;
+      double ed=(1.0*iHitRecord.second/1.E+6/ncharges)*eleholePairEnergy;
       
       //The following lines are adapted from SiDigitization's Inserter class
       SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));

@@ -14,9 +14,6 @@
  
 #include <fstream>
  
-/**
- ** Constructor(s)
- **/
 ChargeCollProbSvc::ChargeCollProbSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc)
     //  : AthService(name,svc),log(msgSvc(),name)
@@ -26,43 +23,25 @@ ChargeCollProbSvc::ChargeCollProbSvc(const std::string& name,ISvcLocator* svc)
   declareProperty( "CCProbMapFileFEI4", m_cc_prob_file_fei4 = "3DFEI4-2E-problist-1um_v0.txt");  
 }
  
-ChargeCollProbSvc::~ChargeCollProbSvc()
-{
-}
+ChargeCollProbSvc::~ChargeCollProbSvc() { }
  
-/**
- ** Initialize Service
- **/
-StatusCode ChargeCollProbSvc::initialize()
-{
-  //MsgStream log(msgSvc(), name());
- 
-  StatusCode result = AthService::initialize();
-  if (result.isFailure())
-  {
-   ATH_MSG_FATAL ( "Unable to initialize the service!" );
-   return result;
-  }
- 
-  // read Charge Collection Probability Maps
- 
-  if ( this->readProbMap(m_cc_prob_file_fei3).isFailure() || this->readProbMap(m_cc_prob_file_fei4).isFailure() ){
-    ATH_MSG_ERROR ( "Charge Collection Prob Maps: error in reading txt files" );
-    return StatusCode::FAILURE;
-  }
- 
-  ATH_MSG_INFO ( "initialized service!" );
-  return result;
- 
+StatusCode ChargeCollProbSvc::initialize() {
+
+  CHECK(AthService::initialize()); 
+
+  CHECK(readProbMap(m_cc_prob_file_fei3));
+
+  CHECK(readProbMap(m_cc_prob_file_fei4));
+
+  ATH_MSG_INFO("initialized service!");
+  return StatusCode::SUCCESS;
 }  
- 
-StatusCode ChargeCollProbSvc::finalize()
-{
-        return StatusCode::SUCCESS;
+
+StatusCode ChargeCollProbSvc::finalize() {
+  return StatusCode::SUCCESS;
 }
- 
-StatusCode ChargeCollProbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
+
+StatusCode ChargeCollProbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
   if ( IID_IChargeCollProbSvc == riid )    {
     *ppvInterface = (IChargeCollProbSvc*)this;
   }

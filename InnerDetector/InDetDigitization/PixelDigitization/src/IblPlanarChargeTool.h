@@ -65,9 +65,10 @@ private:
   /** empty constructor, make private */
   IblPlanarChargeTool();
 
-void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
+  void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
+
 private:
-  
+
 	};
 
 

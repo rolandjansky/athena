@@ -12,6 +12,7 @@
 #include "Ibl3DChargeTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "SiDigitization/SiSurfaceCharge.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -191,7 +192,7 @@ StatusCode Ibl3DChargeTool::charge(const TimedHitPtr<SiHit> &phit,
           //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<"  y_bin_cc_map   "<<y_bin_cc_map << "   x_bin_cc_map  " << x_bin_cc_map << " charge_coll neighbor "<<ccprob_neighbor);
  
           double ed=es*electronHolePairsPerEnergy*ccprob_neighbor;
- 
+
           // -- pixel coordinates --> module coordinates
           //double x_mod = x_neighbor - half_pixel_size_x + pixel_size_x*nPixX -module_size_x/2.;
           //double y_mod = y_neighbor - half_pixel_size_y + pixel_size_y*nPixY -module_size_y/2.;
