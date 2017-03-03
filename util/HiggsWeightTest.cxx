@@ -25,11 +25,13 @@ int main( int argc, char* argv[] ) {
    bool forceNNLOPS=false;
    bool forceVBF=false;
    bool forceVH=false;
+   TString ofn("higgsWeightTest_histo.root");
    for (int i=1;i<argc;++i) {
      TString arg(argv[i]);
      if      (arg=="--forceNNLOPS") forceNNLOPS=true;
      else if (arg=="--forceVBF"   ) forceVBF=true;
      else if (arg=="--forceVH"    ) forceVH=true;
+     else if (arg=="--output") ofn=argv[++i];
      else if (arg.Contains(".root")) files.push_back(arg);
      else std::runtime_error(TString("Cannot intepret argument: "+arg).Data());
    }
@@ -39,6 +41,9 @@ int main( int argc, char* argv[] ) {
      return 1;
    }
 
+   // output file
+   TFile *of = new TFile(ofn,"RECREATE");
+   
    // Initialise the application:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
    
@@ -67,7 +72,6 @@ int main( int argc, char* argv[] ) {
      
      // Loop over a few events:
      const ::Long64_t entries = event.getEntries();
-     
      for ( ::Long64_t entry = 0; entry < entries; ++entry ) {
        
        // Get the current entry:
@@ -88,14 +92,22 @@ int main( int argc, char* argv[] ) {
        const xAOD::TruthEventContainer *tevts;
        RETURN_CHECK( APP_NAME, event.retrieve( tevts, "TruthEvents" ) );
 
+       // All input files used for test have the HTXS content
        double HTXS_pTH  = evtInfo->auxdata<float>("HTXS_Higgs_pt");
-       int HTXS_Njets30 = evtInfo->auxdata<float>("HTXS_Njets_pTjet30");
-       
-       // in reality we should pass the Higgs pT and Njets30 from HTXS
-       // but standard input files don't have these, so let's randomly sample them..
-       //int HTXS_Njets30 = gRandom->Poisson(0.9);
-       //double HTXS_pTH = std::abs(gRandom->Gaus(0.0,50.0))*1000; // convert to MeV
-       
+       double HTXS_etaH = evtInfo->auxdata<float>("HTXS_Higgs_eta");
+       double HTXS_phiH = evtInfo->auxdata<float>("HTXS_Higgs_phi");
+       double HTXS_mH   = evtInfo->auxdata<float>("HTXS_Higgs_m");
+       int HTXS_Njets30 = evtInfo->auxdata<int>("HTXS_Njets_pTjet30");
+       int HTXS_Stage1 = evtInfo->auxdata<int>("HTXS_Stage1_Category_pTjet30");
+       int HTXS_index  = evtInfo->auxdata<int>("HTXS_Stage1_FineIndex_pTjet30");
+
+       TLorentzVector h;
+       h.SetPtEtaPhiM(HTXS_pTH,HTXS_etaH,HTXS_phiH,HTXS_mH);
+
+       // Access all Higgs weights
+       HiggsWeights hw = higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH,HTXS_Stage1);
+
+       // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {
 	 ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
 		weights.size(),tevts->at(0)->weights().size());
@@ -103,7 +115,7 @@ int main( int argc, char* argv[] ) {
 	 for (size_t i=0;i<10;++i)
 	   ::Info(APP_NAME,"Weight %lu %.3f and %.3f. %lu weights and %lu names",
 		  i,weights[i],ws[i],ws.size(),higgsMCtool->getWeightNames().size());
-	 higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH).print();
+	 hw.print();
        }
        
        // Give some feedback of where we are:
@@ -111,7 +123,11 @@ int main( int argc, char* argv[] ) {
        
      } // for each entry
    } // for each file
-   
+
+   of->cd();
+   of->Write();
+   printf("\nProduced %s\n\n",of->GetName());
+   of->Close();
    // Return gracefully:
    return 0;
 }
