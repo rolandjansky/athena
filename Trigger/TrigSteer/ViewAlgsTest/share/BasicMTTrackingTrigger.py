@@ -37,6 +37,10 @@ l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
 l1svc.XMLMenuFile = "LVL1config_Physics_pp_v5.xml"
 svcMgr += l1svc
 
+
+from AthenaCommon.Logging import logging 
+log = logging.getLogger("BasicMTTrackingTrigger.py")
+
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
@@ -48,18 +52,15 @@ def setOutput(obj, prop, name):
 
 def getOutput(obj, prop):
     try:
-        # print "getOutput getattr"
         return getattr(obj, prop)
     except:
-        # print "getOutput getDefaultProperty ", obj.getDefaultProperty(prop)
         return obj.getDefaultProperty(prop)
-    # print "Can not read pro"
     raise "Error in reading property " + prop + " from " + obj
  
 def genMenuAlg(name, inputHypos, inputChains):
     assert inputHypos != None, 'Alg to take hypo putput from is missing'
     assert inputChains != None, 'Alg to take chain decisions from is missing'
-    print inputChains, inputHypos
+    log.info(inputChains, inputHypos)
     from ViewAlgs.ViewAlgsConf import MenuAlg
     menuAlg = MenuAlg(name)
     menuAlg.HypoDecisions = getOutput(inputHypos, "OutputDecisions")
@@ -122,7 +123,7 @@ include("RecExCommon/RecExCommon_topOptions.py")
 #remove RecExCommon 
 topSequence = AlgSequence()
 for i in topSequence:
-  print 'removing ', i.getName()
+  log.info('removing ', i.getName())
   if i.getName()!="SGInputLoader":
     topSequence.remove(i)
 
@@ -225,7 +226,7 @@ from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinder
 theFTFMT = TrigFastTrackFinderMT_eGamma()
 
 topSequence += theFTFMT
-print theFTFMT
+log.info(theFTFMT)
 
 #probably initialized only in trigger=True?
 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
