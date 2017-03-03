@@ -14,6 +14,9 @@
 - External/APEGlue
 - Offloading/.*
 
+# Temporary VP1 compilation issues 
+-graphics/VP1
+
 # Remove simulation packages except those required for EDM, etc.
 - Calorimeter/CaloG4Sim
 - ForwardDetectors/AFP/AFP_G4_SD
