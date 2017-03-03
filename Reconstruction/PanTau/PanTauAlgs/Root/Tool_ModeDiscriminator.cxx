@@ -40,6 +40,7 @@ PanTau::Tool_ModeDiscriminator::Tool_ModeDiscriminator(
         m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore"),
         m_MVABDT_List()
 {
+    declareProperty("calibFolder",              m_calib_path,               "Location of calib files in cvmfs");//sync'd with tauRecFlags.tauRecToolsCVMFSPath()
     declareProperty("Name_InputAlg",            m_Name_InputAlg,            "Name of the input algorithm for this instance");
     declareProperty("Name_ModeCase",            m_Name_ModeCase,            "Name of the two modes to be distinguished for this instance");
     declareProperty("Tool_InformationStore",    m_Tool_InformationStore,    "Handle to the information store tool");
@@ -117,18 +118,15 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
         //! ////////////////////////
         //! weight files
         ATH_MSG_DEBUG("\tGet the weight file");
-        std::string curWeightFile = "";
+        std::string curWeightFile = m_calib_path + (m_calib_path.length() ? "/" : "");
         curWeightFile += "TrainModes_";
         curWeightFile += m_Name_InputAlg + "_";
         curWeightFile += curPtBin + "_";
         curWeightFile += curModeCase + "_";
         curWeightFile += m_MethodName + ".weights.root";
 
-	#ifndef XAOD_ANALYSIS
-	std::string resolvedWeightFileName = PathResolver::find_file(curWeightFile, "DATAPATH");
-	#else
-	std::string resolvedWeightFileName = PathResolverFindCalibFile("PanTauAlgs/weights/"+curWeightFile);
-	#endif
+	std::string resolvedWeightFileName = PathResolverFindCalibFile(curWeightFile);
+
         if(resolvedWeightFileName == "") {
             ATH_MSG_ERROR("Weight file " << curWeightFile << " not found!");
             return StatusCode::FAILURE;

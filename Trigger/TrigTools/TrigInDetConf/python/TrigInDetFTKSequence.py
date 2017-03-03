@@ -68,6 +68,8 @@ class TrigInDetFTKSequence(TrigInDetSequence):
 
     #always run FTF
     algos = [("IDTrigRoiUpdater", roiupdater)]
+    algos += [("FTK_TrackMaker", "")]
+    algos += [("TrigFTKAvailable", "")]
     algos += [("TrigFastTrackFinder",ftfname),
               ("InDetTrigTrackingxAODCnv",cnvname),
               ]
@@ -96,6 +98,7 @@ class TrigInDetFTKSequence(TrigInDetSequence):
    
 
     log.info("Full sequence has %d items" % len(fullseq) )
+    #log.info("Full sequence has ", fullseq )
 
     for i in fullseq:
       #print i
