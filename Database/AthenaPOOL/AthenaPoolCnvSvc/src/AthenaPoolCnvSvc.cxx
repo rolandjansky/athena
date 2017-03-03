@@ -428,7 +428,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             if (className == "DataHeaderForm_p5") {
                GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), token->toString(), placement.auxString());
                IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
-               if (!cnv->updateRepRefs(&address, (DataObject*)obj).isSuccess()) {
+               if (!cnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
                   ATH_MSG_ERROR("Failed updateRepRefs for obj = " << token->toString());
                   delete token; token = nullptr;
                   return(StatusCode::FAILURE);
@@ -441,7 +441,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             if (className == "DataHeader_p5") {
                GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), token->toString(), placement.auxString());
                IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
-               if (!cnv->updateRep(&address, (DataObject*)obj).isSuccess()) {
+               if (!cnv->updateRep(&address, static_cast<DataObject*>(obj)).isSuccess()) {
                   ATH_MSG_ERROR("Failed updateRep for obj = " << token->toString());
                   delete token; token = nullptr;
                   return(StatusCode::FAILURE);
@@ -651,7 +651,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          usleep(100);
          sc = m_outputStreamingTool->putObject(buffer, nbytes);
       }
-      if (own) { delete [] (char*)buffer; }
+      if (own) { delete [] static_cast<const char*>(buffer); }
       buffer = nullptr;
       std::string contName = strstr(placementStr.c_str(), "[CONT=");
       contName = contName.substr(6, contName.find(']') - 6);
@@ -718,7 +718,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
             m_chronoStatSvc->chronoStop("gObj_ALL");
          }
          if (!sc.isSuccess()) {
-            delete [] (char*)buffer; buffer = nullptr;
+            delete [] static_cast<char*>(buffer); buffer = nullptr;
             ATH_MSG_WARNING("Failed to get Data for " << token->toString());
             obj = nullptr;
          } else {
@@ -786,8 +786,8 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
          return(StatusCode::FAILURE);
       } else {
          token = new Token();
-         token->fromString((char*)buffer);
-         delete [] (char*)buffer; buffer = nullptr;
+         token->fromString(static_cast<char*>(buffer));
+         delete [] static_cast<char*>(buffer); buffer = nullptr;
          if (token->classID() == Guid::null()) {
             delete token; token = nullptr;
          }
@@ -925,7 +925,7 @@ StatusCode AthenaPoolCnvSvc::readData() const {
          m_chronoStatSvc->chronoStart("pObj_ALL");
       }
       sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
-      delete [] (char*)buffer; buffer = nullptr;
+      delete [] static_cast<char*>(buffer); buffer = nullptr;
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Could not share object for: " << token.toString());
          return(StatusCode::FAILURE);
@@ -1172,11 +1172,11 @@ StatusCode AthenaPoolCnvSvc::receiveStore(const IAthenaIPCTool* tool, void* obj,
       return(StatusCode::SUCCESS);
    }
    Guid classId;
-   classId.fromString((char*)(buffer));
+   classId.fromString(static_cast<char*>(buffer));
    if (!tool->getObject(&buffer, nbytes, num).isSuccess() || nbytes == 0) {
       return(StatusCode::FAILURE);
    }
-   const std::string contName = std::string((char*)buffer);
+   const std::string contName = std::string(static_cast<char*>(buffer));
    AuxDiscoverySvc auxDiscover;
    if (classId != Guid::null() && !contName.empty() && auxDiscover.getAuxStore(obj, classId, contName)) {
       void* attrName = nullptr;
@@ -1188,14 +1188,16 @@ StatusCode AthenaPoolCnvSvc::receiveStore(const IAthenaIPCTool* tool, void* obj,
 	      tool->getObject(&elemName, nbytes, num).isSuccess() && nbytes > 0) {
          nbytes = 0;
          if (tool->getObject(&buffer, nbytes, num).isSuccess()) {
-            const RootType type(std::string((char*)typeName));
+            const RootType type(std::string(static_cast<char*>(typeName)));
             void* dynAttr = nullptr;
             if (type.IsFundamental()) {
                dynAttr = buffer; buffer = nullptr;
             } else {
                dynAttr = m_serializeSvc->deserialize(buffer, nbytes, type); buffer = nullptr;
             }
-            SG::auxid_t auxid = auxDiscover.getAuxID((char*)attrName, (char*)elemName, (char*)typeName);
+            SG::auxid_t auxid = auxDiscover.getAuxID(static_cast<char*>(attrName),
+	            static_cast<char*>(elemName),
+	            static_cast<char*>(typeName));
             auxDiscover.setData(auxid, dynAttr, type);
          }
       }
@@ -1245,7 +1247,7 @@ StatusCode AthenaPoolCnvSvc::sendStore(const IAthenaIPCTool* tool,
          size_t nbytes = 0;
          void* buffer = m_serializeSvc->serialize(auxDiscover.getData(*iter), type, nbytes);
          sc = tool->putObject(buffer, nbytes, num);
-         delete [] (char*)buffer; buffer = nullptr;
+         delete [] static_cast<char*>(buffer); buffer = nullptr;
       }
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Could not share object decoration for: " << contName);
