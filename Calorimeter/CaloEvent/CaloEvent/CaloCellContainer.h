@@ -40,7 +40,7 @@ MODIFIED: David Rousseau: heavy modification to allow storing all
           calorimeter cells in one single container
 ********************************************************************/
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "CaloEvent/CaloCell.h"
 

@@ -18,7 +18,6 @@ atlas_depends_on_subdirs(
    Control/AthLinks
    Control/CLIDSvc
    Control/CxxUtils
-   Control/DataModel
    Control/Navigation
    DetectorDescription/GeoPrimitives
    DetectorDescription/Identifier
@@ -42,7 +41,7 @@ atlas_add_library( CaloEvent CaloEvent/*.h CaloEvent/*.icc src/*.cxx
    PUBLIC_HEADERS CaloEvent
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES CaloConditions CaloGeoHelpers CaloIdentifier AthAllocators
-   AthContainers AthLinks CxxUtils DataModel Navigation GeoPrimitives
+   AthContainers AthLinks CxxUtils Navigation GeoPrimitives
    Identifier EventKernel FourMom NavFourMom CaloDetDescrLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel
    SGTools )

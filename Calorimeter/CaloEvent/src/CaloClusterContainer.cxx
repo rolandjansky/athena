@@ -16,7 +16,7 @@ PURPOSE:  Container for CaloCluster objects.
 ********************************************************************/
 
 // INCLUDE HEADER FILES:
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloTowerSeg.h"
