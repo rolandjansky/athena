@@ -12,8 +12,7 @@
 //-----------------------------------------------------------------------------
 
 TrigCountTrtHitsHypo::TrigCountTrtHitsHypo(const std::string& name, ISvcLocator* pSvcLocator)
-  : HLT::HypoAlgo(name, pSvcLocator),
-    m_log(msgSvc(), name) {
+  : HLT::HypoAlgo(name, pSvcLocator) {
   declareProperty( "AcceptAll",                  m_acceptAll = false );                                                           
   declareProperty( "TimeOverThresholdCut",       m_timeOverThresholdCut = 18. );      
   declareProperty( "TrtHitsEndcaps",             m_trtHitsEC_cut = 60. );     
@@ -39,24 +38,21 @@ TrigCountTrtHitsHypo::~TrigCountTrtHitsHypo(){;}
 //-----------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHitsHypo::hltInitialize() {
-  m_log.setLevel(outputLevel());
-  if (msgLvl() <= MSG::INFO) {
-    m_log << MSG::INFO << "Initialising this TrigCountTrtHitsHypo: " << name() << endmsg;
-    
-    m_log << MSG::INFO << "================ Hypo Settings ================" << endmsg;
-    m_log << MSG::INFO << " AcceptAll ---------------------  " << (m_acceptAll==true ? "True" : "False") << endmsg;
-    m_log << MSG::INFO << " TimeOverThresholdCut  ---------  " << m_timeOverThresholdCut << endmsg;
- 
-    m_log << MSG::INFO << " Requiring hits in ECA or ECC --  " ;
-    if( m_trtHitsEC_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
-    else m_log << MSG::INFO << m_trtHitsEC_cut << endmsg;
+  ATH_MSG_INFO("Initialising this TrigCountTrtHitsHypo: " << name());
+  
+  ATH_MSG_INFO("================ Hypo Settings ================");
+  ATH_MSG_INFO(" AcceptAll ---------------------  " << (m_acceptAll==true ? "True" : "False"));
+  ATH_MSG_INFO(" TimeOverThresholdCut  ---------  " << m_timeOverThresholdCut);
 
-    m_log << MSG::INFO << " Cutting on total Trt hits -----  ";
-    if( m_totalTrtHits_cut < 0.) m_log << MSG::INFO << "Off" << endmsg;
-    else m_log << MSG::INFO << m_totalTrtHits_cut << endmsg;
+  ATH_MSG_INFO(" Requiring hits in ECA or ECC --  ");
+  if( m_trtHitsEC_cut < 0.) ATH_MSG_INFO("Off");
+  else ATH_MSG_INFO(m_trtHitsEC_cut);
 
-    m_log << MSG::INFO << "===============================================" << endmsg;
-  }
+  ATH_MSG_INFO(" Cutting on total Trt hits -----  ");
+  if( m_totalTrtHits_cut < 0.) ATH_MSG_INFO("Off");
+  else ATH_MSG_INFO(m_totalTrtHits_cut);
+
+  ATH_MSG_INFO("===============================================");
 
   return HLT::OK;
 }
@@ -65,22 +61,22 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltInitialize() {
 HLT::ErrorCode TrigCountTrtHitsHypo::hltBeginRun() {
   // This initialisation has been moved into the event loop.
   // @see TrigCountTrtHitsHypo::checkDetectorMask
-  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " TrigCountTrtHitsHypo will be initialized in hltExecute" << endmsg; 
+  ATH_MSG_DEBUG(" TrigCountTrtHitsHypo will be initialized in hltExecute"); 
   return HLT::OK;
 }
 //-----------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHitsHypo::checkDetectorMask() {
   m_hltExecuteInitialisationRun = true;
-  m_log << MSG::DEBUG << "[TrigCountTrtHitsHypo::checkDetectorMask]  beginning run with this " << name() << endmsg;
+  ATH_MSG_DEBUG("[TrigCountTrtHitsHypo::checkDetectorMask]  beginning run with this " << name());
 
   const xAOD::EventInfo* evinfo = 0;
   if (store()->retrieve(evinfo).isFailure()) {
-    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endmsg;
+    ATH_MSG_ERROR("Cannot retrieve xAOD::EventInfo from SG for detmasks");
     return HLT::SG_ERROR;
   }
   else {
-    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "xAOD::EventInfo Run Information [Run,Evt,Lumi,Time,BunchCross,DetMask] = [" 
+    ATH_MSG_INFO("xAOD::EventInfo Run Information [Run,Evt,Lumi,Time,BunchCross,DetMask] = [" 
       << evinfo->runNumber()
       << "," << evinfo->eventNumber()
       << "," << evinfo->lumiBlock()
@@ -88,13 +84,13 @@ HLT::ErrorCode TrigCountTrtHitsHypo::checkDetectorMask() {
       << ":" << evinfo->timeStampNSOffset()
       << "," << evinfo->bcid()
       << ",0x" << std::hex << evinfo->detectorMask() << std::dec
-      << "]" << endmsg;
+      << "]");
 
     uint64_t mask = evinfo->detectorMask();
     eformat::helper::DetectorMask decoder(mask);
 
     if (mask == 0) {
-      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0. Assuming MC file and setting all of ID to ON." << endmsg; 
+      ATH_MSG_INFO("Detector Mask == 0. Assuming MC file and setting all of ID to ON."); 
       m_trt_barrel_a_side = true;
       m_trt_barrel_c_side = true;
       m_trt_endcap_a_side = true;
@@ -106,12 +102,10 @@ HLT::ErrorCode TrigCountTrtHitsHypo::checkDetectorMask() {
       m_trt_endcap_c_side = decoder.is_set(eformat::TRT_ENDCAP_C_SIDE);
     }
 
-    if( msgLvl() <= MSG::INFO ){
-      m_log << MSG::INFO << "trt_barrel_a_side is " << (m_trt_barrel_a_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
-      m_log << MSG::INFO << "trt_barrel_c_side is " << (m_trt_barrel_c_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
-      m_log << MSG::INFO << "trt_endcap_a_side is " << (m_trt_endcap_a_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg;
-      m_log << MSG::INFO << "trt_endcap_c_side is " << (m_trt_endcap_c_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!") << endmsg; 
-    }
+    ATH_MSG_INFO("trt_barrel_a_side is " << (m_trt_barrel_a_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!"));
+    ATH_MSG_INFO("trt_barrel_c_side is " << (m_trt_barrel_c_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!"));
+    ATH_MSG_INFO("trt_endcap_a_side is " << (m_trt_endcap_a_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!"));
+    ATH_MSG_INFO("trt_endcap_c_side is " << (m_trt_endcap_c_side==true? "present" : "OFF! Warning: Check if this info is used in trigger decision!")); 
   }
   return HLT::OK;
 }
@@ -124,18 +118,16 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltExecute(const HLT::TriggerElement* outpu
     if (ec != HLT::OK) return ec;
   }
 
-  if(msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this TrigCountTrtHitsHypo " << name() << endmsg;
-  }
+  ATH_MSG_DEBUG("Executing this TrigCountTrtHitsHypo " << name());
 
   if(m_acceptAll){
     pass=true;
-    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Accepting all events in " << name() << endmsg;
+    ATH_MSG_DEBUG("Accepting all events in " << name());
     return HLT::OK;
   }
 
   if( !(m_trt_barrel_a_side && m_trt_barrel_c_side && m_trt_endcap_a_side && m_trt_endcap_c_side) ){
-    m_log << MSG::DEBUG << "Trt detector is not present. DEBUG will be a WARNING and all events will be rejected in future." << endmsg;
+    ATH_MSG_DEBUG("Trt detector is not present. DEBUG will be a WARNING and all events will be rejected in future.");
     //    pass=false;
     //    return HLT::OK;
 
@@ -151,9 +143,7 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltExecute(const HLT::TriggerElement* outpu
   HLT::ErrorCode hltStatus = getFeature(outputTE, trthits, "TrtHitCount");
   
   if(hltStatus != HLT::OK || !trthits){
-    if(msgLvl() <= MSG::WARNING){
-      m_log << MSG::WARNING << "Failed to retrieve features from TE." << endmsg;
-    }
+    ATH_MSG_WARNING("Failed to retrieve features from TE.");
     return HLT::OK;
   }
   
@@ -166,23 +156,20 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltExecute(const HLT::TriggerElement* outpu
   if( m_trtHitsEC_cut >= 0. ){
     if( m_nTrtHits_A > m_nTrtHits_C ){
       m_maxTrtHitsEC = m_nTrtHits_A;
-      m_log << MSG::DEBUG << "More hits in trt endcap A" << endmsg;
+      ATH_MSG_DEBUG("More hits in trt endcap A");
     }
     else{
       m_maxTrtHitsEC = m_nTrtHits_C;
-      m_log << MSG::DEBUG << "More hits in trt endcap C" << endmsg;
+      ATH_MSG_DEBUG("More hits in trt endcap C");
     }
     
     // trigger decision
     if( m_maxTrtHitsEC >= m_trtHitsEC_cut ){
       pass=true;
-      if( msgLvl() <= MSG::DEBUG ){      
-	m_log << MSG::DEBUG <<  "REGTEST: event passed with " << m_maxTrtHitsEC << endmsg;     
-      }
+      ATH_MSG_DEBUG( "REGTEST: event passed with " << m_maxTrtHitsEC);     
     }
     else{ 
-      if( msgLvl() <= MSG::DEBUG )
-	m_log << MSG::DEBUG <<  "REGTEST: event failed with " << m_maxTrtHitsEC << endmsg;
+      ATH_MSG_DEBUG( "REGTEST: event failed with " << m_maxTrtHitsEC);
     }
   }
   
@@ -191,10 +178,10 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltExecute(const HLT::TriggerElement* outpu
     
     // trigger decision
     if( m_nTrtHits >= m_totalTrtHits_cut ) pass=true;
-    m_log << MSG::DEBUG <<  "REGTEST: event passed with " << m_nTrtHits << endmsg;          
+    ATH_MSG_DEBUG( "REGTEST: event passed with " << m_nTrtHits);          
   }
   else 
-    m_log << MSG::DEBUG <<  "REGTEST: event failed with " << m_nTrtHits << endmsg;
+    ATH_MSG_DEBUG( "REGTEST: event failed with " << m_nTrtHits);
   
   return HLT::OK;  
 }
@@ -202,9 +189,7 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltExecute(const HLT::TriggerElement* outpu
 //-----------------------------------------------------------------------------
   
 HLT::ErrorCode TrigCountTrtHitsHypo::hltFinalize() {
-  if(msgLvl() <= MSG::INFO) {
-    m_log << MSG::INFO << " finalizing this TrigCountTrtHitsHypo : " << name() << endmsg; 
-  }
+  ATH_MSG_INFO(" finalizing this TrigCountTrtHitsHypo : " << name()); 
   return HLT::OK;  
 }
 
