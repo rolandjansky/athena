@@ -52,55 +52,66 @@ int main( int argc, char* argv[] ) {
    if (forceVH) higgsMCtool->setProperty("ForceVH",true);
    higgsMCtool->initialize().ignore();
 
-   // Open the input file:
-   TString fn = files.front(); 
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( fn, "READ" ) );
-   if( ! ifile.get() ) {
-     ::Error( APP_NAME, "Couldn't open file: %s", fn.Data() );
-     return 1;
-   }
-   ::Info( APP_NAME, "Opened file: %s", fn.Data() );
-     
-   // Connect the TEvent object to it:
-   RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
-     
-   // Loop over a few events:
-   const ::Long64_t entries = event.getEntries();
-     
-   for ( ::Long64_t entry = 0; entry < entries; ++entry ) {
-       
-     // Get the current entry:
-     event.getEntry( entry );
-     const xAOD::EventInfo *evtInfo;
-     RETURN_CHECK( APP_NAME, event.retrieve( evtInfo, "EventInfo" ) );
-     std::vector<float> weights = evtInfo->mcEventWeights();
-     
-     const xAOD::TruthEventContainer *tevts;
-     RETURN_CHECK( APP_NAME, event.retrieve( tevts, "TruthEvents" ) );
-     
-     // in reality we should pass the Higgs pT and Njets30 from HTXS
-     // but standard input files don't have these, so let's randomly sample them..
-     int HTXS_Njets30 = gRandom->Poisson(0.9);
-     double HTXS_pTH = std::abs(gRandom->Gaus(0.0,50.0))*1000; // convert to MeV
-
-     if ( entry == 0 ) {
-       ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
-	      weights.size(),tevts->at(0)->weights().size());
-       std::vector<float> ws = tevts->at(0)->weights();
-       for (size_t i=0;i<10;++i)
-	 ::Info(APP_NAME,"Weight %lu %.3f and %.3f. %lu weights and %lu names",
-		i,weights[i],ws[i],ws.size(),higgsMCtool->getWeightNames().size());
-       higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH).print();
+   for (TString fn:files) {
+   
+     // Open the input file:
+     std::unique_ptr< ::TFile > ifile( ::TFile::Open( fn, "READ" ) );
+     if( ! ifile.get() ) {
+       ::Error( APP_NAME, "Couldn't open file: %s", fn.Data() );
+       return 1;
      }
-
-     // Give some feedback of where we are:
-     if( (entry+1) % 10000 == 0 ) {
-       ::Info( APP_NAME, "Processed %5llu/%5llu events",entry+1,entries);
+     ::Info( APP_NAME, "Opened file: %s", fn.Data() );
+     
+     // Connect the TEvent object to it:
+     RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
+     
+     // Loop over a few events:
+     const ::Long64_t entries = event.getEntries();
+     
+     for ( ::Long64_t entry = 0; entry < entries; ++entry ) {
        
-       higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH).print();
-     }
-   }
+       // Get the current entry:
+       event.getEntry( entry );
+       const xAOD::EventInfo *evtInfo;
+       RETURN_CHECK( APP_NAME, event.retrieve( evtInfo, "EventInfo" ) );
+       std::vector<float> weights = evtInfo->mcEventWeights();
 
+       /*
+	 Float_t         EventInfoAuxDyn_HTXS_Higgs_eta;
+	 Float_t         EventInfoAuxDyn_HTXS_Higgs_m;
+	 Float_t         EventInfoAuxDyn_HTXS_Higgs_phi;
+	 Float_t         EventInfoAuxDyn_HTXS_Higgs_pt;
+	 Int_t           EventInfoAuxDyn_HTXS_Njets_pTjet30;
+	 Int_t           EventInfoAuxDyn_HTXS_Stage1_Category_pTjet30;
+	 Int_t           EventInfoAuxDyn_HTXS_Stage1_FineIndex_pTjet30;
+       */
+       const xAOD::TruthEventContainer *tevts;
+       RETURN_CHECK( APP_NAME, event.retrieve( tevts, "TruthEvents" ) );
+
+       double HTXS_pTH  = evtInfo->auxdata<float>("HTXS_Higgs_pt");
+       int HTXS_Njets30 = evtInfo->auxdata<float>("HTXS_Njets_pTjet30");
+       
+       // in reality we should pass the Higgs pT and Njets30 from HTXS
+       // but standard input files don't have these, so let's randomly sample them..
+       //int HTXS_Njets30 = gRandom->Poisson(0.9);
+       //double HTXS_pTH = std::abs(gRandom->Gaus(0.0,50.0))*1000; // convert to MeV
+       
+       if ( entry == 0 ) {
+	 ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
+		weights.size(),tevts->at(0)->weights().size());
+	 std::vector<float> ws = tevts->at(0)->weights();
+	 for (size_t i=0;i<10;++i)
+	   ::Info(APP_NAME,"Weight %lu %.3f and %.3f. %lu weights and %lu names",
+		  i,weights[i],ws[i],ws.size(),higgsMCtool->getWeightNames().size());
+	 higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH).print();
+       }
+       
+       // Give some feedback of where we are:
+       if( (entry+1) % 10000 == 0 ) ::Info( APP_NAME, "Processed %5llu/%5llu events",entry+1,entries);
+       
+     } // for each entry
+   } // for each file
+   
    // Return gracefully:
    return 0;
 }
