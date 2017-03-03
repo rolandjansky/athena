@@ -38,8 +38,10 @@
 #include <vector>
 
 #ifdef ATHENAHIVE
+#  include <thread>
 #  include "tbb/concurrent_unordered_map.h"
 #endif
+
 // Forward declarations.
 class G4Step;
 
@@ -130,6 +132,7 @@ namespace CaloG4 {
     // Used to keep track of processing state.
 #ifdef ATHENAHIVE
     /// Thread-to-SD concurrent map type
+    /// TODO: this needs a redesign. The map structure is bizarre and needless.
     using StCallThreadMap_t = tbb::concurrent_unordered_map
         < std::thread::id, G4bool, std::hash<std::thread::id> >;
     /// Concurrent map of flags, one for each thread

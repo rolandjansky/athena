@@ -134,7 +134,10 @@ namespace CaloG4 {
   G4double SimulationEnergies::alphaMass    = 0;
   G4double SimulationEnergies::helium3Mass  = 0;
   */
-#ifndef ATHENAHIVE
+
+#ifdef ATHENAHIVE
+  SimulationEnergies::StCallThreadMap_t SimulationEnergies::m_calledForStepThreadMap;
+#else
   G4bool SimulationEnergies::m_calledForStep = false;
 #endif
 
