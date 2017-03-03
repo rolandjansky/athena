@@ -110,10 +110,7 @@ StatusCode InDet::TRT_ElectronPidTool::initialize()
   if (sc.isFailure()) return sc;
 
   // Get the TRT Identifier-helper:
-  if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
-    ATH_MSG_FATAL ("Could not get TRT ID helper");
-    return StatusCode::FAILURE;
-  }
+  CHECK(detStore()->retrieve(m_trtId, "TRT_ID"));
 
   // Register callback function for cache updates - HT:
   //const DataHandle<CondAttrListCollection> aptr;
@@ -132,9 +129,7 @@ StatusCode InDet::TRT_ElectronPidTool::initialize()
     ATH_MSG_ERROR ("Callback registration failed for TRT_ElectronPidTool - RToT! ");
   }
   /* Get the TRT_ToT_dEdx tool */
-  if ( m_TRTdEdxTool.retrieve().isFailure() )
-    ATH_MSG_DEBUG("Failed to retrieve ToT dE/dx tool " << m_TRTdEdxTool);
-  else ATH_MSG_DEBUG("Retrieved tool " << m_TRTdEdxTool);
+  CHECK( m_TRTdEdxTool.retrieve());
 
 //   m_timingProfile=0;
 //   sc = service("ChronoStatSvc", m_timingProfile);
@@ -707,8 +702,8 @@ bool InDet::TRT_ElectronPidTool::CheckGeometry(int BEC, int Layer, int Strawlaye
 
 /*****************************************************************************\
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%  Auxiliary function to return the HT pobability to Atlfast  %%%%%%%%%%%*|
-|*%%%  a geometry ckeck is perfored every time here  %%%%%%%%%%%%%%%%%%%%%%%%*|
+|*%%%  Auxiliary function to return the HT probability to Atlfast  %%%%%%%%%%*|
+|*%%%  a geometry check is performed every time here  %%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
@@ -723,7 +718,7 @@ double InDet::TRT_ElectronPidTool::probHT( const double pTrk, const Trk::Particl
 
 /**************************************************************************** \
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%  The following functions can be very useful for developement  %%%%%%%%%*|
+|*%%%  The following functions can be very useful for development  %%%%%%%%%%*|
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 /*
