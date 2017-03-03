@@ -15,6 +15,9 @@
 -External/APEGlue
 -Offloading
 
+# Temporary VP1 compilation issues 
+-graphics/VP1
+
 # Remove simulation packages except those required for EDM, etc.
 +Generators/McEventSelector
 +Generators/GenAnalysisTools/TruthHelper
