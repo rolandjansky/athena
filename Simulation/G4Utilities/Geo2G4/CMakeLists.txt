@@ -48,5 +48,5 @@ atlas_add_dictionary( LArWheelSolidCheckerDict
                       src/LArWheelSolidDDProxy.h
                       src/lcg_dict/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelKernel GeoModelUtilities GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests GeoSpecialShapes SimHelpers Geo2G4Lib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelKernel GeoModelUtilities GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests GeoSpecialShapes SimHelpers GeoMaterial2G4 Geo2G4Lib )
 

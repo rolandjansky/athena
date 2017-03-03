@@ -4,7 +4,7 @@
 
 #include "Geo2G4Builder.h"
 #include "Geo2G4SvcAccessor.h"
-#include "Geo2G4SvcBase.h"
+#include "G4AtlasInterfaces/Geo2G4SvcBase.h"
 #include "Geo2G4OpticalSurfaceFactory.h"
 
 #include "GeoModelKernel/GeoVDetectorManager.h"

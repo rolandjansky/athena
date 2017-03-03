@@ -5,8 +5,8 @@
 #ifndef GEO2G4_Geo2G4SvcAccessor_H
 #define GEO2G4_Geo2G4SvcAccessor_H
 
-#include "Geo2G4SvcBase.h"
-#include "IGeo2G4Svc.h"
+#include "G4AtlasInterfaces/Geo2G4SvcBase.h"
+#include "G4AtlasInterfaces/IGeo2G4Svc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"

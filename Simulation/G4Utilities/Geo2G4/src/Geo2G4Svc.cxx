@@ -3,19 +3,15 @@
 */
 
 #include "Geo2G4Svc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "StoreGate/StoreGateSvc.h"
-
-#include "Geo2G4SvcAccessor.h"
 #include "VolumeBuilder.h"
 
 void InitializeBuilders();
 
-Geo2G4Svc::Geo2G4Svc(const std::string& n, ISvcLocator* svc):
-  AthService(n,svc),m_pIncSvc(0),defaultBuilder(0),m_getTopTransform(true)
+Geo2G4Svc::Geo2G4Svc(const std::string& name, ISvcLocator* svcLocator)
+  : AthService(name,svcLocator)
+  , m_pIncSvc(nullptr)
+  , m_defaultBuilder(nullptr)
+  , m_getTopTransform(true)
 {
   ATH_MSG_VERBOSE ("Creating the Geo2G4Svc.");
   declareProperty("GetTopTransform", m_getTopTransform);
@@ -27,23 +23,23 @@ StatusCode Geo2G4Svc::initialize()
 {
   static int initialized=0;
   if (initialized)
-    ATH_MSG_VERBOSE (" Geo2G4Svc already initialized.");
-  else
     {
-      ATH_MSG_VERBOSE ("Initializing the Geo2G4Svc.");
-      ATH_MSG_VERBOSE ("Creating all builders available.");
-      InitializeBuilders();
-
-      const std::string nameBuilder = "Extended_Parameterised_Volume_Builder"; //TODO Configurable property??
-      SetDefaultBuilder(nameBuilder);
-      ATH_MSG_VERBOSE (nameBuilder << " --> set as default builder" );
-      ATH_MSG_VERBOSE (nameBuilder << " --> ParamOn flag = " << defaultBuilder->GetParam());
-      initialized=1;
-      if(msgLvl(MSG::VERBOSE)) {
-        ListVolumeBuilders();
-      }
+      ATH_MSG_VERBOSE (" Geo2G4Svc already initialized.");
+      return StatusCode::SUCCESS;
     }
+  ATH_MSG_VERBOSE ("Initializing the Geo2G4Svc.");
+  ATH_MSG_VERBOSE ("Creating all builders available.");
+  InitializeBuilders(); // separate function not part of this class
 
+  const std::string nameBuilder = "Extended_Parameterised_Volume_Builder"; //TODO Configurable property??
+  this->SetDefaultBuilder(nameBuilder);
+  ATH_MSG_VERBOSE (nameBuilder << " --> set as default builder" );
+  ATH_MSG_VERBOSE (nameBuilder << " --> ParamOn flag = " << m_defaultBuilder->GetParam());
+  initialized=1;
+  if(msgLvl(MSG::VERBOSE))
+    {
+      this->ListVolumeBuilders();
+    }
   return StatusCode::SUCCESS;
 }
 
@@ -56,7 +52,7 @@ StatusCode Geo2G4Svc::finalize()
 
 StatusCode Geo2G4Svc::queryInterface(const InterfaceID& riid, void**ppvInt)
 {
-  const InterfaceID& iid=intID();
+  const InterfaceID& iid=IGeo2G4Svc::interfaceID();
   if (riid==iid)
     {
       *ppvInt=dynamic_cast<IGeo2G4Svc*>(this);
@@ -83,16 +79,19 @@ void Geo2G4Svc::RegisterVolumeBuilder(VolumeBuilder* vb)
       ATH_MSG_DEBUG ("Volume builder registered "<<key);
     }
 }
-void Geo2G4Svc::ListVolumeBuilders()
+
+void Geo2G4Svc::ListVolumeBuilders() const
 {
-  BuilderMap::const_iterator it;
-  std::cout<<"---- List of all Volume Builders registered with Geo2G4Svc ----"<<std::endl;
-  std::cout<<"---------------------------------------------------------------"<<std::endl;
-  for (it=m_builders.begin();it!=m_builders.end();it++)
-    std::cout<<" Volume Builder  "<<(*it).second->GetKey()<<std::endl;
-  std::cout<<"---------------------------------------------------------------"<<std::endl;
-  std::cout<<" default builder is "<<defaultBuilder->GetKey()<<std::endl;
+  ATH_MSG_INFO("---- List of all Volume Builders registered with Geo2G4Svc ----");
+  ATH_MSG_INFO("---------------------------------------------------------------");
+  for (const auto& builder : m_builders)
+    {
+      ATH_MSG_INFO(" Volume Builder: "<<builder.second->GetKey());
+    }
+  ATH_MSG_INFO("---------------------------------------------------------------");
+  ATH_MSG_INFO(" default builder is "<<m_defaultBuilder->GetKey());
 }
+
 void Geo2G4Svc::UnregisterVolumeBuilder(VolumeBuilder* vb)
 {
   const std::string key(vb->GetKey());
@@ -107,16 +106,18 @@ void Geo2G4Svc::UnregisterVolumeBuilder(VolumeBuilder* vb)
       ATH_MSG_ERROR ("\t request ignored, nothing done ");
     }
 }
-VolumeBuilder* Geo2G4Svc::GetVolumeBuilder(std::string s)
+
+VolumeBuilder* Geo2G4Svc::GetVolumeBuilder(std::string s) const
 {
-  if (m_builders.find(s)!=m_builders.end())
+  const auto builderItr(m_builders.find(s));
+  if (builderItr!=m_builders.end())
     {
-      return m_builders[s];
+      return builderItr->second;
     }
   else
     {
       ATH_MSG_ERROR ("Trying to retrieve a not existing builder "<<s);
       ATH_MSG_ERROR ("\treturning Default Builder");
     }
-  return defaultBuilder;
+  return m_defaultBuilder;
 }
