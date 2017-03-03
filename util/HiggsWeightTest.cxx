@@ -142,7 +142,7 @@ int main( int argc, char* argv[] ) {
        // Access all Higgs weights
        xAOD::HiggsWeights hw = higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH,HTXS_Stage1);
        // on of my test files lack PDF info..
-       bool doPDF = hw.pdf4lhc.size()==30;
+       bool doPDF = hw.pdf4lhc_unc.size()==30;
 
        h_pTH  -> Fill(h.Pt(),hw.nominal);
        h_Njets-> Fill(HTXS_Njets30,hw.nominal);
@@ -150,13 +150,13 @@ int main( int argc, char* argv[] ) {
        h_STXS -> Fill(HTXS_index,hw.nominal);
 
        if (doPDF) {
-	 fillHistos(h_pTH_pdf4lhc,h.Pt(),hw.pdf4lhc);
+	 fillHistos(h_pTH_pdf4lhc,h.Pt(),hw.pdf4lhc_unc);
 	 fillHistos(h_pTH_aS,h.Pt(),{hw.alphaS_up,hw.alphaS_dn});
-	 fillHistos(h_yH_pdf4lhc,h.Rapidity(),hw.pdf4lhc);
+	 fillHistos(h_yH_pdf4lhc,h.Rapidity(),hw.pdf4lhc_unc);
 	 fillHistos(h_yH_aS,h.Rapidity(),{hw.alphaS_up,hw.alphaS_dn});
-	 fillHistos(h_Njets_pdf4lhc,HTXS_Njets30,hw.pdf4lhc);
+	 fillHistos(h_Njets_pdf4lhc,HTXS_Njets30,hw.pdf4lhc_unc);
 	 fillHistos(h_Njets_aS,HTXS_Njets30,{hw.alphaS_up,hw.alphaS_dn});
-	 fillHistos(h_STXS_pdf4lhc,HTXS_index,hw.pdf4lhc);
+	 fillHistos(h_STXS_pdf4lhc,HTXS_index,hw.pdf4lhc_unc);
 	 fillHistos(h_STXS_aS,HTXS_index,{hw.alphaS_up,hw.alphaS_dn});
        }
 

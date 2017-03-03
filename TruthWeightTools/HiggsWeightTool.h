@@ -13,10 +13,10 @@ namespace xAOD {
   class HiggsWeights {
   public:
     /// Nominal event weight
-    double nominal;
+    double nominal, weight0;
     
-    /// 30 PDF4LHC variations + alphaS up/down
-    std::vector<double> pdf4lhc;
+    /// 30 PDF4LHC uncertainty variations + alphaS up/down
+    std::vector<double> pdf4lhc_unc, nnpdf30_unc;
     double alphaS_up, alphaS_dn;
 
     /// ggF QCD scale variations (muR,muF), 8 variations
@@ -37,31 +37,45 @@ namespace xAOD {
     double qcd_wg1_mu, qcd_wg1_res, qcd_wg1_mig01, qcd_wg1_mig12;
     double qcd_wg1_pTH, qcd_wg1_qm;
 
-    // Tackmann proposed QCD uncertainty scheme, TODO
+    /// Tackmann proposed QCD uncertainty scheme, TODO
 
-    /// Powheg NNLOPS possible scheme
+    /// Powheg NNLOPS possible scheme TODO
     double qcd_nnlops_nnlo, qcd_nnlops_pow;
+
+    /// NLO weights for cross checks of NNLOPS
+    // double weightNLO, nlo_pdf4lhc_nlo, nlo_pdf4lhc_nnlo, nlo_nnpdf30_nlo
+    
 
     /// information of the current event kinematiocs
     double pTH;
-    int Njets30, STXScat;
+    int Njets30, STXS;
 
     /// methods to print weights to the screen
-    char *uncStr(double var, double nom) { return Form("%s%.1f%%",var>nom?"+":"",(var-nom)/nom*100); }
+    char *uncStr(double var, double nom) { return var==0?Form("  N/A"):Form("%s%.1f%%",var>=nom?"+":"",(var-nom)/nom*100); }
     void print() {
       double n=nominal;
       printf("\n------\n  Higgs MC weights of current event, pTH = %.1f GeV, Njets = %i\n",
 	     pTH,Njets30);
       printf("    Nominal weight: %.3f\n",nominal);
-      if (pdf4lhc.size()==30) {
-	printf("\n    PDF unc  1-10:");
-	for (size_t i=0;i<10;++i) printf(" %s",uncStr(pdf4lhc[i],n));
+      printf("    Weight 0:       %.3f\n",weight0);
+
+      printf("\n   There are %lu PDF4LHC NLO uncertainty variations\n",pdf4lhc_unc.size());
+      if (pdf4lhc_unc.size()==30) {
+	printf("    PDF unc  1-10:");
+	for (size_t i=0;i<10;++i) printf(" %s",uncStr(pdf4lhc_unc[i],n));
 	printf("\n    PDF unc 11-20:");
-	for (size_t i=10;i<20;++i) printf(" %s",uncStr(pdf4lhc[i],n));
+	for (size_t i=10;i<20;++i) printf(" %s",uncStr(pdf4lhc_unc[i],n));
 	printf("\n    PDF unc 21-30:");
-	for (size_t i=20;i<30;++i) printf(" %s",uncStr(pdf4lhc[i],n));
+	for (size_t i=20;i<30;++i) printf(" %s",uncStr(pdf4lhc_unc[i],n));
 	printf("\n    alphaS up: %s, down: %s\n",
 	       uncStr(alphaS_up,n),uncStr(alphaS_dn,n));
+      }
+      printf("\n   There are %lu NNPDF 3.0 NLO uncertainty variations\n",nnpdf30_unc.size());
+
+      // NNLOPS Specific stuff
+      if (qcd_nnlops.size()) {
+	printf("\n    ggF Powheg NNLOPS with %lu QCD uncertainty variations\n",
+	       qcd_nnlops.size());
 	printf("\n    Quark mass varations  (m_top=inf): %s  (m_b minlo): %s\n",
 	       uncStr(mt_inf,n),uncStr(mb_minlo,n));
 	printf("\n    WG1 proposed QCD uncertainty scheme\n");
@@ -69,8 +83,16 @@ namespace xAOD {
 	       uncStr(qcd_wg1_mu,n),uncStr(qcd_wg1_res,n),uncStr(qcd_wg1_mig01,n),uncStr(qcd_wg1_mig12,n));
 	printf("      pTH: %s,   quark-mass: %s\n",
 	       uncStr(qcd_wg1_pTH,n),uncStr(qcd_wg1_qm,n));
+
       }
-    }
+      printf("\n   PDF central values\n"); 
+      printf("     PDF4LHC_nlo:  %s, PDF4LHC_nnlo: %s\n",uncStr(pdf4lhc_nlo,n),uncStr(pdf4lhc_nnlo,n));
+      printf("     NNPDF30_nlo:  %s, NNPDF30_nnlo: %s\n",uncStr(nnpdf30_nlo,n),uncStr(nnpdf30_nnlo,n));
+      printf("     CT10nlo:      %s, CT14nlo:      %s\n",uncStr(ct10nlo,n),uncStr(ct14nlo,n));
+      printf("     CT10nlo_0118: %s, CT14nlo_0118: %s\n",uncStr(ct10nlo_0118,n),uncStr(ct14nlo_0118,n));
+      printf("     MMHT2014nlo:  %s\n",uncStr(mmht2014nlo,n));
+      printf("\n------\n");
+    } // print()
 
   };
 
@@ -123,7 +145,7 @@ namespace xAOD {
     /// Setup weights
     void setupWeights(size_t Nweights);
 
-    double getWeight(std::vector<float> &ws, size_t idx) {
+    double getWeight(const std::vector<float> &ws, size_t idx) {
       if (idx==0) return 0.0;
       return ws.at(idx);
     }
@@ -156,12 +178,12 @@ namespace xAOD {
     size_t m_nom;
     
     /// weight indices for PDF+alphaS uncertainites
-    std::vector<size_t> m_pdfUnc;
+    std::vector<size_t> m_pdfUnc, m_pdfNNPDF30;
     size_t m_aS_up, m_aS_dn; 
 
     /// Special PDF sets
-    int m_nnpdf30_nlo, m_nnpdf30_nnlo, m_mmht2014nlo, m_pdf4lhc_nlo, m_pdf4lhc_nnlo;
-    int m_ct10nlo, m_ct10nlo_0118, m_ct14nlo, m_ct14nlo_0118;
+    size_t m_nnpdf30_nlo, m_nnpdf30_nnlo, m_mmht2014nlo, m_pdf4lhc_nlo, m_pdf4lhc_nnlo;
+    size_t m_ct10nlo, m_ct10nlo_0118, m_ct14nlo, m_ct14nlo_0118;
     
     /// Special weight indices for Powheg NNLOPS
     size_t m_tinf, m_bminlo, m_nnlopsNom;

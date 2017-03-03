@@ -64,11 +64,18 @@ namespace xAOD {
       ::Info(name,"PDF4LHC uncertainty variations at positions %lu-%lu",
 	     getWeightIndex(" PDF set = 90400 "),getWeightIndex(" PDF set = 90430 "));
     }
+    m_pdfNNPDF30.clear();
+    if ( hasWeight(" PDF set = 260001 ") ) {
+      m_pdfNNPDF30.push_back(isNNLOPS?getWeightIndex(" PDF set = 260000 "):0);
+      for (int id=260001;id<=260100;++id) m_pdfNNPDF30.push_back(getWeightIndex(Form(" PDF set = %i ",id)));
+      ::Info(name,"NNPDF30 NLO uncertainty variations at positions %lu-%lu",
+             getWeightIndex(" PDF set = 260001 "),getWeightIndex(" PDF set = 260100 "));
+    }
 
     m_aS_up=m_aS_dn=0;
     if ( hasWeight(" PDF set = 90431 ") && hasWeight(" PDF set = 90432 ") ) {
-      m_aS_up = getWeightIndex(" PDF set = 90431 ");
-      m_aS_dn = getWeightIndex(" PDF set = 90432 ");
+      m_aS_dn = getWeightIndex(" PDF set = 90431 ");
+      m_aS_up = getWeightIndex(" PDF set = 90432 ");
       ::Info(name,"PDF4LHC alphaS varations identified");
     }
 
@@ -113,7 +120,7 @@ namespace xAOD {
     m_ct14nlo      = getIndex(" PDF set = 13100 ");
     m_ct14nlo_0118 = getIndex(" PDF set = 13165 ");
     m_mmht2014nlo  = getIndex(" PDF set = 25200 ");
-    
+
     /*
       TO DO
       90400 PDF4LHC15_nlo_30_pdfas
@@ -131,10 +138,8 @@ namespace xAOD {
       " PDF set = 13165 "  CT14nlo_as_0118
      */
 
-    /*
-    for (std::string wn:wNames)
-      ::Info(name,"\'%s\'",wn.c_str());
-    */
+    //for (std::string wn:wNames)
+    // ::Info(name,"\'%s\'",wn.c_str());
   }
 
   const std::vector<std::string> &HiggsWeightTool::getWeightNames() {
@@ -198,10 +203,12 @@ namespace xAOD {
     
     HiggsWeights hw;
     // set kinematics
-    hw.pTH=pTH; hw.Njets30=Njets;
+    hw.pTH=pTH; hw.Njets30=Njets; hw.STXS = STXS_Stage1;
 
     // 1. Nominal weight
-    hw.nominal = weights[m_nom];
+    double w_nom = weights[m_nom];
+    hw.nominal = w_nom;
+    hw.weight0 = weights[0];
 
     // 2. PDF weights
     hw.alphaS_up=hw.alphaS_dn=0;
@@ -210,32 +217,69 @@ namespace xAOD {
       // PDF uncertainty. Scale to nominal weight (since PDF0 is relative to Powheg NLO)
       //   w_PDF[i] = PDF[i] / PDF[0] * w_nominal
       for (size_t i=1;i<=30;++i)
-	hw.pdf4lhc.push_back(weights[m_pdfUnc[i]]/pdf0*hw.nominal);
+	hw.pdf4lhc_unc.push_back(weights[m_pdfUnc[i]]/pdf0*w_nom);
       // 2b. alphaS weights
       if (m_aS_up&&m_aS_dn) {
-	hw.alphaS_up = weights[m_aS_up]/pdf0*hw.nominal;
-	hw.alphaS_dn = weights[m_aS_dn]/pdf0*hw.nominal;
+	hw.alphaS_up = weights[m_aS_up]/pdf0*w_nom;
+	hw.alphaS_dn = weights[m_aS_dn]/pdf0*w_nom;
       }
     }
+    if (m_pdfNNPDF30.size()==101) {
+      double pdf0=weights[m_pdfNNPDF30[0]];
+      for (size_t i=1;i<=100;++i)
+        hw.nnpdf30_unc.push_back(weights[m_pdfNNPDF30[i]]/pdf0*w_nom);
+    }
 
-    // Special PDF weights
-    hw.nnpdf30_nnlo = m_nnlopsNom ? weights[m_nnlopsNom] : 0;
-    double nnlo = hw.nnpdf30_nnlo; // weight 0 for NNLOPS
+    // Standard QCD uncertainties (which are relative to weight 0)
+    for (auto idx:m_qcd) hw.qcd.push_back(getWeight(weights,idx)*w_nom/hw.weight0);
 
-    hw.nnpdf30_nlo = getWeight(weights,m_nnpdf30_nlo);
-    hw.mmht2014nlo = getWeight(weights,m_mmht2014nlo);
-    hw.pdf4lhc_nlo = getWeight(weights,m_pdf4lhc_nlo);
-    hw.pdf4lhc_nnlo = getWeight(weights,m_pdf4lhc_nnlo);
+    // NNLOPS QCD uncertainties
+    double nnlo=getWeight(weights,m_nnlopsNom);
+    if (!m_nnlopsNom) nnlo=w_nom; // fix of rare NNLOPS
+
+    for (auto idx:m_qcd_nnlops) hw.qcd_nnlops.push_back(getWeight(weights,idx)*w_nom/nnlo);
+
+    // Central values of different PDF sets
+    // for NNLOPS, these are relative to the NLO cross section - need to adjust with k-factor
+    double k = m_nnlopsNom ? nnlo/hw.weight0 : 1.0;
     
-    double ct10nlo, ct10nlo_0118, ct14nlo, ct14nlo_0118;
-
+    //hw.nnpdf30_nnlo = m_nnlopsNom ? weights[m_nnlopsNom] : 0; <<<<<
+    hw.nnpdf30_nlo  = getWeight(weights,m_nnpdf30_nlo)*k;
+    hw.nnpdf30_nnlo = getWeight(weights,m_nnpdf30_nnlo)*k;
+    hw.mmht2014nlo  = getWeight(weights,m_mmht2014nlo)*k;
+    hw.pdf4lhc_nlo  = getWeight(weights,m_pdf4lhc_nlo)*k;
+    hw.pdf4lhc_nnlo = getWeight(weights,m_pdf4lhc_nnlo)*k;
+    hw.ct10nlo      = getWeight(weights,m_ct10nlo)*k;
+    hw.ct10nlo_0118 = getWeight(weights,m_ct10nlo_0118)*k;
+    hw.ct14nlo      = getWeight(weights,m_ct14nlo)*k;
+    hw.ct14nlo_0118 = getWeight(weights,m_ct14nlo_0118)*k;
     
+    // special catch
+    if (m_bminlo||m_qcd_nnlops.size()) {// NNLOPS!!
+      hw.nnpdf30_nnlo = hw.weight0*k;
+      hw.pdf4lhc_nnlo = w_nom; // usually close, but can be 4% different...
+      // printf("  %.4f = %.4f\n",hw.nnpdf30_nnlo,nnlo); // should be the same! // works!
+      // printf("PDF4LHC NLO * k_NNLO / NNLO: %.4f\n",getWeight(weights,m_pdf4lhc_nnlo)*k/w_nom);
+    }
+    else if (m_pdfUnc.size()==31)  // should be VBF or VH
+      hw.nnpdf30_nlo = hw.weight0; // sf=1 here
+    
+
     // 3. Quark mass variations
     //m_tinf=m_bminlo=m_nnlopsNom=0;
-    hw.mt_inf   = m_tinf   ? weights[m_tinf]*hw.nominal/nnlo   : 0;
-    hw.mb_minlo = m_bminlo ? weights[m_bminlo]*hw.nominal/nnlo : 0;
+    hw.mt_inf   = getWeight(weights,m_tinf)*w_nom/nnlo;
+    hw.mb_minlo = getWeight(weights,m_bminlo)*w_nom/nnlo;
 
-    // WG1 QCD uncertainty
+    //TODO - check
+    //       " nnlops-nominal ",
+    // AND NLO quark mass weights: mtmb, mtinf, mtmb-bminlo
+    
+    
+
+    /*********
+     *  WG1 proposed ggF QCD uncertainty
+     */
+
     // Cross sections in the =0, =1, and >=2 jets of Powheg ggH after reweighing scaled to  sigma(N3LO)
     static std::vector<double> sig({30.26,13.12,5.14});
 
@@ -249,10 +293,10 @@ namespace xAOD {
     double sf = 48.52/47.4;
 
     int jetBin = (Njets > 1 ? 2 : Njets);
-    hw.qcd_wg1_mu    = (1.0 + yieldUnc[jetBin]/sig[jetBin]*sf)*hw.nominal;
-    hw.qcd_wg1_res   = (1.0 + resUnc[jetBin]/sig[jetBin]*sf)*hw.nominal;
-    hw.qcd_wg1_mig01 = (1.0 + cut01Unc[jetBin]/sig[jetBin]*sf)*hw.nominal;
-    hw.qcd_wg1_mig12 = (1.0 + cut12Unc[jetBin]/sig[jetBin]*sf)*hw.nominal;
+    hw.qcd_wg1_mu    = (1.0 + yieldUnc[jetBin]/sig[jetBin]*sf)*w_nom;
+    hw.qcd_wg1_res   = (1.0 + resUnc[jetBin]/sig[jetBin]*sf)*w_nom;
+    hw.qcd_wg1_mig01 = (1.0 + cut01Unc[jetBin]/sig[jetBin]*sf)*w_nom;
+    hw.qcd_wg1_mig12 = (1.0 + cut12Unc[jetBin]/sig[jetBin]*sf)*w_nom;
     
     // High pT uncertainty 
     static double y1_1 = 0.88, y2_1 = 1.16, x2_1 = 150;
@@ -260,10 +304,15 @@ namespace xAOD {
     double pTH_unc = 1.0;
     if      (Njets>=2) pTH_unc = pTH>x2_ge2?y2_ge2:y1_ge2+(y2_ge2-y1_ge2)*pTH/x2_ge2;
     else if (Njets==1) pTH_unc = pTH>x2_1?y2_1:y1_1+(y2_1-y1_1)*pTH/x2_1;
-    hw.qcd_wg1_pTH = pTH_unc*hw.nominal;
+    hw.qcd_wg1_pTH = pTH_unc*w_nom;
 
     // Quark-mass uncdertainty - TODO
-    hw.qcd_wg1_qm = hw.nominal;
+    hw.qcd_wg1_qm = w_nom;
+
+
+    /*********
+     *  Tackmann STXS uncertainty scheme
+     */
 
     return hw;
   }
