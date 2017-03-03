@@ -60,38 +60,6 @@ def configCosmicFilterVolumeNames():
 
     return [collectionName]
 
-def getCosmicFilter(name="G4CosmicFilter", **kwargs):
-
-    volumes=configCosmicFilterVolumeNames()
-
-    # use simple  cosmic filter
-    if len(volumes)==1:
-
-        if simFlags.CosmicFilterID.statusOn:
-            kwargs.setdefault("PDGId", simFlags.CosmicFilterID.get_Value())
-        if simFlags.CosmicFilterPTmin.statusOn:
-            kwargs.setdefault("PtMin", simFlags.CosmicFilterPTmin.get_Value())
-        if simFlags.CosmicFilterPTmax.statusOn:
-            kwargs.setdefault("PtMax", simFlags.CosmicFilterPTmax.get_Value())
-        kwargs.setdefault("CollectionName",volumes[0])
-
-        print 'G4CosmicFilter: Filter volume is %s' % volumes[0]
-
-        return  CfgMgr.G4CosmicFilter(name, **kwargs)
-
-    elif len(volumes)==2:
-        # need a cosmic AND filter
-        kwargs.setdefault("CollectionName",volumes[0])
-        kwargs.setdefault("CollectionName2",volumes[1])
-        return  CfgMgr.G4CosmicAndFilter(name, **kwargs)
-
-    else:
-        # need a cosmic OR filter
-        kwargs.setdefault("CollectionName",volumes[0])
-        kwargs.setdefault("CollectionName2",volumes[1])
-        kwargs.setdefault("CollectionName3",volumes[2])
-        return  CfgMgr.G4CosmicOrFilter(name, **kwargs)
-
 def getCosmicFilterTool(name="G4UA::G4CosmicFilterTool", **kwargs):
 
     volumes=configCosmicFilterVolumeNames()
