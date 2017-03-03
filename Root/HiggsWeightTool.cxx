@@ -102,18 +102,33 @@ namespace xAOD {
       ::Info(name,"Read in 3 NNLOPS quark mass weights and %lu QCD weights",m_qcd_nnlops.size());
     }
 
+    // special PDFs
+
+    m_pdf4lhc_nnlo = getIndex(" PDF set = 91400 ");
+    m_pdf4lhc_nlo  = getIndex(" PDF set = 90400 ");
+    m_nnpdf30_nnlo = getIndex(" PDF set = 261000 "); // NNLOPS nominal
+    m_nnpdf30_nlo  = getIndex(" PDF set = 260000 "); // VBF+VH nominal
+    m_ct10nlo      = getIndex(" PDF set = 11000 ");
+    m_ct10nlo_0118 = getIndex(" PDF set = 11068 ");
+    m_ct14nlo      = getIndex(" PDF set = 13100 ");
+    m_ct14nlo_0118 = getIndex(" PDF set = 13165 ");
+    m_mmht2014nlo  = getIndex(" PDF set = 25200 ");
+    
     /*
       TO DO
-      HiggsWeightTool::setup... INFO     PDF set = 91400 
-      HiggsWeightTool::setup... INFO     PDF set = 260000
+      90400 PDF4LHC15_nlo_30_pdfas
+      HiggsWeightTool::setup... INFO     PDF set = 91400  PDF4LHC15_nnlo_30_pdfas
+      HiggsWeightTool::setup... INFO     PDF set = 260000 NNPDF30_nlo_as_0118
       ...
-      HiggsWeightTool::setup... INFO     PDF set = 260100 
-      HiggsWeightTool::setup... INFO     PDF set = 11000 
-      HiggsWeightTool::setup... INFO     PDF set = 25200 
-      HiggsWeightTool::setup... INFO     PDF set = 13100 
+      HiggsWeightTool::setup... INFO     PDF set = 11000  CT10nlo
+      HiggsWeightTool::setup... INFO     PDF set = 25200  MMHT2014nlo68clas118
+      HiggsWeightTool::setup... INFO     PDF set = 13100  CT14nlo
       HiggsWeightTool::setup... INFO     mtmb 
       HiggsWeightTool::setup... INFO     mtinf 
       nnlops-nnloNom-pwgDnDn 
+
+      " PDF set = 11068 "  CT10nlo_as_0118
+      " PDF set = 13165 "  CT14nlo_as_0118
      */
 
     /*
@@ -203,10 +218,18 @@ namespace xAOD {
       }
     }
 
-    // nominal
+    // Special PDF weights
     hw.nnpdf30_nnlo = m_nnlopsNom ? weights[m_nnlopsNom] : 0;
-    double nnlo = hw.nnpdf30_nnlo;
+    double nnlo = hw.nnpdf30_nnlo; // weight 0 for NNLOPS
 
+    hw.nnpdf30_nlo = getWeight(weights,m_nnpdf30_nlo);
+    hw.mmht2014nlo = getWeight(weights,m_mmht2014nlo);
+    hw.pdf4lhc_nlo = getWeight(weights,m_pdf4lhc_nlo);
+    hw.pdf4lhc_nnlo = getWeight(weights,m_pdf4lhc_nnlo);
+    
+    double ct10nlo, ct10nlo_0118, ct14nlo, ct14nlo_0118;
+
+    
     // 3. Quark mass variations
     //m_tinf=m_bminlo=m_nnlopsNom=0;
     hw.mt_inf   = m_tinf   ? weights[m_tinf]*hw.nominal/nnlo   : 0;

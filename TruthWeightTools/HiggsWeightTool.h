@@ -30,8 +30,9 @@ namespace xAOD {
     double mt_inf, mb_minlo;
 
     /// Special PDF weights
-    double nnpdf30_nnlo;
-
+    double nnpdf30_nlo, nnpdf30_nnlo, mmht2014nlo, pdf4lhc_nlo, pdf4lhc_nnlo;
+    double ct10nlo, ct10nlo_0118, ct14nlo, ct14nlo_0118;
+    
     /// WG1 proposed QCD uncertainty scheme
     double qcd_wg1_mu, qcd_wg1_res, qcd_wg1_mig01, qcd_wg1_mig12;
     double qcd_wg1_pTH, qcd_wg1_qm;
@@ -122,6 +123,16 @@ namespace xAOD {
     /// Setup weights
     void setupWeights(size_t Nweights);
 
+    double getWeight(std::vector<float> &ws, size_t idx) {
+      if (idx==0) return 0.0;
+      return ws.at(idx);
+    }
+
+    size_t getIndex(std::string wn) {
+      if (hasWeight(wn)) return getWeightIndex(wn);
+      return 0;
+    }
+    
     /// Flags 
     bool m_init;
 
@@ -148,9 +159,10 @@ namespace xAOD {
     std::vector<size_t> m_pdfUnc;
     size_t m_aS_up, m_aS_dn; 
 
-    /// Special PDF sets TODO
-
-
+    /// Special PDF sets
+    int m_nnpdf30_nlo, m_nnpdf30_nnlo, m_mmht2014nlo, m_pdf4lhc_nlo, m_pdf4lhc_nnlo;
+    int m_ct10nlo, m_ct10nlo_0118, m_ct14nlo, m_ct14nlo_0118;
+    
     /// Special weight indices for Powheg NNLOPS
     size_t m_tinf, m_bminlo, m_nnlopsNom;
     std::vector<size_t> m_qcd, m_qcd_nnlops;
