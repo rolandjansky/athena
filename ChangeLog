@@ -1,3 +1,9 @@
+2017-03-03 Dag Gillberg <dag.gillberg@cern.h>
+	* Tagging TruthWeightTools-01-02-03
+	* Added example macro to evaluate Higgs theory uncertainties
+	* All results produced so far makes sense! (mostly)
+	* Central values, PDF uncertainties, alphaS. Didn't check QCD yet..
+
 2017-03-02 Dag Gillberg <dag.gillberg@cern.h>
 	* Tagging TruthWeightTools-01-02-02
 	* All PDF weighs now read in to HiggsWeight struct, both to
