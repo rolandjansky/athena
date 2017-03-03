@@ -367,7 +367,7 @@ namespace CaloG4 {
 #endif
             ProcessEscapedEnergy( pTrack->GetVertexPosition(), escapedEnergy );
 	else
-	  result.energy[kEscaped] = escapedEnergy;
+	  result.energy[kEscaped] += escapedEnergy;
       }
 
     // END of calculation of Invisible and Escaped energy for current step
