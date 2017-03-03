@@ -3,33 +3,35 @@
  *  Dag Gillberg, March 3, 2017
  */
 typedef TString Str;
-typedef std::vector<TH1F*> HistV;
+typedef std::vector<TH1*> HistV;
 typedef std::vector<TString> StrV;
 typedef std::map<TString,HistV> HistMap;
 typedef std::vector<double> NumV;
 void fatal(Str msg) { printf("\n\nFATAL\n  %s\n\n",msg.Data()); abort(); }
+
+// methods to access hists
 TFile *openFile(Str fn);
+TH1 *getHist(TFile *f, Str hn, int rebin=1);
+TH1 *getHist(Str fn, Str hn, int rebin=1) { return getHist(openFile(fn),hn,rebin); }
+
+// methods to draw stuff
+void drawLine(double x1, double y1, double x2, double y2) {
+  static TLine *line = new TLine(); line->DrawLine(x1,y1,x2,y2);
+}
+TH1* drawHist(TH1 *h, Str opt, int col=kRed, int ls=1, int lw=2) {
+  h->SetStats(0); h->SetLineColor(col); h->SetLineWidth(lw); h->SetLineStyle(ls); h->Draw(opt); return h;
+}
+void drawText(double x, double y, Str txt) {
+  static TLatex *tex = new TLatex(); tex->SetNDC(); tex->SetTextFont(42); tex->DrawLatex(x,y,txt);
+}
+
+// methods to calculate errors
 double addInQuad(const NumV &v, double nom=0) {
   double V=0; for (auto var:v) V+=pow(var-nom,2); return sqrt(V);
 }
 double addInQuadRel(const NumV &v, double nom) {
   double V=0; for (auto var:v) V+=pow((var-nom)/nom,2); return sqrt(V);
 }
-TH1 *getHist(TFile *f, Str hn, int rebin=1);
-TH1 *getHist(Str fn, Str hn, int rebin=1) { return getHist(openFile(fn),hn,rebin); }
-
-void drawLine(double x1, double y1, double x2, double y2) {
-  static TLine *line = new TLine(); line->DrawLine(x1,y1,x2,y2);
-}
-
-TH1F *makeHist(Str name, int Nbins, double xmin, double xmax, Str tit="") {
-  TH1F *h = new TH1F(name,tit,Nbins,xmin,xmax); return h;
-}
-
-TH1* drawHist(TH1 *h, Str opt, int col=kRed, int ls=1, int lw=2) {
-  h->SetStats(0); h->SetLineColor(col); h->SetLineWidth(lw); h->SetLineStyle(ls); h->Draw(opt); return h;
-}
-
 double getTotUnc(HistV sysVar, int bin) {
   double nom=sysVar[0]->GetBinContent(bin), V=0;
   for (int i=1;i<sysVar.size();++i)
@@ -49,9 +51,6 @@ double hxswg(Str p) {
 char *per(double var, double nom) { return Form("%.2f%%",(var-nom)/nom*100); }
 void evaluateHiggsTheoryUncert() {
   StrV prods({"ggF","VBF","WpH","WmH","ZH"});
-  Str pdf("HiggsTheoryUnc.pdf");
-  TCanvas *can = new TCanvas();
-  can->Print(pdf+"[");
 
   std::map<Str,TFile*> files;
   for (auto p:prods) files[p]=openFile(p+".root");
@@ -78,7 +77,23 @@ void evaluateHiggsTheoryUncert() {
     double pdf=addInQuadRel(pdfV,n);
     printf("%8s%10s%10s%10s\n",p.Data(),per(pdf+1,1),per(au,n),per(ad,n));
   }
-  
+
+  Str pdf("HiggsTheoryUnc.pdf");
+  TCanvas *can = new TCanvas();
+  can->SetMargin(0.12,0.04,0.12,0.04);
+  can->Print(pdf+"[");
+
+  for (auto p:prods) {
+    for (TString var:{"pTH","Njets30","yH","STXS"}) {
+      auto nom=getHist(files[p],var);
+      drawHist(nom,""); 
+      HistV pdfV;
+      for (int i=1;i<=30;++i) pdfV.push_back(getHist(files[p],var+Form("_pdf4lhc%i",i)));
+      for (auto h:pdfV) drawHist(h,"hist same",kBlue);
+      drawHist(nom,"same"); drawText(0.7,0.88,p);
+      can->Print(pdf);
+    }
+  }
   
   can->Print(pdf+"]");
   printf("\nProduced %s\n\n",pdf.Data());

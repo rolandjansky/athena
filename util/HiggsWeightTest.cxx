@@ -60,24 +60,24 @@ int main( int argc, char* argv[] ) {
 
    // output file
    TFile *of = new TFile(ofn,"RECREATE");
-   Str ptTit = ";#it{p}_{T} [GeV]";
+   Str ptTit = ";#it{p}_{T,#it{H}} [GeV]";
    int Nbins=25; double min=0, max=250;
 
    TH1F *h_pTH = new TH1F("pTH",ptTit,Nbins,min,max);
    HistV h_pTH_pdf4lhc = makeHistos(30,"pTH_pdf4lhc",Nbins,min,max,ptTit);
    HistV h_pTH_aS = makeHistos({"pTH_aSup","pTH_aSdn"},Nbins,min,max,ptTit);
 
-   Nbins=10; min=-0.5; max=9.5; Str tit="#it{N}_{jets}";
+   Nbins=10; min=-0.5; max=9.5; Str tit=";#it{N}_{jets}";
    TH1F *h_Njets = new TH1F("Njets30",tit,Nbins,min,max);
    HistV h_Njets_pdf4lhc = makeHistos(30,"Njets30_pdf4lhc",Nbins,min,max,tit);
    HistV h_Njets_aS = makeHistos({"Njets30_aSup","Njets30_aSdn"},Nbins,min,max,tit);
 
-   Nbins=52; min=1; max=53; tit="STXS fine index";
+   Nbins=52; min=1; max=53; tit=";STXS fine index";
    TH1F *h_STXS = new TH1F("STXS",tit,Nbins,min,max);
    HistV h_STXS_pdf4lhc = makeHistos(30,"STXS_pdf4lhc",Nbins,min,max,tit);
    HistV h_STXS_aS = makeHistos({"STXS_aSup","STXS_aSdn"},Nbins,min,max,tit);
 
-   Nbins=60; min=-3; max=3; tit="#it{y_{H}}";
+   Nbins=60; min=-3; max=3; tit=";#it{y_{H}}";
    TH1F *h_yH = new TH1F("yH",tit,Nbins,min,max);
    HistV h_yH_pdf4lhc = makeHistos(30,"yH_pdf4lhc",Nbins,min,max,tit);
    HistV h_yH_aS = makeHistos({"yH_aSup","yH_aSdn"},Nbins,min,max,tit);
