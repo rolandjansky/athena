@@ -28,6 +28,8 @@ CREATED:  10th November, 2001
 #include "xAODTracking/TrackParticle.h"
 #include "AthContainers/ConstDataVector.h"
 
+#include "StoreGate/DataHandle.h"
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
@@ -87,24 +89,31 @@ class eflowPreparation : public AthAlgorithm {
 
  private:
 
-  /* Name of the cluster container and track container to read in: */
-  std::string m_clustersName;
-  std::string m_clustersCalName;
-  std::string m_tracksName;
+  /** ReadHandle for the CaloClusterContainer to be used as input */
+  SG::ReadHandle<xAOD::CaloClusterContainer> m_caloClusterReadHandle;
 
-  /* Name of and pointer to the eflowCaloObjectContainer to write out: */
-  std::string m_eflowCaloObjectsOutputName;
-  eflowCaloObjectContainer* m_caloObjectContainer;
+  /** ReadHandle for the CaloClusterContainer, at LC scale, to be used as input*/
+  SG::ReadHandle<xAOD::CaloClusterContainer> m_caloCalClusterReadHandle;
 
-  /* Name of and pointer to the eflowRecTrackContainer to write out: */
-  std::string m_eflowRecTracksOutputName;
-  eflowRecTrackContainer* m_recTrackContainer;
+  /** ReadHandle for the TrackParticleContainer to be used as input */
+  SG::ReadHandle<xAOD::TrackParticleContainer> m_trackReadHandle;
 
-  /* Name of and pointer to the eflowRecClusterContainer to write out: */
-  std::string m_eflowRecClustersOutputName;
-  eflowRecClusterContainer* m_recClusterContainer;
+  /** ReadHandle for the ElectronContainer to be used as input */
+  SG::ReadHandle<xAOD::ElectronContainer> m_electronReadHandle;
 
-  /* Handle to interface on TrackToCalo tool. */
+  /** ReadHandle for the MuonContainer to be used as input */
+  SG::ReadHandle<xAOD::MuonContainer> m_muonReadHandle;
+  
+  /** WriteHandle for the eflowCaloObjectContainer to write out: */
+  SG::WriteHandle<eflowCaloObjectContainer> m_eflowCaloObjectContainerWriteHandle;
+  
+  /** WriteHandle for the eflowRecTrackContainer to write out: */
+  SG::WriteHandle<eflowRecTrackContainer> m_eflowRecTrackContainerWriteHandle;
+
+  /** WriteHandle for the eflowRecClusterContainer to write out: */
+  SG::WriteHandle<eflowRecClusterContainer> m_eflowRecClusterContainerWriteHandle;
+
+  /** Handle to interface on TrackToCalo tool. */
   ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool;
 
   ToolHandle<PFTrackClusterMatchingTool> m_matchingTool;
@@ -112,23 +121,14 @@ class eflowPreparation : public AthAlgorithm {
   /* Which eflow mode is in use - Tau, MET or Full */
   std::string m_eflowMode;
 
-  /** container of electrons that we will select */
-  xAOD::ElectronContainer* m_selectedElectrons;
+  /** WriteHandle for the ElectronContainer, that will be filled with electrons passing the electron ID in eflowPreparation::selectElectrons */
+  SG::WriteHandle<xAOD::ElectronContainer> m_selectedElectronsWriteHandle;
 
   /** container of muons that we will select */
   xAOD::MuonContainer* m_selectedMuons;
-
-  /** container to put the lepton cells into */
-  ConstDataVector<CaloCellContainer>* m_leptonCellContainer;
-
-  /** Name of egamma track map */
-  std::string m_egammaTrackMapName;
-
-  /** Name of electron container */
-  std::string m_electronsName;
-
-  /** Name of muon container */
-  std::string m_muonsName;
+  
+  /** WriteHandle for the CaloCellContainer, that will store calorimeter cells associated to leptons (electrons and muons) */
+  SG::WriteHandle<ConstDataVector<CaloCellContainer> > m_leptonCaloCellContainerWriteHandle;
 
   /** bool to toggle masking out of lepton tracks */
   bool m_useLeptons;
@@ -136,17 +136,11 @@ class eflowPreparation : public AthAlgorithm {
   /** bool to toggle storage of lepton CaloCells */
   bool m_storeLeptonCells;
 
-  /** bool to assign name to container of electrons selected by eflowRec, to be used to mask out electron tracks */
-  std::string m_eflowElectronsName;
-
-  /** bool to assign mame to container of lepton cells, to be used to remove lepton cells */
-  std::string m_eflowLeptonCellsName;
-
   /** Count the number of track-cluster matches -- for the summary in finalize() */
   unsigned int m_nMatches;
 
   /** New track selection tool */
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_selTool;
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_selTool;
 
   /** Upper limit on track Pt for input tracks */
   float m_upperTrackPtCut;
