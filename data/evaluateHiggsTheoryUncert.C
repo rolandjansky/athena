@@ -32,8 +32,11 @@ double addInQuad(const NumV &v, double nom=0) {
 double addInQuadRel(const NumV &v, double nom) {
   double V=0; for (auto var:v) V+=pow((var-nom)/nom,2); return sqrt(V);
 }
-double envelopeRel(const NumV &vec, double n) {
-  double max=0; for (auto v:vec) { double u=std::abs(v-n)/n; if (u>max) max=u; } return max;
+double envelopeRel(const NumV &vec, double n, bool ignoreZero=true) {
+  double max=0;
+  for (auto v:vec) {
+    double u=std::abs(v-n)/n; if (u>max&&!(ignoreZero&&v==0)) max=u;
+  } return max;
 }
 double getTotUnc(HistV sysVar, int bin) {
   double nom=sysVar[0]->GetBinContent(bin), V=0;
@@ -51,12 +54,22 @@ double hxswg(Str p) {
   if (p=="ZH" ) return 8.839E-01-1.227E-01; // sig(qq->ZH) = sig(pp->ZH) - sig(gg->ZH)
   return 0.0;
 }
-char *per(double var, double nom) { return Form("%.2f%%",(var-nom)/nom*100); }
+// print relative deviation in percent between var and nom
+char *per(double relDev) { return relDev?Form("%.2f%%",relDev*100):Form("N/A"); }
+char *per(double var, double nom) { return per((var-nom)/nom); }
 void evaluateHiggsTheoryUncert() {
   StrV prods({"ggF","VBF","WpH","WmH","ZH"});
 
   std::map<Str,TFile*> files;
   for (auto p:prods) files[p]=openFile(p+".root");
+  // 0. Check the MC stats (how much is the stats effectively reduced due to nominal weight)
+  printf("\n%8s%12s%12s%12s\n","ProdMode","Nevts","Neff","ratio");
+  for (auto p:prods) {
+    auto h=getHist(files[p],"pTH"); double Neff = h->GetEffectiveEntries();
+    printf("%8s%12.0f%12.1f%12.4f\n",p.Data(),
+	   h->GetEntries(),Neff,Neff/ h->GetEntries());
+  }
+
   /// 1. Check the inclusive cross section
   printf("\n%8s%13s%13s%12s\n","ProdMode","sig(MC)","sig(HXSWG)","ratio");
   for (auto p:prods) {
@@ -69,20 +82,39 @@ void evaluateHiggsTheoryUncert() {
 
   /// 2. Check the uncertainty on the inclusive cross section ...
   printf("\nTotal uncertainties on inclusive predictions\n");
-  printf("%8s%10s%10s%10s%10s%10s\n","ProdMode","PDF4LHC","aS(up)","aS(dn)","QCDnlo","QCDnnlo");
+  printf("%8s%10s%10s%10s%10s%10s%10s%10s\n",
+	 "ProdMode","PDF4LHC","aS(up)","aS(dn)","QCDnlo","QCDnnlo","QCDnnlo2","QCDwg1");
   for (auto p:prods) {
     double n=getHist(files[p],"pTH")->Integral(0,-1);
     double au=getHist(files[p],"pTH_aSup")->Integral(0,-1);
     double ad=getHist(files[p],"pTH_aSdn")->Integral(0,-1);
-    NumV pdfV, qcd, qcd_nnlo, qcdWG1;
+    NumV pdfV, qcd, qcd_nnlo, qcd_nnlo2, qcdWG1;
     for (int i=1;i<=30;++i)
       pdfV.push_back(getHist(files[p],Form("pTH_pdf4lhc%i",i))->Integral(0,-1));
     for (int i=1;i<=8;++i) qcd.push_back(getHist(files[p],Form("pTH_qcd%i",i))->Integral(0,-1));
     for (int i=1;i<=26;++i) qcd_nnlo.push_back(getHist(files[p],Form("pTH_nnlops_qcd%i",i))->Integral(0,-1));
-    double pdf=addInQuadRel(pdfV,n);
-    printf("%8s%10s%10s%10s%10s%10s\n",
-	   p.Data(),per(pdf+1,1),per(au,n),per(ad,n),
-	   per(envelopeRel(qcd,n)+1,1),per(envelopeRel(qcd_nnlo,n)+1,1));
+    for (int i=1;i<=2;++i) qcd_nnlo2.push_back(getHist(files[p],Form("pTH_nnlo_qcd%i",i))->Integral(0,-1));
+    for (int i=1;i<=6;++i) qcdWG1.push_back(getHist(files[p],Form("pTH_wg1qcd%i",i))->Integral(0,-1));
+    double pdf=addInQuadRel(pdfV,n), nnlops=addInQuadRel(qcd_nnlo2,n), wg1=addInQuadRel(qcdWG1,n);
+    if (p!="ggF") wg1=0;
+    else {
+      for (auto q:qcd_nnlo) printf(" %s",per(q,n)); printf("\n");
+      for (auto q:qcd_nnlo2) printf(" %s",per(q,n)); printf("\n");
+      // 10.16% 9.64% 9.83%   // dn,dn,F
+      // 8.78% 9.06% 9.50%    // dn,n,F
+      // 11.80% 9.59% 9.61%   // dn,u,F
+      /// 0.99% 0.52% 0.70%   // n,dn,F
+      // -0.24% 0.39%         // n,n,F
+      // 2.48% 0.48% 0.50%    // n,u,F
+      // -8.13% -8.54% -8.38% // u,d,F
+      // -9.20% -9.00% -8.65% // u,n,F
+      // -6.79% -8.58% -8.56% // u,u,F
+
+    }
+    printf("%8s%10s%10s%10s%10s%10s%10s%10s\n",
+	   p.Data(),per(pdf),per(au,n),per(ad,n),
+	   per(envelopeRel(qcd,n)),per(envelopeRel(qcd_nnlo,n)),
+	   per(nnlops),per(wg1));
   }
 
   Str pdf("HiggsTheoryUnc.pdf");
@@ -92,10 +124,18 @@ void evaluateHiggsTheoryUncert() {
 
   for (auto p:prods) {
     for (TString var:{"pTH","Njets30","yH","STXS"}) {
-      auto nom=getHist(files[p],var);
-      drawHist(nom,""); 
-      HistV pdfV;
-      for (int i=1;i<=30;++i) pdfV.push_back(getHist(files[p],var+Form("_pdf4lhc%i",i)));
+      TFile *f=files[p];
+      auto nom=getHist(f,var); drawHist(nom,"");
+
+      // Read in histograms with theory variations
+      HistV pdfV, qcd, qcd_nnlo, qcd_nnlo2, qcd_wg1;
+      for (int i=1;i<=30;++i) pdfV.push_back(getHist(f,var+Form("_pdf4lhc%i",i)));
+      HistV aS({getHist(f,var+"_aSup"),getHist(f,var+"_aSdn")});
+      for (int i=1;i<=8;++i) qcd.push_back(getHist(f,var+Form("_qcd%i",i)));
+      for (int i=1;i<=26;++i) qcd_nnlo.push_back(getHist(f,var+Form("_nnlops_qcd%i",i)));
+      for (int i=1;i<=2;++i) qcd_nnlo2.push_back(getHist(f,var+Form("_nnlo_qcd%i",i)));
+      for (int i=1;i<=6;++i) qcd_wg1.push_back(getHist(f,var+Form("_wg1qcd%i",i)));
+      
       for (auto h:pdfV) drawHist(h,"hist same",kBlue);
       drawHist(nom,"same"); drawText(0.7,0.88,p);
       can->Print(pdf);
