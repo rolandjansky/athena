@@ -770,7 +770,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   resetTimeout(Athena::Timeout::instance());
   if(toolsPassed) {
   // Fire BeginEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));
+  //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));
 
   // An incident may schedule a stop, in which case is better to exit before the actual execution.
   if ( m_scheduledStop ) {
@@ -834,7 +834,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
   // Fire EndEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"EndEvent"));
+  //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"EndEvent"));
   ++m_proc;
   }  // end of toolsPassed test
   ++m_nev;

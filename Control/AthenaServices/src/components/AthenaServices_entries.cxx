@@ -32,6 +32,7 @@
 #include "../OutputStreamSequencerSvc.h"
 #include "../AthenaStopperAlg.h"
 #include "../AthenaHiveEventLoopMgr.h"
+#include "../AthIncFirerAlg.h"
 
 DECLARE_ALGORITHM_FACTORY( AthenaOutputStream )
 DECLARE_ALGORITHM_FACTORY( AthenaConditionStream )
@@ -65,3 +66,4 @@ DECLARE_SERVICE_FACTORY( OutputStreamSequencerSvc )
 DECLARE_TOOL_FACTORY( AthenaOutputStreamTool )
 DECLARE_TOOL_FACTORY( ThinningOutputTool )
 DECLARE_ALGORITHM_FACTORY( AthenaStopperAlg )
+DECLARE_ALGORITHM_FACTORY( AthIncFirerAlg )
