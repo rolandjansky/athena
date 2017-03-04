@@ -67,28 +67,44 @@ int main( int argc, char* argv[] ) {
    HistV h_pTH_pdf4lhc = makeHistos(30,"pTH_pdf4lhc",Nbins,min,max,ptTit);
    HistV h_pTH_nnpdf30 = makeHistos(100,"pTH_nnpdf30",Nbins,min,max,ptTit);
    HistV h_pTH_aS = makeHistos({"pTH_aSup","pTH_aSdn"},Nbins,min,max,ptTit);
-   HistV h_pTH_wg1qcd     = makeHistos(6,"pTH_wg1qcd",Nbins,min,max,ptTit);
-   HistV h_pTH_nnlops_qcd = makeHistos(26,"pTH_nnlops_qcd",Nbins,min,max,ptTit);
-   HistV h_pTH_qcd        = makeHistos(8,"pTH_qcd",Nbins,min,max,ptTit);
-   HistV h_pTH_nnlops_qcd2 = makeHistos(2,"pTH_nnlo_qcd",Nbins,min,max,ptTit);
+   // various QCD variations
+   HistV h_pTH_qcd         = makeHistos(8,"pTH_qcd",Nbins,min,max,ptTit); // Default Powheg QCD variations (NLO)
+   HistV h_pTH_nnlops_qcd  = makeHistos(26,"pTH_nnlops_qcd",Nbins,min,max,ptTit); // NNLOPS internal QCD vars
+   HistV h_pTH_nnlops_qcd2 = makeHistos(2,"pTH_nnlo_qcd",Nbins,min,max,ptTit); // NNLO and Powheg vars for NNLOPS
+   HistV h_pTH_wg1qcd      = makeHistos(6,"pTH_wg1qcd",Nbins,min,max,ptTit); // WG1 propsed scheme for ggF
 
    Nbins=10; min=-0.5; max=9.5; Str tit=";#it{N}_{jets}";
    TH1F *h_Njets = new TH1F("Njets30",tit,Nbins,min,max);
    HistV h_Njets_pdf4lhc = makeHistos(30,"Njets30_pdf4lhc",Nbins,min,max,tit);
    HistV h_Njets_nnpdf30 = makeHistos(100,"Njets30_nnpdf30",Nbins,min,max,tit);
    HistV h_Njets_aS = makeHistos({"Njets30_aSup","Njets30_aSdn"},Nbins,min,max,tit);
+   // various QCD variations
+   HistV h_Njets_qcd         = makeHistos(8,"Njets30_qcd",Nbins,min,max,tit); // Default Powheg QCD variations (NLO)
+   HistV h_Njets_nnlops_qcd  = makeHistos(26,"Njets30_nnlops_qcd",Nbins,min,max,tit); // NNLOPS internal QCD vars
+   HistV h_Njets_nnlops_qcd2 = makeHistos(2,"Njets30_nnlo_qcd",Nbins,min,max,tit); // NNLO and Powheg vars for NNLOPS
+   HistV h_Njets_wg1qcd      = makeHistos(6,"Njets30_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
 
    Nbins=52; min=1; max=53; tit=";STXS fine index";
    TH1F *h_STXS = new TH1F("STXS",tit,Nbins,min,max);
    HistV h_STXS_pdf4lhc = makeHistos(30,"STXS_pdf4lhc",Nbins,min,max,tit);
    HistV h_STXS_nnpdf30 = makeHistos(100,"STXS_nnpdf30",Nbins,min,max,tit);
    HistV h_STXS_aS = makeHistos({"STXS_aSup","STXS_aSdn"},Nbins,min,max,tit);
+   // various QCD variations
+   HistV h_STXS_qcd         = makeHistos(8,"STXS_qcd",Nbins,min,max,tit); // Default Powheg QCD variations (NLO)
+   HistV h_STXS_nnlops_qcd  = makeHistos(26,"STXS_nnlops_qcd",Nbins,min,max,tit); // NNLOPS internal QCD vars
+   HistV h_STXS_nnlops_qcd2 = makeHistos(2,"STXS_nnlo_qcd",Nbins,min,max,tit); // NNLO and Powheg vars for NNLOPS
+   HistV h_STXS_wg1qcd      = makeHistos(6,"STXS_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
 
    Nbins=60; min=-3; max=3; tit=";#it{y_{H}}";
    TH1F *h_yH = new TH1F("yH",tit,Nbins,min,max);
    HistV h_yH_pdf4lhc = makeHistos(30,"yH_pdf4lhc",Nbins,min,max,tit);
    HistV h_yH_nnpdf30 = makeHistos(100,"yH_nnpdf30",Nbins,min,max,tit);
    HistV h_yH_aS = makeHistos({"yH_aSup","yH_aSdn"},Nbins,min,max,tit);
+   // various QCD variations
+   HistV h_yH_qcd         = makeHistos(8,"yH_qcd",Nbins,min,max,tit); // Default Powheg QCD variations (NLO)
+   HistV h_yH_nnlops_qcd  = makeHistos(26,"yH_nnlops_qcd",Nbins,min,max,tit); // NNLOPS internal QCD vars
+   HistV h_yH_nnlops_qcd2 = makeHistos(2,"yH_nnlo_qcd",Nbins,min,max,tit); // NNLO and Powheg vars for NNLOPS
+   HistV h_yH_wg1qcd      = makeHistos(6,"yH_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
    
    // Initialise the application:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
@@ -160,11 +176,13 @@ int main( int argc, char* argv[] ) {
 	 //for (double q:hw.qcd_nnlops) printf("%6.2f",(q-n)/n); printf("\n");
        }
 
+       // 1. Nominal histograms
        h_pTH  -> Fill(h.Pt(),hw.nominal);
        h_Njets-> Fill(HTXS_Njets30,hw.nominal);
        h_yH   -> Fill(h.Rapidity(),hw.nominal);
        h_STXS -> Fill(HTXS_index,hw.nominal);
 
+       // 2. PDF and alphaS uncertainties
        bool doPDF = hw.pdf4lhc_unc.size()==30;
        if (doPDF) {
 	 fillHistos(h_pTH_pdf4lhc,h.Pt(),hw.pdf4lhc_unc);
@@ -182,11 +200,33 @@ int main( int argc, char* argv[] ) {
 	 fillHistos(h_Njets_nnpdf30,HTXS_Njets30,hw.nnpdf30_unc);
 	 fillHistos(h_STXS_nnpdf30,HTXS_index,hw.nnpdf30_unc);
        }
-       fillHistos(h_pTH_wg1qcd,h.Pt(),{hw.qcd_wg1_mu,hw.qcd_wg1_res,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12,hw.qcd_wg1_pTH,hw.qcd_wg1_qm});
-       fillHistos(h_pTH_nnlops_qcd,h.Pt(),hw.qcd_nnlops);
+
+       ////////////////
+       // 3.  QCD uncertainties
+       //
+       // 3.a Default Powheg scale variations.
+       //     Note: For ggF, these are the pure Powheg MiNLO prime uncertainties
+       //           without considering the NNLO correction. I.e. don't use for NNLOPS.
+       //           Don't treat all these as NPs!! Take envelope. Or perhaps carefully chose 1 or 2 of them as NPs.
        fillHistos(h_pTH_qcd,h.Pt(),hw.qcd);
-       //HistV h_pTH_nnlops_qcd2 = makeHistos(2,"pTH_nnlops_qcd2",Nbins,min,max,ptTit);
-       
+
+       // QCD variations for (NNLOPS) ggF
+       //
+       // 3.b The 26 variations around the nominal from NNLOPS (3 scales x {d,n,u} => 3^3=27 points, one is nom). 
+       // This should give an NNLO accurate normalization uncertainty (8-11%)
+       //     Note: The NNLOPS paper takes the envelope of all these variations 
+       fillHistos(h_pTH_nnlops_qcd,h.Pt(),hw.qcd_nnlops);
+
+       // 3.c Selecting two of the 26 as NPs (i.e. uncertainty sources to be treated as uncorrelated)
+       //     Taking the NNLO uncertainty (nnloDn-PowNomNom) as one source and the extreme Powheg varation 
+       //     (nnloNom-PowDnDn) as an uncorrelation source (similar to >=1 in ST: affects high pT)
+       NumV nnlops_2np_qcd={hw.qcd_nnlops_nnlo,hw.qcd_nnlops_pow};
+       fillHistos(h_pTH_nnlops_qcd2,h.Pt(),nnlops_2np_qcd);
+
+       // 3.d WG1 propsed uncertainty scheme. Recommended.
+       NumV wg1_qcd={hw.qcd_wg1_mu,hw.qcd_wg1_res,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12,hw.qcd_wg1_pTH,hw.qcd_wg1_qm};
+       fillHistos(h_pTH_wg1qcd,h.Pt(),wg1_qcd);
+
 
        // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {
