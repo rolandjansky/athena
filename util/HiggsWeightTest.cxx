@@ -23,8 +23,8 @@ typedef std::vector<TH1F*> HistV;
 typedef std::vector<double> NumV;
 void fatal(TString msg) { printf("\nFATAL:\n\n  %s\n\n",msg.Data()); abort(); }
 void fillHistos(HistV &hw, double x, NumV ws) {
-  if (hw.size()!=ws.size()) fatal("Bad input to fillHistos");
-  for (size_t i=0;i<hw.size();++i) hw[i]->Fill(x,ws[i]);
+  if (hw.size()<ws.size()) fatal("Bad input to fillHistos");
+  for (size_t i=0;i<ws.size();++i) hw[i]->Fill(x,ws[i]);
 }
 HistV makeHistos(int N, Str prefix, int Nbins, double min, double max, Str tit="") {
   HistV hv; for (int i=1;i<=N;++i) hv.push_back(new TH1F(prefix+Form("%i",i),tit,Nbins,min,max)); return hv;
@@ -65,21 +65,29 @@ int main( int argc, char* argv[] ) {
 
    TH1F *h_pTH = new TH1F("pTH",ptTit,Nbins,min,max);
    HistV h_pTH_pdf4lhc = makeHistos(30,"pTH_pdf4lhc",Nbins,min,max,ptTit);
+   HistV h_pTH_nnpdf30 = makeHistos(100,"pTH_nnpdf30",Nbins,min,max,ptTit);
    HistV h_pTH_aS = makeHistos({"pTH_aSup","pTH_aSdn"},Nbins,min,max,ptTit);
+   HistV h_pTH_wg1qcd     = makeHistos(6,"pTH_wg1qcd",Nbins,min,max,ptTit);
+   HistV h_pTH_nnlops_qcd = makeHistos(26,"pTH_nnlops_qcd",Nbins,min,max,ptTit);
+   HistV h_pTH_qcd        = makeHistos(8,"pTH_qcd",Nbins,min,max,ptTit);
+   HistV h_pTH_nnlops_qcd2 = makeHistos(2,"pTH_nnlo_qcd",Nbins,min,max,ptTit);
 
    Nbins=10; min=-0.5; max=9.5; Str tit=";#it{N}_{jets}";
    TH1F *h_Njets = new TH1F("Njets30",tit,Nbins,min,max);
    HistV h_Njets_pdf4lhc = makeHistos(30,"Njets30_pdf4lhc",Nbins,min,max,tit);
+   HistV h_Njets_nnpdf30 = makeHistos(100,"Njets30_nnpdf30",Nbins,min,max,tit);
    HistV h_Njets_aS = makeHistos({"Njets30_aSup","Njets30_aSdn"},Nbins,min,max,tit);
 
    Nbins=52; min=1; max=53; tit=";STXS fine index";
    TH1F *h_STXS = new TH1F("STXS",tit,Nbins,min,max);
    HistV h_STXS_pdf4lhc = makeHistos(30,"STXS_pdf4lhc",Nbins,min,max,tit);
+   HistV h_STXS_nnpdf30 = makeHistos(100,"STXS_nnpdf30",Nbins,min,max,tit);
    HistV h_STXS_aS = makeHistos({"STXS_aSup","STXS_aSdn"},Nbins,min,max,tit);
 
    Nbins=60; min=-3; max=3; tit=";#it{y_{H}}";
    TH1F *h_yH = new TH1F("yH",tit,Nbins,min,max);
    HistV h_yH_pdf4lhc = makeHistos(30,"yH_pdf4lhc",Nbins,min,max,tit);
+   HistV h_yH_nnpdf30 = makeHistos(100,"yH_nnpdf30",Nbins,min,max,tit);
    HistV h_yH_aS = makeHistos({"yH_aSup","yH_aSdn"},Nbins,min,max,tit);
    
    // Initialise the application:
@@ -142,13 +150,22 @@ int main( int argc, char* argv[] ) {
        // Access all Higgs weights
        xAOD::HiggsWeights hw = higgsMCtool->getHiggsWeights(HTXS_Njets30,HTXS_pTH,HTXS_Stage1);
        // on of my test files lack PDF info..
-       bool doPDF = hw.pdf4lhc_unc.size()==30;
+       
+       double n = hw.nominal;
+       bool bad=false;
+       for (double q:hw.qcd_nnlops) 
+	 if (std::abs(q-n)/n>1) bad=true;
+       if (bad) {
+	 //printf("Event %llu pT = %.3f, %i jets\n",entry,h.Pt(),HTXS_Njets30);
+	 //for (double q:hw.qcd_nnlops) printf("%6.2f",(q-n)/n); printf("\n");
+       }
 
        h_pTH  -> Fill(h.Pt(),hw.nominal);
        h_Njets-> Fill(HTXS_Njets30,hw.nominal);
        h_yH   -> Fill(h.Rapidity(),hw.nominal);
        h_STXS -> Fill(HTXS_index,hw.nominal);
 
+       bool doPDF = hw.pdf4lhc_unc.size()==30;
        if (doPDF) {
 	 fillHistos(h_pTH_pdf4lhc,h.Pt(),hw.pdf4lhc_unc);
 	 fillHistos(h_pTH_aS,h.Pt(),{hw.alphaS_up,hw.alphaS_dn});
@@ -159,6 +176,17 @@ int main( int argc, char* argv[] ) {
 	 fillHistos(h_STXS_pdf4lhc,HTXS_index,hw.pdf4lhc_unc);
 	 fillHistos(h_STXS_aS,HTXS_index,{hw.alphaS_up,hw.alphaS_dn});
        }
+       if (hw.nnpdf30_unc.size()==100) {
+	 fillHistos(h_pTH_nnpdf30,h.Pt(),hw.nnpdf30_unc);
+	 fillHistos(h_yH_nnpdf30,h.Rapidity(),hw.nnpdf30_unc);
+	 fillHistos(h_Njets_nnpdf30,HTXS_Njets30,hw.nnpdf30_unc);
+	 fillHistos(h_STXS_nnpdf30,HTXS_index,hw.nnpdf30_unc);
+       }
+       fillHistos(h_pTH_wg1qcd,h.Pt(),{hw.qcd_wg1_mu,hw.qcd_wg1_res,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12,hw.qcd_wg1_pTH,hw.qcd_wg1_qm});
+       fillHistos(h_pTH_nnlops_qcd,h.Pt(),hw.qcd_nnlops);
+       fillHistos(h_pTH_qcd,h.Pt(),hw.qcd);
+       //HistV h_pTH_nnlops_qcd2 = makeHistos(2,"pTH_nnlops_qcd2",Nbins,min,max,ptTit);
+       
 
        // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {

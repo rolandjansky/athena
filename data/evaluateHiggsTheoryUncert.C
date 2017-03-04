@@ -32,6 +32,9 @@ double addInQuad(const NumV &v, double nom=0) {
 double addInQuadRel(const NumV &v, double nom) {
   double V=0; for (auto var:v) V+=pow((var-nom)/nom,2); return sqrt(V);
 }
+double envelopeRel(const NumV &vec, double n) {
+  double max=0; for (auto v:vec) { double u=std::abs(v-n)/n; if (u>max) max=u; } return max;
+}
 double getTotUnc(HistV sysVar, int bin) {
   double nom=sysVar[0]->GetBinContent(bin), V=0;
   for (int i=1;i<sysVar.size();++i)
@@ -66,16 +69,20 @@ void evaluateHiggsTheoryUncert() {
 
   /// 2. Check the uncertainty on the inclusive cross section ...
   printf("\nTotal uncertainties on inclusive predictions\n");
-  printf("%8s%10s%10s%10s\n","ProdMode","PDF4LHC","aS(up)","aS(dn)");
+  printf("%8s%10s%10s%10s%10s%10s\n","ProdMode","PDF4LHC","aS(up)","aS(dn)","QCDnlo","QCDnnlo");
   for (auto p:prods) {
     double n=getHist(files[p],"pTH")->Integral(0,-1);
     double au=getHist(files[p],"pTH_aSup")->Integral(0,-1);
     double ad=getHist(files[p],"pTH_aSdn")->Integral(0,-1);
-    NumV pdfV;
+    NumV pdfV, qcd, qcd_nnlo, qcdWG1;
     for (int i=1;i<=30;++i)
       pdfV.push_back(getHist(files[p],Form("pTH_pdf4lhc%i",i))->Integral(0,-1));
+    for (int i=1;i<=8;++i) qcd.push_back(getHist(files[p],Form("pTH_qcd%i",i))->Integral(0,-1));
+    for (int i=1;i<=26;++i) qcd_nnlo.push_back(getHist(files[p],Form("pTH_nnlops_qcd%i",i))->Integral(0,-1));
     double pdf=addInQuadRel(pdfV,n);
-    printf("%8s%10s%10s%10s\n",p.Data(),per(pdf+1,1),per(au,n),per(ad,n));
+    printf("%8s%10s%10s%10s%10s%10s\n",
+	   p.Data(),per(pdf+1,1),per(au,n),per(ad,n),
+	   per(envelopeRel(qcd,n)+1,1),per(envelopeRel(qcd_nnlo,n)+1,1));
   }
 
   Str pdf("HiggsTheoryUnc.pdf");
