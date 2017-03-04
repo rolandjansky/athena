@@ -7,4 +7,4 @@ source testHiggsWeightTool_forceVH.src
 
 # summarize the results of the five root files produced from the above
 # produces a PDF and prints tables to the screen
-root -b evaluateHiggsTheoryUncert.C
+root -b -q evaluateHiggsTheoryUncert.C
