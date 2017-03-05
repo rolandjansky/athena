@@ -46,6 +46,9 @@ double getTotUnc(HistV sysVar, int bin) {
   return sqrt(V);
 }
 
+void drawRatio(TH1 *h, HistV pdf, HistV aS);
+void addInQuad(TH1 *tot, TH1 *unc);
+
 double hxswg(Str p) {
   //https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt13TeV
   if (p=="ggF") return 4.858E+01;
@@ -127,6 +130,7 @@ void evaluateHiggsTheoryUncert() {
     for (TString var:{"pTH","Njets30","yH","STXS"}) {
       TFile *f=files[p];
       auto nom=getHist(f,var);
+      nom->SetName(p+var);
 
       // Read in histograms with theory variations
       HistV pdfV, qcd, qcd_nnlo, qcd_nnlo2, qcd_wg1;
@@ -151,13 +155,43 @@ void evaluateHiggsTheoryUncert() {
       drawText(0.7,0.73,"QCD variations",kRed);
       can->Print(pdf);
 
-      
+      drawRatio(nom,pdfV,aS);
+      drawText(0.2,0.88,p,kBlack);
+      drawText(0.2,0.83,"MC stat err.",kBlack);
+      drawText(0.4,0.88,"PDF variations",kGray);
+      drawText(0.4,0.83,"#it{#alpha}_{s} variations",kBlue);
+      can->Print(pdf);
     }
   }
   
   can->Print(pdf+"]");
   printf("\nProduced %s\n\n",pdf.Data());
 }
+
+TH1* drawRatioAxis(TH1 *nom) {
+  TH1D *axis = (TH1D*)nom->Clone();
+  axis->GetYaxis()->SetRangeUser(0.7,1.3);
+  for (int bin=1;bin<=axis->GetNbinsX();++bin) {
+    double y=axis->GetBinContent(bin);
+    axis->SetBinError(bin,std::abs(y)<1e-5?0:axis->GetBinError(bin)/y); axis->SetBinContent(bin,1.0);
+  }
+  axis->SetYTitle("Impact of systematic variation relative to nominal");
+  axis->Draw(); return axis;
+}
+
+void drawRatio(TH1 *nom, HistV pdf, HistV aS) {
+  drawRatioAxis(nom);
+  TH1D *pdfUnc = (TH1D*)nom->Clone();
+  pdfUnc->Reset(); for (int bin=1;bin<=pdfUnc->GetNbinsX();++bin) pdfUnc->SetBinContent(bin,1.0);
+  for (auto h:pdf) {
+    h->Divide(nom); addInQuad(pdfUnc,h);
+    //drawHist(h,"hist same",kGray);
+  }
+  pdfUnc->SetFillColor(kGray);
+  pdfUnc->Draw("e2 same");
+  for (auto h:aS) { h->Divide(nom); drawHist(h,"hist same",kBlue); }
+}
+
 
 TFile *openFile(Str fn) {
   TFile *f=TFile::Open(fn);
@@ -169,4 +203,15 @@ TH1 *getHist(TFile *f, Str hn, int rebin) {
   TH1 *h = (TH1*)f->Get(hn);
   if (h==nullptr) fatal("Cannot access histo "+hn+" in file "+f->GetName());
   h->Rebin(rebin); return h;
+}
+
+// add uncertainty source unc to total
+// unc is relative to 1
+void addInQuad(TH1 *tot, TH1 *uncVar) {
+  for (int bin=1;bin<=tot->GetNbinsX();++bin) {
+    double err1 = tot->GetBinError(bin);
+    double err2 = uncVar->GetBinContent(bin)-1;
+    if (err2!=-1)
+      tot->SetBinError(bin,sqrt(err1*err1+err2*err2));
+  }
 }
