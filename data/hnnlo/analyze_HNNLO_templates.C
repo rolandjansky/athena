@@ -1,8 +1,8 @@
 /***
  *
- *  ROOT6 macro to analyze HNNLO input templates from NNLOPS
- *  and correct for statistical fluctuations by using symmetry
- *  of Higgs rapidity spectrum in pp collisions
+ *  ROOT6 macro to 1) analyze HNNLO input templates from NNLOPS
+ *  and 2) correct for statistical fluctuations by using symmetry
+ *  of Higgs rapidity spectrum in pp collisions (TODO?)
  *
  *  Dag Gillberg, March 4, 2017
  *
@@ -38,7 +38,7 @@ void analyze_HNNLO_templates(Str fileName="H1250-CM13-NNPDF3-APX2-HH.top") {
     if (line[0]=='#') {
       title=line; continue;
     }
-    if (line=="") {
+    if (line.Sizeof()<=2) {
       if (bins.size()) {
 	cout << "Done reading " << title << endl;
 	analyze(bins,y,err,title);
@@ -48,6 +48,7 @@ void analyze_HNNLO_templates(Str fileName="H1250-CM13-NNPDF3-APX2-HH.top") {
       bins.clear(); y.clear(); err.clear();
       continue;
     }
+
     // GAH! stupid fortran code use D instead of E for exponent
     NumV nums=vectorizeD(line.ReplaceAll("D","E"));
     if (nums.size()!=4) fatal("Cannot intepret line \""+line+"\"");
@@ -82,7 +83,9 @@ StrV vectorize(Str str, Str sep) {
 
 NumV vectorizeD(Str str, Str sep) {
   NumV result; StrV vecS = vectorize(str,sep);
-  for (auto s:vecS) result.push_back(stod(s.Data()));
+  for (auto s:vecS) {
+    add(result,stod(s.Data()));
+  }
   return result;
 }
 
