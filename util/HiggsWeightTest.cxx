@@ -95,7 +95,7 @@ int main( int argc, char* argv[] ) {
    HistV h_STXS_nnlops_qcd2 = makeHistos(2,"STXS_nnlo_qcd",Nbins,min,max,tit); // NNLO and Powheg vars for NNLOPS
    HistV h_STXS_wg1qcd      = makeHistos(6,"STXS_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
 
-   Nbins=60; min=-3; max=3; tit=";#it{y_{H}}";
+   Nbins=80; min=-4; max=4; tit=";#it{y_{H}}";
    TH1F *h_yH = new TH1F("yH",tit,Nbins,min,max);
    HistV h_yH_pdf4lhc = makeHistos(30,"yH_pdf4lhc",Nbins,min,max,tit);
    HistV h_yH_nnpdf30 = makeHistos(100,"yH_nnpdf30",Nbins,min,max,tit);
@@ -105,6 +105,7 @@ int main( int argc, char* argv[] ) {
    HistV h_yH_nnlops_qcd  = makeHistos(26,"yH_nnlops_qcd",Nbins,min,max,tit); // NNLOPS internal QCD vars
    HistV h_yH_nnlops_qcd2 = makeHistos(2,"yH_nnlo_qcd",Nbins,min,max,tit); // NNLO and Powheg vars for NNLOPS
    HistV h_yH_wg1qcd      = makeHistos(6,"yH_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
+   HistV h_yH_other       = makeHistos(8,"yH_other",Nbins,min,max,tit); // WG1 propsed scheme for ggF
    
    // Initialise the application:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
@@ -209,6 +210,9 @@ int main( int argc, char* argv[] ) {
        //           without considering the NNLO correction. I.e. don't use for NNLOPS.
        //           Don't treat all these as NPs!! Take envelope. Or perhaps carefully chose 1 or 2 of them as NPs.
        fillHistos(h_pTH_qcd,h.Pt(),hw.qcd);
+       fillHistos(h_yH_qcd,h.Rapidity(),hw.qcd);
+       fillHistos(h_Njets_qcd,HTXS_Njets30,hw.qcd);
+       fillHistos(h_STXS_qcd,HTXS_index,hw.qcd);
 
        // QCD variations for (NNLOPS) ggF
        //
@@ -216,17 +220,30 @@ int main( int argc, char* argv[] ) {
        // This should give an NNLO accurate normalization uncertainty (8-11%)
        //     Note: The NNLOPS paper takes the envelope of all these variations 
        fillHistos(h_pTH_nnlops_qcd,h.Pt(),hw.qcd_nnlops);
+       fillHistos(h_yH_nnlops_qcd,h.Rapidity(),hw.qcd_nnlops);
+       fillHistos(h_Njets_nnlops_qcd,HTXS_Njets30,hw.qcd_nnlops);
+       fillHistos(h_STXS_nnlops_qcd,HTXS_index,hw.qcd_nnlops);
 
        // 3.c Selecting two of the 26 as NPs (i.e. uncertainty sources to be treated as uncorrelated)
        //     Taking the NNLO uncertainty (nnloDn-PowNomNom) as one source and the extreme Powheg varation 
        //     (nnloNom-PowDnDn) as an uncorrelation source (similar to >=1 in ST: affects high pT)
        NumV nnlops_2np_qcd={hw.qcd_nnlops_nnlo,hw.qcd_nnlops_pow};
        fillHistos(h_pTH_nnlops_qcd2,h.Pt(),nnlops_2np_qcd);
+       fillHistos(h_yH_nnlops_qcd2,h.Rapidity(),nnlops_2np_qcd);
+       fillHistos(h_Njets_nnlops_qcd2,HTXS_Njets30,nnlops_2np_qcd);
+       fillHistos(h_STXS_nnlops_qcd2,HTXS_index,nnlops_2np_qcd);
 
        // 3.d WG1 propsed uncertainty scheme. Recommended.
        NumV wg1_qcd={hw.qcd_wg1_mu,hw.qcd_wg1_res,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12,hw.qcd_wg1_pTH,hw.qcd_wg1_qm};
        fillHistos(h_pTH_wg1qcd,h.Pt(),wg1_qcd);
+       fillHistos(h_yH_wg1qcd,h.Rapidity(),wg1_qcd);
+       fillHistos(h_Njets_wg1qcd,HTXS_Njets30,wg1_qcd);
+       fillHistos(h_STXS_wg1qcd,HTXS_index,wg1_qcd);
 
+       // 4. Other weights
+       fillHistos(h_yH_other,h.Rapidity(),
+		  {hw.weight0,hw.nnpdf30_nnlo,hw.pdf4lhc_nnlo,hw.nnpdf30_nlo,hw.pdf4lhc_nlo,
+		      hw.mmht2014nlo,hw.ct14nlo,hw.ct10nlo});
 
        // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {

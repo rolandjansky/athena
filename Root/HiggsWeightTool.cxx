@@ -235,7 +235,7 @@ namespace xAOD {
 
     // NNLOPS QCD uncertainties
     double nnlo=getWeight(weights,m_nnlopsNom);
-    if (!m_nnlopsNom) nnlo=w_nom; // fix of rare NNLOPS
+    if (!m_nnlopsNom) nnlo=w_nom; // fix for rare NNLOPS samples
 
     for (auto idx:m_qcd_nnlops) hw.qcd_nnlops.push_back(getWeight(weights,idx)*w_nom/nnlo);
 
@@ -264,7 +264,7 @@ namespace xAOD {
     // special catch
     if (m_bminlo||m_qcd_nnlops.size()) {// NNLOPS!!
       hw.nnpdf30_nnlo = hw.weight0*k;
-      hw.pdf4lhc_nnlo = w_nom; // usually close, but can be 4% different...
+      //      hw.pdf4lhc_nnlo = w_nom; // usually close, but can be 4% different...
       // printf("  %.4f = %.4f\n",hw.nnpdf30_nnlo,nnlo); // should be the same! // works!
       // printf("PDF4LHC NLO * k_NNLO / NNLO: %.4f\n",getWeight(weights,m_pdf4lhc_nnlo)*k/w_nom);
     }
