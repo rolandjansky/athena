@@ -18,11 +18,11 @@ TH1 *getHist(Str fn, Str hn, int rebin=1) { return getHist(openFile(fn),hn,rebin
 void drawLine(double x1, double y1, double x2, double y2) {
   static TLine *line = new TLine(); line->DrawLine(x1,y1,x2,y2);
 }
-TH1* drawHist(TH1 *h, Str opt, int col=kRed, int ls=1, int lw=2) {
+TH1* drawHist(TH1 *h, Str opt, int col=kBlack, int ls=1, int lw=2) {
   h->SetStats(0); h->SetLineColor(col); h->SetLineWidth(lw); h->SetLineStyle(ls); h->Draw(opt); return h;
 }
-void drawText(double x, double y, Str txt) {
-  static TLatex *tex = new TLatex(); tex->SetNDC(); tex->SetTextFont(42); tex->DrawLatex(x,y,txt);
+void drawText(double x, double y, Str txt, int col=kBlack) {
+  static TLatex *t = new TLatex(); t->SetNDC(); t->SetTextFont(42); t->SetTextColor(col); t->DrawLatex(x,y,txt);
 }
 
 // methods to calculate errors
@@ -38,6 +38,7 @@ double envelopeRel(const NumV &vec, double n, bool ignoreZero=true) {
     double u=std::abs(v-n)/n; if (u>max&&!(ignoreZero&&v==0)) max=u;
   } return max;
 }
+// assumes uncorrelated systematic sources (Hessian)
 double getTotUnc(HistV sysVar, int bin) {
   double nom=sysVar[0]->GetBinContent(bin), V=0;
   for (int i=1;i<sysVar.size();++i)
@@ -100,6 +101,7 @@ void evaluateHiggsTheoryUncert() {
     else {
       for (auto q:qcd_nnlo) printf(" %s",per(q,n)); printf("\n");
       for (auto q:qcd_nnlo2) printf(" %s",per(q,n)); printf("\n");
+      // These numbers have 1% stat uncertainty
       // 10.16% 9.64% 9.83%   // dn,dn,F
       // 8.78% 9.06% 9.50%    // dn,n,F
       // 11.80% 9.59% 9.61%   // dn,u,F
@@ -109,7 +111,6 @@ void evaluateHiggsTheoryUncert() {
       // -8.13% -8.54% -8.38% // u,d,F
       // -9.20% -9.00% -8.65% // u,n,F
       // -6.79% -8.58% -8.56% // u,u,F
-
     }
     printf("%8s%10s%10s%10s%10s%10s%10s%10s\n",
 	   p.Data(),per(pdf),per(au,n),per(ad,n),
@@ -125,7 +126,7 @@ void evaluateHiggsTheoryUncert() {
   for (auto p:prods) {
     for (TString var:{"pTH","Njets30","yH","STXS"}) {
       TFile *f=files[p];
-      auto nom=getHist(f,var); drawHist(nom,"");
+      auto nom=getHist(f,var);
 
       // Read in histograms with theory variations
       HistV pdfV, qcd, qcd_nnlo, qcd_nnlo2, qcd_wg1;
@@ -135,10 +136,22 @@ void evaluateHiggsTheoryUncert() {
       for (int i=1;i<=26;++i) qcd_nnlo.push_back(getHist(f,var+Form("_nnlops_qcd%i",i)));
       for (int i=1;i<=2;++i) qcd_nnlo2.push_back(getHist(f,var+Form("_nnlo_qcd%i",i)));
       for (int i=1;i<=6;++i) qcd_wg1.push_back(getHist(f,var+Form("_wg1qcd%i",i)));
-      
-      for (auto h:pdfV) drawHist(h,"hist same",kBlue);
-      drawHist(nom,"same"); drawText(0.7,0.88,p);
+
+      // Draw uncertainty variations
+      nom->SetMaximum(1.3*nom->GetMaximum());
+      drawHist(nom,""); 
+      if (p=="ggF") for (auto h:qcd_nnlo) drawHist(h,"hist same",kRed);
+      else for (auto h:qcd) drawHist(h,"hist same",kRed);
+      for (auto h:pdfV) drawHist(h,"hist same",kGray);
+      for (auto h:aS) drawHist(h,"hist same",kBlue);
+      drawHist(nom,"same");
+      drawText(0.7,0.88,p,kBlack);
+      drawText(0.7,0.83,"PDF variations",kGray);
+      drawText(0.7,0.78,"#it{#alpha}_{s} variations",kBlue);
+      drawText(0.7,0.73,"QCD variations",kRed);
       can->Print(pdf);
+
+      
     }
   }
   
