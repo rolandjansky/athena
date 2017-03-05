@@ -155,8 +155,11 @@ if InDetFlags.loadRotCreator():
             print  PixelClusterOnTrackTool
             if InDetFlags.doDBM():
                 print PixelClusterOnTrackToolDBM
-                
-        PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
+
+        if False :
+          # TODO: use PixelClusterOnTrackToolDigital during ROT creation to save CPU, one the GlobalChi2Fitter
+          #       correctly handles brem fits when starting from PrepRawData rather than ROTs.
+          PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
                                                                  DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                                  applyNNcorrection = False,
                                                                  NNIBLcorrection = False,
@@ -166,7 +169,9 @@ if InDetFlags.loadRotCreator():
                                                                  PositionStrategy = 1 
                                                                  )
 
-        ToolSvc += PixelClusterOnTrackToolDigital
+          ToolSvc += PixelClusterOnTrackToolDigital
+        else :
+          PixelClusterOnTrackToolDigital=None
     else:
         PixelClusterOnTrackTool = None
         PixelClusterOnTrackToolDigital = None
@@ -212,12 +217,16 @@ if InDetFlags.loadRotCreator():
         from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
         InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion")
         ToolSvc += InDet_SeedToTrackConversion
+
+    if PixelClusterOnTrackToolDigital != None :
+       InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
+                                                        ToolPixelCluster = PixelClusterOnTrackToolDigital,
+                                                        ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
+                                                        Mode             = 'indet')
     
-    InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
-                                              ToolPixelCluster = PixelClusterOnTrackToolDigital,
-                                              ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
-                                              Mode             = 'indet')
-    ToolSvc += InDetRotCreatorDigital
+       ToolSvc += InDetRotCreatorDigital
+    else :
+       InDetRotCreatorDigital=InDetRotCreator
 
     #
     # --- configure broad cluster ROT creator
