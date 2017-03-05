@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "MuonPatternSegmentMaker/MuonPatternSegmentMaker.h"
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
@@ -45,8 +41,8 @@ namespace Muon {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
-    m_rpcPrdContainer(0),
-    m_tgcPrdContainer(0)
+    m_keyRpc("RPC_Measurements"),
+    m_keyTgc("TGC_Measurements")
   {
     declareInterface<IMuonPatternSegmentMaker>(this);
 
@@ -58,8 +54,8 @@ namespace Muon {
     declareProperty("DropDistance",m_dropDistance = 1500.);
     declareProperty("AngleCutPhi",m_phiAngleCut = 1e9 );
     declareProperty("FullFinder",m_doFullFinder = true);
-    declareProperty("RpcPrepDataContainer", m_keyRpc = "RPC_Measurements");
-    declareProperty("TgcPrepDataContainer", m_keyTgc = "TGC_Measurements");
+    declareProperty("RpcPrepDataContainer", m_keyRpc);
+    declareProperty("TgcPrepDataContainer", m_keyTgc);
     declareProperty("DoSummary",m_doSummary = false);
     declareProperty("RecoverTriggerHits",m_recoverTriggerHits = true);
     declareProperty("RemoveDoubleMdtHits",m_removeDoubleMdtHits = true);
@@ -94,6 +90,15 @@ namespace Muon {
   
     if( m_clusterCreator.retrieve().isFailure() ){
       ATH_MSG_FATAL("Could not get " << m_clusterCreator); 
+      return StatusCode::FAILURE;
+    }
+
+    if(!m_keyRpc.initialize()){
+      ATH_MSG_ERROR("Couldn't initalize RPC ReadHandleKey");
+      return StatusCode::FAILURE;
+    }
+    if(!m_keyTgc.initialize()){
+      ATH_MSG_ERROR("Couldn't initalize TGC ReadHandleKey");
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS; 
@@ -735,17 +740,19 @@ namespace Muon {
   }
 
   void MuonPatternSegmentMaker::retrieveTriggerHitContainers() const {
-    m_rpcPrdContainer = 0;
-    if(detStore()->contains<Muon::RpcPrepDataContainer>(m_keyRpc)) {
-      if( detStore()->retrieve(m_rpcPrdContainer,m_keyRpc).isFailure() ) {
-	ATH_MSG_DEBUG(" Failed to retrieve RpcPrepDataContainer, will not recover rpc trigger hits ");
-      }
+    m_rpcPrdContainer=0;
+    SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_keyRpc);
+    if( !RpcCont.isValid() ) {
+      ATH_MSG_DEBUG(" Failed to retrieve RpcPrepDataContainer, will not recover rpc trigger hits ");
     }
-    m_tgcPrdContainer = 0;
-    if(detStore()->contains<Muon::TgcPrepDataContainer>(m_keyTgc)) {
-      if( detStore()->retrieve(m_tgcPrdContainer,m_keyTgc).isFailure() ) {
+    else m_rpcPrdContainer=RpcCont.get();
+    
+    m_tgcPrdContainer=0;
+    SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_keyTgc);
+    if(!TgcCont.isValid() ) {
 	ATH_MSG_DEBUG(" Failed to retrieve TgcPrepDataContainer, will not recover tgc trigger hits ");
-      }
     }
+    else m_tgcPrdContainer=TgcCont.get();
+    
   }
 }

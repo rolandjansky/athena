@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef MUON_MUONPATTERNSEGMENTMAKER_MUONPATTERNSEGMENTMAKER_H
 #define MUON_MUONPATTERNSEGMENTMAKER_MUONPATTERNSEGMENTMAKER_H
 
@@ -151,17 +147,15 @@ namespace Muon {
 
     void retrieveTriggerHitContainers() const;
 
-    std::string m_keyRpc;
-    std::string m_keyTgc;
   
-    ToolHandle<IMuonSegmentMaker>       m_segmentMaker;     //<! pointer to muon rio ontrack creator
+    ToolHandle<IMuonSegmentMaker>       m_segmentMaker;     //<! pointer to muon segment maker. 
 
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator; //<! pointer to mdt rio ontrack creator
 
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! tool to print EDM objects
     ToolHandle<MuonIdHelperTool>              m_idHelper;    //<! tool to interpret and print Identifiers
-    ToolHandle<IMuonPatternSegmentAssociationTool> m_assocTool;       //<! tool to associate pattern combinations with segment combinations
+    ToolHandle<IMuonPatternSegmentAssociationTool> m_assocTool;       //<! tool to associate pattern combinations with segment combinations 
 
     bool m_doNtuple; //<! write ntuple for standalone pattern finding
     bool m_doMultiAnalysis; //<! use neighbouring chambers during segment finding
@@ -172,6 +166,8 @@ namespace Muon {
     bool m_recoverTriggerHits;
     bool m_removeDoubleMdtHits;
 
+    SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_keyRpc;
+    SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_keyTgc;
     mutable const Muon::RpcPrepDataContainer* m_rpcPrdContainer;
     mutable const Muon::TgcPrepDataContainer* m_tgcPrdContainer;
 

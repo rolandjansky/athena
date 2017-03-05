@@ -138,7 +138,12 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_totalExtrapolatedCalls(0),
     m_cachedExtrapolatedCalls(0),
     m_muonCandidateTool("MuonCandidateTool/MuonCandidateTool"),
-    m_TrackToTrackParticleConvTool("MuonParticleCreatorTool")
+    m_TrackToTrackParticleConvTool("MuonParticleCreatorTool"),
+    m_rpcKey("RPC_Measurements"),
+    m_tgcKey("TGC_Measurements"),
+    m_tgcKeyNextBC("TGC_MeasurementsNextBC"),
+    m_cscKey("CSC_Clusters"),
+    m_mdtKey("MDT_DriftCircles")
 {
   m_hashlist.reserve(4);
 
@@ -183,8 +188,11 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("maxCscHits",m_maxCscHits);
   declareProperty("maxRpcHits",m_maxRpcHits);
   declareProperty("maxMdtHits",m_maxMdtHits);
-  
-
+  declareProperty("RpcPrepDataContainer", m_rpcKey);
+  declareProperty("TgcPrepDataContainer", m_tgcKey);
+  declareProperty("TgcPrepDataContainer", m_tgcKeyNextBC);
+  declareProperty("MdtPrepDataContainer", m_mdtKey);
+  declareProperty("CscPrepDataContainer", m_cscKey);
 
   clearRoiCache();
  
@@ -425,6 +433,32 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
   
   ATH_MSG_DEBUG("End of init TrigMuonEFStandaloneTrackTool");
   
+  if(!m_rpcKey.initialize()){
+    ATH_MSG_ERROR("Couldn't initalize RPC ReadHandleKey");
+    return StatusCode::FAILURE;
+  }
+  if(!m_tgcKey.initialize()){
+    ATH_MSG_ERROR("Couldn't initalize TGC ReadHandleKey");
+    return StatusCode::FAILURE;
+  }
+  if(!m_tgcKeyNextBC.initialize()){
+    ATH_MSG_ERROR("Couldn't initalize TGCNextBC ReadHandleKey");
+    return StatusCode::FAILURE;
+  }
+  if(!m_mdtKey.initialize()){
+    ATH_MSG_ERROR("Couldn't initalize MDT ReadHandleKey");
+    return StatusCode::FAILURE;
+  }
+  if(!m_cscKey.initialize()){
+    ATH_MSG_ERROR("Couldn't initalize CSC ReadHandleKey");
+    return StatusCode::FAILURE;
+  }
+  //  ATH_CHECK(m_rpcKey);
+  // ATH_CHECK(m_tgcKey);
+  // ATH_CHECK(m_tgcKeynextBC);
+  // ATH_CHECK(m_cscKey);
+  // ATH_CHECK(m_mdtKey);
+
   return StatusCode::SUCCESS;
 }
 
@@ -1024,11 +1058,15 @@ if (m_useMdtData>0) {
   // Get RPC container
   if (m_useRpcData && !rpc_hash_ids.empty()) {
     const RpcPrepDataContainer* rpcPrds = 0;
-    std::string rpcKey = "RPC_Measurements";
-    if((*p_ActiveStore)->retrieve(rpcPrds, rpcKey).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve RPC PRD Container " << rpcKey << endmsg;
+    SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_rpcKey);
+    if( !RpcCont.isValid() ) {
+      msg() << MSG::ERROR << " Cannot retrieve RPC PRD Container" << endmsg;
       return HLT::NAV_ERROR;
-    }  else msg()<< MSG::DEBUG << " RPC PRD Container retrieved with key " << rpcKey << endmsg;
+    }
+    else{ 
+      rpcPrds=RpcCont.get();
+      msg()<< MSG::DEBUG << " RPC PRD Container retrieved" << endmsg;
+    }
     // Get RPC collections
     RpcPrepDataContainer::const_iterator RPCcoll;
     for(std::vector<IdentifierHash>::const_iterator idit = rpc_hash_ids.begin(); idit != rpc_hash_ids.end(); ++idit) {
@@ -1081,11 +1119,16 @@ if (m_useMdtData>0) {
   if (m_useMdtData && !mdt_hash_ids.empty()) {
     
     const MdtPrepDataContainer* mdtPrds = 0;
-    std::string mdtKey = "MDT_DriftCircles";
-    if((*p_ActiveStore)->retrieve(mdtPrds, mdtKey).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve MDT PRD Container " << mdtKey << endmsg;
+    SG::ReadHandle<Muon::MdtPrepDataContainer> MdtCont(m_mdtKey);
+    if( !MdtCont.isValid() ) {
+      msg() << MSG::ERROR << " Cannot retrieve MDT PRD Container" << endmsg;
       return HLT::NAV_ERROR;
-    } else msg()<< MSG::DEBUG << " MDT PRD Container retrieved with key " << mdtKey << endmsg;
+    }
+    else{ 
+      mdtPrds=MdtCont.get();
+      msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
+    }
+
     
     // Get MDT collections
     MdtPrepDataContainer::const_iterator MDTcoll;
@@ -1177,11 +1220,16 @@ if (m_useMdtData>0) {
   if (m_useTgcData && !tgc_hash_ids.empty()) {
     
     const TgcPrepDataContainer* tgcPrds = 0;
-    std::string tgcKey = "TGC_Measurements";
-    if((*p_ActiveStore)->retrieve(tgcPrds, tgcKey).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve TGC PRD Container " << tgcKey << endmsg;
+    SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKey);
+    if( !TgcCont.isValid() ) {
+      msg() << MSG::ERROR << " Cannot retrieve TGC PRD Container" << endmsg;
       return HLT::NAV_ERROR;
-    } else msg()<< MSG::DEBUG << " TGC PRD Container retrieved with key " << tgcKey << endmsg;
+    }
+    else{ 
+      tgcPrds=TgcCont.get();
+      msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
+    }
+
     // Get TGC collections
     TgcPrepDataContainer::const_iterator TGCcoll;
     for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
@@ -1224,11 +1272,6 @@ if (m_useMdtData>0) {
     
     if(m_useTGCInPriorNextBC){
       const TgcPrepDataContainer* tgcPrdsPriorBC = 0;
-      tgcKey = "TGC_MeasurementsPriorBC";
-      if((*p_ActiveStore)->retrieve(tgcPrdsPriorBC, tgcKey).isFailure()) {
-	msg() << MSG::WARNING << " Cannot retrieve in Prior BC TGC PRD Container " << tgcKey << endmsg;
-	//      return HLT::NAV_ERROR;
-      } else msg()<< MSG::DEBUG << " Prior in BC TGC PRD Container retrieved with key " << tgcKey << endmsg;
       
       for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
 	  idit != tgc_hash_ids.end(); ++idit) {
@@ -1262,11 +1305,16 @@ if (m_useMdtData>0) {
 			   << " with size " << (*TGCcoll)->size() << endmsg;
       }
       const TgcPrepDataContainer* tgcPrdsNextBC = 0;
-      tgcKey = "TGC_MeasurementsNextBC";
-      if((*p_ActiveStore)->retrieve(tgcPrdsNextBC, tgcKey).isFailure()) {
-	msg() << MSG::WARNING << " Cannot retrieve in Next BC TGC PRD Container " << tgcKey << endmsg;
-	//      return HLT::NAV_ERROR;
-      } else msg()<< MSG::DEBUG << " Next in BC TGC PRD Container retrieved with key " << tgcKey << endmsg;
+      SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKeyNextBC);
+      if( !TgcCont.isValid() ) {
+	msg() << MSG::ERROR << " Cannot retrieve TGC PRD Container" << endmsg;
+	return HLT::NAV_ERROR;
+      }
+      else{ 
+	tgcPrds=TgcCont.get();
+	msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
+      }
+
       for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
 	  idit != tgc_hash_ids.end(); ++idit) {
 	TGCcoll = tgcPrdsNextBC->indexFind(*idit);
@@ -1310,11 +1358,16 @@ if (m_useMdtData>0) {
   if (m_useCscData && !csc_hash_ids.empty()) {
     
     const CscPrepDataContainer* cscPrds = 0;
-    std::string cscKey = "CSC_Clusters";
-    if((*p_ActiveStore)->retrieve(cscPrds, cscKey).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve CSC PRD Container " << cscKey << endmsg;
+    SG::ReadHandle<Muon::CscPrepDataContainer> CscCont(m_cscKey);
+    if( !CscCont.isValid() ) {
+      msg() << MSG::ERROR << " Cannot retrieve CSC PRD Container" << endmsg;
       return HLT::NAV_ERROR;
     }
+    else{ 
+      cscPrds=CscCont.get();
+      msg()<< MSG::DEBUG << " CSC PRD Container retrieved" << endmsg;
+    }
+
     // Get CSC collections
     CscPrepDataContainer::const_iterator CSCcoll;
     for(std::vector<IdentifierHash>::const_iterator idit = csc_hash_ids.begin();
