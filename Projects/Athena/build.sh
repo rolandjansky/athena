@@ -85,6 +85,9 @@ mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd ${BUILDDIR} && pwd)
 source $AthenaSrcDir/build_env.sh -b $BUILDDIR
 
+# Set Gaudi's version to the same value as this project's version:
+export GAUDI_VERSION=`cat ${AthenaSrcDir}/version.txt`
+
 # create the actual build directory
 mkdir -p ${BUILDDIR}/build/Athena
 cd ${BUILDDIR}/build/Athena
