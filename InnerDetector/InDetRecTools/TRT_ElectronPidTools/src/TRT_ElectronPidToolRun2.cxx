@@ -57,7 +57,8 @@
 InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, const std::string& n, const IInterface* p )
   :
   AthAlgTool(t,n,p),
-  m_trtId(0),
+  m_trtId(nullptr),
+  m_TRTdetMgr(nullptr),
   m_minTRThits(5),
   HTcalc(*(new HTcalculator(*this))),
   m_TRTdEdxTool("TRT_ToT_dEdx"),
@@ -96,10 +97,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
   if (sc.isFailure()) return sc;
 
   // Get the TRT Identifier-helper:
-  if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
-    ATH_MSG_FATAL ("Could not get TRT ID helper");
-    return StatusCode::FAILURE;
-  }
+  CHECK (detStore()->retrieve(m_trtId, "TRT_ID"));
 
   // Register callback function for cache updates - HT:
   const DataHandle<CondAttrListVec> aptr;;
@@ -110,24 +108,12 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
   }
 
   /* Get the TRT_ToT_dEdx tool */
-  if ( m_TRTdEdxTool.retrieve().isFailure() )
-    ATH_MSG_DEBUG("Failed to retrieve ToT dE/dx tool " << m_TRTdEdxTool);
-  else
-    ATH_MSG_DEBUG("Retrieved tool " << m_TRTdEdxTool);
+  CHECK( m_TRTdEdxTool.retrieve() );
 
-  if ( m_LocalOccTool.retrieve().isFailure() ){
-    ATH_MSG_WARNING("Failed retrieve Local Occ tool " << m_LocalOccTool << " the tool will not be called!!!" );
-  }
-  else ATH_MSG_INFO("Retrieved tool " << m_LocalOccTool);
+  CHECK( m_LocalOccTool.retrieve() );
 
-  sc = m_TRTStrawSummarySvc.retrieve();
-  if (StatusCode::SUCCESS!= sc ){
-    ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
-    ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
-    return sc;
-  } else {
-    if ( !m_TRTStrawSummarySvc.empty()) ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummarySvc);
-  }
+  CHECK( m_TRTStrawSummarySvc.retrieve() );
+  if ( !m_TRTStrawSummarySvc.empty()) ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummarySvc);
 
   ATH_MSG_INFO ("initialize() successful in " << name());
   return StatusCode::SUCCESS;
