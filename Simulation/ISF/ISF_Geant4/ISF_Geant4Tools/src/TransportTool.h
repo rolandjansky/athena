@@ -20,7 +20,6 @@
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
-//#include "G4AtlasInterfaces/IUserAction.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 
 #include <string>
@@ -98,9 +97,7 @@ namespace iGeant4
 
     /// Activate multi-threading configuration
     bool m_useMT;
-    /// First user action service implementation
-    ServiceHandle<IUserActionSvc> m_UASvc;
-    /// New user action service implementation
+    /// user action service
     ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
 
     // Random number service

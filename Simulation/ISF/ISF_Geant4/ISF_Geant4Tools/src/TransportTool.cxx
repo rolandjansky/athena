@@ -48,7 +48,6 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   : AthAlgTool(t,n,p),
     m_useMT(false),
     m_pRunMgr(nullptr),
-    m_UASvc("",n),
     m_userActionSvc("",n),
     m_rndmGenSvc("AtDSFMTGenSvc",n),
     m_barcodeSvc("",n),
@@ -82,8 +81,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   declareProperty( "PhysicsListTool", m_physListTool);
   declareProperty( "G4RunManagerHelper", m_g4RunManagerHelper);
   declareProperty( "QuasiStableParticlesIncluded", m_quasiStableParticlesIncluded);
-  declareProperty( "UserActionSvc", m_UASvc);
-  declareProperty( "UserActionSvcV2", m_userActionSvc);
+  declareProperty( "UserActionSvc", m_userActionSvc);
   // Multi-threading specific settings
   declareProperty("MultiThreading", m_useMT=false);
 
@@ -130,31 +128,8 @@ StatusCode iGeant4::G4TransportTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  // For now, we decide which user action service to setup based on which
-  // handle has a non-empty name configured. Then we can steer it from the
-  // configuration layer. This will go away when we drop V1 actions.
-
-  // V1 user action service
-  if( !m_UASvc.name().empty() ) {
-    ATH_CHECK( m_UASvc.retrieve() );
-
-    // Make sure only one user action version is used at a time.
-    if( !m_userActionSvc.name().empty() ) {
-      ATH_MSG_ERROR("Configured to use both V1 and V2 user actions, " <<
-                    "which isn't supported!");
-      return StatusCode::FAILURE;
-    }
-    if(m_useMT) {
-      ATH_MSG_ERROR("Using V1 user action design, which won't work in MT");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // V2 user action service
-  if( !m_userActionSvc.name().empty() ) {
-    ATH_CHECK( m_userActionSvc.retrieve() );
-    m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
-  }
+  ATH_CHECK( m_userActionSvc.retrieve() );
+  m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
 
   if(m_useMT) {
     // Retrieve the python service to trigger its initialization. This is done
