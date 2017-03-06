@@ -81,8 +81,7 @@ public:
   void prim_photon_fill(const xAOD::TruthParticle& truth);
   void brem_photon_fill(const xAOD::TruthParticle& truth);
   void track_vs_truth(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, float tmp);
-  void minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt);
-  void BT_fill(const xAOD::TruthParticle& truth, float weight);
+  void minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double truth_pt, float cvst);
 
   // fill the fake and bad match rate plots
   void fillBMR(const xAOD::TrackParticle& track, float weight);

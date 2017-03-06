@@ -72,7 +72,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : 
   m_trkInJetTrackTruthInfoPlots(this, "TruthInJet"),
   m_specPlots(this, "Tracks/PreSelectionSpectrumPlots") {
   m_moreJetPlots = false; // changed with setter function
-  m_ITkResPlots = false;
+  m_ITkResPlots = true;
   // These settings are probably all redundant & can be removed from this script
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbLowThreshold = 0.5;
@@ -202,13 +202,8 @@ InDetRttPlots::track_vs_truth(const xAOD::TrackParticle& track,const xAOD::Truth
 }
 
 void
-InDetRttPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt){
-  m_dumPlots.minDR(min_dR, prod_rad, bestmatch, BIDPt);
-}
-
-void
-InDetRttPlots::BT_fill(const xAOD::TruthParticle& truth, float weight) {
-  m_effPlots.BT_fill(truth, weight);
+InDetRttPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double truth_pt, float cvst){
+  m_dumPlots.minDR(min_dR, prod_rad, bestmatch, BIDPt, truth_pt, cvst);
 }
 
 void
