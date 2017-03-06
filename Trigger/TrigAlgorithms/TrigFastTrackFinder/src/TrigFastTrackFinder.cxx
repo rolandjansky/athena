@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /////////////////////////////////////////////////////////////////////////////////
 // TrigFastTrackFinder.cxx
 // -------------------------------
@@ -256,7 +260,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 TrigFastTrackFinder::~TrigFastTrackFinder() {}
 
 //-----------------------------------------------------------------------
-
 
 HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
