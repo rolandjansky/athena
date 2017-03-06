@@ -30,13 +30,15 @@ import os
 if os.path.exists ('PoolFileCatalog.xml'):
     os.remove ('PoolFileCatalog.xml')
 
+if (not globals().has_key ('ATLAS_REFERENCE_TAG') and
+    os.environ.has_key ('ATLAS_REFERENCE_TAG')):
+    ATLAS_REFERENCE_TAG = os.environ['ATLAS_REFERENCE_TAG']
+
 testdata = '/afs/cern.ch/atlas/maxidisk/d33/referencefiles'
-
-testdata = os.environ.get ('ATLAS_REFERENCE_DATA', testdata)
-
 if infile.startswith ('rtt:'):
     testdata = '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV'
     infile = infile[4:]
+testdata = os.environ.get ('ATLAS_REFERENCE_DATA', testdata)
 
 svcMgr.EventSelector.InputCollections        = [ os.path.join (testdata,
                                                                infile) ]
