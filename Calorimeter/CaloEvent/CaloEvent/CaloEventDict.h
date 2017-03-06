@@ -26,7 +26,7 @@
 #include "CaloEvent/CaloEnergyCluster.h"
 #include "CaloEvent/CaloClusterBadChannelData.h"
 
-#include "DataModel/ElementLinkVector.h" 
+#include "AthLinks/ElementLinkVector.h" 
 
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Point3D.h"
