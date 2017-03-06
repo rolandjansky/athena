@@ -351,8 +351,7 @@ bool eflowPreparation::selectTrack(const xAOD::TrackParticle* track) {
 
 StatusCode eflowPreparation::recordLeptonContainers(){
 
-  xAOD::ElectronContainer *electronContainer = new xAOD::ElectronContainer(SG::VIEW_ELEMENTS);
-  StatusCode sc = m_selectedElectronsWriteHandle.record(CxxUtils::make_unique<xAOD::ElectronContainer>(*electronContainer));
+  StatusCode sc = m_selectedElectronsWriteHandle.record(CxxUtils::make_unique<xAOD::ElectronContainer>(SG::VIEW_ELEMENTS));
   
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
@@ -364,8 +363,7 @@ StatusCode eflowPreparation::recordLeptonContainers(){
   if (true == m_storeLeptonCells) {
 
     //record the cell container
-    ConstDataVector<CaloCellContainer>* caloCellContainerPointer = new ConstDataVector<CaloCellContainer>(SG::VIEW_ELEMENTS);
-    sc =  m_leptonCaloCellContainerWriteHandle.record(CxxUtils::make_unique<ConstDataVector<CaloCellContainer> >(*caloCellContainerPointer));
+    sc =  m_leptonCaloCellContainerWriteHandle.record(CxxUtils::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS));
 
     if (sc.isFailure()) {
       if (msgLvl(MSG::WARNING))

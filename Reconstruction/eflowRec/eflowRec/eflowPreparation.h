@@ -59,12 +59,12 @@ class eflowPreparation : public AthAlgorithm {
   StatusCode makeClusterContainer();
   StatusCode makeTrackContainer();
 
-  /* for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
+  /** for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
   void retrieveLCCalCellWeight(double energy, unsigned index, std::map<IdentifierHash, double>& cellWeights);
 
   bool selectTrack(const xAOD::TrackParticle* track);
 
-  /* Put electron container and list of lepton cells into Storegate */
+  /** Put electron container and list of lepton cells into Storegate */
   StatusCode recordLeptonContainers();
 
   /** select electrons to use */
@@ -89,60 +89,62 @@ class eflowPreparation : public AthAlgorithm {
 
  private:
 
-  /** ReadHandle for the CaloClusterContainer to be used as input */
+
+  /// ReadHandle for the CaloClusterContainer to be used as input */
   SG::ReadHandle<xAOD::CaloClusterContainer> m_caloClusterReadHandle;
 
-  /** ReadHandle for the CaloClusterContainer, at LC scale, to be used as input*/
+  /// ReadHandle for the CaloClusterContainer, at LC scale, to be used as input*/
   SG::ReadHandle<xAOD::CaloClusterContainer> m_caloCalClusterReadHandle;
 
-  /** ReadHandle for the TrackParticleContainer to be used as input */
+  /// ReadHandle for the TrackParticleContainer to be used as input */
   SG::ReadHandle<xAOD::TrackParticleContainer> m_trackReadHandle;
 
-  /** ReadHandle for the ElectronContainer to be used as input */
+  /// ReadHandle for the ElectronContainer to be used as input */
   SG::ReadHandle<xAOD::ElectronContainer> m_electronReadHandle;
 
-  /** ReadHandle for the MuonContainer to be used as input */
+  /// ReadHandle for the MuonContainer to be used as input */
   SG::ReadHandle<xAOD::MuonContainer> m_muonReadHandle;
   
-  /** WriteHandle for the eflowCaloObjectContainer to write out: */
+  /// WriteHandle for the eflowCaloObjectContainer to write out: */
   SG::WriteHandle<eflowCaloObjectContainer> m_eflowCaloObjectContainerWriteHandle;
   
-  /** WriteHandle for the eflowRecTrackContainer to write out: */
+  /// WriteHandle for the eflowRecTrackContainer to write out: */
   SG::WriteHandle<eflowRecTrackContainer> m_eflowRecTrackContainerWriteHandle;
 
-  /** WriteHandle for the eflowRecClusterContainer to write out: */
+  /// WriteHandle for the eflowRecClusterContainer to write out: */
   SG::WriteHandle<eflowRecClusterContainer> m_eflowRecClusterContainerWriteHandle;
 
-  /** Handle to interface on TrackToCalo tool. */
+  /// Handle to interface on TrackToCalo tool. */
   ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool;
 
   ToolHandle<PFTrackClusterMatchingTool> m_matchingTool;
 
-  /* Which eflow mode is in use - Tau, MET or Full */
+  /// Which eflow mode is in use - Tau, MET or Full */
   std::string m_eflowMode;
 
-  /** WriteHandle for the ElectronContainer, that will be filled with electrons passing the electron ID in eflowPreparation::selectElectrons */
+  /// WriteHandle for the ElectronContainer, that will be filled with electrons passing the electron ID in eflowPreparation::selectElectrons */
   SG::WriteHandle<xAOD::ElectronContainer> m_selectedElectronsWriteHandle;
 
-  /** container of muons that we will select */
+  /// container of muons that we will select */
   xAOD::MuonContainer* m_selectedMuons;
   
-  /** WriteHandle for the CaloCellContainer, that will store calorimeter cells associated to leptons (electrons and muons) */
+
+  /// WriteHandle for the CaloCellContainer, that will store calorimeter cells associated to leptons (electrons and muons) */
   SG::WriteHandle<ConstDataVector<CaloCellContainer> > m_leptonCaloCellContainerWriteHandle;
 
-  /** bool to toggle masking out of lepton tracks */
+  /// bool to toggle masking out of lepton tracks */
   bool m_useLeptons;
 
-  /** bool to toggle storage of lepton CaloCells */
+  /// bool to toggle storage of lepton CaloCells */
   bool m_storeLeptonCells;
 
-  /** Count the number of track-cluster matches -- for the summary in finalize() */
+  /// Count the number of track-cluster matches -- for the summary in finalize() */
   unsigned int m_nMatches;
 
-  /** New track selection tool */
+  /// New track selection tool */
   ToolHandle<InDet::IInDetTrackSelectionTool> m_selTool;
 
-  /** Upper limit on track Pt for input tracks */
+  /// Upper limit on track Pt for input tracks */
   float m_upperTrackPtCut;
   
 };
