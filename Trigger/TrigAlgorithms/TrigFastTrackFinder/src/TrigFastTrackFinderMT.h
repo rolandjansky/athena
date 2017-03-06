@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // filename: TrigFastTrackFinderMT.h
@@ -82,6 +86,7 @@ class TrigFastTrackFinderMT : public HLT::FexAlgo {
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
   void convertToTrigInDetTrack(const TrackCollection& offlineTracks, TrigInDetTrackCollection& trigInDetTracks);
+  HLT::ErrorCode getRoI(const HLT::TriggerElement* outputTE, const IRoiDescriptor*& roi);
   StatusCode findTracks(const TrigRoiDescriptor& roi, TrackCollection& fittedTracks);
 
 protected: 
@@ -187,7 +192,13 @@ protected:
   std::vector<float> m_trk_dPhi0;
   std::vector<float> m_trk_dEta;
   //std::vector<double> m_sp_x, m_sp_y, m_sp_z, m_sp_r;//Spacepoint coordinates
-  //
+
+  std::vector<float> m_IBL_layer;
+  std::vector<float> m_PixB_layer;
+  std::vector<float> m_PixEC_layer;
+  std::vector<float> m_SCTB_layer;
+  std::vector<float> m_SCTEC_layer;
+
   std::vector<double> m_iblResPhi;
   std::vector<double> m_iblResEta;
   std::vector<double> m_iblPullPhi;

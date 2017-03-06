@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /////////////////////////////////////////////////////////////////////////////////
 // TrigFastTrackFinder.cxx
 // -------------------------------
@@ -253,75 +257,174 @@ TrigFastTrackFinderMT::~TrigFastTrackFinderMT() {}
 //-----------------------------------------------------------------------
 //
 
-HLT::ErrorCode TrigFastTrackFinderMT::hltBeginRun() {
-  return HLT::OK;
-}
-HLT::ErrorCode TrigFastTrackFinderMT::hltInitialize() {
-  return HLT::OK;
-}
 
-HLT::ErrorCode TrigFastTrackFinderMT::hltExecute(const HLT::TriggerElement* /*inputTE*/,
-    HLT::TriggerElement* outputTE) {
-  return HLT::OK;
-}
-
-HLT::ErrorCode TrigFastTrackFinderMT::hltFinalize() {
-  return HLT::OK;
-}
 
 StatusCode TrigFastTrackFinderMT::initialize() {
+  HLT::ErrorCode code = hltInitialize();
+  if (code != HLT::OK) {
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigFastTrackFinderMT::beginRun() {
+  HLT::ErrorCode code = hltBeginRun();
+  if (code != HLT::OK) {
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigFastTrackFinderMT::finalize() {
+  HLT::ErrorCode code = hltFinalize();
+  if (code != HLT::OK) {
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+
+//-------------------------------------------------------------------------
+
+HLT::ErrorCode TrigFastTrackFinderMT::hltInitialize() {
 
   ATH_MSG_DEBUG("TrigFastTrackFinderMT::initialize() "  << PACKAGE_VERSION);
 
-  ATH_CHECK( m_roiCollectionKey.initialize() );
-  ATH_CHECK( m_outputTracksKey.initialize() );
+  if ( timerSvc() ) {
+    m_SpacePointConversionTimer = addTimer("SpacePointConversion"); 
+    m_ZFinderTimer              = addTimer("ZFinder"); 
+    m_PatternRecoTimer          = addTimer("PattReco","PattReco_nSP");
+    m_TripletMakingTimer        = addTimer("Triplets","Triplets_nSP");
+    m_CombTrackingTimer         = addTimer("CmbTrack","CmbTrack_nTr");
+    m_TrackFitterTimer          = addTimer("TrackFitter","TrackFitter_nTracks");
+  }
 
   if(m_ftkMode) {
-    ATH_CHECK(m_ftkDataProviderSvc.retrieve());
+    StatusCode sc= m_ftkDataProviderSvc.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("unable to locate FTK_DataProviderSvc" << m_ftkDataProviderSvcName);
+      return HLT::BAD_JOB_SETUP;
+    } else {
+      ATH_MSG_INFO("Configured to retrieve FTK tracks from " << m_ftkDataProviderSvcName);
+    }
   } else {
-    ATH_CHECK(m_trackSummaryTool.retrieve());
-    ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
-    if (m_useBeamSpot) {
-      ATH_CHECK(service("BeamCondSvc", m_iBeamCondSvc));
+
+    StatusCode sc= m_trackSummaryTool.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("unable to locate track summary tool");
+      return HLT::BAD_JOB_SETUP;
     }
     
-    ATH_CHECK(m_numberingTool.retrieve());
+    ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
     
-    ATH_CHECK(m_spacePointTool.retrieve());
+    if (m_useBeamSpot) {
+      StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
+      if (scBS.isFailure() || m_iBeamCondSvc == 0) {
+	m_iBeamCondSvc = 0;
+	ATH_MSG_WARNING("Could not retrieve Beam Conditions Service. ");
+      }
+    }
     
-    ATH_CHECK(m_trackMaker.retrieve());
-    ATH_CHECK(m_trigInDetTrackFitter.retrieve());
+    sc=m_numberingTool.retrieve(); 
+    if(sc.isFailure()) { 
+      ATH_MSG_ERROR("Could not retrieve "<<m_numberingTool); 
+      return HLT::BAD_JOB_SETUP;
+    } 
     
+    sc = m_spacePointTool.retrieve();
+    if(sc.isFailure()) { 
+      ATH_MSG_ERROR("Could not retrieve "<<m_spacePointTool); 
+      return HLT::BAD_JOB_SETUP;
+    }
+    
+    sc = m_trackMaker.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve "<<m_trackMaker); 
+      return HLT::BAD_JOB_SETUP;
+    }
+    sc = m_trigInDetTrackFitter.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve "<<m_trigInDetTrackFitter); 
+      return HLT::BAD_JOB_SETUP;
+    }
+    
+    ATH_MSG_DEBUG("In Initialize m_doZFinder, m_doFTKZFinder " << m_doZFinder << " " << m_doFTKZFinder);
+
     if (m_doZFinder) {
-      ATH_CHECK(m_trigZFinder.retrieve());
+      sc = m_trigZFinder.retrieve();
+      if(sc.isFailure()) {
+	ATH_MSG_ERROR("Could not retrieve "<<m_trigZFinder); 
+	return HLT::BAD_JOB_SETUP;
+      }
+    }
+    if(m_doFTKZFinder ) {
+      StatusCode sc= m_ftkDataProviderSvc.retrieve();
+      if(sc.isFailure()) {
+        ATH_MSG_ERROR("unable to locate FTK_DataProviderSvc" << m_ftkDataProviderSvcName);
+        return HLT::BAD_JOB_SETUP;
+      } else {
+        ATH_MSG_INFO("Configured to retrieve FTK tracks from " << m_ftkDataProviderSvcName);
+      }
     }
 
-    //ATH_CHECK(m_trigL2ResidualCalculator.retrieve());
+
+    sc = m_trigL2ResidualCalculator.retrieve();
+    if ( sc.isFailure() ) {
+      msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endmsg;
+      return HLT::BAD_JOB_SETUP;
+    }
   }
 
   //Get ID helper
-  //ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID").isFailure());
-  //ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID").isFailure());
+  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+    ATH_MSG_ERROR("Could not get AtlasDetectorID helper AtlasID");
+    return HLT::BAD_JOB_SETUP;
+  }
+  
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
+    ATH_MSG_ERROR("Could not get Pixel ID helper");
+    return HLT::BAD_JOB_SETUP;
+  }
+  
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) { 
+    ATH_MSG_ERROR("Could not get Pixel ID helper");
+    return StatusCode::FAILURE;
+  }
 
-  //ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID").isFailure()); 
+  
+  if ( m_outputCollectionSuffix != "" ) {
+    m_attachedFeatureName = std::string("TrigFastTrackFinder_") + m_outputCollectionSuffix;
+    m_attachedFeatureName_TIDT = std::string("TrigFastTrackFinder_TrigInDetTrack") + m_outputCollectionSuffix;
+  }
+  else {
+    m_attachedFeatureName      = std::string("TrigFastTrackFinder_");
+    m_attachedFeatureName_TIDT = std::string("TrigFastTrackFinder_TrigInDetTrack");
+  }
 
   if (m_retrieveBarCodes) {
     m_nSignalPresent=0;
     m_nSignalDetected=0;
     m_nSignalTracked=0;
     m_nSignalClones=0;
-    ATH_CHECK(m_TrigL2SpacePointTruthTool.retrieve());
+    StatusCode sc = m_TrigL2SpacePointTruthTool.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("Unable to locate SpacePoint-to-Truth associator tool " << m_TrigL2SpacePointTruthTool);
+      return HLT::BAD_JOB_SETUP;
+    }
   }
   
+  ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
+  ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName_TIDT);
   ATH_MSG_DEBUG(" doResMon " << m_doResMonitoring);
   ATH_MSG_DEBUG(" Initialized successfully"); 
-  return StatusCode::SUCCESS;
+  return HLT::OK;
 }
 
 
 //-------------------------------------------------------------------------
 
-StatusCode TrigFastTrackFinderMT::beginRun()
+HLT::ErrorCode TrigFastTrackFinderMT::hltBeginRun()
 {
   ATH_MSG_DEBUG("At BeginRun of " << name());
 
@@ -338,7 +441,7 @@ StatusCode TrigFastTrackFinderMT::beginRun()
     std::copy(pVL->begin(),pVL->end(),std::back_inserter(m_tcs.m_layerGeometry));
   }
 
-  return StatusCode::SUCCESS;
+  return HLT::OK;
 }
 
 //-------------------------------------------------------------------------
@@ -364,6 +467,54 @@ StatusCode TrigFastTrackFinderMT::execute() {
   
   return StatusCode::SUCCESS;
 }
+
+HLT::ErrorCode TrigFastTrackFinderMT::hltExecute(const HLT::TriggerElement* /*inputTE*/,
+    HLT::TriggerElement* outputTE) {
+  const IRoiDescriptor* internalRoI;
+  HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
+  if(ec != HLT::OK) {
+    return ec;
+  }
+  TrackCollection* outputTracks = new TrackCollection();
+  StatusCode sc = findTracks(internalRoI, *outputTracks);
+  if (sc != StatusCode::SUCCESS) {
+    return HLT::ERROR;
+  }
+  HLT::ErrorCode code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
+  if (code != HLT::OK) {
+    return code;
+  }
+  return HLT::OK;
+}
+
+HLT::ErrorCode TrigFastTrackFinderMT::getRoI(const HLT::TriggerElement* outputTE, const IRoiDescriptor*& roi)
+{
+
+  const TrigRoiDescriptor* externalRoI = nullptr;
+  HLT::ErrorCode ec = getFeature(outputTE, externalRoI);
+  if(ec != HLT::OK) {
+    ATH_MSG_ERROR("REGTEST / Failed to find RoiDescriptor");
+    return HLT::NAV_ERROR;
+  }
+
+  if(externalRoI==nullptr) {
+    ATH_MSG_ERROR("REGTEST / null RoiDescriptor");
+    return HLT::NAV_ERROR;
+  }
+
+  roi = externalRoI;
+  m_roiEta = roi->eta();
+  m_roiEtaWidth = roi->etaPlus() - roi->etaMinus();
+  m_roiPhi = roi->phi();
+  m_roiPhiWidth = HLT::wrapPhi(roi->phiPlus() - roi->phiMinus());
+  m_roiZ = roi->zed();
+  m_roiZ_Width = roi->zedPlus() - roi->zedMinus();
+  ATH_MSG_DEBUG("REGTEST / RoI" << *roi);
+
+  return HLT::OK;
+}
+  
+   
 
 StatusCode TrigFastTrackFinderMT::findTracks(const TrigRoiDescriptor& roi,
                                       TrackCollection& fittedTracks) {
@@ -761,28 +912,6 @@ void TrigFastTrackFinderMT::filterSharedTracks(std::vector<std::tuple<bool, doub
 
 //---------------------------------------------------------------------------
 
-StatusCode TrigFastTrackFinderMT::finalize()
-{
-
-  ATH_MSG_INFO("=========================================================");
-  ATH_MSG_INFO("TrigFastTrackFinderMT::finalize() - TrigFastTrackFinder Statistics: ");
-  ATH_MSG_INFO("RoI processed: " <<  m_countTotalRoI);
-  ATH_MSG_INFO("RoI with enough SPs : " <<  m_countRoIwithEnoughHits);
-  ATH_MSG_INFO("RoI with Track(s)  Total/goodZvertex/badZvertex: " << m_countRoIwithTracks);
-  if (m_retrieveBarCodes) {
-    ATH_MSG_INFO("Number of signal tracks present " << m_nSignalPresent);
-    ATH_MSG_INFO("Number of signal seeds  found   " << m_nSignalDetected);
-    ATH_MSG_INFO("Number of signal tracks found   " << m_nSignalTracked);
-    if(m_nSignalPresent!=0) {
-      ATH_MSG_INFO("Track seeding  efficiency      " << (100.0*m_nSignalDetected/m_nSignalPresent) <<" % ");
-      ATH_MSG_INFO("Track seeding  redundancy      " << (100.0*m_nSignalClones/m_nSignalPresent) << " %");
-      ATH_MSG_INFO("Track finding efficiency       " << (100.0*m_nSignalTracked/m_nSignalPresent) << " %");
-    }
-  }
-  ATH_MSG_INFO("=========================================================");
-
-  return StatusCode::SUCCESS;
-}
 
 void TrigFastTrackFinderMT::updateClusterMap(long int trackIdx, const Trk::Track* pTrack, std::map<Identifier, std::vector<long int> >& clusterMap) {
   //loop over clusters
@@ -1072,51 +1201,111 @@ void TrigFastTrackFinderMT::fillMon(const TrackCollection& tracks) {
   }
 }
 
-void TrigFastTrackFinderMT::runResidualMonitoring(const Trk::Track& /*track*/) {
-  //std::vector<TrigL2HitResidual> vResid;
-  //vResid.clear();
-  //StatusCode scRes = m_trigL2ResidualCalculator->getUnbiassedResiduals(track,vResid);
-  //if(!scRes.isSuccess()) return;
-  //for(std::vector<TrigL2HitResidual>::iterator it=vResid.begin();it!=vResid.end();++it) {
-  //  switch(it->regionId()) {
-  //    case Region::PixBarrel :
-  //      m_pixResPhiBarrel.push_back(it->phiResidual());
-  //      m_pixPullPhiBarrel.push_back(it->phiPull());
-  //      m_pixResEtaBarrel.push_back(it->etaResidual());
-  //      m_pixPullEtaBarrel.push_back(it->etaPull());
-  //      break;
-  //    case Region::PixEndcap :
-  //      m_pixResPhiEC.push_back(it->phiResidual());
-  //      m_pixPullPhiEC.push_back(it->phiPull());
-  //      m_pixResEtaEC.push_back(it->etaResidual());
-  //      m_pixPullEtaEC.push_back(it->etaPull());
-  //      break;
-  //    case Region::SctBarrel :
-  //      m_sctResBarrel.push_back(it->phiResidual());
-  //      m_sctPullBarrel.push_back(it->phiPull());
-  //      break;
-  //    case Region::SctEndcap :
-  //      m_sctResEC.push_back(it->phiResidual());
-  //      m_sctPullEC.push_back(it->phiPull());
-  //      break;
-  //    case Region::IBL :
-  //      if (m_tcs.m_maxSiliconLayer==20) {
-  //        m_iblResPhi.push_back(it->phiResidual());
-  //        m_iblPullPhi.push_back(it->phiPull());
-  //        m_iblResEta.push_back(it->etaResidual());
-  //        m_iblPullEta.push_back(it->etaPull());
-  //      }
-  //      else {//No IBL, fill pixel histograms instead
-  //        m_pixResPhiBarrel.push_back(it->phiResidual());
-  //        m_pixPullPhiBarrel.push_back(it->phiPull());
-  //        m_pixResEtaBarrel.push_back(it->etaResidual());
-  //        m_pixPullEtaBarrel.push_back(it->etaPull());
-  //      }
-  //      break;
-  //    case Region::Undefined :
-  //      ATH_MSG_DEBUG("Undefined ID region");
-  //      break;
-  //  }
-  //}
+HLT::ErrorCode TrigFastTrackFinderMT::hltFinalize()
+{
+
+  ATH_MSG_INFO("=========================================================");
+  ATH_MSG_INFO("TrigFastTrackFinderMT::finalize() - TrigFastTrackFinder Statistics: ");
+  ATH_MSG_INFO("RoI processed: " <<  m_countTotalRoI);
+  ATH_MSG_INFO("RoI with enough SPs : " <<  m_countRoIwithEnoughHits);
+  ATH_MSG_INFO("RoI with Track(s)  Total/goodZvertex/badZvertex: " << m_countRoIwithTracks);
+  if (m_retrieveBarCodes) {
+    ATH_MSG_INFO("Number of signal tracks present " << m_nSignalPresent);
+    ATH_MSG_INFO("Number of signal seeds  found   " << m_nSignalDetected);
+    ATH_MSG_INFO("Number of signal tracks found   " << m_nSignalTracked);
+    if(m_nSignalPresent!=0) {
+      ATH_MSG_INFO("Track seeding  efficiency      " << (100.0*m_nSignalDetected/m_nSignalPresent) <<" % ");
+      ATH_MSG_INFO("Track seeding  redundancy      " << (100.0*m_nSignalClones/m_nSignalPresent) << " %");
+      ATH_MSG_INFO("Track finding efficiency       " << (100.0*m_nSignalTracked/m_nSignalPresent) << " %");
+    }
+  }
+  ATH_MSG_INFO("=========================================================");
+
+  return HLT::OK;
 }
 
+void TrigFastTrackFinderMT::runResidualMonitoring(const Trk::Track& track) {
+  std::vector<TrigL2HitResidual> vResid;
+  vResid.clear();
+  StatusCode scRes = m_trigL2ResidualCalculator->getUnbiassedResiduals(track,vResid);
+  if(!scRes.isSuccess()) return;
+  for(std::vector<TrigL2HitResidual>::iterator it=vResid.begin();it!=vResid.end();++it) {
+    Identifier id = it->identify();
+    int pixlayer= (m_pixelId->layer_disk(id) );
+    int sctlayer= (m_sctId->layer_disk(id) );
+
+    switch(it->regionId()) {
+      case Region::PixBarrel :
+        m_PixB_layer.push_back(pixlayer);
+        ATH_MSG_DEBUG("Pixel Barrel "  );
+        m_pixResPhiBarrel.push_back(it->phiResidual());
+        m_pixPullPhiBarrel.push_back(it->phiPull());
+        if (pixlayer == 1) {
+          m_pixResPhiBarrelL1.push_back(it->phiResidual());
+          m_pixResEtaBarrelL1.push_back(it->etaResidual());
+        }
+        if (pixlayer == 2) {
+          m_pixResPhiBarrelL2.push_back(it->phiResidual());
+          m_pixResEtaBarrelL2.push_back(it->etaResidual());
+        }
+        if (pixlayer == 3) {
+          m_pixResPhiBarrelL3.push_back(it->phiResidual());
+          m_pixResEtaBarrelL3.push_back(it->etaResidual());
+        }
+        m_pixResEtaBarrel.push_back(it->etaResidual());
+        m_pixPullEtaBarrel.push_back(it->etaPull());
+        break;
+      case Region::PixEndcap :
+        ATH_MSG_DEBUG("Pixel Endcap "  );
+        m_PixEC_layer.push_back(pixlayer);
+        m_pixResPhiEC.push_back(it->phiResidual());
+        m_pixPullPhiEC.push_back(it->phiPull());
+        if (pixlayer == 0) {
+          m_pixResPhiECL1.push_back(it->phiResidual());
+          m_pixResEtaECL1.push_back(it->etaResidual());
+        }
+        if (pixlayer == 1) {
+          m_pixResPhiECL2.push_back(it->phiResidual());
+          m_pixResEtaECL2.push_back(it->etaResidual());
+        }
+        if (pixlayer == 2) {
+          m_pixResPhiECL3.push_back(it->phiResidual());
+          m_pixResEtaECL3.push_back(it->etaResidual());
+        }
+        m_pixResEtaEC.push_back(it->etaResidual());
+        m_pixPullEtaEC.push_back(it->etaPull());
+        break;
+      case Region::SctBarrel :
+        m_SCTB_layer.push_back(sctlayer);
+        ATH_MSG_DEBUG("SCT Barrel"  );
+        m_sctResBarrel.push_back(it->phiResidual());
+        m_sctPullBarrel.push_back(it->phiPull());
+        break;
+      case Region::SctEndcap :
+        m_SCTEC_layer.push_back(sctlayer);
+        ATH_MSG_DEBUG("SCT Endcap"  );
+        m_sctResEC.push_back(it->phiResidual());
+        m_sctPullEC.push_back(it->phiPull());
+        break;
+      case Region::IBL :
+        m_IBL_layer.push_back(pixlayer);
+        if (m_tcs.m_maxSiliconLayer==32) {
+          m_iblResPhi.push_back(it->phiResidual());
+          m_iblPullPhi.push_back(it->phiPull());
+          m_iblResEta.push_back(it->etaResidual());
+          m_iblPullEta.push_back(it->etaPull());
+        }
+        else {//No IBL, fill pixel histograms instead
+          ATH_MSG_DEBUG("IBL wrong region"  );
+          m_pixResPhiBarrel.push_back(it->phiResidual());
+          m_pixPullPhiBarrel.push_back(it->phiPull());
+          m_pixResEtaBarrel.push_back(it->etaResidual());
+          m_pixPullEtaBarrel.push_back(it->etaPull());
+        }
+        break;
+      case Region::Undefined :
+        ATH_MSG_DEBUG("Undefined ID region");
+        break;
+    }
+  }
+}
