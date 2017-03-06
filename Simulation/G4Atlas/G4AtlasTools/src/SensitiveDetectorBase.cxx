@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// STL includes
+#include <sstream>
+
 // Base class
 #include "G4AtlasTools/SensitiveDetectorBase.h"
 
@@ -182,7 +185,11 @@ SetSensitiveDetector(G4LogicalVolume* logVol, G4VSensitiveDetector* aSD) const
         }
       else
         {
-          const G4String msdname = "/MultiSD_"+logVol->GetName();
+          // Construct a unique name using the volume address
+          std::stringstream ss;
+          ss << static_cast<const void*>(logVol);
+          const G4String msdname = "/MultiSD_" + logVol->GetName() + ss.str();
+          //ATH_MSG_INFO("MultiSD name: " << msdname);
           msd = new G4MultiSensitiveDetector(msdname);
           // We need to register the proxy to have correct handling of IDs
           G4SDManager::GetSDMpointer()->AddNewDetector(msd);
