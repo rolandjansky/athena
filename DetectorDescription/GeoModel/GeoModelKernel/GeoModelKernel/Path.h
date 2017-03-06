@@ -105,12 +105,12 @@ class Path
   private:
     // Data Members for Class Attributes
 
-      //## Attribute: _nodeList%3DCE7F8E01C7
+      //## Attribute: m_nodeList%3DCE7F8E01C7
       //	A list of physical volumes betwee the head of the path
       //	and the tail of the path.
-      //## begin Path::_nodeList%3DCE7F8E01C7.attr preserve=no  private: std::vector<const T *> {U} 
-      std::vector<const T *> _nodeList;
-      //## end Path::_nodeList%3DCE7F8E01C7.attr
+      //## begin Path::m_nodeList%3DCE7F8E01C7.attr preserve=no  private: std::vector<const T *> {U} 
+      std::vector<const T *> m_nodeList;
+      //## end Path::m_nodeList%3DCE7F8E01C7.attr
 
     // Additional Private Declarations
       //## begin Path%3DCE7F140063.private preserve=yes
@@ -136,7 +136,7 @@ inline Path<T>::Path()
   //## end Path::Path%3DCE7F140063_const.initialization
 {
   //## begin Path::Path%3DCE7F140063_const.body preserve=yes
-  _nodeList.reserve(2);
+  m_nodeList.reserve(2);
   //## end Path::Path%3DCE7F140063_const.body
 }
 
@@ -145,7 +145,7 @@ inline Path<T>::Path(const Path<T> &right)
   //## begin Path::Path%3DCE7F140063_copy.hasinit preserve=no
   //## end Path::Path%3DCE7F140063_copy.hasinit
   //## begin Path::Path%3DCE7F140063_copy.initialization preserve=yes
-  :_nodeList(right._nodeList)
+  :m_nodeList(right.m_nodeList)
   //## end Path::Path%3DCE7F140063_copy.initialization
 {
   //## begin Path::Path%3DCE7F140063_copy.body preserve=yes
@@ -167,7 +167,7 @@ inline Path<T> & Path<T>::operator=(const Path<T> &right)
   //## begin Path::operator=%3DCE7F140063_assign.body preserve=yes
   if (this != &right)
     {
-      _nodeList = right._nodeList;
+      m_nodeList = right.m_nodeList;
     }
   return *this;
   //## end Path::operator=%3DCE7F140063_assign.body
@@ -180,14 +180,14 @@ template <class T>
 inline const T * Path<T>::pop ()
 {
   //## begin Path::pop%3DCE7F9C0249.body preserve=yes
-  if (_nodeList.size () == 0)
+  if (m_nodeList.size () == 0)
     {
       return NULL;
     }
   else
     {
-      const T *gvp = _nodeList.back ();
-      _nodeList.pop_back ();
+      const T *gvp = m_nodeList.back ();
+      m_nodeList.pop_back ();
       return gvp;
     }
   //## end Path::pop%3DCE7F9C0249.body
@@ -197,7 +197,7 @@ template <class T>
 inline void Path<T>::push (const T *node)
 {
   //## begin Path::push%3DCE7F9C025D.body preserve=yes
-  _nodeList.push_back (node);
+  m_nodeList.push_back (node);
   //## end Path::push%3DCE7F9C025D.body
 }
 
@@ -205,7 +205,7 @@ template <class T>
 inline unsigned int Path<T>::getLength () const
 {
   //## begin Path::getLength%3DCE7F9C027B.body preserve=yes
-  return _nodeList.size ();
+  return m_nodeList.size ();
   //## end Path::getLength%3DCE7F9C027B.body
 }
 
@@ -213,13 +213,13 @@ template <class T>
 inline const T * Path<T>::getItem (unsigned int i) const
 {
   //## begin Path::getItem%3DCE7F9C028F.body preserve=yes
-  if (_nodeList.size () == 0)
+  if (m_nodeList.size () == 0)
 	{
       return NULL;
     }
   else
     {
-      return _nodeList[i];
+      return m_nodeList[i];
     }
   //## end Path::getItem%3DCE7F9C028F.body
 }
@@ -228,13 +228,13 @@ template <class T>
 inline const T * Path<T>::getHead () const
 {
   //## begin Path::getHead%3DCE7F9C02A3.body preserve=yes
-  if (_nodeList.size () == 0)
+  if (m_nodeList.size () == 0)
     {
       return NULL;
     }
   else
     {
-      return _nodeList.front ();
+      return m_nodeList.front ();
     }
   //## end Path::getHead%3DCE7F9C02A3.body
 }
@@ -243,13 +243,13 @@ template <class T>
 inline const T * Path<T>::getTail () const
 {
   //## begin Path::getTail%3DCE7F9C02C1.body preserve=yes
-  if (_nodeList.size () == 0)
+  if (m_nodeList.size () == 0)
     {
       return NULL;
     }
   else
     {
-      return _nodeList.back ();
+      return m_nodeList.back ();
     }
   //## end Path::getTail%3DCE7F9C02C1.body
 }
