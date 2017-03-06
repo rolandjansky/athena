@@ -91,26 +91,39 @@ void DetectorGeometryBase::BuildGeometry()
 void DetectorGeometryBase::SetRotationAndOffset()
 {
   ATH_MSG_VERBOSE( name() << "::SetRotationAndOffset() (Base class method)");
-  //Rotate first
+  // Firstly do the rotation
   if (!m_envelope.theRotation)
     {
-      //FIXME probably a neater way to do this part.
+      // m_envelope.theRotation is null, so create an identity
+      // rotation first.
+      // FIXME probably a neater way to do this part.
       m_envelope.theRotation=new G4RotationMatrix;
+      // add the extra rotations.
       m_envelope.theRotation->rotateX(m_rotateX);
       m_envelope.theRotation->rotateY(m_rotateY);
       m_envelope.theRotation->rotateZ(m_rotateZ);
       if (m_envelope.thePositionedVolume)
-        m_envelope.thePositionedVolume->SetRotation(m_envelope.theRotation);
+        {
+          // Override the rotation for m_envelope.thePositionedVolume.
+          m_envelope.thePositionedVolume->SetRotation(m_envelope.theRotation);
+        }
     }
   else
     {
+      // m_envelope.theRotation already exists, so just add the
+      // extra rotations.
       m_envelope.theRotation->rotateX(m_rotateX);
       m_envelope.theRotation->rotateY(m_rotateY);
       m_envelope.theRotation->rotateZ(m_rotateZ);
     }
-  //Then offset the position
+  // Secondly add the additional position offset to the existing
+  // m_envelope.thePosition vector.
   m_envelope.thePosition+=G4ThreeVector(m_offsetX,m_offsetY,m_offsetZ);
-  if (m_envelope.thePositionedVolume) m_envelope.thePositionedVolume->SetTranslation(m_envelope.thePosition);
+  if (m_envelope.thePositionedVolume)
+    {
+      // Override the translation for m_envelope.thePositionedVolume.
+      m_envelope.thePositionedVolume->SetTranslation(m_envelope.thePosition);
+    }
 
   ATH_MSG_VERBOSE( name() << "::SetRotationAndOffset() (Base class method): Finished" );
   return;
