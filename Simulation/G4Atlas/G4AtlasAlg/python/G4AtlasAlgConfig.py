@@ -76,4 +76,8 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     #    verbosities["Tracking"]='1'
     #    print verbosities
     kwargs.setdefault('Verbosities', verbosities)
+
+    # Set commands for the G4AtlasAlg
+    kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
+
     return CfgMgr.G4AtlasAlg(name, **kwargs)

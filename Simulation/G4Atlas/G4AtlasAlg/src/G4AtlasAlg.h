@@ -82,7 +82,11 @@ private:
   bool m_killAbortedEvents;
   bool m_flagAbortedEvents;
 
+  /// Verbosity settings for Geant4
   std::map<std::string,std::string> m_verbosities;
+
+  /// Commands to send to the G4 UI
+  std::vector<std::string> m_g4commands;
 
   /// Activate multi-threading configuration
   bool m_useMT;

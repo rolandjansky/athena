@@ -70,6 +70,9 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
   // Multi-threading specific settings
   declareProperty("MultiThreading", m_useMT=false);
+
+  // Commands to send to the G4UI
+  declareProperty("G4Commands", m_g4commands);
 }
 
 
@@ -212,6 +215,11 @@ void G4AtlasAlg::initializeOnce()
   }
   else if (rndmGen=="geant4" || rndmGen.empty()) {
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
+  }
+
+  // Send UI commands
+  for (auto g4command : m_g4commands){
+    ui->ApplyCommand( g4command );
   }
 
   // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
