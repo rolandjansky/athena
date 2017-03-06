@@ -36,8 +36,10 @@ StatusCode SensitiveDetectorBase::initializeSD()
 
   // Sanity check for volume configuration problems.
   // It would be better to have a more robust solution for this.
-  if(m_volumeNames.empty() && !m_noVolumes) {
-    ATH_MSG_ERROR("Volume list is empty but NoVolumes flag is false!");
+  if(m_volumeNames.empty() != m_noVolumes) {
+    ATH_MSG_ERROR("Initializing SD from " << name() << ", NoVolumes = "
+                  << (m_noVolumes? "true" : "false") << ", but LogicalVolumeNames = "
+                  << m_volumeNames);
     return StatusCode::FAILURE;
   }
 
