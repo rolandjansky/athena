@@ -67,7 +67,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
 {
   declareInterface<ITRT_ElectronPidTool>(this);
   declareInterface<ITRT_ElectronToTTool>(this);
-  //  template for property decalration
+  //  template for property declaration
   //declareProperty("PropertyName", m_propertyName);
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
   declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
@@ -166,7 +166,7 @@ std::vector<float>
 InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) const {
 
   //ATH_MSG_INFO("started electronProbabaility");
-  //Intialize the return vector
+  //Initialize the return vector
   std::vector<float> PIDvalues(5);
   float & prob_El_Comb      = PIDvalues[0] = 0.5;
   float & prob_El_HT        = PIDvalues[1] = 0.5;
@@ -409,7 +409,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   double usedHits = m_TRTdEdxTool->usedHits( &track, gasType, true, false);
   prob_El_ToT = m_TRTdEdxTool->getTest( gasType, dEdx, pTrk, Trk::electron, Trk::pion, usedHits, true ); 
   
-  // Limit the probability values the the upper and lower limits that are given/trusted for each part:
+  // Limit the probability values the upper and lower limits that are given/trusted for each part:
   double limProbHT = HTcalc.Limit(prob_El_HT); 
   double limProbToT = HTcalc.Limit(prob_El_ToT); 
   
@@ -497,8 +497,8 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
 }
 
 /*****************************************************************************\
-|*%%%  Auxiliary function to return the HT pobability to Atlfast  %%%%%%%%%%%*|
-|*%%%  a geometry ckeck is perfored every time here  %%%%%%%%%%%%%%%%%%%%%%%%*|
+|*%%%  Auxiliary function to return the HT probability to Atlfast  %%%%%%%%%%*|
+|*%%%  a geometry check is performed every time here  %%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
 double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk::ParticleHypothesis /*hypothesis*/, const int HitPart, const int Layer, const int StrawLayer){
