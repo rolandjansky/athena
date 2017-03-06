@@ -44,7 +44,7 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_TRTHelper(0),
+  m_TRTHelper(nullptr),
   m_trt_rdo_location("TRT_RDOs"),
   m_TRTStrawStatusSummarySvc("InDetTRTStrawStatusSummarySvc", n),
   m_driftFunctionTool("TRT_DriftFunctionTool")  
@@ -71,34 +71,20 @@ TRT_LocalOccupancy::~TRT_LocalOccupancy()
 StatusCode TRT_LocalOccupancy::initialize()
 {
   // The TRT helper: 
-  StatusCode sc = detStore()->retrieve(m_TRTHelper, "TRT_ID");
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Unable to retrieve TRT ID Helper." );
-    return sc;       
-  } else {
-    ATH_MSG_DEBUG( "retrieved m_TRTHelper " << m_TRTHelper ); 
-  }
+  CHECK( detStore()->retrieve(m_TRTHelper, "TRT_ID") );
 
   if (m_T0Shift) {
-    if ( m_driftFunctionTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO( m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type());
-    }
+    CHECK( m_driftFunctionTool.retrieve() );
   }
   else { //use wider validity gate if no T0 shift
     m_lowGate  = m_lowWideGate ;
     m_highGate = m_highWideGate ;
   }  
-  if( m_TRTStrawStatusSummarySvc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR( " Can't do a dynamic cast to TRTStrawStatusSummaryTool" );
-    return StatusCode::FAILURE;
-  }
+  CHECK ( m_TRTStrawStatusSummarySvc.retrieve() );
   
   ATH_MSG_INFO ("initialize() successful in " << name());
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TRT_LocalOccupancy::finalize()
