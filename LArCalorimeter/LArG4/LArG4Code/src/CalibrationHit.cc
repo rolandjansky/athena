@@ -12,7 +12,7 @@
 #include "G4Allocator.hh"
 #include "G4ios.hh"
 #include "globals.hh"
-#include "AthenaKernel/Units.h" 
+#include "AthenaKernel/Units.h"
 
 namespace LArG4 {
 

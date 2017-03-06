@@ -10,27 +10,30 @@ author Mikhail Leltchouk <lelchuk@nevis.columbia.edu>
 # hadronic endcap calorimeter (HEC).
 
 use AtlasPolicy        AtlasPolicy-*
-use LArReadoutGeometry LArReadoutGeometry-* LArCalorimeter/LArGeoModel
-use LArG4Code          LArG4Code-*          LArCalorimeter/LArG4
-use CaloG4Sim          CaloG4Sim-*          Calorimeter
+use AthenaBaseComps    AthenaBaseComps-*        Control
+use LArReadoutGeometry LArReadoutGeometry-*     LArCalorimeter/LArGeoModel
+use RDBAccessSvc       RDBAccessSvc-*       Database/AthenaPOOL
+use GeoModelInterfaces GeoModelInterfaces-* DetectorDescription/GeoModel
 
-use Geant4             Geant4-*            External
 use AtlasCLHEP      AtlasCLHEP-*        External
 
 # Build the library (and export the headers)
-library LArG4HEC *.cc
-apply_pattern installed_library
+library LArG4HEC *.cc -s=components *.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
 
 #=======================================================
 private
 
-macro_append LArG4HEC_cppflags  "  -O -Wno-unused"
-macro_append LArG4HEC_cppflags  " -g -O0"
+#macro_append LArG4HEC_cppflags  "  -O -Wno-unused"
+#macro_append LArG4HEC_cppflags  " -g -O0"
 
-use GaudiInterface     GaudiInterface-*     External
+use GaudiInterface       GaudiInterface-*       External
 use AthenaKernel       AthenaKernel-*       Control
 use StoreGate          StoreGate-*          Control
-use RDBAccessSvc       RDBAccessSvc-*       Database/AthenaPOOL
-use GeoModelInterfaces GeoModelInterfaces-* DetectorDescription/GeoModel
-use LArG4RunControl    LArG4RunControl-*    LArCalorimeter/LArG4
+#use RDBAccessSvc       RDBAccessSvc-*       Database/AthenaPOOL
+#use GeoModelInterfaces GeoModelInterfaces-* DetectorDescription/GeoModel
 use LArHV              LArHV-*              LArCalorimeter/LArGeoModel
+use LArG4Code          LArG4Code-*          LArCalorimeter/LArG4
+use CaloG4Sim          CaloG4Sim-*          Calorimeter
+use Geant4             Geant4-*            External

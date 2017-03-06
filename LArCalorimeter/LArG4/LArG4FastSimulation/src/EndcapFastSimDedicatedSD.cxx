@@ -28,10 +28,10 @@ EndcapFastSimDedicatedSD::EndcapFastSimDedicatedSD(StoreGateSvc* detStore)
   if ( detStore->retrieve( m_emecManager ).isFailure()  ){
     throw std::runtime_error("Could not retrieve EMEC manager");
   }
-  m_innerWheelCalculatorPos = new LArWheelCalculator(LArWheelCalculator::InnerAbsorberWheel,+1);
-  m_innerWheelCalculatorNeg = new LArWheelCalculator(LArWheelCalculator::InnerAbsorberWheel,-1);
-  m_outerWheelCalculatorPos = new LArWheelCalculator(LArWheelCalculator::OuterAbsorberWheel,+1);
-  m_outerWheelCalculatorNeg = new LArWheelCalculator(LArWheelCalculator::OuterAbsorberWheel,-1);
+  m_innerWheelCalculatorPos = new LArWheelCalculator(LArG4::InnerAbsorberWheel,+1);
+  m_innerWheelCalculatorNeg = new LArWheelCalculator(LArG4::InnerAbsorberWheel,-1);
+  m_outerWheelCalculatorPos = new LArWheelCalculator(LArG4::OuterAbsorberWheel,+1);
+  m_outerWheelCalculatorNeg = new LArWheelCalculator(LArG4::OuterAbsorberWheel,-1);
 }
 
 // ProcessHitsMethod
