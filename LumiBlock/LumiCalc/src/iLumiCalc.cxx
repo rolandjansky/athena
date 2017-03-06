@@ -643,8 +643,6 @@ int main(int argc, char * argv[]){
     // ===========================================================================
     if (runtype != 0 && runList.size() > 0) {
       std::vector<xAOD::LumiBlockRangeContainer*>::iterator iovIt = iovcVec.begin();
-      // std::vector<std::vector<std::string> >::iterator trigIt = triggerchainVec.begin();
-
       for (;iovIt != iovcVec.end(); iovIt++) {
 
 	xAOD::LumiBlockRangeContainer::iterator it = (*iovIt)->begin();

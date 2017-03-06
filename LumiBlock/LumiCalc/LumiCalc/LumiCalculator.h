@@ -85,8 +85,6 @@ class LumiCalculator{
   std::string m_bsonl;
   std::string m_bstag;
   int m_lumichannel;
-  //std::vector<uint32_t> lbstart;
-  //std::vector<uint32_t> lbend;
 
   std::string m_parofflumiestfolder;
   std::string m_paronllumiestfolder;
