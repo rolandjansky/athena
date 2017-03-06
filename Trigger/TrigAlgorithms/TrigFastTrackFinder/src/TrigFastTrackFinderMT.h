@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // filename: TrigFastTrackFinderMT.h
@@ -26,6 +22,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "TrigInterfaces/FexAlgo.h"
 
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -36,7 +33,7 @@ class ITrigL2LayerNumberTool;
 class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
 class ITrigL2SpacePointTruthTool;
-//class ITrigL2ResidualCalculator;
+class ITrigL2ResidualCalculator;
 class ITrigInDetTrackFitter;
 class ITrigZFinder;
 class IRegSelSvc;
@@ -64,7 +61,7 @@ class PixelID;
 class SCT_ID;
 class AtlasDetectorID;
 
-class TrigFastTrackFinderMT : public AthAlgorithm {
+class TrigFastTrackFinderMT : public HLT::FexAlgo {
 
  public:
   
@@ -75,10 +72,17 @@ class TrigFastTrackFinderMT : public AthAlgorithm {
   StatusCode beginRun();
 
   StatusCode execute();
+  HLT::ErrorCode hltInitialize();
+  HLT::ErrorCode hltFinalize();
+  HLT::ErrorCode hltBeginRun();
+
+  HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
+			    HLT::TriggerElement* outputTE);
 
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
   void convertToTrigInDetTrack(const TrackCollection& offlineTracks, TrigInDetTrackCollection& trigInDetTracks);
+  StatusCode findTracks(const TrigRoiDescriptor& roi, TrackCollection& fittedTracks);
 
 protected: 
 
@@ -99,7 +103,7 @@ protected:
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
   ToolHandle<ITrigSpacePointConversionTool> m_spacePointTool;
   ToolHandle<ITrigL2SpacePointTruthTool> m_TrigL2SpacePointTruthTool;
-  //ToolHandle<ITrigL2ResidualCalculator> m_trigL2ResidualCalculator;
+  ToolHandle<ITrigL2ResidualCalculator> m_trigL2ResidualCalculator;
   ToolHandle<InDet::ISiTrackMaker> m_trackMaker;   // Track maker 
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
@@ -120,6 +124,8 @@ protected:
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
   bool m_doZFinder;
+  bool m_doFTKZFinder;
+  bool m_doFTKFastVtxFinder;
   bool m_doFastZVseeding;
   bool m_doResMonitoring;
 
@@ -166,6 +172,7 @@ protected:
 
   int m_nZvertices; 
   std::vector<float> m_zVertices; 
+  std::vector<float> m_nTrk_zVtx; 
 
   std::vector<float> m_trk_pt;
   std::vector<float> m_trk_a0;
@@ -198,6 +205,20 @@ protected:
   std::vector<double> m_sctResEC;
   std::vector<double> m_sctPullEC;
 
+  std::vector<double> m_pixResPhiBarrelL1;
+  std::vector<double> m_pixResEtaBarrelL1;
+  std::vector<double> m_pixResPhiBarrelL2;
+  std::vector<double> m_pixResEtaBarrelL2;
+  std::vector<double> m_pixResPhiBarrelL3;
+  std::vector<double> m_pixResEtaBarrelL3;
+
+  std::vector<double> m_pixResPhiECL1;
+  std::vector<double> m_pixResEtaECL1;
+  std::vector<double> m_pixResPhiECL2;
+  std::vector<double> m_pixResEtaECL2;
+  std::vector<double> m_pixResPhiECL3;
+  std::vector<double> m_pixResEtaECL3;
+
   // Monitoring member functions 
 
   void fillMon(const TrackCollection& tracks);
@@ -213,10 +234,18 @@ protected:
   void getBeamSpot();
 
   // Timers 
+  //
+  TrigTimer* m_SpacePointConversionTimer;
+  TrigTimer* m_ZFinderTimer;
+  TrigTimer* m_PatternRecoTimer; 
+  TrigTimer* m_TripletMakingTimer; 
+  TrigTimer* m_CombTrackingTimer; 
+  TrigTimer* m_TrackFitterTimer; 
 
   // Internal bookkeeping
 
-  std::string m_instanceName, m_outputCollectionSuffix;
+  std::string m_instanceName, m_attachedFeatureName, m_attachedFeatureName_TIDT,
+    m_outputCollectionSuffix;
 
   unsigned int m_countTotalRoI;
   unsigned int m_countRoIwithEnoughHits;

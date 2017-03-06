@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 /////////////////////////////////////////////////////////////////////////////////
 // TrigFastTrackFinder.cxx
 // -------------------------------
@@ -20,6 +16,8 @@
 #include <tbb/parallel_for.h>
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/PhiHelper.h"
+
+#include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
@@ -59,8 +57,8 @@
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
-//#include "TrigInDetToolInterfaces/ITrigL2ResidualCalculator.h"
-//#include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
+#include "TrigInDetToolInterfaces/ITrigL2ResidualCalculator.h"
+#include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
@@ -68,21 +66,19 @@
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
 #include "../src/TrigFastTrackFinderMT.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "CxxUtils/make_unique.h"
 
 TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocator* pSvcLocator) : 
 
-  AthAlgorithm(name, pSvcLocator), 
+  HLT::FexAlgo(name, pSvcLocator), 
   m_numberingTool("TrigL2LayerNumberTool"), 
   m_spacePointTool("TrigSpacePointConversionTool"),
   m_TrigL2SpacePointTruthTool("TrigL2SpacePointTruthTool"),
-  //m_trigL2ResidualCalculator("TrigL2ResidualCalculator"),
+  m_trigL2ResidualCalculator("TrigL2ResidualCalculator"),
   m_trackMaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
   m_trigZFinder("TrigZFinder"),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
   m_ftkDataProviderSvc("TrigFTK_DataProviderSvc",name),
-  m_roiCollectionKey(""),
   m_shift_x(0.0),
   m_shift_y(0.0),
   m_doCloneRemoval(true),
@@ -95,6 +91,14 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
   m_nPixSPsInRoI(0),
   m_nSCTSPsInRoI(0),
   m_currentStage(-1),
+  m_SpacePointConversionTimer(nullptr),
+  m_ZFinderTimer(nullptr),
+  m_PatternRecoTimer(nullptr), 
+  m_TripletMakingTimer(nullptr), 
+  m_CombTrackingTimer(nullptr), 
+  m_TrackFitterTimer(nullptr), 
+  m_attachedFeatureName(""),
+  m_attachedFeatureName_TIDT(""),
   m_outputCollectionSuffix(""),
   m_countTotalRoI(0),
   m_countRoIwithEnoughHits(0),
@@ -124,9 +128,12 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
   declareProperty("Triplet_MaxBufferLength",     m_tcs.m_maxTripletBufferLength = 3);
   declareProperty("TripletDoPSS",            m_tcs.m_tripletDoPSS = false);
 
+  declareProperty("Triplet_DtCut",            m_tcs.m_tripletDtCut      = 10.0);//i.e. 10*sigma_MS
 
   declareProperty( "VertexSeededMode",    m_vertexSeededMode = false);
   declareProperty( "doZFinder",           m_doZFinder = true);
+   declareProperty( "doFTKZFinder",           m_doFTKZFinder = false);
+   declareProperty( "doFTKFastVtxFinder",           m_doFTKFastVtxFinder = false);
 
   declareProperty( "doFastZVertexSeeding",           m_doFastZVseeding = true);
   declareProperty( "zVertexResolution",           m_tcs.m_zvError = 10.0);
@@ -165,41 +172,39 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
 
   declareProperty("useNewLayerNumberScheme", m_useNewLayerNumberScheme = false);
 
-  declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
-  declareProperty("Tracks", m_outputTracksKey = std::string("FTF_Tracks"), "FTF tracks");
-
   // declare monitoring histograms
 
-  //declareMonitoredStdContainer("trk_pt",         m_trk_pt);
-  //declareMonitoredStdContainer("trk_a0",         m_trk_a0);
-  //declareMonitoredStdContainer("trk_z0",         m_trk_z0);
-  //declareMonitoredStdContainer("trk_phi0",       m_trk_phi0);
-  //declareMonitoredStdContainer("trk_eta",        m_trk_eta);
-  //declareMonitoredStdContainer("trk_chi2dof",    m_trk_chi2dof);
-  //declareMonitoredStdContainer("trk_nSiHits",    m_trk_nSiHits);
-  //declareMonitoredStdContainer("trk_nPIXHits",   m_trk_nPIXHits);
-  //declareMonitoredStdContainer("trk_nSCTHits",   m_trk_nSCTHits);
-  //declareMonitoredStdContainer("trk_a0beam",     m_trk_a0beam);
-  //declareMonitoredStdContainer("trk_dPhi0",      m_trk_dPhi0);
-  //declareMonitoredStdContainer("trk_dEta" ,      m_trk_dEta);
+  declareMonitoredStdContainer("trk_pt",         m_trk_pt);
+  declareMonitoredStdContainer("trk_a0",         m_trk_a0);
+  declareMonitoredStdContainer("trk_z0",         m_trk_z0);
+  declareMonitoredStdContainer("trk_phi0",       m_trk_phi0);
+  declareMonitoredStdContainer("trk_eta",        m_trk_eta);
+  declareMonitoredStdContainer("trk_chi2dof",    m_trk_chi2dof);
+  declareMonitoredStdContainer("trk_nSiHits",    m_trk_nSiHits);
+  declareMonitoredStdContainer("trk_nPIXHits",   m_trk_nPIXHits);
+  declareMonitoredStdContainer("trk_nSCTHits",   m_trk_nSCTHits);
+  declareMonitoredStdContainer("trk_a0beam",     m_trk_a0beam);
+  declareMonitoredStdContainer("trk_dPhi0",      m_trk_dPhi0);
+  declareMonitoredStdContainer("trk_dEta" ,      m_trk_dEta);
 
-  //declareMonitoredVariable("roi_nSeeds",m_nSeeds);
-  //declareMonitoredVariable("roi_nTracks",m_nTracks);
-  //declareMonitoredVariable("roi_nSPsPIX",m_nPixSPsInRoI);
-  //declareMonitoredVariable("roi_nSPsSCT",m_nSCTSPsInRoI);
-  //declareMonitoredVariable("roi_lastStageExecuted",m_currentStage);
-  //declareMonitoredVariable("roi_eta", m_roiEta);
-  //declareMonitoredVariable("roi_etaWidth", m_roiEtaWidth);
-  //declareMonitoredVariable("roi_phi", m_roiPhi);
-  //declareMonitoredVariable("roi_phiWidth", m_roiPhiWidth);
-  //declareMonitoredVariable("roi_z", m_roiZ);
-  //declareMonitoredVariable("roi_zWidth", m_roiZ_Width);
-  //declareMonitoredVariable("roi_nSPs", m_roi_nSPs);
-  //declareMonitoredVariable("time_PattRecoOnly",m_timePattReco);
+  declareMonitoredVariable("roi_nSeeds",m_nSeeds);
+  declareMonitoredVariable("roi_nTracks",m_nTracks);
+  declareMonitoredVariable("roi_nSPsPIX",m_nPixSPsInRoI);
+  declareMonitoredVariable("roi_nSPsSCT",m_nSCTSPsInRoI);
+  declareMonitoredVariable("roi_lastStageExecuted",m_currentStage);
+  declareMonitoredVariable("roi_eta", m_roiEta);
+  declareMonitoredVariable("roi_etaWidth", m_roiEtaWidth);
+  declareMonitoredVariable("roi_phi", m_roiPhi);
+  declareMonitoredVariable("roi_phiWidth", m_roiPhiWidth);
+  declareMonitoredVariable("roi_z", m_roiZ);
+  declareMonitoredVariable("roi_zWidth", m_roiZ_Width);
+  declareMonitoredVariable("roi_nSPs", m_roi_nSPs);
+  declareMonitoredVariable("time_PattRecoOnly",m_timePattReco);
 
-  //// Z-vertexing 
-  //declareMonitoredVariable("roi_nZvertices",m_nZvertices);
-  //declareMonitoredStdContainer("roi_zVertices",m_zVertices);
+  // Z-vertexing 
+  declareMonitoredVariable("roi_nZvertices",m_nZvertices);
+  declareMonitoredStdContainer("roi_zVertices",m_zVertices);
+  declareMonitoredStdContainer("roi_nTrk_zVtx",m_nTrk_zVtx);
   ////Spacepoints
   //declareMonitoredStdContainer("sp_x" ,m_sp_x);
   //declareMonitoredStdContainer("sp_y" ,m_sp_y);
@@ -207,22 +212,37 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
   //declareMonitoredStdContainer("sp_r" ,m_sp_r);
 
   //Unbiased residuals
-  //declareMonitoredStdContainer("hit_IBLPhiResidual",m_iblResPhi);
-  //declareMonitoredStdContainer("hit_IBLEtaResidual",m_iblResEta);
-  //declareMonitoredStdContainer("hit_IBLPhiPull",    m_iblPullPhi);
-  //declareMonitoredStdContainer("hit_IBLEtaPull",    m_iblPullEta);
-  //declareMonitoredStdContainer("hit_PIXBarrelPhiResidual",m_pixResPhiBarrel);
-  //declareMonitoredStdContainer("hit_PIXBarrelEtaResidual",m_pixResEtaBarrel);
-  //declareMonitoredStdContainer("hit_PIXBarrelPhiPull",    m_pixPullPhiBarrel);
-  //declareMonitoredStdContainer("hit_PIXBarrelEtaPull",    m_pixPullEtaBarrel);
-  //declareMonitoredStdContainer("hit_SCTBarrelResidual",   m_sctResBarrel);
-  //declareMonitoredStdContainer("hit_SCTBarrelPull",       m_sctPullBarrel);
-  //declareMonitoredStdContainer("hit_PIXEndCapPhiResidual",m_pixResPhiEC);
-  //declareMonitoredStdContainer("hit_PIXEndCapEtaResidual",m_pixResEtaEC);
-  //declareMonitoredStdContainer("hit_PIXEndCapPhiPull",    m_pixPullPhiEC);
-  //declareMonitoredStdContainer("hit_PIXEndCapEtaPull",    m_pixPullEtaEC);
-  //declareMonitoredStdContainer("hit_SCTEndCapResidual",   m_sctResEC);
-  //declareMonitoredStdContainer("hit_SCTEndCapPull",       m_sctPullEC);
+  declareMonitoredStdContainer("hit_IBLPhiResidual",m_iblResPhi);
+  declareMonitoredStdContainer("hit_IBLEtaResidual",m_iblResEta);
+  declareMonitoredStdContainer("hit_IBLPhiPull",    m_iblPullPhi);
+  declareMonitoredStdContainer("hit_IBLEtaPull",    m_iblPullEta);
+  declareMonitoredStdContainer("hit_PIXBarrelPhiResidual",m_pixResPhiBarrel);
+  declareMonitoredStdContainer("hit_PIXBarrelEtaResidual",m_pixResEtaBarrel);
+  declareMonitoredStdContainer("hit_PIXBarrelPhiPull",    m_pixPullPhiBarrel);
+  declareMonitoredStdContainer("hit_PIXBarrelEtaPull",    m_pixPullEtaBarrel);
+  declareMonitoredStdContainer("hit_SCTBarrelResidual",   m_sctResBarrel);
+  declareMonitoredStdContainer("hit_SCTBarrelPull",       m_sctPullBarrel);
+  declareMonitoredStdContainer("hit_PIXEndCapPhiResidual",m_pixResPhiEC);
+  declareMonitoredStdContainer("hit_PIXEndCapEtaResidual",m_pixResEtaEC);
+  declareMonitoredStdContainer("hit_PIXEndCapPhiPull",    m_pixPullPhiEC);
+  declareMonitoredStdContainer("hit_PIXEndCapEtaPull",    m_pixPullEtaEC);
+  declareMonitoredStdContainer("hit_SCTEndCapResidual",   m_sctResEC);
+  declareMonitoredStdContainer("hit_SCTEndCapPull",       m_sctPullEC);
+
+  declareMonitoredStdContainer("hit_PIXBarrelL1PhiResidual",m_pixResPhiBarrelL1);
+  declareMonitoredStdContainer("hit_PIXBarrelL1EtaResidual",m_pixResEtaBarrelL1);
+  declareMonitoredStdContainer("hit_PIXBarrelL2PhiResidual",m_pixResPhiBarrelL2);
+  declareMonitoredStdContainer("hit_PIXBarrelL2EtaResidual",m_pixResEtaBarrelL2);
+  declareMonitoredStdContainer("hit_PIXBarrelL3PhiResidual",m_pixResPhiBarrelL3);
+  declareMonitoredStdContainer("hit_PIXBarrelL3EtaResidual",m_pixResEtaBarrelL3);
+
+  declareMonitoredStdContainer("hit_PIXEndCapL1PhiResidual",m_pixResPhiECL1);
+  declareMonitoredStdContainer("hit_PIXEndCapL1EtaResidual",m_pixResEtaECL1);
+  declareMonitoredStdContainer("hit_PIXEndCapL2PhiResidual",m_pixResPhiECL2);
+  declareMonitoredStdContainer("hit_PIXEndCapL2EtaResidual",m_pixResEtaECL2);
+  declareMonitoredStdContainer("hit_PIXEndCapL3PhiResidual",m_pixResPhiECL3);
+  declareMonitoredStdContainer("hit_PIXEndCapL3EtaResidual",m_pixResEtaECL3);
+
   
 }
 
@@ -231,6 +251,23 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
 TrigFastTrackFinderMT::~TrigFastTrackFinderMT() {}
 
 //-----------------------------------------------------------------------
+//
+
+HLT::ErrorCode TrigFastTrackFinderMT::hltBeginRun() {
+  return HLT::OK;
+}
+HLT::ErrorCode TrigFastTrackFinderMT::hltInitialize() {
+  return HLT::OK;
+}
+
+HLT::ErrorCode TrigFastTrackFinderMT::hltExecute(const HLT::TriggerElement* /*inputTE*/,
+    HLT::TriggerElement* outputTE) {
+  return HLT::OK;
+}
+
+HLT::ErrorCode TrigFastTrackFinderMT::hltFinalize() {
+  return HLT::OK;
+}
 
 StatusCode TrigFastTrackFinderMT::initialize() {
 
@@ -307,28 +344,7 @@ StatusCode TrigFastTrackFinderMT::beginRun()
 //-------------------------------------------------------------------------
 
 StatusCode TrigFastTrackFinderMT::execute() {
-
-  ATH_MSG_VERBOSE("TrigFastTrackFinderMT::execHLTAlgorithm()");
-
-  clearMembers();
-
-  // 2. Retrieve beam spot and magnetic field information 
-  //
-
-  m_shift_x=0.0;
-  m_shift_y=0.0;
-  if(m_useBeamSpot && m_iBeamCondSvc) {
-    getBeamSpot();
-
-  }
-  else {
-    m_vertex = Amg::Vector3D(0.0,0.0,0.0);
-  }
-  
-
-  
-  
-  // 4. RoI preparation/update 
+  //RoI preparation/update 
   SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
   ATH_CHECK(roiCollection.isValid());
   TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
@@ -342,70 +358,33 @@ StatusCode TrigFastTrackFinderMT::execute() {
   m_countTotalRoI++;
 
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
-  //outputTracks = CxxUtils::make_unique<TrackCollection>();
-  if(m_ftkMode) {
-    outputTracks = CxxUtils::make_unique<TrackCollection>(*(m_ftkDataProviderSvc->getTracksInRoi(internalRoI, m_ftkRefit)));//This is a view container
-    if ( m_ftkRefit ) {
-      ATH_MSG_DEBUG("FTK_DataProviderSvc returned " << outputTracks->size() << " refitted tracks");
-    } else {
-      ATH_MSG_DEBUG("FTK_DataProviderSvc returned " << outputTracks->size() << " raw tracks");
-    }
-    if (outputTracks->size()> 0) {
-      m_countRoIwithEnoughHits++;
-      m_countRoIwithTracks++;
-      // fill vectors of quantities to be monitored
-      fillMon(*outputTracks);
-    }
-    m_nTracks=outputTracks->size();
+  outputTracks = std::make_unique<TrackCollection>();
 
-    return StatusCode::SUCCESS;
+  ATH_CHECK(findTracks(internalRoI, *outputTracks));
+  
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigFastTrackFinderMT::findTracks(const TrigRoiDescriptor& roi,
+                                      TrackCollection& fittedTracks) {
+
+  m_shift_x=0.0;
+  m_shift_y=0.0;
+  if(m_useBeamSpot && m_iBeamCondSvc) {
+    getBeamSpot();
+
   }
   else {
-    StatusCode sc(StatusCode::SUCCESS);
-    m_tcs.roiDescriptor = &internalRoI;
-  
+    m_vertex = Amg::Vector3D(0.0,0.0,0.0);
+  }
+    if ( timerSvc() ) m_SpacePointConversionTimer->start();
     std::vector<TrigSiSpacePointBase> convertedSpacePoints;
     convertedSpacePoints.reserve(5000);
-    sc = m_spacePointTool->getSpacePoints( internalRoI, convertedSpacePoints, m_nPixSPsInRoI, m_nSCTSPsInRoI);
-    
-    ////Record spacepoint x and y
-    //for(std::vector<TrigSiSpacePointBase>::const_iterator spIt = convertedSpacePoints.begin(); spIt != convertedSpacePoints.end(); ++spIt) {
-    //  m_sp_x.push_back((*spIt).original_x());
-    //  m_sp_y.push_back((*spIt).original_y());
-    //  m_sp_z.push_back((*spIt).z());
-    //  m_sp_r.push_back((*spIt).r());
-    //}
-    /*    
-    std::vector<int> lCounter;
-    for(int l=0;l<50;l++) lCounter.push_back(0);
-    for(std::vector<TrigSiSpacePointBase>::const_iterator spIt = convertedSpacePoints.begin(); spIt != convertedSpacePoints.end(); ++spIt) {
-      if((*spIt).layer()>31 || (*spIt).layer()<0) {
-	std::cout<<"Wrong layer "<<(*spIt).layer()<<" z="<<(*spIt).z()<<" r="<<(*spIt).r()<<std::endl;
-      }
-      else lCounter[(*spIt).layer()]++;
-    }
-    int nTotal=0;
-    for(int l=0;l<50;l++) {
-      nTotal+=lCounter[l];
-      std::cout<<"L="<<l<<" nSP="<<lCounter[l]<<std::endl;
-    }
-    std::cout<<"Total "<<nTotal<<" spacepoints out of "<<convertedSpacePoints.size()<<std::endl;
-
-    //  m_sp_x.push_back((*spIt).original_x());
-    //  m_sp_y.push_back((*spIt).original_y());
-    //  m_sp_z.push_back((*spIt).z());
-    //  m_sp_r.push_back((*spIt).r());
-    //}
-    */
-
-    if(sc.isFailure()) { 
-      ATH_MSG_WARNING("REGTEST / Failed to retrieve offline spacepoints ");
-      outputTracks = CxxUtils::make_unique<TrackCollection>();
-      return sc;
-    }
+    ATH_CHECK(m_spacePointTool->getSpacePoints( roi, convertedSpacePoints, m_nPixSPsInRoI, m_nSCTSPsInRoI));
     
     
-    m_roi_nSPs = convertedSpacePoints.size();    
+    m_roi_nSPs = convertedSpacePoints.size();
+    if ( timerSvc() ) m_SpacePointConversionTimer->stop();
     
     if( m_roi_nSPs >= m_minHits ) {
       ATH_MSG_DEBUG("REGTEST / Found " << m_roi_nSPs << " space points.");
@@ -413,8 +392,7 @@ StatusCode TrigFastTrackFinderMT::execute() {
     }
     else {
       ATH_MSG_DEBUG("No tracks found - too few hits in ROI to run " << m_roi_nSPs);
-        outputTracks = CxxUtils::make_unique<TrackCollection>();
-        return StatusCode::SUCCESS;
+      return StatusCode::SUCCESS;
     }
 
     m_currentStage = 2;
@@ -422,10 +400,61 @@ StatusCode TrigFastTrackFinderMT::execute() {
     std::unique_ptr<TrigRoiDescriptor> superRoi = CxxUtils::make_unique<TrigRoiDescriptor>();
     
     if (m_doZFinder) {
+     if (m_doFTKZFinder ) {
+       if ( timerSvc() ) m_ZFinderTimer->start();
+       m_tcs.m_vZv.clear();
+       superRoi->setComposite(true);
+
+       xAOD::VertexContainer* vertexCollection = new xAOD::VertexContainer();
+       xAOD::VertexAuxContainer    theVertexAux;
+       vertexCollection->setStore(&theVertexAux);
+       bool useRefittedTracks=false;
+       if (m_doFTKFastVtxFinder) {
+         vertexCollection = m_ftkDataProviderSvc->getFastVertices(ftk::RawTrack);
+       } else {
+         StatusCode sc = m_ftkDataProviderSvc->getVertexContainer( vertexCollection, useRefittedTracks);
+         if (sc != StatusCode::SUCCESS) {
+           ATH_MSG_DEBUG (" Error getting VertexContainer StatusCode is " << sc );
+         }
+       }
+
+       ATH_MSG_DEBUG("vertexCollection->size(): " << vertexCollection->size());
+
+      //      std::sort(vertexCollection->begin(), vertexCollection->end(), vertexSort);
+      //      std::sort(vertexCollection->begin(), vertexCollection->end(), 
+      //          [](xAOD::Vertex* a, xAOD::Vertex* b){return a->vxTrackAtVertex().size() > b->vxTrackAtVertex().size();});
+
+
+      unsigned int MaxNumVertex=100;
+
+      for (auto vertex : *vertexCollection) {
+        if (m_zVertices.size() == MaxNumVertex) continue;
+        ATH_MSG_DEBUG("REGTEST / FTK ZFinder vertex: x,y,z, nTrack  type"   << vertex->x()  << " " <<  vertex->y() << " "  << vertex->z() << "  " << vertex->vxTrackAtVertex().size() << "  " << vertex->vertexType() );
+        // test to compare with Tyler's numbers
+        if (vertex->vxTrackAtVertex().size() < 3 ) continue;
+
+        float z      = vertex->z();
+        float zMinus = z - 7.0;
+        float zPlus  = z + 7.0;
+        ATH_MSG_DEBUG("REGTEST / FTK ZFinder vertex: z,zplus,zminus  " << z << " "  << zPlus  << " "  << zMinus );
+        TrigRoiDescriptor* zFinderRoi =  new TrigRoiDescriptor(roi.eta(), roi.etaMinus(), roi.etaPlus(), 
+            roi.phi(), roi.phiMinus(), roi.phiPlus(), z, zMinus, zPlus);
+        superRoi->push_back(zFinderRoi);
+        m_zVertices.push_back(z);
+        m_nTrk_zVtx.push_back( vertex->vxTrackAtVertex().size());
+        m_tcs.m_vZv.push_back(z);
+
+      } // end loop over vertices
+      m_tcs.roiDescriptor = superRoi.get();
+      ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
+      delete vertexCollection;
+      if ( timerSvc() ) m_ZFinderTimer->stop();
+     } else {
+      if ( timerSvc() ) m_ZFinderTimer->start();
       m_tcs.m_vZv.clear();
       superRoi->setComposite(true);
 
-      TrigVertexCollection* vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, internalRoI);
+      TrigVertexCollection* vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, roi);
 
       ATH_MSG_DEBUG("vertexCollection->size(): " << vertexCollection->size());
 
@@ -434,17 +463,19 @@ StatusCode TrigFastTrackFinderMT::execute() {
         float z      = vertex->z();
         float zMinus = z - 7.0;
         float zPlus  = z + 7.0;
-        TrigRoiDescriptor* roi =  new TrigRoiDescriptor(internalRoI.eta(), internalRoI.etaMinus(), internalRoI.etaPlus(), 
-            internalRoI.phi(), internalRoI.phiMinus(), internalRoI.phiPlus(), z, zMinus, zPlus);
-        superRoi->push_back(roi);
+        TrigRoiDescriptor* vertexRoi =  new TrigRoiDescriptor(roi.eta(), roi.etaMinus(), roi.etaPlus(), 
+            roi.phi(), roi.phiMinus(), roi.phiPlus(), z, zMinus, zPlus);
+        superRoi->push_back(vertexRoi);
         m_zVertices.push_back(z);
         m_tcs.m_vZv.push_back(z);
       }
       m_tcs.roiDescriptor = superRoi.get();
       ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
       delete vertexCollection;
+      if ( timerSvc() ) m_ZFinderTimer->stop();
+     }
     }
-
+    
     m_currentStage = 3;
         
     if (m_retrieveBarCodes) {
@@ -458,6 +489,7 @@ StatusCode TrigFastTrackFinderMT::execute() {
     ATH_MSG_VERBOSE("m_tcs.m_tripletPtMin: " << m_tcs.m_tripletPtMin);
     ATH_MSG_VERBOSE("m_pTmin: " << m_pTmin);
     
+    if ( timerSvc() ) m_PatternRecoTimer->start();
     
     std::map<int, int> nGoodRejected;
     std::map<int, int> nGoodAccepted;
@@ -473,6 +505,7 @@ StatusCode TrigFastTrackFinderMT::execute() {
     int iSeed=0;
 
     
+    if ( timerSvc() ) m_TripletMakingTimer->start();
     
     TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
 
@@ -486,8 +519,13 @@ StatusCode TrigFastTrackFinderMT::execute() {
     
     ATH_MSG_DEBUG("number of triplets: " << triplets.size());
     
+    if ( timerSvc() ) {
+      m_TripletMakingTimer->stop();
+      m_TripletMakingTimer->propVal(m_roi_nSPs);
+    }
     m_currentStage = 4;
     
+    if ( timerSvc() ) m_CombTrackingTimer->start();
     
     // 8. Combinatorial tracking
     
@@ -607,6 +645,13 @@ StatusCode TrigFastTrackFinderMT::execute() {
     ATH_MSG_DEBUG("After clone removal "<<initialTracks->size()<<" tracks left");
 
 
+    if ( timerSvc() ) {
+      m_CombTrackingTimer->stop();
+      m_CombTrackingTimer->propVal(iSeed);
+      m_PatternRecoTimer->propVal( initialTracks->size() );
+      m_PatternRecoTimer->stop();
+      m_timePattReco = m_PatternRecoTimer->elapsed();
+    }
     m_currentStage = 5;
 
 
@@ -616,24 +661,28 @@ StatusCode TrigFastTrackFinderMT::execute() {
       calculateRecoEfficiency(convertedSpacePoints, nGoodTotal, nGoodAccepted);
     }
 
+    if ( timerSvc() ) m_TrackFitterTimer->start();
 
-    TrackCollection* fittedTracks = m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis);
+    fittedTracks = *(m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis));
     delete initialTracks;
 
-    if( fittedTracks->empty() ) {
+    if( fittedTracks.empty() ) {
       ATH_MSG_DEBUG("REGTEST / No tracks fitted");
     }
 
-    for (auto fittedTrack = fittedTracks->begin(); fittedTrack!=fittedTracks->end(); ++fittedTrack) {
+    for (auto fittedTrack = fittedTracks.begin(); fittedTrack!=fittedTracks.end(); ++fittedTrack) {
       (*fittedTrack)->info().setPatternRecognitionInfo(Trk::TrackInfo::FastTrackFinderSeed);
       ATH_MSG_VERBOSE("Updating fitted track: " << **fittedTrack);
       m_trackSummaryTool->updateTrack(**fittedTrack);
       ATH_MSG_VERBOSE("Updated track: " << **fittedTrack);
     }
-    outputTracks = CxxUtils::make_unique<TrackCollection>(*fittedTracks);
-    //outputTracks = CxxUtils::make_unique<TrackCollection>();
 
-    if( outputTracks->empty() ) {
+    if ( timerSvc() ) { 
+      m_TrackFitterTimer->propVal(fittedTracks.size() );
+      m_TrackFitterTimer->stop();
+    }
+
+    if( fittedTracks.empty() ) {
       ATH_MSG_DEBUG("REGTEST / No tracks reconstructed");
     }
     m_currentStage = 6;
@@ -643,18 +692,15 @@ StatusCode TrigFastTrackFinderMT::execute() {
     m_nZvertices=m_zVertices.size();
 
     //monitor number of tracks
-    m_nTracks=outputTracks->size();
+    m_nTracks=fittedTracks.size();
     ATH_MSG_DEBUG("REGTEST / Found " << m_nTracks << " tracks");
-    if( !outputTracks->empty() )
+    if( !fittedTracks.empty() )
       m_countRoIwithTracks++;
 
     ///////////// fill vectors of quantities to be monitored
-    fillMon(*outputTracks);
-
-    m_currentStage = 7;
-
+    fillMon(fittedTracks);
     return StatusCode::SUCCESS;
-  }
+
 }
 
 double TrigFastTrackFinderMT::trackQuality(const Trk::Track* Tr) {

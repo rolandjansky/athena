@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // filename: TrigFastTrackFinder.h
@@ -118,8 +114,8 @@ protected:
   bool m_vertexSeededMode;
   bool m_doTrigInDetTrack;
   bool m_doZFinder;
-   bool m_doFTKZFinder;
-   bool m_doFTKFastVtxFinder;
+  bool m_doFTKZFinder;
+  bool m_doFTKFastVtxFinder;
   bool m_doFastZVseeding;
   bool m_doResMonitoring;
 
