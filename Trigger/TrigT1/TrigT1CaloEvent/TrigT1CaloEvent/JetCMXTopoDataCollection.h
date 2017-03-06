@@ -11,7 +11,6 @@
     JetCMXTopoData contains the TOB data from a single Jet CMX
     to L1Topo  */
 
-using namespace LVL1;
-typedef DataVector<JetCMXTopoData> JetCMXTopoDataCollection;
+typedef DataVector<LVL1::JetCMXTopoData> JetCMXTopoDataCollection;
 
 #endif

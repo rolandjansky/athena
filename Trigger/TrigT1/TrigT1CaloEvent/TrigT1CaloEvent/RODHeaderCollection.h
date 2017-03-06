@@ -11,7 +11,6 @@
     RODHeader contains the ROD header and status information
     from the raw data ROD fragments. */
 
-using namespace LVL1;
-typedef DataVector<RODHeader> RODHeaderCollection;
+typedef DataVector<LVL1::RODHeader> RODHeaderCollection;
 
 #endif
