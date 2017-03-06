@@ -9,6 +9,7 @@ def getAthenaStackingAction(name='AthenaStackingAction', **kwargs):
     return CfgMgr.AthenaStackingAction(name,**kwargs)
 
 def getAthenaTrackingAction(name='AthenaTrackingAction', **kwargs):
+    kwargs.setdefault('SecondarySavingLevel', 2)
     return CfgMgr.AthenaTrackingAction(name,**kwargs)
 
 def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
@@ -18,6 +19,7 @@ def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs)
     return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
 
 def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
+    kwargs.setdefault('SecondarySavingLevel', 2)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
