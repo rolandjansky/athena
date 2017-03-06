@@ -43,11 +43,11 @@ void TightMuonSteppingFieldManager::ConfigureForTrack(const G4Track * track)
   // If this is a muon, set tight parameters; otherwise go back to the defaults
   if (track->GetDefinition()==G4MuonPlus::Definition() ||
       track->GetDefinition()==G4MuonMinus::Definition() ){
-    GetChordFinder()->SetDeltaChord(0.000000002);
-    SetDeltaOneStep(0.0000001);
-    SetDeltaIntersection(0.000000002);
-    SetMinimumEpsilonStep(0.00000009);
-    SetMaximumEpsilonStep(0.0000001);
+    GetChordFinder()->SetDeltaChord(0.00000002);
+    SetDeltaOneStep(0.000001);
+    SetDeltaIntersection(0.00000002);
+    SetMinimumEpsilonStep(0.0000009);
+    SetMaximumEpsilonStep(0.000001);
   } else {
     GetChordFinder()->SetDeltaChord(m_globalDeltaChord);
     SetDeltaOneStep(m_globalDeltaOneStep);
