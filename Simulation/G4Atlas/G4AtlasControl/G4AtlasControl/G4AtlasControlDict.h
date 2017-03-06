@@ -4,5 +4,3 @@
 
 #include "G4AtlasControl/SimControl.h"
 #include "G4AtlasControl/MCTruthMenu.h"
-#include "G4AtlasControl/G4CommandInterface.h"
-#include "G4AtlasControl/ParticleDataModifier.h"
