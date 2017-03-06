@@ -42,7 +42,6 @@ static std::once_flag finalizeOnceFlag;
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_rndmGenSvc("AtDSFMTGenSvc", name),
-    m_UASvc("UserActionSvc", name),           // current user action design
     m_userActionSvc("G4UA::UserActionSvc", name), // new user action design
     m_physListTool("PhysicsListToolBase")
 {
@@ -61,8 +60,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
   // Service instantiation
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
-  declareProperty("UserActionSvc", m_UASvc);
-  declareProperty("UserActionSvcV2", m_userActionSvc);
+  declareProperty("UserActionSvc", m_userActionSvc);
   declareProperty("PhysicsListTool", m_physListTool);
 
   // Verbosities
@@ -92,31 +90,8 @@ StatusCode G4AtlasAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  // For now, we decide which user action service to setup based on which
-  // handle has a non-empty name configured. Then we can steer it from the
-  // configuration layer. This will go away when we drop V1 actions.
-
-  // V1 user action service
-  if( !m_UASvc.name().empty() ) {
-    ATH_CHECK( m_UASvc.retrieve() );
-
-    // Make sure only one user action version is used at a time.
-    if( !m_userActionSvc.name().empty() ) {
-      ATH_MSG_ERROR("Configured to use both V1 and V2 user actions, " <<
-                    "which isn't supported!");
-      return StatusCode::FAILURE;
-    }
-    if(m_useMT) {
-      ATH_MSG_ERROR("Using V1 user action design, which won't work in MT");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // V2 user action service
-  if( !m_userActionSvc.name().empty() ) {
-    ATH_CHECK( m_userActionSvc.retrieve() );
-  }
-
+  ATH_CHECK( m_userActionSvc.retrieve() );
+  
   if(m_useMT) {
     // Retrieve the python service to trigger its initialization. This is done
     // here just to make sure things are initialized in the proper order.

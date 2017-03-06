@@ -93,9 +93,7 @@ private:
 
   /// Random number service
   ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
-  /// First user action service implementation
-  ServiceHandle<IUserActionSvc> m_UASvc;
-  /// New user action service implementation
+  /// user action service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   /// Physics List Tool
   ToolHandle<IPhysicsListTool> m_physListTool;
