@@ -14,15 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           Tools/PathResolver )
 
-# Set the version of Rivet to use:
-set( RIVET_VERSION 2.5.2 )
-set( RIVET_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/rivet/${RIVET_VERSION}/${ATLAS_PLATFORM} )
-
-set( YODA_VERSION 1.6.5 )
-set( YODA_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/yoda/${YODA_VERSION}/${ATLAS_PLATFORM} )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( FastJet )
