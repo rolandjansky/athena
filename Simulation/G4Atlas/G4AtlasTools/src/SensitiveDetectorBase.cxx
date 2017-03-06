@@ -90,7 +90,7 @@ assignSD(G4VSensitiveDetector* sd, const std::vector<std::string>& volumes) cons
       int numFound = 0;
 
       // Find volumes with this name
-      for(auto logVol : *logicalVolumeStore) {
+      for(auto* logVol : *logicalVolumeStore) {
         //if( matchStrings( volumeName.data(), logVol->GetName() ) )
         if(logVol->GetName() == volumeName.c_str()) {
           ++numFound;

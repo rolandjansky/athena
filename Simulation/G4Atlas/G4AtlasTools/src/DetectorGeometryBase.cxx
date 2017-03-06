@@ -153,11 +153,11 @@ void DetectorGeometryBase::PositionInParent()
 void DetectorGeometryBase::BuildSubDetectors()
 {
   ATH_MSG_VERBOSE( name() << "::BuildSubDetectors() (Base class method): Starting");
-  for (auto itr: m_subDetTools)
+  for (auto& subDetTool: m_subDetTools)
     {
-      ATH_MSG_VERBOSE(name() << "::BuildSubDetectors() (Base class method):  Positioning "<<itr->GetDetectorName()<<" within "<<m_detectorName);
-      itr->SetParent(this);
-      itr->Build();
+      ATH_MSG_VERBOSE(name() << "::BuildSubDetectors() (Base class method):  Positioning "<<subDetTool->GetDetectorName()<<" within "<<m_detectorName);
+      subDetTool->SetParent(this);
+      subDetTool->Build();
     }
   ATH_MSG_VERBOSE( name() << "::BuildSubDetectors() (Base class method): Finished");
 }
