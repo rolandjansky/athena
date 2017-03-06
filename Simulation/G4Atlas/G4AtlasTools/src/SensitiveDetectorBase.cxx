@@ -15,6 +15,7 @@
 #include "G4AtlasTools/G4MultiSensitiveDetector.hh"
 
 
+
 SensitiveDetectorBase::SensitiveDetectorBase(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
@@ -33,6 +34,13 @@ StatusCode SensitiveDetectorBase::initializeSD()
 {
   ATH_MSG_VERBOSE( name() << "::initializeSD()" );
 
+  // Sanity check for volume configuration problems.
+  // It would be better to have a more robust solution for this.
+  if(m_volumeNames.empty() && !m_noVolumes) {
+    ATH_MSG_ERROR("Volume list is empty but NoVolumes flag is false!");
+    return StatusCode::FAILURE;
+  }
+
   // Make sure SD isn't already registered
   if(getSD())
     {
@@ -49,64 +57,73 @@ StatusCode SensitiveDetectorBase::initializeSD()
     }
   setSD(sd);
 
-  // Set the verbosity information on this thing
-  if(msgLvl(MSG::VERBOSE)) getSD()->SetVerboseLevel(10);
-  else if(msgLvl(MSG::DEBUG)) getSD()->SetVerboseLevel(5);
+  // Assign the SD to our list of volumes
+  ATH_CHECK( assignSD( getSD(), m_volumeNames ) );
 
-  // Grab the user detector construction
-  //  G4RunManager* rm = G4RunManager::GetRunManager();
-  //  G4VUserDetectorConstruction* dc=rm->GetUserDetectorConstruction();
-
-  // Add the sensitive detector to the SD manager in G4 for SDs,
-  // even if it has no volumes associated to it.
-  G4SDManager* SDmanager = G4SDManager::GetSDMpointer();
-  SDmanager->AddNewDetector(getSD());
-  if(!m_noVolumes)
-    {
-      // Go through the logical volumes and hook the SDs up
-      bool gotOne = false;
-      G4LogicalVolumeStore* logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
-      for (const auto& myvol : m_volumeNames)
-        {
-          int found = 0;
-          for (auto ilv : *logicalVolumeStore )
-            {
-              if (ilv->GetName() == myvol.data())
-                {
-                  // Do not break on found to protect against multiple volumes
-                  // with the same name
-                  ++found;
-                  SetSensitiveDetector( ilv, getSD() );
-                  gotOne = true;
-                } // Found a volume!
-            } // Loop over all the volumes in the geometry
-          // Give notice if we have missed a volume in here
-          if (0==found)
-            {
-              ATH_MSG_WARNING( "Volume " << myvol <<
-                               " not found in G4LogicalVolumeStore." );
-            }
-          else
-            {
-              ATH_MSG_VERBOSE( found << " copies of LV " << myvol <<
-                               " found; SD " << name() << " assigned." );
-            }
-        } // Loop over my volumes
-
-      // Crash out if we have failed to assign a volume - this is bad news!
-      if (!gotOne)
-        {
-          ATH_MSG_ERROR( "Failed to assign *any* volume to SD " << name() <<
-                         " and expected at least one." );
-          return StatusCode::FAILURE;
-        }
-    }
   ATH_MSG_DEBUG( "Initialized and added SD " << name() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-SensitiveDetectorBase::queryInterface(const InterfaceID& riid, void** ppvIf)
+//-----------------------------------------------------------------------------
+// Assign an SD to a list of volumes
+//-----------------------------------------------------------------------------
+StatusCode SensitiveDetectorBase::
+assignSD(G4VSensitiveDetector* sd, const std::vector<std::string>& volumes) const
+{
+  // Propagate verbosity setting to the SD
+  if(msgLvl(MSG::VERBOSE)) sd->SetVerboseLevel(10);
+  else if(msgLvl(MSG::DEBUG)) sd->SetVerboseLevel(5);
+
+  // Add the sensitive detector to the SD manager in G4 for SDs,
+  // even if it has no volumes associated to it.
+  auto sdMgr = G4SDManager::GetSDMpointer();
+  sdMgr->AddNewDetector(sd);
+
+  if(!volumes.empty()) {
+    bool gotOne = false;
+    auto logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
+    for(const auto& volumeName : volumes) {
+      // Keep track of how many volumes we find with this name string.
+      // We allow for multiple matches.
+      int numFound = 0;
+
+      // Find volumes with this name
+      for(auto logVol : *logicalVolumeStore) {
+        //if( matchStrings( volumeName.data(), logVol->GetName() ) )
+        if(logVol->GetName() == volumeName.c_str()) {
+          ++numFound;
+          SetSensitiveDetector(logVol, sd);
+        }
+      }
+      // Warn if no volumes were found
+      if(numFound == 0) {
+        ATH_MSG_WARNING("Volume " << volumeName <<
+                        " not found in G4LogicalVolumeStore.");
+      }
+      else {
+        ATH_MSG_VERBOSE("Found " << numFound << " copies of LV " << volumeName <<
+                        "; SD " << sd->GetName() << " assigned.");
+        gotOne = true;
+      }
+
+    }
+
+    // Abort if we have failed to assign any volume
+    if(!gotOne) {
+      ATH_MSG_ERROR( "Failed to assign *any* volume to SD " << name() <<
+                     " and expected at least one." );
+      return StatusCode::FAILURE;
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Interface query boiler plate
+//-----------------------------------------------------------------------------
+StatusCode SensitiveDetectorBase::
+queryInterface(const InterfaceID& riid, void** ppvIf)
 {
   if ( riid == ISensitiveDetector::interfaceID() )
     {
@@ -142,8 +159,8 @@ void SensitiveDetectorBase::setSD(G4VSensitiveDetector* sd)
 #endif
 }
 
-void SensitiveDetectorBase::SetSensitiveDetector
-(G4LogicalVolume* logVol, G4VSensitiveDetector* aSD) const
+void SensitiveDetectorBase::
+SetSensitiveDetector(G4LogicalVolume* logVol, G4VSensitiveDetector* aSD) const
 {
   // New Logic: allow for "multiple" SDs being attached to a single LV.
   // To do that we use a special proxy SD called G4MultiSensitiveDetector
