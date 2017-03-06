@@ -141,8 +141,8 @@ class G4AtlasEngine:
         if "init_G4" not in self._InitList:
             G4AtlasEngine.log.debug(' G4AtlasEngine: _init_G4: init Geant4 ')
             if G4AtlasEngine.log.level <= 30:
-                g4Command = G4AtlasEngine.gbl.G4Commands()
-                g4Command.run.verbose(2) # FIXME make configurable based on Athena message level?
+                from G4AtlasApps.SimFlags import simFlags
+                simFlags.g4Commands += ['/run/verbose 2'] # FIXME make configurable based on Athena message level?
             G4AtlasEngine._ctrl.initializeG4(is_hive)
             self._InitList.append('init_G4')
             G4AtlasEngine._app_profiler('_init_G4: ')
@@ -169,22 +169,6 @@ class G4AtlasEngine:
             G4AtlasEngine._ctrl.mctruthMenu.listStrategies()
 
 
-    def _init_Graphics(self):
-        """ Inits the G4 visualization stuff.
-
-            (for internal use)
-        """
-        if 'init_Graphics' not in self._InitList:
-            G4AtlasEngine.log.debug('G4AtlasEngine: _init_Graphics: init G4 Graphics ')
-            G4Graphics = G4AtlasEngine.menu_Visualization()
-            if G4Graphics.ActiveStatusOn:
-                G4Graphics._init()
-            else:
-               G4AtlasEngine.log.debug('G4AtlasEngine: _init_Graphics: init G4 Graphics -->  no graphics request'                     )
-        else:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_Graphics is already done')
-
-
     def _init_Simulation(self):
         """\
         Simulation engine initialization.
@@ -198,7 +182,6 @@ class G4AtlasEngine:
           pre/postInitG4 - called before/after the init_G4 method
           pre/postInitMCTruth - called before/after the init_MCTruth method
           pre/postInitFields - called before/after the init_Fields method
-          pre/postInitGraphics - called before/after the init_Graphics method
           postInit - called after all sim engine initialisation methods
 
         The current init level is stored in G4AtlasEngine.init_status, and its
@@ -231,8 +214,6 @@ class G4AtlasEngine:
             _run_init_stage("MCTruth")
         else:
             G4AtlasEngine.log.debug('not initializing MCTruth in G4AtlasEngine because useISF=True')
-
-        _run_init_stage("Graphics")
 
         self.init_status = "postInit"
         G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + self.init_status)
@@ -280,21 +261,6 @@ class G4AtlasEngine:
                 G4AtlasEngine.log.debug(' G4AtlasEngine:load_Dict: %s loaded' % dict_name)
             except:
                 raise RuntimeError('Dict %s can not be found' % dict_name)
-
-
-    def read_XML(self, xml_name):
-        """ Reads XML files.
-
-            xml_name ='name_XML_file'
-        """
-        if xml_name:
-            if xml_name not in G4AtlasEngine.List_LoadedXML:
-                try:
-                    G4AtlasEngine._ctrl.ReadXML(xml_name)
-                    G4AtlasEngine.List_LoadedXML.append(xml_name)
-                    G4AtlasEngine.log.debug('G4AtlasEngine:read_XML: %s read' % xml_name)
-                except:
-                    RuntimeError('XML file %s can not be found' % xml_name)
 
 
     def print_Summary(self):
@@ -468,167 +434,6 @@ class G4AtlasEngine:
             G4AtlasEngine.Dict['EventFilters'] = self
             G4AtlasEngine.log.debug('menu_EventFilter._build: init EventFilter manipulators\n%s' % self.getFilterStatus())
 
-
-
-    # TODO: PLEASE can we remove this?
-    class menu_Visualization(object):
-        """
-            Initial version of the menu for the visualization.
-
-            NOT READY YET!!!!
-        """
-        class __impl:
-            def spam(self):
-                return id(self)
-        __instance=None
-
-
-        def __init__(self):
-            if G4AtlasEngine.menu_Visualization.__instance is None:
-                G4AtlasEngine.menu_Visualization.__instance = G4AtlasEngine.menu_Visualization.__impl()
-                self._Built=False
-                self.ActiveStatusOn=False
-                self.VisTracks=False
-                self.VisDriver='VRML2FILE'
-                from AtlasG4Eng import GeV
-                self.TrackPtCut=.3*GeV
-                self.DrawNeutralTracks=False
-                self.List_Volumen2Vis=list()
-                self.List_Volumen2NotVis=list()
-
-
-        def __getattr__(self, attr):
-            return getattr(self.__instance, attr)
-
-
-        def __setattr__(self, attr, value):
-            return setattr(self.__instance, attr, value)
-
-
-        def add_volume2vis(self,name_volume):
-            """ Adds only one volume or wild-card to the list
-                of volumes you want to visualize
-            """
-            self.List_Volumen2Vis.append(name_volume)
-
-
-        def add_ListV2vis(self,list_volume):
-            """ Adds a list of volumes or wild-cards to the list
-                of volumes you want to visualize
-            """
-            self.List_Volumen2Vis=self.List_Volumen2Vis+list_volume
-
-
-        def add_volume2Notvis(self,name_volume):
-            """ Adds only one volume or wild-card to the list
-                of volumes you do not want to visualize
-            """
-            self.List_Volumen2NotVis.append(name_volume)
-
-
-        def add_ListV2Notvis(self,list_volume):
-            """ Adds a list of volumes or wild-cards to the list
-                of volumes you do not want to visualize
-            """
-            self.List_Volumen2NotVis=self.List_Volumen2NotVis+list_volume
-
-
-        def get_ListVolume2vis(self):
-            """ Gets the list of volumes that will be visible.
-            """
-            return self.List_Volumen2Vis
-
-
-        def get_ListVolume2Notvis(self):
-            """ Gets the list of volumes that will be invisible.
-            """
-            return self.List_Volumen2NotVis
-
-
-        def set_active(self):
-            """ Activates the visualization
-            """
-            self.ActiveStatusOn=True
-
-
-        def set_Parameters(self,name_parameter,new_value):
-            """ Changes the default visualization parameters.
-
-                 VisDriver          (default 'VRML2FILE')
-                 TrackPtCut         (default .3*GeV     )
-                 DrawNeutralTracks  (default False      )
-            """
-            if (name_parameter=='VisDriver'):
-                self.VisDriver=new_value
-            if (name_parameter=='TrackPtCut'):
-                self.TrackPtCut=new_value
-            if (name_parameter=='DrawNeutralTracks'):
-                self.DrawNeutralTracks=new_value
-
-
-        def set_VisTrack(self):
-            """ Activates the visualization of tracks.
-                It will produce one wrl file for each event
-            """
-            self.VisTracks=True
-
-
-        def print_status(self):
-            """ Gets the actual status of the visualization menu
-            """
-            print 'AtlasG4Eng.menu_visualization status:  '
-            print '---------------------------------------'
-            print 'Built::  ',self._Built
-            print 'Active::  ',self.ActiveStatusOn
-            print 'Visualize Tracks:: ',self.VisTracks
-            print 'Visualization driver:: ',self.VisDriver
-            print 'TrackPtCut :: ',self.TrackPtCut
-            print 'DrawNeutralTracks :: ',self.DrawNeutralTracks
-            print 'List of Volumes to visualize '
-            print self.List_Volumen2Vis
-            print 'List of Volumes not to visualize '
-            print self.List_Volumen2NotVis
-
-
-        def _init(self):
-            if self.ActiveStatusOn and not(self._Built):
-                # init graphics
-                G4AtlasEngine._ctrl.initializeGraphics()
-                self._Built=True
-                # support for event visualization
-            if self.VisTracks:
-                    G4AtlasEngine.load_Lib('G4UserActions')
-                    G4AtlasEngine.load_Lib('G4EventGraphics')
-                    VisAction=UserAction('G4EventGraphics',\
-                        'DrawEventPyAction',['BeginOfEvent','EndOfEvent'])
-                    G4AtlasEngine.menu_UserActions.add_UserAction(VisAction)
-                    G4AtlasEngine.load_Dict("G4EventGraphicsDict")
-                    self.EventGraphics=\
-                      G4AtlasEngine.gbl.EventGraphicsPyMessenger.Instance()
-                    self.EventGraphics.SetTrackDisplayLevel(3)
-                    self.EventGraphics.SetTrackPtCut(self.TrackPtCut)
-                    self.EventGraphics.SetTrackColorScheme(3)
-                    self.EventGraphics.SetDrawNeutralTracks(self.DrawNeutralTracks)
-                    self.__dict__['EventGraphics']=self.EventGraphics
-            if self.ActiveStatusOn:
-                # invisible volumes
-                for v1 in self.List_Volumen2NotVis:
-                    G4AtlasEngine._ctrl.geometryMenu.SetInvisible(v1)
-                # visible volumes
-                for v2 in self.List_Volumen2Vis:
-                    G4AtlasEngine._ctrl.geometryMenu.SetVisible(v2)
-                G4command=G4AtlasEngine.gbl.G4Commands()
-                G4command.vis.open(self.VisDriver)
-                G4command.vis.drawVolume()
-                G4command.vis.viewer.flush()
-
-
-        def visualize(self):
-            if  self._Built:
-                G4command = G4AtlasEngine.gbl.G4Commands()
-                G4command.vis.open(self.VisDriver)
-                G4command.vis.drawVolume()
-                G4command.vis.viewer.flush()
 
 
 class DetConfigurator:
@@ -1219,14 +1024,6 @@ class _PyG4AtlasComp(PyG4Atlas_base):
         AtlasG4Eng.G4Eng._init_Simulation()
 
         from G4AtlasApps.SimFlags import simFlags
-        if simFlags.ISFRun:
-          # TODO: does this 'HACK' need to be fixed at some point?
-          # *AS* HACK, as "G4AtlasControl/SimControl.cxx" fails dynamic cast
-          # see also G4AtlasRunManager
-          AtlasG4Eng.G4Eng.gbl.G4Commands().run.verbose(2)
-          AtlasG4Eng.G4Eng._ctrl.G4Command("/run/initialize")
-          #AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
-
         AtlasG4Eng.G4Eng._app_profiler('%s end of initialize' % self.name())
         if "atlas_flags" in simFlags.extra_flags:
             beamcondsvc = PyAthena.py_svc('BeamCondSvc/BeamCondSvc', createIf=True, iface=cppyy.gbl.IBeamCondSvc)
