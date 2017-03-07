@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODJet
                           Event/xAOD/xAODTau
                           Event/xAOD/xAODTruth
+                          PhysicsAnalysis/TauID/TauAnalysisTools
                           PhysicsAnalysis/TauID/TauHistUtils
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           Tracking/TrkValidation/TrkValHistUtils )

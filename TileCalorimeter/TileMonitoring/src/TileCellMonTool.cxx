@@ -62,6 +62,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   , m_nLastLumiblocks(-7)
   , m_fillMaskedOnFly4LastLumiblocks(false)
   , m_nEventsLastLumiblocks(0U)
+  , m_skipNotPhysicsEvents(true)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -81,6 +82,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   declareProperty("FillDigitizerEnergyVsLBHistograms", m_fillDigitizerEnergyLBHistograms = true);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("NumberOfLastLumiblocks4MaskedChannelsOnFly", m_nLastLumiblocks = -7);
+  declareProperty("SkipNotPhysicsEvents", m_skipNotPhysicsEvents = true);
 
   m_path = "/Tile/Cell";
 
@@ -653,7 +655,7 @@ StatusCode TileCellMonTool::fillHistograms() {
   fillEvtInfo();
 
   // Avoid processing events in online if there no physics streams
-  if (m_doOnline) {
+  if (m_skipNotPhysicsEvents && m_doOnline) {
     const DataHandle<xAOD::EventInfo> eventInfo;
     if (evtStore()->retrieve(eventInfo).isSuccess()) {
       bool isNotPhysicsEvent(true);

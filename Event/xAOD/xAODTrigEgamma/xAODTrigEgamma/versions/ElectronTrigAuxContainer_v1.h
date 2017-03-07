@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronTrigAuxContainer_v1.h 707253 2015-11-11 19:28:36Z rwhite $
+// $Id: ElectronTrigAuxContainer_v1.h 707252 2015-11-11 19:27:56Z rwhite $
 #ifndef XAODTRIGEGAMMA_VERSIONS_ELECTRONTRIGAUXCONTAINER_V1_H
 #define XAODTRIGEGAMMA_VERSIONS_ELECTRONTRIGAUXCONTAINER_V1_H
 
@@ -31,8 +31,8 @@ namespace xAOD {
    /// @author Anthony Morley
    ///
    // This is the trigger version to inherit from ByteStreamAuxContainer to persist all dynamic varibles
-   /// $Revision: 707253 $
-   /// $Date: 2015-11-11 20:28:36 +0100 (Wed, 11 Nov 2015) $
+   /// $Revision: 707252 $
+   /// $Date: 2015-11-11 20:27:56 +0100 (Wed, 11 Nov 2015) $
    ///
    class ElectronTrigAuxContainer_v1 : public AuxContainerBase {
 

@@ -19,13 +19,13 @@ class DQBadLBFilterTool :  public AthAlgTool, virtual public IDQFilterTool   {
  public:
   DQBadLBFilterTool(const std::string&,const std::string&,const IInterface*);
         
-  virtual ~DQBadLBFilterTool ();
+  virtual ~DQBadLBFilterTool () override;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
         
-  virtual bool accept() ;
+  virtual bool accept() const override;
 
-  virtual StatusCode updateCache() ;
+  virtual StatusCode updateCache();
 
   StatusCode callback( IOVSVC_CALLBACK_ARGS );
 

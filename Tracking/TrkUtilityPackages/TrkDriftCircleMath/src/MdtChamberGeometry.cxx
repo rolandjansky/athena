@@ -123,15 +123,12 @@ namespace TrkDriftCircleMath {
     if( !m_validGeometry) return m_allTubes;
     if( !m_allTubes.empty() ) return m_allTubes;
     
-//     std::cout << " building chamber geometry mls " << m_nml << " lays " << m_nlay << " tubes ml 0 " << m_ntubeslay[0] 
-// 	      << " ml 1 " << m_ntubeslay[1] << std::endl;
     // create vector with all tubes in chamber
     for( unsigned int ml=0;ml<m_nml;++ml){
       if( !m_wasInit[ml] ) continue;
       for( unsigned int lay=0;lay<m_nlay;++lay){
 	for( unsigned int tube=0;tube<m_ntubesml[ml];++tube ){
 	  const LocPos& lp = tubePosition(ml,lay,tube);
-// 	  std::cout << " ml " << ml << " lay " << lay << " tube " << tube << " " << lp << std::endl;
 	  m_allTubes.push_back( lp );
 	}
       }
@@ -159,7 +156,6 @@ namespace TrkDriftCircleMath {
 	continue;
       }
       for( unsigned int lay=0;lay<m_nlay;++lay){
-	
 	double ylay = yPosTube( ml, lay );
 	double xfirsttube = xPosTube( ml,lay,0 );
 	double xintersect = dxdy*(ylay-linepos.y()) + linepos.x();
@@ -168,18 +164,15 @@ namespace TrkDriftCircleMath {
 	if( ctube < 0 ) ctube = 0;
 	if( ctube >= (int)m_ntubesml[ml] ) ctube = m_ntubesml[ml]-1;
 
- 	if( inMultilayer != -1 ) 
- 	  //std::cout << " y position layer " << ylay << " xpos intersect " << xintersect << " relpos " 
-	  //<< relpos << " tube " << ctube << " in ml " << ml << " lay " << lay << std::endl;
+ 	//if( inMultilayer != -1 && ( m_id.stName() == 53 || m_id.stName() == 54 ))
+	//std::cout << " y position layer " << ylay << " xpos intersect " << xintersect << " relpos " 
+	//<< relpos << " tube " << ctube << " in ml " << ml << " lay " << lay << std::endl;
 	
 
- 	//std::cout << "  backward loop " << std::endl;
 	for( int i = ctube-1;i>=0;--i ){
 	  const LocPos& lp = tubePosition(ml,lay,i);
 	  double res = m_resLine.residual(lp);
-  	  //std::cout << "   tube " << i << " pos " << lp << " res " << res << std::endl;
 	  if( std::abs(res) > m_tubeRad ) {
- 	    //std::cout << "   tube has larger radius " << std::endl;
 
 	    if( m_tubeDist > 0 ){
 	      if( res > m_tubeRad ) break;
@@ -187,37 +180,29 @@ namespace TrkDriftCircleMath {
 	      if( res < -m_tubeRad ) break;
 	    }
 
- 	    //std::cout << "   continue search " << std::endl;
 	  }else{
 	    // if this is a chamber with only the second ml, set the ml index accordingly
 	    unsigned int actualMl = m_isSecondMultiLayer ? 1 : ml;
 	    crossedTubes.push_back( DriftCircle(lp,m_tubeRad,res,DriftCircle::EmptyTube,MdtId(m_id.isBarrel(),actualMl,lay,i),0) );
- 	    //std::cout << "   passed tube " << lp << " res " << res << " in ml " << ml << " lay " << lay << " tube " << i << std::endl;
 	  }
 	}
- 	//std::cout << "  forward loop " << std::endl;
 	for( int i =ctube;i < (int)m_ntubesml[ml];++i ){
 	  const LocPos& lp = tubePosition(ml,lay,i);
 	  double res = m_resLine.residual(lp);
-  	  //std::cout << "   tube " << i << " pos " << lp << " res " << res << std::endl;
 	  if( std::abs(res) > m_tubeRad ) {
- 	    //std::cout << "   tube has larger radius " << std::endl;
 	    if( m_tubeDist > 0 ){
 	      if( res < - m_tubeRad ) break;
 	    }else{
 	      if( res > m_tubeRad ) break;
 	    }
- 	    //std::cout << "   continue search " << std::endl;
 	  }else{
 	    unsigned int actualMl = m_isSecondMultiLayer ? 1 : ml;
 	    crossedTubes.push_back( DriftCircle(lp,m_tubeRad,res,DriftCircle::EmptyTube,MdtId(m_id.isBarrel(),actualMl,lay,i),0) );
- 	    //std::cout << "   passed tube " << lp << " res " << res << " in ml " << ml << " lay " << lay << " tube " << i << std::endl;
 	  }
 	}	
       }
 
     }
-    //std::cout << " total number of passed tubes " << m_crossedTubes.size() << std::endl;
 
   }  
 

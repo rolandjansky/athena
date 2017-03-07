@@ -23,7 +23,7 @@ import os
 partitionName = os.getenv("TDAQ_PARTITION","ATLAS")
 
 # set name of this publisher as it will appear in IS
-publishName       = "l1calo-athenaPT-cosmics"
+publishName       = "l1calo-athenaHLT-cosmics"
 
 # name of the stream type (physics,express, etc.)
 streamType = os.getenv("L1CALO_PTIO_STREAM_TYPE","physics")
@@ -31,7 +31,7 @@ streamType = os.getenv("L1CALO_PTIO_STREAM_TYPE","physics")
 # name of the stream (Egamma,JetTauEtmiss,MinBias,Standby, etc.)
 # this can be a colon(:) separated list of streams that use
 # the 'streamLogic' to combine
-streamName = os.getenv("L1CALO_PTIO_STREAM_NAME","CosmicCalo")
+streamName = os.getenv("L1CALO_PTIO_STREAM_NAME","CosmicCalo:Standby")
 
 # logic used to combine multiple streams
 # can be set to 'Ignore' which means the stream selection isn't used
@@ -52,11 +52,11 @@ if ( not os.environ.get("L1CALO_PTIO_KEY") ):
   if( partitionName == "L1CaloStandalone" ):
     keyname = 'REB'
   else:
-    keyname = 'SFI'
+    keyname = 'dcm' #'SFI'
 else:
   keyname = os.environ.get("L1CALO_PTIO_KEY")
 
-# set the Sampler count (default is 25)
+# set the Sampler count (default is 15)
 keycount = int(os.environ.get("L1CALO_PTIO_KEY_COUNT","25"))
 
 # event buffer size for each sampler
@@ -75,7 +75,9 @@ isserverName    = 'Histogramming'
 isGlobalMonitoring = False
 
 
-
+#from IOVDbSvc.CondDB import conddb
+#conddb.setGlobalTag("CONDBR2-HLTP-2014-00")
+#conddb.setGlobalTag("CONDBR2-ES1PA-2014-00") #crash
 
 
 ############
@@ -93,12 +95,27 @@ isGlobalMonitoring = False
 #doAOD             = False
 #writeAOD          = False
 isOnlineStateless = True
-beamType = 'collisions' # default: 'cosmics'
+#beamType = 'collisions' #'collisions' # default: 'cosmics'
 #is_T0_project_tag = 'cos010'
+#is_T0_project_tag = "data_test"
+#is_T0_project_tag = "data14_cos"
+#is_T0_project_tag = "data15_13TeV"
 
 #COND tag and GEO are needed for running over a test partition or against ATLAS cosmics, calib
 #ConditionsTag     = 'COMCOND-HLTP-004-01'
 #DetDescrVersion   = 'ATLAS-GEO-20-00-01'
+
+from AthenaCommon.GlobalFlags import globalflags
+#globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-ES1PA-2014-00")
+#globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-HLTP-2015-05")
+#--->>>######globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-HLTP-2015-08")
+#globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-HLTP-2016-01")
+#globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
+##ConditionsTag = 'CONDBR2-ES1PA-2014-00'
+##DetDescrVersion = 'ATLAS-R2-2015-01-01-00' 
+#DetDescrVersion = 'ATLAS-R2-2015-03-01-00' 
+#--->>>######DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
+#DetDescrVersion = 'ATLAS-R2-2016-00-01-00'
 
 #doPixelOnlyMon   = False
 
@@ -118,14 +135,36 @@ doAllReco   = False
 #doJiveXML   = False
 #doEgammaTau = doAllReco
 
+###########
+## -- flags set in: RecExOnline_recoflags.py (from RecExOnline_jobOptions.py)
+#doAllReco   = True
+# following set to default values from JOs
+#doInDet     = False
+#doMuon      = True
+#doLArg      = doAllReco
+#doTile      = doAllReco
+#doLucid     = False
+#doHist      = False
+#doJiveXML   = False
+#doEgammaTau = False
+#doLArg      = False
+#doTile      = False
+
+
 #doCommissioning = False
 #abortonuncheckedstatuscode = False
 
 # Found that this must be true for REB runs but not for SFI
 if (partitionName == "L1CaloStandalone"):
-   doTrigger = True #Default: False
+   doTrigger = False #True #Default: False
 else:
    doTrigger = False
+   #doTrigger = True
+   #doTriggerConfigOnly=True
+   #TriggerModernConfig=True
+   #from TriggerJobOpts.TriggerFlags import TriggerFlags
+   #TriggerFlags.doTriggerConfigOnly=True
+   
 
 
 ################
@@ -138,21 +177,29 @@ doAllMon  = False
 #doIDMon   = doAllMon
 #doPixelOnlyMon = False
 #doSCTMon  = doAllMon
-#doMuonMon = doAllMon
+#doMuonMon = True
 #doTRTMon  = doAllMon
 #doTrigMon = doAllMon
 doLVL1CaloMon = True
 #doHLTMon  = doTrigMon
-#doCTPMon  = doTrigMon
+#doCTPMon  = doAllMon
+#doCTPMon = True
 #doLucidMon= doAllMon
 isOnline  = True
 
+rec.doInDet.set_Value_and_Lock(False)
+from JetRec.JetRecFlags import jetFlags
+jetFlags.useTracks.set_Value_and_Lock(False)
+jetFlags.usePFlow.set_Value_and_Lock(False)
+jetFlags.useMuonSegments.set_Value_and_Lock(False)
 
 
+#rec.doMuon.set_Value_and_Lock(False)
 
 
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
+
 
 
 print ' '
@@ -220,25 +267,182 @@ print '| isserverName       = ',isserverName
 print '| isGlobalMonitoring = ',isGlobalMonitoring
 print '--------------------------------------------------------------'
 
+#from AthenaCommon.AppMgr import ServiceMgr
+#from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
+#ServiceMgr += L1CaloCondSvc()
+#from IOVDbSvc.CondDB import conddb
+#L1CaloFolderList = []
+#L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"]
+#L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/PprChanCalib"]
+#L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"]
+#L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Configuration/PprChanDefaults"]
+#for l1calofolder in L1CaloFolderList:
+#  conddb.addFolderWithTag("TRIGGER", l1calofolder, "HEAD")
+
+#L1CaloDb=""
+#if not 'L1CaloDbConnection' in dir():
+#    if 'L1CaloSqliteDB' in dir():
+#        L1CaloDbConnection="<dbConnection>sqlite://;schema=" + L1CaloSqliteDB + ";dbname=L1CALO</dbConnection>"
+#    else:
+#        L1CaloDb="TRIGGER"
+#        L1CaloDbConnection=""
+
+##conddb.blockFolder("/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib")
+##conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
+#conddb.blockFolder("/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels")
+#conddb.blockFolder("/TRIGGER/Receivers/Factors/CalibGains")
+##conddb.blockFolder("/TRIGGER/L1Calo/V1/Configuration/PprChanDefaults")
+#conddb.blockFolder("/TRIGGER/L1Calo/V1/Conditions/DisabledTowers")
 
 
+
+#L1CaloDbTag = "<tag>HEAD</tag>"
+#
+#L1CaloFolderList = []
+#L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"]
+#L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"]
+#L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
+
+#for l1calofolder in L1CaloFolderList:
+#    if not conddb.folderRequested(l1calofolder):
+#        conddb.addFolder(L1CaloDb, L1CaloDbConnection + l1calofolder + L1CaloDbTag)
+
+
+#from IOVDbSvc.CondDB import conddb
+##conddb.blockFolder("/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib")
+##conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
+##conddb.blockFolder("/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels")
+##conddb.blockFolder("/TRIGGER/Receivers/Factors/CalibGains")
+##conddb.blockFolder("/TRIGGER/L1Calo/V1/Configuration/PprChanDefaults")
+##conddb.blockFolder("/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults")
+##conddb.blockFolder("/TRIGGER/L1Calo/V1/Conditions/DisabledTowers")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib<tag>HEAD</tag>")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels<tag>HEAD</tag>")
+##conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/Receivers/Factors/CalibGains<tag>HEAD</tag>")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults<tag>HEAD</tag>")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Conditions/DisabledTowers<tag>HEAD</tag>")
+#
+#from IOVDbSvc.CondDB import conddb
+#conddb.blockFolder("/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib")
+#conddb.blockFolder("/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels")
+#conddb.blockFolder("/TRIGGER/Receivers/Factors/CalibGains")
+#conddb.blockFolder("/TRIGGER/L1Calo/V1/Configuration/PprChanDefaults")
+#conddb.blockFolder("/TRIGGER/L1Calo/V1/Conditions/DisabledTowers")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib<tag>HEAD</tag>")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels<tag>HEAD</tag>")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/Receivers/Factors/CalibGains<tag>HEAD</tag>")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Configuration/PprChanDefaults<tag>HEAD</tag>")
+#conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Conditions/DisabledTowers<tag>HEAD</tag>")
+#
+#conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_v19s0_ATLAS-R2-2015-02')
+
+#--->>>######conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_v19s0_ATLAS-R2-2015-03')
+
+#from IOVDbSvc.CondDB import conddb
+#conddb.addFolder("TRIGGER","/TRIGGER/HLT/Menu <tag>HEAD</tag>")
+#conddb.addFolder("TRIGGER","/TRIGGER/HLT/HltConfigKeys <tag>HEAD</tag>")
+#conddb.addFolder("TRIGGER","/TRIGGER/LVL1/Lvl1ConfigKey <tag>HEAD</tag>")
+#conddb.addFolder("TRIGGER","/TRIGGER/LVL1/Menu <tag>HEAD</tag>")
+#conddb.addFolder("TRIGGER","/TRIGGER/LVL1/Prescales <tag>HEAD</tag>")
+
+
+
+#theApp.CreateSvc  += ["StoreGateSvc/StoreGateSvc" ]
+#ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc" )
+#ByteStreamAddressProviderSvc.TypeNames += ["/Run/L1TopoToCTPLocation"]
+#ProxyProviderSvc = Service( "ProxyProviderSvc" )
+#ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
+#svcMgr.ProxyProviderSvc.ProviderNames += [ "/Run/L1TopoToCTPLocation" ]
 
 
 # added for testing purposes
 # need to for the run number in the test data partitions
+# fix for missing folder /TRIGGER/LUMI/LBLESTONL
 #if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("Test_dataProvider") >= 0) :
-#   print "L1Calo Monitoring is overriding the run number and lumiblock number."
-#   svcMgr.IOVDbSvc.forceRunNumber=182519
-#   svcMgr.IOVDbSvc.forceLumiblockNumber=1
-#   print "L1Calo Monitoring set run to ",svcMgr.IOVDbSvc.forceRunNumber,"and lumi block to",svcMgr.IOVDbSvc.forceLumiblockNumber
+
+if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS") >= 0) :
+#if (partitionName.find("L1CaloStandalone") >= 0) :
+  print "L1Calo Monitoring is overriding the run number and lumiblock number."
+  svcMgr.IOVDbSvc.forceRunNumber=313285 #312649 #312424(HI) #309640 #271733 #182519 #238735
+  svcMgr.IOVDbSvc.forceLumiblockNumber=1
+  print "L1Calo Monitoring set run to ",svcMgr.IOVDbSvc.forceRunNumber,"and lumi block to",svcMgr.IOVDbSvc.forceLumiblockNumber
+
+  #from IOVDbSvc.CondDB import conddb
+  #conddb.addFolder("TRIGGER","/TRIGGER/HLT/Menu <tag>HEAD</tag>") 
+  #conddb.addFolder("TRIGGER","/TRIGGER/HLT/HltConfigKeys <tag>HEAD</tag>")
+  #conddb.addFolder("TRIGGER","/TRIGGER/LVL1/Lvl1ConfigKey <tag>HEAD</tag>")
+  #conddb.addFolder("TRIGGER","/TRIGGER/LVL1/Menu <tag>HEAD</tag>")
+  #conddb.addFolder("TRIGGER","/TRIGGER/LVL1/Prescales <tag>HEAD</tag>")
 
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-tf.configForStartup = "HLTonline"
-from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-cfg = TriggerConfigGetter()
-if rec.doLArg and rec.doTile:
-  from AthenaCommon.AlgSequence import AlgSequence
-  TTjob = AlgSequence()
-  TTjob.TriggerTowerMaker.LVL1ConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
-   
+  from IOVDbSvc.CondDB import conddb
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/HLT/Menu<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/HLT/HltConfigKeys<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/HLT/Prescales<tag>HEAD</tag>")
+
+  conddb.addFolder("", "<db>oracle://ATONR_COOL;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2</dbConnection>/TRIGGER/HLT/PrescaleKey<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>oracle://ATONR_COOL;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2</dbConnection>/TRIGGER/HLT/Groups<tag>HEAD</tag>")
+
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/Lvl1ConfigKey<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/Menu<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/ItemDef<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/BunchGroupKey<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/BunchGroupDescription<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/Prescales<tag>HEAD</tag>")
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/Thresholds<tag>HEAD</tag>")
+
+  conddb.addFolder("", "<db>COOLONL_TRIGGER/CONDBR2</db>/TRIGGER/LVL1/CTPCoreInputMapping<tag>HEAD</tag>")
+
+
+
+  # only offline
+  from RecExConfig.InputFilePeeker import inputFileSummary
+  print "inputFileSummary =",inputFileSummary
+  if inputFileSummary.__contains__('bs_metadata'):
+    # get the run number and lumi_block for the input
+    run_number = inputFileSummary['bs_metadata']['run_number']
+
+    pointintime = (int(run_number)<<32) + int(lumi_block) # start from lumiblock 0 (or 1?)
+
+    DBInstance = svcMgr.IOVDbSvc.properties()['DBInstance']
+    print "L1Calo Monitoring check DBInstance ",DBInstance
+    connstring = "COOLONL_TRIGGER/"+str(DBInstance) 
+    from CoolConvUtilities.AtlCoolLib import indirectOpen
+    coolDB=indirectOpen(connstring,oracle='True')
+    SMKfolder=coolDB.getFolder('/TRIGGER/HLT/HltConfigKeys')
+
+    retrieved_obj=SMKfolder.findObject(pointintime,0)
+    retrieved_payload=retrieved_obj.payload()
+    retrieved_format=retrieved_payload['MasterConfigurationKey']
+    SuperMasterKey=int(999)
+    print "SMK SuperMasterKey default =",SuperMasterKey
+    SuperMasterKey = int(retrieved_format)                                 
+    print "SMK SuperMasterKey from Cool =",SuperMasterKey
+    coolDB.closeDatabase()
+
+   #from IOVDbSvc.CondDB import conddb
+   #conddb.blockFolder("/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib")
+   #conddb.blockFolder("/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels")
+   #conddb.blockFolder("/TRIGGER/Receivers/Factors/CalibGains")
+   #conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib<tag>HEAD</tag>")
+   #conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels<tag>HEAD</tag>")
+   #conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/Receivers/Factors/CalibGains<tag>HEAD</tag>")
+
+
+#from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+#tf.configForStartup = "HLTonline"
+#from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+#cfg = TriggerConfigGetter()
+#if rec.doLArg and rec.doTile:
+#  from AthenaCommon.AlgSequence import AlgSequence
+#  TTjob = AlgSequence()
+#  TTjob.TriggerTowerMaker.LVL1ConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+ 
+#M6
+#rec.doTau=False;
+#rec.doEgamma=False;
+#rec.doJetMissingETTag=False;
+#from CaloRec.CaloCellFlags import jobproperties
+#jobproperties.CaloCellFlags.doLArHVCorr=False
+#jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);  

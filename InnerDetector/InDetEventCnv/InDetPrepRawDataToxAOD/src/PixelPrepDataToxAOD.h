@@ -18,6 +18,7 @@
 
 
 #include <string>
+#include <map>
 
 class PixelID;
 class SiHit;
@@ -100,8 +101,9 @@ private:
   bool  m_writeSiHits;
   bool  m_writeNNinformation;
   bool  m_writeRDOinformation;
-  bool m_useSiHitsGeometryMatching;
-
+  bool  m_useSiHitsGeometryMatching;
+  bool  m_decorateBrokenClusters;
+  
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
   ServiceHandle<IPixelDCSSvc> m_pixelDCSSvc;
   ServiceHandle<IPixelByteStreamErrorsSvc> m_pixelBSErrorsSvc;
@@ -109,7 +111,6 @@ private:
 
   // -- Private members   
   bool m_firstEventWarnings;
-
 };
 
 

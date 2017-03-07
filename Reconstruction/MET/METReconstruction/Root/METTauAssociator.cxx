@@ -124,7 +124,7 @@ namespace met {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     for( const xAOD::TauTrack* tauTrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks dR<0.2 regardless of quality
       const TrackParticle* trk = tauTrk->track();
-      if(acceptTrack(trk,constits.pv) && ( !m_cleanChargedPFO || isGoodEoverP(trk) ) ){
+      if(acceptTrack(trk,constits.pv) && isGoodEoverP(trk) ){
         ATH_MSG_VERBOSE("Accept tau track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
         constlist.push_back(trk);
       }
@@ -156,7 +156,7 @@ namespace met {
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
 	    ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
-            if(acceptChargedPFO(tautrk,constits.pv) && isGoodEoverP(pfotrk)) match = true;
+            if(acceptChargedPFO(tautrk,constits.pv) && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
           }
         }
       }

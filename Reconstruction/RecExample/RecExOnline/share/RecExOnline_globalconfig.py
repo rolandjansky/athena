@@ -31,14 +31,18 @@ if (not 'isOnlineStateless' in dir()):
 if (not 'beamType' in dir()):
     beamType = 'collisions'
 
-if (not 'is_T0_project_tag' in dir()):
-    is_T0_project_tag = 'data12_8TeV'
+#if (not 'is_T0_project_tag' in dir()):
+#    is_T0_project_tag = 'data12_8TeV'
 
+if (not 'is_T0_project_tag' in dir()):
+    is_T0_project_tag = 'data15_cos'
+
+### tag created 2015-11-04 : Based on CONDBR2-HLTP-2015-07, TRT folders for rel. 20.7 were added and updated.
 if (not 'ConditionsTag' in dir()):
-    ConditionsTag = 'COMCOND-HLTP-004-01'
+    ConditionsTag = 'CONDBR2-HLTP-2015-08'
 
 if (not 'DetDescrVersion' in dir()):
-    DetDescrVersion = 'ATLAS-GEO-20-00-01'
+    DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
 
 if (not 'doPixelOnlyMon' in dir()):
     doPixelOnlyMon = False
@@ -98,7 +102,6 @@ try:
     sys.setdlopenflags(newflags)
 except:
     logRecExOnline_globalconfig.info("sys.setdlopenflags(newflags) failed with newflags=%s" % newflags )
-
 #import dl
 #sys.setdlopenflags(dl.RTLD_GLOBAL | dl.RTLD_NOW)
 
@@ -109,7 +112,7 @@ from AthenaCommon.BFieldFlags import jobproperties
 FirstSample = 3
 NSamples = 5
 
-#if (useEmon and (partitionName == 'ATLAS' or partitionName == 'TDAQ')):
+#if (useEmon and (partitionName == 'ATLAS' or partitionName == 'GMTestPartitionM7')):
 if (useEmon and (partitionName == 'ATLAS')):
     import ispy
     from ispy import *
@@ -137,31 +140,31 @@ if (useEmon and (partitionName == 'ATLAS')):
     solenoidInvalid = 1
 
     # AL playing around: start
-    toroidCurrent   = ispy.ISInfoDynAny(p2, 'DdcFloatInfo')
-    solenoidCurrent = ispy.ISInfoDynAny(p2, 'DdcFloatInfo')
-    toroidInvalid   = ispy.ISInfoDynAny(p2, 'DdcIntInfo')
-    solenoidInvalid = ispy.ISInfoDynAny(p2, 'DdcIntInfo')
-    
-    toroidInvalid.value=1
-    solenoidInvalid.value=1
+    #toroidCurrent   = ispy.ISInfoDynAny(p2, 'DdcFloatInfo')
+    #solenoidCurrent = ispy.ISInfoDynAny(p2, 'DdcFloatInfo')
+    #toroidInvalid   = ispy.ISInfoDynAny(p2, 'DdcIntInfo')
+    #solenoidInvalid = ispy.ISInfoDynAny(p2, 'DdcIntInfo')
+    solenoidCurrent = ISObject(p,'DCS_GENERAL.MagnetSolenoidCurrent.value','DdcFloatInfo')
+    solenoidCurrent.checkout()
+    toroidCurrent = ISObject(p,'DCS_GENERAL.MagnetToroidsCurrent.value','DdcFloatInfo')
+    toroidCurrent.checkout()
+    solenoidInvalid = ISObject(p,'DCS_GENERAL.MagnetSolenoidCurrent.invalid','DdcIntInfo')
+    solenoidInvalid.checkout()
+    toroidInvalid = ISObject(p,'DCS_GENERAL.MagnetToroidsCurrent.invalid','DdcIntInfo')
+    toroidInvalid.checkout()
+
+    #toroidInvalid.value=1
+    #solenoidInvalid.value=1
     # AL playing around: end
-    
+
 
     logRecExOnline_globalconfig.info("toroidCurrent = %f", toroidCurrent.value)
     logRecExOnline_globalconfig.info("toroidInvalid = %f", toroidInvalid.value)
     logRecExOnline_globalconfig.info("solenoidCurrent = %f", solenoidCurrent.value)
     logRecExOnline_globalconfig.info("solenoidInvalid = %f", solenoidInvalid.value)
-    
+
     from BFieldAth.BFieldAthConf import MagFieldAthenaSvc
     svcMgr += MagFieldAthenaSvc(SetupCOOL=True, NameOfTheSource='COOL_HLT', onlineSolCur=solenoidCurrent.value, onlineTorCur=toroidCurrent.value)
-
-## # ---> AK
-## # LArMon stuff
-## # CaloMon problems of setting up FirstSample
-##     import ispy
-##     from ispy import *
-##     from ipc import IPCPartition
-##     from ispy import ISObject
 
     try:
         p3 = IPCPartition("ATLAS")
@@ -171,9 +174,8 @@ if (useEmon and (partitionName == 'ATLAS')):
         NSamples = x.nbOfSamples
     except:
         logRecExOnline_globalconfig.info("Could not find IS Parameters for LargParams.LArg.RunLogger.GlobalParams - Set default flags (FirstSample=3, NSamples=5")
- 
-# ---> AK
-          
+
+
 
 # ----------------------------------------------- Set Run configuration
 
@@ -202,7 +204,6 @@ InDetFlags.doPixelClusterSplitting.set_Value(False) # does not work online
 athenaCommonFlags.isOnline = isOnline
 athenaCommonFlags.EvtMax.set_Value_and_Lock(evtMax)
 athenaCommonFlags.isOnlineStateless = isOnlineStateless
-
 # ----------------------------------------------- Remove DCS problems
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.useBeamConstraint.set_Value_and_Lock(False)
@@ -213,7 +214,7 @@ if athenaCommonFlags.isOnline:
     InDetFlags.useDCS.set_Value_and_Lock(False)                               # fails when true: pixel accessing Temperature info (getting fixed)
 
 # ----------------------------------------------- Special settings for pixel monitoring
-logRecExOnline_globalconfig.info("RecExOnline: flag doPixelOnlyMon = %s" %doPixelOnlyMon) 
+logRecExOnline_globalconfig.info("RecExOnline: flag doPixelOnlyMon = %s" %doPixelOnlyMon)
 if doPixelOnlyMon:
     ## force pixel on, turn off the rest of the ID:
     InDetFlags.doTrackSegmentsPixel.set_Value_and_Lock(True)
@@ -238,26 +239,46 @@ from RecExConfig.RecFlags import rec
 
 if (isOnline and useEmon and (partitionName == 'ATLAS' or partitionName == 'TDAQ')):
     rec.projectName.set_Value_and_Lock(is_T0_project_tag)
-    #rec.AutoConfiguration = ['FieldAndGeo', 'ConditionsTag', 'BeamType']
+    from AthenaCommon.BeamFlags import jobproperties
+    jobproperties.Beam.beamType.set_Value_and_Lock(beamType)
+    globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
+    globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
     rec.AutoConfiguration = ['FieldAndGeo', 'ConditionsTag', 'BeamType', 'BeamEnergy', 'LumiFlags']
 
+# ------------------------------------------------ Ensure the current in tororid and solenoid
+    from AthenaCommon.AthenaCommonFlags import jobproperties,athenaCommonFlags
+    jobproperties.BField.solenoidOn.set_Value_and_Lock( solenoidCurrent.value > 70 )
+    jobproperties.BField.barrelToroidOn.set_Value_and_Lock( toroidCurrent.value > 70 )
+    jobproperties.BField.endcapToroidOn.set_Value_and_Lock( toroidCurrent.value > 70 )
+
+    #rec.AutoConfiguration = ['FieldAndGeo', 'ConditionsTag', 'BeamType', 'BeamEnergy', 'LumiFlags']
+    #rec.AutoConfiguration = ['ConditionsTag', 'BeamType', 'BeamEnergy', 'LumiFlags']
+    logRecExOnline_globalconfig.info("RecExOnline: running with autoconfiguration ['FieldAndGeo', 'ConditionsTag', 'BeamType', 'BeamEnergy', 'LumiFlags']")
+    #logRecExOnline_globalconfig.info("RecExOnline: FieldAndGeo = %s" %FieldAndGeo)
+    #logRecExOnline_globalconfig.info("RecExOnline: ConditionsTag = %s" %ConditionsTag)
+    #logRecExOnline_globalconfig.info("RecExOnline: BeamType = %s" %BeamType)
+    #logRecExOnline_globalconfig.info("RecExOnline: BeamEnergy = %s" %BeamEnergy)
+    #logRecExOnline_globalconfig.info("RecExOnline: LumiFlags = %s" %LumiFlags)
+
 if (isOnline and useEmon and (partitionName != 'ATLAS' and partitionName != 'TDAQ')):
-    from AthenaCommon.BFieldFlags import jobproperties
-    jobproperties.BField.barrelToroidOn.set_Value_and_Lock(True)
-    jobproperties.BField.endcapToroidOn.set_Value_and_Lock(True)
-    jobproperties.BField.solenoidOn.set_Value_and_Lock(True)
     from AthenaCommon.BeamFlags import jobproperties
     jobproperties.Beam.beamType.set_Value_and_Lock(beamType)
     globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
     globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
     rec.AutoConfiguration = ['FieldAndGeo', 'ConditionsTag', 'BeamType']
-
+#    rec.AutoConfiguration = ['ConditionsTag', 'BeamType']
+    #logRecExOnline_globalconfig.info("RecExOnline: running with autoconfiguration ['FieldAndGeo', 'ConditionsTag', 'BeamType']")
+    #logRecExOnline_globalconfig.info("RecExOnline: FieldAndGeo = %s" %FieldAndGeo)
+    #logRecExOnline_globalconfig.info("RecExOnline: ConditionsTag = %s" %ConditionsTag)
+    #logRecExOnline_globalconfig.info("RecExOnline: BeamType = %s" %BeamType)
 if (not isOnline and not useEmon) or (isOnline and REO_doAutoConfiguration):
+    logRecExOnline_globalconfig.info("RecExOnline: (not isOnline and not useEmon) or (isOnline and REO_doAutoConfiguration)")
     rec.AutoConfiguration = ['everything']
-    logRecExOnline_globalconfig.info("RecExOnline: running with autoconfiguration = everything") 
+    logRecExOnline_globalconfig.info("RecExOnline: running with autoconfiguration = everything")
 
 
 if (isOnline and not useEmon):
+    logRecExOnline_globalconfig.info("RecExOnline: isOnline and not useEmon")
     from AthenaCommon.BFieldFlags import jobproperties
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(True)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(True)
@@ -266,15 +287,21 @@ if (isOnline and not useEmon):
     jobproperties.Beam.beamType.set_Value_and_Lock(beamType)
     globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
     globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
+    ### rec.AutoConfiguration = ['FieldAndGeo', 'ConditionsTag', 'BeamType', 'BeamEnergy', 'LumiFlags']
     rec.AutoConfiguration = ['FieldAndGeo', 'ConditionsTag', 'BeamType']
-    logRecExOnline_globalconfig.info(" Running with isOnline=True with autoconfiguration = FieldAndGeo, ConditionsTag, BeamType (taken from P1 job)")
+    #    rec.AutoConfiguration = ['ConditionsTag', 'BeamType']
+    logRecExOnline_globalconfig.info("RecExOnline: running with autoconfiguration ['FieldAndGeo', 'ConditionsTag', 'BeamType']")
+    # logRecExOnline_globalconfig.info("RecExOnline: FieldAndGeo = %s" %FieldAndGeo)
+    # logRecExOnline_globalconfig.info("RecExOnline: ConditionsTag = %s" %ConditionsTag)
+    # logRecExOnline_globalconfig.info("RecExOnline: BeamType = %s" %BeamType)
 
 
 
 #### CHANGES TO GET 19.1.0.1 RECO WORKING (M4)
 # Default to COMP200 rather than CONDBR2
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DatabaseInstance = "COMP200"
+#globalflags.DatabaseInstance = "CONDBR2"
+globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
 
 ## Another Problem with LAR offline databases
 from LArConditionsCommon.LArCondFlags import larCondFlags
@@ -311,3 +338,4 @@ if not 'IOVDbSvcMessage' in dir():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     import IOVDbSvc.IOVDb
     svcMgr.IOVDbSvc.OutputLevel = 2
+

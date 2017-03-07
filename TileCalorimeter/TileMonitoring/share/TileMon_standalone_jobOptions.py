@@ -96,18 +96,41 @@ if doTileL2Mu:
 
 if doTileCells:
     
-    toolSvc += CfgMgr.TileCellMonTool(name                 = 'TileCellMon'
-                                      , OutputLevel        = INFO
-                                      , doOnline           = athenaCommonFlags.isOnline()
-                                      , cellsContainerName = "AllCalo"
-                                      , histoPathBase      = "/Tile/Cell"
-                                      , NumberOfLastLumiblocks4MaskedChannelsOnFly = 7)
+    if TileBiGainRun:
+        toolSvc += CfgMgr.TileCellMonTool(name                 = 'TileCellMonHG'
+                                          , OutputLevel        = INFO
+                                          , doOnline           = athenaCommonFlags.isOnline()
+                                          , cellsContainerName = "AllCaloHG"
+                                          , histoPathBase      = "/Tile/Cell/HG"
+                                          , NumberOfLastLumiblocks4MaskedChannelsOnFly = 7
+                                          , SkipNotPhysicsEvents = TilePhysRun)
+        
+        ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileCellMonHG ]
 
-    if (jobproperties.Beam.beamType() == 'singlebeam'):
-        toolSvc.TileCellMon.FillTimeHistograms = True
-        toolSvc.TileCellMon.energyThresholdForTime = 150.0
+        toolSvc += CfgMgr.TileCellMonTool(name                 = 'TileCellMonLG'
+                                          , OutputLevel        = INFO
+                                          , doOnline           = athenaCommonFlags.isOnline()
+                                          , cellsContainerName = "AllCaloLG"
+                                          , histoPathBase      = "/Tile/Cell/LG"
+                                          , NumberOfLastLumiblocks4MaskedChannelsOnFly = 0
+                                          , SkipNotPhysicsEvents = TilePhysRun)
+        
+        ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileCellMonLG ]
 
-    ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileCellMon ]
+    else:
+        toolSvc += CfgMgr.TileCellMonTool(name                 = 'TileCellMon'
+                                          , OutputLevel        = INFO
+                                          , doOnline           = athenaCommonFlags.isOnline()
+                                          , cellsContainerName = "AllCalo"
+                                          , histoPathBase      = "/Tile/Cell"
+                                          , NumberOfLastLumiblocks4MaskedChannelsOnFly = 7
+                                          , SkipNotPhysicsEvents = TilePhysRun)
+        
+        if (jobproperties.Beam.beamType() == 'singlebeam'):
+            toolSvc.TileCellMon.FillTimeHistograms = True
+            toolSvc.TileCellMon.energyThresholdForTime = 150.0
+            
+        ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileCellMon ]
 
     if doTowers:
 

@@ -144,7 +144,7 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
         #
         from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool
         GSFBuildInDetTrkSlimmingTool = ConfigurableTrackSlimmingTool(name  = "GSFBuildInDetTrackSlimmingTool",
-                                                                     KeepParameters = False,
+                                                                     KeepParameters = True,
                                                                      KeepOutliers   = True )
         ToolSvc += GSFBuildInDetTrkSlimmingTool
 

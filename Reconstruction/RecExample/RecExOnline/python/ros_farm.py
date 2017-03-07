@@ -16,7 +16,7 @@ import pm.farm
 # to scan datafiles, or if you prefer, just import the output of
 # rosconf-from-data.py --py. We prefer that later because it is faster.
 from robhit import robhit
-ros_farm = pm.multinode.ros_farm_random(robhit,[pm.farm.local_computer()])
+ros_farm = pm.multinode.ros_farm_random(robhit,[pm.farm.local_computer(), pm.farm.local_computer()])
 
 # if you want to pretty print in the end and to verify this module is
 # actually loadable, uncomment the following line

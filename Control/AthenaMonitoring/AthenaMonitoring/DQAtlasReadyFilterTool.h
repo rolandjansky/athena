@@ -16,13 +16,13 @@ class DQAtlasReadyFilterTool :  public AthAlgTool, virtual public IDQFilterTool 
  public:
   DQAtlasReadyFilterTool(const std::string&,const std::string&,const IInterface*);
         
-  virtual ~DQAtlasReadyFilterTool ();
+  virtual ~DQAtlasReadyFilterTool () override;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
         
-  virtual bool accept() ;
+  virtual bool accept() const override;
 
-  virtual StatusCode updateCache() ;
+  virtual StatusCode updateCache();
 
   StatusCode callback( IOVSVC_CALLBACK_ARGS );
 

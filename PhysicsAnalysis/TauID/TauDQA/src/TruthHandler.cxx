@@ -348,8 +348,8 @@ int TruthHandler::numNeutPion(const xAOD::TruthParticle* hadTau){
   const std::size_t nChildren = vertex->nOutgoingParticles();
   for ( std::size_t iChild = 0; iChild != nChildren; ++iChild ) {
     const xAOD::TruthParticle * child = vertex->outgoingParticle(iChild);
-    if((abs((child)->pdgId())== 111) /*&& ( ((child)->status()==2) || ((child)->status()==10902) ) */){  nNeu++;
-    } else{ nNeu += numNeutPion(child);}
+    if((abs((child)->pdgId())== 111) /*&& ( ((child)->status()==2) || ((child)->status()==10902) )*/ ){  nNeu++;
+    } //else{ return 0;nNeu += numNeutPion(child);}
   }
   return nNeu;
   }
