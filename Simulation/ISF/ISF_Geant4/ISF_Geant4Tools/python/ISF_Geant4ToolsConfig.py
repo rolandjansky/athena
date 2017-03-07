@@ -2,6 +2,7 @@
 
 ## -----------------------------------------------------------------------------
 ### Base Version
+
 def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
     # get the MT action
     from ISF_Config.ISF_jobProperties import ISF_Flags
@@ -17,7 +18,7 @@ def addMCTruthUserActionTool(name="ISFMCTruthUserActionTool",system=False):
 ### Base Version
 def getPhysicsValidationUserActionTool(name="ISFG4PhysicsValidationUserActionTool", **kwargs):
     kwargs.setdefault('ParticleBroker'     , 'ISF_ParticleBrokerSvc')
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__PhysicsValidationUserActionTool
+    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__PhysicsValidationUserActionTool
     return G4UA__iGeant4__PhysicsValidationUserActionTool(name, **kwargs)
 ### Specialized Versions
 def getG4OnlyPhysicsValidationUserActionTool(name="G4OnlyPhysicsValidationUserActionTool", **kwargs):
@@ -34,6 +35,7 @@ def getQuasiStableG4PhysicsValidationUserActionTool(name="QuasiStableG4PhysicsVa
 
 ## -----------------------------------------------------------------------------
 ### Base Version
+
 def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
     from G4AtlasApps.SimFlags import simFlags
@@ -44,6 +46,7 @@ def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **
 
 
 ### Specialized Versions
+
 def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTool', **kwargs):
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
@@ -84,8 +87,6 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
 
     kwargs.setdefault('UserActionSvc','G4UA::ISFUserActionSvc')
 
-    if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
-        kwargs.setdefault('RecordFlux',simFlags.RecordFlux())
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
     if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
@@ -93,23 +94,25 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     else:
         is_hive = False
     kwargs.setdefault('MultiThreading', is_hive)
+    # Set commands for the G4AtlasAlg
+    kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4TransportTool
     return iGeant4__G4TransportTool(name, **kwargs)
 ### Specialized Versions
 def getFullG4TransportTool(name='FullG4TransportTool', **kwargs):
-    kwargs.setdefault('UserActionSvc', 'G4UA::ISFFullUserActionSvc')
+    kwargs.setdefault('UserActionSvc','G4UA::ISFFullUserActionSvc')
     return getG4TransportTool(name, **kwargs)
 
 def getPassBackG4TransportTool(name='PassBackG4TransportTool', **kwargs):
-    kwargs.setdefault('UserActionSvc', 'G4UA::ISFPassBackUserActionSvc')
+    kwargs.setdefault('UserActionSvc','G4UA::ISFPassBackUserActionSvc')
     return getG4TransportTool(name, **kwargs)
 
 def getAFII_G4TransportTool(name='AFII_G4TransportTool', **kwargs):
-    kwargs.setdefault('UserActionSvc', 'G4UA::ISF_AFIIUserActionSvc')
+    kwargs.setdefault('UserActionSvc','G4UA::ISF_AFIIUserActionSvc')
     return getG4TransportTool(name, **kwargs)
 
 def getQuasiStableG4TransportTool(name='QuasiStableG4TransportTool', **kwargs):
-    kwargs.setdefault('UserActionSvc', 'G4UA::ISFQuasiStableUserActionSvc')
+    kwargs.setdefault('UserActionSvc','G4UA::ISFQuasiStableUserActionSvc')
     kwargs.setdefault('QuasiStableParticlesIncluded', True)
     return getG4TransportTool(name, **kwargs)
 

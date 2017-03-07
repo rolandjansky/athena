@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ///////////////////////////////////////////////////////////////////
 // Geant4TruthIncident.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -39,11 +35,6 @@ namespace iGeant4 {
       ISF_Geant4 specific implementation of the ISF::ITruthIncident
 
       @author Andreas.Schaelicke@cern.ch
-   */
-
-  /* comments:
-     renamed to Geant4TruthIncident inorder to avoid confusion with G4 internal classes.
-
    */
 
   class Geant4TruthIncident : public ISF::ITruthIncident {
@@ -112,7 +103,7 @@ namespace iGeant4 {
       /** check if the given G4Track represents a particle that is alive in ISF or ISF-G4 */
       inline bool particleAlive(const G4Track *track) const;
 
-      HepMC::GenParticle* convert(const G4Track *particle) const; //*AS* might be put static
+      HepMC::GenParticle* convert(const G4Track *particle, const int barcode, const bool secondary) const; //*AS* might be put static
 
       mutable bool                  m_positionSet;
       mutable HepMC::FourVector     m_position;

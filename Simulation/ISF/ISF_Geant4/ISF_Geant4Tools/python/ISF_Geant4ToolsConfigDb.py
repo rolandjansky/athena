@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
+
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getMCTruthUserActionTool"              , "ISFMCTruthUserActionTool")
 
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getPhysicsValidationUserActionTool"              , "ISFG4PhysicsValidationUserActionTool")

@@ -5,13 +5,9 @@
 #ifndef ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTIONBASE_H
 #define ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTIONBASE_H
 
-#include <string>
+//#include "ISF_Geant4Interfaces/ITrackProcessorUserAction.h"
 
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
+#include <string>
 
 // forward declarations
 class EventInformation;
@@ -23,6 +19,14 @@ namespace HepMC {
 namespace ISF {
   class ISFParticle;
 }
+
+
+#include "G4AtlasInterfaces/IPreTrackingAction.h"
+#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "G4AtlasInterfaces/IPostTrackingAction.h"
+
 
 namespace G4UA{
 

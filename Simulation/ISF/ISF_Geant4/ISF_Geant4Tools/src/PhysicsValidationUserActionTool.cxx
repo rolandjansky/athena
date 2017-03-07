@@ -6,21 +6,22 @@
 #include "PhysicsValidationUserActionTool.h"
 
 namespace G4UA{
-
+  
   namespace iGeant4{
-
+    
     PhysicsValidationUserActionTool::PhysicsValidationUserActionTool(const std::string& type, const std::string& name,const IInterface* parent):
       ActionToolBase<PhysicsValidationUserAction>(type, name, parent), m_config(){
-
+      
+      
       declareProperty( "ValidationOutput",
-                       m_config.validationOutput,
-                       "If turned on, write out a ROOT tree.");
+		       m_config.validationOutput,
+		       "If turned on, write out a ROOT tree.");
       declareProperty("ValidationStreamName",
-                      m_config.validationStream,
-                      "Name of the output stream" );
+		      m_config.validationStream,
+		      "Name of the output stream" );
       declareProperty("THistService",
-                      m_config.thistSvc,
-                      "The THistSvc" );
+		      m_config.thistSvc,
+		      "The THistSvc" );
       declareProperty("ParticleBroker", m_config.particleBroker, "ISF Particle Broker Svc");
       declareProperty("ParticleHelper", m_config.particleHelper, "ISF Particle Helper"    );
       declareProperty("GeoIDSvc"      , m_config.geoIDSvc      , "ISF GeoID Svc"          );
@@ -33,9 +34,9 @@ namespace G4UA{
       declareProperty("MuonZmean",m_config.muonZmean);
       declareProperty("CavernRmean",m_config.cavernRmean);
       declareProperty("CavernZmean",m_config.cavernZmean);
-
+      
     }
-
+    
     std::unique_ptr<PhysicsValidationUserAction>  PhysicsValidationUserActionTool::makeAction(){
       ATH_MSG_DEBUG("makeAction");
       if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }

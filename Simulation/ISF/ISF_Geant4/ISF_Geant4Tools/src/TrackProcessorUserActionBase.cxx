@@ -9,14 +9,14 @@
 // class header
 #include "TrackProcessorUserActionBase.h"
 
-// local package includes
-#include "ISFG4Helpers.h"
-
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/EntryLayer.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
+
+// ISF Geant4 includes
+#include "ISF_Geant4Event/ISFG4Helper.h"
 
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
@@ -59,7 +59,7 @@ namespace G4UA{
     void TrackProcessorUserActionBase::beginOfEvent(const G4Event*)
     {
       m_curBaseISP = nullptr;
-      m_eventInfo  = ::iGeant4::ISFG4Helpers::getEventInformation();
+      m_eventInfo  = ::iGeant4::ISFG4Helper::getEventInformation();
       return;
     }
 
@@ -90,16 +90,16 @@ namespace G4UA{
         // get a non-const G4Track for current secondary (nasty!)
         G4Track* aSecondaryTrack = const_cast<G4Track*>( aConstSecondaryTrack );
 
-        auto *trackInfo = ::iGeant4::ISFG4Helpers::getISFTrackInfo(*aSecondaryTrack);
+        auto *trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aSecondaryTrack);
 
         // G4Tracks aready returned to ISF will have a TrackInformation attached to them
         bool particleReturnedToISF = trackInfo && trackInfo->GetReturnedToISF();
         if (!particleReturnedToISF) {
           HepMC::GenParticle* generationZeroTruthParticle = nullptr;
-          ::iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( *aSecondaryTrack,
-                                                     *m_curBaseISP,
-                                                     Secondary,
-                                                     generationZeroTruthParticle );
+          ::iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( *aSecondaryTrack,
+                                                    *m_curBaseISP,
+                                                    Secondary,
+                                                    generationZeroTruthParticle );
         }
       } // <- loop over secondaries from this step
 
@@ -111,7 +111,7 @@ namespace G4UA{
       // what a great way to start a function... :)
       G4Track* inT = const_cast<G4Track*> (aTrack);
 
-      auto *trackInfo = ::iGeant4::ISFG4Helpers::getISFTrackInfo(*aTrack);
+      auto *trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aTrack);
 
       // will be filled later on
       HepMC::GenParticle *currentlyTracedHepPart = nullptr;
@@ -181,10 +181,10 @@ namespace G4UA{
           else                                                                            { classification = RegisteredSecondary; }
         }
 
-        auto* newTrackInfo = ::iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( *inT,
-                                                                        *baseISP,
-                                                                        classification,
-                                                                        generationZeroTruthParticle );
+        auto* newTrackInfo = ::iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( *inT,
+                                                                       *baseISP,
+                                                                       classification,
+                                                                       generationZeroTruthParticle );
         newTrackInfo->SetRegenerationNr(regenerationNr);
         trackInfo = newTrackInfo;
       } else {

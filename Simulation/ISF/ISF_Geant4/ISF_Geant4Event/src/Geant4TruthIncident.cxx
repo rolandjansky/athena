@@ -1,22 +1,19 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ///////////////////////////////////////////////////////////////////
 // Geant4TruthIncident.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "Geant4TruthIncident.h"
+#include "ISF_Geant4Event/Geant4TruthIncident.h"
 
 // package includes
-#include "ISFG4Helpers.h"
+#include "ISF_Geant4Event/ISFG4Helper.h"
 
 // Atlas G4 Helpers
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
+#include "MCTruth/PrimaryParticleInformation.h"
 #include "SimHelpers/SecondaryTracksHelper.h"
 
 // Units
@@ -171,12 +168,10 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::parentParticleAfterIncident(Ba
   if ( !m_parentParticleAfterIncident ) {
     // create new HepMC particle, using momentum and energy
     // from G4DynamicParticle (which should be equivalent to postStep)
-    m_parentParticleAfterIncident = convert(track);
+    m_parentParticleAfterIncident = convert(track, newBarcode, false);
     
     m_eventInfo->SetCurrentlyTraced( m_parentParticleAfterIncident );
     
-    m_parentParticleAfterIncident->suggest_barcode( newBarcode );
-
     // store (new) hepmc particle in track's UserInformation
     TrackHelper       tHelper(track);
     TrackInformation *tInfo = tHelper.GetTrackInformation();
@@ -227,37 +222,11 @@ int iGeant4::Geant4TruthIncident::childPdgCode(unsigned short i) const {
   return m_children[i]->GetDefinition()->GetPDGEncoding();
 }
 
-void iGeant4::Geant4TruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode newBarcode) {
-
-  prepareChildren();
-
-  unsigned short numChildren = numberOfChildren();
-  for (unsigned short i=0; i<numChildren; i++) {
-
-    G4Track *curSecondaryTrack = m_children[i];
-
-    // get parent if it exists in user info
-    auto* trackInfo = ISFG4Helpers::getISFTrackInfo( *curSecondaryTrack );
-
-    // update present UserInformation
-    if (trackInfo) {
-      auto* hepParticle = const_cast<HepMC::GenParticle*>( trackInfo->GetHepMCParticle() );
-
-      if (hepParticle) {
-        hepParticle->suggest_barcode( newBarcode );
-      }
-
-    // attach new UserInformation
-    } else {
-      const ISF::ISFParticle* parent = trackInfo->GetBaseISFParticle();
-      TrackBarcodeInfo* bi = new TrackBarcodeInfo(newBarcode,parent);
-      curSecondaryTrack->SetUserInformation(bi);
-    }
-  }
-
-  return;
+void iGeant4::Geant4TruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode) {
+  G4ExceptionDescription description;
+  description << G4String("setAllChildrenBarcodes: ") + "Shared child particle barcodes are not implemented in ISF_Geant4 at this point.";
+  G4Exception("iGeant4::Geant4TruthIncident", "NotImplemented", FatalException, description);
 }
-
 
 HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i,
                                                             Barcode::ParticleBarcode newBarcode) const {
@@ -270,11 +239,17 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i
   //     secondary could decay right away and create further particles which pass the
   //     truth strategies.
 
-  HepMC::GenParticle* hepParticle = convert( thisChildTrack );
-  hepParticle->suggest_barcode( newBarcode );
+  HepMC::GenParticle* hepParticle = convert( thisChildTrack , newBarcode , true );
 
   TrackHelper tHelper(thisChildTrack);
   TrackInformation *trackInfo = tHelper.GetTrackInformation();
+
+  // needed to make AtlasG4 work with ISF TruthService
+  if(trackInfo==nullptr) {
+    trackInfo = new TrackInformation( hepParticle );    
+    thisChildTrack->SetUserInformation( trackInfo );    
+  } 
+    
   trackInfo->SetParticle(hepParticle);
   trackInfo->SetClassification(RegisteredSecondary);
   trackInfo->SetRegenerationNr(0);
@@ -290,7 +265,7 @@ bool iGeant4::Geant4TruthIncident::particleAlive(const G4Track *track) const {
     // parent does not exist in G4 anymore after this step
 
     // check whether the particle was returned to ISF
-    auto*    trackInfo = ISFG4Helpers::getISFTrackInfo( *track );
+    auto*    trackInfo = ISFG4Helper::getISFTrackInfo( *track );
     bool returnedToISF = trackInfo ? trackInfo->GetReturnedToISF() : false;
     if ( !returnedToISF ) {
       // particle was not sent to ISF either
@@ -302,7 +277,7 @@ bool iGeant4::Geant4TruthIncident::particleAlive(const G4Track *track) const {
 }
 
 
-HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track) const {
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track, const int barcode, const bool secondary) const {
 
   const G4ThreeVector & mom =  track->GetMomentum();
   const double energy =  track->GetTotalEnergy();
@@ -311,6 +286,21 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track) 
 
   int status = 1; // stable particle not decayed by EventGenerator
   HepMC::GenParticle* newParticle = new HepMC::GenParticle(fourMomentum, pdgCode, status);
+
+  // This should be a *secondary* track.  If it has a primary, it was a decay and 
+  //  we are running with quasi-stable particle simulation.  Note that if the primary
+  //  track is passed in as a secondary that survived the interaction, then this was
+  //  *not* a decay and we should not treat it in this way
+  if (secondary &&
+      track->GetDynamicParticle() &&
+      track->GetDynamicParticle()->GetPrimaryParticle() &&
+      track->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation()){
+    // Then the new particle should use the same barcode as the old one!!
+    PrimaryParticleInformation* ppi = dynamic_cast<PrimaryParticleInformation*>( track->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation() );
+    newParticle->suggest_barcode( ppi->GetParticleBarcode() );
+  } else {
+    newParticle->suggest_barcode( barcode );
+  }
 
   return newParticle;
 }

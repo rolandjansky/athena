@@ -9,14 +9,14 @@
 // class header
 #include "TrackProcessorUserActionPassBack.h"
 
-// includes from this package
-#include "ISFG4Helpers.h"
-
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/EntryLayer.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
+
+// ISF Geant4 includes
+#include "ISF_Geant4Event/ISFG4Helper.h"
 
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
@@ -215,7 +215,7 @@ namespace G4UA {
             // attach TrackInformation instance to the new secondary G4Track
             const ISF::ISFParticle *parent                  = curISP;
             HepMC::GenParticle* generationZeroTruthParticle = nullptr;
-            ::iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( *aTrack_2nd,
+            ::iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( *aTrack_2nd,
                                                        *parent,
                                                        Secondary,
                                                        generationZeroTruthParticle );
@@ -232,7 +232,7 @@ namespace G4UA {
 
     ISF::TruthBinding* TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack, HepMC::GenParticle* truthParticle) const
     {
-      auto* trackInfo = ::iGeant4::ISFG4Helpers::getISFTrackInfo(*aTrack);
+      auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aTrack);
       if (!trackInfo) {
         G4ExceptionDescription description;
         description << G4String("newTruthBinding: ") + "No TrackInformation associated with G4Track (trackID: "
@@ -257,7 +257,7 @@ namespace G4UA {
     {
       ISF::TruthBinding* tBinding = newTruthBinding(aTrack, truthParticle);
 
-      ISF::ISFParticle* isp = ::iGeant4::ISFG4Helpers::convertG4TrackToISFParticle( *aTrack,
+      ISF::ISFParticle* isp = ::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
                                                                          *parentISP,
                                                                          tBinding );
 
@@ -281,7 +281,7 @@ namespace G4UA {
       ISF::ISFParticle *newISP = newISFParticle( aTrack, parentISP, truthParticle, nextGeoID );
 
       // update TrackInformation
-      auto trackInfo = ::iGeant4::ISFG4Helpers::getISFTrackInfo(*aTrack);
+      auto trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aTrack);
       trackInfo->SetReturnedToISF( true );
       trackInfo->SetBaseISFParticle( newISP );
 

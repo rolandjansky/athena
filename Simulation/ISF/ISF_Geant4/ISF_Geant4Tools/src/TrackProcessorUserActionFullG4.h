@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #ifndef ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTIONFULLG4_H
 #define ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTIONFULLG4_H
 
@@ -61,23 +62,18 @@ namespace G4UA{
 
       ISF::EntryLayer entryLayer(const G4Step* aStep);
 
-      AtlasDetDescr::AtlasRegion nextGeoId(const G4Step* aStep);
-
-      bool checkVolumeDepth( G4LogicalVolume * , int , int d=0 );
-
       /** access to the ISF Entry Layer tool which is used to record entry-layer collections */
       ISF::IEntryLayerTool                *m_entryLayerToolQuick; //!< quickaccess avoiding gaudi ovehead
 
       /** access to the central ISF GeoID serice*/
       ISF::IGeoIDSvc                      *m_geoIDSvcQuick; //!< quickaccess avoiding gaudi ovehead
 
-      bool m_hasCavern;
-
+      
       std::map<std::string, int, std::less<std::string> > m_entryLayerMap;
 
       AtlasDetDescr::AtlasRegion m_nextGeoID;
       const G4Track* m_currentTrack;
-      G4LogicalVolume * m_BPholder, * m_IDholder, * m_CALOholder , * m_MUholder, * m_TTRholder;
+      
     }; // class TrackProcessorUserActionFullG4
 
   }// iGeant4
