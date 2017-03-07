@@ -6,4 +6,4 @@
 # forbidden.
 
 AthenaExternalsVersion = 1.0.3
-GaudiVersion = v27r1.011
+GaudiVersion = v27r1.012
