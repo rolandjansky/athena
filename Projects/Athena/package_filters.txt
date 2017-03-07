@@ -16,6 +16,8 @@
 # Offload service has build problems
 - External/APEGlue
 - Offloading/.*
+# Abandoned generator package(s):
+- Generators/Herwigpp_i
 # Temporary VP1 compilation issues
 - graphics/VP1/.*
 # Some analysis packages that are not part of Athena
