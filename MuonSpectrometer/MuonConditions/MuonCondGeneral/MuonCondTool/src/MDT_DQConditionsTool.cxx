@@ -43,6 +43,10 @@ MDT_DQConditionsTool::MDT_DQConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent),
+	    m_detStore(0),
+            m_IOVSvc(0),
+            m_mdtIdHelper(0),
+            m_chronoSvc(0),
 	    m_condMapTool("MDT_MapConversion"), 
 	    m_log( msgSvc(), name ),
 	    m_debug(false),
@@ -82,13 +86,13 @@ StatusCode MDT_DQConditionsTool::initialize()
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
-  m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_deadFolder <<" / LV "<<m_noisyFolder<< endreq;
+  m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_deadFolder <<" / LV "<<m_noisyFolder<< endmsg;
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
   }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
     return sc;
   }
   
@@ -97,7 +101,7 @@ StatusCode MDT_DQConditionsTool::initialize()
   sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
-      m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endreq;
+      m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;
       return sc;
     }
   
@@ -108,7 +112,7 @@ StatusCode MDT_DQConditionsTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
-      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
+      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -119,7 +123,7 @@ StatusCode MDT_DQConditionsTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
     return sc;
   }
 	
@@ -134,12 +138,12 @@ StatusCode MDT_DQConditionsTool::initialize()
   if ( sc.isFailure() )
     {
       
-      m_log << MSG::ERROR << "Could not retrieve MDT_MapConversion" << endreq;
+      m_log << MSG::ERROR << "Could not retrieve MDT_MapConversion" << endmsg;
       return sc;
     }
   else
     {
-      if( m_debug ) m_log<<MSG::DEBUG<<"MDT_MapConversion retrieved with statusCode = "<<sc<<" pointer = "<<m_condMapTool<<endreq;
+      if( m_debug ) m_log<<MSG::DEBUG<<"MDT_MapConversion retrieved with statusCode = "<<sc<<" pointer = "<<m_condMapTool<<endmsg;
       
       
     }
@@ -159,7 +163,7 @@ StatusCode MDT_DQConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
  
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    m_log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endreq;
+    m_log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endmsg;
     if(*itr==m_deadFolder) {
       StatusCode sc = loadDeadChamber(I,keys);
       if (sc.isFailure())
@@ -188,29 +192,29 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE; 
   StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load Dropped Chamber from DQ DB" << endreq;
+  m_log << MSG::INFO << "Load Dropped Chamber from DQ DB" << endmsg;
   
   // Print out callback information
   if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
   for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) m_log << MSG::DEBUG << endreq;
+  if( m_debug ) m_log << MSG::DEBUG << endmsg;
  
   
 	
   const CondAttrListCollection * atrc;
-  m_log << MSG::INFO << "Try to read from folder <"<<m_deadFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_deadFolder<<">"<<endmsg;
   
   sc=m_detStore->retrieve(atrc,m_deadFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_deadFolder << endreq;
+	<< m_deadFolder << endmsg;
     return sc;
 	  }
   
   else
-    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
   
  
   CondAttrListCollection::const_iterator itr;
@@ -286,29 +290,29 @@ StatusCode MDT_DQConditionsTool::loadNoisyChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE; 
   StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load Noisy Chamber from DQ DB" << endreq;
+  m_log << MSG::INFO << "Load Noisy Chamber from DQ DB" << endmsg;
   
   // Print out callback information
   if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
   for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) m_log << MSG::DEBUG << endreq;
+  if( m_debug ) m_log << MSG::DEBUG << endmsg;
  
   
 	
   const CondAttrListCollection * atrc;
-  m_log << MSG::INFO << "Try to read from folder <"<<m_noisyFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_noisyFolder<<">"<<endmsg;
   
   sc=m_detStore->retrieve(atrc,m_noisyFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_noisyFolder << endreq;
+	<< m_noisyFolder << endmsg;
     return sc;
 	  }
   
   else
-    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
   
  
   CondAttrListCollection::const_iterator itr;

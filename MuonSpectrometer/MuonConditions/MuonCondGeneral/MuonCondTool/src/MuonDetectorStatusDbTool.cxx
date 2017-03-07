@@ -34,6 +34,7 @@ MuonDetectorStatusDbTool::MuonDetectorStatusDbTool (const std::string& type,
   
   m_tubeStatusDataLocation="TubeStatusKey";
   m_mdtIdHelper = 0;
+  m_chamberStatusData = 0;
   
   declareProperty("TubeFolder",m_tubeFolder="/OFFLINE_FINAL/OFFLINE_FINAL_DEAD");
  
@@ -105,7 +106,7 @@ StatusCode MuonDetectorStatusDbTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(
 
     
   }
-  msg() << endreq;
+  msg() << endmsg;
   
   return StatusCode::SUCCESS;
 }
@@ -123,7 +124,7 @@ StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,key
    std::list<std::string>::const_iterator keyIt = keys.begin();
    for (; keyIt != keys.end(); ++ keyIt)
      msg(MSG::DEBUG) << *keyIt << " ";
-   msg(MSG::DEBUG) << endreq;
+   msg(MSG::DEBUG) << endmsg;
 
    StatusCode sc = detStore()->retrieve( m_chamberStatusData, m_tubeStatusDataLocation );
    if(sc.isSuccess())  {
