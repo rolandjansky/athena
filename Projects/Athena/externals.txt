@@ -6,4 +6,4 @@
 # forbidden.
 
 AthenaExternalsVersion = 1.0.2
-GaudiVersion = origin/atlas/20.8.X/Conditions
+GaudiVersion = v28r1.conditions.005

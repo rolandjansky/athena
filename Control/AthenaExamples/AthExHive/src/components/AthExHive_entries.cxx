@@ -12,6 +12,7 @@
 #include "../HiveAlgV.h"
 #include "../HiveTool.h"
 #include "../HiveExSvc.h"
+#include "../ASCIICondDbSvc.h"
 
 #ifdef REENTRANT_GAUDI
   #include "../HiveAlgR.h"
@@ -56,4 +57,5 @@ DECLARE_TOOL_FACTORY( ThreadInitTool )
 DECLARE_TOOL_FACTORY( HiveTool )
 
 DECLARE_SERVICE_FACTORY( HiveExSvc )
+DECLARE_SERVICE_FACTORY( ASCIICondDbSvc )
 

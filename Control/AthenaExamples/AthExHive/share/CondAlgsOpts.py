@@ -56,9 +56,9 @@ svcMgr.ForwardSchedulerSvc.EnableConditions = True
 
 
 from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc( OutputLevel=DEBUG, CondFile = "condDb.txt")
+svcMgr += CondSvc( OutputLevel=DEBUG )
 
-#---------------------------------------------------------------------------------#
+#-----------------------------------------------------------------------------#
 
 #
 ## Uncomment following to avoid long waits when segfaulting,
@@ -67,7 +67,7 @@ svcMgr += CondSvc( OutputLevel=DEBUG, CondFile = "condDb.txt")
 # import ROOT
 # ROOT.SetSignalPolicy( ROOT.kSignalFast )
 
-#---------------------------------------------------------------------------------#
+#-----------------------------------------------------------------------------#
 
 
 # from StoreGate.StoreGateConf import StoreGateSvc
@@ -96,6 +96,8 @@ topSequence+=CondAlgX("CondAlgX1", OutputLevel=DEBUG, Key_CH="X1", Key_DB="X1")
 topSequence+=CondAlgX("CondAlgX2", OutputLevel=DEBUG, Key_CH="X2", Key_DB="X2")
 
 topSequence+=CondAlgY("CondAlgY1", OutputLevel=DEBUG, Key_CH1="Y1", Key_CH2="Y2", Key_DB1="Y1", Key_DB2="Y2")
+
+svcMgr += ASCIICondDbSvc( OutputLevel=DEBUG, CondFile = "condDb.txt" )
 
 
 #--------------------------------------------------------------
