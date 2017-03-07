@@ -584,7 +584,7 @@ StatusCode TrigFastTrackFinderMT::findTracks(const TrigRoiDescriptor& roi,
         // test to compare with Tyler's numbers
         if (vertex->vxTrackAtVertex().size() < 3 ) continue;
 
-        float z      = vertex->z();
+        float z = vertex->z();
         float zMinus = z - 7.0;
         float zPlus  = z + 7.0;
         ATH_MSG_DEBUG("REGTEST / FTK ZFinder vertex: z,zplus,zminus  " << z << " "  << zPlus  << " "  << zMinus );
@@ -611,7 +611,7 @@ StatusCode TrigFastTrackFinderMT::findTracks(const TrigRoiDescriptor& roi,
 
       for (auto vertex : *vertexCollection) {
         ATH_MSG_DEBUG("REGTEST / ZFinder vertex: " << *vertex);
-        float z      = vertex->z();
+        float z = vertex->z();
         float zMinus = z - 7.0;
         float zPlus  = z + 7.0;
         TrigRoiDescriptor* vertexRoi =  new TrigRoiDescriptor(roi.eta(), roi.etaMinus(), roi.etaPlus(), 
