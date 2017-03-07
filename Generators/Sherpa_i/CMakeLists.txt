@@ -15,11 +15,6 @@ atlas_depends_on_subdirs(
    Control/AthenaBaseComps
    Control/AthenaKernel )
 
-# Set the version of Sherpa to use:
-set( SHERPA_VERSION 2.2.1 )
-set( SHERPA_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/sherpa/${SHERPA_VERSION}/${ATLAS_PLATFORM} )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepMC )
