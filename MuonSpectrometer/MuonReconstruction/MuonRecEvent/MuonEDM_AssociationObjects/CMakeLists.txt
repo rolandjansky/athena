@@ -8,7 +8,7 @@ atlas_subdir( MuonEDM_AssociationObjects )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthLinks
                           Control/SGTools
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment )
@@ -17,10 +17,10 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( MuonEDM_AssociationObjects
                    src/*.cxx
                    PUBLIC_HEADERS MuonEDM_AssociationObjects
-                   LINK_LIBRARIES DataModel SGTools MuonPattern MuonSegment )
+                   LINK_LIBRARIES AthLinks SGTools MuonPattern MuonSegment )
 
 atlas_add_dictionary( MuonEDM_AssociationObjectsDict
                       MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h
                       MuonEDM_AssociationObjects/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} DataModel SGTools MuonPattern MuonSegment)
+                      INCLUDE_DIRS
+                      LINK_LIBRARIES AthLinks SGTools MuonPattern MuonSegment)
