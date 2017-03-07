@@ -46,7 +46,7 @@ double getTotUnc(HistV sysVar, int bin) {
   return sqrt(V);
 }
 
-void drawRatio(TH1 *h, HistV pdf, HistV aS);
+void drawRatio(TH1 *h, HistV pdf, HistV aS, HistV qcd, bool qcdEnv=true);
 void addInQuad(TH1 *tot, TH1 *unc);
 
 double hxswg(Str p) {
@@ -143,8 +143,9 @@ void evaluateHiggsTheoryUncert() {
 
       // Draw uncertainty variations
       nom->SetMaximum(1.3*nom->GetMaximum());
+      if (p=="ggF"&&var=="STXS") nom->GetXaxis()->SetRangeUser(0,15);
       drawHist(nom,""); 
-      if (p=="ggF") for (auto h:qcd_nnlo) drawHist(h,"hist same",kRed);
+      if (p=="ggF") for (auto h:qcd_wg1) drawHist(h,"hist same",kRed);
       else for (auto h:qcd) drawHist(h,"hist same",kRed);
       for (auto h:pdfV) drawHist(h,"hist same",kGray);
       for (auto h:aS) drawHist(h,"hist same",kBlue);
@@ -155,11 +156,12 @@ void evaluateHiggsTheoryUncert() {
       drawText(0.7,0.73,"QCD variations",kRed);
       can->Print(pdf);
 
-      drawRatio(nom,pdfV,aS);
+      drawRatio(nom,pdfV,aS,p=="ggF"?qcd_wg1:qcd,false);
       drawText(0.2,0.88,p,kBlack);
       drawText(0.2,0.83,"MC stat err.",kBlack);
-      drawText(0.4,0.88,"PDF variations",kGray);
+      drawText(0.4,0.88,"PDF uncert.",kGray);
       drawText(0.4,0.83,"#it{#alpha}_{s} variations",kBlue);
+      drawText(0.6,0.88,"QCD uncert.",kRed);
       can->Print(pdf);
     }
   }
@@ -170,7 +172,7 @@ void evaluateHiggsTheoryUncert() {
 
 TH1* drawRatioAxis(TH1 *nom) {
   TH1D *axis = (TH1D*)nom->Clone();
-  axis->GetYaxis()->SetRangeUser(0.7,1.3);
+  axis->GetYaxis()->SetRangeUser(0.6,1.4);
   for (int bin=1;bin<=axis->GetNbinsX();++bin) {
     double y=axis->GetBinContent(bin);
     axis->SetBinError(bin,std::abs(y)<1e-5?0:axis->GetBinError(bin)/y); axis->SetBinContent(bin,1.0);
@@ -179,16 +181,27 @@ TH1* drawRatioAxis(TH1 *nom) {
   axis->Draw(); return axis;
 }
 
-void drawRatio(TH1 *nom, HistV pdf, HistV aS) {
+void drawRatio(TH1 *nom, HistV pdf, HistV aS, HistV qcd, bool qcdEnv) {
   drawRatioAxis(nom);
-  TH1D *pdfUnc = (TH1D*)nom->Clone();
-  pdfUnc->Reset(); for (int bin=1;bin<=pdfUnc->GetNbinsX();++bin) pdfUnc->SetBinContent(bin,1.0);
-  for (auto h:pdf) {
-    h->Divide(nom); addInQuad(pdfUnc,h);
-    //drawHist(h,"hist same",kGray);
-  }
+  TH1D *pdfUnc = (TH1D*)nom->Clone(); pdfUnc->Reset();
+  for (int bin=1;bin<=pdfUnc->GetNbinsX();++bin) pdfUnc->SetBinContent(bin,1.0);
+  TH1D *qcdUnc = (TH1D*)pdfUnc->Clone();
+  for (auto h:pdf) { h->Divide(nom); addInQuad(pdfUnc,h); }
+  for (auto h:qcd) { h->Divide(nom); addInQuad(qcdUnc,h); }
+  qcdUnc->SetFillColor(kRed-9);
+  if (qcdEnv) 
+    for (int bin=1;bin<=qcdUnc->GetNbinsX();++bin) {
+      double max=0;
+      for (auto h:qcd)
+	if (std::abs(h->GetBinContent(bin)-1)>max)
+	  max=std::abs(h->GetBinContent(bin)-1);
+      qcdUnc->SetBinError(bin,max==1?0:max);
+    }
+ 
+  if (Str(nom->GetName()).Contains("ggF")) qcdUnc->Draw("e2 same");
   pdfUnc->SetFillColor(kGray);
   pdfUnc->Draw("e2 same");
+  for (auto h:qcd) drawHist(h,"hist same",kRed); 
   for (auto h:aS) { h->Divide(nom); drawHist(h,"hist same",kBlue); }
 }
 
