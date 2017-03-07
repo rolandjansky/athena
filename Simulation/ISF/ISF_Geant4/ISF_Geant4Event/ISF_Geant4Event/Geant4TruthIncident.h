@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ///////////////////////////////////////////////////////////////////
 // Geant4TruthIncident.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -33,11 +29,6 @@ namespace iGeant4 {
       ISF_Geant4 specific implementation of the ISF::ITruthIncident
 
       @author Andreas.Schaelicke@cern.ch
-   */
-
-  /* comments:
-     renamed to Geant4TruthIncident inorder to avoid confusion with G4 internal classes.
-
    */
 
   class Geant4TruthIncident : public ISF::ITruthIncident {

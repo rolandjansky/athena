@@ -24,7 +24,7 @@ namespace G4UA{
     ///
 
     class PhysicsValidationUserActionTool:
-      public ActionToolBase<PhysicsValidationUserAction>,
+    public ActionToolBase<PhysicsValidationUserAction>,
       public IBeginEventActionTool,  public IEndEventActionTool,  public IBeginRunActionTool,  public ISteppingActionTool,  public IPreTrackingActionTool
     {
 
