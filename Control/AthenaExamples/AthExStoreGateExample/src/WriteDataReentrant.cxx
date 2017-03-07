@@ -68,7 +68,8 @@ StatusCode WriteDataReentrant::initialize()
   ATH_CHECK( m_linkVectorKey.initialize() );
   ATH_CHECK( m_testObjectKey.initialize() );
 
-  m_testObject = new TestDataObject(10);
+  m_testObject =
+    SG::DataObjectSharedPtr<TestDataObject> (new TestDataObject(10));
   return StatusCode::SUCCESS;
 }
 

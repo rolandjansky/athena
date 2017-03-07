@@ -4,21 +4,25 @@
 
 /*
   ____________________________________________________________________________
+  @file postprocessHistos_updt.cxx
+  @author: Liza Mijovic, Soeren Prell
 
-  merge root files from several (grid) runs
-  dedicated treatment of profiles and efficiencies
-  Author: Liza Mijovic
+  Goal: merge root files from several (grid) runs
+  Why needed: dedicated treatment of some of the profiles 
+              to set mean, width and their uncertainties
+  Notes: tools to set these correspond to InDetPVM GetMeanWidth class tools
+         For the script to work correctly, you need to update it if:
+         GetMeanWidth tools or call parameters in InDetPVM code change.
    ____________________________________________________________________________
 */
 
-#define RLN cout << "l" << __LINE__ << ": ";
-// 0..3 in increasing verbosity
-#define PRINTDBG 2
+// 0..4 in increasing verbosity
+#define PRINTDBG 1
 
 #include <iostream>
 #include <iterator>
+#include <utility>
 
-#include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "TFile.h"
@@ -33,80 +37,21 @@
 #include "TClass.h"
 #include "TObject.h"
 #include "TObjString.h"
+#include "TFitResultPtr.h"
+#include "TFitResult.h"
 
 using namespace std;
 
-namespace po = boost::program_options;
-
-int process_th1(TH1* p_h1, TH1* p_h2) {
-  p_h1->Add(p_h2);
-  return 0;
+//____________________________________________________________________________________
+// root-related  helpers
+TObject* get_obj(string p_name) {
+  TObject* obj = (TObject*)gDirectory->Get(p_name.c_str());
+  return obj;
 }
 
-int process_efficiency(TEfficiency* p_e1, TEfficiency* p_e2) {
-  if (PRINTDBG>2)
-    cout << "adding efficiency " << p_e1->GetName() << endl;
-  double pre1 = p_e1->GetTotalHistogram()->GetEntries();
-  double pre2 = p_e2->GetTotalHistogram()->GetEntries();
-  p_e1->Add(*p_e2);
-  double post = p_e1->GetTotalHistogram()->GetEntries();
-  if (PRINTDBG>2)
-    cout << "pre1 pre2 post " << pre1 << " + " << pre2 << " = " << post << endl;
-  return 0;  
-}
-
-int process_profile(TProfile* p_p1,TProfile* p_p2) {
-  // TODO
-  return 0;
-}
-int process_object(string p_objname,TFile* p_ftarget,TFile* p_ftosumm,bool p_second_pass) {
-  int ret=0;
-  if (PRINTDBG>2)
-    cout << "process_object p_objname " << p_objname << endl;
-  TObject* o1 = (TObject*)p_ftarget->Get(p_objname.c_str());
-  TObject* o2 = (TObject*)p_ftosumm->Get(p_objname.c_str());
-  if (!o1 || !o2) 
-    return 1;
-  if (p_second_pass) {
-    if (o1->IsA()->InheritsFrom(TProfile::Class())) {
-      if (PRINTDBG>2)
-	cout << "profile " << o1->GetName() << endl;
-      TProfile *p1 = dynamic_cast<TProfile*>(o1);
-      TProfile *p2 = dynamic_cast<TProfile*>(o2);     
-      ret=process_profile(p1,p2);
-      if (!ret)
-	 p1->Write(p_objname.c_str(),TObject::kOverwrite);
-    }
-  }
-  else {
-    if (o1->IsA()->InheritsFrom(TEfficiency::Class())) {
-      if (PRINTDBG>2)
-	cout << "TEfficiency " << o1->GetName() << endl;
-      TEfficiency *e1 = dynamic_cast<TEfficiency*>(o1);
-      TEfficiency *e2 = dynamic_cast<TEfficiency*>(o2);
-      ret=process_efficiency(e1,e2);
-      double post = e1->GetTotalHistogram()->GetEntries();
-      if (PRINTDBG>2)
-	cout << "postwrote " << post << endl;
-      if (!ret)
-	e1->Write(p_objname.c_str(),TObject::kOverwrite);
-    }
-    else if (o1->IsA()->InheritsFrom(TH1::Class())) {
-      if (PRINTDBG>2)
-	cout << "TH1 " << o1->GetName() << endl;
-      TH1* h1 = dynamic_cast<TH1*>(o1);
-      TH1* h2 = dynamic_cast<TH1*>(o2);
-      ret=process_th1(h1,h2);
-      if (!ret)
-	h1->Write(p_objname.c_str(),TObject::kOverwrite);
-    }
-  }
-  return ret;
-}
-
-
-void get_all_objects(TDirectory* const p_source, vector<string>& p_all_objects,string p_dirup="") {
-
+void get_all_of(TDirectory* const p_source, vector<string>& p_all_objects,
+		const TClass *p_cl=TObject::Class(),string p_namematch="",string p_dirup="") {
+  
   TIter nextkey(p_source->GetListOfKeys());
   TDirectory *savdir = gDirectory;
   TKey *key;
@@ -118,9 +63,11 @@ void get_all_objects(TDirectory* const p_source, vector<string>& p_all_objects,s
       TDirectory *subdir = gDirectory;
       string oneup=subdir->GetName();
       string dirup = (""!=p_dirup) ? p_dirup + "/" + oneup : oneup;
-      get_all_objects(subdir,p_all_objects,dirup);      
+      get_all_of(subdir,p_all_objects,p_cl,p_namematch,dirup);      
     }
-    p_all_objects.push_back(p_dirup+"/"+string(key->GetName()));
+    string name=string(key->GetName());
+    if (cl->InheritsFrom(p_cl) && boost::contains(name,p_namematch))
+      p_all_objects.push_back(p_dirup+"/"+name);
     savdir->cd();
   }
   return;
@@ -131,154 +78,364 @@ bool file_exists(const string p_name) {
     false : true;    
 }
 
-int process_histos(string p_ofile, string p_infile) {
-  if (PRINTDBG>0)
-    cout << "merging file " << p_infile << " into "<< p_ofile << endl;
-  
-  // output file pre-exists by construction;  
-  // at start of summing the output is created copy of 1st input
-  TFile* ofile = new TFile(p_ofile.c_str(),"UPDATE"); 
-  if (! ofile ) {
-    cout << "could not open file for update "<< endl;
-    cout << p_ofile << endl;
-    return 1;
+// can't use boost::combine with asetup
+TObject* get_zip(string p_name,vector<string> p_names, vector<TObject*> p_objs) {
+  TObject* obj = NULL;
+  if (p_names.size()==p_objs.size()) {
+    unsigned int ni=0;
+    for (auto name : p_names) {
+      if (name == p_name) 
+	return p_objs[ni];      
+      ++ni;
+    }
   }
+  return obj;
+}
 
-  vector<string> all_objects;
-  TDirectory* topdir=gDirectory;
-  get_all_objects(topdir,all_objects);
+//____________________________________________________________________________________
 
-  TFile* const infile = new TFile(p_infile.c_str(),"READ"); 
+
+//____________________________________________________________________________________
+// postprocessing  helpers
+// base from which tool-specific postprocessing should inherit
+class IDPVM_pproc {
+public:
+  IDPVM_pproc(){};
+  ~IDPVM_pproc(){};  
+  // fetching and book-keeping of objects needed for postprocessing
+  virtual void initializePlots(){};
+  // function implementing/calling the actual posprocessing 
+  virtual void finalizePlots(){};
+  // wraper to get all that postprocessing requires in one go
+  virtual int postprocess_dir(TDirectory* p_dir){return 0;};
+  // set keys of histograms to postprocess  
+  virtual void set_pproc_targnames(){};
+  // set list of histograms needed as inputs to postprocessing
+  virtual void set_pproc_srcnames(){};
+  // conventions to get a source name for a target object to postprocess
+  virtual string get_srcname_for(string p_name){return "";};
+  // common (not tool-specific) helpers:
+  vector<string> get_pproc_targnames(){return m_pproc_targnames;};
+  vector<string> get_pproc_srcnames(){return m_pproc_srcnames;};
+  TObject* get_target(string p_name);
+  TObject* get_source(string p_name);
+  int write_targets();
+protected:
+  vector<string> m_pproc_srcnames;
+  vector<TObject*> m_pproc_sources;
+  vector<string> m_pproc_targnames;
+  vector<TObject*> m_pproc_targets; 
+};
+
+TObject* IDPVM_pproc::get_target(string p_name) {
+  return get_zip(p_name,m_pproc_targnames,m_pproc_targets);
+}
+
+TObject* IDPVM_pproc::get_source(string p_name) {
+  return get_zip(p_name,m_pproc_srcnames,m_pproc_sources);
+}
+
+int IDPVM_pproc::write_targets() {
+  for (auto targ : m_pproc_targets)
+    targ->Write(targ->GetName(),TObject::kOverwrite);
+  return 0;
+}
+
+
+//------------------------------------------------------------------------------------
+// postprocessing for InDetPerfPlot_res tool
+class InDetPerfPlot_res_pproc : public IDPVM_pproc {
+public:
+  InDetPerfPlot_res_pproc();
+  ~InDetPerfPlot_res_pproc(){};
+  void initializePlots();
+  // todo: smarter  imple
+  int postprocess_dir(TDirectory* p_dir);
+  // requieres manual synch with Athena source
+  void finalizePlots();
+   // ditto
+  void Refinement(TH1D* temp, const std::string& width,
+		  int var, int j, const std::vector<TH1*>& tvec,
+		  const std::vector<TH1*>& rvec); 
+  void set_pproc_targnames();
+  void set_pproc_srcnames();
+  string get_srcname_for(string p_name);
+private:  
+  // source and target histograms used in postprocessing
+  // resolution
+  // * vs eta
+  vector<TH2*> m_meanbasePlots; // res vs param vs eta
+  vector<TH1*> m_meanPlots; // resmean vs param vs eta
+  vector<TH1*> m_resoPlots; // reswidth vs param vs eta
+  // * vs pt
+  vector<TH2*> m_mean_vs_ptbasePlots; // res vs param vs pt
+  vector<TH1*> m_mean_vs_ptPlots; // resmean vs param vs pt
+  vector<TH1*> m_resptPlots;// reswidth vs param vs pt
+  // pulls <-- we do these only vs pt
+  vector<TH2*> m_pullbasePlots; // pull vs param vs eta
+  vector<TH1*> m_pullmeanPlots; // pullmean vs param vs eta
+  vector<TH1*> m_pullwidthPlots; // pullwidth vs param vs eta
+  // helpers and quantities used by the postprocessing code
+  vector<string> m_paramNames {"d0", "z0", "phi", "theta", "z0*sin(theta)", "qopt"};
+  vector<string> m_quantnames {"width","mean"};
+  enum Param {
+    D0, Z0, PHI, THETA, Z0SIN_THETA, QOPT, NPARAMS
+  };
+};
+
+int InDetPerfPlot_res_pproc::postprocess_dir(TDirectory* p_dir){
+  if (0<PRINTDBG)
+    cout << __FILE__ << "\tchecking tool InDetPerfPlot_res "<< endl;
+  for (auto checks : {m_pproc_targnames,m_pproc_srcnames})
+    for (auto check : checks) {
+      if (!p_dir->GetKey(check.c_str())) {
+	if (0<PRINTDBG)
+	  cout << __FILE__ << "\tNo key " << check <<" found, no postprocessing" << endl; 
+	return 0;
+      }
+    }
+  if (0<PRINTDBG)
+    cout << __FILE__<< "\tFound all targets and sources, postprocessing "<<endl;
+  initializePlots();
+  finalizePlots();
+  int ret=write_targets();
+  return ret;
+}
+
+void InDetPerfPlot_res_pproc::set_pproc_targnames() {
+  for (auto var : m_paramNames) {
+    for (auto quant : m_quantnames) {
+      // res vs eta and vs pt
+      m_pproc_targnames.push_back("res"+quant+"_"+var+"_vs_eta");
+      m_pproc_targnames.push_back("res"+quant+"_"+var+"_vs_pt");
+      // pull vs eta 
+      m_pproc_targnames.push_back("pull"+quant+"_"+var+"_vs_eta");
+    }
+  }
+  return;
+}
+
+string InDetPerfPlot_res_pproc::get_srcname_for(string p_name) {
+  for (auto quant : m_quantnames)
+    boost::replace_all(p_name, quant, "");
+  return p_name;
+}
+
+void InDetPerfPlot_res_pproc::set_pproc_srcnames() {
+  for (auto targ : m_pproc_targnames)
+    m_pproc_srcnames.push_back(get_srcname_for(targ));
+  return;
+}
+
+InDetPerfPlot_res_pproc::InDetPerfPlot_res_pproc() {
+  set_pproc_targnames();
+  set_pproc_srcnames();
+}
+
+void InDetPerfPlot_res_pproc::initializePlots(){
+  for (auto src : m_pproc_srcnames) 
+    m_pproc_sources.push_back(get_obj(src));
+  for (auto targ : m_pproc_targnames) 
+    m_pproc_targets.push_back(get_obj(targ));
+  for (auto var : m_paramNames) {
+    // res vs eta
+    m_meanbasePlots.push_back(dynamic_cast<TH2*>(get_source("res_"+var+"_vs_eta")));
+    m_meanPlots.push_back(dynamic_cast<TH1*>(get_target("resmean_"+var+"_vs_eta")));
+    m_resoPlots.push_back(dynamic_cast<TH1*>(get_target("reswidth_"+var+"_vs_eta")));
+    // res vs pt
+    m_mean_vs_ptbasePlots.push_back(dynamic_cast<TH2*>(get_source("res_"+var+"_vs_pt")));
+    m_mean_vs_ptPlots.push_back(dynamic_cast<TH1*>(get_target("resmean_"+var+"_vs_pt")));
+    m_resptPlots.push_back(dynamic_cast<TH1*>(get_target("reswidth_"+var+"_vs_pt")));
+    // pulls vs eta
+    m_pullbasePlots.push_back(dynamic_cast<TH2*>(get_source("pull_"+var+"_vs_eta")));
+    m_pullmeanPlots.push_back(dynamic_cast<TH1*>(get_target("pullmean_"+var+"_vs_eta")));
+    m_pullwidthPlots.push_back(dynamic_cast<TH1*>(get_target("pullwidth_"+var+"_vs_eta")));
+  }
+  return;
+}
+
+
+void InDetPerfPlot_res_pproc::finalizePlots() {
+  
+  std::string width_method = "iterative_convergence";
+  std::string pull_width_method = "gaussian";
+  unsigned int ptBins(0);
+  if (m_mean_vs_ptbasePlots[0]) {
+    ptBins = m_mean_vs_ptPlots[0]->GetNbinsX();
+  } else {
+    cout << __FILE__ << "\tInDetPerfPlot_res_pproc::finalizePlots " << endl;
+    cout << "null pointer for histogram "<< endl;;
+    return;
+  }
+  for (unsigned int var(0); var != NPARAMS; ++var) {
+    if (m_meanPlots[var]) {
+      unsigned int etaBins = m_meanPlots[var]->GetNbinsX();
+      auto& meanbasePlot = m_meanbasePlots[var];
+      auto& pullbasePlot = m_pullbasePlots[var];
+      for (unsigned int j = 1; j <= etaBins; j++) {
+        // Create dummy histo w/ content from TH2 in relevant eta bin
+        TH1D* temp = meanbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);
+        TH1D* temp_pull = pullbasePlot->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
+        Refinement(temp, width_method, var, j, m_meanPlots, m_resoPlots);
+        Refinement(temp_pull, pull_width_method, var, j, m_pullmeanPlots, m_pullwidthPlots);
+      }
+      auto& mean_vs_ptbasePlot = m_mean_vs_ptbasePlots[var];
+      for (unsigned int i = 1; i <= ptBins; i++) {
+        TH1D* temp = mean_vs_ptbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", i), i, i);
+        Refinement(temp, width_method, var, i, m_mean_vs_ptPlots, m_resptPlots);
+      }
+    }
+  }
+  return;
+}
+
+void InDetPerfPlot_res_pproc::Refinement(TH1D* temp, const std::string& width,
+					 int var, int j, const std::vector<TH1*>& tvec,
+					 const std::vector<TH1*>& rvec) {
+
+  if (temp->GetXaxis()->TestBit(TAxis::kAxisRange)) {
+    // remove range if set previously
+    temp->GetXaxis()->SetRange();
+    temp->ResetStats();
+  }
+  double mean(0.0), mean_error(0.0), prim_RMS(0.0), sec_RMS(0.0), RMS_error(0.0);
+  if (temp->GetEntries() != 0.0) {
+    mean = temp->GetMean();
+    prim_RMS = temp->GetRMS();
+    mean_error = temp->GetMeanError();
+    RMS_error = temp->GetRMSError();
+    if (width == "iterative_convergence") {
+      sec_RMS = prim_RMS + 1.0;
+      unsigned int withinLoopLimit(10);
+      while ((std::fabs(sec_RMS - prim_RMS) > 0.001) and (--withinLoopLimit)) {
+        prim_RMS = temp->GetRMS();
+        double aymin = -3.0 * prim_RMS;
+        double aymax = 3.0 * prim_RMS;
+        if (aymin < temp->GetBinLowEdge(1)) {
+          aymin = temp->GetBinLowEdge(1);
+        }
+        if (aymax > temp->GetBinCenter(temp->GetNbinsX())) {
+          aymax = temp->GetBinCenter(temp->GetNbinsX());
+        }
+        temp->SetAxisRange(aymin, aymax);
+        mean = temp->GetMean();
+        sec_RMS = temp->GetRMS();
+      }
+      if (not withinLoopLimit) {
+	if (0<PRINTDBG) {
+	  cout << __FILE__ << "\tWARNING InDetPerfPlot_res_pproc::Refinement: "<< endl;
+	  cout << __FILE__ << "\tLoop limit reached in <<iterative>> refinement of resolution" << endl;
+	}
+      }
+      mean_error = temp->GetMeanError();
+      RMS_error = temp->GetRMSError();
+    } else if (width == "gaussian") {
+      TFitResultPtr r = temp->Fit("gaus", "QS0");
+      if (r.Get() and r->Status() % 1000 == 0) {
+        mean = r->Parameter(1);
+        mean_error = r->ParError(1);
+        sec_RMS = r->Parameter(2);
+        RMS_error = r->ParError(2);
+      }
+    } else if (width == "fusion") {
+      sec_RMS = prim_RMS + 1.0;
+      double aymin = temp->GetBinLowEdge(1);
+      double aymax = temp->GetBinCenter(temp->GetNbinsX());
+      unsigned int withinLoopLimit(10);
+      while ((std::fabs(sec_RMS - prim_RMS) > 0.001) and (--withinLoopLimit)) {
+        prim_RMS = temp->GetRMS();
+        aymin = -3.0 * prim_RMS;
+        aymax = 3.0 * prim_RMS;
+        if (aymin < temp->GetBinLowEdge(1)) {
+          aymin = temp->GetBinLowEdge(1);
+        }
+        if (aymax > temp->GetBinCenter(temp->GetNbinsX())) {
+          aymax = temp->GetBinCenter(temp->GetNbinsX());
+        }
+        temp->SetAxisRange(aymin, aymax);
+        mean = temp->GetMean();
+        sec_RMS = temp->GetRMS();
+      }
+      if (not withinLoopLimit) {
+	if (0<PRINTDBG) {
+	  cout << __FILE__ << "\tWARNING InDetPerfPlot_res_pproc::Refinement: "<< endl;
+	  cout << __FILE__ << "\tLoop limit reached in <<fusion>> refinement of resolution"<< endl;
+	}
+      }
+      TFitResultPtr r = temp->Fit("gaus", "QS0", "", aymin, aymax);
+      if (r.Get() and r->Status() % 1000 == 0) {
+        mean = r->Parameter(1);
+        mean_error = r->ParError(1);
+        sec_RMS = r->Parameter(2);
+        RMS_error = r->ParError(2);
+      }
+    }
+  }
+  (tvec[var])->SetBinContent(j, mean);
+  (tvec[var])->SetBinError(j, mean_error);
+  (rvec[var])->SetBinContent(j, sec_RMS);
+  (rvec[var])->SetBinError(j, RMS_error);
+  return;
+}
+//------------------------------------------------------------------------------------
+//____________________________________________________________________________________
+
+
+//____________________________________________________________________________________
+// function driving the postprocessing for this file
+int pproc_file(string p_infile) {
+
+  TFile* const infile = new TFile(p_infile.c_str(),"UPDATE"); 
   if (! infile ) {
-    cout << "could not open input file for reading "<< endl;
+    cout << "could not open input file for updating "<< endl;
     cout << p_infile << endl;
     return 1;
   }
-
-  // process histograms and efficiencies, that can be summed directly
-  bool second_pass = false;
-  for (auto obj : all_objects) {
-    if (PRINTDBG>2)
-      cout << "running object  " << obj << endl;
-    int ret=process_object(obj,ofile,infile,second_pass);
-    if (0!=ret) {
-      cout << "Error processing " << obj << endl;
-    }
+  
+  TDirectory* topdir=gDirectory;
+  vector<string> all_dirs;
+  get_all_of(topdir,all_dirs,TDirectory::Class());
+  for (auto dir : all_dirs) {
+    if (0<PRINTDBG)
+      cout << __FILE__ << " Post-processign directory " << dir << endl;
+    topdir->cd(dir.c_str());
+    TDirectory *rdir = gDirectory;
+    InDetPerfPlot_res_pproc handle_IDPP_res;
+    handle_IDPP_res.postprocess_dir(rdir);
+    topdir->cd();
   }
-  // process TProfiles, that require pre-summed 2d-histograms
-  second_pass = true;
-  for (auto obj : all_objects) {
-    if (PRINTDBG>2)
-      cout << "running object 2nd pass " << obj;
-    int ret=process_object(obj,ofile,infile,second_pass);
-    if (0!=ret) {
-      cout << "Error processing " << obj << endl;
-    }  
-  }  
-  if (PRINTDBG>1)
-    cout << "loop all done " << endl;
-
-  ofile->Close();
+    
+  if (1<PRINTDBG)
+    cout << __FILE__ << " loop over directories done " << endl;
+  
   infile->Close();
-
   return 0;
 }
+//____________________________________________________________________________________
 
-int main(int ac, char* av[]) {
-  
-  vector<string> infiles;
-  string ofile="";
-  
-  try {
-    po::options_description desc("Allowed arguments: ");
-    desc.add_options()
-      ("h", "print help")
-      ("o", po::value<string>(), "output root file 'summ.root'")
-      ("i", po::value<string>(), "inputs 'file1.root,file2.root,file3.root'")
-      ;
-    
-    po::variables_map vm;        
-    po::store(po::parse_command_line(ac, av, desc), vm);
-    po::notify(vm);    
-    
-    if (vm.count("h")) {
 
-      cout << "\n" << desc << "\n" << endl;
-      const char* ex_run = "./postprocessHistos_updt --i \"summ.root\" "
-	"--o \"file1.root,file2.root,file3.root\" ";
-      cout << "\n------- run -------" << endl;
-      cout << ex_run << endl;
-      cout << "\n";
-      return 0;
-    }
-    
-    if (vm.count("o")) {
-      ofile=vm["o"].as<string>();
-      cout << "Output file set to "<< ofile << endl;
-    }
-    
-    if (vm.count("i")) {
-      string infiles_cl=vm["i"].as<string>();
-      boost::split(infiles , infiles_cl, boost::is_any_of(","));
-      cout << "Summing input files ";
-      for (auto inf : infiles)
-       	cout << inf << " " ;
-      cout << endl;
-    }
+//____________________________________________________________________________________
+int main(int argc, char* argv[]) {
 
-    if ("" == ofile) {
-      cout << "Invalid arguments. No output file passed.";
-      cout << "\n" << desc <<"\n" << endl;
-      return 1;
-    }
-    
-    if (infiles.empty()) {
-      cout << "Invalid arguments. No inputs to summ passed.";
-      cout << desc <<" \n " << endl;
-      return 1;
-    }
-    
-  }
-  catch(exception& e) {
-    cerr << __FILE__  << "error: " << e.what() << "\n";
+  string infile= (1==argc) ? "" : argv[1];
+
+  if (""==infile || !file_exists(infile)) {
+    cout << "\n-------------------------------------------------------------"<<endl;
+    cout << __FILE__ << " Error: invalid input file: " << infile << endl;
+    cout << "\nrun like: "<< endl;
+    cout << argv[0] << " infile.root\n" << endl;
+    cout << "... where infile.root is typically obtained by hadding\n";
+    cout << "    outputs of several InDetPVM independent runs." << endl;
+    cout << "-------------------------------------------------------------\n"<<endl;
     return 1;
   }
-  catch(...) {
-    cerr << __FILE__  << "Exception of unknown type!\n";
-    return 1;
-  }
-
-  if (file_exists(ofile)) {
-    cout << "\n" << __FILE__ << "Target file exist: " << ofile << endl;
-    cout << "Please provide an empty target file \n"<< endl;
-    return 1;
-  }
-    
-  int processed = 0; 
-  for (auto infile : infiles) {
-    if (0==processed) {
-      if (!file_exists(infile)) {
-      	cout << __FILE__ << "Error: input file does not exist: " << infile << endl;
-	return 1;	
-      }     
-      cout << "\n" << __FILE__ << " Creating initial contents of " << ofile << endl;
-      cout << "from " << infile << endl;
-      gSystem->CopyFile(infile.c_str(),ofile.c_str());
-    }
-    else {
-      int ret = process_histos(ofile,infile);
-      if (0 != ret) {
-	cout << "\n" << __FILE__ << " Non-0 return of process_histos for file " << endl;
-	cout << infile << endl;
-	cout << "Terminate postprocessing \n" << endl;
-	return 1;
-      }
-    }
-    ++processed;
-    cout << "\n" << __FILE__ << " Post-processed " << processed << " files " << endl; 
-  }
-  cout << "\n" << __FILE__ << " Merging all done \n " << endl;
-  return 0;
-  
+  if (0<PRINTDBG)
+    cout << "\n" << __FILE__<< " Post-processing file " << infile << "\n" << endl;
+  int ret = pproc_file(infile);
+  if (ret)
+    cout << "\n" << __FILE__ << "Error when postprocessing file: " << infile << "\n" << endl;
+  else if (0<PRINTDBG)
+    cout << "\n" << __FILE__ << " Postprocessed finished successfully for file: " << infile << "\n" << endl;
+  return ret;
 }
-
+//____________________________________________________________________________________      

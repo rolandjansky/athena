@@ -1017,8 +1017,8 @@ namespace Athena_test {
     cout << "\n*** StoreGateSvcClient_test testRecordObject BEGINS ***" << endl;
     Foo::dtor_log.clear();
 
-    SG::DataObjectSharedPtr<DataObject> obj101 =
-      SG::asStorable (std::make_unique<Foo> (101));
+    SG::DataObjectSharedPtr<DataObject> obj101
+      (SG::asStorable (std::make_unique<Foo> (101)));
     SG::DataProxy* proxy101 = rSG.recordObject (obj101, "obj101", false, false);
     assert (proxy101->name() == "obj101");
     assert (proxy101->object() == obj101.get());
@@ -1026,8 +1026,8 @@ namespace Athena_test {
     assert (proxy101->refCount() == 1);
     assert (proxy101->isConst());
 
-    SG::DataObjectSharedPtr<DataObject> obj102 =
-      SG::asStorable (std::make_unique<Foo> (102));
+    SG::DataObjectSharedPtr<DataObject> obj102
+      (SG::asStorable (std::make_unique<Foo> (102)));
     SG::DataProxy* proxy102 = rSG.recordObject (obj102, "obj102", true, false);
     assert (proxy102->name() == "obj102");
     assert (proxy102->object() == obj102.get());
@@ -1037,15 +1037,15 @@ namespace Athena_test {
     assert (Foo::dtor_log.empty());
 
     std::cout << ">>> test duplicate record1\n";
-    SG::DataObjectSharedPtr<DataObject> obj103 =
-      SG::asStorable (std::make_unique<Foo> (103));
+    SG::DataObjectSharedPtr<DataObject> obj103
+      (SG::asStorable (std::make_unique<Foo> (103)));
     SG::DataProxy* proxy103 = rSG.recordObject (obj103, "obj101", false, false);
     assert (proxy103 == nullptr);
     assert (obj103->refCount() == 2); // Held by m_trash
     std::cout << "<<< test duplicate record1\n";
 
-    SG::DataObjectSharedPtr<DataObject> obj104=
-      SG::asStorable (std::make_unique<Foo> (104));
+    SG::DataObjectSharedPtr<DataObject> obj104
+      (SG::asStorable (std::make_unique<Foo> (104)));
     SG::DataProxy* proxy104 = rSG.recordObject (obj104, "obj101", false, true);
     assert (proxy104 == proxy101);
     assert (obj104->refCount() == 1);

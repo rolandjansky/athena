@@ -1,5 +1,10 @@
+#
 # Package filtering rules for the Athena project build.
 #
+
+# Technical package(s) that should not show up in packages.txt:
+- Build
+
 # Only pick up a few packages from the External directory:
 + External/AtlasDataArea
 + External/pyAMI

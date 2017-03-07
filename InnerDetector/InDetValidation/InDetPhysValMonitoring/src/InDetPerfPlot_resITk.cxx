@@ -1123,7 +1123,7 @@ InDetPerfPlot_resITk::getResolution(TH1* h, std::string s) {
   itr_rms = rms + 1.0;
   if (s == "RMS") {
     int tries = 0;
-    while (fabs(itr_rms - rms) > 0.001 && tries < 10) {
+    while (fabs(itr_rms - rms) > 0.001 && tries < 100) {
       rms = h->GetRMS();
       double min = -3.0 * rms + mean;
       double max = 3.0 * rms + mean;
@@ -1137,11 +1137,11 @@ InDetPerfPlot_resITk::getResolution(TH1* h, std::string s) {
       mean = h->GetMean();
       itr_rms = h->GetRMS();
       nSig = h->Integral(h->GetXaxis()->FindBin(min), h->GetXaxis()->FindBin(max));
+      ++tries;
     }
     rms = itr_rms;
     meanErr = h->GetMeanError();
     rmsErr = h->GetRMSError();
-    tries++;
   } else if (s == "GAUS") {
     int fitStatus = h->Fit("gaus", "QS0");
     TFitResultPtr r = h->Fit("gaus", "QS0");
