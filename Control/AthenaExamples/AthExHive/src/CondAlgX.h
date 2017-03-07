@@ -6,6 +6,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "AthExHive/CondDataObj.h"
+#include "AthExHive/IASCIICondDbSvc.h"
 
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -30,6 +31,7 @@ private:
   SG::WriteCondHandleKey<CondDataObj> m_wchk;
 
   ServiceHandle<ICondSvc> m_cs;
+  ServiceHandle<IASCIICondDbSvc> m_cds;
 
   std::string m_dbKey;
 

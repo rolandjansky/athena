@@ -15,7 +15,8 @@ CondAlgY::CondAlgY( const std::string& name,
   ::AthAlgorithm( name, pSvcLocator ),
   m_wch1("Y1","Y1"),  m_wch2("Y2","Y2"),
   m_dbk1("Y1"),  m_dbk2("Y2"),
-  m_cs("CondSvc",name)
+  m_cs("CondSvc",name),
+  m_cds("ASCIICondDbSvc",name)
 {
   
   declareProperty("Key_CH1", m_wch1);
@@ -33,6 +34,10 @@ StatusCode CondAlgY::initialize() {
 
   if (m_cs.retrieve().isFailure()) {
     ATH_MSG_ERROR("unable to retrieve CondSvc");
+  }
+
+  if (m_cds.retrieve().isFailure()) {
+    ATH_MSG_ERROR("unable to retrieve ASCIICondDbSvc");
   }
 
   m_wch1.setDbKey(m_dbk1);
@@ -89,7 +94,7 @@ StatusCode CondAlgY::execute() {
 
     EventIDRange r;
     ICondSvc::dbData_t val;
-    if (m_cs->getRange(wch1.dbKey(), &getContext(), r, val).isFailure()) {
+    if (m_cds->getRange(wch1.dbKey(), getContext(), r, val).isFailure()) {
       ATH_MSG_ERROR("  could not find dbKey \"" << wch1.dbKey() 
 		    << "\" in CondSvc registry");
       return StatusCode::FAILURE;
@@ -119,7 +124,7 @@ StatusCode CondAlgY::execute() {
 
     EventIDRange r;
     ICondSvc::dbData_t val;
-    if (m_cs->getRange(wch2.dbKey(), &getContext(), r, val).isFailure()) {
+    if (m_cds->getRange(wch2.dbKey(), getContext(), r, val).isFailure()) {
       ATH_MSG_ERROR("  could not find dbKey \"" << wch2.dbKey() 
 		    << "\" in CondSvc registry");
       return StatusCode::FAILURE;

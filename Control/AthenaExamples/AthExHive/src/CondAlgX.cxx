@@ -19,7 +19,8 @@ CondAlgX::CondAlgX( const std::string& name,
   ::AthAlgorithm( name, pSvcLocator ),
   m_evt("McEventInfo"),
   m_wchk("X2","X2"),
-  m_cs("CondSvc",name)
+  m_cs("CondSvc",name),
+  m_cds("ASCIICondDbSvc",name)
 {
   
   declareProperty("EvtInfo", m_evt);
@@ -35,6 +36,10 @@ StatusCode CondAlgX::initialize() {
 
   if (m_cs.retrieve().isFailure()) {
     ATH_MSG_ERROR("unable to retrieve CondSvc");
+  }
+
+  if (m_cds.retrieve().isFailure()) {
+    ATH_MSG_ERROR("unable to retrieve ASCIICondDbSvc");
   }
 
   m_wchk.setDbKey(m_dbKey);
@@ -95,7 +100,7 @@ StatusCode CondAlgX::execute() {
 
     EventIDRange r;
     ICondSvc::dbData_t val;
-    if (m_cs->getRange(wch.dbKey(), &getContext(), r, val).isFailure()) {
+    if (m_cds->getRange(wch.dbKey(), getContext(), r, val).isFailure()) {
       ATH_MSG_ERROR("  could not find dbKey \"" << wch.dbKey() 
 		    << "\" in CondSvc registry");
       return StatusCode::FAILURE;
