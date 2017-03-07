@@ -67,6 +67,10 @@ class DetCondCFloat {
 };
 
 CLASS_DEF(DetCondCFloat,247459965,1)
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<DetCondCFloat> , 85257013 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<DetCondCFloat>, CondContBase );
 
 // inline functions for DetCondCFloat
 
