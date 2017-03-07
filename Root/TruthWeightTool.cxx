@@ -72,6 +72,10 @@ namespace xAOD {
 #endif
       }
       if (m_metaDataContainer==nullptr) throw std::runtime_error("Cannot access metadata: "+m_metaName);
+
+      // Set the current MC channel number to a large number to force updating 
+      // the meta data on the first event of the new file
+      m_mcChanNo = 999999999;
       return StatusCode::SUCCESS;
    }
 
@@ -85,7 +89,7 @@ namespace xAOD {
 
       //ATH_CHECK( evtStore()->retrieve( m_truthEvents, "TruthEvents" ) );
 
-      if( m_uninitialized || ( mcChannelNumber != m_mcChanNo ) ) {
+      if ( m_uninitialized || ( mcChannelNumber != m_mcChanNo ) ) {
 
 	for (auto metaData:*m_metaDataContainer) {
 
