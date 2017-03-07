@@ -12,8 +12,6 @@
 
 #include <fstream>
 
-// DECLARE_COMPONENT(CondSvc)
-
 std::string r_t("\\[([0-9]+),([0-9]+)\\]");
 std::string r_r = "\\s*\\{" + r_t + "-" + r_t + "\\}\\s*";
 std::string r_e = "\\s*\\{" + r_t + "-" + r_t + "\\}=([0-9]+)\\s*";

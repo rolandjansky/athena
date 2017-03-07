@@ -1,23 +1,9 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #include "IOVSvc/CondSvc.h"
 #include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/SvcFactory.h"
-
-#include <boost/tokenizer.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
-
-#include <fstream>
-
-// DECLARE_COMPONENT(CondSvc)
-
-std::string r_t("\\[([0-9]+),([0-9]+)\\]");
-std::string r_r = "\\s*\\{" + r_t + "-" + r_t + "\\}\\s*";
-std::string r_e = "\\s*\\{" + r_t + "-" + r_t + "\\}=([0-9]+)\\s*";
-std::string r_ef = "\\s*\\{" + r_t + "-" + r_t + "\\}=(-*[0-9]*\\.*[0-9]*)\\s*";
-boost::regex rr(r_r);
-boost::regex re(r_e);
-boost::regex ref(r_ef);
-
 
 //---------------------------------------------------------------------------
 
