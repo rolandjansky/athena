@@ -68,6 +68,27 @@ void analyze(NumV bins, NumV y, NumV err, Str title) {
     h->SetBinContent(bin,y[bin-1]); h->SetBinError(bin,err[bin-1]);
   }
   h->Draw();
+  if (title.Contains("yh index")) {
+    TH1D *sym = (TH1D*)h->Clone();
+    sym->SetLineColor(kRed);
+    double chi2=0; int ndof=0;
+    for (size_t i=0;i<50;++i) {
+      double y1=y[i], y2=y[99-i], e1=err[i], e2=err[99-i];
+      if (y1==0||y2==0) continue;
+      double w1=1.0/e1/e1, w2=1.0/e2/e2, wsum=w1+w2, e=1/sqrt(wsum), c=(w1*y1+w2*y2)/wsum;
+      printf("%6.2e +/-%.2e\n",y1,e1); printf("%6.2e +/-%.2e\n",y2,e2);
+      printf("%6.2e +/-%.2e\n",c,e); printf("%2lu %6.2f\n",i,pow(y1-c,2)*w1+pow(y2-c,2)*w2);
+      printf("\n");
+      chi2+=pow(y1-c,2)*w1+pow(y2-c,2)*w2;
+      ++ndof;
+      sym->SetBinContent(i+1,c); sym->SetBinContent(100-i,c);
+      sym->SetBinError(i+1,e); sym->SetBinError(100-i,e);
+    }
+    printf("chi2/ndof = %.2f / %i\n",chi2,ndof);
+    sym->Draw("same");
+    TLatex *tex = new TLatex();
+    tex->SetNDC(); tex->SetTextFont(42); tex->DrawLatex(0.15,0.85,Form("#chi^{2} / #it{n}_{dof} = %.1f / %i",chi2,ndof));
+  }
 }
 
 
