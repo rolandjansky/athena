@@ -41,7 +41,7 @@ atlas_add_component( PixelMonitoring
                      src/*.cxx
                      src/componets/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaMonitoringLib AtlasDetDescr GaudiKernel InDetRawData InDetPrepRawData LumiBlockCompsLib TrkTrack AthenaPoolUtilities GeoPrimitives EventInfo EventPrimitives InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkParameters TrkSpacePoint TrkTrackSummary TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaMonitoringLib AtlasDetDescr GaudiKernel InDetRawData InDetPrepRawData LumiBlockCompsLib TrkTrack AthenaPoolUtilities GeoPrimitives EventInfo EventPrimitives InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkParameters TrkSpacePoint TrkTrackSummary TrkToolInterfaces PixelCablingLib )
 
 # Install files from the package:
 atlas_install_headers( PixelMonitoring )
