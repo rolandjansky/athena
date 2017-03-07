@@ -1,3 +1,14 @@
+2017-03-07 Dag Gillberg <dag.gillberg@cern.h>
+	* Tagging TruthWeightTools-01-02-04
+	* Fixed bug affecting the TruthWeightTool (and Higgs tool in AUTO mode) when running over many files
+	* Slightly improved print() message of HiggsWeights
+	* Added two more weights qcd_nnlops_nnlo, qcd_nnlops_pow
+	* Extended HiggsWeightTest executable to produce many more histograms for uncertainty evaluation
+	* Extended evaluateHiggsThoryUncert.C macro to make plots of evaluated uncertainty
+	* Output from macro seem yield reasonable results, however also revealed problem with weights in samples
+	  https://its.cern.ch/jira/browse/ATLMCPROD-4449
+	* Added macro to analyze HNNLO input templates used for the Powehg NNLOPS generation
+
 2017-03-03 Dag Gillberg <dag.gillberg@cern.h>
 	* Tagging TruthWeightTools-01-02-03
 	* Added example macro to evaluate Higgs theory uncertainties
@@ -40,3 +51,6 @@
 2017-02-19 Dag Gillberg <dag.gillberg@cern.ch>
 	* Moving Tobias Bisanz' TruthWeightTool from Generators/GenAnalysisTools/TruthTools to this package (PhysicsAnalysis/TruthWeightTools) since its intended for physics analysis
 
+
+	 LocalWords:  TruthWeightTools PDF HiggsWeight struct reweight
+	
