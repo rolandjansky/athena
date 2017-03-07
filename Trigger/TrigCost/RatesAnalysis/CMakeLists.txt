@@ -26,3 +26,6 @@ atlas_add_library( RatesAnalysis
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthAnalysisBaseCompsLib TrigDecisionToolLib EnhancedBiasWeighterLib
                    PRIVATE_LINK_LIBRARIES EventInfo xAODEventInfo )
 
+atlas_add_test( RatesAnalysis_test
+                SOURCES test/RatesAnalysis_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthAnalysisBaseCompsLib RatesAnalysis TrigDecisionToolLib EnhancedBiasWeighterLib EventInfo xAODEventInfo )

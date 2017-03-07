@@ -63,7 +63,7 @@ class RatesHistoBase {
  public:
 
   RatesHistoBase(const std::string& name, const MsgStream& log, const bool doHistograms = true);
-  ~RatesHistoBase();
+  virtual ~RatesHistoBase();
 
   TH1D* getMuHist() const; //!< @return histogram pointer or nullptr and an error
   TH1D* getTrainHist() const; //!< @return histogram pointer or nullptr and an error
