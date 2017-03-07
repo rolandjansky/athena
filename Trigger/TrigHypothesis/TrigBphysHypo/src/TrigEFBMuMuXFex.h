@@ -82,6 +82,9 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     
     ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
     
+    // container inputs names
+    std::string m_input_trackCollectionKey;
+    
     // Cuts and properties
     bool m_oppositeCharge;
     float m_lowerMuMuMassCut;
@@ -512,15 +515,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
 //   double invariantMass(const TrigMuonEF* , const TrigMuonEF* );
 //   double invariantMass(const Trk::Track* , const Trk::Track* );
     bool isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const;
-
-//     double XMass(const Trk::Track* particle1, const Trk::Track* particle2, int decay);
-//     double KMuMuMass(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* kaon);
-//     double XMuMuMass(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* particle1, const Trk::Track* particle2, int decay);
-//     double X3Mass(const Trk::Track* particle1, const Trk::Track* particle2, const Trk::Track* particle3 );
-//     double X3MuMuMass(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* particle1, const Trk::Track* particle2, const Trk::Track* particle3 );
-//     TrigEFBphys* checkBMuMu2X(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1, const Trk::Track* track2, int decay, TrigEFBphys* & trigPartX);
-//     TrigEFBphys* checkBcMuMuDs(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1, const Trk::Track* track2, double xPhiMass, const Trk::Track* track3, TrigEFBphys* & trigPartX);
-//     TrigEFBphys* checkBplusMuMuKplus(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1);
 
     
     double XMass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, int decay); /// checking the mass

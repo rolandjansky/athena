@@ -454,32 +454,47 @@ StatusCode MuonGenericTracksMon::fillHistograms()
         }
     }
     else{
-        // select muons from Jpsi & Z
-        auto muons_jpsi = m_JpsimumuResonanceSelectionTool->selectMuons(Muons, m_isMC, CP::SystematicSet());
-        auto muons_Z = m_ZmumuResonanceSelectionTool->selectMuons(Muons, m_isMC, CP::SystematicSet());
-
-        // find J/psi & Z candidates
-        auto resonances_jpsi = m_JpsimumuResonancePairingTool->buildPairs(muons_jpsi);
-        auto resonances_Z = m_ZmumuResonancePairingTool->buildPairs(muons_Z);
-        // plot luminosity related plots
-        plot_lumi(resonances_Z, resonances_jpsi, Muons, tracksMS, MuonSegments);
-
         // plot muons, Z and Jpsi, only for collisions
         if (m_dataType != AthenaMonManager::cosmics){
-      		for (auto resonance: resonances_Z)
-      		{
-      		  plot_muon(*resonance.first,  SOURCE::Z);
-      		  plot_muon(*resonance.second, SOURCE::Z);
-      		}
-      		plot_resonances(resonances_Z, SOURCE::Z);
 
-      		// plot muons, J/Psi
-      		for (auto resonance: resonances_jpsi)
-      		{
-      		  plot_muon(*resonance.first,  SOURCE::JPSI);
-      		  plot_muon(*resonance.second, SOURCE::JPSI);
-      		}
-      		plot_resonances(resonances_jpsi, SOURCE::JPSI);
+          // select muons from Jpsi & Z
+          auto muons_jpsi = m_JpsimumuResonanceSelectionTool->selectMuons(Muons, m_isMC, CP::SystematicSet());
+          auto muons_Z    =    m_ZmumuResonanceSelectionTool->selectMuons(Muons, m_isMC, CP::SystematicSet());
+
+          // find J/psi & Z candidates
+          auto resonances_jpsi = m_JpsimumuResonancePairingTool->buildPairs(muons_jpsi);
+          auto resonances_Z    =    m_ZmumuResonancePairingTool->buildPairs(muons_Z);
+
+          for (auto resonance: resonances_Z)
+            {
+              plot_muon(*resonance.first,  SOURCE::Z);
+              plot_muon(*resonance.second, SOURCE::Z);
+            }
+          plot_resonances(resonances_Z, SOURCE::Z);
+
+          // plot muons, J/Psi
+          for (auto resonance: resonances_jpsi)
+            {
+              plot_muon(*resonance.first,  SOURCE::JPSI);
+              plot_muon(*resonance.second, SOURCE::JPSI);
+            }
+          plot_resonances(resonances_jpsi, SOURCE::JPSI);
+
+          // plot luminosity related plots
+          plot_lumi(resonances_Z, resonances_jpsi, Muons, tracksMS, MuonSegments);
+
+          // clean the resonance candidates
+          for (const xAOD::Muon* muon : muons_jpsi.first)  delete muon;
+          for (const xAOD::Muon* muon : muons_jpsi.second) delete muon;
+          for (const xAOD::Muon* muon : muons_Z.first)     delete muon;
+          for (const xAOD::Muon* muon : muons_Z.second)    delete muon;
+
+        }
+        else {
+          // pass empty resonance vectors
+          plot_lumi(std::vector< std::pair<const xAOD::Muon*, const xAOD::Muon*> >(),
+                    std::vector< std::pair<const xAOD::Muon*, const xAOD::Muon*> >(),
+                    Muons, tracksMS, MuonSegments);
         }
 
         // plot muons, all
@@ -504,11 +519,7 @@ StatusCode MuonGenericTracksMon::fillHistograms()
         {
             plot_track(*track, SOURCE::CONTAINER - 3);
         }
-        //clean the resonance candidates
-        for (const xAOD::Muon* muon : muons_jpsi.first) delete muon;
-        for (const xAOD::Muon* muon : muons_jpsi.second) delete muon;
-        for (const xAOD::Muon* muon : muons_Z.first) delete muon;
-        for (const xAOD::Muon* muon : muons_Z.second) delete muon;
+
     }//end of different trigger situations
     //finish all the plotting
     return StatusCode::SUCCESS;

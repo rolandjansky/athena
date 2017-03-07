@@ -324,7 +324,7 @@ unsigned HLTMinBiasMonTool::receiveIsPassedCondition(unsigned internalIsPassedCo
 #ifdef ManagedMonitorToolBase_Uses_API_201401
 StatusCode HLTMinBiasMonTool::book()
 #else
-StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun)
+  StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool /*newRun*/)
 #endif
 {
 	// -------------------------------------------------------- NEW AUTOMATIC WAY TO COPE WITH THINGS----------------------
@@ -418,7 +418,7 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 							if ( (k & l.first) == l.first)
 							{
 									addMonGroup(new MonGroup(this,"HLT/MinBiasMon/" + l.second + "/" + i, run, ATTRIB_UNMANAGED));
-									if (newRun)
+									if (newRunFlag())
 										bookHistogramsForItem(i, l.first);
 							}
 					}
@@ -428,7 +428,7 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 		}
 		//Time-dependent purity&efficiency histograms
 		addMonGroup(new MonGroup(this,"HLT/MinBiasMon/Purities&Efficiencies/" + i, run, ATTRIB_UNMANAGED));
-		if (newRun)
+		if (newRunFlag())
 		{
 			addHistogram(new TH1F("PurityAll", "Trigger All Purity;Lumiblock;Entry Rate", 1000, -0.5, 999.5));
 			hist("PurityAll")->Sumw2();
@@ -457,7 +457,7 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 		}
  	}
 	
-	if (newRun)
+	if (newRunFlag())
 	{
                 CANNOT_REBIN(tProf);
 		tProf->SetMinimum(0.0);
@@ -524,7 +524,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		fixXaxis(th2f);
 		addHistogram(th2f);
  	        
-		th2f = new TH2F("TimeOnline", "Online MBTS Time;Channel ID;MBTS Time [ns]", 32, 0, 32, 100, -100, 100);
+		th2f = new TH2F("TimeOnlinePerChannel", "Online MBTS Time;Channel ID;MBTS Time [ns]", 32, 0, 32, 100, -100, 100);
 		fixXaxis(th2f);
 		addHistogram(th2f);
 		
@@ -532,7 +532,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		fixXaxis(th2f);
 		addHistogram(th2f);
 		
-		th2f = new TH2F("EnergyOnline", "Online MBTS energy;Channel ID;MBTS Energy [pC]", 32, 0, 32, 100,-2, 2);
+		th2f = new TH2F("EnergyOnlinePerChannel", "Online MBTS energy;Channel ID;MBTS Energy [pC]", 32, 0, 32, 100,-2, 2);
 		fixXaxis(th2f);
 		addHistogram(th2f);
 		
@@ -1554,7 +1554,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 					// Online distributions
 					const char* cell_name = (m_moduleLabel[k]).data();
 					hist("OccupancyOnline")->Fill(cell_name, 1.0);                        
-					hist2("TimeOnline")->Fill(cell_name, mbtsHitTimes.at(k), 1.0);         
+					hist2("TimeOnlinePerChannel")->Fill(cell_name, mbtsHitTimes.at(k), 1.0);
 				}
 
 			//The time-dependent bitmask is produced for the case 
@@ -1565,7 +1565,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 
 				// Online distributions
 				const char* cell_name = (m_moduleLabel[k]).data();
-				hist2("EnergyOnline")->Fill(cell_name, mbtsHitEnergies.at(k), 1.0);            
+				hist2("EnergyOnlinePerChannel")->Fill(cell_name, mbtsHitEnergies.at(k), 1.0);            
 			}
 
 			timeWord &= triggerWord;
@@ -2038,12 +2038,12 @@ int HLTMinBiasMonTool::error_bit(bool a, bool b) {
 #ifdef ManagedMonitorToolBase_Uses_API_201401
 StatusCode HLTMinBiasMonTool::proc()
 #else
-StatusCode HLTMinBiasMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun)
+  StatusCode HLTMinBiasMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, bool /*endOfRun*/)
 #endif
 {
 	StatusCode sc = StatusCode::SUCCESS;
 	
-	if (endOfRun)
+	if (endOfRunFlag())
 	{
 		hist("TriggerPurities", "HLT/MinBiasMon")->Divide(hist("TriggerPuritiesPassed", "HLT/MinBiasMon"), hist("TriggerEntries", "HLT/MinBiasMon"), 1.0, 1.0, "B");
 		

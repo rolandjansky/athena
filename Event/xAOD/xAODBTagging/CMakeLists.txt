@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 744481 2016-05-03 13:36:43Z krasznaa $
 ################################################################################
 # Package: xAODBTagging
 ################################################################################
@@ -6,30 +7,22 @@
 atlas_subdir( xAODBTagging )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/SGTools
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODTracking
-                          PRIVATE
-                          Control/AthLinks )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthContainers
+   Event/xAOD/xAODBase
+   Event/xAOD/xAODCore
+   Event/xAOD/xAODTracking
+   Control/AthLinks )
 
 # Component(s) in the package:
 atlas_add_library( xAODBTagging
-                   Root/*.cxx
-                   PUBLIC_HEADERS xAODBTagging
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers SGTools xAODBase xAODCore xAODTracking
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks )
+   xAODBTagging/*.h xAODBTagging/versions/*.h Root/*.cxx
+   PUBLIC_HEADERS xAODBTagging
+   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODTracking )
 
 atlas_add_dictionary( xAODBTaggingDict
-                      xAODBTagging/xAODBTaggingDict.h
-                      xAODBTagging/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODBase xAODCore xAODTracking AthLinks xAODBTagging
-                      EXTRA_FILES Root/dict/*.cxx )
-
+   xAODBTagging/xAODBTaggingDict.h
+   xAODBTagging/selection.xml
+   LINK_LIBRARIES xAODBTagging
+   EXTRA_FILES Root/dict/*.cxx )

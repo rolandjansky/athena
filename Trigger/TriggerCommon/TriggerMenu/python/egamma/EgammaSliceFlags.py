@@ -45,6 +45,14 @@ class signatures(JobProperty):
 
 _flags.append(signatures)
 
+class doFastElectronFex(JobProperty):
+    '''enable L2ElectronFex cuts and sequence'''
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doFastElectronFex)
+
 class doRinger(JobProperty):
     '''apply ringer selection for Electron chains'''
     statusOn=True
@@ -66,7 +74,7 @@ class pidVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20161021/'
+    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/'
 
 _flags.append(pidVersion)
 
@@ -77,7 +85,7 @@ class clusterCorrectionVersion (JobProperty):
     statusOn=True
     allowedTypes=['str','None']
     allowedValues=['v12phiflip_noecorrnogap','None']
-    StoredValue=None
+    StoredValue='v12phiflip_noecorrnogap'
 
 _flags.append(clusterCorrectionVersion)
 
@@ -87,7 +95,7 @@ class calibMVAVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='egammaMVACalib/online/v3'
+    StoredValue='egammaMVACalib/online/v6'
 
 _flags.append(calibMVAVersion)
 
@@ -109,9 +117,16 @@ del _flags
 EgammaSliceFlags = TriggerFlags.EgammaSlice
 
 run2Flag = TriggerFlags.run2Config
-if run2Flag is '2016':
-    log.info('EgammaSliceFlags set for %s'%run2Flag)
-    EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20161021/'
-    EgammaSliceFlags.clusterCorrectionVersion = None
-    EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v3'
+if run2Flag=='2016':
+    log.info('EgammaSliceFlags set for %s',run2Flag)
+    EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/'
+    EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
+    EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
+elif run2Flag=='2017':
+    log.info('EgammaSliceFlags set for %s',run2Flag)
+    EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170214/'
+    EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
+    EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
+else:
+    log.info('EgammaSliceFlags not set use defaults',run2Flag)
 

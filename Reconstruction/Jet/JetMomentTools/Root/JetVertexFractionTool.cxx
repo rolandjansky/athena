@@ -279,6 +279,15 @@ getJetVertexFraction(const xAOD::VertexContainer* vertices,
   return jvf;
 }
 
+//**********************************************************************
+
+std::vector<float>
+JetVertexFractionTool::getEmptyJetVertexFraction(const xAOD::VertexContainer* vertices) const {
+  std::vector<float> jvf;
+  jvf.resize(vertices->size());
+  for (size_t iVertex = 0; iVertex < vertices->size(); ++iVertex) jvf.at(iVertex) = 0;
+  return jvf;
+}
 
 //**********************************************************************
 

@@ -110,7 +110,7 @@ StatusCode PhysValTau::fillHistograms()
 	return StatusCode::FAILURE; 
     }         
     ATH_MSG_DEBUG( "Number of taus: " << taus->size() ); 
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve truth container:     
     const xAOD::TruthParticleContainer* truth = 0;
@@ -158,7 +158,7 @@ StatusCode PhysValTau::fillHistograms()
     // Plotting TruthMatched Variables
     // Loop through reco tau jet container
     
-    // m_isMC=False;
+    // 
     
     if(trueTauContainer != 0 && m_isMC==true){
 	xAOD::TruthParticleContainer::const_iterator truth_itr = trueTauContainer->begin();
@@ -172,7 +172,6 @@ StatusCode PhysValTau::fillHistograms()
 	    const xAOD::TauJet *matchedRecTau = 0;
 	    ATH_MSG_DEBUG("Matching Tau");
 	    bool matched = matchTrueAndRecoTau(taus,trueTau,matchedRecTau);
-	    
 	    if(matched) {
 		m_oTauValidationPlots->m_oGeneralTauAllProngsPlots.fill(*matchedRecTau);
 		m_oTauValidationPlots->m_oNewCoreMatchedPlots.fill(*matchedRecTau);          // NewCore histograms filled
@@ -199,8 +198,8 @@ StatusCode PhysValTau::fillHistograms()
 	    for (size_t iRecTau = 0 ; iRecTau < taus->size(); iRecTau++) {
 		bool alreadymatched = false;
 		if(m_matched_itr.size()>0)
-		    for (int i = 0; i<m_matched_itr.size(); i++)
-			if(m_matched_itr.at(i) == iRecTau) alreadymatched = true;
+		  for (size_t i = 0; i<m_matched_itr.size(); i++)
+		    if(m_matched_itr.at(i) == iRecTau) alreadymatched = true;
 		if(alreadymatched)continue;
 		const xAOD::TauJet *recTau = taus->at(iRecTau);
 		if (m_detailLevel < 10) continue;
@@ -258,17 +257,19 @@ bool PhysValTau::matchTrueAndRecoTau(const xAOD::TauJetContainer *&taus, const x
     int nCharged = 0;
     int nNeutral = 0;
     //    RecoTypes::DecayMode trueDecayMode = getDecayMode(trueTau, decayParticles, nCharged, nNeutral);
-    
     nCharged = truthHandler.nProngTruthTau(trueTau,false);
     nNeutral = truthHandler.numNeutPion(trueTau);
+
     RecoTypes::DecayMode trueDecayMode = RecoTypes::GetDecayMode(nCharged, nNeutral);
+
+
     ATH_MSG_DEBUG( "True decay mode is " << nCharged << "p" << nNeutral << "n" ); 
     
     if (!RecoTypes::IsValidMode(trueDecayMode)) {
 	ATH_MSG_DEBUG(" Decay mode is not valid, skipping..." ); 
         return false;
     }
-    
+
     TLorentzVector visSum = truthHandler.getTauVisibleSumTruth(trueTau);                    // Get visible TLV for true had tau		
     if ((visSum.Et()/GeV < m_visETcut) || (fabs(visSum.Eta()) > m_visEtacut)) return false;    // Detector limitations
     

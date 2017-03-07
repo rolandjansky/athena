@@ -224,3 +224,17 @@ if doOnline and not 'TileCablingType' in dir():
 
 if not 'TileNoiseFilter' in dir():
     TileNoiseFilter = 1
+
+if not 'TilePhysRun' in dir():
+    TilePhysRun = True
+
+if not 'TileBiGainRun' in dir():
+    TileBiGainRun = False
+
+
+if not TilePhysRun:
+    doTowers = False
+    doClusters = False
+    doTileMuId = False
+    doTileMuonFit = False
+    doTileL2Mu = False

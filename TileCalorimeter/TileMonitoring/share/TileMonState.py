@@ -60,7 +60,7 @@ if not ipc_partition.isValid():
     sys.exit(1)
 
 ### ATLAS partition: Read Global Run Parameters to configure the jobs
-if ByteStreamEmonInputSvc.Partition == 'ATLAS':
+if Partition == 'ATLAS' or Partition == 'Tile':
     try:
         run_params = ISObject(ipc_partition, 'RunParams.SOR_RunParams', 'RunParams')
     except:
@@ -72,20 +72,46 @@ if ByteStreamEmonInputSvc.Partition == 'ATLAS':
         beam_energy = run_params.beam_energy
         RunNumber = run_params.run_number
         project = run_params.T0_project_tag
-        tilemon_log.info( "RUN CONFIGURATION: beam type: %i, beam energy: %i, run number: %i, project tag: %s" %(beam_type, beam_energy, RunNumber, project) )
+        run_type = run_params.run_type
+        tilemon_log.info( "RUN CONFIGURATION: run type: %s, beam type: %i, beam energy: %i, run number: %i, project tag: %s" 
+                          % (run_type, beam_type, beam_energy, RunNumber, project) )
         
-        # define beam type based on project tag name
-        if project[7:] == "cos" or project[5:] == "test":
-            beamType = 'cosmics'
-        elif project[7:] == '1beam':
-            beamType = 'singlebeam'
-            StreamType = 'express'
-            KeyCount = 20
+
+        if Partition == 'ATLAS':
+            # define beam type based on project tag name
+            if project[7:] == "cos" or project[5:] == "test":
+                beamType = 'cosmics'
+            elif project[7:] == '1beam':
+                beamType = 'singlebeam'
+                StreamType = 'express'
+                KeyCount = 20
+            else:
+                beamType = 'collisions'
+        
         else:
-            beamType = 'collisions'
-            
-    tilemon_log.info( 'Set up beam type: ' + beamType )
-    TileNoiseFilter = 1
+            if 'CIS mono' in run_type:
+                TileMonoRun = True
+                TileRunType = 8
+                TileBiGainRun = False
+            elif 'CIS' in run_type:
+                TileCisRun = True
+                TileRunType = 8
+                TileBiGainRun = True
+            elif 'Laser' in run_type:
+                TileLasRun = True
+                TileRunType = 2
+                TileBiGainRun = False
+            elif 'Pedestals' in run_type:
+                TilePedRun = True
+                TileRunType = 4
+                TileBiGainRun = True
+
+
+    if Partition == 'ATLAS':
+        tilemon_log.info( 'Set up beam type: ' + beamType )
+        TileNoiseFilter = 1
+    else:
+        TileNoiseFilter = 0
 
 else:
     TileNoiseFilter = 0

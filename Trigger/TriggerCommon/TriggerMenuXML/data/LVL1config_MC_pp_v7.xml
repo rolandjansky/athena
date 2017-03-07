@@ -2441,10 +2441,11 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="307" partition="1" name="L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-B" complex_deadtime="0" definition="(7INVM15-2MU4ab[x1]&amp;0DR24-CMU4ab-MU4ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="307" partition="1" name="L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-B" complex_deadtime="0" definition="(7INVM15-2MU4ab[x1]&amp;0DR24-2MU4ab[x1]&amp;MULT-CMU4ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="7INVM15-2MU4ab_x1" triggerthreshold="7INVM15-2MU4ab"/>
-        <TriggerCondition multi="1" name="0DR24-CMU4ab-MU4ab_x1" triggerthreshold="0DR24-CMU4ab-MU4ab"/>
+        <TriggerCondition multi="1" name="0DR24-2MU4ab_x1" triggerthreshold="0DR24-2MU4ab"/>
+        <TriggerCondition multi="1" name="MULT-CMU4ab_x1" triggerthreshold="MULT-CMU4ab"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
