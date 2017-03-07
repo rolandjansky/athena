@@ -78,10 +78,10 @@ namespace Muon
                                RpcPadContainer& rdoIdc,
                                const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer*) const override;
     
-    int specialROBNumber() {return m_specialROBNumber;}
+    int specialROBNumber() const {return m_specialROBNumber;}
     
-    bool isSector13Data() {return m_sector13Data;}
-    void setSLdecodingRequest() {m_decodeSL=true;} 
+    bool isSector13Data() const {return m_sector13Data;}
+    virtual void setSLdecodingRequest() override {m_decodeSL=true;} 
     
     
   private:
