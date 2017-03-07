@@ -69,8 +69,8 @@ namespace Muon
     
     
     
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     
     // implementation of the abstract interface
