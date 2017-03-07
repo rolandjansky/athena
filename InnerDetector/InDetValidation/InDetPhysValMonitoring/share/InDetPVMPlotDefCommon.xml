@@ -1014,39 +1014,39 @@
 </h>
 <!-- -->
 <!-- GOOD eff plots -->
-<h id="trackeff_vs_eta" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_eta" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h> 
-<h id="trackeff_vs_pt" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_pt" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="Pt (GeV)" n="25" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_phi" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_phi" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#phi" n="25" lo="-&PI;" hi="&PI;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_d0" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="d0" n="100" lo="-25" hi="25"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_z0" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="z0" n="100" lo="-250" hi="250"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_R" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_R" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="R" n="100" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_Z" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_Z" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="Z" n="100" lo="-350" hi="350"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_prodR" type="TProfile" title="Track Efficiency vs Production Vertex Radius">
+<h id="trackeff_vs_prodR" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">
   <x title="prod_R" n="100" lo="0" hi="1500"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_prodZ" type="TProfile" title="Track Efficiency vs Production Vertex Z">
+<h id="trackeff_vs_prodZ" type="TEfficiency" title="Track Efficiency vs Production Vertex Z">
   <x title="prod_Z" n="100" lo="0" hi="2000"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
@@ -1211,22 +1211,29 @@
   <y title="Entries"/>
 </h>
 <h id="minimum_delta_R_not_found" type="TH1" title="Minimum #DeltaR for primary conversions within 100 mm of the origin with no good match">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
   <y title="Entries"/>
 </h>
 <h id="minimum_delta_R_2_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 100 and 200 mm from the origin with no good match">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
   <y title="Entries"/>
 </h>
 <h id="minimum_delta_R_3_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 200 and 300 mm from the origin with no good match">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
   <y title="Entries"/>
 </h>
-<h id="delta_inverse_pt" type="TH1" title="Difference between inverse pt for track and truth particles">
-  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="0" hi="2"/>
+<h id="delta_inverse_pt" type="TH1" title="Difference between inverse pt (GeV) for track and truth particles">
+  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="-2" hi="2"/>
   <y title="Entries"/>
 </h>
-
+<h id="delta_inverse_pt_not_found" type="TH1" title="Difference between inverse pt (GeV) for track and truth particles with no good match">
+  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="-2" hi="2"/>
+  <y title="Entries"/>
+</h>
+<h id="charge_vs_truth_match_rate" type="TProfile" title="Rate at which matching TrackParticle has same charge as TruthParticle vs Pt (GeV)">
+  <x title="Pt (GeV)" n="100" lo="0" hi="300"/>
+  <y title="Rate" n="100" lo="0" hi="1.5"/>
+</h>
 
 
 <!-- -->
@@ -1593,35 +1600,6 @@
   <y title="truth match probability" n="40" lo="0" hi="1.1"/>
 </h>
 <!-- -->
-<!-- stuff pilfered from old backtracking script -->
-<h id="eff_vs_eta_of_daughters" type="TProfile" title="Efficiency vs #eta of daughter particles">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_theta_of_daughters" type="TProfile" title="Efficiency vs #theta of daughter particles">
-  <x title="#theta" n="28" lo="0.0" hi="&PI;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_theta_tan_of_daughters" type="TProfile" title="Efficiency vs tan(#theta) of daughter particles">
-  <x title="tan(#theta)" n="32" lo="-8" hi="8"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_theta_cotan_of_daughters" type="TProfile" title="Efficiency vs cotan(#theta) of daughter particles">
-  <x title="cotan(#theta)" n="32" lo="-8" hi="8"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_phi_of_daughters" type="TProfile" title="Efficiency vs #phi of daughter particles">
-  <x title="#phi" n="16" lo="-&PI;" hi="&PI;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_phi_sin_of_daughters" type="TProfile" title="Efficiency vs sin(#phi) of daughter particles">
-  <x title="sin(#phi)" n="14" lo="-1.2" hi="1.2"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_phi_cos_of_daughters" type="TProfile" title="Efficiency vs cos(#phi) of daughter particles">
-  <x title="cos(#phi)" n="14" lo="-1.2" hi="1.2"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
 <!--
    =======================================================
    duplicate plots:

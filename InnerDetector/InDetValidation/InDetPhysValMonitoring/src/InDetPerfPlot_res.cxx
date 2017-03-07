@@ -376,8 +376,8 @@ InDetPerfPlot_res::Refinement(TH1D* temp, const std::string& width, int var, int
       unsigned int withinLoopLimit(10);
       while ((std::fabs(sec_RMS - prim_RMS) > 0.001) and (--withinLoopLimit)) {
         prim_RMS = temp->GetRMS();
-        double aymin = -3.0 * prim_RMS;
-        double aymax = 3.0 * prim_RMS;
+        double aymin = -3.0 * prim_RMS + mean;
+        double aymax = 3.0 * prim_RMS + mean;
         if (aymin < temp->GetBinLowEdge(1)) {
           aymin = temp->GetBinLowEdge(1);
         }
@@ -441,7 +441,6 @@ InDetPerfPlot_res::finalizePlots() {
   // switch for changing between iterative convergence & gaussian fit methods
   // iterative convergence with 3*RMS works better than 5*RMS
   std::string width_method = "iterative_convergence";
-  std::string pull_width_method = "gaussian";
   unsigned int ptBins(0);
   if (m_mean_vs_ptbasePlots[0]) {
     ptBins = m_mean_vs_ptPlots[0]->GetNbinsX();
@@ -460,7 +459,7 @@ InDetPerfPlot_res::finalizePlots() {
         TH1D* temp = meanbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);
         TH1D* temp_pull = pullbasePlot->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
         Refinement(temp, width_method, var, j, m_meanPlots, m_resoPlots);
-        Refinement(temp_pull, pull_width_method, var, j, m_pullmeanPlots, m_pullwidthPlots);
+        Refinement(temp_pull, width_method, var, j, m_pullmeanPlots, m_pullwidthPlots);
       }
       auto& mean_vs_ptbasePlot = m_mean_vs_ptbasePlots[var];
       for (unsigned int i = 1; i <= ptBins; i++) {
