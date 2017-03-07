@@ -112,10 +112,7 @@ StatusCode PixelDigitizationTool::finalize() {
 
 StatusCode PixelDigitizationTool::processAllSubEvents() {
 
-  //===============
   // Prepare event
-  //===============
-  // Create Output Containers
   ATH_MSG_DEBUG("Prepare event");
   CHECK(prepareEvent(0));
 
@@ -139,9 +136,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
     ATH_MSG_DEBUG("SiTrackerHitCollection found with"<<p_collection->size()<<" hits");    // loop on the hit collections
   }
 
-  //===============
   // Digitize hits
-  //===============
   CHECK(digitizeEvent());
 
   ATH_MSG_DEBUG("Digitize success!");
@@ -329,10 +324,7 @@ void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
 StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::prepareEvent()");
 
-  //===============
   // Prepare event
-  //===============
-  // Create Output Containers
   if (!m_rdoContainer.isValid()) {
     if (!(m_rdoContainer=CxxUtils::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())).isValid()) {
       ATH_MSG_FATAL("Could not create PixelRDO_Container");
@@ -359,9 +351,7 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
 StatusCode PixelDigitizationTool::mergeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::mergeEvent()");
 
-  //===============
   // Digitize hits
-  //===============
   CHECK(digitizeEvent());
 
   for (std::vector<SiHitCollection*>::iterator it = hitCollPtrs.begin();it!=hitCollPtrs.end();it++) {

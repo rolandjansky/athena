@@ -175,8 +175,8 @@ inline int PixelCalibData::PixelChipSummaryData::getThresholdSigma(int type) con
   inline float PixelCalibData::PixelChipSummaryData::getTotP2() const{  return m_totres[1]*(1./1000.); }
 
  inline float PixelCalibData::PixelChipSummaryData::getTotRes(float Q) const{ 
-   float p1 = m_totres[0]/100.0;
-   float p2 = m_totres[1]/1000.0;
+   float p1 = m_totres[0]*(1/100.0);
+   float p2 = m_totres[1]*(1/1000.0);
    return p1+p2*Q; 
  }
 
@@ -347,7 +347,6 @@ inline PixelCalibData::PixelChipSummaryData::PixelChipSummaryData(){
   }
 }
 
-//================ Destructor =================================================
 inline PixelCalibData::~PixelCalibData(){}
 
 inline int PixelCalibData::size() const

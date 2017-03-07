@@ -120,29 +120,29 @@ int TimeSvc::relativeBunch2009(const double threshold, const double intimethresh
   return BCID;
 }
 
-//====================================================================
 // This is the new parameterization based on the 2015 collision data.
-//====================================================================
 int TimeSvc::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID) const {
 
-  //=================================
-  // 2016.03.29  Soshi.Tsuno@cern.ch
-  //
-  // The time walk effect is directly tuned with timing scan data (collision) in 2015.
-  // 
-  // See reference in the talk,
-  // https://indico.cern.ch/event/516099/contributions/1195889/attachments/1252177/1846815/pixelOffline_timing_04.04.2016_soshi.pdf
-  //
-  // Ideally, it could be directly parameterized as a function of given ToT.
-  // However, the ToT calibration was changed over 2015-2016, where newly calibrated ToT value was not available for 2016. 
-  // For instance, the b-layer charge tuning was changed from ToT30@MIP (2015) to ToT18@MIP (2016).
-  // Thus the time walk effect needs to be parameterized with more universal value, that is, charge information.
-  // But it was non-trivial because of the migration effect between the border in ToT.
-  //
-  // Here in 2015 version, we apply the threshold of the 60% total charge to get a certain ToT value, 
-  // which most describes the data timing structure.
-  //
-  // 60% working point tune-2
+  /*
+   2016.03.29  Soshi.Tsuno@cern.ch
+  
+   The time walk effect is directly tuned with timing scan data (collision) in 2015.
+   
+   See reference in the talk,
+   https://indico.cern.ch/event/516099/contributions/1195889/attachments/1252177/1846815/pixelOffline_timing_04.04.2016_soshi.pdf
+  
+   Ideally, it could be directly parameterized as a function of given ToT.
+   However, the ToT calibration was changed over 2015-2016, where newly calibrated ToT value was not available for 2016. 
+   For instance, the b-layer charge tuning was changed from ToT30@MIP (2015) to ToT18@MIP (2016).
+   Thus the time walk effect needs to be parameterized with more universal value, that is, charge information.
+   But it was non-trivial because of the migration effect between the border in ToT.
+  
+   Here in 2015 version, we apply the threshold of the 60% total charge to get a certain ToT value, 
+   which most describes the data timing structure.
+  
+   60% working point tune-2
+  */
+
   double prob = 0.0;
   if (barrel_ec==0 && layer_disk==1) {
     if (abs(moduleID)==0) {

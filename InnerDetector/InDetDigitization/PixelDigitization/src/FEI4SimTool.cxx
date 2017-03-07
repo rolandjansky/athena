@@ -89,9 +89,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    //===============
     // Filter events
-    //===============
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
     if (SiHelper::isDisabled((*i_chargedDiode).second)) { continue; } 
 

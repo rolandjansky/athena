@@ -49,9 +49,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
   int moduleIndex = pixelId->eta_module(chargedDiodes.element()->identify());
 
-  //====================
   // Merge ganged pixel
-  //====================
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
     InDetDD::SiCellId cellID     = chargedDiodes.element()->cellIdFromIdentifier(chargedDiodes.getId((*i_chargedDiode).first));
     InDetDD::SiCellId gangedCell = chargedDiodes.element()->gangedCell(cellID);
@@ -109,9 +107,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    //===============
     // Filter events
-    //===============
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
     if (SiHelper::isDisabled((*i_chargedDiode).second)) { continue; } 
 
