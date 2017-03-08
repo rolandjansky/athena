@@ -1,11 +1,13 @@
-# Package filtering rules for the Athena project build.
 #
+# Package filtering rules for the AthenaP1 project build.
+#
+
 # Only pick up a few packages from the External directory:
 + External/AtlasDataArea
 + External/pyAMI
-+ External/Herwigpp
 + External/AtlasMKL
 - External/.*
+
 # Only pick up the RunTime packages from Projects:
 + Projects/.*RunTime
 - Projects/.*
@@ -15,7 +17,7 @@
 - Offloading/.*
 
 # Temporary VP1 compilation issues 
--graphics/VP1
+- graphics/VP1/.*
 
 # Remove simulation packages except those required for EDM, etc.
 - Calorimeter/CaloG4Sim
@@ -81,14 +83,13 @@
 + Simulation/ISF/ISF_FastCaloSim/ISF_PunchThroughTools
 + Simulation/ISF/ISF_Fatras/ISF_FatrasRecoTools
 + Simulation/ISF/ISF_Fatras/ISF_FatrasServices
-- Simulation/ISF/ISF_Fatras/ISF_FatrasToolsG4
 + Simulation/ISF/ISF_Fatras/ISF_FatrasTools
 + Simulation/ISF/ISF_Fatras/ISF_FatrasToolsID
 + Simulation/ISF/ISF_Fatras/ISF_FatrasToolsMS
 + Simulation/TruthJiveXML
 - Simulation/.*
 - TestBeam/TBDetDescrCnv
-- TileCalorimeter/TileG4
+- TileCalorimeter/TileG4/.*
 - TileCalorimeter/TilePulseSimulator
 - TileCalorimeter/TileSimAlgs
 - TileCalorimeter/TileSimUtils
