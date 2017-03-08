@@ -16,7 +16,7 @@
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruthBase/AtlasTrajectory.h"
-#include "AthenaBaseComps/MsgStreamMacros.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace G4UA
 {
