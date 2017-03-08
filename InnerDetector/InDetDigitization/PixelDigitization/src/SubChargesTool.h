@@ -88,7 +88,6 @@ class SubChargesTool:public AthAlgTool,virtual public IAlgTool {
     std::string 		                m_rndmEngineName;
     CLHEP::HepRandomEngine         *m_rndmEngine;	
 
-    double electronHolePairsPerEnergy;
     bool				m_disableDistortions;
     ToolHandle<IModuleDistortionsTool> m_pixDistoTool;
 

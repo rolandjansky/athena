@@ -28,12 +28,12 @@ def Pixel_LastXing():
 def ChargeCollProbSvc(name="ChargeCollProbSvc", **kwargs):
     return CfgMgr.ChargeCollProbSvc(name, **kwargs)
 
+###############################################################################
+
 def DBMChargeTool(name="DBMChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.DBMChargeTool(name, **kwargs)
-
-###############################################################################
 
 def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("DeltaRayCut", 117.)
@@ -43,7 +43,7 @@ def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.BichselSimTool(name, **kwargs)
 
-def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
+def PixelPlanarChargeTool(name="PixelPlanarChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
@@ -53,18 +53,9 @@ def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
     # kwargs.setdefault("doHITPlots", True)
-    return CfgMgr.PixelBarrelBichselChargeTool(name, **kwargs)
+    return CfgMgr.PixelPlanarChargeTool(name, **kwargs)
 
-def PixelECBichselChargeTool(name="PixelECBichselChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doPU", True)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    return CfgMgr.PixelECBichselChargeTool(name, **kwargs)
-
-def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
+def Pixel3DChargeTool(name="Pixel3DChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
@@ -72,41 +63,7 @@ def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
     kwargs.setdefault("doDeltaRay", False)            # needs validation
     kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    return CfgMgr.IblPlanarBichselChargeTool(name, **kwargs)
-
-def Ibl3DBichselChargeTool(name="Ibl3DBichselChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    return CfgMgr.Ibl3DBichselChargeTool(name, **kwargs)
-
-
-###############################################################################
-
-
-def PixelBarrelChargeTool(name="PixelBarrelChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.PixelBarrelChargeTool(name, **kwargs)
-
-def PixelECChargeTool(name="PixelECChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.PixelECChargeTool(name, **kwargs)
-
-def IblPlanarChargeTool(name="IblPlanarChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.IblPlanarChargeTool(name, **kwargs)
-
-def Ibl3DChargeTool(name="Ibl3DChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.Ibl3DChargeTool(name, **kwargs)
+    return CfgMgr.Pixel3DChargeTool(name, **kwargs)
 
 def SubChargesTool(name="SubChargesTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
@@ -219,7 +176,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     feSimTools = []
     if GeometryFlags.isSLHC():
       procTools += ['PixelDiodeCrossTalkGenerator']
-      chargeTools += ['IblPlanarBichselChargeTool']
+      chargeTools += ['PixelPlanarChargeTool']
       feSimTools += ['FEI4SimTool']
     else:
       procTools += ['PixelDiodeCrossTalkGenerator']
@@ -227,10 +184,8 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       procTools += ['PixelNoisyCellGenerator']
       procTools += ['PixelRandomDisabledCellGenerator']
       chargeTools += ['DBMChargeTool']
-      chargeTools += ['PixelECBichselChargeTool']
-      chargeTools += ['PixelBarrelBichselChargeTool']
-      chargeTools += ['IblPlanarBichselChargeTool']
-      chargeTools += ['Ibl3DBichselChargeTool']
+      chargeTools += ['PixelPlanarChargeTool']
+      chargeTools += ['Pixel3DChargeTool']
       feSimTools += ['FEI4SimTool']
       feSimTools += ['FEI3SimTool']
     kwargs.setdefault("PixelProcessorTools", procTools)
