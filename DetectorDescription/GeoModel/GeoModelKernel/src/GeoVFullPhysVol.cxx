@@ -36,7 +36,7 @@ GeoVFullPhysVol::GeoVFullPhysVol (const GeoLogVol* LogVol)
   //## begin GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.hasinit preserve=no
   //## end GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.hasinit
   //## begin GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.initialization preserve=yes
-:GeoVPhysVol (LogVol), m_id(NULL), m_absPosInfo (NULL)
+:GeoVPhysVol (LogVol), m_id(nullptr), m_absPosInfo (nullptr)
   //## end GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.initialization
 {
   //## begin GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.body preserve=yes
@@ -81,7 +81,7 @@ const HepGeom::Transform3D & GeoVFullPhysVol::getAbsoluteTransform () const
       // Check the cache.  If it is empty, compute the absolute position from the     
       // top of the tree down to here, and update the cache     
       //     
-      PVConstLink child = this, parent = NULL;
+      PVConstLink child = this, parent = nullptr;
       if (child->isShared ())
 	{
 	  throw std::runtime_error (errorMessage);
@@ -137,7 +137,7 @@ void GeoVFullPhysVol::clearPositionInfo () const
   //## begin GeoVFullPhysVol::clearPositionInfo%3CDE9AB9033A.body preserve=yes
 
   delete m_absPosInfo;
-  m_absPosInfo = NULL;
+  m_absPosInfo = nullptr;
   //## end GeoVFullPhysVol::clearPositionInfo%3CDE9AB9033A.body
 }
 
@@ -166,7 +166,7 @@ const HepGeom::Transform3D & GeoVFullPhysVol::getDefAbsoluteTransform () const
       // Check the cache.  If it is empty, compute the absolute position from the     
       // top of the tree down to here, and update the cache     
       //     
-      PVConstLink child = this, parent = NULL;
+      PVConstLink child = this, parent = nullptr;
       if (child->isShared ())
 	{
 	  throw std::runtime_error (errorMessage);
@@ -238,7 +238,7 @@ const std::string &  GeoVFullPhysVol::getAbsoluteName ()
       // Check the cache.  If it is empty, compute the absolute position from the     
       // top of the tree down to here, and update the cache     
       //     
-      PVConstLink child = this, parent = NULL;
+      PVConstLink child = this, parent = nullptr;
       if (child->isShared ())
 	{
 	  throw std::runtime_error (errorMessage);
@@ -288,14 +288,14 @@ unsigned int GeoVFullPhysVol::getId () const
   //                                                                                                //     
   //------------------------------------------------------------------------------------------------//     
 
-  if (m_id==NULL) {
+  if (m_id==nullptr) {
      if (isShared ()) throw std::runtime_error (errorMessage);
 
      //     
      // Check the cache.  If it is empty, compute the absolute position from the     
      // top of the tree down to here, and update the cache     
      //     
-     PVConstLink child = this, parent = NULL;
+     PVConstLink child = this, parent = nullptr;
      if (child->isShared ())	{
 	   throw std::runtime_error (errorMessage);
 	 }	

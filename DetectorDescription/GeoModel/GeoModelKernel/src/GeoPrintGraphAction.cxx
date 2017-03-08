@@ -33,9 +33,9 @@
 
 GeoPrintGraphAction::GeoPrintGraphAction (std::ostream &o)
   //## begin GeoPrintGraphAction::GeoPrintGraphAction%3FB027EA0056.hasinit preserve=no
-      : m_nameTag(NULL),
-        m_serialDenominator(NULL),
-        m_idTag(NULL),
+      : m_nameTag(nullptr),
+        m_serialDenominator(nullptr),
+        m_idTag(nullptr),
         m_transformState(true),
         m_volumeState(true),
         m_nametagState(true),

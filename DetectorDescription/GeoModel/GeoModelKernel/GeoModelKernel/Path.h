@@ -182,7 +182,7 @@ inline const T * Path<T>::pop ()
   //## begin Path::pop%3DCE7F9C0249.body preserve=yes
   if (m_nodeList.size () == 0)
     {
-      return NULL;
+      return nullptr;
     }
   else
     {
@@ -215,7 +215,7 @@ inline const T * Path<T>::getItem (unsigned int i) const
   //## begin Path::getItem%3DCE7F9C028F.body preserve=yes
   if (m_nodeList.size () == 0)
 	{
-      return NULL;
+      return nullptr;
     }
   else
     {
@@ -230,7 +230,7 @@ inline const T * Path<T>::getHead () const
   //## begin Path::getHead%3DCE7F9C02A3.body preserve=yes
   if (m_nodeList.size () == 0)
     {
-      return NULL;
+      return nullptr;
     }
   else
     {
@@ -245,7 +245,7 @@ inline const T * Path<T>::getTail () const
   //## begin Path::getTail%3DCE7F9C02C1.body preserve=yes
   if (m_nodeList.size () == 0)
     {
-      return NULL;
+      return nullptr;
     }
   else
     {

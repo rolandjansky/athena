@@ -4,9 +4,6 @@
 
 #ifndef ConstLink_h
 #define ConstLink_h 1
-#ifndef NULL
-#define NULL            0
-#endif
 /**     @brief Smart links to reference-counted pointers.  Used in this
  *      package for calorimeter cells
  **/
@@ -108,7 +105,7 @@ class ConstLink
 
 template <class T>
 inline ConstLink<T>::ConstLink()
-  :m_ptr(NULL)
+  :m_ptr(nullptr)
 {
 }
 
