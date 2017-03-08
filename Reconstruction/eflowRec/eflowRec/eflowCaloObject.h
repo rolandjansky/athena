@@ -17,6 +17,7 @@ PURPOSE:  Calorimeter Object data class
 ********************************************************************/
 
 #include <vector>
+#include <memory>
 #include "AthLinks/ElementLink.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -69,9 +70,9 @@ public:
 
   /* Static container accessors */
   static void setClusterContainerPtr(xAOD::CaloClusterContainer* clusCont, xAOD::CaloClusterAuxContainer* auxCont) {
-    m_clusterContainerPtr = clusCont;
-    m_clusterAuxContainerPtr = auxCont;
-    m_clusterContainerPtr->setStore(m_clusterAuxContainerPtr);
+    m_clusterContainerPtr = std::unique_ptr<xAOD::CaloClusterContainer>(clusCont);
+    m_clusterAuxContainerPtr = std::unique_ptr<xAOD::CaloClusterAuxContainer>(auxCont);
+    m_clusterContainerPtr->setStore(m_clusterAuxContainerPtr.get());
   }
 
   /* Calculate total tracks energy, total tracks energy variance, total cluster energy for subtraction */
@@ -81,8 +82,8 @@ public:
 
   void simulateShower(eflowLayerIntegrator *integrator, eflowEEtaBinnedParameters* binnedParameters, bool useUpdated2015ChargedShowerSubtraction);
 
-  static xAOD::CaloClusterContainer* getClusterContainerPtr() { return m_clusterContainerPtr;}
-  static xAOD::CaloClusterAuxContainer* getClusterAuxContainerPtr() { return m_clusterAuxContainerPtr;}
+  static xAOD::CaloClusterContainer* getClusterContainerPtr() { return m_clusterContainerPtr.get();}
+  static xAOD::CaloClusterAuxContainer* getClusterAuxContainerPtr() { return m_clusterAuxContainerPtr.get();}
 
 private:
 
@@ -99,8 +100,9 @@ private:
   std::vector<eflowRecTrack*> m_eflowRecTracks;
 
   /* Containers of CaloClusters */
-  static xAOD::CaloClusterContainer* m_clusterContainerPtr;
-  static xAOD::CaloClusterAuxContainer* m_clusterAuxContainerPtr;
+  static std::unique_ptr<xAOD::CaloClusterContainer> m_clusterContainerPtr;
+  static std::unique_ptr<xAOD::CaloClusterAuxContainer> m_clusterAuxContainerPtr;
+  
 };
 
 #include "AthContainers/DataVector.h"

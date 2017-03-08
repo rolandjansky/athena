@@ -72,7 +72,6 @@ eflowPreparation::eflowPreparation(const std::string& name, ISvcLocator* pSvcLoc
   m_matchingTool("PFTrackClusterMatchingTool/CalObjBldMatchingTool", this),
   m_eflowMode("FullMode"),
   m_selectedElectronsWriteHandle("eflowRec_selectedElectrons_EM"),
-  m_selectedMuons(nullptr),
   m_leptonCaloCellContainerWriteHandle("eflowRec_leptonCellContainer_EM"),
   m_useLeptons(true),
   m_storeLeptonCells(false),
@@ -126,7 +125,7 @@ StatusCode eflowPreparation::initialize() {
     return StatusCode::SUCCESS;
   }
 
-  if (m_useLeptons) m_selectedMuons = new xAOD::MuonContainer(SG::VIEW_ELEMENTS);
+  if (m_useLeptons) m_selectedMuons = CxxUtils::make_unique<xAOD::MuonContainer>(SG::VIEW_ELEMENTS);
   
   ATH_CHECK(m_selTool.retrieve());
 
@@ -136,8 +135,6 @@ StatusCode eflowPreparation::initialize() {
 StatusCode eflowPreparation::finalize() {
 
   msg(MSG::INFO) << "Produced " << m_nMatches << " track-cluster matches." << endmsg;
-
-  if (m_useLeptons && m_selectedMuons) delete m_selectedMuons;
 
   return StatusCode::SUCCESS;
 
@@ -207,7 +204,7 @@ StatusCode eflowPreparation::execute() {
 
   /* Create eflowCaloObject static calo cluster container */
   eflowCaloObject::setClusterContainerPtr(new xAOD::CaloClusterContainer(), new xAOD::CaloClusterAuxContainer());
-
+  
   /* Collect all calo clusters from all cluster containers to m_eflowRecClusterContainerWriteHandle */
   if (makeClusterContainer().isFailure()) {
     return StatusCode::SUCCESS;
@@ -274,26 +271,26 @@ StatusCode eflowPreparation::makeClusterContainer() {
   unsigned int nClusters = thisCaloClusterContainer->size();
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
     /* Create the eflowRecCluster and put it in the container */
-    eflowRecCluster* thisEFRecCluster = new eflowRecCluster(ElementLink<xAOD::CaloClusterContainer>(*thisCaloClusterContainer, iCluster));
-
+    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = CxxUtils::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*thisCaloClusterContainer, iCluster));
+    
     if (m_caloCalClusterReadHandle.isValid()){
       std::map<IdentifierHash,double> cellsWeightMap;
       retrieveLCCalCellWeight(thisCaloClusterContainer->at(iCluster)->e(), iCluster, cellsWeightMap);
 
-      if (false) {
+      if (msgLvl(MSG::DEBUG)) {
         //zhangr
         std::map<IdentifierHash, double>::iterator it = cellsWeightMap.begin();
         for (; it != cellsWeightMap.end(); ++it) {
-          std::cout << "zhangrui eflowPreparation " << iCluster << "/" << nClusters << ": e="
+           msg(MSG::DEBUG) << "zhangrui eflowPreparation " << iCluster << "/" << nClusters << ": e="
                     << thisCaloClusterContainer->at(iCluster)->e() << " (" << it->first << "  "
-                    << it->second << ")" << std::endl;
+                    << it->second << ")" << endmsg;
         }
       }
 
       thisEFRecCluster->setCellsWeight(cellsWeightMap);
     }
     thisEFRecCluster->setClusterId(iCluster);
-    m_eflowRecClusterContainerWriteHandle->push_back(thisEFRecCluster);
+    m_eflowRecClusterContainerWriteHandle->push_back(std::move(thisEFRecCluster));
 
     if (msgLvl(MSG::DEBUG)) {
       const xAOD::CaloCluster* thisCluster = thisCaloClusterContainer->at(iCluster);
@@ -332,9 +329,9 @@ StatusCode eflowPreparation::makeTrackContainer() {
 
     if (!rejectTrack) {
       /* Create the eflowRecCluster and put it in the container */
-      eflowRecTrack* thisEFRecTrack = new eflowRecTrack(ElementLink<xAOD::TrackParticleContainer>(*trackContainer, trackIndex), m_theTrackExtrapolatorTool);
+      std::unique_ptr<eflowRecTrack> thisEFRecTrack  = CxxUtils::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*trackContainer, trackIndex), m_theTrackExtrapolatorTool);
       thisEFRecTrack->setTrackId(trackIndex);
-      m_eflowRecTrackContainerWriteHandle->push_back(thisEFRecTrack);
+      m_eflowRecTrackContainerWriteHandle->push_back(std::move(thisEFRecTrack));
     }
   }
 
@@ -397,7 +394,7 @@ StatusCode eflowPreparation::selectMuons() {
     
     xAOD::Muon::Quality muonQuality = theMuon->quality();
     if( muonQuality <= xAOD::Muon::Medium) {   
-      if (m_selectedMuons){
+      if (nullptr != m_selectedMuons.get()){
 	m_selectedMuons->push_back(const_cast<xAOD::Muon*>(theMuon));
       } else if (msgLvl(MSG::WARNING)) {
 	msg(MSG::WARNING) << " Invalid pointer to m_selectedMuons in selectMuons " << std::endl;

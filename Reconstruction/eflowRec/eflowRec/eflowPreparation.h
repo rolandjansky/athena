@@ -126,8 +126,7 @@ class eflowPreparation : public AthAlgorithm {
   SG::WriteHandle<xAOD::ElectronContainer> m_selectedElectronsWriteHandle;
 
   /// container of muons that we will select */
-  xAOD::MuonContainer* m_selectedMuons;
-  
+  std::unique_ptr<xAOD::MuonContainer> m_selectedMuons;
 
   /// WriteHandle for the CaloCellContainer, that will store calorimeter cells associated to leptons (electrons and muons) */
   SG::WriteHandle<ConstDataVector<CaloCellContainer> > m_leptonCaloCellContainerWriteHandle;
