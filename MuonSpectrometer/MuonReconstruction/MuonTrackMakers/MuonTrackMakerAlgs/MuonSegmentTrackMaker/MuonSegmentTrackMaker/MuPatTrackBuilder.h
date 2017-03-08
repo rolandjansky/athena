@@ -9,6 +9,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkSegment/SegmentCollection.h"
+#include "TrkTrack/TrackCollection.h"
 
 namespace Muon {
   class IMuonTrackFinder;
@@ -33,11 +35,11 @@ class MuPatTrackBuilder : public AthAlgorithm
 
  private:
 
-  std::string m_segmentLocation;       //!< Location of input MuonSegmentCombination collection
-  std::string m_spectroTrackLocation;  //!< Track output location for tracks strictly in MS
-  std::string m_spectroPartiLocation;  //!< Track output location for track particles (strictly in MS)
-  std::string m_extrapTrackLocation;  //!< Output location for back-extrapolated tracks
-  std::string m_extrapPartiLocation;  //!< Output location for back-extrapolated particles
+  SG::ReadHandle<Trk::SegmentCollection>  m_segmentLocation;       //!< Location of input MuonSegmentCombination collection
+  SG::WriteHandle<TrackCollection>        m_spectroTrackLocation;  //!< Track output location for tracks strictly in MS
+  SG::WriteHandle<TrackCollection>        m_spectroPartiLocation;  //!< Track output location for track particles (strictly in MS)
+  SG::WriteHandle<TrackCollection>        m_extrapTrackLocation;  //!< Output location for back-extrapolated tracks
+  SG::WriteHandle<TrackCollection>        m_extrapPartiLocation;  //!< Output location for back-extrapolated particles
 
   ToolHandle<Muon::IMuonTrackFinder> m_trackMaker;  //!< Actual tool to do the track finding
 //  ToolHandle<IMuonboyToParticleTool> m_convTool;    //!< Tool for converting from tracks to track particles (acts as a flag)

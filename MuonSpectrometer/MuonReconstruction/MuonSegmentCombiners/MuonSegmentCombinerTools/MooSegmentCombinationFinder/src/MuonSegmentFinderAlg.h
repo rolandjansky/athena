@@ -44,9 +44,9 @@ class MuonSegmentFinderAlg : public AthAlgorithm
 
   virtual ~MuonSegmentFinderAlg();
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 
  private:
@@ -64,8 +64,11 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder;
   ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder;
 
-  std::string m_segmentCollectionName;
-  
+
+  SG::WriteHandleKey<Trk::SegmentCollection> m_segmentCollectionKey;
+  SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrdsKey;
+  SG::ReadHandleKey<MuonPatternCombinationCollection> m_patternCollKey;
+
   void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs );
   void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs);
 
