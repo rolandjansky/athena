@@ -5,7 +5,7 @@
 // This class contains the geometry calculations needed to calculate
 // an identifier for a given G4Step in the MiniFCAL.
 
-// Aug-2008: M.Fincke  
+// Aug-2008: M.Fincke
 
 #ifndef MiniFCALAssignIdentifier_H
 #define MiniFCALAssignIdentifier_H
@@ -19,7 +19,6 @@
 #include "G4ParticleDefinition.hh"
 #include "G4DynamicParticle.hh"
 #include "G4ThreeVector.hh"
-#include "CLHEP/Geometry/Point3D.h"
 
 #include "globals.hh"
 
@@ -38,30 +37,30 @@ class MsgStream;
 class CaloDetDescrManager ;
 
 namespace LArG4 {
-  
+
   namespace MiniFCAL {
-    
+
     enum eMiniFCALAssignIdentifierType { kActive, kInactive, kDead };
-    
+
     class MiniFCALAssignIdentifier {
-      
+
     public:
-      
+
       // Standard implementation of a singleton pattern.
       static MiniFCALAssignIdentifier* GetInstance();
-      virtual ~MiniFCALAssignIdentifier(){  ;} 
-      
-      LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eMiniFCALAssignIdentifierType type = kActive );
-      
-      
+      virtual ~MiniFCALAssignIdentifier(){  ;}
+
+      LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eMiniFCALAssignIdentifierType type = kActive ) const;
+
+
     protected:
       MiniFCALAssignIdentifier();
       IMessageSvc* m_msgsvc;
-      
+
     private:
       static MiniFCALAssignIdentifier *m_instance;
-      
-      
+
+
       G4double m_halfLength;
       G4double m_absThick;
       G4double m_layThick;
@@ -72,11 +71,11 @@ namespace LArG4 {
       std::map<int,G4double> m_ringRinner;
       int m_nRings;
 
-      bool m_initialized;      
+      bool m_initialized;
     };
-    
+
   } // namespace MiniFCAL
-  
+
 } // namespace LArG4
 
 #endif // MiniFCALAssignIdentifier_H
