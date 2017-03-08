@@ -2,7 +2,7 @@
 # Package: EnhancedBiasWeighter
 ################################################################################
 
-# Declare the package name:
+# Declare the package name: 
 atlas_subdir( EnhancedBiasWeighter )
 
 # Declare the package's dependencies:
