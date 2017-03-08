@@ -39,9 +39,9 @@
 
 StatusCode PixelMainMon::BookPixelDCSMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Status" << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Status" << endmsg;
 
-   msg(MSG::DEBUG)  << "[BookPixelDCSMon]" << endreq;
+   msg(MSG::DEBUG)  << "[BookPixelDCSMon]" << endmsg;
 
    //if(m_doOnTrack) return StatusCode::SUCCESS;
 
@@ -564,7 +564,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
         nbins_LB,min_LB,max_LB,nbins_staveID,min_staveID,max_staveID));
   //m_hist_LB_staveID_thermalFigureMerit->SetContour(99);
 
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;
    return StatusCode::SUCCESS;
 }
 
@@ -578,7 +578,7 @@ StatusCode PixelMainMon::FillPixelDCSMon(void)
     return StatusCode::SUCCESS;
   }
 
-  msg(MSG::DEBUG)  << "[FillPixelDCSMon]" << endreq;
+  msg(MSG::DEBUG)  << "[FillPixelDCSMon]" << endmsg;
 
   // loop over DCS directories
 //  const CondAttrListCollection* atrlistcol;
@@ -772,7 +772,7 @@ StatusCode PixelMainMon::FillPixelDCSMon(void)
 
 StatusCode PixelMainMon::ProcPixelDCSMon(void)
 {
-   msg(MSG::DEBUG)  << "[ProcPixelDCSMon]" << endreq;
+   msg(MSG::DEBUG)  << "[ProcPixelDCSMon]" << endmsg;
 
    //---------------------------------------
    // fill dcs data in moduleDcsDataHolder

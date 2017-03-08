@@ -59,6 +59,9 @@ public:
 
   virtual StatusCode decorate(const xAOD::TauJet& xTau) const;
 
+  virtual StatusCode setEleOlrPassDecorationName(const std::string& name);
+  virtual StatusCode setEleOlrLhScoreDecorationName(const std::string& name);
+
 private:
   AsgElectronLikelihoodTool* m_tEMLHTool;
   mutable const xAOD::ElectronContainer* m_xElectronContainer;

@@ -64,15 +64,15 @@ StatusCode TrigTrackJetFinderTool::initialize() {
   
   StatusCode sc = AlgTool::initialize();
 
-  msg(MSG::INFO) << "Initializing TrigTrackJetFinderTool" << endreq;
+  msg(MSG::INFO) << "Initializing TrigTrackJetFinderTool" << endmsg;
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "declareProperty review:" << endreq;
-    msg(MSG::DEBUG) << " cone size (R,Z)      = " << m_dr << ", " << m_dz << endreq; 
-    msg(MSG::DEBUG) << " minimum seed pT      = " << m_ptSeed << endreq;
-    msg(MSG::DEBUG) << " minimum jet pT       = " << m_ptJet  << endreq;
-    msg(MSG::DEBUG) << " minimum track pT     = " << m_ptMin  << endreq;
-    msg(MSG::DEBUG) << " minimum multiplicity = " << m_mult  << endreq;
+    msg(MSG::DEBUG) << "declareProperty review:" << endmsg;
+    msg(MSG::DEBUG) << " cone size (R,Z)      = " << m_dr << ", " << m_dz << endmsg; 
+    msg(MSG::DEBUG) << " minimum seed pT      = " << m_ptSeed << endmsg;
+    msg(MSG::DEBUG) << " minimum jet pT       = " << m_ptJet  << endmsg;
+    msg(MSG::DEBUG) << " minimum track pT     = " << m_ptMin  << endmsg;
+    msg(MSG::DEBUG) << " minimum multiplicity = " << m_mult  << endmsg;
   }
 
   return sc;
@@ -85,7 +85,7 @@ StatusCode TrigTrackJetFinderTool::initialize() {
 void TrigTrackJetFinderTool::clear() {
 
   if (msgLvl(MSG::VERBOSE))
-    msg(MSG::VERBOSE) << "Clearing internal track classe" << endreq;
+    msg(MSG::VERBOSE) << "Clearing internal track classe" << endmsg;
 
   m_attributesOfTracks.clear();
 }
@@ -101,7 +101,7 @@ void TrigTrackJetFinderTool::addTrack(const TrigInDetTrack*& track, unsigned int
   if (defTrackSel) {
 
     if (fabs(track->param()->pT()) < m_ptMin && (fabs(track->param()->z0() - m_zpv) >= m_dz)) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (pT && deltaZ cut)" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (pT && deltaZ cut)" << endmsg;
       selTrack=false;
     }
 
@@ -115,25 +115,25 @@ void TrigTrackJetFinderTool::addTrack(const TrigInDetTrack*& track, unsigned int
     m_trkSelChi2   = 0.001;
 
     if (fabs(track->param()->pT()) < m_trkSelPt) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (pT cut)" << endreq; selTrack=false;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (pT cut)" << endmsg; selTrack=false;
     }
     if (track->siSpacePoints()) {
       
       if ((*track->siSpacePoints())[0]->layer()) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (missing b-layer hit)" << endreq; selTrack=false;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (missing b-layer hit)" << endmsg; selTrack=false;
       }
       if ((int)track->siSpacePoints()->size() < m_trkSelSiHits) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (too few silicon hits)" << endreq; selTrack=false;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (too few silicon hits)" << endmsg; selTrack=false;
       }
       if (TMath::Prob(track->chi2(),(int)track->siSpacePoints()->size()*3-5) <= m_trkSelChi2) {
-      	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (chi2 cut)" << endreq; selTrack=false;
+      	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (chi2 cut)" << endmsg; selTrack=false;
       }
     }
   }
 
   if (!selTrack) return;
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " selected" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " selected" << endmsg;
 
   TrackAttributes p(track, i);
   m_attributesOfTracks.push_back(p);
@@ -155,7 +155,7 @@ void TrigTrackJetFinderTool::addTrack(const Rec::TrackParticle*& track, unsigned
   if (fabs(pT) >= m_ptMin && (fabs(z0 - m_zpv) < m_dz)) {
 
     if (msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << "Adding selected track " << i+1 << " for finding the track-jet direction" << endreq;  
+      msg(MSG::DEBUG) << "Adding selected track " << i+1 << " for finding the track-jet direction" << endmsg;  
 
     m_attributesOfTracks.push_back(p);
 
@@ -163,7 +163,7 @@ void TrigTrackJetFinderTool::addTrack(const Rec::TrackParticle*& track, unsigned
 
     if (msgLvl(MSG::DEBUG))
       msg(MSG::DEBUG) << "Selected track " << i+1 << " not added for finding the track-jet direction since pT " 
-		      << pT << " is not >= " << m_ptMin << " and/or Delta(z) is not < " << m_dz << endreq;
+		      << pT << " is not >= " << m_ptMin << " and/or Delta(z) is not < " << m_dz << endmsg;
 
   }
 
@@ -184,7 +184,7 @@ void TrigTrackJetFinderTool::addTrack(const Trk::Track*& track, unsigned int i) 
   if (fabs(pT) >= m_ptMin && (fabs(z0 - m_zpv) < m_dz)) {
 
     if (msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << "Adding selected track " << i+1 << " for finding the track-jet direction" << endreq;  
+      msg(MSG::DEBUG) << "Adding selected track " << i+1 << " for finding the track-jet direction" << endmsg;  
     
     m_attributesOfTracks.push_back(p);
 
@@ -192,7 +192,7 @@ void TrigTrackJetFinderTool::addTrack(const Trk::Track*& track, unsigned int i) 
 
     if (msgLvl(MSG::DEBUG))
       msg(MSG::DEBUG) << "Selected track " << i+1 << " not added for finding the track-jet direction since pT " 
-		      << pT << " is not >= " << m_ptMin << " and/or Delta(z) is not < " << m_dz << endreq;
+		      << pT << " is not >= " << m_ptMin << " and/or Delta(z) is not < " << m_dz << endmsg;
 
   }
 
@@ -206,7 +206,7 @@ void TrigTrackJetFinderTool::addTrack(const Trk::Track*& track, unsigned int i) 
 void TrigTrackJetFinderTool::inputPrimaryVertexZ(const float& zPV) {
 
   if (msgLvl(MSG::VERBOSE))
-    msg(MSG::VERBOSE) << "Z primary vertex " << zPV << endreq;
+    msg(MSG::VERBOSE) << "Z primary vertex " << zPV << endmsg;
 
   m_zpv = zPV;
 }
@@ -223,13 +223,13 @@ void TrigTrackJetFinderTool::findJet(std::vector<int>& tracks, float& jetEta, fl
   jetEta = 0, jetPhi = 0;
 
   if (msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "Number of input tracks = " << m_attributesOfTracks.size()  << endreq;
+    msg(MSG::DEBUG) << "Number of input tracks = " << m_attributesOfTracks.size()  << endmsg;
 
   if(m_attributesOfTracks.size() < m_mult) {
     jetEta = -99; jetPhi = -99;
 
     if (msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << "Seed multiplicity is below threshold " << m_mult << ". Not computing track-jet direction." << endreq;
+      msg(MSG::DEBUG) << "Seed multiplicity is below threshold " << m_mult << ". Not computing track-jet direction." << endmsg;
 
     return;
   }
@@ -240,7 +240,7 @@ void TrigTrackJetFinderTool::findJet(std::vector<int>& tracks, float& jetEta, fl
     jetEta = -99; jetPhi = -99;
 
     if (msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << "Highest-pT seed is below threshold " << m_ptSeed << ". Not computing track-jet direction." << endreq;
+      msg(MSG::DEBUG) << "Highest-pT seed is below threshold " << m_ptSeed << ". Not computing track-jet direction." << endmsg;
 
     return;
   }
@@ -255,12 +255,12 @@ void TrigTrackJetFinderTool::findJet(std::vector<int>& tracks, float& jetEta, fl
   jetPhi = phiCorr(atan2(jetPy,jetPx));
 
   if (msgLvl(MSG::VERBOSE))
-    msg(MSG::VERBOSE) << "  jetP = " << jetP << " jetEta = " << jetEta << " jetPhi = " << jetPhi << endreq;
+    msg(MSG::VERBOSE) << "  jetP = " << jetP << " jetEta = " << jetEta << " jetPhi = " << jetPhi << endmsg;
 
   for(unsigned int j=1; j < m_attributesOfTracks.size(); j++) {
     
     if (msgLvl(MSG::VERBOSE))
-      msg(MSG::VERBOSE) << "Considering seed " << m_attributesOfTracks[j].Id()+1 << endreq;
+      msg(MSG::VERBOSE) << "Considering seed " << m_attributesOfTracks[j].Id()+1 << endmsg;
 
     float pEta = m_attributesOfTracks[j].Eta();
     float pPhi = m_attributesOfTracks[j].Phi();
@@ -270,7 +270,7 @@ void TrigTrackJetFinderTool::findJet(std::vector<int>& tracks, float& jetEta, fl
     if(dr<m_dr) {
 	    
       if (msgLvl(MSG::VERBOSE))
-	msg(MSG::VERBOSE) << "  deltaR matching between seed and jet direction satisfied (" << dr << ">" << m_dr << ")" << endreq;
+	msg(MSG::VERBOSE) << "  deltaR matching between seed and jet direction satisfied (" << dr << ">" << m_dr << ")" << endmsg;
 
       jetPx += m_attributesOfTracks[j].Px();
       jetPy += m_attributesOfTracks[j].Py();
@@ -282,7 +282,7 @@ void TrigTrackJetFinderTool::findJet(std::vector<int>& tracks, float& jetEta, fl
       jetPhi = atan2(jetPy,jetPx);
       
       if (msgLvl(MSG::VERBOSE))
-	msg(MSG::VERBOSE) << "  jetP+= " << jetP << " jetEta+= " << jetEta << " jetPhi+= " << jetPhi << endreq;
+	msg(MSG::VERBOSE) << "  jetP+= " << jetP << " jetEta+= " << jetEta << " jetPhi+= " << jetPhi << endmsg;
     }
   }
 
@@ -321,7 +321,7 @@ StatusCode TrigTrackJetFinderTool::finalize() {
 
   StatusCode sc = AlgTool::finalize(); 
 
-  msg(MSG::INFO) << "Finalizing TrigTrackJetFinderTool" << endreq;
+  msg(MSG::INFO) << "Finalizing TrigTrackJetFinderTool" << endmsg;
 
   return sc;
 }

@@ -39,7 +39,7 @@ using namespace std;
 void
 MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *m_newsegment,
                                 const Muon::TgcPrepDataContainer *tgc_prepcontainer){//use new mdt segment
-  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside maptgchits"<<endreq;
+  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside maptgchits"<<endmsg;
   
   ///////////////////////////////////////////////////////////////////////////////////////////////
   // loop over MDT Segment Collection
@@ -151,7 +151,7 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *m_newsegment,
 void
 MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
                                 const Muon::TgcPrepDataContainer *tgc_prepcontainer){//use old mdt segment
-  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside maptgchits"<<endreq;
+  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside maptgchits"<<endmsg;
   
   //////////////////////////////////////////////////////
   // Declare flags for data types present

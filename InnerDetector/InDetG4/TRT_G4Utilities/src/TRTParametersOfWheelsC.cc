@@ -19,14 +19,14 @@ TRTParametersOfWheelsC::TRTParametersOfWheelsC() : m_msg("TRTParametersOfWheelsC
 
   printMessages = pParameters->GetInteger("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsC" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsC" << endmsg;
 
   DefineParameters();
 
   if (pParameters->GetInteger("PrintParametersOfWheelsC"))
     PrintParameters();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsC done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsC done" << endmsg;
 }
 
 
@@ -34,7 +34,7 @@ TRTParametersOfWheelsC::TRTParametersOfWheelsC() : m_msg("TRTParametersOfWheelsC
 
 TRTParametersOfWheelsC::~TRTParametersOfWheelsC()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTParametersOfWheelsC" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTParametersOfWheelsC" << endmsg;
 
   delete [] positionsOfWheelsC;
   delete [] positionsOfStrawPlanesC;
@@ -42,7 +42,7 @@ TRTParametersOfWheelsC::~TRTParametersOfWheelsC()
   delete [] positionsOfMainRadiatorsC;
   delete [] positionsOfThinRadiatorsC;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTParametersOfWheelsC done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTParametersOfWheelsC done" << endmsg;
 }
 
 
@@ -51,7 +51,7 @@ TRTParametersOfWheelsC::~TRTParametersOfWheelsC()
 void TRTParametersOfWheelsC::DefineParameters()
 {
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::DefineParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::DefineParameters" << endmsg;
 
     // Parameters of wheels C:
   numberOfWheelsC = pParameters->GetInteger("NumberOfWheelsC");
@@ -130,7 +130,7 @@ void TRTParametersOfWheelsC::DefineParameters()
       outerRadiusOfStraw + lengthOfMainRadiatorC / 2.;
   }
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::DefineParameters done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::DefineParameters done" << endmsg;
 }
 
 
@@ -138,7 +138,7 @@ void TRTParametersOfWheelsC::DefineParameters()
 
 void TRTParametersOfWheelsC::PrintParameters() const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::PrintParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::PrintParameters" << endmsg;
 
   TRTUtilities* pUtilities = TRTUtilities::GetPointer();
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
@@ -205,5 +205,5 @@ void TRTParametersOfWheelsC::PrintParameters() const
 
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::PrintParameters done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::PrintParameters done" << endmsg;
 }

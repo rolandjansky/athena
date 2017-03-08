@@ -35,7 +35,7 @@ IParticleLinkContainer_PERS* IParticleLinkContainerCnv::createPersistent( IParti
   IParticleLinkContainer_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
 
   // Write a debug message out
-  log << MSG::DEBUG << "Success" << endreq;
+  log << MSG::DEBUG << "Success" << endmsg;
 
   return persObj;
 }

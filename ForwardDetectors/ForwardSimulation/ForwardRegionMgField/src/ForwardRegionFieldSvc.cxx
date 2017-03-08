@@ -453,12 +453,12 @@ std::vector<std::vector<std::string> > MagField::ForwardRegionFieldSvc::loadData
     std::ifstream file (fileName);
     if(!file){
         std::string datapath = PathResolver::find_file(fileName,"DATAPATH", PathResolver::RecursiveSearch);
-        LogStream << MSG::DEBUG << "File " << fileName << " not found in run directory, trying to load it from DATAPATH" << endreq;
+        LogStream << MSG::DEBUG << "File " << fileName << " not found in run directory, trying to load it from DATAPATH" << endmsg;
         file.open(datapath.c_str());
     }
 
     if(!file)
-        LogStream << MSG::FATAL << "Unable to load " << fileName << endreq;
+        LogStream << MSG::FATAL << "Unable to load " << fileName << endmsg;
 
     if(file.is_open())
     {
@@ -520,7 +520,7 @@ std::vector<std::vector<std::string> > MagField::ForwardRegionFieldSvc::loadData
               file.ignore(1024, '\n'); // discard commented lines
             i++;
         }
-        LogStream << MSG::INFO << "File " << fileName << " succesfully loaded." << endreq;
+        LogStream << MSG::INFO << "File " << fileName << " succesfully loaded." << endmsg;
         file.close();
     }
     return loadedData;
@@ -554,7 +554,7 @@ void MagField::ForwardRegionFieldSvc::writeOutTwiss(std::vector<std::vector<std:
     G4ThreeVector Point;
 
     if(!file)
-      LogStream << MSG::ERROR << "Unable to write to " << fileName.str() << endreq;
+      LogStream << MSG::ERROR << "Unable to write to " << fileName.str() << endmsg;
 
     if(file.is_open())
     {

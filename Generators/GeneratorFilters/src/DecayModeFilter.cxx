@@ -105,7 +105,7 @@ StatusCode DecayModeFilter::filterFinalize() {
                << " Double-Bosonic=" << float(m_nDoubleBosonicMode)/nEvents*100 << "%,"
                << " Double-Leptonic=" <<  float(m_nDoubleLeptonicMode)/nEvents*100 << "%,"
                << " Mixed-Bosonic-Leptonic=" << float(m_nBosonicLeptonicMode)/nEvents*100 << "%");
-  ATH_MSG_INFO("Longer decay modes = " << (1 - float(totalFound + m_nDoubleBosonicMode + m_nDoubleLeptonicMode + m_nBosonicLeptonicMode)/nEvents)*100 << "%" << endreq);
+  ATH_MSG_INFO("Longer decay modes = " << (1 - float(totalFound + m_nDoubleBosonicMode + m_nDoubleLeptonicMode + m_nBosonicLeptonicMode)/nEvents)*100 << "%" << endmsg);
 
   return StatusCode::SUCCESS;
 }

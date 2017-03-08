@@ -143,7 +143,7 @@ namespace InDet
     StatusCode sc = AthAlgTool::initialize();
     if(sc.isFailure())
       {
-	msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+	msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
 	return StatusCode::FAILURE;
       }
     
@@ -152,18 +152,18 @@ namespace InDet
       {  
 	if(m_trackSumTool.retrieve().isFailure())
 	  {
-	    msg(MSG::INFO)<<" Unable to retrieve. OK if running on AOD. "<<m_trackSumTool<<endreq;
+	    msg(MSG::INFO)<<" Unable to retrieve. OK if running on AOD. "<<m_trackSumTool<<endmsg;
 	  }
 	else
 	  {
-	    msg(MSG::INFO)<<"Track summary tool retrieved"<<endreq;
+	    msg(MSG::INFO)<<"Track summary tool retrieved"<<endmsg;
 	    m_trackSumToolAvailable=true;
 	  }
       } 
     
     if ( m_extrapolator.retrieve().isFailure() ) 
       {
-	msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endreq;
+	msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endmsg;
 	return StatusCode::FAILURE;
       }
     ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
@@ -175,11 +175,11 @@ namespace InDet
     if (m_useEtaDepententMinHitTrt || m_useEtaDepententMinHitTrtWithOutliers) 
       {
 	if(m_trtDCTool.empty()) {
-	  msg(MSG::ERROR)<<" Eta delendent cut on number of TRT hits requested but TrtDCCutTool not specified. "<<endreq;
+	  msg(MSG::ERROR)<<" Eta delendent cut on number of TRT hits requested but TrtDCCutTool not specified. "<<endmsg;
 	  return StatusCode::FAILURE;
 	}
 	else if(m_trtDCTool.retrieve().isFailure()) {
-	  msg(MSG::ERROR)<<" Unable to retrieve tool "<<m_trtDCTool<<endreq;
+	  msg(MSG::ERROR)<<" Unable to retrieve tool "<<m_trtDCTool<<endmsg;
 	  return StatusCode::FAILURE;
 	}
 	ATH_MSG_INFO("Retrieved tool "<<m_trtDCTool);
@@ -192,18 +192,18 @@ namespace InDet
     
     if (m_magFieldSvc.retrieve().isFailure()) 
       {
-	msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endreq;
+	msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
 	return StatusCode::FAILURE;
       }
     ATH_MSG_INFO("Retrieved tool "<<m_magFieldSvc);
     
     if(m_inDetTestBLayerTool.empty())
       {
-	msg(MSG::INFO)<<" The BLayerTool not specified, turning off cut. "<<endreq;
+	msg(MSG::INFO)<<" The BLayerTool not specified, turning off cut. "<<endmsg;
       }
     else if ( m_inDetTestBLayerTool.retrieve().isFailure() ) 
       {
-	msg(MSG::ERROR)<< "Failed to retrieve tool " << m_inDetTestBLayerTool<<endreq;
+	msg(MSG::ERROR)<< "Failed to retrieve tool " << m_inDetTestBLayerTool<<endmsg;
 	return StatusCode::FAILURE;
       } 
     ATH_MSG_INFO("Using cuts on the number of Silicon hits");
@@ -213,11 +213,11 @@ namespace InDet
 	//checking whether sizes of cuts and pt interval expressed in vectors match
 	if( m_ptBenchmarks.size() != m_nSCTValues.size())
 	  {
-	    msg(MSG::ERROR)<< "Number of cuts DOES NOT match the number of intervals to apply. Please check jobOptions. "<<endreq;
+	    msg(MSG::ERROR)<< "Number of cuts DOES NOT match the number of intervals to apply. Please check jobOptions. "<<endmsg;
 	    return StatusCode::FAILURE;
 	  } else if (m_ptBenchmarks.size() == 0)
 	  {
-	    msg(MSG::ERROR)<< "Zero vectors for number of cuts and pt intervals. Please check jobOptions. "<<endreq;
+	    msg(MSG::ERROR)<< "Zero vectors for number of cuts and pt intervals. Please check jobOptions. "<<endmsg;
 	    return StatusCode::FAILURE;
 	  }//end of vector size protection block   
       }//end of memory protection 
@@ -228,7 +228,7 @@ namespace InDet
   // ---------------------------------------------------------------------
   StatusCode InDetDetailedTrackSelectorTool::finalize()
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 

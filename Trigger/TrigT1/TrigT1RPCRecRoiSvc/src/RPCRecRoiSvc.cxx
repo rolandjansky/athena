@@ -23,14 +23,14 @@ StatusCode RPCRecRoiSvc::initialize (void)
   StoreGateSvc* detStore;
   StatusCode sc = service("DetectorStore",detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq; 
+    log << MSG::FATAL << "DetectorStore service not found !" << endmsg; 
   } else {
     sc = detStore->retrieve(m_MuonMgr);
     if ( sc.isFailure() ) {
-      log << MSG::ERROR << " Cannot retrieve MuonReadoutGeometry " << endreq;
+      log << MSG::ERROR << " Cannot retrieve MuonReadoutGeometry " << endmsg;
       return sc;
     } else {
-      log << MSG::DEBUG << "Found the MuonDetDescrMgr " << endreq;
+      log << MSG::DEBUG << "Found the MuonDetDescrMgr " << endmsg;
     }
   }
 
@@ -41,7 +41,7 @@ StatusCode RPCRecRoiSvc::initialize (void)
    {
       log << MSG::WARNING
 	  << "Unable to retrieve the RPC cabling Server Service"
-	  << endreq;
+	  << endmsg;
       return StatusCode::FAILURE;
     }
  
@@ -50,7 +50,7 @@ StatusCode RPCRecRoiSvc::initialize (void)
     {
       log << MSG::WARNING
 	  << "Unable to retrieve the RPC cabling Service from the Server"
-	  << endreq;
+	  << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -164,7 +164,7 @@ RPCRecRoiSvc::dumpRoiMap(const std::string& filename)
     //    roi_map.open("ROI_Mapping.txt", std::ios::out ); //try to open the file
     roi_map.open(filename.c_str(), std::ios::out ); //try to open the file
     if(!roi_map){
-        msg << MSG::WARNING << "Unable to open ROI_Mapping file!"<< endreq;
+        msg << MSG::WARNING << "Unable to open ROI_Mapping file!"<< endmsg;
     } else {
         roi_map <<"# side     sector   roi      etaMin       etaMax       phiMin       phiMax     etaMinLow    etaMaxLow    etaMinHigh   etaMaxHigh "<< std::endl;
         roi_map <<"# ------------------------------------------------------------------------------------------------------------------------------ "<< std::endl;

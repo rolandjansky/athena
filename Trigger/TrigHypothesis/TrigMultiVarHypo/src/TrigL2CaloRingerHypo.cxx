@@ -38,7 +38,7 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltInitialize()
   m_nThresholds = m_thresholds.size();
 
   if((m_etaBins.size() != m_nThresholds) && (m_etBins.size() != m_nThresholds)){
-    msg() << MSG::ERROR << "Eta/Et list dont match with the number of thesholds found" << endreq;
+    msg() << MSG::ERROR << "Eta/Et list dont match with the number of thesholds found" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -50,13 +50,13 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltInitialize()
       m_cutDefs.push_back(new TrigL2CaloRingerHypo::CutDefsHelper(m_thresholds[i],m_etaBins[i][0],/*
                                               */m_etaBins[i][1], m_etBins[i][0],m_etBins[i][1]));
     }catch(std::bad_alloc xa){
-      msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endreq;
+      msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endmsg;
       return StatusCode::FAILURE;
     }
   }///Loop over discriminators
   
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "TrigL2CaloRingerHypo initialization completed successfully." << endreq;
+    msg() << MSG::INFO << "TrigL2CaloRingerHypo initialization completed successfully." << endmsg;
 
   return HLT::OK;
 }
@@ -67,7 +67,7 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltFinalize() {
     if(m_cutDefs[i])  delete m_cutDefs[i];
   } 
   if ( msgLvl() <= MSG::INFO ) 
-    msg() << MSG::INFO << "TrigL2CaloRingerHypo finalization completed successfully." << endreq;
+    msg() << MSG::INFO << "TrigL2CaloRingerHypo finalization completed successfully." << endmsg;
   return HLT::OK;
 }
 //!===============================================================================================
@@ -79,14 +79,14 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
   if (m_acceptAll){
     pass = true;
     if ( msgLvl() <= MSG::DEBUG ){
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"  << endreq;
+      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"  << endmsg;
     }
     return HLT::OK;
   }
 
   const xAOD::TrigRNNOutput* rnnOutput = get_rnnOutput(outputTE);
   if(!rnnOutput){
-    msg() << MSG::WARNING << "There is no xAO::TrigRNNOutput into the TriggerElement." << endreq;
+    msg() << MSG::WARNING << "There is no xAO::TrigRNNOutput into the TriggerElement." << endmsg;
     return HLT::OK;
   }
 
@@ -95,11 +95,11 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
   if(ringerShape){
     emCluster = ringerShape->emCluster();
     if(!emCluster){
-      msg() << MSG::WARNING << "There is no link to xAOD::TrigEMCluster into the Ringer object." << endreq;
+      msg() << MSG::WARNING << "There is no link to xAOD::TrigEMCluster into the Ringer object." << endmsg;
       return HLT::OK;
     }
   }else{
-    msg() << MSG::WARNING << "There is no xAOD::TrigRingerRings link into the rnnOutput object." << endreq;
+    msg() << MSG::WARNING << "There is no xAOD::TrigRingerRings link into the rnnOutput object." << endmsg;
     return HLT::OK;
   }
 
@@ -112,7 +112,7 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
   ///Et threshold
   if(et < m_emEtCut*1e-3){
     if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG<< "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut*1e-3 << endreq;
+      msg() << MSG::DEBUG<< "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut*1e-3 << endmsg;
     }
     return HLT::OK;
   }
@@ -125,16 +125,16 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
           if(output >= m_cutDefs[i]->threshold()){
 
             if(msgLvl() <= MSG::DEBUG){///print event information
-              msg() << MSG::DEBUG << "Event information:" << endreq;
-              msg() << MSG::DEBUG << "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax() << endreq;
-              msg() << MSG::DEBUG << "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() << endreq;
-              msg() << MSG::DEBUG << "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold() <<endreq;
+              msg() << MSG::DEBUG << "Event information:" << endmsg;
+              msg() << MSG::DEBUG << "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax() << endmsg;
+              msg() << MSG::DEBUG << "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() << endmsg;
+              msg() << MSG::DEBUG << "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold() <<endmsg;
             }
 
             pass=true;
           }else{
             if(msgLvl() <= MSG::DEBUG){
-              msg() << MSG::DEBUG << "Event reproved by discriminator threshold" << endreq;
+              msg() << MSG::DEBUG << "Event reproved by discriminator threshold" << endmsg;
             }
           }///Threshold condition
           break;
@@ -143,7 +143,7 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
     }///Loop over cutDefs
   }else{
     if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG<< "There is no discriminator. Event approved by Et threshold." << endreq;
+      msg() << MSG::DEBUG<< "There is no discriminator. Event approved by Et threshold." << endmsg;
     }
     ///Only for EtCut
     pass=true; 

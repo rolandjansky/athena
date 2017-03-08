@@ -51,7 +51,7 @@ StatusCode InDetTrackSelectorTool::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
   if(sc.isFailure()) {
-    msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+    msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -59,7 +59,7 @@ StatusCode InDetTrackSelectorTool::initialize()
   if (!m_trackSumTool.empty())
   {
     if(m_trackSumTool.retrieve().isFailure()) {
-      msg(MSG::ERROR)<<" Unable to retrieve "<<m_trackSumTool<<endreq;
+      msg(MSG::ERROR)<<" Unable to retrieve "<<m_trackSumTool<<endmsg;
       return StatusCode::FAILURE;
     }
     else {
@@ -69,7 +69,7 @@ StatusCode InDetTrackSelectorTool::initialize()
   }
 
   if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endmsg;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Retrieved tool " << m_extrapolator);

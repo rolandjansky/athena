@@ -36,7 +36,7 @@ void TrigInDetTrackTruthMap::addMatch(const TrigInDetTrackCollection* trkColl,
   std::string thisName("TrigInDetTrackTruthMap::addMatch");
   MsgStream log(Athena::getMessageSvc(), thisName);
 
-  log << MSG::DEBUG << "Adding TrigInDetTrack to map" << endreq;
+  log << MSG::DEBUG << "Adding TrigInDetTrack to map" << endmsg;
 
   // check entry for this track doesn't exist (otherwise we have a multimap)
   const TrigInDetTrack* p_trig_trk((*trkColl)[trk_indx]);
@@ -46,10 +46,10 @@ void TrigInDetTrackTruthMap::addMatch(const TrigInDetTrackCollection* trkColl,
     m_elink_vec.push_back(p_trk_lnk);
     bool status = m_elink_vec.back().toPersistent();
     if (!status) 
-      log << MSG::DEBUG << "ERROR: could not set ElementLink persistent" << endreq;
+      log << MSG::DEBUG << "ERROR: could not set ElementLink persistent" << endmsg;
     m_truth_vec.push_back(p_trk_tru);
   } else {
-    log << MSG::DEBUG << "TrigInDetTrack already in map!" << endreq;
+    log << MSG::DEBUG << "TrigInDetTrack already in map!" << endmsg;
   }
 }  
 
@@ -84,7 +84,7 @@ const TrigInDetTrackTruth* TrigInDetTrackTruthMap::truth(const TrigInDetTrack* p
   std::string thisName("TrigInDetTrackTruthMap::truth");
   MsgStream log(Athena::getMessageSvc(), thisName);
 
-  log << MSG::DEBUG<<"Searching truth for track at ptr="<<p_trig_trk<<endreq;
+  log << MSG::DEBUG<<"Searching truth for track at ptr="<<p_trig_trk<<endmsg;
 
   // must loop over map because ElementLink is a unidirectional link
   for (unsigned int i=0; i < m_elink_vec.size(); ++i) {
@@ -98,13 +98,13 @@ const TrigInDetTrackTruth* TrigInDetTrackTruthMap::truth(const TrigInDetTrack* p
 	  (*(m_elink_vec[i]))->param()->phi0() == p_trig_trk->param()->phi0()) {
 	// found position in vector corresponding to this track pointer
 	log << MSG::DEBUG << "Truth match for track at ptr=" << p_trig_trk 
-	    << " found in map at index " << i <<endreq;
+	    << " found in map at index " << i <<endmsg;
 	return &m_truth_vec[i];  
       }
     }
   } 
   // didn't find it: return null pointer
-  log << MSG::DEBUG <<"Truth match for track at ptr="<<p_trig_trk <<" not in map"<<endreq;
+  log << MSG::DEBUG <<"Truth match for track at ptr="<<p_trig_trk <<" not in map"<<endmsg;
   return NULL;
 }
 
@@ -231,7 +231,7 @@ void TrigInDetTrackTruthMap::print() const
   }
   oss << "---------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 
-  log << MSG::DEBUG << oss.str() << endreq;
+  log << MSG::DEBUG << oss.str() << endmsg;
 }
 
 size_t TrigInDetTrackTruthMap::size() const

@@ -115,8 +115,8 @@ The tool can be used to retrieve scale factors for a specific
 
    * - ``RecommendationTag``
      - ``std::string``
-     - ``"2016-fall"``
-     - ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
+     - ``"2017-moriond"``
+     - ``"2016-fall"``, ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
 
 For the default ``RecommendationTag`` "mc15-moriond" the following properties
 are available for tool steering:

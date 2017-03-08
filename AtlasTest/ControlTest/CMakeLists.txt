@@ -13,7 +13,6 @@ atlas_depends_on_subdirs(
    Control/AthenaExamples/AthExFortranAlgorithm
    Control/AthenaExamples/AthExStoreGateExample
    Control/AthenaPython
-   Control/MinimalRunTime
    TestPolicy
    PRIVATE
    Control/CxxUtils

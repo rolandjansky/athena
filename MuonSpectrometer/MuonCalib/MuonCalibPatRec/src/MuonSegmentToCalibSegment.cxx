@@ -101,21 +101,21 @@ namespace MuonCalib {
     	{
 	m_segment_authors.resize(m_segmentLocationVector.value().size(), -1);
 	}
-/*    m_log << MSG::INFO << "Initialisation started     " << endreq;
+/*    m_log << MSG::INFO << "Initialisation started     " << endmsg;
     //
     //
-    m_log << MSG::INFO << "================================" << endreq;
-    m_log << MSG::INFO << "= Proprieties are     " << endreq;
+    m_log << MSG::INFO << "================================" << endmsg;
+    m_log << MSG::INFO << "= Proprieties are     " << endmsg;
     std::vector<std::string>::const_iterator segLocit     = m_segmentLocationVector.value().begin();  
     std::vector<std::string>::const_iterator segLocit_end = m_segmentLocationVector.value().end();      
     for ( ; segLocit != segLocit_end ; ++segLocit) {
-      m_log << MSG::INFO << "= SegmentLocation       " << *segLocit << endreq;
+      m_log << MSG::INFO << "= SegmentLocation       " << *segLocit << endmsg;
     }
-    m_log << MSG::INFO << "= SegmentCscLocation    " << m_segmentCscLocation    << endreq;
-    m_log << MSG::INFO << "= SegmentCombiLocation          " << m_segmentCombiLocation          << endreq;
+    m_log << MSG::INFO << "= SegmentCscLocation    " << m_segmentCscLocation    << endmsg;
+    m_log << MSG::INFO << "= SegmentCombiLocation          " << m_segmentCombiLocation          << endmsg;
     
-    m_log << MSG::INFO << "= PatternLocation     " << m_patternLocation     << endreq;
-    m_log << MSG::INFO << "================================" << endreq;*/
+    m_log << MSG::INFO << "= PatternLocation     " << m_patternLocation     << endmsg;
+    m_log << MSG::INFO << "================================" << endmsg;*/
 
     std::string managerName="Muon";
     ATH_CHECK( detStore()->retrieve(m_detMgr) );
@@ -216,7 +216,7 @@ namespace MuonCalib {
 	    ATH_MSG_VERBOSE( "New station with " << stationSegs->size() << " segments "  );
 	    
 	    // 	  if( stationSegs->size() != 1 ) {
-	    // 	    m_log << MSG::DEBUG << " -> skipping station, to many segments " << endreq;
+	    // 	    m_log << MSG::DEBUG << " -> skipping station, to many segments " << endmsg;
 	    // 	    continue;
 	    // 	  }
 	    
@@ -351,7 +351,7 @@ namespace MuonCalib {
 	  ATH_MSG_VERBOSE( "New Csc station with " << stationSegs->size() << " segments "  );
 	  
 	  // 	  if( stationSegs->size() != 1 ) {
-	  // 	    m_log << MSG::DEBUG << " -> skipping station, too many segments " << endreq;
+	  // 	    m_log << MSG::DEBUG << " -> skipping station, too many segments " << endmsg;
 	  // 	    continue;
 	  // 	  }
 	  

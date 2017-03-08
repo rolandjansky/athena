@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: FileMetaDataCreatorTool.cxx 685408 2015-07-24 16:15:59Z cranshaw $
+// $Id: FileMetaDataCreatorTool.cxx 685407 2015-07-24 16:15:06Z cranshaw $
 
 // System include(s):
 #include <algorithm>

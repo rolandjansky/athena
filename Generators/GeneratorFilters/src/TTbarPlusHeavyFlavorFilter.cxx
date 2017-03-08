@@ -36,13 +36,13 @@ TTbarPlusHeavyFlavorFilter::TTbarPlusHeavyFlavorFilter(const std::string& fname,
 
 //---------------------------------------------------------------------------
 StatusCode TTbarPlusHeavyFlavorFilter::filterInitialize() {
-  m_log << MSG::INFO << "Initialized" << endreq;
+  m_log << MSG::INFO << "Initialized" << endmsg;
   return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------------------------
 StatusCode TTbarPlusHeavyFlavorFilter::filterFinalize() {
-  m_log << MSG::INFO << m_nPass  << " Events out of " << m_nPass+m_nFail << " passed the filter" << endreq;
+  m_log << MSG::INFO << m_nPass  << " Events out of " << m_nPass+m_nFail << " passed the filter" << endmsg;
   return StatusCode::SUCCESS;
 }
 

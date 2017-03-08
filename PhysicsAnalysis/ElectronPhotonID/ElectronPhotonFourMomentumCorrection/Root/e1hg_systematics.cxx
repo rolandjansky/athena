@@ -16,7 +16,7 @@
 
 e1hg_systematics::e1hg_systematics()
 {
-  
+
 #ifdef ROOTCORE
   m_file0 = TFile::Open("$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/e1hg_systematics_histos.root");
 #else
@@ -52,7 +52,7 @@ e1hg_systematics::~e1hg_systematics()
 //
 // returned value is alpha = DeltaE / E
 //
-double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, bool interpolate) const 
+double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, bool interpolate) const
 {
 
    //cout << " in getDelta " << endl;
@@ -87,7 +87,7 @@ double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, 
    if (aeta<1.80) scale=0.;
    else if (aeta<2.3) scale = 0.050*(aeta-1.8)/0.4 /0.05;
    else scale=0.025/0.05;
- 
+
    if( !interpolate ) {
      if (particle_type==0) return scale*m_helec[ieta]->GetBinContent(ibinEt+1);
      else if (particle_type==1) return scale*m_hphot[ieta]->GetBinContent(ibinEt+1);

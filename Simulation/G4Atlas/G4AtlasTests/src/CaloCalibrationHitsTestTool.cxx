@@ -38,7 +38,7 @@ StatusCode CaloCalibrationHitsTestTool::initialize(){
      m_path+="Calib/Tile/";
      m_hitcollkey="TileCalibration"+m_calibHitType.substr(4)+"HitCnt";
   } else{
-    ATH_MSG(ERROR) << " unknown key " <<m_calibHitType<<endreq;
+    ATH_MSG(ERROR) << " unknown key " <<m_calibHitType<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -79,7 +79,7 @@ StatusCode CaloCalibrationHitsTestTool::processEvent(){
     const CaloDetDescrElement* ddElement = geoHit.getDetDescrElement();
 
     if (!ddElement) {
-      ATH_MSG(WARNING) << " could not retrieve DetElement in CaloCalibrationHitsTestTool/" <<m_calibHitType<<endreq;
+      ATH_MSG(WARNING) << " could not retrieve DetElement in CaloCalibrationHitsTestTool/" <<m_calibHitType<<endmsg;
       continue;
     }
     double eta = ddElement->eta();

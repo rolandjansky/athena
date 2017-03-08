@@ -98,7 +98,7 @@ double T2GSCalibTool::CalculateCorrection(double jetProperty,
 {
   // Say hello
   if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE 
-      << "In JetPropertyInvertResponseTool::CalculateCorrection" << endreq;
+      << "In JetPropertyInvertResponseTool::CalculateCorrection" << endmsg;
 
   int eta_index = -1;  
   double corr   = 0;
@@ -109,7 +109,7 @@ double T2GSCalibTool::CalculateCorrection(double jetProperty,
 
   // This correction can be asymmetric in eta, so go across the whole range
   if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE 
-      << "Looking up jet eta position in table" << endreq;
+      << "Looking up jet eta position in table" << endmsg;
   for(unsigned int i=0; i < m_etaBins.size() - 1; i++) {
     if (eta < m_etaBins.at(0)) eta_index = 0;
     else if (eta >= m_etaBins.at(m_etaBins.size()-1)) eta_index = m_etaBins.size();
@@ -120,9 +120,9 @@ double T2GSCalibTool::CalculateCorrection(double jetProperty,
   }
       
   // Checking if the correction can be interpolated or extrapolated
-  if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << "Checking if pT and fraction are in the range of the correction" << endreq;
-  // if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " m_ptbins size"<< m_ptBins.size()  << "   " << m_propertyBins.size() << endreq;
-  // if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " eta_index"<< eta_index << "   " << m_ptBins[eta_index].size()-1 << endreq;
+  if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << "Checking if pT and fraction are in the range of the correction" << endmsg;
+  // if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " m_ptbins size"<< m_ptBins.size()  << "   " << m_propertyBins.size() << endmsg;
+  // if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << " eta_index"<< eta_index << "   " << m_ptBins[eta_index].size()-1 << endmsg;
 
   double maxX = (m_ptBins[eta_index][m_ptBins[eta_index].size()-1]
 		 +m_ptBins[eta_index][m_ptBins[eta_index].size()-2])/2;
@@ -150,7 +150,7 @@ double T2GSCalibTool::CalculateCorrection(double jetProperty,
 
 
   }
-  if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << "Obtained correction value" << endreq;
+  if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << "Obtained correction value" << endmsg;
   
   // Print out some info for debugging
   if(outputLevel() <= MSG::DEBUG) m_log << MSG::DEBUG 
@@ -159,7 +159,7 @@ double T2GSCalibTool::CalculateCorrection(double jetProperty,
                                         << " property value: " << jetProperty 
 //                                        << " property: "       << m_propertyName
                                         << " response = "      << corr
-                                        << endreq;
+                                        << endmsg;
   
   return corr;
 }
@@ -188,11 +188,11 @@ double T2GSCalibTool::interpolate(double pT, double jetProperty,
   }
 
   if ((outputLevel() <= MSG::VERBOSE) && (pt_low_index == -1)){
-    m_log << MSG::VERBOSE << "Problem in interpolation pt_low_index == -1" << endreq;
+    m_log << MSG::VERBOSE << "Problem in interpolation pt_low_index == -1" << endmsg;
     return 1;
   }
   if ((outputLevel() <= MSG::VERBOSE) && (prop_low_index == -1)){
-    m_log << MSG::VERBOSE << "Problem in interpolation prop_low_index == -1" << endreq;
+    m_log << MSG::VERBOSE << "Problem in interpolation prop_low_index == -1" << endmsg;
     return 1;
   }
 
@@ -278,7 +278,7 @@ double T2GSCalibTool::interpolate(double pT, double jetProperty,
 
 
 
-  //if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << "Interpolated value " << pT << " " << pt_low_index << " " << ptBins.at(pt_low_index) << " " << ptBins.at(pt_low_index+1) << " " << jetProperty << " " << prop_low_index << " " << propertyBins.at(prop_low_index) << " " << propertyBins.at(prop_low_index+1) << endreq;
+  //if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << "Interpolated value " << pT << " " << pt_low_index << " " << ptBins.at(pt_low_index) << " " << ptBins.at(pt_low_index+1) << " " << jetProperty << " " << prop_low_index << " " << propertyBins.at(prop_low_index) << " " << propertyBins.at(prop_low_index+1) << endmsg;
   return response;    
 
 }
@@ -352,7 +352,7 @@ double T2GSCalibTool::extrapolate(double pT, double jetProperty,
     extrapolated = linearInterpolation(x1, x2, z1, z2, x);
   }
   
-  if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << "Extrapolated correction value " << extrapolated << " " << indx << " " << indy << " " << jetProperty << endreq;
+  if (outputLevel() <= MSG::VERBOSE) m_log << MSG::VERBOSE << "Extrapolated correction value " << extrapolated << " " << indx << " " << indy << " " << jetProperty << endmsg;
   
   return extrapolated;
 

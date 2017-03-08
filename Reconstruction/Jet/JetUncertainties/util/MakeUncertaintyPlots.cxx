@@ -77,7 +77,7 @@ void applyPublicFormat(TGraph& graph)
         if (!name.CompareTo("Flav. response"))
             graph.SetName(Form("%s, %s",name.Data(),optHelper.IsDijetComposition()?"inclusive jets":"unknown composition"));
     }
-    else if (name.Contains("Pileup"))
+    else if (name.Contains("Pileup") || name.Contains("Pile-up"))
     {
         graph.SetLineColor(kGray+1);
         graph.SetLineStyle(4);
@@ -300,7 +300,7 @@ std::vector<TString> GetJetDesc(const TString& jetAlgoIn)
     TString type = "";
     if (jetAlgo.BeginsWith("AntiKt"))
     {
-        type = "anti-k_{t}";
+        type = "anti-#it{k}_{t}";
         jetAlgo.ReplaceAll("AntiKt","");
     }
     else if (jetAlgo.BeginsWith("CamKt"))
@@ -1041,7 +1041,12 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     else            canvas->SetLogx(false);
     frame->Draw("");
     
-    if      (optHelper.IsLargeR()) frame->GetXaxis()->SetRangeUser(200,3.e3);
+    std::pair<double,double> xrange = optHelper.xAxisRange();
+    if ((xrange.first > 0 or xrange.second > 0) and (xrange.first < xrange.second ) )
+    {
+        frame->GetXaxis()->SetRangeUser(xrange.first,xrange.second);
+    }
+    else if      (optHelper.IsLargeR()) frame->GetXaxis()->SetRangeUser(200,3.e3);
     else if (fixedIsEta) frame->GetXaxis()->SetRangeUser(17,3.0e3);
     else                 frame->GetXaxis()->SetRangeUser(-4.5,4.5);
     

@@ -427,7 +427,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
     const bool accept = m_truthSelectionTool->accept(thisTruth);
     if (accept) {
-      ++m_truthCounter; // total number of truth tracks which pass cuts
+      ++m_truthCounter;     // total number of truth tracks which pass cuts
       ++num_truth_selected; // total number of truth which pass cuts per event
       const float absTruthEta = std::abs(safelyGetEta(thisTruth));
       const unsigned int idx = binIndex(absTruthEta, ETA_PARTITIONS);
@@ -440,22 +440,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
       if (debugBacktracking) {
         float lepton_w(0);
-        std::cout << "Barcode: " << thisTruth->barcode() << "\n";
-        std::cout << "PDGId: " << thisTruth->pdgId() << "\n";
-        std::cout << "Number of Parents: " << thisTruth->nParents() << "\n";
-
-        if (thisTruth->hasProdVtx()) {
-          const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
-          double prod_rad = vtx->perp();
-          double prod_z = vtx->z();
-          std::cout << "Vertex Radial Position: " << prod_rad << "\n";
-          std::cout << "Vertex z Position: " << prod_z << "\n";
-        }
         double Px = thisTruth->px();
         double Py = thisTruth->py();
-        std::cout << "Px: " << Px << "\n";
-        std::cout << "Py: " << Py << "\n";
-        std::cout << "Pz: " << thisTruth->pz() << "\n";
         constexpr int electronId = 11;
         if (thisTruth->absPdgId() == electronId) {
           double PtSquared = (Px * Px) + (Py * Py);
@@ -464,9 +450,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
           }
         }
         m_monPlots->lepton_fill(*thisTruth, lepton_w);
-      }// end of debugging backtracking section
-
-      if(debugBacktracking){
 	if(thisTruth->hasProdVtx()){
 	  const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
 	  double prod_rad = vtx->perp();
@@ -475,9 +458,15 @@ InDetPhysValMonitoringTool::fillHistograms() {
 	    float bestmatch = 0;
 	    double best_inverse_delta_pt(0);
 	    double inverse_delta_pt(0);
+	    float cvst(1);
+	    double truth_pt = thisTruth->pt() * 0.001;
+	    double truth_charge = thisTruth->charge();
+	    double good_track_charge(0);
 	    for(const auto& thisTrack: selectedTracks){
 	      float prob(0);
-	      if((thisTrack->qOverP()) * (thisTruth->auxdata<float>("qOverP")) > 0){
+	      double track_charge = thisTrack->charge();
+	      if(truth_charge * track_charge > 0){
+	      //PUT STATEMENTS HERE TO DIRECT-COMPARE CHARGE MATCHING WITH TRUTH MATCHING USING TERM-COUNTER.PY
 		prob = getMatchingProbability(*thisTrack);
 		double track_theta = thisTrack->theta();
 		double truth_theta = thisTruth->auxdata< float >("theta");
@@ -485,22 +474,38 @@ InDetPhysValMonitoringTool::fillHistograms() {
 		double track_eta = -std::log(std::tan(track_theta/2));
 		
 		double track_pt = thisTrack->pt() * 0.001;
-		double truth_pt = thisTruth->pt() * 0.001;
-	      
+		
 		if((track_pt != 0) and (truth_pt != 0))  inverse_delta_pt = ((1./track_pt) - (1./truth_pt));
-
+		
 		double delta_eta = track_eta - truth_eta;
 		double delta_theta = track_theta - truth_theta;
 		double delta_R = sqrt(delta_eta * delta_eta + delta_theta * delta_theta);
-		if(min_dR > delta_R) min_dR = delta_R;
+		if(min_dR > delta_R){
+		  min_dR = delta_R;
+		  best_inverse_delta_pt = inverse_delta_pt;
+		  good_track_charge = track_charge;
+		}
 	      }
-	      if(prob >= bestmatch) best_inverse_delta_pt = inverse_delta_pt;
+	      /*
+	      if(prob >= bestmatch) {
+		if(truth_charge * track_charge < 0){
+		  cvst = 0;
+		}else{
+		  cvst = 1;
+		}
+	      }
+	      */
+	      if(truth_charge * good_track_charge < 0){
+		cvst = 0;
+	      }else{
+		cvst = 1;
+	      }
 	      bestmatch = std::max(prob, bestmatch);
 	    }
-	    m_monPlots->minDR(min_dR, prod_rad, bestmatch, best_inverse_delta_pt);
+	    m_monPlots->minDR(min_dR, prod_rad, bestmatch, best_inverse_delta_pt, truth_pt, cvst);
 	  }
 	}
-      }
+      } // End of debugBackTracking section
 
       std::vector <std::pair<float, const xAOD::TrackParticle*> > matches; // Vector of pairs:
                                                                            // <truth_matching_probability, track> if

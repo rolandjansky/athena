@@ -63,28 +63,28 @@ ParentChildwStatusFilter::ParentChildwStatusFilter(const std::string& name,
 StatusCode ParentChildwStatusFilter::filterInitialize() {
 //---------------------------------------------------------------------------
 
-  msg(MSG:: INFO) << "ParentChildwStatusFilter INITIALISING "  << endreq;   
+  msg(MSG:: INFO) << "ParentChildwStatusFilter INITIALISING "  << endmsg;   
 
  if(m_PDGParent.size()==0) 
-   msg(MSG:: ERROR) << "PDGParent[] not set " << endreq; 
+   msg(MSG:: ERROR) << "PDGParent[] not set " << endmsg; 
  if(m_StatusParent.size()==0) 
-   msg( MSG:: ERROR) << "StatusParent[] not set " << endreq; 
+   msg( MSG:: ERROR) << "StatusParent[] not set " << endmsg; 
  if(m_PDGChild.size()==0) 
-   msg(MSG:: ERROR) << "PDGChild[] not set " << endreq; 
+   msg(MSG:: ERROR) << "PDGChild[] not set " << endmsg; 
 
  for(int i=0;i<int(m_PDGParent.size());i++) 
-   msg(MSG:: INFO) << "PDGParent["<<i<<"] = " << m_PDGParent[i] << endreq;
+   msg(MSG:: INFO) << "PDGParent["<<i<<"] = " << m_PDGParent[i] << endmsg;
  for(int i=0;i<int(m_StatusParent.size());i++) 
-   msg( MSG:: INFO) << "StatusParent["<<i<<"] = " << m_StatusParent[i] << endreq;
- msg( MSG:: INFO) << "PtMinParent = " << m_PtMinParent << endreq;
- msg(MSG:: INFO) << "PtMaxParent = " << m_PtMaxParent << endreq;
- msg(MSG:: INFO) << "MassMinParent = " << m_MassMinParent << endreq;
- msg( MSG:: INFO) << "MassMaxParent = " << m_MassMaxParent << endreq;
- msg( MSG:: INFO) << "EtaRangeParent = " << m_EtaRangeParent << endreq;
+   msg( MSG:: INFO) << "StatusParent["<<i<<"] = " << m_StatusParent[i] << endmsg;
+ msg( MSG:: INFO) << "PtMinParent = " << m_PtMinParent << endmsg;
+ msg(MSG:: INFO) << "PtMaxParent = " << m_PtMaxParent << endmsg;
+ msg(MSG:: INFO) << "MassMinParent = " << m_MassMinParent << endmsg;
+ msg( MSG:: INFO) << "MassMaxParent = " << m_MassMaxParent << endmsg;
+ msg( MSG:: INFO) << "EtaRangeParent = " << m_EtaRangeParent << endmsg;
  for(int i=0;i<int(m_PDGChild.size());i++) 
- msg( MSG:: INFO) << "PDGChild["<<i<<"] = " << m_PDGChild[i] << endreq;
- msg( MSG:: INFO) << "PtMinChild = " << m_PtMinChild << endreq;
- msg( MSG:: INFO) << "EtaRangeChild = " << m_EtaRangeChild << endreq;
+ msg( MSG:: INFO) << "PDGChild["<<i<<"] = " << m_PDGChild[i] << endmsg;
+ msg( MSG:: INFO) << "PtMinChild = " << m_PtMinChild << endmsg;
+ msg( MSG:: INFO) << "EtaRangeChild = " << m_EtaRangeChild << endmsg;
  return StatusCode::SUCCESS;
 }
 
@@ -101,7 +101,7 @@ StatusCode ParentChildwStatusFilter::filterEvent() {
 
 // Loop over all events in McEventCollection 
 
-  msg(MSG:: INFO) << " ParentChildwStatusFilter filtering "  << endreq;  
+  msg(MSG:: INFO) << " ParentChildwStatusFilter filtering "  << endmsg;  
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     // Loop over all particles in the event

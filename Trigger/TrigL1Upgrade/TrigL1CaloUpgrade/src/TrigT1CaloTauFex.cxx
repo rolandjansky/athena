@@ -68,7 +68,7 @@ TrigT1CaloTauFex::~TrigT1CaloTauFex(){
 StatusCode TrigT1CaloTauFex::initialize(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::INFO << "initialing TrigT1CaloTauFex" << endreq;
+	msg << MSG::INFO << "initialing TrigT1CaloTauFex" << endmsg;
 	if ( TrigT1CaloBaseFex::initialize().isFailure() ) return StatusCode::FAILURE;
 	if ( m_enableMon ){
 		std::string histoName(name());
@@ -78,15 +78,15 @@ StatusCode TrigT1CaloTauFex::initialize(){
 		// TODO: add here initialisation of other histos ...
 	}
 
-	msg << MSG::INFO << " REGTEST: TrigT1CaloTauFex configurations: " <<endreq;
-	msg << MSG::INFO << " REGTEST: EnableMonitoring			" << m_enableMon  <<endreq;
-        msg << MSG::INFO << " REGTEST: CellsEtThreholdGeV        	" << m_cellsEtThrehold  << " GeV" << endreq;
-	msg << MSG::INFO << " REGTEST: DoTruth	        		" << m_doTruth  <<endreq;
-	msg << MSG::INFO << " REGTEST: TruthMaxEta          		" << m_truth_maxEta_thr  <<endreq;
-        msg << MSG::INFO << " REGTEST: TruthMinPtGeV                    " << m_truth_minPt_thr << " GeV"  <<endreq;
-	msg << MSG::INFO << " REGTEST: NoiseSignificanceCore  " << m_NoiseSignificanceCore <<endreq;
-	msg << MSG::INFO << " REGTEST: NoiseSignificanceIso   " << m_NoiseSignificanceIso <<endreq;
-	msg << MSG::INFO << " REGTEST: OutputClusterName      " << m_outputClusterName <<endreq;
+	msg << MSG::INFO << " REGTEST: TrigT1CaloTauFex configurations: " <<endmsg;
+	msg << MSG::INFO << " REGTEST: EnableMonitoring			" << m_enableMon  <<endmsg;
+        msg << MSG::INFO << " REGTEST: CellsEtThreholdGeV        	" << m_cellsEtThrehold  << " GeV" << endmsg;
+	msg << MSG::INFO << " REGTEST: DoTruth	        		" << m_doTruth  <<endmsg;
+	msg << MSG::INFO << " REGTEST: TruthMaxEta          		" << m_truth_maxEta_thr  <<endmsg;
+        msg << MSG::INFO << " REGTEST: TruthMinPtGeV                    " << m_truth_minPt_thr << " GeV"  <<endmsg;
+	msg << MSG::INFO << " REGTEST: NoiseSignificanceCore  " << m_NoiseSignificanceCore <<endmsg;
+	msg << MSG::INFO << " REGTEST: NoiseSignificanceIso   " << m_NoiseSignificanceIso <<endmsg;
+	msg << MSG::INFO << " REGTEST: OutputClusterName      " << m_outputClusterName <<endmsg;
 
 	if(m_doTruth){
 	        m_true_nprong.reserve(200);
@@ -100,7 +100,7 @@ StatusCode TrigT1CaloTauFex::initialize(){
 
 StatusCode TrigT1CaloTauFex::finalize(){
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloTauFex" << endreq;
+	msg << MSG::DEBUG << "finalizing TrigT1CaloTauFex" << endmsg;
 	if ( TrigT1CaloBaseFex::finalize().isFailure() ) return StatusCode::FAILURE;
 	if ( m_enableMon ) {
 		m_histFile->Write();
@@ -120,25 +120,25 @@ StatusCode TrigT1CaloTauFex::finalize(){
 StatusCode TrigT1CaloTauFex::execute(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute TrigT1CaloTauFex" << endreq;
+	msg << MSG::DEBUG << "execute TrigT1CaloTauFex" << endmsg;
 
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
 	const xAOD::TruthParticleContainer *truthContainer(0);
 
 	if ( getContainers(scells, TTs, m_cellsEtThrehold).isFailure() || (TTs==0) || (scells==0) ) {
-		msg << MSG::WARNING << " Could not get scell or TT containers" << endreq;
+		msg << MSG::WARNING << " Could not get scell or TT containers" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
 	if(m_doTruth){ 
 		if ( getContainers(truthContainer).isFailure() || (truthContainer==0) ) {
-                	msg << MSG::WARNING << " Could not get truth containers" << endreq;
+                	msg << MSG::WARNING << " Could not get truth containers" << endmsg;
                 	return StatusCode::SUCCESS;
 		}	
         	Truth(truthContainer);
   		if(m_true_vistau.size()!=2){
-        		msg << MSG::WARNING << "Found " << m_true_vistau.size() << " instead of 2, skipping event" << endreq;
+        		msg << MSG::WARNING << "Found " << m_true_vistau.size() << " instead of 2, skipping event" << endmsg;
         		return StatusCode::SUCCESS;
   		}
         }
@@ -173,11 +173,11 @@ StatusCode TrigT1CaloTauFex::execute(){
 		// do this check before)
 		///if ( ! isCellEmMaximum ( m_cellsAround, cellAbove ) ) continue;
 		///float et = sumEmCells( m_cellsAround )/TMath::CosH(cellAbove->eta());
-		///msg << MSG::INFO << "Tau found at (eta,phi)=(" << etaCluster << "," << phiCluster << ") with ET of : " << et << endreq;
+		///msg << MSG::INFO << "Tau found at (eta,phi)=(" << etaCluster << "," << phiCluster << ") with ET of : " << et << endmsg;
 	}
 	for (unsigned int i=0; i<m_RoI.size(); i++) {
 	//for( auto RoI : m_RoI ) {
-	  msg << MSG::INFO << "RoI in the loop=" << m_RoI.at(0).at(0) << endreq;
+	  msg << MSG::INFO << "RoI in the loop=" << m_RoI.at(0).at(0) << endmsg;
 	}
 	return StatusCode::SUCCESS;
 }

@@ -28,7 +28,7 @@ INav4MomLinkContainer_PERS* INav4MomLinkContainerCnv::createPersistent( INav4Mom
   INav4MomLinkContainer_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
 
   // Write a debug message out
-  log << MSG::DEBUG << "Success" << endreq;
+  log << MSG::DEBUG << "Success" << endmsg;
 
   return persObj;
 }

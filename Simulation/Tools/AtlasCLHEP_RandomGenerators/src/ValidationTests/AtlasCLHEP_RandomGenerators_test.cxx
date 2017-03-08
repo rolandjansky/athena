@@ -65,59 +65,59 @@ namespace AtlasCLHEP_RandomGenerators {
     
     // Random number service
     if ( m_rndmSvc1.retrieve().isFailure() ) {
-      msg(MSG::ERROR)<< "Could not retrieve " << m_rndmSvc1 << endreq;
+      msg(MSG::ERROR)<< "Could not retrieve " << m_rndmSvc1 << endmsg;
       return StatusCode::FAILURE;
     }
     if ( m_rndmSvc2.retrieve().isFailure() ) {
-      msg(MSG::ERROR)<< "Could not retrieve " << m_rndmSvc2 << endreq;
+      msg(MSG::ERROR)<< "Could not retrieve " << m_rndmSvc2 << endmsg;
       return StatusCode::FAILURE;
     }
       
     //Get own engine with own seeds:
     m_randomEngine1 = m_rndmSvc1->GetEngine(m_randomEngineName1);
     if (!m_randomEngine1) {
-      msg(MSG::ERROR)<< "Could not get random engine '" << m_randomEngineName1 << "'" << endreq;
+      msg(MSG::ERROR)<< "Could not get random engine '" << m_randomEngineName1 << "'" << endmsg;
       return StatusCode::FAILURE;
     }
     m_randomEngine2 = m_rndmSvc2->GetEngine(m_randomEngineName2);
     if (!m_randomEngine2) {
-      msg(MSG::ERROR)<< "Could not get random engine '" << m_randomEngineName2 << "'" << endreq;
+      msg(MSG::ERROR)<< "Could not get random engine '" << m_randomEngineName2 << "'" << endmsg;
       return StatusCode::FAILURE;
     }
     
     if((service("THistSvc", m_histSvc)).isFailure()) {
-      msg(MSG::ERROR) << "Cannot allocate THistSvc service" << endreq;
+      msg(MSG::ERROR) << "Cannot allocate THistSvc service" << endmsg;
       return StatusCode::FAILURE;
     }
     
     m_hflat=new TH1D("RandFlat","RandFlat",1000,0,1);
     if(!m_histSvc->regHist(std::string("/PLOTS/") + m_hflat->GetName(), m_hflat).isSuccess()) {
-      msg(MSG::WARNING) << "Could not register histogram "<< m_hflat->GetName() << endreq;
+      msg(MSG::WARNING) << "Could not register histogram "<< m_hflat->GetName() << endmsg;
     }
     
     m_hgauss1=new TH1D("RandGauss","RandGauss",700,-7,7);
     if(!m_histSvc->regHist(std::string("/PLOTS/") + m_hgauss1->GetName(), m_hgauss1).isSuccess()) {
-      msg(MSG::WARNING) << "Could not register histogram "<< m_hgauss1->GetName() << endreq;
+      msg(MSG::WARNING) << "Could not register histogram "<< m_hgauss1->GetName() << endmsg;
     }
     
     m_hgauss2=new TH1D("RandGaussQ","RandGaussQ",700,-7,7);
     if(!m_histSvc->regHist(std::string("/PLOTS/") + m_hgauss2->GetName(), m_hgauss2).isSuccess()) {
-      msg(MSG::WARNING) << "Could not register histogram "<< m_hgauss2->GetName() << endreq;
+      msg(MSG::WARNING) << "Could not register histogram "<< m_hgauss2->GetName() << endmsg;
     }
     
     m_hgauss3=new TH1D("RandGaussZigurat","RandGaussZigurat",700,-7,7);
     if(!m_histSvc->regHist(std::string("/PLOTS/") + m_hgauss3->GetName(), m_hgauss3).isSuccess()) {
-      msg(MSG::WARNING) << "Could not register histogram "<< m_hgauss3->GetName() << endreq;
+      msg(MSG::WARNING) << "Could not register histogram "<< m_hgauss3->GetName() << endmsg;
     }
     
     m_hexp1=new TH1D("RandExponential","RandExponential",900,0,30);
     if(!m_histSvc->regHist(std::string("/PLOTS/") + m_hexp1->GetName(), m_hexp1).isSuccess()) {
-      msg(MSG::WARNING) << "Could not register histogram "<< m_hexp1->GetName() << endreq;
+      msg(MSG::WARNING) << "Could not register histogram "<< m_hexp1->GetName() << endmsg;
     }
     
     m_hexp2=new TH1D("RandExpZiggurat","RandExpZiggurat",900,0,30);
     if(!m_histSvc->regHist(std::string("/PLOTS/") + m_hexp2->GetName(), m_hexp2).isSuccess()) {
-      msg(MSG::WARNING) << "Could not register histogram "<< m_hexp2->GetName() << endreq;
+      msg(MSG::WARNING) << "Could not register histogram "<< m_hexp2->GetName() << endmsg;
     }
 
     return StatusCode::SUCCESS; 
@@ -145,7 +145,7 @@ namespace AtlasCLHEP_RandomGenerators {
     CLHEP::RandExpZiggurat rexpZ(*m_randomEngine2);
     */
 
-    msg(MSG::DEBUG)<<"event="<<ievent<<" ntest="<<ntest<<endreq;
+    msg(MSG::DEBUG)<<"event="<<ievent<<" ntest="<<ntest<<endmsg;
     
     m_chrono -> chronoStart("flat");
     double sum_flat=0;
@@ -156,7 +156,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_flat/=ntest;
     m_chrono -> chronoStop("flat");
-    msg(MSG::DEBUG)<<" avg "<<"flat"<<"="<<sum_flat<<endreq;
+    msg(MSG::DEBUG)<<" avg "<<"flat"<<"="<<sum_flat<<endmsg;
 
     m_chrono -> chronoStart("RandGauss");
     double sum_rnd1=0;
@@ -167,7 +167,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_rnd1/=ntest;
     m_chrono -> chronoStop("RandGauss");
-    msg(MSG::DEBUG)<<" avg "<<"RandGauss"<<"="<<sum_rnd1<<endreq;
+    msg(MSG::DEBUG)<<" avg "<<"RandGauss"<<"="<<sum_rnd1<<endmsg;
 
     m_chrono -> chronoStart("RandGaussQ");
     double sum_rnd2=0;
@@ -178,7 +178,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_rnd2/=ntest;
     m_chrono -> chronoStop("RandGaussQ");
-    msg(MSG::DEBUG)<<" avg "<<"RandGaussQ"<<"="<<sum_rnd2<<endreq;
+    msg(MSG::DEBUG)<<" avg "<<"RandGaussQ"<<"="<<sum_rnd2<<endmsg;
 
     m_chrono -> chronoStart("RandGaussZiggurat");
     double sum_zig=0;
@@ -189,7 +189,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_zig/=ntest;
     m_chrono -> chronoStop("RandGaussZiggurat");
-    msg(MSG::DEBUG)<<" avg "<<"RandGaussZiggurat"<<"="<<sum_zig<<endreq;
+    msg(MSG::DEBUG)<<" avg "<<"RandGaussZiggurat"<<"="<<sum_zig<<endmsg;
 
     m_chrono -> chronoStart("RandExponential");
     double sum_exp=0;
@@ -200,7 +200,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_exp/=ntest;
     m_chrono -> chronoStop("RandExponential");
-    msg(MSG::DEBUG)<<" avg "<<"RandExponential"<<"="<<sum_exp<<endreq;
+    msg(MSG::DEBUG)<<" avg "<<"RandExponential"<<"="<<sum_exp<<endmsg;
 
     m_chrono -> chronoStart("RandExpZiggurat");
     double sum_expZ=0;
@@ -211,7 +211,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_expZ/=ntest;
     m_chrono -> chronoStop("RandExpZiggurat");
-    msg(MSG::DEBUG)<<" avg "<<"RandExpZiggurat"<<"="<<sum_expZ<<endreq;
+    msg(MSG::DEBUG)<<" avg "<<"RandExpZiggurat"<<"="<<sum_expZ<<endmsg;
 
     /*
 
@@ -222,7 +222,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_rnd1/=ntest;
     m_chrono -> chronoStop(m_randomEngineName1);
-    msg(MSG::DEBUG)<<" avg "<<m_randomEngineName1<<"="<<sum_rnd1<<endreq;
+    msg(MSG::DEBUG)<<" avg "<<m_randomEngineName1<<"="<<sum_rnd1<<endmsg;
     
     m_chrono -> chronoStart(m_randomEngineName2);
     double sum_rnd2=0;
@@ -231,7 +231,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_rnd2/=ntest;
     m_chrono -> chronoStop(m_randomEngineName2);
-    msg(MSG::DEBUG)<<" avg "<<m_randomEngineName2<<"="<<sum_rnd2<<endreq;
+    msg(MSG::DEBUG)<<" avg "<<m_randomEngineName2<<"="<<sum_rnd2<<endmsg;
     
     m_chrono -> chronoStart("ranlux64");
     m_ranlux64->setSeed(seed,1);
@@ -241,7 +241,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_ranlux64/=ntest;
     m_chrono -> chronoStop("ranlux64");
-    msg(MSG::DEBUG)<<" avg ranlux64="<<sum_ranlux64<<endreq;
+    msg(MSG::DEBUG)<<" avg ranlux64="<<sum_ranlux64<<endmsg;
     
     m_chrono -> chronoStart("ranecu");
     m_ranecu->setSeed(seed,1);
@@ -251,7 +251,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_ranecu/=ntest;
     m_chrono -> chronoStop("ranecu");
-    msg(MSG::DEBUG)<<" avg ranecu="<<sum_ranecu<<endreq;
+    msg(MSG::DEBUG)<<" avg ranecu="<<sum_ranecu<<endmsg;
     
     m_chrono -> chronoStart("mtwist");
     m_mtwist->setSeed(seed,1);
@@ -261,7 +261,7 @@ namespace AtlasCLHEP_RandomGenerators {
     }  
     sum_mtwist/=ntest;
     m_chrono -> chronoStop("mtwist");
-    msg(MSG::DEBUG)<<" avg mtwist="<<sum_mtwist<<endreq;
+    msg(MSG::DEBUG)<<" avg mtwist="<<sum_mtwist<<endmsg;
     
     */
     

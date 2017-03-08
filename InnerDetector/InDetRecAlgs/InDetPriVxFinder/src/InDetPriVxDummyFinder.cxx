@@ -35,7 +35,7 @@ namespace InDet
   {
     if ( m_iBeamCondSvc.retrieve().isFailure() )
     {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
@@ -56,7 +56,7 @@ namespace InDet
     //---- Recording section: write the results to StoreGate ---//
     if ( evtStore()->record ( theVxContainer, m_vxCandidatesOutputName,false ).isFailure() )
     {
-      if (msgLvl(MSG::ERROR)) msg() << "Unable to record Vertex Container in StoreGate" << endreq;
+      if (msgLvl(MSG::ERROR)) msg() << "Unable to record Vertex Container in StoreGate" << endmsg;
       return StatusCode::FAILURE;
     }
 

@@ -523,7 +523,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
         // If matching array was somehow empty (should be impossible)
         if(nlayerMax==0)continue;
         if(bestTPDmatches[k]->size()==0){
-          m_log << MSG::WARNING << "MidstationOnly: empty bestTPDmatches["<<k<<"] passed" << endreq;
+          m_log << MSG::WARNING << "MidstationOnly: empty bestTPDmatches["<<k<<"] passed" << endmsg;
           continue;
         }
         
@@ -584,7 +584,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
               m_log << MSG::WARNING << "MidstationOnly: canCheckSector passed for jTGC=" << stationIndex
               << " but, FE="<<TGCstation_StationFEFill[stationIndex]
               << " Eta="<<TGCstation_StationEtaFill[stationIndex]
-              << " Phi=" << TGCstation_StationPhiFill[stationIndex] << endreq;
+              << " Phi=" << TGCstation_StationPhiFill[stationIndex] << endmsg;
               continue;
             }
             // Get Sector histogram indexes

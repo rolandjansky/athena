@@ -31,7 +31,7 @@
 
 StatusCode PixelMainMon::BookStatusMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Status" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Status" << endmsg;  
 
    std::string path = "Pixel/Status";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/StatusOnTrack");
@@ -95,13 +95,13 @@ StatusCode PixelMainMon::BookStatusMon(void)
    sc = statusHistos.regHist(m_disabledModules_per_lumi_PIX = TProfile_LW::create(tmp.c_str(), (tmp2+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
 
 
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
    return StatusCode::SUCCESS;
 }  
 
 StatusCode PixelMainMon::BookStatusLumiBlockMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Status for lowStat" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Status for lowStat" << endmsg;  
 
    std::string path = "Pixel/LumiBlock";
    if(m_doOnTrack)      path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
@@ -112,7 +112,7 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void)
    sc = m_status_LB->regHist(lumiBlockHist);
    m_status_LB->SetMaxValue( 2.0 );
      
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
    return StatusCode::SUCCESS;
 }  
 

@@ -305,7 +305,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
     if(!evtStore()){
 	if(msgLvl(MSG::DEBUG))
 	    msg(MSG::DEBUG) << "No pointer to StoreGateSvc" 
-			    << endreq;
+			    << endmsg;
 	return StatusCode::FAILURE;
     }
   
@@ -413,7 +413,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 	    const Trk::Track *track=(*itrack);
 	    if (track == 0){
 		if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING)
-		    << "no pointer to track!!!" << endreq;  break;
+		    << "no pointer to track!!!" << endmsg;  break;
 	    }
 	
 	    const DataVector<const Trk::TrackStateOnSurface>*
@@ -421,7 +421,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 	    if (trackStates == 0) {
 		if ( msgLvl(MSG::ERROR) ) msg(MSG::ERROR)
 		    << "for current track is TrackStateOnSurfaces == Null "
-		    << endreq;
+		    << endmsg;
 	    } else {
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator
 		    it=trackStates->begin();
@@ -431,7 +431,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 		    const Trk::TrackStateOnSurface* trackState=(*it);
 	    
 		    if (trackState == 0) {
-			if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "TrackStateOnSurface == Null, is the tracking OK?" << endreq;
+			if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "TrackStateOnSurface == Null, is the tracking OK?" << endmsg;
 			continue;
 		    }
 		    const InDet::TRT_DriftCircleOnTrack *trtcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trackState->measurementOnTrack());
@@ -467,14 +467,14 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 			    if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) <<
 							    "SiCluster WITHOUT " <<
 							    "prepRawData!!!!" <<
-							    endreq;
+							    endmsg;
 			    continue;
 			}
 	      
 			if (RawDataClus==0) {
 			    if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING)
 				<< "SiCluster WITHOUT prepRawData!!!!"
-				<< endreq;
+				<< endmsg;
 			} else {
 			    if (RawDataClus->detectorElement()->isSCT()) {
 				nSCT_trk += RawDataClus->rdoList().size();
@@ -597,7 +597,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 	    if(msgLvl(MSG::DEBUG))
 		msg(MSG::DEBUG) << "SCT_Collection found with "
 				<< SCT_Collection->size() << " RDOs"
-				<< endreq;
+				<< endmsg;
 	
 	    DataVector<SCT_RDORawData>::const_iterator p_rdo = 
 		SCT_Collection->begin();
@@ -658,7 +658,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 	    if(msgLvl(MSG::DEBUG))
 		msg(MSG::DEBUG) << "PIX_Collection found with " 
 				<< PIX_Collection->size() << " RDOs"
-				<< endreq;
+				<< endmsg;
 	
 	    DataVector<PixelRDORawData>::const_iterator p_rdo =
 		PIX_Collection->begin();
@@ -1005,7 +1005,7 @@ void InDetGlobalNoiseOccupancyMonTool::correlation_coeffs(vector<struct noise>
 	  msg(MSG::WARNING) << "less than " << size << 
 	  " events saved for correlation calculation "
 	  "- manually setting numbers to -2"
-	  << endreq;
+	  << endmsg;
 	  }*/
 		
 	m_TRT_SCTvTRT_PIX_10evt->Fill(-2,-2);
@@ -1136,7 +1136,7 @@ int InDetGlobalNoiseOccupancyMonTool::GetSCTCounts(int barrel_ec_sel, bool do_ch
 
     if(barrel_ec_sel != 0 && barrel_ec_sel != -2 && barrel_ec_sel != 2)
     {
-	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Wrong selection on SCTCounts !" << endreq;
+	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Wrong selection on SCTCounts !" << endmsg;
 	return -1;
     }
 
@@ -1202,7 +1202,7 @@ int InDetGlobalNoiseOccupancyMonTool::GetSCTCounts(int barrel_ec_sel, bool do_ch
 	}
     }
   
-    if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "        SCT nStripsCntr: " << nStripsCntr << endreq;
+    if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "        SCT nStripsCntr: " << nStripsCntr << endmsg;
     return nStripsCntr;
 }
 
@@ -1221,7 +1221,7 @@ int InDetGlobalNoiseOccupancyMonTool::GetPixelCounts(int barrel_ec_sel, bool do_
 
     if(barrel_ec_sel != 0 && barrel_ec_sel != -2 && barrel_ec_sel != 2)
     {
-	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Wrong selection on GetPixelCounts !" << endreq;
+	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Wrong selection on GetPixelCounts !" << endmsg;
 	return -1;
     }
 
@@ -1264,7 +1264,7 @@ int InDetGlobalNoiseOccupancyMonTool::GetPixelCounts(int barrel_ec_sel, bool do_
 	}
     }
   
-    if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "        Pixel Cntr: " << nPixelCntr << endreq;
+    if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "        Pixel Cntr: " << nPixelCntr << endmsg;
 
     return nPixelCntr;
 }

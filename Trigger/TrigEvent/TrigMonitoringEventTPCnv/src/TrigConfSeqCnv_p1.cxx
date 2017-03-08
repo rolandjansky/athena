@@ -17,7 +17,7 @@ void TrigConfSeqCnv_p1::persToTrans(const TrigConfSeq_p1* persObj,
 				    MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigConfSeqCnv_p1::persToTrans called " << endreq;
+    log << MSG::DEBUG << "TrigConfSeqCnv_p1::persToTrans called " << endmsg;
   }
 
   transObj->m_output_te_name  = persObj->m_output_te_name;
@@ -35,7 +35,7 @@ void TrigConfSeqCnv_p1::transToPers(const TrigConfSeq* transObj,
 				    MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigConfSeqCnv_p1::transToPers called " << endreq;
+    log << MSG::DEBUG << "TrigConfSeqCnv_p1::transToPers called " << endmsg;
   }
 
   persObj->m_output_te_name  = transObj->m_output_te_name;

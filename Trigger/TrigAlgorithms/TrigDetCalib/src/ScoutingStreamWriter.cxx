@@ -21,7 +21,7 @@ ScoutingStreamWriter::~ScoutingStreamWriter(){
 HLT::ErrorCode ScoutingStreamWriter::hltInitialize(){
 
   if (!m_clidSvc.retrieve().isSuccess()) {
-    msg() << MSG::FATAL << "Cannot get ClassIDSvc " << m_clidSvc << endreq;
+    msg() << MSG::FATAL << "Cannot get ClassIDSvc " << m_clidSvc << endmsg;
     return HLT::FATAL;    
   }
   
@@ -42,13 +42,13 @@ HLT::ErrorCode ScoutingStreamWriter::hltInitialize(){
 	names.push_back((*it).substr(found+1,(*it).size()-found+1));    
       }else{
       
-      msg() << MSG::FATAL << "Collection type and collection name not configured correctly. " << endreq;
+      msg() << MSG::FATAL << "Collection type and collection name not configured correctly. " << endmsg;
       return HLT::FATAL; 
     }
   }
   
   if (types.size() != names.size()){
-    msg() << MSG::FATAL << "Collection type and collection name vectors have different size. " << endreq;
+    msg() << MSG::FATAL << "Collection type and collection name vectors have different size. " << endmsg;
     return HLT::FATAL;    
   }   
 
@@ -77,13 +77,13 @@ HLT::ErrorCode ScoutingStreamWriter::hltExecute(const HLT::TriggerElement*, bool
 	names.push_back((*it).substr(found+1,(*it).size()-found+1));    
       }else{
       
-      msg() << MSG::FATAL << "Collection type and collection name not configured correctly. " << endreq;
+      msg() << MSG::FATAL << "Collection type and collection name not configured correctly. " << endmsg;
       return HLT::FATAL; 
     }
   }
   
   if (types.size() != names.size()){
-    msg() << MSG::FATAL << "Collection type and collection name vectors have different size. " << endreq;
+    msg() << MSG::FATAL << "Collection type and collection name vectors have different size. " << endmsg;
     return HLT::FATAL;    
   }   
   
@@ -93,7 +93,7 @@ HLT::ErrorCode ScoutingStreamWriter::hltExecute(const HLT::TriggerElement*, bool
   for (std::vector<std::string>::const_iterator it = types.begin(), it_e = types.end(); it != it_e; it++) {
     CLID classid;
     if (!m_clidSvc->getIDOfTypeName(*it, classid).isSuccess()){
-      msg() << MSG::WARNING << "Cannot convert type. No CLID for " << (*it) << endreq;
+      msg() << MSG::WARNING << "Cannot convert type. No CLID for " << (*it) << endmsg;
     } else {
       clid.push_back(classid);
     }
@@ -101,7 +101,7 @@ HLT::ErrorCode ScoutingStreamWriter::hltExecute(const HLT::TriggerElement*, bool
   
   ScoutingInfo* ScoutInfo = config()->getScoutingInfo();
   if(!ScoutInfo){
-    msg() << MSG::DEBUG << "*** Not Executing this ScoutingStreamWriter " << name() << endreq;
+    msg() << MSG::DEBUG << "*** Not Executing this ScoutingStreamWriter " << name() << endmsg;
     return HLT::OK;
   } else {
     for(unsigned int i = 0; i < clid.size(); ++i)

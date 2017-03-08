@@ -879,7 +879,7 @@ StatusCode TileCellMonTool::fillHistograms() {
 
       if (msgLvl(MSG::VERBOSE)) {
           //tile_cell->print();
-          //log << MSG::VERBOSE << "HWIdentifier: " << tile_cell->adc_HWID() << endreq;
+          //log << MSG::VERBOSE << "HWIdentifier: " << tile_cell->adc_HWID() << endmsg;
           
         msg(MSG::VERBOSE) << "Identifier: " << id << " " << m_tileID->to_string(id,-2) << endmsg;
         msg(MSG::VERBOSE) << "  region: " << m_tileID->region(id)

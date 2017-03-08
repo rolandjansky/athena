@@ -41,19 +41,19 @@ void TRRegionXMLHandler::Process(const std::string& name)
   ISvcLocator * svcLocator = Gaudi::svcLocator(); // from Bootstrap
 
   if (msgLevel(MSG::DEBUG))
-    msg(MSG::DEBUG) << "This is TRRegionXMLHandler. Handler called" << endreq;
+    msg(MSG::DEBUG) << "This is TRRegionXMLHandler. Handler called" << endmsg;
 
   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
   if( sc.isFailure() ) {
     if (msgLevel(MSG::ERROR))
-      msg(MSG::ERROR) << "Unable to locate StoreGate! Stopping!" << endreq;
+      msg(MSG::ERROR) << "Unable to locate StoreGate! Stopping!" << endmsg;
     throw;
   }
   StoreGateSvc* detStore = 0;
   sc = svcLocator->service( "DetectorStore", detStore);
   if( sc.isFailure() ) {
     if (msgLevel(MSG::ERROR))
-      msg(MSG::ERROR) << "Unable to locate DetectorStore! Leaving!" << endreq;
+      msg(MSG::ERROR) << "Unable to locate DetectorStore! Leaving!" << endmsg;
     throw;
   }
 
@@ -67,14 +67,14 @@ void TRRegionXMLHandler::Process(const std::string& name)
   } else {
     if (msgLevel(MSG::FATAL))
       msg(MSG::FATAL) << "Could not retrieve geometry layout. TR process is not to be trusted in the following "
-                      << endreq;
+                      << endmsg;
     throw;
   }
 
   // Crack open the XML file
   std::filebuf fb;
   if (!fb.open(name,std::ios::in)){
-    msg(MSG::FATAL) << "Could not open file " << name << " bombing out" << endreq;
+    msg(MSG::FATAL) << "Could not open file " << name << " bombing out" << endmsg;
     throw;
   }
   std::istream is(&fb);
@@ -112,7 +112,7 @@ void TRRegionXMLHandler::Process(const std::string& name)
             if (msgLevel(MSG::FATAL))
               msg(MSG::FATAL) << " Volume-name " << volName
                               <<" not found! Geometry layout "
-                              << m_initialLayoutIdDict << endreq;
+                              << m_initialLayoutIdDict << endmsg;
             std::abort();
           }
         }

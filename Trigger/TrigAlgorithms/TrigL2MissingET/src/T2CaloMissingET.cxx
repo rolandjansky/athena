@@ -86,15 +86,15 @@ T2CaloMissingET::T2CaloMissingET(const std::string& name, ISvcLocator* pSvcLocat
 HLT::ErrorCode T2CaloMissingET::hltInitialize(){
 
   m_log = new MsgStream(msgSvc(), name());
-  (*m_log) << MSG::INFO << "on hltInitialize()" << endreq;
+  (*m_log) << MSG::INFO << "on hltInitialize()" << endmsg;
 
   if ((m_data.retrieve()).isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get m_data" << endreq;
+    (*m_log) << MSG::ERROR << "Could not get m_data" << endmsg;
     return HLT::OK;
   }
 
   if( (m_timersvc.retrieve()).isFailure() ) {
-    (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
+    (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
   } 
   
   if ( !m_timersvc.empty()) {
@@ -111,23 +111,23 @@ HLT::ErrorCode T2CaloMissingET::hltInitialize(){
   }
 
   if(toolSvc()->retrieveTool("LArCablingService",m_cablingSvc).isFailure()) {
-    *m_log << MSG::FATAL << "Could not get LArCablingService" << endreq;
+    *m_log << MSG::FATAL << "Could not get LArCablingService" << endmsg;
     return StatusCode::FAILURE;
   }
 
   StoreGateSvc* detStore = 0;
   if (service( "DetectorStore", detStore ).isFailure()) {
-    *m_log << MSG::FATAL << "Unable to locate DetectorStore" << endreq;
+    *m_log << MSG::FATAL << "Unable to locate DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }	
 
   if (detStore->retrieve(m_LArOnlineID, "LArOnlineID").isFailure()) {
-    *m_log << MSG::FATAL << "Could not get LArOnlineID helper!" << endreq;
+    *m_log << MSG::FATAL << "Could not get LArOnlineID helper!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if (detStore->retrieve(m_CaloCell_ID, "CaloCell_ID").isFailure()) {
-    *m_log << MSG::FATAL << "Could not get CaloCell_ID helper!" << endreq;
+    *m_log << MSG::FATAL << "Could not get CaloCell_ID helper!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -135,7 +135,7 @@ HLT::ErrorCode T2CaloMissingET::hltInitialize(){
 }
 
 HLT::ErrorCode T2CaloMissingET::hltFinalize(){
-  (*m_log) << MSG::INFO << "on hltFinalize()" << endreq;
+  (*m_log) << MSG::INFO << "on hltFinalize()" << endmsg;
   delete m_log;
   return HLT::OK;
 }
@@ -155,13 +155,13 @@ HLT::TriggerElement* T2CaloMissingET::makeSeeding(std::vector<std::vector<HLT::T
           allTEs.push_back(tes.at(teIdx));
           /*
             if (msgLvl() <= MSG::INFO) {
-	    msg() << MSG::INFO << "using TE as a seed " << tes.at(teIdx)->getId() << endreq;
+	    msg() << MSG::INFO << "using TE as a seed " << tes.at(teIdx)->getId() << endmsg;
             }
           */
         } else {
           /*
 	    if (msgLvl() <= MSG::INFO) {
-            msg() << MSG::INFO << "skipping TE  " << tes.at(teIdx)->getId() << endreq;
+            msg() << MSG::INFO << "skipping TE  " << tes.at(teIdx)->getId() << endmsg;
             }
           */
         }
@@ -181,7 +181,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   // first check whether we executed this instance before:
   if (m_useCachedResult) {
     if (msgLvl() <= MSG::DEBUG) {
-      (*m_log) << MSG::DEBUG << "Executing this T2iCaloMissingET " << name() << " in cached mode" << endreq;
+      (*m_log) << MSG::DEBUG << "Executing this T2iCaloMissingET " << name() << " in cached mode" << endmsg;
     }
 
     HLT::TriggerElement* outputTE = makeSeeding(tes_in, type_out);
@@ -213,7 +213,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   if(m_ReadL2L1) {    
 
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG<< " Reading in L2=L1 MET container" << endreq;
+      msg() << MSG::DEBUG<< " Reading in L2=L1 MET container" << endmsg;
     }
 
     bool storeL2L1 = true;    
@@ -222,18 +222,18 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
     std::vector<const xAOD::TrigMissingET*> vectorL2L1MissingET;
 
     if (tes_in_size != 1) {
-      msg() << MSG::WARNING << " Failed to get L2=L1 vectorMissingETs. No storage of L1 will be performed " << endreq;
+      msg() << MSG::WARNING << " Failed to get L2=L1 vectorMissingETs. No storage of L1 will be performed " << endmsg;
       storeL2L1 = false;
     }
     else {
       HLT::ErrorCode status = getFeatures(tes_in[0][0], vectorL2L1MissingET);
       if(status != HLT::OK) {
-        msg() << MSG::WARNING << "Cannot find L2=L1 MET result!" << endreq;
+        msg() << MSG::WARNING << "Cannot find L2=L1 MET result!" << endmsg;
         storeL2L1 = false;
       }
       else {
         if ( vectorL2L1MissingET.size() < 1 ) {
-          msg() << MSG::WARNING << "Cannot find L2=L1 MET result!" << endreq;
+          msg() << MSG::WARNING << "Cannot find L2=L1 MET result!" << endmsg;
           storeL2L1 = false;
         }
       }
@@ -242,7 +242,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
     if(storeL2L1) {
       if(msgLvl() <= MSG::DEBUG) {
         msg() << MSG::DEBUG << " Got " << vectorL2L1MissingET.size()
-              << " vectorL2L1MissingET size associated to the TE" << endreq;
+              << " vectorL2L1MissingET size associated to the TE" << endmsg;
       }
     }
 
@@ -251,7 +251,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
      metL2L1 = vectorL2L1MissingET.front();
      if (metL2L1==0){
        if(msgLvl() <= MSG::DEBUG) {
-         msg() << MSG::DEBUG<< " L2=L1 MissingET pointer is null! No storage of L1 will be performed" << endreq;
+         msg() << MSG::DEBUG<< " L2=L1 MissingET pointer is null! No storage of L1 will be performed" << endmsg;
        }
        storeL2L1 = false;
      }
@@ -273,12 +273,12 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   }
   LArFebEnergyCollection::const_iterator feb_it, feb_it_beg, feb_it_end;
   TileL2Container::const_iterator draw_it, draw_it_beg, draw_it_end;
-  if ( debug ) (*m_log) << MSG::DEBUG << "Executing" << endreq;
+  if ( debug ) (*m_log) << MSG::DEBUG << "Executing" << endmsg;
 
   int k_n[30];
   for (int p=0; p<30; p++) k_n[p]=0;
 
-  if ( debug ) (*m_log) << MSG::DEBUG << "Size of detid:" << m_detid.size() << endreq;
+  if ( debug ) (*m_log) << MSG::DEBUG << "Size of detid:" << m_detid.size() << endmsg;
 
   //bool BSerrors = false;
   //if (m_data->report_error()) BSerrors = true;
@@ -287,7 +287,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   for(size_t detid = 0; detid<m_detid.size();detid++){
     m_timer[1]->resume();
     if ( (m_data->LoadFullCollections(feb_it_beg,feb_it_end, m_detid[detid])).isFailure() ){
-      (*m_log) << MSG::INFO << "problems to run load collection" << endreq;
+      (*m_log) << MSG::INFO << "problems to run load collection" << endmsg;
       return HLT::OK;
     }
 
@@ -298,9 +298,9 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 #ifdef USECABLINGSERVICE
       if( (*feb_it)->getFebId()  ==  0) {
 	if(msgLvl() <= MSG::DEBUG) {
-	  (*m_log) << "component unknown for this FEB id: " << std::hex << (*feb_it)->getFebId() << std::dec << endreq;
-	  (*m_log) << "this feb has: Ex " << (*feb_it)->getFebEx() << "  Ey: " << (*feb_it)->getFebEy() << "  Ez: " << (*feb_it)->getFebEz() << endreq;
-	  (*m_log) << "Skipping this FEB" << endreq;
+	  (*m_log) << "component unknown for this FEB id: " << std::hex << (*feb_it)->getFebId() << std::dec << endmsg;
+	  (*m_log) << "this feb has: Ex " << (*feb_it)->getFebEx() << "  Ey: " << (*feb_it)->getFebEy() << "  Ez: " << (*feb_it)->getFebEz() << endmsg;
+	  (*m_log) << "Skipping this FEB" << endmsg;
 	}
 	continue;
       }
@@ -314,7 +314,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
         ichannel++;
         if (ichannel>127) {
           (*m_log) << MSG::ERROR 
-		   << "not connected channel found for this FEB: " << (*feb_it)->getFebId() << endreq;
+		   << "not connected channel found for this FEB: " << (*feb_it)->getFebId() << endmsg;
           return StatusCode::RECOVERABLE;
         }
       } while(!offChId.is_valid());
@@ -341,7 +341,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 	k = 11 + caloSamp;
 	break;
       default:
-	(*m_log) << MSG::FATAL << "Unknown subdetector!" << endreq;
+	(*m_log) << MSG::FATAL << "Unknown subdetector!" << endmsg;
 	return StatusCode::FAILURE;
       }
 
@@ -349,10 +349,10 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
       if (k<30){
 	k_n[k]=k_n[k]+1;
       }else{
-	(*m_log) << MSG::ERROR << "Unknown subdetector index!" << endreq;
+	(*m_log) << MSG::ERROR << "Unknown subdetector index!" << endmsg;
       }
 #else
-      //if(msgLvl() <= MSG::DEBUG) (*m_log) << "USING FEB MAP" << endreq;
+      //if(msgLvl() <= MSG::DEBUG) (*m_log) << "USING FEB MAP" << endmsg;
 
       unsigned char k = 0;
       std::map<int,unsigned char>::const_iterator it = febIdToComponentMap.find( (*feb_it)->getFebId() );
@@ -360,8 +360,8 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 	k = it->second +1;
       } else {
 	if(msgLvl() <= MSG::DEBUG) {
-	  (*m_log) << "component unknown for this FEB id: " << std::hex << (*feb_it)->getFebId() << std::dec << endreq;
-	  (*m_log) << "this feb has: Ex " << (*feb_it)->getFebEx() << "  Ey: " << (*feb_it)->getFebEy() << "  Ez: " << (*feb_it)->getFebEz() << endreq;
+	  (*m_log) << "component unknown for this FEB id: " << std::hex << (*feb_it)->getFebId() << std::dec << endmsg;
+	  (*m_log) << "this feb has: Ex " << (*feb_it)->getFebEx() << "  Ey: " << (*feb_it)->getFebEy() << "  Ez: " << (*feb_it)->getFebEz() << endmsg;
 	}
 	k = 1; // TODO to which component do we add unknown FEB energies; or should we have an "unknown" component
       }
@@ -392,14 +392,14 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 	(*m_log) << "; Ex=" << (*feb_it)->getFebEx();
 	(*m_log) << "; Ey=" << (*feb_it)->getFebEy();
 	(*m_log) << "; Ez=" << (*feb_it)->getFebEz();
-	(*m_log) << endreq;
+	(*m_log) << endmsg;
 	} // end of debug
     } // end of feb_it for
   } // end of detid for
 
   // Get the Tile part of the Calo info
   if( (m_data->LoadFullCollections(draw_it_beg, draw_it_end )).isFailure() ){
-    (*m_log) << MSG::INFO << "Call to LoadFullCollections for tile drawers failed." << endreq;
+    (*m_log) << MSG::INFO << "Call to LoadFullCollections for tile drawers failed." << endmsg;
     return HLT::OK;
   }
   draw_it = draw_it_beg;
@@ -433,15 +433,15 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
         m_tile_nebc.push_back( idd ); 
         m_tile_ebc.push_back( Etd ); 
     } 
-    //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << std::hex << "drawerID=0x" << id << std::dec << endreq;
+    //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << std::hex << "drawerID=0x" << id << std::dec << endmsg;
     if( (id & 0x700) == 0x100  ||  (id & 0x700) == 0x200 ) {
-      //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "barrel" << endreq;
+      //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "barrel" << endmsg;
       targetComponent = 10;
     }else if( (id & 0x700) == 0x300  ||  (id & 0x700) == 0x400 ) {
-      //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "extended barrel" << endreq;
+      //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "extended barrel" << endmsg;
       targetComponent = 11;
     }else{
-      (*m_log) << MSG::ERROR << "dont know which part this tile drawer belongs to." << endreq;
+      (*m_log) << MSG::ERROR << "dont know which part this tile drawer belongs to." << endmsg;
     }
 
     float tempEx = m_met_feature->exComponent(targetComponent);
@@ -465,11 +465,11 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
       (*m_log) << "; Ex=" << (*draw_it)->Ex();
       (*m_log) << "; Ey=" << (*draw_it)->Ey();
       (*m_log) << "; Ez=" << (*draw_it)->Ez();
-      (*m_log) << endreq;
+      (*m_log) << endmsg;
     }
 
   }
-  if ( debug )  (*m_log) << MSG::DEBUG << "Setting energies" << endreq;
+  if ( debug )  (*m_log) << MSG::DEBUG << "Setting energies" << endmsg;
 
   //Fill the total Ex,Ey,Ez,E,Et
   float tempEx=0.;
@@ -492,7 +492,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   
 
   if ( debug ) {
-    (*m_log) << MSG::DEBUG << "m_met_feature" << std::endl << m_met_feature << endreq;
+    (*m_log) << MSG::DEBUG << "m_met_feature" << std::endl << m_met_feature << endmsg;
     for(int i=0; i < NCOM; i++) { 
       (*m_log) << MSG::DEBUG << "m_met_feature component: " << i;
       (*m_log) << "\t Ex   : " << m_met_feature->exComponent(i);
@@ -500,7 +500,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
       (*m_log) << "\t Ez   : " << m_met_feature->ezComponent(i);
       (*m_log) << "\t SumE : " << m_met_feature->sumEComponent(i);
       (*m_log) << "\t SumEt: " << m_met_feature->sumEtComponent(i);
-      (*m_log) << endreq;
+      (*m_log) << endmsg;
     }
   }
   // convert back to GeV for output log
@@ -512,10 +512,10 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   m_met=sqrt(tempEx*tempEx+tempEy*tempEy)/1000.;
 
   if ( debug ) {
-    msg() << MSG::DEBUG << "REGTEST: (LVL2 FEB) MET = " <<  m_met << " GeV" << endreq;
-    msg() << MSG::DEBUG << "REGTEST: (LVL2 FEB) METx = " <<  m_Ex << " GeV" << endreq;
-    msg() << MSG::DEBUG << "REGTEST: (LVL2 FEB) METy = " <<  m_Ey << " GeV" << endreq;
-    msg() << MSG::DEBUG << "REGTEST: (LVL2 FEB) SumEt = " <<  m_Et << " GeV" << endreq;
+    msg() << MSG::DEBUG << "REGTEST: (LVL2 FEB) MET = " <<  m_met << " GeV" << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: (LVL2 FEB) METx = " <<  m_Ex << " GeV" << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: (LVL2 FEB) METy = " <<  m_Ey << " GeV" << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: (LVL2 FEB) SumEt = " <<  m_Et << " GeV" << endmsg;
   }
 
   m_timer[1]->stop();
@@ -529,7 +529,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   if ( hltStatus != HLT::OK ) {
     msg() << MSG::WARNING // ERROR
 	  << "Write of TrigMissingET feature into outputTE failed"
-	  << endreq;
+	  << endmsg;
     return hltStatus;
   }
 
@@ -550,7 +550,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 HLT::ErrorCode T2CaloMissingET::init(xAOD::TrigMissingET *met){
   int ncom=met->getNumberOfComponents();
   if(ncom!=NCOM){
-    msg() << MSG::ERROR << "Wrong number of TrigMissingET dimension." << endreq;
+    msg() << MSG::ERROR << "Wrong number of TrigMissingET dimension." << endmsg;
     return HLT::NO_HLT_RESULT;
   }
   met->setNameOfComponent(0, "L1Calo   ");

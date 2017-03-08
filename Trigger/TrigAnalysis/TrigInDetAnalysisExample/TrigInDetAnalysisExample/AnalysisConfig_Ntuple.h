@@ -19,8 +19,6 @@
 #include "TTree.h"
 #include "TFile.h"
 
-#define endreq endmsg
-
 class AnalysisConfig_Ntuple : public T_AnalysisConfig<IHLTMonTool> { 
     
 public:

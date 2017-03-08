@@ -60,7 +60,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
   // XY_View_A_Layer[1-9]
   // XY_View_C_Layer[1-9]
 
-  m_log << MSG::INFO << "bookHistogramsXYView" << endreq;       
+  m_log << MSG::INFO << "bookHistogramsXYView" << endmsg;       
 
   StatusCode sc=StatusCode::SUCCESS;
 
@@ -81,7 +81,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
     tgcxyview[ac] = new TH2F( ss.str().c_str(), (ss.str() + ";X [cm]; Y[cm]").c_str(),120,-1200,1200,120,-1200,1200 );//20cmx20cm cell
     sc=tgcprd_shift_ac[ac]->regHist(tgcxyview[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
 
@@ -94,7 +94,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
         tgcxyviewlayer[ac][i] = new TH2F(ss.str().c_str(), (ss.str() + ";X [cm]; Y [cm]").c_str(),120,-1200,1200,120,-1200,1200 );//20cmx20cm cell
         sc=tgcprd_expert_ac[ac]->regHist(tgcxyviewlayer[ac][i]) ;  
         if(sc.isFailure()) { 
-          m_log << MSG::FATAL << ss.str() <<" Failed to register histogram " << endreq;       
+          m_log << MSG::FATAL << ss.str() <<" Failed to register histogram " << endmsg;       
           return sc;
         }
       }//loop over layer

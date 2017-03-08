@@ -47,7 +47,7 @@
 
 StatusCode PixelMainMon::BookRODErrorMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Errors" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Errors" << endmsg;  
 
    /// Set the paths and a group of histograms
    std::string path = "Pixel/Errors";
@@ -326,13 +326,13 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
      htitles = makeHisttitle(("Number of FEs with FE EoC Trunc error, "+m_modLabel_PixLayerIBL2D3D[i]), ";lumi block;eta index of module;# FEs with errors in a module in an event;# event #times # modules", false);
      sc = rodExpert.regHist(m_nFEswithTruncErr_mod[i] = new TH3F(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, nmod_eta[i], -0.5, -0.5 + nmod_eta[i], 18, -0.5, 17.5));
    }
-   if(sc.isFailure()) if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
+   if(sc.isFailure()) if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;   
    return StatusCode::SUCCESS;
 }
 
 StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Errors for lowStat" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Errors for lowStat" << endmsg;  
    
    std::string path = "Pixel/LumiBlock";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
@@ -353,7 +353,7 @@ StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void)
 
    }
    
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;   
    return StatusCode::SUCCESS;
 }
 

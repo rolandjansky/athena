@@ -84,9 +84,9 @@ StatusCode ZDC_PileUpTool::initialize() {
 
   ATH_MSG_DEBUG ( "ZDC_PileUpTool::initialize() called" );
   
-  ATH_MSG_INFO ( " ScaleStrip: " << m_ScaleStrip << endreq
-		 << " ScalePixel: " << m_ScalePixel << endreq
-		 << " MaxTimeBin: " << m_MaxTimeBin << endreq
+  ATH_MSG_INFO ( " ScaleStrip: " << m_ScaleStrip << endmsg
+		 << " ScalePixel: " << m_ScalePixel << endmsg
+		 << " MaxTimeBin: " << m_MaxTimeBin << endmsg
 		 << " Pedestal  : " << m_Pedestal   );
   
   if (m_atRndmGenSvc.retrieve().isFailure()) { 

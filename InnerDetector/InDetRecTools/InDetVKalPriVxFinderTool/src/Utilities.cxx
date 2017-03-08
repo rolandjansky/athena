@@ -46,8 +46,8 @@ namespace InDet {
 	  if(Selector==1)SelectedParticles.push_back( ListParticles[i] );
 	  if(Selector==2)SelectedTracks.push_back( ListTracks[i] );
       }
-      if(Selector==1 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Chosen for vertex fit="<<SelectedParticles.size()<<endreq;
-      if(Selector==2 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Chosen for vertex fit="<<SelectedTracks.size()<<endreq;
+      if(Selector==1 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Chosen for vertex fit="<<SelectedParticles.size()<<endmsg;
+      if(Selector==2 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Chosen for vertex fit="<<SelectedTracks.size()<<endmsg;
       return;
    }
 

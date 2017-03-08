@@ -40,7 +40,7 @@ TrigNewLoFHypo::~TrigNewLoFHypo() {}
 
 HLT::ErrorCode TrigNewLoFHypo::hltInitialize() {
 
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
   
   m_accepted=0;
   m_rejected=0;
@@ -51,8 +51,8 @@ HLT::ErrorCode TrigNewLoFHypo::hltInitialize() {
 
 HLT::ErrorCode TrigNewLoFHypo::hltFinalize(){
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
   return HLT::OK;
 
 }
@@ -61,7 +61,7 @@ HLT::ErrorCode TrigNewLoFHypo::hltFinalize(){
 HLT::ErrorCode TrigNewLoFHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
 
   if(msgLvl() <= MSG::DEBUG)
-     msg() << MSG::DEBUG << " in hltExecute() " << endreq;
+     msg() << MSG::DEBUG << " in hltExecute() " << endmsg;
 
   m_cutCounter = -1;
 
@@ -71,13 +71,13 @@ HLT::ErrorCode TrigNewLoFHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   std::vector<const TrigOperationalInfo*> m_vectorOperationalInfo;
   if (getFeatures(outputTE, m_vectorOperationalInfo, "CellLoFInfo") != HLT::OK) {
     if (msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigOperationalInfo" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigOperationalInfo" << endmsg;
     }
     return HLT::MISSING_FEATURE;
   }
   else {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Number of TrigOperationalInfo objects: " << m_vectorOperationalInfo.size() << endreq;
+      msg() << MSG::DEBUG << "Number of TrigOperationalInfo objects: " << m_vectorOperationalInfo.size() << endmsg;
     }
   }
 
@@ -88,13 +88,13 @@ HLT::ErrorCode TrigNewLoFHypo::hltExecute(const HLT::TriggerElement* outputTE, b
    
       unsigned int m_size = (*m_operationalInfo)->infos().first.size();   
       if (m_size!=1) {
-        if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Too much information from the same TrigOperationalInfo object" << endreq;
+        if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Too much information from the same TrigOperationalInfo object" << endmsg;
         return HLT::NAV_ERROR;
       }
    
       m_numberCells = (*m_operationalInfo)->get("CellLoF");
    
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Number of calo cells passing LoF quality criteria: " << m_numberCells << endreq;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Number of calo cells passing LoF quality criteria: " << m_numberCells << endmsg;
     }
   }
 
@@ -111,10 +111,10 @@ HLT::ErrorCode TrigNewLoFHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   if(m_acceptAll || !this_event_is_a_LoF_event) {
     pass = true;
     m_accepted++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Not LoF event: accepted!" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Not LoF event: accepted!" << endmsg;
 
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " LoF event: rejected!!" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " LoF event: rejected!!" << endmsg;
     m_rejected++;
     m_cutCounter=1;
   }

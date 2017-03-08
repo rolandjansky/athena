@@ -47,7 +47,7 @@ HLT::ErrorCode TrigROBListWriter::hltInitialize()
 
 HLT::ErrorCode TrigROBListWriter::hltBeginRun()
 {
-  msg() << MSG::INFO << "in hltBeginRun() " << endreq;
+  msg() << MSG::INFO << "in hltBeginRun() " << endmsg;
   return m_robSelector->setupMonitoring();
 }
 
@@ -65,11 +65,11 @@ HLT::ErrorCode TrigROBListWriter::hltExecute(const HLT::TriggerElement* te_in,
   msg() << MSG::DEBUG << "Executing this TrigROBListWriter " << name() << " for types "
 	<< te_in->getId() << " -> " << te_out->getId();
   if (m_maxRoIsPerEvent > -1) msg() << " RoI " << m_nRoIs << "/" << m_maxRoIsPerEvent;
-  msg() << endreq;
+  msg() << endmsg;
   
   if (m_maxRoIsPerEvent > -1 && m_nRoIs > m_maxRoIsPerEvent) {
     msg() << MSG::DEBUG << "RoI limit ("  << m_maxRoIsPerEvent 
-          << ") reached for this event : will not process this RoI" << endreq;
+          << ") reached for this event : will not process this RoI" << endmsg;
     return HLT::OK;
   }
 
@@ -88,7 +88,7 @@ HLT::ErrorCode TrigROBListWriter::hltExecute(const HLT::TriggerElement* te_in,
     for (std::vector<std::string>::const_iterator label = m_roILabels.begin();
          label != m_roILabels.end(); label++) 
       msg() << *label << " ";
-    msg()<< endreq;
+    msg()<< endmsg;
     return status;
   }
 
@@ -96,7 +96,7 @@ HLT::ErrorCode TrigROBListWriter::hltExecute(const HLT::TriggerElement* te_in,
   // create new partial EB directive
   PartialEventBuildingInfo* pebInfo = config()->getPEBI();
   if(!pebInfo){
-    msg() << MSG::DEBUG << "*** Not Executing this TrigROBListWriter " << name() << ", not a calib chain" << endreq;
+    msg() << MSG::DEBUG << "*** Not Executing this TrigROBListWriter " << name() << ", not a calib chain" << endmsg;
     return HLT::OK;
   }
   /*PartialEventBuildingInfo* pebInfo = 0;

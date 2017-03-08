@@ -24,46 +24,46 @@ namespace InDet
  
   if(m_trkFilter.retrieve().isFailure())
   {
-   msg(MSG::ERROR)<<" Unable to retrieve "<<m_trkFilter<<endreq;
+   msg(MSG::ERROR)<<" Unable to retrieve "<<m_trkFilter<<endmsg;
    return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<<"Track filter retrieved"<<endreq; 
+  }else msg(MSG::INFO)<<"Track filter retrieved"<<endmsg; 
    
   if(m_sortingTool.retrieve().isFailure())
   {
-   msg(MSG::ERROR)<<" Unable to retrieve "<<m_sortingTool<<endreq;
+   msg(MSG::ERROR)<<" Unable to retrieve "<<m_sortingTool<<endmsg;
    return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endreq;  
+  }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endmsg;  
   
   if(m_vtxSeedFinder.retrieve().isFailure())
   {
-    msg(MSG::ERROR) << "Unable to retrieve " << m_vtxSeedFinder <<endreq;
+    msg(MSG::ERROR) << "Unable to retrieve " << m_vtxSeedFinder <<endmsg;
     return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<< "Vertex seed finder retriever" << endreq; 
+  }else msg(MSG::INFO)<< "Vertex seed finder retriever" << endmsg; 
 
   if(m_cleaningTool.retrieve().isFailure())
   {
-   msg(MSG::ERROR)<<" Unable to retrieve "<<m_cleaningTool<<endreq;
+   msg(MSG::ERROR)<<" Unable to retrieve "<<m_cleaningTool<<endmsg;
    return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endreq;  
+  }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endmsg;  
    
   if(m_beamService.retrieve().isFailure())
   {
-   msg(MSG::ERROR)<<"Unable to retrieve "<<m_beamService<<endreq;
+   msg(MSG::ERROR)<<"Unable to retrieve "<<m_beamService<<endmsg;
    return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<<"BeamSpot service retrieved"<<endreq; 
+  }else msg(MSG::INFO)<<"BeamSpot service retrieved"<<endmsg; 
    
   if ( m_extrapolator.retrieve().isFailure() ) 
   {                              
-   msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endreq;
+   msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endmsg;
    return StatusCode::FAILURE;                                                  
-  } else msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq; 
+  } else msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg; 
    
   return StatusCode::SUCCESS;
  }//end of initialize mtehod
  
  StatusCode DivisiveMultiSeedFinder::finalize()
  {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }
  
@@ -114,7 +114,7 @@ namespace InDet
 //selecting with respect to the beam spot
   Trk::RecVertex beamrecposition(m_beamService->beamVtx());  
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamrecposition)) preselectedTracks.push_back(*tr);
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   Trk::Vertex* beamposition=&beamrecposition;
   
   if (m_ignoreBeamSpot)
@@ -123,7 +123,7 @@ namespace InDet
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<
                               " vtx seed x: " << myVertex->position().x() << 
                               " vtx seed y: " << myVertex->position().y() << 
-                              " vtx seed z: " << myVertex->position().z() << endreq;
+                              " vtx seed z: " << myVertex->position().z() << endmsg;
     beamposition=myVertex;
   }
 
@@ -149,7 +149,7 @@ namespace InDet
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
    else
    {
-     msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endreq;
+     msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endmsg;
      if (m_ignoreBeamSpot) delete beamposition;
      return result;
    }          	 	 
@@ -222,7 +222,7 @@ namespace InDet
 //-------------------End of debug output -----------------------------------------
       if(core_cluster.size()==0)
       {
-       msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endreq;
+       msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;
        clean_again = false;
       }else{
       
@@ -238,8 +238,8 @@ namespace InDet
 	
        }else if(core_outl.size()>1){
         clean_again = false;
-        msg(MSG::INFO)  << "There were remaining outliers of size: "<< core_outl.size()<< endreq;
-        msg(MSG::INFO)  << "Not evident, whether these tracks form a cluster. Rejected..."<< endreq;
+        msg(MSG::INFO)  << "There were remaining outliers of size: "<< core_outl.size()<< endmsg;
+        msg(MSG::INFO)  << "Not evident, whether these tracks form a cluster. Rejected..."<< endmsg;
 	
        }else  clean_again = false;//end of outlier size check  
       }//end of core cluster 0 check   
@@ -272,7 +272,7 @@ namespace InDet
 
   Trk::RecVertex beamrecposition(m_beamService->beamVtx());    
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   Trk::Vertex* beamposition=&beamrecposition;
 
 
@@ -291,7 +291,7 @@ namespace InDet
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<
                               " vtx seed x: " << myVertex->position().x() << 
                               " vtx seed y: " << myVertex->position().y() << 
-                              " vtx seed z: " << myVertex->position().z() << endreq;
+                              " vtx seed z: " << myVertex->position().z() << endmsg;
     beamposition=myVertex;
 
   }
@@ -319,7 +319,7 @@ namespace InDet
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
    else
    {
-     msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endreq;
+     msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endmsg;
      if (m_ignoreBeamSpot) delete beamposition;     
      return result;
    }          	 	 
@@ -354,7 +354,7 @@ namespace InDet
 
 //storing the last (or the only) cluster   
    preClusters.push_back(tmp_cluster);
-   msg(MSG::DEBUG)<<"The preselection returns clusters: "<<preClusters.size()<<endreq;
+   msg(MSG::DEBUG)<<"The preselection returns clusters: "<<preClusters.size()<<endmsg;
 
 //step 4 iterative cleaning of clusters
  //  std::cout<<"Number of clusters before cleaning: "<<preClusters.size()<<std::endl;
@@ -399,7 +399,7 @@ namespace InDet
       if(core_cluster.size()==0)
       {
       
-       msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endreq;
+       msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;
        clean_again = false;
       }else{
       
@@ -416,8 +416,8 @@ namespace InDet
        }else if(core_outl.size()>1)
        {
         clean_again = false;
-        msg(MSG::INFO)  << "There were remaining outliers of size: "<< core_outl.size()<< endreq;
-        msg(MSG::INFO)  << "Not evident, whether these tracks form a cluster. Rejected..."<< endreq;
+        msg(MSG::INFO)  << "There were remaining outliers of size: "<< core_outl.size()<< endmsg;
+        msg(MSG::INFO)  << "Not evident, whether these tracks form a cluster. Rejected..."<< endmsg;
 	
        }else  clean_again = false;//end of outlier size check  
       }//end of core cluster 0 check   
@@ -453,7 +453,7 @@ namespace InDet
   beamposition->setPosition(m_beamService->beamVtx().position());
   beamposition->setCovariancePosition(m_beamService->beamVtx().covariancePosition());
   // for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
-  // if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endreq;
+  // if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   //Trk::Vertex* beamposition=&beamrecposition;
 
    for (std::vector<const xAOD::TrackParticle*>::const_iterator itr  = tracks.begin(); itr != tracks.end(); ++itr) {
@@ -479,7 +479,7 @@ namespace InDet
 	    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<
 				    " vtx seed x: " << myVertex->position().x() << 
 				    " vtx seed y: " << myVertex->position().y() << 
-				    " vtx seed z: " << myVertex->position().z() << endreq;
+				    " vtx seed z: " << myVertex->position().z() << endmsg;
 	    beamposition->setPosition(myVertex->position());
 	    beamposition->setCovariancePosition(myVertex->covariancePosition());
 	  }
@@ -512,7 +512,7 @@ namespace InDet
    }
    else
      {
-       msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endreq;  
+       msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endmsg;  
        delete beamposition; 
        delete myVertex;
        return result;
@@ -549,7 +549,7 @@ namespace InDet
    
    //storing the last (or the only) cluster   
    preClusters.push_back(tmp_cluster);
-   msg(MSG::DEBUG)<<"The preselection returns clusters: "<<preClusters.size()<<endreq;
+   msg(MSG::DEBUG)<<"The preselection returns clusters: "<<preClusters.size()<<endmsg;
    
    //step 4 iterative cleaning of clusters
    //  std::cout<<"Number of clusters before cleaning: "<<preClusters.size()<<std::endl;
@@ -593,7 +593,7 @@ namespace InDet
       if(core_cluster.size()==0)
       {
       
-       msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endreq;
+       msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;
        clean_again = false;
       }else{
       
@@ -610,8 +610,8 @@ namespace InDet
        }else if(core_outl.size()>1)
        {
         clean_again = false;
-        msg(MSG::INFO)  << "There were remaining outliers of size: "<< core_outl.size()<< endreq;
-        msg(MSG::INFO)  << "Not evident, whether these tracks form a cluster. Rejected..."<< endreq;
+        msg(MSG::INFO)  << "There were remaining outliers of size: "<< core_outl.size()<< endmsg;
+        msg(MSG::INFO)  << "Not evident, whether these tracks form a cluster. Rejected..."<< endmsg;
 	
        }else  clean_again = false;//end of outlier size check  
       }//end of core cluster 0 check   
@@ -663,7 +663,7 @@ namespace InDet
 	    perigee =0;
 	    
 	  }else{
-	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endreq;
+	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endmsg;
 	  //    no_perigee.push_back(j);
 	}//end of perigee existance check
 	++j;
@@ -699,7 +699,7 @@ namespace InDet
 	      
 	      unsigned int cluster_size = 0;
 	      
-	      msg(MSG::DEBUG)<<"Receiving a cluster of size: "<< cluster.size()<<endreq;
+	      msg(MSG::DEBUG)<<"Receiving a cluster of size: "<< cluster.size()<<endmsg;
 	      
 	      Trk::PerigeeSurface perigeeSurface(reference->position());
 	      
@@ -713,17 +713,17 @@ namespace InDet
 		  if(perigee)
 		    { 
 		      z_center += perigee->parameters()[Trk::z0];
-		      msg(MSG::DEBUG)<<"Adding parameters: "<<perigee->parameters()[Trk::z0] <<endreq;
+		      msg(MSG::DEBUG)<<"Adding parameters: "<<perigee->parameters()[Trk::z0] <<endmsg;
 		      ++cluster_size;
 		    }else{
-		    msg(MSG::WARNING)<<" The TrackParticleBase provided does not contain perigee parameters"<<endreq;
+		    msg(MSG::WARNING)<<" The TrackParticleBase provided does not contain perigee parameters"<<endmsg;
 		  }//end of perigee security check
 		}//end of loop definig the center of a cluster
-	      msg(MSG::DEBUG)<<"Z center is: "<<z_center<<" for  tracks: "<<cluster_size<<endreq;
+	      msg(MSG::DEBUG)<<"Z center is: "<<z_center<<" for  tracks: "<<cluster_size<<endmsg;
 	      
 	      z_center = z_center/cluster_size;
 	      
-	      msg(MSG::DEBUG)<<"Looping over the cluster" <<endreq;
+	      msg(MSG::DEBUG)<<"Looping over the cluster" <<endmsg;
 	      
 	      for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
 		{
@@ -736,10 +736,10 @@ namespace InDet
 		      const AmgSymMatrix(5) * cov = measPerigee->covariance();    
 		      double sigma_z0 = Amg::error(*cov,Trk::z0);
 		      
-		      msg(MSG::DEBUG)<<"Perigee Z0 and corresponding sigma "<<z0<<" "<<sigma_z0<<endreq;
-		      msg(MSG::DEBUG)<<"Center of the cluster "<<z_center<<endreq;
-		      msg(MSG::DEBUG)<<"Offset "<<3.0<<endreq;
-		      msg(MSG::DEBUG)<<"discriminant "<<fabs(z_center-z0)<<" "<< sigma_z0*3.0 <<endreq;
+		      msg(MSG::DEBUG)<<"Perigee Z0 and corresponding sigma "<<z0<<" "<<sigma_z0<<endmsg;
+		      msg(MSG::DEBUG)<<"Center of the cluster "<<z_center<<endmsg;
+		      msg(MSG::DEBUG)<<"Offset "<<3.0<<endmsg;
+		      msg(MSG::DEBUG)<<"discriminant "<<fabs(z_center-z0)<<" "<< sigma_z0*3.0 <<endmsg;
 		      
 		      //if the track is closer than several standard deviations, keep it    
 		      if(fabs(z_center-z0)< sigma_z0*3.0) clusterSeed.push_back(&((*i)->perigeeParameters())); 
@@ -748,7 +748,7 @@ namespace InDet
 		      else outliers.push_back(*i);
 		    }else{
 		    outliers.push_back(*i);
-		    msg(MSG::WARNING)  << "This track has no meas perigee. Regarded as outlyer" << endreq;
+		    msg(MSG::WARNING)  << "This track has no meas perigee. Regarded as outlyer" << endmsg;
 		  }//end of measured perigee check
 		}//end of separation loop
 	      

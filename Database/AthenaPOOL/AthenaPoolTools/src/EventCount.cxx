@@ -228,7 +228,7 @@ StatusCode EventCount::execute()
 		        ins_stat = m_prov_keys.insert(it_pr->getKey());
                         if (ins_stat.second) {
   	                    log << MSG::DEBUG << "Provenance key " 
-                                              << it_pr->getKey() << endreq;
+                                              << it_pr->getKey() << endmsg;
                         }
 */
                         // Add token to list, and associate it with the key
@@ -244,7 +244,7 @@ StatusCode EventCount::execute()
 /*
                         else {
                             log << MSG::INFO << "Provenance key " << it_pr->getKey() 
-                                             << " appears multiple times" << endreq;
+                                             << " appears multiple times" << endmsg;
                         }
 */
     	            //}
@@ -303,7 +303,7 @@ StatusCode EventCount::finalize()
    while (it!=m_runs.end()) {
      msg() << " " << *it; ++it;
    }
-   msg() << endreq;
+   msg() << endmsg;
    // List all the event types
    ATH_MSG_INFO ( "Input contained the following Event Types" );
    std::set<std::string>::iterator itype=m_types.begin();
@@ -319,10 +319,10 @@ StatusCode EventCount::finalize()
       ++istr;
    }
 /*
-   log << MSG::INFO << "Input contained the following Provenance Tags" << endreq;
+   log << MSG::INFO << "Input contained the following Provenance Tags" << endmsg;
    std::set<std::string>::iterator ipr = m_prov_keys.begin();
    while (ipr!=m_prov_keys.end()) {
-      log << MSG::INFO << " -- " << *ipr << endreq;
+      log << MSG::INFO << " -- " << *ipr << endmsg;
       ++ipr;
    }
 */
@@ -350,7 +350,7 @@ StatusCode EventCount::finalize()
       else {
         ATH_MSG_WARNING ( "Could not locate ClassIDSvc" );
       }
-      //log << MSG::INFO << "--------- D A T A - O B J ---------" << endreq;
+      //log << MSG::INFO << "--------- D A T A - O B J ---------" << endmsg;
       std::map<int,int>::iterator i = m_clids.begin();
       std::string classname = "NONE";
       StatusCode clidsvc_sc;

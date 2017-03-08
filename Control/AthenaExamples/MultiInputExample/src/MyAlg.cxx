@@ -115,45 +115,45 @@ StatusCode MyAlg::execute()
     
 
     StatusCode sc;
-    log<<MSG::INFO<<"HAHAHAHA1"<<endreq;
+    log<<MSG::INFO<<"HAHAHAHA1"<<endmsg;
     if (iEvt->pSubEvtSG->contains<ExampleClass>("MyData")) {
-      log<<MSG::INFO<<"HAHAHAHA2"<<endreq;
+      log<<MSG::INFO<<"HAHAHAHA2"<<endmsg;
       const DataHandle<ExampleClass> ec1;
-      log<<MSG::INFO<<"HAHAHAHA3"<<endreq;
+      log<<MSG::INFO<<"HAHAHAHA3"<<endmsg;
       sc = iEvt->pSubEvtSG->retrieve(ec1, "MyData");
-      log<<MSG::INFO<<"HAHAHAHA4"<<endreq;
+      log<<MSG::INFO<<"HAHAHAHA4"<<endmsg;
       if (!sc.isSuccess()) {
-	log<<MSG::INFO<<"HAHAHAHA5"<<endreq;
-	log << MSG::ERROR << "Could not find ExampleClass/MyData" << endreq;
+	log<<MSG::INFO<<"HAHAHAHA5"<<endmsg;
+	log << MSG::ERROR << "Could not find ExampleClass/MyData" << endmsg;
 	return(StatusCode::FAILURE);
       }
-      log << MSG::INFO<<"HAHAHAHA6"<<endreq;
-      log << MSG::INFO << "Run = " << ec1->getRun() << " event = " << ec1->getEvent() << " :: " << ec1->getText() << endreq;
+      log << MSG::INFO<<"HAHAHAHA6"<<endmsg;
+      log << MSG::INFO << "Run = " << ec1->getRun() << " event = " << ec1->getEvent() << " :: " << ec1->getText() << endmsg;
     }
 
-    log<<MSG::INFO<<"GOGOHAHAHAHA1"<<endreq;    
+    log<<MSG::INFO<<"GOGOHAHAHAHA1"<<endmsg;    
     if (endEvt->pSubEvtSG->contains<ExampleClass>("MyData")) {
-      log<<MSG::INFO<<"GOGOHAHAHAHA2"<<endreq;    
+      log<<MSG::INFO<<"GOGOHAHAHAHA2"<<endmsg;    
       const DataHandle<ExampleClass> ec2;
-      log<<MSG::INFO<<"GOGOHAHAHAHA3"<<endreq;    
+      log<<MSG::INFO<<"GOGOHAHAHAHA3"<<endmsg;    
       sc = endEvt->pSubEvtSG->retrieve(ec2, "MyData");
-      log<<MSG::INFO<<"GOGOHAHAHAHA4"<<endreq;    
+      log<<MSG::INFO<<"GOGOHAHAHAHA4"<<endmsg;    
       if (!sc.isSuccess()) {
-	log<<MSG::INFO<<"GOGOHAHAHAHA5"<<endreq;    
-	log << MSG::ERROR << "Could not find ExampleClass/MyData" << endreq;
+	log<<MSG::INFO<<"GOGOHAHAHAHA5"<<endmsg;    
+	log << MSG::ERROR << "Could not find ExampleClass/MyData" << endmsg;
 	return(StatusCode::FAILURE);
       }
-    log<<MSG::INFO<<"GOGOHAHAHAHA6"<<endreq;    
-    log << MSG::INFO << "Run = " << ec2->getRun() << " event = " << ec2->getEvent() << " :: " << ec2->getText() << endreq;
+    log<<MSG::INFO<<"GOGOHAHAHAHA6"<<endmsg;    
+    log << MSG::INFO << "Run = " << ec2->getRun() << " event = " << ec2->getEvent() << " :: " << ec2->getText() << endmsg;
     }
     
   *//*      
-      log << MSG::INFO << "DUMPDUMPDUMP\t"<<i<<"\n"<<iEvt->pSubEvtSG->dump() <<endreq;
+      log << MSG::INFO << "DUMPDUMPDUMP\t"<<i<<"\n"<<iEvt->pSubEvtSG->dump() <<endmsg;
 
       const EventInfo * evt = 0;
       StatusCode sc = iEvt->pSubEvtSG->retrieve( evt );
       if ( sc.isFailure() ) {
-	log << MSG::ERROR << "  Could not get event info" << endreq;      
+	log << MSG::ERROR << "  Could not get event info" << endmsg;      
 	return StatusCode::FAILURE;
       }
       else {
@@ -161,11 +161,11 @@ StatusCode MyAlg::execute()
 	    << evt->event_ID()->run_number()   << ","
 	    << evt->event_ID()->event_number() << ":"
 	    << evt->event_ID()->time_stamp() << "] "
-	    << endreq;
+	    << endmsg;
 	log << MSG::DEBUG << "Event type: user type "
 	    << evt->event_type()->user_type() << " weight "
 	    << evt->event_type()->mc_event_weight() 
-	    << endreq;
+	    << endmsg;
       }
       
       iEvt++;i++;

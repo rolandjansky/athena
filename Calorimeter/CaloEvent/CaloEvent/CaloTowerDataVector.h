@@ -5,7 +5,7 @@
 #ifndef CALOEVENT_CALOTOWERDATAVECTOR_H
 #define CALOEVENT_CALOTOWERDATAVECTOR_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CaloEvent/CaloTower.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 

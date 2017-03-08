@@ -72,10 +72,10 @@ namespace Trig { // Helper function
     for (_it = _chains.begin(); _it != _chains.end(); ++_it) {
       TrigConfChain _chain = (*_it);
       if (_chain.getChainName() != _toFind) continue;
-      (*_log) << MSG::DEBUG << "--- Tabulating prescale " << _toFind << " PS:" << _chain.getPrescale() << endreq;
+      (*_log) << MSG::DEBUG << "--- Tabulating prescale " << _toFind << " PS:" << _chain.getPrescale() << endmsg;
       return _chain.getPrescale();
     }
-    (*_log) << MSG::ERROR << "!!! Cannot find PS for " << _toFind << endreq;
+    (*_log) << MSG::ERROR << "!!! Cannot find PS for " << _toFind << endmsg;
     return 1.;
   }
 }

@@ -13,7 +13,7 @@
 
 void AFP_SiDigiCnv_p1::persToTrans(const AFP_SiDigi_p1* persObj, AFP_SiDigi* transObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "AFP_SiDigiCnv_p1::persToTrans called " << endreq;
+	log << MSG::DEBUG << "AFP_SiDigiCnv_p1::persToTrans called " << endmsg;
 
 
 	transObj->m_fADC=persObj->m_fADC;                    
@@ -27,7 +27,7 @@ void AFP_SiDigiCnv_p1::persToTrans(const AFP_SiDigi_p1* persObj, AFP_SiDigi* tra
 
 void AFP_SiDigiCnv_p1::transToPers(const AFP_SiDigi* transObj, AFP_SiDigi_p1* persObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "AFP_SiDigiCnv_p1::transToPers called " << endreq;
+	log << MSG::DEBUG << "AFP_SiDigiCnv_p1::transToPers called " << endmsg;
 
       persObj->m_fADC=transObj->m_fADC;
       persObj->m_fTDC=transObj->m_fTDC;

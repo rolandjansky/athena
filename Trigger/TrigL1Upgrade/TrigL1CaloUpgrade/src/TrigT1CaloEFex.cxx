@@ -37,7 +37,7 @@ StatusCode TrigT1CaloEFex::initialize(){
 	
 	if ( TrigT1CaloBaseFex::initialize().isFailure() ) return StatusCode::FAILURE;
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "initializing TrigT1CaloEFex" << endmsg;
         if ( m_enableMon ){
 		std::string histoName(name());
 		histoName+="Algo.root";
@@ -55,7 +55,7 @@ StatusCode TrigT1CaloEFex::initialize(){
 StatusCode TrigT1CaloEFex::finalize(){
 	if ( TrigT1CaloBaseFex::finalize().isFailure() ) return StatusCode::FAILURE;
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "finalizing TrigT1CaloEFex" << endmsg;
 	if ( m_enableMon ) {
 		m_histFile->Write();
 		m_histFile->Close();
@@ -66,12 +66,12 @@ StatusCode TrigT1CaloEFex::finalize(){
 StatusCode TrigT1CaloEFex::execute(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endmsg;
 
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
 	if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
-		msg << MSG::WARNING << " Could not get containers" << endreq;
+		msg << MSG::WARNING << " Could not get containers" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -83,11 +83,11 @@ StatusCode TrigT1CaloEFex::execute(){
 	clusters->setStore(auxclusters);
 	std::string clusterName(m_outputClusterName);
 	if ( evtStore()->record(clusters,clusterName).isFailure() ){
-		msg << MSG::ERROR  << "recording was not possible" << endreq;
+		msg << MSG::ERROR  << "recording was not possible" << endmsg;
 		return StatusCode::FAILURE;
 	}
 	if ( evtStore()->record(auxclusters,clusterName+"Aux.").isFailure() ){
-		msg << MSG::ERROR << "recording Aux was not possible" << endreq;
+		msg << MSG::ERROR << "recording Aux was not possible" << endmsg;
 		return StatusCode::FAILURE;
 	}
 	// Loop over seed cells, this should give us
@@ -112,7 +112,7 @@ StatusCode TrigT1CaloEFex::execute(){
 		clusterTime /=clusterTimeWeight;
 		else clusterTime = -999.99;
 		msg << MSG::DEBUG << "CELL versus CLUSTER : " << cellAbove->eta() << " " << cellAbove->phi() << " " << etaCluster << " " << phiCluster << 
- " " << cellAbove->eta()-etaCluster << " " << cellAbove->phi()-phiCluster << endreq;
+ " " << cellAbove->eta()-etaCluster << " " << cellAbove->phi()-phiCluster << endmsg;
 		// if find the cluster position fails, etaCluster=999.0
 		if ( etaCluster > 998.0 ) continue;
 		// other cluster sizes for some of the shower shapes

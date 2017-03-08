@@ -149,7 +149,7 @@ StatusCode TrigDataAccess::initialize()
 	  }
 	  //
 	  //if ( m_lumiTool.retrieve().isFailure() ) {
-	  //  (*m_log) << MSG::FATAL << "Could not find m_lumiTool" <<endreq;
+	  //  (*m_log) << MSG::FATAL << "Could not find m_lumiTool" <<endmsg;
 	  //  return StatusCode::FAILURE;
 	  //} else {
 	  //  std::cout << "Retrieve lumiTool successfully" << std::endl;
@@ -664,7 +664,7 @@ StatusCode TrigDataAccess::LoadCollections (
                                    << std::hex << m_tile[0] << std::dec );
 		  msg(MSG::WARNING) << "Error reading bytestream "
 				    << "event: Empty ROD block (less than 3 words) : 0x"
-				    << std::hex << m_tile[0] << std::dec << endreq;
+				    << std::hex << m_tile[0] << std::dec << endmsg;
 		  // Data seems corrupted
 		  m_error|=0x20000000;
                   if ( !m_tilecell->cached(m_rIds[i])){

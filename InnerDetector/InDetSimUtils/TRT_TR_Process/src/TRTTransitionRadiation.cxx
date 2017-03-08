@@ -75,10 +75,10 @@ void TRTTransitionRadiation::AddRadiatorParameters(TRTRadiatorParameters p) {
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << " New Radiator parameters being defined for TR process"
-                    << endreq;
-    msg(MSG::DEBUG) << " Volume " << p.GetLogicalVolume()->GetName() << endreq;
-    msg(MSG::DEBUG) << " FoilThickness " << p.GetFoilThickness() << endreq;
-    msg(MSG::DEBUG) << " GasThickness  " << p.GetGasThickness() << endreq;
+                    << endmsg;
+    msg(MSG::DEBUG) << " Volume " << p.GetLogicalVolume()->GetName() << endmsg;
+    msg(MSG::DEBUG) << " FoilThickness " << p.GetFoilThickness() << endmsg;
+    msg(MSG::DEBUG) << " GasThickness  " << p.GetGasThickness() << endmsg;
   }
 
   m_radiators.push_back(p);
@@ -143,7 +143,7 @@ void TRTTransitionRadiation::Initialize() {
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "Foil material : " << g4mat_FoilMaterial->GetName()
                     << "; plasma energy : " << m_WplasmaFoil/CLHEP::eV << " eV"
-                    << endreq;
+                    << endmsg;
     msg(MSG::DEBUG) << "Gas : " << g4mat_Gas->GetName()
                     << "; plasma energy : " << m_WplasmaGas/CLHEP::eV << " eV"
                     << G4endl;

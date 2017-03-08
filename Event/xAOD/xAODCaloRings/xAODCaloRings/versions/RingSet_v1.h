@@ -190,10 +190,7 @@ RingSet_v1::RingSet_v1(const size_t size, const float value)
 
 } // End of namespace xAOD
 
-
-#ifndef XAOD_STANDALONE
 #include "xAODCore/BaseInfo.h"
 SG_BASE ( xAOD::RingSet_v1, SG::AuxElement );
-#endif
 
 #endif // XAODCALORINGS_VERSIONS_RINGSET_V1_H

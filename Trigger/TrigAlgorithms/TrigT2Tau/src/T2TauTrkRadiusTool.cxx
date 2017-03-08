@@ -120,7 +120,7 @@ StatusCode T2TauTrkRadiusTool::execute(const TrigTauCluster *pTrigTauCluster,
     double dEta = (*itr)->param()->eta()  - eta;
     double dr   = sqrt( dEta*dEta + dPhi*dPhi );
     if ( (dr < m_coneCut) ) {
-      //log << MSG::DEBUG << "REGTEST: track accepted!!" << endreq;
+      //log << MSG::DEBUG << "REGTEST: track accepted!!" << endmsg;
       dRPtWeighted += pt * dr;
       scalarPtSum  += pt;
     }

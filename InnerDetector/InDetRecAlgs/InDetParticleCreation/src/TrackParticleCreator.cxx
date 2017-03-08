@@ -92,21 +92,21 @@ TrackParticleCreator::~TrackParticleCreator()
 
 StatusCode TrackParticleCreator::initialize()
 {
-    msg(MSG::DEBUG) << "initialize() success" << endreq;
+    msg(MSG::DEBUG) << "initialize() success" << endmsg;
 
     if ( m_particleCreatorTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_particleCreatorTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_particleCreatorTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_particleCreatorTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_particleCreatorTool << endmsg;
     }
 
     if (m_doSharedHits) {
       if ( m_assoTool.retrieve().isFailure() ) {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
         return StatusCode::FAILURE;
       } else {
-        msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+        msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
       }
     }
     
@@ -404,14 +404,14 @@ StatusCode TrackParticleCreator::finalize()
     double nTP = (double)m_nTrackParticlesCreated;
  
     msg(MSG::INFO) << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(9) << std::setprecision(3);
-    msg(MSG::INFO) << " --- InDetParticleCreation Summary: " << endreq;
+    msg(MSG::INFO) << " --- InDetParticleCreation Summary: " << endmsg;
     
     msg(MSG::INFO) << " --- Input  TrackCollection        : \"" << m_tracksName              << "\" with " << m_nTracksProcessed << " Tracks (";
-    msg(MSG::INFO) << ( m_numEvents ? (double)m_nTracksProcessed/(double)m_numEvents : 0 ) << " per event)." << endreq;
+    msg(MSG::INFO) << ( m_numEvents ? (double)m_nTracksProcessed/(double)m_numEvents : 0 ) << " per event)." << endmsg;
     
     
     msg(MSG::INFO) << " --- Output TrackParticleContainer : \"" << m_trackParticleOutputName << "\" with " << nTP << " TrackParticles (";
-    msg(MSG::INFO) << (m_numEvents ? nTP/(double)m_numEvents : 0 ) << " per event)." << endreq;
+    msg(MSG::INFO) << (m_numEvents ? nTP/(double)m_numEvents : 0 ) << " per event)." << endmsg;
     
     if (m_nTrackParticlesCreated>0){
         msg(MSG::INFO) << " ---  /Track in   -----> "
@@ -419,79 +419,79 @@ StatusCode TrackParticleCreator::finalize()
 		       << " Pixel " 
 		       << "  SCT  "
 		       << "  TRT  " 
-		       << "  All (P+S+T)" << endreq;
+		       << "  All (P+S+T)" << endmsg;
         msg(MSG::INFO) << " ---  Hits                "
 		       << (double)m_numberOfBLayerHits/nTP << "  "
 		       << (double)m_numberOfPixelHits/nTP  << "  "
 		       << (double)m_numberOfSCTHits/nTP    << "  "
 		       << (double)m_numberOfTRTHits/nTP    << "  "
-		       << (double)(m_numberOfPixelHits+m_numberOfSCTHits+m_numberOfTRTHits)/nTP << endreq;
+		       << (double)(m_numberOfPixelHits+m_numberOfSCTHits+m_numberOfTRTHits)/nTP << endmsg;
         msg(MSG::INFO) << " ---  Shared Hits         "
 		       << (double)m_numberOfBLayerSharedHits/nTP << "  " 
 		       << (double)m_numberOfPixelSharedHits/nTP  << "  " 
 		       << (double)m_numberOfSCTSharedHits/nTP    << "  " 
 		       << " " << "       "
-		       << " " << (double)(m_numberOfPixelSharedHits+m_numberOfSCTSharedHits)/nTP << endreq;
+		       << " " << (double)(m_numberOfPixelSharedHits+m_numberOfSCTSharedHits)/nTP << endmsg;
         msg(MSG::INFO) << " ---  Spoiled/Tube Hits    "
 		       << "      "
 		       << (double)m_numberOfPixelSpoiltHits/nTP << "  "
 		       << (double)m_numberOfSCTSpoiltHits/nTP   << "  "
 		       << " " << (double)m_numberOfTRTTubeHits/nTP     << "  "
-		       << " " << (double)(m_numberOfPixelSpoiltHits+m_numberOfSCTSpoiltHits+m_numberOfTRTTubeHits)/nTP << endreq;
+		       << " " << (double)(m_numberOfPixelSpoiltHits+m_numberOfSCTSpoiltHits+m_numberOfTRTTubeHits)/nTP << endmsg;
         msg(MSG::INFO) << " ---  Outliers            "
 		       << (double)m_numberOfBLayerOutliers/nTP << "  "
 		       << (double)m_numberOfPixelOutliers/nTP  << "  "
 		       << (double)m_numberOfSCTOutliers/nTP    << "  "
 		       << " " << (double)m_numberOfTRTOutliers/nTP    << "  "
-		       << " " << (double)m_numberOfOutliersOnTrack/nTP << endreq;
+		       << " " << (double)m_numberOfOutliersOnTrack/nTP << endmsg;
         msg(MSG::INFO) << " ---  Holes               "
 		       << "       "
 		       << (double)m_numberOfPixelHoles/nTP   << "  " 
 		       << (double)m_numberOfSCTHoles/nTP     << "  "
 		       << " " << (double)m_numberOfTRTHoles/nTP     << "  "
-		       << " " << (double)(m_numberOfPixelHoles+m_numberOfSCTHoles+m_numberOfTRTHoles)/nTP << endreq;
-	msg(MSG::INFO) << "      missed (exp) blayer " << (double) m_numberOfBlayersMissed/nTP << endreq;         
+		       << " " << (double)(m_numberOfPixelHoles+m_numberOfSCTHoles+m_numberOfTRTHoles)/nTP << endmsg;
+	msg(MSG::INFO) << "      missed (exp) blayer " << (double) m_numberOfBlayersMissed/nTP << endmsg;         
         msg(MSG::INFO) << "      SCT Double Holes    "
 		       << "       "
 		       << "       "
 		       << (double)m_numberOfSCTDoubleHoles/nTP
-		       << endreq;
+		       << endmsg;
         msg(MSG::INFO) << " ---  Dead Sensors/Straws "
 		       << "       "
 		       << (double)m_numberOfPixelDeadSensors/nTP << "  "
 		       << (double)m_numberOfSCTDeadSensors/nTP   << "  "
 		       << " " << (double)m_numberOfTRTDeadStraws/nTP    << "  "
 		       << " " << (double)(m_numberOfPixelDeadSensors+m_numberOfSCTDeadSensors+m_numberOfTRTDeadStraws)/nTP
-		       << endreq;
-        msg(MSG::INFO) << " ---  Add info Pixels " << endreq;
-        msg(MSG::INFO) << "      contributing layers        " << (double)m_numberOfContribPixelLayers/nTP << endreq;
-        msg(MSG::INFO) << "      ganged pixels              " << (double)m_numberOfGangedPixels/nTP << endreq;
-        msg(MSG::INFO) << "      ganged flagged as fake     " << (double)m_numberOfGangedFlaggedFakes/nTP << endreq;
-        msg(MSG::INFO) << " ---  Add info TRT " << endreq;
+		       << endmsg;
+        msg(MSG::INFO) << " ---  Add info Pixels " << endmsg;
+        msg(MSG::INFO) << "      contributing layers        " << (double)m_numberOfContribPixelLayers/nTP << endmsg;
+        msg(MSG::INFO) << "      ganged pixels              " << (double)m_numberOfGangedPixels/nTP << endmsg;
+        msg(MSG::INFO) << "      ganged flagged as fake     " << (double)m_numberOfGangedFlaggedFakes/nTP << endmsg;
+        msg(MSG::INFO) << " ---  Add info TRT " << endmsg;
         msg(MSG::INFO) << "      High Threshold Hits "
 		       << "       "
 		       << "       "
 		       << "       "
 		       << " " << (double)m_numberOfTRTHighThresholdHits/nTP
-		       << endreq;
+		       << endmsg;
         msg(MSG::INFO) << "      High thre. outliers "
 		       << "       "
 		       << "       "
 		       << "       "
 		       << " " << (double)m_numberOfTRTHighThresholdOutliers/nTP
-		       << endreq;
+		       << endmsg;
         msg(MSG::INFO) << "      Xenon hits"
 		       << "       "
 		       << "       "
 		       << "       "
 		       << " " << (double)m_numberOfTRTXenonHits/nTP
-		       << endreq;
+		       << endmsg;
 
     
     } else 
-        msg(MSG::INFO) << " No TrackParticles have been created ... skipping output." << endreq;
+        msg(MSG::INFO) << " No TrackParticles have been created ... skipping output." << endmsg;
     
-    msg(MSG::DEBUG) << "finalize() success" << endreq;
+    msg(MSG::DEBUG) << "finalize() success" << endmsg;
     return StatusCode::SUCCESS;
 }
 

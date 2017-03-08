@@ -202,7 +202,7 @@ StatusCode CoolHistSvc::getHist_i(const std::string& folder,
   const CondAttrListCollection* atrcol;
   if (StatusCode::SUCCESS!=p_detstore->retrieve(atrcol,folder)) {
     msg(mlevel) << "Cannot retrieve CondAttrListCollection for " <<
-      folder << endreq;
+      folder << endmsg;
     return StatusCode::FAILURE;
   }
   // find the channel number to look at
@@ -222,7 +222,7 @@ StatusCode CoolHistSvc::getHist_i(const std::string& folder,
     }
     if (!found) {
       msg(mlevel) << "Channel named " << channelName << 
-	" does not exist in folder " << folder << endreq;
+	" does not exist in folder " << folder << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -234,7 +234,7 @@ StatusCode CoolHistSvc::getHist_i(const std::string& folder,
     atrcol->chanAttrListPair(channel);
   if (citr==atrcol->end()) {
     msg(mlevel) << "Cannot find valid reference for " << folder << 
-      " channel " << channel << endreq;
+      " channel " << channel << endmsg;
     return StatusCode::FAILURE;
   }
   const std::string coolguid=citr->second["fileGUID"].data<std::string>();
@@ -277,7 +277,7 @@ StatusCode CoolHistSvc::getHist_i(const std::string& folder,
   ATH_MSG_DEBUG("Getting object "+histname+" from file");
   pfile->GetObject(histname.c_str(),hist);
   if (hist==0) {
-    msg(mlevel) << "Could not load TObject " << histname << endreq;
+    msg(mlevel) << "Could not load TObject " << histname << endmsg;
     return StatusCode::FAILURE;
   }
   m_histkeymap[histkey]=std::pair<std::string,TObject*>(coolguid,hist);

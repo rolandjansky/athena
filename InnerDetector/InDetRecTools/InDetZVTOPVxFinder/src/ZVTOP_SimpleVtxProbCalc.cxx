@@ -37,7 +37,7 @@ StatusCode InDet::ZVTOP_SimpleVtxProbCalc::initialize()
 
   if (sc.isFailure()) return sc;
 
-  msg (MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 

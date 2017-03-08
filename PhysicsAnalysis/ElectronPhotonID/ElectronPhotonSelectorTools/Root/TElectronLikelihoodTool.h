@@ -107,16 +107,9 @@ namespace LikeEnum {
     double likelihood;
     double eta;
     double eT;
-    int nSi;
-    int nSiDeadSensors;
-    int nPix;
-    int nPixDeadSensors;
-    int nBlayer;
-    int nBlayerOutliers;
-    bool expectBlayer;
-    int nNextToInnerMostLayer;
-    int nNextToInnerMostLayerOutliers;
-    bool expectNextToInnerMostLayer;
+    int nSiHitsPlusDeadSensors;
+    int nPixHitsPlusDeadSensors;
+    bool passBLayerRequirement;
     int convBit;
     double d0;
     double deltaEta;
@@ -190,9 +183,8 @@ namespace Root {
     const Root::TAccept& accept(LikeEnum::LHAcceptVars_t& vars_struct) const;
     const Root::TAccept& accept( double likelihood,
                                  double eta, double eT,
-                                 int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
-                                 int nBlayer, int nBlayerOutliers, bool expectBlayer,
-				 int nNextToInnerMostLayer, int nNextToInnerMostLayerOutliers, bool expectNextToInnerMostLayer,
+                                 int nSiHitsPlusDeadSensors, int nPixHitsPlusDeadSensors,
+                                 bool passBLayerRequirement,
                                  int convBit, double d0, double deltaEta, double deltaphires, 
                                  double wstot, double EoverP, double ip ) const;
     const Root::TResult& calculate(LikeEnum::LHCalcVars_t& vars_struct) const ;

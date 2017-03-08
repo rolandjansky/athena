@@ -82,12 +82,12 @@ StatusCode ReadData::execute() {
   //FIXME  if (StatusCode::SUCCESS != p_SGevent->retrieve(dobj) ) {
   //FIXME    log << MSG::ERROR 
   //FIXME	<< "Could not find default MyDataObj" 
-  //FIXME	<< endreq;
+  //FIXME	<< endmsg;
   //FIXME    return( StatusCode::FAILURE);
   //FIXME  }
   //FIXME  log << MSG::INFO 
   //FIXME      << "default MyDataObj Val: " << dobj->val() 
-  //FIXME      << endreq;
+  //FIXME      << endmsg;
 
   /////////////////////////////////////////////////////////////////////
   //   ii) Get a specific MyDataObj by providing its key 
@@ -187,11 +187,11 @@ StatusCode ReadData::execute() {
   //FIXME if (p_SGevent->contains<MyDataObj>(SG::DEFAULTKEY)) {
   //FIXME     log << MSG::INFO
   //FIXME 	<<"event store contains default MyDataObj"
-  //FIXME 	<<endreq;
+  //FIXME 	<<endmsg;
   //FIXME   } else {
   //FIXME     log << MSG::ERROR
   //FIXME 	<<"event store claims it does not contain default MyDataObj"
-  //FIXME      	<<endreq;
+  //FIXME      	<<endmsg;
   //FIXME     return( StatusCode::FAILURE);
   //FIXME   }	
 
@@ -257,11 +257,11 @@ StatusCode ReadData::execute() {
   //    if (!toBeRead.isValid()) {
   //      log << MSG::ERROR 
   //  	<< "Could not read back MapElement" 
-  //  	<< endreq;
+  //  	<< endmsg;
   //      return( StatusCode::FAILURE);
   //    } else {
   //      log << MSG::INFO <<  "MapElement read back: key " << toBeRead->first
-  //  	<< "  value " << toBeRead->second <<endreq;
+  //  	<< "  value " << toBeRead->second <<endmsg;
   //    }
 
   /////////////////////////////////////////////////////////////////////

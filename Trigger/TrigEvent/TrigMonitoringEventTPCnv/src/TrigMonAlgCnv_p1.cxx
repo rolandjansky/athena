@@ -17,7 +17,7 @@ void TrigMonAlgCnv_p1::persToTrans(const TrigMonAlg_p1* persObj,
 				   MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonAlgCnv_p1::persToTrans called " << endreq;
+    log << MSG::DEBUG << "TrigMonAlgCnv_p1::persToTrans called " << endmsg;
   }
 
   transObj->m_byte = persObj->m_byte;
@@ -30,7 +30,7 @@ void TrigMonAlgCnv_p1::transToPers(const TrigMonAlg* transObj,
 				   MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonAlgCnv_p1::transToPers called " << endreq;
+    log << MSG::DEBUG << "TrigMonAlgCnv_p1::transToPers called " << endmsg;
   }
 
   persObj->m_byte = transObj->m_byte;

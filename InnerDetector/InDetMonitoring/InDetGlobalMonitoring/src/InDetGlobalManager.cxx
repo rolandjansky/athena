@@ -62,21 +62,21 @@ StatusCode InDetGlobalManager::initialize()
 
     const TRT_ID *trtID = 0;
     if (detStore()->retrieve(trtID, "TRT_ID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
 
 
     const SCT_ID *sctID = 0;
     if (detStore()->retrieve(sctID, "SCT_ID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
 
 
     const PixelID *pixelID = 0;
     if (detStore()->retrieve(pixelID, "PixelID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -121,10 +121,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(sct_tracks, m_SCTTracksName);
     if  ( msgLvl(MSG::DEBUG) ){
       if ( sc.isFailure()) {
-	msg(MSG::DEBUG) <<"No SCT segments in StoreGate"<<endreq;
+	msg(MSG::DEBUG) <<"No SCT segments in StoreGate"<<endmsg;
       } else {
 	msg(MSG::DEBUG) <<"found SCT segments in StoreGate " 
-			<<m_SCTTracksName<<" "<<sct_tracks->size()<<endreq;
+			<<m_SCTTracksName<<" "<<sct_tracks->size()<<endmsg;
       }
     }
   }
@@ -134,10 +134,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(pix_tracks, m_PIXTracksName);
     if  ( msgLvl(MSG::DEBUG) ) {
       if ( sc.isFailure() ) { 
-	msg(MSG::DEBUG) <<"No PIX segments in StoreGate"<<endreq;
+	msg(MSG::DEBUG) <<"No PIX segments in StoreGate"<<endmsg;
       } else {
 	msg(MSG::DEBUG) <<"found PIX segments in StoreGate "  
-			<<m_PIXTracksName<<" "<<pix_tracks->size()<<endreq;
+			<<m_PIXTracksName<<" "<<pix_tracks->size()<<endmsg;
       }
     }
   }
@@ -148,10 +148,10 @@ StatusCode InDetGlobalManager::execute()
     if  ( msgLvl(MSG::DEBUG) ) {
       if  ( sc.isFailure()) { 
 	msg(MSG::DEBUG) <<"No TRT segments in StoreGate "
-			<< m_TRTTracksName<<endreq;
+			<< m_TRTTracksName<<endmsg;
       } else { 	    
 	msg(MSG::DEBUG) <<"found TRT segments in StoreGate "
-			<<m_TRTTracksName <<" "<<trt_tracks->size()<<endreq;
+			<<m_TRTTracksName <<" "<<trt_tracks->size()<<endmsg;
       }
     }
   }
@@ -162,11 +162,11 @@ StatusCode InDetGlobalManager::execute()
     if ( msgLvl(MSG::DEBUG) ) {
       if ( sc.isFailure()) {
 	msg(MSG::DEBUG) <<"No combined tracks in StoreGate "
-			<< m_CombinedTracksName<<endreq; 
+			<< m_CombinedTracksName<<endmsg; 
       } else {                 
 	msg(MSG::DEBUG)    <<"found combined tracks in StoreGate "
 			   <<m_CombinedTracksName <<" "
-			   <<combined_tracks->size()<<endreq;
+			   <<combined_tracks->size()<<endmsg;
       }
     }
   }
@@ -178,10 +178,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve( bcmRdoContainer, "BCM_RDOs" );
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !bcmRdoContainer) {
-        msg(MSG::DEBUG) <<"No BCM RDOs in StoreGate "<<endreq;
+        msg(MSG::DEBUG) <<"No BCM RDOs in StoreGate "<<endmsg;
       } else {
         msg(MSG::DEBUG)
-          <<"found BCM RDOs in StoreGate " <<endreq;
+          <<"found BCM RDOs in StoreGate " <<endmsg;
       }
     }
   }
@@ -191,10 +191,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve( pixRdoContainer, "PixelRDOs" );
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !pixRdoContainer) {
-	msg(MSG::DEBUG) <<"No Pixel RDOs in StoreGate "<<endreq;
+	msg(MSG::DEBUG) <<"No Pixel RDOs in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  <<"found Pixel RDOs in StoreGate " <<endreq;
+	  <<"found Pixel RDOs in StoreGate " <<endmsg;
       }
     }
   }
@@ -204,10 +204,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve( sctRdoContainer, "SCT_RDOs" );
     if  ( msgLvl(MSG::DEBUG) ){
       if (sc.isFailure() || !sctRdoContainer) {
-	msg(MSG::DEBUG) <<"No SCT RDOs in StoreGate "<<endreq;
+	msg(MSG::DEBUG) <<"No SCT RDOs in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  <<"found SCT RDOs in StoreGate " <<endreq;
+	  <<"found SCT RDOs in StoreGate " <<endmsg;
       }
     }
   }
@@ -218,10 +218,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(driftCircleContainer, m_TRT_DriftCircleName);
     if  ( msgLvl(MSG::DEBUG) ) { 
       if (sc.isFailure() || !driftCircleContainer) {
-	msg(MSG::DEBUG) <<"No TRT RDO in StoreGate "<<endreq;
+	msg(MSG::DEBUG) <<"No TRT RDO in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG) 
-	  <<"found TRT driftcircles in StoreGate " <<endreq; 
+	  <<"found TRT driftcircles in StoreGate " <<endmsg; 
       }
     }
   }
@@ -231,10 +231,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(pixel_LVL1IDColl, "PixelLVL1ID");
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !pixel_LVL1IDColl) {
-	msg(MSG::DEBUG) << "No Pixel LVL1ID information in StoreGate "<<endreq;
+	msg(MSG::DEBUG) << "No Pixel LVL1ID information in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  << "found Pixel LVL1ID information in StoreGate " <<endreq;
+	  << "found Pixel LVL1ID information in StoreGate " <<endmsg;
       }
     }
   }
@@ -244,10 +244,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(sct_LVL1IDColl, "SCT_LVL1ID");
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !sct_LVL1IDColl) {
-	msg(MSG::DEBUG) << "No SCT LVL1ID information in StoreGate "<<endreq;
+	msg(MSG::DEBUG) << "No SCT LVL1ID information in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  << "found SCT LVL1ID information in StoreGate " <<endreq;
+	  << "found SCT LVL1ID information in StoreGate " <<endmsg;
       }
     }
   }
@@ -257,10 +257,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(trt_LVL1IDColl, "TRT_LVL1ID");
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !trt_LVL1IDColl) {
-	msg(MSG::DEBUG) << "No TRT LVL1ID information in StoreGate "<<endreq;
+	msg(MSG::DEBUG) << "No TRT LVL1ID information in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  << "found TRT LVL1ID information in StoreGate " <<endreq;
+	  << "found TRT LVL1ID information in StoreGate " <<endmsg;
       }
     }
   }
@@ -270,10 +270,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(pixel_BCIDColl, "PixelBCID");
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !pixel_BCIDColl) {
-	msg(MSG::DEBUG) << "No Pixel BCID information in StoreGate "<<endreq;
+	msg(MSG::DEBUG) << "No Pixel BCID information in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  << "found Pixel BCID information in StoreGate " <<endreq;
+	  << "found Pixel BCID information in StoreGate " <<endmsg;
       }
     }
   }
@@ -283,10 +283,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(sct_BCIDColl, "SCT_BCID");
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !sct_BCIDColl) {
-	msg(MSG::DEBUG) << "No SCT BCID information in StoreGate "<<endreq;
+	msg(MSG::DEBUG) << "No SCT BCID information in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  << "found SCT BCID information in StoreGate " <<endreq;
+	  << "found SCT BCID information in StoreGate " <<endmsg;
       }
     }
   }
@@ -296,10 +296,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(trt_BCIDColl, "TRT_BCID");
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !trt_BCIDColl) {
-	msg(MSG::DEBUG) << "No TRT BCID information in StoreGate "<<endreq;
+	msg(MSG::DEBUG) << "No TRT BCID information in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  << "found TRT BCID information in StoreGate " <<endreq;
+	  << "found TRT BCID information in StoreGate " <<endmsg;
       }
     }
   }
@@ -309,10 +309,10 @@ StatusCode InDetGlobalManager::execute()
     StatusCode sc = evtStore()->retrieve(trtPhase, "TRT_Phase");
     if  ( msgLvl(MSG::DEBUG) ) {
       if (sc.isFailure() || !trtPhase) {
-	msg(MSG::DEBUG) << "No TRT event phase information in StoreGate "<<endreq;
+	msg(MSG::DEBUG) << "No TRT event phase information in StoreGate "<<endmsg;
       } else {
 	msg(MSG::DEBUG)
-	  << "found TRT event phase information in StoreGate " <<endreq;
+	  << "found TRT event phase information in StoreGate " <<endmsg;
       }
     }
   }
@@ -330,7 +330,7 @@ StatusCode InDetGlobalManager::execute()
       
       if( managed != 0 ) {
 	  if ( msgLvl(MSG::DEBUG) )    msg(MSG::DEBUG) 
-	      <<"Loop over InDetGlobalMonTool " <<managed << endreq;
+	      <<"Loop over InDetGlobalMonTool " <<managed << endmsg;
 	  managed->fillTracks(sct_tracks, trt_tracks, 
 			      combined_tracks, pix_tracks);
 	  managed->fillRDOContainers(bcmRdoContainer, pixRdoContainer, sctRdoContainer, driftCircleContainer);	      

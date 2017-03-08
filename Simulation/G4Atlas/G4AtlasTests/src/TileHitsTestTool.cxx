@@ -83,7 +83,7 @@ StatusCode TileHitsTestTool::processEvent() {
 
         // loop over subhits
         double energy=0;
-        //    ATH_MSG(INFO) << "TileHit size :" <<(*i_hit).size()<<endreq;
+        //    ATH_MSG(INFO) << "TileHit size :" <<(*i_hit).size()<<endmsg;
         for (int i=0; i<(*i_hit).size();++i) {
           energy+=(*i_hit).energy(i);
           m_tile_energy->Fill((*i_hit).energy(i));

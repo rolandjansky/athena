@@ -78,7 +78,7 @@ using namespace std;
 
 CscCalibMonToolBase::~CscCalibMonToolBase()
 {
-    m_log << MSG::INFO << " deleting CscCalibMonToolBase " << endreq;
+    m_log << MSG::INFO << " deleting CscCalibMonToolBase " << endmsg;
 }
 /*-----------------------------------------------------*/
 StatusCode CscCalibMonToolBase::initialize()
@@ -88,36 +88,36 @@ StatusCode CscCalibMonToolBase::initialize()
   m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
   m_verboselevel = (m_log.level() <= MSG::VERBOSE); // save if threshold for verbose printout reached
 
-  m_log << MSG::INFO << "CscCalibMonToolBase : in initialize()" << endreq;
+  m_log << MSG::INFO << "CscCalibMonToolBase : in initialize()" << endmsg;
   StatusCode sc;
 
   // get cscIdHelper through this convoluted process
   sc = service("DetectorStore", m_detStore);
   if ( !sc.isSuccess() ) {
-    m_log << MSG::FATAL << "DetectorStore Service not found !" << endreq;
+    m_log << MSG::FATAL << "DetectorStore Service not found !" << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc = service("StoreGateSvc", m_storeGate);
   if ( !sc.isSuccess() ) {
-    m_log << MSG::FATAL << "StoreGate Service not found !" << endreq;
+    m_log << MSG::FATAL << "StoreGate Service not found !" << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc = m_detStore->retrieve(m_muon_mgr);
   if (!sc.isSuccess()) {
-    m_log << MSG::FATAL << "Could not find the MuonGeoModel Manager" << endreq;
+    m_log << MSG::FATAL << "Could not find the MuonGeoModel Manager" << endmsg;
     return StatusCode::FAILURE;
   }
-  else {if (m_debuglevel) m_log << MSG::DEBUG << "Found the MuonGeoModel Manager " << endreq;} 
+  else {if (m_debuglevel) m_log << MSG::DEBUG << "Found the MuonGeoModel Manager " << endmsg;} 
 
   sc = m_detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (!sc.isSuccess()) { m_log << MSG::FATAL << "Cannot get CscIdHelper" << endreq; return StatusCode::FAILURE; }
-  else { if (m_debuglevel) m_log << MSG::DEBUG << " Found the CscIdHelper. " << endreq; }
+  if (!sc.isSuccess()) { m_log << MSG::FATAL << "Cannot get CscIdHelper" << endmsg; return StatusCode::FAILURE; }
+  else { if (m_debuglevel) m_log << MSG::DEBUG << " Found the CscIdHelper. " << endmsg; }
 
   if (StatusCode::SUCCESS!=service("MuonCalib::CscCoolStrSvc",m_cscCoolSvc))
   {
-    m_log << MSG::FATAL<< "Cannot get CscCoolStrSvc" << endreq;
+    m_log << MSG::FATAL<< "Cannot get CscCoolStrSvc" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -127,8 +127,8 @@ StatusCode CscCalibMonToolBase::initialize()
       
   //Find valid hashes
   m_log << MSG::DEBUG << "Expected chamber layer " 
-    << m_expectedChamberLayer << endreq;
-  m_log << MSG::DEBUG << "Constructing list of expected chamber layers" << endreq;
+    << m_expectedChamberLayer << endmsg;
+  m_log << MSG::DEBUG << "Constructing list of expected chamber layers" << endmsg;
 
   //Loop through ids to find out what hash range we're working on, and to 
   //initialize histograms.
@@ -163,15 +163,15 @@ StatusCode CscCalibMonToolBase::initialize()
           == (unsigned int)m_cscIdHelper->chamberLayer(*stripItr) 
         )
       {
-        m_log << MSG::VERBOSE << "hash " << (int)stripHash << " is expected"<< endreq; 
+        m_log << MSG::VERBOSE << "hash " << (int)stripHash << " is expected"<< endmsg; 
         m_expectedHashIdsAll.insert(stripHash);
         if(!measuresPhi){
-          m_log << MSG::VERBOSE << "hash " << (int)stripHash << " is prec and expected"<< endreq; 
+          m_log << MSG::VERBOSE << "hash " << (int)stripHash << " is prec and expected"<< endmsg; 
           m_expectedHashIdsPrec.insert(stripHash);
         }
       }
       else
-        m_log << MSG::VERBOSE << "hash " << (int)stripHash << " is NOT expected (Not a bug, just populating list)."<< endreq; 
+        m_log << MSG::VERBOSE << "hash " << (int)stripHash << " is NOT expected (Not a bug, just populating list)."<< endmsg; 
     }//End strip loop
   }//End chamber loop     
 
@@ -182,7 +182,7 @@ StatusCode CscCalibMonToolBase::initialize()
     m_detailedHashIds[chanItr] = false;
 
   //This needs to be initialized before we book any hist Collecitons 
-  m_log <<MSG::INFO << "Initializing ManagedMonitorToolBase" << endreq;
+  m_log <<MSG::INFO << "Initializing ManagedMonitorToolBase" << endmsg;
   ManagedMonitorToolBase::initialize().ignore();  // Ignore the checking code;
 
 
@@ -245,7 +245,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
   string yaxis= "", xaxis = "";
 
   if(m_debuglevel) m_log << MSG::DEBUG << "In bookHistCollection for " << nameStart
-    << " series." << endreq;
+    << " series." << endmsg;
 
   if(!((toSkip>>6) &0x1)){
     histCollection->cscSpec.resize(2,NULL);
@@ -263,7 +263,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
       if(!sc.isSuccess())
       {
-        m_log << MSG::ERROR << "failed to register " << name << endreq;
+        m_log << MSG::ERROR << "failed to register " << name << endmsg;
         allGood = false;
       }       
       else
@@ -286,11 +286,11 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
     string hashPath = getFullPath( getGeoPath(), "FullViewHash", parDir);
     MonGroup monGroup( this, hashPath, run, ATTRIB_MANAGED);
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endmsg;
     sc = monGroup.regHist(hashHist);
     if(!sc.isSuccess())
     {
-      m_log << MSG::ERROR << "failed to register " << name << endreq;
+      m_log << MSG::ERROR << "failed to register " << name << endmsg;
       allGood = false;
     }       
     else
@@ -316,11 +316,11 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
     string allChan1dPath = getFullPath( getGeoPath(), "FullView1d", parDir);
     MonGroup monGroup( this, allChan1dPath, run, ATTRIB_MANAGED );
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endmsg;
     sc = monGroup.regHist(allChan1dHistX);
     if(!sc.isSuccess())
     {
-      m_log << MSG::ERROR << "failed to register " << name << endreq;
+      m_log << MSG::ERROR << "failed to register " << name << endmsg;
       allGood = false;
     }       
     else
@@ -333,11 +333,11 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     allChan1dHistY->GetXaxis()->SetTitle(xaxis.c_str());
     allChan1dHistY->GetYaxis()->SetTitle(yaxis.c_str());
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endmsg;
     sc = monGroup.regHist(allChan1dHistY);
     if(!sc.isSuccess())
     {
-      m_log << MSG::ERROR << "failed to register " << name << endreq;
+      m_log << MSG::ERROR << "failed to register " << name << endmsg;
       allGood = false;
     }       
     else
@@ -386,11 +386,11 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
     string allChan2dPath = getFullPath( getGeoPath(), "FullView2d", parDir);
     MonGroup monGroup( this, allChan2dPath, run, ATTRIB_MANAGED);
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endmsg;
     sc = monGroup.regHist(allChan2dHist);
     if(!sc.isSuccess())
     {
-      m_log << MSG::ERROR << "failed to register " << name << endreq;
+      m_log << MSG::ERROR << "failed to register " << name << endmsg;
       allGood = false;
     }       
     else
@@ -410,13 +410,13 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     chamProf->GetXaxis()->SetTitle(xaxis.c_str());
     chamProf->GetYaxis()->SetTitle(yaxis.c_str());
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << name << endmsg;
     string path = getFullPath( getGeoPath(), "Profiles", parDir);
     MonGroup monGroup( this, path, run, ATTRIB_MANAGED);
     sc = monGroup.regHist(chamProf);
     if(!sc.isSuccess())
     {
-      m_log << MSG::ERROR << "failed to register " << name << endreq;
+      m_log << MSG::ERROR << "failed to register " << name << endmsg;
       allGood = false;
     }
     else 
@@ -430,14 +430,14 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     xaxis = "Channel";
 
     if(m_debuglevel) m_log << MSG::DEBUG << "Registering set with prefix" 
-      << namePrefix << endreq;
+      << namePrefix << endmsg;
     histCollection->layHistVect = new std::vector<TH1F*>();
     sc = bookLayHists("LayerView", parDir, *histCollection->layHistVect,namePrefix, titlePrefix, "Channel", xaxis
         ,true, histCollection->ignoreY);
     if(!sc.isSuccess())
     {
       m_log << MSG::ERROR << "failed to register " << namePrefix << " (layer histograms) " 
-        << endreq;
+        << endmsg;
       allGood = false;
     }
   }
@@ -450,14 +450,14 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     xaxis = axisLabel;
 
     if(m_debuglevel) m_log << MSG::DEBUG << "Registering set with prefix" 
-      << namePrefix << endreq;
+      << namePrefix << endmsg;
     histCollection->chamSummVect = new std::vector<TH1F*>();
     sc = bookChamHists("SecSpectrum", parDir,*histCollection->chamSummVect,namePrefix, titlePrefix, xaxis,yaxis,
         false,histCollection->ignoreY,numBins,lowBound,highBound);
     if(!sc.isSuccess())
     {
       m_log << MSG::ERROR << "failed to register " << namePrefix 
-        << " (chamber summary histograms) " << endreq;
+        << " (chamber summary histograms) " << endmsg;
       allGood = false;
     }
   }
@@ -470,14 +470,14 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     xaxis = axisLabel;
 
     if(m_debuglevel) m_log << MSG::DEBUG << "Registering set with prefix" 
-      << namePrefix << endreq;
+      << namePrefix << endmsg;
     histCollection->chamHistVect = new std::vector<TH1F*>();
     sc = bookChamHists("SectorView", parDir,*histCollection->chamHistVect,namePrefix, titlePrefix, xaxis,yaxis,
         true,histCollection->ignoreY);
     if(!sc.isSuccess())
     {
       m_log << MSG::ERROR << "failed to register " << namePrefix 
-        << " (chamber summary histograms) " << endreq;
+        << " (chamber summary histograms) " << endmsg;
       allGood = false;
     }
   }
@@ -490,7 +490,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     xaxis = axisLabel;
 
     if(m_debuglevel) m_log << MSG::DEBUG << "Registering set with prefix" 
-      << namePrefix << endreq;
+      << namePrefix << endmsg;
     histCollection->laySummVect = new std::vector<TH1F*>();
     sc = bookLayHists("LaySpectrum", parDir, *histCollection->laySummVect,
         namePrefix, titlePrefix, xaxis,yaxis,
@@ -501,7 +501,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     if(!sc.isSuccess())
     {
       m_log << MSG::ERROR << " Failed to register " << namePrefix << " (Layer summary hists) "
-        << endreq;
+        << endmsg;
       allGood = false;
     }
   }
@@ -530,7 +530,7 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
   histVector.resize(numHists,NULL); 
 
   if(m_debuglevel) m_log << MSG::DEBUG << "Allocated space for " << numHists << " histograms"
-    << endreq;
+    << endmsg;
 
   vector<Identifier> ids = m_cscIdHelper->idVector();
   vector<Identifier>::const_iterator chamItr = ids.begin();
@@ -540,7 +540,7 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
     IdentifierHash chamHash;
     m_cscIdHelper->get_module_hash(*chamItr,chamHash);
     if(m_debuglevel) m_log << MSG::DEBUG << "Booking histograms for chamber with hash " 
-      << (int)chamHash << endreq;
+      << (int)chamHash << endmsg;
 
     stationSize = m_cscIdHelper->stationName(*chamItr); 
     stationName = m_cscIdHelper->stationNameString(stationSize);
@@ -579,7 +579,7 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
         if(m_verboselevel) 
           m_log << MSG::VERBOSE << "Storing a hist on orientation " << orientationItr 
             << " With highbound/lowbound/nbins "  
-            << highBound << "/" << lowBound << "/" << numBins << endreq;
+            << highBound << "/" << lowBound << "/" << numBins << endmsg;
 
         stringstream nameStream;
         nameStream.setf(ios::right, ios::adjustfield);
@@ -597,7 +597,7 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
 
         if(m_verboselevel) 
           m_log << MSG::VERBOSE << "Storing " << nameStream.str() << " with title "
-            << titleStream.str() << "On orientation " << orientationItr << " With highbound/lowbound/nbins "  << highBound << "/" << lowBound << "/" << numBins << endreq;
+            << titleStream.str() << "On orientation " << orientationItr << " With highbound/lowbound/nbins "  << highBound << "/" << lowBound << "/" << numBins << endmsg;
 
         TH1F* hist = new TH1F(nameStream.str().c_str(), titleStream.str().c_str(), 
             numBins, lowBound, highBound);
@@ -616,14 +616,14 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
         if(!monGroup.regHist(hist).isSuccess())
         { 
           m_log << MSG::FATAL << "Failed to register " << nameStream.str() 
-            << " with layIndex" << layIndex << endreq; 
+            << " with layIndex" << layIndex << endmsg; 
           return StatusCode::FAILURE;    
         }
         else
         {
           if(m_debuglevel) m_log << MSG::DEBUG 
             << "Succesfully registered histogram with layIndex " 
-              << layIndex  <<" and name " << hist->GetName() << endreq;
+              << layIndex  <<" and name " << hist->GetName() << endmsg;
           histVector[layIndex] = hist;
         }
       }//end layer loop
@@ -669,7 +669,7 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
     IdentifierHash chamHash;
     m_cscIdHelper->get_module_hash(*chamItr,chamHash);
     m_log << MSG::DEBUG << "Booking histograms for chamber with hash " 
-      << (int)chamHash << endreq;
+      << (int)chamHash << endmsg;
 
     stationSize = m_cscIdHelper->stationName(*chamItr); //50
     stationPhi = m_cscIdHelper->stationPhi(*chamItr);
@@ -723,7 +723,7 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
       int chamIndex = getChamIndex(orientationItr,stationEta,sector);
 
       if(m_debuglevel) m_log << MSG::DEBUG << "Registering histogram with name " 
-        << hist->GetName() << " and chamIndex " << chamIndex << endreq;
+        << hist->GetName() << " and chamIndex " << chamIndex << endmsg;
 
       histVector[chamIndex] = hist;
 
@@ -732,17 +732,17 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
       MonGroup monGroup( this, path ,run, ATTRIB_MANAGED);
       if (!monGroup.regHist(hist).isSuccess())
       {
-        m_log << MSG::WARNING <<"monGroup.regHist(hist) failed for "<< path <<endreq;
+        m_log << MSG::WARNING <<"monGroup.regHist(hist) failed for "<< path <<endmsg;
       }
     }//End orientation loop        
   }//End chamber loop
-  if(m_debuglevel) m_log << MSG::DEBUG << "Exiting bookChamHists" << endreq;
+  if(m_debuglevel) m_log << MSG::DEBUG << "Exiting bookChamHists" << endmsg;
   return StatusCode::SUCCESS;
 }//end bookChamHists
 
 StatusCode CscCalibMonToolBase::bookHistograms()
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscalibMonTool : in bookHistograms()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscalibMonTool : in bookHistograms()" << endmsg;
   if (newEventsBlock){}
   if (newLumiBlock){}
   if (newRun)
@@ -765,7 +765,7 @@ StatusCode CscCalibMonToolBase::bookHistograms()
       StatusCode sc = bookHistCollection(m_statDbColl, statDbName, statDbTitle, "", "",
           statDbAxisLabel, statDbNumBins, statDbMin, statDbMax, statDbSubDir);
       if(!sc.isSuccess()){
-        m_log << MSG::WARNING << " Failed to register db stat hists!" << endreq;
+        m_log << MSG::WARNING << " Failed to register db stat hists!" << endmsg;
       }
 
       //Loop through channels retrieving status words
@@ -774,7 +774,7 @@ StatusCode CscCalibMonToolBase::bookHistograms()
           uint8_t statWord;
           if(!(m_cscCoolSvc->getStatus(statWord, chanItr)).isSuccess()){
             m_log << MSG::WARNING << "Failed to retrieve statword for hashId " 
-              << chanItr << endreq;
+              << chanItr << endmsg;
           }
           m_statDbColl->data[chanItr] = (float)statWord;
         }
@@ -791,7 +791,7 @@ StatusCode CscCalibMonToolBase::bookHistograms()
 StatusCode CscCalibMonToolBase::fillHistograms()
 {
 
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase :: in fillHistograms()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase :: in fillHistograms()" << endmsg;
 
   return StatusCode::SUCCESS;
 }//end fillHistograms
@@ -800,7 +800,7 @@ StatusCode CscCalibMonToolBase::fillHistograms()
 StatusCode CscCalibMonToolBase::procHistograms()
 {
 
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase : in procHistograms()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase : in procHistograms()" << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -812,11 +812,11 @@ StatusCode CscCalibMonToolBase::procHistograms()
     sc = m_storeGate->retrieve(calibContainer, m_calibResultKey);
     if( !sc.isSuccess())
     {
-      m_log << MSG::ERROR << " Cannot retrieve container with name " << m_calibResultKey <<  endreq;
+      m_log << MSG::ERROR << " Cannot retrieve container with name " << m_calibResultKey <<  endmsg;
       return StatusCode::RECOVERABLE;
     }
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "There are " << calibContainer->size() << " parameters to monitor" << endreq; 
+    if(m_debuglevel) m_log << MSG::DEBUG << "There are " << calibContainer->size() << " parameters to monitor" << endmsg; 
 
     CscCalibResultContainer::const_iterator parItr = calibContainer->begin();
     CscCalibResultContainer::const_iterator parEnd = calibContainer->end();
@@ -832,7 +832,7 @@ StatusCode CscCalibMonToolBase::procHistograms()
 /*--retrieve histos: Overloaded in derived classes to collect interesting histograms from calibration alg--------*/
 StatusCode CscCalibMonToolBase::postProc()
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase : in postProc()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase : in postProc()" << endmsg;
 
   //This method should be overloaded in a derived class
 
@@ -843,7 +843,7 @@ StatusCode CscCalibMonToolBase::postProc()
 StatusCode CscCalibMonToolBase::checkHists(bool /* fromFinalize */)
 {
 
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase : in checkHists()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase : in checkHists()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -852,7 +852,7 @@ StatusCode CscCalibMonToolBase::checkHists(bool /* fromFinalize */)
   should go into procParameter*/
 StatusCode CscCalibMonToolBase::handleParameter(const CscCalibResultCollection*)
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase : in preProcParameter" << endreq;     
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolBase : in preProcParameter" << endmsg;     
   return StatusCode::SUCCESS;
 }
 
@@ -874,7 +874,7 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
     m_log << MSG::DEBUG << "Entering proc parameter for " << parVals->parName() << ". Max diff " << procParameterInput->maxDiff << ".";
     if (procParameterInput->doChi2)
       m_log << " Will retrieve chi2 with expected max of " << procParameterInput->chi2Max;
-    m_log << endreq;
+    m_log << endmsg;
   }
 
   //Start with expected channels, remove whenever one is found, leftover are
@@ -907,11 +907,11 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
         m_log << MSG::WARNING << "CscCalibMonToolBase :  Failed to retrieve parameter"
           << " for channel " << hashId  
           << " from COOL database. Continuing with COOL value = 0" 
-          << endreq;
+          << endmsg;
         if(numFailures==maxFailures)
         {
           m_log << MSG::FATAL << "CscCalibMonToolBase : "
-            << maxFailures << " failed retrievals. Quiting. " << endreq;
+            << maxFailures << " failed retrievals. Quiting. " << endmsg;
           return StatusCode::FAILURE;
         }
       }
@@ -930,7 +930,7 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
       m_log << MSG::INFO << "CscCalibMonToolBase : Possible problem! " << parVals->parName()
         << " measurement of " << val << " varies by " << diff
         << " from expected value of " << oldVal << " on channel with hash Id "
-        << hashId << ". Specified maximum variance is " << procParameterInput->maxDiff << endreq;
+        << hashId << ". Specified maximum variance is " << procParameterInput->maxDiff << endmsg;
       isBad = true;
       procParameterInput->badHist->Fill(procParameterInput->badBin); //Too high a difference
     }
@@ -1019,7 +1019,7 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
             << " sector prof " << (int)doChamAvg
             << " chamber overview " << (int)doChamChan
             << " chamber spectrum " << (int)doChamSummary
-            << endreq;
+            << endmsg;
 
   //cout << "TEST! hash " << (int)(histCollection->hashHist != NULL) << endl;
   //cout << "TEST! layHist " << (int)(histCollection->layHistVect != NULL) << endl;
@@ -1039,7 +1039,7 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
     m_cscIdHelper->get_module_hash(*chamItr,chamHash);
     if(m_debuglevel) m_log << MSG::DEBUG
       << "Copying data to histograms for chamber with hash" << (int)chamHash 
-        << endreq;
+        << endmsg;
 
     unsigned int stationSize = m_cscIdHelper->stationName(*chamItr); //51 = large, 50 = small
 
@@ -1074,7 +1074,7 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
         << "Filling all chan for sector: " << sector 
           << "\tlayer: " << layer << "\tstationEta: " << stationEta
           << "\tsecLayer: " << secLayer 
-          << "\tdata: " << datum << endreq;
+          << "\tdata: " << datum << endmsg;
 
       if(doSpec) {
         histCollection->cscSpec[measuresPhi]->Fill(datum);
@@ -1091,7 +1091,7 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
           << "Filling 1d chan for sector: " << sector 
             << "\tlayer: " << layer << "\tstationEta: " << stationEta;
         if(m_verboselevel) m_log << MSG::VERBOSE << "\tsecLayer: " << secLayer 
-          << "\tdata: " << datum << endreq;
+          << "\tdata: " << datum << endmsg;
         if(measuresPhi){
 
           double modifiedStripNum = 
@@ -1101,7 +1101,7 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
             ;
 
           if(m_verboselevel) m_log << MSG::VERBOSE  << "Modified strip num: " 
-            << modifiedStripNum << endreq;
+            << modifiedStripNum << endmsg;
           //copy data array directly to 1d histogram with all channels
           histCollection->allChan1dHistY->Fill(
               modifiedStripNum, datum);
@@ -1124,7 +1124,7 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
           << "Filling 2d chan for sector: " << sector 
             << "\tlayer: " << layer << "\tstationEta: " << stationEta;
         if(m_verboselevel) m_log << MSG::VERBOSE << "\tsecLayer: " << secLayer 
-          << "\tdata: " << datum << endreq;
+          << "\tdata: " << datum << endmsg;
 
         //copy data array directly to 2d histogram with all channels
         int modifiedStripNum = strip * (measuresPhi ? -1 : 1);
@@ -1234,7 +1234,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
   string endCap = getEndCap(eta);
   if(endCap == "ERROR")
   {
-    m_log << MSG::ERROR << "Eta " << eta << " is invalid. " << endreq;
+    m_log << MSG::ERROR << "Eta " << eta << " is invalid. " << endmsg;
     return errorDir;
   }
 
@@ -1248,7 +1248,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
 
   if(sector <1 || sector > 16)
   {
-    m_log <<MSG::ERROR << "Sector " << sector << " is invalid. " << endreq;
+    m_log <<MSG::ERROR << "Sector " << sector << " is invalid. " << endmsg;
     return errorDir;
   }
 
@@ -1262,7 +1262,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
 
   if(wireLayer < 1 || wireLayer > 4)
   {
-    m_log << MSG::ERROR << "WireLayer " << wireLayer << " is invalid." << endreq;
+    m_log << MSG::ERROR << "WireLayer " << wireLayer << " is invalid." << endmsg;
     return errorDir;
   }
 
@@ -1276,7 +1276,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
 
   if(measuresPhi < 0 || measuresPhi > 1)
   {
-    m_log << MSG::ERROR << "MeasuresPhi " << measuresPhi << " is invalid." << endreq;
+    m_log << MSG::ERROR << "MeasuresPhi " << measuresPhi << " is invalid." << endmsg;
     return errorDir; 
   }
 

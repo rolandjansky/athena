@@ -61,40 +61,40 @@ StatusCode InDet::ZVTOP_SecVtxTool::initialize()
 {
   StatusCode sc = AlgTool::initialize();
 
-  msg (MSG::INFO) << name() << " initialize()" << endreq;
+  msg (MSG::INFO) << name() << " initialize()" << endmsg;
   if (sc.isFailure()) return sc;
 
   /* Retrieve Tools*/
   //SpatialPointFinder
   if ( m_iSpatialPointFinder.retrieve().isFailure() ) {
-      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iSpatialPointFinder << endreq;
+      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iSpatialPointFinder << endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iSpatialPointFinder << endreq;
+  } else msg (MSG::INFO) << "Retrieved tool " << m_iSpatialPointFinder << endmsg;
 
   //Gaussian Probability Tube for the Track Trajectory
   if ( m_iTrkProbTubeCalc.retrieve().isFailure() ) {
-      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iTrkProbTubeCalc<< endreq;
+      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iTrkProbTubeCalc<< endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iTrkProbTubeCalc << endreq;
+  } else msg (MSG::INFO) << "Retrieved tool " << m_iTrkProbTubeCalc << endmsg;
 
   //Vertex Probability Function
   if ( m_iVtxProbCalc.retrieve().isFailure() ) {
-      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iVtxProbCalc<< endreq;
+      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iVtxProbCalc<< endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iVtxProbCalc << endreq;
+  } else msg (MSG::INFO) << "Retrieved tool " << m_iVtxProbCalc << endmsg;
 
   //VxFitter
   if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endreq;
+      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endreq;
+  } else msg (MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
 
   if ( m_iAmbiguitySolver.retrieve().isFailure() ) {
-      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iAmbiguitySolver << endreq;
+      msg (MSG::FATAL) << "Failed to retrieve tool " << m_iAmbiguitySolver << endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iAmbiguitySolver << endreq;
+  } else msg (MSG::INFO) << "Retrieved tool " << m_iAmbiguitySolver << endmsg;
 
-  msg (MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -117,8 +117,8 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
   std::vector<xAOD::Vertex*> secVertices;
   //std::vector<Trk::VxCandidate*> new_secVertices(0); --David S.
   std::vector<xAOD::Vertex*> new_secVertices(0);
-  //if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et s= "<<jetMomentum.et() <<  endreq; --David S.
-  if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et s= "<<jetMomentum.Et() <<  endreq;
+  //if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et s= "<<jetMomentum.et() <<  endmsg; --David S.
+  if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et s= "<<jetMomentum.Et() <<  endmsg;
   if (inputTracks.size() != 0) {
     //some variables
     typedef std::vector<const Trk::TrackParticleBase*>::const_iterator TrkPartVecIter;
@@ -129,7 +129,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
     //-------step1: find spatial points & calculate vtx probabilities-------//
     //--------------------------------------------------------------------------//
     std::vector< std::vector<InDet::ZVTOP_TrkPartBaseVertexState*> > vertex_objects; //vector of vtx candidate & track collection pairs
-    if (msgLvl(MSG::DEBUG)) msg () << "step ONE search for the spatial points, number of tracks = "<<inputTracks.size() <<  endreq;
+    if (msgLvl(MSG::DEBUG)) msg () << "step ONE search for the spatial points, number of tracks = "<<inputTracks.size() <<  endmsg;
     for (TrkPartVecIter itr_1  = inputTracks.begin(); itr_1 != inputTracks.end()-1; itr_1++)
   {
     double sum_TrkProbTube = 0.;
@@ -178,7 +178,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
     }
     delete spatialPoint;
   }
-  if (msgLvl(MSG::DEBUG)) msg () << " number of spatial points = "<<vtxState_org.size()<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg () << " number of spatial points = "<<vtxState_org.size()<<endmsg;
   //reduce the spatial point collection
   typedef std::vector<InDet::ZVTOP_TrkPartBaseVertexState*>::iterator Sp_Iter;
   std::vector< InDet::ZVTOP_TrkPartBaseVertexState*> vtxState;
@@ -216,7 +216,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 //------------------------------------------------------------------------------//
 
   if (vtxState.size() != 0 ){
-    if (msgLvl(MSG::DEBUG)) msg () << " step TWO vertex clustering, number of reduced vertices = "<<vtxState.size()<< endreq;
+    if (msgLvl(MSG::DEBUG)) msg () << " step TWO vertex clustering, number of reduced vertices = "<<vtxState.size()<< endmsg;
     //sort the vtxState collection, starting with a highest vtx probability
     std::vector<InDet::ZVTOP_TrkPartBaseVertexState*> vtxState_sorted;
     std::multimap<double, InDet::ZVTOP_TrkPartBaseVertexState*>::reverse_iterator s= vtxProb_map.rbegin();
@@ -304,7 +304,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
   //--------------------step3: call vertex fitter----------------------------------//
   //--------------------------------------------------------------------------------//
 
-  if (msgLvl(MSG::DEBUG)) msg () << " step THREE, vertex fit, vertex_objects size = "<<vertex_objects.size()<< endreq;
+  if (msgLvl(MSG::DEBUG)) msg () << " step THREE, vertex fit, vertex_objects size = "<<vertex_objects.size()<< endmsg;
   //std::vector<Trk::VxCandidate* > theVxContainer; --David S.
   std::vector<xAOD::Vertex*> theVertexContainer;
   //prepare trk coll --> remove double tracks
@@ -319,7 +319,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 	{ 
 	  for ( std::vector <const Trk::TrackParticleBase*>::iterator vs_itr = ((*itr)->tracks()).begin(); vs_itr!= ((*itr)->tracks()).end(); vs_itr++)
 	    {
-	      if (msgLvl(MSG::DEBUG)) msg () <<"old trk coll size = "<<trk_coll.size()<<", new track = "<<(*vs_itr)<<endreq;
+	      if (msgLvl(MSG::DEBUG)) msg () <<"old trk coll size = "<<trk_coll.size()<<", new track = "<<(*vs_itr)<<endmsg;
 	      bool found = false;
 	      for (std::vector <const Trk::TrackParticleBase*>::iterator trk_itr = trk_coll.begin();  trk_itr!= trk_coll.end(); trk_itr++)  {
 		if (*vs_itr == *trk_itr)  found = true;
@@ -327,7 +327,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 	      if (!found)  trk_coll.push_back(*vs_itr);
 	    }
 	  if ((*itr)->beam_spot()) with_IP = true;
-	  if (msgLvl(MSG::DEBUG)) msg () <<"new track collection size = "<<trk_coll.size()<<endreq;
+	  if (msgLvl(MSG::DEBUG)) msg () <<"new track collection size = "<<trk_coll.size()<<endmsg;
 	}
       //call the fitter
       //Trk::VxCandidate * myVxCandidate(0); --David S.
@@ -343,8 +343,8 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 	{
 	  while (bad_chi2)
 	    {
-	      //if (msgLvl(MSG::DEBUG)) msg () <<"rec Vertex = "<<myVxCandidate->recVertex().position()<<endreq; --David S.
-	      if (msgLvl(MSG::DEBUG)) msg () << "Vertex pos = " << myxAODVertex->position() << endreq;
+	      //if (msgLvl(MSG::DEBUG)) msg () <<"rec Vertex = "<<myVxCandidate->recVertex().position()<<endmsg; --David S.
+	      if (msgLvl(MSG::DEBUG)) msg () << "Vertex pos = " << myxAODVertex->position() << endmsg;
 	      //std::vector< Trk::VxTrackAtVertex*> trkAtVtx = *(myVxCandidate->vxTrackAtVertex()); --David S.
 	      std::vector<Trk::VxTrackAtVertex> trkAtVtx = myxAODVertex->vxTrackAtVertex();
 	      //std::vector< Trk::VxTrackAtVertex*>::iterator trkAtVtx_Iter = trkAtVtx.begin(); --David S.
@@ -382,11 +382,11 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
       if (myxAODVertex && bad_chi2 == false) secVertices.push_back(myxAODVertex);
     }
   new_secVertices = m_iAmbiguitySolver->solveAmbiguities(secVertices);
-  if (msgLvl(MSG::DEBUG)) msg () <<"vertex container size = "<<secVertices.size()<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg () <<"vertex container size = "<<secVertices.size()<<endmsg;
   for (Sp_Iter iter = vtxState_org.begin(); iter != vtxState_org.end(); iter++) delete *iter;
   
   } else {
-    if (msgLvl(MSG::DEBUG)) msg () <<"No tracks in this event, provide to the next event" <<  endreq;
+    if (msgLvl(MSG::DEBUG)) msg () <<"No tracks in this event, provide to the next event" <<  endmsg;
   }
   
   return new Trk::VxSecVertexInfo(secVertices);
@@ -399,8 +399,8 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const xAOD::Vertex & primaryVertex, const TLorentzVector & jetMomentum,const std::vector<const xAOD::IParticle*> & inputTracks) const {
 
   if(msgLvl(MSG::DEBUG)){
-    msg(MSG::DEBUG) << "No ZVTOP_SecVtxTool implementation for xAOD::IParticle" << endreq;
-    msg(MSG::DEBUG) << "Returning null VxSecVertexInfo*" << endreq;
+    msg(MSG::DEBUG) << "No ZVTOP_SecVtxTool implementation for xAOD::IParticle" << endmsg;
+    msg(MSG::DEBUG) << "Returning null VxSecVertexInfo*" << endmsg;
   }
 
   Trk::VxSecVertexInfo* returnInfo(0);
@@ -415,8 +415,8 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 {
   //std::vector<Trk::VxCandidate*> secVertices; --David S.
   std::vector<xAOD::Vertex*> secVertices;
-  //if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et = "<<jetMomentum.et() <<  endreq; --David S.
-  if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et = "<<jetMomentum.Et() <<  endreq;
+  //if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et = "<<jetMomentum.et() <<  endmsg; --David S.
+  if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et = "<<jetMomentum.Et() <<  endmsg;
   if (inputTracks.size() != 0) {
     //some variables
     typedef std::vector<const Trk::Track*>::const_iterator TrackDataVecIter;
@@ -429,7 +429,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 
     std::vector< std::vector<InDet::ZVTOP_VertexState*> > vertex_objects(0); //vector of vtx candidate & track collection pairs
     
-    if (msgLvl(MSG::DEBUG)) msg () << "step ONE search for the spatial points, number of tracks = "<<inputTracks.size() <<  endreq;
+    if (msgLvl(MSG::DEBUG)) msg () << "step ONE search for the spatial points, number of tracks = "<<inputTracks.size() <<  endmsg;
     for (TrackDataVecIter itr_1  = inputTracks.begin(); itr_1 != inputTracks.end()-1; itr_1++)
       {
 	double sum_TrkProbTube = 0.;
@@ -478,7 +478,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 	  }
 	delete spatialPoint;
       }
-    if (msgLvl(MSG::DEBUG)) msg () << " number of spatial points = "<<vtxState_org.size()<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg () << " number of spatial points = "<<vtxState_org.size()<<endmsg;
     //reduce the spatial point collection
     typedef std::vector<InDet::ZVTOP_VertexState*>::iterator Sp_Iter;
     std::vector< InDet::ZVTOP_VertexState*> vtxState;
@@ -516,7 +516,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 
 
     if (vtxState.size() != 0 ){
-      if (msgLvl(MSG::DEBUG)) msg () << " step TWO vertex clustering, number of reduced vertices = "<<vtxState.size()<< endreq;
+      if (msgLvl(MSG::DEBUG)) msg () << " step TWO vertex clustering, number of reduced vertices = "<<vtxState.size()<< endmsg;
       //sort the vtxState collection, starting with a highest vtx probability
       std::vector<InDet::ZVTOP_VertexState*> vtxState_sorted;
       unsigned int IP_counter = 0;
@@ -607,7 +607,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
     //--------------------step3: call vertex fitter----------------------------------//
     //--------------------------------------------------------------------------------//
     
-    if (msgLvl(MSG::DEBUG)) msg () << " step THREE, vertex fit, vertex_objects size = "<<vertex_objects.size()<< endreq;
+    if (msgLvl(MSG::DEBUG)) msg () << " step THREE, vertex fit, vertex_objects size = "<<vertex_objects.size()<< endmsg;
     //std::vector<Trk::VxCandidate* > theVxContainer; --David S.
     std::vector<xAOD::Vertex*> theVertexContainer;
     //prepare trk coll --> remove double tracks
@@ -676,10 +676,10 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 	//if (myVxCandidate && bad_chi2 == false) secVertices.push_back(myVxCandidate); --David S.
 	if (myxAODVertex && bad_chi2 == false) secVertices.push_back(myxAODVertex);
       }
-    if (msgLvl(MSG::DEBUG)) msg () <<"vertex container size = "<<secVertices.size()<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg () <<"vertex container size = "<<secVertices.size()<<endmsg;
     for (Sp_Iter iter = vtxState_org.begin(); iter != vtxState_org.end(); iter++) delete *iter;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg () <<"No tracks in this event, provide to the next event" <<  endreq;
+    if (msgLvl(MSG::DEBUG)) msg () <<"No tracks in this event, provide to the next event" <<  endmsg;
   }
   
   return new Trk::VxSecVertexInfo(secVertices);

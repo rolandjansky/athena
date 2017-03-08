@@ -33,7 +33,7 @@ public:
   void brem_photon_fill(const xAOD::TruthParticle& truth);
   void BT_fill(const xAOD::TruthParticle& truth, float weight);
   void track_vs_truth(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, float tmp);
-  void minDR(float min_dR, float prod_rad, float prob, double BIDPt);
+  void minDR(float min_dR, float prod_rad, float prob, double BIDPt, double truth_pt, float cvst);
 
 private:
   TH1* m_lepton_disappearance_radius;
@@ -63,6 +63,8 @@ private:
   TH1* m_minimum_delta_R_2_not_found;
   TH1* m_minimum_delta_R_3_not_found;
   TH1* m_delta_inverse_pt;
+  TH1* m_delta_inverse_pt_not_found;
+  TProfile* m_charge_vs_truth_match_rate;
 
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();

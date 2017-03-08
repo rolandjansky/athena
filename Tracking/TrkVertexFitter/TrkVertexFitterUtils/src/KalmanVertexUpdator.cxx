@@ -25,7 +25,7 @@ namespace Trk{
   StatusCode sc = AlgTool::initialize();
   if(sc.isFailure())
   {
-   msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+   msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
    return StatusCode::FAILURE;
   }
   
@@ -34,7 +34,7 @@ namespace Trk{
 
  StatusCode KalmanVertexUpdator::finalize()
  {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }
 
@@ -62,8 +62,8 @@ namespace Trk{
    //is already fitted to the vertex and the number of tracks at vertex is not 0
    if( sign < 0 && tr_size == 0 )
    {
-     msg(MSG::ERROR)  << "No tracks fitted to this vertex yet: can not remove any" << endreq;
-     msg(MSG::ERROR)  << "The copy of initial VxCandidate returned" << endreq;
+     msg(MSG::ERROR)  << "No tracks fitted to this vertex yet: can not remove any" << endmsg;
+     msg(MSG::ERROR)  << "The copy of initial VxCandidate returned" << endmsg;
      return new xAOD::Vertex( vtx );
    }
 
@@ -90,7 +90,7 @@ namespace Trk{
      ATH_MSG_VERBOSE ("The track requested for removal or adding is not found in the vector of tracks");
      if (sign<0) {
        ATH_MSG_ERROR ("During remove track has to be already attached to the vertex");
-       msg(MSG::ERROR)  << "The copy of initial xAOD::Vertex returned" << endreq;
+       msg(MSG::ERROR)  << "The copy of initial xAOD::Vertex returned" << endmsg;
        return &vtx;
      }
 

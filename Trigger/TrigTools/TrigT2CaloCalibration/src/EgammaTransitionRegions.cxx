@@ -39,7 +39,7 @@ StatusCode EgammaTransitionRegions::initialize(){
     CHECK (CaloRec::ToolWithConstantsMixin::initialize() );
     m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
-    (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endreq;
+    (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
 
 
 
@@ -49,7 +49,7 @@ StatusCode EgammaTransitionRegions::initialize(){
 }
 
 StatusCode EgammaTransitionRegions::finalize(){
-    (*m_log) << MSG::DEBUG << "Finalize Tool : " << name() << endreq;
+    (*m_log) << MSG::DEBUG << "Finalize Tool : " << name() << endmsg;
     delete m_log;
     return StatusCode::SUCCESS;
 }
@@ -64,17 +64,17 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
     //if (the_aeta >= m_etamax) return; 
 
 #ifndef NDEBUG
-    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endreq;
-    (*m_log) << MSG::DEBUG <<  " USING TRANSITION REGION " << endreq;
-    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endreq;       
+    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;
+    (*m_log) << MSG::DEBUG <<  " USING TRANSITION REGION " << endmsg;
+    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;       
 #endif
 
     CaloRec::Array<1> tr00	= m_correction[0];
     CaloRec::Array<1> tr08	= m_correction[1];
 
 #ifndef NDEBUG
-    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endreq;
-    (*m_log) << MSG::DEBUG <<  "the_aeta ::::: " << the_aeta << endreq;
+    (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;
+    (*m_log) << MSG::DEBUG <<  "the_aeta ::::: " << the_aeta << endmsg;
 #endif
     double corr = 1.0;
 
@@ -84,15 +84,15 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
 
     if (the_aeta < m_etamax_TR00 && the_aeta > m_etamin_TR00 ) {
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0 (loose) " << endreq;
-	(*m_log) << MSG::DEBUG << tr00[0] << " " <<  tr00[1] << " " <<  tr00[2] << endreq;
+	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0 (loose) " << endmsg;
+	(*m_log) << MSG::DEBUG << tr00[0] << " " <<  tr00[1] << " " <<  tr00[2] << endmsg;
 #endif
 	corr = ( tr00[0] - tr00[1] / (exp( tr00[2] - the_aeta ) + exp( tr00[3]*( the_aeta - tr00[4]))+tr00[5]));
     }
     else if ( the_aeta < m_etamin_TR00 ) {
 	corr = tr00[6];
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0 (tight) " << endreq;
+	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0 (tight) " << endmsg;
 #endif
     }
 
@@ -102,8 +102,8 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
 
     if (the_aeta < m_etamax_TR08 && the_aeta > m_etamin_TR08 ) {
 #ifndef NDEBUG
-	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0.8 (loose) " << endreq;
-	(*m_log) << MSG::DEBUG << tr08[0] << " " <<  tr08[1] << " " <<  tr08[2] << endreq;
+	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0.8 (loose) " << endmsg;
+	(*m_log) << MSG::DEBUG << tr08[0] << " " <<  tr08[1] << " " <<  tr08[2] << endmsg;
 #endif
 	corr = (tr08[0] - tr08[1] / (exp( tr08[2] - the_aeta ) +
 			exp( tr08[3] *( the_aeta - tr08[4] )) + tr08[5] )); 
@@ -112,7 +112,7 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
 
 #ifndef NDEBUG
 	(*m_log) << MSG::DEBUG << "EgammaTransitionRegions::Energy before correction --> " << clus->energy()
-		<< " Correction --> " << corr << endreq;
+		<< " Correction --> " << corr << endmsg;
 #endif
     if ( corr == 1 ) return;
 

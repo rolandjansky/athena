@@ -77,7 +77,7 @@ TgcLv1RawDataValAlg::bookHistogramsSummary(){
     if(ac==0) sc=tgclv1_summary_a.regHist(tgclv1summaryofsltiming[ac]);
     else      sc=tgclv1_summary_c.regHist(tgclv1summaryofsltiming[ac]);
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "tgclv1summaryofsltiming[" << ac << "] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1summaryofsltiming[" << ac << "] Failed to register histogram " << endmsg;       
       return sc;
     }
     tgclv1summaryofsltiming[ac]->GetXaxis()->SetTitle("Current BC fraction");
@@ -89,7 +89,7 @@ TgcLv1RawDataValAlg::bookHistogramsSummary(){
     if(ac==0) sc=tgclv1_summary_a.regHist(tgclv1summaryoflpttiming[ac]);
     else      sc=tgclv1_summary_c.regHist(tgclv1summaryoflpttiming[ac]);
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "tgclv1summaryoflpttiming[" << ac << "] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1summaryoflpttiming[" << ac << "] Failed to register histogram " << endmsg;       
       return sc;
     }
     tgclv1summaryoflpttiming[ac]->GetXaxis()->SetTitle("Current BC fraction");
@@ -105,7 +105,7 @@ TgcLv1RawDataValAlg::bookHistogramsSummary(){
         
     sc=tgclv1_summary.regHist(tgclv1summaryofsltimingperchambertype[itype]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "tgclv1summaryofsltimingperchambertype[" << itype << "] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1summaryofsltimingperchambertype[" << itype << "] Failed to register histogram " << endmsg;       
       return sc;
     }
     tgclv1summaryofsltimingperchambertype[itype]->GetXaxis()->SetTitle("Current BC fraction"); 
@@ -117,7 +117,7 @@ TgcLv1RawDataValAlg::bookHistogramsSummary(){
       
     sc=tgclv1_summary.regHist(tgclv1summaryoflpttimingperchambertype[itype]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "tgclv1summaryoflpttimingperchambertype[" << itype << "] Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << "tgclv1summaryoflpttimingperchambertype[" << itype << "] Failed to register histogram " << endmsg;       
       return sc;
     }
     tgclv1summaryoflpttimingperchambertype[itype]->GetXaxis()->SetTitle("Current BC fraction"); 
@@ -155,7 +155,7 @@ TgcLv1RawDataValAlg::bookHistogramsLowStat(){
     ss.str(""); ss << "SL_Chamber_In_10LBs_" << side[ac];
     tgclv1slchamberlowstat[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 6, 0, 6, 48, 1, 49); 
     if((tgclv1_lowstat_ac[ac]->regHist(tgclv1slchamberlowstat[ac])).isFailure()){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
     
@@ -164,7 +164,7 @@ TgcLv1RawDataValAlg::bookHistogramsLowStat(){
     tgclv1sltimingptcutlowstat[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
     setTH1TitleLabelBCID(tgclv1sltimingptcutlowstat[ac]);
     if((tgclv1_lowstat_ac[ac]->regHist(tgclv1sltimingptcutlowstat[ac])).isFailure()){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return StatusCode::FAILURE;
     }
     

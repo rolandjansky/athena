@@ -13,7 +13,7 @@
 
 void SimulationHitCnv_p1::persToTrans(const SimulationHit_p1* persObj, SimulationHit* transObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "SimulationHitCnv_p1::persToTrans called " << endreq;
+	log << MSG::DEBUG << "SimulationHitCnv_p1::persToTrans called " << endmsg;
 
     SimulationHit::StepPoint pre( persObj->m_pre_time,CLHEP::Hep3Vector( persObj->m_pre_position_x, persObj->m_pre_position_y, persObj->m_pre_position_z) ,
                               persObj->m_pre_kinetic_energy, CLHEP::Hep3Vector(persObj->m_pre_direction_x, persObj->m_pre_direction_y, persObj->m_pre_direction_z),
@@ -31,7 +31,7 @@ void SimulationHitCnv_p1::persToTrans(const SimulationHit_p1* persObj, Simulatio
 
 void SimulationHitCnv_p1::transToPers(const SimulationHit* transObj, SimulationHit_p1* persObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "SimulationHitCnv_p1::transToPers called " << endreq;
+	log << MSG::DEBUG << "SimulationHitCnv_p1::transToPers called " << endmsg;
     
     persObj->m_pre_time = transObj->m_pre.time;
     persObj->m_pre_kinetic_energy = transObj->m_pre.kinetic_energy;

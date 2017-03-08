@@ -114,7 +114,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   IPartPropSvc* partPropSvc = 0;
   sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endreq;
+    msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endmsg;
     return StatusCode::FAILURE;
   }      
 
@@ -122,7 +122,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   //
   m_particleDataTable = partPropSvc->PDT();
   if(!m_particleDataTable) {
-    msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endreq;
+    msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -131,7 +131,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   m_outputlevel = msg().level()-MSG::DEBUG;
 
   if(m_outputlevel <= 0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 
   // Erase statistic information
@@ -213,7 +213,7 @@ StatusCode InDet::TrackClusterAssValidation::execute()
   if(m_usePIX) {
     s = evtStore()->retrieve(m_truthPIX,m_truth_locationPixel);
     if (s.isFailure()) {
-      msg(MSG::FATAL)<<"Could not find TruthPixel"<<endreq;
+      msg(MSG::FATAL)<<"Could not find TruthPixel"<<endmsg;
       return s;
     }
   }
@@ -221,7 +221,7 @@ StatusCode InDet::TrackClusterAssValidation::execute()
   if(m_useSCT) {
     s = evtStore()->retrieve(m_truthSCT,m_truth_locationSCT);
     if (s.isFailure()) {
-      msg(MSG::FATAL)<<"Could not find TruthSCT"<<endreq;
+      msg(MSG::FATAL)<<"Could not find TruthSCT"<<endmsg;
       return s;
     }
   }
@@ -229,7 +229,7 @@ StatusCode InDet::TrackClusterAssValidation::execute()
   if( m_clcutTRT > 0) {
     s = evtStore()->retrieve(m_truthTRT,m_truth_locationTRT);
     if (s.isFailure()) {
-      msg(MSG::FATAL)<<"Could not find TruthTRT"<<endreq;
+      msg(MSG::FATAL)<<"Could not find TruthTRT"<<endmsg;
       return s;
     }
   }
@@ -246,7 +246,7 @@ StatusCode InDet::TrackClusterAssValidation::execute()
   }
 
   if(m_outputlevel< 0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -1293,7 +1293,7 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
   m_pixcontainer = 0;
   if(m_usePIX) {
     sc = evtStore()->retrieve(m_pixcontainer,m_clustersPixelname);
-    if (sc.isFailure()) msg(MSG::DEBUG)<<"Pixel clusters container"<<endreq;
+    if (sc.isFailure()) msg(MSG::DEBUG)<<"Pixel clusters container"<<endmsg;
   }
 
   // Get sct   clusters container
@@ -1301,7 +1301,7 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
   m_sctcontainer = 0; 
   if(m_useSCT) {
     sc            = evtStore()->retrieve(m_sctcontainer,m_clustersSCTname  );
-    if (sc.isFailure()) msg(MSG::DEBUG)<<"SCT clusters container"<<endreq;
+    if (sc.isFailure()) msg(MSG::DEBUG)<<"SCT clusters container"<<endmsg;
   } 
 
   // Get trt   cluster container
@@ -1309,7 +1309,7 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
   m_trtcontainer = 0;
   if(m_clcutTRT > 0) {
     sc            = evtStore()->retrieve(m_trtcontainer,m_clustersTRTname  );
-    if (sc.isFailure()) msg(MSG::DEBUG)<<"TRT drift circles container"<<endreq;
+    if (sc.isFailure()) msg(MSG::DEBUG)<<"TRT drift circles container"<<endmsg;
   }
 
   int Kine[1000];
@@ -1403,7 +1403,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent()
     if (evtStore()->contains<SpacePointContainer>(m_spacepointsPixelname))
     {
       if (evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname).isFailure())
-        msg(MSG::DEBUG)<<"Pixels space points container"<<endreq;
+        msg(MSG::DEBUG)<<"Pixels space points container"<<endmsg;
 
       if(m_spacepointsPixel) {
       
@@ -1437,7 +1437,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent()
     if (evtStore()->contains<SpacePointContainer>(m_spacepointsSCTname))
     {
       if (evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname).isFailure())
-          msg(MSG::DEBUG)<<"SCT space points container"<<endreq;
+          msg(MSG::DEBUG)<<"SCT space points container"<<endmsg;
 
       if(m_spacepointsSCT) {
         
@@ -1471,7 +1471,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent()
     if (evtStore()->contains<SpacePointContainer>(m_spacepointsOverlapname))
     {
       if (evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname).isFailure())
-        msg(MSG::DEBUG)<<"SCT overlap space points container"<<endreq;
+        msg(MSG::DEBUG)<<"SCT overlap space points container"<<endmsg;
 
       if(m_spacepointsOverlap) {
         

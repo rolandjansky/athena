@@ -69,17 +69,17 @@ StatusCode CTPByteStreamCnv::initialize() {
   }
 
   MsgStream log( messageService(), "CTPByteStreamCnv" );
-  log << MSG::DEBUG << "CTPByteStreamCnv in initialize() " << endreq;
+  log << MSG::DEBUG << "CTPByteStreamCnv in initialize() " << endmsg;
 
   //
   // Get ByteStreamCnvSvc:
   //
   sc = m_ByteStreamEventAccess.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get ByteStreamEventAccess interface" << endreq;
+    log << MSG::FATAL << "Can't get ByteStreamEventAccess interface" << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to ByteStreamEventAccess interface" << endreq;
+    log << MSG::DEBUG << "Connected to ByteStreamEventAccess interface" << endmsg;
   }
 
   //
@@ -87,10 +87,10 @@ StatusCode CTPByteStreamCnv::initialize() {
   //
   sc = m_tool.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get CTPByteStreamTool" << endreq;
+    log << MSG::FATAL << "Can't get CTPByteStreamTool" << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to CTPByteStreamTool" << endreq;
+    log << MSG::DEBUG << "Connected to CTPByteStreamTool" << endmsg;
   }
 
   //
@@ -98,10 +98,10 @@ StatusCode CTPByteStreamCnv::initialize() {
   //
   sc = m_robDataProvider.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endreq;
+    log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endmsg;
     // return is disabled for Write BS which does not requre ROBDataProviderSvc
   } else {
-    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endreq;
+    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
   }
 
   //
@@ -121,16 +121,16 @@ StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj
 
   MsgStream log( messageService(), "CTPByteStreamCnv" );
 
-  log << MSG::DEBUG << "createObj() called" << endreq;
+  log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast< ByteStreamAddress* >( pAddr );
   if( ! pBS_Addr ) {
-    log << MSG::ERROR << "Can not cast input to ByteStreamAddress" << endreq ;
+    log << MSG::ERROR << "Can not cast input to ByteStreamAddress" << endmsg ;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::DEBUG << "Creating Objects: " << *( pBS_Addr->par() ) << endreq;
+  log << MSG::DEBUG << "Creating Objects: " << *( pBS_Addr->par() ) << endmsg;
 
   //
   // Get the SourceID:
@@ -138,7 +138,7 @@ StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj
   const uint32_t robId = m_srcIdMap->getRobID( m_srcIdMap->getRodID() );
 
   log << MSG::DEBUG << "expected ROB sub-detector ID: " << std::hex 
-      << robId << std::dec << endreq;  
+      << robId << std::dec << endmsg;  
 
   std::vector< uint32_t > vID;
   vID.push_back( robId );
@@ -153,8 +153,8 @@ StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj
   // Size check:
   //
   if( robFrags.size() != 1 ) {
-    log << MSG::WARNING << "Number of ROB fragments is " << robFrags.size() << endreq;
-    log << MSG::WARNING << "Creating empty CTP_RDO object" << endreq;
+    log << MSG::WARNING << "Number of ROB fragments is " << robFrags.size() << endmsg;
+    log << MSG::WARNING << "Creating empty CTP_RDO object" << endmsg;
 
     CTP_RDO* result = new CTP_RDO(3,0,0);
     pObj = SG::asStorable( result );
@@ -169,7 +169,7 @@ StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj
 
   StatusCode sc = m_tool->convert( ROBData( *it ).getROBFragment(), result );
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endreq;
+    log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endmsg;
     return sc;
   }
   pObj = SG::asStorable( result ) ;
@@ -186,13 +186,13 @@ StatusCode CTPByteStreamCnv::createRep( DataObject* pObj, IOpaqueAddress*& pAddr
 
   MsgStream log( messageService(), "CTPByteStreamCnv" );
 
-  log << MSG::DEBUG << "createRep() called" << endreq;
+  log << MSG::DEBUG << "createRep() called" << endmsg;
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   CTP_RDO* result;
   if( ! SG::fromStorable( pObj, result ) ) {
-    log << MSG::ERROR << " Cannot cast to CTP_RDO" << endreq;
+    log << MSG::ERROR << " Cannot cast to CTP_RDO" << endmsg;
     return StatusCode::FAILURE;
   }
 

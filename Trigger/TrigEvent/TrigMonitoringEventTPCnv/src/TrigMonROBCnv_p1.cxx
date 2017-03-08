@@ -17,7 +17,7 @@ void TrigMonROBCnv_p1::persToTrans(const TrigMonROB_p1* persObj,
 				   MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonROBCnv_p1::persToTrans called " << endreq;
+    log << MSG::DEBUG << "TrigMonROBCnv_p1::persToTrans called " << endmsg;
   }
 
   transObj->m_word = persObj->m_word;
@@ -30,7 +30,7 @@ void TrigMonROBCnv_p1::transToPers(const TrigMonROB* transObj,
 				   MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonROBCnv_p1::transToPers called " << endreq;
+    log << MSG::DEBUG << "TrigMonROBCnv_p1::transToPers called " << endmsg;
   }
 
   persObj->m_word = transObj->m_word;

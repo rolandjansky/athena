@@ -38,7 +38,7 @@ TrigVertexCounter::~TrigVertexCounter(void) {
 
 HLT::ErrorCode TrigVertexCounter::hltInitialize() {
   m_log.setLevel(outputLevel());
-  m_log << MSG::INFO << "Initialising this TrigVertexCounter: " << name() << endreq;
+  m_log << MSG::INFO << "Initialising this TrigVertexCounter: " << name() << endmsg;
   
   // Create timers
   if( timerSvc() ){
@@ -46,7 +46,7 @@ HLT::ErrorCode TrigVertexCounter::hltInitialize() {
     m_getVerticesTimer = addTimer("getVertices");
   }
 
-  m_log << MSG::INFO << "TrigVertexCounter initialized successfully" << endreq; 
+  m_log << MSG::INFO << "TrigVertexCounter initialized successfully" << endmsg; 
   return HLT::OK;  
 }
 
@@ -60,7 +60,7 @@ HLT::ErrorCode TrigVertexCounter::hltExecute( const HLT::TriggerElement *, HLT::
   m_vtxNvtx = -1;
 
   if ( msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this TrigVertexCounter " << name() << endreq;
+    m_log << MSG::DEBUG << "Executing this TrigVertexCounter " << name() << endmsg;
   } 
   
   if( timerSvc() ){ 
@@ -70,11 +70,11 @@ HLT::ErrorCode TrigVertexCounter::hltExecute( const HLT::TriggerElement *, HLT::
   
   HLT::ErrorCode ec = getFeature( outputTE, m_vxContainer, m_vtxContainerName );
   if( ec != HLT::OK ) {
-    m_log << MSG::ERROR << "Vertex collection " << m_vtxContainerName << "could not be found " << endreq;
+    m_log << MSG::ERROR << "Vertex collection " << m_vtxContainerName << "could not be found " << endmsg;
     return HLT::NAV_ERROR;
   }
   else {
-    m_log << MSG::DEBUG << "Retrieved successfully vertex collection " << m_vtxContainerName << endreq;
+    m_log << MSG::DEBUG << "Retrieved successfully vertex collection " << m_vtxContainerName << endmsg;
   }
 
   if( timerSvc() ){ 
@@ -83,7 +83,7 @@ HLT::ErrorCode TrigVertexCounter::hltExecute( const HLT::TriggerElement *, HLT::
   
   if( !m_vxContainer || m_vxContainer->size() == 0 ){
     if( msgLvl() <= MSG::DEBUG ){
-      m_log << MSG::DEBUG << "VxContainer is null or contains 0 vertices." << endreq;
+      m_log << MSG::DEBUG << "VxContainer is null or contains 0 vertices." << endmsg;
     }
   }
   else{
@@ -101,13 +101,13 @@ HLT::ErrorCode TrigVertexCounter::hltExecute( const HLT::TriggerElement *, HLT::
 
       for (const auto& tplTrk : tpLinks) {
 	if ( !(tplTrk.isValid()) ) {
-	  m_log << MSG::WARNING << "Got an invalid element link. Continuing..." << endreq;
+	  m_log << MSG::WARNING << "Got an invalid element link. Continuing..." << endmsg;
 	  continue;
 	}
 	
 	const xAOD::TrackParticle* trk = *tplTrk;
  
-	//m_log << MSG::DEBUG << "Track pt = " << trk->pt() << endreq;
+	//m_log << MSG::DEBUG << "Track pt = " << trk->pt() << endmsg;
 
 	// If the track fails the minimum pT cut skip it.  
 	if(trk->pt() < m_pTmin) continue;
@@ -135,7 +135,7 @@ HLT::ErrorCode TrigVertexCounter::hltExecute( const HLT::TriggerElement *, HLT::
   HLT::ErrorCode hltStatus = attachFeature( outputTE, vc, "vertexcounts" );
   if(hltStatus != HLT::OK) {
     if(msgLvl() <= MSG::ERROR) {
-      m_log << MSG::ERROR << "Write of TrigVertexCounts into outputTE failed" << endreq;
+      m_log << MSG::ERROR << "Write of TrigVertexCounts into outputTE failed" << endmsg;
     }
     return hltStatus;
   }
@@ -147,6 +147,6 @@ HLT::ErrorCode TrigVertexCounter::hltExecute( const HLT::TriggerElement *, HLT::
 
 HLT::ErrorCode TrigVertexCounter::hltFinalize() {
   
-  m_log << MSG::INFO << "Finalizing this TrigVertexCounter" << name() << endreq; 
+  m_log << MSG::INFO << "Finalizing this TrigVertexCounter" << name() << endmsg; 
   return HLT::OK;  
 }

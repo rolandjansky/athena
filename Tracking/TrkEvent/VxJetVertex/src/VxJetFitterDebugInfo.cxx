@@ -12,8 +12,8 @@ namespace Trk {
 
   MsgStream& VxJetFitterDebugInfo::dump(MsgStream& sl) const {
     sl << "VxJetFitterDebugInfo: numFitIterations " << m_numFitIterations << 
-      " numSignFlipFitIterations " << m_numSignFlipFitIterations<<endreq;
-    //" numSignFlip " << m_numSignFlips << endreq;
+      " numSignFlipFitIterations " << m_numSignFlipFitIterations<<endmsg;
+    //" numSignFlip " << m_numSignFlips << endmsg;
     return sl;
   }
 

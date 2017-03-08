@@ -16,7 +16,7 @@ CMXCPHitsCollection_PERS * CMXCPHitsCollectionCnv::createPersistent( CMXCPHitsCo
   
   MsgStream mlog(msgSvc(), "CMXCPHitsCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "CMXCPHitsCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CMXCPHitsCollectionCnv::createPersistent called" << endmsg;
 
   CMXCPHitsCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ CMXCPHitsCollection * CMXCPHitsCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CMXCPHitsCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "CMXCPHitsCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CMXCPHitsCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "1A1F6DEF-0233-453C-8614-E7B82EFCEDC6" );
  

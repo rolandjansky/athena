@@ -184,18 +184,18 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   }
 
   if (m_IBLParameterSvc.retrieve().isFailure()) {
-      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve " << m_IBLParameterSvc << endreq;
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve " << m_IBLParameterSvc << endmsg;
       return StatusCode::FAILURE;
   } else {
-      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_IBLParameterSvc << endreq;
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_IBLParameterSvc << endmsg;
   }
 
   if ( m_residualPullCalculator.retrieve().isFailure() )
   {
-      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve " << m_residualPullCalculator << endreq;
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve " << m_residualPullCalculator << endmsg;
       return StatusCode::FAILURE;
   } else {
-      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_residualPullCalculator << endreq;
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_residualPullCalculator << endmsg;
   }
   
   ATH_CHECK( m_iUpdator.retrieve() );
@@ -991,7 +991,7 @@ void InDetGlobalTrackMonTool::FillTIDE()
 				    const Trk::TrackParameters* UnbiasedTrackParams = m_iUpdator->removeFromState(*PropagatedTrackParams, tsos->measurementOnTrack()->localParameters(), tsos->measurementOnTrack()->localCovariance());
 				    delete PropagatedTrackParams;
 				    if ( !UnbiasedTrackParams )
-					if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "RemoveFromState did not work, using original TrackParameters" << endreq;
+					if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "RemoveFromState did not work, using original TrackParameters" << endmsg;
 				    
 				    const Trk::ResidualPull * residualPull = m_residualPullCalculator->residualPull(tsos->measurementOnTrack(), ( UnbiasedTrackParams ) ? UnbiasedTrackParams:tsos->trackParameters(), Trk::ResidualPull::Unbiased);
 				    if (residualPull) {
@@ -1189,13 +1189,13 @@ void InDetGlobalTrackMonTool::FillHoleMaps( const Trk::Track *track )
     
     // loop over holes
     if (!holesOnTrack) {
-	msg(MSG::WARNING) << "Got no holes on track" << endreq;
+	msg(MSG::WARNING) << "Got no holes on track" << endmsg;
     } else {	
 	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=holesOnTrack->begin();
 	     it!=holesOnTrack->end();
 	     it++) {
 	    if (!(*it)) {
-		msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endreq;
+		msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endmsg;
 		continue;
 	    }
 	    // Here The X Y Z of Holes	

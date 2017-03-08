@@ -73,7 +73,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
   // Summary_Of_Wire_Occupancy_Per_Chamber_Type_Station[1-3]_{E,F[0-5]}_T[1-9]
   // Summary_Of_Strip_Occupancy_Per_Chamber_Type_Station[1-3]_{E,F[0-5]}_T[1-9]
   
-  m_log << MSG::INFO << "bookHistogramsProfile(" << endreq;       
+  m_log << MSG::INFO << "bookHistogramsProfile(" << endmsg;       
   
   StatusCode sc=StatusCode::SUCCESS;
   
@@ -108,7 +108,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
     tgctripletdoublethitsinlbvssect[ac]=new TH2F(ss.str().c_str(), (ss.str() + "; LB;" ).c_str(),1250,1.,2501., 148, 0, 148 );       
     sc=tgcprd_shift_ac[ac]->regHist(tgctripletdoublethitsinlbvssect[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
     
@@ -138,7 +138,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
       tgcprofilemap[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
       sc=tgcprd_profile_s_ac[ac]->regHist(tgcprofilemap[ac][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
         return sc;
       }
       tgcprofilemap[ac][ws]->SetMaximum(1.2);
@@ -149,7 +149,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
       tgcoccupancymap[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
       sc=tgcprd_occupancy_s_ac[ac]->regHist(tgcoccupancymap[ac][ws]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
         return sc;
       }
       tgcoccupancymap[ac][ws]->SetMaximum(1.2);
@@ -161,7 +161,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
     tgcwirestripcoin[ac] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
     sc=tgcprd_shift_ac[ac]->regHist(tgcwirestripcoin[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
     }
   }//ac
@@ -350,7 +350,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
             tgcwireprofilephi48[ac][i][phi48] = new TH1F(ss.str().c_str(), (ss.str() + ";Wire #; Events").c_str(),m_nWireTGCSingleLayerInPhi48Division[tgc] , 0, m_nWireTGCSingleLayerInPhi48Division[tgc]);
             sc=tgcprd_profile_ac[ac]->regHist(tgcwireprofilephi48[ac][i][phi48]) ;  
             if(sc.isFailure()) { 
-              m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+              m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
               return sc;
             }
             
@@ -360,7 +360,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
               tgcstripprofilephi48[ac][i][phi48] = new TH1F(ss.str().c_str(), (ss.str() + ";Strip #; Events" ).c_str(),m_nStripTGCSingleLayerInPhi48Division[tgc] , 0, m_nStripTGCSingleLayerInPhi48Division[tgc]);
               sc=tgcprd_profile_ac[ac]->regHist(tgcstripprofilephi48[ac][i][phi48]) ;  
               if(sc.isFailure()) { 
-                m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+                m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
                 return sc;
               }
             }

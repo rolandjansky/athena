@@ -72,17 +72,17 @@ StatusCode IDScanHitFilter::initialize()
 
   m_dPhidRCut = 0.3/m_pTcutInMeV;
 
-  athenaLog << MSG::INFO << "IDScanHitFilter constructed "                       << endreq;
-  athenaLog << MSG::INFO << "phiBinSize       set to " << m_phiBinSize     << endreq;
-  athenaLog << MSG::INFO << "etaBinSize       set to " << m_etaBinSize     << endreq;
-  athenaLog << MSG::INFO << "layerThreshold   set to " << m_layerThreshold << endreq;
-  athenaLog << MSG::INFO << "enhanceZeroLayer set to " << m_enhanceLayer0  << endreq;
-  athenaLog << MSG::INFO << "Clone removal    set to " << m_cloneRemoval   << endreq;
-  athenaLog << MSG::INFO << "dphidrcut    set to " << m_dPhidRCut   << endreq;
+  athenaLog << MSG::INFO << "IDScanHitFilter constructed "                       << endmsg;
+  athenaLog << MSG::INFO << "phiBinSize       set to " << m_phiBinSize     << endmsg;
+  athenaLog << MSG::INFO << "etaBinSize       set to " << m_etaBinSize     << endmsg;
+  athenaLog << MSG::INFO << "layerThreshold   set to " << m_layerThreshold << endmsg;
+  athenaLog << MSG::INFO << "enhanceZeroLayer set to " << m_enhanceLayer0  << endmsg;
+  athenaLog << MSG::INFO << "Clone removal    set to " << m_cloneRemoval   << endmsg;
+  athenaLog << MSG::INFO << "dphidrcut    set to " << m_dPhidRCut   << endmsg;
 
   if (m_numberingTool.retrieve().isFailure()){
     athenaLog << MSG::FATAL << "Tool " << m_numberingTool
-	      << " not found " << endreq;
+	      << " not found " << endmsg;
     return StatusCode::FAILURE;
   } 
 
@@ -133,7 +133,7 @@ void IDScanHitFilter::findTracks( std::vector<const TrigSiSpacePoint* > spVec, T
   setLayerThresholdTmp(getLayerThreshold()-double(missing_layers));
   athenaLog << MSG::DEBUG
 	    << "m_layerThreshold="      << m_layerThreshold
-	    << "\tm_layerThresholdTmp=" << m_layerThresholdTmp << endreq;
+	    << "\tm_layerThresholdTmp=" << m_layerThresholdTmp << endmsg;
 
   // 0. check if RoI is in [0,2pi] boundary (boundary for the space point definition!)
   //    and calculate phi offset <- now done in spacepoints themselves!!!
@@ -151,7 +151,7 @@ void IDScanHitFilter::findTracks( std::vector<const TrigSiSpacePoint* > spVec, T
 	}
 
   if (this->outputLevel() <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / Made " << m_internalSPs->size() 
-						   << " IdScanSpPoints. Proceeding to HitFilter." << endreq;
+						   << " IdScanSpPoints. Proceeding to HitFilter." << endmsg;
   if (m_printDiagnosticMessages) std::cout << "IdScanMain DIAGNOSTIC " <<  " Made " << m_internalSPs->size() 
 					   << " IdScanSpPoints. Proceeding to HitFilter." << std::endl;
 
@@ -203,7 +203,7 @@ void IDScanHitFilter::makeTracks( GroupList& idScanGroups, TrigInDetTrackCollect
     if (this->outputLevel() <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / group phi0/ptInv/eta: " 
 					       << phi0 << " / " 
 					       << gItr->getPtInv() << " / " 
-					       << gItr->getEta() << endreq;
+					       << gItr->getEta() << endmsg;
 
     if (m_printDiagnosticMessages) std::cout << "IdScanMain DIAGNOSTIC " << " group phi0/ptInv/eta: " 
 					     << phi0 << " / " 

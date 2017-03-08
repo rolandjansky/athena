@@ -60,7 +60,7 @@ StatusCode TrigTRT_DCCollByteStreamTool::initialize()
 
   if(sc != StatusCode::SUCCESS) 
   {
-    msg(MSG::ERROR) << "Failed to retrieve InDetDD::TRT ID helper"<< endreq;
+    msg(MSG::ERROR) << "Failed to retrieve InDetDD::TRT ID helper"<< endmsg;
     return StatusCode::FAILURE;
   }
   m_cntx = m_trt_id->straw_layer_context();
@@ -69,14 +69,14 @@ StatusCode TrigTRT_DCCollByteStreamTool::initialize()
   sc = m_driftCircleTool.retrieve();
 
   if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get TRT_DriftCircleTool"<<endreq;
+    msg(MSG::ERROR) << "Could not get TRT_DriftCircleTool"<<endmsg;
     return sc;
   }
  
   sc = m_decoder.retrieve();
 
   if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get TRT_RodDecoder tool"<<endreq;
+    msg(MSG::ERROR) << "Could not get TRT_RodDecoder tool"<<endmsg;
     return sc;
   }
 
@@ -84,14 +84,14 @@ StatusCode TrigTRT_DCCollByteStreamTool::initialize()
 
 
   if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get TRT_CablingSvc"<<endreq;
+    msg(MSG::ERROR) << "Could not get TRT_CablingSvc"<<endmsg;
     return sc;
   }
 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    msg(MSG::INFO) << "Unable to locate Service TrigTimerSvc " << endreq;
+    msg(MSG::INFO) << "Unable to locate Service TrigTimerSvc " << endmsg;
     m_timers = false;
   } 
   else{
@@ -108,7 +108,7 @@ StatusCode TrigTRT_DCCollByteStreamTool::initialize()
   }
 
   if (msgLvl(MSG::INFO)) 
-    msg() << " Create new TRT_DriftCircleContainer with trtDriftCircleContainerName: " << m_trtDriftCircleContainerName << endreq;
+    msg() << " Create new TRT_DriftCircleContainer with trtDriftCircleContainerName: " << m_trtDriftCircleContainerName << endmsg;
 
 
   m_trtDriftCircleContainer = new InDet::TRT_DriftCircleContainer(m_trt_id->straw_layer_hash_max());
@@ -149,8 +149,8 @@ StatusCode TrigTRT_DCCollByteStreamTool::convert(VROBDATA& vRobData,
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << " Making TRT ClusterCollections for " <<listIds.size()<<" DetElements" 
-	<< endreq;
-    msg() << " Number of ROBS = " << vRobData.size() << endreq;
+	<< endmsg;
+    msg() << " Number of ROBS = " << vRobData.size() << endmsg;
   }
   int nrob =0;
   //int nColl =0;
@@ -167,35 +167,35 @@ StatusCode TrigTRT_DCCollByteStreamTool::convert(VROBDATA& vRobData,
       if(sc.isFailure())
 	{
 	  msg(MSG::WARNING) << "TRT DriftCircleContainer " << m_trtDriftCircleContainerName <<
-	    " cannot be recorded into StoreGate! "<<endreq;
+	    " cannot be recorded into StoreGate! "<<endmsg;
 	  return sc;
 	} 
       else 
 	{ 
 	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<
 	    "TRT DriftCircleContainer " << m_trtDriftCircleContainerName <<
-            "  recorded into StoreGate! "<<endreq;
+            "  recorded into StoreGate! "<<endmsg;
 	}
       m_rdoContainer->cleanup();
       sc=evtStore()->record(m_rdoContainer,m_rdoContainerName,false);
       if(sc.isFailure())
 	{
 	  msg(MSG::WARNING) << "TRT_RDO Container " << m_rdoContainerName 
-	      <<" cannot be recorded in StoreGate !"<< endreq;
+	      <<" cannot be recorded in StoreGate !"<< endmsg;
 	  return StatusCode::FAILURE;
 	}
       else 
 	{
 	  if(msgLvl(MSG::DEBUG))
 	    msg(MSG::DEBUG) << "TRT_RDO Container " << m_rdoContainerName
-		<< " is recorded in StoreGate" << endreq;
+		<< " is recorded in StoreGate" << endmsg;
 	}
     } 
   else 
     {
       if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<
 				 "TRT DriftCircleContainer " << m_trtDriftCircleContainerName <<
-				 "  is found in StoreGate "<<endreq;
+				 "  is found in StoreGate "<<endmsg;
     }
   
   std::vector<IdentifierHash> reducedList;
@@ -203,7 +203,7 @@ StatusCode TrigTRT_DCCollByteStreamTool::convert(VROBDATA& vRobData,
 
   if(vRobData.size() == 0) 
     { 
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "0.0 Collections made for this ROB " <<endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "0.0 Collections made for this ROB " <<endmsg; 
       return scData;
     }
  
@@ -244,9 +244,9 @@ StatusCode TrigTRT_DCCollByteStreamTool::convert(VROBDATA& vRobData,
 	continue;
       if(msgLvl(MSG::VERBOSE)) {
         msg() << " Collection " << (*it)
-	      << " has " << (*rdo_it)->size() << " RDOs " << endreq;
+	      << " has " << (*rdo_it)->size() << " RDOs " << endmsg;
         msg() << " adding DC collection size= " << (*rdo_it)->size() << " hashId=" <<
-	           (*rdo_it)->identifyHash()<<endreq;
+	           (*rdo_it)->identifyHash()<<endmsg;
       }
       
       if((*rdo_it)->size() !=0 ) { 
@@ -260,22 +260,22 @@ StatusCode TrigTRT_DCCollByteStreamTool::convert(VROBDATA& vRobData,
 	    if(sc.isFailure()) {
             if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << 
 		" failed register TRT_DriftCircle collection (hashId)"<<
-		  p_rio->identifyHash()<<endreq;
+		  p_rio->identifyHash()<<endmsg;
 	    delete p_rio;
 
 	    } else { 
              if(msgLvl(MSG::DEBUG)) {
                 msg(MSG::DEBUG) << " Store a TRT_DriftCircle collection  with Key "
-		      << p_rio->identifyHash()<<endreq;
+		      << p_rio->identifyHash()<<endmsg;
 		  
 	        InDet::TRT_DriftCircleContainer::const_iterator
 		    dcCollIt=m_trtDriftCircleContainer->indexFind(p_rio->identifyHash());
 	        if(dcCollIt==m_trtDriftCircleContainer->end())
 		  {
-		    msg() << "not found for hashId="<<p_rio->identifyHash()<<endreq;
+		    msg() << "not found for hashId="<<p_rio->identifyHash()<<endmsg;
 		    continue;
 		  }
-	         msg() << "Found, size="<<(*dcCollIt)->size()<<endreq;
+	         msg() << "Found, size="<<(*dcCollIt)->size()<<endmsg;
 	     }
 	    }
 	  } else {
@@ -286,17 +286,17 @@ StatusCode TrigTRT_DCCollByteStreamTool::convert(VROBDATA& vRobData,
 
   if (msgLvl(MSG::DEBUG)) 
     msg(MSG::DEBUG) << "  Reconstructed  RecDriftCircles "<<RecDriftCircles
-       <<" in the ROI "<<endreq;
+       <<" in the ROI "<<endmsg;
     
 
   if(msgLvl(MSG::DEBUG))
     {
       if(bs_failure)
 	{
-	  msg() <<" FAILURE in TRT_RodDecoder"<<endreq;
+	  msg() <<" FAILURE in TRT_RodDecoder"<<endmsg;
 	}
       else
-	  msg() <<"Total number of recoverable errors "<<n_recov_errors<<endreq;
+	  msg() <<"Total number of recoverable errors "<<n_recov_errors<<endmsg;
     }
   if(bs_failure)
     {

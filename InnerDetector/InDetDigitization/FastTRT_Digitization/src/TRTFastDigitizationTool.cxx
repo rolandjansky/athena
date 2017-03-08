@@ -520,8 +520,8 @@ Identifier TRTFastDigitizationTool::getIdentifier( int hitID, IdentifierHash &ha
     }
     else {
       ATH_MSG_ERROR( "Could not find detector element for endcap identifier with (ipos,iwheel,isector,iplane,istraw) = ("
-                     << trtID << ", " << wheelID << ", " << sectorID << ", " << planeID << ", " << strawID << ")" << endreq
-                     << "If this happens very rarely, don't be alarmed (it is a Geant4 'feature')" << endreq
+                     << trtID << ", " << wheelID << ", " << sectorID << ", " << planeID << ", " << strawID << ")" << endmsg
+                     << "If this happens very rarely, don't be alarmed (it is a Geant4 'feature')" << endmsg
                      << "If it happens a lot, you probably have misconfigured geometry in the sim. job." );
       status = false;
     }

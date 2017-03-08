@@ -38,14 +38,14 @@ namespace Muon {
     m_log.setLevel(outputLevel());
     if (sc.isFailure()) return sc;
 	
-    m_log << MSG::DEBUG << "Initialize ()" << endreq;
+    m_log << MSG::DEBUG << "Initialize ()" << endmsg;
 	
     /// histogram location
     sc = service("THistSvc", m_thistSvc);
     if(sc.isFailure() ){
       m_log   << MSG::ERROR
 	      << "Unable to retrieve pointer to THistSvc"
-	      << endreq;
+	      << endmsg;
       return sc;
     }
 	
@@ -53,23 +53,23 @@ namespace Muon {
     sc = service("StoreGateSvc",m_storeGate);
     if (sc.isFailure())
       {
-	m_log << MSG::FATAL << "StoreGate service not found !" << endreq;
+	m_log << MSG::FATAL << "StoreGate service not found !" << endmsg;
 	return StatusCode::FAILURE;
       }
 
     /// Getting InsituPerformanceTools
     if (m_InsituPerformanceTools.retrieve().isFailure())
       {
-	m_log << MSG::FATAL << "My Tool Service not found" << endreq;
+	m_log << MSG::FATAL << "My Tool Service not found" << endmsg;
 	return StatusCode::FAILURE;
       }
     sc = m_InsituPerformanceTools->initialize();
     if (sc.isFailure())
       {
-	m_log << MSG::FATAL << "InsituPerformanceTools service not found !" << endreq;
+	m_log << MSG::FATAL << "InsituPerformanceTools service not found !" << endmsg;
 	return StatusCode::FAILURE;
       }
-    m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+    m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -77,7 +77,7 @@ namespace Muon {
 
   StatusCode MuonSpectrometerProbeCollectorTool::finalize()
   {
-    m_log << MSG::DEBUG << "Finalize ()" << endreq;
+    m_log << MSG::DEBUG << "Finalize ()" << endmsg;
     StatusCode sc = AlgTool::finalize();
     return sc;
   }
@@ -86,7 +86,7 @@ namespace Muon {
 
   StatusCode MuonSpectrometerProbeCollectorTool::createProbeCollection()
   {
-    m_log << MSG::DEBUG << "createProbeCollection() for Muon Spectrometer" << endreq;
+    m_log << MSG::DEBUG << "createProbeCollection() for Muon Spectrometer" << endmsg;
 	
     StatusCode sc = StatusCode::SUCCESS;
     /// Record the container of Probe Muons in StoreGate
@@ -95,10 +95,10 @@ namespace Muon {
     if (sc.isFailure())  
       {
 	m_log << MSG::ERROR << "Unable to record MuonSpectrometerProbeTracks in StoreGate" 
-	      << endreq;
+	      << endmsg;
 	return sc;
       } else
-	m_log << MSG::DEBUG << "MuonSpectrometerProbeTracks Container recorded in StoreGate." << endreq;
+	m_log << MSG::DEBUG << "MuonSpectrometerProbeTracks Container recorded in StoreGate." << endmsg;
 
 	
     /// Retrieve Inner Tracks
@@ -106,20 +106,20 @@ namespace Muon {
     sc=m_storeGate->retrieve( trackTES, m_InnerTrackContainerName);
     if( sc.isFailure()  ||  !trackTES ) 
       {
-	m_log << MSG::WARNING	<< "No " << m_InnerTrackContainerName << " container found in TDS"	<< endreq; 
+	m_log << MSG::WARNING	<< "No " << m_InnerTrackContainerName << " container found in TDS"	<< endmsg; 
 	return StatusCode::FAILURE;
       }  
-    m_log << MSG::DEBUG << "TrackParticleContainer successfully retrieved" << endreq;
+    m_log << MSG::DEBUG << "TrackParticleContainer successfully retrieved" << endmsg;
 
     /// Retrieve Combined Tracks
     const Analysis::MuonContainer* muonTDS=0;
     sc=m_storeGate->retrieve( muonTDS, m_CombinedMuonTracksContainerName);
     if( sc.isFailure()  ||  !muonTDS ) 
       {
-	m_log << MSG::WARNING	<< "No AOD "<<m_CombinedMuonTracksContainerName<<" container of muons found in TDS"<< endreq; 
+	m_log << MSG::WARNING	<< "No AOD "<<m_CombinedMuonTracksContainerName<<" container of muons found in TDS"<< endmsg; 
 	return StatusCode::FAILURE;
       }  
-    m_log << MSG::DEBUG << "MuonContainer successfully retrieved" << endreq;
+    m_log << MSG::DEBUG << "MuonContainer successfully retrieved" << endmsg;
 	
     /// Loop over Combined Muon Tracks
     Analysis::MuonContainer::const_iterator muonItr  = muonTDS->begin();
@@ -155,7 +155,7 @@ namespace Muon {
     sc = m_storeGate->setConst(m_MSProbeTrackContainer);
     if( sc.isFailure()) 
       {
-	m_log << MSG::WARNING	<< "set const failed"<< endreq; 
+	m_log << MSG::WARNING	<< "set const failed"<< endmsg; 
 	return StatusCode::FAILURE;
       }  
     return StatusCode::SUCCESS;

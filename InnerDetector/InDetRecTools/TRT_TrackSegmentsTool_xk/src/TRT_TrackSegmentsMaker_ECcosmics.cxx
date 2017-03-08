@@ -139,43 +139,43 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ECcosmics::initialize()
   m_trtmanager = 0;
   sc = detStore()->retrieve(m_trtmanager,m_ntrtmanager);
   if (sc.isFailure()) {
-    msg(MSG::FATAL)<<"Could not get TRT_DetectorManager"<<endreq; return sc;
+    msg(MSG::FATAL)<<"Could not get TRT_DetectorManager"<<endmsg; return sc;
   }
 
   //m_trtid = m_trtmanager->getIdHelper();
   // TRT
   if (detStore()->retrieve(m_trtid, "TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Get RIO_OnTrack creator with drift time information
   //
   if( m_riomakerD.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riomakerD <<endreq;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riomakerD <<endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_riomakerD << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_riomakerD << endmsg;
   }
 
   // Get RIO_OnTrack creator without drift time information
   //
 
   if( m_riomakerN.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riomakerN <<endreq;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riomakerN <<endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_riomakerN << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_riomakerN << endmsg;
   }
 
   // Get tool for track-prd association
   //
   if( m_useassoTool ) {
     if( m_assoTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endreq; 
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endmsg; 
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
   }
 
@@ -215,32 +215,32 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ECcosmics::finalize()
 {
   /* 
    if(m_truthCollectionTRT)
-     msg(MSG::INFO)<<"NUmber of events with real tracks through the endcaps: "<<m_real_counter<<endreq;
-   msg(MSG::INFO)<<"Number of events with segments: "<<m_seg_counter<<endreq;
+     msg(MSG::INFO)<<"NUmber of events with real tracks through the endcaps: "<<m_real_counter<<endmsg;
+   msg(MSG::INFO)<<"Number of events with segments: "<<m_seg_counter<<endmsg;
 
    if(m_truthCollectionTRT)   
-     msg(MSG::INFO)<<"Classification:\n\t Real : "<<m_classification[0]<<"\n\t Fake : "<<m_classification[1]<<"\n\t Rest : "<<m_classification[2]<<endreq;
+     msg(MSG::INFO)<<"Classification:\n\t Real : "<<m_classification[0]<<"\n\t Fake : "<<m_classification[1]<<"\n\t Rest : "<<m_classification[2]<<endmsg;
 
    if(m_truthCollectionTRT){
      for(int i=0;i<200;i++){
        if(m_nHits[0][i]>0)
-	 msg(MSG::INFO)<<"Real segments with "<<i<<" Hits : "<<m_nHits[0][i]<<endreq;
+	 msg(MSG::INFO)<<"Real segments with "<<i<<" Hits : "<<m_nHits[0][i]<<endmsg;
      }
    }
 
    for(int i=0;i<200;i++){
      if(m_nHits[1][i]>0){
        if(m_truthCollectionTRT)
-	 msg(MSG::INFO)<<"Fake segments with "<<i<<" Hits : "<<m_nHits[1][i]<<endreq;
+	 msg(MSG::INFO)<<"Fake segments with "<<i<<" Hits : "<<m_nHits[1][i]<<endmsg;
        else
-	 msg(MSG::INFO)<<"Segments with "<<i<<" Hits : "<<m_nHits[1][i]<<endreq;
+	 msg(MSG::INFO)<<"Segments with "<<i<<" Hits : "<<m_nHits[1][i]<<endmsg;
      }
    }
 
    if(m_truthCollectionTRT){
      for(int i=0;i<200;i++){
        if(m_nHits[2][i]>0)
-	 msg(MSG::INFO)<<"Rest segments with "<<i<<" Hits : "<<m_nHits[2][i]<<endreq;
+	 msg(MSG::INFO)<<"Rest segments with "<<i<<" Hits : "<<m_nHits[2][i]<<endmsg;
      }
    }
   */
@@ -305,8 +305,8 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::newEvent ()
 
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of good  driftcircles: "<<m_goodHits.size()<<endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of noise driftcircles: "<<m_noiseHits.size()<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of good  driftcircles: "<<m_goodHits.size()<<endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of noise driftcircles: "<<m_noiseHits.size()<<endmsg;
 
 
   //retrieve TruthInfo if presen
@@ -315,7 +315,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::newEvent ()
     
     StatusCode sc = evtStore()->retrieve(m_truthCollectionTRT, m_multiTruthCollectionTRTName);
     if(sc.isFailure()){
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTRTName << endreq;
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTRTName << endmsg;
       m_truthCollectionTRT=0;
     }
   }
@@ -386,8 +386,8 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::newRegion
 
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of good  driftcircles: "<<m_goodHits.size()<<endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of noise driftcircles: "<<m_noiseHits.size()<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of good  driftcircles: "<<m_goodHits.size()<<endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of noise driftcircles: "<<m_noiseHits.size()<<endmsg;
 
 
 
@@ -474,7 +474,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::find()
 	  int count=m_sectors[endcap][j][i].size();
 
 	  if(count>0)
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Endcap "<<endcap<<" zslice "<<j<<" sector "<<i<<" : "<<count<<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Endcap "<<endcap<<" zslice "<<j<<" sector "<<i<<" : "<<count<<endmsg;
 
 	  if(count>max){
 	    max=count;
@@ -490,7 +490,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::find()
 
       //check if enough driftcircles present
       if(max>=3){
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of DCs in seed sector: "<<max<<endreq;
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of DCs in seed sector: "<<max<<endmsg;
 
         //2nd step: find seed among those driftcircles
 
@@ -505,7 +505,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::find()
     }
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Found "<<m_seeds.size()<<" initial seeds !"<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Found "<<m_seeds.size()<<" initial seeds !"<<endmsg;
   
 
   //now loop over all seeds and try to create segments out of them
@@ -520,7 +520,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::find()
   }
 
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Found "<<m_segments.size()<<" TRT Segments"<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Found "<<m_segments.size()<<" TRT Segments"<<endmsg;
 
   if(m_segments.size()>0) m_seg_counter++;
 
@@ -573,13 +573,13 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
   vit=dc.begin();
   vitE=dc.end();
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Sorted driftcircles: "<<dc.size()<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Sorted driftcircles: "<<dc.size()<<endmsg;
 
   for(;vit!=vitE;++vit){
     int straw = m_trtid->straw((*vit)->identify());
     const Amg::Vector3D& sc = (*vit)->detectorElement()->strawCenter(straw);
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"z="<<sc.z()<<" phi="<<sc.phi()<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"z="<<sc.z()<<" phi="<<sc.phi()<<endmsg;
 
   }
 
@@ -606,12 +606,12 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
   }
 
   shift=(phimax+phimin)/2.-M_PI/4.;
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Phimin="<<phimin<<" Phimax="<<phimax<<" -> shift = "<<shift<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Phimin="<<phimin<<" Phimax="<<phimax<<" -> shift = "<<shift<<endmsg;
 
   //protection for boundary at pi,-pi
   if(phimin<-M_PI/2. && phimax>M_PI/2.){
     shift=3./4.*M_PI;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Boundary between pi and -pi!!! use the following shift: "<<shift<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Boundary between pi and -pi!!! use the following shift: "<<shift<<endmsg;
   }
 
 
@@ -656,7 +656,7 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
       }
 
 
-      //log<<MSG::VERBOSE<<"Investigating seed "<<p[0]<<" "<<p[1]<<endreq;
+      //log<<MSG::VERBOSE<<"Investigating seed "<<p[0]<<" "<<p[1]<<endmsg;
 
       int match=evaluate_seed(endcap,zslice,sector,p);
 
@@ -668,7 +668,7 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
     }
   }
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of matching dc from best seed: "<<maxdc<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of matching dc from best seed: "<<maxdc<<endmsg;
 
 
   if(maxdc>=4){
@@ -712,7 +712,7 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
 	  if     (corr > M_PI) corr = fmod(corr+M_PI,2.*M_PI)-M_PI; 
 	  else if(corr <-M_PI) corr = fmod(corr-M_PI,2.*M_PI)+M_PI;
 	  
-	  //log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endreq;
+	  //log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endmsg;
 	  
 	  if(fabs(phidiff(pred_phi,corr))<=4./650.){
 	    seed->push_back(*it);
@@ -729,10 +729,10 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
 
     //do we need to extend the range ??
     
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Pattern:"<<endreq;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t"<<muster[0][0]<<" "<<muster[1][0]<<" "<<muster[2][0]<<endreq;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t"<<muster[0][1]<<" "<<muster[1][1]<<" "<<muster[2][1]<<endreq;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t"<<muster[0][2]<<" "<<muster[1][2]<<" "<<muster[2][2]<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Pattern:"<<endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t"<<muster[0][0]<<" "<<muster[1][0]<<" "<<muster[2][0]<<endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t"<<muster[0][1]<<" "<<muster[1][1]<<" "<<muster[2][1]<<endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t"<<muster[0][2]<<" "<<muster[1][2]<<" "<<muster[2][2]<<endmsg;
 
     int zsl=-1;
     if(muster[2][0] || muster[2][1] || muster[2][2]){
@@ -765,10 +765,10 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
 	  if     (corr > M_PI) corr = fmod(corr+M_PI,2.*M_PI)-M_PI; 
 	  else if(corr <-M_PI) corr = fmod(corr-M_PI,2.*M_PI)+M_PI;
 	  
-	  //log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endreq;
+	  //log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endmsg;
 	  
 	  if(fabs(phidiff(pred_phi,corr))<=4./650.){
-	    if (msgLvl(MSG::VERBOSE)) msg()<<"extended hit at z= "<<sc.z()<<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg()<<"extended hit at z= "<<sc.z()<<endmsg;
 	    if(sc.z()<zmin) zmin=sc.z();
 	    if(sc.z()>zmax) zmax=sc.z();
 	    seed->push_back(*it);
@@ -807,10 +807,10 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
 	  if     (corr > M_PI) corr = fmod(corr+M_PI,2.*M_PI)-M_PI; 
 	  else if(corr <-M_PI) corr = fmod(corr-M_PI,2.*M_PI)+M_PI;
 	  
-	  //log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endreq;
+	  //log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endmsg;
 	  
 	  if(fabs(phidiff(pred_phi,corr))<=4./650.){
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"extended hit at z= "<<sc.z()<<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"extended hit at z= "<<sc.z()<<endmsg;
 	    if(sc.z()<zmin) zmin=sc.z();
 	    if(sc.z()>zmax) zmax=sc.z();
 	    seed->push_back(*it);
@@ -821,7 +821,7 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
 
 
     if(seed->size()<(size_t)m_minDCSeed){
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Seed has too few hits: "<<seed->size()<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Seed has too few hits: "<<seed->size()<<endmsg;
       seed->clear();
       delete seed;
       return false;
@@ -884,12 +884,12 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
 	if     (corr > M_PI) corr = fmod(corr+M_PI,2.*M_PI)-M_PI; 
 	else if(corr <-M_PI) corr = fmod(corr-M_PI,2.*M_PI)+M_PI;
 	
-	//log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endreq;
+	//log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endmsg;
 	
 	if(fabs(phidiff(pred_phi,corr))<=4./650.){
 	  if(sc.z()>zmin && sc.z()<zmax){
 	    seed->push_back(*lit);
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t noise hit matched seed! z="<< sc.z() <<"MC : "<<isTrueHit(*lit)<<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t noise hit matched seed! z="<< sc.z() <<"MC : "<<isTrueHit(*lit)<<endmsg;
 	  }
 	}
 	
@@ -930,7 +930,7 @@ int InDet::TRT_TrackSegmentsMaker_ECcosmics::evaluate_seed(int endcap,int zslice
       if(ps2<0) ps2+=16;
       else if(ps2>15) ps2-=16;
 
-      //log<<MSG::VERBOSE<<"Evaluating zslice "<<zsl<<" sector "<<ps2<<endreq;
+      //log<<MSG::VERBOSE<<"Evaluating zslice "<<zsl<<" sector "<<ps2<<endmsg;
 
       itE=m_sectors[endcap][zsl][ps2].end();
       for(it=m_sectors[endcap][zsl][ps2].begin();it!=itE;++it){
@@ -950,7 +950,7 @@ int InDet::TRT_TrackSegmentsMaker_ECcosmics::evaluate_seed(int endcap,int zslice
 	if     (corr > M_PI) corr = fmod(corr+M_PI,2.*M_PI)-M_PI; 
 	else if(corr <-M_PI) corr = fmod(corr-M_PI,2.*M_PI)+M_PI;
 	
-	//log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endreq;
+	//log<<MSG::VERBOSE<<"pred_phi="<<pred_phi<<" orig="<<sc.phi()<<" corr="<<corr<<" phidiff="<<phidiff(pred_phi,corr)<<endmsg;
 	
 	if(fabs(phidiff(pred_phi,corr))<=4./650.){
 	  count=count+1;	  
@@ -959,7 +959,7 @@ int InDet::TRT_TrackSegmentsMaker_ECcosmics::evaluate_seed(int endcap,int zslice
     }
   }
 
-  //log<<MSG::VERBOSE<<"Total dc in this seed: "<<count<<endreq;
+  //log<<MSG::VERBOSE<<"Total dc in this seed: "<<count<<endmsg;
 
   return count;
 }
@@ -968,7 +968,7 @@ int InDet::TRT_TrackSegmentsMaker_ECcosmics::evaluate_seed(int endcap,int zslice
 void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const InDet::TRT_DriftCircle*> *seed)
 {
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits in initial seed: "<<seed->size()<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits in initial seed: "<<seed->size()<<endmsg;
   
   double shift=0.;
   double phimin=10.;
@@ -1011,12 +1011,12 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   }
   
   shift=(phimax+phimin)/2.-M_PI/4.;
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Phimin="<<phimin<<" Phimax="<<phimax<<" shift="<<shift<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Phimin="<<phimin<<" Phimax="<<phimax<<" shift="<<shift<<endmsg;
 
   //protection for boundary at pi,-pi
   if(phimin<-M_PI/2. && phimax>M_PI/2.){
     shift=3./4.*M_PI;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Boundary between pi and -pi!!! use the following shift: "<<shift<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Boundary between pi and -pi!!! use the following shift: "<<shift<<endmsg;
   }
 
 
@@ -1068,7 +1068,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
 	}
       }
       if(new_hit){
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t good hit matched! fitted_phi="<<fitted_phi<<" z=" <<sc.z()<<"MC : "<<isTrueHit(*lit)<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t good hit matched! fitted_phi="<<fitted_phi<<" z=" <<sc.z()<<"MC : "<<isTrueHit(*lit)<<endmsg;
 
 	if(sc.z()>zmin-200 && sc.z()<zmax+200){
 	  if(sc.z()<zmin) zmin=sc.z();
@@ -1090,11 +1090,11 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   double z1=-1e5;
 
   count=0;
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"zmin="<<zmin<<"   zmax="<<zmax<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"zmin="<<zmin<<"   zmax="<<zmax<<endmsg;
   for(vit=tobeadded.begin();vit!=tobeadded.end();vit++){
     int straw = m_trtid->straw((*vit)->identify());
     const Amg::Vector3D& sc = (*vit)->detectorElement()->strawCenter(straw);
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Shall we add hit at z="<<sc.z()<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Shall we add hit at z="<<sc.z()<<endmsg;
 
     if(sc.z()<zmin && sc.z()>z1) {
       z1=sc.z();
@@ -1106,7 +1106,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
     count++;
   }
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"index1="<<index1<<" index2="<<index2<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"index1="<<index1<<" index2="<<index2<<endmsg;
 
   if(index2>=0){
     for(int i=index2;i<count;i++){
@@ -1115,9 +1115,9 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
       if(sc.z()<zmax+200){
 	zmax=sc.z();
 	seed->push_back(tobeadded[i]);
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" added goot hit at z="<<sc.z()<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" added goot hit at z="<<sc.z()<<endmsg;
       }else{
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" rejected goot hit at z="<<sc.z()<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" rejected goot hit at z="<<sc.z()<<endmsg;
 	i=count;
       }
     }
@@ -1129,9 +1129,9 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
       if(sc.z()>zmin-200){
 	zmin=sc.z();
 	seed->push_back(tobeadded[i]);
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" added goot hit at z="<<sc.z()<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" added goot hit at z="<<sc.z()<<endmsg;
       }else{
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" rejected goot hit at z="<<sc.z()<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" rejected goot hit at z="<<sc.z()<<endmsg;
 	i=-1;
       }
     }
@@ -1172,12 +1172,12 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   }
   
   shift=(phimax+phimin)/2.-M_PI/4.;
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Phimin="<<phimin<<" Phimax="<<phimax<<" shift="<<shift<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Phimin="<<phimin<<" Phimax="<<phimax<<" shift="<<shift<<endmsg;
 
  //protection for boundary at pi,-pi
   if(phimin<-M_PI/2. && phimax>M_PI/2.){
     shift=3./4.*M_PI;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Boundary between pi and -pi!!! use the following shift: "<<shift<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Boundary between pi and -pi!!! use the following shift: "<<shift<<endmsg;
   }
 
   //correct the phi values
@@ -1232,10 +1232,10 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
       }
       if(new_hit){
 	if(sc.z()>zmin-50 && sc.z()<zmax+50){
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t noise hit matched! fitted_phi="<<fitted_phi<<" z=" <<sc.z()<<"MC : "<<isTrueHit(*lit)<<endreq;
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t noise hit matched! fitted_phi="<<fitted_phi<<" z=" <<sc.z()<<"MC : "<<isTrueHit(*lit)<<endmsg;
 	  seed->push_back(*lit);
 	}else{
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t noise hit matched but too far away! fitted_phi="<<fitted_phi<<" z=" <<sc.z()<<"MC : "<<isTrueHit(*lit)<<endreq;
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t noise hit matched but too far away! fitted_phi="<<fitted_phi<<" z=" <<sc.z()<<"MC : "<<isTrueHit(*lit)<<endmsg;
 	}
       }
     }
@@ -1252,7 +1252,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   double yfirst=firststraw.y();
   double ylast=laststraw.y();
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"zfirst="<<z1<<" zlast="<<z2<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"zfirst="<<z1<<" zlast="<<z2<<endmsg;
 
   double Theta=0;
   int state=0;
@@ -1288,7 +1288,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   double firstphi=((*seed)[0]->detectorElement()->strawCenter(  m_trtid->straw((*seed)[0]->identify()) )).phi();
 
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of tube hits matching straight line: "<<seed->size()<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of tube hits matching straight line: "<<seed->size()<<endmsg;
 
 
   //estimate Segment parameters from first and last hit
@@ -1308,11 +1308,11 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   double tphi=atan2(ty2-ty1,tx2-tx1);
 
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"First hit: "<<sc_first<<" \nLast hit: "<<sc_last<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"First hit: "<<sc_first<<" \nLast hit: "<<sc_last<<endmsg;
 
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" (x1,y1) = ("<<tx1<<","<<ty1<<")"<<endreq;
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" (x2,y2) = ("<<tx2<<","<<ty2<<")"<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" (x1,y1) = ("<<tx1<<","<<ty1<<")"<<endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" (x2,y2) = ("<<tx2<<","<<ty2<<")"<<endmsg;
 
 
 
@@ -1328,9 +1328,9 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   while(Theta>M_PI)
     Theta-=M_PI;
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" tphi="<<tphi<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<" tphi="<<tphi<<endmsg;
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"globaly = "<<globaly<<" phi="<<firstphi<<" theta="<<Theta<<" --> state = "<<state<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"globaly = "<<globaly<<" phi="<<firstphi<<" theta="<<Theta<<" --> state = "<<state<<endmsg;
 
 
   vit=seed->begin();
@@ -1341,13 +1341,13 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
     count++;
     int straw = m_trtid->straw((*vit)->identify());
     const Amg::Vector3D& sc = (*vit)->detectorElement()->strawCenter(straw);
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Hit "<<count<<" z="<<sc.z()<<" phi="<<sc.phi()<<" y="<<sc.y()<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Hit "<<count<<" z="<<sc.z()<<" phi="<<sc.phi()<<" y="<<sc.y()<<endmsg;
   }
 
 
   if(m_useDriftTime){
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"drifttime should be used!!!"<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"drifttime should be used!!!"<<endmsg;
 
     //refit the seed but this time including the drift time information
 
@@ -1388,11 +1388,11 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
 
       m_a_z_err[count]=0.;
       
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<count<<" z="<<m_a_z[count]<<" phi="<<m_a_phi[count]<<" +- "<< m_a_phi_err[count]<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<count<<" z="<<m_a_z[count]<<" phi="<<m_a_phi[count]<<" +- "<< m_a_phi_err[count]<<endmsg;
       count++;
     }
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits in first fit (driftradius): "<<count<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits in first fit (driftradius): "<<count<<endmsg;
 
     fit=perform_fit(count);
     if(!fit) return;
@@ -1422,9 +1422,9 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
       return; // a seed cannot contain that many hits
       }
 
-      if (msgLvl(MSG::VERBOSE)) msg()<<"z="<<sc.z()<<" phi="<<sc.phi()<<" fitted_phi = "<<fitted_phi<<" MC : "<<isTrueHit(*vit)<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg()<<"z="<<sc.z()<<" phi="<<sc.phi()<<" fitted_phi = "<<fitted_phi<<" MC : "<<isTrueHit(*vit)<<endmsg;
       if(fabs(phidiff(fitted_phi,sc.phi()-dphi)) < m_scaleFactorDrift* drifte/straw_r){
-        if (msgLvl(MSG::VERBOSE)) msg()<<"\t\t matched!!!"<<endreq;
+        if (msgLvl(MSG::VERBOSE)) msg()<<"\t\t matched!!!"<<endmsg;
 
         m_a_z[count]=sc.z();
         m_a_phi[count]=sc.phi()+dphi;
@@ -1441,7 +1441,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
 
     //refit
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits in second fit (driftradius): "<<count<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits in second fit (driftradius): "<<count<<endmsg;
 
     if(count>4){
       fit=perform_fit(count);
@@ -1472,14 +1472,14 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
       double dphi=sign*driftr/straw_r;
 
       
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"z="<<sc.z()<<" phi="<<sc.phi()<<" fitted_phi = "<<fitted_phi<<" MC : "<<isTrueHit(*vit)<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"z="<<sc.z()<<" phi="<<sc.phi()<<" fitted_phi = "<<fitted_phi<<" MC : "<<isTrueHit(*vit)<<endmsg;
       if(fabs(phidiff(fitted_phi,sc.phi()-dphi)) <  m_scaleFactorDrift* drifte/straw_r){
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t matched!!!"<<endreq;
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t\t matched!!!"<<endmsg;
         count++;
       }
     }
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits matched after second fit: "<<count<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits matched after second fit: "<<count<<endmsg;
 
   }
 
@@ -1544,7 +1544,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
     if     (temp_phi > M_PI) temp_phi = fmod(temp_phi+M_PI,2.*M_PI)-M_PI; 
     else if(temp_phi <-M_PI) temp_phi = fmod(temp_phi-M_PI,2.*M_PI)+M_PI;
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<count<<" fitted_r = "<<fitted_r<<" locz="<<locz<<" temp_phi="<<temp_phi<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<count<<" fitted_r = "<<fitted_r<<" locz="<<locz<<" temp_phi="<<temp_phi<<endmsg;
 
 
     fitted_r*=-1.0;
@@ -1587,12 +1587,12 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
 
 
     if(useDrift){
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"RIO using drift time!"<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"RIO using drift time!"<<endmsg;
       rio->push_back(m_riomakerD->correct(*(*vit),Tp));
     }else{
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"RIO without using drift time!"<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"RIO without using drift time!"<<endmsg;
       chi2+=(fitted_r/1.15)*(fitted_r/1.15); // no drift time used
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<count<<"\t\t chi2 contribution: "<<(fitted_r/1.15)*(fitted_r/1.15)<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<count<<"\t\t chi2 contribution: "<<(fitted_r/1.15)*(fitted_r/1.15)<<endmsg;
       rio->push_back(m_riomakerN->correct(*(*vit),Tp));
     }
 
@@ -1665,7 +1665,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   Trk::LocalParameters par(defPar);
 
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Track parameters from segment:"<<par<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Track parameters from segment:"<<par<<endmsg;
 
   double m_universal=1.15;
 
@@ -1702,7 +1702,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   
   //add segment to list of segments
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Add segment to list"<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Add segment to list"<<endmsg;
   m_segments.push_back(segment);
 
 
@@ -1753,7 +1753,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
   StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
   
   if(s.isFailure()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
   if(!m_trtcontainer) return;
@@ -1764,7 +1764,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
   if(evtStore()->contains<PRD_MultiTruthCollection>("PRD_MultiTruthTRT")){
     s = evtStore()->retrieve(m_truthCollectionTRT, "PRD_MultiTruthTRT");
     if(s.isFailure()){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " could not open PRD_MultiTruthCollection ! "  << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " could not open PRD_MultiTruthCollection ! "  << endmsg;
       return;
     }
   }else{
@@ -1832,17 +1832,17 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
   //require at least 20 hits
   if(realhits[0]>19 || realhits[1]>19) m_real_counter++;
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"hits in endcap C: "<<realhits[0]<<" Hits in endcap A: "<<realhits[1]<<endreq;
-  if(realhits[0]>19 || realhits[1]>19) if (msgLvl(MSG::DEBUG)) msg()<<"This event should be reconstructed !!!!"<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"hits in endcap C: "<<realhits[0]<<" Hits in endcap A: "<<realhits[1]<<endmsg;
+  if(realhits[0]>19 || realhits[1]>19) if (msgLvl(MSG::DEBUG)) msg()<<"This event should be reconstructed !!!!"<<endmsg;
 
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"good hits in endcap: "<<m_goodHits.size()<<endreq; 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"noise hits in endcap: "<<m_noiseHits.size()<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"good hits in endcap: "<<m_goodHits.size()<<endmsg; 
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"noise hits in endcap: "<<m_noiseHits.size()<<endmsg;
 
 
   if(m_goodHits.size()>(size_t)m_hitLimit){
     // this event is too busy ...
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"This event has more than "<<m_hitLimit<<" good hits. Aborting segment finding ..."<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"This event has more than "<<m_hitLimit<<" good hits. Aborting segment finding ..."<<endmsg;
     m_goodHits.clear();
     m_noiseHits.clear();
     return;
@@ -2017,7 +2017,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
 
     //    if(max_r>m_maximald){
     if(!accept){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Removing hit in 2nd pass isolation: "<<isTrueHit(*it)<<endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Removing hit in 2nd pass isolation: "<<isTrueHit(*it)<<endmsg;
 
 
       m_noiseHits.push_back(*it);
@@ -2031,8 +2031,8 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
     remove=false;
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"good hits in endcap: "<<m_goodHits.size()<<endreq; 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"noise hits in endcap: "<<m_noiseHits.size()<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"good hits in endcap: "<<m_goodHits.size()<<endmsg; 
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"noise hits in endcap: "<<m_noiseHits.size()<<endmsg;
 
 }
 
@@ -2092,7 +2092,7 @@ TF1 *InDet::TRT_TrackSegmentsMaker_ECcosmics::perform_fit(int count)
 
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Fit result (ztanphi): a0="<<m_fitf_ztanphi->GetParameter(0)
      <<" a1="<<m_fitf_ztanphi->GetParameter(1)<<" a2="
-     <<m_fitf_ztanphi->GetParameter(2)<<" fitresult="<<fitresult1<<endreq;
+     <<m_fitf_ztanphi->GetParameter(2)<<" fitresult="<<fitresult1<<endmsg;
 
   //copy over the parameters 
   m_fitf_zphi->SetParameter(0,m_fitf_ztanphi->GetParameter(0));
@@ -2122,12 +2122,12 @@ TF1 *InDet::TRT_TrackSegmentsMaker_ECcosmics::perform_fit(int count)
   
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Fit result (zphi): a0="<< m_fitf_zphi_approx->GetParameter(0)
      <<" a1="<< m_fitf_zphi_approx->GetParameter(1)<<" a2="
-     << m_fitf_zphi_approx->GetParameter(2)<<" fitresult="<<fitresult2<<endreq;
+     << m_fitf_zphi_approx->GetParameter(2)<<" fitresult="<<fitresult2<<endmsg;
   
   double p1=m_fitf_ztanphi->GetProb();
   double p2=m_fitf_zphi_approx->GetProb();
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"tanphi prob: "<<p1<<" pol2 prob : "<<p2<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"tanphi prob: "<<p1<<" pol2 prob : "<<p2<<endmsg;
 
   delete gre;
 
@@ -2152,7 +2152,7 @@ TF1 *InDet::TRT_TrackSegmentsMaker_ECcosmics::perform_fit(int count)
   }
 
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits matching this fit: tan="<<match_tan<<" pol2="<<match_phi<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Number of hits matching this fit: tan="<<match_tan<<" pol2="<<match_phi<<endmsg;
 
   if(match_tan>match_phi){
     return m_fitf_zphi;
@@ -2283,15 +2283,15 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::is_suspicious(const InDet::TRT_Dri
 
   if(fabs(zmin_sel-mean)>2*var){// || fabs(dcz[index]-meanz)>2*varz){
     if(index>=0) {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Hit is suspicious, remove it! "<<fabs(zmin_sel-mean)<<" , "<<2*var<<" -> "<<zmin_sel<< " : "<<dcz[index]<<" <-> "<<meanz<<" ("<<varz<<")"<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Hit is suspicious, remove it! "<<fabs(zmin_sel-mean)<<" , "<<2*var<<" -> "<<zmin_sel<< " : "<<dcz[index]<<" <-> "<<meanz<<" ("<<varz<<")"<<endmsg;
     }
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t -> "<<isTrueHit(dc)<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t -> "<<isTrueHit(dc)<<endmsg;
     return true;
   }else{
     if(index>=0) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Hit seems to be ok: "<<fabs(zmin_sel-mean)<<" < "<<2*var<<" && "<<fabs(dcz[index]-meanz)<<" < "<<1.5*varz<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Hit seems to be ok: "<<fabs(zmin_sel-mean)<<" < "<<2*var<<" && "<<fabs(dcz[index]-meanz)<<" < "<<1.5*varz<<endmsg;
     }
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t -> "<<isTrueHit(dc)<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"\t -> "<<isTrueHit(dc)<<endmsg;
   }
   return false;
 }

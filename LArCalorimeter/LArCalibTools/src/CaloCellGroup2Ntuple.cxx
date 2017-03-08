@@ -29,13 +29,13 @@ StatusCode CaloCellGroup2Ntuple::stop () {
 
   sc=m_nt->addItem("nvalues",nValues,0,1000);
   if (sc!=StatusCode::SUCCESS)
-    {(*m_log)  << MSG::ERROR << "addItem 'nvalues' failed" << endreq;
+    {(*m_log)  << MSG::ERROR << "addItem 'nvalues' failed" << endmsg;
     return StatusCode::FAILURE;
     }
  
   sc=m_nt->addItem("values",nValues,values);
   if (sc!=StatusCode::SUCCESS)
-    {(*m_log)  << MSG::ERROR << "addItem 'values' failed" << endreq;
+    {(*m_log)  << MSG::ERROR << "addItem 'values' failed" << endmsg;
     return StatusCode::FAILURE;
     }
 
@@ -45,13 +45,13 @@ StatusCode CaloCellGroup2Ntuple::stop () {
   const CaloCell_ID* caloCellId;
   sc = m_detStore->retrieve(caloCellId,"CaloCell_ID");
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get CaloCellID helper !" << endreq;
+    (*m_log) << MSG::ERROR << "Could not get CaloCellID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
   
   bool stat=m_cellGroupList.setDefinition(caloCellId,m_groupInit,*m_log);
   if (!stat) {
-    (*m_log) << MSG::ERROR << "CaloCellGroupList::setDefinition failed!" << endreq;
+    (*m_log) << MSG::ERROR << "CaloCellGroupList::setDefinition failed!" << endmsg;
     return StatusCode::FAILURE;
   }
   m_cellGroupList.printDef();
@@ -73,12 +73,12 @@ StatusCode CaloCellGroup2Ntuple::stop () {
      //cellCounter++;
      sc=ntupleSvc()->writeRecord(m_nt);
      if (sc!=StatusCode::SUCCESS) {
-       (*m_log)  << MSG::ERROR << "writeRecord failed" << endreq;
+       (*m_log)  << MSG::ERROR << "writeRecord failed" << endmsg;
        return StatusCode::FAILURE;
      }
    }//end if isConnected
  }//end loop over online ID
 
- (*m_log)  << MSG::INFO << "CaloCellGroup2Ntuple has finished." << endreq;
+ (*m_log)  << MSG::INFO << "CaloCellGroup2Ntuple has finished." << endmsg;
  return StatusCode::SUCCESS;
 }// end finalize-method.

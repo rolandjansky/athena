@@ -21,6 +21,8 @@
 #endif // not __APPLE__
 #include <dlfcn.h>
 #include <cstdlib>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 
 char* snip (char* buf, char* p, char fill = '\0')

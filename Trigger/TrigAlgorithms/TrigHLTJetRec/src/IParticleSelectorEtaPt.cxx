@@ -22,7 +22,7 @@ IParticleSelectorEtaPt::IParticleSelectorEtaPt(const std::string& s,
 
 StatusCode IParticleSelectorEtaPt::initialize() {
 
-  ATH_MSG_INFO("etaMax: " << m_etaMax << " ptMin: " << m_ptMin << endreq);  
+  ATH_MSG_INFO("etaMax: " << m_etaMax << " ptMin: " << m_ptMin << endmsg);  
   return StatusCode::SUCCESS;
 }
 

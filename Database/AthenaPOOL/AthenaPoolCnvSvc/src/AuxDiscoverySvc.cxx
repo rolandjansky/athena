@@ -16,7 +16,7 @@
 #include "AthContainers/normalizedTypeinfoName.h"
 #include "AthContainersRoot/getDynamicAuxID.h"
 
-#include "PersistentDataModel/Token.h"
+#include "PersistentDataModel/Guid.h"
 
 #include "StorageSvc/DbTypeInfo.h"
 
@@ -31,12 +31,12 @@ public:
   using SG::AuxStoreInternal::addVector;
 };
 
-bool AuxDiscoverySvc::getAuxStore(void* obj, const Token& token) {
-   pool::DbTypeInfo* info = pool::DbTypeInfo::create(token.classID()); // Needed for Properties and TClass
+bool AuxDiscoverySvc::getAuxStore(void* obj, const Guid& classId, const std::string& contId) {
+   pool::DbTypeInfo* info = pool::DbTypeInfo::create(classId); // Needed for Properties and TClass
    if (info == nullptr) {
       return false;
    }
-   if ((token.contID().size() < 5 || token.contID().substr(token.contID().size() - 5, 4) != "Aux.")
+   if ((contId.size() < 5 || contId.substr(contId.size() - 5, 4) != "Aux.")
 	   && !info->clazz().Properties().HasProperty("IAuxStore")) {
       return false;
    }
@@ -97,12 +97,12 @@ SG::auxid_t AuxDiscoverySvc::getAuxID(const std::string& attrName, const std::st
    return auxid;
 }
 
-const SG::auxid_set_t& AuxDiscoverySvc::getAuxIDs(void* obj, const Token& token) {
-   pool::DbTypeInfo* info = pool::DbTypeInfo::create(token.classID()); // Needed for Properties and TClass
+const SG::auxid_set_t& AuxDiscoverySvc::getAuxIDs(const void* obj, const Guid& classId, const std::string& contId) {
+   pool::DbTypeInfo* info = pool::DbTypeInfo::create(classId); // Needed for Properties and TClass
    if (info == nullptr) {
       return s_emptySet;
    }
-   if ((token.contID().size() < 5 || token.contID().substr(token.contID().size() - 5, 4) != "Aux.")
+   if ((contId.size() < 5 || contId.substr(contId.size() - 5, 4) != "Aux.")
 	   && !info->clazz().Properties().HasProperty("IAuxStore")) {
       return s_emptySet;
    }
@@ -115,7 +115,7 @@ const SG::auxid_set_t& AuxDiscoverySvc::getAuxIDs(void* obj, const Token& token)
    if (storeTC == nullptr) {
       return s_emptySet;
    }
-   m_store = reinterpret_cast<SG::IAuxStoreIO*>((char*)obj + cl->GetBaseClassOffset(storeTC));
+   m_store = reinterpret_cast<const SG::IAuxStoreIO*>((const char*)obj + cl->GetBaseClassOffset(storeTC));
    if (m_store == nullptr) {
       return s_emptySet;
    }
