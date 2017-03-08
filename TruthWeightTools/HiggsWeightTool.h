@@ -78,7 +78,7 @@ namespace xAOD {
 	       qcd_nnlops.size());
 	// for (auto q:qcd_nnlops) printf(" %s",uncStr(q,n)); printf("\n");
 
-	printf("\n    Quark mass varations  (m_top=inf): %s  (m_b minlo): %s\n",
+	printf("\n    Quark mass variations  (m_top=inf): %s  (m_b minlo): %s\n",
 	       uncStr(mt_inf,n),uncStr(mb_minlo,n));
 	printf("\n    WG1 proposed QCD uncertainty scheme\n");
 	printf("      mu: %s,   res: %s,   mig01: %s,   mig12: %s\n",

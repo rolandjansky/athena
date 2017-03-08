@@ -45,7 +45,7 @@ namespace xAOD {
     static TString name = "HiggsWeightTool::setupWeights";
     const std::vector<std::string> &wNames = getWeightNames();
     m_Nweights=wNames.size();
-    ::Info(name,"Setting up weights in %s. %lu weights availalbe in intput file, %lu expected.",
+    ::Info(name,"Setting up weights in %s. %lu weights available in input file, %lu expected.",
 	   m_mode==AUTO?"AUTO mode":Form("FORCE mode %i",m_mode),Nweights,m_Nweights);
     if (m_Nweights!=Nweights) 
       throw std::runtime_error(Form("Current event has %lu weights, while we expect %lu weights from the metadata",
@@ -76,7 +76,7 @@ namespace xAOD {
     if ( hasWeight(" PDF set = 90431 ") && hasWeight(" PDF set = 90432 ") ) {
       m_aS_dn = getWeightIndex(" PDF set = 90431 ");
       m_aS_up = getWeightIndex(" PDF set = 90432 ");
-      ::Info(name,"PDF4LHC alphaS varations identified");
+      ::Info(name,"PDF4LHC alphaS variations identified");
     }
 
     m_qcd.clear();
