@@ -46,9 +46,9 @@ class PixelPlanarChargeTool : public SubChargesTool {
     double m_diffusionConstant;
 
     bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model ?
-    //double m_doBichselMomentumCut;                       // minimum MOMENTUM for particle to be re-simulated through Bichsel Model. Unit in MeV
     double m_doBichselBetaGammaCut;                      // replace momentum cut
     bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
+
     // We will assume all delta-ray is electron, with all energy deposited in silicon layer. So the 4-momentum can be reconstructed using energy and direction
     bool   m_doPU;                                       // Whether we apply Bichsel model on non-HS particles
     ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here

@@ -32,7 +32,6 @@ PixelPlanarChargeTool::PixelPlanarChargeTool(const std::string& type, const std:
   m_numberOfCharges(10),
   m_diffusionConstant(.007),
   m_doBichsel(false),
-  //m_doBichselMomentumCut(1000.),     // need to change to beta-gamma cut
   m_doBichselBetaGammaCut(0.1),        // replace momentum cut
   m_doDeltaRay(false),                 // need validation
   m_doPU(true),                        
@@ -42,7 +41,6 @@ PixelPlanarChargeTool::PixelPlanarChargeTool(const std::string& type, const std:
   declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelPlanar");
   declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for PixelPlanar");
   declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
-  //declareProperty("doBichselMomentumCut", m_doBichselMomentumCut, "minimum MOMENTUM for particle to be re-simulated through Bichsel Model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
   declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
   declareProperty("doPU", m_doPU, "Whether we apply Bichsel model on PU");
@@ -143,7 +141,6 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
       if(genPart){ // non-delta-ray
         genPart_4V.SetPtEtaPhiM(genPart->momentum().perp(), genPart->momentum().eta(), genPart->momentum().phi(), genPart->momentum().m());
         double iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
-        //if(genPart_4V.P()/CLHEP::MeV < m_doBichselMomentumCut) ParticleType = -1;
         if(iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
       }
       else{ // delta-ray. 
