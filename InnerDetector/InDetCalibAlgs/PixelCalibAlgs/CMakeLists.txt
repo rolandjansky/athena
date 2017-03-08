@@ -45,7 +45,7 @@ atlas_add_library( PixelOfflineCalib
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel InDetPrepRawData
-		   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolUtilities CoralDB DetDescrConditions Identifier EventInfo PixelConditionsData InDetIdentifier InDetReadoutGeometry InDetRawData PathResolver StoreGate )
+		   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolUtilities CoralDB DetDescrConditions Identifier EventInfo PixelConditionsData InDetIdentifier InDetReadoutGeometry InDetRawData PathResolver )
 
 atlas_add_component( PixelCalibAlgs
                      src/*.cxx
