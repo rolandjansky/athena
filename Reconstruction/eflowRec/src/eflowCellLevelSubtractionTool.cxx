@@ -144,7 +144,9 @@ void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCa
 // Check e/p mode - only perform radial profiles calculations if in this mode
 //     std::cout<<"Before calculating radial energy profile function"<<std::endl;
 //   if (m_calcEOverP) 
+std::cout<<"hello before cREP"<<std::endl;
 calculateRadialEnergyProfiles();
+std::cout<<"hello after cREP"<<std::endl;
 //     std::cout<<"After calculating radial energy profile function"<<std::endl;
 
 }
