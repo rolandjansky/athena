@@ -433,6 +433,8 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
   
   ATH_MSG_DEBUG("End of init TrigMuonEFStandaloneTrackTool");
   
+  //initialise for data handles
+
   if(!m_rpcKey.initialize()){
     ATH_MSG_ERROR("Couldn't initalize RPC ReadHandleKey");
     return StatusCode::FAILURE;
