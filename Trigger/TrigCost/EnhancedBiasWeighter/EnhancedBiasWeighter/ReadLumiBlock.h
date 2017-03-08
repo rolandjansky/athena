@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TRIG_ReadLumiBlock_H
 #define TRIG_ReadLumiBlock_H
 

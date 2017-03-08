@@ -1,8 +1,9 @@
-// C/C++
-#include <cmath>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Trigger
+#include "EnhancedBiasWeighter/ReadLumiBlock.h"
 
 // COOL
 #include "CoolApplication/Application.h"
@@ -13,9 +14,12 @@
 #include "CoolKernel/IObjectIterator.h"
 #include "CoolKernel/IDatabaseSvc.h"
 #include "CoralKernel/Context.h"
- 
-// Trigger
-#include "EnhancedBiasWeighter/ReadLumiBlock.h"
+
+// C/C++
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 

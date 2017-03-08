@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef RATESANALYSIS_RATESHISTOBASE_H
 #define RATESANALYSIS_RATESHISTOBASE_H 1
 

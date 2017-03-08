@@ -1,4 +1,6 @@
-# Edit this file to 
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# Edit this file too 
 include("RatesAnalysisExamplesXAOD/ExampleRates_Configuration.py")
 
 #---- Algorithm Setup -------
