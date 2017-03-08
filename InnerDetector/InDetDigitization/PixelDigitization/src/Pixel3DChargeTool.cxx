@@ -3,13 +3,13 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// Ibl3DBichselChargeTool.cxx
-//   Implementation file for class Ibl3DBichselChargeTool
+// Pixel3DChargeTool.cxx
+//   Implementation file for class Pixel3DChargeTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "Ibl3DBichselChargeTool.h"
+#include "Pixel3DChargeTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiHit.h"
@@ -29,7 +29,7 @@ using namespace InDetDD;
 
 
 // Constructor with parameters:
-Ibl3DBichselChargeTool::Ibl3DBichselChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
+Pixel3DChargeTool::Pixel3DChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
   SubChargesTool(type,name,parent),
   m_numberOfSteps(50),
   m_doBichsel(false),
@@ -40,7 +40,7 @@ Ibl3DBichselChargeTool::Ibl3DBichselChargeTool(const std::string& type, const st
   m_chargeCollSvc("ChargeCollProbSvc",name)
 { 
   declareProperty("ChargeCollProbSvc",m_chargeCollSvc);
-  declareProperty("numberOfSteps",m_numberOfSteps,"Number of steps for Ibl3D module");
+  declareProperty("numberOfSteps",m_numberOfSteps,"Number of steps for Pixel3D module");
   declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
   declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
@@ -51,45 +51,45 @@ Ibl3DBichselChargeTool::Ibl3DBichselChargeTool(const std::string& type, const st
 class DetCondCFloat;
 
 // Destructor:
-Ibl3DBichselChargeTool::~Ibl3DBichselChargeTool() { }
+Pixel3DChargeTool::~Pixel3DChargeTool() { }
 
 //----------------------------------------------------------------------
 // Initialize
 //----------------------------------------------------------------------
-StatusCode Ibl3DBichselChargeTool::initialize() {
+StatusCode Pixel3DChargeTool::initialize() {
   CHECK(SubChargesTool::initialize());
  	  
   // -- Get ChargeCollProb  Service
   CHECK(m_chargeCollSvc.retrieve());
 
-  ATH_MSG_INFO("You are using Ibl3DBichselChargeTool, not Ibl3DChargeTool");
+  ATH_MSG_INFO("You are using Pixel3DChargeTool, not Pixel3DChargeTool");
 
   if(m_doBichsel){
-    ATH_MSG_INFO("Bichsel Digitization is turned ON in Ibl3DBichselChargeTool!");
+    ATH_MSG_INFO("Bichsel Digitization is turned ON in Pixel3DChargeTool!");
     CHECK(m_BichselSimTool.retrieve());
   }
   else {
-    ATH_MSG_INFO("Bichsel Digitization is turned OFF in Ibl3DBichselChargeTool!");
+    ATH_MSG_INFO("Bichsel Digitization is turned OFF in Pixel3DChargeTool!");
   }
 
   m_doDeltaRay = (m_doBichsel && m_doDeltaRay);    // if we don't do Bichsel model, no re-simulation on delta-ray at all!
 
-  ATH_MSG_DEBUG("Ibl3DBichselChargeTool::initialize()");
+  ATH_MSG_DEBUG("Pixel3DChargeTool::initialize()");
   return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
-StatusCode Ibl3DBichselChargeTool::finalize() {
-  ATH_MSG_DEBUG("Ibl3DBichselChargeTool::finalize()");
+StatusCode Pixel3DChargeTool::finalize() {
+  ATH_MSG_DEBUG("Pixel3DChargeTool::finalize()");
   return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // charge
 //----------------------------------------------------------------------
-StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) { 
+StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) { 
 
   if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
   const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
@@ -307,7 +307,6 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChar
           if ( ccprob_neighbor == -1. ) return StatusCode::FAILURE;
           //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<"  y_bin_cc_map   "<<y_bin_cc_map << "   x_bin_cc_map  " << x_bin_cc_map << " charge_coll neighbor "<<ccprob_neighbor);
 
-          // double ed=es*electronHolePairsPerEnergy*ccprob_neighbor;
           double ed=es_current*eleholePairEnergy*ccprob_neighbor;
 
           // -- pixel coordinates --> module coordinates

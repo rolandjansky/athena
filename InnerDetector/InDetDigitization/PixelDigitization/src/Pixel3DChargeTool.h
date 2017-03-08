@@ -2,30 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELDIGITIZATION_Ibl3DBichselChargeTool_H
-#define PIXELDIGITIZATION_Ibl3DBichselChargeTool_H
+#ifndef PIXELDIGITIZATION_Pixel3DChargeTool_H
+#define PIXELDIGITIZATION_Pixel3DChargeTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SubChargesTool.h"
 #include "IChargeCollProbSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "TH1.h"
-#include "TH2.h"
 
 #include "BichselSimTool.h"
 
-class Ibl3DBichselChargeTool : public SubChargesTool {
+class Pixel3DChargeTool : public SubChargesTool {
 
   public:
-    Ibl3DBichselChargeTool( const std::string& type, const std::string& name,const IInterface* parent);
+    Pixel3DChargeTool( const std::string& type, const std::string& name,const IInterface* parent);
     virtual StatusCode initialize();
     virtual StatusCode finalize();
-    virtual ~Ibl3DBichselChargeTool();
+    virtual ~Pixel3DChargeTool();
 
     virtual StatusCode charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module);  
 
   private:
-    Ibl3DBichselChargeTool();
+    Pixel3DChargeTool();
 
     int m_numberOfSteps;
     bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model
@@ -37,4 +35,4 @@ class Ibl3DBichselChargeTool : public SubChargesTool {
     ServiceHandle<IChargeCollProbSvc> m_chargeCollSvc;
 };
 
-#endif // PIXELDIGITIZATION_Ibl3DBichselChargeTool_H
+#endif // PIXELDIGITIZATION_Pixel3DChargeTool_H

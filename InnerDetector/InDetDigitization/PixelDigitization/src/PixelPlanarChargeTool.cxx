@@ -3,13 +3,13 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// IblPlanarBichselChargeTool.cxx
-//   Implementation file for class IblPlanarBichselChargeTool
+// PixelPlanarChargeTool.cxx
+//   Implementation file for class PixelPlanarChargeTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "IblPlanarBichselChargeTool.h"
+#include "PixelPlanarChargeTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "SiDigitization/SiSurfaceCharge.h"
@@ -17,7 +17,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
-
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
@@ -27,76 +26,66 @@
 
 using namespace InDetDD;
 
-
-// Constructor with parameters:
-IblPlanarBichselChargeTool::IblPlanarBichselChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
-	SubChargesTool(type,name,parent),
-	m_numberOfSteps(50),
-	m_numberOfCharges(10),
-	m_diffusionConstant(.007),
+PixelPlanarChargeTool::PixelPlanarChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
+  SubChargesTool(type,name,parent),
+  m_numberOfSteps(50),
+  m_numberOfCharges(10),
+  m_diffusionConstant(.007),
   m_doBichsel(false),
-  m_doBichselBetaGammaCut(0.1),        // momentum cut on beta-gamma
+  //m_doBichselMomentumCut(1000.),     // need to change to beta-gamma cut
+  m_doBichselBetaGammaCut(0.1),        // replace momentum cut
   m_doDeltaRay(false),                 // need validation
-  m_doPU(true),
+  m_doPU(true),                        
   m_BichselSimTool("BichselSimTool")
 { 
-	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for IblPlanar");
-	declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for IblPlanar");
-	declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for IblPlanar");
+  declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelPlanar");
+  declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelPlanar");
+  declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for PixelPlanar");
   declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
+  //declareProperty("doBichselMomentumCut", m_doBichselMomentumCut, "minimum MOMENTUM for particle to be re-simulated through Bichsel Model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
   declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
-  declareProperty("doPU", m_doPU, "wheter we apply Bichsel model on PU");
+  declareProperty("doPU", m_doPU, "Whether we apply Bichsel model on PU");
   declareProperty("BichselSimTool", m_BichselSimTool, "tool that implements Bichsel model");
 }
 
 class DetCondCFloat;
 
-// Destructor:
-IblPlanarBichselChargeTool::~IblPlanarBichselChargeTool() { }
+PixelPlanarChargeTool::~PixelPlanarChargeTool() { }
 
-//----------------------------------------------------------------------
-// Initialize
-//----------------------------------------------------------------------
-StatusCode IblPlanarBichselChargeTool::initialize() {
-  CHECK(SubChargesTool::initialize());
+StatusCode PixelPlanarChargeTool::initialize() {
+  CHECK(SubChargesTool::initialize()); 
+  ATH_MSG_INFO("You are using PixelPlanarChargeTool, not PixelPlanarChargeTool");
 
-  ATH_MSG_DEBUG("IblPlanarBichselChargeTool::initialize()");
-
-  ATH_MSG_INFO("You are using IblPlanarBichselChargeTool, not IblPlanarChargeTool");
-
-  if(m_doBichsel){
-    ATH_MSG_INFO("Bichsel Digitization is turned ON in IblPlanarBichselChargeTool!");
+  if (m_doBichsel) {
+    ATH_MSG_INFO("Bichsel Digitization is turned ON in PixelPlanarChargeTool!");
     CHECK(m_BichselSimTool.retrieve());
   }
-  else{
-    ATH_MSG_INFO("Bichsel Digitization is turned OFF in IblPlanarBichselChargeTool!");
+  else {
+    ATH_MSG_INFO("Bichsel Digitization is turned OFF in PixelPlanarChargeTool!");
   }
 
   m_doDeltaRay = (m_doBichsel && m_doDeltaRay);    // if we don't do Bichsel model, no re-simulation on delta-ray at all!
 
-	return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG ( "PixelPlanarChargeTool::initialize()");
+  return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// finalize
-//----------------------------------------------------------------------
-StatusCode IblPlanarBichselChargeTool::finalize() {
-  ATH_MSG_DEBUG("IblPlanarBichselChargeTool::finalize()");
-	return StatusCode::SUCCESS;
+StatusCode PixelPlanarChargeTool::finalize() {
+  ATH_MSG_DEBUG("PixelPlanarChargeTool::finalize()");
+  return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// charge
-//----------------------------------------------------------------------
-StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
+StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
 
-  if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
+  // if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
   const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
-  if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) { return StatusCode::SUCCESS; } // just allowing ITk
-  if (p_design->numberOfCircuits()<2) { return StatusCode::SUCCESS; }
 
-  ATH_MSG_DEBUG("Applying IBLPLANAR charge processor");
+  // So far, this is only discriminating variable from 3D sensor.
+  if (p_design->numberOfCircuits()<2) { return StatusCode::SUCCESS; }
+  if (Module.isDBM()) { return StatusCode::SUCCESS; }
+
+  ATH_MSG_DEBUG("Applying PixelPlanar charge processor");
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
@@ -104,20 +93,12 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, Si
   double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
   double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
-/*  
-  const PixelModuleDesign *p_design= dynamic_cast<const PixelModuleDesign *>(&(Module.design() ) );
-  double pixel_size_x = Module.width()/p_design->rows();
-  double pixel_size_y = Module.length()/p_design->columns();
-  double module_size_x = Module.width();
-  double module_size_y = Module.length();
-  ATH_MSG_INFO("IBLPLANAR: PixelSize= (" << pixel_size_x << "," << pixel_size_y << ")"); 
-  ATH_MSG_INFO("IBLPLANAR: ModuleSize= (" << module_size_x << "," << module_size_y << ")");
-*/
+
   double stepsize = sensorThickness/m_numberOfSteps;
   double tanLorentz = Module.getTanLorentzAnglePhi();
   const CLHEP::Hep3Vector pos=phit->localStartPosition();
   const CLHEP::Hep3Vector cs=phit->localEndPosition();
-  
+
   double xEta=pos[SiHit::xEta];
   double xPhi=pos[SiHit::xPhi];
   const double xDep=pos[SiHit::xDep];
@@ -145,7 +126,6 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, Si
   //////////////////////////////////////////////////////
   // ***                For Bichsel               *** //
   //////////////////////////////////////////////////////
-
   double iTotalLength = length*1000.;   // mm -> micrometer
 
   // ultimate feed in to the diffusion (to surface) part
@@ -174,14 +154,16 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, Si
         if(iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
       }
 
+      // In-time PU
       if(!m_doPU){
         if(phit.eventId() != 0) ParticleType = -1;
       }
 
+      // Out-of-time PU
+      // We don't cut on the out-of-time PU, since studies show that the fraction is too small
     }
   } 
 
-  // bool m_isRealBichsel = false;
   if(ParticleType != -1){ // yes, good to go with Bichsel
     // I don't know why genPart->momentum() goes crazy ... 
     TLorentzVector genPart_4V;
@@ -218,22 +200,20 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, Si
     }
     else{ // cluster thousands hits to ~20 groups
       trfHitRecord = m_BichselSimTool->ClusterHits(rawHitRecord, nsteps);
-      // m_isRealBichsel = true;
     }
   }
   else{  // same as old digitization method
     //double iTotalLength = length*1000.;   // mm -> micrometer
     for(int istep = 0; istep < nsteps; istep++){ // do the same thing as old digitization method
-        std::pair<double,double> specialHit;
-        specialHit.first = 1.0*iTotalLength/nsteps * (istep + 0.5); specialHit.second = phit->energyLoss()*1.E+6/nsteps;
-        trfHitRecord.push_back(specialHit);
+      std::pair<double,double> specialHit;
+      specialHit.first = 1.0*iTotalLength/nsteps * (istep + 0.5); specialHit.second = phit->energyLoss()*1.E+6/nsteps;
+      trfHitRecord.push_back(specialHit);
     }
   }
 
   // *** Finsih Bichsel *** //
 
   // *** Now diffuse charges to surface *** //
-
   for(unsigned int istep = 0; istep < trfHitRecord.size(); istep++){
     std::pair<double,double> iHitRecord = trfHitRecord[istep];
 
@@ -269,31 +249,32 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, Si
 
       // Slim Edge for IBL planar sensors:
       // TODO: Access these from somewhere          
-      if(std::abs(xEtaD) > 20.440)e1_current=0.;
-      if(std::abs(xEtaD)< 20.440 && std::abs(xEtaD)> 20.200){
-        if(xEtaD>0){
-          e1_current=e1_current*(68.13-xEtaD*3.333);            
-          xEtaD = xEtaD - 0.250;
-        }else{  
-          e1_current=e1_current*(68.13+xEtaD*3.333);            
-          xEtaD = xEtaD + 0.250;
-        }  
-      }
-      if(std::abs(xEtaD)< 20.200 && std::abs(xEtaD)> 20.100){
-        if(xEtaD>0){
-          e1_current=e1_current*(41.2-xEtaD*2.);             
-          xEtaD = xEtaD - 0.250;
-        }else{  
-          e1_current=e1_current*(41.2+xEtaD*2.);            
-          xEtaD = xEtaD + 0.250;
-        }  
+      if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
+        if(std::abs(xEtaD) > 20.440)e1_current=0.;
+        if(std::abs(xEtaD)< 20.440 && std::abs(xEtaD)> 20.200){
+          if(xEtaD>0){
+            e1_current=e1_current*(68.13-xEtaD*3.333);            
+            xEtaD = xEtaD - 0.250;
+          }else{  
+            e1_current=e1_current*(68.13+xEtaD*3.333);            
+            xEtaD = xEtaD + 0.250;
+          }  
+        }
+        if(std::abs(xEtaD)< 20.200 && std::abs(xEtaD)> 20.100){
+          if(xEtaD>0){
+            e1_current=e1_current*(41.2-xEtaD*2.);             
+            xEtaD = xEtaD - 0.250;
+          }else{  
+            e1_current=e1_current*(41.2+xEtaD*2.);            
+            xEtaD = xEtaD + 0.250;
+          }  
+        }
       }
 
       // Get the charge position in Reconstruction local coordinates.
       SiLocalPosition chargePos = Module.hitLocalToLocal(xEtaD, xPhiD);
 
       // The parametrization of the sensor efficiency (if needed)
-      // double ed=e1*this->electronHolePairsPerEnergy;
       double ed=e1_current*eleholePairEnergy;
 
       //The following lines are adapted from SiDigitization's Inserter class
@@ -306,13 +287,12 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit, Si
       if (diode.isValid()) {
         chargedDiodes.add(diode,charge);
       }
-    }                 
+    }									
   }
   return StatusCode::SUCCESS;
 }
 
-void IblPlanarBichselChargeTool::simulateBow(const InDetDD::SiDetectorElement * element,
-    double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
+void PixelPlanarChargeTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
 
   // The corrections are assumed to be in the reconstruction local frame, so
   // we must convertfrom the hit local frame to the  reconstruction local frame.
@@ -321,9 +301,7 @@ void IblPlanarBichselChargeTool::simulateBow(const InDetDD::SiDetectorElement * 
 
   // If tool is NONE we apply no correction.
   if (m_pixDistoTool.empty()) return;
-  Amg::Vector3D dir(element->hitPhiDirection() * (xf - xi),
-      element->hitEtaDirection() * (yf - yi),
-      element->hitDepthDirection() * (zf - zi));
+  Amg::Vector3D dir(element->hitPhiDirection()*(xf-xi), element->hitEtaDirection()*(yf-yi), element->hitDepthDirection()*(zf-zi));
 
   Amg::Vector2D locposi = element->hitLocalToLocal(yi, xi);
   Amg::Vector2D locposf = element->hitLocalToLocal(yf, xf);
@@ -337,6 +315,5 @@ void IblPlanarBichselChargeTool::simulateBow(const InDetDD::SiDetectorElement * 
 
   xf = newLocposf[Trk::x] * element->hitPhiDirection();
   yf = newLocposf[Trk::y] * element->hitEtaDirection();
-
 }
 
