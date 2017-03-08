@@ -105,18 +105,23 @@ StatusCode MagField::ForwardRegionFieldSvc::initialize()
   return StatusCode::SUCCESS;
 }
 
-// Query the interfaces - no idea what this is - TODO: find out
+// Query the interfaces
 StatusCode MagField::ForwardRegionFieldSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
   if(IIncidentListener::interfaceID().versionMatch(riid))
     {
       *ppvInterface = dynamic_cast<IIncidentListener*>(this);
     }
+  else if(IMagFieldSvc::interfaceID().versionMatch(riid))
+    {
+      *ppvInterface = dynamic_cast<IMagFieldSvc*>(this);
+    }
   else
     {
      // Interface is not directly available: try out a base class
-      return Service::queryInterface(riid, ppvInterface);
+      return AthService::queryInterface(riid, ppvInterface);
     }
+  addRef();
   return StatusCode::SUCCESS;
 }
 
