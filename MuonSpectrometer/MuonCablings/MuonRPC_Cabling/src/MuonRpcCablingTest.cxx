@@ -120,7 +120,6 @@ MuonRpcCablingTest::execute()
     first = false;
     std::ofstream fout("RPC_Mapping.dump");
     
-    MsgStream exe_log(messageService(), name());
     msg() << MSG::INFO << "Executing" << endmsg;
 
     m_padHashIdHelper = m_cablingSvc->padHashFunction();
