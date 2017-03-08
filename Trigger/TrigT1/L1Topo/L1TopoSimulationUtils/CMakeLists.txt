@@ -6,19 +6,12 @@
 atlas_subdir( L1TopoSimulationUtils )
 
 # Trigger dependencies
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TrigT1/L1Topo/L1TopoEvent )
-
-# External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Trigger/TrigT1/L1Topo/L1TopoEvent )
 
 # Component(s) in the package:
 atlas_add_library( L1TopoSimulationUtils
-                   Root/*.cxx
-                   PUBLIC_HEADERS L1TopoSimulationUtils
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} )
-
-
-
-
+   L1TopoSimulationUtils/*.h Root/*.cxx
+   PUBLIC_HEADERS L1TopoSimulationUtils
+   LINK_LIBRARIES L1TopoEvent )

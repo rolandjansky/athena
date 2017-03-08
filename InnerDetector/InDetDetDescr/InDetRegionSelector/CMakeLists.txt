@@ -27,7 +27,7 @@ atlas_add_component( InDetRegionSelector
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps RegSelLUT GaudiKernel SCT_CablingLib Identifier InDetIdentifier InDetReadoutGeometry )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps RegSelLUT GaudiKernel SCT_CablingLib Identifier InDetIdentifier InDetReadoutGeometry PixelCablingLib )
 
 # Install files from the package:
 atlas_install_headers( InDetRegionSelector )
