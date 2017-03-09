@@ -470,20 +470,22 @@ pdr.flag_domain('admin')
 # one print every 100 event
 topSequence+=EventCounter(Frequency=100)
 
-
 #Temporary: Schedule conversion algorithm for EventInfo object:
 # Note that we need to check whether the HLT already added this algorithm to the
 # algorithm sequence!
 #FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
+from AthenaCommon.AlgSequence import AthSequencer
+beginSeq = AthSequencer("AthBeginSeq")
+
 if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
         ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
+    beginSeq+=xAODMaker__EventInfoCnvAlg()
     pass
 
 # Conditions data access infrastructure for serial and MT Athena
 from IOVSvc.IOVSvcConf import CondInputLoader
-topSequence += CondInputLoader( "CondInputLoader")
+beginSeq += CondInputLoader( "CondInputLoader")
 
 import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
