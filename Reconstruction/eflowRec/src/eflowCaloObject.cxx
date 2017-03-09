@@ -20,8 +20,8 @@ CREATED:  22nd November, 2004
 #include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 
-std::unique_ptr<xAOD::CaloClusterContainer> eflowCaloObject::m_clusterContainerPtr;
-std::unique_ptr<xAOD::CaloClusterAuxContainer> eflowCaloObject::m_clusterAuxContainerPtr;
+xAOD::CaloClusterContainer* eflowCaloObject::m_clusterContainerPtr = 0;
+xAOD::CaloClusterAuxContainer* eflowCaloObject::m_clusterAuxContainerPtr = 0;
 
 eflowCaloObject::~eflowCaloObject() { }
 

@@ -220,22 +220,16 @@ StatusCode eflowPreparation::execute() {
 
 /////////////////////////////////////////////////////////////////
 void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, std::map<IdentifierHash,double>& cellsWeight) {
-  /* Retrieve the CaloCal cluster container */
-  const xAOD::CaloClusterContainer* CaloCalClusterContainer = m_caloCalClusterReadHandle.cptr();
-
-  if (!CaloCalClusterContainer) {
-    msg(MSG::WARNING) << "Can not retrieve xAOD::CaloCalClusterContainer with name: " << m_caloCalClusterReadHandle.key() << endmsg;
-    return;
-  }
   
   /* match CaloCluster with CaloCalCluster to obtain cell weight */
   /* first try the position at 'index'. If we are lucky, the loop can be avoided. */
-  const xAOD::CaloCluster* matchedCalCluster = CaloCalClusterContainer->at(index);
+  /* Note the read handle has been tested to be valid prior to the call of this function */
+  const xAOD::CaloCluster* matchedCalCluster = m_caloCalClusterReadHandle->at(index);
   if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
     matchedCalCluster = 0;
-    for (unsigned iCalCalCluster = 0; iCalCalCluster < CaloCalClusterContainer->size();
+    for (unsigned iCalCalCluster = 0; iCalCalCluster < m_caloCalClusterReadHandle->size();
         ++iCalCalCluster) {
-      matchedCalCluster = CaloCalClusterContainer->at(iCalCalCluster);
+      matchedCalCluster = m_caloCalClusterReadHandle->at(iCalCalCluster);
       if (fabs(energy - matchedCalCluster->rawE()) < 0.001) {
         break;
       }
@@ -260,29 +254,28 @@ void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, st
 
 StatusCode eflowPreparation::makeClusterContainer() {
 
-  const xAOD::CaloClusterContainer* thisCaloClusterContainer = m_caloClusterReadHandle.cptr();
-
-  if (!thisCaloClusterContainer){
+  /* Verify the read handle has a valid pointer, and if not return */
+  if (!m_caloClusterReadHandle.isValid()){
     msg(MSG::WARNING) << " Can not retrieve xAOD::CaloClusterContainer with name: " <<  m_caloClusterReadHandle.key()  << endmsg;
     return StatusCode::SUCCESS;
   }
   
   /* Fill the vector of eflowRecClusters */
-  unsigned int nClusters = thisCaloClusterContainer->size();
+  unsigned int nClusters = m_caloClusterReadHandle->size();
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
     /* Create the eflowRecCluster and put it in the container */
-    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = CxxUtils::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*thisCaloClusterContainer, iCluster));
+    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = CxxUtils::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*m_caloClusterReadHandle, iCluster));
     
     if (m_caloCalClusterReadHandle.isValid()){
       std::map<IdentifierHash,double> cellsWeightMap;
-      retrieveLCCalCellWeight(thisCaloClusterContainer->at(iCluster)->e(), iCluster, cellsWeightMap);
+      retrieveLCCalCellWeight(m_caloClusterReadHandle->at(iCluster)->e(), iCluster, cellsWeightMap);
 
       if (msgLvl(MSG::DEBUG)) {
         //zhangr
         std::map<IdentifierHash, double>::iterator it = cellsWeightMap.begin();
         for (; it != cellsWeightMap.end(); ++it) {
            msg(MSG::DEBUG) << "zhangrui eflowPreparation " << iCluster << "/" << nClusters << ": e="
-                    << thisCaloClusterContainer->at(iCluster)->e() << " (" << it->first << "  "
+                    << m_caloClusterReadHandle->at(iCluster)->e() << " (" << it->first << "  "
                     << it->second << ")" << endmsg;
         }
       }
@@ -293,7 +286,7 @@ StatusCode eflowPreparation::makeClusterContainer() {
     m_eflowRecClusterContainerWriteHandle->push_back(std::move(thisEFRecCluster));
 
     if (msgLvl(MSG::DEBUG)) {
-      const xAOD::CaloCluster* thisCluster = thisCaloClusterContainer->at(iCluster);
+      const xAOD::CaloCluster* thisCluster = m_caloClusterReadHandle->at(iCluster);
       msg(MSG::DEBUG) << "eflowPreparation clus = " << thisCluster->eta() << " "
 		      << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()) << " " << endmsg;
     }
@@ -303,19 +296,18 @@ StatusCode eflowPreparation::makeClusterContainer() {
 }
 
 StatusCode eflowPreparation::makeTrackContainer() {
-  /* Retrieve xAOD::TrackParticle Container, return 'failure' if not existing */
-  const xAOD::TrackParticleContainer* trackContainer =  m_trackReadHandle.cptr();
 
-  if (!trackContainer){
+  /* Verify the read handle has a valid pointer, and if not return */
+  if (!m_trackReadHandle.isValid()){
     if (msgLvl(MSG::WARNING)) { msg(MSG::WARNING) << "Can not retrieve xAOD::TrackParticleContainer with name: " << m_trackReadHandle.key() << endmsg; }
     return StatusCode::FAILURE;
   }
 
   /* Do the track selection for tracks to be used in all of the following steps: */
   /* TODO (tuning): Check if resize(0) might be faster than clear() */
-  xAOD::TrackParticleContainer::const_iterator itTrackParticle = trackContainer->begin();
+  xAOD::TrackParticleContainer::const_iterator itTrackParticle = m_trackReadHandle->begin();
   int trackIndex = 0;
-  for (; itTrackParticle != trackContainer->end(); ++itTrackParticle, ++trackIndex) {
+  for (; itTrackParticle != m_trackReadHandle->end(); ++itTrackParticle, ++trackIndex) {
     const xAOD::TrackParticle* track = (*itTrackParticle);
     if (!track) continue; // TODO: Print a WARNING here!
 
@@ -329,7 +321,7 @@ StatusCode eflowPreparation::makeTrackContainer() {
 
     if (!rejectTrack) {
       /* Create the eflowRecCluster and put it in the container */
-      std::unique_ptr<eflowRecTrack> thisEFRecTrack  = CxxUtils::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*trackContainer, trackIndex), m_theTrackExtrapolatorTool);
+      std::unique_ptr<eflowRecTrack> thisEFRecTrack  = CxxUtils::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*m_trackReadHandle, trackIndex), m_theTrackExtrapolatorTool);
       thisEFRecTrack->setTrackId(trackIndex);
       m_eflowRecTrackContainerWriteHandle->push_back(std::move(thisEFRecTrack));
     }

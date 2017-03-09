@@ -68,11 +68,12 @@ public:
   std::vector<eflowTrackClusterLink*> efRecLink() { return m_trackClusterLinks; }
   void clearLinks() { m_trackClusterLinks.clear(); }
 
-  /* Static container accessors */
+  /* Sets up static container of CaloClusters. This function does not own the objects,
+     but eventually Storegate takes ownership via calls to getClusterContainerPtr etc in eflowObjectBuilder.cxx  */
   static void setClusterContainerPtr(xAOD::CaloClusterContainer* clusCont, xAOD::CaloClusterAuxContainer* auxCont) {
-    m_clusterContainerPtr = std::unique_ptr<xAOD::CaloClusterContainer>(clusCont);
-    m_clusterAuxContainerPtr = std::unique_ptr<xAOD::CaloClusterAuxContainer>(auxCont);
-    m_clusterContainerPtr->setStore(m_clusterAuxContainerPtr.get());
+     m_clusterContainerPtr = clusCont;
+     m_clusterAuxContainerPtr = auxCont;
+     m_clusterContainerPtr->setStore(m_clusterAuxContainerPtr);
   }
 
   /* Calculate total tracks energy, total tracks energy variance, total cluster energy for subtraction */
@@ -82,8 +83,8 @@ public:
 
   void simulateShower(eflowLayerIntegrator *integrator, eflowEEtaBinnedParameters* binnedParameters, bool useUpdated2015ChargedShowerSubtraction);
 
-  static xAOD::CaloClusterContainer* getClusterContainerPtr() { return m_clusterContainerPtr.get();}
-  static xAOD::CaloClusterAuxContainer* getClusterAuxContainerPtr() { return m_clusterAuxContainerPtr.get();}
+  static xAOD::CaloClusterContainer* getClusterContainerPtr() { return m_clusterContainerPtr;}
+  static xAOD::CaloClusterAuxContainer* getClusterAuxContainerPtr() { return m_clusterAuxContainerPtr;}
 
 private:
 
@@ -100,8 +101,8 @@ private:
   std::vector<eflowRecTrack*> m_eflowRecTracks;
 
   /* Containers of CaloClusters */
-  static std::unique_ptr<xAOD::CaloClusterContainer> m_clusterContainerPtr;
-  static std::unique_ptr<xAOD::CaloClusterAuxContainer> m_clusterAuxContainerPtr;
+  static xAOD::CaloClusterContainer* m_clusterContainerPtr;
+  static xAOD::CaloClusterAuxContainer* m_clusterAuxContainerPtr;
   
 };
 
