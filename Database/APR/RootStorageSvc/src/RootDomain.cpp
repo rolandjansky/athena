@@ -8,7 +8,6 @@
 //
 //        Author     : M.Frank
 //====================================================================
-#define POOL_ROOTDOMAIN_CPP 1
 
 // Framework include files
 #include "POOLCore/strcasecmp.h"
@@ -89,6 +88,16 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
         DbStatus sc = opt._getValue(val);
         if ( sc.isSuccess() )  {
           TFile::SetReadStreamerInfo(val != 0 ? kTRUE : kFALSE);
+        }
+        return sc;
+      }
+      break;
+    case 'M':
+      if( !strcasecmp(n, "MultiThreaded") )  {
+        bool multithreaded = false;
+        DbStatus sc = opt._getValue(multithreaded);
+        if( sc.isSuccess() && multithreaded )  {
+           ROOT::EnableThreadSafety();
         }
         return sc;
       }
