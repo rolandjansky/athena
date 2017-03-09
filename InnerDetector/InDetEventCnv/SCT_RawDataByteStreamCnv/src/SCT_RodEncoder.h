@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 /**
  *      @header file for SCT_RodEncoder Class
  *      This class provides conversion from SCT RDO to ROD format ByteStream.
