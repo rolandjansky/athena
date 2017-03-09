@@ -67,8 +67,6 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
 {
   declareInterface<ITRT_ElectronPidTool>(this);
   declareInterface<ITRT_ElectronToTTool>(this);
-  //  template for property declaration
-  //declareProperty("PropertyName", m_propertyName);
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
   declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
   declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);

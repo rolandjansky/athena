@@ -62,8 +62,6 @@ InDet::TRT_ElectronPidTool::TRT_ElectronPidTool(const std::string& t,
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  // m_log(msgSvc(),n),    // Exchange OUT
-  // m_idHelper(0),
   m_trtId(nullptr),
   m_TRTdetMgr(nullptr),
   m_minTRThits(5),
@@ -75,10 +73,6 @@ InDet::TRT_ElectronPidTool::TRT_ElectronPidTool(const std::string& t,
 {
   declareInterface<ITRT_ElectronPidTool>(this);
   declareInterface<ITRT_ElectronToTTool>(this);
-
-  //  template for property decalration
-  //declareProperty("PropertyName", m_propertyName);
-
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
   declareProperty("BremfitterEnabled", m_bremFitterEnabled);
   declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
@@ -114,7 +108,6 @@ StatusCode InDet::TRT_ElectronPidTool::initialize()
   CHECK(detStore()->retrieve(m_trtId, "TRT_ID"));
 
   // Register callback function for cache updates - HT:
-  //const DataHandle<CondAttrListCollection> aptr;
   const DataHandle<AthenaAttributeList> aptr;
   if (StatusCode::SUCCESS == detStore()->regFcn(&InDet::TRT_ElectronPidTool::update,this, aptr, "/TRT/Calib/PIDver_New" )) {
     ATH_MSG_DEBUG ("Registered callback for TRT_ElectronPidTool - HT.");
