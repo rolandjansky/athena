@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
  #=======================================================================
 # File:   FastSimulationConfig/python/FastSimulationFlags.py
@@ -23,7 +23,6 @@ __doc__="Fast simulation specific flags . "
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 
 from CaloRec.CaloCellFlags import jobproperties
-import FatrasExample.FatrasKeys # noqa: F401
 
 class JobPropertyWithForward(JobProperty):
     """ special flag class that forwards a set to true or false to other properties
@@ -246,11 +245,6 @@ jobproperties.FastSimulation.doFastCaloSimCaloNoise.AlwaysForward=True
 jobproperties.FastSimulation.doFastCaloSimCaloAddCells._forwardProperties=[jobproperties.CaloCellFlags.doFastCaloSimAddCells]
 jobproperties.FastSimulation.doFastCaloSimCaloAddCells.AlwaysForward=True
 
-jobproperties.FastSimulation.FatrasID_InputMcEventCollection._forwardProperties=[jobproperties.FatrasKeys.InputMcEventCollection]
-jobproperties.FastSimulation.FatrasID_InputMcEventCollection.AlwaysForward=True
-
-jobproperties.FastSimulation.FatrasID_OutputMcEventCollection._forwardProperties=[jobproperties.FatrasKeys.McEventCollection,jobproperties.FastSimulation.FastCaloSim_InputMcEventCollection]
-jobproperties.FastSimulation.FatrasID_OutputMcEventCollection.AlwaysForward=True
 
 
 #=======================================================================
