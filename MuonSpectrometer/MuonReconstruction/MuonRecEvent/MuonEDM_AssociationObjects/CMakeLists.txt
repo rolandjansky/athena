@@ -22,5 +22,4 @@ atlas_add_library( MuonEDM_AssociationObjects
 atlas_add_dictionary( MuonEDM_AssociationObjectsDict
                       MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h
                       MuonEDM_AssociationObjects/selection.xml
-                      INCLUDE_DIRS
                       LINK_LIBRARIES AthLinks SGTools MuonPattern MuonSegment)
