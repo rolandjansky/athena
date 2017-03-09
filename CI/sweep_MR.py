@@ -136,7 +136,7 @@ def cherry_pick_mr(merge_commit,source_branch,target_branches,remote_name,projec
         logging.debug("cherry-pick '%s' into '%s'",merge_commit,remote_branch)
         git_cmds = ["git checkout -f -b {0} {1} --no-track".format(cherry_pick_branch,remote_branch),
                     "git cherry-pick --allow-empty -m 1 {0}".format(merge_commit),
-                    "git push origin {0}".format(cherry_pick_branch)]
+                    "git push {0} {1}".format(remote_name,cherry_pick_branch)]
 
         # perform the actual cherry-pick
         for cmd in git_cmds:
@@ -175,9 +175,8 @@ def cherry_pick_mr(merge_commit,source_branch,target_branches,remote_name,projec
     
 def main():
     parser = argparse.ArgumentParser(description="GitLab merge request commentator",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-b","--branch",required=True,help="git branch whose merge commits should be swept (e.g. origin/master)")
+    parser.add_argument("-b","--branch",required=True,help="remote branch whose merge commits should be swept (e.g. origin/master)")
     parser.add_argument("-p","--project-name",dest="project_name",required=True,help="GitLab project with namespace (e.g. user/my-project)")
-    parser.add_argument("-r","--remote",default="origin",help="name of remote repository as printed by git-remote (e.g. origin)")
     parser.add_argument("-s","--since",default="1 day",help="time interval for sweeping MR (e.g. 1 week)")
     parser.add_argument("-t","--token",required=True,help="private GitLab user token")
     parser.add_argument("-u","--url",default="https://gitlab.cern.ch",help="URL of GitLab instance")
@@ -194,6 +193,20 @@ def main():
 
     logging.debug("parsed arguments:\n" + repr(args))
 
+    # we only support porting merge commits from remote branches since we expect
+    # them to be created through the Gitlab web interface
+    # -> branch must contain the name of the remote repository (e.g. upstream/master)
+    # -> infer it
+    tokens = args.branch.split('/')
+    if len(tokens) < 2:
+        logging.critical("expect branch to specify a remote branch (e.g. 'upstream/master')")
+        logging.critical("received branch '%s' which does not look like a remote branch",args.branch)
+        logging.critical("--> aborting")
+        sys.exit(1)
+
+    # set name of remote repository
+    args.remote_name = tokens[0]
+    
     # get GitLab API handler
     gl = gitlab.Gitlab(args.url,args.token)
     try:
@@ -215,9 +228,9 @@ def main():
     os.chdir(workdir)
 
     # fetch latest changes
-    status,_,_ = execute_command_with_retry("git fetch --prune {0}".format(args.remote))
+    status,_,_ = execute_command_with_retry("git fetch --prune {0}".format(args.remote_name))
     if status != 0:
-        logging.critical("failed to fetch from '%s'",args.remote)
+        logging.critical("failed to fetch from '%s'",args.remote_name)
         return None
 
     # get list of branches MRs should be forwarded to
@@ -234,7 +247,7 @@ def main():
 
     # do the actual cherry-picking
     for mr in MR_list:
-        cherry_pick_mr(mr,args.branch,target_branches,args.remote,project)
+        cherry_pick_mr(mr,args.branch,target_branches,args.remote_name,project)
     # change back to initial directory
     os.chdir(current_dir)
 
