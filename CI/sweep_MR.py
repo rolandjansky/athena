@@ -147,7 +147,7 @@ def cherry_pick_mr(merge_commit,source_branch,target_branches,remote_name,projec
             
         # clean up local cherry-pick branch
         # if it fails, do not panic
-        execute_command_with_retry("git checkout -f {0} && git branch -D {1}".format(HEAD,cherry_pick_branch))
+        execute_command_with_retry("git reset --hard {0} && git branch -D {1} && git clean -fdx".format(HEAD,cherry_pick_branch))
         
         if failed:
             logging.critical("failed to cherry-pick '%s' into '%s'",merge_commit,branch)
