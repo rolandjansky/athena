@@ -23,19 +23,19 @@ namespace LArBadChanImpl {
     typedef combined_ordered_iterator< typename Cont::const_iterator, CMP>     iterator;
     typedef combined_ordered_iterator< typename Cont::const_iterator, CMP>     const_iterator;
 
-    combined_ordered_container( const Cont& c1, const Cont& c2) : c1_(c1), c2_(c2) {}
+    combined_ordered_container( const Cont& c1, const Cont& c2) : m_c1(c1), m_c2(c2) {}
 
-    //iterator begin() {return iterator( c1_.begin(), c1_.end(), c2_.begin(), c2_.end(), CMP());} 
-    const_iterator begin() const {return iterator( c1_.begin(), c1_.end(), 
-						   c2_.begin(), c2_.end(), CMP());} 
-    //iterator end() {return iterator( c1_.end(), c1_.end(), c2_.end(), c2_.end(), CMP());} 
-    const_iterator end() const {return iterator( c1_.end(), c1_.end(), 
-						 c2_.end(), c2_.end(), CMP());} 
+    //iterator begin() {return iterator( m_c1.begin(), m_c1.end(), m_c2.begin(), m_c2.end(), CMP());} 
+    const_iterator begin() const {return iterator( m_c1.begin(), m_c1.end(), 
+						   m_c2.begin(), m_c2.end(), CMP());} 
+    //iterator end() {return iterator( m_c1.end(), m_c1.end(), m_c2.end(), m_c2.end(), CMP());} 
+    const_iterator end() const {return iterator( m_c1.end(), m_c1.end(), 
+						 m_c2.end(), m_c2.end(), CMP());} 
 
   private:
 
-    const Cont& c1_;
-    const Cont& c2_;
+    const Cont& m_c1;
+    const Cont& m_c2;
 
   };
 
