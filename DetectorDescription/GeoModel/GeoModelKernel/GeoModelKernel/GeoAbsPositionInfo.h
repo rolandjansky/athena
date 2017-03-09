@@ -108,14 +108,14 @@ class GeoAbsPositionInfo
       //## Attribute: m_absTransform%3CDE5D7E0001
       //	The absolute transform from the world coord down to this
       //	positioned object.
-      //## begin GeoAbsPositionInfo::m_absTransform%3CDE5D7E0001.attr preserve=no  private: HepGeom::Transform3D * {U} NULL
+      //## begin GeoAbsPositionInfo::m_absTransform%3CDE5D7E0001.attr preserve=no  private: HepGeom::Transform3D * {U} nullptr
       HepGeom::Transform3D *m_absTransform;
       //## end GeoAbsPositionInfo::m_absTransform%3CDE5D7E0001.attr
 
       //## Attribute: m_defAbsTransform%3CDE5D9202D1
       //	The default absolute transform from the world coord down
       //	to this positioned object.
-      //## begin GeoAbsPositionInfo::m_defAbsTransform%3CDE5D9202D1.attr preserve=no  private: HepGeom::Transform3D * {U} NULL
+      //## begin GeoAbsPositionInfo::m_defAbsTransform%3CDE5D9202D1.attr preserve=no  private: HepGeom::Transform3D * {U} nullptr
       HepGeom::Transform3D *m_defAbsTransform;
       //## end GeoAbsPositionInfo::m_defAbsTransform%3CDE5D9202D1.attr
 

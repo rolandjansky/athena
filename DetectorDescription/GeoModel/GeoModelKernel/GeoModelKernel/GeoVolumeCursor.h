@@ -26,7 +26,7 @@ class GeoVolumeCursor:public GeoNodeAction
       // Check if we are at the last volume.
       bool atEnd() const;
 
-      // Returns the selected physical volume or NULL if not found.
+      // Returns the selected physical volume or nullptr if not found.
       PVConstLink getVolume () const;
 
       // Returns the transformation to the volume.
