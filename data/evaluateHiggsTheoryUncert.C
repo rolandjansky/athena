@@ -63,7 +63,7 @@ char *per(double relDev) { return relDev?Form("%.2f%%",relDev*100):Form("N/A"); 
 char *per(double var, double nom) { return per((var-nom)/nom); }
 void evaluateHiggsTheoryUncert() {
   StrV prods({"ggF","VBF","WpH","WmH","ZH"});
-
+  gErrorIgnoreLevel=2001; // turn off those TCanvas print messages
   std::map<Str,TFile*> files;
   for (auto p:prods) files[p]=openFile(p+".root");
   // 0. Check the MC stats (how much is the stats effectively reduced due to nominal weight)
@@ -101,20 +101,6 @@ void evaluateHiggsTheoryUncert() {
     for (int i=1;i<=6;++i) qcdWG1.push_back(getHist(files[p],Form("pTH_wg1qcd%i",i))->Integral(0,-1));
     double pdf=addInQuadRel(pdfV,n), nnlops=addInQuadRel(qcd_nnlo2,n), wg1=addInQuadRel(qcdWG1,n);
     if (p!="ggF") wg1=0;
-    else {
-      for (auto q:qcd_nnlo) printf(" %s",per(q,n)); printf("\n");
-      for (auto q:qcd_nnlo2) printf(" %s",per(q,n)); printf("\n");
-      // These numbers have 1% stat uncertainty
-      // 10.16% 9.64% 9.83%   // dn,dn,F
-      // 8.78% 9.06% 9.50%    // dn,n,F
-      // 11.80% 9.59% 9.61%   // dn,u,F
-      /// 0.99% 0.52% 0.70%   // n,dn,F
-      // -0.24% 0.39%         // n,n,F
-      // 2.48% 0.48% 0.50%    // n,u,F
-      // -8.13% -8.54% -8.38% // u,d,F
-      // -9.20% -9.00% -8.65% // u,n,F
-      // -6.79% -8.58% -8.56% // u,u,F
-    }
     printf("%8s%10s%10s%10s%10s%10s%10s%10s\n",
 	   p.Data(),per(pdf),per(au,n),per(ad,n),
 	   per(envelopeRel(qcd,n)),per(envelopeRel(qcd_nnlo,n)),
