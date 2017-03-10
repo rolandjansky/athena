@@ -276,9 +276,10 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
                                                                   ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
 topSequence += InDetSiTrackerSpacePointFinder
 
-#from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinderMT_eGamma
-#theFTFMT = TrigFastTrackFinderMT_eGamma()
-#
-#topSequence += theFTFMT
+from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinderMT_eGamma
+theFTFMT = TrigFastTrackFinderMT_eGamma()
+theFTFMT.outputLevel=VERBOSE
+
+topSequence += theFTFMT
 
 
