@@ -29,12 +29,12 @@ FillAlignTrkInfo::FillAlignTrkInfo(const std::string& type, const std::string& n
 
 StatusCode FillAlignTrkInfo::initialize()
 {
-  msg(MSG::INFO) << "initialize()" << endreq;
+  msg(MSG::INFO) << "initialize()" << endmsg;
   if (m_TrackSummaryTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Cannot get TrackSummaryTool" << endreq;
+    msg(MSG::FATAL) << "Cannot get TrackSummaryTool" << endmsg;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << "finished initialize()" << endreq;
+  msg(MSG::INFO) << "finished initialize()" << endmsg;
   return StatusCode::SUCCESS ;
 }
 
@@ -55,7 +55,7 @@ bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
 //    (*output)[TRT::Track::t0] = it!=gTrkToTrkT0Map.end() ? it->second : 0 ;
     (*output)[TRT::Track::t0] = 0.0 ;
   } else {
-    msg(MSG::FATAL) << " Could not get Trk::Perigee " << endreq;
+    msg(MSG::FATAL) << " Could not get Trk::Perigee " << endmsg;
     (*output)[TRT::Track::d0]=0.0;
     (*output)[TRT::Track::z0]=0.0;
     (*output)[TRT::Track::phi]=0.0;
@@ -73,6 +73,6 @@ bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
   (*output)[TRT::Track::numberOfTRTHits]=summary->get(Trk::numberOfTRTHits) ;
 
   // All ok
-  if (msgLvl(MSG::DEBUG)) msg() << "Track info filled .... " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg() << "Track info filled .... " << endmsg;
   return true;
 }

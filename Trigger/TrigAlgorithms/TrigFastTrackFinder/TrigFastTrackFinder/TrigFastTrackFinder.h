@@ -118,8 +118,8 @@ protected:
   bool m_vertexSeededMode;
   bool m_doTrigInDetTrack;
   bool m_doZFinder;
-   bool m_doFTKZFinder;
-   bool m_doFTKFastVtxFinder;
+  bool m_doFTKZFinder;
+  bool m_doFTKFastVtxFinder;
   bool m_doFastZVseeding;
   bool m_doResMonitoring;
 

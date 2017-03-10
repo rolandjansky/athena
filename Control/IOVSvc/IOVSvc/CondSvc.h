@@ -32,17 +32,16 @@ public:
   virtual StatusCode regHandle(IAlgorithm* alg, const Gaudi::DataHandle& id, 
                                const std::string& key);
 
-  virtual bool getInvalidIDs(const EventContext*, DataObjIDColl& ids);
-  virtual bool getValidIDs(const EventContext*, DataObjIDColl& ids);
-  virtual bool getIDValidity(const EventContext*, DataObjIDColl& validIDs,
+  virtual bool getInvalidIDs(const EventContext&, DataObjIDColl& ids);
+  virtual bool getValidIDs(const EventContext&, DataObjIDColl& ids);
+  virtual bool getIDValidity(const EventContext&, DataObjIDColl& validIDs,
                              DataObjIDColl& invalidIDs);
-
-  virtual std::set<std::string> getUnchangedAlgs( const DataObjIDColl& );
-
-  virtual StatusCode getRange(const std::string&, const EventContext*, EventIDRange&, 
-                              ICondSvc::dbData_t&) const;
+  virtual bool isValidID(const EventContext&, const DataObjID&) const;
 
   virtual const std::set<IAlgorithm*>& condAlgs() const { return m_condAlgs; }
+
+  virtual bool isRegistered(const DataObjID&) const;
+  virtual const DataObjIDColl& conditionIDs() const;
 
   virtual void dump() const;
   virtual void dump(std::ostringstream&) const;
@@ -67,14 +66,7 @@ private:
     
   };
 
-  bool parse(EventIDRange& t, const std::string& s);
-  bool parse(IOVEntryT<ICondSvc::dbData_t>& t, const std::string& s);
-
-  StatusCode readDbFile(const std::string&);
-
   ServiceHandle<StoreGateSvc> m_sgs;
-
-  std::string m_file;
 
   typedef std::set<IAlgorithm*, iAlgHasher> IAlgHashSet;
   typedef std::map<DataObjID,   IAlgHashSet> id_map_t;
@@ -85,8 +77,7 @@ private:
   std::map<std::string, DataObjID> m_keyMap;
   std::set<IAlgorithm*> m_condAlgs;
 
-  typedef std::map<std::string, std::vector<IOVEntryT<ICondSvc::dbData_t>>> registry_t;
-  registry_t m_registry;
+  DataObjIDColl m_condIDs;
 
   mutable std::recursive_mutex m_lock;
 

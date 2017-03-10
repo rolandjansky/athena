@@ -5,45 +5,45 @@
 #include "GaudiKernel/MsgStream.h"
 #include "Identifier/Identifier.h"
 
-TrigL2HitResidual::TrigL2HitResidual(Identifier id, Region reg, 
+inline TrigL2HitResidual::TrigL2HitResidual(Identifier id, Region reg, 
 				     double phiR, double phiP) : 
   m_id(id), m_region(reg), m_phiRes(phiR), m_phiPull(phiP) {
 
   m_etaRes=0.0;m_etaPull=0.0;	
 }
 
-TrigL2HitResidual::TrigL2HitResidual(Identifier id, Region reg, 
+inline TrigL2HitResidual::TrigL2HitResidual(Identifier id, Region reg, 
 				     double phiR, double phiP, 
 				     double etaR, double etaP) : 
   m_id(id), m_region(reg), m_phiRes(phiR), m_phiPull(phiP), m_etaRes(etaR), m_etaPull(etaP) {
 
 }
 
-double TrigL2HitResidual::phiResidual() const {
+inline double TrigL2HitResidual::phiResidual() const {
   return m_phiRes;
 }
 
-double TrigL2HitResidual::etaResidual() const {
+inline double TrigL2HitResidual::etaResidual() const {
   return m_etaRes;
 }
 
-double TrigL2HitResidual::phiPull() const {
+inline double TrigL2HitResidual::phiPull() const {
   return m_phiPull;
 }
 
-double TrigL2HitResidual::etaPull() const {
+inline double TrigL2HitResidual::etaPull() const {
   return m_etaPull;
 }
 
-Identifier TrigL2HitResidual::identify() const {
+inline Identifier TrigL2HitResidual::identify() const {
   return m_id;
 }
 
-Region TrigL2HitResidual::regionId() const {
+inline Region TrigL2HitResidual::regionId() const {
   return m_region;
 }
 
-std::string str( const TrigL2HitResidual& v ) { 
+inline std::string str( const TrigL2HitResidual& v ) { 
 
   std::stringstream ss; 
   ss << "Residual: region "<< static_cast<std::uint8_t>(v.regionId())
@@ -54,7 +54,7 @@ std::string str( const TrigL2HitResidual& v ) {
   return ss.str();   
 } 
   
-MsgStream& operator<< ( MsgStream& m, const TrigL2HitResidual& v ) { 
+inline MsgStream& operator<< ( MsgStream& m, const TrigL2HitResidual& v ) { 
   m << str(v); 
   return m; 
 } 
