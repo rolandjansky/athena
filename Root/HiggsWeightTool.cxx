@@ -197,7 +197,7 @@ namespace xAOD {
     return hw;
   }
 
-  void HiggsWeightTool::updateWeight(HiggsWeights &hw) {
+  void HiggsWeightTool::updateWeights(HiggsWeights &hw) {
     
   }
 
