@@ -40,7 +40,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
 {
   ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
   if ((p_jobOptionsSvc.retrieve()).isFailure()) {
-    msg() << MSG::WARNING << "Could not find JobOptionsSvc to set DataFlow properties" << endreq;
+    msg() << MSG::WARNING << "Could not find JobOptionsSvc to set DataFlow properties" << endmsg;
   } else {
     // get the list of enabled ROBs from OKS
     const Property* pprob=Gaudi::Utils::getProperty( p_jobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_ROB_IDs");
@@ -48,9 +48,9 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
       if (m_enabledROBs.assign(*pprob)) {
         //robOKSconfigFound = true;
         msg() << MSG::DEBUG << " ---> Read from DataFlow configuration: " << m_enabledROBs.value().size()
-              << " enabled ROB IDs." << endreq;
+              << " enabled ROB IDs." << endmsg;
       } else {
-        msg() << MSG::WARNING << "Could not set Property '" << pprob->name() << "' from DataFlow." << endreq;
+        msg() << MSG::WARNING << "Could not set Property '" << pprob->name() << "' from DataFlow." << endmsg;
       }
     }
     // get the list of enabled Sub Detectors from OKS
@@ -59,16 +59,16 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
       if (m_enabledSubDetectors.assign(*ppsd)) {
         //subDetOKSconfigFound  = true;
         msg() << MSG::DEBUG << " ---> Read from DataFlow configuration: " << m_enabledSubDetectors.value().size()
-              << " enabled Sub Detector IDs." << endreq;
+              << " enabled Sub Detector IDs." << endmsg;
       } else {
-        msg() << MSG::WARNING << "Could not set Property '" << ppsd->name() << "' from DataFlow." << endreq;
+        msg() << MSG::WARNING << "Could not set Property '" << ppsd->name() << "' from DataFlow." << endmsg;
       }
     } 
   }
 
   // The RegionSelector is being retrieved here
   if( (m_regionSelector.retrieve()).isFailure() ) {
-    msg() << MSG::FATAL << "Unable to retrieve RegionSelector Service" << endreq;
+    msg() << MSG::FATAL << "Unable to retrieve RegionSelector Service" << endmsg;
     return HLT::TOOL_FAILURE;
   }
 
@@ -276,13 +276,13 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
   if (do_RPC)     m_detectors.push_back(RPC);
   if (do_TGC)     m_detectors.push_back(TGC);
 
-  msg() << MSG::INFO << "Selected subdetectors = ";
+  msg() << MSG::INFO << "Selected "<< m_detectors.size() << " subdetectors = ";
   for (std::vector<DETID>::const_iterator det = m_detectors.begin(); 
        det != m_detectors.end(); det++) msg() << *det << " ";
-  msg() << endreq;
+  msg() << endmsg;
 
   if ( service("THistSvc", m_thistSvc).isFailure() ) {
-      msg() << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endreq;
+      msg() << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endmsg;
       return HLT::BAD_JOB_SETUP;
   }
 
@@ -386,7 +386,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltBeginRun()
   
     /// Now setup all the histograms!
   if ( this->bookMonitoringHistograms().isFailure() ) {
-    msg() << MSG::WARNING << "Histogram booking error. Issuing HLT::BAD_JOB_SETUP" << endreq;
+    msg() << MSG::WARNING << "Histogram booking error. Issuing HLT::BAD_JOB_SETUP" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
   
@@ -455,7 +455,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltBeginRun()
 StatusCode TrigSubDetListWriter::bookMonitoringHistograms()
 {
   /// Say hello
-  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Now trying to register standard monitoring histograms" << endreq;
+  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Now trying to register standard monitoring histograms" << endmsg;
   /*m_httemrob = bookAndRegisterTH1I("RobIdTTEM", m_outputpath,m_ttemrange.size() ,0,m_ttemrange.size() );
   m_htthecrob = bookAndRegisterTH1I("RobIdTTHEC", m_outputpath,m_tthecrange.size() ,0,m_tthecrange.size() );
   m_hfcalrob = bookAndRegisterTH1I("RobIdFcal", m_outputpath,m_fcalrange.size() ,0,m_fcalrange.size() );
@@ -480,7 +480,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltExecute(std::vector<std::vector<HLT::Tri
 
   if (m_useCachedResult) {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Executing this Partial event " << name() << " in cached mode" << endreq;
+      msg() << MSG::DEBUG << "Executing this Partial event " << name() << " in cached mode" << endmsg;
     }
   }
 
@@ -502,9 +502,9 @@ HLT::ErrorCode TrigSubDetListWriter::hltExecute(std::vector<std::vector<HLT::Tri
 
 
   if (msgLvl(MSG::DEBUG)) {
-      msg() << MSG::DEBUG << "Executing this TrigSubDetListWriter " << name() << endreq;
+      msg() << MSG::DEBUG << "Executing this TrigSubDetListWriter " << name() << endmsg;
       if (m_maxRoIsPerEvent > -1) msg() << " RoI " << m_nRoIs << "/" << m_maxRoIsPerEvent;
-      msg() << endreq;
+      msg() << endmsg;
   }
   
   if (m_maxRoIsPerEvent > -1 && m_nRoIs > m_maxRoIsPerEvent) {
@@ -523,7 +523,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltExecute(std::vector<std::vector<HLT::Tri
   // create new partial EB directive
   PartialEventBuildingInfo* pebInfo = config()->getPEBI();
   if(!pebInfo){
-    msg() << MSG::DEBUG << "*** Not Executing this TrigSubDetListWriter " << name() << ", not a calib chain" << endreq;
+    msg() << MSG::DEBUG << "*** Not Executing this TrigSubDetListWriter " << name() << ", not a calib chain" << endmsg;
     return HLT::OK;
   }
   /*PartialEventBuildingInfo* pebInfo = 0;
@@ -537,7 +537,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltExecute(std::vector<std::vector<HLT::Tri
   // now add ROBs
   status = fillPEBInfo(*pebInfo);
   if(status!=HLT::OK){
-    msg() << MSG::DEBUG << "No ROB info for partial event building" << endreq;
+    msg() << MSG::DEBUG << "No ROB info for partial event building" << endmsg;
     return status;
   }
   HLT::TriggerElement* te = addRoI(te_out,roIDescriptor);
@@ -596,7 +596,7 @@ HLT::ErrorCode TrigSubDetListWriter::fillPEBInfo(PartialEventBuildingInfo& pebIn
     //allROBs.insert(allROBs.end(), detectorROBs.begin(), detectorROBs.end());
     //msg() << MSG::DEBUG << "ROBs for detector " << *detector << " : ";
     //for (unsigned int i = 0; i < detectorROBs.size(); i++) msg() << "0x" << std::hex << detectorROBs[i] << std::dec << " ";
-    //msg() << endreq;
+    //msg() << endmsg;
     switch (*detector) {
       case PIXEL:
         //for(unsigned int i=0; i<detectorROBs.size(); i++) m_hpixrob->Fill(m_robidmap[detectorROBs[i]]);
@@ -642,7 +642,7 @@ HLT::ErrorCode TrigSubDetListWriter::fillPEBInfo(PartialEventBuildingInfo& pebIn
         ATH_MSG_DEBUG("Muon detectors not yet implemented");
         break;
       default:
-        msg() << MSG::WARNING << "unknown detector type requested " << endreq;
+        msg() << MSG::WARNING << "unknown detector type requested " << endmsg;
      }
 
   }
@@ -675,7 +675,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltEndEvent()
 TH1I* TrigSubDetListWriter::bookAndRegisterTH1I(const char* name, std::string outpath, int nBins, int minX, int maxX)
 {
   TH1I* h = new TH1I(name,name,nBins,minX,maxX);
-  if (m_thistSvc->regHist(outpath + h->GetName(), h).isFailure()) msg() << MSG::WARNING << "Can't book " << outpath + h->GetName() << endreq;
+  if (m_thistSvc->regHist(outpath + h->GetName(), h).isFailure()) msg() << MSG::WARNING << "Can't book " << outpath + h->GetName() << endmsg;
 
   return h;
 }
