@@ -16,7 +16,8 @@ namespace xAOD {
     // wether to put constraints on the weights
     declareProperty("RequireFinite", m_requireFinite=false);
     declareProperty("WeightCutOff", m_weightCutOff=-1.0);
-
+    if (m_weightCutOff>0) m_cutOff=true;
+    
     // Force modes
     declareProperty("ForceNNLOPS", m_forceNNLOPS=false); // Run2-default Powheg NNLOPS ggF
     declareProperty("ForceVBF",    m_forceVBF=false);    // Run2-default Powheg VBF
@@ -201,14 +202,23 @@ namespace xAOD {
     updateWeight(hw.nominal,hw.nominal);
     updateWeights(hw.nominal,hw.weight0,hw.alphaS_up,hw.alphaS_dn);
     updateWeights(hw.nominal,hw.pdf4lhc_unc); updateWeights(hw.nominal,hw.nnpdf30_unc);    
+    updateWeights(hw.nominal,hw.qcd); updateWeights(hw.nominal,qcd_nnlops);    
+    updateWeights(hw.nominal,hw.mt_inf,hw.mb_minlo);
+    updateWeights(hw.nominal,hw.nnpdf30_nlo,hw.nnpdf30_nnlo,hw.mmht2014nlo);
+    updateWeights(hw.nominal,hw.pdf4lhc_nlo,hw.pdf4lhc_nnlo);
+    updateWeights(hw.nominal,hw.ct10nlo,hw.ct10nlo_0118);
+    updateWeights(hw.nominal,hw.ct14nlo,hw.ct14nlo_0118);
+    updateWeights(hw.nominal,hw.qcd_wg1_mu,hw.qcd_wg1_res);
+    updateWeights(hw.nominal,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12);
+    updateWeights(hw.nominal,hw.qcd_wg1_pTH,hw.qcd_wg1_qm);
+    updateWeights(hw.nominal,hw.qcd_nnlops_nnlo,hw.qcd_nnlops_pow);
   }
 
   void HiggsWeightTool::updateWeight(const double &w_nom, double &w) {
-    
+    if (m_requireFinite&&!std::isfinite(w)) { w=w_nom;
+    if (m_cutOff&&w>m_weightCutOff) w=m_weighCutOff;
+    if (m_cutOff&&w<-m_weightCutOff) w=-m_weighCutOff;
   }
-
-
-  
   
   /// Access MC weight for uncertainty propagation
   /// Note: input kinematics should be HTXS_Higgs_pt, HTXS_Njets_pTjet30, and HTXS_Stage1_Category_pTjet30
