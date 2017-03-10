@@ -11,7 +11,7 @@ namespace xAOD {
   HiggsWeightTool::HiggsWeightTool( const std::string& name )
     : asg::AsgTool(name), m_init(false), m_Nweights(0), m_mcID(999),
       //m_weightTool("xAOD::TruthWeightTool/TruthWeightTool"),
-      m_weightTool(nullptr) {
+      m_weightTool(nullptr), m_cutOff(false) {
 
     // wether to put constraints on the weights
     declareProperty("RequireFinite", m_requireFinite=false);
@@ -198,7 +198,9 @@ namespace xAOD {
   }
 
   void HiggsWeightTool::updateWeights(HiggsWeights &hw) {
-    
+    updateWeight(hw.nominal,hw.nominal);
+    updateWeights(hw.nominal,{hw.weight0,hw.alphaS_up,alphaS_dn});
+    updateWeights(hw.nominal,hw.pdf4lhc_unc); updateWeights(hw.nominal,hw.nnpdf30_unc);    
   }
 
 

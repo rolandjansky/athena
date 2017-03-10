@@ -188,6 +188,7 @@ namespace xAOD {
 
     /// options
     bool m_requireFinite;
+    bool m_cutOff;
     double m_weightCutOff;
 
     /// For statistics
