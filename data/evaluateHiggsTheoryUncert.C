@@ -113,8 +113,8 @@ void evaluateHiggsTheoryUncert() {
   can->Print(pdf+"[");
 
   for (auto p:prods) {
+    TFile *f=files[p];
     for (TString var:{"pTH","Njets30","yH","STXS"}) {
-      TFile *f=files[p];
       auto nom=getHist(f,var);
       nom->SetName(p+var);
 
@@ -150,6 +150,11 @@ void evaluateHiggsTheoryUncert() {
       drawText(0.6,0.88,"QCD uncert.",kRed);
       can->Print(pdf);
     }
+    auto w1=getHist(f,"w_nom1");
+    auto w2=getHist(f,"w_nom2");
+    if (w1->GetMean()<10) w2->Draw();
+    else w1->Draw();
+    can->Print(pdf);
   }
   
   can->Print(pdf+"]");

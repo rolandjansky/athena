@@ -11,12 +11,13 @@ namespace xAOD {
   HiggsWeightTool::HiggsWeightTool( const std::string& name )
     : asg::AsgTool(name), m_init(false), m_Nweights(0), m_mcID(999),
       //m_weightTool("xAOD::TruthWeightTool/TruthWeightTool"),
-      m_weightTool(nullptr), m_cutOff(false) {
+      m_weightTool(nullptr), m_cutOff(false),
+      m_Nnom(0), m_Nws(0), m_sumw_nom(.0), m_sumw2_nom(.0), m_sumw(.0), m_sumw2(.0),
+      m_sumw_nomC(.0), m_sumw2_nomC(.0), m_sumwC(.0), m_sumw2C(.0) {
 
     // wether to put constraints on the weights
     declareProperty("RequireFinite", m_requireFinite=false);
     declareProperty("WeightCutOff", m_weightCutOff=-1.0);
-    if (m_weightCutOff>0) { m_cutOff=true; m_requireFinite=true; }
     
     // Force modes
     declareProperty("ForceNNLOPS", m_forceNNLOPS=false); // Run2-default Powheg NNLOPS ggF
@@ -28,6 +29,7 @@ namespace xAOD {
 
     int sum=m_forceNNLOPS+m_forceVBF+m_forceVH;
     if (sum>1) throw std::runtime_error("Must not call more than one of ForceNNLOPS, ForceVBF or ForceVH");
+    if (m_weightCutOff>0) { m_cutOff=true; m_requireFinite=true; }
 
     if (sum==0) {
       m_mode = AUTO;
@@ -127,23 +129,6 @@ namespace xAOD {
     m_ct14nlo_0118 = getIndex(" PDF set = 13165 ");
     m_mmht2014nlo  = getIndex(" PDF set = 25200 ");
 
-    /*
-      TO DO
-      90400 PDF4LHC15_nlo_30_pdfas
-      HiggsWeightTool::setup... INFO     PDF set = 91400  PDF4LHC15_nnlo_30_pdfas
-      HiggsWeightTool::setup... INFO     PDF set = 260000 NNPDF30_nlo_as_0118
-      ...
-      HiggsWeightTool::setup... INFO     PDF set = 11000  CT10nlo
-      HiggsWeightTool::setup... INFO     PDF set = 25200  MMHT2014nlo68clas118
-      HiggsWeightTool::setup... INFO     PDF set = 13100  CT14nlo
-      HiggsWeightTool::setup... INFO     mtmb 
-      HiggsWeightTool::setup... INFO     mtinf 
-      nnlops-nnloNom-pwgDnDn 
-
-      " PDF set = 11068 "  CT10nlo_as_0118
-      " PDF set = 13165 "  CT14nlo_as_0118
-     */
-
     //for (std::string wn:wNames)
     // ::Info(name,"\'%s\'",wn.c_str());
   }
@@ -200,10 +185,11 @@ namespace xAOD {
 
   void HiggsWeightTool::updateWeights(HiggsWeights &hw) {
     // first check nominal weight
-    if (!std::finite(hw.nominal)) hw.nominal=m_sumw_nom/m_Nws;
-    updateWeight(hw.nominal,hw.nominal);
+    if (!std::isfinite(hw.nominal)) hw.nominal=m_sumw_nom/m_Nws;
     // add up stats on nominal weight
-    ++m_Nnom; m_sumw_nom+=hw_nominal; m_sumw2_nom+=pow(hw_nominal,2);
+    ++m_Nnom; m_sumw_nom+=hw.nominal; m_sumw2_nom+=pow(hw.nominal,2);
+    updateWeight(hw.nominal,hw.nominal);
+    m_sumw_nomC += hw.nominal; m_sumw2_nomC += pow(hw.nominal,2);
     
     updateWeights(hw.nominal,hw.weight0,hw.alphaS_up,hw.alphaS_dn);
     updateWeights(hw.nominal,hw.pdf4lhc_unc); updateWeights(hw.nominal,hw.nnpdf30_unc);    
@@ -221,10 +207,33 @@ namespace xAOD {
 
   void HiggsWeightTool::updateWeight(const double &w_nom, double &w) {
     if (m_requireFinite&&!std::isfinite(w)) w=w_nom;
-    if (m_cutOff&&w>m_weightCutOff) w=m_weightCutOff;
-    if (m_cutOff&&w<-m_weightCutOff) w=-m_weightCutOff;
-    // stats on all weights
     ++m_Nws; m_sumw+=w; m_sumw2+=w*w;
+    if (!m_cutOff) return;
+    if (w>m_weightCutOff) w=m_weightCutOff;
+    if (w<-m_weightCutOff) w=-m_weightCutOff;
+    // stats on all weights
+    m_sumwC+=w; m_sumw2C+=w*w;
+  }
+
+  StatusCode HiggsWeightTool::finalize() {
+    if (m_requireFinite) {
+      printf("\n======================\n==  HiggsWeightTool SUMMARY ==\n\n");
+      printf("  %5i nominal weights extracted with mean %.2e and RMS %.2e, Neff = %.1f\n",
+	     m_Nnom,m_sumw_nom/m_Nnom,sqrt(m_sumw2_nom*m_Nnom-m_sumw_nom*m_sumw_nom)/m_Nnom,
+	     m_sumw_nom*m_sumw_nom/m_sumw2_nom);
+      if (m_cutOff)
+	printf("  After the weight cutoff of %.1f we get mean %.2e and RMS %.2e, Neff = %.1f\n\n",
+	       m_weightCutOff,m_sumw_nomC/m_Nnom,sqrt(m_sumw2_nomC*m_Nnom-m_sumw_nomC*m_sumw_nomC)/m_Nnom,
+	       m_sumw_nomC*m_sumw_nomC/m_sumw2_nomC);
+
+      printf("  In total, %5i weights extracted with mean %.3e and RMS %.3e\n",
+	     m_Nws,m_sumw/m_Nws,sqrt(m_sumw2*m_Nws-m_sumw*m_sumw)/m_Nws);
+      if (m_cutOff)
+	printf("  After the weight cutoff of %.3e we get mean %.3e and RMS %.3e\n",
+	       m_weightCutOff,m_sumwC/m_Nws,sqrt(m_sumw2C*m_Nws-m_sumwC*m_sumwC)/m_Nws);
+      printf("\n======================\n\n");
+    }
+    return StatusCode::SUCCESS;
   }
   
   /// Access MC weight for uncertainty propagation

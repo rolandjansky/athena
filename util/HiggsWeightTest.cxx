@@ -1,6 +1,7 @@
 // $Id$
 #include <TFile.h>
 #include <TError.h>
+#include <TTree.h>
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
@@ -42,6 +43,7 @@ int main( int argc, char* argv[] ) {
    bool forceNNLOPS=false;
    bool forceVBF=false;
    bool forceVH=false;
+   double weightMax=100.0;
    TString ofn("higgsWeightTest_histo.root");
    for (int i=1;i<argc;++i) {
      TString arg(argv[i]);
@@ -49,6 +51,7 @@ int main( int argc, char* argv[] ) {
      else if (arg=="--forceVBF"   ) forceVBF=true;
      else if (arg=="--forceVH"    ) forceVH=true;
      else if (arg=="--output") ofn=argv[++i];
+     else if (arg=="--weightCutOff") weightMax=atof(argv[++i]);
      else if (arg.Contains(".root")) files.push_back(arg);
      else std::runtime_error(TString("Cannot intepret argument: "+arg).Data());
    }
@@ -60,8 +63,17 @@ int main( int argc, char* argv[] ) {
 
    // output file
    TFile *of = new TFile(ofn,"RECREATE");
+   TTree *tree = new TTree("TruthTree","");
+   float wnom=0, yH=0, pTH=0, wnlo=0;
+   tree->Branch("weight",&wnom,"weight/F");
+   tree->Branch("weightNLO",&wnlo,"weightNLO/F");
+   tree->Branch("y_H",&yH,"y_H/F");
+   tree->Branch("pT_H",&pTH,"pT_H/F");
    Str ptTit = ";#it{p}_{T,#it{H}} [GeV]";
    int Nbins=25; double min=0, max=250;
+
+   TH1F *h_wnom1 = new TH1F("w_nom1","Nominal weight",100,0,200);
+   TH1F *h_wnom2 = new TH1F("w_nom2","Nominal weight",100,0,20);
 
    TH1F *h_pTH = new TH1F("pTH",ptTit,Nbins,min,max);
    HistV h_pTH_pdf4lhc = makeHistos(30,"pTH_pdf4lhc",Nbins,min,max,ptTit);
@@ -115,6 +127,8 @@ int main( int argc, char* argv[] ) {
 
    xAOD::HiggsWeightTool *higgsMCtool = new xAOD::HiggsWeightTool( "HiggsWeightTool" );
    higgsMCtool->setProperty( "OutputLevel", MSG::DEBUG ).ignore();
+   higgsMCtool->setProperty( "RequireFinite", true ).ignore();
+   higgsMCtool->setProperty( "WeightCutOff", weightMax ).ignore();
    if (forceNNLOPS) higgsMCtool->setProperty("ForceNNLOPS",true).ignore();
    if (forceVBF) higgsMCtool->setProperty("ForceVBF",true).ignore();
    if (forceVH) higgsMCtool->setProperty("ForceVH",true).ignore();
@@ -169,6 +183,7 @@ int main( int argc, char* argv[] ) {
        // on of my test files lack PDF info..
        
        double n = hw.nominal;
+       h_wnom1->Fill(n); h_wnom2->Fill(n);
        bool bad=false;
        for (double q:hw.qcd_nnlops) 
 	 if (std::abs(q-n)/n>1) bad=true;
@@ -186,6 +201,15 @@ int main( int argc, char* argv[] ) {
        // 2. PDF and alphaS uncertainties
        bool doPDF = hw.pdf4lhc_unc.size()==30;
        if (doPDF) {
+	 if (std::abs(hw.alphaS_up)>10000) {
+	   // Debugging event with NAN values for PDF wegiht in Paul Thompson's file:
+	   // /afs/cern.ch/work/t/thompson/public/group.phys-higgs.345097.PowhegPythia8EvtGen_NNLOPS_nnlo_30_ggH125_mumu.evgen.EVNT.e5732.002.TRUTH1_EXT0/group.phys-higgs.10609360.EXT0._000030.DAOD_TRUTH1.mc15.pool.root
+	   printf("Found event with crazy weight. Dumping info below. Will ignore it.");
+	   hw.print();
+	   continue;
+	   fatal(Form("Event %llu has yH = %.2f, pT=%.2f, m = %.2f aS = %.2e %.2e, %lu ws",
+		      entry,h.Eta(),h.Pt(),h.M(),hw.alphaS_dn,hw.alphaS_up,weights.size()));
+	 }
 	 fillHistos(h_pTH_pdf4lhc,h.Pt(),hw.pdf4lhc_unc);
 	 fillHistos(h_pTH_aS,h.Pt(),{hw.alphaS_up,hw.alphaS_dn});
 	 fillHistos(h_yH_pdf4lhc,h.Rapidity(),hw.pdf4lhc_unc);
@@ -245,6 +269,9 @@ int main( int argc, char* argv[] ) {
 		  {hw.weight0,hw.nnpdf30_nnlo,hw.pdf4lhc_nnlo,hw.nnpdf30_nlo,hw.pdf4lhc_nlo,
 		      hw.mmht2014nlo,hw.ct14nlo,hw.ct10nlo});
 
+       yH=h.Rapidity(); pTH=h.Pt(); wnom=hw.nominal; wnlo=hw.weight0;
+       tree->Fill();
+
        // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {
 	 ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
@@ -261,6 +288,8 @@ int main( int argc, char* argv[] ) {
        
      } // for each entry
    } // for each file
+
+   higgsMCtool->finalize().ignore();
 
    of->cd();
    of->Write();

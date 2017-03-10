@@ -201,6 +201,7 @@ namespace xAOD {
     /// For statistics
     int m_Nnom, m_Nws;
     double m_sumw_nom, m_sumw2_nom, m_sumw, m_sumw2;
+    double m_sumw_nomC, m_sumw2_nomC, m_sumwC, m_sumw2C;
 
     /// index of weights
     size_t m_nom;
