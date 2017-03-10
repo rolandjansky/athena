@@ -203,6 +203,10 @@ namespace xAOD {
     updateWeights(hw.nominal,hw.pdf4lhc_unc); updateWeights(hw.nominal,hw.nnpdf30_unc);    
   }
 
+  void HiggsWeightTool::updateWeight(const double &w_nom, double &w) {
+    
+  }
+
 
   
   

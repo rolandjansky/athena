@@ -153,6 +153,9 @@ namespace xAOD {
 
     /// Protect against non-finite or outside-reqired-range weights
     void updateWeights(HiggsWeights &hw);
+    void updateWeight(const double &w_nom, double &w);
+    void updateWeights(const double &w_nom, std::vector<double> &ws) { for (auto &w:ws) updateWeight(w_nom,w); }
+
     
     /// Setup weights
     void setupWeights(size_t Nweights);
