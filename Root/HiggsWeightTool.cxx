@@ -16,7 +16,7 @@ namespace xAOD {
     // wether to put constraints on the weights
     declareProperty("RequireFinite", m_requireFinite=false);
     declareProperty("WeightCutOff", m_weightCutOff=-1.0);
-    if (m_weightCutOff>0) m_cutOff=true;
+    if (m_weightCutOff>0) { m_cutOff=true; m_requireFinite=true; }
     
     // Force modes
     declareProperty("ForceNNLOPS", m_forceNNLOPS=false); // Run2-default Powheg NNLOPS ggF
@@ -199,10 +199,15 @@ namespace xAOD {
   }
 
   void HiggsWeightTool::updateWeights(HiggsWeights &hw) {
+    // first check nominal weight
+    if (!std::finite(hw.nominal)) hw.nominal=m_sumw_nom/m_Nws;
     updateWeight(hw.nominal,hw.nominal);
+    // add up stats on nominal weight
+    ++m_Nnom; m_sumw_nom+=hw_nominal; m_sumw2_nom+=pow(hw_nominal,2);
+    
     updateWeights(hw.nominal,hw.weight0,hw.alphaS_up,hw.alphaS_dn);
     updateWeights(hw.nominal,hw.pdf4lhc_unc); updateWeights(hw.nominal,hw.nnpdf30_unc);    
-    updateWeights(hw.nominal,hw.qcd); updateWeights(hw.nominal,qcd_nnlops);    
+    updateWeights(hw.nominal,hw.qcd); updateWeights(hw.nominal,hw.qcd_nnlops);    
     updateWeights(hw.nominal,hw.mt_inf,hw.mb_minlo);
     updateWeights(hw.nominal,hw.nnpdf30_nlo,hw.nnpdf30_nnlo,hw.mmht2014nlo);
     updateWeights(hw.nominal,hw.pdf4lhc_nlo,hw.pdf4lhc_nnlo);
@@ -215,9 +220,11 @@ namespace xAOD {
   }
 
   void HiggsWeightTool::updateWeight(const double &w_nom, double &w) {
-    if (m_requireFinite&&!std::isfinite(w)) { w=w_nom;
-    if (m_cutOff&&w>m_weightCutOff) w=m_weighCutOff;
-    if (m_cutOff&&w<-m_weightCutOff) w=-m_weighCutOff;
+    if (m_requireFinite&&!std::isfinite(w)) w=w_nom;
+    if (m_cutOff&&w>m_weightCutOff) w=m_weightCutOff;
+    if (m_cutOff&&w<-m_weightCutOff) w=-m_weightCutOff;
+    // stats on all weights
+    ++m_Nws; m_sumw+=w; m_sumw2+=w*w;
   }
   
   /// Access MC weight for uncertainty propagation

@@ -118,6 +118,8 @@ namespace xAOD {
 
     virtual StatusCode initialize();
 
+    virtual StatusCode finalize();
+    
     /// @name Function(s) accessed via the truth weight tool
     /// @{
     
@@ -197,8 +199,9 @@ namespace xAOD {
     double m_weightCutOff;
 
     /// For statistics
-    std::map<TString,double> m_stats;
-    
+    int m_Nnom, m_Nws;
+    double m_sumw_nom, m_sumw2_nom, m_sumw, m_sumw2;
+
     /// index of weights
     size_t m_nom;
     
