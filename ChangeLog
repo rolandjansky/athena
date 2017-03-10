@@ -1,3 +1,12 @@
+2017-03-10 Dag Gillberg <dag.gillberg@cern.h>
+	* Tagging TruthWeightTools-01-02-05
+	* Added two new features
+	* 1. RequireFinite - sets weights to nominal weight if not finite
+	* 2. WeightCutOff - sets any weight to this value if larger
+	* This helps a lot against events with crazy weights
+	* Added finalize method that summarizes weight information
+	* See slides at this HComb meeting: https://indico.cern.ch/event/617739/
+
 2017-03-07 Dag Gillberg <dag.gillberg@cern.h>
 	* Tagging TruthWeightTools-01-02-04
 	* Fixed bug affecting the TruthWeightTool (and Higgs tool in AUTO mode) when running over many files
