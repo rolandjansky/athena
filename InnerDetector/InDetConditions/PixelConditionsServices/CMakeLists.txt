@@ -51,7 +51,7 @@ atlas_add_component( PixelConditionsServices
    ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities
    GaudiKernel PixelConditionsData SGTools StoreGateLib CoralDB
    GeoModelUtilities Identifier InDetIdentifier InDetReadoutGeometry
-   PixelGeoModelLib PixelConditionsServicesLib )
+   PixelGeoModelLib PixelCablingLib PixelConditionsServicesLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

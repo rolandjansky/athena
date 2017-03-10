@@ -22,7 +22,9 @@ dfMetadataItemList = CfgItemList("DerivedMetadata",
                                  items = ["xAOD::TriggerMenuContainer#*",
                                           "xAOD::TriggerMenuAuxContainer#*",
                                           "xAOD::FileMetaData#FileMetaData",
-                                          "xAOD::FileMetaDataAuxInfo#FileMetaDataAux."],
+                                          "xAOD::FileMetaDataAuxInfo#FileMetaDataAux.",
+                                          "xAOD::TruthMetaDataContainer#TruthMetaData",
+                                          "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux."],
                                  allowWildCard = True )
 
 # AOD = ESD + AOD extra
