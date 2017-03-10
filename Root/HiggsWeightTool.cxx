@@ -199,7 +199,7 @@ namespace xAOD {
 
   void HiggsWeightTool::updateWeights(HiggsWeights &hw) {
     updateWeight(hw.nominal,hw.nominal);
-    updateWeights(hw.nominal,{hw.weight0,hw.alphaS_up,hw.alphaS_dn});
+    updateWeights(hw.nominal,hw.weight0,hw.alphaS_up,hw.alphaS_dn);
     updateWeights(hw.nominal,hw.pdf4lhc_unc); updateWeights(hw.nominal,hw.nnpdf30_unc);    
   }
 

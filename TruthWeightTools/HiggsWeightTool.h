@@ -155,6 +155,8 @@ namespace xAOD {
     void updateWeights(HiggsWeights &hw);
     void updateWeight(const double &w_nom, double &w);
     void updateWeights(const double &w_nom, std::vector<double> &ws) { for (auto &w:ws) updateWeight(w_nom,w); }
+    void updateWeights(const double &w_nom, double &w1, double &w2) { updateWeight(w_nom,w1); updateWeight(w_nom,w2); }
+    void updateWeights(const double &w_nom, double &w1, double &w2, double &w3) { updateWeights(w_nom,w1,w2); updateWeight(w_nom,w3); }
 
     
     /// Setup weights
