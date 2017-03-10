@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 789425 2016-12-13 10:50:12Z krasznaa $
+# $Id: CMakeLists.txt 793737 2017-01-24 20:11:10Z ssnyder $
 ################################################################################
 # Package: xAODCore
 ################################################################################
@@ -70,6 +70,10 @@ atlas_add_test( ut_xaodcore_printhelpers_test
 
 atlas_add_test( ut_xaodcore_safedeepcopy_test
    SOURCES test/ut_xaodcore_safedeepcopy_test.cxx
+   LINK_LIBRARIES AthContainers xAODCore )
+
+atlas_add_test( ut_xaodcore_auxcontainerbase_test
+   SOURCES test/ut_xaodcore_auxcontainerbase_test.cxx
    LINK_LIBRARIES AthContainers xAODCore )
 
 if( XAOD_STANDALONE )

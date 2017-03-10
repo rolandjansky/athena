@@ -1,5 +1,5 @@
 package xAODCore
-# $Id: requirements 767088 2016-08-09 14:55:40Z wlampl $
+# $Id: requirements 793737 2017-01-24 20:11:10Z ssnyder $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -49,3 +49,4 @@ apply_pattern have_root_headers root_headers="tools/ReadStats.h \
 use TestTools               TestTools-*               AtlasTest
 apply_pattern UnitTest_run unit_test=ut_xaodcore_auxselection
 apply_pattern UnitTest_run unit_test=ut_xaodcore_printhelpers
+apply_pattern UnitTest_run unit_test=ut_xaodcore_auxcontainerbase
