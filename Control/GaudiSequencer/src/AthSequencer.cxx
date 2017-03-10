@@ -69,6 +69,10 @@ AthSequencer::AthSequencer( const std::string& name,
   declareProperty( "StopOverride", m_stopOverride=false,
                    "Stop on filter failure Override flag" );
   
+
+  declareProperty( "Sequential", m_sequential=false,
+                   "Concurrent or strict Sequential ordering of Algs in Sequence");
+
   declareProperty( "TimeOut",      m_timeout=0,
                    "Abort job after one algorithm or sequence reaches the time out. Timeout given in Nanoseconds (official ATLAS units), despite its millisecond resolution" );
   
