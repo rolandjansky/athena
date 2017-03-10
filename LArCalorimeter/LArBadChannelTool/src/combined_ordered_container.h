@@ -25,10 +25,8 @@ namespace LArBadChanImpl {
 
     combined_ordered_container( const Cont& c1, const Cont& c2) : m_c1(c1), m_c2(c2) {}
 
-    //iterator begin() {return iterator( m_c1.begin(), m_c1.end(), m_c2.begin(), m_c2.end(), CMP());} 
     const_iterator begin() const {return iterator( m_c1.begin(), m_c1.end(), 
 						   m_c2.begin(), m_c2.end(), CMP());} 
-    //iterator end() {return iterator( m_c1.end(), m_c1.end(), m_c2.end(), m_c2.end(), CMP());} 
     const_iterator end() const {return iterator( m_c1.end(), m_c1.end(), 
 						 m_c2.end(), m_c2.end(), CMP());} 
 
