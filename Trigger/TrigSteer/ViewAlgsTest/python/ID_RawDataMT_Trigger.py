@@ -142,8 +142,8 @@ InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDa
                                                  RDOKey       = InDetKeys.PixelRDOs(),
                                                  ProviderTool = InDetPixelRawDataProviderTool)
 topSequence += InDetPixelRawDataProvider
-#topSequence.InDetPixelRawDataProvider.isRoI_Seeded = True
-#topSequence.InDetPixelRawDataProvider.RoIs = "OutputRoIs"
+topSequence.InDetPixelRawDataProvider.isRoI_Seeded = True
+topSequence.InDetPixelRawDataProvider.RoIs = "OutputRoIs"
 if (InDetFlags.doPrintConfigurables()):
   print          InDetPixelRawDataProvider
 
@@ -168,8 +168,8 @@ InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProv
                                             ProviderTool = InDetSCTRawDataProviderTool)
 
 topSequence += InDetSCTRawDataProvider
-#topSequence.InDetSCTRawDataProvider.isRoI_Seeded = True
-#topSequence.InDetSCTRawDataProvider.RoIs = "OutputRoIs"
+topSequence.InDetSCTRawDataProvider.isRoI_Seeded = True
+topSequence.InDetSCTRawDataProvider.RoIs = "OutputRoIs"
 
 #TRT
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
@@ -201,8 +201,8 @@ InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProv
                                              RDOKey       = "TRT_RDOs",
                                               ProviderTool = InDetTRTRawDataProviderTool)
 topSequence += InDetTRTRawDataProvider
-#topSequence.InDetTRTRawDataProvider.isRoI_Seeded = True
-#topSequence.InDetTRTRawDataProvider.RoIs = "OutputRoIs"
+topSequence.InDetTRTRawDataProvider.isRoI_Seeded = True
+topSequence.InDetTRTRawDataProvider.RoIs = "OutputRoIs"
   
 
 
