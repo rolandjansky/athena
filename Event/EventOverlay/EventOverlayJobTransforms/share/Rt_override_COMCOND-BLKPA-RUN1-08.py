@@ -4,10 +4,10 @@ from RecExConfig.RecAlgsFlags import recAlgs
 ########################################
 
 #use MC MDT RT functions
-conddb.blockFolder("/MDT/RT")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-04",force=True,forceMC=True)
-conddb.blockFolder("/MDT/RTBLOB")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,forceMC=True)
+#conddb.blockFolder("/MDT/RT")
+#conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-04",force=True,forceMC=True)
+#conddb.blockFolder("/MDT/RTBLOB")
+#conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,forceMC=True)
 
 #from Guillaume
 conddb.addOverride("/LAR/ElecCalibOfl/Shape/RTM/5samples1phase","LARElecCalibOflShapeRTM5samples1phase-UPD1-04")

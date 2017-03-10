@@ -9,10 +9,10 @@ conddb.blockFolder("/TRT/Calib/RT")
 conddb.addFolderWithTag("TRT_OFL","/TRT/Calib/RT","TrtCalibRt-MCnewDigi_ToTon_7TeV_00-00",force=True,forceMC=True)
 
 #use MC MDT RT functions
-conddb.blockFolder("/MDT/RT")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-00",force=True,forceMC=True)
-conddb.blockFolder("/MDT/RTBLOB")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True)
+#conddb.blockFolder("/MDT/RT")
+#conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-00",force=True,forceMC=True)
+#conddb.blockFolder("/MDT/RTBLOB")
+#conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True)
 
 conddb.blockFolder("/PIXEL/HLT/DCS/HV")
 conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/HV","PixDCSHV-UPD1-00",force=True,forceData=True)

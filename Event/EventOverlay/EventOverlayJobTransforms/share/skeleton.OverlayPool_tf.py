@@ -16,19 +16,22 @@ if hasattr(runArgs, "preExec") and runArgs.preExec != 'NONE':
 import AthenaCommon.AtlasUnixStandardJob
 
 if hasattr(runArgs, 'preInclude'):
-for cf in runArgs.preInclude:
-    include(cf)
+    for cf in runArgs.preInclude:
+        include(cf)
 
 #==============================================================
 # Job definition parameters:
 #==============================================================
 from AthenaCommon.GlobalFlags  import globalflags
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+from AthenaCommon.DetFlags import DetFlags
+from Digitization.DigitizationFlags import digitizationFlags
 
 globalflags.isOverlay.set_Value_and_Lock(True)
 
-if hasattr(runArgs,"maxEvents"): from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-athenaCommonFlags.EvtMax = runArgs.maxEvents
-if hasattr(runArgs,"skipEvents"): athenaCommonFlags.SkipEvents= runArgs.skipEvents
+if hasattr(runArgs,"skipEvents"): athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )
+if hasattr(runArgs,"maxEvents"): athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.maxEvents )
 
 if hasattr(runArgs,"inputHITSFile"):
     athenaCommonFlags.PoolHitsInput.set_Value_and_Lock( runArgs.inputHITSFile )
@@ -40,24 +43,21 @@ if hasattr(runArgs,"outputRDOFile"):
     athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
     OverlayCollection = runArgs.outputRDOFile
 
-if hasattr(runArgs,"geometryVersion"): globalFlags.DetDescrVersion=runArgs.geometryVersion
-
-from Digitization.DigitizationFlags import digitizationFlags
-if hasattr(runArgs,"digiSeedOffset1"): digitizationFlags.rndmSeedOffset1=int(runArgs.digiSeedOffset1)
-if hasattr(runArgs,"digiSeedOffset2"): digitizationFlags.rndmSeedOffset2=int(runArgs.digiSeedOffset2)
-if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runArgs.samplingFractionDbTag
-if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
-
-from AthenaCommon.DetFlags import DetFlags
 if not hasattr(runArgs, 'outputRDO_SGNLFile') or runArgs.outputRDO_SGNLFile=="NONE":
-   overlayFlags.doSignal=False
-   SignalCollection = "NONE"
+    overlayFlags.doSignal=False
+    SignalCollection = "NONE"
 else:
     overlayFlags.doSignal=True
     SignalCollection = runArgs.outputRDO_SGNLFile
 
-DetFlags.overlay.BCM_setOff()
-DetFlags.overlay.Lucid_setOff()
+if hasattr(runArgs,"geometryVersion"): globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
+if hasattr(runArgs,"conditionsTag"): globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag )
+
+if hasattr(runArgs,"digiSeedOffset1"): digitizationFlags.rndmSeedOffset1=int(runArgs.digiSeedOffset1)
+if hasattr(runArgs,"digiSeedOffset2"): digitizationFlags.rndmSeedOffset2=int(runArgs.digiSeedOffset2)
+if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runArgs.samplingFractionDbTag
+if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
+if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 
 readBS = False
 if hasattr(runArgs, 'ReadByteStream'):
@@ -71,10 +71,11 @@ else:
    DataInputCollections=runArgs.inputRDO_BKGFile
    athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
 
+from IOVDbSvc.CondDB import conddb
+
 if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
    globalflags.ConditionsTag=runArgs.conditionsTag
    if len(globalflags.ConditionsTag())!=0:
-      from IOVDbSvc.CondDB import conddb
       conddb.setGlobalTag(globalflags.ConditionsTag())
 
 DetFlags.Print()
@@ -95,39 +96,27 @@ if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter("HIT2RDO")
 
-from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
 DetFlags.Muon_setOn()
 DetFlags.LAr_setOn()
 DetFlags.Tile_setOn()
-if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig=="NONE":
-  DetFlags.LVL1_setOff()
+if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
+    DetFlags.LVL1_setOff()
 else:
-  DetFlags.LVL1_setOn()
+    DetFlags.LVL1_setOn()
 
 DetFlags.BCM_setOn()
-DetFlags.Lucid_on()
-
+DetFlags.Lucid_setOn()
 DetFlags.simulateLVL1.Lucid_setOff()
+DetFlags.overlay.Truth_setOn()
 
 print "================ DetFlags ================ "
 DetFlags.Print()
 
 # Geometry, controlled by DetFlags
-#GlobalFlags.DetGeo.set_atlas()
-#GlobalFlags.DataSource.set_geant4()
 globalflags.DataSource.set_Value_and_Lock('geant4')
 
-#from AtlasGeoModel import SetGeometryVersion
-#from AtlasGeoModel import GeoModelInit
-
 include ( "RecExCond/AllDet_detDescr.py" )
-
-#from AtlasGeoModel import SetGeometryVersion
-#from AtlasGeoModel import GeoModelInit
-#from AtlasGeoModel import SetupRecoGeometry
-
-#include( "BFieldAth/BFieldAth_jobOptions.py" )
 
 #--------
 from AthenaCommon.AppMgr import theApp
@@ -167,22 +156,14 @@ ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
 digitizationFlags.rndmSeedList.addtoService()
 digitizationFlags.rndmSeedList.printSeeds()
 
-# To not overwrite the BCID
-#from AthenaCommon.AppMgr import ServiceMgr
-#ServiceMgr.PileUpEventLoopMgr.IsEventOverlayJob=True
-
 #================================================================
 print "overlay_trf: final outStream = ", outStream
 
 #================================================================
 # Logging
 #--------------------------------------------------------------
-#ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
-
-print "overlay_trf: at the end. job=\n", job
-print "\n\noverlay_trf: at the end. ServiceMgr=\n", ServiceMgr
 
 # Post-include
 if hasattr(runArgs,"postInclude"):
@@ -192,3 +173,5 @@ if hasattr(runArgs,"postInclude"):
 if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
     for cmd in runArgs.postExec:
         exec(cmd)
+
+print "\nOverlayPool_tf.py: at the end. ServiceMgr=\n", ServiceMgr
