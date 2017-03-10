@@ -32,19 +32,15 @@ LArTBClusterBuilder::LArTBClusterBuilder(const std::string& type,
 					 const std::string& name,
 					 const IInterface* parent):
   AthAlgTool(type, name, parent),
-  m_eta_size(3.),
   m_deta(0),
-  m_phi_size(3.),
-  m_dphi(0),
-  m_nbcluster(1),
-  m_caloRegion("BARREL")
+  m_dphi(0)
 {
   declareProperty("CellContainers",m_cellContainerName);
-  declareProperty("EtaSize",m_eta_size);
-  declareProperty("PhiSize", m_phi_size);
-  declareProperty("EnergyThreshold", m_ethreshold);
-  declareProperty("ClusterNbr", m_nbcluster);
-  declareProperty("LArCaloRegion", m_caloRegion);
+  declareProperty("EtaSize",m_eta_size = 3.0);
+  declareProperty("PhiSize", m_phi_size = 3.0);
+  declareProperty("EnergyThreshold", m_ethreshold = 0.0);
+  declareProperty("ClusterNbr", m_nbcluster = 1);
+  declareProperty("LArCaloRegion", m_caloRegion = "BARREL");
 }
 
 LArTBClusterBuilder::~LArTBClusterBuilder() 
