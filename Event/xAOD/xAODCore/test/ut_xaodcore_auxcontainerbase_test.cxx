@@ -95,8 +95,15 @@ void test1()
     m1_2[i] = MoveTest(i+10);
   }
 
+  SG::auxid_set_t exp1 { ityp1, ityp2, mtyp1 };
+  assert (s1.getAuxIDs() == exp1);
+
+  SG::auxid_set_t exp2 = exp1;
+  exp2.insert (ityp3);
+
   SG::auxid_set_t ignore { ityp4 };
   assert (! s1.insertMove (3, s2, ignore)); // false due to added vbl
+  assert (s1.getAuxIDs() == exp2);
   assert (s1.size() == 10);
   s1.reserve(20);
   assert (s1.getData(ityp4) == nullptr);
