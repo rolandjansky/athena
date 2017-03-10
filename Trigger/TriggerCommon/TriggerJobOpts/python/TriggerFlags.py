@@ -1193,6 +1193,7 @@ from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags
 
 ## add slices generation flags
 
+from TriggerMenu.menu.SliceFlags import *
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags
 from TrigTier0.NtupleProdFlags              import NtupleProductionFlags
 
