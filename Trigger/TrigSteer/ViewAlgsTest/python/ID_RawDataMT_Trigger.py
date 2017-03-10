@@ -75,16 +75,6 @@ if nThreads >= 1:
   topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
   topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
-#Determine whether we're running in threaded mode (threads= >=1)
-#from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-#nThreads = jp.ConcurrencyFlags.NumThreads()
-
-#if nThreads >= 1:
-#  ## get a handle on the ForwardScheduler
-#  from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-#  svcMgr += ForwardSchedulerSvc()
-#  svcMgr.ForwardSchedulerSvc.CheckDependencies = False
-
 from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
 ServiceMgr += ROBDataProviderSvc()
 
@@ -208,13 +198,6 @@ topSequence.InDetTRTRawDataProvider.RoIs = "OutputRoIs"
 
 include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
 InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(True,False)
-
-
-#topSequence.InDetTRT_RIO_Maker.OutputLevel=VERBOSE
-#ToolSvc.InDetTRT_DriftCircleTool.OutputLevel=VERBOSE
-
-
-#svcMgr.StoreGateSvc.Dump=True
 
 
 include("InDetBeamSpotService/BeamCondSvc.py")
