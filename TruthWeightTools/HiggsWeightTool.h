@@ -148,6 +148,12 @@ namespace xAOD {
     
   private:
 
+    /// Access the HiggsWeights
+    HiggsWeights getHiggsWeightsInternal(int HTXS_Njets30=-1, double HTXS_pTH=-99.0, int HTXS_cat=-1);
+
+    /// Protect against non-finite or outside-reqired-range weights
+    void updateWeights(HiggsWeights &hw);
+    
     /// Setup weights
     void setupWeights(size_t Nweights);
 
@@ -179,6 +185,13 @@ namespace xAOD {
     
     /// getWeight 
     double getWeight(size_t idx);
+
+    /// options
+    bool m_requireFinite;
+    double m_weightCutOff;
+
+    /// For statistics
+    std::map<TString,double> m_stats;
     
     /// index of weights
     size_t m_nom;

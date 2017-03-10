@@ -12,7 +12,12 @@ namespace xAOD {
     : asg::AsgTool(name), m_init(false), m_Nweights(0), m_mcID(999),
       //m_weightTool("xAOD::TruthWeightTool/TruthWeightTool"),
       m_weightTool(nullptr) {
-    
+
+    // wether to put constraints on the weights
+    declareProperty("RequireFinite", m_requireFinite=false);
+    declareProperty("WeightCutOff", m_weightCutOff=-1.0);
+
+    // Force modes
     declareProperty("ForceNNLOPS", m_forceNNLOPS=false); // Run2-default Powheg NNLOPS ggF
     declareProperty("ForceVBF",    m_forceVBF=false);    // Run2-default Powheg VBF
     declareProperty("ForceVH",     m_forceVH=false);     // Run2-default Powheg VH (WpH, WmH, qq->ZH)
@@ -187,6 +192,21 @@ namespace xAOD {
   /// Access MC weight for uncertainty propagation
   /// Note: input kinematics should be HTXS_Higgs_pt, HTXS_Njets_pTjet30, and HTXS_Stage1_Category_pTjet30
   HiggsWeights HiggsWeightTool::getHiggsWeights(int STXS_Njets30, double STXS_pTH, int STXS_Stage1) {
+    HiggsWeights hw = getHiggsWeightsInternal(STXS_Njets30,STXS_pTH,STXS_Stage1);
+    if (m_requireFinite) updateWeights(hw);
+    return hw;
+  }
+
+  void HiggsWeightTool::updateWeight(HiggsWeights &hw) {
+    
+  }
+
+
+  
+  
+  /// Access MC weight for uncertainty propagation
+  /// Note: input kinematics should be HTXS_Higgs_pt, HTXS_Njets_pTjet30, and HTXS_Stage1_Category_pTjet30
+  HiggsWeights HiggsWeightTool::getHiggsWeightsInternal(int STXS_Njets30, double STXS_pTH, int STXS_Stage1) {
     // convert to GeV
     double pTH = STXS_pTH/1000; int Njets=STXS_Njets30;
     const std::vector<float> &weights = getMCweights();
