@@ -74,15 +74,16 @@ namespace xAOD {
       static bool inited = false;
       if(inited) return;
       // name in the atlas convention
-      nameToTypemap["LCTopo"] =        LCTopo;            
-      nameToTypemap["EMTopo"] =        EMTopo;
-      nameToTypemap["LCTopoOrigin"] =  LCTopoOrigin;
-      nameToTypemap["EMTopoOrigin"] =  EMTopoOrigin;
-      nameToTypemap["TopoTower"] =     TopoTower;         
-      nameToTypemap["Tower"] =         Tower;             
-      nameToTypemap["Truth"] =         Truth;             
-      nameToTypemap["Track"] =         Track;             
-      nameToTypemap["PFlow"] =         PFlow;             
+      nameToTypemap["LCTopo"] =             LCTopo;            
+      nameToTypemap["EMTopo"] =             EMTopo;
+      nameToTypemap["LCTopoOrigin"] =       LCTopoOrigin;
+      nameToTypemap["EMTopoOrigin"] =       EMTopoOrigin;
+      nameToTypemap["TopoTower"] =          TopoTower;         
+      nameToTypemap["Tower"] =              Tower;             
+      nameToTypemap["Truth"] =              Truth;             
+      nameToTypemap["Track"] =              Track;             
+      nameToTypemap["PFlow"] =              PFlow;      
+      nameToTypemap["TrackCaloCluster"] =   TrackCaloCluster;   
       nameToTypemap[c_unCategorized] = Uncategorized;
 
 

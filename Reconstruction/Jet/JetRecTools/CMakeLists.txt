@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Event/xAOD/xAODTruth
 			  Event/xAOD/xAODEgamma
 			  Event/xAOD/xAODJet
+              Event/xAOD/xAODTrackCaloCluster
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
@@ -36,12 +37,12 @@ atlas_add_library( JetRecToolsLib
 		   PUBLIC_HEADERS JetRecTools
 		   INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} 
 		   PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
-		   LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AsgTools xAODPFlow xAODTracking xAODCore xAODBase xAODCaloEvent xAODTruth xAODEgamma xAODJet GaudiKernel TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib InDetTrackSelectionToolLib
+		   LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AsgTools xAODPFlow xAODTracking xAODCore xAODBase xAODCaloEvent xAODTruth xAODEgamma xAODJet xAODTrackCaloCluster GaudiKernel TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib InDetTrackSelectionToolLib
                    PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} )
 
 atlas_add_component( JetRecTools
                      JetRecTools/*.h Root/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AsgTools xAODPFlow xAODTracking xAODCore xAODBase xAODCaloEvent xAODTruth xAODEgamma xAODJet GaudiKernel TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib JetRecToolsLib 
+                     LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AsgTools xAODPFlow xAODTracking xAODCore xAODBase xAODCaloEvent xAODTruth xAODEgamma xAODJet xAODTrackCaloCluster GaudiKernel TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib JetRecToolsLib 
 		     PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES})
 
 # Install files from the package:
