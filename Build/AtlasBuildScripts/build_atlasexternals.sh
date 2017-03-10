@@ -4,8 +4,12 @@
 # repository.
 #
 
-# Don't stop on errors:
+# Don't stop on errors but count them
 set +e
+ERROR_COUNT=0
+
+# consider a pipe failed if ANY of the commands fails
+set -o pipefail
 
 # Function printing the usage information for the script
 usage() {
@@ -65,8 +69,8 @@ if [ "$SOURCEDIR" = "" ] || [ "$BUILDDIR" = "" ] || [ "$INSTALLDIR" = "" ]; then
 fi
 
 # Create the build directory if it doesn't exist, and move to it:
-mkdir -p ${BUILDDIR}
-cd ${BUILDDIR}
+mkdir -p ${BUILDDIR} || ((ERROR_COUNT++))
+cd ${BUILDDIR} || ((ERROR_COUNT++))
 
 # Extra settings for providing a project version for the build if necessary:
 EXTRACONF=
@@ -78,21 +82,23 @@ fi
 # Configure the build:
 cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     ${EXTRACONF} \
-    ${SOURCEDIR}/Projects/${PROJECT}/ 2>&1 | tee cmake_config.log
+    ${SOURCEDIR}/Projects/${PROJECT}/ 2>&1 | tee cmake_config.log || ((ERROR_COUNT++))
 
 # Build it:
-make -k
+make -k || ((ERROR_COUNT++))
 
 # Install it:
-make -k install/fast DESTDIR=${INSTALLDIR}
+make -k install/fast DESTDIR=${INSTALLDIR} || ((ERROR_COUNT++))
 
 # If no RPM directory was specified, stop here:
 if [ "$RPMDIR" = "" ]; then
-    exit 0
+    exit ${ERROR_COUNT}
 fi
 
 # Build the RPM or other package for the project:
-cpack
-mkdir -p ${RPMDIR}
+cpack || ((ERROR_COUNT++))
+mkdir -p ${RPMDIR} || ((ERROR_COUNT++))
 FILES=$(ls ${PROJECT}*.rpm ${PROJECT}*.tar.gz ${PROJECT}*.dmg)
-cp ${FILES} ${RPMDIR}
+cp ${FILES} ${RPMDIR} || ((ERROR_COUNT++))
+
+exit ${ERROR_COUNT}
