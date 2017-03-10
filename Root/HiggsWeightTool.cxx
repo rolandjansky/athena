@@ -217,7 +217,7 @@ namespace xAOD {
 
   StatusCode HiggsWeightTool::finalize() {
     if (m_requireFinite) {
-      printf("\n======================\n==  HiggsWeightTool SUMMARY ==\n\n");
+      printf("\n==============================\n==  HiggsWeightTool SUMMARY ==\n\n");
       printf("  %5i nominal weights extracted with mean %.2e and RMS %.2e, Neff = %.1f\n",
 	     m_Nnom,m_sumw_nom/m_Nnom,sqrt(m_sumw2_nom*m_Nnom-m_sumw_nom*m_sumw_nom)/m_Nnom,
 	     m_sumw_nom*m_sumw_nom/m_sumw2_nom);
@@ -226,12 +226,12 @@ namespace xAOD {
 	       m_weightCutOff,m_sumw_nomC/m_Nnom,sqrt(m_sumw2_nomC*m_Nnom-m_sumw_nomC*m_sumw_nomC)/m_Nnom,
 	       m_sumw_nomC*m_sumw_nomC/m_sumw2_nomC);
 
-      printf("  In total, %5i weights extracted with mean %.3e and RMS %.3e\n",
+      printf("  In total, %5i weights extracted with mean %.2e and RMS %.2e\n",
 	     m_Nws,m_sumw/m_Nws,sqrt(m_sumw2*m_Nws-m_sumw*m_sumw)/m_Nws);
       if (m_cutOff)
-	printf("  After the weight cutoff of %.3e we get mean %.3e and RMS %.3e\n",
+	printf("  After the weight cutoff of %.1f we get mean %.2e and RMS %.2e\n",
 	       m_weightCutOff,m_sumwC/m_Nws,sqrt(m_sumw2C*m_Nws-m_sumwC*m_sumwC)/m_Nws);
-      printf("\n======================\n\n");
+      printf("\n==============================\n\n");
     }
     return StatusCode::SUCCESS;
   }

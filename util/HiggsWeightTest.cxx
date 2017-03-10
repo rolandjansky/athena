@@ -207,8 +207,6 @@ int main( int argc, char* argv[] ) {
 	   printf("Found event with crazy weight. Dumping info below. Will ignore it.");
 	   hw.print();
 	   continue;
-	   fatal(Form("Event %llu has yH = %.2f, pT=%.2f, m = %.2f aS = %.2e %.2e, %lu ws",
-		      entry,h.Eta(),h.Pt(),h.M(),hw.alphaS_dn,hw.alphaS_up,weights.size()));
 	 }
 	 fillHistos(h_pTH_pdf4lhc,h.Pt(),hw.pdf4lhc_unc);
 	 fillHistos(h_pTH_aS,h.Pt(),{hw.alphaS_up,hw.alphaS_dn});
