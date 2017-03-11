@@ -130,6 +130,7 @@
             <keepFilePattern>TIDAWeb/STAR</keepFilePattern>
             <keepFilePattern>TIDAWeb/build/STAR</keepFilePattern>
             <keepFilePattern>times/STAR</keepFilePattern>
+            <keepFilePattern>times-FTF/STAR</keepFilePattern>
             <keepFilePattern>*.png</keepFilePattern>
             <keepFilePattern>*.ps</keepFilePattern>
             <keepFilePattern>*.php</keepFilePattern>

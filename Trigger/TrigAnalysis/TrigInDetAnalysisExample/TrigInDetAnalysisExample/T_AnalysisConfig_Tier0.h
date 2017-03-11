@@ -86,6 +86,8 @@
 // the xAOD::TrackParticle header if it exists
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
+#define endmsg endmsg
+
 
 template<typename T>
 void HighestPTOnly( std::vector<T*>& tracks ) { 
