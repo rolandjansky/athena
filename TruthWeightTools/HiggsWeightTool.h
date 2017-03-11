@@ -38,6 +38,7 @@ namespace xAOD {
     double qcd_wg1_pTH, qcd_wg1_qm;
 
     /// Tackmann proposed QCD uncertainty scheme, TODO
+    std::vector<double> qcd_stxs;
 
     /// Powheg NNLOPS possible scheme TODO
     double qcd_nnlops_nnlo, qcd_nnlops_pow;

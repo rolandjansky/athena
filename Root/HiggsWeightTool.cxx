@@ -372,6 +372,33 @@ namespace xAOD {
      *  Tackmann STXS uncertainty scheme
      */
 
+    // First four sources are the BLPTW ones
+    hw.qcd_stxs.push_back(hw.qcd_wg1_mu);
+    hw.qcd_stxs.push_back(hw.qcd_wg1_res);
+    hw.qcd_stxs.push_back(hw.qcd_wg1_mig01);
+    hw.qcd_stxs.push_back(hw.qcd_wg1_mig12);
+
+    // This is followed by Dsig60, Dsig120 and Dsig200
+    // These are extracted from Powheg NNLOPS scale variations (using this tool!)
+    // As the envelope of hw.qcd_nnlops, which gives (all x-sec below have Njets>=1):
+    //   sig60  = 9.687 +/- 1.566 pb
+    //   sig120 = 2.534 +/- 0.526 pb
+    //   sig200 = 0.562 +/- 0.115 pb
+    static double sig0_60=8.458, sig60_120=9.687-2.534, sig120_200=2.534-0.562, sig200_plus=0.562;
+    double dsig60=0, dsig120=0, dsig200=0;
+    if (Njets>=1) {
+      if (pTH<60) dsig60=-1.566/sig0_60; // -18.5%
+      else if (pTH<120) { // 60-120
+	dsig60  =  1.566/sig60_120; // +22%
+	dsig120 = -0.526/sig60_120; // -7.4%
+      } else if (pTH<200) { // 120-200
+	dsig120 = 0.526/sig120_200; // +27%
+      } else dsig200=0.115/sig200_plus; // +20%
+    }
+    hw.qcd_stxs.push_back((1.0+dsig60)*w_nom);
+    hw.qcd_stxs.push_back((1.0+dsig120)*w_nom);
+    hw.qcd_stxs.push_back((1.0+dsig200)*w_nom);
+
     return hw;
   }
   
