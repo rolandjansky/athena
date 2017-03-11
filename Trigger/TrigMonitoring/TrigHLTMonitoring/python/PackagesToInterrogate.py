@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#
-# Author: Ben Smart (bsmart@cern.ch)
-#
+# Authors: Ben Smart (ben.smart@cern.ch)
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 # put all storage of information on tool package names etc. in a single class
 class PackagesToInterrogate:

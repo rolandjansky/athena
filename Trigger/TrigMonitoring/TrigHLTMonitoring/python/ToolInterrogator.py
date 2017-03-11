@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#
-# Author: Ben Smart (bsmart@cern.ch)
-#
+# Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 import sys
 # needed for getting package names etc. of tools
@@ -29,7 +28,7 @@ class ToolInterrogator:
     def load_all_tools(self):
         "Set up all trigger-monitoring tools, such that they can be interrogated."
 
-        # info for user
+        
         print "Now setting up all trigger-monitoring tools."
         print ""
         print "#"*10
@@ -44,7 +43,7 @@ class ToolInterrogator:
             # then initialise the tool
             exec "%s()" % (value['ToolName'])
 
-        # info for user
+        
         print ""
         print "#"*10
         print ""
@@ -229,7 +228,7 @@ class ToolInterrogator:
                 # # is the object equal to itself after packing and unpacking (it should be)
                 # if throwaway_test_object != value:
 
-                #     # info for user
+                #     
                 #     print "In",tool_ToolSvc_name,", the object",prop,"has the value",value
                 #     print "However, after json dumping and loading, this object has the value",throwaway_test_object
                 #     print "As these values are not equal, the object can not be stored and accurately retrieved from the database, and thus will not be stored."
@@ -292,7 +291,7 @@ class ToolInterrogator:
                     # # is the object equal to itself after packing and unpacking (it should be)
                     # if throwaway_test_object != item_value:
 
-                    #     # info for user
+                    #     
                     #     print "In",monitCategoryName,", the object",item_name,"has the value",item_value
                     #     print "However, after json dumping and loading, this object has the value",throwaway_test_object
                     #     print "As these values are not equal, the object can not be stored and accurately retrieved from the database, and thus will not be stored."

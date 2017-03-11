@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#
-# Authors: Ben Smart (bsmart@cern.ch) & Xanthe Hoad (xanthe.hoad@cern.ch)
-#
+# Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 import sys
 # needed for oracle database connection
@@ -209,10 +208,8 @@ class OracleInterface:
 
         # dict of new smck
         smck_ids = []
-
         # make new smck
         for tool_key, tool_info in tool_list.iteritems():
-
             # upload each smck, and add the smck_id to the list
             # if the smck config already exists, then the existing smck_id will be returned
             smck_ids.append(self.upload_smck(tool_info))
@@ -222,16 +219,12 @@ class OracleInterface:
 
         # if the mck does not already exist
         if mck_id == -1:
-
             # get the mck info
             mck_info = global_info['MCK']
-
             # make a new mck
             mck_id = self.upload_mck(mck_info)
-
             # now link the mck to the smck
             for smck_id in smck_ids:
-
                 # create link
                 self.upload_mck_smck_link(mck_id,smck_id)
 
@@ -284,15 +277,12 @@ class OracleInterface:
 
         # if it is not in the database
         if smck_id == -1:
-
             # get new smck_tool_patch_version
             smck_info['SMCK_TOOL_PATCH_VERSION'] = self.get_next_smck_tool_patch_version(smck_info['SMCK_TOOL_TYPE'])
-
             # prepare insert data
             insert = {}
             for key in smck_info.keys():
-                #if key != 'SMCK_CONFIG':
-                    insert[key] = ":"+key
+                insert[key] = ":"+key
 
             # prepare insert data for things that are set by the server
             insert['SMCK_ID'] = self.directory+"seq_smck_table_id.NEXTVAL" # from sequence
@@ -329,12 +319,9 @@ class OracleInterface:
 
         # if the smck_info is already in database
         else:
-
             # get existing smck_info
             existing_smck_info = self.read_smck_info_from_db(smck_id)
-
             # fill with the existing values
-            #smck_info = existing_smck_info # why doesn't this work?
             smck_info['SMCK_ID'] = smck_id
             smck_info['SMCK_TOOL_PATCH_VERSION'] = existing_smck_info['SMCK_TOOL_PATCH_VERSION']
 
@@ -364,20 +351,16 @@ class OracleInterface:
 
         # check if mck already exists
         search_results = self.check_if_mck_exists(smck_ids)
-
         # check if there is an exact match
         # if not, leave mck_id = -1
         mck_id = -1
 
         # first check if links were found
         if search_results != -1:
-
             # loop over possible matches
             for row_mck_id in search_results:
-
                 # check if this is an exact match
                 if len(self.read_mck_links_from_db(row_mck_id)) == len(smck_ids):
-
                     # if so, this is the existing mck
                     mck_id = row_mck_id
                     break
@@ -397,7 +380,6 @@ class OracleInterface:
         # for each smck_id, find mck that link to that smck
         # returned mck_id must link to all smck
         for smck_id in smck_ids:
-
             # add a sub-query for each smck
             query += "AND "+self.directory+"mck_table.mck_id IN (SELECT "+self.directory+"mck_to_smck_link.link_mck FROM "+self.directory+"mck_to_smck_link WHERE "+self.directory+"mck_to_smck_link.link_smck = "+str(smck_id)+" ) "
 
@@ -735,17 +717,14 @@ class OracleInterface:
         # test that the table and column names are valid
         table_and_column_match = False
         for row in database_schema:
-
             # check if the table and column match
             if row['TABLE_NAME'] == table_name.upper() and row['COLUMN_NAME'] == column_name.upper():
-
                 # we have a match
                 table_and_column_match = True
                 break
 
         # if there was no match
         if not table_and_column_match:
-
             # no match, so return the empty list
             return return_list
 
@@ -758,8 +737,6 @@ class OracleInterface:
             query = query+" WHERE "+column_name+" = :INPUT1"
             parameters_dict['INPUT1'] = input1
 
-        #query = "SELECT * FROM "+self.directory+table_name+" WHERE "+column_name+" = :INPUT1"
-
         # perform the search
         search_results = self.fetch(query,parameters_dict)
 
@@ -769,7 +746,6 @@ class OracleInterface:
 
             # if this row belongs to the desired table
             if schema_row['TABLE_NAME'] == table_name:
-
                 # then we add this column name to our list
                 # we need to add it to the start of the list (insert before element 0),
                 # as the database table/column search function returns the results in reversed order(?)
@@ -779,10 +755,8 @@ class OracleInterface:
 
         # loop over results
         for result_row in search_results:
-
             # the length of column_list should be the same as the length of result_row
             if len(column_list) != len(result_row):
-
                 # something has gone very wrong
                 print "ERROR in OracleInterface.column_search(",input1,",",table_name,",",column_name,")"
                 print "column_list =",column_list
@@ -795,7 +769,6 @@ class OracleInterface:
             # need to check if this is an smck,
             # in which case we need to turn the json CLOB into a dict
             if table_name == 'SMCK_TABLE':
-
                 # first we read out the CLOB
                 # then we turn the json string into a dict
                 #row_dict['SMCK_CONFIG'] = json.loads(row_dict['SMCK_CONFIG'].read())

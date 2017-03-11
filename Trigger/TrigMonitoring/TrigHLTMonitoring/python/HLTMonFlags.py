@@ -16,21 +16,21 @@ class doMonTier0(JobProperty):
 list+=[doMonTier0]
 
 class doGeneral(JobProperty):
-	""" switch for general HLTMon Tool"""
+	""" switch for general HLTMon Tool """
 	statusOn=True
 	allowedTypes=['bool']
 	StoredValue=True
 list+=[doGeneral]
 
 class doMaM(JobProperty):
-	""" Global switch for menu-aware monitoring"""
+	""" Global switch for menu-aware monitoring """
 	statusOn=True
 	allowedTypes=['bool']
-	StoredValue=False
+	StoredValue=True
 list+=[doMaM]
 
 class doMaM_ExtractAndDumpConfigs(JobProperty):
-	""" Switch for menu-aware monitoring: exctraction of tool configurations, and output to a json file"""
+	""" Switch for menu-aware monitoring: exctraction of tool configurations, and output to a json file """
 	statusOn=True
 	allowedTypes=['bool']
 	StoredValue=False
@@ -44,10 +44,10 @@ class MaM_OutputJSON(JobProperty):
 list+=[MaM_OutputJSON]
 
 class doMaM_ApplyMCK(JobProperty):
-	""" Switch for menu-aware monitoring: applying configurations defined by an MCK"""
+	""" Switch for menu-aware monitoring: applying configurations defined by an MCK """
 	statusOn=True
 	allowedTypes=['bool']
-	StoredValue=False
+	StoredValue=True
 list+=[doMaM_ApplyMCK]
 
 class MCK(JobProperty):
