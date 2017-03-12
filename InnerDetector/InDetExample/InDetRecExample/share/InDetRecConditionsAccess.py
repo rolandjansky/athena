@@ -135,7 +135,7 @@ if DetFlags.haveRIO.pixel_on():
         if not conddb.folderRequested('/PIXEL/Pixreco'):
             conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco",className='DetCondCFloat')
             from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthBeginSeq")
+            condSequence = AthSequencer("AthCondSeq")
             from PixelCalibAlgs.PixelCalibAlgsConf import PixelCalibCondAlg
             condSequence += PixelCalibCondAlg( "PixelCalibCondAlg" )
         ToolSvc.PixelRecoDbTool.InputSource = 2
