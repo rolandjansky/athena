@@ -471,7 +471,7 @@ public:
 
 	char _meanref[64];
 	bool displayref = false;
-	if ( href() ) { 
+	if ( meanplotref && href() ) { 
 	  displayref = true;
 	  std::sprintf( _meanref, " <t> = %3.2f #pm %3.2f ms (ref)", href()->GetMean(), href()->GetMeanError() );
 	}
@@ -535,7 +535,8 @@ public:
 
 public:
 
-  static void setplotref( bool b ) { plotref=b; }
+  static void setplotref( bool b )     { plotref=meanplotref=b; }
+  static void setmeanplotref( bool b ) { meanplotref=b; }
 
 private:
 
@@ -549,11 +550,16 @@ private:
   std::string m_plotfilename;
 
   static bool plotref;
+  static bool meanplotref;
 
 };
 
 template<typename T>
 bool tPlotter<T>::plotref = true;
+
+
+template<typename T>
+bool tPlotter<T>::meanplotref = true;
 
 
 

@@ -41,14 +41,15 @@ int usage(const std::string& name, int status) {
   s << "Usage: " << name << " [OPTIONS] expert-monitoring.root reference.root algorithm1 algorithm2 algorithm3 ...\n\n";
   s << "  TIDA \'" << name << "\' extracts timing histograms\n\n";
   s << "Options: \n";
-  s << "    -o, --outputfolder value\t puts output in folder 'value' making it if it doesn't exist, \n";
-  s << "    -t, --tag value         \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k, --key value         \t prepends key 'value' to the front of output plot names, \n";
-  s << "    -a, --auto              \t process all histograms that are in the file, \n";
-  s << "    -d, --directory value   \t if auto is set, search only in specifed directory, \n";
-  s << "    -p, --pattern value     \t if auto is set, search for histograms containing this string, \n";
-  s << "    -v, --verbose           \t verbose output\n";
-  s << "    -h, --help              \t this help\n";
+  s << "    -o,  --outputfolder value\t puts output in folder 'value' making it if it doesn't exist, \n";
+  s << "    -t,  --tag value         \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key value         \t prepends key 'value' to the front of output plot names, \n";
+  s << "    -a,  --auto              \t process all histograms that are in the file, \n";
+  s << "    -d,  --directory value   \t if auto is set, search only in specifed directory, \n";
+  s << "    -p,  --pattern value     \t if auto is set, search for histograms containing this string, \n";
+  s << "    -nr, --noref             \t do not use a reference file, \n";
+  s << "    -v,  --verbose           \t verbose output\n";
+  s << "    -h,  --help              \t this help\n";
   s << std::endl;
   return status;
 }
@@ -105,6 +106,10 @@ int main(int argc, char** argv) {
 
   bool verbose = false;
   
+  bool noref = false;
+
+  std::string frefname = "";
+
   // Parse the arguments
   std::vector<std::string> algorithms;
   for(int argnum = 1; argnum < argc; argnum++){
@@ -134,6 +139,9 @@ int main(int argc, char** argv) {
     else if (arg == "-v" || arg == "--verbose") {
       verbose = true;
     }
+    else if (arg == "-nr" || arg == "--noref") {
+      noref = true;
+    }
     else if (arg == "-ap" || arg == "--autopattern") {
       if (++argnum < argc) autopattern = argv[argnum];
       else                 return usage(argv[0], -1); 
@@ -157,28 +165,31 @@ int main(int argc, char** argv) {
           return -2;
         }
       }
-      else if (fref == 0) {
-	std::string file = globbed(arg);
-        if (exists(file)) {
-          fref = new TFile( file.c_str() );
-        }
-        else {
-          std::cerr << "main(): ref file " << arg << " does not exist" << std::endl;
-          return -3;
-        }
-      }
+      else if ( frefname=="" ) frefname = arg;
       else {
         algorithms.push_back(arg);
       }
     }
   }
-
-  if (ftest == 0 || fref == 0 ) {
+  
+  if (ftest == 0 || ( noref==false && frefname=="" ) ) {
     return usage(argv[0], -4);
   }
+  
+  if ( fref == 0 && !noref ) {
+    std::string file = globbed(frefname);
+    if (exists(file)) {
+      fref = new TFile( file.c_str() );
+    }
+    else {
+      std::cerr << "main(): ref file " << frefname << " does not exist" << std::endl;
+      return -3;
+    }
+  }
 
+  if ( noref ) fref = ftest;
 
-
+  if ( noref ) Plotter::setmeanplotref(!noref);
 
   if ( ftest && autochains ) { 
 
@@ -271,10 +282,13 @@ int main(int argc, char** argv) {
       TCanvas* c1 = new TCanvas( label("canvas-%d",int(histogram)).c_str(), "histogram", 800, 600 );
       c1->cd();
             
-      double const x1 = 0.17;
-      double const x2 = 0.25;
-      double const y1 = 0.69;
-      double const y2 = 0.90;
+      double x1 = 0.17;
+      double x2 = 0.25;
+      double y1 = 0.69;
+      double y2 = 0.90;
+
+      /// adjust the legend if no reference times are to be plotted
+      if ( noref ) y1 = y2-0.5*(y2-y1);
 
       Legend legend(x1, x2, y1, y2);
      
@@ -384,7 +398,7 @@ int main(int argc, char** argv) {
 	}
 	
 	//      }
-    //      else {
+	//      else {
 	//	plots.SetLogy(false);
 	//        c1->SetLogy(false);
 	//   }
@@ -415,13 +429,16 @@ int main(int argc, char** argv) {
   /// AAAAARGH!!!! these deletes do not work!!! they just sit there for ever!!
   ///              what is wrong with these destructors !!! I ask you
 
+
+  if ( fref!=ftest ) { 
+    std::cout << "deleting fref" << std::endl;  
+    
+    //  delete reftimers;
+    delete fref;
+  }
+
   //  delete testtimers;
   delete ftest;
-
-  std::cout << "deleting fref" << std::endl;  
-
-  //  delete reftimers;
-  delete fref;
 
   //#else
 

@@ -381,30 +381,8 @@ int main(int argc, char** argv) {
       return usage(argv[0], -4);
     }
     else { 
-      if ( _ftest==0 ) { 
-	if ( exists(arg) ) { 
-	  ftestname = arg;
-	  // _ftest = new TFile( ftestname.c_str() );
-	  _ftest = TFile::Open( ftestname.c_str() );
-
-	}
-	else { 
-	  std::cerr << "main(): test file " << arg << " does not exist" << std::endl;
-	  return -1;
-	}	    
-      }
-      else if ( _fref==0 ) { 
-	if ( exists(arg) ) {
-	  frefname = arg;
-	  // _fref = new TFile( frefname.c_str() );
-	  _fref = TFile::Open( frefname.c_str() );
-	}
-	else { 
-	  if ( _ftest ) delete _ftest;
-	  std::cerr << "main(): ref file  " << arg << " does not exist" << std::endl;
-	  return -1;
-	}	    
-      }
+      if      ( ftestname=="" ) ftestname = arg;
+      else if (  frefname=="" ) frefname = arg;
       else { 
 	std::string chain = arg;
 	replace ( chain, ":", "_" );
@@ -414,9 +392,42 @@ int main(int argc, char** argv) {
     }
   }
 
+
+  if ( ftestname=="" )  { 
+       std::cerr << "main(): test file not specified " << std::endl;
+       return -1;
+  }
+
+  if ( !exists(ftestname) ) { 
+      std::cerr << "main(): test file " << ftestname << " does not exist" << std::endl;
+      return -1;
+  }
+
+  _ftest = TFile::Open( ftestname.c_str() );
+  
+  if ( noref==false ) { 
+    if ( frefname=="" )  { 
+      std::cerr << "main(): ref file not specified " << std::endl;
+      return -1;
+    }
+    
+    if ( frefname==ftestname )    _fref = _ftest;
+    else if ( exists(frefname) )  _fref = TFile::Open( frefname.c_str() );
+    else { 
+      std::cerr << "main(): test file " << ftestname << " does not exist" << std::endl;
+      return -1;
+    }
+  }
+  else _fref = _ftest;
+  
+  if ( _ftest==0 || _fref==0 ) { 
+    std::cerr << "could not open files " << std::endl;
+    return -1;
+  }
+  
   if ( scale_eff     == -1 ) scale_eff     = 100;
   if ( scale_eff_ref == -1 ) scale_eff_ref = scale_eff;
-
+  
 
   bool noreftmp = noref;
 
@@ -510,11 +521,16 @@ int main(int argc, char** argv) {
   }
 
   TFile& ftest = *_ftest;
+
+
   TFile& fref  = *_fref;
 
 
   std::string testrun = findrun( &ftest );
-  std::string  refrun = findrun( &fref  );
+
+  std::string  refrun = "";
+
+  if ( _fref ) refrun = findrun( &fref  );
 
   std::cout << "testrun: " << testrun << "\nrefrun:  " << refrun << std::endl;
 
@@ -1790,7 +1806,10 @@ int main(int argc, char** argv) {
   
   /// if deleting all non-used reference histograms 
 
-  if ( deleteref ) {
+  /// make sure we are not using the same reference as test file
+  bool files_duplicated = ( _fref==_ftest );
+
+  if ( deleteref && !files_duplicated ) {
     
     if ( _fref ) { 
     
@@ -1841,15 +1860,14 @@ int main(int argc, char** argv) {
       
   /// close files
 
+  if ( _fref && !files_duplicated ) _fref->Close();
   if ( _ftest ) _ftest->Close();
-  if ( _fref )  _fref->Close();
       
-
   /// now actually overwrite the old reference file
 
-  if ( deleteref ) { 
+  if ( deleteref && !noref ) { 
     std::cout << "ref " << frefname << "\ttest " << ftestname << std::endl; 
-    if ( frefname !=  ftestname ) { 
+    if ( frefname != ftestname && !files_duplicated ) { 
       std::string cmd = std::string("mv ") + frefname + " " + frefname + ".bak";
       std::system( cmd.c_str() );
       
@@ -1861,8 +1879,10 @@ int main(int argc, char** argv) {
     }
   }  
  
+  //  std::cout << "deleting " << __LINE__ << std::endl;
+
+  if ( _fref && !files_duplicated ) delete _fref;
   if ( _ftest ) delete _ftest;
-  if ( _fref )  delete _fref;
 
   return 0;
 }
