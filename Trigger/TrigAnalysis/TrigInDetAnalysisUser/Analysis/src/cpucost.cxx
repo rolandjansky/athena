@@ -47,6 +47,7 @@ int usage(const std::string& name, int status) {
   s << "    -a, --auto              \t process all histograms that are in the file, \n";
   s << "    -d, --directory value   \t if auto is set, search only in specifed directory, \n";
   s << "    -p, --pattern value     \t if auto is set, search for histograms containing this string, \n";
+  s << "    -v, --verbose           \t verbose output\n";
   s << "    -h, --help              \t this help\n";
   s << std::endl;
   return status;
@@ -102,6 +103,8 @@ int main(int argc, char** argv) {
 
   TDirectory* tdir = gDirectory;
 
+  bool verbose = false;
+  
   // Parse the arguments
   std::vector<std::string> algorithms;
   for(int argnum = 1; argnum < argc; argnum++){
@@ -127,6 +130,9 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-a" || arg == "--auto") {
       autochains = true;
+    }
+    else if (arg == "-v" || arg == "--verbose") {
+      verbose = true;
     }
     else if (arg == "-ap" || arg == "--autopattern") {
       if (++argnum < argc) autopattern = argv[argnum];
@@ -184,6 +190,7 @@ int main(int argc, char** argv) {
 
     if ( autopattern=="" ) { 
       for ( unsigned j=0 ; j<dirs.size() ; j++ ) { 
+	if ( verbose ) std::cout << "\talgorithm " << dirs[j] << std::endl;
 	algorithms.push_back( dirs[j] );
       }
     }
@@ -266,7 +273,7 @@ int main(int argc, char** argv) {
             
       double const x1 = 0.17;
       double const x2 = 0.25;
-      double const y1 = 0.83;
+      double const y1 = 0.69;
       double const y2 = 0.90;
 
       Legend legend(x1, x2, y1, y2);

@@ -67,7 +67,9 @@ int usage(const std::string& name, int status) {
   s << "    -e,  --efficiencies       \t make test efficiencies with respect to reference \n";
   s << "    -es, --effscale value     \t scale efficiencies to value\n";
   s << "    -er, --effscaleref  value \t scale efficiencies to value\n";
-  s << "    -r,  --refit              \t refit all resplots\n";
+  s << "    -r,  --refit              \t refit all test resplots\n";
+  s << "    -rr, --refitref           \t also refit all reference resplots\n";
+  s << "         --oldrms             \t use fast rms95 when refitting resplots\n";
   s << "    -l,  --labels             \t use specified labels for key\n";
   s << "         --taglabels          \t use specified additional labels \n";
   s << "    -nb  --nobayes            \t do not calculate Basyesian efficiency uncertaintiesr\n";
@@ -199,7 +201,7 @@ int main(int argc, char** argv) {
 
   bool make_ref_efficiencies = false;
   bool refit_resplots        = false;
-
+  bool refitref_resplots     = false;
   bool _bayes      = true;
   bool nopng       = false;
   bool nostats     = false;
@@ -214,6 +216,7 @@ int main(int argc, char** argv) {
   bool dochi2      = false;
   bool normref     = false;
   bool scalepix    = true;
+  bool oldrms      = false;
 
   std::string atlaslabel = "Internal";
 
@@ -296,6 +299,12 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-r" || arg=="--refit" ) { 
       refit_resplots = true;
+    }
+    else if ( arg=="-rr" || arg=="--refitref" ) { 
+      refitref_resplots = true;
+    }
+    else if ( arg=="--oldrms" ) { 
+      oldrms = true;
     }
     else if ( arg=="-nw" || arg=="--nowatermark" ) {
       nowatermark = true;
@@ -1041,16 +1050,25 @@ int main(int argc, char** argv) {
   
       /// refit the resplots - get the 2d histogram and refit
      
-      if ( refit_resplots && contains(histos[i],"/sigma") ) { 
+      if ( refit_resplots && ( contains(histos[i],"/sigma") || contains(histos[i],"/mean") ) ) { 
 
-    	    std::cout << "       refitting:  " << histos[i] << std::endl;
+    	    bool bsigma = false;
+	    if ( contains(histos[i],"/sigma") ) bsigma = true;
 
-	    Resplot::setoldrms95(false);
+	    bool bmean = false;
+	    if ( contains(histos[i],"/mean") ) bmean = true;
+
+	    //    	    std::cout << "\trefitting:  " << histos[i] << std::endl;
+
+	    Resplot::setoldrms95(oldrms);
 	    Resplot::setscalerms95(true);
 
-	    std::string _tmp = histos[i];
-	    std::string base = chop( _tmp, "/sigma" );
-  
+	    std::string tmp_  = histos[i];
+	    std::string base;
+
+	    if ( bsigma ) base = chop( tmp_, "/sigma" );
+	    if ( bmean )  base = chop( tmp_, "/mean" );
+
 	    TH2D* _htest2d = (TH2D*)ftest.Get((chains[j]+"/"+base+"/2d").c_str()) ;
 	    TH2D* _href2d  = (TH2D*)ftest.Get((refchain+"/"+base+"/2d").c_str()) ;
 
@@ -1065,14 +1083,29 @@ int main(int argc, char** argv) {
 
 	    //	    std::cout << "test " << _htest2d << std::endl;
 	    Resplot rtest("tmp", _htest2d);
-	    rtest.Finalise(Resplot::FitNull95);
-	    htest = (TH1F*)rtest.Sigma()->Clone("rtest_sigma"); htest->SetDirectory(0);
+	    //	    if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
+	    //      else   rtest.Finalise(Resplot::FitNull95);
+	    if ( rtest.finalised() ) { 
+	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Refit(Resplot::FitNull);
+	      else  rtest.Refit(Resplot::FitNull95);
+	    }
+	    else {
+	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
+	      else  rtest.Finalise(Resplot::FitNull95);
+	    }
+
+	    if ( bsigma ) { htest = (TH1F*)rtest.Sigma()->Clone("rtest_sigma"); htest->SetDirectory(0); }
+	    if ( bmean ) {  htest = (TH1F*)rtest.Mean()->Clone("rtest_mean"); htest->SetDirectory(0); }
 
 	    if ( htest==0 ) { 
 	      std::cerr << "missing histogram: " << (refchain+"/"+histos[i]) << " " << htest << std::endl; 
 	      continue;
 	    }
 
+
+	    /// Actually D) refit the references - if we are adding together many
+	    /// resplots, then the means etc may not even have been calculated
+	    /// 
 	    /// NB: DON'T Refit the reference, since only the central values
 	    ///     are plotted
 	    //	 std::cout << "ref " << _href2d << std::endl;
@@ -1083,23 +1116,49 @@ int main(int argc, char** argv) {
 	    /// still get the reference histo
 
 	    //	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
-	    TH1F* hreft  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
 
-	    if ( !noreftmp && hreft==0 ) { 
-	      std::cerr << "missing histogram: " << (refchain+"/"+histos[i]) << " " << htest << std::endl; 
-	      noreftmp = true; 
-	      Plotter::setplotref(!noreftmp);
+
+	    //	    TH1F* hreft  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
+	    TH1F* hreft  = 0;
+
+	    if ( !noreftmp ) {
+	      if ( refitref_resplots ) { 
+		//	    std::cout << "test " << _htest2d << std::endl;
+		Resplot rref("tmp", _href2d);
+		
+		if ( rref.finalised() ) { 
+		  if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rref.Refit(Resplot::FitNull);
+		  else  rref.Refit(Resplot::FitNull95);
+		}
+		else {
+		  if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rref.Finalise(Resplot::FitNull);
+		  else  rref.Finalise(Resplot::FitNull95);
+		}
+		
+		if ( bsigma ) { hreft = (TH1F*)rref.Sigma()->Clone("rref_sigma"); hreft->SetDirectory(0); }
+		if ( bmean )  { hreft = (TH1F*)rref.Mean()->Clone("rref_mean"); hreft->SetDirectory(0); }
+		
+	      }
+	      else { 
+		hreft  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
+	      }
 	    }
-
+	      
+	    if ( !noreftmp && hreft==0 ) { 
+		std::cerr << "missing histogram: " << (refchain+"/"+histos[i]) << " " << htest << std::endl; 
+		noreftmp = true; 
+		Plotter::setplotref(!noreftmp);
+	    }
+	      
 	    if ( !noreftmp ) { 
 	      href = (TH1F*)hreft->Clone();
 	      href->SetDirectory(0);
-	    }	      
-
-	    std::cout << "\tget " << (refchain+"/"+histos[i]) << "\t" << href << std::endl;
-
+	    }
+	    	      
+	    //	    std::cout << "\tget " << (refchain+"/"+histos[i]) << "\t" << href << std::endl;
+	    
 	    savedhistos.push_back( refchain+"/"+histos[i] );
-
+   	   
       }
       else { 
 

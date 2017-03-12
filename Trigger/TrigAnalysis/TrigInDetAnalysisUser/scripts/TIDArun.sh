@@ -35,13 +35,19 @@ if [ -e TrkNtuple-0000.root ]; then
     fi
 
     echo "fetching reference files from $REFDIR"
-     
+        
+    get_files TIDAhistos-vtx.dat
 
     EXPERT=$(grep expert $2) 
 
     # if expert timing histos
     if [ "x$EXPERT" != "x" ]; then 
-      REFFILE=$REFDIR/expert/$2
+      if [ "x$RTTJOBNAME" != "x" ]; then 
+        EXPERTREF="expert-monitoring-$(echo $RTTJOBNAME | sed 's|TrigInDetValidation_||g')-ref.root"
+        REFFILE=$REFDIR/expert/$EXPERTREF
+      else
+        REFFILE=$REFDIR/expert/$2
+      fi      
     else
       REFFILE=$REFDIR/$2
     fi
@@ -64,6 +70,11 @@ if [ -e TrkNtuple-0000.root ]; then
         echo "running comparitor " `date`
         echo
 
+        for arg in $*; do 
+           if $(echo "$arg" | grep -q "TIDA.*.dat"); then get_files -data "$arg"; fi 
+           if $(echo "$arg" | grep -q "Test.*.dat"); then get_files -data "$arg"; fi 
+        done
+
         TIDAcomparitor.exe $*
 
       else
@@ -71,6 +82,11 @@ if [ -e TrkNtuple-0000.root ]; then
         echo
         echo "running cpucost " `date`
         echo
+
+        for arg in $*; do 
+           if $(echo "$arg" | grep -q "TIDA.*.dat"); then get_files -data "$arg"; fi 
+           if $(echo "$arg" | grep -q "Test.*.dat"); then get_files -data "$arg"; fi 
+        done
 
         TIDAcpucost.exe $*
 
