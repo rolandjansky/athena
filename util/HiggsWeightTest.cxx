@@ -64,11 +64,13 @@ int main( int argc, char* argv[] ) {
    // output file
    TFile *of = new TFile(ofn,"RECREATE");
    TTree *tree = new TTree("TruthTree","");
-   float wnom=0, yH=0, pTH=0, wnlo=0;
+   float wnom=0, yH=0, pTH=0, wnlo=0; int nj, fineSTXS;
    tree->Branch("weight",&wnom,"weight/F");
    tree->Branch("weightNLO",&wnlo,"weightNLO/F");
    tree->Branch("y_H",&yH,"y_H/F");
    tree->Branch("pT_H",&pTH,"pT_H/F");
+   tree->Branch("Njets30",&nj,"Njets30/I");
+   tree->Branch("STXS",&fineSTXS,"STXS/I");
    Str ptTit = ";#it{p}_{T,#it{H}} [GeV]";
    int Nbins=25; double min=0, max=250;
 
@@ -267,7 +269,7 @@ int main( int argc, char* argv[] ) {
 		  {hw.weight0,hw.nnpdf30_nnlo,hw.pdf4lhc_nnlo,hw.nnpdf30_nlo,hw.pdf4lhc_nlo,
 		      hw.mmht2014nlo,hw.ct14nlo,hw.ct10nlo});
 
-       yH=h.Rapidity(); pTH=h.Pt(); wnom=hw.nominal; wnlo=hw.weight0;
+       yH=h.Rapidity(); pTH=h.Pt(); wnom=hw.nominal; wnlo=hw.weight0; nj=HTXS_Njets30; fineSTXS=HTXS_index;
        tree->Fill();
 
        // Print stuff to the screen for the first event in each file
