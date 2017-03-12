@@ -203,6 +203,7 @@ namespace xAOD {
     updateWeights(hw.nominal,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12);
     updateWeights(hw.nominal,hw.qcd_wg1_pTH,hw.qcd_wg1_qm);
     updateWeights(hw.nominal,hw.qcd_nnlops_nnlo,hw.qcd_nnlops_pow);
+    updateWeights(hw.nominal,hw.qcd_stxs);
   }
 
   void HiggsWeightTool::updateWeight(const double &w_nom, double &w) {
@@ -333,15 +334,16 @@ namespace xAOD {
     //       " nnlops-nominal ",
     // AND NLO quark mass weights: mtmb, mtinf, mtmb-bminlo
     
-    
+    if (Njets<0) return hw;
 
     /*********
      *  WG1 proposed ggF QCD uncertainty
      */
 
     // Cross sections in the =0, =1, and >=2 jets of Powheg ggH after reweighing scaled to  sigma(N3LO)
-    static std::vector<double> sig({30.26,13.12,5.14});
-
+    //static std::vector<double> sig({30.26,13.12,5.14});
+    static std::vector<double> sig({30.38,12.69,5.45}); // NNLOPS test sample
+    
     // BLPTW absolute uncertainties in pb
     static std::vector<double> yieldUnc({ 1.12, 0.66, 0.42});
     static std::vector<double> resUnc  ({ 0.03, 0.57, 0.42});
@@ -384,16 +386,18 @@ namespace xAOD {
     //   sig60  = 9.687 +/- 1.566 pb
     //   sig120 = 2.534 +/- 0.526 pb
     //   sig200 = 0.562 +/- 0.115 pb
-    static double sig0_60=8.458, sig60_120=9.687-2.534, sig120_200=2.534-0.562, sig200_plus=0.562;
+    static double sig0_60=8.458, sig60_200=9.125, sig120_200=1.972, 
+      sig0_120=sig0_60+sig60_200-sig120_200, sig200_plus=0.562;
+    static double Dsig60_200=1.457, Dsig120_200=0.411, Dsig200_plus=0.115;
     double dsig60=0, dsig120=0, dsig200=0;
     if (Njets>=1) {
-      if (pTH<60) dsig60=-1.566/sig0_60; // -18.5%
-      else if (pTH<120) { // 60-120
-	dsig60  =  1.566/sig60_120; // +22%
-	dsig120 = -0.526/sig60_120; // -7.4%
-      } else if (pTH<200) { // 120-200
-	dsig120 = 0.526/sig120_200; // +27%
-      } else dsig200=0.115/sig200_plus; // +20%
+      if      (pTH<60)  dsig60=-Dsig60_200/sig0_60;  // -17.2%
+      else if (pTH<200) dsig60=Dsig60_200/sig60_200; // +16.0%
+
+      if      (pTH<120) dsig120 = -Dsig120_200/sig0_120;   //  -2.6%
+      else if (pTH<200) dsig120 =  Dsig120_200/sig120_200; // +20.8%
+
+      if (pTH>200) dsig200=Dsig200_plus/sig200_plus; // +20.5%
     }
     hw.qcd_stxs.push_back((1.0+dsig60)*w_nom);
     hw.qcd_stxs.push_back((1.0+dsig120)*w_nom);
