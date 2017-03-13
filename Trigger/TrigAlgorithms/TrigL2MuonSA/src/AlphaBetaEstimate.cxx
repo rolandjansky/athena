@@ -249,6 +249,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
 	double OuterR_modified=OuterR*trackPattern.outerCorFactor;//assume dphidz=0
 	double slope_modified=(OuterR_modified-MiddleR)/(OuterZ-MiddleZ);
 	trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(slope_modified) );
+	ATH_MSG_DEBUG("OuterR_modified=" << OuterR_modified << " slope_modified=" << slope_modified);
       }
     }
   } else {    

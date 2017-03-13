@@ -100,8 +100,8 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 		 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
 		 << Layer << "/" << Tube);
 
-   Identifier id = m_mdtIdHelper->channelID(StationName,StationEta,
-					    StationPhi,Multilayer,Layer,Tube);
+   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_mdtIdHelper->channelID(StationName,StationEta,
+       StationPhi,Multilayer,Layer,Tube);
 
    int tdcCounts    = (int)mdtHit.DriftTime;
    int adcCounts    = mdtHit.Adc;
