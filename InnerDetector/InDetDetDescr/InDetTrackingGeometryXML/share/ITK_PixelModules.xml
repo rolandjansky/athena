@@ -8,6 +8,7 @@
   <chipWidth>16.8</chipWidth>
   <pitchEta>0.050</pitchEta>
   <pitchPhi>0.050</pitchPhi>
+  <chipGap> 0. </chipGap>
   <rows>336</rows>
   <columns>400</columns>
   <Edges>
@@ -21,6 +22,7 @@
   <name> RD53_25x100 </name>
   <chipLength>20.0</chipLength>
   <chipWidth>16.8</chipWidth>
+  <chipGap> 0. </chipGap>
   <pitchEta>0.100</pitchEta>
   <pitchPhi>0.025</pitchPhi>
   <rows>672</rows>
@@ -208,6 +210,7 @@
   <name> FEI4 </name>
   <chipLength>20.0</chipLength>
   <chipWidth>16.8</chipWidth>
+  <chipGap> 0. </chipGap>
   <pitchEta>0.25</pitchEta>
   <pitchPhi>0.05</pitchPhi>
   <rows>336</rows>
@@ -267,6 +270,7 @@
   <name>Inner</name>
   <chipLength>20.45</chipLength>
   <chipWidth>16.81</chipWidth>
+  <chipGap> 0. </chipGap>
   <hybridLength>41.5</hybridLength>
   <hybridWidth>18.8</hybridWidth>
   <pitchEta>0.150</pitchEta>
@@ -284,6 +288,7 @@
   <name>Outer</name>
   <chipLength>20.25</chipLength>
   <chipWidth>16.955</chipWidth>
+  <chipGap> 0. </chipGap>
   <hybridLength>41.3</hybridLength>
   <hybridWidth>38.</hybridWidth>
   <pitchEta>0.250</pitchEta>
@@ -301,6 +306,7 @@
   <name>Inter</name>
   <chipLength>20.45</chipLength>
   <chipWidth>16.955</chipWidth>
+  <chipGap> 0. </chipGap>
   <hybridLength>41.5</hybridLength>
   <hybridWidth>38.</hybridWidth>
   <pitchEta>0.150</pitchEta>
@@ -318,6 +324,7 @@
   <name>Hex</name>
   <chipLength>20.43</chipLength>
   <chipWidth>16.955</chipWidth>
+  <chipGap> 0. </chipGap>
   <hybridLength>41.3</hybridLength>
   <hybridWidth>38.</hybridWidth>
   <pitchEta>0.250</pitchEta>
@@ -379,6 +386,7 @@
   <name>Disk4</name>
   <chipLength>21.5</chipLength>
   <chipWidth>18.8</chipWidth>
+  <chipGap> 0. </chipGap>
   <pitchEta>0.050</pitchEta>
   <pitchPhi>0.050</pitchPhi>
   <rows>336</rows>
@@ -394,6 +402,7 @@
   <name>Disk5</name>
   <chipLength>20.65</chipLength>
   <chipWidth>19.0</chipWidth>
+  <chipGap> 0. </chipGap>
   <pitchEta>0.050</pitchEta>
   <pitchPhi>0.050</pitchPhi>
   <rows>339</rows>
@@ -409,6 +418,7 @@
   <name>Disk6</name>
   <chipLength>20.435</chipLength>
   <chipWidth>19.0</chipWidth>
+  <chipGap> 0. </chipGap>
   <pitchEta>0.050</pitchEta>
   <pitchPhi>0.050</pitchPhi>
   <rows>339</rows>

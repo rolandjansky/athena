@@ -1,3 +1,11 @@
+2017-03-13 Simon Viel
+        * Add optimised ring system for Inclined layout with 25x100 pixels
+        * Tag as InDetTrackingGeometryXML-00-00-57
+
+2017-02-20 Thorsten Kuhl
+        * add <chipGap> 0. </chipGap> to Frontendchips in XML where missing
+        * Tag as InDetTrackingGeometryXML-00-00-56
+
 2017-01-29 Noemi Calace <Noemi.Calace@cern.ch>
 	* Checking Optimised ring system for Inclined layout
 	* Tag as InDetTrackingGeometryXML-00-00-55
