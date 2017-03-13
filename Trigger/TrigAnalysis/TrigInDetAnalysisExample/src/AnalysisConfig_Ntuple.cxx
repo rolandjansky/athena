@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 
-// McParticleEvent includes
+
 #include <cstdio>
 
 #include <sys/time.h> 
@@ -63,6 +63,7 @@
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
 
+#define endmsg endmsg
 
 
 bool tida_first = true;
@@ -127,6 +128,9 @@ void AnalysisConfig_Ntuple::loop() {
 	double ybeam = 0;
 	double zbeam = 0;
 	std::vector<double> beamline;
+
+	bool foundOffline = false;
+
 	if ( m_iBeamCondSvc ) {
 
 #ifdef EIGEN_GEOMETRY_MODULE_H	  
@@ -395,7 +399,6 @@ void AnalysisConfig_Ntuple::loop() {
 	bool analyse = false;
 	// bool analyse = true;
 
-
 	unsigned _decisiontype = TrigDefs::Physics;
 	
 	if ( requireDecision() ) _decisiontype = TrigDefs::requireDecision;
@@ -538,8 +541,9 @@ void AnalysisConfig_Ntuple::loop() {
 
 
 
-	/// bomb out if no chains passed and not told to keep all events  
-	if ( !analyse && !m_keepAllEvents ) { 
+	/// bomb out if no chains passed and not told to keep all events and found no 
+	/// offline objects 
+	if ( !analyse && !m_keepAllEvents && !foundOffline ) { 
 	  m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event: " << run_number << " " << event_number << " " << lumi_block << endmsg; 
 	  return;
 	}
@@ -867,8 +871,7 @@ void AnalysisConfig_Ntuple::loop() {
 	int Noff  = 0;
 	int Nmu   = 0;
 	int Nel   = 0;
-	int Ntau1  = 0;
-	int Ntau3 = 0;
+        int Ntau  = 0;
 
 
 	/// now add the offline vertices
@@ -980,11 +983,6 @@ void AnalysisConfig_Ntuple::loop() {
 	  "TightCB", "MediumCB", "LooseCB",
 	  "TightLH", "MediumLH", "LooseLH" };
  
-	bool ElectronTypes[7] = { 
-	  m_doElectrons, 
-	  m_doElectrons_tightCB,   m_doElectrons_mediumCB,   m_doElectrons_looseCB,  
-	  m_doElectrons_tightLH,   m_doElectrons_mediumLH,   m_doElectrons_looseLH };
-
 
 	/// new electron selection 
 
@@ -999,9 +997,14 @@ void AnalysisConfig_Ntuple::loop() {
 	  //	  std::cout << "\tElectrons selection " << ielec << " " << m_electronType[ielec] 
 	  //		    << "\t" << itype << " " << ElectronRef[itype] << "\t" << m_rawElectrons[ielec] << std::endl;
 	  
-	  Nel += processElectrons( selectorRef, itype, ( m_rawElectrons[ielec]=="raw" ? true : false ) );
-	
-	  std::string echain = std::string("Electrons_") + m_electronType[ielec];
+	  int Nel_ = processElectrons( selectorRef, itype, ( m_rawElectrons[ielec]=="raw" ? true : false ) );
+
+          if ( Nel_ < 1 ) continue;
+      
+          Nel += Nel_;	
+
+	  std::string echain = std::string("Electrons");
+          if ( m_electronType[ielec]!="" )    echain += "_" + m_electronType[ielec];
 	  if ( m_rawElectrons[ielec]=="raw" ) echain += "_raw";
 	  
 	  m_event->addChain( echain );
@@ -1020,29 +1023,6 @@ void AnalysisConfig_Ntuple::loop() {
 	}
 	
        
-
-	/// old electron selection 
-	
-	for ( int ielec=0 ; ielec<7 ; ielec++ ) {
-	  if ( ElectronTypes[ielec] ) {   
-	    Nel += processElectrons( selectorRef, ielec, false ); ///
-	    if ( ElectronRef[ielec]=="" ) m_event->addChain( "Electrons" );
-	    else                          m_event->addChain( std::string("oldElectrons0_")+ ElectronRef[ielec] );
-	    m_event->back().addRoi(TIDARoiDescriptor(true));
-	    m_event->back().back().addTracks(selectorRef.tracks());
-	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
-	      std::vector<double> _beamline;
-	      _beamline.push_back( selectorRef.getBeamX() );
-	      _beamline.push_back( selectorRef.getBeamY() );
-	      _beamline.push_back( selectorRef.getBeamZ() );
-	      m_event->back().back().addUserData(_beamline);
-	    }
-	    else { 	  
-	      m_event->back().back().addUserData(beamline);
-	    }
-	  }
-	}	  
-
 	//	std::cout << "doMuons " << m_doMuons << std::endl;
 
 	/// get muons 
@@ -1094,55 +1074,37 @@ void AnalysisConfig_Ntuple::loop() {
 	
 
 
-	/// get one prong taus
-	std::string TauRef_1Prong[4] =  { 
-	  "Taus_1Prong", 
-	  "Taus_Tight_1Prong", "Taus_Medium_1Prong", "Taus_Loose_1Prong" };
- 
-	bool TauTypes_1Prong[4] = { 
-	  m_doTaus_1Prong, 
-	  m_doTaus_tight_1Prong,   m_doTaus_medium_1Prong,   m_doTaus_loose_1Prong };
+	/// new tau selection 
+	std::string TauRef[4] = { "", "Tight", "Medium", "Loose" };
+	
+	for ( size_t itau=0 ; itau<m_tauType.size() ; itau++ ) {
+	  /// hmm, if we stored the types as a map it would be more 
+	  /// straightforward than having to stick all this in a loop
 
-	for ( int itau=0 ; itau<4 ; itau++ ) {
-	  if ( TauTypes_1Prong[itau] ) {
-	    Ntau1 = processTaus( selectorRef, false, itau, 25000 );
-	    m_event->addChain( TauRef_1Prong[itau] );
-	    m_event->back().addRoi(TIDARoiDescriptor(true));
-	    m_event->back().back().addTracks(selectorRef.tracks());
-	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
-              std::vector<double> _beamline;
-	      _beamline.push_back( selectorRef.getBeamX() );
-	      _beamline.push_back( selectorRef.getBeamY() );
-	      _beamline.push_back( selectorRef.getBeamZ() );
-	      m_event->back().back().addUserData(_beamline);
-	    }
-	    else { 	  
-	      m_event->back().back().addUserData(beamline);
-	    }
-	  }
-	}
+	  int itype = -1;
+	  for ( int it=0 ; it<4 ; it++ ) if ( m_tauType[itau]==TauRef[it] ) itype = it; 
+	  if ( itype<0 ) continue;
+
+	  /// use same threshold for 1 and 3 prong ??
+	  int requireNtracks = 0;
+	  if  ( m_tauProngs[itau]=="3Prong" ) requireNtracks = 3;	
+	  if  ( m_tauProngs[itau]=="1Prong" ) requireNtracks = 1;
+
+	  int Ntau_ = processTaus( selectorRef, itype, requireNtracks, 20000 ); 
+
+	  Ntau += Ntau_;
+
+	  if ( Ntau_ > 0 ) { 
+	    /// only add a tau collection if there are actually the 
+	    /// relevant taus
+	    std::string tchain = std::string("Taus");
+	    if (   m_tauType[itau] != "" ) tchain += "_" + m_tauType[itau];
+	    if ( m_tauProngs[itau] != "" ) tchain += "_" + m_tauProngs[itau];
 	    
-
-	// for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  one prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endmsg;  
-	//}
-
-        /// get three prong taus
-	std::string TauRef_3Prong[4] =  { 
-	  "Taus_3Prong", 
-	  "Taus_Tight_3Prong", "Taus_Medium_3Prong", "Taus_Loose_3Prong" };
- 
-	bool TauTypes_3Prong[4] = { 
-	  m_doTaus_3Prong, 
-	  m_doTaus_tight_3Prong,   m_doTaus_medium_3Prong,   m_doTaus_loose_3Prong };
-
-	for ( int itau=0 ; itau<4 ; itau++ ) {
-	  // See comments for doElectrons section above for possible issues with the looping
-	  // funcitonality here
-	  if ( TauTypes_3Prong[itau] ) {
-	    Ntau3 = processTaus( selectorRef, true, 20000, itau);
-	    m_event->addChain( TauRef_3Prong[itau] );
+	    m_event->addChain( tchain );
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
 	    m_event->back().back().addTracks(selectorRef.tracks());
+	    
 	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
 	      std::vector<double> _beamline;
 	      _beamline.push_back( selectorRef.getBeamX() );
@@ -1155,15 +1117,11 @@ void AnalysisConfig_Ntuple::loop() {
 	    }
 	  }
 	}
-	    
-	//  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << " 3 prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endmsg;  
-	//    	}	  
-
-
-
-	if ( Nmu==0 && Noff==0 && Nel==0 && Ntau1==0 && Ntau3==0 ) { 
-	  m_provider->msg(MSG::INFO) << "No offline objects found " << endmsg;
-	}
+	
+	//	std::cout << "SUTT Ntaus: " << Ntau << std::endl;
+	
+	if ( Nmu==0 && Noff==0 && Nel==0 && Ntau==0 ) m_provider->msg(MSG::INFO) << "No offline objects found " << endmsg;
+	else foundOffline = true;
 
 
 	// now loop over all relevant chains to get the trigger tracks...
