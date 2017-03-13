@@ -14,9 +14,6 @@
 
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "Particle/TrackParticleContainer.h"
-//#include "MboyEDMToolInterfaces/IMuonboyToParticleTool.h"
-//#include "MboyAthToolInterfaces/IMuonBackTracker.h"
-
 #include <vector>
 
 using namespace Muon;
@@ -26,23 +23,16 @@ MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcL
      m_segmentKey("MooreSegments"),
      m_spectroTrackKey("MuonSpectrometerTracks"),
      m_spectroPartiKey("MuonSpectrometerParticles"),
-     // m_extrapTrackKey(""),
      m_extrapPartiKey("ExtrapolatedMuonSpectrometerParticles"),
      m_trackMaker("Muon::MuonTrackFinder/MuonTrackSteering"),
-//   , m_convTool("")
-//   , p_IMuonBackTracker("")
      m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool")
 {
-  // MoMu Key segments (per chamner)
+  // MoMu Key segments (per chamber)
   declareProperty("TrackSteering",m_trackMaker);
   declareProperty("MuonSegmentCollection", m_segmentKey);
   declareProperty("SpectrometerTrackOutputLocation", m_spectroTrackKey);
   declareProperty("SpectrometerParticleOutputLocation", m_spectroPartiKey);
-  // declareProperty("ExtrapolatedTrackOutputLocation",    m_extrapTrackKey);
-  // set to "ExtrapolatedMuonSpectrometerTracks" for muonboy-like convention);
   declareProperty("ExtrapolatedParticleOutputLocation", m_extrapPartiKey);
-//   declareProperty("TrackToParticleTool",   m_convTool);
-//  declareProperty("MuonBackTracker",   p_IMuonBackTracker);
 }
 
 MuPatTrackBuilder::~MuPatTrackBuilder()
@@ -59,30 +49,10 @@ StatusCode MuPatTrackBuilder::initialize()
     return StatusCode::FAILURE;
   }
   if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved " << m_trackMaker << endmsg;
-
-/*  if (!m_convTool.empty()) {
-    if (m_convTool.retrieve().isFailure()){
-      ATH_MSG_FATAL ("Could not get track converter " << m_convTool << ". STACO will have problems.");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG ("Retrieved " << m_convTool);
-    }
-  }
-
-  if (!p_IMuonBackTracker.empty()) {
-    if (p_IMuonBackTracker.retrieve().isFailure()){
-      ATH_MSG_FATAL ("Could not get track converter " << p_IMuonBackTracker << ". STACO will have problems.");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG ("Retrieved " << p_IMuonBackTracker);
-    }
-  }*/
   
  ATH_CHECK( m_segmentKey.initialize() );
  ATH_CHECK( m_spectroTrackKey.initialize() );
  ATH_CHECK( m_spectroPartiKey.initialize() );
- // ATH_CHECK( m_extrapTrackKey.initialize() );
- ATH_CHECK( m_extrapPartiKey.initialize() );
 
   return StatusCode::SUCCESS; 
 }
