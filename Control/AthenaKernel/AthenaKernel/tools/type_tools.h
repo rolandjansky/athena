@@ -42,16 +42,16 @@ namespace type_tools {
   private:
     typedef typename boost::add_reference<T>::type TRef;
     typedef const TRef const_TRef;
-    BOOST_STATIC_CONSTANT(bool, isScalar = boost::is_scalar<T>::value);
+    BOOST_STATIC_CONSTANT(bool, s_isScalar = boost::is_scalar<T>::value);
   public:
-    typedef typename boost::detail::if_true<(isScalar)>::template
+    typedef typename boost::detail::if_true<(s_isScalar)>::template
     then<
       T,
       //else
       TRef
       >::type ref_type;
 
-    typedef typename boost::detail::if_true<(isScalar)>::template
+    typedef typename boost::detail::if_true<(s_isScalar)>::template
     then<
       T,
       //else
@@ -59,7 +59,7 @@ namespace type_tools {
       //FIXME const_TRef
       >::type const_type;
       
-    typedef typename boost::detail::if_true<(isScalar)>::template
+    typedef typename boost::detail::if_true<(s_isScalar)>::template
     then<
       T,
       //else
