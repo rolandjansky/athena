@@ -15,6 +15,12 @@
  * $Id: CoreDumpSvc.h,v 1.6 2008-12-15 13:24:23 fwinkl Exp $
  */
 
+// System includes
+#include <signal.h>
+#include <string>
+#include <atomic>
+#include <tbb/concurrent_unordered_map.h>
+
 // Package includes
 #include "AthenaKernel/ICoreDumpSvc.h"
 #include "AthenaKernel/AlgorithmTimer.h"
@@ -24,10 +30,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "EventInfo/EventID.h"
 
-// System includes
-#include <string>
-#include <map>
-#include <signal.h>
 
 // Forward declarations
 template <class TYPE> class SvcFactory;
@@ -40,6 +42,7 @@ namespace CoreDumpSvcHandler {
  * @class  CoreDumpSvc
  * @brief  Service to print additional information before a crash
  * @author Frank Winklmeier
+ * @author Sami Kama
  *
  * This service will catch fatal signals and print its internal core
  * dump record. The service collects some information during event
@@ -93,12 +96,15 @@ public:
 
     
 private:
-  typedef std::map<std::string, std::string> CoreDump_t;   ///< Type of core dump records
-  
-  CoreDump_t m_usrCoreDump;   ///< User defined core dump info
-  CoreDump_t m_sysCoreDump;   ///< Core dump info collected by this service  
+  struct sysDumpRec{
+    std::string LastInc;
+    std::string EvId;
+  };
+  typedef tbb::concurrent_unordered_map<std::string,std::string > UserCore_t;
+  std::vector<UserCore_t>  m_usrCoreDumps;   ///< User defined core dump info
+  std::vector<sysDumpRec> m_sysCoreDumps;   ///< Core dump info collected by this service  
   siginfo_t* m_siginfo;       ///< Pointer to siginfo_t struct (set by signal handler)
-  EventID::number_type m_eventCounter;       ///< Event counter
+  std::atomic<EventID::number_type> m_eventCounter;       ///< Event counter
   
   // Properties
   IntegerArrayProperty  m_signals;         ///< Signals to catch
