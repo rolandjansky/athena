@@ -28,9 +28,9 @@ class LArG4H6BeamSD : public G4VSensitiveDetector
 //
       void Initialize(G4HCofThisEvent*) override final;
       G4bool ProcessHits(G4Step*,G4TouchableHistory*) override final;
-      void clear(){};
-      void DrawAll(){};
-      void PrintAll(){};
+      virtual void clear() override {};
+      virtual void DrawAll() override {};
+      virtual void PrintAll() override {};
       inline float GetWDIM() { return WDIM;}
       inline float GetDW() {return DW;}
       inline float GetBPCWDIM() { return BPC_WDIM;}

@@ -20,7 +20,7 @@ class LArGeoH62004EventAction final: public UserActionBase
     LArGeoH62004EventAction(const std::string& type, const std::string& name, const IInterface* parent);
 
     virtual void EndOfEvent(const G4Event* theEvent) override;
-    virtual StatusCode queryInterface(const InterfaceID&, void**);
+    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
     virtual StatusCode initialize() override;
 
   private:

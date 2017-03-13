@@ -25,7 +25,7 @@ class LArGeoH62004SteppingAction final: public UserActionBase
 
   public:
     virtual void Step(const G4Step* theStep) override;
-    virtual StatusCode queryInterface(const InterfaceID&, void**);
+    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
     virtual StatusCode initialize() override;
 
   private:
