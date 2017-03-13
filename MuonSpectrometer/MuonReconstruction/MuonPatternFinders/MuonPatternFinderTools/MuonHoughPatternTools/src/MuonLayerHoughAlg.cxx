@@ -79,9 +79,9 @@ StatusCode MuonLayerHoughAlg::execute()
     if (Handle.record(std::move(combis)).isFailure()) {
       ATH_MSG_WARNING("Failed to record MuonPatternCombinationCollection at MuonLayerHoughCombis");
     }else{
-      ATH_MSG_DEBUG("Recorded MuonPatternCombinationCollection at MuonLayerHoughCombis: size " << combis->size());
+      ATH_MSG_DEBUG("Recorded MuonPatternCombinationCollection at MuonLayerHoughCombis: size " << Handle->size());
       if( m_printSummary || msgLvl(MSG::DEBUG) ){
-        msg() << msg().level() << "Number of MuonPatternCombinations  " << combis->size() << std::endl << m_printer->print(*combis) << endmsg;
+        msg() << msg().level() << "Number of MuonPatternCombinations  " << Handle->size() << std::endl << m_printer->print(*Handle) << endmsg;
       }
     }
   }
