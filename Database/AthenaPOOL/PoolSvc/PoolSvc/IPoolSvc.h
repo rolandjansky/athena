@@ -133,7 +133,7 @@ public: // Non-static members
    /// @param connection [IN] connection string for Database to be disconnected.
    /// @param contextId [IN] context id of database to be disconnected.
    virtual StatusCode disconnectDb(const std::string& connection,
-	   unsigned int contextIdtId = IPoolSvc::kInputStream) const = 0;
+	   unsigned int contextId = IPoolSvc::kInputStream) const = 0;
 
    /// Get POOL FileSize attribute for database without logging a message
    virtual long long int getFileSize(const std::string& dbName, long tech, unsigned int contextId) const = 0;
