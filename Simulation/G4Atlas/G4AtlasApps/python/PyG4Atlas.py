@@ -885,7 +885,8 @@ class SimSkeleton(object):
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
         if hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn:
             stream2 = AthenaPoolOutputStream("StreamEVGEN", simFlags.WriteTR.get_Value())
-            stream2.ItemList += ["IOVMetaDataContainer#*"]
+            stream2.ItemList += ["IOVMetaDataContainer#*",
+                                 "EventInfo#*"]
             if simFlags.CavernBG.statusOn and 'Write' in simFlags.CavernBG.get_Value():
                 stream2.ItemList += ["TrackRecordCollection#NeutronBG"]
             else:
@@ -893,7 +894,8 @@ class SimSkeleton(object):
             stream2.AcceptAlgs = ["G4AtlasAlg"]
         if hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
             stream2 = AthenaPoolOutputStream("StreamEVGEN", simFlags.StoppedParticleFile.get_Value())
-            stream2.ItemList += ["IOVMetaDataContainer#*"]
+            stream2.ItemList += ["IOVMetaDataContainer#*",
+                                 "EventInfo#*"]
             stream2.ItemList += ["TrackRecordCollection#StoppingPositions"]
             stream2.AcceptAlgs = ["G4AtlasAlg"]
 
