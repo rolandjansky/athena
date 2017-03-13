@@ -201,7 +201,7 @@ namespace xAOD {
     updateWeights(hw.nominal,hw.ct14nlo,hw.ct14nlo_0118);
     updateWeights(hw.nominal,hw.qcd_wg1_mu,hw.qcd_wg1_res);
     updateWeights(hw.nominal,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12);
-    updateWeights(hw.nominal,hw.qcd_wg1_pTH,hw.qcd_wg1_qm);
+    updateWeights(hw.nominal,hw.qcd_wg1_pTH,hw.qcd_wg1_qm_b,hw.qcd_wg1_qm_t);
     updateWeights(hw.nominal,hw.qcd_nnlops_nnlo,hw.qcd_nnlops_pow);
     updateWeights(hw.nominal,hw.qcd_stxs);
   }
@@ -362,13 +362,23 @@ namespace xAOD {
     // High pT uncertainty 
     static double y1_1 = 0.88, y2_1 = 1.16, x2_1 = 150;
     static double y1_ge2 = 0.88, y2_ge2 = 1.16, x2_ge2 = 225;
-    double pTH_unc = 1.0;
-    if      (Njets>=2) pTH_unc = pTH>x2_ge2?y2_ge2:y1_ge2+(y2_ge2-y1_ge2)*pTH/x2_ge2;
-    else if (Njets==1) pTH_unc = pTH>x2_1?y2_1:y1_1+(y2_1-y1_1)*pTH/x2_1;
-    hw.qcd_wg1_pTH = pTH_unc*w_nom;
+    double pTH_uncSF = 1.0;
+    if      (Njets==1) pTH_uncSF = linInter(pTH,0,y1_1,x2_1,y2_1);
+    else if (Njets>=2) pTH_uncSF = linInter(pTH,0,y1_ge2,x2_ge2,y2_ge2);
+    //pTH>x2_ge2?y2_ge2:y1_ge2+(y2_ge2-y1_ge2)*pTH/x2_ge2;
+    //else if (Njets==1) pTH_uncSF = pTH>x2_1?y2_1:y1_1+(y2_1-y1_1)*pTH/x2_1;
+    hw.qcd_wg1_pTH = pTH_uncSF*w_nom;
+
+    double qmSF=1.0;
+    if      (Njets==0) qmSF = linInter(pTH,6,0.92,24,1.05);
+    else if (Njets==1) qmSF = linInter(pTH,35,0.92,62.5,1.05);
+    else if (Njets>=2) qmSF = linInter(pTH,40,0.92,120,1.05);
+    hw.qcd_wg1_qm_b = w_nom * qmSF;
+    hw.qcd_wg1_qm_t = w_nom * linInter(pTH,160,1.0,500,1.37);
 
     // Quark-mass uncdertainty - TODO
-    hw.qcd_wg1_qm = w_nom;
+    //if (pTH>500) qm=1.5; else if (pTH>160) qm=1.0+0.5*(pTH-160)/340;
+    //hw.qcd_wg1_qm = w_nom;
 
     /*********
      *  Tackmann STXS uncertainty scheme
@@ -383,12 +393,13 @@ namespace xAOD {
     // This is followed by Dsig60, Dsig120 and Dsig200
     // These are extracted from Powheg NNLOPS scale variations (using this tool!)
     // As the envelope of hw.qcd_nnlops, which gives (all x-sec below have Njets>=1):
-    //   sig60  = 9.687 +/- 1.566 pb
-    //   sig120 = 2.534 +/- 0.526 pb
-    //   sig200 = 0.562 +/- 0.115 pb
-    static double sig0_60=8.458, sig60_200=9.125, sig120_200=1.972, 
-      sig0_120=sig0_60+sig60_200-sig120_200, sig200_plus=0.562;
-    static double Dsig60_200=1.457, Dsig120_200=0.411, Dsig200_plus=0.115;
+    //   sig(60,200)  = 9.095 +/- 1.445 pb, BLPTW 10.9%
+    //   sig(120,200) = 1.961 +/- 0.401 pb, BLPTW 13.1%
+    //   sig(200,inf) = 0.582 +/- 0.121 pb, BLPTW 15.1%
+    static double sig0_60=8.719, sig60_200=9.095, sig120_200=1.961, 
+      sig0_120=sig0_60+sig60_200-sig120_200, sig200_plus=0.582; // 0.121 (-) 0.151*0.582
+    // static double Dsig60_200=1.457, Dsig120_200=0.411, Dsig200_plus=0.115; // with 40k events, and no BLPTW subraction
+    static double Dsig60_200=1.055, Dsig120_200=0.206, Dsig200_plus=0.0832; // with 2M evts, and subtraction
     double dsig60=0, dsig120=0, dsig200=0;
     if (Njets>=1) {
       if      (pTH<60)  dsig60=-Dsig60_200/sig0_60;  // -17.2%
@@ -397,7 +408,7 @@ namespace xAOD {
       if      (pTH<120) dsig120 = -Dsig120_200/sig0_120;   //  -2.6%
       else if (pTH<200) dsig120 =  Dsig120_200/sig120_200; // +20.8%
 
-      if (pTH>200) dsig200=Dsig200_plus/sig200_plus; // +20.5%
+      if (pTH>200) dsig200=Dsig200_plus/sig200_plus; // +14.3%
     }
     hw.qcd_stxs.push_back((1.0+dsig60)*w_nom);
     hw.qcd_stxs.push_back((1.0+dsig120)*w_nom);

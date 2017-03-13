@@ -85,7 +85,7 @@ int main( int argc, char* argv[] ) {
    HistV h_pTH_qcd         = makeHistos(8,"pTH_qcd",Nbins,min,max,ptTit); // Default Powheg QCD variations (NLO)
    HistV h_pTH_nnlops_qcd  = makeHistos(26,"pTH_nnlops_qcd",Nbins,min,max,ptTit); // NNLOPS internal QCD vars
    HistV h_pTH_nnlops_qcd2 = makeHistos(2,"pTH_nnlo_qcd",Nbins,min,max,ptTit); // NNLO and Powheg vars for NNLOPS
-   HistV h_pTH_wg1qcd      = makeHistos(6,"pTH_wg1qcd",Nbins,min,max,ptTit); // WG1 propsed scheme for ggF
+   HistV h_pTH_wg1qcd      = makeHistos(7,"pTH_wg1qcd",Nbins,min,max,ptTit); // WG1 propsed scheme for ggF
 
    Nbins=10; min=-0.5; max=9.5; Str tit=";#it{N}_{jets}";
    TH1F *h_Njets = new TH1F("Njets30",tit,Nbins,min,max);
@@ -96,7 +96,7 @@ int main( int argc, char* argv[] ) {
    HistV h_Njets_qcd         = makeHistos(8,"Njets30_qcd",Nbins,min,max,tit); // Default Powheg QCD variations (NLO)
    HistV h_Njets_nnlops_qcd  = makeHistos(26,"Njets30_nnlops_qcd",Nbins,min,max,tit); // NNLOPS internal QCD vars
    HistV h_Njets_nnlops_qcd2 = makeHistos(2,"Njets30_nnlo_qcd",Nbins,min,max,tit); // NNLO and Powheg vars for NNLOPS
-   HistV h_Njets_wg1qcd      = makeHistos(6,"Njets30_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
+   HistV h_Njets_wg1qcd      = makeHistos(7,"Njets30_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
 
    Nbins=52; min=1; max=53; tit=";STXS fine index";
    TH1F *h_STXS = new TH1F("STXS",tit,Nbins,min,max);
@@ -107,7 +107,7 @@ int main( int argc, char* argv[] ) {
    HistV h_STXS_qcd         = makeHistos(8,"STXS_qcd",Nbins,min,max,tit); // Default Powheg QCD variations (NLO)
    HistV h_STXS_nnlops_qcd  = makeHistos(26,"STXS_nnlops_qcd",Nbins,min,max,tit); // NNLOPS internal QCD vars
    HistV h_STXS_nnlops_qcd2 = makeHistos(2,"STXS_nnlo_qcd",Nbins,min,max,tit); // NNLO and Powheg vars for NNLOPS
-   HistV h_STXS_wg1qcd      = makeHistos(6,"STXS_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
+   HistV h_STXS_wg1qcd      = makeHistos(7,"STXS_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
 
    Nbins=80; min=-4; max=4; tit=";#it{y_{H}}";
    TH1F *h_yH = new TH1F("yH",tit,Nbins,min,max);
@@ -118,7 +118,7 @@ int main( int argc, char* argv[] ) {
    HistV h_yH_qcd         = makeHistos(8,"yH_qcd",Nbins,min,max,tit); // Default Powheg QCD variations (NLO)
    HistV h_yH_nnlops_qcd  = makeHistos(26,"yH_nnlops_qcd",Nbins,min,max,tit); // NNLOPS internal QCD vars
    HistV h_yH_nnlops_qcd2 = makeHistos(2,"yH_nnlo_qcd",Nbins,min,max,tit); // NNLO and Powheg vars for NNLOPS
-   HistV h_yH_wg1qcd      = makeHistos(6,"yH_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
+   HistV h_yH_wg1qcd      = makeHistos(7,"yH_wg1qcd",Nbins,min,max,tit); // WG1 propsed scheme for ggF
    HistV h_yH_other       = makeHistos(8,"yH_other",Nbins,min,max,tit); // WG1 propsed scheme for ggF
    
    // Initialise the application:
@@ -258,7 +258,8 @@ int main( int argc, char* argv[] ) {
        fillHistos(h_STXS_nnlops_qcd2,HTXS_index,nnlops_2np_qcd);
 
        // 3.d WG1 propsed uncertainty scheme. Recommended.
-       NumV wg1_qcd={hw.qcd_wg1_mu,hw.qcd_wg1_res,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12,hw.qcd_wg1_pTH,hw.qcd_wg1_qm};
+       //NumV wg1_qcd={hw.qcd_wg1_mu,hw.qcd_wg1_res,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12,hw.qcd_wg1_pTH,hw.qcd_wg1_qm};
+       NumV wg1_qcd=hw.qcd_wg1();
        fillHistos(h_pTH_wg1qcd,h.Pt(),wg1_qcd);
        fillHistos(h_yH_wg1qcd,h.Rapidity(),wg1_qcd);
        fillHistos(h_Njets_wg1qcd,HTXS_Njets30,wg1_qcd);

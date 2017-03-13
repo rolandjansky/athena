@@ -35,7 +35,7 @@ namespace xAOD {
     
     /// WG1 proposed QCD uncertainty scheme
     double qcd_wg1_mu, qcd_wg1_res, qcd_wg1_mig01, qcd_wg1_mig12;
-    double qcd_wg1_pTH, qcd_wg1_qm;
+    double qcd_wg1_pTH, qcd_wg1_qm_b, qcd_wg1_qm_t;
 
     /// Tackmann proposed QCD uncertainty scheme, TODO
     std::vector<double> qcd_stxs;
@@ -50,6 +50,8 @@ namespace xAOD {
     /// information of the current event kinematiocs
     double pTH;
     int Njets30, STXS;
+
+    std::vector<double> qcd_wg1() { return {qcd_wg1_mu,qcd_wg1_res,qcd_wg1_mig01,qcd_wg1_mig12,qcd_wg1_pTH,qcd_wg1_qm_b,qcd_wg1_qm_t}; }
 
     /// methods to print weights to the screen
     char *uncStr(double var, double nom) { return var==0?Form("  N/A"):Form("%s%.1f%%",var>=nom?"+":"",(var-nom)/nom*100); }
@@ -84,8 +86,8 @@ namespace xAOD {
 	printf("\n    WG1 proposed QCD uncertainty scheme\n");
 	printf("      mu: %s,   res: %s,   mig01: %s,   mig12: %s\n",
 	       uncStr(qcd_wg1_mu,n),uncStr(qcd_wg1_res,n),uncStr(qcd_wg1_mig01,n),uncStr(qcd_wg1_mig12,n));
-	printf("      pTH: %s,   quark-mass: %s\n",
-	       uncStr(qcd_wg1_pTH,n),uncStr(qcd_wg1_qm,n));
+	printf("      pTH: %s,   quark-mass, b: %s, t: %s\n",
+	       uncStr(qcd_wg1_pTH,n),uncStr(qcd_wg1_qm_b,n),uncStr(qcd_wg1_qm_b,n));
 	
       }
       if (qcd.size()) {
@@ -150,6 +152,13 @@ namespace xAOD {
     /// @}
     
   private:
+
+    /// linear interpolation
+    double linInter(double x, double x1, double y1, double x2, double y2) {
+      if (x<x1) return y1;
+      if (x>x2) return y2;
+      return y1+(y2-y1)*(x-x1)/(x2-x1);
+    }
 
     /// Access the HiggsWeights
     HiggsWeights getHiggsWeightsInternal(int HTXS_Njets30=-1, double HTXS_pTH=-99.0, int HTXS_cat=-1);
