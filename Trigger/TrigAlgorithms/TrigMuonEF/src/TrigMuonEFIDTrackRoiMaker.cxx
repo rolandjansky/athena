@@ -8,12 +8,12 @@
  */
 TrigMuonEFIDTrackRoiMaker::TrigMuonEFIDTrackRoiMaker(const std::string& name, ISvcLocator* pSvcLocator) :
   FexAlgo(name, pSvcLocator),
-  m_roiSizeZ0(225.0),//default to large width
+  m_roiSizeZ0(225.0),//default to large width in mm
   m_inputRoiName("forID"),
   m_outputRoiName("forID2")
 {
 
-  declareProperty("Z0Width",m_roiSizeZ0); // should be set in JO to appropriate z-width
+  declareProperty("Z0Width",m_roiSizeZ0); // should be set in JO to appropriate z-width, ATLAS standard units (mm)
   declareProperty("InputRoiName",m_inputRoiName="forID"); // generally don't expect to need to change this
   declareProperty("OutputRoiName",m_outputRoiName="forID2"); // generally don't expect to need to change this
   
@@ -112,7 +112,7 @@ TrigRoiDescriptor* TrigMuonEFIDTrackRoiMaker::createIDtrackRoI(const TrigRoiDesc
       continue;
     }
     
-    // monitor how far our muons are freom the RoI center
+    // monitor how far our muons are from the RoI center
     m_deltaEta.push_back( fabs((*idTrackLink)->eta() - roi.eta()) );
     m_deltaPhi.push_back( fabs(TVector2::Phi_mpi_pi((*idTrackLink)->phi() - roi.phi())) );
 
