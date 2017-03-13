@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /** Implementation of SCT_RodEncoder class */
 #include "SCT_RodEncoder.h" 
 
