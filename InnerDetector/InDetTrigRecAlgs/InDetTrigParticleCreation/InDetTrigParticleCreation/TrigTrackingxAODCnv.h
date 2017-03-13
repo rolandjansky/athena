@@ -126,6 +126,11 @@ namespace InDet
     std::vector<float>          m_dqm_ibl_res_y;
     std::vector<float>          m_dqm_ibl_hit_expected_found;
 
+    //Timers
+    TrigTimer* m_timerMemAlloc;
+    TrigTimer* m_timerFeatureAttach;
+    TrigTimer* m_timerTrackConversion;
+
   };
 
 }

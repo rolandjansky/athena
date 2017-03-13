@@ -103,6 +103,11 @@ namespace InDet
     declareMonitoredStdContainer("IBLresy", m_dqm_ibl_res_y);
     declareMonitoredStdContainer("IBLHitExpectedAndFound", m_dqm_ibl_hit_expected_found); 
 
+    //Timers
+    m_timerMemAlloc = 0;
+    m_timerFeatureAttach = 0;
+    m_timerTrackConversion = 0;
+
   }
 
   TrigTrackingxAODCnv::~TrigTrackingxAODCnv()
@@ -172,6 +177,11 @@ namespace InDet
       if(tmp_alg_name.find( (*iter), 0) != std::string::npos ) m_slice_name = (*iter);
     }
 
+    //Initialise timer
+    m_timerMemAlloc = addTimer("MemoryAlloc");
+    m_timerFeatureAttach = ("FeatureAttach");
+    m_timerTrackConversion = ("TrackConversion");
+    
     return HLT::OK;
   }
 
@@ -237,7 +247,13 @@ namespace InDet
     
     xAOD::TrackParticleContainer* tpCont = new xAOD::TrackParticleContainer();
     xAOD::TrackParticleAuxContainer tpAuxCont; // = new xAOD::TrackParticleAuxContainer();      //this guy should allow reset
+    //Memory Alloc
+    if(doTiming()) m_timerMemAlloc->start();
+    tpCont->reserve(m_tracks->size());                                                     
+    if(doTiming()) m_timerMemAlloc->stop();
+    
     tpCont->setStore( &tpAuxCont );
+
 
     if(m_tracks && runAlg) {
       for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
@@ -245,7 +261,9 @@ namespace InDet
 
 	if (m_doIBLresidual) fillIBLResidual(m_tracks->at(idtr));
 
+	if(doTiming()) m_timerTrackConversion->start();
         xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
+	if(doTiming()) m_timerTrackConversion->start();
 
         if((outputLevel <= MSG::DEBUG) && (tp != 0)){
   	  int npix, nsct, ntrt, npixh, nscth;
@@ -276,9 +294,9 @@ namespace InDet
       }
     }
  
-
-    ATH_MSG_DEBUG("REGTEST container size = " << tpCont->size());
     
+    ATH_MSG_DEBUG("REGTEST container size = " << tpCont->size());
+    if(doTiming()) m_timerFeatureAttach->start();
     if ( HLT::OK !=  attachFeature(outputTE, tpCont, name()) ) {
       msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
       return HLT::NAV_ERROR;
@@ -286,7 +304,7 @@ namespace InDet
     else {
       ATH_MSG_DEBUG("Stored xAOD::TrackParticle container ");
     }
-
+    if(doTiming()) m_timerFeatureAttach->stop();
 
     for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin(); itr != tpCont->end(); ++itr)  {
       FillMonPerTrack(*itr, tmp_eta_roi, tmp_phi_roi);
