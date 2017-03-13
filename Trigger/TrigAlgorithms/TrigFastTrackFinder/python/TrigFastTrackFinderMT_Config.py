@@ -74,13 +74,6 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
             InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
           ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
 
-
-          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
-          InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
-          ToolSvc += InDetTrigSiComTrackFinder_FTF
-          print InDetTrigSiComTrackFinder_FTF
-        
-        
           from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
           TrackingCuts = EFIDTrackingCuts
           if remapped_type=="cosmics":

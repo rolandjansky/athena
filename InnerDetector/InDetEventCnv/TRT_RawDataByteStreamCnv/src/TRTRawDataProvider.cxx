@@ -12,12 +12,15 @@
 TRTRawDataProvider::TRTRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
   AthAlgorithm      ( name, pSvcLocator ),
+  m_regionSelector  ("RegSelSvc", name), 
   m_robDataProvider ( "ROBDataProviderSvc", name ),
   m_rawDataTool     ( "TRTRawDataProviderTool",this ),
   m_CablingSvc      ( "TRT_CablingSvc", name ),
   m_trt_id          ( nullptr ),
   m_rdoContainerKey("")
 {
+  declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
+  declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
   declareProperty("RDOKey", m_rdoContainerKey = std::string("TRT_RDOs"));
   declareProperty ( "ProviderTool", m_rawDataTool );
 }
@@ -68,12 +71,16 @@ StatusCode TRTRawDataProvider::initialize() {
 
 
   
-  // Retrieve id mapping 
-  if (m_CablingSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve service " << m_CablingSvc );
-    return StatusCode::FAILURE;
-  } else 
-    ATH_MSG_INFO( "Retrieved service " << m_CablingSvc );
+  if (m_roiSeeded) {
+    ATH_CHECK( m_roiCollectionKey.initialize() );
+    ATH_CHECK(m_regionSelector.retrieve());
+  }
+  else {//Only need cabling if not using RoIs
+    // Retrieve id mapping 
+  ATH_CHECK(m_CablingSvc.retrieve());
+  }
+
+  ATH_CHECK( m_rdoContainerKey.initialize() );
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
 
@@ -90,9 +97,28 @@ StatusCode TRTRawDataProvider::execute()
   ATH_CHECK(rdoContainer.isValid());
 
   
-  // ask ROBDataProviderSvc for the vector of ROBFragment for all TRT ROBIDs
+  std::vector<uint32_t> listOfRobs; 
+  if (!m_roiSeeded) {
+    listOfRobs = m_CablingSvc->getAllRods();
+  }
+  else {//Enter RoI-seeded mode
+      SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+      ATH_CHECK(roiCollection.isValid());
+
+      TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
+      TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+      TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
+      superRoI.setComposite(true);
+      superRoI.manageConstituents(false);
+      for (; roi!=roiE; ++roi) {
+        superRoI.push_back(*roi);
+      }
+      m_regionSelector->DetROBIDListUint( TRT, 
+					  superRoI,
+					  listOfRobs);
+  }
   std::vector<const ROBFragment*> listOfRobf;
-  m_robDataProvider->getROBData( m_CablingSvc->getAllRods(), listOfRobf);
+  m_robDataProvider->getROBData( listOfRobs, listOfRobf);
 
   ATH_MSG_DEBUG( "Number of ROB fragments " << listOfRobf.size() );
 

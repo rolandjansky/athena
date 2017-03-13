@@ -151,6 +151,9 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
   declareProperty( "MinHits",               m_minHits = 5 );
 
   declareProperty( "OutputCollectionSuffix",m_outputCollectionSuffix = "");
+  declareProperty("TracksName", 
+                  m_outputTracksKey = std::string("TrigFastTrackFinder_Tracks"),
+                  "TrackCollection name");
  
   declareProperty( "UseBeamSpot",           m_useBeamSpot = true);
   declareProperty( "FreeClustersCut"   ,m_nfreeCut      );
@@ -460,6 +463,7 @@ StatusCode TrigFastTrackFinderMT::execute() {
   m_currentStage = 1;
   m_countTotalRoI++;
 
+  m_outputTracksKey = m_attachedFeatureName;
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
   outputTracks = std::make_unique<TrackCollection>();
 
