@@ -35,53 +35,59 @@ if [ -e TrkNtuple-0000.root ]; then
     fi
 
     echo "fetching reference files from $REFDIR"
-     
+        
+    get_files TIDAhistos-vtx.dat
 
     EXPERT=$(grep expert $2) 
 
     # if expert timing histos
     if [ "x$EXPERT" != "x" ]; then 
-      REFFILE=$REFDIR/expert/$2
+      if [ "x$RTTJOBNAME" != "x" ]; then 
+        EXPERTREF="expert-monitoring-$(echo $RTTJOBNAME | sed 's|TrigInDetValidation_||g')-ref.root"
+        REFFILE=$REFDIR/expert/$EXPERTREF
+      else
+        REFFILE=$REFDIR/expert/$2
+      fi      
     else
       REFFILE=$REFDIR/$2
     fi
 
-    if [ -e  $REFFILE ]; then 
+    NOREF=
+
+    if [ ! -e $REFFILE ]; then 
+
+      echo "no reference file $REFFILE - will process without"
+
+      NOREF=--noref
+
+    else
+
       echo "copying $REFFILE" 
 
       LOCALFILE=$(basename $REFFILE)
 
-      # don;t bother to copy it if it already exists in this directory
-      if [ ! -e $LOCALFILE ]; then 
-         cp $REFFILE .
-      fi
+      # don't bother to copy it if it already exists in this directory
+      [ -e $LOCALFILE ] || cp $REFFILE .
+  
+    fi
 
-      ls -l
+    ls -l
 
-      if [ "x$EXPERT" == "x" ]; then 
+    for arg in $*; do 
+       if $(echo "$arg" | grep -q "TIDA.*.dat"); then get_files -data "$arg"; fi 
+       if $(echo "$arg" | grep -q "Test.*.dat"); then get_files -data "$arg"; fi 
+    done
 
-        echo
-        echo "running comparitor " `date`
-        echo
-
-        TIDAcomparitor.exe $*
-
-      else
-
-        echo
-        echo "running cpucost " `date`
-        echo
-
-        TIDAcpucost.exe $*
-
-      fi
-
+    if [ "x$EXPERT" == "x" ]; then 
+        echo -e "\nrunning comparitor " $(date) "\n"
+        TIDAcomparitor.exe $* $NOREF
     else
-      echo "no reference file $REFFILE" 
+        echo -e "\nrunning cpucost " $(date) "\n"
+        TIDAcpucost.exe $* $NOREF
     fi
 
     echo "finished postprocessing"
-    ls -l
 
+    ls -l
 
 fi

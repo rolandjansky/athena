@@ -26,6 +26,7 @@
 #include "TStyle.h"
 #include "TPad.h"
 #include "TH1D.h"
+#include "TFile.h"
 #include "TH1.h"
 #include "TGraphAsymmErrors.h"
 
@@ -406,11 +407,12 @@ public:
      
       //      if ( contains(href()->GetName(),"sigma") ) href()->SetMinimum(0);
 
-      std::cout << "plotref " << plotref << " " << href() << std::endl; 
+      //      std::cout << "plotref " << plotref << " " << href() << std::endl; 
 
       if ( plotref && href() ) { 
 	if ( contains(href()->GetName(),"_vs_")  || 
 	     contains(href()->GetName(),"sigma") || 
+	     contains(href()->GetName(),"mean") || 
 	     contains(href()->GetName(),"_eff")  ||
 	     contains(href()->GetName(),"Res_") || 
 	     contains(href()->GetName(),"Eff_") ) href()->Draw("hist same][");
@@ -466,20 +468,48 @@ public:
 
       
       if ( mean ) { 
+
+	char _meanref[64];
+	bool displayref = false;
+	if ( meanplotref && href() ) { 
+	  displayref = true;
+	  std::sprintf( _meanref, " <t> = %3.2f #pm %3.2f ms (ref)", href()->GetMean(), href()->GetMeanError() );
+	}
+	else { 
+	  std::sprintf( _meanref, "%s", "" );
+	}
+
 	char _mean[64];
 	std::sprintf( _mean, " <t> = %3.2f #pm %3.2f ms", htest()->GetMean(), htest()->GetMeanError() );
 	
-	std::cout << "alg: " << m_plotfilename << " " << _mean << std::endl;
+	std::cout << "alg: " << m_plotfilename << " " << _mean << "\tref: " << _meanref << std::endl;
+
+	std::string rkey = key;
 	
 	key += std::string(" : ");
-       	if ( key.size()<47 ) { 
-	  key += _mean;
-	  leg->AddEntry( htest(), key.c_str(), "p" );
-	}
-	else { 
+	//       	if ( key.size()<15 ) { 
+	//	  key += _mean;
+	//	  leg->AddEntry( htest(), key.c_str(), "p" );
+	//	}
+	//	else { 
 	  leg->AddEntry( htest(), key.c_str(), "p" );
 	  leg->AddEntry( hnull, _mean, "p" );
+	  //	}
+
+	if ( displayref ) { 
+	  rkey += std::string(" : ");
+	  //	  if ( rkey.size()<15 ) { 
+	  //    rkey += _meanref;
+	  //	    leg->AddEntry( href(), rkey.c_str(), "l" );
+	  //	  }
+	  //	  else { 
+	    leg->AddEntry( hnull, "", "l" );
+	    leg->AddEntry( href(), rkey.c_str(), "l" );
+	    leg->AddEntry( hnull, _meanref, "l" );
+	    //	  }
 	}
+
+
       }
       else leg->AddEntry( htest(), key.c_str(), "p" );
 
@@ -505,7 +535,8 @@ public:
 
 public:
 
-  static void setplotref( bool b ) { plotref=b; }
+  static void setplotref( bool b )     { plotref=meanplotref=b; }
+  static void setmeanplotref( bool b ) { meanplotref=b; }
 
 private:
 
@@ -519,11 +550,16 @@ private:
   std::string m_plotfilename;
 
   static bool plotref;
+  static bool meanplotref;
 
 };
 
 template<typename T>
 bool tPlotter<T>::plotref = true;
+
+
+template<typename T>
+bool tPlotter<T>::meanplotref = true;
 
 
 
