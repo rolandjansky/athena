@@ -35,11 +35,11 @@ class MuPatTrackBuilder : public AthAlgorithm
 
  private:
 
-  SG::ReadHandle<Trk::SegmentCollection>  m_segmentLocation;       //!< Location of input MuonSegmentCombination collection
-  SG::WriteHandle<TrackCollection>        m_spectroTrackLocation;  //!< Track output location for tracks strictly in MS
-  SG::WriteHandle<TrackCollection>        m_spectroPartiLocation;  //!< Track output location for track particles (strictly in MS)
-  SG::WriteHandle<TrackCollection>        m_extrapTrackLocation;  //!< Output location for back-extrapolated tracks
-  SG::WriteHandle<TrackCollection>        m_extrapPartiLocation;  //!< Output location for back-extrapolated particles
+  SG::ReadHandleKey<Trk::SegmentCollection>  m_segmentKey;       //!< Key of input MuonSegmentCombination collection
+  SG::WriteHandleKey<TrackCollection>        m_spectroTrackKey;  //!< Track output Key for tracks strictly in MS
+  SG::WriteHandleKey<TrackCollection>        m_spectroPartiKey;  //!< Track output Key for track particles (strictly in MS)
+  SG::WriteHandleKey<TrackCollection>        m_extrapTrackKey;  //!< Output Key for back-extrapolated tracks
+  SG::WriteHandleKey<TrackCollection>        m_extrapPartiKey;  //!< Output Key for back-extrapolated particles
 
   ToolHandle<Muon::IMuonTrackFinder> m_trackMaker;  //!< Actual tool to do the track finding
 //  ToolHandle<IMuonboyToParticleTool> m_convTool;    //!< Tool for converting from tracks to track particles (acts as a flag)

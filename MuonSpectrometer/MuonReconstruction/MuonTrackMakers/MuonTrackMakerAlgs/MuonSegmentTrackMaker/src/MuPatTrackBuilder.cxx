@@ -23,24 +23,24 @@ using namespace Muon;
 
 MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name,pSvcLocator),
-     m_segmentLocation("MooreSegments"),
-     m_spectroTrackLocation("MuonSpectrometerTracks"),
-     m_spectroPartiLocation("MuonSpectrometerParticles"),
-     m_extrapTrackLocation(""),
-     m_extrapPartiLocation("ExtrapolatedMuonSpectrometerParticles"),
+     m_segmentKey("MooreSegments"),
+     m_spectroTrackKey("MuonSpectrometerTracks"),
+     m_spectroPartiKey("MuonSpectrometerParticles"),
+     m_extrapTrackKey(""),
+     m_extrapPartiKey("ExtrapolatedMuonSpectrometerParticles"),
      m_trackMaker("Muon::MuonTrackFinder/MuonTrackSteering"),
 //   , m_convTool("")
 //   , p_IMuonBackTracker("")
      m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool")
 {
-  // MoMu location segments (per chamner)
+  // MoMu Key segments (per chamner)
   declareProperty("TrackSteering",m_trackMaker);
-  declareProperty("MuonSegmentCollection", m_segmentLocation);
-  declareProperty("SpectrometerTrackOutputLocation", m_spectroTrackLocation);
-  declareProperty("SpectrometerParticleOutputLocation", m_spectroPartiLocation);
-  declareProperty("ExtrapolatedTrackOutputLocation",    m_extrapTrackLocation); 
+  declareProperty("MuonSegmentCollection", m_segmentKey);
+  declareProperty("SpectrometerTrackOutputKey", m_spectroTrackKey);
+  declareProperty("SpectrometerParticleOutputKey", m_spectroPartiKey);
+  declareProperty("ExtrapolatedTrackOutputKey",    m_extrapTrackKey); 
   // set to "ExtrapolatedMuonSpectrometerTracks" for muonboy-like convention);
-  declareProperty("ExtrapolatedParticleOutputLocation", m_extrapPartiLocation);
+  declareProperty("ExtrapolatedParticleOutputKey", m_extrapPartiKey);
 //   declareProperty("TrackToParticleTool",   m_convTool);
 //  declareProperty("MuonBackTracker",   p_IMuonBackTracker);
 }
@@ -78,11 +78,11 @@ StatusCode MuPatTrackBuilder::initialize()
     }
   }*/
   
-  ATH_CHECK( m_segmentLocation.initialize() );
-  ATH_CHECK( m_spectroTrackLocation.initialize() );
-  ATH_CHECK( m_spectroPartiLocation.initialize() );
-  ATH_CHECK( m_extrapTrackLocation.initialize() );
-  ATH_CHECK( m_extrapPartiLocation.initialize() );
+ ATH_CHECK( m_segmentKey.initialize() );
+ ATH_CHECK( m_spectroTrackKey.initialize() );
+ ATH_CHECK( m_spectroPartiKey.initialize() );
+ ATH_CHECK( m_extrapTrackKey.initialize() );
+ ATH_CHECK( m_extrapPartiKey.initialize() );
 
   return StatusCode::SUCCESS; 
 }
@@ -91,107 +91,41 @@ StatusCode MuPatTrackBuilder::execute()
 {
   typedef std::vector<const Muon::MuonSegment*> MuonSegmentCollection;
 
-  if (!m_segmentLocation.isValid() ) {
-    msg(MSG::WARNING) << "Could not find MuonSegmentCollection at " << m_segmentLocation.name() <<endmsg;
+  SG::ReadHandle<Trk::SegmentCollection> segmentColl (m_segmentKey);
+  if (!segmentColl.isValid() ) {
+    msg(MSG::WARNING) << "Could not find MuonSegmentCollection at " << segmentColl.name() <<endmsg;
     return StatusCode::RECOVERABLE;
   }
     
-  if( !m_segmentLocation.cptr() ) {
-    msg(MSG::WARNING) << "Obtained zero pointer for MuonSegmentCollection at " << m_segmentLocation.name() <<endmsg;
+  if( !segmentColl.cptr() ) {
+    msg(MSG::WARNING) << "Obtained zero pointer for MuonSegmentCollection at " << segmentColl.name() <<endmsg;
     return StatusCode::RECOVERABLE;
   }
       
-  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved MuonSegmentCollection "  << m_segmentLocation->size() << endmsg;
+  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved MuonSegmentCollection "  << segmentColl->size() << endmsg;
 
   MuonSegmentCollection msc;
-  msc.reserve(m_segmentLocation->size());
-  for (unsigned int i=0;i<m_segmentLocation->size();++i){
-    if (!m_segmentLocation->at(i)) continue;
-    const Muon::MuonSegment * ms = dynamic_cast<const Muon::MuonSegment*>(m_segmentLocation->at(i));
+  msc.reserve(segmentColl->size());
+  for (unsigned int i=0;i<segmentColl->size();++i){
+    if (!segmentColl->at(i)) continue;
+    const Muon::MuonSegment * ms = dynamic_cast<const Muon::MuonSegment*>(segmentColl->at(i));
     if (ms) msc.push_back( ms );
   }
 
-  if (msc.size() != m_segmentLocation->size()){
-    msg(MSG::WARNING) << "Input segment collection (size " << m_segmentLocation->size() << ") and translated MuonSegment collection (size "
+  if (msc.size() != segmentColl->size()){
+    msg(MSG::WARNING) << "Input segment collection (size " << segmentColl->size() << ") and translated MuonSegment collection (size "
                       << msc.size() << ") are not the same size." << endmsg;
   }
 
   TrackCollection * newtracks = m_trackMaker->find(msc);
   if (!newtracks) newtracks = new TrackCollection();
 
-  if (m_extrapTrackLocation.name() == ""){
-
-    // Record the track collection for a track builder reporting params only in MS
-    //
-    // if (evtStore()->record(newtracks,m_spectroTrackLocation,false).isFailure()){
-      if (m_spectroTrackLocation.record(std::unique_ptr<TrackCollection>(newtracks)).isFailure()){    
-      
-      msg(MSG::WARNING) << "New Track Container " << m_spectroTrackLocation.name() << " could not be recorded in StoreGate !" << endmsg;
-      delete newtracks;
+  SG::WriteHandle<TrackCollection> spectroTracks(m_spectroTrackKey); 	  
+  if (spectroTracks.record(std::unique_ptr<TrackCollection>(newtracks)).isFailure()){    
+      ATH_MSG_WARNING( "New Track Container " << spectroTracks.name() << " could not be recorded in StoreGate !");
       return StatusCode::RECOVERABLE;
-    }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "TrackCollection '" << m_spectroTrackLocation.name() << "' recorded in storegate, ntracks: " << newtracks->size() << endmsg;
-
-    // how about particle making here???
-
-  } else {
-
-    // Record two track collections, with and without extrapolated parameters
-    // if (evtStore()->record(newtracks,m_spectroTrackLocation,false).isFailure()){
-      if (m_spectroTrackLocation.record(std::unique_ptr<TrackCollection>(newtracks)).isFailure()){    
-      
-      msg(MSG::WARNING) << "New Track Container " << m_spectroTrackLocation.name() << " could not be recorded in StoreGate !" << endmsg;
-      delete newtracks;
-      return StatusCode::RECOVERABLE;
-    }
-    ATH_MSG_DEBUG ("TrackCollection '" << m_spectroTrackLocation.name() << "' recorded in storegate, ntracks: " << newtracks->size());
-
-    // Make track particles out of it and re-record
-/*    if (!m_convTool.empty()) {
-      Rec::TrackParticleContainer * recpart = new Rec::TrackParticleContainer();
-      if (newtracks->empty() || m_convTool->convertCollection( newtracks , recpart ).isSuccess() ){
-        ATH_MSG_DEBUG ("Sucessfully converted first track collection to track particles, "<<
-                       "now have container of size "<<recpart->size());
-        evtStore()->record(recpart,m_spectroPartiLocation,false).ignore();
-      } else {
-        ATH_MSG_DEBUG ("Could not convert first track collection to track particles!");
-        delete recpart;
-      }
-    }
- 
-    // BackTrack
-    TrackCollection * BkTk_TrackCollection = new TrackCollection();
-    for (unsigned int tk=0;tk<newtracks->size();++tk){
-      if ( !newtracks->at(tk) ) continue;
-      Trk::Track* pTrack      = (*newtracks)[tk] ;
-      Trk::Track* BkTk_pTrack = p_IMuonBackTracker->MuonBackTrack(pTrack) ;
-      if (BkTk_pTrack){
-        BkTk_TrackCollection->push_back( BkTk_pTrack );
-      }else{
-	ATH_MSG_WARNING("Failed to create MS only track, copying track at IP ");
-        BkTk_TrackCollection->push_back(  new Trk::Track(*(*newtracks)[tk]) );
-      }
-    }
-    if (evtStore()->record(BkTk_TrackCollection,m_extrapTrackLocation,false).isFailure()){
-      msg(MSG::WARNING) << "New Track Container " << m_extrapTrackLocation << " could not be recorded in StoreGate !" << endmsg;
-      delete BkTk_TrackCollection;
-      return StatusCode::RECOVERABLE;
-    }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "TrackCollection '" << m_extrapTrackLocation << "' recorded in storegate, ntracks: " << BkTk_TrackCollection->size() << endmsg;
-
-    // Make track particles out of that and re-record
-    if (!m_convTool.empty()) {
-      Rec::TrackParticleContainer * BkTk_TrackParticleContainer = new Rec::TrackParticleContainer();
-      if (BkTk_TrackCollection->empty() || m_convTool->convertCollection( BkTk_TrackCollection , BkTk_TrackParticleContainer ).isSuccess() ){
-        ATH_MSG_DEBUG ("Sucessfully converted modified track collection to track particles, "<<
-                       "now have container of size "<<BkTk_TrackParticleContainer->size());
-        evtStore()->record(BkTk_TrackParticleContainer,m_extrapPartiLocation,false).ignore();
-      } else {
-        ATH_MSG_DEBUG ("Could not convert first track collection to track particles!");
-        delete BkTk_TrackParticleContainer;
-      }
-    }*/
   }
+  ATH_MSG_DEBUG ("TrackCollection '" << m_spectroTrackKey.key() << "' recorded in storegate, ntracks: " << newtracks->size());
 
   return StatusCode::SUCCESS;
 } // execute
