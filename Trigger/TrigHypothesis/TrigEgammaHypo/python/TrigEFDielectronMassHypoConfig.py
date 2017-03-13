@@ -163,7 +163,7 @@ class TrigEFDielectronMassHypo_Upsi ( TrigEFDielectronMassHypo ):
         self.AthenaMonTools = [ TrigEFDielectronMassOnlineMonitoring(), TrigEFDielectronMassValidationMonitoring_Upsi() ]        
 
 #--------------------------------------------------------------
-# DC14
+# Combine electron + cluster with 1 TeV upper mass
 #--------------------------------------------------------------
 class TrigEFDielectronMassFex_Zeg ( TrigEFDielectronMassFex ):
     __slots__ = []
@@ -193,6 +193,42 @@ class TrigEFDielectronMassHypo_Zeg ( TrigEFDielectronMassHypo ):
         self.LowerMassCut=55.0*GeV
         self.UpperMassCut=100000.0*GeV
         self.LowerMassElectronClusterCut=55.0*GeV
+        self.UpperMassElectronClusterCut=100000.0*GeV
+        
+        self.AthenaMonTools = [ TrigEFDielectronMassOnlineMonitoring(), TrigEFDielectronMassValidationMonitoring_Zee() ] 
+
+#--------------------------------------------------------------
+# Higgs rare decay
+# mergedtight electron with a cluster (seeded by e/g combined chain)
+#--------------------------------------------------------------
+class TrigEFDielectronMassFex_Heg ( TrigEFDielectronMassFex ):
+    __slots__ = []
+    def __init__(self, name="TrigEFDielectronMassFex_Heg"):
+        super(TrigEFDielectronMassFex_Heg, self).__init__(name)
+        
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll=False
+
+        # require invariant mass within window
+        self.LowerMassCut=80.0*GeV
+        self.UpperMassCut=100000.0*GeV
+
+        self.AthenaMonTools = [ TrigEFDielectronMassOnlineMonitoring(), TrigEFDielectronMassValidationMonitoring_Zee() ] 
+
+class TrigEFDielectronMassHypo_Heg ( TrigEFDielectronMassHypo ):
+    __slots__ = []
+    def __init__(self, name="TrigEFDielectronMassHypo_Heg"):
+        super(TrigEFDielectronMassHypo_Heg, self).__init__(name)
+        
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll=False
+        self.useElectronElectron = False
+        self.useElectronCluster = True
+                
+        # require invariant mass within window
+        self.LowerMassCut=90.0*GeV
+        self.UpperMassCut=100000.0*GeV
+        self.LowerMassElectronClusterCut=90.0*GeV
         self.UpperMassElectronClusterCut=100000.0*GeV
         
         self.AthenaMonTools = [ TrigEFDielectronMassOnlineMonitoring(), TrigEFDielectronMassValidationMonitoring_Zee() ] 
