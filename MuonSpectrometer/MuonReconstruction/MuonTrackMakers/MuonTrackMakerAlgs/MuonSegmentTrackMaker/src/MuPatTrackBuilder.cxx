@@ -26,7 +26,7 @@ MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcL
      m_segmentKey("MooreSegments"),
      m_spectroTrackKey("MuonSpectrometerTracks"),
      m_spectroPartiKey("MuonSpectrometerParticles"),
-     m_extrapTrackKey(""),
+     // m_extrapTrackKey(""),
      m_extrapPartiKey("ExtrapolatedMuonSpectrometerParticles"),
      m_trackMaker("Muon::MuonTrackFinder/MuonTrackSteering"),
 //   , m_convTool("")
@@ -36,11 +36,11 @@ MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcL
   // MoMu Key segments (per chamner)
   declareProperty("TrackSteering",m_trackMaker);
   declareProperty("MuonSegmentCollection", m_segmentKey);
-  declareProperty("SpectrometerTrackOutputKey", m_spectroTrackKey);
-  declareProperty("SpectrometerParticleOutputKey", m_spectroPartiKey);
-  declareProperty("ExtrapolatedTrackOutputKey",    m_extrapTrackKey); 
+  declareProperty("SpectrometerTrackOutputLocation", m_spectroTrackKey);
+  declareProperty("SpectrometerParticleOutputLocation", m_spectroPartiKey);
+  // declareProperty("ExtrapolatedTrackOutputLocation",    m_extrapTrackKey);
   // set to "ExtrapolatedMuonSpectrometerTracks" for muonboy-like convention);
-  declareProperty("ExtrapolatedParticleOutputKey", m_extrapPartiKey);
+  declareProperty("ExtrapolatedParticleOutputLocation", m_extrapPartiKey);
 //   declareProperty("TrackToParticleTool",   m_convTool);
 //  declareProperty("MuonBackTracker",   p_IMuonBackTracker);
 }
@@ -81,7 +81,7 @@ StatusCode MuPatTrackBuilder::initialize()
  ATH_CHECK( m_segmentKey.initialize() );
  ATH_CHECK( m_spectroTrackKey.initialize() );
  ATH_CHECK( m_spectroPartiKey.initialize() );
- ATH_CHECK( m_extrapTrackKey.initialize() );
+ // ATH_CHECK( m_extrapTrackKey.initialize() );
  ATH_CHECK( m_extrapPartiKey.initialize() );
 
   return StatusCode::SUCCESS; 
