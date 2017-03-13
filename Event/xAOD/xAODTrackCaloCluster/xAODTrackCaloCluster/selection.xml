@@ -4,9 +4,8 @@
   <!-- TrackCaloCluster_v1 dictionaries: -->
   <class name="xAOD::TrackCaloCluster_v1">
          <field name="m_p4" transient="true"/>
-         <field name="m_taste" transient="true"/>
   </class>
-  
+ 
   <class name="xAOD::TrackCaloClusterAuxContainer_v1"
          id="E3492C37-2469-4346-BCBA-7A18CACD46AC"/>
   <class name="xAOD::TrackCaloClusterContainer_v1"

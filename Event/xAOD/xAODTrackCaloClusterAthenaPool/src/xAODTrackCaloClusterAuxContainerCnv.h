@@ -9,7 +9,6 @@
 
 // EDM include(s):
 #include "xAODTrackCaloCluster/TrackCaloClusterAuxContainer.h"
-#include "xAODTrackCaloClusterCnv/ITrackCaloClusterCompressorTool.h"
 
 /// Base class for the converter
 typedef T_AthenaPoolCustomCnv< xAOD::TrackCaloClusterAuxContainer,
@@ -47,8 +46,6 @@ protected:
    virtual xAOD::TrackCaloClusterAuxContainer* createTransient();
 
 private:
-   /// Compressor tool for the track particles
-   ToolHandle< xAODMaker::ITrackCaloClusterCompressorTool > m_compressorTool;
 
 }; // class xAODTrackCaloClusterAuxContainerCnv
 

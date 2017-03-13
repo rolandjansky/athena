@@ -21,16 +21,11 @@
 
 xAODTrackCaloClusterAuxContainerCnv::
 xAODTrackCaloClusterAuxContainerCnv( ISvcLocator* svcLoc )
-   : xAODTrackCaloClusterAuxContainerCnvBase( svcLoc ),
-     m_compressorTool( "xAODMaker::TrackCaloClusterCompressorTool/"
-                       "xAODTrackCaloClusterCompressorTool" ) {
+   : xAODTrackCaloClusterAuxContainerCnvBase( svcLoc ) {
 
 }
 
 StatusCode xAODTrackCaloClusterAuxContainerCnv::initialize() {
-
-   // Retrieve the compression tool:
-   CHECK( m_compressorTool.retrieve() );
 
    // Call the base class's initialize:
    CHECK( xAODTrackCaloClusterAuxContainerCnvBase::initialize() );
@@ -46,25 +41,8 @@ createPersistent( xAOD::TrackCaloClusterAuxContainer* trans ) {
    // Create a copy of the container:
    std::unique_ptr< xAOD::TrackCaloClusterAuxContainer > result(
             SG::copyThinned( *trans, IThinningSvc::instance() ) );
-
-   // Create a helper object for the float compression:
-   xAOD::TrackCaloClusterContainer helper;
-   for( size_t i = 0; i < result->size(); ++i ) {
-      helper.push_back( new xAOD::TrackCaloCluster() );
-   }
-   helper.setStore( result.get() );
-
-   // Compress the track particles' payload:
-   for( xAOD::TrackCaloCluster* tp : helper ) {
-      // Check for possible compression errors:
-      if( ! m_compressorTool->compress( *tp ).isSuccess() ) {
-         REPORT_MESSAGE( MSG::ERROR )
-               << "Failed to compress track particle";
-         return 0;
-      }
-   }
-
-   // Return the thinned and compressed object:
+   
+   // Return the thinned object:
    return result.release();
 }
 

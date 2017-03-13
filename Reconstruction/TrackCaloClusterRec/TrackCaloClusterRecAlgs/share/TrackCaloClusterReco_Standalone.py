@@ -4,7 +4,8 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 # "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000164.pool.root.1",
 # "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000312.pool.root.1"]
 
-InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.merge.AOD.e3749_s2608_s2183_r8459_r7676/AOD.09378881._000006.pool.root.1"]
+#InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.merge.AOD.e3749_s2608_s2183_r8459_r7676/AOD.09378881._000006.pool.root.1"]
+InputFiles = ["/afs/cern.ch/user/n/ncalace/work/mc15_13TeV/AOD.09378881._000006.pool.root.1"]
 
 svcMgr.EventSelector.InputCollections = InputFiles
 Name = "Wprime"
@@ -111,149 +112,98 @@ topSequence += ParticleToCaloExtrapolation
 
 print ParticleToCaloExtrapolation
 
-theApp.EvtMax = -1
+theApp.EvtMax = 10
 
 ### Jet Stuff
-
-clname = "TrackCaloClusters"
-clname1 = "TrackCaloClustersCharged"
-clname2 = "TrackCaloClustersAll"
-
-# Add the algorithm. It runs the demo tools.
-from JetRec.JetRecConf import JetAlgorithm
-topSequence += JetAlgorithm("jetalg")
-jetalg = topSequence.jetalg
-jetalg.OutputLevel = INFO
-
-#--------------------------------------------------------------
-# Configure tools.
-#--------------------------------------------------------------
-
-# JetRec tool for finding.
 if 1:
-  from JetRec.JetRecConf import JetRecTool
-  ToolSvc += JetRecTool("jetrec")
-  jetrec = ToolSvc.jetrec
-  jetrec.OutputContainer = "AntiKt10TrackCaloClusterJets"
-  jetrec.OutputLevel = INFO
-  jetalg.Tools += [jetrec]
-
-# Find jet inputs.
-if 1:
-  from JetRecTools.JetRecToolsConf import TCCPseudoJetGetter
-  ToolSvc += TCCPseudoJetGetter("psjget")
-  psjget = ToolSvc.psjget
-  psjget.InputContainer = clname
-  psjget.Label = "TrackCaloCluster"
-  psjget.OutputContainer = "PseudoJetClusters"
-  psjget.OutputLevel = INFO
-  psjget.SkipNegativeEnergy = True
-  jetrec.PseudoJetGetters += [psjget]
-
-# Find jets.
-if 1:
-  from JetRec.JetRecConf import JetFinder
-  ToolSvc += JetFinder("jfind")
-  jfind = ToolSvc.jfind
-  jfind.JetAlgorithm = "AntiKt"
-  jfind.JetRadius = 1.0
-  jfind.GhostArea = 0.01;
-  jfind.PtMin = 2000.0
-  jfind.OutputLevel = VERBOSE
-  jetrec.JetFinder = jfind
+  from JetRec.JetRecConf import JetFromPseudojet
+  jetBuilder  = JetFromPseudojet("JetBuilder", Attributes = ["ActiveArea", "ActiveArea4vec"])
+  ToolSvc += jetBuilder
   
-# Add filter for copied jets.
-if 1:
+  from JetRec.JetRecConf import JetTrimmer
+  groomer = JetTrimmer("JetGroomer")
+  groomer.RClus = 0.05
+  groomer.PtFrac = 0.10
+  groomer.JetBuilder = jetBuilder
+  ToolSvc += groomer
+
+  # Add filter for copied jets.
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessTool
   ToolSvc += NSubjettinessTool("nsubjettiness")
   nsubjettiness = ToolSvc.nsubjettiness
-  jetrec.JetModifiers += [nsubjettiness]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessRatiosTool
   ToolSvc += NSubjettinessRatiosTool("nsubjettinessratios")
   nsubjettinessratios = ToolSvc.nsubjettinessratios
-  jetrec.JetModifiers += [nsubjettinessratios]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KTSplittingScaleTool
   ToolSvc += KTSplittingScaleTool("ktsplittingscale")
   ktsplittingscale = ToolSvc.ktsplittingscale
-  jetrec.JetModifiers += [ktsplittingscale]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import DipolarityTool
   ToolSvc += DipolarityTool("dipolarity")
   dipolarity = ToolSvc.dipolarity
-  jetrec.JetModifiers += [dipolarity]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import AngularityTool
   ToolSvc += AngularityTool("angularity")
   angularity = ToolSvc.angularity
-  jetrec.JetModifiers += [angularity]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtDeltaRTool
   ToolSvc += KtDeltaRTool("ktdr")
   ktdr = ToolSvc.ktdr
-  jetrec.JetModifiers += [ktdr]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtMassDropTool
   ToolSvc += KtMassDropTool("ktmassdrop")
   ktmassdrop = ToolSvc.ktmassdrop
-  jetrec.JetModifiers += [ktmassdrop]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import PlanarFlowTool
   ToolSvc += PlanarFlowTool("planarflow")
   planarflow = ToolSvc.planarflow
-  jetrec.JetModifiers += [planarflow]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
   ToolSvc += CenterOfMassShapesTool("centerofmassshapes")
   centerofmassshapes = ToolSvc.centerofmassshapes
-  jetrec.JetModifiers += [centerofmassshapes]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
   ToolSvc += EnergyCorrelatorTool("energycorrelator")
   energycorrelator = ToolSvc.energycorrelator
   #energycorrelator.Beta = 0.5
   #energycorrelator.IncludeBeta2 = True
   #energycorrelator.IncludeECF4 = True
-  jetrec.JetModifiers += [energycorrelator]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorRatiosTool
   ToolSvc += EnergyCorrelatorRatiosTool("energycorrelatorratios")
   energycorrelatorratios = ToolSvc.energycorrelatorratios
   #energycorrelatorratios.IncludeBeta2 = True
   #energycorrelatorratios.IncludeECF4 = True
-  jetrec.JetModifiers += [energycorrelatorratios]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
   ToolSvc += JetPullTool("pull")
   pull = ToolSvc.pull
   #pull.IncludeTensorMoments = True
-  jetrec.JetModifiers += [pull]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
   ToolSvc += JetChargeTool("charge")
   charge = ToolSvc.charge
-  jetrec.JetModifiers += [charge]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import VolatilityTool
   ToolSvc += VolatilityTool("volatility")
   volatility = ToolSvc.volatility
   volatility.TruncationFactor = 0.0
   #jetrec.JetModifiers += [volatility]
-
+  
   # from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
   # ToolSvc += ShowerDeconstructionTool("sd")
   # sd = ToolSvc.sd
   # jetrec.JetModifiers += [sd]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetMakerTool
   ToolSvc += SubjetMakerTool("subjetmaker")
   subjetmaker = ToolSvc.subjetmaker
   subjetmaker.type = "Kt"
   subjetmaker.R = 0.2
   subjetmaker.PtCut = 5000;
-  jetrec.JetModifiers += [subjetmaker]
-
+  
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetFinderTool
   ToolSvc += SubjetFinderTool("subjetfinder")
   subjetfinder = ToolSvc.subjetfinder
@@ -265,20 +215,168 @@ if 1:
   subjetrecorder.SubjetLabel = "Kt2Subjets"
   subjetrecorder.SubjetContainerName = "Kt2TrackCaloClusterSubJets"
   subjetfinder.SubjetRecorder = subjetrecorder
-  jetrec.JetModifiers += [subjetfinder]
- 
    
+  clname = "TrackCaloClusters"
+  clname1 = "TrackCaloClustersCharged"
+  clname2 = "TrackCaloClustersAll"
+  
+  clnames = [clname, clname1, clname2]
+  
+  for name in clnames:
+  #--------------------------------------------------------------
+  # Configure tools.
+  #--------------------------------------------------------------
+      
+    # Find jet inputs.
+    from JetRecTools.JetRecToolsConf import TCCPseudoJetGetter
+    psjget =  TCCPseudoJetGetter("TCCPseudoJetGetter_"+name)
+    psjget.InputContainer = name
+    psjget.Label = "TrackCaloCluster"
+    psjget.OutputContainer = "PseudoJetClusters"+name
+    psjget.OutputLevel = INFO
+    psjget.SkipNegativeEnergy = True
+    ToolSvc += psjget
+    
+    # Find jets.
+    from JetRec.JetRecConf import JetFinder
+    jfind = JetFinder("JetFinder_"+name)
+    jfind.JetAlgorithm = "AntiKt"
+    jfind.JetRadius = 1.0
+    jfind.GhostArea = 0.01;
+    jfind.PtMin = 2000.0
+  #  jfind.OutputLevel = VERBOSE
+    ToolSvc += jfind
+      
+    # JetRec tool for finding.
+    from JetRec.JetRecConf import JetRecTool
+    jetrec = JetRecTool("JetRecTool_"+name)
+    jetrec.OutputContainer = "AntiKt10"+name+"Jets"
+    jetrec.OutputLevel = INFO
+    jetrec.PseudoJetGetters += [psjget]
+    jetrec.JetFinder = jfind  
+    jetrec.JetModifiers += [nsubjettiness]
+    jetrec.JetModifiers += [nsubjettinessratios]
+    jetrec.JetModifiers += [ktsplittingscale]
+    jetrec.JetModifiers += [dipolarity]
+    jetrec.JetModifiers += [angularity]
+    jetrec.JetModifiers += [ktdr]
+    jetrec.JetModifiers += [ktmassdrop]
+    jetrec.JetModifiers += [planarflow]
+    jetrec.JetModifiers += [centerofmassshapes]
+    jetrec.JetModifiers += [energycorrelator]
+    jetrec.JetModifiers += [energycorrelatorratios]
+    jetrec.JetModifiers += [pull]
+    jetrec.JetModifiers += [charge]
+    jetrec.JetModifiers += [subjetmaker]
+    jetrec.JetModifiers += [subjetfinder]
+    ToolSvc += jetrec
+    
+    #from JetRecConf import JetPseudojetRetriever
+    #jtm += JetPseudojetRetriever("AntiKt10"+name+"Jets")
+  
+    # JetRec tool for finding.
+    from JetRec.JetRecConf import JetRecTool
+    jetrec_trimm = JetRecTool("JetRecTool_"+name+"Trimm")
+    jetrec_trimm.JetGroomer = groomer
+    jetrec_trimm.PseudoJetGetters += [psjget]
+    jetrec_trimm.JetFinder = jfind  
+    jetrec_trimm.OutputContainer = "AntiKt10"+name+"TrimmedJets"
+    jetrec_trimm.JetModifiers += [nsubjettiness]
+    jetrec_trimm.JetModifiers += [nsubjettinessratios]
+    jetrec_trimm.JetModifiers += [ktsplittingscale]
+    jetrec_trimm.JetModifiers += [dipolarity]
+    jetrec_trimm.JetModifiers += [angularity]
+    jetrec_trimm.JetModifiers += [ktdr]
+    jetrec_trimm.JetModifiers += [ktmassdrop]
+    jetrec_trimm.JetModifiers += [planarflow]
+    jetrec_trimm.JetModifiers += [centerofmassshapes]
+    jetrec_trimm.JetModifiers += [energycorrelator]
+    jetrec_trimm.JetModifiers += [energycorrelatorratios]
+    jetrec_trimm.JetModifiers += [pull]
+    jetrec_trimm.JetModifiers += [charge]
+    jetrec_trimm.JetModifiers += [subjetmaker]
+    jetrec_trimm.JetModifiers += [subjetfinder]
+    ToolSvc += jetrec_trimm
+      
+    # Add the algorithm. It runs the demo tools.
+    from JetRec.JetRecConf import JetAlgorithm
+    jetalg = JetAlgorithm("JetAlg_"+name)
+    jetalg.OutputLevel = INFO
+    jetalg.Tools += [jetrec, jetrec_trimm]
+    topSequence += jetalg
+    
+  # Find jet inputs.
+  from JetRec.JetRecConf import PseudoJetGetter
+  psjget = PseudoJetGetter("TCCPseudoJetGetter")
+  psjget.InputContainer = "CaloCalTopoClusters"
+  psjget.Label = "LCTopo"
+  psjget.OutputContainer = "PseudoJetLCTopo"
+  psjget.OutputLevel = INFO
+  psjget.SkipNegativeEnergy = True
+  ToolSvc += psjget
+    
+  # Find jets.
+  from JetRec.JetRecConf import JetFinder
+  jfind = JetFinder("JetFinder")
+  jfind.JetAlgorithm = "AntiKt"
+  jfind.JetRadius = 1.0
+  jfind.GhostArea = 0.01;
+  jfind.PtMin = 2000.0
+  #  jfind.OutputLevel = VERBOSE
+  ToolSvc += jfind
+      
+  # JetRec tool for finding.
+  from JetRec.JetRecConf import JetRecTool
+  jetrec_trimm = JetRecTool("JetRecToolTrimm")
+  jetrec_trimm.JetGroomer = groomer
+  jetrec_trimm.PseudoJetGetters += [psjget]
+  jetrec_trimm.JetFinder = jfind
+  jetrec_trimm.OutputContainer = "AntiKt10LCTopoTrimmedJets"
+  jetrec_trimm.JetModifiers += [nsubjettiness]
+  jetrec_trimm.JetModifiers += [nsubjettinessratios]
+  jetrec_trimm.JetModifiers += [ktsplittingscale]
+  jetrec_trimm.JetModifiers += [dipolarity]
+  jetrec_trimm.JetModifiers += [angularity]
+  jetrec_trimm.JetModifiers += [ktdr]
+  jetrec_trimm.JetModifiers += [ktmassdrop]
+  jetrec_trimm.JetModifiers += [planarflow]
+  jetrec_trimm.JetModifiers += [centerofmassshapes]
+  jetrec_trimm.JetModifiers += [energycorrelator]
+  jetrec_trimm.JetModifiers += [energycorrelatorratios]
+  jetrec_trimm.JetModifiers += [pull]
+  jetrec_trimm.JetModifiers += [charge]
+  jetrec_trimm.JetModifiers += [subjetmaker]
+  jetrec_trimm.JetModifiers += [subjetfinder]
+  ToolSvc += jetrec_trimm
+     
+  # Add the algorithm. It runs the demo tools.
+  from JetRec.JetRecConf import JetAlgorithm
+  jetalg = JetAlgorithm("JetAlg")
+  jetalg.OutputLevel = INFO
+  jetalg.Tools += [jetrec_trimm]
+  topSequence += jetalg
+
 ###end jet stuff
 
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "XAOD_"+Name+".pool.root" )
 xaodStream.Stream.TakeItemsFromInput = True #this will only work for the event-by-event items. MetadataItems must still be specified
-xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#*")
-xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#*")
+xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClusters")
+xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAux.")
+xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersCharged")
+xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersChargedAux.")
+xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAll")
+xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllAux.")
 xaodStream.AddItem( "xAOD::JetContainer#*")
 xaodStream.AddItem( "xAOD::JetAuxContainer#*")
 
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
+
+# dump configuration
+from AthenaCommon.ConfigurationShelve import saveToAscii
+saveToAscii("config_algs.txt")
+
+#ServiceMgr.StoreGateSvc.Dump=True
 
 # include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")
