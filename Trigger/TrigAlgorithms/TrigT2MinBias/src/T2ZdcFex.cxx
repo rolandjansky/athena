@@ -13,15 +13,15 @@
 
 T2ZdcFex::T2ZdcFex(const std::string &name, ISvcLocator* pSvcLocator): 
   HLT::AllTEAlgo(name, pSvcLocator),
-  m_log(msgSvc(), name),
-  m_timerLoadColl(0), m_timerAlg(0), m_timerSave(0),
+  m_timerLoadColl(nullptr), m_timerAlg(nullptr), m_timerSave(nullptr),
   m_data("TrigDataAccess/TrigDataAccess"),
+  m_zdcID(nullptr),
   m_triggerEnergies(xAOD::TrigT2ZdcSignals::NUM_ZDC,0.),
   m_triggerTimes(xAOD::TrigT2ZdcSignals::NUM_ZDC,0.),
   m_triggerEntries(xAOD::TrigT2ZdcSignals::NUM_ZDC,0.),
   m_useCachedResult(false),
-  m_zdcSignals(0),
-  m_cachedTE(0) {
+  m_zdcSignals(nullptr),
+  m_cachedTE(nullptr) {
   declareProperty("TrigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
   declareProperty("ZdcEnRecoOption",  m_ZdcEnRecoOpt=0);
   declareProperty("ZdcTimeRecoOption",  m_ZdcTimeRecoOpt=0);
@@ -39,9 +39,7 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
   // Caching.
   // First check whether we executed this instance before:
   if(m_useCachedResult) {
-    if(msgLvl() <= MSG::DEBUG) {
-      m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endmsg;
-    }
+    ATH_MSG_DEBUG("Executing " << name() << " in cached mode");
     
     // Get all input TEs (for seeding relation of navigation structure)
     HLT::TEVec allTEs;
@@ -65,9 +63,7 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
     return HLT::OK;
   }
   
-  if(msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this T2ZdcFex as " << name() << endmsg;
-  }
+  ATH_MSG_DEBUG("Executing this T2ZdcFex as " << name());
   
   // start monitoring
   beforeExecMonitors().ignore();
@@ -117,29 +113,10 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
       ++m_triggerEntries[my_module];
       m_triggerEnergies[my_module] += energy;
       m_triggerTimes[my_module] = time/m_triggerEntries[my_module] + 
-	m_triggerTimes[my_module]*(1.-(1./m_triggerEntries[my_module]));
-      
-    }
-    
-#ifdef MY_DEBUG
-    int counter = 0;
-    std::cout << "Id study; side : " << m_zdcID->side(id)
-	      << "; type : " << m_zdcID->type(id)
-	      << "; module : " << m_zdcID->module(id)
-	      << "; channel : " << m_zdcID->channel(id) 
-	      << "; my_module : " << my_module << std::endl;
-    
-    for(unsigned int j = 0 ; j< zdc->getSize() ; j++){
-      std::cout << "ZdcRawChannel [" << j << "] : E="
-		<< zdc->getEnergy(j) << "; T=" <<
- 	zdc->getTime(j) << "; Chi=" << zdc->getChi(j) << std::endl;
-      counter++;
-    }
-#endif
+	      m_triggerTimes[my_module]*(1.-(1./m_triggerEntries[my_module]));
+    }    
   }
-#ifdef MY_DEBUG
-  std::cout << "Total Number of Zdc Raw Channel : " << counter << std::endl;
-#endif
+
   if( timerSvc() ){
     m_timerAlg->stop();
     m_timerSave->start();
@@ -164,9 +141,7 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
 
     HLT::TEVec::const_iterator inner_itEnd = (*it).end();
     for(HLT::TEVec::const_iterator inner_it = (*it).begin(); inner_it != inner_itEnd; ++inner_it ){
-      if(msgLvl() <= MSG::DEBUG) {
-        m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endmsg;
-      }
+      ATH_MSG_DEBUG("Creating TE seeded from input TE " << (*inner_it)->getId());
       allTEs.push_back(*inner_it);
     }
   }
@@ -177,9 +152,7 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
 
   HLT::ErrorCode hltStatus = attachFeature(outputTE, m_zdcSignals, "zdcsignals");
   if(hltStatus != HLT::OK) {
-    if(msgLvl() <= MSG::ERROR) {
-      m_log << MSG::ERROR << "Write of TrigEMCluster into outputTE failed" << endmsg;
-    }
+    ATH_MSG_ERROR("Write of TrigEMCluster into outputTE failed");
     return hltStatus;
   }
   
@@ -199,27 +172,24 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
 //--------------------------------------------------------------------------------------
 
 HLT::ErrorCode T2ZdcFex::hltInitialize() {
-  m_log.setLevel(outputLevel());
   
-  if(msgLvl() <= MSG::INFO) {
-    m_log << MSG::INFO << "in T2ZdcFex::initialize()" << endmsg;
-  }
+  ATH_MSG_INFO("in T2ZdcFex::initialize()");
   
   if(m_data.retrieve().isFailure()) {
-    m_log << MSG::ERROR << "Could not get m_data" << endmsg;
+    ATH_MSG_ERROR("Could not get m_data");
     return StatusCode::FAILURE;
   }
 
   StoreGateSvc* detStore(0);
   if ( service("DetectorStore",detStore).isFailure() ) {
-    m_log << MSG::ERROR << "Could not get detStore" << endmsg;
+    ATH_MSG_ERROR("Could not get detStore");
     return StatusCode::FAILURE;
   }
   
   const ZdcID* zdcID = 0;
   if ( detStore->retrieve( zdcID ).isFailure() )  {
     //if ( detSvc()->retrieve( zdcID ).isFailure() )  {
-    m_log << MSG::ERROR << "Could not get ZdcIDs" << endmsg;
+    ATH_MSG_ERROR("Could not get ZdcIDs");
     return StatusCode::FAILURE;
   }
   

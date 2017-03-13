@@ -15,7 +15,7 @@
   <kv/>
 
    <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-      <mailto>D.Emeliyanov@rl.ac.uk,jiri.masik@cern.ch</mailto>
+      <mailto>sutt@cern.ch,jiri.masik@cern.ch,kirk@stfc.ac.uk</mailto>
       <refRelease>14.5.0</refRelease>
 
 
@@ -112,6 +112,8 @@
             <keepFilePattern>HLTL2-plots-bjet-lowpt/STAR.p*</keepFilePattern>
 
             <keepFilePattern>HLT-plots-PrmVtx/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTL2-vtx/STAR.p*</keepFilePattern>
           
             <keepFilePattern>costMonitoring*/STAR</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/STAR</keepFilePattern>

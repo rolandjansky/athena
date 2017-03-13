@@ -35,8 +35,8 @@
 
 GeoAbsPositionInfo::GeoAbsPositionInfo()
   //## begin GeoAbsPositionInfo::GeoAbsPositionInfo%3CDD8B7801FE_const.hasinit preserve=no
-      : m_absTransform(NULL),
-        m_defAbsTransform(NULL)
+      : m_absTransform(nullptr),
+        m_defAbsTransform(nullptr)
   //## end GeoAbsPositionInfo::GeoAbsPositionInfo%3CDD8B7801FE_const.hasinit
   //## begin GeoAbsPositionInfo::GeoAbsPositionInfo%3CDD8B7801FE_const.initialization preserve=yes
   //## end GeoAbsPositionInfo::GeoAbsPositionInfo%3CDD8B7801FE_const.initialization
@@ -61,7 +61,7 @@ void GeoAbsPositionInfo::clearAbsTransform ()
 {
   //## begin GeoAbsPositionInfo::clearAbsTransform%3CDE5FCD02C8.body preserve=yes
   delete m_absTransform;
-  m_absTransform = NULL;
+  m_absTransform = nullptr;
   //## end GeoAbsPositionInfo::clearAbsTransform%3CDE5FCD02C8.body
 }
 
@@ -69,7 +69,7 @@ void GeoAbsPositionInfo::clearDefAbsTransform ()
 {
   //## begin GeoAbsPositionInfo::clearDefAbsTransform%3CDE5FD8006B.body preserve=yes
   delete m_defAbsTransform;
-  m_defAbsTransform = NULL;
+  m_defAbsTransform = nullptr;
   //## end GeoAbsPositionInfo::clearDefAbsTransform%3CDE5FD8006B.body
 }
 

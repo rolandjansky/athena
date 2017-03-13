@@ -94,7 +94,7 @@ private:
 
 
 inline std::ostream& operator<<( std::ostream& s, const TIDA::Roi& r ) { 
-  s << "\tRoi " << r.roi();
+  s << "\tRoi " << r.roi() << "\tnvtx: " << r.vertices().size();
   for ( unsigned i=0 ; i<r.tracks().size() ; i++ )   s << "\n\t\t\t" << r.tracks()[i];
   for ( unsigned i=0 ; i<r.user().size() ; i++ )     s << "\n\t\t\t" << r.user()[i];
   for ( unsigned i=0 ; i<r.objects().size() ; i++ )  s << "\n\t\t\t" << r.objects()[i];

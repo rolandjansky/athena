@@ -20,13 +20,9 @@
 using namespace pool;
 
 /// Standard Constructor
-RootOODb::RootOODb(void* ctxt) : OODatabaseImp(ctxt, ROOT_StorageType)  {
-  DbInstanceCount::increment(this);
-}
-
-/// Standard Constructor
-RootOODb::RootOODb(void* ctxt, DbType typ) : OODatabaseImp(ctxt, typ)   {
-  DbInstanceCount::increment(this);
+RootOODb::RootOODb(void* ctxt, DbType typ) : OODatabaseImp(ctxt, typ)
+{
+   DbInstanceCount::increment(this);
 }
 
 /// Standard Destructor

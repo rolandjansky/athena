@@ -217,50 +217,50 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
 
     template<typename T, typename V>
     class DoubleVectorIterator {
-        T* first;
-        TileFragHash::TYPE typ1;
-        TileRawChannelUnit::UNIT uni1;
-        float cut1;
-        bool amp1;
-        bool tim1;
-        bool of21;
-        T* second;
-        TileFragHash::TYPE typ2;
-        TileRawChannelUnit::UNIT uni2;
-        float cut2;
-        bool amp2;
-        bool tim2;
-        bool of22;
-        TileCellBuilder* ptr;
-        int pos;
+        T* m_first;
+        TileFragHash::TYPE m_typ1;
+        TileRawChannelUnit::UNIT m_uni1;
+        float m_cut1;
+        bool m_amp1;
+        bool m_tim1;
+        bool m_of21;
+        T* m_second;
+        TileFragHash::TYPE m_typ2;
+        TileRawChannelUnit::UNIT m_uni2;
+        float m_cut2;
+        bool m_amp2;
+        bool m_tim2;
+        bool m_of22;
+        TileCellBuilder* m_ptr;
+        int m_pos;
         typedef typename T::iterator itr_type;
-        itr_type itr;
+        itr_type m_itr;
 
       public:
 
         DoubleVectorIterator(T* f, TileFragHash::TYPE y1, TileRawChannelUnit::UNIT u1, float c1, bool a1, bool t1, bool o1
                            , T* s, TileFragHash::TYPE y2, TileRawChannelUnit::UNIT u2, float c2, bool a2, bool t2, bool o2
                            , TileCellBuilder* b, int p)
-            : first(f), typ1(y1), uni1(u1), cut1(c1), amp1(a1), tim1(t1), of21(o1)
-            , second(s), typ2(y2), uni2(u2), cut2(c2), amp2(a2), tim2(t2), of22(o2)
-            , ptr(b), pos(p) {
+            : m_first(f), m_typ1(y1), m_uni1(u1), m_cut1(c1), m_amp1(a1), m_tim1(t1), m_of21(o1)
+            , m_second(s), m_typ2(y2), m_uni2(u2), m_cut2(c2), m_amp2(a2), m_tim2(t2), m_of22(o2)
+            , m_ptr(b), m_pos(p) {
 
-          if (first->begin() != first->end() && pos < 1) {
-            pos = 0;
-            itr = first->begin();
-          } else if (second->begin() != second->end() && pos < 2) {
-            pos = 1;
-            itr = second->begin();
+          if (m_first->begin() != m_first->end() && m_pos < 1) {
+            m_pos = 0;
+            m_itr = m_first->begin();
+          } else if (m_second->begin() != m_second->end() && m_pos < 2) {
+            m_pos = 1;
+            m_itr = m_second->begin();
             // set parameters for second vector
-            ptr->m_RChType = typ2;
-            ptr->m_RChUnit = uni2;
-            ptr->m_maxTimeCorr = cut2;
-            ptr->m_correctAmplitude = amp2;
-            ptr->m_correctTime = tim2;
-            ptr->m_of2 = of22;
+            m_ptr->m_RChType = m_typ2;
+            m_ptr->m_RChUnit = m_uni2;
+            m_ptr->m_maxTimeCorr = m_cut2;
+            m_ptr->m_correctAmplitude = m_amp2;
+            m_ptr->m_correctTime = m_tim2;
+            m_ptr->m_of2 = m_of22;
           } else {
-            pos = 2;
-            itr = second->end();
+            m_pos = 2;
+            m_itr = m_second->end();
           }
         }
 
@@ -269,48 +269,48 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
 
 
         bool operator!=(const DoubleVectorIterator& i) {
-          if (pos != i.pos || itr != i.itr) return true;
+          if (m_pos != i.m_pos || m_itr != i.m_itr) return true;
           else return false;
         }
 
-        V& operator*() const { return (*itr); }
-        V* operator->() const { return (*itr); }
+        V& operator*() const { return (*m_itr); }
+        V* operator->() const { return (*m_itr); }
 
         DoubleVectorIterator& operator++() {
-          switch (pos) {
+          switch (m_pos) {
             case 0:
-              if (itr != first->end()) ++itr;
-              if (itr != first->end()) break;
-              itr = second->begin();
-              pos = 1;
+              if (m_itr != m_first->end()) ++m_itr;
+              if (m_itr != m_first->end()) break;
+              m_itr = m_second->begin();
+              m_pos = 1;
               // set parameters for second vector
-              ptr->m_RChType = typ2;
-              ptr->m_RChUnit = uni2;
-              ptr->m_maxTimeCorr = cut2;
-              ptr->m_correctAmplitude = amp2;
-              ptr->m_correctTime = tim2;
-              ptr->m_of2 = of22;
-              if (itr != second->end()) break;
-              pos = 2;
+              m_ptr->m_RChType = m_typ2;
+              m_ptr->m_RChUnit = m_uni2;
+              m_ptr->m_maxTimeCorr = m_cut2;
+              m_ptr->m_correctAmplitude = m_amp2;
+              m_ptr->m_correctTime = m_tim2;
+              m_ptr->m_of2 = m_of22;
+              if (m_itr != m_second->end()) break;
+              m_pos = 2;
               // recover parameters for first vector
-              ptr->m_RChType = typ1;
-              ptr->m_RChUnit = uni1;
-              ptr->m_maxTimeCorr = cut1;
-              ptr->m_correctAmplitude = amp1;
-              ptr->m_correctTime = tim1;
-              ptr->m_of2 = of21;
+              m_ptr->m_RChType = m_typ1;
+              m_ptr->m_RChUnit = m_uni1;
+              m_ptr->m_maxTimeCorr = m_cut1;
+              m_ptr->m_correctAmplitude = m_amp1;
+              m_ptr->m_correctTime = m_tim1;
+              m_ptr->m_of2 = m_of21;
               break;
             case 1:
-              if (itr != second->end()) ++itr;
-              if (itr != second->end()) break;
-              pos = 2;
+              if (m_itr != m_second->end()) ++m_itr;
+              if (m_itr != m_second->end()) break;
+              m_pos = 2;
               // recover parameters for first vector
-              ptr->m_RChType = typ1;
-              ptr->m_RChUnit = uni1;
-              ptr->m_maxTimeCorr = cut1;
-              ptr->m_correctAmplitude = amp1;
-              ptr->m_correctTime = tim1;
-              ptr->m_of2 = of21;
+              m_ptr->m_RChType = m_typ1;
+              m_ptr->m_RChUnit = m_uni1;
+              m_ptr->m_maxTimeCorr = m_cut1;
+              m_ptr->m_correctAmplitude = m_amp1;
+              m_ptr->m_correctTime = m_tim1;
+              m_ptr->m_of2 = m_of21;
               break;
             default:
               break;

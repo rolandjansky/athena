@@ -25,12 +25,12 @@ namespace SG {
   struct GenerateIndexingPolicy {
     private:
 
-    typedef IsSTLSequence<CONTAINER>   _isSTLSequence;
+    typedef IsSTLSequence<CONTAINER>   isSTLSequence_t;
 
-    BOOST_STATIC_CONSTANT(bool, isSTLSequence = _isSTLSequence::value);
+    BOOST_STATIC_CONSTANT(bool, m_isSTLSequence = isSTLSequence_t::value);
 
   public:
-    typedef typename boost::detail::if_true<(isSTLSequence)>::template
+    typedef typename boost::detail::if_true<(m_isSTLSequence)>::template
     then<
       ForwardIndexingPolicy<CONTAINER>,      
       //else

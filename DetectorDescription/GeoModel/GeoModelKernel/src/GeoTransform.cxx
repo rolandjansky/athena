@@ -70,7 +70,7 @@ HepGeom::Transform3D GeoTransform::getDefTransform () const
 const HepGeom::Transform3D * GeoTransform::getDelta () const
 {
   //## begin GeoTransform::getDelta%3CDE1D1102F6.body preserve=yes
-  return NULL;
+  return nullptr;
   //## end GeoTransform::getDelta%3CDE1D1102F6.body
 }
 

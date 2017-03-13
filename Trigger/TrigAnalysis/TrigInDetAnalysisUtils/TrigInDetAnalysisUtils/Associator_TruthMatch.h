@@ -91,7 +91,7 @@ public:
   
 private:
 
-    double md;
+  // double md;
 
 };
 

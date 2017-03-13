@@ -18,7 +18,7 @@
 
 TrigCountTrtHits::TrigCountTrtHits(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
-    m_log(msgSvc(), name),
+    m_hltExecuteInitialisationRun(false),
     m_detStore("DetectorStore", name),
     m_storeGate("StoreGateSvc", name),
     m_trtHelper(0),
@@ -26,9 +26,16 @@ TrigCountTrtHits::TrigCountTrtHits(const std::string& name, ISvcLocator* pSvcLoc
     m_endcapC(0),
     m_barrel(0),
     m_endcapA(0),
+    m_trt_barrel_a_side(false),
+    m_trt_barrel_c_side(false),
+    m_trt_endcap_a_side(false),
+    m_trt_endcap_c_side(false),
+    m_dataLoopTimer(nullptr),
+    m_retrieveDataTimer(nullptr),
+    m_attachFTimer(nullptr),
     m_useCachedResult(false),
     m_trtHitCounts(0),
-    m_cachedTE(0) {
+    m_cachedTE(nullptr) {
 
   declareProperty( "TRT_RDO_ContainerName",             m_trtRdoContainerName = "TRT_RDO_Cache" );
   declareProperty( "TotBins",                           m_hTotBins = 30 );
@@ -60,37 +67,36 @@ TrigCountTrtHits::~TrigCountTrtHits() {
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
-  m_log << MSG::DEBUG << "Initialising this TrigCountTrtHits: " << name() << endmsg;
+  ATH_MSG_DEBUG("Initialising this TrigCountTrtHits: " << name());
   StatusCode sc = StatusCode::FAILURE;
-  m_log.setLevel(outputLevel());
 
   // Get storegate svc
   if(m_detStore.retrieve().isFailure()) {
-    m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endmsg;
+    ATH_MSG_FATAL("Failed to connect to " << m_detStore.typeAndName());
     return StatusCode::FAILURE;
   } else
-    m_log << MSG::INFO << "Retrieved service " << m_detStore.typeAndName() << endmsg;
+    ATH_MSG_INFO("Retrieved service " << m_detStore.typeAndName());
 
   if(m_storeGate.retrieve().isFailure()) {
-    m_log << MSG::FATAL << "Failed to connect to " << m_storeGate.typeAndName() << endmsg;
+    ATH_MSG_FATAL("Failed to connect to " << m_storeGate.typeAndName());
     return StatusCode::FAILURE;
   } else
-    m_log << MSG::INFO << "Retrieved service " << m_storeGate.typeAndName() << endmsg;
+    ATH_MSG_INFO("Retrieved service " << m_storeGate.typeAndName());
 
   // Get a TRT identifier helper
   sc = m_detStore->retrieve(m_trtHelper, "TRT_ID");
   if(sc.isFailure()) {
-    m_log << MSG::ERROR << "Failed to retrieve " << m_trtHelper << endmsg; // fatal?
+    ATH_MSG_ERROR("Failed to retrieve " << m_trtHelper); // fatal?
     return StatusCode::FAILURE;
   } else
-    m_log << MSG::INFO << "Retrieved service " << m_trtHelper << endmsg;
+    ATH_MSG_INFO("Retrieved service " << m_trtHelper);
   
   // Get TrigTRT_DriftCircleProviderTool
   if( m_rawDataTool.retrieve().isFailure() ){
-    m_log << MSG::FATAL << "Failed to retrieve " << m_rawDataTool << endmsg;
+    ATH_MSG_FATAL("Failed to retrieve " << m_rawDataTool);
     return StatusCode::FAILURE;
   } else
-    m_log << MSG::INFO << "Retrieved service " << m_rawDataTool << endmsg;
+    ATH_MSG_INFO("Retrieved service " << m_rawDataTool);
   
   // Create timer
   if ( timerSvc() ) {
@@ -99,7 +105,7 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
     m_attachFTimer        = addTimer("attachingFeatures");
   }
 
-  m_log << MSG::INFO << " TrigCountTrtHits initialized successfully" << endmsg; 
+  ATH_MSG_INFO(" TrigCountTrtHits initialized successfully"); 
 
   // Create empty histograms.
   m_endcapC = new TrigHisto1D(m_hTotBins, m_hTotMin, m_hTotMax);  
@@ -119,22 +125,22 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
 HLT::ErrorCode TrigCountTrtHits::hltBeginRun() {
   // This initialisation has been moved into the event loop.
   // @see TrigCountTrtHitsHypo::checkDetectorMask
-  if (msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << " TrigCountTrtHits will be initialized in hltExecute" << endmsg; 
+  ATH_MSG_DEBUG(" TrigCountTrtHits will be initialized in hltExecute"); 
   return HLT::OK;
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHits::checkDetectorMask() {
   m_hltExecuteInitialisationRun = true;
-  m_log << MSG::DEBUG << "[TrigCountTrtHits::checkDetectorMask]  beginning run with this " << name() << endmsg;
+  ATH_MSG_DEBUG("[TrigCountTrtHits::checkDetectorMask]  beginning run with this " << name());
 
   const xAOD::EventInfo* evinfo = 0;
   if (store()->retrieve(evinfo).isFailure()) {
-    if (msgLvl() <= MSG::ERROR) m_log << MSG::ERROR << "Cannot retrieve xAOD::EventInfo from SG for detmasks" << endmsg;
+    ATH_MSG_ERROR("Cannot retrieve xAOD::EventInfo from SG for detmasks");
     return HLT::SG_ERROR;
   }
   else {
-    if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "xAOD::EventInfo Run Information [Run,Evt,Lumi,Time,BunchCross,DetMask] = [" 
+    ATH_MSG_INFO("xAOD::EventInfo Run Information [Run,Evt,Lumi,Time,BunchCross,DetMask] = [" 
       << evinfo->runNumber()
       << "," << evinfo->eventNumber()
       << "," << evinfo->lumiBlock()
@@ -142,13 +148,13 @@ HLT::ErrorCode TrigCountTrtHits::checkDetectorMask() {
       << ":" << evinfo->timeStampNSOffset()
       << "," << evinfo->bcid()
       << ",0x" << std::hex << evinfo->detectorMask() << std::dec
-      << "]" << endmsg;
+      << "]");
 
     uint64_t mask = evinfo->detectorMask();
     eformat::helper::DetectorMask decoder(mask);
 
     if (mask == 0) {
-      if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Detector Mask == 0. Assuming MC file and setting all of ID to ON." << endmsg; 
+      ATH_MSG_INFO("Detector Mask == 0. Assuming MC file and setting all of ID to ON."); 
       m_trt_barrel_a_side = true;
       m_trt_barrel_c_side = true;
       m_trt_endcap_a_side = true;
@@ -160,12 +166,10 @@ HLT::ErrorCode TrigCountTrtHits::checkDetectorMask() {
       m_trt_endcap_c_side = decoder.is_set(eformat::TRT_ENDCAP_C_SIDE);
     }
 
-    if( msgLvl() <= MSG::INFO ){
-      m_log << MSG::INFO << "trt_barrel_a_side is " << (m_trt_barrel_a_side==true? "present" : "OFF! ") << endmsg;
-      m_log << MSG::INFO << "trt_barrel_c_side is " << (m_trt_barrel_c_side==true? "present" : "OFF! ") << endmsg;
-      m_log << MSG::INFO << "trt_endcap_a_side is " << (m_trt_endcap_a_side==true? "present" : "OFF! ") << endmsg;
-      m_log << MSG::INFO << "trt_endcap_c_side is " << (m_trt_endcap_c_side==true? "present" : "OFF! ") << endmsg; 
-    }
+    ATH_MSG_INFO("trt_barrel_a_side is " << (m_trt_barrel_a_side==true? "present" : "OFF! "));
+    ATH_MSG_INFO("trt_barrel_c_side is " << (m_trt_barrel_c_side==true? "present" : "OFF! "));
+    ATH_MSG_INFO("trt_endcap_a_side is " << (m_trt_endcap_a_side==true? "present" : "OFF! "));
+    ATH_MSG_INFO("trt_endcap_c_side is " << (m_trt_endcap_c_side==true? "present" : "OFF! ")); 
   }
   return HLT::OK;
 }
@@ -178,12 +182,12 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     if (ec != HLT::OK) return ec;
   }
 
-  m_log << MSG::DEBUG << "Executing this TrigCountTrtHits " << name() << endmsg;
+  ATH_MSG_DEBUG("Executing this TrigCountTrtHits " << name());
 
   // Caching.
   // First check whether we executed this instance before:
   if( m_useCachedResult ){
-    m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endmsg;
+    ATH_MSG_DEBUG("Executing " << name() << " in cached mode");
       
     // Get all input TEs (for seeding relation of navigation structure)
     HLT::TEVec allTEs;
@@ -193,7 +197,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
       HLT::TEVec::const_iterator inner_it = (*it).begin();
       HLT::TEVec::const_iterator inner_itEnd = (*it).end();
       for( ; inner_it != inner_itEnd; ++inner_it)
-	allTEs.push_back(*inner_it);
+        allTEs.push_back(*inner_it);
     }
     
     // Create an output TE seeded by the inputs
@@ -210,7 +214,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
   beforeExecMonitors().ignore();
 
   if( !(m_trt_barrel_a_side && m_trt_barrel_c_side && m_trt_endcap_a_side && m_trt_endcap_c_side) ){
-    m_log << MSG::DEBUG << "Trt detector is not present. " << endmsg;   
+    ATH_MSG_DEBUG("Trt detector is not present. ");   
     // currently dont return since only old data without detector flags exsist
   }
   // Clear TrigHisto1d histograms 
@@ -235,14 +239,14 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     TrigRoiDescriptor fsroi(true);
     StatusCode sc_fc = m_rawDataTool->fillCollections(fsroi);
     if( sc_fc.isRecoverable() ){
-        m_log << MSG::DEBUG << "Recoverable error(s) during TRT data preparation" << endmsg;
+        ATH_MSG_DEBUG("Recoverable error(s) during TRT data preparation");
 
         //  error monitoring 
         const std::vector<int>* errVect = m_rawDataTool->fillTRT_DataErrors();
         std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_trtDataErrors));
     } 
     else if(sc_fc.isFailure()){
-      m_log << MSG::ERROR << "BS conversion into RDOs failed" << endmsg;
+      ATH_MSG_ERROR("BS conversion into RDOs failed");
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::CORRUPTED_ROD);
     }
     
@@ -255,11 +259,11 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     StatusCode sc_sg = m_storeGate->retrieve( trtContainer, m_trtRdoContainerName );
 
     if( sc_sg.isFailure() ){
-      m_log << MSG::ERROR << " Failed to retrieve trt data from SG. " << endmsg; 
+      ATH_MSG_ERROR(" Failed to retrieve trt data from SG. "); 
       return HLT::TOOL_FAILURE;
     }
     else
-      m_log << MSG::DEBUG << " Successfully retrieved trt data from SG. " << endmsg; 
+      ATH_MSG_DEBUG(" Successfully retrieved trt data from SG. "); 
     
     // loop over collections of container
     TRT_RDO_Container::const_iterator trthitsCollIt = trtContainer->begin();
@@ -282,13 +286,13 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
         int bec = m_trtHelper->barrel_ec(trt_id);
 
         if(bec == -2) { 
-  	m_endcapC->fill((*rdoIt)->timeOverThreshold(),1);
+          m_endcapC->fill((*rdoIt)->timeOverThreshold(),1);
         }
         else if(bec == -1 || bec == 1) {
-  	m_barrel->fill((*rdoIt)->timeOverThreshold(),1);
+          m_barrel->fill((*rdoIt)->timeOverThreshold(),1);
         }
         else if(bec == 2) {
-  	m_endcapA->fill((*rdoIt)->timeOverThreshold(),1);
+          m_endcapA->fill((*rdoIt)->timeOverThreshold(),1);
         }
       }
     }
@@ -306,7 +310,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     m_attachFTimer->start();
   }
   
-  m_log << MSG::DEBUG << "REGTEST : number of TRT hits is  " << m_nTrtHits << endmsg;
+  ATH_MSG_DEBUG("REGTEST : number of TRT hits is  " << m_nTrtHits);
   
   m_trtHitCounts = new TrigTrtHitCounts(*m_endcapC, *m_barrel, *m_endcapA);
   
@@ -325,7 +329,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     HLT::TEVec::const_iterator inner_itEnd = (*it).end();
 
     for( ; inner_it != inner_itEnd; ++inner_it ){
-      m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endmsg;
+      ATH_MSG_DEBUG("Creating TE seeded from input TE " << (*inner_it)->getId());
       allTEs.push_back(*inner_it);
     }
   }
@@ -336,7 +340,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
   
   HLT::ErrorCode hltStatus = attachFeature( outputTE, m_trtHitCounts, "TrtHitCount");
   if(hltStatus != HLT::OK) {
-    m_log << MSG::ERROR << "Unable to attach HLT feature TrtHitCount to output TE." << endmsg;
+    ATH_MSG_ERROR("Unable to attach HLT feature TrtHitCount to output TE.");
     m_attachFTimer->stop();
     return hltStatus;
   }
@@ -357,7 +361,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHits::hltFinalize() {
-  m_log << MSG::DEBUG << " finalizing TrigCountTrtHits : "<< name() << endmsg; 
+  ATH_MSG_DEBUG(" finalizing TrigCountTrtHits : "<< name()); 
   return HLT::OK;  
 }
 

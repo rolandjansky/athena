@@ -54,7 +54,6 @@ long AthenaPoolConverter::repSvcType() const {
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-   //std::lock_guard<CallMutex> lock(m_conv_mut);
    TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    if (tokAddr == nullptr || tokAddr->getToken() == nullptr) {
       if (m_i_poolToken == nullptr) m_i_poolToken = new Token;
@@ -86,7 +85,6 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
-   //std::lock_guard<CallMutex> lock(m_conv_mut);
    // Create a Pool object for DataObject
    m_o_poolToken = nullptr;
    try {

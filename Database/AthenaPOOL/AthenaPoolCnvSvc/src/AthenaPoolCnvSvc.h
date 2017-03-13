@@ -28,6 +28,7 @@ class IAthenaSerializeSvc;
 class IChronoStatSvc;
 class IClassIDSvc;
 class IPoolSvc;
+class Guid;
 
 template <class TYPE> class SvcFactory;
 
@@ -181,6 +182,16 @@ private: // member functions
 	   bool doGet = true,
 	   bool doSet = true,
 	   bool doClear = true) const;
+
+   /// Receive dynamic aux store variables from streaming tool
+   StatusCode receiveStore(const IAthenaIPCTool* tool, void* obj, int num = 0) const;
+
+   /// Send dynamic aux store variables to streaming tool
+   StatusCode sendStore(const IAthenaIPCTool* tool,
+	   const void* obj,
+	   const Guid& classId,
+	   const std::string& contName,
+	   int num = 0) const;
 
 private: // data
    pool::DbType    m_dbType;

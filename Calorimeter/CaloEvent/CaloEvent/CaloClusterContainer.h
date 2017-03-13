@@ -22,7 +22,7 @@ PURPOSE:  Container for CaloCluster objects
 
 // INCLUDE HEADER FILES:
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "CaloEvent/CaloTowerSeg.h"

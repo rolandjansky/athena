@@ -32,7 +32,9 @@ InDetDummyPlots::InDetDummyPlots(InDetPlotBase* pParent, const std::string& sDir
   m_minimum_delta_R_not_found{},
   m_minimum_delta_R_2_not_found{},
   m_minimum_delta_R_3_not_found{},
-  m_delta_inverse_pt{} {
+  m_delta_inverse_pt{},
+  m_delta_inverse_pt_not_found{},
+  m_charge_vs_truth_match_rate{} {
   // nop
 }
 
@@ -61,6 +63,8 @@ InDetDummyPlots::initializePlots() {
   book(m_minimum_delta_R_2_not_found, "minimum_delta_R_2_not_found");
   book(m_minimum_delta_R_3_not_found, "minimum_delta_R_3_not_found");
   book(m_delta_inverse_pt, "delta_inverse_pt");
+  book(m_delta_inverse_pt_not_found, "delta_inverse_pt_not_found");
+  book(m_charge_vs_truth_match_rate, "charge_vs_truth_match_rate");
 }
 
 void
@@ -205,9 +209,10 @@ InDetDummyPlots::track_vs_truth(const xAOD::TrackParticle& track, const xAOD::Tr
 }
 
 void
-InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt){
+InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double truth_pt, float cvst){
 
   if(bestmatch > 0.50){
+    fillHisto(m_delta_inverse_pt, BIDPt);
     if(prod_rad < 100){
       fillHisto(m_minimum_delta_R, min_dR);
     }else if(prod_rad < 200){
@@ -216,6 +221,7 @@ InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BID
       fillHisto(m_minimum_delta_R_3, min_dR);
     }
   }else{
+    fillHisto(m_delta_inverse_pt_not_found, BIDPt);
     std::cout<<"Rey: the match probability is "<<bestmatch<<"\n";
     if(prod_rad < 100){
       fillHisto(m_minimum_delta_R_not_found, min_dR);
@@ -226,7 +232,7 @@ InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BID
     }
   }
 
-  fillHisto(m_delta_inverse_pt, BIDPt);
+  fillHisto(m_charge_vs_truth_match_rate, truth_pt, cvst);
 
 }
 

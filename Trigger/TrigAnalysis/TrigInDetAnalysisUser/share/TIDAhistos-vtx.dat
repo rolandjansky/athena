@@ -1,0 +1,46 @@
+// emacs: this is -*- c++ -*-
+
+histos = { 
+
+  ///  xPrimVx plots
+  "leadpt",       "Leading p_{T}",       "xaxis:log:auto",     "Leading offline track p_{T} [GeV]",            "yaxis:lin:autonw",  "(1/n)dn/dp_{T} [GeV^{-1}]"  ,
+  "ntrax",        "Number of tracks",    "xaxis:lin:auto",     "Offline track multiplcicty",                  "yaxis:log:autonw",   "(1/n)dn/dN"  ,
+  "ntrax_rec",    "Number of tracks",    "xaxis:lin:auto",     "Trigger track multiplicity",                  "yaxis:log:autonw",   "(1/n)dn/dN"  ,
+
+  "zed",          "Vertex z position",   "xaxis:lin:auto:-175:175",     "Offline vertex z [mm]",      "yaxis:log:auton",  "(1/n)dn/dz [mm^{-1}]"  ,
+  "zed_rec",      "Vertex z position",   "xaxis:lin:auto:-175:175",     "Trigger Vertex z [mm]",      "yaxis:log:auton",  "(1/n)dn/dz [mm^{-1}]"  ,
+
+  // "nvtx",      "Number of vertices",  "xaxis:lin:auto",     "Number of vertices",                   "yaxis:log:auton",  ""  ,
+  // "nvtx_rec",  "Number of vertices",  "xaxis:lin:auto",     "Number of vertices",                   "yaxis:log:autonw", ""  ,
+ 
+  "mu",            "mu",                 "xaxis:lin:auto",     "pileup <#mu>",    "yaxis:log:auton:0.1:1.2",  "normalised entries"  ,
+  "mu_eff",        "efficiency vs mu",   "xaxis:lin:auto",     "pileup <#mu>",    "yaxis:lin:0.5:1.05",    "Efficiency"  ,
+  
+  /// xPrimVx efficiencies
+  "leadpt_eff",    "Efficiency Leading p_{T}",    "xaxis:log:auto",     "Leading track p_{T} [GeV]",          "yaxis:lin:auto:0.90:1.02",  "Vertex finding efficiency" ,
+
+  "ntrax_eff",     "Tracks efficiency",           "xaxis:lin:auto",     "Number of tracks",                   "yaxis:lin:0.80:1.02",       "Vertex finding efficiency" ,    
+  "nvtx_eff",      "Vertices efficiency",         "xaxis:lin:auto",     "Number of vertices",                 "yaxis:lin:auto:0.5:1.05",   "Vertex finding efficiency" ,       
+  "zed_eff",       "Efficiency z",                "xaxis:lin:-175:175",  "Offline vertex z [mm]",             "yaxis:lin:0.50:1.05",       "Vertex finding efficiency" ,        
+
+  "lb",           "lumi blocks",                 "xaxis:lin:auto",      "luminosity block",                  "yaxis:lin:autonw",          "(1/n)dn/dlumiblock" ,        
+  "lb_eff",       "Efficiency lb",                "xaxis:lin:auto",     "luminosity block",                  "yaxis:lin:0.50:1.05",       "Vertex finding efficiency" ,        
+
+  /// xPrimVx residual
+  "rdz_vs_zed/sigma",         "Resolution z vs z",                          "xaxis:lin:-175:175", "Offline vertex z [mm]",             "yaxis:lin:auto:0:0.5",       "z_{0} resolution [mm]" ,
+  "rdz_vs_zed/mean",          "Offset z vs z",                              "xaxis:lin:-175:175", "Offline vertex z [mm]",             "yaxis:lin:-0.25:0.25",  "z_{0} mean [mm]" ,
+
+  "rdz_vs_zed/1d",            "Residual z",                                 "xaxis:lin:-10:10",  "#Delta z [mm]",                "yaxis:log:autonw",    "(1/N)dN/dz [mm^{-1}]" , 
+
+  "rdz_vs_ntrax/sigma",       "Residual z vs N_{tracks}",                   "xaxis:lin:auto",     "Offline track multiplicity",           "yaxis:log:0.03:10", "z_{0} resolution [mm]" ,
+  "rdz_vs_ntrax/mean",        "Offset z vs N_{tracks}",                     "xaxis:lin:auto",     "Offline track multiplicity",           "yaxis:lin:-0.25:0.25.", "z_{0} mean [mm]" ,
+
+
+  // "rdz_vs_nvtx/sigma",     "Residual z vs N_{vtx}",                      "xaxis:lin:auto",     "Number of online vertices",  "yaxis:lin:auto",    "z_{0} resolution [mm]" ,
+  "rdz_vs_leadpt/sigma",      "Residual z vs lead p_{T}",                   "xaxis:log:auto",     "Leading Track p_{T} [GeV]",  "yaxis:lin:auto",    "z_{0} resolution [mm]" ,
+
+  //  "rleadpt_vs_sumpt2/2d", "Residual lead p_{T} vs #Sigma p_{T}^{2}",    "xaxis:lin:auto",     "#Sigma p_{T}^{2} [GeV^{2}]", "yaxis:lin:auto",    "Leading Track p_{T} [GeV]" ,
+  //  "rntrax_vs_sumpt2/2d",  "Residual N tracks vs #Sigma p_{T}^{2}",      "xaxis:lin:auto",     "#Sigma p_{T}^{2} [GeV^{2}]", "yaxis:lin:auto",    "N tracks" ,
+
+};
+

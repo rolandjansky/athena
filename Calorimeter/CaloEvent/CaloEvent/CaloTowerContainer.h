@@ -58,7 +58,7 @@ UPDATE:   MAY-11-01
 #define CALOTOWERCONTAINER_USES_DATAPOOL
 
 // INCLUDE HEADER FILES:
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"

@@ -82,7 +82,7 @@ class GeoAccessVolumeAction : public GeoNodeAction  //## Inherits: <unnamed>%3CE
       virtual void handleFullPhysVol (const GeoFullPhysVol *vol);
 
       //## Operation: getVolume%3CE124F50044
-      //	Returns the selected physical volume or NULL if not
+      //	Returns the selected physical volume or nullptr if not
       //	found.
       PVConstLink getVolume () const;
 

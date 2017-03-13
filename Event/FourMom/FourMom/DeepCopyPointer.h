@@ -17,38 +17,38 @@ template <class T>
 class DeepCopyPointer {
 public:
   
-  DeepCopyPointer() : theData(0) {}
+  DeepCopyPointer() : m_theData(0) {}
 
-  DeepCopyPointer( T* t) : theData(t) {}
+  DeepCopyPointer( T* t) : m_theData(t) {}
 
   DeepCopyPointer( const DeepCopyPointer& other) {
-    if (other.theData) theData = new T( *other); else theData = 0;
+    if (other.m_theData) m_theData = new T( *other); else m_theData = 0;
   }
 
-  ~DeepCopyPointer() { delete theData;}
+  ~DeepCopyPointer() { delete m_theData;}
 
   DeepCopyPointer& operator=( const DeepCopyPointer& other) {
-    if ( this != &other && theData != other.theData) {
-      delete theData;
-      if (other.theData) theData = new T( *other); else theData = 0;
+    if ( this != &other && m_theData != other.m_theData) {
+      delete m_theData;
+      if (other.m_theData) m_theData = new T( *other); else m_theData = 0;
     }
     return *this;
   }
 
-  T&       operator*()       { return *theData;}
-  const T& operator*() const { return *theData;}
+  T&       operator*()       { return *m_theData;}
+  const T& operator*() const { return *m_theData;}
 
-  T*       operator->()       { return theData;}
-  const T* operator->() const { return theData;}
+  T*       operator->()       { return m_theData;}
+  const T* operator->() const { return m_theData;}
 
   /// to allow test like " if (p) {...}"
-  operator bool() const { return theData != 0;}
+  operator bool() const { return m_theData != 0;}
 
   /// to allow test like " if (p == &someT) {...}"
-  bool operator==( const T* otherP) const { return theData == otherP;}
+  bool operator==( const T* otherP) const { return m_theData == otherP;}
 
 private:
-  T* theData;
+  T* m_theData;
 };
 
 #endif // DeepCopyPointer_H

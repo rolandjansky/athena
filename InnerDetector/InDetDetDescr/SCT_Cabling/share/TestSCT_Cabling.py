@@ -23,7 +23,7 @@ theApp.AuditAlgorithms=True
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
 #globalflags.DetDescrVersion="ATLAS-GEO-16-00-00"
-globalflags.DetDescrVersion = "ATLAS-GEO-20-00-01"
+globalflags.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="geant4"
@@ -73,7 +73,7 @@ IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 
 
-letsTest='ReadingFromCVP'
+letsTest='ReadingFromCoraCool'
 if (letsTest=='ReadingFromCoraCool'):
   conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRod-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/ROD")
   conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationMur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/MUR")

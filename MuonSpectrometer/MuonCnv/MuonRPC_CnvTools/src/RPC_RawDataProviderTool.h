@@ -56,7 +56,7 @@ private:
 //    std::string                         m_rdoContainerKey;
     SG::WriteHandleKey<RpcPadContainer>            m_RpcPadC;
     SG::WriteHandleKey<RpcSectorLogicContainer>    m_sec;
-    bool mAllowCreation;
+    bool m_AllowCreation;
 
     std::vector<IdentifierHash> to_be_converted(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                             const std::vector<IdentifierHash>& coll) const;

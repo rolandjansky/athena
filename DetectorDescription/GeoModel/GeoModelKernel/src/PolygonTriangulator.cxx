@@ -637,7 +637,7 @@ namespace internal_poltrig {
   {
   public:
     friend class SplayTree<T, KeyType>;
-    BTreeNode( ) : _data(), _left( NULL ), _right( NULL ), _visited(false) { }
+    BTreeNode( ) : _data(), _left( nullptr ), _right( nullptr ), _visited(false) { }
     BTreeNode( const T & data, BTreeNode *lt, BTreeNode *rt )
       : _data(data),_left( lt ), _right( rt ), _visited(false) { }
 
@@ -661,7 +661,7 @@ namespace internal_poltrig {
   class SplayTree
   {
   public:
-    explicit SplayTree( ):root(NULL),size(0) { }
+    explicit SplayTree( ):root(nullptr),size(0) { }
     SplayTree( const SplayTree & rhs );
     ~SplayTree( );
 
@@ -755,9 +755,9 @@ namespace internal_poltrig {
     BTreeNode<T, KeyType> *newNode= new BTreeNode<T, KeyType>;
     newNode->_data=x;
 
-    if( root == NULL )
+    if( root == nullptr )
       {
-	newNode->_left = newNode->_right = NULL;
+	newNode->_left = newNode->_right = nullptr;
 	root = newNode; ++size;
       }
     else
@@ -769,7 +769,7 @@ namespace internal_poltrig {
 	  {
 	    newNode->_left = root->_left;
 	    newNode->_right = root;
-	    root->_left = NULL;
+	    root->_left = nullptr;
 	    root = newNode;
 	    ++size;
 	  }
@@ -778,7 +778,7 @@ namespace internal_poltrig {
 
 	    newNode->_right = root->_right;
 	    newNode->_left = root;
-	    root->_right = NULL;
+	    root->_right = nullptr;
 	    root = newNode;
 	    ++size;
 	  }
@@ -801,11 +801,11 @@ namespace internal_poltrig {
     BTreeNode<T, KeyType> *newTree;
 
     splay( keys, root );
-    if( root->keyValue() != keys ) { res=NULL; return; } // Item not found; do nothing
+    if( root->keyValue() != keys ) { res=nullptr; return; } // Item not found; do nothing
 
     res = root;
 
-    if( root->_left == NULL )
+    if( root->_left == nullptr )
       newTree = root->_right;
     else
       {
@@ -832,7 +832,7 @@ namespace internal_poltrig {
     KeyType rootk=root->keyValue();
     if( rootk != keys ) { return; } // Item not found; do nothing
 
-    if( root->_left == NULL ) newTree = root->_right;
+    if( root->_left == nullptr ) newTree = root->_right;
     else
       {
 	// Find the maximum in the _left subtree
@@ -855,7 +855,7 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::DeleteMin(BTreeNode<T, KeyType>* &min)
   {
-    if( IsEmpty( ) )  { min=NULL; return; }
+    if( IsEmpty( ) )  { min=nullptr; return; }
 
     double keys=-1.0e30;
     splay( keys, root );
@@ -863,7 +863,7 @@ namespace internal_poltrig {
     min = root;
 
     BTreeNode<T, KeyType> *newTree;
-    if( root->_left == NULL ) newTree = root->_right;
+    if( root->_left == nullptr ) newTree = root->_right;
     else
       {
 	newTree = root->_left;
@@ -882,7 +882,7 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::DeleteMax(BTreeNode<T, KeyType>* &max)
   {
-    if( IsEmpty( ) )  { max=NULL; return; }
+    if( IsEmpty( ) )  { max=nullptr; return; }
 
     double keys=1.0e30;
     splay( keys, root );
@@ -890,7 +890,7 @@ namespace internal_poltrig {
     max = root;
 
     BTreeNode<T, KeyType> *newTree;
-    if( root->_left == NULL ) newTree = root->_right;
+    if( root->_left == nullptr ) newTree = root->_right;
     else
       {
 	newTree = root->_left;
@@ -908,10 +908,10 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::FindMin(BTreeNode<T, KeyType>* & min )
   {
-    if( IsEmpty( ) )  { min=NULL; return; }
+    if( IsEmpty( ) )  { min=nullptr; return; }
     BTreeNode<T, KeyType> *ptr = root;
 
-    while( ptr->_left != NULL ) ptr = ptr->_left;
+    while( ptr->_left != nullptr ) ptr = ptr->_left;
     splay( ptr->keyValue(), root );
     min = ptr;
   }
@@ -922,24 +922,24 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::FindMax(BTreeNode<T, KeyType>* & max)
   {
-    if( IsEmpty( ) )   { max=NULL; return; }
+    if( IsEmpty( ) )   { max=nullptr; return; }
 
     BTreeNode<T, KeyType> *ptr = root;
-    while( ptr->_right != NULL ) ptr = ptr->_right;
+    while( ptr->_right != nullptr ) ptr = ptr->_right;
     splay( ptr->keyValue(), root );
     max =  ptr;
   }
 
   //--------------------------------------------------------------------
   //Find the node with the keys in the tree.
-  //res==NULL if it donesn't exist in the tree;
+  //res==nullptr if it donesn't exist in the tree;
   //--------------------------------------------------------------------
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::Find( const KeyType& keys, BTreeNode<T, KeyType>* & res)
   {
-    if( IsEmpty( ) ) { res=NULL; return; }
+    if( IsEmpty( ) ) { res=nullptr; return; }
     splay( keys, root );
-    if( root->keyValue() != keys ) { res=NULL; return; }
+    if( root->keyValue() != keys ) { res=nullptr; return; }
     else res = root;
   }
 
@@ -951,7 +951,7 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::FindMaxSmallerThan( const KeyType& keys, BTreeNode<T, KeyType>* &res)
   {
-    if( IsEmpty( ) ) { res=NULL; return; }
+    if( IsEmpty( ) ) { res=nullptr; return; }
     splay( keys, root );
 
     if( root->data()->keyValue() < keys) res=root;
@@ -986,7 +986,7 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   bool SplayTree<T, KeyType>::IsEmpty( ) const
   {
-    return root == NULL;
+    return root == nullptr;
   }
 
   //----------------------------------------------------------------------
@@ -1016,7 +1016,7 @@ namespace internal_poltrig {
     //    static BTreeNode<T, KeyType> header;
     BTreeNode<T, KeyType> header;//TK: Removed static keyword. Rather a bit slower than thread problems...
 
-    header._left = header._right = NULL;
+    header._left = header._right = nullptr;
     leftTreeMax = rightTreeMin = &header;
 
     for( ; ; )
@@ -1024,9 +1024,9 @@ namespace internal_poltrig {
 	KeyType rkey=t->keyValue();
 	if( keys < rkey )
 	  {
-	    if(t->_left == NULL) break;
+	    if(t->_left == nullptr) break;
 	    if( keys < t->_left->keyValue() ) rotateWithLeftChild( t );
-	    if( t->_left == NULL ) break;
+	    if( t->_left == nullptr ) break;
 
 	    // Link Right
 	    rightTreeMin->_left = t;
@@ -1035,9 +1035,9 @@ namespace internal_poltrig {
 	  }
 	else if( keys > rkey )
 	  {
-	    if( t->_right == NULL ) break;
+	    if( t->_right == nullptr ) break;
 	    if( keys > t->_right->keyValue() ) rotateWithRightChild( t );
-	    if( t->_right == NULL ) break;
+	    if( t->_right == nullptr ) break;
 
 	    // Link Left
 	    leftTreeMax->_right = t;
@@ -1100,8 +1100,8 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   BTreeNode<T, KeyType> * SplayTree<T, KeyType>::clone( BTreeNode<T, KeyType> * t ) const
   {
-    if( t == t->_left )  // Cannot test against NULLNode!!!
-      return NULL;
+    if( t == t->_left )  // Cannot test against nullptrNode!!!
+      return nullptr;
     else
       return new BTreeNode<T, KeyType>( t->_data, clone( t->_left ), clone( t->_right ) );
   }
@@ -1112,7 +1112,7 @@ namespace internal_poltrig {
   template<class T, class KeyType>
   void SplayTree<T, KeyType>::PreOrder( void(*Visit)(BTreeNode<T, KeyType> *u), BTreeNode<T, KeyType> *t)
   {
-    if(t!=NULL)
+    if(t!=nullptr)
       {
 	Visit(t);
 	PreOrder(Visit,t->_left);
@@ -1127,7 +1127,7 @@ namespace internal_poltrig {
   template<class T, class KeyType>
   void SplayTree<T, KeyType>::InOrder( void(*Visit)(BTreeNode<T, KeyType> *u), BTreeNode<T, KeyType> *t)
   {
-    if(t!=NULL)
+    if(t!=nullptr)
       {
         InOrder(Visit,t->_left);
         Visit(t);
@@ -1143,7 +1143,7 @@ namespace internal_poltrig {
   void SplayTree<T, KeyType>::InOrder( void(*Visit)(BTreeNode<T, KeyType>*u, double y)
 				       , BTreeNode<T, KeyType> *t, double y)
   {
-    if(t!=NULL)
+    if(t!=nullptr)
       {
         InOrder(Visit,t->_left, y);
         Visit(t, y);
@@ -1159,7 +1159,7 @@ namespace internal_poltrig {
   template<class T, class KeyType>
   void SplayTree<T, KeyType>::PostOrder( void(*Visit)(BTreeNode<T, KeyType> *u), BTreeNode<T, KeyType> *t)
   {
-    if(t!=NULL)
+    if(t!=nullptr)
       {
         PostOrder(Visit,t->_left);
         PostOrder(Visit,t->_right);
@@ -1173,7 +1173,7 @@ namespace internal_poltrig {
   template<class T, class KeyType>
   int SplayTree<T, KeyType>::Height(BTreeNode<T, KeyType> *subtree) const
   {
-    if(subtree==NULL) return 0;
+    if(subtree==nullptr) return 0;
     int lh=Height(subtree->_left);
     int rh=Height(subtree->_right);
 

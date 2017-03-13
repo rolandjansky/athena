@@ -41,11 +41,11 @@ TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvc
     declareProperty( "TrackPt",              m_trackPtthr = 5.0*CLHEP::GeV );
     declareProperty( "CaloTrackdEtaNoExtrap",        m_calotrkdeta_noextrap );
     declareProperty( "TrackPtHighEt",              m_trackPtthr = 2.0*CLHEP::GeV );
-    declareProperty( "CaloTrackdEtaNoExtrapHighEt",        m_calotrkdeta_noextrap_highet );
-    declareProperty( "CaloTrackdETA",        m_calotrackdeta );
-    declareProperty( "CaloTrackdPHI",        m_calotrackdphi ); 
-    declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low );
-    declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high );
+    declareProperty( "CaloTrackdEtaNoExtrapHighEt",        m_calotrkdeta_noextrap_highet = 0);
+    declareProperty( "CaloTrackdETA",        m_calotrackdeta = 0);
+    declareProperty( "CaloTrackdPHI",        m_calotrackdphi = 0); 
+    declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low = 0);
+    declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high = 0);
     declareProperty( "RCalBarrelFace",       m_RCAL = 1470.0*CLHEP::mm );
     declareProperty( "ZCalEndcapFace",       m_ZCAL = 3800.0*CLHEP::mm );
     declareProperty( "ParticleCaloExtensionTool",    m_caloExtensionTool);

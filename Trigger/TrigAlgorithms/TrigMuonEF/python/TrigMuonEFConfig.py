@@ -750,3 +750,18 @@ class TrigMuonEFFSRoiMakerUnseededConfig(TrigMuonEFFSRoiMaker):
         montool     = TrigMuonEFFSRoiMakerMonitoring()
         
         self.AthenaMonTools = [ montool ]
+
+# Python config class for the TrigMuonEDIDTrackRoiMaker c++ algorithm
+class TrigMuonEFIDTrackRoiMakerConfig(TrigMuonEFIDTrackRoiMaker):
+    __slots__ = ()
+
+    def __init__( self, name="TrigMuonEFIDTrackRoiMaker", **kwargs):
+        super( TrigMuonEFIDTrackRoiMakerConfig, self ).__init__( name )
+        
+        # use 12mm z-width for all chains
+        self.Z0Width = 12.0*mm
+
+        montool = TrigMuonEFIDTrackRoiMakerMonitoring()
+        
+        self.AthenaMonTools = [ montool ]
+        

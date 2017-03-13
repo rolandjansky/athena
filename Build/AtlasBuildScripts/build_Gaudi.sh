@@ -3,8 +3,12 @@
 # Script used for building Gaudi.
 #
 
-# Don't stop on errors:
+# Don't stop on errors but count them
 set +e
+ERROR_COUNT=0
+
+# consider a pipe failed if ANY of the commands fails
+set -o pipefail
 
 # Function printing the usage information for the script
 usage() {
@@ -75,30 +79,32 @@ if [ "$SOURCEDIR" = "" ] || [ "$BUILDDIR" = "" ] || [ "$INSTALLDIR" = "" ] \
 fi
 
 # Create the build directory if it doesn't exist, and move to it:
-mkdir -p ${BUILDDIR}
-cd ${BUILDDIR}
+mkdir -p ${BUILDDIR} || ((ERROR_COUNT++))
+cd ${BUILDDIR} || ((ERROR_COUNT++))
 
 # Set up the externals project:
-source ${EXTDIR}/setup.sh
+source ${EXTDIR}/setup.sh || ((ERROR_COUNT++))
 
 # Configure the build:
 cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     -DGAUDI_ATLAS:BOOL=TRUE -DGAUDI_ATLAS_BASE_PROJECT:STRING=${EXTPROJECT} \
     -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} \
-    ${SOURCEDIR} 2>&1 | tee cmake_config.log
+    ${SOURCEDIR} 2>&1 | tee cmake_config.log || ((ERROR_COUNT++))
 
 # Build it:
-make -k
+make -k || ((ERROR_COUNT++))
 
 # Install it:
-make -k install/fast DESTDIR=${INSTALLDIR}
+make -k install/fast DESTDIR=${INSTALLDIR} || ((ERROR_COUNT++))
 
 # If no RPM directory was specified, stop here:
 if [ "$RPMDIR" = "" ]; then
-    exit 0
+    exit ${ERROR_COUNT}
 fi
 
 # Build the RPM for the project:
-cpack
-mkdir -p ${RPMDIR}
-cp GAUDI*.rpm ${RPMDIR}
+cpack || ((ERROR_COUNT++))
+mkdir -p ${RPMDIR} || ((ERROR_COUNT++))
+cp GAUDI*.rpm ${RPMDIR} || ((ERROR_COUNT++))
+
+exit ${ERROR_COUNT}

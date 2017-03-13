@@ -11,14 +11,14 @@ runDAOD = False
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 # read single file: change acc. to your file name here
-FNAME=[ "AOD.pool.root" ]
-# uncomment this for testing: step 1.2, mu=200 file:
-#FNAME=[ "root://eosatlas//eos/atlas/user/l/lmijovic/shared_atlas/upgrade/inputs/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.recon.AOD.e1133_s2900_s2904_r7914/AOD.08762005._000011.pool.root.1" ]
+#FNAME=[ "AOD.pool.root" ]
+#FNAME=[ "ESD.pool.root" ] 
+# uncomment this for testing: step 1.6, mu=200 file:
+#FNAME=[ "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/52/34/AOD.10041692._000001.pool.root.1" ]
 # uncomment to read multiple files:
 #import glob
 #FNAME=glob.glob('indir/*pool.root*') 
 
-#
 # make AthenaCommonFlags aware of which file we are using
 # AthenaCommonFlags are used run-time configuration (InputFilePeeker)
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -176,7 +176,7 @@ ServiceMgr.MessageSvc.OutputLevel = WARNING
 ServiceMgr.MessageSvc.defaultLimit = 10000
 
 # max. number of events to process
-theApp.EvtMax = -1
+theApp.EvtMax = 5
 
 # dump configuration
 from AthenaCommon.ConfigurationShelve import saveToAscii

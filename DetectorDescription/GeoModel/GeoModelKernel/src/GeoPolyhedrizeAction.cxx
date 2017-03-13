@@ -48,7 +48,7 @@
 
 GeoPolyhedrizeAction::GeoPolyhedrizeAction()
   //## begin GeoPolyhedrizeAction::GeoPolyhedrizeAction%3DCD28730322_const.hasinit preserve=no
-      : m_polyhedron(NULL)
+      : m_polyhedron(nullptr)
   //## end GeoPolyhedrizeAction::GeoPolyhedrizeAction%3DCD28730322_const.hasinit
   //## begin GeoPolyhedrizeAction::GeoPolyhedrizeAction%3DCD28730322_const.initialization preserve=yes
   //## end GeoPolyhedrizeAction::GeoPolyhedrizeAction%3DCD28730322_const.initialization
