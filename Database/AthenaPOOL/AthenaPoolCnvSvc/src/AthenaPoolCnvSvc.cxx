@@ -189,16 +189,11 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
    }
-   // Save pool input context to be used in setObjPtr for "this" converter
-   m_contextIds.push_back(*(pAddress->ipar()));
-
    // Forward to base class createObj
    StatusCode status = ::AthCnvSvc::createObj(pAddress, refpObject);
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("cObj_" + objName);
    }
-   // Remove pool input context for "this" converter
-   m_contextIds.pop_back();
    return(status);
 }
 //______________________________________________________________________________
@@ -740,11 +735,8 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
             m_chronoStatSvc->chronoStop("rAux_ALL");
          }
       }
-   } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isServer()) {
-      // Reading in Server
-      m_poolSvc->setObjPtr(obj, token);
    } else {
-      m_poolSvc->setObjPtr(obj, token, m_contextIds.back());
+      m_poolSvc->setObjPtr(obj, token);
    }
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("cObjR_ALL");
