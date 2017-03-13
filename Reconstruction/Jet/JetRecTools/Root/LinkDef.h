@@ -15,6 +15,9 @@
 #include <JetRecTools/SoftKillerWeightTool.h>
 #include <JetRecTools/VoronoiWeightTool.h>
 #include <JetRecTools/PFlowPseudoJetGetter.h>
+#include <JetRecTools/CorrectPFOTool.h>
+#include <JetRecTools/ChargedHadronSubtractionTool.h>
+#include <JetRecTools/PuppiWeightTool.h>
 
 #ifdef __CINT__
 
@@ -35,6 +38,9 @@
 #pragma link C++ class JetConstituentModSequence+;
 #pragma link C++ class SoftKillerWeightTool+;
 #pragma link C++ class VoronoiWeightTool+;
+#pragma link C++ class CorrectPFOTool+;
+#pragma link C++ class ChargedHadronSubtractionTool+;
+#pragma link C++ class PuppiWeightTool+;
 
 #pragma link C++ class PFlowPseudoJetGetter+;
 
