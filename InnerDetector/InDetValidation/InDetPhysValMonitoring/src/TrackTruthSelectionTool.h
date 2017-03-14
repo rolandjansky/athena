@@ -16,16 +16,16 @@ class TrackTruthSelectionTool:
   public asg::AsgTool  {
   ASG_TOOL_CLASS1(TrackTruthSelectionTool, IAsgSelectionTool);
 public:
-  TrackTruthSelectionTool(const std::string &name);
+  TrackTruthSelectionTool(const std::string& name);
   // TrackTruthSelectionTool(const std::string& type,const std::string& name,const IInterface* parent);
   virtual
   ~TrackTruthSelectionTool();
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual const Root::TAccept &getTAccept( ) const;
-  virtual const Root::TAccept &accept(const xAOD::IParticle *p) const;
-  virtual const Root::TAccept &accept(const xAOD::TruthParticle *p) const;
+  virtual const Root::TAccept& getTAccept( ) const;
+  virtual const Root::TAccept& accept(const xAOD::IParticle* p) const;
+  virtual const Root::TAccept& accept(const xAOD::TruthParticle* p) const;
 private:
   mutable Root::TAccept m_accept;
   std::vector<std::pair<std::string, std::string> > m_cuts;

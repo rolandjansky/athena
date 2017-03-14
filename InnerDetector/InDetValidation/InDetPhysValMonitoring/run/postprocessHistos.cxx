@@ -4,7 +4,7 @@
 
 /*==============================================================================
 
-   Regenerate 1D profile plots or histograms from 2D histograms (TH2D) in an
+   Regenerate 1D profile plots or histograms from 2D histograms in an
    existing InDetStandardPlots.root. The file is updated with new histograms
    overriding the old ones).
 
@@ -16,17 +16,33 @@
    create_registeredTH1F (etc) reads in existing histograms rather than creating
    new ones.
 
-   Usage (from ROOT command):
+   Usage: 
+   
+   1) summ the files produced from the separate (grid) runs
+   hadd summ.root file1.root file2.root ... fileN.root
+   <=== LMTODO : this will be different for TEfficiencties ; 
+   need a dedicated script at this step already 
 
-   root -l -b -q InDetStandardPlots.root postprocessHistos.cxx+
+   2) the post-processing will 
+   * loop over TProfiles 
+   * replace incorrect TProfiles in TEfficiencies inline
 
-   Usage (after compiling and linking against ROOT libraries):
+   to run use either of: 
 
-   ./postprocessHistos InDetStandardPlots.root
+   2.1) command-line:
+   root -l -b -q summ.root postprocessHistos.cxx+
 
-   Author: Soeren Prell
+   2.2) compiled code: 
+   NAME=postprocessHistos
+   g++ -O2 -Wall -fPIC $(root-config --cflags) -o ${NAME} ${NAME}.cxx $(root-config --libs)
+   ./$NAME summ.root
 
+   -----------------------------------------------------------------------------
+   Author: Soeren Prell, Liza Mijovic
    ==============================================================================*/
+#define RLN cout << "l" << __LINE__ << ": ";
+// 0, 1 or 2 in increasing order of verbosity
+#define PRINTDBG 2
 
 #include <iostream>
 #include <string>
@@ -56,10 +72,8 @@ class IDStandardPerformance {
 public:
   IDStandardPerformance(TDirectory *top,
                         const char *tracksName = "Tracks",
-                        const char *histDirectoryName = "SelectedGoodTracks",
-                        int verbose = 0,
-                        bool plotsVsAbsEta = false)
-    : m_d0_vs_eta{},
+                        const char *histDirectoryName = "SelectedGoodTracks") :
+    m_d0_vs_eta{},
     m_z0_vs_eta{},
     m_phi_vs_eta{},
     m_theta_vs_eta{},
@@ -129,39 +143,9 @@ public:
     m_theta_res_vs_pt{},
     m_z0st_res_vs_pt{},
 
-    m_eff_eta{},
-    m_eff_phi{},
-    m_eff_pt{},
-    m_eff_pti{},
-    m_eff_eta_pt{},
-    m_eff_eta_phi{},
-
-    m_effdenom_eta{},
-    m_effdenom_phi{},
-    m_effdenom_pt{},
-    m_effdenom_eta_pt{},
-    m_effdenom_eta_phi{},
-
-    m_effnum_eta{},
-    m_effnum_phi{},
-    m_effnum_pt{},
-    m_effnum_eta_pt{},
-    m_effnum_eta_phi{},
-    m_n_vs_jetDR_truth{},
-    m_n_vs_jetDR_reco{},
-    m_eff_jetDR{},
-
-    m_n_vs_jetPt_truth{},
-    m_n_vs_jetPt_reco{},
-    m_eff_jetPt{},
     m_top(top),
-    m_verbose(verbose),
     m_tracksName(tracksName),
-    m_histDirectoryName(histDirectoryName),
-    m_trackPtBins(10),
-    m_trackEtaBins(20),
-    m_maxTrackEta(2.5),
-    m_plotsVsAbsEta(plotsVsAbsEta) {
+    m_histDirectoryName(histDirectoryName) {
     m_owned.SetOwner();
   }
 
@@ -187,111 +171,81 @@ public:
 
 private:
   // 2D histograms
-  TH2D *m_d0_vs_eta;
-  TH2D *m_z0_vs_eta;
-  TH2D *m_phi_vs_eta;
-  TH2D *m_theta_vs_eta;
-  TH2D *m_z0st_vs_eta;
-  TH2D *m_qopt_vs_eta;
+  TH2F *m_d0_vs_eta;
+  TH2F *m_z0_vs_eta;
+  TH2F *m_phi_vs_eta;
+  TH2F *m_theta_vs_eta;
+  TH2F *m_z0st_vs_eta;
+  TH2F *m_qopt_vs_eta;
 
-  TH2D *m_d0_vs_pt;
-  TH2D *m_z0_vs_pt;
-  TH2D *m_phi_vs_pt;
-  TH2D *m_theta_vs_pt;
-  TH2D *m_z0st_vs_pt;
-  TH2D *m_qopt_vs_pt;
+  TH2F *m_d0_vs_pt;
+  TH2F *m_z0_vs_pt;
+  TH2F *m_phi_vs_pt;
+  TH2F *m_theta_vs_pt;
+  TH2F *m_z0st_vs_pt;
+  TH2F *m_qopt_vs_pt;
 
-  TH2D *m_d0pull_vs_eta;
-  TH2D *m_z0pull_vs_eta;
-  TH2D *m_phipull_vs_eta;
-  TH2D *m_thetapull_vs_eta;
-  TH2D *m_z0stpull_vs_eta;
-  TH2D *m_qoptpull_vs_eta;
+  TH2F *m_d0pull_vs_eta;
+  TH2F *m_z0pull_vs_eta;
+  TH2F *m_phipull_vs_eta;
+  TH2F *m_thetapull_vs_eta;
+  TH2F *m_z0stpull_vs_eta;
+  TH2F *m_qoptpull_vs_eta;
 
   // summary plots of track parameter resolutions and means versus eta
-  TH1D *m_d0_mean_vs_eta;
-  TH1D *m_phi_mean_vs_eta;
-  TH1D *m_qopt_mean_vs_eta;
-  TH1D *m_z0_mean_vs_eta;
-  TH1D *m_theta_mean_vs_eta;
-  TH1D *m_z0st_mean_vs_eta;
+  TH1F *m_d0_mean_vs_eta;
+  TH1F *m_phi_mean_vs_eta;
+  TH1F *m_qopt_mean_vs_eta;
+  TH1F *m_z0_mean_vs_eta;
+  TH1F *m_theta_mean_vs_eta;
+  TH1F *m_z0st_mean_vs_eta;
 
-  TH1D *m_d0_width_vs_eta;
-  TH1D *m_phi_width_vs_eta;
-  TH1D *m_qopt_width_vs_eta;
-  TH1D *m_z0_width_vs_eta;
-  TH1D *m_theta_width_vs_eta;
-  TH1D *m_z0st_width_vs_eta;
+  TH1F *m_d0_width_vs_eta;
+  TH1F *m_phi_width_vs_eta;
+  TH1F *m_qopt_width_vs_eta;
+  TH1F *m_z0_width_vs_eta;
+  TH1F *m_theta_width_vs_eta;
+  TH1F *m_z0st_width_vs_eta;
 
-  TH1D *m_d0pull_mean_vs_eta;
-  TH1D *m_phipull_mean_vs_eta;
-  TH1D *m_qoptpull_mean_vs_eta;
-  TH1D *m_z0pull_mean_vs_eta;
-  TH1D *m_thetapull_mean_vs_eta;
-  TH1D *m_z0stpull_mean_vs_eta;
+  TH1F *m_d0pull_mean_vs_eta;
+  TH1F *m_phipull_mean_vs_eta;
+  TH1F *m_qoptpull_mean_vs_eta;
+  TH1F *m_z0pull_mean_vs_eta;
+  TH1F *m_thetapull_mean_vs_eta;
+  TH1F *m_z0stpull_mean_vs_eta;
 
-  TH1D *m_d0pull_width_vs_eta;
-  TH1D *m_phipull_width_vs_eta;
-  TH1D *m_qoptpull_width_vs_eta;
-  TH1D *m_z0pull_width_vs_eta;
-  TH1D *m_thetapull_width_vs_eta;
-  TH1D *m_z0stpull_width_vs_eta;
+  TH1F *m_d0pull_width_vs_eta;
+  TH1F *m_phipull_width_vs_eta;
+  TH1F *m_qoptpull_width_vs_eta;
+  TH1F *m_z0pull_width_vs_eta;
+  TH1F *m_thetapull_width_vs_eta;
+  TH1F *m_z0stpull_width_vs_eta;
 
   // summary plots of track parameter resolutions vs pt
-  TH1D *m_d0_mean_vs_pt;
-  TH1D *m_phi_mean_vs_pt;
-  TH1D *m_qopt_mean_vs_pt;
-  TH1D *m_z0_mean_vs_pt;
-  TH1D *m_theta_mean_vs_pt;
-  TH1D *m_z0st_mean_vs_pt;
+  TH1F *m_d0_mean_vs_pt;
+  TH1F *m_phi_mean_vs_pt;
+  TH1F *m_qopt_mean_vs_pt;
+  TH1F *m_z0_mean_vs_pt;
+  TH1F *m_theta_mean_vs_pt;
+  TH1F *m_z0st_mean_vs_pt;
 
-  TH1D *m_d0_width_vs_pt;
-  TH1D *m_phi_width_vs_pt;
-  TH1D *m_qopt_width_vs_pt;
-  TH1D *m_z0_width_vs_pt;
-  TH1D *m_theta_width_vs_pt;
-  TH1D *m_z0st_width_vs_pt;
+  TH1F *m_d0_width_vs_pt;
+  TH1F *m_phi_width_vs_pt;
+  TH1F *m_qopt_width_vs_pt;
+  TH1F *m_z0_width_vs_pt;
+  TH1F *m_theta_width_vs_pt;
+  TH1F *m_z0st_width_vs_pt;
 
-  TH1D *m_d0_res_vs_pt;
-  TH1D *m_phi_res_vs_pt;
-  TH1D *m_qopt_res_vs_pt;
-  TH1D *m_z0_res_vs_pt;
-  TH1D *m_theta_res_vs_pt;
-  TH1D *m_z0st_res_vs_pt;
-
-  // efficiency histograms / TProfiles
-
-  TH1D *m_eff_eta;
-  TH1D *m_eff_phi;
-  TH1D *m_eff_pt;
-  TH1D *m_eff_pti;
-  TH2D *m_eff_eta_pt;
-  TH2D *m_eff_eta_phi;
-
-  TH1D *m_effdenom_eta;
-  TH1D *m_effdenom_phi;
-  TH1D *m_effdenom_pt;
-  TH2D *m_effdenom_eta_pt;
-  TH2D *m_effdenom_eta_phi;
-
-  TH1D *m_effnum_eta;
-  TH1D *m_effnum_phi;
-  TH1D *m_effnum_pt;
-  TH2D *m_effnum_eta_pt;
-  TH2D *m_effnum_eta_phi;
-
-  TProfile *m_n_vs_jetDR_truth;
-  TProfile *m_n_vs_jetDR_reco;
-  TH1D *m_eff_jetDR;
-
-  TProfile *m_n_vs_jetPt_truth;
-  TProfile *m_n_vs_jetPt_reco;
-  TH1D *m_eff_jetPt;
+  TH1F *m_d0_res_vs_pt;
+  TH1F *m_phi_res_vs_pt;
+  TH1F *m_qopt_res_vs_pt;
+  TH1F *m_z0_res_vs_pt;
+  TH1F *m_theta_res_vs_pt;
+  TH1F *m_z0st_res_vs_pt;
 
   TH1F *create_registeredTH1F(MonGroup &mon, const char *name);
   TH1D *create_registeredTH1D(MonGroup &mon, const char *name);
   TH2F *create_registeredTH2F(MonGroup &mon, const char *name);
-  TH2D *create_registeredTH2D(MonGroup &mon, const char *name);
   TProfile *create_registeredTProfile(MonGroup &mon, const char *name);
 
   void SetSafeMinimumMaximum(TH1 *h1, float min, float max);
@@ -299,23 +253,18 @@ private:
   void CopyProfile(const TProfile *p, TH1 *h);
   void projectStandardProfileY(const TH2 *h, TH1 *profMean, TH1 *profWidth = 0,
                                const char *fitfun = 0, Double_t cut_tail = 3.0);
-  void projectStandardProfileY(const std::vector<TH1D *> &hvec, TH1 *profMean, TH1 *profWidth = 0,
+  void projectStandardProfileY(const std::vector<TH1F *> &hvec, TH1 *profMean, TH1 *profWidth = 0,
                                Int_t fold = -1, const char *fitfun = 0, Double_t cut_tail = 3.0);
 
-  void calculateEfficiency(TH1 *hEff, TH1 *hDenom, TH1 *hNum);
   void calculateIntegrated(TH1 *puri, TH1 *matched, TH1 *all);
   void inverseSum(TH1 *in, TH1 *out);
 
   TList m_owned, m_update;
   TDirectory *m_top;
-  int m_verbose;
 
   std::string m_tracksName;
   std::string m_histDirectoryName;
-  int m_trackPtBins;
-  int m_trackEtaBins;
-  float m_maxTrackEta;
-  bool m_plotsVsAbsEta;
+
 };
 
 
@@ -329,6 +278,12 @@ GetPath(const TDirectory *dir, TString &path) {
   GetPath(mom, path);
   path += "/";
   path += dir->GetName();
+}
+
+// 
+bool FileExists(const char *name) {
+  return (gSystem->AccessPathName(name, kFileExists))?
+    false : true;    
 }
 
 void
@@ -376,16 +331,16 @@ PrintHist(const TH1 *h, int detail = 1) {
 
 class MonGroup {
 public:
-  MonGroup(IDStandardPerformance *tool, const std::string &system, int level, int interval)
-    : m_tool(tool), m_system(system), m_level(level), m_interval(interval) {
+  MonGroup(IDStandardPerformance *tool, const std::string &system, int level)
+    : m_tool(tool), m_system(system), m_level(level) {
   }
 
   TH1 *
   regHist(const char *name) {
     TString path = Form("%s/%s", m_system.c_str(), name);
 
-    //    cout << "Path: " << path << endl;
-    //    cout << "m_level " << m_level << endl;
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << "Path: " << path << endl;}
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << "m_level " << m_level << endl;}
 
     TH1 *h = 0;
 
@@ -399,16 +354,16 @@ public:
       //      cout << "Histo added " << h->GetName() << endl;
       //      cout << "Path " << path << endl;
     } else if (m_level >= 0) {
-      ;
-    }      //      cerr << "TH1::"<<path<<" not found" << endl;
-    //    cout << "Return h " << h << endl;
+      if (PRINTDBG) { cout <<"\t"; RLN; cout << "TH1::"<<path<<" not found " << endl; }
+    }
+    if (PRINTDBG) {cout <<"\t MonGroup regHist "; RLN; cout << "Return h " << h << endl;}
     return h;
   }
 
 private:
   IDStandardPerformance *m_tool;
   std::string m_system;
-  int m_level, m_interval;
+  int m_level;
 };
 
 
@@ -439,16 +394,14 @@ IDStandardPerformance::create_registeredTH1D(MonGroup &mon, const char *name) {
 TH2F *
 IDStandardPerformance::create_registeredTH2F(MonGroup &mon, const char *name) {
   TH2F *hist = 0;
-
+  if (PRINTDBG) { cout <<"\t"; RLN; cout <<" create_registeredTH2 for " << name << endl; }
   hist = dynamic_cast<TH2F *>(mon.regHist(name));
-  return hist;
-}
-
-TH2D *
-IDStandardPerformance::create_registeredTH2D(MonGroup &mon, const char *name) {
-  TH2D *hist = 0;
-
-  hist = dynamic_cast<TH2D *>(mon.regHist(name));
+  if (hist) {
+    if (PRINTDBG) { cout <<"\t"; RLN; cout <<" returning " << hist->GetName() << endl; }
+  }
+  else {
+    if (PRINTDBG) { cout <<"\t"; RLN; cout <<" IDStandardPerformance::create_registeredTH2F dynamic_cast<TH2F *> failed. returning null pointer " << endl; }
+  }
   return hist;
 }
 
@@ -462,140 +415,92 @@ IDStandardPerformance::create_registeredTProfile(MonGroup &mon, const char *name
 
 void
 IDStandardPerformance::bookHistograms(bool isNewRun) {
-  //  if (m_verbose>=1) cout << "bookHistograms "<<m_histDirectoryName<<endl;
-  //  cout << "bookHistograms "<<m_histDirectoryName<<endl;
-  int expert = m_verbose, debug = m_verbose, shift = m_verbose, run = 0;
-  // MsgStream log( msgSvc(), name() );
 
+  cout <<"\t"; RLN; cout << "bookHistograms "<<m_histDirectoryName<<endl;
   std::string outputDirName = "IDPerformanceMon/" + m_tracksName + "/" + m_histDirectoryName;
-
-  MonGroup al_expert(this, outputDirName, expert, run);
-  MonGroup al_shift(this, outputDirName, shift, run);
-  MonGroup al_debug(this, outputDirName, debug, run);
-  MonGroup effdenom(this, outputDirName + "Tracks/" + m_histDirectoryName + "Denom", expert, run);
-  MonGroup effnum(this, outputDirName + "Tracks/" + m_histDirectoryName + "Num", expert, run);
+  int run = 0;
+  
+  MonGroup al_expert(this, outputDirName, run);
+  MonGroup al_shift(this, outputDirName, run);
+  MonGroup al_debug(this, outputDirName, run);
 
   if (isNewRun) {
-    char name_tmp[100];
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << " isNewRun" << endl; }
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << "  m_d0_vs_eta = create_registeredTH2F " << endl; }
+    m_d0_vs_eta = create_registeredTH2F(al_debug, "res_d0_vs_eta");
+    m_z0_vs_eta = create_registeredTH2F(al_debug, "res_z0_vs_eta");
+    m_phi_vs_eta = create_registeredTH2F(al_debug, "res_phi_vs_eta");
+    m_theta_vs_eta = create_registeredTH2F(al_debug, "res_theta_vs_eta");
+    m_z0st_vs_eta = create_registeredTH2F(al_debug, "res_z0*sin(theta)_vs_eta");
+    m_qopt_vs_eta = create_registeredTH2F(al_debug, "res_qOverP_vs_eta");
 
-    m_d0_vs_eta = create_registeredTH2D(al_debug, "res_d0_vs_eta");
-    m_z0_vs_eta = create_registeredTH2D(al_debug, "res_z0_vs_eta");
-    m_phi_vs_eta = create_registeredTH2D(al_debug, "res_phi_vs_eta");
-    m_theta_vs_eta = create_registeredTH2D(al_debug, "res_theta_vs_eta");
-    m_z0st_vs_eta = create_registeredTH2D(al_debug, "res_z0*sin(theta)_vs_eta");
-    m_qopt_vs_eta = create_registeredTH2D(al_debug, "res_qOverP_vs_eta");
+    m_d0_vs_pt = create_registeredTH2F(al_debug, "res_d0_vs_logpt");
+    m_z0_vs_pt = create_registeredTH2F(al_debug, "res_z0_vs_logpt");
+    m_phi_vs_pt = create_registeredTH2F(al_debug, "res_phi_vs_logpt");
+    m_theta_vs_pt = create_registeredTH2F(al_debug, "res_theta_vs_logpt");
+    m_z0st_vs_pt = create_registeredTH2F(al_debug, "res_z0*sin(theta)_vs_logpt");
+    m_qopt_vs_pt = create_registeredTH2F(al_debug, "res_qOverP_vs_logpt");
 
-    m_d0_vs_pt = create_registeredTH2D(al_debug, "res_d0_vs_logpt");
-    m_z0_vs_pt = create_registeredTH2D(al_debug, "res_z0_vs_logpt");
-    m_phi_vs_pt = create_registeredTH2D(al_debug, "res_phi_vs_logpt");
-    m_theta_vs_pt = create_registeredTH2D(al_debug, "res_theta_vs_logpt");
-    m_z0st_vs_pt = create_registeredTH2D(al_debug, "res_z0*sin(theta)_vs_logpt");
-    m_qopt_vs_pt = create_registeredTH2D(al_debug, "res_qOverP_vs_logpt");
-
-    m_d0pull_vs_eta = create_registeredTH2D(al_debug, "pull_d0_vs_eta");
-    m_z0pull_vs_eta = create_registeredTH2D(al_debug, "pull_z0_vs_eta");
-    m_phipull_vs_eta = create_registeredTH2D(al_debug, "pull_phi_vs_eta");
-    m_thetapull_vs_eta = create_registeredTH2D(al_debug, "pull_theta_vs_eta");
-    m_z0stpull_vs_eta = create_registeredTH2D(al_debug, "pull_z0*sin(theta)_vs_eta");
-    m_qoptpull_vs_eta = create_registeredTH2D(al_debug, "pull_qOverP_vs_eta");
-
-    int nbins_eta = m_trackEtaBins;
-    float min_eta = -m_maxTrackEta;
-    float max_eta = +m_maxTrackEta;
-    int nbins_pt = 20;
-    int min_pt, max_pt;
-
-    if (m_plotsVsAbsEta) {
-      nbins_eta = m_trackEtaBins / 2;
-      min_eta = 0;
-    }
-
+    m_d0pull_vs_eta = create_registeredTH2F(al_debug, "pull_d0_vs_eta");
+    m_z0pull_vs_eta = create_registeredTH2F(al_debug, "pull_z0_vs_eta");
+    m_phipull_vs_eta = create_registeredTH2F(al_debug, "pull_phi_vs_eta");
+    m_thetapull_vs_eta = create_registeredTH2F(al_debug, "pull_theta_vs_eta");
+    m_z0stpull_vs_eta = create_registeredTH2F(al_debug, "pull_z0*sin(theta)_vs_eta");
+    m_qoptpull_vs_eta = create_registeredTH2F(al_debug, "pull_qOverP_vs_eta");
 
     // ------------------------------------------------------------------
     // summary plots of track parameter resolutions amnd means versus eta
     // ------------------------------------------------------------------
 
-    m_d0_mean_vs_eta = create_registeredTH1D(al_shift, "resmean_d0_vs_eta");
-    m_z0_mean_vs_eta = create_registeredTH1D(al_shift, "resmean_z0_vs_eta");
-    m_phi_mean_vs_eta = create_registeredTH1D(al_shift, "resmean_phi_vs_eta");
-    m_theta_mean_vs_eta = create_registeredTH1D(al_shift, "resmean_theta_vs_eta");
-    m_z0st_mean_vs_eta = create_registeredTH1D(al_shift, "resmean_z0*sin(theta)_vs_eta");
-    //    m_qopt_mean_vs_eta = create_registeredTH1D(al_shift, "resmean_qOverP_vs_eta");
+    m_d0_mean_vs_eta = create_registeredTH1F(al_shift, "resmean_d0_vs_eta");
+    m_z0_mean_vs_eta = create_registeredTH1F(al_shift, "resmean_z0_vs_eta");
+    m_phi_mean_vs_eta = create_registeredTH1F(al_shift, "resmean_phi_vs_eta");
+    m_theta_mean_vs_eta = create_registeredTH1F(al_shift, "resmean_theta_vs_eta");
+    m_z0st_mean_vs_eta = create_registeredTH1F(al_shift, "resmean_z0*sin(theta)_vs_eta");
+    //    m_qopt_mean_vs_eta = create_registeredTH1F(al_shift, "resmean_qOverP_vs_eta");
 
-    m_d0_width_vs_eta = create_registeredTH1D(al_shift, "reswidth_d0_vs_eta");
-    m_z0_width_vs_eta = create_registeredTH1D(al_shift, "reswidth_z0_vs_eta");
-    m_phi_width_vs_eta = create_registeredTH1D(al_shift, "reswidth_phi_vs_eta");
-    m_theta_width_vs_eta = create_registeredTH1D(al_shift, "reswidth_theta_vs_eta");
-    m_z0st_width_vs_eta = create_registeredTH1D(al_shift, "reswidth_z0*sin(theta)_vs_eta");
-    //    m_qopt_width_vs_eta = create_registeredTH1D(al_shift, "reswidth_qOverP_vs_eta");
+    m_d0_width_vs_eta = create_registeredTH1F(al_shift, "reswidth_d0_vs_eta");
+    m_z0_width_vs_eta = create_registeredTH1F(al_shift, "reswidth_z0_vs_eta");
+    m_phi_width_vs_eta = create_registeredTH1F(al_shift, "reswidth_phi_vs_eta");
+    m_theta_width_vs_eta = create_registeredTH1F(al_shift, "reswidth_theta_vs_eta");
+    m_z0st_width_vs_eta = create_registeredTH1F(al_shift, "reswidth_z0*sin(theta)_vs_eta");
+    //    m_qopt_width_vs_eta = create_registeredTH1F(al_shift, "reswidth_qOverP_vs_eta");
 
-    m_d0pull_mean_vs_eta = create_registeredTH1D(al_shift, "pullmean_d0_vs_eta");
-    m_z0pull_mean_vs_eta = create_registeredTH1D(al_shift, "pullmean_z0_vs_eta");
-    m_phipull_mean_vs_eta = create_registeredTH1D(al_shift, "pullmean_phi_vs_eta");
-    m_thetapull_mean_vs_eta = create_registeredTH1D(al_shift, "pullmean_theta_vs_eta");
-    m_z0stpull_mean_vs_eta = create_registeredTH1D(al_shift, "pullmean_z0*sin(theta)_vs_eta");
-    //    m_qoptpull_mean_vs_eta = create_registeredTH1D(al_shift, "pullmean_qopt_vs_eta");
+    m_d0pull_mean_vs_eta = create_registeredTH1F(al_shift, "pullmean_d0_vs_eta");
+    m_z0pull_mean_vs_eta = create_registeredTH1F(al_shift, "pullmean_z0_vs_eta");
+    m_phipull_mean_vs_eta = create_registeredTH1F(al_shift, "pullmean_phi_vs_eta");
+    m_thetapull_mean_vs_eta = create_registeredTH1F(al_shift, "pullmean_theta_vs_eta");
+    m_z0stpull_mean_vs_eta = create_registeredTH1F(al_shift, "pullmean_z0*sin(theta)_vs_eta");
+    //    m_qoptpull_mean_vs_eta = create_registeredTH1F(al_shift, "pullmean_qopt_vs_eta");
 
-    m_d0pull_width_vs_eta = create_registeredTH1D(al_shift, "pullwidth_d0_vs_eta");
-    m_z0pull_width_vs_eta = create_registeredTH1D(al_shift, "pullwidth_z0_vs_eta");
-    m_phipull_width_vs_eta = create_registeredTH1D(al_shift, "pullwidth_phi_vs_eta");
-    m_thetapull_width_vs_eta = create_registeredTH1D(al_shift, "pullwidth_theta_vs_eta");
-    m_z0stpull_width_vs_eta = create_registeredTH1D(al_shift, "pullwidth_z0*sin(theta)_vs_eta");
-    //    m_qoptpull_width_vs_eta = create_registeredTH1D(al_shift, "pullwidth_qopt_vs_eta");
+    m_d0pull_width_vs_eta = create_registeredTH1F(al_shift, "pullwidth_d0_vs_eta");
+    m_z0pull_width_vs_eta = create_registeredTH1F(al_shift, "pullwidth_z0_vs_eta");
+    m_phipull_width_vs_eta = create_registeredTH1F(al_shift, "pullwidth_phi_vs_eta");
+    m_thetapull_width_vs_eta = create_registeredTH1F(al_shift, "pullwidth_theta_vs_eta");
+    m_z0stpull_width_vs_eta = create_registeredTH1F(al_shift, "pullwidth_z0*sin(theta)_vs_eta");
+    //    m_qoptpull_width_vs_eta = create_registeredTH1F(al_shift, "pullwidth_qopt_vs_eta");
 
     // ------------------------------------------------------------------
     // summary plots of track parameter resolutions versus pt
     // ------------------------------------------------------------------
 
-    m_d0_mean_vs_pt = create_registeredTH1D(al_shift, "resmean_d0_vs_logpt");
-    m_z0_mean_vs_pt = create_registeredTH1D(al_shift, "resmean_z0_vs_logpt");
-    m_phi_mean_vs_pt = create_registeredTH1D(al_shift, "resmean_phi_vs_logpt");
-    m_theta_mean_vs_pt = create_registeredTH1D(al_shift, "resmean_theta_vs_logpt");
-    m_z0st_mean_vs_pt = create_registeredTH1D(al_shift, "resmean_z0*sin(theta)_vs_logpt");
-    //    m_qopt_mean_vs_pt = create_registeredTH1D(al_shift, "resmean_qOverP_vs_logpt")'
+    m_d0_mean_vs_pt = create_registeredTH1F(al_shift, "resmean_d0_vs_logpt");
+    m_z0_mean_vs_pt = create_registeredTH1F(al_shift, "resmean_z0_vs_logpt");
+    m_phi_mean_vs_pt = create_registeredTH1F(al_shift, "resmean_phi_vs_logpt");
+    m_theta_mean_vs_pt = create_registeredTH1F(al_shift, "resmean_theta_vs_logpt");
+    m_z0st_mean_vs_pt = create_registeredTH1F(al_shift, "resmean_z0*sin(theta)_vs_logpt");
+    //    m_qopt_mean_vs_pt = create_registeredTH1F(al_shift, "resmean_qOverP_vs_logpt")'
 
-    m_d0_width_vs_pt = create_registeredTH1D(al_shift, "reswidth_d0_vs_logpt");
-    m_z0_width_vs_pt = create_registeredTH1D(al_shift, "reswidth_z0_vs_logpt");
-    m_phi_width_vs_pt = create_registeredTH1D(al_shift, "reswidth_phi_vs_logpt");
-    m_theta_width_vs_pt = create_registeredTH1D(al_shift, "reswidth_theta_vs_logpt");
-    m_z0st_width_vs_pt = create_registeredTH1D(al_shift, "reswidth_z0*sin(theta)_vs_logpt");
-    //    m_qopt_width_vs_pt = create_registeredTH1D(al_shift, "reswidth_qOverP_vs_logpt");
+    m_d0_width_vs_pt = create_registeredTH1F(al_shift, "reswidth_d0_vs_logpt");
+    m_z0_width_vs_pt = create_registeredTH1F(al_shift, "reswidth_z0_vs_logpt");
+    m_phi_width_vs_pt = create_registeredTH1F(al_shift, "reswidth_phi_vs_logpt");
+    m_theta_width_vs_pt = create_registeredTH1F(al_shift, "reswidth_theta_vs_logpt");
+    m_z0st_width_vs_pt = create_registeredTH1F(al_shift, "reswidth_z0*sin(theta)_vs_logpt");
+    //    m_qopt_width_vs_pt = create_registeredTH1F(al_shift, "reswidth_qOverP_vs_logpt");
 
-    // ------------------------------------------------------------------
-    // track efficiency plots
-    // ------------------------------------------------------------------
-
-    m_eff_eta = create_registeredTH1D(al_shift, "Eff_eta");
-    m_effdenom_eta = create_registeredTH1D(effdenom, "eta");
-    m_effnum_eta = create_registeredTH1D(effnum, "eta");
-
-    m_eff_phi = create_registeredTH1D(al_shift, "Eff_phi");
-    m_effdenom_phi = create_registeredTH1D(effdenom, "phi");
-    m_effnum_phi = create_registeredTH1D(effnum, "phi");
-
-    m_eff_pt = create_registeredTH1D(al_shift, "Eff_pt");
-    m_eff_pti = create_registeredTH1D(al_shift, "Eff_pti");
-    m_effdenom_pt = create_registeredTH1D(effdenom, "pt");
-    m_effnum_pt = create_registeredTH1D(effnum, "pt");
-
-    m_eff_eta_pt = create_registeredTH2D(al_shift, "Eff_eta_pt");
-    m_effdenom_eta_pt = create_registeredTH2D(effdenom, "eta_pt");
-    m_effnum_eta_pt = create_registeredTH2D(effnum, "eta_pt");
-
-    m_eff_eta_phi = create_registeredTH2D(al_shift, "Eff_eta_phi");
-    m_effdenom_eta_phi = create_registeredTH2D(effdenom, "eta_phi");
-    m_effnum_eta_phi = create_registeredTH2D(effnum, "eta_phi");
-
-    m_n_vs_jetDR_truth = create_registeredTProfile(al_shift, "NTracks_vs_jetDR_truth");
-    m_n_vs_jetDR_reco = create_registeredTProfile(al_shift, "NTracks_vs_jetDR_reco");
-    m_eff_jetDR = create_registeredTH1D(al_shift, "NTracks_vs_jetDR_eff");
-
-    m_n_vs_jetPt_truth = create_registeredTProfile(al_shift, "NTracks_vs_jetPt_truth");
-    m_n_vs_jetPt_reco = create_registeredTProfile(al_shift, "NTracks_vs_jetPt_reco");
-    m_eff_jetPt = create_registeredTH1D(al_shift, "NTracks_vs_jetPt_eff");
   }
-  if (m_verbose >= 1) {
-    cout << "bookHistograms " << m_histDirectoryName << " Done." << endl;
+  if (PRINTDBG > 1) {
+    cout <<"\t"; RLN; cout << "bookHistograms " << m_histDirectoryName << " Done." << endl;
   }
 }
 
@@ -659,7 +564,7 @@ SetProfileBin(Int_t i, TH1 *h1, TH1 *pm, TH1 *pw, const char *fitfun = 0, Double
   }
 }
 
-// projects a TH2 into a profile, expressed as a TH1D.
+// projects a TH2 into a profile, expressed as a TH1F.
 // This is similar to the TH2::ProfileX method with the difference
 // that only the error within 3RMS around the mean is considered in the profile.
 // Specify a different range with cut_tail (>0:mean+/-RMS, <0:0+/-RMS).
@@ -667,12 +572,17 @@ SetProfileBin(Int_t i, TH1 *h1, TH1 *pm, TH1 *pw, const char *fitfun = 0, Double
 void
 IDStandardPerformance::projectStandardProfileY(const TH2 *h, TH1 *profMean, TH1 *profWidth,
                                                const char *fitfun, Double_t cut_tail) {
+  if (PRINTDBG) { cout <<"\t"; RLN; cout << " projectStandardProfileY" << endl;}
+
   if (!h) {
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << " no TH2 h. No processing. " << endl; }
     return;
   }
   if (!profMean && !profWidth) {
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << " !profMean && !profWidth No processing. " << endl;}
     return;
   }
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << "processing for " << h->GetName() << endl;}
   Int_t nb = h->GetNbinsX();
   Double_t xlo = h->GetXaxis()->GetXmin(), xhi = h->GetXaxis()->GetXmax();
   if (profMean) {
@@ -697,7 +607,7 @@ IDStandardPerformance::projectStandardProfileY(const TH2 *h, TH1 *profMean, TH1 
 }
 
 void
-IDStandardPerformance::projectStandardProfileY(const std::vector<TH1D *> &hvec, TH1 *profMean, TH1 *profWidth,
+IDStandardPerformance::projectStandardProfileY(const std::vector<TH1F *> &hvec, TH1 *profMean, TH1 *profWidth,
                                                Int_t fold, const char *fitfun, Double_t cut_tail) {
   TH1 *hx = profMean ? profMean : profWidth;
 
@@ -730,7 +640,7 @@ IDStandardPerformance::projectStandardProfileY(const std::vector<TH1D *> &hvec, 
     if (!(j1 >= 0 && hvec[j1])) {
       continue;
     }
-    TH1D *h1 = dynamic_cast<TH1D *>(hvec[j1]->Clone(Form("%s_mod", hvec[j1]->GetName())));
+    TH1F *h1 = dynamic_cast<TH1F *>(hvec[j1]->Clone(Form("%s_mod", hvec[j1]->GetName())));
     if (j2 >= 0 && hvec[j2]) {
       h1->Add(hvec[j2]);
     }
@@ -747,29 +657,6 @@ IDStandardPerformance::projectStandardProfileY(const std::vector<TH1D *> &hvec, 
     profWidth->SetEntries(nent);
     Update(profWidth);
   }
-}
-
-void
-IDStandardPerformance::calculateEfficiency(TH1 *hEff, TH1 *hDenom, TH1 *hNum) {
-  if (!hEff) {
-    return;
-  }
-  if (!hDenom) {
-    return;
-  }
-  if (!hNum) {
-    return;
-  }
-
-  hEff->Reset();
-
-  hEff->Add(hNum);
-  if (!hEff->GetSumw2N()) {
-    hEff->Sumw2();
-  }
-  hEff->Divide(hEff, hDenom, 1, 1, "B");
-
-  Update(hEff);
 }
 
 void
@@ -818,21 +705,14 @@ IDStandardPerformance::inverseSum(TH1 *in, TH1 *out) {
 
 void
 IDStandardPerformance::procHistograms(bool isEndOfRun) {
-  if (m_verbose >= 1) {
-    cout << "procHistograms " << m_histDirectoryName << endl;
+  if (PRINTDBG >= 1) {
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << "procHistograms " << m_histDirectoryName << endl;}
   }
-  // MsgStream log( msgSvc(), name() );
-  //  if (m_idHelper) delete m_idHelper;
 
   if (isEndOfRun) {
-    int halfEtaBins = m_trackEtaBins / 2;
-    int fold = m_plotsVsAbsEta ? halfEtaBins : 0;
-
-    //    cout << "procHistos" << endl;
 
     char fitter[5] = "iter";
-    //    cout << "Fitter: " << fitter << endl;
-
+    if (PRINTDBG) { cout <<"\t"; RLN; cout << "trying m_d0_vs_eta " << endl;}
     projectStandardProfileY(m_d0_vs_eta, m_d0_mean_vs_eta, m_d0_width_vs_eta, fitter);
     projectStandardProfileY(m_z0_vs_eta, m_z0_mean_vs_eta, m_z0_width_vs_eta, fitter);
     projectStandardProfileY(m_phi_vs_eta, m_phi_mean_vs_eta, m_phi_width_vs_eta, fitter);
@@ -852,27 +732,15 @@ IDStandardPerformance::procHistograms(bool isEndOfRun) {
     projectStandardProfileY(m_phipull_vs_eta, m_phipull_mean_vs_eta, m_phipull_width_vs_eta, fitter);
     projectStandardProfileY(m_thetapull_vs_eta, m_thetapull_mean_vs_eta, m_thetapull_width_vs_eta, fitter);
     projectStandardProfileY(m_z0stpull_vs_eta, m_z0stpull_mean_vs_eta, m_z0stpull_width_vs_eta, fitter);
-    //    projectStandardProfileY (m_qoptpull_vs_eta,  m_qoptpull_mean_vs_eta,  m_qoptpull_width_vs_eta,  fitter);
-
-    calculateEfficiency(m_eff_eta, m_effdenom_eta, m_effnum_eta);
-    calculateEfficiency(m_eff_phi, m_effdenom_phi, m_effnum_phi);
-    calculateEfficiency(m_eff_pt, m_effdenom_pt, m_effnum_pt);
-    calculateIntegrated(m_eff_pti, m_effdenom_pt, m_effnum_pt);
-    calculateEfficiency(m_eff_eta_pt, m_effdenom_eta_pt, m_effnum_eta_pt);
-    calculateEfficiency(m_eff_eta_phi, m_effdenom_eta_phi, m_effnum_eta_phi);
-
-    calculateEfficiency(m_eff_jetDR, m_n_vs_jetDR_truth, m_n_vs_jetDR_reco);
-    calculateEfficiency(m_eff_jetPt, m_n_vs_jetPt_truth, m_n_vs_jetPt_reco);
 
     SetSafeMinimumMaximum(m_d0_mean_vs_eta, -0.03, 0.03);
     SetSafeMinimumMaximum(m_phi_mean_vs_eta, -0.001, 0.001);
     SetSafeMinimumMaximum(m_theta_mean_vs_eta, -0.001, 0.001);
     SetSafeMinimumMaximum(m_z0st_mean_vs_eta, -0.05, 0.05);
-    //    SetSafeMinimumMaximum(m_qopt_mean_vs_eta, -0.01, 0.01);
   }
 
-  if (m_verbose >= 1) {
-    cout << "procHistograms " << m_histDirectoryName << " Done." << endl;
+  if (PRINTDBG >= 1) {
+    cout <<"\t"; RLN; cout << "procHistograms " << m_histDirectoryName << " Done." << endl;
   }
 }
 
@@ -911,7 +779,7 @@ IDStandardPerformance::updateFile() {
     if (!d) {
       continue;
     }
-    if (m_verbose >= 1) {
+    if (PRINTDBG > 1) {
       cout << "Updated ";
       PrintHist(h);
     }
@@ -922,49 +790,30 @@ IDStandardPerformance::updateFile() {
   return n;
 }
 
-int
-postprocessHistos(TDirectory *file, const char *tracksName, const char *dirname, int verbose = 0) {
+int postprocessHistos(TDirectory *file, const char *tracksName, const char *dirname) {
+  
   TString dir;
-
   dir.Form("IDPerformanceMon/%s/%s", tracksName, dirname);
-  TH1 *h = 0;
 
-  cout << "Now searching for " << dir << endl;
-  file->GetObject(dir + "/res_d0_vs_eta", h);
-  if (!h) {
-    file->GetObject(dir + "/HitContent_NBlayerHits", h);
-  }
-  if (!h) {
-    file->GetObject(dir + "/jetpT", h);
-  }
+  if (PRINTDBG>0) 
+    cout << "Now processing histograms in " << dir << endl;
 
-  if (!h) {
-    return 0;
-  }
-  bool plotsVsAbsEta = (h->GetXaxis()->GetXmin() == 0.0);
-  delete h;
-
-  IDStandardPerformance idsp(file, tracksName, dirname, verbose, plotsVsAbsEta);
+  IDStandardPerformance idsp(file, tracksName, dirname);
   idsp.bookHistograms();
   idsp.procHistograms();
   int n = idsp.updateFile();
 
-  if (verbose >= 0) {
-    cout << "Updated " << n << " histograms in " << dir;
-    if (plotsVsAbsEta) {
-      cout << " with |eta| range";
-    }
-    cout << endl;
-    cout << endl;
-  }
+  if (PRINTDBG > 0) 
+    cout << "\t Updated " << n << " histograms in " << dir << "\n " << endl;
+  
   return 1;
 }
 
 int
-ScanDir(TList &dirs, TDirectory *file, TDirectory *dir, const char *tracksName = 0, int verbose = 0) {
+ScanDir(TList &dirs, TDirectory *file, TDirectory *dir, const char *tracksName = 0) {
   int n = 0;
 
-  if (verbose >= 1) {
+  if (PRINTDBG  > 0) {
     TString path;
     GetPath(dir, path);
     cout << "Scan directory " << path << endl;
@@ -976,7 +825,7 @@ ScanDir(TList &dirs, TDirectory *file, TDirectory *dir, const char *tracksName =
     }
     if (TDirectory *subdir = dynamic_cast<TDirectory *>(k->ReadObj())) {
       if (!tracksName) {
-        n += ScanDir(dirs, file, subdir, subdir->GetName(), verbose);
+        n += ScanDir(dirs, file, subdir, subdir->GetName());
       } else {
         dirs.Add(new TNamed(tracksName, subdir->GetName()));
       }
@@ -986,86 +835,62 @@ ScanDir(TList &dirs, TDirectory *file, TDirectory *dir, const char *tracksName =
   return n;
 }
 
-int
-postprocessHistos(TDirectory *file, int verbose = 0) {
-  int n = 0;
+int postprocessHistos(const char *name) {
 
-  if (verbose >= 0) {
-    cout << "Process file " << file->GetName() << endl;
+  if (PRINTDBG>0) 
+    cout << "Process file " << name << endl;
+
+  if (!FileExists(name)) {
+    cerr << "No such file: " << name << endl;
+    return 1;
   }
+  TFile *file = TFile::Open(name, "UPDATE");
+  if (!file) {
+    cerr << "Could not UPDATE file " << name << endl;
+    return 1;
+  }
+  
+  int n = 0;
   TDirectory *dir = 0;
   file->GetObject("IDPerformanceMon", dir);
   if (dir) {
     TList dirs;
     dirs.SetOwner();
-    n += ScanDir(dirs, file, dir, 0, verbose);
+    n += ScanDir(dirs, file, dir, 0);
     delete dir;
     for (TIter it = &dirs; TNamed *name = dynamic_cast<TNamed *>(it()); ) {
-      n += postprocessHistos(file, name->GetName(), name->GetTitle(), verbose);
+      cout << "processing this directory " << name->GetName() << " , " << name->GetTitle() << endl;
+      //n += postprocessHistos(file, name->GetName(), name->GetTitle());
     }
   }
   if (!n) {
     cerr << "No histogram directories found in file " << file->GetName() << endl;
+    return 1;
   }
-  return n;
+  return 0;
 }
 
-int
-postprocessHistos(const char *name, int verbose = 0) {
-  if (gSystem->AccessPathName(name, kFileExists)) {
-    cerr << "File " << name << " does not exist" << endl;
-    return 2;
-  }
-  TFile *file = TFile::Open(name, "UPDATE");
-  if (!file) {
-    cerr << "Could not open file " << name << endl;
-    return 3;
-  }
-  int n = postprocessHistos(file, verbose);
-  delete file;
-  return n ? 0 : 4;
-}
-
-void
-postprocessHistos(int verbose = 0) {
+// for command-line running
+void postprocessHistos() {
   for (TIter it = gROOT->GetListOfFiles(); TObject *o = it(); ) {
     TFile *file = dynamic_cast<TFile *>(o);
     if (!file) {
       continue;
     }
-    postprocessHistos(file->GetName(), verbose);
+    postprocessHistos(file->GetName());
   }
 }
 
 #if !defined(__CINT__) && !defined(__ACLIC__)
-int
-main(int argc, const char * *argv) {
-  int i = 1, verbose = 0;
+int main(int argc, const char * *argv) {
 
-  for (; i < argc; i++) {
-    if (argv[i][0] != '-') {
-      break;
-    }
-    for (const char *a = argv[i] + 1; *a; ) {
-      switch (*a++) {
-      case 'v': verbose++;
-        break;
-
-      case 'q': verbose--;
-        break;
-
-      default:  i = argc;
-        break;
-      }
-    }
-  }
-  if (i >= argc) {
-    cout << "Usage: " << argv[0] << " [-vq] FILE.root [FILE.root...]" << endl;
+  if (argc<2) {
+    cout << "Usage: " << argv[0] << " FILE.root [FILE.root...]" << endl;
     return 1;
   }
   int err = 0;
-  for (; i < argc; i++) {
-    int stat = postprocessHistos(argv[i], verbose);
+  for (int i=0; i < argc; i++) {
+    int stat = postprocessHistos(argv[i]);
     if (!err) {
       err = stat;
     }

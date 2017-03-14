@@ -66,6 +66,7 @@ for geoTag, layoutDescr, gmx in xmlTags:
       break
 
 # Just turn on the detector components we need
+
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff() 
 DetFlags.detdescr.SCT_setOn() 
@@ -122,15 +123,37 @@ topSequence += monMan
 #-------------------------------------------------------------
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 InDetTrackSelectorTool = InDet__InDetTrackSelectionTool("InDetTrackSelectorTool")
+##### DO NOT USE THESE !!!!! !!!! !!! ################
+##### DO NOT COMMENT THEM OUT !!!!! ##################
 InDetTrackSelectorTool.minPt            = 400           # Mev
-InDetTrackSelectorTool.maxD0            = 1              # mm
-InDetTrackSelectorTool.maxZ0            = 150          # mm
-InDetTrackSelectorTool.minNSiHits       = 9            # Pixel + SCT
+InDetTrackSelectorTool.maxD0            = 2              # mm
+InDetTrackSelectorTool.maxZ0            = 250          # mm
+InDetTrackSelectorTool.minNSiHits       = 6            # Pixel + SCT
 InDetTrackSelectorTool.maxNPixelHoles   = 2             # Pixel only
+InDetTrackSelectorTool.OutputLevel = INFO
 #eta dependant hit cut below
 #InDetTrackSelectorTool.vecEtaCutoffsForSiHitsCut = [0,1.0,1.2,1.8,2.2]
 #InDetTrackSelectorTool.vecMinNSiHitsAboveEta = [11,11,11,13,10]
+
+##### Temporary cuts - Will be fixed in 20.20.8.X ######
+############################################ USE THESE ONES!!!! #################################
+######### IF THE CUT YOU NEED IS NOT DEFINED BELOW, ADD IT TO InDetTrackSelectorTool. ABOVE #####
+from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrackCutSvc
+InDetTrackCutSvcIDPVM = InDet__InDetTrackCutSvc("InDetTrackCutSvcIDPVM")
+InDetTrackCutSvcIDPVM.MaxD0 = 2. #mm
+InDetTrackCutSvcIDPVM.MaxZ0 = 250. #mm
+InDetTrackCutSvcIDPVM.MaxEta = 4.0
+InDetTrackCutSvcIDPVM.MinSiHits = 6 # Pixel + SCT
+#InDetTrackCutSvcIDPVM.MinPixelHits = 0 
+#InDetTrackCutSvcIDPVM.MinSCTHits = 0
+
+
+svcMgr += InDetTrackCutSvcIDPVM
+InDetTrackSelectorTool.TrackSelectionSvc = InDetTrackCutSvcIDPVM
+
 ToolSvc += InDetTrackSelectorTool
+##### Temporary cuts - Will be fixed in 20.20.8.X ######
+
 print "Set Up InDetTrackSelectorTool"
 
 #-------------------------------------------------------------

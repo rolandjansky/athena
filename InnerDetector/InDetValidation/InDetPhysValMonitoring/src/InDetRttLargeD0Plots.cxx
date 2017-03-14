@@ -23,7 +23,7 @@ using std::string;
 
 namespace {
   bool
-  isLargeD0Track(const xAOD::TrackParticle &tp) {
+  isLargeD0Track(const xAOD::TrackParticle& tp) {
     const std::bitset<xAOD::NumberOfTrackRecoInfo> patternReco = tp.patternRecoInfo();
 
     if (patternReco.test(49)) {
@@ -35,14 +35,14 @@ namespace {
 
 
 
-InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::string &sDir) :
+InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::string& sDir) :
   InDetPlotBase(pParent, sDir),
 
-  // =============================================================
-  // plots for LargeD0 performance study
-  // =============================================================
-  
-  // //Testing TRT extension efficiency
+// =============================================================
+// plots for LargeD0 performance study
+// =============================================================
+
+// //Testing TRT extension efficiency
   m_trtTesting_st_matched(this, "LargeD0/TRTTesting/StandardTracks/MatchedTracks/"),
   m_trtTesting_st_matched_primary(this, "LargeD0/TRTTesting/StandardTracks/MatchedTracks/Primary"),
   m_trtTesting_st_matched_secondary(this, "LargeD0/TRTTesting/StandardTracks/MatchedTracks/Secondary/"),
@@ -60,8 +60,8 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_trtTesting_ld0_fake_primary(this, "LargeD0/TRTTesting/LargeD0Tracks/FakeTracks/Primary"),
   m_trtTesting_ld0_fake_secondary(this, "LargeD0/TRTTesting/LargeD0Tracks/FakeTracks/Secondary"),
   m_trtTesting_ld0_fake_noTruthLink(this, "LargeD0/TRTTesting/LargeD0Tracks/FakeTracks/NoTruthLink"),
-  
-  // hits plots
+
+// hits plots
   m_hitsPlots_st_matched(this, "LargeD0/HitsPlots/StandardTracks/MatchedTracks"),
   m_hitsPlots_st_matched_primary(this, "LargeD0/HitsPlots/StandardTracks/MatchedTracks/Primary"),
   m_hitsPlots_st_matched_secondary(this, "LargeD0/HitsPlots/StandardTracks/MatchedTracks/Secondary"),
@@ -70,7 +70,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_hitsPlots_st_fake_primary(this, "LargeD0/HitsPlots/StandardTracks/FakeTracks/Primary"),
   m_hitsPlots_st_fake_secondary(this, "LargeD0/HitsPlots/StandardTracks/FakeTracks/Secondary"),
   m_hitsPlots_st_fake_noTruthLink(this, "LargeD0/HitsPlots/StandardTracks/FakeTracks/NoTruthLink"),
-  
+
   m_hitsPlots_ld0_matched(this, "LargeD0/HitsPlots/LargeD0Tracks/MatchedTracks"),
   m_hitsPlots_ld0_matched_primary(this, "LargeD0/HitsPlots/LargeD0Tracks/MatchedTracks/Primary"),
   m_hitsPlots_ld0_matched_secondary(this, "LargeD0/HitsPlots/LargeD0Tracks/MatchedTracks/Secondary"),
@@ -79,8 +79,8 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_hitsPlots_ld0_fake_primary(this, "LargeD0/HitsPlots/LargeD0Tracks/FakeTracks/Primary"),
   m_hitsPlots_ld0_fake_secondary(this, "LargeD0/HitsPlots/LargeD0Tracks/FakeTracks/Secondary"),
   m_hitsPlots_ld0_fake_noTruthLink(this, "LargeD0/HitsPlots/LargeD0Tracks/FakeTracks/NoTruthLink"),
-  
-  // basic plots
+
+// basic plots
   m_basicPlot_st_matched(this, "LargeD0/basicPlot/StandardTracks/MatchedTracks"),
   m_basicPlot_st_matched_primary(this, "LargeD0/basicPlot/StandardTracks/MatchedTracks/Primary"),
   m_basicPlot_st_matched_secondary(this, "LargeD0/basicPlot/StandardTracks/MatchedTracks/Secondary"),
@@ -89,7 +89,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_basicPlot_st_fake_primary(this, "LargeD0/basicPlot/StandardTracks/FakeTracks/Primary"),
   m_basicPlot_st_fake_secondary(this, "LargeD0/basicPlot/StandardTracks/FakeTracks/Secondary"),
   m_basicPlot_st_fake_noTruthLink(this, "LargeD0/basicPlot/StandardTracks/FakeTracks/NoTruthLink"),
-  
+
   m_basicPlot_ld0_matched(this, "LargeD0/basicPlot/LargeD0Tracks/MatchedTracks"),
   m_basicPlot_ld0_matched_primary(this, "LargeD0/basicPlot/LargeD0Tracks/MatchedTracks/Primary"),
   m_basicPlot_ld0_matched_secondary(this, "LargeD0/basicPlot/LargeD0Tracks/MatchedTracks/Secondary"),
@@ -99,7 +99,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_basicPlot_ld0_fake_secondary(this, "LargeD0/basicPlot/LargeD0Tracks/FakeTracks/Secondary"),
   m_basicPlot_ld0_fake_noTruthLink(this, "LargeD0/basicPlot/LargeD0Tracks/FakeTracks/NoTruthLink"),
 
-  // pt plots
+// pt plots
   m_ptPlot_st_matched(this, "LargeD0/ptPlot/StandardTracks/MatchedTracks"),
   m_ptPlot_st_matched_primary(this, "LargeD0/ptPlot/StandardTracks/MatchedTracks/Primary"),
   m_ptPlot_st_matched_secondary(this, "LargeD0/ptPlot/StandardTracks/MatchedTracks/Secondary"),
@@ -107,27 +107,28 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_ptPlot_st_fake(this, "LargeD0/ptPlot/StandardTracks/FakeTracks"),
   m_ptPlot_st_fake_primary(this, "LargeD0/ptPlot/StandardTracks/FakeTracks/Primary"),
   m_ptPlot_st_fake_secondary(this, "LargeD0/ptPlot/StandardTracks/FakeTracks/Secondary"),
-  m_ptPlot_st_fake_noTruthLink(this, "LargeD0/ptPlot/StandardTracks/FakeTracks/NoTruthLink"), 
- 
+  m_ptPlot_st_fake_noTruthLink(this, "LargeD0/ptPlot/StandardTracks/FakeTracks/NoTruthLink"),
+
   m_ptPlot_ld0_matched(this, "LargeD0/ptPlot/LargeD0Tracks/MatchedTracks"),
   m_ptPlot_ld0_matched_primary(this, "LargeD0/ptPlot/LargeD0Tracks/MatchedTracks/Primary"),
   m_ptPlot_ld0_matched_secondary(this, "LargeD0/ptPlot/LargeD0Tracks/MatchedTracks/Secondary"),
-  m_ptPlot_ld0_matched_noTruthLink(this, "LargeD0/ptPlot/LargeD0Tracks/MatchedTracks/NoTruthLink"),   
+  m_ptPlot_ld0_matched_noTruthLink(this, "LargeD0/ptPlot/LargeD0Tracks/MatchedTracks/NoTruthLink"),
   m_ptPlot_ld0_fake(this, "LargeD0/ptPlot/LargeD0Tracks/FakeTracks"),
   m_ptPlot_ld0_fake_primary(this, "LargeD0/ptPlot/LargeD0Tracks/FakeTracks/Primary"),
   m_ptPlot_ld0_fake_secondary(this, "LargeD0/ptPlot/LargeD0Tracks/FakeTracks/Secondary"),
   m_ptPlot_ld0_fake_noTruthLink(this, "LargeD0/ptPlot/LargeD0Tracks/FakeTracks/NoTruthLink"),
-  
+
   m_ptPlot_truth_primary(this, "LargeD0/ptPlot/TruthTracks/Primary"),
   m_ptPlot_truth_secondary(this, "LargeD0/ptPlot/TruthTracks/Secondary"),
   m_ptPlot_pileup_primary(this, "LargeD0/ptPlot/Pileup/TruthTracks/Primary"),
   m_ptPlot_pileup_secondary(this, "LargeD0/ptPlot/Pileup/TruthTracks/Secondary"),
-  
-  // Reco info plots
+
+// Reco info plots
   m_TrackRecoInfoPlots_st_matched(this, "LargeD0/TrackRecoInfoPlots/StandardTracks/MatchedTracks"),
   m_TrackRecoInfoPlots_st_matched_primary(this, "LargeD0/TrackRecoInfoPlots/StandardTracks/MatchedTracks/Primary"),
   m_TrackRecoInfoPlots_st_matched_secondary(this, "LargeD0/TrackRecoInfoPlots/StandardTracks/MatchedTracks/Secondary"),
-  m_TrackRecoInfoPlots_st_matched_noTruthLink(this, "LargeD0/TrackRecoInfoPlots/StandardTracks/MatchedTracks/NoTruthLink"),
+  m_TrackRecoInfoPlots_st_matched_noTruthLink(this,
+                                              "LargeD0/TrackRecoInfoPlots/StandardTracks/MatchedTracks/NoTruthLink"),
   m_TrackRecoInfoPlots_st_fake(this, "LargeD0/TrackRecoInfoPlots/StandardTracks/FakeTracks"),
   m_TrackRecoInfoPlots_st_fake_primary(this, "LargeD0/TrackRecoInfoPlots/StandardTracks/FakeTracks/Primary"),
   m_TrackRecoInfoPlots_st_fake_secondary(this, "LargeD0/TrackRecoInfoPlots/StandardTracks/FakeTracks/Secondary"),
@@ -136,13 +137,14 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_TrackRecoInfoPlots_ld0_matched(this, "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/MatchedTracks"),
   m_TrackRecoInfoPlots_ld0_matched_primary(this, "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/MatchedTracks/Primary"),
   m_TrackRecoInfoPlots_ld0_matched_secondary(this, "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/MatchedTracks/Secondary"),
-  m_TrackRecoInfoPlots_ld0_matched_noTruthLink(this, "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/MatchedTracks/NoTruthLink"),
+  m_TrackRecoInfoPlots_ld0_matched_noTruthLink(this,
+                                               "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/MatchedTracks/NoTruthLink"),
   m_TrackRecoInfoPlots_ld0_fake(this, "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/FakeTracks"),
   m_TrackRecoInfoPlots_ld0_fake_primary(this, "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/FakeTracks/Primary"),
   m_TrackRecoInfoPlots_ld0_fake_secondary(this, "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/FakeTracks/Secondary"),
   m_TrackRecoInfoPlots_ld0_fake_noTruthLink(this, "LargeD0/TrackRecoInfoPlots/LargeD0Tracks/FakeTracks/NoTruthLink"),
-  
-  // Fake rate plots
+
+// Fake rate plots
   m_fakePlots_st(this, "LargeD0/FakeRatePlots/StandardTracks"),
   m_fakePlots_st_trtHit(this, "LargeD0/FakeRatePlots/StandardTracks/TRT"),
   m_fakePlots_st_trtOut(this, "LargeD0/FakeRatePlots/StandardTracks/TRTOut"),
@@ -185,7 +187,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_fakePlots_st_combined_tubeFrac051(this, "LargeD0/FakeRatePlots/StandardTracks/Combined/TubeFrac05_1"),
   m_fakePlots_st_combined_tubeFrac0405(this, "LargeD0/FakeRatePlots/StandardTracks/Combined/TubeFrac04_05"),
   m_fakePlots_st_combined_tubeFrac004(this, "LargeD0/FakeRatePlots/StandardTracks/Combined/TubeFrac0_04"),
-  
+
   m_fakePlots_ld0(this, "LargeD0/FakeRatePlots/LargeD0Tracks"),
   m_fakePlots_ld0_trtHit(this, "LargeD0/FakeRatePlots/LargeD0Tracks/TRT"),
   m_fakePlots_ld0_trtOut(this, "LargeD0/FakeRatePlots/LargeD0Tracks/TRTOut"),
@@ -217,7 +219,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_fakePlots_ld0_notruth(this, "LargeD0/FakeRatePlots/LargeD0Tracks/NoTruth"),
   m_fakePlots_ld0_notruth_trtHit(this, "LargeD0/FakeRatePlots/LargeD0Tracks/NoTruth/TRT"),
   m_fakePlots_ld0_notruth_trtOut(this, "LargeD0/FakeRatePlots/LargeD0Tracks/NoTruth/TRTOut"),
-  m_fakePlots_ld0_notruth_noTrt(this, "LargeD0/FakeRatePlots/LargeD0Tracks/NoTruth/NoTRT"), 
+  m_fakePlots_ld0_notruth_noTrt(this, "LargeD0/FakeRatePlots/LargeD0Tracks/NoTruth/NoTRT"),
   m_fakePlots_ld0_notruth_tubeFrac051(this, "LargeD0/FakeRatePlots/LargeD0Tracks/NoTruth/TubeFrac05_1"),
   m_fakePlots_ld0_notruth_tubeFrac0405(this, "LargeD0/FakeRatePlots/LargeD0Tracks/NoTruth/TubeFrac04_05"),
   m_fakePlots_ld0_notruth_tubeFrac004(this, "LargeD0/FakeRatePlots/LargeD0Tracks/NoTruth/TubeFrac0_04"),
@@ -228,8 +230,8 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_fakePlots_ld0_combined_tubeFrac051(this, "LargeD0/FakeRatePlots/LargeD0Tracks/Combined/TubeFrac05_1"),
   m_fakePlots_ld0_combined_tubeFrac0405(this, "LargeD0/FakeRatePlots/LargeD0Tracks/Combined/TubeFrac04_05"),
   m_fakePlots_ld0_combined_tubeFrac004(this, "LargeD0/FakeRatePlots/LargeD0Tracks/Combined/TubeFrac0_04"),
-  
-  // Efficiency plots
+
+// Efficiency plots
   m_effPlots_all(this, "LargeD0/EffPlots/AllTracks/"),
   m_effPlots_all_trtHit(this, "LargeD0/EffPlots/AllTracks/TRT"),
   m_effPlots_all_trtOut(this, "LargeD0/EffPlots/AllTracks/TRTOut"),
@@ -242,7 +244,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_effPlots_all_signal_tubeFrac0405(this, "LargeD0/EffPlots/AllTracks/Signal/TubeFrac04_05"),
   m_effPlots_all_signal_tubeFrac004(this, "LargeD0/EffPlots/AllTracks/Signal/TubeFrac0_04"),
 
-  m_effPlots_st(this, "LargeD0/EffPlots/StandardTracks/"), 
+  m_effPlots_st(this, "LargeD0/EffPlots/StandardTracks/"),
   m_effPlots_st_trtHit(this, "LargeD0/EffPlots/StandardTracks/TRT/"),
   m_effPlots_st_trtOut(this, "LargeD0/EffPlots/StandardTracks/TRTOut/"),
   m_effPlots_st_noTrt(this, "LargeD0/EffPlots/StandardTracks/noTRT/"),
@@ -291,16 +293,16 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
   m_effPlots_ld0NonSt_signal_tubeFrac004(this, "LargeD0/EffPlots/LargeD0TracksNonStd/Signal/TubeFrac0_04"),
 
   m_effPlots(this, "LargeD0/EffPlots"),
-  
-  // =============================================================
-  // plots not used for LargeD0
-  // =============================================================
+
+// =============================================================
+// plots not used for LargeD0
+// =============================================================
   m_ptPlot(this, "LargeD0_NOTUSED/SelectedGoodTracks"),
   m_basicPlot(this, "LargeD0_NOTUSED/SelectedGoodTracks"),
-  
+
   m_PtEtaPlots(this, "LargeD0_NOTUSED/SelectedGoodTracks", "TrackParticle"),
   m_IPPlots(this, "LargeD0_NOTUSED/SelectedGoodTracks"),
-  
+
   m_TrackRecoInfoPlots(this, "LargeD0_NOTUSED/SelectedGoodTracks"),
   m_TrackTruthInfoPlots(this, "LargeD0_NOTUSED/Truth"),
   m_nTracks(this, "LargeD0_NOTUSED/SelectedGoodTracks"),
@@ -327,7 +329,7 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase *pParent, const std::st
 // ===================================================================================
 
 void
-InDetRttLargeD0Plots::fill(const xAOD::TrackParticle &particle) {
+InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle) {
   m_hitResidualPlot.fill(particle);
   // fill pt plots
   m_ptPlot.fill(particle);
@@ -340,70 +342,71 @@ InDetRttLargeD0Plots::fill(const xAOD::TrackParticle &particle) {
 }
 
 void
-InDetRttLargeD0Plots::fill(const xAOD::TrackParticle &particle, const int barcode, const xAOD::EventInfo& ei, const xAOD::VertexContainer& pv) {
-  const bool noTruthLink=((barcode == 0) or (barcode == -1));
+InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle, const int barcode, const xAOD::EventInfo& ei,
+                           const xAOD::VertexContainer& pv) {
+  const bool noTruthLink = ((barcode == 0)or(barcode == -1));
+
   if (isLargeD0Track(particle)) {
-    //all ld0 tracks
-    m_trtTesting_ld0_matched.fill(particle,ei,pv);
-    m_hitsPlots_ld0_matched.fill(particle); 
+    // all ld0 tracks
+    m_trtTesting_ld0_matched.fill(particle, ei, pv);
+    m_hitsPlots_ld0_matched.fill(particle);
     m_basicPlot_ld0_matched.fill(particle);
     m_ptPlot_ld0_matched.fill(particle);
     m_TrackRecoInfoPlots_ld0_matched.fill(particle);
     if (noTruthLink) { // no truth link
-      m_trtTesting_ld0_matched_noTruthLink.fill(particle,ei,pv);
+      m_trtTesting_ld0_matched_noTruthLink.fill(particle, ei, pv);
       m_hitsPlots_ld0_matched_noTruthLink.fill(particle);
       m_basicPlot_ld0_matched_noTruthLink.fill(particle);
       m_ptPlot_ld0_matched_noTruthLink.fill(particle);
       m_TrackRecoInfoPlots_ld0_matched_noTruthLink.fill(particle);
     } else {
       if (barcode >= 200000) { // secondary tracks
-        m_trtTesting_ld0_matched_secondary.fill(particle,ei,pv);
+        m_trtTesting_ld0_matched_secondary.fill(particle, ei, pv);
         m_hitsPlots_ld0_matched_secondary.fill(particle);
         m_basicPlot_ld0_matched_secondary.fill(particle);
         m_ptPlot_ld0_matched_secondary.fill(particle);
         m_TrackRecoInfoPlots_ld0_matched_secondary.fill(particle);
-            } else if (barcode > 0) {  // primary tracks
-        m_trtTesting_ld0_matched_primary.fill(particle,ei,pv);
+      } else if (barcode > 0) {  // primary tracks
+        m_trtTesting_ld0_matched_primary.fill(particle, ei, pv);
         m_hitsPlots_ld0_matched_primary.fill(particle);
         m_basicPlot_ld0_matched_primary.fill(particle);
         m_ptPlot_ld0_matched_primary.fill(particle);
         m_TrackRecoInfoPlots_ld0_matched_primary.fill(particle);
       } else {
-	std::cout << "<InDetRttLargeD0Plots::fill> Barcode " << barcode << " was not recognised." << std::endl;
+        std::cout << "<InDetRttLargeD0Plots::fill> Barcode " << barcode << " was not recognised." << std::endl;
       }
     }
   } else {
-    //all std tracks
-    m_trtTesting_st_matched.fill(particle,ei,pv);
+    // all std tracks
+    m_trtTesting_st_matched.fill(particle, ei, pv);
     m_hitsPlots_st_matched.fill(particle);
     m_basicPlot_st_matched.fill(particle);
     m_ptPlot_st_matched.fill(particle);
     m_TrackRecoInfoPlots_st_matched.fill(particle);
     if (noTruthLink) { // no truth link
-      m_trtTesting_st_matched_noTruthLink.fill(particle,ei,pv);
+      m_trtTesting_st_matched_noTruthLink.fill(particle, ei, pv);
       m_hitsPlots_st_matched_noTruthLink.fill(particle);
       m_basicPlot_st_matched_noTruthLink.fill(particle);
       m_ptPlot_st_matched_noTruthLink.fill(particle);
       m_TrackRecoInfoPlots_st_matched_noTruthLink.fill(particle);
-    } else { 
-      if (barcode >= 200000) { // secondary tracks 
-	m_trtTesting_st_matched_secondary.fill(particle,ei,pv);
-	m_hitsPlots_st_matched_secondary.fill(particle);
-	m_basicPlot_st_matched_secondary.fill(particle);
-	m_ptPlot_st_matched_secondary.fill(particle);
-	m_TrackRecoInfoPlots_st_matched_secondary.fill(particle);
+    } else {
+      if (barcode >= 200000) { // secondary tracks
+        m_trtTesting_st_matched_secondary.fill(particle, ei, pv);
+        m_hitsPlots_st_matched_secondary.fill(particle);
+        m_basicPlot_st_matched_secondary.fill(particle);
+        m_ptPlot_st_matched_secondary.fill(particle);
+        m_TrackRecoInfoPlots_st_matched_secondary.fill(particle);
       } else if (barcode > 0) { // primary tracks
-	m_trtTesting_st_matched_primary.fill(particle,ei,pv);
-	m_hitsPlots_st_matched_primary.fill(particle);
-	m_basicPlot_st_matched_primary.fill(particle);
-	m_ptPlot_st_matched_primary.fill(particle);
-	m_TrackRecoInfoPlots_st_matched_primary.fill(particle);
+        m_trtTesting_st_matched_primary.fill(particle, ei, pv);
+        m_hitsPlots_st_matched_primary.fill(particle);
+        m_basicPlot_st_matched_primary.fill(particle);
+        m_ptPlot_st_matched_primary.fill(particle);
+        m_TrackRecoInfoPlots_st_matched_primary.fill(particle);
       } else {
-	std::cout << "<InDetRttLargeD0Plots::fill> Barcode " << barcode << " was not recognised." << std::endl;
+        std::cout << "<InDetRttLargeD0Plots::fill> Barcode " << barcode << " was not recognised." << std::endl;
       }
     }
   }
-  
 }
 
 // ===================================================================================
@@ -412,8 +415,10 @@ InDetRttLargeD0Plots::fill(const xAOD::TrackParticle &particle, const int barcod
 // ===================================================================================
 
 void
-InDetRttLargeD0Plots::fillFake(const xAOD::TrackParticle &trackParticle, const int barcode, const xAOD::EventInfo& ei, const xAOD::VertexContainer& pv) {
-  const bool noTruthLink=(barcode == 0) or (barcode == -1);
+InDetRttLargeD0Plots::fillFake(const xAOD::TrackParticle& trackParticle, const int barcode, const xAOD::EventInfo& ei,
+                               const xAOD::VertexContainer& pv) {
+  const bool noTruthLink = (barcode == 0)or(barcode == -1);
+
   if (isLargeD0Track(trackParticle)) {
     m_trtTesting_ld0_fake.fill(trackParticle, ei, pv);
     m_hitsPlots_ld0_fake.fill(trackParticle);
@@ -428,48 +433,48 @@ InDetRttLargeD0Plots::fillFake(const xAOD::TrackParticle &trackParticle, const i
       m_TrackRecoInfoPlots_ld0_fake_noTruthLink.fill(trackParticle);
     } else {
       if (barcode >= 200000) { // secondary tracks
-	m_trtTesting_ld0_fake_secondary.fill(trackParticle,ei, pv);
-	m_hitsPlots_ld0_fake_secondary.fill(trackParticle);
-	m_basicPlot_ld0_fake_secondary.fill(trackParticle);
-	m_ptPlot_ld0_fake_secondary.fill(trackParticle);
-	m_TrackRecoInfoPlots_ld0_fake_secondary.fill(trackParticle);
+        m_trtTesting_ld0_fake_secondary.fill(trackParticle, ei, pv);
+        m_hitsPlots_ld0_fake_secondary.fill(trackParticle);
+        m_basicPlot_ld0_fake_secondary.fill(trackParticle);
+        m_ptPlot_ld0_fake_secondary.fill(trackParticle);
+        m_TrackRecoInfoPlots_ld0_fake_secondary.fill(trackParticle);
       } else if (barcode > 0) {  // primary tracks
-	m_trtTesting_ld0_fake_primary.fill(trackParticle,ei, pv);
-	m_hitsPlots_ld0_fake_primary.fill(trackParticle);
-	m_basicPlot_ld0_fake_primary.fill(trackParticle);
-	m_ptPlot_ld0_fake_primary.fill(trackParticle);
-	m_TrackRecoInfoPlots_ld0_fake_primary.fill(trackParticle);
+        m_trtTesting_ld0_fake_primary.fill(trackParticle, ei, pv);
+        m_hitsPlots_ld0_fake_primary.fill(trackParticle);
+        m_basicPlot_ld0_fake_primary.fill(trackParticle);
+        m_ptPlot_ld0_fake_primary.fill(trackParticle);
+        m_TrackRecoInfoPlots_ld0_fake_primary.fill(trackParticle);
       } else {
-	std::cout << "<InDetRttLargeD0Plots::fill> Barcode " << barcode << " was not recognised." << std::endl;
+        std::cout << "<InDetRttLargeD0Plots::fill> Barcode " << barcode << " was not recognised." << std::endl;
       }
     }
-  }else {
-    m_trtTesting_st_fake.fill(trackParticle,ei, pv);
+  } else {
+    m_trtTesting_st_fake.fill(trackParticle, ei, pv);
     m_hitsPlots_st_fake.fill(trackParticle);
     m_basicPlot_st_fake.fill(trackParticle);
     m_ptPlot_st_fake.fill(trackParticle);
     m_TrackRecoInfoPlots_st_fake.fill(trackParticle);
     if (noTruthLink) { // no truth link
-      m_trtTesting_st_fake_noTruthLink.fill(trackParticle,ei, pv);
+      m_trtTesting_st_fake_noTruthLink.fill(trackParticle, ei, pv);
       m_hitsPlots_st_fake_noTruthLink.fill(trackParticle);
       m_basicPlot_st_fake_noTruthLink.fill(trackParticle);
       m_ptPlot_st_fake_noTruthLink.fill(trackParticle);
       m_TrackRecoInfoPlots_st_fake_noTruthLink.fill(trackParticle);
     } else {
       if (barcode >= 200000) { // secondary tracks
-	m_trtTesting_st_fake_secondary.fill(trackParticle,ei, pv);
-	m_hitsPlots_st_fake_secondary.fill(trackParticle);
-	m_basicPlot_st_fake_secondary.fill(trackParticle);
-	m_ptPlot_st_fake_secondary.fill(trackParticle);
-	m_TrackRecoInfoPlots_st_fake_secondary.fill(trackParticle);
+        m_trtTesting_st_fake_secondary.fill(trackParticle, ei, pv);
+        m_hitsPlots_st_fake_secondary.fill(trackParticle);
+        m_basicPlot_st_fake_secondary.fill(trackParticle);
+        m_ptPlot_st_fake_secondary.fill(trackParticle);
+        m_TrackRecoInfoPlots_st_fake_secondary.fill(trackParticle);
       } else if (barcode > 0) {  // primary tracks
-	m_trtTesting_st_fake_primary.fill(trackParticle,ei, pv);
-	m_hitsPlots_st_fake_primary.fill(trackParticle);
-	m_basicPlot_st_fake_primary.fill(trackParticle);
-	m_ptPlot_st_fake_primary.fill(trackParticle);
-	m_TrackRecoInfoPlots_st_fake_primary.fill(trackParticle);
+        m_trtTesting_st_fake_primary.fill(trackParticle, ei, pv);
+        m_hitsPlots_st_fake_primary.fill(trackParticle);
+        m_basicPlot_st_fake_primary.fill(trackParticle);
+        m_ptPlot_st_fake_primary.fill(trackParticle);
+        m_TrackRecoInfoPlots_st_fake_primary.fill(trackParticle);
       } else {
-	std::cout << "<InDetRttLargeD0Plots::fill> Barcode " << barcode << " was not recognised." << std::endl;
+        std::cout << "<InDetRttLargeD0Plots::fill> Barcode " << barcode << " was not recognised." << std::endl;
       }
     }
   }
@@ -481,116 +486,137 @@ InDetRttLargeD0Plots::fillFake(const xAOD::TrackParticle &trackParticle, const i
 // ===================================================================================
 
 void
-InDetRttLargeD0Plots::fillTruth(const xAOD::TruthParticle &truth) {
-  //m_basicPlot_truth.fill(truth);
+InDetRttLargeD0Plots::fillTruth(const xAOD::TruthParticle& truth) {
+  // m_basicPlot_truth.fill(truth);
 
   if ((truth.barcode() > 0)and(truth.barcode() < 200000)) {
-    //m_basicPlot_primary_truth.fill(truth);
+    // m_basicPlot_primary_truth.fill(truth);
     m_ptPlot_truth_primary.fill(truth);
-  }else {
-    //m_basicPlot_secondary_truth.fill(truth);
+  } else {
+    // m_basicPlot_secondary_truth.fill(truth);
     m_ptPlot_truth_secondary.fill(truth);
   }
 }
 
 void
-InDetRttLargeD0Plots::pro_fill(const xAOD::TruthParticle &truth, float weight) {
-  m_effPlots.pro_fill(truth, weight);
+InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood) {
+  m_effPlots.fill(truth, isGood);
 }
 
 void
-InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle &truth, \
+InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle& truth, \
                                      const bool isReconstructed,       \
-                                     const bool isLargeD0Track,	       \
-                                     const bool hasTRTHit,	       \
-				     const bool hasTRTOut,	       \
-				     const int  nTrtHits,	       \
-				     const int  nTrtTubeHits,	       \
+                                     const bool isLargeD0Track,        \
+                                     const bool hasTRTHit,         \
+                                     const bool hasTRTOut,         \
+                                     const int nTrtHits,          \
+                                     const int nTrtTubeHits,          \
                                      const bool isSignal) {
-  unsigned int rec = (unsigned int) isReconstructed;
-  unsigned int LRT = (unsigned int)(isLargeD0Track and isReconstructed);
-  unsigned int TRT = (unsigned int) hasTRTHit;
-  unsigned int TRTout = (unsigned int) hasTRTOut;
+  //unsigned int rec = (unsigned int) isReconstructed;
+  const bool LRT = (isLargeD0Track and isReconstructed);
+  //unsigned int TRT = (unsigned int) hasTRTHit;
+  //unsigned int TRTout = (unsigned int) hasTRTOut;
   bool isStandardTrack = false;
   double tubeFrac = -1.0;
-  if(nTrtHits > 0) {tubeFrac = ((double)nTrtTubeHits)/((double)nTrtHits); } //determine the fraction of TRT hits which are TRT tube hits (rather than precision hits)
+
+  if (nTrtHits > 0) {
+    tubeFrac = ((double) nTrtTubeHits) / ((double) nTrtHits);
+  } // determine the fraction of TRT hits which are TRT tube hits (rather than precision hits)
   bool tubeFrac05 = false;
-  if( tubeFrac < 0.5 ){ tubeFrac05 = true; }
+  if (tubeFrac < 0.5) {
+    tubeFrac05 = true;
+  }
   bool tubeFrac04 = false;
-  if( tubeFrac < 0.4 ){ tubeFrac04 = true; }
-  unsigned int tubeFracLess05 = (unsigned int) tubeFrac05;
-  unsigned int tubeFracLess04 = (unsigned int) tubeFrac04;
+  if (tubeFrac < 0.4) {
+    tubeFrac04 = true;
+  }
+  //unsigned int tubeFrac05 = (unsigned int) tubeFrac05;
+  //unsigned int tubeFrac04 = (unsigned int) tubeFrac04;
   if (!isLargeD0Track) {
     isStandardTrack = true;
   }
-  unsigned int STD = (unsigned int)(isStandardTrack and isReconstructed);
+  bool STD = (isStandardTrack and isReconstructed);
 
-  m_effPlots_all.pro_fill(truth, rec); //efficiency of all types of tracks - all matched reco tracks/all truth tracks
-  m_effPlots_all_trtHit.pro_fill(truth, rec and TRT); //how much of efficiency is from tracks with TRT hits?
-  m_effPlots_all_trtOut.pro_fill(truth, rec and TRTout and not TRT); //how much from tracks with TRT outliers but no TRT hits?
-  m_effPlots_all_noTrt.pro_fill(truth, rec and not TRT and not TRTout); //how much from tracks without any TRT contribution?
-  m_effPlots_st.pro_fill(truth, STD); //all matched reco tracks from standard tracking/all truth tracks
-  m_effPlots_st_trtHit.pro_fill(truth, STD and TRT);
-  m_effPlots_st_trtOut.pro_fill(truth, STD and TRTout and not TRT);
-  m_effPlots_st_noTrt.pro_fill(truth, STD and not TRT and not TRTout);
-  m_effPlots_ld0.pro_fill(truth, LRT); //all matched reco tracks from large d0 tracking/all truth tracks
-  m_effPlots_ld0_trtHit.pro_fill(truth, LRT and TRT);
-  m_effPlots_ld0_trtOut.pro_fill(truth, LRT and TRTout and not TRT);
-  m_effPlots_ld0_noTrt.pro_fill(truth, LRT and not TRT and not TRTout);
+  m_effPlots_all.fill(truth, isReconstructed); // efficiency of all types of tracks - all matched reco tracks/all truth tracks
+  m_effPlots_all_trtHit.fill(truth, isReconstructed and hasTRTHit); // how much of efficiency is from tracks with TRT hits?
+  m_effPlots_all_trtOut.fill(truth, isReconstructed and hasTRTOut and not hasTRTHit); // how much from tracks with TRT outliers but no
+                                                                     // TRT hits?
+  m_effPlots_all_noTrt.fill(truth, isReconstructed and not hasTRTHit and not hasTRTOut); // how much from tracks without any TRT
+                                                                        // contribution?
+  m_effPlots_st.fill(truth, STD); // all matched reco tracks from standard tracking/all truth tracks
+  m_effPlots_st_trtHit.fill(truth, STD and hasTRTHit);
+  m_effPlots_st_trtOut.fill(truth, STD and hasTRTOut and not hasTRTHit);
+  m_effPlots_st_noTrt.fill(truth, STD and not hasTRTHit and not hasTRTOut);
+  m_effPlots_ld0.fill(truth, LRT); // all matched reco tracks from large d0 tracking/all truth tracks
+  m_effPlots_ld0_trtHit.fill(truth, LRT and hasTRTHit);
+  m_effPlots_ld0_trtOut.fill(truth, LRT and hasTRTOut and not hasTRTHit);
+  m_effPlots_ld0_noTrt.fill(truth, LRT and not hasTRTHit and not hasTRTOut);
 
-  if (isStandardTrack) { //the point of these plots is that the denominator is only std tracks, so we can see the peformance of the std tracking itself as comparison to lrt
-    m_effPlots_stNonLd0.pro_fill(truth, STD);
-    m_effPlots_stNonLd0_trtHit.pro_fill(truth, STD and TRT);
-    m_effPlots_stNonLd0_trtOut.pro_fill(truth, STD and TRTout and not TRT);
-    m_effPlots_stNonLd0_noTrt.pro_fill(truth, STD and not TRT and not TRTout);
+  if (isStandardTrack) { // the point of these plots is that the denominator is only std tracks, so we can see the
+                         // peformance of the std tracking itself as comparison to lrt
+    m_effPlots_stNonLd0.fill(truth, STD);
+    m_effPlots_stNonLd0_trtHit.fill(truth, STD and hasTRTHit);
+    m_effPlots_stNonLd0_trtOut.fill(truth, STD and hasTRTOut and not hasTRTHit);
+    m_effPlots_stNonLd0_noTrt.fill(truth, STD and not hasTRTHit and not hasTRTOut);
   }
 
-  if (isLargeD0Track) { //the point of these plots is that the denominator is only ld0 tracks, so we can see the peformance of the ld0 tracking itself
-    m_effPlots_ld0NonSt.pro_fill(truth, LRT);
-    m_effPlots_ld0NonSt_trtHit.pro_fill(truth, LRT and TRT);
-    m_effPlots_ld0NonSt_trtOut.pro_fill(truth, rec and LRT and TRTout and not TRT);
-    m_effPlots_ld0NonSt_noTrt.pro_fill(truth, rec and LRT and not TRT and not TRTout);
+  if (isLargeD0Track) { // the point of these plots is that the denominator is only ld0 tracks, so we can see the
+                        // peformance of the ld0 tracking itself
+    m_effPlots_ld0NonSt.fill(truth, LRT);
+    m_effPlots_ld0NonSt_trtHit.fill(truth, LRT and hasTRTHit);
+    m_effPlots_ld0NonSt_trtOut.fill(truth, isReconstructed and LRT and hasTRTOut and not hasTRTHit);
+    m_effPlots_ld0NonSt_noTrt.fill(truth, isReconstructed and LRT and not hasTRTHit and not hasTRTOut);
   }
 
-  if (isSignal) { //reco signal tracks/tracks from all signal
-    m_effPlots_all_signal.pro_fill(truth, rec);
-    m_effPlots_all_signal_trtHit.pro_fill(truth, rec and TRT);
-    m_effPlots_all_signal_trtOut.pro_fill(truth, rec and TRTout and not TRT);
-    m_effPlots_all_signal_noTrt.pro_fill(truth, rec and not TRT and not TRTout);
-    m_effPlots_all_signal_tubeFrac051.pro_fill(truth, rec and TRT and not tubeFracLess05); //how much of eff comes from tracks with tube frac > 0.5?
-    m_effPlots_all_signal_tubeFrac0405.pro_fill(truth, rec and TRT and tubeFracLess05 and not tubeFracLess04); //how much from tracks with tube frac (0.4,0.5)
-    m_effPlots_all_signal_tubeFrac004.pro_fill(truth, rec and TRT and tubeFracLess04); //how much from tracks with tube frac < 0.4?
-    m_effPlots_st_signal.pro_fill(truth, STD);
-    m_effPlots_st_signal_trtHit.pro_fill(truth, STD and TRT);
-    m_effPlots_st_signal_trtOut.pro_fill(truth, STD and TRTout and not TRT);
-    m_effPlots_st_signal_noTrt.pro_fill(truth, STD and not TRT and not TRTout);
-    m_effPlots_st_signal_tubeFrac051.pro_fill(truth, STD and TRT and not tubeFracLess05);
-    m_effPlots_st_signal_tubeFrac0405.pro_fill(truth, STD and TRT and tubeFracLess05 and not tubeFracLess04);
-    m_effPlots_st_signal_tubeFrac004.pro_fill(truth, STD  and TRT and tubeFracLess04);
-    m_effPlots_ld0_signal.pro_fill(truth, LRT);
-    m_effPlots_ld0_signal_trtHit.pro_fill(truth, LRT and TRT);
-    m_effPlots_ld0_signal_trtOut.pro_fill(truth, LRT and TRTout and not TRT);
-    m_effPlots_ld0_signal_noTrt.pro_fill(truth, LRT and not TRT and not TRTout);
-    m_effPlots_ld0_signal_tubeFrac051.pro_fill(truth, LRT and TRT and not tubeFracLess05);
-    m_effPlots_ld0_signal_tubeFrac0405.pro_fill(truth, LRT and TRT and tubeFracLess05 and not tubeFracLess04);
-    m_effPlots_ld0_signal_tubeFrac004.pro_fill(truth, LRT and TRT and tubeFracLess04);
+  if (isSignal) { // reco signal tracks/tracks from all signal
+    m_effPlots_all_signal.fill(truth, isReconstructed);
+    m_effPlots_all_signal_trtHit.fill(truth, isReconstructed and hasTRTHit);
+    m_effPlots_all_signal_trtOut.fill(truth, isReconstructed and hasTRTOut and not hasTRTHit);
+    m_effPlots_all_signal_noTrt.fill(truth, isReconstructed and not hasTRTHit and not hasTRTOut);
+    m_effPlots_all_signal_tubeFrac051.fill(truth, isReconstructed and hasTRTHit and not tubeFrac05); // how much of eff comes from
+                                                                                           // tracks with tube frac >
+                                                                                           // 0.5?
+    m_effPlots_all_signal_tubeFrac0405.fill(truth, isReconstructed and hasTRTHit and tubeFrac05 and not tubeFrac04); // how
+                                                                                                               // much
+                                                                                                               // from
+                                                                                                               // tracks
+                                                                                                               // with
+                                                                                                               // tube
+                                                                                                               // frac
+                                                                                                               // (0.4,0.5)
+    m_effPlots_all_signal_tubeFrac004.fill(truth, isReconstructed and hasTRTHit and tubeFrac04); // how much from tracks with tube
+                                                                                       // frac < 0.4?
+    m_effPlots_st_signal.fill(truth, STD);
+    m_effPlots_st_signal_trtHit.fill(truth, STD and hasTRTHit);
+    m_effPlots_st_signal_trtOut.fill(truth, STD and hasTRTOut and not hasTRTHit);
+    m_effPlots_st_signal_noTrt.fill(truth, STD and not hasTRTHit and not hasTRTOut);
+    m_effPlots_st_signal_tubeFrac051.fill(truth, STD and hasTRTHit and not tubeFrac05);
+    m_effPlots_st_signal_tubeFrac0405.fill(truth, STD and hasTRTHit and tubeFrac05 and not tubeFrac04);
+    m_effPlots_st_signal_tubeFrac004.fill(truth, STD and hasTRTHit and tubeFrac04);
+    m_effPlots_ld0_signal.fill(truth, LRT);
+    m_effPlots_ld0_signal_trtHit.fill(truth, LRT and hasTRTHit);
+    m_effPlots_ld0_signal_trtOut.fill(truth, LRT and hasTRTOut and not hasTRTHit);
+    m_effPlots_ld0_signal_noTrt.fill(truth, LRT and not hasTRTHit and not hasTRTOut);
+    m_effPlots_ld0_signal_tubeFrac051.fill(truth, LRT and hasTRTHit and not tubeFrac05);
+    m_effPlots_ld0_signal_tubeFrac0405.fill(truth, LRT and hasTRTHit and tubeFrac05 and not tubeFrac04);
+    m_effPlots_ld0_signal_tubeFrac004.fill(truth, LRT and hasTRTHit and tubeFrac04);
     if (isStandardTrack) {
-      m_effPlots_stNonLd0_signal.pro_fill(truth, STD);
-      m_effPlots_stNonLd0_signal_trtHit.pro_fill(truth, STD and TRT);
-      m_effPlots_stNonLd0_signal_trtOut.pro_fill(truth, STD and TRTout and not TRT);
-      m_effPlots_stNonLd0_signal_noTrt.pro_fill(truth, STD and not TRT and not TRTout);
-      m_effPlots_stNonLd0_signal_tubeFrac051.pro_fill(truth, STD and TRT and not tubeFracLess05);
-      m_effPlots_stNonLd0_signal_tubeFrac0405.pro_fill(truth, STD and TRT and tubeFracLess05 and not tubeFracLess04);
-      m_effPlots_stNonLd0_signal_tubeFrac004.pro_fill(truth, STD and TRT and tubeFracLess04);
+      m_effPlots_stNonLd0_signal.fill(truth, STD);
+      m_effPlots_stNonLd0_signal_trtHit.fill(truth, STD and hasTRTHit);
+      m_effPlots_stNonLd0_signal_trtOut.fill(truth, STD and hasTRTOut and not hasTRTHit);
+      m_effPlots_stNonLd0_signal_noTrt.fill(truth, STD and not hasTRTHit and not hasTRTOut);
+      m_effPlots_stNonLd0_signal_tubeFrac051.fill(truth, STD and hasTRTHit and not tubeFrac05);
+      m_effPlots_stNonLd0_signal_tubeFrac0405.fill(truth, STD and hasTRTHit and tubeFrac05 and not tubeFrac04);
+      m_effPlots_stNonLd0_signal_tubeFrac004.fill(truth, STD and hasTRTHit and tubeFrac04);
     }
     if (isLargeD0Track) {
-      m_effPlots_ld0NonSt_signal.pro_fill(truth, LRT);
-      m_effPlots_ld0NonSt_signal_trtHit.pro_fill(truth, LRT and TRT);
-      m_effPlots_ld0NonSt_signal_trtOut.pro_fill(truth, LRT and TRTout and not TRT);
-      m_effPlots_ld0NonSt_signal_noTrt.pro_fill(truth, LRT and not TRT and not TRTout);
-      m_effPlots_ld0NonSt_signal_tubeFrac051.pro_fill(truth, LRT and TRT and not tubeFracLess05);
-      m_effPlots_ld0NonSt_signal_tubeFrac0405.pro_fill(truth, LRT and TRT and tubeFracLess05 and not tubeFracLess04);
-      m_effPlots_ld0NonSt_signal_tubeFrac004.pro_fill(truth, LRT and TRT and tubeFracLess04);
+      m_effPlots_ld0NonSt_signal.fill(truth, LRT);
+      m_effPlots_ld0NonSt_signal_trtHit.fill(truth, LRT and hasTRTHit);
+      m_effPlots_ld0NonSt_signal_trtOut.fill(truth, LRT and hasTRTOut and not hasTRTHit);
+      m_effPlots_ld0NonSt_signal_noTrt.fill(truth, LRT and not hasTRTHit and not hasTRTOut);
+      m_effPlots_ld0NonSt_signal_tubeFrac051.fill(truth, LRT and hasTRTHit and not tubeFrac05);
+      m_effPlots_ld0NonSt_signal_tubeFrac0405.fill(truth, LRT and hasTRTHit and tubeFrac05 and not tubeFrac04);
+      m_effPlots_ld0NonSt_signal_tubeFrac004.fill(truth, LRT and hasTRTHit and tubeFrac04);
     }
   }
 
@@ -604,7 +630,7 @@ InDetRttLargeD0Plots::fillEfficiency(const xAOD::TruthParticle &truth, \
 // ===================================================================================
 
 void
-InDetRttLargeD0Plots::fill(const xAOD::TruthParticle &truthParticle) {
+InDetRttLargeD0Plots::fill(const xAOD::TruthParticle& truthParticle) {
   // fill truth plots
   m_TrackTruthInfoPlots.fill(truthParticle);
   // this gets called for the truth particles associated to tracks - exactly what we need!
@@ -612,23 +638,23 @@ InDetRttLargeD0Plots::fill(const xAOD::TruthParticle &truthParticle) {
 }
 
 void
-InDetRttLargeD0Plots::fillBMR(const xAOD::TrackParticle &track, float weight) {
+InDetRttLargeD0Plots::fillBMR(const xAOD::TrackParticle& track, float weight) {
   // fill the plot requiring truth matching probability less than 80%
   m_BadMatchRate.fillBMR(track, weight);
 }
 
 void
-InDetRttLargeD0Plots::fillRF(const xAOD::TrackParticle &track, float weight) {
+InDetRttLargeD0Plots::fillRF(const xAOD::TrackParticle& track, float weight) {
   // fill the plots requiring truth matching probability less than 20%
   m_BadMatchRate.fillRF(track, weight);
 }
 
 void
-InDetRttLargeD0Plots::fill(const xAOD::VertexContainer &vertexContainer) {
+InDetRttLargeD0Plots::fill(const xAOD::VertexContainer& vertexContainer) {
   // fill vertex container general properties
   // m_verticesPlots.fill(vertexContainer); //if ever needed
   // fill vertex-specific properties, for all vertices and for hard-scattering vertex
-  for (const auto &vtx : vertexContainer.stdcont()) {
+  for (const auto& vtx : vertexContainer.stdcont()) {
     if (vtx->vertexType() == xAOD::VxType::NoVtx) {
       continue; // skip dummy vertex
     }
@@ -640,7 +666,7 @@ InDetRttLargeD0Plots::fill(const xAOD::VertexContainer &vertexContainer) {
 }
 
 void
-InDetRttLargeD0Plots::fill(const xAOD::VertexContainer &vertexContainer, const xAOD::EventInfo &ei) {
+InDetRttLargeD0Plots::fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei) {
   m_verticesPlots.fill(vertexContainer, ei);
 }
 
@@ -650,114 +676,139 @@ InDetRttLargeD0Plots::fillCounter(const unsigned int freq, const InDetPerfPlot_n
 }
 
 void
-InDetRttLargeD0Plots::fillFakeRate(const xAOD::TrackParticle &particle, \
-				   const bool fake,			\
-				   const int barcode,			\
-				   const bool trtHit,			\
-				   const bool trtOut,			\
-				   const int nTRTHit,			\
-				   const int nTRTTube) {
-
+InDetRttLargeD0Plots::fillFakeRate(const xAOD::TrackParticle& particle, \
+                                   const bool fake,         \
+                                   const int barcode,           \
+                                   const bool trtHit,           \
+                                   const bool trtOut,           \
+                                   const int nTRTHit,           \
+                                   const int nTRTTube) {
   // Declare and get necessary variables.
   const bool isLargeD0 = isLargeD0Track(particle);
-  const bool primary   = (barcode < 200000 and barcode > 0); // match and ...
+  const bool primary = (barcode < 200000 and barcode > 0); // match and ...
   const bool secondary = (barcode >= 200000); // match and ...
-  const bool notruthlink = ((barcode == 0) or (barcode == -1));
+  const bool notruthlink = ((barcode == 0)or(barcode == -1));
   double tubeFrac = -1.0;
-  if(nTRTHit > 0) tubeFrac = ((double)nTRTTube)/((double)nTRTHit);
+
+  if (nTRTHit > 0) {
+    tubeFrac = ((double) nTRTTube) / ((double) nTRTHit);
+  }
   bool tubeFrac05 = false;
-  if( tubeFrac < 0.5 ){ tubeFrac05 = true; }
+  if (tubeFrac < 0.5) {
+    tubeFrac05 = true;
+  }
   bool tubeFrac04 = false;
-  if( tubeFrac < 0.4 ){ tubeFrac04 = true; }
- 
-  // Fill fakerate distributions.
-  /* "New" definition, cf. [https://indico.cern.ch/event/559023/contributions/2255673/attachments/1314623/1968909/2016.07.25.pdf] */
-  if (isLargeD0) { // ld0 fakes (matching prob < 0.5) or not associated to a particle with finite barcode/all ld0 tracks
-    m_fakePlots_ld0                       .fill(particle, fake); //numerator is tracks that are fake, regardless of barcode status
-    m_fakePlots_ld0_trtHit                .fill(particle, fake and trtHit); //for tracks with any number of trt hits 
-    m_fakePlots_ld0_trtOut                .fill(particle, fake and trtOut and not trtHit); //for tracks with some trt outliers but no trt hits
-    m_fakePlots_ld0_noTrt                 .fill(particle, fake and not trtHit and not trtOut); //tracks with no trt hits/outliers of any kind
-    m_fakePlots_ld0_tubeFrac051           .fill(particle, fake and trtHit and not tubeFrac05); //tracks with trt hits with tube fraction > 0.5
-    m_fakePlots_ld0_tubeFrac0405          .fill(particle, fake and trtHit and tubeFrac05 and not tubeFrac04); //tracks with trt hits and tube fraction (.4,.5);
-    m_fakePlots_ld0_tubeFrac004           .fill(particle, fake and trtHit and tubeFrac04); //tracks with trt hits and tube fraction < 0.4
-    m_fakePlots_ld0_primary               .fill(particle, fake and primary); //numeator is tracks that are fake and have barcode > 0 and < 200 000
-    m_fakePlots_ld0_primary_trtHit        .fill(particle, fake and primary and trtHit);
-    m_fakePlots_ld0_primary_trtOut        .fill(particle, fake and primary and trtOut and not trtHit);
-    m_fakePlots_ld0_primary_noTrt         .fill(particle, fake and primary and not trtHit and not trtOut);
-    m_fakePlots_ld0_primary_tubeFrac051   .fill(particle, fake and primary and trtHit and not tubeFrac05);
-    m_fakePlots_ld0_primary_tubeFrac0405  .fill(particle, fake and primary and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_ld0_primary_tubeFrac004   .fill(particle, fake and primary and trtHit and tubeFrac04);
-    m_fakePlots_ld0_secondary             .fill(particle, fake and secondary); //numerator is tracks that are fake and have barcode > 200 000
-    m_fakePlots_ld0_secondary_trtHit      .fill(particle, fake and secondary and trtHit);
-    m_fakePlots_ld0_secondary_trtOut      .fill(particle, fake and secondary and trtOut and not trtHit);
-    m_fakePlots_ld0_secondary_noTrt       .fill(particle, fake and secondary and not trtHit and not trtOut);
-    m_fakePlots_ld0_secondary_tubeFrac051 .fill(particle, fake and secondary and trtHit and not tubeFrac05);
-    m_fakePlots_ld0_secondary_tubeFrac0405.fill(particle, fake and secondary and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_ld0_secondary_tubeFrac004 .fill(particle, fake and secondary and trtHit and tubeFrac04);
-    m_fakePlots_ld0_linked                .fill(particle, fake and (primary or secondary)); //numerator is tracks that are fake and have any finite barcode
-    m_fakePlots_ld0_linked_trtHit         .fill(particle, fake and (primary or secondary) and trtHit);
-    m_fakePlots_ld0_linked_trtOut         .fill(particle, fake and (primary or secondary) and trtOut and not trtHit);
-    m_fakePlots_ld0_linked_noTrt          .fill(particle, fake and (primary or secondary) and not trtHit and not trtOut);
-    m_fakePlots_ld0_linked_tubeFrac051    .fill(particle, fake and (primary or secondary) and trtHit and not tubeFrac05);
-    m_fakePlots_ld0_linked_tubeFrac0405   .fill(particle, fake and (primary or secondary) and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_ld0_linked_tubeFrac004    .fill(particle, fake and (primary or secondary) and trtHit and tubeFrac04);
-    m_fakePlots_ld0_notruth               .fill(particle, fake and notruthlink); //numerator is tracks that are fake and have barcode 0/no barcode
-    m_fakePlots_ld0_notruth_trtHit        .fill(particle, fake and notruthlink and trtHit);
-    m_fakePlots_ld0_notruth_trtOut        .fill(particle, fake and notruthlink and trtOut and not trtHit);
-    m_fakePlots_ld0_notruth_noTrt         .fill(particle, fake and notruthlink and not trtHit and not trtOut);
-    m_fakePlots_ld0_notruth_tubeFrac051   .fill(particle, fake and notruthlink and trtHit and not tubeFrac05);
-    m_fakePlots_ld0_notruth_tubeFrac0405  .fill(particle, fake and notruthlink and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_ld0_notruth_tubeFrac004   .fill(particle, fake and notruthlink and trtHit and tubeFrac04);
-    m_fakePlots_ld0_combined              .fill(particle, (fake or notruthlink)); //numerator tracks that are either fake or barcode 0/no barcode
-    m_fakePlots_ld0_combined_trtHit       .fill(particle, (fake or notruthlink) and trtHit);
-    m_fakePlots_ld0_combined_trtOut       .fill(particle, (fake or notruthlink) and trtOut and not trtHit);
-    m_fakePlots_ld0_combined_noTrt        .fill(particle, (fake or notruthlink) and not trtHit and not trtOut);
-    m_fakePlots_ld0_combined_tubeFrac051  .fill(particle, (fake or notruthlink) and trtHit and not tubeFrac05);
-    m_fakePlots_ld0_combined_tubeFrac0405 .fill(particle, (fake or notruthlink) and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_ld0_combined_tubeFrac004  .fill(particle, (fake or notruthlink) and trtHit and tubeFrac04);
-  } else {// st fakes (matching prob < 0.5) or not associated to a particle with finite barcode/all std tracks
-    m_fakePlots_st                        .fill(particle, fake);
-    m_fakePlots_st_trtHit                 .fill(particle, fake and trtHit); 
-    m_fakePlots_st_trtOut                 .fill(particle, fake and trtOut and not trtHit);
-    m_fakePlots_st_noTrt                  .fill(particle, fake and not trtHit and not trtOut);
-    m_fakePlots_st_primary                .fill(particle, fake and primary);
-    m_fakePlots_st_tubeFrac051            .fill(particle, fake and trtHit and not tubeFrac05);
-    m_fakePlots_st_tubeFrac0405           .fill(particle, fake and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_st_tubeFrac004            .fill(particle, fake and trtHit and tubeFrac04);
-    m_fakePlots_st_primary_trtHit         .fill(particle, fake and primary and trtHit); 
-    m_fakePlots_st_primary_trtOut         .fill(particle, fake and primary and trtOut and not trtHit);
-    m_fakePlots_st_primary_noTrt          .fill(particle, fake and primary and not trtHit and not trtOut);
-    m_fakePlots_st_primary_tubeFrac051    .fill(particle, fake and primary and trtHit and not tubeFrac05);
-    m_fakePlots_st_primary_tubeFrac0405   .fill(particle, fake and primary and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_st_primary_tubeFrac004    .fill(particle, fake and primary and trtHit and tubeFrac04);
-    m_fakePlots_st_secondary              .fill(particle, fake and secondary); 
-    m_fakePlots_st_secondary_trtHit       .fill(particle, fake and secondary and trtHit);
-    m_fakePlots_st_secondary_trtOut       .fill(particle, fake and secondary and trtOut and not trtHit);
-    m_fakePlots_st_secondary_noTrt        .fill(particle, fake and secondary and not trtHit and not trtOut);
-    m_fakePlots_st_secondary_tubeFrac051  .fill(particle, fake and secondary and trtHit and not tubeFrac05);
-    m_fakePlots_st_secondary_tubeFrac0405 .fill(particle, fake and secondary and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_st_secondary_tubeFrac004  .fill(particle, fake and secondary and trtHit and tubeFrac04);
-    m_fakePlots_st_linked_trtHit          .fill(particle, fake and (primary or secondary) and trtHit);
-    m_fakePlots_st_linked_trtOut          .fill(particle, fake and (primary or secondary) and trtOut and not trtHit);
-    m_fakePlots_st_linked_noTrt           .fill(particle, fake and (primary or secondary) and not trtHit and not trtOut);
-    m_fakePlots_st_linked_tubeFrac051     .fill(particle, fake and (primary or secondary) and trtHit and not tubeFrac05);
-    m_fakePlots_st_linked_tubeFrac0405    .fill(particle, fake and (primary or secondary) and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_st_linked_tubeFrac004     .fill(particle, fake and (primary or secondary) and trtHit and tubeFrac04);
-    m_fakePlots_st_linked                 .fill(particle, fake and (primary or secondary)); 
-    m_fakePlots_st_notruth                .fill(particle, fake and notruthlink);
-    m_fakePlots_st_notruth_trtHit         .fill(particle, fake and notruthlink and trtHit);
-    m_fakePlots_st_notruth_trtOut         .fill(particle, fake and notruthlink and trtOut and not trtHit);
-    m_fakePlots_st_notruth_noTrt          .fill(particle, fake and notruthlink and not trtHit and not trtOut);
-    m_fakePlots_st_notruth_tubeFrac051    .fill(particle, fake and notruthlink and trtHit and not tubeFrac05);
-    m_fakePlots_st_notruth_tubeFrac0405   .fill(particle, fake and notruthlink and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_st_notruth_tubeFrac004    .fill(particle, fake and notruthlink and trtHit and tubeFrac04);
-    m_fakePlots_st_combined               .fill(particle, (fake or notruthlink));
-    m_fakePlots_st_combined_trtHit        .fill(particle, (fake or notruthlink) and trtHit);
-    m_fakePlots_st_combined_trtOut        .fill(particle, (fake or notruthlink) and trtOut and not trtHit);
-    m_fakePlots_st_combined_noTrt         .fill(particle, (fake or notruthlink) and not trtHit and not trtOut);
-    m_fakePlots_st_combined_tubeFrac051   .fill(particle, (fake or notruthlink) and trtHit and not tubeFrac05);
-    m_fakePlots_st_combined_tubeFrac0405  .fill(particle, (fake or notruthlink) and trtHit and tubeFrac05 and not tubeFrac04);
-    m_fakePlots_st_combined_tubeFrac004   .fill(particle, (fake or notruthlink) and trtHit and tubeFrac04);
+  if (tubeFrac < 0.4) {
+    tubeFrac04 = true;
   }
 
+  // Fill fakerate distributions.
+  /* "New" definition, cf.
+     [https://indico.cern.ch/event/559023/contributions/2255673/attachments/1314623/1968909/2016.07.25.pdf] */
+  if (isLargeD0) { // ld0 fakes (matching prob < 0.5) or not associated to a particle with finite barcode/all ld0 tracks
+    m_fakePlots_ld0.fill(particle, fake); // numerator is tracks that are fake, regardless of barcode status
+    m_fakePlots_ld0_trtHit.fill(particle, fake and trtHit); // for tracks with any number of trt hits
+    m_fakePlots_ld0_trtOut.fill(particle, fake and trtOut and not trtHit); // for tracks with some trt outliers but no
+                                                                           // trt hits
+    m_fakePlots_ld0_noTrt.fill(particle, fake and not trtHit and not trtOut); // tracks with no trt hits/outliers of any
+                                                                              // kind
+    m_fakePlots_ld0_tubeFrac051.fill(particle, fake and trtHit and not tubeFrac05); // tracks with trt hits with tube
+                                                                                    // fraction > 0.5
+    m_fakePlots_ld0_tubeFrac0405.fill(particle, fake and trtHit and tubeFrac05 and not tubeFrac04); // tracks with trt
+                                                                                                    // hits and tube
+                                                                                                    // fraction (.4,.5);
+    m_fakePlots_ld0_tubeFrac004.fill(particle, fake and trtHit and tubeFrac04); // tracks with trt hits and tube
+                                                                                // fraction < 0.4
+    m_fakePlots_ld0_primary.fill(particle, fake and primary); // numeator is tracks that are fake and have barcode > 0
+                                                              // and < 200 000
+    m_fakePlots_ld0_primary_trtHit.fill(particle, fake and primary and trtHit);
+    m_fakePlots_ld0_primary_trtOut.fill(particle, fake and primary and trtOut and not trtHit);
+    m_fakePlots_ld0_primary_noTrt.fill(particle, fake and primary and not trtHit and not trtOut);
+    m_fakePlots_ld0_primary_tubeFrac051.fill(particle, fake and primary and trtHit and not tubeFrac05);
+    m_fakePlots_ld0_primary_tubeFrac0405.fill(particle, fake and primary and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_ld0_primary_tubeFrac004.fill(particle, fake and primary and trtHit and tubeFrac04);
+    m_fakePlots_ld0_secondary.fill(particle, fake and secondary); // numerator is tracks that are fake and have barcode
+                                                                  // > 200 000
+    m_fakePlots_ld0_secondary_trtHit.fill(particle, fake and secondary and trtHit);
+    m_fakePlots_ld0_secondary_trtOut.fill(particle, fake and secondary and trtOut and not trtHit);
+    m_fakePlots_ld0_secondary_noTrt.fill(particle, fake and secondary and not trtHit and not trtOut);
+    m_fakePlots_ld0_secondary_tubeFrac051.fill(particle, fake and secondary and trtHit and not tubeFrac05);
+    m_fakePlots_ld0_secondary_tubeFrac0405.fill(particle,
+                                                fake and secondary and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_ld0_secondary_tubeFrac004.fill(particle, fake and secondary and trtHit and tubeFrac04);
+    m_fakePlots_ld0_linked.fill(particle, fake and(primary or secondary)); // numerator is tracks that are fake and have
+                                                                           // any finite barcode
+    m_fakePlots_ld0_linked_trtHit.fill(particle, fake and(primary or secondary) and trtHit);
+    m_fakePlots_ld0_linked_trtOut.fill(particle, fake and(primary or secondary) and trtOut and not trtHit);
+    m_fakePlots_ld0_linked_noTrt.fill(particle, fake and(primary or secondary) and not trtHit and not trtOut);
+    m_fakePlots_ld0_linked_tubeFrac051.fill(particle, fake and(primary or secondary) and trtHit and not tubeFrac05);
+    m_fakePlots_ld0_linked_tubeFrac0405.fill(particle, fake and(
+                                               primary or secondary) and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_ld0_linked_tubeFrac004.fill(particle, fake and(primary or secondary) and trtHit and tubeFrac04);
+    m_fakePlots_ld0_notruth.fill(particle, fake and notruthlink); // numerator is tracks that are fake and have barcode
+                                                                  // 0/no barcode
+    m_fakePlots_ld0_notruth_trtHit.fill(particle, fake and notruthlink and trtHit);
+    m_fakePlots_ld0_notruth_trtOut.fill(particle, fake and notruthlink and trtOut and not trtHit);
+    m_fakePlots_ld0_notruth_noTrt.fill(particle, fake and notruthlink and not trtHit and not trtOut);
+    m_fakePlots_ld0_notruth_tubeFrac051.fill(particle, fake and notruthlink and trtHit and not tubeFrac05);
+    m_fakePlots_ld0_notruth_tubeFrac0405.fill(particle,
+                                              fake and notruthlink and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_ld0_notruth_tubeFrac004.fill(particle, fake and notruthlink and trtHit and tubeFrac04);
+    m_fakePlots_ld0_combined.fill(particle, (fake or notruthlink)); // numerator tracks that are either fake or barcode
+                                                                    // 0/no barcode
+    m_fakePlots_ld0_combined_trtHit.fill(particle, (fake or notruthlink) and trtHit);
+    m_fakePlots_ld0_combined_trtOut.fill(particle, (fake or notruthlink) and trtOut and not trtHit);
+    m_fakePlots_ld0_combined_noTrt.fill(particle, (fake or notruthlink) and not trtHit and not trtOut);
+    m_fakePlots_ld0_combined_tubeFrac051.fill(particle, (fake or notruthlink) and trtHit and not tubeFrac05);
+    m_fakePlots_ld0_combined_tubeFrac0405.fill(particle,
+                                               (fake or notruthlink) and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_ld0_combined_tubeFrac004.fill(particle, (fake or notruthlink) and trtHit and tubeFrac04);
+  } else {// st fakes (matching prob < 0.5) or not associated to a particle with finite barcode/all std tracks
+    m_fakePlots_st.fill(particle, fake);
+    m_fakePlots_st_trtHit.fill(particle, fake and trtHit);
+    m_fakePlots_st_trtOut.fill(particle, fake and trtOut and not trtHit);
+    m_fakePlots_st_noTrt.fill(particle, fake and not trtHit and not trtOut);
+    m_fakePlots_st_primary.fill(particle, fake and primary);
+    m_fakePlots_st_tubeFrac051.fill(particle, fake and trtHit and not tubeFrac05);
+    m_fakePlots_st_tubeFrac0405.fill(particle, fake and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_st_tubeFrac004.fill(particle, fake and trtHit and tubeFrac04);
+    m_fakePlots_st_primary_trtHit.fill(particle, fake and primary and trtHit);
+    m_fakePlots_st_primary_trtOut.fill(particle, fake and primary and trtOut and not trtHit);
+    m_fakePlots_st_primary_noTrt.fill(particle, fake and primary and not trtHit and not trtOut);
+    m_fakePlots_st_primary_tubeFrac051.fill(particle, fake and primary and trtHit and not tubeFrac05);
+    m_fakePlots_st_primary_tubeFrac0405.fill(particle, fake and primary and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_st_primary_tubeFrac004.fill(particle, fake and primary and trtHit and tubeFrac04);
+    m_fakePlots_st_secondary.fill(particle, fake and secondary);
+    m_fakePlots_st_secondary_trtHit.fill(particle, fake and secondary and trtHit);
+    m_fakePlots_st_secondary_trtOut.fill(particle, fake and secondary and trtOut and not trtHit);
+    m_fakePlots_st_secondary_noTrt.fill(particle, fake and secondary and not trtHit and not trtOut);
+    m_fakePlots_st_secondary_tubeFrac051.fill(particle, fake and secondary and trtHit and not tubeFrac05);
+    m_fakePlots_st_secondary_tubeFrac0405.fill(particle,
+                                               fake and secondary and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_st_secondary_tubeFrac004.fill(particle, fake and secondary and trtHit and tubeFrac04);
+    m_fakePlots_st_linked_trtHit.fill(particle, fake and(primary or secondary) and trtHit);
+    m_fakePlots_st_linked_trtOut.fill(particle, fake and(primary or secondary) and trtOut and not trtHit);
+    m_fakePlots_st_linked_noTrt.fill(particle, fake and(primary or secondary) and not trtHit and not trtOut);
+    m_fakePlots_st_linked_tubeFrac051.fill(particle, fake and(primary or secondary) and trtHit and not tubeFrac05);
+    m_fakePlots_st_linked_tubeFrac0405.fill(particle, fake and(
+                                              primary or secondary) and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_st_linked_tubeFrac004.fill(particle, fake and(primary or secondary) and trtHit and tubeFrac04);
+    m_fakePlots_st_linked.fill(particle, fake and(primary or secondary));
+    m_fakePlots_st_notruth.fill(particle, fake and notruthlink);
+    m_fakePlots_st_notruth_trtHit.fill(particle, fake and notruthlink and trtHit);
+    m_fakePlots_st_notruth_trtOut.fill(particle, fake and notruthlink and trtOut and not trtHit);
+    m_fakePlots_st_notruth_noTrt.fill(particle, fake and notruthlink and not trtHit and not trtOut);
+    m_fakePlots_st_notruth_tubeFrac051.fill(particle, fake and notruthlink and trtHit and not tubeFrac05);
+    m_fakePlots_st_notruth_tubeFrac0405.fill(particle,
+                                             fake and notruthlink and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_st_notruth_tubeFrac004.fill(particle, fake and notruthlink and trtHit and tubeFrac04);
+    m_fakePlots_st_combined.fill(particle, (fake or notruthlink));
+    m_fakePlots_st_combined_trtHit.fill(particle, (fake or notruthlink) and trtHit);
+    m_fakePlots_st_combined_trtOut.fill(particle, (fake or notruthlink) and trtOut and not trtHit);
+    m_fakePlots_st_combined_noTrt.fill(particle, (fake or notruthlink) and not trtHit and not trtOut);
+    m_fakePlots_st_combined_tubeFrac051.fill(particle, (fake or notruthlink) and trtHit and not tubeFrac05);
+    m_fakePlots_st_combined_tubeFrac0405.fill(particle,
+                                              (fake or notruthlink) and trtHit and tubeFrac05 and not tubeFrac04);
+    m_fakePlots_st_combined_tubeFrac004.fill(particle, (fake or notruthlink) and trtHit and tubeFrac04);
+  }
 }

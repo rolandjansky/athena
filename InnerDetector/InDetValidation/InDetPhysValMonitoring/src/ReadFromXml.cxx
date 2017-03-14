@@ -18,7 +18,7 @@
 ReadFromXml::ReadFromXml() : m_source("unspecified file"), m_format("text/xml") {
 }
 
-ReadFromXml::ReadFromXml(const std::string &source) : m_format("text/xml") {
+ReadFromXml::ReadFromXml(const std::string& source) : m_format("text/xml") {
   m_source = PathResolver::find_file(source, "DATAPATH");
 }
 
@@ -33,7 +33,7 @@ ReadFromXml::format() const {
 }
 
 bool
-ReadFromXml::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition> &usersmap) const {
+ReadFromXml::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition>& usersmap) const {
   bool ok(true);
 
   for (auto i:m_vectorOfDefinitions) {
@@ -50,7 +50,7 @@ ReadFromXml::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition>
 }
 
 bool
-ReadFromXml::insertDefinition(const SingleHistogramDefinition & /*oneDefinition*/) {
+ReadFromXml::insertDefinition(const SingleHistogramDefinition& /*oneDefinition*/) {
   bool ok(true);
 
   // m_vectorOfDefinitions.push_back(oneDefinition);

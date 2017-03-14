@@ -13,8 +13,8 @@
 
 
 
-TruthClassDecoratorTool::TruthClassDecoratorTool(const std::string &type, const std::string &name,
-                                                 const IInterface *parent) :
+TruthClassDecoratorTool::TruthClassDecoratorTool(const std::string& type, const std::string& name,
+                                                 const IInterface* parent) :
   AthAlgTool(type, name, parent),
   m_truthClassifier("MCTruthClassifier/MCTruthClassifier") {
   declareInterface<IInDetPhysValDecoratorTool>(this);
@@ -33,7 +33,7 @@ TruthClassDecoratorTool::finalize() {
 }
 
 bool
-TruthClassDecoratorTool::decorateTruth(const xAOD::TruthParticle &particle, const std::string &prefix) {
+TruthClassDecoratorTool::decorateTruth(const xAOD::TruthParticle& particle, const std::string& prefix) {
   bool success(false);
 
   if (not m_truthClassifier.empty()) {

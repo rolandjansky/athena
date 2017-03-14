@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ValidationOnly.py 778514 2016-10-14 14:46:33Z sroe $
+# $Id: ValidationOnly.py 789797 2016-12-15 06:07:11Z lmijovic $
 
 # Set up the reading of the input xAOD:
 
@@ -21,7 +21,7 @@ ServiceMgr.ProfilerService.InitEvent=10
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPhysValMonitoringPlotDefinitions.xml"
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPVMPlotDefRun2.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 

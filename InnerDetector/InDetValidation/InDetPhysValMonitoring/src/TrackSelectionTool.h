@@ -16,15 +16,15 @@ class TrackSelectionTool:
   public asg::AsgTool  {
   ASG_TOOL_CLASS1(TrackSelectionTool, IAsgSelectionTool);
 public:
-  TrackSelectionTool(const std::string &name);
+  TrackSelectionTool(const std::string& name);
   virtual
   ~TrackSelectionTool();
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual const Root::TAccept &getTAccept( ) const;
-  virtual const Root::TAccept &accept(const xAOD::IParticle *p) const;
-  virtual const Root::TAccept &accept(const xAOD::TrackParticle *p) const;
+  virtual const Root::TAccept& getTAccept( ) const;
+  virtual const Root::TAccept& accept(const xAOD::IParticle* p) const;
+  virtual const Root::TAccept& accept(const xAOD::TrackParticle* p) const;
 private:
   mutable Root::TAccept m_accept;
   std::vector<std::pair<std::string, std::string> > m_cuts;

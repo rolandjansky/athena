@@ -7,12 +7,12 @@
 // std includes
 
 
-InDetValidationPlots::InDetValidationPlots(PlotBase *pParent, const std::string &dirName) : PlotBase(pParent, dirName),
+InDetValidationPlots::InDetValidationPlots(PlotBase* pParent, const std::string& dirName) : PlotBase(pParent, dirName),
   m_idPlots(this, "all/") {
   // nop
 }
 
 void
-InDetValidationPlots::fill(const xAOD::TrackParticle &trkParticle) {
+InDetValidationPlots::fill(const xAOD::TrackParticle& trkParticle) {
   m_idPlots.fill(trkParticle);
 }
