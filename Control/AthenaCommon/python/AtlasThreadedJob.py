@@ -61,6 +61,8 @@ def _setupAtlasThreadedJob():
     svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
     svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
     svcMgr.ForwardSchedulerSvc.ThreadPoolSize = numThreads
+    svcMgr.ForwardSchedulerSvc.useGraphFlowManagement = True
+    svcMgr.ForwardSchedulerSvc.DataFlowManagerNext = True
 
     # enable timeline recording
     from GaudiHive.GaudiHiveConf import TimelineSvc
