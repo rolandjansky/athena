@@ -160,8 +160,8 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_signals.setValue(sigs);
   // Allocate for 200 slots. This should be increased if we foresee more than 200 slots.
   // Memory overhead is negligable compared to dynamically allocate the entries
-  m_usrCoreDumps.reserve(200);
-  m_sysCoreDumps.reserve(200);
+  m_usrCoreDumps.resize(200);
+  m_sysCoreDumps.resize(200);
   
 }
 
