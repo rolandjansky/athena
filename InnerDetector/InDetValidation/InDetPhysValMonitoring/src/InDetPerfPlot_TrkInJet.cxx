@@ -16,7 +16,7 @@
 #include <numeric>
 
 
-InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase *pParent, std::string sDir) :
+InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir) :
   InDetPlotBase(pParent, sDir),
   m_jetPt{},
   m_recPt{},
@@ -260,7 +260,7 @@ InDetPerfPlot_TrkInJet::clearEffCounters() {
 }
 
 bool
-InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle &trk, const xAOD::Jet &jet) {
+InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle& trk, const xAOD::Jet& jet) {
   ATH_MSG_VERBOSE("Reached track in jet fill");
   float jetDR = jet.p4().DeltaR(trk.p4());
 
@@ -279,28 +279,28 @@ InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle &trk, const xAOD::Jet &je
   uint8_t iBLayerHits(0), iPixHits(0), iSctHits(0), iTrtHits(0);
   uint8_t iPixHoles(0), iSCTHoles(0), iTrtHTHits(0);
 
-  fillHisto(m_recPt,trk.pt() / 1e3);
+  fillHisto(m_recPt, trk.pt() / 1e3);
 
   if (trk.summaryValue(iBLayerHits, xAOD::numberOfBLayerHits)) {
-    fillHisto(n_vs_jetDR_BLayerHits,jetDR, iBLayerHits);
+    fillHisto(n_vs_jetDR_BLayerHits, jetDR, iBLayerHits);
   }
   if (trk.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
-    fillHisto(n_vs_jetDR_PixelHits,jetDR, iPixHits);
+    fillHisto(n_vs_jetDR_PixelHits, jetDR, iPixHits);
   }
   if (trk.summaryValue(iSctHits, xAOD::numberOfSCTHits)) {
-    fillHisto(n_vs_jetDR_SCTHits,jetDR, iSctHits);
+    fillHisto(n_vs_jetDR_SCTHits, jetDR, iSctHits);
   }
   if (trk.summaryValue(iTrtHits, xAOD::numberOfTRTHits)) {
-    fillHisto(n_vs_jetDR_TRTHits,jetDR, iTrtHits);
+    fillHisto(n_vs_jetDR_TRTHits, jetDR, iTrtHits);
   }
   if (trk.summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
-    fillHisto(n_vs_jetDR_PixelHoles,jetDR, iPixHoles);
+    fillHisto(n_vs_jetDR_PixelHoles, jetDR, iPixHoles);
   }
   if (trk.summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
-    fillHisto(n_vs_jetDR_SCTHoles,jetDR, iSCTHoles);
+    fillHisto(n_vs_jetDR_SCTHoles, jetDR, iSCTHoles);
   }
   if (trk.summaryValue(iTrtHTHits, xAOD::numberOfTRTHighThresholdHits)) {
-    fillHisto(n_vs_jetDR_TRTHighThresholdHits,jetDR, iTrtHTHits);
+    fillHisto(n_vs_jetDR_TRTHighThresholdHits, jetDR, iTrtHTHits);
   }
 
   // expert plots
@@ -310,43 +310,43 @@ InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle &trk, const xAOD::Jet &je
     uint8_t iSCTOutliers(0), iSCTDoubleHoles(0), iSCTShared(0);
     uint8_t iTRTOutliers(0), iTRTHTOutliers(0);
     if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfBLayerOutliers)) {
-      fillHisto(n_vs_jetDR_BLayerOutliers,jetDR, iBLayerOutliers);
+      fillHisto(n_vs_jetDR_BLayerOutliers, jetDR, iBLayerOutliers);
     }
     if (trk.summaryValue(iBLayerShared, xAOD::numberOfBLayerSharedHits)) {
-      fillHisto(n_vs_jetDR_BLayerSharedHits,jetDR, iBLayerShared);
+      fillHisto(n_vs_jetDR_BLayerSharedHits, jetDR, iBLayerShared);
     }
     if (trk.summaryValue(iBLayerSplit, xAOD::numberOfBLayerSplitHits)) {
-      fillHisto(n_vs_jetDR_BLayerSplitHits,jetDR, iBLayerSplit);
+      fillHisto(n_vs_jetDR_BLayerSplitHits, jetDR, iBLayerSplit);
     }
     if (trk.summaryValue(iPixelOutliers, xAOD::numberOfPixelOutliers)) {
-      fillHisto(n_vs_jetDR_PixelOutliers,jetDR, iPixelOutliers);
+      fillHisto(n_vs_jetDR_PixelOutliers, jetDR, iPixelOutliers);
     }
     if (trk.summaryValue(iPixelContribLayers, xAOD::numberOfContribPixelLayers)) {
-      fillHisto(n_vs_jetDR_PixelContribLayers,jetDR, iPixelContribLayers);
+      fillHisto(n_vs_jetDR_PixelContribLayers, jetDR, iPixelContribLayers);
     }
     if (trk.summaryValue(iPixelShared, xAOD::numberOfPixelSharedHits)) {
-      fillHisto(n_vs_jetDR_PixelSharedHits,jetDR, iPixelShared);
+      fillHisto(n_vs_jetDR_PixelSharedHits, jetDR, iPixelShared);
     }
     if (trk.summaryValue(iPixelSplit, xAOD::numberOfPixelSplitHits)) {
-      fillHisto(n_vs_jetDR_PixelSplitHits,jetDR, iPixelSplit);
+      fillHisto(n_vs_jetDR_PixelSplitHits, jetDR, iPixelSplit);
     }
     if (trk.summaryValue(iPixelGanged, xAOD::numberOfGangedPixels)) {
-      fillHisto(n_vs_jetDR_PixelGangedHits,jetDR, iPixelGanged);
+      fillHisto(n_vs_jetDR_PixelGangedHits, jetDR, iPixelGanged);
     }
     if (trk.summaryValue(iSCTOutliers, xAOD::numberOfSCTOutliers)) {
-      fillHisto(n_vs_jetDR_PixelOutliers,jetDR, iSCTOutliers);
+      fillHisto(n_vs_jetDR_PixelOutliers, jetDR, iSCTOutliers);
     }
     if (trk.summaryValue(iSCTDoubleHoles, xAOD::numberOfSCTDoubleHoles)) {
-      fillHisto(n_vs_jetDR_SCTDoubleHoles,jetDR, iSCTDoubleHoles);
+      fillHisto(n_vs_jetDR_SCTDoubleHoles, jetDR, iSCTDoubleHoles);
     }
     if (trk.summaryValue(iSCTShared, xAOD::numberOfSCTSharedHits)) {
-      fillHisto(n_vs_jetDR_SCTSharedHits,jetDR, iSCTShared);
+      fillHisto(n_vs_jetDR_SCTSharedHits, jetDR, iSCTShared);
     }
     if (trk.summaryValue(iTRTOutliers, xAOD::numberOfTRTOutliers)) {
-      fillHisto(n_vs_jetDR_TRTOutliers,jetDR, iTRTOutliers);
+      fillHisto(n_vs_jetDR_TRTOutliers, jetDR, iTRTOutliers);
     }
     if (trk.summaryValue(iTRTHTOutliers, xAOD::numberOfTRTHighThresholdOutliers)) {
-      fillHisto(n_vs_jetDR_TRTHighThresholdOutliers,jetDR, iTRTHTOutliers);
+      fillHisto(n_vs_jetDR_TRTHighThresholdOutliers, jetDR, iTRTHTOutliers);
     }
   }
   ATH_MSG_VERBOSE("Exiting track in jet fill");
@@ -354,7 +354,7 @@ InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle &trk, const xAOD::Jet &je
 }
 
 bool
-InDetPerfPlot_TrkInJet::fillCounter(const xAOD::Jet &jet) {
+InDetPerfPlot_TrkInJet::fillCounter(const xAOD::Jet& jet) {
   ATH_MSG_VERBOSE("Filling jet counters");
   constexpr float thousandth(1.0 / 1000.0);
   const float jetPt(jet.pt());
@@ -368,28 +368,28 @@ InDetPerfPlot_TrkInJet::fillCounter(const xAOD::Jet &jet) {
   //
   // Number of tracks in dR
   unsigned int i(0);
-  for (const auto &tracksInDr: m_tracksVsDr) {
+  for (const auto& tracksInDr: m_tracksVsDr) {
     const float binValue = binCentre(i++);
-    fillHisto(n_vs_jetDR,binValue, tracksInDr);
+    fillHisto(n_vs_jetDR, binValue, tracksInDr);
   }
   totalNTrk = std::accumulate(m_tracksVsDr.begin(), m_tracksVsDr.end(), 0.0);
   // Now Pt:
   i = 0;
-  for (const auto &ptInDr: m_sumPtVsDr) {
+  for (const auto& ptInDr: m_sumPtVsDr) {
     const float binValue = binCentre(i++);
-    fillHisto(sumPt_vs_jetDR,binValue, ptInDr * thousandth); // GeV
-    fillHisto(fracPt_vs_jetDR,binValue, ptInDr * inverseJetPt);
+    fillHisto(sumPt_vs_jetDR, binValue, ptInDr * thousandth); // GeV
+    fillHisto(fracPt_vs_jetDR, binValue, ptInDr * inverseJetPt);
   }
   totalSumPt = std::accumulate(m_sumPtVsDr.begin(), m_sumPtVsDr.end(), 0.0);
 
-  fillHisto(m_jetPt,jetPt * thousandth);
-  fillHisto(n_vs_jetPt,jetPt * thousandth, totalNTrk);
-  fillHisto(sumPt_vs_jetPt,jetPt * thousandth, totalSumPt * thousandth); // GeV
-  fillHisto(fracPt_vs_jetPt,jetPt * thousandth, totalSumPt * inverseJetPt);
+  fillHisto(m_jetPt, jetPt * thousandth);
+  fillHisto(n_vs_jetPt, jetPt * thousandth, totalNTrk);
+  fillHisto(sumPt_vs_jetPt, jetPt * thousandth, totalSumPt * thousandth); // GeV
+  fillHisto(fracPt_vs_jetPt, jetPt * thousandth, totalSumPt * inverseJetPt);
 
-  fillHisto(m_nTrack,totalNTrk);
-  fillHisto(m_sumPt,totalSumPt * thousandth);
-  fillHisto(m_fracPt,totalSumPt * inverseJetPt);
+  fillHisto(m_nTrack, totalNTrk);
+  fillHisto(m_sumPt, totalSumPt * thousandth);
+  fillHisto(m_fracPt, totalSumPt * inverseJetPt);
 
   clearCounters();
   ATH_MSG_VERBOSE("Exit filling jet counters");
@@ -397,7 +397,7 @@ InDetPerfPlot_TrkInJet::fillCounter(const xAOD::Jet &jet) {
 }
 
 bool
-InDetPerfPlot_TrkInJet::BookEffReco(const xAOD::TruthParticle &truth, const xAOD::Jet &jet) {
+InDetPerfPlot_TrkInJet::BookEffReco(const xAOD::TruthParticle& truth, const xAOD::Jet& jet) {
   // fill vectors like above in bins of dR with number of tracks and sum track pT
   // for reco tracks
 
@@ -415,7 +415,7 @@ InDetPerfPlot_TrkInJet::BookEffReco(const xAOD::TruthParticle &truth, const xAOD
 }
 
 bool
-InDetPerfPlot_TrkInJet::BookEffTruth(const xAOD::TruthParticle &truth, const xAOD::Jet &jet) {
+InDetPerfPlot_TrkInJet::BookEffTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet) {
   // fill vectors like above in bins of dR with number of tracks and sum track pT
   // for truth particle
   float jetDR = jet.p4().DeltaR(truth.p4());
@@ -436,7 +436,7 @@ InDetPerfPlot_TrkInJet::BookEffTruth(const xAOD::TruthParticle &truth, const xAO
 }
 
 bool
-InDetPerfPlot_TrkInJet::fillEff(const xAOD::Jet &jet) {
+InDetPerfPlot_TrkInJet::fillEff(const xAOD::Jet& jet) {
   // fill plots vs dR with number of track and sum pt of tracks in this jet
   // do this for truth and reco tracks separately ( vectors filled about )
   // need some way to get the efficiency from these two sets of histograms
@@ -449,24 +449,24 @@ InDetPerfPlot_TrkInJet::fillEff(const xAOD::Jet &jet) {
   for (unsigned int i = 0; i < m_tracksVsDr_reco.size(); i++) {
     // hit the bin center
     float iDR = (i + 0.5) * m_dRWidth;
-    fillHisto(n_vs_jetDR_reco,iDR, m_tracksVsDr_reco.at(i));
-    fillHisto(fracPt_vs_jetDR_reco,iDR, m_sumPtVsDr_reco.at(i) / jet.pt());
+    fillHisto(n_vs_jetDR_reco, iDR, m_tracksVsDr_reco.at(i));
+    fillHisto(fracPt_vs_jetDR_reco, iDR, m_sumPtVsDr_reco.at(i) / jet.pt());
     totalNTrk_reco += m_tracksVsDr_reco.at(i);
     totalSumPt_reco += m_sumPtVsDr_reco.at(i);
 
-    fillHisto(n_vs_jetDR_truth,iDR, m_tracksVsDr_truth.at(i));
-    fillHisto(fracPt_vs_jetDR_truth,iDR, m_sumPtVsDr_truth.at(i) / jet.pt());
+    fillHisto(n_vs_jetDR_truth, iDR, m_tracksVsDr_truth.at(i));
+    fillHisto(fracPt_vs_jetDR_truth, iDR, m_sumPtVsDr_truth.at(i) / jet.pt());
     totalNTrk_truth += m_tracksVsDr_truth.at(i);
     totalSumPt_truth += m_sumPtVsDr_truth.at(i);
   }
 
-  fillHisto(n_vs_jetPt_reco,jet.pt() / 1e3, totalNTrk_reco);
-  fillHisto(sumPt_vs_jetPt_reco,jet.pt() / 1e3, totalSumPt_reco);
-  fillHisto(fracPt_vs_jetPt_reco,jet.pt() / 1e3, totalSumPt_reco / jet.pt());
+  fillHisto(n_vs_jetPt_reco, jet.pt() / 1e3, totalNTrk_reco);
+  fillHisto(sumPt_vs_jetPt_reco, jet.pt() / 1e3, totalSumPt_reco);
+  fillHisto(fracPt_vs_jetPt_reco, jet.pt() / 1e3, totalSumPt_reco / jet.pt());
 
-  fillHisto(n_vs_jetPt_truth,jet.pt() / 1e3, totalNTrk_truth);
-  fillHisto(sumPt_vs_jetPt_truth,jet.pt() / 1e3, totalSumPt_truth);
-  fillHisto(fracPt_vs_jetPt_truth,jet.pt() / 1e3, totalSumPt_truth / jet.pt());
+  fillHisto(n_vs_jetPt_truth, jet.pt() / 1e3, totalNTrk_truth);
+  fillHisto(sumPt_vs_jetPt_truth, jet.pt() / 1e3, totalSumPt_truth);
+  fillHisto(fracPt_vs_jetPt_truth, jet.pt() / 1e3, totalSumPt_truth / jet.pt());
 
   clearEffCounters();
 

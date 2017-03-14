@@ -25,16 +25,16 @@ class TEfficiency;
  */
 class InDetTestPlot: public InDetPlotBase {
 public:
-  InDetTestPlot(InDetPlotBase *pParent, const std::string &dirName);
-  void fill(const xAOD::TrackParticle &particle);
+  InDetTestPlot(InDetPlotBase* pParent, const std::string& dirName);
+  void fill(const xAOD::TrackParticle& particle);
 private:
-  TH1 *m_test;
-  TH1 *m_test1;
-  TH1 *m_test2;
-  TProfile *m_testProfile;
-  TH2 *m_test2D;
-  TEfficiency *m_testEff;
-  TH1 *m_nonsense;
+  TH1* m_test;
+  TH1* m_test1;
+  TH1* m_test2;
+  TProfile* m_testProfile;
+  TH2* m_test2D;
+  TEfficiency* m_testEff;
+  TH1* m_nonsense;
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
 };

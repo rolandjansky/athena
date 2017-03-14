@@ -20,12 +20,12 @@
 // class to decorate xAOD::TrackParticles with errors on the defining parameters
 class ParameterErrDecoratorTool: virtual public IInDetPhysValDecoratorTool, public AthAlgTool {
 public:
-  ParameterErrDecoratorTool(const std::string &type, const std::string &name, const IInterface *parent);
+  ParameterErrDecoratorTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual
   ~ParameterErrDecoratorTool();
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual bool decorateTrack(const xAOD::TrackParticle &particle, const std::string &prefix);
+  virtual bool decorateTrack(const xAOD::TrackParticle& particle, const std::string& prefix);
 private:
 };
 

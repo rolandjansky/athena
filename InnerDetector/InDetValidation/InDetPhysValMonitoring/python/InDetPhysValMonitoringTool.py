@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from ConfigUtils import injectNameArgument,checkKWArgs,_args,serviceFactory
+from ConfigUtils import injectNameArgument,checkKWArgs,_args,serviceFactory,toolFactory
 
 import InDetPhysValMonitoring.InDetPhysValMonitoringConf
 
@@ -57,14 +57,20 @@ class InDetPhysValMonitoringTool(object) :
           # at the moment there can only be one HistogramDefinitionSvc
           from InDetPhysValMonitoring.HistogramDefinitionSvc import HistogramDefinitionSvc
           #self.HistogramDefinitionSvc = 
-          serviceFactory(HistogramDefinitionSvc.HistogramDefinitionSvc)  
+          serviceFactory(HistogramDefinitionSvc.HistogramDefinitionSvc)
 
-          from InDetPhysValMonitoring.InDetPhysValJobProperties import isMC
+          from InDetPhysValMonitoring.InDetPhysValJobProperties import isMC,InDetPhysValFlags
           if isMC() :
               self.TruthParticleContainerName = "TruthParticles"
-              self.jetContainerName ='AntiKt4TruthJets'
-              from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
-              addTruthJetsIfNotExising(self.jetContainerName)
+              if InDetPhysValFlags.doValidateTracksInJets() :
+                 self.jetContainerName ='AntiKt4TruthJets'
+                 self.FillTrackInJetPlots = True
+                 from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
+                 addTruthJetsIfNotExising(self.jetContainerName)
+              else :
+                 self.jetContainerName =''
+                 self.FillTrackInJetPlots = False
+
 
           else :
               # disable truth monitoring for data
@@ -79,7 +85,26 @@ class InDetPhysValMonitoringTool(object) :
             from RecExConfig.RecFlags import rec
             rec.UserExecs += ['from InDetPhysValMonitoring.InDetPhysValMonitoringTool import removePhysValExample;removePhysValExample();']
 
+  class InDetPhysValMonitoringToolTightPrimary(InDetPhysValMonitoringTool) :
+      '''
+      InDetPhysValMonitoringTool for track particles which pass the tight primary selection
+      '''
+      #@injectNameArgument
+      #def __new__(cls, *args, **kwargs) :
+      #    return InDetPhysValMonitoringTool.InDetPhysValMonitoringTool.__new__(cls,*args,**kwargs)
 
+      @checkKWArgs
+      def __init__(self, **kwargs) :
+          super(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolTightPrimary,self)\
+                        .__init__(**_args( kwargs,
+                                           name = self.__class__.__name__))
+
+          # special parameters of the InDetPhysValMonitoringTool for monitoring tight primary tracks
+          self.SubFolder='TightPrimary/'
+          self.useTrackSelection = True
+
+          from InDetPhysValMonitoring.TrackSelectionTool import InDetTrackSelectionTool
+          self.TrackSelectionTool = toolFactory(InDetTrackSelectionTool.InDetTrackSelectionToolTightPrimary)
 
 
   class InDetPhysValMonitoringToolGSF(InDetPhysValMonitoringTool) :

@@ -1,20 +1,23 @@
 <!--  -->
-<!-- basic plots -->
-<h id="basicd0" type="TH1F" title="d_{0} of selected tracks (in mm)">
+<!-- same definition in test1 and test2 -->
+<h id="sameTest1Test2" type="TH1F" title="Same">
   <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
   <y title="Entries"/>
 </h>
-<!--
-long comment
--->
-<h id="basicz0" type="TH1F" title="z_{0} of selected tracks (in mm)">
+<!-- definition with range diff in test1 and test2 -->
+<h id="rangediffTest1Test2" type="TH1F" title="Range difference">
   <x title="z_{0}(mm)" n="1200" lo="-300" hi="300"/>
   <y title="Entries"/>
 </h>
-<!--
-long 2 comment
+<!-- definition with text diff in test1 and test2
+long comment
 -->
-<h id="basicz20" type="TH1F" title="z_{0} of selected tracks (in mm)">
-  <x title="z_{0}(mm)" n="2000" lo="-300" hi="300"/>
+<h id="textdiffTest1Test2" type="TH1F" title="Text difference">
+  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
+  <y title="ytit2"/>
+</h>
+<!-- definition only in test2 -->
+<h id="only2" type="TH1F" title="Only test2">
+  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
   <y title="Entries"/>
 </h>

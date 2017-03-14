@@ -43,10 +43,10 @@ using std::make_pair;
 
 namespace { // utility functions used here
   // get truth particle associated with a track particle
-  const xAOD::TruthParticle *
-  getTruthPtr(const xAOD::TrackParticle &trackParticle) {
+  const xAOD::TruthParticle*
+  getTruthPtr(const xAOD::TrackParticle& trackParticle) {
     typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
-    const xAOD::TruthParticle *result(nullptr);
+    const xAOD::TruthParticle* result(nullptr);
     // 0. is there any truth?
     if (trackParticle.isAvailable<ElementTruthLink_t>("truthParticleLink")) {
       // 1. ..then get link
@@ -60,7 +60,7 @@ namespace { // utility functions used here
 
   // get truth/track matching probability
   float
-  getMatchingProbability(const xAOD::TrackParticle &trackParticle) {
+  getMatchingProbability(const xAOD::TrackParticle& trackParticle) {
     float result(std::numeric_limits<float>::quiet_NaN());
 
     if (trackParticle.isAvailable<float>("truthMatchProbability")) {
@@ -85,8 +85,8 @@ namespace { // utility functions used here
 }// namespace
 
 ///Parametrized constructor
-InDetPhysValLargeD0Tool::InDetPhysValLargeD0Tool(const std::string &type, const std::string &name,
-                                                 const IInterface *parent) :
+InDetPhysValLargeD0Tool::InDetPhysValLargeD0Tool(const std::string& type, const std::string& name,
+                                                 const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent),
   m_useTrackSelection(true),
   m_onlyInsideOutTracks(false),
@@ -150,13 +150,13 @@ InDetPhysValLargeD0Tool::fillHistograms() {
   if (!ptracks) {
     return StatusCode::FAILURE;
   }
-  //Retrieve EventInfo container
+  // Retrieve EventInfo container
   auto eventinfo = getContainer<xAOD::EventInfo>(m_eventInfoContainerName);
-  //Retrieve vertex container
+  // Retrieve vertex container
   auto privert = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
 
   // Retrieve truthParticle container.
-  const xAOD::TruthParticleContainer *truthParticles =
+  const xAOD::TruthParticleContainer* truthParticles =
     (!m_truthParticleName.empty() ? getContainer<xAOD::TruthParticleContainer>(m_truthParticleName) : nullptr);
 
   // Counters etc.
@@ -181,7 +181,7 @@ InDetPhysValLargeD0Tool::fillHistograms() {
    * This is for filling Track-only, Track 'n' Truth with good matching probability (meas, res, & pull), and Fakes.
    */
 
-  for (const auto &thisTrack : *ptracks) {
+  for (const auto& thisTrack : *ptracks) {
     // apply minimum track selection to all tracks to match with Truth Selection cuts
     if (!MinTrackSelection(thisTrack)) {
       continue;
@@ -198,24 +198,29 @@ InDetPhysValLargeD0Tool::fillHistograms() {
     ++nSelectedTracks;
 
     // * Get associated truth particle and match probability.
-    const xAOD::TruthParticle *associatedTruth = getTruthPtr(*thisTrack);
+    const xAOD::TruthParticle* associatedTruth = getTruthPtr(*thisTrack);
     float prob = getMatchingProbability(*thisTrack);
 
     bool trtHit(false), trtOut(false);
     uint8_t iTrtHits(0), iTrtOutliers(0), iTrtTubeHits(0);
     int nTrtHits(0), nTrtTubeHits(0);
 
-    if (thisTrack->summaryValue(iTrtHits,xAOD::numberOfTRTHits)){
-      if(iTrtHits > 0) { 
-	trtHit = true; 
-	nTrtHits = (int)iTrtHits;
-      }      }
-    if (thisTrack->summaryValue(iTrtOutliers,xAOD::numberOfTRTOutliers)){
-      if(iTrtOutliers > 0) { trtOut = true; }      }
-    if (thisTrack->summaryValue(iTrtTubeHits,xAOD::numberOfTRTTubeHits)){
-      if(iTrtTubeHits > 0) { 
-	nTrtTubeHits = (int)iTrtTubeHits;
-      }      }
+    if (thisTrack->summaryValue(iTrtHits, xAOD::numberOfTRTHits)) {
+      if (iTrtHits > 0) {
+        trtHit = true;
+        nTrtHits = (int) iTrtHits;
+      }
+    }
+    if (thisTrack->summaryValue(iTrtOutliers, xAOD::numberOfTRTOutliers)) {
+      if (iTrtOutliers > 0) {
+        trtOut = true;
+      }
+    }
+    if (thisTrack->summaryValue(iTrtTubeHits, xAOD::numberOfTRTTubeHits)) {
+      if (iTrtTubeHits > 0) {
+        nTrtTubeHits = (int) iTrtTubeHits;
+      }
+    }
 
     // This is where the BMR, Fake, and Really Fake fillers need to go.
     float BMR_w(0), RF_w(0);
@@ -230,9 +235,9 @@ InDetPhysValLargeD0Tool::fillHistograms() {
 
     bool isFake = (prob < minProbEffLow);
     int barcode = (associatedTruth ? associatedTruth->barcode() : -1);
-    
+
     // * Fake rate plots, using 'fake' flag.
-    m_LargeD0Plots->fillFakeRate(*thisTrack, isFake, barcode,trtHit,trtOut, nTrtHits, nTrtTubeHits);
+    m_LargeD0Plots->fillFakeRate(*thisTrack, isFake, barcode, trtHit, trtOut, nTrtHits, nTrtTubeHits);
 
     if (isFake) {
       m_LargeD0Plots->fillFake(*thisTrack, barcode, *eventinfo, *privert);
@@ -250,10 +255,9 @@ InDetPhysValLargeD0Tool::fillHistograms() {
    * This is the beginning of the nested Loop, built mainly for the Efficiency Plots.
    */
   if (truthParticles) {
-
     // Outer loop: All truth particles.
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    for (const auto &thisTruth : *truthParticles) {
+    for (const auto& thisTruth : *truthParticles) {
       if (thisTruth->pt() < 0.001) {
         continue;
       }
@@ -262,19 +266,18 @@ InDetPhysValLargeD0Tool::fillHistograms() {
       }
 
       bool reconstructed(false), largeD0Track(false), trtHit(false), trtOut(false);
-      float bestMatch(0.0); 
-      float PF_w(1); // weight for the trackeff histos
+      float bestMatch(0.0);
+      bool addsToEfficiency(true); // weight for the trackeff histos
       uint8_t iTrtHits(0), iTrtOutliers(0), iTrtTubeHits(0);
       int nTrtHits(0), nTrtTubeHits(0);
 
       m_LargeD0Plots->fillTruth(*thisTruth);
 
       // * Vector of pairs: <truth_matching_probability, track> if prob > minProbEffLow (0.5).
-      std::vector <pair<float, const xAOD::TrackParticle *> > prospects;
+      std::vector <pair<float, const xAOD::TrackParticle*> > prospects;
 
       // Inner loop: All track particles.
-      for (const auto &thisTrack : *ptracks) {
-
+      for (const auto& thisTrack : *ptracks) {
         if (m_useTrackSelection) {
           // * 0 means z0, d0 cut is wrt. beam spot - put in a PV to change this.
           // if ( !(m_trackSelectionTool->accept(*thisTrack, 0)) ) { continue; }
@@ -286,23 +289,30 @@ InDetPhysValLargeD0Tool::fillHistograms() {
         // if (m_onlyInsideOutTracks and (not isInsideOut(*thisTrack))) { continue; }
 
         // * Get associated truth particle and probability.
-        const xAOD::TruthParticle *associatedTruth = getTruthPtr(*thisTrack);
+        const xAOD::TruthParticle* associatedTruth = getTruthPtr(*thisTrack);
         float prob = getMatchingProbability(*thisTrack);
 
         // * If the associated truth particle matches the current particle in the truth particle loop...
-        if (associatedTruth && associatedTruth == thisTruth) {	
-	  // * Determine TRT hits, outliers, and tube hits for truth associated tracks
-	  if (thisTrack->summaryValue(iTrtHits, xAOD::numberOfTRTHits)) {
-	    if (iTrtHits > 0) {
-	      trtHit = true;
-	      nTrtHits = (int)iTrtHits;
-	    }   }
-	  if (thisTrack->summaryValue(iTrtOutliers,xAOD::numberOfTRTOutliers)){
-	    if(iTrtOutliers > 0) { trtOut = true; } }
-	  if (thisTrack->summaryValue(iTrtTubeHits,xAOD::numberOfTRTTubeHits)){
-	    if(iTrtTubeHits > 0) { nTrtTubeHits = (int)iTrtTubeHits; } }	
-	  // * ... as a standard or largeD0 track.
-	  largeD0Track = isLargeD0Track(thisTrack);
+        if (associatedTruth && associatedTruth == thisTruth) {
+          // * Determine TRT hits, outliers, and tube hits for truth associated tracks
+          if (thisTrack->summaryValue(iTrtHits, xAOD::numberOfTRTHits)) {
+            if (iTrtHits > 0) {
+              trtHit = true;
+              nTrtHits = (int) iTrtHits;
+            }
+          }
+          if (thisTrack->summaryValue(iTrtOutliers, xAOD::numberOfTRTOutliers)) {
+            if (iTrtOutliers > 0) {
+              trtOut = true;
+            }
+          }
+          if (thisTrack->summaryValue(iTrtTubeHits, xAOD::numberOfTRTTubeHits)) {
+            if (iTrtTubeHits > 0) {
+              nTrtTubeHits = (int) iTrtTubeHits;
+            }
+          }
+          // * ... as a standard or largeD0 track.
+          largeD0Track = isLargeD0Track(thisTrack);
           bestMatch = std::max(prob, bestMatch);
           if (prob > minProbEffLow) {
             prospects.push_back(make_pair(prob, thisTrack));
@@ -316,24 +326,25 @@ InDetPhysValLargeD0Tool::fillHistograms() {
       // int deg_count = prospects.size();//unused
       if (bestMatch >= minProbEffHigh) {
         ++num_truthmatch_match;
-        const xAOD::TruthParticle *assoc_Truth = getTruthPtr(*prospects.at(0).second);
+        const xAOD::TruthParticle* assoc_Truth = getTruthPtr(*prospects.at(0).second);
         if (!assoc_Truth) {
           continue;
         }
         m_LargeD0Plots->fill(*assoc_Truth); // This is filling truth-only plots: m_TrackTruthInfoPlots
-      }else {
-        PF_w = 0;
+      } else {
+        addsToEfficiency = false;
       }
-      m_LargeD0Plots->pro_fill(*thisTruth, PF_w);
+      m_LargeD0Plots->fillEfficiency(*thisTruth, addsToEfficiency);
       // end of bestMatch >= minProbEffHigh
 
-      m_LargeD0Plots->fillEfficiency(*thisTruth, reconstructed, largeD0Track, trtHit,trtOut,nTrtHits,nTrtTubeHits, isSignal(thisTruth));
+      m_LargeD0Plots->fillEfficiency(*thisTruth, reconstructed, largeD0Track, trtHit, trtOut, nTrtHits, nTrtTubeHits, isSignal(
+                                       thisTruth));
     } // END: loop truthParticles
   } // END: if truthParticles
 
   if (num_truthmatch_match == 0) {
     ATH_MSG_DEBUG("NO TRACKS had associated truth.");
-  }else {
+  } else {
     ATH_MSG_DEBUG(num_truthmatch_match << " tracks out of " << nTracks << " had associated truth.");
   }
 
@@ -371,7 +382,7 @@ InDetPhysValLargeD0Tool::procHistograms() {
 // -------------------------------------------------------------------
 
 bool
-InDetPhysValLargeD0Tool::isLargeD0Track(const xAOD::TrackParticle *tp) {
+InDetPhysValLargeD0Tool::isLargeD0Track(const xAOD::TrackParticle* tp) {
   const std::bitset<xAOD::NumberOfTrackRecoInfo> patternReco = tp->patternRecoInfo();
 
   if (patternReco.test(49)) {
@@ -380,9 +391,8 @@ InDetPhysValLargeD0Tool::isLargeD0Track(const xAOD::TrackParticle *tp) {
   return false;
 }
 
-
 bool
-InDetPhysValLargeD0Tool::isSignal(const xAOD::TruthParticle *p) {
+InDetPhysValLargeD0Tool::isSignal(const xAOD::TruthParticle* p) {
   if (m_signalIds.empty()) {
     return false;
   }
@@ -390,9 +400,10 @@ InDetPhysValLargeD0Tool::isSignal(const xAOD::TruthParticle *p) {
       (p->status() == 1) &&  \
       (p->hasProdVtx()) &&   \
       (!p->hasDecayVtx()) && \
-      //     (p->nParents() > 0) &&		\ //taken out because not all signatures have tracks that stop decaying the way muons do
+      //     (p->nParents() > 0) &&		\ //taken out because not all signatures have tracks that stop decaying the way
+      // muons do
       (p->isCharged())) {
-    const xAOD::TruthParticle *parent = p->parent();
+    const xAOD::TruthParticle* parent = p->parent();
     if (parent == NULL) {
       return false;
     }
@@ -411,9 +422,11 @@ InDetPhysValLargeD0Tool::isSignal(const xAOD::TruthParticle *p) {
 }
 
 bool
-InDetPhysValLargeD0Tool::MinTrackSelection(const xAOD::TrackParticle *tp) {
+InDetPhysValLargeD0Tool::MinTrackSelection(const xAOD::TrackParticle* tp) {
   float maxEta = 2.5;
-  float minPt = /*1000.*/ 0; //Putting in this minPt cut actually increases the fake rate, so I am putting back to zero.
+  float minPt = /*1000.*/ 0; // Putting in this minPt cut actually increases the fake rate, so I am putting back to
+
+  // zero.
 
   if ((tp->pt() > 1e-7 ? (fabs(tp->eta()) < maxEta) : false) &&  \
       (tp->pt() > minPt)) {

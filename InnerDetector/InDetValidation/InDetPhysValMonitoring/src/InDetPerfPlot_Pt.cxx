@@ -11,7 +11,7 @@
 
 #include "InDetPerfPlot_Pt.h"
 
-InDetPerfPlot_Pt::InDetPerfPlot_Pt(InDetPlotBase *pParent, const std::string &sDir) : InDetPlotBase(pParent, sDir),
+InDetPerfPlot_Pt::InDetPerfPlot_Pt(InDetPlotBase* pParent, const std::string& sDir) : InDetPlotBase(pParent, sDir),
   m_recPt{},
   m_recPtLow{} {
   // nop
@@ -24,17 +24,17 @@ InDetPerfPlot_Pt::initializePlots() {
 }
 
 void
-InDetPerfPlot_Pt::fill(const xAOD::IParticle &particle) {
-  const float pt(particle.pt() / 1000.);
+InDetPerfPlot_Pt::fill(const xAOD::IParticle& particle) {
+  const float pt(particle.pt() * .001);
 
-  fillHisto(m_recPt,pt);
-  fillHisto(m_recPtLow,pt);
+  fillHisto(m_recPt, pt);
+  fillHisto(m_recPtLow, pt);
 }
 
 void
-InDetPerfPlot_Pt::fill(const xAOD::TruthParticle &particle) {
-  const float pt(particle.pt() / 1000.);
+InDetPerfPlot_Pt::fill(const xAOD::TruthParticle& particle) {
+  const float pt(particle.pt() * 0.001);
 
-  fillHisto(m_recPt,pt);
-  fillHisto(m_recPtLow,pt);
+  fillHisto(m_recPt, pt);
+  fillHisto(m_recPtLow, pt);
 }

@@ -5,27 +5,26 @@
 // InDetPhysValMonitoring includes
 #include "TrackTruthSelectionTool.h"
 #include "xAODTruth/TruthVertex.h"
-#include <cmath> //std::fabs
+#include <cmath> // std::fabs
 
 
-TrackTruthSelectionTool::TrackTruthSelectionTool(const std::string &name) :
+TrackTruthSelectionTool::TrackTruthSelectionTool(const std::string& name) :
   asg::AsgTool(name)
   , m_accept("TrackTruthSelection")
   , m_numTruthProcessed(0)
   , m_numTruthPassed(0) {
-
   declareInterface<IAsgSelectionTool>(this);
 
   // declareProperty( "Property", m_nProperty ); //example property declaration
   declareProperty("maxEta", m_maxEta = 2.5);
-  declareProperty("minPt", m_minPt = 400); 
+  declareProperty("minPt", m_minPt = 400);
   declareProperty("maxPt", m_maxPt = -1);
-  declareProperty("maxBarcode", m_maxBarcode = 200e3); 
-  declareProperty("requireCharged", m_requireCharged = true); 
-  declareProperty("requireStatus1", m_requireStatus1 = true); 
+  declareProperty("maxBarcode", m_maxBarcode = 200e3);
+  declareProperty("requireCharged", m_requireCharged = true);
+  declareProperty("requireStatus1", m_requireStatus1 = true);
   declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.);
   declareProperty("pdgId", m_pdgId = -1);
-} 
+}
 
 TrackTruthSelectionTool::~TrackTruthSelectionTool() {
 }
@@ -60,7 +59,7 @@ TrackTruthSelectionTool::initialize() {
     m_cuts.push_back(std::make_pair("status_1", "Particle status=1"));
   }
 
-  if (m_maxProdVertRadius>0.) {
+  if (m_maxProdVertRadius > 0.) {
     m_cuts.push_back(std::make_pair("decay_before_pixel", "Decays before first pixel layer"));
   }
 
@@ -68,7 +67,7 @@ TrackTruthSelectionTool::initialize() {
     m_cuts.push_back(std::make_pair("pdgId", "Pdg Id cut")); // 3-18-16 normally enabled, disabled for testing
   }
   // Add cuts to the TAccept
-  for (const auto &cut : m_cuts) {
+  for (const auto& cut : m_cuts) {
     if (m_accept.addCut(cut.first, cut.second) < 0) {
       ATH_MSG_ERROR("Failed to add cut " << cut.first << " because the TAccept object is full.");
       return StatusCode::FAILURE;
@@ -81,13 +80,13 @@ TrackTruthSelectionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-const Root::TAccept &
+const Root::TAccept&
 TrackTruthSelectionTool::getTAccept( ) const {
   return m_accept;
 }
 
-const Root::TAccept &
-TrackTruthSelectionTool::accept(const xAOD::IParticle *p) const// Is this perhaps supposed to be xAOD::TruthParticle?
+const Root::TAccept&
+TrackTruthSelectionTool::accept(const xAOD::IParticle* p) const// Is this perhaps supposed to be xAOD::TruthParticle?
 {
   // Reset the result:
   m_accept.clear();
@@ -103,14 +102,14 @@ TrackTruthSelectionTool::accept(const xAOD::IParticle *p) const// Is this perhap
   }
 
   // Cast it to a track (we have already checked its type so we do not have to dynamic_cast):
-  const xAOD::TruthParticle *truth = static_cast< const xAOD::TruthParticle * >(p);
+  const xAOD::TruthParticle* truth = static_cast< const xAOD::TruthParticle* >(p);
 
   // Let the specific function do the work:
   return accept(truth);
 }
 
-const Root::TAccept &
-TrackTruthSelectionTool::accept(const xAOD::TruthParticle *p) const {
+const Root::TAccept&
+TrackTruthSelectionTool::accept(const xAOD::TruthParticle* p) const {
   // Reset the TAccept
   m_accept.clear();
 
@@ -134,14 +133,14 @@ TrackTruthSelectionTool::accept(const xAOD::TruthParticle *p) const {
   if (m_requireStatus1) {
     m_accept.setCutResult("status_1", (p->status() == 1));
   }
-  if (m_maxProdVertRadius>0.) {
+  if (m_maxProdVertRadius > 0.) {
     m_accept.setCutResult("decay_before_pixel", (!p->hasProdVtx() || p->prodVtx()->perp() < m_maxProdVertRadius));
   }
   if (m_pdgId > -1) {
     m_accept.setCutResult("pdgId", (std::fabs(p->pdgId()) == m_pdgId));// 3-18-16 normally on, disabled for testing
   }
   // Book keep cuts
-  for (const auto &cut : m_cuts) {
+  for (const auto& cut : m_cuts) {
     unsigned int pos = m_accept.getCutPosition(cut.first);
     if (m_accept.getCutResult(pos)) {
       m_numTruthPassedCuts[pos]++;
@@ -165,7 +164,7 @@ TrackTruthSelectionTool::finalize() {
   }
   ATH_MSG_INFO(m_numTruthPassed << " / " << m_numTruthProcessed << " = "
                                 << m_numTruthPassed * 100. / m_numTruthProcessed << "% passed all cuts.");
-  for (const auto &cut : m_cuts) {
+  for (const auto& cut : m_cuts) {
     ULong64_t numPassed = m_numTruthPassedCuts.at(m_accept.getCutPosition(cut.first));
     ATH_MSG_INFO(numPassed << " = " << numPassed * 100. / m_numTruthProcessed << "% passed "
                            << cut.first << " cut.");

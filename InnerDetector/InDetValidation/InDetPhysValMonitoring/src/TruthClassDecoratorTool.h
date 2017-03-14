@@ -21,12 +21,12 @@
 // class to decorate xAOD::TruthParticles with type and origin, required by validation
 class TruthClassDecoratorTool: virtual public IInDetPhysValDecoratorTool, public AthAlgTool {
 public:
-  TruthClassDecoratorTool(const std::string &type, const std::string &name, const IInterface *parent);
+  TruthClassDecoratorTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~TruthClassDecoratorTool () {/*nop*/
   };
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual bool decorateTruth(const xAOD::TruthParticle &particle, const std::string &prefix = "");
+  virtual bool decorateTruth(const xAOD::TruthParticle& particle, const std::string& prefix = "");
 private:
   ToolHandle<IMCTruthClassifier>        m_truthClassifier;
 };

@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-'''
-take two files and find overlapping histogram definitions.
-... write out overlapping, different (in 1st file and 2nd file), 
-... and exclusive (only 1st file, only 2nd file)
-'''
 
 import sys
 import string
@@ -15,7 +10,11 @@ import argparse
 from hist_bookkeep_utils import *
 
 parser = argparse.ArgumentParser(
-    description='Get histogram xml blocks for list of id-s')
+    description='''
+    take two files and find overlapping histogram definitions.
+    Write out overlapping, different (in 1st file and 2nd file),
+    and exclusive (only 1st file, only 2nd file'''
+)
 
 parser.add_argument('--xml1',
                     dest='in_xml1',
@@ -64,7 +63,7 @@ def compare_xyline(_l1,_l2):
 
 ## --------------------------------------------------------
 def compare_hbuffs(blist):
-    # strip definitions 
+    # strip definitions of comments
     _buff1=(get_comm_def(blist[0])[1])
     _buff2=(get_comm_def(blist[1])[1])
 
@@ -145,10 +144,9 @@ buff1=[]
 buff2=[]
 ## handle all definitions in 1st file:
 for line in args.in_xml1:
-    if line.startswith("<h"):
+    if line.strip().startswith("<h"):
         line=weed(line)
         id=get_val("id",line)
-        #print id
         buff1=get_hbuff(id,infname1,True)
         buff2=get_hbuff(id,infname2,True)
         # compare buffers
@@ -171,10 +169,10 @@ buff1=[]
 buff2=[]
 for line in args.in_xml2:
     line=weed(line)
-    if line.startswith("<h"):
+    if line.strip().startswith("<h"):
         id=get_val("id",line)
         buff1=get_hbuff(id,infname1,True)
-        buff2=get_hbuff(id,infname2,True)   
+        buff2=get_hbuff(id,infname2,True) 
         if not buff1:
             for _bitem in buff2:
                 buff_comp_dict[2].write(_bitem)

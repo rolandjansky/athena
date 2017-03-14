@@ -23,20 +23,22 @@
 class InDetBasicPlot: public InDetPlotBase {
 public:
   enum BasicParam {
-    D0, Z0, PHI, THETA, ETA, QOVERP, NPARAMS
+    D0, Z0, PHI, THETA, ETA, QOVERP, PT, NPARAMS
   };
   enum AdditionalTruthParameters {
     Z0ST, PRODR, PRODZ, NTRUTHPARAMS
   };
-  InDetBasicPlot(InDetPlotBase *pParent, const std::string &dirName);
-  void fill(const xAOD::TrackParticle &particle);
-  void fill(const xAOD::TruthParticle &particle);
+  InDetBasicPlot(InDetPlotBase* pParent, const std::string& dirName);
+  void fill(const xAOD::TrackParticle& particle);
+  void fill(const xAOD::TruthParticle& particle);
 private:
   std::array<std::string, NPARAMS> m_paramNames;
   std::array<std::string, NTRUTHPARAMS> m_truthParamNames;
-  std::array<TH1 *, NPARAMS> m_basicTruthPlots;
-  std::array<TH1 *, NTRUTHPARAMS> m_extraTruthPlots;
-  std::array<TH1 *, NPARAMS> m_basicTrackPlots;
+  std::array<TH1*, NPARAMS> m_basicTruthPlots;
+  std::array<TH1*, NTRUTHPARAMS> m_extraTruthPlots;
+  std::array<TH1*, NPARAMS> m_basicTrackPlots;
+  TH2* m_basic_pt_vs_eta, * m_basic_phi_vs_eta;
+  TH2* m_truth_pt_vs_eta, * m_truth_phi_vs_eta;
   unsigned int m_d0IsExactlyZeroInTrackCounter;
   unsigned int m_d0IsExactlyZeroInTruthCounter;
   unsigned int m_numCallsToFillTruth;

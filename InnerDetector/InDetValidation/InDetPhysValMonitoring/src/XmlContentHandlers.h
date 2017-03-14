@@ -21,18 +21,18 @@
 
 
 unsigned int
-partialHdefFromAttributes(SingleHistogramDefinition &s, const xercesc::Attributes &attrs) {
+partialHdefFromAttributes(SingleHistogramDefinition& s, const xercesc::Attributes& attrs) {
   unsigned int nFilled(0);
   // id, type and title are *possible* attributes
   XercesString histoStrings[] = {
     fromNative("id"), fromNative("type"), fromNative("title")
   };
-  const XMLCh *val(nullptr);
+  const XMLCh* val(nullptr);
   unsigned int idx {
     0
   };
 
-  for (auto &h:histoStrings) {
+  for (auto& h:histoStrings) {
     if ((val = attrs.getValue(h.c_str())) != 0) {
       switch (idx) {
       case 0:
@@ -55,19 +55,20 @@ partialHdefFromAttributes(SingleHistogramDefinition &s, const xercesc::Attribute
 }
 
 unsigned int
-xAxisFromAttributes(SingleHistogramDefinition &s, const xercesc::Attributes &attrs) {
+xAxisFromAttributes(SingleHistogramDefinition& s, const xercesc::Attributes& attrs) {
   unsigned int nFilled(0);
   // title, n, lo and hi are currently *necessary* attributes
   XercesString histoStrings[] = {
     fromNative("title"), fromNative("n"), fromNative("lo"), fromNative("hi")
   };
-  const XMLCh *val(nullptr);
+  const XMLCh* val(nullptr);
   unsigned int idx {
     0
   };
+
   IHistogramDefinitionSvc::axesLimits_t xaxis(std::nanf(""), std::nanf(""));
 
-  for (auto &h:histoStrings) {
+  for (auto& h:histoStrings) {
     if ((val = attrs.getValue(h.c_str())) != 0) {
       switch (idx) {
       case 0:
@@ -95,19 +96,20 @@ xAxisFromAttributes(SingleHistogramDefinition &s, const xercesc::Attributes &att
 }
 
 unsigned int
-yAxisFromAttributes(SingleHistogramDefinition &s, const xercesc::Attributes &attrs) {
+yAxisFromAttributes(SingleHistogramDefinition& s, const xercesc::Attributes& attrs) {
   unsigned int nFilled(0);
   // title, n, lo and hi are currently *necessary* attributes
   XercesString histoStrings[] = {
     fromNative("title"), fromNative("n"), fromNative("lo"), fromNative("hi")
   };
-  const XMLCh *val(nullptr);
+  const XMLCh* val(nullptr);
   unsigned int idx {
     0
   };
+
   IHistogramDefinitionSvc::axesLimits_t yaxis(std::nanf(""), std::nanf(""));
 
-  for (auto &h:histoStrings) {
+  for (auto& h:histoStrings) {
     if ((val = attrs.getValue(h.c_str())) != 0) {
       switch (idx) {
       case 0:
@@ -135,11 +137,12 @@ yAxisFromAttributes(SingleHistogramDefinition &s, const xercesc::Attributes &att
 }
 
 unsigned int
-partialHdefFromText(SingleHistogramDefinition &s, const std::string &line) {
+partialHdefFromText(SingleHistogramDefinition& s, const std::string& line) {
   unsigned int nFilled(0);
   enum RegXHistoGroups {
     TOTAL, TITLE, NBINS, XLO, XHI, XAXIS, YAXIS, DUMMY, FOLDER, NGROUPS
   };
+
   std::string rex =
     R"delim(^\s+"([^"]+)"\s+(\d+)\s+([-+.0-9eE]+)\s+([-+.0-9eE]+)\s+"([^"]+)"\s+"([^"]+)"\s*(.*)\s*$)delim";
   std::regex reg(rex);
@@ -161,11 +164,12 @@ partialHdefFromText(SingleHistogramDefinition &s, const std::string &line) {
 }
 
 unsigned int
-partialHdefFromTProfText(SingleHistogramDefinition &s, const std::string &line) {
+partialHdefFromTProfText(SingleHistogramDefinition& s, const std::string& line) {
   unsigned int nFilled(0);
   enum RegXHistoGroups {
     TOTAL, TITLE, NBINS, XLO, XHI, YLO, YHI, XAXIS, YAXIS, DUMMY, FOLDER, NGROUPS
   };
+
   // text like: &quot;Test of TProfile&quot; 20 -50 50 0 200 &quot;#eta&quot;  &quot;testEntries&quot;
   std::string rex =
     R"delim(^\s+"([^"]+)"\s+(\d+)\s+([-+.0-9eE]+)\s+([-+.0-9eE]+)\s+([-+.0-9eE]+)\s+([-+.0-9eE]+)\s+"([^"]+)"\s+"([^"]+)"\s*(.*)\s*$)delim";
@@ -193,14 +197,14 @@ public:
   enum HistoTypes {
     UNKNOWN, TH1, TPROFILE, TH2, TEFFICIENCY, NTYPES
   };
-  HDefContentHandler(std::vector<SingleHistogramDefinition> &defs) : m_histoType(UNKNOWN), m_numberFilled(0),
+  HDefContentHandler(std::vector<SingleHistogramDefinition>& defs) : m_histoType(UNKNOWN), m_numberFilled(0),
     m_currentDefinition{}, m_definitions(defs), m_currentText() {
     // nop
   }
 
   void
-  startElement(const XMLCh *const /*uri*/, const XMLCh *const localName, const XMLCh *const /*qName*/,
-               const xercesc::Attributes &attrs) {
+  startElement(const XMLCh* const /*uri*/, const XMLCh* const localName, const XMLCh* const /*qName*/,
+               const xercesc::Attributes& attrs) {
     const static XercesString hdefStr = fromNative("hdef");
     const static XercesString hStr = fromNative("h");
     const static XercesString xStr = fromNative("x");
@@ -223,7 +227,7 @@ public:
   }
 
   void
-  endElement(const XMLCh *const /*uri*/, const XMLCh *const localName, const XMLCh *const /*qName*/) {
+  endElement(const XMLCh* const /*uri*/, const XMLCh* const localName, const XMLCh* const /*qName*/) {
     const static XercesString hdefStr = fromNative("hdef");
     const static XercesString hStr = fromNative("h");
     const static XercesString xStr = fromNative("x");
@@ -247,7 +251,7 @@ public:
   }
 
   void
-  characters(const XMLCh *const chars, const XMLSize_t length) {
+  characters(const XMLCh* const chars, const XMLSize_t length) {
     m_currentText.append(chars, length);
   }
 
@@ -255,12 +259,12 @@ private:
   HistoTypes m_histoType;
   unsigned int m_numberFilled;
   SingleHistogramDefinition m_currentDefinition;
-  std::vector<SingleHistogramDefinition> &m_definitions;
+  std::vector<SingleHistogramDefinition>& m_definitions;
   XercesString m_currentText;
   void
-  setHistoType(const xercesc::Attributes &attrs) {
+  setHistoType(const xercesc::Attributes& attrs) {
     m_histoType = UNKNOWN;
-    const XMLCh *val(nullptr);
+    const XMLCh* val(nullptr);
     const static XercesString TH1Str = fromNative("TH1F");
     const static XercesString TProfileStr = fromNative("TProfile");
     const static XercesString TH2Str = fromNative("TH2F");

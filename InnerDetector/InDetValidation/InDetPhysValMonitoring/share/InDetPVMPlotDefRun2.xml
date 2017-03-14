@@ -136,5 +136,53 @@
      end of hit efficiency plots
      ======================================================
     -->
+<!--
+   =======================================================
+   hit content plots:
+   =======================================================
+  -->
+<!-- general interest plots -->
+<!-- 1D plots -->
+<h id="HitContent_NTRTHits" type="TH1F" title="Number of TRT Clusters">
+  <x title="Number of Hits" n="51" lo="-0.5" hi="50.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NTRTHighThresholdHits" type="TH1F" title="Number of TRT high threshold Hits">
+  <x title="Number of Hits" n="51" lo="-0.5" hi="50.5"/>
+  <y title="Entries"/>
+</h>
+<!-- eta profiles -->
+<h id="HitContent_vs_eta_NTRTHits" type="TProfile" title="Number of TRT Clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of TRT Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NTRTHighThresholdHits" type="TProfile" title="Number of TRT high threshold clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of High Thresh TRT Hits&gt;" lo="0" hi="100"/>
+</h>
+<!-- detailed expert plots  -->
+<!-- 1D plots -->
+<h id="HitContent_NTRTOutliers" type="TH1F" title="Number of TRT Outliers">
+  <x title="Number of Outliers" n="51" lo="-0.5" hi="49.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NTRTHighThresholdOutliers" type="TH1F" title="Number of TRT High Threshold outliers">
+  <x title="Number of Outliers" n="51" lo="-0.5" hi="49.5"/>
+  <y title="Entries"/>
+</h>
+<!-- eta profiles -->
+<h id="HitContent_vs_eta_NTRTOutliers" type="TProfile" title="Number of TRT outliers">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of TRT Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NTRTHighThresholdOutliers" type="TProfile" title="Number of TRT High Threshold outliers">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of TRT High Thresh Outliers&gt;" lo="0" hi="100"/>
+</h>
+<!--
+   =======================================================
+   end of hit content plots
+   ========================================================
+  -->
 </hdef>
 

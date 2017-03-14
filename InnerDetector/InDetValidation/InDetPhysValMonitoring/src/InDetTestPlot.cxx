@@ -11,8 +11,9 @@
 #include <random>
 #include "TEfficiency.h"
 
-InDetTestPlot::InDetTestPlot(InDetPlotBase *pParent, const std::string &sDir) : InDetPlotBase(pParent, sDir),
-  m_test(nullptr), m_test1(nullptr), m_test2(nullptr), m_testProfile(nullptr), m_test2D(nullptr), m_testEff(nullptr),m_nonsense(nullptr) {
+InDetTestPlot::InDetTestPlot(InDetPlotBase* pParent, const std::string& sDir) : InDetPlotBase(pParent, sDir),
+  m_test(nullptr), m_test1(nullptr), m_test2(nullptr), m_testProfile(nullptr), m_test2D(nullptr), m_testEff(nullptr),
+  m_nonsense(nullptr) {
 }
 
 void
@@ -53,26 +54,26 @@ InDetTestPlot::initializePlots() {
   ATH_MSG_INFO(hdEff.str()); // print out the definition, formatted as a string
   book(m_testEff, "testEfficiency");
   ATH_MSG_INFO("Try to book nonsense");
-  book(m_nonsense,"rubbish");
+  book(m_nonsense, "rubbish");
 }
 
 void
-InDetTestPlot::fill(const xAOD::TrackParticle & /*particle*/) {
+InDetTestPlot::fill(const xAOD::TrackParticle& /*particle*/) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::normal_distribution<float> d(50, 4);
   const float pt(d(gen));
 
-  fillHisto(m_test,pt);
+  fillHisto(m_test, pt);
   std::normal_distribution<float> d1(70, 4);
-  fillHisto(m_test1,d1(gen));
+  fillHisto(m_test1, d1(gen));
   const float p(rand() % 50);
-  fillHisto(m_testProfile,p, 1);
+  fillHisto(m_testProfile, p, 1);
   const float eta = (rand() % 6) - 3;
   const float ybin = (rand() % 20);
-  fillHisto(m_test2D,eta, ybin);
+  fillHisto(m_test2D, eta, ybin);
   const bool passed(p > 25);
-  fillHisto(m_testEff,passed, p);
-  
-  fillHisto(m_nonsense,pt);
+  fillHisto(m_testEff, passed, p);
+
+  fillHisto(m_nonsense, pt);
 }

@@ -8,10 +8,10 @@ import re
 
 ## --------------------------------------------------------
 def weed(line):
+    line=line.strip()
     line=re.sub(' +',' ',line)
     line=re.sub(' =','=',line)
     line=re.sub('= ','=',line)
- #   line=re.sub('>\n','>',line)
     return line
 ## --------------------------------------------------------
 
@@ -38,21 +38,21 @@ def get_hbuff(_id,_infname,_withcomment=True):
     # loop over file to find histo-s with id xml and comment:
     with open(_infname, 'r') as _f:
         for _line in _f:
-            _line=weed(_line)
-            if _line.startswith("<h id=\""+_id+"\""):
+            _wline=weed(_line)
+            if _wline.startswith("<h id=\""+_id+"\""):
                 _dobuff=True
                 _buff=_commbuff
-            elif _line.startswith("</h>"):
+            elif _wline.startswith("</h>"):
                 if (_dobuff):
                     _buff.append(_line)
                     # prepend comment
                 _dobuff=False
                 _commbuff=[]
                 _docommbuff=False
-            elif _withcomment and _line.startswith("<!--"):
+            elif _withcomment and _wline.startswith("<!--"):
                 if not _dobuff:
                     _commbuff.append(_line)
-                    if ( not re.search("-->",_line) ):
+                    if ( not re.search("-->",_wline) ):
                         # multi-line comment
                         _docommbuff=True
                     else:
@@ -60,9 +60,9 @@ def get_hbuff(_id,_infname,_withcomment=True):
             else:
                 if (_docommbuff):
                     _commbuff.append(_line)
-                    if ( re.search("-->\s*",_line) ):
+                    if ( re.search("-->",_wline) ):
                         _docommbuff=False
-                elif ( not re.search('\s*<',_line) and not _line in ['\n', '\r\n']):
+                elif not is_xml_form(_wline): 
                     print 'Warning', _infname, 'non-xml formatted line :', _line
                     
             # buffer histo lines here:
@@ -78,7 +78,7 @@ def get_comm_def(_buff):
     _comm_def=[[],[]]
     _iscomm=False
     for _bitem in _buff:
-        if _bitem.startswith("<!--"):
+        if _bitem.strip().startswith("<!--"):
             _iscomm=True
             _comm_def[0].append(_bitem)
             if ( re.search("-->",_bitem) ):
@@ -92,3 +92,19 @@ def get_comm_def(_buff):
 
     return _comm_def
     
+## --------------------------------------------------------
+## check for non-xml formated lines:
+def is_xml_form(_line):
+    _line=_line.strip()
+    if _line.startswith("<") or _line.endswith(">"):
+        # assume these are .xml-s
+        return True
+    if not _line:
+        # empty line, that is '' after strip 
+        return True
+    # any other exceptions?
+    if _line.startswith("&"):
+        # including daughters
+        return True
+    else:
+        return False

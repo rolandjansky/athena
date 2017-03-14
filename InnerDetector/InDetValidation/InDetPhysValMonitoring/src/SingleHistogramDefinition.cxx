@@ -102,7 +102,7 @@ SingleHistogramDefinition::titleDigest() const {
 }
 
 std::string
-SingleHistogramDefinition::stringIndex(const std::string &thisname, const std::string &thisfolder) {
+SingleHistogramDefinition::stringIndex(const std::string& thisname, const std::string& thisfolder) {
   if (thisfolder.empty()) {
     return thisname;
   }

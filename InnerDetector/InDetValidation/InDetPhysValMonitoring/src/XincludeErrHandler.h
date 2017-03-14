@@ -12,15 +12,15 @@ public:
   XIncludeErrHandler();
   ~XIncludeErrHandler();
   // no copy
-  XIncludeErrHandler(const XIncludeErrHandler &) = delete;
+  XIncludeErrHandler(const XIncludeErrHandler&) = delete;
   // no assignment
-  void operator = (const XIncludeErrHandler &) = delete;
+  void operator = (const XIncludeErrHandler&) = delete;
   bool
   getSawErrors() const {
     return m_errors;
   }
 
-  bool handleError(const xercesc::DOMError &domError);
+  bool handleError(const xercesc::DOMError& domError);
   void resetErrors();
 private:
   bool m_errors;

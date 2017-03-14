@@ -1,5 +1,20 @@
 <!--
    =======================================================
+   test plots:
+   * advertising new features
+   ========================================================
+  -->
+<h id="testEfficiency" type="TEfficiency" title="Eff. Test Case: Visible E_{T} (GeV)">
+    <x title="x variable" n="75" lo="0" hi="75"/>
+    <y title="Efficiency"/>
+</h>
+<!--
+   =======================================================
+   end of test plots
+   =======================================================
+-->
+<!--
+   =======================================================
    spectrum plots:
    * filled by InDetPerfPlot_spectrum class
    ========================================================
@@ -549,24 +564,24 @@
    ========================================================
   -->
 <!-- Pixel innermost barrel -->
-<h id="eff_hit_vs_eta_l0pix_barrel" type="TProfile" title="Cluster Efficiency: Pix Barrel Innermost">
+<h id="eff_hit_vs_eta_l0pix_barrel" type="TEfficiency" title="Cluster Efficiency: Pix Barrel Innermost">
   <x title="#eta" n="10" lo="0" hi="&ETA;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
 <!-- Pixel barrel: all appart from inner-most barrel region -->
-<h id="eff_hit_vs_eta_pix_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel">
+<h id="eff_hit_vs_eta_pix_barrel" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel">
   <x title="#eta" n="20" lo="0" hi="&ETA;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
-<h id="eff_hit_vs_eta_pix_endcap" type="TProfile" title="Cluster Efficiency: Pixel Endcaps">
+<h id="eff_hit_vs_eta_pix_endcap" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps">
   <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
-<h id="eff_hit_vs_eta_sct_barrel" type="TProfile" title="Cluster Efficiency: SCT Barrel">
+<h id="eff_hit_vs_eta_sct_barrel" type="TEfficiency" title="Cluster Efficiency: SCT Barrel">
   <x title="#eta" n="20" lo="0" hi="&ETASct;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
-<h id="eff_hit_vs_eta_sct_endcap" type="TProfile" title="Cluster Efficiency: SCT Endcaps">
+<h id="eff_hit_vs_eta_sct_endcap" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps">
   <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETASct;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
@@ -574,8 +589,288 @@
    =======================================================
    end of hit efficiency plots
    ======================================================
+-->
+<!--
+   =======================================================
+   pt plots
+   * filled by InDetPerfPlot_Pt class
+   * overlap with InDetBasicPlot, but kept in order
+     to maintain correspondence with old InDetPerformanceRTT
+   ======================================================
+-->
+<h id="recpT" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="recPtLow" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
+<!--
+   =======================================================
+   end of pt plots
+   ======================================================
+-->
+<!-- pt-plot for back-tracking --> 
+<h id="low_Pt_lepton_frac" type="TProfile" title="Fraction of Primary Leptons with Pt below 3 GeV">
+  <x title="prod_R" n="100" lo="0" hi="1500"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<!--
+   =======================================================
+   plots of basic IP & kinematics:
+   * filled by InDetBasicPlot
+   * reco- and truth- tracks after object selection
+   ========================================================
   -->
-
+<!-- selected  reco-level tracks -->
+<h id="basicd0" type="TH1F" title="d_{0} of selected reco tracks">
+  <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
+  <y title="Entries"/>
+</h>
+<h id="basicz0" type="TH1F" title="z_{0} of selected reco tracks">
+  <x title="z_{0}[mm]" n="120" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="basicphi" type="TH1F" title="#phi of selected reco tracks">
+  <x title="#phi" n="100" lo="-&PI;" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="basiceta" type="TH1F" title="#eta of selected reco tracks">
+  <x title="#eta" n="100" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
+</h>
+<h id="basicpt" type="TH1F" title="pt of selected reco tracks">
+  <x title="pt[GeV]" n="200" lo="0" hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="basictheta" type="TH1F" title="#theta of selected reco tracks">
+  <x title="#theta" n="100" lo="0" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="basicqOverP" type="TH1F" title="q/p of selected reco tracks (in GeV)">
+  <x title="p_{T}(GeV/c)" n="200" lo="-0.01" hi="0.01"/>
+  <y title="Entries"/>
+</h>
+<h id="basic_pt_vs_eta" type="TH2F" title="pt vs #eta of selected reco tracks">
+  <x title="pt[GeV]" n="2000" lo="0" hi="200"/>
+  <y title="#eta" n="100" lo="-&ETA;" hi="&ETA;"/>
+</h>
+<h id="basic_phi_vs_eta" type="TH2F" title="#phi vs #eta of selected reco tracks">
+  <x title="#phi" n="100" lo="-&PI;" hi="&PI;"/>
+  <y title="#eta" n="100" lo="-&ETA;" hi="&ETA;"/>
+</h>
+<!-- selected truth tracks -->
+<h id="truthd0" type="TH1F" title="d_{0} of selected truth (in mm)">
+  <x title="d_{0}[mm]" n="2000" lo="-2" hi="2"/>
+  <y title="Entries"/>
+</h>
+<h id="truthz0" type="TH1F" title="z_{0} of selected truth (in mm)">
+  <x title="z_{0}[mm]" n="120" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="truthphi" type="TH1F" title="#phi of selected truth">
+  <x title="#phi" n="100" lo="-&PI;" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="trutheta" type="TH1F" title="#eta of selected truth">
+  <x title="#theta" n="100" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="truthpt" type="TH1F" title="pt of selected truth">
+  <x title="pt[GeV]" n="2000" lo="0" hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="truththeta" type="TH1F" title="#theta of selected truth">
+  <x title="#theta" n="100" lo="0" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="truthqOverP" type="TH1F" title="q/p of selected truth">
+  <x title="qOverP" n="200" lo="-0.005" hi="0.005"/>
+  <y title="Entries"/>
+</h>
+<h id="truthz0st" type="TH1F" title="z_{0} sin(#theta) of selected truth ">
+  <x title="p_{T}(GeV/c)" n="200" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="truthprodR" type="TH1F" title="Radial distance (r) of truth vtx parameter from origin">
+  <x title="[mm]" n="100" lo="0.0" hi="2.0"/>
+  <y title="Entries"/>x
+</h>
+<h id="truthprodZ" type="TH1F" title="Longitudinal (z) distance of truth vtx parameter from origin">
+  <x title="[mm]" n="100" lo="0" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="truth_pt_vs_eta" type="TH2F" title="pt vs #eta of selected truth">
+  <x title="pt[GeV]" n="2000" lo="0" hi="200"/>
+  <y title="#eta" n="100" lo="-5" hi="5"/>
+</h>
+<h id="truth_phi_vs_eta" type="TH2F" title="#phi vs #eta of selected truth">
+  <x title="#phi" n="100" lo="-&PI;" hi="&PI;"/>
+  <y title="#eta" n="100" lo="-5" hi="5"/>
+</h>
+<!--
+   =======================================================
+   end of plots of basic IP & kinematics
+   =======================================================
+   -->
+<!--
+   =======================================================
+   hit content plots:
+   * filled by InDetPerfPlot_HitDetailed 
+   * 1D histogram hit content of variouos parts of the ID
+     + their eta dependence profiles 
+   * split into "general-interest" plots and "detailed" plots
+     the detailed plots can be swithced off in InDetPerfPlot_HitDetailed
+   ========================================================
+  -->
+<!-- general-interest plots : -->
+<!-- 1D histograms -->
+<h id="HitContent_NBlayerHits" type="TH1F" title="Number of B-Layer clusters">
+  <x title="Number of Clusters" n="10" lo="-0.5" hi="9.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NPixelHits" type="TH1F" title="Number of Pixel clusters">
+  <x title="Number of Clusters" n="50" lo="-0.5" hi="49.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NPixelHoles" type="TH1F" title="Number of Pixel Holes">
+  <x title="Number of Holes" n="10" lo="-0.5" hi="9.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NSCTHits" type="TH1F" title="Number of SCT Clusters">
+  <x title="Number of Clusters" n="41" lo="-0.5" hi="40.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NSCTHoles" type="TH1F" title="Number of SCT Holes">
+  <x title="Number of Holes" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<!-- eta profiles -->
+<h id="HitContent_vs_eta_NBlayerHits" type="TProfile" title="Number of B-Layer clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of B-layer clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelHits" type="TProfile" title="Number of Pixel clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Pixel clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelHoles" type="TProfile" title="Number of Pixel Holes">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Pixel Holes&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTHits" type="TProfile" title="Number of SCT Clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of SCT Clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTHoles" type="TProfile" title="Number of SCT Holes">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of SCT Holes&gt;" lo="0" hi="100"/>
+</h>
+<!-- detailed expert plots -->
+<!-- 1D histograms -->
+<h id="HitContent_NBlayerOutliers" type="TH1F" title="Number of B-layer outliers">
+  <x title="Number of Outliers" n="5" lo="-0.5" hi="4.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NBlayerSharedHits" type="TH1F" title="Number of shared B-layer clusters">
+  <x title="Number of Shared Clusters" n="5" lo="-0.5" hi="4.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NBLayerSplitHits" type="TH1F" title="Number of split B-layer clusters">
+  <x title="Number of Split Clusters" n="5" lo="-0.5" hi="4.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NPixelOutliers" type="TH1F" title="Number of Pixel outliers">
+  <x title="Number of Outliers" n="10" lo="-0.5" hi="9.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NPixelContribLayers" type="TH1F" title="Number of contributed Pixel layers">
+  <x title="Number of Layers" n="10" lo="-0.5" hi="9.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NPixelSharedHits" type="TH1F" title="Number of shared Pixel clusters">
+  <x title="Number of Shared Clusters" n="10" lo="-0.5" hi="9.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NPixelSplitHits" type="TH1F" title="Number of split Pixel clusters">
+  <x title="Number of Split Clusters" n="5" lo="-0.5" hi="4.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NPixelGangedHits" type="TH1F" title="Number of ganged Pixel clusters">
+  <x title="Number of Clusters" n="10" lo="-0.5" hi="9.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NPixelGangedHitsFlaggedFakes" type="TH1F" title="Number of ganged flagged fake Pixel hits vs eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;" />
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NSCTOutliers" type="TH1F" title="Number of SCT Outliers">
+  <x title="Number of Outliers" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NSCTDoubleHoles" type="TH1F" title="Number of SCT double holes">
+  <x title="Number of Double Holes" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NSCTSharedHits" type="TH1F" title="Number of SCT Shared clusters">
+  <x title="Number of Shared Clusters" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<!-- eta profiles -->
+<h id="HitContent_vs_eta_NBlayerOutliers" type="TProfile" title="Number of B-layer outliers">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of B-layer Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NBlayerSharedHits" type="TProfile" title="Number of shared B-layer clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of B-layer Shared Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NBLayerSplitHits" type="TProfile" title="Number of split B-layer clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of B-layer Split Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelOutliers" type="TProfile" title="Number of Pixel outliers">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Pixel Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelContribLayers" type="TProfile" title="Number of contributed Pixel layers">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Pixel Layers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelSharedHits" type="TProfile" title="Number of shared Pixel clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Pixel Shared Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelSplitHits" type="TProfile" title="Number of split Pixel clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Pixel Split Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelGangedHits" type="TProfile" title="Number of ganged Pixel clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Pixel Ganged Hits&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NPixelGangedHitsFlaggedFakes" type="TProfile" title="Number of ganged flagged fake Pixel hits vs eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;" />
+  <y title="Flagged Fakes in Pixel" lo="0" hi="2" />
+</h>
+<h id="HitContent_vs_eta_NSCTOutliers" type="TProfile" title="Number of SCT Outliers">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of SCT Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTDoubleHoles" type="TProfile" title="Number of SCT double holes">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of SCT Double Holes&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NSCTSharedHits" type="TProfile" title="Number of SCT Shared clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of SCT Shared Hits&gt;" lo="0" hi="100"/>
+</h>
+<!--
+   =======================================================
+   end of hit content plots
+   ========================================================
+  -->
 <!--
    =======================================================
    xxx todo addcomments plots:
@@ -598,77 +893,6 @@
   <y title="Entries"/>
 </h>
 <!-- -->
-<!-- basic plots -->
-<h id="basicd0" type="TH1F" title="d_{0} of selected tracks (in mm)">
-  <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
-  <y title="Entries"/>
-</h>
-<h id="basicz0" type="TH1F" title="z_{0} of selected tracks (in mm)">
-  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
-  <y title="Entries"/>
-</h>
-<h id="basicphi" type="TH1F" title="#phi of selected tracks">
-  <x title="#phi" n="100" lo="-&PI;" hi="&PI;"/>
-  <y title="Entries"/>
-</h>
-<h id="basiceta" type="TH1F" title="#eta of selected tracks">
-  <x title="#eta" n="100" lo="-5" hi="5"/>
-  <y title="Entries"/>
-</h>
-<h id="basictheta" type="TH1F" title="#theta of selected tracks">
-  <x title="#theta" n="100" lo="0" hi="&PI;"/>
-  <y title="Entries"/>
-</h>
-<h id="basicqOverP" type="TH1F" title="q/p of selected tracks (in GeV)">
-  <x title="p_{T}(GeV/c)" n="200" lo="-0.01" hi="0.01"/>
-  <y title="Entries"/>
-</h>
-<h id="truthd0" type="TH1F" title="d_{0} of selected truth (in mm)">
-  <x title="d_{0}(mm)" n="2000" lo="-2" hi="2"/>
-  <y title="Entries"/>
-</h>
-<h id="truthz0" type="TH1F" title="z_{0} of selected truth (in mm)">
-  <x title="z_{0}(mm)" n="120" lo="-300" hi="300"/>
-  <y title="Entries"/>
-</h>
-<h id="truthphi" type="TH1F" title="#phi of selected truth">
-  <x title="#phi" n="100" lo="-&PI;" hi="&PI;"/>
-  <y title="Entries"/>
-</h>
-<h id="trutheta" type="TH1F" title="#eta of selected truth">
-  <x title="#theta" n="100" lo="-5" hi="5"/>
-  <y title="Entries"/>
-</h>
-<h id="truththeta" type="TH1F" title="#theta of selected truth">
-  <x title="#theta" n="100" lo="0" hi="&PI;"/>
-  <y title="Entries"/>
-</h>
-<h id="truthqOverP" type="TH1F" title="q/p of selected truth (in GeV)">
-  <x title="p_{T}(GeV/c)" n="200" lo="-0.005" hi="0.005"/>
-  <y title="Entries"/>
-</h>
-<h id="truthz0st" type="TH1F" title="z_{0} sin(#theta) of selected truth ">
-  <x title="p_{T}(GeV/c)" n="200" lo="-300" hi="300"/>
-  <y title="Entries"/>
-</h>
-<h id="truthprodR" type="TH1F" title="Radial distance (r) of truth vtx parameter from origin">
-  <x title="(mm)" n="100" lo="0.0" hi="2.0"/>
-  <y title="Entries"/>
-</h>
-<h id="truthprodZ" type="TH1F" title="Longitudinal (z) distance of truth vtx parameter from origin">
-  <x title="(mm)" n="100" lo="0" hi="300"/>
-  <y title="Entries"/>
-</h>
-<!-- -->
-<!-- pT -->
-<h id="recpT" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
-  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
-  <y title="Entries"/>
-</h>
-<h id="recPtLow" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
-  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="20"/>
-  <y title="Entries"/>
-</h>
 <!-- fakes -->
 <h id="fakepT" type="TH1F" title="p_{T} of selected fake tracks (in GeV)">
   <x title="p_{T}(GeV/c)" n="200" lo="0." hi="200"/>
@@ -790,39 +1014,39 @@
 </h>
 <!-- -->
 <!-- GOOD eff plots -->
-<h id="trackeff_vs_eta" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_eta" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h> 
-<h id="trackeff_vs_pt" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_pt" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="Pt (GeV)" n="25" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_phi" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_phi" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#phi" n="25" lo="-&PI;" hi="&PI;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_d0" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="d0" n="100" lo="-25" hi="25"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_z0" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="z0" n="100" lo="-250" hi="250"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_R" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_R" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="R" n="100" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_Z" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_Z" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="Z" n="100" lo="-350" hi="350"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_prodR" type="TProfile" title="Track Efficiency vs Production Vertex Radius">
+<h id="trackeff_vs_prodR" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">
   <x title="prod_R" n="100" lo="0" hi="1500"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_prodZ" type="TProfile" title="Track Efficiency vs Production Vertex Z">
+<h id="trackeff_vs_prodZ" type="TEfficiency" title="Track Efficiency vs Production Vertex Z">
   <x title="prod_Z" n="100" lo="0" hi="2000"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
@@ -909,10 +1133,145 @@
   <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
   <y title="Fake Rate" lo="0.0" hi="2.0" />
 </h>
-<h id="BadMatchRate_vs_logpt" type="TProfile" title="Fraction of Tracks with &lt; 80% TMP vs Log(Pt)">
-  <x title="Log(Pt)" n="10" lo="-0.5" hi="2" />
+<h id="BadMatchRate_vs_logpt" type="TProfile" title="Fraction of Tracks with &lt; 80% TMP vs Log(p_{T})">
+  <x title="Log(p_{T})" n="10" lo="-0.5" hi="2" />
   <y title="Bad Match Rate" lo="0.0" hi="2.0" />
 </h>
+<!-- Dummy Plots -->
+<h id="primary_photon_eta_vs_conversion_radius" type="TH2" title="Primary Photon #eta vs Conversion Radius">
+  <x title="Conversion Radius [mm]" n="100" lo="0" hi="1500"/>
+  <y title="#eta" n="20" lo="-2.5" hi="2.5"/>
+</h>
+<h id="primary_photon_pt_vs_decay_radius" type="TH2" title="Primary Photon log(p_{T}) vs Decay Radius">
+  <x title="Decay Radius [mm]" n="100" lo="0" hi="1500"/>
+  <y title="log(p_{T}) (GeV)" n="100" lo="-0.5" hi="3.0"/>
+</h>
+<h id="primary_photon_pt" type="TH1F" title="Primary Photon p_{T}">
+  <x title="p_{T} (GeV)" n="100" lo="0" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="brem_photon_eta_vs_radius_of_conversion" type="TH2" title="Brem Photon #eta vs Radius of Conversion">
+  <x title="Radius of Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="#eta" n="20" lo="-2.5" hi="2.5"/>
+</h>
+<h id="brem_photon_pt_vs_radius_of_origin_of_conversion" type="TH2" title="Brem Photon log(p_{T}) vs Radius of Origin of Conversion">
+  <x title="Radius of Origin of Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="log(p_{T}) (GeV)" n="100" lo="-0.5" hi="3.0"/>
+</h>
+<h id="lepton_disappearance_radius" type="TH1F" title="Radius at which electrons and positrons from the primary disappear">
+  <x title="Radius of Disappearance [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Entries"/>
+</h>
+<h id="nOut_of_lepdeath" type="TH1F" title="Number of Particles emerging from electron/positron endpoint">
+  <x title="Number of Particles" n="6" lo="0" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="brem_spectrum" type="TH2" title="log of the Energy of Brem Photons vs Radius of Emission">
+  <x title="Radius of Emission [mm]" n="100" lo="0" hi="1500"/>
+  <y title="log (Energy (GeV))" n="100" lo="-3" hi="3"/>
+</h>
+<h id="energy_remaining" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs Initial #eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_prodR_TRT_barrel" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (0 &lt; |#eta| &lt; 0.625)">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_prodR_type_A_endcap" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.070 &lt; |#eta| &lt; 1.304)">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_prodR_type_A_and_B" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.304 &lt; |#eta| &lt; 1.752)">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="energy_remaining_vs_prodR_type_B_endcap" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.752 &lt; |#eta| &lt; 2.0)">
+  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
+  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="truthMatchProbability_vs_delta_R" type="TH2" title="Truth Matching Probability of electron/positron vs #DeltaR">
+  <x title="#DeltaR" n="50" lo="0" hi="1.0"/>
+  <y title="Truth Matching Probability" n="100" lo="0" hi="1.0"/>
+</h>
+<h id="minimum_delta_R" type="TH1" title="Minimum #DeltaR for primary conversions within 100 mm of the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_2" type="TH1" title="Minimum #DeltaR for primary conversions between 100 and 200 mm from the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_3" type="TH1" title="Minimum #DeltaR for primary conversions between 200 and 300 mm from the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_sub300" type="TH1" title="Minimum #DeltaR for primary conversions within 300 mm of the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_300_600" type="TH1" title="Minimum #DeltaR for primary conversions between 300 and 600 mm of the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_overall" type="TH1" title="Minimum #DeltaR for primary conversions within 600 mm of the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_not_found" type="TH1" title="Minimum #DeltaR for primary conversions within 100 mm of the origin with no good match">
+  <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_2_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 100 and 200 mm from the origin with no good match">
+  <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_3_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 200 and 300 mm from the origin with no good match">
+  <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_sub300_not_found" type="TH1" title="Minimum #DeltaR for primary conversions within 300 mm of the origin with no match &gt; 50%">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_300_600_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 300 and 600 mm of the origin with no match &gt; 50%">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_not_found_overall" type="TH1" title="Minimum #DeltaR for primary conversions within 600 mm of the origin with no good match &gt; 50%">
+  <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
+  <y title="Entries"/>
+</h>
+<h id="delta_inverse_pt" type="TH1" title="Difference between inverse pt (GeV) for track and truth particles for decays within 600 mm of the beamline">
+  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="-2" hi="2"/>
+  <y title="Entries"/>
+</h>
+<h id="delta_inverse_pt_not_found" type="TH1" title="Difference between inverse pt (GeV) for track and truth particles within 600 mm of the beamline with no good match &gt; 50%">
+  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="-2" hi="2"/>
+  <y title="Entries"/>
+</h>
+<h id="charge_vs_truth_match_rate" type="TProfile" title="Rate at which matching TrackParticle has same charge as TruthParticle vs Pt (GeV)">
+  <x title="Pt (GeV)" n="100" lo="0" hi="300"/>
+  <y title="Rate" n="100" lo="0" hi="1.5"/>
+</h>
+<h id="min_dR_vs_delta_inverse_pt" type="TH2" title="Minimum #DeltaR vs #Delta(1/pT) for the corresponding pair">
+  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="-2" hi="2"/>
+  <y title="#DeltaR" n="350" lo="0" hi="0.50"/>
+</h>
+<h id="charge_truth_agreement" type="TProfile" title="Agreement between same-sign minimum #DeltaR particle and traditional truth-match partner">
+  <x title="Production Radius [mm]" n="100" lo="0" hi="300"/>
+  <y title="Agreement Rate" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="truth_vs_charge_product" type="TH2" title="Truth Match Probability vs Product of Track and TruthParticle charge for closest match pair">
+  <x title="Charge Product" n="10" lo="-1.0" hi="1.0"/>
+  <y title="Truth Match Probability" n="110" lo="-0.1" hi="1.0"/>
+</h>
+
+
 <!-- -->
 <!-- Track Parameter Resolution Plots -->
 <!-- Track Parameter TH2s vs eta -->
@@ -1187,100 +1546,6 @@
 
 
 
-<!-- HitContent plots -->
-<h id="HitContent_vs_eta_NBlayerHits" type="TProfile" title="Number of B-Layer clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of B-layer clusters&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NPixelHits" type="TProfile" title="Number of Pixel clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of Pixel clusters&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_DBMHitsNeg" type="TProfile" title="Number of DBM Clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of DBM clusters, - side&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_DBMHitsPos" type="TProfile" title="Number of DBM Clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of DBM Clusters, + side&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NPixelHoles" type="TProfile" title="Number of Pixel Holes">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of Pixel Holes&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NSCTHits" type="TProfile" title="Number of SCT Clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of SCT Clusters&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NSCTHoles" type="TProfile" title="Number of SCT Holes">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of SCT Holes&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NTRTHits" type="TProfile" title="Number of TRT Clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of TRT Hits&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NTRTHighThresholdHits" type="TProfile" title="Number of TRT high threshold clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of High Thresh TRT Hits&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NBlayerOutliers" type="TProfile" title="Number of B-layer outliers">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of B-layer Outliers&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NBlayerSharedHits" type="TProfile" title="Number of shared B-layer clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of B-layer Shared Hits&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NBLayerSplitHits" type="TProfile" title="Number of split B-layer clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of B-layer Split Hits&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NPixelOutliers" type="TProfile" title="Number of Pixel outliers">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of Pixel Outliers&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NPixelContribLayers" type="TProfile" title="Number of contributed Pixel layers">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of Pixel Layers&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NPixelSharedHits" type="TProfile" title="Number of shared Pixel clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of Pixel Shared Hits&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NPixelSplitHits" type="TProfile" title="Number of split Pixel clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of Pixel Split Hits&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NPixelGangedHits" type="TProfile" title="Number of ganged Pixel clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of Pixel Ganged Hits&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NPixelGangedHitsFlaggedFakes" type="TProfile" title="Number of ganged flagged fake Pixel hits vs eta">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;" />
-  <y title="Flagged Fakes in Pixel" lo="0" hi="2" />
-</h>
-<h id="HitContent_vs_eta_NSCTOutliers" type="TProfile" title="Number of SCT Outliers">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of SCT Outliers&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NSCTDoubleHoles" type="TProfile" title="Number of SCT double holes">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of SCT Double Holes&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NSCTSharedHits" type="TProfile" title="Number of SCT Shared clusters">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of SCT Shared Hits&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NTRTOutliers" type="TProfile" title="Number of TRT outliers">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of TRT Outliers&gt;" lo="0" hi="100"/>
-</h>
-<h id="HitContent_vs_eta_NTRTHighThresholdOutliers" type="TProfile" title="Number of TRT High Threshold outliers">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="&lt;Number of TRT High Thresh Outliers&gt;" lo="0" hi="100"/>
-</h>
-<!-- -->
 <!-- Track in Jet efficiencies -->
 <h id="trackinjeteff_vs_eta" type="TProfile" title="Track in jets efficiency vs #eta (Det. Paper def.)">
   <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
@@ -1371,32 +1636,140 @@
   <y title="truth match probability" n="40" lo="0" hi="1.1"/>
 </h>
 <!-- -->
-<!-- stuff pilfered from old backtracking script -->
-<h id="eff_vs_eta_of_daughters" type="TProfile" title="Efficiency vs #eta of daughter particles">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+<!--
+   =======================================================
+   duplicate plots:
+   * filled by InDetPerfPlot_duplicate 
+   * Results from efficiency calculation in InDetPhysValMonitoringTool (and similar)
+   ========================================================
+  -->
+<h id="duplicateDeltaPt" type="TH1" title="p_{T} difference of duplicate reco tracks (in GeV)">
+  <x title="p_{T}(GeV/c)" n="50" lo="0" hi="50"/>
+  <y title="Entries"/>
+</h> 
+<h id="duplicateDeltaPtZoomed" type="TH1" title="p_{T} difference of duplicate reco tracks (in GeV)">
+  <x title="p_{T}(GeV/c)" n="50" lo="0" hi="5"/>
+  <y title="Entries"/>
+</h> 
+<h id="duplicateDeltaEta" type="TH1" title="eta difference of duplicate reco tracks">
+  <x title="p_{T}(GeV/c)" n="60" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
 </h>
-<h id="eff_vs_theta_of_daughters" type="TProfile" title="Efficiency vs #theta of daughter particles">
-  <x title="#theta" n="28" lo="0.0" hi="&PI;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+<h id="duplicateDeltaPhi" type="TH1" title="phi difference of duplicate reco tracks">
+  <x title="p_{T}(GeV/c)" n="60" lo="-&PI;" hi="&PI;"/>
+  <y title="Entries"/>
 </h>
-<h id="eff_vs_theta_tan_of_daughters" type="TProfile" title="Efficiency vs tan(#theta) of daughter particles">
-  <x title="tan(#theta)" n="32" lo="-8" hi="8"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+<h id="duplicateDeltaPTvsTruthPT" type="TH2" title="delta pt vs truth pt">
+  <x title="p_{T}(GeV/c)" n="100" lo="0" hi="50"/>
+  <y title="p_{T}(GeV/c)" n="100" lo="0" hi="50"/>
 </h>
-<h id="eff_vs_theta_cotan_of_daughters" type="TProfile" title="Efficiency vs cotan(#theta) of daughter particles">
-  <x title="cotan(#theta)" n="32" lo="-8" hi="8"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+<h id="duplicateDeltaPTvsTruthPTZoomed" type="TH2" title="delta pt vs truth pt">
+  <x title="p_{T}(GeV/c)" n="50" lo="0" hi="10"/>
+  <y title="p_{T}(GeV/c)" n="50" lo="0" hi="10"/>
 </h>
-<h id="eff_vs_phi_of_daughters" type="TProfile" title="Efficiency vs #phi of daughter particles">
-  <x title="#phi" n="16" lo="-&PI;" hi="&PI;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+<!-- -->
+<h id="duplicateLPT" type="TH1" title="p_{T} of the duplicate lower pt reco track (in GeV)">
+  <x title="p_{T}(GeV/c)" n="40" lo="0" hi="40"/>
+  <y title="Entries"/>
 </h>
-<h id="eff_vs_phi_sin_of_daughters" type="TProfile" title="Efficiency vs sin(#phi) of daughter particles">
-  <x title="sin(#phi)" n="14" lo="-1.2" hi="1.2"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+<h id="duplicateLEta" type="TH1" title="eta of the duplicate lower pt reco track">
+  <x title="eta" n="60" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
 </h>
-<h id="eff_vs_phi_cos_of_daughters" type="TProfile" title="Efficiency vs cos(#phi) of daughter particles">
-  <x title="cos(#phi)" n="14" lo="-1.2" hi="1.2"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+<h id="duplicateLPhi" type="TH1" title="phi of the duplicate lower pt reco track">
+  <x title="phi" n="60" lo="-&PI;" hi="&PI;"/>
+  <y title="Entries" />
 </h>
+<h id="duplicateHPT" type="TH1" title="p_{T} of the duplicate higher pt reco track (in GeV)">
+  <x title="p_{T}(GeV/c)" n="40" lo="0" hi="40"/>
+  <y title="Entries" />
+</h>
+
+<h id="duplicateHEta" type="TH1" title="eta of the duplicate higher pt reco track">
+  <x title="p_{T}(GeV/c)" n="60" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
+</h>
+
+<h id="duplicateHPhi" type="TH1" title="phi of the duplicate higher pt reco track">
+  <x title="p_{T}(GeV/c)" n="60" lo="-&PI;" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateTruthPT" type="TH1" title="p_{T} of the associated truth track (in GeV)">
+  <x title="p_{T}(GeV/c)" n="40" lo="0" hi="40"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateTruthEta" type="TH1" title="p_{T} of the associated truth track (in GeV)">
+  <x title="p_{T}(GeV/c)" n="60" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
+</h>
+
+<h id="duplicateTruthPhi" type="TH1" title="phi of the associated truth track">
+  <x title="p_{T}(GeV/c)" n="60" lo="-&PI;" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateResLPT" type="TH1" title="p_{T} of the lower pt track minus truth pt (in GeV)">
+  <x title="p_{T}(GeV/c)" n="60" lo="-15" hi="15"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateResLEta" type="TH1" title="eta of the lower pt track minus truth eta">
+  <x title="eta" n="60" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateResLPhi" type="TH1" title="phi of the lower pt track minus truth phi">
+  <x title="phi" n="60" lo="-&PI;" hi="&PI;"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateResHPT" type="TH1" title="p_{T} of the higher pt track minus truth pt (in GeV)">
+  <x title="p_{T}(GeV/c)" n="60" lo="-15" hi="15"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateResHEta" type="TH1" title="eta of the higher pt track minus truth eta">
+  <x title="eta" n="60" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateResHPhi" type="TH1" title="phi of the higher pt track minus truth phi">
+  <x title="phi" n="60" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateProbSpectrum" type="TH2" title="duplicate probability spectrum">
+  <x title="Entries" n="30" lo="0.8" hi="1.1"/>
+  <y title="Entries" n="30" lo="0.8" hi="1.1"/>
+</h>
+<h id="duplicateLPTHoles" type="TH1" title=" # of holes of the lower pt track">
+  <x title="Count" n="10" lo="0" hi="10"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateHPTHoles" type="TH1" title=" # of holes of the higher pt track">
+  <x title="Count" n="10" lo="0" hi="10"/>
+  <y title="Entries"/>
+</h>
+<h id="singleMatchPTHoles" type="TH1" title="# of holes of a single matched reco track">
+  <x title="Count" n="10" lo="0" hi="10"/>
+  <y title="Entries"/>
+</h>
+<h id="duplicateHPixelvsSCTShared" type="TH2" title="# of Pixel Shared Hits vs # of SCT Shared Hits for the higher pt track">
+  <x title="Count" n="20" lo="0" hi="20"/>
+  <y title="Entries" n="20" lo="0" hi="20"/>
+</h>
+<h id="duplicateLPixelvsSCTShared" type="TH2" title="# of Pixel Shared Hits vs # of SCT Shared Hits for the lower pt track">
+  <x title="Count" n="20" lo="0" hi="20"/>
+  <y title="Entries" n="20" lo="0" hi="20"/>
+</h>
+<h id="singleMatchPixelvsSCTShared" type="TH2" title="# of Pixel Shared Hits vs # of SCT Shared Hits for a single matched track">
+  <x title="Count" n="20" lo="0" hi="20"/>
+  <y title="Entries" n="20" lo="0" hi="20"/>
+</h>
+<h id="twoMatchHPixelvsSCTShared" type="TH2" title="# of Pixel Shared Hits vs # of SCT Shared Hits for the higher pt track">
+  <x title="Count" n="20" lo="0" hi="20"/>
+  <y title="Entries" n="20" lo="0" hi="20"/>
+</h>
+<h id="twoMatchLPixelvsSCTShared" type="TH2" title="# of Pixel Shared Hits vs # of SCT Shared Hits for the lower pt track">
+  <x title="Count" n="20" lo="0" hi="20"/>
+  <y title="Entries" n="20" lo="0" hi="20"/>
+</h>
+
+  <!--
+   =======================================================
+   end of plots of 'duplicates' plots
+   =======================================================
+   -->
