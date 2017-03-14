@@ -36,18 +36,18 @@ bool TruthHandler::isGenStable( const HepMC::GenParticle* p ) {
   if ((g_id - HIJING)>=0 && (g_id - HIJING)<1000)  {
     // case of Hjing
     return (
-	    // pi0 and sigma0 not decayed but unstable
-	    ( (p->status()%1000 == 1) && abs(p_id) !=111 && abs(p_id) !=3212 )
-	    && (p->barcode()<200000)
-	     ) ? true:false;
+  	    // pi0 and sigma0 not decayed but unstable
+  	    ( (p->status()%1000 == 1) && abs(p_id) !=111 && abs(p_id) !=3212 )
+  	    && (p->barcode()<200000)
+  	     ) ? true:false;
   } else  {
     // other generators
     return (
-	    ( ( p->status()%1000 == 1) ||
-	      (p->status()==2 && vertex_barcode<-200000) ||
-	      (p->status()%1000 == 2 && p->status() > 1000)
-	      ) && (p->barcode()<200000)
-	    ) ? true:false;
+  	    ( ( p->status()%1000 == 1) ||
+  	      (p->status()==2 && vertex_barcode<-200000) ||
+  	      (p->status()%1000 == 2 && p->status() > 1000)
+  	      ) && (p->barcode()<200000)
+  	    ) ? true:false;
   }
 }
 
@@ -60,9 +60,9 @@ bool TruthHandler::isGenStable( const xAOD::TruthParticle* part ) {
   // get generator id
   //remove special HIJING treatment for xAOD
   // TODO: but back later if really needed
-
+   if ( part == 0 ) return false;
   const xAOD::TruthVertex* vertex = part->decayVtx(); // was end_vertex()
-  
+
   // we want to keep primary particle with status==2 but without vertex in HepMC
   int vertex_barcode=-999999;
   if (vertex) vertex_barcode=vertex->barcode();
@@ -324,9 +324,17 @@ int TruthHandler::nProngTruth(const xAOD::TruthParticle* hadTau, bool UseKaon ){
   const std::size_t nChildren = vertex->nOutgoingParticles();
   for ( std::size_t iChild = 0; iChild != nChildren; ++iChild ) {
     const xAOD::TruthParticle * child = vertex->outgoingParticle(iChild);
-    if(isGoodChrgPiDaughter(child)){  nProng++;
-    }else if( (abs(child->pdgId())== PDG::K_plus) && isGenStable((child)) && UseKaon){ nProng++;
-    }else{nProng += nProngTruth(child, UseKaon );} //recursive
+    if ( child ) {
+       if ( isGoodChrgPiDaughter(child) ) {
+	  nProng++;
+       }
+       else if ( (abs(child->pdgId())== PDG::K_plus) && isGenStable((child)) && UseKaon ) {
+	  nProng++;
+       }
+       else {
+	  nProng += nProngTruth(child, UseKaon ); //recursive
+       }
+    }
   }
   return nProng;
 }
