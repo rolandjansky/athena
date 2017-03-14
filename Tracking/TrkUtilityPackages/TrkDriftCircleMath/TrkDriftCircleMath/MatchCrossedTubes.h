@@ -9,7 +9,6 @@
 #include "TrkDriftCircleMath/DriftCircle.h"
 #include "TrkDriftCircleMath/SortDcsByY.h"
 
-
 namespace TrkDriftCircleMath {
   /** counts the number of hits shared by the two segments */
   
@@ -38,7 +37,7 @@ namespace TrkDriftCircleMath {
 
       while( sit1 != sit1_end && sit2 != sit2_end ){
 	
-/* 	std::cout << " comp " << sit1->position() << "  " << sit2->position() << std::endl; */
+ 	//std::cout << " comp " << sit1->position() << "  " << sit2->position() << std::endl; 
 	
 	if( sit1->state() == DCOnTrack::CloseDC ){
 	  ++sit1;
@@ -54,14 +53,14 @@ namespace TrkDriftCircleMath {
 	}
 	
 	if( sameTube( *sit1, *sit2 ) ){
-/* 	  std::cout << " same tube " << std::endl; */
+ 	  //std::cout << " same tube " << std::endl; 
 	  ++sit1;++sit2;
 	  continue;
 	}
 
 	// dc1 < dc2
 	if( compDC( *sit1, *sit2 ) ){
-/* 	  std::cout << " dc1 < dc2 " << std::endl; */
+ 	  //std::cout << " dc1 < dc2 " << std::endl;
 	  m_result.first.push_back( *sit1 );
 	  ++sit1;
 	  // dc1 >= dc2
@@ -69,11 +68,12 @@ namespace TrkDriftCircleMath {
 
 	  // dc2 < dc1
 	  if( compDC( *sit2, *sit1 ) ){
-/* 	    std::cout << " dc1 > dc2 " << std::endl; */
+ 	    //std::cout << " dc1 > dc2 " << std::endl;
 	    m_result.second.push_back( *sit2 );
 	    ++sit2;
 	    // dc1 == dc2
 	  }else{
+	    //std::cout << " comp " << sit1->position() << "  " << sit2->position() << std::endl;
 	    //std::cout << " shouldn't come here, I think .... " << std::endl;
 	    ++sit1;++sit2;
 	  }

@@ -56,8 +56,8 @@ bool SiCharge::add(const SiCharge &charge)
 {
   // check if the two charges are compatible
   if (charge.m_processType!=m_processType || 
-      charge.m_partLink!=m_partLink ||
-      charge.m_time!=m_time) {
+      charge.m_time!=m_time ||
+      charge.m_partLink!=m_partLink) {
     return false;
   } else {
     m_charge+=charge.m_charge;

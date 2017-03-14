@@ -122,11 +122,11 @@ def GetLArBadLBFilterTool(origDbTag=None):
         defectlist = []
         lar_defects = reduce(operator.or_, [set(ddb.virtual_defect_logics[z].clauses) for z in \
     ('EMBA', 'EMBC', 'EMECA', 'EMECC', 'HECA', 'HECC', 'FCALA', \
-    'FCALC')])-set(['LAR_UNCHECKED','LAR_GENERAL','DISABLED','NONGREEN'])
+    'FCALC', 'LAR_GENERAL')])-set(['LAR_UNCHECKED','LAR_GENERAL'])
         lar_defects = set(defect for defect in lar_defects
                           if ('LAR' in defect and
                               (('HVTRIP' in defect) or ('SEV' in defect) or
                                ('CORRUPT' in defect))))
 
     return GetBadLBFilterTool('LArBadLBFilterTool', tuple(lar_defects),
-                              origDbTag=origDbTag)
+                              ignoreRecoverable=True, origDbTag=origDbTag)

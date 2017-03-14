@@ -26,6 +26,10 @@ class L2ElectronFexBase(TrigL2ElectronFex):
 
         # Tracking cuts
         self.TrackPt = 1.0 * GeV
+        self.TrackPtHighEt = 2.0 * GeV
+        self.ClusEt = 20.0 * GeV
+        self.CaloTrackdEtaNoExtrap = 0.5
+        self.CaloTrackdEtaNoExtrapHighEt = 0.1
         # Calo-Tracking matching cuts
         self.CaloTrackdETA = 0.5
         self.CaloTrackdPHI = 0.5
@@ -54,6 +58,14 @@ class L2ElectronFex_1(L2ElectronFex_all):
         super(L2ElectronFex_1, self).__init__(name)
         self.AcceptAll = True
         
+class L2ElectronFex_Clean(L2ElectronFex_all):
+    __slots__ = []
+    def __init__(self,name="L2ElectronFex_Clean"):
+        super(L2ElectronFex_Clean, self).__init__(name)
+        self.AcceptAll = False
+        self.CaloTrackdETA = 0.2
+        self.CaloTrackdPHI = 0.3
+
 class L2ElectronFex_LowPt(L2ElectronFex_all):
     __slots__ = []
     def __init__(self,name="L2ElectronFex_LowPt"):

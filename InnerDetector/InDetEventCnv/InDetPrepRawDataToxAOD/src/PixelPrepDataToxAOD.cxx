@@ -42,18 +42,20 @@
 /////////////////////////////////////////////////////////////////////
 PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
+  m_PixelHelper(0),
+  m_useSiHitsGeometryMatching(true),
+  m_decorateBrokenClusters(true),
   m_calibSvc("PixelCalibSvc", name),
-  m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
   m_pixelDCSSvc("PixelDCSSvc", name),
   m_pixelBSErrorsSvc("PixelByteStreamErrorsSvc", name),
-  m_PixelHelper(0),
-  m_firstEventWarnings(true),
-  m_useSiHitsGeometryMatching(true)
+  m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
+  m_firstEventWarnings(true)
 { 
   // --- Steering and configuration flags
  
   declareProperty("UseTruthInfo", m_useTruthInfo=false);
   declareProperty("UseSiHitsGeometryMatching", m_useSiHitsGeometryMatching=true);
+  declareProperty("DecorateBrokenClusters", m_decorateBrokenClusters=true);
   declareProperty("WriteSDOs", m_writeSDOs = true);
   declareProperty("WriteSiHits", m_writeSiHits = true);
   declareProperty("WriteNNinformation", m_writeNNinformation = true);
@@ -307,50 +309,39 @@ StatusCode PixelPrepDataToxAOD::execute()
 		  ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!" );
 	      addNNTruthInfo(  xprd, prd, matched_hits );
 	  }
+	  if ( m_decorateBrokenClusters )
+	  {
+	      std::map< std::pair< uint64_t,int>, xAOD::TrackMeasurementValidation *> moduleTrackMap;
+	      static const SG::AuxElement::Decorator<char> brokenDec("broken");
+	      
+	      for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
+	      {
+		  uint64_t identifier = (*clusItr)->identifier();;
+		  for ( auto barcode : (*clusItr)->auxdata< std::vector< int > >("sihit_barcode") )
+		  {
+		      if ( barcode == 0 )
+			  continue;
+		      
+		      std::pair<uint64_t,int> key( std::make_pair( identifier, barcode ) );
+
+		      std::map< std::pair< uint64_t,int>, xAOD::TrackMeasurementValidation * >::iterator mod_iter = moduleTrackMap.find( key );
+		      if ( mod_iter != moduleTrackMap.end() ) 
+		      {
+			  brokenDec(**clusItr) = true;
+			  brokenDec( *mod_iter->second ) = true;
+		      }
+		      else
+		      {
+			  brokenDec(**clusItr) = false;
+			  assert( moduleTrackMap.insert( std::make_pair(key,*clusItr) ) );
+		      }
+		  }
+	      }
+	  }
       }
     }
   }
-
-  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
-      (*clusItr)->auxdata<char>("broken") = false;
-
-  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
-  {
-      auto pixelCluster = *clusItr;
-      int layer = pixelCluster->auxdata< int >("layer");
-      std::vector<int> barcodes = pixelCluster->auxdata< std::vector< int > >("sihit_barcode");
-
-      for ( auto clusItr2 = clusItr + 1; clusItr2 != xaod->end(); clusItr2++ )
-      {
-	  auto pixelCluster2 = *clusItr2;
-	  if ( pixelCluster2->auxdata< int >("layer") != layer )
-	      continue;
-	  if ( pixelCluster->auxdata< int >("eta_module") != pixelCluster2->auxdata< int >("eta_module") )
-	      continue;
-	  if ( pixelCluster->auxdata< int >("phi_module") != pixelCluster2->auxdata< int >("phi_module") )
-	      continue;
-
-	  std::vector<int> barcodes2 = pixelCluster2->auxdata< std::vector< int > >("sihit_barcode");
-	  
-	  bool broken = false;
-	  for ( auto bc : barcodes )
-	  {
-	      for ( auto bc2 : barcodes2 )
-	      {
-		  if ( bc2 == bc )
-		  {
-		      broken = true;
-		      pixelCluster->auxdata<char>("broken")  = true;
-		      pixelCluster2->auxdata<char>("broken") = true;
-		      break;
-		  }
-	      }
-	      if ( broken ) 
-		  break;
-	  }
-      }
-  }
-
+  
   ATH_MSG_DEBUG( " recorded PixelPrepData objects: size " << xaod->size() );
 
   m_firstEventWarnings = false;

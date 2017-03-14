@@ -33,29 +33,31 @@ inline const DataVector<xAOD::TrigElectron>** dvec_cast(SRC** ptr) {
 
 
 TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvcLocator)
-  : HLT::FexAlgo(name, pSvcLocator),
-    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-    m_trigElecColl(0)
+    : HLT::FexAlgo(name, pSvcLocator),
+    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
 {
-  // Read cuts - should probably get these from an xml file
-  declareProperty( "AcceptAll",            m_acceptAll  = false );
-  declareProperty( "TrackPt",              m_trackPtthr = 5.0*CLHEP::GeV );
-  declareProperty( "CaloTrackdETA",        m_calotrackdeta );
-  declareProperty( "CaloTrackdPHI",        m_calotrackdphi ); 
-  declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low );
-  declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high );
-  declareProperty( "RCalBarrelFace",       m_RCAL = 1470.0*CLHEP::mm );
-  declareProperty( "ZCalEndcapFace",       m_ZCAL = 3800.0*CLHEP::mm );
-  declareProperty( "ParticleCaloExtensionTool",    m_caloExtensionTool);
-  
-  declareMonitoredCollection("PtCalo",*dvec_cast(&m_trigElecColl),&TrigL2ElectronFex::getCaloPt);
-  declareMonitoredCollection("PtTrack",*dvec_cast(&m_trigElecColl),&TrigL2ElectronFex::getTkPt);
-  declareMonitoredCollection("CaloTrackdEta",*dvec_cast(&m_trigElecColl),&xAOD::TrigElectron::trkClusDeta);
-  declareMonitoredCollection("CaloTrackdPhi",*dvec_cast(&m_trigElecColl),&xAOD::TrigElectron::trkClusDphi);
-  declareMonitoredCollection("CaloTrackEoverP",*dvec_cast(&m_trigElecColl),&xAOD::TrigElectron::etOverPt);
+    declareProperty( "AcceptAll",            m_acceptAll  = false );
+    declareProperty( "ClusEt",              m_clusEtthr = 20.0*CLHEP::GeV );
+    declareProperty( "TrackPt",              m_trackPtthr = 5.0*CLHEP::GeV );
+    declareProperty( "CaloTrackdEtaNoExtrap",        m_calotrkdeta_noextrap );
+    declareProperty( "TrackPtHighEt",              m_trackPtthr = 2.0*CLHEP::GeV );
+    declareProperty( "CaloTrackdEtaNoExtrapHighEt",        m_calotrkdeta_noextrap_highet );
+    declareProperty( "CaloTrackdETA",        m_calotrackdeta );
+    declareProperty( "CaloTrackdPHI",        m_calotrackdphi ); 
+    declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low );
+    declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high );
+    declareProperty( "RCalBarrelFace",       m_RCAL = 1470.0*CLHEP::mm );
+    declareProperty( "ZCalEndcapFace",       m_ZCAL = 3800.0*CLHEP::mm );
+    declareProperty( "ParticleCaloExtensionTool",    m_caloExtensionTool);
 
-  // initialize error counter
-  m_extrapolator_failed = 0;
+    declareMonitoredStdContainer("PtCalo",m_calopt_mon,AutoClear);
+    declareMonitoredStdContainer("PtTrack",m_trackpt_mon,AutoClear);
+    declareMonitoredStdContainer("CaloTrackdEta",m_calotrackdeta_mon,AutoClear); 
+    declareMonitoredStdContainer("CaloTrackdPhi",m_calotrackdphi_mon,AutoClear); 
+    declareMonitoredStdContainer("CaloTrackEoverP",m_calotrackdeoverp_mon,AutoClear);
+    declareMonitoredStdContainer("CaloTrackdEtaNoExtrapMon",m_calotrkdeta_noextrap_mon,AutoClear);
+    // initialize error counter
+    m_extrapolator_failed = 0;
 }
 
 
@@ -79,7 +81,11 @@ HLT::ErrorCode TrigL2ElectronFex::hltInitialize()
   ATH_MSG_DEBUG("Initialization completed successfully:"); 
   ATH_MSG_DEBUG( "AcceptAll            = "<< 
           (m_acceptAll==true ? "True" : "False")); 
-  ATH_MSG_DEBUG("TrackPt              = " << m_trackPtthr);           
+  ATH_MSG_DEBUG("TrackPt              = " << m_trackPtthr);          
+  ATH_MSG_DEBUG("TrackPtHighEt        = " << m_trackPtthr_highet);          
+  ATH_MSG_DEBUG("ClusEt               = " << m_clusEtthr);          
+  ATH_MSG_DEBUG("CaloTrackdEtaNoExtrap= " << m_calotrkdeta_noextrap);        
+  ATH_MSG_DEBUG("CaloTrackdEtaNoExtrapHighEt= " << m_calotrkdeta_noextrap_highet);        
   ATH_MSG_DEBUG("CaloTrackdETA        = " << m_calotrackdeta);        
   ATH_MSG_DEBUG("CaloTrackdPHI        = " << m_calotrackdphi);        
   ATH_MSG_DEBUG("CaloTrackdEoverPLow  = " << m_calotrackdeoverp_low); 
@@ -107,13 +113,9 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   // Collection may be never used. Better only create if necessary
   // NULL value is specially important to avoid crashs in monitoring
   //m_trigElecColl = NULL;
+  xAOD::TrigElectronContainer *m_trigElecColl = new xAOD::TrigElectronContainer();
   xAOD::TrigElectronAuxContainer trigElecAuxContainer;
-  if ( !m_trigElecColl ) {
-      m_trigElecColl = new xAOD::TrigElectronContainer();
-      m_trigElecColl->setStore(&trigElecAuxContainer);
-  } else {
-      m_trigElecColl->clear();
-  }
+  m_trigElecColl->setStore(&trigElecAuxContainer);
 
   bool pass = false;
   bool result = false;
@@ -197,11 +199,9 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
       ATH_MSG_WARNING("Track collection is null");
       return HLT::MISSING_FEATURE;
   }
-
-  CaloExtensionHelpers::LayersToSelect layersToSelect; 
-  layersToSelect.insert(CaloSampling::CaloSample::EMB2); 
-  layersToSelect.insert(CaloSampling::CaloSample::EME2); 
-
+  
+  size_t coll_size = tracks->size();
+  m_trigElecColl->reserve(coll_size);
 
   // loop over tracks
   for(const auto &trkLink:v_inputTracks){
@@ -217,6 +217,8 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
       // Pt cut
       float trkPt = fabs((trkIter)->pt());
       float etoverpt = fabs(calo_et/trkPt);
+      float calotrkdeta_noextrap = (trkIter)->eta() - calo_eta;
+      
       double etaAtCalo=999.;
       double phiAtCalo=999.;
       if(m_acceptAll){
@@ -225,7 +227,7 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
               continue; 
           }
           else{
-              ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster = " <<
+              ATH_MSG_VERBOSE("REGTEST: TrigElectron: cluster = " <<
                       el_t2calo_clus.getStorableObjectPointer() << " index = " << el_t2calo_clus.index() <<
                       " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
               xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
@@ -234,41 +236,62 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
                       etaAtCalo, phiAtCalo,  etoverpt,        
                       el_t2calo_clus,
                       trkLink);
+              m_calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
+              m_calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
+              m_calotrackdeoverp_mon.push_back(trigElec->etOverPt());
+              m_trackpt_mon.push_back(getTkPt(trigElec));
+              m_calopt_mon.push_back(getCaloPt(trigElec));
+              m_calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
           }
       }
       else {
-          ATH_MSG_VERBOSE("Apply cuts");
+          ATH_MSG_DEBUG("Apply cuts");
           if(trkPt < m_trackPtthr){
-              ATH_MSG_VERBOSE("Failed track pt cut");
+              ATH_MSG_DEBUG("Failed track pt cut " << trkPt);
               continue;
           }
+          if(fabs(calotrkdeta_noextrap) > m_calotrkdeta_noextrap){
+              ATH_MSG_DEBUG("Failed pre extrapolation calo track deta " << calotrkdeta_noextrap);
+              continue;
+          }
+          if(calo_et > m_clusEtthr){
+              if(trkPt < m_trackPtthr_highet){
+                  ATH_MSG_DEBUG("Failed track pt cut for high et cluster");
+                  continue;
+              }
+              if(calotrkdeta_noextrap > m_calotrkdeta_noextrap_highet){
+                  ATH_MSG_DEBUG("Failed pre extrapolation calo track deta for high et");
+                  continue;
+              }
+          } 
           if (etoverpt < m_calotrackdeoverp_low){ 
-              ATH_MSG_VERBOSE("failed low cut on ET/PT");
+              ATH_MSG_DEBUG("failed low cut on ET/PT");
               continue;
           }
           if (etoverpt > m_calotrackdeoverp_high){ 
-              ATH_MSG_VERBOSE("failed high cut on ET/PT");
+              ATH_MSG_DEBUG("failed high cut on ET/PT");
               continue;
           }
           if(!extrapolate(*el_t2calo_clus,trkIter,etaAtCalo,phiAtCalo)){
-              ATH_MSG_VERBOSE("extrapolator failed 1");
-              m_extrapolator_failed++;  
+              ATH_MSG_DEBUG("extrapolator failed 1");
               continue; 
           }
           // all ok: do track-matching cuts
-          ATH_MSG_VERBOSE("extrapolated eta/phi=" << etaAtCalo << "/" << phiAtCalo);
+          ATH_MSG_DEBUG("extrapolated eta/phi=" << etaAtCalo << "/" << phiAtCalo);
           // match in eta
           float dEtaCalo = fabs(etaAtCalo - calo_eta);
+          ATH_MSG_DEBUG("deta = " << dEtaCalo); 
           if ( dEtaCalo > m_calotrackdeta){ 
-              ATH_MSG_VERBOSE("failed eta match cut");
+              ATH_MSG_DEBUG("failed eta match cut " << dEtaCalo);
               continue;
           }
 
           // match in phi: deal with differences larger than Pi
           float dPhiCalo =  fabs(phiAtCalo - calo_phi);
           dPhiCalo       = ( dPhiCalo < M_PI ? dPhiCalo : 2*M_PI - dPhiCalo );
+          ATH_MSG_DEBUG("dphi = " << dPhiCalo); 
           if ( dPhiCalo > m_calotrackdphi) {
-              ATH_MSG_VERBOSE("failed phi match cut");
+              ATH_MSG_DEBUG("failed phi match cut " << dPhiCalo);
               continue;
           }
           // all cuts passed
@@ -279,14 +302,32 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
             at perigee give better estimates of angular quantities */
 
           ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster = " <<
-                  el_t2calo_clus.getStorableObjectPointer() << " index = " << el_t2calo_clus.index() <<
-                  " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
+                  el_t2calo_clus.getStorableObjectPointer() << 
+                  " index = " << el_t2calo_clus.index() <<
+                  " track = "     << trkIter << " eta = " << 
+                  etaAtCalo << " phi = " << phiAtCalo << 
+                  " deta = " << dEtaCalo << "dphi = " << dPhiCalo);
+
           xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
           m_trigElecColl->push_back(trigElec);
           trigElec->init(  initialRoI->roiWord(),
                   etaAtCalo, phiAtCalo,  etoverpt,        
                   el_t2calo_clus,
                   trkLink);
+          ATH_MSG_DEBUG(" deta = " << dEtaCalo << " deta = " << trigElec->trkClusDeta() 
+                  << " dphi = " << dPhiCalo << " dphi = " << trigElec->trkClusDphi()
+                  << " caloEta = " << calo_eta << " caloEta = " << trigElec->caloEta()
+                  << " caloPhi = " << calo_phi << " calophi = " << trigElec->caloPhi()
+                  << " etaAtCalo = " << etaAtCalo << " etaAtCalo = " << trigElec->trkEtaAtCalo()
+                  << " phiAtCalo = " << phiAtCalo << " phiAtCalo = " << trigElec->trkPhiAtCalo()
+                  );
+
+          m_calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
+          m_calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
+          m_calotrackdeoverp_mon.push_back(trigElec->etOverPt());
+          m_trackpt_mon.push_back(getTkPt(trigElec));
+          m_calopt_mon.push_back(getCaloPt(trigElec));
+          m_calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
       }
   }
 
@@ -309,8 +350,6 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   }
   // print debug info
   ATH_MSG_DEBUG("REGTEST:  storing a collection with size "<< m_trigElecColl->size() << ".");
-  // Requires NULL pointer for monitoring?
-  m_trigElecColl = nullptr;
   return HLT::OK;
 }
 

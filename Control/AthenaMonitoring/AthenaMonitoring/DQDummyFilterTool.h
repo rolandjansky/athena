@@ -16,9 +16,9 @@ class DQDummyFilterTool :  public AthAlgTool, virtual public IDQFilterTool   {
  public:
   DQDummyFilterTool(const std::string&,const std::string&,const IInterface*);
         
-  virtual ~DQDummyFilterTool ();
+  virtual ~DQDummyFilterTool () override;
         
-  virtual bool accept() ;
+  virtual bool accept() const override;
 
 };
 

@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 785618 2016-11-21 22:03:04Z uworlika $
+# @version $Id: trfUtils.py 797402 2017-02-15 18:44:08Z uworlika $
 
 import os
 import os.path as path
@@ -1239,3 +1239,20 @@ def ValgrindCommand(
             format = returnFormat
         ))
         raise(Exception)
+
+
+# calculate cpuTime from os.times() times tuple
+def calcCpuTime(start, stop):
+    cpuTime = None
+    if start and stop:
+        cpuTime = int(reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4])) + 0.5)
+
+    return cpuTime
+
+# calculate wallTime from os.times() times tuple
+def calcWallTime(start, stop):
+    wallTime = None
+    if start and stop:
+        wallTime = int(stop[4] - start[4] + 0.5)
+
+    return wallTime

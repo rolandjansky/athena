@@ -138,10 +138,18 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 IDPIXLUMISlimmingHelper = SlimmingHelper("IDPIXLUMISlimmingHelper")
 IDPIXLUMISlimmingHelper.AppendToDictionary = {'PixelClusters': 'xAOD::TrackMeasurementValidationContainer', 'PixelClustersAux': 'xAOD::TrackMeasurementValidationAuxContainer'}
 IDPIXLUMISlimmingHelper.ExtraVariables = [ "PixelClusters.bec.layer.phi_module.eta_module.sizePhi.sizeZ.nRDO.charge.ToT.LVL1A.isFake.gangedPixel.isSplit" ]
-IDPIXLUMISlimmingHelper.AllVariables = [ "InDetTrackParticles", "PrimaryVertices" ]
-IDPIXLUMISlimmingHelper.SmartCollections = [ "InDetTrackParticles", "PrimaryVertices" ]
 IDPIXLUMISlimmingHelper.AppendContentToStream(IDPIXLUMIStream)
 
+## Add PrimaryVertices and InDetTrackParticles excluding variables that we don't want or can't be written to xAOD
+## Keep list up-to-date with at least:
+## https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetExample/InDetRecExample/trunk/share/WriteInDetAOD.py
+## Note: can't be added through SlimmingHelper since these are xAOD containers that are in the static list of containers in a RAW2ALL steering
+excludeAuxTrackParticles = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludeAuxPrimaryVertices = "-vxTrackAtVertex"
+IDPIXLUMIStream.AddItem(['xAOD::VertexContainer#PrimaryVertices'])
+IDPIXLUMIStream.AddItem(['xAOD::VertexAuxContainer#PrimaryVerticesAux.'+excludeAuxPrimaryVertices])
+IDPIXLUMIStream.AddItem(['xAOD::TrackParticleContainer#InDetTrackParticles'])
+IDPIXLUMIStream.AddItem(['xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.'+excludeAuxTrackParticles])
 
 # Add trigger information
 

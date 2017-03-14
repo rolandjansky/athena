@@ -19,7 +19,7 @@ class IDQFilterTool : virtual public IAlgTool {
         static const InterfaceID& interfaceID();
         
         /**Pure virtual*/
-        virtual bool accept() = 0;
+        virtual bool accept() const = 0;
 };
 
 inline const InterfaceID& IDQFilterTool::interfaceID()

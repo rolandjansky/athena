@@ -67,6 +67,7 @@ class TrigMultiTrkFex_trkPhi (TrigMultiTrkFexPy):
 
         #self.trackCollectionKey = "'
         self.nTrk = 2
+        self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkCharge = 0
         self.nTrkMassMin = [840.]  
         self.nTrkMassMax = [1240.] 
@@ -97,6 +98,7 @@ class TrigMultiTrkFex_trkPhiX (TrigMultiTrkFexPy):
 
         #self.trackCollectionKey = "'
         self.nTrk = 3
+        self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkCharge = 1
         self.ptTrkMin = [4000., 4000., 1000. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = [840.]   # phi window
@@ -126,6 +128,7 @@ class TrigMultiTrkFex_trkPhiXTight (TrigMultiTrkFexPy):
     def __init__(self, name = "MultiTrkFex_trkPhiXTight"):
         super( TrigMultiTrkFexPy, self ).__init__( name )
         self.nTrk = 3
+        self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkCharge = 1
         self.nTrkMassMin = [1500.]
         self.nTrkMassMax = [2500.] 
@@ -157,6 +160,7 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
         self.AcceptAll = False
 
         #self.trackCollectionKey = "'
+        self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrk = 3
         self.nTrkMassMin = [0.]
         self.nTrkMassMax = [2900.] # cut away J/psi
@@ -179,3 +183,116 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
         self.AthenaMonTools = [ validation, online, time ]
 
 
+
+###################################################################################
+
+#  B+ -> mu mu K+ 
+#  Bd -> mu mu K*(K+ Pi-) 
+#  Bs -> mu mu Phi(K+ K-) 
+#  Lambda_b -> mu mu Lambda(P Pi) 
+#  Bc -> mu mu Ds(Phi pi) 
+#  Bc -> mu mu D+(K pi pi)
+#  Bc -> mu mu D*(D0 pi),   D0 -> K- pi+
+#  Bc -> mu mu D0(K pi) 
+
+
+#  BcD selects following channels
+# - B_c+ -> J/psi D_s+, D_s+ -> phi pi+, phi -> K+ K-
+# - B_c+ -> J/psi D+, D_+ -> K- pi+ pi+
+# - B_c+ -> J/psi D*+, D*+ -> D0 pi+_s, D0 -> K- pi+
+# - the same decay without reconstruction of pi+_s
+
+#####################################################################################
+class TrigMultiTrkFex_B_2mu1trk (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_B_2mu1trk"):
+        super( TrigMultiTrkFexPy, self ).__init__( name )
+
+        #self.trackCollectionKey = "'
+        # disable any parameter by setting it to -1 or giving an empty list
+        self.trkMass = 139.57018  # take pion mass for all tracks, adjust mass accordingly, if you need Kaons
+        self.nTrk = 3
+        self.nTrkCharge = 1
+        self.nTrkVertexChi2 = 20
+        self.ptTrkMin = [1000., 1000., 1000. ] # set minimal pt of tracks; first 2 thresholds will be replaced by muon thresholds in the menu
+        self.diTrkMassMin = [100.]   # di-muon
+        self.diTrkMassMax = [5500.]  # 
+        self.diTrkCharge = 0  # set to -1 to disable
+        self.nTrkMassMin = [4040]  # lower as we replaced Kaon with pion mass
+        self.nTrkMassMax = [5440.] #  default cut is 
+        # muons are not matched to tracks, but still could be required to be present in TE
+        self.nEfMuon = 0
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0  # as we run on muon RoIs all necessary muons are already requested.
+        self.ptMuonMin = [] #[3600.]
+        #self.overlapdR  = 0.005 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]
+
+#####################################################################################
+# K*mumu
+class TrigMultiTrkFex_B_2mu2trk (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_B_2mu2trk"):
+        super( TrigMultiTrkFexPy, self ).__init__( name )
+
+        #self.trackCollectionKey = "'
+        # disable any parameter by setting it to -1 or giving an empty list
+        self.trkMass = 139.57018  # take pion mass for all tracks, adjust mass accordingly, if you need Kaons
+        self.nTrk = 4
+        self.nTrkCharge = 0
+        self.nTrkVertexChi2 = 60
+        self.ptTrkMin = [1000., 1000., 1000. ] # set minimal pt of tracks; first 2 thresholds will be replaced by muon thresholds in the menu
+        #self.diTrkMassMin = [100., 359]   # di-muon , K* (600-1500) using pion hypo
+        #self.diTrkMassMax = [5500., 1421.]  # 
+        self.diTrkMassMin = [100., 300]   # di-muon , K* (600-1500) using pion hypo
+        self.diTrkMassMax = [5500., 1400.]  # 
+        self.diTrkCharge = 0  # set to -1 to disable
+        self.nTrkMassMin = [4500]  #   4600-6300 if we would use Kaon mass
+        self.nTrkMassMax = [6280.] #  
+        # muons are not matched to tracks, but still could be required to be present in TE
+        self.nEfMuon = 0
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0  # as we run on muon RoIs all necessary muons are already requested.
+        self.ptMuonMin = [] #[3600.]
+        #self.overlapdR  = 0.005 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]
+
+
+#############################################################################
+class TrigMultiTrkFex_DiMu (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_DiMu"):
+        super( TrigMultiTrkFexPy, self ).__init__( name )
+        self.nTrk = 2
+        self.trkMass = 105.6583745  # looking for di-muon resonances       
+        self.nTrkVertexChi2 = 20
+        self.nTrkCharge = 0
+        self.nTrkMassMin = [1000.]
+        self.nTrkMassMax = [15000.] 
+        self.ptTrkMin = [4000., 4000. ] # set minimal pt of tracks for 2mu passing L1
+        self.diTrkMassMin = []   # phi window
+        self.diTrkMassMax = []
+        self.diTrkCharge = -1
+
+        # muons are not matched to tracks, but still require to be present in TE
+        self.nEfMuon = 0
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0  # as we run on muon RoIs all necessary muons are already requested.
+        self.ptMuonMin = [] #[3600.]
+        #self.overlapdR  = 0.005 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]

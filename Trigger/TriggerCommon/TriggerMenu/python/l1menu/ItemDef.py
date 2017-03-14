@@ -1576,7 +1576,8 @@ class ItemDef:
 
                     LVL1MenuItem('L1_BPH-2M8-2MU4-B_BPH-0DR15-2MU4'     ).setLogic( TOPO_2INVM8_CMU4ab_MU4ab & TOPO_0DR15_2MU4ab & physcond)                # 78% for Bs,J/psi + OneBarrel
 
-                    LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-B'    ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_CMU4ab_MU4ab & physcond)               # 78% for Upsi + OneBarrel
+                    LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-B'    ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_2MU4ab & TOPO_MULT_CMU4ab & physcond) # 78% for Upsi + OneBarrel 
+#                    LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-B'    ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_CMU4ab_MU4ab & physcond)               # 78% for Upsi + OneBarrel
                     #LVL1MenuItem('L1_BPH-1M19-2MU4-BO_BPH-0DR34-2MU4'   ).setLogic( TOPO_1INVM19_2CMU4ab & TOPO_0DR34_2MU4ab & physcond)                    # 50% for Bs,J/psi,Upsi + BarrelOnly
 
                         #LVL1MenuItem('L1_BPH-2M8-2MU4-BO_BPH-0DR15-2MU4'    ).setLogic( TOPO_2INVM8_2CMU4ab & TOPO_0DR15_2MU4ab & physcond)                     # 78% for Bs,J/psi + BarrelOnly

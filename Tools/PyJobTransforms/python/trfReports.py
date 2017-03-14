@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 784023 2016-11-14 14:01:07Z mavogel $
+#  @version $Id: trfReports.py 797402 2017-02-15 18:44:08Z uworlika $
 #
 
-__version__ = '$Revision: 784023 $'
+__version__ = '$Revision: 797402 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.7'
+    _reportVersion = '2.0.8'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -173,7 +173,7 @@ class trfJobReport(trfReport):
                 myDict['resource']['dbTimeTotal'] = self._dbTimeTotal
         # Resource consumption
         reportTime = os.times()
- 
+
         # Calculate total cpu time we used -
         myCpuTime = reportTime[0] + reportTime[1]
         childCpuTime = reportTime[2] + reportTime[3]
@@ -206,11 +206,14 @@ class trfJobReport(trfReport):
 
         msg.debug('maxWorkers: {0}, cpuTimeTotal: {1}, cpuTimePerWorker: {2}'.format(maxWorkers, cpuTime, cpuTimePerWorker))
         myDict['resource']['transform'] = {'cpuTime': int(myCpuTime + 0.5),
-                              'cpuTimeTotal': int(cpuTimeTotal + 0.5),
-                              'externalCpuTime': int(childCpuTime + 0.5),
-                              'wallTime': int(wallTime + 0.5),}
+                                           'cpuTimeTotal': int(cpuTimeTotal + 0.5),
+                                           'externalCpuTime': int(childCpuTime + 0.5),
+                                           'wallTime': int(wallTime + 0.5),
+                                           'transformSetup': {'cpuTime': self._trf.transformSetupCpuTime, 'wallTime': self._trf.transformSetupWallTime},
+                                           'inFileValidation': {'cpuTime': self._trf.inFileValidationCpuTime, 'wallTime': self._trf.inFileValidationWallTime},
+                                           'outFileValidation': {'cpuTime': self._trf.outFileValidationCpuTime, 'wallTime': self._trf.outFileValidationWallTime}, }
         if self._trf.processedEvents:
-            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents   
+            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents
         myDict['resource']['transform']['trfPredata'] = self._trf.trfPredata
         # check for devision by zero for fast jobs, unit tests
         if int(wallTime+0.5) > 0:
@@ -554,7 +557,7 @@ class machineReport(object):
                 machine[attr] = getattr(platform, attr).__call__()
             except AttributeError, e:
                 msg.error('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
-                
+
         # Now try to get processor information from /proc/cpuinfo
         try:
             with open('/proc/cpuinfo') as cpuinfo:
@@ -593,7 +596,7 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
 
 
 def exeResourceReport(exe, report):
-    exeResource = {'cpuTime': exe.cpuTime, 
+    exeResource = {'cpuTime': exe.cpuTime,
                    'wallTime': exe.wallTime,
                    'preExe': {
                        'cpuTime': exe.preExeCpuTime,

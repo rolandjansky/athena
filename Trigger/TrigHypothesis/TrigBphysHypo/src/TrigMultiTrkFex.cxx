@@ -34,9 +34,10 @@
 #define ACCEPT_HighPtTrack            6	
 #define ACCEPT_NTrkCharge             7	
 #define ACCEPT_NTrkMass               8	
-#define ACCEPT_PairCharge             9	
-#define ACCEPT_PairMass               10
-#define ACCEPT_RecordedCollection     11
+#define ACCEPT_NTrkVertexChi2         9	
+#define ACCEPT_PairCharge             10	
+#define ACCEPT_PairMass               11
+#define ACCEPT_RecordedCollection     12
 				      
 
 #define ERROR_No_EventInfo               0
@@ -53,6 +54,8 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   , m_bphysCollectionKey()
   , m_nTrk (2)
   , m_nTrkQ (-1)
+  , m_nTrkVertexChi2 (-1)
+  , m_trkMass(139.57018)  // pion
   , m_ptTrkMin()
   , m_nTrkMassMin() // this has to be in pair
   , m_nTrkMassMax()
@@ -78,6 +81,8 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "MultiTrkFex" );
   declareProperty("nTrk"           , m_nTrk 	     = 2 );
   declareProperty("nTrkCharge"     , m_nTrkQ 	     = -1 );
+  declareProperty("nTrkVertexChi2" , m_nTrkVertexChi2  = -1 );
+  declareProperty("trkMass"        , m_trkMass    =  139.57018 );  
   declareProperty("ptTrkMin"       , m_ptTrkMin       );
   declareProperty("diTrkMassMin"   , m_diTrkMassMin    );
   declareProperty("diTrkMassMax"   , m_diTrkMassMax    );
@@ -90,17 +95,17 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   declareProperty("ptMuonMin"     , m_ptMuonMin      );
   declareProperty("overlapdR"     , m_mindR    = 0.01  );  
 
-  declareMonitoredStdContainer("Errors"        , mon_Errors                  , AutoClear);
-  declareMonitoredStdContainer("Acceptance"    , mon_Acceptance              , AutoClear);
-  declareMonitoredStdContainer("NTrkMass",       mon_NTrkMass    , AutoClear  );
-  declareMonitoredStdContainer("NTrkFitMass",    mon_NTrkFitMass    , AutoClear  );
-  declareMonitoredStdContainer("NTrkChi2",       mon_NTrkChi2    , AutoClear  );
-  declareMonitoredStdContainer("PairMass",       mon_pairMass     , AutoClear );
-  declareMonitoredVariable("NTrk_all",           mon_NTrk); 
-  declareMonitoredVariable("NTrk_highpt",        mon_highptNTrk); 
-  declareMonitoredVariable("NTrkHighPt_accepted",  mon_accepted_highptNTrk); 
-  declareMonitoredVariable("NPair_all",           mon_NPair); 
-  declareMonitoredVariable("NPair_accepted",      mon_acceptedNPair); 
+  declareMonitoredStdContainer("Errors"        , m_mon_Errors                  , AutoClear);
+  declareMonitoredStdContainer("Acceptance"    , m_mon_Acceptance              , AutoClear);
+  declareMonitoredStdContainer("NTrkMass",       m_mon_NTrkMass    , AutoClear  );
+  declareMonitoredStdContainer("NTrkFitMass",    m_mon_NTrkFitMass    , AutoClear  );
+  declareMonitoredStdContainer("NTrkChi2",       m_mon_NTrkChi2    , AutoClear  );
+  declareMonitoredStdContainer("PairMass",       m_mon_pairMass     , AutoClear );
+  declareMonitoredVariable("NTrk_all",           m_mon_NTrk); 
+  declareMonitoredVariable("NTrk_highpt",        m_mon_highptNTrk); 
+  declareMonitoredVariable("NTrkHighPt_accepted",  m_mon_accepted_highptNTrk); 
+  declareMonitoredVariable("NPair_all",           m_mon_NPair); 
+  declareMonitoredVariable("NPair_accepted",      m_mon_acceptedNPair); 
 }
 
 TrigMultiTrkFex::~TrigMultiTrkFex()
@@ -237,6 +242,9 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
     }
   }
   
+  if( m_nTrkVertexChi2 >= 0 ) {
+    msg() << MSG::INFO << " N-track system has to have vertex chi2  "<< m_nTrkVertexChi2 <<endmsg;
+  }
 
   if (msgLvl() <= MSG::INFO &&  m_nTrkMassMin.size() > 0 ){
     msg() << MSG::INFO << "Require N-track Mass in ";
@@ -308,13 +316,13 @@ HLT::ErrorCode TrigMultiTrkFex::hltFinalize()
 // HLT::ErrorCode TrigMultiTrkFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass) {
   
 //   //OI: we do not care from which RoI tracks come from as long as they give good vertex and mass
-// mon_Acceptance.push_back( ACCEPT_Input );
+// m_mon_Acceptance.push_back( ACCEPT_Input );
 
 //    // event info
 //     uint32_t runNumber(0), evtNumber(0), lbBlock(0);
 //     if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
 //         msg() << MSG::WARNING << "Error retriving EventInfo" << endmsg;
-// 	mon_Errors.push_back( ERROR_No_EventInfo );
+// 	m_mon_Errors.push_back( ERROR_No_EventInfo );
 //     }
 
  
@@ -334,7 +342,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltFinalize()
 
 HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output)
 {
-    mon_Acceptance.push_back( ACCEPT_hltExecute );
+    m_mon_Acceptance.push_back( ACCEPT_hltExecute );
     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In TrigMultiTrk hltExecute" << endmsg;
 
     
@@ -359,7 +367,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed L2SA cut"<< endmsg; 
     }    
 
-    mon_Acceptance.push_back( ACCEPT_PassNL2SAMuons );
+    m_mon_Acceptance.push_back( ACCEPT_PassNL2SAMuons );
     //========  check if we have enough L2 Combined muons :  =====================
     std::vector<ElementLink<xAOD::L2CombinedMuonContainer> > l2combmuons;
     //  passMuon = passNObjects<std::vector<const xAOD::L2CombinedMuonContainer*>, 
@@ -374,7 +382,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed L2Comb muon cut"<< endmsg; 
       return HLT::OK;
     }
-    mon_Acceptance.push_back( ACCEPT_PassNL2CombMuons );
+    m_mon_Acceptance.push_back( ACCEPT_PassNL2CombMuons );
 
     //========  check if we have enough EF muons :  =====================
     //std::vector<const xAOD::Muon*> efmuons; // do not own vectors
@@ -391,7 +399,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed EF muon cut"<< endmsg; 
       return HLT::OK;
     }
-    mon_Acceptance.push_back( ACCEPT_PassNEFMuons );
+    m_mon_Acceptance.push_back( ACCEPT_PassNEFMuons );
     //======== now make track container : =======================
     
     
@@ -411,11 +419,12 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "You should never get to this point - check code"<< endmsg;   
     return HLT::OK;
     }
-    mon_Acceptance.push_back( ACCEPT_PassNTracks );
-    mon_NTrk =  tracks.size() ;
+    m_mon_Acceptance.push_back( ACCEPT_PassNTracks );
+    m_mon_NTrk =  tracks.size() ;
   //============= limit list to Ntrack leading tracks ===========
     bool passHighPtTrack = false;
     bool passNTrkCharge = false;
+    bool passNTrkVertexChi2 = false;
     bool passNTrkMass = false;
     bool passPairCharge = false;
     bool passPairMass = false;
@@ -438,14 +447,14 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	      << endmsg;
     }
 
-    mon_highptNTrk = highptTracks.size() ;
+    m_mon_highptNTrk = highptTracks.size() ;
     passHighPtTrack = true;
     // now all preselection cuts passed, make output collection now
 
     xAOD::TrigBphysContainer * xAODTrigBphysColl = new xAOD::TrigBphysContainer;
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
-    std::vector<double> masses(2,105.65);    
+    std::vector<double> masses(2,m_trkMass);    
  
 
     //=====make all requested m_nTrk combinations =================
@@ -473,9 +482,9 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	}
       
       //=== now check if combination is OK
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Combination "<< combi.str() 
-				       << ", Ntrk="<< thisIterationTracks.size() 
-				       << " pts=["<< hpts.str() << " ]"<< endmsg;
+      ATH_MSG_DEBUG( " Combination "<< combi.str() 
+                     << ", Ntrk="<< thisIterationTracks.size() 
+                     << " pts=["<< hpts.str() << " ]" );
       
 
       //==== re-check pts
@@ -512,6 +521,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
       //=== calculate total mass of m_nTrk objects ================
       double totalMass = 0;
+      float trkMassSqr = m_trkMass*m_trkMass;
       
       if( m_nTrkMassMin.size() > 0 ){
 	double px =0;
@@ -525,12 +535,12 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	 py += mom.Py();
 	 pz += mom.Pz();
 	 // treat them all as muons
-	 double e2 =  mom.P()*mom.P() + 11161.9225; // 105.65^2 
+	 double e2 =  mom.P()*mom.P() + trkMassSqr; // 105.65^2 
 	 if( e2 > 0 ) E += sqrt(e2);
        }
        double m2 = E*E - px*px - py*py -pz*pz;
        totalMass = (m2 < 0) ? 0 : sqrt(m2);
-       mon_NTrkMass.push_back(totalMass*0.001);
+       m_mon_NTrkMass.push_back(totalMass*0.001);
        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "combination mass = "<< totalMass << endmsg;
        // check mass window now
        bool foundMass = false;
@@ -581,7 +591,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	     
 	     // simple mass
 	     double dimass = m_bphysHelperTool->invariantMass(*trk0,*trk1,masses[0], masses[1]);
-	     mon_pairMass.push_back(dimass);
+	     m_mon_pairMass.push_back(dimass);
 
 	     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pair pt1=" << (*trk0)->pt() << ", pt2="<< (*trk1)->pt()
 					      <<", mass = "<<  dimass << endmsg;
@@ -609,8 +619,8 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
        }
     
 
-       mon_NPair += npair;
-       mon_acceptedNPair += npairAcc;
+       m_mon_NPair += npair;
+       m_mon_acceptedNPair += npairAcc;
 
        //  first add big object and then di-masses
        xAOD::TrigBphys* xaodobj = new xAOD::TrigBphys;
@@ -618,12 +628,34 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
        xaodobj->initialise(0, 0., 0.,0., xAOD::TrigBphys::MULTIMU, totalMass,xAOD::TrigBphys::EF);
        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Adding TrigBphys xAOD obj with mass "<< totalMass << endmsg;
        
-       std::vector<double> masses1(thisIterationTracks.size(),105.65);
+       std::vector<double> masses1(thisIterationTracks.size(), m_trkMass);
        if (m_bphysHelperTool->vertexFit(xaodobj,thisIterationTracks,masses1).isFailure()) {
+	 delete xaodobj; xaodobj = nullptr;
 	 if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Problems with vertex fit in TrigMultiTrkFex"  << endmsg;
-       }
-       mon_NTrkFitMass.push_back(xaodobj->mass()*0.001 );
-       mon_NTrkChi2.push_back(xaodobj->fitchi2() );
+	 continue;
+       }else{
+	 // check chi2 
+	 if( m_nTrkVertexChi2 >= 0 ){
+	   float chi2 = xaodobj->fitchi2();
+	   if( chi2 > m_nTrkVertexChi2 ){  
+	     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " nTrk Vertex chi2  "<< chi2
+					      << " required "<<m_nTrkVertexChi2 << " thus fail" << endmsg;
+	     //delete created object
+	     //xAODTrigBphysColl->pop_back() ;
+	     //delete xaodobj; xaodobj = nullptr;
+	     continue;
+	   }else{
+	     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " nTrk Vertex chi2  "<< chi2
+					      << " required "<<m_nTrkVertexChi2 << " is good" << endmsg;
+	   }
+	 }	
+       } // end of vertexFit.isFailure
+
+       passNTrkVertexChi2 = true;
+
+    
+       m_mon_NTrkFitMass.push_back(xaodobj->mass()*0.001 );
+       m_mon_NTrkChi2.push_back(xaodobj->fitchi2() );
        //m_bphysHelperTool->fillTrigObjectKinematics(xaodobj,{mutrk,trk});
 
        // OI : need to check the size of these, may be we can skip them
@@ -643,16 +675,17 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
         //std::cout << std::endl;
 
 
-    mon_accepted_highptNTrk =  highptTracks.size() ;
+    m_mon_accepted_highptNTrk =  highptTracks.size() ;
 
     } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
   //------------- end of combination loop
 
-    if(  passHighPtTrack )   mon_Acceptance.push_back( ACCEPT_HighPtTrack );
-    if(  passNTrkCharge  )   mon_Acceptance.push_back( ACCEPT_NTrkCharge  );
-    if(  passNTrkMass    )   mon_Acceptance.push_back( ACCEPT_NTrkMass    );
-    if(  passPairCharge  )   mon_Acceptance.push_back( ACCEPT_PairCharge  );
-    if(  passPairMass    )   mon_Acceptance.push_back( ACCEPT_PairMass    );
+    if(  passHighPtTrack )   m_mon_Acceptance.push_back( ACCEPT_HighPtTrack );
+    if(  passNTrkCharge  )   m_mon_Acceptance.push_back( ACCEPT_NTrkCharge  );
+    if(  passNTrkVertexChi2)   m_mon_Acceptance.push_back( ACCEPT_NTrkVertexChi2  );
+    if(  passNTrkMass    )   m_mon_Acceptance.push_back( ACCEPT_NTrkMass    );
+    if(  passPairCharge  )   m_mon_Acceptance.push_back( ACCEPT_PairCharge  );
+    if(  passPairMass    )   m_mon_Acceptance.push_back( ACCEPT_PairMass    );
 
 
     // record collection now
@@ -669,11 +702,11 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
         HLT::ErrorCode sc = attachFeature(outputTE, xAODTrigBphysColl, m_bphysCollectionKey );
         if(sc != HLT::OK) {
             msg()  << MSG::WARNING << "Failed to store trigBphys Collection" << endmsg;
-            mon_Errors.push_back( ERROR_BphysColl_Fails );
+            m_mon_Errors.push_back( ERROR_BphysColl_Fails );
             delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr; // assume deletion responsibility
             return HLT::ERROR;
         }
-	mon_Acceptance.push_back( ACCEPT_RecordedCollection );
+	m_mon_Acceptance.push_back( ACCEPT_RecordedCollection );
 	m_countPassedCombination += xAODTrigBphysColl->size();
     } else {
         if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endmsg;

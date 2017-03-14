@@ -149,6 +149,9 @@ void TrigEFPhotonHypo::prepareMonitoringVars() {
 
   //Monitor isEM 32-Bit Pattern After Cuts
   m_IsEMRequiredBitsAfterCut.assign(32,0);
+  m_NofPassedCuts=-1;
+  m_NofPassedCutsIsEM=-1; 
+  m_NofPassedCutsIsEMTrig=-1; 
 }
 
 TrigEFPhotonHypo::~TrigEFPhotonHypo()

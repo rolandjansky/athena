@@ -19,41 +19,41 @@
    	</TEST>
 
 
-	<TEST name="RecExOnline_isOnline_False" type="athena" suite="RecExOnline_ATN_Offline">
+	<TEST name="RecExOnline_Offline" type="athena" suite="RecExOnline_ATN_Offline">
       		<options_atn>RecExOnline/RecExOnline_User_Offline.py</options_atn>
-      		<timelimit>30</timelimit>
-      		<author> Alex Koutsman </author>
-      		<mailto> alex.koutsman@cern.ch </mailto>
+      		<timelimit>60</timelimit>
+      		<author> Yun-Ju Lu </author>
+      		<mailto> yunju@cern.ch, song.ming.wang@cern.ch  </mailto>
       		<expectations>
          		<returnValue>0</returnValue>
       		</expectations>
    	</TEST>
 
-	<TEST name="RecExOnline_isOnline_True" type="athena" suite="RecExOnline_ATN_isOnline_autoconfigEverything">
+	<TEST name="RecExOnline_autoconfiguration_True_isOnline_True" type="athena" suite="RecExOnline_ATN_isOnline_autoconfigEverything">
    		<options_atn>-c "REO_doAutoConfiguration=True" RecExOnline/RecExOnline_User_Offline_isOnlineTrue.py</options_atn> 
       		<timelimit>30</timelimit>
-      		<author> Alex Koutsman </author>
-      		<mailto> alex.koutsman@cern.ch </mailto>
+      		<author> Yun-Ju Lu </author>
+      		<mailto> yunju@cern.ch, song.ming.wang@cern.ch  </mailto>
       		<expectations>
          		<returnValue>0</returnValue>
       		</expectations>
    	</TEST>
 
-	<TEST name="RecExOnline_isOnline_True" type="athena" suite="RecExOnline_ATN_isOnline_autoconfigOnline">
+	<TEST name="RecExOnline_autoconfiguration_False_isOnline_True" type="athena" suite="RecExOnline_ATN_isOnline_autoconfigOnline">
    		<options_atn>-c "REO_doAutoConfiguration=False" RecExOnline/RecExOnline_User_Offline_isOnlineTrue.py</options_atn> 
       		<timelimit>30</timelimit>
-      		<author> Alex Koutsman </author>
-      		<mailto> alex.koutsman@cern.ch </mailto>
+      		<author> Yun-Ju Lu </author>
+      		<mailto> yunju@cern.ch, song.ming.wang@cern.ch  </mailto>
       		<expectations>
          		<returnValue>0</returnValue>
       		</expectations>
    	</TEST>
 
-	<TEST name="RecExOnline_isOnline_True" type="athena" suite="RecExOnline_ATN_isOnline_cosmics">
+	<TEST name="RecExOnline_Cosmic_isOnline_True" type="athena" suite="RecExOnline_ATN_isOnline_cosmics">
    		<options_atn>-c "REO_doAutoConfiguration=False; beamType='cosmics'" RecExOnline/RecExOnline_User_Offline_isOnlineTrue.py</options_atn> 
       		<timelimit>30</timelimit>
-      		<author> Alex Koutsman </author>
-      		<mailto> alex.koutsman@cern.ch </mailto>
+      		<author> Yun-Ju Lu </author>
+      		<mailto> yunju@cern.ch, song.ming.wang@cern.ch  </mailto>
       		<expectations>
          		<returnValue>0</returnValue>
       		</expectations>
