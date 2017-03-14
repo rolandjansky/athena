@@ -20,5 +20,5 @@ atlas_add_library( TauHistUtils
                    src/*.cxx
 		   PUBLIC_HEADERS TrkValHistUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODPFlow xAODTau )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODPFlow xAODTau TrkValHistUtils)
 

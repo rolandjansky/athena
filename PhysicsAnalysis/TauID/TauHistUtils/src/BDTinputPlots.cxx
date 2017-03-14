@@ -33,8 +33,8 @@ void BDTinputPlots::initializePlots(){
 	  +++++++++++++++++++BDT OUTPUT+++++++++++++++++++++
 	  +++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-	m_id_BDTJetScore = Book1D("id_BDTJetScore",m_sTauJetContainerName + " BDTJetScore ; BDTJetScore; # Tau",10,0.,1.05);
-	m_id_BDTEleScore = Book1D("id_BDTEleScore",m_sTauJetContainerName + " BDTEleScore ; BDTEleScore; # Tau",10,0.,1.05);
+	m_id_BDTJetScore = Book1D("id_BDTJetScore",m_sTauJetContainerName + " BDTJetScore ; BDTJetScore; # Tau",10,-1.01,1.01);
+	m_id_BDTEleScore = Book1D("id_BDTEleScore",m_sTauJetContainerName + " BDTEleScore ; BDTEleScore; # Tau",10,0.,1.01);
 	m_pt_eleBDTloose = Book1D("Pt_eleBDTloose",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
 	m_pt_eleBDTmed   = Book1D("Pt_eleBDTmed",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
 	m_pt_eleBDTtight = Book1D("Pt_eleBDTtight",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
