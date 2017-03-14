@@ -138,9 +138,9 @@
 
             <keepFilePattern>times/STAR.pdf</keepFilePattern>
             <keepFilePattern>times/STAR.png</keepFilePattern>
+
             <keepFilePattern>times-FTF/STAR.pdf</keepFilePattern>
             <keepFilePattern>times-FTF/STAR.png</keepFilePattern>
-
 
             <keepFilePattern>*.png</keepFilePattern>
             <keepFilePattern>*.ps</keepFilePattern>
