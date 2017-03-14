@@ -553,7 +553,7 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
 
     if (row >= rowsPerFE || column >= columnsPerFE ||
             FE >= ((thisModule == IBL || thisModule == DBM) ? FEsPerHalfModule : 2*FEsPerHalfModule)) {
-        msg(MSG::WARNING) << "Illegal pixel requested OfflineID: " << std::hex << offlineId << std::dec
+        msg(MSG::DEBUG) << "Illegal pixel requested OfflineID: " << std::hex << offlineId << std::dec
                         << " FE: " << FE << " row: " << row << " column: " << column << endmsg;
         msg(MSG::DEBUG) << "Limits are: FE < " << ((thisModule == IBL || thisModule == DBM) ? FEsPerHalfModule : 2*FEsPerHalfModule)
                        << ", row < " << rowsPerFE << ", column < " << columnsPerFE << endmsg;

@@ -48,7 +48,9 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
             # ITk:
             if geoFlags.isSLHC():
                 IdMappingDat = "ITk_Atlas_IdMapping.dat"
-                if "BrlIncl4.0_ref" == geoFlags.GeoType():
+                if "BrlInclOptRing4.0_ref" == geoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4_OptRing.dat"
+                elif "BrlIncl4.0_ref" == geoFlags.GeoType():
                     IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
                 elif "IBrlExt4.0ref" == geoFlags.GeoType():
                     IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
@@ -56,6 +58,10 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
                     IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
                 elif "BrlExt3.2_ref" == geoFlags.GeoType():
                     IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
+                elif "LoIVF" == geoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_LoIVF.dat"
+                elif "LoI" == geoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_LoI.dat"
                 logger.info("Using ITk pixel mapping: %s" % IdMappingDat)
                 kwargs.setdefault("MappingFile", IdMappingDat)
 
