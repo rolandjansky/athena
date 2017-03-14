@@ -34,6 +34,8 @@ private:
   //  SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_outputProxyContainerAux;
 
   std::vector<std::string> m_viewAlgorithmNames;
+  int m_roITypeInViews;
+  std::string m_roIKeyInViews;
 };
 
 #endif

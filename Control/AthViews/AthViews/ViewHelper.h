@@ -138,6 +138,63 @@ namespace ViewHelper
 
 		return StatusCode::SUCCESS;
 	}
-}
+  /**
+   * @arg unique_index - gets appended to the view name if >= 0
+   */
+  inline SG::View* makeView( const std::string& common_name, int unique_index=-1) {
+	  return  (( unique_index == -1 ) ?
+		   new SG::View( common_name ) :
+		   new SG::View( common_name+ " "+std::to_string(unique_index) ) );
+	  
+  }
+  
+  /**
+   * @brief - records object in a view
+   */  
+  template< typename T >
+  StatusCode addToView( SG::View* view, const std::string& key, T* ptr ) {
+    
+    SG::WriteHandle< T > handle( key );
+    
+    if( handle.setProxyDict( view ).isFailure() ) {
+      return StatusCode::FAILURE;
+    }
+    
+    if ( handle.record( std::unique_ptr<T>( ptr ) ).isFailure() ) {
+      return StatusCode::FAILURE;
+    }
+    
+    return StatusCode::SUCCESS;
+  }
+
+  template< typename T >
+  StatusCode addViewCollectionToView(SG::View* view, const std::string& key, const T* src ) {
+    auto * viewColl = new ConstDataVector<T>();    
+    viewColl->clear( SG::VIEW_ELEMENTS ); //make it a view
+    viewColl->insert( viewColl->end(), src->begin(), src->end() ); // copy content
+
+    return  addToView( view, key, viewColl );    
+  }
+
+  
+  /**
+   * @return nullptr if object of type T is missing in the view
+   */
+  template< typename T >
+  const T* getFromView( SG::View* view, const std::string& key) {
+    
+    SG::ReadHandle<T> handle(key);
+    
+    if ( handle.setProxyDict(view).isFailure() )  {
+      return nullptr;
+    }
+    
+    return handle.cptr();
+  }
+
+  
+
+  
+} // EOF namspace ViewHelper
 
 #endif
