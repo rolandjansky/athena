@@ -150,7 +150,7 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
   //	    << " phi: " << jet.p4().Phi()
   //	    << " m: "   << jet.p4().M()
   //	    << std::endl;
-  //
+  
   //std::cout << "primaryVertex z" << primaryVertex->z() << std::endl;
 
   // Compute and store GSC moments from precision tracks
@@ -208,27 +208,45 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
 
   // EXECUTE OFFLINE TOOLS
 
+
   // calJet is a pointer to the new, calibrated jet
   xAOD::Jet* calJet = new xAOD::Jet;
   m_jetGSCCalib_tool->calibratedCopy(jet,calJet);
-  // Now we have a new fully calibrated jet!
 
-//std::cout << "TrigGSCFex: New jet"
+//  std::cout << "TrigGSCFex: New jet"
 //	    << " pt: "  << calJet->p4().Pt()
 //	    << " eta: " << calJet->p4().Eta()
 //	    << " phi: " << calJet->p4().Phi()
 //	    << " m: "   << calJet->p4().M()
 //	    << std::endl;
 
-
+  
   xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
   xAOD::JetContainer* jc = new xAOD::JetContainer;
   jc->setStore(&trigJetTrigAuxContainer);
-  jc->push_back ( calJet );
+  jc->push_back ( new xAOD::Jet(*calJet) );
+  delete calJet;
 
+//  std::cout << "TrigGSCFex: New jet back"
+//	    << " pt: "  << jc->back()->p4().Pt()
+//	    << " eta: " << jc->back()->p4().Eta()
+//	    << " phi: " << jc->back()->p4().Phi()
+//	    << " m: "   << jc->back()->p4().M()
+//	    << std::endl;
+//
+
+  // do not allow GSC track to give large negative energy corrections
+  // to jets with only a few tracks
+  if(jc->back()->p4().Et() < jet.p4().Et()*0.95 && nTrk<= 3){
+    float newET = jet.p4().Et()*0.95;
+    xAOD::JetFourMom_t p4 = jet.jetP4();
+    p4.SetPt(sqrt(newET*newET - (jet.m())*(jet.m())));
+    jc->back()->setJetP4( p4 );
+  }
+  
   HLT::ErrorCode hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
   if (hltStatus != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << calJet->eta() << ", " << calJet->phi() << endmsg;
+    msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jc->back()->eta() << ", " << jc->back()->phi() << endmsg;
     return hltStatus;
   }
 

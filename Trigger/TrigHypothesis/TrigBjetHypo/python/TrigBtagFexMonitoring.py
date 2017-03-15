@@ -23,11 +23,11 @@ class TrigBtagFexMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('tag_IP3DSV1', type='TH1F', title="BtagFex IP3D+SV1 Discriminant",
                                              xbins=200, xmin=-50.0, xmax=50.0) ]
         self.Histograms += [ defineHistogram('tag_MV2c00', type='TH1F', title="BtagFex MV2c00 Discriminant",
-                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+                                             xbins=200, xmin=-1., xmax=1.) ]
         self.Histograms += [ defineHistogram('tag_MV2c10', type='TH1F', title="BtagFex MV2c10 Discriminant",
-                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+                                             xbins=200, xmin=--1., xmax=1.) ]
         self.Histograms += [ defineHistogram('tag_MV2c20', type='TH1F', title="BtagFex MV2c20 Discriminant",
-                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+                                             xbins=200, xmin=-1., xmax=1.) ]
 
 
 

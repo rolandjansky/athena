@@ -145,10 +145,10 @@ void TrigBjetTagger::getWeights() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrackInfoVector,
-				TrigBjetPrmVtxInfo*&  m_trigBjetPrmVtxInfo,
-				TrigBjetSecVtxInfo*&  m_trigBjetSecVtxInfo, 
-				TrigBjetJetInfo*&     m_trigBjetJetInfo) {
+void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& trigBjetTrackInfoVector,
+				TrigBjetPrmVtxInfo*&  trigBjetPrmVtxInfo,
+				TrigBjetSecVtxInfo*&  trigBjetSecVtxInfo, 
+				TrigBjetJetInfo*&     trigBjetJetInfo) {
 
   if (m_logLvl <= MSG::DEBUG)
     m_log << MSG::DEBUG << "Executing TrigBjetTagger::getWeights" << endmsg;
@@ -165,14 +165,14 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
   m_vectorIP2D_Grade2.clear();
 #endif
 
-  float m_sigmaBeamSpot = (m_trigBjetPrmVtxInfo->xBeamSpotWidth()+m_trigBjetPrmVtxInfo->yBeamSpotWidth())/2;
+  float sigmaBeamSpot = (trigBjetPrmVtxInfo->xBeamSpotWidth()+trigBjetPrmVtxInfo->yBeamSpotWidth())/2;
 
   ///////////////////////////////////////
   // likelihood-based track IP taggers //
   ///////////////////////////////////////
 
-  std::vector<TrigBjetTrackInfo>::const_iterator pTrack    = m_trigBjetTrackInfoVector->begin();
-  std::vector<TrigBjetTrackInfo>::const_iterator lastTrack = m_trigBjetTrackInfoVector->end();
+  std::vector<TrigBjetTrackInfo>::const_iterator pTrack    = trigBjetTrackInfoVector->begin();
+  std::vector<TrigBjetTrackInfo>::const_iterator lastTrack = trigBjetTrackInfoVector->end();
 
   std::vector<std::string>::iterator pTagger = m_trigBjetFex->m_taggers.begin();
   std::vector<std::string>::iterator lastTagger = m_trigBjetFex->m_taggers.end();
@@ -181,30 +181,30 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
     m_trigBjetFex->m_mon_trk_a0_sel.push_back((*pTrack).d0());
     m_trigBjetFex->m_mon_trk_z0_sel.push_back((*pTrack).z0());
-    m_trigBjetFex->m_mon_trk_z0_sel_PV.push_back((*pTrack).z0()-m_trigBjetPrmVtxInfo->zPrmVtx());
+    m_trigBjetFex->m_mon_trk_z0_sel_PV.push_back((*pTrack).z0()-trigBjetPrmVtxInfo->zPrmVtx());
 
     float w=1;
     double Pu=1e9;
     double Pb=1;
 
-    float m_IP1D=0, errIP1D=0; 
-    float m_IP2D=0, errIP2D=0;
+    float IP1D=0, errIP1D=0; 
+    float IP2D=0, errIP2D=0;
     float z0=0, z0Sign=0, d0Sign=0;
     
     errIP1D = (*pTrack).ez0();
     errIP2D = (*pTrack).ed0();
 
-    z0 = (*pTrack).z0Corr() - m_trigBjetPrmVtxInfo->zPrmVtx();
+    z0 = (*pTrack).z0Corr() - trigBjetPrmVtxInfo->zPrmVtx();
 
     if (m_trigBjetFex->m_useJetDirection == 1) {
-      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), m_trigBjetJetInfo->phiJet());
-      z0Sign = m_taggerHelper->signedZ0(z0, (*pTrack).eta(), m_trigBjetJetInfo->etaJet());
+      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), trigBjetJetInfo->phiJet());
+      z0Sign = m_taggerHelper->signedZ0(z0, (*pTrack).eta(), trigBjetJetInfo->etaJet());
     } else if (m_trigBjetFex->m_useJetDirection == 2) {
-      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), m_trigBjetJetInfo->phiTrkJet());
-      z0Sign = m_taggerHelper->signedZ0(z0, (*pTrack).eta(), m_trigBjetJetInfo->etaTrkJet());
+      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), trigBjetJetInfo->phiTrkJet());
+      z0Sign = m_taggerHelper->signedZ0(z0, (*pTrack).eta(), trigBjetJetInfo->etaTrkJet());
     } else if (m_trigBjetFex->m_useJetDirection == 3) {
-      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), m_trigBjetJetInfo->phiRoI());
-      z0Sign = m_taggerHelper->signedZ0(z0, (*pTrack).eta(), m_trigBjetJetInfo->etaRoI());
+      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), trigBjetJetInfo->phiRoI());
+      z0Sign = m_taggerHelper->signedZ0(z0, (*pTrack).eta(), trigBjetJetInfo->etaRoI());
     }
 
     pTagger = m_trigBjetFex->m_taggers.begin();
@@ -221,60 +221,60 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
       if ((*pTagger) == "IP1D") {
 
-	if (errIP1D) m_IP1D = z0Sign/sqrt(errIP1D*errIP1D);
+	if (errIP1D) IP1D = z0Sign/sqrt(errIP1D*errIP1D);
 
         if ( (*pTrack).grade() > 0 ) {
 
 #ifdef VALIDATION_TOOL
-          m_vectorIP1D.push_back(m_IP1D);
+          m_vectorIP1D.push_back(IP1D);
 #endif
 	  if((*pTrack).grade()==1) {
-	    w = getW("IP1D_Grade1", m_IP1D);
-	    getPuPb("IP1D_Grade1", m_IP1D, Pu, Pb);
+	    w = getW("IP1D_Grade1", IP1D);
+	    getPuPb("IP1D_Grade1", IP1D, Pu, Pb);
 	  } else if((*pTrack).grade()==2) {
-	    w = getW("IP1D_Grade2", m_IP1D);
-	    getPuPb("IP1D_Grade2", m_IP1D, Pu, Pb);
+	    w = getW("IP1D_Grade2", IP1D);
+	    getPuPb("IP1D_Grade2", IP1D, Pu, Pb);
 	  }
         }
       } 
 
       else if ((*pTagger) == "IP2D") {
 
-	if (errIP2D && m_sigmaBeamSpot) m_IP2D = d0Sign/sqrt(errIP2D*errIP2D + m_sigmaBeamSpot*m_sigmaBeamSpot);
+	if (errIP2D && sigmaBeamSpot) IP2D = d0Sign/sqrt(errIP2D*errIP2D + sigmaBeamSpot*sigmaBeamSpot);
 
         if ( (*pTrack).grade() > 0 ) {
 
 #ifdef VALIDATION_TOOL
-          m_vectorIP2D.push_back(m_IP2D);
+          m_vectorIP2D.push_back(IP2D);
 #endif
 	  if((*pTrack).grade()==1) {
-	    w = getW("IP2D_Grade1", m_IP2D);
-	    getPuPb("IP2D_Grade1", m_IP2D, Pu, Pb);
+	    w = getW("IP2D_Grade1", IP2D);
+	    getPuPb("IP2D_Grade1", IP2D, Pu, Pb);
 	  } else if((*pTrack).grade()==2) {
-	    w = getW("IP2D_Grade2", m_IP2D);
-	    getPuPb("IP2D_Grade2", m_IP2D, Pu, Pb);
+	    w = getW("IP2D_Grade2", IP2D);
+	    getPuPb("IP2D_Grade2", IP2D, Pu, Pb);
 	  }
         }
       } 
 
       else if ((*pTagger) == "IP3D") {
 
-	if (errIP1D) m_IP1D = z0Sign/sqrt(errIP1D*errIP1D);
-	if (errIP2D && m_sigmaBeamSpot) m_IP2D = d0Sign/sqrt(errIP2D*errIP2D + m_sigmaBeamSpot*m_sigmaBeamSpot);
+	if (errIP1D) IP1D = z0Sign/sqrt(errIP1D*errIP1D);
+	if (errIP2D && sigmaBeamSpot) IP2D = d0Sign/sqrt(errIP2D*errIP2D + sigmaBeamSpot*sigmaBeamSpot);
 
         if ( (*pTrack).grade() > 0 ) {
 
 	  if((*pTrack).grade()==1) {
-	    w = getW("IP3D_Grade1", m_IP2D, m_IP1D);
-	    getPuPb("IP3D_Grade1", m_IP2D, m_IP1D, Pu, Pb);
+	    w = getW("IP3D_Grade1", IP2D, IP1D);
+	    getPuPb("IP3D_Grade1", IP2D, IP1D, Pu, Pb);
 	  } else if((*pTrack).grade()==2) {
-	    w = getW("IP3D_Grade2", m_IP2D, m_IP1D);
-	    getPuPb("IP3D_Grade2", m_IP2D, m_IP1D, Pu, Pb);
+	    w = getW("IP3D_Grade2", IP2D, IP1D);
+	    getPuPb("IP3D_Grade2", IP2D, IP1D, Pu, Pb);
 	  }
         }
 
-	m_trigBjetFex->m_mon_trk_Sz0_sel.push_back(m_IP1D);
-	m_trigBjetFex->m_mon_trk_Sa0_sel.push_back(m_IP2D);
+	m_trigBjetFex->m_mon_trk_Sz0_sel.push_back(IP1D);
+	m_trigBjetFex->m_mon_trk_Sa0_sel.push_back(IP2D);
 
       }
       
@@ -302,7 +302,7 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
   pTagger = m_trigBjetFex->m_taggers.begin();
 
-  if(m_trigBjetSecVtxInfo->isValid()) {
+  if(trigBjetSecVtxInfo->isValid()) {
      
     for ( ; pTagger != lastTagger; pTagger++) {
         
@@ -314,13 +314,13 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       if ((*pTagger) == "MVTX") {
 
 	double Pu=1, Pb=1;           
-	getPuPb("MVTX", m_trigBjetSecVtxInfo->vtxMass(), Pu, Pb);
-	m_taggersWMap[(*pTagger)] = getW("MVTX", m_trigBjetSecVtxInfo->vtxMass());
+	getPuPb("MVTX", trigBjetSecVtxInfo->vtxMass(), Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("MVTX", trigBjetSecVtxInfo->vtxMass());
 	m_taggersPuMap[(*pTagger)] = Pu;
 	m_taggersPbMap[(*pTagger)] = Pb;
            
 	if (m_logLvl <= MSG::DEBUG) {
-	  m_log << MSG::DEBUG << "Invariant mass " << m_trigBjetSecVtxInfo->vtxMass() << endmsg;
+	  m_log << MSG::DEBUG << "Invariant mass " << trigBjetSecVtxInfo->vtxMass() << endmsg;
 	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
 		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endmsg;
 	}
@@ -329,13 +329,13 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       else if ((*pTagger) == "EVTX") { 
            
 	double Pu=1, Pb=1;           
-	getPuPb("EVTX", m_trigBjetSecVtxInfo->energyFraction(), Pu, Pb);
-	m_taggersWMap[(*pTagger)] = getW("EVTX", m_trigBjetSecVtxInfo->energyFraction());
+	getPuPb("EVTX", trigBjetSecVtxInfo->energyFraction(), Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("EVTX", trigBjetSecVtxInfo->energyFraction());
 	m_taggersPuMap[(*pTagger)] = Pu;
 	m_taggersPbMap[(*pTagger)] = Pb;
            
 	if (m_logLvl <= MSG::DEBUG) {
-	  m_log << MSG::DEBUG << "Fraction of energy " << m_trigBjetSecVtxInfo->energyFraction() << endmsg;
+	  m_log << MSG::DEBUG << "Fraction of energy " << trigBjetSecVtxInfo->energyFraction() << endmsg;
 	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
 		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endmsg;
 	}
@@ -344,13 +344,13 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       else if ((*pTagger) == "NVTX") { 
            
 	double Pu=1, Pb=1;           
-	getPuPb("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
-	m_taggersWMap[(*pTagger)] = getW("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx());
+	getPuPb("NVTX", trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("NVTX", trigBjetSecVtxInfo->nTrksInVtx());
 	m_taggersPuMap[(*pTagger)] = Pu;
 	m_taggersPbMap[(*pTagger)] = Pb;
            
 	if (m_logLvl <= MSG::DEBUG) {
-	  m_log << MSG::DEBUG << "Number of tracks " << m_trigBjetSecVtxInfo->nTrksInVtx() << endmsg;
+	  m_log << MSG::DEBUG << "Number of tracks " << trigBjetSecVtxInfo->nTrksInVtx() << endmsg;
 	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
 		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endmsg;
 	}
@@ -359,14 +359,14 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       else if ((*pTagger) == "SVTX") {
            
 	double Pu=1, Pb=1;           
-	getPuPb("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
-	m_taggersWMap[(*pTagger)] = getW("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx());
+	getPuPb("SVTX", trigBjetSecVtxInfo->vtxMass(), trigBjetSecVtxInfo->energyFraction(), trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("SVTX", trigBjetSecVtxInfo->vtxMass(), trigBjetSecVtxInfo->energyFraction(), trigBjetSecVtxInfo->nTrksInVtx());
 	m_taggersPuMap[(*pTagger)] = Pu;
 	m_taggersPbMap[(*pTagger)] = Pb;
            
 	if (m_logLvl <= MSG::DEBUG) {
-	  m_log << MSG::DEBUG << "Invariant mass " << m_trigBjetSecVtxInfo->vtxMass() << " Fraction of energy " 
-		<< m_trigBjetSecVtxInfo->energyFraction() << " Number of tracks " << m_trigBjetSecVtxInfo->nTrksInVtx() << endmsg;
+	  m_log << MSG::DEBUG << "Invariant mass " << trigBjetSecVtxInfo->vtxMass() << " Fraction of energy " 
+		<< trigBjetSecVtxInfo->energyFraction() << " Number of tracks " << trigBjetSecVtxInfo->nTrksInVtx() << endmsg;
 	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
 		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endmsg;
 	}
@@ -433,7 +433,7 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
   pTagger = m_trigBjetFex->m_taggers.begin();
 
-  if (!m_trigBjetTrackInfoVector->size() && !m_trigBjetSecVtxInfo->isValid()) {
+  if (!trigBjetTrackInfoVector->size() && !trigBjetSecVtxInfo->isValid()) {
 
     if (m_logLvl <= MSG::DEBUG) {
       m_log << MSG::DEBUG << " No track info or sec vtx info available, set likelihood taggers to default" << endmsg;
@@ -447,7 +447,7 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     for ( ; pTagger != lastTagger; pTagger++)
       m_taggersXMap[(*pTagger)] = -46;
 
-  } else if (!m_trigBjetTrackInfoVector->size()) {
+  } else if (!trigBjetTrackInfoVector->size()) {
     
     if (m_logLvl <= MSG::DEBUG)
       m_log << MSG::DEBUG << " No track info but the sec vtx exists" << endmsg;
@@ -472,7 +472,7 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       m_log << MSG::DEBUG << "There is a valid sec vtx but MVTX weight is " << m_taggersXMap["MVTX"] << ". Should not happen!" << endmsg;
     }
     
-//  } else if (!m_trigBjetSecVtxInfo->isValid()) {
+//  } else if (!trigBjetSecVtxInfo->isValid()) {
 //    
 //    if (m_logLvl <= MSG::DEBUG)
 //      m_log << MSG::DEBUG << " No valid sec vtx but track info exists" << endmsg;
@@ -511,8 +511,8 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
   // probability-based track IP tagger //
   ///////////////////////////////////////
 
-  pTrack = m_trigBjetTrackInfoVector->begin();
-  int m_n_pos=0;
+  pTrack = trigBjetTrackInfoVector->begin();
+  int n_pos=0;
 
   for (unsigned int j=0; pTrack != lastTrack; j++, pTrack++) {
 
@@ -520,17 +520,17 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     float d0Sign = 0;
 
     if (m_trigBjetFex->m_useJetDirection == 1)
-      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), m_trigBjetJetInfo->phiJet());
+      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), trigBjetJetInfo->phiJet());
     else if (m_trigBjetFex->m_useJetDirection == 2)
-      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), m_trigBjetJetInfo->phiTrkJet());
+      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), trigBjetJetInfo->phiTrkJet());
     else if (m_trigBjetFex->m_useJetDirection == 3)
-      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), m_trigBjetJetInfo->phiRoI());
+      d0Sign = m_taggerHelper->signedD0((*pTrack).d0Corr(), (*pTrack).phi(), trigBjetJetInfo->phiRoI());
 
-    float m_IP2D = d0Sign/sqrt((*pTrack).ed0()*(*pTrack).ed0() + m_sigmaBeamSpot*m_sigmaBeamSpot);
+    float IP2D = d0Sign/sqrt((*pTrack).ed0()*(*pTrack).ed0() + sigmaBeamSpot*sigmaBeamSpot);
 
-    if(fabs(m_IP2D) <= 15.0) {
-      if((*pTrack).grade() == 1) p = f_ip(-m_IP2D,1);
-      if((*pTrack).grade() == 2) p = f_ip(-m_IP2D,0);
+    if(fabs(IP2D) <= 15.0) {
+      if((*pTrack).grade() == 1) p = f_ip(-IP2D,1);
+      if((*pTrack).grade() == 2) p = f_ip(-IP2D,0);
     } else p = 0.0001;
 
     m_trigBjetFex->m_mon_trk_prob.push_back(p);
@@ -538,7 +538,7 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     if(d0Sign>=0 && p>=0) {
 
       m_taggersWMap["CHI2"]*= p; 
-      m_n_pos++;
+      n_pos++;
 
       if (m_logLvl <= MSG::DEBUG && j == 0) 
 	m_log << MSG::DEBUG << "Calculating CHI2 probability weight" << endmsg;
@@ -554,25 +554,25 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
   float prob;
 
-  if(!m_trigBjetTrackInfoVector->size())
+  if(!trigBjetTrackInfoVector->size())
     prob = 1.0;
   else {
     prob = -1;
-    float m_sum = 0.0; 
+    float sum = 0.0; 
     
-    if(m_n_pos>=1 && m_taggersWMap["CHI2"] > 0) {
-      for(int i=0; i<m_n_pos; i++)
-	m_sum += TMath::Power(-TMath::Log(m_taggersWMap["CHI2"]),i)/TMath::Gamma(i+1);
-      prob = m_taggersWMap["CHI2"]*m_sum;
+    if(n_pos>=1 && m_taggersWMap["CHI2"] > 0) {
+      for(int i=0; i<n_pos; i++)
+	sum += TMath::Power(-TMath::Log(m_taggersWMap["CHI2"]),i)/TMath::Gamma(i+1);
+      prob = m_taggersWMap["CHI2"]*sum;
     }
-    if (m_n_pos==0) prob=1.0;
+    if (n_pos==0) prob=1.0;
   }
 
   float val = 1.-prob;
   if (val>=1) val = 0.999;
   if (val<=0) val = 0.001;
   
-  if (!m_trigBjetTrackInfoVector->size())
+  if (!trigBjetTrackInfoVector->size())
     m_taggersXMap["CHI2"] = -46;
   else
     m_taggersXMap["CHI2"] = val;

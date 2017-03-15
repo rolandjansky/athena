@@ -39,6 +39,7 @@ TrigBjetHypo::TrigBjetHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ("CutXCOMB",  m_xcutCOMB   = -20  );
   declareProperty ("CutXCHI2",  m_xcutCHI2   = -20  );
   declareProperty ("CutMV2c20", m_xcutMV2c20 = -20  );
+  declareProperty ("CutMV2c10", m_xcutMV2c10 = -20  );
   declareProperty ("MethodTag", m_methodTag  = ""   );
   declareProperty ("Instance",  m_instance          );
 
@@ -72,7 +73,8 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
     msg() << MSG::DEBUG << " UseBeamSpotFlag = " << m_useBeamSpotFlag << endmsg; 
     msg() << MSG::DEBUG << " JetKey = "          << m_jetKey          << endmsg; 
 
-    if (m_xcutMV2c20 != -20) msg() << MSG::DEBUG << " CutMV2c20 = "  << m_xcutMV2c20 << endmsg; 
+    if (m_xcutMV2c20 != -20) msg() << MSG::DEBUG << " CutMV2c20 = "  << m_xcutMV2c20 << endmsg;
+    if (m_xcutMV2c10 != -20) msg() << MSG::DEBUG << " CutMV2c10 = "  << m_xcutMV2c10 << endmsg; 
     if (m_xcutCOMB   != -20) msg() << MSG::DEBUG << " CutXCOMB  = "  << m_xcutCOMB   << endmsg; 
     if (m_xcutCHI2   != -20) msg() << MSG::DEBUG << " CutXCHI2  = "  << m_xcutCHI2   << endmsg; 
     if (m_xcutIP3D   != -20) msg() << MSG::DEBUG << " CutXIP3D  = "  << m_xcutIP3D   << endmsg; 
@@ -105,23 +107,23 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   // Retrieve beamspot information 
   if (m_useBeamSpotFlag) {
 
-    IBeamCondSvc* m_iBeamCondSvc; 
-    StatusCode sc = service("BeamCondSvc", m_iBeamCondSvc);
+    IBeamCondSvc* iBeamCondSvc; 
+    StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
     
-    if (sc.isFailure() || m_iBeamCondSvc == 0) {
+    if (sc.isFailure() || iBeamCondSvc == 0) {
       
       if (msgLvl() <= MSG::WARNING)
 	msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
       
     } else {
 
-      int m_beamSpotStatus = 0;
-      int m_beamSpotBitMap = m_iBeamCondSvc->beamStatus();    
+      int beamSpotStatus = 0;
+      int beamSpotBitMap = iBeamCondSvc->beamStatus();    
 
-      m_beamSpotStatus = ((m_beamSpotBitMap & 0x4) == 0x4);  
-      if (m_beamSpotStatus) m_beamSpotStatus = ((m_beamSpotBitMap & 0x3) == 0x3);
+      beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);  
+      if (beamSpotStatus) beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
       
-      if (!m_beamSpotStatus) {
+      if (!beamSpotStatus) {
 	
 	m_cutCounter=0;
 	pass = false;
@@ -156,7 +158,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   // Retrieve xAOD b-jet object 
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
-  if(getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) {
+ 
+  if((getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) && trigBTaggingContainer) {
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endmsg;
     return HLT::OK;
@@ -164,12 +167,12 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   if(msgLvl() <= MSG::DEBUG && trigBTaggingContainer != 0) {
     msg() << MSG::DEBUG << "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" << endmsg;
   }
-  if(trigBTaggingContainer->size() > 1) {
+  if(trigBTaggingContainer && trigBTaggingContainer != 0 && trigBTaggingContainer->size() > 1) {
     if(msgLvl() <= MSG::ERROR)
       msg() << MSG::ERROR << "More than one BTagging object to analyse: this should never happen" << endmsg;
     return HLT::NAV_ERROR;
   }
-  if(trigBTaggingContainer->size() == 0) {
+  if(!trigBTaggingContainer) {
     if(msgLvl() <= MSG::ERROR)
       msg() << MSG::ERROR << "No BTagging object to analyse: this should never happen" << endmsg;
     return HLT::NAV_ERROR;
@@ -196,11 +199,29 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if(x>m_xcutMV2c20) {
 	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
 	xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
       else {
 	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
+      }
+    }
+  }
+  else if (m_methodTag == "MV2c10") {
+
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) {
+
+      double x = (*trigBTagging)->auxdata<double>("MV2c10_discriminant");
+
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c10 x =  " << x;
+      if(x>m_xcutMV2c10) {
+        //HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
+        result = true;
+      }
+      else {
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
       }
     }
   } 
@@ -286,11 +307,11 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   //if (attachBits(outputTE, bitsEF, "EFBjets") != HLT::OK) {
   //  msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endmsg;
   //}
-   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
     ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
-   if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "TrigPassBits was saved" << endmsg; 
+  if (msgLvl() <= MSG::DEBUG)
+    msg() << MSG::DEBUG << "TrigPassBits was saved" << endmsg; 
 
 
   return HLT::OK;
