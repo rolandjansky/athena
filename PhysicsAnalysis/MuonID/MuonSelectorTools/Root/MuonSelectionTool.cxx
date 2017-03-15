@@ -253,12 +253,12 @@ namespace CP {
       }
 
       // rejection muons with out-of-bounds hits
-      uint8_t m_combinedTrackOutBoundsPrecisionHits;
-      if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
+      uint8_t combinedTrackOutBoundsPrecisionHits;
+      if(!mu.summaryValue(combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
 	ATH_MSG_VERBOSE("getQuality - # of out-of-bounds hits missing in combined muon! Aborting.");
         return xAOD::Muon::VeryLoose;
       }
-      if (m_combinedTrackOutBoundsPrecisionHits>0){
+      if (combinedTrackOutBoundsPrecisionHits>0){
         return xAOD::Muon::VeryLoose;
       }
       
@@ -540,12 +540,12 @@ namespace CP {
     if( mu.author()==xAOD::Muon::STACO ) return false;
 
     // :: Reject muons with out-of-bounds hits
-    uint8_t m_combinedTrackOutBoundsPrecisionHits;
-    if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
+    uint8_t combinedTrackOutBoundsPrecisionHits;
+    if(!mu.summaryValue(combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
       ATH_MSG_VERBOSE("getQuality - # of out-of-bounds hits missing in combined muon! Aborting.");
       return false;
     }
-    if (m_combinedTrackOutBoundsPrecisionHits>0){
+    if (combinedTrackOutBoundsPrecisionHits>0){
       return false;
     }
 
