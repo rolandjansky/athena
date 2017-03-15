@@ -87,7 +87,7 @@ namespace Muon {
   private:
 
     /** record patterncollection to storegate or deletes collection when m_recordAllOutput is false */
-    void record( const MuonPrdPatternCollection* patCol, std::string location ) const;
+    void record(const MuonPrdPatternCollection* patCol, const SG::WriteHandleKey<MuonPrdPatternCollection>& key ) const;
 
 
     /** convert and add rpc preprawdata collection (1 chamber) */
@@ -207,6 +207,10 @@ namespace Muon {
     TH1F* m_weighthistogramtgc;
     /** csc histogram */
     TH1F* m_weighthistogramcsc;
+
+    SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicPhiPatternsKey;
+    SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicEtaPatternsKey;
+    SG::WriteHandleKey<MuonPrdPatternCollection> m_COMBINED_PATTERNSKey;
   };
 
 }

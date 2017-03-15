@@ -18,6 +18,15 @@
 
 MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 
+  m_keyTgc("TGC_Measurements"),
+  m_keyTgcPriorBC( "TGC_MeasurementsPriorBC"),
+  m_keyTgcNextBC("TGC_MeasurementsNextBC"),
+  m_keyRpc("RPC_Measurements"),
+  m_keyCsc( "CSC_Clusters"),
+  m_keyMdt("MDT_DriftCircles"),
+  m_patternCombiLocation("MuonHoughPatternCombinations"),
+  m_segmentLocation("MooreSegments"),
+  m_segmentCombiLocation("MooreSegmentCombinations"),
   m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder"),
   m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
   m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder")
@@ -33,16 +42,16 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
   declareProperty("doRPCClust",m_doRPCClust = false);
 
 
-  declareProperty("CscPrepDataContainer", m_keyCsc = "CSC_Clusters");
-  declareProperty("MdtPrepDataContainer", m_keyMdt = "MDT_DriftCircles");
-  declareProperty("RpcPrepDataContainer", m_keyRpc = "RPC_Measurements");
-  declareProperty("TgcPrepDataContainer", m_keyTgc = "TGC_Measurements");
-  declareProperty("TgcPrepDataContainerPriorBC", m_keyTgcPriorBC = "TGC_MeasurementsPriorBC");
-  declareProperty("TgcPrepDataContainerNextBC", m_keyTgcNextBC  = "TGC_MeasurementsNextBC");
+  declareProperty("CscPrepDataContainer", m_keyCsc);
+  declareProperty("MdtPrepDataContainer", m_keyMdt);
+  declareProperty("RpcPrepDataContainer", m_keyRpc);
+  declareProperty("TgcPrepDataContainer", m_keyTgc);
+  declareProperty("TgcPrepDataContainerPriorBC", m_keyTgcPriorBC);
+  declareProperty("TgcPrepDataContainerNextBC", m_keyTgcNextBC);
 
-  declareProperty("MuonPatternCombinationLocation",      m_patternCombiLocation = "MuonHoughPatternCombinations" );
-  declareProperty("MuonSegmentOutputLocation",           m_segmentLocation      = "MooreSegments");
-  declareProperty("MuonSegmentCombinationOutputLocation",m_segmentCombiLocation = "MooreSegmentCombinations");
+  declareProperty("MuonPatternCombinationLocation",      m_patternCombiLocation);
+  declareProperty("MuonSegmentOutputLocation",           m_segmentLocation );
+  declareProperty("MuonSegmentCombinationOutputLocation",m_segmentCombiLocation);
 
   declareProperty("SegmentFinder", m_segmentFinder );
   declareProperty("MuonClusterSegmentFinderTool",m_clusterSegMaker);
@@ -72,9 +81,32 @@ StatusCode MooSegmentFinderAlg::initialize()
     ATH_MSG_FATAL("Could not get " << m_assocTool); 
     return StatusCode::FAILURE;
   }
+
+  if(!m_useMdt) m_keyMdt = "";//Nullify key from scheduler if not needed
+  if(!m_useCsc) m_keyCsc = "";
+  if(!m_useRpc) m_keyRpc = "";
+  if(!m_useTgcPriorBC) m_keyTgcPriorBC = "";
+  if(!m_useTgcNextBC)  m_keyTgcNextBC  = "";
+  if(!m_useTgc) m_keyTgc = "";
+
+
+  ATH_CHECK( m_keyCsc.initialize() );
+  ATH_CHECK( m_keyMdt.initialize() );
+  ATH_CHECK( m_keyRpc.initialize() );
+  ATH_CHECK( m_keyTgc.initialize() );
+  ATH_CHECK( m_keyTgcPriorBC.initialize() );
+  ATH_CHECK( m_keyTgcNextBC.initialize() );
+
+
+  ATH_CHECK( m_patternCombiLocation.initialize() );
+  ATH_CHECK( m_segmentLocation.initialize() );
+  ATH_CHECK( m_segmentCombiLocation.initialize() );
   
   return StatusCode::SUCCESS; 
 }
+
+
+
 
 StatusCode MooSegmentFinderAlg::execute()
 {
@@ -98,18 +130,19 @@ StatusCode MooSegmentFinderAlg::execute()
   std::vector<const Muon::MuonSegment*>* segs(NULL);
   if (m_doTGCClust || m_doRPCClust) segs = m_clusterSegMaker->getClusterSegments(m_doTGCClust,m_doRPCClust);
 
-  const MuonSegmentCombinationCollection* segmentCombinations = output ? output->segmentCombinations : 0;
+  MuonSegmentCombinationCollection* segmentCombinations = output ? const_cast<MuonSegmentCombinationCollection*>(output->segmentCombinations) : 0;
   if( !segmentCombinations ) segmentCombinations = new MuonSegmentCombinationCollection();
 
-  if( segmentCombinations ) {
-    if( evtStore()->record(segmentCombinations,m_segmentCombiLocation).isSuccess() ){
-      ATH_MSG_VERBOSE("stored MuonSegmentCombinationCollection " << segmentCombinations->size() 
-			     << " at " << m_segmentCombiLocation);
-    }else{
-      ATH_MSG_ERROR("Failed to store MuonSegmentCombinationCollection at " << m_segmentCombiLocation);
-    }
+  
+  SG::WriteHandle<MuonSegmentCombinationCollection> segCombiHandle(m_segmentCombiLocation);
+  if( segCombiHandle.record(std::unique_ptr<MuonSegmentCombinationCollection > (segmentCombinations)).isSuccess() ){
+    ATH_MSG_VERBOSE("stored MuonSegmentCombinationCollection " << segmentCombinations->size() 
+	     << " at " << m_segmentCombiLocation.key());
+  }else{
+    ATH_MSG_ERROR("Failed to store MuonSegmentCombinationCollection at " << m_segmentCombiLocation.key());
   }
   
+  //FIXME FIX CONST_CASTS LATER
   Trk::SegmentCollection* segmentCollection = output ? const_cast<Trk::SegmentCollection*>(output->segmentCollection) : 0;
   if( !segmentCollection ) segmentCollection = new Trk::SegmentCollection();
 
@@ -123,21 +156,25 @@ StatusCode MooSegmentFinderAlg::execute()
     delete segs;
   }
  
-  if (evtStore()->record(segmentCollection,m_segmentLocation).isSuccess() ){
-    ATH_MSG_VERBOSE("stored MuonSegmentCollection at " <<  m_segmentLocation 
+  SG::WriteHandle<Trk::SegmentCollection> segHandle(m_segmentLocation); 
+
+  if (segHandle.record(std::unique_ptr<Trk::SegmentCollection>(segmentCollection)).isSuccess() ){
+    ATH_MSG_VERBOSE("stored MuonSegmentCollection at " <<  m_segmentLocation.key() 
 			   << " size " << segmentCollection->size());
   }else{
     ATH_MSG_ERROR("Failed to store MuonSegmentCollection ");
   }
 
-  const MuonPatternCombinationCollection* patternCombinations = output ? output->patternCombinations : 0;
+  MuonPatternCombinationCollection* patternCombinations = output ? const_cast<MuonPatternCombinationCollection*>(output->patternCombinations) : 0;
   if( !patternCombinations ) patternCombinations = new MuonPatternCombinationCollection();
 
-  if( evtStore()->record(patternCombinations,m_patternCombiLocation).isSuccess() ){
+  SG::WriteHandle<MuonPatternCombinationCollection> patHandle(m_patternCombiLocation); 
+  
+  if( patHandle.record(std::unique_ptr<MuonPatternCombinationCollection>(patternCombinations)).isSuccess() ){
     ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection " << patternCombinations->size() 
-						 << " at " << m_patternCombiLocation);
+						 << " at " << m_patternCombiLocation.key());
   }else{
-    ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation);
+    ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
   }
   
   delete output;
@@ -151,146 +188,5 @@ StatusCode MooSegmentFinderAlg::finalize()
   return AthAlgorithm::finalize();
 }
 
-void MooSegmentFinderAlg::retrieveCollections( std::vector<const Muon::RpcPrepDataCollection*>& cols, std::string key ) {
-
-  const Muon::RpcPrepDataContainer* rpcPrds = 0;      
-  StatusCode sc =  evtStore()->retrieve(rpcPrds,key);
-  if (sc.isFailure()) {
-    ATH_MSG_VERBOSE("Cannot retrieve RpcPrepDataContainer " << key << " accessing via collections ");
-
-    // Access by Collection
-    const DataHandle<Muon::RpcPrepDataCollection> collection;
-    const DataHandle<Muon::RpcPrepDataCollection> lastColl;
-	    
-    if (evtStore()->retrieve(collection,lastColl).isSuccess()) {
-      ATH_MSG_VERBOSE("collections retrieved");
-      for ( ; collection != lastColl ; ++collection ) {
-	if( collection->empty() ) continue;
-	cols.push_back( &*collection );
-      }
-    }else{
-      ATH_MSG_VERBOSE("Cannot retrieve RpcPrepDataCollections using DataHandle");
-    }
-  }else{
-      
-    
-    Muon::RpcPrepDataContainer::const_iterator it = rpcPrds->begin();
-    Muon::RpcPrepDataContainer::const_iterator it_end = rpcPrds->end();
-    for( ; it!=it_end; ++it ) {
-      // skip empty collections
-      if( (*it)->empty() ) continue;
-      cols.push_back( *it ) ;
-    }
-    ATH_MSG_VERBOSE("Retrieved RpcPrepDataContainer " <<  cols.size());
-  }
-}
-
-void MooSegmentFinderAlg::retrieveCollections( std::vector<const Muon::TgcPrepDataCollection*>& cols, std::string key ) {
-
-  const Muon::TgcPrepDataContainer* tgcPrds = 0;      
-  StatusCode sc =  evtStore()->retrieve(tgcPrds,key);
-
-  if (sc.isFailure()) {
-    ATH_MSG_VERBOSE("Cannot retrieve TgcPrepDataContainer " << key << " accessing via collections ");
-
-    // Access by Collection
-    const DataHandle<Muon::TgcPrepDataCollection> collection;
-    const DataHandle<Muon::TgcPrepDataCollection> lastColl;
-	    
-    if (evtStore()->retrieve(collection,lastColl).isSuccess()) {
-      ATH_MSG_VERBOSE("collections retrieved");
-      for ( ; collection != lastColl ; ++collection ) {
-	if( collection->empty() ) continue;
-	cols.push_back( &*collection );
-
-      }
-    }else{
-      ATH_MSG_VERBOSE("Cannot retrieve TgcPrepDataCollections using DataHandle");
-    }
-  }else{
-      
-	
-    Muon::TgcPrepDataContainer::const_iterator it = tgcPrds->begin();
-    Muon::TgcPrepDataContainer::const_iterator it_end = tgcPrds->end();
-    for( ; it!=it_end; ++it ) {
-      // skip empty collections
-      if( (*it)->empty() ) continue;
-      cols.push_back( *it );
-    }
-
-    ATH_MSG_VERBOSE("Retrieved TgcPrepDataContainer " <<  cols.size());
-
-  }
-}
 
 
-void MooSegmentFinderAlg::retrieveCollections( std::vector<const Muon::MdtPrepDataCollection*>& cols, std::string key ) {
-
-  const Muon::MdtPrepDataContainer* mdtPrds = 0;      
-  StatusCode sc = evtStore()->retrieve(mdtPrds,key);
-
-    
-  if (sc.isFailure()) {
-    ATH_MSG_VERBOSE("Cannot retrieve MdtPrepDataContainer " << key << " accessing via collections ");
-
-    // Access by Collection
-    const DataHandle<Muon::MdtPrepDataCollection> collection;
-    const DataHandle<Muon::MdtPrepDataCollection> lastColl;
-    
-    if (evtStore()->retrieve(collection,lastColl).isSuccess()) {
-      ATH_MSG_VERBOSE("collections retrieved");
-      for ( ; collection != lastColl ; ++collection ) {
-	if( collection->empty() ) continue;
-	cols.push_back( &*collection );
-      }
-    }else{
-      ATH_MSG_VERBOSE("Cannot retrieve MdtPrepDataCollections using DataHandle");
-    }
-  }else{
-    
-    
-    Muon::MdtPrepDataContainer::const_iterator it = mdtPrds->begin();
-    Muon::MdtPrepDataContainer::const_iterator it_end = mdtPrds->end();
-    for( ; it!=it_end; ++it ) {
-      // skip empty collections
-      if( (*it)->empty() ) continue;
-      cols.push_back( *it );
-    }
-    ATH_MSG_VERBOSE("Retrieved MdtPrepDataContainer " <<  cols.size());
-
-  }
-}
-
-
-void MooSegmentFinderAlg::retrieveCollections( std::vector<const Muon::CscPrepDataCollection*>& cols, std::string key ) {
-  const Muon::CscPrepDataContainer* cscPrds = 0;      
-  StatusCode sc =  evtStore()->retrieve(cscPrds,key);
-  if (sc.isFailure()) {
-    ATH_MSG_VERBOSE("Cannot retrieve CscPrepDataContainer " << key << " accessing via collections ");
-
-    // Access by Collection
-    const DataHandle<Muon::CscPrepDataCollection> collection;
-    const DataHandle<Muon::CscPrepDataCollection> lastColl;
-      
-    if (evtStore()->retrieve(collection,lastColl).isSuccess()) {
-      ATH_MSG_VERBOSE("collections retrieved");
-      for ( ; collection != lastColl ; ++collection ) {
-	if( collection->empty() ) continue;
-	cols.push_back( &*collection );
-      }
-    }else{
-      ATH_MSG_VERBOSE("Cannot retrieve CscPrepDataCollections using DataHandle");
-    }
-  }else{
-      
-      
-    Muon::CscPrepDataContainer::const_iterator it = cscPrds->begin();
-    Muon::CscPrepDataContainer::const_iterator it_end = cscPrds->end();
-    for( ; it!=it_end; ++it ) {
-      // skip empty collections
-      if( (*it)->empty() ) continue;
-      cols.push_back( *it );
-    }
-    ATH_MSG_VERBOSE("Retrieved CscPrepDataContainer " <<  cols.size());
-  }
-}
