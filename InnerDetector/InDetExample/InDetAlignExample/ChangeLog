@@ -1,0 +1,1299 @@
+2016-08-23 Hideyuki Oide (Hideyuki.Oide@cern.ch)
+	* Added CalibrationLoopChecker Dynamic Edition
+	* tagged as InDetAlignExample-00-08-10
+
+2016-08-06 Hideyuki Oide (Hideyuki.Oide@cern.ch)
+	* Modified share/alignConfig.py and python/IteratorManager.py to adapt to DynamicDB
+
+2016-08-04 Matthias Danninger (Matthias.Danninger@cern.ch)
+	* Added new folder for DynamicDBFolder DB scripts
+	* Added full support for functionality to run new dynamic alignment folder DB scheme
+	* tagged as InDetAlignExample-00-08-09
+
+2016-07-22 Hideyuki Oide (Hideyuki.Oide@cern.ch)
+	* Added another new scheme of RunIterator prototype
+
+2015-27-03 Pierfrancesco Butti (pierfrancesco.butti@cern.ch)
+	* Removed broken soft link to InDetRec_all.py in ErrorScaling Folder
+	* InDetAlignExample-00-08-04
+
+2014-04-01 Vicente Lacuesta
+	* Fix RTT
+	* InDetAlignExample-00-07-40
+2013-12-20 Andreas Wildauer
+	* deleted me and Jochen from the mailto list
+	* Merry Christmas!
+	* InDetAlignExample-00-07-39
+
+2013-08-19 Anthony Morley
+	* Correct bug in Iterator
+	* InDetAlignExample-00-07-38
+
+2013-08-19 Anthony Morley
+	* Correct ATN failure in Nightlies
+	* InDetAlignExample-00-07-37
+
+2012-05-31 Vicente Lacuesta <lacuesta@cern.ch>
+        * More fixes for RTT warning
+        * InDetAlignExample-00-07-36
+
+2012-05-30 Vicente Lacuesta <lacuesta@cern.ch>
+        * More fixes for RTT warning
+        * InDetAlignExample-00-07-35
+
+2012-05-29 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix RTT warnings
+	* InDetAlignExample-00-07-34
+	
+2012-05-21 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix RTT warnings
+	* InDetAlignExample-00-07-33
+	
+2012-05-18 Vicente Lacuesta <lacuesta@cern.ch>
+        * Fix RTT warnings
+        * InDetAlignExample-00-07-32
+
+2012-04-16 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix atn 
+	* InDetAlignExample-00-07-31
+
+
+2012-04-16 Vicente Lacuesta <lacuesta@cern.ch>
+	* Add compatibility with 2012 data
+	* InDetAlignExample-00-07-30
+	
+2011-11-16 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix ATN
+	* InDetAlignExample-00-07-29
+
+2011-11-15 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix rtt
+	* InDetAlignExample-00-07-28
+	
+2011-11-14 Katharine Leney <katharine.leney@cern.ch>
+	* Add apply_pattern validate_xml to requirements
+
+2011-10-27 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix NewInDetAlignAlgSetup
+	* InDetAlignExample-00-07-26
+	
+2011-10-26 Vicente Lacuesta <lacuesta@cern.ch>
+	* Use asetup by default
+	* Add eoverpmapconstraint
+	* Change refitter options for EoverP constraint
+	* Change InputJetContainer Name
+	* Change default softmodecuts
+	* InDetAlignExample-00-07-25
+
+2011-10-13 Vicente Lacuesta <lacuesta@cern.ch>
+	* add EoverP maps iterator
+	* InDetAlignExample-00-07-24 
+
+2011-09-13 Anthony Morley <amorley@cern.ch>
+	* add ErrorScaling
+	* InDetAlignExample-00-07-23 
+
+2011-09-11 Jike Wang <jike.wang@cern.ch>
+	* add SkipFiles option
+
+2011-08-30 Anthony Morley <amorley@cern.ch>
+	* Fix NewInDetAlignment.py
+
+2011-08-18 Anthony Morley <amorley@cern.ch>
+	* Update smaple to be used in ATN tests
+	* Bug Report 85637
+	* InDetAlignExample-00-07-21
+
+2011-08-15 Regina Moles-Valls <moles@cern.ch>
+	* Problem with tag InDetAlignExample-00-07-18 because it has not been tagged correctly 
+		* no modifications has been include in the macro directory
+	* InDetAlignExample-00-07-19		
+	* InDetAlignExample-00-07-20
+
+2011-08-15 Regina Moles-Valls <moles@cern.ch>
+	* RTT Alignmnet constants macro update (the new one: Constants_L1_Updated.cc)
+	* InDetAlignExample-00-07-17
+	* InDetAlignExample-00-07-18	
+
+2011-08-05 Regina Moles-Valls <moles@cern.ch>
+	* Included the relevant <auxFilePattern> tag in the XML file to copy Constants_L1.cc to the local RTT run directory
+	* InDetAlignExample-00-07-16
+	
+2011-08-05 Regina Moles-Valls <moles@cern.ch>
+	* Included Constants_L1.cc again
+	* InDetAlignExample-00-07-15
+	
+2011-08-03 Regina Moles-Valls <moles@cern.ch>
+	* Fix RTT plots
+	* InDetAlignExample-00-07-14
+
+2011-07-19 Vicente Lacuesta <lacuesta@cern.ch>
+	* Activate TFiles by default
+	* Change pixel res plot ranges
+	* InDetAlignExample-00-07-13
+
+2011-07-19 Anthony Morley <amorley@cern.ch>
+	* Chaneg to mailouts for RTT etc.
+	* InDetAlignExample-00-07-12
+
+2011-07-16 Jike Wang <jike.wang@cern.ch>
+	* InDetAlignExample-00-07-11
+
+2011-07-16 Jike Wang <jike.wang@cern.ch>
+	* update BuildGeoForMatrixSolving.py
+	* InDetAlignExample-00-07-10
+
+2011-07-16 Jike Wang <jike.wang@cern.ch>
+	* IDAlignGridDatasets.py: loadInDetRec_new.py instead loadInDetRec.py,
+	* i.e. choose AutoConfiguration
+	* add extraFileList option for uploading extra files.(for E/p constraint)  
+	* InDetAlignExample-00-07-09
+
+2011-07-11 Vicente Lacuesta
+	* Switch on PRD formation for rtt
+	* InDetAlignExample-00-07-08
+	
+2011-07-07 Vicente Lacuesta
+	* Reverting to old method of determining SolveLocalDerivOnly (Kurt)
+	* InDetAlignExample-00-07-07
+	
+2011-06-28 Vicente Lacuesta
+	* Fix plots for RTT
+	* InDetAlignExample-00-07-06
+
+2011-06-17 Vicente Lacuesta
+	* More fixes for RTT
+	* InDetAlignExample-00-07-05
+
+2011-06-14 Vicente Lacuesta
+	* Fix Global Tag for RTT
+	* InDetAlignExample-00-07-04
+
+2011-06-08 Vicente Lacuesta
+	* Change RTT dataset to MC10
+	* InDetAlignExample-00-07-03
+
+2011-05-31 Vicente Lacuesta
+	* Update cuts:
+	  nhitPhysical = 1
+	  nhitSi = 9
+	* InDetAlignExample-00-07-02
+
+2011-05-19 Jike Wang <jike.wang@cern.ch>
+	* In MatrixTool has implemented TFile::Open(),  so don't
+	* need to do dcap cp in the scripts anymore.
+	* Add the options to run with group production role
+	* fix a small bug when uploading alignment constants in IteratorGridClasses.py  
+	* InDetAlignExample-00-07-01
+
+
+2011-04-27 Anthony Morley <amorley@cern.ch>
+  * First round of old alignment joboptions clean up
+D           361644   share/InDetAlignBeamspotESDtoAOD.py
+D           361644   share/CosmicFlagsJobOptionsL2.py
+A                0   share/TRTplotting
+A  +             -   share/TRTplotting/ReadAlignTextFile.py
+A  +             -   share/TRTplotting/ReadinAlignmentData.py
+A  +             -   share/TRTplotting/BarrelModule.py
+A  +             -   share/TRTplotting/WriteAlignmentAnalysis.py
+A  +             -   share/TRTplotting/CSCTruthPlots.py
+A  +             -   share/TRTplotting/makeAnalysis.py
+A  +             -   share/TRTplotting/AnalyzeAlignment.py
+A  +             -   share/TRTplotting/analyzeAlignmentTools.py
+A  +             -   share/TRTplotting/RootSetup.py
+A  +             -   share/TRTplotting/ReadinAlignmentDataNew.py
+A                0   share/TRTplotting/AlignmentHistoSetup.py
+A  +             -   share/TRTplotting/batchJobGenTools.py
+A  +             -   share/TRTplotting/ModulePlots.py
+D           361644   share/RootSetup.py
+M           361644   share/loadInDetRec_new.py
+D           361644   share/InDetAlignExample_RunCog.py
+D           361644   share/BarrelModule.py
+D           361644   share/InDetAlignExample_Cosmic_topOptions.py
+D           361644   share/CosmicFlagsJobOptionsL2DATA.py
+D           361644   share/ReadAlignTextFile.py
+D           361644   share/InDetAlignExample_Halo_topOptions.py
+D           361644   share/InDetAlignBeamspotAOD.py
+D           361644   share/AnalyzeAlignment.py
+D           361644   share/AlignmentHistoSetup.py
+D           361644   share/InDetAlignExample_IteratorForSi.py
+D           361644   share/InDetAlignExample_links.sh
+D           361644   share/batchJobGenTools.py
+D           361644   share/InDetAlignExample_TRTAlignmentToolbox.py
+D           361644   share/InDetAlignExample_SuperScript.py
+M           361644   share/loadInDetRec.py
+D           361644   share/InDetAlignBeamspotVertexFinder.py
+D           361644   share/InDetAlignExample_GX2Conditions.py
+D           361644   share/InDetAlignExample_SiAlignAlgs.py
+D           361644   share/CSCTruthPlots.py
+D           361644   share/InDetAlignExample_Gas_topOptions.py
+D           361644   share/CosmicJobOptionsL2.py
+D           361644   share/InDetAlignExample_topOptions.py
+D           361644   share/ReadinAlignmentData.py
+D           361644   share/WriteAlignmentAnalysis.py
+D           361644   share/InDetAlignBeamspotFinder.py
+D           361644   share/InDetAlignExample_IteratorForTRT.py
+D           361644   share/ReadinAlignmentDataNew.py
+D           361644   share/ModulePlots.py
+D           361644   share/InDetAlignExample_batch.sh
+D           361644   share/makeAnalysis.py
+D           361644   share/analyzeAlignmentTools.py
+  * InDetAlignExample-00-07-00
+
+
+2011-04-05 Vicente Lacuesta <lacuesta@cern.ch>
+        * Add Express Stream Challenge
+	* Change cosmic split tracks plots range
+        * InDetAlignExample-00-06-49
+	
+2011-03-23 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix rtt
+	* InDetAlignExample-00-06-48
+	
+2011-03-22 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix rtt
+	* InDetAlignExample-00-06-47
+
+2011-03-15 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix running 2011 data 
+	* InDetAlignExample-00-06-46
+        
+2011-03-14 Regina Moles <moles@cern.ch>
+	* Old RTT and ATN code removed in 
+        * InDetAlignExample-00-06-45
+	
+2011-03-01 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix rtt paths
+	* InDetAlignExample-00-06-44
+
+2011-03-01 Jike Wang <jike.wang@cern.ch>
+	* implemented use TFile when run on Grid
+        * InDetAlignExample-00-06-43
+
+2011-03-01 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix rtt
+	* InDetAlignExample-00-06-42
+
+2011-02-21 Jike Wang <jike.wang@cern.ch>
+	* implemented automatically retry Grid iterations
+	* InDetAlignExample-00-06-41
+
+2011-02-18 Pawel Bruckman de Renstrom <p.bruckman1@physics.ox.ac.uk>
+	* Arbitrary L1 transformation added to the CoG algorithm
+	* Tagged as  InDetAlignExample-00-06-40
+
+2011-02-12 Jike Wang <jike.wang@cern.ch>
+	* bug fix in asetup
+	* add --single option for asetup
+	* embellish the format
+	* InDetAlignExample-00-06-39
+
+2011-02-11 Vicente Lacuesta <lacuesta@cern.ch>
+	* Add useTFile option in the iterator
+	* InDetAlignExample-00-06-38
+	
+2011-02-09 Vicente Lacuesta <lacuesta@cern.ch>
+	* Clean scripts directory
+	* Add flag to run with TFiles
+	* Add T0 transform scripts
+	* InDetAlignExample-00-06-37
+
+2011-02-03 Jike Wang <jike.wang@cern.ch>
+	* change the method of judging a dataset whether is MC cosmics
+	* InDetAlignExample-00-06-36
+
+2011-01-26 Vicente Lacuesta <lacuesta@cern.ch>
+        * Tune the iterator for the rtt
+        * InDetAlignExample-00-06-35
+	
+2011-01-26 Vicente Lacuesta <lacuesta@cern.ch>
+	* Rewrite iterator
+	* Add cosmic split plots
+	* InDetAlignExample-00-06-34
+	
+2010--12-15 Jike Wang <jike.wang@cern.ch>
+	* add --removeFileList option for submitting Grid jobs
+	* InDetAlignExample-00-06-33
+
+2010-12-08 Jike Wang <jike.wang@cern.ch>
+	* add --excludeFile option when submitting Grid jobs
+	* InDetAlignExample-00-06-32
+
+2010-11-27 Jike Wang <jike.wang@cern.ch>
+	* fix the solving Grid job failure problem when running LX2
+	* (As LX2 can't provide eigen informations) 
+	* InDetAlignExample-00-06-31
+
+2010-11-16  Regina Moles <moles@cern.ch>
+	* Evolution contants macro inlcuded 
+	* InDetAlignExample-00-06-30
+
+2010-11-15  Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix reading ESDs in loadInDetRec_new.py
+	* InDetAlignExample-00-06-29
+
+2010-11-10  Regina Moles <moles@cern.ch>
+	* TotalMonitoring file stored in Collision directory  
+	* InDetAlignExample-00-06-28
+
+2010-11-10  Regina Moles <moles@cern.ch>
+	* Some fixes to run new alignment locally related with TotalMonitoring file  
+	* InDetAlignExample-00-06-27
+	
+2010-11-11 Jike Wang <jike.wang@cern.ch>
+	* fix the prun problem when running at direct address sites such as BNL
+	* InDetAlignExample-00-06-26
+
+2010-11-10  Regina Moles <moles@cern.ch>
+	* Some fixes to run new alignment locally (python/NewInDet_IteratorClasses.py)  
+	* InDetAlignExample-00-06-25
+	
+2010-11-8 Jike Wang <jike.wang@cern.ch>
+	* Prun: use --express option in matrix solving to accelerate  
+	* Prun: dccp to explicitly copy the matrices/vectors to current path
+	* InDetAlignExample-00-06-24
+
+2010-11-8  Regina Moles <moles@cern.ch>
+	* NewSiL1AlignRTT.cc modified to obtain Iter1 plots
+	* InDetAlignExample-00-06-23
+
+2010-11-8  Regina Moles <moles@cern.ch>
+	* InDetAlignExample_NewInDetSiLevel1Alignment.html included new RTT plots
+	* NewSiL1AlignRTT.cc added to run new plots
+	* InDetAlignExample-00-06-22
+
+2010-11-2  Regina Moles <moles@cern.ch>
+	* InDetAlignExample_NewInDetSiLevel1Alignment.html included to run new RTT
+	* InDetAlignExample-00-06-21
+	
+2010-10-31 Jike Wang <jike.wang@cern.ch>
+	* reuse the libDS in accumulation jobs
+	* InDetAlignExample-00-06-20
+
+2010-10-22 Regina Moles <moles@cern.ch>
+	* minor changes to run new code RTT
+	* InDetAlignExample-00-06-19
+
+2010-10-22 Jike Wang <jike.wang@cern.ch>
+	* implemented run limited number of files in a dataset
+	* InDetAlignExample-00-06-18
+
+2010-10-15 Jike Wang <jike.wang@cern.ch>
+	* implemented run several alignment on Grid at the same time
+	* added the option to compare the geometry/condition tags with AMI
+	* InDetAlignExample-00-06-17
+
+2010-10-14 Vicente Lacuesta <lacuesta@cern.ch>
+	* Add compatibility with AtlasSetup
+	* InDetAlignExample-00-06-16
+
+2010-10-12 Anthony Morley <amorley@cern.ch>
+	* Removal of reference to old TRT code
+	* InDetAlignExample-00-06-15
+
+2010-10-10 Anthony Morley <amorley@cern.ch>
+	* Minor change NewInDet_IteratorClasses
+	* InDetAlignExample-00-06-14
+
+2010-10-07 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix tags problems
+	* IndetAlignExample-00-06-13
+
+2010-10-06 Jike Wang <jike.wang@cern.ch> 
+	* implemented the jobOption for reconstructing MC cosmics
+	* IndetAlignExample-00-06-12
+
+2010-09-27 Jike Wang <jike.wang@cern.ch> 
+	* implemented run matrix solving in the temporary area
+	* IndetAlignExample-00-06-11
+	
+2010-09-22 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated ATN test email list
+
+2010-09-16 Jike Wang <jike.wang@cern.ch>
+	* IteratorGridClasses.py, IteratorGrid.py: add the prun mode for
+	* matrix solving 
+	* InDetAlignExample-00-06-10
+
+2010-09-14 Vicente Lacuesta <lacuesta@cern.ch>
+	* Use only one jobOptions for all the cases
+	* Add loadInDetRec_new.py
+	* InDetAlignExample-00-06-09
+
+2010-09-13 Vicente Lacuesta <lacuesta@cern.ch>
+  * Add realData flag in cosmics
+	* InDetAlignExample-00-06-08	
+	
+2010-09-10 Jike Wang <jike.wang@cern.ch>
+	* NewInDetAlignAlgSetup.py: adjust the format
+	* add the option for primary vertex constraint
+	* InDetAlignExample-00-06-07
+
+2010-09-05 Jike Wang <jike.wang@cern.ch>
+	* NewInDetAlignAlgSetup.py, use InDetTrackFitter only when run accumulate 
+	* IDAlignGridDatasets.py, use loadInDetRec.py to reconstruct MC cosmics 
+	* InDetAlignExample-00-06-06
+
+2010-09-01 Vicente Lacuesta <lacuesta@cern.ch>
+	* allow to run with cosmics raw data
+	* change the default queue, now is atlasb1
+	* tag InDetAlignExample-00-06-05
+	
+2010-08-29 Jike Wang <jike.wang@cern.ch>
+	* add the options to run matrix solving on Batch and Locally
+	* Do matrix solving without any events reconstruction but just 
+	* build the geometry 
+	* InDetAlignExample-00-06-04
+
+2010-08-16 Jike Wang <jike.wang@cern.ch>
+	* add the option to do the jobs splitting by nFilesPerJob strategy
+	* add the option to dq2-get back and merge the monitoring and validation 
+	* root files
+	* InDetAlignExample-00-06-03
+
+2010-08-13 Jike Wang <jike.wang@cern.ch>
+	* bugs fix in share/IteratorGrid.py in building the solving JO
+	* use --extFile option to explicitly upload some crucial files
+	* InDetAlignExample-00-06-02
+
+2010-08-11 Jike Wang <jike.wang@cern.ch>
+	* Add more comments in file RunIteratorOnGrid.py, easier for user to
+	* read and use
+	* re-arrange and clean up some print out information
+	* do optimization when dq2-get back results, for saving time. 
+	* bugs fix in IteratorGridClasses.py
+	* InDetAlignExample-00-06-01
+
+2010-08-04 Anthony Morley <amorley@cern.ch>
+	* Changes to accommodate the addition of the TrackCollectionProcessor
+	* NOTE not changes are not backward compatible 
+	* InDetAlignExample-00-06-00
+
+2010-08-04 Jike Wang <jike.wang@cern.ch>
+	* bugs fix in IDAlignGridDatasets.py  
+	* InDetAlignExample-00-05-12
+
+2010-08-03 regina Moles Valls <moles@cern.ch>
+        * Rtt XML file validated
+	* InDetAlignExample-00-05-11
+
+2010-08-03 Jike Wang <jike.wang@cern.ch>
+	* re-structure the scripts for run on Grid
+	* provide more functionality and flexibility, be able to run any dataset 
+	* and datasets combination. See details via:
+	* https://twiki.cern.ch/twiki/bin/view/AtlasProtected/RunIDAlignmentOnGrid
+	* InDetAlignExample-00-05-10
+
+2010-07-26 Vicente Lacuesta <lacuesta@cern.ch>
+        * Add monitoring with tracks w/o refit
+	* InDetAlignExample-00-05-09
+	 
+2010-07-20 Vicente Lacuesta <lacuesta@cern.ch>
+        * Redirect error messages to file
+        * InDetAlignExample-00-05-08
+
+2010-07-19 regina Moles Valls <moles@cern.ch>
+        * Lines uncommented in the requirement file
+        * InDetAlignExample-00-05-07
+
+2010-07-16 regina Moles Valls <moles@cern.ch>
+        * New enviorement variables added to run RTT
+	* Compiler warning fixed
+	* InDetAlignExample-00-05-06
+	
+2010-07-08 Jike Wang <jike.wang@cern.ch>
+	* explicitly do some clean-up before every iteration
+	* Otherwise this iteration results could mess next iteration
+	* InDetAlignExample-00-05-05
+
+2010-07-05 Jike Wang <jike.wang@cern.ch>
+	* small bug fix in share/IteratorGrid.py
+	* InDetAlignExample-00-05-04
+
+2010-07-05 Vicente Lacuesta <lacuesta@cern.ch>
+	* update loadInDetRec_cosmics.py
+	* add options to read TRT calibration tag for the cosmics
+	* InDetAlignExample-00-05-03
+	
+2010-07-05 Vicente Lacuesta <lacuesta@cern.ch>
+	* fix file list
+	* InDetAlignExample-00-05-02
+
+2010-07-04 Jike Wang <jike.wang@cern.ch>
+	* completely rewrite the class WriteScriptGrid
+	* add more grid job submitting options
+	* InDetAlignExample-00-05-01
+
+2010-07-03 Jike Wang <jike.wang@cern.ch>
+	* split RunIteratorOnGrid.py out from IteratorGrid.py
+	* users only need to contact with RunIteratorOnGrid.py  
+	* InDetAlignExample-00-05-00
+
+2010-07-02 Jike Wang <jike.wang@cern.ch>
+	* add the scripts for submitting jobs to Grid resources
+	* InDetAlignExample-00-04-06
+
+2010-07-02 Vicente Lacuesta <lacuesta@cern.ch>
+	* Change global tag for 2010 data
+	* Add TRT calib text file to the cosmics
+	* Change particle number to 3
+	* InDetAlignExample-00-04-05
+
+2010-06-10 Daniel Kollar <daniel.kollar@cern.ch>
+	* fixed iterator when running over MC
+	* InDetAlignExample-00-04-04
+
+2010-06-09 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix Cosmic09 challenge (typo corrected)
+	* InDetAlignExample-00-04-03
+
+2010-06-09 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix Cosmic09 challenge
+	* InDetAlignExample-00-04-02
+
+2010-06-09 Regina Moles <regina.moles@cern.ch>
+	* Minor fixes to run RTT - (variables without values have been fixed)
+	* InDetAlignExample-00-04-01
+
+2010-06-06 Daniel Kollar <daniel.kollar@cern.ch>
+	* adjusted for new setup of alignNtuple
+	* InDetAlignExample-00-04-00
+
+2010-06-03 Vicente Lacuesta <lacuesta@cern.ch>
+	* Use the splitted track collections for monitoring
+	* tag InDetAlignExample-00-03-11
+
+2010-06-02 Vicente Lacuesta <lacuesta@cern.ch>
+	* Change number of events for solving (FIX)
+	* tag InDetAlignExample-00-03-10
+
+2010-06-01 Vicente Lacuesta <lacuesta@cern.ch>
+	* Detect automatically the release and tags
+	* tag InDetAlignExample-00-03-09
+
+2010-06-01 Vicente Lacuesta <lacuesta@cern.ch>
+	* Switch on missing extended plots
+	* Allow to change the global tag from RunIterator.py'
+	* tag InDetAlignExample-00-03-08
+
+2010-05-27 Vicente Lacuesta <lacuesta@cern.ch>
+	* Add run selector for cosmics and ESD minbias
+	* Fix reading some tags
+	* tag InDetAlignExample-00-03-07
+
+2010-05-19 Vicente Lacuesta <lacuesta@cern.ch>
+	* Add beamspot monitoring
+	* Fix reading the globalTag
+	* tag InDetAlignExample-00-03-06
+
+2010-05-12 Vicente Lacuesta <lacuesta@cern.ch>
+	* fix beamspot monitoring
+	* tag InDetAlignExample-00-03-05
+
+2010-05-12 Vicente Lacuesta <lacuesta@cern.ch>
+	* tag InDetAlignExample-00-03-04
+	* Add plots obtained from AlignTracks
+	* Add NewInDetAlignMonitoring.py
+	* Change SecondDerivativeCut to 0
+
+2010-05-06 Vicente Lacuesta <lacuesta@cern.ch>
+	* tag InDetAlignExample-00-03-03
+	* add GoodRunList option
+
+2010-05-06 Vicente Lacuesta <lacuesta@cern.ch>
+	* tag InDetAlignExample-00-03-02
+	* read beamspot tag
+	* split merge monitoring for differend kind of data (collision,
+	  cosmics BF and cosmics NoBF
+
+2010-05-06 Vicente Lacuesta <lacuesta@cern.ch>
+	* tag InDetAlignExample-00-03-01
+	* tag before add several changes
+	* fix reading tags for cosmics in loadInDetRec_cosmics.py
+	* Add plots for all tracks
+
+2010-04-26 Daniel Kollar <daniel.kollar@cern.ch>
+	* added simple ATN test for the new alignment
+	* changed global tag for perfect MC09 to get proper beam-spot
+	  - same in NewInDetAlignment.py
+	* NewInDetAlignAlgSetup.py:
+	  - added beamspot constraint, off by default as it only
+	    works with TrkAlignGenTools-01-07-08 or later
+	  - small cleanup in setup of monitoring
+	* InDetAlignExample-00-03-00
+
+2010-04-26 Vicente Lacuesta <lacuesta@cern.ch>
+	* read TRT constants from db (option alreadt existing but useless)
+	* tag InDetAlignExample-00-02-10
+
+2010-04-23 Vicente Lacuesta <lacuesta@cern.ch>
+	* change track selection depending if TRT on or off
+	* added missing 7TeV joboptions
+	* fix 7TeV tags
+	* fix insert to pool file catalog for constants
+	* tag InDetAlignExample-00-02-09
+
+2010-04-15 Daniel Kollar <daniel.kollar@cern.ch>
+	* switched off TRTStandalone ATN test
+	* added 7 TeV challenge (V. Lacuesta)
+	* tag InDetAlignExample-00-02-08
+
+2010-04-06 Vicente Lacuesta <lacuesta@cern.ch>
+	* NewInDetAlignment:
+	  - Run from the RunIterator.py script
+	* Minor bugfixes
+	* tag InDetAlignExample-00-02-07
+
+2010-03-30 Daniel Kollar <daniel.kollar@cern.ch>
+	* NewInDetAlignAlgSetup.py:
+	  - added comments for options
+	  - added option to write derivatives to ntuple
+	* NewInDetAlignGeometrySetup.py:
+	  - updated comments
+	  - added separate barrel/endcap level setup for TRT
+	* NewInDetAlingment.py:
+	  - added options for ntuple filling
+	* tag InDetAlignExample-00-02-06
+
+2010-03-24 Vicente Lacuesta <lacuesta@cern.ch>
+	* NewInDetAlingment:
+	  - move the options outside the code
+	  - rewrite classes
+	  - add defaultOptions.py
+	* tag InDetAlignExample-00-02-05
+
+2010-03-24 Daniel Kollar <daniel.kollar@cern.ch>
+	* NewInDetAlingment:
+	  - small updates for runLocal
+	* NewInDetAlignAlgSetup.py:
+	  - allow use of unbiased residuals for local method
+	* tag InDetAlignExample-00-02-04
+
+2010-03-24 Daniel Kollar <daniel.kollar@cern.ch>
+	* loadInDetRec*.py:
+	  - fix if/else logic when reading constants from pool file
+	* NewInDetAlignAlgSetup.py:
+	  - don't change the setup of InDetTrackFitter when not
+	    refitting the tracks
+	* tag InDetAlignExample-00-02-03
+
+2010-03-19 Regina Moles <regina.moles@ific.uv.es>
+	* Minor fixes to run the RTT jobs
+	* tag InDetAlignExample-00-02-02
+
+2010-03-19 Regina Moles <regina.moles@ific.uv.es>
+	* Same chages included to run the RTT jobs
+	* jobOptions_900Gev.py and jobOptions_cosmic.py new files included 
+	* InDetAlignExample_topOptions/InDetAlignExample_Cosmic_topOptions restructured 7 weeks ago
+	* tag InDetAlignExample-00-02-01
+
+2010-03-17 Daniel Kollar <daniel.kollar@cern.ch>
+	* NewInDetAlignAlgSetup.py:
+	  - allow to run a full local chi2 method
+	    (requires corresponding TrkAlignment tags)
+	  - remove obsolate fillLocal
+	  - if particleNumber is 0 then trackFitter.GetMaterialFromTrack=False,
+	    otherwise trackFitter.GetMaterialFromTrack=True
+	* NewInDetAlignment.py:
+	  - adjusted for changes in NewInDetAlignAlgSetup.py due to full
+	    local method
+	  - update setup for alignment levels
+	  - set default eigenvalueCut to 0.
+	  - default solving option to Lapack
+	  - default sample is multimuon MC09
+	* NewInDetIterator.py:
+	  - adjusted for full local method
+	  - defaults set to a simple test case
+	  - added plenty of comments
+	* NewInDetAlignLevels.py:
+	  - insensitive DoF for TRT L1 and L2 are switched on by default
+	* tag 00-02-00
+
+2010-03-17 Daniel Kollar
+	* New...:
+	  - two bugfixes
+	* tag 00-01-02
+
+2010-03-11 Daniel Kollar
+	* New...:
+	  - before doing anything else, unify the indenntation
+	    and remove empty space
+
+2010-03-11 Daniel Kollar
+	* NewInDetAlignAlgSetup.py:
+	  - more steering options for matrixTool
+	  - better steering chain for L3
+	* tag 00-01-01
+
+2010-03-09 Daniel Kollar
+	* NewInDetAlignGeometrySetup.py:
+	  - always use ID specific AlignModuleTool
+
+2010-03-05 Vicente Lacuesta
+	* tag 00-01-00
+	* tag used in release 15.5.4.13
+
+2010-03-05 Vicente Lacuesta
+	* tag 00-00-98 
+	* tag before commit a lot of changes
+
+2009-12-14 Daniel Kollar
+	* tag 00-00-97 for latest TrkAlignment including hitmap
+	  and TRT barrel L3
+
+2009-12-14 Daniel Kollar
+	* added hitmap I/O to the Iterator
+
+2009-12-14 Daniel Kollar
+	* added hitmap I/O to ...AlgSetup
+	* added setSigmas and sesSoftCut for all detectors
+	* removed NewTopOptions.py
+
+2009-11-24 Vicente Lacuesta
+        * tag 00-00-96 for 15.5.2.5, AtlasTier0
+
+2009-11-22 John Alison
+	* Moving AnalyzeAlignment.py scripts from TRT_AlignAlgs to here.
+
+2009-11-13 John Alison
+	* Getting a Stable tag that runs in 15.5.2
+	* tag 00-00-95
+	
+2009-11-13 John Alison
+	* Updating the merging of the monitoring files.
+
+2009-11-11 John Alison
+	* Adding Job that compares the monitoring files at the end of the iterator
+
+2009-11-10 John Alison
+	* Adding detailed splitting to the NewInDetIterator
+	* Putting in extraOptions to be run for all jobs in the NewInDetIterator 
+
+2009-11-06 John Alison
+	* Updating NewInDetAlignment JobOptions for standalone running and iterations
+	
+
+2009-11-02 John Alison
+	* Adding Montitoring Merge to NewInDetIterator
+	* Including a "pool_insertFileToCatalog" call
+
+2009-11-02 John Alison
+	* Adding the default dictionaries to NewInDetAlignAlg*
+
+2009-11-02 Daniel Kollar
+	* share/NewInDetAlignAlgSetup.py:
+		* fixed AlignAlg setup
+	* tag as InDetAlign-00-00-93
+
+2009-10-29 Daniel Kollar
+	* python/NewInDet_IteratorClasses.py:
+		* fixe of solve jobscript path
+	* tag as InDetAlign-00-00-92
+
+2009-10-29 Daniel Kollar
+	* NewInDet*:
+		* updates to match changes in TrkAlignment in 15.5.2
+		* L3 Silicon doesn't align Z translation by default
+		* turn on ID alignment monitoring by default
+		* turn off TrkValNtuple by default
+		* update for new version of TRT_AlignDbSvc
+	* tag as InDetAlign-00-00-91
+
+2009-07-10 John Alison
+	* Adding share/WriteTRTAlignmentESD.py
+
+2009-07-10 Vicente Lacuesta
+	* InDetAlignExample_IteratorForSi:
+		* Add challenge MC09
+		* Use new multimuons for the RTT ( fix bug #56590)
+	* NewInDetIterator:
+		* Add challenge MC09
+		* Fix challenge and geometry option
+        * Tag as InDetAlignExample-00-00-90
+
+2009-07-10 John Alison
+	* Cleaning up of TRTAlignJobOptions.py
+        * Tag as InDetAlignExample-00-00-89
+
+2009-06-10 Vicente Lacuesta
+        * Fix Bug #56590
+        * Tag as InDetAlignExample-00-00-88
+
+2009-09-09 John Alison
+	* Added flag for new TRT_AlignDbSvc
+        * Tag as InDetAlignExample-00-00-86
+
+2009-09-09 Vicente Lacuesta
+	* Fix rtt default options
+        * Switch off the acceleration for cosmics
+        * Tag as InDetAlignExample-00-00-85
+
+2009-08-24 Carl Gwilliam
+	* Updated InDetAlignExample_Cosmic_topOptions.py to respond to InDetRecExample changes.
+	* Fixes bug 54701
+	* Tag as InDetAlignExample-00-00-84
+
+2009-08-24 John Alison
+	* updated InDetAlignExample_TRTAlignmentToolbox and RunTRT*
+
+2009-06-09 John Alison
+	* updated InDetAlignExample_TRTAlignmentToolbox for Endcap Alignment
+	* tagged InDetAlignExample-00-00-83
+
+2009-06-09 Andreas Wildauer
+	* updated req file such that html is also kept
+	* tagged InDetAlignExample-00-00-82
+
+2009-06-08 Andreas Wildauer
+	* added html page for RTT
+	* reduced number of events to 50 for Si ATN tests
+	* tagged InDetAlignExample-00-00-80
+
+2009-05-19 Andreas Wildauer
+        * renamed SiL1AlignRTT.monitor.cc to SiL1AlignRTT.cc and named the method in
+        the macro to have the same name (needed for the RTT ...)
+        * tagged InDetAlignExample-00-00-78
+
+2009-05-13 Andreas Wildauer
+        * added dummy success code to output log such that the RTT does not
+          declare a successful run as failure
+        * tagged InDetAlignExample-00-00-77
+
+2009-05-11 Vicente Lacuesta 
+	* remove useZVertexTool
+	* disable read beamspot from db for cosmics
+        * tagged InDetAlignExample-00-00-76
+
+2009-05-07 Andreas Wildauer
+	* added macros/SiL1AlignRTT.monitor.cc for RTT plost
+	* tagged InDetAlignExample-00-00-75
+
+2009-05-04 Andreas Wildauer
+        * adjusted to some jobO changes in InDetRecExample
+        * tagged InDetAlignExample-00-00-74
+
+2009-05-04 Andreas Wildauer
+        * do not run alignment monitoring in TRT ATN test
+        * tagged InDetAlignExample-00-00-73
+
+2009-05-04 Vicente Lacuesta
+	* allow to run with only one subdetector (pix or SCT)
+	* tagged InDetAlignExample-00-00-72
+
+2009-04-29 Andreas Wildauer
+	* putting RTT test into "long" queue to prevent time out
+	* tagged InDetAlignExample-00-00-71
+
+2009-04-28 Andreas Wildauer
+	* replaced 
+	    os.getlogin()
+	  which the RTT batch machines do not like with
+	    os.popen4('whoami')[1].read().strip()
+	  which works fine.
+	* tagged InDetAlignExample-00-00-70
+
+2009-04-27 Andreas Wildauer
+	* another fix to the rtt xml file
+	* tagged InDetAlignExample-00-00-69
+
+2009-04-26 Andreas Wildauer
+	* fixed XML file for RTT
+	* tagged InDetAlignExample-00-00-68
+
+2009-04-24 John Alison
+	* changes to the RunTRTAlignment proceedure, removed reliance on external files.
+	* tagged InDetAlignExample-00-00-67
+
+2009-04-22 Andreas Wildauer
+	* added RTT test for Si Level1 Alignment
+	* InDetAlignExample_IteratorForSi.py can now take number of events as argument
+	  - if nothing is given it will run over 5k events (twice)
+	* tagged as InDetAlignExample-00-00-66
+
+2009-04-22 Vicente Lacuesta
+	* tagged as InDetAlignExample-00-00-65
+	* fixed outputLevel in silicon iterator
+	* added doSolve flag 
+
+2009-04-22 Andreas Wildauer
+	* corrected test/InDetAlignExample__TestConfiguration.xml file name (removed second _)
+	* tagged as InDetAlignExample-00-00-64
+
+2009-04-21 Andreas Wildauer
+	* updated InDetAlignExample_IteratorForSi.py to be independent from this package
+	* moved InDetAlignExample_IteratorClasses.py from share to python dir
+	* tagged as InDetAlignExample-00-00-63
+
+2009-04-20 John Alison
+	* clean up of TRT alignment jobOptions
+	* tagged as InDetAlignExample-00-00-62
+
+2009-04-15 John Alison
+	* corrected TRT ATN test
+	* tagged as InDetAlignExample-00-00-61
+
+2009-04-08 Andreas Wildauer
+	* corrected jobO typo in TRT ATN test
+	* tagged as InDetAlignExample-00-00-60
+
+2009-04-07 Andreas Wildauer
+	* added ATN tests for silicon cosmics+collision and trt standalone
+	* tagged as InDetAlignExample-00-00-59
+
+2009-04-06 Andreas Wildauer
+	* updated TRTAlignJobOptions.py to use input file from afs and to write
+	  (optional) ESD to local run directory
+	* tagged as InDetAlignExample-00-00-58
+
+2009-04-06 John Alison <johnda@hep.upenn.edu>
+	* Changed inputfile in TRTAlignJobOptions.py 
+	
+2009-04-06 John Alison <johnda@hep.upenn.edu>
+	* Added TRTAlignJobOptions.py runs TRT alignment 'out-of-the-box' in rel 15
+	
+2009-04-02 Regina Moles <regina.moles@ific.uv.es>
+	   Vicente Lacuesta <vicente.lacuesta@ific.uv.es>
+
+	* Tag InDetAlignExample-00-00-57
+	* Fixed the InDetAlignExample_topOptions.py and InDetAlignExample_Cosmic_topOptions.py
+	* Now they can run "out of the box"
+	* Re-estructured the challenges
+	* Moved the Iterator Flags to share/InDetAlignExampleFlags
+        * New Sample structure:you can find the text files in share/Data/ directory
+
+	* CVS: Removed Files:
+	share/inputData_CosmicStream.py
+	share/inputData_CosmicStream.txt share/inputData_M8_Cosmics.py
+	share/inputData_M8_CosmicsBField.py
+	share/inputData_M8plus_Cosmic_BField.txt
+	share/inputData_M8plus_Cosmic_NoBField.txt
+	share/inputData_beamgas_digits.py
+	share/inputData_halo_digits.py
+	share/inputData_idcalibstream_fdr1.py
+	share/inputData_idcalibstream_fdr1_maxidisk.py
+	share/inputData_idcalibstream_fdr2.py
+	share/inputData_idcalibstream_fdr2.txt
+	share/inputData_multimuonsCSC_digits.py
+	share/inputData_multimuonsCSC_digits_alineator.py
+	share/inputData_realCosmics.py
+	share/inputData_simulatedCosmics.py
+	share/inputData_simulatedCosmics_BFOff.py
+	share/inputData_simulatedCosmics_BFOn.py
+
+	* CVS: Added Files:
+        share/Data/inputData_CSC_CosmicsRel13_BFOff.txt
+	share/Data/inputData_CSC_CosmicsRel13_BFOn.txt
+	share/Data/inputData_CSC_multimuons_digits.txt
+	share/Data/inputData_CosmicStream.txt
+	share/Data/inputData_CosmicsRel14_BFOff.txt
+	share/Data/inputData_CosmicsRel14_BFOn.txt
+	share/Data/inputData_FDR1_idcalibstream.txt
+	share/Data/inputData_FDR2_cosmicstream.txt
+	share/Data/inputData_FDR2_idcalibstream.txt
+	share/Data/inputData_M8plus_Cosmic_BField.txt
+	share/Data/inputData_M8plus_Cosmic_NoBField.txt
+	share/Data/inputData_beamgas_digits.txt
+	share/Data/inputData_halo_digits.txt
+
+
+2009-03-31 Vicente Lacuesta <vicente.lacuesta@ific.uv.es>
+	* Tag InDetAlignExample-00-00-56
+	* Fix to run in release 15
+
+2009-03-31 John Alison <johnda@hep.upenn.edu>
+	* changes to the TRT alignment scripts
+
+2009-03-25 John Alison <johnda@hep.upenn.edu>
+	* changes to the TRT alignment script
+
+2009-03-21 John Alison <johnda@hep.upenn.edu>
+	* added scripts to run the alignment in rel15
+
+2009-03-13 Grant Gorfine <Grant.Gorfine@cern.ch>
+	* poolToTxt.py: Fix bug in setting of tag.
+	* InDetAlignableOverride.py: Update syntax of connection string.
+	* TestInDetAlignment_jobOptions.py: Fix testCase 1-3.
+	
+2009-03-06 Regina Moles <Regina.Moles@ific.uv.es>
+	* Add overlapTool in InDetAlignExample_SiAlignAlgs.py
+
+2009-01-19 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Tagged as InDetAlignExample-00-00-53
+	* Choose align level from the iterator
+	* Add all multimuons
+
+2008-12-10 John Alison <John.Alison@cern.ch>
+	* Fixed to RunTRTAlignment.py and InDetAlignExample_TRTAlignmentToolbox.py for the L2 TRT Alignment 
+
+2008-12-8 John Alison <John.Alison@cern.ch>
+	* Updates to RunTRTAlignment.py and InDetAlignExample_TRTAlignmentToolbox.py
+
+2008-11-14 Oleg Brandt <oleg.brandt@cern.ch>
+	* ..._Cosmic_topOptions.py: added InDetAlignHitQualSelTool (after if-
+	  statement as not yet in older releases). Changed offline cond. tag
+          to 'COMCOND-006-01'
+          ..._SiAlignAlgs.py: changed default run options for RA.
+	* Tagged as InDetAlignExample-00-00-52
+
+2008-11-13 Grant Gorfine <Grant.Gorfine@cern.ch>
+	* poolToTxt.py: Fixes for TRT: Block folder when reading pool
+	  file and avoid ERROR messages. 
+	* Tagged as InDetAlignExample-00-00-51
+	
+2008-10-30 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	*  Tagged as InDetAlignExample-00-00-50
+
+2008-10-18 John Alison <John.Alison@cern.ch>
+	* Added InDetAlignExample_TRTAlignmentToolbox.py
+	* Added the class TRTAlignmentJob which contians the functions needed for alignments
+	* RunTRTAlignment.py now only has steering options/loop over iterations
+2008-10-17 Grant Gorfine <Grant.Gorfine@cern.ch>
+	* poolToTxt.py: Add option to override run number
+	  Add TRT. Needs TRT_ConditionsAlgs-00-01-03 or later. 
+2008-10-15 John Alison <John.Alison@cern.ch>
+	* Add Changes to RunTRTAlignment.py so that it can read ESDs from castor
+2008-09-30 John Alison <John.Alison@cern.ch>
+	* Add Cosmic capabilities (MC and DATA) to RunTRTAlignment.py
+	* Added jobOptions: CosmicFlagsJobOptionsL2.py,CosmicFlagsJobOptionsL2DATA.py,
+	  CosmicJobOptions.py, and SetupTRTAlignCosmics.py to share
+2008-09-16 Grant Gorfine <Grant.Gorfine@cern.ch>
+	* Add poolToTxt.py
+	* Remove some old unmaintained files.
+2008-09-08 Regina Moles <moles@ific.uv.es>
+	* Default options for running over M8plus cosmic 
+	  data (temporally)
+2008-09-03 John Alison <John.Alison@cern.ch>
+	* Added ability to align on ESD to RunTRTAlignment.py
+	* Added IDAlingMon plots to RunTRTAlignment.py
+	* Added emailing capabilities to RunTRTAlignment
+-----------------------------------------------------------
+
+2008-09-01 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Upload scripts used in FDR2c
+	* Tagged as InDetAlignExample-00-00-48
+
+2008-08-28 Giorgio Cortiana  <cortiana@mppmu.mpg.de>
+        * Tagged as InDetAlignExample-00-00-47
+
+2008-08-08 Giorgio Cortiana  <cortiana@mppmu.mpg.de>
+	* Added beam halo/gas
+	
+2008-07-24 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Create InDetAlignExample-00-00-45
+	* Minor Fix
+	* Upload scripts used in FDR2 follow-up
+
+2008-06-13 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-44
+	* Change default queue
+	* Switch off TRT by default in Si alignment
+
+
+2008-06-13 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-43
+	* Add Robust Alignment (Oleg Brandt)
+
+
+2008-06-11 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-42
+	* Some fixes
+	* Iterator used in FDR2
+
+2008-05-28 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-41
+	* Add preName option
+	* Change output paths
+	* Implement cog in silicon alignment
+
+
+2008-05-26 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-40
+	* Add Aligned option
+	* Fix reading constants in cosmic BS
+	* Add superScript
+	* PDGTable.MeV removed 
+
+2008-05-14 Grant Gorfine <Grant.Gorfine@cern.ch>
+        * Create InDetAlignExample-00-00-38
+	* poolToDB.py: Update for rel 14.
+
+2008-05-13 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-37
+	* Minor fixes
+	* PDGTable.MeV removed 
+
+2008-05-08 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-36
+	* Add more matrix check
+	* Add FDR2 cosmics 
+
+2008-05-06 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-35
+	* Fix matrix check
+	* Add cosmics in release 14
+
+2008-05-05 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-34
+	* Changes to run with release 14.1.0 (only)
+	
+2008-04-29 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-33
+	* wait for reco and solve jobs
+	* minor fix for Alineator in InDetAlignExample_IteratorForSi.py
+	* Last tag for r13
+
+2008-04-29 Carlos Escobar <carlos.escobar@ific.uv.es>
+        * Create InDetAlignExample-00-00-32
+	* update the path for multimuonsCSC_digits.py
+	* add multimuonsCSC_digits_alineator.py
+	* fixes postprocessing in share/InDetAlignExample_topOptions.py
+	* fixes for Alineator in InDetAlignExample_IteratorForSi.py
+
+2008-04-28 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-31
+	* Return to compatibility with release 13
+        * Various fixes
+
+2008-04-03 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-30
+	* Add compatibility with release 14
+        * Various fixes
+        
+2008-03-05 Grant Gorfine <Grant.Gorfine@cern.ch>
+        * Create InDetAlignExample-00-00-29
+	* python/InDetAlignable.py: Add pixel distortions folder 
+	  to enable pixel distortions by default.
+	  Note that this python file will soon be moved to a new package.
+
+2008-03-03 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-28
+        * Various fixes
+        * Add cosmics option (doesn't works yet)
+
+2008-02-27 Carlos Escobar <carlos.escobar@ific.uv.es>
+        * Create InDetAlignExample-00-00-27
+	* turn on the postProcessing in InDetAlignExample_topOptions.py
+	* relax the Vertex Finder options (no beam constraints)
+	* change 'move' by 'copy' for matrix manipulation 
+	  in InDetAlignExample_IteratorClasses.py
+
+2008-02-22 Grant Gorfine <Grant.Gorfine@cern.ch>
+	* Create InDetAlignExample-00-00-26
+	* Updated ReadPool.py, InDetAlignableOverride.py, TestInDetAlignment_jobOptions.py
+	  to work in release 13.x.0.  
+	
+2008-02-21 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Create InDetAlignExample-00-00-25
+	* various fixes in InDetAlignExample_IteratorForSi.py
+	* various fixes in InDetAlignExample_IteratorClasses.py
+	
+2008-02-19 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Create InDetAlignExample-00-00-24
+	* update InDetAlignExample_IteratorForSi.py
+	* add InDetAlignExample_IteratorClasses.py
+	* fix requirements for checkreq
+	* fix for alineator in some files
+
+2008-02-18 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Create InDetAlignExample-00-00-23
+	* Add InDetAlignExample_IteratorForSi.py
+
+2008-02-11 Carlos Escobar <carlos.escobar@ific.uv.es>
+        * Create InDetAlignExample-00-00-22
+	* remove obsole jobOptions
+	* add InDetAlignExample_links.sh
+	* reorganizate the jobOptions for alignment
+	* move RunTRTAlignment.py to InDetAlignExample_IteratorForTRT.py
+	* add share/idcalibstream_maxidisk.py
+	* add share/InDetAlignExample_GX2Conditions.py
+
+2008-01-29 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Create InDetAlignExample-00-00-21
+	* Move GX2 options to flags
+	* Create iterator
+
+2008-01-28 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-20
+	* Fill InDetAlignExample_Flags
+	* Fill InDetAlignExample_batch.sh
+
+2008-01-23 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-19
+	* Add idcalibstream support
+	* Fix jobOptionsGX2
+	
+2008-01-17 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Create InDetAlignExample-00-00-18
+	* Move Code
+	* Update mainpage.h
+	
+2008-01-15 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+	* Create InDetAlignExample-00-00-17
+	* Fix jobOptionsGX2
+		
+2008-01-15 Vicente Lacuesta <Vicente.Lacuesta@ific.uv.es>
+        * Create InDetAlignExample-00-00-16
+	* Add general jobOptions and jobOptions for 
+	align with GX2 Algorithm
+	* Add necessary files to run GX2 alignment
+
+2007-10-30 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Add poolToDB.py for reading pool file and writing
+	  new pool file and sqlite db.
+	
+2007-10-09 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Changes for AtlasGeoModel configurables migration.
+	  Add InDetAlignable.py in python directory.
+	
+2007-03-21 Grant Gorfine <Grant.Gorfine@cern.ch> 
+	* InDetG4Atlas_SimGeomTest.py: Use new geometry test
+	* TestInDetAlignment_jobOptions.py: more configurables migration
+ 	
+2007-03-15 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Migrate to configurables and clean up.
+	
+2007-03-07 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Various fixes for release 13. 
+	
+2006-11-10 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Some cleanup.
+	
+2006-09-20 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Add InDetAlignableOverride.py as a way to override
+	  alignment folders. Update to new geometry tag.
+	
+2006-09-11 Grant Gorfine <Grant.Gorfine@cern.ch> 
+	* InDetAlignable.py: Remove include of IOVRecExCommon.py
+
+2006-09-07 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Add back required folders. 
+		
+2006-09-06 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Create InDetAlignable.py which contains minimal  
+	  required for using alignment
+	
+2006-09-05 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Update for 12.0.3
+	* Rename jobOptions.G4Atlas_Sim.py to InDetG4Atlas_Sim.py
+	  to avoid clash with ATLAS Simulation version.
+	
+2006-08-17 Sergio Gonzalez Sevilla <segonzal@ific.uv.es> 
+        * Add SiWriteDBS_CSC.py and SiWriteDBS_ResIni.py
+        * tag as InDetAlignExample-00-00-03
+
+2006-06-21 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Remove dependency on simulation run time.
+        * Remove wrong pool catalog setting.
+
+2006-06-20 Grant Gorfine <Grant.Gorfine@cern.ch> 
+        * Replace TestSiAlignment_jobOptions.py with
+	  TestInDetAlignment_jobOptions.py which includes
+	  TRT test. For reading use the CSC alignment sets.
+	
+2006-05-08 Grant Gorfine <Grant.Gorfine@cern.ch>
+	* First import of files.
+	
+2006-05-05 Frederick Luehring <Fred.Luehring@cern.ch>
+
+	* Create package and tag as InDetAlignExample-00-00-00.
+

@@ -1,0 +1,40 @@
+10
+
+dir
+800626
+svn+ssh://svn.cern.ch/reps/atlasoff/InnerDetector/InDetExample/InDetAlignExample/trunk/CalibrationLoopChecker/CalibrationLoop2016/ReprocessTools/upload_iov
+svn+ssh://svn.cern.ch/reps/atlasoff
+
+
+
+2017-02-03T11:52:01.624614Z
+795357
+hoide
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4525493e-7705-40b1-a816-d608a930855b
+
+errorscale
+dir
+
+2015
+dir
+
+post_TS1
+dir
+
+pre_TS1
+dir
+
