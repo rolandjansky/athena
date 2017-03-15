@@ -36,9 +36,7 @@ if [ -e TrkNtuple-0000.root ]; then
 
     echo "fetching reference files from $REFDIR"
         
-    get_files TIDAhistos-vtx.dat
-
-    EXPERT=$(grep expert $2) 
+    EXPERT=$(echo $1 $2 | grep expert) 
 
     # if expert timing histos
     if [ "x$EXPERT" != "x" ]; then 
@@ -79,6 +77,7 @@ if [ -e TrkNtuple-0000.root ]; then
     done
 
     if [ "x$EXPERT" == "x" ]; then 
+        get_files -data TIDAhistos-vtx.dat
         echo -e "\nrunning comparitor " $(date) "\n"
         TIDAcomparitor.exe $* $NOREF
     else
