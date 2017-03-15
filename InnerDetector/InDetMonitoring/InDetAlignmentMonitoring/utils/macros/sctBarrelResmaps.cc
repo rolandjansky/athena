@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 void sctBarrelResmaps(TString TrkCol, bool side, bool isRMS, float range){
 	sctBarrelResmaps(TrkCol, 0, side, isRMS, range);
 }

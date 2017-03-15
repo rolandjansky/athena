@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // $Id: InDetAlignMonBeamSpot.cxx,v 1.6 2009-02-05 20:55:08 beringer Exp $
 
 #include <sstream>

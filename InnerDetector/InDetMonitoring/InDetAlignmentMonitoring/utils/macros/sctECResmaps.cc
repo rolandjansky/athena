@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 void sctECResmaps(TString TrkCol, bool ec, bool side, bool isRMS, float range){
 	sctECResmaps(TrkCol, 0, ec, side, isRMS, range);
 }

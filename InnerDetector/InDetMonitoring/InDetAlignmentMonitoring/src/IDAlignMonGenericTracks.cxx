@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // **********************************************************************
 // AlignmentMonTool.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling
@@ -70,7 +66,8 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
 	m_d0Range(2.0),
 	m_d0BsRange(0.5),
 	m_z0Range(250.0),
-	m_etaRange(3.0),
+	m_pTRange(100.0),
+	m_etaRange(2.5),
 	m_NTracksRange(200),
         m_beamCondSvc("BeamCondSvc",name),
         m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"), 
@@ -81,8 +78,6 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
  
-  m_pTRange = 100.0;
-  
   InitializeHistograms();
   
   declareProperty("tracksName"           , m_tracksName);
@@ -418,6 +413,8 @@ void IDAlignMonGenericTracks::InitializeHistograms() {
   m_trk_z0c_asym_barrel = 0;
   m_trk_z0c_asym_eca = 0;
   m_trk_z0c_asym_ecc = 0;
+
+  m_hTrackWeight = 0;
 
 }
 
@@ -775,14 +772,16 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_trk_d0_vs_phi0_z0->SetYTitle("Track z_{0} [mm]");
       RegisterHisto(al_mon, m_trk_d0_vs_phi0_z0);
 
-      m_trk_d0_vs_phi_vs_eta         = new TH3F("trk_d0_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.2, 0.2 );
-      m_trk_pT_vs_eta                = new TH2F("trk_pT_vs_eta"              , "pT vs eta "                 , 100, -3., 3., 100, 0., 50.);
-      m_trk_d0_vs_phi_vs_eta_barrel  = new TH3F("trk_d0_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.2, 0.2 );
-      m_trk_pT_vs_eta_barrel         = new TH2F("trk_pT_vs_eta_barrel"       , "pT vs eta barrel"           , 100, -3., 3., 100, 0., 50.);
-      m_trk_d0_vs_phi_vs_eta_ecc     = new TH3F("trk_d0_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.2, 0.2 );
-      m_trk_pT_vs_eta_ecc            = new TH2F("trk_pT_vs_eta_ecc"          , "pT vs eta ecc"              , 100, -3., 3., 100, 0., 50.);
-      m_trk_d0_vs_phi_vs_eta_eca     = new TH3F("trk_d0_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.2, 0.2 );
-      m_trk_pT_vs_eta_eca            = new TH2F("trk_pT_vs_eta_eca"          , "pT vs eta eca"              , 100, -3., 3., 100, 0., 50.);
+      int etaBins = 50;
+      int ptBins = 50;
+      m_trk_d0_vs_phi_vs_eta         = new TH3F("trk_d0_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , etaBins, -m_etaRange, m_etaRange,  40, 0, 2*m_Pi,  100, -0.2, 0.2 );
+      m_trk_d0_vs_phi_vs_eta_barrel  = new TH3F("trk_d0_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , etaBins, -m_etaRange, m_etaRange,  40, 0, 2*m_Pi,  100, -0.2, 0.2 );
+      m_trk_d0_vs_phi_vs_eta_ecc     = new TH3F("trk_d0_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", etaBins, -m_etaRange, m_etaRange,  40, 0, 2*m_Pi,  100, -0.2, 0.2 );
+      m_trk_d0_vs_phi_vs_eta_eca     = new TH3F("trk_d0_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", etaBins, -m_etaRange, m_etaRange,  40, 0, 2*m_Pi,  100, -0.2, 0.2 );
+      m_trk_pT_vs_eta                = new TH2F("trk_pT_vs_eta"              , "pT vs eta;#eta;p_{T} [GeV] "      , etaBins, -m_etaRange, m_etaRange, ptBins, 0., m_pTRange);
+      m_trk_pT_vs_eta_barrel         = new TH2F("trk_pT_vs_eta_barrel"       , "pT vs eta barrel;#eta;p_{T} [GeV]", etaBins, -m_etaRange, m_etaRange, ptBins, 0., m_pTRange);
+      m_trk_pT_vs_eta_eca            = new TH2F("trk_pT_vs_eta_eca"          , "pT vs eta eca;#eta;p_{T} [GeV]"   , etaBins, -m_etaRange, m_etaRange, ptBins, 0., m_pTRange);
+      m_trk_pT_vs_eta_ecc            = new TH2F("trk_pT_vs_eta_ecc"          , "pT vs eta ecc;#eta;p_{T} [GeV]"   , etaBins, -m_etaRange, m_etaRange, ptBins, 0., m_pTRange);
       
       
       RegisterHisto(al_mon, m_trk_d0_vs_phi_vs_eta        );
@@ -1493,10 +1492,16 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_phi_ecc->GetXaxis()->SetTitle("Track in ECC #phi"); 
     m_phi_ecc->GetYaxis()->SetTitle("Number of Tracks");   
 
-    m_pT = TH1F_LW::create("pT","pT",200,-m_pTRange,m_pTRange);  
+    m_pT = TH1F_LW::create("pT","signed track p_{T}",200,-m_pTRange,m_pTRange);  
     RegisterHisto(al_mon_ls,m_pT) ;   
-    m_pT->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
+    m_pT->GetXaxis()->SetTitle("Signed track p_{T} [GeV]"); 
     m_pT->GetYaxis()->SetTitle("Number of Tracks");   
+
+    m_pTabs = TH1F_LW::create("pTabs","Track p_{T}",100, 0., m_pTRange);  
+    RegisterHisto(al_mon_ls,m_pTabs) ;   
+    m_pTabs->GetXaxis()->SetTitle("Track p_{T} [GeV]"); 
+    m_pTabs->GetYaxis()->SetTitle("Number of Tracks");   
+
     m_pTRes = TH1F_LW::create("pTRes","pTRes",100,0,1.0);  
     RegisterHisto(al_mon,m_pTRes) ;  
     m_pTResOverP = TH1F_LW::create("pTResOverP","Momentum resolution / Momentum",100,0,0.05);  
@@ -1597,6 +1602,13 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     RegisterHisto(al_mon, m_NTRT_per_LumiBlock) ;
     m_NTRT_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_NTRT_per_LumiBlock->GetYaxis()->SetTitle("# TRT hits");   
+
+
+    // track weight histo
+    m_hTrackWeight = TH1F_LW::create("hUsedWeight","Weight per track", 50, 0., 5.); 
+    RegisterHisto(al_mon, m_hTrackWeight) ;
+    m_hTrackWeight->GetXaxis()->SetTitle("weight"); 
+    m_hTrackWeight->GetYaxis()->SetTitle("# tracks");   
 
     m_histosBooked++;
   }
@@ -1887,11 +1899,13 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       d0bscorr = trkd0 - ( -sin(trkphi)*beamX + cos(trkphi)*beamY );
 
       // per track weight, if required
-      if ( m_applyHistWeight ){ 
+      if ( m_applyHistWeight ){
+	hweight = 1.; // default
         int binNumber = m_etapTWeight->FindBin(trketa, trkpt);
         hweight = m_etapTWeight->GetBinContent(binNumber);
-        //ATH_MSG_INFO(Form("weight = %f, for (eta,pT) = (%f,%f)", hweight, trketa, trkpt));    
       }
+      m_hTrackWeight->Fill(hweight);   
+
     }    
 
     if (fitQual==0) {
@@ -2141,6 +2155,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       m_trk_z0_wrtPV -> Fill(myIPandSigma->IPz0, hweight);
       }
     m_pT        -> Fill(charge*trkpt, hweight);
+    m_pTabs     -> Fill(trkpt, hweight);
     m_P         -> Fill(trkP        , hweight);
     if(charge>0) m_pT_p -> Fill(trkpt, hweight);
     if(charge<0) m_pT_n -> Fill(trkpt, hweight);

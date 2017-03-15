@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // ***************************************************************************************
 // IDAlignMonResiduals.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling, Ben Cooper, John Alison
@@ -738,7 +734,6 @@ StatusCode IDAlignMonResiduals::bookHistograms()
   }
   
   std::string outputDirName = "IDAlignMon/" + m_tracksName + "_" + m_triggerChainName + "/Residuals";
-  //std::cout << " -- SALVA -- histos for track collection: " <<  m_tracksName << "_" << m_triggerChainName << std::endl;
 
   MonGroup al_mon ( this, outputDirName, run );
 	
@@ -1265,7 +1260,8 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
     // per track weight, if required
     if ( m_applyHistWeight ){ 
-      int binNumber = m_etapTWeight->FindBin( trketa_w, trkpt );
+      hweight = 1; // default
+      int binNumber = m_etapTWeight->FindBin( trketa_w, fabs(trkpt) ); // the weight histogram uses just pt instead of q pt 
       hweight       = m_etapTWeight->GetBinContent( binNumber );
     }
 
@@ -1370,9 +1366,17 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       			
       const Identifier & hitId = hit->identify();
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined  hit Identifier " << endmsg;
+      // Salva (Feb 2017): problem observed with a hit not being pixel -> make sure hits are from an ID part     
+      //if (m_idHelper->is_trt(hitId)) detType = 2;
+      //else if (m_idHelper->is_sct(hitId)) detType = 1;
+      //else  detType = 0;
+
+      // Salva: new code
+      detType = -1; // unknown
       if (m_idHelper->is_trt(hitId)) detType = 2;
-      else if (m_idHelper->is_sct(hitId)) detType = 1;
-      else  detType = 0;
+      if (m_idHelper->is_sct(hitId)) detType = 1;
+      if (m_idHelper->is_pixel(hitId)) detType = 0;
+
       if(detType==2){
 	//have identified a TRT hit
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit is from the TRT, finding residuals... " << endmsg;
@@ -1808,10 +1812,20 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
 	  m_pix_eca_xresvsmodphi_2d -> Fill(modPhi+ModPhiShift[layerDisk],residualX, hweight);
 	  m_pix_eca_yresvsmodphi_2d -> Fill(modPhi+ModPhiShift[layerDisk],residualY, hweight);
-	  m_pix_eca_unbiased_xresvsmodphi_disks[layerDisk] -> Fill(modPhi,residualX, hweight);
-	  m_pix_eca_unbiased_yresvsmodphi_disks[layerDisk] -> Fill(modPhi,residualY, hweight);
-	  //m_pix_eca_unbiased_xresvsmodphi -> Fill(modPhi+ModPhiShift[layerDisk],residualX,hweight);
-	  //m_pix_eca_unbiased_yresvsmodphi -> Fill(modPhi+ModPhiShift[layerDisk],residualY,hweight);
+
+	  if (0 <= layerDisk && layerDisk <= m_PIX_Mgr->numerology().numDisks()-1) { // protection
+	    msg(MSG::DEBUG) << " filling histos pixel ECA disk " << layerDisk << " for track " << nTracks << " of collection "<<  m_tracksName << endmsg;
+	    if (m_pix_eca_unbiased_xresvsmodphi_disks[layerDisk] != NULL) // protection
+	      m_pix_eca_unbiased_xresvsmodphi_disks[layerDisk] -> Fill(modPhi,residualX, hweight);
+	    if (m_pix_eca_unbiased_yresvsmodphi_disks[layerDisk] != NULL)
+	      m_pix_eca_unbiased_yresvsmodphi_disks[layerDisk] -> Fill(modPhi,residualY, hweight);
+	  }
+	  else {
+	    msg(MSG::INFO) << " bad number for pixel ECA disk " << layerDisk << " of track " << nTracks << " of collection "<<  m_tracksName << endmsg;
+	    msg(MSG::INFO) << " dumping hit: -- start --" << endmsg;
+	    hit->dump(msg(MSG::INFO));
+	    msg(MSG::INFO) << " dumping hit: -- completed --" << endmsg;
+	  }
 	  
 	}
 	else if(barrelEC==-2){
@@ -2012,21 +2026,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    float xValueForHist = modEta +  mlocalY / PixelBarrelYSize; 
 	    float yValueForHist = modPhi +  mlocalX / PixelBarrelXSize;
 
-	    if (false) {
-	      std::cout << " -- SALVA -- filling detailed pixel maps -- layer = " << layerDisk 
-			<< "  eta: " << modEta 
-			<< "  phi " << modPhi
-			<< "  local (" << mlocalX << " / " << PixelBarrelXSize 
-			<< ", "        << mlocalY << " / " << PixelBarrelYSize << ") "
-			<< "  normalized (" << mlocalY/PixelBarrelYSize * m_mapSplit << ", " << mlocalX/PixelBarrelXSize * m_mapSplit << ") "
-			<< std::endl;
-	      std::cout << "                                                      " 
-			<< " fill (" << xValueForHist << ", " << yValueForHist << ") "
-			<< std::endl;
-	    }
 	    // biased 3d histos turned into detailed 3d histos (for the time being use unbiased residuals)
-	    //m_pix_b_biased_xresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX, residualX, hweight);
-	    //m_pix_b_biased_yresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX, residualY, hweight);
 	    m_pix_b_detailed_xresvsmodetaphi_3ds[layerDisk] -> Fill( xValueForHist, yValueForHist, residualX, hweight);
 	    m_pix_b_detailed_yresvsmodetaphi_3ds[layerDisk] -> Fill( xValueForHist, yValueForHist, residualY, hweight);
 	    
@@ -2102,48 +2102,51 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_hiterror_x_pix_ec   -> Fill(hitErrorX       , hweight); 	    m_hiterror_x_pix_ec_WideRange-> Fill(hitErrorX       , hweight);
 	    m_hiterror_y_pix_ec   -> Fill(hitErrorY       , hweight);       m_hiterror_y_pix_ec_WideRange-> Fill(hitErrorY       , hweight);    
 
-	    m_pix_eca_biased_residualsx[layerDisk]   -> Fill(biasedResidualX      , hweight);
-	    m_pix_eca_biased_residualsy[layerDisk]   -> Fill(biasedResidualY      , hweight);
-	    m_pix_eca_biased_residualsx_pt[layerDisk]-> Fill(trkpt,biasedResidualX, hweight);
-	    m_pix_eca_biased_residualsy_pt[layerDisk]-> Fill(trkpt,biasedResidualY, hweight);
-	    m_pix_eca_residualsx_pt[layerDisk]-> Fill(trkpt,residualX, hweight);
-	    m_pix_eca_residualsy_pt[layerDisk]-> Fill(trkpt,residualY, hweight);
-	    m_pix_eca_pullsx_pt[layerDisk]    -> Fill(trkpt,pullX    , hweight);
-	    m_pix_eca_pullsy_pt[layerDisk]     -> Fill(trkpt,pullY    , hweight);
-	    m_pix_eca_biased_residualsx_qoverp2[layerDisk]   -> Fill(trkqoverp2,biasedResidualX, hweight);
-	    m_pix_eca_biased_residualsy_qoverp2[layerDisk]   -> Fill(trkqoverp2,biasedResidualY, hweight);
-	    m_pix_eca_residualsx_qoverp2[layerDisk] -> Fill(trkqoverp2,residualX      , hweight);
-	    m_pix_eca_residualsy_qoverp2[layerDisk] -> Fill(trkqoverp2,residualY      , hweight);
-	    m_pix_eca_biased_xresvsmodphi_2ds[layerDisk]  -> Fill(modPhi,biasedResidualX, hweight);
-	    m_pix_eca_biased_yresvsmodphi_2ds[layerDisk]  -> Fill(modPhi,biasedResidualY, hweight);
+	    if (0 <= layerDisk && layerDisk <= m_PIX_Mgr->numerology().numDisks()-1) { // protection
+	      msg(MSG::INFO) << " filling biased histos pixel ECA disk " << layerDisk << " for track " << nTracks << " of collection "<<  m_tracksName << endmsg;
+	      m_pix_eca_biased_residualsx[layerDisk]   -> Fill(biasedResidualX      , hweight);
+	      m_pix_eca_biased_residualsy[layerDisk]   -> Fill(biasedResidualY      , hweight);
+	      m_pix_eca_biased_residualsx_pt[layerDisk]-> Fill(trkpt,biasedResidualX, hweight);
+	      m_pix_eca_biased_residualsy_pt[layerDisk]-> Fill(trkpt,biasedResidualY, hweight);
+	      m_pix_eca_residualsx_pt[layerDisk]-> Fill(trkpt,residualX, hweight);
+	      m_pix_eca_residualsy_pt[layerDisk]-> Fill(trkpt,residualY, hweight);
+	      m_pix_eca_pullsx_pt[layerDisk]    -> Fill(trkpt,pullX    , hweight);
+	      m_pix_eca_pullsy_pt[layerDisk]     -> Fill(trkpt,pullY    , hweight);
+	      m_pix_eca_biased_residualsx_qoverp2[layerDisk]   -> Fill(trkqoverp2,biasedResidualX, hweight);
+	      m_pix_eca_biased_residualsy_qoverp2[layerDisk]   -> Fill(trkqoverp2,biasedResidualY, hweight);
+	      m_pix_eca_residualsx_qoverp2[layerDisk] -> Fill(trkqoverp2,residualX      , hweight);
+	      m_pix_eca_residualsy_qoverp2[layerDisk] -> Fill(trkqoverp2,residualY      , hweight);
+	      m_pix_eca_biased_xresvsmodphi_2ds[layerDisk]  -> Fill(modPhi,biasedResidualX, hweight);
+	      m_pix_eca_biased_yresvsmodphi_2ds[layerDisk]  -> Fill(modPhi,biasedResidualY, hweight);
 	    
-	    if (m_doClusterSizeHistos)
-	      {
-		m_pix_eca_clustersize[layerDisk] -> Fill(ClusSize,hweight);
-		m_pix_eca_clustersizePhi[layerDisk] -> Fill(ClusSizePhi,hweight);
-		m_pix_eca_clustersizeZ[layerDisk] -> Fill(ClusSizeZ,hweight);
-		m_pix_eca_residualsx_clustersize[layerDisk]->Fill(ClusSize,residualX,hweight);
-		m_pix_eca_residualsy_clustersize[layerDisk]->Fill(ClusSize,residualY,hweight);
-		m_pix_eca_residualsx_clustersizePhi[layerDisk]->Fill(ClusSizePhi,residualX,hweight);
-		m_pix_eca_residualsy_clustersizePhi[layerDisk]->Fill(ClusSizePhi,residualY,hweight);
-		m_pix_eca_residualsx_clustersizeZ[layerDisk]->Fill(ClusSizeZ,residualX,hweight);
-		m_pix_eca_residualsy_clustersizeZ[layerDisk]->Fill(ClusSizeZ,residualY,hweight);
-		m_pix_eca_residualsx_clustersizeP[layerDisk]->Fill(ClusSize,residualX,hweight);
-		m_pix_eca_residualsy_clustersizeP[layerDisk]->Fill(ClusSize,residualY,hweight);
-		m_pix_eca_residualsx_clustersizePhiP[layerDisk]->Fill(ClusSizePhi,residualX,hweight);
-		m_pix_eca_residualsy_clustersizePhiP[layerDisk]->Fill(ClusSizePhi,residualY,hweight);
-		m_pix_eca_residualsx_clustersizeZP[layerDisk]->Fill(ClusSizeZ,residualX,hweight);
-		m_pix_eca_residualsy_clustersizeZP[layerDisk]->Fill(ClusSizeZ,residualY,hweight);
-		m_pix_eca_clustersizePhi_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSizePhi,hweight);
-		m_pix_eca_clustersizeZ_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSizeZ,hweight);
-		m_pix_eca_clustersize_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSize,hweight);
-		m_pix_eca_clustersizePhi_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizePhi,hweight);
-		m_pix_eca_clustersizeZ_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizeZ,hweight);
-		m_pix_eca_clustersize_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSize,hweight);
-		
-	      }
-	    
-	    }
+	      if (m_doClusterSizeHistos) {
+		  m_pix_eca_clustersize[layerDisk] -> Fill(ClusSize,hweight);
+		  m_pix_eca_clustersizePhi[layerDisk] -> Fill(ClusSizePhi,hweight);
+		  m_pix_eca_clustersizeZ[layerDisk] -> Fill(ClusSizeZ,hweight);
+		  m_pix_eca_residualsx_clustersize[layerDisk]->Fill(ClusSize,residualX,hweight);
+		  m_pix_eca_residualsy_clustersize[layerDisk]->Fill(ClusSize,residualY,hweight);
+		  m_pix_eca_residualsx_clustersizePhi[layerDisk]->Fill(ClusSizePhi,residualX,hweight);
+		  m_pix_eca_residualsy_clustersizePhi[layerDisk]->Fill(ClusSizePhi,residualY,hweight);
+		  m_pix_eca_residualsx_clustersizeZ[layerDisk]->Fill(ClusSizeZ,residualX,hweight);
+		  m_pix_eca_residualsy_clustersizeZ[layerDisk]->Fill(ClusSizeZ,residualY,hweight);
+		  m_pix_eca_residualsx_clustersizeP[layerDisk]->Fill(ClusSize,residualX,hweight);
+		  m_pix_eca_residualsy_clustersizeP[layerDisk]->Fill(ClusSize,residualY,hweight);
+		  m_pix_eca_residualsx_clustersizePhiP[layerDisk]->Fill(ClusSizePhi,residualX,hweight);
+		  m_pix_eca_residualsy_clustersizePhiP[layerDisk]->Fill(ClusSizePhi,residualY,hweight);
+		  m_pix_eca_residualsx_clustersizeZP[layerDisk]->Fill(ClusSizeZ,residualX,hweight);
+		  m_pix_eca_residualsy_clustersizeZP[layerDisk]->Fill(ClusSizeZ,residualY,hweight);
+		  m_pix_eca_clustersizePhi_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSizePhi,hweight);
+		  m_pix_eca_clustersizeZ_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSizeZ,hweight);
+		  m_pix_eca_clustersize_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSize,hweight);
+		  m_pix_eca_clustersizePhi_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizePhi,hweight);
+		  m_pix_eca_clustersizeZ_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizeZ,hweight);
+		  m_pix_eca_clustersize_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSize,hweight);
+	      } // m_doClusterSizeHistos
+	    } // good layerDisk
+	    else{
+	      msg(MSG::INFO) << " bad number for pixel ECA disk " << layerDisk << " of track " << nTracks << " of collection "<<  m_tracksName << endmsg;
+	    } // fail good layerDisk                                                             
+	  }
 	  else if (barrelEC==-2){
 	    m_pix_ecc_xresvsmodphidisk_3d->Fill(layerDisk,modPhi,residualX,hweight);
 	    m_pix_ecc_yresvsmodphidisk_3d->Fill(layerDisk,modPhi,residualY,hweight);
@@ -2160,47 +2163,55 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_hiterror_x_pix_ec   -> Fill(hitErrorX       , hweight);  m_hiterror_x_pix_ec_WideRange-> Fill(hitErrorX       , hweight); 
 	    m_hiterror_y_pix_ec   -> Fill(hitErrorY       , hweight);  m_hiterror_y_pix_ec_WideRange-> Fill(hitErrorY       , hweight);
 	   
-	    m_pix_ecc_biased_residualsx[layerDisk]   -> Fill(biasedResidualX      , hweight);
-	    m_pix_ecc_biased_residualsy[layerDisk]   -> Fill(biasedResidualY      , hweight);
-	    m_pix_ecc_biased_residualsx_pt[layerDisk]-> Fill(trkpt,biasedResidualX, hweight);
-	    m_pix_ecc_biased_residualsy_pt[layerDisk]-> Fill(trkpt,biasedResidualY, hweight);
-	    m_pix_ecc_residualsx_pt[layerDisk]-> Fill(trkpt,residualX, hweight);
-	    m_pix_ecc_residualsy_pt[layerDisk]-> Fill(trkpt,residualY, hweight);
-	    m_pix_ecc_pullsx_pt[layerDisk]    -> Fill(trkpt,pullX    , hweight);
-	    m_pix_ecc_pullsy_pt[layerDisk]     -> Fill(trkpt,pullY    , hweight);
-	    m_pix_ecc_biased_residualsx_qoverp2[layerDisk]   -> Fill(trkqoverp2,biasedResidualX, hweight);
-	    m_pix_ecc_biased_residualsy_qoverp2[layerDisk]   -> Fill(trkqoverp2,biasedResidualY, hweight);
-	    m_pix_ecc_residualsx_qoverp2[layerDisk] -> Fill(trkqoverp2,residualX      , hweight);
-	    m_pix_ecc_residualsy_qoverp2[layerDisk] -> Fill(trkqoverp2,residualY      , hweight);
-	    m_pix_ecc_biased_xresvsmodphi_2ds[layerDisk]  -> Fill(modPhi,biasedResidualX, hweight);
-	    m_pix_ecc_biased_yresvsmodphi_2ds[layerDisk]  -> Fill(modPhi,biasedResidualY, hweight);
+	    if (0 <= layerDisk && layerDisk <= m_PIX_Mgr->numerology().numDisks()-1) { // protection
+	      msg(MSG::INFO) << " filling biased histos pixel ECA disk " << layerDisk << " for track " << nTracks << " of collection "<<  m_tracksName << endmsg;
+	      
+	      m_pix_ecc_biased_residualsx[layerDisk]   -> Fill(biasedResidualX      , hweight);
+	      m_pix_ecc_biased_residualsy[layerDisk]   -> Fill(biasedResidualY      , hweight);
+	      m_pix_ecc_biased_residualsx_pt[layerDisk]-> Fill(trkpt,biasedResidualX, hweight);
+	      m_pix_ecc_biased_residualsy_pt[layerDisk]-> Fill(trkpt,biasedResidualY, hweight);
+	      m_pix_ecc_residualsx_pt[layerDisk]-> Fill(trkpt,residualX, hweight);
+	      m_pix_ecc_residualsy_pt[layerDisk]-> Fill(trkpt,residualY, hweight);
+	      m_pix_ecc_pullsx_pt[layerDisk]    -> Fill(trkpt,pullX    , hweight);
+	      m_pix_ecc_pullsy_pt[layerDisk]     -> Fill(trkpt,pullY    , hweight);
+	      m_pix_ecc_biased_residualsx_qoverp2[layerDisk]   -> Fill(trkqoverp2,biasedResidualX, hweight);
+	      m_pix_ecc_biased_residualsy_qoverp2[layerDisk]   -> Fill(trkqoverp2,biasedResidualY, hweight);
+	      m_pix_ecc_residualsx_qoverp2[layerDisk] -> Fill(trkqoverp2,residualX      , hweight);
+	      m_pix_ecc_residualsy_qoverp2[layerDisk] -> Fill(trkqoverp2,residualY      , hweight);
+	      m_pix_ecc_biased_xresvsmodphi_2ds[layerDisk]  -> Fill(modPhi,biasedResidualX, hweight);
+	      m_pix_ecc_biased_yresvsmodphi_2ds[layerDisk]  -> Fill(modPhi,biasedResidualY, hweight);
 	    
-	    if (m_doClusterSizeHistos)
-	      {
-		m_pix_ecc_clustersize[layerDisk] -> Fill(ClusSize,hweight);
-		m_pix_ecc_clustersizePhi[layerDisk] -> Fill(ClusSizePhi,hweight);
-		m_pix_ecc_clustersizeZ[layerDisk] -> Fill(ClusSizeZ,hweight);
-		m_pix_ecc_residualsx_clustersize[layerDisk]->Fill(ClusSize,residualX,hweight);
-		m_pix_ecc_residualsy_clustersize[layerDisk]->Fill(ClusSize,residualY,hweight);
-		m_pix_ecc_residualsx_clustersizePhi[layerDisk]->Fill(ClusSizePhi,residualX,hweight);
-		m_pix_ecc_residualsy_clustersizePhi[layerDisk]->Fill(ClusSizePhi,residualY,hweight);
-		m_pix_ecc_residualsx_clustersizeZ[layerDisk]->Fill(ClusSizeZ,residualX,hweight);
-		m_pix_ecc_residualsy_clustersizeZ[layerDisk]->Fill(ClusSizeZ,residualY,hweight);
-		m_pix_ecc_residualsx_clustersizeP[layerDisk]->Fill(ClusSize,residualX,hweight);
-		m_pix_ecc_residualsy_clustersizeP[layerDisk]->Fill(ClusSize,residualY,hweight);
-		m_pix_ecc_residualsx_clustersizePhiP[layerDisk]->Fill(ClusSizePhi,residualX,hweight);
-		m_pix_ecc_residualsy_clustersizePhiP[layerDisk]->Fill(ClusSizePhi,residualY,hweight);
-		m_pix_ecc_residualsx_clustersizeZP[layerDisk]->Fill(ClusSizeZ,residualX,hweight);
-		m_pix_ecc_residualsy_clustersizeZP[layerDisk]->Fill(ClusSizeZ,residualY,hweight);
-		m_pix_ecc_clustersizePhi_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSizePhi,hweight);
-		m_pix_ecc_clustersizeZ_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSizeZ,hweight);
-		m_pix_ecc_clustersize_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSize,hweight);
-		m_pix_ecc_clustersizePhi_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizePhi,hweight);
-		m_pix_ecc_clustersizeZ_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizeZ,hweight);
-		m_pix_ecc_clustersize_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSize,hweight);
+	      if (m_doClusterSizeHistos) {
+		  m_pix_ecc_clustersize[layerDisk] -> Fill(ClusSize,hweight);
+		  m_pix_ecc_clustersizePhi[layerDisk] -> Fill(ClusSizePhi,hweight);
+		  m_pix_ecc_clustersizeZ[layerDisk] -> Fill(ClusSizeZ,hweight);
+		  m_pix_ecc_residualsx_clustersize[layerDisk]->Fill(ClusSize,residualX,hweight);
+		  m_pix_ecc_residualsy_clustersize[layerDisk]->Fill(ClusSize,residualY,hweight);
+		  m_pix_ecc_residualsx_clustersizePhi[layerDisk]->Fill(ClusSizePhi,residualX,hweight);
+		  m_pix_ecc_residualsy_clustersizePhi[layerDisk]->Fill(ClusSizePhi,residualY,hweight);
+		  m_pix_ecc_residualsx_clustersizeZ[layerDisk]->Fill(ClusSizeZ,residualX,hweight);
+		  m_pix_ecc_residualsy_clustersizeZ[layerDisk]->Fill(ClusSizeZ,residualY,hweight);
+		  m_pix_ecc_residualsx_clustersizeP[layerDisk]->Fill(ClusSize,residualX,hweight);
+		  m_pix_ecc_residualsy_clustersizeP[layerDisk]->Fill(ClusSize,residualY,hweight);
+		  m_pix_ecc_residualsx_clustersizePhiP[layerDisk]->Fill(ClusSizePhi,residualX,hweight);
+		  m_pix_ecc_residualsy_clustersizePhiP[layerDisk]->Fill(ClusSizePhi,residualY,hweight);
+		  m_pix_ecc_residualsx_clustersizeZP[layerDisk]->Fill(ClusSizeZ,residualX,hweight);
+		  m_pix_ecc_residualsy_clustersizeZP[layerDisk]->Fill(ClusSizeZ,residualY,hweight);
+		  m_pix_ecc_clustersizePhi_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSizePhi,hweight);
+		  m_pix_ecc_clustersizeZ_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSizeZ,hweight);
+		  m_pix_ecc_clustersize_incidentAngle[layerDisk]->Fill(incidenceTheta,ClusSize,hweight);
+		  m_pix_ecc_clustersizePhi_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizePhi,hweight);
+		  m_pix_ecc_clustersizeZ_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizeZ,hweight);
+		  m_pix_ecc_clustersize_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSize,hweight);
 	      }
-	  }
-	}
+	    } // good layer disk
+	    else {
+	      msg(MSG::INFO) << " bad number for pixel ECA disk " << layerDisk << " of track " << nTracks << " of collection "<<  m_tracksName << endmsg;
+	    } // fail good layerDisk                                                             
+	  }  // ECC - barrelEC==-2
+	} // pixel 
+
+	// SCT histos
 	else if(detType==1) {
 	  if(barrelEC==0){ // barrel part
 	    m_sct_b_residualx_fine -> Fill(residualX      , hweight);
@@ -3768,7 +3779,6 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
 
   int phibinid = 0;
   for (int ibin=1; ibin <= m_pix_b_xresvsmodphi->GetNbinsX(); ibin++) {
-    // - SALVA - 
     // there is a free bin at the beginning and the end
     // IBL has 14 staves: starts at bin 2 
     if (2 <= ibin && ibin <= 15) {

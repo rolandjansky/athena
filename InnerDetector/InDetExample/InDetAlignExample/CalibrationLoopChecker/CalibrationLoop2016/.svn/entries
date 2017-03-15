@@ -1,37 +1,0 @@
-10
-
-dir
-800626
-svn+ssh://svn.cern.ch/reps/atlasoff/InnerDetector/InDetExample/InDetAlignExample/trunk/CalibrationLoopChecker/CalibrationLoop2016
-svn+ssh://svn.cern.ch/reps/atlasoff
-
-
-
-2017-02-03T11:52:01.624614Z
-795357
-hoide
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-4525493e-7705-40b1-a816-d608a930855b
-
-DynamicIDAlignDBTools
-dir
-
-ReprocessTools
-dir
-
-IDAlignDBTools
-dir
-

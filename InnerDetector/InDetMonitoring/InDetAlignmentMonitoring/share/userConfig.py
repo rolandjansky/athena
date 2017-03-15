@@ -19,8 +19,8 @@ oFext="png" # output file extention without the dot
 if (userPDF): oFext="pdf"
 
 ####
-#canvasText   = ["Zmumu Selection", "Muon Tracks", "p_{T}>25 GeV",""] #specifies additional canvas text
-canvasText   = ["Data 2016 exp", "AlignTracks", "p_{T}>5 GeV (?)",""] #specifies additional canvas text
+canvasText   = ["Zmumu Selection", "Muon Tracks", "p_{T}>20 GeV",""] #specifies additional canvas text
+#canvasText   = ["Data 2016 exp", "AlignTracks", "p_{T}>5 GeV (?)",""] #specifies additional canvas text
 if (len(userCanvasText)>=1):
     canvasText = SetCanvasText(userCanvasText)
 
@@ -37,7 +37,17 @@ unitArea = False # set to true if you want to draw residual histos to unit area
 #SetNextInputFile("/afs/cern.ch/user/p/pbutti/spacework/public/Maps_v2/GRL_TotalMonitoring.root", "Data GRL",kOpenSquare, kRed+1,"SelectedMuonsRefit1_AlignTracks","")
 #SetNextInputFile("/afs/cern.ch/user/p/pbutti/spacework/public/Maps_v2/MC_TotalMonitoring_pp.root", "MC", kOpenSquare, kBlue-4,"SelectedMuonsRefit1_Tracks","")
 
-SetNextInputFile("/afs/cern.ch/user/m/mdanning/hias/public/13TeV/2016/20.7.6.2/fixd0Bias/L3/Iter2_L3/collisions/TotalMonitoring.root", "2016_fixd0Bias", kOpenSquare, kRed+1,"AlignTracks_all","run_multiple")
+#SetNextInputFile("/afs/cern.ch/user/m/mdanning/hias/public/13TeV/2016/20.7.6.2/fixd0Bias/L3/Iter2_L3/collisions/TotalMonitoring.root", "2016_fixd0Bias", kOpenSquare, kRed+1,"AlignTracks_all","run_multiple")
+
+#SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/user.martis.Run00300600_test5_CombinedMonitoring.118555150/TotalMonitoring.root", "2016 data (refit 1 ID)", kFullSquare, kRed+1,"SelectedMuonsRefit1_Tracks","")
+#SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/user.martis.Run00300600_test5_CombinedMonitoring.118555150/TotalMonitoring.root", "2016 data (refit 2 SiOnly)", kOpenCircle, kGray+1,"SelectedMuonsRefit2_Tracks","")
+#SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/TotalMonitoringDir/ZmumuMC_TotalMonitoring.root", "Z#mu#mu MC", kFullSquare, kRed+1,"SelectedMuonsRefit1_Tracks","")
+#SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/TotalMonitoringDir/Run300600_TotalMonitoring.root", "2016 data (Run 300600)", kOpenCircle, kGray+3,"SelectedMuonsRefit1_Tracks","")
+#SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/TotalMonitoringDir/ZmumuMC_TotalMonitoring_v2.root", "Z#mu#mu MC v2", kFullSquare, kRed+1,"SelectedMuonsRefit1_Tracks","")
+SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/TotalMonitoringDir/ZmumuMC_TotalMonitoring_S1_v2.root", "Z#mu#mu MC", kFullSquare, kRed+1,"SelectedMuonsRefit1_Tracks","")
+SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/TotalMonitoringDir/Run300600_TotalMonitoring_S1_v1.root", "Run300600 (pre-TS1)", kOpenCircle, kGray+3,"SelectedMuonsRefit1_Tracks","")
+SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/TotalMonitoringDir/Run303338_TotalMonitoring_S0_v1.root", "Run303338 (pre-d0fix)", kOpenCircle, kAzure+1,"SelectedMuonsRefit1_Tracks","")
+#SetNextInputFile("/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/TotalMonitoringDir/Run303338_TotalMonitoring_R207_S1_v1_t1.root", "Run303338 (pre-d0fix)", kOpenCircle, kAzure+1,"SelectedMuonsRefit1_Tracks","")
 
 
 #SetNextInputFile("/afs/cern.ch/user/p/pbutti/spacework/public/Maps_v2/NoGRL_TotalMonitoring.root", "Data noGRL",kOpenSquare, kGreen+4,"SelectedMuonsRefit1_AlignTracks","")
