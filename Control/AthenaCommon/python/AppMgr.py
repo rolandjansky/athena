@@ -953,13 +953,17 @@ def AuditorSvc():             # backwards compatibility
 #         |
 #         +-- athFilterSeq
 #                |
-#                +--- athBeginSeq
-#                |
-#                +--- athCondSeq
-#                |
-#                +--- athAlgSeq == TopAlg
-#                |
-#                +--- athEndSeq
+#                +--- athAlgEvtSeq
+#                        |
+#                        +--- athBeginSeq
+#                        |
+#                        +--- athAllAlgSeq
+#                                |
+#                                +--- athCondSeq
+#                                |
+#                                +--- athAlgSeq == TopAlg
+#                        |
+#                        +--- athEndSeq
 #                |
 #                +--- athOutSeq
 #                |
