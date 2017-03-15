@@ -49,6 +49,36 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
   int moduleIndex = pixelId->eta_module(chargedDiodes.element()->identify());
 
+  // Merge ganged pixel
+  for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
+    InDetDD::SiCellId cellID     = chargedDiodes.element()->cellIdFromIdentifier(chargedDiodes.getId((*i_chargedDiode).first));
+    InDetDD::SiCellId gangedCell = chargedDiodes.element()->gangedCell(cellID);
+    Identifier gangedID          = chargedDiodes.element()->identifierFromCellId(gangedCell);
+    if (gangedCell.isValid()) {
+      SiChargedDiode *gangedChargeDiode = chargedDiodes.find(gangedID);
+      int phiGanged = pixelId->phi_index(gangedID);
+      int phiThis   = pixelId->phi_index(chargedDiodes.getId((*i_chargedDiode).first));
+
+      if (gangedChargeDiode) { // merge charges
+        bool maskGanged = ((phiGanged>159) && (phiGanged<168));
+        bool maskThis   = ((phiThis>159) && (phiThis<168));
+        // mask the one ganged pixel that does not correspond to the readout electronics.
+        // not really sure this is needed
+        if (maskGanged && maskThis) {
+          ATH_MSG_ERROR("FEI3SimTool: both ganged pixels are in the mask out region -> BUG!");
+        }
+        if (maskGanged) {
+          (*i_chargedDiode).second.add(gangedChargeDiode->totalCharge()); // merged org pixel
+          SiHelper::maskOut(*gangedChargeDiode,true);
+        } 
+        else {
+          gangedChargeDiode->add((*i_chargedDiode).second.totalCharge()); // merged org pixel
+          SiHelper::maskOut((*i_chargedDiode).second,true);
+        }
+      }
+    }
+  }
+
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
 
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
@@ -71,15 +101,13 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       }
 
       if (bunchSim<0 || bunchSim>m_TimeSvc->getTimeBCN()) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-      else                                                {  SiHelper::SetBunch((*i_chargedDiode).second,bunchSim); }
+      else                                                { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim); }
     } 
     else {
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    //===============
     // Filter events
-    //===============
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
     if (SiHelper::isDisabled((*i_chargedDiode).second)) { continue; } 
 
@@ -87,6 +115,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::disabled((*i_chargedDiode).second,true,true);
       continue;
     }
+
 
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,(*i_chargedDiode).second.charge());
