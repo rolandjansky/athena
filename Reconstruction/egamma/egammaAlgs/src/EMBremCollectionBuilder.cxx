@@ -12,7 +12,7 @@ CREATED:
 PURPOSE:  Performs Brem refit of all tracks 
 UPDATE :
 **********************************************************************/
-#include "EMBremCollectionBuilder.h"
+#include "egammaAlgs/EMBremCollectionBuilder.h"
 //
 #include "Particle/TrackParticleContainer.h"
 #include "Particle/TrackParticle.h"
@@ -34,7 +34,7 @@ UPDATE :
 #include "TrkEventPrimitives/VertexType.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 //
-#include "CandidateMatchHelpers.h"
+#include "egammaUtils/CandidateMatchHelpers.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "AthenaKernel/errorcheck.h"
 //
@@ -57,8 +57,9 @@ UPDATE :
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
-EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const std::string& name, const IInterface* parent) :
-  AthAlgTool(type, name, parent),
+EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name, 
+						 ISvcLocator* pSvcLocator):
+  AthAlgorithm(name, pSvcLocator),
   m_trkRefitTool("egamma/ElectronRefitterTool"),
   m_particleCreatorTool("Trk::TrackParticleCreatorTool"),
   m_slimTool("Trk::TrkTrackSlimmingTool/TrkTrackSlimmingTool"),
@@ -115,10 +116,6 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   m_FailedSiliconRequirFit=0;
   m_RefittedTracks=0;
 
-  declareInterface<IEMBremCollectionBuilder>(this);
-}
-// ===================================================================
-EMBremCollectionBuilder::~EMBremCollectionBuilder() {
 }
 
 // ==================================================================
@@ -188,7 +185,7 @@ StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMBremCollectionBuilder::contExecute()
+StatusCode EMBremCollectionBuilder::execute()
 {
   //======================================================================================================
   StatusCode sc;

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAREC_FINALIZECLUSTERS_H
-#define EGAMMAREC_FINALIZECLUSTERS_H
+#ifndef EGAMMAALGS_FINALIZECLUSTERS_H
+#define EGAMMAALGS_FINALIZECLUSTERS_H
 /**
   @class egammaFinalizeClusters 
 */

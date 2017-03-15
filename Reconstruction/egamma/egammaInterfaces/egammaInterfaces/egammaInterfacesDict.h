@@ -19,14 +19,12 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
-#include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
-#include "egammaInterfaces/IEMVertexBuilder.h"
 #include "egammaInterfaces/IFourMomCombiner.h"
 #include "egammaInterfaces/IegammaBackShape.h"
 #include "egammaInterfaces/IegammaBaseTool.h"

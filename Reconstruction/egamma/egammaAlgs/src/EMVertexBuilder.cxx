@@ -23,10 +23,11 @@ changes :
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
-#include "EMVertexBuilder.h"
+#include "egammaAlgs/EMVertexBuilder.h"
 
-EMVertexBuilder::EMVertexBuilder(const std::string& type, const std::string& name, const IInterface* parent) :
-  egammaBaseTool(type, name, parent),
+EMVertexBuilder::EMVertexBuilder(const std::string& name, 
+				 ISvcLocator* pSvcLocator):
+  AthAlgorithm(name, pSvcLocator),
   m_vertexFinderTool("InDet::InDetConversionFinderTools"),
   m_EMExtrapolationTool("EMExtrapolationTools")
 {
@@ -49,11 +50,7 @@ EMVertexBuilder::EMVertexBuilder(const std::string& type, const std::string& nam
 
   declareProperty("minPCutSingleTrackConversion",      m_minPtCut_SingleTrack = 2000 ,  "Minimum Pt, less than that TRT track pileup for single-track conversion");  
 
-  declareInterface<IEMVertexBuilder>(this);
 }
-
-// ============================================================
-EMVertexBuilder::~EMVertexBuilder() {}
 
 // ============================================================
 StatusCode EMVertexBuilder::initialize() {
@@ -89,7 +86,7 @@ StatusCode EMVertexBuilder::finalize() {
 }
 
 // ============================================================
-StatusCode EMVertexBuilder::contExecute()
+StatusCode EMVertexBuilder::execute()
 {  	
   StatusCode sc;
 

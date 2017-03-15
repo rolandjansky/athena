@@ -20,7 +20,7 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 
 // INCLUDE HEADER FILES:
 
-#include "egammaRec/egammaBuilder.h"
+#include "egammaAlgs/egammaBuilder.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -43,8 +43,6 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
-#include "egammaInterfaces/IEMBremCollectionBuilder.h"
-#include "egammaInterfaces/IEMVertexBuilder.h"
 
 #include "egammaUtils/egammaDuplicateRemoval.h"
 
@@ -127,25 +125,9 @@ egammaBuilder::egammaBuilder(const std::string& name,
   declareProperty("ConversionBuilderTool",m_conversionBuilder,
 		  "Handle of Conversion Builder");
 
-  //Handle of the BremcollectionBuilder tool
-  declareProperty("BremCollectionBuilderTool",  
-		  m_BremCollectionBuilderTool, 
-		  "Handle of the Brem Collection builder tool"); 
-
-  // Handle of vertex builder
-  declareProperty("VertexBuilder", m_vertexBuilder, "Handle of VertexBuilder");
-  
   //
   // All booleans
   //
-
-  // Boolean to do Brem collection Building
-  declareProperty("doBremCollection",m_doBremCollection= true,
-		  "Boolean to do Brem collection building");
-
-  // Boolean to do the conversion vertex collection Building
-  declareProperty("doVertexCollection",m_doVertexCollection= true,
-		  "Boolean to do conversion vertex collection building");
 
   // Boolean to do track matching
   declareProperty("doTrackMatching",m_doTrackMatching= true,
@@ -208,12 +190,6 @@ StatusCode egammaBuilder::initialize()
   
   // retrieve conversion builder
   CHECK(  RetrieveEMConversionBuilder() );
-
-  // retrieve tool to build GSF tracks
-  CHECK( RetrieveBremCollectionBuilder() );
-
-  // retrieve tool to build ID conversion vertices
-  CHECK( RetrieveVertexBuilder() );
 
   // retrieve ambiguity tool
   CHECK( RetrieveAmbiguityTool() );
@@ -316,50 +292,6 @@ StatusCode egammaBuilder::RetrieveEMConversionBuilder(){
 }
 
 // ====================================================================
-StatusCode egammaBuilder::RetrieveBremCollectionBuilder(){
-  //
-  // retrieve bremfitter tool
-  //
-  if (!m_doBremCollection ) {
-    return StatusCode::SUCCESS;
-  }
-  
-  if (m_BremCollectionBuilderTool.empty()) {
-    ATH_MSG_ERROR("BremCollectionBuilderTool is empty");
-    return StatusCode::FAILURE;
-  }
-
-  if(m_BremCollectionBuilderTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_BremCollectionBuilderTool);
-    return StatusCode::FAILURE;
-  } 
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_BremCollectionBuilderTool);  
-  
-  return StatusCode::SUCCESS;
-}
- // ====================================================================
-StatusCode egammaBuilder::RetrieveVertexBuilder(){
-  //
-  // retrieve vertex builder for ID conversions
-  //
-  if (!m_doVertexCollection){ 
-    return StatusCode::SUCCESS;
-  }
-
-  if (m_vertexBuilder.empty()) {
-    ATH_MSG_ERROR("VertexBuilder is empty");
-    return StatusCode::FAILURE;
-  }
-  
-  if(m_vertexBuilder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_vertexBuilder);
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_vertexBuilder);
-  
-  return StatusCode::SUCCESS;
-}
-// ====================================================================
 StatusCode egammaBuilder::finalize(){
   //
   // finalize method
@@ -426,34 +358,6 @@ StatusCode egammaBuilder::execute(){
     egammaRecs->push_back( egRec );
   }
 
-  //////////////////////////////////////////////////////////////////////
-  if (m_doBremCollection){ 
-    ATH_MSG_DEBUG("Running BremCollectionBuilder");  
-    //
-    std::string chronoName = this->name()+"_"+m_BremCollectionBuilderTool->name();         
-    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    //
-    if (m_BremCollectionBuilderTool->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
-      return StatusCode::FAILURE;  
-    }     
-    //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);  
-  }
-  //
-  if (m_doVertexCollection){ 
-    ATH_MSG_DEBUG("Running VertexBuilder");  
-    //
-    std::string chronoName = this->name()+"_"+m_vertexBuilder->name();         
-    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    //
-    if (m_vertexBuilder->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_vertexBuilder);
-      return StatusCode::FAILURE;  
-    }
-    //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-  }
   //
   if (m_doTrackMatching){    
     ATH_MSG_DEBUG("Running TrackMatchBuilder");  

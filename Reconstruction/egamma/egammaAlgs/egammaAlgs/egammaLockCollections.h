@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAREC_EGAMMALOCKCOLLECTIONS_H
-#define EGAMMAREC_EGAMMALOCKCOLLECTIONS_H
+#ifndef EGAMMAALGS_EGAMMALOCKCOLLECTIONS_H
+#define EGAMMAALGS_EGAMMALOCKCOLLECTIONS_H
 /**
   @class egammaLockCollections 
 */

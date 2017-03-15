@@ -10,7 +10,7 @@ PACKAGE:  offline/Reconstruction/egammaRec
 ********************************************************************/
 
 // INCLUDE HEADER FILES:
-#include "egammaRec/egammaLockCollections.h"
+#include "egammaAlgs/egammaLockCollections.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CandidateMatchHelpers.h"
+#include "egammaUtils/CandidateMatchHelpers.h"
 
 double CandidateMatchHelpers::CorrectedEta(double clusterEta,double z_first,bool isEndCap){    
   if (clusterEta == -999){

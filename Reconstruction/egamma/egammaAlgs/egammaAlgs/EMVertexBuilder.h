@@ -2,13 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMVERTEXBUILDER_H
-#define EMVERTEXBUILDER_H
+#ifndef EGAMMAALGS_EMVERTEXBUILDER_H
+#define EGAMMAALGS_EMVERTEXBUILDER_H
 
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "egammaInterfaces/IEMVertexBuilder.h"
-#include "egammaBaseTool.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 
@@ -26,16 +25,15 @@ class IEMExtrapolationTools;
    @author Kerstin Tackmann (based on work by many others)
 */
 
-class EMVertexBuilder : virtual public IEMVertexBuilder, public egammaBaseTool {
+class EMVertexBuilder : public AthAlgorithm {
 
  public:
-  EMVertexBuilder (const std::string& type,const std::string& name, const IInterface* parent);
-  virtual ~EMVertexBuilder();
+  EMVertexBuilder (const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  virtual StatusCode contExecute();
+  virtual StatusCode execute();
 
  private:
 	

@@ -10,7 +10,7 @@ PACKAGE:  offline/Reconstruction/egammaRec
 ********************************************************************/
 
 // INCLUDE HEADER FILES:
-#include "egammaRec/egammaFinalizeClusters.h"
+#include "egammaAlgs/egammaFinalizeClusters.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
     

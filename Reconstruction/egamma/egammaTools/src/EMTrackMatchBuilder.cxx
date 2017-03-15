@@ -18,7 +18,7 @@
 //extrapolation
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 //
-#include "CandidateMatchHelpers.h"
+#include "egammaUtils/CandidateMatchHelpers.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "SGTools/CurrentEventStore.h"
 

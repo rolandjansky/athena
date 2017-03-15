@@ -3,7 +3,7 @@
 */
 
 
-#include "egammaRec/egammaTruthAssociationAlg.h"
+#include "egammaAlgs/egammaTruthAssociationAlg.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
