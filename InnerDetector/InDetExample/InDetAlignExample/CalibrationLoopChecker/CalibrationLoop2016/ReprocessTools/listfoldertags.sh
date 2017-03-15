@@ -1,0 +1,1 @@
+../DynamicIDAlignDBTools/listfoldertags.sh

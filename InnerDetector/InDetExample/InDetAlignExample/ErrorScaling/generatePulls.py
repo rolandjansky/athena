@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # Ravi Shekhar <ravi.shekhar@duke.edu>
 
 # This script generates plots when given a monitoring root file and a prefix.

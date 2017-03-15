@@ -7,6 +7,12 @@
 
 import sys, os, fileinput
 
+
+##########################################################
+#             Definition of default values               #
+##########################################################
+default_project = "data16_13TeV"
+
 ##########################################################
 #             Inline Options Definition                  #
 ##########################################################
@@ -16,8 +22,10 @@ def optParsing():
 	parser = OptionParser()
 	parser.add_option("--DaqMerge", dest="inputDaqMerge", help="folder type name where the files stand: either daq or merge", default="merge") 
 	parser.add_option("--Label", dest="inputLabel", help="suffix label for the output file", default="") 
-	parser.add_option("--Project", dest="inputProject", help="define the data project. Necessary to search for the files (default data15_13TeV)", default= "data15_13TeV")
+	parser.add_option("--Project", dest="inputProject", help="define the data project. Necessary to search for the files (default" + default_project +")", default= default_project)
 	parser.add_option("--Run", dest="inputRun", help="run number", default="")
+	parser.add_option("--Edm", dest="edm", help="EDM", default="RAW")
+	
 	parser.add_option("--Stream", dest="inputStream", help="wanted data stream (default calibration_IDTracks)", default= "calibration_IDTracks")
 	
 	(config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
@@ -33,6 +41,7 @@ FileLabel = config.inputLabel
 DataProject = config.inputProject
 DataStream = config.inputStream
 daqmerge = config.inputDaqMerge
+edm = config.edm
 
 #in case only one argument is given, it is taken as the run number
 if (len(inputRun) == 0): 
@@ -57,11 +66,12 @@ print " <GetRunFiles> RunNumber    = ", RunNumber
 print " <GetRunFiles> Project      = ", DataProject
 print " <GetRunFiles> Stream       = ", DataStream
 print " <GetRunFiles> DaqMerge     = ", daqmerge
+print " <GetRunFiles> Edm          = ", edm
 print " <GetRunFiles> FileLabel    = ", FileLabel
 print " <GetRunFiles> OutputFile   = ", OutputFile
  
 #os.system("ls -l ~/eos/atlas/atlastier0/rucio/%s/%s/00%s/data15_comm.00%s.%s.merge.RAW" %(DataProject, DataStream,  RunNumber, RunNumber,  DataStream))
-os.system("ls -l  ~/eos/atlas/atlastier0/rucio/%s/%s/00%s/%s.00%s.%s.%s.RAW | gawk \'{print \"root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/%s/%s/00%s/%s.00%s.%s.%s.RAW/\"$9}\' > %s"  %(DataProject, DataStream,  RunNumber, DataProject, RunNumber,  DataStream, daqmerge, DataProject, DataStream, RunNumber, DataProject, RunNumber, DataStream, daqmerge, tempOutputFile)) 
+os.system("ls -l  ~/eos/atlas/atlastier0/rucio/%s/%s/00%s/%s.00%s.%s.%s.%s | gawk \'{print \"root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/%s/%s/00%s/%s.00%s.%s.%s.%s/\"$9}\' > %s"  %(DataProject, DataStream,  RunNumber, DataProject, RunNumber,  DataStream, daqmerge, edm, DataProject, DataStream, RunNumber, DataProject, RunNumber, DataStream, daqmerge, edm, tempOutputFile)) 
 
 outputf = open(OutputFile, 'w')
 count=0

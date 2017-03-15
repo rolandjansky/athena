@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 """Script to turn scaling parameters into a local SQlite DB.
    """
 
@@ -271,11 +269,16 @@ def make(dataset, tag, foldername, connect = default_connect):
     spec.extend("par4",cool.StorageType.Double)
     spec.extend("par5",cool.StorageType.Double)
     
+    folderSpec = cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION,spec)
+
+    
+    
     # check if folder exists
     if (not db.existsFolder(foldername)):
         print "Attempt to create",foldername
         desc='<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>'
-        db.createFolder(foldername,spec,desc,cool.FolderVersioning.MULTI_VERSION,True)
+        #db.createFolder(foldername,spec,desc,cool.FolderVersioning.MULTI_VERSION,True)
+        db.createFolder(foldername,folderSpec,desc,True)
         print 'Folder',foldername,'created OK'
 
     # now write data

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 void hitsPerLayer(TString TrkCol_1, TString TrkCol_2) {
 	TH1F * hHitsPerLayerEndcapATrkCol1;
 	TH1F * hHitsPerLayerBarrelTrkCol1; 

@@ -1,17 +1,11 @@
-#!/bin/zsh
+cd /afs/cern.ch/user/p/pbutti/spacework/ErrorScaling_2016_Test/
+source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh 
+source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh 21.0.8,here
 
-export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
-alias asetup='source $AtlasSetup/scripts/asetup.sh'
-
-#cd $RELAREA
-#cd /afs/cern.ch/user/a/atlidali/scratch1/users/bcerio/17.1.2.1
-#asetup 17.1.2.1
-#asetup $REL
-
-cd /afs/cern.ch/user/p/pbutti/spacework/Validation_13TeV
-asetup 20.1.5.8,here
+source /afs/cern.ch/work/p/pbutti/ErrorScaling_2016_Test/build/x86_64-slc6-gcc49-opt/setup.sh
 
 #pool_insertFileToCatalog /afs/cern.ch/user/a/atlidali/scratch1/users/bcerio/17.1.2.1/InnerDetector/InDetExample/InDetAlignExample/ErrorScaling/MisalignmentSet2.pool.root
+
 
 #export STAGE_SVCCLASS=atlcal
 
@@ -20,6 +14,11 @@ cd %(fullpwd)s
 rm -rf out.log
 
 echo "running athena.py -c runmode = 'batch'; nSegments=%(nSegments)d; iSegment=%(iSegment)d;errorScalingOverride='%(eso)s'" %(joboptions)s
+
+cp /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml .
+coolHist_insertFileToCatalog.py /afs/cern.ch/user/p/pbutti/spacework/ErrorScaling_2016_Test/source/InnerDetector/InDetExample/InDetAlignExample/ErrorScaling/merged.root
+
+ln -s /cvmfs/atlas.cern.ch/repo/sw/software/21.0/AtlasCore/21.0.8/InstallArea/x86_64-slc6-gcc49-opt/XML/AtlasAuthentication/dblookup.xml
 
 athena.py -c "runmode='batch'; nSegments=%(nSegments)d; iSegment=%(iSegment)d; errorScalingOverride='%(eso)s'" %(joboptions)s  | tee  out.log
 

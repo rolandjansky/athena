@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # Examples of overriding with different alignment sets
 
 ##conddb.addOverride("/Indet/Align","InDetAlign_EoverPv2.3_2011_E") #bc

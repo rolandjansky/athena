@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // **********************************************************************
 // IDAlignMonTrackSegments.cxx
 // AUTHORS: John Alison (john.alison@cern.ch) johnda 

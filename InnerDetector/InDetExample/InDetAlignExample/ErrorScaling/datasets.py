@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 
 #example listing from nsls -l
 #-rw-r--r--   1 atlidali zp                 69243745 Sep 07 20:43 Collision_162623_162764_70.ESD.root
@@ -275,10 +273,20 @@ class EOSDataset(object):
 #mc10_muons_RAW = EOSDataset('/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369')
 #mc10_muons_RAW_highStat = EOSDataset('/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/valid1.107233.singlepart_mu100.digit.RDO.e380_s593_tid080975','*.root.1')
 #mc12_muons = EOSDataset('/eos/atlas/atlasscratchdisk/mc12_8TeV/ESD/e1242_s1469_s1470_r3542/mc12_8TeV.158025.Pythia8_AU2MSTW2008LO_Zprime_mumu_SSM500.recon.ESD.e1242_s1469_s1470_r3542_tid00813590_00')
-mc12_Ztautau = EOSDataset('/eos/atlas/user/c/cerio/user.bcerio.mc12_8TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.ESD.e1176_s1479_s1470_r3578_tid783779_00_der1347371102')
-mc12_muons = EOSDataset('/eos/atlas/user/c/cerio/mc12_8TeV.158025.Pythia8_AU2MSTW2008LO_Zprime_mumu_SSM500.recon.ESD.e1242_s1469_s1470_r3542_tid00813590_00')
+#mc12_Ztautau = EOSDataset('/eos/atlas/user/c/cerio/user.bcerio.mc12_8TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.ESD.e1176_s1479_s1470_r3578_tid783779_00_der1347371102')
+#mc12_muons = EOSDataset('/eos/atlas/user/c/cerio/mc12_8TeV.158025.Pythia8_AU2MSTW2008LO_Zprime_mumu_SSM500.recon.ESD.e1242_s1469_s1470_r3542_tid00813590_00')
 
 
-data15_267073_Express_RAW = EOSDataset('/eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267073/data15_13TeV.00267073.express_express.merge.RAW')
 
-data15_267073_Express_ESD = EOSDataset('/eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267073/data15_13TeV.00267073.express_express.recon.ESD.f594')
+
+#I think it's silly to define datasets here. Should be defined where you load in the steering jobOptions (which is a silly jobOption itself)
+#data15_267073_Express_RAW = EOSDataset('/eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267073/data15_13TeV.00267073.express_express.merge.RAW')
+#data15_267073_Express_ESD = EOSDataset('/eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267073/data15_13TeV.00267073.express_express.recon.ESD.f594')
+
+
+#For 2016 Error Scaling
+
+#data16_311071_ESD = EOSDataset('/eos/atlas/atlastier0/rucio/data16_13TeV/express_express/00311071/data16_13TeV.00311071.express_express.recon.ESD.f758')
+#data16_311071_RAW = EOSDataset('/eos/atlas/atlastier0/rucio/data16_13TeV/express_express/00311071/data16_13TeV.00311071.express_express.merge.RAW')
+
+data16_301918_RAW  = EOSDataset('/eos/atlas/user/m/mdanning/public/data16_13TeV.00301918.express_express.merge.RAW')

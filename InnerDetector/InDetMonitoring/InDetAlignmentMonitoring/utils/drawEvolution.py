@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 psname = "ConstantsEvolution.pdf"
 
 def drawCorr(detector, labelList, drawErrors=False, drawLine=True, drawingDOF=-1):

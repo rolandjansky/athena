@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // do not rename the next method, RTT will stop working
 void NewSiL1AlignRTT()
 {

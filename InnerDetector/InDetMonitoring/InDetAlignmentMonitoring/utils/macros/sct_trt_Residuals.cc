@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 void sct_trt_Residuals(TString trkCol){
 	sct_trt_Residuals(trkCol, 0, "");
 }

@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 #
 # include standard InDetRecExample joboptions
 #
@@ -25,6 +23,8 @@
 include('datasets.py')
 
 #choose your dataset from those defined in datasets.py.
+
+#Old Stuff that should be cleaned up
 #datasample = data_2011_CALIB_RAW#data_2011_Muons_DESD#data_2011_Minbias_DESD
 #datasample = data_2011_Muons_DESD
 #datasample = data_IDCalibSkim
@@ -45,17 +45,31 @@ include('datasets.py')
 #datasample = mc10_muons_RAW
 #datasample = mc10_muons_RAW_highStat
 
-datasample = data15_267073_Express_RAW
+#2015 Error Scaling
+#datasample = data15_267073_Express_RAW
 #datasample = data15_267073_Express_ESD
+
+#2016 
+
+#datasample = data16_311071_RAW
+#datasample = data16_311071_ESD
+
+datasample = data16_301918_RAW
+
 print 'Pre-job-option data set type:',datasample.getFormat()
 
 #this should be passed in on the command line via the athena.py -c switch.
 # Normally it's called by iterateTrkError.py which takes care of the 
 # switches being set correctly
-if (runmode == 'local'):
-    theApp.EvtMax = 10
-    datasample.activate()
 
+#Event maxs
+
+EvtMax = 500
+if (runmode == 'local'):
+    theApp.EvtMax = EvtMax
+    datasample.activate()
+    
+    
 #this should be passed in on the command line via the athena.py -c switch.
 # Normally it's called by iterateTrkError.py which takes care of the 
 # switches being set correctly. nSegments and iSegment are passed in this way
@@ -63,6 +77,7 @@ if (runmode == 'local'):
 if (runmode == 'batch'):
     #theApp.EvtMax = 2500
     theApp.EvtMax = 500
+    EvtMax = 500
     datasample.activateSegment(nSegments, iSegment, shuffle=True)
 
 # just the InDetRecExample options as mentioned above
@@ -72,9 +87,11 @@ if datasample.getFormat()=='ESD':
     print "Using a ESD Dataset"
     include('jobOptionsESD_Run2.py')
 
+#
 if datasample.getFormat()=='RAW':
     print "Using a RAW Dataset"
-    include('jobOptionsESD_Run2.py')
+    include('jobOptionsRAW_Run2.py')
+
 
 print 'This dataset is mc:',datasample.isMC()
 

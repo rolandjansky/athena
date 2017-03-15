@@ -1,0 +1,1085 @@
+2016-10-26 Alex ALonso 
+	* Remove cout report here: ATLASRECTS-3478
+	* Tagged as InDetAlignMonitoring-00-04-32
+
+
+2016-10-07 Ambrosius Vermeulen
+	* Updated IDAlignMonPVBiases.cxx
+	* Now includes the plots to be used in the DQ webmonitoring
+
+2016-08-29 Pierfrancesco Butti
+	* Fixed Efficiencies vs LB plots
+	* Sumbstituted TH1D with TH1F in IDAlignMonResiduals.cxx
+	* Tagged as InDetAlignMonitoring-00-04-32
+
+2016-08-15 Ambrosius Vermeulen
+	* Added src/PVBiases.cxx and src/PVBiases.h
+	* src/components/InDetAlignmentMonitoring_entries.cxx has been updated
+	accordingly
+
+2016-07-12 Pierfrancesco Butti
+	* Added Protection for NULL RawDriftCircles in the TRT maps that cause crash on DESD.
+2016-07-08 Pierfrancesco Butti
+	* Updated to Trunk version
+	* Tagged as InDetAlignmentMonitoring-00-04-29
+
+2016-05-27 Pierfrancesco Butti
+	* Fixed compilation under mig5
+	* Several warnings to be fixed
+	* Need to remove the Track To Vertex estimate from GenericTracks
+	* Temporary tag 00-04-28
+
+2016-04-11 Pierfrancesco Butti
+	* Reduced number of non-Extended Plots. 
+2016-03-11 Alex Kastanas
+	* Improved histograms presentation
+
+2016-01-22 Pierfrancesco Butti
+	* Fixed ATLASRECTS-2747
+	
+2016-01-14 Pierfrancesco Butti
+	* Relaxed check on Drift and RawDrfitCirles to monitor DESDs
+
+2015-10-13 Pierfrancesco Butti
+	* fixed coverity issues 31240 and 31241
+	* Restored use of Trk::Tracks
+	* Tagged as InDetAlignmentMonitoring-00-04-19
+
+
+2015-09-06 Pierfrancesco Butti
+	* fix issue with Efficiencies vs LB
+
+2015-17-02 Pierfrancesco Butti
+	* fix JIRA bug ATLASRECTS-1676.
+	* Tagged as InDetAlignmentMonitoring-00-04-11
+	
+
+2015-16-02 Pierfrancesco Butti 
+	* fix to coverity issues
+	* added initialization to 0 of the histograms
+	* tagged as InDetAlignmentMonitoring-00-04-10 
+	* 17/02/2015: bugged, see JIRA bug ATLASRECTS-1676.
+
+2015-12-02 Pierfrancesco Butti <pierfrancesco.butti@cern.ch>
+	* fix to the following coverity issues
+	* coverity 16285,16403,28956,16376,16375,16297,16378,16379
+	* coverity 16396
+
+2012-11-21  Adrian Vogel  <adrian.vogel@cern.ch>
+	* src/*.cxx: Fixed namespaces for migration to CLHEP2.
+	* Tagged as InDetAlignmentMonitoring-00-03-85
+
+2012-10-16 Rolf Seuster
+	* Fix bug
+	* Tagged as InDetAlignmentMonitoring-00-03-84
+
+2012-04-16 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix for bug https://savannah.cern.ch/bugs/?93759
+	* Tagged as InDetAlignmentMonitoring-00-03-83
+	
+2012-04-16 Vicente Lacuesta <lacuesta@cern.ch>
+	* Temporaly switch off m_errZ0VsD0BS plot
+        * Tagged as InDetAlignmentMonitoring-00-03-82
+	
+2012-03-30 Anthony Morley <amorley@cern.ch>
+	* Add 3D impact  parameter plots  --  turned off by default  
+	* Tagged as InDetAlignmentMonitoring-00-03-81     
+
+2012-02-20 Anthony Morley <amorley@cern.ch>
+  *  Fix requirements file
+  * Tagged as InDetAlignmentMonitoring-00-03-80 
+
+2011-10-27 Vicente Lacuesta <lacuesta@cern.ch>
+	* Fix warning in IDAlignMonNtuple
+	* Tag as InDetAlignmentMonitoring-00-03-78
+	
+2011-10-26 Vicente Lacuesta <lacuesta@cern.ch>
+	* Pass std:string by reference
+	* Tag as InDetAlignmentMonitoring-00-03-77
+	
+2011-10-26 Vicente Lacuesta <lacuesta@cern.ch>
+	* Protect more DEBUG and WARNING messages
+	* Tag as InDetAlignmentMonitoring-00-03-76
+
+2011-10-21 Vicente Lacuesta <lacuesta@cern.ch>
+	* Protect many DEBUG and WARNING messages
+	* Tag as InDetAlignmentMonitoring-00-03-75
+
+2011-10-21 Priscilla Pani <ppani@cern.ch>
+	* New share py files for plots (approval)
+	* jobOption file to run on RAW files (for Rel17)
+	* Tag as InDetAlignmentMonitoring-00-03-74
+	
+2011-09-12 Anthony Morley <amorley@cern.ch>
+        * Fix FPE (bug 86443)
+	* Tag as InDetAlignmentMonitoring-00-03-73
+
+2011-08-24 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+	* Fix requirements
+	* Change WARNING msg to DEBUG (bug #81462)
+	* Tag as InDetAlignmentMonitoring-00-03-72
+	
+2011-07-25 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+	* Tune qoverp2 plots binning
+	* Protect DEBUG messages (bug #82929)
+	* Tag as InDetAlignmentMonitoring-00-03-71
+
+2011-07-21 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+	* Fix x axis label for qoverp2 plots
+	* Tag as InDetAlignmentMonitoring-00-03-70
+
+2011-07-19 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+        * Add variable binning for res vs qoverp2 plots
+	* Remove edge channels from overlap residual distribution (pixel rphi and eta, SCT RPhi) J. Schieck
+	* Tag as InDetAlignmentMonitoring-00-03-69
+
+2011-07-13 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+        * Change res vs qoverp2 range to 0.01
+	* Tag as InDetAlignmentMonitoring-00-03-68
+
+2011-05-30 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+        * Add Y overlap residuals vs phi/eta for SCT
+	* Tag as InDetAlignmentMonitoring-00-03-67
+	
+2011-05-03 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+        * Add more residual histograms (Elena R.)
+	* Tag as InDetAlignmentMonitoring-00-03-66
+	
+2011-04-14 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+	* Add hit errors histograms
+	* Add more beamspot plots
+	* Tag as InDetAlignmentMonitoring-00-03-65
+
+2010-12-16 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+	* Minor fix to detailed maps
+	* Tag as InDetAlignmentMonitoring-00-03-64
+	
+2010-11-11 Vicente Lacuesta <vicente.lacuesta@cern.ch> 
+	* Convert unbiasedOverlapRes to float
+	* Posible fix for bug #74705
+	* Tag as InDetAlignmentMonitoring-00-03-63
+	
+2010-11-01 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Fix memory leak in Residuals bug #74667
+	* Tag as InDetAlignmentMonitoring-00-03-62
+
+2010-10-27 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Remove TrackStateOnSurface::type()
+	* Tag as InDetAlignmentMonitoring-00-03-61
+
+2010-10-27 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Change INFO to DEBUG output (IDAlignMonGenericTracks.cxx)
+	* Convert local positions to float (IDAlignMonResiduals.cxx)
+	* Fix bug #73955
+	* Tag as InDetAlignmentMonitoring-00-03-60
+
+2010-10-21 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Add detailed hit and residual maps for SCT
+	* Add local positions plots for the barrels
+	* Tag as InDetAlignmentMonitoring-00-03-59
+
+2010-10-20 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Add jO property to change pT range and binning for res vs pT
+	plots
+	* Fix some bugs in filling of residual vs pT histograms
+	* Tag as InDetAlignmentMonitoring-00-03-58
+
+2010-10-19 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Add TRT residual/pull vs pT plots (extendedPlots)
+	* Tag as InDetAlignmentMonitoring-00-03-57
+
+2010-10-12 John Alison <John.Alison@cern.ch>
+	* Fix Label on TRT Precision Hits Fraction
+	* bug 72920
+	* Tag as InDetAlignmentMonitoring-00-03-56
+	
+2010-10-11 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Add pull vs pT plots
+	* Change res vs pT bins
+	* Tag as InDetAlignmentMonitoring-00-03-55
+	
+2010-10-11 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Add module segmentation in biased residual maps
+	* Tag as InDetAlignmentMonitoring-00-03-54
+
+2010-10-05 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Add unbiased res vs qovarp2 plots
+	* Change error d0 range
+	* Add error Pt / Pt^2 plots
+	* Tag as InDetAlignmentMonitoring-00-03-53
+
+2010-09-27 Salvador Marti <Salvador.Marti@ific.uv.es>
+	* New Lumiblock histograms
+	* Tag as InDetAlignmentMonitoring-00-03-52
+	
+2010-09-12 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Fix passing MonGroup by value (bug #72061)
+
+2010-09-10 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Fix axis labels in pixel plots
+	* Fix range in res vs qoverp2 SCT plots
+	* Tag as InDetAlignmentMonitoring-00-03-50
+
+2010-09-08 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Fix ranges
+	* Tag as InDetAlignmentMonitoring-00-03-49
+
+2010-08-31 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Add option to select the pt range in residual vs pt plots
+	* Tag as InDetAlignmentMonitoring-00-03-48
+
+2010-08-20 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Add option to use primary vertex info in TrackSelectionTool (disabled by default)
+	* Added Z0 w.r.t Pvtx histos to GenericTracks
+	* Tag as InDetAlignmentMonitoring-00-03-46
+	
+2010-08-13 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* If DQMonenvironment=user don't book new histos for every run (no
+	effect at Tier0)
+	* Tag as InDetAlignmentMonitoring-00-03-45
+
+2010-07-28 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Fix ranges in some residual plots
+	* Add more plots
+        * Tag as InDetAlignmentMonitoring-00-03-44
+
+2010-07-06 Regina Moles <regina.moles@cern.ch>
+        * Some plots added (HitsPIXvsEta,HitsSCTvsEta,HitsTRTvsEta)
+        * Tag as InDetAlignmentMonitoring-00-03-43
+
+2010-07-02 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Minor fix in plots
+        * Tag as InDetAlignmentMonitoring-00-03-42
+	
+2010-07-02 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Add error Z0 plots
+        * Tag as InDetAlignmentMonitoring-00-03-41
+
+2010-06-26 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Changed res vs pt to TH2
+        * Tag as InDetAlignmentMonitoring-00-03-40
+	
+2010-06-23 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Changed trk parameter errors vs track parameters to TH2
+	* Tag as InDetAlignmentMonitoring-00-03-39
+	
+2010-06-16 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Changed unbiased res vs pT to TH2
+
+2010-06-14 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Don't consider pseudomeasurements to fill hits plot
+        * Tag as InDetAlignmentMonitoring-00-03-38
+
+2010-06-14 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Add chi2 probability distribution plot
+	* Add residuals vs qoverp2 plots
+	* Tag as InDetAlignmentMonitoring-00-03-37
+
+2010-06-08 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Added unbiased res vs pT plots for pixel and sct layers and disks
+	* Added overall plots of d0vsbeamspot and d0vsprimvtx in GenericTracks
+	* Tag as InDetAlignmentMonitoring-00-03-36
+
+2010-05-31 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Add res vs pt plots for pixel and sct layers and disks
+	* Tag as InDetAlignmentMonitoring-00-03-35
+
+2010-05-31 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Switch off BeamCondSvc when not used
+	* Tag as InDetAlignmentMonitoring-00-03-34
+
+2010-05-19 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Use beamspot position for the BS plots
+	* Tag as InDetAlignmentMonitoring-00-03-33
+	
+2010-05-19 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+	* Add plots to check the beamspot
+	* Tag as InDetAlignmentMonitoring-00-03-32
+	
+2010-05-11 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Add different ranges for SCT res, Pix x-res and Pix y-res 
+	* If new variables not used, it will use the default variable
+        * Tag as InDetAlignmentMonitoring-00-03-31
+
+2010-05-06 Weina Ji <weina.ji@cern.ch>
+	* Initialized arrays to remove compiler warnings
+	* Tag as InDetAlignmentMonitoring-00-03-30
+
+2010-04-30 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Added biased residual 3d plots(extended plots)
+        * Tag as InDetAlignmentMonitoring-00-03-29
+	
+2010-04-27 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Added correlation plots for alignment (extended plots)
+        * Tag as InDetAlignmentMonitoring-00-03-28
+
+2010-04-22 Vicente Lacuesta <vicente.lacuesta@cern.ch>
+        * Added more plots for alignment (switched off by default)
+        * Tag as InDetAlignmentMonitoring-00-03-27
+
+2010-04-20 Weina Ji <weina.ji@cern.ch>
+	* Added units to IDAlignMon DQ plots
+	* Tag as InDetAlignmentMonitoring-00-03-26
+
+2010-03-29 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Fixed memory leak in IDAlignMonSivsTRT (added delete of TrackSummary object) 
+	* Tag as InDetAlignmentMonitoring-00-03-25
+
+2010-02-24 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Added finely binned pix and sct residual histograms
+	
+2010-02-11 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Added pT*d(q/pT) plots to TrackSegments
+	
+2010-01-20 David Quarrie <David.Quarrie@cern.ch>
+	* src/IDAlignMonEfficiencies.cxx:                    )
+	* src/IDAlignMonTrackSegments.cxx:                   )
+	* src/IDAlignMonResiduals.cxx:                       ) Replace uint by unsigned int for MacOSX compatibility
+	* InDetAlignmentMonitoring/IDAlignMonResiduals.h:    )
+	* InDetAlignmentMonitoring/IDAlignMonEfficiencies.h: )
+	* Tag as InDetAlignmentMonitoring-00-03-24
+
+2009-12-21 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Added Pix and SCT endcap 1-D Pull histograms
+
+2009-12-17 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Added 2 histograms to SivsTRT
+
+2009-11-30 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Added option to specify d0 & z0 fill ranges in jO for GenericTracks
+
+2009-11-19  John Alison  <johnda@hep.upenn.edu>
+	* Fix bug in the numbering of strawLayers
+	* Tag InDetAlignmentMonitoring-00-03-23
+
+2009-11-12  John Alison  <johnda@hep.upenn.edu>
+	* Adding CompareAll.py, which will compare all the histograms in 2 monitoring.root files
+
+2009-11-11  John Alison  <johnda@hep.upenn.edu>
+	* Consolidate the TRT cosmics job Options
+
+2009-11-11  John Alison  <johnda@hep.upenn.edu>
+	* Adding the CompareIDAlignmentMonitoring scripts
+
+2009-11-08  John Alison  <johnda@hep.upenn.edu>
+	* Fix bug in Straw layer numbering of Efficiencies
+
+2009-10-31  John Alison  <johnda@hep.upenn.edu>
+	* Move TRT hist declarations to .cxx 
+	* Add Pulls to the Track Segments
+	* tag as InDetAlignmentMonitoring-00-03-22
+
+2009-10-16  John Alison  <johnda@hep.upenn.edu>
+
+	* fix memory leak in Efficiencies, savannah bug 57209
+
+2009-10-16  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fix memory leak in HitEff, savannah bug 57093
+	* tag as InDetAlignmentMonitoring-00-03-20
+
+2009-10-16 John Alison <johnda@hep.upenn.edu> 
+	* Reorganize the TRT efficiencies, added endcap histograms
+
+2009-10-16 John Alison <johnda@hep.upenn.edu> 
+	* Reorganize the TRT residuals, preparing to add endcap histograms
+	
+2009-09-19 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* SivsTRT cleanly aborts if can't find Resolved or ExtendedTracks
+	* TrackSelectionTool returns empty track collection if can't find (not seg fault)
+	* Residuals skip TSOS if no TrackParameters (as well as no MeasuredTrackParameters as before)
+
+2009-09-02 John Alison <johnda@hep.upenn.edu> 
+	* Remove memory leak
+	* Tag as InDetAlignmentMonitoring-00-03-18
+
+2009-08-13 John Alison <johnda@hep.upenn.edu> 
+	* Remove INFO measages
+	* Tag as InDetAlignmentMonitoring-00-03-17
+
+2009-07-24 John Alison <johnda@hep.upenn.edu> 
+	* Fixed Uninitialized pointer
+	* Tag as InDetAlignmentMonitoring-00-03-16
+
+2009-07-24 John Alison <johnda@hep.upenn.edu> 
+	* Add plots to produce approved plots
+	* Add Endcap Hitmaps
+	* Tag as InDetAlignmentMonitoring-00-03-15
+
+2009-07-10 John Alison <b.d.cooper@qmul.ac.uk> 
+	* Protect TRT Only tracks from hole search
+	* Tag as InDetAlignmentMonitoring-00-03-13
+
+2009-07-10 John Alison <b.d.cooper@qmul.ac.uk> 
+	* Adding light wieght histograms to Residuals module
+	* Cleanup of TRT histograms generally 
+	* Tag as InDetAlignmentMonitoring-00-03-12
+
+2009-07-10 Ben Cooper <b.d.cooper@qmul.ac.uk> 
+	* Removing sumw2() calls from Residuals, SivsTRT and GenericTracks
+
+2009-07-08 John Alison <johnda@hep.upenn.edu> 
+	* Adding Light wieght histograms to the Effeciency module
+
+2009-05-29 Carl Gwilliam
+	* Change from dualuse to component library (bug #51033) 
+	* Tag as InDetAlignmentMonitoring-00-03-10
+	
+2009-04-21 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* removed detMgr->getIDhelper() in Residuals, GenericTracks, Ntuple and Efficiencies
+	
+2009-04-17 John Alison <johnda@hep.upenn.edu>
+	* Changed bining on DeltaTp Vs Tp plots in Tracksegments
+	* InDetAlignmentMonitoring-00-03-06
+
+2009-03-30 John Alison <johnda@hep.upenn.edu>
+	* Added Hit Map to the IDAlignMonGenericTracks
+	* InDetAlignmentMonitoring-00-03-05
+
+2009-03-27 John Alison <johnda@hep.upenn.edu>
+	* Added event phase cut to the TrackSelctionTool
+	* InDetAlignmentMonitoring-00-03-04	
+
+2009-03-27 John Alison <johnda@hep.upenn.edu>
+	* Changed cuts on split tracks, we now select on the tracks after the splitting
+	* InDetAlignmentMonitoring-00-03-03	
+
+2009-03-23 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Fixed memory leak in IDAlignMonTrackSegments
+	
+2009-03-12 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Changes to IDAlignMonNtuple and IDAlignMonTruthComparison to use new TrkToolInterfaces/ITruthToTrack
+	tool interface
+
+2009-03-08  John Alison  <johnda@hep.upenn.edu>
+        * Fixes for gcc43
+	* InDetAlignmentMonitoring-00-03-00
+
+2009-03-02  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fix m_idHelper = new AtlasDetectorID
+	* InDetAlignmentMonitoring-00-02-99
+
+2009-03-02 John Alison  <John.Alison@cern.ch>
+	* Fixed calculation of TRT residuals on C-Side, fixed conversion from unsigned int to int in tracksegments
+	* InDetAlignmentMonitoring-00-02-98
+
+2009-03-01 John Alison  <John.Alison@cern.ch>
+	* Added Difference in hits vs track parameter, and difference in track parameter vs eta
+	* InDetAlignmentMonitoring-00-02-97
+
+2009-02-19 John Alison  <John.Alison@cern.ch>
+	* Fixed filling of positive and negatively charged track in IDAlignMonTrackSegments
+	* InDetAlignmentMonitoring-00-02-96
+
+2009-02-19 John Alison  <John.Alison@cern.ch>
+	* Added flags to control d0Range (for TRT vs Combined Tracks)
+	* InDetAlignmentMonitoring-00-02-95
+
+2009-02-19 John Alison  <John.Alison@cern.ch>
+	* Added histograms to IDAlignMonTrackSegments for positive and negatively charged tracks seperately 
+	* InDetAlignmentMonitoring-00-02-94
+
+2009-02-18 John Alison  <John.Alison@cern.ch>
+	* Added python handles for binning in TrackSegments 
+	* InDetAlignmentMonitoring-00-02-93
+
+2009-02-10 John Alison  <John.Alison@cern.ch>
+	* Fixed Histogram titles in IDAlignMonTrackSegments
+	* InDetAlignmentMonitoring-00-02-92
+
+2009-02-10 John Alison  <John.Alison@cern.ch>
+	* Fixed MonGroup output directory name in IDAlignMonTrackSegments
+	* changed msg() to msg(MSG::XXXX)
+	* InDetAlignmentMonitoring-00-02-91
+
+2009-02-10 John Alison  <John.Alison@cern.ch>
+	* Fixed binning in IDAlignMonTrackSegments
+	* InDetAlignmentMonitoring-00-02-90
+	
+2009-01-30 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Updated to use new ResidualPullCalculator implementation
+ 	
+2009-01-30 John Alison <John.Alison@cern.ch>>
+	* Fixed bug of one pixel hit on TRT-Only tracks
+	* Combined TRT Residuals Vs Straw number to include all the layers (instead of layer by layer)
+	* InDetAlignmentMonitoring-00-02-88
+	
+2009-01-13 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Minor 1 line change in TruthComparison so can configure 
+	trackSelection tool from jobOptions as intended
+	
+2009-01-12 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Fixed compilation problems by adding include statements
+	to TrackSelectionAlg.cxx and InDetAlignMonBeamSpot.cxx
+	
+2008-12-18  Tobias Golling  <TFGolling@lbl.gov>
+
+	* remove data and joboptions declaration in requirement
+	* Tagged as InDetAlignmentMonitoring-00-02-86
+
+2008-12-18 John Alison <John.Alison@cern.ch>
+	* Added histograms to the residual modules
+	* Tagged as InDetAlignmentMonitoring-00-02-85
+
+2008-12-18 John Alison <John.Alison@cern.ch>
+	* Cleanup of IDAlignMonTrackSegments
+
+2008-12-17 Juerg Beringer <JBeringer@lbl.gov>
+
+	* Cleanup of InDetAlignMonBeamSpot
+	
+2008-12-17 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Add protection to VERBOSE and DEBUG msg statements in 
+	Residuals, Ntuple, SivsTRT, TrackSelectionTool, TrackSelectionAlg
+	
+2008-12-17  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Add efficiency histogram noholes / all
+
+2008-12-16  Tobias Golling  <TFGolling@lbl.gov>
+
+	* remove TrackSplitterTool
+	* Tagged as InDetAlignmentMonitoring-00-02-83
+
+	* Cleanup IDAlignMonEfficiencies, IDAlignMonGenericTracks, IDAlignMonTruthComparison
+	* cleanup requirement file
+	* Tagged as InDetAlignmentMonitoring-00-02-82
+
+2008-12-15 John Alison <John.Alison@cern.ch>
+	* Removed Track Splitter Tool from monitoring, added track selection to IDAlignMonTrackSegments
+ 	* Tagged as InDetAlignmentMonitoring-00-02-81
+
+2008-12-12 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Code improvements - switch to using AthenaBaseComps methods
+ 	* Tagged as InDetAlignmentMonitoring-00-02-80
+	
+2008-12-10 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Code improvements - switch to using ServieHandle, removed compilation warnings 
+	* Tag InDetAlignmentMonitoring-00-02-79 
+
+2008-12-08  John Alison  <John.Alison@cern.ch>
+
+	* Removed default TrackSplitterTool to aviod unconfigured summary tool 
+	* Tag InDetAlignmentMonitoring-00-02-78
+
+2008-12-03  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Cleanup of include statements, remove TH1D, run checkreq
+	* Tag InDetAlignmentMonitoring-00-02-77
+
+2008-12-02  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Changed namespace from AlignMon to InDetAlignMon
+	* Removed Particle in requirements
+	* Tag InDetAlignmentMonitoring-00-02-76
+
+2008-11-28  John Alison  <John.Alison@cern.ch>
+	* Removed depence of IDAlignMonTrackSegments on old TrackSelectionTool
+	* Fixed binning in delta track parameter plots.
+	* Tagged InDetAlignmentMonitoring-00-02-75
+
+2008-11-28  John Alison  <John.Alison@cern.ch>
+	* Changed default fitter in TrackSplitter from TrkGlobalChi2Fitter to InDetFitter
+	* Tagged InDetAlignmentMonitoring-00-02-74
+
+2008-11-28  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix compilation and checkreq warnings
+
+	* Tag with proper name: InDetAlignmentMonitoring-00-02-72
+
+2008-11-27 John Alison <John.Alison@cern.ch>
+	* Changes to binnning of Histograms in IDAlignMonTrackSegments
+	* tagged IDAlignMonTrackSegments-00-02-72
+
+2008-11-27 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* 3D overlap histos in Residuals not filled by default (reduce memory consumption)
+	* Added config option to turn on filling of 3D overlap histos to Residuals
+	
+2008-11-27 John Alison <John.Alison@cern.ch>
+	* Changes to Histograms in IDAlignMonTrackSegments, added some removed some
+	* Changed all doubles to floats in IDAlignMonTrackSegments
+	* tagged InDetAlignmentMonitoring-00-02-70
+
+2008-11-26 John Alison <John.Alison@cern.ch>
+	* Reduced memory consumption in IDAlignMonTrackSegments
+	* Downgraded failure WARNINGs to DEBUG in TrackSplitterTool and IDAlignMonTrackSegments
+	* tagged InDetAlignmentMonitoring-00-02-69
+
+2008-11-26 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Downgraded ResidualPullCalc failure WARNINGs to DEBUG in Residuals and Ntuple code
+	
+2008-11-26 John Alison <John.Alison@cern.ch>
+	* Added TrackSplitterTool which produces upper and lower track collections
+	from combined tracks
+	* tagged InDetAlignmentMonitoring-00-02-67
+	
+2008-11-24 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Resurrected IDAlignMonNtuple - updated residual calculations 
+	and added incidence angle and cluster size information
+	
+2008-11-24  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Use GetGoodHole method (which is now available)
+
+2008-11-23  Tobias Golling  <TFGolling@lbl.gov>
+
+	* remove InDetAlignmentMonitoring_InDetRec_jobOptions.py
+
+2008-11-21 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Changed Residual histograms fill range (made jobOptions configurable)
+	* Removal of Residuals 2d plots that are no longer used
+
+2008-11-20 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Added option to use HitQualityTool in Residuals, Efficiencies and GenericTracks modules
+
+2008-11-07  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Only WARNING messages, no ERROR/FATAL, no FAILURE status returned, protect against missing trackcollections
+	* Fix savannah bugs #43539 and #43580
+
+2008-11-07 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Removed projecting and fitting methods from IDAlignMonResiduals::procHistograms
+	
+2008-11-06  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Add monitoring for Pixel, SCT and TRT collections
+	* Add tracksegment comparison for Pixel, SCT and TRT collections, and Si and TRT Up-Low
+
+2008-10-31 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Added CosmicTrackSelector tool to jobOptions
+	* Very minor changes to GenericTracks and TrackSelectorTool
+	
+2008-10-27  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix m_nhits_per_event
+
+2008-10-26  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix number of hits plots, redefine barrel, eca, ecc using hits in B,ECA,ECC, add pos/neg plots vs. phi in bins of pT, add summary histo for #hits
+	* Fix savannah bug #43080
+
+2008-10-21  John Alison  <John.Alison@cern.ch>
+
+	* Added delta plots as a fuction of D0 and Z0 to IDAlignMonTrackSegments
+	* Tagged as InDetAlignmentMonitoring-00-02-61
+
+2008-10-21  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fix overlap residuals: assign overlap to module with larger phi and eta identifier, respectively. Tag as InDetAlignmentMonitoring-00-02-60
+
+2008-10-21  John Alison  <john.alison@cern.ch>
+	* Cleanup of IDAlignMonTrackSegments, added some 2D historgrams 
+	* Tagged InDetAlignmentMonitoring-00-02-59
+	
+2008-10-17  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Added 2-d overlap residual maps for pixel and sct barrel layers
+
+2008-10-15  Tobias Golling  <TFGolling@lbl.gov>
+
+	* cleanup jO, remove RTT lines from requirements
+
+2008-10-13  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix savannah #42763, #42756 and import DQMonFlags from AthenaMonitoring (Schaetzel request)
+
+2008-10-10 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Added 2-d residual maps for pixel and sct barrel layers
+	
+2008-10-1  John Alison  <John.Alison@cern.ch>
+	* Fixed bug in jobOptions that crashed when beamType was collisions 
+	* Tagged InDetAlignmentMonitoring-00-02-56
+
+2008-10-1  John Alison  <John.Alison@cern.ch>
+	* Changed histo binning and added labels to IDAlignMonTrackSegments
+	* Tagged InDetAlignmentMonitoring-00-02-55
+
+2008-10-05  Tobias Golling  <TFGolling@lbl.gov>
+
+	* same fix for overlap fraction
+
+	* fix bug in overlap residual code found by Lauren
+
+2008-10-1  John Alison  <John.Alison@cern.ch>
+	* Add Module IDAlignMonTrackSegments
+	* Tagged InDetAlignmentMonitoring-00-02-52
+	
+2008-09-30  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Add holes and outlier plots for EC's
+
+2008-09-24 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Fixed bug in overlap search in Efficiencies - put back in overlap plots
+	
+2008-09-24  Tobias Golling  <TFGolling@lbl.gov>
+
+	* undo hiteff changes (since buggy)
+
+2008-09-23  Tobias Golling  <TFGolling@lbl.gov>
+
+	* add d0, z0 zoom plots; add fiducial cuts for pix and sct hits
+
+2008-09-23 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* add overlap fraction plots to IDAlignMonEfficiencies
+	
+2008-09-23 Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* add histograms for pixel halfshell residuals monitoring to IDAlignMonResiduals
+	
+2008-09-19  Tobias Golling  <TFGolling@lbl.gov>
+
+	* add singlebeam configuration of jO
+
+2008-09-18 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* bug fix in residuals code - check that othersidehit has measured track parameters before updating track
+	
+2008-09-15  Tobias Golling  <TFGolling@lbl.gov>
+
+	* change residual code: wider ranges, fit and project vs eta, phi etc. only if more than 5 hits
+
+2008-09-10  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fix memory leak in Trk::TrackSummary::TrackSummary in IDAlignMonGenericTracks::fillHistograms()
+
+2008-08-22 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Now check that trackParameters exist for a hit before using it in IDAlignMonEfficiencies
+	
+2008-08-21  Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Fixed bug #40351 in IDAlignMonResiduals - now check that overlap hits have associated trackParameters 
+	
+2008-08-21  Tobias Golling  <TFGolling@lbl.gov>
+
+	* use dynamic trigger lookup
+
+2008-08-20  Tobias Golling  <TFGolling@lbl.gov>
+
+	* remove compilation warnings
+
+2008-08-18  Tobias Golling  <TFGolling@lbl.gov>
+
+	* add import DQMonFlags
+
+2008-08-15  Tobias Golling  <TFGolling@lbl.gov>
+
+	* use DQMonFlags in python file
+
+2008-08-12  Tobias Golling  <TFGolling@lbl.gov>
+
+	* remove InDetAlignmentMonitoring_Cosmics_jobOptions.py, change CosmicsExtrapolator to InDetExtrapolator
+
+2008-08-11  Tobias Golling  <TFGolling@lbl.gov>
+
+	* set Axis range for TProfile2D plots
+
+	* Change "InDetCosmic_Tracks" to "Tracks" for cosmics
+
+2008-08-05  Tobias Golling  <TFGolling@lbl.gov>
+
+	* use jobproperties.Beam.beamType()=='cosmics' to have one jO file both for cosmics and collisions
+
+	* use getHolesOnTrack instead of getTrackWithHoles (better memory handling)
+
+2008-08-04  Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Changes to IDAlignMonResiduals to improve cosmetics of monitoring histograms
+
+2008-08-04  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fixed: TProfile2D::Sumw2:0: RuntimeWarning: Sum of squares of weights structure already created
+	* Fixed memeory leak found by Wolfgang Liebig (savannah bugs #39700)
+
+2008-08-02  Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Changes to IDAlignMonResidual to enable post-processing of histos
+	
+2008-07-31  Tobias Golling  <TFGolling@lbl.gov>
+
+	* remove unused jO: share/InDetAlignmentMonitoring_vertexing.py share/jobOptions.py
+	* bug fix crash associated with missing ResidualPullCalculator
+
+2008-07-31  Juerg Beringer <JBeringer@lbl.gov>
+
+	* Check that perigee is given wrt (0,0,0); if not, recalculate by extrapolating from innermost hit
+
+2008-07-31  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Changes to Residuals: statuscodes and messages
+
+2008-07-31  Juerg Beringer <JBeringer@lbl.gov>
+
+	* Change y axis range of DCA vs Phi histogram wrt beam spot from +-500um to +-200um
+
+	* Switch to TrackParticleCandidate list
+
+	* Produce primary vertex histograms only if vertex list was produced w/o beam constraint
+
+	* Move IDAlignMonPrimVtx to InDetAlignMonBeamSpot
+
+2008-07-30  Tobias Golling  <TFGolling@lbl.gov>
+
+	* replace hardcoded names by InDetKeys
+
+	* return SUCCESS and DEBUG message if retrieve fails
+
+	* replace InDetKey: CombinedTracks -> ExtendedTracks
+
+2008-07-29  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fix unchecked status code in IDAlignMonResiduals, implement new HoleSearchTool,
+	* getTrackWithHoles -> getTrackWithHolesAndOutliers
+
+2008-07-28  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Finalize cosmetics
+
+	* Fixed unchecked status code in IDAlignMonEfficiencies::bookHistograms
+
+2008-07-27  Ben Cooper <b.d.cooper@qmul.ac.uk>
+
+	* Fixed memory leak deriving from construction of DataVector in TrackSelectionTool
+	
+2008-07-25  Tobias Golling  <TFGolling@lbl.gov>
+
+	* cosmetics: MinWindow, Axis title
+
+2008-07-24  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix bug in Efficiency and Residual modules: remove delete statement
+
+	* Undo initialize changes for Efficiency and Residual modules, because of not-understood(!) seg fault in RecExCommission
+
+	* Fix VxPrimaryCandidate access in IDAlignMonGenericTracks.cxx
+
+2008-07-23  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix order of tools, algorithms, printout
+	* Fix naming convention ID -> InDet
+
+2008-07-22  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fixes for initialize function
+
+	* add initialize function to all modules
+
+	* proper order to setup tools and algorithm in python (proposed by Wildauer)
+
+	* only do trigger-aware monitoring if monTrigDecTool known by ToolSvc
+
+2008-07-20  Tobias Golling  <TFGolling@lbl.gov>
+
+	* turned off IDAlignMonPriVxFinder (takes too much CPU), trivial name-changes from ID to InDet, Truth off, write own file off
+
+2008-07-18  Tobias Golling  <TFGolling@lbl.gov>
+
+	* TEMPORARYILY COMMENTED OUT WARNING: To be followed up by Ben Cooper !!!
+
+2008-07-15  Tobias Golling  <TFGolling@lbl.gov>
+
+	* added TRT Expert plots/commentary to IDAlignMonResiduals
+	* added TRT Expert plots/commentary to IDAlignMonEfficiencies
+	* added a function to IDAlignMonResiduals to fix a minimum window 
+	        in TProfiles
+
+2008-07-15  Tobias Golling  <TFGolling@lbl.gov>
+
+	* use monTrigDecTool
+
+2008-07-14  Tobias Golling  <TFGolling@lbl.gov>
+
+	* added TProfile2D HitEfficiency plots for Pixel and SCT
+
+2008-07-10   Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* implemented statuscode check on histo registration in IDAlignMonSivsTRT
+
+2008-07-09  Tobias Golling  <TFGolling@lbl.gov>
+
+	* changed track selector instance name
+
+2008-07-09   Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Changes to IDAlignMonResiduals - now monitor width of gaussian fit to pull distributions
+	* Removed some redundant residuals monitoring histograms
+	* Changes to TrackSelectionTool logic such that do not call TrackSelector tool if passing all tracks 
+
+2008-07-08   Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Changes to IDAlignMonResiduals - hit is now skipped if pull value returned is NAN
+
+2008-07-07   Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Added some barrel-only histograms to IDAlignMonSivsTRT
+	
+2008-06-30  Tobias Golling  <TFGolling@lbl.gov>
+
+	* src/IDAlignMonEfficiencies.cxx (procHistograms): removed faulty Eta-Phi-HitEfficiency isEndOfRun processing (needs to be done in post-processing)
+
+2008-06-27   Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Changed IDAlignMonResiduals module to make shift histograms consistent with IDAlignMonEfficiencies
+	* Also added monitoring of pull distributions but unfortunately the filling of these TProfile histograms 
+	is going wrong so these are left as expert plots for the moment - still monitoring residual RMS
+		
+2008-06-24  Tobias Golling  <TFGolling@lbl.gov>
+
+	* changed also share/InDetAlignmentMonitoring_Cosmics_jobOptions.py
+	and share/jobOptionsRTT.py to use new InDetDetailedTrackSelectorTool configuration
+
+2008-06-23    Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Changed share/InDetAlignmentMonitoring_InDetRec_jobOptions.py to use new InDetDetailedTrackSelectorTool
+	configuration
+	
+2008-06-19    <TFGolling@lbl.gov>
+
+	* Changes to Efficiencies and GenericTracks: subdivide into B, ECA, ECC (|eta|<0.8)
+	* Add hit efficiency in silicon EC vs. Phi identifier
+	* Add new DQMF configuration share/IDAlignMon.config
+
+2008-06-13  John Alison  <john.alison@cern.ch>
+
+	* change Implemented minimum window for ave TRT residuals vs layer/wheel  
+	* change add python handle for window limits
+
+2008-06-13  John Alison  <john.alison@cern.ch>
+
+	* change fixed suppressed zero in TRT Effeciencies, hits, outliers, and RMS
+	* change added labels to all TRT plots
+	* change removed baised residuals for Barrel, Endcaps (of little use)
+	
+
+2008-06-09  Tobias Golling  <TFGolling@lbl.gov>
+
+	* change trigger back to EF_J23 (EF_J33 was bug fix for FDR2)
+
+2008-06-05  Tobias Golling  <TFGolling@lbl.gov>
+
+	* share/InDetAlignmentMonitoring_InDetRec_jobOptions.py (IDAlignMonDoTruth): change triggr from EF_J23 to EF_J33
+
+2008-05-23  Tobias Golling  <TFGolling@lbl.gov>
+
+	* add Weina's changes to FDR2.config, fix Ben's changes
+
+2008-05-20  Tobias Golling  <TFGolling@lbl.gov>
+
+	* add DQMF config file: share/FDR2.config (tmporary solution)
+
+2008-05-14  Tobias Golling  <TFGolling@lbl.gov>
+
+	* remove TrigDecisionMaker from jO, correct folder structure for truth module
+
+2008-05-13  Tobias Golling  <TFGolling@lbl.gov>
+
+	* bug fix: define TrackSummaryTool = InDetTrackSummaryTool in jO
+
+2008-05-12  Tobias Golling  <TFGolling@lbl.gov>
+
+	* several instances of modules for different triggers
+
+2008-05-08  Tobias Golling  <TFGolling@lbl.gov>
+
+	* add trigger-aware monitoring
+
+2008-04-28  Tobias Golling  <TFGolling@lbl.gov>
+
+	* use InDetBeamSpotService for IDAlignMonPrimVtx (for 14.1.0)
+
+	* move modules to InDetPerformanceMonitoring and clean up
+
+2008-03-20  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fix cosmics jO
+
+	* Add new jO for cosmics and RTT, improvements from Andi W.
+
+2008-03-18  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Add new jO compatible with InDetRec and RecExCommon
+
+2008-03-17  Tobias Golling  <TFGolling@lbl.gov>
+
+	* turn off BeamConstraint for Juerg's PV histograms
+
+	* runningFullReco = False in default jO
+	* add jobOptions_FullReco.py with runningFullReco = True
+
+2008-03-13  Tobias Golling  <TFGolling@lbl.gov>
+
+	* change RTT queue from long to medium
+
+	* change d0, z0 binning
+	* add Juerg's PV module to the RTT
+
+2008-03-11  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Initialize DetailedTrackSelectorTool with Extrapolators
+	* Fix RTT
+	* Fixing seg fault caused by "vertices" pointer deletion
+
+2008-03-01  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix minor memory leaks
+
+2008-02-01  Cano AY  <aycano@cern.ch>
+	* Fix to src/IDAlignMonNtuple.cxx
+	* Tag as InDetAlignmentMonitoring-00-00-19
+
+2008-01-31  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Updates to IDAlignMonEfficiencies.cxx
+
+	* Updates to IDAlignMonGenericTracks.cxx
+
+2008-01-25  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Implemented alignment monitoring for cosmics
+
+2008-01-23  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Updates for FDR: TProfile Eff plots, EventsBlock to run, shifter plots
+
+2007-12-17  David Quarrie <David.Quarrie@cern.ch>
+
+	* cmt/requirements: Extend the AtlasROOT linkopts by applying the ROOTMathLibs
+	  * src/IDAlignMonTruthComparison.cxx: Add include "TROOT.h" for LCG_54 compatibility
+
+2007-11-13  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix RTT_IDAlignMon_jobOptions.py
+
+	* Add IDAlignMon to the RTT
+
+2007-09-06  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Updated GenericTracks, TruthComparison and MonEfficiencies
+
+2007-08-02  Ben Cooper  <b.d.cooper@qmul.ac.uk>
+
+	* Additions to IDAlignMonResiduals
+	* Added IDAlignMonNtuple module
+
+2007-07-11  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Improve MsgStream output
+
+2007-07-10  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Additions to IDAlignMonTruthComparison
+
+2007-07-04  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Additions to IDAlignMonEfficiencies and IDAlignMonGenericTracks
+
+2007-05-03 Frederick Luehring <Fred.Luehring@cern.ch>
+
+	* Create package and tag as InDetAlignmentMonitoring-00-00-00.
+

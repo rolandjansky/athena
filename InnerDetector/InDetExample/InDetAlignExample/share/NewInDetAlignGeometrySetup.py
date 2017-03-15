@@ -259,10 +259,10 @@ for var in indetAlignment_Options:
 # but we might also need it when the whole Inner Detector is to be aligned
 # in the later one of Pixel or SCT is in principle enough
 if newInDetAlignGeo_Options["alignPixel"] and newInDetAlignGeo_Options["alignSCT"]:
-	print "The silicon is ON"
+	print " <NewInDetAlignGeometrySetup> The silicon is ON"
 	newInDetAlignGeo_Options["alignSilicon"] = True
 else:
-	print "The silicon is OFF"
+	print " <NewInDetAlignGeometrySetup> The silicon is OFF"
 	newInDetAlignGeo_Options["alignSilicon"] = False
 
 #

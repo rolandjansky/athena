@@ -5,6 +5,12 @@ loadInDetRec_Options = {"detectorDescription" : ""
                         ,"siAlignmentTag":""
                         ,"trtAlignmentTag":""
                         ,"trtAlignmentTagL3":""
+                        ,"dynamicL1IDTag":""
+                        ,"dynamicL2PIXTag":""
+                        ,"dynamicL2SCTTag":""
+                        ,"dynamicL1TRTag":""
+                        ,"dynamicL3SiTag":""
+                        ,"dynamicL2TRTTag":""
                         ,"lorentzAngleTag":""
                         ,"beamSpotTag":""
                         ,"errorScalingTag":""
@@ -21,6 +27,8 @@ loadInDetRec_Options = {"detectorDescription" : ""
                         ,"readTRTL3" : False                   #  whether to read initial TRT L3 alignment constnats from pool file
                         ,"inputPoolFiles" : ["IDalignment_nominal.pool.root"]  #  pool files to read the constants from,
                         ,"inputBowingDatabase"  : "" #cool file to read the bowing from
+                        ,"inputDynamicGlobalDatabase" : "" #cool file to read the dynamic global folders from
+                        ,"useDynamicAlignFolders": False 
                         }
 
 
@@ -29,19 +37,7 @@ for var in loadInDetRec_Options:
   if var in dir():
     loadInDetRec_Options[var] = eval(var)
 
-'''
-# Enable LB-IOV sensitive L3 transform tweak (we don't want this in the solving job)
-if not loadInDetRec_Options["applyLBibldistTweak"]:
-  from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-  pixelTool =  PixelDetectorTool()
-  pixelTool.TweakIBLDist = False
-'''
-    
-
 from IOVDbSvc.CondDB import conddb
-  #conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterial','AtlasLayerMat_v15_ATLAS-IBL3D25-04-00-01')
-#conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_v18_ATLAS-R2-2015-01')
-
 
 if not loadInDetRec_Options["BField"] and loadInDetRec_Options["Cosmics"]:
   InDetTrackFitter.GetMaterialFromTrack = False
@@ -66,6 +62,13 @@ if loadInDetRec_Options["siPoolFile"]:
   IOVSvc.preLoadData = True
 
 else:
+  # The global folders for dynamic scheme are loaded below
+  if loadInDetRec_Options["dynamicL3SiTag"]:
+    conddb.addOverride('/Indet/AlignL3',loadInDetRec_Options["dynamicL3SiTag"])
+
+  if loadInDetRec_Options["dynamicL2TRTTag"]:
+    conddb.addOverride('/TRT/AlignL2',loadInDetRec_Options["dynamicL2TRTTag"])
+
   if loadInDetRec_Options["siAlignmentTag"]:
     conddb.addOverride('/Indet/Align',loadInDetRec_Options["siAlignmentTag"])
   if loadInDetRec_Options["trtAlignmentTag"]:
@@ -80,16 +83,15 @@ if loadInDetRec_Options["readConstantsFromPool"]:
   
   if loadInDetRec_Options["readSilicon"]:
     conddb.blockFolder("/Indet/Align")
-    
+    conddb.blockFolder("/Indet/AlignL3")
+
   if loadInDetRec_Options["readTRT"]:
     conddb.blockFolder("/TRT/Align")
+    conddb.blockFolder("/TRT/AlignL2")
       
   if loadInDetRec_Options["readTRTL3"]:
     conddb.blockFolder("/TRT/Calib/DX")
 
-  #if loadInDetRec_Options["readBowingFromCool"]:
-  #  conddb.blockFolder("/Indet/IBLDist")
-  #  conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["inputBowingDatabase"]+';dbname=CONDBR2</dbConnection>/Indet/IBLDist','IndetIBLDist',True);
     
   from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
   from AthenaCommon.AppMgr import ServiceMgr
@@ -200,4 +202,35 @@ if loadInDetRec_Options["inputBowingDatabase"]:
   else:
     print "INFO:: Overriding Database Tag"
     conddb.addOverride('/Indet/IBLDist',loadInDetRec_Options["inputBowingDatabase"])
+
+if loadInDetRec_Options["useDynamicAlignFolders"]:
+  if loadInDetRec_Options["inputDynamicGlobalDatabase"]:
+    print "INFO:: parsed: ",loadInDetRec_Options["inputDynamicGlobalDatabase"]
+    if ".db" in loadInDetRec_Options["inputDynamicGlobalDatabase"]:
+      print "INFO:: blocking dynamic Global Folders"
+      conddb.blockFolder("/Indet/AlignL1/ID")
+      conddb.blockFolder("/Indet/AlignL2/PIX")
+      conddb.blockFolder("/Indet/AlignL2/SCT")    
+      conddb.blockFolder("/TRT/AlignL1/TRT")
+
+      print "INFO:: Adding folders with tag"
+      from IOVDbSvc.CondDB import conddb
+      conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["inputDynamicGlobalDatabase"]+';dbname=CONDBR2</dbConnection>/Indet/AlignL1/ID','IndetL1Test',True);
+      conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["inputDynamicGlobalDatabase"]+';dbname=CONDBR2</dbConnection>/Indet/AlignL2/PIX','IndetL2PIXTest',True);
+      conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["inputDynamicGlobalDatabase"]+';dbname=CONDBR2</dbConnection>/Indet/AlignL2/SCT','IndetL2SCTTest',True);
+      conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["inputDynamicGlobalDatabase"]+';dbname=CONDBR2</dbConnection>/TRT/AlignL1/TRT','IndetL1TRTTest',True);
+      print "INFO:: Dynamic global folders from local Database"
+
+  elif loadInDetRec_Options["inputDynamicGlobalDatabase"]=="":
+    print "INFO:: Attempting to override Database tags for global folders in Run2 DB scheme"
+    if loadInDetRec_Options["dynamicL1IDTag"]:
+      conddb.addOverride('/Indet/AlignL1/ID',loadInDetRec_Options["dynamicL1IDTag"])
+    if loadInDetRec_Options["dynamicL2PIXTag"]:
+      conddb.addOverride('/Indet/AlignL2/PIX',loadInDetRec_Options["dynamicL2PIXTag"])
+    if loadInDetRec_Options["dynamicL2SCTTag"]:
+      conddb.addOverride('/Indet/AlignL2/SCT',loadInDetRec_Options["dynamicL2SCTTag"])
+    if loadInDetRec_Options["dynamicL1TRTag"]:
+      conddb.addOverride('/TRT/AlignL1/TRT',loadInDetRec_Options["dynamicL1TRTag"])
+
+
 
