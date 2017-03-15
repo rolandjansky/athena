@@ -21,9 +21,17 @@
 #include "tile_id_test_common.cxx"
 
 
+class TileID_Test
+  : public TileID, public ITile_ID_Test
+{
+public:
+  virtual int get_tile_field_value() const override { return tile_field_value(); }
+};
+
+
 std::unique_ptr<TileID> make_helper (bool do_neighbours = false)
 {
-  auto idhelper = CxxUtils::make_unique<TileID>();
+  auto idhelper = CxxUtils::make_unique<TileID_Test>();
   IdDictParser parser;
   parser.register_external_entity ("TileCalorimeter",
                                    "IdDictTileCalorimeter.xml");
@@ -99,8 +107,8 @@ int main()
   idDictXmlFile = "IdDictTileCalorimeter.xml";
   IdDictMgr& idd = getDictMgr();
   idd.add_metadata("TILENEIGHBORS",       "TileNeighbour_reduced.txt");  
-  std::unique_ptr<TileID> idhelper = make_helper<TileID>();
-  std::unique_ptr<TileID> idhelper_n = make_helper<TileID>(true);
+  std::unique_ptr<TileID> idhelper = make_helper<TileID_Test>();
+  std::unique_ptr<TileID> idhelper_n = make_helper<TileID_Test>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);
