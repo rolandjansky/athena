@@ -29,6 +29,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+
 namespace InDet
 {
 
@@ -179,8 +181,8 @@ namespace InDet
 
     //Initialise timer
     m_timerMemAlloc = addTimer("MemoryAlloc");
-    m_timerFeatureAttach = ("FeatureAttach");
-    m_timerTrackConversion = ("TrackConversion");
+    m_timerFeatureAttach = addTimer("FeatureAttach");
+    m_timerTrackConversion = addTimer("TrackConversion");
     
     return HLT::OK;
   }
@@ -263,7 +265,7 @@ namespace InDet
 
 	if(doTiming()) m_timerTrackConversion->start();
         xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
-	if(doTiming()) m_timerTrackConversion->start();
+	if(doTiming()) m_timerTrackConversion->stop();
 
         if((outputLevel <= MSG::DEBUG) && (tp != 0)){
   	  int npix, nsct, ntrt, npixh, nscth;
