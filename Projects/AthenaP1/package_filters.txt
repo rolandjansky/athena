@@ -101,5 +101,9 @@
 - PhysicsAnalysis/D3PDMaker/.*
 - PhysicsAnalysis/HiggsPhys/.*
 - PhysicsAnalysis/*Phys/.*
++ PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
++ PhysicsAnalysis/D3PDMaker/D3PDMakerCoreComps
++ PhysicsAnalysis/D3PDMaker/D3PDMakerRoot
++ PhysicsAnalysis/D3PDMaker/D3PDMakerConfig
 + PhysicsAnalysis/D3PDMaker/TrigCostD3PDMaker
 
