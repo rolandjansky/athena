@@ -10,28 +10,6 @@
  * $Id: CoreDumpSvc.cxx,v 1.12 2008-12-15 13:24:23 fwinkl Exp $
  */
 
-// Package includes
-#include "CoreDumpSvc.h"
-#include "SetFatalHandler.h"
-
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/IAlgorithm.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/IAlgContextSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/System.h"
-
-// Athena includes
-#include "AthenaKernel/IAthenaSummarySvc.h"
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "CxxUtils/SealCommon.h"
-#include "CxxUtils/SealSignal.h"
-#include "CxxUtils/SealDebug.h"
-#include "CxxUtils/read_athena_statm.h"
-
 // System includes
 #include <ctime>
 #include <cstdio>
@@ -46,6 +24,30 @@
 #include <mach/mach_init.h>
 #include <unistd.h>
 #endif
+
+// Package includes
+#include "CoreDumpSvc.h"
+#include "SetFatalHandler.h"
+
+// Gaudi includes
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/IAlgorithm.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/IAlgContextSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/System.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
+// Athena includes
+#include "AthenaKernel/IAthenaSummarySvc.h"
+#include "EventInfo/EventIncident.h"
+#include "EventInfo/EventInfo.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/SealCommon.h"
+#include "CxxUtils/SealSignal.h"
+#include "CxxUtils/SealDebug.h"
+#include "CxxUtils/read_athena_statm.h"
+
 
 using std::endl;
 
@@ -156,6 +158,11 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   sigs.push_back(SIGILL);
   sigs.push_back(SIGFPE);
   m_signals.setValue(sigs);
+  // Allocate for 200 slots. This should be increased if we foresee more than 200 slots.
+  // Memory overhead is negligable compared to dynamically allocate the entries
+  m_usrCoreDumps.resize(200);
+  m_sysCoreDumps.resize(200);
+  
 }
 
 CoreDumpSvc::~CoreDumpSvc()
@@ -194,8 +201,8 @@ void CoreDumpSvc::propertyHandler(Property& p)
 StatusCode CoreDumpSvc::initialize()
 {
   // Reset members
-  m_usrCoreDump.clear();
-  m_sysCoreDump.clear();
+  //m_usrCoreDump.clear();
+  //m_sysCoreDump.clear();
   m_eventCounter = 0;
   
   ATH_MSG_DEBUG
@@ -265,6 +272,7 @@ StatusCode CoreDumpSvc::queryInterface(const InterfaceID& riid, void** ppvInterf
 //----------------------------------------------------------------------
 void CoreDumpSvc::setCoreDumpInfo( const std::string& name, const std::string& value )
 {
+  auto &m_usrCoreDump=m_usrCoreDumps.at(Gaudi::Hive::currentContext().slot());
   m_usrCoreDump[name] = value;
 }
 
@@ -353,18 +361,38 @@ std::string CoreDumpSvc::dump() const
     os << "\n";
   }
   
-  CoreDump_t::const_iterator iter;
+  //CoreDump_t::const_iterator iter;
   // System core dump
   os << "Event counter: " << m_eventCounter << "\n";  
-  for ( iter=m_sysCoreDump.begin(); iter!=m_sysCoreDump.end(); ++iter ) {
-    os << iter->first << ": " << iter->second << "\n";
+  //this might be a little problematic since other threads may still be working
+  for(size_t t=0;t<m_sysCoreDumps.size();t++){
+    auto &sysrec=m_sysCoreDumps.at(t);
+    if (sysrec.LastInc.length()){
+      os<<"Slot "<<std::setw(3)<<t<<":"<<std::endl;
+      os<<"         : Last Incident = "<<sysrec.LastInc<<std::endl;
+      os<<"         : Event ID      = "<<sysrec.EvId<<std::endl;
+      }
   }
+  // for ( iter=m_sysCoreDump.begin(); iter!=m_sysCoreDump.end(); ++iter ) {
+  //   os << iter->first << ": " << iter->second << "\n";
+  // }
   // User core dump
-  for ( iter=m_usrCoreDump.begin(); iter!=m_usrCoreDump.end(); ++iter ) {
-    os << iter->first << ": " << iter->second << "\n";
+
+  for(size_t t=0;t<m_usrCoreDumps.size();t++){
+    auto &sUsr=m_usrCoreDumps.at(t);
+    if(!sUsr.empty()){
+      os<<"Slot "<<std::setw(3)<<t<<": (user dumps)"<<std::endl;
+      for(auto &s:sUsr){
+	os<<"         : "<<s.first<<" = "<<s.second<<std::endl;
+      }
+    }
   }
+  // for ( iter=m_usrCoreDump.begin(); iter!=m_usrCoreDump.end(); ++iter ) {
+  //   os << iter->first << ": " << iter->second << "\n";
+  // }
 
   // Check if the AlgContextSvc is running
+  // This information is incorrect in MT world
   IAlgContextSvc* algContextSvc(nullptr);
   if (service("AlgContextSvc", algContextSvc, /*createIf=*/ false).isSuccess() && algContextSvc) {
 
@@ -410,28 +438,34 @@ std::string CoreDumpSvc::dump() const
 
 void CoreDumpSvc::handle(const Incident& incident)
 {
-  m_sysCoreDump["Last incident"] = incident.source() + ":" + incident.type();
+  //handle is single threaded in context;
+  const auto &currCtx=incident.context();
+  auto &currRec=m_sysCoreDumps.at(currCtx.slot());
+  currRec.LastInc= incident.source() + ":" + incident.type();
 
+  //m_sysCoreDump["Last incident"] = incident.source() + ":" + incident.type();
   const EventIncident* eventInc(nullptr);
   if (nullptr != (eventInc = dynamic_cast<const EventIncident*>(&incident))) {
     const EventID* eventID = eventInc->eventInfo().event_ID();
     if (eventID) {
       std::ostringstream oss;
       oss << *eventID;
-      m_sysCoreDump["EventID"] = oss.str();
+      //m_sysCoreDump["EventID"] = oss.str();
+      currRec.EvId=oss.str();
     }
   }
 
   if (incident.type()==IncidentType::BeginEvent) {
     ++m_eventCounter;
-  }
-  else if (incident.type() == "StoreCleared") {
+  } else if (incident.type() == "StoreCleared") {
     // Try to force reallocation.
-    std::string newstr = m_sysCoreDump["EventID"];
+    //std::string newstr = m_sysCoreDump["EventID"];
+    auto newstr=currRec.EvId;
     // Intentional:
     // cppcheck-suppress selfAssignment
     newstr[0] = newstr[0];
-    m_sysCoreDump["EventID"] = newstr;
+    //m_sysCoreDump["EventID"] = newstr;
+    currRec.EvId=newstr;
   }
 
 }

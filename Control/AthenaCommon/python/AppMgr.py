@@ -286,7 +286,7 @@ class AthAppMgr( AppMgr ):
          #   IPA
          ifaBeg=IFA("BeginIncFiringAlg")
          ifaBeg.Incidents=["BeginEvent"]
-         ifaBeg.FireSerial=True # we want serial incident to be fired as well
+         ifaBeg.FireSerial=False # we want serial incident to be fired as well
          athBeginSeq += ifaBeg
          ipa=IPA("IncidentProcAlg1")
          athBeginSeq += ipa
@@ -296,7 +296,7 @@ class AthAppMgr( AppMgr ):
          #   IPA
          ifaEnd=IFA("EndIncFiringAlg")
          ifaEnd.Incidents=["EndEvent"]
-         ifaEnd.FireSerial=True # we want serial incident to be fired as well
+         ifaEnd.FireSerial=False # we want serial incident to be fired as well
          athEndSeq += ifaEnd
          ipa2=IPA("IncidentProcAlg2")
          athEndSeq += ipa2
@@ -953,13 +953,17 @@ def AuditorSvc():             # backwards compatibility
 #         |
 #         +-- athFilterSeq
 #                |
-#                +--- athBeginSeq
-#                |
-#                +--- athCondSeq
-#                |
-#                +--- athAlgSeq == TopAlg
-#                |
-#                +--- athEndSeq
+#                +--- athAlgEvtSeq
+#                        |
+#                        +--- athBeginSeq
+#                        |
+#                        +--- athAllAlgSeq
+#                                |
+#                                +--- athCondSeq
+#                                |
+#                                +--- athAlgSeq == TopAlg
+#                        |
+#                        +--- athEndSeq
 #                |
 #                +--- athOutSeq
 #                |
