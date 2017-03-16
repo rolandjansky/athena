@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "InDetRegionSelector/TRT_RegionSelectorTable.h"
 
 #include "GaudiKernel/MsgStream.h"
@@ -45,7 +41,6 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
   :  AthAlgTool(type,name,parent),
      m_TRT_IdMapping("TRT_CablingSvc", name),
      m_regionLUT(NULL),
-     m_deltaZ(168 * CLHEP::mm),
      m_managerName("TRT"),
      m_roiFileName("TRTRoITable.txt"),
      m_printHashId(true),
@@ -53,7 +48,6 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   declareProperty("ManagerName", m_managerName);
-  declareProperty("DeltaZ",      m_deltaZ);
 
   // The remaining properties are for debugging purposes.
   declareProperty("OutputFile",  m_roiFileName);
@@ -70,7 +64,6 @@ StatusCode TRT_RegionSelectorTable::initialize(){
 
   msg(MSG::INFO)  << "Tool Properties" << endmsg;
   msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
-  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endmsg;
   if ( msgLvl(MSG::DEBUG) ) {
     msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endmsg;
     msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endmsg;

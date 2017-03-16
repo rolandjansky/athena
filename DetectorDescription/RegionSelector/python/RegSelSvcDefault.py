@@ -36,27 +36,33 @@ class RegSelSvcDefault ( RegSelSvc )  :
         tgcTable  = None
         cscTable  = None
         ftkTable  = None       
- 
+      
+
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon.DetFlags import DetFlags
+
+        print DetFlags 
+
         if DetFlags.detdescr.ID_on():
             # if DetFlags.detdescr.ftk_on(): ### is the ftk properly integrated yet ??? 
             from InDetRegionSelector.InDetRegionSelectorConf import FTK_RegionSelectorTable
-            ftkTable = FTK_RegionSelectorTable(name        = "FTK_RegionSelectorTable",
-                                               ManagerName = "",
-                                               DeltaZ      = self.DeltaZ,  # Z vertex extent = +- this value.
-                                               OutputFile  = "RoITableFTK.txt",
-                                               PrintHashId = True,
-                                               PrintTable  = False)
-            ToolSvc += ftkTable
-            mlog.debug(ftkTable)
+            if DetFlags.detdescr.FTK_on():
+
+                print "FUCK OFF"
+
+                ftkTable = FTK_RegionSelectorTable(name        = "FTK_RegionSelectorTable",
+                                                   ManagerName = "",
+                                                   OutputFile  = "RoITableFTK.txt",
+                                                   PrintHashId = True,
+                                                   PrintTable  = False)
+                ToolSvc += ftkTable
+                mlog.debug(ftkTable)
     
 
             if DetFlags.detdescr.pixel_on():
                 from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
                 pixTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
                                                  ManagerName = "Pixel",
-                                                 DeltaZ      = self.DeltaZ,  # Z vertex extent = +- this value.
                                                  OutputFile  = "RoITablePixel.txt",
                                                  PrintHashId = True,
                                                  PrintTable  = False)
@@ -67,7 +73,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
                 sctTable = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
                                                  ManagerName = "SCT",
-                                                 DeltaZ      = self.DeltaZ,  # Z vertex extent = +- this value.
                                                  OutputFile  = "RoITableSCT.txt",
                                                  PrintHashId = True,
                                                  PrintTable  = False)
@@ -78,7 +83,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
                 trtTable = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
                                                    ManagerName = "TRT",
-                                                   DeltaZ      = self.DeltaZ,  # Z vertex extent = +- this value.
                                                    OutputFile  = "RoITableTRT.txt",
                                                    PrintHashId = True,
                                                    PrintTable  = False)

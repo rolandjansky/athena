@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef InDetRegionSelector_TRT_RegionSelectorTable_h
 #define InDetRegionSelector_TRT_RegionSelectorTable_h
 
@@ -51,7 +47,6 @@ private:
   RegSelSiLUT*  m_regionLUT;
 
   // Algorithm properties
-  double m_deltaZ;
   std::string m_managerName;
   std::string m_roiFileName;
   bool m_printHashId;

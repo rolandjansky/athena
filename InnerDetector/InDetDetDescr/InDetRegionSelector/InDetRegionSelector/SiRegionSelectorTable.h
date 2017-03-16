@@ -52,7 +52,6 @@ private:
 
   // Algorithm properties
   std::string m_managerName;
-  double m_deltaZ;
   std::string m_roiFileName;
   bool m_printHashId;
   bool m_printTable;
