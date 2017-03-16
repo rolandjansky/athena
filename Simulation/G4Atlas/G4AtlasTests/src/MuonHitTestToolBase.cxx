@@ -12,7 +12,7 @@
 
 #include "TH1D.h"
 #include "TH2D.h"
-#include <math.h> 
+#include <math.h>
 
 
 MuonHitTestToolBase::MuonHitTestToolBase(const std::string& type, const std::string& name, const IInterface* parent)
@@ -26,7 +26,7 @@ MuonHitTestToolBase::MuonHitTestToolBase(const std::string& type, const std::str
     m_eta(0), m_theta(0), m_phi(0),
     m_zResid(0),m_phiResid(0),
     m_detBarrel(0), m_longView(0)
-  
+
 {
   declareProperty("BarrelEtaCut", m_BarrelEtaCut=99.);
   declareProperty("DetectorName", m_detname="MDT");
@@ -58,11 +58,11 @@ StatusCode MuonHitTestToolBase::executeCheckEventInfo()
     HepMC::GenEvent::particle_const_iterator p;
     for (p= (**e).particles_begin(); p!= (**e).particles_end(); p++) {
       if ( (*p)->barcode()<200000) {
-	Amg::Vector3D temp_momentum((**p).momentum().px(), 
-				  (**p).momentum().py(), 
-				  (**p).momentum().pz());
-	m_direction = temp_momentum.unit();
-	break;
+        Amg::Vector3D temp_momentum((**p).momentum().px(),
+                                    (**p).momentum().py(),
+                                    (**p).momentum().pz());
+        m_direction = temp_momentum.unit();
+        break;
       }
     }
   }
@@ -72,32 +72,32 @@ StatusCode MuonHitTestToolBase::executeCheckEventInfo()
 StatusCode  MuonHitTestToolBase::executeFillHistos(const Amg::Vector3D & u) {
   ///for MDTs that have barrel + endcap section, take only the barrel when plotting the xy-2d plot of the detector
 
-      if (fabs(m_direction.eta())<m_BarrelEtaCut){
-	//mdtdet->Fill(u.x(),u.y());
-	m_muondetBarrel->Fill(u.x(),u.y());
-	m_detBarrel->Fill(u.x(),u.y());
-      }
+  if (fabs(m_direction.eta())<m_BarrelEtaCut){
+    //mdtdet->Fill(u.x(),u.y());
+    m_muondetBarrel->Fill(u.x(),u.y());
+    m_detBarrel->Fill(u.x(),u.y());
+  }
 
-      double rad=sqrt(u.x()*u.x()+u.y()*u.y());
-      m_muonlongView->Fill(u.z(),rad);
-      m_longView->Fill(u.z(),rad);
+  double rad=sqrt(u.x()*u.x()+u.y()*u.y());
+  m_muonlongView->Fill(u.z(),rad);
+  m_longView->Fill(u.z(),rad);
 
-      // //m_direction vector is filled with truth above, so here it is wrong (no eta, theta, phi of the hit!!!)
-      // *AS* why not use "u"?
-      // theta->Fill(m_direction.theta());
-      // theta->Fill(m_direction.theta());
-      // eta->Fill(m_direction.eta());
-      // eta->Fill(m_direction.eta());
-      // phi->Fill(m_direction.phi());
-      // phi->Fill(m_direction.phi());
+  // //m_direction vector is filled with truth above, so here it is wrong (no eta, theta, phi of the hit!!!)
+  // *AS* why not use "u"?
+  // theta->Fill(m_direction.theta());
+  // theta->Fill(m_direction.theta());
+  // eta->Fill(m_direction.eta());
+  // eta->Fill(m_direction.eta());
+  // phi->Fill(m_direction.phi());
+  // phi->Fill(m_direction.phi());
 
-      m_muonzResid->Fill(u.cross(m_direction).dot(m_direction.cross(Amg::Vector3D(0,0,1)).unit()));
-      m_muonphiResid->Fill(u.cross(m_direction).z());
+  m_muonzResid->Fill(u.cross(m_direction).dot(m_direction.cross(Amg::Vector3D(0,0,1)).unit()));
+  m_muonphiResid->Fill(u.cross(m_direction).z());
 
-      m_zResid->Fill(u.cross(m_direction).dot(m_direction.cross(Amg::Vector3D(0,0,1)).unit()));
-      m_phiResid->Fill(u.cross(m_direction).z());
+  m_zResid->Fill(u.cross(m_direction).dot(m_direction.cross(Amg::Vector3D(0,0,1)).unit()));
+  m_phiResid->Fill(u.cross(m_direction).z());
 
-      return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -107,7 +107,7 @@ StatusCode MuonHitTestToolBase::initialize() {
   CHECK(detStore()->retrieve(m_pMuonMgr));
 
   //MuonSpectrometer
-  /** Generic Muon part, these histograms are filled from 
+  /** Generic Muon part, these histograms are filled from
       all subalgorithms (MDT,RPC,CSC,TGC)
       For detailed description look in the .cxx code
   */
@@ -117,16 +117,16 @@ StatusCode MuonHitTestToolBase::initialize() {
   _TH1D(m_muonevnt,"event_num",100,0.,1000.);
   _TH1D(m_muonrun,"run_num",100,-300.,300.);
 
-    /*
-      TH1D *etamuon=new TH1D("muonhitpos_eta","muonhitpos_eta",50,-5.,5.);
-      registerHistogram("/truth/muonhitpos_eta",etamuon);
+  /*
+    TH1D *etamuon=new TH1D("muonhitpos_eta","muonhitpos_eta",50,-5.,5.);
+    registerHistogram("/truth/muonhitpos_eta",etamuon);
 
-      TH1D *theta=new TH1D("muonhitpos_theta","muonhitpos_theta",50,-10.,10.);
-      registerHistogram("/truth/muonhitpos_theta",theta);
+    TH1D *theta=new TH1D("muonhitpos_theta","muonhitpos_theta",50,-10.,10.);
+    registerHistogram("/truth/muonhitpos_theta",theta);
 
-      TH1D *phimuon=new TH1D("muonhitpos_phi","muonhitpos_phi",50,-5.,5.);
-      registerHistogram("/truth/muonhitpos_phi",phimuon);
-    */
+    TH1D *phimuon=new TH1D("muonhitpos_phi","muonhitpos_phi",50,-5.,5.);
+    registerHistogram("/truth/muonhitpos_phi",phimuon);
+  */
 
   _TH1D(m_muonzResid,"muonhitpos_zResid",50,-300.,300.);
   _TH1D(m_muonphiResid,"muonhitpos_phiResid",50,-300.,300.);
@@ -136,26 +136,26 @@ StatusCode MuonHitTestToolBase::initialize() {
   //  ================================================================================
 
   m_path+=m_detname+"/";
-    // book Histograms
-    /** specific part, these histograms are filled from  subalgorithm
-       For detailed description look, e.g, in the CSCHitsTestAlg.cxx code
-    */
-    /*
-      TH1D *eta=new TH1D("hitpos_eta","hitpos_eta",50,-5.,5.);
-      registerHistogram("/truth/hitpos_eta",eta);
+  // book Histograms
+  /** specific part, these histograms are filled from  subalgorithm
+      For detailed description look, e.g, in the CSCHitsTestAlg.cxx code
+  */
+  /*
+    TH1D *eta=new TH1D("hitpos_eta","hitpos_eta",50,-5.,5.);
+    registerHistogram("/truth/hitpos_eta",eta);
 
-      TH1D *theta=new TH1D("hitpos_theta","hitpos_theta",50,-10.,10.);
-      registerHistogram("/truth/hitpos_theta",theta);
+    TH1D *theta=new TH1D("hitpos_theta","hitpos_theta",50,-10.,10.);
+    registerHistogram("/truth/hitpos_theta",theta);
 
-      TH1D *phi=new TH1D("hitpos_phi","hitpos_phi",50,-5.,5.);
-      registerHistogram("/truth/hitpos_phi",phi);
-    */
+    TH1D *phi=new TH1D("hitpos_phi","hitpos_phi",50,-5.,5.);
+    registerHistogram("/truth/hitpos_phi",phi);
+  */
   _TH1D(m_zResid,(m_detname+"_hitpos_zResid").c_str(),50,-300.,300.);
   _TH1D(m_phiResid,(m_detname+"_hitpos_phiResid").c_str(),50,-300.,300.);
 
   _TH2D(m_detBarrel,(m_detname+"_det_barrel").c_str(),200,-11000.,11000.,200,-11000.,11000.);
   _TH2D(m_longView,(m_detname+"_long_view").c_str(),200,-24000.,24000.,200,0.,14000.);
-  
+
   return StatusCode::SUCCESS;
 
 }

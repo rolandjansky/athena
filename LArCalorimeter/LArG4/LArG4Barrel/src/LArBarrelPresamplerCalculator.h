@@ -22,8 +22,10 @@ class LArG4BirksLaw;
 class G4String;
 
 namespace LArG4 {
-  // Forward declaration
-  class IPresamplerGeometryCalculator;
+  namespace BarrelPresampler {
+    // Forward declaration
+    class Geometry;
+  }
 }
 
 class LArBarrelPresamplerCalculator : public LArCalculatorSvcImp {
@@ -53,7 +55,7 @@ private:
   LArBarrelPresamplerCalculator& operator=(const  LArBarrelPresamplerCalculator&);//coverity issue fix. Declared, but not implemented
   //
   // Class for calculating the identifier.
-  ServiceHandle<LArG4::IPresamplerGeometryCalculator> m_geometryCalculator;
+  LArG4::BarrelPresampler::Geometry* m_geometry;
 
   PsMap* m_psmap;
 

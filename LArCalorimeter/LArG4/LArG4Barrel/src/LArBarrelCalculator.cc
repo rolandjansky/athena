@@ -18,7 +18,7 @@
 
 #include "LArG4Code/LArG4BirksLaw.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
-#include "LArG4Barrel/IGeometryCalculator.h"
+
 //#include "LArG4RunControl/LArG4BarrelOptions.h"
 
 #include "G4ThreeVector.hh"
@@ -51,7 +51,7 @@ namespace Units = Athena::Units;
 // ================================================================================
 LArBarrelCalculator::LArBarrelCalculator(const std::string& name, ISvcLocator* pSvcLocator)
   : LArCalculatorSvcImp(name, pSvcLocator)
-  , m_geometryCalculator("LArBarrelGeometry", name)
+  , m_geometry(nullptr)
   , m_accmap(nullptr)
   , m_IflCur(true)
   , m_IflMapTrans(true)
@@ -71,7 +71,6 @@ LArBarrelCalculator::LArBarrelCalculator(const std::string& name, ISvcLocator* p
   declareProperty("EMBdstep", m_dstep);
   declareProperty("EMBHVEnable",m_doHV);
   declareProperty("DetectorName",m_detectorName);
-  declareProperty("GeometryCalculator",m_geometryCalculator);
 }
 
 StatusCode LArBarrelCalculator::initialize()
@@ -125,7 +124,7 @@ StatusCode LArBarrelCalculator::initialize()
     }
   // ===
   //  access geometry computation class
-  ATH_CHECK(m_geometryCalculator.retrieve());
+  m_geometry = LArG4::Barrel::Geometry::GetInstance();
 
   // access current maps if required
   if (m_IflCur)
@@ -294,8 +293,9 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       continue;
     }
 
-    LArG4::Barrel::LArGeomData cellInfo;
-    if(m_geometryCalculator->findCell(cellInfo,xloc,yloc,zloc,radloc,etaloc,philoc,m_IflCur).isFailure() || cellInfo.cellID == 0)
+    m_geometry->findCell(xloc,yloc,zloc,radloc,etaloc,philoc,m_IflCur,m_detectorName);
+
+    if (m_geometry->cellID() == 0)
       {
 #ifdef DEBUGSTEP
         ATH_MSG_DEBUG("LArBarrelCalculator: Invalid hit CELLID == 0 ");
@@ -304,10 +304,10 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
 #endif
         continue;
       }
-    G4int region = cellInfo.region;
-    G4int etaBin = cellInfo.etaBin;
-    G4int phiBin = cellInfo.phiBin;
-    G4int sampling = cellInfo.sampling;
+    G4int region = m_geometry->region();
+    G4int etaBin = m_geometry->etaBin();
+    G4int phiBin = m_geometry->phiBin();
+    G4int sampling = m_geometry->sampling();
 
     if( zSide == -1 )
       {
@@ -331,13 +331,13 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
 #ifdef DEBUGSTEP
     ATH_MSG_DEBUG("   region,side,sampling,eta,phi " << region << " " << zSide << " "
                   << sampling << " " << etaBin << " " << phiBin);
-    ATH_MSG_DEBUG("   distance to electrode,abs " << cellInfo.distElec << " "
-                  << cellInfo.distAbs);
-    ATH_MSG_DEBUG("    local coordinates " << cellInfo.x0 << " " << cellInfo.y0);
+    ATH_MSG_DEBUG("   distance to electrode,abs " << m_geometry->distElec() << " "
+                  << m_geometry->distAbs());
+    ATH_MSG_DEBUG("    local coordinates " << m_geometry->x0() << " " << m_geometry->y0());
 #endif
 
-    if (std::fabs(cellInfo.distElec)< m_ThickEle ||
-        std::fabs(cellInfo.distAbs) < m_ThickAbs) {
+    if (std::fabs(m_geometry->distElec())< m_ThickEle ||
+        std::fabs(m_geometry->distAbs()) < m_ThickAbs) {
 #ifdef DEBUGSTEP
       ATH_MSG_DEBUG("   hit in absorber or electrode radius:" << radloc);
 #endif
@@ -383,9 +383,9 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
     else  {
       // full charge collection
       G4double xmap,ymap;
-      G4int nfold = cellInfo.nfold;
-      G4double x0=cellInfo.x0;
-      G4double y0=cellInfo.y0;
+      G4int nfold = m_geometry->nfold();
+      G4double x0=m_geometry->x0();
+      G4double y0=m_geometry->y0();
       if (x0<1500 || x0>1960 || y0>30 || y0<-30) {
         ATH_MSG_INFO("weird x0,y0 " << x0 << " " << y0);
       }
@@ -407,8 +407,8 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
         ATH_MSG_DEBUG("   Map for fold xmap,ymap " << nfold << " " << xmap << " " << ymap);
 #endif
         UseFold=true;
-        G4int sampMap = cellInfo.sampMap;
-        G4int etaMap  = cellInfo.etaMap;
+        G4int sampMap = m_geometry->sampMap();
+        G4int etaMap  = m_geometry->etaMap();
         m_accmap->SetMap(nfold,region,sampMap,etaMap);
         // catch problem to find map
         if (!m_accmap->Map()) {
@@ -420,7 +420,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       }
       else {
         G4int n;
-        G4int nstraight = cellInfo.nstraight;
+        G4int nstraight = m_geometry->nstraight();
         if (nstraight%2==0) n=22;
         else                n=21;
         m_accmap->SetMap(n,region,sampling,etaBin);
@@ -429,8 +429,8 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
           ATH_MSG_WARNING(" Problem to access map straight = " << nstraight);
           return false;
         }
-        xmap = cellInfo.xl;
-        ymap = cellInfo.distElec;
+        xmap = m_geometry->xl();
+        ymap = m_geometry->distElec();
         // special case for first straight section, which is shorter
         if (nstraight==0) xmap = 0.5*(xmap+1.);
 #ifdef DEBUGSTEP
@@ -441,14 +441,14 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       double current0,current1,current2;
       //  get current for elementary charge
       m_accmap->Map()->GetAll(xmap,ymap,&gap,&current0,&current1,&current2);
-      G4double gap2=std::fabs(cellInfo.distElec)+std::fabs(cellInfo.distAbs)
+      G4double gap2=std::fabs(m_geometry->distElec())+std::fabs(m_geometry->distAbs())
         -m_ThickEle-m_ThickAbs;
 
       // in which HV cell are we ?
       int ipm,ielec,ieta,iside;
       if (zSide==1) ipm=1;    // A side
       else          ipm=0;    // C side
-      ielec=cellInfo.phiGap;
+      ielec=m_geometry->phiGap();
       if (zSide==-1) {
         ielec = 511 - ielec;
         if(ielec < 0 ) ielec += 1024;
@@ -456,8 +456,8 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       ieta=((int) (etaloc*(1./0.2)));
       if (ieta>6) ieta=6;  //part 1.4 to 1.475 is same HV as 1.2 to 1.4
       iside=0;    // phi lower than electrode 0, 1 for phi higher than electrode
-      if ((cellInfo.distElec>0 && zSide==1)
-          || (cellInfo.distElec<0 && zSide==-1) ) iside=1;
+      if ((m_geometry->distElec()>0 && zSide==1)
+          || (m_geometry->distElec()<0 && zSide==-1) ) iside=1;
 
       // HV extrapolation
       double current;
@@ -491,10 +491,10 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       Current = energy*current;
 
       // check if pathology...
-      if (!UseFold && std::fabs(cellInfo.distElec)>2.1 && current0 < 0.1) {
-        ATH_MSG_WARNING(" xl,distEle " << cellInfo.xl << " "
-                        << cellInfo.distElec
-                        << " str number " << cellInfo.nstraight
+      if (!UseFold && std::fabs(m_geometry->distElec())>2.1 && current0 < 0.1) {
+        ATH_MSG_WARNING(" xl,distEle " << m_geometry->xl() << " "
+                        << m_geometry->distElec()
+                        << " str number " << m_geometry->nstraight()
                         << " sampling,eta " << sampling << " " << etaBin << " "
                         << " current/E " << current0);
       }
@@ -509,7 +509,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
         float etaTrans=0.8;
         if (fabs(etaloc-etaTrans) < 0.025) {
           double x=std::fabs(zloc-radloc*sinh(etaTrans))/cosh(etaTrans);
-          double y=std::fabs(cellInfo.distElec);
+          double y=std::fabs(m_geometry->distElec());
           if ( x < m_etamap3->Xmax() ) {
             double resp;
             m_etamap3->GetData0(x,y,&resp);
@@ -527,11 +527,11 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
         double resp,xt0,xt1,xt2,deta;
         if (sampling==1) {
           deta=etaloc-0.003125*((double)etaBin+0.5);
-          m_etamap1->GetData(std::fabs(deta),std::fabs(cellInfo.distElec),
+          m_etamap1->GetData(std::fabs(deta),std::fabs(m_geometry->distElec()),
                              &resp,&xt0,&xt1,&xt2);
 #ifdef DEBUGSTEP
           ATH_MSG_DEBUG("hit in strip etaloc,etaBin,deta,delec,resp,xt0,xt1,xt2 "
-                        << etaloc << " " << etaBin << " " << deta*1000 << " " << cellInfo.distElec
+                        << etaloc << " " << etaBin << " " << deta*1000 << " " << m_geometry->distElec()
                         << " " << resp << " " << xt0 << " " << xt1 << " " << xt2);
 #endif
           if (!InTrans) Current = Current*resp;
@@ -558,11 +558,11 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
         }
         else if (sampling==2 && !InTrans) {
           deta=etaloc-0.025*((double)etaBin+0.5);
-          m_etamap2->GetData0(std::fabs(deta),std::fabs(cellInfo.distElec),
+          m_etamap2->GetData0(std::fabs(deta),std::fabs(m_geometry->distElec()),
                               &resp);
 #ifdef DEBUGSTEP
           ATH_MSG_DEBUG("hit in middle etaloc,etaBin,deta,delec,resp,xt0,xt1,xt2 "
-                        << etaloc << " " << etaBin << " " << deta*1000 << " " << cellInfo.distElec
+                        << etaloc << " " << etaBin << " " << deta*1000 << " " << m_geometry->distElec()
                         << " " << resp);
 #endif
           Current = Current*resp;

@@ -31,9 +31,10 @@ class G4Step;
 
 namespace LArG4 {
 
-  class IGeometryCalculator;
-
   namespace Barrel {
+
+    // Forward declaration
+    class Geometry;
 
     class CalibrationCalculator : public LArCalibCalculatorSvcImp {
     public:
@@ -60,7 +61,7 @@ namespace LArG4 {
     private:
 
       // Geometry calculator
-      ServiceHandle<IGeometryCalculator> m_geometryCalculator;
+      Geometry* m_geometryCalculator;
 
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;

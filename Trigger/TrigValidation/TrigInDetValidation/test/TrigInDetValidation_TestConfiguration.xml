@@ -44,7 +44,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000003.pool.root.1</dataset>
 
-
 	   
 
 
@@ -209,11 +208,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -300,7 +312,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -319,7 +330,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -349,7 +359,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
 
-
 	   
 
 
@@ -514,11 +523,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -605,7 +627,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -624,7 +645,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -647,7 +667,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000003.pool.root.1</dataset>
 
-
 	   
 
 
@@ -812,11 +831,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -903,7 +935,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -923,11 +954,9 @@
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
-
    
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -953,7 +982,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
-
 
 	   
 
@@ -1008,11 +1036,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -1099,7 +1140,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -1119,11 +1159,9 @@
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
-
    
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -1149,7 +1187,6 @@
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000024.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000029.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000039.pool.root.1</dataset>
-
 	   
 
 
@@ -1208,11 +1245,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -1296,7 +1346,6 @@
         </action>
 
 
-
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -1316,7 +1365,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
 	   
            <athenaCommonFlags /> 
@@ -1347,7 +1395,6 @@
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240167._000008.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240167._000009.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240167._000010.pool.root.1</dataset>
-
 
 
 
@@ -1436,11 +1483,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -1525,7 +1585,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -1544,7 +1603,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
@@ -1576,7 +1634,6 @@
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945414._000012.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945414._000013.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945414._000014.pool.root.1</dataset>
-
 
 
 
@@ -1665,11 +1722,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -1754,7 +1824,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -1773,14 +1842,12 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
 
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -1808,7 +1875,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728/RDO.10240159._000008.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728/RDO.10240159._000009.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728/RDO.10240159._000010.pool.root.1</dataset>
-
 
 
 
@@ -1898,11 +1964,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -1988,7 +2067,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -2007,7 +2085,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 
@@ -2037,7 +2114,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7772/RDO.09929877._000008.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7772/RDO.09929877._000009.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7772/RDO.09929877._000010.pool.root.1</dataset>
-
 
 
 
@@ -2127,11 +2203,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -2216,7 +2305,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -2235,13 +2323,11 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
 
 
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -2269,7 +2355,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
  
-
 
 	   
 
@@ -2360,11 +2445,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -2448,7 +2546,6 @@
         </action>
 
 
-
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -2468,7 +2565,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
@@ -2500,7 +2596,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
  
-
 
 	   
 
@@ -2590,11 +2685,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -2678,7 +2786,6 @@
         </action>
 
 
-
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -2698,7 +2805,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
@@ -2730,7 +2836,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
  
-
 
 	   
 
@@ -2820,11 +2925,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -2908,7 +3026,6 @@
         </action>
 
 
-
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -2928,7 +3045,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
@@ -2960,7 +3076,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
  
-
 
 	   
 
@@ -3050,11 +3165,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -3138,7 +3266,6 @@
         </action>
 
 
-
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -3158,13 +3285,11 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
            <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -3184,7 +3309,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000003.pool.root.1</dataset>
-
 
 
 	   
@@ -3275,11 +3399,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -3363,7 +3500,6 @@
         </action>
 
 
-
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -3383,7 +3519,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
@@ -3407,7 +3542,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000001.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000003.pool.root.1</dataset>
-
 
 
 	   
@@ -3498,11 +3632,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -3586,7 +3733,6 @@
         </action>
 
 
-
 	   
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
@@ -3606,13 +3752,11 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
            <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -3641,7 +3785,6 @@
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_cos.108865.CosSimPixVolSolOnTorOn.recon.RDO.s2111_r6258_tid05313290_00/RDO.05313290._000638.pool.root.1</dataset>
 	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_cos.108865.CosSimPixVolSolOnTorOn.recon.RDO.s2111_r6258_tid05313290_00/RDO.05313290._000701.pool.root.1</dataset>
 	    <!--<dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_cos.108865.CosSimPixVolSolOnTorOn.recon.RDO.s2111_r6258_tid05313290_00/RDO.05313290._000873.pool.root.1</dataset>-->
-
 
 
 
@@ -3683,11 +3826,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -3774,7 +3930,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -3793,10 +3948,8 @@
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
-
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -3822,7 +3975,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
-
 
 
 
@@ -3881,11 +4033,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -3970,7 +4135,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -3989,7 +4153,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -4020,7 +4183,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
-
 
 
 
@@ -4168,7 +4330,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -4187,7 +4348,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -4218,7 +4378,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
-
 
 
 
@@ -4291,11 +4450,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -4380,7 +4552,6 @@
 
 
 
-
         
 
             <testToRemove>
@@ -4402,11 +4573,9 @@
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
-
    
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -4427,7 +4596,6 @@
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000002.pool.root.1</dataset>
           <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000003.pool.root.1</dataset>
-
 
 
 
@@ -4486,11 +4654,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -4575,7 +4756,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -4594,7 +4774,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -4622,7 +4801,6 @@
 
 
 
-
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -4677,11 +4855,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -4766,7 +4957,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -4786,11 +4976,9 @@
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
-
    
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -4822,7 +5010,6 @@
 
 
 
-
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -4832,7 +5019,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt-offline.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -4877,11 +5064,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -4966,7 +5166,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -4985,7 +5184,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -5020,7 +5218,6 @@
 
 
 
-
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -5030,7 +5227,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt-offline.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -5075,11 +5272,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -5164,7 +5374,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -5183,7 +5392,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -5218,7 +5426,6 @@
 
 
 
-
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -5228,7 +5435,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt-offline.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -5273,11 +5480,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -5362,7 +5582,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -5381,7 +5600,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -5416,7 +5634,6 @@
 
 
 
-
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -5426,7 +5643,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt-offline.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -5471,11 +5688,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -5560,7 +5790,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -5579,7 +5808,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -5614,7 +5842,6 @@
 
 
 
-
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -5624,7 +5851,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt-offline.dat -f data-bjet-pileup-merging-offline.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -5669,11 +5896,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -5758,7 +5998,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -5778,11 +6017,9 @@
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
-
    
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -5810,7 +6047,6 @@
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004607.pool.root.1</dataset>
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004797.pool.root.1</dataset>
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004832.pool.root.1</dataset>
-
            
 
 
@@ -5883,11 +6119,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -5972,7 +6221,6 @@
 
 
 
-
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
              <testidentifier>CheckFileRunner0</testidentifier>
@@ -5991,7 +6239,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
 
            <athenaCommonFlags /> 
@@ -6019,7 +6266,6 @@
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004607.pool.root.1</dataset>
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004797.pool.root.1</dataset>
 	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004832.pool.root.1</dataset>
-
            
 
 
@@ -6092,11 +6338,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -6181,7 +6440,6 @@
 
 
 
-
            <testToRemove>
              <jobGroupName>RTT:Top</jobGroupName>
              <testidentifier>CheckFileRunner0</testidentifier>
@@ -6202,11 +6460,9 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-
            <athenaCommonFlags /> 
          </athena>
 	 
-
 
 
 
@@ -6230,7 +6486,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240174._000008.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240174._000009.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240174._000010.pool.root.1</dataset>
-
 
 
            <action position="01">
@@ -6286,11 +6541,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -6375,7 +6643,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -6394,7 +6661,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
 
@@ -6425,7 +6691,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945423._000008.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945423._000009.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945423._000010.pool.root.1</dataset>
-
 
 
 
@@ -6482,11 +6747,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -6571,7 +6849,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -6590,13 +6867,11 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
 
          <athenaCommonFlags />
          </athena>
-
 
 
 
@@ -6625,7 +6900,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
-
 
 
 
@@ -6684,11 +6958,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -6773,7 +7060,6 @@
 
 
 
-
              <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -6792,7 +7078,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
 
 	  <athenaCommonFlags />
@@ -6823,7 +7108,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
-
 
 
 
@@ -6882,11 +7166,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -6971,7 +7268,6 @@
 
 
 
-
              <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -6990,7 +7286,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
 
 	  <athenaCommonFlags />
@@ -7021,7 +7316,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
-
 
 
 
@@ -7081,11 +7375,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -7170,7 +7477,6 @@
 
 
 
-
              <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -7189,7 +7495,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
 
 	  <athenaCommonFlags />
@@ -7220,7 +7525,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
-
 
 
 
@@ -7280,11 +7584,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -7369,7 +7686,6 @@
 
 
 
-
              <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -7390,10 +7706,8 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-
 	  <athenaCommonFlags />
 	  </athena>
-
 
 
 
@@ -7413,7 +7727,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000001.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000002.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000003.pool.root.1</dataset>
-
 
 
 
@@ -7472,11 +7785,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -7561,7 +7887,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -7582,11 +7907,9 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-
 	  <athenaCommonFlags />
 	  <alwaysRunPostProc />
 	  </athena>
-
 
 
 
@@ -7634,7 +7957,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000932.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000948.pool.root.1</dataset> 
 
-
 	    
 
 
@@ -7674,11 +7996,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -7762,7 +8097,6 @@
         </action>
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -7782,7 +8116,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
 
           <athenaCommonFlags /> 
@@ -7833,7 +8166,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000932.pool.root.1</dataset> 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000948.pool.root.1</dataset> 
 
-
 	    
 
 
@@ -7873,11 +8205,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -7961,7 +8306,6 @@
         </action>
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -7983,11 +8327,9 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-
           <athenaCommonFlags /> 
 	  <alwaysRunPostProc />
 	  </athena>
-
 
 
 
@@ -8014,7 +8356,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
-
 
 
 
@@ -8105,11 +8446,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -8194,7 +8548,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -8213,7 +8566,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
 	  <athenaCommonFlags />
@@ -8238,7 +8590,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000043.RDO_FTK_ttbar.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000044.RDO_FTK_ttbar.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000053.RDO_FTK_ttbar.root</dataset>
-
 
 
 
@@ -8298,11 +8649,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -8387,7 +8751,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -8406,7 +8769,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
 	  <athenaCommonFlags />
@@ -8436,7 +8798,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
-
 
 
 
@@ -8495,11 +8856,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -8584,7 +8958,6 @@
 
 
 
-
         
 
             <testToRemove>
@@ -8605,7 +8978,6 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-
 
    
          <athenaCommonFlags /> 
@@ -8636,7 +9008,6 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
-
 
 
 
@@ -8682,11 +9053,24 @@
               <testname>ExeRunner</testname>
               <arg>
                 <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
+                <argvalue>TIDArun.sh</argvalue>
               </arg>
               <arg>
                 <argname>exeParamString</argname>
                 <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+            <action position="21">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF </argvalue>
               </arg>
             </action>
 
@@ -8773,7 +9157,6 @@
 
 
 
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -8793,11 +9176,9 @@
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
-
    
          <athenaCommonFlags /> 
          </athena>
-
 
 
 
@@ -8831,7 +9212,19 @@
             <keepFilePattern displayColor="red">*.css</keepFilePattern>
             <keepFilePattern>TIDAWeb/*</keepFilePattern>
             <keepFilePattern>TIDAWeb/build/*</keepFilePattern>
+
             <keepFilePattern>times/*</keepFilePattern>
+            <keepFilePattern>times-FTF/*</keepFilePattern>
+
+            <keepFilePattern>times/*.p*</keepFilePattern>
+            <keepFilePattern>times-FTF/*.p*</keepFilePattern>
+
+            <keepFilePattern>times/*.pdf</keepFilePattern>
+            <keepFilePattern>times/*.png</keepFilePattern>
+
+            <keepFilePattern>times-FTF/*.pdf</keepFilePattern>
+            <keepFilePattern>times-FTF/*.png</keepFilePattern>
+
             <keepFilePattern>*.png</keepFilePattern>
             <keepFilePattern>*.ps</keepFilePattern>
             <keepFilePattern>*.php</keepFilePattern>
@@ -8937,5 +9330,4 @@
 </unifiedTestConfiguration>
 
 <!--  LocalWords:  eosatlas -->
-
 

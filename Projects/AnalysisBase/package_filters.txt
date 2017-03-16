@@ -5,13 +5,11 @@
 + AtlasTest/TestTools
 + Calorimeter/CaloGeoHelpers
 + Control/AthContainersInterfaces
-- Control/AthContainers.+
 + Control/AthContainers
 + Control/AthLinksSA
-+ Control/AthToolSupport/
++ Control/AthToolSupport/.*
 + Control/CxxUtils
 + Control/xAODRootAccess.*
-- DataQuality/GoodRunsLists.+
 + DataQuality/GoodRunsLists
 + DetectorDescription/GeoPrimitives
 + DetectorDescription/IRegionSelector
@@ -26,7 +24,6 @@
 + Generators/TruthUtils
 + InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
-- MuonSpectrometer/MuonIdHelpers.+
 + MuonSpectrometer/MuonIdHelpers
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
@@ -87,7 +84,6 @@
 + Trigger/TrigEvent/TrigDecisionInterface
 + Trigger/TrigEvent/TrigNavStructure
 + Trigger/TrigEvent/TrigRoiConversion
-- Trigger/TrigEvent/TrigSteeringEvent.+
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigValidation/TrigAnalysisTest
 - .*

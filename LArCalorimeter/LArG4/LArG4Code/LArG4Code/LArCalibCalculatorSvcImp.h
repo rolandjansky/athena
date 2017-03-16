@@ -8,12 +8,10 @@
 #include "ILArCalibCalculatorSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
-/// TODO: NEEDS DOCUMENTATION
-/// It doesn't seem like this class should exist!!
 class LArCalibCalculatorSvcImp: public AthService, virtual public ILArCalibCalculatorSvc
 {
 public:
-  LArCalibCalculatorSvcImp(const std::string& name, ISvcLocator* pSvcLocator);
+  LArCalibCalculatorSvcImp(const std::string& name, ISvcLocator * pSvcLocator);
 
   /** Query interface method to make athena happy */
   virtual StatusCode queryInterface(const InterfaceID&, void**) override final;

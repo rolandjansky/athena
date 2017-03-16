@@ -79,6 +79,7 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_lutCreatorToolCSC  ("CSC_RegionSelectorTable"),
     m_initFTK(false),
     m_lutCreatorToolFTK  ("FTK_RegionSelectorTable"),
+    m_ftklut(nullptr),
     m_duplicateRemoval( true )
 {
   //! Declare properties

@@ -15,6 +15,7 @@ addTool("G4UserActions.G4UserActionsConfig.getFastIDKillerTool", "G4UA::FastIDKi
 addTool("G4UserActions.G4UserActionsConfig.getHIPKillerTool", "G4UA::HIPKillerTool")
 addTool("G4UserActions.G4UserActionsConfig.getHIPLArVolumeAcceptTool", "G4UA::HIPLArVolumeAcceptTool")
 addTool("G4UserActions.G4UserActionsConfig.getLooperKillerTool", "G4UA::LooperKillerTool")
+addTool("G4UserActions.G4UserActionsConfig.getMonopoleLooperKillerTool", "MonopoleLooperKillerTool")
 addTool("G4UserActions.G4UserActionsConfig.getMomentumConservationTool", "G4UA::MomentumConservationTool")
 addTool("G4UserActions.G4UserActionsConfig.getScoringVolumeTrackKillerTool", "G4UA::ScoringVolumeTrackKillerTool")
 

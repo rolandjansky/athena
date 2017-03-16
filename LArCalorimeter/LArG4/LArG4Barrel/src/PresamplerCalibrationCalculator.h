@@ -30,10 +30,10 @@ class G4Step;
 
 namespace LArG4 {
 
-  // Forward declaration
-  class IPresamplerGeometryCalculator;
-
   namespace BarrelPresampler {
+
+    // Forward declaration
+    class Geometry;
 
     class CalibrationCalculator : public LArCalibCalculatorSvcImp {
     public:
@@ -59,7 +59,7 @@ namespace LArG4 {
 
     private:
       // Geometry calculator
-      ServiceHandle<IPresamplerGeometryCalculator> m_geometryCalculator;
+      Geometry* m_geometryCalculator;
 
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;

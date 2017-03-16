@@ -248,7 +248,7 @@ StatusCode PoolSvc::setupPersistencySvc() {
       return(StatusCode::FAILURE);
    }
    m_pers_mut.push_back(new CallMutex);
-   m_contextMaxFile.insert(std::pair<unsigned long, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
+   m_contextMaxFile.insert(std::pair<unsigned int, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
    if (!connect(pool::ITransaction::READ).isSuccess()) {
       ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
       return(StatusCode::FAILURE);
@@ -271,7 +271,7 @@ StatusCode PoolSvc::setupPersistencySvc() {
 
 //__________________________________________________________________________
 StatusCode PoolSvc::stop() {
-   unsigned long contextId = 0;
+   unsigned int contextId = 0;
    bool retError = false;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
 		   last = m_persistencySvcVec.end(); iter != last; iter++, contextId++) {
@@ -284,7 +284,7 @@ StatusCode PoolSvc::stop() {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::finalize() {
-   unsigned long contextId = 0;
+   unsigned int contextId = 0;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
 		   last = m_persistencySvcVec.end(); iter != last; iter++, contextId++) {
       delete *iter;
@@ -337,14 +337,24 @@ const Token* PoolSvc::registerForWrite(const Placement* placement,
    return(token);
 }
 //__________________________________________________________________________
-void PoolSvc::setObjPtr(void*& obj, const Token* token, unsigned long contextId) const {
-   if (contextId >= m_persistencySvcVec.size()) {
-      contextId = IPoolSvc::kInputStream;
+void PoolSvc::setObjPtr(void*& obj, const Token* token) const {
+   unsigned int contextId = IPoolSvc::kInputStream;
+   const std::string& auxString = token->auxString();
+   if (!auxString.empty()) {
+      if (auxString.substr(0, 6) == "[CTXT=") {
+         ::sscanf(auxString.c_str(), "[CTXT=%08X]", &contextId);
+      } else if (auxString.substr(0, 8) == "[CLABEL=") {
+         contextId = const_cast<PoolSvc*>(this)->getInputContext(auxString);
+      }
+      if (contextId >= m_persistencySvcVec.size()) {
+         contextId = IPoolSvc::kInputStream;
+      }
    }
-   std::lock_guard<CallMutex> dummy(m_pool_mut); // FIXME, PvG: Don't know why we need this, DataHeader?
+   // Get Context ID/label from Token
+   std::lock_guard<CallMutex> dummy(m_pool_mut); // FIXME, PvG: Should go away once calling ROOT::EnableThreadSafety()
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    obj = m_persistencySvcVec[contextId]->readObject(*token, obj);
-   std::map<unsigned long, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
+   std::map<unsigned int, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
    if (maxFileIter != m_contextMaxFile.end() && maxFileIter->second > 0) {
       m_guidLists[contextId].remove(token->dbID());
       m_guidLists[contextId].push_back(token->dbID());
@@ -354,10 +364,10 @@ void PoolSvc::setObjPtr(void*& obj, const Token* token, unsigned long contextId)
    }
 }
 //__________________________________________________________________________
-unsigned long PoolSvc::getInputContext(const std::string& label, unsigned int maxFile) {
+unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int maxFile) {
    std::lock_guard<CallMutex> lock(m_pool_mut);
    if (!label.empty()) {
-      std::map<std::string, unsigned long>::const_iterator contextIter = m_contextLabel.find(label);
+      std::map<std::string, unsigned int>::const_iterator contextIter = m_contextLabel.find(label);
       if (contextIter != m_contextLabel.end()) {
          if (maxFile > 0) {
             m_contextMaxFile[contextIter->second] = maxFile;
@@ -370,7 +380,7 @@ unsigned long PoolSvc::getInputContext(const std::string& label, unsigned int ma
       ATH_MSG_ERROR("Failed to create PersistencySvcFactory.");
       return(IPoolSvc::kInputStream);
    }
-   const unsigned long id = m_persistencySvcVec.size();
+   const unsigned int id = m_persistencySvcVec.size();
    m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog));
    if (m_persistencySvcVec[id] == nullptr) {
       ATH_MSG_ERROR("Failed to create Input PersistencySvc.");
@@ -382,9 +392,9 @@ unsigned long PoolSvc::getInputContext(const std::string& label, unsigned int ma
       return(IPoolSvc::kInputStream);
    }
    if (!label.empty()) {
-      m_contextLabel.insert(std::pair<std::string, unsigned long>(label, id));
+      m_contextLabel.insert(std::pair<std::string, unsigned int>(label, id));
    }
-   m_contextMaxFile.insert(std::pair<unsigned long, int>(id, maxFile));
+   m_contextMaxFile.insert(std::pair<unsigned int, int>(id, maxFile));
    return(id);
 }
 //__________________________________________________________________________
@@ -441,7 +451,7 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
 		const std::string& connection,
 		const std::string& collectionName,
 		const pool::ICollection::OpenMode& openMode,
-		unsigned long contextId) const {
+		unsigned int contextId) const {
    std::string collection(collectionName);
    if (collectionType == "RootCollection") {
       if (collectionName.find("PFN:") == std::string::npos
@@ -486,7 +496,7 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
          if (dbH->openMode() == pool::IDatabase::CLOSED) {
             dbH->connectForRead();
          }
-         std::map<unsigned long, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
+         std::map<unsigned int, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
          if (maxFileIter != m_contextMaxFile.end() && maxFileIter->second > 0 && !dbH->fid().empty()) {
             const Guid guid(dbH->fid());
             m_guidLists[contextId].remove(guid);
@@ -619,7 +629,7 @@ bool PoolSvc::testDictionary(const std::string& className) const {
    return(true);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned long contextId) const {
+StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextId) const {
    if (type != pool::ITransaction::READ) {
       contextId = IPoolSvc::kOutputStream;
    }
@@ -640,7 +650,7 @@ StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned long context
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::commit(unsigned long contextId) const {
+StatusCode PoolSvc::commit(unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::FAILURE);
    }
@@ -661,7 +671,7 @@ StatusCode PoolSvc::commit(unsigned long contextId) const {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::commitAndHold(unsigned long contextId) const {
+StatusCode PoolSvc::commitAndHold(unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::FAILURE);
    }
@@ -677,7 +687,7 @@ StatusCode PoolSvc::commitAndHold(unsigned long contextId) const {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::disconnect(unsigned long contextId) const {
+StatusCode PoolSvc::disconnect(unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::SUCCESS);
    }
@@ -693,7 +703,7 @@ StatusCode PoolSvc::disconnect(unsigned long contextId) const {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned long contextId) const {
+StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::SUCCESS);
    }
@@ -705,7 +715,7 @@ StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned long co
       delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
-   std::map<unsigned long, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
+   std::map<unsigned int, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
    if (maxFileIter != m_contextMaxFile.end() && maxFileIter->second > 0) {
       const Guid guid(dbH->fid());
       m_guidLists[contextId].remove(guid);
@@ -716,7 +726,7 @@ StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned long co
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
-long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigned long contextId) const {
+long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigned int contextId) const {
    pool::ISession* sesH = nullptr;
    pool::IDatabase* dbH = nullptr;
    if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
@@ -740,7 +750,7 @@ long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigne
 StatusCode PoolSvc::getAttribute(const std::string& optName,
 		std::string& data,
 		long tech,
-		unsigned long contextId) const {
+		unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kInputStream;
    }
@@ -770,7 +780,7 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
 		long tech,
 		const std::string& dbName,
 		const std::string& contName,
-		unsigned long contextId) const {
+		unsigned int contextId) const {
    pool::ISession* sesH = nullptr;
    pool::IDatabase* dbH = nullptr;
    if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
@@ -832,7 +842,7 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
 StatusCode PoolSvc::setAttribute(const std::string& optName,
 		const std::string& data,
 		long tech,
-		unsigned long contextId) const {
+		unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kOutputStream;
    }
@@ -862,7 +872,7 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 		long tech,
 		const std::string& dbName,
 		const std::string& contName,
-		unsigned long contextId) const {
+		unsigned int contextId) const {
    std::lock_guard<CallMutex> lock(m_pool_mut);
    pool::ISession* sesH = nullptr;
    pool::IDatabase* dbH = nullptr;
@@ -1062,7 +1072,7 @@ PoolSvc::~PoolSvc() {
 //__________________________________________________________________________
 StatusCode PoolSvc::getSessionDbHandles(pool::ISession*& sesH,
 		pool::IDatabase*& dbH,
-		unsigned long contextId,
+		unsigned int contextId,
 		const std::string& dbName) const {
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kInputStream;

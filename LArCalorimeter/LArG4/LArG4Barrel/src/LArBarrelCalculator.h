@@ -16,7 +16,7 @@
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArCalculatorSvcImp.h"
-// #include "LArG4Barrel/LArBarrelGeometry.h"
+#include "LArG4Barrel/LArBarrelGeometry.h"
 
 #include <stdexcept>
 #include <vector>
@@ -27,10 +27,6 @@ class G4Step;
 class AccMap;
 class MapEta;
 class LArG4BirksLaw;
-namespace LArG4
-{
-  class IGeometryCalculator;
-}
 
 class LArBarrelCalculator : public LArCalculatorSvcImp
 {
@@ -58,7 +54,7 @@ public:
 
 private:
 
-  ServiceHandle<LArG4::IGeometryCalculator> m_geometryCalculator;
+  LArG4::Barrel::Geometry* m_geometry;
   AccMap*   m_accmap;
   std::unique_ptr<MapEta>   m_etamap1;
   std::unique_ptr<MapEta>   m_etamap2;

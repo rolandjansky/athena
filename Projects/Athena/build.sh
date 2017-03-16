@@ -75,6 +75,8 @@ fi
 
 # Stop on errors from here on out:
 set -e
+# consider a pipe failed if ANY of the commands fails
+set -o pipefail
 
 # Source in our environment
 AthenaSrcDir=$(dirname ${BASH_SOURCE[0]})
@@ -88,9 +90,6 @@ source $AthenaSrcDir/build_env.sh -b $BUILDDIR
 # create the actual build directory
 mkdir -p ${BUILDDIR}/build/Athena
 cd ${BUILDDIR}/build/Athena
-
-# consider a pipe failed if ANY of the commands fails
-set -o pipefail
 
 # CMake:
 if [ -n "$EXE_CMAKE" ]; then

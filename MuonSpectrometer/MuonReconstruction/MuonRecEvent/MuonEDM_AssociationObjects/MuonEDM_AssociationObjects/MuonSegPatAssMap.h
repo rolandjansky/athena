@@ -9,7 +9,7 @@
 #ifndef MUONSEGMENT_MUONSEGPATASSMAP_H
 #define MUONSEGMENT_MUONSEGPATASSMAP_H
 
-#include "DataModel/AssociationMap.h"
+#include "AthLinks/AssociationMap.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "CLIDSvc/CLASS_DEF.h"

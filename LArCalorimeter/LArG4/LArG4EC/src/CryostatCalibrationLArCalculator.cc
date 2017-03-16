@@ -17,8 +17,21 @@
 #undef DEBUG_DMXYZ
 
 #include "CryostatCalibrationLArCalculator.h"
+// #ifdef DEBUG_DMXYZ
+// #include "LArG4Code/CalibrationDefaultCalculator.h"
+// #endif
 
 #include "LArG4Code/LArG4Identifier.h"
+//#include "LArG4Code/CalibrationDefaultCalculator.h"
+
+// direct access to database
+//#include "RDBAccessSvc/IRDBAccessSvc.h"
+//#include "RDBAccessSvc/IRDBRecord.h"
+//#include "RDBAccessSvc/IRDBRecordset.h"
+//#include "GeoModelSvc/IGeoModelSvc.h"
+//#include "GaudiKernel/ISvcLocator.h"
+//#include "GaudiKernel/Bootstrap.h"
+//#include "StoreGate/StoreGateSvc.h"
 
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
@@ -112,6 +125,55 @@ namespace LArG4 {
         m_parameters->GetValue("LArHECfirstAbsorber",3) +
         m_parameters->GetValue("LArHECbetweenWheel") + 10.0;
 
+      // -----------------------------------------------------------------------
+
+      //      // Access to DB to get parameters
+      //      StatusCode status;
+      //      // Access the GeoModelSvc:
+      //      ISvcLocator *svcLocator = Gaudi::svcLocator();
+      //      IGeoModelSvc *geoModel;
+      //      status = svcLocator->service ("GeoModelSvc",geoModel);
+      //      if (status != StatusCode::SUCCESS) {
+      //        throw std::runtime_error ("Cannot locate GeoModelSvc!!");
+      //      }
+      //
+      //      // Access the geometry database:
+      //      IRDBAccessSvc *pAccessSvc;
+      //      status=svcLocator->service("RDBAccessSvc",pAccessSvc);
+      //      if (status != StatusCode::SUCCESS) {
+      //        throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
+      //      }
+      //
+      //      // Obtain the geometry version information:
+      //      std::string AtlasVersion = geoModel->atlasVersion();
+      //      std::string LArVersion = geoModel->LAr_VersionOverride();
+      //      std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+      //      std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+      //
+      //      pAccessSvc->connect();
+      //      // getting detector parameters
+      //      const IRDBRecordset *emecGeometry = pAccessSvc->getRecordset("EmecGeometry",detectorKey,detectorNode);
+      //      if (emecGeometry->size()==0) {
+      //        throw std::runtime_error("LArG4EC/cryostatCalibrationLArCalculator Cannot find the EmecGeometry table");
+      //      }
+      //      const IRDBRecordset *fcalMod = pAccessSvc->getRecordset("FCalMod",detectorKey,detectorNode);
+      //      if (fcalMod->size()==0) {
+      //        fcalMod = pAccessSvc->getRecordset("FCalMod","FCalMod-00");
+      //      }
+      //      if (fcalMod->size()==0) {
+      //        throw std::runtime_error("LArG4EC/cryostatCalibrationLArCalculator Cannot find the FcalMod table");
+      //      }
+      //
+      //      // Get the endcap shift from the detector parameters.
+      //      m_zShift = (*emecGeometry)[0]->getDouble("ZSHIFT")*CLHEP::mm;
+      //
+      //      // Get FCAL modules positions
+      //      m_startZFCal1 = (*fcalMod)[0]->getDouble("STARTPOSITION")*CLHEP::mm;
+      //      m_startZFCal2 = (*fcalMod)[1]->getDouble("STARTPOSITION")*CLHEP::mm;
+      //      m_startZFCal3 = (*fcalMod)[2]->getDouble("STARTPOSITION")*CLHEP::mm;
+      //      m_endZFCal3 = m_startZFCal3 + (*fcalMod)[2]->getDouble("FULLMODULEDEPTH")*CLHEP::mm;
+      //      pAccessSvc->disconnect();
+      //
       return StatusCode::SUCCESS;
     }
 

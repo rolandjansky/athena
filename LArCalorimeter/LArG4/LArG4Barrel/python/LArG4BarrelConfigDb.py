@@ -11,5 +11,3 @@ addService("LArG4Barrel.LArG4BarrelConfig.getBarrelPresamplerCalibrationCalculat
 
 addService("LArG4Barrel.LArG4BarrelConfig.getEMBCalculator","EMBCalculator")
 addService("LArG4Barrel.LArG4BarrelConfig.getEMBPresamplerCalculator","EMBPresamplerCalculator")
-addService("LArG4Barrel.LArG4BarrelConfig.getLArBarrelGeometry", "LArBarrelGeometry")
-addService("LArG4Barrel.LArG4BarrelConfig.getLArBarrelPresamplerGeometry", "LArBarrelPresamplerGeometry")

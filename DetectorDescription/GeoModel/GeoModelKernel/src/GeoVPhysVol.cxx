@@ -37,7 +37,7 @@ GeoVPhysVol::GeoVPhysVol (const GeoLogVol* LogVol)
   //## begin GeoVPhysVol::GeoVPhysVol%3CD403D2012C.hasinit preserve=no
   //## end GeoVPhysVol::GeoVPhysVol%3CD403D2012C.hasinit
   //## begin GeoVPhysVol::GeoVPhysVol%3CD403D2012C.initialization preserve=yes
-:m_parentPtr (NULL), m_logVol (LogVol)
+:m_parentPtr (nullptr), m_logVol (LogVol)
   //## end GeoVPhysVol::GeoVPhysVol%3CD403D2012C.initialization
 {
   //## begin GeoVPhysVol::GeoVPhysVol%3CD403D2012C.body preserve=yes
@@ -74,7 +74,7 @@ PVConstLink GeoVPhysVol::getParent () const
   //## begin GeoVPhysVol::getParent%3CDE6F5903B1.body preserve=yes
   if (m_parentPtr && m_parentPtr != this)
     return m_parentPtr;
-  return NULL;
+  return nullptr;
   //## end GeoVPhysVol::getParent%3CDE6F5903B1.body
 }
 

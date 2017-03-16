@@ -17,6 +17,7 @@ PURPOSE:  Calorimeter Object data class
 ********************************************************************/
 
 #include <vector>
+#include <memory>
 #include "AthLinks/ElementLink.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -67,11 +68,12 @@ public:
   std::vector<eflowTrackClusterLink*> efRecLink() { return m_trackClusterLinks; }
   void clearLinks() { m_trackClusterLinks.clear(); }
 
-  /* Static container accessors */
+  /* Sets up static container of CaloClusters. This function does not own the objects,
+     but eventually Storegate takes ownership via calls to getClusterContainerPtr etc in eflowObjectBuilder.cxx  */
   static void setClusterContainerPtr(xAOD::CaloClusterContainer* clusCont, xAOD::CaloClusterAuxContainer* auxCont) {
-    m_clusterContainerPtr = clusCont;
-    m_clusterAuxContainerPtr = auxCont;
-    m_clusterContainerPtr->setStore(m_clusterAuxContainerPtr);
+     m_clusterContainerPtr = clusCont;
+     m_clusterAuxContainerPtr = auxCont;
+     m_clusterContainerPtr->setStore(m_clusterAuxContainerPtr);
   }
 
   /* Calculate total tracks energy, total tracks energy variance, total cluster energy for subtraction */
@@ -101,6 +103,7 @@ private:
   /* Containers of CaloClusters */
   static xAOD::CaloClusterContainer* m_clusterContainerPtr;
   static xAOD::CaloClusterAuxContainer* m_clusterAuxContainerPtr;
+  
 };
 
 #include "AthContainers/DataVector.h"

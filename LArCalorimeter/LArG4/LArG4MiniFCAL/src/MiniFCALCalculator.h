@@ -29,7 +29,7 @@ class MiniFCALCalculator : public LArCalculatorSvcImp {
 public:
 
   MiniFCALCalculator(const std::string& name, ISvcLocator * pSvcLocator);
-  StatusCode initialize();
+  StatusCode initialize() override final;
 
   /////////////////////////////////////////////
 

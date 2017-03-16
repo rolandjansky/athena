@@ -756,12 +756,12 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       CLHEP::Hep2Vector shellCorner3(m_data->shellCornerXPosition[iABC][2],m_data->shellCornerYPosition[iABC][2]);
       CLHEP::Hep2Vector shellCorner4(m_data->shellCornerXPosition[iABC][3],m_data->shellCornerYPosition[iABC][3]);
       HepGeom::Transform3D shellPosition;
+      if ( shellCorner1 <= 0 ) { msg(MSG::DEBUG) << "shellCorner1 is <= 0 (" << shellCorner1 << ")" << endmsg; }
+      if ( shellCorner2 <= 0 ) { msg(MSG::DEBUG) << "shellCorner2 is <= 0 (" << shellCorner2 << ")" << endmsg; }
+      if ( shellCorner3 <= 0 ) { msg(MSG::DEBUG) << "shellCorner3 is <= 0 (" << shellCorner3 << ")" << endmsg; }
+      if ( shellCorner4 <= 0 ) { msg(MSG::DEBUG) << "shellCorner4 is <= 0 (" << shellCorner4 << ")" << endmsg; }
       const GeoShape * sShell = makeModule(m_data->lengthOfBarrelVolume,
-					   shellCorner1 > 0 ? shellCorner1 : shellCorner1,
-					   shellCorner2 > 0 ? shellCorner2 : shellCorner2,
-					   shellCorner3 > 0 ? shellCorner3 : shellCorner3,
-				   shellCorner4 > 0 ? shellCorner4 : shellCorner4,
-					   shellPosition);
+					   shellCorner1,shellCorner2,shellCorner3,shellCorner4,shellPosition);
 
       // STS: We have three different shellmodules and radiators densities. 
       std::ostringstream layerstr;
@@ -780,10 +780,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       // Make a Radiator
       HepGeom::Transform3D radAbsolutePosition;
       const GeoShape * sRad = makeModule(m_data->lengthOfBarrelVolume,
-					 shellCorner1 > 0 ? shellCorner1 : shellCorner1,
-					 shellCorner2 > 0 ? shellCorner2 : shellCorner2,
-					 shellCorner3 > 0 ? shellCorner3 : shellCorner3,
-					 shellCorner4 > 0 ? shellCorner4 : shellCorner4,
+					 shellCorner1,shellCorner2,shellCorner3,shellCorner4,
 					 radAbsolutePosition,m_data->barrelThicknessOfModuleWalls);
 
       // FibreRadiator will have three different densities for each type of module

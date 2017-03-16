@@ -117,7 +117,7 @@ class GeoAlignableTransform : public GeoTransform  //## Inherits: <unnamed>%3CDD
 
       //## Attribute: m_delta%3CDE208E0390
       //	Pointer to an alignment correction.  Until some
-      //	alignment correction is set, this pointer is NULL and
+      //	alignment correction is set, this pointer is nullptr and
       //	the memory is unallocated.
       //## begin GeoAlignableTransform::m_delta%3CDE208E0390.attr preserve=no  private: HepGeom::Transform3D * {U} 
       HepGeom::Transform3D *m_delta;

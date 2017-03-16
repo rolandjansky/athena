@@ -48,5 +48,7 @@ addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFTrackIsolationConfig", "Trig
 
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFFSRoiMakerConfig","TrigMuonEFFSRoiMaker")
 
+addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFIDTrackRoiMaker","TrigMuonEFIDTrackRoiMaker")
+
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.InDetTrkRoiMaker_Muon", "InDetTrkRoiMaker_Muon")
 

@@ -138,20 +138,20 @@ class GeoPrintGraphAction : public GeoNodeAction  //## Inherits: <unnamed>%3FB01
 
       //## Attribute: m_nameTag%3FB027D0026C
       //	A pointer to a name tag.  If the volume is named.
-      //## begin GeoPrintGraphAction::m_nameTag%3FB027D0026C.attr preserve=no  private: const GeoNameTag * {U} NULL
+      //## begin GeoPrintGraphAction::m_nameTag%3FB027D0026C.attr preserve=no  private: const GeoNameTag * {U} nullptr
       const GeoNameTag *m_nameTag;
       //## end GeoPrintGraphAction::m_nameTag%3FB027D0026C.attr
 
       //## Attribute: m_serialDenominator%3FB027D00280
       //	A pointer to a serial denominator.  If one exists.
-      //## begin GeoPrintGraphAction::m_serialDenominator%3FB027D00280.attr preserve=no  private: const GeoSerialDenominator * {U} NULL
+      //## begin GeoPrintGraphAction::m_serialDenominator%3FB027D00280.attr preserve=no  private: const GeoSerialDenominator * {U} nullptr
       const GeoSerialDenominator *m_serialDenominator;
       //## end GeoPrintGraphAction::m_serialDenominator%3FB027D00280.attr
 
       //## Attribute: m_idTag%3FB027D00294
       //	A pointer to an identifier tag.  If the volume is
       //	identified.
-      //## begin GeoPrintGraphAction::m_idTag%3FB027D00294.attr preserve=no  private: const GeoIdentifierTag * {U} NULL
+      //## begin GeoPrintGraphAction::m_idTag%3FB027D00294.attr preserve=no  private: const GeoIdentifierTag * {U} nullptr
       const GeoIdentifierTag *m_idTag;
       //## end GeoPrintGraphAction::m_idTag%3FB027D00294.attr
 

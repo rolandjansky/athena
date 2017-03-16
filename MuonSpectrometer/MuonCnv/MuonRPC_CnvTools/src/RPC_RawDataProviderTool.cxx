@@ -34,7 +34,7 @@ Muon::RPC_RawDataProviderTool::RPC_RawDataProviderTool(
     m_decoder("Muon__RpcROD_Decoder"),
     m_RpcPadC("RPCPAD"),
     m_sec("RPC_SECTORLOGIC"),
-    mAllowCreation(false),
+    m_AllowCreation(false),
     m_robDataProvider ("ROBDataProviderSvc",n)
 {
     declareInterface<IMuonRawDataProviderTool>(this);
@@ -165,7 +165,7 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     m_activeStore->setStore( &*evtStore() ); 
     if( has_bytestream || m_RpcPadC.key() != "RPCPAD" )
     {
-        mAllowCreation= true;
+        m_AllowCreation= true;
     }
     else
     {
@@ -241,7 +241,7 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     // registered there!
     m_activeStore->setStore( &*evtStore() );
       
-    if(mAllowCreation == false)
+    if(m_AllowCreation == false)
     {
         ATH_MSG_WARNING( "Container create disabled due to byte stream");
         

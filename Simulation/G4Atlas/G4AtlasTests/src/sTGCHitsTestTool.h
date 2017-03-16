@@ -29,13 +29,13 @@ public:
 
   StatusCode processEvent();
 
- protected:
- 
- 	TH2 *m_sTgc_TransverseView_TS11_posZ, *m_sTgc_TransverseView_TS21_posZ, *m_sTgc_TransverseView_TS31_posZ;
-  	TH2 *m_sTgc_TransverseView_TL11_posZ, *m_sTgc_TransverseView_TL21_posZ, *m_sTgc_TransverseView_TL31_posZ;
-  	TH2 *m_sTgc_rZview_positiveZ;
+protected:
+
+  TH2 *m_sTgc_TransverseView_TS11_posZ, *m_sTgc_TransverseView_TS21_posZ, *m_sTgc_TransverseView_TS31_posZ;
+  TH2 *m_sTgc_TransverseView_TL11_posZ, *m_sTgc_TransverseView_TL21_posZ, *m_sTgc_TransverseView_TL31_posZ;
+  TH2 *m_sTgc_rZview_positiveZ;
   // Identifier getIdentifier(HitID cschit);
-//   StatusCode checkIdentifier(Identifier offid);
+  //   StatusCode checkIdentifier(Identifier offid);
 private:
 
   bool m_DosTGCTest;

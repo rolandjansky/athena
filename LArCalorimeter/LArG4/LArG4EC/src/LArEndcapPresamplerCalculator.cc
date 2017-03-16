@@ -15,7 +15,7 @@
 // standard calculator and the calibration hits.
 
 #include "LArEndcapPresamplerCalculator.h"
-#include "LArG4EC/IECPresamplerGeometry.h"
+#include "LArG4EC/PresamplerGeometry.h"
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
@@ -41,10 +41,9 @@ namespace Units = Athena::Units;
 
 LArEndcapPresamplerCalculator::LArEndcapPresamplerCalculator(const std::string& name, ISvcLocator *pSvcLocator)
   : LArCalculatorSvcImp(name, pSvcLocator)
-  , m_geometry("EMECPresamplerGeometry", name) // LArG4::EC::PresamplerGeometry
+  , m_geometry(nullptr)
   , m_birksLaw(nullptr)
 {
-  declareProperty("GeometryCalculator", m_geometry);
 }
 
 StatusCode LArEndcapPresamplerCalculator::initialize()
@@ -63,7 +62,7 @@ StatusCode LArEndcapPresamplerCalculator::initialize()
     }
 
   // Get the geometry routine.
-  ATH_CHECK(m_geometry.retrieve());
+  m_geometry = LArG4::EC::PresamplerGeometry::GetInstance();
 
   return StatusCode::SUCCESS;
 }

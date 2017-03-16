@@ -23,7 +23,7 @@ UPDATES:
 
 #include "PresamplerCalibrationCalculator.h"
 
-#include "LArG4Barrel/IPresamplerGeometryCalculator.h"
+#include "LArG4Barrel/LArBarrelPresamplerGeometry.h"
 
 #include "LArG4Code/LArG4Identifier.h"
 
@@ -37,16 +37,15 @@ namespace LArG4 {
 
     CalibrationCalculator::CalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator)
       : LArCalibCalculatorSvcImp(name, pSvcLocator)
-      , m_geometryCalculator("LArBarrelPresamplerGeometry", name)
+      , m_geometryCalculator(nullptr)
       , m_detectorName("LArMgr")
     {
       declareProperty("DetectorName",m_detectorName);
-      declareProperty("GeometryCalculator",m_geometryCalculator);
     }
 
     StatusCode CalibrationCalculator::initialize() {
       // Initialize the geometry calculator
-      ATH_CHECK(m_geometryCalculator.retrieve());
+      m_geometryCalculator = Geometry::GetInstance();
       return StatusCode::SUCCESS;
     }
 
@@ -80,7 +79,7 @@ namespace LArG4 {
       if ( process == kEnergyAndID  ||  process == kOnlyID )
         {
           // Calculate the identifier.
-          identifier = m_geometryCalculator->CalculateIdentifier( step );
+          identifier = m_geometryCalculator->CalculateIdentifier( step, m_detectorName );
         }
       else
         identifier = LArG4Identifier();

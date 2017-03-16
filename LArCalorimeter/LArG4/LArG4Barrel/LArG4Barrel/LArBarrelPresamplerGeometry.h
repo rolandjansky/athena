@@ -7,10 +7,8 @@
 #ifndef LARG4BARREL_LARBARRELPRESAMPLERGEOMETRY_H
 #define LARG4BARREL_LARBARRELPRESAMPLERGEOMETRY_H
 
-#include "LArG4Barrel/IPresamplerGeometryCalculator.h"
-#include "AthenaBaseComps/AthService.h"
-
 #include "LArG4Code/LArG4Identifier.h"
+#include "LArG4Code/LArVG4DetectorParameters.h"
 
 #include "globals.hh"
 
@@ -23,23 +21,19 @@ namespace LArG4 {
 
   namespace BarrelPresampler {
 
-    class Geometry: public AthService, virtual public IPresamplerGeometryCalculator {
+    class Geometry {
 
     public:
 
-      Geometry(const std::string& name, ISvcLocator * pSvcLocator);
-      StatusCode initialize() override final;
+      // Accessor method for singleton pattern.
+      static Geometry* GetInstance();
       virtual ~Geometry();
 
-      /** Query interface method to make athena happy */
-      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
-
-      LArG4Identifier CalculateIdentifier( const G4Step* ) const override final;
-      bool findCell(LArG4::BarrelPresampler::LArGeomData& result,double,double,double) const override final;
+      mutable G4int itb; // FIXME due to lazy initialization
 
     private:
-      std::string m_detectorName;
 #include "LArG4Barrel/PresParameterDef.h"
+      static Geometry* m_instance;
 
       // end z of the various modules
       G4double m_end_module[8];
@@ -59,30 +53,38 @@ namespace LArG4 {
       // total LAr thickness
       G4double m_halfThickLAr;
 
-      // // Pointer to detector parameters routine.
-      // LArVG4DetectorParameters* m_parameters;
+      // Pointer to detector parameters routine.
+      LArVG4DetectorParameters* m_parameters;
 
-      // mutable G4int m_sampling;
-      // mutable G4int m_region;
-      // mutable G4int m_etaBin;
-      // mutable G4int m_phiBin;
-      // mutable G4int m_gap;
-      // mutable G4int m_module;
-      // mutable G4double m_distElec;
-      // mutable G4double m_xElec;
-      // mutable G4double m_dist;
+      mutable G4int m_sampling;
+      mutable G4int m_region;
+      mutable G4int m_etaBin;
+      mutable G4int m_phiBin;
+      mutable G4int m_gap;
+      mutable G4int m_module;
+      mutable G4double m_distElec;
+      mutable G4double m_xElec;
+      mutable G4double m_dist;
 
+    protected:
+
+      Geometry();
+
+    public:
+
+      LArG4Identifier CalculateIdentifier( const G4Step*, std::string strDetector="" ) const;
       LArG4Identifier CalculatePSActiveIdentifier( const G4Step* , const G4int indPS , const G4int itb ) const;
       LArG4Identifier CalculatePS_DMIdentifier( const G4Step* , const G4int indPS , const G4int itb) const;
-      // G4int etaBin() const      {return m_etaBin;};
-      // G4int phiBin() const      {return m_phiBin;};
-      // G4int sampling() const    {return m_sampling;};
-      // G4int region() const      {return m_region;};
-      // G4int module() const      {return m_module;};
-      // G4int gap() const         {return m_gap;};
-      // G4double distElec() const {return m_distElec;};
-      // G4double xElec() const    {return m_xElec;};
-      // G4double dtrans() const   {return m_dist;};
+      bool findCell(G4double,G4double,G4double) const;
+      G4int etaBin() const      {return m_etaBin;};
+      G4int phiBin() const      {return m_phiBin;};
+      G4int sampling() const    {return m_sampling;};
+      G4int region() const      {return m_region;};
+      G4int module() const      {return m_module;};
+      G4int gap() const         {return m_gap;};
+      G4double distElec() const {return m_distElec;};
+      G4double xElec() const    {return m_xElec;};
+      G4double dtrans() const   {return m_dist;};
 
     } ;
 

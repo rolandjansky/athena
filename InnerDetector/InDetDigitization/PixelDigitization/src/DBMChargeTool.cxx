@@ -12,6 +12,7 @@
 #include "DBMChargeTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "SiDigitization/SiSurfaceCharge.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -80,7 +81,7 @@ StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeC
   //const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
   //electronHolePairsPerEnergy = siProperties.electronHolePairsPerEnergy();
   // Flers: hard-code electronHolePairsPerEnergy
-  electronHolePairsPerEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
+  double eleholePairEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
 
   double stepsize = sensorThickness/m_numberOfSteps;
   double tanLorentz = Module.getTanLorentzAnglePhi();
@@ -144,7 +145,7 @@ StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeC
       SiLocalPosition chargePos = Module.hitLocalToLocal(xEtaD, xPhiD);
 
       // The parametrization of the sensor efficiency (if needed)
-      double ed=e1*this->electronHolePairsPerEnergy*nontrappingProbability*smearScale;
+      double ed=e1*eleholePairEnergy*nontrappingProbability*smearScale;
 
       //The following lines are adapted from SiDigitization's Inserter class
       SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));

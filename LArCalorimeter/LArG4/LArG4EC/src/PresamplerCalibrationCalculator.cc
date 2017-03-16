@@ -11,7 +11,7 @@
 #undef DEBUG_HITS
 
 #include "PresamplerCalibrationCalculator.h"
-#include "LArG4EC/IECPresamplerGeometry.h"
+#include "LArG4EC/PresamplerGeometry.h"
 
 #include "LArG4Code/LArG4Identifier.h"
 
@@ -24,15 +24,12 @@ namespace LArG4 {
 
     PresamplerCalibrationCalculator::PresamplerCalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator)
       : LArCalibCalculatorSvcImp(name, pSvcLocator)
-      , m_geometryCalculator("EMECPresamplerGeometry", name) // LArG4::EC::PresamplerGeometry
-    {
-      declareProperty("GeometryCalculator", m_geometryCalculator);
-    }
+    { }
 
     StatusCode PresamplerCalibrationCalculator::initialize()
     {
       // Initialize the geometry calculator.
-      ATH_CHECK(m_geometryCalculator.retrieve());
+      m_geometryCalculator = PresamplerGeometry::GetInstance();
       return StatusCode::SUCCESS;
     }
 

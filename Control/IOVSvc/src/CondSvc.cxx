@@ -3,6 +3,7 @@
 */
 #include "IOVSvc/CondSvc.h"
 #include "AthenaKernel/CondCont.h"
+#include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/SvcFactory.h"
 
 //---------------------------------------------------------------------------
@@ -16,7 +17,6 @@ CondSvc::CondSvc( const std::string& name, ISvcLocator* svcLoc ):
 //---------------------------------------------------------------------------
 
 CondSvc::~CondSvc() {
-
 }
 
 //---------------------------------------------------------------------------

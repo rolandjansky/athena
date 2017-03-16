@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 756928 2016-06-22 13:33:12Z krasznaa $
 ################################################################################
 # Package: PixelRawDataByteStreamCnv
 ################################################################################
@@ -15,15 +14,13 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaBaseComps
    Control/StoreGate
-   DetectorDescription/IRegionSelector
    Event/ByteStreamCnvSvcBase
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsServices
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
-	 Event/xAOD/xAODEventInfo
-   Trigger/TrigEvent/TrigSteeringEvent )
+   Event/xAOD/xAODEventInfo )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
@@ -40,6 +37,5 @@ atlas_add_component( PixelRawDataByteStreamCnv
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData
    GaudiKernel InDetRawData AthenaBaseComps StoreGateLib
-   ByteStreamCnvSvcBaseLib InDetIdentifier InDetReadoutGeometry IRegionSelector
-   xAODEventInfo TrigSteeringEvent PixelRawDataByteStreamCnvLib )
-
+   ByteStreamCnvSvcBaseLib InDetIdentifier InDetReadoutGeometry
+   xAODEventInfo PixelCablingLib PixelRawDataByteStreamCnvLib )

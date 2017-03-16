@@ -172,6 +172,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   bool m_rndmEvtRun;               // use run,event number for random number seeding
   bool m_useTriggerTime;
   bool m_RndmEvtOverlay;         // Pileup and noise added by overlaying random events
+  bool m_isMcOverlay;             // true if input RDO for overlay are from MC, false if from data
   bool m_useBad;
   std::string m_RandomDigitContainer; // random digit container name list
 
