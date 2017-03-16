@@ -9212,8 +9212,19 @@
             <keepFilePattern displayColor="red">*.css</keepFilePattern>
             <keepFilePattern>TIDAWeb/*</keepFilePattern>
             <keepFilePattern>TIDAWeb/build/*</keepFilePattern>
+
             <keepFilePattern>times/*</keepFilePattern>
             <keepFilePattern>times-FTF/*</keepFilePattern>
+
+            <keepFilePattern>times/*.p*</keepFilePattern>
+            <keepFilePattern>times-FTF/*.p*</keepFilePattern>
+
+            <keepFilePattern>times/*.pdf</keepFilePattern>
+            <keepFilePattern>times/*.png</keepFilePattern>
+
+            <keepFilePattern>times-FTF/*.pdf</keepFilePattern>
+            <keepFilePattern>times-FTF/*.png</keepFilePattern>
+
             <keepFilePattern>*.png</keepFilePattern>
             <keepFilePattern>*.ps</keepFilePattern>
             <keepFilePattern>*.php</keepFilePattern>
