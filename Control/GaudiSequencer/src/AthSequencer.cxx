@@ -253,7 +253,7 @@ StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
 StatusCode
 AthSequencer::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_MSG_DEBUG ("Finalizing " << name() << "...");
   return StatusCode::SUCCESS;
 }
 
@@ -562,7 +562,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
   }
   // Print membership list
   if ( result.isSuccess() && !theAlgs->empty() ) {
-    msg(MSG::INFO) << "Member list: ";
+    msg(MSG::DEBUG) << "Member list: ";
     bool first = true;
     for (Algorithm* alg : *theAlgs) {
       if (first)
@@ -574,7 +574,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
       else
         msg() << System::typeinfoName(typeid(*alg)) << "/" << alg->name();
     }
-    msg(MSG::INFO) << endmsg;
+    msg(MSG::DEBUG) << endmsg;
   }
   theAlgMgr->release();
   return result;
