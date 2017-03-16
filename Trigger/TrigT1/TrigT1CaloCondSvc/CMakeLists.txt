@@ -17,10 +17,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1CaloCalibConditions )
 
 # Component(s) in the package:
+atlas_add_library( TrigT1CaloCondSvcLib
+                   src/*.cxx
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests AthenaPoolUtilities GaudiKernel TrigT1CaloCalibConditions )
+
 atlas_add_component( TrigT1CaloCondSvc
-                     src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests AthenaPoolUtilities GaudiKernel TrigT1CaloCalibConditions )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests AthenaPoolUtilities GaudiKernel TrigT1CaloCalibConditions TrigT1CaloCondSvcLib )
 
 # Install files from the package:
 atlas_install_headers( TrigT1CaloCondSvc )
