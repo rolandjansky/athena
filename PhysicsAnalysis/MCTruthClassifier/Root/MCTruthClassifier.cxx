@@ -44,6 +44,9 @@ Updated:
 //
 #endif
 
+// Helper functions for MC barcodes
+#include "MCUtils/PIDUtils.h"
+
 //
 //std includes
 #include <cmath>
@@ -2425,7 +2428,7 @@ ParticleOrigin MCTruthClassifier::convHadronTypeToOrig(ParticleType pType,
 //---------------------------------------------------------------------------------
 ParticleOrigin MCTruthClassifier::defHadronType(long pdg){
   //---------------------------------------------------------------------------------
-
+  // Special case
   if ( abs(pdg) == 443 )     return JPsi;
 
   int q1=(abs(pdg)/1000)%10;
@@ -2436,45 +2439,43 @@ ParticleOrigin MCTruthClassifier::defHadronType(long pdg){
   // if( q3 == 0 && q2 >=q3 )   cout<<"di quark"<<endl;
  
   if( q1 == 0 && q2 == 5 && q3 == 5 )            return BBbarMeson;  
-  else if( q1 == 0 && q3<5 && q3>0 && q2 == 5 )  return BottomMeson;
   else if( q1 == 0 && q3 == 4 && q2 == 4 )       return CCbarMeson;
-  else if(q1==0&&q3<4&&q3>0&&q2==4)              return CharmedMeson;
-  else if( q1 == 5 )                             return BottomBaryon;
-  else if( q1 == 4 )                             return CharmedBaryon;
-  else if( q1 == 3 )                             return StrangeBaryon;
-  else if( q1 == 2 || q1 == 1 )                  return LightBaryon;
-  else if((q1==0&&q2==3&&q3<3&&q3>0)||abs(pdg)==130)  
-    return StrangeMeson;
-  else if( (q1==0&&(q3==1||q3==2) && (q2==1||q2==2)) || (q1==0&&q3==3&&q2==3))
-    return  LightMeson;
-  else                                           return  NonDefined; 
+  // Now just use the central helper functions
+  else if(MCUtils::PID::isBottomMeson(pdg))      return BottomMeson;
+  else if(MCUtils::PID::isCharmMeson(pdg))       return CharmedMeson;
+  else if(MCUtils::PID::isBottomBaryon(pdg))     return BottomBaryon;
+  else if(MCUtils::PID::isCharmBaryon(pdg))      return CharmedBaryon;
+  else if(MCUtils::PID::isStrangeBaryon(pdg))    return StrangeBaryon;
+  else if(MCUtils::PID::isLightBaryon(pdg))      return LightBaryon;
+  else if(MCUtils::PID::isStrangeMeson(pdg))     return StrangeMeson;
+  else if(MCUtils::PID::isLightMeson(pdg))       return LightMeson;
+  else                                           return NonDefined; 
  
 }
 
 //---------------------------------------------------------------------------------
 ParticleType MCTruthClassifier::defTypeOfHadron(long pdg){
   //---------------------------------------------------------------------------------
-
+  // Note that this differs from the above by return type -- should we be more clear?
   int q1=(abs(pdg)/1000)%10;
   int q2=(abs(pdg)/100)%10;
   int q3=(abs(pdg)/10)%10;
 
   // di quark
   // if( q3 == 0 && q2 >=q3 )   cout<<"di quark"<<endl;
- 
+  // First two do not have obvious helpers in MCUtils 
   if( q1 == 0 && q2 == 5 && q3 == 5 )            return BBbarMesonPart;  
-  else if( q1 == 0 && q3<5 && q3>0 && q2 == 5 )  return BottomMesonPart;
   else if( q1 == 0 && q3 == 4 && q2 == 4 )       return CCbarMesonPart;
-  else if(q1==0&&q3<4&&q3>0&&q2==4)              return CharmedMesonPart;
-  else if( q1 == 5 )                             return BottomBaryonPart;
-  else if( q1 == 4 )                             return CharmedBaryonPart;
-  else if( q1 == 3 )                             return StrangeBaryonPart;
-  else if( q1 == 2 || q1 == 1 )                  return LightBaryonPart;
-  else if((q1==0&&q2==3&&q3<3&&q3>0)||abs(pdg)==130)  
-    return StrangeMesonPart;
-  else if( (q1==0&&(q3==1||q3==2) && (q2==1||q2==2)) || (q1==0&&q3==3&&q2==3))
-    return  LightMesonPart;
-  else                                           return  Unknown; 
+  // Now just use the central helper functions
+  else if(MCUtils::PID::isBottomMeson(pdg))      return BottomMesonPart;
+  else if(MCUtils::PID::isCharmMeson(pdg))       return CharmedMesonPart;
+  else if(MCUtils::PID::isBottomBaryon(pdg))     return BottomBaryonPart;
+  else if(MCUtils::PID::isCharmBaryon(pdg))      return CharmedBaryonPart;
+  else if(MCUtils::PID::isStrangeBaryon(pdg))    return StrangeBaryonPart;
+  else if(MCUtils::PID::isLightBaryon(pdg))      return LightBaryonPart;
+  else if(MCUtils::PID::isStrangeMeson(pdg))     return StrangeMesonPart;
+  else if(MCUtils::PID::isLightMeson(pdg))       return LightMesonPart;
+  else                                           return Unknown; 
  
 }
 
@@ -2511,15 +2512,11 @@ bool  MCTruthClassifier::isHardScatVrtx(const xAOD::TruthVertex* pVert){
 //---------------------------------------------------------------------------------
 bool MCTruthClassifier::isHadron(const xAOD::TruthParticle* thePart){
   //---------------------------------------------------------------------------------
- 
- 
+  
   bool isPartHadron = false;
   if(thePart!=0) { 
     long pdg=thePart->pdgId(); 
-    ParticleType pType = defTypeOfHadron(pdg);
-    // ParticleOrigin  partOrig=convHadronTypeToOrig(pType);
-    //if(partOrig!=NonDefined) isPartHadron = true;
-    if(pType!=Unknown) isPartHadron = true;
+    isPartHadron = MCUtils::PID::isHadron(pdg);
     //--exclude protons from beam 
     if(pdg==2212&&thePart->status()==3) isPartHadron=false;
   }
@@ -2842,3 +2839,23 @@ barcode_to_particle(const xAOD::TruthParticleContainer* TruthTES,
   }
   return ptrPart;
 }
+
+//------------------------------------------------------------------------
+const xAOD::TruthParticle* MCTruthClassifier::isFromB(const xAOD::TruthParticle *p) const {
+  // If we have reached a dead end, stop here
+  if (!p) return nullptr;
+  // If we have struck a bottom hadron or b-quark, then this is from a b and we return it
+  int pid = abs(p->pdgId())
+  if (MCUtils::PID::isBottomHadron(pid) || pid==5) return p;
+  // End cases -- if we have hit anything fundamental other than a c-quark, stop
+  if (pid!=4 && pid<100) return nullptr;
+  // If we hit a BSM particle or nucleus, stop
+  if (MCUtils::PID::isNucleus(pid) || MCUtils::PID::isBSM(pid)) return nullptr;
+  // Check for loops and dead-ends
+  if (!p->hasProdVtx()) return nullptr;
+  if (p->prodVtx()->nIncomingParticles()==0) return nullptr;
+  if (p->hasDecayVtx() && abs(p->prodVtx()->barcode())>abs(p->decayVtx()->barcode()) return nullptr;
+  // Otherwise grab the mother and recurse - no need to deal with 2->1 vertices here
+  return isFromB( p->prodVtx()->incomingParticle(0) );
+}
+
