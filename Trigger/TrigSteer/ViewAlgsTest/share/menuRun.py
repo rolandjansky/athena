@@ -93,6 +93,7 @@ if ( testViewAlgorithm ):
   from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
   viewAlgName = "algInView"
   viewAlg = SchedulerProxyAlg( viewAlgName )
+  viewAlg.RoIsContainer = "InViewRoI"
   viewAlg.RequireView = True
   topSequence += viewAlg
 
@@ -105,7 +106,9 @@ if ( testViewAlgorithm ):
   # The algorithm to launch the views
   from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
   runInViews = TestViewDriver( "runInViews" )
-  connectAlgorithmsIO ( producer=(caloFakeRoI, "OutputRoIs"), consumer=(runInViews, "RoIsContainer") ) 
+  connectAlgorithmsIO ( producer=(caloFakeRoI, "OutputRoIs"), consumer=(runInViews, "RoIsContainer") )
+  runInViews.RoITypeInViews = 1 # collection of RoIs, each containing single RoI
+  runInViews.RoIKeyInViews = "InViewRoI" #
   runInViews.OutputLevel = DEBUG
   runInViews.ViewAlgorithmNames = [ viewAlgName ]
   topSequence += runInViews

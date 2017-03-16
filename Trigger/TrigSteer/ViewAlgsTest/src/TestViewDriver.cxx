@@ -46,12 +46,11 @@ StatusCode TestViewDriver::initialize() {
 StatusCode TestViewDriver::execute() {
 
   if ( not m_roisContainer.isValid() ) {
-    ATH_MSG_ERROR("No decisions object from previous stage");
+    ATH_MSG_ERROR("No RoIs previous stage");
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Running on " << m_roisContainer->size() << " RoIs");
 
-  
   
   //  
   std::vector<SG::View*> viewVector;
@@ -66,11 +65,11 @@ StatusCode TestViewDriver::execute() {
       oneRoIColl->clear(SG::VIEW_ELEMENTS); //Don't delete the RoIs
       oneRoIColl->push_back( roi );
       CHECK( ViewHelper::addToView(viewVector.back(), m_roIKeyInViews, oneRoIColl ) );
-
+      ATH_MSG_DEBUG("Placed RoICollection with a single RoI in the view");
       // just an RoI descriptor in the view
     } else if ( m_roITypeInViews == BareRoIDescriptor ) {
       
-      CHECK( ViewHelper::addToView(viewVector.back(), m_roIKeyInViews, roi ) );
+      CHECK( ViewHelper::addToView(viewVector.back(), m_roIKeyInViews, new TrigRoiDescriptor(*roi) ) );
       
     }
   }
