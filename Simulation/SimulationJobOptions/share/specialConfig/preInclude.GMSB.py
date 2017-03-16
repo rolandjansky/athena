@@ -1,5 +1,5 @@
 #################################################################
-#	preInclude.GMSB.py - Sascha Mehlhase, 6 Jul 2016            	#
+#       preInclude.GMSB.py - Sascha Mehlhase, 6 Jul 2016                #
 #################################################################
 
 def get_and_fix_PDGTABLE(replace):
@@ -31,13 +31,13 @@ def get_and_fix_PDGTABLE(replace):
     update = open('PDGTABLE.MeV', 'w')
     update.write(''.join(lines))
     update.close()
-    
+
     print 'modfied PDGTABLE\n%s\n' % ''.join(lines)
 
 def load_files_for_GMSB_scenario(simdict):
 
     GMSBIndex = int(simdict["GMSBIndex"])
-    
+
     if GMSBIndex == 1:
         # get_and_fix_PDGTABLE([('M', '1000022', eval(simdict["GMSBNeutralino"])), ('M', '1000039', eval(simdict.get("GMSBGravitino",'0')))])
         get_and_fix_PDGTABLE([
@@ -92,7 +92,7 @@ def load_files_for_GMSB_scenario(simdict):
                               (1000035, 1.00E+04, '~chi(0,4)', '0'),
                               (1000037, 1.00E+04, '~chi(+,2)', '+')
                             ])
-        
+
     elif GMSBIndex == 4:
         # get_and_fix_PDGTABLE([('M', '1000015', eval(simdict["GMSBStau"]))])
         get_and_fix_PDGTABLE([
@@ -102,7 +102,7 @@ def load_files_for_GMSB_scenario(simdict):
     else:
         print 'GMSBIndex %i not supported' % GMSBIndex
         raise
-    
+
 doG4SimConfig = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import PyUtils.AthFile as af
@@ -114,87 +114,24 @@ try:
         simdict = digitizationFlags.specialConfiguration.get_Value()
         doG4SimConfig = False
     else:
-        from G4AtlasApps import AtlasG4Eng
-        simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+        from G4AtlasApps.SimFlags import simFlags
+        simdict = simFlags.specialConfiguration.get_Value()
 except:
-    from G4AtlasApps import AtlasG4Eng
-    simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+    from G4AtlasApps.SimFlags import simFlags
+    simdict = simFlags.specialConfiguration.get_Value()
 
 assert "GMSBIndex" in simdict
-#if 2525 == simdict["GMSBIndex"]:
 
 load_files_for_GMSB_scenario(simdict)
 
 if doG4SimConfig:
+    GMSBIndex = eval(simdict["GMSBIndex"])
     from G4AtlasApps.SimFlags import simFlags
-    def gmsb_processlist():
-        from G4AtlasApps import AtlasG4Eng
-        AtlasG4Eng.G4Eng.gbl.G4Commands().process.list()
-    
-    simFlags.InitFunctions.add_function("postInit", gmsb_processlist)
-
-    def gmsb_setparams():
-        from G4AtlasApps import AtlasG4Eng
-        from GaudiKernel.SystemOfUnits import GeV, ns
-
-        ## Assuming that GMSBIndex is an int here...
-        GMSBIndex = int(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["GMSBIndex"])
-        
-        def modify_slepton_mass(name, mass):
-            slepton = AtlasG4Eng.G4Eng.gbl.ParticleDataModifier(name)
-            slepton.SetParticleMass(mass)
-
-
-        if GMSBIndex == 1: # generic neutralino to photon scenario
-
-            GMSBNeutralino = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["GMSBNeutralino"])
-            GMSBTime = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["GMSBLifeTime"])
-            AtlasG4Eng.G4Eng.log.info("Generic GMSB neutralino to photon scenario (mass=%s MeV/time=%s ns)" % (GMSBNeutralino, GMSBTime))
-
-            AtlasG4Eng.G4Eng._ctrl.load("Gauginos")
-            NLsp=AtlasG4Eng.G4Eng.gbl.ParticleDataModifier("s_chi_0_1")
-            NLsp.SetParticleMass(GMSBNeutralino)
-            NLsp.SetParticleLifeTime(GMSBTime)
-            NLsp.Stable(False)
-            NLsp.AddDecayChannel("s_chi_0_1",1.,"s_G=gamma")
-
-            if AtlasG4Eng.G4Eng.Dict_SpecialConfiguration.has_key("GMSBGravitino"):
-                GMSBGravitino = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["GMSBGravitino"])
-                AtlasG4Eng.G4Eng.log.info("Adding gravitino mass (gravitino mass=%s keV)" % (GMSBGravitino*1E3))
-
-                Lsp=AtlasG4Eng.G4Eng.gbl.ParticleDataModifier("s_G")
-                Lsp.SetParticleMass(GMSBGravitino)
-
-                del GMSBGravitino
-
-            del GMSBNeutralino, GMSBTime
-            
-        elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
-
-            GMSBStau    = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["GMSBStau"])
-            AtlasG4Eng.G4Eng.log.info("Generic GMSB stau scenario (stau=%s MeV)" % GMSBStau)
-
-            AtlasG4Eng.G4Eng._ctrl.load("Sleptons")
-            modify_slepton_mass("s_tau_plus_1",  GMSBStau)
-            modify_slepton_mass("s_tau_minus_1", GMSBStau)
-
-            if AtlasG4Eng.G4Eng.Dict_SpecialConfiguration.has_key("GMSBSlepton"):
-                GMSBSlepton = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration.get("GMSBSlepton", None))
-                AtlasG4Eng.G4Eng.log.info("Adding slepton mass to GMSB stau scenario (slepton=%s MeV)" % GMSBSlepton)
-
-                modify_slepton_mass("s_mu_plus_R",   GMSBSlepton)
-                modify_slepton_mass("s_mu_minus_R",  GMSBSlepton)
-                modify_slepton_mass("s_e_plus_R",    GMSBSlepton)
-                modify_slepton_mass("s_e_minus_R",   GMSBSlepton)
-
-                del GMSBSlepton
-
-            del GMSBStau
-
-        del GMSBIndex
-
-
-    simFlags.InitFunctions.add_function("preInitPhysics", gmsb_setparams)
+    if GMSBIndex == 1: # generic neutralino to photon scenario
+        simFlags.PhysicsOptions += ["GauginosPhysicsTool"]
+    elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
+        simFlags.PhysicsOptions += ["SleptonsPhysicsTool"]
+    del GMSBIndex
 
     def gmsb_applycalomctruthstrategy():
     ## Applying the MCTruth strategies: add decays in the Calorimeter
@@ -205,4 +142,3 @@ if doG4SimConfig:
     simFlags.InitFunctions.add_function("postInit", gmsb_applycalomctruthstrategy)
 
 del doG4SimConfig, simdict
-
