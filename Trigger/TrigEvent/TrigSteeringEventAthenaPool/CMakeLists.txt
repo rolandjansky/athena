@@ -43,7 +43,7 @@ atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
 set( _dir
-   ${CMAKE_CURRENT__SOURCE_DIR}/../../../Database/AthenaPOOL/AthenaPoolUtilities )
+   ${CMAKE_CURRENT_SOURCE_DIR}/../../../Database/AthenaPOOL/AthenaPoolUtilities )
 if( IS_DIRECTORY ${_dir} )
    set( AthenaPoolUtilitiesTest_DIR ${_dir}/cmake )
 endif()
