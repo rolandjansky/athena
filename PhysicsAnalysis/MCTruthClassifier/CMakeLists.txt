@@ -38,27 +38,26 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTracking
    Event/xAOD/xAODTruth
+   Generators/TruthUtils
    ${extra_deps} )
 
 # External dependencies:
 find_package( HepMC )
 find_package( ROOT COMPONENTS Core RIO )
-find_package( MCUtils )
 
 # Libraries in the package:
 if( HEPMC_FOUND )
    atlas_add_library( MCTruthClassifierLib
       MCTruthClassifier/*.h src/*.cxx Root/*.cxx
       PUBLIC_HEADERS MCTruthClassifier
-      INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS} ${MCUTILS_INCLUDE_DIRS}
-      LINK_LIBRARIES ${HEPMC_LIBRARIES} ${MCUTILS_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
+      INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
+      LINK_LIBRARIES ${HEPMC_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
       xAODJet xAODMuon xAODTracking xAODTruth ${extra_libs} )
 else()
    atlas_add_library( MCTruthClassifierLib
       MCTruthClassifier/*.h src/*.cxx Root/*.cxx
       PUBLIC_HEADERS MCTruthClassifier
-      INCLUDE_DIRS ${MCUTILS_INCLUDE_DIRS}
-      LINK_LIBRARIES ${MCUTILS_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
+      LINK_LIBRARIES AsgTools xAODCaloEvent xAODEgamma
       xAODJet xAODMuon xAODTracking xAODTruth ${extra_libs} )
 endif()
 

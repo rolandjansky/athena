@@ -45,7 +45,7 @@ Updated:
 #endif
 
 // Helper functions for MC barcodes
-#include "MCUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 
 //
 //std includes
@@ -2441,14 +2441,14 @@ ParticleOrigin MCTruthClassifier::defHadronType(long pdg){
   if( q1 == 0 && q2 == 5 && q3 == 5 )            return BBbarMeson;  
   else if( q1 == 0 && q3 == 4 && q2 == 4 )       return CCbarMeson;
   // Now just use the central helper functions
-  else if(MCUtils::PID::isBottomMeson(pdg))      return BottomMeson;
-  else if(MCUtils::PID::isCharmMeson(pdg))       return CharmedMeson;
-  else if(MCUtils::PID::isBottomBaryon(pdg))     return BottomBaryon;
-  else if(MCUtils::PID::isCharmBaryon(pdg))      return CharmedBaryon;
-  else if(MCUtils::PID::isStrangeBaryon(pdg))    return StrangeBaryon;
-  else if(MCUtils::PID::isLightBaryon(pdg))      return LightBaryon;
-  else if(MCUtils::PID::isStrangeMeson(pdg))     return StrangeMeson;
-  else if(MCUtils::PID::isLightMeson(pdg))       return LightMeson;
+  else if(MC::PID::isBottomMeson(pdg))      return BottomMeson;
+  else if(MC::PID::isCharmMeson(pdg))       return CharmedMeson;
+  else if(MC::PID::isBottomBaryon(pdg))     return BottomBaryon;
+  else if(MC::PID::isCharmBaryon(pdg))      return CharmedBaryon;
+  else if(MC::PID::isStrangeBaryon(pdg))    return StrangeBaryon;
+  else if(MC::PID::isLightBaryon(pdg))      return LightBaryon;
+  else if(MC::PID::isStrangeMeson(pdg))     return StrangeMeson;
+  else if(MC::PID::isLightMeson(pdg))       return LightMeson;
   else                                           return NonDefined; 
  
 }
@@ -2467,14 +2467,14 @@ ParticleType MCTruthClassifier::defTypeOfHadron(long pdg){
   if( q1 == 0 && q2 == 5 && q3 == 5 )            return BBbarMesonPart;  
   else if( q1 == 0 && q3 == 4 && q2 == 4 )       return CCbarMesonPart;
   // Now just use the central helper functions
-  else if(MCUtils::PID::isBottomMeson(pdg))      return BottomMesonPart;
-  else if(MCUtils::PID::isCharmMeson(pdg))       return CharmedMesonPart;
-  else if(MCUtils::PID::isBottomBaryon(pdg))     return BottomBaryonPart;
-  else if(MCUtils::PID::isCharmBaryon(pdg))      return CharmedBaryonPart;
-  else if(MCUtils::PID::isStrangeBaryon(pdg))    return StrangeBaryonPart;
-  else if(MCUtils::PID::isLightBaryon(pdg))      return LightBaryonPart;
-  else if(MCUtils::PID::isStrangeMeson(pdg))     return StrangeMesonPart;
-  else if(MCUtils::PID::isLightMeson(pdg))       return LightMesonPart;
+  else if(MC::PID::isBottomMeson(pdg))      return BottomMesonPart;
+  else if(MC::PID::isCharmMeson(pdg))       return CharmedMesonPart;
+  else if(MC::PID::isBottomBaryon(pdg))     return BottomBaryonPart;
+  else if(MC::PID::isCharmBaryon(pdg))      return CharmedBaryonPart;
+  else if(MC::PID::isStrangeBaryon(pdg))    return StrangeBaryonPart;
+  else if(MC::PID::isLightBaryon(pdg))      return LightBaryonPart;
+  else if(MC::PID::isStrangeMeson(pdg))     return StrangeMesonPart;
+  else if(MC::PID::isLightMeson(pdg))       return LightMesonPart;
   else                                           return Unknown; 
  
 }
@@ -2516,7 +2516,7 @@ bool MCTruthClassifier::isHadron(const xAOD::TruthParticle* thePart){
   bool isPartHadron = false;
   if(thePart!=0) { 
     long pdg=thePart->pdgId(); 
-    isPartHadron = MCUtils::PID::isHadron(pdg);
+    isPartHadron = MC::PID::isHadron(pdg);
     //--exclude protons from beam 
     if(pdg==2212&&thePart->status()==3) isPartHadron=false;
   }
@@ -2846,11 +2846,11 @@ const xAOD::TruthParticle* MCTruthClassifier::isFromB(const xAOD::TruthParticle 
   if (!p) return nullptr;
   // If we have struck a bottom hadron or b-quark, then this is from a b and we return it
   int pid = abs(p->pdgId())
-  if (MCUtils::PID::isBottomHadron(pid) || pid==5) return p;
+  if (MC::PID::isBottomHadron(pid) || pid==5) return p;
   // End cases -- if we have hit anything fundamental other than a c-quark, stop
   if (pid!=4 && pid<100) return nullptr;
   // If we hit a BSM particle or nucleus, stop
-  if (MCUtils::PID::isNucleus(pid) || MCUtils::PID::isBSM(pid)) return nullptr;
+  if (MC::PID::isNucleus(pid) || MC::PID::isBSM(pid)) return nullptr;
   // Check for loops and dead-ends
   if (!p->hasProdVtx()) return nullptr;
   if (p->prodVtx()->nIncomingParticles()==0) return nullptr;
