@@ -64,15 +64,12 @@ public: // Non-static members
    /// @return void
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] token of the Data Object for which a Pool Ref is filled.
-   /// @param contextId [IN] id for PoolSvc persistency service to use for input.
-   void setObjPtr(void*& obj,
-	   const Token* token,
-	   unsigned long contextId = IPoolSvc::kInputStream) const;
+   void setObjPtr(void*& obj, const Token* token) const;
 
    /// @return an Id for an input context (POOL persistency service) and create it if needed.
    /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
    /// @param maxFile [IN] maximum number of open input files.
-   unsigned long getInputContext(const std::string& label, unsigned int maxFile = 0);
+   unsigned int getInputContext(const std::string& label, unsigned int maxFile = 0);
 
    /// @return the context.
    const coral::Context* context() const;
@@ -105,7 +102,7 @@ public: // Non-static members
 	   const std::string& connection,
 	   const std::string& collectionName,
 	   const pool::ICollection::OpenMode& openMode = pool::ICollection::READ,
-	   unsigned long contextId = IPoolSvc::kInputStream) const;
+	   unsigned int contextId = IPoolSvc::kInputStream) const;
 
    /// @return void
    /// @param c [IN] collection to be registered
@@ -127,34 +124,34 @@ public: // Non-static members
 
    /// Connect to a logical database unit; PersistencySvc is chosen according to transaction type (accessmode).
    StatusCode connect(pool::ITransaction::Type type,
-	   unsigned long contextId = IPoolSvc::kInputStream) const;
+	   unsigned int contextId = IPoolSvc::kInputStream) const;
 
    /// Commit data for a given contextId and flush buffer.
    /// @param contextId [IN] poolStream to be commited.
-   StatusCode commit(unsigned long contextId = IPoolSvc::kInputStream) const;
+   StatusCode commit(unsigned int contextId = IPoolSvc::kInputStream) const;
 
    /// Commit data for a given contextId and hold buffer.
    /// @param contextId [IN] poolStream to be commited.
-   StatusCode commitAndHold(unsigned long contextId = IPoolSvc::kInputStream) const;
+   StatusCode commitAndHold(unsigned int contextId = IPoolSvc::kInputStream) const;
 
    /// Disconnect PersistencySvc associated with a contextId.
    /// @param contextId [IN] poolStream to be disconnected.
-   StatusCode disconnect(unsigned long contextId = IPoolSvc::kInputStream) const;
+   StatusCode disconnect(unsigned int contextId = IPoolSvc::kInputStream) const;
 
    /// Disconnect single Database.
    /// @param connection [IN] connection string for Database to be disconnected.
    /// @param contextId [IN] context id of database to be disconnected.
    StatusCode disconnectDb(const std::string& connection,
-	   unsigned long contextId = IPoolSvc::kInputStream) const;
+	   unsigned int contextId = IPoolSvc::kInputStream) const;
 
    /// Get POOL FileSize attribute for database without logging a message
-   long long int getFileSize(const std::string& dbName, long tech, unsigned long contextId) const;
+   long long int getFileSize(const std::string& dbName, long tech, unsigned int contextId) const;
 
    /// Get POOL attributes - domain
    StatusCode getAttribute(const std::string& optName,
 	   std::string& data,
 	   long tech,
-	   unsigned long contextId = IPoolSvc::kInputStream) const;
+	   unsigned int contextId = IPoolSvc::kInputStream) const;
 
    /// Get POOL attributes - db/file, container/collection
    StatusCode getAttribute(const std::string& optName,
@@ -162,13 +159,13 @@ public: // Non-static members
 	   long tech,
 	   const std::string& dbName,
 	   const std::string& contName = "",
-	   unsigned long contextId = IPoolSvc::kInputStream) const;
+	   unsigned int contextId = IPoolSvc::kInputStream) const;
 
    /// Set POOL attributes - domain
    StatusCode setAttribute(const std::string& optName,
 	   const std::string& data,
 	   long tech,
-	   unsigned long contextId = IPoolSvc::kOutputStream) const;
+	   unsigned int contextId = IPoolSvc::kOutputStream) const;
 
    /// Set POOL attributes - db/file, container/collection
    StatusCode setAttribute(const std::string& optName,
@@ -176,7 +173,7 @@ public: // Non-static members
 	   long tech,
 	   const std::string& dbName,
 	   const std::string& contName = "",
-	   unsigned long contextId = IPoolSvc::kOutputStream) const;
+	   unsigned int contextId = IPoolSvc::kOutputStream) const;
 
    /// Setup Frontier cache for given logical or physical connection name
    StatusCode setFrontierCache(const std::string& conn) const;
@@ -195,9 +192,9 @@ private: // data
    ServiceHandle<IAthenaSealSvc>                     m_athenaSealSvc;
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
    mutable std::vector<CallMutex*>                   m_pers_mut;
-   std::map<std::string, unsigned long>              m_contextLabel;
-   std::map<unsigned long, unsigned int>             m_contextMaxFile;
-   mutable std::map<unsigned long, std::list<Guid> > m_guidLists;
+   std::map<std::string, unsigned int>               m_contextLabel;
+   std::map<unsigned int, unsigned int>              m_contextMaxFile;
+   mutable std::map<unsigned int, std::list<Guid> >  m_guidLists;
    mutable std::map<std::string, std::vector<std::string> > m_containersMap;
 
 private: // properties
@@ -238,7 +235,7 @@ private: // internal helper functions
    /// Get Session and Database handles
    StatusCode getSessionDbHandles(pool::ISession*& sesH,
 	pool::IDatabase*& dbH,
-	unsigned long contextId,
+	unsigned int contextId,
 	const std::string& dbName) const;
    /// Get Container handle
    StatusCode getContainerHandle(pool::IDatabase* dbH,

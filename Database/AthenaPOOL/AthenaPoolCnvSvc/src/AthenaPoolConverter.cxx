@@ -61,6 +61,15 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
    } else {
       m_i_poolToken = tokAddr->getToken();
    }
+   if (m_i_poolToken != nullptr) {
+      char text[32];
+      if (*(pAddr->ipar()) != IPoolSvc::kInputStream) {
+// Use ipar field of GenericAddress to create custom input context/persSvc in PoolSvc::setObjPtr() (e.g. for conditions)
+         ::sprintf(text, "[CTXT=%08X]", static_cast<int>(*(pAddr->ipar())));
+// Or use context label, e.g.: ::sprintf(text, "[CLABEL=%08X]", pAddr->clID()); to create persSvc
+         const_cast<Token*>(m_i_poolToken)->setAuxString(text);
+      }
+   }
    try {
       if (!PoolToDataObject(pObj, m_i_poolToken).isSuccess()) {
          ATH_MSG_ERROR("createObj PoolToDataObject() failed, Token = " << (m_i_poolToken ? m_i_poolToken->toString() : "NULL"));
