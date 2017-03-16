@@ -63,28 +63,14 @@ if doG4SimConfig:
     AtlasG4Eng.G4Eng.log.info("Unlocking simFlags.EquationOfMotion to reset the value for Monopole simulation.")
     from G4AtlasApps.SimFlags import simFlags
     # FIXME ideally would include this file early enough, so that the unlocking is not required
-    simFlags.EquationOfMotion.unlock()
-    simFlags.EquationOfMotion.set_On()
-    simFlags.EquationOfMotion.set_Value_and_Lock("MonopoleEquationOfMotion")
-    simFlags.G4Stepper.set_Value_and_Lock('ClassicalRK4')
+    #simFlags.EquationOfMotion.unlock()
+    #simFlags.EquationOfMotion.set_On()
+    #simFlags.EquationOfMotion.set_Value_and_Lock("G4mplEqMagElectricField")#"MonopoleEquationOfMotion")
+    #simFlags.G4Stepper.set_Value_and_Lock('ClassicalRK4')
     simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
-
-    try:
-        # MT-compatible UserActions
-        from G4AtlasServices.G4AtlasServicesConfig import addAction
-        addAction("LooperKillerTool",['Step'],False)
-        addAction("HIPKillerTool",['Step'],False)
-    except:
-        # this configures the non-MT UserActions
-        try:
-            from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-        except ImportError:
-            from G4AtlasServices.UserActionStore import UAStore
-        from AthenaCommon.CfgGetter import getPublicToolClone
-        # use specific configuration
-        lkAction = getPublicToolClone("LooperKillerQBall", "LooperKiller", PrintSteps=2, MaxSteps=2000000, VerboseLevel=0)
-        UAStore.addAction(lkAction,['Step'])
-        # add HIP killer
-        UAStore.addAction('HIPKiller',['Step'])
+    # add monopole-specific configuration for looper killer
+    simFlags.OptionalUserActionList.addAction('MonopoleLooperKillerTool',['Step'])
+    # add default HIP killer
+    simFlags.OptionalUserActionList.addAction('G4UA::HIPKillerTool',['Step'])
 
 del doG4SimConfig, simdict
