@@ -17,44 +17,51 @@
 #ifndef LArG4_HEC_LocalGeometry_H
 #define LArG4_HEC_LocalGeometry_H
 
-#include "LArG4Code/LArVG4DetectorParameters.h"
-#include "globals.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "LArG4HEC/ILocalGeometry.h"
+#include "AthenaBaseComps/AthService.h"
 
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+//#include "globals.hh"
 // Forward declarations.
 class LArG4Identifier;
 class G4Step;
-class MsgStream;
+// class IGeoModelSvc;
+// class IRDBAccessSvc;
 
 namespace LArG4 {
 
   namespace HEC {
 
-    enum eLocalGeometryType { kLocActive, kLocInactive, kLocDead };
-
-    class LocalGeometry {
+    class LocalGeometry: public AthService, virtual public ILocalGeometry {
 
     public:
 
-      // Standard implementation of a singleton pattern.
-      static LocalGeometry* GetInstance();
+      LocalGeometry(const std::string& name, ISvcLocator * pSvcLocator);
+      StatusCode initialize() override final;
       virtual ~LocalGeometry(){;}
 
-      LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eLocalGeometryType type = kLocActive , int depthadd = 0, double deadzone = 4.*CLHEP::mm, double locyadd = 0.*CLHEP::mm);
+      /** Query interface method to make athena happy */
+      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
-      bool isX() const { return m_isX; }
-      void SetX(G4bool x) { m_isX = x; }
+      LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eLocalGeometryType type = kLocActive,
+                                           int depthadd = 0, double deadzone = 4.*CLHEP::mm, double locyadd = 0.*CLHEP::mm) const override final;
 
-    protected:
-      LocalGeometry();
+      //bool isX() const { return m_isX; } //UNUSED
+      //void SetX(G4bool x) { m_isX = x; }
 
     private:
-      static LocalGeometry *m_instance;
-      
-      MsgStream *m_log;
+      int binSearch(double ly, int depth, int reg) const;
+      int binSearchAll(double ly, int depth, bool regular=false) const;
+      double deadZone(double locx, double locy) const;
+      ServiceHandle<IGeoModelSvc> m_geoModel;
+      ServiceHandle<IRDBAccessSvc> m_AccessSvc;
 
-      static bool m_isX; 
-
+      bool m_isX;
+      double m_depthSize[7] = {0.0};
+      double m_firstAbsorber[7] = {0.0};
+      double m_pads[7][15] = {}; // 15 is the number of bins in eta.
+      double m_betweenWheel = 0.0;
     };
 
   } // namespace HEC

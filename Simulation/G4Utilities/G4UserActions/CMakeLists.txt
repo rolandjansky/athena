@@ -21,7 +21,9 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonSimEvent
                           Simulation/G4Sim/MCTruth
                           Simulation/G4Sim/SimHelpers
-                          Simulation/G4Utilities/TrackWriteFastSim )
+                          Simulation/G4Utilities/TrackWriteFastSim
+                          Control/AthToolSupport/AsgTools
+                          Control/StoreGate )
 
 # External dependencies:
 find_package( CLHEP )

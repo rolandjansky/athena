@@ -47,7 +47,9 @@ namespace G4UA
 
       /// Create an action for this thread
       virtual std::unique_ptr<AthenaTrackingAction> makeAction() override final;
-
+  private:
+      /// The saving level for secondaries.
+      int m_secondarySavingLevel;
   }; // class AthenaTrackingActionTool
 
 } // namespace G4UA

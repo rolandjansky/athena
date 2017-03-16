@@ -70,6 +70,11 @@ class SensitiveDetectorBase : virtual public ISensitiveDetector, public AthAlgTo
 
  protected:
 
+  /// @brief Assign SD to a list of volumes
+  /** This method supports wild card matching */
+  StatusCode assignSD(G4VSensitiveDetector* sd,
+                      const std::vector<std::string>& volumes) const;
+
   /// @brief Retrieve the current SD.
   /** In AthenaMT, this means the thread-local SD.
       Otherwise, it is simply the single SD. */

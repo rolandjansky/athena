@@ -41,6 +41,8 @@ class LArG4SDTool : public SensitiveDetectorBase
 
   StatusCode initialize() override final;
 
+  virtual StatusCode initializeCalculators(){ return StatusCode::SUCCESS; }
+
   /// Helper method to pass the ID helper pointers to the SDs.
   void setupHelpers( LArG4SimpleSD* ) const;
   /// Overload of the above method for calib SDs.

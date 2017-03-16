@@ -140,9 +140,9 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       const GeoBox* theBox = dynamic_cast<const GeoBox*> (geoShape);
       if (0==theBox) throw std::runtime_error("TypeID did not match cast for box");
       if (n.empty()) n="G4Box";
-      if (theBox->getXHalfLength()<=0.){ msg(MSG::WARNING) << "Box " << n << " has an x side of " << theBox->getXHalfLength() <<" - using std::abs." << endmsg;}
-      if (theBox->getYHalfLength()<=0.){ msg(MSG::WARNING) << "Box " << n << " has an y side of " << theBox->getYHalfLength() <<" - using std::abs." << endmsg;}
-      if (theBox->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Box " << n << " has an z side of " << theBox->getZHalfLength() <<" - using std::abs." << endmsg;}
+      if (theBox->getXHalfLength()<=0.){ msg(MSG::WARNING) << "Box " << n << " has an x side of " << theBox->getXHalfLength() <<" - using std::abs." << endreq;}
+      if (theBox->getYHalfLength()<=0.){ msg(MSG::WARNING) << "Box " << n << " has an y side of " << theBox->getYHalfLength() <<" - using std::abs." << endreq;}
+      if (theBox->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Box " << n << " has an z side of " << theBox->getZHalfLength() <<" - using std::abs." << endreq;}
       theSolid = new G4Box(n,
                            std::abs(theBox->getXHalfLength()),
                            std::abs(theBox->getYHalfLength()),
@@ -156,9 +156,9 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       const GeoTube* theTube = dynamic_cast<const GeoTube*> (geoShape);
       if (0==theTube) throw std::runtime_error("TypeID did not match cast for tube");
       if (n.empty()) n="G4Tube";
-      if (theTube->getRMax()<=0.){ msg(MSG::WARNING) << "Tube " << n << " has a max radius of " << theTube->getRMax() <<" - using std::abs." << endmsg;}
-      if (theTube->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Tube " << n << " has a z half length of " << theTube->getZHalfLength() << " - using std::abs." << endmsg;}
-      if (theTube->getRMax()<theTube->getRMin()){ msg(MSG::WARNING) << "Tube " << n << " has a max radius of " << theTube->getRMax() << " and a min radius of " << theTube->getRMin() << endmsg;}
+      if (theTube->getRMax()<=0.){ msg(MSG::WARNING) << "Tube " << n << " has a max radius of " << theTube->getRMax() <<" - using std::abs." << endreq;}
+      if (theTube->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Tube " << n << " has a z half length of " << theTube->getZHalfLength() << " - using std::abs." << endreq;}
+      if (theTube->getRMax()<theTube->getRMin()){ msg(MSG::WARNING) << "Tube " << n << " has a max radius of " << theTube->getRMax() << " and a min radius of " << theTube->getRMin() << endreq;}
       theSolid = new G4Tubs(n,
                             theTube->getRMin(),
                             std::abs(theTube->getRMax()),
@@ -173,11 +173,11 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       const GeoTubs* theTubs = dynamic_cast<const GeoTubs*> (geoShape);
       if (0==theTubs) throw std::runtime_error("TypeID did not match cast for tubs");
       if (n.empty()) n="G4Tubs";
-      if (theTubs->getRMin()<0.){ msg(MSG::WARNING) << "Tubs " << n << " has a min radius of " << theTubs->getRMax() << endmsg;}
-      if (theTubs->getRMax()<=0.){ msg(MSG::WARNING) << "Tubs " << n << " has a max radius of " << theTubs->getRMax() <<" - using std::abs." << endmsg;}
-      if (theTubs->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Tubs " << n << " has a half length of " << theTubs->getZHalfLength() <<" - using std::abs." << endmsg;}
-      if (theTubs->getRMax()<theTubs->getRMin()){ msg(MSG::WARNING) << "Tubs " << n << " has a max radius of " << theTubs->getRMax() << " and a min radius of " << theTubs->getRMin() << endmsg;}
-      if (theTubs->getDPhi()<=0.){ msg(MSG::WARNING) << "Tubs " << n << " has a dPhi of " << theTubs->getDPhi() << endmsg;}
+      if (theTubs->getRMin()<0.){ msg(MSG::WARNING) << "Tubs " << n << " has a min radius of " << theTubs->getRMax() << endreq;}
+      if (theTubs->getRMax()<=0.){ msg(MSG::WARNING) << "Tubs " << n << " has a max radius of " << theTubs->getRMax() <<" - using std::abs." << endreq;}
+      if (theTubs->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Tubs " << n << " has a half length of " << theTubs->getZHalfLength() <<" - using std::abs." << endreq;}
+      if (theTubs->getRMax()<theTubs->getRMin()){ msg(MSG::WARNING) << "Tubs " << n << " has a max radius of " << theTubs->getRMax() << " and a min radius of " << theTubs->getRMin() << endreq;}
+      if (theTubs->getDPhi()<=0.){ msg(MSG::WARNING) << "Tubs " << n << " has a dPhi of " << theTubs->getDPhi() << endreq;}
       theSolid = new G4Tubs(n,
                             theTubs->getRMin(),
                             std::abs(theTubs->getRMax()),
@@ -193,15 +193,15 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       const GeoTrd* theTrd = dynamic_cast<const GeoTrd*> (geoShape);
       if (0==theTrd) throw std::runtime_error("TypeID did not match cast for trd");
       if (n.empty()) n="G4Trd";
-      if (theTrd->getXHalfLength1()<0.){ msg(MSG::WARNING) << "Trd " << n << " has a x half length 1 of " << theTrd->getXHalfLength1() << " - using std::abs." << endmsg;}
-      if (theTrd->getXHalfLength2()<0.){ msg(MSG::WARNING) << "Trd " << n << " has a x half length 2 of " << theTrd->getXHalfLength2() << " - using std::abs." << endmsg;}
-      if (theTrd->getYHalfLength1()<0.){ msg(MSG::WARNING) << "Trd " << n << " has a y half length 1 of " << theTrd->getYHalfLength1() << " - using std::abs." << endmsg;}
-      if (theTrd->getYHalfLength2()<0.){ msg(MSG::WARNING) << "Trd " << n << " has a y half length 2 of " << theTrd->getYHalfLength2() << " - using std::abs." << endmsg;}
-      if (theTrd->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Trd " << n << " has a z half length of " << theTrd->getZHalfLength() << " - using std::abs." << endmsg;}
+      if (theTrd->getXHalfLength1()<0.){ msg(MSG::WARNING) << "Trd " << n << " has a x half length 1 of " << theTrd->getXHalfLength1() << " - using std::abs." << endreq;}
+      if (theTrd->getXHalfLength2()<0.){ msg(MSG::WARNING) << "Trd " << n << " has a x half length 2 of " << theTrd->getXHalfLength2() << " - using std::abs." << endreq;}
+      if (theTrd->getYHalfLength1()<0.){ msg(MSG::WARNING) << "Trd " << n << " has a y half length 1 of " << theTrd->getYHalfLength1() << " - using std::abs." << endreq;}
+      if (theTrd->getYHalfLength2()<0.){ msg(MSG::WARNING) << "Trd " << n << " has a y half length 2 of " << theTrd->getYHalfLength2() << " - using std::abs." << endreq;}
+      if (theTrd->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Trd " << n << " has a z half length of " << theTrd->getZHalfLength() << " - using std::abs." << endreq;}
       if (theTrd->getXHalfLength1()<=0. && theTrd->getXHalfLength2()<=0.){ msg(MSG::WARNING) << "Trd " << n << " has an x half length 1 of " << theTrd->getXHalfLength1()
-                                                                                             << " and an x half length 2 of " << theTrd->getXHalfLength2() << " - using std::abs." << endmsg;}
+                                                                                             << " and an x half length 2 of " << theTrd->getXHalfLength2() << " - using std::abs." << endreq;}
       if (theTrd->getYHalfLength1()<=0. && theTrd->getYHalfLength2()<=0.){ msg(MSG::WARNING) << "Trd " << n << " has a y half length 1 of " << theTrd->getYHalfLength1()
-                                                                                             << " and a y half length 2 of " << theTrd->getYHalfLength2() << " - using std::abs." << endmsg;}
+                                                                                             << " and a y half length 2 of " << theTrd->getYHalfLength2() << " - using std::abs." << endreq;}
       theSolid = new G4Trd(n,
                            std::abs(theTrd->getXHalfLength1()),
                            std::abs(theTrd->getXHalfLength2()),
@@ -226,9 +226,9 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
           zPlane[index] = thePcon->getZPlane(index);
           rInner[index] = thePcon->getRMinPlane(index);
           rOuter[index] = thePcon->getRMaxPlane(index);
-          if (rInner[index]<0.){ msg(MSG::WARNING) << "PCon " << n << " has an inner radius of " << rInner[index] << " for slice " << index << " of " << nPlanes << endmsg;}
+          if (rInner[index]<0.){ msg(MSG::WARNING) << "PCon " << n << " has an inner radius of " << rInner[index] << " for slice " << index << " of " << nPlanes << endreq;}
           if (rOuter[index]<=0.){
-            msg(MSG::WARNING) << "PCon " << n << " has an outer radius of " << rOuter[index] << " for slice " << index << " of " << nPlanes << " - using std::abs." << endmsg;
+            msg(MSG::WARNING) << "PCon " << n << " has an outer radius of " << rOuter[index] << " for slice " << index << " of " << nPlanes << " - using std::abs." << endreq;
             rOuter[index] = std::abs(rOuter[index]);
           }
         }
@@ -249,13 +249,13 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       const GeoCons* theCons = dynamic_cast<const GeoCons*>(geoShape);
       if (0==theCons) throw std::runtime_error("TypeID did not match cast for cons");
       if (n.empty()) n="G4Cons";
-      if (theCons->getRMax1()<0.){ msg(MSG::WARNING) << "Cons " << n << " has a max radius 1 of " << theCons->getRMax1() << " - will use std::abs." << endmsg;}
-      if (theCons->getRMax2()<0.){ msg(MSG::WARNING) << "Cons " << n << " has a max radius 2 of " << theCons->getRMax2() << " - will use std::abs." << endmsg;}
-      if (theCons->getRMin1()<0.){ msg(MSG::WARNING) << "Cons " << n << " has a min radius 1 of " << theCons->getRMin1() << endmsg;}
-      if (theCons->getRMin2()<0.){ msg(MSG::WARNING) << "Cons " << n << " has a min radius 2 of " << theCons->getRMin2() << endmsg;}
-      if (theCons->getDZ()<=0){    msg(MSG::WARNING) << "Cons " << n << " has a DZ of " << theCons->getDZ() << " - will use std::abs." << endmsg;}
+      if (theCons->getRMax1()<0.){ msg(MSG::WARNING) << "Cons " << n << " has a max radius 1 of " << theCons->getRMax1() << " - will use std::abs." << endreq;}
+      if (theCons->getRMax2()<0.){ msg(MSG::WARNING) << "Cons " << n << " has a max radius 2 of " << theCons->getRMax2() << " - will use std::abs." << endreq;}
+      if (theCons->getRMin1()<0.){ msg(MSG::WARNING) << "Cons " << n << " has a min radius 1 of " << theCons->getRMin1() << endreq;}
+      if (theCons->getRMin2()<0.){ msg(MSG::WARNING) << "Cons " << n << " has a min radius 2 of " << theCons->getRMin2() << endreq;}
+      if (theCons->getDZ()<=0){    msg(MSG::WARNING) << "Cons " << n << " has a DZ of " << theCons->getDZ() << " - will use std::abs." << endreq;}
       if (theCons->getRMax1()<=0. && theCons->getRMax2()<=0.){ msg(MSG::WARNING) << "Cons " << n << " has a max radius 1 of " << theCons->getRMax1()
-                                                                                 << " and a max radius 2 of " << theCons->getRMax2() << " - will use std::abs." << endmsg;}
+                                                                                 << " and a max radius 2 of " << theCons->getRMax2() << " - will use std::abs." << endreq;}
       theSolid = new G4Cons(n,
                             theCons->getRMin1(),
                             std::abs(theCons->getRMax1()),
@@ -273,9 +273,9 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       const GeoPara* thePara = dynamic_cast<const GeoPara*>(geoShape);
       if (0==thePara) throw std::runtime_error("TypeID did not match cast for para");
       if (n.empty()) n="G4Para";
-      if (thePara->getXHalfLength()<=0.){ msg(MSG::WARNING) << "Para " << n << " has an x side of " << thePara->getXHalfLength() <<" - using std::abs." << endmsg;}
-      if (thePara->getYHalfLength()<=0.){ msg(MSG::WARNING) << "Para " << n << " has an y side of " << thePara->getYHalfLength() <<" - using std::abs." << endmsg;}
-      if (thePara->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Para " << n << " has an z side of " << thePara->getZHalfLength() <<" - using std::abs." << endmsg;}
+      if (thePara->getXHalfLength()<=0.){ msg(MSG::WARNING) << "Para " << n << " has an x side of " << thePara->getXHalfLength() <<" - using std::abs." << endreq;}
+      if (thePara->getYHalfLength()<=0.){ msg(MSG::WARNING) << "Para " << n << " has an y side of " << thePara->getYHalfLength() <<" - using std::abs." << endreq;}
+      if (thePara->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Para " << n << " has an z side of " << thePara->getZHalfLength() <<" - using std::abs." << endreq;}
       theSolid = new G4Para(n,
                             std::abs(thePara->getXHalfLength()),
                             std::abs(thePara->getYHalfLength()),
@@ -302,9 +302,9 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
           zPlane[index] = thePgon->getZPlane(index);
           rInner[index] = thePgon->getRMinPlane(index)*cos(alpha);
           rOuter[index] = thePgon->getRMaxPlane(index)*cos(alpha);
-          if (rInner[index]<0.){ msg(MSG::WARNING) << "Pgon " << n << " has an inner radius of " << rInner[index] << " for slice " << index << " of " << nPlanes << endmsg;}
+          if (rInner[index]<0.){ msg(MSG::WARNING) << "Pgon " << n << " has an inner radius of " << rInner[index] << " for slice " << index << " of " << nPlanes << endreq;}
           if (rOuter[index]<=0.){
-            msg(MSG::WARNING) << "Pgon " << n << " has an outer radius of " << rOuter[index] << " for slice " << index << " of " << nPlanes << " - using std::abs." << endmsg;
+            msg(MSG::WARNING) << "Pgon " << n << " has an outer radius of " << rOuter[index] << " for slice " << index << " of " << nPlanes << " - using std::abs." << endreq;
             rOuter[index] = std::abs(rOuter[index]);
           }
         }
@@ -326,7 +326,7 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       const GeoTrap* theTrap = dynamic_cast<const GeoTrap*>(geoShape);
       if (0==theTrap) throw std::runtime_error("TypeID did not match cast for trap");
       if (n.empty()) n="G4Trap";
-      if (theTrap->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Trap " << n << " has an z side of " << theTrap->getZHalfLength() <<" - using std::abs." << endmsg;}
+      if (theTrap->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Trap " << n << " has an z side of " << theTrap->getZHalfLength() <<" - using std::abs." << endreq;}
       theSolid = new G4Trap(n,
                             std::abs(theTrap->getZHalfLength()),
                             theTrap->getTheta(),
@@ -399,9 +399,9 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       if (0==theEltube) throw std::runtime_error("TypeID did not match cast for elliptical tube");
       if (n.empty()) n="G4EllipticalTube";
 
-      if (theEltube->getXHalfLength()<=0.){ msg(MSG::WARNING) << "Eltube " << n << " has an x side of " << theEltube->getXHalfLength() <<" - using std::abs." << endmsg;}
-      if (theEltube->getYHalfLength()<=0.){ msg(MSG::WARNING) << "Eltube " << n << " has an y side of " << theEltube->getYHalfLength() <<" - using std::abs." << endmsg;}
-      if (theEltube->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Eltube " << n << " has an z side of " << theEltube->getZHalfLength() <<" - using std::abs." << endmsg;}
+      if (theEltube->getXHalfLength()<=0.){ msg(MSG::WARNING) << "Eltube " << n << " has an x side of " << theEltube->getXHalfLength() <<" - using std::abs." << endreq;}
+      if (theEltube->getYHalfLength()<=0.){ msg(MSG::WARNING) << "Eltube " << n << " has an y side of " << theEltube->getYHalfLength() <<" - using std::abs." << endreq;}
+      if (theEltube->getZHalfLength()<=0.){ msg(MSG::WARNING) << "Eltube " << n << " has an z side of " << theEltube->getZHalfLength() <<" - using std::abs." << endreq;}
       G4EllipticalTube* g4Eltube = new G4EllipticalTube(n
                                                         ,std::abs(theEltube->getXHalfLength())
                                                         ,std::abs(theEltube->getYHalfLength())
@@ -430,7 +430,7 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
     const GeoGenericTrap* theGenTrap = dynamic_cast<const GeoGenericTrap*>(geoShape);
     if (0==theGenTrap) throw std::runtime_error("TypeID did not match cast for generic trap");
     if (n.empty()) n="G4GenericTrap";
-    if (theGenTrap->getZHalfLength()<=0.){ msg(MSG::WARNING) << "GenTrap " << n << " has an z side of " << theGenTrap->getZHalfLength() <<" - using std::abs." << endmsg;}
+    if (theGenTrap->getZHalfLength()<=0.){ msg(MSG::WARNING) << "GenTrap " << n << " has an z side of " << theGenTrap->getZHalfLength() <<" - using std::abs." << endreq;}
     G4GenericTrap* g4GenTrap = new G4GenericTrap(n
                                                  ,std::abs(theGenTrap->getZHalfLength())
                                                  ,theGenTrap->getVertices());
@@ -557,9 +557,9 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
   //
   else
     {
-      msg(MSG::FATAL) << "Sorry this solid is not yet implemented... " <<endmsg;
-      msg(MSG::FATAL) << geoShape->type() << endmsg;
-      msg(MSG::FATAL) << "You will have a core dump..." << endmsg;
+      msg(MSG::FATAL) << "Sorry this solid is not yet implemented... " <<endreq;
+      msg(MSG::FATAL) << geoShape->type() << endreq;
+      msg(MSG::FATAL) << "You will have a core dump..." << endreq;
       return 0;
     }
 
@@ -576,7 +576,7 @@ G4VSolid* Geo2G4SolidFactory::createLArWheelSolid(const std::string& name, const
 	LArWheelSolidDDProxy * theLWS_p = new LArWheelSolidDDProxy(theLWS);
 	// ownership is passed to detStore
 	if ( detStore()->record(theLWS_p,  name).isFailure() ) {
-		msg(MSG::WARNING) << "Can't store proxy for LArWheelSolid to the DetectorStore" <<endmsg;
+		msg(MSG::WARNING) << "Can't store proxy for LArWheelSolid to the DetectorStore" <<endreq;
 		delete theLWS_p;
 	}
 	return theLWS;
