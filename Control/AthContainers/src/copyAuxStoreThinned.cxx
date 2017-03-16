@@ -19,6 +19,7 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthenaKernel/IThinningSvc.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 #include <vector>
 
 
@@ -35,9 +36,10 @@ namespace SG {
  * The data from @c orig will be copied to @c copy, with individual
  * elements removed according to thinning recorded for @c orig in @c svc.
  */
-void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
-                          SG::IAuxStore& copy,
-                          IThinningSvc* svc)
+void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
+   (const SG::IConstAuxStore& orig,
+    SG::IAuxStore& copy,
+    IThinningSvc* svc)
 {
   copy.resize(0);
   size_t size = orig.size();
@@ -80,6 +82,9 @@ void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
     {
       const std::type_info* typ = iio->getIOType (auxid);
       if (strstr (typ->name(), "PackedContainer") != nullptr) {
+        // This cast gets a warning from the undefined behavior sanitizer
+        // in gcc6.  Done like this deliberately for now, so suppress ubsan
+        // checking for this function.
         const PackedParameters& parms =
           reinterpret_cast<const PackedContainer<int>* > (iio->getIOData (auxid))->parms();
         copy.setOption (auxid, AuxDataOption ("nbits", parms.nbits()));

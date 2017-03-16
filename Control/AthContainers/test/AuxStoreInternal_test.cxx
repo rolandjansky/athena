@@ -64,7 +64,7 @@ public:
 void test1()
 {
   std::cout << "test1\n";
-  SG::AuxStoreInternal s;
+  AuxStoreInternalTest s;
   assert (!s.standalone());
 
   SG::auxid_t ityp1 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
@@ -159,7 +159,7 @@ void test1()
   assert (s.getIOType(btyp1) == &typeid(std::vector<char>));
 
   assert (s.getAuxIDs().size() == 4);
-  static_cast<AuxStoreInternalTest*>(&s)->addAuxID (999);
+  s.addAuxID (999);
   const SG::auxid_set_t& ids2 = s.getAuxIDs();
   assert (ids2.size() == 5);
   assert (ids2.find (ityp1) != ids2.end());

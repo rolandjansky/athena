@@ -82,16 +82,18 @@ private:
   bool m_killAbortedEvents;
   bool m_flagAbortedEvents;
 
+  /// Verbosity settings for Geant4
   std::map<std::string,std::string> m_verbosities;
+
+  /// Commands to send to the G4 UI
+  std::vector<std::string> m_g4commands;
 
   /// Activate multi-threading configuration
   bool m_useMT;
 
   /// Random number service
   ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
-  /// First user action service implementation
-  ServiceHandle<IUserActionSvc> m_UASvc;
-  /// New user action service implementation
+  /// user action service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   /// Physics List Tool
   ToolHandle<IPhysicsListTool> m_physListTool;

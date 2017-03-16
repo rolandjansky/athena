@@ -1,21 +1,4 @@
 <lcgdict>
    <class name="SimControl"/>
    <class name="MCTruthMenu"/>
-   <class name="ParticleDataModifier"/>
-   <class name="Control"/>
-   <class name="Units"/>
-   <class name="Vis"/>
-   <class name="Viewer"/>
-   <class name="Geometry"/>
-   <class name="Gtest"/>
-   <class name="Gnavigator"/>
-   <class name="Tracking"/>
-   <class name="Estack"/>
-   <class name="G4Command::Event"/>
-   <class name="Run"/>
-   <class name="Random"/>
-   <class name="Particle"/>
-   <class name="Process"/>
-   <class name="Physics_engine"/>
-   <class name="G4Commands"/>
 </lcgdict>

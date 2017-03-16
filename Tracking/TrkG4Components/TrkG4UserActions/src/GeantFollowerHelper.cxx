@@ -145,11 +145,9 @@ void Trk::GeantFollowerHelper::beginEvent() const
 
 void Trk::GeantFollowerHelper::trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0) const
 {
-    
-    // construct the intial parameters
-    Amg::Vector3D npos(pos.x(),pos.y(),pos.z());
-    Amg::Vector3D nmom(mom.x(),mom.y(),mom.z());
-        
+  // construct the initial parameters
+  Amg::Vector3D npos(pos.x(),pos.y(),pos.z());
+  Amg::Vector3D nmom(mom.x(),mom.y(),mom.z());
     if (!m_g4_steps){
         ATH_MSG_INFO("Initial step ... preparing event cache.");
         m_t_x        = pos.x();        
@@ -184,7 +182,7 @@ void Trk::GeantFollowerHelper::trackParticle(const G4ThreeVector& pos, const G4T
     // destination surface
     const Trk::PlaneSurface& destinationSurface = g4Parameters->associatedSurface();
     // extrapolate to the destination surface
-    const Trk::TrackParameters* trkParameters = m_extrapolateDirectly ? 
+    const Trk::TrackParameters* trkParameters = m_extrapolateDirectly ?
         m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false) :
         m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false);
     // fill the geant information and the trk information

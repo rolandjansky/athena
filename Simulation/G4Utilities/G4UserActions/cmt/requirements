@@ -11,9 +11,9 @@ use G4AtlasInterfaces   G4AtlasInterfaces-*     Simulation/G4Atlas
 use G4AtlasTools        G4AtlasTools-*          Simulation/G4Atlas
 use StoreGate           StoreGate-*             Control
 use TrackRecord         TrackRecord-*           Simulation/G4Sim
+use AtlasCLHEP          AtlasCLHEP-*            External
 
 private
-use AtlasCLHEP          AtlasCLHEP-*            External
 use AtlasTBB            AtlasTBB-*              External
 use CxxUtils            CxxUtils-*              Control
 use EventInfo           EventInfo-*             Event
@@ -22,6 +22,8 @@ use MCTruth             MCTruth-*               Simulation/G4Sim
 use MuonSimEvent        MuonSimEvent-*          MuonSpectrometer
 use SimHelpers          SimHelpers-*            Simulation/G4Sim
 use TrackWriteFastSim   TrackWriteFastSim-*     Simulation/G4Utilities
+use AsgTools		AsgTools-*		Control/AthToolSupport
+use StoreGate	        StoreGate-*		Control
 end_private
 
 

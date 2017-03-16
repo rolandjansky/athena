@@ -5,7 +5,7 @@
 #include "LArG4Code/LArG4SimpleSD.h"
 #include "LArG4Code/LArG4Hit.h"
 
-#include "LArG4Code/LArVCalculator.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -20,7 +20,7 @@
 
 #include "G4Step.hh"
 
-LArG4SimpleSD::LArG4SimpleSD(G4String a_name, LArVCalculator* calc, const std::string& type, const float width)
+LArG4SimpleSD::LArG4SimpleSD(G4String a_name, ILArCalculatorSvc* calc, const std::string& type, const float width)
   : G4VSensitiveDetector(a_name)
   , m_calculator(calc)
   , m_numberInvalidHits(0)
@@ -95,7 +95,9 @@ G4bool LArG4SimpleSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
   // it occurred outside the sensitive region.  If such a thing
   // happens, it means that the geometry definitions in the
   // detector-construction routine and the calculator do not agree.)
-  if(!(m_calculator->Process(a_step))) {
+  std::vector<LArHitData> hits;
+
+  if(!(m_calculator->Process(a_step, hits))) {
     m_numberInvalidHits++;
     return false;
   }
@@ -103,12 +105,18 @@ G4bool LArG4SimpleSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
   // A calculator can determine that a given energy deposit results
   // in more than one hit in the simulation.  FOr each such hit...
   G4bool result = true;
-  for(int ihit=0; ihit<m_calculator->getNumHits(); ++ihit) {
+//  for(int ihit=0; ihit<m_calculator->getNumHits(); ++ihit) {
+//    // Ported in from the old LArG4HitMerger code
+//    result = result && SimpleHit( m_calculator->identifier(ihit) ,
+//                                  m_calculator->time(ihit) ,
+//                                  m_calculator->energy(ihit) );
+//  }
+  for(const auto &ihit : hits) {
     // Ported in from the old LArG4HitMerger code
-    result = result && SimpleHit( m_calculator->identifier(ihit) ,
-                                  m_calculator->time(ihit) ,
-                                  m_calculator->energy(ihit) );
-  } 
+    result = result && SimpleHit( ihit.id ,
+                                  ihit.time,
+                                  ihit.energy );
+  }
   return result;
 }
 

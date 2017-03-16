@@ -210,9 +210,6 @@ namespace LArG4 {
       G4double phi=pForCell.phi();
       if (phi < 0.) phi += 2.*M_PI;
 
-      // Start with a blank identifier.
-      LArG4Identifier identifier;
-
       // zSide is negative if z<0.
       G4int zSide = geometry.zSide;
       if (p.z() < 0.) zSide = -zSide;
@@ -244,6 +241,10 @@ namespace LArG4 {
       assert ( etaBin >= 0 );
       assert ( phiBin >= 0 );
       //  assert ( etaBin <= geometry[c].maxEta );
+
+	  // Start with a blank identifier.
+      LArG4Identifier identifier;
+  
       if ( etaBin > geometry.maxEta )
 	{
 	  G4cerr << "LArG4::EC::PresamplerGeometry::CalculateIdentifier: invalid hit, etaBin="

@@ -38,43 +38,43 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
   ATH_MSG_INFO ( "compiled with private find_exit_point" );
 #endif
 
-  LArWheelCalculator::LArWheelCalculator_t calc_type = LArWheelCalculator::LArWheelCalculator_t(0);
+  LArG4::LArWheelCalculator_t calc_type = LArG4::LArWheelCalculator_t(0);
   switch(Type){
   case InnerAbsorberWheel:
-    calc_type = LArWheelCalculator::InnerAbsorberWheel;
+    calc_type = LArG4::InnerAbsorberWheel;
     break;
   case OuterAbsorberWheel:
-    calc_type = LArWheelCalculator::OuterAbsorberWheel;
+    calc_type = LArG4::OuterAbsorberWheel;
     break;
   case InnerElectrodWheel:
-    calc_type = LArWheelCalculator::InnerElectrodWheel;
+    calc_type = LArG4::InnerElectrodWheel;
     break;
   case OuterElectrodWheel:
-    calc_type = LArWheelCalculator::OuterElectrodWheel;
+    calc_type = LArG4::OuterElectrodWheel;
     break;
   case InnerAbsorberModule:
-    calc_type = LArWheelCalculator::InnerAbsorberModule;
+    calc_type = LArG4::InnerAbsorberModule;
     break;
   case OuterAbsorberModule:
-    calc_type = LArWheelCalculator::OuterAbsorberModule;
+    calc_type = LArG4::OuterAbsorberModule;
     break;
   case InnerElectrodModule:
-    calc_type = LArWheelCalculator::InnerElectrodModule;
+    calc_type = LArG4::InnerElectrodModule;
     break;
   case OuterElectrodModule:
-    calc_type = LArWheelCalculator::OuterElectrodModule;
+    calc_type = LArG4::OuterElectrodModule;
     break;
   case InnerGlueWheel:
-    calc_type = LArWheelCalculator::InnerGlueWheel;
+    calc_type = LArG4::InnerGlueWheel;
     break;
   case OuterGlueWheel:
-    calc_type = LArWheelCalculator::OuterGlueWheel;
+    calc_type = LArG4::OuterGlueWheel;
     break;
   case InnerLeadWheel:
-    calc_type = LArWheelCalculator::InnerLeadWheel;
+    calc_type = LArG4::InnerLeadWheel;
     break;
   case OuterLeadWheel:
-    calc_type = LArWheelCalculator::OuterLeadWheel;
+    calc_type = LArG4::OuterLeadWheel;
     break;
   default:
     G4Exception("LArWheelSolid", "UnknownSolidType", FatalException,

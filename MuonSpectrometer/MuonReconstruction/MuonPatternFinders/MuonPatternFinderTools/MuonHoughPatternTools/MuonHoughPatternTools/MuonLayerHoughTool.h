@@ -32,7 +32,8 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
-
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODMuon/MuonSegmentContainer.h"
 
 class IIncidentSvc;
 
@@ -50,6 +51,8 @@ namespace MuonGM {
 namespace MuonHough {
   class HitDebugInfo;
 }
+
+
 
 static const InterfaceID IID_MuonLayerHoughTool("Muon::MuonLayerHoughTool",1,0);
 
@@ -264,8 +267,9 @@ namespace Muon {
     TTree*     m_tree;
     mutable MuonHough::HitNtuple* m_ntuple;
 
-    std::vector< std::string >                     m_truthNames; 
-    mutable std::vector< const PRD_MultiTruthCollection* > m_truthCollections;
+    SG::ReadHandleKeyArray< PRD_MultiTruthCollection >       m_truthNames; 
+    SG::ReadHandleKey<xAOD::TruthParticleContainer>       m_MuonTruthParticlesKey;
+    SG::ReadHandleKey<xAOD::MuonSegmentContainer>       m_MuonTruthSegmentsKey;
 
     mutable std::set<Identifier>            m_truthHits;
     mutable std::set<Identifier>            m_foundTruthHits;

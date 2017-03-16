@@ -37,6 +37,11 @@
 #include <map>
 #include <vector>
 
+#ifdef ATHENAHIVE
+#  include <thread>
+#  include "tbb/concurrent_unordered_map.h"
+#endif
+
 // Forward declarations.
 class G4Step;
 
@@ -53,7 +58,7 @@ namespace CaloG4 {
     // Examine the G4Step and return the energies required for a
     // calibration hit.
 
-    void Energies( const G4Step* , std::vector<G4double> & );
+    void Energies( const G4Step* , std::vector<G4double> & ) const;
 
     // Accessing detailed information:
 
@@ -100,12 +105,12 @@ namespace CaloG4 {
     // energy is routed to some other volume that the one in which the
     // G4Step occurs.
 
-    ClassifyResult_t Classify( const G4Step*, const G4bool processEscaped = true );
+    ClassifyResult_t Classify( const G4Step*, const G4bool processEscaped = true ) const;
 
     // Has this routine been called for this G4Step?
-    static G4bool StepWasProcessed() { return m_calledForStep; }
-    static void SetStepProcessed() { m_calledForStep = true; }
-    static void ResetStepProcessed() { m_calledForStep = false; }
+    static G4bool StepWasProcessed();
+    static void SetStepProcessed();
+    static void ResetStepProcessed();
 
   private:
 
@@ -114,18 +119,29 @@ namespace CaloG4 {
     G4double measurableEnergy(const G4ParticleDefinition *particleDef, 
 				G4int PDGEncoding,
 				G4double totalEnergy,
-				G4double kineticEnergy);
+				G4double kineticEnergy) const;
 
     G4double measurableEnergyV2(const G4ParticleDefinition *particleDef, 
                                 G4int PDGEncoding,
                                 G4double totalEnergy,
-                                G4double kineticEnergy);
+                                G4double kineticEnergy) const;
 
     // Escaped energy requires special processing.
-    G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy );
+    G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy ) const;
 
     // Used to keep track of processing state.
+#ifdef ATHENAHIVE
+    /// Thread-to-SD concurrent map type
+    /// TODO: this needs a redesign. The map structure is bizarre and needless.
+    using StCallThreadMap_t = tbb::concurrent_unordered_map
+        < std::thread::id, G4bool, std::hash<std::thread::id> >;
+    /// Concurrent map of flags, one for each thread
+    static StCallThreadMap_t m_calledForStepThreadMap;
+#else
+    // flag to mark that call was made
     static G4bool m_calledForStep;
+#endif
+
   };
 
 } // namespace CaloG4

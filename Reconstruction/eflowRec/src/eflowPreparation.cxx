@@ -42,6 +42,8 @@ CREATED:  8th November, 2001
 #include "xAODMuon/Muon.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
 
+#include "CxxUtils/make_unique.h"
+
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/Property.h"
@@ -58,45 +60,41 @@ CREATED:  8th November, 2001
     
 eflowPreparation::eflowPreparation(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_tracksName("InDetTrackParticles"),
-  m_eflowCaloObjectsOutputName("eflowCaloObjects01"),
-  m_caloObjectContainer(0),
-  m_eflowRecTracksOutputName("eflowRecTracks01"),
-  m_eflowRecClustersOutputName("eflowRecClusters01"),
+  m_caloClusterReadHandle("CaloTopoCluster"),
+  m_caloCalClusterReadHandle("CaloCalTopoCluster"),
+  m_trackReadHandle("InDetTrackParticles"),
+  m_electronReadHandle("Electrons"),
+  m_muonReadHandle("Muons"),
+  m_eflowCaloObjectContainerWriteHandle("eflowCaloObjects01"),
+  m_eflowRecTrackContainerWriteHandle("eflowRecTracks01"),
+  m_eflowRecClusterContainerWriteHandle("eflowRecClusters01"),
   m_theTrackExtrapolatorTool("Trk::ParticleCaloExtensionTool",this),
   m_matchingTool("PFTrackClusterMatchingTool/CalObjBldMatchingTool", this),
   m_eflowMode("FullMode"),
-  m_selectedElectrons(nullptr),
-  m_selectedMuons(nullptr),
-  m_leptonCellContainer(nullptr),
-  m_egammaTrackMapName("GSFTrackAssociation"),
-  m_electronsName("Electrons"),
-  m_muonsName("Muons"),
+  m_selectedElectronsWriteHandle("eflowRec_selectedElectrons_EM"),
+  m_leptonCaloCellContainerWriteHandle("eflowRec_leptonCellContainer_EM"),
   m_useLeptons(true),
   m_storeLeptonCells(false),
-  m_eflowElectronsName("eflowRec_selectedElectrons_EM"),
-  m_eflowLeptonCellsName("eflowRec_leptonCellContainer_EM"),
   m_nMatches(0),
   m_upperTrackPtCut(100.0)
 {
 // The following properties can be specified at run-time
 // (declared in jobOptions file)
-  declareProperty("ClustersName", m_clustersName);
-  declareProperty("CalClustersName", m_clustersCalName);
-  declareProperty("TracksName", m_tracksName);
-  declareProperty("EflowCaloObjectsOutputName", m_eflowCaloObjectsOutputName);
-  declareProperty("EflowRecTracksOutputName", m_eflowRecTracksOutputName);
-  declareProperty("EflowRecClustersOutputName", m_eflowRecClustersOutputName);
+  declareProperty("ClustersName",m_caloClusterReadHandle );
+  declareProperty("CalClustersName",m_caloCalClusterReadHandle  );
+  declareProperty("TracksName", m_trackReadHandle);
+  declareProperty("EflowCaloObjectsOutputName", m_eflowCaloObjectContainerWriteHandle );
+  declareProperty("EflowRecTracksOutputName",  m_eflowRecTrackContainerWriteHandle);
+  declareProperty("EflowRecClustersOutputName", m_eflowRecClusterContainerWriteHandle);
   declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
   declareProperty("TrackExtrapolatorTool", m_theTrackExtrapolatorTool, "AlgTool to use for track extrapolation");
   declareProperty("EFlowMode", m_eflowMode);
-  declareProperty("egammaTrackMapName", m_egammaTrackMapName);
-  declareProperty("electronsName", m_electronsName);
-  declareProperty("muonsName", m_muonsName);
+  declareProperty("electronsName", m_electronReadHandle);
+  declareProperty("muonsName",  m_muonReadHandle);
   declareProperty("useLeptons", m_useLeptons);
   declareProperty("storeLeptonCells", m_storeLeptonCells);
-  declareProperty("eflowElectronsName", m_eflowElectronsName);
-  declareProperty("eflowLeptonCellsName", m_eflowLeptonCellsName);
+  declareProperty("eflowElectronsName", m_selectedElectronsWriteHandle);
+  declareProperty("eflowLeptonCellsName", m_leptonCaloCellContainerWriteHandle);
   declareProperty("TrackSelectionTool", m_selTool);
   declareProperty("UpperTrackPtCut",m_upperTrackPtCut);
 }
@@ -127,8 +125,8 @@ StatusCode eflowPreparation::initialize() {
     return StatusCode::SUCCESS;
   }
 
-  if (m_useLeptons) m_selectedMuons = new xAOD::MuonContainer(SG::VIEW_ELEMENTS);
-
+  if (m_useLeptons) m_selectedMuons = CxxUtils::make_unique<xAOD::MuonContainer>(SG::VIEW_ELEMENTS);
+  
   ATH_CHECK(m_selTool.retrieve());
 
   return sc;
@@ -138,8 +136,6 @@ StatusCode eflowPreparation::finalize() {
 
   msg(MSG::INFO) << "Produced " << m_nMatches << " track-cluster matches." << endmsg;
 
-  if (m_useLeptons && m_selectedMuons) delete m_selectedMuons;
-
   return StatusCode::SUCCESS;
 
 }
@@ -147,12 +143,14 @@ StatusCode eflowPreparation::finalize() {
 StatusCode eflowPreparation::execute() {
 
   if (m_useLeptons) this->clearContainers();
-
+  
   StatusCode sc;
 
   /* Create the eflowCaloObjectContainer and register it */
-  m_caloObjectContainer = new eflowCaloObjectContainer();
-  sc = evtStore()->record(m_caloObjectContainer, m_eflowCaloObjectsOutputName,false);
+
+
+  sc = m_eflowCaloObjectContainerWriteHandle.record(CxxUtils::make_unique<eflowCaloObjectContainer>());
+  
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
       msg(MSG::WARNING) << "Could not record eflowCaloObjectContainer in TDS" << endmsg;
@@ -161,8 +159,8 @@ StatusCode eflowPreparation::execute() {
   }
 
   /* Create the eflowRecTrackContainer and register it */
-  m_recTrackContainer = new eflowRecTrackContainer();
-  sc = evtStore()->record(m_recTrackContainer, m_eflowRecTracksOutputName,false);
+  sc =  m_eflowRecTrackContainerWriteHandle.record(CxxUtils::make_unique<eflowRecTrackContainer>());
+  
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
       msg(MSG::WARNING) << "Could not record eflowRecTrackContainer in TDS" << endmsg;
@@ -171,8 +169,9 @@ StatusCode eflowPreparation::execute() {
   }
 
   /* Create the eflowRecClusterContainer and register it */
-  m_recClusterContainer = new eflowRecClusterContainer();
-  sc = evtStore()->record(m_recClusterContainer, m_eflowRecClustersOutputName,false);
+
+  sc = m_eflowRecClusterContainerWriteHandle.record(CxxUtils::make_unique<eflowRecClusterContainer>());
+
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
       msg(MSG::WARNING) << "Could not record eflowRecClusterContainer in TDS" << endmsg;
@@ -205,13 +204,13 @@ StatusCode eflowPreparation::execute() {
 
   /* Create eflowCaloObject static calo cluster container */
   eflowCaloObject::setClusterContainerPtr(new xAOD::CaloClusterContainer(), new xAOD::CaloClusterAuxContainer());
-
-  /* Collect all calo clusters from all cluster containers to m_recClusterContainer */
+  
+  /* Collect all calo clusters from all cluster containers to m_eflowRecClusterContainerWriteHandle */
   if (makeClusterContainer().isFailure()) {
     return StatusCode::SUCCESS;
   }
 
-  /* Apply the track selection, extrapolate, and collect selected tracks to m_recTrackContainer */
+  /* Apply the track selection, extrapolate, and collect selected tracks to m_eflowRecTrackContainerWriteHandle */
   if (makeTrackContainer().isFailure()) {
     return StatusCode::SUCCESS;
   }
@@ -221,21 +220,16 @@ StatusCode eflowPreparation::execute() {
 
 /////////////////////////////////////////////////////////////////
 void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, std::map<IdentifierHash,double>& cellsWeight) {
-  /* Retrieve the CaloCal cluster container */
-  const xAOD::CaloClusterContainer* CaloCalClusterContainer;
-  if (evtStore()->retrieve(CaloCalClusterContainer, m_clustersCalName).isFailure() || !CaloCalClusterContainer) {
-    msg(MSG::WARNING) << " In retrieveLCCalCellWeight Can not retrieve cal cluster Container: " << m_clustersCalName << endmsg;
-    return ;
-  }
-
+  
   /* match CaloCluster with CaloCalCluster to obtain cell weight */
   /* first try the position at 'index'. If we are lucky, the loop can be avoided. */
-  const xAOD::CaloCluster* matchedCalCluster = CaloCalClusterContainer->at(index);
+  /* Note the read handle has been tested to be valid prior to the call of this function */
+  const xAOD::CaloCluster* matchedCalCluster = m_caloCalClusterReadHandle->at(index);
   if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
     matchedCalCluster = 0;
-    for (unsigned iCalCalCluster = 0; iCalCalCluster < CaloCalClusterContainer->size();
+    for (unsigned iCalCalCluster = 0; iCalCalCluster < m_caloCalClusterReadHandle->size();
         ++iCalCalCluster) {
-      matchedCalCluster = CaloCalClusterContainer->at(iCalCalCluster);
+      matchedCalCluster = m_caloCalClusterReadHandle->at(iCalCalCluster);
       if (fabs(energy - matchedCalCluster->rawE()) < 0.001) {
         break;
       }
@@ -260,41 +254,39 @@ void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, st
 
 StatusCode eflowPreparation::makeClusterContainer() {
 
-  /* Retrieve the cluster container */
-  const xAOD::CaloClusterContainer* thisCaloClusterContainer;
-  StatusCode code = evtStore()->retrieve(thisCaloClusterContainer, m_clustersName);
-  if (evtStore()->retrieve(thisCaloClusterContainer, m_clustersName).isFailure() || !thisCaloClusterContainer) {
-    msg(MSG::WARNING) << " Can not retrieve cluster Container: " << m_clustersName << endmsg;
+  /* Verify the read handle has a valid pointer, and if not return */
+  if (!m_caloClusterReadHandle.isValid()){
+    msg(MSG::WARNING) << " Can not retrieve xAOD::CaloClusterContainer with name: " <<  m_caloClusterReadHandle.key()  << endmsg;
     return StatusCode::SUCCESS;
   }
-
+  
   /* Fill the vector of eflowRecClusters */
-  unsigned int nClusters = thisCaloClusterContainer->size();
+  unsigned int nClusters = m_caloClusterReadHandle->size();
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
     /* Create the eflowRecCluster and put it in the container */
-    eflowRecCluster* thisEFRecCluster = new eflowRecCluster(ElementLink<xAOD::CaloClusterContainer>(*thisCaloClusterContainer, iCluster));
-
-    if (m_clustersCalName != "") {
+    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = CxxUtils::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*m_caloClusterReadHandle, iCluster));
+    
+    if (m_caloCalClusterReadHandle.isValid()){
       std::map<IdentifierHash,double> cellsWeightMap;
-      retrieveLCCalCellWeight(thisCaloClusterContainer->at(iCluster)->e(), iCluster, cellsWeightMap);
+      retrieveLCCalCellWeight(m_caloClusterReadHandle->at(iCluster)->e(), iCluster, cellsWeightMap);
 
-      if (false) {
+      if (msgLvl(MSG::DEBUG)) {
         //zhangr
         std::map<IdentifierHash, double>::iterator it = cellsWeightMap.begin();
         for (; it != cellsWeightMap.end(); ++it) {
-          std::cout << "zhangrui eflowPreparation " << iCluster << "/" << nClusters << ": e="
-                    << thisCaloClusterContainer->at(iCluster)->e() << " (" << it->first << "  "
-                    << it->second << ")" << std::endl;
+           msg(MSG::DEBUG) << "zhangrui eflowPreparation " << iCluster << "/" << nClusters << ": e="
+                    << m_caloClusterReadHandle->at(iCluster)->e() << " (" << it->first << "  "
+                    << it->second << ")" << endmsg;
         }
       }
 
       thisEFRecCluster->setCellsWeight(cellsWeightMap);
     }
     thisEFRecCluster->setClusterId(iCluster);
-    m_recClusterContainer->push_back(thisEFRecCluster);
+    m_eflowRecClusterContainerWriteHandle->push_back(std::move(thisEFRecCluster));
 
     if (msgLvl(MSG::DEBUG)) {
-      const xAOD::CaloCluster* thisCluster = thisCaloClusterContainer->at(iCluster);
+      const xAOD::CaloCluster* thisCluster = m_caloClusterReadHandle->at(iCluster);
       msg(MSG::DEBUG) << "eflowPreparation clus = " << thisCluster->eta() << " "
 		      << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()) << " " << endmsg;
     }
@@ -304,19 +296,18 @@ StatusCode eflowPreparation::makeClusterContainer() {
 }
 
 StatusCode eflowPreparation::makeTrackContainer() {
-  /* Retrieve xAOD::TrackParticle Container, return 'failure' if not existing */
-  const xAOD::TrackParticleContainer* trackContainer;
-  StatusCode sc = evtStore()->retrieve(trackContainer, m_tracksName);
-  if (sc.isFailure() || !trackContainer) {
-    if (msgLvl(MSG::WARNING)) { msg(MSG::WARNING) << " No track container found in TDS" << endmsg; }
+
+  /* Verify the read handle has a valid pointer, and if not return */
+  if (!m_trackReadHandle.isValid()){
+    if (msgLvl(MSG::WARNING)) { msg(MSG::WARNING) << "Can not retrieve xAOD::TrackParticleContainer with name: " << m_trackReadHandle.key() << endmsg; }
     return StatusCode::FAILURE;
   }
 
   /* Do the track selection for tracks to be used in all of the following steps: */
   /* TODO (tuning): Check if resize(0) might be faster than clear() */
-  xAOD::TrackParticleContainer::const_iterator itTrackParticle = trackContainer->begin();
+  xAOD::TrackParticleContainer::const_iterator itTrackParticle = m_trackReadHandle->begin();
   int trackIndex = 0;
-  for (; itTrackParticle != trackContainer->end(); ++itTrackParticle, ++trackIndex) {
+  for (; itTrackParticle != m_trackReadHandle->end(); ++itTrackParticle, ++trackIndex) {
     const xAOD::TrackParticle* track = (*itTrackParticle);
     if (!track) continue; // TODO: Print a WARNING here!
 
@@ -330,13 +321,13 @@ StatusCode eflowPreparation::makeTrackContainer() {
 
     if (!rejectTrack) {
       /* Create the eflowRecCluster and put it in the container */
-      eflowRecTrack* thisEFRecTrack = new eflowRecTrack(ElementLink<xAOD::TrackParticleContainer>(*trackContainer, trackIndex), m_theTrackExtrapolatorTool);
+      std::unique_ptr<eflowRecTrack> thisEFRecTrack  = CxxUtils::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*m_trackReadHandle, trackIndex), m_theTrackExtrapolatorTool);
       thisEFRecTrack->setTrackId(trackIndex);
-      m_recTrackContainer->push_back(thisEFRecTrack);
+      m_eflowRecTrackContainerWriteHandle->push_back(std::move(thisEFRecTrack));
     }
   }
 
-  std::sort(m_recTrackContainer->begin(), m_recTrackContainer->end(), eflowRecTrack::SortDescendingPt());
+  std::sort(m_eflowRecTrackContainerWriteHandle->begin(), m_eflowRecTrackContainerWriteHandle->end(), eflowRecTrack::SortDescendingPt());
 
   return StatusCode::SUCCESS;
 }
@@ -349,9 +340,8 @@ bool eflowPreparation::selectTrack(const xAOD::TrackParticle* track) {
 
 StatusCode eflowPreparation::recordLeptonContainers(){
 
-  m_selectedElectrons = new xAOD::ElectronContainer(SG::VIEW_ELEMENTS);
-
-  StatusCode sc = evtStore()->record(m_selectedElectrons,m_eflowElectronsName,false);
+  StatusCode sc = m_selectedElectronsWriteHandle.record(CxxUtils::make_unique<xAOD::ElectronContainer>(SG::VIEW_ELEMENTS));
+  
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
         << "Could not record egammaContainer in TDS"
@@ -360,10 +350,9 @@ StatusCode eflowPreparation::recordLeptonContainers(){
   }
 
   if (true == m_storeLeptonCells) {
-    m_leptonCellContainer = new ConstDataVector<CaloCellContainer>(SG::VIEW_ELEMENTS);
 
     //record the cell container
-    sc = evtStore()->record(m_leptonCellContainer, m_eflowLeptonCellsName, false);
+    sc =  m_leptonCaloCellContainerWriteHandle.record(CxxUtils::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS));
 
     if (sc.isFailure()) {
       if (msgLvl(MSG::WARNING))
@@ -378,10 +367,10 @@ StatusCode eflowPreparation::recordLeptonContainers(){
 
 StatusCode eflowPreparation::selectMuons() {
 
-  const xAOD::MuonContainer* muonContainer(NULL);
-  StatusCode sc = evtStore()->retrieve(muonContainer, m_muonsName);
-  if (sc.isFailure() || !muonContainer) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No xAOD Muon container found in TDS with the name " << m_muonsName << endmsg;    
+  const xAOD::MuonContainer* muonContainer = m_muonReadHandle.cptr();
+  
+  if (!muonContainer) {
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No xAOD Muon container found in TDS with the name " << m_muonReadHandle.key() << endmsg;    
     return StatusCode::FAILURE;
   }
 
@@ -397,7 +386,7 @@ StatusCode eflowPreparation::selectMuons() {
     
     xAOD::Muon::Quality muonQuality = theMuon->quality();
     if( muonQuality <= xAOD::Muon::Medium) {   
-      if (m_selectedMuons) {
+      if (nullptr != m_selectedMuons.get()){
 	m_selectedMuons->push_back(const_cast<xAOD::Muon*>(theMuon));
       } else if (msgLvl(MSG::WARNING)) {
 	msg(MSG::WARNING) << " Invalid pointer to m_selectedMuons in selectMuons " << std::endl;
@@ -463,9 +452,9 @@ void eflowPreparation::storeMuonCells(const xAOD::Muon* muon){
 
 StatusCode eflowPreparation::selectElectrons(){
 
-  const xAOD::ElectronContainer* egammaContainer(0);
-  StatusCode sc = evtStore()->retrieve(egammaContainer, m_electronsName);
-  if (sc.isFailure() || !egammaContainer){
+  
+  const xAOD::ElectronContainer* egammaContainer = m_electronReadHandle.cptr();
+  if (!egammaContainer){
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No Electron container found in TDS" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -485,8 +474,8 @@ StatusCode eflowPreparation::selectElectrons(){
 	  continue;
 	}
 	if (true == val_med){
-	  if (m_selectedElectrons) m_selectedElectrons->push_back(const_cast<xAOD::Electron*>(theElectron));
-	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid pointer to m_selectedElectrons in selectElectrons " << std::endl;
+	  if (m_selectedElectronsWriteHandle.isValid()) m_selectedElectronsWriteHandle->push_back(const_cast<xAOD::Electron*>(theElectron));
+	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Do not have valid WriteHandle for ElectronContainer with name: " << m_selectedElectronsWriteHandle.key() << endmsg;
 	  if (true == m_storeLeptonCells) this->storeElectronCells(theElectron);
 	}//mediumPP
       }//10GeV pt cut
@@ -501,10 +490,10 @@ StatusCode eflowPreparation::selectElectrons(){
 
 bool eflowPreparation::isElectron(const xAOD::TrackParticle* track){
 
-  if (m_selectedElectrons){
+  if (m_selectedElectronsWriteHandle.isValid()){
 
-    xAOD::ElectronContainer::iterator firstElectron = m_selectedElectrons->begin();
-    xAOD::ElectronContainer::iterator lastElectron = m_selectedElectrons->end();
+    xAOD::ElectronContainer::iterator firstElectron = m_selectedElectronsWriteHandle->begin();
+    xAOD::ElectronContainer::iterator lastElectron = m_selectedElectronsWriteHandle->end();
     
     for (; firstElectron != lastElectron; ++firstElectron){
       const xAOD::Electron* this_egamma = *firstElectron;
@@ -553,7 +542,7 @@ void eflowPreparation::storeLeptonCells(const xAOD::CaloCluster* theCluster){
     CaloClusterCellLink::const_iterator lastCell = theCellLink->end();
     
     for (; firstCell != lastCell; ++firstCell){
-      if (m_leptonCellContainer) m_leptonCellContainer->push_back(*firstCell);
+      if (m_leptonCaloCellContainerWriteHandle.isValid()) m_leptonCaloCellContainerWriteHandle->push_back(*firstCell);
       else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid pointer to m_leptonCellContainer in storeLeptonCells" << endmsg;
     }//cell loop
   }

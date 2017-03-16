@@ -14,7 +14,7 @@
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
-
+#include "MuonPattern/MuonPatternCombinationCollection.h"
 
 class NSWSectorRoadFinderAlg : public AthAlgorithm
 {
@@ -23,9 +23,9 @@ class NSWSectorRoadFinderAlg : public AthAlgorithm
 
   virtual ~NSWSectorRoadFinderAlg();
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 
  private:
@@ -55,9 +55,9 @@ class NSWSectorRoadFinderAlg : public AthAlgorithm
   ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
 
   /** storegate location of the MuonPrepDataContainer for all four technologies */
-  std::string         m_keysTgc;
-  std::string         m_keyMM;
-  std::string         m_patternLocation;
+  SG::ReadHandleKey<Muon::sTgcPrepDataContainer>         m_keysTgc;
+  SG::ReadHandleKey<Muon::MMPrepDataContainer>           m_keyMM;
+  SG::WriteHandleKey<MuonPatternCombinationCollection>   m_patternLocation;
 
 };
 

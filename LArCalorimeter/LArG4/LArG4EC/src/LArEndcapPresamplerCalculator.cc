@@ -14,13 +14,12 @@
 // 17-Aug-2004 WGS: Use a "common geometry" routine for both the
 // standard calculator and the calibration hits.
 
-#include "LArG4EC/LArEndcapPresamplerCalculator.h"
+#include "LArEndcapPresamplerCalculator.h"
 #include "LArG4EC/PresamplerGeometry.h"
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 #include "LArG4Code/LArG4BirksLaw.h"
-#include "LArG4RunControl/LArG4EMECOptions.h"
 
 #include "G4ThreeVector.hh"
 #include "G4StepPoint.hh"
@@ -29,8 +28,6 @@
 #include "G4NavigationHistory.hh"
 #include "G4VTouchable.hh"
 #include "G4TouchableHistory.hh"
-#include "LArG4RunControl/LArG4EMECOptions.h"  
-#include "LArG4RunControl/LArG4GlobalOptions.h"  
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -40,84 +37,44 @@
 #include <cmath>
 #include <climits>
 
-
 namespace Units = Athena::Units;
 
-
-// Standard implementation of a singleton pattern.
-
-LArEndcapPresamplerCalculator* LArEndcapPresamplerCalculator::GetCalculator()
+LArEndcapPresamplerCalculator::LArEndcapPresamplerCalculator(const std::string& name, ISvcLocator *pSvcLocator)
+  : LArCalculatorSvcImp(name, pSvcLocator)
+  , m_geometry(nullptr)
+  , m_birksLaw(nullptr)
 {
-  static LArEndcapPresamplerCalculator instance;
-  return &instance;
 }
 
-
-LArEndcapPresamplerCalculator::LArEndcapPresamplerCalculator() :
-  m_birksLaw(NULL)
+StatusCode LArEndcapPresamplerCalculator::initialize()
 {
-  // Constructor initializes the geometry.
 
-  // Make sure we don't have any undefined values.
-  //m_identifier = LArG4Identifier();
-
-  //m_time = 0.;
-  //m_energy = 0.;
-  m_isInTime = false;
-
-  StoreGateSvc* detStore;
-  LArG4EMECOptions   *emecOptions;
-  LArG4GlobalOptions *globalOptions;
-  StatusCode status;
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); 
-  status = svcLocator->service("DetectorStore", detStore);
-  
-  if(status.isSuccess()){
-    status = detStore->retrieve(emecOptions, "LArG4EMECOptions");
-    if(status.isFailure()){
-      throw std::runtime_error("LArWheelEnergyCalculator: cannot retrieve \
-LArG4EMECOptions");
+  if(m_BirksLaw)
+    {
+      const double Birks_LAr_density = 1.396;
+      m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,m_Birksk);
+      ATH_MSG_INFO(" LArEndcapPresamplerCalculator: Birks' law ON ");
+      ATH_MSG_INFO(" LArEndcapPresamplerCalculator:   parameter k    " << m_birksLaw->k());
     }
-    status = detStore->retrieve(globalOptions, "LArG4GlobalOptions");
-    if(status.isFailure()){
-      throw std::runtime_error("LArWheelEnergyCalculator: cannot retrieve \
-LArG4GlobalOptions");
+  else
+    {
+      ATH_MSG_INFO(" LArEndcapPresamplerCalculator: Birks' law OFF");
     }
-  } else {
-    throw std::runtime_error("LArWheelEnergyCalculator: cannot initialize \
-StoreGate interface");
-  }
-  
-
-
-  // Get the values from the detector parameters routine.
-  m_OOTcut = globalOptions->OutOfTimeCut();
-
-  if(emecOptions->EMECBirksLaw()){
-          const double Birks_LAr_density = 1.396;
-          const double Birks_k = emecOptions->EMECBirksk();
-          m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
-  }
-
-
-   if(m_birksLaw) {
-     std::cout << " LArEndcapPresamplerCalculator: Birks' law ON " << std::endl;
-     std::cout << " LArEndcapPresamplerCalculator:   parameter k    " << m_birksLaw->k() << std::endl;
-   }
-   else
-     std::cout << " LArEndcapPresamplerCalculator: Birks' law OFF" << std::endl;
-
 
   // Get the geometry routine.
   m_geometry = LArG4::EC::PresamplerGeometry::GetInstance();
+
+  return StatusCode::SUCCESS;
 }
 
 
-LArEndcapPresamplerCalculator::~LArEndcapPresamplerCalculator() {
+StatusCode LArEndcapPresamplerCalculator::finalize()
+{
   if (m_birksLaw) delete m_birksLaw;
+  return StatusCode::SUCCESS;
 }
 
-G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
+G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const
 {
   // make sure hdata is reset
   hdata.resize(1);
@@ -149,11 +106,7 @@ G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
   // Determine if the hit was in-time.
-  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
-  if (hdata[0].time > m_OOTcut)
-    m_isInTime = false;
-  else
-    m_isInTime = true;
+  hdata[0].time = timeOfFlight/Units::ns - p.mag()/CLHEP::c_light/Units::ns;
 
   // Use the geometry routine to determine the identifier.
   hdata[0].id = m_geometry->CalculateIdentifier( a_step );

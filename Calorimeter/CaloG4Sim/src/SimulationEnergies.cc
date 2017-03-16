@@ -135,8 +135,11 @@ namespace CaloG4 {
   G4double SimulationEnergies::helium3Mass  = 0;
   */
 
+#ifdef ATHENAHIVE
+  SimulationEnergies::StCallThreadMap_t SimulationEnergies::m_calledForStepThreadMap;
+#else
   G4bool SimulationEnergies::m_calledForStep = false;
-
+#endif
 
   SimulationEnergies::SimulationEnergies() 
   {
@@ -176,8 +179,39 @@ namespace CaloG4 {
   {;}
 
 
+  G4bool SimulationEnergies::StepWasProcessed() {
+#ifdef ATHENAHIVE
+    // Get current thread-ID
+    const auto tid = std::this_thread::get_id();
+    // Retrieve it from the call flags map
+    auto cfPair = m_calledForStepThreadMap.find(tid);
+    if(cfPair == m_calledForStepThreadMap.end()) return false;
+    return cfPair->second;
+#else
+    return m_calledForStep;
+#endif
+  }
+
+  void SimulationEnergies::SetStepProcessed() {
+#ifdef ATHENAHIVE
+    const auto tid = std::this_thread::get_id();
+    m_calledForStepThreadMap.insert( std::make_pair(tid, true) );
+#else
+    m_calledForStep = true;
+#endif
+  }
+
+  void SimulationEnergies::ResetStepProcessed() {
+#ifdef ATHENAHIVE
+    const auto tid = std::this_thread::get_id();
+    m_calledForStepThreadMap.insert( std::make_pair(tid, false) );
+#else
+    m_calledForStep = false;
+#endif
+  }
+
   // The "simple" call, intended for calibration calculators:
-  void SimulationEnergies::Energies( const G4Step* a_step , std::vector<G4double>& energies )
+  void SimulationEnergies::Energies( const G4Step* a_step , std::vector<G4double>& energies ) const
   {
     // Call the detailed classification.  Process any escaped energy.
     ClassifyResult_t category = Classify( a_step, true );
@@ -215,7 +249,7 @@ namespace CaloG4 {
   // energy will be not be routed to some other volume's hits.
 
   SimulationEnergies::ClassifyResult_t SimulationEnergies::Classify( const G4Step* step,
-								     const G4bool a_processEscaped )
+								     const G4bool a_processEscaped ) const
   {
     // Initialize our result to zero.
 
@@ -336,7 +370,7 @@ namespace CaloG4 {
 #endif
             ProcessEscapedEnergy( pTrack->GetVertexPosition(), escapedEnergy );
 	else
-	  result.energy[kEscaped] = escapedEnergy;
+	  result.energy[kEscaped] += escapedEnergy;
       }
 
     // END of calculation of Invisible and Escaped energy for current step
@@ -374,7 +408,7 @@ namespace CaloG4 {
   G4double SimulationEnergies::measurableEnergyV2(const G4ParticleDefinition *particleDef, 
                                                   G4int PDGEncoding,
                                                   G4double totalEnergy,
-                                                  G4double kineticEnergy)
+                                                  G4double kineticEnergy) const
 
     // 15-Dec-2003 Mikhail Leltchouk: inspired by FORTRAN Function PrMeasE
     // used by Michael Kuhlen and Peter Loch with Geant3 since 1991.
@@ -428,7 +462,7 @@ namespace CaloG4 {
   G4double SimulationEnergies::measurableEnergy(const G4ParticleDefinition* particleDef, 
                                                 G4int PDGEncoding,
                                                 G4double totalEnergy,
-                                                G4double kineticEnergy)
+                                                G4double kineticEnergy) const
 
     // 5-Dec-2003 Mikhail Leltchouk: extended version of FORTRAN Function PrMeasE
     // used by Michael Kuhlen and Peter Loch with Geant3 since 1991.
@@ -516,7 +550,7 @@ namespace CaloG4 {
 
 
 
-  G4bool SimulationEnergies::ProcessEscapedEnergy( G4ThreeVector a_point, G4double a_energy )
+  G4bool SimulationEnergies::ProcessEscapedEnergy( G4ThreeVector a_point, G4double a_energy ) const
   {
     // Escaped energy requires special processing.  The energy was not
     // deposited in the current G4Step, but at the beginning of the

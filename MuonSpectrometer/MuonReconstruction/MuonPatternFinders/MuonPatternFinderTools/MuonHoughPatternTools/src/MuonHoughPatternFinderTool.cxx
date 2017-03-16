@@ -75,7 +75,10 @@ namespace Muon {
     m_summary(false),
     m_recordAllOutput(false),
     m_cscAssoOutputLocation("MuonPatCscSegAssMap"), 
-    m_phietahitassociation(0)
+    m_phietahitassociation(0),
+    m_CosmicPhiPatternsKey("CosmicPhiPatterns"),
+    m_CosmicEtaPatternsKey("CosmicEtaPatterns"),
+    m_COMBINED_PATTERNSKey("COMBINED_PATTERNS")
   {
     declareInterface<IMuonHoughPatternFinderTool>(this);
     
@@ -96,10 +99,14 @@ namespace Muon {
     declareProperty("ShowerSkipping",m_showerskip);
     declareProperty("ShowerSkipPercentage",m_showerskipperc);
 
-    declareProperty("PatCscSegAssMapOutputLocation",m_cscAssoOutputLocation);
+    declareProperty("PatCscSegAssMapOutputLocation",m_cscAssoOutputLocation);//Not used
     declareProperty("UseHistos",m_use_histos);
     declareProperty("DoSummary",m_summary);
     declareProperty("RecordAll",m_recordAllOutput);
+
+    declareProperty("CosmicPhiKey", m_CosmicPhiPatternsKey);
+    declareProperty("CosmicEtaPatterns", m_CosmicEtaPatternsKey);
+    declareProperty("COMBINED_PATTERNS", m_COMBINED_PATTERNSKey);
   }
 
   MuonHoughPatternFinderTool::~MuonHoughPatternFinderTool()
@@ -197,6 +204,15 @@ namespace Muon {
     }
 
     m_phietahitassociation = new std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >;
+
+    if(!m_recordAllOutput){ //Nullify unused output
+       m_CosmicPhiPatternsKey = "";
+       m_CosmicEtaPatternsKey = "";
+       m_COMBINED_PATTERNSKey = "";
+    }
+    ATH_CHECK( m_CosmicPhiPatternsKey.initialize() );
+    ATH_CHECK( m_CosmicEtaPatternsKey.initialize() );
+    ATH_CHECK( m_COMBINED_PATTERNSKey.initialize() );
 
     ATH_MSG_VERBOSE ("End of Initializing");
     return StatusCode::SUCCESS; 
@@ -313,9 +329,9 @@ namespace Muon {
       combinedpatterns =  new MuonPrdPatternCollection();
     }
 
-    record( phipatterns, "CosmicPhiPatterns" );
-    record( etapatterns, "CosmicEtaPatterns" );
-    record( combinedpatterns, "COMBINED_PATTERNS" );
+    record( phipatterns, m_CosmicPhiPatternsKey );
+    record( etapatterns, m_CosmicEtaPatternsKey );
+    record( combinedpatterns, m_COMBINED_PATTERNSKey );
     
     if( patterncombinations ) storeCscAssMap( patterncombinations );
 
@@ -523,7 +539,7 @@ namespace Muon {
   
   } // getAllHits
 
-  void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, std::string location ) const {
+  void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, const  SG::WriteHandleKey<MuonPrdPatternCollection> &key ) const {
     
     if( !patCol ) {
       ATH_MSG_WARNING ("Zero pointer, could not save patterns!!! ");
@@ -532,18 +548,19 @@ namespace Muon {
 
     // check whether we are writing patterns to storegate, if not delete pattern
     if( !m_recordAllOutput ){
-      ATH_MSG_DEBUG ("Deleted patterns: " << patCol->size() << "  at " << location);
+      ATH_MSG_DEBUG ("Deleted patterns: " << patCol->size() << "  at " << key.key());
 
       // since patCol Datavector, it owns (by defaults its elements)
       delete patCol;
     }
     else {
-      StatusCode sc = evtStore()->record(patCol, location);
+      SG::WriteHandle<MuonPrdPatternCollection> handle(key);
+      StatusCode sc = handle.record(std::unique_ptr<MuonPrdPatternCollection>(const_cast<MuonPrdPatternCollection*> (patCol)));
       if ( sc.isFailure() ){
-	ATH_MSG_WARNING ("Could not save patterns at " << location);
+	ATH_MSG_WARNING ("Could not save patterns at " << key.key());
       }
       else{
-	ATH_MSG_DEBUG ("Saved patterns: " << patCol->size() << "  at " << location);
+	ATH_MSG_DEBUG ("Saved patterns: " << patCol->size() << "  at " << key.key());
       }
     }
   }

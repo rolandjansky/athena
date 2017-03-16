@@ -23,7 +23,6 @@
 #include "StoreGate/WriteHandle.h"
 
 #include "InDetSimData/InDetSimDataCollection.h"
-// STSTST #include "SiDigitization/ISiChargedDiodesProcessorTool.h"
 #include "PixelProcessorTool.h"
 #include "SubChargesTool.h"
 #include "FrontEndSimTool.h"
@@ -64,7 +63,6 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     bool              m_onlyHitElements;
 
-// STSTST    ToolHandleArray<ISiChargedDiodesProcessorTool> m_diodesProcsTool;
     ToolHandleArray<PixelProcessorTool>            m_processorTool;
     ToolHandleArray<SubChargesTool>                m_chargeTool;
     ToolHandleArray<FrontEndSimTool>               m_fesimTool;
