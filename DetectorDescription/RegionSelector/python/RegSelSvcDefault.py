@@ -41,14 +41,10 @@ class RegSelSvcDefault ( RegSelSvc )  :
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon.DetFlags import DetFlags
 
-        print DetFlags 
-
         if DetFlags.detdescr.ID_on():
             # if DetFlags.detdescr.ftk_on(): ### is the ftk properly integrated yet ??? 
             from InDetRegionSelector.InDetRegionSelectorConf import FTK_RegionSelectorTable
             if DetFlags.detdescr.FTK_on():
-
-                print "FUCK OFF"
 
                 ftkTable = FTK_RegionSelectorTable(name        = "FTK_RegionSelectorTable",
                                                    ManagerName = "",
