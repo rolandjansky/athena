@@ -31,7 +31,7 @@ public:
 
 std::unique_ptr<TileID> make_helper (bool do_neighbours = false)
 {
-  auto idhelper = CxxUtils::make_unique<TileID_Test>();
+  auto idhelper = CxxUtils::make_unique<TileID>();
   IdDictParser parser;
   parser.register_external_entity ("TileCalorimeter",
                                    "IdDictTileCalorimeter.xml");
