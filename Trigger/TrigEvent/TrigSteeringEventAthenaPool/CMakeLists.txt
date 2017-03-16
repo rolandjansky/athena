@@ -26,9 +26,10 @@ atlas_add_poolcnv_library( TrigSteeringEventAthenaPoolPoolCnv
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
-   set( AthenaPoolUtilitiesTest_DIR
-      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
+set( _dir
+   ${CMAKE_CURRENT_SOURCE_DIR}/../../../Database/AthenaPOOL/AthenaPoolUtilities )
+if( IS_DIRECTORY ${_dir} )
+   set( AthenaPoolUtilitiesTest_DIR ${_dir}/cmake )
 endif()
 find_package( AthenaPoolUtilitiesTest )
 
