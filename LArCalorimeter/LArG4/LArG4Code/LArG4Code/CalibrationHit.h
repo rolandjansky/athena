@@ -3,6 +3,17 @@
 */
 
 // CalibrationHit.h
+// Definition of a calibration hit in the LArG4 simulation.
+// 08-Jan-2004 Bill Seligman
+
+// Note: A calibration hit has to record a few different types of
+// energies.  As far as the code below is concerned, the
+// LArG4::CalibrationHit does not know what these energies are.  That
+// is, there are four energy fields, and maybe the first one is E-M
+// energy, the second is hadronic energy, etc., but that's irrelevant
+// to this code.  It's other routines that have to interpret the
+// meaning of these fields.
+
 #ifndef LArG4_CalibrationHit_H
 #define LArG4_CalibrationHit_H
 
@@ -14,19 +25,6 @@
 
 namespace LArG4 {
 
-  /// @class CalibrationHit
-  /// @brief Definition of a calibration hit in the LArG4 simulation.
-  ///
-  /// Note: A calibration hit has to record a few different types of
-  /// energies.  As far as the code below is concerned, the
-  /// LArG4::CalibrationHit does not know what these energies are.  That
-  /// is, there are four energy fields, and maybe the first one is E-M
-  /// energy, the second is hadronic energy, etc., but that's irrelevant
-  /// to this code.  It's other routines that have to interpret the
-  /// meaning of these fields.
-  ///
-  /// 08-Jan-2004 Bill Seligman
-  ///
   class CalibrationHit : public G4VHit
   {
   public:

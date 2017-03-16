@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "Geo2G4ElementFactory.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "G4Element.hh"

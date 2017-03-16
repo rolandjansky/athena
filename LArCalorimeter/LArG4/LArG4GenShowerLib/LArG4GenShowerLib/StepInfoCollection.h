@@ -23,7 +23,7 @@ namespace ShowerLib {
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version $Id: StepInfoCollection.h 797404 2017-02-15 19:01:55Z sfarrell $
+   * @version $Id: StepInfoCollection.h 498105 2012-04-27 11:38:03Z gsedov $
    *
    */
 

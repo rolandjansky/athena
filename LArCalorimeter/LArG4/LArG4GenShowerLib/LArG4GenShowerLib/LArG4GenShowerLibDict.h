@@ -8,7 +8,7 @@
  * 
  *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
  *
- * @version \$Id: LArG4GenShowerLibDict.h 797404 2017-02-15 19:01:55Z sfarrell $
+ * @version \$Id: LArG4GenShowerLibDict.h 449324 2011-07-18 17:22:19Z gsedov $
  *
  */
 

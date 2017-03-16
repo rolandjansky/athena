@@ -76,7 +76,7 @@ namespace LArG4
       const auto patternVols = findLogicalVolumes(pattern);
       if(patternVols.empty()) {
         msg << MSG::WARNING << "No volume found matching pattern: "
-            << pattern << endreq;
+            << pattern << endmsg;
       }
       parsedVolumes.insert( patternVols.begin(), patternVols.end() );
     }

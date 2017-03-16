@@ -14,8 +14,7 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // ATLAS C++
 #include "CxxUtils/make_unique.h"
@@ -62,84 +61,88 @@ namespace ISF {
 
     /** Athena algorithm's interface methods */
     StatusCode  initialize() override;
-    StatusCode  execute() override;
+    StatusCode  execute()    override;
+    StatusCode  finalize()   override;
 
   private:
+    /** Initialize the given VarHandleKey */
+    StatusCode initializeVarHandleKey( SG::VarHandleKey& varHandleKey ) const;
+
     /** Commonly used member and function parameter types */
     typedef std::vector<std::string>  SGKeyVector_t;
     template <typename T>
-    using ReadHandleVector_t = typename std::vector<SG::ReadHandle<T>>;
+    using ReadHandleKeyVector_t = typename std::vector<SG::ReadHandleKey<T>>;
 
 
-    /** Setup a vector of ReadHandles for the given vector of string StoreGate Keys */
+    /** Setup a vector of ReadHandleKeys for the given vector of string StoreGate Keys */
     template <typename T>
-    StatusCode setupReadHandleVector( const SGKeyVector_t& sgKeyVec,
-                                      ReadHandleVector_t<T>& readHandleVec ) const;
+    StatusCode setupReadHandleKeyVector( const SGKeyVector_t&      sgKeyVec,
+                                         ReadHandleKeyVector_t<T>& readHandleVec ) const;
 
-    /** Merge all hits of inputReadHandles's collections into outputWriteHandle */
+    /** Merge all hits of inputReadHandleKeys's collections into outputWriteHandleKey */
     template <typename T>
-    void mergeCollections( const ReadHandleVector_t<T>& inputReadHandles,
-                           SG::WriteHandle<T>&          outputWriteHandle ) const;
+    void mergeCollections( const ReadHandleKeyVector_t<T>& inputReadHandleKeys,
+                           SG::WriteHandleKey<T>&          outputWriteHandleKey ) const;
 
     /** Input collection StoreGate keys */
-    SGKeyVector_t  m_inputBCMHitsSGKeys;
-    SGKeyVector_t  m_inputBLMHitsSGKeys;
-    SGKeyVector_t  m_inputPixelHitsSGKeys;
-    SGKeyVector_t  m_inputSCTHitsSGKeys;
-    SGKeyVector_t  m_inputTRTUncompressedHitsSGKeys;
+    SGKeyVector_t                                       m_inputBCMHitsSGKeys;
+    SGKeyVector_t                                       m_inputBLMHitsSGKeys;
+    SGKeyVector_t                                       m_inputPixelHitsSGKeys;
+    SGKeyVector_t                                       m_inputSCTHitsSGKeys;
+    SGKeyVector_t                                       m_inputTRTUncompressedHitsSGKeys;
 
-    SGKeyVector_t  m_inputLArEMBHitsSGKeys;
-    SGKeyVector_t  m_inputLArEMECHitsSGKeys;
-    SGKeyVector_t  m_inputLArFCALHitsSGKeys;
-    SGKeyVector_t  m_inputLArHECHitsSGKeys;
+    SGKeyVector_t                                       m_inputLArEMBHitsSGKeys;
+    SGKeyVector_t                                       m_inputLArEMECHitsSGKeys;
+    SGKeyVector_t                                       m_inputLArFCALHitsSGKeys;
+    SGKeyVector_t                                       m_inputLArHECHitsSGKeys;
 
-    SGKeyVector_t  m_inputTileHitsSGKeys;
-    SGKeyVector_t  m_inputMBTSHitsSGKeys;
+    SGKeyVector_t                                       m_inputTileHitsSGKeys;
+    SGKeyVector_t                                       m_inputMBTSHitsSGKeys;
 
-    SGKeyVector_t  m_inputCSCHitsSGKeys;
-    SGKeyVector_t  m_inputMDTHitsSGKeys;
-    SGKeyVector_t  m_inputRPCHitsSGKeys;
-    SGKeyVector_t  m_inputTGCHitsSGKeys;
+    SGKeyVector_t                                       m_inputCSCHitsSGKeys;
+    SGKeyVector_t                                       m_inputMDTHitsSGKeys;
+    SGKeyVector_t                                       m_inputRPCHitsSGKeys;
+    SGKeyVector_t                                       m_inputTGCHitsSGKeys;
 
-    /** Input collection ReadHandles */
-    ReadHandleVector_t<SiHitCollection>              m_inputBCMHits;
-    ReadHandleVector_t<SiHitCollection>              m_inputBLMHits;
-    ReadHandleVector_t<SiHitCollection>              m_inputPixelHits;
-    ReadHandleVector_t<SiHitCollection>              m_inputSCTHits;
-    ReadHandleVector_t<TRTUncompressedHitCollection> m_inputTRTUncompressedHits;
+    /** Input collection ReadHandleKeys */
+    ReadHandleKeyVector_t<SiHitCollection>              m_inputBCMHits;
+    ReadHandleKeyVector_t<SiHitCollection>              m_inputBLMHits;
+    ReadHandleKeyVector_t<SiHitCollection>              m_inputPixelHits;
+    ReadHandleKeyVector_t<SiHitCollection>              m_inputSCTHits;
+    ReadHandleKeyVector_t<TRTUncompressedHitCollection> m_inputTRTUncompressedHits;
 
-    ReadHandleVector_t<LArHitContainer>              m_inputLArEMBHits;
-    ReadHandleVector_t<LArHitContainer>              m_inputLArEMECHits;
-    ReadHandleVector_t<LArHitContainer>              m_inputLArFCALHits;
-    ReadHandleVector_t<LArHitContainer>              m_inputLArHECHits;
+    ReadHandleKeyVector_t<LArHitContainer>              m_inputLArEMBHits;
+    ReadHandleKeyVector_t<LArHitContainer>              m_inputLArEMECHits;
+    ReadHandleKeyVector_t<LArHitContainer>              m_inputLArFCALHits;
+    ReadHandleKeyVector_t<LArHitContainer>              m_inputLArHECHits;
 
-    ReadHandleVector_t<TileHitVector>                m_inputTileHits;
-    ReadHandleVector_t<TileHitVector>                m_inputMBTSHits;
+    ReadHandleKeyVector_t<TileHitVector>                m_inputTileHits;
+    ReadHandleKeyVector_t<TileHitVector>                m_inputMBTSHits;
 
-    ReadHandleVector_t<CSCSimHitCollection>          m_inputCSCHits;
-    ReadHandleVector_t<MDTSimHitCollection>          m_inputMDTHits;
-    ReadHandleVector_t<RPCSimHitCollection>          m_inputRPCHits;
-    ReadHandleVector_t<TGCSimHitCollection>          m_inputTGCHits;
+    ReadHandleKeyVector_t<CSCSimHitCollection>          m_inputCSCHits;
+    ReadHandleKeyVector_t<MDTSimHitCollection>          m_inputMDTHits;
+    ReadHandleKeyVector_t<RPCSimHitCollection>          m_inputRPCHits;
+    ReadHandleKeyVector_t<TGCSimHitCollection>          m_inputTGCHits;
 
-    /** Output collection WriteHandles */
-    SG::WriteHandle<SiHitCollection>                 m_outputBCMHits;
-    SG::WriteHandle<SiHitCollection>                 m_outputBLMHits;
-    SG::WriteHandle<SiHitCollection>                 m_outputPixelHits;
-    SG::WriteHandle<SiHitCollection>                 m_outputSCTHits;
-    SG::WriteHandle<TRTUncompressedHitCollection>    m_outputTRTUncompressedHits;
+    /** Output collection WriteHandleKeys */
+    SG::WriteHandleKey<SiHitCollection>                 m_outputBCMHits;
+    SG::WriteHandleKey<SiHitCollection>                 m_outputBLMHits;
+    SG::WriteHandleKey<SiHitCollection>                 m_outputPixelHits;
+    SG::WriteHandleKey<SiHitCollection>                 m_outputSCTHits;
+    SG::WriteHandleKey<TRTUncompressedHitCollection>    m_outputTRTUncompressedHits;
 
-    SG::WriteHandle<LArHitContainer>                 m_outputLArEMBHits;
-    SG::WriteHandle<LArHitContainer>                 m_outputLArEMECHits;
-    SG::WriteHandle<LArHitContainer>                 m_outputLArFCALHits;
-    SG::WriteHandle<LArHitContainer>                 m_outputLArHECHits;
+    SG::WriteHandleKey<LArHitContainer>                 m_outputLArEMBHits;
+    SG::WriteHandleKey<LArHitContainer>                 m_outputLArEMECHits;
+    SG::WriteHandleKey<LArHitContainer>                 m_outputLArFCALHits;
+    SG::WriteHandleKey<LArHitContainer>                 m_outputLArHECHits;
 
-    SG::WriteHandle<TileHitVector>                   m_outputTileHits;
-    SG::WriteHandle<TileHitVector>                   m_outputMBTSHits;
+    SG::WriteHandleKey<TileHitVector>                   m_outputTileHits;
+    SG::WriteHandleKey<TileHitVector>                   m_outputMBTSHits;
 
-    SG::WriteHandle<CSCSimHitCollection>             m_outputCSCHits;
-    SG::WriteHandle<MDTSimHitCollection>             m_outputMDTHits;
-    SG::WriteHandle<RPCSimHitCollection>             m_outputRPCHits;
-    SG::WriteHandle<TGCSimHitCollection>             m_outputTGCHits;
+    SG::WriteHandleKey<CSCSimHitCollection>             m_outputCSCHits;
+    SG::WriteHandleKey<MDTSimHitCollection>             m_outputMDTHits;
+    SG::WriteHandleKey<RPCSimHitCollection>             m_outputRPCHits;
+    SG::WriteHandleKey<TGCSimHitCollection>             m_outputTGCHits;
   };
 
 }
@@ -148,20 +151,20 @@ namespace ISF {
 // templated methods below
 // 
 
-/** Setup a vector of ReadHandles for the given vector of string StoreGate Keys */
+/** Setup a vector of ReadHandleKeys for the given vector of string StoreGate Keys */
 template <typename T>
-StatusCode ISF::CollectionMerger::setupReadHandleVector( const SGKeyVector_t& sgKeyVec,
-                                                         ReadHandleVector_t<T>& readHandleVec ) const {
+StatusCode ISF::CollectionMerger::setupReadHandleKeyVector( const SGKeyVector_t&      sgKeyVec,
+                                                            ReadHandleKeyVector_t<T>& readHandleVec ) const {
   readHandleVec.reserve( sgKeyVec.size() );
 
-  // convert string StoreGate key to ReadHandle
+  // convert string StoreGate key to ReadHandleKey
   for ( const auto& sgKey: sgKeyVec ) {
     readHandleVec.emplace_back( sgKey );
   }
 
-  // verify all ReadHandles
-  for ( auto& readHandle: readHandleVec ) {
-    if ( !readHandle.isValid() ) {
+  // initialize all ReadHandleKeys
+  for ( auto& readHandleKey: readHandleVec ) {
+    if ( readHandleKey.initialize().isFailure() ) {
       return StatusCode::FAILURE;
     }
   }
@@ -170,24 +173,25 @@ StatusCode ISF::CollectionMerger::setupReadHandleVector( const SGKeyVector_t& sg
 }
 
 
-/** Merge all hits of inputReadHandles's collections into outputWriteHandle */
+/** Merge all hits of inputReadHandleKeys's collections into outputWriteHandleKey */
 template <typename T>
-void ISF::CollectionMerger::mergeCollections( const ReadHandleVector_t<T>& inputReadHandles,
-                                              SG::WriteHandle<T>& outputWriteHandle ) const {
+void ISF::CollectionMerger::mergeCollections( const ReadHandleKeyVector_t<T>& inputReadHandleKeys,
+                                              SG::WriteHandleKey<T>&          outputWriteHandleKey ) const {
     // skip if not input collection
-    if ( inputReadHandles.empty() )
+    if ( inputReadHandleKeys.empty() )
         return;
 
-    // TODO: is there a way to conveniently get the total number of hits in all inputReadHandles
-    //       and reserve the corresponding size in the outputHandle?
-    outputWriteHandle = CxxUtils::make_unique<T>();
+    // TODO: is there a way to conveniently get the total number of hits in all inputReadHandleKeys
+    //       and reserve the corresponding size in the outputHandle
+    SG::WriteHandle<T>  outputHandle{outputWriteHandleKey};
+    outputHandle.record( CxxUtils::make_unique<T>() );
 
-    for ( const auto& collKey: inputReadHandles ) {
+    for ( const auto& collKey: inputReadHandleKeys ) {
         SG::ReadHandle<T>  inputHandle{collKey};
 
         for ( const auto& hit: *inputHandle ) {
             // TODO: replace with ->Emplace(hit) once LArHitContainer supports this
-            outputWriteHandle->push_back( hit );
+            outputHandle->push_back( hit );
         }
     }
 }

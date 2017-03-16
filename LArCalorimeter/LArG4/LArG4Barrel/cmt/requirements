@@ -10,7 +10,6 @@ author Mikhail Leltchouk <lelchuk@nevis.columbia.edu>
 use AtlasPolicy    AtlasPolicy-*
 use LArG4Code      LArG4Code-*      LArCalorimeter/LArG4
 use Geant4         Geant4-*         External
-use AthenaBaseComps     AthenaBaseComps-*       Control
 
 # For reading the e-field files for charge collection.
 

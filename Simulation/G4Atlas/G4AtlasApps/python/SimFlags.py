@@ -700,9 +700,9 @@ class specialConfiguration(JobProperty):
     """ contains information on configuring simulation for special physics models.
         Populated, if possible, by evgen file metadata.
     """
-    statusOn=False
-    allowedTypes=['dict']
-    StoredValue=dict()
+    statusOn = False
+    allowedTypes = ['dict']
+    StoredValue = dict()
 
 
 ## Definition and registration of the simulation flag container
