@@ -17,6 +17,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandle.h"
 #include <vector>
 #include "JetTagTools/ITagTool.h"
 #include "xAODTracking/TrackParticle.h"
@@ -78,7 +79,7 @@ namespace Analysis
       ToolHandle< TrackSelector > m_trackSelectorTool;
       
       std::string m_originalTPCollectionName;
-      const xAOD::TrackParticleContainer* m_originalTPCollection;
+      SG::ReadHandle<xAOD::TrackParticleContainer> m_originalTPCollection;
 
       bool m_writeInfoBase; // writes a basic info for each tagger with Pb, Pu (IPInfoBase)
       std::string m_infoPlusName; // key to store the IPInfoPlus

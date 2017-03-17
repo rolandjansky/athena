@@ -22,6 +22,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "egammaMVACalib/egammaMVACalib.h"
 #include "MVAUtils/BDT.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TMVA/MethodBase.h"
 #include "TMVA/IMethod.h"

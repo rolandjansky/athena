@@ -12,6 +12,7 @@ atlas_depends_on_subdirs(
     Control/AthToolSupport/AsgTools
     Control/AthenaBaseComps
     Control/SGTools
+    Control/StoreGate
     DetectorDescription/GeoPrimitives
     Event/xAOD/xAODBTagging
     Event/xAOD/xAODJet
@@ -29,8 +30,10 @@ atlas_depends_on_subdirs(
     Control/AthenaKernel
     Control/Navigation
     Event/xAOD/xAODMuon
+    InnerDetector/InDetRecTools/InDetSVWithMuonTool
     InnerDetector/InDetRecTools/InDetTrackSelectionTool
     InnerDetector/InDetRecTools/TrackVertexAssociationTool
+    InnerDetector/InDetRecTools/InDetRecToolInterfaces
     PhysicsAnalysis/AnalysisCommon/ParticleJetTools
     PhysicsAnalysis/JetTagging/JetTagCalibration
     PhysicsAnalysis/MuonID/MuonSelectorTools
