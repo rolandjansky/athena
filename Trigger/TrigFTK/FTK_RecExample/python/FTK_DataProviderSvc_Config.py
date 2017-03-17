@@ -185,10 +185,10 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.TrainingBeamspotZ = 0.0
         self.TrainingBeamspotTiltX= 0.0
         self.TrainingBeamspotTiltY= 0.0
-        self. PixelBarrelPhiOffsets=[0.,0.,0.,0.]
-        self. PixelBarrelEtaOffsets=[0.,0.,0.,0.]
-        self. PixelEndCapPhiOffsets=[0.,0.,0.]
-        self. PixelEndCapEtaOffsets=[0.,0.,0.]
+        self. PixelBarrelPhiOffsets=[0.0,0.0,0.0,0.0]
+        self. PixelBarrelEtaOffsets=[0.0,0.0,0.0,0.0]
+        self. PixelEndCapPhiOffsets=[0.0,0.0,0.0]
+        self. PixelEndCapEtaOffsets=[0.0,0.0,0.0]
 
 
 
