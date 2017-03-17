@@ -1,0 +1,22 @@
+package AthExHive
+
+use AtlasPolicy        AtlasPolicy-*
+# use AthenaKernel       AthenaKernel-*           Control
+use SGTools            SGTools-*                Control
+
+private
+#need make_unique
+use CxxUtils           CxxUtils-*               Control
+use AthenaBaseComps    AthenaBaseComps-*        Control
+use EventInfo          EventInfo-*              Event
+use GaudiInterface     GaudiInterface-*         External
+use StoreGate          StoreGate-*              Control
+end_private
+
+library AthExHive *.cxx -s=components *.cxx
+
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_runtime_extras extras="condDb.txt"
+
