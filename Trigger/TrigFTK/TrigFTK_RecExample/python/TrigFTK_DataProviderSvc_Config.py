@@ -145,17 +145,16 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         ToolSvc+=TrigFTK_RawVertexFinderTool
 
 
-        self.TrackCollectionName= "TrigFTK_TrackCollection"
-        self.TrackParticleContainerName= "TrigFTK_TrackParticleCollection"
-        self.VxContainerName="TrigFTK_VxContainer"
-        self.VertexContainerName="TrigFTK_VertexContainer"	  
-        self.PixelTruthName="TrigFTK_PRD_MultiTruthPixel"
-        self.SctTruthName="TrigFTK_PRD_MultiTruthSCT"
-        self.PixelClusterContainerName= "TrigFTK_PixelClusterContainer"
-        self.SCT_ClusterContainerName= "TrigFTK_SCT_ClusterContainer"
+        self.TrackCollectionName= "FTK_TrackCollection"
+        self.TrackParticleContainerName= "FTK_TrackParticleContainer"
+        self.VxContainerName="notused"
+        self.VertexContainerName="FTK_VertexContainer"	  
+        self.PixelTruthName="FTK_PRD_MultiTruthPixel"
+        self.SctTruthName="FTK_PRD_MultiTruthSCT"
+        self.PixelClusterContainerName= "FTK_PixelClusterContainer"
+        self.SCT_ClusterContainerName= "FTK_SCT_ClusterContainer"
         self.CorrectPixelClusters=True
         self.CorrectSCTClusters=True
-        
         
         self.TrackFitter = InDetTrigTrackFitterFTK
         self.UncertaintyTool=theTrigFTK_UncertaintyTool
