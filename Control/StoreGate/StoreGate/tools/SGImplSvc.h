@@ -1106,6 +1106,7 @@ private:
   typedef std::recursive_mutex mutex_t;
   typedef std::lock_guard<mutex_t> lock_t;
   mutable mutex_t m_mutex;
+  mutable mutex_t m_remapMutex;
 
   
 public:
