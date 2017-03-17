@@ -20,8 +20,8 @@ svcMgr.ForwardSchedulerSvc.CheckDependencies = True
 from GaudiHive.GaudiHiveConf import AlgResourcePool
 viewAlgPoolName = "ViewAlgPool"
 svcMgr += AlgResourcePool( viewAlgPoolName )
-#svcMgr.ViewAlgPool.TopAlg = [ "AthViews::DFlowAlg1/dflow_alg1", "AthViews::DFlowAlg2/dflow_alg2", "AthViews::DFlowAlg3/dflow_alg3" ] #algs will be instantiated with default config
-svcMgr.ViewAlgPool.TopAlg = [ "dflow_alg1", "dflow_alg2", "dflow_alg3" ] #use existing instances
+svcMgr.ViewAlgPool.TopAlg = [ "AthViews::DFlowAlg1/dflow_alg1", "AthViews::DFlowAlg2/dflow_alg2", "AthViews::DFlowAlg3/dflow_alg3" ] #algs will be instantiated with default config
+#svcMgr.ViewAlgPool.TopAlg = [ "dflow_alg1", "dflow_alg2", "dflow_alg3" ] #use existing instances
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
@@ -35,14 +35,14 @@ job.make_alg.AlgPoolName = viewAlgPoolName
 job.make_alg.AlgorithmNameSequence = [ "dflow_alg1", "dflow_alg2", "dflow_alg3" ]
 
 # Algorithms for one view
-job += CfgMgr.AthViews__DFlowAlg1("dflow_alg1")
-job.dflow_alg1.RequireView = True
+#job += CfgMgr.AthViews__DFlowAlg1("dflow_alg1")
+#job.dflow_alg1.RequireView = True
 #
-job += CfgMgr.AthViews__DFlowAlg2("dflow_alg2")
-job.dflow_alg2.RequireView = True
+#job += CfgMgr.AthViews__DFlowAlg2("dflow_alg2")
+#job.dflow_alg2.RequireView = True
 #
-job += CfgMgr.AthViews__DFlowAlg3("dflow_alg3")
-job.dflow_alg3.RequireView = True
+#job += CfgMgr.AthViews__DFlowAlg3("dflow_alg3")
+#job.dflow_alg3.RequireView = True
 
 # Merge views
 job += CfgMgr.AthViews__ViewMergeAlg("merge_alg")

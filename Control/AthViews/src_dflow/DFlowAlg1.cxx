@@ -32,7 +32,8 @@ namespace AthViews {
 ////////////////
 DFlowAlg1::DFlowAlg1( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::AthViewAlgorithm( name, pSvcLocator ),
+  //::AthViewAlgorithm( name, pSvcLocator ),
+  ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "view_start" ),
   m_w_int( "dflow_int" )
 {
@@ -57,6 +58,9 @@ StatusCode DFlowAlg1::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
+  m_r_int.initialize();
+  m_w_int.initialize();
+
   return StatusCode::SUCCESS;
 }
 
@@ -71,23 +75,37 @@ StatusCode DFlowAlg1::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  ATH_MSG_INFO("myint handle...");
+  SG::ReadHandle< int > inputData( m_r_int, getContext() );
+  //if ( !m_r_int.isValid() )
+  if ( !inputData.isValid() )
+  {
+    //ATH_MSG_ERROR( "Failed to load initial view data from store " << m_r_int.store() );
+    ATH_MSG_ERROR( "Failed to load initial view data from store " << inputData.store() );
+    return StatusCode::FAILURE;
+  }
+  //int seedData = *m_r_int;
+  int seedData = *inputData;
+
+  SG::WriteHandle< int > outputData( m_w_int, getContext() );
+  /*ATH_MSG_INFO("myint handle...");
   ATH_MSG_INFO("name: [" << m_w_int.name() << "]");
   ATH_MSG_INFO("store [" << m_w_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_w_int.clid() << "]");
+  ATH_MSG_INFO("clid: [" << m_w_int.clid() << "]");*/
   
-  m_w_int.record( CxxUtils::make_unique< int >( seedData ) );
+  //m_w_int.record( CxxUtils::make_unique< int >( seedData ) );
+  outputData.record( CxxUtils::make_unique< int >( seedData ) );
 
   //redundant check as op = would throw if m_w_int was not valid (e.g. because if clid/key combo was duplicated)
-  if (m_w_int.isValid())
+  //if (m_w_int.isValid())
+  if (outputData.isValid())
   {
-    ATH_MSG_INFO("ptr: " << m_w_int.cptr());
-    ATH_MSG_INFO("val: " << *m_w_int);
+    //ATH_MSG_INFO("ptr: " << m_w_int.cptr());
+    //ATH_MSG_INFO("val: " << *m_w_int);
     
     ATH_MSG_INFO("modify myint by value...");
 
-    ATH_MSG_INFO("ptr: " << m_w_int.cptr());
-    ATH_MSG_INFO("val: " << *m_w_int);
+    //ATH_MSG_INFO("ptr: " << m_w_int.cptr());
+    //ATH_MSG_INFO("val: " << *m_w_int);
   }
 
   return StatusCode::SUCCESS;
