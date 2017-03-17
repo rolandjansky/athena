@@ -13,10 +13,10 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 import traceback
 
 #import base class
-from egammaTools import egammaToolsConf
+from egammaAlgs import egammaAlgsConf
 from InDetTools import egammaExtrapolator
 
-class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
+class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
     __slots__ = ()
 
     def __init__(self, name="EMBremCollectionBuilder", **kw):
@@ -170,3 +170,12 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
         self.narrowDeltaPhiBrem=0.20 #Dominated by the needs of assymetric conversions
         self.narrowDeltaPhiRescale=0.05  
         self.narrowDeltaPhiRescaleBrem=0.1
+
+from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
+EMBremCollectionBuilder = AlgFactory( egammaBremCollectionBuilder,
+                                      name = 'EMBremCollectionBuilder',
+                                      ExtrapolationTool = EMExtrapolationTools,
+                                      OutputTrackContainerName=egammaKeys.outputTrackKey(),
+                                      ClusterContainerName=egammaKeys.inputClusterKey(),
+                                      DoTruth=rec.doTruth()
+                                      )

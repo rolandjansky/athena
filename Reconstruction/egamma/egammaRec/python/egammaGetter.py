@@ -9,7 +9,7 @@ from AthenaCommon.DetFlags import DetFlags
 from RecExConfig.Configured import Configured
 #
 from egammaRec import egammaKeys
-from egammaRec import egammaRecConf
+from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory, FcnWrapper
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
@@ -18,17 +18,14 @@ egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 def doSuperclusters():
   return egammaRecFlags.doSuperclusters()
 
-def doBremFinding():
-  return DetFlags.detdescr.ID_on() and egammaRecFlags.doBremFinding()
-
 def doConversions() :
   return DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions()
 ################
 
 # Import the tool factories
 from egammaTools.egammaToolsFactories import \
-    EMBremCollectionBuilder, EMTrackMatchBuilder,\
-    EMVertexBuilder, EMConversionBuilder, EGammaAmbiguityTool,\
+    EMTrackMatchBuilder,\
+    EMConversionBuilder, EGammaAmbiguityTool,\
     EMClusterTool, EMFourMomBuilder, EMShowerBuilder, egammaOQFlagsBuilder, \
     ElectronPIDBuilder, PhotonPIDBuilder
 
@@ -72,7 +69,7 @@ class egammaGetter ( Configured ) :
         mlog.info('entering')        
 
         if doSuperclusters() : 
-          egammaBuilder = AlgFactory(egammaRecConf.topoEgammaBuilder, name = 'egamma',
+          egammaBuilder = AlgFactory(egammaAlgsConf.topoEgammaBuilder, name = 'egamma',
                                      # Keys
                                      ElectronOutputName = egammaKeys.outputElectronKey(),
                                      PhotonOutputName = egammaKeys.outputPhotonKey(),                                     
@@ -82,9 +79,7 @@ class egammaGetter ( Configured ) :
                                      photonSuperClusterBuilder = photonSuperClusterBuilder,
                                      InputTopoClusterContainerName = egammaRecFlags.egammaTopoClusterCollection(),                                           
                                      # Builder tools
-                                     BremCollectionBuilderTool = EMBremCollectionBuilder,
                                      TrackMatchBuilderTool = EMTrackMatchBuilder,
-                                     VertexBuilder = EMVertexBuilder if doConversions() else None,
                                      ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
                                      AmbiguityTool = EGammaAmbiguityTool,                                     
                                      # Decoration tools
@@ -94,20 +89,17 @@ class egammaGetter ( Configured ) :
                                      # Flags and other properties
                                      # Track matching depending if ID is on/off
                                      doTrackMatching = DetFlags.detdescr.ID_on(),
-                                     # conversions building/matching depending if ID is on/off
-                                     doVertexCollection=doConversions(),
+                                     # conversions matching depending if ID is on/off
                                      doConversions = doConversions()
                                      )
         else : 
-          egammaBuilder = AlgFactory(egammaRecConf.egammaBuilder, name = 'egamma',
+          egammaBuilder = AlgFactory(egammaAlgsConf.egammaBuilder, name = 'egamma',
                                      # Keys
                                      ElectronOutputName = egammaKeys.outputElectronKey(),
                                      PhotonOutputName = egammaKeys.outputPhotonKey(),
                                      TopoSeededClusterContainerName = getTopoSeededCollectionName(),                                     
                                      # Builder tools
-                                     BremCollectionBuilderTool = EMBremCollectionBuilder,
                                      TrackMatchBuilderTool = EMTrackMatchBuilder,
-                                     VertexBuilder = EMVertexBuilder if doConversions() else None,
                                      ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
                                      AmbiguityTool = EGammaAmbiguityTool,                                     
                                      # Decoration tools
@@ -117,8 +109,7 @@ class egammaGetter ( Configured ) :
                                      # Flags and other properties
                                      # Track matching depending if ID is on/off
                                      doTrackMatching = DetFlags.detdescr.ID_on(),
-                                     # conversions building/matching depending if ID is on/off
-                                     doVertexCollection=doConversions(),
+                                     # conversions matching depending if ID is on/off
                                      doConversions = doConversions(),
                                      #
                                      clusterEnergyCut = 10*MeV,

@@ -13,6 +13,8 @@ __doc__="egamma flags . "
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
 
+print "In egammaRecFlags"
+
 class Enabled(JobProperty):
     """ jobproperty to disable/enable the egamma algorithms as a group (container) in one go.
     Can enable/disable the full egamma
@@ -50,6 +52,20 @@ class doTopoCaloSeeded (JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class doBremFinding (egammaRecFlagsJobProperty):
+    """ switch for whether to do the brem binding
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+class doVertexBuilding (egammaRecFlagsJobProperty):
+    """ switch for whether to do the conversion vertex building
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 #Other options
 class doEgammaTruthAssociation (JobProperty):
     """ switch for truth association alg
@@ -59,7 +75,7 @@ class doEgammaTruthAssociation (JobProperty):
     StoredValue=True
 
 class doConversions (JobProperty):
-    """ switch for Conversions
+    """ switch for doing conversion matching
     """
     statusOn=True
     allowedTypes=['bool']
@@ -126,9 +142,10 @@ class egammaRecFlags(JobPropertyContainer):
 jobproperties.add_Container(egammaRecFlags)
 
 # I want always the following flags in the container  
-_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doConversions,doTopoCaloSeeded,cellContainerName,doSwitchTRTGas,
-              doEgammaTruthAssociation,clusterCorrectionVersion,calibMVAVersion, doSuperclusters, inputTopoClusterCollection, 
-              egammaTopoClusterCollection]
+_list_Egamma=[Enabled, doEgammaCaloSeeded, doEgammaForwardSeeded, doBremFinding, doVertexBuilding,
+              doConversions, doTopoCaloSeeded, cellContainerName, doSwitchTRTGas,
+              doEgammaTruthAssociation, clusterCorrectionVersion, calibMVAVersion, doSuperclusters, 
+              inputTopoClusterCollection, egammaTopoClusterCollection]
 
 for j in _list_Egamma: 
     jobproperties.egammaRecFlags.add_JobProperty(j)

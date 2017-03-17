@@ -6,7 +6,7 @@
 atlas_subdir( egammaAlgs )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Event/EventKernel
                           Event/xAOD/xAODCaloEvent
@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           PhysicsAnalysis/MCTruthClassifier
-                          PRIVATE
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloUtils
                           Calorimeter/CaloEvent
@@ -40,21 +39,11 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CLHEP )
 
-# tag ROOTMathLibs was not recognized in automatic conversion in cmt2cmake
-
-# Component(s) in the package:
-atlas_add_library( egammaAlgsLib
-                   src/*.cxx
-                   NO_PUBLIC_HEADERS
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloUtilsLib StoreGateLib SGtests ElectronPhotonSelectorToolsLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloGeoHelpers AthenaKernel CxxUtils xAODTracking egammaRecEvent egammaUtils PathResolver Particle ParticleTruth TrkToolInterfaces InDetRecToolInterfaces FourMomUtils TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderTools )
-
 atlas_add_component( egammaAlgs
+		     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel CxxUtils StoreGateLib SGtests xAODTracking ElectronPhotonSelectorToolsLib egammaRecEvent egammaUtils PathResolver egammaAlgsLib Particle ParticleTruth TrkToolInterfaces InDetRecToolInterfaces FourMomUtils TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderTools )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel CxxUtils StoreGateLib SGtests xAODTracking ElectronPhotonSelectorToolsLib egammaRecEvent egammaUtils PathResolver Particle ParticleTruth TrkToolInterfaces InDetRecToolInterfaces FourMomUtils TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderTools )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

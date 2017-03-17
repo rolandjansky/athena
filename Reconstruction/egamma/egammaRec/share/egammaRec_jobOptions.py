@@ -14,6 +14,25 @@ topSequence = AlgSequence()
 ###############Print Egamma JobProperties#############
 jobproperties.egammaRecFlags.print_JobProperties("full")
 #####################################################################
+
+# Run Brem builder.
+if jobproperties.egammaRecFlags.doBremFinding() and DetFlags.detdescr.ID_on():
+    try:
+        import egammaAlgs.EMBremCollectionBuilder
+    except Exception:
+        treatException("Could not set up EMBremFinder. Switch it off !")
+        jobproperties.egammaRecFlags.doBremFinding=False    
+        egammaAlgs.EMBremCollectionBuilder(disable=True)
+
+# Run conversion vertex builder.
+if jobproperties.egammaRecFlags.doVertexBuilding() and DetFlags.detdescr.ID_on():
+    try:
+        import egammaAlgs.EMVertexBuilder
+    except Exception:
+        treatException("Could not set up the conversion vertex building. Switch it off !")
+        jobproperties.egammaRecFlags.doEMVertexBuilder=False    
+        egammaAlgs.EMVertexBuilder(disable=True)
+
 # Run calo-based (egamma) algorithm, includes topo-seeded
 # It requires either to read ESD
 # either that Emcluster have been build

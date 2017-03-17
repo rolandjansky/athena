@@ -3,7 +3,7 @@
 __doc__ = "ToolFactory to instantiate EMVertexBuilder with default configuration"
 __author__ = "Bruno Lenzi"
 
-import egammaToolsConf
+from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import FcnWrapper, ToolFactory
 from egammaRec import egammaKeys
 from RecExConfig.RecFlags import rec
@@ -32,7 +32,7 @@ class VertexFinderToolInstance(FcnWrapper):
     return theemvertexfindertool.toolInstance()
 
 
-EMVertexBuilder = ToolFactory( egammaToolsConf.EMVertexBuilder,
+EMVertexBuilder = AlgFactory( egammaAlgsConf.EMVertexBuilder,
     InputTrackParticleContainerName = egammaKeys.outputTrackParticleKey(),
     OutputConversionContainerName   = egammaKeys.outputConversionKey(),
     VertexFinderTool                = VertexFinderToolInstance(),

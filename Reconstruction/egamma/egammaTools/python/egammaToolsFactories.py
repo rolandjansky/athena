@@ -71,15 +71,7 @@ egammaCheckEnergyDepositTool = ToolFactory(egammaToolsConf.egammaCheckEnergyDepo
                                            ThrF3max=0.8)
 
 
-from EMBremCollectionBuilder import egammaBremCollectionBuilder
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
-                                       name = 'EMBremCollectionBuilder',
-                                       ExtrapolationTool = EMExtrapolationTools,
-                                       OutputTrackContainerName=egammaKeys.outputTrackKey(),
-                                       ClusterContainerName=egammaKeys.inputClusterKey(),
-                                       DoTruth=rec.doTruth()
-                                       )
 
 
 EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
@@ -148,4 +140,3 @@ TightForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSele
 from EMShowerBuilder import EMShowerBuilder
 from egammaOQFlagsBuilder import egammaOQFlagsBuilder
 from EMTrackMatchBuilder import EMTrackMatchBuilder
-from EMVertexBuilder import EMVertexBuilder
