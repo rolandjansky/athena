@@ -204,7 +204,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
     else {
       m_triggerEnergies[bit_pos] = (*m_itt)->energy();
       m_triggerID[bit_pos] = bit_pos;
-      ATH_MSG_ERROR("Counter id = " << bit_pos << ", energy = " << m_triggerEnergies[bit_pos] << " pC");
+      ATH_MSG_DEBUG("Counter id = " << bit_pos << ", energy = " << m_triggerEnergies[bit_pos] << " pC");
     }
       
     unsigned int nTriggerTimes = m_triggerTimes.size();
