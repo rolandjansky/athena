@@ -12,13 +12,6 @@
 
 #include <string>
 
-/*
-  
-  This is the HEADER file for the Algorithm SGWrite.
-  It illustrates how to write a data object into StoreGate
-  
-*/
-
 class HiveAlgBase  :  public AthAlgorithm, public rGen {
   
 public:
