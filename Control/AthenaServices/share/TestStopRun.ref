@@ -1,20 +1,20 @@
-Wed Mar 15 10:27:50 CET 2017
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Fri Mar 17 17:22:43 CET 2017
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [Athena-22.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2017-03-13 22:11]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2017-03-17 17:16]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaServices/TestStopRun.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-Py:ConfigurableDb    INFO Read module info for 5283 configurables from 1095 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5282 configurables from 7 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on olsnbb06.cern.ch on Wed Mar 15 10:28:04 2017
+                                          running on p05614910w96644.cern.ch on Fri Mar 17 17:22:53 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -22,17 +22,11 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2252 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2303 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-AthMasterSeq         INFO Member list: AthSequencer/AthAlgEvtSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-AthAlgEvtSeq         INFO Member list: AthSequencer/AthBeginSeq, AthSequencer/AthAllAlgSeq, AthSequencer/AthEndSeq
-AthBeginSeq          INFO Member list: AthIncFirerAlg/BeginIncFiringAlg, IncidentProcAlg/IncidentProcAlg1
-AthAllAlgSeq         INFO Member list: AthSequencer/AthCondSeq, AthSequencer/AthAlgSeq
-AthAlgSeq            INFO Member list: AthenaStopperAlg
-AthEndSeq            INFO Member list: AthIncFirerAlg/EndIncFiringAlg, IncidentProcAlg/IncidentProcAlg2
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
@@ -46,16 +40,7 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events pr
 AthenaEventLoopMgrSUCCESS A stopRun was requested. Terminating event loop.
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
-AthBeginSeq          INFO Finalizing AthBeginSeq...
-AthCondSeq           INFO Finalizing AthCondSeq...
-AthAlgSeq            INFO Finalizing AthAlgSeq...
-AthAllAlgSeq         INFO Finalizing AthAllAlgSeq...
 IncidentProcAlg2     INFO Finalize
-AthEndSeq            INFO Finalizing AthEndSeq...
-AthAlgEvtSeq         INFO Finalizing AthAlgEvtSeq...
-AthOutSeq            INFO Finalizing AthOutSeq...
-AthRegSeq            INFO Finalizing AthRegSeq...
-AthMasterSeq         INFO Finalizing AthMasterSeq...
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
