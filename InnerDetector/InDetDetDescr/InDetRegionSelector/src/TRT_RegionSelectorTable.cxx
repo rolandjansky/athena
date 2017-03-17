@@ -40,7 +40,7 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 						 const IInterface* parent)
   :  AthAlgTool(type,name,parent),
      m_TRT_IdMapping("TRT_CablingSvc", name),
-     m_regionLUT(NULL),
+     m_regionLUT(0),
      m_managerName("TRT"),
      m_roiFileName("TRTRoITable.txt"),
      m_printHashId(true),
@@ -125,7 +125,7 @@ TRT_RegionSelectorTable::createTable()
     return StatusCode::FAILURE;
   }
   // Get the id helper 
-  const TRT_ID* idHelper = NULL;
+  const TRT_ID* idHelper = 0;
   if ( detStore()->retrieve( idHelper, "TRT_ID" ).isFailure() ) {
     msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
@@ -148,8 +148,8 @@ TRT_RegionSelectorTable::createTable()
     int idLayerWheel = idHelper->layer_or_wheel(id);
     int idPhiModule = idHelper->phi_module(id);
     int idStrawLayer = idHelper->straw_layer(id);
-    const TRT_BarrelElement * Belement = NULL;
-    const TRT_EndcapElement * Eelement = NULL;
+    const TRT_BarrelElement* Belement = 0;
+    const TRT_EndcapElement* Eelement = 0;
     Identifier idelement;
     double InnerRadiusOfStraw = 2.; //hardcoded. No method? (it will NEVER change anyway)
     double phiMin,phiMax,rz;    

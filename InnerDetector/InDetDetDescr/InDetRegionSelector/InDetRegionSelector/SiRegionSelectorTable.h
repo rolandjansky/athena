@@ -14,15 +14,12 @@
 
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
 
-// #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-// #include "PixelCabling/PixelIdMapping.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 
-// class StoreGateSvc;
 class RegSelSiLUT;
 
 #include <string>
@@ -47,7 +44,6 @@ private:
   
   StatusCode createTable();
   
-  //  StoreGateSvc*  m_detStore;
   RegSelSiLUT*   m_regionLUT;
 
   // Algorithm properties
@@ -58,7 +54,6 @@ private:
   bool m_noDBM;
 
   // cablings
-  //  ToolHandle<PixelIdMapping>     m_pixIdMapping;
   ServiceHandle<IPixelCablingSvc> m_pixIdMapping;
   ServiceHandle<ISCT_CablingSvc>  m_sctCablingSvc;
 
