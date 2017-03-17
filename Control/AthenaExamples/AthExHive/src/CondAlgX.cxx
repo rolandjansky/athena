@@ -3,6 +3,7 @@
 */
 
 #include "CondAlgX.h"
+#include "AthExHive/IASCIICondDbSvc.h"
 #include "CxxUtils/make_unique.h"
 
 #include "StoreGate/WriteCondHandle.h"
@@ -103,7 +104,7 @@ StatusCode CondAlgX::execute() {
                   << wch.dbKey() << "\" from CondDb");
 
     EventIDRange r;
-    ICondSvc::dbData_t val;
+    IASCIICondDbSvc::dbData_t val;
     if (m_cds->getRange(wch.dbKey(), getContext(), r, val).isFailure()) {
       ATH_MSG_ERROR("  could not find dbKey \"" << wch.dbKey() 
 		    << "\" in CondSvc registry");
