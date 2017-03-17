@@ -743,8 +743,9 @@ namespace Analysis
       //std::cout << " trk: " <<  tmpMuon->primaryTrackParticle()->z0() << "  PVZ: " << m_priVtx->z() << "  and z: " << z0 << std::endl;
 
       //Finding SV with a muon
-      const xAOD::TrackParticleContainer *trackParticles = 0;
-      CHECK( evtStore()->retrieve(trackParticles, "InDetTrackParticles") );
+      //const xAOD::TrackParticleContainer *trackParticles = 0;
+      //evtStore()->retrieve(trackParticles, "InDetTrackParticles") );
+      SG::ReadHandle<xAOD::TrackParticleContainer> trackParticles("InDetTrackParticles");
       xAOD::TrackParticleContainer::const_iterator trackItr   = trackParticles->begin();
       xAOD::TrackParticleContainer::const_iterator trackItrE =  trackParticles->end();
       std::vector<const xAOD::TrackParticle*> my_trkparticles(0);

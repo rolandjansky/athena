@@ -12,6 +12,7 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Control/AthenaBaseComps
    Control/SGTools
+   Control/StoreGate
    DetectorDescription/GeoPrimitives
    Event/xAOD/xAODBTagging
    Event/xAOD/xAODJet

@@ -50,6 +50,7 @@ UPDATE: 2006-02-10 AK, MW more track quality cuts added
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandle.h"
 #include "JetTagTools/ITagTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -229,11 +230,13 @@ namespace Analysis
     /** @brief Name of the original electron collection*/
     std::string m_originalElCollectionName;
     /** @brief Original electron collection*/
-    const ElectronContainer* m_originalElCollection;
+    //const ElectronContainer* m_originalElCollection;
+    SG::ReadHandle<ElectronContainer> m_originalElCollection;
     /** @brief Name of the original photon collection*/
     std::string m_originalPhCollectionName;
     /** @brief Original photon collection*/
-    const PhotonContainer* m_originalPhCollection;
+    //const PhotonContainer* m_originalPhCollection;
+    SG::ReadHandle<PhotonContainer> m_originalPhCollection;
     
     /** @brief for reference mode: */
     std::string m_runModus;

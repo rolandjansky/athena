@@ -327,7 +327,7 @@ void SoftElectronTag::tagJet(xAOD::Jet& jetToTag)
 {
   // If one wants to add a pointer to the best Electron, needs the container. 
   // Retrieved for each jet. Does another way to do this exist ? 
-  if(m_writeInfoPlus) {
+  /*if(m_writeInfoPlus) {
     bool ppb = true;
     StatusCode sc = evtStore()->retrieve(m_originalElCollection, m_originalElCollectionName);
     
@@ -361,7 +361,7 @@ void SoftElectronTag::tagJet(xAOD::Jet& jetToTag)
       ATH_MSG_VERBOSE("Not able to persistify photon infos ! Exiting...");
       return;
     }
-  }
+  }*/
 
   // author to know which jet algorithm: 
   m_author = jetToTag.jetAuthor();
@@ -784,13 +784,14 @@ void SoftElectronTag::JetTagReferenceMode(xAOD::Jet& jetToTag)
 	  const xAOD::TrackParticleContainer * tpContainer(0);
 	  const TrackParticleTruthCollection* tpTruthColl(0);
 	  //sc = m_storeGate->retrieve(tpContainer,m_TPContainerName);
-	  StatusCode sc = evtStore()->retrieve(tpContainer,m_TPContainerName);
+	  //StatusCode sc = evtStore()->retrieve(tpContainer,m_TPContainerName);
+	  StatusCode sc = false;
 	  if ( sc.isFailure() ) {
 	    ATH_MSG_DEBUG("No TrackParticleCandidate ! Cannot build calibration");
 	    return;
 	  }
 	  //sc = m_storeGate->retrieve(tpTruthColl,m_TPTruthContainerName);
-	  sc = evtStore()->retrieve(tpTruthColl,m_TPTruthContainerName);
+	  //sc = evtStore()->retrieve(tpTruthColl,m_TPTruthContainerName);
 	  if (sc.isFailure() ) {
 	    ATH_MSG_DEBUG("No TrackParticleTruthCollection ! Cannot build calibration");
 	    return;

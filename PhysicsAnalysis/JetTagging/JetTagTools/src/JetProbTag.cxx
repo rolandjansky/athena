@@ -321,14 +321,14 @@ namespace Analysis {
 		   author ) != m_jetWithInfoPlus.end()) keepInfoPlus = true;
 
     /** retrieve the original TP collection for persistence: */
-    if(m_runModus == "analysis" && keepInfoPlus) {
+    /*if(m_runModus == "analysis" && keepInfoPlus) {
       if (evtStore()->retrieve(m_originalTPCollection, m_originalTPCollectionName).isFailure()) {
 	ATH_MSG_ERROR("#BTAG# " << m_originalTPCollectionName << " not found in StoreGate.");
 	return;
       } else {
 	ATH_MSG_VERBOSE("#BTAG# TrackParticleContainer " << m_originalTPCollectionName << " found.");
       }
-    }
+    }*/
 
     /** for reference mode: */
     bool jetIsOkForReference = false;
