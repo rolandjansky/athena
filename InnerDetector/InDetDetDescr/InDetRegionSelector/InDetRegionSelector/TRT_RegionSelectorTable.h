@@ -1,3 +1,12 @@
+// emacs: this is -*- c++ -*-
+//
+//   @file    TRT_RegionSelectorTable.h
+//
+//
+//   $Id: TRT_RegionSelectorTable.h, v0.0  Sat 18 Mar 2017 14:37:14 CET sutt (sutt@cern.ch) $
+//
+//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
+
 #ifndef InDetRegionSelector_TRT_RegionSelectorTable_h
 #define InDetRegionSelector_TRT_RegionSelectorTable_h
 

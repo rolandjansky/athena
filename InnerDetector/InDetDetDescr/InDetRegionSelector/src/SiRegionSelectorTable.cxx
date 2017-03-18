@@ -1,3 +1,13 @@
+///
+///   @file    SiRegionSelectorTable.cxx
+///
+///
+///   $Id: SiRegionSelectorTable.cxx, v0.0  Sat 18 Mar 2017 14:43:33 CET sutt (sutt@cern.ch)) $
+///
+///   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
+
+
+  
 #include "InDetRegionSelector/SiRegionSelectorTable.h"
 
 // #include "GaudiKernel/MsgStream.h"

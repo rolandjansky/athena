@@ -3,10 +3,10 @@
 //   FTK_RegionSelectorTable.h        
 //
 //   Create the new RegSelSiLUT for the FTK
-// 
-//   Copyright (C) 2011 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: FTK_RegionSelectorTable.h, v0.0 Fri 24 Jun 2011 13:10:59 BST $
+//
+//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
 
  
 #ifndef InDetRegionSelector_FTK_RegionSelectorTable_h
