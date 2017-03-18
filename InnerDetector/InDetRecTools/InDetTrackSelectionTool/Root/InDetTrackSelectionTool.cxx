@@ -277,7 +277,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ATH_MSG_INFO( "  Minimum hits from innermost pixel layer: " << m_minNInnermostLayerHits );
     ATH_MSG_INFO( "    (Track will pass if no hit is expected.)" );
     auto minInnermostLayerHits = make_unique< FuncSummaryValueCut<2> >
-      (this, std::array<xAOD::SummaryType,2>({xAOD::numberOfInnermostPixelLayerHits, xAOD::expectInnermostPixelLayerHit}));
+      (this, std::array<xAOD::SummaryType,2>{{xAOD::numberOfInnermostPixelLayerHits, xAOD::expectInnermostPixelLayerHit}});
     minInnermostLayerHits->setFunction( [=](const std::array<uint8_t, 2> vals)
 					{return !vals[1] || vals[0] >= m_minNInnermostLayerHits;} );
     m_trackCuts["InnermostLayersHits"].push_back(std::move(minInnermostLayerHits));
@@ -286,8 +286,8 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ATH_MSG_INFO( "  Minimum hits from next to innermost pixel layer: " << m_minNNextToInnermostLayerHits );
     ATH_MSG_INFO( "    (Track will pass if no hit is expected.)" );
     auto minNextToInnermostLayerHits = make_unique< FuncSummaryValueCut<2> >
-      (this, std::array<xAOD::SummaryType,2>({xAOD::numberOfNextToInnermostPixelLayerHits,
-	    xAOD::expectNextToInnermostPixelLayerHit}) );
+      (this, std::array<xAOD::SummaryType,2>{{xAOD::numberOfNextToInnermostPixelLayerHits,
+	    xAOD::expectNextToInnermostPixelLayerHit}} );
     minNextToInnermostLayerHits->setFunction( [=] (std::array<uint8_t, 2> vals)
 					      {return !vals[1] || vals[0] >= m_minNNextToInnermostLayerHits;} );
     m_trackCuts["InnermostLayersHits"].push_back(std::move(minNextToInnermostLayerHits));
@@ -301,9 +301,9 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
       ATH_MSG_WARNING( "  Use 1 for \"or\" or 2 for \"and\"." );
     }
     auto minInnerHits = make_unique< FuncSummaryValueCut<4> >
-      (this, std::array<xAOD::SummaryType,4>(
-	{xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits,
-	    xAOD::expectInnermostPixelLayerHit, xAOD::expectNextToInnermostPixelLayerHit}) );
+      (this, std::array<xAOD::SummaryType,4>
+      {{xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits,
+	    xAOD::expectInnermostPixelLayerHit, xAOD::expectNextToInnermostPixelLayerHit}} );
     minInnerHits->setFunction( [=](const std::array<uint8_t, 4>& vals)
 			       {return std::max(vals[0], (uint8_t) !vals[2])
 				   + std::max(vals[1], (uint8_t) !vals[3])
@@ -315,8 +315,8 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ATH_MSG_INFO( "    a next-to-innermost layer hit is required if it is expected." );
     auto minInnerHits = make_unique< FuncSummaryValueCut<4> >
       (this, std::array<xAOD::SummaryType,4>(  
-	{xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits,
-	    xAOD::expectInnermostPixelLayerHit, xAOD::expectNextToInnermostPixelLayerHit}) );
+	{{xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits,
+              xAOD::expectInnermostPixelLayerHit, xAOD::expectNextToInnermostPixelLayerHit}}) );
     minInnerHits->setFunction( [=](const std::array<uint8_t,4>& vals)
 			       {return (vals[2] > 0 && vals[0] >= 1) ||
 				   (vals[2] == 0 && (vals[3] == 0 || vals[1] >= 1));} );
@@ -421,7 +421,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ATH_MSG_INFO( "    i.e. max 1 shared pixel hit or" );
     ATH_MSG_INFO( "    2 shared SCT hits, and not both." );
     auto oneSharedModule = make_unique< FuncSummaryValueCut<2> >
-      (this, std::array<xAOD::SummaryType, 2>({xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits}) );
+      (this, std::array<xAOD::SummaryType, 2>{{xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits}} );
     oneSharedModule->setFunction( [=] (const std::array<uint8_t, 2> vals) {return vals[0] + vals[1]/2 <= 1;} );
     m_trackCuts["SiHits"].push_back(std::move(oneSharedModule));
   }
@@ -429,9 +429,13 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ATH_MSG_INFO( "  Minimum silicon hits if the track has shared hits: "
 		  << m_minNSiHitsIfSiSharedHits );
     auto siHits = make_unique< FuncSummaryValueCut<6> >
-      (this, std::array<xAOD::SummaryType, 6>({xAOD::numberOfPixelHits, xAOD::numberOfSCTHits,
-	    xAOD::numberOfPixelDeadSensors, xAOD::numberOfSCTDeadSensors,
-	    xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits}) );
+      (this, std::array<xAOD::SummaryType, 6>
+       ({{xAOD::numberOfPixelHits,
+          xAOD::numberOfSCTHits,
+          xAOD::numberOfPixelDeadSensors,
+          xAOD::numberOfSCTDeadSensors,
+          xAOD::numberOfPixelSharedHits,
+          xAOD::numberOfSCTSharedHits}}) );
     siHits->setFunction( [=] (const std::array<uint8_t, 6>& vals)
 			 {return (vals[4] + vals[5] == 0) ||
 			     (vals[0] + vals[1] + vals[2] + vals[3]
@@ -448,7 +452,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
   if (m_useExperimentalInnermostLayersCut) {
     ATH_MSG_INFO( "  Zero pixel holes allowed, except one pix hole is allowed if there is a physical IBL hit and a BLayer hit is expected but there is no BLayer hit." );
     auto pixHoles = make_unique< FuncSummaryValueCut<4> >
-      (this, std::array<xAOD::SummaryType, 4>({xAOD::numberOfPixelHoles, xAOD::numberOfInnermostPixelLayerHits, xAOD::expectNextToInnermostPixelLayerHit, xAOD::numberOfNextToInnermostPixelLayerHits}) );
+      (this, std::array<xAOD::SummaryType, 4>({{xAOD::numberOfPixelHoles, xAOD::numberOfInnermostPixelLayerHits, xAOD::expectNextToInnermostPixelLayerHit, xAOD::numberOfNextToInnermostPixelLayerHits}}) );
     pixHoles->setFunction( [=](const std::array<uint8_t, 4>& vals)
 			   {return (vals[0] == 0) || (vals[0] <= 1 && vals[1] >= 1 && vals[2] && vals[3] == 0);});
     m_trackCuts["PixHits"].push_back(std::move(pixHoles));
@@ -578,7 +582,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
       ATH_MSG_INFO( "    (only applied on tracks where all TRT hits are Xenon)" );
       auto notAllXeOrEProb = make_unique< OrCut<2> >(this);
       auto notAllXe = make_unique< FuncSummaryValueCut<3> >
-	(this, std::array<xAOD::SummaryType,3>{xAOD::numberOfTRTHits, xAOD::numberOfTRTOutliers, xAOD::numberOfTRTXenonHits});
+	(this, std::array<xAOD::SummaryType,3>{{xAOD::numberOfTRTHits, xAOD::numberOfTRTOutliers, xAOD::numberOfTRTXenonHits}});
       notAllXe->setFunction( [=] (const std::array<uint8_t, 3>& vals)
 			     {return vals[0] + vals[1] > vals[2];} );
       notAllXeOrEProb->setCut(0, std::move(notAllXe));
