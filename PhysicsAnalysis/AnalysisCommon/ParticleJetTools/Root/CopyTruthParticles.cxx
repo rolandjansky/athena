@@ -35,10 +35,21 @@ int CopyTruthParticles::execute() const {
   // Classify particles for tagging and add to the TruthParticleContainer
   std::unique_ptr<ConstDataVector<xAOD::TruthParticleContainer> > ptruth(new ConstDataVector<xAOD::TruthParticleContainer>(SG::VIEW_ELEMENTS));
   size_t numCopied = 0;
-  const xAOD::TruthEvent& hsevt = *truthEvents->front();
-  for (size_t itp(0); itp<hsevt.nTruthParticles(); ++itp) {
-    const xAOD::TruthParticle* tp = hsevt.truthParticle(itp);
+  const xAOD::TruthEvent* hsevt = truthEvents->front();
+  if(!hsevt) {
+    ATH_MSG_ERROR("Null pointer received for first truth event!");
+    return 1;
+  }
+  for (size_t itp(0); itp<hsevt->nTruthParticles(); ++itp) {
+    const xAOD::TruthParticle* tp = hsevt->truthParticle(itp);
     if (!tp || tp->pt() < m_ptmin)
+    if (!tp) {
+      // This might result from a thinned truth collection, so is not
+      // an error state.
+      ATH_MSG_VERBOSE("Null pointer received for truth particle to be copied");
+      continue;
+    }
+    if (tp->pt() < m_ptmin)
         continue;
 
     if (classify(tp)) {

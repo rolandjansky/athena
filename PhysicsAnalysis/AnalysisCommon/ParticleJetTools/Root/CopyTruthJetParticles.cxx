@@ -173,9 +173,6 @@ MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const
   return originMap[tp];
 }
 
-
-
-
 int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() const{ 
 
     ATH_MSG_DEBUG(" in call once barcode offset is"<<m_barcodeOffset);
@@ -259,9 +256,13 @@ int CopyTruthJetParticles::execute() const {
   std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin> originMap;
   originMap.clear();
   size_t numCopied = 0;
-  const xAOD::TruthEvent& hsevt = *truthEvents->front();
-  for (size_t itp(0); itp<hsevt.nTruthParticles(); ++itp) {
-    const xAOD::TruthParticle* tp = hsevt.truthParticle(itp);
+  const xAOD::TruthEvent* hsevt = truthEvents->front();
+  if(!hsevt) {
+    ATH_MSG_ERROR("Null pointer received for first truth event!");
+    return 1;
+  }
+  for (size_t itp(0); itp<hsevt->nTruthParticles(); ++itp) {
+    const xAOD::TruthParticle* tp = hsevt->truthParticle(itp);
     if(tp == NULL) continue;
     if (tp->pt() < m_ptmin)
         continue;
