@@ -105,9 +105,13 @@ public:
   
   /**
    * @brief If this object is used as a property, then this should be called
-   * during the initialize phase.  It will fail if the requested StoreGate
-   * service cannot be found or if the key is blank.
+   *        during the initialize phase.  It will fail if the requested
+   *        StoreGate service cannot be found or if the key is blank.
+   *
+   * @param used If false, then this handle is not to be used.
+   *             Instead of normal initialization, the key will be cleared.
    */
+  StatusCode initialize (bool used);
   StatusCode initialize();
 
 

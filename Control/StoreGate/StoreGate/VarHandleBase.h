@@ -227,6 +227,8 @@ namespace SG {
 
     /**
      * @brief Retrieve and cache all information managed by a handle.
+     * @param used If false, then this handle is not to be used.
+     *             Instead of normal initialization, the key will be cleared.
      *
      * This will retrieve and cache the associated @c DataProxy.
      *
@@ -234,6 +236,7 @@ namespace SG {
      * the proxy may not exist.  We return Success in that case; however,
      * @c isInitialized will still return false.
      */
+    StatusCode initialize (bool used);
     StatusCode initialize();
 
 
