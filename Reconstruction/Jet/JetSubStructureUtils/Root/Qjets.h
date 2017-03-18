@@ -30,11 +30,11 @@ namespace JetSubStructureUtils {
 
   class Qjets {
     private:
-      bool _rand_seed_set;
-      unsigned int _seed;
-      double _zcut, _dcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr;
-      std::map<int,bool> _merged_jets;
-      std::priority_queue <jet_distance, std::vector<jet_distance>, JetDistanceCompare> _distances;
+      bool m_rand_seed_set;
+      unsigned int m_seed;
+      double m_zcut, m_dcut, m_dcut_fctr, m_exp_min, m_exp_max, m_rigidity, m_truncation_fctr;
+      std::map<int,bool> m_merged_jets;
+      std::priority_queue <jet_distance, std::vector<jet_distance>, JetDistanceCompare> m_distances;
 
       double d_ij(const fastjet::PseudoJet& v1, const fastjet::PseudoJet& v2) const; 
       void ComputeDCut(fastjet::ClusterSequence & cs);
