@@ -59,11 +59,14 @@ jet_distance Qjets::GetNextDistance(){
   }
 
   double rand(Rand()), tot_weight(0.);
-  for(vector<pair<jet_distance, double> >::iterator it = popped_distances.begin(); it != popped_distances.end(); it++){
-    tot_weight += (*it).second/norm;
-    if(tot_weight >= rand){
-      ret = (*it).first;
-      break;
+  if (!popped_distances.empty()) {
+    const double inv_norm = 1. / norm;
+    for(vector<pair<jet_distance, double> >::iterator it = popped_distances.begin(); it != popped_distances.end(); it++){
+      tot_weight += (*it).second * inv_norm;
+      if(tot_weight >= rand){
+        ret = (*it).first;
+        break;
+      }
     }
   }
 

@@ -58,8 +58,9 @@ map<string, double> FoxWolfram::result(const fastjet::PseudoJet &jet) const
   vector<double> R;
 
   if(ESum > 0) {
+    const double inv_Esum2 = 1. / (ESum*ESum);
     for(int i=0; i<5; i++) {
-      FoxWolframMoments[i] /= ESum*ESum;
+      FoxWolframMoments[i] *= inv_Esum2;
       R.push_back(FoxWolframMoments[i]);
     }
   }
