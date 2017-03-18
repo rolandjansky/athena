@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # 
 ## G4HiveExOpts.py - an example job options for multi-threaded simulation
 ## in AthenaHive. This configuration can only be run if Hive is enabled.
