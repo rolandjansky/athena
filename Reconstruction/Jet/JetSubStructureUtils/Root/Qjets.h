@@ -13,7 +13,6 @@
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 
-using namespace std;
 
 namespace JetSubStructureUtils {
   struct jet_distance{
