@@ -412,7 +412,6 @@ namespace SG {
 
     return sc;
   }
-  StatusCode VarHandleBase::initialize() { return initialize(true); } // temp
 
 
   /**

@@ -236,8 +236,7 @@ namespace SG {
      * the proxy may not exist.  We return Success in that case; however,
      * @c isInitialized will still return false.
      */
-    StatusCode initialize (bool used);
-    StatusCode initialize();
+    StatusCode initialize (bool used = true);
 
 
     /**

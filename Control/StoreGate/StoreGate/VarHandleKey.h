@@ -111,8 +111,7 @@ public:
    * @param used If false, then this handle is not to be used.
    *             Instead of normal initialization, the key will be cleared.
    */
-  StatusCode initialize (bool used);
-  StatusCode initialize();
+  StatusCode initialize (bool used = true);
 
 
   /**

@@ -108,7 +108,6 @@ StatusCode VarHandleKey::initialize (bool used /*= true*/)
   CHECK( m_storeHandle.retrieve() );
   return StatusCode::SUCCESS;
 }
-StatusCode VarHandleKey::initialize() { return initialize(true); } // temp
 
 
 /**
