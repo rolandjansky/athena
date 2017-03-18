@@ -34,7 +34,7 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
 					     const std::string& name,
 					     const IInterface* parent)
   :  AthAlgTool(type,name,parent),
-     m_regionLUT(0),
+     m_regionLUT(nullptr),
      m_managerName(""),
      m_roiFileName("RoITable.txt"),
      m_printHashId(true),

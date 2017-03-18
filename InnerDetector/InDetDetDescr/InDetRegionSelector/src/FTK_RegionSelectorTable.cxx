@@ -1,3 +1,14 @@
+//
+//   @file    FTK_RegionSelectorTable.cxx         
+//   
+//
+//   @author M Sutton
+//
+//   $Id: FTK_RegionSelectorTable.cxx, v0.0   Sat 18 Mar 2017 13:38:54 CET sutt $
+//
+//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
+
+
 #include "InDetRegionSelector/FTK_RegionSelectorTable.h"
 
 // #include "GaudiKernel/MsgStream.h"
@@ -27,7 +38,7 @@ FTK_RegionSelectorTable::FTK_RegionSelectorTable(const std::string& type,
 						 const std::string& name,
 						 const IInterface* parent)
   :  AthAlgTool(type,name,parent),
-     m_regionLUT(0),
+     m_regionLUT(nullptr),
      m_managerName(""),
      m_roiFileName("RoITable.txt"),
      m_printHashId(true),
@@ -46,7 +57,7 @@ FTK_RegionSelectorTable::FTK_RegionSelectorTable(const std::string& type,
 
 StatusCode 
 FTK_RegionSelectorTable::initialize(){
-  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << "\tSUTT" << endmsg;
+  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endmsg;
   msg(MSG::INFO)  << "Tool Properties" << endmsg;
   msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
   if( msgLvl(MSG::DEBUG) ) {

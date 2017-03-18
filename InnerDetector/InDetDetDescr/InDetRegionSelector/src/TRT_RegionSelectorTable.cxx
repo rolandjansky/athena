@@ -1,3 +1,13 @@
+//
+//   @file    TRT_RegionSelectorTable.cxx         
+//   
+//
+//   @author M Sutton
+//
+//   $Id: TRT_RegionSelectorTable.cxx, v0.0   Sat 18 Mar 2017 13:48:52 CET sutt $
+//
+//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
+
 #include "InDetRegionSelector/TRT_RegionSelectorTable.h"
 
 #include "GaudiKernel/MsgStream.h"
@@ -40,7 +50,7 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 						 const IInterface* parent)
   :  AthAlgTool(type,name,parent),
      m_TRT_IdMapping("TRT_CablingSvc", name),
-     m_regionLUT(0),
+     m_regionLUT(nullptr),
      m_managerName("TRT"),
      m_roiFileName("TRTRoITable.txt"),
      m_printHashId(true),
