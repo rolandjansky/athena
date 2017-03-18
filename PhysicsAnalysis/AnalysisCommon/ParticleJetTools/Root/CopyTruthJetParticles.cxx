@@ -165,6 +165,8 @@ MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const
 
 int CopyTruthJetParticles::execute() const {
 
+  ATH_MSG_DEBUG("Executing " << name());
+
   //*******************************
   // retrieve barcode Offset for this event from metadata.
   // We'd need a cleaner solution where this offset is set only at 
