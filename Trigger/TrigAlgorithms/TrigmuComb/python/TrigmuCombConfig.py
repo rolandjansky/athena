@@ -2,6 +2,7 @@
 
 from TrigmuComb.TrigmuCombConf import *
 from TrigmuComb.TrigmuCombMonitoring import *
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
