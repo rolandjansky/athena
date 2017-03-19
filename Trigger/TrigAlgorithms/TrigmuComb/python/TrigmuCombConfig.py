@@ -39,6 +39,14 @@ class TrigmuCombConfig (muComb):
 
       self.MinPtTRK = 0.
 
+      self.WinEtaSigma_g4 = 7.0
+      self.WinPhiSigma_g4 = 7.0
+      self.Chi2Weight_g4  = 2.0
+      if TriggerFlags.run2Config=='2016':
+        self.WinEtaSigma_g4 = 4.0
+        self.WinPhiSigma_g4 = 4.0
+        self.Chi2Weight_g4  = 1.0
+
       if globalflags.DetDescrVersion().find('CSC')!=-1:
         self.IDSCANBarrelRes  = [0.02169,0.0004186]
         self.IDSCANEndcap1Res = [0.03054,0.000325]
