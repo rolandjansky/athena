@@ -22,6 +22,7 @@
 #include "StoreGateExample_ClassDEF.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteHandleKeyArray.h"
 
 
 class WriteDataReentrant
@@ -44,6 +45,8 @@ private:
   SG::WriteHandleKey<std::list<ElementLink<std::vector<float> > > > m_pLinkListKey;
   SG::WriteHandleKey<std::vector<ElementLink<MapStringFloat> > > m_linkVectorKey;
   SG::WriteHandleKey<TestDataObject> m_testObjectKey;
+
+  SG::WriteHandleKeyArray<MyDataObj> m_dobjKeyArray;
 
   SG::DataObjectSharedPtr<TestDataObject> m_testObject;
   StatusCode onError() const;

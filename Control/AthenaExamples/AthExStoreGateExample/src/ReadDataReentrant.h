@@ -42,6 +42,7 @@ private:
   SG::ReadHandleKey<std::list<ElementLink<std::vector<float> > > > m_pLinkListKey;
   SG::ReadHandleKey<std::vector<ElementLink<MapStringFloat> > > m_linkVectorKey;
   SG::ReadHandleKey<TestDataObject> m_testObjectKey;
+  SG::ReadHandleKeyArray<MyDataObj> m_dobjKeyArray;
 };
 
 

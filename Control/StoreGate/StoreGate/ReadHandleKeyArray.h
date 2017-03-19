@@ -83,6 +83,20 @@ namespace SG {
       return ( std::move( hndl ) );
     }
 
+    /**
+     * @brief create a vector of ReadHandles from the ReadHandleKeys
+     * in the array, with explicit EventContext.
+     */
+    std::vector< ReadHandle<T> > makeHandles (const EventContext& ctx) const
+    {
+      std::vector< ReadHandle<T> > hndl;
+      typename std::vector<ReadHandleKey<T>>::const_iterator itr;
+      for (itr = this->begin(); itr != this->end(); ++itr) {
+        hndl.push_back ( ReadHandle<T>( *itr, ctx ) );
+      }
+      return ( std::move( hndl ) );
+    }
+
   };
 
 
