@@ -69,6 +69,8 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
       return StatusCode::FAILURE;
     }
 
+    raccess->connect();
+
     // Check we have the beampipe and print its version
     // Print the  version tag:
     std::string beampipeVersionTag;
@@ -96,6 +98,9 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
 	return (StatusCode::FAILURE); 
       }
     }
+
+    raccess->disconnect();
+
     return StatusCode::SUCCESS;
   }
   return StatusCode::FAILURE;
