@@ -1,4 +1,3 @@
-Warning in <TInterpreter::ReadRootmapFile>: class  xAOD::TReturnCode found in libxAODRootAccessDict.so  is already in libxAODRootAccess.so 
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,14 +5,7 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
-Py:ConfigurableDb WARNING Found 3 duplicates among the 49 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -TrigEFRazorAllTE: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf', 'TrigJetHypo.TrigJetHypoConf']
-Py:ConfigurableDb WARNING   -TrigL2JetHypo: TrigJetHypo.TrigJetHypoConf - ['TrigCaloHypo.TrigCaloHypoConf']
-Py:ConfigurableDb WARNING   -TrigEFDPhiMetJetAllTE: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf', 'TrigJetHypo.TrigJetHypoConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
@@ -27,8 +19,6 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-AthAlgSeq            INFO Member list: AthenaOutputStream/Stream1
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG In initialize 
@@ -712,12 +702,10 @@ Stream1             DEBUG Leaving handle
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
+IncidentProcAlg1     INFO Finalize
 Stream1             DEBUG finalize: Optimize output
 Stream1             DEBUG finalize: end optimize output
-AthAlgSeq            INFO Finalizing AthAlgSeq...
-AthOutSeq            INFO Finalizing AthOutSeq...
-AthRegSeq            INFO Finalizing AthRegSeq...
-AthMasterSeq         INFO Finalizing AthMasterSeq...
+IncidentProcAlg2     INFO Finalize
 AthenaPoolCnvSvc    DEBUG releasing all workers
 DecisionSvc          INFO Finalized successfully.
 AthDictLoaderSvc     INFO in finalize...

@@ -1,4 +1,3 @@
-AthAlgSeq            INFO Member list: PassAllFilter, PassNoneFilter, AddTrigMap, EventTagWriter, TagEventTagWriter, DummyLumirangeTool, RegistrationStreamDefMeta/default, AthPoolEx::WriteData/WriteData, AthenaOutputStream/DataStream, RegistrationStream/FullColl, RegistrationStream/NullColl
 AddTrigMap           INFO in initialize()
 WriteData           DEBUG Property update for OutputLevel : new value = 2
 WriteData            INFO in initialize()
