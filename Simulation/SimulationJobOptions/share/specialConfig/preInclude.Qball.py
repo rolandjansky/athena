@@ -62,11 +62,6 @@ if doG4SimConfig:
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng.log.info("Unlocking simFlags.EquationOfMotion to reset the value for Monopole simulation.")
     from G4AtlasApps.SimFlags import simFlags
-    # FIXME ideally would include this file early enough, so that the unlocking is not required
-    simFlags.EquationOfMotion.unlock()
-    simFlags.EquationOfMotion.set_On()
-    simFlags.EquationOfMotion.set_Value_and_Lock("G4mplEqMagElectricField")#"MonopoleEquationOfMotion")
-    simFlags.G4Stepper.set_Value_and_Lock('ClassicalRK4')
     simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
     # add monopole-specific configuration for looper killer
     simFlags.OptionalUserActionList.addAction('MonopoleLooperKillerTool',['Step'])
