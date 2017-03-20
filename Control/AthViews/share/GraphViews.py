@@ -45,7 +45,6 @@ job.make_alg.ViewBaseName = "view"
 job.make_alg.ViewNumber = 5
 job.make_alg.AlgPoolName = viewAlgPoolName
 job.make_alg.AlgorithmNameSequence = [ "dflow_alg1", "dflow_alg2", "dflow_alg3" ] #Eventually scheduler will do this
-job.make_alg.ExtraOutputs += [ ( 'std::vector<int>', 'dflow_ints' ) ] #Dataflow hack
 
 # View algorithms
 dflow_alg1 = CfgMgr.AthViews__DFlowAlg1("dflow_alg1")
@@ -59,7 +58,6 @@ DeclareViewAlgorithm( dflow_alg3 )
 
 # Merge views
 job += CfgMgr.AthViews__ViewMergeAlg("merge_alg")
-job.merge_alg.ExtraInputs += [ ( 'int', 'all_views_done_dflow' ) ] #Dataflow hack
 
 # Add the view algorithms to the job
 job += allViewAlgorithms
