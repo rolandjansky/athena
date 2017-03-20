@@ -65,8 +65,6 @@ private:
 
   void setIDVariables(const xAOD::DiTauJet& xDiTau);
 
-  const xAOD::DiTauJetContainer* m_xDiTauContainer;
-
   // steering variables
   std::string m_sWeightsFile;
 
@@ -78,9 +76,6 @@ private:
   inline float& setVar(const TString& var) { return *(m_mIDVariables[var]); } //!< not-stateless, many such examples need to be fixed for r22
 
   std::vector<std::string> m_vVarNames;
-private:
-  double GeV = 1000.;
-  
 }; // class DiTauDiscriminantTool
 
 }

@@ -93,7 +93,6 @@ private:
   double f_clusters(const xAOD::DiTauJet& xDiTau, std::vector<fastjet::PseudoJet> vClusters) const;
 
   // steering variables
-  double m_dMaxDeltaR;
   std::string m_sDiTauContainerName;
   std::string m_DiTauContainerNameAux;
   bool m_bCalcCluserVariables;
