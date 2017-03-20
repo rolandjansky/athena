@@ -729,9 +729,9 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
     
     
     // Now add event to the scheduler 
-    info() << "Adding event " << evtContext->evt() 
-	   << ", slot " << evtContext->slot()
-	   << " to the scheduler" << endmsg;
+    debug() << "Adding event " << evtContext->evt() 
+            << ", slot " << evtContext->slot()
+            << " to the scheduler" << endmsg;
     
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginProcessing, 
 					 *evtContext));
@@ -1253,9 +1253,9 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     // 					 *thisFinishedEvtContext ));
 
 
-    info() << "Clearing slot " << thisFinishedEvtContext->slot() 
-	   << " (event " << thisFinishedEvtContext->evt()
-	   << ") of the whiteboard" << endmsg;
+    debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
+            << " (event " << thisFinishedEvtContext->evt()
+            << ") of the whiteboard" << endmsg;
     
     StatusCode sc = clearWBSlot(thisFinishedEvtContext->slot());
     if (!sc.isSuccess()) {
