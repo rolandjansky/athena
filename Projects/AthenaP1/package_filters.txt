@@ -97,12 +97,13 @@
 - Tracking/TrkG4Components/.*
 
 #Remove analysis-related and D3PD code
-- Trigger/TrigAnalysis/TriggerMenuAnalysis
-+ PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
-+ PhysicsAnalysis/D3PDMaker/D3PDMakerCoreComps
-+ PhysicsAnalysis/D3PDMaker/D3PDMakerRoot
-+ PhysicsAnalysis/D3PDMaker/D3PDMakerConfig
-+ PhysicsAnalysis/D3PDMaker/TrigCostD3PDMaker
-- PhysicsAnalysis/D3PDMaker/.*
-- PhysicsAnalysis/.*Phys/.*
-
+#- Trigger/TrigAnalysis/TriggerMenuAnalysis
+#+ PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
+#+ PhysicsAnalysis/D3PDMaker/D3PDMakerCoreComps
+#+ PhysicsAnalysis/D3PDMaker/D3PDMakerRoot
+#+ PhysicsAnalysis/D3PDMaker/D3PDMakerConfig
+#+ PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
+#+ PhysicsAnalysis/D3PDMaker/TrigCostD3PDMaker
+#+ PhysicsAnalysis/HeavyIonPhys/.*
+#- PhysicsAnalysis/D3PDMaker/.*
+#- PhysicsAnalysis/.*Phys/.*
