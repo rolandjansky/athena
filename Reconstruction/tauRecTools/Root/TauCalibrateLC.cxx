@@ -10,6 +10,12 @@
 //compilation error if attempting to include CLHEP first
 //ASGTOOL_ATHENA defined here:
 //https://svnweb.cern.ch/trac/atlasoff/browser/Control/AthToolSupport/AsgTools/trunk/AsgTools/AsgToolsConf.h
+
+// root
+#include "TFile.h"
+#include "TF1.h"
+#include "TH1D.h"
+
 //included eventually from ITauToolBase
 #ifdef ASGTOOL_ATHENA
 #include "CLHEP/Vector/LorentzVector.h"
@@ -18,11 +24,6 @@ using CLHEP::GeV;
 #else
 #define GeV 1000
 #endif
-
-// root
-#include "TFile.h"
-#include "TF1.h"
-#include "TH1D.h"
 
 /********************************************************************/
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
