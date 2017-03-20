@@ -1,11 +1,6 @@
-// emacs: this is -*- c++ -*-
-//
-//   @file    InDetRegionSelectorLUT.h
-//
-//
-//   $Id: InDetRegionSelectorLUT.h, v0.0  Sat 18 Mar 2017 14:36:14 CET sutt $ 
-//
-//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef InDetRegionSelector_InDetRegionSelectorLUT_h
 #define InDetRegionSelector_InDetRegionSelectorLUT_h

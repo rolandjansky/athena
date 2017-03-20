@@ -1,12 +1,6 @@
-//
-//   @file    TRT_RegionSelectorTable.cxx         
-//   
-//
-//   @author M Sutton
-//
-//   $Id: TRT_RegionSelectorTable.cxx, v0.0   Sat 18 Mar 2017 13:48:52 CET sutt $
-//
-//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "InDetRegionSelector/TRT_RegionSelectorTable.h"
 
@@ -158,8 +152,8 @@ TRT_RegionSelectorTable::createTable()
     int idLayerWheel = idHelper->layer_or_wheel(id);
     int idPhiModule = idHelper->phi_module(id);
     int idStrawLayer = idHelper->straw_layer(id);
-    const TRT_BarrelElement* Belement = 0;
-    const TRT_EndcapElement* Eelement = 0;
+    const TRT_BarrelElement* Belement = nullptr;
+    const TRT_EndcapElement* Eelement = nullptr;
     Identifier idelement;
     double InnerRadiusOfStraw = 2.; //hardcoded. No method? (it will NEVER change anyway)
     double phiMin,phiMax,rz;    

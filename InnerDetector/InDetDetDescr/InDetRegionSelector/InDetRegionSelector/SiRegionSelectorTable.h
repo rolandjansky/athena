@@ -1,13 +1,6 @@
-//   emacs: this is -*- c++ -*-
-//
-//   SiRegionSelectorTable.h        
-//
-//   Create the new RegSelSiLUT for the Pixel detector and SCT
-// 
-//   $Id: SiRegionSelectorTable.h, v0.0   Mon Apr 14 17:00:14 BST 2008 sutt (sutt@cern.ch) $
-//
-//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
  
 #ifndef InDetRegionSelector_SiRegionSelectorTable_h
 #define InDetRegionSelector_SiRegionSelectorTable_h

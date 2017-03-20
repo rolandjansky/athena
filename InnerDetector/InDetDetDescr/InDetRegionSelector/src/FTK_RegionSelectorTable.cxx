@@ -1,13 +1,6 @@
-//
-//   @file    FTK_RegionSelectorTable.cxx         
-//   
-//
-//   @author M Sutton
-//
-//   $Id: FTK_RegionSelectorTable.cxx, v0.0   Sat 18 Mar 2017 13:38:54 CET sutt $
-//
-//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "InDetRegionSelector/FTK_RegionSelectorTable.h"
 
