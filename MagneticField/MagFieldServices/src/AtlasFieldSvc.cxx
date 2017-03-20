@@ -490,8 +490,8 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
 
   // add biot savart component
   if (tls.cond) {
-    int condSize = tls.cond->size();
-    for (int i = 0; i < condSize; i++) {
+    const size_t condSize = tls.cond->size();
+    for (size_t i = 0; i < condSize; i++) {
       (*tls.cond)[i].addBiotSavart(xyz, bxyz, deriv);
     }
   }
