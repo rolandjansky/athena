@@ -24,7 +24,8 @@ from TrigMuonEF.TrigMuonEFConfig import (TrigMuonEFTrackIsolationConfig,
                                          TrigMuonEFMSTrackIsolationConfig,
                                          TrigMuonEFTrackIsolationVarConfig,
                                          TrigMuonEFCaloIsolationConfig,
-                                         TrigMuonEFRoiAggregatorConfig)
+                                         TrigMuonEFRoiAggregatorConfig,
+                                         TrigMuonEFIDTrackRoiMakerConfig)
 
 from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
                                              TrigMuonEFCombinerHypoConfig,
@@ -376,7 +377,7 @@ class L2EFChain_mu(L2EFChainDef):
        self.EFsequenceList += [[['EF_mu_step2'],
                                 [theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig],
     	  		        'EF_mu_step3']]
-    if self.chainPart['isoInfo']:
+    if self.chainPart['isoInfo']:      
       if self.chainPart['isoInfo'] == "iloose":
         theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyMedium")
       elif self.chainPart['isoInfo'] == "imedium":
@@ -404,8 +405,14 @@ class L2EFChain_mu(L2EFChainDef):
         return False
 
       if self.chainPart['isoInfo'] != "icalo":
+        isoIDseqList = trkiso+trkprec
+        if "zROItest" in self.chainPart['addInfo']:
+          # before running the tracking, we update the RoI based on the muon with TrigMuonEFIDTrackRoiMaker
+          theTrigMuonEFIDTrackRoiMaker = TrigMuonEFIDTrackRoiMakerConfig()
+          isoIDseqList.insert(0, theTrigMuonEFIDTrackRoiMaker)
+
         self.EFsequenceList += [[['EF_mu_step2'],
-                                 trkiso+trkprec,
+                                 isoIDseqList,
                                  'EF_mu_step3']]
 
       if self.chainPart['isoInfo'] == "iloose" or self.chainPart['isoInfo'] == "imedium":

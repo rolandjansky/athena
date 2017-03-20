@@ -377,11 +377,17 @@ class ThresholdDef:
         tc.registerThr('LUCID_06', 'LUCID').addThrValue(650)
 
         ## AFP
-        tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)
-        tc.registerThr('AFP_FSC', 'NIM', mapping=3).addThrValue(50)
-        tc.registerThr('AFP_NSA', 'NIM', mapping=4).addThrValue(50)
-        tc.registerThr('AFP_FSA', 'NIM', mapping=5).addThrValue(50)
-        
+
+        if not '_v6' in TriggerFlags.triggerMenuSetup():
+            tc.registerThr('AFP_C_SPECTOF', 'NIM', mapping=2).addThrValue(50)        
+            tc.registerThr('AFP_C', 'NIM', mapping=3).addThrValue(50)        
+            tc.registerThr('AFP_A_SPECTOF', 'NIM', mapping=4).addThrValue(50)        
+            tc.registerThr('AFP_A', 'NIM', mapping=5).addThrValue(50)  
+        else:
+            tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)
+            tc.registerThr('AFP_FSC', 'NIM', mapping=3).addThrValue(50)
+            tc.registerThr('AFP_NSA', 'NIM', mapping=4).addThrValue(50)
+            tc.registerThr('AFP_FSA', 'NIM', mapping=5).addThrValue(50)      
 
         # Diamond beam monitors
         #for i in range(8):

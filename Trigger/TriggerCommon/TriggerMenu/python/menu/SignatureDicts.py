@@ -51,7 +51,7 @@ ChainDictTemplate = {
 #==========================================================
 # ----- Allowed HLT Topo Keywords (in addition to generic topos like DR, DETA, DPHI...)
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
+AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg"]
 AllowedTopos_mu = ['Jpsimumu']
 AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
 AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 
@@ -125,12 +125,13 @@ JetChainParts = {
                       '1i2c100m300TLA','1i2c300m500TLA','1i2c500m700TLA',
                       '1i2c100m8000TLA','1i2c200m8000TLA','0i1c500m900TLA','1i2c500m900TLA','1i2c600m800TLA'],
     'topo'         : AllowedTopos_jet,
-    'bTag'         : ['bloose', 'bmedium', 'btight', 'bperf','boffperf', 'bmv2c2040', 'bmv2c2050', 'bmv2c2060', 'bmv2c2070', 'bmv2c2077', 'bmv2c2085'],
+    'bTag'         : ['bloose', 'bmedium', 'btight', 'bperf','boffperf','bmv2c1040', 'bmv2c1050', 'bmv2c1060', 'bmv2c1070', 'bmv2c1077', 'bmv2c1085' ,'bmv2c2040', 'bmv2c2050', 'bmv2c2060', 'bmv2c2070', 'bmv2c2077', 'bmv2c2085'],
     'bTracking'    : ['EFID','FTK','FTKVtx','FTKRefit'],
     'bConfig'      : ['split', 'hybrid', 'singlepass'],
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
+    'smc'          : ['30smcINF', 'nosmc']
 }
 
 
@@ -157,6 +158,7 @@ JetChainParts_Default = {
     'bConfig'      : [],
     'bMatching'    : [],
     'dataScouting' : '',
+    'smc'          : 'nosmc',
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -200,7 +202,7 @@ MuonChainParts = {
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb','zROItest'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : ['hf'],
@@ -362,7 +364,7 @@ ElectronChainParts = {
     'threshold'      : '',
     'etaRange'       : ['0eta250', '250eta490'],
     'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose', 'mergedtight'],
-    'isoInfo'        : [ 'iloose','ivarloose'],
+    'isoInfo'        : [ 'iloose','ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['fasttr', 'hlttr', 'IDTrkNoCut','FwdBackTrk','idperf'],
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
     'lhInfo'         : ['cutd0dphideta','nod0','nodphires','nodeta','smooth'],

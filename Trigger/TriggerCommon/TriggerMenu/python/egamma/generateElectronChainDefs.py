@@ -108,6 +108,19 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
              theChainDef.addSequence([IDTP],myInputTEsEF,EFChainName+"_monit")
              theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1,[EFChainName+"_monit"])
     
+    elif "Heg" in chainDict["topo"]:
+
+        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Heg, TrigEFDielectronMassHypo_Heg
+
+        EFFex = TrigEFDielectronMassFex_Heg()
+        EFHypo = TrigEFDielectronMassHypo_Heg()
+        
+        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+    
+    else:
+        pass 
+    
     return theChainDef
 
 

@@ -92,8 +92,20 @@ def _check_chainpart_consistency(chain_parts):
         """Remove those from checks those entries allowed to vary across
         the different chainParts"""
 
-        to_remove = ['multiplicity', 'etaRange', 'threshold', 'chainPartName','gscThreshold',
-                     'addInfo', 'bTag', 'bTracking', 'bConfig', 'topo', 'bMatching','extra']
+        to_remove = ['multiplicity',
+                     'etaRange',
+                     'smc',
+                     'threshold',
+                     'chainPartName',
+                     'gscThreshold',
+                     'addInfo',
+                     'bTag',
+                     'bTracking',
+                     'bConfig',
+                     'topo',
+                     'bMatching',
+                     'extra']
+
         for tr in to_remove: 
             try:
                 del d[tr]

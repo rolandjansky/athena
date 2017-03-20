@@ -150,6 +150,7 @@ class ItemDef:
         LVL1MenuItem('L1_J35.0ETA23'  ).setLogic( J350ETA23 & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J20.0ETA49'  ).setLogic( J200ETA49 & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J30.0ETA49'  ).setLogic( J300ETA49 & physcond).setTriggerType(TT.calo)
+        LVL1MenuItem('L1_J25.0ETA23_2J15.31ETA49'  ).setLogic( J250ETA23 & J1531ETA49.x(2) & physcond).setTriggerType(TT.calo)
         
 
 
@@ -953,15 +954,6 @@ class ItemDef:
         LVL1MenuItem('L1_BCM_CA_CALIB'     ).setLogic( BCM_CtoA & calibcond).setTriggerType(TT.minb)
         LVL1MenuItem('L1_BCM_Wide_CALIB'   ).setLogic( BCM_Wide & calibcond).setTriggerType(TT.minb)        
 
-        #AFP
-        LVL1MenuItem('L1_AFP_NSC').setLogic( AFP_NSC & physcond )
-        LVL1MenuItem('L1_AFP_FSC').setLogic( AFP_FSC & physcond )
-        LVL1MenuItem('L1_AFP_C_ANY').setLogic( (AFP_FSC | AFP_NSC) & physcond )
-        LVL1MenuItem('L1_AFP_C_ANY_UNPAIRED_ISO').setLogic( (AFP_FSC | AFP_NSC) & unpaired_isocond)
-        LVL1MenuItem('L1_AFP_C_ANY_UNPAIRED_NONISO').setLogic( (AFP_FSC | AFP_NSC) & unpaired_nonisocond)
-        LVL1MenuItem('L1_AFP_C_ANY_EMPTY').setLogic( (AFP_FSC | AFP_NSC) & cosmiccond)
-        LVL1MenuItem('L1_AFP_C_ANY_FIRSTEMPTY').setLogic( (AFP_FSC | AFP_NSC) & firstempty)
-        LVL1MenuItem('L1_AFP_C_AND').setLogic( (AFP_FSC & AFP_NSC) & physcond )
 
 
         # RANDOM
@@ -1069,25 +1061,78 @@ class ItemDef:
         MBTS_INNER = (MBTS_A0 | MBTS_A1 |  MBTS_A2 | MBTS_A3 | MBTS_A4 | MBTS_A5 | MBTS_A6 | MBTS_A7 | MBTS_C0 | MBTS_C1 | MBTS_C2 | MBTS_C3 | MBTS_C4 | MBTS_C5 | MBTS_C6 | MBTS_C7)         
 
         ## AFP and ALFA
-        # AFP_C =  ((AFP_FSC | AFP_NSC) |  (AFP_FSC & AFP_NSC ))
-        # LVL1MenuItem('L1_AFP_C_MBTS_A').setLogic( AFP_C & MBTS_A & physcond )
-        # LVL1MenuItem('L1_AFP_C_ZDC_C').setLogic( AFP_C & ZDC_C & physcond )
-        # LVL1MenuItem('L1_AFP_C_J12').setLogic( AFP_C & J12 & physcond )# available lowest J threshold in the current v6 menu: J12 
-        # LVL1MenuItem('L1_AFP_C_EM3').setLogic( AFP_C & EM3 & physcond )
-        # LVL1MenuItem('L1_AFP_C_TE5').setLogic( AFP_C & TE5 & physcond )
-        # LVL1MenuItem('L1_AFP_C_ALFA_C').setLogic( AFP_C &  ALFA_C & physcond )
-        # LVL1MenuItem('L1_AFP_C_ALFA_A').setLogic( AFP_C &  ALFA_A & physcond )
+        #AFP_C =  ((AFP_FSC | AFP_NSC) |  (AFP_FSC & AFP_NSC ))
+        #LVL1MenuItem('L1_AFP_C_MBTS_A').setLogic( AFP_C & MBTS_A & physcond )
+        #LVL1MenuItem('L1_AFP_C_ZDC_C').setLogic( AFP_C & ZDC_C & physcond )
+        #LVL1MenuItem('L1_AFP_C_J12').setLogic( AFP_C & J12 & physcond )# available lowest J threshold in the current v6 menu: J12 
+        #LVL1MenuItem('L1_AFP_C_EM3').setLogic( AFP_C & EM3 & physcond )
+        #LVL1MenuItem('L1_AFP_C_TE5').setLogic( AFP_C & TE5 & physcond )
+        #LVL1MenuItem('L1_AFP_C_ALFA_C').setLogic( AFP_C &  ALFA_C & physcond )
+        #LVL1MenuItem('L1_AFP_C_ALFA_A').setLogic( AFP_C &  ALFA_A & physcond )
 
-        AFP_C =  (AFP_FSC & AFP_NSC)
-        LVL1MenuItem('L1_AFP_C_MBTS_A').setLogic( AFP_C & MBTS_A & physcond )
-        LVL1MenuItem('L1_AFP_C_ZDC_C').setLogic( AFP_C & ZDC_C & physcond )
-        LVL1MenuItem('L1_AFP_C_J12').setLogic( AFP_C & J12 & physcond )
-        LVL1MenuItem('L1_AFP_C_EM3').setLogic( AFP_C & EM3 & physcond )
-        LVL1MenuItem('L1_AFP_C_MU4').setLogic( AFP_C & MU4 & physcond )
-        LVL1MenuItem('L1_AFP_C_TE5').setLogic( AFP_C & TE5 & physcond )
-        LVL1MenuItem('L1_AFP_C_ALFA_C').setLogic( AFP_C &  ALFA_C & physcond )
-        LVL1MenuItem('L1_AFP_C_ALFA_A').setLogic( AFP_C &  ALFA_A & physcond )
-        LVL1MenuItem('L1_AFP_C_ANY_MBTS_A').setLogic( (AFP_FSC | AFP_NSC) & MBTS_A & physcond )
+        #AFP
+        if not '_v6' in TriggerFlags.triggerMenuSetup():
+            AFP_A_AND_C_SPECTOF = (AFP_A_SPECTOF & AFP_C_SPECTOF)          #new naming convention ATR-15881 AFP_FSC = AFP_C AFP_NSC = AFP_C_SPECTOF
+
+            LVL1MenuItem('L1_AFP_A_BGRP0').setLogic( AFP_A & BGRP0)
+            LVL1MenuItem('L1_AFP_A_SPECTOF_BGRP0').setLogic( AFP_A_SPECTOF & BGRP0)
+            LVL1MenuItem('L1_AFP_C_BGRP0').setLogic( AFP_C & BGRP0)
+            LVL1MenuItem('L1_AFP_C_SPECTOF_BGRP0').setLogic( AFP_C_SPECTOF & BGRP0)
+
+            LVL1MenuItem('L1_AFP_A_OR_C_UNPAIRED_ISO').setLogic( (AFP_A | AFP_C)  & unpaired_isocond )
+            LVL1MenuItem('L1_AFP_A_OR_C_UNPAIRED_NONISO').setLogic( (AFP_A | AFP_C)  & unpaired_nonisocond )
+
+            LVL1MenuItem('L1_AFP_A_OR_C_EMPTY').setLogic( (AFP_A | AFP_C) & cosmiccond)
+            LVL1MenuItem('L1_AFP_A_OR_C_FIRSTEMPTY').setLogic( (AFP_A | AFP_C) & firstempty)
+
+            LVL1MenuItem('L1_AFP_A_AND_C').setLogic( AFP_A & AFP_C & physcond )
+            LVL1MenuItem('L1_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & physcond )
+            LVL1MenuItem('L1_AFP_A').setLogic( AFP_A & physcond )
+            LVL1MenuItem('L1_AFP_C').setLogic( AFP_C & physcond )
+
+            LVL1MenuItem('L1_AFP_A_AND_C_MBTS_2').setLogic( AFP_A & AFP_C & MBTS_2 & physcond )
+            LVL1MenuItem('L1_AFP_A_OR_C_MBTS_2').setLogic( (AFP_A | AFP_C) & MBTS_2 & physcond )
+
+            LVL1MenuItem('L1_AFP_A_AND_C_J12').setLogic( AFP_A & AFP_C & J12 & physcond )
+            LVL1MenuItem('L1_AFP_A_OR_C_J12').setLogic( (AFP_A | AFP_C) & J12 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_EM3').setLogic( AFP_A & AFP_C & EM3 & physcond )
+            LVL1MenuItem('L1_AFP_A_OR_C_EM3').setLogic( (AFP_A | AFP_C) & EM3 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_MU4').setLogic( AFP_A & AFP_C & MU4 & physcond )
+            LVL1MenuItem('L1_AFP_A_OR_C_MU4').setLogic( (AFP_A | AFP_C) & MU4 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_TE5').setLogic( AFP_A & AFP_C & TE5 & physcond )
+            LVL1MenuItem('L1_AFP_A_OR_C_TE5').setLogic( (AFP_A | AFP_C) & TE5 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_J50').setLogic( AFP_A & AFP_C & J50 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_SPECTOF_J50').setLogic( AFP_A_AND_C_SPECTOF & J50 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_J75').setLogic( AFP_A & AFP_C & J75 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_SPECTOF_J75').setLogic( AFP_A_AND_C_SPECTOF & J75 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_J100').setLogic( AFP_A & AFP_C & J100 & physcond )
+
+        else:    
+            LVL1MenuItem('L1_AFP_NSC').setLogic( AFP_NSC & physcond )
+            LVL1MenuItem('L1_AFP_FSC').setLogic( AFP_FSC & physcond )
+            LVL1MenuItem('L1_AFP_C_ANY').setLogic( ( AFP_FSC | AFP_NSC) & physcond )
+            LVL1MenuItem('L1_AFP_C_ANY_UNPAIRED_ISO').setLogic( ( AFP_FSC | AFP_NSC) & unpaired_isocond)
+            LVL1MenuItem('L1_AFP_C_ANY_UNPAIRED_NONISO').setLogic( ( AFP_FSC | AFP_NSC) & unpaired_nonisocond)
+            LVL1MenuItem('L1_AFP_C_ANY_EMPTY').setLogic( ( AFP_FSC | AFP_NSC) & cosmiccond)
+            LVL1MenuItem('L1_AFP_C_ANY_FIRSTEMPTY').setLogic( ( AFP_FSC | AFP_NSC) & firstempty)
+            LVL1MenuItem('L1_AFP_C_AND').setLogic( ( AFP_FSC & AFP_NSC) & physcond )
+
+
+
+            AFP_C =  (AFP_FSC & AFP_NSC)
+
+            LVL1MenuItem('L1_AFP_C_MBTS_A').setLogic(AFP_C  & MBTS_A & physcond )
+            LVL1MenuItem('L1_AFP_C_ZDC_C').setLogic(AFP_C  & ZDC_C & physcond )
+            LVL1MenuItem('L1_AFP_C_J12').setLogic(AFP_C  & J12 & physcond )
+            LVL1MenuItem('L1_AFP_C_EM3').setLogic(AFP_C  & EM3 & physcond )
+            LVL1MenuItem('L1_AFP_C_MU4').setLogic(AFP_C  & MU4 & physcond )
+            LVL1MenuItem('L1_AFP_C_TE5').setLogic(AFP_C  & TE5 & physcond )
+            LVL1MenuItem('L1_AFP_C_ALFA_C').setLogic(AFP_C  &  ALFA_C & physcond )
+            LVL1MenuItem('L1_AFP_C_ALFA_A').setLogic(AFP_C  &  ALFA_A & physcond )
+            LVL1MenuItem('L1_AFP_C_ANY_MBTS_A').setLogic( (AFP_FSC | AFP_NSC) & MBTS_A & physcond )
+
+
+
 
         ## ALFA Single items
         LVL1MenuItem('L1_ALFA_B7L1U').setLogic(ALFA_B7L1U & BGRP0).setTriggerType(TT.alfa)
