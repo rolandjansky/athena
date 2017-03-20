@@ -85,10 +85,6 @@ StatusCode TestViewDriver::execute() {
 			Gaudi::Hive::currentContext(),			// Context to attach the views to
 			serviceLocator()->service( "ViewAlgPool" ) ) );	// Service to retrieve algorithms by name (should make the service name configurable)
 
-
-  
-
-
   // Harvest the results into a merged collection - currently impossible due to issue with TrigComposite
   m_outputClusterContainer = CxxUtils::make_unique< TestClusterContainer >();
   m_outputClusterContainerAux = CxxUtils::make_unique< TestClusterAuxContainer>();
@@ -96,7 +92,6 @@ StatusCode TestViewDriver::execute() {
   /*CHECK( ViewHelper::MergeViewCollection( viewVector,
 				viewClusters,
 				*m_outputClusterContainer ) );*/
-
 
   for ( auto view : viewVector ) {
     const TestClusterContainer* viewClusters = ViewHelper::getFromView<TestClusterContainer>(view, "Clusters");
