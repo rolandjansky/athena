@@ -20,7 +20,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "CxxUtils/make_unique.h"
-#include "AthViews/View.h"
 
 namespace AthViews {
 
@@ -32,7 +31,6 @@ namespace AthViews {
 ////////////////
 DFlowAlg1::DFlowAlg1( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  //::AthViewAlgorithm( name, pSvcLocator ),
   ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "view_start" ),
   m_w_int( "dflow_int" )
@@ -75,7 +73,13 @@ StatusCode DFlowAlg1::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  SG::ReadHandle< int > inputData( m_r_int, getContext() );
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  const EventContext& ctx = getContext();
+#else
+  const EventContext& ctx = *getContext();
+#endif
+
+  SG::ReadHandle< int > inputData( m_r_int, ctx );
   if ( !inputData.isValid() )
   {
     ATH_MSG_ERROR( "Failed to retrieve initial view data from store " << inputData.store() );
@@ -83,7 +87,7 @@ StatusCode DFlowAlg1::execute()
   }
   int seedData = *inputData;
 
-  SG::WriteHandle< int > outputData( m_w_int, getContext() );
+  SG::WriteHandle< int > outputData( m_w_int, ctx );
   ATH_MSG_INFO("myint handle...");
   ATH_MSG_INFO("name: [" << outputData.name() << "]");
   ATH_MSG_INFO("store [" << outputData.store() << "]");

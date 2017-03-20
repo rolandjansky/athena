@@ -16,18 +16,12 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthViews/AthViewAlgorithm.h"
-#include "SGTools/BuiltinsClids.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
-#include "AthViews/View.h"
 
 namespace AthViews {
 
 class DFlowAlg1
-  //: public ::AthViewAlgorithm
   : public ::AthAlgorithm
 { 
 
