@@ -314,6 +314,15 @@ void test4()
   h2.finalReset();
   assert (!h2.isInitialized());
   assert (h2.m_store == 0);
+
+  TestHandle h3 (293847295, "", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h3.initialize().isFailure());
+  assert (h3.initialize(false).isSuccess());
+
+  TestHandle h4 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h4.key() == "foo");
+  assert (h4.initialize(false).isSuccess());
+  assert (h4.key() == "");
 }
 
 

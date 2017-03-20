@@ -7,7 +7,7 @@
  * @file ReadDataReentrant.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Jan, 2016
- * @brief 
+ * @brief Testing reentrant algorithms.
  */
 
 
@@ -33,6 +33,7 @@
 #include "AthLinks/ElementLink.h"
 
 #include "AthenaKernel/DefaultKey.h"
+#include "AthenaKernel/errorcheck.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -52,8 +53,9 @@ ReadDataReentrant::ReadDataReentrant(const std::string& name, ISvcLocator* pSvcL
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadDataReentrant::initialize(){
-
+StatusCode ReadDataReentrant::initialize()
+{
+  errorcheck::ReportMessage::hideErrorLocus();
 
   ATH_MSG_INFO ("in initialize()");
 
