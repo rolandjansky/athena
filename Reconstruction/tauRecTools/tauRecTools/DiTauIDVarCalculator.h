@@ -76,11 +76,11 @@ private:
   double R_isotrack(const xAOD::DiTauJet& xDiTau) const;
   double R_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   double R_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double m_track(const xAOD::DiTauJet& xDiTau) const;
-  double m_track_core(const xAOD::DiTauJet& xDiTau) const;
-  double m_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double m_track_all(const xAOD::DiTauJet& xDiTau) const;
-  double m_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  double mass_track(const xAOD::DiTauJet& xDiTau) const;
+  double mass_track_core(const xAOD::DiTauJet& xDiTau) const;
+  double mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  double mass_track_all(const xAOD::DiTauJet& xDiTau) const;
+  double mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   double E_frac(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   double R_subjets(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   double d0_leadtrack(const xAOD::DiTauJet& xDiTau, int iSubjet) const;

@@ -25,8 +25,8 @@
 /********************************************************************/
 TauWPDecorator::TauWPDecorator(const std::string& name) :
   TauRecToolBase(name),
-  acc_score(0),
-  acc_newScore(0)
+  m_acc_score(0),
+  m_acc_newScore(0)
 {
   declareProperty("flatteningFile1Prong", m_file1P = "fitted.pileup_1prong_hlt.root");
   declareProperty("flatteningFile3Prong", m_file3P = "fitted.pileup_multiprongs_hlt.root");
@@ -137,8 +137,8 @@ StatusCode TauWPDecorator::initialize() {
   std::string scoreName = m_scoreName;
   std::string newScoreName = m_newScoreName;
 
-  acc_score = new SG::AuxElement::ConstAccessor<float>(scoreName);
-  acc_newScore = new SG::AuxElement::Accessor<float>(newScoreName);
+  m_acc_score = new SG::AuxElement::ConstAccessor<float>(scoreName);
+  m_acc_newScore = new SG::AuxElement::Accessor<float>(newScoreName);
 
   return StatusCode::SUCCESS;
 }
@@ -160,7 +160,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
   // Retrieve tau properties
   int nProng = (acc_numTrack(pTau) == 1) ? 1 : 3;
-  double score = (*acc_score)(pTau);
+  double score = (*m_acc_score)(pTau);
   double pt = acc_pt(pTau);
   //  double mu = acc_mu(pTau);
 
@@ -250,7 +250,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   else {
     newscore = transformScore(score, cuts[0], effs[0], cuts[1], effs[1]);
   }
-  (*acc_newScore)(pTau) = newscore;
+  (*m_acc_newScore)(pTau) = newscore;
   
   if(m_defineWP) {
     for (u_int Nwp=0; Nwp < m_cut_bits.size(); Nwp++){
