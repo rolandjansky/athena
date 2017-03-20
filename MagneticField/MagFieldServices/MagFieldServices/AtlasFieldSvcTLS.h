@@ -2,9 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// AtlasFieldSvcTLS.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+/**
+ * @author Elmar.Ritsch -at- cern.ch
+ * @author Robert.Langenberg -at- cern.ch
+ * @date March 2017
+ * @brief Thread-local storage object used by MagField::AtlasFieldSvc
+ */
 
 #ifndef MAGFIELDSERVICES_ATLASFIELDSVCTLS_H
 #define MAGFIELDSERVICES_ATLASFIELDSVCTLS_H 1
@@ -16,30 +19,30 @@
 
 namespace MagField {
 
-  /** @class AtlasFieldSvcTLS
+/** @class AtlasFieldSvcTLS
+ *
+ *  @brief Thread-local storage object used by MagField::AtlasFieldSvc
+ *
+ *  @author Elmar.Ritsch -at- cern.ch
+ *  @author Robert.Langenberg -at- cern.ch
+ */
+struct AtlasFieldSvcTLS {
 
-      Thread-local storage for AtlasFieldSvcTLS interface.
+  /// Constructor
+  AtlasFieldSvcTLS() : isInitialized(false), cond(nullptr), cache(), cacheZR() { ; }
 
-      @author Elmar.Ritsch -at- cern.ch
-      @author Robert.Langenberg -at- cern.ch
-    */
+  /// Is the current AtlasFieldSvcTLS object properly initialized
+  bool isInitialized;
 
-  struct AtlasFieldSvcTLS {
+  /// Pointer to the conductors in the current field zone (to compute Biot-Savart component)
+  const std::vector<BFieldCond> *cond;
 
-    /** Constructor */
-    AtlasFieldSvcTLS() : isInitialized(false), cond(0), cache(), cacheZR() { ; }
+  /// Full 3d field
+  BFieldCache cache;
+  /// Fast 2d field
+  BFieldCacheZR cacheZR;
+};
 
-    /** Is the current AtlasFieldSvcTLS object properly initialized */
-    bool                           isInitialized;
+}  // namespace MagField
 
-    /** Pointer to the conductors in the current field zone (biot-savart component) */
-    const std::vector<BFieldCond> *cond;
-
-    /** The field caches */
-    BFieldCache                    cache;
-    BFieldCacheZR                  cacheZR;
-  };
-
-}
-
-#endif //> !MAGFIELDSERVICES_ATLASFIELDSVCTLS_H
+#endif  // MAGFIELDSERVICES_ATLASFIELDSVCTLS_H
