@@ -577,7 +577,7 @@ void MagField::AtlasFieldSvc::clearMap(AtlasFieldSvcTLS &tls)
     tls.cache.invalidate();
     tls.cacheZR.invalidate();
 
-    tls.cond = 0;
+    tls.cond = nullptr;
     // Next lines clear m_zone, m_edge[3], m_edgeLUT[3], and m_zoneLUT and deallocate their memory.
     std::vector<BFieldZone>().swap(m_zone);
     for ( int i = 0; i < 3; i++ ) {
@@ -591,7 +591,7 @@ void MagField::AtlasFieldSvc::clearMap(AtlasFieldSvcTLS &tls)
     m_rmax = -1.0;
     m_nz = m_nr = m_nphi = 0;
     delete m_meshZR;
-    m_meshZR = 0;
+    m_meshZR = nullptr;
 }
 
 //
