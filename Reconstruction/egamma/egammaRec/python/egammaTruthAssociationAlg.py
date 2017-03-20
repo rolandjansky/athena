@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
-from egammaRec import egammaRecConf, egammaKeys
+from egammaRec import egammaKeys
+from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import ToolFactory, AlgFactory, FcnWrapper
 from AthenaCommon.BeamFlags import jobproperties
 from egammaRec import egammaRecFlags as egRecFlags
@@ -35,7 +36,7 @@ EMMCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier, name
                                    barcodeG4Shift = FcnWrapper( getSimBarcodeOffset1 )  )
 
 
-egammaTruthAssociationAlg = AlgFactory( egammaRecConf.egammaTruthAssociationAlg,
+egammaTruthAssociationAlg = AlgFactory( egammaAlgsConf.egammaTruthAssociationAlg,
                                         ClusterContainerName = egammaKeys.outputClusterKey(),
                                         ElectronContainerName = egammaKeys.outputElectronKey(),
                                         PhotonContainerName = egammaKeys.outputPhotonKey(),

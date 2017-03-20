@@ -4,13 +4,13 @@ __doc__ = "ToolFactory to instantiate EMVertexBuilder with default configuration
 __author__ = "Bruno Lenzi"
 
 from egammaAlgs import egammaAlgsConf
-from egammaRec.Factories import FcnWrapper, ToolFactory
+from egammaRec.Factories import FcnWrapper, AlgFactory
 from egammaRec import egammaKeys
 from RecExConfig.RecFlags import rec
 from AthenaCommon.BeamFlags import jobproperties
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
-from InDetTools import egammaInDetTrackSummaryTool, egammaExtrapolator
+from egammaTools.InDetTools import egammaInDetTrackSummaryTool, egammaExtrapolator
 
 class VertexFinderToolInstance(FcnWrapper):
   def __call__(self):

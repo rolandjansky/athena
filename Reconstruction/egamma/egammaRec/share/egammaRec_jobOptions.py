@@ -30,7 +30,7 @@ if jobproperties.egammaRecFlags.doVertexBuilding() and DetFlags.detdescr.ID_on()
         import egammaAlgs.EMVertexBuilder
     except Exception:
         treatException("Could not set up the conversion vertex building. Switch it off !")
-        jobproperties.egammaRecFlags.doEMVertexBuilder=False    
+        jobproperties.egammaRecFlags.doVertexBuilding=False
         egammaAlgs.EMVertexBuilder(disable=True)
 
 # Run calo-based (egamma) algorithm, includes topo-seeded
@@ -68,11 +68,11 @@ if jobproperties.egammaRecFlags.doEgammaForwardSeeded and ( rec.readESD() or job
         else:
             egammaForwardGetter(ignoreExistingDataObject=True)
     except Exception: 
-        jobproperties.egammaRecFlags.doEgammaForwardSeeded=False    
+        jobproperties.egammaRecFlags.doEgammaForwardSeeded=False
         treatException("Could not set up egammaForwardGetter. Switch it off !")
         egammaForwardGetter(disable=True)
 else:
-    jobproperties.egammaRecFlags.doEgammaForwardSeeded=False    
+    jobproperties.egammaRecFlags.doEgammaForwardSeeded=False
     try:
         from egammaRec.egammaForwardGetter import egammaForwardGetter
         egammaForwardGetter(disable=True)
@@ -111,7 +111,7 @@ if rec.doESD():
 
     #Finalize clusters 
     try:
-        from egammaRec.egammaRecConf import egammaFinalizeClusters
+        from egammaAlgs.egammaAlgsConf import egammaFinalizeClusters
         topSequence += egammaFinalizeClusters(name= "egammaFinalizeClusters",
                                              outputClusterKey=egammaKeys.outputClusterKey(),
                                              outputForwardClusterKey=egammaKeys.outputFwdClusterKey(),

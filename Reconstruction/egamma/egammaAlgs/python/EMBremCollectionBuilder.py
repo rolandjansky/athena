@@ -14,7 +14,9 @@ import traceback
 
 #import base class
 from egammaAlgs import egammaAlgsConf
-from InDetTools import egammaExtrapolator
+from egammaTools.InDetTools import egammaExtrapolator
+from egammaRec.Factories import AlgFactory
+from egammaRec import egammaKeys
 
 class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
     __slots__ = ()

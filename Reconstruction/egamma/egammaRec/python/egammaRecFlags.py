@@ -13,8 +13,6 @@ __doc__="egamma flags . "
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
 
-print "In egammaRecFlags"
-
 class Enabled(JobProperty):
     """ jobproperty to disable/enable the egamma algorithms as a group (container) in one go.
     Can enable/disable the full egamma
