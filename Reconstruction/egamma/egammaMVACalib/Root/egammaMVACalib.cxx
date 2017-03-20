@@ -71,7 +71,7 @@ egammaMVACalib::egammaMVACalib(int particle,
                                bool ignoreSpectators)
   : asg::AsgMessaging("egammaMVACalib"),
     m_useNewBDTs(useNewBDTs),
-    fMethodName(method),
+    m_methodName(method),
     m_etaVar(etaBinVar),
     m_energyVar(energyBinVar),
     m_particleTypeVar(particleTypeVar),
@@ -89,7 +89,7 @@ egammaMVACalib::egammaMVACalib(int particle,
           << "\n  particle     : " << particle
           << "\n  new BDTs     : " << useNewBDTs
           << "\n  folder       : " << folder
-          << "\n  method name  : " << fMethodName
+          << "\n  method name  : " << m_methodName
           << "\n  calib type   : " << calibrationType
           << "\n  etavar       : " << m_etaVar
           << "\n  energy var   : " << m_energyVar
@@ -119,7 +119,7 @@ egammaMVACalib::egammaMVACalib(int particle,
 
   if (filePattern.Length() == 0)
     filePattern = "MVACalib_(.*?)_(.*?)_<calibType>_<method>.weights.xml";
-  m_fileNamePattern = new TPRegexp(filePattern.ReplaceAll("<calibType>", getCalibTypeString()).ReplaceAll("<method>", fMethodName));
+  m_fileNamePattern = new TPRegexp(filePattern.ReplaceAll("<calibType>", getCalibTypeString()).ReplaceAll("<method>", m_methodName));
   ATH_MSG_DEBUG("regex pattern: " << m_fileNamePattern->GetPattern());
 
   // Use default formula for etaBin if not given
@@ -304,8 +304,8 @@ egammaMVACalib::getUserInfo(const TString & xmlfilename)
     }
     else
     {
-      static asg::AsgMessaging m_msg("egammaMVACalib::getUserInfo");
-      m_msg.msg(MSG::ERROR)<<"error reading UserInfo section xml file " << xmlfilename.Data()<<endmsg;
+      static asg::AsgMessaging msg("egammaMVACalib::getUserInfo");
+      msg.msg(MSG::ERROR)<<"error reading UserInfo section xml file " << xmlfilename.Data()<<endmsg;
     }
     info_node = xml.GetNext(info_node);
   }
@@ -647,7 +647,7 @@ void egammaMVACalib::setupReader(TMVA::Reader *reader, const TString & xml_filen
     }
   }
 
-  reader->BookMVA(fMethodName.Data(), xml_filename.Data());
+  reader->BookMVA(m_methodName.Data(), xml_filename.Data());
 }
 
 void egammaMVACalib::setupFormulasForReaderID()
@@ -747,7 +747,7 @@ TTree* egammaMVACalib::createInternalTree(TTree *tree)
   new_tree->SetDirectory(0);
   new_tree->SetCacheSize(0);
 
-  new_tree->Branch(fMethodName.Data(), &m_mvaOutput, Form("%s/F", fMethodName.Data()));
+  new_tree->Branch(m_methodName.Data(), &m_mvaOutput, Form("%s/F", m_methodName.Data()));
   checkShowerDepth(tree);
 
   return new_tree;
@@ -930,7 +930,7 @@ TTree* egammaMVACalib::getMVAResponseTree(TTree *tree, int Nentries, TString bra
 
   // Define the output branch and the variables to fill it
   if (branchName == "")
-    branchName = fMethodName;
+    branchName = m_methodName;
   bool useVector(false);
   float mvaOutput;
   std::vector<float> mvaVector;
@@ -942,7 +942,7 @@ TTree* egammaMVACalib::getMVAResponseTree(TTree *tree, int Nentries, TString bra
     mvaTree->Branch(branchName.Data(), &mvaVector);
   }
   else
-    mvaTree->Branch(branchName.Data(), &mvaOutput, Form("%s/F", fMethodName.Data()));
+    mvaTree->Branch(branchName.Data(), &mvaOutput, Form("%s/F", m_methodName.Data()));
 
   // Loop over the entries of the input tree
   if (Nentries == -1) Nentries = tree->GetEntries() - first_event;
@@ -996,7 +996,7 @@ float egammaMVACalib::getMVAOutput(int index /* = 0 */)
 
   if (!reader)
     return 0;
-  return reader->EvaluateRegression(fMethodName.Data())[0];
+  return reader->EvaluateRegression(m_methodName.Data())[0];
 }
 
 
@@ -1088,8 +1088,8 @@ egammaMVACalib::parseXml(const TString & xml_filename)
   TXMLEngine xml;
   XMLDocPointer_t xmldoc = xml.ParseFile(xml_filename);
   if (!xmldoc) {
-      static asg::AsgMessaging m_msg("egammaMVACalib::parseXml");
-      m_msg.msg(MSG::FATAL)<<" file not found "  <<xml_filename.Data() << " current directory is:  " <<  gSystem->WorkingDirectory()<<endmsg;
+      static asg::AsgMessaging msg("egammaMVACalib::parseXml");
+      msg.msg(MSG::FATAL)<<" file not found "  <<xml_filename.Data() << " current directory is:  " <<  gSystem->WorkingDirectory()<<endmsg;
       throw std::runtime_error("file not found");
   }
   XMLNodePointer_t mainnode = xml.DocGetRootElement(xmldoc);
@@ -1298,7 +1298,7 @@ TTree* egammaMVACalib::getOutputTree(TString copyBranches, bool deactivateFirst)
       m_input_tree->SetBranchStatus(getString(sObj), 1);
   }
 
-  //TTree *mvaTree = new TTree(fMethodName.Data(), Form("%s tree", fMethodName.Data()));
+  //TTree *mvaTree = new TTree(m_methodName.Data(), Form("%s tree", m_methodName.Data()));
   TTree *mvaTree = m_input_tree->CloneTree(0);
   //mvaTree->AddFriend(m_input_tree);
   mvaTree->SetName("MVA");
@@ -1564,8 +1564,8 @@ TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
       reader->AddSpectator(varDefinition, &dummyFloat);
     else // should never happen
     {
-      static asg::AsgMessaging m_msg("egammaMVACalib::getDummyReader");
-      m_msg.msg(MSG::FATAL)<<"Unknown type from parser "<< infoType.Data()<<endmsg;
+      static asg::AsgMessaging msg("egammaMVACalib::getDummyReader");
+      msg.msg(MSG::FATAL)<<"Unknown type from parser "<< infoType.Data()<<endmsg;
       throw std::runtime_error("Unknown type from parser");
     }
   }
