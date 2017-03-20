@@ -19,11 +19,9 @@ TrigInDetTrackTruthMapCnv::~TrigInDetTrackTruthMapCnv() {}
 
 //create persistent
 TrigInDetTrackTruthMap_PERS* TrigInDetTrackTruthMapCnv::createPersistent(TrigInDetTrackTruthMap* transObj) {
-    MsgStream mlog(messageService(), "TrigInDetTrackTruthMapConverter" );
+    ATH_MSG_DEBUG( "TrigInDetTrackTruthMapCnv::createPersistent"  );
 
-    mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::createPersistent" << endmsg;
-
-    TrigInDetTrackTruthMap_PERS* persObj = m_trigInDetTrackTruthMapCnv_tlp2.createPersistent( transObj, mlog );
+    TrigInDetTrackTruthMap_PERS* persObj = m_trigInDetTrackTruthMapCnv_tlp2.createPersistent( transObj, msg() );
 
     return persObj;
 }
@@ -31,32 +29,31 @@ TrigInDetTrackTruthMap_PERS* TrigInDetTrackTruthMapCnv::createPersistent(TrigInD
 //create transient
 TrigInDetTrackTruthMap* TrigInDetTrackTruthMapCnv::createTransient() {
   
-  MsgStream mlog(messageService(), "TrigInDetTrackTruthMapConverter" );
-  mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::createTransient " << endmsg;
+  ATH_MSG_DEBUG( "TrigInDetTrackTruthMapCnv::createTransient "  );
   
-  static pool::Guid tlp1_guid("08892FEB-5706-4938-9226-F45C0AA662E7");
-  static pool::Guid tlp2_guid("02074F47-F290-4A48-B503-4DCAB4181B3D");
-  static pool::Guid p0_guid("41581666-F06D-44AE-93B9-D7E912A27AA1");
+  const static pool::Guid tlp1_guid("08892FEB-5706-4938-9226-F45C0AA662E7");
+  const static pool::Guid tlp2_guid("02074F47-F290-4A48-B503-4DCAB4181B3D");
+  const static pool::Guid p0_guid("41581666-F06D-44AE-93B9-D7E912A27AA1");
   
   TrigInDetTrackTruthMap  *transObj = 0;
   
   
   if( compareClassGuid(tlp2_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::reading tlp2 persistent object" << endmsg;
+    ATH_MSG_DEBUG( "TrigInDetTrackTruthMapCnv::reading tlp2 persistent object"  );
     poolReadObject< TrigInDetTrackTruthMap_PERS >( m_trigInDetTrackTruthMapCnv_tlp2 );
-    transObj = m_trigInDetTrackTruthMapCnv_tlp2.createTransient( mlog );
+    transObj = m_trigInDetTrackTruthMapCnv_tlp2.createTransient( msg() );
     
   }
   else if( compareClassGuid(tlp1_guid) ) {    
-    mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::reading tlp1 persistent object" << endmsg;
+    ATH_MSG_DEBUG( "TrigInDetTrackTruthMapCnv::reading tlp1 persistent object"  );
     TrigInDetTrackTruthMapCnv_tlp1  tlp1_Converter;
     poolReadObject< TrigInDetTrackTruthMap_tlp1 >(tlp1_Converter);
-    transObj = tlp1_Converter.createTransient( mlog );
+    transObj = tlp1_Converter.createTransient( msg() );
   }
   else if( compareClassGuid(p0_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::reading p0 persistent object" << endmsg;
+    ATH_MSG_DEBUG( "TrigInDetTrackTruthMapCnv::reading p0 persistent object"  );
     // old version from before TP separation, just return it
     transObj = this->poolReadObject<TrigInDetTrackTruthMap>();
   }  
