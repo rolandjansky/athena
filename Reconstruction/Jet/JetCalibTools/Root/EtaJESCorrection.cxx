@@ -282,8 +282,9 @@ double EtaJESCorrection::getLogPolN(const double *factors, double x) const {
 
 double EtaJESCorrection::getLogPolNSlope(const double *factors, double x) const {
   double y=0;
+  const double inv_x = 1. / x;
   for ( uint i=0; i<m_nPar; ++i )
-    y += i*factors[i]*TMath::Power(log(x),Int_t(i-1))/x;
+    y += i*factors[i]*TMath::Power(log(x),Int_t(i-1))*inv_x;
   return y;
 }
 
