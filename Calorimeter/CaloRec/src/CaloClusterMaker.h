@@ -56,7 +56,7 @@ class CaloClusterMaker : public AthReentrantAlgorithm
   
   /** @brief the name of the key in StoreGate for the output
       CaloClusterContainer */
-  std::string     m_clustersOutputName;              
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_clusterOutput;
 
   /**
    * @brief a list of names for tools to make clusters

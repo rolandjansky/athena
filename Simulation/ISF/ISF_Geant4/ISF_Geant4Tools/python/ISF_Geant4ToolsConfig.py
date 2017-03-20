@@ -2,12 +2,6 @@
 
 ## -----------------------------------------------------------------------------
 ### Base Version
-def getMCTruthUserAction(name='ISFMCTruthUserAction', **kwargs):
-    # get the non-MT action
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault('TruthRecordSvc',  ISF_Flags.TruthService.get_Value())
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__MCTruthUserAction
-    return iGeant4__MCTruthUserAction(name, **kwargs)
 
 def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
     # get the MT action
@@ -22,32 +16,25 @@ def addMCTruthUserActionTool(name="ISFMCTruthUserActionTool",system=False):
 
 ## -----------------------------------------------------------------------------
 ### Base Version
-def getPhysicsValidationUserAction(name="ISFG4PhysicsValidationUserAction", **kwargs):
+def getPhysicsValidationUserActionTool(name="ISFG4PhysicsValidationUserActionTool", **kwargs):
     kwargs.setdefault('ParticleBroker'     , 'ISF_ParticleBrokerSvc')
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__PhysicsValidationUserAction
-    return iGeant4__PhysicsValidationUserAction(name, **kwargs)
+    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__PhysicsValidationUserActionTool
+    return G4UA__iGeant4__PhysicsValidationUserActionTool(name, **kwargs)
 ### Specialized Versions
-def getG4OnlyPhysicsValidationUserAction(name="G4OnlyPhysicsValidationUserAction", **kwargs):
+def getG4OnlyPhysicsValidationUserActionTool(name="G4OnlyPhysicsValidationUserActionTool", **kwargs):
     kwargs.setdefault('ParticleBroker'     , 'ISF_ParticleBrokerSvcNoOrdering')
-    return getPhysicsValidationUserAction(name, **kwargs)
+    return getPhysicsValidationUserActionTool(name, **kwargs)
 
-def getAFII_G4PhysicsValidationUserAction(name="AFII_G4PhysicsValidationUserAction", **kwargs):
+def getAFII_G4PhysicsValidationUserActionTool(name="AFII_G4PhysicsValidationUserActionTool", **kwargs):
     kwargs.setdefault('ParticleBroker'     , 'ISF_AFIIParticleBrokerSvc')
-    return getPhysicsValidationUserAction(name, **kwargs)
+    return getPhysicsValidationUserActionTool(name, **kwargs)
 
-def getQuasiStableG4PhysicsValidationUserAction(name="QuasiStableG4PhysicsValidationUserAction", **kwargs):
+def getQuasiStableG4PhysicsValidationUserActionTool(name="QuasiStableG4PhysicsValidationUserActionTool", **kwargs):
     kwargs.setdefault('ParticleBroker'     , 'ISF_LongLivedParticleBrokerSvc')
-    return getPhysicsValidationUserAction(name, **kwargs)
+    return getPhysicsValidationUserActionTool(name, **kwargs)
 
 ## -----------------------------------------------------------------------------
 ### Base Version
-def getTrackProcessorUserAction(name="ISFG4TrackProcessorUserAction", **kwargs):
-    from AthenaCommon.BeamFlags import jobproperties
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvc')
-    kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'         )
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__TrackProcessorUserActionPassBack
-    return iGeant4__TrackProcessorUserActionPassBack(name, **kwargs)
 
 def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
@@ -59,16 +46,6 @@ def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **
 
 
 ### Specialized Versions
-def getFullG4TrackProcessorUserAction(name='FullG4TrackProcessorUserAction', **kwargs):
-    kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
-    kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
-    from AthenaCommon.BeamFlags import jobproperties
-    from G4AtlasApps.SimFlags import simFlags
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-       (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
-        kwargs.setdefault('TruthVolumeLevel',  2)
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__TrackProcessorUserActionFullG4
-    return iGeant4__TrackProcessorUserActionFullG4(name, **kwargs)
 
 def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTool', **kwargs):
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
@@ -81,22 +58,9 @@ def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTo
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionFullG4Tool
     return G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)
 
-def getPassBackG4TrackProcessorUserAction(name='PassBackG4TrackProcessorUserAction', **kwargs):
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvcNoOrdering')
-    return getTrackProcessorUserAction(name, **kwargs)
-
 def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUserActionTool', **kwargs):
     kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvcNoOrdering')
     return getTrackProcessorUserActionTool(name, **kwargs)
-
-def getAFII_G4TrackProcessorUserAction(name='AFII_G4TrackProcessorUserAction', **kwargs):
-    from AthenaCommon.SystemOfUnits import MeV
-    kwargs.setdefault('ParticleBroker'                     , 'ISF_AFIIParticleBrokerSvc')
-    kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
-    kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
-    kwargs.setdefault('KillBoundaryParticlesBelowThreshold', True                       )
-    return getPassBackG4TrackProcessorUserAction(name, **kwargs)
-
 
 def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserActionTool', **kwargs):
     from AthenaCommon.SystemOfUnits import MeV
@@ -120,15 +84,9 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     kwargs.setdefault('BarcodeSvc',               ISF_Flags.BarcodeService()     )
     kwargs.setdefault('RandomGenerator', 'athena')
     kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())
-    # Until we fully migrate to V2 user actions, we disable the unused version via switch
-    if simFlags.UseV2UserActions.get_Value() == True:
-        kwargs.setdefault('UserActionSvc', '')
-        kwargs.setdefault('UserActionSvcV2','G4UA::ISFUserActionSvc')
-    else:
-        kwargs.setdefault('UserActionSvc','ISFUserActionSvc')
-        kwargs.setdefault('UserActionSvcV2', '')
-    if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
-        kwargs.setdefault('RecordFlux',simFlags.RecordFlux())
+
+    kwargs.setdefault('UserActionSvc','G4UA::ISFUserActionSvc')
+
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
     if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
@@ -136,51 +94,25 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     else:
         is_hive = False
     kwargs.setdefault('MultiThreading', is_hive)
+    # Set commands for the G4AtlasAlg
+    kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4TransportTool
     return iGeant4__G4TransportTool(name, **kwargs)
 ### Specialized Versions
 def getFullG4TransportTool(name='FullG4TransportTool', **kwargs):
-    # Until we fully migrate to V2 user actions, we disable the unused version via switch
-    from G4AtlasApps.SimFlags import simFlags
-    if simFlags.UseV2UserActions.get_Value() == True:
-        kwargs.setdefault('UserActionSvc', '')
-        kwargs.setdefault('UserActionSvcV2','G4UA::ISFFullUserActionSvc')
-    else:
-        kwargs.setdefault('UserActionSvc','ISFFullUserActionSvc')
-        kwargs.setdefault('UserActionSvcV2', '')
+    kwargs.setdefault('UserActionSvc','G4UA::ISFFullUserActionSvc')
     return getG4TransportTool(name, **kwargs)
 
 def getPassBackG4TransportTool(name='PassBackG4TransportTool', **kwargs):
-    # Until we fully migrate to V2 user actions, we disable the unused version via switch
-    from G4AtlasApps.SimFlags import simFlags
-    if simFlags.UseV2UserActions.get_Value() == True:
-        kwargs.setdefault('UserActionSvc', '')
-        kwargs.setdefault('UserActionSvcV2','G4UA::ISFPassBackUserActionSvc')
-    else:
-        kwargs.setdefault('UserActionSvc','ISFPassBackUserActionSvc')
-        kwargs.setdefault('UserActionSvcV2', '')
+    kwargs.setdefault('UserActionSvc','G4UA::ISFPassBackUserActionSvc')
     return getG4TransportTool(name, **kwargs)
 
 def getAFII_G4TransportTool(name='AFII_G4TransportTool', **kwargs):
-    # Until we fully migrate to V2 user actions, we disable the unused version via switch
-    from G4AtlasApps.SimFlags import simFlags
-    if simFlags.UseV2UserActions.get_Value() == True:
-        kwargs.setdefault('UserActionSvc', '')
-        kwargs.setdefault('UserActionSvcV2','G4UA::ISF_AFIIUserActionSvc')
-    else:
-        kwargs.setdefault('UserActionSvc','ISF_AFIIUserActionSvc')
-        kwargs.setdefault('UserActionSvcV2', '')
+    kwargs.setdefault('UserActionSvc','G4UA::ISF_AFIIUserActionSvc')
     return getG4TransportTool(name, **kwargs)
 
 def getQuasiStableG4TransportTool(name='QuasiStableG4TransportTool', **kwargs):
-    # Until we fully migrate to V2 user actions, we disable the unused version via switch
-    from G4AtlasApps.SimFlags import simFlags
-    if simFlags.UseV2UserActions.get_Value() == True:
-        kwargs.setdefault('UserActionSvc', '')
-        kwargs.setdefault('UserActionSvcV2','G4UA::ISFQuasiStableUserActionSvc')
-    else:
-        kwargs.setdefault('UserActionSvc','ISFQuasiStableUserActionSvc')
-        kwargs.setdefault('UserActionSvcV2', '')
+    kwargs.setdefault('UserActionSvc','G4UA::ISFQuasiStableUserActionSvc')
     kwargs.setdefault('QuasiStableParticlesIncluded', True)
     return getG4TransportTool(name, **kwargs)
 

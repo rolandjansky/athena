@@ -13,7 +13,8 @@
 // Geant4 physics lists
 #include "G4ProcessManager.hh"
 #include "G4ParticleTable.hh"
-#include "G4hhIonisation.hh"
+#include "G4hIonisation.hh"
+#include "G4hMultipleScattering.hh"
 #include "G4Transportation.hh"
 #include "G4MuIonisation.hh"
 #include "G4ProcessManager.hh"
@@ -111,7 +112,8 @@ void CharginosPhysicsTool::ConstructProcess()
 {
   ATH_MSG_DEBUG(" ConstructProcess for Charginos being run");
 
-  G4hhIonisation *theIonisation = new G4hhIonisation;
+  G4hIonisation *theIonisation = new G4hIonisation;
+  G4hMultipleScattering *theMSC = new G4hMultipleScattering;
   G4Transportation *theTransportation=new G4Transportation;
 
   G4ProcessManager *charginoPlus = m_theCharginoPlus->GetProcessManager();
@@ -119,6 +121,8 @@ void CharginosPhysicsTool::ConstructProcess()
 
   charginoPlus->AddProcess(theTransportation);
   charginoMinus->AddProcess(theTransportation);
+  charginoPlus->AddProcess(theMSC,-1,1,1);
+  charginoMinus->AddProcess(theMSC,-1,1,1);
   charginoPlus->AddProcess(theIonisation,-1,2,2);
   charginoMinus->AddProcess(theIonisation,-1,2,2);
 }

@@ -9,14 +9,14 @@
 // class header
 #include "ISFTrajectory.h"
 
-// package includes
-#include "Geant4TruthIncident.h"
-#include "ISFG4Helpers.h"
-
 // ISF includes
-#include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/TruthBinding.h"
+#include "ISF_Interfaces/ITruthSvc.h"
+
+// ISF Geant4 includes
+#include "ISF_Geant4Event/ISFG4Helper.h"
+#include "ISF_Geant4Event/Geant4TruthIncident.h"
 
 // Athena includes
 //#include "FadsActions/TrackingAction.h"
@@ -79,7 +79,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
     }
 
     // get base ISFParticle
-    auto* trackInfo = ISFG4Helpers::getISFTrackInfo(*track);
+    auto* trackInfo = ISFG4Helper::getISFTrackInfo(*track);
     if (!trackInfo) {
       G4ExceptionDescription description;
       description << G4String("AppendStep: ") + "No VTrackInformation associated with G4Track (trackID: "
@@ -101,7 +101,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
 
     AtlasDetDescr::AtlasRegion geoID = baseIsp->nextGeoID();
 
-    auto* eventInfo = ISFG4Helpers::getEventInformation();
+    auto* eventInfo = ISFG4Helper::getEventInformation();
     iGeant4::Geant4TruthIncident truth(aStep, *baseIsp, geoID, numSecondaries, m_sHelper, eventInfo);
 
     if (m_truthRecordSvcQuick) {

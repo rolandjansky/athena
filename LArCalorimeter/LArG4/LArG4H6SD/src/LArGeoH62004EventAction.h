@@ -2,11 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArGeoH62004EventAction_h
-#define LArGeoH62004EventAction_h 1
+#ifndef LARG4H6SD_LArGeoH62004EventAction_h
+#define LARG4H6SD_LArGeoH62004EventAction_h 1
 
-#include "G4AtlasTools/UserActionBase.h"
-
+#include "G4AtlasInterfaces/IEndEventAction.h"
 // For the output write handle
 #include "StoreGate/WriteHandle.h"
 #include "TBEvent/TBEventInfo.h"
@@ -14,20 +13,30 @@
 
 class LArGeoTB2004Options;
 
-class LArGeoH62004EventAction final: public UserActionBase
+namespace G4UA
 {
+  /// @brief NEEDS DOCUMENTATION
+  class LArGeoH62004EventAction final: public IEndEventAction
+  {
   public:
-    LArGeoH62004EventAction(const std::string& type, const std::string& name, const IInterface* parent);
+    struct Config
+    {
+      float yTable=0.0;
+      float cryoXposition=0.0;
+    };
 
-    virtual void EndOfEvent(const G4Event* theEvent) override;
-    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-    virtual StatusCode initialize() override;
+    LArGeoH62004EventAction(const Config& config);
+
+    virtual void endOfEvent(const G4Event*) override;
 
   private:
     static int m_evnum;
-    const LArGeoTB2004Options *m_largeoTB2004Options;
 
     SG::WriteHandle<TBEventInfo> m_ev;
-};
+    float m_xpos;
+    float m_ypos;
+  }; // class LArGeoH62004EventAction
+
+} // namespace G4UA
 
 #endif

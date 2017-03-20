@@ -98,7 +98,7 @@ template <class T>
 RegisterDVLEltBaseInit<T>::RegisterDVLEltBaseInit()
 {
   // Make sure the BaseInfo derived class has been instantiated.
-  SG::BaseInfo<T>::baseinfo();
+  SG::BaseInfo<T>::maybeInit();
   // Set up the init function.
   SG::BaseInfoBase::addInit(&typeid(T), doinit);
 }

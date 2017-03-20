@@ -47,8 +47,6 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const IInterface*  p )
   : AthAlgTool(t,n,p),
     m_useMT(false),
-    m_pRunMgr(nullptr),
-    m_UASvc("",n),
     m_userActionSvc("",n),
     m_rndmGenSvc("AtDSFMTGenSvc",n),
     m_barcodeSvc("",n),
@@ -57,7 +55,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
     m_physListTool("PhysicsListToolBase"),
     m_mcEventCollectionName("TruthEvent"),
     m_quasiStableParticlesIncluded(false),
-    m_worldSolid(nullptr)
+    m_worldSolid(0)
 {
 
   declareInterface<ITransportTool>(this);
@@ -82,24 +80,12 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   declareProperty( "PhysicsListTool", m_physListTool);
   declareProperty( "G4RunManagerHelper", m_g4RunManagerHelper);
   declareProperty( "QuasiStableParticlesIncluded", m_quasiStableParticlesIncluded);
-  declareProperty( "UserActionSvc", m_UASvc);
-  declareProperty( "UserActionSvcV2", m_userActionSvc);
+  declareProperty( "UserActionSvc", m_userActionSvc);
   // Multi-threading specific settings
   declareProperty("MultiThreading", m_useMT=false);
 
   // Commands to send to the G4UI
   declareProperty("G4Commands", m_g4commands);
-
-}
-
-//________________________________________________________________________
-iGeant4::G4TransportTool::~G4TransportTool()
-{}
-
-//________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::initialize()
-{
-  ATH_MSG_VERBOSE("initialize");
 
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
@@ -110,14 +96,24 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_FATAL("Could not get "<<m_g4RunManagerHelper);
   }
 
-  //m_pRunMgr = G4AtlasRunManager::GetG4AtlasRunManager();    // clashes with use of G4HadIntProcessor
-  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : 0;
+  //p_runMgr = G4AtlasRunManager::GetG4AtlasRunManager();    // clashes with use of G4HadIntProcessor
+  p_runMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : 0;
 
   if(m_physListTool.retrieve().isFailure())
     {
       ATH_MSG_FATAL("Could not get PhysicsListToolBase");
     }
   m_physListTool->SetPhysicsList();
+}
+
+//________________________________________________________________________
+iGeant4::G4TransportTool::~G4TransportTool()
+{}
+
+//________________________________________________________________________
+StatusCode iGeant4::G4TransportTool::initialize()
+{
+  ATH_MSG_VERBOSE("initialize");
 
   // retrieve BarcodeSvc
   if ( m_barcodeSvc.retrieve().isFailure() ) {
@@ -130,31 +126,8 @@ StatusCode iGeant4::G4TransportTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  // For now, we decide which user action service to setup based on which
-  // handle has a non-empty name configured. Then we can steer it from the
-  // configuration layer. This will go away when we drop V1 actions.
-
-  // V1 user action service
-  if( !m_UASvc.name().empty() ) {
-    ATH_CHECK( m_UASvc.retrieve() );
-
-    // Make sure only one user action version is used at a time.
-    if( !m_userActionSvc.name().empty() ) {
-      ATH_MSG_ERROR("Configured to use both V1 and V2 user actions, " <<
-                    "which isn't supported!");
-      return StatusCode::FAILURE;
-    }
-    if(m_useMT) {
-      ATH_MSG_ERROR("Using V1 user action design, which won't work in MT");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // V2 user action service
-  if( !m_userActionSvc.name().empty() ) {
-    ATH_CHECK( m_userActionSvc.retrieve() );
-    m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
-  }
+  ATH_CHECK( m_userActionSvc.retrieve() );
+  p_runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
 
   if(m_useMT) {
     // Retrieve the python service to trigger its initialization. This is done
@@ -188,11 +161,11 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ui->ApplyCommand("/MagneticField/Initialize");
   }
 
-  m_pRunMgr->SetReleaseGeo( m_releaseGeoModel );
-  m_pRunMgr->SetRecordFlux( m_recordFlux );
+  p_runMgr->SetReleaseGeo( m_releaseGeoModel );
+  p_runMgr->SetRecordFlux( m_recordFlux );
 
   // *AS* TEST:
-  // *AS* m_pRunMgr->Initialize();
+  // *AS* p_runMgr->Initialize();
   // *AS* but this is a good place
 
 
@@ -230,7 +203,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_FATAL("Could not get "<<m_particleBroker);
     return StatusCode::FAILURE;
     }
-    //m_pRunMgr->setParticleBroker(&m_particleBroker);
+    //p_runMgr->setParticleBroker(&m_particleBroker);
 
     if (m_particleHelper.retrieve().isSuccess())
     ATH_MSG_DEBUG("retrieved "<<m_particleHelper);
@@ -238,7 +211,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_FATAL("Could not get "<<m_particleHelper);
     return StatusCode::FAILURE;
     }
-    //m_pRunMgr->setParticleHelper(&m_particleHelper);
+    //p_runMgr->setParticleHelper(&m_particleHelper);
     */
   /*
     if (m_configTool.retrieve().isSuccess())
@@ -258,7 +231,7 @@ StatusCode iGeant4::G4TransportTool::finalize()
 
   ATH_MSG_DEBUG("\t terminating the current G4 run");
 
-  m_pRunMgr->RunTermination();
+  p_runMgr->RunTermination();
 
   return StatusCode::SUCCESS;
 }
@@ -273,7 +246,7 @@ StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
   G4Event* inputEvent=ISF_to_G4Event(isp);
   if (inputEvent) {
 
-    bool abort = m_pRunMgr->ProcessEvent(inputEvent);
+    bool abort = p_runMgr->ProcessEvent(inputEvent);
 
     if (abort) {
       ATH_MSG_WARNING("Event was aborted !! ");
@@ -311,7 +284,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 
   G4Event* inputEvent = ISF_to_G4Event(ispVector);
   if (inputEvent) {
-    bool abort = m_pRunMgr->ProcessEvent(inputEvent);
+    bool abort = p_runMgr->ProcessEvent(inputEvent);
 
     if (abort) {
       ATH_MSG_WARNING("Event was aborted !! ");
@@ -435,6 +408,11 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const HepMC::Gen
                           gp.end_vertex()->position().t() );
     particle->SetProperTime( (lv1-lv0).mag()/CLHEP::c_light );
   }
+
+  // Set the user information for this primary to point to the HepMcParticleLink...
+  PrimaryParticleInformation* ppi = new PrimaryParticleInformation(&gp);
+  particle->SetUserInformation(ppi);
+  std::cout << "ZLM making primary down the line with " << ppi->GetParticleBarcode() << std::endl;
 
   return particle;
 }

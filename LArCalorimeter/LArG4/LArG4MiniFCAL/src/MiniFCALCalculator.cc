@@ -2,10 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4MiniFCAL/MiniFCALCalculator.h"
-#include "LArG4MiniFCAL/MiniFCALAssignIdentifier.h"
-
-#include "LArG4RunControl/LArG4GlobalOptions.h"
+#include "MiniFCALCalculator.h"
+#include "MiniFCALAssignIdentifier.h"
 
 #include "G4ThreeVector.hh"
 #include "G4StepPoint.hh"
@@ -14,7 +12,6 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4AffineTransform.hh"
 #include "G4TouchableHistory.hh"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -27,52 +24,21 @@ namespace Units = Athena::Units;
 
 #undef DEBUG_HITS
 
-// Standard implementation of a singleton pattern.
-
-MiniFCALCalculator* MiniFCALCalculator::m_instance = 0;
-
-MiniFCALCalculator* MiniFCALCalculator::GetCalculator()
+MiniFCALCalculator::MiniFCALCalculator(const std::string& name, ISvcLocator *pSvcLocator):LArCalculatorSvcImp(name, pSvcLocator)
 {
-  if (m_instance == 0) 
-    {
-      m_instance = new MiniFCALCalculator();
-    }
-  return m_instance;
 }
 
-
-//MiniFCALCalculator::~MiniFCALCalculator() {}
-
-MiniFCALCalculator::MiniFCALCalculator()
-  :m_isInTime(false)
+StatusCode MiniFCALCalculator::initialize()
 {
-   StoreGateSvc* detStore;
-   LArG4GlobalOptions *globalOptions=NULL;
-   
-   ISvcLocator *svcLocator = Gaudi::svcLocator();
-   StatusCode status = svcLocator->service("DetectorStore", detStore);
- 
-   if(status.isSuccess()){
-     status = detStore->retrieve(globalOptions, "LArG4GlobalOptions");
-     if(status.isFailure()){
-       throw std::runtime_error("MiniFCALCalculator: cannot retrieve LArG4GlobalOptions");
-     }
-   } 
-   else {
-     throw std::runtime_error("MiniFCALCalculator: cannot initialize StoreGate interface");
-   }
 
-   MsgStream log(Athena::getMessageSvc(),"MiniFCALCalculator" );
-   log << MSG::INFO << "Use the MiniFCALCalculator for the MiniFCAL" << endmsg;
-
-   m_OOTcut = globalOptions->OutOfTimeCut();
+   ATH_MSG_INFO("Use the MiniFCALCalculator for the MiniFCAL");
 
    m_Geometry = LArG4::MiniFCAL::MiniFCALAssignIdentifier::GetInstance();
-
+   return StatusCode::SUCCESS;
 }
 
 
-G4bool MiniFCALCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
+G4bool MiniFCALCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const
 {
   // make sure hdata is reset
   hdata.resize(1);
@@ -83,21 +49,15 @@ G4bool MiniFCALCalculator::Process(const G4Step* a_step, std::vector<LArHitData>
   if(hdata[0].energy <= 0.)  return false;
 
   // Find out how long it took the energy to get here.
-  G4double timeOfFlight        = 0.5* (  a_step->GetPreStepPoint()->GetGlobalTime()
-				       + a_step->GetPostStepPoint()->GetGlobalTime() );
-  G4ThreeVector point          = 0.5* (  a_step->GetPreStepPoint()->GetPosition()
-				       + a_step->GetPostStepPoint()->GetPosition() );
+  G4double timeOfFlight = 0.5* (  a_step->GetPreStepPoint()->GetGlobalTime()
+                                + a_step->GetPostStepPoint()->GetGlobalTime() );
+  G4ThreeVector point   = 0.5* (  a_step->GetPreStepPoint()->GetPosition()
+                                + a_step->GetPostStepPoint()->GetPosition() );
 
-  hdata[0].time = timeOfFlight/Units::ns - point.mag()/Units::c_light/Units::ns;
-
-  if (hdata[0].time > m_OOTcut)
-    m_isInTime = false;
-  else
-    m_isInTime = true;
+  hdata[0].time = (timeOfFlight - point.mag()/CLHEP::c_light)/Units::ns;
 
   // Calculate the identifier.
   hdata[0].id = m_Geometry->CalculateIdentifier( a_step, LArG4::MiniFCAL::kActive);
 
   return true;
 }
-

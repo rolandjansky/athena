@@ -22,8 +22,20 @@
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileDetDescr/TileDddbManager.h"
 #include "TileDetDescr/TileCellDim.h"    //added by Sergey
+#include "CxxUtils/StrFormat.h"
 
 #include "G4ios.hh"
+
+namespace {
+
+
+std::string makeCellName (const std::string& prefix, int i)
+{
+  return prefix + CxxUtils::strformat ("%i", i);
+}
+
+
+} // anonymous namespace
 
 TileGeoG4LookupBuilder::TileGeoG4LookupBuilder(StoreGateSvc* pDetStore, const int verboseLevel)
     : m_tileID(0),
@@ -151,8 +163,6 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
   std::string cellPrefix;
   int counter, i;
 
-  char* buff = new char[5];
-
   int nCounter = m_dbManager->GetNumTicl();
   if (m_dbManager->GetNumberOfEnv() == 1) {
     G4cout << "WARNING: CreateGeoG4Cells() - nCells from DB " << nCounter << G4endl;
@@ -217,8 +227,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
       }
     }
 
-    sprintf(buff, "%i", abs(static_cast<int>(m_dbManager->TICLncell())));
-    nameCell = cellPrefix + std::string(buff);
+    nameCell = makeCellName (cellPrefix, abs(static_cast<int>(m_dbManager->TICLncell())));
 
     if (m_cellMap->find(nameCell) != m_cellMap->end()) {
       G4cout << "ERROR CreateGeoG4Cells() - Attempt to recreate GeoG4Cell with name ---> " << nameCell << G4endl;
@@ -294,7 +303,6 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
     // Put it there...
     m_cellMap->operator[](nameCell) = cell;
   }
-  delete[] buff;
 }
 
 void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
@@ -318,8 +326,6 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
   std::string cellPrefix;
   std::string cellName;
 
-  char* buff = new char[5];
-
   int nSections = (is_tb) ? 4 : m_dbManager->GetNumTilb();
   if (m_dbManager->GetNumberOfEnv() == 1)
   nSections = 1;
@@ -340,44 +346,38 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
         // SAMPLE A
         cellPrefix = "Aneg";
         for (j = 10; j > 0; j--) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
         cellPrefix = "Apos";
         for (j = 1; j < 11; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
 
         //SAMPLE BC
         cellPrefix = "BCneg";
         for (j = 9; j > 0; j--) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
         cellPrefix = "BCpos";
         for (j = 1; j < 10; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
 
         //SAMPLE D
         cellPrefix = "Dneg";
         for (j = 3; j > 0; j--) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
         cellName = "D0";
         sectionCells.push_back(m_cellMap->operator[](cellName));
         cellPrefix = "Dpos";
         for (j = 1; j < 4; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
         if (m_verboseLevel>5)
@@ -389,24 +389,21 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
         // SAMPLE A
         cellPrefix = "A";
         for (j = 12; j < 17; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
 
         // SAMPLE B
         cellPrefix = "B";
         for (j = 11; j < 16; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
 
         // SAMPLE D
         cellPrefix = "D";
         for (j = 5; j < 7; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
+          cellName = makeCellName (cellPrefix, j);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
         if (m_verboseLevel>5)
@@ -540,7 +537,6 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
     sectionCells.clear();
 
   }
-  delete[] buff;
 }
 
 // Filling number of PMT in array for C10 Cells

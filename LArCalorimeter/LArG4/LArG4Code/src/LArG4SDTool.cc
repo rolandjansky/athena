@@ -43,29 +43,38 @@ LArG4SDTool::LArG4SDTool(const std::string& type, const std::string& name, const
 StatusCode LArG4SDTool::initialize()
 {
   const CaloIdManager* caloIdManager=nullptr;
-  CHECK( detStore()->retrieve(caloIdManager) );
-
-  // FIXME: why are we throwing from this method? Return StatusCode::FAILURE!
-
+  ATH_CHECK( detStore()->retrieve(caloIdManager) );
   m_larEmID = caloIdManager->getEM_ID();
   if(m_larEmID==0)
-    throw std::runtime_error("LArG4SDTool: Invalid LAr EM ID helper");
-
+    {
+      ATH_MSG_ERROR("LArG4SDTool: Invalid LAr EM ID helper");
+      return StatusCode::FAILURE;
+    }
   m_larFcalID = caloIdManager->getFCAL_ID();
   if(m_larFcalID==0)
-    throw std::runtime_error("LArG4SDTool: Invalid FCAL ID helper");
-
+    {
+      ATH_MSG_ERROR("LArG4SDTool: Invalid FCAL ID helper");
+      return StatusCode::FAILURE;
+    }
   m_larHecID = caloIdManager->getHEC_ID();
   if(m_larHecID==0)
-    throw std::runtime_error("LArG4SDTool: Invalid HEC ID helper");
-
+    {
+      ATH_MSG_ERROR("LArG4SDTool: Invalid HEC ID helper");
+      return StatusCode::FAILURE;
+    }
   m_larMiniFcalID = caloIdManager->getMiniFCAL_ID();
   if(m_larMiniFcalID==0)
-    throw std::runtime_error("LArG4SDTool: Invalid Mini FCAL ID helper");
-
+    {
+      ATH_MSG_ERROR("LArG4SDTool: Invalid Mini FCAL ID helper");
+      return StatusCode::FAILURE;
+    }
   m_caloDmID = caloIdManager->getDM_ID();
   if(!m_caloDmID)
-    throw std::runtime_error("LArG4SDTool: Invalid CaloDM ID helper");
+    {
+      ATH_MSG_ERROR("LArG4SDTool: Invalid CaloDM ID helper");
+      return StatusCode::FAILURE;
+    }
+  ATH_CHECK(this->initializeCalculators());
 
   return StatusCode::SUCCESS;
 }

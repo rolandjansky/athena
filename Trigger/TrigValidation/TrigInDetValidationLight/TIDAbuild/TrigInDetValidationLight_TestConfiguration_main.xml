@@ -68,7 +68,20 @@
             <keepFilePattern displayColor="red">TIDA*.css</keepFilePattern>
             <keepFilePattern>TIDAWeb/STAR</keepFilePattern>
             <keepFilePattern>TIDAWeb/build/STAR</keepFilePattern>
+
             <keepFilePattern>times/STAR</keepFilePattern>
+            <keepFilePattern>times-FTF/STAR</keepFilePattern>
+
+            <keepFilePattern>times/STAR.p*</keepFilePattern>
+            <keepFilePattern>times-FTF/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>times/STAR.pdf</keepFilePattern>
+            <keepFilePattern>times/STAR.png</keepFilePattern>
+
+            <keepFilePattern>times-FTF/STAR.pdf</keepFilePattern>
+            <keepFilePattern>times-FTF/STAR.png</keepFilePattern>
+
+
             <keepFilePattern>*.png</keepFilePattern>
             <keepFilePattern>*.ps</keepFilePattern>
             <keepFilePattern>*.hist</keepFilePattern>

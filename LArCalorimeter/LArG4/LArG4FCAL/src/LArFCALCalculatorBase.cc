@@ -8,12 +8,12 @@
 //
 //----------------------------------------------------------------------------
 
-#include "LArG4FCAL/LArFCALCalculatorBase.h"
+#include "LArFCALCalculatorBase.h"
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArG4BirksLaw.h"
 #include "StoreGate/StoreGate.h"
-#include "LArG4RunControl/LArG4FCALOptions.h"
+//#include "LArG4RunControl/LArG4FCALOptions.h"
 // Geant4 includes
 #include "G4LogicalVolume.hh"
 #include "G4VPhysicalVolume.hh"
@@ -33,56 +33,57 @@ namespace Units = Athena::Units;
 //
 // constructor
 //
-LArFCALCalculatorBase::LArFCALCalculatorBase()
-  : m_OOTcut(2.5*CLHEP::ns),m_posModule(NULL),m_negModule(NULL), m_FCalSampling(0), m_birksLaw(NULL)
+LArFCALCalculatorBase::LArFCALCalculatorBase(const std::string& name, ISvcLocator *pSvcLocator)
+  : LArCalculatorSvcImp(name, pSvcLocator)
+  , m_doHV(false)
+  , m_ChannelMap(nullptr)
+  , m_posModule(nullptr)
+  , m_negModule(nullptr)
+  , m_FCalSampling(0)
+  , m_birksLaw(nullptr)
 {
-  //m_identifier = LArG4Identifier();
+  declareProperty("FCALHVEnable",m_doHV);
+  declareProperty("FCALSampling",m_FCalSampling);
+  //m_FCalSampling.verifier().setUpper(3); //Would need to make m_FCalSampling an IntegerProperty for this to work. Overkill?
+}
 
-  //m_time = 0.;
-  //m_energy = 0.;
-  m_isInTime = false;
+StatusCode LArFCALCalculatorBase::initialize()
+{
+  m_OOTcut = (2.5*CLHEP::ns); //FIXME should be done via configurable property
 
-
-  LArG4FCALOptions *fcalOptions=NULL;
   StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
   if (detStore->retrieve(m_ChannelMap)==StatusCode::FAILURE) {
   }
 
-  if (detStore->retrieve(fcalOptions, "LArG4FCALOptions")==StatusCode::FAILURE) {
+  if (m_BirksLaw) {
+    const double Birks_LAr_density = 1.396;
+    m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,m_Birksk);
   }
+  if(m_doHV) {
 
-  if (fcalOptions) {
-    if (fcalOptions->FCALBirksLaw()) {
-      const double Birks_LAr_density = 1.396;
-      const double Birks_k = fcalOptions->FCALBirksk();
-      m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+    const LArDetectorManager *manager=nullptr;
+    if (detStore->retrieve(manager)!=StatusCode::SUCCESS) {
+      throw std::runtime_error("Cannot locate FCAL Manager");
     }
-    
-    if (fcalOptions->FCALHVEnable()) {
-      const LArDetectorManager *manager=NULL;
-      if (detStore->retrieve(manager)!=StatusCode::SUCCESS) {
-	throw std::runtime_error("Cannot locate FCAL Manager");
-      }
-      else {
-	const FCALDetectorManager* fcalManager=manager->getFcalManager();
-	m_posModule = fcalManager->getFCAL(FCALModule::Module(m_FCalSampling),FCALModule::POS);
-	m_negModule = fcalManager->getFCAL(FCALModule::Module(m_FCalSampling),FCALModule::NEG);
-      }
+    else {
+      const FCALDetectorManager* fcalManager=manager->getFcalManager();
+      m_posModule = fcalManager->getFCAL(FCALModule::Module(m_FCalSampling),FCALModule::POS);
+      m_negModule = fcalManager->getFCAL(FCALModule::Module(m_FCalSampling),FCALModule::NEG);
     }
   }
+  return StatusCode::SUCCESS;
 }
 
 //
 // destructor
 //
-LArFCALCalculatorBase::~LArFCALCalculatorBase()
-{ 
-  delete m_birksLaw;
+StatusCode LArFCALCalculatorBase::finalize()
+{
+  if(m_birksLaw) delete m_birksLaw;
+  return StatusCode::SUCCESS;
 }
 
-
-
-G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
+G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const
 {
   // Given a G4Step, determine the cell identifier.
 
@@ -91,7 +92,7 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
   // with the hit and it should be ignored.
 
   // make sure hdata is reset
-  hdata.resize(1); 
+  hdata.resize(1);
   // First, get the energy.
   hdata[0].energy = a_step->GetTotalEnergyDeposit();
 
@@ -109,17 +110,13 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
 
 
   // Determine if the hit was in-time.
-  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
-  if (hdata[0].time > m_OOTcut)
-    m_isInTime = false;
-  else
-    m_isInTime = true;
+  hdata[0].time = (timeOfFlight - p.mag()/CLHEP::c_light)/Units::ns;
 
   // zSide is negative if z<0.
   G4int zSide = 2;
   if (p.z() < 0.) zSide = -zSide;
 
- 
+
   // Get the physical volume associated with this G4Step.
   G4VPhysicalVolume* thisPV = a_step->GetPreStepPoint()->GetPhysicalVolume();   //a_step->GetTrack()->GetVolume();
   G4int sampling = m_FCalSampling;
@@ -138,35 +135,34 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
 
       const FCALTile *tile = fcalMod->getTile(phiIndex, etaIndex);
       for (unsigned int i=0;i<tile->getNumTubes();i++) {
-	FCALTubeConstLink tube=tile->getTube(i);
-	if (tube->getXLocal() == (*t).second.x() && tube->getYLocal()==(*t).second.y()) {
-	  FCALHVLineConstLink line =tube->getHVLine();
-	  if (line) {
-	    double voltage = line->voltage();
-	    //double current = line->current();
-	    bool   hvOn    = line->hvOn();
-	    if (!hvOn) hdata[0].energy=0.0;
-	    hdata[0].energy *= pow((voltage)/2000.0,0.6);
-	    tubeFound=true;
-	    break;
-	  }
-	}
+        FCALTubeConstLink tube=tile->getTube(i);
+        if (tube->getXLocal() == (*t).second.x() && tube->getYLocal()==(*t).second.y()) {
+          FCALHVLineConstLink line =tube->getHVLine();
+          if (line) {
+            double voltage = line->voltage();
+            //double current = line->current();
+            bool   hvOn    = line->hvOn();
+            if (!hvOn) hdata[0].energy=0.0;
+            hdata[0].energy *= pow((voltage)/2000.0,0.6);
+            tubeFound=true;
+            break;
+          }
+        }
       }
-      if (!tubeFound) 	throw std::runtime_error("FCAL Tube not found (for HV calculation)");
+      if (!tubeFound)   throw std::runtime_error("FCAL Tube not found (for HV calculation)");
 
     }
-    
+
   }
   hdata[0].id.clear();
 
   // Append the values to the empty identifier.
   hdata[0].id  << 4          // LArCalorimeter
-	       << 3          // LArFCAL
-	       << zSide      // EndCap	      
-	       << sampling   // FCal Module #
-	       << etaIndex
-	       << phiIndex;
+               << 3          // LArFCAL
+               << zSide      // EndCap
+               << sampling   // FCal Module #
+               << etaIndex
+               << phiIndex;
 
   return true;
 }
-

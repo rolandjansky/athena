@@ -2,12 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4HEC/LArHECLocalCalculator.h"
+#include "LArHECLocalCalculator.h"
 
 #include "LArG4HEC/LocalGeometry.h"
-
-#include "LArG4RunControl/LArG4GlobalOptions.h"
-#include "LArG4RunControl/LArG4HECOptions.h"
 
 #include "G4ThreeVector.hh"
 #include "G4StepPoint.hh"
@@ -18,7 +15,6 @@
 #include "G4TouchableHistory.hh"
 
 #include "LArG4Code/LArG4BirksLaw.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/Units.h"
@@ -30,78 +26,43 @@ namespace Units = Athena::Units;
 
 #undef DEBUG_HITS
 
-// Standard implementation of a singleton pattern.
 
-LArHECLocalCalculator* LArHECLocalCalculator::m_instance = 0;
-G4bool LArHECLocalCalculator::m_isX = false;
 
-LArHECLocalCalculator* LArHECLocalCalculator::GetCalculator()
+LArHECLocalCalculator::LArHECLocalCalculator(const std::string& name,  ISvcLocator *pSvcLocator)
+  : LArCalculatorSvcImp(name, pSvcLocator)
+  , m_Geometry("LocalHECGeometry", name)
+  , m_birksLaw(nullptr)
+  , m_isX(false)
 {
-  if (m_instance == 0) 
-    {
-      m_instance = new LArHECLocalCalculator();
-    }
-  return m_instance;
+  declareProperty("GeometryCalculator", m_Geometry);
+  declareProperty("IsX", m_isX);
 }
 
-
-LArHECLocalCalculator::LArHECLocalCalculator()
-   ://m_identifier(),m_time(0),m_energy(0),
-      m_isInTime(false),m_birksLaw(NULL)
+StatusCode LArHECLocalCalculator::initialize()
 {
-   StoreGateSvc* detStore;
-   LArG4GlobalOptions *globalOptions=NULL;
-   LArG4HECOptions    *hecOptions=NULL;
-   
    ISvcLocator *svcLocator = Gaudi::svcLocator();
-   StatusCode status = svcLocator->service("DetectorStore", detStore);
- 
-   if(status.isSuccess()){
-       status = detStore->retrieve(globalOptions, "LArG4GlobalOptions");
-       if(status.isFailure()){
-          throw std::runtime_error("LArHECLocalCalculator: cannot retrieve LArG4GlobalOptions");
-       }
-       status = detStore->retrieve(hecOptions, "LArG4HECOptions");
-       if(status.isFailure()){
-          // throw std::runtime_error("LArHECLocalCalculator: cannot retrieve LArG4HECOptions");
-       }
-   } else {
-          throw std::runtime_error("LArHECLocalCalculator: cannot initialize StoreGate interface");
-   }
-   status = svcLocator->service("MessageSvc", m_msgSvc);
-   if(status.isFailure()) m_msgSvc = 0;
-   if(m_msgSvc) {
-     MsgStream log(m_msgSvc,"LArHECLocalCalculator");
-     log << MSG::INFO << "Constructing Calculator " << endmsg;
-   }
+   StoreGateSvc* detStore(nullptr);
+   ATH_CHECK(svcLocator->service("DetectorStore", detStore));
+   ATH_MSG_DEBUG("Constructing LArHECLocalCalculator");
 
-   m_OOTcut = globalOptions->OutOfTimeCut();
+   ATH_CHECK(m_Geometry.retrieve());
 
-   m_isX = false;
+   if (m_BirksLaw)
+     {
+       const double Birks_LAr_density = 1.396;
+       m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,m_Birksk);
+     }
 
-   m_Geometry = LArG4::HEC::LocalGeometry::GetInstance();
-   m_Geometry->SetX(m_isX);
-
-   if (hecOptions) {
-      if (hecOptions->HECBirksLaw()) {
-          const double Birks_LAr_density = 1.396;
-          const double Birks_k = hecOptions->HECBirksk();
-          m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
-      }
-   }
+   return StatusCode::SUCCESS;
 }
 
-LArHECLocalCalculator::~LArHECLocalCalculator()
+StatusCode LArHECLocalCalculator::finalize()
 {
-  delete m_birksLaw;
+  if(m_birksLaw) delete m_birksLaw;
+  return StatusCode::SUCCESS;
 }
 
-void LArHECLocalCalculator::SetX(bool x){ 
-   m_Geometry->SetX(x);
-   m_isX = x; 
-}
-
-G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double deadzone, std::vector<LArHitData>& hdata)
+G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double deadzone, std::vector<LArHitData>& hdata) const
 {
 
   // make sure vector is clear
@@ -118,21 +79,16 @@ G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double
   // Find out how long it took the energy to get here.
   G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
   G4StepPoint* post_step_point = a_step->GetPostStepPoint();
-  G4double timeOfFlight = (pre_step_point->GetGlobalTime() + 
+  G4double timeOfFlight = (pre_step_point->GetGlobalTime() +
                            post_step_point->GetGlobalTime()) * 0.5;
   G4ThreeVector startPoint = pre_step_point->GetPosition();
   G4ThreeVector endPoint   = post_step_point->GetPosition();
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
-					 
-  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
-  if (hdata[0].time > m_OOTcut)
-    m_isInTime = false;
-  else
-    m_isInTime = true;
+
+  hdata[0].time = (timeOfFlight - p.mag()/CLHEP::c_light)/Units::ns;
 
   // Calculate the identifier.
   hdata[0].id = m_Geometry->CalculateIdentifier( a_step, LArG4::HEC::kLocActive, depthadd, deadzone);
 //  std::cout<<"LArHECLocalCalculator::Process "<<depthadd<<std::endl;
   return true;
 }
-

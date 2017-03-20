@@ -170,13 +170,13 @@ inline int PixelCalibData::PixelChipSummaryData::getThresholdSigma(int type) con
    else{ return m_q2tot[0]*(Q+m_q2tot[1])/(Q+m_q2tot[2]);}
  }
 
- inline float PixelCalibData::PixelChipSummaryData::getTotP1() const{ return m_totres[0]* 1/100.;  }
+  inline float PixelCalibData::PixelChipSummaryData::getTotP1() const{ return m_totres[0]* (1/100.);  }
 
- inline float PixelCalibData::PixelChipSummaryData::getTotP2() const{  return m_totres[1]*1./1000.; }
+  inline float PixelCalibData::PixelChipSummaryData::getTotP2() const{  return m_totres[1]*(1./1000.); }
 
  inline float PixelCalibData::PixelChipSummaryData::getTotRes(float Q) const{ 
-   float p1 = m_totres[0]*1/100.; 
-   float p2 = m_totres[1]*1./1000.; 
+   float p1 = m_totres[0]*(1/100.0);
+   float p2 = m_totres[1]*(1/1000.0);
    return p1+p2*Q; 
  }
 
@@ -266,9 +266,9 @@ inline void PixelCalibData::PixelChipSummaryData::setTotRes(float p1, float p2){
 
   // careful with rounding -- A.X.
   using std::abs;
-  int p1x = (int)roundf(p1/0.01); 
+  int p1x = (int)roundf(p1*100); 
   if(abs(p1x)>127)p1x = 127*p1x/abs(p1x);
-  int p2x = (int)roundf(p2/0.001); 
+  int p2x = (int)roundf(p2*1000); 
   if(abs(p2x)>127)p2x = 127*p2x/abs(p2x); 
 
   m_totres[0] = (char)p1x; 
@@ -347,7 +347,6 @@ inline PixelCalibData::PixelChipSummaryData::PixelChipSummaryData(){
   }
 }
 
-//================ Destructor =================================================
 inline PixelCalibData::~PixelCalibData(){}
 
 inline int PixelCalibData::size() const

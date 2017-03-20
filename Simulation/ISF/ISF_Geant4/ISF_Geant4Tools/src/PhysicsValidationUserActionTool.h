@@ -13,21 +13,21 @@
 #include "PhysicsValidationUserAction.h"
 
 namespace G4UA{
-
+  
   namespace iGeant4{
-
-
+    
+    
     /// @class PhysicsValidationUserActionTool
     /// @brief Place holder tool
     ///
     /// @author John Chapman
     ///
-
+    
     class PhysicsValidationUserActionTool:
-      public ActionToolBase<PhysicsValidationUserAction>,
+    public ActionToolBase<PhysicsValidationUserAction>,
       public IBeginEventActionTool,  public IEndEventActionTool,  public IBeginRunActionTool,  public ISteppingActionTool,  public IPreTrackingActionTool
     {
-
+      
     public:
       /// Standard constructor
       PhysicsValidationUserActionTool(const std::string& type, const std::string& name,const IInterface* parent);
@@ -46,7 +46,7 @@ namespace G4UA{
       /// Retrieve the preTracking action
       virtual IPreTrackingAction* getPreTrackingAction() override final
       { return static_cast<IPreTrackingAction*>( getAction() ); }
-
+      
       /// Query interface for gaudi
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:
@@ -56,7 +56,7 @@ namespace G4UA{
       /// Configuration parameters
       PhysicsValidationUserAction::Config m_config;
     }; // class PhysicsValidationUserActionTool
-
+    
   }// iGeant4
 } // namespace G4UA
 #endif //ISF_GEANT4TOOLS_G4UA__PHYSICSVALIATIONUSERACTIONTOOL_H

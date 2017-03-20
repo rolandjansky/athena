@@ -14,7 +14,7 @@ class LArG4TBECBeamChSDTool : public SensitiveDetectorBase
 public:
   LArG4TBECBeamChSDTool(const std::string& type, const std::string& name, const IInterface *parent);
   ~LArG4TBECBeamChSDTool() {}
-    
+
   G4VSensitiveDetector* makeSD() override final;
 };
 
