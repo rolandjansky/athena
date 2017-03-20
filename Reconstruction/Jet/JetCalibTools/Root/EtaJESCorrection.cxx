@@ -93,9 +93,9 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
     // Read in absolute JES calibration factors
     TString key=Form("JES.%s_Bin%d",m_jetAlgo.Data(),ieta);
     std::vector<double> params = JetCalibUtils::VectorizeD(m_config->GetValue(key,""));
-    s_nPar = params.size();
-    if (s_nPar<s_nParMin || s_nPar>s_nParMax) { ATH_MSG_FATAL( "Cannot read JES calib constants " << key ); return StatusCode::FAILURE; }
-    for (uint ipar=0;ipar<s_nPar;++ipar) m_JESFactors[ieta][ipar] = params[ipar];
+    m_nPar = params.size();
+    if (m_nPar<s_nParMin || m_nPar>s_nParMax) { ATH_MSG_FATAL( "Cannot read JES calib constants " << key ); return StatusCode::FAILURE; }
+    for (uint ipar=0;ipar<m_nPar;++ipar) m_JESFactors[ieta][ipar] = params[ipar];
 
       //Protections for high order extrapolation methods at low Et (Et < _minPt_JES)
       if(m_lowPtExtrap > 0) {
@@ -132,8 +132,8 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
     // Read in jet eta calibration factors
     key=Form("EtaCorr.%s_Bin%d",m_jetAlgo.Data(),ieta);
     params = JetCalibUtils::VectorizeD(m_config->GetValue(key,""));
-    if (params.size()!=s_nPar) { ATH_MSG_FATAL( "Cannot read jet eta calib constants " << key ); return StatusCode::FAILURE; }
-    for (uint ipar=0;ipar<s_nPar;++ipar) m_etaCorrFactors[ieta][ipar] = params[ipar];
+    if (params.size()!=m_nPar) { ATH_MSG_FATAL( "Cannot read jet eta calib constants " << key ); return StatusCode::FAILURE; }
+    for (uint ipar=0;ipar<m_nPar;++ipar) m_etaCorrFactors[ieta][ipar] = params[ipar];
 
     if(m_freezeJESatHighE){ // Read starting energy values to freeze JES correction
       key=Form("EmaxJES.%s_Bin%d",m_jetAlgo.Data(),ieta);
@@ -146,8 +146,8 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
         // Read in absolute JMS calibration factors
         key=Form("MassCorr.%s_Bin%d",m_jetAlgo.Data(),ieta);
         params = JetCalibUtils::VectorizeD(m_config->GetValue(key,""));
-        if (params.size()!=s_nPar) {ATH_MSG_FATAL( "Cannot read JMS calib constants " << key ); return StatusCode::FAILURE;}
-        for (uint ipar=0;ipar<s_nPar;++ipar) m_JMSFactors[ieta][ipar] = params[ipar];
+        if (params.size()!=m_nPar) {ATH_MSG_FATAL( "Cannot read JMS calib constants " << key ); return StatusCode::FAILURE;}
+        for (uint ipar=0;ipar<m_nPar;++ipar) m_JMSFactors[ieta][ipar] = params[ipar];
     }
 
   }
@@ -275,14 +275,14 @@ double EtaJESCorrection::getMassCorr(double E_corr, double eta_det) const {
 
 double EtaJESCorrection::getLogPolN(const double *factors, double x) const {
   double y=0;
-  for ( uint i=0; i<s_nPar; ++i )
+  for ( uint i=0; i<m_nPar; ++i )
     y += factors[i]*TMath::Power(log(x),Int_t(i));
   return y;
 }
 
 double EtaJESCorrection::getLogPolNSlope(const double *factors, double x) const {
   double y=0;
-  for ( uint i=0; i<s_nPar; ++i )
+  for ( uint i=0; i<m_nPar; ++i )
     y += i*factors[i]*TMath::Power(log(x),Int_t(i-1))/x;
   return y;
 }

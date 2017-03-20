@@ -73,10 +73,10 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
   const double E_det = jetStartP4.e();
   const double pT_det = jetStartP4.pt();
   const double eta_det = jetStartP4.eta();
-  const double m_det = jetStartP4.mass();
+  const double mass_det = jetStartP4.mass();
 
-  if ( E_det < m_det ) {
-    ATH_MSG_WARNING( "JetPileupCorrection::calibrateImpl : Current jet has mass=" << m_det/m_GeV << " GeV, which is greater than it's energy=" << E_det/m_GeV << " GeV?? Aborting." );
+  if ( E_det < mass_det ) {
+    ATH_MSG_WARNING( "JetPileupCorrection::calibrateImpl : Current jet has mass=" << mass_det/m_GeV << " GeV, which is greater than it's energy=" << E_det/m_GeV << " GeV?? Aborting." );
     return StatusCode::FAILURE;
   }
 

@@ -166,10 +166,10 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
       ATH_MSG_INFO("Reading time-dependent insitu settings from: " << m_timeDependentInsituConfigs.at(i));
       ATH_MSG_INFO("resolved in: " << fn_insitu);
   
-      TEnv *m_globalConfig_insitu = new TEnv();
-      int status = m_globalConfig_insitu->ReadFile(fn_insitu ,EEnvLevel(0));
+      TEnv *globalConfig_insitu = new TEnv();
+      int status = globalConfig_insitu->ReadFile(fn_insitu ,EEnvLevel(0));
       if (status!=0) { ATH_MSG_FATAL("Cannot read config file " << fn_insitu ); return StatusCode::FAILURE; }
-      m_globalTimeDependentConfigs.push_back(m_globalConfig_insitu);
+      m_globalTimeDependentConfigs.push_back(globalConfig_insitu);
     }
   }
 
@@ -277,13 +277,13 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
         suffix="_Insitu"; suffix += "_"; suffix += std::to_string(i);
         if(m_devMode) suffix+="_DEV";
-        InsituDataCorrection *m_insituTimeDependentCorr_Tmp = new InsituDataCorrection(name+suffix,m_globalTimeDependentConfigs.at(i),jetAlgo,calibAreaTag,m_devMode);
-        m_insituTimeDependentCorr_Tmp->msg().setLevel( this->msg().level() );
-        if ( m_insituTimeDependentCorr_Tmp->initializeTool(name+suffix).isFailure() ) {
+        InsituDataCorrection *insituTimeDependentCorr_Tmp = new InsituDataCorrection(name+suffix,m_globalTimeDependentConfigs.at(i),jetAlgo,calibAreaTag,m_devMode);
+        insituTimeDependentCorr_Tmp->msg().setLevel( this->msg().level() );
+        if ( insituTimeDependentCorr_Tmp->initializeTool(name+suffix).isFailure() ) {
           ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
           return StatusCode::FAILURE; 
         } else {     		
-          m_insituTimeDependentCorr.push_back(m_insituTimeDependentCorr_Tmp); 
+          m_insituTimeDependentCorr.push_back(insituTimeDependentCorr_Tmp); 
         }
       }
       return StatusCode::SUCCESS; 
