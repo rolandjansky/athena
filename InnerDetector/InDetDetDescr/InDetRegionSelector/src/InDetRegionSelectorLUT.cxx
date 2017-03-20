@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "InDetRegionSelector/InDetRegionSelectorLUT.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
