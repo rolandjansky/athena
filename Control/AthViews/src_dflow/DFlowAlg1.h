@@ -15,8 +15,8 @@
 #include <string>
 
 // FrameWork includes
-//#include "AthViews/AthViewAlgorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthViews/AthViewAlgorithm.h"
 #include "SGTools/BuiltinsClids.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"

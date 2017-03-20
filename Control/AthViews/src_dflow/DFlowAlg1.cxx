@@ -17,9 +17,9 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "CxxUtils/make_unique.h"
-
 #include "AthViews/View.h"
 
 namespace AthViews {
@@ -58,8 +58,8 @@ StatusCode DFlowAlg1::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  m_r_int.initialize();
-  m_w_int.initialize();
+  CHECK( m_r_int.initialize() );
+  CHECK( m_w_int.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -76,36 +76,31 @@ StatusCode DFlowAlg1::execute()
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
   SG::ReadHandle< int > inputData( m_r_int, getContext() );
-  //if ( !m_r_int.isValid() )
   if ( !inputData.isValid() )
   {
-    //ATH_MSG_ERROR( "Failed to load initial view data from store " << m_r_int.store() );
-    ATH_MSG_ERROR( "Failed to load initial view data from store " << inputData.store() );
+    ATH_MSG_ERROR( "Failed to retrieve initial view data from store " << inputData.store() );
     return StatusCode::FAILURE;
   }
-  //int seedData = *m_r_int;
   int seedData = *inputData;
 
   SG::WriteHandle< int > outputData( m_w_int, getContext() );
-  /*ATH_MSG_INFO("myint handle...");
-  ATH_MSG_INFO("name: [" << m_w_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_w_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_w_int.clid() << "]");*/
+  ATH_MSG_INFO("myint handle...");
+  ATH_MSG_INFO("name: [" << outputData.name() << "]");
+  ATH_MSG_INFO("store [" << outputData.store() << "]");
+  ATH_MSG_INFO("clid: [" << outputData.clid() << "]");
   
-  //m_w_int.record( CxxUtils::make_unique< int >( seedData ) );
   outputData.record( CxxUtils::make_unique< int >( seedData ) );
 
-  //redundant check as op = would throw if m_w_int was not valid (e.g. because if clid/key combo was duplicated)
-  //if (m_w_int.isValid())
-  if (outputData.isValid())
+  //redundant check as op = would throw if outputData was not valid (e.g. because if clid/key combo was duplicated)
+  if ( outputData.isValid() )
   {
-    //ATH_MSG_INFO("ptr: " << m_w_int.cptr());
-    //ATH_MSG_INFO("val: " << *m_w_int);
+    ATH_MSG_INFO("ptr: " << outputData.cptr());
+    ATH_MSG_INFO("val: " << *outputData);
     
     ATH_MSG_INFO("modify myint by value...");
 
-    //ATH_MSG_INFO("ptr: " << m_w_int.cptr());
-    //ATH_MSG_INFO("val: " << *m_w_int);
+    ATH_MSG_INFO("ptr: " << outputData.cptr());
+    ATH_MSG_INFO("val: " << *outputData);
   }
 
   return StatusCode::SUCCESS;

@@ -24,7 +24,7 @@ namespace AthViews {
 ViewMergeAlg::ViewMergeAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_w_ints( "dflow_ints" ),
+  m_w_ints( "mergedOutput" ),
   m_r_ints( "dflow_ints" ),
   m_r_views( "all_views" )
 {
