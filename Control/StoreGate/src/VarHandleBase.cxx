@@ -376,15 +376,12 @@ namespace SG {
 
 
   /**
-   * @brief Retrieve and cache all information managed by a handle.
+   * @brief Verify that the handle has been configured properly.
    * @param used If false, then this handle is not to be used.
    *             Instead of normal initialization, the key will be cleared.
    *
-   * This will retrieve and cache the associated @c DataProxy.
-   *
-   * Note for the case of a WriteHandle that has not yet been written to,
-   * the proxy may not exist.  We return Success in that case; however,
-   * @c isInitialized will still return false.
+   * This will return failure if the key is blank or if the event store
+   * cannot be found.
    */
   StatusCode 
   VarHandleBase::initialize (bool used /*= true*/)
@@ -400,8 +397,27 @@ namespace SG {
       m_storeWasSet = false;
     }
 
-    if (!m_store)
+    if (!m_store) {
       return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  /**
+   * @brief Retrieve and cache all information managed by a handle.
+   *
+   * This will retrieve and cache the associated @c DataProxy.
+   *
+   * Note for the case of a WriteHandle that has not yet been written to,
+   * the proxy may not exist.  We return Success in that case; however,
+   * @c isInitialized will still return false.
+   */
+  StatusCode 
+  VarHandleBase::setState()
+  {
+    CHECK( initialize() );
 
     StatusCode sc = this->setState(m_store->proxy(this->clid(), this->key()));
 
@@ -411,18 +427,6 @@ namespace SG {
       return StatusCode::SUCCESS;
 
     return sc;
-  }
-
-
-  /**
-   * @brief Retrieve and cache all information managed by a handle.
-   *
-   * Synonym for initialize().
-   */
-  StatusCode 
-  VarHandleBase::setState()
-  {
-    return initialize();
   }
 
 
