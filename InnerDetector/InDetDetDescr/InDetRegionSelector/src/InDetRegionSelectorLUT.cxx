@@ -1,7 +1,11 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
+///
+///   @file    InDetRegionSelectorLUT.cxx
+///
+///
+///   $Id: InDetRegionSelectorLUT.cxx, v0.0  Sat 18 Mar 2017 14:44:02 CET sutt (sutt@cern.ch)) $
+///
+///   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
+  
 
 #include "InDetRegionSelector/InDetRegionSelectorLUT.h"
 

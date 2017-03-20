@@ -1,6 +1,11 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+// emacs: this is -*- c++ -*-
+//
+//   @file    TRT_RegionSelectorTable.h
+//
+//
+//   $Id: TRT_RegionSelectorTable.h, v0.0  Sat 18 Mar 2017 14:37:14 CET sutt (sutt@cern.ch) $
+//
+//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
 
 #ifndef InDetRegionSelector_TRT_RegionSelectorTable_h
 #define InDetRegionSelector_TRT_RegionSelectorTable_h
@@ -15,7 +20,6 @@
 #include <string>
 using std::string;
 
-// class StoreGateSvc;
 class RegSelSiLUT;
 class TRT_IdentifierConversionTool;
 class ITRT_CablingSvc;
@@ -40,10 +44,7 @@ private:
  
   StatusCode createTable();
 
-  //  StoreGateSvc*                 m_detStore;
-  //  ToolHandle<ITRT_IdMapping>    m_TRT_IdMapping;  // Identifier mapping Tool
   ServiceHandle<ITRT_CablingSvc>    m_TRT_IdMapping;  // Identifier mapping Tool
-  //  TRT_IdMapping*                m_TRT_IdMapping;
   TRT_IdentifierConversionTool* m_TRT_IdMappingOld;  // Identifier conversion Tool. 
                                                      // Here temporarily until ATLAS mapping 
                                                      // is put into InDetCabling
@@ -51,7 +52,6 @@ private:
   RegSelSiLUT*  m_regionLUT;
 
   // Algorithm properties
-  double m_deltaZ;
   std::string m_managerName;
   std::string m_roiFileName;
   bool m_printHashId;

@@ -3,16 +3,16 @@
 //   FTK_RegionSelectorTable.h        
 //
 //   Create the new RegSelSiLUT for the FTK
-// 
-//   Copyright (C) 2011 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: FTK_RegionSelectorTable.h, v0.0 Fri 24 Jun 2011 13:10:59 BST $
+//
+//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
 
  
 #ifndef InDetRegionSelector_FTK_RegionSelectorTable_h
 #define InDetRegionSelector_FTK_RegionSelectorTable_h
 
-#include "RegSelLUT/IRegionFTKLUT_Creator.h"
+#include "RegSelLUT/IRegionIDLUT_Creator.h"
 
 // #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -27,7 +27,7 @@ using std::string;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class FTK_RegionSelectorTable : public AthAlgTool, virtual public IRegionFTKLUT_Creator
+class FTK_RegionSelectorTable : public AthAlgTool, virtual public IRegionIDLUT_Creator
 {
 
 public:
@@ -38,18 +38,17 @@ public:
   StatusCode initialize();
   StatusCode finalize();
   
-  virtual RegSelEtaPhiLUT* getLUT() const;
+  virtual RegSelSiLUT* getLUT() const;
 
 private:
   
   StatusCode createTable();
   
-  //  StoreGateSvc*  m_detStore;
-  RegSelEtaPhiLUT*   m_regionLUT;
+  RegSelSiLUT*   m_regionLUT;
 
   // Algorithm properties
   std::string m_managerName;
-  double m_deltaZ;
+
   std::string m_roiFileName;
   bool m_printHashId;
   bool m_printTable;

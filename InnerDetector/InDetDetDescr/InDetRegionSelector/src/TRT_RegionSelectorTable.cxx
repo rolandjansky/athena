@@ -1,6 +1,12 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+//
+//   @file    TRT_RegionSelectorTable.cxx         
+//   
+//
+//   @author M Sutton
+//
+//   $Id: TRT_RegionSelectorTable.cxx, v0.0   Sat 18 Mar 2017 13:48:52 CET sutt $
+//
+//   Copyright (C) 2002-2017 CERN being for the benefit of the ATLAS collaboration
 
 #include "InDetRegionSelector/TRT_RegionSelectorTable.h"
 
@@ -44,8 +50,7 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 						 const IInterface* parent)
   :  AthAlgTool(type,name,parent),
      m_TRT_IdMapping("TRT_CablingSvc", name),
-     m_regionLUT(NULL),
-     m_deltaZ(168 * CLHEP::mm),
+     m_regionLUT(nullptr),
      m_managerName("TRT"),
      m_roiFileName("TRTRoITable.txt"),
      m_printHashId(true),
@@ -53,7 +58,6 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   declareProperty("ManagerName", m_managerName);
-  declareProperty("DeltaZ",      m_deltaZ);
 
   // The remaining properties are for debugging purposes.
   declareProperty("OutputFile",  m_roiFileName);
@@ -70,7 +74,6 @@ StatusCode TRT_RegionSelectorTable::initialize(){
 
   msg(MSG::INFO)  << "Tool Properties" << endmsg;
   msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
-  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endmsg;
   if ( msgLvl(MSG::DEBUG) ) {
     msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endmsg;
     msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endmsg;
@@ -132,7 +135,7 @@ TRT_RegionSelectorTable::createTable()
     return StatusCode::FAILURE;
   }
   // Get the id helper 
-  const TRT_ID* idHelper = NULL;
+  const TRT_ID* idHelper = 0;
   if ( detStore()->retrieve( idHelper, "TRT_ID" ).isFailure() ) {
     msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
@@ -155,8 +158,8 @@ TRT_RegionSelectorTable::createTable()
     int idLayerWheel = idHelper->layer_or_wheel(id);
     int idPhiModule = idHelper->phi_module(id);
     int idStrawLayer = idHelper->straw_layer(id);
-    const TRT_BarrelElement * Belement = NULL;
-    const TRT_EndcapElement * Eelement = NULL;
+    const TRT_BarrelElement* Belement = 0;
+    const TRT_EndcapElement* Eelement = 0;
     Identifier idelement;
     double InnerRadiusOfStraw = 2.; //hardcoded. No method? (it will NEVER change anyway)
     double phiMin,phiMax,rz;    
