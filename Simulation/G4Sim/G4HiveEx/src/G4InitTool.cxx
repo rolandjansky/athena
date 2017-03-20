@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "unistd.h"
-#include "sys/syscall.h"
-
 #include "G4InitTool.h"
 
 #include "G4WorkerRunManager.hh"
@@ -18,6 +15,9 @@
 #include "G4VUserActionInitialization.hh"
 #include "G4UserWorkerInitialization.hh"
 #include "G4AutoDelete.hh"
+
+#include <unistd.h>
+#include <sys/syscall.h>
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
