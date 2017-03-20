@@ -202,8 +202,10 @@ namespace xAOD {
     updateWeights(hw.nominal,hw.qcd_wg1_mu,hw.qcd_wg1_res);
     updateWeights(hw.nominal,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12);
     updateWeights(hw.nominal,hw.qcd_wg1_pTH,hw.qcd_wg1_qm_b,hw.qcd_wg1_qm_t);
+    updateWeights(hw.nominal,hw.qcd_wg1_vbf2j,hw.qcd_wg1_vbf3j);
     updateWeights(hw.nominal,hw.qcd_nnlops_nnlo,hw.qcd_nnlops_pow);
     updateWeights(hw.nominal,hw.qcd_stxs);
+    updateWeights(hw.nominal,hw.qcd_jve);
   }
 
   void HiggsWeightTool::updateWeight(const double &w_nom, double &w) {
@@ -342,7 +344,8 @@ namespace xAOD {
 
     // Cross sections in the =0, =1, and >=2 jets of Powheg ggH after reweighing scaled to  sigma(N3LO)
     //static std::vector<double> sig({30.26,13.12,5.14});
-    static std::vector<double> sig({30.38,12.69,5.45}); // NNLOPS test sample
+    //static std::vector<double> sig({30.117,12.928,5.475}); // NNLOPS 2M
+    static std::vector<double> sig({30.117,12.928,4.845}); // NNLOPS subtracting VBF 
     
     // BLPTW absolute uncertainties in pb
     static std::vector<double> yieldUnc({ 1.12, 0.66, 0.42});
@@ -376,9 +379,46 @@ namespace xAOD {
     hw.qcd_wg1_qm_b = w_nom * qmSF;
     hw.qcd_wg1_qm_t = w_nom * linInter(pTH,160,1.0,500,1.37);
 
+    hw.qcd_wg1_vbf2j = w_nom; hw.qcd_wg1_vbf3j = w_nom;
+    if (STXS_Stage1==101) { // GG2H_VBFTOPO_JET3VETO, tot unc 38%
+      hw.qcd_wg1_mu = hw.qcd_wg1_res = hw.qcd_wg1_mig01 = hw.qcd_wg1_mig12 = w_nom;
+      hw.qcd_wg1_vbf2j = w_nom * 1.20;
+      hw.qcd_wg1_vbf3j = w_nom * (1.0-0.32);
+    } if (STXS_Stage1==102) { // GG2H_VBFTOPO_JET3, tot unc 30.4%
+      hw.qcd_wg1_mu = hw.qcd_wg1_res = hw.qcd_wg1_mig01 = hw.qcd_wg1_mig12 = w_nom;
+      hw.qcd_wg1_vbf2j = w_nom * 1.20;
+      hw.qcd_wg1_vbf3j = w_nom * 1.235;
+    }
     // Quark-mass uncdertainty - TODO
     //if (pTH>500) qm=1.5; else if (pTH>160) qm=1.0+0.5*(pTH-160)/340;
     //hw.qcd_wg1_qm = w_nom;
+
+    /********
+     *  JVE as a cross check
+     */
+    // Taking eps0 and eps1 from Powheg NNLOPS
+    // and setting inclusive uncertainty to 3.9% (YR4 for N3LO)
+    // setting uncertatinies such that similar to the previous numbers
+    static double sig_ge1 = sig[1]+sig[2], sig_tot=sig[0]+sig_ge1, 
+      Dsig_tot=sig_tot*0.039, D01=sig_tot*0.0242, D12=sig[1]*0.105;
+      //Dsig_tot=2.48, D01=1.25, D12=0.88;
+    hw.qcd_jve.push_back(w_nom*(1.0+Dsig_tot/sig_tot)); // incl
+    // eps0
+    if (Njets==0) hw.qcd_jve.push_back(w_nom*(1.0-D01/sig[0]));
+    else hw.qcd_jve.push_back(w_nom*(1.0+D01/sig_ge1));
+    // eps1
+    if (Njets==0) hw.qcd_jve.push_back(w_nom);
+    else if (Njets==1) hw.qcd_jve.push_back(w_nom*(1.0-D12/sig[1]));
+    else hw.qcd_jve.push_back(w_nom*(1.0+D12/sig[2]));
+
+    if (STXS_Stage1==101||STXS_Stage1==102)
+      hw.qcd_jve[0]=hw.qcd_jve[1]=hw.qcd_jve[2]=w_nom;
+    hw.qcd_jve.push_back(hw.qcd_wg1_vbf2j);
+    hw.qcd_jve.push_back(hw.qcd_wg1_vbf3j);
+    hw.qcd_jve.push_back(hw.qcd_wg1_pTH);
+    hw.qcd_jve.push_back(hw.qcd_wg1_qm_t);
+
+    
 
     /*********
      *  Tackmann STXS uncertainty scheme
@@ -389,6 +429,10 @@ namespace xAOD {
     hw.qcd_stxs.push_back(hw.qcd_wg1_res);
     hw.qcd_stxs.push_back(hw.qcd_wg1_mig01);
     hw.qcd_stxs.push_back(hw.qcd_wg1_mig12);
+    
+    // Add in the VBF uncertainties here
+    hw.qcd_stxs.push_back(hw.qcd_wg1_vbf2j);
+    hw.qcd_stxs.push_back(hw.qcd_wg1_vbf3j);
 
     // This is followed by Dsig60, Dsig120 and Dsig200
     // These are extracted from Powheg NNLOPS scale variations (using this tool!)

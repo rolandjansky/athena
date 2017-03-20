@@ -58,7 +58,7 @@ int main( int argc, char* argv[] ) {
    xAOD::HiggsWeightTool *higgsMCtool = new xAOD::HiggsWeightTool( "HiggsWeightTool" );
    higgsMCtool->setProperty( "OutputLevel", MSG::DEBUG ).ignore();
    higgsMCtool->setProperty("ForceNNLOPS",true).ignore();
-   higgsMCtool->setProperty("WeightCutOff",100.0).ignore();
+   //higgsMCtool->setProperty("WeightCutOff",200.0).ignore();
    higgsMCtool->initialize().ignore();
    
    // Open the input file:

@@ -35,10 +35,13 @@ namespace xAOD {
     
     /// WG1 proposed QCD uncertainty scheme
     double qcd_wg1_mu, qcd_wg1_res, qcd_wg1_mig01, qcd_wg1_mig12;
-    double qcd_wg1_pTH, qcd_wg1_qm_b, qcd_wg1_qm_t;
+    double qcd_wg1_pTH, qcd_wg1_qm_b, qcd_wg1_qm_t, qcd_wg1_vbf2j, qcd_wg1_vbf3j;
 
     /// Tackmann proposed QCD uncertainty scheme, TODO
     std::vector<double> qcd_stxs;
+
+    /// Tackmann proposed QCD uncertainty scheme, TODO
+    std::vector<double> qcd_jve;
 
     /// Powheg NNLOPS possible scheme TODO
     double qcd_nnlops_nnlo, qcd_nnlops_pow;
@@ -51,7 +54,8 @@ namespace xAOD {
     double pTH;
     int Njets30, STXS;
 
-    std::vector<double> qcd_wg1() { return {qcd_wg1_mu,qcd_wg1_res,qcd_wg1_mig01,qcd_wg1_mig12,qcd_wg1_pTH,qcd_wg1_qm_b,qcd_wg1_qm_t}; }
+    std::vector<double> qcd_wg1() { return {qcd_wg1_mu,qcd_wg1_res,qcd_wg1_mig01,qcd_wg1_mig12,
+	  qcd_wg1_vbf2j,qcd_wg1_vbf3j,qcd_wg1_pTH,qcd_wg1_qm_t}; }
 
     /// methods to print weights to the screen
     char *uncStr(double var, double nom) { return var==0?Form("  N/A"):Form("%s%.1f%%",var>=nom?"+":"",(var-nom)/nom*100); }

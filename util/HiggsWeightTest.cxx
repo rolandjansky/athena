@@ -53,7 +53,7 @@ int main( int argc, char* argv[] ) {
      else if (arg=="--output") ofn=argv[++i];
      else if (arg=="--weightCutOff") weightMax=atof(argv[++i]);
      else if (arg.Contains(".root")) files.push_back(arg);
-     else std::runtime_error(TString("Cannot intepret argument: "+arg).Data());
+     else throw std::runtime_error(TString("Cannot intepret argument: "+arg).Data());
    }
 
    if (files.size()==0) {
@@ -86,6 +86,14 @@ int main( int argc, char* argv[] ) {
    HistV h_pTH_nnlops_qcd  = makeHistos(26,"pTH_nnlops_qcd",Nbins,min,max,ptTit); // NNLOPS internal QCD vars
    HistV h_pTH_nnlops_qcd2 = makeHistos(2,"pTH_nnlo_qcd",Nbins,min,max,ptTit); // NNLO and Powheg vars for NNLOPS
    HistV h_pTH_wg1qcd      = makeHistos(7,"pTH_wg1qcd",Nbins,min,max,ptTit); // WG1 propsed scheme for ggF
+   HistV h_pTH_qcd_stxs    = makeHistos(7,"pTH_qcd_stxs",Nbins,min,max,ptTit); // WG1 propsed scheme for ggF
+
+   TH1F *h_pTHGE1J = new TH1F("pTH_ge1J",ptTit,Nbins,min,max);
+   HistV h_pTH_qcdGE1J         = makeHistos(8,"pTH_ge1J_qcd",Nbins,min,max,ptTit); // Default Powheg QCD variations (NLO)
+   HistV h_pTH_nnlops_qcdGE1J  = makeHistos(26,"pTH_ge1J_nnlops_qcd",Nbins,min,max,ptTit); // NNLOPS internal QCD vars
+   HistV h_pTH_nnlops_qcd2GE1J = makeHistos(2,"pTH_ge1J_nnlo_qcd",Nbins,min,max,ptTit); // NNLO and Powheg vars for NNLOPS
+   HistV h_pTH_wg1qcdGE1J      = makeHistos(7,"pTH_ge1J_wg1qcd",Nbins,min,max,ptTit); // WG1 propsed scheme for ggF
+   HistV h_pTH_qcd_stxsGE1J    = makeHistos(7,"pTH_ge1J_qcd_stxs",Nbins,min,max,ptTit); // WG1 propsed scheme for ggF
 
    Nbins=10; min=-0.5; max=9.5; Str tit=";#it{N}_{jets}";
    TH1F *h_Njets = new TH1F("Njets30",tit,Nbins,min,max);
@@ -157,10 +165,13 @@ int main( int argc, char* argv[] ) {
        event.getEntry( entry );
        const xAOD::EventInfo *evtInfo;
        RETURN_CHECK( APP_NAME, event.retrieve( evtInfo, "EventInfo" ) );
-       std::vector<float> weights = evtInfo->mcEventWeights();
-
-       const xAOD::TruthEventContainer *tevts;
-       RETURN_CHECK( APP_NAME, event.retrieve( tevts, "TruthEvents" ) );
+       const xAOD::EventInfo *hgamtEvtInfo;
+       RETURN_CHECK( APP_NAME, event.retrieve( hgamtEvtInfo, "HGamTruthEventInfo" ) );
+       const xAOD::EventInfo *hgamEvtInfo;
+       RETURN_CHECK( APP_NAME, event.retrieve( hgamEvtInfo, "HGamEventInfo" ) );
+     
+       bool dal         = hgamEvtInfo->auxdata<char>("isDalitz");
+       if (dal) continue;
 
        TLorentzVector h;
        h.SetPtEtaPhiM(gRandom->Gaus(0,40),0,0,125);
@@ -171,12 +182,23 @@ int main( int argc, char* argv[] ) {
 	 HTXS_Njets30 = evtInfo->auxdata<int>("HTXS_Njets_pTjet30");
 	 HTXS_Stage1 = evtInfo->auxdata<int>("HTXS_Stage1_Category_pTjet30");
 	 HTXS_index  = evtInfo->auxdata<int>("HTXS_Stage1_FineIndex_pTjet30");
-	 HTXS_pTH  = evtInfo->auxdata<float>("HTXS_Higgs_pt");
-	 double HTXS_etaH = evtInfo->auxdata<float>("HTXS_Higgs_eta");
-	 double HTXS_phiH = evtInfo->auxdata<float>("HTXS_Higgs_phi");
-	 double HTXS_mH   = evtInfo->auxdata<float>("HTXS_Higgs_m");
+	 //HTXS_pTH  = evtInfo->auxdata<float>("HTXS_Higgs_pt");
+	 HTXS_pTH = hgamtEvtInfo->auxdata<float>("pT_yy");
+	 double HTXS_yH = hgamtEvtInfo->auxdata<float>("yAbs_yy");
+	 double m  = hgamtEvtInfo->auxdata<float>("m_yy");
+	 double mT = sqrt(m*m+HTXS_pTH*HTXS_pTH);
+	 double E  = mT*cosh(HTXS_yH);
+	 double pz = mT*sinh(HTXS_yH);
+	 if (E<m) fatal("BAD");
+	 if (HTXS_pTH<0) fatal("BAD, pT=0");
+	 double p  = sqrt(E*E-m*m);
+	 double eta = 0.5*log((p+pz)/(p-pz));
+	 //printf("pT = %.2f, y = %.3f, m=%.3f, eta=%.3f\n",HTXS_pTH,HTXS_yH,m,eta);
+	 //double HTXS_etaH = evtInfo->auxdata<float>("HTXS_Higgs_eta");
+	 //double HTXS_phiH = evtInfo->auxdata<float>("HTXS_Higgs_phi");
+	 //double HTXS_mH   = evtInfo->auxdata<float>("HTXS_Higgs_m");
 	 
-	 h.SetPtEtaPhiM(HTXS_pTH,HTXS_etaH,HTXS_phiH,HTXS_mH);
+	 h.SetPtEtaPhiM(HTXS_pTH,eta,0,m);
 	 h*=1e-3; // convert to GeV
        } else HTXS_pTH=h.Pt()*1000;
 
@@ -196,6 +218,7 @@ int main( int argc, char* argv[] ) {
 
        // 1. Nominal histograms
        h_pTH  -> Fill(h.Pt(),hw.nominal);
+       if (HTXS_Njets30>=1) h_pTHGE1J -> Fill(h.Pt(),hw.nominal);
        h_Njets-> Fill(HTXS_Njets30,hw.nominal);
        h_yH   -> Fill(h.Rapidity(),hw.nominal);
        h_STXS -> Fill(HTXS_index,hw.nominal);
@@ -234,6 +257,7 @@ int main( int argc, char* argv[] ) {
        //           without considering the NNLO correction. I.e. don't use for NNLOPS.
        //           Don't treat all these as NPs!! Take envelope. Or perhaps carefully chose 1 or 2 of them as NPs.
        fillHistos(h_pTH_qcd,h.Pt(),hw.qcd);
+       if (HTXS_Njets30>=1) fillHistos(h_pTH_qcdGE1J,h.Pt(),hw.qcd);
        fillHistos(h_yH_qcd,h.Rapidity(),hw.qcd);
        fillHistos(h_Njets_qcd,HTXS_Njets30,hw.qcd);
        fillHistos(h_STXS_qcd,HTXS_index,hw.qcd);
@@ -244,6 +268,7 @@ int main( int argc, char* argv[] ) {
        // This should give an NNLO accurate normalization uncertainty (8-11%)
        //     Note: The NNLOPS paper takes the envelope of all these variations 
        fillHistos(h_pTH_nnlops_qcd,h.Pt(),hw.qcd_nnlops);
+       if (HTXS_Njets30>=1)        fillHistos(h_pTH_nnlops_qcdGE1J,h.Pt(),hw.qcd_nnlops);
        fillHistos(h_yH_nnlops_qcd,h.Rapidity(),hw.qcd_nnlops);
        fillHistos(h_Njets_nnlops_qcd,HTXS_Njets30,hw.qcd_nnlops);
        fillHistos(h_STXS_nnlops_qcd,HTXS_index,hw.qcd_nnlops);
@@ -253,6 +278,7 @@ int main( int argc, char* argv[] ) {
        //     (nnloNom-PowDnDn) as an uncorrelation source (similar to >=1 in ST: affects high pT)
        NumV nnlops_2np_qcd={hw.qcd_nnlops_nnlo,hw.qcd_nnlops_pow};
        fillHistos(h_pTH_nnlops_qcd2,h.Pt(),nnlops_2np_qcd);
+       if (HTXS_Njets30>=1) fillHistos(h_pTH_nnlops_qcd2GE1J,h.Pt(),nnlops_2np_qcd);
        fillHistos(h_yH_nnlops_qcd2,h.Rapidity(),nnlops_2np_qcd);
        fillHistos(h_Njets_nnlops_qcd2,HTXS_Njets30,nnlops_2np_qcd);
        fillHistos(h_STXS_nnlops_qcd2,HTXS_index,nnlops_2np_qcd);
@@ -261,9 +287,13 @@ int main( int argc, char* argv[] ) {
        //NumV wg1_qcd={hw.qcd_wg1_mu,hw.qcd_wg1_res,hw.qcd_wg1_mig01,hw.qcd_wg1_mig12,hw.qcd_wg1_pTH,hw.qcd_wg1_qm};
        NumV wg1_qcd=hw.qcd_wg1();
        fillHistos(h_pTH_wg1qcd,h.Pt(),wg1_qcd);
+       if (HTXS_Njets30>=1) fillHistos(h_pTH_wg1qcdGE1J,h.Pt(),wg1_qcd);
        fillHistos(h_yH_wg1qcd,h.Rapidity(),wg1_qcd);
        fillHistos(h_Njets_wg1qcd,HTXS_Njets30,wg1_qcd);
        fillHistos(h_STXS_wg1qcd,HTXS_index,wg1_qcd);
+
+       fillHistos(h_pTH_qcd_stxs,h.Pt(),hw.qcd_stxs);
+       if (HTXS_Njets30>=1) fillHistos(h_pTH_qcd_stxsGE1J,h.Pt(),hw.qcd_stxs);
 
        // 4. Other weights
        fillHistos(h_yH_other,h.Rapidity(),
@@ -275,12 +305,6 @@ int main( int argc, char* argv[] ) {
 
        // Print stuff to the screen for the first event in each file
        if ( entry == 0 ) {
-	 ::Info(APP_NAME,"There are %lu weights in EventInfo and %lu in TruthEvents",
-		weights.size(),tevts->at(0)->weights().size());
-	 std::vector<float> ws = tevts->at(0)->weights();
-	 for (size_t i=0;i<10;++i)
-	   ::Info(APP_NAME,"Weight %lu %.3f and %.3f. %lu weights and %lu names",
-		  i,weights[i],ws[i],ws.size(),higgsMCtool->getWeightNames().size());
 	 hw.print();
        }
        
