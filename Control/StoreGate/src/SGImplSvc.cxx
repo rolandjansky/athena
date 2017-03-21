@@ -88,16 +88,65 @@ StoreID::type findStoreID(const string& storeNamePrefix) {
   if (::isdigit(storeNamePrefix.at(0))) {
     ist = storeNamePrefix.find("_",0) +1;
   }
+  //slightly faster
 
-  auto i(BEG);
-  while (i != END) {
-    int comp = storeNamePrefix.compare(ist, (i->first).size(), (i->first));
-    //    std::cout << storeNamePrefix <<' '<< storeNamePrefix.size() <<' '<< i->first <<' '<< (i->first).size() <<' '<< comp << std::endl;
-    //NAMETOID is sorted so if we go past storeNamePrefix we are done
-    if (comp < 0) break;
-    else if (comp == 0) return i->second;
-    ++i;
+  auto c(storeNamePrefix.at(ist));
+  switch(c){
+  case 'C':
+    {
+      return StoreID::CONDITION_STORE;
+      break;
+    }
+  case 'D':
+    {
+      return StoreID::DETECTOR_STORE;
+      break;
+    }
+  case 'E':
+    {
+      return StoreID::EVENT_STORE;
+      break;
+    }
+  case 'I':
+    {
+      return StoreID::METADATA_STORE;
+      break;
+    }
+  case 'M':
+    {
+      return StoreID::SIMPLE_STORE;
+      break;
+    }
+  case 'S':
+    {
+      if (storeNamePrefix.at(ist+1)=='p'){
+	return StoreID::SPARE_STORE;
+      }else{
+	return StoreID::EVENT_STORE;
+      }
+      break;
+    }
+  case 'T':
+    {
+      return StoreID::METADATA_STORE;
+      break;
+    }
+  default:
+    {
+      return StoreID::UNKNOWN;
+      break;
+    }
   }
+  
+  // auto i(BEG);
+  // while (i != END) {
+  //   int comp = storeNamePrefix.compare(ist, (i->first).size(), (i->first));
+  //   //    std::cout << storeNamePrefix <<' '<< storeNamePrefix.size() <<' '<< i->first <<' '<< (i->first).size() <<' '<< comp << std::endl;
+  //   //NAMETOID is sorted so if we go past storeNamePrefix we are done
+  //   if (comp < 0) break;
+  //   else if (comp == 0) return i->second;
+  //   ++i;
+  // }
   return StoreID::UNKNOWN;
 }
 
@@ -206,9 +255,10 @@ StatusCode SGImplSvc::initialize()    {
   }
 
   //start listening to "EndEvent"
-  const int PRIORITY = 100;
-  m_pIncSvc->addListener(this, "EndEvent", PRIORITY);
-  m_pIncSvc->addListener(this, "BeginEvent", PRIORITY);
+  // const int PRIORITY = 100;
+  // Mother svc should register these incidents
+  // m_pIncSvc->addListener(this, "EndEvent", PRIORITY);
+  // m_pIncSvc->addListener(this, "BeginEvent", PRIORITY);
 
   const bool CREATEIF(true);
   // cache pointer to Persistency Service

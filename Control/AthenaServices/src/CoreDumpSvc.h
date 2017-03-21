@@ -88,6 +88,7 @@ public:
   //@{
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   virtual StatusCode initialize();
+  virtual StatusCode start();
   virtual StatusCode finalize();
   
   /// Incident listener

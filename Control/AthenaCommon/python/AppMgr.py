@@ -258,10 +258,10 @@ class AthAppMgr( AppMgr ):
          Logging.log.debug ("building master sequence...")
          athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True)
          athFilterSeq = _as.AthSequencer ("AthFilterSeq"); 
-         athBeginSeq  = _as.AthSequencer ("AthBeginSeq")
+         athBeginSeq  = _as.AthSequencer ("AthBeginSeq",Sequential=True)
          athCondSeq   = _as.AthSequencer ("AthCondSeq")
          athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
-         athEndSeq    = _as.AthSequencer ("AthEndSeq")
+         athEndSeq    = _as.AthSequencer ("AthEndSeq",Sequential=True)
          athOutSeq    = _as.AthSequencer ("AthOutSeq")
          athRegSeq    = _as.AthSequencer ("AthRegSeq")
          athAllAlgSeq = _as.AthSequencer ("AthAllAlgSeq")
