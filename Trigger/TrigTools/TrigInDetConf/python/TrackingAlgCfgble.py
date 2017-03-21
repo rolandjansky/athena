@@ -16,7 +16,7 @@ class TrigFastTrackFinder(TrigFastTrackFinderBase):
       "tauCore"     : "TauCore",
       "tauIso"      : "TauIso",
       "bjet"        : "Jet",
-      "bjetVtx"     : "Jet",       #to be removed if bjet and bjetVtx configs differ
+      #"bjetVtx"     : "Jet",       #if configs are the same they can map to the same instance
       "fullScan"    : "FullScan",
       "beamSpot"    : "BeamSpot",
       "bphysics"    : "Bphysics",
