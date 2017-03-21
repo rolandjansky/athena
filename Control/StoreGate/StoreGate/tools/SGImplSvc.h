@@ -1124,6 +1124,7 @@ private:
   typedef std::lock_guard<mutex_t> lock_t;
   mutable mutex_t m_mutex;
   mutable mutex_t m_remapMutex;
+  mutable mutex_t m_stringPoolMutex;
 
   
 public:
