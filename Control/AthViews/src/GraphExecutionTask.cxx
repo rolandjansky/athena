@@ -8,6 +8,7 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IAlgorithm.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 //The method for scheduling a subgraph
@@ -43,7 +44,9 @@ tbb::task* GraphExecutionTask::execute()
 	{
 		return nullptr;
 	}
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+        Gaudi::Hive::setCurrentContext( *m_eventContext );
+        algoPtr->whiteboard()->selectStore( m_eventContext->slot() ).ignore();
 	algoPtr->sysExecute( *m_eventContext );
 #else
 	algoPtr->setContext( m_eventContext );

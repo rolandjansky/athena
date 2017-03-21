@@ -11,9 +11,8 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "SGTools/BuiltinsClids.h"
 #include "AthViews/View.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
 
 namespace AthViews {
 
@@ -58,9 +57,8 @@ class ViewSubgraphAlg
   /// Containers
   
   // vars
-  SG::WriteHandle< std::vector< SG::View* > > m_w_views;
-  SG::WriteHandle<int> m_w_int;
-  SG::WriteHandle<int> m_w_allViewsDone;
+  SG::WriteHandleKey< std::vector< SG::View* > > m_w_views;
+  SG::WriteHandleKey<int> m_w_int;
   std::vector< std::string > m_algorithmNameSequence;
   std::string m_algPoolName;
   std::string m_viewBaseName;

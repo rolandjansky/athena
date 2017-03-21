@@ -253,7 +253,7 @@ Muon::TgcPrepDataReplicationTool::makeTgcPrepData(Muon::TgcPrepDataCollection::c
 {
   Identifier channelId = (*itr)->identify();
   IdentifierHash tgcHashId = (*itr)->collectionHash();
-  std::vector<Identifier> identifierList = (*itr)->rdoList();
+  const std::vector<Identifier> &identifierList = (*itr)->rdoList();
   const Amg::MatrixX* errHitPos = &(*itr)->localCovariance();
   const MuonGM::TgcReadoutElement* descriptor = (*itr)->detectorElement();
 
