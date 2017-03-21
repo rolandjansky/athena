@@ -8,9 +8,12 @@ authors : Roland Jansky
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_TRACKCALOCLUSTERCREATORTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
 #include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODAssociations/TrackParticleClusterAssociationContainer.h"
+
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
 class TrackCaloClusterCreatorTool : public AthAlgTool {
   public:
@@ -31,7 +34,13 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
     
     void createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt   );
    
-  private:    
+  private:  
+  
+    // ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
+  ToolHandle<CP::ITrackVertexAssociationTool> m_loosetrackvertexassoTool;
+      
+  ///Vertex container's name
+  std::string m_vertexContname;
 
 };
 

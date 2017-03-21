@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
+                          InnerDetector/InDetRecTools/TrackVertexAssociationTool
                           )
 
 # External dependencies:
@@ -36,10 +37,10 @@ atlas_add_library( TrackCaloClusterRecToolsLib
                    PUBLIC_HEADERS TrackCaloClusterRecTools
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODTrackCaloCluster xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODTrackCaloCluster xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationTool)
 
 atlas_add_component( TrackCaloClusterRecTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
-                     AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODTrackCaloCluster xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackCaloClusterRecToolsLib )
+                     AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODTrackCaloCluster xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationTool TrackCaloClusterRecToolsLib )

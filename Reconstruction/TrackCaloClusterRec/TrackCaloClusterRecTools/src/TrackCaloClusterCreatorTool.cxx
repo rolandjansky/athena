@@ -1,13 +1,19 @@
 #include "TrackCaloClusterRecTools/TrackCaloClusterCreatorTool.h"
 
+#include "xAODTracking/VertexContainer.h"
+
 TrackCaloClusterCreatorTool::TrackCaloClusterCreatorTool(const std::string& t, const std::string& n, const IInterface*  p )
-  : AthAlgTool(t,n,p)
+  : AthAlgTool(t,n,p),
+  m_loosetrackvertexassoTool("LooseTrackVertexAssociationTool")
 {
+    declareProperty("VertexContainerName"          ,    m_vertexContname                  = "PrimaryVertices"   );
+    declareProperty("LooseTrackVertexAssoTool"     ,    m_loosetrackvertexassoTool                               );
 }
 
 TrackCaloClusterCreatorTool::~TrackCaloClusterCreatorTool() {}
 
 StatusCode TrackCaloClusterCreatorTool::initialize() {
+  ATH_CHECK(m_loosetrackvertexassoTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -15,23 +21,34 @@ StatusCode TrackCaloClusterCreatorTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
-						    const xAOD::TrackParticleClusterAssociationContainer* assocContainer, 
-						    std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, 
-						    std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap ) {
+void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleClusterAssociationContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap ) {
+    
+    const xAOD::VertexContainer *vxCont=0;
+    StatusCode sc = evtStore()->retrieve(vxCont, m_vertexContname);
+    if (sc.isFailure()) {
+        ATH_MSG_WARNING ("Vertex container " << m_vertexContname << " not found! Can't perform TVA!");
+    }
 
     for ( const auto* assocClusters : *assocContainer ) {
         ATH_MSG_VERBOSE ("InDetTrackParticlesClusterAssociations index = " << assocClusters->index());
         // flollow the link to the track particle
         const xAOD::TrackParticle* trk = 0;
-        xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
-        FourMom_t tcc_4p(0.,0.,0.,0.);
         if (assocClusters->trackParticleLink().isValid()) {
             trk = *(assocClusters->trackParticleLink());
+            bool isMatched = true;
+            if (vxCont && vxCont->size()!=0) {
+                isMatched = m_loosetrackvertexassoTool->isCompatible(*trk, *(vxCont->at(0)) );
+            }
+            else{
+                ATH_MSG_WARNING ("Vertex container " << m_vertexContname << " is empty! Can't perform TVA!");
+            }
+            if (!isMatched) continue;
         }
-        else if ( !assocClusters->trackParticleLink().isValid() ){
+        else {
             ATH_MSG_ERROR ("trackParticleLink is not valid! " );
         }
+        xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
+        FourMom_t tcc_4p(0.,0.,0.,0.);
         // follow the link to the calorimeter clusters
         ATH_MSG_VERBOSE ("#(CaloCluster) = " << assocClusters->caloClusterLinks().size());
         if (assocClusters->caloClusterLinks().size()) {
@@ -67,12 +84,24 @@ void TrackCaloClusterCreatorTool::createNeutralTCCs(xAOD::TrackCaloClusterContai
     
 }
 
-void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
-						      const xAOD::TrackParticleContainer* assocContainer, 
-						      std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt  ) {
+void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt  ) {
+    
+    const xAOD::VertexContainer *vxCont=0;
+    StatusCode sc = evtStore()->retrieve(vxCont, m_vertexContname);
+    if (sc.isFailure()) {
+        ATH_MSG_WARNING ("Vertex container " << m_vertexContname << " not found! Can't perform TVA!");
+    }
 
     for ( const auto* track : *assocContainer ) {
         if(TrackTotalClusterPt->find(track)==TrackTotalClusterPt->end()){
+            bool isMatched = true;
+            if (vxCont && vxCont->size()!=0) {
+                isMatched = m_loosetrackvertexassoTool->isCompatible(*track, *(vxCont->at(0)) );
+            }
+            else{
+                ATH_MSG_WARNING ("Vertex container " << m_vertexContname << " is empty! Can't perform TVA!");
+            }
+            if (!isMatched) continue;
             xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
             tccContainer->push_back(tcc);
             tcc->setP4(track->pt(),track->eta(),track->phi(),track->m());

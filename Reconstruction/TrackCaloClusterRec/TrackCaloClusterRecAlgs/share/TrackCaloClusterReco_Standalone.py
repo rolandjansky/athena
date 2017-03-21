@@ -1,14 +1,16 @@
 import AthenaPoolCnvSvc.ReadAthenaPool
+
+from AthenaCommon import CfgMgr
 # svcMgr.EventSelector.InputCollections = [ "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.%" ]
 # InputFiles = ["/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000096.pool.root.1",
 # "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000164.pool.root.1",
 # "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000312.pool.root.1"]
 
-#InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.merge.AOD.e3749_s2608_s2183_r8459_r7676/AOD.09378881._000006.pool.root.1"]
-InputFiles = ["/afs/cern.ch/user/n/ncalace/work/mc15_13TeV/AOD.09378881._000006.pool.root.1"]
+InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.merge.AOD.e3749_s2608_s2183_r8459_r7676/AOD.09378881._000006.pool.root.1"]
+# InputFiles = ["/afs/cern.ch/user/n/ncalace/work/mc15_13TeV/AOD.09378881._000006.pool.root.1"]
 
 svcMgr.EventSelector.InputCollections = InputFiles
-Name = "Wprime"
+Name = "WprimeWitTVA"
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
@@ -97,8 +99,13 @@ TrackCaloClusterWeights = TrackCaloClusterWeightsTool(name                 = "Tr
 ToolSvc+=TrackCaloClusterWeights
 print      TrackCaloClusterWeights
 
+loosetrackvertexassotool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool", dzSinTheta_cut=3, d0_cut=2) 
+ToolSvc+=loosetrackvertexassotool 
+
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TrackCaloClusterCreatorTool
-TrackCaloClusterCreator = TrackCaloClusterCreatorTool(name                 = "TrackCaloClusterCreator")
+TrackCaloClusterCreator = TrackCaloClusterCreatorTool(name                      = "TrackCaloClusterCreator",
+                                                      VertexContainerName       = "PrimaryVertices",
+                                                      LooseTrackVertexAssoTool  = loosetrackvertexassotool)
 # TrackCaloClusterCreator.OutputLevel = VERBOSE
 ToolSvc+=TrackCaloClusterCreator
 print      TrackCaloClusterCreator
@@ -115,7 +122,7 @@ topSequence += ParticleToCaloExtrapolation
 
 print ParticleToCaloExtrapolation
 
-theApp.EvtMax = 10
+theApp.EvtMax = 1000
 
 ### Jet Stuff
 if 1:
