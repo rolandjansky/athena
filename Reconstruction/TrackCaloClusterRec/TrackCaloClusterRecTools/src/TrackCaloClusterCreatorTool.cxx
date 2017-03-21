@@ -15,7 +15,10 @@ StatusCode TrackCaloClusterCreatorTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleClusterAssociationContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap ) {
+void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+						    const xAOD::TrackParticleClusterAssociationContainer* assocContainer, 
+						    std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, 
+						    std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap ) {
 
     for ( const auto* assocClusters : *assocContainer ) {
         ATH_MSG_VERBOSE ("InDetTrackParticlesClusterAssociations index = " << assocClusters->index());
@@ -35,7 +38,8 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
             for (size_t c = 0; c < assocClusters->caloClusterLinks().size(); ++c) {
                     const xAOD::CaloCluster* cluster = *(assocClusters->caloClusterLinks().at(c));
                     tcc_4p += cluster->p4()*(( trk->pt() * cluster->pt() / (TrackTotalClusterPt->at(trk).Pt())) / ((clusterToTracksWeightMap->at(cluster)).Pt()));
-                    ATH_MSG_VERBOSE ("cluster->pt() " << cluster->pt() << " cluster->eta() " << cluster->eta() << " cluster->phi() " << cluster->phi() << " track pt " << trk->pt() << " (clusterToTracksWeightMap.at(cluster)).Pt() " << (clusterToTracksWeightMap->at(cluster)).Pt());
+                    ATH_MSG_VERBOSE ("cluster->pt() " << cluster->pt() << " cluster->eta() " << cluster->eta() << " cluster->phi() " 
+		    << cluster->phi() << " track pt " << trk->pt() << " (clusterToTracksWeightMap.at(cluster)).Pt() " << (clusterToTracksWeightMap->at(cluster)).Pt());
             } // for caloClusterLinks
         } // if caloClusterLinks().size
         
@@ -47,7 +51,9 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
     
 }
 
-void TrackCaloClusterCreatorTool::createNeutralTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::CaloClusterContainer* assocContainer, std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap  ) {
+void TrackCaloClusterCreatorTool::createNeutralTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+						    const xAOD::CaloClusterContainer* assocContainer, 
+						    std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap  ) {
 
     for ( const auto* cluster : *assocContainer ) {
         if(clusterToTracksWeightMap->find(cluster)==clusterToTracksWeightMap->end()){
@@ -61,7 +67,9 @@ void TrackCaloClusterCreatorTool::createNeutralTCCs(xAOD::TrackCaloClusterContai
     
 }
 
-void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt  ) {
+void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+						      const xAOD::TrackParticleContainer* assocContainer, 
+						      std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt  ) {
 
     for ( const auto* track : *assocContainer ) {
         if(TrackTotalClusterPt->find(track)==TrackTotalClusterPt->end()){

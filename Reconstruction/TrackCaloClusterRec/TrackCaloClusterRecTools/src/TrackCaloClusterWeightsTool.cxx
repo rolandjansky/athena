@@ -16,7 +16,10 @@ StatusCode TrackCaloClusterWeightsTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-void TrackCaloClusterWeightsTool::fillWeightMaps( const xAOD::TrackParticleClusterAssociationContainer* assocContainer, std::multimap <const xAOD::CaloCluster*, const xAOD::TrackParticle*>* clusterToTracksMap, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap ) {
+void TrackCaloClusterWeightsTool::fillWeightMaps( const xAOD::TrackParticleClusterAssociationContainer* assocContainer, 
+						  std::multimap <const xAOD::CaloCluster*, const xAOD::TrackParticle*>* clusterToTracksMap, 
+						  std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, 
+						  std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap ) {
 
     // First loop to fill cluster-to-tracks map
     for ( const auto* assocClusters : *assocContainer ) {

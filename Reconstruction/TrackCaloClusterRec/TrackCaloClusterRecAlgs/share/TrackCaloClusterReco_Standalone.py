@@ -21,6 +21,9 @@ from AthenaCommon.GlobalFlags import globalflags
 DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
 globalflags.DetDescrVersion = DetDescrVersion
 
+from IOVDbSvc.CondDB import conddb
+conddb.setGlobalTag('OFLCOND-MC15c-SDR-09')
+
 # from AthenaCommon.DetFlags import DetFlags
 # DetFlags.detdescr.BField_setOn()
 
@@ -117,14 +120,14 @@ theApp.EvtMax = 10
 ### Jet Stuff
 if 1:
   from JetRec.JetRecConf import JetFromPseudojet
-  jetBuilder  = JetFromPseudojet("JetBuilder", Attributes = ["ActiveArea", "ActiveArea4vec"])
-  ToolSvc += jetBuilder
+  jetFromPseudojet = JetFromPseudojet("jetFromPseudojet",Attributes = [] )
+  ToolSvc += jetFromPseudojet
   
   from JetRec.JetRecConf import JetTrimmer
   groomer = JetTrimmer("JetGroomer")
-  groomer.RClus = 0.05
-  groomer.PtFrac = 0.10
-  groomer.JetBuilder = jetBuilder
+  groomer.RClus = 0.2  
+  groomer.PtFrac = 0.05
+  groomer.JetBuilder = jetFromPseudojet
   ToolSvc += groomer
 
   # Add filter for copied jets.
@@ -222,6 +225,10 @@ if 1:
   
   clnames = [clname, clname1, clname2]
   
+  from JetRec.JetRecConf import JetPseudojetRetriever
+  from JetRec.JetRecConf import JetRecTool
+  from JetRec.JetRecConf import JetAlgorithm
+
   for name in clnames:
   #--------------------------------------------------------------
   # Configure tools.
@@ -248,7 +255,6 @@ if 1:
     ToolSvc += jfind
       
     # JetRec tool for finding.
-    from JetRec.JetRecConf import JetRecTool
     jetrec = JetRecTool("JetRecTool_"+name)
     jetrec.OutputContainer = "AntiKt10"+name+"Jets"
     jetrec.OutputLevel = INFO
@@ -271,16 +277,15 @@ if 1:
     jetrec.JetModifiers += [subjetfinder]
     ToolSvc += jetrec
     
-    #from JetRecConf import JetPseudojetRetriever
-    #jtm += JetPseudojetRetriever("AntiKt10"+name+"Jets")
-  
-    # JetRec tool for finding.
-    from JetRec.JetRecConf import JetRecTool
+    jetPseudojetRetriever = JetPseudojetRetriever("JetPseudojetRetriever_"+name)
+    ToolSvc += jetPseudojetRetriever
+    
+    # JetRec tool for finding.    
     jetrec_trimm = JetRecTool("JetRecTool_"+name+"Trimm")
     jetrec_trimm.JetGroomer = groomer
-    jetrec_trimm.PseudoJetGetters += [psjget]
-    jetrec_trimm.JetFinder = jfind  
+    jetrec_trimm.InputContainer  = "AntiKt10"+name+"Jets"
     jetrec_trimm.OutputContainer = "AntiKt10"+name+"TrimmedJets"
+    jetrec_trimm.JetPseudojetRetriever = jetPseudojetRetriever
     jetrec_trimm.JetModifiers += [nsubjettiness]
     jetrec_trimm.JetModifiers += [nsubjettinessratios]
     jetrec_trimm.JetModifiers += [ktsplittingscale]
@@ -299,7 +304,6 @@ if 1:
     ToolSvc += jetrec_trimm
       
     # Add the algorithm. It runs the demo tools.
-    from JetRec.JetRecConf import JetAlgorithm
     jetalg = JetAlgorithm("JetAlg_"+name)
     jetalg.OutputLevel = INFO
     jetalg.Tools += [jetrec, jetrec_trimm]
@@ -307,7 +311,7 @@ if 1:
     
   # Find jet inputs.
   from JetRec.JetRecConf import PseudoJetGetter
-  psjget = PseudoJetGetter("TCCPseudoJetGetter")
+  psjget = PseudoJetGetter("PseudoJetGetter")
   psjget.InputContainer = "CaloCalTopoClusters"
   psjget.Label = "LCTopo"
   psjget.OutputContainer = "PseudoJetLCTopo"
@@ -324,14 +328,44 @@ if 1:
   jfind.PtMin = 2000.0
   #  jfind.OutputLevel = VERBOSE
   ToolSvc += jfind
-      
+    
   # JetRec tool for finding.
-  from JetRec.JetRecConf import JetRecTool
+  jetrec = JetRecTool("JetRecTool")
+  jetrec.OutputContainer = "MyAntiKt10LCTopoJets"
+  jetrec.OutputLevel = INFO
+  jetrec.PseudoJetGetters += [psjget]
+  jetrec.JetFinder = jfind  
+  jetrec.JetModifiers += [nsubjettiness]
+  jetrec.JetModifiers += [nsubjettinessratios]
+  jetrec.JetModifiers += [ktsplittingscale]
+  jetrec.JetModifiers += [dipolarity]
+  jetrec.JetModifiers += [angularity]
+  jetrec.JetModifiers += [ktdr]
+  jetrec.JetModifiers += [ktmassdrop]
+  jetrec.JetModifiers += [planarflow]
+  jetrec.JetModifiers += [centerofmassshapes]
+  jetrec.JetModifiers += [energycorrelator]
+  jetrec.JetModifiers += [energycorrelatorratios]
+  jetrec.JetModifiers += [pull]
+  jetrec.JetModifiers += [charge]
+  jetrec.JetModifiers += [subjetmaker]
+  jetrec.JetModifiers += [subjetfinder]
+  ToolSvc += jetrec
+ 
+  from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
+  calib_tool=JetCalibrationTool('JetCalibTool',JetCollection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",ConfigFile='JES_MC15recommendation_FatJet_June2015.config',CalibSequence='EtaJES_JMS',IsData=False)
+  ToolSvc += calib_tool
+  print calib_tool
+    
+  jetPseudojetRetriever = JetPseudojetRetriever("JetPseudojetRetriever")
+  ToolSvc += jetPseudojetRetriever
+  
+  # JetRec tool for finding.
   jetrec_trimm = JetRecTool("JetRecToolTrimm")
   jetrec_trimm.JetGroomer = groomer
-  jetrec_trimm.PseudoJetGetters += [psjget]
-  jetrec_trimm.JetFinder = jfind
-  jetrec_trimm.OutputContainer = "AntiKt10LCTopoTrimmedJets"
+  jetrec_trimm.InputContainer        = "MyAntiKt10LCTopoJets"
+  jetrec_trimm.OutputContainer       = "AntiKt10LCTopoTrimmedJets"
+  jetrec_trimm.JetPseudojetRetriever = jetPseudojetRetriever
   jetrec_trimm.JetModifiers += [nsubjettiness]
   jetrec_trimm.JetModifiers += [nsubjettinessratios]
   jetrec_trimm.JetModifiers += [ktsplittingscale]
@@ -347,13 +381,13 @@ if 1:
   jetrec_trimm.JetModifiers += [charge]
   jetrec_trimm.JetModifiers += [subjetmaker]
   jetrec_trimm.JetModifiers += [subjetfinder]
+  jetrec_trimm.JetModifiers += [calib_tool]
   ToolSvc += jetrec_trimm
      
   # Add the algorithm. It runs the demo tools.
-  from JetRec.JetRecConf import JetAlgorithm
   jetalg = JetAlgorithm("JetAlg")
   jetalg.OutputLevel = INFO
-  jetalg.Tools += [jetrec_trimm]
+  jetalg.Tools += [jetrec, jetrec_trimm]
   topSequence += jetalg
 
 ###end jet stuff
