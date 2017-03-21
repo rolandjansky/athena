@@ -593,7 +593,7 @@ namespace met {
       switch( m_appliedSystEnum ) {
       case MET_JETTRK_SCALEUP :
 	{
-	  uncert  = uncert;
+	  //uncert  = uncert;
 	  break;
 	}
       case MET_JETTRK_SCALEDOWN :
