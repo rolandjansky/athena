@@ -131,7 +131,7 @@ std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const
           bestCluster = thisCluster;
         }
       }
-      if (iMasked == -1) break;
+      if (iMasked == -1 || 0 == bestCluster) break;
 
       masked.push_back(iMasked);
       maskedType.push_back(bestCluster->getEfRecCluster()->getClusterType());
