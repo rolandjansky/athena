@@ -166,9 +166,11 @@ void IParticleHandle_TrackParticle::addLine_FromTrackParticle(){
  
   positions.push_back(Amg::Vector3D(peri.position().x(),peri.position().y(),peri.position().z()));
   momenta.  push_back(Amg::Vector3D(peri.momentum().x(),peri.momentum().y(),peri.momentum().z()));
+  // std::cout<<"i:"<<0<<"/"<<d->trackparticle->numberOfParameters()+1<<": ("<<peri.position().x()<<","<<peri.position().y()<<","<<peri.position().z()<<")"<<std::endl;
+  
   VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_FromTrackParticle - has "+QString::number(d->trackparticle->numberOfParameters())+" extra parameters.");
-  for (unsigned int i=0; i<d->trackparticle->numberOfParameters() ; ++i){
-    // std::cout<<"i:"<<i<<"/"<<d->trackparticle->numberOfParameters()+1<<std::endl;
+   for (unsigned int i=0; i<d->trackparticle->numberOfParameters() ; ++i){
+    // std::cout<<"i:"<<i+1<<"/"<<d->trackparticle->numberOfParameters()+1<<": ("<<d->trackparticle->parameterX(i)<<","<<d->trackparticle->parameterY(i)<<","<<d->trackparticle->parameterZ(i)<<")"<<std::endl;
 
     positions.push_back(Amg::Vector3D(d->trackparticle->parameterX(i),
                                       d->trackparticle->parameterY(i),
@@ -178,7 +180,7 @@ void IParticleHandle_TrackParticle::addLine_FromTrackParticle(){
                                       d->trackparticle->parameterPZ(i)));      
   } // end of loop.
 
-  if ( positions.size()<2 ) VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_FromTrackParticle - WARNING - not enough points to make a line.");
+  // if ( positions.size()<2 ) VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_FromTrackParticle - WARNING - not enough points to make a line.");
 
   fillLineFromSplineFit(positions, momenta);
 
@@ -232,7 +234,7 @@ void IParticleHandle_TrackParticle::fillLineFromSplineFit(const std::vector<Amg:
       float t=count/(float)maxCount;
       Amg::Vector3D pos;
       bezier(pos, p0, p1, p2, p3, t);
-      // std::cout<<"i: "<<count<<" \tat ("<<pos.x()<<","<<pos.y()<<","<<pos.z()<<")"<<" \tmomdelta = ("<<momdelta.x()<<","<<momdelta.y()<<","<<momdelta.z()<<")"<<std::endl;
+      // std::cout<<"j: "<<count<<" \tat ("<<pos.x()<<","<<pos.y()<<","<<pos.z()<<")"<<std::endl;
       
       // pos = pos + momdelta;
       vertices->vertex.set1Value(iver++,pos.x(),pos.y(),pos.z());
@@ -240,7 +242,7 @@ void IParticleHandle_TrackParticle::fillLineFromSplineFit(const std::vector<Amg:
       
       npointsused++;        
     }
-  }
+  }  
   // Add to SoLine set
   d->line->numVertices.set1Value(0,npointsused);
   d->line->vertexProperty = vertices;
@@ -253,7 +255,7 @@ void IParticleHandle_TrackParticle::addLine_Extrapolated(){
   
   Trk::CurvilinearParameters startParameters(peri.position(),peri.momentum(),peri.charge());
   Trk::ExtrapolationCell<Trk::TrackParameters> ecc(startParameters);
-  ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);
+  // ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);
   ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectPassive);
   
   // call the extrapolation engine

@@ -31,6 +31,7 @@ public:
   
   // GUI for cuts
   VP1Interval cutAllowedR() const;
+  VP1Interval cutAllowedY() const;
   VP1Interval cutAllowedZ() const;
    
   //Overall drawstyles, complexities and light models:
@@ -45,6 +46,7 @@ public:
   void lastAppliedChanged(); // emitted when something related to material changes
   	 
   void cutAllowedRChanged(const VP1Interval&);
+  void cutAllowedYChanged(const VP1Interval&);
   void cutAllowedZChanged(const VP1Interval&);
   void vertexSizeChanged(int);
 	 
@@ -71,6 +73,7 @@ private:
   void updateVertexLightModel(bool);
   void possibleChange_vertexSize();
   void possibleChange_cutAllowedR();
+  void possibleChange_cutAllowedY();
   void possibleChange_cutAllowedZ();
     
 };
