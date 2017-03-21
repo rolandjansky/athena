@@ -12,8 +12,12 @@ atlas_depends_on_subdirs(
    Control/AthenaCommon
    TestPolicy
    PRIVATE
-   GaudiKernel 
-   AtlasGoogleTest )
+   GaudiKernel )
+
+
+find_package( GTest )
+find_package( GMock )
+
 
 # In standalone mode we just use the headers from the package. While in
 # offline mode we build a proper library.
@@ -26,7 +30,9 @@ else()
    atlas_add_library( GoogleTestTools
       GoogleTestTools/*.h src/*.cxx
       PUBLIC_HEADERS GoogleTestTools
-      PRIVATE_LINK_LIBRARIES GaudiKernel AtlasGoogleTest )
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES}
+      PRIVATE_LINK_LIBRARIES GaudiKernel )
 endif()
 
 # Install files from the package:
