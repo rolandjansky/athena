@@ -30,13 +30,13 @@ namespace MagField {
 
   class H8FieldSvc : public IMagFieldSvc, virtual public AthService {
     public:
-     
+
       //** Constructor with parameters */
       H8FieldSvc( const std::string& name, ISvcLocator* pSvcLocator );
-     
+
       /** Destructor */
       virtual ~H8FieldSvc();
-     
+
       /** Athena algorithm's interface methods */
       StatusCode  initialize();
       StatusCode  start();
@@ -44,13 +44,13 @@ namespace MagField {
 
       /** Query the interfaces **/
       StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-     
+
       /** get B field value at given position */
       /** xyz[3] is in mm, bxyz[3] is in kT */
       /** if deriv[9] is given, field derivatives are returned in kT/mm */
-      virtual void getField( const double *xyz, double *bxyz, double *deriv = 0 );
+      virtual void getField( const double *xyz, double *bxyz, double *deriv = nullptr ) const;
       /** getFieldZR simply calls getField **/
-      virtual void getFieldZR( const double *xyz, double *bxyz, double *deriv = 0 );
+      virtual void getFieldZR( const double *xyz, double *bxyz, double *deriv = nullptr ) const;
 
     private:
       // initialize map
