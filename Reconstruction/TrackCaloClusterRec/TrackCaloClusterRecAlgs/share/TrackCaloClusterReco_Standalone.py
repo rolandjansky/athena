@@ -10,7 +10,7 @@ InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301267.Pythia8EvtGen_A14NN
 # InputFiles = ["/afs/cern.ch/user/n/ncalace/work/mc15_13TeV/AOD.09378881._000006.pool.root.1"]
 
 svcMgr.EventSelector.InputCollections = InputFiles
-Name = "WprimeWitTVA"
+Name = "WprimeWTVA400MeV"
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
@@ -86,7 +86,7 @@ from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConf import TrackP
 TrackParticleClusterAssociation = TrackParticleClusterAssociationAlg(name = "TrackParticleClusterAssociationInDet",
                                                             ParticleCaloClusterAssociationTool = ParticleCaloCellAssociation,
                                                             TrackParticleContainerName = "InDetTrackParticles",
-                                                            PtCut = 0.4,
+                                                            PtCut = 400.,
                                                             OutputCollectionPostFix = "Test")
 # TrackParticleClusterAssociation.OutputLevel = DEBUG
 topSequence += TrackParticleClusterAssociation
@@ -122,7 +122,7 @@ topSequence += ParticleToCaloExtrapolation
 
 print ParticleToCaloExtrapolation
 
-theApp.EvtMax = 1000
+theApp.EvtMax = 100
 
 ### Jet Stuff
 if 1:
@@ -229,8 +229,9 @@ if 1:
   clname = "TrackCaloClusters"
   clname1 = "TrackCaloClustersCharged"
   clname2 = "TrackCaloClustersAll"
+  clname3 = "TrackCaloClustersAllTrack"
   
-  clnames = [clname, clname1, clname2]
+  clnames = [clname, clname1, clname2, clname3]
   
   from JetRec.JetRecConf import JetPseudojetRetriever
   from JetRec.JetRecConf import JetRecTool
@@ -247,7 +248,7 @@ if 1:
     psjget.InputContainer = name
     psjget.Label = "TrackCaloCluster"
     psjget.OutputContainer = "PseudoJetClusters"+name
-    psjget.OutputLevel = INFO
+    # psjget.OutputLevel = INFO
     psjget.SkipNegativeEnergy = True
     ToolSvc += psjget
     
@@ -264,7 +265,7 @@ if 1:
     # JetRec tool for finding.
     jetrec = JetRecTool("JetRecTool_"+name)
     jetrec.OutputContainer = "AntiKt10"+name+"Jets"
-    jetrec.OutputLevel = INFO
+    # jetrec.OutputLevel = INFO
     jetrec.PseudoJetGetters += [psjget]
     jetrec.JetFinder = jfind  
     jetrec.JetModifiers += [nsubjettiness]
@@ -312,7 +313,7 @@ if 1:
       
     # Add the algorithm. It runs the demo tools.
     jetalg = JetAlgorithm("JetAlg_"+name)
-    jetalg.OutputLevel = INFO
+    # jetalg.OutputLevel = INFO
     jetalg.Tools += [jetrec, jetrec_trimm]
     topSequence += jetalg
     
@@ -322,7 +323,7 @@ if 1:
   psjget.InputContainer = "CaloCalTopoClusters"
   psjget.Label = "LCTopo"
   psjget.OutputContainer = "PseudoJetLCTopo"
-  psjget.OutputLevel = INFO
+  # psjget.OutputLevel = INFO
   psjget.SkipNegativeEnergy = True
   ToolSvc += psjget
     
@@ -371,7 +372,7 @@ if 1:
   jetrec_trimm = JetRecTool("JetRecToolTrimm")
   jetrec_trimm.JetGroomer = groomer
   jetrec_trimm.InputContainer        = "MyAntiKt10LCTopoJets"
-  jetrec_trimm.OutputContainer       = "AntiKt10LCTopoTrimmedJets"
+  jetrec_trimm.OutputContainer       = "MyAntiKt10LCTopoTrimmedJets"
   jetrec_trimm.JetPseudojetRetriever = jetPseudojetRetriever
   jetrec_trimm.JetModifiers += [nsubjettiness]
   jetrec_trimm.JetModifiers += [nsubjettinessratios]
@@ -401,22 +402,29 @@ if 1:
 
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "XAOD_"+Name+".pool.root" )
-xaodStream.Stream.TakeItemsFromInput = True #this will only work for the event-by-event items. MetadataItems must still be specified
+# xaodStream.Stream.TakeItemsFromInput = True #this will only work for the event-by-event items. MetadataItems must still be specified
+xaodStream.AddItem("xAOD::EventInfo#*")
+xaodStream.AddItem("xAOD::EventAuxInfo#*")
+xaodStream.AddItem("xAOD::EventShape#*")
+xaodStream.AddItem("xAOD::EventShapeAuxInfo#*")
+xaodStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
 xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClusters")
 xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAux.")
 xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersCharged")
 xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersChargedAux.")
 xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAll")
 xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllAux.")
+xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAllTrack")
+xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllTrackAux.")
 xaodStream.AddItem( "xAOD::JetContainer#*")
 xaodStream.AddItem( "xAOD::JetAuxContainer#*")
 
-from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
+# from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
+# pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
 # dump configuration
-from AthenaCommon.ConfigurationShelve import saveToAscii
-saveToAscii("config_algs.txt")
+# from AthenaCommon.ConfigurationShelve import saveToAscii
+# saveToAscii("config_algs.txt")
 
 #ServiceMgr.StoreGateSvc.Dump=True
 

@@ -119,5 +119,22 @@ StatusCode TrackCaloClusterRecAlg::execute() {
     // Create trackonly xAOD::TCC
     m_trackCaloClusterCreatorTool->createTrackOnlyTCCs(tccContainer2, allTracks, &TrackTotalClusterPt);
     
+    // Charged + TrackOnly
+    xAOD::TrackCaloClusterContainer* tccContainer3 = new xAOD::TrackCaloClusterContainer;
+    ATH_CHECK( evtStore()->record( tccContainer3, m_trackCaloClusterContainerName + "AllTrack" ) );
+
+    xAOD::TrackCaloClusterAuxContainer* tccContainerAux3 = new xAOD::TrackCaloClusterAuxContainer();
+    ATH_CHECK( evtStore()->record( tccContainerAux3, m_trackCaloClusterContainerName + "AllTrack" + "Aux." ) );
+    tccContainer3->setStore( tccContainerAux3 );
+    ATH_MSG_DEBUG( "Recorded TrackCaloClusterContainer with key: " << m_trackCaloClusterContainerName + "AllTrack" ); 
+    
+    for (xAOD::TrackCaloCluster* chargedAndNeutral: *tccContainer) {
+      tccContainer3->push_back(new xAOD::TrackCaloCluster);
+      *tccContainer3->back() = *chargedAndNeutral;
+    }
+    
+    // Create trackonly xAOD::TCC
+    m_trackCaloClusterCreatorTool->createTrackOnlyTCCs(tccContainer3, allTracks, &TrackTotalClusterPt);
+    
   return StatusCode::SUCCESS;
 }
