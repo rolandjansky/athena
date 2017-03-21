@@ -5,23 +5,10 @@
 #ifndef EGAMMAREC_TOPOEGAMMABUILDER_H
 #define EGAMMAREC_TOPOEGAMMABUILDER_H
 /**
-  @class topoEgammaBuilder
-          top-Algorithm which creates an egammaObjectCollection. 
-          It retrieves data objects from TDS, and calls the subalgorithms to 
-	  make the pieces in egamma classs. The subclass should inherit from 
-	  topoEgammaBuilder, and implement the method build(egamma*)
+  @class topoEgammaBuilder 
 
-         It is seeded from the electromagnetic (EM) calorimeters and starts from clusters reconstructed in the calorimeters by the SlidingWindowFinder (https://twiki.cern.ch/twiki/bin/view/Atlas/SlidingWindowClustering#Sliding_Window_Clustering). For each cluster, with ET(seed)>3GeV in the cluster container the best inner detector track is searched for within a given E/p range. The complexity of the extrapolation (coordinate systems, etc) is hidden in ExtrapolateToCaloTool. It then builds identification variables 
-      - The electromagnetic shower shape variables are calculated in the EMShowerBuilder tool with respect to these hot cells; 
-      - Some variables combining inner detector and electromagnetic calorimeter information, like E/p, are build; 
-      - In order to minimize amount of fakes, in particular in jets, pre-selection cuts are applied in egammaSelectSETool;
-      - Discriminating variables are build and used in the EMPIDBuilder tool based on shower shapes in the electromagnetic calorimeter and information from the inner detector;
-      - Possible matching to a conversion object is done through the tool EMConversionBuilder;
-      - Bremsstrahlung recovery information is obtained through the tools EMBremsstrahlungBuilder and EMTrkRefitter;
-      - the 4-momentum is build in EMFourMomBuilder.
-      - apply photon recovery
-      - apply photon post-processing to recalculate correctly
-        information for these recovered photons
+  The main electron and photon reconstruction algorithm, based on topoclusters. It attempts to recover electrons that emit brem photons by creating "superclusters."  Superclusters can also be used in photons to especially help converted photons. This is the default egamma algorithm for central electrons and photons as of release 21.  
+
 */
 
 // INCLUDE HEADER FILES:
