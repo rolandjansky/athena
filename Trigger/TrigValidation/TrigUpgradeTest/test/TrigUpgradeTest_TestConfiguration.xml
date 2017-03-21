@@ -1,0 +1,32 @@
+<?xml version="1.0"?>  
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<!--
+ ***************************************************************************
+ *
+ *               TrigP1Test_TestConfiguration.xml.autoconf
+ *
+ * This file is used as input to test-xml-autoconf.py during the build.
+ * It will create TrigP1Test_TestConfiguraton.xml on-the-fly, which is
+ * used by ATN and RTT tests.
+ *
+ * For detailed syntax see: TrigValTools/bin/test-xml-autoconf.py
+ *
+ ***************************************************************************
+ -->
+<!-- NB validate this file here before commiting to svn:
+ /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigP1Test_TestConfiguration.xml
+ -->
+
+<unifiedTestConfiguration>
+    
+    <atn>
+        <TEST name="menuRun" type="script" suite="TUT">
+            <options_atn>get_files -xmls LVL1config_Physics_pp_v7.xml; get_files -xmls HLTTestMenu.xml; athena.py share/menuRun.py</options_atn>
+            <timelimit>5</timelimit>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+    </atn>
+    
+</unifiedTestConfiguration>
