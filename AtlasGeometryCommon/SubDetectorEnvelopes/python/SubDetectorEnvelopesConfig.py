@@ -26,7 +26,13 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     # setup fallback BeamPipeEnvelope
     BeamPipe = Volume()
     BeamPipe.addRZ(   34.3,   3475.0 )
-    BeamPipe.addRZ(  120.0,   3475.0 )
+    from AthenaCommon.DetFlags import DetFlags
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        BeamPipe.addRZ(   47.0,   3475.0 )
+        BeamPipe.addRZ(   47.0,   3535.0 )
+        BeamPipe.addRZ(  120.0,   3535.0 )
+    else:
+        BeamPipe.addRZ(  120.0,   3475.0 )
     BeamPipe.addRZ(  120.0,   4185.0 )
     BeamPipe.addRZ(   41.0,   4185.0 )
     BeamPipe.addRZ(   41.0,   6783.0 )
@@ -55,7 +61,13 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     # setup fallback CaloEnvelope
     Calo = Volume()
     Calo.addRZ( 1148.0,  3475.0 )
-    Calo.addRZ(  120.0,  3475.0 )
+    from AthenaCommon.DetFlags import DetFlags
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        Calo.addRZ(   47.0,  3475.0 )
+        Calo.addRZ(   47.0,  3535.0 )
+        Calo.addRZ(  120.0,  3535.0 )
+    else:
+        Calo.addRZ(  120.0,  3475.0 )
     Calo.addRZ(  120.0,  4185.0 )
     Calo.addRZ(   41.0,  4185.0 )
     Calo.addRZ(   41.0,  6783.0 )
@@ -71,13 +83,12 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
 
     # setup fallback MuonEnvelope
     Muon = Volume()
-    Muon.addRZ(  4255.0 ,  4000.0 )
     Muon.addRZ(  4255.0 ,  6550.0 )
     Muon.addRZ(  3800.0 ,  6550.0 )
     Muon.addRZ(  3800.0 ,  6736.0 )
     Muon.addRZ(   420.0 ,  6736.0 )
     Muon.addRZ(   420.0 ,  6783.0 )
-    Muon.addRZ(    70.0 ,  6783.0 )
+    Muon.addRZ(    70.0 ,  6783.0 ) 
     Muon.addRZ(    70.0 , 12900.0 )
     Muon.addRZ(   279.0 , 12900.0 )
     Muon.addRZ(   279.0 , 18650.0 )
@@ -93,18 +104,18 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     Muon.addRZ( 12650.0 , 18650.0 )
     Muon.addRZ( 13400.0 , 18650.0 )
     Muon.addRZ( 13400.0 , 12900.0 )
-    Muon.addRZ( 14200.0 , 12900.0 )
-    Muon.addRZ( 14200.0 ,  4000.0 )
-    Muon.addRZ( 13000.0 ,  4000.0 )
+    Muon.addRZ( 13910.0 , 12900.0 )
+    Muon.addRZ( 13910.0 , 6550.0 )
+    Muon.addRZ( 13000.0 , 6550.0 )
     kwargs.setdefault("FallbackMuonR"   , Muon.getRs()        )
     kwargs.setdefault("FallbackMuonZ"   , Muon.getZs()        )
 
 
-    # setup fallback CavernEnvelope
+    # setup fallback CavernEnvelope 
     Cavern = Volume()
-    Cavern.addRZ( 13000.0 , 4000.0 )
-    Cavern.addRZ( 14200.0 , 4000.0 )
-    Cavern.addRZ( 14200.0 , 12900.0 ) # boundary with MS
+    Cavern.addRZ( 13000.0 , 6550.0 )
+    Cavern.addRZ( 13910.0 , 6550.0 )
+    Cavern.addRZ( 13910.0 , 12900.0 ) # boundary with MS
     Cavern.addRZ( 13400.0 , 12900.0 ) # boundary with MS
     Cavern.addRZ( 13400.0 , 18650.0 ) # boundary with MS
     Cavern.addRZ( 12650.0 , 18650.0 ) # boundary with MS
@@ -113,14 +124,14 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     Cavern.addRZ(  2750.0 , 23001.0 ) # boundary with MS
     Cavern.addRZ(  1500.0 , 23001.0 ) # boundary with MS
     Cavern.addRZ(  1500.0 , 26046.0 ) # boundary with MS
-    Cavern.addRZ(     0.0 , 26046.0 ) #
+    Cavern.addRZ(     0.0 , 26046.0 ) # 
 
     # the outer dimesions differ between collision and cosmics jobs
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType() != 'cosmics':
       #  -> for collision jobs the 'cavern' envelope is much smaller
-      Cavern.addRZ(      0.0 , 50000.0 ) # z= +50m
-      Cavern.addRZ( 50000.0  , 50000.0 ) # r=  50m
+      Cavern.addRZ(      0.0 , 500000.0 ) # z= +500m
+      Cavern.addRZ( 500000.0  , 500000.0 ) # r=  500m
     else:
       #  -> for cosmics simulation the 'cavern' envelope spans much further
       kwargs.setdefault("DBCavernNode"    , 'CavernEnvelopeNONE'   )
