@@ -15,7 +15,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
-
+#include "xAODEventInfo/EventInfo.h"
 
 
 /////////////////////////////////////////////////////////////////// 
@@ -159,11 +159,26 @@ CondInputLoader::execute()
           
 
 
-  EventIDBase now( getContext()->eventID() );
+  EventIDBase now;
+  if(getContext()==nullptr) {
+    const xAOD::EventInfo* thisEventInfo;
+    if(evtStore()->retrieve(thisEventInfo)!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Unable to get Event Info");
+      return StatusCode::FAILURE;
+    }
+    now.set_run_number(thisEventInfo->runNumber());
+    now.set_event_number(thisEventInfo->eventNumber());
+    now.set_time_stamp(thisEventInfo->timeStamp());
+  }
+  else {
+    now.set_run_number(getContext()->eventID().run_number());
+    now.set_event_number(getContext()->eventID().event_number());
+    now.set_time_stamp(getContext()->eventID().time_stamp());
+  }
+
   IOVTime t(now.run_number(), now.event_number(), now.time_stamp());
 
   EventIDRange r;
-  StatusCode sc;
   std::string tag;
   //  for (auto &obj: extraOutputDeps()) {
   for (auto &obj: m_load) {
