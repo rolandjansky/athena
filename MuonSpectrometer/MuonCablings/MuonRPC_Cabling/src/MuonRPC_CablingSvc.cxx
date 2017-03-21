@@ -50,6 +50,8 @@ MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSv
     //M. Corradi 2015/1/8
     declareProperty("ApplyFeetPadThresholds", m_ApplyFeetPadThresholds=true,
                     "map 3 low pt thresholds from special feet pads on standard 6 (3low+3high)");
+    declareProperty("ForceFeetPadThresholdsFromJO", m_ForceFeetPadThresholdsFromJO=false,
+                    "JO override db setting");
     declareProperty("FeetPadThresolds", m_FeetPadThresholds,
                     "threshold numbers assigned to 3 low pt thresholds from special feet pads");
     
@@ -1097,9 +1099,31 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
        const std::map<std::string, std::string>* RPC_trigroads = m_condTriggerTool->GetRoads();
        std::map<std::string, std::string>::const_iterator it;
        it=RPC_trigroads->find("infos.txt");
-       ATH_MSG_INFO("======== RPC Trigger Roads from COOL - Header infos ========");
-       ATH_MSG_INFO("\n"+it->second+"\n");	
-
+       if (it==RPC_trigroads->end()){
+           ATH_MSG_WARNING("Missing HEADER FILE infos.txt");
+       } else {
+         ATH_MSG_INFO("======== RPC Trigger Roads from COOL - Header infos ========");
+         ATH_MSG_INFO("\n"+it->second+"\n");
+         // Read FeetPadThresholds from infos.txt
+         if (!m_ForceFeetPadThresholdsFromJO){             
+             std::stringstream ss;
+             ss << it->second;
+             std::string word;
+             while (ss >> word){
+                 if (word=="FeetPadThresholds"){
+                     m_FeetPadThresholds.assign(3,0);
+                     ss >> m_FeetPadThresholds.at(0);
+                     ss >> m_FeetPadThresholds.at(1);
+                     ss >> m_FeetPadThresholds.at(2);
+                     msg(MSG::INFO)<<"FeetPadThresholds set from COOL to: "
+                                   <<m_FeetPadThresholds.at(0)<<","
+                                   <<m_FeetPadThresholds.at(1)<<","
+                                   <<m_FeetPadThresholds.at(2)<<endmsg;
+                 }
+             }
+         }
+       }
+       
        cabling->SetPtoTrigRoads(RPC_trigroads);
 
        if(RPCCorrMap != 0 && RPCConfMap != 0) {
@@ -1191,6 +1215,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
        }
         
 
+       /*
        //    if(msg.Lvl(MSG::DEBUG))
        if(false)
        {
@@ -1208,6 +1233,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
                                        << endmsg;
 	     }
        }
+       */
        // here get and provide the HashFunction
        if (m_padHashIdHelper) delete m_padHashIdHelper;
        m_padHashIdHelper = new RpcPadIdHash();
@@ -1222,7 +1248,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
         if (!giveOffflineID(0,21,7,offline_id)&&m_RPCTriggerRoadsfromCool) {
             ATH_MSG_INFO("RUN-1 like cabling, not applying FeetPadThresholds");
         }else{
-            if (m_FeetPadThresholds.size()!=3){
+            if (m_FeetPadThresholds.size()==0){
                 // if thresholds vector empty, set it to default
                 m_FeetPadThresholds.assign(3,0);
                 m_FeetPadThresholds.at(0)=0;

@@ -664,7 +664,7 @@ int TRTNoise::StrawGasType(Identifier TRT_Identifier) {
   // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
   // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
 
-  int strawGasType=-1;
+  int strawGasType=99;
 
   if (m_UseGasMix==0) { // use StatusHT
     int stat =  m_sumSvc->getStatusHT(TRT_Identifier);

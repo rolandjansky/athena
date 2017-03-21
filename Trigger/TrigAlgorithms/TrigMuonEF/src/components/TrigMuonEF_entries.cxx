@@ -6,6 +6,7 @@
 #include "../TrigMuonEFFSRoiMaker.h"
 #include "../InDetTrkRoiMaker.h"
 #include "../TrigMuonEFCaloIsolation.h"
+#include "../TrigMuonEFIDTrackRoiMaker.h"
 
 DECLARE_TOOL_FACTORY(TrigMuonEFTrackIsolationTool)
 DECLARE_TOOL_FACTORY(TrigMuonEFStandaloneTrackTool)
@@ -17,6 +18,8 @@ DECLARE_ALGORITHM_FACTORY(TrigMuonEFCaloIsolation)
 
 DECLARE_ALGORITHM_FACTORY(TrigMuonEFFSRoiMaker)
 
+DECLARE_ALGORITHM_FACTORY(TrigMuonEFIDTrackRoiMaker)
+
 DECLARE_FACTORY_ENTRIES(TrigMuonEF) {
   DECLARE_TOOL( TrigMuonEFTrackIsolationTool )
   DECLARE_TOOL( TrigMuonEFStandaloneTrackTool )
@@ -26,5 +29,6 @@ DECLARE_FACTORY_ENTRIES(TrigMuonEF) {
   DECLARE_ALGORITHM( InDetTrkRoiMaker )
   DECLARE_ALGORITHM( TrigMuonEFFSRoiMaker )
   DECLARE_ALGORITHM( TrigMuonEFCaloIsolation )
+  DECLARE_ALGORITHM( TrigMuonEFIDTrackRoiMaker )
 }
 
