@@ -190,7 +190,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("maxMdtHits",m_maxMdtHits);
   declareProperty("RpcPrepDataContainer", m_rpcKey);
   declareProperty("TgcPrepDataContainer", m_tgcKey);
-  declareProperty("TgcPrepDataContainer", m_tgcKeyNextBC);
+  declareProperty("TgcPrepDataContainerNextBC", m_tgcKeyNextBC);
   declareProperty("MdtPrepDataContainer", m_mdtKey);
   declareProperty("CscPrepDataContainer", m_cscKey);
 
@@ -455,11 +455,6 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     ATH_MSG_ERROR("Couldn't initalize CSC ReadHandleKey");
     return StatusCode::FAILURE;
   }
-  //  ATH_CHECK(m_rpcKey);
-  // ATH_CHECK(m_tgcKey);
-  // ATH_CHECK(m_tgcKeynextBC);
-  // ATH_CHECK(m_cscKey);
-  // ATH_CHECK(m_mdtKey);
 
   return StatusCode::SUCCESS;
 }
@@ -1066,7 +1061,7 @@ if (m_useMdtData>0) {
       return HLT::NAV_ERROR;
     }
     else{ 
-      rpcPrds=RpcCont.get();
+      rpcPrds=RpcCont.cptr();
       msg()<< MSG::DEBUG << " RPC PRD Container retrieved" << endmsg;
     }
     // Get RPC collections
@@ -1127,7 +1122,7 @@ if (m_useMdtData>0) {
       return HLT::NAV_ERROR;
     }
     else{ 
-      mdtPrds=MdtCont.get();
+      mdtPrds=MdtCont.cptr();
       msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
     }
 
@@ -1228,7 +1223,7 @@ if (m_useMdtData>0) {
       return HLT::NAV_ERROR;
     }
     else{ 
-      tgcPrds=TgcCont.get();
+      tgcPrds=TgcCont.cptr();
       msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
     }
 
@@ -1313,7 +1308,7 @@ if (m_useMdtData>0) {
 	return HLT::NAV_ERROR;
       }
       else{ 
-	tgcPrds=TgcCont.get();
+	tgcPrds=TgcCont.cptr();
 	msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
       }
 
@@ -1366,7 +1361,7 @@ if (m_useMdtData>0) {
       return HLT::NAV_ERROR;
     }
     else{ 
-      cscPrds=CscCont.get();
+      cscPrds=CscCont.cptr();
       msg()<< MSG::DEBUG << " CSC PRD Container retrieved" << endmsg;
     }
 
