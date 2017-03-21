@@ -34,7 +34,7 @@ topSequence.SGInputLoader.Load = [ ('PixelRDO_Container','PixelRDOs'),
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v5.xml"
+l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
 svcMgr += l1svc
 
 
