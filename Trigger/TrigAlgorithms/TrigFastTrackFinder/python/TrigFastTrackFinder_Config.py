@@ -386,8 +386,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         TrigFastTrackFinder.__init__(self,name)
         remapped_type = remapper(type)
 
-        print 'jmasik ', type, ' and remapped type ', remapped_type
-
         self.retrieveBarCodes = False#Look at truth information for spacepoints from barcodes
         #self.SignalBarCodes = [10001] #single particles
         self.SignalBarCodes = [11 ,12] #z->mumu
