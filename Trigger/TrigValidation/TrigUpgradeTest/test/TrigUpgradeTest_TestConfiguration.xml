@@ -21,7 +21,7 @@
     
     <atn>
         <TEST name="menuRun" type="script" suite="TUT">
-            <options_atn>get_files -xmls LVL1config_Physics_pp_v7.xml; get_files -xmls HLTTestMenu.xml; athena.py share/menuRun.py</options_atn>
+            <options_atn>get_files -xmls LVL1config_Physics_pp_v7.xml; get_files -xmls HLTTestMenu.xml; athena.py ViewAlgsTest/menuRun.py</options_atn>
             <timelimit>5</timelimit>
             <expectations>
                 <returnValue>0</returnValue>
