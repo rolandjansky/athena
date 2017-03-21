@@ -86,11 +86,12 @@ StatusCode ViewMergeAlg::execute()
 
   //Output the merged data
   SG::WriteHandle< std::vector< int > > outputHandle( m_w_ints, ctx );
+  outputHandle.record( CxxUtils::make_unique< std::vector< int > >( outputVector ) );
   if ( !outputHandle.isValid() )
   {
     ATH_MSG_INFO( "Unable to load main event store for output" );
   }
-  outputHandle.record( CxxUtils::make_unique< std::vector< int > >( outputVector ) );
+
   for ( int const test : outputVector )
   {
     ATH_MSG_INFO( test );
