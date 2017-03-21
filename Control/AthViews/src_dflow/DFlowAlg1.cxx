@@ -71,13 +71,6 @@ StatusCode DFlowAlg1::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  if ( !m_r_int.isValid() )
-  {
-    ATH_MSG_ERROR( "Failed to retrieve initial view data from store " << m_r_int.store() );
-    return StatusCode::FAILURE;
-  }
-  int seedData = *m_r_int;
-
   ATH_MSG_INFO("myint handle...");
   ATH_MSG_INFO("name: [" << m_w_int.name() << "]");
   ATH_MSG_INFO("store [" << m_w_int.store() << "]");
