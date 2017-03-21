@@ -687,6 +687,7 @@
               MC15.Pileup.AOD.pool.root
             </chainfileout>
           </chainElement>
+	    </sequential>
       </chain>
 
     </jobList>
