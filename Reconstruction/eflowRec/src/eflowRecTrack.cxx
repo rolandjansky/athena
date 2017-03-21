@@ -22,6 +22,35 @@ eflowRecTrack::eflowRecTrack(
     m_trackCaloPoints(theTrackExtrapolatorTool->execute(m_track)) {
 }
 
+eflowRecTrack::eflowRecTrack(const eflowRecTrack& eflowRecTrack){
+  m_trackId = eflowRecTrack.m_trackId;
+  m_trackElemLink = eflowRecTrack.m_trackElemLink;
+  m_track = *m_trackElemLink;
+  m_type = eflowRecTrack.m_type;
+  m_pull15 = eflowRecTrack.m_pull15;
+  m_eExpect = eflowRecTrack.m_eExpect;
+  m_varEExpect = eflowRecTrack.m_varEExpect;
+  m_isInDenseEnvironment = eflowRecTrack.m_isInDenseEnvironment;
+  m_isSubtracted = eflowRecTrack.m_isSubtracted;
+  m_hasBin = eflowRecTrack.m_hasBin;
+  m_trackCaloPoints = new eflowTrackCaloPoints(*eflowRecTrack.m_trackCaloPoints);
+}
+
+eflowRecTrack& eflowRecTrack::operator = (const eflowRecTrack& eflowRecTrack){
+  m_trackId = eflowRecTrack.m_trackId;
+  m_trackElemLink = eflowRecTrack.m_trackElemLink;
+  m_track = *m_trackElemLink;
+  m_type = eflowRecTrack.m_type;
+  m_pull15 = eflowRecTrack.m_pull15;
+  m_eExpect = eflowRecTrack.m_eExpect;
+  m_varEExpect = eflowRecTrack.m_varEExpect;
+  m_isInDenseEnvironment = eflowRecTrack.m_isInDenseEnvironment;
+  m_isSubtracted = eflowRecTrack.m_isSubtracted;
+  m_hasBin = eflowRecTrack.m_hasBin;
+  m_trackCaloPoints = new eflowTrackCaloPoints(*eflowRecTrack.m_trackCaloPoints);
+  return *this;
+}
+
 eflowRecTrack::~eflowRecTrack() { delete m_trackCaloPoints; }
 
 void eflowRecTrack::setCaloDepthArray(const double* depthArray) {
