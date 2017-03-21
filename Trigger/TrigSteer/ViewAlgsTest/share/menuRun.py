@@ -89,13 +89,18 @@ topSequence += caloFakeRoI
 testViewAlgorithm = True
 if ( testViewAlgorithm ):
 
+  # A sequence to hide view algorithms from the event context
+  from AthenaCommon.AlgSequence import AthSequencer
+  allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
+  allViewAlgorithms += CfgMgr.AthPrescaler( "alwaysFail" )
+  allViewAlgorithms.alwaysFail.PercentPass = 0.0
+
   # The algorithm to run inside the views
   from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
   viewAlgName = "algInView"
   viewAlg = SchedulerProxyAlg( viewAlgName )
   viewAlg.RoIsContainer = "InViewRoI"
-  viewAlg.RequireView = True
-  topSequence += viewAlg
+  allViewAlgorithms += viewAlg
 
   # The pool to retrieve the view algorithm from
   from GaudiHive.GaudiHiveConf import AlgResourcePool
@@ -112,6 +117,7 @@ if ( testViewAlgorithm ):
   runInViews.OutputLevel = DEBUG
   runInViews.ViewAlgorithmNames = [ viewAlgName ]
   topSequence += runInViews
+  topSequence += allViewAlgorithms
 
 
 muonFakeRoI = FakeRoI("muonFakeRoI")
