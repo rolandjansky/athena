@@ -99,6 +99,23 @@ def getStandardInDetPileUpTools():
             PileUpToolsList += [ "TRTDigitizationTool" ]
     return PileUpToolsList
 
+def getGeantinoTruthInDetPileUpTools():
+    from AthenaCommon.DetFlags import DetFlags
+    from Digitization.DigitizationFlags import digitizationFlags
+    PileUpToolsList = []
+    unsupportedKeys = ['doFastPixelDigi', 'doLightPixelDigi', 'doSmearedPixelDigi', 'doFastSCT_Digi', 'doFastTRT_Digi']
+    if not set(unsupportedKeys).isdisjoint(set(digitizationFlags.experimentalDigi())):
+        print "DigiAlgConfig.py ERROR The following digitizationFlags.experimentalDigi settings are not supported when digiSteeringConf is set to", digitizationFlags.digitSteeringConf.get_Value(), ": ", str(unsupportedKeys), " and will be ignored."
+    if DetFlags.digitize.BCM_on():
+        PileUpToolsList += [ "BCM_DigitizationTool" ]
+    if DetFlags.digitize.pixel_on():
+        PileUpToolsList += [ "PixelGeantinoTruthDigitizationTool" ]
+    if DetFlags.digitize.SCT_on():
+        PileUpToolsList += [ "SCT_GeantinoTruthDigitizationTool" ]
+    if DetFlags.digitize.TRT_on():
+        PileUpToolsList += [ "TRTGeantinoTruthDigitizationTool" ]
+    return PileUpToolsList
+
 def getFastInDetPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
     PileUpToolsList = []
@@ -271,7 +288,7 @@ def getStandardInTimeOnlyTruthPileUpToolsList():
     ## Forward Detector Digitization
     PileUpToolsList += getStandardForwardPileUpTools()
     ## Inner Detector Digitization
-    PileUpToolsList += getStandardInDetPileUpTools()
+    PileUpToolsList += getGeantinoTruthInDetPileUpTools()
     ## Calo Digitization
     PileUpToolsList += getStandardCaloPileUpTools()
     ## Muon System Digitization
@@ -398,6 +415,10 @@ def getStandardSignalOnlyTruthPileUpToolsAlg(name="StandardSignalOnlyTruthPileUp
 
 def getStandardInTimeOnlyTruthPileUpToolsAlg(name="StandardInTimeOnlyTruthPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getStandardInTimeOnlyTruthPileUpToolsList() )
+    return getStandardPileUpToolsAlg(name, **kwargs)
+
+def getStandardInTimeOnlyGeantinoTruthPileUpToolsAlg(name="StandardInTimeOnlyGeantinoTruthPileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getStandardInTimeOnlyGeantinoTruthPileUpToolsList() )
     return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getSplitNoMergePileUpToolsAlg(name="SplitNoMergePileUpToolsAlg", **kwargs):

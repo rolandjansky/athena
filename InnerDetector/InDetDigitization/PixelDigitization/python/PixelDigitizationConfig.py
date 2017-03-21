@@ -268,6 +268,10 @@ def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
     return BasicPixelDigitizationTool(name, **kwargs)
 
+def PixelGeantinoTruthDigitizationTool(name="PixelGeantinoTruthDigitizationTool", **kwargs):
+    kwargs.setdefault("ParticleBarcodeVeto", 0)
+    return PixelDigitizationTool(name, **kwargs)
+
 def PixelDigitizationToolHS(name="PixelDigitizationToolHS", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 1)
     return BasicPixelDigitizationTool(name, **kwargs)

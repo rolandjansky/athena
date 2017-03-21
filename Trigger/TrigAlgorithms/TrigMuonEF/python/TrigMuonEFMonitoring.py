@@ -630,3 +630,14 @@ class TrigMuonEFFSRoiMakerMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('nRoIOut', type='TH1F', title="Number of created RoIs;n(RoIs);Events",
                                              xbins=6, xmin=-0.5, xmax=5.5) ]
 
+class TrigMuonEFIDTrackRoiMakerMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__(self, name="TrigMuonEFIDTrackRoiMakerMonitoring",**kwargs):
+        super(TrigMuonEFIDTrackRoiMakerMonitoring, self).__init__(name,**kwargs)
+        self.defineTarget( ["Online", "Validation"] )
+
+        self.Histograms += [ defineHistogram('RoIz', type='TH1F', title="z0 of created RoIs;z0 [mm];RoIs",
+                                             xbins=50, xmin=-250, xmax=250) ]
+        self.Histograms += [ defineHistogram('DeltaEta', type='TH1F', title="difference in eta between muon and RoI;d(eta); Muons",
+                                             xbins=50, xmin=0.0, xmax=0.3) ]
+        self.Histograms += [ defineHistogram('DeltaPhi', type='TH1F', title="difference in phi between muon and RoI;d(phi); Muons",
+                                             xbins=50, xmin=0.0, xmax=0.3) ]

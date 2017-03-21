@@ -93,6 +93,10 @@ def TRTDigitizationTool(name="TRTDigitizationTool",**kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicTRTDigitizationTool(name,**kwargs)
 
+def TRTGeantinoTruthDigitizationTool(name="TRTGeantinoTruthDigitizationTool",**kwargs):
+    kwargs.setdefault("ParticleBarcodeVeto", 0)
+    return TRTDigitizationTool(name,**kwargs)
+
 def TRTDigitizationToolHS(name="TRTDigitizationToolHS",**kwargs):
     kwargs.setdefault("OutputObjectName", "TRT_RDOs")
     kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
