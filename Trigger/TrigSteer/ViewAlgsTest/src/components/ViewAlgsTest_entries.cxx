@@ -15,6 +15,7 @@
 #include "../MergeRoIsAlg.h"
 #include "../FilterTracksInRoIs.h"
 #include "../TestViewDriver.h"
+#include "../EventViewCreatorAlgorithm.h"
 #include "../SchedulerProxyAlg.h"
 #include "../TestCombiner.h"
 
@@ -34,6 +35,7 @@ DECLARE_ALGORITHM_FACTORY( TestMergeAlg )
 DECLARE_ALGORITHM_FACTORY( TestSplitAlg )
 DECLARE_ALGORITHM_FACTORY( MergeRoIsAlg )
 DECLARE_ALGORITHM_FACTORY( TestViewDriver )
+DECLARE_ALGORITHM_FACTORY( EventViewCreatorAlgorithm )
 DECLARE_ALGORITHM_FACTORY( SchedulerProxyAlg )
 DECLARE_ALGORITHM_FACTORY( TestCombiner )
 
@@ -49,6 +51,7 @@ DECLARE_FACTORY_ENTRIES( ViewAlgsTest )
   DECLARE_ALGORITHM( TestSplitAlg )
   DECLARE_ALGORITHM( MergeRoIsAlg )
   DECLARE_ALGORITHM( TestViewDriver )
+  DECLARE_ALGORITHM( EventViewCreatorAlgorithm )
   DECLARE_ALGORITHM( SchedulerProxyAlg )
   DECLARE_ALGORITHM( TestCombiner )
   DECLARE_TOOL( TestHypoTool )
