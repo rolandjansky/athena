@@ -66,8 +66,6 @@ namespace PanTau {
         
     private:
         
-        StoreGateSvc*   m_sgSvc;
-        
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
         
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_1p0n_vs_1p1n;
