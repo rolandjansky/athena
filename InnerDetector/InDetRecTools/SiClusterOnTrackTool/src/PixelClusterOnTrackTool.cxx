@@ -180,8 +180,14 @@ InDet::PixelClusterOnTrackTool::initialize() {
   m_dRMap = SG::ReadHandleKey<InDet::DRMap>(m_dRMapName);
   ATH_CHECK( m_dRMap.initialize() );
 
+  
+
+
+
   if (!m_splitClusterHandle.key().empty()){
     ATH_CHECK( m_splitClusterHandle.initialize() );
+  } else {
+    ATH_MSG_INFO("SplitClusterAmbiguityMap disabled by an empty DataHandle");
   }
 
   // Include IBL calibration constants
