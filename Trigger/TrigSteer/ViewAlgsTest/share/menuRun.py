@@ -45,7 +45,7 @@ else:
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v5.xml"
+l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
 svcMgr += l1svc
 
 
@@ -111,9 +111,7 @@ if ( testViewAlgorithm ):
   # The algorithm to launch the views
   from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
   runInViews = TestViewDriver( "runInViews" )
-  connectAlgorithmsIO ( producer=(caloFakeRoI, "OutputRoIs"), consumer=(runInViews, "RoIsContainer") )
-  runInViews.RoITypeInViews = 1 # collection of RoIs, each containing single RoI
-  runInViews.RoIKeyInViews = "InViewRoI" #
+  connectAlgorithmsIO ( producer=(caloFakeRoI, "OutputRoIs"), consumer=(runInViews, "RoIsContainer") ) 
   runInViews.OutputLevel = DEBUG
   runInViews.ViewAlgorithmNames = [ viewAlgName ]
   topSequence += runInViews
