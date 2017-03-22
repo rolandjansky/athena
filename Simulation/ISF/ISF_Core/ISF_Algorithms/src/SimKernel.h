@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SimKernel.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef ISF_ALGS_SIMKERNEL_H
 #define ISF_ALGS_SIMKERNEL_H 1
 
@@ -17,7 +13,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
+//#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // ISF includes
@@ -35,10 +31,10 @@
 namespace PMonUtils {
   class CustomBenchmark;
 }
-// THistogram service
-class ITHistSvc;
-// ROOT forward declarations
-class TTree;
+// // THistogram service
+// class ITHistSvc;
+// // ROOT forward declarations
+// class TTree;
 
 namespace ISF {
 

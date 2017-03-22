@@ -8,3 +8,4 @@ from AthenaCommon.CfgGetter import addAlgorithm
 
 # Common tools, services and algorithms used by jobs
 addAlgorithm("ISF_Algorithms.ISF_AlgorithmsConfig.getCollectionMerger",  "ISF_CollectionMerger")
+addAlgorithm("ISF_Algorithms.ISF_AlgorithmsConfig.getSimHitTreeCreator", "ISF_SimHitTreeCreator")

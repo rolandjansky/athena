@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon import CfgMgr
+
 def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "InputBCMHits",              [ ] )
     kwargs.setdefault( "InputBLMHits",              [ ] )
@@ -25,7 +27,7 @@ def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "OutputPixelHits",           "PixelHits"           )
     kwargs.setdefault( "OutputSCTHits",             "SCT_Hits"            )
     kwargs.setdefault( "OutputTRTUncompressedHits", "TRTUncompressedHits" )
-                                                                         
+
     kwargs.setdefault( "OutputLArEMBHits",          "LArHitEMB"           )
     kwargs.setdefault( "OutputLArEMECHits",         "LArHitEMEC"          )
     kwargs.setdefault( "OutputLArFCALHits",         "LArHitFCAL"          )
@@ -38,8 +40,7 @@ def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "OutputMDTHits",             "MDT_Hits"            )
     kwargs.setdefault( "OutputRPCHits",             "RPC_Hits"            )
     kwargs.setdefault( "OutputTGCHits",             "TGC_Hits"            )
+    return CfgMgr.ISF__CollectionMerger(name, **kwargs)
 
-    from ISF_Algorithms.ISF_AlgorithmsConf import ISF__CollectionMerger
-    collectionMerger = ISF__CollectionMerger(name, **kwargs)
-    return collectionMerger
-
+def getSimHitTreeCreator(name="ISF_SimHitTreeCreator", **kwargs):
+    return CfgMgr.ISF__SimHitTreeCreator(name, **kwargs)
