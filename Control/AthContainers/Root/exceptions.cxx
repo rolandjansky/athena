@@ -438,4 +438,16 @@ void throwExcMissingBaseInfo (const std::type_info& ti)
 }
 
 
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcInsertMoveOwnershipMismatch::ExcInsertMoveOwnershipMismatch()
+  : std::runtime_error ("Ownership mismatch for insertMove.")
+{
+}
+
+
 } // namespace SG

@@ -28,7 +28,7 @@ class TrigEFMultiMuHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 class EFMultiMuHypo_DiMu (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_DiMu"):
-        super( TrigEFMultiMuHypo, self ).__init__( name )
+        super( EFMultiMuHypo_DiMu, self ).__init__( name )
         
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -46,19 +46,55 @@ class EFMultiMuHypo_DiMu (TrigEFMultiMuHypo):
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFMultiMuHypo_DiMu_noCut (EFMultiMuHypo_DiMu):
+    __slots__ = []
+    def __init__(self, name = "EFMultiMuHypo_DiMu_noCut"):
+        super( EFMultiMuHypo_DiMu_noCut, self ).__init__( name )
+        self.ApplyChi2Cut      = False
+        self.ApplyUpperMassCut = False
+        self.LowerMassCut    = 0.
+	
+class EFMultiMuHypo_DiMu_noVtx (EFMultiMuHypo_DiMu):
+    __slots__ = []
+    def __init__(self, name = "EFMultiMuHypo_DiMu_noVtx"):
+        super( EFMultiMuHypo_DiMu_noVtx, self ).__init__( name )
+        self.ApplyChi2Cut      = False
+	
+
 class EFMultiMuHypo_BMeson (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_BMeson"):
-        super( TrigEFMultiMuHypo, self ).__init__( name )
+        super( EFMultiMuHypo_BMeson, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
 
         # EF Bmumu cuts
         self.LowerMassCut      = 4000. # put some loose mass cuts
-        self.UpperMassCut     = 6500.
+        self.UpperMassCut     = 8500.  # OI 6500?
         self.ApplyUpperMassCut     = True
         self.Chi2VtxCut       =   60.
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+
+        validation = TrigEFMultiMuHypoValidationMonitoring()
+        online = TrigEFMultiMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
+
+class EFMultiMuHypo_Bmumux (TrigEFMultiMuHypo):
+    __slots__ = []
+    def __init__(self, name = "EFMultiMuHypo_BMeson"):
+        super( EFMultiMuHypo_Bmumux, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # EF Bmumu cuts
+        self.LowerMassCut      = 100. # put some loose mass cuts
+        self.UpperMassCut     = 6500.  # OI 6500?
+        self.ApplyUpperMassCut     = True
+        self.Chi2VtxCut       =   20.
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
@@ -70,7 +106,7 @@ class EFMultiMuHypo_BMeson (TrigEFMultiMuHypo):
 class EFMultiMuHypo_Jpsi (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_Jpsi"):
-        super( TrigEFMultiMuHypo, self ).__init__( name )
+        super( EFMultiMuHypo_Jpsi, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -91,7 +127,7 @@ class EFMultiMuHypo_Jpsi (TrigEFMultiMuHypo):
 class EFMultiMuHypo_Upsi (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_Upsi"):
-        super( TrigEFMultiMuHypo, self ).__init__( name )
+        super( EFMultiMuHypo_Upsi, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -112,7 +148,7 @@ class EFMultiMuHypo_Upsi (TrigEFMultiMuHypo):
 class EFMultiMuHypo_2700 (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_2700"):
-        super( TrigEFMultiMuHypo, self ).__init__( name )
+        super( EFMultiMuHypo_2700, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -137,7 +173,7 @@ class EFMultiMuHypo_2700 (TrigEFMultiMuHypo):
 class EFMultiMuHypo_Phi (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_Phi"):
-        super( TrigEFMultiMuHypo, self ).__init__( name )
+        super( EFMultiMuHypo_Phi, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False

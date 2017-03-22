@@ -53,6 +53,7 @@ void test1()
   std::cout << SG::ExcDVToELV("why").what() << "\n";
   std::cout << SG::ExcViewVectorNotView().what() << "\n";
   std::cout << SG::ExcMissingViewVectorCLID(typeid(int)).what() << "\n";
+  std::cout << SG::ExcInsertMoveOwnershipMismatch().what() << "\n";
 }
 
 

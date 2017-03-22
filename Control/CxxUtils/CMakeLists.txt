@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 725989 2016-02-24 18:12:43Z krasznaa $
+# $Id: CMakeLists.txt 796875 2017-02-13 15:04:31Z fwinkl $
 ################################################################################
 # Package: CxxUtils
 ################################################################################
@@ -62,12 +62,16 @@ atlas_add_test( BitPackerUnpacker_test
    SOURCES test/BitPackerUnpacker_test.cxx
    LINK_LIBRARIES TestTools CxxUtils )
 
+atlas_add_test( stacktrace_test
+   SOURCES test/stacktrace_test.cxx
+   LINK_LIBRARIES CxxUtils dl )
+
 # Set up the "simple" tests:
 foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
-      stacktrace_test hashtable_test fpcompare_test StrFormat_test
+      hashtable_test fpcompare_test StrFormat_test
       prefetch_test ClassName_test make_unique_test ones_test
-      exctrace1_test exctrace2_test )
+      exctrace1_test exctrace2_test bitscan_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LINK_LIBRARIES CxxUtils )

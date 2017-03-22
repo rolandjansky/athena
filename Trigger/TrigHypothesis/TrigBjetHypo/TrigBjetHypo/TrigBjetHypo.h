@@ -78,6 +78,7 @@ class TrigBjetHypo : public HLT::HypoAlgo {
   float m_xcutCHI2;
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
   float m_xcutMV2c20;
+  float m_xcutMV2c10;
 
   /** @brief DeclareProperty: string corresponding to the trigger level in which the algorithm is running. */
   std::string m_instance;

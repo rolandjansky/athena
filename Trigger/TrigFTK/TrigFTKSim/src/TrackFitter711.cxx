@@ -942,7 +942,8 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
        m_nfits_recI += 1; // ONLY recovery fits
 
-       for (int ip=(m_require_first?1:0);ip<nplanes;++ip) { // loop over the combinations
+       int firstCombo = m_require_first ? 1:0;
+       for (int ip=firstCombo;ip<nplanes;++ip) { // loop over the combinations
 
          // skip planes with multiple hits
          if (norecovery_mask&(1<<ip)) continue;
@@ -976,7 +977,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
          }
        } // end loop over the combinations
 
-       if (idbest>0) {
+       if (idbest>=firstCombo) {
          // a track, excluding the 1st layer, was found
          newtrkI = combtrackI[idbest];
          newtrkI.setTypeMask(1); // set as recovered

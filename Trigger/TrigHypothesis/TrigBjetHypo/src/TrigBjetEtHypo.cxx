@@ -33,8 +33,8 @@
 
 TrigBjetEtHypo::TrigBjetEtHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::HypoAlgo(name, pSvcLocator),
-  m_etThreshold(0),
-  m_et(0)
+  m_etThreshold(0)
+  //  m_et(0)
 {
   declareProperty ("AcceptAll",   m_acceptAll);
   declareProperty ("EtThreshold", m_etThreshold);
@@ -117,12 +117,12 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     return HLT::OK;
   }
 
-  double m_et = theJets.at(0)->p4().Et();
+  double et = theJets.at(0)->p4().Et();
   msg() << MSG::DEBUG << "in Hypo pt  " << theJets.at(0)->p4().Pt() << " and eta " << theJets.at(0)->p4().Eta() << endmsg;
     
   if (msgLvl() <= MSG::DEBUG){
     double etajet = theJets.at(0)->p4().Eta();  
-    msg() << MSG::DEBUG << "in Hypo et  " << m_et << " and eta " << etajet << endmsg;
+    msg() << MSG::DEBUG << "in Hypo et  " << et << " and eta " << etajet << endmsg;
   }
     
       
@@ -134,13 +134,13 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     pass = true;
   } else {
     
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: EF jet with et = " << m_et << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: EF jet with et = " << et << endmsg;
     if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Requiring EF jets to satisfy Et > " << m_etThreshold << endmsg;
 
-    msg() << MSG::DEBUG << "REGTEST: EF jet with et = " << m_et << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: EF jet with et = " << et << endmsg;
     msg() << MSG::DEBUG << "REGTEST: Requiring EF jets to satisfy Et > " << m_etThreshold << endmsg;
     
-    if (m_et >= m_etThreshold)
+    if (et >= m_etThreshold)
       pass = true;
     msg() << MSG::DEBUG << "REGTEST: Pass " << pass << endmsg;
   }

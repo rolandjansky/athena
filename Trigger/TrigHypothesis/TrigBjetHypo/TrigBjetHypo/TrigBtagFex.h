@@ -97,9 +97,9 @@ class TrigBtagFex: public HLT::FexAlgo {
 
   // DATA
   /** @brief Pointer to output xAOD::BTaggingContainer */
-  xAOD::BTaggingContainer* m_trigBTaggingContainer;
+  //xAOD::BTaggingContainer* m_trigBTaggingContainer;
   /** @brief Pointer to xAOD::BTagVertexContainer */
-  xAOD::BTagVertexContainer* m_trigBTaggingVertexContainer;
+  //xAOD::BTagVertexContainer* m_trigBTaggingVertexContainer;
   /** @brief List of xAOD tagger basenames */
   std::vector<std::string> m_TaggerBaseNames;
 

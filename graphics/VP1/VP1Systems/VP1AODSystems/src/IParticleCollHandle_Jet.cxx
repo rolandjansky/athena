@@ -57,7 +57,10 @@ QStringList IParticleCollHandle_Jet::availableCollections( IVP1System*sys )
 class IParticleCollHandle_Jet::Imp {
 public:
 
-  Imp () : theclass(0), updateGUICounter(0), collSettingsButton(0), scale(1.0), randomColours(false), bTaggingTagger("MV1"), bTaggingCut(0.98), bTaggingSwitch(0), bTaggingTexture(0), bTaggingMaterial(0) {}
+  Imp () : theclass(nullptr), updateGUICounter(0), collSettingsButton(nullptr), scale(1.0), 
+    randomColours(false), m_jetMaterialDefault(nullptr), bTaggingTagger("MV1"), 
+    bTaggingCut(0.98), bTaggingSwitch(nullptr), 
+    bTaggingTexture(nullptr), bTaggingMaterial(nullptr) {}
 
   QString name;
 
@@ -417,7 +420,7 @@ void IParticleCollHandle_Jet::rerandomise()
 
   largeChangesBegin();
   handleIterationBegin();
-  unsigned int ijet;
+  unsigned int ijet(0);
   AODHandleBase* handle=0;
   while ((handle=getNextHandle()))
   {    

@@ -21,4 +21,6 @@ if rec.doTruth():
     FtkESDList += [
         "PRD_MultiTruthCollection#FTK_PRD_MultiTruthPixel",
         "PRD_MultiTruthCollection#FTK_PRD_MultiTruthSCT",
+        "DetailedTrackTruthCollection#FTK_Tracks_DetailedTruthCollection",
+        "DetailedTrackTruthCollection#FTK_RefitTracks_DetailedTruthCollection",
         ]

@@ -33,7 +33,7 @@ public:
 
   /// The base classify() is not used 
   bool classify(const xAOD::TruthParticle* ) const {return false;}
-
+  
 private:
   // Options for storate
   bool m_includeNu; //!< Include neutrinos in particles

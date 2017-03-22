@@ -5,7 +5,7 @@
 from TrigMuonEF.TrigMuonEFConf import *
 from TriggerJobOpts.TriggerFlags  import TriggerFlags
 from TrigMuonEF.TrigMuonEFMonitoring import *
-
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr 
@@ -149,6 +149,8 @@ def TMEF_MaterialAllocator(name='TMEF_MaterialAllocator',**kwargs):
 def TMEF_iPatFitter(name='TMEF_iPatFitter',**kwargs):
     kwargs.setdefault("AggregateMaterial", True)
     kwargs.setdefault("FullCombinedFit", True)
+    if not TriggerFlags.run2Config == '2016':
+        kwargs.setdefault("MaxIterations", 15)
     kwargs.setdefault("MaterialAllocator", "TMEF_MaterialAllocator")
     return CfgMgr.Trk__iPatFitter(name,**kwargs)
 
@@ -166,6 +168,9 @@ def TMEF_TrackCleaner(name = 'TMEF_TrackCleaner',**kwargs):
     kwargs.setdefault("PullCutPhi", 3.0)
     kwargs.setdefault("Fitter", "TMEF_iPatFitter")
     kwargs.setdefault("SLFitter", "TMEF_iPatSLFitter")
+    if not TriggerFlags.run2Config == '2016':
+        kwargs.setdefault("Iterate", False)
+        kwargs.setdefault("RecoverOutliers", False)
     from MuonRecExample.MuonRecFlags import muonRecFlags
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("RecoverOutliers", False)
@@ -202,6 +207,8 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
     kwargs.setdefault("Vertex2DSigmaRPhi", 100.*mm)
     kwargs.setdefault("Vertex3DSigmaRPhi", 6.*mm)
     kwargs.setdefault("Vertex3DSigmaZ", 60.*mm)
+    if not TriggerFlags.run2Config == '2016':
+        kwargs.setdefault("MuonErrorOptimizer", '')
 
     # note - the TrackSummaryTool is done as follows offline:
     # import MuonCombinedRecExample.CombinedMuonTrackSummary
@@ -350,9 +357,13 @@ def TMEF_OutwardsCombinedMuonTrackBuilder(name='TMEF_OutwardsCombinedMuonTrackBu
 
 def TMEF_MuonCombinedFitTagTool(name="TMEF_MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackBuilder",         'TMEF_CombinedMuonTrackBuilder' )
-    kwargs.setdefault("OutwardsTrackBuilder", 'TMEF_OutwardsCombinedMuonTrackBuilder')
+    if not TriggerFlags.run2Config == '2016':
+        kwargs.setdefault("OutwardsTrackBuilder", '')
+        kwargs.setdefault("MuonRecovery",         '' )
+    else:
+        kwargs.setdefault("OutwardsTrackBuilder", 'TMEF_OutwardsCombinedMuonTrackBuilder')
+        kwargs.setdefault("MuonRecovery",         'TMEF_MuidMuonRecovery' )
     kwargs.setdefault("TrackQuery",           'TMEF_MuonTrackQuery' )
-    kwargs.setdefault("MuonRecovery",         'TMEF_MuidMuonRecovery' )
     kwargs.setdefault("MatchQuality",         'TMEF_MatchQuality' )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
 

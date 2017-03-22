@@ -140,7 +140,7 @@ StatusCode BookkeeperTool::beginInputFile()
     ATH_CHECK(outputMetaStore()->record(auxinc,m_outputCollName+"Aux."));
   }
   else {
-    ATH_MSG_WARNING("complete collection already exists");
+    ATH_MSG_INFO("complete collection already exists");
     //return StatusCode::SUCCESS;
   }
   //  Make sure incomplete container exists in output
@@ -154,7 +154,7 @@ StatusCode BookkeeperTool::beginInputFile()
     ATH_CHECK(outputMetaStore()->record(auxcoll,inc_name+"Aux."));
   }
   else {
-    ATH_MSG_WARNING("incomplete collection already exists");
+    ATH_MSG_INFO("incomplete collection already exists");
   }
   
   return StatusCode::SUCCESS;

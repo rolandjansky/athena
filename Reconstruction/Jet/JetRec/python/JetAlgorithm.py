@@ -53,7 +53,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     separateJetAlgs = jetFlags.separateJetAlgs()
 
 
-  from RecExConfig.ObjKeyStore import cfgKeyStore
   # Event shape tools.
   evstools = []
   evsDict = {
@@ -65,10 +64,11 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   }
 
   if jetFlags.useTracks():
-    evsDict["emtopo"] = ("EMTopoEventShape",   jtm.emoriginget)
-    evsDict["lctopo"] = ("LCTopoEventShape",   jtm.lcoriginget)
+    evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emoriginget)
+    evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcoriginget)
   jetlog.info( myname + "Event shape tools: " + str(eventShapeTools) )
 
+  from RecExConfig.AutoConfiguration import IsInInputFile
   for evskey in eventShapeTools:
     from EventShapeTools.EventDensityConfig import configEventDensityTool
     if evskey in evsDict:
@@ -77,7 +77,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
         jetlog.info( myname + "Skipping duplicate event shape: " + toolname )
       else:
         jetlog.info( myname + "Adding event shape " + evskey )
-        if not cfgKeyStore.isInInputFile("xAOD::EventShape",toolname):
+        if not IsInInputFile("xAOD::EventShape","Kt4"+toolname):
           jtm += configEventDensityTool(toolname, getter, 0.4)
           evstools += [jtm.tools[toolname]]
     else:
@@ -106,9 +106,9 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   from JetRec.JetRecConf import JetAlgorithm
   ctools = []
   if jetFlags.useTracks:
-    if not cfgKeyStore.isInInputFile("xAOD::CaloClusterContainer","LCOriginTopoClusters"):
+    if not IsInInputFile("xAOD::CaloClusterContainer","LCOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_LCOrigin]
-    if not cfgKeyStore.isInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
+    if not IsInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_EMOrigin]
   from JetRec.JetRecConf import JetToolRunner
   runners = []

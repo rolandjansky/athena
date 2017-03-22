@@ -241,6 +241,7 @@ private:
   std::vector< std::string > m_truthFileNames; // if not blank, vector of paths of files with truth info in it, to store in output
   std::string m_truthTrackTreeName; // if not = "", name of truth track tree, to store in output
   std::string m_evtinfoTreeName; // if not = "", name of evtinfo tree, to store in output
+  std::string m_offlineTreeName; // if not = "", name of offline tree, to store in output
   int m_saveTruthTree;
   std::string                  m_out_convTrackPC_Name;
   Rec::TrackParticleContainer*      m_out_convTrackPC;

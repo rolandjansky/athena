@@ -129,6 +129,8 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("doTrackCurves",            m_doTrackCurves=false, "Efficiency plots of track distributions");
     //declareProperty("doTestTracking", 		m_doTestTracking=false);
     declareProperty("doTopoValidation",         m_doTopoValidation=false);
+    declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
+    declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
     declareProperty("topo_chains",              m_topo_chains);
     declareProperty("topo_support_chains",      m_topo_support_chains);
     declareProperty("LowestSingleTau", 		m_lowest_singletau="");
@@ -888,11 +890,14 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
    float dEta = aL1Tau->eta() - (*itL1Jet)->eta();
    float dPhi = deltaPhi(aL1Tau->phi(),(*itL1Jet)->phi());
    if(deltaR(aL1Tau->eta(), (*itL1Jet)->eta(), aL1Tau->phi(), (*itL1Jet)->phi()) > 0.3) continue;
-   hist2("hL1RoITauVsJet")->Fill(aL1Tau->eT()/CLHEP::GeV,(*itL1Jet)->etLarge()/CLHEP::GeV);
-   if(aL1Tau->eT()>(*itL1Jet)->etLarge()) {
-	hist2("hL1RoITauVsJetMismatch")->Fill(dEta,dPhi);
-	hist2("hL1RoITauVsJetDEt")->Fill(aL1Tau->eT()/CLHEP::GeV,aL1Tau->eT()/CLHEP::GeV-(*itL1Jet)->etLarge()/CLHEP::GeV);
-   } 
+	if (m_doL1JetPlots)
+	{
+		hist2("hL1RoITauVsJet")->Fill(aL1Tau->eT()/CLHEP::GeV,(*itL1Jet)->etLarge()/CLHEP::GeV);
+   		if(aL1Tau->eT()>(*itL1Jet)->etLarge()) {
+			hist2("hL1RoITauVsJetMismatch")->Fill(dEta,dPhi);
+			hist2("hL1RoITauVsJetDEt")->Fill(aL1Tau->eT()/CLHEP::GeV,aL1Tau->eT()/CLHEP::GeV-(*itL1Jet)->etLarge()/CLHEP::GeV);
+	   	}
+	} 
   }
 
   return StatusCode::SUCCESS;
@@ -900,13 +905,15 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
 }
 
 StatusCode HLTTauMonTool::fillL1Jet(const xAOD::JetRoI * aL1Jet){
-	hist("hL1JetRoIEta")->Fill(aL1Jet->eta());
-	hist("hL1JetRoIPhi")->Fill(aL1Jet->phi());
-	hist2("hL1JetEtaVsPhi")->Fill(aL1Jet->eta(),aL1Jet->phi());
-	hist("hL1JetRoIeT")->Fill(aL1Jet->etLarge()/CLHEP::GeV);
-	hist2("hL1JetEtVsPhi")->Fill(aL1Jet->etLarge()/CLHEP::GeV,aL1Jet->phi());
-	hist2("hL1JetEtVsEta")->Fill(aL1Jet->etLarge()/CLHEP::GeV,aL1Jet->eta());
-
+	if (m_doL1JetPlots)
+	{
+		hist("hL1JetRoIEta")->Fill(aL1Jet->eta());
+		hist("hL1JetRoIPhi")->Fill(aL1Jet->phi());
+		hist2("hL1JetEtaVsPhi")->Fill(aL1Jet->eta(),aL1Jet->phi());
+		hist("hL1JetRoIeT")->Fill(aL1Jet->etLarge()/CLHEP::GeV);
+		hist2("hL1JetEtVsPhi")->Fill(aL1Jet->etLarge()/CLHEP::GeV,aL1Jet->phi());
+		hist2("hL1JetEtVsEta")->Fill(aL1Jet->etLarge()/CLHEP::GeV,aL1Jet->eta());
+	}
 	return StatusCode::SUCCESS;
 }
 
@@ -1059,42 +1066,45 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
           if(aEFTau->detail(xAOD::TauJetParameters::innerTrkAvgDist, innerTrkAvgDist)) 
 	    {
 	      hist("hEFinnerTrkAvgDist1PNCorr")->Fill(innerTrkAvgDist);
-	      profile("hEFinnerTrkAvgDist1PNCmu")->Fill(mu, innerTrkAvgDist);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+			{
+				profile("hEFinnerTrkAvgDist1PNCmu")->Fill(mu, innerTrkAvgDist);
+			}	
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, etOverPtLeadTrk))
 	    {
 	      hist("hEFetOverPtLeadTrk1PNCorr")->Fill(etOverPtLeadTrk);
-	      profile("hEFetOverPtLeadTrk1PNCmu")->Fill(mu, etOverPtLeadTrk);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFetOverPtLeadTrk1PNCmu")->Fill(mu, etOverPtLeadTrk);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
 	    {
 	      hist("hEFipSigLeadTrk1PNCorr")->Fill(ipSigLeadTrk);
-	      profile("hEFipSigLeadTrk1PNCmu")->Fill(mu, ipSigLeadTrk);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFipSigLeadTrk1PNCmu")->Fill(mu, ipSigLeadTrk);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, SumPtTrkFrac))
 	    {
 	      hist("hEFSumPtTrkFrac1PNCorr")->Fill(SumPtTrkFrac);
-	      profile("hEFSumPtTrkFrac1PNCmu")->Fill(mu, SumPtTrkFrac);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFSumPtTrkFrac1PNCmu")->Fill(mu, SumPtTrkFrac);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, ChPiEMEOverCaloEME))
 	    {
 	      hist("hEFChPiEMEOverCaloEME1PNCorr")->Fill(ChPiEMEOverCaloEME);
-	      profile("hEFChPiEMEOverCaloEME1PNCmu")->Fill(mu, ChPiEMEOverCaloEME);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFChPiEMEOverCaloEME1PNCmu")->Fill(mu, ChPiEMEOverCaloEME);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, EMPOverTrkSysP))
 	    {
 	      hist("hEFEMPOverTrkSysP1PNCorr")->Fill(EMPOverTrkSysP);
-	      profile("hEFEMPOverTrkSysP1PNCmu")->Fill(mu, EMPOverTrkSysP);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFEMPOverTrkSysP1PNCmu")->Fill(mu, EMPOverTrkSysP);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::centFrac, centFrac))
 	    {
 	      hist("hEFcentFrac1PNCorr")->Fill(centFrac);
-	      profile("hEFcentFrac1PNCmu")->Fill(mu, centFrac);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFcentFrac1PNCmu")->Fill(mu, centFrac);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, ptRatioEflowApprox)) 
 	    {
 	      hist("hEFptRatioEflowApprox1PNCorr")->Fill(ptRatioEflowApprox);
-	      profile("hEFptRatioEflowApprox1PNCmu")->Fill(mu, ptRatioEflowApprox);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFptRatioEflowApprox1PNCmu")->Fill(mu, ptRatioEflowApprox);
 	    }
         }
     }
@@ -1106,52 +1116,52 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
           if(aEFTau->detail(xAOD::TauJetParameters::innerTrkAvgDist, innerTrkAvgDist))
 	    {
 	      hist("hEFinnerTrkAvgDistMPNCorr")->Fill(innerTrkAvgDist);
-	      profile("hEFinnerTrkAvgDistMPNCmu")->Fill(mu, innerTrkAvgDist);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFinnerTrkAvgDistMPNCmu")->Fill(mu, innerTrkAvgDist);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, etOverPtLeadTrk))
 	    {
 	      hist("hEFetOverPtLeadTrkMPNCorr")->Fill(etOverPtLeadTrk);
-	      profile("hEFetOverPtLeadTrkMPNCmu")->Fill(mu, etOverPtLeadTrk);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFetOverPtLeadTrkMPNCmu")->Fill(mu, etOverPtLeadTrk);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, ChPiEMEOverCaloEME))
 	    {
 	      hist("hEFChPiEMEOverCaloEMEMPNCorr")->Fill(ChPiEMEOverCaloEME);
-	      profile("hEFChPiEMEOverCaloEMEMPNCmu")->Fill(mu, ChPiEMEOverCaloEME);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFChPiEMEOverCaloEMEMPNCmu")->Fill(mu, ChPiEMEOverCaloEME);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, EMPOverTrkSysP))
 	    {
 	      hist("hEFEMPOverTrkSysPMPNCorr")->Fill(EMPOverTrkSysP);
-	      profile("hEFEMPOverTrkSysPMPNCmu")->Fill(mu, EMPOverTrkSysP);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFEMPOverTrkSysPMPNCmu")->Fill(mu, EMPOverTrkSysP);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::centFrac, centFrac))
 	    {
 	      hist("hEFcentFracMPNCorr")->Fill(centFrac);
-	      profile("hEFcentFracMPNCmu")->Fill(mu, centFrac);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFcentFracMPNCmu")->Fill(mu, centFrac);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, ptRatioEflowApprox))
 	    {
 	      hist("hEFptRatioEflowApproxMPNCorr")->Fill(ptRatioEflowApprox);
-	      profile("hEFptRatioEflowApproxMPNCmu")->Fill(mu, ptRatioEflowApprox);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFptRatioEflowApproxMPNCmu")->Fill(mu, ptRatioEflowApprox);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::dRmax, dRmax))
 	    {
 	      hist("hEFdRmaxMPNCorr")->Fill(dRmax);      
-	      profile("hEFdRmaxMPNCmu")->Fill(mu, dRmax);      
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFdRmaxMPNCmu")->Fill(mu, dRmax);      
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::massTrkSys, massTrkSys))
 	    {
 	      hist("hEFmassTrkSysMPNCorr")->Fill(massTrkSys/GeV);
-	      profile("hEFmassTrkSysMPNCmu")->Fill(mu, massTrkSys/GeV);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFmassTrkSysMPNCmu")->Fill(mu, massTrkSys/GeV);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::trFlightPathSig, trFlightPathSig))
 	    {
 	      hist("hEFtrFlightPathSigMPNCorr")->Fill(trFlightPathSig);
-	      profile("hEFtrFlightPathSigMPNCmu")->Fill(mu, trFlightPathSig);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFtrFlightPathSigMPNCmu")->Fill(mu, trFlightPathSig);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::mEflowApprox, mEflowApprox))
 	    {
 	      hist("hEFmEflowApproxMPNCorr")->Fill(mEflowApprox);
-	      profile("hEFmEflowApproxMPNCmu")->Fill(mu, mEflowApprox);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFmEflowApproxMPNCmu")->Fill(mu, mEflowApprox);
 	    }
         }
     }
@@ -1163,42 +1173,42 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
           if(aEFTau->detail(xAOD::TauJetParameters::innerTrkAvgDistCorrected, innerTrkAvgDistCorr)) 
 	    {
 	      hist("hEFinnerTrkAvgDist1PCorr")->Fill(innerTrkAvgDistCorr);
-	      profile("hEFinnerTrkAvgDist1PCmu")->Fill(mu, innerTrkAvgDistCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFinnerTrkAvgDist1PCmu")->Fill(mu, innerTrkAvgDistCorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrkCorrected, etOverPtLeadTrkCorr))
 	    {
 	      hist("hEFetOverPtLeadTrk1PCorr")->Fill(etOverPtLeadTrkCorr);
-	      profile("hEFetOverPtLeadTrk1PCmu")->Fill(mu, etOverPtLeadTrkCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFetOverPtLeadTrk1PCmu")->Fill(mu, etOverPtLeadTrkCorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::ipSigLeadTrkCorrected, ipSigLeadTrkCorr))
 	    {
 	      hist("hEFipSigLeadTrk1PCorr")->Fill(ipSigLeadTrkCorr);
-	      profile("hEFipSigLeadTrk1PCmu")->Fill(mu, ipSigLeadTrkCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFipSigLeadTrk1PCmu")->Fill(mu, ipSigLeadTrkCorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::SumPtTrkFracCorrected, SumPtTrkFracCorr)) 
 	    {
 	      hist("hEFSumPtTrkFrac1PCorr")->Fill(SumPtTrkFracCorr);
-	      profile("hEFSumPtTrkFrac1PCmu")->Fill(mu, SumPtTrkFracCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFSumPtTrkFrac1PCmu")->Fill(mu, SumPtTrkFracCorr);
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEMECorrected, ChPiEMEOverCaloEMECorr))
 	    {
 	      hist("hEFChPiEMEOverCaloEME1PCorr")->Fill(ChPiEMEOverCaloEMECorr);
-	      profile("hEFChPiEMEOverCaloEME1PCmu")->Fill(mu, ChPiEMEOverCaloEMECorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFChPiEMEOverCaloEME1PCmu")->Fill(mu, ChPiEMEOverCaloEMECorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysPCorrected, EMPOverTrkSysPCorr)) 
 	    {
 	      hist("hEFEMPOverTrkSysP1PCorr")->Fill(EMPOverTrkSysPCorr);
-	      profile("hEFEMPOverTrkSysP1PCmu")->Fill(mu, EMPOverTrkSysPCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFEMPOverTrkSysP1PCmu")->Fill(mu, EMPOverTrkSysPCorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::centFracCorrected, centFracCorr))
 	    {
 	      hist("hEFcentFrac1PCorr")->Fill(centFracCorr);
-	      profile("hEFcentFrac1PCmu")->Fill(mu, centFracCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFcentFrac1PCmu")->Fill(mu, centFracCorr);
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApproxCorrected, ptRatioEflowApproxCorr))
 	    {
 	      hist("hEFptRatioEflowApprox1PCorr")->Fill(ptRatioEflowApproxCorr);
-	      profile("hEFptRatioEflowApprox1PCmu")->Fill(mu, ptRatioEflowApproxCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFptRatioEflowApprox1PCmu")->Fill(mu, ptRatioEflowApproxCorr);
 	    }
         }
     }
@@ -1210,52 +1220,52 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
           if(aEFTau->detail(xAOD::TauJetParameters::innerTrkAvgDistCorrected, innerTrkAvgDistCorr)) 
 	    {
 	      hist("hEFinnerTrkAvgDistMPCorr")->Fill(innerTrkAvgDistCorr);
-	      profile("hEFinnerTrkAvgDistMPCmu")->Fill(mu, innerTrkAvgDistCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFinnerTrkAvgDistMPCmu")->Fill(mu, innerTrkAvgDistCorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrkCorrected, etOverPtLeadTrkCorr))
 	    {
 	      hist("hEFetOverPtLeadTrkMPCorr")->Fill(etOverPtLeadTrkCorr);
-	      profile("hEFetOverPtLeadTrkMPCmu")->Fill(mu, etOverPtLeadTrkCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFetOverPtLeadTrkMPCmu")->Fill(mu, etOverPtLeadTrkCorr);
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEMECorrected, ChPiEMEOverCaloEMECorr)) 
 	    {
 	      hist("hEFChPiEMEOverCaloEMEMPCorr")->Fill(ChPiEMEOverCaloEMECorr);
-	      profile("hEFChPiEMEOverCaloEMEMPCmu")->Fill(mu, ChPiEMEOverCaloEMECorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFChPiEMEOverCaloEMEMPCmu")->Fill(mu, ChPiEMEOverCaloEMECorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysPCorrected, EMPOverTrkSysPCorr)) 
 	    {
 	      hist("hEFEMPOverTrkSysPMPCorr")->Fill(EMPOverTrkSysPCorr); 	   
-	      profile("hEFEMPOverTrkSysPMPCmu")->Fill(mu, EMPOverTrkSysPCorr); 	   
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFEMPOverTrkSysPMPCmu")->Fill(mu, EMPOverTrkSysPCorr); 	   
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::centFracCorrected, centFracCorr))
 	    {
 	      hist("hEFcentFracMPCorr")->Fill(centFracCorr);
-	      profile("hEFcentFracMPCmu")->Fill(mu, centFracCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFcentFracMPCmu")->Fill(mu, centFracCorr);
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApproxCorrected, ptRatioEflowApproxCorr))
 	    {
 	      hist("hEFptRatioEflowApproxMPCorr")->Fill(ptRatioEflowApproxCorr);
-	      profile("hEFptRatioEflowApproxMPCmu")->Fill(mu, ptRatioEflowApproxCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFptRatioEflowApproxMPCmu")->Fill(mu, ptRatioEflowApproxCorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::dRmaxCorrected, dRmaxCorr))
 	    {
 	      hist("hEFdRmaxMPCorr")->Fill(dRmaxCorr);      
-	      profile("hEFdRmaxMPCmu")->Fill(mu, dRmaxCorr);      
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFdRmaxMPCmu")->Fill(mu, dRmaxCorr);      
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::massTrkSysCorrected, massTrkSysCorr))
 	    {
 	      hist("hEFmassTrkSysMPCorr")->Fill(massTrkSysCorr/GeV);
-	      profile("hEFmassTrkSysMPCmu")->Fill(mu, massTrkSysCorr/GeV);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFmassTrkSysMPCmu")->Fill(mu, massTrkSysCorr/GeV);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::trFlightPathSigCorrected, trFlightPathSigCorr))
 	    {
 	      hist("hEFtrFlightPathSigMPCorr")->Fill(trFlightPathSigCorr);
-	      profile("hEFtrFlightPathSigMPCmu")->Fill(mu, trFlightPathSigCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFtrFlightPathSigMPCmu")->Fill(mu, trFlightPathSigCorr);
 	    }
           if(aEFTau->detail(xAOD::TauJetParameters::mEflowApproxCorrected, mEflowApproxCorr))
 	    {
 	      hist("hEFmEflowApproxMPCorr")->Fill(mEflowApproxCorr);
-	      profile("hEFmEflowApproxMPCmu")->Fill(mu, mEflowApproxCorr);
+	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFmEflowApproxMPCmu")->Fill(mu, mEflowApproxCorr);
 	    }
         }
     }
@@ -1499,11 +1509,13 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
 
 
       FillRelDiffHist(hist("hptRatio"), aOfflineTau->pt(), aEFTau->pt(), 0, 1);
-      FillRelDiffProfile<float>(profile("hEtRatiovspt"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->pt()/GeV, 0, 1);
-      FillRelDiffProfile<float>(profile("hEtRatiovseta"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->eta(), 0, 1);
-      FillRelDiffProfile<float>(profile("hEtRatiovsphi"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->phi(), 0, 1);
-      FillRelDiffProfile<float>(profile("hEtRatiovsmu"), aOfflineTau->pt(), aEFTau->pt(), mu, 0, 1);
-
+	  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+	  {
+		  FillRelDiffProfile<float>(profile("hEtRatiovspt"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->pt()/GeV, 0, 1);
+		  FillRelDiffProfile<float>(profile("hEtRatiovseta"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->eta(), 0, 1);
+		  FillRelDiffProfile<float>(profile("hEtRatiovsphi"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->phi(), 0, 1);
+		  FillRelDiffProfile<float>(profile("hEtRatiovsmu"), aOfflineTau->pt(), aEFTau->pt(), mu, 0, 1);
+	  }
       FillRelDiffHist(hist("hetaRatio"), aOfflineTau->eta(), aEFTau->eta(), 0, 2);
       hist("hphiRatio")->Fill(deltaPhi(aOfflineTau->phi(), aEFTau->phi()));
    
@@ -1526,32 +1538,43 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
       if(aEFTau->detail(xAOD::TauJetParameters::isolFrac, isoFrac) && aOfflineTau->detail(xAOD::TauJetParameters::isolFrac, isoFracOff))
 	{
 	  FillRelDiffHist(hist("hIsoFracRatio"), isoFracOff, isoFrac, 0, 1);
+	  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+	  {
           FillRelDiffProfile<float>(profile("hIsoFracRatiovspt"), isoFracOff, isoFrac, aOfflineTau->pt()/GeV, 0, 1);
           FillRelDiffProfile<float>(profile("hIsoFracRatiovseta"), isoFracOff, isoFrac, aOfflineTau->eta(), 0, 1);
           FillRelDiffProfile<float>(profile("hIsoFracRatiovsphi"), isoFracOff, isoFrac, aOfflineTau->phi(), 0, 1);
           FillRelDiffProfile<float>(profile("hIsoFracRatiovsmu"), isoFracOff, isoFrac, mu, 0, 1);
+	  }
 	}
       if(aEFTau->detail(xAOD::TauJetParameters::centFrac, centFrac) && aOfflineTau->detail(xAOD::TauJetParameters::centFrac, centFracOff))
         {  
-          FillRelDiffProfile<float>(profile("hCentFracRatiovspt"), centFracOff, centFrac, aOfflineTau->pt()/GeV, 0, 1);
-          FillRelDiffProfile<float>(profile("hCentFracRatiovseta"), centFracOff, centFrac, aOfflineTau->eta(), 0, 1);
-          FillRelDiffProfile<float>(profile("hCentFracRatiovsphi"), centFracOff, centFrac, aOfflineTau->phi(), 0, 1);
-          FillRelDiffProfile<float>(profile("hCentFracRatiovsmu"), centFracOff, centFrac, mu, 0, 1);
+			if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+			{
+				FillRelDiffProfile<float>(profile("hCentFracRatiovspt"), centFracOff, centFrac, aOfflineTau->pt()/GeV, 0, 1);
+		    	FillRelDiffProfile<float>(profile("hCentFracRatiovseta"), centFracOff, centFrac, aOfflineTau->eta(), 0, 1);
+		    	FillRelDiffProfile<float>(profile("hCentFracRatiovsphi"), centFracOff, centFrac, aOfflineTau->phi(), 0, 1);
+		    	FillRelDiffProfile<float>(profile("hCentFracRatiovsmu"), centFracOff, centFrac, mu, 0, 1);
+			}
         }
 //      if(aEFTau->detail(xAOD::TauJetParameters::PSSFraction, PSSFraction) && aOfflineTau->detail(xAOD::TauJetParameters::PSSFraction, PSSFractionOff))
 //	{
 //	  FillRelDiffHist(hist("hPSSFracRatio"), PSSFractionOff, PSSFraction, 0, 1);
+//	  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+//	  {
 //          FillRelDiffProfile<float>(profile("hPSSFracRatiovspt"), PSSFractionOff, PSSFraction, aOfflineTau->pt()/GeV, 0, 1);
 //          FillRelDiffProfile<float>(profile("hPSSFracRatiovseta"), PSSFractionOff, PSSFraction, aOfflineTau->eta(), 0, 1);
 //          FillRelDiffProfile<float>(profile("hPSSFracRatiovsphi"), PSSFractionOff, PSSFraction, aOfflineTau->phi(), 0, 1);
 //          FillRelDiffProfile<float>(profile("hPSSFracRatiovsmu"), PSSFractionOff, PSSFraction, mu, 0, 1);
+//	  }
 //	}
       if(aEFTau->detail(xAOD::TauJetParameters::etEMAtEMScale, etEMAtEMScale) && aEFTau->detail(xAOD::TauJetParameters::etHadAtEMScale, etHadAtEMScale) && aOfflineTau->detail(xAOD::TauJetParameters::etEMAtEMScale, etEMAtEMScaleOff) && aOfflineTau->detail(xAOD::TauJetParameters::etHadAtEMScale, etHadAtEMScaleOff))
 	{
 	  EtRaw = (etEMAtEMScale + etHadAtEMScale)/GeV;
 	  EtRawOff = (etEMAtEMScaleOff + etHadAtEMScaleOff)/GeV;
 	  FillRelDiffHist(hist("hEtRawRatio"), EtRawOff, EtRaw, 0.1, 1);
-          FillRelDiffProfile<float>(profile("hEtRawRatiovspt"), EtRawOff, EtRaw, aOfflineTau->pt()/GeV, 0, 1);
+	  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+      {
+	      FillRelDiffProfile<float>(profile("hEtRawRatiovspt"), EtRawOff, EtRaw, aOfflineTau->pt()/GeV, 0, 1);
           FillRelDiffProfile<float>(profile("hEtRawRatiovseta"), EtRawOff, EtRaw, aOfflineTau->eta(), 0, 1);
           FillRelDiffProfile<float>(profile("hEtRawRatiovsphi"), EtRawOff, EtRaw, aOfflineTau->phi(), 0, 1);
           FillRelDiffProfile<float>(profile("hEtRawRatiovsmu"), EtRawOff, EtRaw, mu, 0, 1);
@@ -1563,6 +1586,7 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
           FillRelDiffProfile<float>(profile("hEMFracRatiovseta"), EMFractionOff, EMFraction, aOfflineTau->eta(), 0, 1);
           FillRelDiffProfile<float>(profile("hEMFracRatiovsphi"), EMFractionOff, EMFraction, aOfflineTau->phi(), 0, 1);
           FillRelDiffProfile<float>(profile("hEMFracRatiovsmu"), EMFractionOff, EMFraction, mu, 0, 1);
+	  }
 
 	}
       if(aEFTau->detail(xAOD::TauJetParameters::etEMAtEMScale, etEMAtEMScale) && aOfflineTau->detail(xAOD::TauJetParameters::etEMAtEMScale, etEMAtEMScaleOff))
@@ -1582,62 +1606,92 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
 	  if(aEFTau->detail(xAOD::TauJetParameters::innerTrkAvgDist, innerTrkAvgDist) && aOfflineTau->detail(xAOD::TauJetParameters::innerTrkAvgDist, innerTrkAvgDistOff))
 	    {
 	      FillRelDiffHist(hist("hInnerTrkAvgDistRatio1P"), innerTrkAvgDistOff, innerTrkAvgDist, 0., 1);
-	      FillRelDiffProfile<float>(profile("hInnerTrkAvgDistVspt1P"), innerTrkAvgDistOff, innerTrkAvgDist, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hInnerTrkAvgDistVsmu1P"),  innerTrkAvgDistOff, innerTrkAvgDist, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+	      	FillRelDiffProfile<float>(profile("hInnerTrkAvgDistVspt1P"), innerTrkAvgDistOff, innerTrkAvgDist, aOfflineTau->pt()/GeV, 0., 1);
+	      	FillRelDiffProfile<float>(profile("hInnerTrkAvgDistVsmu1P"),  innerTrkAvgDistOff, innerTrkAvgDist, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, etOverPtLeadTrk) && aOfflineTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, etOverPtLeadTrkOff))
 	    {
 	      FillRelDiffHist(hist("hEtOverPtLeadTrkRatio1P"), etOverPtLeadTrkOff, etOverPtLeadTrk, 0., 1);
-	      FillRelDiffProfile<float>(profile("hEtOverPtLeadTrkVspt1P"), etOverPtLeadTrkOff, etOverPtLeadTrk, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hEtOverPtLeadTrkVsmu1P"), etOverPtLeadTrkOff, etOverPtLeadTrk, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hEtOverPtLeadTrkVspt1P"), etOverPtLeadTrkOff, etOverPtLeadTrk, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hEtOverPtLeadTrkVsmu1P"), etOverPtLeadTrkOff, etOverPtLeadTrk, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk) && aOfflineTau->detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrkOff))
 	    {
 	      FillRelDiffHist(hist("hIpSigLeadTrkRatio1P"), ipSigLeadTrkOff, ipSigLeadTrk, 0., 2);
-	      FillRelDiffProfile<float>(profile("hIpSigLeadTrkVspt1P"), ipSigLeadTrkOff, ipSigLeadTrk, aOfflineTau->pt()/GeV, 0., 2);
-	      FillRelDiffProfile<float>(profile("hIpSigLeadTrkVsmu1P"), ipSigLeadTrkOff, ipSigLeadTrk, mu, 0., 2);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hIpSigLeadTrkVspt1P"), ipSigLeadTrkOff, ipSigLeadTrk, aOfflineTau->pt()/GeV, 0., 2);
+		      FillRelDiffProfile<float>(profile("hIpSigLeadTrkVsmu1P"), ipSigLeadTrkOff, ipSigLeadTrk, mu, 0., 2);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, SumPtTrkFrac) && aOfflineTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, SumPtTrkFracOff))
 	    {
 	      FillRelDiffHist(hist("hSumPtTrkFracRatio1P"), SumPtTrkFracOff, SumPtTrkFrac, 0., 1);
-	      FillRelDiffProfile<float>(profile("hSumPtTrkFracVspt1P"), SumPtTrkFracOff, SumPtTrkFrac, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hSumPtTrkFracVsmu1P"), SumPtTrkFracOff, SumPtTrkFrac, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hSumPtTrkFracVspt1P"), SumPtTrkFracOff, SumPtTrkFrac, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hSumPtTrkFracVsmu1P"), SumPtTrkFracOff, SumPtTrkFrac, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, ChPiEMEOverCaloEME) && aOfflineTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, ChPiEMEOverCaloEMEOff))
 	    {
 	      FillRelDiffHist(hist("hChPiEMEOverCaloEMERatio1P"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME, 0., 1);
-	      FillRelDiffProfile<float>(profile("hChPiEMEOvCaloEMEVspt1P"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hChPiEMEOvCaloEMEVsmu1P"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hChPiEMEOvCaloEMEVspt1P"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hChPiEMEOvCaloEMEVsmu1P"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, EMPOverTrkSysP) && aOfflineTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, EMPOverTrkSysPOff))
 	    {
 	      FillRelDiffHist(hist("hEMPOverTrkSysPRatio1P"), EMPOverTrkSysPOff, EMPOverTrkSysP, 0., 1);
-	      FillRelDiffProfile<float>(profile("hEMPOverTrkSysPVspt1P"), EMPOverTrkSysPOff, EMPOverTrkSysP, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hEMPOverTrkSysPVsmu1P"), EMPOverTrkSysPOff, EMPOverTrkSysP, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hEMPOverTrkSysPVspt1P"), EMPOverTrkSysPOff, EMPOverTrkSysP, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hEMPOverTrkSysPVsmu1P"), EMPOverTrkSysPOff, EMPOverTrkSysP, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::centFrac, centFrac) && aOfflineTau->detail(xAOD::TauJetParameters::centFrac, centFracOff))
 	    {
 	      FillRelDiffHist(hist("hCentFracRatio1P"), centFracOff, centFrac, 0., 1);
-	      FillRelDiffProfile<float>(profile("hCentFracVspt1P"), centFracOff, centFrac, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hCentFracVsmu1P"), centFracOff, centFrac, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hCentFracVspt1P"), centFracOff, centFrac, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hCentFracVsmu1P"), centFracOff, centFrac, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, ptRatioEflowApprox) && aOfflineTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, ptRatioEflowApproxOff))
 	    {
 	      FillRelDiffHist(hist("hPtRatioEflowApproxRatio1P"), ptRatioEflowApproxOff, ptRatioEflowApprox, 0., 1);
-	      FillRelDiffProfile<float>(profile("hPtRatioEflowApproxVspt1P"), ptRatioEflowApproxOff, ptRatioEflowApprox, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hPtRatioEflowApproxVsmu1P"), ptRatioEflowApproxOff, ptRatioEflowApprox, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hPtRatioEflowApproxVspt1P"), ptRatioEflowApproxOff, ptRatioEflowApprox, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hPtRatioEflowApproxVsmu1P"), ptRatioEflowApproxOff, ptRatioEflowApprox, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::dRmax, dRMax)&& aOfflineTau->detail(xAOD::TauJetParameters::dRmax, dRMaxOff))
 	    {
 	      FillRelDiffHist(hist("hDRmaxRatio1P"), dRMaxOff, dRMax, 0., 1);
-	      FillRelDiffProfile<float>(profile("hDRmaxVspt1P"), dRMaxOff, dRMax, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hDRmaxVsmu1P"), dRMaxOff, dRMax, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hDRmaxVspt1P"), dRMaxOff, dRMax, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hDRmaxVsmu1P"), dRMaxOff, dRMax, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::topoInvMass, topoInvMass) && aOfflineTau->detail(xAOD::TauJetParameters::topoInvMass, topoInvMassOff))
 	    {
 	      FillRelDiffHist(hist("hTopoInvMassRatio1P"), topoInvMassOff/GeV, topoInvMass/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hTopoInvMassVspt1P"), topoInvMassOff/GeV, topoInvMass/GeV, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hTopoInvMassVsmu1P"), topoInvMassOff/GeV, topoInvMass/GeV, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hTopoInvMassVspt1P"), topoInvMassOff/GeV, topoInvMass/GeV, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hTopoInvMassVsmu1P"), topoInvMassOff/GeV, topoInvMass/GeV, mu, 0., 1);
+		  }
 	    }
 	}
     }
@@ -1649,62 +1703,92 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
 	  if(aEFTau->detail(xAOD::TauJetParameters::innerTrkAvgDist, innerTrkAvgDist) && aOfflineTau->detail(xAOD::TauJetParameters::innerTrkAvgDist, innerTrkAvgDistOff))
 	    {
 	      FillRelDiffHist(hist("hInnerTrkAvgDistRatioMP"), innerTrkAvgDistOff, innerTrkAvgDist, 0., 1);
-	      FillRelDiffProfile<float>(profile("hInnerTrkAvgDistVsptMP"), innerTrkAvgDistOff, innerTrkAvgDist, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hInnerTrkAvgDistVsmuMP"), innerTrkAvgDistOff, innerTrkAvgDist, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hInnerTrkAvgDistVsptMP"), innerTrkAvgDistOff, innerTrkAvgDist, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hInnerTrkAvgDistVsmuMP"), innerTrkAvgDistOff, innerTrkAvgDist, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, etOverPtLeadTrk) && aOfflineTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, etOverPtLeadTrkOff))
 	    {
 	      FillRelDiffHist(hist("hEtOverPtLeadTrkRatioMP"), etOverPtLeadTrkOff, etOverPtLeadTrk, 0., 1);
-	      FillRelDiffProfile<float>(profile("hEtOverPtLeadTrkVsptMP"), etOverPtLeadTrkOff, etOverPtLeadTrk,  aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hEtOverPtLeadTrkVsmuMP"), etOverPtLeadTrkOff, etOverPtLeadTrk, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hEtOverPtLeadTrkVsptMP"), etOverPtLeadTrkOff, etOverPtLeadTrk,  aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hEtOverPtLeadTrkVsmuMP"), etOverPtLeadTrkOff, etOverPtLeadTrk, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, ChPiEMEOverCaloEME) && aOfflineTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, ChPiEMEOverCaloEMEOff))
 	    {
 	      FillRelDiffHist(hist("hChPiEMEOverCaloEMERatioMP"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME, 0., 1);
-	      FillRelDiffProfile<float>(profile("hChPiEMEOvCaloEMEVsptMP"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME,  aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hChPiEMEOvCaloEMEVsmuMP"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hChPiEMEOvCaloEMEVsptMP"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME,  aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hChPiEMEOvCaloEMEVsmuMP"), ChPiEMEOverCaloEMEOff, ChPiEMEOverCaloEME, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, EMPOverTrkSysP) && aOfflineTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, EMPOverTrkSysPOff))
 	    {
 	      FillRelDiffHist(hist("hEMPOverTrkSysPRatioMP"), EMPOverTrkSysPOff, EMPOverTrkSysP, 0., 1);
-	      FillRelDiffProfile<float>(profile("hEMPOverTrkSysPVsptMP"), EMPOverTrkSysPOff, EMPOverTrkSysP, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hEMPOverTrkSysPVsmuMP"), EMPOverTrkSysPOff, EMPOverTrkSysP, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hEMPOverTrkSysPVsptMP"), EMPOverTrkSysPOff, EMPOverTrkSysP, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hEMPOverTrkSysPVsmuMP"), EMPOverTrkSysPOff, EMPOverTrkSysP, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::centFrac, centFrac) && aOfflineTau->detail(xAOD::TauJetParameters::centFrac, centFracOff))
 	    {
 	      FillRelDiffHist(hist("hCentFracRatioMP"), centFracOff, centFrac, 0., 1);
-	      FillRelDiffProfile<float>(profile("hCentFracVsptMP"), centFracOff, centFrac, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hCentFracVsmuMP"), centFracOff, centFrac, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hCentFracVsptMP"), centFracOff, centFrac, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hCentFracVsmuMP"), centFracOff, centFrac, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, ptRatioEflowApprox) && aOfflineTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, ptRatioEflowApproxOff))
 	    {
 	      FillRelDiffHist(hist("hPtRatioEflowApproxRatioMP"), ptRatioEflowApproxOff, ptRatioEflowApprox, 0., 1);
-	      FillRelDiffProfile<float>(profile("hPtRatioEflowApproxVsptMP"), ptRatioEflowApproxOff, ptRatioEflowApprox, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hPtRatioEflowApproxVsmuMP"), ptRatioEflowApproxOff, ptRatioEflowApprox, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hPtRatioEflowApproxVsptMP"), ptRatioEflowApproxOff, ptRatioEflowApprox, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hPtRatioEflowApproxVsmuMP"), ptRatioEflowApproxOff, ptRatioEflowApprox, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::dRmax, dRMax)&& aOfflineTau->detail(xAOD::TauJetParameters::dRmax, dRMaxOff))
 	    {
 	      FillRelDiffHist(hist("hDRmaxRatioMP"), dRMaxOff, dRMax, 0., 1);
-	      FillRelDiffProfile<float>(profile("hDRmaxVsptMP"), dRMaxOff, dRMax, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hDRmaxVsmuMP"), dRMaxOff, dRMax, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hDRmaxVsptMP"), dRMaxOff, dRMax, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hDRmaxVsmuMP"), dRMaxOff, dRMax, mu, 0., 1);
+		  }
 	    }
 	  if( aEFTau->detail(xAOD::TauJetParameters::trFlightPathSig, trFlightPathSig) && aOfflineTau->detail(xAOD::TauJetParameters::trFlightPathSig, trFlightPathSigOff))
 	    {
 	      FillRelDiffHist(hist("hTrFlightPathSigRatioMP"), trFlightPathSigOff, trFlightPathSig, 0., 2);
-	      FillRelDiffProfile<float>(profile("hTrFlightPathSigVsptMP"), trFlightPathSigOff, trFlightPathSig, aOfflineTau->pt()/GeV, 0., 2);
-	      FillRelDiffProfile<float>(profile("hTrFlightPathSigVsmuMP"), trFlightPathSigOff, trFlightPathSig, mu, 0., 2);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hTrFlightPathSigVsptMP"), trFlightPathSigOff, trFlightPathSig, aOfflineTau->pt()/GeV, 0., 2);
+		      FillRelDiffProfile<float>(profile("hTrFlightPathSigVsmuMP"), trFlightPathSigOff, trFlightPathSig, mu, 0., 2);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::massTrkSys, massTrkSys) && aOfflineTau->detail(xAOD::TauJetParameters::massTrkSys, massTrkSysOff))
 	    {
 	      FillRelDiffHist(hist("hMassTrkSysRatioMP"), massTrkSysOff/GeV, massTrkSys/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hMassTrkSysVsptMP"),  massTrkSysOff/GeV, massTrkSys/GeV, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hMassTrkSysVsmuMP"),  massTrkSysOff/GeV, massTrkSys/GeV, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hMassTrkSysVsptMP"),  massTrkSysOff/GeV, massTrkSys/GeV, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hMassTrkSysVsmuMP"),  massTrkSysOff/GeV, massTrkSys/GeV, mu, 0., 1);
+		  }
 	    }
 	  if(aEFTau->detail(xAOD::TauJetParameters::mEflowApprox, mEflowApprox) && aOfflineTau->detail(xAOD::TauJetParameters::mEflowApprox, mEflowApproxOff))
 	    {
 	      FillRelDiffHist(hist("hMEflowApproxRatioMP"), mEflowApproxOff, mEflowApprox, 0., 1);
-	      FillRelDiffProfile<float>(profile("hMEflowApproxVsptMP"), mEflowApproxOff, mEflowApprox, aOfflineTau->pt()/GeV, 0., 1);
-	      FillRelDiffProfile<float>(profile("hMEflowApproxVsmuMP"), mEflowApproxOff, mEflowApprox, mu, 0., 1);
+		  if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
+		  {
+		      FillRelDiffProfile<float>(profile("hMEflowApproxVsptMP"), mEflowApproxOff, mEflowApprox, aOfflineTau->pt()/GeV, 0., 1);
+		      FillRelDiffProfile<float>(profile("hMEflowApproxVsmuMP"), mEflowApproxOff, mEflowApprox, mu, 0., 1);
+		  }
 	    }
 	}
     }

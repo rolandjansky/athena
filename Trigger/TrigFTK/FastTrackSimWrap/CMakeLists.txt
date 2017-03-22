@@ -36,6 +36,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           InnerDetector/InDetRawEvent/InDetRawData
                           InnerDetector/InDetRawEvent/InDetSimData
+                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           TileCalorimeter/TileIdentifier
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkEvent/TrkSpacePoint
@@ -59,7 +60,7 @@ atlas_add_library( FastTrackSimWrapLib
 atlas_add_component( FastTrackSimWrap
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GeneratorObjects InDetIdentifier InDetPrepRawData TrkTrack TrkTruthData TrkToolInterfaces TrigDecisionToolLib TrigCaloEvent TrigFTKSimLib StoreGateLib SGtests AtlasDetDescr IdDict IdDictDetDescr Identifier EventInfo EventPrimitives GaudiKernel InDetReadoutGeometry SCT_CablingLib InDetRawData InDetSimData TileIdentifier TrkRIO_OnTrack TrkSpacePoint VxVertex FastTrackSimWrapLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GeneratorObjects InDetIdentifier InDetPrepRawData TrkTrack TrkTruthData TrkToolInterfaces TrigDecisionToolLib TrigCaloEvent TrigFTKSimLib StoreGateLib SGtests AtlasDetDescr IdDict IdDictDetDescr Identifier EventInfo EventPrimitives GaudiKernel InDetRIO_OnTrack InDetReadoutGeometry SCT_CablingLib InDetRawData InDetSimData TileIdentifier TrkRIO_OnTrack TrkSpacePoint VxVertex FastTrackSimWrapLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*jobOptions*.py )

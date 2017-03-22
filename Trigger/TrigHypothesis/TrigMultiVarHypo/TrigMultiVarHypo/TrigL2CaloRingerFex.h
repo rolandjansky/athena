@@ -17,6 +17,9 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
+/// Luminosity tool
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+
 
 #include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
 #include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
@@ -50,6 +53,14 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     std::string m_hlt_feature;
     std::string m_feature;
     std::string m_key;
+   
+    bool        m_useLumiTool;
+    float       m_lumiCut;
+    bool        m_useEtaVar;
+    bool        m_useLumiVar;
+
+    //LumiTool
+    ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
 
     ///Prepoc configuration
     std::vector<unsigned int>  m_nRings;
@@ -60,13 +71,14 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     std::vector<unsigned int>                m_nodes;
     std::vector<std::vector<double>>         m_weights;
     std::vector<std::vector<double>>         m_bias;
-    std::vector<double>                      m_threshold;
+    std::vector<std::vector<double>>         m_threshold;
     std::vector<std::vector<double>>         m_etaBins;
     std::vector<std::vector<double>>         m_etBins;
   
     unsigned  m_nDiscr;
     unsigned  m_nPreproc;
-    float     m_output;
+
+    float                  m_output;
 
     ///Discriminator holder 
     std::vector<MultiLayerPerceptron*> m_discriminators;
@@ -76,16 +88,16 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
 //!===============================================================================================
 /// get the cluster inside of container
 const xAOD::TrigEMCluster* TrigL2CaloRingerFex::get_cluster(const HLT::TriggerElement* te) {
-    const xAOD::TrigEMCluster *pattern = 0;
+    const xAOD::TrigEMCluster *pattern = nullptr;
     HLT::ErrorCode status = getFeature(te, pattern, m_feature);
-    return (status == HLT::OK) ? pattern : 0;
+    return (status == HLT::OK) ? pattern : nullptr;
 }
 //!===============================================================================================
 // get the ringer rings inside of container
 const xAOD::TrigRingerRings* TrigL2CaloRingerFex::get_rings(const HLT::TriggerElement* te){
-    const xAOD::TrigRingerRings *pattern = 0;
+    const xAOD::TrigRingerRings *pattern = nullptr;
     HLT::ErrorCode status = getFeature(te, pattern, m_feature);
-    return (status == HLT::OK) ? pattern : 0;
+    return (status == HLT::OK) ? pattern : nullptr;
 }
 //!===============================================================================================
 #endif /* TRIGL2CALORINGERHYPO_H */

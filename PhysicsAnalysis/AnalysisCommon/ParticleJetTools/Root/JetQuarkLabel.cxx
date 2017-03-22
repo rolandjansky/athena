@@ -142,6 +142,11 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
     //HepMC::GenEvent::particle_const_iterator pitr = GenEvent->particles_begin();
     for (; ELpitr != pitrE; ++ELpitr) {
       ElementLink<xAOD::TruthParticleContainer> pitr = (*ELpitr);
+      if(!pitr.isValid() || !(*pitr)) {
+	// Allow for possibility that truth content has been thinned.
+	ATH_MSG_VERBOSE("Invalid ElementLink -- skipping.");
+	continue;
+      }
       int pdg = (*pitr)->pdgId();
       
       // We want to use some special functions from HepLorentzVector
@@ -185,6 +190,11 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
 	      //(*pitr)->end_vertex()->particles_end(HepMC::children);
 	      //HepMC::GenVertex::particle_iterator thisChild = firstChild;
 	    for(; thisChild != endChild; ++thisChild){
+	      if(!thisChild->isValid() || !(**thisChild)) {
+		// Allow for possibility that truth content has been thinned.
+		ATH_MSG_VERBOSE("Invalid ElementLink -- skipping.");
+		continue;
+	      }
 	      if ((**thisChild)->pdgId() == pdg) afterFSR = false;
 	    }
 	  } else if ( ((*pitr)->status() == 3 && m_noDoc) || ((*pitr)->status() == 10902) ) {

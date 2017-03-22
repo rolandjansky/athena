@@ -80,6 +80,39 @@ class RingSet {
 };
 
 
+///Helper class
+class CutDefsHelper{
+  private:
+    double m_etamin;
+    double m_etamax;
+    double m_etmin;
+    double m_etmax;
+    // Define as [a, b, b0] where a and b came from y = ax+b and b0 is the cut without any correction
+    std::vector<double> m_threshold;
+
+  public:
+    CutDefsHelper(std::vector<double> th, double etamin, double etamax,
+                  double etmin, double etmax):m_etamin(etamin),
+                  m_etamax(etamax),m_etmin(etmin),m_etmax(etmax),
+                  m_threshold(th)
+    {;}
+
+    ~CutDefsHelper()
+    {;}
+    
+    double threshold(){return m_threshold[2];};
+    double threshold(float avgmu){return (avgmu*m_threshold[0] + m_threshold[1]);};
+    
+    double etamin(){return m_etamin;};
+    double etamax(){return m_etamax;};
+    double etmin(){return m_etmin;};
+    double etmax(){return m_etmax;};
+
+};///end of configuration
+
+
+
+
 } // namespace TrigCaloRingsHelper
 
 

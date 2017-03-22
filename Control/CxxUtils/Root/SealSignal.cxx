@@ -28,7 +28,7 @@
     for the signal number and name message in #Signal::fataldump() and
     the currently loaded shared library message in #SignalLibDump().
     Make this long enough to fit long shared library names.  */
-static const int SIGNAL_MESSAGE_BUFSIZE = 256;
+static const int SIGNAL_MESSAGE_BUFSIZE = 2048;
 // end copy from SealBase/sysapi/Signal.h
 #include <cassert>
 #include <cstring>
@@ -123,6 +123,9 @@ bool			Signal::s_crashed = false;
 /** Indicator that we are currently executing inside #fatal().  Used
     to protect against signals delivered during recovery attempts.  */
 int			Signal::s_inFatal = 0;
+
+/** Used to switch to a raw stack dump if we crash during a backtrace. */
+unsigned long           Signal::s_lastSP = 0;
 
 /** The current application name.  */
 const char		*Signal::s_applicationName = 0;
@@ -1187,12 +1190,16 @@ Signal::dumpMemory (IOFD fd, char *buf, const void *data, size_t n)
 /** Utility function to dump the process context, as obtained for
     instance through signal handler parameters, unix @c getcontext() or
     Windows @c GetThreadContext().  The output is written directly to
-    the file descriptor @a fd, using @a buf as the formatting buffer.  */
-void
+    the file descriptor @a fd, using @a buf as the formatting buffer.
+
+    Returns SP if we can find it, else null. */
+unsigned long
 Signal::dumpContext (IOFD fd, char *buf, const void *context)
 {
+     unsigned long sp = 0;
 #if defined _WIN32 && defined _M_IX86
     const CONTEXT *uc = static_cast<const CONTEXT *> (context);
+    sp = uc->Esp;
     MYWRITE (fd, buf, sprintf (buf, "\n"
 			       "\n  eip: %04lx:%08lx           eflags: %08lx"
 			       "\n  eax: %08lx   ebx: %08lx"
@@ -1270,6 +1277,7 @@ Signal::dumpContext (IOFD fd, char *buf, const void *context)
 #  define REG_TRAPNO	TRAPNO
 #  define REG_ERR	ERR
 # endif
+    sp = mc->gregs[REG_ESP];
     write (fd, buf, sprintf (buf,
 			     "\n  eip: %04x:%08x           eflags: %08x"
 			     "\n  eax: %08x   ebx: %08x"
@@ -1323,6 +1331,91 @@ Signal::dumpContext (IOFD fd, char *buf, const void *context)
 				     mc->fpregs->_st [i].significand [3]));
     }
     
+#elif defined __x86_64__ && defined __linux
+    sp = mc->gregs[REG_RSP];
+    write (fd, buf, sprintf (buf,
+			     "\n  rip: %04x:%016llx           eflags: %016llx"
+			     "\n  rax: %016llx   rbx: %016llx"
+			     "\n  rcx: %016llx   rdx: %016llx"
+			     "\n  r08: %016llx   r09: %016llx"
+			     "\n  r10: %016llx   r11: %016llx"
+			     "\n  r12: %016llx   r13: %016llx"
+			     "\n  r14: %016llx   r15: %016llx"
+			     "\n  rsi: %016llx   rdi: %016llx"
+			     "\n  rbp: %016llx   rsp: %016llx"
+			     "\n   gs: %04x     fs: %04x",
+			     (unsigned)mc->gregs [REG_CSGSFS] & 0xffff,
+                             (unsigned long long)mc->gregs [REG_RIP],
+			     (unsigned long long)mc->gregs [REG_EFL],
+			     (unsigned long long)mc->gregs [REG_RAX],
+                             (unsigned long long)mc->gregs [REG_RBX],
+			     (unsigned long long)mc->gregs [REG_RCX],
+                             (unsigned long long)mc->gregs [REG_RDX],
+                             (unsigned long long)mc->gregs [REG_R8],
+                             (unsigned long long)mc->gregs [REG_R9],
+                             (unsigned long long)mc->gregs [REG_R10],
+                             (unsigned long long)mc->gregs [REG_R11],
+                             (unsigned long long)mc->gregs [REG_R12],
+                             (unsigned long long)mc->gregs [REG_R13],
+                             (unsigned long long)mc->gregs [REG_R14],
+                             (unsigned long long)mc->gregs [REG_R15],
+			     (unsigned long long)mc->gregs [REG_RSI],
+                             (unsigned long long)mc->gregs [REG_RDI],
+			     (unsigned long long)mc->gregs [REG_RBP],
+                             (unsigned long long)mc->gregs [REG_RSP],
+			     (unsigned)(mc->gregs [REG_CSGSFS]>>16) & 0xffff,
+			     (unsigned)(mc->gregs [REG_CSGSFS]>>32) & 0xffff));
+
+    write (fd, buf, sprintf (buf,
+			     "\n\n"
+			     "  trap: %lld/%lld"
+			     "  oldmask: %16llx   cr2: %016llx",
+			     (unsigned long long)mc->gregs [REG_TRAPNO],
+                             (unsigned long long)mc->gregs [REG_ERR],
+                             (unsigned long long)mc->gregs [REG_OLDMASK],
+                             (unsigned long long)mc->gregs [REG_CR2]));
+
+    if (mc->fpregs)
+    {
+	write (fd, buf, sprintf (buf,
+				 "\n"
+				 "\n  FPU:  control = %04x"
+				 "\n        status  = %04x"
+				 "\n        tag     = %02x"
+				 "\n        op      = %04x"
+				 "\n        ip      = %016lx"
+				 "\n        data    = %016lx"
+				 "\n        mxcsr   = %08x"
+				 "\n        mxcr_mask= %08x",
+				 mc->fpregs->cwd,
+                                 mc->fpregs->swd,
+                                 mc->fpregs->ftw,
+                                 mc->fpregs->fop,
+                                 mc->fpregs->rip,
+                                 mc->fpregs->rdp,
+                                 mc->fpregs->mxcsr,
+                                 mc->fpregs->mxcr_mask));
+
+	for (int i = 0; i < 8; ++i)
+	    write (fd, buf, sprintf (buf,
+				     "\n    %%fp%d = [%04hx:%04hx%04hx%04hx%04hx]",
+				     i,
+				     mc->fpregs->_st [i].exponent,
+				     mc->fpregs->_st [i].significand [0],
+				     mc->fpregs->_st [i].significand [1],
+				     mc->fpregs->_st [i].significand [2],
+				     mc->fpregs->_st [i].significand [3]));
+
+	for (int i = 0; i < 16; ++i)
+	    write (fd, buf, sprintf (buf,
+				     "\n    %%xmm%02d = [%08x %08x %08x %08x]",
+				     i,
+                                     mc->fpregs->_xmm[i].element[0],
+                                     mc->fpregs->_xmm[i].element[1],
+                                     mc->fpregs->_xmm[i].element[2],
+                                     mc->fpregs->_xmm[i].element[3]));
+    }
+    
 #elif __APPLE__ && defined __ppc__
     write (fd, buf, sprintf (buf, "\n  dar: %08lx   dsisr: %08lx  exception: %08lx",
 			     (*mc)->es.dar, (*mc)->es.dsisr, (*mc)->es.exception));
@@ -1359,6 +1452,8 @@ Signal::dumpContext (IOFD fd, char *buf, const void *context)
 
     write (fd, "\n", 1);
 #endif // HAVE_POSIX_SIGNALS
+
+    return sp;
 }
 
 /** Dump application state information on a fatal signal.
@@ -1399,10 +1494,10 @@ Signal::dumpContext (IOFD fd, char *buf, const void *context)
     avoid this mixup and are willing to take the risk that those calls
     might crash, install an application hook that flushes the streams
     and then calls this function. */
+static char buf[SIGNAL_MESSAGE_BUFSIZE];
 bool
 Signal::fatalDump (int sig, siginfo_t *info, void *extra)
 {
-    char buf [SIGNAL_MESSAGE_BUFSIZE];  // = [256], %.200s below is connected
     bool haveCore = false;
     if (sig < 0)
     {
@@ -1430,13 +1525,24 @@ Signal::fatalDump (int sig, siginfo_t *info, void *extra)
 	dumpInfo (s_fatalFd, buf, sig, info);
     }
 
+    unsigned long sp = 0;
     if (s_fatalOptions & FATAL_DUMP_CONTEXT)
-	dumpContext (s_fatalFd, buf, extra);
+	sp = dumpContext (s_fatalFd, buf, extra);
 
     if (s_fatalOptions & FATAL_DUMP_STACK)
     {
 	MYWRITE (s_fatalFd, buf, sprintf(buf,"\nstack trace:\n"));
-	DebugAids::stacktrace (s_fatalFd);
+        if (s_lastSP) {
+          MYWRITE (s_fatalFd, buf, sprintf(buf,"\n(backtrace failed; raw dump follows)\n"));
+          MYWRITE (s_fatalFd, buf, sprintf(buf,"%016lx:", s_lastSP));
+          dumpMemory (s_fatalFd, buf, reinterpret_cast<void*>(s_lastSP), 1024);
+          MYWRITE (s_fatalFd, buf, sprintf(buf,"\n\n"));
+        }
+        else {
+          s_lastSP = sp;
+          DebugAids::stacktrace (s_fatalFd);
+        }
+        s_lastSP = 0;
     }
 
     if (s_fatalOptions & FATAL_DUMP_LIBS)

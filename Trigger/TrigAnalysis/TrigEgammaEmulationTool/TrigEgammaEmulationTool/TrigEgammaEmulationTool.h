@@ -12,7 +12,6 @@
 #include "AthContainers/AuxElement.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
-
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODEgamma/Egamma.h"
@@ -25,7 +24,7 @@
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
-
+#include <boost/any.hpp>
 #include <vector>
 #include <map>
 
@@ -49,14 +48,23 @@ class TrigEgammaEmulationTool
     //execute all emulators
     const Root::TAccept& executeTool( const std::string &);
     const Root::TAccept& executeTool( const HLT::TriggerElement *, const std::string &);
+    const Root::TAccept& getAccept(){return m_accept;}
     
-
     bool EventWiseContainer();
     bool isPassed(const std::string&);
     bool isPassed(const std::string&, const std::string&);
 
-    const Root::TAccept& getAccept(){return m_accept;}
-
+    
+    /* Experimental methods */
+    void ExperimentalAndExpertMethods(){m_experimentalAndExpertMethods=true;};
+    
+    std::map<std::string,boost::any> * getDecorations(){
+      if(m_experimentalAndExpertMethods)
+        return m_decorations;
+      else{
+        return nullptr;
+      }
+    }
 
   private:
 
@@ -79,11 +87,12 @@ class TrigEgammaEmulationTool
                           float &, float &, std::string &,std::string &, bool&, bool&);
  
 
+    bool                                          m_experimentalAndExpertMethods;
+    std::map<std::string, boost::any>            *m_decorations;
     std::string                                   m_offElContKey; 
     std::vector<std::string>                      m_trigList;
     std::vector<std::string>                      m_supportingTrigList;
     std::map<std::string, Trig::Info>             m_trigInfo;
-
     Root::TAccept                                 m_accept;
     StoreGateSvc                                 *m_storeGate;
     ToolHandle<Trig::TrigDecisionTool>            m_trigdec;
@@ -105,10 +114,8 @@ class TrigEgammaEmulationTool
     const xAOD::TrigEMClusterContainer  *m_trigEMClusters;
     const xAOD::EmTauRoIContainer       *m_emTauRois;
 
-
     xAOD::EmTauRoIContainer *m_l1Cont;
 };
-
 //************************************************************************************************
   template<class T>
   const T*

@@ -58,7 +58,22 @@ PpmByteStreamReadV1V2Tool::PpmByteStreamReadV1V2Tool(const std::string& name /*=
     AsgTool(name),
     m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
     m_ppmMaps("LVL1::PpmMappingTool/PpmMappingTool"),
-    m_robDataProvider("ROBDataProviderSvc", name) {
+    m_robDataProvider("ROBDataProviderSvc", name),
+    m_subDetectorID(0),
+    m_requestedType(),
+    m_ppmIsRetMuon(false),
+    m_ppmIsRetSpare(false),
+    m_srcIdMap(nullptr),
+    m_rodSourceId(0),
+    m_robSourceId(0),
+    m_rodRunNumber(0),
+    m_rodVer(0),
+    m_verCode(0),
+    m_ppPointer(0),
+    m_ppMaxBit(0),
+    m_triggerTowers(nullptr),
+    m_maxSizeSeen(0)
+{
   declareInterface<PpmByteStreamReadV1V2Tool>(this);
   declareProperty("PpmMappingTool", m_ppmMaps,
       "Crate/Module/Channel to Eta/Phi/Layer mapping tool");
@@ -109,6 +124,8 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
     xAOD::TriggerTowerContainer* const ttCollection) {
 
   m_triggerTowers = ttCollection;
+  if (m_maxSizeSeen > m_triggerTowers->capacity())
+    m_triggerTowers->reserve (m_maxSizeSeen);
   m_coolIds.clear();
   m_subDetectorID = eformat::TDAQ_CALO_PREPROC;
   m_requestedType = RequestType::PPM;
@@ -123,6 +140,7 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
 
     }
   }
+  m_maxSizeSeen = std::max (m_maxSizeSeen, m_triggerTowers->size());
   m_triggerTowers = nullptr;
   return StatusCode::SUCCESS;
 }
@@ -392,13 +410,14 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmNeutral_() {
         m_subBlockHeader.crate(),
         m_subBlockHeader.module(),
         channel,
-        lcpVal,
-        lcpBcidVec,
-        ljeVal,
-        ljeSat80Vec, adcVal,
-        adcExt,
-        pedCor,
-        pedEn));
+        std::move(lcpVal),
+        std::move(lcpBcidVec),
+        std::move(ljeVal),
+        std::move(ljeSat80Vec),
+        std::move(adcVal),
+        std::move(adcExt),
+        std::move(pedCor),
+        std::move(pedEn)));
       // ---------------------------------------------------------------------
       channel++;
     }
@@ -476,8 +495,8 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR3V1_() {
           chan,
           std::vector<uint8_t> {lutVal},
           std::vector<uint8_t> {uint8_t(lutExt | (lutSat << 1) | (lutPeak << 2))},
-          adcVal,
-          adcExt
+          std::move(adcVal),
+          std::move(adcExt)
         ));
       }
       chan++;
@@ -711,8 +730,11 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
       ljeSat80Vec[i] = uint8_t((ljeRes[i] << 2) | (ljeHigh[i] << 1) | ljeLow[i]); 
     }
     CHECK(addTriggerTowerV2_(m_subBlockHeader.crate(), m_subBlockHeader.module(),
-      chan, lcpVal, lcpBcidVec, ljeVal, ljeSat80Vec, adcVal, adcExt, pedCor,
-      pedEn));
+                             chan,
+                             std::move(lcpVal), std::move(lcpBcidVec),
+                             std::move(ljeVal), std::move(ljeSat80Vec),
+                             std::move(adcVal), std::move(adcExt),
+                             std::move(pedCor), std::move(pedEn)));
     }
   } catch (const std::out_of_range& ex) {
       ATH_MSG_WARNING("Excess Data in Sub-block");
@@ -864,8 +886,11 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR4V1_() {
       m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
     }
     CHECK(
-        addTriggerTowerV2_(crate, module, chan, lcpVal, lcpBcidVec,
-            ljeVal, ljeSat80Vec, adcVal, adcExt, pedCor, pedEn));
+        addTriggerTowerV2_(crate, module, chan,
+                           std::move(lcpVal), std::move(lcpBcidVec),
+                           std::move(ljeVal), std::move(ljeSat80Vec),
+                           std::move(adcVal), std::move(adcExt),
+                           std::move(pedCor), std::move(pedEn)));
   }
 
   return StatusCode::SUCCESS;
@@ -878,7 +903,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_() {
         m_subBlockHeader.module(),
         lut.first,
         lut.second,
-        m_ppFadcs[lut.first]));;
+        m_ppFadcs[lut.first]));
     }
     return StatusCode::SUCCESS;
 }
@@ -887,14 +912,14 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
-    const std::vector<uint8_t>& lcpVal,
-    const std::vector<uint8_t>& lcpBcidVec,
-    const std::vector<uint8_t>& ljeVal,
-    const std::vector<uint8_t>& ljeSat80Vec,
-    const std::vector<uint16_t>& adcVal,
-    const std::vector<uint8_t>& adcExt,
-    const std::vector<int16_t>& pedCor,
-    const std::vector<uint8_t>& pedEn) {
+    std::vector<uint8_t>&& lcpVal,
+    std::vector<uint8_t>&& lcpBcidVec,
+    std::vector<uint8_t>&& ljeVal,
+    std::vector<uint8_t>&& ljeSat80Vec,
+    std::vector<uint16_t>&& adcVal,
+    std::vector<uint8_t>&& adcExt,
+    std::vector<int16_t>&& pedCor,
+    std::vector<uint8_t>&& pedEn) {
 
   int layer = 0;
   int error = 0;
@@ -936,8 +961,12 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
   //         const uint_least8_t& peak,
   //         const uint_least8_t& adcPeak
   // );
-  tt->initialize(coolId, eta, phi, lcpVal, ljeVal, pedCor, pedEn,
-      lcpBcidVec, adcVal, adcExt, ljeSat80Vec, error, m_caloUserHeader.lut(),
+  tt->initialize(coolId, eta, phi,
+                 std::move(lcpVal), std::move(ljeVal),
+                 std::move(pedCor), std::move(pedEn),
+                 std::move(lcpBcidVec), std::move(adcVal),
+                 std::move(adcExt), std::move(ljeSat80Vec),
+                 error, m_caloUserHeader.lut(),
       m_caloUserHeader.ppFadc());
   return StatusCode::SUCCESS;
 }
@@ -946,10 +975,10 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV1_(
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
-    const std::vector<uint8_t>& luts,
-    const std::vector<uint8_t>& lcpBcidVec,
-    const std::vector<uint16_t>& fadc,
-    const std::vector<uint8_t>& bcidExt
+    std::vector<uint8_t>&& luts,
+    std::vector<uint8_t>&& lcpBcidVec,
+    std::vector<uint16_t>&& fadc,
+    std::vector<uint8_t>&& bcidExt
   ) {
 
     std::vector<uint8_t> ljeSat80Vec;
@@ -957,8 +986,11 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV1_(
     std::vector<int16_t> pedCor;
     std::vector<uint8_t> pedEn;
 
-   CHECK(addTriggerTowerV2_(crate, module, channel, luts, lcpBcidVec,
-            luts , ljeSat80Vec, fadc, bcidExt, pedCor, pedEn)
+   CHECK(addTriggerTowerV2_(crate, module, channel,
+                            std::move(luts), std::move(lcpBcidVec),
+                            std::move(luts) , std::move(ljeSat80Vec),
+                            std::move(fadc), std::move(bcidExt),
+                            std::move(pedCor), std::move(pedEn))
    );
 
    return StatusCode::SUCCESS;
@@ -988,8 +1020,9 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV1_(
       adcVal.push_back(BitField::get<uint16_t>(f, 1, 10));
     }
 
-   CHECK(addTriggerTowerV1_(crate, module, channel, lcpVal, lcpBcidVec,
-            adcVal, adcExt));
+   CHECK(addTriggerTowerV1_(crate, module, channel,
+                            std::move(lcpVal), std::move(lcpBcidVec),
+                            std::move(adcVal), std::move(adcExt)));
 
    return StatusCode::SUCCESS;
 }

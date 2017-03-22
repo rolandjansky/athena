@@ -280,7 +280,7 @@ public:
 					     const siginfo_t *info);
     static void			dumpMemory  (IOFD fd, char *buf,
 					     const void *data, size_t n);
-    static void			dumpContext (IOFD fd, char *buf,
+    static unsigned long        dumpContext (IOFD fd, char *buf,
 					     const void *context);
 
     static const char *		describe (int sig, int code);
@@ -290,6 +290,7 @@ private:
 
     static bool			s_crashed;
     static int			s_inFatal;
+    static unsigned long        s_lastSP;
     static const char		*s_applicationName;
     static IOFD			s_fatalFd;
     static FatalHook		s_fatalHook;

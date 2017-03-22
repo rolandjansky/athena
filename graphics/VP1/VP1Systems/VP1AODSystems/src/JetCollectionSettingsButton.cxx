@@ -40,7 +40,11 @@ class JetCollectionSettingsButton::Imp {
 public:
 
 //	Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
-	Imp():theclass(0),editwindow(0),matButton(0), dim(0) {}
+	Imp():theclass(0),editwindow(0),matButton(0), last_scale(0.0), last_useDefaultCuts{},
+	last_randomJetColours{}, last_useMaxR{}, last_maxR(0.0), last_bTaggingEnabled{},
+	last_bTaggingCut(0.0),last_bTaggingRenderingSkin{}, last_bTaggingRenderingMaterial{},
+	m_jetMaterialDefault(nullptr), materialFallback(nullptr),
+	dim(0) {}
 
 	// the main class
 	JetCollectionSettingsButton * theclass;
@@ -148,8 +152,13 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 	// set b-tagging taggers
 	ui_disp.bTaggingComboBox->clear(); // remove all taggers defined in the .ui file
 	QStringList bTagList;
-	bTagList << "MV2c20" << "MV2c10" << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu";
-	ui_disp.bTaggingComboBox->insertItems(0, bTagList);
+
+    // taggers list
+	//bTagList << "MV2c20" << "MV2c10" << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu";
+	//bTagList << "MV2c20" << "MV2c10" << "MV2c00" << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu"; // the JetFitter helpers have been removed in xAODBTagging-00-00-35
+	bTagList << "MV2c20" << "MV2c10" << "MV2c00" << "MV1";
+	
+    ui_disp.bTaggingComboBox->insertItems(0, bTagList);
 
 	// set b-tagging "Material" checked by default ("Skin" will be optional)
 	ui_disp.radioButton_material->setChecked(true);

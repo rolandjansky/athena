@@ -410,14 +410,18 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                          m_mdtHits_overlap);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
-         updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
-         return HLT::OK;
+	TrigL2MuonSA::TrackPattern trackPattern;
+	m_trackPatterns.push_back(trackPattern);
+	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+	return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
 
       if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
         ATH_MSG_WARNING("Invalid RoI in RPC data found: event to debug stream");
+	TrigL2MuonSA::TrackPattern trackPattern;
+	m_trackPatterns.push_back(trackPattern);
 	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
 		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
 	return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::UNKNOWN);
@@ -479,9 +483,11 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                          m_cscHits);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
-         updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
-         return HLT::OK;
+	TrigL2MuonSA::TrackPattern trackPattern;
+	m_trackPatterns.push_back(trackPattern);
+	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+	return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
 

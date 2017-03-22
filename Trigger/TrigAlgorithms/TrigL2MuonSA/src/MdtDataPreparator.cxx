@@ -723,6 +723,8 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
 	 tmp.Residual  = 0;
 	 tmp.isOutlier = 0;
 	 tmp.Chamber = chamber;
+   Identifier id; //temporary invalid id
+   tmp.Id = id;
 	 
 	 mdtHits.push_back(tmp);
        }
@@ -1003,6 +1005,8 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	if (st=='I') chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
 	if (st=='M') chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
 	if (st=='O') chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+  if (st=='E' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BEE;
+  if (st=='M' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BME;
       }
       
       double R = m_mdtReadout->center(TubeLayer, Tube).perp();
@@ -1088,6 +1092,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	tmp.Residual  = 0;
 	tmp.isOutlier = 0;
 	tmp.Chamber = chamber;
+  tmp.Id = id;
         
 	mdtHits.push_back(tmp);
       }	  

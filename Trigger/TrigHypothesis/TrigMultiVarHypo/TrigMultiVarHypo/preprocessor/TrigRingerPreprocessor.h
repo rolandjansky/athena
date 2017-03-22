@@ -38,6 +38,10 @@ class TrigRingerPreprocessor{
     
     double getEnergyThreshold(){ return m_energyThreshold;};
 
+    float normalize_eta( float, float etamin, float etamax );
+
+    float normalize_mu( float, float mumax );
+
     /*
      * Calculates and applies the sequential normalisation vector that results
      * from the following arithmetic:

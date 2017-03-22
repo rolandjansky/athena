@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODMuon
                           Tracking/TrkEvent/TrkTrack
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigSteer/TrigSteering

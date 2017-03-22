@@ -1727,7 +1727,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
     auto cg = getTDT()->getChainGroup(Form("HLT_%s",theChain.c_str())); //get features
     auto fc = cg->features();
 
-     auto JetFeatureContainers = fc.get<xAOD::JetContainer>(theContainer.c_str()); //get features container
+     auto JetFeatureContainers = fc.get<xAOD::JetContainer>(); //get features container
      
      for(auto jcont : JetFeatureContainers) {
 
@@ -2844,7 +2844,7 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
  
     auto cg = getTDT()->getChainGroup(Form("HLT_%s",ChainName.c_str())); //get features
     auto fc = cg->features();
-    auto JetFeatureContainers = fc.get<xAOD::JetContainer>(ContainerName.c_str()); //get features container
+    auto JetFeatureContainers = fc.get<xAOD::JetContainer>(); //get features container
     
     for(auto jcont : JetFeatureContainers) {
       

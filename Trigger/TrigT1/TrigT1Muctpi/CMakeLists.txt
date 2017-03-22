@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Tools/PathResolver
+                          Control/CxxUtils
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigConfiguration/TrigConfMuctpi

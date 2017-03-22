@@ -349,7 +349,8 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
     msg() << MSG::DEBUG << "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
           << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
           << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
-          << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") << endmsg;
+          << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
+          << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant") << endmsg;
 
   // ATTACH FEATURES AND CLEAR TEMPORARY OBJECTS
 
@@ -406,7 +407,7 @@ const xAOD::Vertex* TrigBtagFex::getPrimaryVertex(const xAOD::VertexContainer* v
       if(vtx_itr->vertexType() != xAOD::VxType::VertexType::PriVtx) { continue; }
       return vtx_itr;
     }
-  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No primary vertex found." << endreq;
+  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No primary vertex found." << endmsg;
 
   return 0;
 }

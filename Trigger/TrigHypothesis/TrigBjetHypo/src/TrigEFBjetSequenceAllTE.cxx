@@ -104,9 +104,9 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
     msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() << endmsg;
   }
   
-  const xAOD::JetContainer* m_jets_EF = 0;
-  HLT::ErrorCode statusJets = getFeature(inputTE.front(), m_jets_EF); // or ""
-  const xAOD::JetContainer* jets = m_jets_EF;
+  const xAOD::JetContainer* jets_EF = 0;
+  HLT::ErrorCode statusJets = getFeature(inputTE.front(), jets_EF); // or ""
+  const xAOD::JetContainer* jets = jets_EF;
   
   if (statusJets != HLT::OK) {
     if (msgLvl() <= MSG::WARNING) { 
@@ -115,7 +115,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
     return HLT::NAV_ERROR;
   } 
   
-  if(m_jets_EF==0) {
+  if(jets_EF==0) {
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Missing feature." << endmsg;
     return HLT::MISSING_FEATURE;

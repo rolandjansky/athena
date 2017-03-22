@@ -47,24 +47,32 @@ class HypoAlg(object):
 
 
 def jet_attributes_toString(jet_attributes):
-    """Return a string of form '%d+_%s_%d+' where the digits preceeding the
+    """Return a string of form '%d+_%s_%d+' where the digits prehe ceeding the
     string are multiplicy, the string is the eta range and the digits
     after the string is the threshold. Used for trigger element and
-    standard jet hypo names."""
+    standard jet hypo names.
+
+    The function has been etended to add the jet mass range cut t othe
+    eta range cut if the mass cuts are provided.
+    """
 
     counter = defaultdict(lambda: defaultdict(int))
 
     def bump(j):
-        counter[j.eta_range][j.threshold] += 1
+        counter[(j.eta_range, j.smc_range)][j.threshold] += 1
 
     [bump(j) for j in jet_attributes]
 
-    def mult_range_thresh(eta_range, thresh_dict, thresh):
-        return '%d_%s_%d' % (thresh_dict[thresh], eta_range, thresh)
+    def mult_range_thresh(eta_range, smc_range, thresh_dict, thresh):
+        if smc_range == 'nosmc':
+            return '%d_%s_%d' % (thresh_dict[thresh], eta_range, thresh)
+        
+        return '%d_%s_%s_%d' % (
+            thresh_dict[thresh], eta_range, smc_range, thresh)
         
     l = []
-    for eta_range, thresh_dict in counter.items():
-        l.extend([mult_range_thresh(eta_range, thresh_dict, thresh)
+    for (eta_range, smc_range), thresh_dict in counter.items():
+        l.extend([mult_range_thresh(eta_range, smc_range, thresh_dict, thresh)
                   for thresh in thresh_dict])
     l.sort()
     return '_'.join(l)

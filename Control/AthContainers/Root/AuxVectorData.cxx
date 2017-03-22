@@ -451,7 +451,7 @@ AuxVectorData::Cache& AuxVectorData::Cache::operator= (Cache&& rhs)
  */
 AuxVectorData::Cache::~Cache()
 {
-  clear();
+  for (size_t i=0; i < m_allcache.size(); i++) delete [] m_allcache[i];
 }
 
 
@@ -468,15 +468,19 @@ void AuxVectorData::Cache::swap (Cache& other)
 
 
 /**
- * @brief Clear the cache (and free allocated memory).
+ * @brief Clear the cache (and free any old cache vectors).
  */
 void AuxVectorData::Cache::clear()
 {
-  for (size_t i=0; i < m_allcache.size(); i++) delete [] m_allcache[i];
-  m_allcache.clear();
-  m_cache[0] = 0;
-  m_cache[1] = 0;
-  m_cache_len = 0;
+  if (m_cache_len > 0) {
+    if (m_allcache.size() > 1) {
+      for (size_t i=0; i < m_allcache.size()-1; i++)
+        delete [] m_allcache[i];
+      m_allcache[0] = m_allcache.back();
+      m_allcache.resize(1);
+}
+    std::fill (m_cache[0], m_cache[0] + m_cache_len, static_cast<void*>(0));
+  }
 }
 
 

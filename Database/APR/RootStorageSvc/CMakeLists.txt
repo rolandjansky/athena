@@ -34,7 +34,8 @@ atlas_add_test( RootAuxVectorFactory_test
                 SOURCES
                 test/RootAuxVectorFactory_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers CxxUtils RootUtils RootUtilsPyROOT POOLCore StorageSvc PersistentDataModel GaudiKernel RootStorageSvc )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers CxxUtils RootUtils RootUtilsPyROOT POOLCore StorageSvc PersistentDataModel GaudiKernel RootStorageSvc
+                EXTRA_PATTERNS "is already in" )
 
 # Component list generation:
 atlas_generate_componentslist( RootStorageSvc )

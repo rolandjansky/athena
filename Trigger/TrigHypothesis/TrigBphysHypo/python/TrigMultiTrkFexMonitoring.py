@@ -2,8 +2,8 @@
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig 
 
-ERROR_labels = ' No_EventInfo : WrongNum_Input_TE : BphysColl_Fails '
-ERROR_number = 3
+ERROR_labels = ' AlgorithmProblem : BphysColl_Fails '
+ERROR_number = 2
 
 ACCEPTANCE_labels = ' Input : HltExecute : PassNL2SAMuons : PassNL2CombMuons : PassNEFMuons : PassNTracks : HighPtTrack : NTrkCharge : NTrkMass : PairCharge : PairMass : RecordedCollection '
 ACCEPTANCE_number = 13

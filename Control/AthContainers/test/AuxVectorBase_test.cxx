@@ -235,6 +235,30 @@ template <>
 struct AuxStore_traits<std::vector<C*> > : public AuxStore_traits_AuxDefault {};
 
 
+
+class AuxStoreInternal_test
+  : public AuxStoreInternal
+{
+public:
+  using AuxStoreInternal::AuxStoreInternal;
+
+  virtual const void* getData (SG::auxid_t auxid) const override
+  {
+    m_gets.push_back (auxid);
+    return AuxStoreInternal::getData (auxid);
+  }
+
+  virtual void* getData (SG::auxid_t auxid, size_t size, size_t capacity)
+    override
+  {
+    m_gets.push_back (auxid);
+    return AuxStoreInternal::getData (auxid, size, capacity);
+  }
+
+  mutable std::vector<SG::auxid_t> m_gets;
+};
+
+
 } // namespace SG
 
 
@@ -504,7 +528,7 @@ void test_reserve_resize()
   std::cout << "test_reserve_resize\n";
   SG::AuxVectorBase_test b1;
   b1.initAuxVectorBase<B> (SG::OWN_ELEMENTS, SG::DEFAULT_TRACK_INDICES);
-  SG::AuxStoreInternal store;
+  SG::AuxStoreInternal_test store;
   //SG::IConstAuxStore* cstore = &store;
 
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
@@ -539,6 +563,26 @@ void test_reserve_resize()
   b2.initAuxVectorBase<B> (SG::VIEW_ELEMENTS, SG::DEFAULT_TRACK_INDICES);
   b2.reserve<ACont> (1);
   b2.resize<ACont> (1);
+
+  store.m_gets.clear();
+  b1.getData<int> (ityp, 1) = 10;
+  assert (store.m_gets.empty());
+  // Should not clear the cache.
+  b1.resize<BCont> (20);
+  b1.getData<int> (ityp, 1) = 10;
+  assert (store.m_gets.empty());
+  // Should clear the cache.
+  b1.resize<BCont> (1000);
+  b1.getData<int> (ityp, 1) = 10;
+  assert (store.m_gets == std::vector<SG::auxid_t>{ityp});
+  store.m_gets.clear();
+  // Below should not clear the cache.
+  b1.resize<BCont> (500);
+  b1.getData<int> (ityp, 1) = 10;
+  assert (store.m_gets.empty());
+  b1.resize<BCont> (1000);
+  b1.getData<int> (ityp, 1) = 10;
+  assert (store.m_gets.empty());
 }
 
 
@@ -680,6 +724,25 @@ void test_copy_aux()
 
   b2.moveAux (2, &elt, true);
   assert (b1.getData<int> (ityp1, 1) == 0);
+
+  assert (b2.getData<int> (ityp1, 2) == 10);
+  assert (b2.getData<int> (ityp2, 2) == 20);
+  assert (b2.getData<int> (ityp3, 2) == 0);
+  assert (b2.getData<float> (ftyp, 2) == 1.5);
+
+  SG::AuxElement elt3;
+  b2.moveAux (2, &elt3, false, true);
+  assert (b2.getData<int> (ityp1, 2) == 10);
+  assert (b2.getData<int> (ityp2, 2) == 20);
+  assert (b2.getData<int> (ityp3, 2) == 0);
+  assert (b2.getData<float> (ftyp, 2) == 1.5);
+
+  SG::AuxElement elt4;
+  b2.moveAux (2, &elt4);
+  assert (b2.getData<int> (ityp1, 2) == 0);
+  assert (b2.getData<int> (ityp2, 2) == 0);
+  assert (b2.getData<int> (ityp3, 2) == 0);
+  assert (b2.getData<float> (ftyp, 2) == 0);
 }
 
 

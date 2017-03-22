@@ -423,6 +423,9 @@ class run2Config(JobProperty):
         '2016',
         '2017',
         ]
+    def _do_action(self):
+        from TriggerMenu.egamma.EgammaSliceFlags import run2ConfigAction as egammaRun2ConfigAction
+        egammaRun2ConfigAction(self.get_Value())
 
 _flags.append(run2Config)
 

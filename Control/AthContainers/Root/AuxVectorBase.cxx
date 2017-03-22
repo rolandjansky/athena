@@ -179,8 +179,10 @@ AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::true_type&,
 void AuxVectorBase::resize1 (const SG_STD_OR_BOOST::true_type&, size_t size)
 {
   if (this->hasNonConstStore()) {
-    this->getStore()->resize (size);
-    clearCache();
+    if (!this->getStore()->resize (size)) {
+      // Only clear the cache if iterators have been invalidated.
+      clearCache();
+    }
   }
   else if (this->hasStore())
     throw SG::ExcConstAuxData ("resize");
@@ -210,24 +212,32 @@ void AuxVectorBase::reserve1 (const SG_STD_OR_BOOST::true_type&, size_t size)
  * @param p The new element being added.
  * @param clear If true, then any auxiliary data initially associated
  *              with @c p are cleared after being copied.
+ * @param skipDestClear Normally, if @c p does not have auxiliary data,
+ *                      then the variables of the destination are cleared.
+ *                      If this flag is true, then this clear is skipped.
+ *                      This can be appropriate as part of a push_back,
+ *                      where the destiniation is already known to be clear.
  *
  * Element @c p is being added to the container at @c index.
  * If @c p has associated auxiliary data, copy it to the container
  * at @c index.  Then set the container / index on @c p.
  */
 void
-AuxVectorBase::moveAux (size_t index, SG::AuxElement* p, bool clear /*= false*/)
+AuxVectorBase::moveAux (size_t index, SG::AuxElement* p,
+                        bool clear /*= false*/,
+                        bool skipDestClear /*= false*/)
 {
   if (!m_trackIndices)
     return;
 
   SG::AuxElement to (this, index);
   if (!p) {
-    to.clearAux();
+    if (!skipDestClear) to.clearAux();
     return;
   }
-    
-  to.copyAux (*p);
+
+  if (p->hasStore() || !skipDestClear)
+    to.copyAux (*p);
   if (clear)
     p->clearAux();
   p->setIndex (index, this);

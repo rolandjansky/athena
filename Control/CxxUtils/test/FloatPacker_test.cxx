@@ -292,7 +292,7 @@ void test1 ()
   out = tf3.unpack (packed);
   assert (tf3.errcheck (err));
   assert (err == "Overflow while unpacking float; exponent: 30292");
-  assert (isinf (out));
+  assert (std::isinf (out));
 }
 
 

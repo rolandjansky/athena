@@ -149,7 +149,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   // Retrieve primary vertex
   // ==============================
 
-  float  m_zPrmVtx=0;
+  float  zPrmVtx=0;
   
   if(m_deltaZCut<500){
     const xAOD::VertexContainer*  pointerToPrmVtxCollections(0);
@@ -176,8 +176,8 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
     }
     else{
       const xAOD::Vertex* prmVertex = (*pointerToPrmVtxCollections)[0];
-      m_zPrmVtx = prmVertex->z();
-      msg() << MSG::DEBUG << "Found primary vertex at z = " << m_zPrmVtx << endmsg;
+      zPrmVtx = prmVertex->z();
+      msg() << MSG::DEBUG << "Found primary vertex at z = " << zPrmVtx << endmsg;
     }
   }
   
@@ -224,28 +224,28 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   // ==============================
 
   for(unsigned int im=0; im<inputTE[0].size(); im++) {
-    const xAOD::MuonContainer* m_muons=0;
-    //    HLT::ErrorCode statusMuons = getFeature(inputTE[0].front(), m_muons);
-    HLT::ErrorCode statusMuons = getFeature(inputTE[0][im], m_muons);
+    const xAOD::MuonContainer* muons=0;
+    //    HLT::ErrorCode statusMuons = getFeature(inputTE[0].front(), muons);
+    HLT::ErrorCode statusMuons = getFeature(inputTE[0][im], muons);
 
     if (statusMuons != HLT::OK) {
       if (msgLvl() <= MSG::WARNING)
         msg() << MSG::WARNING << "Failed to retrieve muons" << endmsg;
       return HLT::NAV_ERROR;
     } 
-    else if (m_muons==0) {
+    else if (muons==0) {
       if (msgLvl() <= MSG::WARNING)
         msg() << MSG::WARNING << "Missing muon feature." << endmsg;
       return HLT::MISSING_FEATURE;
     } 
-    else if (m_muons->size()==0) {
+    else if (muons->size()==0) {
       if (msgLvl() <= MSG::DEBUG)
         msg() << MSG::DEBUG << "Muon vector empty." << endmsg;
       return HLT::OK;
     } 
     else {
       if (msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Retrieved " << m_muons->size() << " muons." << endmsg;
+        msg() << MSG::DEBUG << "Retrieved " << muons->size() << " muons." << endmsg;
     } 
 
     // ==============================
@@ -292,14 +292,14 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
 
       float muonEta=0, muonPhi=0, muonZ=0;
       float jetEta=0,  jetPhi=0, jetZ=0;
-      float m_deltaEta=0, m_deltaPhi=0, m_deltaZ=0;
+      float deltaEta=0, deltaPhi=0, deltaZ=0;
 
       std::vector<const  xAOD::Jet*>::const_iterator Jet     = theJets.begin();
       std::vector<const  xAOD::Jet*>::const_iterator lastJet = theJets.end();
  
       int j=0;
  
-      for(auto Muon : *m_muons) {
+      for(auto Muon : *muons) {
         j++;
 
         const xAOD::Muon::MuonType muontype = Muon->muonType();
@@ -333,32 +333,32 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
 
           jetEta = (*Jet)->eta();
           jetPhi = (*Jet)->phi();
-          jetZ=m_zPrmVtx;
+          jetZ=zPrmVtx;
 	
           if (msgLvl() <= MSG::DEBUG)
             msg() << MSG::DEBUG << "Jet "<< i+1 << "; et " << (*Jet)->p4().Et()/1000. << " eta "<< jetEta << "; phi " << jetPhi << "; z " << jetZ  <<  endmsg;
 	  
 
-          m_deltaEta = muonEta - jetEta;
-          m_deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
-          m_deltaZ   = fabs(muonZ-jetZ);
+          deltaEta = muonEta - jetEta;
+          deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
+          deltaZ   = fabs(muonZ-jetZ);
 	
-          double dR = sqrt(m_deltaEta*m_deltaEta + m_deltaPhi*m_deltaPhi);
+          double dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 
           if (msgLvl() <= MSG::DEBUG) 
-            msg() << MSG::DEBUG << "deltaR = "<< dR << "; deltaZ = " << m_deltaZ <<  endmsg; 
+            msg() << MSG::DEBUG << "deltaR = "<< dR << "; deltaZ = " << deltaZ <<  endmsg; 
 
           m_deltaRAll=dR;
-          m_deltaZAll=m_deltaZ;
+          m_deltaZAll=deltaZ;
 
           switch (m_workingMode) {
 
           case 1:
-            if (dR < m_deltaRCut && m_deltaZ <= m_deltaZCut) {
-              m_deltaEtaPass = m_deltaEta; m_deltaPhiPass = m_deltaPhi; 
+            if (dR < m_deltaRCut && deltaZ <= m_deltaZCut) {
+              m_deltaEtaPass = deltaEta; m_deltaPhiPass = deltaPhi; 
               m_muonEFEta = muonEta; m_muonEFPhi = muonPhi;
               m_deltaRPass=dR;
-              m_deltaZPass=m_deltaZ;
+              m_deltaZPass=deltaZ;
               pass = true;
               break;
             }

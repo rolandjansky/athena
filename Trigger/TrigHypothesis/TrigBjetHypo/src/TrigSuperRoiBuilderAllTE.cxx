@@ -36,12 +36,16 @@
 TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISvcLocator* pSvcLocator) :
   HLT::AllTEAlgo(name, pSvcLocator)
 {
-  declareProperty ("JetInputKey",  m_jetInputKey  = "TrigJetRec");
-  declareProperty ("JetOutputKey", m_jetOutputKey = "SuperRoi");
-  declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.2);
-  declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.2);
-  declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV 
-  declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
+  declareProperty ("JetInputKey",     m_jetInputKey     = "TrigJetRec");
+  declareProperty ("JetOutputKey",    m_jetOutputKey    = "SuperRoi");
+  declareProperty ("EtaHalfWidth",    m_etaHalfWidth    = 0.2);
+  declareProperty ("PhiHalfWidth",    m_phiHalfWidth    = 0.2);
+  declareProperty ("JetMinEt",        m_minJetEt        = 30.0); // in GeV 
+  declareProperty ("JetMaxEta",       m_maxJetEta       = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
+  declareProperty ("NJetsMax",        m_nJetsMax        = -1); // option to limit the number of jets that form the super RoI
+  declareProperty ("DynamicMinJetEt", m_dynamicMinJetEt = false); // if (X > -1 && nJets > X) minJetEt = m_minJetEt + (nJets-X)*Y
+  declareProperty ("DynamicNJetsMax", m_dynamicNJetsMax = 9999); // variable X above
+  declareProperty ("DynamicEtFactor", m_dynamicEtFactor = 0); // variable Y above
 }
 
 
@@ -56,12 +60,16 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltInitialize() {
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " JetInputKey = "  << m_jetInputKey  << endmsg; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endmsg; 
-    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endmsg; 
-    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endmsg; 
-    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endmsg; 
-    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endmsg; 
+    msg() << MSG::DEBUG << " JetInputKey     = " << m_jetInputKey     << endmsg; 
+    msg() << MSG::DEBUG << " JetOutputKey    = " << m_jetOutputKey    << endmsg; 
+    msg() << MSG::DEBUG << " EtaHalfWidth    = " << m_etaHalfWidth    << endmsg; 
+    msg() << MSG::DEBUG << " PhiHalfWidth    = " << m_phiHalfWidth    << endmsg; 
+    msg() << MSG::DEBUG << " MinJetEt        = " << m_minJetEt        << endmsg; 
+    msg() << MSG::DEBUG << " MaxJetEta       = " << m_maxJetEta       << endmsg; 
+    msg() << MSG::DEBUG << " NJetsMax        = " << m_nJetsMax        << endmsg; 
+    msg() << MSG::DEBUG << " DynamicMinJetEt = " << m_dynamicMinJetEt << endmsg; 
+    msg() << MSG::DEBUG << " DynamicNJetsMax = " << m_dynamicNJetsMax << endmsg; 
+    msg() << MSG::DEBUG << " DynamicEtFactor = " << m_dynamicEtFactor << endmsg; 
   }
 
   return HLT::OK;
@@ -82,6 +90,13 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigSuperRoiBuilderAllTE::hltExecute" << endmsg;
 
   beforeExecMonitors().ignore();
+
+  // Sanity check that we're not running two optimisations at the same time
+  // can be removed once a default method is decided upon
+  if (m_nJetsMax > 0 && m_dynamicMinJetEt) {
+    msg() << MSG::WARNING << "Two incompatible CPU optimisation methods chosen (DynamicMinJetEt and NJetsMax).  Switching off DynamicMinJetEt." << endmsg;
+    m_dynamicMinJetEt = false;
+  }
 
   if (inputTEs.size() != 1) {
     msg() << MSG::WARNING << "Got more than one inputTE" << endmsg;
@@ -132,7 +147,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
   outputTE->setActiveState(true);
   std::string key = "";
 
-  unsigned int i = 0;
+  int i = 0;
   for ( xAOD::JetContainer::const_iterator jetitr=jets->begin() ; jetitr!=jets->end() ; jetitr++ ) { 
   
     ++i;
@@ -150,7 +165,25 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
 
     if (fabs(jetEta) > m_maxJetEta) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endmsg;
+	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." << endmsg;
+      continue;
+    }
+   
+    // For high pile-up situations, raise the pT threshold of the jets considered after checking the first N (=m_dynamicNJetsMax) jets
+    if (m_dynamicMinJetEt && i > m_dynamicNJetsMax ) {
+      float dynamicMinJetEt = m_minJetEt + ((i - m_dynamicNJetsMax) * m_dynamicEtFactor); 
+      if (jetEt < dynamicMinJetEt) {
+	if (msgLvl() <= MSG::DEBUG)
+	  msg() << MSG::DEBUG << "Jet "<< i << " below the dynamic " << dynamicMinJetEt << " GeV ( = " 
+		<< m_minJetEt << " + (" << i << " - " << m_dynamicNJetsMax << ") * " << m_dynamicEtFactor << ")"
+		<< " threshold; Et " << jetEt << "; skipping this jet." << endmsg;
+	continue;
+      }    
+    }
+
+    if (m_nJetsMax > 0 && i > m_nJetsMax) {
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << "Maximum allowed jet multiplicity = "<< m_nJetsMax << "; skipping jet " << i << "." << endmsg;
       continue;
     }
 

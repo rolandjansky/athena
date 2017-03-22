@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.cxx 658394 2015-04-01 12:48:35Z krasznaa $
+// $Id: ByteStreamAuxContainer_v1.cxx 797235 2017-02-14 20:30:30Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -199,9 +199,8 @@ namespace xAOD {
    }
 
 
-   size_t ByteStreamAuxContainer_v1::size() const
+   size_t ByteStreamAuxContainer_v1::size_noLock() const
    {
-     guard_t guard (m_mutex);
      auxid_set_t::const_iterator i = m_auxids.begin();
      auxid_set_t::const_iterator end = m_auxids.end();
      for (; i != end; ++i) {
@@ -219,6 +218,13 @@ namespace xAOD {
 
      return 0;
    }
+
+   size_t ByteStreamAuxContainer_v1::size() const
+   {
+     guard_t guard (m_mutex);
+     return size_noLock();
+   }
+
 
    void* ByteStreamAuxContainer_v1::getData( auxid_t auxid, size_t size,
                                              size_t capacity ) {
@@ -261,25 +267,29 @@ namespace xAOD {
       return m_tsAuxids->m_set;
    }
 
-   void ByteStreamAuxContainer_v1::resize( size_t size ) {
+   bool ByteStreamAuxContainer_v1::resize( size_t size ) {
 
       guard_t guard (m_mutex);
 
       if (m_locked)
         throw SG::ExcStoreLocked ("resize");
 
-      std::vector< SG::IAuxTypeVector* >::iterator itr = m_dynamicVecs.begin();
-      std::vector< SG::IAuxTypeVector* >::iterator end = m_dynamicVecs.end();
-      for( ; itr != end; ++itr ) {
-         if( *itr ) ( *itr )->resize( size );
-      }
-      itr = m_staticVecs.begin();
-      end = m_staticVecs.end();
-      for( ; itr != end; ++itr ) {
-         if( *itr ) ( *itr )->resize( size );
+      bool nomoves = true;
+      for (SG::IAuxTypeVector* v : m_dynamicVecs) {
+         if(v) {
+           if (!v->resize( size ))
+             nomoves = false;
+         }
       }
 
-      return;
+      for (SG::IAuxTypeVector* v : m_staticVecs) {
+         if(v) {
+           if (!v->resize( size ))
+             nomoves = false;
+         }
+      }
+
+      return nomoves;
    }
 
    void ByteStreamAuxContainer_v1::reserve( size_t size ) {
@@ -323,6 +333,71 @@ namespace xAOD {
 
       return;
    }
+
+   bool ByteStreamAuxContainer_v1::insertMove( size_t pos,
+                                               IAuxStore& other,
+                                               const SG::auxid_set_t& ignore_in) {
+
+      guard_t guard( m_mutex );
+
+      // This operation is not allowed on a locked container:
+      if( m_locked ) {
+         throw SG::ExcStoreLocked( "insertMove" );
+      }
+
+      const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+      bool nomove = true;
+      size_t other_size = other.size();
+
+      SG::auxid_set_t ignore = ignore_in;
+
+      // Do the operation on the static variables:
+      for (SG::auxid_t id : m_auxids) {
+        SG::IAuxTypeVector* v_dst = nullptr;
+        if (id < m_dynamicVecs.size())
+          v_dst = m_dynamicVecs[id];
+        if (!v_dst && id < m_staticVecs.size())
+          v_dst = m_staticVecs[id];
+        if (v_dst) {
+          ignore.insert (id);
+          if (other.getData (id)) {
+            void* src_ptr = other.getData (id, other_size, other_size);
+            if (src_ptr) {
+              if (!v_dst->insertMove (pos, src_ptr,
+                                      reinterpret_cast<char*>(src_ptr) + other_size*r.getEltSize(id)))
+                nomove = false;
+            }
+          }
+          else {
+            const void* orig = v_dst->toPtr();
+            v_dst->shift (pos, other_size);
+            if (orig != v_dst->toPtr())
+              nomove = false;
+          }
+        }
+      }
+
+      // Add any new variables not present in the original container.
+      for (SG::auxid_t id : other.getAuxIDs()) {
+        if (m_auxids.find(id) == m_auxids.end() &&
+            ignore.find(id) == ignore.end())
+        {
+          if (other.getData (id)) {
+            void* src_ptr = other.getData (id, other_size, other_size);
+            if (src_ptr) {
+              size_t sz = size_noLock();
+              getData1 (id, sz, sz, true, false);
+              m_dynamicVecs[id]->resize (sz - other_size);
+              m_dynamicVecs[id]->insertMove (pos, src_ptr, reinterpret_cast<char*>(src_ptr) + other_size*r.getEltSize(id));
+              nomove = false;
+            }
+          }
+        }
+      }
+
+      return nomove;
+   }
+
 
    void ByteStreamAuxContainer_v1::reset() {
 

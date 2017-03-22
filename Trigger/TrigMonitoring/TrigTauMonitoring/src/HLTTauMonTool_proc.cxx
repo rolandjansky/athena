@@ -168,9 +168,12 @@ StatusCode HLTTauMonTool::proc()
             plotUnderOverFlow(hist("hL1RoIEMIso"));
             plotUnderOverFlow(hist("hL1RoIHadCore"));
             plotUnderOverFlow(hist("hL1RoIHadIsol"));
-            plotUnderOverFlow(hist("hL1JetRoIEta"));            
-            plotUnderOverFlow(hist("hL1JetRoIPhi"));
-            plotUnderOverFlow(hist("hL1JetRoIeT"));
+			if (m_doL1JetPlots)
+			{
+            	plotUnderOverFlow(hist("hL1JetRoIEta"));            
+            	plotUnderOverFlow(hist("hL1JetRoIPhi"));
+            	plotUnderOverFlow(hist("hL1JetRoIeT"));
+			}
 
             setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/PreselectionTau");
             plotUnderOverFlow(hist("hEFEt"));

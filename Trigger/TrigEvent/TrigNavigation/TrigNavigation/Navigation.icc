@@ -15,7 +15,6 @@
  *
  *****************************************************************************/
 
-#include <boost/type_traits.hpp>
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/RoICacheHistory.h"
 

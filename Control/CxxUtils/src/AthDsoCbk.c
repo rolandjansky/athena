@@ -253,7 +253,7 @@ fetch_vmem (void)
   }
   
   /* FIXME: error handling... */
-  fscanf(fp, "%80u%80u%80u", &siz, &rss, &shd);
+  (void)fscanf(fp, "%80u%80u%80u", &siz, &rss, &shd);
   fclose (fp);
 
   double pg_sz = sysconf(_SC_PAGESIZE);

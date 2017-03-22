@@ -42,14 +42,14 @@ use     AtlasReflex               AtlasReflex-*          External -no_auto_impor
 apply_pattern declare_joboptions files="test.txt navigation2dot.py"
 
 use TestTools      TestTools-*         AtlasTest
-apply_pattern UnitTest_run unit_test=TriggerElement extrapatterns=".*"
-apply_pattern UnitTest_run unit_test=Holder extrapatterns=".*"
-apply_pattern UnitTest_run unit_test=Registration extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=TriggerElement
+apply_pattern UnitTest_run unit_test=Holder
+apply_pattern UnitTest_run unit_test=Registration
 
-apply_pattern UnitTest_run unit_test=Ownership extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=Ownership
 
-apply_pattern UnitTest_run unit_test=HLTNavigation extrapatterns=".*"
-apply_pattern UnitTest_run unit_test=RoICache extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=HLTNavigation
+apply_pattern UnitTest_run unit_test=RoICache
 
 
 

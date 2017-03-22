@@ -421,12 +421,13 @@ void FTKDetectorTool::dumpIDMap()
 {
   ofstream mapfile("mapfile.txt");
 
-  mapfile << "PXL\tSL\tBEC\tLD\tMPHI\tMETA\tPHIID\tETAID\tHASH\tX\tY\tZ\tSinT\tW\tL" << endl;
+  mapfile << "PXL\tSL\tBEC\tLD\tMPHI\tMETA\tPHIID\tETAID\tHASH\tX\tY\tZ\tSinT\tW\tL\tISBAD" << endl;
 
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
+    const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
 
     mapfile << ftk::PIXEL << "\t" << 0 << "\t";
     mapfile << m_pixelId->barrel_ec(id) << "\t";
@@ -440,7 +441,8 @@ void FTKDetectorTool::dumpIDMap()
     mapfile << modcenter[0] << "\t" << modcenter[1] << "\t" << modcenter[2] << "\t";
     mapfile << sielement->sinTilt() << "\t";
     mapfile << sielement->width() << "\t";
-    mapfile << sielement->length();
+    mapfile << sielement->length() << "\t";
+    mapfile << is_bad;
     mapfile << endl;
   }
 
@@ -449,6 +451,7 @@ void FTKDetectorTool::dumpIDMap()
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
+    const bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
 
     mapfile << ftk::SCT << "\t" << (sielement->isStereo() ? 1 : 0) << "\t";
     mapfile << m_sctId->barrel_ec(id) << "\t";
@@ -462,7 +465,8 @@ void FTKDetectorTool::dumpIDMap()
     mapfile << modcenter[0] << "\t" << modcenter[1] << "\t" << modcenter[2] << "\t";
     mapfile << sielement->sinTilt() << "\t";
     mapfile << sielement->width() << "\t";
-    mapfile << sielement->length();
+    mapfile << sielement->length() << "\t";
+    mapfile << is_bad;
     mapfile << endl;
   }
 

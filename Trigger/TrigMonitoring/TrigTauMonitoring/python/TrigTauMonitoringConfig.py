@@ -54,19 +54,22 @@ def TrigTauMonitoringTool():
 #	]
 
 	ztt_tau = [
-		'tau25_idperf_tracktwo',
-		'tau25_perf_tracktwo',
 		'tau25_medium1_tracktwo',
 	]
+	# removed ztt_tau chains
+	# 'tau25_idperf_tracktwo',
+	# 'tau25_perf_tracktwo',
 
 	highpt_tau = [
 		'tau80_medium1_tracktwo_L1TAU60',
 		'tau160_idperf_tracktwo',
 		'tau160_medium1_tracktwo',
-		'tau160_medium1HighptL_tracktwo',
-		'tau160_medium1HighptM_tracktwo',
-		'tau160_medium1HighptH_tracktwo'
 	]
+	# removed highpt_tau chains:
+	# 'tau160_medium1HighptL_tracktwo',
+	# 'tau160_medium1HighptM_tracktwo',
+	# 'tau160_medium1HighptH_tracktwo'
+ 
 
 	# get the Level1 Emulation tool from the emulation python config
 	from TrigTauEmulation.TrigTauEmulationConfig import get_level1_emulator
@@ -113,8 +116,10 @@ def TrigTauMonitoringTool():
 				emulation_hlt_tau	= emul_hlt_tau,
 				L1EmulationTool		= Level1Emulator,
 #				HltEmulationTool	= HltEmulator,
-				doTrackCurves		= True,
+				doTrackCurves		= False,
 #				doTestTracking		= False,
+				doL1JetPlots		= True,
+				doEFTProfiles		= True,
 				topo_chains			= tau_topo_chains,
 				topo_support_chains	= tau_topo_support_chains,
 				doTopoValidation	= False,

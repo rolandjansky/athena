@@ -85,67 +85,52 @@ EgammaL2RingerMediumEmulator = ToolFactory(Trig__TrigEgammaL2CaloRingerSelectorT
                                            Nodes             = theCutDefs.Nodes,
                                            Weights           = theCutDefs.Weights,
                                            Bias              = theCutDefs.Bias,
-                                           Thresholds        = theCutDefs.Thresholds,
                                            EtBins            = theCutDefs.EtBins,
                                            EtaBins           = theCutDefs.EtaBins,
-                                           OutputLevel       = OutputLevel,
+                                           Thresholds        = theCutDefs.Thresholds,
+                                           ThresholdEtBins   = theCutDefs.EtBinsFromThreshold,
+                                           ThresholdEtaBins  = theCutDefs.EtaBinsFromThreshold,
                                            NormalisationRings= theCutDefs.NormalisationRings,
                                            SectionRings      = theCutDefs.SectionRings,
-                                           NRings            = theCutDefs.NRings) 
+                                           NRings            = theCutDefs.NRings,
+                                           LuminosityCut     = theCutDefs.LumiCut,
+                                           UseEtaVar         = theCutDefs.UseEtaVar,
+                                           UseLumiVar        = theCutDefs.UseLumiVar,
+                                           DoPileupCorrection= theCutDefs.DoPileupCorrection,
+                                           UseNoActivationFunctionInTheLastLayer=theCutDefs.UseNoActivationFunctionInTheLastLayer,
+                                           OutputLevel       = OutputLevel,
+                                           ) 
+                              
  
 #********************************************************************************
-# Tight
+def copyRingerHelper( t, cutDefs, name , OutputLevel):
+  return t.copy(name              = name,
+                Nodes             = cutDefs.Nodes,
+                Weights           = cutDefs.Weights,
+                Bias              = cutDefs.Bias,
+                EtBins            = cutDefs.EtBins,
+                EtaBins           = cutDefs.EtaBins,
+                Thresholds        = cutDefs.Thresholds,
+                ThresholdEtBins   = cutDefs.EtBinsFromThreshold,
+                ThresholdEtaBins  = cutDefs.EtaBinsFromThreshold,
+                NormalisationRings= cutDefs.NormalisationRings,
+                SectionRings      = cutDefs.SectionRings,
+                NRings            = cutDefs.NRings,
+                LuminosityCut     = cutDefs.LumiCut,
+                UseEtaVar         = cutDefs.UseEtaVar,
+                UseLumiVar        = cutDefs.UseLumiVar,
+                DoPileupCorrection= cutDefs.DoPileupCorrection,
+                UseNoActivationFunctionInTheLastLayer=cutDefs.UseNoActivationFunctionInTheLastLayer,
+                OutputLevel       = OutputLevel,
+                ) 
+#********************************************************************************
+
 theCutDefs  = TrigL2CaloRingerCutDefs( 20, 'lhtight' ,'e')
-EgammaL2RingerTightEmulator = EgammaL2RingerMediumEmulator.copy(
-                              name              = "TrigEgammaL2CaloRingerTightEmulator",
-                              Nodes             = theCutDefs.Nodes,
-                              Weights           = theCutDefs.Weights,
-                              Bias              = theCutDefs.Bias,
-                              Thresholds        = theCutDefs.Thresholds,
-                              EtBins            = theCutDefs.EtBins,
-                              EtaBins           = theCutDefs.EtaBins,
-                              OutputLevel       = OutputLevel,
-                              NormalisationRings= theCutDefs.NormalisationRings,
-                              SectionRings      = theCutDefs.SectionRings,
-                              NRings            = theCutDefs.NRings) 
- 
-#********************************************************************************
-# Loose
+EgammaL2RingerTightEmulator = copyRingerHelper(EgammaL2RingerMediumEmulator, theCutDefs, 'TrigEgammaL2CaloRingerTightEmulator', OutputLevel)
 theCutDefs  = TrigL2CaloRingerCutDefs( 20, 'lhloose' ,'e')
-EgammaL2RingerLooseEmulator = EgammaL2RingerMediumEmulator.copy(
-                              name              = "TrigEgammaL2CaloRingerLooseEmulator",
-                              Nodes             = theCutDefs.Nodes,
-                              Weights           = theCutDefs.Weights,
-                              Bias              = theCutDefs.Bias,
-                              Thresholds        = theCutDefs.Thresholds,
-                              EtBins            = theCutDefs.EtBins,
-                              EtaBins           = theCutDefs.EtaBins,
-                              OutputLevel       = OutputLevel,
-                              NormalisationRings= theCutDefs.NormalisationRings,
-                              SectionRings      = theCutDefs.SectionRings,
-                              NRings            = theCutDefs.NRings)
- 
-#********************************************************************************
-# VeryLoose
+EgammaL2RingerLooseEmulator = copyRingerHelper(EgammaL2RingerMediumEmulator, theCutDefs, 'TrigEgammaL2CaloRingerLooseEmulator', OutputLevel)
 theCutDefs  = TrigL2CaloRingerCutDefs( 20, 'lhvloose' ,'e')
-EgammaL2RingerVeryLooseEmulator = EgammaL2RingerMediumEmulator.copy(
-                                  name              = "TrigEgammaL2CaloRingerVeryLooseEmulator",
-                                  Nodes             = theCutDefs.Nodes,
-                                  Weights           = theCutDefs.Weights,
-                                  Bias              = theCutDefs.Bias,
-                                  Thresholds        = theCutDefs.Thresholds,
-                                  EtBins            = theCutDefs.EtBins,
-                                  EtaBins           = theCutDefs.EtaBins,
-                                  OutputLevel       = OutputLevel,
-                                  NormalisationRings= theCutDefs.NormalisationRings,
-                                  SectionRings      = theCutDefs.SectionRings,
-                                  NRings            = theCutDefs.NRings)
- 
-#********************************************************************************
-
-
-
-
+EgammaL2RingerVeryLooseEmulator = copyRingerHelper(EgammaL2RingerMediumEmulator, theCutDefs, 'TrigEgammaL2CaloRingerVeryLooseEmulator', OutputLevel)
 
 
 

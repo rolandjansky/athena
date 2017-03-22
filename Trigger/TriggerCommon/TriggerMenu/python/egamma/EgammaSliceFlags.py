@@ -74,7 +74,7 @@ class pidVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/'
+    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20170217/'
 
 _flags.append(pidVersion)
 
@@ -116,17 +116,17 @@ del _flags
 # make an alias
 EgammaSliceFlags = TriggerFlags.EgammaSlice
 
-run2Flag = TriggerFlags.run2Config
-if run2Flag=='2016':
-    log.info('EgammaSliceFlags set for %s',run2Flag)
-    EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/'
-    EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
-    EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
-elif run2Flag=='2017':
-    log.info('EgammaSliceFlags set for %s',run2Flag)
-    EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170214/'
-    EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
-    EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
-else:
-    log.info('EgammaSliceFlags not set use defaults',run2Flag)
+def run2ConfigAction(run2Flag):
+    if run2Flag=='2016':
+        log.info('EgammaSliceFlags set for %s',run2Flag)
+        EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/'
+        EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
+        EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
+    elif run2Flag=='2017':
+        log.info('EgammaSliceFlags set for %s',run2Flag)
+        EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217/'
+        EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
+        EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
+    else:
+        log.info('EgammaSliceFlags not set use defaults',run2Flag)
 

@@ -57,9 +57,10 @@ public:
 
 
 	// vars to store b-tagging weights for different taggers
-	double m_bTagWeightMV1;
+	//double m_bTagWeightMV1;
 	double m_bTagWeightMV2c20;
 	double m_bTagWeightMV2c10;
+	double m_bTagWeightMV2c00;
 	double m_JetFitterCombNN_pb;
 	double m_JetFitterCombNN_pc;
 	double m_JetFitterCombNN_pu;
@@ -113,9 +114,10 @@ IParticleHandle_Jet::IParticleHandle_Jet(IParticleCollHandleBase* ch, const xAOD
 	d->m_bTaggingCollSwitch = new SoSwitch();
 
 	// get b-tagging weights for different taggers
-	d->m_bTagWeightMV1 = getBTaggingWeight("MV1");
+	//d->m_bTagWeightMV1 = getBTaggingWeight("MV1");
 	d->m_bTagWeightMV2c20 = getBTaggingWeight("MV2c20");
 	d->m_bTagWeightMV2c10 = getBTaggingWeight("MV2c10");
+	d->m_bTagWeightMV2c00 = getBTaggingWeight("MV2c00");
 	d->m_JetFitterCombNN_pb = getBTaggingWeight("JetFitterCombNN_pb");
 	d->m_JetFitterCombNN_pc = getBTaggingWeight("JetFitterCombNN_pc");
 	d->m_JetFitterCombNN_pu = getBTaggingWeight("JetFitterCombNN_pu");
@@ -195,7 +197,7 @@ SoNode* IParticleHandle_Jet::nodes(){
 	}
 
 	const IParticleCollHandle_Jet* collHandleJet = dynamic_cast<const IParticleCollHandle_Jet*>(collHandle());
-
+  if (not collHandleJet) return d->sep; //would nullptr be better?
 	SbVec3f origin(0.,0.,0.);
 	/* TODO: ask if origin info is present in xAOD, like in the old Jet class
 	if ( d->m_jet->origin() ) {
@@ -477,7 +479,8 @@ QStringList IParticleHandle_Jet::clicked() const
 
 	l += "   - 'MV2c20' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c20 );
 	l += "   - 'MV2c10' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c10 );
-	l += "   - 'MV1' b-tagging weight: " + QString::number( d->m_bTagWeightMV1 );
+	l += "   - 'MV2c00' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c00 );
+	//l += "   - 'MV1' b-tagging weight: " + QString::number( d->m_bTagWeightMV1 );
 
 
 	l << "------";
@@ -500,7 +503,8 @@ QString IParticleHandle_Jet::shortInfo() const
 	l += ", phi: " + QString::number(d->phi());
 	l += ", MV2c20: " + QString::number( d->m_bTagWeightMV2c20 );
 	l += ", MV2c10: " + QString::number( d->m_bTagWeightMV2c10 );
-	l += ", MV1: " + QString::number( d->m_bTagWeightMV1 );
+	l += ", MV2c00: " + QString::number( d->m_bTagWeightMV2c00 );
+	//l += ", MV1: " + QString::number( d->m_bTagWeightMV1 );
 
 	return l;
 }
@@ -710,26 +714,38 @@ void IParticleHandle_Jet::updateBTagging(const std::string& bTaggingTagger, cons
 double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 {
 	const xAOD::BTagging * myBTag = d->m_jet->btagging();
+    //std::cout << "myBTag: " << myBTag << std::endl;
 
 	double weight = 0.0;
 
-	// TODO: add the other taggers
-	if (tagger == "MV1")
-		weight = myBTag->MV1_discriminant();
-	else if (tagger == "JetFitterCombNN_pb")
-		weight = myBTag->JetFitterCombNN_pb();
-	else if (tagger == "JetFitterCombNN_pc")
-		weight = myBTag->JetFitterCombNN_pc();
-	else if (tagger == "JetFitterCombNN_pu")
-		weight = myBTag->JetFitterCombNN_pu();
-	else if ("MV2c20")
-		const bool hasMv2c20 = myBTag->MVx_discriminant("MV2c20", weight);
-	else
-		VP1Msg::message("Tagger '" + QString::fromStdString(tagger) + "' not found! Returning weight=0.0 ...");
+    if (myBTag) {
+	  // TODO: add the other taggers
 
-	return weight;
-
-
+	  if (tagger == "MV1")
+	  	  weight = myBTag->MV1_discriminant();
+	  /* these methods have been removed in xAODBTagging-00-00-35
+      else if (tagger == "JetFitterCombNN_pb")
+		  weight = myBTag->JetFitterCombNN_pb();
+	  else if (tagger == "JetFitterCombNN_pc")
+		  weight = myBTag->JetFitterCombNN_pc();
+	  else if (tagger == "JetFitterCombNN_pu")
+		  weight = myBTag->JetFitterCombNN_pu();
+      */
+	  else if (tagger=="MV2c20")
+		  /*const bool hasMv2c20 =*/ myBTag->MVx_discriminant("MV2c20", weight);
+          //weight = myBTag->auxdata<double>("MV2c20_discriminant");
+	  else if ("MV2c10")
+	  	  /*const bool hasMv2c10 =*/ myBTag->MVx_discriminant("MV2c10", weight);
+	  else if ("MV2c00")
+	  	  /*const bool hasMv2c00 =*/ myBTag->MVx_discriminant("MV2c00", weight);
+	  else
+		  VP1Msg::message("Tagger '" + QString::fromStdString(tagger) + "' not found! Returning weight=0.0 ...");
+    } 
+    else {
+        VP1Msg::messageWarning("WARNING! -- The pointer to the BTagging object is NULL!!!! Returning weight=0.0");
+    }
+	
+    return weight;
 
 }
 
