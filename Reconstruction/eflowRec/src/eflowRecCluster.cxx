@@ -28,11 +28,16 @@ eflowRecCluster::eflowRecCluster(const eflowRecCluster& anEFlowRecCluster) {
   m_matchCluster = new eflowMatchCluster(this);
 }
 
-void eflowRecCluster::operator=(const eflowRecCluster& anEFlowRecCluster) {
-  m_cluster = anEFlowRecCluster.m_cluster;
-  m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
-  m_isTouchable = anEFlowRecCluster.m_isTouchable;
-  m_matchCluster = new eflowMatchCluster(this);
+eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& anEFlowRecCluster) {
+  if (this == &anEFlowRecCluster) return *this;
+  //if not assigning to self, then we copy the data to the new object
+  else{
+    m_cluster = anEFlowRecCluster.m_cluster;
+    m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
+    m_isTouchable = anEFlowRecCluster.m_isTouchable;
+    m_matchCluster = new eflowMatchCluster(this);
+    return *this;
+  }//if not assigning to self, then we have copied the data to the new object
 }
 
 eflowRecCluster::~eflowRecCluster() { delete m_matchCluster; }
