@@ -17,7 +17,8 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "CxxUtils/make_unique.h"
-#include "AthViews/View.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 namespace AthViews {
 
@@ -29,9 +30,8 @@ namespace AthViews {
 ////////////////
 DFlowAlg2::DFlowAlg2( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthViewAlgorithm( name, pSvcLocator ),
+  ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "dflow_int" ),
-  //m_rw_int( "dflow_int" ),
   m_ints( "dflow_ints" )
 {
   //
@@ -40,8 +40,6 @@ DFlowAlg2::DFlowAlg2( const std::string& name,
   //declareProperty( "Property", m_nProperty );
 
   declareProperty( "RIntFlow", m_r_int, "Data flow of int" );
-
-  /*declareProperty( "RWIntFlow", m_rw_int, "Data flow of int" );*/
 
   declareProperty( "IntsFlow", m_ints, "Data flow of integers" );
 }
@@ -57,6 +55,9 @@ StatusCode DFlowAlg2::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
+  CHECK( m_r_int.initialize() );
+  CHECK( m_ints.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -71,41 +72,39 @@ StatusCode DFlowAlg2::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  const EventContext& ctx = getContext();
+#else
+  const EventContext& ctx = *getContext();
+#endif
+
+  SG::ReadHandle< int > inputHandle( m_r_int, ctx );
   ATH_MSG_INFO("================================");
   ATH_MSG_INFO("myint r-handle...");
-  ATH_MSG_INFO("name: [" << m_r_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_r_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_r_int.clid() << "]");
+  ATH_MSG_INFO("name: [" << inputHandle.name() << "]");
+  ATH_MSG_INFO("store [" << inputHandle.store() << "]");
+  ATH_MSG_INFO("clid: [" << inputHandle.clid() << "]");
 
-  ATH_MSG_INFO("ptr: " << m_r_int.cptr());
-  if (m_r_int.isValid()) {
-    ATH_MSG_INFO("val: " << *(m_r_int.cptr()));
-  }
-
-  //UpdateHandles have changed
-  /*ATH_MSG_INFO("myint rw-handle...");
-  ATH_MSG_INFO("name: [" << m_rw_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_rw_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_rw_int.clid() << "]");
-  ATH_MSG_INFO("ptr: " << m_rw_int.ptr());
-  if (m_rw_int.isValid())
+  ATH_MSG_INFO("ptr: " << inputHandle.cptr());
+  if ( inputHandle.isValid() )
   {
-    ATH_MSG_INFO("val: " << *(m_rw_int.cptr()));
-    *m_rw_int += 100;
-
-    ATH_MSG_INFO("val: " << *m_rw_int);
+    ATH_MSG_INFO("val: " << *( inputHandle.cptr() ) );
   }
-  ATH_MSG_INFO("cptr: " << m_rw_int.cptr());*/
 
+  SG::WriteHandle< std::vector< int > > outputHandle( m_ints, ctx );
   ATH_MSG_INFO("ints w-handle...");
-  m_ints.record( CxxUtils::make_unique< std::vector< int > >() );
-  m_ints->push_back( 10 );
-  //would be nice if it worked...  if (0 != m_r_int) m_ints->push_back(*m_r_int);
-  if ( m_r_int.isValid() ) m_ints->push_back( *m_r_int );
-  ATH_MSG_INFO( "size:" << m_ints->size() );
-  for ( int i = 0, imax = m_ints->size(); i != imax; ++i )
+  outputHandle.record( CxxUtils::make_unique< std::vector< int > >() );
+  outputHandle->push_back( 10 );
+
+  if ( inputHandle.isValid() )
   {
-    ATH_MSG_INFO( "val[" << i << "]= " << m_ints->at( i ) );
+    outputHandle->push_back( *inputHandle );
+  }
+
+  ATH_MSG_INFO( "size:" << outputHandle->size() );
+  for ( int i = 0, imax = outputHandle->size(); i != imax; ++i )
+  {
+    ATH_MSG_INFO( "val[" << i << "]= " << outputHandle->at( i ) );
   }
 
   return StatusCode::SUCCESS;
