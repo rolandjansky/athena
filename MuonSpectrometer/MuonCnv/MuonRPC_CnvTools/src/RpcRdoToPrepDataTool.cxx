@@ -138,7 +138,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
   
   
   // Get RpcRawDataProviderTool
-  if (useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
+  if (m_useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
     return StatusCode::FAILURE;
   } else
