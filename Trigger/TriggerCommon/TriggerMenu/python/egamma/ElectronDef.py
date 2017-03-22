@@ -124,7 +124,9 @@ class L2EFChain_e(L2EFChainDef):
 
         if TriggerFlags.EgammaSlice.doRinger:
             log.debug('Ringer selection applied for all chains above 15 GeV %s',thr)
-            if float(thr)>15.0:
+            if 'merged' in self.chainPart['IDinfo']:
+                self._ringer_selection=False
+            elif float(thr)>15.0:
                 self._ringer_selection=True
             else:
                 self._ringer_selection=False

@@ -42,6 +42,7 @@ TrigL2MuonSA::MuFastStationFitter::MuFastStationFitter(const std::string& type,
    declareInterface<TrigL2MuonSA::MuFastStationFitter>(this);
 
    declareProperty("BackExtrapolator", m_backExtrapolator, "public tool for back extrapolating the muon tracks to the IV");
+   declareProperty("PtFromAlphaBeta", m_ptFromAlphaBeta);
 
    declareProperty("ENDCAPINN_MDT_CHI2_LIMIT", m_endcapinn_mdt_chi2_limit = 20);
    declareProperty("ENDCAPMID_MDT_CHI2_LIMIT", m_endcapmid_mdt_chi2_limit = 20);

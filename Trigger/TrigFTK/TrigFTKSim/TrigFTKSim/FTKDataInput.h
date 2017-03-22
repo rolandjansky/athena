@@ -15,6 +15,7 @@
 #include "TrigFTKSim/FTKRoad.h"
 #include "TrigFTKSim/FTKRoadInput.h"
 #include "TrigFTKSim/FTKTrack.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include <vector>
 #include <iostream>
@@ -46,10 +47,14 @@ protected:
   unsigned int m_extendedLevel1ID;
   unsigned int m_level1TriggerType;
   std::vector<unsigned int> m_level1TriggerInfo;
+  StoreGateSvc*  m_storeGate;
+  StoreGateSvc*  m_detStore;
+  StoreGateSvc*  m_evtStore;
   
   std::vector<FTKRawHit> m_original_hits; // global list of raw hits
   std::vector<FTKRawHit> **m_original_reghits; // local list of hits, RMAP applied
   std::vector<FTKTruthTrack> m_truth_track; // list of raw hits
+  std::vector<FTKHit*> **m_reghits_read; // local list of hits for reading in FTKHits directly
 
   // additional variables that may be useful
   int m_nplanes;
@@ -74,6 +79,8 @@ protected:
   bool m_init; // tell if the read is initialized
   bool m_save_unused; // save the hits in the unsed planes
   bool m_read_clusters; // read cluster info and don't bother performing clustering
+
+  bool m_read_FTKhits_directly; // option to skip over FTKRawHits and read in FTKHits directly 
 
   // SCTtrk input (only used when using SCT-first architecture)
   // These tracks are stored in FTKTrackStream in root output of track_fitter
@@ -170,6 +177,9 @@ public:
 
   void setReadClusters(bool flag=true) { m_read_clusters = flag; }
   bool getReadClusters() const { return m_read_clusters; }
+
+  void setReadFTKHits(bool flag) { m_read_FTKhits_directly = flag; }
+  bool getReadFTKHits() { return m_read_FTKhits_directly; }
 
   void setFirstEvent(int firstEventFTK = -1) { m_firstEventFTK = firstEventFTK;}
   int getFirstEvent() const {return m_firstEventFTK;}

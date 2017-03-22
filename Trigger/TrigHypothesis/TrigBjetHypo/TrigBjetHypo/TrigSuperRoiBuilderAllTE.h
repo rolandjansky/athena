@@ -6,7 +6,7 @@
 //  
 //   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: TrigSuperRoiBuilderAllTE.h 645285 2015-02-09 18:51:17Z kleney $
+//   $Id: TrigSuperRoiBuilderAllTE.h 797477 2017-02-16 09:56:10Z kleney $
 
 
 #ifndef  TRIGSUPERROIBUILDERALLTE_H
@@ -37,6 +37,11 @@ class TrigSuperRoiBuilderAllTE : public HLT::AllTEAlgo {
 
   double m_minJetEt; 
   double m_maxJetEta;
+
+  int m_nJetsMax;        
+  bool m_dynamicMinJetEt;  
+  int m_dynamicNJetsMax;  
+  double m_dynamicEtFactor;  
 
 };
  

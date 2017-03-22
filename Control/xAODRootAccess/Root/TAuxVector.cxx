@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxVector.cxx 611582 2014-08-13 12:37:37Z krasznaa $
+// $Id: TAuxVector.cxx 797214 2017-02-14 19:51:39Z ssnyder $
 
 // ROOT include(s):
 #include <TClass.h>
@@ -124,11 +124,12 @@ namespace xAOD {
       return m_proxy->Size();
    }
 
-   void TAuxVector::resize( size_t sz ) {
+   bool TAuxVector::resize( size_t sz ) {
 
       TVirtualCollectionProxy::TPushPop bind( m_proxy, m_vec );
+      const void* orig = toPtr();
       m_proxy->Allocate( sz, false );
-      return;
+      return toPtr() == orig;
    }
 
    void TAuxVector::reserve( size_t ) {
@@ -186,6 +187,27 @@ namespace xAOD {
 
       return;
    }
+
+   bool TAuxVector::insertMove (size_t pos, void* beg, void* end)
+   {
+     TVirtualCollectionProxy::TPushPop bind (m_proxy, m_vec);
+     size_t eltsz = m_proxy->GetIncrement();
+     const void* orig = this->toPtr();
+
+     char* begp = reinterpret_cast<char*> (beg);
+     char* endp = reinterpret_cast<char*> (end);
+     size_t nelt = (endp-begp) / eltsz;
+
+     shift (pos, nelt);
+     // FIXME: want move, not copy.
+     // But i don't seem to be able to call move operations through cling,
+     // so just use copy for now.
+     copyRange (beg,
+                reinterpret_cast<char*>(this->toPtr()) + pos*eltsz,
+                nelt);
+     return this->toPtr() == orig;
+   }
+
 
    void TAuxVector::copyRange( const void* src, void* dst, size_t n ) {
 

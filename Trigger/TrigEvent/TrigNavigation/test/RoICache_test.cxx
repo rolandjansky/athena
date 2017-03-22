@@ -42,7 +42,7 @@ public:
       if ( !startCaching(output)  )
 	REPORT_AND_STOP( "start caching failed "  << output->getId() );
      
-      // imagine hre hard work to work out A and B features
+      // imagine here hard work to work out A and B features
       
       if ( m_get(output).isFailure() ) 
 	REPORT_AND_STOP( "get failed" );
@@ -81,7 +81,7 @@ int main() {
   BEGIN_TEST("RoIcaching test");
 
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {
+  if (!Athena_test::initGaudi("test2.txt",  pSvcLoc)) {
     REPORT_AND_STOP("Can not intit Gaudi");
   }
   assert(pSvcLoc);
@@ -125,7 +125,7 @@ int main() {
   TriggerElement* initial =  hns->getInitialNode();
 
   // we make an RoI with 3 branches 2 identical and one slightly modified (with different feature)
-  // let's make obejcts first
+  // let's make objects first
   
   TriggerElement* roi0 = hns->addRoINode(initial);
   TriggerElement* roi1 = hns->addRoINode(initial);
@@ -326,7 +326,7 @@ int main() {
   // In terms of RoIs used in them they are identical (i.e. both use roi0, roi1 pair)
   // Execution lines leading to eleC and eleD are identical. I.e. all algorithms cached.
   // While execution line leading to eleA is different. We should observe that 
-  // there shoudl be caching on ovCA1 and ovDA1 while ovAA1 shoudl always be executed.
+  // there should be caching on ovCA1 and ovDA1 while ovAA1 should always be executed.
   //
   std::vector<TriggerElement*> v;
   v.push_back(eleC);

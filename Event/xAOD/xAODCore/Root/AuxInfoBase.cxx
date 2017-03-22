@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxInfoBase.cxx 781905 2016-11-02 14:57:03Z ssnyder $
+// $Id: AuxInfoBase.cxx 793737 2017-01-24 20:11:10Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -401,7 +401,7 @@ namespace xAOD {
       return m_tsAuxids->m_set;
    }
 
-   void AuxInfoBase::resize( size_t size ) {
+   bool AuxInfoBase::resize( size_t size ) {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex );
@@ -418,18 +418,21 @@ namespace xAOD {
       }
 
       // Do the operation on the static variables:
-      std::vector< SG::IAuxTypeVector* >::iterator itr = m_vecs.begin();
-      std::vector< SG::IAuxTypeVector* >::iterator end = m_vecs.end();
-      for( ; itr != end; ++itr ) {
-         if( *itr ) ( *itr )->resize( size );
+      bool nomoves = true;
+      for (SG::IAuxTypeVector* v : m_vecs) {
+        if(v) {
+          if (!v->resize( size ))
+            nomoves = false;
+        }
       }
 
       // Do the operation on the dynamic variables:
       if( m_store ) {
-         m_store->resize( size );
+        if (!m_store->resize( size ))
+          nomoves = false;
       }
 
-      return;
+      return nomoves;
    }
 
    void AuxInfoBase::reserve( size_t size ) {
@@ -477,6 +480,24 @@ namespace xAOD {
       throw std::runtime_error( "Calling shift on a non-vector" );
 
       return;
+   }
+
+
+   bool AuxInfoBase::insertMove( size_t /*pos*/, IAuxStore& /*other*/,
+                                 const SG::auxid_set_t& /*ignore*/ ) {
+
+      // Guard against multi-threaded execution:
+      guard_t guard( m_mutex );
+
+      // Check if the container is locked:
+      if( m_locked ) {
+         throw SG::ExcStoreLocked( "insertMove" );
+      }
+
+      // We are just not allowed to do this...
+      throw std::runtime_error( "Calling insertMove on a non-vector" );
+
+      return false;
    }
 
 

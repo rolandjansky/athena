@@ -6,6 +6,7 @@ from TrigDetCalib.TrigDetCalibConf import TrigROBSelector
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
 from TrigDetCalib.TrigDetCalibConf import TrigEtaHypo
 from TrigDetCalib.TrigDetCalibConf import TrigCheckForTracks
+from TrigDetCalib.TrigDetCalibConf import TrigCheckForMuons
 from TrigDetCalib.TrigDetCalibMonitoring import setCalibMonTools
 
 from AthenaCommon.Logging import logging
@@ -536,3 +537,55 @@ class ScoutTestAlg(ScoutingStreamWriter):
 
     #For Example:
     self.CollectionTypeName = ["TrigRoiDescriptor#secondaryRoI_EF", "TrigMuonEFContainer#MuonEF","TrigOperationalInfo#DataScouting"]
+
+
+
+
+
+class TrigCheckForMuons_pebM(TrigCheckForMuons):
+  __slots__ = []
+  def __init__(self, name = 'TrigCheckForMuons_pebM', 
+               etaWidth = 0.3, phiWidth = 0.3):
+    super( TrigCheckForMuons_pebM , self ).__init__( name )
+
+    self.AddCTPResult = True
+    self.AddHLTResult  = True
+    self.etaWidth = etaWidth
+    self.phiWidth = phiWidth
+    self.MaxRoIsPerEvent = -1
+    self.muonLabels = ["MuonEFInfo",""]
+    self.PEBInfoLabel = "pebM"
+    
+    from TrigDetCalib.TrigDetCalibMonitoring import TrigROBListWriterValidationMonitoring
+    from TrigDetCalib.TrigDetCalibMonitoring import TrigROBListWriterOnlineMonitoring
+    from TrigDetCalib.TrigDetCalibMonitoring import TrigROBListWriterCosmicMonitoring
+    validation = TrigROBListWriterValidationMonitoring(name+"ValidationMonitoring")
+    online = TrigROBListWriterOnlineMonitoring(name+"OnlineMonitoring")
+    cosmic = TrigROBListWriterCosmicMonitoring(name+"CosmicMonitoring")
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(name + '_Time')
+    self.AthenaMonTools = [ validation, online, time, cosmic ]
+
+class TrigCheckForMuons_peb075(TrigCheckForMuons):
+  __slots__ = []
+  def __init__(self, name = 'TrigCheckForMuons_peb075', 
+               etaWidth = 0.75, phiWidth = 0.75):
+    super( TrigCheckForMuons_peb075 , self ).__init__( name )
+
+    self.AddCTPResult = True
+    self.AddHLTResult  = True
+    self.etaWidth = etaWidth
+    self.phiWidth = phiWidth
+    self.MaxRoIsPerEvent = -1
+    self.muonLabels = ["MuonEFInfo",""]
+    self.PEBInfoLabel = "peb075"
+    
+    from TrigDetCalib.TrigDetCalibMonitoring import TrigROBListWriterValidationMonitoring
+    from TrigDetCalib.TrigDetCalibMonitoring import TrigROBListWriterOnlineMonitoring
+    from TrigDetCalib.TrigDetCalibMonitoring import TrigROBListWriterCosmicMonitoring
+    validation = TrigROBListWriterValidationMonitoring(name+"ValidationMonitoring")
+    online = TrigROBListWriterOnlineMonitoring(name+"OnlineMonitoring")
+    cosmic = TrigROBListWriterCosmicMonitoring(name+"CosmicMonitoring")
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(name + '_Time')
+    self.AthenaMonTools = [ validation, online, time, cosmic ]

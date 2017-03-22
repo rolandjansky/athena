@@ -226,10 +226,10 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 	
 	// Find the minimum dR between this jet and any muon
 	
-	float m_deltaEta = muonEta - jetEta;
-	float m_deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
+	float deltaEta = muonEta - jetEta;
+	float deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
 	
-	double dR = sqrt(m_deltaEta*m_deltaEta + m_deltaPhi*m_deltaPhi);
+	double dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 	
 	if (msgLvl() <= MSG::DEBUG) 
 	  msg() << MSG::DEBUG << "deltaR = "<< dR <<  endmsg; 

@@ -118,8 +118,8 @@ StatusCode TileRawChannelOF1Corrector::process(const TileRawChannelContainer* ra
 
   if ((rawChannelType == TileFragHash::OptFilterDsp 
        || rawChannelType == TileFragHash::OptFilterDspCompressed) // DSP container
-      && ((bsFlags >> 26U) ^ 1U)) { // OF1 method
-
+      && (bsFlags & (1U << 26U)) == 0) { // OF1 method
+    
     TileRawChannelUnit::UNIT rawChannelUnit = rawChannelContainer->get_unit();
     ATH_MSG_VERBOSE( "Units in container is " << rawChannelUnit );
 

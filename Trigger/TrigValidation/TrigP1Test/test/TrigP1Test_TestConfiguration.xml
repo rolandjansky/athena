@@ -609,6 +609,17 @@
                 <queue>long</queue>
             </jobTransform>
             
+            <jobTransform userJobId="athenaHLT_CostMonitoring_PhysicsV7">
+                <doc>
+                    athenaHLT on recent EnhancedBias with cost monitoring enabled
+                </doc>
+                <jobTransformJobName>athenaHLT_CostMonitoring_PhysicsV7</jobTransformJobName>
+                <jobTransformCmd>
+                    athenaHLT.py -f '/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW._lb0628._SFO-1._0001.1' -c "setMenu='Physics_pp_v7_tight_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True" TriggerRelease/runHLT_standalone.py
+                </jobTransformCmd>
+                <group>AtlasHLTChainTest</group>
+                <queue>long</queue>
+            </jobTransform>
             
         </jobList>
         
@@ -626,6 +637,12 @@
                 <keepFilePattern info="ROOT files">*.root</keepFilePattern>
                 <keepFilePattern info="Python pickles">*.pickle</keepFilePattern>
                 <keepFilePattern info="New reference files">*.new</keepFilePattern>
+                <keepFilePattern info="TrigCostMon files"> costMonitoring*/* </keepFilePattern>
+                <keepFilePattern maxsize="100">*/TrigCostRoot_Results.root</keepFilePattern>
+                <keepFilePattern maxsize="100">trig_cost.root</keepFilePattern>
+                <keepFilePattern maxsize="100">costMonitoring*/*</keepFilePattern>
+                <keepFilePattern maxsize="100">*log</keepFilePattern>
+                <keepFilePattern maxsize="100">*log_1</keepFilePattern> 
                 
                 <test position="1">
                     <modulename>RttLibraryTools</modulename>
@@ -689,6 +706,16 @@
                         <argvalue>mv %JOBLOG tmp.delete; head -n150000 tmp.delete  >%JOBLOG; rm tmp.delete</argvalue>
                     </arg>
                 </test>
+
+                <test position="8">
+                    <modulename>CheckForTrigCostD3PD_TriggerTest</modulename>
+                    <testname>CheckForTrigCostD3PD_TriggerTest</testname>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>if [ -f trig_cost.root ] ; then RunTrigCostD3PD.exe -f trig_cost.root --outputTagFromAthena --costMode --useEBWeight --linkOutputDir ; else echo file trig_cost.root does not exist thus RunTrigCostD3PD.exe will not be run ; fi</argvalue>
+                    </arg>
+                    <noalarm />
+                </test>
                 
                 <testToRemove>
                     <jobGroupName>RTT:Top</jobGroupName>
@@ -696,6 +723,7 @@
                 </testToRemove>
                 
             </jobGroup>
+
         </jobGroups>
     </rtt>
 </unifiedTestConfiguration>

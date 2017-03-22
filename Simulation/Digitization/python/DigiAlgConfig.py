@@ -288,6 +288,22 @@ def getStandardInTimeOnlyTruthPileUpToolsList():
     ## Forward Detector Digitization
     PileUpToolsList += getStandardForwardPileUpTools()
     ## Inner Detector Digitization
+    PileUpToolsList += getStandardTruthInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
+def getStandardInTimeOnlyGeantinoTruthPileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardInTimeOnlyTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization
     PileUpToolsList += getGeantinoTruthInDetPileUpTools()
     ## Calo Digitization
     PileUpToolsList += getStandardCaloPileUpTools()

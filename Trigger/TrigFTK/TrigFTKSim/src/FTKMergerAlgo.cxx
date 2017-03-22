@@ -125,6 +125,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_truthFileNames(),
   m_truthTrackTreeName(""),
   m_evtinfoTreeName(""),
+  m_offlineTreeName(""),
   m_saveTruthTree(1),
   m_out_convTrackPC(0)
 {
@@ -176,6 +177,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("TruthFileNames",m_truthFileNames);
   declareProperty("TruthTrackTreeName",m_truthTrackTreeName);
   declareProperty("EvtInfoTreeName",m_evtinfoTreeName);
+  declareProperty("OfflineTreeName",m_offlineTreeName);
   declareProperty("SaveTruthTree",m_saveTruthTree);
   declareProperty("MergeRoads",m_MergeRoads,"if True the roads will be merged");
   declareProperty("MergeRoadsDetailed",m_MergeRoadsDetailed,"if True roads will be merged including saving detailed information. If set to true, will override MergeRoads");
@@ -1769,13 +1771,18 @@ StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
    MsgStream log(msgSvc(), name());
    log << MSG::DEBUG << "about to copy truth tree " << endmsg;
 
-   TChain *chain_truthtrack(0), *chain_evt(0);
+   TChain *chain_truthtrack(0), *chain_evt(0), *chain_offline(0);
    if (m_truthTrackTreeName != "") {
       chain_truthtrack = new TChain(m_truthTrackTreeName.c_str());
    }
    if (m_evtinfoTreeName != "") {
       chain_evt = new TChain(m_evtinfoTreeName.c_str());
    }
+
+   if (m_offlineTreeName != "") {
+      chain_offline = new TChain(m_offlineTreeName.c_str());
+   }
+
 
    for (unsigned int ifile=0;ifile!=m_truthFileNames.size(); ++ifile) { // file loop
       // get the current path
@@ -1786,6 +1793,11 @@ StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
       if (m_evtinfoTreeName != "") {
          chain_evt->Add(curfilepath.c_str());
       }
+      if (m_offlineTreeName != "") {
+         chain_offline->Add(curfilepath.c_str());
+      }
+
+
    }
 
    if (m_truthTrackTreeName != "") {
@@ -1806,6 +1818,11 @@ StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
       m_outputFile->cd();
       chain_evt->CloneTree()->Write();
       delete chain_evt;
+   }
+   if (m_offlineTreeName != "") {
+      m_outputFile->cd();
+      chain_offline->CloneTree()->Write();
+      delete chain_offline;
    }
    return StatusCode::SUCCESS;
 }

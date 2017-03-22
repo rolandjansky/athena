@@ -109,16 +109,16 @@ private:
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
-    const std::vector<uint8_t>& lcpVal,
-    const std::vector<uint8_t>& lcpBcidVec,
+    std::vector<uint8_t>&& lcpVal,
+    std::vector<uint8_t>&& lcpBcidVec,
 
-    const std::vector<uint8_t>& ljeVal,
-    const std::vector<uint8_t>& ljeSat80Vec,
+    std::vector<uint8_t>&& ljeVal,
+    std::vector<uint8_t>&& ljeSat80Vec,
 
-    const std::vector<uint16_t>& adcVal,
-    const std::vector<uint8_t>& adcExt,
-    const std::vector<int16_t>& pedCor,
-    const std::vector<uint8_t>& pedEn);
+    std::vector<uint16_t>&& adcVal,
+    std::vector<uint8_t>&& adcExt,
+    std::vector<int16_t>&& pedCor,
+    std::vector<uint8_t>&& pedEn);
 
   StatusCode addTriggerTowerV1_(
     uint8_t crate,
@@ -132,10 +132,10 @@ private:
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
-    const std::vector<uint8_t>& luts,
-    const std::vector<uint8_t>& lcpBcidVec,
-    const std::vector<uint16_t>& fadc,
-    const std::vector<uint8_t>& bcidExt
+    std::vector<uint8_t>&& luts,
+    std::vector<uint8_t>&& lcpBcidVec,
+    std::vector<uint16_t>&& fadc,
+    std::vector<uint8_t>&& bcidExt
   );
 
 private:
@@ -178,6 +178,7 @@ private:
 // ==========================================================================
 private:
   xAOD::TriggerTowerContainer* m_triggerTowers;
+  size_t m_maxSizeSeen;
 };
 
 // ===========================================================================

@@ -208,6 +208,7 @@ int RoadFinder::nextEvent()
       m_roadoutput->beginFile(ofname.Data());
     }
   }
+  
   m_datainput->processEvent();
 
   m_roadoutput->eventBegin();

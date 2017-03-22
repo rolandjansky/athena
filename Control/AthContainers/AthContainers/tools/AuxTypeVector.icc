@@ -15,27 +15,108 @@ namespace SG {
 
 
 /**
- * @brief Constructor.  Makes a new vector.
- * @param size Initial size of the new vector.
- * @param capacity Initial capacity of the new vector.
+ * @brief Constructor.
+ * @param vecPtr Pointer to the object (of type @c CONT).
+ * @param ownFlag If true, take ownership of the object.
  */
 template <class T, class CONT>
 inline
-AuxTypeVector<T, CONT>::AuxTypeVector (size_t size, size_t capacity)
+AuxTypeVectorHolder<T, CONT>::AuxTypeVectorHolder (vector_type* vecPtr, bool ownFlag)
+  : m_vecPtr (vecPtr),
+    m_ownFlag (ownFlag)
 {
-  m_vec.reserve (capacity * SCALE);
-  m_vec.resize (size * SCALE);
 }
 
+
+/**
+ * @brief Destructor.
+ * If @c ownFlag was true, then delete the vector object.
+ */
+template <class T, class CONT>
+inline
+AuxTypeVectorHolder<T, CONT>::~AuxTypeVectorHolder()
+{
+  if (m_ownFlag)
+    delete m_vecPtr;
+}
+
+
+/**
+ * @brief Copy constructor.
+ * @param other Object to copy.
+ */
+template <class T, class CONT>
+AuxTypeVectorHolder<T, CONT>::AuxTypeVectorHolder
+  (const AuxTypeVectorHolder& other)
+{
+  // If we own the payload, then make a copy, else just use the same pointer.
+  m_ownFlag = other.m_ownFlag;
+  if (other.m_ownFlag)
+    m_vecPtr = new vector_type (*other.m_vecPtr);
+  else
+    m_vecPtr = other.m_vecPtr;
+}
+
+
+/**
+ * @brief Move constructor.
+ * @param other Object to move.
+ */
+template <class T, class CONT>
+AuxTypeVectorHolder<T, CONT>::AuxTypeVectorHolder (AuxTypeVectorHolder&& other)
+{
+  m_ownFlag = other.m_ownFlag;
+  m_vecPtr = other.m_vecPtr;
+  other.m_ownFlag = false;
+}
+
+
+/**
+ * @brief Assignment.
+ */
+template <class T, class CONT>
+AuxTypeVectorHolder<T, CONT>&
+AuxTypeVectorHolder<T, CONT>::operator= (const AuxTypeVectorHolder& other)
+{
+  if (this != &other) {
+    if (m_ownFlag)
+      delete m_vecPtr;
+    m_ownFlag = other.m_ownFlag;
+    if (other.m_ownFlag)
+      m_vecPtr = new vector_type (*other.m_vecPtr);
+    else
+      m_vecPtr = other.m_vecPtr;
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Move assignment.
+ */
+template <class T, class CONT>
+AuxTypeVectorHolder<T, CONT>&
+AuxTypeVectorHolder<T, CONT>::operator= (AuxTypeVectorHolder&& other)
+{
+  if (this != &other) {
+    if (m_ownFlag)
+      delete m_vecPtr;
+    m_ownFlag = other.m_ownFlag;
+    m_vecPtr = other.m_vecPtr;
+    other.m_ownFlag = false;
+  }
+  return *this;
+}
+    
 
 /**
  * @brief Return a reference to the payload vector.
  */
 template <class T, class CONT>
 inline
-typename AuxTypeVector<T, CONT>::vector_type& AuxTypeVector<T, CONT>::vec()
+typename AuxTypeVectorHolder<T, CONT>::vector_type& AuxTypeVectorHolder<T, CONT>::vec()
 {
-  return m_vec;
+  return *m_vecPtr;
 }
 
 
@@ -44,9 +125,13 @@ typename AuxTypeVector<T, CONT>::vector_type& AuxTypeVector<T, CONT>::vec()
  */
 template <class T, class CONT>
 inline
-IAuxTypeVector* AuxTypeVector<T, CONT>::clone() const
+IAuxTypeVector* AuxTypeVectorHolder<T, CONT>::clone() const
 {
-  return new AuxTypeVector<T, CONT> (*this);
+  if (m_ownFlag) {
+    vector_type* vecPtr = new vector_type (*m_vecPtr);
+    return new AuxTypeVectorHolder<T, CONT> (vecPtr, true);
+  }
+  return new AuxTypeVectorHolder<T, CONT> (m_vecPtr, false);
 }
 
 
@@ -55,11 +140,11 @@ IAuxTypeVector* AuxTypeVector<T, CONT>::clone() const
  */
 template <class T, class CONT>
 inline
-void* AuxTypeVector<T, CONT>::toPtr ()
+void* AuxTypeVectorHolder<T, CONT>::toPtr ()
 {
-  if (m_vec.empty())
-    return 0;
-  return &*m_vec.begin();
+  if (m_vecPtr->empty())
+    return nullptr;
+  return m_vecPtr->data();
 }
 
 
@@ -68,9 +153,9 @@ void* AuxTypeVector<T, CONT>::toPtr ()
  */
 template <class T, class CONT>
 inline
-void* AuxTypeVector<T, CONT>::toVector ()
+void* AuxTypeVectorHolder<T, CONT>::toVector ()
 {
-  return &m_vec;
+  return m_vecPtr;
 }
 
 
@@ -82,7 +167,7 @@ void* AuxTypeVector<T, CONT>::toVector ()
  */
 template <class T, class CONT>
 inline
-const std::type_info* AuxTypeVector<T, CONT>::objType() const
+const std::type_info* AuxTypeVectorHolder<T, CONT>::objType() const
 {
   return &typeid(vector_type);
 }
@@ -93,21 +178,25 @@ const std::type_info* AuxTypeVector<T, CONT>::objType() const
  */
 template <class T, class CONT>
 inline
-size_t AuxTypeVector<T, CONT>::size () const
+size_t AuxTypeVectorHolder<T, CONT>::size () const
 {
-  return m_vec.size();
+  return m_vecPtr->size() / SCALE;
 }
 
 
 /**
  * @brief Change the size of the vector.
  * @param sz The new vector size.
+ * Returns true if it is known that iterators have not been invalidated;
+ * false otherwise.
  */
 template <class T, class CONT>
 inline
-void AuxTypeVector<T, CONT>::resize (size_t sz)
+bool AuxTypeVectorHolder<T, CONT>::resize (size_t sz)
 {
-  m_vec.resize (sz * SCALE);
+  const void* orig = m_vecPtr->data();
+  m_vecPtr->resize (sz * SCALE);
+  return m_vecPtr->data() == orig;
 }
 
 
@@ -117,9 +206,9 @@ void AuxTypeVector<T, CONT>::resize (size_t sz)
  */
 template <class T, class CONT>
 inline
-void AuxTypeVector<T, CONT>::reserve (size_t sz)
+void AuxTypeVectorHolder<T, CONT>::reserve (size_t sz)
 {
-  m_vec.reserve (sz * SCALE);
+  m_vecPtr->reserve (sz * SCALE);
 }
 
 
@@ -163,12 +252,12 @@ namespace SG {
  */
 template <class T, class CONT>
 inline
-bool AuxTypeVector<T, CONT>::setOption (const AuxDataOption& option)
+bool AuxTypeVectorHolder<T, CONT>::setOption (const AuxDataOption& option)
 {
   // Need to instantiate different functions depending on whether or not
   // the payload implements @c SG::IAuxSetOption.
   return DataModel_detail::setOptionHelper
-    (&m_vec,
+    (m_vecPtr,
      option,
      typename SG_STD_OR_BOOST::is_base_of<SG::IAuxSetOption,vector_type>::type());
 }
@@ -197,25 +286,99 @@ bool AuxTypeVector<T, CONT>::setOption (const AuxDataOption& option)
  * (running destructors as appropriate).
  */
 template <class T, class CONT>
-void AuxTypeVector<T, CONT>::shift (size_t pos, ptrdiff_t offs)
+void AuxTypeVectorHolder<T, CONT>::shift (size_t pos, ptrdiff_t offs)
 {
+  vector_type& vec = *m_vecPtr;
   if (offs < 0) {
     if (-offs > static_cast<ptrdiff_t>(pos)) offs = -pos;
-    std::copy (m_vec.begin() + pos*SCALE,
-               m_vec.end(),
-               m_vec.begin() + (pos+offs)*SCALE);
-    m_vec.resize (m_vec.size() + offs*SCALE);
+    std::copy (vec.begin() + pos*SCALE,
+               vec.end(),
+               vec.begin() + (pos+offs)*SCALE);
+    vec.resize (vec.size() + offs*SCALE);
   }
   else if (offs > 0) {
-    size_t oldsz = m_vec.size();
-    m_vec.resize (m_vec.size() + offs*SCALE);
-    std::copy (m_vec.rbegin() + offs*SCALE,
-               m_vec.rbegin() + (offs+oldsz-pos)*SCALE,
-               m_vec.rbegin());
-    std::fill (m_vec.begin() + pos*SCALE,
-               m_vec.begin() + (pos+offs)*SCALE,
+    size_t oldsz = vec.size();
+    vec.resize (vec.size() + offs*SCALE);
+    std::copy (vec.rbegin() + offs*SCALE,
+               vec.rbegin() + (offs+oldsz-pos)*SCALE,
+               vec.rbegin());
+    std::fill (vec.begin() + pos*SCALE,
+               vec.begin() + (pos+offs)*SCALE,
                typename AuxDataTraits<T>::element_type());
   }
+}
+
+
+/**
+ * @brief Helper for @c insertMove.
+ * @param pos The starting index of the insertion.
+ * @param beg Start of the range of elements to insert.
+ * @param end End of the range of elements to insert.
+ *
+ * This does the actual move for POD types.
+ */
+template <class T, class CONT>
+void AuxTypeVectorHolder<T, CONT>::insertMove1
+  (typename CONT::iterator pos,
+   element_type* beg,
+   element_type* end,
+   std::true_type)
+{
+  m_vecPtr->insert (pos, beg, end);
+}
+
+
+/**
+ * @brief Helper for @c insertMove.
+ * @param pos The starting index of the insertion.
+ * @param beg Start of the range of elements to insert.
+ * @param end End of the range of elements to insert.
+ *
+ * This does the actual move for non-POD types.
+ */
+template <class T, class CONT>
+void AuxTypeVectorHolder<T, CONT>::insertMove1
+  (typename CONT::iterator pos,
+   element_type* beg,
+   element_type* end,
+   std::false_type)
+{
+  // std::vector doesn't provide a way to insert a range via move.
+  // So first make space, then move.
+  typename CONT::iterator pos2= m_vecPtr->insert (pos, end-beg, element_type());
+  std::move (beg, end, pos2);
+}
+
+
+/**
+ * @brief Insert elements into the vector via move semantics.
+ * @param pos The starting index of the insertion.
+ * @param beg Start of the range of elements to insert.
+ * @param end End of the range of elements to insert.
+ *
+ * @c beg and @c end define a range of container elements, with length
+ * @c len defined by the difference of the pointers divided by the
+ * element size.
+ *
+ * The size of the container will be increased by @c len, with the elements
+ * starting at @c pos copied to @c pos+len.
+ *
+ * The contents of the @c beg:end range will then be moved to our vector
+ * starting at @c pos.  This will be done via move semantics if possible;
+ * otherwise, it will be done with a copy.
+ *
+ * Returns true if it is known that the vector's memory did not move,
+ * false otherwise.
+ */
+template <class T, class CONT>
+bool AuxTypeVectorHolder<T, CONT>::insertMove (size_t pos, void* beg, void* end)
+{
+  const void* orig = m_vecPtr->data();
+  insertMove1 (m_vecPtr->begin() + pos*SCALE,
+               reinterpret_cast<element_type*> (beg),
+               reinterpret_cast<element_type*> (end),
+               typename std::is_pod<element_type>::type());
+  return m_vecPtr->data() == orig;
 }
 
 
@@ -292,12 +455,12 @@ namespace SG {
  * Returns null on failure.
  */
 template <class T, class CONT>
-IAuxTypeVector* AuxTypeVector<T, CONT>::toPacked()
+IAuxTypeVector* AuxTypeVectorHolder<T, CONT>::toPacked()
 {
   /// Use the proper instantiation depending on whether or not
   /// this type can be packed.
   return DataModel_detail::makePacked
-    (m_vec, typename DataModel_detail::can_pack<T>::type());
+    (*m_vecPtr, typename DataModel_detail::can_pack<T>::type());
 }
 
 
@@ -312,8 +475,8 @@ IAuxTypeVector* AuxTypeVector<T, CONT>::toPacked()
  */
 template <class T, class CONT>
 inline
-void AuxTypeVector<T, CONT>::copy (void* dst,       size_t dst_index,
-                             const void* src, size_t src_index)
+void AuxTypeVectorHolder<T, CONT>::copy (void* dst,       size_t dst_index,
+                                         const void* src, size_t src_index)
 {
   (reinterpret_cast<vector_value_type*>(dst))[dst_index] = 
     (reinterpret_cast<const vector_value_type*>(src))[src_index];
@@ -331,8 +494,8 @@ void AuxTypeVector<T, CONT>::copy (void* dst,       size_t dst_index,
  */
 template <class T, class CONT>
 inline
-void AuxTypeVector<T, CONT>::swap (void* a, size_t aindex,
-                             void* b, size_t bindex)
+void AuxTypeVectorHolder<T, CONT>::swap (void* a, size_t aindex,
+                                         void* b, size_t bindex)
 {
   std::swap ((reinterpret_cast<vector_value_type*>(a))[aindex],
              (reinterpret_cast<vector_value_type*>(b))[bindex]);
@@ -346,10 +509,90 @@ void AuxTypeVector<T, CONT>::swap (void* a, size_t aindex,
  */
 template <class T, class CONT>
 inline
-void AuxTypeVector<T, CONT>::clear (void* dst, size_t dst_index)
+void AuxTypeVectorHolder<T, CONT>::clear (void* dst, size_t dst_index)
 {
   (reinterpret_cast<vector_value_type*>(dst))[dst_index] = vector_value_type();
 }    
+
+
+//**********************************************************************
+
+
+/**
+ * @brief Constructor.  Makes a new vector.
+ * @param size Initial size of the new vector.
+ * @param capacity Initial capacity of the new vector.
+ */
+template <class T, class CONT>
+AuxTypeVector<T, CONT>::AuxTypeVector (size_t size, size_t capacity)
+  : Base (&m_vec, false)
+{
+  m_vec.reserve (capacity * Base::SCALE);
+  m_vec.resize (size * Base::SCALE);
+}
+
+
+/**
+ * @brief Copy constructor.
+ */
+template <class T, class CONT>
+AuxTypeVector<T, CONT>::AuxTypeVector (const AuxTypeVector& other)
+  : Base (&m_vec, false),
+    m_vec (other.m_vec)
+{
+}
+
+
+/**
+ * @brief Move constructor.
+ */
+template <class T, class CONT>
+AuxTypeVector<T, CONT>::AuxTypeVector (AuxTypeVector&& other)
+  : Base (&m_vec, false),
+    m_vec (std::move (other.m_vec))
+{
+}
+
+
+/**
+ * @brief Assignment.
+ */
+template <class T, class CONT>
+AuxTypeVector<T, CONT>&
+AuxTypeVector<T, CONT>::operator= (const AuxTypeVector& other)
+{
+  if (this != &other) {
+    m_vec = other.m_vec;
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Move assignment.
+ */
+template <class T, class CONT>
+AuxTypeVector<T, CONT>&
+AuxTypeVector<T, CONT>::operator= (AuxTypeVector&& other)
+{
+  if (this != &other) {
+    m_vec = std::move (other.m_vec);
+  }
+  return *this;
+}
+
+
+
+
+/**
+ * @brief Make a copy of this vector.
+ */
+template <class T, class CONT>
+inline
+IAuxTypeVector* AuxTypeVector<T, CONT>::clone() const
+{
+  return new AuxTypeVector<T, CONT> (*this);
+}
 
 
 } // namespace SG

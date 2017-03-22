@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TypeProxy.h 730592 2016-03-16 22:10:31Z tbold $
+// $Id: TypeProxy.h 783032 2016-11-08 16:45:40Z smh $
 #ifndef TRIGNAVIGATION_TYPEPROXY_H
 #define TRIGNAVIGATION_TYPEPROXY_H
 
 // Boost include(s):
-#include <boost/type_traits/is_base_of.hpp>
+#include <type_traits>
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ClassID.h"
@@ -36,8 +36,8 @@ namespace HLTNavDetails {
     * @author Tomasz Bold <Tomasz.Bold@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 730592 $
-    * $Date: 2016-03-16 23:10:31 +0100 (Wed, 16 Mar 2016) $
+    * $Revision: 783032 $
+    * $Date: 2016-11-08 17:45:40 +0100 (Tue, 08 Nov 2016) $
     */
    class ITypeProxy {
 
@@ -57,7 +57,7 @@ namespace HLTNavDetails {
       virtual StatusCode clear( StoreGateSvc* sg ) = 0;
 
       /// @name Cast operations for xAOD decorations
-      /// Actual implementation rely in boost::is_base_of to avoid dynamic_cast
+      /// Actual implementation rely in std::is_base_of to avoid dynamic_cast
       /// @{
 
       /// Return a pointer to the SG::AuxVectorBase base class of the object if
@@ -164,8 +164,8 @@ namespace HLTNavDetails {
     * @author Tomasz Bold <Tomasz.Bold@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 730592 $
-    * $Date: 2016-03-16 23:10:31 +0100 (Wed, 16 Mar 2016) $
+    * $Revision: 783032 $
+    * $Date: 2016-11-08 17:45:40 +0100 (Tue, 08 Nov 2016) $
     */
    template< class T >
    class TypeProxy : public ITypeProxy {
@@ -218,7 +218,7 @@ namespace HLTNavDetails {
       // Set the properties of the base class:
       m_clid = ClassID_traits< T >::ID();
       m_typeName = ClassID_traits< T >::typeName();
-      m_isAuxVectorBase = boost::is_base_of< SG::AuxVectorBase, T >::value;
+      m_isAuxVectorBase = std::is_base_of< SG::AuxVectorBase, T >::value;
    }
 
    /// Constructor pointing to an existing object

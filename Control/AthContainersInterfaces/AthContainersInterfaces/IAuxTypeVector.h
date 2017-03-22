@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IAuxTypeVector.h 633937 2014-12-05 09:36:07Z krasznaa $
+// $Id: IAuxTypeVector.h 797203 2017-02-14 19:35:56Z ssnyder $
 /**
  * @file AthContainersInterfaces/IAuxTypeVector.h
  * @author scott snyder <snyder@bnl.gov>
@@ -70,8 +70,10 @@ public:
   /**
    * @brief Change the size of the vector.
    * @param sz The new vector size.
+   * Returns true if it is known that iterators have not been invalidated;
+   * false otherwise.
    */
-  virtual void resize (size_t sz) = 0;
+  virtual bool resize (size_t sz) = 0;
 
 
   /**
@@ -104,6 +106,29 @@ public:
    * (running destructors as appropriate).
    */
   virtual void shift (size_t pos, ptrdiff_t offs) = 0;
+
+
+  /**
+   * @brief Insert elements into the vector via move semantics.
+   * @param pos The starting index of the insertion.
+   * @param beg Start of the range of elements to insert.
+   * @param end End of the range of elements to insert.
+   *
+   * @c beg and @c end define a range of container elements, with length
+   * @c len defined by the difference of the pointers divided by the
+   * element size.
+   *
+   * The size of the container will be increased by @c len, with the elements
+   * starting at @c pos copied to @c pos+len.
+   *
+   * The contents of the @c beg:end range will then be moved to our vector
+   * starting at @c pos.  This will be done via move semantics if possible;
+   * otherwise, it will be done with a copy.
+   *
+   * Returns true if it is known that the vector's memory did not move,
+   * false otherwise.
+   */
+  virtual bool insertMove (size_t pos, void* beg, void* end) = 0;
 
 
   /**

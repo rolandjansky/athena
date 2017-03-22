@@ -426,6 +426,8 @@ void TrigL2MuonSA::MdtRegionDefiner::find_station_sector(std::string name, int p
       chamber = 2;
     if(name[1]=='M' && name[2]=='E')//BME
       chamber = 9;
+    if(name[1]=='M' && name[2]=='G')//BMG
+      chamber = 10;
   }
 }
 

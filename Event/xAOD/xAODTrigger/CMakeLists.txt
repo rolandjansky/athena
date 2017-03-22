@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 744561 2016-05-03 16:08:19Z krasznaa $
+# $Id: CMakeLists.txt 797235 2017-02-14 20:30:30Z ssnyder $
 ################################################################################
 # Package: xAODTrigger
 ################################################################################
@@ -33,3 +33,7 @@ atlas_add_dictionary( xAODTriggerDict
    xAODTrigger/selection.xml
    LINK_LIBRARIES xAODTrigger
    EXTRA_FILES Root/dict/*.cxx )
+
+atlas_add_test( ut_xaodtrigger_bytestreamauxcontainer_v1_test
+  SOURCES test/ut_xaodtrigger_bytestreamauxcontainer_v1_test.cxx
+  LINK_LIBRARIES AthContainers xAODTrigger )

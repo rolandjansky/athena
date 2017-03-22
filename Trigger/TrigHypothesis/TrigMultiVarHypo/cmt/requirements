@@ -14,7 +14,7 @@ use     TrigCaloEvent		        TrigCaloEvent-*	        Trigger/TrigEvent
 use     TrigTimeAlgs            TrigTimeAlgs-*          Trigger/TrigTools
 use     xAODTrigRinger          xAODTrigRinger-*        Event/xAOD
 use     xAODTrigCalo            xAODTrigCalo-*          Event/xAOD
-
+use     LumiBlockComps          LumiBlockComps-*        LumiBlock
 
 public
 

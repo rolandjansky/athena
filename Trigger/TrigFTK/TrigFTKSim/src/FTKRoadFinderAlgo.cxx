@@ -40,6 +40,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_DuplicateGanged(1),
   m_GangedPatternRecognition(0),
   m_SctClustering(0),
+  m_read_clusters(false),
+  m_clustering(true),
   m_SCTTrkMode(false), m_scttrk_tracklist(""),
   m_scttrk_roadlist(""), m_scttrk_sectormap_path(""),
   m_scttrk_nlayers(0), m_scttrk_nsubs(0), m_scttrk_lastlayer(0),
@@ -69,7 +71,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_SectorAsPatterns(0),
   m_DCMatchMethod(0),
   m_AutoDisable(false),
-  m_firstEventFTK(-1)
+  m_firstEventFTK(-1), 
+  m_read_FTKhits_directly(false)
 {
   // number of banks
   declareProperty("NBanks",m_nbanks);
@@ -98,6 +101,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("DuplicateGanged",m_DuplicateGanged,"Duplicate ganged pixels so we don't lose efficiency");
   declareProperty("GangedPatternReco", m_GangedPatternRecognition,"Pattern recognition to partially remove duplication");
   declareProperty("SctClustering",m_SctClustering,"Enable SCT clustering: 0 disabled, 1 enabled");
+  declareProperty("ReadClusters",m_read_clusters,"Read Clusters from FTKIP File? Default is false");
+  declareProperty("Clustering",m_clustering,"Perform clustering? Default is true");
 
   declareProperty("CachedBank",m_CachedBank);
   declareProperty("patternbankpath",m_patternbankpath,"Array with bank paths");
@@ -129,6 +134,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("UseMinimalAMIN",m_useMinimalAMIN);
   declareProperty("StoreAllSS",m_StoreAllSS,"If true, store all SS, not just in roads");
   declareProperty("HWModeSS",m_HWModeSS,"Enable the HW-like encoding for the SS");
+  declareProperty("ReadFTKHits",m_read_FTKhits_directly,"Read FTKHits directly rather than FTKRawHits");
 
   declareProperty("MaxMissingSCTPairs",m_MaxMissingSCTPairs,"Increase the number of missing SCT modules, enable the transition region fix");
   declareProperty("RestrictSctPairModule",m_RestrictSctPairModule, "Restrict SCT pairs modules in the transition region");
@@ -285,6 +291,10 @@ StatusCode FTKRoadFinderAlgo::initialize(){
     // the input comes from a wrapper file's format, prepare the standlone like input
     log << MSG::INFO << "Setting FTK_RegionalRawInput as input module" << endmsg;
     FTK_RegionalRawInput *ftkrawinput = new FTK_RegionalRawInput(m_pmap,m_pmap_unused,false);
+    
+    // Tell input whether hits will be in raw format or not
+    ftkrawinput->setReadFTKHits(m_read_FTKhits_directly); 
+    
     if (m_pmap_unused) {
       // enable all the flags used for the 2nd stage fitting
       ftkrawinput->setSaveUnused(!m_ITkMode);
@@ -325,6 +335,10 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   m_rfobj.getDataInputModule()->setSctClustering(m_SctClustering);
   m_rfobj.getDataInputModule()->setDuplicateGanged(m_DuplicateGanged);
   m_rfobj.getDataInputModule()->setGangedPatternRecognition(m_GangedPatternRecognition);
+
+  m_rfobj.getDataInputModule()->setReadClusters(m_read_clusters);
+  m_rfobj.getDataInputModule()->setClustering(m_clustering);
+
     
   // Set Option (temporaly way for checking standalone ver. -> should change to better way) //
   ftkset.setBarrelOnly(m_BarrelOnly);

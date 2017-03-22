@@ -182,7 +182,8 @@ def defineMenu():
         'NIMTRT',
 
         # AFP
-        'AFP_NSC', 'AFP_FSC',
+        'AFP_C_SPECTOF', 'AFP_C',
+        'AFP_A_SPECTOF', 'AFP_A',
 
         #-------------------------------------------------------------------
         #L1 TOPO inputs 
@@ -588,8 +589,22 @@ def defineMenu():
         'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB','L1_BCM_Wide_CALIB',
 
         #AFP
-        'L1_AFP_NSC', 'L1_AFP_FSC', 
-        'L1_AFP_C_ANY', 'L1_AFP_C_ANY_UNPAIRED_ISO', 'L1_AFP_C_ANY_UNPAIRED_NONISO', 'L1_AFP_C_ANY_EMPTY', 'L1_AFP_C_ANY_FIRSTEMPTY', 'L1_AFP_C_AND',
+#        'L1_AFP_NSC', 'L1_AFP_FSC', 
+#        'L1_AFP_C_ANY', 'L1_AFP_C_ANY_UNPAIRED_ISO', 'L1_AFP_C_ANY_UNPAIRED_NONISO', 'L1_AFP_C_ANY_EMPTY', 'L1_AFP_C_ANY_FIRSTEMPTY', 'L1_AFP_C_AND',
+
+        'L1_AFP_A_BGRP0','L1_AFP_A_SPECTOF_BGRP0','L1_AFP_C_BGRP0','L1_AFP_C_SPECTOF_BGRP0', 
+        'L1_AFP_A_OR_C_UNPAIRED_ISO', 'L1_AFP_A_OR_C_UNPAIRED_NONISO', 
+        'L1_AFP_A_OR_C_EMPTY', 'L1_AFP_A_OR_C_FIRSTEMPTY',
+        'L1_AFP_A_AND_C','L1_AFP_A_OR_C', 'L1_AFP_A', 'L1_AFP_C',
+        'L1_AFP_A_AND_C_MBTS_2','L1_AFP_A_OR_C_MBTS_2',
+        'L1_AFP_A_AND_C_J12','L1_AFP_A_OR_C_J12',
+        'L1_AFP_A_AND_C_EM3','L1_AFP_A_OR_C_EM3',
+        'L1_AFP_A_AND_C_MU4','L1_AFP_A_OR_C_MU4',
+        'L1_AFP_A_AND_C_TE5','L1_AFP_A_OR_C_TE5',
+        'L1_AFP_A_AND_C_J50','L1_AFP_A_AND_C_SPECTOF_J50',
+        'L1_AFP_A_AND_C_J75','L1_AFP_A_AND_C_SPECTOF_J75',
+        'L1_AFP_A_AND_C_J100',
+
 
         #--------------------------------
         # TOPO items
@@ -847,15 +862,15 @@ def defineMenu():
 #        'L1_ALFA_B7L1U_OD','L1_ALFA_B7L1L_OD','L1_ALFA_A7L1U_OD','L1_ALFA_A7L1L_OD','L1_ALFA_A7R1U_OD','L1_ALFA_A7R1L_OD','L1_ALFA_B7R1U_OD','L1_ALFA_B7R1L_OD',
 #        'L1_ALFA_B7L1_OD','L1_ALFA_A7L1_OD','L1_ALFA_B7R1_OD','L1_ALFA_A7R1_OD',
 #
-         'L1_AFP_C_MBTS_A',
-         'L1_AFP_C_ZDC_C',
-         'L1_AFP_C_J12',
-         'L1_AFP_C_EM3',
-         'L1_AFP_C_TE5',
-         'L1_AFP_C_ALFA_C',
-         'L1_AFP_C_ALFA_A',
-         'L1_AFP_C_ANY_MBTS_A',
-         'L1_AFP_C_MU4',
+#         'L1_AFP_C_MBTS_A',
+#         'L1_AFP_C_ZDC_C',
+#         'L1_AFP_C_J12',
+#         'L1_AFP_C_EM3',
+#         'L1_AFP_C_TE5',
+#         'L1_AFP_C_ALFA_C',
+#         'L1_AFP_C_ALFA_A',
+#         'L1_AFP_C_ANY_MBTS_A',
+#         'L1_AFP_C_MU4',
 
 
         #item with FTK trigger type, for FTK commissioning
@@ -1136,16 +1151,44 @@ def defineMenu():
         "L1_HT150-J20s5.ETA31_MJJ-400-CF": 273,
         
         ## the ctp ids are a mess.. no 7 consequetive ids are free.. but these here are:
-        'L1_AFP_C_MBTS_A':183,
-        'L1_AFP_C_ZDC_C':189,
-        'L1_AFP_C_J12':190,
-        'L1_AFP_C_EM3':191,
-        'L1_AFP_C_TE5':192,
-        'L1_AFP_C_ALFA_C':193,
-        'L1_AFP_C_ALFA_A':170,
-        'L1_AFP_C_ANY_MBTS_A':174,
-        'L1_AFP_C_MU4':379,   
-        
+#        'L1_AFP_C_MBTS_A':183,
+#        'L1_AFP_C_ZDC_C':189,
+#        'L1_AFP_C_J12':190,
+#        'L1_AFP_C_EM3':191,
+#        'L1_AFP_C_TE5':192,
+#        'L1_AFP_C_ALFA_C':193,
+#        'L1_AFP_C_ALFA_A':170,
+#        'L1_AFP_C_ANY_MBTS_A':174,
+#        'L1_AFP_C_MU4':379,   
+ 
+        'L1_AFP_A_BGRP0' : 170,
+        'L1_AFP_A_SPECTOF_BGRP0': 174,
+        'L1_AFP_C_BGRP0': 183,
+        'L1_AFP_C_SPECTOF_BGRP0': 189, 
+        'L1_AFP_A_OR_C_UNPAIRED_ISO': 190, 
+        'L1_AFP_A_OR_C_UNPAIRED_NONISO': 191, 
+        'L1_AFP_A_OR_C_EMPTY': 192, 
+        'L1_AFP_A_OR_C_FIRSTEMPTY': 193,
+        'L1_AFP_A_AND_C': 448,
+        'L1_AFP_A_OR_C': 276, 
+        'L1_AFP_A': 283, 
+        'L1_AFP_C': 308,
+        'L1_AFP_A_AND_C_MBTS_2': 309,
+        'L1_AFP_A_OR_C_MBTS_2': 317,
+        'L1_AFP_A_AND_C_J12': 379,
+        'L1_AFP_A_OR_C_J12': 436,
+        'L1_AFP_A_AND_C_EM3': 437,
+        'L1_AFP_A_OR_C_EM3': 438,
+        'L1_AFP_A_AND_C_MU4': 439,
+        'L1_AFP_A_OR_C_MU4': 440,
+        'L1_AFP_A_AND_C_TE5': 441,
+        'L1_AFP_A_OR_C_TE5': 442,
+        'L1_AFP_A_AND_C_J50': 443,
+        'L1_AFP_A_AND_C_SPECTOF_J50': 444,
+        'L1_AFP_A_AND_C_J75': 445,
+        'L1_AFP_A_AND_C_SPECTOF_J75': 446,
+        'L1_AFP_A_AND_C_J100': 447,
+       
 #        'L1_EM8I' : 183,
 #        'L1_EM15I': 184,
         'L1_MBTS_4_A_UNPAIRED_ISO' : 185,

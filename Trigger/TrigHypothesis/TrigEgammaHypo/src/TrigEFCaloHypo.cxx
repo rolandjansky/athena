@@ -209,15 +209,21 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   if (timerSvc()) m_totalTimer->start();    
 
   ATH_MSG_DEBUG(": in execute()");
- 
-  if(m_applyIsEM)
+  bool doShowerBuilder=false; 
+  if(m_applyIsEM){
       ATH_MSG_DEBUG("Apply Electron isEM PID with tool " << m_SelectorTool);
+      doShowerBuilder=true;
+  }
 
-  else if(m_applyPhotonIsEM)
+  else if(m_applyPhotonIsEM){
       ATH_MSG_DEBUG("Apply Photon isEM PID with tool " << m_PhSelectorTool);
+      doShowerBuilder=true;
+  }
 
-  else if(m_applyLH)
+  else if(m_applyLH){
       ATH_MSG_DEBUG("Apply Electron LH PID with tool " << m_LHSelectorTool);
+      doShowerBuilder=true;
+  }
       
   // get CaloClusterContainer from the trigger element:
   //--------------------------------------------------
@@ -307,63 +313,87 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           xBits->markPassing(clus,clusContainer,true);
           continue;
       }
-      unsigned int isEMTrig = 0;
-      bool isLHAcceptTrig = false;
-      float lhval=0.;
-        
-      // Now creating the photon objects (dummy EDM for Calo selection at EF)
+      
       const ElementLink<xAOD::CaloClusterContainer> clusterLink(*clusContainer,iclus);
       std::vector< ElementLink<xAOD::CaloClusterContainer> > clLinks;
       clLinks.push_back(clusterLink);
-      xAOD::Photon eg;
-      eg.makePrivateStore();
-      eg.setCaloClusterLinks(clLinks);
-
-      // Run the tools for each object
-      ATH_MSG_DEBUG("REGTEST: Run the tools on eg object");
-      if(m_fourMomBuilder->hltExecute(&eg));
-      else ATH_MSG_DEBUG("Problem with FourMomBuilder");
-      if(m_showerBuilder->recoExecute(&eg,pCaloCellContainer));
-      else ATH_MSG_DEBUG("Problem with ShowerBuilder");
-      ATH_MSG_DEBUG("REGTEST: cluster e " << clus->e());
-      ATH_MSG_DEBUG("REGTEST: e " << eg.e());
-      ATH_MSG_DEBUG("REGTEST: eg cluster e " << eg.caloCluster()->e());
-      ATH_MSG_DEBUG("REGTEST: eta " << eg.eta());
-      ATH_MSG_DEBUG("REGTEST: phi " << eg.phi());
       // Increment counter for next cluster before selection
       iclus++;
-      
-      // Apply selection
-      if(m_applyIsEM){
-          ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
-          if(m_SelectorTool->execute(&eg).isFailure())
-              ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
-          else isEMTrig = m_SelectorTool->IsemValue();
+
+      // Check cluster threshold first
+      if(clus->et() < m_emEt){
+          ATH_MSG_DEBUG("REGTEST::Et cut no satisfied: "<< clus->et() << "< cut: " << m_emEt);
+          continue;
       }
-      else if(m_applyPhotonIsEM){
-          ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
-          if(m_PhSelectorTool->execute(&eg).isFailure())
-              ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
-          else isEMTrig = m_PhSelectorTool->IsemValue();
-      }
-      else if(m_applyLH){
-          if(useLumiTool){
-              const Root::TAccept& acc = m_LHSelectorTool->accept(&eg,avg_mu);
-              lhval=m_LHSelectorTool->getTResult().getResult(0);
-              ATH_MSG_DEBUG("LHValue with mu " << lhval);
-              m_lhval.push_back(lhval);
-              isLHAcceptTrig = (bool) (acc);
+
+      // Next builder shower shapes if ID required
+      if (doShowerBuilder){
+          unsigned int isEMTrig = 0;
+          bool isLHAcceptTrig = false;
+          float lhval=0.;
+          // Now creating the photon objects (dummy EDM for Calo selection at EF)
+          xAOD::Photon eg;
+          eg.makePrivateStore();
+          eg.setCaloClusterLinks(clLinks);
+
+          // Run the tools for each object
+          ATH_MSG_DEBUG("REGTEST: Run the tools on eg object");
+          if(m_fourMomBuilder->hltExecute(&eg));
+          else ATH_MSG_DEBUG("Problem with FourMomBuilder");
+          if(m_showerBuilder->recoExecute(&eg,pCaloCellContainer));
+          else ATH_MSG_DEBUG("Problem with ShowerBuilder");
+          ATH_MSG_DEBUG("REGTEST: cluster e " << clus->e());
+          ATH_MSG_DEBUG("REGTEST: e " << eg.e());
+          ATH_MSG_DEBUG("REGTEST: eg cluster e " << eg.caloCluster()->e());
+          ATH_MSG_DEBUG("REGTEST: eta " << eg.eta());
+          ATH_MSG_DEBUG("REGTEST: phi " << eg.phi());
+
+          // Apply selection
+          if(m_applyIsEM){
+              ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
+              if(m_SelectorTool->execute(&eg).isFailure())
+                  ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
+              else isEMTrig = m_SelectorTool->IsemValue();
           }
-          else {
-              ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
-              const Root::TAccept& lhacc = m_LHSelectorTool->accept(&eg); // use method for calo-only
-              lhval=m_LHSelectorTool->getTResult().getResult(0);
-              ATH_MSG_DEBUG("LHValue without mu " << lhval);
-              m_lhval.push_back(lhval);
-              isLHAcceptTrig = (bool) (lhacc);
+          else if(m_applyPhotonIsEM){
+              ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
+              if(m_PhSelectorTool->execute(&eg).isFailure())
+                  ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
+              else isEMTrig = m_PhSelectorTool->IsemValue();
+          }
+          else if(m_applyLH){
+              if(useLumiTool){
+                  const Root::TAccept& acc = m_LHSelectorTool->accept(&eg,avg_mu);
+                  lhval=m_LHSelectorTool->getTResult().getResult(0);
+                  ATH_MSG_DEBUG("LHValue with mu " << lhval);
+                  m_lhval.push_back(lhval);
+                  isLHAcceptTrig = (bool) (acc);
+              }
+              else {
+                  ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
+                  const Root::TAccept& lhacc = m_LHSelectorTool->accept(&eg); // use method for calo-only
+                  lhval=m_LHSelectorTool->getTResult().getResult(0);
+                  ATH_MSG_DEBUG("LHValue without mu " << lhval);
+                  m_lhval.push_back(lhval);
+                  isLHAcceptTrig = (bool) (lhacc);
+              }
+
+              ATH_MSG_DEBUG("REGTEST: Applying LH pid selection " << isLHAcceptTrig);
           }
 
-          ATH_MSG_DEBUG("REGTEST: Applying LH pid selection " << isLHAcceptTrig);
+          if(m_applyIsEM || m_applyPhotonIsEM){
+              if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {
+                  ATH_MSG_DEBUG("REGTEST IsEM = " << std::hex << isEMTrig 
+                          << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits);
+                  continue;
+              }
+          }
+          if(m_applyLH){
+              if(!isLHAcceptTrig) {
+                  ATH_MSG_DEBUG("REGTEST: Fails LH");
+                  continue;
+              }
+          }
       }
       // Monitoring
       m_EBE0.push_back(clus->energyBE(0));
@@ -391,24 +421,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           m_E.push_back(origClus->e());
           m_ERes.push_back(clus->e()-origClus->e());
       }
-     
-      if(m_applyIsEM || m_applyPhotonIsEM){
-          if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {
-              ATH_MSG_DEBUG("REGTEST IsEM = " << std::hex << isEMTrig 
-                      << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits);
-              continue;
-          }
-      }
-      if(m_applyLH){
-          if(!isLHAcceptTrig) {
-              ATH_MSG_DEBUG("REGTEST: Fails LH");
-              continue;
-          }
-      }
-      if(clus->et() < m_emEt){
-          ATH_MSG_DEBUG("REGTEST::Et cut no satisfied: "<< clus->et() << "< cut: " << m_emEt);
-          continue;
-      }
+      
       accepted=true;
       xBits->markPassing(clus,clusContainer,true);
    

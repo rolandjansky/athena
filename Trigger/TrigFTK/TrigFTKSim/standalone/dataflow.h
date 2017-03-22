@@ -13,7 +13,10 @@
 #define MAXTOWER 64
 #define MAXL 8
 
-#define HIST_MAXBINS 100
+#define HIST_MAXBINS 35
+
+//#define HIST_MAXBINS 100
+
 
 #define TTREE_NAME "ftkdata"
 
@@ -30,6 +33,9 @@ float nConn[MAXTOWER], nExtrapAUX[MAXTOWER];
 FTKRoadStream *stream[MAXTOWER];
 FTKTrackStream *trackstream[MAXTOWER];
 
+vector< vector<float>> nRoadArr, nFitIArr;
+
+
 // events to run over
 Int_t events;
 
@@ -45,13 +51,14 @@ std::string outputTeX;
 // output location in root
 std::string outputRoot;
 TFile *outputRootFile;
-TH2D *outputHistAvg,*outputHistMin,*outputHistMax;
+TH2D *outputHistAvg,*outputHistMin,*outputHistMax,*outputHistFirstDecile,*outputHistLastDecile;
 
 std::string description;
 
 // number of towers
 Int_t ntower;
 std::vector<bool> activeTower;
+std::vector<bool> processedTower;
 
 // List of input files
 std::vector<std::string> files;
@@ -66,3 +73,9 @@ void Process(unsigned int ientry);
 void Terminate();
 void printinfo(float towers[MAXTOWER], TString text);
 void AddBreak(int n = 1);
+
+/*int quick_select(vector<float> input, int p, int r, int k);
+  int partition(vector<float> input, int p, int r);*/
+
+int quick_select(int* input, int p, int r, int k);
+int partition(int* input, int p, int r);

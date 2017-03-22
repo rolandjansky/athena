@@ -37,11 +37,14 @@ wrapper = FTKRegionalWrapper(OutputLevel = DEBUG,
                              RMapPath = rmap_path,
                              OutFileName = OutputNTUP_FTKIPFile)
 wrapper.IBLMode = 2
-wrapper.FixEndcapL0 = False
+wrapper.FixEndcapL0 = True
 wrapper.HitInputTool = FTKSGInput
 wrapper.PixelClusteringMode = 101
 wrapper.SctClustering = True
 wrapper.Clustering = True
+
+####wrapper.GetOffline = True
+wrapper.GetOffline = False
 
 theJob += wrapper
 

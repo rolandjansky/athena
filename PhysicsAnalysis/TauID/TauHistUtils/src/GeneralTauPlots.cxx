@@ -31,7 +31,7 @@ void GeneralTauPlots::initializePlots(){
 	m_tauCharge      = Book1D("Charge",m_sTauJetContainerName + " Tau charge; charge; # Taus",7,-3.,4.);
 	m_tauNCoreTracks = Book1D("NCoreTracks",m_sTauJetContainerName + " Tau n core tracks; nCore; # Taus",10,0.,10.);
 	m_tauNWideTracks = Book1D("NWideTracks",m_sTauJetContainerName + " Tau n wide tracks; nWide; # Taus",10,0.,10.);
-	m_id_BDTJetScore      = Book1D("id_BDTJetScore",m_sTauJetContainerName + " BDTJetScore ; BDTJetScore; # Tau",10,0.,1.05);
+	m_id_BDTJetScore      = Book1D("id_BDTJetScore",m_sTauJetContainerName + " BDTJetScore ; BDTJetScore; # Tau",10,1.01,1.01);
 	m_pt_jetBDTloose      = Book1D("Pt_jetBDTloose",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
 	m_pt_jetBDTmed        = Book1D("Pt_jetBDTmed",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
 	m_pt_jetBDTtight      = Book1D("Pt_jetBDTtigth",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);

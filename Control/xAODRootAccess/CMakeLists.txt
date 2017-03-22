@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 784654 2016-11-16 17:17:32Z krasznaa $
+# $Id: CMakeLists.txt 797214 2017-02-14 19:51:39Z ssnyder $
 #
 # Build configuration for the xAODRootAccess package.
 #
@@ -17,6 +17,7 @@ endif()
 # The dependencies of the package:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/CxxUtils
    Control/AthContainersInterfaces
    Control/AthContainers
    Event/xAOD/xAODCore
@@ -68,7 +69,7 @@ macro( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore xAODRootAccess
       PROPERTIES TIMEOUT 600 )
 endmacro( _add_test )
 
@@ -77,18 +78,20 @@ _add_test( ut_xaodrootaccess_metadata_test )
 _add_test( ut_xaodrootaccess_remap_test )
 _add_test( ut_xaodrootaccess_slimming_test )
 _add_test( ut_xaodrootaccess_stats_test )
+_add_test( ut_xaodrootaccess_tauxvector_test )
 _add_test( ut_xaodrootaccess_tauxstore_test )
+_add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
 _add_test( ut_xaodrootaccess_tchain_test )
-_add_test( ut_xaodrootaccess_tevent_test )
+#_add_test( ut_xaodrootaccess_tevent_test )
 _add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 _add_test( ut_xaodrootaccess_tfilemerger_test )
-_add_test( ut_xaodrootaccess_transtree_test )
+#_add_test( ut_xaodrootaccess_transtree_test )
 _add_test( ut_xaodrootaccess_tstore_test )
 
 # Run the scripted tests for the package:
-atlas_add_test( ut_xaodrootaccess_tpyevent_test
-   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py )
-atlas_add_test( ut_xaodrootaccess_tpystore_test
-   SCRIPT test/ut_xaodrootaccess_tpystore_test.py )
-atlas_add_test( ut_xaodrootaccess_transtree2_test
-   SCRIPT test/ut_xaodrootaccess_transtree2_test.py )
+#atlas_add_test( ut_xaodrootaccess_tpyevent_test
+#   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600 )
+#atlas_add_test( ut_xaodrootaccess_tpystore_test
+#   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
+#atlas_add_test( ut_xaodrootaccess_transtree2_test
+#   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )

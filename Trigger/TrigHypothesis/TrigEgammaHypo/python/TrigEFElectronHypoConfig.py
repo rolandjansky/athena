@@ -12,6 +12,31 @@ from AthenaCommon.SystemOfUnits import GeV
 # Include EGammaPIDdefs for loose,medium,tight definitions
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from TrigEgammaHypo.TrigEgammaPidTools import * 
+
+mlog = logging.getLogger( 'TrigEFElectronHypoConfig' )
+class TrigEFElectronIsoCutDefs():
+    ''' 
+    configure isolation cuts
+    for track isolation vector stored
+    ptcone20,ptcone30,ptcone40,ptvarcone20,ptvarcone30,ptvarcone40
+    '''
+    def __init__(self):
+        self.RelativePtConeCut = {'ivarloose':[-1, -1, -1,0.100,-1,-1],
+                                  'ivarmedium':[-1, -1, -1,0.065,-1,-1],
+                                  'ivartight':[-1, -1, -1,0.05,-1,-1],
+                                  'iloose':[0.100, -1, -1,-1,-1,-1],
+                                  'imedium':[0.065, -1, -1,-1,-1,-1],
+                                  'itight':[0.05, -1, -1,-1,-1,-1]}
+        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
+
+    def RelativeTrkIsoCuts(self,isoInfo):
+        if isoInfo not in self.RelativePtConeCut.keys():
+            mlog.error("Bad isolation key, no cut applied")
+            return [-1,-1,-1,-1,-1,-1]
+        else:
+            return self.RelativePtConeCut[isoInfo]
+
+
 class TrigEFElectronHypoBase (TrigEFElectronHypo):
     __slots__ = []
     def __init__(self, name):
@@ -138,6 +163,7 @@ class TrigEFElectronHypo_e_LH (TrigEFElectronHypoBase):
 # --- eXX LH chains for alignment with isolation 
 class TrigEFElectronHypo_e_LH_Iso (TrigEFElectronHypo_e_LH):
     __slots__ = []
+    isoCuts = TrigEFElectronIsoCutDefs()   
     def __init__(self, name, threshold, IDinfo, lhInfo, isoInfo):
         super( TrigEFElectronHypo_e_LH_Iso, self ).__init__( name, threshold, IDinfo, lhInfo ) 
 # Set the properties        
@@ -153,10 +179,7 @@ class TrigEFElectronHypo_e_LH_Iso (TrigEFElectronHypo_e_LH):
         self.EtConeCut          = [-1, -1, -1]
         #PtCone Size              =  20, 30, 40
         self.PtConeSizes = 6
-        if 'ivarloose' in isoInfo:
-            self.RelPtConeCut       = [-1, -1, -1,0.100,-1,-1]
-        else:
-            self.RelPtConeCut       = [0.100, -1, -1,-1,-1,-1]
+        self.RelPtConeCut = self.isoCuts.RelativeTrkIsoCuts(isoInfo)
         self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
 
 # --- W T&P supporting trigger
@@ -204,6 +227,7 @@ class TrigEFElectronHypo_e_ID_CaloOnly (TrigEFElectronHypo_e_ID):
 #-----------------------------------------------------------------------
 class TrigEFElectronHypo_e_Iso (TrigEFElectronHypo_e_ID):
     __slots__ = []
+    isoCuts = TrigEFElectronIsoCutDefs()
     def __init__(self, name, threshold, IDinfo, isoInfo):
         super( TrigEFElectronHypo_e_Iso, self ).__init__( name, threshold, IDinfo )
         #Isolation
@@ -216,10 +240,7 @@ class TrigEFElectronHypo_e_Iso (TrigEFElectronHypo_e_ID):
         self.EtConeCut          = [-1, -1, -1]
         #PtCone Size              =  20, 30, 40
         self.PtConeSizes = 6
-        if 'ivarloose' in isoInfo:
-            self.RelPtConeCut       = [-1, -1, -1,0.100,-1,-1]
-        else:
-            self.RelPtConeCut       = [0.100, -1, -1,-1,-1,-1]
+        self.RelPtConeCut = self.isoCuts.RelativeTrkIsoCuts(isoInfo)
         self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
 
 #-----------------------------------------------------------------------
@@ -236,6 +257,7 @@ class TrigEFElectronHypo_e_ID_perf (TrigEFElectronHypo_e_ID):
 
 class TrigEFElectronHypo_e_Iso_perf (TrigEFElectronHypo_e_ID):
     __slots__ = []
+    isoCuts = TrigEFElectronIsoCutDefs()
     def __init__(self, name, threshold, IDinfo, isoInfo):
         super( TrigEFElectronHypo_e_Iso_perf, self ).__init__( name, threshold, IDinfo )
         #Isolation
@@ -249,8 +271,8 @@ class TrigEFElectronHypo_e_Iso_perf (TrigEFElectronHypo_e_ID):
         self.EtConeCut          = [-1, -1, -1, -1, -1, -1]
         #PtCone Size              =  20, 30, 40
         self.PtConeSizes = 3
-        self.RelPtConeCut       = [0.100, -1, -1]
-        self.PtConeCut          = [-1, -1, -1]
+        self.RelPtConeCut = self.isoCuts.RelativeTrkIsoCuts(isoInfo)
+        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
 
 # Add back some dummy classes
 # Just to ensure menu compiles

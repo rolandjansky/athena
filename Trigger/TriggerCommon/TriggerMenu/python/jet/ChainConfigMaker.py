@@ -7,6 +7,7 @@ TriggerMenu/trunk/python/menu/SignatureDicts.py#L144
 
 import re
 from eta_string_conversions import eta_string_to_floats
+from smc_string_conversions import smc_string_to_strings
 from clusterparams_factory import clusterparams_factory
 from fexparams_factory import fexparams_factory
 from hypo_factory import hypo_factory
@@ -15,30 +16,69 @@ from hypo_factory import hypo_factory
 from ChainConfig import ChainConfig
 from MenuData import MenuData
 
+
+err_hdr = 'ChainConfigXML error: '
+
+
+def _check_smc(smc_min, smc_max):
+    if smc_min == 'INF' and smc_max != 'INF':
+        return 'min smc > max smc'
+
+    try:
+        test = float(smc_min)  # float('INF'), float('-INF') work...
+    except:
+        return 'min smc does not convert to float'
+
+    try:
+        test = float(smc_max)  # float('INF'), float('-INF') work...
+    except:
+        return 'max smc does not convert to float'
+
+
+    if not  float(smc_min) <= float(smc_max):
+        return 'min smc > max smc'
+
+    return ''
+
+
 class JetAttributes(object):
     """Per jet attributes. Used by  hypo algorithms."""
 
-    def __init__(self, threshold, eta_range):
+    def __init__(self, threshold, eta_range, smc_range):
         self.threshold = threshold
         self.eta_range = eta_range  # string like '0eta320'
+        self.smc_range = smc_range  # single jet mass 
         # eta_min, eta_max are floats
         self.eta_min, self.eta_max = eta_string_to_floats(eta_range)
+
+        # smc (SingleJetMass) values are strings to allow 'INF'
+        # to be passed to the C++ Algorithm
+        self.smc_min, self.smc_max = smc_string_to_strings(smc_range)
+
+        errstr =  _check_smc(self.smc_min, self.smc_max)
+        if errstr:
+            msg = '%s: illegal jet mass %s' % (err_hdr, errstr)
+            raise RuntimeError(msg)
+            
 
         self.asymmetricEta = 1 if (eta_range.startswith('n') or
                                    eta_range.startswith('p')) else 0
 
     def __str__(self):
-        return 'thresh: %s eta_min: %s eta_max: %s' % (str(self.threshold),
-                                                       str(self.eta_min),
-                                                       str(self.eta_max))
+        return 'thresh: %s eta_min: %s eta_max: %s smc_min: %s smc_max: %s' % (
+            str(self.threshold),
+            str(self.eta_min),
+            str(self.eta_max),
+            self.smc_min,
+            self.smc_max
+        )
 
-err_hdr = 'ChainConfigXML error: '
 
-hypo_type_dict = {('j', '', False, False): 'HLThypo2_etaet',
-                  ('j', 'test1', False, False): 'HLThypo2_singlemass',
-                  ('j', '', False, True): 'HLThypo2_dimass_deta',
-                  ('ht', '', False, False):'HLThypo2_ht',
-                  ('j', '', True, False): 'HLThypo2_tla',}
+hypo_type_dict = {('j', '', False, False, False): 'HLThypo2_etaet',
+                  ('j', '', False, False, True): 'HLThypo2_singlemass',
+                  ('j', '', False, True, False): 'HLThypo2_dimass_deta',
+                  ('ht', '', False, False, False):'HLThypo2_ht',
+                  ('j', '', True, False, False): 'HLThypo2_tla',}
 
     
 cleaner_names = {
@@ -157,6 +197,22 @@ def _get_deta_string(parts):
     return deta
 
 
+def _get_jetmass_flag(parts):
+
+    x = cache.get('jetmass')
+    if x: return x
+
+    result = False
+    for p in parts:
+        if p['smc'] != 'nosmc':
+            result = True
+            _update_cache('jetmass', result)
+            return result
+
+    _update_cache('jetmass', result)
+    return False
+
+
 def _get_data_scouting(parts):
 
     x = cache.get('data_scouting')
@@ -191,21 +247,24 @@ def _get_hypo_type(parts):
     invm_string = _get_invm_string(parts)
     deta_string = _get_deta_string(parts)
     dimass_deta_flag = bool(invm_string) or bool(deta_string)
+    jetmass_flag = _get_jetmass_flag(parts)
 
     htypes =  [hypo_type_dict.get((part['trigType'],
                                    test_flag,
                                    tla_flag,
-                                   dimass_deta_flag), None) for part in parts]
+                                   dimass_deta_flag,
+                                   jetmass_flag), None) for part in parts]
     
     if not htypes or None in htypes:
         part = parts[htypes.index(None)]
         msg = '%s: cannot determine hypo type '\
               'from trigger type: %s test flag: %s ' \
-              'TLA: %s dimass_eta %s' %  (
-                err_hdr, part['trigType'],
-                test_flag,
-                tla_flag,
-                  dimass_deta_flag)
+              'TLA: %s dimass_eta %s jetmass flag: %s' %  (
+                  err_hdr, part['trigType'],
+                  test_flag,
+                  tla_flag,
+                  dimass_deta_flag,
+                  str(jetmass_flag))
         raise RuntimeError(msg)
 
     htypes = set(htypes)
@@ -448,7 +507,8 @@ def _setup_jet_vars(parts):
         mult = int(part['multiplicity'])
         for i in range(mult):
             j_attrs.append(JetAttributes(int(part['threshold']),
-                                         part['etaRange']))
+                                         part['etaRange'],
+                                         part['smc']))
 
     return j_attrs
 

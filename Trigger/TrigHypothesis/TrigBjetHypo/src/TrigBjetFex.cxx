@@ -541,13 +541,13 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
     return HLT::OK;
   }
 
-  const Trk::VxSecVertexInfo* m_secVertexInfo = (*pointerToEFSecVtxCollections)[0];
-  if(!m_secVertexInfo) {
+  const Trk::VxSecVertexInfo* secVertexInfo = (*pointerToEFSecVtxCollections)[0];
+  if(!secVertexInfo) {
     msg() << MSG::DEBUG << "No secondary vertex when extracting sec vtx info" << endmsg;
     return HLT::OK;
   }
 
-  const Trk::VxSecVKalVertexInfo* myVKalSecVertexInfo = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(m_secVertexInfo);
+  const Trk::VxSecVKalVertexInfo* myVKalSecVertexInfo = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(secVertexInfo);
    
   if(!myVKalSecVertexInfo) {
     msg() << MSG::DEBUG << "The cast to VKal secndary vertex went wrong, the pointer is zero" << endmsg;
@@ -845,7 +845,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   const TrigRoiDescriptor* roiDescriptor = 0;
 
-  if (getFeature(outputTE, roiDescriptor, m_jetKey) == HLT::OK) {
+  if ((getFeature(outputTE, roiDescriptor, m_jetKey) == HLT::OK) && roiDescriptor) {
     if (msgLvl() <= MSG::DEBUG && roiDescriptor != 0) {
       msg() << MSG::DEBUG << "Using TE: " << "RoI id " << roiDescriptor->roiId()
 	    << ", Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endmsg;
@@ -860,9 +860,9 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
 
   //xAOD jets from TE
 
-  float m_et_EFjet = 0;
+  float et_EFjet = 0;
  
-  msg() << MSG::DEBUG << "pass 1 " << m_et_EFjet << endmsg;
+  msg() << MSG::DEBUG << "pass 1 " << et_EFjet << endmsg;
 
   const xAOD::JetContainer* jets(0);
   //HLT::ErrorCode ec = getFeature(outputTE, jets,"EFJet");
@@ -902,24 +902,24 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     double etjet = aJet->p4().Et();
     double etajet = aJet->p4().Eta();
 
-    m_et_EFjet = aJet->p4().Et()*0.001;
+    et_EFjet = aJet->p4().Et()*0.001;
 
-    msg() << MSG::DEBUG << "et  " << etjet << " and eta " << etajet << " Et EFjet " << m_et_EFjet << endmsg;
+    msg() << MSG::DEBUG << "et  " << etjet << " and eta " << etajet << " Et EFjet " << et_EFjet << endmsg;
 
   }
 
     m_trigBjetJetInfo->setEtaPhiJet(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
     m_trigBjetJetInfo->setEtaPhiRoI(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
-    m_trigBjetJetInfo->setEtJet(m_et_EFjet);
+    m_trigBjetJetInfo->setEtJet(et_EFjet);
 
   // -----------------------------------
   // Retrieve beamspot information
   // -----------------------------------
-      IBeamCondSvc* m_iBeamCondSvc; 
-  StatusCode sc = service("BeamCondSvc", m_iBeamCondSvc);
+  IBeamCondSvc* iBeamCondSvc; 
+  StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
 
-  if (sc.isFailure() || m_iBeamCondSvc == 0) {
-    m_iBeamCondSvc = 0;
+  if (sc.isFailure() || iBeamCondSvc == 0) {
+    iBeamCondSvc = 0;
 
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
@@ -927,28 +927,28 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   } 
   else {
     
-    Amg::Vector3D m_beamSpot = m_iBeamCondSvc->beamPos();
+    Amg::Vector3D beamSpot = iBeamCondSvc->beamPos();
     
-    int m_beamSpotBitMap = m_iBeamCondSvc->beamStatus();
+    int beamSpotBitMap = iBeamCondSvc->beamStatus();
     
     // Check if beam spot is from online algorithms
-    int m_beamSpotStatus = ((m_beamSpotBitMap & 0x4) == 0x4);
+    int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
     
     // Check if beam spot fit converged
-    if (m_beamSpotStatus)
-      m_beamSpotStatus = ((m_beamSpotBitMap & 0x3) == 0x3);
+    if (beamSpotStatus)
+      beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
     
     if(msgLvl() <= MSG::DEBUG)
       
-      msg() << MSG::DEBUG << "Beam spot from service: x=" << m_beamSpot.x() << ", y=" << m_beamSpot.y() << ", z=" << m_beamSpot.z() 
-            << ", tiltXZ=" << m_iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << m_iBeamCondSvc->beamTilt(1) 
-            << ", sigmaX=" << m_iBeamCondSvc->beamSigma(0) << ", sigmaY=" << m_iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << m_iBeamCondSvc->beamSigma(2) 
-            << ", status=" << m_beamSpotStatus << endmsg;
+      msg() << MSG::DEBUG << "Beam spot from service: x=" << beamSpot.x() << ", y=" << beamSpot.y() << ", z=" << beamSpot.z() 
+            << ", tiltXZ=" << iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << iBeamCondSvc->beamTilt(1) 
+            << ", sigmaX=" << iBeamCondSvc->beamSigma(0) << ", sigmaY=" << iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << iBeamCondSvc->beamSigma(2) 
+            << ", status=" << beamSpotStatus << endmsg;
 
-    m_trigBjetPrmVtxInfo->setBeamSpot(m_beamSpot.x(), m_beamSpot.y(), m_beamSpot.z());
-    m_trigBjetPrmVtxInfo->setBeamSpotTilt(m_iBeamCondSvc->beamTilt(0), m_iBeamCondSvc->beamTilt(1));
-    m_trigBjetPrmVtxInfo->setBeamSpotWidth(m_iBeamCondSvc->beamSigma(0), m_iBeamCondSvc->beamSigma(1), m_iBeamCondSvc->beamSigma(2));
-    m_trigBjetPrmVtxInfo->setBeamSpotStatus(m_beamSpotStatus);
+    m_trigBjetPrmVtxInfo->setBeamSpot(beamSpot.x(), beamSpot.y(), beamSpot.z());
+    m_trigBjetPrmVtxInfo->setBeamSpotTilt(iBeamCondSvc->beamTilt(0), iBeamCondSvc->beamTilt(1));
+    m_trigBjetPrmVtxInfo->setBeamSpotWidth(iBeamCondSvc->beamSigma(0), iBeamCondSvc->beamSigma(1), iBeamCondSvc->beamSigma(2));
+    m_trigBjetPrmVtxInfo->setBeamSpotStatus(beamSpotStatus);
 
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endmsg;
@@ -999,7 +999,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // Get primary vertex collection
   // -----------------------------------
 
-  float m_xPrmVtx=0, m_yPrmVtx=0, m_zPrmVtx=0;
+  float xPrmVtx=0, yPrmVtx=0, zPrmVtx=0;
 
   if (m_histoPrmVtxAtEF) {   // PV from TrigT2HistoPrmVtx
 
@@ -1023,14 +1023,14 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       // Protect against empty vectors
       if(pointerToEFPrmVtxCollections->size()>0) {
 	      const xAOD::Vertex* prmVertex = (*pointerToEFPrmVtxCollections)[0];
-        m_zPrmVtx = prmVertex->z();
+        zPrmVtx = prmVertex->z();
       } else {
         msg() << MSG::DEBUG << "Empty primary vertex collection retrieved" << endmsg;
-        m_zPrmVtx = 0;
+        zPrmVtx = 0;
       }
     } else {
       msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endmsg;
-      m_zPrmVtx = 0;
+      zPrmVtx = 0;
     }
   } else  {  // PV from ID tracking
 
@@ -1046,23 +1046,23 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       if(pointerToEFPrmVtxCollections->size()>0) {
 
         const xAOD::Vertex* prmVertex = (*pointerToEFPrmVtxCollections)[0];
-        m_xPrmVtx = (float)prmVertex->x();
-        m_yPrmVtx = (float)prmVertex->y();
-        m_zPrmVtx = (float)prmVertex->z();
+        xPrmVtx = (float)prmVertex->x();
+        yPrmVtx = (float)prmVertex->y();
+        zPrmVtx = (float)prmVertex->z();
       } 
       else {
         msg() << MSG::DEBUG << "Empty primary vertex collection retrieved" << endmsg;
-        m_xPrmVtx = 0;
-        m_yPrmVtx = 0;
-        m_zPrmVtx = 0;
+        xPrmVtx = 0;
+        yPrmVtx = 0;
+        zPrmVtx = 0;
       }
     } 
     else 
     **/{
       msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endmsg;
-      m_xPrmVtx = 0;
-      m_yPrmVtx = 0;
-      m_zPrmVtx = 0;
+      xPrmVtx = 0;
+      yPrmVtx = 0;
+      zPrmVtx = 0;
     }
   }
 
@@ -1070,12 +1070,12 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // Apply beam spot correction for tilt
   // ----------------------------------- 
     
-  float m_xBeamSpot = m_trigBjetPrmVtxInfo->xBeamSpot() + tan(m_trigBjetPrmVtxInfo->xBeamSpotTilt()) * (m_zPrmVtx-m_trigBjetPrmVtxInfo->zBeamSpot());
-  float m_yBeamSpot = m_trigBjetPrmVtxInfo->yBeamSpot() + tan(m_trigBjetPrmVtxInfo->yBeamSpotTilt()) * (m_zPrmVtx-m_trigBjetPrmVtxInfo->zBeamSpot());
-  float m_zBeamSpot = m_trigBjetPrmVtxInfo->zBeamSpot();
+  float xBeamSpot = m_trigBjetPrmVtxInfo->xBeamSpot() + tan(m_trigBjetPrmVtxInfo->xBeamSpotTilt()) * (zPrmVtx-m_trigBjetPrmVtxInfo->zBeamSpot());
+  float yBeamSpot = m_trigBjetPrmVtxInfo->yBeamSpot() + tan(m_trigBjetPrmVtxInfo->yBeamSpotTilt()) * (zPrmVtx-m_trigBjetPrmVtxInfo->zBeamSpot());
+  float zBeamSpot = m_trigBjetPrmVtxInfo->zBeamSpot();
 
-  m_trigBjetPrmVtxInfo->setBeamSpot(m_xBeamSpot, m_yBeamSpot, m_zBeamSpot);
-  m_trigBjetPrmVtxInfo->setPrmVtx(m_xPrmVtx, m_yPrmVtx, m_zPrmVtx);
+  m_trigBjetPrmVtxInfo->setBeamSpot(xBeamSpot, yBeamSpot, zBeamSpot);
+  m_trigBjetPrmVtxInfo->setPrmVtx(xPrmVtx, yPrmVtx, zPrmVtx);
 
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endmsg;

@@ -305,6 +305,7 @@ double TaggerHelper::VrtVrtDist(const xAOD::Vertex& PrimVrt, const Amg::Vector3D
 
   bool isInvertible;
   AmgSymMatrix(3) WgtMtx;
+  WgtMtx.setZero();
   PrimCovMtx.computeInverseWithCheck(WgtMtx, isInvertible);
   if(isInvertible) {
     Signif = distx*WgtMtx(0,0)*distx

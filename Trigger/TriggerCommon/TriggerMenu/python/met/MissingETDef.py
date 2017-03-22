@@ -218,11 +218,12 @@ class L2EFChain_met(L2EFChainDef):
         #----------------------------------------------------
         # Obtaining the needed jet TEs from the jet code
         #----------------------------------------------------
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if "v6" in TriggerFlags.triggerMenuSetup() or "v5" in TriggerFlags.triggerMenuSetup():
-            chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
-        else:
-            chain = ['j0', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+        #from TriggerJobOpts.TriggerFlags import TriggerFlags
+        #if "v6" in TriggerFlags.triggerMenuSetup() or "v5" in TriggerFlags.triggerMenuSetup():
+        #    chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+        #else:
+        #    chain = ['j0', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+        chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
 
         theDictFromChainName = DictFromChainName.DictFromChainName()
         jetChainDict = theDictFromChainName.getChainDict(chain)

@@ -253,7 +253,7 @@ class AlgFactory(object):
         return [Alg(factory, (), kwds)]        
 
 
-    def etaet_kargs(self, algType, strategy):
+    def etaet_kargs(self, algType):
 
         ja = self.hypo_params.attributes_toString()
 
@@ -265,8 +265,7 @@ class AlgFactory(object):
         # matchingAlg = self.hypo_params.matcher
 
         name_extension = '_'.join([str(e) for  e in
-                                   (strategy,
-                                    ja,
+                                   (ja,
                                     self.fex_params.fex_alg_name,
                                     self.fex_params.data_type,
                                     self.fex_params.cluster_calib,
@@ -302,22 +301,30 @@ class AlgFactory(object):
 
         
         # assert len(self.hypo_params.jet_attributes) > 1
-        algType = 'TrigHLTJetHypo2'
-        kargs = self.etaet_kargs(algType, 'etaet')
-        kargs['hypoStrategy'] = '"EtaEt"'
+        algType = 'TrigHLTJetHypo_EtaEt'
+        kargs = self.etaet_kargs(algType)
         return [Alg(algType, (), kargs)]
 
 
-    def hlthypo2_singleMass(self):
-        """ run TrigHLTJetHypo2 with hypoStrategy EtaEt """
+    def smc_kargs(self, algType):
+        kargs = self.etaet_kargs(algType)
 
+        hypo = self.menu_data.hypo_params
+        smc_mins = [ja.smc_min for ja in hypo.jet_attributes]
+        smc_maxs = [ja.smc_max for ja in hypo.jet_attributes]
+
+        kargs['smc_mins'] = smc_mins
+        kargs['smc_maxs'] = smc_maxs
+
+        return kargs
         
-        # assert len(self.hypo_params.jet_attributes) > 1
-        algType = 'TrigHLTJetHypo2'
-        kargs = self.etaet_kargs(algType, 'singlemass')
-        kargs['hypoStrategy'] = '"SingleMass"'
-        return [Alg(algType, (), kargs)]
+    def hlthypo2_singleMass(self):
+        """ run TrigHLTJetHypo2 with hypoStrategy SingleJetMass """
+        
+        algType = 'TrigHLTJetHypo_SMC'
+        kargs = self.smc_kargs(algType)
 
+        return [Alg(algType, (), kargs)]
 
     def tla_kargs(self, algType):
 
@@ -357,15 +364,14 @@ class AlgFactory(object):
 
     def hlthypo2_tla(self):
 
-        algType = 'TrigHLTJetHypo2'
+        algType = 'TrigHLTJetHypo_TLA'
         kargs = self.tla_kargs(algType)
-        kargs['hypoStrategy'] = '"TLA"'
         
         return [Alg(algType,(), kargs)]
 
 
     def dimass_deta_kargs(self, algType):
-        kargs = self.etaet_kargs(algType, 'massDEta')
+        kargs = self.etaet_kargs(algType)
         
         mass_min = self.hypo_params.mass_min
         if mass_min is not None:
@@ -383,9 +389,8 @@ class AlgFactory(object):
         
     def hlthypo2_dimass_deta(self):
 
-        algType = 'TrigHLTJetHypo2'
+        algType = 'TrigHLTJetHypo_DijetMassDEta'
         kargs = self.dimass_deta_kargs(algType)
-        kargs['hypoStrategy'] = '"DijetMassDEta"'
         return [Alg(algType,(), kargs)]
 
 
@@ -412,7 +417,6 @@ class AlgFactory(object):
                  'eta_maxs': [eta_max],
                  'htMin': self.hypo_params.ht_threshold * GeV,
                  'EtThresholds': [self.hypo_params.jet_et_threshold * GeV],
-                 'hypoStrategy': '"HT"',
                  }
                  
         return kargs
@@ -421,7 +425,7 @@ class AlgFactory(object):
     def hlthypo2_ht(self):
         """set up an HT hypo"""
 
-        algType = 'TrigHLTJetHypo2'
+        algType = 'TrigHLTJetHypo_HT'
         kargs = self.ht_kargs(algType)
         return [Alg(algType, (), kargs)]
 

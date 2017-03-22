@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 786937 2016-11-28 16:58:14Z jahreda $
+# $Id: skeleton.FTKStandaloneSim.py 796937 2017-02-13 21:43:06Z jahreda $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -78,6 +78,8 @@ FTKRoadFinder.RestrictSctPairModule = True
 FTKRoadFinder.RoadWarrior = 0
 FTKRoadFinder.SaveRoads = False
 FTKRoadFinder.SctClustering = 0
+FTKRoadFinder.Clustering = True
+FTKRoadFinder.ReadClusters = False
 FTKRoadFinder.SetAMSize = 0
 FTKRoadFinder.StoreAllSS = False
 FTKRoadFinder.SetAMSplit = 5
@@ -96,7 +98,7 @@ FTKRoadFinder.DCMatchMethod = 1
 #FTKRoadFinderAlgo.ssmap_path = ssmap_path
 #FTKRoadFinderAlgo.ssmaptsp_path = ssmaptsp_path
 #FTKRoadFinderAlgo.ssmapunused_path = ssmapunused_path
-
+FTKRoadFinder.ReadFTKHits = False
 
 # List here the runArgs which need to be translated directly into FTKRoadFinder attributes
 runArgsFromTrfMandatory = [
@@ -119,7 +121,7 @@ runArgsFromTrfMandatoryTF = [
 runArgsFromTrfOptionalRF = {
     'TSPMinCoverage': 0,
     'badmap_path': 'empty.bmap',
-    'badmap_path_for_hit': '',
+    'badmap_path_for_hit': 'empty.bmap',
     'MakeCache': False,
     'CachePath': 'bankcache_reg%d_sub%d.root' % (runArgs.bankregion[0], runArgs.banksubregion[0]),
     'CachedBank': False,
@@ -136,6 +138,8 @@ runArgsFromTrfOptionalRF = {
     'GangedPatternReco' : 0,
     'DuplicateGanged' : 1,
     'SctClustering': 0,
+    'Clustering': True,
+    'ReadClusters': False,
     'MaxMissingSCTPairs': 1,
     'RestrictSctPairModule': True,
     'RestrictSctPairLayer': True,
@@ -144,7 +148,8 @@ runArgsFromTrfOptionalRF = {
     'HWModeSS': 0,
     'ModuleLUTPath': "",
     'ModuleLUTPath2nd': "",
-    'UseCompressedBank': False
+    'UseCompressedBank': False,
+    'ReadFTKHits': False,
     }
 
 runArgsFromTrfOptionalTF = {
@@ -312,12 +317,14 @@ FTKTagOptions['SectorsAsPatterns32Tower8L3D'] = {
 
 FTKTagOptions["HWMode2Test32Tower"] = {
     'NBanks': 32, 'NSubRegions': 1,
+    'badmap_path': 'empty.bmap',
+    'badmap_path_for_hit': 'empty.bmap',
     'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
     'ssmap_path': 'raw_30x64x72Ibl.ss',
     'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
     'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
     'bankpatterns': [8388608]*NumberOfSubregions,
-    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss',
     'UseTSPBank': False,
     'UseCompressedBank': True,
     'ModuleLUTPath': 'raw_8LcIbl123_32.moduleidmap',
@@ -345,7 +352,7 @@ FTKTagOptions["HWMode2Test64Tower"] = {
     'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
     'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
     'bankpatterns': [16777216]*NumberOfSubregions,
-    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss',
     'UseTSPBank': False,
     'UseCompressedBank': True,
     'ModuleLUTPath': 'raw_8LcIbl3D123.moduleidmap',
@@ -364,7 +371,68 @@ FTKTagOptions["HWMode2Test64Tower"] = {
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 
-### for use with  --FitConstantsVersion Run2_x00_y00_Reb64_UseNominalOrigin_v1/ and 
+### for use with  --FitConstantsVersion Run2_x00_y00_Reb64_UseNominalOrigin_v2/ and
+### --PatternsVersion ftk.64tower.simulation.2017.000.nb9.ne6.ECFix/
+FTKTagOptions["64Tower2017.v1.ECFix"] = {
+    'NBanks': 64, 'NSubRegions': 1,
+    'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl64TmodB_3D_t13.tmap',
+    'ssmap_path': 'raw_30x128x72Ibl.ss',
+    'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
+    'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
+    'bankpatterns': [8388608]*NumberOfSubregions,
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss',
+    'UseTSPBank': False,
+    'UseCompressedBank': True,
+    'ModuleLUTPath': 'raw_8LcIbl3D123.moduleidmap',
+    'ModuleLUTPath2nd': 'raw_12Libl3D.moduleidmap',
+    'DBBankLevel': 1, 'TSPSimulationLevel': 2,
+    'loadHWConf_path': 'raw_12L.hw', 'pmapcomplete_path': 'raw_12LiblHW3D.pmap',
+    'SetAMSize': 2, 'TRACKFITTER_MODE': 3,
+    'SecondStageFit': True,
+    'SSFMultiConnection': True, 'SSFNConnections': 4,
+    'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
+    'SSFTRMinEta': 1.0,
+    'MaxNcomb': 1024,
+    'MaxNhitsPerPlane': 8,
+    'HWModeSS': 2,
+    'FixEndCapL0': True, 'IBLMode': 2, 'PixelClusteringMode': 101,
+    'GangedPatternReco': 0, 'DuplicateGanged': 1,
+    'badmap_path': 'empty.bmap',
+    'badmap_path_for_hit': 'empty.bmap'
+    }
+
+### for use with  --FitConstantsVersion Run2_x00_y00_Reb64_UseNominalOrigin_v2/ and
+### --PatternsVersion ftk.64tower.simulation.2018.000.nb6.ne3.ECFix/
+FTKTagOptions["64Tower2018.v1.ECFix"] = {
+    'NBanks': 64, 'NSubRegions': 1,
+    'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl64TmodB_3D_t13.tmap',
+    'ssmap_path': 'raw_30x128x72Ibl.ss',
+    'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
+    'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
+    'bankpatterns': [16777216]*NumberOfSubregions,
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss',
+    'UseTSPBank': False,
+    'UseCompressedBank': True,
+    'ModuleLUTPath': 'raw_8LcIbl3D123.moduleidmap',
+    'ModuleLUTPath2nd': 'raw_12Libl3D.moduleidmap',
+    'DBBankLevel': 1, 'TSPSimulationLevel': 2,
+    'loadHWConf_path': 'raw_12L.hw', 'pmapcomplete_path': 'raw_12LiblHW3D.pmap',
+    'SetAMSize': 2, 'TRACKFITTER_MODE': 3,
+    'SecondStageFit': True,
+    'SSFMultiConnection': True, 'SSFNConnections': 4,
+    'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
+    'SSFTRMinEta': 1.0,
+    'MaxNcomb': 1024,
+    'MaxNhitsPerPlane': 8,
+    'HWModeSS': 2,
+    'FixEndCapL0': True, 'IBLMode': 2, 'PixelClusteringMode': 101,
+    'GangedPatternReco': 0, 'DuplicateGanged': 1,
+    'badmap_path': 'empty.bmap',
+    'badmap_path_for_hit': 'empty.bmap'
+    }
+
+
+### for use with  --FitConstantsVersion Run2_x00_y00_Reb64_UseNominalOrigin_v1/ and
 ### --PatternsVersion ftk.64tower.simulation.2017.000.nb9.ne6/
 FTKTagOptions["64Tower2017.v1"] = {
     'NBanks': 64, 'NSubRegions': 1,
@@ -373,7 +441,7 @@ FTKTagOptions["64Tower2017.v1"] = {
     'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
     'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
     'bankpatterns': [8388608]*NumberOfSubregions,
-    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss',
     'UseTSPBank': False,
     'UseCompressedBank': True,
     'ModuleLUTPath': 'raw_8LcIbl3D123.moduleidmap',
@@ -389,10 +457,12 @@ FTKTagOptions["64Tower2017.v1"] = {
     'MaxNhitsPerPlane': 8,
     'HWModeSS': 2,
     'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 101,
-    'GangedPatternReco': 0, 'DuplicateGanged': 1
+    'GangedPatternReco': 0, 'DuplicateGanged': 1,
+    'badmap_path': 'empty.bmap',
+    'badmap_path_for_hit': 'empty.bmap'
     }
 
-### for use with  --FitConstantsVersion Run2_x00_y00_Reb64_UseNominalOrigin_v1/ and 
+### for use with  --FitConstantsVersion Run2_x00_y00_Reb64_UseNominalOrigin_v1/ and
 ### --PatternsVersion ftk.64tower.simulation.2017.000.nb10.ne6/
 FTKTagOptions["64Tower2017.v2"] = {
     'NBanks': 64, 'NSubRegions': 1,
@@ -401,7 +471,7 @@ FTKTagOptions["64Tower2017.v2"] = {
     'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
     'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
     'bankpatterns': [8388608]*NumberOfSubregions,
-    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss',
     'UseTSPBank': False,
     'UseCompressedBank': True,
     'ModuleLUTPath': 'raw_8LcIbl3D123.moduleidmap',
@@ -417,7 +487,9 @@ FTKTagOptions["64Tower2017.v2"] = {
     'MaxNhitsPerPlane': 8,
     'HWModeSS': 2,
     'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 101,
-    'GangedPatternReco': 0, 'DuplicateGanged': 1
+    'GangedPatternReco': 0, 'DuplicateGanged': 1,
+    'badmap_path': 'empty.bmap',
+    'badmap_path_for_hit': 'empty.bmap'
     }
 
 
@@ -919,7 +991,6 @@ for runArgName in (runArgsFromTrfMandatory
    else:
        raise RuntimeError("Failed to find mandatory FTKRoadFinder runtime "
                           "argument for transform %s" % runArgName)
-
 
 # Set the PerfMon output file name according the numbers of region and subregion
 # of the first bank, additional are ingored

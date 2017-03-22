@@ -28,7 +28,12 @@ TrigL2CaloRingerHypo::TrigL2CaloRingerHypo(const std::string& name, ISvcLocator*
   declareProperty("Thresholds"        , m_thresholds                          );
   declareProperty("EtaBins"           , m_etaBins                             );
   declareProperty("EtBins"            , m_etBins                              );
-
+  
+  // Metadata...
+  declareProperty("DoPileupCorrection"                   , m_doPileupCorrection=false                   );
+  declareProperty("UseNoActivationFunctionInTheLastLayer", m_useNoActivationFunctionInTheLastLayer=false);
+  declareProperty("LuminosityCut"                        , m_lumiCut=60                                 );
+  
   m_nThresholds = 0;
 }
 //!===============================================================================================
@@ -42,13 +47,15 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltInitialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_MSG_INFO("Using the activation function in the last layer? " <<  (m_useNoActivationFunctionInTheLastLayer ? "No":"Yes") );
+  
   ///Initialize all discriminators
   for(unsigned i=0; i<m_nThresholds; ++i)
   {
     ///Hold the pointer configuration
     try{
-      m_cutDefs.push_back(new TrigL2CaloRingerHypo::CutDefsHelper(m_thresholds[i],m_etaBins[i][0],/*
-                                              */m_etaBins[i][1], m_etBins[i][0],m_etBins[i][1]));
+      m_cutDefs.push_back(new TrigCaloRingsHelper::CutDefsHelper(m_thresholds[i],m_etaBins[i][0],/*
+                                                  */m_etaBins[i][1], m_etBins[i][0],m_etBins[i][1]));
     }catch(std::bad_alloc xa){
       msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endreq;
       return StatusCode::FAILURE;
@@ -90,6 +97,16 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
     return HLT::OK;
   }
 
+  // TODO: Maybe this will expanded for future...
+  // This was define as [avgmu, rnnOtput, rnnOutputWithoutTansig]
+  if(rnnOutput->rnnDecision().size() != 3){
+    if(msgLvl() <= MSG::DEBUG){
+      msg() << MSG::DEBUG<< "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!" << endreq;
+    }
+    return HLT::OK;
+  }
+
+  // Start to retrieve all information that I need...
   const xAOD::TrigEMCluster *emCluster = 0;
   const xAOD::TrigRingerRings *ringerShape = rnnOutput->ringer();
   if(ringerShape){
@@ -105,9 +122,9 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
 
   float eta     = std::fabs(emCluster->eta());
   float et      = emCluster->et()*1e-3;//GeV
-  if(eta>2.50) eta=2.50;///fix for events out of the ranger
-  float output  = rnnOutput->rnnDecision().at(0);
+  float avgmu   = rnnOutput->rnnDecision().at(0);
 
+  if(eta>2.50) eta=2.50;///fix for events out of the ranger
 
   ///Et threshold
   if(et < m_emEtCut*1e-3){
@@ -122,15 +139,32 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
     for(unsigned i=0; i<m_nThresholds;++i){
       if((et  > m_cutDefs[i]->etmin()) && (et  <= m_cutDefs[i]->etmax())){
         if((eta > m_cutDefs[i]->etamin()) && (eta <= m_cutDefs[i]->etamax())){
-          if(output >= m_cutDefs[i]->threshold()){
+          
+          float threshold=0.0;
+          float output=0.0;
 
+          // Retrieve the correct threshold
+          if(m_doPileupCorrection){
+            // Limited Pileup
+            if(avgmu>m_lumiCut)
+              avgmu=m_lumiCut;
+            threshold =  m_cutDefs[i]->threshold(avgmu);
+          }else{
+            threshold = m_cutDefs[i]->threshold();
+          }
+
+          if(m_useNoActivationFunctionInTheLastLayer)
+            output=rnnOutput->rnnDecision().at(2);
+          else
+            output=rnnOutput->rnnDecision().at(1);
+
+          if(output >= threshold){
             if(msgLvl() <= MSG::DEBUG){///print event information
               msg() << MSG::DEBUG << "Event information:" << endreq;
               msg() << MSG::DEBUG << "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax() << endreq;
               msg() << MSG::DEBUG << "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() << endreq;
               msg() << MSG::DEBUG << "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold() <<endreq;
             }
-
             pass=true;
           }else{
             if(msgLvl() <= MSG::DEBUG){

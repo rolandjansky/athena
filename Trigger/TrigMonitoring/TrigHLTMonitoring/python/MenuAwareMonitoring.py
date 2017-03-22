@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#
-# Authors: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch)
-#
+# Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 import sys,os,shutil,re
 from TrigHLTMonitoring.MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone
@@ -23,8 +22,7 @@ from xml.dom import minidom
 # for monitoring mode setup
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 
-# all Menu-Aware Monitoring stuff in one class
-# it uses OracleInterface to talk to the Oracle database
+# MaM uses OracleInterface to talk to the Oracle database
 # and ToolInterrogator to talk to the local tools
 class MenuAwareMonitoring:
     """Menu-aware Monitoring class.
@@ -40,30 +38,22 @@ class MenuAwareMonitoring:
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
-
         # flag so that diff instruction are only printed once
         self.firstdiff = True
-
         # create MaMStandalone interaction object (includes connecting to oracle)
         self.ms = MenuAwareMonitoringStandalone(alias,database_username,database_password,database_name,database_directory)
-
         # get athena version
         self.__get_athena_version__()
-
         # holder for stream (bulk or express)
         self.stream = ""
         self.__get_stream__()
-
         # print guide for user if this is an interactive session
         if self.ms.__is_session_interactive__():
-
-            print "Running in Athena release",self.ms.current_athena_version
+            print "Release detected:",self.ms.current_athena_version
             print "Stream detected:",self.stream
-
         # create tool interrogator object
         self.ti = ToolInterrogator()
-
-        # flag to prevent multiple calls to setup_all_local_tools, as it doesn't seem like the current config is picked up is this is tried
+        # flag to prevent multiple calls to setup_all_local_tools, as it doesn't seem like the current config is picked up if this is tried
         self.tools_setup = False
         self.setup_mode = ""
 
@@ -184,6 +174,7 @@ class MenuAwareMonitoring:
                         return packageVersion
                 except ValueError:
                     print "Warning, unusual output from cmt: %s\n" % line
+
         elif 'CMAKE_PREFIX_PATH' in os.environ:
             # for cmake releases
             cpath = os.getenv("CMAKE_PREFIX_PATH")
@@ -226,8 +217,9 @@ class MenuAwareMonitoring:
                         npackages = npackages+1
                     except ValueError:
                         print "Warning, unusual output from cmt: %s\n" % line
+
         elif 'WorkDir_DIR' in os.environ :
-            # does this work for git packages?
+            # TODO check if this works for git builds
             print "Patch packages in your build are:\n"
             myfilepath = os.environ['WorkDir_DIR']
             fname = str(myfilepath) + '/packages.txt'
@@ -239,6 +231,7 @@ class MenuAwareMonitoring:
                         npackages=npackages+1
         else:
             print "A release area with locally installed packages has not been setup."
+
         if npackages == 0:
             print "No patches found"
         return npackages
@@ -248,7 +241,6 @@ class MenuAwareMonitoring:
         """List local running trigger-monitoring tools that have been discovered by the Tool Interrogator.
         These tool configurations are available in the <ThisVariable>.local dictionary."""
 
-        # info for user
         print "The following local tools have had their configurations extracted by the ToolInterrogator:"
 
         # list the tools in self.ms.local_global_info['MONITORING_TOOL_DICT']
@@ -265,23 +257,18 @@ class MenuAwareMonitoring:
             print_output_here = self.print_output
 
         # returns True or False depending on whether the input is valid to be used in the current stage of Athena running
-
         # if no input, then return false
         if input1 == "":
             return False
-
         # if input is ALL, then return true
         if input1 == "ALL":
             return True
-
         # if input is ESD, and doESD is true, then return true
         if input1 == "ESD":
             return rec.doESD
-
         # if input is AOD, and doAOD is true, then return true
         if input1 == "AOD":
             return rec.doAOD
-
         # if we have reached this far, then the input has not been recognised
         if print_output_here:
             print "The processing step",input1,"has not been recognised. Valid options are ALL, ESD, and AOD."
@@ -300,15 +287,12 @@ class MenuAwareMonitoring:
             print_output_here = self.print_output
 
         # returns True or False depending on whether the input is valid to be used in the current stream
-
         # if no input, then return false
         if input1 == "":
             return False
-
         # if input is ALL, then return true
         if input1 == "ALL":
             return True
-
         # if input equals self.stream, then return true
         if input1 == self.stream:
             return True
@@ -326,31 +310,20 @@ class MenuAwareMonitoring:
         if print_output_here == "":
             print_output_here = self.print_output
 
-        # info for user
         if print_output_here:
             print "Attempting to get configurations of all locally running trigger-monitoring tools"
 
         # get list of locally running monitoring tools
         mon_tools = self.ti.get_available_trigger_monitoring_tools()
 
-        # print info about available local tools
-        if len(mon_tools) > 0:
-            if print_output_here:
-                print "The following trigger-monitoring tools have been found locally:"
-                print ""
-
         # get smck_config for each of these tools
         for tool in mon_tools:
-
-            # get smck_config
             smck_config = self.ti.get_smck_config_from_ToolSvc_tool_name(tool)
-
             # check that smck_config has been found
             # if not (Athena oddities can cause this) then skip to the next tool
             # only correct, valid trig mon tools should survive this process
             if smck_config == -1:
                 continue
-
             # construct smck_info for this tool
             smck_info = {}
             smck_info['SMCK_CONFIG'] = smck_config
@@ -359,32 +332,22 @@ class MenuAwareMonitoring:
             smck_info['SMCK_TOOL_TYPE'] = tool
             smck_info['SMCK_ATHENA_VERSION'] = self.ms.current_athena_version
             smck_info['SMCK_SVN_TAG'] = self.__get_tag__(str(smck_config['PackageName']).split(".")[0])
-
             # add this info to the local_global_info
             self.ms.local_global_info['MONITORING_TOOL_DICT'][tool] = smck_info
 
-            # print info about this tool
-            if print_output_here:
-                print "ToolSvc."+tool
-                print "The extracted data of this tool is stored in <ThisVariable>.local['"+tool+"']"
-                print "This can be passed to MaM methods with the string '"+tool+"'"
-                print ""
-
         self.ms.__update_local_pointer__()
 
-        # add nice spacing if we have been printing tool info
         if len(mon_tools) > 0:
             if print_output_here:
                 print "The extracted data of all local trigger-monitoring tools is stored in <ThisVariable>.ms.local"
+                print "The extracted data of a particular tool is stored in <ThisVariable>.local['ToolName'], for example <ThisVariable>.local['"+mon_tools[0]+"']"
                 print "All local trigger-monitoring tools can be passed together as an 'MCK' to MaM diff and search methods with the string 'LOCAL'"
-                print ""
-
 
     def setup_all_local_tools(self,mode=""):
         "Setup all local trigger-monitoring tools and runs get_current_local_info() to read them in using the Tool Interrogator."
 
         if self.tools_setup == True:
-            # this is a precautionary measure because it is not clear from testing that tools are resetup correctly if setup is attempted multiple times (probably because tools has protections against this implemented)
+            # this is a precautionary measure because it is not clear from testing that tools are resetup correctly if setup is attempted multiple times (probably because tools have protections against this implemented)
             print "Tools already set up."
             print "Quit and restart to setup again."
             return
@@ -413,7 +376,6 @@ class MenuAwareMonitoring:
 
         # setup all local packages listed in PackagesToInterrogate via ToolInterrogator
         self.ti.load_all_tools()
-
         # read in these tools with the Tool Interrogator
         self.get_current_local_info()
 
@@ -427,7 +389,7 @@ class MenuAwareMonitoring:
         # is this session interactive? If not, return "ALL"
         if self.ms.__is_session_interactive__():
 
-            # info for user
+
             print "Please specify whether this upload is to be a default for an Athena release, or a patch."
             print "valid inputs are 'default' or 'patch'."
 
@@ -437,28 +399,19 @@ class MenuAwareMonitoring:
             # if input is blank, interpret this as 'PATCH'
             if user_input == "":
                 user_input = "PATCH"
-
-                # confirmation to user
                 print "You have selected",user_input
 
-            # valid input
+            # check for valid input
             # if need be, then this list can be extended at a later date
             valid_input = ['DEFAULT','PATCH']
-
-            # check for valid input
             # if input is not valid, ask for it again
             while not valid_input.__contains__(user_input):
-
                 # warning to user that input was not understood
                 print "The input",user_input,"was not recognised. Please specify a valid option."
-
-                # get user input
                 user_input = raw_input("default or patch?: ").upper()
-
                 # if input is blank, interpret this as 'PATCH'
                 if user_input == "":
                     user_input = "PATCH"
-
                     # confirmation to user
                     print "You have selected",user_input
 
@@ -469,7 +422,6 @@ class MenuAwareMonitoring:
                 return 0
 
         else:
-
             # this is not an interactive session, so we can not ask for input
             return 0
 
@@ -485,22 +437,17 @@ class MenuAwareMonitoring:
         # make input names of equal length, for nice printout spacing
         # if the inputs are already of the same length
         if len(input1) == len(input2):
-
             # set the names to print
             name1 = input1
             name2 = input2
-
         # else if input 1 is longer than input 2
         elif len(input1) > len(input2):
-
             # set the names to print
             # pad out the shorter one with spaces before it
             name1 = input1
             name2 = ((len(input1)-len(input2))*" ") + input2
-
         # else if input 2 is longer than input 1
         elif len(input1) < len(input2):
-
             # set the names to print
             # pad out the shorter one with spaces before it
             name1 = ((len(input2)-len(input1))*" ") + input1
@@ -508,27 +455,20 @@ class MenuAwareMonitoring:
 
         # loop over the keys (and values) in dict1
         for key, value1 in dict1.iteritems():
-
             # if this key is in the second dictionary
             if dict2.__contains__(key):
-
                 # value from dict2
                 value2 = dict2[key]
-
                 # if the value is a dict
                 if type(value1) is dict:
-
                     # first print this dict key
                     print tab_space+name1+"['"+key+"']:"
                     print tab_space+name2+"['"+key+"']:"
-
                     # recursively call this function
                     # add some space to tab_space, to indent the sub-dictionary
                     self.__print_two_dicts__(value1,value2,"   "+tab_space,name1,name2)
-
                 # if the value is a list
                 elif type(value1) is list:
-
                     # print the items nicely (no unicode u' features)
                     print tab_space+name1+"['"+key+"'] = [",
                     for n, item in enumerate(value1):
@@ -548,37 +488,28 @@ class MenuAwareMonitoring:
                         if n != len(value2)-1:
                             print ",",
                     print "]"
-
                 # else if this value is not a dict or a list, then we should print
                 else:
                     print tab_space+name1+"['"+key+"'] =",value1
                     print tab_space+name2+"['"+key+"'] =",value2
-
             # else if this key is only in dict1, then we print it anyway
             else:
-
                 # if this is a dict
                 if type(value1) is dict:
-
                     # then use ms.__print_one_dict__ to print it
                     self.ms.__print_one_dict__(value1,tab_space,name1)
-
                 # else just print it
                 else:
                     print tab_space+name1+"['"+key+"'] =",value1
 
         # loop over the keys (and values) in dict2
         for key, value2 in dict2.iteritems():
-
             # if this key is not in the first dictionary
             if not dict1.__contains__(key):
-
                 # if this is a dict
                 if type(value2) is dict:
-
                     # then use ms.__print_one_dict__ to print it
                     self.ms.__print_one_dict__(value2,tab_space,name2)
-
                 # else just print it
                 else:
                     print tab_space+name2+"['"+key+"'] =",value2
@@ -595,7 +526,7 @@ class MenuAwareMonitoring:
         "Is input1 a valid MCK_ID."
 
         if self.ms.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # if the input is blank, then no, it's not an mck
@@ -608,7 +539,6 @@ class MenuAwareMonitoring:
         # if mck_info == -1 then we've not found an mck, so return False
         if mck_info == -1:
             return False
-
         # else this is a valid mck
         else:
             return True
@@ -618,25 +548,21 @@ class MenuAwareMonitoring:
         "Is input1 a valid SMCK_ID or SMCK_TOOL_PATCH_VERSION."
 
         if self.ms.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
             print_output_here = self.print_output
-
         # if the input is blank, then no, it's not an smck
         if input1 == "":
             return False
-
         # search for this smck
         smck_id = self.ms.__get_smck_id_from_smck_identifier__(input1,print_output_here)
-
         # if smck_id == -1 then we've not found an smck, so return False
         if smck_id == -1:
             return False
-
         # else this is a valid smck
         else:
             return True
@@ -648,7 +574,6 @@ class MenuAwareMonitoring:
 
         # import HLTMonTriggerList
         from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
-
         # now we rerun hltmonList.config() to update it with all the latest info from all slices
         hltmonList.config()
 
@@ -669,7 +594,6 @@ class MenuAwareMonitoring:
         if print_output_here == "":
             print_output_here = self.print_output
 
-        #info for user
         if print_output_here:
             if self.firstdiff:
                 print ""
@@ -682,14 +606,9 @@ class MenuAwareMonitoring:
 
         # input flags must be specified
         # acceptable tags are SMCK and MCK
-
-        # valid flags
         valid_flags = ['MCK','SMCK']
-
         # if any of the inputs or flags are missing
         if input1 == "" or flag1 == "" or input2 == "" or flag2 == "":
-
-            #info for user
             if print_output_here:
                 print "diff takes four arguments: input1, flag1, input2, flag2."
                 print "The inputs specify what things are to be diffed."
@@ -701,220 +620,155 @@ class MenuAwareMonitoring:
                 print "1,'MCK',2,'MCK'"
                 print "1,'MCK','HLTMuonMon','SMCK'"
                 print "17,'SMCK','HLTMuonMon','SMCK'"
-
-            # if input1 has not been provided
             if input1 == "":
-
-                #info for user
                 if print_output_here:
                     print "The first input has not been provided. Please provide the first input."
-
-            # if flag1 has not been provided
             if flag1 == "":
-
-                #info for user
                 if print_output_here:
                     print "The first flag has not been provided. Please provide the first flag. Recognised flags are MCK and SMCK"
-
-            # if input2 has not been provided
             if input2 == "":
-
-                #info for user
                 if print_output_here:
                     print "The second input has not been provided. Please provide the second input."
-
-            # if flag2 has not been provided
             if flag2 == "":
-
-                #info for user
                 if print_output_here:
                     print "The second flag has not been provided. Please provide the second flag. Recognised flags are MCK and SMCK"
-
-            # since one or more inputs are missing, we exit
             return
 
         # if flag 1 is not a string
         if type(flag1) is not str:
-
-            #info for user
             if print_output_here:
                 print "The flag '"+flag1+"' is not a string. Recognised flags are MCK and SMCK"
             return
 
         # if input 1 does not have a valid flag
         if not flag1.upper() in valid_flags:
-
-            #info for user
             if print_output_here:
                 print "The flag '"+flag1+"' is not a recognised flag. Recognised flags are MCK and SMCK"
             return
 
         # check if input 1 is a valid mck
         if flag1 == "MCK":
-
             # if it is not a valid mck or local
             is_1_local = False
             if type(input1) is str:
                 if input1.upper() == "LOCAL":
                     is_1_local = True
             if is_1_local == False and not self.__is_input_an_mck__(input1):
-
-                #info for user
                 if print_output_here:
                     print input1,"is not a valid MCK, or 'LOCAL' has not been selected."
                 return
 
         # check if input 1 is a valid smck
         elif flag1 == "SMCK":
-
             # if it is not a valid smck or local tool
             if not self.__is_input_an_smck__(input1,False) and not self.__is_input_a_local_tool__(input1):
-
-                #info for user
                 if print_output_here:
                     print input1,"is not a valid SMCK or local tool."
                 return
 
         # if flag 2 is not a string
         if type(flag2) is not str:
-
-            #info for user
             if print_output_here:
                 print "The flag '"+flag2+"' is not a string. Recognised flags are MCK and SMCK"
             return
 
         # if input 2 does not have a valid flag
         if not flag2.upper() in valid_flags:
-
-            #info for user
             if print_output_here:
                 print "The flag '"+flag2+"' is not a recognised flag. Recognised flags are MCK and SMCK"
             return
 
         # check if input 2 is a valid mck
         if flag2 == "MCK":
-
             # if it is not a valid mck or local
             is_2_local = False
             if type(input2) is str:
                 if input2.upper() == "LOCAL":
                     is_2_local = True
             if is_2_local == False and not self.__is_input_an_mck__(input2):
-
-                #info for user
                 if print_output_here:
                     print input2,"is not a valid MCK, or 'LOCAL' has not been selected."
                 return
 
         # check if input 2 is a valid smck
         elif flag2 == "SMCK":
-
             # if it is not a valid smck or local tool
             if not self.__is_input_an_smck__(input2,False) and not self.__is_input_a_local_tool__(input2):
-
-                #info for user
                 if print_output_here:
                     print input2,"is not a valid SMCK or local tool."
                 return
 
         # if we've reached this far then the inputs have been parsed
         # now we deal with the combinatorics of the options
-
         # these are the dicts we will diff
         diff_input1_dict = {}
         diff_input2_dict = {}
 
         # if input 1 is an mck
         if flag1 == "MCK":
-
             # if input 1 is local
             if is_1_local:
-
                 # then use currently stored local global info
                 diff_input1_dict = self.ms.local_global_info
-
             # else input 1 is an mck
             # (we know this because we checked if input 1 was a valid mck or 'local' above)
             else:
-
                 # get the global info from the database
                 diff_input1_dict = self.ms.get_global_info_from_db(input1)
 
         # else input 1 is an smck
         elif flag1 == "SMCK":
-
             # we must either get the smck from the database, or locally if it is a local tool
             # (it will be one or the other, as we have confirmed above)
             # we then need to construct a temporary global info for the diff
-
             # construct the temporary global info for the diff
             diff_input1_dict['MONITORING_TOOL_DICT'] = {}
-
             # is input 1 a local tool
             if self.__is_input_a_local_tool__(input1):
-
                 # set the tool name
                 tool_name1 = input1
-
                 # get the tool from the locally stored config
                 diff_input1_dict['MONITORING_TOOL_DICT'][tool_name1] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_name1]
-
             # else the input is an smck in the database
             else:
-
                 # get the tool from the database
                 smck_info1 = self.ms.get_smck_info_from_db(input1)
-
                 # set the tool name
                 tool_name1 = smck_info1['SMCK_TOOL_TYPE']
-
                 # get the tool from the database
                 diff_input1_dict['MONITORING_TOOL_DICT'][tool_name1] = smck_info1
 
         # if input 2 is an mck
         if flag2 == "MCK":
-
             # if input 2 is local
             if is_2_local:
-
                 # then use currently stored local global info
                 diff_input2_dict = self.ms.local_global_info
-
             # else input 2 is an mck
             # (we know this because we checked if input 2 was a valid mck or 'local' above)
             else:
-
                 # get the global info from the database
                 diff_input2_dict = self.ms.get_global_info_from_db(input2)
 
         # else input 2 is an smck
         elif flag2 == "SMCK":
-
             # we must either get the smck from the database, or locally if it is a local tool
             # (it will be one or the other, as we have confirmed above)
             # we then need to construct a temporary global info for the diff
-
             # construct the temporary global info for the diff
             diff_input2_dict['MONITORING_TOOL_DICT'] = {}
-
             # is input 2 a local tool
             if self.__is_input_a_local_tool__(input2):
-
                 # set the tool name
                 tool_name2 = input2
-
                 # get the tool from the locally stored config
                 diff_input2_dict['MONITORING_TOOL_DICT'][tool_name2] = self.ms.local_global_info['MONITORING_TOOL_DICT'][tool_name2]
-
             # else the input is an smck in the database
             else:
-
                 # get the tool from the database
                 smck_info2 = self.ms.get_smck_info_from_db(input2)
-
                 # set the tool name
                 tool_name2 = smck_info2['SMCK_TOOL_TYPE']
-
                 # get the tool from the database
                 diff_input2_dict['MONITORING_TOOL_DICT'][tool_name2] = smck_info2
 
@@ -931,14 +785,12 @@ class MenuAwareMonitoring:
 
         # now we need to print this in a neat manner
         if print_output_here:
-
             # recursively print the diffs
             self.__print_two_dicts__(diff_output1_dict,diff_output2_dict,"",input1,input2)
 
         # else we assume the user wants the diffs returned
         # (ie if this function has been called from within another function)
         else:
-
             # return the diffed dictionaries
             return diff_output1_dict, diff_output2_dict
 
@@ -947,46 +799,31 @@ class MenuAwareMonitoring:
         "Print the tables and entries in the current Oracle database."
 
         if self.ms.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # get SQL table and column names
         database_column_list = self.ms.oi.get_db_tables_and_columns()
-
         # list of tables
         table_list = []
-
         # construct list of tables
         for line in database_column_list:
-
             # if this table is not in the list
             if not line['TABLE_NAME'].upper() in table_list:
-
                 # add it to the list
                 table_list.append(line['TABLE_NAME'].upper())
 
-        # info for user
-        print ""
         print "The Menu-aware Monitoring Oracle database currently has the following format:"
-        print ""
-
         # for each table
         for table in table_list:
-
             # print the table name
             print "Table",table
-
             # loop over the database_column_list
             for column in database_column_list:
-
                 # if this column is in this table
                 if column['TABLE_NAME'].upper() == table:
-
                     # print this column info
                     print "     ",column['COLUMN_NAME']
-
-            # nice spacing for user
-            print ""
 
 
     def does_mck_athena_version_match_current_athena_version(self, mck_id):
@@ -1011,7 +848,7 @@ class MenuAwareMonitoring:
         "Apply an MCK to locally running tools."
 
         if self.ms.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         if print_output_here == "":
@@ -1042,7 +879,7 @@ class MenuAwareMonitoring:
         "Apply an SMCK to a locally running tool."
 
         if self.ms.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # check for empty print_output_here
@@ -1055,15 +892,12 @@ class MenuAwareMonitoring:
 
         # if we don't
         if smck_id == -1:
-
-            # info for user
             if print_output_here:
                 print "SMCK",input1,"has not been recognised as a valid SMCK."
             return
 
         # get the smck_info
         smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
-
         # get the release this SMCK was created for
         smck_athena_version = smck_info['SMCK_ATHENA_VERSION']
         # compare to our release
@@ -1074,8 +908,6 @@ class MenuAwareMonitoring:
         processing_step = smck_info['SMCK_PROCESSING_STEP']
         # are we running in an appropriate processing step?
         if not self.__is_input_a_valid_current_processing_step_to_use__(processing_step):
-
-            # info for user
             if print_output_here:
                 print "SMCK",input1,"is for the Athena processing stage '"+processing_step+"' which we are not currently in -> this SMCK will not be applied."
             return
@@ -1084,22 +916,17 @@ class MenuAwareMonitoring:
         processing_stream = smck_info['SMCK_PROCESSING_STREAM']
         # are we running in an appropriate processing stream?
         if not self.__is_input_a_valid_current_processing_stream_to_use__(processing_stream):
-
-            # info for user
             if print_output_here:
                 print "SMCK",input1,"is for the Athena processing stream '"+processing_stream+"', which we are not currently using -> this SMCK will not be applied."
             return
 
         # get the ToolSvc_tool_name
         ToolSvc_tool_name = smck_info['SMCK_CONFIG']['ToolSvcName']
-
         # is the input a locally running tool
         tool_is_running = False
         tool_is_running = hasattr(ToolSvc,ToolSvc_tool_name)
         #exec "tool_is_running = hasattr(ToolSvc,%s)" % (ToolSvc_tool_name)
         if not tool_is_running:
-
-            # info for user
             if print_output_here:
                 print "SMCK",input1,"corresponds to the tool",ToolSvc_tool_name,"which is not running locally, so can not be configured with this SMCK."
             return
@@ -1111,87 +938,60 @@ class MenuAwareMonitoring:
         # now we apply the config patch of the smck
         # for each variable in the patch
         for tool_key, tool_value in patch_config.iteritems():
-
             # test if the tool has this variable
             tool_contains_variable = False
             exec "tool_contains_variable = hasattr(ToolSvc.%s,tool_key)" % (ToolSvc_tool_name)
-
             # if the tool has this variable
             if tool_contains_variable:
-
                 # get the type of the value
                 type_to_set_to = type
                 exec "type_to_set_to = type(ToolSvc.%s.%s)" % (ToolSvc_tool_name,tool_key)
-
                 # test that the value to be applied is of the same type as the existing value
                 if type_to_set_to is type(tool_value):
-
                     # if this is a list, make it blank first
                     # this is to avoid overzealous Athena type limiting
                     # TODO Write this in a more generic way, ie. not just for lists
                     if type_to_set_to is list:
                         exec "ToolSvc.%s.%s = []" % (ToolSvc_tool_name,tool_key)
-
                     # apply the config for this variable
                     exec "ToolSvc.%s.%s = tool_value" % (ToolSvc_tool_name,tool_key)
-
                 # if they are not the same type
                 else:
-
-                    # info for user
                     if print_output_here:
                         print "ToolSvc."+str(ToolSvc_tool_name)+"."+str(tool_key)+" is of type "+str(type_to_set_to)+", however in SMCK",input1,str(ToolSvc_tool_name)+"."+str(tool_key),"is of type",type(tool_value)
                         #print "Athena will only allow ToolSvc."+str(ToolSvc_tool_name)+"."+str(tool_key)+" to be set to values of type",type_to_set_to
                         print "Attempting conversion...",
-
                     # get the type_to_set_to as a str
                     type_to_set_to_str = str(type_to_set_to).split("'")[1]
-
                     # try to convert
                     try:
-
                         # try the conversion
                         exec "new_value = %s(tool_value)" % (type_to_set_to_str)
-
                         # if we've got this far then the conversion was a success
-                        # info for user
                         if print_output_here:
                             print "conversion successful.",
 
                         # check that the values are equal
                         if new_value == tool_value:
-
                             # apply the config for this variable
                             exec "ToolSvc.%s.%s = new_value" % (ToolSvc_tool_name,tool_key)
-
-                            # nice formatting for user
-                            if print_output_here:
-                                print ""
-
                         # if the values are not equal
                         else:
-
-                            # info for user
                             if print_output_here:
                                 print "However the values do not match. This tool variable will not be set."
                                 print "(",str(new_value),"!=",str(tool_value),")"
 
                     # if the conversion has failed
                     except:
-
-                        # info for user
                         if print_output_here:
                             print "conversion failed. This tool variable will not be set."
 
         # get the MonitCategory patch
         monitCategory_patch_config = self.ms.oi.__unicode_to_str__(smck_info['SMCK_CONFIG']['MonitCategoryInfo'] )
-
         # if monitCategory_patch_config is not empty, then we must apply this patch
         if not monitCategory_patch_config == {}:
-
             # get the MonitCategory name
             monitCategory_name = self.ms.oi.__unicode_to_str__(smck_info['SMCK_CONFIG']['MonitCategoryName'] )
-
             # first we must import the relevant MonitCategory
             # we import it as monitCategory_object so that we have a handle on it
             monitCategory_object = ""
@@ -1199,34 +999,28 @@ class MenuAwareMonitoring:
 
             # we then need to apply each variable in monitCategory_patch_config to monitCategory_object
             for key, value in monitCategory_patch_config.iteritems():
-
                 # test if the monitCategory_object has this variable
                 monitCategory_object_contains_variable = False
                 monitCategory_object_contains_variable = hasattr(monitCategory_object,key)
 
                 # if the monitCategory_object has this variable
                 if monitCategory_object_contains_variable:
-
                     # get the type of the value
                     type_to_set_to = type
                     exec "type_to_set_to = type(monitCategory_object.%s)" % (key)
 
                     # test that the value to be applied is of the same type as the existing value
                     if type_to_set_to is type(value):
-
                         # if this is a list, make it blank first
                         # this is to avoid overzealous Athena type limiting
                         # TODO Write this in a more generic way, ie. not just for lists
                         if type_to_set_to is list:
                             exec "monitCategory_object.%s = []" % (key)
-
                         # apply the config for this variable
                         exec "monitCategory_object.%s = value" % (key)
 
                     # if they are not the same type
                     else:
-
-                        # info for user
                         if print_output_here:
                             print str(monitCategory_name)+"."+str(key)+" is of type "+str(type_to_set_to)+", however in SMCK",input1,str(monitCategory_name)+"."+str(key),"is of type",type(value)
                             #print "Athena will only allow ToolSvc."+str(ToolSvc_tool_name)+"."+str(tool_key)+" to be set to values of type",type_to_set_to
@@ -1237,44 +1031,32 @@ class MenuAwareMonitoring:
 
                         # try to convert
                         try:
-
                             # try the conversion
                             exec "new_value = %s(tool_value)" % (type_to_set_to_str)
-
                             # if we've got this far then the conversion was a success
-                            # info for user
                             if print_output_here:
                                 print "conversion successful.",
 
                             # check that the values are equal
                             if new_value == tool_value:
-
                                 # apply the config for this variable
                                 exec "ToolSvc.%s.%s = new_value" % (ToolSvc_tool_name,tool_key)
 
-                                # nice formatting for user
-                                if print_output_here:
-                                    print ""
-
                             # if the values are not equal
                             else:
-
-                                # info for user
                                 if print_output_here:
                                     print "However the values do not match. This MonitCategory variable will not be set."
                                     print "(",str(new_value),"!=",str(tool_value),")"
 
                         # if the conversion has failed
                         except:
-
-                            # info for user
                             if print_output_here:
                                 print "conversion failed. This MonitCategory variable will not be set."
 
             # finally we should refresh HLTMonTriggerList
             self.__refresh_HLTMonTriggerList__()
 
-        # info for user
+
         if print_output_here:
             print "SMCK",input1,"has been applied as a config patch to tool",ToolSvc_tool_name
 
@@ -1286,7 +1068,7 @@ class MenuAwareMonitoring:
         that the default tool configurations should be used."""
 
         if self.ms.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # returns an empty list if no MCK or a list of the MCK details
@@ -1320,9 +1102,7 @@ class MenuAwareMonitoring:
         mck_info['MCK_CREATION_DATE'] = mck_info['MCK_CREATION_DATE'].ctime()
         mck_dump_info['MCK'] = mck_info
 
-        # need to add rest of MCK info
-
-        #combine the info in the MONITORING_TOOL_DICT
+        # combine rest of the MCK info in the MONITORING_TOOL_DICT
         mck_dump_info['MONITORING_TOOL_DICT'] = {}
         for smck_id in smck_ids:
             smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
@@ -1349,18 +1129,15 @@ class MenuAwareMonitoring:
 
         # if this is a default...
         if default==1:
-
             # then set the processing_step and processing_stream accordingly
             processing_step="ALL"
             processing_stream="ALL"
 
         # else if it's a patch...
         else:
-
             # if no processing_step is provided, then ask for one
             if processing_step=="":
                 processing_step = self.ms.__ask_for_processing_step__()
-
             # if no processing_step is provided, then ask for one
             if processing_stream=="":
                 processing_stream = self.ms.__ask_for_processing_stream__()
@@ -1378,7 +1155,6 @@ class MenuAwareMonitoring:
 
         # fill extra smck_info for all tools
         for tool_key, tool_value in self.ms.local_global_info['MONITORING_TOOL_DICT'].iteritems():
-
             # fill extra smck_info
             tool_value['SMCK_PROCESSING_STEP'] = processing_step
             tool_value['SMCK_PROCESSING_STREAM'] = processing_stream
@@ -1480,8 +1256,6 @@ class MenuAwareMonitoring:
 
         UniqID = str(uuid.uuid4())
         CleanDirName="default_"+UniqID
-        # print CleanDirName
-
         default_json_filename = self.ms.current_athena_version+'_default.json'
 
         # do the getting of the default via a shell here
@@ -1503,7 +1277,7 @@ class MenuAwareMonitoring:
 
         # if there are no local differences wrt the default, then we dump nothing and exit
         if diffed_global_info2 == {}:
-            print "No local differences have been found with respect to the default configuration for Athena version "+athena_version+"."
+            print "No local differences have been found with respect to the default configuration for Athena version "+release+"."
             print "Nothing shall be dumped to json as a result."
             return
 
@@ -1521,7 +1295,6 @@ class MenuAwareMonitoring:
 
         # fill extra smck_info for all tools
         for tool_key, tool_value in diffed_global_info2['MONITORING_TOOL_DICT'].iteritems():
-
             # fill extra smck_info
             tool_value['SMCK_PROCESSING_STEP'] = processing_step
             tool_value['SMCK_PROCESSING_STREAM'] = processing_stream

@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
+                          LumiBlock/LumiBlockComps
                           PRIVATE
                           GaudiKernel )
 
@@ -20,12 +21,12 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigMultiVarHypoLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigMultiVarHypo
-                   LINK_LIBRARIES xAODTrigCalo xAODTrigRinger TrigCaloEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
+                   LINK_LIBRARIES xAODTrigCalo xAODTrigRinger TrigCaloEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib LumiBlockCompsLib
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_component( TrigMultiVarHypo
                      src/components/*.cxx
-                     LINK_LIBRARIES xAODTrigCalo xAODTrigRinger TrigCaloEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib GaudiKernel TrigMultiVarHypoLib )
+                     LINK_LIBRARIES xAODTrigCalo xAODTrigRinger TrigCaloEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib GaudiKernel TrigMultiVarHypoLib LumiBlockCompsLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

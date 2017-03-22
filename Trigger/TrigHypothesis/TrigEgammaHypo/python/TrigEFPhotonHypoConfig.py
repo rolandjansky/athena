@@ -100,13 +100,13 @@ class EFPhotonHypo_g_ID_CaloOnly (TrigEFPhotonHypoBase):
 
 class EFPhotonHypo_g_ID_CaloOnly_Iso (EFPhotonHypo_g_ID_CaloOnly):
     __slots__ = []
+    isoCuts = TrigEFPhotonIsoCutDefs()
     def __init__(self, name, threshold, IDinfo, isoInfo):
         super( EFPhotonHypo_g_ID_CaloOnly_Iso, self ).__init__( name, threshold, IDinfo )
         #Isolation
-        isoCuts = TrigEFPhotonIsoCutDefs()
         self.ApplyIsolation = True
         #EtCone Size              =  20, 30, 40
         self.EtConeSizes = 3
         self.EtConeCut          = [-1, -1, -1]
-        self.RelEtConeCut = isoCuts.IsolationCuts(isoInfo)
-        self.IsoOffset = isoCuts.OffsetValue(isoInfo)
+        self.RelEtConeCut = self.isoCuts.IsolationCuts(isoInfo)
+        self.IsoOffset = self.isoCuts.OffsetValue(isoInfo)

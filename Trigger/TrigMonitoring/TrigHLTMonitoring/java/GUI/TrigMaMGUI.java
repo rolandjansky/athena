@@ -1,7 +1,6 @@
-////
-//// 	GUI for TriggerHLTMonitoring MenuAwareMonitoring
-////	built by Xanthe Hoad (xhoad@cern.ch)
-////
+// GUI for TriggerHLTMonitoring MenuAwareMonitoring
+// Author: Xanthe Hoad (xanthe.hoad@cern.ch)
+// See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 import java.awt.*;
 import java.awt.event.*;

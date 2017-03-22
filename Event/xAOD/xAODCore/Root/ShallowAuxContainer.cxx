@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.cxx 785968 2016-11-23 12:34:36Z krasznaa $
+// $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -355,7 +355,7 @@ namespace xAOD {
       return m_store->getWritableAuxIDs();
    }
 
-   void ShallowAuxContainer::resize( size_t /*size*/ ) {
+   bool ShallowAuxContainer::resize( size_t /*size*/ ) {
 
       // Nope, not allowed...
       throw std::runtime_error( "Trying to call resize on a shallow copy "
@@ -373,6 +373,15 @@ namespace xAOD {
 
       // Nope, not allowed...
       throw std::runtime_error( "Trying to call shift on a shallow copy "
+                                "container" );
+   }
+
+   bool ShallowAuxContainer::insertMove( size_t /*pos*/,
+                                         IAuxStore& /*other*/,
+                                         const SG::auxid_set_t& /*ignore*/) {
+
+      // Nope, not allowed...
+      throw std::runtime_error( "Trying to call insertMove on a shallow copy "
                                 "container" );
    }
 

@@ -762,9 +762,10 @@ public:
   virtual size_t size() const { return 0; }
   virtual void* getData (SG::auxid_t, size_t, size_t) { return 0; }
   virtual const SG::auxid_set_t& getWritableAuxIDs() const { return m_auxids; }
-  virtual void resize (size_t) { }
+  virtual bool resize (size_t) { return false; }
   virtual void reserve (size_t) { }
   virtual void shift (size_t, ptrdiff_t) { }
+  virtual bool insertMove (size_t, IAuxStore&, const SG::auxid_set_t&) { return false; }
 
   SG::auxid_set_t m_auxids;
 };
@@ -780,6 +781,90 @@ void test_emptysort()
 }
 
 
+struct MoveTest
+{
+  MoveTest(int x=0) : m_v(x) {}
+  MoveTest(const MoveTest& other): m_v (other.m_v) {}
+  MoveTest(MoveTest&& other): m_v (std::move(other.m_v)) {}
+  MoveTest& operator= (const MoveTest& other) {
+    if (this != &other) m_v = other.m_v;
+    return *this;
+  }
+  MoveTest& operator= (MoveTest&& other) {
+    if (this != &other) m_v = std::move(other.m_v);
+    return *this;
+  }
+  std::vector<int> m_v;
+  bool operator== (const MoveTest& other) const { return m_v.size() == other.m_v.size(); }
+};
+
+
+template <class T>
+bool wasMoved (const T&) { return true; }
+
+bool wasMoved (const MoveTest& x) { return x.m_v.empty(); }
+
+
+template <class T>
+void test_insertmove1()
+{
+  typename T::template Accessor<MoveTest> auxm ("auxm");
+
+  DataVector<T> v;
+  SG::AuxStoreInternal store;
+  v.setStore (&store);
+
+  for (int i=0; i < 5; i++)
+    v.push_back (new T(i));
+  for (int i=0; i < 5; i++) {
+    v[i]->setaux();
+    auxm(*v[i]) = MoveTest(i);
+  }
+
+  DataVector<T> v2;
+  SG::AuxStoreInternal store2;
+  v2.setStore (&store2);
+
+  for (int i=0; i < 5; i++)
+    v2.push_back (new T(i+10));
+  for (int i=0; i < 5; i++) {
+    v2[i]->setaux();
+    auxm(*v2[i]) = MoveTest(i+10);
+  }
+
+  v.insertMove (v.begin()+3, v2);
+  assert (v.size() == 10);
+  checkaux (v);
+  CHECK_INDICES (v);
+  for (int i=0; i < 3; i++) {
+    assert (v[i]->x == i);
+    assert (auxm(*v[i]) == MoveTest(i));
+  }
+  for (int i=0; i < 5; i++) {
+    assert (v[3+i]->x == i+10);
+    assert (auxm(*v[3+i]) == MoveTest(i+10));
+  }
+  for (int i=3; i < 5; i++) {
+    assert (v[5+i]->x == i);
+    assert (auxm(*v[5+i]) == MoveTest(i));
+  }
+  assert (v2.ownPolicy() == SG::VIEW_ELEMENTS);
+  assert (v2.size() == 5);
+  for (int i=0; i < 5; i++) {
+    assert (v2[i]->x == i+10);
+  }
+}
+
+
+void test_insertmove()
+{
+  std::cout << "test_insertmove\n";
+  test_insertmove1<AAux>();
+  test_insertmove1<BAux>();
+  test_insertmove1<CAux>();
+}
+
+
 int main()
 {
   test1();
@@ -790,6 +875,7 @@ int main()
   test_iterate();
   test_auxdata();
   test_emptysort();
+  test_insertmove();
   return 0;
 }
 

@@ -31,22 +31,32 @@ class TrigL2CaloRingerFex( TrigL2CaloRingerFexBase ):
   def __init__(self, name, threshold, IDinfo, trigType):
     super( TrigL2CaloRingerFex, self ).__init__( name ) 
 
+    from AthenaCommon.AppMgr import ToolSvc
+    from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+    ToolSvc += LuminosityToolOnline()
+
     from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
     #if this is empty, the fex will work like EtCut
     theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,trigType)
    
-    #Prepoc configuration
+    #PreProc configuration
     self.NRings             = theRingerConfig.NRings
     self.SectionRings       = theRingerConfig.SectionRings
     self.NormalisationRings = theRingerConfig.NormalisationRings
 
     #MultiLayerPerceptron configuration
     self.Nodes       = theRingerConfig.Nodes
-    self.Thresholds  = theRingerConfig.Thresholds
     self.Bias        = theRingerConfig.Bias
     self.Weights     = theRingerConfig.Weights
     self.EtaBins     = theRingerConfig.EtaBins
     self.EtBins      = theRingerConfig.EtBins
+   
+    # Metadata
+    self.LuminosityCut     = theRingerConfig.LumiCut
+    self.UseEtaVar         = theRingerConfig.UseEtaVar
+    self.UseLumiVar        = theRingerConfig.UseLumiVar
+
+
 
 class TrigL2CaloRingerFex_Empty( TrigL2CaloRingerFexBase ):
   __slots__ = []
@@ -82,14 +92,24 @@ class TrigL2CaloRingerHypo_e_ID(TrigL2CaloRingerHypo):
 
     #If this is empty, the hypothesis will work like EtCut
     self.Thresholds = theRingerConfig.Thresholds
-    self.EtaBins    = theRingerConfig.EtaBins
-    self.EtBins     = theRingerConfig.EtBins
+    self.EtaBins    = theRingerConfig.EtaBinsFromThreshold
+    self.EtBins     = theRingerConfig.EtBinsFromThreshold
+
+    # metadata
+    self.DoPileupCorrection                    = theRingerConfig.DoPileupCorrection
+    self.UseNoActivationFunctionInTheLastLayer = theRingerConfig.UseNoActivationFunctionInTheLastLayer
+    self.LuminosityCut                         = theRingerConfig.LumiCut
+
 
 class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):
   __slots__ = []
 
   def __init__(self, name, threshold, IDinfo, trigType):
     super( TrigL2CaloRingerHypo_g_ID, self ).__init__( name ) 
+
+    from AthenaCommon.AppMgr import ToolSvc
+    from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+    ToolSvc += LuminosityToolOnline()
 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
@@ -100,9 +120,13 @@ class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):
 
     #If this is empty, the hypothesis will work like EtCut
     self.Thresholds = theRingerConfig.Thresholds
-    self.EtaBins    = theRingerConfig.EtaBins
-    self.EtBins     = theRingerConfig.EtBins
+    self.EtaBins    = theRingerConfig.EtaBinsFromThreshold
+    self.EtBins     = theRingerConfig.EtBinsFromThreshold
 
+    # Metadata
+    self.DoPileupCorrection                    = theRingerConfig.DoPileupCorrection
+    self.LuminosityCut     = theRingerConfig.LumiCut
+    self.UseNoActivationFunctionInTheLastLayer = theRingerConfig.UseNoActivationFunctionInTheLastLayer
 
 class TrigL2CaloRingerHypo_NoCut(TrigL2CaloRingerHypo):
   __slots__ = []

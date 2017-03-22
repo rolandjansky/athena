@@ -159,6 +159,8 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_dijetFakeTausEff;
   bool m_doTrackCurves;
   bool m_doTopoValidation;
+  bool m_doL1JetPlots;
+  bool m_doEFTProfiles;
   bool m_bootstrap;
   bool m_isData;
 

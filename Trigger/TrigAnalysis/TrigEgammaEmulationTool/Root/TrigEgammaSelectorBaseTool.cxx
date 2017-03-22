@@ -72,14 +72,14 @@ float TrigEgammaSelectorBaseTool::getOnlAverageMu(){
   if(m_lumiBlockMuTool){
     return m_lumiBlockMuTool->averageInteractionsPerCrossing(); // (retrieve mu for the current BCID)
   }
-  return 0;
+  return 0.0;
 }
 //!==========================================================================
 float TrigEgammaSelectorBaseTool::getAverageMu(){
   if(m_lumiTool){
     return m_lumiTool->lbAverageInteractionsPerCrossing(); // (retrieve mu for the current BCID)
   }
-  return 0;
+  return 0.0;
 }
 //!==========================================================================
 const xAOD::TrigRingerRings* TrigEgammaSelectorBaseTool::getTrigCaloRings( const xAOD::TrigEMCluster *emCluster ){

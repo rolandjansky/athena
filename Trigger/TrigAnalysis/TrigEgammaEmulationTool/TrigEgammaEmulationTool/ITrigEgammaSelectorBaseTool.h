@@ -6,6 +6,7 @@
 #define ITrigEgammaSelectorBaseTool_H_
 
 #include "AsgTools/IAsgTool.h"
+#include "PATCore/TAccept.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 //xAOD include(s)
@@ -30,7 +31,8 @@
 
 #include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
 #include <string>
-
+#include <map>
+#include "boost/any.hpp"
 
 namespace Trig{
     class ITrigEgammaSelectorBaseTool : public virtual asg::IAsgTool {
@@ -45,8 +47,8 @@ namespace Trig{
             virtual bool emulation(const xAOD::IParticleContainer     * , bool&, const Trig::Info &)=0;
            
             virtual void setTe(const HLT::TriggerElement *)=0; 
-            virtual void setParents(ToolHandle<Trig::TrigDecisionTool> &, StoreGateSvc *)=0;
-            virtual void setParents(Trig::TrigDecisionTool *, StoreGateSvc *)=0;
+            virtual void setParents(ToolHandle<Trig::TrigDecisionTool> &, StoreGateSvc *, std::map<std::string,boost::any> *)=0;
+            virtual void setParents(Trig::TrigDecisionTool *, StoreGateSvc *, std::map<std::string,boost::any> *)=0;
 
         protected:
 

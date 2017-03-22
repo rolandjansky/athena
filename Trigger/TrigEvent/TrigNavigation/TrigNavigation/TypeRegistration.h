@@ -5,7 +5,7 @@
 #include "TrigNavigation/NavigationInit.h"
 #include "TrigStorageDefinitions/EDM_TypeInfo.h"
 
-#include <iostream>
+//#include <iostream>
 
 template<typename CONTAINER>
 struct register_feature{

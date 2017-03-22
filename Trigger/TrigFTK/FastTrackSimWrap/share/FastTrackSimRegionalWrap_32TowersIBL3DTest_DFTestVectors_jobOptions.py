@@ -48,6 +48,8 @@ wrapper.EmulateDF = True
 wrapper.SaveRawHits = True
 wrapper.SaveHits = True
 wrapper.DuplicateGanged = False
+wrapper.SctClustering=True
+
 print "FTKRegionalWrapper setting ROBS"
 wrapper.pixRodIds = ["0x112414", "0x140170", "0x111816", "0x112411", "0x112416", "0x140140", "0x140180", "0x130011"]
 wrapper.sctRodIds = ["0x210000", "0x210109", "0x210108", "0x230100", "0x220000", "0x220109", "0x22010a", "0x21010a"]

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxPersVector.h 785202 2016-11-18 18:42:53Z ssnyder $
+// $Id: AuxPersVector.h 793737 2017-01-24 20:11:10Z ssnyder $
 #ifndef XAODCORE_AUXPERSVECTOR_H
 #define XAODCORE_AUXPERSVECTOR_H
 
@@ -23,72 +23,23 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 785202 $
-   /// $Date: 2016-11-18 19:42:53 +0100 (Fri, 18 Nov 2016) $
+   /// $Revision: 793737 $
+   /// $Date: 2017-01-24 21:11:10 +0100 (Tue, 24 Jan 2017) $
    ///
    template< class T, class VEC=std::vector< T > >
-   class AuxPersVector : public SG::IAuxTypeVector {
+   class AuxPersVector : public SG::AuxTypeVectorHolder<T, VEC> {
 
    public:
       /// Convenience type definition
       typedef VEC& vector_type;
 
       /// Constructor
-      AuxPersVector( vector_type vec ) : m_vec( vec ) {}
+      AuxPersVector( vector_type vec )
+        : SG::AuxTypeVectorHolder<T, VEC> (&vec, false) {}
 
       virtual SG::IAuxTypeVector* clone() const {
         return new AuxPersVector<T, VEC>(*this);
       }
-
-      virtual void* toPtr() {
-         if (m_vec.empty())
-           return 0;
-         return &*m_vec.begin();
-      }
-      virtual void* toVector() {
-         return &m_vec;
-      }
-      virtual size_t size() const {
-         return m_vec.size();
-      }
-      virtual void resize( size_t sz ) {
-         m_vec.resize( sz );
-      }
-      virtual void reserve( size_t sz ) {
-         m_vec.reserve( sz );
-      }
-      virtual void shift( size_t pos, ptrdiff_t offs ) {
-         if (offs < 0) {
-            if (-offs > static_cast<off_t>(pos)) offs = -pos;
-            std::copy (m_vec.begin()+pos, m_vec.end(), m_vec.begin()+pos+offs);
-            m_vec.resize (m_vec.size() + offs);
-         }
-         else if (offs > 0) {
-            size_t oldsz = m_vec.size();
-            m_vec.resize (m_vec.size() + offs);
-            std::copy (m_vec.rbegin()+offs, m_vec.rbegin()+offs+oldsz-pos,
-                       m_vec.rbegin());
-            std::fill (m_vec.begin()+pos, m_vec.begin()+pos+offs, T());
-         }
-      }
-
-      virtual bool setOption (const SG::AuxDataOption& option) {
-         // Need to instantiate different functions depending on whether or not
-         // the payload implements @c SG::IAuxSetOption.
-         // From AuxTypeVector.icc
-         return DataModel_detail::setOptionHelper
-            (&m_vec,
-             option,
-             typename std::is_base_of<SG::IAuxSetOption,vector_type>::type());
-      }
-
-     virtual const std::type_info* objType() const {
-        return &typeid( VEC );
-     }
-
-   private:
-      /// Reference to the vector being handled
-      vector_type m_vec;
 
    }; // class AuxPersVector
 

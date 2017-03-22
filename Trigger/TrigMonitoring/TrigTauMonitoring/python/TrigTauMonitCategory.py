@@ -42,14 +42,11 @@ monitoring_tau = [
 
 monitoring_tau_pp = [
 	'tau0_perf_ptonly_L1TAU12',
-	'tau0_perf_ptonly_L1TAU60',
 	'tau25_idperf_track',
 	'tau25_idperf_tracktwo',
 	'tau25_perf_tracktwo',
 	'tau25_medium1_tracktwo',
 	'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',  #keep this as reference for the L1Topo plots
-	'mu14_iloose_tau25_perf_tracktwo',   # need to move to the ivarloose chain
-	'tau160_idperf_track',
 	'tau160_idperf_tracktwo',
 	'tau160_perf_tracktwo',
 	'tau160_medium1_tracktwo',
@@ -66,6 +63,11 @@ monitoring_tau_pp = [
         'tau25_perf_tracktwo_L1TAU12IM_FTK',
         'tau25_medium1_tracktwo_L1TAU12IM_FTK'
 ]
+# removed monitoring_tau_pp chains:
+#	'tau0_perf_ptonly_L1TAU60',
+#	'mu14_iloose_tau25_perf_tracktwo',   # need to move to the ivarloose chain
+#	'tau160_idperf_track',
+
 
 monitoring_tau_validation = [
 	'tau0_perf_ptonly_L1TAU12',

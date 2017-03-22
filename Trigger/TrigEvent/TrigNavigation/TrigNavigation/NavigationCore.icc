@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <algorithm>
-#include <boost/foreach.hpp>
+#include <type_traits>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -24,7 +24,6 @@
  * COMPILE TYPE OBJECTS REGISTRATION
  *
  *****************************************************************************/
-#include <boost/type_traits.hpp>
 #undef  MLOG
 #define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
 
@@ -261,8 +260,8 @@ template<class CONTAINERTYPE>
 struct link_to_type<ElementLink<CONTAINERTYPE> >{
   typedef CONTAINERTYPE container_type;
   typedef typename ElementLink<CONTAINERTYPE>::ElementType ptr2constT_type;   // is a const T* if T is the feature type
-  typedef typename boost::remove_pointer<ptr2constT_type>::type constT_type;  // is a const T
-  typedef typename boost::remove_const<constT_type>::type type;               // is a       T
+  typedef typename std::remove_pointer<ptr2constT_type>::type constT_type;    // is a const T
+  typedef typename std::remove_const<constT_type>::type type;                 // is a       T
 };
 
 
@@ -330,7 +329,7 @@ bool HLT::NavigationCore::getRecentFeatureLink( const TriggerElement* te,
               << " in TE: " << te->getId()  
               << " label: \"" << label << "\"" << endreq;
   
-  if( boost::is_same<C, T>::value ) 
+  if( std::is_same<C, T>::value ) 
     return false;
     
 
