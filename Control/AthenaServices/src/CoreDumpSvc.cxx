@@ -249,7 +249,7 @@ StatusCode CoreDumpSvc::start(){
   }
   m_usrCoreDumps.resize(numSlots);
   m_sysCoreDumps.resize(numSlots);
-
+  return StatusCode::SUCCESS;
 }
 
 StatusCode CoreDumpSvc::finalize()
