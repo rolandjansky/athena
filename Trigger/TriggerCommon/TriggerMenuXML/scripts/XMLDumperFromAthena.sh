@@ -125,9 +125,5 @@ grep --colour -A 100 "Shortened traceback" ${dest}/$logfile
 
 rm -rf $rundir
 
-if $athena_failed ; then
-  echo "Failed to build one or more menus"
-  return 1
-fi
 # Do not return real athena exit code as we want to pretend everything was fine
 
