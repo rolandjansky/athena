@@ -90,7 +90,7 @@ public:
   eflowEtaPhiPosition(double eta, double phi): m_eta(eta), m_phi(phi) {}
   eflowEtaPhiPosition(const eflowEtaPhiPosition& other) :
       m_eta(other.m_eta), m_phi(other.m_phi) { }
-  void operator=(const eflowEtaPhiPosition& other) {  m_eta = other.m_eta; m_phi = other.m_phi; }
+  eflowEtaPhiPosition& operator=(const eflowEtaPhiPosition& other) {  if (this == &other) return *this; else { m_eta = other.m_eta; m_phi = other.m_phi; return *this; } }
   ~eflowEtaPhiPosition() { }
 
   inline double getEta() const { return m_eta; }
