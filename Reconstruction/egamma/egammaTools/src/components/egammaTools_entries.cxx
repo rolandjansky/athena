@@ -12,7 +12,6 @@
 #include "../egammaSwTool.h"
 #include "../electronSuperClusterBuilder.h"
 #include "../photonSuperClusterBuilder.h"
-#include "../egammaTopoClusterCopier.h"
 
 DECLARE_TOOL_FACTORY     ( EMClusterTool                )
 DECLARE_TOOL_FACTORY     ( EMConversionBuilder          )
@@ -26,7 +25,6 @@ DECLARE_TOOL_FACTORY     ( EMPIDBuilder                 )
 DECLARE_TOOL_FACTORY     ( egammaSwTool                 )
 DECLARE_TOOL_FACTORY     ( electronSuperClusterBuilder  )
 DECLARE_TOOL_FACTORY     ( photonSuperClusterBuilder    )
-DECLARE_TOOL_FACTORY     ( egammaTopoClusterCopier      )
 
 DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( EMClusterTool                )
@@ -41,6 +39,5 @@ DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( egammaSwTool                 )
     DECLARE_TOOL     ( electronSuperClusterBuilder  )
     DECLARE_TOOL     ( photonSuperClusterBuilder    )
-    DECLARE_TOOL     ( egammaTopoClusterCopier      )
 }
 

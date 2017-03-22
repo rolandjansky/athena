@@ -18,20 +18,22 @@ jobproperties.egammaRecFlags.print_JobProperties("full")
 # Run Brem builder.
 if jobproperties.egammaRecFlags.doBremFinding() and DetFlags.detdescr.ID_on():
     try:
-        import egammaAlgs.EMBremCollectionBuilder
+        from egammaAlgs.EMBremCollectionBuilder import EMBremCollectionBuilder
+        EMBremCollectionBuilder()
     except Exception:
         treatException("Could not set up EMBremFinder. Switch it off !")
         jobproperties.egammaRecFlags.doBremFinding=False    
-        egammaAlgs.EMBremCollectionBuilder(disable=True)
+        #EMBremCollectionBuilder(disable=True)
 
 # Run conversion vertex builder.
 if jobproperties.egammaRecFlags.doVertexBuilding() and DetFlags.detdescr.ID_on():
     try:
-        import egammaAlgs.EMVertexBuilder
+        from egammaAlgs.EMVertexBuilder import EMVertexBuilder
+        EMVertexBuilder()
     except Exception:
         treatException("Could not set up the conversion vertex building. Switch it off !")
         jobproperties.egammaRecFlags.doVertexBuilding=False
-        egammaAlgs.EMVertexBuilder(disable=True)
+        #EMVertexBuilder(disable=True)
 
 # Run calo-based (egamma) algorithm, includes topo-seeded
 # It requires either to read ESD
@@ -40,6 +42,10 @@ if jobproperties.egammaRecFlags.doEgammaCaloSeeded()  and ( rec.readESD() or job
     # 
     try:
         if jobproperties.egammaRecFlags.doEgammaCaloSeeded:
+            # if doing superclusters, first schedule the algorithm to prepare the topoclusters
+            if jobproperties.egammaRecFlags.doSuperclusters():
+                from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
+                egammaTopoClusterCopier()                
             from egammaRec.egammaGetter import egammaGetter
             egammaGetter(ignoreExistingDataObject=True)
     except Exception:

@@ -6,10 +6,7 @@ __author__ = "Bruno Lenzi"
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import FcnWrapper, AlgFactory
 from egammaRec import egammaKeys
-from RecExConfig.RecFlags import rec
-from AthenaCommon.BeamFlags import jobproperties
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-
 from egammaTools.InDetTools import egammaInDetTrackSummaryTool, egammaExtrapolator
 
 class VertexFinderToolInstance(FcnWrapper):
@@ -37,5 +34,3 @@ EMVertexBuilder = AlgFactory( egammaAlgsConf.EMVertexBuilder,
     OutputConversionContainerName   = egammaKeys.outputConversionKey(),
     VertexFinderTool                = VertexFinderToolInstance(),
     ExtrapolationTool = EMExtrapolationTools)
-
-

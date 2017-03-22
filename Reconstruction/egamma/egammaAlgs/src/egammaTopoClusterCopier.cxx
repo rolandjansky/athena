@@ -2,12 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaTopoClusterCopier.h"
+#include "egammaAlgs/egammaTopoClusterCopier.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "AthContainers/ConstDataVector.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 class greater{
 public:
@@ -34,21 +36,26 @@ public:
 };
 
 // =============================================================
-egammaTopoClusterCopier::egammaTopoClusterCopier(const std::string& type, const std::string& name, const IInterface* parent) :
-  egammaBaseTool(type, name, parent){
+egammaTopoClusterCopier::egammaTopoClusterCopier(const std::string& name, 
+						 ISvcLocator* pSvcLocator): 
+  AthReentrantAlgorithm(name, pSvcLocator) {
   declareProperty("InputTopoCollection", m_inputTopoCollection = "CaloTopoCluster");
   declareProperty("OutputTopoCollection", m_outputTopoCollection = "egammaTopoCluster");
+  declareProperty("OutputTopoCollectionShallow", m_outputTopoCollectionShallow = "tmp_egammaTopoCluster");
   declareProperty("EtaCut", m_etaCut = 2.6);
   declareProperty("ECut", m_ECut = 400);
   declareProperty("EMFracCut", m_EMFracCut = 0.5);
   declareProperty("EMCrackEtCut", m_EMCrackEtCut = 1.0E3);
-  declareInterface<IegammaTopoClusterCopier>(this);
 }
 
 // =============================================================
 StatusCode egammaTopoClusterCopier::initialize() {
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
+  
+  ATH_CHECK(m_inputTopoCollection.initialize());
+  ATH_CHECK(m_outputTopoCollection.initialize());
+  ATH_CHECK(m_outputTopoCollectionShallow.initialize());
 
   ATH_MSG_DEBUG("Initialization successful");
 
@@ -61,39 +68,27 @@ StatusCode egammaTopoClusterCopier::finalize() {
 }
 
 // =========================================================================
-StatusCode egammaTopoClusterCopier::contExecute() {
-  return copyCaloTopo();
-}
+StatusCode egammaTopoClusterCopier::execute_r(const EventContext& ctx) const {
 
-// =========================================================================
-StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
-
-  ATH_MSG_DEBUG("Create " << m_outputTopoCollection << " from " << m_inputTopoCollection);
-
-  //First read in the Topo Clusters before calibration
-  const xAOD::CaloClusterContainer* input_topoclusters(0);
-  if (evtStore()->retrieve(input_topoclusters,m_inputTopoCollection).isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve cluster container " <<m_inputTopoCollection);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Retrieved input cluster -container " << m_inputTopoCollection);
-  }
+  SG::ReadHandle<xAOD::CaloClusterContainer> inputTopoclusters(m_inputTopoCollection, ctx);
+  SG::WriteHandle<xAOD::CaloClusterContainer> outputTopoclustersShallow(m_outputTopoCollectionShallow, ctx);
+  SG::WriteHandle<ConstDataVector <xAOD::CaloClusterContainer> > outputTopoclusters(m_outputTopoCollection, ctx);
 
   //Create a shallow copy, the elements of this can be modified , 
   //but no need to recreate the cluster
-  std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer(*input_topoclusters );
-  CHECK(evtStore()->overwrite(inputShallowcopy.first, "tmp_"+m_outputTopoCollection));
-  CHECK(evtStore()->overwrite(inputShallowcopy.second,"tmp_"+m_outputTopoCollection+"Aux."));
+  std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer(*inputTopoclusters );
+
+  ATH_CHECK( outputTopoclustersShallow.record(std::unique_ptr<xAOD::CaloClusterContainer>(inputShallowcopy.first), 
+					      std::unique_ptr<xAOD::ShallowAuxContainer>(inputShallowcopy.second)) );
 
   //Here it just needs to be a view copy , 
   //i.e the collection we create does not really 
   //own its elements
-  ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
-  CHECK(evtStore()->record(viewCopy, m_outputTopoCollection));
+  auto viewCopy =  std::make_unique<ConstDataVector <xAOD::CaloClusterContainer> >(SG::VIEW_ELEMENTS );
 
   //Loop over the shallow copy
-  xAOD::CaloClusterContainer::iterator cciter = inputShallowcopy.first->begin();
-  xAOD::CaloClusterContainer::iterator ccend  = inputShallowcopy.first->end();
+  xAOD::CaloClusterContainer::iterator cciter = outputTopoclustersShallow->begin();
+  xAOD::CaloClusterContainer::iterator ccend  = outputTopoclustersShallow->end();
   for (; cciter != ccend; ++cciter) {
 
     ATH_MSG_DEBUG("->CHECKING Cluster at eta,phi,et " << (*cciter)->eta() << " , "<< (*cciter)->phi() << " , " << (*cciter)->et());
@@ -123,7 +118,9 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
   }
   //sort in descenting em energy
   std::sort(viewCopy->begin(),viewCopy->end(), greater());
-  ATH_MSG_DEBUG("Cloned container has size: " << viewCopy->size()<<  " selected out of : " <<input_topoclusters->size());
+  ATH_MSG_DEBUG("Cloned container has size: " << viewCopy->size()<<  " selected out of : " <<inputTopoclusters->size());
+  ATH_CHECK( outputTopoclusters.record(std::move(viewCopy)) );
+
   return StatusCode::SUCCESS;
 }
 

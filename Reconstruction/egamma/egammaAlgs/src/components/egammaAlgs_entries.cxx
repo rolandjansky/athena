@@ -8,7 +8,7 @@
 #include "egammaAlgs/egammaLockCollections.h"
 #include "egammaAlgs/EMBremCollectionBuilder.h"
 #include "egammaAlgs/EMVertexBuilder.h"
-
+#include "egammaAlgs/egammaTopoClusterCopier.h"
 
 DECLARE_ALGORITHM_FACTORY( egammaBuilder            )
 DECLARE_ALGORITHM_FACTORY( topoEgammaBuilder        )
@@ -18,8 +18,8 @@ DECLARE_ALGORITHM_FACTORY( egammaTrackSlimmer       )
 DECLARE_ALGORITHM_FACTORY( egammaFinalizeClusters   )
 DECLARE_ALGORITHM_FACTORY( egammaLockCollections    )
 DECLARE_ALGORITHM_FACTORY( EMBremCollectionBuilder  )
-DECLARE_ALGORITHM_FACTORY( EMVertexBuilder  )
-
+DECLARE_ALGORITHM_FACTORY( EMVertexBuilder          )
+DECLARE_ALGORITHM_FACTORY( egammaTopoClusterCopier  )
 
 DECLARE_FACTORY_ENTRIES(egammaAlgs) {
      DECLARE_ALGORITHM( egammaBuilder             )
@@ -30,6 +30,7 @@ DECLARE_FACTORY_ENTRIES(egammaAlgs) {
      DECLARE_ALGORITHM( egammaFinalizeClusters    )
      DECLARE_ALGORITHM( egammaLockCollections     )
      DECLARE_ALGORITHM( EMBremCollectionBuilder   )
-     DECLARE_ALGORITHM( EMVertexBuilder   )
+     DECLARE_ALGORITHM( EMVertexBuilder           )
+     DECLARE_ALGORITHM( egammaTopoClusterCopier   )
 
 }

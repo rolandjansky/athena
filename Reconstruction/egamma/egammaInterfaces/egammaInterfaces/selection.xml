@@ -22,6 +22,5 @@
   <class name="Iegammaqweta2c" />
   <class name="IelectronSuperClusterBuilder" />
   <class name="IphotonSuperClusterBuilder" />
-  <class name="IegammaTopoClusterCopier" />
 </lcgdict>
 

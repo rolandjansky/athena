@@ -41,5 +41,4 @@
 #include "egammaInterfaces/Iegammaqweta2c.h"
 #include "egammaInterfaces/IelectronSuperClusterBuilder.h"
 #include "egammaInterfaces/IphotonSuperClusterBuilder.h"
-#include "egammaInterfaces/IegammaTopoClusterCopier.h"
 #endif // EGAMMAINTERFACES_EGAMMAINTERFACESDICT_H

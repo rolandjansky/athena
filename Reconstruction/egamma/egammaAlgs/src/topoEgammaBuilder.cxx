@@ -29,7 +29,6 @@
 #include "CaloUtils/CaloClusterStoreHelper.h"
 
 //Supercluster interfaces.
-#include "egammaInterfaces/IegammaTopoClusterCopier.h"
 #include "egammaInterfaces/IelectronSuperClusterBuilder.h"
 #include "egammaInterfaces/IphotonSuperClusterBuilder.h"
 
@@ -105,11 +104,6 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
   declareProperty("PhotonTools", m_photonTools,
 		  "Tools for dressing ONLY photons");
 
-  // Tool handles to build superclusters
-  declareProperty("TopoClusterCopier",
-		  m_egammaTopoClusterCopier,
-		  "Tool to build egamma Topo Clusters");
-
   declareProperty("electronSuperClusterBuilder",
 		  m_electronSuperClusterBuilder,
 		  "Tool to build superclusters");
@@ -160,7 +154,6 @@ StatusCode topoEgammaBuilder::initialize()
 
   //////////////////////////////////////////////////
   //
-  CHECK(RetrieveEGammaTopoClusterCopier());
   CHECK(RetrieveElectronSuperClusterBuilder());
   CHECK(RetrievePhotonSuperClusterBuilder());
   //
@@ -195,19 +188,6 @@ StatusCode topoEgammaBuilder::RetrieveTools(ToolHandleArray<IegammaBaseTool>& to
     else ATH_MSG_DEBUG("Retrieved Tool " << tool); 
   }
   return StatusCode::SUCCESS;
-}
-// ====================================================================
-StatusCode topoEgammaBuilder::RetrieveEGammaTopoClusterCopier(){
-  if (m_egammaTopoClusterCopier.empty()) {
-    ATH_MSG_ERROR("Super Cluster Builder tooo  is empty");
-    return StatusCode::FAILURE;
-  }
-  if(m_egammaTopoClusterCopier.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<< m_egammaTopoClusterCopier);
-    return StatusCode::FAILURE;
-  } 
-  else ATH_MSG_DEBUG("Retrieved Tool " << m_egammaTopoClusterCopier); 
-  return StatusCode::SUCCESS;  
 }
 // ====================================================================
 StatusCode topoEgammaBuilder::RetrieveElectronSuperClusterBuilder(){
@@ -330,13 +310,7 @@ StatusCode topoEgammaBuilder::execute(){
     return StatusCode::FAILURE;
   }       
     
-  //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
-  {
-    smallChrono timer(m_timingProfile,this->name()+"_"+m_egammaTopoClusterCopier->name());
-    CHECK(m_egammaTopoClusterCopier->contExecute());
-  }
-  
-  //Then retrieve them 
+  //Then retrieve the topoclusters
   const xAOD::CaloClusterContainer *topoclusters = 0;
   if (evtStore()->retrieve(topoclusters, m_inputTopoClusterContainerName).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve cluster container " << m_inputTopoClusterContainerName);

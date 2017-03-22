@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAREC_TOPOEGAMMABUILDER_H
-#define EGAMMAREC_TOPOEGAMMABUILDER_H
+#ifndef EGAMMAALGS_TOPOEGAMMABUILDER_H
+#define EGAMMAALGS_TOPOEGAMMABUILDER_H
 /**
   @class topoEgammaBuilder 
 
@@ -33,7 +33,6 @@ class egammaRec;
 class StoreGateSvc;
 
 //Supercluster tools.
-class IegammaTopoClusterCopier;
 class IelectronSuperClusterBuilder;
 class IphotonSuperClusterBuilder;
 
@@ -94,7 +93,6 @@ class topoEgammaBuilder : public AthAlgorithm
   /** @brief  Supercluster-specific stuff **/
   StatusCode RetrieveElectronSuperClusterBuilder();
   StatusCode RetrievePhotonSuperClusterBuilder();
-  StatusCode RetrieveEGammaTopoClusterCopier();
   /** @brief retrieve EMAmbiguityTool **/
   StatusCode RetrieveAmbiguityTool();
   /** @brief retrieve EMTrackMatchBuilder **/
@@ -117,7 +115,6 @@ class topoEgammaBuilder : public AthAlgorithm
   // The tools
   //
   /** @brief ToolHandles for the Topo tools*/
-  ToolHandle<IegammaTopoClusterCopier>      m_egammaTopoClusterCopier;
   ToolHandle<IelectronSuperClusterBuilder>  m_electronSuperClusterBuilder;
   ToolHandle<IphotonSuperClusterBuilder>  m_photonSuperClusterBuilder;
   /** @brief Tool to resolve electron/photon ambiguity */

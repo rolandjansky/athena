@@ -32,7 +32,7 @@ from egammaTools.egammaToolsFactories import \
 # Extra tool when we do the superclustering approach
 if doSuperclusters() : 
   from egammaTools.egammaToolsFactories import \
-      egammaTopoClusterCopier, electronSuperClusterBuilder, photonSuperClusterBuilder
+      electronSuperClusterBuilder, photonSuperClusterBuilder
 
 #
 #Topo seeded fixed size clusters, related configurations
@@ -74,7 +74,6 @@ class egammaGetter ( Configured ) :
                                      ElectronOutputName = egammaKeys.outputElectronKey(),
                                      PhotonOutputName = egammaKeys.outputPhotonKey(),                                     
                                      #Super Cluster Tools
-                                     TopoClusterCopier = egammaTopoClusterCopier,
                                      electronSuperClusterBuilder = electronSuperClusterBuilder,
                                      photonSuperClusterBuilder = photonSuperClusterBuilder,
                                      InputTopoClusterContainerName = egammaRecFlags.egammaTopoClusterCollection(),                                           
