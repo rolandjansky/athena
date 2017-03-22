@@ -82,14 +82,12 @@ else
 fi
 athena.py $MSGLVL -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
 athena_exit=$?
-athena_failed=false
 
 cp $logfile $logfiletopo ${dest}
 if [ $athena_exit -eq 0 ]; then
     echo "XMLDumperFromAthena: $menu DONE | Exit code: $athena_exit | Log: $dest/$logfile"
 else
     echo "XMLDumperFromAthena: $menu FAILED | Exit code: $athena_exit | Log: $dest/$logfile"
-    athena_failed=true
 fi
 
 
