@@ -2841,11 +2841,11 @@ barcode_to_particle(const xAOD::TruthParticleContainer* TruthTES,
 }
 
 //------------------------------------------------------------------------
-const xAOD::TruthParticle* MCTruthClassifier::isFromB(const xAOD::TruthParticle *p) const {
+const xAOD::TruthParticle* MCTruthClassifier::isHadronFromB(const xAOD::TruthParticle *p) const {
   // If we have reached a dead end, stop here
   if (!p) return nullptr;
   // If we have struck a bottom hadron or b-quark, then this is from a b and we return it
-  int pid = abs(p->pdgId())
+  int pid = abs(p->pdgId());
   if (MC::PID::isBottomHadron(pid) || pid==5) return p;
   // End cases -- if we have hit anything fundamental other than a c-quark, stop
   if (pid!=4 && pid<100) return nullptr;
@@ -2854,8 +2854,8 @@ const xAOD::TruthParticle* MCTruthClassifier::isFromB(const xAOD::TruthParticle 
   // Check for loops and dead-ends
   if (!p->hasProdVtx()) return nullptr;
   if (p->prodVtx()->nIncomingParticles()==0) return nullptr;
-  if (p->hasDecayVtx() && abs(p->prodVtx()->barcode())>abs(p->decayVtx()->barcode()) return nullptr;
+  if (p->hasDecayVtx() && abs(p->prodVtx()->barcode())>abs(p->decayVtx()->barcode())) return nullptr;
   // Otherwise grab the mother and recurse - no need to deal with 2->1 vertices here
-  return isFromB( p->prodVtx()->incomingParticle(0) );
+  return isHadronFromB( p->prodVtx()->incomingParticle(0) );
 }
 

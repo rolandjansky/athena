@@ -86,7 +86,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
                        Info* info = nullptr) const override;
 
   virtual
-  const xAOD::TruthParticle* isFromB(const xAOD::TruthParticle *) const override;
+  const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle *) const override;
 
  private:
 
