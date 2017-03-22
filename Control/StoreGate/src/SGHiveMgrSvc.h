@@ -14,6 +14,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
+#include "GaudiKernel/IIncidentListener.h"
+
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/SGHiveEventSlot.h"
 
@@ -29,7 +31,7 @@ template <class TYPE> class SvcFactory;
  *  $Id: SGHiveMgrSvc.h 794852 2017-01-31 23:24:04Z leggett $
  **/
 namespace SG {
-class HiveMgrSvc : virtual public IHiveWhiteBoard, public Service {
+  class HiveMgrSvc : virtual public IHiveWhiteBoard, public Service,  public IIncidentListener {
   friend class SvcFactory<HiveMgrSvc>;
   friend class TestSGHiveMgrSvc;
 public:
@@ -104,13 +106,14 @@ public:
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   //@}
 
+    //handle incidents
+    virtual void handle(const Incident&) override final;    
 
 private:
   ServiceHandle<StoreGateSvc> m_hiveStore;
   size_t m_nSlots; //property settable also by setNumberOfStores
   std::vector<SG::HiveEventSlot> m_slots;
   //maybe  ServiceHandle<ActiveStoreSvc> m_active;
-
 protected:
   /// Standard Service Constructor. sets active store to default event store
   HiveMgrSvc(const std::string& name, ISvcLocator* svc);

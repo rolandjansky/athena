@@ -37,6 +37,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 // Athena includes
 #include "AthenaKernel/IAthenaSummarySvc.h"
@@ -158,10 +159,9 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   sigs.push_back(SIGILL);
   sigs.push_back(SIGFPE);
   m_signals.setValue(sigs);
-  // Allocate for 200 slots. This should be increased if we foresee more than 200 slots.
-  // Memory overhead is negligable compared to dynamically allocate the entries
-  m_usrCoreDumps.resize(200);
-  m_sysCoreDumps.resize(200);
+  // Allocate for 2 slots just for now.
+  m_usrCoreDumps.resize(2);
+  m_sysCoreDumps.resize(2);
   
 }
 
@@ -238,6 +238,20 @@ StatusCode CoreDumpSvc::initialize()
   return StatusCode::SUCCESS;
 }
 
+StatusCode CoreDumpSvc::start(){
+  auto numSlots=Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents();
+  numSlots=(1>numSlots)?1:numSlots;
+  if(numSlots>1000){
+    ATH_MSG_WARNING("Num Slots are greater than 1000. Is this correct? numSlots="<<
+		    numSlots);
+    numSlots=1000;
+    ATH_MSG_WARNING("Setting numSlots to "<<numSlots);
+  }
+  m_usrCoreDumps.resize(numSlots);
+  m_sysCoreDumps.resize(numSlots);
+  return StatusCode::SUCCESS;
+}
+
 StatusCode CoreDumpSvc::finalize()
 {
   ATH_MSG_DEBUG ("Finalizing " << name());
@@ -272,7 +286,9 @@ StatusCode CoreDumpSvc::queryInterface(const InterfaceID& riid, void** ppvInterf
 //----------------------------------------------------------------------
 void CoreDumpSvc::setCoreDumpInfo( const std::string& name, const std::string& value )
 {
-  auto &m_usrCoreDump=m_usrCoreDumps.at(Gaudi::Hive::currentContext().slot());
+  auto currSlot=Gaudi::Hive::currentContext().slot();
+  if(currSlot==EventContext::INVALID_CONTEXT_ID)currSlot=0;
+  auto &m_usrCoreDump=m_usrCoreDumps.at(currSlot);
   m_usrCoreDump[name] = value;
 }
 
@@ -440,7 +456,9 @@ void CoreDumpSvc::handle(const Incident& incident)
 {
   //handle is single threaded in context;
   const auto &currCtx=incident.context();
-  auto &currRec=m_sysCoreDumps.at(currCtx.slot());
+  auto currSlot=currCtx.slot();
+  if(currSlot==EventContext::INVALID_CONTEXT_ID)currSlot=0;
+  auto &currRec=m_sysCoreDumps.at(currSlot);
   currRec.LastInc= incident.source() + ":" + incident.type();
 
   //m_sysCoreDump["Last incident"] = incident.source() + ":" + incident.type();
