@@ -946,13 +946,14 @@ if rec.doWriteTAG():
         treatException("Could not include EventTagAlgs/EventTag_jobOptions.py. Disable TAG writing")
 else: # minimal TAG to be written into AOD
     try:
-        include( "EventTagAlgs/GlobalEventTagBuilder_jobOptions.py" )
-        from EventTagUtils.EventTagUtilsConf import GlobalEventTagTool
-        GlobalEventTagTool.IncludeEventFlag     = False
-        GlobalEventTagTool.IncludeExtras        = True
-        GlobalEventTagTool.IncludeRecoTime      = False
-        GlobalEventTagTool.IncludeVertexFlag    = False
-        GlobalEventTagTool.UseMC                = False
+        print "Using EventInfoAttList"
+        #include( "EventTagAlgs/GlobalEventTagBuilder_jobOptions.py" )
+        #from EventTagUtils.EventTagUtilsConf import GlobalEventTagTool
+        #GlobalEventTagTool.IncludeEventFlag     = False
+        #GlobalEventTagTool.IncludeExtras        = True
+        #GlobalEventTagTool.IncludeRecoTime      = False
+        #GlobalEventTagTool.IncludeVertexFlag    = False
+        #GlobalEventTagTool.UseMC                = False
     except Exception:
         print "WARNING Could not include EventTagAlgs/GlobalEventTagBuilder_jobOptions.py, OK for ATN."
 
@@ -1472,8 +1473,9 @@ if rec.doWriteAOD():
     StreamAOD=StreamAOD_Augmented.GetEventStream()
 
     ## Add TAG attribute list to payload data
+    from EventTagAlgs.EventTagGlobal import EventTagGlobal
     try:
-        StreamAOD_Augmented.GetEventStream().WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+        StreamAOD.WritingTool.AttributeListKey = EventTagGlobal.AttributeList
     except:
         logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
