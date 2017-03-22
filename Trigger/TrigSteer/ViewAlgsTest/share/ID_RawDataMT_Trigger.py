@@ -50,14 +50,14 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-inputfile="/afs/cern.ch/user/s/smh/public/data16_13TeV.00311563.physics_Main.daq.RAW._lb0177._SFO-1._0001.data"
+inputfile="root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW._lb0628._SFO-1._0001.1"
 svcMgr.ByteStreamInputSvc.FullFileName=[inputfile,]
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[inputfile,]
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v6.xml"
+l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
 svcMgr += l1svc
 
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):

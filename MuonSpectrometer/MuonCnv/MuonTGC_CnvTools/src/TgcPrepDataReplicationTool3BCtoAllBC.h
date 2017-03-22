@@ -5,8 +5,8 @@
 ///////////////////////////////////////////////////////////////////
 // TgcPrepDataReplicationTool.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef MUONTGC_CNVTOOLS_TGCPREPDATAREPLICATIONTOOL_H
-#define MUONTGC_CNVTOOLS_TGCPREPDATAREPLICATIONTOOL_H
+#ifndef MUONTGC_CNVTOOLS_TGCPREPDATAREPLICATIONTOOL3BCtoALLBC_H
+#define MUONTGC_CNVTOOLS_TGCPREPDATAREPLICATIONTOOL3BCtoALLBC_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonTGC_CnvTools/ITgcPrepDataReplicationTool.h"
@@ -21,15 +21,15 @@ namespace MuonGM
 
 namespace Muon 
 {
-  class TgcPrepDataReplicationTool 
+  class TgcPrepDataReplicationTool3BCtoAllBC 
     : virtual public ITgcPrepDataReplicationTool, virtual public AthAlgTool
   {
     public:
       /** Constructor */
-      TgcPrepDataReplicationTool(const std::string& t, const std::string& n, const IInterface* p);
+      TgcPrepDataReplicationTool3BCtoAllBC(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~TgcPrepDataReplicationTool();
+      virtual ~TgcPrepDataReplicationTool3BCtoAllBC();
 
       /** Provide InterfaceID */
       static const InterfaceID& interfaceID() { return ITgcPrepDataReplicationTool::interfaceID(); };
@@ -37,11 +37,11 @@ namespace Muon
       /** Query interface */
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
 
-      virtual StatusCode initialize();
-      virtual StatusCode finalize();
-      virtual StatusCode replicate();
-      virtual StatusCode convert3BCtoAllBC();
-      virtual StatusCode convertAllBCto3BC();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
+      virtual StatusCode replicate() override;
+      StatusCode convert3BCtoAllBC();
+
       
     private:
       enum {BC_PREVIOUS=0, BC_CURRENT, BC_NEXT, BC_ALL, BC_NUM};
@@ -52,13 +52,9 @@ namespace Muon
       /** TGC identifier helper */
       const TgcIdHelper* m_tgcHelper;
 
-      /** TgcPrepRawData (hit PRD) containers */
-      TgcPrepDataContainer* m_tgcPrepDataContainer[BC_NUM];
-
-      /** Make new TgcPrepData */
-      TgcPrepData* makeTgcPrepData(TgcPrepDataCollection::const_iterator itr, uint16_t bcBitMap);
-
+      SG::ReadHandleKeyArray<TgcPrepDataContainer> m_3BCKeys;
+      SG::WriteHandleKey<TgcPrepDataContainer> m_AllBCKey;
    }; 
 } // end of namespace
 
-#endif // MUONTGC_CNVTOOLS_TGCPREPDATAREPLICATIONTOOL_H
+#endif // MUONTGC_CNVTOOLS_TGCPREPDATAREPLICATIONTOOL3BCtoALLBC_H
