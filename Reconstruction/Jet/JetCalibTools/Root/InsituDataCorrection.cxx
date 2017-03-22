@@ -182,11 +182,12 @@ TH2D * InsituDataCorrection::combineCalibration(TH2D *h2d, TH1D *h) {
   TH2D *prod = (TH2D*)h2d->Clone();
   for (int xi=1;xi<=prod->GetNbinsX();xi++) {
     double pt=prod->GetXaxis()->GetBinCenter(xi);
-    double R_abs=h->Interpolate(pt); // Rdata/RMC for the absolute scale
+    const double R_abs=h->Interpolate(pt); // Rdata/RMC for the absolute scale
+    const double inv_R_abs = 1. / R_abs;
     //printf("pT = %7.1f GeV, abs calib: %.4f\n",pt,abs);
     for (int yi=1;yi<=prod->GetNbinsY();yi++) {
       double c_rel = h2d->GetBinContent(xi,yi); // 1/Rrel = RMC/Rdata
-      prod->SetBinContent(xi,yi,c_rel/R_abs);
+      prod->SetBinContent(xi,yi,c_rel*inv_R_abs);
     }
   }
   return prod;

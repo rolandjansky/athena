@@ -37,13 +37,13 @@ class NPVBeamspotCorrection {
   TGraph* NVtx_NReconstructible_bs47mm();
 
   //Graph which will be filled with expected number of reconstructed vertices for beamspot length = 66mm
-  TGraph *g_nvtx_nreco_bs66mm; 
+  TGraph *m_g_nvtx_nreco_bs66mm; 
   //Graph which will be filled with expected number of reconstructed vertices for beamspot length = 47mm
-  TGraph *g_nvtx_nreco_bs47mm;
+  TGraph *m_g_nvtx_nreco_bs47mm;
 
-  TGraph *invGraph;
+  TGraph *m_invGraph;
 
-  double NPVmin, NPVmax;
+  double m_NPVmin, m_NPVmax;
 
 };
 
