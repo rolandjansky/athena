@@ -259,17 +259,7 @@ iGeant4::TrackProcessorUserActionFullG4::nextGeoId(const G4Step* aStep)
 
   // If in mother volume, use the ISF_GeoIDSvc to resolve the geoID
   if (step.PostStepBranchDepth()<m_truthVolLevel){
-    const G4ThreeVector     &postPos  = postStep->GetPosition();
-    //const G4ThreeVector     &postMom  = postStep->GetMomentum();
-    //nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
-    //                                                postPos.y(),
-    //                                                postPos.z(),
-    //                                                postMom.x(),
-    //                                                postMom.y(),
-    //                                                postMom.z() );
-    nextGeoID = m_geoIDSvcQuick->identifyGeoID( postPos.x(),
-                                                postPos.y(),
-                                                postPos.z() );
+    nextGeoID = getNextGeoIDFromSvc(*postStep);
     return nextGeoID;
   }
 
@@ -287,14 +277,38 @@ iGeant4::TrackProcessorUserActionFullG4::nextGeoId(const G4Step* aStep)
   } else if (m_hasCavern && step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
     nextGeoID = AtlasDetDescr::fAtlasCavern;
   } else {
-    // We are in trouble
-    //ATH_MSG_ERROR("vol1: "<<step.GetPostStepLogicalVolumeName(1)<<", vol2: "<<step.GetPostStepLogicalVolumeName(2)<<", postname="<<postname<<", returning undefined geoID");
-    G4ThreeVector myPos = aStep->GetPostStepPoint()->GetPosition();
-    ATH_MSG_ERROR("Returning undefined geoID from " << step.GetPostStepLogicalVolume() << " requesting " << step.GetPostStepLogicalVolume(m_truthVolLevel) << " at " << myPos.x() << " " << myPos.y() << " " << myPos.z() );
+    nextGeoID = getNextGeoIDFromSvc(*postStep);
+  }
+
+  // fall back to GeoIDSvc if unable to resolve nextGeoID up to this point
+  if (nextGeoID == AtlasDetDescr::fUndefinedAtlasRegion) {
+    nextGeoID = getNextGeoIDFromSvc(*postStep);
   }
 
   return nextGeoID;
 }
+
+
+AtlasDetDescr::AtlasRegion iGeant4::TrackProcessorUserActionFullG4::getNextGeoIDFromSvc(const G4StepPoint& postStep) const {
+  const G4ThreeVector &postPos = postStep.GetPosition();
+  AtlasDetDescr::AtlasRegion nextGeoID = m_geoIDSvcQuick->identifyGeoID(postPos.x(),
+                                                                        postPos.y(),
+                                                                        postPos.z());
+
+  // if we ever run into problems with the current approach, the following
+  // takes the particle's traveling direction into account for finding the
+  // *next* volume it enters
+  //const G4ThreeVector     &postMom  = postStep->GetMomentum();
+  //nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
+  //                                                postPos.y(),
+  //                                                postPos.z(),
+  //                                                postMom.x(),
+  //                                                postMom.y(),
+  //                                                postMom.z() );
+
+  return nextGeoID;
+}
+
 
 bool iGeant4::TrackProcessorUserActionFullG4::checkVolumeDepth( G4LogicalVolume * lv , int volLevel , int d ) {
   //FIXME - can replace all this code with similar methods to those in MCTruthBase/src/RecordingEnvelope.cxx
@@ -557,17 +571,7 @@ namespace G4UA{
 
       // If in mother volume, use the ISF_GeoIDSvc to resolve the geoID
       if (step.PostStepBranchDepth()<m_config.truthVolLevel){
-        const G4ThreeVector     &postPos  = postStep->GetPosition();
-        //const G4ThreeVector     &postMom  = postStep->GetMomentum();
-        //m_nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
-        //                                                postPos.y(),
-        //                                                postPos.z(),
-        //                                                postMom.x(),
-        //                                                postMom.y(),
-        //                                                postMom.z() );
-        m_nextGeoID = m_geoIDSvcQuick->identifyGeoID( postPos.x(),
-                                                      postPos.y(),
-                                                      postPos.z() );
+        m_nextGeoID = getNextGeoIDFromSvc(*postStep);
         return m_nextGeoID;
       }
 
@@ -585,11 +589,12 @@ namespace G4UA{
       } else if (m_hasCavern && step.GetPostStepLogicalVolumeName(m_config.truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
         m_nextGeoID = AtlasDetDescr::fAtlasCavern;
       } else {
-        // We are in trouble
-        G4ThreeVector myPos = aStep->GetPostStepPoint()->GetPosition();
-        G4ExceptionDescription description;
-        description << G4String("nextGeoId: ") + "Returning undefined geoID from " << step.GetPostStepLogicalVolume() << " requesting " << step.GetPostStepLogicalVolume(m_config.truthVolLevel) << " at " << myPos.x() << " " << myPos.y() << " " << myPos.z();
-        G4Exception("G4UA::iGeant4::TrackProcessorUserActionFullG4", "UndefinedGeoID", JustWarning, description);
+        m_nextGeoID = getNextGeoIDFromSvc(*postStep);
+      }
+
+      // fall back to GeoIDSvc if unable to resolve nextGeoID up to this point
+      if (m_nextGeoID == AtlasDetDescr::fUndefinedAtlasRegion) {
+        m_nextGeoID = getNextGeoIDFromSvc(*postStep);
       }
 
       return m_nextGeoID;
@@ -646,6 +651,27 @@ namespace G4UA{
       }
       return Cavern;
     }
+
+    AtlasDetDescr::AtlasRegion iGeant4::TrackProcessorUserActionFullG4::getNextGeoIDFromSvc(const G4StepPoint& postStep) const {
+      const G4ThreeVector &postPos = postStep.GetPosition();
+      AtlasDetDescr::AtlasRegion nextGeoID = m_geoIDSvcQuick->identifyGeoID(postPos.x(),
+                                                                            postPos.y(),
+                                                                            postPos.z());
+
+      // if we ever run into problems with the current approach, the following
+      // takes the particle's traveling direction into account for finding the
+      // *next* volume it enters
+      //const G4ThreeVector     &postMom  = postStep->GetMomentum();
+      //nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
+      //                                                postPos.y(),
+      //                                                postPos.z(),
+      //                                                postMom.x(),
+      //                                                postMom.y(),
+      //                                                postMom.z() );
+
+      return nextGeoID;
+    }
+
 
   } // iGeant4
 

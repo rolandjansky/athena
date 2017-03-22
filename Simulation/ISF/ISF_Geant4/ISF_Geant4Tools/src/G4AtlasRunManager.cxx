@@ -134,6 +134,7 @@ void iGeant4::G4AtlasRunManager::InitializeGeometry()
 void iGeant4::G4AtlasRunManager::EndEvent()
 {
   ATH_MSG_DEBUG( "G4AtlasRunManager::EndEvent" );
+  // ZLM Note 1.12.2016: This function is not called
 }
 
 //________________________________________________________________________
@@ -277,6 +278,22 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
       return true;
     }
 
+  if (m_recordFlux){
+    G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
+    if(ScM){
+      G4int nPar = ScM->GetNumberOfMesh();
+      G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
+      if(HCE && nPar>0){;
+        G4int nColl = HCE->GetCapacity();
+        for(G4int i=0;i<nColl;i++)
+          {
+            G4VHitsCollection* HC = HCE->GetHC(i);
+            if(HC) ScM->Accumulate(HC);
+          }
+      }
+    }
+  }
+
   // stateManager->SetNewState(G4State_GeomClosed);
   StackPreviousEvent(currentEvent);
   bool abort=currentEvent->IsAborted();
@@ -289,6 +306,15 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::RunTermination()
 {
+  if (m_recordFlux){
+    G4UImanager *ui=G4UImanager::GetUIpointer();
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
+  }
+
   // std::cout<<" this is G4AtlasRunManager::RunTermination() "<<std::endl;
 #if G4VERSION_NUMBER < 1010
   for (size_t itr=0;itr<previousEvents->size();itr++) { delete (*previousEvents)[itr]; }

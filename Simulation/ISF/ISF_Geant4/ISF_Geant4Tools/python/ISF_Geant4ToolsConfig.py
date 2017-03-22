@@ -127,6 +127,8 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     else:
         kwargs.setdefault('UserActionSvc','ISFUserActionSvc')
         kwargs.setdefault('UserActionSvcV2', '')
+    if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
+        kwargs.setdefault('RecordFlux',simFlags.RecordFlux())
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
     if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
