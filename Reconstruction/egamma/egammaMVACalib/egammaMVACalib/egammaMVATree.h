@@ -290,18 +290,18 @@ namespace egammaMVATreeHelpers
 
   inline float compute_rawcl_calibHitsShowerDepth(const xAOD::CaloCluster& cl)
   {
-      const std::array<float, 4> cluster_array { compute_rawcl_Es0(cl),
-                                                 compute_rawcl_Es1(cl),
-                                                 compute_rawcl_Es2(cl),
-                                                 compute_rawcl_Es3(cl) };
+      const std::array<float, 4> cluster_array {{ compute_rawcl_Es0(cl),
+                                                  compute_rawcl_Es1(cl),
+                                                  compute_rawcl_Es2(cl),
+                                                  compute_rawcl_Es3(cl) }};
       return compute_calibHitsShowerDepth(cluster_array, compute_cl_eta(cl));
   }
 
   inline float compute_correctedcl_calibHitsShowerDepth(const xAOD::CaloCluster& cl) {
-    const std::array<float, 4> cluster_array { compute_correctedcl_Es0(cl),
-                                               compute_correctedcl_Es1(cl),
-                                               compute_correctedcl_Es2(cl),
-                                               compute_correctedcl_Es3(cl) };
+    const std::array<float, 4> cluster_array {{ compute_correctedcl_Es0(cl),
+                                                compute_correctedcl_Es1(cl),
+                                                compute_correctedcl_Es2(cl),
+                                                compute_correctedcl_Es3(cl) }};
     return compute_calibHitsShowerDepth(cluster_array, compute_cl_eta(cl));
   }
 
