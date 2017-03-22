@@ -290,9 +290,9 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   //create a TrigRoiDescriptor to send to ID tracking, to seed track-finding
   //only need to do this if the MuonCluster will pass the hypo!
   if( (m_CluNum >= 3 && fabs(m_CluEta) < 1.0) || (m_CluNum >= 4 && fabs(m_CluEta) >= 1.0 && fabs(m_CluEta) <= 2.5)){
-    double m_phiHalfWidth = 0.35;
-    double phiMinus = HLT::wrapPhi(m_CluPhi-m_phiHalfWidth);
-    double phiPlus  = HLT::wrapPhi(m_CluPhi+m_phiHalfWidth); 
+    double phiHalfWidth = 0.35;
+    double phiMinus = HLT::wrapPhi(m_CluPhi-phiHalfWidth);
+    double phiPlus  = HLT::wrapPhi(m_CluPhi+phiHalfWidth); 
     TrigRoiDescriptor* roi =  new TrigRoiDescriptor(m_CluEta, m_CluEta-0.4, m_CluEta+0.4,m_CluPhi, phiMinus, phiPlus);
     
     HLT::ErrorCode hltStatus = attachFeature(outputTE, roi, "forID");
