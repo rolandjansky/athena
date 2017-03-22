@@ -54,6 +54,36 @@ namespace ViewHelper
 		return StatusCode::SUCCESS;
 	}
 
+        //Function to add data to existing views
+        template< typename T >
+        inline StatusCode Populate( std::vector< SG::View* > & ViewVector,
+                        SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData )
+        {
+		//Vector length check
+                unsigned int const viewNumber = InputData.size();
+		if ( viewNumber != ViewVector.size() ) return StatusCode::FAILURE;
+
+                //Loop over all input data
+                for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
+                {
+                        //Attach the handle to the view
+                        StatusCode sc = PopulateHandle.setProxyDict( ViewVector.at( viewIndex ) );
+                        if ( !sc.isSuccess() )
+                        {
+                                return sc;
+                        }
+
+                        //Populate the view
+                        sc = PopulateHandle.record( CxxUtils::make_unique< T >( InputData.at( viewIndex ) ) );
+                        if ( !sc.isSuccess() )
+                        {
+                                return sc;
+                        }
+                }
+
+                return StatusCode::SUCCESS;
+        }
+
 	//Function to run a set of views with the named algorithms
 	inline StatusCode RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
 			EventContext const& InputContext, SmartIF< IService > & AlgPool )
