@@ -19,7 +19,7 @@ class eflowAzimuth {
 public:
  eflowAzimuth(double phi): m_value(phi) { if (phi != -999.) adjustRange(); }
   eflowAzimuth(const eflowAzimuth& other): m_value(other.m_value) { }
-  void operator=(const eflowAzimuth& other) { m_value = other.m_value; }
+  eflowAzimuth& operator=(const eflowAzimuth& other) { if (this == &other) return *this; else { m_value = other.m_value; return *this; } }
   ~eflowAzimuth() { }
 
   inline double operator ()() const { return m_value; }
