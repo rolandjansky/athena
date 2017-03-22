@@ -3,7 +3,7 @@
 
 import TriggerMenu.menu.Physics_pp_v7 as physics_menu
 
-from TriggerJobOpts.TriggerFlags          import TriggerFlags
+from TriggerJobOpts.TriggerFlags          improt TriggerFlags
 from copy                                 import deepcopy
 
 

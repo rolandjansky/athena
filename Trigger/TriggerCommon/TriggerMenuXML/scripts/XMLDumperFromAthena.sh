@@ -82,12 +82,14 @@ else
 fi
 athena.py $MSGLVL -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
 athena_exit=$?
+athena_failed=false
 
 cp $logfile $logfiletopo ${dest}
 if [ $athena_exit -eq 0 ]; then
     echo "XMLDumperFromAthena: $menu DONE | Exit code: $athena_exit | Log: $dest/$logfile"
 else
     echo "XMLDumperFromAthena: $menu FAILED | Exit code: $athena_exit | Log: $dest/$logfile"
+    athena_failed=true
 fi
 
 
@@ -123,5 +125,9 @@ grep --colour -A 100 "Shortened traceback" ${dest}/$logfile
 
 rm -rf $rundir
 
+if $athena_failed ; then
+  echo "Failed to build one or more menus"
+  return 1
+fi
 # Do not return real athena exit code as we want to pretend everything was fine
 
