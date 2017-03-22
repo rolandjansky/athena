@@ -50,6 +50,9 @@ namespace iGeant4 {
 
     bool checkVolumeDepth( G4LogicalVolume * , int , int d=0 );
 
+    /// get the next GeoID using only the geoIDSvc
+    AtlasDetDescr::AtlasRegion getNextGeoIDFromSvc(const G4StepPoint& postStep) const;
+
     /** access to the ISF Entry Layer tool which is used to record entry-layer collections */
     ToolHandle<ISF::IEntryLayerTool>     m_entryLayerTool;      //!< athena tool handle
     ISF::IEntryLayerTool                *m_entryLayerToolQuick; //!< quickaccess avoiding gaudi ovehead
@@ -105,6 +108,9 @@ namespace G4UA{
       AtlasDetDescr::AtlasRegion nextGeoId(const G4Step* aStep);
 
       bool checkVolumeDepth( G4LogicalVolume * , int , int d=0 );
+
+      /// get the next GeoID using only the geoIDSvc
+      AtlasDetDescr::AtlasRegion getNextGeoIDFromSvc(const G4StepPoint& postStep) const;
 
       /** access to the ISF Entry Layer tool which is used to record entry-layer collections */
       ISF::IEntryLayerTool                *m_entryLayerToolQuick; //!< quickaccess avoiding gaudi ovehead
