@@ -113,7 +113,7 @@ void CaloSwEtaoff_v3::makeTheCorrection (const EventContext& /*ctx*/,
 
 
 /**
- * @brief Find the index of the region containing a given @f$|\eta@|f$ value.
+ * @brief Find the index of the region containing a given @f$|\eta|@f$ value.
  * @param aeta The @f$|\eta|@f$ value to find.
  * @returns The region index, or -1 if @c aeta is outside the table range.
  */

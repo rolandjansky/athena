@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigRNNOutputContainerCnv_p2
+ * @class  : TrigRNNOutputContainerCnv_p2
  *
  * @brief transient persistent converter for TrigRNNOutputContainer
  *

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigInDetTrackTruthMapCnv
+ * @class  : TrigInDetTrackTruthMapCnv
  *
  * @brief transient persistent converter for TrigInDetTrackTruthMapCnv
  *

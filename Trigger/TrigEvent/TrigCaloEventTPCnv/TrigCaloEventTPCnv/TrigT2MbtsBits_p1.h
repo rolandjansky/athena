@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigT2MbtsBits_p1
+ * @class  : TrigT2MbtsBits_p1
  *
  * @brief persistent partner for TrigT2MbtsBits
  *

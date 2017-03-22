@@ -12,7 +12,7 @@
 /**
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class TrigMuonEFIsolationContainer_p2
+ * @class TrigMuonEFIsolationContainer_p2
  *
  * @brief Persistent class partner for TrigMuonEFIsolationContainer
  * @author Mark Owen <markowen@cern.ch>

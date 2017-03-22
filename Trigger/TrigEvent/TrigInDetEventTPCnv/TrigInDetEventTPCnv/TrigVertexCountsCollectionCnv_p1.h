@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigVertexCountsCollectionCnv_p1
+ * @class  : TrigVertexCountsCollectionCnv_p1
  *
  * @brief transient persistent converter for TrigVertexCountsCollection
  *

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TileTrackMuContainerCnv_p3
+ * @class  : TileTrackMuContainerCnv_p3
  *
  * @brief transient-persistent converter for TileTrackMuContainer_p3
  *

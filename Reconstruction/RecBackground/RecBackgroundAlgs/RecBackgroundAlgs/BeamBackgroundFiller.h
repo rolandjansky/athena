@@ -24,7 +24,7 @@
 #include <vector>
 
 /**
- * @Short Implementation of the Beam Background Identification Method
+ * @brief Implementation of the Beam Background Identification Method
  *
  *        This implementation defines the selection criteria for identifying beam background muons,
  *        and looks for them based on several methods.

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigSpacePointCountsCnv
+ * @class  : TrigSpacePointCountsCnv
  *
  * @brief transient persistent converter for TrigSpacePointCounts
  *

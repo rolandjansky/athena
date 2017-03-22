@@ -7,7 +7,7 @@
 
 /***********************************************************************************
  * @Package : VP1TriggerSystems
- * @Class   : VP1TriggerTool
+ * @class   : VP1TriggerTool
  *
  * @brief   : VP1 Trigger Tool (Header) - public access tool to retrieve trigger data
  *

@@ -7,7 +7,7 @@
 
 /***********************************************************************************
  * @Package : VP1TriggerSystems
- * @Class   : VP1TriggerHandleEF
+ * @class   : VP1TriggerHandleEF
  *
  * @brief   : EF Trigger Data Handle (Header)
  *

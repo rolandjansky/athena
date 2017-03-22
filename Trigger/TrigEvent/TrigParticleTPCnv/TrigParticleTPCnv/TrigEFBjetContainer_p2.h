@@ -6,7 +6,7 @@
  *
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigEFBjetContainer_p2
+ * @class  : TrigEFBjetContainer_p2
  *
  * @brief persistent partner for TrigEFBjetContainer
  *

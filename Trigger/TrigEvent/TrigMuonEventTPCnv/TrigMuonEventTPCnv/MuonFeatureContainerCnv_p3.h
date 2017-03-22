@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : MuonFeatureContainerCnv_p3
+ * @class  : MuonFeatureContainerCnv_p3
  *
  * @brief transient-persistent converter for MuonFatureContainer_p3
  *

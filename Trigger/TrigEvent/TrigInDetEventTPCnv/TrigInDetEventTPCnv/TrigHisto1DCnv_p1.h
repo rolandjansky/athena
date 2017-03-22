@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigHisto1DCnv_p1
+ * @class  : TrigHisto1DCnv_p1
  *
  * @brief transient persistent converter for the TrigHisto1D class
  *

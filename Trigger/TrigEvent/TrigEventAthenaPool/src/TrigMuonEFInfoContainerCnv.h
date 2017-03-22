@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigMuonEFInfoContainerCnv
+ * @class  : TrigMuonEFInfoContainerCnv
  *
  * @brief transient persistent converter for TrigMuonEFInfoContainer
  *

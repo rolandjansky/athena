@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: HLTResultByteStream
- * @Class  : HLTSrcIdMap
+ * @class  : HLTSrcIdMap
  *
  * @brief this class provides conversion between Lower level Source ID to
  *        higher level source ID for HLT ByteStream fragments.

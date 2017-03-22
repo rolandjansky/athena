@@ -38,7 +38,7 @@
 * eta = [0,3]  module 3 ; <br>
 *
 * 384 connected cells in total  <br>
-*
+* </pre>
 * @author RD Schaffer, Denis Oliveira Damazio, scott snyder, naoko kanaya
 */  
 

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigHisto2DContainerCnv_tlp1
+ * @class  : TrigHisto2DContainerCnv_tlp1
  *
  * @brief "top-level" transient-persistent converter for TrigHisto2DContainer_tlp1
  *
