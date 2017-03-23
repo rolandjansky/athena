@@ -38,8 +38,8 @@ public:
   static const InterfaceID& interfaceID( ) { return IID_EventInfoAttListTool; };
 
   /** Overriding initialize, finalize and execute */
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode finalize() override;
 
   // interface 
   bool isValid();

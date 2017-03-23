@@ -42,10 +42,11 @@ StatusCode EventInfoTagBuilder::execute() {
   }
 
   /** create a EventInfo Tag and ask the tool to fill it */ 
-  const AthenaAttributeList* attribList = new AthenaAttributeList(m_tool->getAttributeList(eventInfo));
+  auto attribList = std::make_unique<AthenaAttributeList>(m_tool->getAttributeList(eventInfo));
 
   /** record attribute list to SG */
-  ATH_CHECK( evtStore()->record( attribList, m_attributeListName ) );
+  SG::WriteHandle<AthenaAttributeList> wh(m_attributeListName);
+  ATH_CHECK( wh.record(std::move(attribList)) );
 
   ATH_MSG_DEBUG( "Finished " << name() );
 

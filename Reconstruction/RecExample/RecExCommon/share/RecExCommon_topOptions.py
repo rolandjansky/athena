@@ -945,17 +945,7 @@ if rec.doWriteTAG():
         rec.doWriteTAG=False
         treatException("Could not include EventTagAlgs/EventTag_jobOptions.py. Disable TAG writing")
 else: # minimal TAG to be written into AOD
-    try:
-        print "Using EventInfoAttList"
-        #include( "EventTagAlgs/GlobalEventTagBuilder_jobOptions.py" )
-        #from EventTagUtils.EventTagUtilsConf import GlobalEventTagTool
-        #GlobalEventTagTool.IncludeEventFlag     = False
-        #GlobalEventTagTool.IncludeExtras        = True
-        #GlobalEventTagTool.IncludeRecoTime      = False
-        #GlobalEventTagTool.IncludeVertexFlag    = False
-        #GlobalEventTagTool.UseMC                = False
-    except Exception:
-        print "WARNING Could not include EventTagAlgs/GlobalEventTagBuilder_jobOptions.py, OK for ATN."
+    print "Using EventInfoAttList"
 
 if rec.doWriteRDO():
     #Create output StreamRDO
