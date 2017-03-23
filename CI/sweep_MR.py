@@ -207,7 +207,7 @@ def main():
     parser.add_argument("-t","--token",required=True,help="private GitLab user token")
     parser.add_argument("-u","--url",default="https://gitlab.cern.ch",help="URL of GitLab instance")
     parser.add_argument("-v","--verbose",default="INFO",choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"],help="verbosity level")
-    parser.add_argument("--repository-root",dest="root",default="",help="path to root directory of git repository")
+    parser.add_argument("--repository-root",dest="root",default=os.path.dirname(os.path.abspath(os.path.join(os.path.realpath(__file__),'../'))),help="path to root directory of git repository")
 
     # get command line arguments
     args = parser.parse_args()
@@ -244,10 +244,7 @@ def main():
         sys.exit(1)
 
     # get top-level directory of git repository (specific to current directory structure)
-    if not args.root:
-        workdir = os.path.dirname(os.path.abspath(os.path.join(os.path.realpath(__file__),'../')))
-    else:
-        workdir = os.path.abspath(args.root)
+    workdir = os.path.abspath(args.root)
         
     logging.info("changing to root directory of git repository '%s'",workdir)
     current_dir = os.getcwd()
