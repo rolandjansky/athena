@@ -1,7 +1,11 @@
-#include "LArFlatConditionsAlg.h" 
+//dear emacs, this is -*-c++-*-
 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
-LArFlatConditionsAlg::LArFlatConditionsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+template<class T>
+LArFlatConditionsAlg<T>::LArFlatConditionsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_readKey("/LAr/ElecCalibFlat"),
   m_writeKey("LArFlatCond","LArFlatCond"),
@@ -11,9 +15,12 @@ LArFlatConditionsAlg::LArFlatConditionsAlg(const std::string& name, ISvcLocator*
   declareProperty("WriteKey",m_writeKey);
 }
 
-LArFlatConditionsAlg::~LArFlatConditionsAlg() {};
+template<class T>
+LArFlatConditionsAlg<T>::~LArFlatConditionsAlg() {}
 
-StatusCode LArFlatConditionsAlg::initialize() {
+
+template<class T>
+StatusCode LArFlatConditionsAlg<T>::initialize() {
 
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
@@ -29,9 +36,10 @@ StatusCode LArFlatConditionsAlg::initialize() {
 }
 
 
-StatusCode LArFlatConditionsAlg::execute() {
+template<class T>
+StatusCode LArFlatConditionsAlg<T>::execute() {
     
-  SG::WriteCondHandle<LArHVScaleCorrFlat> writeHandle{m_writeKey};
+  SG::WriteCondHandle<T> writeHandle{m_writeKey};
   
   if (writeHandle.isValid()) {
     writeHandle.updateStore(); //????
@@ -47,7 +55,7 @@ StatusCode LArFlatConditionsAlg::execute() {
     return StatusCode::FAILURE;
   }
 
-  std::unique_ptr<LArHVScaleCorrFlat> flat=std::make_unique<LArHVScaleCorrFlat>(attr);
+  std::unique_ptr<T> flat=std::make_unique<T>(attr);
   
   // Define validity of the output cond obbject and record it
   EventIDRange rangeW;
@@ -57,7 +65,8 @@ StatusCode LArFlatConditionsAlg::execute() {
   }
 
   if(writeHandle.record(rangeW,flat.release()).isFailure()) {
-    ATH_MSG_ERROR("Could not record LArHVScaleCorr with " << writeHandle.key() 
+    ATH_MSG_ERROR("Could not record LArFlatConditions object with " 
+		  << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
