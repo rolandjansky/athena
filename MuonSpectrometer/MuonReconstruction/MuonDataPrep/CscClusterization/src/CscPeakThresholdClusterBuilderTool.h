@@ -114,8 +114,8 @@ private:  // data
   double m_qpeak_threshold_phi;             // Charge qpeak threshold to include strip in cluster
   double m_q3sum_threshold_eta;             // Charge qleft+qpeak+qright threshold to include strip in cluster
   double m_q3sum_threshold_phi;             // Charge qleft+qpeak+qright threshold to include strip in cluster
-  std::string m_digit_key;        // SG key for input digits
-  std::string m_cluster_key;      // SG key for output clusters
+  SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;        // SG key for input digits
+  SG::WriteHandle<Muon::CscPrepDataContainer> m_cluster_handle;      // SG key for output clusters
 
   // Strip fitter.
   ToolHandle<ICscStripFitter> m_pstrip_fitter;
@@ -128,8 +128,6 @@ private:  // data
   // Pointer to muon geometry manager.
   const MuonGM::MuonDetectorManager* m_pmuon_detmgr;
 
-  // Cluster container.
-  Muon::CscPrepDataContainer* m_pclusters;
 
   // Geometry helper.
   const CscIdHelper* m_phelper;
