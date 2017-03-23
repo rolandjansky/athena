@@ -53,7 +53,8 @@ endif()
 atlas_add_test( SGHive_test
    SOURCES test/SGHive_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "${_hivePatterns}" )
+   EXTRA_PATTERNS "${_hivePatterns}" 
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( DataHandle_test
    SOURCES test/DataHandle_test.cxx
