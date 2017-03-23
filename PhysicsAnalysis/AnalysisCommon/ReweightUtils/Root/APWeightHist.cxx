@@ -75,7 +75,7 @@ void APWeightHist::ComputeGraph(const int prec) {
     double unweighted_content = (double) (m_binned_weights[j]).size();
     double sig_low_o = (max((double) 0.0, (unweighted_content - 5 * sqrt(unweighted_content))));
     double sig_high_o = (unweighted_content + 5 * sqrt(unweighted_content));
-    double step = (sig_high_o - sig_low_o) / 1000;
+    double step = (sig_high_o - sig_low_o) * 1e-3;
 
     original_dists[j] = new TH1D("", "", 1000, sig_low_o, sig_high_o);
 
@@ -88,7 +88,8 @@ void APWeightHist::ComputeGraph(const int prec) {
       ++bin_no;
     }
     (original_dists[j])->Scale(1. / (original_dists[j])->GetSum());
-    double old_mode = (original_dists[j])->GetBinCenter((original_dists[j])->GetMaximumBin());
+    const double old_mode = (original_dists[j])->GetBinCenter((original_dists[j])->GetMaximumBin());
+    const double inv_old_mode = 1. / old_mode;
 
     //Create different final sum of weights for this bin
     vector< double > bin_sumw(prec, 0.);
@@ -110,9 +111,9 @@ void APWeightHist::ComputeGraph(const int prec) {
     //Create final distribution for this bin
     TH1D* scaled_hist_l = (TH1D*) (original_dists[j])->Clone("");
     TH1D* scaled_hist_h = (TH1D*) (original_dists[j])->Clone("");
-    double scale = min_value / old_mode;
+    double scale = min_value * inv_old_mode;
     scaled_hist_l->GetXaxis()->SetLimits(scale * sig_low_o, scale * sig_high_o);
-    scale = max_value / old_mode;
+    scale = max_value * inv_old_mode;
     scaled_hist_h->GetXaxis()->SetLimits(scale * sig_low_o, scale * sig_high_o);
 
     double quant[1];
@@ -131,14 +132,14 @@ void APWeightHist::ComputeGraph(const int prec) {
       for (int k = 0; k < prec; ++k) {
         double new_val = bin_sumw[k];
         TH1D* scaled_hist = (TH1D*) (original_dists[j])->Clone("");
-        double temp_scale = new_val / old_mode;
+        double temp_scale = new_val * inv_old_mode;
         scaled_hist->GetXaxis()->SetLimits(temp_scale * sig_low_o, temp_scale * sig_high_o);
         for (int l = 1; l < 1001; ++l) {
           (m_bin_dists[j])->AddBinContent(l, scaled_hist->GetBinContent(scaled_hist->FindBin((m_bin_dists[j])->GetBinCenter(l))));
         }
         delete scaled_hist;
       }
-      double local_value = sig_low + (m_bin_dists[j])->GetMaximumBin() * ((sig_high - sig_low) / 1000);
+      double local_value = sig_low + (m_bin_dists[j])->GetMaximumBin() * ((sig_high - sig_low) * 1e-3);
       m_graph_stat->SetPoint(point_count, (GetXaxis()->GetXmin() + j * GetBinWidth(j + 1) + GetBinWidth(j + 1) / 2), local_value);
       m_graph_syst->SetPoint(point_count, (GetXaxis()->GetXmin() + j * GetBinWidth(j + 1) + GetBinWidth(j + 1) / 2), local_value);
       double quantile[ 2 ];

@@ -74,14 +74,15 @@ APWeightEntry::APWeightEntry(unsigned int val_denominator, unsigned int val_nume
       double sig_low = (std::max((double) 0.0, (m_expectancy_val - 5. * scale * sqrt(m_variance))));
       double sig_high = (m_expectancy_val + 5. * scale * sqrt(m_variance));
       double step = (sig_high - sig_low) * 1e-3;
-      double shift = val_numerator_f * log(m_expectancy_val / scale)+(-val_numerator_f - val_denominator_f - 2.) * log((m_expectancy_val / scale) + 1.);
+      const double inv_scale = 1. / scale;
+      double shift = val_numerator_f * log(m_expectancy_val * inv_scale)+(-val_numerator_f - val_denominator_f - 2.) * log((m_expectancy_val * inv_scale) + 1.);
       //double shift = ln_factorialApp(m_val_numerator);
 
       double temp_value = sig_low;
       double arr_position = sig_low;
 
       for (int i = 0; i < 1000; ++i) {
-        temp_value = exp(m_val_numerator * log(arr_position / scale)+(-val_numerator_f - val_denominator_f - 2.) * log((arr_position / scale) + 1.) - shift);
+        temp_value = exp(m_val_numerator * log(arr_position * inv_scale)+(-val_numerator_f - val_denominator_f - 2.) * log((arr_position * inv_scale) + 1.) - shift);
         if (temp_value != temp_value) temp_value = 0.;
         m_pdf[i] = temp_value;
         m_integral += temp_value;
@@ -102,21 +103,22 @@ APWeightEntry::APWeightEntry(unsigned int val_denominator, unsigned int val_nume
       m_pdf = new double[1000];
       m_bins = new double[1001];
 
-      m_expectancy_val = val_numerator_f / val_denominator_f;
-      m_variance = (m_expectancy_val * (1. - m_expectancy_val)) / val_denominator_f;
+      const double inv_val_denominator_f = 1. / val_denominator_f;
+      m_expectancy_val = val_numerator_f * inv_val_denominator_f;
+      m_variance = (m_expectancy_val * (1. - m_expectancy_val)) * inv_val_denominator_f;
       double var_sqrt = sqrt(m_variance);
       double sig_low = std::max(0., m_expectancy_val - 5. * var_sqrt);
       double sig_high = std::min(1., m_expectancy_val + 5. * var_sqrt);
       if (val_numerator_f == 0) {
         sig_low = 0.;
-        sig_high = std::min(1., (8. / val_denominator_f));
+        sig_high = std::min(1., (8. * inv_val_denominator_f));
       }
       if (val_numerator_f == val_denominator_f) {
-        sig_low = std::max(0., (1. - 8. / val_denominator_f));
+        sig_low = std::max(0., (1. - 8. * inv_val_denominator_f));
         sig_high = 1.;
       }
 
-      double step = fabs(sig_high - sig_low) / 1000;
+      double step = fabs(sig_high - sig_low) * 1e-3;
       double shift = 0.;
       if (val_numerator_f == 0 || val_numerator_f == val_denominator_f) {
         shift = 0.;
@@ -282,8 +284,8 @@ void APWeightEntry::_ComputeCum() {
   for (int i = 0; i < 1000; ++i) {
     m_cumul[i + 1] = m_cumul[i] + m_pdf[i];
   }
-  double normalize = m_cumul[1000];
+  const double inv_normalize = 1. / m_cumul[1000];
   for (int i = 1; i < 1000; ++i) {
-    m_cumul[i] /= normalize;
+    m_cumul[i] *= inv_normalize;
   }
 }
