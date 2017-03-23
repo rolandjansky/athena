@@ -28,7 +28,7 @@ class MuonSegmentPerformanceAlg : public AthAlgorithm {
 
   
  private:
-  bool retrieve( std::string location, xAOD::MuonSegmentContainer*& ) const;
+  bool retrieve(const SG::ReadHandleKey<xAOD::MuonSegmentContainer>&, const xAOD::MuonSegmentContainer*& ptr) const;
   void printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco, const std::vector<int> truth ) const;
   void printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco ) const;
 
@@ -41,8 +41,8 @@ class MuonSegmentPerformanceAlg : public AthAlgorithm {
   std::ofstream  m_fileOutput;  
 
   //statistics to be counted
-  std::string m_segmentLocation;
-  std::string m_truthSegmentLocation;
+  SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segmentKey;
+  SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_truthSegmentKey;
  
   unsigned int                    m_nevents;
   std::vector<int>                m_nhitCuts;
