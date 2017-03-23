@@ -223,9 +223,11 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
   switch(m_type){
      case LArG4::BackInnerBarretteWheelCalib:
             m_isBarretteCalib = true;
+            /* FALLTHROUGH */
      case LArG4::BackInnerBarretteWheel:
             m_isBarrette = true;
             m_type = LArG4::InnerAbsorberWheel;
+            /* FALLTHROUGH */
      case LArG4::InnerAbsorberWheel:
      case LArG4::InnerGlueWheel:
      case LArG4::InnerLeadWheel:
@@ -235,9 +237,11 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
             break;
      case LArG4::BackOuterBarretteWheelCalib:
             m_isBarretteCalib = true;
+            /* FALLTHROUGH */
      case LArG4::BackOuterBarretteWheel:
             m_isBarrette = true;
             m_type = LArG4::OuterAbsorberWheel;
+            /* FALLTHROUGH */
      case LArG4::OuterAbsorberWheel:
      case LArG4::OuterGlueWheel:
      case LArG4::OuterLeadWheel:
@@ -259,9 +263,11 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
             break;
      case LArG4::BackInnerBarretteModuleCalib:
             m_isBarretteCalib = true;
+            /* FALLTHROUGH */
      case LArG4::BackInnerBarretteModule:
             m_isBarrette = true;
             m_type = LArG4::InnerAbsorberModule;
+            /* FALLTHROUGH */
      case LArG4::InnerAbsorberModule:
             inner_wheel_init(EmecWheelParameters_recs);
             module_init();
@@ -270,9 +276,11 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
             break;
      case LArG4::BackOuterBarretteModuleCalib:
             m_isBarretteCalib = true;
+            /* FALLTHROUGH */
      case LArG4::BackOuterBarretteModule:
             m_isBarrette = true;
             m_type = LArG4::OuterAbsorberModule;
+            /* FALLTHROUGH */
      case LArG4::OuterAbsorberModule:
             outer_wheel_init(EmecWheelParameters_recs);
             module_init();
