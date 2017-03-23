@@ -1,5 +1,5 @@
 import argparse, gitlab, logging, os, re, subprocess, sys, yaml
-from gitlab.exceptions import GitlabGetError, GitlabCreateError
+from gitlab.exceptions import GitlabGetError, GitlabCreateError, GitlabCherryPickError
 
 def execute_command_with_retry(cmd,max_attempts=3):
     logging.debug("running command '%s' with max attempts %d",cmd,max_attempts)
@@ -75,18 +75,16 @@ def get_sweep_target_branches(src_branch):
     
     return target_branches
 
-def cherry_pick_mr(merge_commit,source_branch,target_branches,remote_name,project):
+def cherry_pick_mr(merge_commit,source_branch,target_branches,project):
     # keep track of successful and failed cherry-picks
     good_branches = set()
     failed_branches = set()
 
-    # remember current git reference
-    status,HEAD,_ = execute_command_with_retry("git rev-parse HEAD")
-    logging.debug("current HEAD is at '%s'",HEAD)
-
-    # bail out in case of errors
-    if status != 0:
-        logging.critical("failed to parse current git reference")
+    # get merge commit object
+    try:
+        commit = project.commits.get(merge_commit)
+    except GitlabGetError as e:
+        logging.critical("failed to get merge commit '%s' with\n%s",merge_commit,e.error_message)
         return
 
     # get merge request IID from commit message
@@ -100,9 +98,6 @@ def cherry_pick_mr(merge_commit,source_branch,target_branches,remote_name,projec
         try:
             mr_handle = project.mergerequests.list(iid=MR_IID)[0]
         except:
-            logging.critical("failed to retrieve Gitlab merge request handle")
-            return
-        if not mr_handle:
             logging.critical("failed to retrieve Gitlab merge request handle")
             return
         else:
@@ -127,52 +122,62 @@ def cherry_pick_mr(merge_commit,source_branch,target_branches,remote_name,projec
     # get initial MR commit title and description
     _,mr_title,_ = execute_command_with_retry('git show {0} --pretty=format:"%s"'.format(merge_commit))
     _,mr_desc,_ = execute_command_with_retry('git show {0} --pretty=format:"%b"'.format(merge_commit))
-    
-    # perform cherry-pick to all target branches
-    for branch in target_branches:
-        failed = False
-        remote_branch = os.path.join(remote_name,branch)
-        cherry_pick_branch = "cherry-pick-{0}-{1}".format(merge_commit,branch)
-        logging.debug("cherry-pick '%s' into '%s'",merge_commit,remote_branch)
-        git_cmds = ["git checkout -f -b {0} {1} --no-track".format(cherry_pick_branch,remote_branch),
-                    "git cherry-pick --allow-empty -m 1 {0}".format(merge_commit),
-                    "git push {0} {1}".format(remote_name,cherry_pick_branch)]
 
-        # perform the actual cherry-pick
-        for cmd in git_cmds:
-            status,_,_ = execute_command_with_retry(cmd)
-            if status != 0:
-                failed = True
-                break
-            
-        # clean up local cherry-pick branch
-        # if it fails, do not panic
-        execute_command_with_retry("git reset --hard {0} && git branch -D {1} && git clean -fdx".format(HEAD,cherry_pick_branch))
-        
-        if failed:
-            logging.critical("failed to cherry-pick '%s' into '%s'",merge_commit,branch)
-            failed_branches.add(branch)
+    # perform cherry-pick to all target branches
+    for tbranch in target_branches:
+        failed = False
+
+        # create remote branch for containing the cherry-pick commit
+        cherry_pick_branch = "cherry-pick-{0}-{1}".format(merge_commit,tbranch)
+        try:
+            project.branches.create({'branch_name': cherry_pick_branch, 'ref': tbranch})
+        except GitlabCreateError as e:
+            logging.critical("failed to create remote branch '%s' with\n%s",cherry_pick_branch,e.error_message)
+            failed = True
         else:
-            logging.info("cherry-picked '%s' into '%s'",merge_commit,branch)
-            good_branches.add(branch)
+            # perform cherry-pick
+            try:
+                commit.cherry_pick(cherry_pick_branch)
+            except GitlabCherryPickError as e:
+                logging.critical("failed to cherry pick merge commit '%s' with\n%s",merge_commit,e.error_message)
+                failed = True
+
+        # only create MR if cherry-pick succeeded
+        if failed:
+            logging.critical("failed to cherry-pick '%s' into '%s'",merge_commit,tbranch)
+            failed_branches.add(tbranch)
+        else:
+            logging.info("cherry-picked '%s' into '%s'",merge_commit,tbranch)
 
             # create merge request
             mr_data = {}
             mr_data['source_branch'] = cherry_pick_branch
-            mr_data['target_branch'] = branch
+            mr_data['target_branch'] = tbranch
             mr_data['title'] = mr_title
             mr_data['description'] = mr_desc
             mr_data['labels'] = "sweep:from {0}".format(os.path.basename(source_branch))
-            project.mergerequests.create(mr_data)
+            mr_data['remove_source_branch'] = True
+            try:
+                project.mergerequests.create(mr_data)
+            except GitlabCreateError as e:
+                logging.critical("failed to create merge request for '%s' into '%s' with\n%s",cherry_pick_branch,tbranch,e.error_message)
+                failed_branches.add(tbranch)
+            else:
+                good_branches.add(tbranch)
 
     # compile comment about sweep results
     comment = "**Sweep summary**  \n"
     if good_branches:
-        comment += "successful: " + ", ".join(sorted(good_branches)) + "  \n"
+        comment += "successful:  \n* " + "\n* ".join(sorted(good_branches)) + "  \n"
     if failed_branches:
-        comment += "failed: " + ", ".join(sorted(failed_branches))
-    mr_handle.notes.create({'body': comment})
-    
+        comment += "failed:  \n* " + "\n* ".join(sorted(failed_branches))
+
+    # add sweep summary to MR in Gitlab
+    try:
+        mr_handle.notes.create({'body': comment})
+    except GitlabCreateError as e:
+        logging.critical("failed to add comment with sweep summary with\n{0:s}".format(e.error_message))
+
 def main():
     parser = argparse.ArgumentParser(description="GitLab merge request commentator",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-b","--branch",required=True,help="remote branch whose merge commits should be swept (e.g. origin/master)")
@@ -247,7 +252,7 @@ def main():
 
     # do the actual cherry-picking
     for mr in MR_list:
-        cherry_pick_mr(mr,args.branch,target_branches,args.remote_name,project)
+        cherry_pick_mr(mr,args.branch,target_branches,project)
     # change back to initial directory
     os.chdir(current_dir)
 
