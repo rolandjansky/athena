@@ -67,7 +67,7 @@ from InDetOverlay.InDetOverlayConf import InDetOverlay
 job.insert(0, InDetOverlay())
 
 #job.InDetOverlay.OutputLevel = INFO
-#job.InDetOverlay.mainInputPixelName = 'PixelTest'
+#job.InDetOverlay.mainInputPixelKey = 'PixelTest'
 
 # McEventCollection copying
 from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyMcEventCollection
