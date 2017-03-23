@@ -552,3 +552,4 @@ float T2CaloEgamma::calculateZ0(const float etaLayer1, const float etaLayer2) {
   }
   return Z0;
 }
+
