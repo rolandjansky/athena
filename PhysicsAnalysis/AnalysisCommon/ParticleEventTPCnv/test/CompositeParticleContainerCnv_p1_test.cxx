@@ -84,7 +84,13 @@ void test1()
   ElementLink<VxContainer> origlink ("orig", 10);
   INav4MomLink dum ("part", 19);
   MsgStream log (0, "test");
-  DataPool<CompositeParticle> pool;
+  {
+    // Need to instantiate an instance of this before Leakcheck,
+    // to get the allocator created.  But the instance will also
+    // hold a lock on the allocator, so can't leave this live
+    // or we'll deadlock.
+    DataPool<CompositeParticle> pooldum;
+  }
   Athena_test::Leakcheck check;
 
   CompositeParticleContainer trans1;
@@ -113,7 +119,10 @@ void test1()
   cnv.persToTrans (&pers, &trans2, log);
 
   compare (trans1, trans2);
-  pool.erase();
+  {
+    DataPool<CompositeParticle> pooldum;
+    pooldum.erase();
+  }
 }
 
 
