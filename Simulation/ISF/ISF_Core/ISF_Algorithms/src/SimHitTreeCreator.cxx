@@ -6,6 +6,7 @@
 #include "SimHitTreeCreator.h"
 
 // Athena includes
+#include "StoreGate/ReadHandle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
 // HepMC includes
@@ -81,6 +82,19 @@ StatusCode ISF::SimHitTreeCreator::initialize() {
   ATH_CHECK( m_thistSvc.retrieve().isSuccess() );
 
   ATH_CHECK(this->createSimHitsTree());
+
+  ATH_CHECK( m_bcmHits.initialize() );
+  ATH_CHECK( m_blmHits.initialize() );
+  ATH_CHECK( m_pixHits.initialize() );
+  ATH_CHECK( m_sctHits.initialize() );
+  ATH_CHECK( m_trtHits.initialize() );
+  ATH_CHECK( m_pixPileupHits.initialize() );
+  ATH_CHECK( m_sctPileupHits.initialize() );
+  ATH_CHECK( m_trtPileupHits.initialize() );
+  ATH_CHECK( m_mdtHits.initialize() );
+  ATH_CHECK( m_rpcHits.initialize() );
+  ATH_CHECK( m_tgcHits.initialize() );
+  ATH_CHECK( m_cscHits.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -122,11 +136,12 @@ StatusCode ISF::SimHitTreeCreator::createSimHitsTree() {
 /** Fill the simhit TTree - validation mode only */
 StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
 {
-
   // loop over collections
-  if (m_mdtHits.isValid() && m_mdtHits->size()) {
-    MDTSimHitCollection::const_iterator ih=m_mdtHits->begin();
-    while ( ih!=m_mdtHits->end()) {
+
+  SG::ReadHandle<MDTSimHitCollection> mdtHits(m_mdtHits);
+  if (mdtHits.isValid() && mdtHits->size()) {
+    MDTSimHitCollection::const_iterator ih=mdtHits->begin();
+    while ( ih!=mdtHits->end()) {
       m_type = 1;
       m_id = (*ih).MDTid();
       m_mother = (*ih).particleEncoding();
@@ -138,7 +153,7 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
       this->addHepMcParticleLinkInfoToTree(HMPL);
 
       ih++;
-      while (ih!=m_mdtHits->end() && m_id==(*ih).MDTid() && m_barcode==(*ih).trackNumber() ) {
+      while (ih!=mdtHits->end() && m_id==(*ih).MDTid() && m_barcode==(*ih).trackNumber() ) {
         // merge energy deposits and move on
         m_edeposit += (*ih).energyDeposit();
         ih++;
@@ -147,9 +162,10 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
     }
   }
 
-  if (m_rpcHits.isValid() && m_rpcHits->size()) {
-    RPCSimHitCollection::const_iterator ih=m_rpcHits->begin();
-    while (ih!=m_rpcHits->end()) {
+  SG::ReadHandle<RPCSimHitCollection> rpcHits(m_rpcHits);
+  if (rpcHits.isValid() && rpcHits->size()) {
+    RPCSimHitCollection::const_iterator ih=rpcHits->begin();
+    while (ih!=rpcHits->end()) {
       m_type = 2;
       m_id = (*ih).RPCid();
       m_mother = (*ih).particleEncoding();
@@ -161,7 +177,7 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
       this->addHepMcParticleLinkInfoToTree(HMPL);
 
       ih++;
-      while (ih!=m_rpcHits->end() && m_id==(*ih).RPCid() && m_barcode==(*ih).trackNumber() ) {
+      while (ih!=rpcHits->end() && m_id==(*ih).RPCid() && m_barcode==(*ih).trackNumber() ) {
         // merge energy deposits and move on
         m_edeposit += (*ih).energyDeposit();
         ih++;
@@ -169,9 +185,11 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
       m_t_simHits->Fill();
     }
   }
-  if (m_tgcHits.isValid() && m_tgcHits->size()) {
-    TGCSimHitCollection::const_iterator ih=m_tgcHits->begin();
-    while ( ih!=m_tgcHits->end()) {
+
+  SG::ReadHandle<TGCSimHitCollection> tgcHits(m_tgcHits);
+  if (tgcHits.isValid() && tgcHits->size()) {
+    TGCSimHitCollection::const_iterator ih=tgcHits->begin();
+    while ( ih!=tgcHits->end()) {
       m_type = 3;
       m_id = (*ih).TGCid();
       m_mother = (*ih).particleEncoding();
@@ -183,7 +201,7 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
       this->addHepMcParticleLinkInfoToTree(HMPL);
 
       ih++;
-      while (ih!=m_tgcHits->end() && m_id==(*ih).TGCid() && m_barcode==(*ih).trackNumber() ) {
+      while (ih!=tgcHits->end() && m_id==(*ih).TGCid() && m_barcode==(*ih).trackNumber() ) {
         // merge energy deposits and move on
         m_edeposit += (*ih).energyDeposit();
         ih++;
@@ -191,9 +209,11 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
       m_t_simHits->Fill();
     }
   }
-  if (m_cscHits.isValid() && m_cscHits->size()) {
-    CSCSimHitCollection::const_iterator ih=m_cscHits->begin();
-    while ( ih!=m_cscHits->end()) {
+
+  SG::ReadHandle<CSCSimHitCollection> cscHits(m_cscHits);
+  if (cscHits.isValid() && cscHits->size()) {
+    CSCSimHitCollection::const_iterator ih=cscHits->begin();
+    while ( ih!=cscHits->end()) {
       m_type = 4;
       m_id = (*ih).CSCid();
       m_mother = (*ih).particleID();
@@ -205,7 +225,7 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
       this->addHepMcParticleLinkInfoToTree(HMPL);
 
       ih++;
-      while (ih!=m_cscHits->end() && m_id==(*ih).CSCid() && m_barcode==(*ih).trackNumber() ) {
+      while (ih!=cscHits->end() && m_id==(*ih).CSCid() && m_barcode==(*ih).trackNumber() ) {
         // merge energy deposits and move on
         m_edeposit += (*ih).energyDeposit();
         ih++;
@@ -213,11 +233,11 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
       m_t_simHits->Fill();
     }
   }
+
   for (int ipileup=0;ipileup<2;ipileup++) {
     m_pileup = ipileup;
-    // pixel hits
-    SG::ReadHandle<SiHitCollection>& pixHits=(ipileup==0) ? m_pixHits : m_pixPileupHits;
 
+    SG::ReadHandle<SiHitCollection> pixHits((ipileup==0) ? m_pixHits : m_pixPileupHits);
     if (pixHits.isValid() && pixHits->size()) {
       SiHitCollection::const_iterator ih=pixHits->begin();
       while (ih!=pixHits->end()) {
@@ -241,7 +261,8 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
         m_t_simHits->Fill();
       }
     }
-    SG::ReadHandle<SiHitCollection>& sctHits=(ipileup==0) ? m_sctHits : m_sctPileupHits;
+
+    SG::ReadHandle<SiHitCollection> sctHits((ipileup==0) ? m_sctHits : m_sctPileupHits);
     if (sctHits.isValid() && sctHits->size()) {
       SiHitCollection::const_iterator ih=sctHits->begin();
       while (ih!=sctHits->end()) {
@@ -265,7 +286,8 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
         m_t_simHits->Fill();
       }
     }
-    SG::ReadHandle<TRTUncompressedHitCollection>& trtHits = (ipileup==0) ? m_trtHits : m_trtPileupHits;
+
+    SG::ReadHandle<TRTUncompressedHitCollection> trtHits((ipileup==0) ? m_trtHits : m_trtPileupHits);
     if (trtHits.isValid() && trtHits->size()) {
       TRTUncompressedHitCollection::const_iterator ih=trtHits->begin();
       while ( ih!=trtHits->end()) {

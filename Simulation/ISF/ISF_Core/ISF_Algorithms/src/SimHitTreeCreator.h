@@ -24,11 +24,6 @@ class TTree;
 
 namespace ISF {
 
-  /** @class SimHitTreeCreator
-
-      @author John.Chapman -at- cern.ch
-
-     */
   class SimHitTreeCreator : virtual public AthAlgorithm {
 
   public:
@@ -75,20 +70,20 @@ namespace ISF {
 
 
     //Inner Detector
-    SG::ReadHandle<SiHitCollection>                              m_bcmHits;
-    SG::ReadHandle<SiHitCollection>                              m_blmHits;
-    SG::ReadHandle<SiHitCollection>                              m_pixHits;
-    SG::ReadHandle<SiHitCollection>                              m_sctHits;
-    SG::ReadHandle<TRTUncompressedHitCollection>                 m_trtHits;
-    SG::ReadHandle<SiHitCollection>                              m_pixPileupHits;
-    SG::ReadHandle<SiHitCollection>                              m_sctPileupHits;
-    SG::ReadHandle<TRTUncompressedHitCollection>                 m_trtPileupHits;
+    SG::ReadHandleKey<SiHitCollection>                              m_bcmHits;
+    SG::ReadHandleKey<SiHitCollection>                              m_blmHits;
+    SG::ReadHandleKey<SiHitCollection>                              m_pixHits;
+    SG::ReadHandleKey<SiHitCollection>                              m_sctHits;
+    SG::ReadHandleKey<TRTUncompressedHitCollection>                 m_trtHits;
+    SG::ReadHandleKey<SiHitCollection>                              m_pixPileupHits;
+    SG::ReadHandleKey<SiHitCollection>                              m_sctPileupHits;
+    SG::ReadHandleKey<TRTUncompressedHitCollection>                 m_trtPileupHits;
 
     //MuonSpectrometer
-    SG::ReadHandle<MDTSimHitCollection>                          m_mdtHits;
-    SG::ReadHandle<RPCSimHitCollection>                          m_rpcHits;
-    SG::ReadHandle<TGCSimHitCollection>                          m_tgcHits;
-    SG::ReadHandle<CSCSimHitCollection>                          m_cscHits;
+    SG::ReadHandleKey<MDTSimHitCollection>                          m_mdtHits;
+    SG::ReadHandleKey<RPCSimHitCollection>                          m_rpcHits;
+    SG::ReadHandleKey<TGCSimHitCollection>                          m_tgcHits;
+    SG::ReadHandleKey<CSCSimHitCollection>                          m_cscHits;
   };
 }
 
