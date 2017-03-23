@@ -173,8 +173,10 @@ else
 	   sed "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
-           egrep -a -v "$PP" < $jobrep > $jobdiff
-           egrep -a -v "$PP" < $refrep > $refdiff
+	   # Remove ignored lines and line numbers
+	   re_remove_lineno='s/(\.cxx|\.cpp|\.h|\.icc|LINE):[0-9]+/\1/g'
+           egrep -a -v "$PP" < $jobrep | sed -r $re_remove_lineno > $jobdiff
+           egrep -a -v "$PP" < $refrep | sed -r $re_remove_lineno > $refdiff
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
