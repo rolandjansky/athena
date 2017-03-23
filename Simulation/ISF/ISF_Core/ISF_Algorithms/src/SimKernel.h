@@ -13,7 +13,6 @@
 #include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-//#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // ISF includes
@@ -31,10 +30,6 @@
 namespace PMonUtils {
   class CustomBenchmark;
 }
-// // THistogram service
-// class ITHistSvc;
-// // ROOT forward declarations
-// class TTree;
 
 namespace ISF {
 
