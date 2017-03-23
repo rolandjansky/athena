@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
+                          Control/CxxUtils
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/DataModelRoot
