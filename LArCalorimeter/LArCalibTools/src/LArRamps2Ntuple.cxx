@@ -438,12 +438,12 @@ StatusCode LArRamps2Ntuple::stop() {
           for (coeffIndex=0;coeffIndex<rampcoeff.size();coeffIndex++)
             coeffs[coeffIndex]=rampcoeff[coeffIndex];
         
-            sc=ntupleSvc()->writeRecord(m_nt);
+          sc=ntupleSvc()->writeRecord(m_nt);
  
-            if (sc!=StatusCode::SUCCESS) {
-              (*m_log) << MSG::ERROR << "writeRecord failed" << endmsg;
-              return StatusCode::FAILURE;
-            }
+          if (sc!=StatusCode::SUCCESS) {
+            (*m_log) << MSG::ERROR << "writeRecord failed" << endmsg;
+            return StatusCode::FAILURE;
+          }
        }//end loop over cells
      }
    }//end loop over gains
