@@ -114,28 +114,28 @@ StatusCode EMConversionBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-// =============================================================
-StatusCode EMConversionBuilder::contExecute() 
-{
+// // =============================================================
+// StatusCode EMConversionBuilder::contExecute() 
+// {
 
-  // retrieve Conversion Container
-  const xAOD::VertexContainer* conversions = 0;
-  if(evtStore()->retrieve(conversions,m_conversionContainerName).isFailure()){
-    ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
-    return StatusCode::SUCCESS;
-  }
+//   // retrieve Conversion Container
+//   const xAOD::VertexContainer* conversions = 0;
+//   if(evtStore()->retrieve(conversions,m_conversionContainerName).isFailure()){
+//     ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
+//     return StatusCode::SUCCESS;
+//   }
   
-  // retrieve egammaRec container
-  const EgammaRecContainer* egammaRecs = 0;
-  if(evtStore()->retrieve(egammaRecs,m_egammaRecContainerName).isFailure()){
-    ATH_MSG_WARNING("Could not retrieve egammaRec container! EMConversionBuilder will stop.");
-    return StatusCode::SUCCESS;
-  }   
-  for (auto& egRec : *egammaRecs){
-    ATH_CHECK(vertexExecute(egRec,conversions));
-  }
-  return StatusCode::SUCCESS;
-}
+//   // retrieve egammaRec container
+//   const EgammaRecContainer* egammaRecs = 0;
+//   if(evtStore()->retrieve(egammaRecs,m_egammaRecContainerName).isFailure()){
+//     ATH_MSG_WARNING("Could not retrieve egammaRec container! EMConversionBuilder will stop.");
+//     return StatusCode::SUCCESS;
+//   }   
+//   for (auto& egRec : *egammaRecs){
+//     ATH_CHECK(vertexExecute(egRec,conversions));
+//   }
+//   return StatusCode::SUCCESS;
+// }
 
 
 StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) {

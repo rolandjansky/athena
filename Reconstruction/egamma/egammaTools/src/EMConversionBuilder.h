@@ -50,7 +50,7 @@ class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionB
   /** @brief initialize method*/
   StatusCode initialize();
   /** @brief execute method*/
-  virtual StatusCode contExecute();
+  //virtual StatusCode contExecute();
   /** @brief execute method*/
   virtual StatusCode executeRec(egammaRec* egRec);
   /** @brief execute method*/

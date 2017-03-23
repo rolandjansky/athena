@@ -40,7 +40,7 @@ class IEMConversionBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  virtual StatusCode contExecute() = 0;
+  //virtual StatusCode contExecute() = 0;
   /** @brief execute method*/
   virtual StatusCode executeRec(egammaRec* egRec)=0;
   /** @brief execute method*/

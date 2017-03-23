@@ -1,5 +1,6 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "egammaAlgs/egammaBuilder.h"
+#include "egammaAlgs/egammaRecBuilder.h"
 #include "egammaAlgs/topoEgammaBuilder.h"
 #include "egammaAlgs/egammaForwardBuilder.h"
 #include "egammaAlgs/egammaTruthAssociationAlg.h"
@@ -11,6 +12,7 @@
 #include "egammaAlgs/egammaTopoClusterCopier.h"
 
 DECLARE_ALGORITHM_FACTORY( egammaBuilder            )
+DECLARE_ALGORITHM_FACTORY( egammaRecBuilder         )
 DECLARE_ALGORITHM_FACTORY( topoEgammaBuilder        )
 DECLARE_ALGORITHM_FACTORY( egammaForwardBuilder     )
 DECLARE_ALGORITHM_FACTORY( egammaTruthAssociationAlg)
@@ -23,6 +25,7 @@ DECLARE_ALGORITHM_FACTORY( egammaTopoClusterCopier  )
 
 DECLARE_FACTORY_ENTRIES(egammaAlgs) {
      DECLARE_ALGORITHM( egammaBuilder             )
+     DECLARE_ALGORITHM( egammaRecBuilder          )
      DECLARE_ALGORITHM( topoEgammaBuilder         )
      DECLARE_ALGORITHM( egammaForwardBuilder      )
      DECLARE_ALGORITHM( egammaTruthAssociationAlg )
