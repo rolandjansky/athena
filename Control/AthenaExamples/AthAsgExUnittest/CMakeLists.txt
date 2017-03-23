@@ -31,9 +31,12 @@ atlas_add_test( gt_AthAsgExUnittest
   SOURCES test/gt_AthAsgExUnittest.cxx
   LINK_LIBRARIES GaudiKernel GoogleTestTools AthAsgExUnittestLib )
 
+atlas_add_test( gt_MockxAODJet
+  SOURCES test/gt_MockxAODJet.cxx
+  LINK_LIBRARIES xAODJet GoogleTestTools )
 
-# Install files from the package:
-#atlas_install_headers( MyPackage )
-#atlas_install_joboptions( share/*.py )
-#atlas_install_runtime( test/AthExHelloWorld_TestConfiguration.xml )
+atlas_add_test( gt_xAODJet
+  SOURCES test/gt_xAODJet.cxx
+  LINK_LIBRARIES xAODJet GoogleTestTools )
+
 

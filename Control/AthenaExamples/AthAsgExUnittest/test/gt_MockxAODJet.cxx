@@ -41,15 +41,16 @@ namespace xAOD {
 
 namespace Athena_test {
 
-  TEST( MyxAODAnalysis, jetpt ) {
+  TEST( MyxAODAnalysis, mockjetpt ) {
     MockxAODJet mockjet;
+    mockjet.makePrivateStore();
     ON_CALL( mockjet, pt() ).WillByDefault( Return( 1.0 ) );
     EXPECT_CALL( mockjet, pt() ).Times( 1 );
     xAOD::Jet& jet= mockjet;
     EXPECT_EQ( jet.pt(), 1.0 );
   }
 
-  TEST( MyxAODAnalysis, jetgetAttribute ) {
+  TEST( MyxAODAnalysis, mockjetgetAttribute ) {
     MockxAODJet mockjet;
     EXPECT_CALL( mockjet, getAttributeFloat( "test", _ ) )
       .WillOnce( DoAll( SetArgReferee<1>( 42 ), Return(true) ) );
