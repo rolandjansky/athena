@@ -19,7 +19,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODEventInfo
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
    Event/xAOD/xAODParticleEvent
    Event/xAOD/xAODTruth
