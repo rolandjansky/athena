@@ -3,8 +3,8 @@
 */
 
 // Dear emacs, this is -*-c++-*-
-#ifndef LARCOOLCONDITIONS_LARMPHYSOVERMCALSC_H
-#define LARCOOLCONDITIONS_LARMPHYSOVERMCALSC_H
+#ifndef LARCOOLCONDITIONS_LARNOISESCSC_H
+#define LARCOOLCONDITIONS_LARNOISESC_H
 
 #include "LArElecCalib/ILArNoise.h" 
 #include "LArCOOLConditions/LArSingleFloatBlob.h"
