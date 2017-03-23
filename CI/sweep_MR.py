@@ -1,5 +1,6 @@
 import argparse, gitlab, logging, os, re, subprocess, sys, yaml
 from gitlab.exceptions import GitlabGetError, GitlabCreateError, GitlabCherryPickError
+from gitlab_mr_helpers import list_changed_packages
 
 def execute_command_with_retry(cmd,max_attempts=3):
     logging.debug("running command '%s' with max attempts %d",cmd,max_attempts)
@@ -50,7 +51,7 @@ def get_list_of_merge_commits(branch,since):
     
     return hash_list
 
-def get_sweep_target_branches(src_branch):
+def get_sweep_target_branch_rules(src_branch):
     git_cmd = "git show {0}:CI/config.yaml".format(src_branch)
     status,out,_ = execute_command_with_retry(git_cmd)
     
@@ -69,13 +70,13 @@ def get_sweep_target_branches(src_branch):
         logging.info("no sweep targets for branch '%s' configured",src_branch)
         return None
 
-    target_branches = CI_config['sweep-targets']
-    logging.info("MRs to '%s' are swept to %d branches",src_branch,len(target_branches))
-    logging.debug("sweep target branches: %s",repr(target_branches))
+    target_branch_rules = CI_config['sweep-targets']
+    logging.info("read %d sweeping rules for MRs to '%s",len(target_branch_rules),src_branch)
+    logging.debug("sweeping rules: %r",target_branch_rules)
     
-    return target_branches
+    return target_branch_rules
 
-def cherry_pick_mr(merge_commit,source_branch,target_branches,project):
+def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
     # keep track of successful and failed cherry-picks
     good_branches = set()
     failed_branches = set()
@@ -106,7 +107,7 @@ def cherry_pick_mr(merge_commit,source_branch,target_branches,project):
         logging.critical("failed to determine MR IID")
         return
 
-    # add sweep label
+    # handle sweep labels
     labels = set(mr_handle.labels)
     if "sweep:done" in labels:
         logging.info("merge commit '%s' was already swept -> skipping",merge_commit)
@@ -118,6 +119,26 @@ def cherry_pick_mr(merge_commit,source_branch,target_branches,project):
     labels.add("sweep:done")
     mr_handle.labels = ",".join(labels)
     mr_handle.save()
+
+    # get list of affected packages for this MR
+    affected_packages = list_changed_packages(mr_handle)
+    logging.debug("MR %d affects the following packages: %r",MR_IID,affected_packages)
+
+    # determine set of target branches from rules and affected packages
+    target_branches = set()
+    for rule,branches in target_branch_rules.items():
+        # get pattern expression for affected packages
+        pkg_pattern = re.compile(rule)
+        # only add target branches if ALL affected packages match the given pattern
+        matches = [pkg_pattern.match(pkg_name) for pkg_name in affected_packages]
+        if all(matches):
+            logging.debug("add branches for rule '%s'",rule)
+            target_branches.update(branches)
+        else:
+            logging.debug("skip branches for rule '%s'",rule)
+
+    logging.info("MR %d is swept to %d branches",MR_IID,len(target_branches))
+    logging.debug("sweep target branches: %r",target_branches)
 
     # get initial MR commit title and description
     _,mr_title,_ = execute_command_with_retry('git show {0} --pretty=format:"%s"'.format(merge_commit))
@@ -168,7 +189,7 @@ def cherry_pick_mr(merge_commit,source_branch,target_branches,project):
     # compile comment about sweep results
     comment = "**Sweep summary**  \n"
     if good_branches:
-        comment += "successful:  \n* " + "\n* ".join(sorted(good_branches)) + "  \n"
+        comment += "successful:  \n* " + "\n* ".join(sorted(good_branches)) + "  \n  \n"
     if failed_branches:
         comment += "failed:  \n* " + "\n* ".join(sorted(failed_branches))
 
@@ -239,9 +260,9 @@ def main():
         return None
 
     # get list of branches MRs should be forwarded to
-    target_branches = get_sweep_target_branches(args.branch)
-    if not target_branches:
-        logging.info("no sweep targets for branch '%s' found",args.branch)
+    target_branch_rules = get_sweep_target_branch_rules(args.branch)
+    if not target_branch_rules:
+        logging.info("no sweeping rules for branch '%s' found",args.branch)
         sys.exit(0)
 
     # get list of MRs in relevant period
@@ -252,7 +273,7 @@ def main():
 
     # do the actual cherry-picking
     for mr in MR_list:
-        cherry_pick_mr(mr,args.branch,target_branches,project)
+        cherry_pick_mr(mr,args.branch,target_branch_rules,project)
     # change back to initial directory
     os.chdir(current_dir)
 

@@ -1,3 +1,5 @@
 sweep-targets:
-  - multithreading
- 
+  '.*':
+    - 'multithreading'
+  'CI':
+    - '21.0'
