@@ -191,7 +191,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     // Check third dimension boundaries, if applicable
     const float valZ = checkBoundaries(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
     if (m_interpolate) return Interpolate(m_histo,valX,valY,valZ);
-                       return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY),FindBin(m_histo->GetZaxis(),valZ));
+    return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY),FindBin(m_histo->GetZaxis(),valZ));
 }
 
 
@@ -411,8 +411,8 @@ double UncertaintyHistogram::Interpolate2D(const TH1* histo, const double x, con
         }
     }
     
-    Double_t d = 1.0*(x2-x1)*(y2-y1);
-    f = 1.0*q11/d*(x2-x)*(y2-y)+1.0*q21/d*(x-x1)*(y2-y)+1.0*q12/d*(x2-x)*(y-y1)+1.0*q22/d*(x-x1)*(y-y1);
+    Double_t d = (x2-x1)*(y2-y1);
+    f = (q11*(x2-x)*(y2-y)+q21*(x-x1)*(y2-y)+q12*(x2-x)*(y-y1)+q22*(x-x1)*(y-y1)) / d;
     return f;
 }
 
