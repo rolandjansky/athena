@@ -21,13 +21,9 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-// the magic method this tool provides
-   virtual StatusCode saySomething() const;
-
-  virtual void ss() { ATH_MSG_INFO("...ssss..."); }
+  virtual StatusCode doSomething() const;
 
 private:
-  std::string m_myMessage;
 
   SG::ReadHandleKey<HiveDataObj> m_rdh1;
   SG::WriteHandleKey<HiveDataObj> m_wrh1;

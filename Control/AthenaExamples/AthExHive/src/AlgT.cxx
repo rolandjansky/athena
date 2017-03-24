@@ -105,9 +105,9 @@ StatusCode AlgT::execute() {
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 
 
-  m_tool1->saySomething();
-  m_tool2->saySomething();
-  m_tool3->saySomething();
+  m_tool1->doSomething();
+  m_tool2->doSomething();
+  m_tool3->doSomething();
   
 
   return StatusCode::SUCCESS;

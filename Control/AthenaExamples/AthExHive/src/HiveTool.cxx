@@ -19,8 +19,6 @@ HiveTool::HiveTool(const std::string& type, const std::string& name,
     m_wrh1("X1")
 {
   
-  declareProperty("MyMessage", m_myMessage, "the default message");
-  
   declareProperty("Key_R1",m_rdh1);
   declareProperty("Key_W1",m_wrh1);
 
@@ -59,8 +57,8 @@ HiveTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HiveTool::saySomething() const {
-  ATH_MSG_INFO ("message: " << m_myMessage);
+StatusCode HiveTool::doSomething() const {
+  ATH_MSG_INFO ("doSomething()");
 
   int val = 0;
   
