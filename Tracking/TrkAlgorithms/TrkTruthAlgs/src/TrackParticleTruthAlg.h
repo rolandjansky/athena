@@ -10,9 +10,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkTruthData/TrackTruthCollection.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "GeneratorObjects/xAODTruthParticleLink.h"
 
 class IMCTruthClassifier;
 
@@ -26,9 +23,9 @@ public:
   
 private:
   
-  SG::ReadHandleKey<TrackTruthCollection> m_truthName;          /// Track(Particle)TruthCollection input name
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleName;  /// TrackParticle input name
-  SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthLinkVecName;   /// link vector to map HepMC onto xAOD truth
+  std::string m_truthName;          /// Track(Particle)TruthCollection input name
+  std::string m_trackParticleName;  /// TrackParticle input name
+  std::string m_truthLinkVecName;   /// link vector to map HepMC onto xAOD truth
   
   ToolHandle<IMCTruthClassifier> m_truthClassifier;
 };
