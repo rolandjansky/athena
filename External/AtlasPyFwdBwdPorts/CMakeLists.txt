@@ -173,11 +173,11 @@ _setup_python_package( pip
    DEPENDS distribute )
 
 # Install pycrypto:
-_setup_python_package( pycrypto
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto-2.1.0.tar.gz
-   DEPENDS distribute
-   PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto.patch
-   SINGLE_VERSION )
+#_setup_python_package( pycrypto
+#   ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto-2.1.0.tar.gz
+#   DEPENDS distribute
+#   PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto.patch
+#   SINGLE_VERSION )
 
 # Install pyflakes:
 _setup_python_package( pyflakes
