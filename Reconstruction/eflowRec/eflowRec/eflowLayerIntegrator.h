@@ -34,8 +34,8 @@ class eflowLayerIntegrator {
  public:
 
   eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev);
-  eflowLayerIntegrator(const eflowLayerIntegrator& anEFlowLayerIntegrator);
-  eflowLayerIntegrator&  operator=(const eflowLayerIntegrator& anEFlowLayerIntegrator);
+  eflowLayerIntegrator(const eflowLayerIntegrator& originalEflowLayerIntegrator);
+  eflowLayerIntegrator&  operator=(const eflowLayerIntegrator& originalEflowLayerIntegrator);
   ~eflowLayerIntegrator();
 
   void measureNewClus(const xAOD::CaloCluster* clus, const eflowTrackCaloPoints& trackCalo);

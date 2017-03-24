@@ -85,7 +85,7 @@ class PositionProvider: public IPositionProvider {
 protected:
   PositionProvider() { m_position = new PositionType; }
   PositionProvider(const PositionProvider& originalPositionProvider) { m_position = new PositionType(*originalPositionProvider.getPosition()); }
-  PositionProvider& operator = (const PositionProvider& originalPositionProvider) { m_position = new PositionType(*originalPositionProvider.getPosition()); }
+  PositionProvider& operator = (const PositionProvider& originalPositionProvider) { if (this == &originalPositionProvider) return *this; else {m_position = new PositionType(*originalPositionProvider.getPosition()); return *this;} }
   
 public:
   virtual ~PositionProvider() { delete m_position; }
