@@ -5,26 +5,22 @@
 # Technical package(s) that should not show up in packages.txt:
 - Build
 
-# Only pick up a few packages from the External directory:
-+ External/AtlasDataArea
-+ External/pyAMI
-+ External/FWDet/TwissFiles
-+ External/Herwigpp
-+ External/AtlasMKL
-- External/.*
-# Only pick up the RunTime packages from Projects:
-+ Projects/.*RunTime
+# Ignore the Projects directory:
 - Projects/.*
+
 # Remove HLT packages
 - HLT/.*
 - Trigger/TrigValidation/TrigP1Test
+
 # Offload service has build problems
-- External/APEGlue
 - Offloading/.*
+
 # Abandoned generator package(s):
 - Generators/Herwigpp_i
+
 # Temporary VP1 compilation issues
 - graphics/VP1/.*
+
 # Some analysis packages that are not part of Athena
 - AsgExternal/Asg_Test
 - Control/AthLinksSA
