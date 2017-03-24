@@ -20,7 +20,9 @@
 #include "MSVertexUtils/MSVertex.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
+#include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include <utility>
 #include <vector>
 
@@ -62,7 +64,6 @@ namespace Muon {
   private:
     //add tool handles, private variables, etc here
     ToolHandle <Trk::IExtrapolator> m_extrapolator;
-    std::string m_xAODContainerName;
     const MdtIdHelper* m_mdtIdHelper;
     const RpcIdHelper* m_rpcIdHelper;
     const TgcIdHelper* m_tgcIdHelper;
@@ -102,13 +103,16 @@ namespace Muon {
     void HitCounter(MSVertex* MSRecoVx);//counts MDT, RPC & TGC around a reco'd vertex
     std::vector<TrkCluster> findTrackClusters(std::vector<Tracklet>& tracklets);//group tracklets into clusters -- vertex reco runs on each cluster of tracklets
     TrkCluster ClusterizeTracks(std::vector<Tracklet>& tracks);//core algorithm for creating the clusters
-    StatusCode FillOutputContainer(std::vector<MSVertex*>&);
+    StatusCode FillOutputContainer(std::vector<MSVertex*>&, SG::WriteHandle<xAOD::VertexContainer> &xAODVxContainer);
     Amg::Vector3D VxMinQuad(std::vector<Tracklet> tracks);//endcap vertex reco core
     std::vector<Tracklet> RemoveBadTrk(std::vector<Tracklet> tracklets, Amg::Vector3D Vx);//endcap vertex algo track selector
     bool EndcapHasBadTrack(std::vector<Tracklet> tracklets, Amg::Vector3D Vx);
     std::vector<Tracklet> getTracklets(std::vector<Tracklet> trks, std::set<int> tracklet_subset);
     float sq(float x) { return (x)*(x); }
-
+    SG::WriteHandleKey<xAOD::VertexContainer> m_xAODContainerKey;
+    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcTESKey;//"RPC_Measurements"
+    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcTESKey;//"TGC_Measurements"
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtTESKey; //"MDT_DriftCircles" 
   };
   
   
