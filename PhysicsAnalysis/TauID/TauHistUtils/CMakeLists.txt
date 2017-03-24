@@ -18,7 +18,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 # Component(s) in the package:
 atlas_add_library( TauHistUtils
                    src/*.cxx
-		   PUBLIC_HEADERS TrkValHistUtils
+		   PUBLIC_HEADERS TauHistUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODPFlow xAODTau TrkValHistUtils)
 
