@@ -15,8 +15,3 @@ atlas_install_joboptions( share/*.py )
 atlas_install_scripts( scripts/generate*Menu.py scripts/menuTestTMC.sh )
 atlas_install_xmls( data/*.dtd data/*.xml )
 
-atlas_add_test( generateMenu SCRIPT scripts/testMenu.sh 
-                PROPERTIES TIMEOUT 500 
-              )
-
-
