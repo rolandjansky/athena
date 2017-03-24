@@ -27,6 +27,9 @@ TrackParticleTruthAlg::TrackParticleTruthAlg(const std::string &name,ISvcLocator
 StatusCode TrackParticleTruthAlg::initialize()
 {
   ATH_CHECK(m_truthClassifier.retrieve());
+  ATH_CHECK(m_truthName.initialize());
+  ATH_CHECK(m_trackParticleName.initialize());
+  ATH_CHECK(m_truthLinkVecName.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -38,21 +41,23 @@ StatusCode TrackParticleTruthAlg::finalize() {
 // -----------------------------------------------------------------------------------------------------
 StatusCode TrackParticleTruthAlg::execute() {
 
-  xAOD::TrackParticleContainer* particles = 0;
-  if(evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleName)){
-    ATH_CHECK(evtStore()->retrieve(particles, m_trackParticleName));
+  const xAOD::TrackParticleContainer* particles = 0;
+  SG::ReadHandle<xAOD::TrackParticleContainer> rh_trackparticle(m_trackParticleName);
+  if(rh_trackparticle.isValid()){
+    particles = rh_trackparticle.cptr();
   }else return StatusCode::SUCCESS;
 
-
   const xAODTruthParticleLinkVector* truthParticleLinkVec = 0;
-  if(evtStore()->contains<xAODTruthParticleLinkVector>(m_truthLinkVecName)){
-    ATH_CHECK(evtStore()->retrieve(truthParticleLinkVec, m_truthLinkVecName));
+  SG::ReadHandle<xAODTruthParticleLinkVector> rh_truthlink(m_truthLinkVecName);
+  if(rh_truthlink.isValid()){
+    truthParticleLinkVec = rh_truthlink.cptr();
   }else return StatusCode::SUCCESS;
   
   const TrackTruthCollection* truthTracks = 0;
+  SG::ReadHandle<TrackTruthCollection> rh_truthtracks(m_truthName);
   // Retrieve the input
-  if( evtStore()->contains<TrackTruthCollection>(m_truthName)){
-    ATH_CHECK(evtStore()->retrieve(truthTracks, m_truthName));
+  if(rh_truthtracks.isValid()){
+    truthTracks = rh_truthtracks.cptr();
   }else return StatusCode::SUCCESS;
 
   for( auto particle : *particles ){
