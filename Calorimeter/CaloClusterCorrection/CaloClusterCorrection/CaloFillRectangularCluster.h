@@ -128,8 +128,8 @@ private:
    * @brief Actually make the correction for one region (barrel or endcap).
    * @param ctx     The event context.
    * @param helper Sampling calculation helper object.
-   * @param eta The @f$\eta$@f seed of the cluster.
-   * @param phi The @f$\phi$@f seed of the cluster.
+   * @param eta The @f$\eta@f$ seed of the cluster.
+   * @param phi The @f$\phi@f$ seed of the cluster.
    * @param samplings List of samplings for this region.
    */
   void makeCorrection1 (const EventContext& ctx,

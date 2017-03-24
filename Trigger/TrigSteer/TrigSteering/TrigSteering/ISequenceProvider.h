@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: ISequenceProvidering
- * @Class  : ISequenceProvider
+ * @class  : ISequenceProvider
  *
  * @brief  Algorithm to provide sequences to signatures
  *

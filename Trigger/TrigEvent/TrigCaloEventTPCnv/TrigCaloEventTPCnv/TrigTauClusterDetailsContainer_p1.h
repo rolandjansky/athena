@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigTauClusterDetailsContainer_p1
+ * @class  : TrigTauClusterDetailsContainer_p1
  *
  * @brief persistent partner for TrigTauClusterDetailsContainer
  *

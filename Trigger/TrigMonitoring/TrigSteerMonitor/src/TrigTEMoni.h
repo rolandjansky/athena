@@ -6,7 +6,7 @@
 /**********************************************************************************
  * @Project: ATLAS HLT Steering Monitoring
  * @Package: Trigger/TrigMonitoring/TrigSteerMonitor
- * @Class  : TrigTEMoni
+ * @class  : TrigTEMoni
  * @Created: Nov, 2006
  *
  * @brief monitore number of active trigger elements

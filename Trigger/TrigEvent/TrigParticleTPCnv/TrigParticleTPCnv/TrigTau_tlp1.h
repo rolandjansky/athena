@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigTau_tlp1
+ * @class  : TrigTau_tlp1
  *
  * @brief "top level" persistent partner for TrigTau
  *

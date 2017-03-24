@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteeringTest
- * @Class  : dummyAlgoHLTErrorCode
+ * @class  : dummyAlgoHLTErrorCode
  *
  * @brief : simple PESA algorithm, taking exactly 1 input TE. Does not require any
  *          detector data! This algorithm can be configured to throw C++ exception

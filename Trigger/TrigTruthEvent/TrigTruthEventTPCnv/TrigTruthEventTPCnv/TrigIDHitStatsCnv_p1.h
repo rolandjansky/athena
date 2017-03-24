@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigTruthEventTPCnv
- * @Class  : TrigIDHitStatsCnv_p1
+ * @class  : TrigIDHitStatsCnv_p1
  *
  * @brief transient-persistent converter for TrigIDHitStats
  *

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT, PESA algorithms
  * @Package: TrigL2MissingET
- * @Class  : L2MissingET
+ * @class  : L2MissingET
  *
  * @brief  PESA algorithm that takes the LVL2 MissingET from LVL1
  *

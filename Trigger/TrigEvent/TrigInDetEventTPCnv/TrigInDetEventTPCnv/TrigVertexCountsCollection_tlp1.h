@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigVertexCountsCollection_tlp1
+ * @class  : TrigVertexCountsCollection_tlp1
  *
  * @brief "top-level" persistent partner for TrigVertexCountsCollection
  *

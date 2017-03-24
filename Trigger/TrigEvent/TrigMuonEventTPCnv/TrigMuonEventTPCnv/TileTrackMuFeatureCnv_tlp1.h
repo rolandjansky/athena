@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TileTrackMuFeatureCnv_tlp1
+ * @class  : TileTrackMuFeatureCnv_tlp1
  *
  * @brief "top level" persistent partner for TileTrackMuFeatureCnv_
  *

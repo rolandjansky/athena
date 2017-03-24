@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigDecisionEventTPCnv
- * @Class  : TrigDecisionCnv_p3
+ * @class  : TrigDecisionCnv_p3
  *
  * @brief  The converter for the TrigDecision_p3 persistent format.
  *         Called by TrigDecisionCnv

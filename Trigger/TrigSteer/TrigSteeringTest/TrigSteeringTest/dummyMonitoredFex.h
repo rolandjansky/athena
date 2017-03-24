@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteeringTest
- * @Class  : dummyAlgo
+ * @class  : dummyAlgo
  *
  * @brief : simple PESA algorithm, taking exactly 1 input TE. Does not require any
  *          detector data! This is modification to test some monitoring capabilities of the 

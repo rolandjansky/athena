@@ -7,7 +7,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigSteeringEvent
- * @Class  : Lvl1Result
+ * @class  : Lvl1Result
  *
  * @brief container for compact version of the results of all three trigger levels
  *

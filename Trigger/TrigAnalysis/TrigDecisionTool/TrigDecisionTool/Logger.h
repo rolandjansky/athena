@@ -9,7 +9,7 @@
 /**********************************************************************************
  * @Project:
  * @Package: TrigDecision
- * @Class  : TrigDecision
+ * @class  : TrigDecision
  *
  * @brief common logger for various non Athena components 
  *

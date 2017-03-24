@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TrigMuonEFCbTrack_p4
+ * @class  : TrigMuonEFCbTrack_p4
  *
  * @brief persistent partner for TrigMuonEFCbTrack
  *

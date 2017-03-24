@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigT2Jet_p2
+ * @class  : TrigT2Jet_p2
  *
  * @brief persistent partner for TrigT2Jet
  *

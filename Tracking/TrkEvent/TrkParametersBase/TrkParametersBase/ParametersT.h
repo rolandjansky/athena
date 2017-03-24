@@ -38,6 +38,7 @@ namespace Trk
      - momentum
 
      Which can be returned by the parameters() method as a Amg::Vector(DIM):
+     \f$
      \left(\begin{array}{c}
      x\\y\\z\\p_{x}\\p_{y}\\p_{z}\end{array}\right)
      \f$

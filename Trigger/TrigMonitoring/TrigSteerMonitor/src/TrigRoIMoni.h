@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: ATLAS HLT Steering Monitoring
  * @Package: Trigger/TrigMonitoring/TrigSteerMonitor
- * @Class  : TrigRoIMoni
+ * @class  : TrigRoIMoni
  *
  * @brief  : fill monitoring histos for eta, phi, delta eta and delta phi of RoIs
  *

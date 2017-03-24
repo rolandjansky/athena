@@ -8,7 +8,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionTool
  * @Package: TrigDecisionTool
- * @Class  : ChainGroup
+ * @class  : ChainGroup
  *
  * @brief container to hold trigger chains
  *
