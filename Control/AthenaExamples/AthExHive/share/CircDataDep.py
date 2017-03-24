@@ -44,16 +44,13 @@ svcMgr.ForwardSchedulerSvc.ShowConfiguration = True
 svcMgr.ForwardSchedulerSvc.ShowDataFlow = True
 
 #------------------------------------------------------------------------------#
-
 #
 ## Uncomment following to avoid long waits when segfaulting,
 ## and add "Root.Stacktrace: no" to your .rootrc file
 #
 # import ROOT
 # ROOT.SetSignalPolicy( ROOT.kSignalFast )
-
 #------------------------------------------------------------------------------#
-
 
 #
 ## AlgSequence
