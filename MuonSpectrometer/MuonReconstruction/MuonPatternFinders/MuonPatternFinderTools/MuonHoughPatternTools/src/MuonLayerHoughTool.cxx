@@ -108,6 +108,14 @@ namespace Muon {
     if(!m_doTruth){ m_truthNames.clear();  } //Nullify if not using collections
 
     ATH_CHECK( m_truthNames.initialize() );
+    if(m_doNtuple && m_doTruth){
+      ATH_CHECK(m_MuonTruthParticlesKey.initialize());
+      ATH_CHECK(m_MuonTruthSegmentsKey.initialize());
+    }
+    else{
+      m_MuonTruthParticlesKey="";
+      m_MuonTruthSegmentsKey="";
+    }
 
     // initialize cuts, if only one cut, use make_pair to avoid compiler issues, format is (position, cut)
     m_selectors.resize(MuonStationIndex::ChIndexMax);
