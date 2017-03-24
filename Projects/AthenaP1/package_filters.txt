@@ -5,7 +5,7 @@
 # Only pick up a few packages from the External directory:
 + External/AtlasDataArea
 + External/pyAMI
-+ External/AtlasMKL
++ External/AtlasPyFwdBwdPorts
 - External/.*
 
 # Only pick up the RunTime packages from Projects:
