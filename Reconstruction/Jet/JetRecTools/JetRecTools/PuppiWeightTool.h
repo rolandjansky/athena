@@ -30,7 +30,7 @@ class PuppiWeightTool: public JetConstituentModifierBase {
   double m_scaleFactorB;
   double m_forwardSF;
   double m_etaForward;
-  
+  bool m_applyWeight;
 };
 
 #endif

@@ -17,6 +17,8 @@ macro AtlasFastJetContrib_linkopts "-L$(AtlasFastJetContrib_lib) -lSoftKiller -l
 
 public
 
+use MCTruthClassifier MCTruthClassifier-* PhysicsAnalysis/MCTruthClassifier
+
 use AtlasPolicy		AtlasPolicy-*
 use GaudiInterface	GaudiInterface-* 	External
 use AthContainers       AthContainers-*         Control

@@ -80,7 +80,11 @@ StatusCode CorrectPFOTool::correctPFO(xAOD::PFOContainer& cont) const {
     }
   }
 
+  //CP::PFO_JetMETConfig_inputScale inscale = m_inputIsEM ? CP::EM : CP::LC;
   const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<float> z0SinThetaPVAcc("z0SinThetaPV");
+  const static SG::AuxElement::Accessor<float> z0SinThetaPUMinAcc("z0SinThetaPUMin");
+>>>>>>> bugfix, plus added PFOAnalyzer, ability to run PuppiWeightTool but not apply weights, reference AK4PF jet collection for deltaR matching of PFO candidates, new PFO decorators
 
   for ( xAOD::PFO* ppfo : cont ) {
     if ( ppfo == 0 ) {
@@ -130,7 +134,19 @@ StatusCode CorrectPFOTool::correctPFO(xAOD::PFOContainer& cont) const {
 	if ( fabs(z0*sin(theta)) < 2.0 ) {
 	  matchedToPrimaryVertex = true;
 	}
+  z0SinThetaPVAcc(*ppfo)=fabs(z0*sin(theta));
+
+  if (true == m_usevertices){
+    float z0SinThetaPUMin=99999;
+    for (auto theVertex : *pvtxs) {
+      if (xAOD::VxType::PileUp == theVertex->vertexType() ) {
+        z0 = ptrk->z0() + ptrk->vz() - theVertex->z();
+        if (fabs(z0*sin(theta))<z0SinThetaPUMin) z0SinThetaPUMin=fabs(z0*sin(theta));
       }
+    }
+    z0SinThetaPUMinAcc(*ppfo)=z0SinThetaPUMin;
+  }
+}
 
       if (true == m_useChargedWeights) {
 	float weight = 0.0;
