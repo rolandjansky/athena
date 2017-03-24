@@ -34,7 +34,7 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
   declareProperty("ScoreName", m_scoreName = "BDTJetScore");
   declareProperty("NewScoreName", m_newScoreName = "BDTJetScoreSigTrans");
 
-  declareProperty("DefineWPs", m_defineWP);
+  declareProperty("DefineWPs", m_defineWP=false);
   declareProperty("UseEleBDT", m_electronMode=false);
   
   declareProperty("CutEnumVals", m_cut_bits);
