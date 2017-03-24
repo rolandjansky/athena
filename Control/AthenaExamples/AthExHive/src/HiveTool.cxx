@@ -11,13 +11,10 @@
 #include <memory>
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-//DECLARE_TOOL_FACTORY(HiveTool)
-
 
 HiveTool::HiveTool(const std::string& type, const std::string& name, 
 			 const IInterface* parent)
-//  : base_class( type, name, parent ),
-  : AthAlgTool(type,name,parent),
+  : base_class( type, name, parent ),
     m_rdh1("x1"),
     m_wrh1("X1")
 {
@@ -52,8 +49,6 @@ HiveTool::initialize() {
     ATH_MSG_INFO("WH key is blank. not initializing");
   }
 
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -85,7 +80,6 @@ StatusCode HiveTool::saySomething() const {
       ( HiveDataObj(val + 666) );
     ATH_MSG_INFO("  write: " << wrh1.key() << " = " << wrh1->val() );
   }
-
 
   return StatusCode::SUCCESS;
 }

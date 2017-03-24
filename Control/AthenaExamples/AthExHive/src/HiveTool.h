@@ -13,8 +13,7 @@
 
 #include <string>
 
-//class HiveTool : public extends1<AthAlgTool,IHiveTool> {
-class HiveTool : virtual public AthAlgTool, virtual public IHiveTool {
+class HiveTool : public extends1<AthAlgTool,IHiveTool> {
 public:
   HiveTool( const std::string&, const std::string&, const IInterface* );
   virtual ~HiveTool();
@@ -28,7 +27,7 @@ public:
   virtual void ss() { ATH_MSG_INFO("...ssss..."); }
 
 private:
-   std::string m_myMessage;
+  std::string m_myMessage;
 
   SG::ReadHandleKey<HiveDataObj> m_rdh1;
   SG::WriteHandleKey<HiveDataObj> m_wrh1;

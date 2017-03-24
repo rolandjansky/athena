@@ -31,6 +31,7 @@ public:
 private:
 
   SG::WriteHandleKey<HiveDataObj> m_wrh1;
+  SG::ReadHandleKey<HiveDataObj>  m_rdh1;
   SG::ReadHandleKey<EventInfo> m_evt;
 
 

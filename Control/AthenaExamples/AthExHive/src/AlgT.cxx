@@ -18,13 +18,14 @@
 AlgT::AlgT( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_wrh1("t1"),
+  m_wrh1("t1"), m_rdh1(""),
   m_evt("McEventInfo"),
   m_tool1("HiveTool",this),
   m_tool2("HiveTool",this),
   m_tool3("HiveTool",this)
 {
-  
+
+  declareProperty("Key_R1",m_rdh1);
   declareProperty("Key_W1",m_wrh1);
   declareProperty("EvtInfo", m_evt);
 
@@ -41,6 +42,7 @@ AlgT::~AlgT() {}
 StatusCode AlgT::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
+  if (m_rdh1.key() != "") ATH_CHECK( m_rdh1.initialize() );
   ATH_CHECK( m_wrh1.initialize() );
   ATH_CHECK( m_evt.initialize() );
 
