@@ -154,7 +154,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     bool m_TileExtBarAside;   //  TILECAL_EXT_A_SIDE
     bool m_TileExtBarCside;   //  TILECAL_EXT_C_SIDE
 
-    bool firsteventinrun;
+    bool m_firsteventinrun;
 
     //!< Configurables:
     bool m_doTimers;             //!< switch on/off detailed timers
@@ -164,7 +164,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     bool m_doPUC;                //!< switch on/off Pile-up fit
     std::string  m_metOutputKey; //!< label for the MET feature in the HLT Navigation
     ToolHandleArray< EFMissingETBaseTool > m_tools; //!< list of tools
-    int n_sizePers;              //!< number of components in pers. objects
+    int m_n_sizePers;            //!< number of components in pers. objects
     std::vector<int>  m_flags;   //!< component flag (skip if <0)
     std::vector<float> m_calib0; //!< additive calibration constants
     std::vector<float> m_calib1; //!< multiplicative calib. constants

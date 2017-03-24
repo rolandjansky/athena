@@ -229,13 +229,13 @@ class EFMetHypoTCPSXE (EFMissingETHypoBase):
 
 class EFMetHypoJetsXE (EFMissingETHypoBase):
     __slots__ = []
-    def __init__(self, name = "EFMetHypo_mhtxe1000",ef_thr=1000*GeV):
+    def __init__(self, name = "EFMetHypo_mhtxe1000",ef_thr=1000*GeV, extraCalib = ""):
         super( EFMetHypoJetsXE, self ).__init__( name )
 
         self.SumETCut=ef_thr
         self.MissingETCut=ef_thr
         self.CutType=-2.0
-        self.METLabel='TrigEFMissingET_mht'
+        self.METLabel='TrigEFMissingET_mht{0}'.format(extraCalib)
         self.doMuonCorrection = False
         self.SumETCut = 100000000*GeV
         self.forceAccept=False
