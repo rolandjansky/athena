@@ -30,8 +30,8 @@ class eflowMatchCluster;
 class eflowRecCluster {
 public:
   eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink);
-  eflowRecCluster(const eflowRecCluster& anEFlowRecCluster);
-  eflowRecCluster&  operator=(const eflowRecCluster& anEFlowRecCluster);
+  eflowRecCluster(const eflowRecCluster& originalEflowRecCluster);
+  eflowRecCluster&  operator=(const eflowRecCluster& originalEflowRecCluster);
   virtual ~eflowRecCluster();
 
   const xAOD::CaloCluster* getCluster() const { return m_cluster; }
