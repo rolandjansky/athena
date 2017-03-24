@@ -71,7 +71,8 @@ StatusCode TrtHitsTestTool::processEvent() {
       m_indetLongView->Fill(u.z(),u.perp());
       m_hits_xy->Fill(u.x(),u.y());
       m_hits_zr->Fill(u.z(),u.perp());
-      m_hits_log_barcode->Fill( log(i_hit->particleLink().barcode()) );
+      int barcode = i_hit->particleLink().barcode();
+      m_hits_log_barcode->Fill( barcode > 0 ? log(barcode) : -1);
       int particleId(i_hit->GetParticleEncoding());
       if (particleId == 22 || static_cast<int>(abs(particleId)/100000) == 41 ||  static_cast<int>(abs(particleId)/10000000) == 1)
 	{
