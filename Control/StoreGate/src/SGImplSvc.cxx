@@ -1691,6 +1691,26 @@ void SGImplSvc::makeCurrent()
 }
 
 
+/**
+ * @brief Call converter to create an object, with locking.
+ * @param cvt The converter to call.
+ * @param addr Opaque address information for the object to create.
+ * @param refpObject Reference to location of the pointer of the
+ *                   created object.
+ *
+ * This calls the @c createObj method on @c cvt to create the referenced
+ * transient object, locking the store during the call.
+ */
+StatusCode
+SGImplSvc::createObj (IConverter* cvt,
+                      IOpaqueAddress* addr,
+                      DataObject*& refpObject)
+{
+  lock_t lock (m_mutex);
+  return cvt->createObj (addr, refpObject);
+}
+
+
 // This is intended to be called from the debugger.
 void SG_dump (SGImplSvc* sg)
 {
