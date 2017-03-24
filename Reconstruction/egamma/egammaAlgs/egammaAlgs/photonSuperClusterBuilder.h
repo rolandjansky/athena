@@ -2,34 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMATOOLS_PHOTONSUPERCLUSTERBUILDER_H
-#define EGAMMATOOLS_PHOTONSUPERCLUSTERBUILDER_H
+#ifndef EGAMMAALGS_PHOTONSUPERCLUSTERBUILDER_H
+#define EGAMMAALGS_PHOTONSUPERCLUSTERBUILDER_H
 
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
-#include "egammaInterfaces/IphotonSuperClusterBuilder.h"
-#include "egammaSuperClusterBuilder.h"
+#include "egammaAlgs/egammaSuperClusterBuilder.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 //Fwd declarations
-//#include "xAODCaloEvent/CaloClusterFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODEgamma/EgammaEnums.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
-class photonSuperClusterBuilder : public egammaSuperClusterBuilder,  
-  virtual public IphotonSuperClusterBuilder {
+class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
 
  public:
 
   //Constructor/destructor.
-  photonSuperClusterBuilder(const std::string& type,
-			    const std::string& name,
-			    const IInterface* parent);
+  photonSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
-  photonSuperClusterBuilder();
-  ~photonSuperClusterBuilder();
   //Tool standard routines.
   StatusCode initialize();
   StatusCode finalize();
@@ -59,9 +53,12 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder,
 
   /////////////////////////////////////////////////////////////////////
   //internal variables
-  std::string m_inputEgammaRecContainerName;
-  std::string m_photonSuperRecCollectionName;
-  std::string m_outputPhotonSuperClusters;
+  /** @brief Key for input egammaRec container */
+  SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey;
+  /** @brief Key for output egammaRec container */
+  SG::WriteHandleKey<EgammaRecContainer> m_photonSuperRecCollectionKey;
+  /** @brief Key for output clusters */
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputPhotonSuperClustersKey;
 
   // options for how to build superclusters
   bool m_addClustersInWindow; //!< add the topoclusters in window

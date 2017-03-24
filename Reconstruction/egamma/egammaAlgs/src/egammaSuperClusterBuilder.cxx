@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaSuperClusterBuilder.h"
+#include "egammaAlgs/egammaSuperClusterBuilder.h"
 //
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellList.h"
@@ -110,10 +110,9 @@ namespace {
 //////////////////////////////////////////////////////////////////////////////
 
 //Constructor.
-egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& type,
-						     const std::string& name,
-						     const IInterface* parent) :
-  AthAlgTool(type, name, parent),
+egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name, 
+						     ISvcLocator* pSvcLocator): 
+  AthAlgorithm(name, pSvcLocator),
   m_clusterCorrectionTool("egammaSwTool/egammaswtool")
 {
 

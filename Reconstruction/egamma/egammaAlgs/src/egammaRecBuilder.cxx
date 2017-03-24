@@ -48,7 +48,7 @@ namespace{
 
 
 egammaRecBuilder::egammaRecBuilder(const std::string& name, 
-				     ISvcLocator* pSvcLocator): 
+				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
   m_doTrackMatching(true),
   m_doConversions(true),
@@ -164,8 +164,10 @@ StatusCode egammaRecBuilder::execute(){
   std::string chronoName;
 
   SG::ReadHandle<xAOD::CaloClusterContainer> topoclusters(m_inputTopoClusterContainerKey);
+
+  // validity check is only really needed for serial running. Remove when MT is only way.
   if (!topoclusters.isValid()) {
-    ATH_MSG_ERROR("Could not retrieve cluster container");
+    ATH_MSG_ERROR("Could not retrieve cluster container:" << m_inputTopoClusterContainerKey.key());
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG("Retrieved input cluster container");

@@ -3,13 +3,12 @@
 */
 
 
-#ifndef EGAMMATOOLS_EGAMMASUPERCLUSTERBUILDER_H
-#define EGAMMATOOLS_EGAMMASUPERCLUSTERBUILDER_H
+#ifndef EGAMMAALGS_EGAMMASUPERCLUSTERBUILDER_H
+#define EGAMMAALGS_EGAMMASUPERCLUSTERBUILDER_H
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 //Fwd declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
@@ -24,13 +23,11 @@
  *  The inheritance should be private. This class should never be instantiated
  *  by itself, and hence has no interface class
  **/
-class egammaSuperClusterBuilder : public AthAlgTool {
+class egammaSuperClusterBuilder : public AthAlgorithm {
 
 protected:
   /** Protected constructor since this class should not be instantiated by itself */
-  egammaSuperClusterBuilder(const std::string& type,
-			    const std::string& name,
-			    const IInterface* parent);
+  egammaSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** should be called by the derived class in the initialize phase */
   StatusCode initialize();

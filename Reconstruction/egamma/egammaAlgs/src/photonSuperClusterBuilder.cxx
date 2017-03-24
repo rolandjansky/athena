@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "photonSuperClusterBuilder.h"
+#include "egammaAlgs/photonSuperClusterBuilder.h"
 //
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellList.h"
@@ -20,6 +20,10 @@
 #include "FourMomUtils/P4Helpers.h"
 //
 #include "egammaInterfaces/IegammaSwTool.h"
+
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 //
 #include <vector>
 
@@ -30,18 +34,20 @@ using CLHEP::GeV;
 //////////////////////////////////////////////////////////////////////////////
 
 //Constructor.
-photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& type,
-						     const std::string& name,
-						     const IInterface* parent) :
-  egammaSuperClusterBuilder(type, name, parent)
+photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& name, 
+						     ISvcLocator* pSvcLocator):
+  egammaSuperClusterBuilder(name, pSvcLocator)
 {
 
   //Containers
-  declareProperty("InputEgammaRecContainerName", m_inputEgammaRecContainerName = "egammaRecCollection");
+  declareProperty("InputEgammaRecContainerName", 
+		  m_inputEgammaRecContainerKey = "egammaRecCollection");
 
-  declareProperty("SuperPhotonRecCollectionName", m_photonSuperRecCollectionName = "PhotonSuperRecCollection");
+  declareProperty("SuperPhotonRecCollectionName", 
+		  m_photonSuperRecCollectionKey = "PhotonSuperRecCollection");
 
-  declareProperty("SuperClusterCollestionName",  m_outputPhotonSuperClusters  = "PhotonSuperClusters");
+  declareProperty("SuperClusterCollestionName",  
+		  m_outputPhotonSuperClustersKey  = "PhotonSuperClusters");
   //other options
   declareProperty("AddClustersInWindow", m_addClustersInWindow = true,  
 		  "add the topoclusters in window");
@@ -61,15 +67,16 @@ photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& type,
   declareProperty("UseOnlyLeadingTrack", m_useOnlyLeadingTrack = true, 
 		  "use only the leading track for matching");
   
-  // Declare interface & properties.
-  declareInterface<IphotonSuperClusterBuilder>(this);
 }
-
-//Destructor.
-photonSuperClusterBuilder::~photonSuperClusterBuilder() {}
 
 StatusCode photonSuperClusterBuilder::initialize() {
   ATH_MSG_DEBUG(" Initializing photonSuperClusterBuilder");
+
+  // the data handle keys
+  ATH_CHECK(m_inputEgammaRecContainerKey.initialize());
+  ATH_CHECK(m_photonSuperRecCollectionKey.initialize());
+  ATH_CHECK(m_outputPhotonSuperClustersKey.initialize());
+
   return egammaSuperClusterBuilder::initialize();
 }
 
@@ -85,29 +92,24 @@ StatusCode photonSuperClusterBuilder::finalize() {
 StatusCode photonSuperClusterBuilder::execute(){
 
   //Retrieve input egammaRec container.
-  const EgammaRecContainer *egammaRecs = 0;
-  StatusCode sc=evtStore()->retrieve(egammaRecs, m_inputEgammaRecContainerName );
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve "<< m_inputEgammaRecContainerName);
+  SG::ReadHandle<EgammaRecContainer> egammaRecs(m_inputEgammaRecContainerKey);
+
+  // check is only used for serial running; remove when MT scheduler used
+  if(!egammaRecs.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve "<< m_inputEgammaRecContainerKey.key());
     return StatusCode::FAILURE;
   }
 
   //Have to register cluster container in order to properly get cluster links.
-  xAOD::CaloClusterContainer *outputClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(), 
-											     m_outputPhotonSuperClusters, 
-  											     msg());
-  if (!outputClusterContainer) {
-    ATH_MSG_ERROR("Could not make supercluster container : "<< m_outputPhotonSuperClusters);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Made supercluster container : " << m_outputPhotonSuperClusters);
-  }
+  SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputPhotonSuperClustersKey);
+  ATH_CHECK(outputClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
+					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
+
+
   //Create the new Photon Super Cluster based EgammaRecContainer
-  EgammaRecContainer *newEgammaRecs = new EgammaRecContainer();
-  if (evtStore()->record(newEgammaRecs, m_photonSuperRecCollectionName).isFailure()) {
-    ATH_MSG_ERROR("Could not record egammaRecContainer " << m_photonSuperRecCollectionName);
-    return StatusCode::FAILURE;
-  } 
+  SG::WriteHandle<EgammaRecContainer> newEgammaRecs(m_photonSuperRecCollectionKey);
+  ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
+
   //Loop over input egammaRec objects, build superclusters.
   std::vector<bool> isUsed (egammaRecs->size(),0);
 
@@ -149,7 +151,7 @@ StatusCode photonSuperClusterBuilder::execute(){
     int nExtraClusters = 0;
 
     const std::vector<std::size_t> secondaryClusters = 
-      SearchForSecondaryClusters(i, egammaRecs, isUsed, nWindowClusters, nExtraClusters);
+      SearchForSecondaryClusters(i, egammaRecs.cptr(), isUsed, nWindowClusters, nExtraClusters);
 
     for (auto secClus : secondaryClusters) {
       const auto secRec = egammaRecs->at(secClus);

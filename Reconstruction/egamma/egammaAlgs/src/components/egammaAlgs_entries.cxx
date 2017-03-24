@@ -10,6 +10,9 @@
 #include "egammaAlgs/EMBremCollectionBuilder.h"
 #include "egammaAlgs/EMVertexBuilder.h"
 #include "egammaAlgs/egammaTopoClusterCopier.h"
+#include "egammaAlgs/electronSuperClusterBuilder.h"
+#include "egammaAlgs/photonSuperClusterBuilder.h"
+
 
 DECLARE_ALGORITHM_FACTORY( egammaBuilder            )
 DECLARE_ALGORITHM_FACTORY( egammaRecBuilder         )
@@ -22,6 +25,8 @@ DECLARE_ALGORITHM_FACTORY( egammaLockCollections    )
 DECLARE_ALGORITHM_FACTORY( EMBremCollectionBuilder  )
 DECLARE_ALGORITHM_FACTORY( EMVertexBuilder          )
 DECLARE_ALGORITHM_FACTORY( egammaTopoClusterCopier  )
+DECLARE_ALGORITHM_FACTORY( electronSuperClusterBuilder  )
+DECLARE_ALGORITHM_FACTORY( photonSuperClusterBuilder    )
 
 DECLARE_FACTORY_ENTRIES(egammaAlgs) {
      DECLARE_ALGORITHM( egammaBuilder             )
@@ -35,5 +40,7 @@ DECLARE_FACTORY_ENTRIES(egammaAlgs) {
      DECLARE_ALGORITHM( EMBremCollectionBuilder   )
      DECLARE_ALGORITHM( EMVertexBuilder           )
      DECLARE_ALGORITHM( egammaTopoClusterCopier   )
+     DECLARE_ALGORITHM( electronSuperClusterBuilder  )
+     DECLARE_ALGORITHM( photonSuperClusterBuilder    )
 
 }

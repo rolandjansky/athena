@@ -3,7 +3,7 @@
 */
 
 
-#include "electronSuperClusterBuilder.h"
+#include "egammaAlgs/electronSuperClusterBuilder.h"
 //
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellList.h"
@@ -33,10 +33,9 @@ using CLHEP::GeV;
 //////////////////////////////////////////////////////////////////////////////
 
 //Constructor.
-electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type,
-							 const std::string& name,
-							 const IInterface* parent) :
-  egammaSuperClusterBuilder(type, name, parent),
+electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& name, 
+							 ISvcLocator* pSvcLocator):
+  egammaSuperClusterBuilder(name, pSvcLocator),
   m_nWindowClusters(0),
   m_nExtraClusters(0),
   m_nSameTrackClusters(0),
@@ -56,20 +55,26 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type
   declareProperty("BremSearchEOverPCut",  m_secEOverPCut = 1.5);
 
   //Containers
-  declareProperty("InputEgammaRecContainerName", m_inputEgammaRecContainerName = "egammaRecCollection");
-  declareProperty("SuperElectronRecCollectionName", m_electronSuperRecCollectionName = "ElectronSuperRecCollection");
-  declareProperty("SuperClusterCollestionName",  m_outputElectronSuperClusters  = "ElectronSuperClusters");
+  declareProperty("InputEgammaRecContainerName", 
+		  m_inputEgammaRecContainerKey = "egammaRecCollection");
+  declareProperty("SuperElectronRecCollectionName", 
+		  m_electronSuperRecCollectionKey = "ElectronSuperRecCollection");
+  declareProperty("SuperClusterCollestionName",  
+		  m_outputElectronSuperClustersKey  = "ElectronSuperClusters");
   //
   declareProperty("NumberOfReqSiHits", m_numberOfSiHits = 4);
 
-  // Declare interface & properties.
-  declareInterface<IelectronSuperClusterBuilder>(this);
 }
 
 StatusCode electronSuperClusterBuilder::initialize() {
   ATH_MSG_DEBUG(" Initializing electronSuperClusterBuilder");
 
   ATH_CHECK(egammaSuperClusterBuilder::initialize());
+
+  // the data handle keys
+  ATH_CHECK(m_inputEgammaRecContainerKey.initialize());
+  ATH_CHECK(m_electronSuperRecCollectionKey.initialize());
+  ATH_CHECK(m_outputElectronSuperClustersKey.initialize());
 
   m_maxDelPhi = m_maxDelPhiCells * s_cellPhiSize * 0.5;
   m_maxDelEta = m_maxDelEtaCells * s_cellEtaSize * 0.5;
@@ -88,32 +93,24 @@ StatusCode electronSuperClusterBuilder::finalize() {
 
 StatusCode electronSuperClusterBuilder::execute(){
   
-  //-------------------------------------------------------------------------------------------------------
-  //Register cluster container.
-  xAOD::CaloClusterContainer *outputClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(), 
-											     m_outputElectronSuperClusters, 
-  											     msg());
-  if (!outputClusterContainer) {
-    ATH_MSG_ERROR("Could not make supercluster container : "<< m_outputElectronSuperClusters);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Made supercluster container : " << m_outputElectronSuperClusters);
-  }
-  //Create new EgammaRecContainer
-  EgammaRecContainer *newEgammaRecs = new EgammaRecContainer();
-  if (evtStore()->record(newEgammaRecs, m_electronSuperRecCollectionName).isFailure()) {
-    ATH_MSG_ERROR("Could not record egammaRecContainer " << m_electronSuperRecCollectionName);
-    return StatusCode::FAILURE;
-  }
-  //-------------------------------------------------------------------------------------------------------
   //Retrieve input egammaRec container.
-  const EgammaRecContainer *egammaRecs = 0;
-  StatusCode sc=evtStore()->retrieve(egammaRecs, m_inputEgammaRecContainerName);
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve "<< m_inputEgammaRecContainerName);
+  SG::ReadHandle<EgammaRecContainer> egammaRecs(m_inputEgammaRecContainerKey);
+
+  // check is only used for serial running; remove when MT scheduler used
+  if(!egammaRecs.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve "<< m_inputEgammaRecContainerKey.key());
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("Retrieved "<< m_inputEgammaRecContainerName);
+
+  //Have to register cluster container in order to properly get cluster links.
+  SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputElectronSuperClustersKey);
+  ATH_CHECK(outputClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
+					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
+
+
+  //Create the new Electron Super Cluster based EgammaRecContainer
+  SG::WriteHandle<EgammaRecContainer> newEgammaRecs(m_electronSuperRecCollectionKey);
+  ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
   //Reserve a vector to keep track of what is used
   std::vector<bool> isUsed (egammaRecs->size(),0);
@@ -181,7 +178,8 @@ StatusCode electronSuperClusterBuilder::execute(){
     //
     //Find Secondary Clusters
     ATH_MSG_DEBUG("Find secondary clusters");
-    const std::vector<std::size_t>  secondaryIndices = SearchForSecondaryClusters(i, egammaRecs, isUsed);
+    const std::vector<std::size_t>  secondaryIndices = 
+      SearchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
     //
     //Append possible accumulated  clusters.
     ATH_MSG_DEBUG("Add secondary clusters");

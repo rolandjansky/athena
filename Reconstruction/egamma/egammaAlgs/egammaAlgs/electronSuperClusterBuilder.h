@@ -2,33 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMATOOLS_ELECTRONSUPERCLUSTERBUILDER_H
-#define EGAMMATOOLS_ELECTRONSUPERCLUSTERBUILDER_H
+#ifndef EGAMMAALGS_ELECTRONSUPERCLUSTERBUILDER_H
+#define EGAMMAALGS_ELECTRONSUPERCLUSTERBUILDER_H
 
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
-#include "egammaInterfaces/IelectronSuperClusterBuilder.h"
-#include "egammaSuperClusterBuilder.h"
+#include "egammaAlgs/egammaSuperClusterBuilder.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 //Fwd declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainerFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
-class electronSuperClusterBuilder : public egammaSuperClusterBuilder, 
-  virtual public IelectronSuperClusterBuilder {
+class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
 
  public:
 
   //Constructor/destructor.
-  electronSuperClusterBuilder(const std::string& type,
-			      const std::string& name,
-			      const IInterface* parent);
+  electronSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
-  electronSuperClusterBuilder();
   //Tool standard routines.
   StatusCode initialize();
   StatusCode finalize();
@@ -72,9 +67,13 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder,
   int m_nSimpleBremSearchClusters;
 
   float m_numberOfSiHits;
-  std::string m_inputEgammaRecContainerName;
-  std::string m_electronSuperRecCollectionName;
-  std::string m_outputElectronSuperClusters;
+
+  /** @brief Key for input egammaRec container */
+  SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey;
+  /** @brief Key for output egammaRec container */
+  SG::WriteHandleKey<EgammaRecContainer> m_electronSuperRecCollectionKey;
+  /** @brief Key for output clusters */
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputElectronSuperClustersKey;
 
 
 };
