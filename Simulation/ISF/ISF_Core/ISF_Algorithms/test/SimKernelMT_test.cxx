@@ -34,7 +34,7 @@ public:
     : AthService(name,svc)
   { };
 
-  virtual ~MockInputConverter() {};
+  virtual ~MockInputConverter() { };
 
   // needed to resolve ambiguity when assigning instance to SmartIF
   static const InterfaceID& interfaceID() { return IID_IInputConverter; }
@@ -44,20 +44,18 @@ public:
 
   // needed to make this AthService implementation work with Athena
   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override {
-      if (IID_IInputConverter == riid ) {
-        *ppvInterface = (IInputConverter*)this;
-      } else  {
+      if (IID_IInputConverter != riid) {
         // Interface is not directly available: try out a base class
-        return Service::queryInterface(riid, ppvInterface);
+        return AthService::queryInterface(riid, ppvInterface);
       }
+      *ppvInterface = (IInputConverter*)this;
       addRef();
       return StatusCode::SUCCESS;
   }
 
-  StatusCode convert(const McEventCollection&, ISF::ISFParticleContainer&, bool) const override { return StatusCode::SUCCESS; }
-  //MOCK_CONST_METHOD3(convert, StatusCode(const McEventCollection&,
-  //                                       ISF::ISFParticleContainer&,
-  //                                       bool));
+  MOCK_CONST_METHOD3(convert, StatusCode(const McEventCollection&,
+                                         ISF::ISFParticleContainer&,
+                                         bool));
 }; // MockInputConverter class
 
 DECLARE_SERVICE_FACTORY( MockInputConverter )
@@ -128,42 +126,33 @@ protected:
     // the tested AthAlgorithm
     m_alg = new ISF::SimKernelMT{"SimKernelMT", m_svcLoc};
 
-    // retrieve mock athena components
-    //m_mockInputConverter = m_svcLoc->service("ISF::InputConverter/AInputConverter");
-    //m_mockInputConverter = m_svcLoc->service("ISF::InputConverter/AInputConverter");
-    //m_mockInputConverter = m_svcLoc->service(mockInputConverterName);
-//    m_mockInputConverter = m_svcLoc->service(mockInputConverterName);
-//    m_mockInputConverter = m_svcLoc->service(mockInputConverterName);
-//    m_mockInputConverter->addRef();
-//    SmartIF<IService> svc = m_svcLoc->service(mockInputConverterName);
-//    svc.addRef();
-//    m_mockInputConverter = svc;
-    //m_mockInputConverter = dynamic_cast<MockInputConverter*>(svc.get());
-    //std::cout << "out=" << m_mockInputConverter << std::endl;
-//    ASSERT_TRUE( m_mockInputConverter.isValid() );
-//    ASSERT_TRUE( m_mockInputConverter->setProperties().isSuccess() );
-//    ASSERT_TRUE( m_mockInputConverter->configure().isSuccess() );
+    // retrieve mocked Athena components
+    SmartIF<IService> svc = m_svcLoc->service(mockInputConverterName);
+
+    m_mockInputConverter = dynamic_cast<MockInputConverter*>(svc.get());
+    ASSERT_NE(nullptr, m_mockInputConverter);
+
+    ASSERT_TRUE( m_mockInputConverter->setProperties().isSuccess() );
+    ASSERT_TRUE( m_mockInputConverter->configure().isSuccess() );
   }
 
   virtual void TearDown() override {
     // release tested AthAlgorithm
     delete m_alg;
 
-    // release the mock athena components (if it's there)
-    //if (m_mockInputConverter.isValid()) {
-    //  m_svcMgr->removeService(m_mockInputConverter);
-    //  ASSERT_TRUE( m_mockInputConverter->finalize().isSuccess() );
-    //  ASSERT_TRUE( m_mockInputConverter->terminate().isSuccess() );
-    //  ReleaseSmartIFComponent(m_mockInputConverter);
-    //}
+    // release the mock Athena components
+    m_svcMgr->removeService(m_mockInputConverter);
+    ASSERT_TRUE( m_mockInputConverter->finalize().isSuccess() );
+    ASSERT_TRUE( m_mockInputConverter->terminate().isSuccess() );
+    ReleaseSmartIFComponent(m_mockInputConverter);
+    delete m_mockInputConverter;
   }
 
   // the tested AthAlgorithm
   ISF::SimKernelMT* m_alg;
 
   // mocked Athena components
-  SmartIF<ISFTesting::MockInputConverter> m_mockInputConverter;
-  //ISFTesting::MockInputConverter* m_mockInputConverter;
+  ISFTesting::MockInputConverter* m_mockInputConverter;
 
 };  // SimKernelMT_test fixture
 
@@ -231,32 +220,32 @@ TEST_F(SimKernelMT_test, nonexistingOutputCollection_expectCreationOfOutputColle
   ASSERT_TRUE( testOutputTruthHandle.isValid() );
 }
 
-//TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
-//  auto inputEvgen = CxxUtils::make_unique<McEventCollection>();
-//  auto* genEvent = new HepMC::GenEvent{};
-//
-//  inputEvgen->push_back(genEvent);
-//  SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-//  inputEvgenHandle.record( std::move(inputEvgen) );
-//
-//  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
-//  m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
-//  m_alg->setProperty("InputConverter", mockInputConverterName);
-//  EXPECT_TRUE( m_alg->initialize().isSuccess() );
-//
-//  //EXPECT_CALL(*m_mockInputConverter, convert(::testing::_, ::testing::_, ::testing::_))
-//  //    .Times(1)
-//  //    .WillOnce(::testing::Return(StatusCode::SUCCESS));
-//
-//  ASSERT_TRUE( m_alg->execute().isSuccess() );
-//}
-//
-//  //HepMC::GenParticle* genPart = new HepMC::GenParticle{};
-//  //HepMC::FourVector mom{12.3, 45.6, 78.9, 0.12};
-//  //HepMC::GenParticle* genPart2 = new HepMC::GenParticle{mom,
-//  //                                                      11, // pdg id (e-)
-//  //                                                      1 // status
-//  //                                                      };
+
+TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
+  auto inputEvgen = CxxUtils::make_unique<McEventCollection>();
+  auto* genEvent = new HepMC::GenEvent{};
+
+  inputEvgen->push_back(genEvent);
+  SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
+  inputEvgenHandle.record( std::move(inputEvgen) );
+
+  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
+  m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
+  m_alg->setProperty("InputConverter", mockInputConverterName);
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  EXPECT_CALL(*m_mockInputConverter, convert(::testing::_, ::testing::_, ::testing::_))
+      .WillOnce(::testing::Return(StatusCode::SUCCESS));
+
+  ASSERT_TRUE( m_alg->execute().isSuccess() );
+}
+
+  //HepMC::GenParticle* genPart = new HepMC::GenParticle{};
+  //HepMC::FourVector mom{12.3, 45.6, 78.9, 0.12};
+  //HepMC::GenParticle* genPart2 = new HepMC::GenParticle{mom,
+  //                                                      11, // pdg id (e-)
+  //                                                      1 // status
+  //                                                      };
 
 //TEST_F(SimKernelMT_test, emptyInputEvgenCollection_expectSuccess) {
 //  auto inputEvgen = CxxUtils::make_unique<McEventCollection>();
@@ -274,9 +263,9 @@ TEST_F(SimKernelMT_test, nonexistingOutputCollection_expectCreationOfOutputColle
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
 
-  return RUN_ALL_TESTS();
+  //return RUN_ALL_TESTS();
   // if the above gets stuck forever while trying to finalize Boost stuff
   // inside SGTools, try to use that:
   //  skips proper finalization:
-  //std::quick_exit( RUN_ALL_TESTS() );
+  std::quick_exit( RUN_ALL_TESTS() );
 }
