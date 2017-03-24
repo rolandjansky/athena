@@ -23,7 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetEDM
                           Reconstruction/Jet/JetInterface
                           Reconstruction/Jet/JetRec
-                          Reconstruction/PFlow/PFlowUtils )
+                          Reconstruction/PFlow/PFlowUtils
+                          PhysicsAnalysis/MCTruthClassifier )
 
 # External dependencies
 find_package( FastJet )

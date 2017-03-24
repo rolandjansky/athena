@@ -27,6 +27,7 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
   declareProperty("ScaleFactorB", m_scaleFactorB = 0);
   declareProperty("ForwardScaleFactor",m_forwardSF = 1);
   declareProperty("EtaForward",m_etaForward = 2.5);
+  declareProperty("ApplyWeight",m_applyWeight=true);
 
   // Where we no longer have charged and neutral information
   //m_etaForward = 2.5;
@@ -71,8 +72,10 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
 		
     bool matchedToPrimaryVertex=PVMatchedAcc(*ppfo);
 
-    if(matchedToPrimaryVertex) chargedHSVector.push_back( fastjet::PseudoJet( ppfo->p4() ));
-    if(matchedToPrimaryVertex) chargedPUVector.push_back( fastjet::PseudoJet( ppfo->p4() ));
+    if(charge != 0){
+      if(matchedToPrimaryVertex) chargedHSVector.push_back( fastjet::PseudoJet( ppfo->p4() ));
+      else chargedPUVector.push_back( fastjet::PseudoJet( ppfo->p4() ));
+    }
   }	
 
   Puppi *m_Puppi = new Puppi(m_R0, m_Rmin, m_exponent, m_scaleFactorA, m_scaleFactorB, m_etaForward, m_forwardSF);
@@ -84,7 +87,7 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
     double weight = m_Puppi->getWeight(pj);
     double alpha = m_Puppi->getAlpha(pj);
 
-    ppfo->setP4(weight*ppfo->p4());
+    if (ppfo->charge() == 0 && m_applyWeight) ppfo->setP4(weight*ppfo->p4());
     alphaAcc(*ppfo) = alpha;
     weightAcc(*ppfo) = weight;
   }

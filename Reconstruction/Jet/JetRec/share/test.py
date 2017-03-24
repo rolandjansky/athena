@@ -1,8 +1,9 @@
 theApp.EvtMax = 10
 
-infile = "/afs/cern.ch/work/j/jstupak/mc16_13TeV.410007.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_allhad.merge.AOD.e4135_s2997_r8957_r8996/AOD.10340813._000004.pool.root.1"
-#infile = "root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc16/MC16_210.AOD.pool.root"
-#infile = "/afs/cern.ch/work/j/jstupak/mc15_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.merge.AOD.e3569_s2576_s2132_r7725_r7676/AOD.07916735._000053.pool.root.1"
+#infile="/afs/cern.ch/work/j/jstupak/mc16_13TeV.361024.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ4W.recon.AOD.e3668_s2997_r9064/AOD.10618464._001695.pool.root.1"
+#outputName="JZ4.Out.pool.root"
+infile="/afs/cern.ch/work/j/jstupak/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.merge.AOD.e3569_s2997_r9064_r8996/AOD.10618338._000230.pool.root.1"
+outputName="JZ1.Out.pool.root"
 
 from AthenaCommon.AppMgr import ServiceMgr
 #ServiceMgr.MessageSvc.OutputLevel = VERBOSE
@@ -136,8 +137,56 @@ from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifie
 myempfgetters=listReplace(empfgetters,jtm.empflowget,jtm.myempflowget2)
 jtm.addJetFinder("MyAntiKt4EMPFlowJets4",  "AntiKt", 0.4,  myempfgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 """
+
+############################################################################################
+#Make standard PFCHS jets as reference for dR(jet) matching
+
+from JetRec.JetRecConf import PseudoJetGetter
+jtm += PseudoJetGetter(
+  "PFCHSRefGetter",
+  Label = "EMPFlow",
+  InputContainer = "PFCHSRefParticleFlowObjects",
+  OutputContainer = "PFCHSRefPseudoJet",
+  SkipNegativeEnergy = True,
+  )
+
+from JetRecTools.JetRecToolsConf import CorrectPFOTool
+correctPFOTool = CorrectPFOTool("correctPFOTool",
+                                WeightPFOTool = jtm.pflowweighter,
+                                InputIsEM = True,
+                                CalibratePFO = False,
+                                UseChargedWeights = True,
+                                UseVertices = True,
+                                UseTrackToVertexTool = False,
+                            )
+ToolSvc += correctPFOTool
+
+from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
+CHSTool = ChargedHadronSubtractionTool("CHSTool")
+ToolSvc += CHSTool
+
+from JetRecTools.JetRecToolsConf import  JetConstituentModSequence
+PFCHSRefSequence = JetConstituentModSequence("PFCHSRefSequence",
+                                          InputContainer = "JetETMiss",
+                                          OutputContainer = "PFCHSRef",
+                                          InputType = "ParticleFlow",
+                                          Modifiers = [correctPFOTool,CHSTool],
+                                          SaveAsShallow = False,
+                                          )
+ToolSvc += PFCHSRefSequence
+
+from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
+myPFCHSRefgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFCHSRefGetter)
+from JetRec.JetRecStandardToolManager import filterout
+pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
+jtm.addJetFinder("MyPFCHSRefAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFCHSRefgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+
 ############################################################################################
 #Use a sequence and PseudoJetGetter to correct PFO and apply CHS
+
+from JetRecTools.JetRecToolsConf import PFOAnalyzer
+PFOana=PFOAnalyzer('PFOana',JetCollection='MyPFCHSRefAntiKt4EMPFlowJets')
+ToolSvc += PFOana
 
 from JetRec.JetRecConf import PseudoJetGetter
 jtm += PseudoJetGetter(
@@ -159,6 +208,11 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
                             )
 ToolSvc += correctPFOTool
 
+from JetRecTools.JetRecToolsConf import PuppiWeightTool
+fakePuppiWeightTool = PuppiWeightTool("fakePUPPIWeightTool",
+                                      ApplyWeight=False)  #Just calculate the weights
+ToolSvc += fakePuppiWeightTool
+
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 CHSTool = ChargedHadronSubtractionTool("CHSTool")
 ToolSvc += CHSTool
@@ -168,7 +222,7 @@ PFCHSSequence = JetConstituentModSequence("PFCHSSequence",
                                           InputContainer = "JetETMiss",
                                           OutputContainer = "PFCHS",
                                           InputType = "ParticleFlow",
-                                          Modifiers = [correctPFOTool,CHSTool],
+                                          Modifiers = [correctPFOTool,PFOana,fakePuppiWeightTool,CHSTool],
                                           SaveAsShallow = False,
                                           )
 ToolSvc += PFCHSSequence
@@ -203,19 +257,22 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
 ToolSvc += correctPFOTool
 
 from JetRecTools.JetRecToolsConf import PuppiWeightTool
-puppiWeightTool = PuppiWeightTool()
+puppiWeightTool = PuppiWeightTool("PUPPIWeightTool")
 ToolSvc += puppiWeightTool
 
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 CHSTool = ChargedHadronSubtractionTool("CHSTool")
 ToolSvc += CHSTool
 
+#PFOanaWithMatching=PFOAnalyzer('PFOanaWithMatching',JetCollection='MyPFCHSAntiKt4EMPFlowJets')
+#ToolSvc += PFOanaWithMatching
+
 from JetRecTools.JetRecToolsConf import  JetConstituentModSequence
 PFPUPPICHSSequence = JetConstituentModSequence("PFPUPPICHSSequence",
                                           InputContainer = "JetETMiss",
                                           OutputContainer = "PFPUPPICHS",
                                           InputType = "ParticleFlow",
-                                          Modifiers = [correctPFOTool,puppiWeightTool,CHSTool],
+                                          Modifiers = [correctPFOTool,PFOana,puppiWeightTool,CHSTool],
                                           SaveAsShallow = False,
                                           )
 ToolSvc += PFPUPPICHSSequence
@@ -250,8 +307,8 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
 ToolSvc += correctPFOTool
 
 from JetRecTools.JetRecToolsConf import PuppiWeightTool
-puppiWeightTool = PuppiWeightTool()
-ToolSvc += puppiWeightTool
+fakePuppiWeightTool = PuppiWeightTool("fakePUPPIWeightTool")
+ToolSvc += fakePuppiWeightTool
 
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 CHSTool = ChargedHadronSubtractionTool("CHSTool")
@@ -262,7 +319,7 @@ PFSequence = JetConstituentModSequence("PFSequence",
                                           InputContainer = "JetETMiss",
                                           OutputContainer = "PF",
                                           InputType = "ParticleFlow",
-                                          Modifiers = [correctPFOTool],
+                                          Modifiers = [correctPFOTool,PFOana,fakePuppiWeightTool],
                                           SaveAsShallow = False,
                                           )
 ToolSvc += PFSequence
@@ -297,7 +354,7 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
 ToolSvc += correctPFOTool
 
 from JetRecTools.JetRecToolsConf import PuppiWeightTool
-puppiWeightTool = PuppiWeightTool()
+puppiWeightTool = PuppiWeightTool("PUPPIWeightTool")
 ToolSvc += puppiWeightTool
 
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
@@ -309,7 +366,7 @@ PFPUPPISequence = JetConstituentModSequence("PFPUPPISequence",
                                           InputContainer = "JetETMiss",
                                           OutputContainer = "PFPUPPI",
                                           InputType = "ParticleFlow",
-                                          Modifiers = [correctPFOTool,puppiWeightTool],
+                                          Modifiers = [correctPFOTool,PFOana,puppiWeightTool],
                                           SaveAsShallow = False,
                                           )
 ToolSvc += PFPUPPISequence
@@ -324,9 +381,13 @@ jtm.addJetFinder("MyPFPUPPIAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFPUPPIgetter
 
 from JetRec.JetAlgorithm import addJetRecoToAlgSequence
 addJetRecoToAlgSequence(job=topSequence, separateJetAlgs=True)
-
+"""
 if hasattr(topSequence,"jetalgMyAntiKt4EMPFlowJets4"):
   topSequence.jetalgMyAntiKt4EMPFlowJets4.Tools.insert(0,PFCHSSequence)
+"""
+
+if hasattr(topSequence,"jetalgMyPFCHSRefAntiKt4EMPFlowJets"):
+  topSequence.jetalgMyPFCHSRefAntiKt4EMPFlowJets.Tools.insert(0,PFCHSRefSequence)
 
 if hasattr(topSequence,"jetalgMyPFCHSAntiKt4EMPFlowJets"):
   topSequence.jetalgMyPFCHSAntiKt4EMPFlowJets.Tools.insert(0,PFCHSSequence)
@@ -340,9 +401,34 @@ if hasattr(topSequence,"jetalgMyPFAntiKt4EMPFlowJets"):
 if hasattr(topSequence,"jetalgMyPFPUPPIAntiKt4EMPFlowJets"):
   topSequence.jetalgMyPFPUPPIAntiKt4EMPFlowJets.Tools.insert(0,PFPUPPISequence)
 
+#For validation only
+from PFlowUtils.PFlowUtilsConf import PFlowMerger
+topSequence+=PFlowMerger('PFCHSMerger',InputContainerNames = [
+  'PFCHSChargedParticleFlowObjects',
+  'PFCHSNeutralParticleFlowObjects'
+  ],OutputContainerName='PFCHSParticleFlowObjects')
+
+topSequence+=PFlowMerger('PFPUPPICHSMerger',InputContainerNames = [
+  'PFPUPPICHSChargedParticleFlowObjects',
+  'PFPUPPICHSNeutralParticleFlowObjects'
+  ],OutputContainerName='PFPUPPICHSParticleFlowObjects')
+
+topSequence+=PFlowMerger('PFMerger',InputContainerNames = [
+  'PFChargedParticleFlowObjects',
+  'PFNeutralParticleFlowObjects'
+  ],OutputContainerName='PFParticleFlowObjects')
+
+topSequence+=PFlowMerger('PFPUPPIMerger',InputContainerNames = [
+  'PFPUPPIChargedParticleFlowObjects',
+  'PFPUPPINeutralParticleFlowObjects'
+  ],OutputContainerName='PFPUPPIParticleFlowObjects')
+
 ############################################################################################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-xAODStream = MSMgr.NewPoolRootStream( "StreamXAOD", "test.Out.pool.root" )
+xAODStream = MSMgr.NewPoolRootStream( "StreamXAOD", outputName )
+
+xAODStream.AddItem(   "xAOD::JetContainer#*AntiKt4TruthJets*")
+xAODStream.AddItem("xAOD::JetAuxContainer#*AntiKt4TruthJets*")
 
 xAODStream.AddItem(   "xAOD::JetContainer#*AntiKt4EM*PFlow*Jets*")
 xAODStream.AddItem("xAOD::JetAuxContainer#*AntiKt4EM*PFlow*Jets*")

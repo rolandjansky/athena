@@ -72,6 +72,8 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
 
   //CP::PFO_JetMETConfig_inputScale inscale = m_inputIsEM ? CP::EM : CP::LC;
   SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
+  SG::AuxElement::Accessor<float> z0SinThetaPVAcc("z0SinThetaPV");
+  SG::AuxElement::Accessor<float> z0SinThetaPUMinAcc("z0SinThetaPUMin");
 
   for ( xAOD::PFO* ppfo : *cont ) {
     if ( ppfo == 0 ) {
@@ -122,7 +124,19 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
 	if ( fabs(z0*sin(theta)) < 2.0 ) {
 	  matchedToPrimaryVertex = true;
 	}
+  z0SinThetaPVAcc(*ppfo)=fabs(z0*sin(theta));
+
+  if (true == m_usevertices){
+    float z0SinThetaPUMin=99999;
+    for (auto theVertex : *pvtxs) {
+      if (xAOD::VxType::PileUp == theVertex->vertexType() ) {
+        z0 = ptrk->z0() + ptrk->vz() - theVertex->z();
+        if (fabs(z0*sin(theta))<z0SinThetaPUMin) z0SinThetaPUMin=fabs(z0*sin(theta));
       }
+    }
+    z0SinThetaPUMinAcc(*ppfo)=z0SinThetaPUMin;
+  }
+}
 
       if ( true == matchedToPrimaryVertex || !m_applyCHS){
 	if (true == m_useChargedWeights) {
