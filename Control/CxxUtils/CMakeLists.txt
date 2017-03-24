@@ -85,3 +85,23 @@ foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       SOURCES test/${test}.cxx
       LINK_LIBRARIES CxxUtils )
 endforeach()
+
+
+# If we are in release rebuilding mode, stop here:
+if( ATLAS_RELEASE_MODE )
+   return()
+endif()
+
+
+# Setting up the ubsan suppression file.
+atlas_install_runtime( share/ubsan.supp )
+
+configure_file(
+   ${CMAKE_CURRENT_SOURCE_DIR}/CxxUtilsEnvironmentConfig.cmake.in
+   ${CMAKE_CURRENT_BINARY_DIR}/CxxUtilsEnvironmentConfig.cmake
+   @ONLY )
+
+# And now "find" it:
+set( CxxUtilsEnvironment_DIR ${CMAKE_CURRENT_BINARY_DIR}
+   CACHE PATH "Location of CxxUtilsEnvironmentConfig.cmake" )
+find_package( CxxUtilsEnvironment )
