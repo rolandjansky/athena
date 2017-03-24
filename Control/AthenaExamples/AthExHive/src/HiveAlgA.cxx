@@ -3,7 +3,6 @@
 */
 
 #include "HiveAlgA.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -11,6 +10,7 @@
 #include <thread>
 #include <chrono>
 #include <ctime>
+#include <memory>
 
 HiveAlgA::HiveAlgA( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
@@ -61,11 +61,11 @@ StatusCode HiveAlgA::execute() {
   sleep();
 
   SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
-  wrh1 = CxxUtils::make_unique< HiveDataObj >
+  wrh1 = std::make_unique< HiveDataObj >
     ( HiveDataObj(10000 + evt->event_ID()->event_number()*100 + m_i) );
 
   SG::WriteHandle<HiveDataObj> wrh2( m_wrh2 );
-  wrh2 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(10050+m_i) );
+  wrh2 = std::make_unique< HiveDataObj >( HiveDataObj(10050+m_i) );
   
   ATH_MSG_INFO("  write: " << wrh1.key() << " = " << wrh1->val() );
   ATH_MSG_INFO("  write: " << wrh2.key() << " = " << wrh2->val() );

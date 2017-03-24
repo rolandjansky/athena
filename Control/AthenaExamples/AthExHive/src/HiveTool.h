@@ -8,11 +8,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthExHive/IHiveTool.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
 
 #include <string>
 
-class HiveTool : public extends1<AthAlgTool,IHiveTool> {
+//class HiveTool : public extends1<AthAlgTool,IHiveTool> {
+class HiveTool : virtual public AthAlgTool, virtual public IHiveTool {
 public:
   HiveTool( const std::string&, const std::string&, const IInterface* );
   virtual ~HiveTool();
@@ -29,6 +31,7 @@ private:
    std::string m_myMessage;
 
   SG::ReadHandleKey<HiveDataObj> m_rdh1;
+  SG::WriteHandleKey<HiveDataObj> m_wrh1;
 
 };
 

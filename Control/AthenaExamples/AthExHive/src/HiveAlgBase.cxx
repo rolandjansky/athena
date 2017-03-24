@@ -4,10 +4,9 @@
 
 #include "HiveAlgBase.h"
 
-#include "CxxUtils/make_unique.h"
 #include <thread>
 #include <chrono>
-
+#include <memory>
 
 
 HiveAlgBase::HiveAlgBase( const std::string& name, 
