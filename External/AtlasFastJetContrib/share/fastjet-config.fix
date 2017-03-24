@@ -1,6 +1,0 @@
-#!/bin/bash
-
-THISDIR=${0%share/fastjet-config.fix}
-INSTALLDIR=`cd $THISDIR/cmt; cmt.exe show macro_value AtlasFastJet_dir`
-PREFIX_DIR=`$INSTALLDIR/bin/fastjet-config --prefix`
-$INSTALLDIR/bin/fastjet-config "$@" | sed "s#$PREFIX_DIR#$INSTALLDIR#g"
