@@ -34,7 +34,8 @@ s/^StoreGateSvc_Impl   DEBUG/StoreGateSvc        DEBUG/
 s/StoreGateSvc_Impl/StoreGateSvc/
 s/SGImplSvc/StoreGateSvc/
 s/SG::DataProxyHolder::sgkey_t/sgkey_t/
-s!\\\\(ERROR\\\\|INFO\\\\|WARNING\\\\|FATAL\\\\) [^ ]*/!\\\\1 ../!
+s!(ERROR|INFO|WARNING|FATAL) [^ ]*/!\\\\1 ../!
+s/(\.cxx|\.cpp|\.h|\.icc|LINE):[0-9]+/\\\\1/
 s/.[[][?]1034h//
 EOF
 
@@ -168,15 +169,13 @@ else
        if [ -r $reflog ]
            then
 	   jobrep=${joblog}-rep
-	   sed "$II" $joblog > $jobrep
+	   sed -r "$II" $joblog > $jobrep
 	   refrep=`basename ${reflog}`-rep
-	   sed "$II" $reflog > $refrep
+	   sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
-	   # Remove ignored lines and line numbers
-	   re_remove_lineno='s/(\.cxx|\.cpp|\.h|\.icc|LINE):[0-9]+/\1/g'
-           egrep -a -v "$PP" < $jobrep | sed -r $re_remove_lineno > $jobdiff
-           egrep -a -v "$PP" < $refrep | sed -r $re_remove_lineno > $refdiff
+           egrep -a -v "$PP" < $jobrep > $jobdiff
+           egrep -a -v "$PP" < $refrep > $refdiff
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
