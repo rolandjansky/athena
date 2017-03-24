@@ -1,23 +1,20 @@
+#
 # Package filtering rules for the Athena project build.
 #
-# Only pick up a few packages from the External directory:
-+ External/AtlasDataArea
-+ External/pyAMI
-+ External/FWDet/TwissFiles
-+ External/Herwigpp
-+ External/AtlasMKL
-- External/.*
-# Only pick up the RunTime packages from Projects:
-+ Projects/.*RunTime
+
+# Don't pick up anything from the Projects directory:
 - Projects/.*
+
 # Remove HLT packages
 - HLT/.*
 - Trigger/TrigValidation/TrigP1Test
+
 # Offload service has build problems
-- External/APEGlue
 - Offloading/.*
+
 # Temporary VP1 compilation issues
 - graphics/VP1/.*
+
 # Some analysis packages that are not part of Athena
 - AsgExternal/Asg_Test
 - PhysicsAnalysis/D3PDTools/EventLoop
