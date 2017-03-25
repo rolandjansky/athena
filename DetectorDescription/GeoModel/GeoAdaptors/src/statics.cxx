@@ -7,31 +7,31 @@
 #include "GeoAdaptors/GeoMuonHits.h"
 #include "GeoAdaptors/GeoTRTUncompressedHit.h"
 
-const InDetDD::SCT_DetectorManager  *GeoSiHit::_sct = 0;
-const InDetDD::PixelDetectorManager *GeoSiHit::_pix = 0;
-const PixelID                       *GeoSiHit::_pID = 0;
-const SCT_ID                        *GeoSiHit::_sID = 0;
+const InDetDD::SCT_DetectorManager  *GeoSiHit::s_sct = 0;
+const InDetDD::PixelDetectorManager *GeoSiHit::s_pix = 0;
+const PixelID                       *GeoSiHit::s_pID = 0;
+const SCT_ID                        *GeoSiHit::s_sID = 0;
 
 
-const MuonGM::MuonDetectorManager* GeoMDTHit::_man = 0;
-const MdtIdHelper* GeoMDTHit::_mdtID = 0;
+const MuonGM::MuonDetectorManager* GeoMDTHit::s_man = 0;
+const MdtIdHelper* GeoMDTHit::s_mdtID = 0;
 
-const MuonGM::MuonDetectorManager* GeoTGCHit::_man = 0;
-const TgcIdHelper* GeoTGCHit::_tgcID = 0;
+const MuonGM::MuonDetectorManager* GeoTGCHit::s_man = 0;
+const TgcIdHelper* GeoTGCHit::s_tgcID = 0;
 
-const MuonGM::MuonDetectorManager* GeoRPCHit::_man = 0;
-const RpcIdHelper* GeoRPCHit::_rpcID = 0;
+const MuonGM::MuonDetectorManager* GeoRPCHit::s_man = 0;
+const RpcIdHelper* GeoRPCHit::s_rpcID = 0;
 
-const MuonGM::MuonDetectorManager* GeoCSCHit::_man = 0;
-const CscIdHelper* GeoCSCHit::_cscID = 0;
+const MuonGM::MuonDetectorManager* GeoCSCHit::s_man = 0;
+const CscIdHelper* GeoCSCHit::s_cscID = 0;
 
-const MuonGM::MuonDetectorManager* GeosTGCHit::_man = 0;
-const sTgcIdHelper* GeosTGCHit::_stgcID = 0;
+const MuonGM::MuonDetectorManager* GeosTGCHit::s_man = 0;
+const sTgcIdHelper* GeosTGCHit::s_stgcID = 0;
 
-const MuonGM::MuonDetectorManager* GeoMMHit::_man = 0;
-const MmIdHelper* GeoMMHit::_mmID = 0;
+const MuonGM::MuonDetectorManager* GeoMMHit::s_man = 0;
+const MmIdHelper* GeoMMHit::s_mmID = 0;
 
-const CaloDetDescrManager*  GeoLArHit::_man = 0;
+const CaloDetDescrManager*  GeoLArHit::s_man = 0;
 
-const InDetDD::TRT_DetectorManager *GeoTRTUncompressedHit::_mgr = 0;
+const InDetDD::TRT_DetectorManager *GeoTRTUncompressedHit::s_mgr = 0;
 

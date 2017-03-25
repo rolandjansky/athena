@@ -15,48 +15,48 @@
 inline void GeoSiHit::init() {
 
   StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  if(detStore->retrieve(_sct,"SCT").isFailure())
-    	_sct = 0;
-  if(detStore->retrieve(_pix,"Pixel").isFailure())
-	_pix = 0;	
-  if(detStore->retrieve(_sID,"SCT_ID").isFailure())
-	_sID = 0;
-  if(detStore->retrieve(_pID,"PixelID").isFailure())
-	_pID = 0;
+  if(detStore->retrieve(s_sct,"SCT").isFailure())
+    	s_sct = 0;
+  if(detStore->retrieve(s_pix,"Pixel").isFailure())
+	s_pix = 0;	
+  if(detStore->retrieve(s_sID,"SCT_ID").isFailure())
+	s_sID = 0;
+  if(detStore->retrieve(s_pID,"PixelID").isFailure())
+	s_pID = 0;
 }
 
 inline GeoSiHit::GeoSiHit (const SiHit & h) {
-  _hit = &h;
-  if (!_sct || ! _pix) init();
+  m_hit = &h;
+  if (!s_sct || ! s_pix) init();
 }
 
 inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
 
-  int Barrel = _hit->getBarrelEndcap();
+  int Barrel = m_hit->getBarrelEndcap();
   if (Barrel== 1) Barrel = -2;
   Identifier id;
   const InDetDD::SiDetectorElement *geoelement=NULL;
-  if (_hit->isPixel()) {
+  if (m_hit->isPixel()) {
     
-    id = _pID->wafer_id(Barrel,
-			_hit->getLayerDisk(), 
-			_hit->getPhiModule(), 
-			_hit->getEtaModule());
-    geoelement = _pix->getDetectorElement(id);      
+    id = s_pID->wafer_id(Barrel,
+			m_hit->getLayerDisk(), 
+			m_hit->getPhiModule(), 
+			m_hit->getEtaModule());
+    geoelement = s_pix->getDetectorElement(id);      
   }
   else {
-    id = _sID->wafer_id(Barrel,
-			_hit->getLayerDisk(), 
-			_hit->getPhiModule(), 
-			_hit->getEtaModule(), 
-			_hit->getSide() );
-    geoelement = _sct->getDetectorElement(id);      
+    id = s_sID->wafer_id(Barrel,
+			m_hit->getLayerDisk(), 
+			m_hit->getPhiModule(), 
+			m_hit->getEtaModule(), 
+			m_hit->getSide() );
+    geoelement = s_sct->getDetectorElement(id);      
   }
   
   
   if (geoelement) {
 
-    const HepGeom::Point3D<double> globalStartPos = geoelement->transformHit() * HepGeom::Point3D<double>(_hit->localStartPosition());
+    const HepGeom::Point3D<double> globalStartPos = geoelement->transformHit() * HepGeom::Point3D<double>(m_hit->localStartPosition());
     
     double x=globalStartPos.x();
     double y=globalStartPos.y();
