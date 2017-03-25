@@ -41,7 +41,7 @@ public:
 	std::string GetProcessName() const;
 	G4int GetProcessSubType() const;
 private:
-	const G4Step *theStep;
+	const G4Step *m_theStep;
 };
 
 #endif

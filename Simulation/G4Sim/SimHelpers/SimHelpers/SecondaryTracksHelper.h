@@ -17,15 +17,15 @@ public:
 	static void SetTrackingManager(const G4TrackingManager *);
 	static const G4TrackingManager *GetTrackingManager();  // awful..
 	int NrOfNewSecondaries();
-	inline void ResetNrOfSecondaries() { currentNrOfSecondaries=0; }
+	inline void ResetNrOfSecondaries() { m_currentNrOfSecondaries=0; }
 	inline int CurrentNrOfSecondaries() const {
-	  return theTrackingManager->GimmeSecondaries()->size();
+	  return s_theTrackingManager->GimmeSecondaries()->size();
 	}
 
 	std::vector<G4Track*> GetSecondaries(int) const;
 private:
-	static const G4TrackingManager *theTrackingManager;
-	int currentNrOfSecondaries;
+	static const G4TrackingManager *s_theTrackingManager;
+	int m_currentNrOfSecondaries;
 };
 
 #endif
