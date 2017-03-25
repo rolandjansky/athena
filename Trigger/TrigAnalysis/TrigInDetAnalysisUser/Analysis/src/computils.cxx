@@ -24,6 +24,7 @@
 
 #include "TFile.h"
 #include "TKey.h"
+#include "TList.h"
 #include "TObject.h"
 #include "TDirectory.h"
 #include "TH1D.h"
@@ -392,4 +393,74 @@ std::vector<double>  findxrangeuser(TH1* h, bool symmetric ) {
 void xrangeuser(TH1* h, bool symmetric ) { 
   std::vector<double> limits = findxrangeuser( h, symmetric );
   h->GetXaxis()->SetRangeUser( limits[0], limits[1] );
+}
+
+
+
+std::string findcell( std::string name, const std::string regex, const std::string splitex ) { 
+  
+  size_t posex = name.find( regex );
+  
+  if ( posex==std::string::npos ) return "";
+
+  size_t pos = name.find_last_of( splitex );
+
+  std::string duff = name;
+
+  while ( pos!=std::string::npos && pos>posex+regex.size() ) { 
+    name = name.substr( 0, pos );
+    pos = name.find_last_of( splitex );
+  }
+  
+  pos = name.find( regex );
+
+  name = name.substr( pos, name.size() );
+
+  pos = name.find( splitex );
+
+  if ( pos!=std::string::npos ) return name.substr( 0, pos );
+
+  return name; 
+} 
+
+
+
+std::string findrun( TFile* f ) { 
+
+  TDirectory* here = gDirectory;
+  
+  f->cd();
+
+  std::cout << "gDirectory::GetName() " << gDirectory->GetName() << std::endl;
+  
+  //  gDirectory->pwd();
+  
+  //  gDirectory->ls();
+  
+  TList* tl  = gDirectory->GetListOfKeys();
+  
+  /// go through sub directories
+
+  for ( int i=0 ; i<tl->GetSize() ; i++ ) { 
+    
+    TKey* tobj = (TKey*)tl->At(i);
+    
+    if ( tobj==0 ) continue;
+    
+    if ( std::string(tobj->GetClassName()).find("TDirectory")!=std::string::npos ) { 
+      
+      TDirectory* tnd = (TDirectory*)tobj->ReadObj();
+      
+      std::string name = tnd->GetName();
+
+      if ( name.find( "run_" )==0 ) { 
+	here->cd();
+	return name;
+      }
+    }
+  }  
+
+  here->cd();
+
+  return "";
 }

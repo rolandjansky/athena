@@ -38,7 +38,7 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_shifterChains(1),
      m_sliceTag("")
 {
-  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() compiled: " << __DATE__ << " " << __TIME__ << endreq;
+  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
 
   declareProperty( "SliceTag",   m_sliceTag = "TIDAMonTool/" );
 
@@ -101,9 +101,9 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
 
   declareProperty( "GenericFlag", m_genericFlag = true );
   
-  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() exiting " << gDirectory->GetName() << endreq;
+  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() exiting " << gDirectory->GetName() << endmsg;
 
-  //  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() returning: " << endreq;
+  //  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() returning: " << endmsg;
 
 }
 
@@ -114,7 +114,7 @@ TrigTestBase::~TrigTestBase() {
   //  m_sequences[i]->finalize();
   if ( m_fileopen ) for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
 
-  // msg(MSG::INFO) << "TrigTestBase::~TrigTestBase()" << endreq;
+  // msg(MSG::INFO) << "TrigTestBase::~TrigTestBase()" << endmsg;
   // for ( unsigned i=m_filters.size()     ; i-- ; ) delete m_filters[i];
   // for ( unsigned i=m_associators.size() ; i-- ; ) delete m_associators[i];
 
@@ -124,9 +124,9 @@ TrigTestBase::~TrigTestBase() {
 
 StatusCode TrigTestBase::init() {
 
-  msg(MSG::DEBUG) << " ----- enter init() ----- " << endreq;
+  msg(MSG::DEBUG) << " ----- enter init() ----- " << endmsg;
 
-  msg(MSG::INFO) << "TrigTestBase::init() " << gDirectory->GetName() << endreq;
+  msg(MSG::INFO) << "TrigTestBase::init() " << gDirectory->GetName() << endmsg;
 
   /// NB: Do NOT create the sequences here - leave it until the book() method, since
   ///     we need to be automatically determine which chains to process, and so need
@@ -136,7 +136,7 @@ StatusCode TrigTestBase::init() {
 
   //  ATH_CHECK(IHLTMonTool::init());
 
-  msg(MSG::DEBUG) << " -----  exit init() ----- " << endreq;
+  msg(MSG::DEBUG) << " -----  exit init() ----- " << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -153,9 +153,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 #endif
   //StatusCode TrigTestBase::bookHistograms() {
 
-  msg(MSG::DEBUG) << " ----- enter book() ----- " << endreq;
+  msg(MSG::DEBUG) << " ----- enter book() ----- " << endmsg;
 
-  msg(MSG::INFO) << "TrigTestBase::book() " << gDirectory->GetName() << endreq;
+  msg(MSG::INFO) << "TrigTestBase::book() " << gDirectory->GetName() << endmsg;
 
   //  MMTB_DEPRECATED(duff)
 
@@ -174,7 +174,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
   msg(MSG::DEBUG) << "TrigTestBase::book() SUTT buildNtuple " << m_buildNtuple
       << "\tNewEventBlock " << newEventsBlock
       << "\tNewLumiBlock "  << newLumiBlock
-      << "\tNewRun "        << newRun  <<  endreq;
+      << "\tNewRun "        << newRun  <<  endmsg;
 
 
   /// create sequences if need be ...
@@ -216,9 +216,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     // "^[[91;1m"
     // "^[[m"
 
-    msg(MSG::INFO) << "^[[91;1m" << "AnalysisConfig " << m_analysis_config << "^[[m" << endreq;
+    msg(MSG::INFO) << "^[[91;1m" << "AnalysisConfig " << m_analysis_config << "^[[m" << endmsg;
 
-    msg(MSG::DEBUG) << "configuring chains: " << m_ntupleChainNames.size() << endreq;
+    msg(MSG::DEBUG) << "configuring chains: " << m_ntupleChainNames.size() << endmsg;
 
     
     /// keep counters of how many efid or ftf chains have been created
@@ -245,18 +245,18 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	/// get chain
         ChainString chainName = (*chainitr);
 
-	msg(MSG::DEBUG) << "configuring chain: " << chainName.head() << "\t: " << chainName.tail() << endreq;
+	msg(MSG::DEBUG) << "configuring chain: " << chainName.head() << "\t: " << chainName.tail() << endmsg;
 
 	if ( chainName.roi()!="" ) { 
 	  msg(MSG::INFO) << "configuring chain: " << chainName.head() 
 			 << "\ttracks: " << chainName.tail()
 			 << "\troi: "    << chainName.roi()
-			 << endreq;
+			 << endmsg;
 	}
 	else { 
 	  msg(MSG::INFO) << "configuring chain: " << chainName.head() 
 			 << "\ttracks: " << chainName.tail()
-			 << endreq;
+			 << endmsg;
 	}
 	
 	/// check for configured chains only ...
@@ -274,7 +274,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	// std::cout << "selected chains " << selectChains.size() << std::endl;
 
 	if ( selectChains.size()==0 ) { 
-	  msg(MSG::INFO) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endreq;
+	  msg(MSG::INFO) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endmsg;
 	}
 
 
@@ -302,7 +302,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// FTF chain
 		shifter_ftf++;
 		if ( shifter_ftf>m_shifterChains ) {
-		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
 	      }
@@ -310,7 +310,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// EFID chain
 		shifter_efid++;
 		if ( shifter_efid>m_shifterChains ) {
-		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
 	      }
@@ -318,7 +318,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// EFID chain
 		shifter_efid_run1++;
 		if ( shifter_efid_run1>m_shifterChains ) {
-		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
 	      }
@@ -326,7 +326,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// EFID chain
 		shifter_l2star++;
 		if ( shifter_l2star>m_shifterChains ) {
-		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
 	      }
@@ -336,7 +336,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    //            chains.push_back( ChainString(selectChains[iselected]) );
             chains.push_back( selectChains[iselected] );
 
-            msg(MSG::VERBOSE) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
+            msg(MSG::VERBOSE) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
 
 	}
         
@@ -362,16 +362,16 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
         m_sequences.push_back( analysis );
 
 
-        msg(MSG::INFO)   << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << " -----" << endreq;
+        msg(MSG::INFO)   << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << " -----" << endmsg;
 	
         m_sequences.back()->releaseData(m_releaseMetaData);
         if ( m_useHighestPT ) { 
-	  msg(MSG::INFO) << "       using highest PT only for chain " << m_chainNames[i] << endreq;
+	  msg(MSG::INFO) << "       using highest PT only for chain " << m_chainNames[i] << endmsg;
 	  m_sequences.back()->setUseHighestPT(true);
 	}
 
 	if ( !(m_vtxIndex<0) )  {
-	  msg(MSG::INFO) << "       searching for vertex index " << m_vtxIndex << endreq;
+	  msg(MSG::INFO) << "       searching for vertex index " << m_vtxIndex << endmsg;
 	  m_sequences.back()->setVtxIndex(m_vtxIndex);
 	}
 
@@ -390,7 +390,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     m_fileopen = true;
     
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) {
-      msg(MSG::VERBOSE) << " ----- booking for analysis " << m_sequences[i]->name() << " -----" << endreq;
+      msg(MSG::VERBOSE) << " ----- booking for analysis " << m_sequences[i]->name() << " -----" << endmsg;
       m_sequences[i]->initialize(this, &m_tdt);
       m_sequences[i]->setGenericFlag(m_genericFlag);
       m_sequences[i]->book();
@@ -398,9 +398,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     m_firstRun = false;
   }
 
-  msg(MSG::DEBUG) << " configured " << m_sequences.size() << " sequences" << endreq;
+  msg(MSG::DEBUG) << " configured " << m_sequences.size() << " sequences" << endmsg;
   
-  msg(MSG::DEBUG) << " ----- exit book() ----- " << endreq;
+  msg(MSG::DEBUG) << " ----- exit book() ----- " << endmsg;
   return StatusCode::SUCCESS;
   
 }
@@ -412,12 +412,12 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 StatusCode TrigTestBase::fill() {
 
   if(msg().level() <= MSG::DEBUG) {
-    msg(MSG::DEBUG) << " ----- enter fill() ----- " << endreq;
+    msg(MSG::DEBUG) << " ----- enter fill() ----- " << endmsg;
    }
 
   std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( "HLT_.*" );
 
-   msg(MSG::DEBUG) << " TDT selected chains " << selectChains.size() << endreq;
+   msg(MSG::DEBUG) << " TDT selected chains " << selectChains.size() << endmsg;
 
   int passed_count = 0;
 
@@ -441,7 +441,7 @@ StatusCode TrigTestBase::fill() {
 
 
   if(msg().level() <= MSG::DEBUG) {
-    msg(MSG::DEBUG) << " ----- exit fill() ----- " << endreq;
+    msg(MSG::DEBUG) << " ----- exit fill() ----- " << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -467,12 +467,12 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
 #endif
 #endif
 
-  msg(MSG::INFO) << " ----- enter proc() ----- " << endreq;
+  msg(MSG::INFO) << " ----- enter proc() ----- " << endmsg;
   if ( m_initialisePerRun && endOfRun ) {
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
     m_fileopen = false;
   }
-  msg(MSG::DEBUG) << " ====== exit proc() ====== " << endreq;
+  msg(MSG::DEBUG) << " ====== exit proc() ====== " << endmsg;
   return StatusCode::SUCCESS;
 }
 

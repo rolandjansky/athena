@@ -10,6 +10,7 @@
 #          include "samples/TrigInDetValidation_FTK_ttbar_sample2.xml"
 
 
+
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -24,12 +25,13 @@
             </action>
 
 
+
            <action position="02">
                 <modulename>RttLibraryTools</modulename> 
                 <testname>ExeRunner</testname> 
                 <arg> 
                     <argname>exeName</argname>
-                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                    <argvalue>TIDArun.sh</argvalue> 
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
@@ -38,12 +40,13 @@
             </action>
 
 
+
            <action position="03">
                 <modulename>RttLibraryTools</modulename> 
                 <testname>ExeRunner</testname> 
                 <arg> 
                     <argname>exeName</argname>
-                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                    <argvalue>TIDArun.sh</argvalue> 
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
@@ -51,32 +54,6 @@
                 </arg>
             </action>
 
-
-           <action position="04">
-                <modulename>RttLibraryTools</modulename> 
-                <testname>ExeRunner</testname> 
-                <arg> 
-                    <argname>exeName</argname>
-                    <argvalue>TIDArun.sh</argvalue> 
-                </arg>
-                <arg> 
-                    <argname>exeParamString</argname>
-                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_FTF HLT_j55_bperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK  HLT_j55_bperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit -d HLTL2-test-plots </argvalue>
-                </arg>
-            </action>
-
-           <action position="05">
-                <modulename>RttLibraryTools</modulename> 
-                <testname>ExeRunner</testname> 
-                <arg> 
-                    <argname>exeName</argname>
-                    <argvalue>TIDArun.sh</argvalue> 
-                </arg>
-                <arg> 
-                    <argname>exeParamString</argname>
-                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig  HLT_j55_bperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-test-plots </argvalue>
-                </arg>
-            </action>
 
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
@@ -93,13 +70,12 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-FTK_bjet_ttbar-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_bjet_ttbar-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
    
          <athenaCommonFlags /> 
          </athena>
+
 
 
 
