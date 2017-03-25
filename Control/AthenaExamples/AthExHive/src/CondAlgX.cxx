@@ -1,5 +1,9 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "CondAlgX.h"
-#include "CxxUtils/make_unique.h"
+#include "AthExHive/IASCIICondDbSvc.h"
 
 #include "StoreGate/WriteCondHandle.h"
 
@@ -13,6 +17,7 @@
 
 #include <thread>
 #include <chrono>
+#include <memory>
 
 CondAlgX::CondAlgX( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
@@ -99,7 +104,7 @@ StatusCode CondAlgX::execute() {
                   << wch.dbKey() << "\" from CondDb");
 
     EventIDRange r;
-    ICondSvc::dbData_t val;
+    IASCIICondDbSvc::dbData_t val;
     if (m_cds->getRange(wch.dbKey(), getContext(), r, val).isFailure()) {
       ATH_MSG_ERROR("  could not find dbKey \"" << wch.dbKey() 
 		    << "\" in CondSvc registry");

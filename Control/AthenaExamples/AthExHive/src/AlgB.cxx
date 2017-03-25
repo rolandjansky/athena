@@ -1,10 +1,14 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "AlgB.h"
-#include "CxxUtils/make_unique.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <thread>
 #include <chrono>
+#include <memory>
 
 AlgB::AlgB( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
@@ -46,7 +50,7 @@ StatusCode AlgB::execute() {
   ATH_MSG_INFO("  read: " << rh1.key() << " = " << rh1->val() );
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
-  ATH_CHECK( wh1.record( CxxUtils::make_unique< HiveDataObj >
+  ATH_CHECK( wh1.record( std::make_unique< HiveDataObj >
                          ( HiveDataObj(3300 + rh1->val()) ) ) );
 
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );

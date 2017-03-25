@@ -1,7 +1,11 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "HiveAlgF.h"
-#include "CxxUtils/make_unique.h"
 #include <thread>
 #include <chrono>
+#include <memory>
 
 HiveAlgF::HiveAlgF( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 

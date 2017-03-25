@@ -2,7 +2,6 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
-
 # 
 ## can only run if Hive enabled
 #
@@ -40,26 +39,18 @@ svcMgr.ForwardSchedulerSvc.CheckDependencies = True
 # numStores = 1
 # numAlgsInFlight = 1
 
-# svcMgr.EventDataSvc.NSlots = numStores
-# svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
-# svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
+# svcMgr.ForwardSchedulerSvc.DataLoaderAlg = "SGInputLoader"
+svcMgr.ForwardSchedulerSvc.ShowConfiguration = True
+svcMgr.ForwardSchedulerSvc.ShowDataFlow = True
 
-# ThreadPoolService thread local initialization
-# from GaudiHive.GaudiHiveConf import ThreadPoolSvc
-# svcMgr += ThreadPoolSvc("ThreadPoolSvc")
-# svcMgr.ThreadPoolSvc.ThreadInitTools = ["ThreadInitTool"]
-
-#---------------------------------------------------------------------------------#
-
+#------------------------------------------------------------------------------#
 #
 ## Uncomment following to avoid long waits when segfaulting,
 ## and add "Root.Stacktrace: no" to your .rootrc file
 #
 # import ROOT
 # ROOT.SetSignalPolicy( ROOT.kSignalFast )
-
-#---------------------------------------------------------------------------------#
-
+#------------------------------------------------------------------------------#
 
 #
 ## AlgSequence
@@ -69,20 +60,43 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from SGComps.SGCompsConf import SGInputLoader
-topSequence+=SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
+topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 topSequence.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
 
 from AthExHive.AthExHiveConf import *
-topSequence+=HiveAlgR(OutputLevel=DEBUG)
-topSequence+=HiveAlgA(OutputLevel=DEBUG,Time=20)
-topSequence+=HiveAlgB(OutputLevel=DEBUG,Time=10)
-topSequence+=HiveAlgC(OutputLevel=DEBUG,Time=190)
+
+topSequence+=AlgT(OutputLevel=DEBUG)
+
+AlgT = topSequence.AlgT
+AlgT.Key_W1 = "t1"
+#
+## uncomment this line to force an explicit circular data dep in AlgT
+# AlgT.Key_R1 = "t1"
+
+#
+## implicit circular data dep with parent AlgT
+AlgT.Tool1 = HiveTool( "HiveTool1")
+AlgT.Tool1.Key_R1 = "t1"
+AlgT.Tool1.Key_W1 = "t2"
+
+#
+## implicit circular data dep with AlgT.HiveTool1
+AlgT.Tool2 = HiveTool( "HiveTool2" )
+AlgT.Tool2.Key_R1 = "t2"
+AlgT.Tool2.Key_W1 = "t3"
+
+#
+## implicit circular data dep with AlgT.HiveTool2
+AlgT.Tool3 = HiveTool( "HiveTool3" )
+AlgT.Tool3.Key_R1 = "t3"
+AlgT.Tool3.Key_W1 = "t4"
+
 
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 
-theApp.EvtMax = 20
+theApp.EvtMax = 2
 
 nProc = jp.ConcurrencyFlags.NumProcs()
 if (nProc > 0) :
@@ -111,10 +125,6 @@ if (nProc > 0) :
    jps.AthenaMPFlags.ChunkSize= chunkSize
 
    msg.info('AthenaMP workers will process %s events each',chunkSize)
-
-
-
-print "==========================================================================================\n"
 
 #
 ## set which Algorithms can be cloned

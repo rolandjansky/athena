@@ -1,8 +1,12 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "HiveAlgL2.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <thread>
 #include <chrono>
+#include <memory>
 
 HiveAlgL2::HiveAlgL2( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
@@ -50,7 +54,7 @@ StatusCode HiveAlgL2::execute() {
 
   udh1->val( udh1->val() + 1);
 
-  //  wrh1 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(rdh1->val()+1) );
+  //  wrh1 = std::make_unique< HiveDataObj >( HiveDataObj(rdh1->val()+1) );
   
   ATH_MSG_INFO("  update: " << udh1.key() << " = " << udh1->val() );
 
