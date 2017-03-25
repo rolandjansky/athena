@@ -1,0 +1,4 @@
+asg::ToolStore::get       WARNING Tool with name "dummyTool1" not found
+asg::ToolStore::get       WARNING Tool with name "dummyTool2" not found
+asg::ToolStore::get       WARNING Tool with name "dummyTool3" not found
+asg::ToolStore::get       WARNING Tool with name "dummyTool4" not found
