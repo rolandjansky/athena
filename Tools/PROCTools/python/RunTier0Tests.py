@@ -58,7 +58,7 @@ def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False):
 
     if 'WorkDir_DIR' in os.environ:
         cmake_build_dir = (os.environ['WorkDir_DIR'])
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null  ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null    ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
         subprocess.call(cmd,shell=True)
     else :
         cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
@@ -74,39 +74,19 @@ def pwd():
     
 def GetReleaseSetup():
     
-    atlas_base_dir = os.environ['AtlasBaseDir']
+    current_nightly = os.environ['AtlasBuildStamp']
+    release_base=os.environ['AtlasBuildBranch']
+    release_head=os.environ['Athena_VERSION']
+    platform=os.environ['Athena_PLATFORM']
+    project=os.environ['AtlasProject']
+    builds_dir='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/*/'+project+'/'+release_head
 
-    if 'AtlasPatchVersion' in os.environ:
-        current_nightly = os.environ['AtlasPatchVersion']
-    elif 'AtlasArea' in os.environ:
-        current_nightly = os.environ['AtlasArea'].split('/')[-1]
-    elif 'AtlasVersion' in os.environ:
-        current_nightly = os.environ['AtlasVersion']
-        
-    if "rel" not in current_nightly:
-        platform = os.environ['GEANT4'].split('/')[-1]
-        setup="%s,%s"%(platform.replace("-", ","),current_nightly)
-    else :
-        latest_tag = "latest_copied_release"
-        if atlas_base_dir.split('/')[1] == 'cvmfs':
-            latest_tag = "latest"
-            latest_nightly  = (os.environ['AtlasBaseDir'].split('rel')[:-1])[0]+latest_tag 
-        elif atlas_base_dir.split('/')[1] == 'afs':  
-            latest_nightly  = (os.environ['AtlasArea'].split('rel')[:-1])[0]+latest_tag 
+    latest_nightly  = subprocess.Popen(['/bin/bash', '-c',"ls -ltr "+builds_dir+" | grep "+release_head], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split('/')[-3]
 
-        latest_nightly  = subprocess.Popen(['/bin/bash', '-c',"ls -l "+latest_nightly], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split()[-1]
-    
-        release  = os.environ['ATLAS_RELEASE_BASE']
-        if 'afs' in release.split('/'):
-            release = release.split('/')[-1]         
-        elif 'cvmfs' in release.split('/'):
-            release = release.split('/')[-2]         
+    if current_nightly != latest_nightly:
+        logging.info("Please be aware that you are not testing your tags in the latest available nightly, which is "+latest_nightly )
 
-        platform = os.environ['GEANT4'].split('/')[-1]
-
-        if current_nightly != latest_nightly:
-            logging.info("Please be aware that you are not testing your tags in the latest available nightly, which is "+latest_nightly )
-        setup="%s,%s,%s"%(release,platform.replace("-", ","),current_nightly)
+    setup="%s,%s,%s,Athena"%(release_base,platform.replace("-", ","),current_nightly)
 
     logging.info("Your tags will be tested in environment "+setup)
 
@@ -475,7 +455,6 @@ def main():
         mythreads={}
 #        mysetup=mysetup+",builds"
         logging.info("------------------ Run Athena q-test jobs---------------"                )
-
 
         if RunFast:
             for qtest in qTestsToRun:
