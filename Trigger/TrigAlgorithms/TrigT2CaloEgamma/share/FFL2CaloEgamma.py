@@ -11,8 +11,6 @@ globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion);
 globalflags.InputFormat.set_Value_and_Lock("bytestream");
 globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
 globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
-print "GLOBAL"
-print globalflags
 
 include ("RecExRecoTest/RecExRecoTest_RTT_common.py")
 
@@ -36,8 +34,6 @@ rec.doTau=False
 rec.doCaloRinger=False
 #rec.readRDO=False
 
-print 'DENIS'
-print rec
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
@@ -136,8 +132,6 @@ topSequence += caloDecoder
 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 svcMgr+=RegSelSvcDefault()
 svcMgr.RegSelSvc.enableCalo=True
-print 'RegSelSvc : '
-print svcMgr.RegSelSvc
 
 from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
 svcMgr.ToolSvc+=TrigDataAccess()
@@ -161,14 +155,12 @@ svcMgr.ByteStreamInputSvc.OutputLevel = INFO
 svcMgr.AthDictLoaderSvc.OutputLevel = INFO
 svcMgr.EventPersistencySvc.OutputLevel = INFO
 svcMgr.ROBDataProviderSvc.OutputLevel = INFO
-print svcMgr
 
 
 
 theApp.EvtMax = 100
 
 
-print "topSequence dump:", topSequence
 #
 # End of job options file
 #
