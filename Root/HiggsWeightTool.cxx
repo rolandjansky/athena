@@ -205,6 +205,7 @@ namespace xAOD {
     updateWeights(hw.nominal,hw.qcd_wg1_vbf2j,hw.qcd_wg1_vbf3j);
     updateWeights(hw.nominal,hw.qcd_nnlops_nnlo,hw.qcd_nnlops_pow);
     updateWeights(hw.nominal,hw.qcd_stxs);
+    updateWeights(hw.nominal,hw.qcd_2017);
     updateWeights(hw.nominal,hw.qcd_jve);
   }
 
@@ -345,7 +346,10 @@ namespace xAOD {
     // Cross sections in the =0, =1, and >=2 jets of Powheg ggH after reweighing scaled to  sigma(N3LO)
     //static std::vector<double> sig({30.26,13.12,5.14});
     //static std::vector<double> sig({30.117,12.928,5.475}); // NNLOPS 2M
-    static std::vector<double> sig({30.117,12.928,4.845}); // NNLOPS subtracting VBF 
+    static double sig0=30.117, sig1=12.928, sig_ge2=5.475, 
+      sig_ge1 = sig1+sig_ge2, sig_tot=sig0+sig_ge1,
+      sig_vbfTopo = 0.630, sig_ge2noVBF=sig_ge2-sig_vbfTopo, sig_ge1noVBF=sig_ge1-sig_vbfTopo;
+    static std::vector<double> sig({sig0,sig1,sig_ge2noVBF}); // NNLOPS subtracting VBF 
     
     // BLPTW absolute uncertainties in pb
     static std::vector<double> yieldUnc({ 1.12, 0.66, 0.42});
@@ -393,24 +397,29 @@ namespace xAOD {
     //if (pTH>500) qm=1.5; else if (pTH>160) qm=1.0+0.5*(pTH-160)/340;
     //hw.qcd_wg1_qm = w_nom;
 
+
     /********
      *  JVE as a cross check
      */
-    // Taking eps0 and eps1 from Powheg NNLOPS
+    // Central values for eps0 and eps1 from Powheg NNLOPS
+    //   eps0 = 0.617 +- 0.012 <= from Fabrizio and Pier
+    //   eps1 = 0.681 +- 0.057 <= from Fabrizio and Pier
     // and setting inclusive uncertainty to 3.9% (YR4 for N3LO)
-    // setting uncertatinies such that similar to the previous numbers
-    static double sig_ge1 = sig[1]+sig[2], sig_tot=sig[0]+sig_ge1, 
-      Dsig_tot=sig_tot*0.039, D01=sig_tot*0.0242, D12=sig[1]*0.105;
-      //Dsig_tot=2.48, D01=1.25, D12=0.88;
-    hw.qcd_jve.push_back(w_nom*(1.0+Dsig_tot/sig_tot)); // incl
-    // eps0
-    if (Njets==0) hw.qcd_jve.push_back(w_nom*(1.0-D01/sig[0]));
-    else hw.qcd_jve.push_back(w_nom*(1.0+D01/sig_ge1));
-    // eps1
-    if (Njets==0) hw.qcd_jve.push_back(w_nom);
-    else if (Njets==1) hw.qcd_jve.push_back(w_nom*(1.0-D12/sig[1]));
-    else hw.qcd_jve.push_back(w_nom*(1.0+D12/sig[2]));
+    static double 
+      Dsig_tot=sig_tot*0.039, D01=sig_tot*0.012, D12=sig_ge1*0.057;
+    //Dsig_tot=2.48, D01=1.25, D12=0.88; // For cross check with BLPTW
 
+    hw.qcd_jve.push_back(w_nom*(1.0+Dsig_tot/sig_tot)); // incl
+
+    // eps0, i.e. mig 0 -> ge1
+    if (Njets==0) hw.qcd_jve.push_back(w_nom*(1.0-D01/sig0));
+    else hw.qcd_jve.push_back(w_nom*(1.0+D01/sig_ge1noVBF));
+
+    // eps1, i.e. mig 1 -> ge2
+    if (Njets==0) hw.qcd_jve.push_back(w_nom);
+    else if (Njets==1) hw.qcd_jve.push_back(w_nom*(1.0-D12/sig1));
+    else hw.qcd_jve.push_back(w_nom*(1.0+D12/sig_ge2noVBF));
+    
     if (STXS_Stage1==101||STXS_Stage1==102)
       hw.qcd_jve[0]=hw.qcd_jve[1]=hw.qcd_jve[2]=w_nom;
     hw.qcd_jve.push_back(hw.qcd_wg1_vbf2j);
@@ -457,6 +466,29 @@ namespace xAOD {
     hw.qcd_stxs.push_back((1.0+dsig60)*w_nom);
     hw.qcd_stxs.push_back((1.0+dsig120)*w_nom);
     hw.qcd_stxs.push_back((1.0+dsig200)*w_nom);
+
+
+
+    // First four sources are the BLPTW ones
+    hw.qcd_2017.push_back(hw.qcd_wg1_mu);
+    hw.qcd_2017.push_back(hw.qcd_wg1_res);
+    hw.qcd_2017.push_back(hw.qcd_wg1_mig01);
+    hw.qcd_2017.push_back(hw.qcd_wg1_mig12);
+    
+    // Add in the VBF uncertainties here
+    hw.qcd_2017.push_back(hw.qcd_wg1_vbf2j);
+    hw.qcd_2017.push_back(hw.qcd_wg1_vbf3j);
+
+    // Smooth pTH uncertainties
+    double pTH60 = w_nom, pTH120=w_nom;
+    if      (Njets==1) pTH60 *= linInter(pTH,20,0.9,100,1.1);
+    else if (Njets>=2) pTH60 *= linInter(pTH,0,0.9,180,1.10); // >=2 jets
+    
+    if (Njets>0) pTH120 *= linInter(pTH,90,0.984,160,1.14);
+    hw.qcd_2017.push_back(pTH60);
+    hw.qcd_2017.push_back(pTH120);
+    
+    hw.qcd_2017.push_back(hw.qcd_wg1_qm_t);
 
     return hw;
   }

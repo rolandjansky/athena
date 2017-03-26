@@ -37,10 +37,13 @@ namespace xAOD {
     double qcd_wg1_mu, qcd_wg1_res, qcd_wg1_mig01, qcd_wg1_mig12;
     double qcd_wg1_pTH, qcd_wg1_qm_b, qcd_wg1_qm_t, qcd_wg1_vbf2j, qcd_wg1_vbf3j;
 
-    /// Tackmann proposed QCD uncertainty scheme, TODO
+    /// Tackmann proposed QCD uncertainty scheme
     std::vector<double> qcd_stxs;
 
-    /// Tackmann proposed QCD uncertainty scheme, TODO
+    /// Merging of STXS and WG1 schemes
+    std::vector<double> qcd_2017;
+
+    /// Jet veto efficiency method for cross check
     std::vector<double> qcd_jve;
 
     /// Powheg NNLOPS possible scheme TODO
