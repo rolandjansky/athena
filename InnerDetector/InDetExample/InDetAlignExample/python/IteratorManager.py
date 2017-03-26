@@ -47,13 +47,13 @@ class IteratorManager:
         if self.part == -1:
             return
         
-        #os.system('mkdir -p %s/%s/%s/%02d' % ( self.config.OutputPath, self.config.common_dir(), self.dataName, self.part ) )
-        
         for iteration in range(self.config.FirstIteration, self.config.FirstIteration+self.config.Iterations):
             os.system('mkdir -p %s/%s/%s/%02d' % ( self.config.OutputPath, self.config.iter_dir( iteration ), self.dataName, self.part ) )
         
     #--------------------------------------------------------------------------------------------------------------
     def writeJO(self):
+        jobfile_common = ("%s" % (self.RunPath) ).replace("Iter0", "common") + "/commonConfig.py"
+        
         for iteration in range(self.config.FirstIteration, self.config.FirstIteration+self.config.Iterations) :
             
             if self.part == -1:
@@ -64,66 +64,159 @@ class IteratorManager:
             PrefixName="Iter%d%s_" % (iteration, self.config.folderSuffix)
             
             job=open(jobfile, 'w')
-            job.write('##-------- Alignment Configuration --------------------\n')
-            
-            job.write("outputPoolFile        = \"%s/Iter%d_AlignmentConstants.root\"\n" %(self.RunPath.replace("Iter0", "Iter{0}".format( iteration )), iteration) )
+            job.write('##-------- Load Common Configuration --------------------\n')
+            job.write('include("'+jobfile_common+'") \n')
+            job.write('\n##-------- Alignment Configuration --------------------\n')
             
             AlignmentOptions = configure_alignment_options( self.config, iteration, self.part, self.data )
                 
             self.inputPoolFiles.append( AlignmentOptions["inputPoolFiles"] )
             
-            for key, value in sorted( AlignmentOptions.items() ):
-                if key == "inputPoolFiles":
-                    if iteration == 0:
-                        job.write( "{0:50s} = {1}\n".format( key, value ) )
-                    else:
-                        poolfile = "%s/%s_Iter%d_%s/Iter%d_AlignmentConstants.root" % (self.config.OutputPath.replace("Iter0", "Iter{0}".format( iteration-1 ) ), self.config.preName, iteration-1, self.config.folderSuffix, iteration-1 )
-                        job.write( "{0:50s} = [\"{1}\"]\n".format( key, poolfile ) )
-                elif key == "inputTFiles":
-                    job.write( "{0:50s} = [ INPUTFILELIST ]\n".format( key ) )
-                elif type(value) is str:
-                    job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
-                else:
-                    job.write( "{0:50s} = {1}\n".format( key, value ) )
-                    
+            this_runpath = self.RunPath.replace("Iter0", "Iter{0}".format(iteration) )
             
-            job.write("\n")
-            job.write('##-------- Loading the Alignment Levels --------------------\n')
-            job.write('include("'+str(self.AlignmentLevels)+'") \n')
-            job.write("\n")
-            job.write('##-------- Reconstruction Configuration --------------------\n')
-        
-            for key, value in sorted( self.RecoOptions.items() ):
-                if type(value) is str:
-                    job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
-                else:
-                    job.write( "{0:50s} = {1}\n".format( key, value ) )
+            if self.part == -1:
+                job.write("{0:50s} = \"{1}/Iter{2}_AlignmentConstants.root\"\n".format("outputPoolFile", this_runpath, iteration ) )
+                for key, value in sorted( AlignmentOptions.items() ):
+                    if key == "inputPoolFiles":
+                        if iteration == 0:
+                            job.write( "{0:50s} = {1}\n".format( key, value ) )
+                        else:
+                            poolfile = "%s/%s_Iter%d_%s/Iter%d_AlignmentConstants.root" % (self.config.OutputPath.replace("Iter0", "Iter{0}".format( iteration-1 ) ), self.config.preName, iteration-1, self.config.folderSuffix, iteration-1 )
+                            job.write( "{0:50s} = [\"{1}\"]\n".format( key, poolfile ) )
+                    elif key == "inputTFiles":
+                        job.write( "{0:50s} = [ INPUTFILELIST ]  # This list is dynamically determined.\n".format( key ) )
+                    elif type(value) is str:
+                        job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
+                    else:
+                        job.write( "{0:50s} = {1}\n".format( key, value ) )
                 
-            if len(self.config.extraOptions):
+                
                 job.write("\n")
-                job.write('##-------- Extra Configuration --------------------\n')
-        
-                for key, value in sorted( self.config.extraOptions.items() ):
+                job.write('##-------- Reconstruction Configuration --------------------\n')
+                job.write("\n")
+                for key, value in sorted( self.RecoOptions.items() ):
                     if type(value) is str:
                         job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
                     else:
                         job.write( "{0:50s} = {1}\n".format( key, value ) )
-
+                
+                # if len(self.config.extraOptions):
+                #     job.write("\n")
+                #     job.write('##-------- Extra Configuration --------------------\n')
+                    
+                #     for key, value in sorted( self.config.extraOptions.items() ):
+                #         if type(value) is str:
+                #             job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
+                #         else:
+                #             job.write( "{0:50s} = {1}\n".format( key, value ) )
+                
+                #     job.write("\n")
+                #     job.write('##-------- End of custom options -------------\n')
+                    
+                # Need to write the InDetRec Options Here:
                 job.write("\n")
-                job.write('##-------- End of custom options -------------\n')
-
-            # Need to write the InDetRec Options Here:
+                job.write('##-------- Loading the Alignment Levels --------------------\n')
+                job.write('include("'+str(self.AlignmentLevels)+'") \n')
+                job.write("\n")
+                job.write('##-------- Load Reconstruction --------------------\n')
+                job.write('include("'+str(self.RecoScript)+'") \n')
+                job.write("\n")
+                job.write('##-------- Load Conditions Overrider --------------------\n')
+                job.write('include("'+str(self.ConditionsScript)+'") \n')
+                job.write("\n")
+                job.write('##-------- Load Alignment --------------------\n')
+                job.write('include("'+str(self.AlignmentScript)+'") \n')
+                job.write("\n")
+                job.close()
+            else:
+                for key, value in sorted( AlignmentOptions.items() ):
+                    if key == "inputPoolFiles":
+                        if iteration == 0:
+                            job.write( "{0:50s} = {1}\n".format( key, value ) )
+                        else:
+                            poolfile = "%s/%s_Iter%d_%s/Iter%d_AlignmentConstants.root" % (self.config.OutputPath.replace("Iter0", "Iter{0}".format( iteration-1 ) ), self.config.preName, iteration-1, self.config.folderSuffix, iteration-1 )
+                            job.write( "{0:50s} = [\"{1}\"]\n".format( key, poolfile ) )
+                    elif key.find("input")==0:
+                        if type(value) is str:
+                            job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
+                        else:
+                            job.write( "{0:50s} = {1}\n".format( key, value ) )
+                    else:
+                        pass
+                
+                job.write("\n")
+                job.write('##-------- Reconstruction Configuration --------------------\n')
+                
+                for key, value in sorted( self.RecoOptions.items() ):
+                    if key.find("input")==0:
+                        if type(value) is str:
+                            job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
+                        else:
+                            job.write( "{0:50s} = {1}\n".format( key, value ) )
+                    else:
+                        pass
+                
+                # Need to write the InDetRec Options Here:
+                job.write("\n")
+                job.write('##-------- Loading the Alignment Levels --------------------\n')
+                job.write('include("'+str(self.AlignmentLevels)+'") \n')
+                job.write("\n")
+                job.write('##-------- Load Reconstruction --------------------\n')
+                job.write('include("'+str(self.RecoScript)+'") \n')
+                job.write("\n")
+                job.write('##-------- Load Conditions Overrider --------------------\n')
+                job.write('include("'+str(self.ConditionsScript)+'") \n')
+                job.write("\n")
+                job.write('##-------- Load Alignment --------------------\n')
+                job.write('include("'+str(self.AlignmentScript)+'") \n')
+                job.write("\n")
+                job.close()
+                       
+    #--------------------------------------------------------------------------------------------------------------
+    def writeJOCommon(self):
+        jobfile = ("%s" % (self.RunPath) ).replace("Iter0", "common") + "/commonConfig.py"
+        
+        job=open(jobfile, 'w')
+        job.write('##-------- Alignment Configuration --------------------\n')
+        
+        AlignmentOptions = configure_alignment_options( self.config, 0, self.part, self.data )
+        
+        self.inputPoolFiles.append( AlignmentOptions["inputPoolFiles"] )
+            
+        for key, value in sorted( AlignmentOptions.items() ):
+            if key.find("input")==0:
+                pass
+            elif type(value) is str:
+                job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
+            else:
+                job.write( "{0:50s} = {1}\n".format( key, value ) )
+                    
+            
+        job.write("\n")
+        job.write('##-------- Reconstruction Configuration --------------------\n')
+        
+        for key, value in sorted( self.RecoOptions.items() ):
+            if key.find("input")==0:
+                pass
+            elif type(value) is str:
+                job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
+            else:
+                job.write( "{0:50s} = {1}\n".format( key, value ) )
+                
+        if len(self.config.extraOptions):
             job.write("\n")
-            job.write('##-------- Load Reconstruction --------------------\n')
-            job.write('include("'+str(self.RecoScript)+'") \n')
-            job.write("\n")
-            job.write('##-------- Load Conditions Overrider --------------------\n')
-            job.write('include("'+str(self.ConditionsScript)+'") \n')
-            job.write("\n")
-            job.write('##-------- Load Alignment --------------------\n')
-            job.write('include("'+str(self.AlignmentScript)+'") \n')
-            job.write("\n")
-            job.close()
+            job.write('##-------- Extra Configuration --------------------\n')
+            
+            for key, value in sorted( self.config.extraOptions.items() ):
+                if type(value) is str:
+                    job.write( "{0:50s} = \"{1}\"\n".format( key, value ) )
+                else:
+                    job.write( "{0:50s} = {1}\n".format( key, value ) )
+                    
+        job.write("\n")
+        job.write('##-------- End of custom options -------------\n')
+        
+        job.close()
                        
     #--------------------------------------------------------------------------------------------------------------
     def writeScript(self):
@@ -155,21 +248,16 @@ class IteratorManager:
         
         if self.ATHENACFG.atlasSetup() == "CMTHOME":
             script.write("source %s/setup.sh -tag=%s,%s \n" % (self.CMTDIR, self.ATHENACFG.Release(), self.ATHENACFG.Tags()))
-            script.write("source %s/build/x86_64-slc6-gcc49-opt/setup.sh\n" % (self.ATHENACFG.TestArea()) )
-            script.write("export CORAL_DBLOOKUP_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/21.0/AtlasCore/21.0.8/InstallArea/x86_64-slc6-gcc49-opt/XML/AtlasAuthentication\n")
         elif "single" in self.ATHENACFG.AtlasSetupOptions():
             script.write("source %s/scripts/asetup.sh %s \\\n--testarea=%s \\\n--tags=%s \\\n--single \n" % (self.ATHENACFG.AtlasSetupPath(),self.ATHENACFG.Release(),self.ATHENACFG.TestArea(), self.ATHENACFG.Tags()))
-            script.write("source %s/build/x86_64-slc6-gcc49-opt/setup.sh\n" % (self.ATHENACFG.TestArea()) )
-            script.write("export CORAL_DBLOOKUP_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/21.0/AtlasCore/21.0.8/InstallArea/x86_64-slc6-gcc49-opt/XML/AtlasAuthentication\n")
-
-
         elif "nightlies" in self.ATHENACFG.AtlasSetupOptions():
             script.write("source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh 20.7.X rel1 \\\n--testarea=%s \\\n--single \n" % (self.ATHENACFG.TestArea()))
-
         else:
             script.write("source %s/scripts/asetup.sh %s \\\n--testarea=%s \\\n--tags=%s \n" % (self.ATHENACFG.AtlasSetupPath(),self.ATHENACFG.Release(),self.ATHENACFG.TestArea(), self.ATHENACFG.Tags()))
+            
+        if( self.ATHENACFG.Release().find("21.") == 0 ):
             script.write("source %s/build/x86_64-slc6-gcc49-opt/setup.sh\n" % (self.ATHENACFG.TestArea()) )
-            script.write("export CORAL_DBLOOKUP_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/21.0/AtlasCore/21.0.8/InstallArea/x86_64-slc6-gcc49-opt/XML/AtlasAuthentication\n")
+            script.write("export CORAL_DBLOOKUP_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/21.0/AtlasCore/%s/InstallArea/x86_64-slc6-gcc49-opt/XML/AtlasAuthentication\n" % (self.ATHENACFG.Release()) )
                          
         for file in self.inputPoolFiles:
             if "atlasdatadisk" in file:
@@ -220,11 +308,14 @@ class IteratorManager:
                     "  \n",
                     "  if [ ${iteration} == 0 ] ; then\n",
                     "    while true; do\n",
+                    "      if [ -e AlignmentTFile.root ] ; then\n",
+                    "        break\n",
+                    "      fi\n",
                     "      athena ${jobfile} &> ${logfile}\n",
-                    "      head -n1 ${logfile} > is_finished\n",
-                    "      grep -e FATAL -e CRITICAL >> is_finished\n",
-                    "      lines=`cat is_finished | wc -l`\n",
-                    "      if [ \"${lines}\" -eq 1 ] ; then\n",
+                    "      if [ -e AlignmentTFile.root ] ; then\n",
+                    "        head -n1 ${logfile} > is_finished\n",
+                    "        grep -e ERROR -e FATAL -e CRITICAL >> is_finished\n",
+                    "        lines=`cat is_finished | wc -l`\n",
                     "        rm ${logfile}\n",
                     "        break\n",
                     "      fi\n",
@@ -237,11 +328,14 @@ class IteratorManager:
                     "    \n",
                     "    while true; do\n",
                     "      if [ -e ${inputPoolFile} ] ; then\n",
+                    "        if [ -e AlignmentTFile.root ] ; then\n",
+                    "          break\n",
+                    "        fi\n",
                     "        athena ${jobfile} &> ${logfile}\n",
-                    "        head -n1 ${logfile} > is_finished\n",
-                    "        grep -e FATAL -e CRITICAL >> is_finished\n",
-                    "        lines=`cat is_finished | wc -l`\n",
-                    "        if [ \"${lines}\" -eq 1 ] ; then\n",
+                    "        if [ -e AlignmentTFile.root ] ; then\n",
+                    "          head -n1 ${logfile} > is_finished\n",
+                    "          grep -e ERROR -e FATAL -e CRITICAL >> is_finished\n",
+                    "          lines=`cat is_finished | wc -l`\n",
                     "          rm ${logfile}\n",
                     "          break\n",
                     "        fi\n",
@@ -263,9 +357,10 @@ class IteratorManager:
                     "  workdir=${basedir}/${preName}_Iter${iteration}_${folderSuffix}\n",
                     "  \n",
                     "  while true; do\n",
+                    "    cd ${workdir}\n",
+                    "    if [ -e mycool.db ] ; then break; fi\n",
                     "    n_finished=`ls ${workdir}/${dataName}/*/is_finished | wc -l`\n",
                     ("    if [ $n_finished == %d ] ; then\n" % self.nCPUs) if self.config.doTruncate == False else ("    if [ $n_finished -ge %d ] ; then\n" % int(self.nCPUs*(1.0-self.config.TruncateThreshold)) ),
-                    "      cd ${workdir}\n",
                     "      solver={0}\n".format( self.JOBNAME ),
                     "      \n",
                     "      # evaluate the list of alignment TFiles with lazy evaluation\n",
@@ -278,14 +373,28 @@ class IteratorManager:
                     "      \n",
                     "      athena ${solver} &> ${logfile}\n",
                     "      head -n1 ${logfile} > is_finished\n",
-                    "      break\n",
+                    "      if [ -e mycool.db ] ; then\n",
+                   ("        echo \"Directory: ${PWD}\" | mail -s \"Alignment Iter${iteration} solving done\" -a alignlogfile.txt -r aligniter@cern.ch %s\n" % self.config.email) if self.config.email.find("@")>0 else "",
+                    "        break\n",
+                    "      else\n",
+                   ("        echo -e \"Directory: ${PWD}\\nPlease check carefully the solver result and fix.\" | mail -s \"Alignment Iter${iteration} solving failed\" -r aligniter@cern.ch %s\n" % self.config.email) if self.config.email.find("@")>0 else "",
+                    "        exit 1\n",
+                    "      fi\n",
                     "      \n",
                     "    else\n",
                     "      sleep 60\n",
                     "    fi\n",
                     "  done\n",
                     "  \n",
-                    "done\n"  ] )
+                    "done\n",
+                    "\n",
+                    "#----------------------------------------------------------\n",
+                    "#Draw Constants Evolutions\n",
+                   ("cd %s/InnerDetector/InDetMonitoring/InDetAlignmentMonitoring/plotsForIterators\n" % self.ATHENACFG.TestArea() ),
+                    "./drawEvolution.py `/bin/ls ${basedir}/${preName}*${folderSuffix}/alignlogfile.txt`\n",
+                    "mv ConstantsEvolution.pdf ${basedir}/${preName}_${folderSuffix}_evolution.pdf\n",
+                    "cd ${basedir}\n",
+                    "\n"  ] )
             
         
         #Cleaning the core in case of errors
@@ -394,7 +503,8 @@ class MergingManager:
                 "      ls ${workdir}/${dataName}/*/monitoring.root > ${workdir}/%s\n" % ( mergeFilesName ),
                 "      DQHistogramMerge.py %s TotalMonitoring.root True &>merger_log.txt\n" %( mergeFilesName ),
                 "      \n",
-                "      if [ -e ${workdir}/TotalMonitoring.root ] ; then\n",
+                "      size=du -b `TotalMonitoring.root | awk '{print $1;}'`\n",
+                "      if [ \"${size}\" -gt 1000000 ] ; then\n",
                 "        rm ${workdir}/${dataName}/*/monitoring.root \n",
                 "      fi\n",
                 "      \n",
@@ -403,8 +513,13 @@ class MergingManager:
                 "    else\n",
                 "      sleep 60\n",
                 "    fi\n",
-                "  done\n\n"
-                "done\n\n"     ] )
+                "  done\n\n",
+                "done\n\n",
+                "cd %s/InnerDetector/InDetMonitoring/InDetAlignmentMonitoring/plotsForIterators\n" % ( self.ATHENACFG.TestArea() ),
+                "python gen_plots.py ${basedir} ${preName} ${folderSuffix} %s\n" % ( self.config.RunNumber ),
+                "mv ../plots ${basedir}/${preName}_plots_${folderSuffix}\n",
+                "cd ${basedir}\n"
+                ] )
         script.close()
         os.system("chmod +x %s" % self.SCRIPTNAME)
         
@@ -526,6 +641,15 @@ def configure_alignment_options( config, iteration, part, data=None ):
         AlignmentOptions["runAccumulate"] = True
         AlignmentOptions["WriteTFile"]    = config.useTFiles
         
+    
+    for opt in ["runLocal", "solveLocal", "solvingOption"]:
+        try:
+            AlignmentOptions[opt] = getattr(config, opt)
+        except AttributeError:
+            pass
+        if opt in config.extraOptions:
+            AlignmentOptions[opt] = config.extraOptions[opt]
+    
     
     return AlignmentOptions
 
@@ -689,6 +813,96 @@ def write_status_checker( config, dataName ):
             "done\n",
             "\n\n",
             "echo \"\"\n" ] )
+    
+    script.close()
+    
+    import os
+    os.system("chmod +x %s" % script_name)
+
+
+
+#----------------------------------------------------------------------------------------------------
+def write_truncator( config, dataName ):
+    
+    script_name = "truncate_{0}_{1}.sh".format( config.preName, config.folderSuffix )
+    
+    script=open(script_name, 'w')
+    
+    script.writelines( [
+            "#!/bin/sh\n",
+            "\n",
+            "workdir={0}\n".format( config.OutputPath ),
+            "preName={0}\n".format( config.preName ),
+            "dataName={0}\n".format( dataName ),
+            "folderSuffix={0}\n".format( config.folderSuffix ),
+            "\n\n",
+            "iter=$1",
+            "\n",
+            "/bin/ls ${preName}_Iter${iter}_${folderSuffix}/${dataName}/ | while read dir\n",
+            "do\n",
+            "  touch ${preName}_Iter${iter}_${folderSuffix}/${dataName}/${dir}/is_finished\n",
+            "done\n" ] )
+    
+    script.close()
+    
+    import os
+    os.system("chmod +x %s" % script_name)
+
+
+#----------------------------------------------------------------------------------------------------
+def write_restorer( config, dataName ):
+    
+    script_name = "restore_{0}_{1}.sh".format( config.preName, config.folderSuffix )
+    
+    script=open(script_name, 'w')
+    
+    script.writelines( [
+            "#!/bin/sh\n",
+            "\n",
+            "workdir={0}\n".format( config.OutputPath ),
+            "preName={0}\n".format( config.preName ),
+            "dataName={0}\n".format( dataName ),
+            "folderSuffix={0}\n".format( config.folderSuffix ),
+            "\n\n",
+            "iter=$1",
+            "\n",
+            "/bin/ls ${preName}_Iter${iter}_${folderSuffix}/${dataName}/ | while read dir\n",
+            "do\n",
+            "  /bin/ls ${preName}_Iter${iter}_${folderSuffix}/${dataName}/${dir} | grep -v Part | while read file\n",
+            "  do\n",
+            "    rm -f ${preName}_Iter${iter}_${folderSuffix}/${dataName}/${dir}/${file}\n",
+            "  done\n",
+            "done\n" ] )
+    
+    script.close()
+    
+    import os
+    os.system("chmod +x %s" % script_name)
+
+#----------------------------------------------------------------------------------------------------
+def write_resubmitter( config, dataName ):
+    
+    script_name = "resubmit_{0}_{1}.sh".format( config.preName, config.folderSuffix )
+    
+    script=open(script_name, 'w')
+    
+    script.writelines( [
+            "#!/bin/sh\n",
+            "\n",
+            "workdir={0}\n".format( config.OutputPath ),
+            "preName={0}\n".format( config.preName ),
+            "dataName={0}\n".format( dataName ),
+            "folderSuffix={0}\n".format( config.folderSuffix ),
+            "\n\n",
+            "/bin/ls ${preName}_common_${folderSuffix} | grep lsf | while read lsf\n",
+            "do\n",
+            "  bsub < ${preName}_common_${folderSuffix}/${lsf}\n",
+            "done\n",
+            "\n",
+            "/bin/ls ${preName}_common_${folderSuffix}/${dataName} | grep lsf | while read lsf\n",
+            "do\n",
+            "  bsub < ${preName}_common_${folderSuffix}/${dataName}/${lsf}\n",
+            "done\n" ] )
     
     script.close()
     

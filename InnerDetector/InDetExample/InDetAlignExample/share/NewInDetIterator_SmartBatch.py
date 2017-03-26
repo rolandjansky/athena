@@ -78,8 +78,6 @@ def make_output_paths( config ):
         
         os.mkdir(dirname)
         os.mkdir(dirname+'/logs/')
-        os.system("get_files -jo InDetAlignExample/NewInDetAlignLevels.py >/dev/null")
-        os.system("cp NewInDetAlignLevels.py %s" % dirname)
     
     return dirnames[-1]
 
@@ -113,7 +111,47 @@ def configure_reco_options( subJob, data, dataFiles, iteration ):
 
 
 #----------------------------------------------------------------------------------------------------
-def configure_and_submit_subjob( subJob, data, dataFiles, iteration, preJOBNAME, alignLevels ):
+def configure_common( data, dataFiles, iteration, preJOBNAME ):
+    global config
+    
+    RecoOptions = configure_reco_options( 0, data, dataFiles, iteration )
+    
+    JOBNAME                                = "%s_common.py" % (preJOBNAME)
+    RecoScript                             = "InDetAlignExample/jobOption_RecExCommon.py"
+    ConditionsScript                       = "InDetAlignExample/jobOption_ConditionsOverrider.py"
+    AlignLevelScript                       = "InDetAlignExample/NewInDetAlignLevels.py"
+
+    config.extraOptions["doReadBS"]        = data.getByteStream()
+    if (len(data.getProjectName())>0): 
+        config.extraOptions["projectName"]        = data.getProjectName()
+            
+    config.extraOptions["Cosmics"]                = data.getCosmics()
+    config.extraOptions["DigitalClustering"]      = data.getDigitalClustering()
+    config.extraOptions["PtCut"]                  = data.getPtMin()
+    
+    filesForSolve                      = RecoOptions["inputFiles"]
+    solveDoReadBS                      = config.extraOptions["doReadBS"]
+        
+    currentjob = IteratorManager(config            = config,
+                                 dataName          = data.getName(),
+                                 iter              = iteration,
+                                 part              = -1,
+                                 JOBNAME           = JOBNAME,
+                                 RecoOptions       = RecoOptions,
+                                 RecoScript        = RecoScript,
+                                 ConditionsScript  = ConditionsScript,
+                                 AlignmentLevels   = AlignLevelScript,
+                                 ATHENACFG         = ATHENACFG,
+                                 inputCoolFiles    = []
+                                 )
+    
+    # Write the job
+    currentjob.createDirectories()
+    currentjob.writeJOCommon()
+
+
+#----------------------------------------------------------------------------------------------------
+def configure_and_submit_subjob( subJob, data, dataFiles, iteration, preJOBNAME ):
     global config
     
     RecoOptions = configure_reco_options( subJob, data, dataFiles, iteration )
@@ -121,6 +159,7 @@ def configure_and_submit_subjob( subJob, data, dataFiles, iteration, preJOBNAME,
     JOBNAME                                = "%s_Part%02d.py" % (preJOBNAME,subJob)
     RecoScript                             = "InDetAlignExample/jobOption_RecExCommon.py"
     ConditionsScript                       = "InDetAlignExample/jobOption_ConditionsOverrider.py"
+    AlignLevelScript                       = "InDetAlignExample/NewInDetAlignLevels.py"
 
     config.extraOptions["doReadBS"]        = data.getByteStream()
     if (len(data.getProjectName())>0): 
@@ -141,7 +180,7 @@ def configure_and_submit_subjob( subJob, data, dataFiles, iteration, preJOBNAME,
                                  RecoOptions       = RecoOptions,
                                  RecoScript        = RecoScript,
                                  ConditionsScript  = ConditionsScript,
-                                 AlignmentLevels   = alignLevels,
+                                 AlignmentLevels   = AlignLevelScript,
                                  ATHENACFG         = ATHENACFG,
                                  inputCoolFiles    = []
                                  )
@@ -152,15 +191,13 @@ def configure_and_submit_subjob( subJob, data, dataFiles, iteration, preJOBNAME,
     currentjob.writeScript()
     
     if config.is_dryrun == False:
-        #import os
-        #os.system( "sleep 15" )
         currentjob.send(config.runMode)
     
     return filesForSolve, solveDoReadBS
     
 
 #----------------------------------------------------------------------------------------------------
-def distribute_jobs_to_batch( data, config, folderName, info, alignLevels ):
+def distribute_jobs_to_batch( data, config, folderName, info ):
     print "----------------------------------------------"
     print " Number of CPUs used to process the sample " + data.getName() + ": " + str(data.getCPUs(config.FirstIteration))
     print "----------------------------------------------"
@@ -199,10 +236,12 @@ def distribute_jobs_to_batch( data, config, folderName, info, alignLevels ):
     preJOBNAME="%s_%s_%s" % (config.preName, data.getName(), config.folderSuffix)
     
     
+    configure_common( data, dataFiles, config.FirstIteration, preJOBNAME )
+    
     # Loop over subjobs     
     print "distribute_jobs_to_batch(): numberOfSubJobs = " , numberOfSubJobs
     for subJob in range(0, numberOfSubJobs):
-        filesForSolve, solveDoReadBS = configure_and_submit_subjob( subJob, data, dataFiles, config.FirstIteration, preJOBNAME, alignLevels )
+        filesForSolve, solveDoReadBS = configure_and_submit_subjob( subJob, data, dataFiles, config.FirstIteration, preJOBNAME )
     
     return preJOBNAME, filesForSolve, solveDoReadBS
 
@@ -219,8 +258,7 @@ def solve_each_data( data, config, info, folderName, filesForSolve, solveDoReadB
     info.write("----------------------------------------------\n")
     info.write("  Solving dataset %s, Iter %d\n" %(data.getName(),config.FirstIteration))
     info.write("----------------------------------------------\n")
-    #alignLevels = config.OutputPath+'/Iter'+repr(config.FirstIteration)+"/NewInDetAlignLevels.py"
-    alignLevels = folderName+"/NewInDetAlignLevels.py"
+    AlignLevelScript                       = "InDetAlignExample/NewInDetAlignLevels.py"
     PrefixName="Iter%d%s_%s" % (config.FirstIteration, config.folderSuffix, data.getName()) 
     
     print " Solving logs stored in %s/Iter%d%s/logs/%s_Solve.log" % (config.OutputPath, config.FirstIteration, config.folderSuffix, PrefixName)
@@ -254,7 +292,7 @@ def solve_each_data( data, config, info, folderName, filesForSolve, solveDoReadB
                                  RecoScript        = RecoScript,
                                  ConditionsScript  = ConditionsScript,
                                  ATHENACFG         = ATHENACFG,
-                                 AlignmentLevels   = alignLevels,
+                                 AlignmentLevels   = AlignLevelScript,
                                  inputCoolFiles    = [],
                                  nCPUs             = data.getCPUs(config.FirstIteration),
                                  data              = data
@@ -364,15 +402,15 @@ def iteration_core( DataToRun, config ):
     # Make OutputPaths
     folderName = make_output_paths( config )
     
-    alignLevels = folderName+"/NewInDetAlignLevels.py"
-    
-    
     # Distribute the reconstruction job to LSF
     for data in DataToRun:
         # Create Status Checker
         write_status_checker( config, data.getName() )
+        write_truncator( config, data.getName() )
+        write_restorer( config, data.getName() )
+        write_resubmitter( config, data.getName() )
         
-        preJOBNAME, filesForSolve, solveDoReadBS = distribute_jobs_to_batch( data, config, folderName, info, alignLevels )
+        preJOBNAME, filesForSolve, solveDoReadBS = distribute_jobs_to_batch( data, config, folderName, info )
 
     #  Solving the system
     if config.doSolve:
