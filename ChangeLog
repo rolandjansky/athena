@@ -1,3 +1,10 @@
+2017-03-26 Dag Gillberg <dag.gillberg@cern.h>
+	* Tagging TruthWeightTools-01-03-00
+	* Contains Higgs ggF QCD uncertainty weights as discussed at
+	* https://indico.cern.ch/event/618048/
+	* Four uncertainty schemes: qcd_wg1_*, qcd_stxs, qcd_2017, qcd_jve
+	* qcd_2017 is recommended. The other can be used for cross checks
+
 2017-03-10 Dag Gillberg <dag.gillberg@cern.h>
 	* Tagging TruthWeightTools-01-02-05
 	* Added two new features
